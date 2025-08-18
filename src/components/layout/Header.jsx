@@ -2,7 +2,6 @@ import {
   Navbar,
   NavbarContent,
   NavbarItem,
-  Link,
   DropdownItem,
   DropdownTrigger,
   Dropdown,
@@ -10,6 +9,8 @@ import {
   Avatar,
   Input,
 } from "@heroui/react";
+import { Link } from "react-router-dom";
+
 import { IoSearch } from "react-icons/io5";
 
 const HEADER_LINKS = [
@@ -43,20 +44,18 @@ export default function Header() {
     >
       <NavbarContent justify="start">
         <NavbarContent className="hidden sm:flex gap-6">
-          {HEADER_LINKS.map((navItem) => {
-            return (
-              <NavbarItem key={navItem.link}>
-                <Link
-                  color="foreground"
-                  href={navItem.link}
-                  className="text-sm px-3.5 py-1.5"
-                >
-                  {navItem.label}
-                </Link>
-              </NavbarItem>
-            );
-          })}
+          {HEADER_LINKS.map((navItem) => (
+            <NavbarItem key={navItem.link}>
+              <Link
+                to={navItem.link}
+                className="text-sm px-3.5 py-1.5 text-foreground"
+              >
+                {navItem.label}
+              </Link>
+            </NavbarItem>
+          ))}
         </NavbarContent>
+
       </NavbarContent>
 
       <NavbarContent as="div" className="items-center gap-5" justify="end">

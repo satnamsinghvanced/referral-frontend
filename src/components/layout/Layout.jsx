@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from "react";
 import ls from "localstorage-slim";
-import { Outlet, useLocation } from "react-router";
+import { Outlet } from "react-router";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
+// import AppRoutes from "../../routes";
 
 ls.config.encrypt = true;
 
@@ -12,7 +13,7 @@ const Layout = () => {
 
   const [isMiniSidebarOpen, setIsMiniSidebarOpen] = useState(initialMini);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const location = useLocation();
+  // const location = useLocation();
 
   const toggleSidebar = () => {
     setIsMiniSidebarOpen((prev) => !prev);
@@ -48,11 +49,10 @@ const Layout = () => {
 
   return (
     <div
-      className={`${
-        !isMiniSidebarOpen
-          ? "lg:pl-[88px] md:pl-22"
-          : "lg:pl-[280px] md:pl-22 bg-gray-50 dark:bg-gray-900 dark:text-white"
-      } transition-all`}
+      className={`${!isMiniSidebarOpen
+        ? "lg:pl-[88px] md:pl-22"
+        : "lg:pl-[280px] md:pl-22 bg-gray-50 dark:bg-gray-900 dark:text-white"
+        } transition-all`}
     >
       {isSidebarOpen && (
         <Sidebar
@@ -70,7 +70,7 @@ const Layout = () => {
 
       <main
         id="main"
-        className="h-[calc(100vh-4.5rem)] main !z-10 flex-grow-1 md:px-7 px-4 py-4 md:py-8 bg-gray-50 dark:bg-gray-900 dark:text-white md:h-[calc(100vh-65px)] overflow-y-auto transition-all duration-300"
+        className="h-[calc(100vh-4.5rem)] main !z-10 flex-grow-1  bg-gray-50 dark:bg-gray-900 dark:text-white md:h-[calc(100vh-65px)] overflow-y-auto transition-all duration-300"
       >
         <Outlet />
       </main>
