@@ -70,7 +70,7 @@ const Layout = () => {
 
       <main
         id="main"
-        className="h-[calc(100vh-4.5rem)] main !z-10 flex-grow-1  bg-gray-50 dark:bg-gray-900 dark:text-white md:h-[calc(100vh-65px)] overflow-y-auto transition-all duration-300"
+        className="h-[calc(100vh-4.5rem)] main !z-10 flex-grow-1  bg-gray-50 dark:bg-gray-900 dark:text-white md:h-[calc(100vh-65px)] overflow-hidden transition-all duration-300"
       >
         <Outlet />
       </main>

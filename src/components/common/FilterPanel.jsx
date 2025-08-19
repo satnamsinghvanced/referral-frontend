@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState, useEffect } from "react";
 import { Input, Select, SelectItem, Button } from "@heroui/react";
+import { LuFilter } from "react-icons/lu";
 
 const FilterPanel = () => {
     const [searchKeyword, setSearchKeyword] = useState("");
@@ -148,7 +149,7 @@ const FilterPanel = () => {
                     className="text-xs ml-auto min-w-[100px]"
                     onPress={resetFilters}
                 >
-                    Reset Filters
+                    <LuFilter/>Clear Filters
                 </Button>
             </div>
         </div>
