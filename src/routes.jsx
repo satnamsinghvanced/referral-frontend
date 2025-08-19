@@ -52,7 +52,7 @@ function AppRoutes() {
 
     return (
         <Suspense fallback={<Spinner label="Loading..." color="success" className="bg-light dark:bg-background w-screen h-screen" />}>
-            <BrowserRouter>
+            <BrowserRouter basename="/referral-retrieve">
                 <Routes>
                     {/* {routesList.map(({ path, element, }) => (
                         <Route key={path} path={path} element={element}>
