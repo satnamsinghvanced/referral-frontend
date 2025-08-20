@@ -3,15 +3,15 @@ import React from 'react'
 
 const ComponentHeader = ({ heading, subHeading, buttons }) => {
     return (
-        <div className="md:px-7 px-4 py-4 md:py-8 bg-white flex justify-between border-b-1 border-gray-200">
+        <div className=' md:px-7 px-4 py-4 md:py-8 bg-background flex justify-between border-b-1 border-text/10 dark:border-text/30'>
             <div>
-                <h3  className=' text-[20px]'>{heading}</h3>
-                <p className='text-gray-600 text-[14px]'>{subHeading}</p>
+                <h3 className='text-lg'>{heading}</h3>
+                <p className='text-sm font-light'>{subHeading}</p>
             </div>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
                 {buttons?.map((btn, index) => (
-                    <Button key={index} onPress={btn.onClick} {...btn.props} className={`${btn.bgColor} ${btn.textColor} border border-gray-300`}>
-                        <span>{btn.icon}</span>
+                    <Button key={index} onPress={btn.onClick} {...btn.props} className={`${btn.classNames ? btn.classNames : 'border border-text/30 '}`}>
+                        {btn?.icon && btn.icon}
                         {btn.label}
                     </Button>
                 ))}

@@ -90,7 +90,7 @@ const FilterPanel = () => {
     }, []);
 
     return (
-        <div className="pt-2 px-2 border-gray-200 border rounded-lg bg-white">
+        <div className="pt-2 px-2 border-text/10 dark:border-text/30 border rounded-lg bg-background">
             <h5>Filters</h5>
             <div className="flex flex-wrap items-center gap-2 w-full rounded-md py-4">
                 <Input
@@ -149,7 +149,7 @@ const FilterPanel = () => {
                     className="text-xs ml-auto min-w-[100px]"
                     onPress={resetFilters}
                 >
-                    <LuFilter/>Clear Filters
+                    <LuFilter />Clear Filters
                 </Button>
             </div>
         </div>

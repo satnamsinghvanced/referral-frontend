@@ -79,7 +79,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }) => {
       />
 
       <aside
-        className={`no-print fixed top-0 left-0 z-40 h-screen border-r border-gray-200 bg-white dark:bg-gray-800 dark:text-white transition-all duration-300
+        className={`no-print fixed top-0 left-0 z-40 h-screen border-r border-text/10 dark:border-text/30  dark:text-white transition-all duration-300
           ${isMiniSidebarOpen
             ? "md:w-[280px] w-[90%] md:px-6 px-2"
             : "w-22 px-2"
@@ -158,14 +158,14 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }) => {
                   {/* if item.list exists in future, we can render expand. For now single links */}
                   <div
                     onClick={() => handleNavigate(item.href)}
-                    className={`my-0.5 cursor-pointer rounded-md transition-all group flex items-center py-2 px-3 hover:text-gary-700  hover:bg-gray-50 h-9
+                    className={`border my-0.5 cursor-pointer rounded-md transition-all group flex items-center py-2 px-3 hover:text-gary-700 hover:bg-gray-50 h-9
                       ${isMiniSidebarOpen
                         ? "px-0 justify-start"
                         : "px-4 justify-center"
                       }
                       ${active
-                        ? "bg-blue-50 text-blue-600 "
-                        : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                        ? "bg-blue-50 text-blue-600 !border-blue-100"
+                        : "hover:bg-gray-100 dark:hover:bg-gray-700 border-transparent"
                       }
                     `}
                   >
@@ -180,7 +180,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }) => {
                     </span>
 
                     {isMiniSidebarOpen && (
-                      <span className="ml-3 truncate text-[12px]  ">{item.name}</span>
+                      <span className="ml-3 truncate text-[12px]">{item.name}</span>
                     )}
                   </div>
                 </li>

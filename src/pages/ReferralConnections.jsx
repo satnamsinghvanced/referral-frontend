@@ -8,8 +8,11 @@ import FilterPanel from "../components/common/FilterPanel";
 import ReferralCard from "../components/common/ReferralCard";
 import { useState } from "react";
 import ComponentHeader from "../components/common/ComponentHeader";
-
+import AddModal from "../components/common/AddModal";
+import ReferralConnectionsConfig from "../components/formConfigs/ReferralConnectionsConfig";
 const ReferralConnections = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const [selectedReferralType, setSelectedReferralType] =
     useState("Doctor Referrals");
 
@@ -47,12 +50,6 @@ const ReferralConnections = () => {
       bgColor: "bg-gray-100",
       textColor: "text-gray-800",
     },
-    // {
-    //   heading: "Location Active",
-    //   stat: 6,
-    //   newData: 1,
-    //   icon: <CiHospital1 className="text-4xl font-black text-orange-400" />,
-    // },
   ];
 
   const doctorReferrals = [
@@ -126,19 +123,34 @@ const ReferralConnections = () => {
       `Updating status for referral ${referralIndex} to ${newStatus}`
     );
   };
-  const handleAdd = () => {
-    alert("Add new item");
-  };
 
   const handleExport = () => {
     alert("Export item");
   };
+
+  const handleOpen = () => {
+    console.log('handleOpen')
+    setIsModalOpen(true)
+  };
+  const handleClose = () => {
+    console.log('handleClose')
+    setIsModalOpen(false)
+  };
+
+  const onCancelClick = () => {
+    console.log('onCancelClick')
+    handleClose()
+  };
+
+  const onSaveClick = () => {
+    console.log("handleSaveClick ");
+    handleClose()
+  };
+
   const buttonList = [
     {
       label: "VCF Contacts",
       onClick: handleExport,
-      bgColor: "bg-white",
-      textColor: "text-black",
       icon: <PiDownloadSimpleLight />,
       props: {
         variant: "secondary",
@@ -146,58 +158,68 @@ const ReferralConnections = () => {
     },
     {
       label: "Add Referrer",
-      onClick: handleAdd,
-      bgColor: "bg-black",
-      textColor: "text-white",
+      onClick: handleOpen,
+      classNames: 'bg-text text-background',
       icon: <LuPlus />,
       props: {
         variant: "primary",
       },
     },
   ];
+
+  const cancelBtnData = {
+    function: onCancelClick,
+    style: 'border-text/10 dark:border-text/30 border text-text hover:bg-background',
+    text: 'cancel'
+  }
+  const addBtnData = {
+    function: onSaveClick,
+    style: 'bg-text text-background',
+    text: 'add'
+  }
   return (
     <>
-   <div className="flex flex-col h-screen">
-  {/* Sticky Header */}
-  <div className="sticky top-0 z-50 bg-white shadow-sm ">
-    <ComponentHeader
-      heading="Referral Management"
-      subHeading="Track doctor and patient referrals for your orthodontic practice"
-      buttons={buttonList}
-    />
-  </div>
-      <div className="flex flex-col gap-2 md:px-7 px-4 py-4 md:py-8 overflow-y-scroll" >
-        <div className="bg-white h-[200px] border border-gray-200 rounded-xl">
-          <div className="ml-2 p-4  " >
-            <h3 className="flex gap-2 "> <FaStethoscope className="text-[17px] mt-1 text-blue-500"/> Doctor Referrers (3)</h3>
-            <p className="text-xs mt-4">
-              Doctor referrers are automatically added to referrer management
-              when you create doctor referrals.
-            </p>
-            <div className="grid grid-cols md:grid-cols-3 xl:grid-cols-3 gap-4 mt-2">
-              {statCardData.map((card, index) => (
-                <StatCard
-                  key={index}
-                  cardHeading={card.heading}
-                  cardStat={card.stat}
-                  // cardNewData={card.newData}
-                  // cardIcon={card.icon}
-                  bgColor={card.bgColor}
-                  textColor={card.textColor}
-                  onCardPress={() => handleCardClick(card.heading)}
-                />
-              ))}
+      <div className="flex flex-col min-h-screen h-fit">
+        {/* Sticky Header */}
+        <div className="sticky top-0 z-50 bg-background">
+          <ComponentHeader
+            heading="Referral Management"
+            subHeading="Track doctor and patient referrals for your orthodontic practice"
+            buttons={buttonList}
+          />
+        </div>
+        <div className="flex flex-col gap-2 md:px-7 px-4 py-4 md:py-8 overflow-y-scroll" >
+          <div className="bg-background border-text/10 dark:border-text/30 border rounded-md">
+            <div className="ml-2 p-4 ">
+              <h3 className="flex gap-2 "> <FaStethoscope className="text-[17px] mt-1 text-blue-500" /> Doctor Referrers (3)</h3>
+              <p className="text-xs mt-4">
+                Doctor referrers are automatically added to referrer management
+                when you create doctor referrals.
+              </p>
+              <div className="grid grid-cols md:grid-cols-3 xl:grid-cols-3 gap-4 mt-2">
+                {statCardData.map((card, index) => (
+                  <StatCard
+                    key={index}
+                    cardHeading={card.heading}
+                    cardStat={card.stat}
+                    // cardNewData={card.newData}
+                    // cardIcon={card.icon}
+                    bgColor={card.bgColor}
+                    textColor={card.textColor}
+                    onCardPress={() => handleCardClick(card.heading)}
+                  />
+                ))}
+              </div>
             </div>
           </div>
-        </div>
 
-        <FilterPanel />
-        <RoleToggleTabs
-          selected={selectedReferralType}
-          onSelectionChange={handleReferralTypeChange}
-        />
-        {selectedReferralType === "Doctor Referrals"
-          ? doctorReferrals.map((referral, index) => (
+          <FilterPanel />
+          <RoleToggleTabs
+            selected={selectedReferralType}
+            onSelectionChange={handleReferralTypeChange}
+          />
+          {selectedReferralType === "Doctor Referrals"
+            ? doctorReferrals.map((referral, index) => (
               <ReferralCard
                 key={index}
                 name={referral.name}
@@ -216,7 +238,7 @@ const ReferralConnections = () => {
                 {...referral}
               />
             ))
-          : patientReferrals.map((referral, index) => (
+            : patientReferrals.map((referral, index) => (
               <ReferralCard
                 key={index}
                 name={referral.name}
@@ -235,8 +257,17 @@ const ReferralConnections = () => {
                 {...referral}
               />
             ))}
+        </div>
       </div>
-      </div>
+
+      <AddModal
+        isOpen={isModalOpen}
+        heading="Add New Referrer"
+        description="Add a new doctor or patient referrer to your system. Complete all required fields to ensure proper referral tracking."
+        cancelBtnData={cancelBtnData}
+        addBtnData={addBtnData}
+        config={<ReferralConnectionsConfig />}
+      />
     </>
   );
 };

@@ -95,19 +95,18 @@ const ReferralCard = ({
 
             {applicationStatus && (
               <span
-                className={`px-2 py-0.5 rounded-full text-xs border capitalize ${
-                  applicationStatus === "new"
-                    ? "bg-blue-100 text-blue-600 border-blue-300"
-                    : applicationStatus === "contacted"
+                className={`px-2 py-0.5 rounded-full text-xs border capitalize ${applicationStatus === "new"
+                  ? "bg-blue-100 text-blue-600 border-blue-300"
+                  : applicationStatus === "contacted"
                     ? "bg-yellow-100 text-yellow-600 border-yellow-300"
                     : applicationStatus === "scheduled"
-                    ? "bg-green-100 text-green-600 border-green-300"
-                    : applicationStatus === "completed"
-                    ? "bg-gray-100 text-gray-600 border-gray-300"
-                    : applicationStatus === "cancelled"
-                    ? "bg-red-100 text-red-600 border-red-300"
-                    : "bg-blue-100 text-blue-600 border-blue-300"
-                }`}
+                      ? "bg-green-100 text-green-600 border-green-300"
+                      : applicationStatus === "completed"
+                        ? "bg-gray-100 text-gray-600 border-gray-300"
+                        : applicationStatus === "cancelled"
+                          ? "bg-red-100 text-red-600 border-red-300"
+                          : "bg-blue-100 text-blue-600 border-blue-300"
+                  }`}
               >
                 {applicationStatus}
               </span>
@@ -116,11 +115,10 @@ const ReferralCard = ({
               <span
                 className={`px-2 py-0.5 rounded-full text-xs border
       ${urgency === "low" ? "bg-green-100 text-green-700 border-green-300" : ""}
-      ${
-        urgency === "medium"
-          ? "bg-yellow-100 text-yellow-700 border-yellow-300"
-          : ""
-      }
+      ${urgency === "medium"
+                    ? "bg-yellow-100 text-yellow-700 border-yellow-300"
+                    : ""
+                  }
       ${urgency === "high" ? "bg-red-100 text-red-700 border-red-300" : ""}`}
               >
                 {urgencyLabels[urgency] || urgency}

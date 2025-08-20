@@ -40,7 +40,7 @@ export default function Header() {
   return (
     <Navbar
       isBordered
-      classNames={{ base: "border-gray-200", wrapper: "max-w-none" }}
+      classNames={{ base: "border-text/10 dark:border-text/30", wrapper: "max-w-none" }}
     >
       <NavbarContent justify="start">
         <NavbarContent className="hidden sm:flex gap-6">
