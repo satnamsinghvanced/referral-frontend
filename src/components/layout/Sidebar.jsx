@@ -81,7 +81,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }) => {
       <aside
         className={`no-print fixed top-0 left-0 z-40 h-screen border-r border-text/10 dark:border-text/30  dark:text-white transition-all duration-300
           ${isMiniSidebarOpen
-            ? "md:w-[280px] w-[90%] md:px-6 px-2"
+            ? "md:w-[280px] w-[90%] md:px-1 px-2"
             : "w-22 px-2"
           }
         `}
@@ -111,12 +111,12 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }) => {
         {/* Logo + expand/contract */}
         <div
           className={`hidden md:flex items-center ${isMiniSidebarOpen ? "justify-between" : "justify-center"
-            } mb-8 w-full`}
+            } w-full`}
         >
           {isMiniSidebarOpen && (
             <button
               onClick={() => handleNavigate("/dashboard")}
-              className="flex items-center gap-2 cursor-pointer"
+              className="flex items-center gap-2 cursor-pointer text-sm pl-3"
             >
               {/* <img src={logo} alt="logo" className="h-8 block dark:hidden" />
               <img
@@ -124,7 +124,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }) => {
                 alt="logo white"
                 className="h-8 hidden dark:block"
               /> */}
-              Hey
+              Referral Retriever
             </button>
           )}
 
@@ -190,7 +190,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }) => {
 
           {/* bottom items */}
           <ul
-            className={`flex flex-col gap-2 text-gray-900 dark:text-white ${!isMiniSidebarOpen ? "ml-[-4.8px]" : ""
+            className={`flex flex-col gap-2 text-gray-900 dark:text-white px-3 ${!isMiniSidebarOpen ? "ml-[-4.8px]" : ""
               }`}
           >
             {bottomRoutes.map((item, idx) => {
@@ -201,7 +201,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }) => {
                 <li key={idx}>
                   <div
                     onClick={() => handleNavigate(item.href)}
-                    className={`cursor-pointer rounded-2xl transition-all group flex items-center py-4
+                    className={`cursor-pointer rounded-2xl transition-all group flex items-center py-2
                       ${isMiniSidebarOpen
                         ? "px-0 justify-start"
                         : "px-3 justify-center"
@@ -217,10 +217,10 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }) => {
                       className={`flex items-center justify-center sm:w-7 w-6 ${active ? "text-white" : "text-gray-500 dark:text-white"
                         }`}
                     >
-                      <Icon className="w-6 h-6" />
+                      <Icon className="w-5 h-5" />
                     </span>
                     {isMiniSidebarOpen && (
-                      <span className="ml-3 truncate">{item.name}</span>
+                      <span className="ml-3 truncate text-sm">{item.name}</span>
                     )}
                   </div>
                 </li>

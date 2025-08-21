@@ -408,20 +408,20 @@ const ReferralConnectionsConfig = ({ initialData = {} }) => {
   });
 
 
-    const states = [
-        'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut',
-        'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa',
-        'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan',
-        'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire',
-        'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma',
-        'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee',
-        'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'
-    ];
+  const states = [
+    'Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut',
+    'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa',
+    'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan',
+    'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire',
+    'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma',
+    'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee',
+    'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'
+  ];
 
-    const treatmentTypes = [
-        'General Dentistry', 'Orthodontics', 'Oral Surgery', 'Periodontics', 'Endodontics',
-        'Prosthodontics', 'Pediatric Dentistry', 'Cosmetic Dentistry', 'Dental Implants', 'Teeth Whitening'
-    ];
+  const treatmentTypes = [
+    'General Dentistry', 'Orthodontics', 'Oral Surgery', 'Periodontics', 'Endodontics',
+    'Prosthodontics', 'Pediatric Dentistry', 'Cosmetic Dentistry', 'Dental Implants', 'Teeth Whitening'
+  ];
   const relationshipTypes = ["Family", "Friend", "Colleague", "Neighbor", "Other"];
   const preferredTimes = ["Morning", "Afternoon", "Evening", "Any Time"];
 
@@ -539,61 +539,61 @@ const ReferralConnectionsConfig = ({ initialData = {} }) => {
           </div>
         </div>
       )}
-{/** ✅ Treatment Information Section */}
-<div className="border-b border-gray-200 pb-4">
-  <h5 className="text-sm font-medium mb-3 text-gray-700">Treatment Information</h5>
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-    {[
-      {
-        id: "treatmentType",
-        label: "Treatment Type",
-        type: "select",
-        options: treatmentTypes,
-      },
-      {
-        id: "urgency",
-        label: "Urgency",
-        type: "select",
-        options: ["Low", "Medium", "High"],
-      },
-      {
-        id: "insuranceProvider",
-        label: "Insurance Provider",
-        type: "text",
-      },
-      {
-        id: "preferredTime",
-        label: "Preferred Time",
-        type: "select",
-        options: preferredTimes,
-      },
-    ].map(renderField)}
-  </div>
-</div>
+      {/** ✅ Treatment Information Section */}
+      <div className="border-b border-gray-200 pb-4">
+        <h5 className="text-sm font-medium mb-3 text-gray-700">Treatment Information</h5>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {[
+            {
+              id: "treatmentType",
+              label: "Treatment Type",
+              type: "select",
+              options: treatmentTypes,
+            },
+            {
+              id: "urgency",
+              label: "Urgency",
+              type: "select",
+              options: ["Low", "Medium", "High"],
+            },
+            {
+              id: "insuranceProvider",
+              label: "Insurance Provider",
+              type: "text",
+            },
+            {
+              id: "preferredTime",
+              label: "Preferred Time",
+              type: "select",
+              options: preferredTimes,
+            },
+          ].map(renderField)}
+        </div>
+      </div>
 
 
 
-  <div className="border-b border-gray-200 pb-4">
-    <h5 className="text-sm font-medium mb-3 text-gray-700">Additional Information</h5>
-    <div className="grid grid-cols-1 gap-4">
-      {[
-        {
-          id: "reasonForReferral",
-          label: "Reason for Referral",
-          type: "textarea",
-          placeholder: "Describe the reason for the referral...",
-          minRows: 3,
-        },
-        {
-          id: "additionalNotes",
-          label: "Additional Notes",
-          type: "textarea",
-          placeholder: "Any additional notes or special considerations...",
-          minRows: 2,
-        },
-      ].map(renderField)}
-    </div>
-  </div>
+      <div className="border-b border-gray-200 pb-4">
+        <h5 className="text-sm font-medium mb-3 text-gray-700">Additional Information</h5>
+        <div className="grid grid-cols-1 gap-4">
+          {[
+            {
+              id: "reasonForReferral",
+              label: "Reason for Referral",
+              type: "textarea",
+              placeholder: "Describe the reason for the referral...",
+              minRows: 3,
+            },
+            {
+              id: "additionalNotes",
+              label: "Additional Notes",
+              type: "textarea",
+              placeholder: "Any additional notes or special considerations...",
+              minRows: 2,
+            },
+          ].map(renderField)}
+        </div>
+      </div>
 
     </form>
   );

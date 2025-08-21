@@ -5,7 +5,7 @@ import { LuPlus } from "react-icons/lu";
 import StatCard from "../components/common/StatCard";
 import RoleToggleTabs from "../components/common/RoleToggleTabs"; // Changed from ToggleButton to RoleToggleTabs
 import FilterPanel from "../components/common/FilterPanel";
-import ReferralCard from "../components/common/ReferralCard";
+import ReferralCard from "../components/cards/ReferralCard";
 import { useState } from "react";
 import ComponentHeader from "../components/common/ComponentHeader";
 import AddModal from "../components/common/AddModal";
@@ -54,68 +54,122 @@ const ReferralConnections = () => {
 
   const doctorReferrals = [
     {
-      name: "John Anderson",
-      status: "New",
+      uniqueId: "REF-D001",
+      fullName: "John Anderson",
+      status: "new",
       urgency: "high",
-      referringDoctor: "Dr. Sarah Wilson, DDS",
-      practice: "Family Dental Center",
-      treatment: "Invisalign Consultation",
-      reason: "Complex malocclusion requiring specialist evaluation",
-      phone: "+1 (555) 123-4567",
+      email: "john.anderson@email.com",
+      age: 35,
+      phoneNumber: "+1 (555) 123-4567",
+      referringByName: "Dr. Sarah Wilson, DDS",
+      referringPracticeName: "Family Dental Center",
+      referringSpecialty: "General Dentistry",
+      referringPhoneNumber: "+1 (555) 987-6543",
+      referringEmail: "sarah.wilson@familydental.com",
+      referringFax: "+1 (555) 987-6544",
+      referringWebsite: "www.familydentalcenter.com",
+      practiceAddress: "123 Main Street",
+      practiceAddressCity: "New York",
+      practiceAddressState: "New York",
+      practiceAddressZip: "10001",
+      treatmentType: "Invisalign Consultation",
+      insuranceProvider: "Blue Cross Blue Shield",
+      preferredTime: "afternoon",
+      reasonForReferral: "Complex malocclusion requiring specialist evaluation",
+      notes: "Patient has severe crowding and needs comprehensive evaluation",
       dateReceived: "2024-01-15",
-      insurance: "Blue Cross Blue Shield",
+      role: "doctor"
     },
     {
-      name: "Emily Nguyen",
-      status: "Scheduled",
+      uniqueId: "REF-D002",
+      fullName: "Emily Nguyen",
+      status: "scheduled",
       urgency: "medium",
-      referringDoctor: "Dr. Andrew Chen",
-      practice: "Smile Studio",
-      treatment: "Braces Follow-up",
-      reason: "Continuing treatment from previous orthodontist",
-      phone: "+1 (555) 222-3333",
+      email: "emily.nguyen@email.com",
+      age: 28,
+      phoneNumber: "+1 (555) 222-3333",
+      referringByName: "Dr. Andrew Chen",
+      referringPracticeName: "Smile Studio",
+      referringSpecialty: "Cosmetic Dentistry",
+      referringPhoneNumber: "+1 (555) 444-5555",
+      referringEmail: "andrew.chen@smilestudio.com",
+      referringFax: "+1 (555) 444-5556",
+      referringWebsite: "www.smilestudio.com",
+      practiceAddress: "456 Oak Avenue",
+      practiceAddressCity: "Los Angeles",
+      practiceAddressState: "California",
+      practiceAddressZip: "90001",
+      treatmentType: "Braces Follow-up",
+      insuranceProvider: "Aetna",
+      preferredTime: "morning",
+      reasonForReferral: "Continuing treatment from previous orthodontist",
+      notes: "Patient recently moved to the area, needs continuation of care",
       dateReceived: "2024-02-20",
-      insurance: "Aetna",
-    },
+      role: "doctor"
+    }
   ];
 
   const patientReferrals = [
     {
-      name: "Lisa Thompson",
-      status: "New",
+      uniqueId: "REF-P001",
+      fullName: "Lisa Thompson",
+      status: "new",
       urgency: "low",
-      referringPatient: "Jennifer Walsh",
-      relationship: "Friend",
-      treatment: "Invisalign",
-      reason: "Interested in Invisalign treatment",
-      phone: "+1 (555) 456-7890",
+      email: "lisa.thompson@email.com",
+      age: 42,
+      phoneNumber: "+1 (555) 456-7890",
+      referringByName: "Jennifer Walsh",
+      relationshipName: "Friend",
+      referringPhoneNumber: "+1 (555) 111-2222",
+      referringEmail: "jennifer.walsh@email.com",
+      treatmentType: "Invisalign",
+      insuranceProvider: "Cigna",
+      preferredTime: "weekend",
+      reasonForReferral: "Interested in Invisalign treatment after seeing results",
+      notes: "Very motivated patient, excellent oral hygiene",
       dateReceived: "2024-01-16",
-      insurance: "Cigna",
+      role: "patient"
     },
     {
-      name: "Michael Green",
-      status: "Scheduled",
+      uniqueId: "REF-P002",
+      fullName: "Michael Green",
+      status: "scheduled",
       urgency: "medium",
-      referringPatient: "Andrew Green",
-      relationship: "Brother",
-      treatment: "Braces",
-      reason: "Needs orthodontic evaluation",
-      phone: "+1 (555) 123-4567",
+      email: "michael.green@email.com",
+      age: 19,
+      phoneNumber: "+1 (555) 123-4567",
+      referringByName: "Andrew Green",
+      relationshipName: "Brother",
+      referringPhoneNumber: "+1 (555) 333-4444",
+      referringEmail: "andrew.green@email.com",
+      treatmentType: "Braces",
+      insuranceProvider: "UnitedHealthcare",
+      preferredTime: "afterSchool",
+      reasonForReferral: "Needs orthodontic evaluation for misaligned teeth",
+      notes: "College student, prefers after-school appointments",
       dateReceived: "2024-02-10",
-      insurance: "UnitedHealthcare",
+      role: "patient"
     },
     {
-      name: "Thomas Gray",
-      status: "Scheduled",
+      uniqueId: "REF-P003",
+      fullName: "Thomas Gray",
+      status: "scheduled",
       urgency: "high",
-      referringPatient: "Grace Gray",
-      relationship: "Cousin",
-      treatment: "Veneers",
-      reason: "Cosmetic smile enhancement",
-      phone: "+1 (555) 888-9999",
+      email: "thomas.gray@email.com",
+      age: 38,
+      phoneNumber: "+1 (555) 888-9999",
+      referringByName: "Grace Gray",
+      relationshipName: "Cousin",
+      referringPhoneNumber: "+1 (555) 777-8888",
+      referringEmail: "grace.gray@email.com",
+      treatmentType: "Veneers",
+      insuranceProvider: "Blue Cross",
+      preferredTime: "lunchBreak",
+      reasonForReferral: "Cosmetic smile enhancement for upcoming wedding",
+      notes: "Urgent - wedding in 3 months, needs quick turnaround",
       dateReceived: "2024-06-15",
-      insurance: "Blue Cross",
-    },
+      role: "patient"
+    }
   ];
 
   const handleStatusUpdate = (newStatus, referralIndex) => {
@@ -179,7 +233,7 @@ const ReferralConnections = () => {
   }
   return (
     <>
-      <div className="flex flex-col min-h-screen h-fit">
+      <div className="flex flex-col h-full ">
         {/* Sticky Header */}
         <div className="sticky top-0 z-50 bg-background">
           <ComponentHeader
@@ -218,45 +272,23 @@ const ReferralConnections = () => {
             selected={selectedReferralType}
             onSelectionChange={handleReferralTypeChange}
           />
-          {selectedReferralType === "Doctor Referrals"
-            ? doctorReferrals.map((referral, index) => (
-              <ReferralCard
-                key={index}
-                name={referral.name}
-                status={referral.status}
-                urgency={referral.urgency}
-                referringDoctor={referral.referringDoctor}
-                practice={referral.practice}
-                treatment={referral.treatment}
-                reason={referral.reason}
-                phone={referral.phone}
-                dateReceived={referral.dateReceived}
-                insurance={referral.insurance}
-                onUpdateStatus={(newStatus) =>
-                  handleStatusUpdate(newStatus, index)
-                }
-                {...referral}
-              />
-            ))
-            : patientReferrals.map((referral, index) => (
-              <ReferralCard
-                key={index}
-                name={referral.name}
-                status={referral.status}
-                urgency={referral.urgency}
-                referringPatient={referral.referringPatient}
-                relationship={referral.relationship}
-                treatment={referral.treatment}
-                reason={referral.reason}
-                phone={referral.phone}
-                dateReceived={referral.dateReceived}
-                insurance={referral.insurance}
-                onUpdateStatus={() =>
-                  alert(`Status Update Clicked for ${referral.name}`)
-                }
-                {...referral}
-              />
-            ))}
+          <div className="flex flex-col gap-4 mt-1">
+            {selectedReferralType === "Doctor Referrals"
+              ? doctorReferrals.map((referral) => (
+                <ReferralCard
+                  key={referral.uniqueId}
+                  {...referral}
+                  onUpdateStatus={(newStatus) => handleStatusUpdate(newStatus, referral.uniqueId)}
+                />
+              ))
+              : patientReferrals.map((referral) => (
+                <ReferralCard
+                  key={referral.uniqueId}
+                  {...referral}
+                  onUpdateStatus={(newStatus) => handleStatusUpdate(newStatus, referral.uniqueId)}
+                />
+              ))}
+          </div>
         </div>
       </div>
 
