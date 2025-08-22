@@ -14,7 +14,7 @@ const Calls = React.lazy(() => import('./pages/Calls'));
 const EmailCampaign = React.lazy(() => import('./pages/EmailCampaigns'));
 const MarketingBudget = React.lazy(() => import('./pages/MarketingBudget'));
 const MarketingCalendar = React.lazy(() => import('./pages/MarketingCalendar'));
-const ReferralConnections = React.lazy(() => import('./pages/ReferralConnections'));
+const ReferralManagement = React.lazy(() => import('./pages/ReferralManagement'));
 const Reviews = React.lazy(() => import('./pages/Reviews'));
 const SocialMedia = React.lazy(() => import('./pages/SocialMedia'));
 const Reports = React.lazy(() => import('./pages/Reports'));
@@ -29,9 +29,9 @@ function AppRoutes() {
             children: [
                 { path: "/", element: <Dashboard /> },
                 { path: "dashboard", element: <Dashboard /> },
-                { path: "referrals", element: <ReferralConnections /> },
+                { path: "referrals", element: <ReferralManagement /> },
                 { path: "analytics", element: <Analytics /> },
-                { path: "referral-connections", element: <ReferralConnections /> },
+                // { path: "referral-connections", element: <ReferralConnections /> },
                 { path: "calls", element: <Calls /> },
                 { path: "reviews", element: <Reviews /> },
                 { path: "email-campaigns", element: <EmailCampaign /> },

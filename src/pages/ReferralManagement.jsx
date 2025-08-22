@@ -12,7 +12,7 @@ import AddModal from "../components/common/AddModal";
 import ReferralManagementConfig from "../components/formConfigs/ReferralManagementConfig";
 import { usePatientsQuery } from "../queries/patient/useUsersQuery";
 import ComponentContainer from "../components/common/ComponentContainer";
-const ReferralConnections = () => {
+const ReferralManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [selectedReferralType, setSelectedReferralType] =
@@ -315,4 +315,4 @@ console.log("data : ", data);
   );
 };
 
-export default ReferralConnections;
+export default ReferralManagement;
