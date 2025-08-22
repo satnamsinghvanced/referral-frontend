@@ -16,6 +16,7 @@ import { FiUser } from "react-icons/fi";
 import { CiCalendar, CiStethoscope, } from "react-icons/ci";
 import { LuBuilding } from "react-icons/lu";
 import { LuUserRoundCheck } from "react-icons/lu";
+import { RxDotsHorizontal } from "react-icons/rx";
 
 import { useState } from "react";
 
@@ -178,7 +179,9 @@ const ReferralCard = ({
           </Button> */}
           <Popover placement="right" size="sm" shouldCloseOnScroll={true} backdrop="">
             <PopoverTrigger>
-              <Button size="sm" className="bg-transparent hover:bg-text/10">---</Button>
+              <Button size="sm" className="bg-transparent hover:bg-text/10">
+                <RxDotsHorizontal />
+              </Button>
             </PopoverTrigger>
             <PopoverContent className="border border-text/5 shadow-sm" >
               {/* <div className="px-1 py-2"> */}

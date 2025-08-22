@@ -70,7 +70,7 @@ const Layout = () => {
 
       <main
         id="main"
-        className="h-[calc(100vh-4.5rem)] main !z-10 flex-grow-1 md:h-[calc(100vh-65px)] transition-all duration-300"
+        className="h-[calc(100vh-4.5rem)] main !z-10 flex-grow-1 md:h-[calc(100vh-65px)] transition-all duration-300 bg-text/3"
       >
         <Outlet />
       </main>

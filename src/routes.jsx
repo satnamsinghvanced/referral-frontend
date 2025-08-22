@@ -6,6 +6,7 @@ import React, { Suspense } from 'react';
 
 import { Spinner } from '@heroui/react';
 import { BrowserRouter, Route, Routes } from 'react-router';
+import Settings from './pages/Settings';
 const Layout = React.lazy(() => import('./components/layout/Layout'));
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 const Analytics = React.lazy(() => import('./pages/Analytics'));
@@ -41,6 +42,7 @@ function AppRoutes() {
                 { path: "reports", element: <Reports /> },
                 { path: "social", element: <SocialMedia /> },
                 { path: "calender", element: <Calender /> },
+                { path: "settings", element: <Settings /> },
             ],
         },
 
