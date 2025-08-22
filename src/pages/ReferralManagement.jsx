@@ -9,7 +9,8 @@ import ReferralCard from "../components/cards/ReferralCard";
 import { useState } from "react";
 import ComponentHeader from "../components/common/ComponentHeader";
 import AddModal from "../components/common/AddModal";
-import ReferralConnectionsConfig from "../components/formConfigs/ReferralConnectionsConfig";
+import ReferralManagementConfig from "../components/formConfigs/ReferralManagementConfig";
+import { usePatientsQuery } from "../queries/patient/useUsersQuery";
 const ReferralConnections = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -24,7 +25,15 @@ const ReferralConnections = () => {
     console.log("type : ", type);
     setSelectedReferralType(type);
   };
-
+const { data, isLoading, isError } = usePatientsQuery({
+    role: "patient",
+    search: "",
+    status: "",
+    urgency: "",
+    page: 1,
+    limit: 5,
+  });
+console.log("data : ", data);
   const statCardData = [
     {
       heading: "A-Level Partners",
@@ -298,7 +307,7 @@ const ReferralConnections = () => {
         description="Add a new doctor or patient referrer to your system. Complete all required fields to ensure proper referral tracking."
         cancelBtnData={cancelBtnData}
         addBtnData={addBtnData}
-        config={<ReferralConnectionsConfig />}
+        config={<ReferralManagementConfig />}
       />
     </>
   );

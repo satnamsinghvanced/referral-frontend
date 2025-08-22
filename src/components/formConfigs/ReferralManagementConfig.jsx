@@ -353,7 +353,7 @@ import { Input, Select, SelectItem, Textarea } from "@heroui/react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 
-const ReferralConnectionsConfig = ({ initialData = {} }) => {
+const ReferralManagementConfig = ({ initialData = {} }) => {
   const formik = useFormik({
     initialValues: {
       referrerType: initialData.referrerType || "doctor",
@@ -599,4 +599,4 @@ const ReferralConnectionsConfig = ({ initialData = {} }) => {
   );
 };
 
-export default ReferralConnectionsConfig;
+export default ReferralManagementConfig;
