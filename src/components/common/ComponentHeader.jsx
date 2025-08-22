@@ -10,8 +10,7 @@ const ComponentHeader = ({ heading, subHeading, buttons }) => {
             </div>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
                 {buttons?.map((btn, index) => (
-                    <Button size='sm' key={index} onPress={btn.onClick} {...btn.props} className={`${btn.classNames ? btn.classNames : 'border border-text/30 '}`}>
-                        {btn?.icon && btn.icon}
+                    <Button size='sm' key={index} onPress={btn.onClick} {...btn.props} className={`${btn.classNames ? btn.classNames : 'border border-text/30 '}`} startContent={btn?.icon ? btn.icon : <></>}>
                         {btn.label}
                     </Button>
                 ))}

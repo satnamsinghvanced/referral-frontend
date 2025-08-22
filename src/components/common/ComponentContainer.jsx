@@ -3,7 +3,7 @@ import ComponentHeader from './ComponentHeader'
 
 const ComponentContainer = ({ headingDate, children }) => {
     return (
-        <div className="flex flex-col h-full ">
+        <div className="flex flex-col h-full">
             {/* Sticky Header */}
             <div className="sticky top-0 z-50 bg-background">
                 <ComponentHeader

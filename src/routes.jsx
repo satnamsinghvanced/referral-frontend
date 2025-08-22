@@ -1,12 +1,9 @@
 import React, { Suspense } from 'react';
-// import { BrowserRouter, Route, Routes } from 'react-router-dom';
-// import ProtectedRoute from './authentication/ProtectedRoute';
-// import { Spinner } from '@nextui-org/react';
-
-
 import { Spinner } from '@heroui/react';
 import { BrowserRouter, Route, Routes } from 'react-router';
 import Settings from './pages/Settings';
+import ReferralConnections from './pages/ReferralConnections';
+
 const Layout = React.lazy(() => import('./components/layout/Layout'));
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 const Analytics = React.lazy(() => import('./pages/Analytics'));
@@ -20,7 +17,6 @@ const SocialMedia = React.lazy(() => import('./pages/SocialMedia'));
 const Reports = React.lazy(() => import('./pages/Reports'));
 const Calender = React.lazy(() => import('./pages/Calender'));
 
-
 function AppRoutes() {
     const routesList = [
         {
@@ -31,7 +27,7 @@ function AppRoutes() {
                 { path: "dashboard", element: <Dashboard /> },
                 { path: "referrals", element: <ReferralManagement /> },
                 { path: "analytics", element: <Analytics /> },
-                // { path: "referral-connections", element: <ReferralConnections /> },
+                { path: "referral-connections", element: <ReferralConnections /> },
                 { path: "calls", element: <Calls /> },
                 { path: "reviews", element: <Reviews /> },
                 { path: "email-campaigns", element: <EmailCampaign /> },

@@ -14,7 +14,7 @@ import { IoCallOutline } from "react-icons/io5";
 import { FiCheckCircle, FiMail, FiPhone } from "react-icons/fi";
 import { FiUser } from "react-icons/fi";
 import { CiCalendar, CiStethoscope, } from "react-icons/ci";
-import { LuBuilding } from "react-icons/lu";
+import { LuBuilding, LuBuilding2 } from "react-icons/lu";
 import { LuUserRoundCheck } from "react-icons/lu";
 import { RxDotsHorizontal } from "react-icons/rx";
 
@@ -303,7 +303,7 @@ const ReferralCard = ({
               </p>
               {relationshipName &&
                 <p className="flex items-center gap-1">
-                  <LuBuilding className="text-light" />
+                  <LuBuilding2 className="text-extralight" />
                   <span className="font-light text-text/90">{relationshipName}</span>
                 </p>}
               {referringPracticeName &&

@@ -1,4 +1,3 @@
-// import { useState } from "react";
 import { useNavigate, useLocation } from "react-router";
 import { useSelector } from "react-redux";
 import {
@@ -20,9 +19,10 @@ import {
   HiOutlineMail,
 } from "react-icons/hi";
 
-import Profile from "../common/Profile"; // your existing Profile.jsx
-import ThemeToggle from "../common/ThemeToggle"; // your existing ThemeToggle.jsx
-import { CiSettings } from "react-icons/ci";
+import Profile from "../common/Profile"; 
+import ThemeToggle from "../common/ThemeToggle";
+import { Tooltip } from "@heroui/react";
+import { LuBuilding2 } from "react-icons/lu";
 
 // import logo from "../../assets/logo.svg";
 // import logoWhite from "../../assets/logo-white.svg";
@@ -43,8 +43,8 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }) => {
   const navigationRoutes = [
     { name: "Dashboard", icon: HiOutlineViewGrid, href: "/dashboard" },
     { name: "Referrals", icon: HiOutlineBriefcase, href: "/referrals" },
+    { name: "Referral Connections", icon: LuBuilding2, href: "/referral-connections" },
     { name: "Analytics", icon: HiOutlineChartBar, href: "/analytics" },
-    { name: "Referral Connections", icon: HiOutlineLink, href: "/referral-connections" },
     { name: "Calls", icon: HiOutlinePhone, href: "/calls" },
     { name: "Reviews", icon: HiOutlineStar, href: "/reviews" },
     { name: "Email Campaigns", icon: HiOutlineMail, href: "/email-campaigns" },
@@ -173,10 +173,20 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }) => {
                       className={`flex items-center justify-center sm:w-7 w-6 ${active ? "text-white" : "text-gray-500 dark:text-white"
                         }`}
                     >
-                      <Icon className={` ${active
-                        ? "bg-blue-50 text-blue-600"
-                        : "hover:bg-gray-100 dark:hover:bg-gray-700"
-                        }`} />
+                      {isMiniSidebarOpen ?
+                        <Icon className={` ${active
+                          ? "bg-blue-50 text-blue-600"
+                          : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                          }`} />
+                        :
+                        <Tooltip content={item.name} placement="right">
+                          <Icon className={` ${active
+                            ? "bg-blue-50 text-blue-600"
+                            : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                            }`} />
+                        </Tooltip>
+                      }
+
                     </span>
 
                     {isMiniSidebarOpen && (

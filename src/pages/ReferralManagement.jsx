@@ -2,7 +2,6 @@ import { CiCalendar, CiHospital1, CiStethoscope, CiUser } from "react-icons/ci";
 import { PiDownloadSimpleLight } from "react-icons/pi";
 import { FaStethoscope } from "react-icons/fa6";
 import { LuPlus } from "react-icons/lu";
-import StatCard from "../components/common/StatCard";
 import RoleToggleTabs from "../components/common/RoleToggleTabs"; // Changed from ToggleButton to RoleToggleTabs
 import FilterPanel from "../components/common/FilterPanel";
 import ReferralCard from "../components/cards/ReferralCard";
@@ -12,7 +11,10 @@ import AddModal from "../components/common/AddModal";
 import ReferralManagementConfig from "../components/formConfigs/ReferralManagementConfig";
 import { usePatientsQuery } from "../queries/patient/useUsersQuery";
 import ComponentContainer from "../components/common/ComponentContainer";
+import MediumStatsCard from "../components/cards/MediumStatsCard";
+import { locationOptions, statusOptions, urgencyOptions } from "../Utils/filters";
 const ReferralManagement = () => {
+
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [selectedReferralType, setSelectedReferralType] =
@@ -26,7 +28,7 @@ const ReferralManagement = () => {
     console.log("type : ", type);
     setSelectedReferralType(type);
   };
-const { data, isLoading, isError } = usePatientsQuery({
+  const { data, isLoading, isError } = usePatientsQuery({
     role: "patient",
     search: "",
     status: "",
@@ -34,29 +36,25 @@ const { data, isLoading, isError } = usePatientsQuery({
     page: 1,
     limit: 5,
   });
-console.log("data : ", data);
+
+  console.log("data : ", data);
+
   const statCardData = [
     {
       heading: "A-Level Partners",
       stat: 3,
-      // newData: 1,
-      // icon: <CiStethoscope className="text-4xl font-black text-blue-400" />,
       bgColor: "bg-green-50",
       textColor: "text-green-800",
     },
     {
       heading: "Active Referrers",
       stat: 5,
-      // newData: 2,
-      // icon: <CiUser className="text-4xl font-black text-green-400" />,
       bgColor: "bg-blue-50",
       textColor: "text-blue-800",
     },
     {
       heading: "Total Referrals",
       stat: 8,
-      // newData: 3,
-      // icon: <CiCalendar className="text-4xl font-black text-purple-400" />,
       bgColor: "bg-gray-100",
       textColor: "text-gray-800",
     },
@@ -196,6 +194,7 @@ console.log("data : ", data);
     console.log('handleOpen')
     setIsModalOpen(true)
   };
+
   const handleClose = () => {
     console.log('handleClose')
     setIsModalOpen(false)
@@ -236,17 +235,23 @@ console.log("data : ", data);
     style: 'border-text/10 dark:border-text/30 border text-text hover:bg-background',
     text: 'cancel'
   }
+
   const addBtnData = {
     function: onSaveClick,
     style: 'bg-text text-background',
     text: 'add'
   }
+
   const headingDate = {
     heading: 'Referral Management',
     subHeading: 'Track doctor and patient referrals for your orthodontic practice',
     buttons: buttonList
   }
-
+  const filters = [
+    { statusOptions },
+    { urgencyOptions },
+    { locationOptions }
+  ]
   return (
     <>
       <ComponentContainer
@@ -262,7 +267,7 @@ console.log("data : ", data);
               </p>
               <div className="grid grid-cols md:grid-cols-3 xl:grid-cols-3 gap-4 mt-2">
                 {statCardData.map((card, index) => (
-                  <StatCard
+                  <MediumStatsCard
                     key={index}
                     cardHeading={card.heading}
                     cardStat={card.stat}
@@ -277,7 +282,7 @@ console.log("data : ", data);
             </div>
           </div>
 
-          <FilterPanel />
+          <FilterPanel filters={filters} />
           <RoleToggleTabs
             selected={selectedReferralType}
             onSelectionChange={handleReferralTypeChange}
