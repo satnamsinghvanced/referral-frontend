@@ -3,7 +3,7 @@ import React from 'react'
 
 const ComponentHeader = ({ heading, subHeading, buttons }) => {
     return (
-        <div className=' md:px-7 px-4 py-4 md:py-8 bg-background flex justify-between border-b-1 border-text/10 dark:border-text/30'>
+        <div className=' md:px-7 px-4 py-3 md:py-6 bg-background flex justify-between border-b-1 border-text/10 dark:border-text/30'>
             <div>
                 <h3 className='text-lg'>{heading}</h3>
                 <p className='text-sm font-light'>{subHeading}</p>

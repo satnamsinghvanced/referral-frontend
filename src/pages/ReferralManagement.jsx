@@ -11,6 +11,7 @@ import ComponentHeader from "../components/common/ComponentHeader";
 import AddModal from "../components/common/AddModal";
 import ReferralManagementConfig from "../components/formConfigs/ReferralManagementConfig";
 import { usePatientsQuery } from "../queries/patient/useUsersQuery";
+import ComponentContainer from "../components/common/ComponentContainer";
 const ReferralConnections = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -240,18 +241,18 @@ console.log("data : ", data);
     style: 'bg-text text-background',
     text: 'add'
   }
+  const headingDate = {
+    heading: 'Referral Management',
+    subHeading: 'Track doctor and patient referrals for your orthodontic practice',
+    buttons: buttonList
+  }
+
   return (
     <>
-      <div className="flex flex-col h-full ">
-        {/* Sticky Header */}
-        <div className="sticky top-0 z-50 bg-background">
-          <ComponentHeader
-            heading="Referral Management"
-            subHeading="Track doctor and patient referrals for your orthodontic practice"
-            buttons={buttonList}
-          />
-        </div>
-        <div className="flex flex-col gap-2 md:px-7 px-4 py-4 md:py-8 overflow-y-scroll" >
+      <ComponentContainer
+        headingDate={headingDate}
+      >
+        <>
           <div className="bg-background border-text/10 dark:border-text/30 border rounded-md">
             <div className="ml-2 p-4 ">
               <h3 className="flex gap-2 "> <FaStethoscope className="text-[17px] mt-1 text-blue-500" /> Doctor Referrers (3)</h3>
@@ -298,8 +299,9 @@ console.log("data : ", data);
                 />
               ))}
           </div>
-        </div>
-      </div>
+        </>
+      </ComponentContainer>
+
 
       <AddModal
         isOpen={isModalOpen}
