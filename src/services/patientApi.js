@@ -14,3 +14,13 @@ export const fetchPatients = async ({ role, status, search, urgency, page = 1, l
   return data;
 };
 
+export const createPatient = async (patientData) => {
+  const { data } = await axiosInstance.post("/patient/create", patientData);
+  return data;
+};
+
+
+export const updatePatient = async (id, patientData) => {
+  const { data } = await axiosInstance.put(`/patient/status?id=${id}`, patientData);
+  return data;
+};

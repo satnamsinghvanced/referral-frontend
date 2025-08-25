@@ -10,11 +10,12 @@ import ComponentHeader from "../components/common/ComponentHeader";
 import AddModal from "../components/common/AddModal";
 import ReferralManagementConfig from "../components/formConfigs/ReferralManagementConfig";
 import { usePatientsQuery } from "../queries/patient/useUsersQuery";
+import { useCreatePatient } from "../queries/patient/useCreateUser";
 import ComponentContainer from "../components/common/ComponentContainer";
-import MediumStatsCard from "../components/cards/MediumStatsCard";
-import { locationOptions, statusOptions, urgencyOptions } from "../Utils/filters";
+import { useRef } from "react";
+import {useUpdatePatient} from "../queries/patient/userUpdateUser";
 const ReferralManagement = () => {
-
+  const formRef = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [selectedReferralType, setSelectedReferralType] =
@@ -28,17 +29,37 @@ const ReferralManagement = () => {
     console.log("type : ", type);
     setSelectedReferralType(type);
   };
-  const { data, isLoading, isError } = usePatientsQuery({
-    role: "patient",
+
+  const {
+    mutate: createPatient,
+    isLoading: loader,
+    isError: createError,
+    error,
+  } = useCreatePatient();
+
+  const [filters, setFilters] = useState({
     search: "",
     status: "",
     urgency: "",
+    location: "",
+  });
+
+  const {
+    data: referralData,
+    isLoading,
+    isError,
+  } = usePatientsQuery({
+    role: selectedReferralType === "Doctor Referrals" ? "doctor" : "patient",
+    search: filters.search,
+    status: filters.status,
+    urgency: filters.urgency,
+    location: filters.location,
     page: 1,
     limit: 5,
   });
+  // console.log("data : ", referralData);
 
-  console.log("data : ", data);
-
+  const { mutate: updatePatient } = useUpdatePatient();
   const statCardData = [
     {
       heading: "A-Level Partners",
@@ -60,155 +81,65 @@ const ReferralManagement = () => {
     },
   ];
 
-  const doctorReferrals = [
+  const handleStatusUpdate  = (id, values) => {
+  updatePatient(
+    { id, patientData: values },
     {
-      uniqueId: "REF-D001",
-      fullName: "John Anderson",
-      status: "new",
-      urgency: "high",
-      email: "john.anderson@email.com",
-      age: 35,
-      phoneNumber: "+1 (555) 123-4567",
-      referringByName: "Dr. Sarah Wilson, DDS",
-      referringPracticeName: "Family Dental Center",
-      referringSpecialty: "General Dentistry",
-      referringPhoneNumber: "+1 (555) 987-6543",
-      referringEmail: "sarah.wilson@familydental.com",
-      referringFax: "+1 (555) 987-6544",
-      referringWebsite: "www.familydentalcenter.com",
-      practiceAddress: "123 Main Street",
-      practiceAddressCity: "New York",
-      practiceAddressState: "New York",
-      practiceAddressZip: "10001",
-      treatmentType: "Invisalign Consultation",
-      insuranceProvider: "Blue Cross Blue Shield",
-      preferredTime: "afternoon",
-      reasonForReferral: "Complex malocclusion requiring specialist evaluation",
-      notes: "Patient has severe crowding and needs comprehensive evaluation",
-      dateReceived: "2024-01-15",
-      role: "doctor"
-    },
-    {
-      uniqueId: "REF-D002",
-      fullName: "Emily Nguyen",
-      status: "scheduled",
-      urgency: "medium",
-      email: "emily.nguyen@email.com",
-      age: 28,
-      phoneNumber: "+1 (555) 222-3333",
-      referringByName: "Dr. Andrew Chen",
-      referringPracticeName: "Smile Studio",
-      referringSpecialty: "Cosmetic Dentistry",
-      referringPhoneNumber: "+1 (555) 444-5555",
-      referringEmail: "andrew.chen@smilestudio.com",
-      referringFax: "+1 (555) 444-5556",
-      referringWebsite: "www.smilestudio.com",
-      practiceAddress: "456 Oak Avenue",
-      practiceAddressCity: "Los Angeles",
-      practiceAddressState: "California",
-      practiceAddressZip: "90001",
-      treatmentType: "Braces Follow-up",
-      insuranceProvider: "Aetna",
-      preferredTime: "morning",
-      reasonForReferral: "Continuing treatment from previous orthodontist",
-      notes: "Patient recently moved to the area, needs continuation of care",
-      dateReceived: "2024-02-20",
-      role: "doctor"
+      onSuccess: () => {
+        console.log("🎉 Patient updated successfully!");
+      },
+      onError: (err) => {
+        console.error("⚠️ Failed to update patient:", err);
+      },
     }
-  ];
-
-  const patientReferrals = [
-    {
-      uniqueId: "REF-P001",
-      fullName: "Lisa Thompson",
-      status: "new",
-      urgency: "low",
-      email: "lisa.thompson@email.com",
-      age: 42,
-      phoneNumber: "+1 (555) 456-7890",
-      referringByName: "Jennifer Walsh",
-      relationshipName: "Friend",
-      referringPhoneNumber: "+1 (555) 111-2222",
-      referringEmail: "jennifer.walsh@email.com",
-      treatmentType: "Invisalign",
-      insuranceProvider: "Cigna",
-      preferredTime: "weekend",
-      reasonForReferral: "Interested in Invisalign treatment after seeing results",
-      notes: "Very motivated patient, excellent oral hygiene",
-      dateReceived: "2024-01-16",
-      role: "patient"
-    },
-    {
-      uniqueId: "REF-P002",
-      fullName: "Michael Green",
-      status: "scheduled",
-      urgency: "medium",
-      email: "michael.green@email.com",
-      age: 19,
-      phoneNumber: "+1 (555) 123-4567",
-      referringByName: "Andrew Green",
-      relationshipName: "Brother",
-      referringPhoneNumber: "+1 (555) 333-4444",
-      referringEmail: "andrew.green@email.com",
-      treatmentType: "Braces",
-      insuranceProvider: "UnitedHealthcare",
-      preferredTime: "afterSchool",
-      reasonForReferral: "Needs orthodontic evaluation for misaligned teeth",
-      notes: "College student, prefers after-school appointments",
-      dateReceived: "2024-02-10",
-      role: "patient"
-    },
-    {
-      uniqueId: "REF-P003",
-      fullName: "Thomas Gray",
-      status: "scheduled",
-      urgency: "high",
-      email: "thomas.gray@email.com",
-      age: 38,
-      phoneNumber: "+1 (555) 888-9999",
-      referringByName: "Grace Gray",
-      relationshipName: "Cousin",
-      referringPhoneNumber: "+1 (555) 777-8888",
-      referringEmail: "grace.gray@email.com",
-      treatmentType: "Veneers",
-      insuranceProvider: "Blue Cross",
-      preferredTime: "lunchBreak",
-      reasonForReferral: "Cosmetic smile enhancement for upcoming wedding",
-      notes: "Urgent - wedding in 3 months, needs quick turnaround",
-      dateReceived: "2024-06-15",
-      role: "patient"
-    }
-  ];
-
-  const handleStatusUpdate = (newStatus, referralIndex) => {
-    console.log(
-      `Updating status for referral ${referralIndex} to ${newStatus}`
-    );
-  };
+  );
+};
 
   const handleExport = () => {
     alert("Export item");
   };
 
   const handleOpen = () => {
-    console.log('handleOpen')
-    setIsModalOpen(true)
+    console.log("handleOpen");
+    setIsModalOpen(true);
   };
 
   const handleClose = () => {
-    console.log('handleClose')
-    setIsModalOpen(false)
+    console.log("handleClose");
+    setIsModalOpen(false);
   };
 
   const onCancelClick = () => {
-    console.log('onCancelClick')
-    handleClose()
+    console.log("onCancelClick");
+    handleClose();
   };
 
-  const onSaveClick = () => {
-    console.log("handleSaveClick ");
-    handleClose()
-  };
+const onSaveClick = async () => {
+  if (formRef.current?.isValid && formRef.current?.dirty) {
+    const values = formRef.current.values;
+
+    createPatient(values, {
+      onSuccess: () => {
+        console.log("🎉 Patient created successfully!");
+        formRef.current.resetForm();
+        handleClose();
+      },
+    });
+  } else {
+    console.log("⚠️ Form not valid yet");
+
+    // Force validation + mark touched
+    await formRef.current.validateForm();
+    formRef.current.setTouched(
+      Object.keys(formRef.current.values).reduce((acc, key) => {
+        acc[key] = true;
+        return acc;
+      }, {})
+    );
+  }
+};
+
+
 
   const buttonList = [
     {
@@ -222,7 +153,7 @@ const ReferralManagement = () => {
     {
       label: "Add Referrer",
       onClick: handleOpen,
-      classNames: 'bg-text text-background',
+      classNames: "bg-text text-background",
       icon: <LuPlus />,
       props: {
         variant: "primary",
@@ -232,35 +163,33 @@ const ReferralManagement = () => {
 
   const cancelBtnData = {
     function: onCancelClick,
-    style: 'border-text/10 dark:border-text/30 border text-text hover:bg-background',
-    text: 'cancel'
-  }
-
+    style:
+      "border-text/10 dark:border-text/30 border text-text hover:bg-background",
+    text: "cancel",
+  };
   const addBtnData = {
     function: onSaveClick,
-    style: 'bg-text text-background',
-    text: 'add'
-  }
-
+    style: "bg-text text-background",
+    text: "add",
+  };
   const headingDate = {
-    heading: 'Referral Management',
-    subHeading: 'Track doctor and patient referrals for your orthodontic practice',
-    buttons: buttonList
-  }
-  const filters = [
-    { statusOptions },
-    { urgencyOptions },
-    { locationOptions }
-  ]
+    heading: "Referral Management",
+    subHeading:
+      "Track doctor and patient referrals for your orthodontic practice",
+    buttons: buttonList,
+  };
+
   return (
     <>
-      <ComponentContainer
-        headingDate={headingDate}
-      >
+      <ComponentContainer headingDate={headingDate}>
         <>
           <div className="bg-background border-text/10 dark:border-text/30 border rounded-md">
             <div className="ml-2 p-4 ">
-              <h3 className="flex gap-2 "> <FaStethoscope className="text-[17px] mt-1 text-blue-500" /> Doctor Referrers (3)</h3>
+              <h3 className="flex gap-2 ">
+                {" "}
+                <FaStethoscope className="text-[17px] mt-1 text-blue-500" />{" "}
+                Doctor Referrers (3)
+              </h3>
               <p className="text-xs mt-4">
                 Doctor referrers are automatically added to referrer management
                 when you create doctor referrals.
@@ -282,39 +211,42 @@ const ReferralManagement = () => {
             </div>
           </div>
 
-          <FilterPanel filters={filters} />
+          <FilterPanel onFilterChange={setFilters} />
           <RoleToggleTabs
             selected={selectedReferralType}
             onSelectionChange={handleReferralTypeChange}
           />
           <div className="flex flex-col gap-4 mt-1">
             {selectedReferralType === "Doctor Referrals"
-              ? doctorReferrals.map((referral) => (
-                <ReferralCard
-                  key={referral.uniqueId}
-                  {...referral}
-                  onUpdateStatus={(newStatus) => handleStatusUpdate(newStatus, referral.uniqueId)}
-                />
-              ))
-              : patientReferrals.map((referral) => (
-                <ReferralCard
-                  key={referral.uniqueId}
-                  {...referral}
-                  onUpdateStatus={(newStatus) => handleStatusUpdate(newStatus, referral.uniqueId)}
-                />
-              ))}
+              ? referralData?.data?.map((referral) => (
+                  <ReferralCard
+                    key={referral._id}
+                    {...referral}
+                    onUpdateStatus={(newStatus) =>
+                      handleStatusUpdate(referral._id, { status: newStatus })
+                    }
+                  />
+                ))
+              : referralData?.data?.map((referral) => (
+                  <ReferralCard
+                    key={referral._id}
+                    {...referral}
+                    onUpdateStatus={(newStatus) =>
+                      handleStatusUpdate(referral._id, { status: newStatus })
+                    }
+                  />
+                ))}
           </div>
         </>
       </ComponentContainer>
-
 
       <AddModal
         isOpen={isModalOpen}
         heading="Add New Referrer"
         description="Add a new doctor or patient referrer to your system. Complete all required fields to ensure proper referral tracking."
         cancelBtnData={cancelBtnData}
-        addBtnData={addBtnData}
-        config={<ReferralManagementConfig />}
+        addBtnData={{ ...addBtnData, function: onSaveClick }}
+        config={<ReferralManagementConfig ref={formRef} />}
       />
     </>
   );

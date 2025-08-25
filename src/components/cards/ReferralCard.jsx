@@ -72,7 +72,7 @@ const ReferralCard = ({
   preferredTime,
   reasonForReferral,
   notes,
-  dateReceived,
+  createdAt,
   role,
   onUpdateStatus,
 }) => {
@@ -86,6 +86,7 @@ const ReferralCard = ({
     if (onUpdateStatus) {
       onUpdateStatus(newStatus);
       setApplicationStatus(newStatus);
+
     }
     setIsOpen(false);
   };
@@ -271,7 +272,7 @@ const ReferralCard = ({
               <p className="flex items-center gap-1">
                 <CiCalendar />
                 <span className="font-light">Received:</span>
-                <span className="font-light text-text/90 ">{formatDate(dateReceived)}</span>
+                <span className="font-light text-text/90 ">{formatDate(createdAt)}</span>
               </p>
 
               {/* <p>
@@ -354,13 +355,14 @@ const ReferralCard = ({
           <div className="mb-0">
             <p className="text-text text-sm uppercase font-semibold mb-2">Notes</p>
             <div className="space-y-1">
-              {/* {reasonForReferral && (
-                <p><span className="font-medium">Reason:</span> <span className="font-light text-text/90">{reasonForReferral}</span></p>
-              )} */}
+             
               {notes && (
                 <p>
                   <span className="font-light text-text/90">{notes}</span>
                 </p>
+              )}
+               {reasonForReferral && (
+                <p><span className="font-medium">Reason:</span> <span className="font-light text-text/90">{reasonForReferral}</span></p>
               )}
               {/* <p>
                 <span className="font-medium">Date Received:</span> <span className="font-light text-text/90 ">{formatDate(dateReceived)}</span>
