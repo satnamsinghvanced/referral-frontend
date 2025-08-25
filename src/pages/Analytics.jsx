@@ -1,8 +1,17 @@
 import React from 'react'
+import ComponentContainer from '../components/common/ComponentContainer'
 
 const Analytics = () => {
+    const headingDate = {
+        heading: 'Analytics Overview',
+        subHeading: "Analytics ",
+    }
+
     return (
-        <div>Analytics</div>
+        <ComponentContainer
+            headingDate={headingDate}
+        >
+        </ComponentContainer>
     )
 }
 

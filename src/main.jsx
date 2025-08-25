@@ -15,11 +15,11 @@ createRoot(document.getElementById("root")).render(
           <ToastProvider
             placement="top-right"
             toastProps={{
-              shouldShowTimeoutProgress: true,
+              // shouldShowTimeoutProgress: true,
               timeout: "4000",
               // color: "primary",
               classNames: {
-                base: "shadow-none",
+                base: "shadow-none top-1.5",
                 content: "gap-x-2",
                 closeButton:
                   "opacity-100 absolute right-2 top-1/2 -translate-y-1/2",

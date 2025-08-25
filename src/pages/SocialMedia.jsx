@@ -1,8 +1,17 @@
-import React from 'react'
+import ComponentContainer from "../components/common/ComponentContainer"
+
 
 const SocialMedia = () => {
+  const headingDate = {
+    heading: 'Social Media Management',
+    subHeading: "Manage posts, view analytics, and engage with your audience across all platforms",
+  }
+
   return (
-    <div>SocialMedia</div>
+    <ComponentContainer
+      headingDate={headingDate}
+    >
+    </ComponentContainer>
   )
 }
 

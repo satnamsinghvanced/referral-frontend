@@ -41,3 +41,18 @@ export const short = [
     { key: "descending", label: "Descending" },
 ]
 
+export const specialtyOptions = [
+    "Prosthodontics",
+    "Implant Dentistry",
+    "Cosmetic Dentistry",
+    "Endodontics",
+    "Orthodontics",
+    "Oral Surgery",
+    "Pediatric Dentistry",
+    "Teeth Whitening",
+    "General Dentistry",
+    "Periodontics",
+    "Dental Implants"
+];
+
+

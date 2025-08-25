@@ -19,12 +19,13 @@ import {
   HiOutlineMail,
 } from "react-icons/hi";
 
-import Profile from "../common/Profile"; 
+import Profile from "../common/Profile";
 import ThemeToggle from "../common/ThemeToggle";
 import { Tooltip } from "@heroui/react";
 import { LuBuilding2 } from "react-icons/lu";
 
-// import logo from "../../assets/logo.svg";
+import logo from "../../assets/logos/logo.png";
+import { IoIosArrowRoundForward } from "react-icons/io";
 // import logoWhite from "../../assets/logo-white.svg";
 
 const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }) => {
@@ -44,13 +45,13 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }) => {
     { name: "Dashboard", icon: HiOutlineViewGrid, href: "/dashboard" },
     { name: "Referrals", icon: HiOutlineBriefcase, href: "/referrals" },
     { name: "Referral Connections", icon: LuBuilding2, href: "/referral-connections" },
-    { name: "Analytics", icon: HiOutlineChartBar, href: "/analytics" },
     { name: "Calls", icon: HiOutlinePhone, href: "/calls" },
     { name: "Reviews", icon: HiOutlineStar, href: "/reviews" },
     { name: "Email Campaigns", icon: HiOutlineMail, href: "/email-campaigns" },
     { name: "Social Media", icon: HiOutlineMail, href: "/social-media" },
     { name: "Marketing Calendar", icon: HiOutlineCalendar, href: "/marketing-calendar" },
     { name: "Marketing Budget", icon: HiOutlineCurrencyDollar, href: "/marketing-budget" },
+    { name: "Analytics", icon: HiOutlineChartBar, href: "/analytics" },
   ];
 
   const bottomRoutes = [
@@ -124,6 +125,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }) => {
                 alt="logo white"
                 className="h-8 hidden dark:block"
               /> */}
+              <img src={logo} alt="" className="w-8 h-8" />
               Referral Retriever
             </button>
           )}
@@ -133,8 +135,8 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }) => {
               onClick={toggleSidebar}
               className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
             >
-              <HiOutlineArrowsExpand
-                className={`${isMiniSidebarOpen ? "" : "rotate-180"
+              <IoIosArrowRoundForward
+                className={`${isMiniSidebarOpen ? "rotate-180" : ""
                   } transition-transform w-5 h-5`}
               />
             </button>
@@ -164,7 +166,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }) => {
                         : "px-4 justify-center"
                       }
                       ${active
-                        ? "bg-blue-50 text-blue-600 !border-blue-100"
+                        ? "bg-blue-50 text-blue-700 !border-blue-100"
                         : "hover:bg-gray-100 dark:hover:bg-gray-700 border-transparent"
                       }
                     `}
@@ -175,13 +177,13 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }) => {
                     >
                       {isMiniSidebarOpen ?
                         <Icon className={` ${active
-                          ? "bg-blue-50 text-blue-600"
+                          ? "bg-blue-50 text-blue-700"
                           : "hover:bg-gray-100 dark:hover:bg-gray-700"
                           }`} />
                         :
                         <Tooltip content={item.name} placement="right">
                           <Icon className={` ${active
-                            ? "bg-blue-50 text-blue-600"
+                            ? "bg-blue-50 text-blue-700"
                             : "hover:bg-gray-100 dark:hover:bg-gray-700"
                             }`} />
                         </Tooltip>
@@ -211,9 +213,9 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }) => {
                 <li key={idx}>
                   <div
                     onClick={() => handleNavigate(item.href)}
-                    className={`cursor-pointer rounded-2xl transition-all group flex items-center py-2
+                    className={`cursor-pointer rounded-lg transition-all group flex items-center py-2
                       ${isMiniSidebarOpen
-                        ? "px-0 justify-start"
+                        ? "px-2 justify-start"
                         : "px-3 justify-center"
                       }
                       ${active

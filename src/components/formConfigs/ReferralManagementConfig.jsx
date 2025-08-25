@@ -1,8 +1,9 @@
 
 import { Input, Select, SelectItem, Textarea } from "@heroui/react";
-import { useFormik, validateYupSchema } from "formik";
+import { useFormik, } from "formik";
 import * as Yup from "yup";
 import { forwardRef, useImperativeHandle } from "react";
+import { specialtyOptions } from "../../Utils/filters";
 
 const ReferralManagementConfig = forwardRef(({ initialData = {} }, ref) => {
   const formik = useFormik({
@@ -33,43 +34,43 @@ const ReferralManagementConfig = forwardRef(({ initialData = {} }, ref) => {
       reasonForReferral: initialData.reasonForReferral || "",
       notes: initialData.notes || "",
     },
-   validationSchema: Yup.object({
-  fullName: Yup.string().required("Patient name is required"),
+    validationSchema: Yup.object({
+      fullName: Yup.string().required("Patient name is required"),
 
-  referringByName: Yup.string().when("role", {
-    is: "doctor",
-    then: (schema) => schema.required("Doctor name is required"),
-    otherwise: (schema) => schema.required("Referring patient name is required"),
-  }),
+      referringByName: Yup.string().when("role", {
+        is: "doctor",
+        then: (schema) => schema.required("Doctor name is required"),
+        otherwise: (schema) => schema.required("Referring patient name is required"),
+      }),
 
-  referringPracticeName: Yup.string().when("role", {
-    is: "doctor",
-    then: (schema) => schema.required("Practice name is required"),
-    otherwise: (schema) => schema.notRequired(), 
-  }),
+      referringPracticeName: Yup.string().when("role", {
+        is: "doctor",
+        then: (schema) => schema.required("Practice name is required"),
+        otherwise: (schema) => schema.notRequired(),
+      }),
 
-  referringEmail: Yup.string().when("role", {
-    is: "doctor",
-    then: (schema) =>
-      schema.email("Invalid email").required("Doctor email is required"),
-    otherwise: (schema) =>
-      schema.email("Invalid email").required("Patient email is required"),
-  }),
+      referringEmail: Yup.string().when("role", {
+        is: "doctor",
+        then: (schema) =>
+          schema.email("Invalid email").required("Doctor email is required"),
+        otherwise: (schema) =>
+          schema.email("Invalid email").required("Patient email is required"),
+      }),
 
-  referringPhoneNumber: Yup.string().when("role", {
-    is: "doctor",
-    then: (schema) => schema.required("Doctor phone number is required"),
-    otherwise: (schema) => schema.required("Patient phone number is required"),
-  }),
-}),
+      referringPhoneNumber: Yup.string().when("role", {
+        is: "doctor",
+        then: (schema) => schema.required("Doctor phone number is required"),
+        otherwise: (schema) => schema.required("Patient phone number is required"),
+      }),
+    }),
 
-    
+
     validateOnMount: true,
     onSubmit: (values) => {
       console.log("✅ Submitting:", values);
     },
   });
- useImperativeHandle(ref, () => ({
+  useImperativeHandle(ref, () => ({
     submitForm: formik.submitForm,
     validateForm: formik.validateForm,
     setTouched: formik.setTouched,
@@ -90,16 +91,12 @@ const ReferralManagementConfig = forwardRef(({ initialData = {} }, ref) => {
     'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'
   ];
 
-  const specialty = [
-    'General Dentistry', 'Orthodontics', 'Oral Surgery', 'Periodontics', 'Endodontics',
-    'Prosthodontics', 'Pediatric Dentistry', 'Cosmetic Dentistry', 'Dental Implants', 'Teeth Whitening'
-  ];
   const relationshipTypes = ["family", "friend", "colleague", "neighbor", "other"];
-  const preferredTimes = ["morning", "afternoon", "evening", "afterSchool", "lunchBreak","weekend"];
-  const treatmentTypes = ["Invisalign", "Traditional Braces", "Clear Aligners", "Adult Orthodontics", "Early Intervention","Consultation","Other"];
+  const preferredTimes = ["morning", "afternoon", "evening", "afterSchool", "lunchBreak", "weekend"];
+  const treatmentTypes = ["Invisalign", "Traditional Braces", "Clear Aligners", "Adult Orthodontics", "Early Intervention", "Consultation", "Other"];
   const renderField = (field) => {
-    const { id, label, type , options, placeholder, minRows } = field;
-    
+    const { id, label, type, options, placeholder, minRows } = field;
+
     const error = formik.touched[id] && formik.errors[id];
 
     switch (type) {
@@ -113,7 +110,7 @@ const ReferralManagementConfig = forwardRef(({ initialData = {} }, ref) => {
               onSelectionChange={(keys) => formik.setFieldValue(id, [...keys][0])}
             >
               {options.map((opt) => (
-                <SelectItem key={opt} value={opt}>
+                <SelectItem key={opt} value={opt} className="capitalize">
                   {opt}
                 </SelectItem>
               ))}
@@ -129,9 +126,10 @@ const ReferralManagementConfig = forwardRef(({ initialData = {} }, ref) => {
               size="sm"
               label={label}
               value={formik.values[id]}
-               onChange={(e) => formik.setFieldValue(id, e.target.value)}
+              onChange={(e) => formik.setFieldValue(id, e.target.value)}
               placeholder={placeholder}
               minRows={minRows || 3}
+              className="text-sm"
             />
             {error && <p className="text-red-500 text-xs">{error}</p>}
           </div>
@@ -148,6 +146,7 @@ const ReferralManagementConfig = forwardRef(({ initialData = {} }, ref) => {
               value={formik.values[id]}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
+              className="text-sm"
             />
             {error && <p className="text-red-500 text-xs">{error}</p>}
           </div>
@@ -157,7 +156,7 @@ const ReferralManagementConfig = forwardRef(({ initialData = {} }, ref) => {
 
   return (
     <form onSubmit={formik.handleSubmit} className="space-y-6 py-1">
-      <div className="border-b border-gray-200 pb-4">
+      <div className=" ">
         <Select
           size="sm"
           label="Select Referrer Type"
@@ -172,8 +171,8 @@ const ReferralManagementConfig = forwardRef(({ initialData = {} }, ref) => {
       </div>
 
       {/* Example sections */}
-      <div className="border-b border-gray-200 pb-4">
-        <h5 className="text-sm font-medium mb-3 text-gray-700">Patient Information</h5>
+      <div className=" ">
+        <h5 className="text-sm font-medium mb-3 text-text">Patient Information</h5>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[
             { id: "fullName", label: "Patient Name *", type: "text" },
@@ -185,17 +184,39 @@ const ReferralManagementConfig = forwardRef(({ initialData = {} }, ref) => {
       </div>
 
       {formik.values.role === "doctor" && (
-        <div className="border-b border-gray-200 pb-4">
-          <h5 className="text-sm font-medium mb-3 text-gray-700">Doctor Information</h5>
+        <div className=" ">
+          <h5 className="text-sm font-medium mb-3 text-text">Doctor Referrer Information</h5>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
               { id: "referringByName", label: "Doctor Name *", type: "text" },
               { id: "referringPracticeName", label: "Practice Name *", type: "text" },
-              { id: "referringSpecialty", label: "Specialty", type: "select", options: specialty },
+              { id: "referringSpecialty", label: "Specialty", type: "select", options: specialtyOptions },
               { id: "referringPhoneNumber", label: "Phone *", type: "tel" },
               { id: "referringEmail", label: "Email *", type: "email" },
               { id: "referringFax", label: "Fax", type: "text" },
               { id: "referringWebsite", label: "Website", type: "text" },
+            ].map((field, index, arr) => {
+              const isLast = index === arr.length - 1;
+              const isOdd = arr.length % 2 !== 0;
+
+              const spanFull = isLast && isOdd ? "md:col-span-2" : "";
+
+              return (
+                <div key={field.id} className={spanFull}>
+                  {renderField(field)}
+                </div>
+              );
+            })}
+          </div>
+
+        </div>
+      )}
+
+      {formik.values.role === "doctor" && (
+        <div className=" ">
+          <h5 className="text-sm font-medium mb-3 text-text">Practice Address</h5>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {[
               { id: "practiceAddress", label: "Street Address", type: "text" },
               { id: "practiceAddressCity", label: "City", type: "text" },
               { id: "practiceAddressState", label: "State", type: "select", options: states },
@@ -206,21 +227,21 @@ const ReferralManagementConfig = forwardRef(({ initialData = {} }, ref) => {
       )}
 
       {formik.values.role === "patient" && (
-        <div className="border-b border-gray-200 pb-4">
-          <h5 className="text-sm font-medium mb-3 text-gray-700">Patient Referrer Information</h5>
+        <div className=" ">
+          <h5 className="text-sm font-medium mb-3 text-text">Patient Referrer Information</h5>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
               { id: "referringByName", label: "Referring Patient Name *", type: "text" },
-              { id: "relationshipName", label: "Relationship", type: "select", options: relationshipTypes },
-              { id: "referringPhoneNumber", label: "Phone", type: "tel" },
-              { id: "referringEmail", label: "Email", type: "email" },
+              { id: "relationshipName", label: "Relationship to Patient", type: "select", options: relationshipTypes },
+              { id: "referringPhoneNumber", label: "Referring Patient Phone", type: "tel" },
+              { id: "referringEmail", label: "Referring Patient Email", type: "email" },
             ].map(renderField)}
           </div>
         </div>
       )}
       {/** ✅ Treatment Information Section */}
-      <div className="border-b border-gray-200 pb-4">
-        <h5 className="text-sm font-medium mb-3 text-gray-700">Treatment Information</h5>
+      <div className=" ">
+        <h5 className="text-sm font-medium mb-3 text-text">Treatment Information</h5>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[
             {
@@ -252,8 +273,8 @@ const ReferralManagementConfig = forwardRef(({ initialData = {} }, ref) => {
 
 
 
-      <div className="border-b border-gray-200 pb-4">
-        <h5 className="text-sm font-medium mb-3 text-gray-700">Additional Information</h5>
+      <div className=" ">
+        <h5 className="text-sm font-medium mb-3 text-text">Additional Information</h5>
         <div className="grid grid-cols-1 gap-4">
           {[
             {

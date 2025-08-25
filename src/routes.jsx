@@ -1,7 +1,6 @@
 import React, { Suspense } from 'react';
 import { Spinner } from '@heroui/react';
-import { BrowserRouter, Route, Routes } from 'react-router';
-import Settings from './pages/Settings';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import ReferralConnections from './pages/ReferralConnections';
 
 const Layout = React.lazy(() => import('./components/layout/Layout'));
@@ -16,6 +15,17 @@ const Reviews = React.lazy(() => import('./pages/Reviews'));
 const SocialMedia = React.lazy(() => import('./pages/SocialMedia'));
 const Reports = React.lazy(() => import('./pages/Reports'));
 const Calender = React.lazy(() => import('./pages/Calender'));
+const Settings = React.lazy(() => import('./pages/settings/Settings'));
+const Notifications = React.lazy(() => import('./pages/settings/Notifications'));
+const Security = React.lazy(() => import('./pages/settings/Security'));
+const Billing = React.lazy(() => import('./pages/settings/Billing'));
+const Locations = React.lazy(() => import('./pages/settings/Locations'));
+const Team = React.lazy(() => import('./pages/settings/Team'));
+const General = React.lazy(() => import('./pages/settings/General'));
+const IntegrationTests = React.lazy(() => import('./pages/settings/IntegrationTests'));
+const PushNotifications = React.lazy(() => import('./pages/settings/PushNotifications'));
+const NotificationAnalytics = React.lazy(() => import('./pages/settings/NotificationAnalytics'));
+const Profile = React.lazy(() => import('./pages/settings/Profile'));
 
 function AppRoutes() {
     const routesList = [
@@ -23,7 +33,7 @@ function AppRoutes() {
             path: "/",
             element: <Layout />,
             children: [
-                { path: "/", element: <Dashboard /> },
+                { index: true, element: <Dashboard /> },
                 { path: "dashboard", element: <Dashboard /> },
                 { path: "referrals", element: <ReferralManagement /> },
                 { path: "analytics", element: <Analytics /> },
@@ -38,35 +48,44 @@ function AppRoutes() {
                 { path: "reports", element: <Reports /> },
                 { path: "social", element: <SocialMedia /> },
                 { path: "calender", element: <Calender /> },
-                { path: "settings", element: <Settings /> },
+                {
+                    path: "settings",
+                    element: <Settings />,
+                    children: [
+                        { index: true, element: <Profile /> },
+                        { path: "notifications", element: <Notifications /> },
+                        { path: "security", element: <Security /> },
+                        { path: "billing", element: <Billing /> },
+                        { path: "locations", element: <Locations /> },
+                        { path: "team", element: <Team /> },
+                        { path: "general", element: <General /> },
+                        { path: "integration-tests", element: <IntegrationTests /> },
+                        { path: "push-notifications", element: <PushNotifications /> },
+                        { path: "notification-analytics", element: <NotificationAnalytics /> },
+                    ]
+                },
             ],
         },
-
-        // { path: "login", element: <Login /> },
-        // { path: "signup", element: <Signup /> },
     ];
 
-
+    const renderRoutes = (routes) => {
+        return routes.map((route, index) => (
+            <Route
+                key={index}
+                path={route.path}
+                element={route.element}
+                index={route.index}
+            >
+                {route.children && renderRoutes(route.children)}
+            </Route>
+        ));
+    };
 
     return (
-        <Suspense fallback={<Spinner label="Loading..." color="success" className="bg-light dark:bg-background w-screen h-screen" />}>
+        <Suspense fallback={<Spinner label="Loading..." variant='gradient' color="success" className="bg-light dark:bg-background w-screen h-screen" />}>
             <BrowserRouter basename="/referral-retrieve">
                 <Routes>
-                    {/* {routesList.map(({ path, element, }) => (
-                        <Route key={path} path={path} element={element}>
-                            {children?.map(({ path, element }) => (
-                                <Route key={path} path={path} element={element} />
-                            ))}
-                        </Route>
-                    ))} */}
-                    {routesList.map(({ path, element, children }) => (
-                        <Route key={path} path={path} element={element}>
-                            {children?.map(({ path, element }) => (
-                                <Route key={path} path={path} element={element} />
-                            ))}
-                        </Route>
-                    ))}
-
+                    {renderRoutes(routesList)}
                 </Routes>
             </BrowserRouter>
         </Suspense>

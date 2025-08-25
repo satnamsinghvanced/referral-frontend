@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from "react";
+import React, { useCallback, useState, useEffect, useMemo } from "react";
 import { Input, Select, SelectItem, Button } from "@heroui/react";
 import { LuArrowDown, LuArrowUp, LuFilter, LuSearch } from "react-icons/lu";
 import { GoSortAsc, GoSortDesc } from "react-icons/go";
@@ -73,7 +73,7 @@ const FilterPanel = ({ onFilterChange }) => {
     getSelectedFilters,
     onFilterChange,
   ]);
-
+  
   const handleStatusChange = (keys) => {
   const value = Array.from(keys)[0] || "all"; 
   setStatus(value);

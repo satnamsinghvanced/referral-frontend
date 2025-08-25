@@ -19,6 +19,8 @@ import { LuUserRoundCheck } from "react-icons/lu";
 import { RxDotsHorizontal } from "react-icons/rx";
 
 import { useState } from "react";
+import UrgencyChip from "../chips/UrgencyChip";
+import StatusChip from "../chips/StatusChip";
 
 const statusLabels = [
   { value: "contacted", label: "Contacted", icon: <IoCallOutline /> },
@@ -107,45 +109,19 @@ const ReferralCard = ({
   };
 
   return (
-    <Card shadow="sm" className="w-full hover:shadow-lg transition-all duration-300 p-3 hover:">
+    <Card shadow="sm" className="w-full hover:shadow-lg transition-all duration-300 p-3">
       <CardHeader className="flex gap-2 justify-between w-full">
         <div className="flex gap-2">
           <Chip size="sm" variant="flat" color="default" className="border bg-transparent border-text/20 text-xs">
             {uniqueId}
           </Chip>
-          {applicationStatus && (
-            <Chip
-              size="sm"
-              className={`capitalize ${applicationStatus === "new"
-                ? "bg-blue-100 text-blue-600"
-                : applicationStatus === "contacted"
-                  ? "bg-yellow-100 text-yellow-600"
-                  : applicationStatus === "scheduled"
-                    ? "bg-green-100 text-green-600"
-                    : applicationStatus === "completed"
-                      ? "bg-gray-100 text-gray-600"
-                      : applicationStatus === "cancelled"
-                        ? "bg-red-100 text-red-600"
-                        : "bg-blue-100 text-blue-600"
-                }`}
-            >
-              {applicationStatus}
-            </Chip>
-          )}
           {urgency && (
-            <Chip
-              size="sm"
-              className={`rounded-full text-xs
-             ${urgency === "low" ? "bg-green-100 text-green-700" : ""}
-             ${urgency === "medium"
-                  ? "bg-yellow-100 text-yellow-700"
-                  : ""
-                }
-             ${urgency === "high" ? "bg-red-100 text-red-700" : ""}`}
-            >
-              {urgencyLabels[urgency] || urgency}
-            </Chip>
+            <UrgencyChip urgency={urgencyLabels[urgency] || urgency} />
           )}
+          {applicationStatus && (
+            <StatusChip applicationStatus={applicationStatus} />
+          )}
+
         </div>
         <div className="flex">
           {/* <Select
@@ -355,13 +331,13 @@ const ReferralCard = ({
           <div className="mb-0">
             <p className="text-text text-sm uppercase font-semibold mb-2">Notes</p>
             <div className="space-y-1">
-             
+
               {notes && (
                 <p>
                   <span className="font-light text-text/90">{notes}</span>
                 </p>
               )}
-               {reasonForReferral && (
+              {reasonForReferral && (
                 <p><span className="font-medium">Reason:</span> <span className="font-light text-text/90">{reasonForReferral}</span></p>
               )}
               {/* <p>

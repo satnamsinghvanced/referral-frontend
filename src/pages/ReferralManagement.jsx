@@ -13,7 +13,9 @@ import { usePatientsQuery } from "../queries/patient/useUsersQuery";
 import { useCreatePatient } from "../queries/patient/useCreateUser";
 import ComponentContainer from "../components/common/ComponentContainer";
 import { useRef } from "react";
-import {useUpdatePatient} from "../queries/patient/userUpdateUser";
+import { useUpdatePatient } from "../queries/patient/userUpdateUser";
+import MediumStatsCard from "../components/cards/MediumStatsCard";
+import { addToast, Button, Card } from "@heroui/react";
 const ReferralManagement = () => {
   const formRef = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -81,19 +83,19 @@ const ReferralManagement = () => {
     },
   ];
 
-  const handleStatusUpdate  = (id, values) => {
-  updatePatient(
-    { id, patientData: values },
-    {
-      onSuccess: () => {
-        console.log("🎉 Patient updated successfully!");
-      },
-      onError: (err) => {
-        console.error("⚠️ Failed to update patient:", err);
-      },
-    }
-  );
-};
+  const handleStatusUpdate = (id, values) => {
+    updatePatient(
+      { id, patientData: values },
+      {
+        onSuccess: () => {
+          console.log("🎉 Patient updated successfully!");
+        },
+        onError: (err) => {
+          console.error("⚠️ Failed to update patient:", err);
+        },
+      }
+    );
+  };
 
   const handleExport = () => {
     alert("Export item");
@@ -114,30 +116,43 @@ const ReferralManagement = () => {
     handleClose();
   };
 
-const onSaveClick = async () => {
-  if (formRef.current?.isValid && formRef.current?.dirty) {
-    const values = formRef.current.values;
+  const onSaveClick = async () => {
+    if (formRef.current?.isValid && formRef.current?.dirty) {
+      const values = formRef.current.values;
 
-    createPatient(values, {
-      onSuccess: () => {
-        console.log("🎉 Patient created successfully!");
-        formRef.current.resetForm();
-        handleClose();
-      },
-    });
-  } else {
-    console.log("⚠️ Form not valid yet");
+      createPatient(values, {
+        onSuccess: () => {
+          console.log("Patient created successfully!");
+          addToast({
+            title: "Success",
+            description: "Patient created successfully",
+            color: 'success',
+          })
+          formRef.current.resetForm();
+          handleClose();
+        },
+        onError: (err) => {
+          console.error("Failed to create patient:", err);
+          addToast({
+            title: "Error",
+            description: "Failed to create patient",
+            color: 'danger',
+          })
+        },
+      });
+    } else {
+      console.log("⚠️ Form not valid yet");
 
-    // Force validation + mark touched
-    await formRef.current.validateForm();
-    formRef.current.setTouched(
-      Object.keys(formRef.current.values).reduce((acc, key) => {
-        acc[key] = true;
-        return acc;
-      }, {})
-    );
-  }
-};
+      // Force validation + mark touched
+      await formRef.current.validateForm();
+      formRef.current.setTouched(
+        Object.keys(formRef.current.values).reduce((acc, key) => {
+          acc[key] = true;
+          return acc;
+        }, {})
+      );
+    }
+  };
 
 
 
@@ -178,11 +193,19 @@ const onSaveClick = async () => {
       "Track doctor and patient referrals for your orthodontic practice",
     buttons: buttonList,
   };
+  // const testClick = () => {
+  //   addToast({
+  //     title: "Success",
+  //     description: "Patient created successfully",
+  //     color: 'danger',
 
+  //   })
+  // }
   return (
     <>
       <ComponentContainer headingDate={headingDate}>
         <>
+          {/* <Button onPress={testClick} className="z-50 p-2 border">Test Toast</Button> */}
           <div className="bg-background border-text/10 dark:border-text/30 border rounded-md">
             <div className="ml-2 p-4 ">
               <h3 className="flex gap-2 ">
@@ -217,25 +240,40 @@ const onSaveClick = async () => {
             onSelectionChange={handleReferralTypeChange}
           />
           <div className="flex flex-col gap-4 mt-1">
-            {selectedReferralType === "Doctor Referrals"
-              ? referralData?.data?.map((referral) => (
-                  <ReferralCard
-                    key={referral._id}
-                    {...referral}
-                    onUpdateStatus={(newStatus) =>
-                      handleStatusUpdate(referral._id, { status: newStatus })
-                    }
-                  />
-                ))
-              : referralData?.data?.map((referral) => (
-                  <ReferralCard
-                    key={referral._id}
-                    {...referral}
-                    onUpdateStatus={(newStatus) =>
-                      handleStatusUpdate(referral._id, { status: newStatus })
-                    }
-                  />
-                ))}
+
+            {
+              referralData?.data?.length > 0
+                ?
+
+                selectedReferralType === "Doctor Referrals"
+                  ? referralData?.data?.map((referral) => (
+                    <ReferralCard
+                      key={referral._id}
+                      {...referral}
+                      onUpdateStatus={(newStatus) =>
+                        handleStatusUpdate(referral._id, { status: newStatus })
+                      }
+                    />
+                  ))
+
+                  :
+
+                  referralData?.data?.map((referral) => (
+                    <ReferralCard
+                      key={referral._id}
+                      {...referral}
+                      onUpdateStatus={(newStatus) =>
+                        handleStatusUpdate(referral._id, { status: newStatus })
+                      }
+                    />
+                  ))
+
+                :
+                <Card className="w-full flex items-center justify-center p-10 border border-text/10 dark:border-text/30" shadow="none">
+                  <p className="text-sm text-text/80">No referrals found</p>
+                </Card>
+            }
+
           </div>
         </>
       </ComponentContainer>

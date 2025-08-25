@@ -16,7 +16,7 @@ const AddModal = ({ isOpen, heading, description, cancelBtnData, addBtnData, con
                     {(onClose) => (
                         <>
                             <ModalHeader>
-                                <div className=" flex flex-col">
+                                <div className=" flex gap-1.5 flex-col">
                                     <h4 className="text-base font-normal">{heading}</h4>
                                     <p className="text-xs font-extralight text-text/90">{description}</p>
                                 </div>

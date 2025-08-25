@@ -20,6 +20,7 @@ import { IoMdCheckboxOutline } from "react-icons/io";
 import MiniStatsCard from "../components/cards/MiniStatsCard";
 import { categoryOptions, locationOptions, practiceOptions, short, statusOptions, urgencyOptions } from "../Utils/filters";
 import ReferralConnectionCard from "../components/cards/ReferralConnectionCard";
+import ReferralConnectionsConfig from "../components/formConfigs/ReferralConnectionsConfig";
 
 
 const ReferralConnections = () => {
@@ -82,7 +83,7 @@ const ReferralConnections = () => {
   };
 
   const onSaveClick = () => {
-    console.log("handleSaveClick ");
+    console.log("handle Save Clicked ");
     handleClose()
   };
 
@@ -197,7 +198,7 @@ const ReferralConnections = () => {
         headingDate={headingDate}
       >
         <div className="flex flex-col gap-5">
-          <div className="flex flex-wrap gap-4 justify-between">
+          <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-7 gap-4 justify-between">
             {StatCardData.map((data, index) => (
               <MiniStatsCard key={index} cardData={data} />
             ))}
@@ -235,11 +236,16 @@ const ReferralConnections = () => {
 
       <AddModal
         isOpen={isModalOpen}
-        heading="Add New Referrer"
-        description="Add a new doctor or patient referrer to your system. Complete all required fields to ensure proper referral tracking."
+        heading={
+          <div className=" flex gap-2 items-center">
+            <LuBuilding2 className="text-blue-600" />
+            <span>Add New Dental Practice</span>
+          </div>
+        }
+        description="Add a new referring dental practice to your network. Fill in the practice details and contact information."
         cancelBtnData={cancelBtnData}
         addBtnData={addBtnData}
-        config={<ReferralManagementConfig />}
+        config={<ReferralConnectionsConfig />}
       />
     </>
   );

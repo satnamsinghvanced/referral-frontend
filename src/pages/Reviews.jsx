@@ -1,8 +1,16 @@
-import React from 'react'
+import ComponentContainer from '../components/common/ComponentContainer'
 
 const Reviews = () => {
+  const headingDate = {
+    heading: 'Reviews Management',
+    subHeading: "Track Google reviews and NFC card performance across all locations",
+  }
+
   return (
-    <div>Reviews</div>
+    <ComponentContainer
+      headingDate={headingDate}
+    >
+    </ComponentContainer>
   )
 }
 

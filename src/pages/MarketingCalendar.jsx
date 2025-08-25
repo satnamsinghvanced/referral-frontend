@@ -1,8 +1,16 @@
-import React from 'react'
+import ComponentContainer from "../components/common/ComponentContainer"
 
 const MarketingCalendar = () => {
+  const headingDate = {
+    heading: 'Marketing Calendar',
+    subHeading: "Plan social media, events, office visits, and marketing campaigns",
+  }
+
   return (
-    <div>MarketingCalendar</div>
+    <ComponentContainer
+      headingDate={headingDate}
+    >
+    </ComponentContainer>
   )
 }
 
