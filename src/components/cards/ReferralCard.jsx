@@ -1,26 +1,23 @@
 import {
-  Card,
-  CardHeader,
-  CardBody,
-  CardFooter,
   Button,
-  Badge,
+  Card,
+  CardBody,
+  CardHeader,
+  Chip,
   Divider,
-  Select,
-  SelectItem,
-  Chip, Popover, PopoverTrigger, PopoverContent
+  Popover,
+  PopoverContent,
+  PopoverTrigger
 } from "@heroui/react";
-import { IoCallOutline } from "react-icons/io5";
-import { FiCheckCircle, FiMail, FiPhone } from "react-icons/fi";
-import { FiUser } from "react-icons/fi";
 import { CiCalendar, CiStethoscope, } from "react-icons/ci";
-import { LuBuilding, LuBuilding2 } from "react-icons/lu";
-import { LuUserRoundCheck } from "react-icons/lu";
+import { FiCheckCircle, FiMail, FiPhone, FiUser } from "react-icons/fi";
+import { IoCallOutline } from "react-icons/io5";
+import { LuBuilding2, LuUserRoundCheck } from "react-icons/lu";
 import { RxDotsHorizontal } from "react-icons/rx";
 
 import { useState } from "react";
-import UrgencyChip from "../chips/UrgencyChip";
 import StatusChip from "../chips/StatusChip";
+import UrgencyChip from "../chips/UrgencyChip";
 
 const statusLabels = [
   { value: "contacted", label: "Contacted", icon: <IoCallOutline /> },

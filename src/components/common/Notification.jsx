@@ -1,5 +1,5 @@
-import { Badge, Button } from '@heroui/react'
-import { FaRegBell } from 'react-icons/fa'
+import { Badge, Button } from '@heroui/react';
+import { FaRegBell } from 'react-icons/fa';
 
 const Notification = () => {
 

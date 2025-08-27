@@ -1,5 +1,5 @@
-import { Card, CardBody } from "@heroui/react"
-import { FaPhoneAlt, FaRegEdit } from "react-icons/fa"
+import { Button, Card, CardBody } from "@heroui/react"
+import { FaRegEdit } from "react-icons/fa"
 import { FaUserXmark } from "react-icons/fa6"
 import { LuCake } from "react-icons/lu"
 
@@ -27,8 +27,15 @@ const PracticeContactsCard = ({ practiceContactsData }) => {
                                         </div>
                                     </div>
                                     <div className='flex items-center gap-2.5'>
-                                        <FaRegEdit className='w-4 h-4 cursor-pointer' />
-                                        <FaUserXmark className='text-red-500 w-4 h-4 cursor-pointer' />
+                                        <Button size='sm' className='bg-transparent p-0 m-0' isIconOnly={true} startContent={
+                                            <FaRegEdit className='w-4 h-4 cursor-pointer' />
+                                        }>
+
+                                        </Button>
+                                        <Button size='sm' className='bg-transparent p-0 m-0' isIconOnly={true} startContent={
+                                            <FaUserXmark className='text-red-500 w-4 h-4 cursor-pointer' />
+                                        }>
+                                        </Button>
                                     </div>
                                 </div>
                             </CardBody>

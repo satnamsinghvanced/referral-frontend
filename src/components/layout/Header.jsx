@@ -1,22 +1,18 @@
 import {
+  Avatar,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
+  Input,
   Navbar,
   NavbarContent,
-  NavbarItem,
-  DropdownItem,
-  DropdownTrigger,
-  Dropdown,
-  DropdownMenu,
-  Avatar,
-  Input,
-  Badge,
-  Button,
+  NavbarItem
 } from "@heroui/react";
-import { Link } from "react-router-dom";
 import { IoSearch } from "react-icons/io5";
-import { FaRegBell } from "react-icons/fa";
-import { LuShield } from "react-icons/lu";
-import Notification from "../common/Notification";
+import { Link } from "react-router-dom";
 import SuperAdminLogin from "../../auth/SuperAdmin";
+import Notification from "../common/Notification";
 import HttpErrorDebugPanel from "../Utils/HttpErrorDebugPanel";
 
 

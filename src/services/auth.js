@@ -1,5 +1,5 @@
-import axiosInstance from "./axiosInstance"; 
 import { useQuery } from "@tanstack/react-query";
+import axiosInstance from "./axiosInstance";
 
 export const loginUser = async (credentials) => {
   const res = await axiosInstance.post("/auth/login", credentials);

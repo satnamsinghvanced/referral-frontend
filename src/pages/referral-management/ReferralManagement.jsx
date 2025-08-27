@@ -1,21 +1,18 @@
-import { CiCalendar, CiHospital1, CiStethoscope, CiUser } from "react-icons/ci";
-import { PiDownloadSimpleLight } from "react-icons/pi";
+import { addToast, Card } from "@heroui/react";
+import { useRef, useState } from "react";
 import { FaStethoscope } from "react-icons/fa6";
 import { LuPlus } from "react-icons/lu";
-import RoleToggleTabs from "../components/common/RoleToggleTabs"; // Changed from ToggleButton to RoleToggleTabs
-import FilterPanel from "../components/common/FilterPanel";
-import ReferralCard from "../components/cards/ReferralCard";
-import { useState } from "react";
-import ComponentHeader from "../components/common/ComponentHeader";
-import AddModal from "../components/common/AddModal";
-import ReferralManagementConfig from "../components/formConfigs/ReferralManagementConfig";
-import { usePatientsQuery } from "../queries/patient/useUsersQuery";
-import { useCreatePatient } from "../queries/patient/useCreateUser";
-import ComponentContainer from "../components/common/ComponentContainer";
-import { useRef } from "react";
-import { useUpdatePatient } from "../queries/patient/userUpdateUser";
-import MediumStatsCard from "../components/cards/MediumStatsCard";
-import { addToast, Button, Card } from "@heroui/react";
+import { PiDownloadSimpleLight } from "react-icons/pi";
+import MediumStatsCard from "../../components/cards/MediumStatsCard";
+import ReferralCard from "../../components/cards/ReferralCard";
+import AddModal from "../../components/common/AddModal";
+import ComponentContainer from "../../components/common/ComponentContainer";
+import FilterPanel from "../../components/common/FilterPanel";
+import RoleToggleTabs from "./RoleToggleTabs"; // Changed from ToggleButton to RoleToggleTabs
+import ReferralManagementConfig from "../../components/formConfigs/ReferralManagementConfig";
+import { useCreatePatient } from "../../queries/patient/useCreateUser";
+import { useUpdatePatient } from "../../queries/patient/userUpdateUser";
+import { usePatientsQuery } from "../../queries/patient/useUsersQuery";
 const ReferralManagement = () => {
   const formRef = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -240,11 +237,9 @@ const ReferralManagement = () => {
             onSelectionChange={handleReferralTypeChange}
           />
           <div className="flex flex-col gap-4 mt-1">
-
             {
               referralData?.data?.length > 0
                 ?
-
                 selectedReferralType === "Doctor Referrals"
                   ? referralData?.data?.map((referral) => (
                     <ReferralCard
@@ -255,9 +250,7 @@ const ReferralManagement = () => {
                       }
                     />
                   ))
-
                   :
-
                   referralData?.data?.map((referral) => (
                     <ReferralCard
                       key={referral._id}
@@ -267,13 +260,11 @@ const ReferralManagement = () => {
                       }
                     />
                   ))
-
                 :
                 <Card className="w-full flex items-center justify-center p-10 border border-text/10 dark:border-text/30" shadow="none">
                   <p className="text-sm text-text/80">No referrals found</p>
                 </Card>
             }
-
           </div>
         </>
       </ComponentContainer>

@@ -1,7 +1,6 @@
-import React, { useCallback, useState, useEffect, useMemo } from "react";
-import { Input, Select, SelectItem, Button } from "@heroui/react";
-import { LuArrowDown, LuArrowUp, LuFilter, LuSearch } from "react-icons/lu";
-import { GoSortAsc, GoSortDesc } from "react-icons/go";
+import { Button, Input, Select, SelectItem } from "@heroui/react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { LuFilter } from "react-icons/lu";
 
 const FilterPanel = ({ onFilterChange }) => {
   const [searchKeyword, setSearchKeyword] = useState("");

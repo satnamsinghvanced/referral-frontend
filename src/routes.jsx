@@ -1,7 +1,6 @@
-import React, { Suspense } from 'react';
 import { Spinner } from '@heroui/react';
+import React, { Suspense } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
-import ReferralConnections from './pages/ReferralConnections';
 
 const Layout = React.lazy(() => import('./components/layout/Layout'));
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
@@ -10,8 +9,9 @@ const Calls = React.lazy(() => import('./pages/Calls'));
 const EmailCampaign = React.lazy(() => import('./pages/EmailCampaigns'));
 const MarketingBudget = React.lazy(() => import('./pages/MarketingBudget'));
 const MarketingCalendar = React.lazy(() => import('./pages/MarketingCalendar'));
-const ReferralManagement = React.lazy(() => import('./pages/ReferralManagement'));
-const Reviews = React.lazy(() => import('./pages/Reviews'));
+const ReferralManagement = React.lazy(() => import('./pages/referral-management/ReferralManagement'));
+const ReferralConnections = React.lazy(() => import('./pages/referral-connections/ReferralConnections'));
+const Reviews = React.lazy(() => import('./pages//reviews/Reviews'));
 const SocialMedia = React.lazy(() => import('./pages/SocialMedia'));
 const Reports = React.lazy(() => import('./pages/Reports'));
 const Calender = React.lazy(() => import('./pages/Calender'));

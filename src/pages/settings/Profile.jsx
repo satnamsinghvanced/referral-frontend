@@ -1,5 +1,5 @@
 import { addToast, Button, Input, Select, SelectItem } from '@heroui/react';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { FiUser } from 'react-icons/fi';
 
 const specialties = [
@@ -118,11 +118,11 @@ const Profile = () => {
             size='sm'
             type='file'
             accept='image/*'
-            className='w-fit '
+            className='w-fit shadow-none'
             onChange={handleImageChange}
             variant='bordered'
           />
-          <p className='text-xs'>JPG, GIF or PNG. 1MB max.</p>
+          <p className='text-xs mt-1'>JPG, GIF or PNG. 1MB max.</p>
         </div>
       </div>
 

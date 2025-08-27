@@ -1,12 +1,11 @@
-import { HiOutlineCog, HiOutlineViewGrid, HiUser } from "react-icons/hi"
+import { HiOutlineCog } from "react-icons/hi";
 // import { useSelector } from "react-redux";
-import { useLocation, useNavigate } from "react-router";
-import { FiCreditCard, FiUser, FiUsers } from "react-icons/fi";
-import { FaRegBell } from "react-icons/fa";
-import { LuShield } from "react-icons/lu";
-import { CiLocationOn, CiMobile1 } from "react-icons/ci";
 import { AiOutlineThunderbolt } from "react-icons/ai";
-import { FaRegChartBar } from "react-icons/fa";
+import { CiLocationOn, CiMobile1 } from "react-icons/ci";
+import { FaRegBell, FaRegChartBar } from "react-icons/fa";
+import { FiCreditCard, FiUser, FiUsers } from "react-icons/fi";
+import { LuShield } from "react-icons/lu";
+import { useLocation, useNavigate } from "react-router";
 
 
 const SettingNavigation = () => {

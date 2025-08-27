@@ -1,26 +1,20 @@
-import { CiCalendar, CiHospital1, CiLocationOn, CiStethoscope, CiUser } from "react-icons/ci";
-import { PiBaby, PiDownloadSimpleLight } from "react-icons/pi";
-import { FaStethoscope } from "react-icons/fa6";
-import { LuBuilding2, LuPlus } from "react-icons/lu";
-import MediumStatsCard from "../components/cards/MediumStatsCard";
-import RoleToggleTabs from "../components/common/RoleToggleTabs"; // Changed from ToggleButton to RoleToggleTabs
-import FilterPanel from "../components/common/FilterPanel";
-import ReferralCard from "../components/cards/ReferralCard";
 import { useState } from "react";
-import ComponentHeader from "../components/common/ComponentHeader";
-import AddModal from "../components/common/AddModal";
-import ReferralManagementConfig from "../components/formConfigs/ReferralManagementConfig";
-import { usePatientsQuery } from "../queries/patient/useUsersQuery";
-import ComponentContainer from "../components/common/ComponentContainer";
-import { LuTelescope } from "react-icons/lu";
-import StatsCard from "../components/cards/MiniStatsCard";
+import { CiLocationOn } from "react-icons/ci";
+import { FaStethoscope } from "react-icons/fa6";
 import { FiStar, FiTarget, FiUsers } from "react-icons/fi";
 import { HiMiniArrowTrendingUp } from "react-icons/hi2";
 import { IoMdCheckboxOutline } from "react-icons/io";
-import MiniStatsCard from "../components/cards/MiniStatsCard";
-import { categoryOptions, locationOptions, practiceOptions, short, statusOptions, urgencyOptions } from "../Utils/filters";
-import ReferralConnectionCard from "../components/cards/ReferralConnectionCard";
-import ReferralConnectionsConfig from "../components/formConfigs/ReferralConnectionsConfig";
+import { LuBuilding2, LuPlus, LuTelescope } from "react-icons/lu";
+import { PiBaby, PiDownloadSimpleLight } from "react-icons/pi";
+import MediumStatsCard from "../../components/cards/MediumStatsCard";
+import MiniStatsCard from "../../components/cards/MiniStatsCard";
+import AddModal from "../../components/common/AddModal";
+import ComponentContainer from "../../components/common/ComponentContainer";
+import FilterPanel from "../../components/common/FilterPanel";
+import ReferralConnectionsConfig from "../../components/formConfigs/ReferralConnectionsConfig";
+import { categoryOptions, practiceOptions, short } from "../../Utils/filters";
+import ReferralConnectionCard from "./ConnectionCard";
+import ReferralConnectionsVisitScheduling from "./VisitScheduling";
 
 
 const ReferralConnections = () => {
@@ -205,7 +199,7 @@ const ReferralConnections = () => {
           </div>
           <div className="bg-background border-text/10 dark:border-text/30 border rounded-md">
             <div className="ml-2 p-3">
-              <h3 className="flex gap-2 "> <FaStethoscope className="text-[17px] mt-1 text-blue-500" /> Doctor Referrers Integration (3)</h3>
+              <h3 className="flex gap-2 text-sm"> <FaStethoscope className="text-[17px] mt-1 text-blue-500" /> Doctor Referrers Integration (3)</h3>
               <p className="text-xs mt-4">
                 Offices with doctor staff are automatically synced with doctor referrer management. New practices added here will create corresponding doctor referrer entries.
               </p>
@@ -225,6 +219,7 @@ const ReferralConnections = () => {
               </div>
             </div>
           </div>
+          <ReferralConnectionsVisitScheduling />
 
           <FilterPanel filters={filters} isFilterable={true} filterFor={'static filter'} />
 

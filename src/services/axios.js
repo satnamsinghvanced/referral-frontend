@@ -1,6 +1,7 @@
 import axios from "axios";
-import { store } from "../store";
 import { jwtDecode } from "jwt-decode";
+import { store } from "../store";
+import { logout } from "../store/authSlice";
 
 const isTokenValid = (token) => {
   try {

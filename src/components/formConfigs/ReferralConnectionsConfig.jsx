@@ -1,11 +1,10 @@
 import {
-    Input,
-    Textarea,
-    Select,
-    SelectItem,
     Button,
     Chip,
-    Divider
+    Input,
+    Select,
+    SelectItem,
+    Textarea
 } from "@heroui/react";
 import { useState } from "react";
 import { categoryOptions, specialtyOptions } from "../../Utils/filters";

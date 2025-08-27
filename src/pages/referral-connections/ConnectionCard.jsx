@@ -1,18 +1,12 @@
-import { Button, Card, CardBody, Chip, Divider, Progress, Tab, Tabs } from '@heroui/react'
+import { Button, Card, CardBody, Chip, Divider, Progress } from '@heroui/react';
 import { useState } from 'react';
 import { CiGlobe, CiShare1 } from 'react-icons/ci';
-import { FaNoteSticky, FaUserPlus, FaUserXmark } from 'react-icons/fa6';
-import { FiChevronDown, FiChevronUp, FiCircle, FiEdit, FiEye, FiPhone, FiPieChart, FiShare, FiUsers } from 'react-icons/fi';
-import { IoMdCheckboxOutline } from 'react-icons/io';
-import { LuBuilding2, LuCake } from 'react-icons/lu';
-import { CgFileDocument } from "react-icons/cg";
-import UrgencyChip from '../chips/UrgencyChip'
-import { HiMiniArrowTrendingUp } from 'react-icons/hi2';
-import { PiBaby } from 'react-icons/pi';
-import MiniStatsCard from './MiniStatsCard';
+import { FiChevronDown, FiChevronUp, FiEdit, FiEye, FiPhone } from 'react-icons/fi';
 import { GoClock } from "react-icons/go";
-import { FaRegEdit } from "react-icons/fa";
-import PracticeContactsCard from './PracticeContactsCard';
+import { HiMiniArrowTrendingUp } from 'react-icons/hi2';
+import { LuBuilding2 } from 'react-icons/lu';
+import { PiBaby } from 'react-icons/pi';
+import ReferralConnectionsToggle from './Toggle';
 
 
 const StatCardData = [
@@ -227,102 +221,11 @@ const ReferralConnectionCard = () => {
                                 <Divider className='my-4' />
                                 <div>
                                     <div className="flex w-full flex-col">
-                                        <Tabs aria-label="Options"
-                                            classNames={{
-                                                tabList: "flex w-full rounded-full",
-                                                tab: "flex-1 px-4 py-1 text-sm font-medium transition-all",
-                                                cursor: "rounded-full",
-                                            }}
-                                            className="text-background w-full">
-                                            <Tab key="contacts"
-                                                title={
-                                                    <div className='flex gap-2 items-center justify-center'>
-                                                        <FiUsers />
-                                                        <p>Contacts</p>
-                                                    </div>
-                                                }
-                                                className="text-sm  w-full">
-                                                <div className='flex flex-col gap-3'>
-                                                    <div className='flex justify-between items-center'>
-                                                        <h6 className='mb-1.5'>   Practice Contacts {' '} &#40;{practiceContactsData.length} &#41;</h6>
-                                                        <Button size='sm' className='bg-text text-background' startContent={<FaUserPlus />}>
-                                                            Add Contact
-                                                        </Button>
-                                                    </div>
-                                                    <div className='grid grid-cols-1 md:grid-cols- xl:grid-cols-3 gap-4'>
-                                                        <PracticeContactsCard practiceContactsData={practiceContactsData} />
-                                                    </div>
-                                                </div>
-                                            </Tab>
-                                            <Tab key="tasks"
-                                                title={
-                                                    <div className='flex gap-2 items-center justify-center'>
-                                                        <IoMdCheckboxOutline />
-                                                        <p>Tasks</p>
-                                                    </div>
-                                                }
-                                                className="text-sm">
-                                                <Card className="border border-text/10" shadow='none'>
-                                                    <CardBody className="text-xs border border-text/10">
-                                                        <div className='flex justify-between items-center '>
-                                                            <div className='flex gap-2 items-center'>
-                                                                <FiCircle />
-                                                                <div>
-                                                                    <p>Introduce NFC card system</p>
-                                                                    <p>Due: 2024-01-30</p>
-                                                                </div>
-                                                            </div>
-                                                            <UrgencyChip urgency={urgency} />
-                                                        </div>
-                                                    </CardBody>
-                                                </Card>
-                                            </Tab>
-                                            <Tab key="notes"
-                                                title={
-                                                    <div className='flex gap-2 items-center justify-center'>
-                                                        <CgFileDocument />
-                                                        <p>Notes</p>
-                                                    </div>
-                                                }
-                                                className="text-sm">
-                                                <Card className="border border-text/10" shadow='none'>
-                                                    <CardBody className="text-xs border border-text/10">
-                                                        <div className='flex justify-between items-start '>
-                                                            <div className='flex flex-col  gap-2.5'>
-                                                                <div className='flex gap-2 items-center'>
-                                                                    <CgFileDocument />
-                                                                    <p>Practice Notes</p>
-                                                                </div>
-                                                                <div>
-                                                                    Excellent partnership. Dr. Wilson consistently sends high-quality referrals.
-                                                                </div>
-                                                            </div>
-                                                            <div className='text-xs'>
-                                                                Updated recently
-                                                            </div>
-
-                                                        </div>
-                                                    </CardBody>
-                                                </Card>
-                                            </Tab>
-                                            <Tab key="analytics"
-                                                title={
-                                                    <div className='flex gap-2 items-center justify-center'>
-                                                        <FiPieChart />
-                                                        <p>Analytics</p>
-                                                    </div>
-                                                }
-                                                className="text-sm">
-                                                <Card className="border-none  shadow-none">
-                                                    <h6 className='py-1'>Practice Analytics                                                    </h6>
-                                                    <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 justify-between">
-                                                        {StatCardData.map((data, index) => (
-                                                            <MiniStatsCard key={index} cardData={data} />
-                                                        ))}
-                                                    </div>
-                                                </Card>
-                                            </Tab>
-                                        </Tabs>
+                                        <ReferralConnectionsToggle
+                                            StatCardData={StatCardData}
+                                            practiceContactsData={practiceContactsData}
+                                            urgency={urgency}
+                                        />
                                     </div>
                                 </div>
                             </>

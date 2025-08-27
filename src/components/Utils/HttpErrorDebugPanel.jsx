@@ -1,5 +1,5 @@
-import { Button } from '@heroui/react'
-import { LuShield } from 'react-icons/lu'
+import { Button } from '@heroui/react';
+import { LuShield } from 'react-icons/lu';
 
 const HttpErrorDebugPanel = () => {
 

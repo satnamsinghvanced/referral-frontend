@@ -1,31 +1,27 @@
-import { useNavigate, useLocation } from "react-router";
-import { useSelector } from "react-redux";
 import {
   HiOutlineBriefcase,
   HiOutlineCalendar,
-  HiOutlineCurrencyDollar,
-  HiOutlineClipboardList,
-  HiOutlineViewGrid,
-  HiOutlineQuestionMarkCircle,
-  HiOutlineCog,
-  HiOutlineLockClosed,
-  HiOutlineChevronUp,
-  HiOutlineArrowsExpand,
-  HiOutlineChevronLeft,
   HiOutlineChartBar,
-  HiOutlineLink,
-  HiOutlinePhone,
-  HiOutlineStar,
+  HiOutlineChevronLeft,
+  HiOutlineCog,
+  HiOutlineCurrencyDollar,
+  HiOutlineLockClosed,
   HiOutlineMail,
+  HiOutlinePhone,
+  HiOutlineQuestionMarkCircle,
+  HiOutlineStar,
+  HiOutlineViewGrid
 } from "react-icons/hi";
+import { useSelector } from "react-redux";
+import { useLocation, useNavigate } from "react-router";
 
-import Profile from "../common/Profile";
-import ThemeToggle from "../common/ThemeToggle";
 import { Tooltip } from "@heroui/react";
 import { LuBuilding2 } from "react-icons/lu";
+import Profile from "../common/Profile";
+import ThemeToggle from "../common/ThemeToggle";
 
-import logo from "../../assets/logos/logo.png";
 import { IoIosArrowRoundForward } from "react-icons/io";
+import logo from "../../assets/logos/logo.png";
 // import logoWhite from "../../assets/logo-white.svg";
 
 const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }) => {
@@ -73,14 +69,14 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }) => {
     <>
       {/* Mobile overlay when sidebar open in mobile/mini mode */}
       <div
-        className={`${isMiniSidebarOpen ? "bg-black/40 fixed inset-0 z-30" : "hidden"
+        className={` z-[100]  ${isMiniSidebarOpen ? "bg-black/40 fixed inset-0 z-30" : "hidden"
           } md:hidden`}
         onClick={onCloseSidebar}
         aria-hidden
       />
 
       <aside
-        className={`no-print fixed top-0 left-0 z-40 h-screen border-r border-text/10 dark:border-text/30  dark:text-white transition-all duration-300
+        className={`no-print fixed top-0 left-0 z-40 h-screen border-r border-text/10 dark:border-text/30 bg-background dark:text-white transition-all duration-300
           ${isMiniSidebarOpen
             ? "md:w-[280px] w-[90%] md:px-1 px-2"
             : "w-22 px-2"

@@ -1,5 +1,4 @@
 import { Button } from '@heroui/react'
-import React from 'react'
 
 const ComponentHeader = ({ heading, subHeading, buttons }) => {
     return (

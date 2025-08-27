@@ -1,4 +1,3 @@
-import React from 'react'
 import ComponentHeader from './ComponentHeader'
 
 const ComponentContainer = ({ headingDate, children }) => {
