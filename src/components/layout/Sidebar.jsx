@@ -1,16 +1,15 @@
 import {
-  HiOutlineBriefcase,
   HiOutlineCalendar,
   HiOutlineChartBar,
   HiOutlineChevronLeft,
+  HiOutlineClipboardList,
   HiOutlineCog,
-  HiOutlineCurrencyDollar,
+  HiOutlineDocument,
   HiOutlineLockClosed,
   HiOutlineMail,
   HiOutlinePhone,
   HiOutlineQuestionMarkCircle,
-  HiOutlineStar,
-  HiOutlineViewGrid
+  HiOutlineStar
 } from "react-icons/hi";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router";
@@ -20,6 +19,7 @@ import { LuBuilding2 } from "react-icons/lu";
 import Profile from "../common/Profile";
 import ThemeToggle from "../common/ThemeToggle";
 
+import { FiHome, FiUsers } from "react-icons/fi";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import logo from "../../assets/logos/logo.png";
 // import logoWhite from "../../assets/logo-white.svg";
@@ -38,17 +38,85 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }) => {
 
   // Example static navigation - we'll replace with role-driven later
   const navigationRoutes = [
-    { name: "Dashboard", icon: HiOutlineViewGrid, href: "/dashboard" },
-    { name: "Referrals", icon: HiOutlineBriefcase, href: "/referrals" },
-    { name: "Referral Connections", icon: LuBuilding2, href: "/referral-connections" },
-    { name: "Calls", icon: HiOutlinePhone, href: "/calls" },
-    { name: "Reviews", icon: HiOutlineStar, href: "/reviews" },
-    { name: "Email Campaigns", icon: HiOutlineMail, href: "/email-campaigns" },
-    { name: "Social Media", icon: HiOutlineMail, href: "/social-media" },
-    { name: "Marketing Calendar", icon: HiOutlineCalendar, href: "/marketing-calendar" },
-    { name: "Marketing Budget", icon: HiOutlineCurrencyDollar, href: "/marketing-budget" },
-    { name: "Analytics", icon: HiOutlineChartBar, href: "/analytics" },
+    {
+      name: "Dashboard",
+      icon: FiHome,
+      href: "/dashboard",
+
+    },
+    {
+      name: "Referrals",
+      icon: FiUsers,
+      href: "/referrals",
+      stats: 247,
+      color: (stats) => (stats > 200 ? 'bg-sky-100' : stats > 50 ? 'bg-orange-100' : 'bg-green-400')
+    },
+    {
+      name: "Referral Connections",
+      icon: LuBuilding2,
+      href: "/referral-connections",
+      stats: 12,
+      color: 'bg-sky-200'
+    },
+    {
+      name: "Reviews",
+      icon: HiOutlineStar,
+      href: "/reviews",
+      stats: 1200,
+      color: 'bg-yellow-200',
+      label: '1.2k'
+    },
+    {
+      name: "Marketing Calendar",
+      icon: HiOutlineCalendar,
+      href: "/marketing-calendar",
+      stats: 8,
+      color: 'bg-orange-300'
+    },
+    {
+      name: "Social Media",
+      icon: HiOutlineMail,
+      href: "/social-media",
+      stats: 'NEW', // Special case for NEW label
+      color: 'bg-purple-300'
+    },
+    {
+      name: "Call Tracking",
+      icon: HiOutlinePhone,
+      href: "//",
+      stats: 34,
+      color: 'bg-violet-300'
+    },
+    {
+      name: "Email Campaigns",
+      icon: HiOutlineMail,
+      href: "/email-campaigns",
+      stats: 5,
+      color: 'bg-green-300'
+    },
+    {
+      name: "Analytics",
+      icon: HiOutlineChartBar,
+      href: "/analytics",
+      stats: 6,
+      color: 'bg-red-300'
+    },
+    {
+      name: "Reports",
+      icon: HiOutlineDocument,
+      href: "/reports",
+      stats: 1,
+      color: 'bg-gray-300'
+    },
+    {
+      name: "Task List",
+      icon: HiOutlineClipboardList,
+      href: "/",
+      stats: 12,
+      color: 'bg-red-300'
+    }
   ];
+
 
   const bottomRoutes = [
     {
@@ -78,7 +146,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }) => {
       <aside
         className={`no-print fixed top-0 left-0 z-40 h-screen border-r border-text/10 dark:border-text/30 bg-background dark:text-white transition-all duration-300
           ${isMiniSidebarOpen
-            ? "md:w-[280px] w-[90%] md:px-1 px-2"
+            ? "md:w-[250px] w-[90%] md:px-1 px-2"
             : "w-22 px-2"
           }
         `}
@@ -162,7 +230,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }) => {
                         : "px-4 justify-center"
                       }
                       ${active
-                        ? "bg-blue-50 text-blue-700 !border-blue-100"
+                        ? "bg-sky-50 text-sky-700 !border-sky-200 shadow-sm"
                         : "hover:bg-gray-100 dark:hover:bg-gray-700 border-transparent"
                       }
                     `}
@@ -173,13 +241,13 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }) => {
                     >
                       {isMiniSidebarOpen ?
                         <Icon className={` ${active
-                          ? "bg-blue-50 text-blue-700"
+                          ? "bg-sky-50 text-sky-700"
                           : "hover:bg-gray-100 dark:hover:bg-gray-700"
                           }`} />
                         :
                         <Tooltip content={item.name} placement="right">
                           <Icon className={` ${active
-                            ? "bg-blue-50 text-blue-700"
+                            ? "bg-sky-50 text-sky-700"
                             : "hover:bg-gray-100 dark:hover:bg-gray-700"
                             }`} />
                         </Tooltip>
@@ -188,7 +256,17 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }) => {
                     </span>
 
                     {isMiniSidebarOpen && (
-                      <span className="ml-3 truncate text-[12px]">{item.name}</span>
+                      <div className="ml-3 truncate text-[12px] w-full flex justify-between items-center">
+                        <div>{item.name}</div>
+                        <div>
+                          {item.stats &&
+                            <p
+                              className={`rounded-full px-2 text-[10px] py-0.5 capitalize !text-text ${typeof item.color === 'function' ? item.color(item.stats) : item.color}`}
+                            >  {typeof item.stats === 'number' ? `${item.stats}` : item.stats}
+                            </p>
+                          }
+                        </div>
+                      </div>
                     )}
                   </div>
                 </li>
@@ -215,7 +293,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }) => {
                         : "px-3 justify-center"
                       }
                       ${active
-                        ? "bg-primary-500 text-white"
+                        ? "bg-primary-500"
                         : "hover:bg-gray-100 dark:hover:bg-gray-700"
                       }
                       ${isSignOut ? "block md:hidden" : ""}

@@ -51,7 +51,7 @@ const Layout = () => {
     <div
       className={`${!isMiniSidebarOpen
         ? "lg:pl-[88px] md:pl-22"
-        : "lg:pl-[280px] md:pl-22"
+        : "lg:pl-[250px] md:pl-22"
         } transition-all`}
     >
       {isSidebarOpen && (

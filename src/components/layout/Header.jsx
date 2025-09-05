@@ -1,43 +1,40 @@
 import {
-  Avatar,
+  Button,
   Dropdown,
   DropdownItem,
   DropdownMenu,
   DropdownTrigger,
   Input,
   Navbar,
-  NavbarContent,
-  NavbarItem
+  NavbarContent
 } from "@heroui/react";
+import { FiUser } from "react-icons/fi";
 import { IoSearch } from "react-icons/io5";
-import { Link } from "react-router-dom";
-import SuperAdminLogin from "../../auth/SuperAdmin";
 import Notification from "../common/Notification";
-import HttpErrorDebugPanel from "../Utils/HttpErrorDebugPanel";
 
 
-const HEADER_LINKS = [
-  {
-    label: "Home",
-    link: "/",
-  },
-  {
-    label: "Reports",
-    link: "/reports",
-  },
-  {
-    label: "Social Media",
-    link: "/social",
-  },
-  {
-    label: "Calender",
-    link: "/calender",
-  },
-  {
-    label: "Budget",
-    link: "/budget",
-  },
-];
+// const HEADER_LINKS = [
+//   {
+//     label: "Home",
+//     link: "/",
+//   },
+//   {
+//     label: "Reports",
+//     link: "/reports",
+//   },
+//   {
+//     label: "Social Media",
+//     link: "/social",
+//   },
+//   {
+//     label: "Calender",
+//     link: "/calender",
+//   },
+//   {
+//     label: "Budget",
+//     link: "/budget",
+//   },
+// ];
 
 export default function Header() {
   return (
@@ -47,7 +44,7 @@ export default function Header() {
     >
       <NavbarContent justify="start">
         <NavbarContent className="hidden sm:flex gap-6">
-          {HEADER_LINKS.map((navItem) => (
+          {/* {HEADER_LINKS.map((navItem) => (
             <NavbarItem key={navItem.link}>
               <Link
                 to={navItem.link}
@@ -56,14 +53,29 @@ export default function Header() {
                 {navItem.label}
               </Link>
             </NavbarItem>
-          ))}
+          ))} */}
+          <Input
+            size='sm'
+            classNames={{
+              base: "max-w-full sm:max-w-[15rem]",
+              mainWrapper: "h-full",
+              input: "text-small",
+              inputWrapper:
+                "min-h-8 font-normal text-default-500 shadow-none bg-text/4 group-data-[focus=true]:border-default-400 text-text",
+              // "min-h-9 font-normal text-default-500 shadow-none border-small bg-text-10 group-data-[focus=true]:border-default-400 text-text",
+            }}
+            placeholder="Search referrals..."
+            startContent={<IoSearch size={18} className="text-text/50" />}
+            type="search"
+            variant="flat"
+          />
         </NavbarContent>
 
       </NavbarContent>
 
       <NavbarContent as="div" className="items-center gap-4" justify="end">
         <div className="flex gap-3">
-          <Input
+          {/* <Input
             size='sm'
             classNames={{
               base: "max-w-full sm:max-w-[15rem]",
@@ -76,29 +88,33 @@ export default function Header() {
             startContent={<IoSearch size={18} />}
             type="search"
             variant="bordered"
-          />
+          /> */}
 
           {/* HTTP Error Debug Panel */}
-          <HttpErrorDebugPanel />
+          {/* <HttpErrorDebugPanel /> */}
         </div>
 
         {/* admin access only  */}
-        <SuperAdminLogin />
+        {/* <SuperAdminLogin /> */}
 
-        <div className="flex gap-3">
+        <div className="flex gap-3 justify-center items-center">
           {/* notification */}
           <Notification />
 
           <Dropdown placement="bottom-end">
             <DropdownTrigger>
-              <Avatar
+              {/* <Avatar
                 as="button"
                 className="transition-transform cursor-pointer"
                 color="primary"
                 name="Jason Hughes"
                 size="sm"
                 src="https://i.pravatar.cc/150?u=a042581f4e29026704d"
-              />
+              /> */}
+              <Button size="sm" className="text-sm flex justify-center items-center gap-2 !cursor-pointer bg-background hover:bg-orange-200 hover:text-orange-600">
+                <FiUser />
+                <p>Dr. Smith</p>
+              </Button>
             </DropdownTrigger>
             <DropdownMenu aria-label="Profile Actions" variant="flat">
               <DropdownItem key="profile" className="h-14 gap-2">

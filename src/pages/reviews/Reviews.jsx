@@ -23,7 +23,7 @@ const Reviews = () => {
       subheading: (<p className='text-green-500'>stars</p>)
     },
     {
-      icon: <PiMedalLight className="h-full w-full text-blue-500" />,
+      icon: <PiMedalLight className="h-full w-full text-sky-500" />,
       heading: 'Average Rating',
       value: 3.8,
       subheading: (<RenderStars averageRating={4.8} />)
@@ -38,7 +38,7 @@ const Reviews = () => {
       icon: <FiTarget className="h-full w-full text-green-500" />,
       heading: 'NFC to Reviews',
       value: '175',
-      subheading: (<p className='text-blue-500'>19.2% rate</p>)
+      subheading: (<p className='text-sky-500'>19.2% rate</p>)
     },
     {
       heading: 'Active Locations',

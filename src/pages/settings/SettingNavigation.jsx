@@ -48,7 +48,7 @@ const SettingNavigation = () => {
                      "px-0 justify-start"
                                     
                       ${active
-                                        ? "bg-blue-50 text-blue-700"
+                                        ? "bg-sky-50 text-sky-700"
                                         : "hover:bg-gray-100 dark:hover:bg-gray-700"
                                     }
                     `}
@@ -60,14 +60,14 @@ const SettingNavigation = () => {
                                     {/* {isMiniSidebarOpen ? */}
                                     <Icon className={` 
                                         ${active
-                                            ? "bg-blue-50 text-blue-700"
+                                            ? "bg-sky-50 text-sky-700"
                                             : "hover:bg-gray-100 dark:hover:bg-gray-700"
                                         }
                                         `} />
                                     {/* //     :
                                 //     <Tooltip content={item.name} placement="right">
                                 //         <Icon className={` ${active
-                                //             ? "bg-blue-50 text-blue-600"
+                                //             ? "bg-sky-50 text-sky-600"
                                 //             : "hover:bg-gray-100 dark:hover:bg-gray-700"
                                 //             }`} />
                                 //     </Tooltip>

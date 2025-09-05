@@ -1,8 +1,8 @@
 import { Button, Card, CardBody, Divider } from "@heroui/react";
-import { IoLocationOutline } from "react-icons/io5";
-import RenderStars from "../../Utils/renderStars";
 import { CiShare1 } from "react-icons/ci";
 import { FaQrcode } from "react-icons/fa6";
+import { IoLocationOutline } from "react-icons/io5";
+import RenderStars from "../../Utils/renderStars";
 
 const ReviewsLocationCard = ({ locations }) => {
     return (
@@ -10,7 +10,7 @@ const ReviewsLocationCard = ({ locations }) => {
             {locations.map((location, index) => (
                 <Card key={index} className="border border-text/10 p-4" shadow='none'>
                     <h6 className="text-sm flex gap-2 items-center">
-                        <IoLocationOutline className="text-blue-600 w-4 h-4" />
+                        <IoLocationOutline className="text-sky-600 w-4 h-4" />
                         <span>{location.location}</span>
                     </h6>
                     <CardBody className="text-xs flex flex-col gap-5">

@@ -5,7 +5,7 @@ const ComponentHeader = ({ heading, subHeading, buttons }) => {
         <div className=' md:px-7 px-4 py-3 md:py-6 bg-background flex justify-between border-b-1 border-text/10 dark:border-text/30'>
             <div>
                 <h3 className='text-lg'>{heading}</h3>
-                <p className='text-sm font-light'>{subHeading}</p>
+                <p className='text-sm font-thin'>{subHeading}</p>
             </div>
             <div style={{ display: 'flex', gap: '0.5rem' }}>
                 {buttons?.map((btn, index) => (

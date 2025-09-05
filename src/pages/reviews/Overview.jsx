@@ -45,7 +45,7 @@ const Overview = () => {
                         NFC Card Performance
                     </h6>
                     <CardBody className="text-xs px-3 pb-0">
-                        1111111111111111111111111.
+                        NFC Card Data
                     </CardBody>
                 </Card>
                 <Card className="border border-text/10 w-full p-5" shadow='none'>

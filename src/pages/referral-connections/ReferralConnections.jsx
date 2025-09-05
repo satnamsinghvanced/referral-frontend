@@ -29,8 +29,8 @@ const ReferralConnections = () => {
     {
       heading: "Total Doctors",
       stat: 3,
-      bgColor: "bg-blue-50",
-      textColor: "text-blue-800",
+      bgColor: "bg-sky-50",
+      textColor: "text-sky-800",
     },
     {
       heading: "A-Level",
@@ -82,32 +82,32 @@ const ReferralConnections = () => {
   };
 
   const buttonList = [
+    // {
+    //   label: "Switch",
+    //   onClick: handleSwitchClick,
+    //   icon: <CiLocationOn />,
+    //   props: {
+    //     variant: "primary",
+    //   },
+    // },
+    // {
+    //   label: "Discover Practice",
+    //   onClick: handleDiscoverClick,
+    //   icon: <LuTelescope />,
+    //   props: {
+    //     variant: "primary",
+    //   },
+    // },
+    // {
+    //   label: "Import Data",
+    //   onClick: handleExport,
+    //   icon: <PiDownloadSimpleLight />,
+    //   props: {
+    //     variant: "secondary",
+    //   },
+    // },
     {
-      label: "Switch",
-      onClick: handleSwitchClick,
-      icon: <CiLocationOn />,
-      props: {
-        variant: "primary",
-      },
-    },
-    {
-      label: "Discover Practice",
-      onClick: handleDiscoverClick,
-      icon: <LuTelescope />,
-      props: {
-        variant: "primary",
-      },
-    },
-    {
-      label: "Import Data",
-      onClick: handleExport,
-      icon: <PiDownloadSimpleLight />,
-      props: {
-        variant: "secondary",
-      },
-    },
-    {
-      label: "Add Office",
+      label: "Add Practice",
       onClick: handleOpen,
       classNames: 'bg-text text-background',
       icon: <LuPlus />,
@@ -137,47 +137,47 @@ const ReferralConnections = () => {
 
   const StatCardData = [
     {
-      icon: <LuBuilding2 className="text-[17px] mt-1 text-blue-500" />,
-      heading: 'Total Offices',
+      icon: <LuBuilding2 className="text-[17px] mt-1 text-sky-500" />,
+      heading: 'Total Practices',
       value: '3',
       subheading: 'Referring practices'
     },
     {
       icon: <FiUsers className="text-[17px] mt-1 text-green-500" />,
       heading: 'Total Referrals',
-      value: '85',
-      subheading: 'All time'
+      value: '247',
+      subheading: '+12% from last month'
     },
-    {
-      icon: <HiMiniArrowTrendingUp className="text-[17px] mt-1 text-purple-500" />,
-      heading: 'This Month',
-      value: '12',
-      subheading: 'Referrals'
-    },
+    // {
+    //   icon: <HiMiniArrowTrendingUp className="text-[17px] mt-1 text-purple-500" />,
+    //   heading: 'This Month',
+    //   value: '12',
+    //   subheading: 'Referrals'
+    // },
+    // {
+    //   icon: <FiStar className="text-[17px] mt-1 text-yellow-500" />,
+    //   heading: 'Avg Score',
+    //   value: '76',
+    //   subheading: 'Relationship'
+    // },
     {
       icon: <FiStar className="text-[17px] mt-1 text-yellow-500" />,
-      heading: 'Avg Score',
-      value: '76',
-      subheading: 'Relationship'
+      heading: 'A-Level Practices',
+      value: '8',
+      subheading: '67% of total'
     },
     {
       icon: <FiTarget className="text-[17px] mt-1 text-green-500" />,
-      heading: 'A-Level',
-      value: '1',
-      subheading: 'Partners'
+      heading: 'Avg. Score',
+      value: '78.5',
+      subheading: '+5.2 improvement'
     },
-    {
-      icon: <IoMdCheckboxOutline className="text-[17px] mt-1 text-orange-500" />,
-      heading: 'Active Tasks',
-      value: '3',
-      subheading: 'Pending'
-    },
-    {
-      icon: <PiBaby className="text-[17px] mt-1 text-pink-500" />,
-      heading: 'Family Leads',
-      value: '0',
-      subheading: 'Ortho candidates'
-    }
+    // {
+    //   icon: <PiBaby className="text-[17px] mt-1 text-pink-500" />,
+    //   heading: 'Family Leads',
+    //   value: '0',
+    //   subheading: 'Ortho candidates'
+    // }
   ];
 
   const filters = [
@@ -192,14 +192,14 @@ const ReferralConnections = () => {
         headingDate={headingDate}
       >
         <div className="flex flex-col gap-5">
-          <div className="grid grid-cols-1 lg:grid-cols-3 xl:grid-cols-5 2xl:grid-cols-7 gap-4 justify-between">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 justify-between">
             {StatCardData.map((data, index) => (
               <MiniStatsCard key={index} cardData={data} />
             ))}
           </div>
           <div className="bg-background border-text/10 dark:border-text/30 border rounded-md">
             <div className="ml-2 p-3">
-              <h3 className="flex gap-2 text-sm"> <FaStethoscope className="text-[17px] mt-1 text-blue-500" /> Doctor Referrers Integration (3)</h3>
+              <h3 className="flex gap-2 text-sm"> <FaStethoscope className="text-[17px] mt-1 text-sky-500" /> Doctor Referrers Integration (3)</h3>
               <p className="text-xs mt-4">
                 Offices with doctor staff are automatically synced with doctor referrer management. New practices added here will create corresponding doctor referrer entries.
               </p>
@@ -233,7 +233,7 @@ const ReferralConnections = () => {
         isOpen={isModalOpen}
         heading={
           <div className=" flex gap-2 items-center">
-            <LuBuilding2 className="text-blue-600" />
+            <LuBuilding2 className="text-sky-600" />
             <span>Add New Dental Practice</span>
           </div>
         }

@@ -1,18 +1,17 @@
 import { addToast, Card } from "@heroui/react";
 import { useRef, useState } from "react";
-import { FaStethoscope } from "react-icons/fa6";
+import { FaQrcode, FaStethoscope } from "react-icons/fa6";
 import { LuPlus } from "react-icons/lu";
-import { PiDownloadSimpleLight } from "react-icons/pi";
 import MediumStatsCard from "../../components/cards/MediumStatsCard";
 import ReferralCard from "../../components/cards/ReferralCard";
 import AddModal from "../../components/common/AddModal";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import FilterPanel from "../../components/common/FilterPanel";
-import RoleToggleTabs from "./RoleToggleTabs"; // Changed from ToggleButton to RoleToggleTabs
 import ReferralManagementConfig from "../../components/formConfigs/ReferralManagementConfig";
 import { useCreatePatient } from "../../queries/patient/useCreateUser";
 import { useUpdatePatient } from "../../queries/patient/userUpdateUser";
 import { usePatientsQuery } from "../../queries/patient/useUsersQuery";
+import RoleToggleTabs from "./RoleToggleTabs"; // Changed from ToggleButton to RoleToggleTabs
 const ReferralManagement = () => {
   const formRef = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -69,8 +68,8 @@ const ReferralManagement = () => {
     {
       heading: "Active Referrers",
       stat: 5,
-      bgColor: "bg-blue-50",
-      textColor: "text-blue-800",
+      bgColor: "bg-sky-50",
+      textColor: "text-sky-800",
     },
     {
       heading: "Total Referrals",
@@ -95,7 +94,7 @@ const ReferralManagement = () => {
   };
 
   const handleExport = () => {
-    alert("Export item");
+    alert("Generate QR Code");
   };
 
   const handleOpen = () => {
@@ -155,9 +154,9 @@ const ReferralManagement = () => {
 
   const buttonList = [
     {
-      label: "VCF Contacts",
+      label: "Generate QR Code",
       onClick: handleExport,
-      icon: <PiDownloadSimpleLight />,
+      icon: <FaQrcode />,
       props: {
         variant: "secondary",
       },
@@ -207,7 +206,7 @@ const ReferralManagement = () => {
             <div className="ml-2 p-4 ">
               <h3 className="flex gap-2 ">
                 {" "}
-                <FaStethoscope className="text-[17px] mt-1 text-blue-500" />{" "}
+                <FaStethoscope className="text-[17px] mt-1 text-sky-500" />{" "}
                 Doctor Referrers (3)
               </h3>
               <p className="text-xs mt-4">
