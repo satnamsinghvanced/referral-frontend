@@ -1,13 +1,11 @@
-import { Card, CardBody, Tab, Tabs } from '@heroui/react'
+import { Tab, Tabs } from '@heroui/react'
 import { CgFileDocument } from 'react-icons/cg'
-import { FiCircle, FiPieChart, FiUsers } from 'react-icons/fi'
+import { FiPieChart, FiUsers } from 'react-icons/fi'
 import { IoMdCheckboxOutline } from 'react-icons/io'
-import MiniStatsCard from '../../components/cards/MiniStatsCard'
-import UrgencyChip from '../../components/chips/UrgencyChip'
-import ReferralConnectionsContacts from './Contacts'
-import ReferralConnectionsTasks from './Tasks'
-import ReferralConnectionsNotes from './Notes'
 import ReferralConnectionsAnalytics from './Analytics'
+import ReferralConnectionsContacts from './Contacts'
+import ReferralConnectionsNotes from './Notes'
+import ReferralConnectionsTasks from './Tasks'
 
 const ReferralConnectionsToggle = ({ StatCardData, practiceContactsData, urgency }) => {
     return (

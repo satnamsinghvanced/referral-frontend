@@ -1,5 +1,5 @@
-import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from '@heroui/react'
-import { LuShield } from 'react-icons/lu'
+import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, useDisclosure } from '@heroui/react';
+import { LuShield } from 'react-icons/lu';
 
 const SuperAdminLogin = () => {
     const { isOpen, onOpen, onOpenChange } = useDisclosure();

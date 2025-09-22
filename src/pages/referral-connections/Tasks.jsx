@@ -1,5 +1,4 @@
 import { Card, CardBody } from '@heroui/react'
-import React from 'react'
 import { FiCircle } from 'react-icons/fi'
 import UrgencyChip from '../../components/chips/UrgencyChip'
 

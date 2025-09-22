@@ -1,11 +1,7 @@
 import { useState } from "react";
-import { CiLocationOn } from "react-icons/ci";
 import { FaStethoscope } from "react-icons/fa6";
 import { FiStar, FiTarget, FiUsers } from "react-icons/fi";
-import { HiMiniArrowTrendingUp } from "react-icons/hi2";
-import { IoMdCheckboxOutline } from "react-icons/io";
-import { LuBuilding2, LuPlus, LuTelescope } from "react-icons/lu";
-import { PiBaby, PiDownloadSimpleLight } from "react-icons/pi";
+import { LuBuilding2, LuPlus } from "react-icons/lu";
 import MediumStatsCard from "../../components/cards/MediumStatsCard";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
 import AddModal from "../../components/common/AddModal";

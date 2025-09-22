@@ -1,5 +1,5 @@
 import { Card, CardBody } from '@heroui/react';
-import ReviewsLocationCard from './LocationCard'
+import ReviewsLocationCard from './LocationCard';
 
 const Locations = () => {
 
