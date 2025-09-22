@@ -6,6 +6,7 @@ const Layout = React.lazy(() => import('./components/layout/Layout'));
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 const Analytics = React.lazy(() => import('./pages/Analytics'));
 const Calls = React.lazy(() => import('./pages/Calls'));
+const HelpCenter = React.lazy(() => import('./pages/HelpCenter'));
 const EmailCampaign = React.lazy(() => import('./pages/EmailCampaigns'));
 const MarketingBudget = React.lazy(() => import('./pages/MarketingBudget'));
 const MarketingCalendar = React.lazy(() => import('./pages/MarketingCalendar'));
@@ -48,6 +49,7 @@ function AppRoutes() {
                 { path: "reports", element: <Reports /> },
                 { path: "social", element: <SocialMedia /> },
                 { path: "calender", element: <Calender /> },
+                { path: "helpcenter", element: <HelpCenter /> },
                 {
                     path: "settings",
                     element: <Settings />,

@@ -17,7 +17,6 @@ import { useLocation, useNavigate } from "react-router";
 import { Tooltip } from "@heroui/react";
 import { LuBuilding2 } from "react-icons/lu";
 import Profile from "../common/Profile";
-import ThemeToggle from "../common/ThemeToggle";
 
 import { FiHome, FiUsers } from "react-icons/fi";
 import { IoIosArrowRoundForward } from "react-icons/io";
@@ -210,7 +209,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }) => {
         {/* nav container */}
         <div
           className={`${isMiniSidebarOpen ? "overflow-y-auto" : ""
-            } flex flex-col justify-between h-[calc(100vh_-_90px)] pb-3 px-0`}
+            } flex flex-col justify-between h-[calc(100vh_-_60px)]  px-0`}
         >
           <ul
             className={`flex flex-col text-gray-900 dark:text-white p-2 ${!isMiniSidebarOpen ? "ml-[-4.8px]" : ""
@@ -261,7 +260,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }) => {
                         <div>
                           {item.stats &&
                             <p
-                              className={`rounded-full px-2 text-[10px] py-0.5 capitalize !text-text ${typeof item.color === 'function' ? item.color(item.stats) : item.color}`}
+                              className={`rounded-full px-2 text-[10px] py-0.5 capitalize !text-text dark:!text-background ${typeof item.color === 'function' ? item.color(item.stats) : item.color}`}
                             >  {typeof item.stats === 'number' ? `${item.stats}` : item.stats}
                             </p>
                           }
@@ -293,7 +292,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }) => {
                         : "px-3 justify-center"
                       }
                       ${active
-                        ? "bg-primary-500"
+                        ? "bg-primary-500 text-background"
                         : "hover:bg-gray-100 dark:hover:bg-gray-700"
                       }
                       ${isSignOut ? "block md:hidden" : ""}
@@ -314,11 +313,11 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }) => {
             })}
 
             {/* Theme toggle + Profile area */}
-            <li>
+            {/* <li>
               <div className={`mt-2 ${isMiniSidebarOpen ? "pl-2" : "px-4"}`}>
                 <ThemeToggle />
               </div>
-            </li>
+            </li> */}
           </ul>
         </div>
 

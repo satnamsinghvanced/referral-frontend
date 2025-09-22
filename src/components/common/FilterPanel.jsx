@@ -72,21 +72,21 @@ const FilterPanel = ({ onFilterChange }) => {
     getSelectedFilters,
     onFilterChange,
   ]);
-  
+
   const handleStatusChange = (keys) => {
-  const value = Array.from(keys)[0] || "all"; 
-  setStatus(value);
-};
+    const value = Array.from(keys)[0] || "all";
+    setStatus(value);
+  };
 
-const handleUrgencyChange = (keys) => {
-  const value = Array.from(keys)[0] || "all";
-  setUrgency(value);
-};
+  const handleUrgencyChange = (keys) => {
+    const value = Array.from(keys)[0] || "all";
+    setUrgency(value);
+  };
 
-const handleLocationChange = (keys) => {
-  const value = Array.from(keys)[0] || "all";
-  setLocation(value);
-};
+  const handleLocationChange = (keys) => {
+    const value = Array.from(keys)[0] || "all";
+    setLocation(value);
+  };
 
   const resetFilters = () => {
     setSearchKeyword("");
@@ -95,14 +95,14 @@ const handleLocationChange = (keys) => {
     setUrgency("all");
     setLocation("all");
 
-   
+
     onFilterChange?.({
       search: "",
       status: "",
       urgency: "",
       location: "",
     });
-  }; 
+  };
 
   const getLabel = useCallback((options, key) => {
     const option = options.find((opt) => opt.key === key);
@@ -110,8 +110,8 @@ const handleLocationChange = (keys) => {
   }, []);
 
   return (
-    <div className="pt-2 px-2 border-text/10 dark:border-text/30 border rounded-lg bg-background">
-      <h5>Filters</h5>
+    <div className=" px-4 border-primary/10 dark:border-primary/30 border rounded-lg bg-background">
+      {/* <h5>Filters</h5> */}
       <div className="flex flex-wrap items-center gap-2 w-full rounded-md py-4">
         <Input
           size="sm"
@@ -128,7 +128,7 @@ const handleLocationChange = (keys) => {
           selectedKey={status}
           onSelectionChange={handleStatusChange}
           className="text-xs flex-1 min-w-fit"
-          placeholder={getLabel(statusOptions, status)} 
+          placeholder={getLabel(statusOptions, status)}
         >
           {statusOptions.map(({ key, label }) => (
             <SelectItem key={key}>{label}</SelectItem>

@@ -1,8 +1,8 @@
 import { Tab, Tabs } from "@heroui/react";
 
-const RoleToggleTabs = ({ selected, onSelectionChange }) => {
+const RoleToggleTabs = ({ selected = 'Referrals', onSelectionChange }) => {
     return (
-        <div className="bg-text/10 border-text/5 dark:border-text/10 border rounded-full w-full">
+        <div className="bg-primary/10 rounded-full w-full">
             <Tabs
                 selectedKey={selected}
                 onSelectionChange={onSelectionChange}
@@ -11,12 +11,13 @@ const RoleToggleTabs = ({ selected, onSelectionChange }) => {
                 radius="full"
                 classNames={{
                     tabList: "flex w-full rounded-full",
-                    tab: "flex-1 px-4 py-1 text-sm font-medium transition-all",
+                    tab: "flex-1 px-4 py-1 text-sm font-medium transition-all bg-green-500",
+                    tabWrapper: " bg-green-500",
                     cursor: "rounded-full",
                 }}
                 className="text-background w-full"
             >
-                {["Doctor Referrals", "Patient Referrals"].map((role) => (
+                {["Referrals", "Referrers", "NFC & QR Tracking"].map((role) => (
                     <Tab
                         key={role}
                         title={role}

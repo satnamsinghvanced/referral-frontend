@@ -14,8 +14,8 @@ import { FiCheckCircle, FiMail, FiPhone, FiUser } from "react-icons/fi";
 import { IoCallOutline } from "react-icons/io5";
 import { LuBuilding2, LuUserRoundCheck } from "react-icons/lu";
 import { RxDotsHorizontal } from "react-icons/rx";
-
 import { useState } from "react";
+import { urgencyLabels } from "../../Utils/consts";
 import StatusChip from "../chips/StatusChip";
 import UrgencyChip from "../chips/UrgencyChip";
 
@@ -25,11 +25,6 @@ const statusLabels = [
   { value: "completed", label: "Completed", icon: <FiCheckCircle /> },
 ]
 
-const urgencyLabels = {
-  low: "Low",
-  medium: "Medium",
-  high: "High",
-};
 
 const urgencyColors = {
   low: "success",
@@ -106,7 +101,7 @@ const ReferralCard = ({
   };
 
   return (
-    <Card shadow="sm" className="w-full hover:shadow-lg transition-all duration-300 p-3">
+    <Card shadow="none" className="w-full  transition-all duration-300 p-3 border border-text/10 dark:border-text/30 hover:bg-text/2">
       <CardHeader className="flex gap-2 justify-between w-full">
         <div className="flex gap-2">
           <Chip size="sm" variant="flat" color="default" className="border bg-transparent border-text/20 text-xs">
@@ -121,36 +116,6 @@ const ReferralCard = ({
 
         </div>
         <div className="flex">
-          {/* <Select
-            aria-label="Update status"
-            selectedKeys={applicationStatus ? [applicationStatus] : []}
-            onSelectionChange={(keys) => {
-              const selectedValue = Array.from(keys)[0];
-              handleStatusChange(selectedValue);
-            }}
-            className="min-w-[150px] z-20"
-            variant="bordered"
-            size="sm"
-            placeholder="Update Status"
-            isOpen={isOpen}
-            onOpenChange={(open) => setIsOpen(open)}
-            classNames={{
-              trigger: "border-0 border-transparent bg-transparent text-transparent",
-            }}
-          >
-            {Object.entries(statusLabels).map(([value, label]) => (
-              <SelectItem key={value} value={value}>
-                {label}
-              </SelectItem>
-            ))}
-          </Select>
-          <Button
-            aria-label="Change Status"
-            onPress={() => setIsOpen(!isOpen)}
-            className=" ml-2 z-21"
-          >
-            ---
-          </Button> */}
           <Popover placement="right" size="sm" shouldCloseOnScroll={true} backdrop="">
             <PopoverTrigger>
               <Button size="sm" className="bg-transparent hover:bg-text/10">
