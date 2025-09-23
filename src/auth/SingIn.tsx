@@ -1,17 +1,18 @@
-import { useState, ChangeEvent, FormEvent } from 'react';
 import {
+    Button,
     Card,
     CardBody,
-    Input,
-    Button,
     Checkbox,
-    Link,
     Divider,
+    Input,
+    Link,
     Spinner
 } from "@heroui/react";
-import { TbEyeFilled } from "react-icons/tb";
+import { useState, type FormEvent } from 'react';
 import { FaEyeSlash, FaLock } from 'react-icons/fa';
 import { IoMdMail } from 'react-icons/io';
+import { TbEyeFilled } from "react-icons/tb";
+import { useNavigate } from "react-router";
 
 interface Errors {
     email: string;
@@ -32,14 +33,12 @@ interface Errors {
     general?: string;
 }
 
-// Define props for the SignIn component (if needed)
 interface SignInProps {
     onSignIn: (formData: FormData) => Promise<void>;
     onNavigateToForgotPassword: () => void;
-    onNavigateToSignUp: () => void;
 }
 
-const SignIn: React.FC<SignInProps> = ({ onSignIn, onNavigateToForgotPassword, onNavigateToSignUp }) => {
+const SignIn = ({ onSignIn, onNavigateToForgotPassword }: SignInProps) => {
     const [isVisible, setIsVisible] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [formData, setFormData] = useState<FormData>({
@@ -47,6 +46,8 @@ const SignIn: React.FC<SignInProps> = ({ onSignIn, onNavigateToForgotPassword, o
         password: '',
         rememberMe: false
     });
+
+    const navigate = useNavigate();
 
     const [errors, setErrors] = useState<Errors>({
         email: '',
@@ -111,6 +112,10 @@ const SignIn: React.FC<SignInProps> = ({ onSignIn, onNavigateToForgotPassword, o
             setIsLoading(false);
         }
     };
+
+    const onNavigateToSignUp = () => {
+        navigate('/signup');
+    }
 
     return (
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
@@ -218,7 +223,14 @@ const SignIn: React.FC<SignInProps> = ({ onSignIn, onNavigateToForgotPassword, o
                     </form>
 
                     <div className="mt-6 text-center text-xs text-text/50">
-                        By signing in, you agree to our Terms of Service and Privacy Policy.
+                        By signing in, you agree to our
+                        <Link href="/referral-retrieve/terms" className="text-xs">
+                            Terms of Service
+                        </Link>
+                        {" "}and{" "}
+                        <Link href="/referral-retrieve/privacy" className="text-xs">
+                            Privacy Policy
+                        </Link>.
                     </div>
                 </CardBody>
             </Card>

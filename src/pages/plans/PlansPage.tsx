@@ -1,5 +1,5 @@
-import PlanCard from "../../components/cards/PlanCard";
-
+import { useNavigate } from "react-router";
+import PlanCard from "../../components/cards/PlanCard.js";
 
 const plans = [
     {
@@ -42,8 +42,10 @@ const plans = [
 
 
 const PlansPage = () => {
+    const navigate = useNavigate();
     const handleBuyNow = (planId: any) => {
         console.log(`Plan with ID ${planId} was clicked!`);
+        navigate(`/success?planId=${planId}`);
     };
 
     return (

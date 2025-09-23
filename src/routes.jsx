@@ -29,6 +29,12 @@ const NotificationAnalytics = React.lazy(() => import('./pages/settings/Notifica
 const Profile = React.lazy(() => import('./pages/settings/Profile'));
 const PlansPage = React.lazy(() => import('./pages/plans/PlansPage'));
 const SignIn = React.lazy(() => import('./auth/SingIn'));
+const SignUp = React.lazy(() => import('./auth/SignUp'));
+const Success = React.lazy(() => import('./payment/Success'));
+const Fail = React.lazy(() => import('./payment/Fail'));
+const Support = React.lazy(() => import('./pages/support/SupportPage'));
+const Terms = React.lazy(() => import('./pages/terms/TermsPage'));
+const PrivacyPolicy = React.lazy(() => import('./pages/privacy-policy/PrivacyPolicyPage'));
 
 function AppRoutes() {
     const routesList = [
@@ -77,7 +83,31 @@ function AppRoutes() {
         {
             path: "signin",
             element: <SignIn />,
-        }
+        },
+        {
+            path: "signup",
+            element: <SignUp />,
+        },
+        {
+            path: "success",
+            element: <Success />,
+        },
+        {
+            path: "fail",
+            element: <Fail />,
+        },
+        {
+            path: "support",
+            element: <Support />,
+        },
+        {
+            path: "terms",
+            element: <Terms />,
+        },
+        {
+            path: "privacy",
+            element: <PrivacyPolicy />,
+        },
     ];
 
     const renderRoutes = (routes) => {
