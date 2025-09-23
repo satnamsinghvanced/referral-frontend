@@ -6,12 +6,11 @@ import {
   DropdownTrigger,
   Input,
   Navbar,
-  NavbarContent
+  NavbarContent,
 } from "@heroui/react";
 import { FiUser } from "react-icons/fi";
 import { IoSearch } from "react-icons/io5";
 import Notification from "../common/Notification";
-
 
 // const HEADER_LINKS = [
 //   {
@@ -36,13 +35,26 @@ import Notification from "../common/Notification";
 //   },
 // ];
 
-export default function Header() {
+export default function Header({
+  hamburgerMenuClick,
+}: {
+  hamburgerMenuClick: () => void;
+}) {
   return (
     <Navbar
+      height={63}
       isBordered
-      classNames={{ base: "border-text/10 dark:border-text/30", wrapper: "max-w-none" }}
+      classNames={{
+        base: "border-text/10 dark:border-text/30",
+        wrapper: "max-w-none",
+      }}
     >
       <NavbarContent justify="start">
+        <NavbarContent className="lg:hidden">
+          <button onClick={hamburgerMenuClick} className="cursor-pointer">
+            Mobile Menu
+          </button>
+        </NavbarContent>
         <NavbarContent className="hidden sm:flex gap-6">
           {/* {HEADER_LINKS.map((navItem) => (
             <NavbarItem key={navItem.link}>
@@ -55,7 +67,7 @@ export default function Header() {
             </NavbarItem>
           ))} */}
           <Input
-            size='sm'
+            size="sm"
             classNames={{
               base: "max-w-full sm:max-w-[15rem]",
               mainWrapper: "h-full",
@@ -70,7 +82,6 @@ export default function Header() {
             variant="flat"
           />
         </NavbarContent>
-
       </NavbarContent>
 
       <NavbarContent as="div" className="items-center gap-4" justify="end">
@@ -111,7 +122,10 @@ export default function Header() {
                 size="sm"
                 src="https://i.pravatar.cc/150?u=a042581f4e29026704d"
               /> */}
-              <Button size="sm" className="text-sm flex justify-center items-center gap-2 !cursor-pointer bg-background hover:bg-orange-200 hover:text-orange-600">
+              <Button
+                size="sm"
+                className="text-sm flex justify-center items-center gap-2 !cursor-pointer bg-background hover:bg-orange-200 hover:text-orange-600"
+              >
                 <FiUser />
                 <p>Dr. Smith</p>
               </Button>
@@ -126,7 +140,9 @@ export default function Header() {
               <DropdownItem key="analytics">Analytics</DropdownItem>
               <DropdownItem key="system">System</DropdownItem>
               <DropdownItem key="configurations">Configurations</DropdownItem>
-              <DropdownItem key="help_and_feedback">Help & Feedback</DropdownItem>
+              <DropdownItem key="help_and_feedback">
+                Help & Feedback
+              </DropdownItem>
               <DropdownItem key="logout" color="danger">
                 Log Out
               </DropdownItem>

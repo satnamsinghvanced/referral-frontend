@@ -49,10 +49,9 @@ const Layout = () => {
 
   return (
     <div
-      className={`${!isMiniSidebarOpen
-        ? "lg:pl-[88px] md:pl-22"
-        : "lg:pl-[250px] md:pl-22"
-        } transition-all`}
+      className={`${
+        !isMiniSidebarOpen ? "lg:pl-18" : "lg:pl-[250px]"
+      } transition-all`}
     >
       {isSidebarOpen && (
         <Sidebar
@@ -63,7 +62,7 @@ const Layout = () => {
       )}
 
       <Header
-        onClick={() => {
+        hamburgerMenuClick={() => {
           setIsSidebarOpen(!isSidebarOpen);
         }}
       />
