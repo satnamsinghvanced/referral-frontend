@@ -27,6 +27,8 @@ const IntegrationTests = React.lazy(() => import('./pages/settings/IntegrationTe
 const PushNotifications = React.lazy(() => import('./pages/settings/PushNotifications'));
 const NotificationAnalytics = React.lazy(() => import('./pages/settings/NotificationAnalytics'));
 const Profile = React.lazy(() => import('./pages/settings/Profile'));
+const PlansPage = React.lazy(() => import('./pages/plans/PlansPage'));
+const SignIn = React.lazy(() => import('./auth/SingIn'));
 
 function AppRoutes() {
     const routesList = [
@@ -68,6 +70,14 @@ function AppRoutes() {
                 },
             ],
         },
+        {
+            path: "plans",
+            element: <PlansPage />,
+        },
+        {
+            path: "signin",
+            element: <SignIn />,
+        }
     ];
 
     const renderRoutes = (routes) => {

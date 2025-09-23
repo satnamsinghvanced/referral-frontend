@@ -1,0 +1,322 @@
+import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Chip,
+  Divider,
+  Popover,
+  PopoverContent,
+  PopoverTrigger
+} from "@heroui/react";
+import { CiCalendar, CiStethoscope, } from "react-icons/ci";
+import { FiCheckCircle, FiMail, FiPhone, FiUser } from "react-icons/fi";
+import { IoCallOutline } from "react-icons/io5";
+import { LuBuilding2, LuUserRoundCheck } from "react-icons/lu";
+import { RxDotsHorizontal } from "react-icons/rx";
+import { useState } from "react";
+import { urgencyLabels } from "../../Utils/consts";
+import StatusChip from "../chips/StatusChip";
+import UrgencyChip from "../chips/UrgencyChip";
+
+const statusLabels = [
+  { value: "contacted", label: "Contacted", icon: <IoCallOutline /> },
+  { value: "scheduled", label: "Scheduled", icon: <CiCalendar /> },
+  { value: "completed", label: "Completed", icon: <FiCheckCircle /> },
+]
+
+
+const urgencyColors = {
+  low: "success",
+  medium: "warning",
+  high: "danger",
+};
+
+const preferredTimeLabels = {
+  morning: "Morning",
+  afternoon: "Afternoon",
+  evening: "Evening",
+  afterSchool: "After School",
+  lunchBreak: "Lunch Break",
+  weekend: "Weekend"
+};
+interface ReferralCardProps {
+  uniqueId: string;
+  fullName: string;
+  status: string;
+  urgency?: string;
+  email: string;
+  age?: number;
+  phoneNumber: string;  
+  referringByName: string;
+  relationshipName?: string;
+  referringPracticeName?: string;
+  referringSpecialty?: string;
+  referringPhoneNumber?: string;
+  referringEmail?: string;
+  referringFax?: string;
+  referringWebsite?: string;
+  practiceAddress?: string;
+  practiceAddressCity?: string;
+  practiceAddressState?: string;
+  practiceAddressZip?: string;
+  treatmentType?: string;
+  insuranceProvider?: string;
+  preferredTime?: string;
+  reasonForReferral?: string;
+  notes?: string;
+  createdAt: string;
+  role: 'doctor' | 'patient';
+  onUpdateStatus?: (newStatus: string) => void;
+}
+
+const ReferralCard = ({
+  uniqueId,
+  fullName,
+  status,
+  urgency,
+  email,
+  age,
+  phoneNumber,
+  referringByName,
+  relationshipName,
+  referringPracticeName,
+  referringSpecialty,
+  referringPhoneNumber,
+  referringEmail,
+  referringFax,
+  referringWebsite,
+  practiceAddress,
+  practiceAddressCity,
+  practiceAddressState,
+  practiceAddressZip,
+  treatmentType,
+  insuranceProvider,
+  preferredTime,
+  reasonForReferral,
+  notes,
+  createdAt,
+  role,
+  onUpdateStatus,
+}: ReferralCardProps) => {
+  const [applicationStatus, setApplicationStatus] = useState(status);
+  const [isOpen, setIsOpen] = useState(false);
+
+  const handleStatusChange = (newStatus) => {
+    if (newStatus && newStatus.target) {
+      newStatus = newStatus.target.value;
+    }
+    if (onUpdateStatus) {
+      onUpdateStatus(newStatus);
+      setApplicationStatus(newStatus);
+
+    }
+    setIsOpen(false);
+  };
+
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const getAddress = () => {
+    if (!practiceAddress && !practiceAddressCity && !practiceAddressState && !practiceAddressZip) {
+      return null;
+    }
+    return `${practiceAddress}, ${practiceAddressCity}, ${practiceAddressState} ${practiceAddressZip}`;
+  };
+
+  return (
+    <Card shadow="none" className="w-full  transition-all duration-300 p-3 border border-text/10 dark:border-text/30 hover:bg-text/2">
+      <CardHeader className="flex gap-2 justify-between w-full">
+        <div className="flex gap-2">
+          <Chip size="sm" variant="flat" color="default" className="border bg-transparent border-text/20 text-xs">
+            {uniqueId}
+          </Chip>
+          {urgency && (
+            <UrgencyChip urgency={urgencyLabels[urgency] || urgency} />
+          )}
+          {applicationStatus && (
+            <StatusChip applicationStatus={applicationStatus} />
+          )}
+
+        </div>
+        <div className="flex">
+          <Popover placement="right" size="sm" shouldCloseOnScroll={true}>
+            <PopoverTrigger>
+              <Button size="sm" className="bg-transparent hover:bg-text/10">
+                <RxDotsHorizontal />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="border border-text/5 shadow-sm" >
+              {/* <div className="px-1 py-2"> */}
+              <div className="px-0 py-1 space-y-1 flex flex-col gap-1">
+                {statusLabels.map(({ value, label, icon }) => (
+                  <Button
+                    size="sm"
+                    key={value}
+                    onPress={() => handleStatusChange(value)}
+                    variant="light"
+                    className="w-full text-left flex items-center justify-start  m-0"
+                  >
+                    {icon} Make as {label}
+                  </Button>
+                ))}
+              </div>
+              {/* </div> */}
+            </PopoverContent>
+          </Popover>
+        </div>
+        
+
+      </CardHeader>
+
+      {/* <Divider /> */}
+ 
+      <CardBody className="flex text-xs gap-3  !pt-0">
+        <div className="space-y-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Patient Information */}
+          <div className="mb-0">
+            <p className="text-text text-sm uppercase font-semibold mb-2">Patient Information</p>
+            <div className="space-y-1">
+              <p className="flex items-center gap-1">
+                <FiUser />
+                <span className="font-medium">{fullName}</span>
+                <span className="font-light text-text/90"> ({age && `${age} years old`})</span>
+              </p>
+              <p className="flex items-center gap-1">
+                <FiPhone />
+                <span className="font-light text-text/90">{phoneNumber}</span>
+              </p>
+              <p className="flex items-center gap-1">
+                <FiMail />
+                <span className="font-light text-text/90">{email}</span>
+              </p>
+              <p className="flex items-center gap-1">
+                <CiCalendar />
+                <span className="font-light">Received:</span>
+                <span className="font-light text-text/90 ">{formatDate(createdAt)}</span>
+              </p>
+
+              {/* <p>
+                <span className="font-medium">Phone:</span>
+                <span className="font-light text-text/90"> {phoneNumber}</span>
+              </p> */}
+              {/* {age && (
+                <p>
+                  <span className="font-medium">Age:</span>
+                  <span className="font-light text-text/90"> {age}</span>
+                </p>
+              )} */}
+            </div>
+          </div>
+
+          {/* Referrer Information */}
+          <div className="mb-0">
+            <p className="text-text text-sm uppercase font-semibold mb-2">
+              {role === 'doctor' ? 'Referring Doctor' : 'Referring Patient'}
+            </p>
+            <div className="space-y-1">
+              <p className="flex items-center gap-1">
+                {relationshipName ?
+                  <LuUserRoundCheck />
+                  :
+                  <CiStethoscope />
+                }
+                <span className="font-light text-text/90">{referringByName}</span>
+              </p>
+              {relationshipName &&
+                <p className="flex items-center gap-1">
+                  <LuBuilding2 className="text-extralight" />
+                  <span className="font-light text-text/90">{relationshipName}</span>
+                </p>}
+              {referringPracticeName &&
+                <p className="flex items-center gap-1">
+                  <FiUser />
+                  <span className="font-light text-text/90">{referringPracticeName}</span>
+                </p>
+              }
+              {/* {referringSpecialty
+                && <p><span className="font-medium">Specialty:</span>
+                  <span className="font-light text-text/90">{referringSpecialty}</span>
+                </p>
+              } */}
+              {referringPhoneNumber &&
+                <p className="flex items-center gap-1">
+                  <FiPhone />
+                  <span className="font-light text-text/90">{referringPhoneNumber}</span>
+                </p>
+              }
+              {referringEmail &&
+                <p className="flex items-center gap-1">
+                  <FiMail />
+                  <span className="font-light text-text/90">{referringEmail}</span>
+                </p>
+              }
+              {/* {getAddress()
+                && <p><span className="font-medium">Address:</span>
+                  <span className="font-light text-text/90">{getAddress()}</span>
+                </p>
+              } */}
+            </div>
+          </div>
+        </div>
+        <Divider className="bg-text/10" />
+        <div className="space-y-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Treatment Information */}
+          <div className="mb-0">
+            <p className="text-text text-sm uppercase font-semibold mb-2">Treatment Details</p>
+            <div className="space-y-1">
+              {treatmentType && <p><span className="font-medium">Type:</span> <span className="font-light text-text/90">{treatmentType}</span></p>}
+              {insuranceProvider && <p><span className="font-medium">Insurance:</span> <span className="font-light text-text/90">{insuranceProvider}</span></p>}
+              {preferredTime && <p><span className="font-medium">Preferred Time:</span> <span className="font-light text-text/90">{preferredTimeLabels[preferredTime] || preferredTime}</span></p>}
+              {/* {urgency && <p><span className="font-medium">Urgency:</span> <span className="font-light text-text/90">{urgencyLabels[urgency]}</span></p>} */}
+            </div>
+          </div>
+
+          {/* Additional Information */}
+          <div className="mb-0">
+            <p className="text-text text-sm uppercase font-semibold mb-2">Notes</p>
+            <div className="space-y-1">
+
+              {notes && (
+                <p>
+                  <span className="font-light text-text/90">{notes}</span>
+                </p>
+              )}
+              {reasonForReferral && (
+                <p><span className="font-medium">Reason:</span> <span className="font-light text-text/90">{reasonForReferral}</span></p>
+              )}
+              {/* <p>
+                <span className="font-medium">Date Received:</span> <span className="font-light text-text/90 ">{formatDate(dateReceived)}</span>
+              </p> */}
+            </div>
+          </div>
+        </div>
+      </CardBody>
+
+      {/* <Divider /> */}
+
+      {/* <CardFooter>
+        <div className="flex justify-between items-center w-full">
+          <span className="text-xs text-text">
+            Referral Type: {role === 'doctor' ? 'Doctor' : 'Patient'}
+          </span>
+          <div className="flex gap-2">
+            <Button size="sm" color="primary" variant="flat">
+              View Details
+            </Button>
+            <Button size="sm" color="secondary" variant="flat">
+              Contact Patient
+            </Button>
+          </div>
+        </div>
+      </CardFooter> */}
+    </Card>
+  );
+};
+
+export default ReferralCard;

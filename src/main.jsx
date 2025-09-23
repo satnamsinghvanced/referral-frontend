@@ -1,9 +1,9 @@
 import { HeroUIProvider, ToastProvider } from "@heroui/react";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import App from "./App.jsx";
-import QueryProvider from "./providers/QueryProvider.jsx";
-import ReduxProvider from "./providers/ReduxProvider.jsx";
+import App from "./App.tsx";
+import QueryProvider from "./providers/QueryProvider.tsx";
+import ReduxProvider from "./providers/ReduxProvider.tsx";
 
 import "./index.css";
 
