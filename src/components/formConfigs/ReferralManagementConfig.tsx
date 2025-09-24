@@ -176,7 +176,7 @@ const ReferralManagementConfig = forwardRef(({ initialData = {} }: ReferralManag
 
       {/* Example sections */}
       <div className=" ">
-        <h5 className="text-sm font-medium mb-3 text-text">Patient Information</h5>
+        <h5 className="text-sm font-medium mb-3">Patient Information</h5>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[
             { id: "fullName", label: "Patient Name *", type: "text" },
@@ -189,7 +189,7 @@ const ReferralManagementConfig = forwardRef(({ initialData = {} }: ReferralManag
 
       {formik.values.role === "doctor" && (
         <div className=" ">
-          <h5 className="text-sm font-medium mb-3 text-text">Doctor Referrer Information</h5>
+          <h5 className="text-sm font-medium mb-3">Doctor Referrer Information</h5>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
               { id: "referringByName", label: "Doctor Name *", type: "text" },
@@ -218,7 +218,7 @@ const ReferralManagementConfig = forwardRef(({ initialData = {} }: ReferralManag
 
       {formik.values.role === "doctor" && (
         <div className=" ">
-          <h5 className="text-sm font-medium mb-3 text-text">Practice Address</h5>
+          <h5 className="text-sm font-medium mb-3">Practice Address</h5>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
               { id: "practiceAddress", label: "Street Address", type: "text" },
@@ -232,7 +232,7 @@ const ReferralManagementConfig = forwardRef(({ initialData = {} }: ReferralManag
 
       {formik.values.role === "patient" && (
         <div className=" ">
-          <h5 className="text-sm font-medium mb-3 text-text">Patient Referrer Information</h5>
+          <h5 className="text-sm font-medium mb-3">Patient Referrer Information</h5>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {[
               { id: "referringByName", label: "Referring Patient Name *", type: "text" },
@@ -245,7 +245,7 @@ const ReferralManagementConfig = forwardRef(({ initialData = {} }: ReferralManag
       )}
       {/** ✅ Treatment Information Section */}
       <div className=" ">
-        <h5 className="text-sm font-medium mb-3 text-text">Treatment Information</h5>
+        <h5 className="text-sm font-medium mb-3">Treatment Information</h5>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {[
             {
@@ -278,7 +278,7 @@ const ReferralManagementConfig = forwardRef(({ initialData = {} }: ReferralManag
 
 
       <div className=" ">
-        <h5 className="text-sm font-medium mb-3 text-text">Additional Information</h5>
+        <h5 className="text-sm font-medium mb-3 ">Additional Information</h5>
         <div className="grid grid-cols-1 gap-4">
           {[
             {

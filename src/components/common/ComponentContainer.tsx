@@ -13,7 +13,7 @@ const ComponentContainer = ({ headingDate, children }: ComponentContainerProps) 
     return (
         <div className="flex flex-col h-full">
             {/* Sticky Header */}
-            <div className="sticky top-0 z-40 bg-background">
+            <div className="sticky top-0 z-40 bg-background text-text dark:bg-text dark:text-background">
                 <ComponentHeader
                     heading={headingDate.heading}
                     subHeading={headingDate.subHeading}

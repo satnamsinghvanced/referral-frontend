@@ -9,7 +9,7 @@ const ReviewToggle = () => {
         <>
             <Tabs aria-label="Options"
                 classNames={{
-                    tabList: "flex w-full rounded-full bg-text/5 text-xs",
+                    tabList: "flex w-full rounded-full bg-text/5 text-xs bg-text/5 dark:bg-background/5",
                     tab: "flex-1 px-4 py-1 text-xs font-medium transition-all",
                     cursor: "rounded-full text-xs",
                 }}

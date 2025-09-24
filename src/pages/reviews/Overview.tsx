@@ -29,7 +29,7 @@ const Overview = () => {
 
     return (
         <div className="flex flex-col gap-4">
-            <div>
+            {/* <div>
                 <Card className="border border-text/10 p-4" shadow='none'>
                     <h6 className="text-sm">
                         Review Collection Trends
@@ -38,17 +38,28 @@ const Overview = () => {
                         Details about review collection trends go here.
                     </CardBody>
                 </Card>
-            </div>
+            </div> */}
             <div className='flex gap-4 w-full'>
-                <Card className="border border-text/10 w-full p-4" shadow='none'>
+                <Card className="border border-primary/10 dark:border-primary/15  w-full p-4 min-h-80" shadow='none'>
                     <h6 className="text-sm">
-                        NFC Card Performance
+                        Monthly Review Trends
+
                     </h6>
                     <CardBody className="text-xs px-3 pb-0">
-                        NFC Card Data
+                        graph for Monthly Review Trends
+
                     </CardBody>
                 </Card>
-                <Card className="border border-text/10 w-full p-5" shadow='none'>
+                <Card className="border border-primary/10 dark:border-primary/15  w-full p-4 min-h-80" shadow='none'>
+                    <h6 className="text-sm">
+                        Review Platform Distribution
+                    </h6>
+                    <CardBody className="text-xs px-3 pb-0">
+                        graph Review Platform Distribution
+
+                    </CardBody>
+                </Card>
+                {/* <Card className="border border-text/10 w-full p-5" shadow='none'>
                     <h6 className="text-sm mb-2">
                         Location Performance
                     </h6>
@@ -63,9 +74,9 @@ const Overview = () => {
                                         <CiLocationOn className="w-5 h-5 text-primary font-bold" />
                                         <div className="flex flex-col gap-1">
                                             <p className='font-semibold'>{city}</p>
-                                            <p className="flex gap-1">
+                                            <div className="flex gap-1">
                                                 <RenderStars averageRating={averageRating} /> ({reviewsCount} reviews)
-                                            </p>
+                                            </div>
                                         </div>
                                     </div>
                                     <div className="flex flex-col items-end">
@@ -77,7 +88,7 @@ const Overview = () => {
                         </div>
 
                     </CardBody>
-                </Card>
+                </Card> */}
             </div>
         </div>
     )

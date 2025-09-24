@@ -1,5 +1,6 @@
 import { Card, CardBody } from '@heroui/react';
 import ReviewsLocationCard from './LocationCard';
+import { IoLocationOutline } from 'react-icons/io5';
 
 const Locations = () => {
 
@@ -8,40 +9,50 @@ const Locations = () => {
             location: 'Tulsa',
             totalReviews: 287,
             averageRating: 4.8,
-            reviewsThisMonth: 23,
-            address: '123 South Yale Avenue, Tulsa, OK 74136',
-            phone: '+1 (918) 555-0123'
+            nfcTaps: 142,
+            qrScans: 78,
         },
         {
             location: 'Oklahoma City',
             totalReviews: 150,
             averageRating: 4.5,
-            reviewsThisMonth: 10,
-            address: '456 North Broadway Avenue, Oklahoma City, OK 73102',
-            phone: '+1 (405) 555-5678'
+            nfcTaps: 110,
+            qrScans: 65,
         },
         {
             location: 'Norman',
             totalReviews: 120,
             averageRating: 3.9,
-            reviewsThisMonth: 5,
-            address: '789 West Main Street, Norman, OK 73069',
-            phone: '+1 (405) 555-1234'
+            nfcTaps: 80,
+            qrScans: 45,
+        },
+        {
+            location: 'Edmond',
+            totalReviews: 98,
+            averageRating: 4.2,
+            nfcTaps: 67,
+            qrScans: 52,
         }
+
     ];
+
     return (
-        <div className='flex flex-col gap-6'>
-            <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4'>
+        <div className='flex flex-col gap-6 bg-background dark:bg-text border border-text/20 dark:border-background/10 rounded-xl p-5'>
+            <h4 className='flex items-center'>
+                <IoLocationOutline className="text-primary w-4 h-4 mr-2" />
+
+                Review Performance by Location</h4>
+            <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4'>
                 <ReviewsLocationCard locations={locationData} />
             </div>
-            <Card className="border border-text/10 p-4" shadow='none'>
+            {/* <Card className="border border-text/10 p-4" shadow='none'>
                 <h6 className="text-sm">
                     Monthly Review Collection by Location
                 </h6>
                 <CardBody className="text-xs px-3 pb-0">
                     Monthly Review Collection by Location -- GRAPH
                 </CardBody>
-            </Card>
+            </Card> */}
         </div>
     )
 }

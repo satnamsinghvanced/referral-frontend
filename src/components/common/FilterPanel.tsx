@@ -119,7 +119,7 @@ const FilterPanel = ({ onFilterChange }: FilterPanelProps) => {
   }, []);
 
   return (
-    <div className=" px-4 border-primary/10 dark:border-primary/30 border rounded-lg bg-background">
+    <div className=" px-4 border-primary/10 dark:border-primary/20 border rounded-lg bg-background dark:bg-text">
       {/* <h5>Filters</h5> */}
       <div className="flex flex-wrap items-center gap-2 w-full rounded-md py-4">
         <Input

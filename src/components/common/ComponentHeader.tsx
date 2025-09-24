@@ -18,10 +18,10 @@ const ComponentHeader = ({
   buttons,
 }: ComponentHeaderProps) => {
   return (
-    <div className="md:px-7 px-4 py-3 md:py-6 bg-background flex justify-between items-center border-b-1 border-text/10 dark:border-text/30">
+    <div className="md:px-7 px-4 py-3 md:py-6 bg-background flex justify-between items-center border-b-1 border-text/10 dark:border-text/30 dark:bg-text">
       <div className="space-y-1">
         <h3 className="text-lg">{heading}</h3>
-        <p className="text-sm">{subHeading}</p>
+        <p className="text-sm dark:text-background/90">{subHeading}</p>
       </div>
       <div style={{ display: "flex", gap: "0.5rem" }}>
         {buttons?.map((btn, index) => (
@@ -30,9 +30,8 @@ const ComponentHeader = ({
             key={index}
             onPress={btn.onClick}
             {...btn.props}
-            className={`${
-              btn.classNames ? btn.classNames : "border border-text/30 "
-            }`}
+            className={`${btn.classNames ? btn.classNames : "border border-text/30 dark:border-background/30"
+              }`}
             startContent={btn?.icon ? btn.icon : <></>}
           >
             {btn.label}

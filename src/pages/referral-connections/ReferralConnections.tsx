@@ -6,11 +6,10 @@ import MediumStatsCard from "../../components/cards/MediumStatsCard";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
 import AddModal from "../../components/common/AddModal";
 import ComponentContainer from "../../components/common/ComponentContainer";
-import FilterPanel from "../../components/common/FilterPanel";
 import ReferralConnectionsConfig from "../../components/formConfigs/ReferralConnectionsConfig";
-import { categoryOptions, practiceOptions, short } from "../../Utils/filters";
 import ReferralConnectionCard from "./ConnectionCard";
 import ReferralConnectionsVisitScheduling from "./VisitScheduling";
+// import { categoryOptions, practiceOptions, short } from "../../Utils/filters";
 
 
 const ReferralConnections = () => {
@@ -105,7 +104,7 @@ const ReferralConnections = () => {
     {
       label: "Add Practice",
       onClick: handleOpen,
-      classNames: 'bg-text text-background',
+      classNames: 'bg-text text-background dark:bg-background dark:text-text',
       icon: <LuPlus />,
       props: {
         variant: "primary",
@@ -133,54 +132,62 @@ const ReferralConnections = () => {
 
   const StatCardData = [
     {
-      icon: <LuBuilding2 className="text-[17px] mt-1 text-sky-500" />,
+      icon: <LuBuilding2 className="text-[17px] mt-1 text-text/60" />,
       heading: 'Total Practices',
-      value: '3',
-      subheading: 'Referring practices'
+      value: '12',              // updated from 3 to 12
+      subheading: '+2 from last month'
     },
     {
-      icon: <FiUsers className="text-[17px] mt-1 text-green-500" />,
+      icon: <FiUsers className="text-[17px] mt-1 text-text/60" />,
       heading: 'Total Referrals',
       value: '247',
       subheading: '+12% from last month'
     },
-    // {
-    //   icon: <HiMiniArrowTrendingUp className="text-[17px] mt-1 text-purple-500" />,
-    //   heading: 'This Month',
-    //   value: '12',
-    //   subheading: 'Referrals'
-    // },
-    // {
-    //   icon: <FiStar className="text-[17px] mt-1 text-yellow-500" />,
-    //   heading: 'Avg Score',
-    //   value: '76',
-    //   subheading: 'Relationship'
-    // },
     {
-      icon: <FiStar className="text-[17px] mt-1 text-yellow-500" />,
+      icon: <FiStar className="text-[17px] mt-1 text-text/60" />,
       heading: 'A-Level Practices',
       value: '8',
       subheading: '67% of total'
     },
     {
-      icon: <FiTarget className="text-[17px] mt-1 text-green-500" />,
+      icon: <FiTarget className="text-[17px] mt-1 text-text/60" />,
       heading: 'Avg. Score',
       value: '78.5',
       subheading: '+5.2 improvement'
     },
-    // {
-    //   icon: <PiBaby className="text-[17px] mt-1 text-pink-500" />,
-    //   heading: 'Family Leads',
-    //   value: '0',
-    //   subheading: 'Ortho candidates'
-    // }
   ];
 
-  const filters = [
-    { categoryOptions },
-    { practiceOptions },
-    { short }
-  ]
+  // const filters = [
+  //   { categoryOptions },
+  //   { practiceOptions },
+  //   { short }
+  // ]
+
+
+  // dummyClinicsData.ts
+  const dummyReferralData = [
+    {
+      id: '1',
+      name: 'Downtown Dental',
+      address: '123 Main St',
+      phone: '(555) 123-4567',
+      referrals: 24,
+      level: 'a-level', // lowercase to match LevelChip expectations
+      levelColor: 'green', // optional
+      score: 85
+    },
+    {
+      id: '2',
+      name: 'Family Dentistry Plus',
+      address: '456 Oak Ave',
+      phone: '(555) 234-5678',
+      referrals: 18,
+      level: 'b-level',
+      levelColor: 'yellow',
+      score: 72
+    }
+  ];
+
 
   return (
     <>
@@ -193,7 +200,7 @@ const ReferralConnections = () => {
               <MiniStatsCard key={index} cardData={data} />
             ))}
           </div>
-          <div className="bg-background border-text/10 dark:border-text/30 border rounded-md">
+          {/* <div className="bg-background border-text/10 dark:border-text/30 border rounded-md">
             <div className="ml-2 p-3">
               <h3 className="flex gap-2 text-sm"> <FaStethoscope className="text-[17px] mt-1 text-sky-500" /> Doctor Referrers Integration (3)</h3>
               <p className="text-xs mt-4">
@@ -214,13 +221,19 @@ const ReferralConnections = () => {
                 ))}
               </div>
             </div>
+          </div> */}
+          {/* <ReferralConnectionsVisitScheduling /> */}
+
+          {/* <FilterPanel  filters={filters} isFilterable={true} filterFor={'static filter'} /> */}
+          <div className="flex flex-col gap-4 border border-primary/10 dark:border-primary/20 rounded-xl p-4  bg-background dark:bg-text/80">
+            <div className="font-medium text-sm mb-2">
+              Recent Referrals
+            </div>
+            {dummyReferralData.map((referral) => (
+              <ReferralConnectionCard key={referral.id} referral={referral} />
+            ))}
+
           </div>
-          <ReferralConnectionsVisitScheduling />
-
-          <FilterPanel filters={filters} isFilterable={true} filterFor={'static filter'} />
-
-          <ReferralConnectionCard />
-
         </div>
       </ComponentContainer>
 

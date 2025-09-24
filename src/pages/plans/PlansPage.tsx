@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router";
-import PlanCard from "../../components/cards/PlanCard.js";
+import PlanCard from "../../components/cards/PlanCard";
 
 const plans = [
     {
