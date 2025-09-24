@@ -11,7 +11,7 @@ const Layout = () => {
   const initialMini =
     ls.get("isMiniSidebarOpen") !== null ? ls.get("isMiniSidebarOpen") : true;
 
-  const [isMiniSidebarOpen, setIsMiniSidebarOpen] = useState(initialMini);
+  const [isMiniSidebarOpen, setIsMiniSidebarOpen] = useState(Boolean(initialMini));
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   // const location = useLocation();
 
@@ -20,14 +20,14 @@ const Layout = () => {
   };
 
   const onCloseSidebar = () => {
-    if (window.innerWidth < 767) {
+    if (window.innerWidth < 1023) {
       setIsSidebarOpen(false);
     }
   };
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 768) {
+      if (window.innerWidth < 1024) {
         setIsSidebarOpen(false);
         setIsMiniSidebarOpen(true);
       } else {

@@ -11,6 +11,7 @@ import {
 import { FiUser } from "react-icons/fi";
 import { IoSearch } from "react-icons/io5";
 import Notification from "../common/Notification";
+import { HiOutlineMenuAlt1 } from "react-icons/hi";
 
 // const HEADER_LINKS = [
 //   {
@@ -46,15 +47,15 @@ export default function Header({
       isBordered
       classNames={{
         base: "border-text/10 dark:border-text/30",
-        wrapper: "max-w-none",
+        wrapper: "max-w-none px-4 md:px-6",
       }}
     >
-      <NavbarContent justify="start">
-        <NavbarContent className="lg:hidden">
-          <button onClick={hamburgerMenuClick} className="cursor-pointer">
-            Mobile Menu
+      <NavbarContent justify="start" className="items-center gap-3">
+        <div className="lg:hidden">
+          <button onClick={hamburgerMenuClick} className="flex cursor-pointer text-xl text-black">
+            <HiOutlineMenuAlt1 />
           </button>
-        </NavbarContent>
+        </div>
         <NavbarContent className="hidden sm:flex gap-6">
           {/* {HEADER_LINKS.map((navItem) => (
             <NavbarItem key={navItem.link}>
@@ -126,7 +127,7 @@ export default function Header({
                 size="sm"
                 className="text-sm flex justify-center items-center gap-2 !cursor-pointer bg-background hover:bg-orange-200 hover:text-orange-600"
               >
-                <FiUser />
+                <FiUser fontSize={16} />
                 <p>Dr. Smith</p>
               </Button>
             </DropdownTrigger>

@@ -38,7 +38,7 @@ const Sidebar = ({
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { auth_user } = useSelector(
-    (state: { user: any }) => state?.user || {}
+    (state: { auth: any }) => state?.auth || {}
   );
 
   // local state for submenu open states (keyed by index)
@@ -99,7 +99,7 @@ const Sidebar = ({
     {
       name: "Call Tracking",
       icon: HiOutlinePhone,
-      href: "//",
+      href: "/",
       stats: 34,
       color: "bg-violet-300",
     },
@@ -152,43 +152,21 @@ const Sidebar = ({
     <>
       {/* Mobile overlay when sidebar open in mobile/mini mode */}
       <div
-        className={` z-[100]  ${
-          isMiniSidebarOpen ? "bg-black/40 fixed inset-0 z-30" : "hidden"
-        } md:hidden`}
+        className={` z-50  ${
+          isMiniSidebarOpen ? "bg-black/30 fixed inset-0 z-30" : "hidden"
+        } lg:hidden`}
         onClick={onCloseSidebar}
         aria-hidden
       />
 
       <aside
-        className={`no-print fixed top-0 left-0 z-50 h-screen border-r border-text/10 dark:border-text/30 bg-background dark:text-white transition-all duration-300
-          ${isMiniSidebarOpen ? "md:w-[250px] w-[90%]" : "w-18"}
+        className={`no-print fixed top-0 left-0 z-60 h-screen border-r border-text/10 dark:border-text/30 bg-background dark:text-white transition-all duration-300
+          ${isMiniSidebarOpen ? "md:w-[250px] w-[300px]" : "w-18"}
         `}
         aria-label="Primary sidebar"
       >
-        {/* Mobile header (only visible md:hidden) */}
-        <div className="md:hidden flex items-center justify-between pb-6 mb-6 mx-2 border-b">
-          <div className="flex items-center gap-3">
-            <Profile user={auth_user} className="h-11 w-11" />
-            <div>
-              <div className="font-semibold">
-                {auth_user?.firstName || "User"}
-              </div>
-              <div className="text-xs text-gray-500 dark:text-gray-300">
-                {auth_user?.email}
-              </div>
-            </div>
-          </div>
-          <button
-            onClick={onCloseSidebar}
-            className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
-          >
-            <HiOutlineChevronLeft className="w-5 h-5" />
-          </button>
-        </div>
-
-        {/* Logo + expand/contract */}
         <div
-          className={`hidden md:flex items-center h-16 border-b border-text/10 dark:border-text/30 ${
+          className={`flex items-center h-16 border-b border-text/10 dark:border-text/30 ${
             isMiniSidebarOpen ? "justify-between" : "justify-center"
           } w-full`}
         >
@@ -213,8 +191,14 @@ const Sidebar = ({
 
           <div className="p-2">
             <button
+              onClick={onCloseSidebar}
+              className="cursor-pointer lg:hidden p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
+            >
+              <HiOutlineChevronLeft className="size-4" />
+            </button>
+            <button
               onClick={toggleSidebar}
-              className="p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="cursor-pointer hidden lg:flex p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               <IoIosArrowRoundForward
                 className={`${
