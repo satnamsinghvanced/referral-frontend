@@ -12,6 +12,7 @@ import { FiUser } from "react-icons/fi";
 import { IoSearch } from "react-icons/io5";
 import Notification from "../common/Notification";
 import { HiOutlineMenuAlt1 } from "react-icons/hi";
+import ThemeToggle from "../common/ThemeToggle";
 
 // const HEADER_LINKS = [
 //   {
@@ -46,13 +47,13 @@ export default function Header({
       height={63}
       isBordered
       classNames={{
-        base: "border-text/10 dark:border-text/30",
+        base: "border-text/10 dark:border-background/30 bg-background dark:bg-text",
         wrapper: "max-w-none px-4 md:px-6",
       }}
     >
       <NavbarContent justify="start" className="items-center gap-3">
         <div className="lg:hidden">
-          <button onClick={hamburgerMenuClick} className="flex cursor-pointer text-xl text-black">
+          <button onClick={hamburgerMenuClick} className="flex cursor-pointer text-xl text-text ">
             <HiOutlineMenuAlt1 />
           </button>
         </div>
@@ -74,7 +75,7 @@ export default function Header({
               mainWrapper: "h-full",
               input: "text-small",
               inputWrapper:
-                "min-h-8 font-normal text-default-500 shadow-none bg-text/4 group-data-[focus=true]:border-default-400 text-text",
+                "min-h-8 font-normal text-default-500 shadow-none bg-text/4 group-data-[focus=true]:border-default-400 text-text dark:bg-background/10",
               // "min-h-9 font-normal text-default-500 shadow-none border-small bg-text-10 group-data-[focus=true]:border-default-400 text-text",
             }}
             placeholder="Search referrals..."
@@ -112,7 +113,7 @@ export default function Header({
         <div className="flex gap-3 justify-center items-center">
           {/* notification */}
           <Notification />
-
+          {/* <ThemeToggle /> */}
           <Dropdown placement="bottom-end">
             <DropdownTrigger>
               {/* <Avatar
@@ -125,7 +126,7 @@ export default function Header({
               /> */}
               <Button
                 size="sm"
-                className="text-sm flex justify-center items-center gap-2 !cursor-pointer bg-background hover:bg-orange-200 hover:text-orange-600"
+                className="text-sm flex justify-center items-center gap-2 !cursor-pointer bg-transparent hover:bg-orange-200 hover:text-orange-600"
               >
                 <FiUser fontSize={16} />
                 <p>Dr. Smith</p>

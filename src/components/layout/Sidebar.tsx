@@ -64,8 +64,8 @@ const Sidebar = ({
         stats > 200
           ? "bg-sky-100"
           : stats > 50
-          ? "bg-orange-100"
-          : "bg-green-400",
+            ? "bg-orange-100"
+            : "bg-green-400",
     },
     {
       name: "Referral Connections",
@@ -152,23 +152,21 @@ const Sidebar = ({
     <>
       {/* Mobile overlay when sidebar open in mobile/mini mode */}
       <div
-        className={` z-50  ${
-          isMiniSidebarOpen ? "bg-black/30 fixed inset-0 z-30" : "hidden"
-        } lg:hidden`}
+        className={` z-50  ${isMiniSidebarOpen ? "bg-text/30 fixed inset-0 z-30" : "hidden"
+          } lg:hidden`}
         onClick={onCloseSidebar}
         aria-hidden
       />
 
       <aside
-        className={`no-print fixed top-0 left-0 z-60 h-screen border-r border-text/10 dark:border-text/30 bg-background dark:text-white transition-all duration-300
+        className={`no-print fixed top-0 left-0 z-60 h-screen border-r border-text/10 dark:border-background/30 bg-background dark:text-background dark:bg-text transition-all duration-300
           ${isMiniSidebarOpen ? "md:w-[250px] w-[300px]" : "w-18"}
         `}
         aria-label="Primary sidebar"
       >
         <div
-          className={`flex items-center h-16 border-b border-text/10 dark:border-text/30 ${
-            isMiniSidebarOpen ? "justify-between" : "justify-center"
-          } w-full`}
+          className={`flex items-center h-16 border-b border-text/10 dark:border-background/30 ${isMiniSidebarOpen ? "justify-between" : "justify-center"
+            } w-full`}
         >
           {isMiniSidebarOpen && (
             <Link
@@ -201,9 +199,8 @@ const Sidebar = ({
               className="cursor-pointer hidden lg:flex p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
             >
               <IoIosArrowRoundForward
-                className={`${
-                  isMiniSidebarOpen ? "rotate-180" : ""
-                } transition-transform w-5 h-5`}
+                className={`${isMiniSidebarOpen ? "rotate-180" : ""
+                  } transition-transform w-5 h-5`}
               />
             </button>
           </div>
@@ -211,11 +208,10 @@ const Sidebar = ({
 
         {/* nav container */}
         <div
-          className={`${
-            isMiniSidebarOpen ? "overflow-y-auto" : ""
-          } flex flex-col justify-between h-[calc(100vh_-_60px)]  px-0`}
+          className={`${isMiniSidebarOpen ? "overflow-y-auto" : ""
+            } flex flex-col justify-between h-[calc(100vh_-_60px)]  px-0`}
         >
-          <ul className="flex flex-col text-gray-900 dark:text-white p-3">
+          <ul className="flex flex-col text-gray-900 dark:text-background p-3">
             {navigationRoutes.map((item, index) => {
               const Icon = item.icon;
               const active = pathname === item.href;
@@ -226,37 +222,34 @@ const Sidebar = ({
                     to={item.href}
                     className={({ isActive }: { isActive: boolean }) =>
                       clsx(
-                        "border my-0.5 cursor-pointer rounded-md transition-all group flex items-center py-2 px-3 hover:text-gray-700 hover:bg-gray-50 h-9",
+                        "group border my-0.5 cursor-pointer rounded-md transition-all group flex items-center py-2 px-3 hover:text-gray-700 hover:bg-gray-50 h-9",
                         isMiniSidebarOpen
                           ? "px-0 justify-start"
                           : "px-4 justify-center",
                         isActive
                           ? "bg-sky-50 text-sky-700 !border-sky-200 shadow-sm"
-                          : "hover:bg-gray-100 dark:hover:bg-gray-700 border-transparent"
+                          : "hover:bg-gray-100 dark:hover:bg-background/90 border-transparent"
                       )
                     }
                   >
                     <span
-                      className={`flex items-center justify-center ${
-                        active ? "text-white" : "text-gray-500 dark:text-white"
-                      }`}
+                      className={`flex items-center justify-center ${active ? "text-white dark:text-text" : "text-gray-500 dark:text-white dark:group-hover:text-text/80"
+                        }`}
                     >
                       {isMiniSidebarOpen ? (
                         <Icon
-                          className={` ${
-                            active
-                              ? "bg-sky-50 text-sky-700"
-                              : "hover:bg-gray-100 dark:hover:bg-gray-700"
-                          }`}
+                          className={` ${active
+                            ? "  text-sky-700"
+                            : ""
+                            }`}
                         />
                       ) : (
                         <Tooltip content={item.name} placement="right">
                           <Icon
-                            className={` ${
-                              active
-                                ? "bg-sky-50 text-sky-700"
-                                : "hover:bg-gray-100 dark:hover:bg-gray-700"
-                            }`}
+                            className={` ${active
+                              ? "bg-sky-50 text-sky-700"
+                              : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                              }`}
                           />
                         </Tooltip>
                       )}
@@ -267,11 +260,10 @@ const Sidebar = ({
                         <p>{item.name}</p>
                         {item.stats && (
                           <p
-                            className={`rounded-full px-2 text-[10px] py-0.5 capitalize !text-text dark:!text-background ${
-                              typeof item.color === "function"
-                                ? item.color(item.stats)
-                                : item.color
-                            }`}
+                            className={`rounded-full px-2 text-[10px] py-0.5 capitalize !text-text ${typeof item.color === "function"
+                              ? item.color(item.stats)
+                              : item.color
+                              }`}
                           >
                             {" "}
                             {typeof item.stats === "number"
@@ -288,7 +280,7 @@ const Sidebar = ({
           </ul>
 
           {/* bottom items */}
-          <ul className="space-y-1 text-gray-900 dark:text-white p-3">
+          <ul className="space-y-1 text-gray-900 dark:text-background p-3">
             {bottomRoutes.map((item, idx) => {
               const Icon = item.icon;
               const isSignOut = item.name.toLowerCase().includes("sign");
