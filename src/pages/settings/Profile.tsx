@@ -98,7 +98,7 @@ const Profile = () => {
   };
 
   return (
-    <div className="p-4 bg-background border border-text/10 rounded-lg">
+    <div className="p-4 bg-background dark:bg-text border border-text/10 rounded-lg">
       <form onSubmit={handleSubmit}>
         <h4 className="flex gap-2 items-center mb-4">
           <FiUser className="w-4 h-4" />
@@ -157,7 +157,7 @@ const Profile = () => {
         </div>
 
         <div className="mt-5">
-          <Button size="sm" type="submit" className="bg-text text-background">
+          <Button size="sm" type="submit" className="bg-text text-background dark:bg-background dark:text-text">
             Save Changes
           </Button>
         </div>

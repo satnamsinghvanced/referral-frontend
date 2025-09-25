@@ -171,12 +171,12 @@ const Notifications: React.FC = () => {
           items={TAB_ITEMS}
           classNames={{
             base: "w-full",
-            tabList: "w-full bg-primary-50",
+            tabList: "w-full bg-primary-50 dark:bg-background/10",
             tab: "text-xs font-medium",
             panel: "py-0",
           }}
           key={`globalEnabled__${globalEnabled}`}
-          // destroyInactiveTabPanel={false}
+        // destroyInactiveTabPanel={false}
         >
           {(item) => (
             <Tab
@@ -220,17 +220,16 @@ const Notifications: React.FC = () => {
                     return (
                       <Card
                         key={`${rule.id}__${rule.enabled}`}
-                        className={`shadow-none ${
-                          !globalEnabled && rule.enabled
-                            ? "opacity-50 pointer-events-none"
-                            : ""
-                        }`}
+                        className={`shadow-none ${!globalEnabled && rule.enabled
+                          ? "opacity-50 pointer-events-none"
+                          : ""
+                          }`}
                       >
                         <CardBody className="p-4 space-y-5">
                           <div className="space-y-5">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3">
-                                <div className="p-2 bg-gray-100 rounded-lg">
+                                <div className="p-2 bg-text/10 dark:bg-background/15 rounded-lg">
                                   <FiUsers className="h-4 w-4" />
                                 </div>
                                 <div>
@@ -239,11 +238,10 @@ const Notifications: React.FC = () => {
                                     <p>{counter}</p>
                                     {rule.badge && (
                                       <span
-                                        className={`inline-flex items-center justify-center rounded-md px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 ${
-                                          rule.badge === "critical"
-                                            ? "bg-red-100 text-red-800"
-                                            : "bg-orange-100 text-orange-800"
-                                        }`}
+                                        className={`inline-flex items-center justify-center rounded-md px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 ${rule.badge === "critical"
+                                          ? "bg-red-100 text-red-800"
+                                          : "bg-orange-100 text-orange-800"
+                                          }`}
                                       >
                                         {rule.badge}
                                       </span>
@@ -258,7 +256,7 @@ const Notifications: React.FC = () => {
                               <div className="flex items-center gap-2">
                                 <Button
                                   size="sm"
-                                  className="border bg-background text-foreground font-semibold gap-2"
+                                  className="border bg-background dark:bg-text text-foreground font-semibold gap-2"
                                   onClick={() => {
                                     console.log("Test rule:", rule.id);
                                   }}
@@ -606,7 +604,7 @@ const Notifications: React.FC = () => {
                             <div className="mt-2">
                               <TimeInput
                                 value={new Time(22, 0)}
-                                onChange={() => {}}
+                                onChange={() => { }}
                                 radius="sm"
                                 classNames={{
                                   inputWrapper: "min-h-9 h-9",
@@ -624,7 +622,7 @@ const Notifications: React.FC = () => {
                             <div className="mt-2">
                               <TimeInput
                                 value={new Time(8, 0)}
-                                onChange={() => {}}
+                                onChange={() => { }}
                                 radius="sm"
                                 classNames={{
                                   inputWrapper: "min-h-9 h-9",

@@ -43,7 +43,7 @@ const SettingNavigation = () => {
 
   return (
     <ul
-      className={`flex flex-col text-gray-900 dark:text-white p-2 "ml-[-4.8px]"`}
+      className={`flex flex-col text-text  dark:text-background dark:bg-text p-2 "ml-[-4.8px]"`}
     >
       {navigationRoutes.map((item, index) => {
         const Icon = item.icon;
@@ -55,26 +55,23 @@ const SettingNavigation = () => {
               className={`my-0.5 cursor-pointer rounded-md transition-all group flex items-center py-2 px-3 hover:text-gary-700 hover:bg-gray-50 h-9
                      "px-0 justify-start"
                                     
-                      ${
-                        active
-                          ? "bg-sky-50 text-sky-700"
-                          : "hover:bg-gray-100 dark:hover:bg-gray-700"
-                      }
+                      ${active
+                  ? "bg-sky-50 text-sky-700"
+                  : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                }
                     `}
             >
               <span
-                className={`flex items-center justify-center ${
-                  active ? "text-white" : "text-gray-500 dark:text-white"
-                }`}
+                className={`flex items-center justify-center ${active ? "text-white" : "text-gray-500 dark:text-white"
+                  }`}
               >
                 {/* {isMiniSidebarOpen ? */}
                 <Icon
                   className={` 
-                                        ${
-                                          active
-                                            ? "bg-sky-50 text-sky-700"
-                                            : "hover:bg-gray-100 dark:hover:bg-gray-700"
-                                        }
+                                        ${active
+                      ? "bg-sky-50 text-sky-700"
+                      : " "
+                    }
                                         `}
                 />
                 {/* //     :
