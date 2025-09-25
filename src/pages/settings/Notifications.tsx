@@ -1,26 +1,26 @@
 // Notifications.tsx
-import React, { useEffect, useState } from "react";
 import {
   Button,
   Card,
   CardBody,
-  Tab,
-  Tabs,
-  Switch,
-  TimeInput,
   Select,
   SelectItem,
+  Switch,
+  Tab,
+  Tabs,
+  TimeInput,
 } from "@heroui/react";
 import { Time } from "@internationalized/date";
+import React, { useEffect, useState } from "react";
 import {
-  FiCheckCircle,
   FiBell,
-  FiUsers,
-  FiZap,
-  FiSmartphone,
+  FiCheckCircle,
+  FiClock,
   FiMail,
   FiMessageCircle,
-  FiClock,
+  FiSmartphone,
+  FiUsers,
+  FiZap,
 } from "react-icons/fi";
 
 type Channels = {
@@ -86,6 +86,30 @@ const Notifications: React.FC = () => {
       startTime: new Time(8, 0),
       endTime: new Time(18, 0),
     },
+    {
+      id: "new-reviews",
+      title: "New Reviews",
+      description: "Get notified about new patient reviews",
+      badge: "medium",
+      enabled: true,
+      channels: { push: true, email: false, sms: false, inApp: true },
+      priority: "low",
+      activeHoursEnabled: true,
+      startTime: new Time(9, 0),
+      endTime: new Time(17, 0),
+    },
+    {
+      id: "missed-calls",
+      title: "Missed Calls",
+      description: "Alert when potential patients call but don't reach anyone",
+      badge: "high",
+      enabled: true,
+      channels: { push: true, email: false, sms: true, inApp: true },
+      priority: "medium",
+      activeHoursEnabled: true,
+      startTime: new Time(9, 0),
+      endTime: new Time(17, 0),
+    },
   ]);
 
   const updateRule = (id: string, patch: Partial<Rule>) =>
@@ -146,7 +170,7 @@ const Notifications: React.FC = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-lg">Notification Settings</h1>
+            <h1 className="text-base">Notification Settings</h1>
             <p className="text-xs text-gray-600 mt-1">
               Customize how and when you receive notifications
             </p>
@@ -176,7 +200,7 @@ const Notifications: React.FC = () => {
             panel: "py-0",
           }}
           key={`globalEnabled__${globalEnabled}`}
-        // destroyInactiveTabPanel={false}
+          // destroyInactiveTabPanel={false}
         >
           {(item) => (
             <Tab
@@ -220,10 +244,11 @@ const Notifications: React.FC = () => {
                     return (
                       <Card
                         key={`${rule.id}__${rule.enabled}`}
-                        className={`shadow-none ${!globalEnabled && rule.enabled
-                          ? "opacity-50 pointer-events-none"
-                          : ""
-                          }`}
+                        className={`shadow-none ${
+                          !globalEnabled && rule.enabled
+                            ? "opacity-50 pointer-events-none"
+                            : ""
+                        }`}
                       >
                         <CardBody className="p-4 space-y-5">
                           <div className="space-y-5">
@@ -235,13 +260,14 @@ const Notifications: React.FC = () => {
                                 <div>
                                   <h4 className="leading-none flex items-center gap-2 text-sm">
                                     {rule.title}
-                                    <p>{counter}</p>
+                                    {/* <p>{counter}</p> */}
                                     {rule.badge && (
                                       <span
-                                        className={`inline-flex items-center justify-center rounded-md px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 ${rule.badge === "critical"
-                                          ? "bg-red-100 text-red-800"
-                                          : "bg-orange-100 text-orange-800"
-                                          }`}
+                                        className={`inline-flex items-center justify-center rounded-md px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 ${
+                                          rule.badge === "critical"
+                                            ? "bg-red-100 text-red-800"
+                                            : "bg-orange-100 text-orange-800"
+                                        }`}
                                       >
                                         {rule.badge}
                                       </span>
@@ -270,7 +296,7 @@ const Notifications: React.FC = () => {
                                   size="sm"
                                   // isSelected={rule.enabled}
                                   onValueChange={(isSelected: boolean) => {
-                                    setCounter((prev) => prev + 1)
+                                    setCounter((prev) => prev + 1);
                                     if (!isSelected) {
                                       updateRule(rule.id, {
                                         enabled: false,
@@ -394,7 +420,7 @@ const Notifications: React.FC = () => {
                                             }
                                             radius="sm"
                                             classNames={{
-                                              inputWrapper: "min-h-9 h-9",
+                                              inputWrapper: "min-h-8 h-8",
                                               input: "font-medium",
                                             }}
                                             isDisabled={
@@ -421,7 +447,7 @@ const Notifications: React.FC = () => {
                                             }
                                             radius="sm"
                                             classNames={{
-                                              inputWrapper: "min-h-9 h-9",
+                                              inputWrapper: "min-h-8 h-8",
                                               input: "font-medium",
                                             }}
                                             isDisabled={
@@ -604,10 +630,10 @@ const Notifications: React.FC = () => {
                             <div className="mt-2">
                               <TimeInput
                                 value={new Time(22, 0)}
-                                onChange={() => { }}
+                                onChange={() => {}}
                                 radius="sm"
                                 classNames={{
-                                  inputWrapper: "min-h-9 h-9",
+                                  inputWrapper: "min-h-8 h-8",
                                   input: "font-medium",
                                 }}
                                 aria-label="Quiet Hours Start Time"
@@ -622,10 +648,10 @@ const Notifications: React.FC = () => {
                             <div className="mt-2">
                               <TimeInput
                                 value={new Time(8, 0)}
-                                onChange={() => { }}
+                                onChange={() => {}}
                                 radius="sm"
                                 classNames={{
-                                  inputWrapper: "min-h-9 h-9",
+                                  inputWrapper: "min-h-8 h-8",
                                   input: "font-medium",
                                 }}
                                 aria-label="Quiet Hours End Time"

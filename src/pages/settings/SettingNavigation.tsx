@@ -26,11 +26,11 @@ const SettingNavigation = () => {
       icon: CiMobile1,
       href: "/settings/push-notifications",
     },
-    {
-      name: "Notification Analytics",
-      icon: FaRegChartBar,
-      href: "/settings/notification-analytics",
-    },
+    // {
+    //   name: "Notification Analytics",
+    //   icon: FaRegChartBar,
+    //   href: "/settings/notification-analytics",
+    // },
   ];
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -55,23 +55,26 @@ const SettingNavigation = () => {
               className={`my-0.5 cursor-pointer rounded-md transition-all group flex items-center py-2 px-3 hover:text-gary-700 hover:bg-gray-50 h-9
                      "px-0 justify-start"
                                     
-                      ${active
-                  ? "bg-sky-50 text-sky-700"
-                  : "hover:bg-gray-100 dark:hover:bg-gray-700"
-                }
+                      ${
+                        active
+                          ? "bg-sky-50 text-sky-700"
+                          : "hover:bg-gray-100 dark:hover:bg-gray-700"
+                      }
                     `}
             >
               <span
-                className={`flex items-center justify-center ${active ? "text-white" : "text-gray-500 dark:text-white"
-                  }`}
+                className={`flex items-center justify-center ${
+                  active ? "text-white" : "text-gray-500 dark:text-white"
+                }`}
               >
                 {/* {isMiniSidebarOpen ? */}
                 <Icon
                   className={` 
-                                        ${active
-                      ? "bg-sky-50 text-sky-700"
-                      : " "
-                    }
+                                        ${
+                                          active
+                                            ? "bg-sky-50 text-sky-700"
+                                            : " "
+                                        }
                                         `}
                 />
                 {/* //     :
