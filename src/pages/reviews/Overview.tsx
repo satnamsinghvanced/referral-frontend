@@ -1,6 +1,6 @@
 import { Card, CardBody } from '@heroui/react';
 import { CiLocationOn } from 'react-icons/ci';
-import RenderStars from '../../Utils/renderStars';
+import RenderStars from '../../utils/renderStars';
 
 const Overview = () => {
 

@@ -16,7 +16,7 @@ const isTokenValid = (token:string) => {
 };
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:6060",
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:9090",
   headers: {
     "Content-Type": "application/json",
   },

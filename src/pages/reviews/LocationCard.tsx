@@ -1,7 +1,7 @@
 import { Card, CardBody } from "@heroui/react";
 import { FiWifi } from "react-icons/fi";
 import { IoQrCodeOutline } from "react-icons/io5";
-import RenderStars from "../../Utils/renderStars";
+import RenderStars from "../../utils/renderStars";
 
 interface LocationProp {
     location: string;

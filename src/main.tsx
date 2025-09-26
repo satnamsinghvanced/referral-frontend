@@ -1,13 +1,21 @@
 import { HeroUIProvider, ToastProvider } from "@heroui/react";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import App from "./App.tsx";
-import QueryProvider from "./providers/QueryProvider.tsx";
-import ReduxProvider from "./providers/ReduxProvider.tsx";
+import App from "./App";
+import QueryProvider from "./providers/QueryProvider";
+import ReduxProvider from "./providers/ReduxProvider";
 
 import "./index.css";
 
-createRoot(document.getElementById("root")).render(
+const rootElement = document.getElementById("root");
+
+if (!rootElement) {
+  throw new Error(
+    "Root element not found. Did you forget to add <div id='root'></div> in index.html?"
+  );
+}
+
+createRoot(rootElement).render(
   <StrictMode>
     <HeroUIProvider>
       <ReduxProvider>
@@ -16,7 +24,7 @@ createRoot(document.getElementById("root")).render(
             placement="top-right"
             toastProps={{
               // shouldShowTimeoutProgress: true,
-              timeout: "4000",
+              timeout: 4000, // number is expected, not string
               // color: "primary",
               classNames: {
                 base: "shadow-none top-1.5",
@@ -28,7 +36,9 @@ createRoot(document.getElementById("root")).render(
               },
             }}
           />
-          <App />
+          <main className="light text-foreground bg-background">
+            <App />
+          </main>
         </QueryProvider>
       </ReduxProvider>
     </HeroUIProvider>
