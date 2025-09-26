@@ -99,7 +99,7 @@ const Sidebar = ({
     {
       name: "Call Tracking",
       icon: HiOutlinePhone,
-      href: "/",
+      href: "/call-tracking",
       stats: 34,
       color: "bg-violet-300",
     },
@@ -127,7 +127,7 @@ const Sidebar = ({
     {
       name: "Task List",
       icon: HiOutlineClipboardList,
-      href: "/",
+      href: "/task-list",
       stats: 12,
       color: "bg-red-300",
     },

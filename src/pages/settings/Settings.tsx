@@ -11,7 +11,7 @@ const Settings = () => {
   return (
     <ComponentContainer headingDate={headingDate}>
       <div className="flex items-start gap-4">
-        <div className="max-w-1/6 w-full border border-text/10 dark:border-background/10 rounded-lg bg-backgrounsd sticky top-0">
+        <div className="max-w-1/6 w-full border border-text/10 dark:border-background/10 rounded-lg bg-background sticky top-0">
           <SettingNavigation />
         </div>
         <div className="w-full">
