@@ -2,6 +2,7 @@ import { Spinner } from '@heroui/react';
 import React, { Suspense } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
+const ProtectedRoute = React.lazy(() => import('./auth/ProtectedRoute'));
 const Layout = React.lazy(() => import('./components/layout/Layout'));
 const Dashboard = React.lazy(() => import('./pages/Dashboard'));
 const Analytics = React.lazy(() => import('./pages/Analytics'));
@@ -60,7 +61,7 @@ function AppRoutes() {
                 { path: "helpcenter", element: <HelpCenter /> },
                 {
                     path: "settings",
-                    element: <Settings />,
+                    element: <ProtectedRoute component={Settings} role='admin' />,
                     children: [
                         { index: true, element: <Profile /> },
                         { path: "notifications", element: <Notifications /> },
@@ -78,7 +79,7 @@ function AppRoutes() {
         },
         {
             path: "plans",
-            element: <PlansPage />,
+            element: <ProtectedRoute component={PlansPage} role='admin' />,
         },
         {
             path: "signin",
@@ -124,7 +125,7 @@ function AppRoutes() {
     };
 
     return (
-        <Suspense fallback={<Spinner label="Loading..." variant='gradient' color="success" className="bg-light dark:bg-background w-screen h-screen" />}>
+        <Suspense fallback={<Spinner label="Loading..." variant='gradient' color="success" className="bg-background dark:bg-text  w-screen h-screen" />}>
             <BrowserRouter basename="/referral-retrieve">
                 <Routes>
                     {renderRoutes(routesList)}

@@ -69,7 +69,7 @@ const SettingNavigation = () => {
                 <Icon
                   className={` 
                                         ${active
-                      ? "bg-sky-50 text-sky-700"
+                      ? "text-sky-700"
                       : " "
                     }
                                         `}

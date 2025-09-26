@@ -13,6 +13,10 @@ import { IoSearch } from "react-icons/io5";
 import Notification from "../common/Notification";
 import { HiOutlineMenuAlt1 } from "react-icons/hi";
 import ThemeToggle from "../common/ThemeToggle";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../../store";
+import { logout } from "../../store/authSlice";
+import { useNavigate } from "react-router";
 
 // const HEADER_LINKS = [
 //   {
@@ -42,6 +46,14 @@ export default function Header({
 }: {
   hamburgerMenuClick: () => void;
 }) {
+
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate()
+
+  const handleLogout = () => {
+    dispatch(logout())
+    navigate('/signin')
+  }
   return (
     <Navbar
       height={63}
@@ -145,7 +157,7 @@ export default function Header({
               <DropdownItem key="help_and_feedback">
                 Help & Feedback
               </DropdownItem>
-              <DropdownItem key="logout" color="danger">
+              <DropdownItem key="logout" color="danger" onPress={handleLogout}>
                 Log Out
               </DropdownItem>
               <DropdownItem key="theme">Theme</DropdownItem>

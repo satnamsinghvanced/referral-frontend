@@ -8,18 +8,17 @@ import {
     Link,
     Spinner
 } from "@heroui/react";
-import { useState, type FormEvent } from 'react';
+import { useState } from 'react';
 import { FaEyeSlash, FaLock } from 'react-icons/fa';
 import { IoMdMail } from 'react-icons/io';
 import { TbEyeFilled } from "react-icons/tb";
 import { useNavigate } from "react-router";
-
-interface Errors {
-    email: string;
-    password: string;
-    rememberMe?: boolean;
-    general?: string;
-}
+import { useDispatch } from 'react-redux';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import { useLoginMutation } from '../services/authService';
+import { loginSuccess } from '../store/authSlice';
+import { AppDispatch } from '../store/index';
 
 interface FormData {
     email: string;
@@ -27,125 +26,115 @@ interface FormData {
     rememberMe: boolean;
 }
 
-interface Errors {
-    email: string;
-    password: string;
-    general?: string;
-}
-
-interface SignInProps {
-    onSignIn: (formData: FormData) => Promise<void>;
-    onNavigateToForgotPassword: () => void;
-}
-
-const SignIn = ({ onSignIn, onNavigateToForgotPassword }: SignInProps) => {
+const SignIn = () => {
     const [isVisible, setIsVisible] = useState<boolean>(false);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [formData, setFormData] = useState<FormData>({
-        email: '',
-        password: '',
-        rememberMe: false
-    });
-
     const navigate = useNavigate();
+    const dispatch = useDispatch<AppDispatch>();
 
-    const [errors, setErrors] = useState<Errors>({
-        email: '',
-        password: ''
+    // TanStack Query mutation
+    const loginMutation = useLoginMutation();
+
+    // Formik configuration
+    const formik = useFormik<FormData>({
+        initialValues: {
+            email: '',
+            password: '',
+            rememberMe: false,
+        },
+        validationSchema: Yup.object({
+            email: Yup.string()
+                .email('Invalid email address')
+                .required('Email is required'),
+            password: Yup.string()
+                .min(6, 'Password must be at least 6 characters')
+                .required('Password is required'),
+            rememberMe: Yup.boolean(),
+        }),
+        onSubmit: async (values) => {
+            try {
+                // const response = await loginMutation.mutateAsync({
+                //     email: values.email,
+                //     password: values.password,
+                // });
+
+                // Dispatch to Redux
+                // dispatch(loginSuccess({
+                //     user: response.data,
+                //     token: response.token, // Make sure this matches your API response key
+                // }));
+
+                // console.log('Login successful:', response);
+
+                // static login 
+                localStorage.setItem('token', 'its bypass token')
+                navigate('/dashboard');
+
+            } catch (error: any) {
+                console.error('Login error:', error);
+                // Error is automatically handled by TanStack Query
+            }
+        },
     });
 
     const toggleVisibility = () => setIsVisible(!isVisible);
 
-    const validateForm = (): boolean => {
-        const newErrors: Errors = {
-            email: '',
-            password: ''
-        };
-
-        if (!formData.email) {
-            newErrors.email = 'Email is required';
-        } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-            newErrors.email = 'Email is invalid';
-        }
-
-        if (!formData.password) {
-            newErrors.password = 'Password is required';
-        } else if (formData.password.length < 6) {
-            newErrors.password = 'Password must be at least 6 characters';
-        }
-
-        setErrors(newErrors);
-        return !newErrors.email && !newErrors.password;
-    };
-
-    const handleInputChange = (field: keyof FormData, value: string | boolean) => {
-        setFormData(prev => ({
-            ...prev,
-            [field]: value
-        }));
-
-        // Clear error when user starts typing
-        if (errors[field]) {
-            setErrors(prev => ({
-                ...prev,
-                [field]: ''
-            }));
-        }
-    };
-
-    const handleSubmit = async (e: FormEvent) => {
-        e.preventDefault();
-
-        if (!validateForm()) return;
-
-        setIsLoading(true);
-
-        try {
-            await onSignIn(formData);
-        } catch (error: any) {
-            console.error('Sign in error:', error);
-            setErrors(prev => ({
-                ...prev,
-                general: error.message || 'Failed to sign in. Please try again.'
-            }));
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
     const onNavigateToSignUp = () => {
         navigate('/signup');
-    }
+    };
+
+    const onNavigateToForgotPassword = () => {
+        navigate('/forgot-password');
+    };
+
+    // Helper functions for form validation states
+    const getFieldError = (fieldName: keyof FormData) => {
+        return formik.touched[fieldName] && formik.errors[fieldName]
+            ? (formik.errors[fieldName] as string)
+            : '';
+    };
+
+    const isFieldInvalid = (fieldName: keyof FormData) => {
+        return !!(formik.touched[fieldName] && formik.errors[fieldName]);
+    };
+
+    // Check if form is submitting
+    const isLoading = loginMutation.isPending;
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-background/10 dark:to-text flex items-center justify-center p-4">
             <Card className="w-full max-w-md">
                 <CardBody className="p-6 sm:p-8">
                     {/* Header */}
                     <div className="text-center mb-8">
-                        <h1 className="text-2xl font-bold text-text/90 mb-2">Welcome Back</h1>
-                        <p className="text-text/70">Sign in to your account to continue</p>
+                        <h1 className="text-2xl font-bold text-text/60 dark:text-background mb-2">
+                            Welcome Back
+                        </h1>
+                        <p className="text-text/70 dark:text-background/90">
+                            Sign in to your account to continue
+                        </p>
                     </div>
 
-                    {/* Error Message */}
-                    {errors.general && (
+                    {/* Error Message from TanStack Query */}
+                    {loginMutation.isError && (
                         <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">
-                            {errors.general}
+                            {loginMutation.error?.message || 'Failed to sign in. Please try again.'}
                         </div>
                     )}
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form onSubmit={formik.handleSubmit} className="space-y-6">
                         {/* Email Input */}
                         <div>
                             <Input
                                 label="Email Address"
                                 placeholder="Enter your email"
                                 type="email"
-                                value={formData.email}
-                                onValueChange={(value: string) => handleInputChange('email', value)}
+                                name="email"
+                                value={formik.values.email}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
                                 startContent={<IoMdMail className="text-default-400 pointer-events-none flex-shrink-0" />}
-                                isInvalid={!!errors.email}
-                                errorMessage={errors.email}
+                                isInvalid={isFieldInvalid('email')}
+                                errorMessage={getFieldError('email')}
                                 className="w-full"
                             />
                         </div>
@@ -156,8 +145,10 @@ const SignIn = ({ onSignIn, onNavigateToForgotPassword }: SignInProps) => {
                                 label="Password"
                                 placeholder="Enter your password"
                                 type={isVisible ? "text" : "password"}
-                                value={formData.password}
-                                onValueChange={(value: string) => handleInputChange('password', value)}
+                                name="password"
+                                value={formik.values.password}
+                                onChange={formik.handleChange}
+                                onBlur={formik.handleBlur}
                                 startContent={<FaLock className="text-default-400 pointer-events-none flex-shrink-0" />}
                                 endContent={
                                     <button
@@ -172,8 +163,8 @@ const SignIn = ({ onSignIn, onNavigateToForgotPassword }: SignInProps) => {
                                         )}
                                     </button>
                                 }
-                                isInvalid={!!errors.password}
-                                errorMessage={errors.password}
+                                isInvalid={isFieldInvalid('password')}
+                                errorMessage={getFieldError('password')}
                                 className="w-full"
                             />
                         </div>
@@ -181,8 +172,11 @@ const SignIn = ({ onSignIn, onNavigateToForgotPassword }: SignInProps) => {
                         {/* Remember Me & Forgot Password */}
                         <div className="flex justify-between items-center">
                             <Checkbox
-                                isSelected={formData.rememberMe}
-                                onValueChange={(value: boolean) => handleInputChange('rememberMe', value)}
+                                name="rememberMe"
+                                isSelected={formik.values.rememberMe}
+                                onValueChange={(value: boolean) =>
+                                    formik.setFieldValue('rememberMe', value)
+                                }
                                 classNames={{
                                     label: "text-small"
                                 }}
@@ -204,6 +198,7 @@ const SignIn = ({ onSignIn, onNavigateToForgotPassword }: SignInProps) => {
                             className="w-full font-semibold h-12"
                             isLoading={isLoading}
                             spinner={<Spinner size="sm" />}
+                            isDisabled={!formik.isValid || !formik.dirty}
                         >
                             {isLoading ? 'Signing In...' : 'Sign In'}
                         </Button>
@@ -212,7 +207,9 @@ const SignIn = ({ onSignIn, onNavigateToForgotPassword }: SignInProps) => {
 
                         {/* Sign Up Link */}
                         <div className="text-center">
-                            <span className="text-text/60">Don't have an account? </span>
+                            <span className="text-text/60 dark:text-background/90">
+                                Don't have an account?{' '}
+                            </span>
                             <Link
                                 className="font-semibold cursor-pointer text-primary-600 hover:text-primary-700"
                                 onPress={onNavigateToSignUp}
@@ -222,13 +219,13 @@ const SignIn = ({ onSignIn, onNavigateToForgotPassword }: SignInProps) => {
                         </div>
                     </form>
 
-                    <div className="mt-6 text-center text-xs text-text/50">
+                    <div className="mt-6 text-center text-xs text-text/50 dark:text-background/80">
                         By signing in, you agree to our
-                        <Link href="/referral-retrieve/terms" className="text-xs">
+                        <Link href="/terms" className="text-xs mx-1">
                             Terms of Service
                         </Link>
-                        {" "}and{" "}
-                        <Link href="/referral-retrieve/privacy" className="text-xs">
+                        and
+                        <Link href="/privacy" className="text-xs mx-1">
                             Privacy Policy
                         </Link>.
                     </div>

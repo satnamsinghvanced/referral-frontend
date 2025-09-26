@@ -16,24 +16,24 @@ const PlanCard: React.FC<PlanCardProps> = ({ plan, onBuyNowClick }) => {
     return (
         <Card
             shadow="none"
-            className="min-w-[280px] w-full rounded-lg border-2 border-gray-100 hover:border-primary-200 transition-all duration-300"
+            className="min-w-[280px] w-full rounded-lg border-1 border-text/10  dark:border-background/20 hover:border-primary/40 dark:hover:border-primary/50 transition-all duration-300"
         >
             <CardBody className="overflow-visible p-6 flex flex-col justify-between items-center w-full">
                 <div className="flex w-full flex-col items-center">
-                    <div className="text-lg font-semibold text-gray-800 mb-2">
+                    <div className="text-lg font-semibold text-text/80 dark:text-background/80 mb-2">
                         {plan.name}
                     </div>
 
                     <div className="text-3xl font-bold text-primary-600 mb-4">
                         ${plan.price}
-                        <span className="text-sm font-normal text-gray-600">/month</span>
+                        <span className="text-sm font-normal text-text/70 dark:text-background/80">/month</span>
                     </div>
 
                     <div className="w-full mb-6">
                         {plan.description.map((item, index) => (
                             <div
                                 key={index}
-                                className="text-center text-sm text-gray-600 py-2 border-b border-gray-100 last:border-b-0"
+                                className="text-center text-sm text-text/70 dark:text-background/80  py-2 border-b border-text/10 dark:border-background/60 last:border-b-0"
                             >
                                 {item}
                             </div>

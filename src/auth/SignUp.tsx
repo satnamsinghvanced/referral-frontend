@@ -10,10 +10,15 @@ import {
   SelectItem,
   Spinner
 } from "@heroui/react";
-import { useState, type FormEvent } from 'react';
+import { useState } from 'react';
 import { FaEyeSlash } from 'react-icons/fa';
 import { TbEyeFilled } from "react-icons/tb";
 import { useNavigate } from "react-router";
+import { useDispatch, useSelector } from 'react-redux';
+import { useFormik } from 'formik';
+import * as Yup from 'yup';
+import { setCredentials, signUp } from '../store/authSlice';
+import { AppDispatch, RootState } from '../store/index';
 
 interface FormData {
   firstName: string;
@@ -23,28 +28,12 @@ interface FormData {
   password: string;
   confirmPassword: string;
   practiceName: string;
-  medicalSpecialty: string[];
-  role: string[];
+  medicalSpecialty: string;
   agreeToTerms: boolean;
 }
 
-interface Errors {
-  firstName?: string;
-  lastName?: string;
-  mobile?: string;
-  email?: string;
-  password?: string;
-  confirmPassword?: string;
-  practiceName?: string;
-  medicalSpecialty?: string;
-  role?: string;
-  agreeToTerms?: string;
-  general?: string;
-}
-
 interface SignUpProps {
-  onSignUp: (formData: FormData) => Promise<void>;
-  onNavigateToSignIn: () => void;
+  onNavigateToSignIn?: () => void;
 }
 
 // Medical specialties options
@@ -57,259 +46,238 @@ const MEDICAL_SPECIALTIES = [
   { key: "other", label: "Other" }
 ];
 
-// Role options
-const ROLES = [
-  { key: "admin", label: "Admin" },
-  { key: "manager", label: "Manager" },
-  { key: "doctor", label: "Doctor" },
-  { key: "staff", label: "Staff" },
-  { key: "assistant", label: "Assistant" }
-];
+// Validation schema
+const validationSchema = Yup.object({
+  firstName: Yup.string()
+    .min(2, 'First name must be at least 2 characters')
+    .required('First name is required'),
+  lastName: Yup.string()
+    .min(2, 'Last name must be at least 2 characters')
+    .required('Last name is required'),
+  mobile: Yup.string()
+    .matches(/^\d{10}$/, 'Mobile number must be 10 digits')
+    .required('Mobile number is required'),
+  email: Yup.string()
+    .email('Invalid email address')
+    .required('Email is required'),
+  password: Yup.string()
+    .min(6, 'Password must be at least 6 characters')
+    .required('Password is required'),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref('password')], 'Passwords must match')
+    .required('Please confirm your password'),
+  practiceName: Yup.string(),
+  medicalSpecialty: Yup.array()
+    .min(1, 'Please select medical specialty')
+    .required('Medical specialty is required'),
+  agreeToTerms: Yup.boolean()
+    .oneOf([true], 'You must agree to the terms and conditions')
+    .required('You must agree to the terms and conditions')
+});
 
-// Field configuration array - easily customizable
-const formFields = [
-  {
-    id: 'firstName',
-    label: 'First Name',
-    type: 'text',
-    required: true,
-    validation: (value: string) => {
-      if (!value) return 'First name is required';
-      if (value.length < 2) return 'First name must be at least 2 characters';
-      return '';
-    }
-  },
-  {
-    id: 'lastName',
-    label: 'Last Name',
-    type: 'text',
-    required: true,
-    validation: (value: string) => {
-      if (!value) return 'Last name is required';
-      if (value.length < 2) return 'Last name must be at least 2 characters';
-      return '';
-    }
-  },
-  {
-    id: 'mobile',
-    label: 'Mobile Number',
-    type: 'tel',
-    required: true,
-    validation: (value: string) => {
-      if (!value) return 'Mobile number is required';
-      if (!/^\d{10}$/.test(value.replace(/\D/g, ''))) return 'Mobile number must be 10 digits';
-      return '';
-    }
-  },
-  {
-    id: 'email',
-    label: 'Email Address',
-    type: 'email',
-    required: true,
-    validation: (value: string) => {
-      if (!value) return 'Email is required';
-      if (!/\S+@\S+\.\S+/.test(value)) return 'Email address is invalid';
-      return '';
-    }
-  },
-  {
-    id: 'password',
-    label: 'Password',
-    type: 'password',
-    required: true,
-    validation: (value: string) => {
-      if (!value) return 'Password is required';
-      if (value.length < 6) return 'Password must be at least 6 characters';
-      return '';
-    }
-  },
-  {
-    id: 'confirmPassword',
-    label: 'Confirm Password',
-    type: 'password',
-    required: true,
-    validation: (value: string, formData: FormData) => {
-      if (!value) return 'Please confirm your password';
-      if (value !== formData.password) return 'Passwords do not match';
-      return '';
-    }
-  },
-  {
-    id: 'practiceName',
-    label: 'Practice Name',
-    type: 'text',
-    required: false,
-    validation: (value: string) => {
-      return '';
-    }
-  }
-];
 
-const SignUp: React.FC<SignUpProps> = ({ onSignUp, onNavigateToSignIn }) => {
+const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
   const [isVisible, setIsVisible] = useState<boolean>(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading, error } = useSelector((state: RootState) => state.auth);
 
-  const [formData, setFormData] = useState<FormData>({
-    firstName: '',
-    lastName: '',
-    mobile: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    practiceName: '',
-    medicalSpecialty: [],
-    role: [],
-    agreeToTerms: false
+  const formik = useFormik<FormData>({
+    initialValues: {
+      firstName: '',
+      lastName: '',
+      mobile: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      practiceName: '',
+      medicalSpecialty: '',
+      agreeToTerms: false
+    },
+    validationSchema,
+    onSubmit: async (values) => {
+      console.log('valuesvalues:', values)
+      try {
+        await dispatch(setCredentials(values)).unwrap();
+        console.log('Sign up successful');
+        alert('Sign up successful!');
+        // Navigate to sign in or dashboard after successful signup
+        // navigate('/signin');
+      } catch (error: any) {
+        // Error is handled by Redux, no need to set it here
+        console.error('Sign up error:', error);
+      }
+    }
   });
-
-  const [errors, setErrors] = useState<Errors>({});
 
   const toggleVisibility = () => setIsVisible(!isVisible);
 
-  const validateForm = (): boolean => {
-    const newErrors: Errors = {};
-
-    // Validate all fields from the configuration array
-    formFields.forEach(field => {
-      const error = field.validation(
-        formData[field.id as keyof FormData] as string,
-        formData
-      );
-      if (error) {
-        newErrors[field.id as keyof Errors] = error;
-      }
-    });
-
-    // Validate medical specialty
-    if (formData.medicalSpecialty.length === 0) {
-      newErrors.medicalSpecialty = 'Please select at least one medical specialty';
-    }
-
-    // Validate role
-    if (formData.role.length === 0) {
-      newErrors.role = 'Please select at least one role';
-    }
-
-    // Validate terms agreement
-    if (!formData.agreeToTerms) {
-      newErrors.agreeToTerms = 'You must agree to the terms and conditions';
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleInputChange = (field: keyof FormData, value: string | boolean | string[]) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value
-    }));
-
-    // Clear error when user starts typing
-    if (errors[field as keyof Errors]) {
-      setErrors(prev => ({
-        ...prev,
-        [field]: ''
-      }));
-    }
-  };
-
-  const handleMultiSelectChange = (field: 'medicalSpecialty' | 'role', keys: Set<string>) => {
-    handleInputChange(field, Array.from(keys));
-  };
-
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
-
-    if (!validateForm()) return;
-
-    setIsLoading(true);
-
-    try {
-      // await onSignUp(formData);
-      console.log('Sign up successful');
-      alert('Sign up successful!');
-    } catch (error: any) {
-      console.error('Sign up error:', error);
-      setErrors(prev => ({
-        ...prev,
-        general: error.message || 'Failed to create account. Please try again.'
-      }));
-    } finally {
-      setIsLoading(false);
-    }
+  const handleMultiSelectChange = (keys: Set<string>) => {
+    formik.setFieldValue('medicalSpecialty', Array.from(keys));
   };
 
   const onNavigateToSignInLocal = () => {
     navigate('/signin');
   };
 
+  // Helper function to check if field has error
+  const getFieldError = (fieldName: keyof FormData) => {
+    return formik.touched[fieldName] && formik.errors[fieldName]
+      ? (formik.errors[fieldName] as string)
+      : '';
+  };
+
+  // Helper function to check if field is invalid
+  const isFieldInvalid = (fieldName: keyof FormData) => {
+    return !!(formik.touched[fieldName] && formik.errors[fieldName]);
+  };
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl"> {/* Increased max width for better layout */}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-background/10 dark:to-text flex items-center justify-center p-4">
+      <Card className="w-full max-w-2xl">
         <CardBody className="p-6 sm:p-8">
           {/* Header */}
           <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-text/90 mb-2">Create Your Account</h2>
+            <h2 className="text-2xl font-bold text-text/90 dark:text-background mb-2">
+              Create Your Account
+            </h2>
           </div>
 
           {/* Error Message */}
-          {errors.general && (
+          {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">
-              {errors.general}
+              {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={formik.handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Dynamically render basic fields from configuration array */}
-              {formFields.map((field) => (
-                <div key={field.id} className={field.id === 'practiceName' ? 'md:col-span-2' : ''}>
-                  <Input
-                    label={field.label}
-                    type={
-                      field.type === 'password'
-                        ? (isVisible ? "text" : "password")
-                        : field.type
-                    }
-                    value={formData[field.id as keyof FormData] as string}
-                    onValueChange={(value: string) =>
-                      handleInputChange(field.id as keyof FormData, value)
-                    }
-                    endContent={
-                      field.type === 'password' ? (
-                        <button
-                          className="focus:outline-none"
-                          type="button"
-                          onClick={toggleVisibility}
-                        >
-                          {isVisible ? (
-                            <FaEyeSlash className="text-default-400 pointer-events-none" />
-                          ) : (
-                            <TbEyeFilled className="text-default-400 pointer-events-none" />
-                          )}
-                        </button>
-                      ) : null
-                    }
-                    isInvalid={!!errors[field.id as keyof Errors]}
-                    errorMessage={errors[field.id as keyof Errors]}
-                    className="w-full"
-                  />
-                </div>
-              ))}
+              {/* First Name */}
+              <div>
+                <Input
+                  label="First Name"
+                  type="text"
+                  name="firstName"
+                  value={formik.values.firstName}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  isInvalid={isFieldInvalid('firstName')}
+                  errorMessage={getFieldError('firstName')}
+                  className="w-full"
+                />
+              </div>
+
+              {/* Last Name */}
+              <div>
+                <Input
+                  label="Last Name"
+                  type="text"
+                  name="lastName"
+                  value={formik.values.lastName}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  isInvalid={isFieldInvalid('lastName')}
+                  errorMessage={getFieldError('lastName')}
+                  className="w-full"
+                />
+              </div>
+
+              {/* Mobile Number */}
+              <div>
+                <Input
+                  label="Mobile Number"
+                  type="tel"
+                  name="mobile"
+                  value={formik.values.mobile}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  isInvalid={isFieldInvalid('mobile')}
+                  errorMessage={getFieldError('mobile')}
+                  className="w-full"
+                />
+              </div>
+
+              {/* Email */}
+              <div>
+                <Input
+                  label="Email Address"
+                  type="email"
+                  name="email"
+                  value={formik.values.email}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  isInvalid={isFieldInvalid('email')}
+                  errorMessage={getFieldError('email')}
+                  className="w-full"
+                />
+              </div>
+
+              {/* Password */}
+              <div>
+                <Input
+                  label="Password"
+                  type={isVisible ? "text" : "password"}
+                  name="password"
+                  value={formik.values.password}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  endContent={
+                    <button
+                      className="focus:outline-none"
+                      type="button"
+                      onClick={toggleVisibility}
+                    >
+                      {isVisible ? (
+                        <FaEyeSlash className="text-default-400 pointer-events-none" />
+                      ) : (
+                        <TbEyeFilled className="text-default-400 pointer-events-none" />
+                      )}
+                    </button>
+                  }
+                  isInvalid={isFieldInvalid('password')}
+                  errorMessage={getFieldError('password')}
+                  className="w-full"
+                />
+              </div>
+
+              {/* Confirm Password */}
+              <div>
+                <Input
+                  label="Confirm Password"
+                  type={isVisible ? "text" : "password"}
+                  name="confirmPassword"
+                  value={formik.values.confirmPassword}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  isInvalid={isFieldInvalid('confirmPassword')}
+                  errorMessage={getFieldError('confirmPassword')}
+                  className="w-full"
+                />
+              </div>
+
+              {/* Practice Name */}
+              <div className="md:col-span-2">
+                <Input
+                  label="Practice Name"
+                  type="text"
+                  name="practiceName"
+                  value={formik.values.practiceName}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  isInvalid={isFieldInvalid('practiceName')}
+                  errorMessage={getFieldError('practiceName')}
+                  className="w-full"
+                />
+              </div>
 
               {/* Medical Specialty Multi-Select */}
               <div className="md:col-span-2">
                 <Select
                   label="Medical Specialty"
-                  selectionMode="multiple"
-                  selectedKeys={new Set(formData.medicalSpecialty)}
-                  onSelectionChange={(keys) =>
-                    handleMultiSelectChange('medicalSpecialty', keys as Set<string>)
-                  }
-                  isInvalid={!!errors.medicalSpecialty}
-                  errorMessage={errors.medicalSpecialty}
+                  selectedKeys={new Set(formik.values.medicalSpecialty)}
+                  onSelectionChange={handleMultiSelectChange}
+                  isInvalid={isFieldInvalid('medicalSpecialty')}
+                  errorMessage={getFieldError('medicalSpecialty')}
                   classNames={{
                     trigger: "h-12"
                   }}
@@ -321,42 +289,19 @@ const SignUp: React.FC<SignUpProps> = ({ onSignUp, onNavigateToSignIn }) => {
                   ))}
                 </Select>
               </div>
-
-              {/* Role Multi-Select */}
-              <div className="md:col-span-2">
-                <Select
-                  label="Role"
-                  selectionMode="multiple"
-                  selectedKeys={new Set(formData.role)}
-                  onSelectionChange={(keys) =>
-                    handleMultiSelectChange('role', keys as Set<string>)
-                  }
-                  isInvalid={!!errors.role}
-                  errorMessage={errors.role}
-                  classNames={{
-                    trigger: "h-12"
-                  }}
-                >
-                  {ROLES.map((role) => (
-                    <SelectItem key={role.key}>
-                      {role.label}
-                    </SelectItem>
-                  ))}
-                </Select>
-              </div>
             </div>
 
             {/* Terms and Conditions */}
             <div className="pt-2">
               <Checkbox
-                isSelected={formData.agreeToTerms}
+                isSelected={formik.values.agreeToTerms}
                 onValueChange={(value: boolean) =>
-                  handleInputChange('agreeToTerms', value)
+                  formik.setFieldValue('agreeToTerms', value)
                 }
                 classNames={{
                   label: "text-small"
                 }}
-                isInvalid={!!errors.agreeToTerms}
+                isInvalid={isFieldInvalid('agreeToTerms')}
               >
                 I agree to the{' '}
                 <Link href="/terms" className="text-primary-600 text-small">
@@ -367,9 +312,9 @@ const SignUp: React.FC<SignUpProps> = ({ onSignUp, onNavigateToSignIn }) => {
                   Privacy Policy
                 </Link>
               </Checkbox>
-              {errors.agreeToTerms && (
+              {isFieldInvalid('agreeToTerms') && (
                 <div className="text-danger text-tiny mt-1 ml-1">
-                  {errors.agreeToTerms}
+                  {getFieldError('agreeToTerms')}
                 </div>
               )}
             </div>
@@ -379,17 +324,19 @@ const SignUp: React.FC<SignUpProps> = ({ onSignUp, onNavigateToSignIn }) => {
               type="submit"
               color="primary"
               className="w-full font-semibold h-12 mt-4"
-              isLoading={isLoading}
+              isLoading={loading}
               spinner={<Spinner size="sm" />}
             >
-              {isLoading ? 'Creating Account...' : 'Create Account'}
+              {loading ? 'Creating Account...' : 'Create Account'}
             </Button>
 
             <Divider className="my-6" />
 
             {/* Sign In Link */}
             <div className="text-center">
-              <span className="text-text/60">Already have an account? </span>
+              <span className="text-text/60 dark:text-background/90">
+                Already have an account?{' '}
+              </span>
               <Link
                 className="font-semibold cursor-pointer text-primary-600 hover:text-primary-700"
                 onPress={onNavigateToSignIn || onNavigateToSignInLocal}
@@ -398,10 +345,6 @@ const SignUp: React.FC<SignUpProps> = ({ onSignUp, onNavigateToSignIn }) => {
               </Link>
             </div>
           </form>
-
-          {/* <div className="mt-6 text-center text-xs text-text/50">
-            Your account will be activated after verification by our team.
-          </div> */}
 
           <div className="mt-3 text-center text-xs text-text/50 w-full">
             By signing in, you agree to our
