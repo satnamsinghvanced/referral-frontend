@@ -4,7 +4,6 @@ import {
   CardBody,
   Checkbox,
   Divider,
-  Input,
   Link,
   Spinner,
 } from "@heroui/react";
@@ -19,6 +18,7 @@ import * as Yup from "yup";
 import { useLoginMutation } from "../services/authService";
 import { loginSuccess } from "../store/authSlice";
 import { AppDispatch } from "../store/index";
+import Input from "../components/ui/Input";
 
 interface FormData {
   email: string;
@@ -85,30 +85,19 @@ const SignIn = () => {
     navigate("/forgot-password");
   };
 
-  // Helper functions for form validation states
-  const getFieldError = (fieldName: keyof FormData) => {
-    return formik.touched[fieldName] && formik.errors[fieldName]
-      ? (formik.errors[fieldName] as string)
-      : "";
-  };
-
-  const isFieldInvalid = (fieldName: keyof FormData) => {
-    return !!(formik.touched[fieldName] && formik.errors[fieldName]);
-  };
-
   // Check if form is submitting
   const isLoading = loginMutation.isPending;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-background/10 dark:to-text flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardBody className="p-6 sm:p-8">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold text-text/60 dark:text-background mb-2">
+            <h1 className="text-2xl font-bold mb-2">
               Welcome Back
             </h1>
-            <p className="text-text/70 dark:text-background/90">
+            <p className="">
               Sign in to your account to continue
             </p>
           </div>
@@ -126,18 +115,11 @@ const SignIn = () => {
             <div>
               <Input
                 label="Email Address"
+                name="email"
                 placeholder="Enter your email"
                 type="email"
-                name="email"
                 value={formik.values.email}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                startContent={
-                  <IoMdMail className="text-default-400 pointer-events-none flex-shrink-0" />
-                }
-                isInvalid={isFieldInvalid("email")}
-                errorMessage={getFieldError("email")}
-                className="w-full"
+                formik={formik}
               />
             </div>
 
@@ -146,30 +128,10 @@ const SignIn = () => {
               <Input
                 label="Password"
                 placeholder="Enter your password"
-                type={isVisible ? "text" : "password"}
+                type="password"
                 name="password"
                 value={formik.values.password}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                startContent={
-                  <FaLock className="text-default-400 pointer-events-none flex-shrink-0" />
-                }
-                endContent={
-                  <button
-                    className="focus:outline-none"
-                    type="button"
-                    onClick={toggleVisibility}
-                  >
-                    {isVisible ? (
-                      <FaEyeSlash className="text-2xl text-default-400 pointer-events-none" />
-                    ) : (
-                      <TbEyeFilled className="text-2xl text-default-400 pointer-events-none" />
-                    )}
-                  </button>
-                }
-                isInvalid={isFieldInvalid("password")}
-                errorMessage={getFieldError("password")}
-                className="w-full"
+                formik={formik}
               />
             </div>
 
@@ -211,7 +173,7 @@ const SignIn = () => {
 
             {/* Sign Up Link */}
             <div className="text-center">
-              <span className="text-text/60 dark:text-background/90">
+              <span className="">
                 Don't have an account?{" "}
               </span>
               <Link
@@ -223,7 +185,7 @@ const SignIn = () => {
             </div>
           </form>
 
-          <div className="mt-6 text-center text-xs text-text/50 dark:text-background/80">
+          <div className="mt-6 text-center text-xs">
             By signing in, you agree to our
             <Link href="/terms" className="text-xs mx-1">
               Terms of Service

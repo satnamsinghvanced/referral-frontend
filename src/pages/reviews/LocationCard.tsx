@@ -17,7 +17,7 @@ const ReviewsLocationCard = ({ locations }: ReviewsLocationCardProps) => {
     return (
         <>
             {locations.map((location, index) => (
-                <Card key={index} className="border border-primary/10 bg-primary/1 dark:bg-background/2 p-4 rounded-lg" shadow='none'>
+                <Card key={index} className="border border-primary/10 bg-primary/1 /2 p-4 rounded-lg" shadow='none'>
                     <div className="flex justify-between">
                         <h6 className="text-sm flex gap-2 items-center">
                             {location.location}

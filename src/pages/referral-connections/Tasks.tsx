@@ -8,8 +8,8 @@ interface ReferralConnectionsTasksProps {
 
 const ReferralConnectionsTasks = ({ urgency }: ReferralConnectionsTasksProps) => {
   return (
-      <Card className="border border-text/10" shadow='none'>
-          <CardBody className="text-xs border border-text/10">
+      <Card className="border border-foreground/10" shadow='none'>
+          <CardBody className="text-xs border border-foreground/10">
               <div className='flex justify-between items-center '>
                   <div className='flex gap-2 items-center'>
                       <FiCircle />

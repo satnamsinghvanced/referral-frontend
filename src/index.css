@@ -24,18 +24,21 @@
 @theme inline {
   --font-sans: var(--font-sans);
   --font-heading: var(--font-heading);
-  --color-text: var(--color-text);
+  --color-foreground: var(--color-foreground);
   --color-background: var(--color-background);
 }
 
 body {
   font-family: var(--font-sans);
   background-color: var(--color-background);
-  color: var(--color-text);
+  color: var(--color-foreground);
 }
 
-.light {
+html {
   color-scheme: light;
+
+  --color-foreground: #101828;
+  --color-background: #ffffff;
 
   /* Primary Colors (Blue palette from screenshot) */
   --heroui-primary-50: 194 96% 91%; /* #CEFBFD */
@@ -175,6 +178,152 @@ body {
     0px 30px 60px 0px rgb(0 0 0 / 0.12), 0px 0px 1px 0px rgb(0 0 0 / 0.3);
   --heroui-hover-opacity: 0.8;
 }
+
+.dark {
+  color-scheme: dark;
+
+  --color-foreground: #f0f0f0;
+  --color-background: #1a1f23;
+
+  /* Primary Colors (Blue palette - shifted for dark) */
+  --heroui-primary-50: 202 94% 20%; /* #15394B */
+  --heroui-primary-100: 202 94% 25%; /* #1A4D63 */
+  --heroui-primary-200: 186 84% 30%; /* #246584 */
+  --heroui-primary-300: 191 85% 38%; /* #3280AA */
+  --heroui-primary-400: 202 94% 48%; /* #4A9FDB */
+  --heroui-primary-500: 202 94% 55%; /* #5DA9E8 */
+  --heroui-primary-600: 200 92% 65%; /* #7AB8F3 */
+  --heroui-primary-700: 210 89% 75%; /* #9AC8F9 */
+  --heroui-primary-800: 214 79% 85%; /* #B7D9FF */
+  --heroui-primary-900: 214 74% 92%; /* #D1E6FF */
+  --heroui-primary: 202 94% 55%;
+  --heroui-primary-foreground: 0 0% 10%;
+
+  /* Success Colors (Green palette) */
+  --heroui-success-50: 106 70% 20%; /* #2A4F07 */
+  --heroui-success-100: 106 70% 25%; /* #366609 */
+  --heroui-success-200: 102 47% 30%; /* #3F720A */
+  --heroui-success-300: 102 47% 38%; /* #4D8B0D */
+  --heroui-success-400: 106 70% 48%; /* #62A912 */
+  --heroui-success-500: 106 70% 55%; /* #76BC1A */
+  --heroui-success-600: 112 75% 65%; /* #8BD024 */
+  --heroui-success-700: 118 85% 75%; /* #A0E334 */
+  --heroui-success-800: 124 90% 85%; /* #B6F044 */
+  --heroui-success-900: 128 92% 92%; /* #C8FA58 */
+  --heroui-success: 106 70% 35%;
+  --heroui-success-foreground: 0 0% 10%;
+
+  /* Secondary Colors (Purple/Blue palette) */
+  --heroui-secondary-50: 211 97% 20%; /* #1A1A44 */
+  --heroui-secondary-100: 211 97% 25%; /* #262661 */
+  --heroui-secondary-200: 211 97% 30%; /* #32327C */
+  --heroui-secondary-300: 211 97% 38%; /* #454599 */
+  --heroui-secondary-400: 211 97% 48%; /* #5F5FB8 */
+  --heroui-secondary-500: 211 97% 55%; /* #7676C4 */
+  --heroui-secondary-600: 211 92% 65%; /* #8E8ED1 */
+  --heroui-secondary-700: 211 95% 75%; /* #A5A5DE */
+  --heroui-secondary-800: 211 97% 85%; /* #BEBEF0 */
+  --heroui-secondary-900: 211 97% 92%; /* #D3D3FF */
+  --heroui-secondary: 211 97% 53%;
+  --heroui-secondary-foreground: 0 0% 10%;
+
+  /* Warning Colors (Yellow palette) */
+  --heroui-warning-50: 54 100% 20%; /* #4D3A00 */
+  --heroui-warning-100: 54 100% 25%; /* #664F00 */
+  --heroui-warning-200: 54 100% 30%; /* #806300 */
+  --heroui-warning-300: 54 100% 38%; /* #A07800 */
+  --heroui-warning-400: 54 100% 48%; /* #CC9900 */
+  --heroui-warning-500: 54 100% 55%; /* #E6AA00 */
+  --heroui-warning-600: 46 100% 65%; /* #F2B300 */
+  --heroui-warning-700: 42 100% 75%; /* #F9BD33 */
+  --heroui-warning-800: 38 100% 85%; /* #FCD966 */
+  --heroui-warning-900: 36 100% 92%; /* #FEE699 */
+  --heroui-warning: 54 100% 50%;
+  --heroui-warning-foreground: 0 0% 10%;
+
+  /* Danger Colors (Red palette) */
+  --heroui-danger-50: 0 79% 20%; /* #330A0A */
+  --heroui-danger-100: 0 79% 25%; /* #4C0F0F */
+  --heroui-danger-200: 0 79% 30%; /* #660F0F */
+  --heroui-danger-300: 0 79% 38%; /* #801414 */
+  --heroui-danger-400: 0 79% 48%; /* #991818 */
+  --heroui-danger-500: 0 79% 55%; /* #B31D1D */
+  --heroui-danger-600: 0 79% 65%; /* #CC2222 */
+  --heroui-danger-700: 0 79% 75%; /* #E62626 */
+  --heroui-danger-800: 0 79% 85%; /* #F54D4D */
+  --heroui-danger-900: 0 79% 92%; /* #F78080 */
+  --heroui-danger: 0 79% 55%;
+  --heroui-danger-foreground: 0 0% 10%;
+
+  /* Background and Foreground */
+  --heroui-background: 210 15% 10%; /* very dark */
+  --heroui-foreground-50: 210 10% 20%; /* #2A2A33 */
+  --heroui-foreground-100: 210 10% 30%; /* #3B3B4B */
+  --heroui-foreground-200: 210 10% 40%; /* #4D4D66 */
+  --heroui-foreground-300: 210 10% 50%; /* #666680 */
+  --heroui-foreground-400: 210 10% 65%; /* #8C8C9A */
+  --heroui-foreground-500: 210 10% 75%; /* #B0B0B5 */
+  --heroui-foreground-600: 210 10% 85%; /* #D9D9DC */
+  --heroui-foreground-700: 210 10% 90%; /* #E6E6E9 */
+  --heroui-foreground-800: 210 10% 95%; /* #F2F2F4 */
+  --heroui-foreground-900: 210 10% 98%; /* #F9F9FA */
+  --heroui-foreground: 210 10% 90%;
+
+  /* Content Surfaces */
+  --heroui-content1: 210 15% 12%; /* dark surface */
+  --heroui-content1-foreground: 210 10% 90%;
+  --heroui-content2: 210 15% 20%;
+  --heroui-content2-foreground: 210 10% 95%;
+  --heroui-content3: 210 15% 30%;
+  --heroui-content3-foreground: 210 10% 95%;
+  --heroui-content4: 210 15% 40%;
+  --heroui-content4-foreground: 210 10% 95%;
+
+  /* Default Colors */
+  --heroui-default-50: 210 15% 12%;
+  --heroui-default-100: 210 15% 20%;
+  --heroui-default-200: 210 15% 30%;
+  --heroui-default-300: 210 15% 40%;
+  --heroui-default-400: 210 15% 55%;
+  --heroui-default-500: 210 15% 65%;
+  --heroui-default-600: 210 15% 75%;
+  --heroui-default-700: 210 15% 85%;
+  --heroui-default-800: 210 15% 90%;
+  --heroui-default-900: 210 15% 95%;
+  --heroui-default: 210 15% 40%;
+  --heroui-default-foreground: 210 10% 90%;
+
+  /* Focus and Overlay */
+  --heroui-focus: 202 94% 65%; /* lighter blue */
+  --heroui-overlay: 0 0% 0% / 0.85;
+
+  /* Divider, opacity, font sizes, radii, shadows */
+  --heroui-divider: 210 10% 30%; /* lighter divider */
+  --heroui-divider-weight: 1px;
+  --heroui-disabled-opacity: 0.4;
+  --heroui-font-size-tiny: 0.75rem;
+  --heroui-font-size-small: 0.875rem;
+  --heroui-font-size-medium: 1rem;
+  --heroui-font-size-large: 1.125rem;
+  --heroui-line-height-tiny: 1rem;
+  --heroui-line-height-small: 1.25rem;
+  --heroui-line-height-medium: 1.5rem;
+  --heroui-line-height-large: 1.75rem;
+  --heroui-radius-small: 8px;
+  --heroui-radius-medium: 12px;
+  --heroui-radius-large: 14px;
+  --heroui-border-width-small: 1px;
+  --heroui-border-width-medium: 2px;
+  --heroui-border-width-large: 3px;
+  --heroui-box-shadow-small: 0px 0px 5px 0px rgb(0 0 0 / 0.5),
+    0px 2px 10px 0px rgb(0 0 0 / 0.7), 0px 0px 1px 0px rgb(0 0 0 / 0.9);
+  --heroui-box-shadow-medium: 0px 0px 15px 0px rgb(0 0 0 / 0.6),
+    0px 2px 30px 0px rgb(0 0 0 / 0.8), 0px 0px 1px 0px rgb(0 0 0 / 0.9);
+  --heroui-box-shadow-large: 0px 0px 30px 0px rgb(0 0 0 / 0.7),
+    0px 30px 60px 0px rgb(0 0 0 / 0.9), 0px 0px 1px 0px rgb(0 0 0 / 0.9);
+  --heroui-hover-opacity: 0.9;
+}
+
 
 h1,
 h2,

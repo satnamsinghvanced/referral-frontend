@@ -64,8 +64,8 @@ const ReferralConnectionsConfig = () => {
             {/* Basic Information Section */}
             <div className="flex flex-col gap-5">
 
-                <div className="space-y-4 border p-4 rounded-xl border-text/10">
-                    <h5 className="text-sm font-medium mb-3 text-text">Basic Information</h5>
+                <div className="space-y-4 border p-4 rounded-xl border-foreground/10">
+                    <h5 className="text-sm font-medium mb-3 text-foreground">Basic Information</h5>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <Input
@@ -111,8 +111,8 @@ const ReferralConnectionsConfig = () => {
                 </div>
 
                 {/* Contact Information Section */}
-                <div className="space-y-4 border p-4 rounded-xl border-text/10">
-                    <h5 className="text-sm font-medium mb-3 text-text">Contact Information</h5>
+                <div className="space-y-4 border p-4 rounded-xl border-foreground/10">
+                    <h5 className="text-sm font-medium mb-3 text-foreground">Contact Information</h5>
                     <Input
                         size="sm"
                         label="Address"
@@ -151,8 +151,8 @@ const ReferralConnectionsConfig = () => {
                 </div>
 
                 {/* Specialties Section */}
-                <div className="space-y-4 border p-4 rounded-xl border-text/10">
-                    <h5 className="text-sm font-medium mb-3 text-text">Specialties</h5>
+                <div className="space-y-4 border p-4 rounded-xl border-foreground/10">
+                    <h5 className="text-sm font-medium mb-3 text-foreground">Specialties</h5>
 
                     <div className="flex flex-wrap gap-2">
 
@@ -201,8 +201,8 @@ const ReferralConnectionsConfig = () => {
                 </div>
 
                 {/* Notes Section */}
-                <div className="space-y-4 border p-4 rounded-xl border-text/10">
-                    <h5 className="text-sm font-medium mb-3 text-text">Notes</h5>
+                <div className="space-y-4 border p-4 rounded-xl border-foreground/10">
+                    <h5 className="text-sm font-medium mb-3 text-foreground">Notes</h5>
                     <Textarea
                         size="sm"
                         placeholder="Any additional notes about this practice..."

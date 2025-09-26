@@ -1,18 +1,16 @@
-import ComponentContainer from "../components/common/ComponentContainer"
+import ComponentContainer from "../components/common/ComponentContainer";
 
 const MarketingBudget = () => {
-    const headingDate = {
-        heading: 'Marketing Budget',
-        subHeading: "Manage and track your marketing spend across all channels",
-    }
+  const headingData = {
+    heading: "Marketing Budget",
+    subHeading: "Manage and track your marketing spend across all channels",
+  };
 
-    return (
-        <ComponentContainer
-        headingDate={headingDate}
-        children={<> </>}
-        >
-        </ComponentContainer>
-    )
-}
+  return (
+    <ComponentContainer headingData={headingData}>
+      Add your marketing budget content here
+    </ComponentContainer>
+  );
+};
 
-export default MarketingBudget
+export default MarketingBudget;

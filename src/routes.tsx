@@ -84,7 +84,7 @@ function AppRoutes() {
         { path: "helpcenter", element: <HelpCenter /> },
         {
           path: "settings",
-          element: <ProtectedRoute component={Settings} role="admin" />,
+          element: <Settings />,
           children: [
             { index: true, element: <Profile /> },
             { path: "notifications", element: <Notifications /> },
@@ -135,7 +135,7 @@ function AppRoutes() {
           label="Loading..."
           variant="gradient"
           color="success"
-          className="bg-background dark:bg-text w-screen h-screen"
+          className="w-screen h-screen"
         />
       }
     >

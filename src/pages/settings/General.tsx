@@ -8,8 +8,10 @@ import {
 } from "@heroui/react";
 import React, { useState } from "react";
 import { FiSettings } from "react-icons/fi";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { toggleTheme } from "../../store/uiSlice";
+import { RootState } from "../../store";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
 
 interface GeneralSettingsProps {
   darkMode: boolean;
@@ -18,6 +20,7 @@ interface GeneralSettingsProps {
 }
 
 const General: React.FC = () => {
+  const theme = useTypedSelector((state) => state.ui.theme);
   const dispatch = useDispatch();
 
   const [settings, setSettings] = useState<GeneralSettingsProps>({
@@ -34,7 +37,7 @@ const General: React.FC = () => {
   };
 
   return (
-    <Card className="rounded-xl bg-background text-gray-900 shadow-none border border-gray-200">
+    <Card className="rounded-xl  text-gray-900 shadow-none border border-gray-200">
       <CardHeader className="flex items-center gap-3 px-5 pt-5 pb-0">
         <FiSettings className="h-5 w-5 text-gray-700" />
         <p className="text-base">General Settings</p>
@@ -50,6 +53,7 @@ const General: React.FC = () => {
           <Switch
             size="sm"
             aria-label="Theme"
+            isSelected={theme === "dark"}
             onChange={() => dispatch(toggleTheme())}
           />
         </div>

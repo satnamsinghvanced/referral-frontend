@@ -19,8 +19,8 @@ const PracticeContactsCard = ({ practiceContactsData }: PracticeContactsCardProp
             {
                 practiceContactsData.length > 0 ?
                     practiceContactsData?.map(({ id, name, role, birthday, image }) => (
-                        <Card key={id} className="border border-text/10" shadow='none'>
-                            <CardBody className="text-xs border border-text/10">
+                        <Card key={id} className="border border-foreground/10" shadow='none'>
+                            <CardBody className="text-xs border border-foreground/10">
                                 <div className='flex justify-between items-start '>
                                     <div>
                                         <div className='flex gap-2 items-center'>
@@ -28,7 +28,7 @@ const PracticeContactsCard = ({ practiceContactsData }: PracticeContactsCardProp
                                             <div>
                                                 <p className='font-bold'>{name}</p>
                                                 <p>{role}</p>
-                                                <p className='border border-text/10 px-1 rounded-sm'>{role}</p>
+                                                <p className='border border-foreground/10 px-1 rounded-sm'>{role}</p>
                                             </div>
                                         </div>
                                         <div className='mt-2 flex items-center gap-2'>

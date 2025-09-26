@@ -36,7 +36,7 @@ createRoot(rootElement).render(
               },
             }}
           />
-          <main className="light text-foreground bg-background">
+          <main className="text-foreground bg-background">
             <App />
           </main>
         </QueryProvider>

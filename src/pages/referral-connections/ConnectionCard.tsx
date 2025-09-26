@@ -17,7 +17,7 @@ interface ReferralCardProps {
 
 const ReferralConnectionCard = ({ referral }: ReferralCardProps) => {
     return (
-        <div className="flex justify-between border border-text/10 dark:border-background/20 rounded-lg p-4 bg-background dark:bg-text">
+        <div className="flex justify-between border border-foreground/10  rounded-lg p-4 bg-background ">
             <div className='w-20 aspect-square bg-primary-100 text-primary-600 h-full p-0.5 mr-2 rounded-lg flex justify-center items-center'>
                 <LuBuilding2 className="text-[22px]" />
             </div>
@@ -27,7 +27,7 @@ const ReferralConnectionCard = ({ referral }: ReferralCardProps) => {
                     <div className="flex gap-1 items-center !font-extralight">
                         {referral.address}
                     </div>
-                    <div className="p-0.5 bg-text/50 rounded-full aspect-square h-fit w-fit !font-extralight"></div>
+                    <div className="p-0.5 bg-foreground/50 rounded-full aspect-square h-fit w-fit !font-extralight"></div>
                     <div>{referral.phone}</div>
                 </div>
             </div>
@@ -172,7 +172,7 @@ export default ReferralConnectionCard;
 //     return (
 //         <>
 //             {referralData.map((item) => (
-//                 <Card key={item.id} className='min-w-[210px] p-2 text-xs font-extralight text-text/80 border border-text/10 hover:shadow-md transition-all ease-in-out duration-300' shadow='none' >
+//                 <Card key={item.id} className='min-w-[210px] p-2 text-xs font-extralight text-foreground/80 border border-foreground/10 hover:shadow-md transition-all ease-in-out duration-300' shadow='none' >
 //                     <CardBody>
 //                         <div className='flex justify-between'>
 //                             <div className='flex gap-3 items-center'>
@@ -188,7 +188,7 @@ export default ReferralConnectionCard;
 //                                 </div>
 //                                 <div className='flex flex-col gap-0.5'>
 //                                     <div className='flex items-center gap-1.5'>
-//                                         <div className='text-sm font-semibold text-text'>
+//                                         <div className='text-sm font-semibold text-foreground'>
 //                                             {item.name}
 //                                         </div>
 //                                         <Chip
@@ -230,30 +230,30 @@ export default ReferralConnectionCard;
 //                         <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mt-4">
 //                             <div>
 //                                 <p>Total Referrals</p>
-//                                 <p className='text-sm text-text font-semibold'>{item.totalReferrals}</p>
+//                                 <p className='text-sm text-foreground font-semibold'>{item.totalReferrals}</p>
 //                             </div>
 //                             <div>
 //                                 <p>This Month</p>
-//                                 <p className='text-sm text-text font-semibold'>{item.thisMonth}</p>
+//                                 <p className='text-sm text-foreground font-semibold'>{item.thisMonth}</p>
 //                             </div>
 //                             <div>
 //                                 <p>Last Referral</p>
-//                                 <p className='text-sm text-text font-semibold'>{item.lastReferral}</p>
+//                                 <p className='text-sm text-foreground font-semibold'>{item.lastReferral}</p>
 //                             </div>
 //                             <div>
 //                                 <p>Staff Members</p>
-//                                 <p className='text-sm text-text font-semibold'>{item.staffMembers}</p>
+//                                 <p className='text-sm text-foreground font-semibold'>{item.staffMembers}</p>
 //                             </div>
 //                             <div>
 //                                 <p>Family Candidates</p>
-//                                 <p className='text-sm text-text font-semibold'>{item.familyCandidates}</p>
+//                                 <p className='text-sm text-foreground font-semibold'>{item.familyCandidates}</p>
 //                             </div>
 //                         </div>
 //                         <Divider className='my-4' />
 //                         <div className='flex gap-2'>
 //                             <Button
 //                                 size='sm'
-//                                 className={`bg-transparent border border-text/30`}
+//                                 className={`bg-transparent border border-foreground/30`}
 //                                 startContent={<FiEye />}
 //                                 endContent={expandedCards[item.id] ? <FiChevronUp /> : <FiChevronDown />}
 //                                 onPress={() => handleViewDetails(item.id)}
@@ -262,14 +262,14 @@ export default ReferralConnectionCard;
 //                             </Button>
 //                             <Button
 //                                 size='sm'
-//                                 className={`bg-transparent border border-text/30`}
+//                                 className={`bg-transparent border border-foreground/30`}
 //                                 startContent={<FiEdit />}
 //                             >
 //                                 Edit
 //                             </Button>
 //                             <Button
 //                                 size='sm'
-//                                 className={`bg-transparent border border-text/30`}
+//                                 className={`bg-transparent border border-foreground/30`}
 //                                 startContent={<CiShare1 className='font-extrabold' />}
 //                             >
 //                                 Navigate

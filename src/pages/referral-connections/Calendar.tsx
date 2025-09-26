@@ -22,7 +22,7 @@ const ReferralConnectionsCalendar = () => {
                 {...otherProps}
                 classNames={{
                     base: cn(
-                        "flex-none m-0 h-8 bg-text/5 hover:bg-content2 items-center justify-between",
+                        "flex-none m-0 h-8 bg-foreground/5 hover:bg-content2 items-center justify-between",
                         "cursor-pointer rounded-full border-1 border-default-200/60",
                         "data-[selected=true]:border-primary",
                     ),
@@ -66,11 +66,11 @@ const ReferralConnectionsCalendar = () => {
                     grid: "w-full p-10 bg-background",
                     gridHeader: "w-full bg-background shadow-none",
                     header: 'w-full', // september 2025
-                    headerWrapper: 'bg-background p-0 !text-text pb-2',
+                    headerWrapper: 'bg-background p-0 !text-foreground pb-2',
                     gridHeaderCell: 'w-full',
-                    cellButton: "w-full h-[80px] border rounded-md border-text/10 flex justify-start items-start pt-2 pl-2",
-                    prevButton: "py-0.5 px-1 w-10 border-1 border-text/20 rounded-sm hover:bg-text/10",
-                    nextButton: "py-0.5 px-1 w-10 border-1 border-text/20 rounded-sm hover:bg-text/10",
+                    cellButton: "w-full h-[80px] border rounded-md border-foreground/10 flex justify-start items-start pt-2 pl-2",
+                    prevButton: "py-0.5 px-1 w-10 border-1 border-foreground/20 rounded-sm hover:bg-foreground/10",
+                    nextButton: "py-0.5 px-1 w-10 border-1 border-foreground/20 rounded-sm hover:bg-foreground/10",
                 }}
 
                 focusedValue={value}

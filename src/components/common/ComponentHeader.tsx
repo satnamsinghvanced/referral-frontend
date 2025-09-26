@@ -1,43 +1,53 @@
+import React from "react";
 import { Button } from "@heroui/react";
+
+type ButtonProps = React.ComponentProps<typeof Button>;
+type AllowedVariants = ButtonProps['variant'];
+
+type ButtonConfig = {
+  label: string;
+  onClick: () => void;
+  props?: Partial<ButtonProps> & { variant?: AllowedVariants };  // props exactly as Button accepts
+  classNames?: string;
+  icon?: React.ReactNode;
+};
 
 interface ComponentHeaderProps {
   heading: string;
-  subHeading?: string;
-  buttons?: Array<{
-    label: string;
-    onClick: () => void;
-    props?: React.ComponentProps<typeof Button>;
-    classNames?: string;
-    icon?: React.ReactNode;
-  }>;
+  subHeading?: string | undefined;
+  buttons?: ButtonConfig[] | undefined;
 }
 
-const ComponentHeader = ({
+const ComponentHeader: React.FC<ComponentHeaderProps> = ({
   heading,
   subHeading,
   buttons,
-}: ComponentHeaderProps) => {
+}) => {
   return (
-    <div className="md:px-7 px-4 py-3 md:py-6 bg-background flex justify-between items-center border-b-1 border-text/10 dark:border-text/30 dark:bg-text">
+    <div className="md:px-7 px-4 py-3 md:py-6 bg-background flex justify-between items-center border-b-1 border-foreground/10">
       <div className="space-y-1">
         <h3 className="text-lg">{heading}</h3>
-        <p className="text-sm dark:text-background/90">{subHeading}</p>
+        {subHeading && (
+          <p className="text-sm text-foreground/90">{subHeading}</p>
+        )}
       </div>
-      <div style={{ display: "flex", gap: "0.5rem" }}>
-        {buttons?.map((btn, index) => (
-          <Button
-            size="sm"
-            key={index}
-            onPress={btn.onClick}
-            {...btn.props}
-            className={`${btn.classNames ? btn.classNames : "border border-text/30 dark:border-background/30"
-              }`}
-            startContent={btn?.icon ? btn.icon : <></>}
-          >
-            {btn.label}
-          </Button>
-        ))}
-      </div>
+
+      {buttons && buttons.length > 0 && (
+        <div className="flex gap-2 flex-wrap">
+          {buttons.map((btn, index) => (
+            <Button
+              key={index}
+              size="sm"
+              onPress={btn.onClick}
+              {...btn.props}
+              className={btn.classNames ?? "border border-foreground/30"}
+              startContent={btn.icon ?? null}
+            >
+              {btn.label}
+            </Button>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

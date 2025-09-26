@@ -1,18 +1,17 @@
-import ComponentContainer from '../components/common/ComponentContainer'
+import ComponentContainer from "../components/common/ComponentContainer";
 
 const Calls = () => {
-  const headingDate = {
-    heading: 'Patient Communications',
-    subHeading: "Track all patient interactions across phone, email, chat, and social media",
-  }
+  const headingData = {
+    heading: "Patient Communications",
+    subHeading:
+      "Track all patient interactions across phone, email, chat, and social media",
+  };
 
   return (
-    <ComponentContainer
-      children={<> </>}
-      headingDate={headingDate}
-    >
+    <ComponentContainer headingData={headingData}>
+      Put your content here
     </ComponentContainer>
-  )
-}
+  );
+};
 
-export default Calls
+export default Calls;

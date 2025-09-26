@@ -25,7 +25,7 @@ const PushNotifications = () => {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="flex items-center gap-1 text-xs border border-text/10 px-2 py-1 rounded-lg font-medium">
+          <span className="flex items-center gap-1 text-xs border border-foreground/10 px-2 py-1 rounded-lg font-medium">
             <ImConnection className="text-green-600" />
             Connected
           </span>
@@ -96,7 +96,7 @@ const PushNotifications = () => {
             </h4>
           </div>
           <div className="space-y-4">
-            <div className="flex items-center justify-between p-3 border border-text/10 rounded-lg">
+            <div className="flex items-center justify-between p-3 border border-foreground/10 rounded-lg">
               <div className="flex items-center gap-3">
                 <div className="p-2 bg-gray-100 rounded-lg">
                   <TbDeviceDesktop />
@@ -132,7 +132,7 @@ const PushNotifications = () => {
               Security & Privacy
             </h4>
           </div>
-          <div className="flex items-start gap-2 border border-text/10 rounded-lg p-3">
+          <div className="flex items-start gap-2 border border-foreground/10 rounded-lg p-3">
             <div>
               <MdOutlineInfo />
             </div>

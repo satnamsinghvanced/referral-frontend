@@ -33,7 +33,7 @@ const Security: React.FC = () => {
   };
 
   return (
-    <Card className="rounded-xl bg-white text-gray-900 shadow-none border border-text/10">
+    <Card className="rounded-xl bg-white text-gray-900 shadow-none border border-foreground/10">
       <CardHeader className="flex items-center gap-3 px-5 pt-5 pb-0">
         <FiShield className="h-5 w-5 text-gray-700" />
         <h4 className="text-base">Security & Privacy</h4>
@@ -88,7 +88,7 @@ const Security: React.FC = () => {
           </Button>
         </div>
 
-        <Divider className="border-text/10 mb-7" />
+        <Divider className="border-foreground/10 mb-7" />
 
         {/* Two-Factor Authentication */}
         <div className="space-y-4">
@@ -96,7 +96,7 @@ const Security: React.FC = () => {
             Two-Factor Authentication
           </h4>
 
-          <div className="flex items-center justify-between p-4 border border-text/10 rounded-lg">
+          <div className="flex items-center justify-between p-4 border border-foreground/10 rounded-lg">
             <div className="space-y-1">
               <p className="font-medium text-sm">SMS Authentication</p>
               <p className="text-xs text-gray-500">

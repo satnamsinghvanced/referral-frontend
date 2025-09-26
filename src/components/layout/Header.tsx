@@ -59,13 +59,13 @@ export default function Header({
       height={63}
       isBordered
       classNames={{
-        base: "border-text/10 dark:border-background/30 bg-background dark:bg-text",
+        base: "border-foreground/10  bg-background ",
         wrapper: "max-w-none px-4 md:px-6",
       }}
     >
       <NavbarContent justify="start" className="items-center gap-3">
         <div className="lg:hidden">
-          <button onClick={hamburgerMenuClick} className="flex cursor-pointer text-xl text-text ">
+          <button onClick={hamburgerMenuClick} className="flex cursor-pointer text-xl text-foreground ">
             <HiOutlineMenuAlt1 />
           </button>
         </div>
@@ -74,7 +74,7 @@ export default function Header({
             <NavbarItem key={navItem.link}>
               <Link
                 to={navItem.link}
-                className="text-sm px-3.5 py-1.5 text-foreground hover:bg-text/4 rounded-md"
+                className="text-sm px-3.5 py-1.5 text-foreground hover:bg-foreground/4 rounded-md"
               >
                 {navItem.label}
               </Link>
@@ -87,11 +87,11 @@ export default function Header({
               mainWrapper: "h-full",
               input: "text-small",
               inputWrapper:
-                "min-h-8 font-normal text-default-500 shadow-none bg-text/4 group-data-[focus=true]:border-default-400 text-text dark:bg-background/10",
-              // "min-h-9 font-normal text-default-500 shadow-none border-small bg-text-10 group-data-[focus=true]:border-default-400 text-text",
+                "min-h-8 font-normal text-default-500 shadow-none bg-foreground/4 group-data-[focus=true]:border-default-400 text-foreground /10",
+              // "min-h-9 font-normal text-default-500 shadow-none border-small bg-foreground-10 group-data-[focus=true]:border-default-400 text-foreground",
             }}
             placeholder="Search referrals..."
-            startContent={<IoSearch size={18} className="text-text/50" />}
+            startContent={<IoSearch size={18} className="text-foreground/50" />}
             type="search"
             variant="flat"
           />
@@ -107,7 +107,7 @@ export default function Header({
               mainWrapper: "h-full",
               input: "text-small",
               inputWrapper:
-                "min-h-9 font-normal text-default-500 shadow-none border-small bg-text-10 group-data-[focus=true]:border-default-400 text-text",
+                "min-h-9 font-normal text-default-500 shadow-none border-small bg-foreground-10 group-data-[focus=true]:border-default-400 text-foreground",
             }}
             placeholder="Search referrals..."
             startContent={<IoSearch size={18} />}

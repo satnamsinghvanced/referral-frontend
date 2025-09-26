@@ -16,23 +16,23 @@ interface ReferralCardProps {
 
 const ReferralCard = ({ referral, urgencyLabels }: ReferralCardProps) => {
   return (
-    <div className="flex justify-between border border-text/10 dark:border-background/20 rounded-lg p-4 bg-background dark:bg-text">
+    <div className="flex justify-between border border-foreground/10  rounded-lg p-4 bg-background ">
       <div className="font-medium text-sm w-full h-full">
         {referral.fullName}
         <div className="flex gap-2 items-center text-xs font-light">
           <div className="flex gap-1 items-center">
             {referral.referringByName}
           </div>
-          <div className="p-0.5 bg-text/50 rounded-full aspect-square h-fit w-fit"></div>
+          <div className="p-0.5 bg-foreground/50 rounded-full aspect-square h-fit w-fit"></div>
           <div>{referral.fullName}</div>
         </div>
         <div className="flex gap-2 items-center text-xs font-light">
           <div className="flex gap-1 items-center">
             {referral.treatmentType}
           </div>
-          <div className="p-0.5 bg-text/50 rounded-full aspect-square h-fit w-fit"></div>
+          <div className="p-0.5 bg-foreground/50 rounded-full aspect-square h-fit w-fit"></div>
           <div>{referral.createdAt.slice(0, 10)}</div>
-          <div className="p-0.5 bg-text/50 rounded-full aspect-square h-fit w-fit"></div>
+          <div className="p-0.5 bg-foreground/50 rounded-full aspect-square h-fit w-fit"></div>
           <div>via NFC/QR</div>
         </div>
       </div>
@@ -195,10 +195,10 @@ export default ReferralCard;
 //   };
 
 //   return (
-//     <Card shadow="none" className="w-full  transition-all duration-300 p-3 border border-text/10 dark:border-text/30 hover:bg-text/2">
+//     <Card shadow="none" className="w-full  transition-all duration-300 p-3 border border-foreground/10  hover:bg-foreground/2">
 //       <CardHeader className="flex gap-2 justify-between w-full">
 //         <div className="flex gap-2">
-//           <Chip size="sm" variant="flat" color="default" className="border bg-transparent border-text/20 text-xs">
+//           <Chip size="sm" variant="flat" color="default" className="border bg-transparent border-foreground/20 text-xs">
 //             {uniqueId}
 //           </Chip>
 //           {urgency && (
@@ -212,11 +212,11 @@ export default ReferralCard;
 //         <div className="flex">
 //           <Popover placement="right" size="sm" shouldCloseOnScroll={true}>
 //             <PopoverTrigger>
-//               <Button size="sm" className="bg-transparent hover:bg-text/10">
+//               <Button size="sm" className="bg-transparent hover:bg-foreground/10">
 //                 <RxDotsHorizontal />
 //               </Button>
 //             </PopoverTrigger>
-//             <PopoverContent className="border border-text/5 shadow-sm" >
+//             <PopoverContent className="border border-foreground/5 shadow-sm" >
 //               {/* <div className="px-1 py-2"> */}
 //               <div className="px-0 py-1 space-y-1 flex flex-col gap-1">
 //                 {statusLabels.map(({ value, label, icon }) => (
@@ -245,35 +245,35 @@ export default ReferralCard;
 //         <div className="space-y-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
 //           {/* Patient Information */}
 //           <div className="mb-0">
-//             <p className="text-text text-sm uppercase font-semibold mb-2">Patient Information</p>
+//             <p className="text-foreground text-sm uppercase font-semibold mb-2">Patient Information</p>
 //             <div className="space-y-1">
 //               <p className="flex items-center gap-1">
 //                 <FiUser />
 //                 <span className="font-medium">{fullName}</span>
-//                 <span className="font-light text-text/90"> ({age && `${age} years old`})</span>
+//                 <span className="font-light text-foreground/90"> ({age && `${age} years old`})</span>
 //               </p>
 //               <p className="flex items-center gap-1">
 //                 <FiPhone />
-//                 <span className="font-light text-text/90">{phoneNumber}</span>
+//                 <span className="font-light text-foreground/90">{phoneNumber}</span>
 //               </p>
 //               <p className="flex items-center gap-1">
 //                 <FiMail />
-//                 <span className="font-light text-text/90">{email}</span>
+//                 <span className="font-light text-foreground/90">{email}</span>
 //               </p>
 //               <p className="flex items-center gap-1">
 //                 <CiCalendar />
 //                 <span className="font-light">Received:</span>
-//                 <span className="font-light text-text/90 ">{formatDate(createdAt)}</span>
+//                 <span className="font-light text-foreground/90 ">{formatDate(createdAt)}</span>
 //               </p>
 
 //               {/* <p>
 //                 <span className="font-medium">Phone:</span>
-//                 <span className="font-light text-text/90"> {phoneNumber}</span>
+//                 <span className="font-light text-foreground/90"> {phoneNumber}</span>
 //               </p> */}
 //               {/* {age && (
 //                 <p>
 //                   <span className="font-medium">Age:</span>
-//                   <span className="font-light text-text/90"> {age}</span>
+//                   <span className="font-light text-foreground/90"> {age}</span>
 //                 </p>
 //               )} */}
 //             </div>
@@ -281,7 +281,7 @@ export default ReferralCard;
 
 //           {/* Referrer Information */}
 //           <div className="mb-0">
-//             <p className="text-text text-sm uppercase font-semibold mb-2">
+//             <p className="text-foreground text-sm uppercase font-semibold mb-2">
 //               {role === 'doctor' ? 'Referring Doctor' : 'Referring Patient'}
 //             </p>
 //             <div className="space-y-1">
@@ -291,72 +291,72 @@ export default ReferralCard;
 //                   :
 //                   <CiStethoscope />
 //                 }
-//                 <span className="font-light text-text/90">{referringByName}</span>
+//                 <span className="font-light text-foreground/90">{referringByName}</span>
 //               </p>
 //               {relationshipName &&
 //                 <p className="flex items-center gap-1">
 //                   <LuBuilding2 className="text-extralight" />
-//                   <span className="font-light text-text/90">{relationshipName}</span>
+//                   <span className="font-light text-foreground/90">{relationshipName}</span>
 //                 </p>}
 //               {referringPracticeName &&
 //                 <p className="flex items-center gap-1">
 //                   <FiUser />
-//                   <span className="font-light text-text/90">{referringPracticeName}</span>
+//                   <span className="font-light text-foreground/90">{referringPracticeName}</span>
 //                 </p>
 //               }
 //               {/* {referringSpecialty
 //                 && <p><span className="font-medium">Specialty:</span>
-//                   <span className="font-light text-text/90">{referringSpecialty}</span>
+//                   <span className="font-light text-foreground/90">{referringSpecialty}</span>
 //                 </p>
 //               } */}
 //               {referringPhoneNumber &&
 //                 <p className="flex items-center gap-1">
 //                   <FiPhone />
-//                   <span className="font-light text-text/90">{referringPhoneNumber}</span>
+//                   <span className="font-light text-foreground/90">{referringPhoneNumber}</span>
 //                 </p>
 //               }
 //               {referringEmail &&
 //                 <p className="flex items-center gap-1">
 //                   <FiMail />
-//                   <span className="font-light text-text/90">{referringEmail}</span>
+//                   <span className="font-light text-foreground/90">{referringEmail}</span>
 //                 </p>
 //               }
 //               {/* {getAddress()
 //                 && <p><span className="font-medium">Address:</span>
-//                   <span className="font-light text-text/90">{getAddress()}</span>
+//                   <span className="font-light text-foreground/90">{getAddress()}</span>
 //                 </p>
 //               } */}
 //             </div>
 //           </div>
 //         </div>
-//         <Divider className="bg-text/10" />
+//         <Divider className="bg-foreground/10" />
 //         <div className="space-y-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
 //           {/* Treatment Information */}
 //           <div className="mb-0">
-//             <p className="text-text text-sm uppercase font-semibold mb-2">Treatment Details</p>
+//             <p className="text-foreground text-sm uppercase font-semibold mb-2">Treatment Details</p>
 //             <div className="space-y-1">
-//               {treatmentType && <p><span className="font-medium">Type:</span> <span className="font-light text-text/90">{treatmentType}</span></p>}
-//               {insuranceProvider && <p><span className="font-medium">Insurance:</span> <span className="font-light text-text/90">{insuranceProvider}</span></p>}
-//               {preferredTime && <p><span className="font-medium">Preferred Time:</span> <span className="font-light text-text/90">{preferredTimeLabels[preferredTime] || preferredTime}</span></p>}
-//               {/* {urgency && <p><span className="font-medium">Urgency:</span> <span className="font-light text-text/90">{urgencyLabels[urgency]}</span></p>} */}
+//               {treatmentType && <p><span className="font-medium">Type:</span> <span className="font-light text-foreground/90">{treatmentType}</span></p>}
+//               {insuranceProvider && <p><span className="font-medium">Insurance:</span> <span className="font-light text-foreground/90">{insuranceProvider}</span></p>}
+//               {preferredTime && <p><span className="font-medium">Preferred Time:</span> <span className="font-light text-foreground/90">{preferredTimeLabels[preferredTime] || preferredTime}</span></p>}
+//               {/* {urgency && <p><span className="font-medium">Urgency:</span> <span className="font-light text-foreground/90">{urgencyLabels[urgency]}</span></p>} */}
 //             </div>
 //           </div>
 
 //           {/* Additional Information */}
 //           <div className="mb-0">
-//             <p className="text-text text-sm uppercase font-semibold mb-2">Notes</p>
+//             <p className="text-foreground text-sm uppercase font-semibold mb-2">Notes</p>
 //             <div className="space-y-1">
 
 //               {notes && (
 //                 <p>
-//                   <span className="font-light text-text/90">{notes}</span>
+//                   <span className="font-light text-foreground/90">{notes}</span>
 //                 </p>
 //               )}
 //               {reasonForReferral && (
-//                 <p><span className="font-medium">Reason:</span> <span className="font-light text-text/90">{reasonForReferral}</span></p>
+//                 <p><span className="font-medium">Reason:</span> <span className="font-light text-foreground/90">{reasonForReferral}</span></p>
 //               )}
 //               {/* <p>
-//                 <span className="font-medium">Date Received:</span> <span className="font-light text-text/90 ">{formatDate(dateReceived)}</span>
+//                 <span className="font-medium">Date Received:</span> <span className="font-light text-foreground/90 ">{formatDate(dateReceived)}</span>
 //               </p> */}
 //             </div>
 //           </div>
@@ -367,7 +367,7 @@ export default ReferralCard;
 
 //       {/* <CardFooter>
 //         <div className="flex justify-between items-center w-full">
-//           <span className="text-xs text-text">
+//           <span className="text-xs text-foreground">
 //             Referral Type: {role === 'doctor' ? 'Doctor' : 'Patient'}
 //           </span>
 //           <div className="flex gap-2">

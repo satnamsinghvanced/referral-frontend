@@ -1,5 +1,5 @@
 import { addToast, Card } from "@heroui/react";
-import { useRef, useState } from "react";
+import { JSX, useRef, useState } from "react";
 import { FaQrcode } from "react-icons/fa6";
 import { FiEdit, FiEye, FiStar, FiTarget, FiUsers } from "react-icons/fi";
 import { IoCallOutline } from "react-icons/io5";
@@ -13,75 +13,92 @@ import ReferralManagementConfig from "../../components/formConfigs/ReferralManag
 import { useCreatePatient } from "../../queries/patient/useCreateUser";
 import { useUpdatePatient } from "../../queries/patient/userUpdateUser";
 import { usePatientsQuery } from "../../queries/patient/useUsersQuery";
-import { urgencyLabels } from "../../Utils/consts";
 import RoleToggleTabs from "./RoleToggleTabs"; // Changed from ToggleButton to RoleToggleTabs
 import ReferralCard from "./ReferralCard";
 import RefererCard from "./RefererCard";
 import { CiLocationOn } from "react-icons/ci";
+import { urgencyLabels } from "../../utils/consts";
 
+type StatCardData = {
+  icon: JSX.Element;
+  heading: string;
+  value: string;
+  subheading: string;
+};
 
-
-
-const STATCARDDATA = [
+const STATCARDDATA: StatCardData[] = [
   {
     icon: <LuBuilding2 className="text-[17px] mt-1 text-sky-500" />,
-    heading: 'Total Practices',
-    value: '3',
-    subheading: 'Referring practices'
+    heading: "Total Practices",
+    value: "3",
+    subheading: "Referring practices",
   },
   {
     icon: <FiUsers className="text-[17px] mt-1 text-green-500" />,
-    heading: 'Total Referrals',
-    value: '247',
-    subheading: '+12% from last month'
+    heading: "Total Referrals",
+    value: "247",
+    subheading: "+12% from last month",
   },
-
   {
     icon: <FiStar className="text-[17px] mt-1 text-yellow-500" />,
-    heading: 'A-Level Practices',
-    value: '8',
-    subheading: '67% of total'
+    heading: "A-Level Practices",
+    value: "8",
+    subheading: "67% of total",
   },
   {
     icon: <FiTarget className="text-[17px] mt-1 text-green-500" />,
-    heading: 'Avg. Score',
-    value: '78.5',
-    subheading: '+5.2 improvement'
+    heading: "Avg. Score",
+    value: "78.5",
+    subheading: "+5.2 improvement",
   },
-  // {
-  //   icon: <PiBaby className="text-[17px] mt-1 text-pink-500" />,
-  //   heading: 'Family Leads',
-  //   value: '0',
-  //   subheading: 'Ortho candidates'
-  // }
 ];
 
+type FilterType = {
+  search: string;
+  status: string;
+  urgency: string;
+  location: string;
+};
 
+type ReferralType = "Referrals" | "Referrers" | "NFC & QR Tracking";
 
-const ReferralManagement = () => {
-  const formRef = useRef(null);
+type Referral = {
+  id: string;
+  fullName: string;
+  referringByName?: string;
+  treatmentType?: string;
+  createdAt?: string;
+  urgency?: keyof typeof urgencyLabels;
+};
+
+type Referer = {
+  id: string;
+  fullName: string;
+  practice: string;
+  referredBy: string;
+  totalReferrals: number;
+  referralsThisMonth: number;
+};
+
+const ReferralManagement: React.FC = () => {
+  const formRef = useRef<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [selectedReferralType, setSelectedReferralType] =
-    useState("Referrals");
+    useState<ReferralType>("Referrals");
 
   const handleCardClick = (heading: string) => {
     console.log(`${heading} clicked`);
   };
 
-  const handleReferralTypeChange = (type = 'Referrals') => {
+  const handleReferralTypeChange = (type: ReferralType = "Referrals") => {
     console.log("type : ", type);
     setSelectedReferralType(type);
   };
 
-  const {
-    mutate: createPatient,
-    isLoading: loader,
-    isError: createError,
-    error,
-  } = useCreatePatient();
+  const { mutate: createPatient } = useCreatePatient();
 
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<FilterType>({
     search: "",
     status: "",
     urgency: "",
@@ -93,20 +110,19 @@ const ReferralManagement = () => {
     isLoading,
     isError,
   } = usePatientsQuery({
-    // role: selectedReferralType === "Doctor Referrals" ? "doctor" : "patient",
-    role: '',
+    role: "",
     search: filters.search,
     status: filters.status,
     urgency: filters.urgency,
-    location: filters.location,
+    locations: [filters.location],
     page: 2,
     limit: 5,
   });
 
-  console.log('referralData: ', referralData);
-  // console.log("data : ", referralData);
+  console.log("referralData: ", referralData);
 
   const { mutate: updatePatient } = useUpdatePatient();
+
   const statCardData = [
     {
       heading: "A-Level Partners",
@@ -128,14 +144,14 @@ const ReferralManagement = () => {
     },
   ];
 
-  const handleStatusUpdate = (id: any, values: any) => {
+  const handleStatusUpdate = (id: string, values: any) => {
     updatePatient(
       { id, patientData: values },
       {
         onSuccess: () => {
           console.log("🎉 Patient updated successfully!");
         },
-        onError: (err) => {
+        onError: (err: unknown) => {
           console.error("⚠️ Failed to update patient:", err);
         },
       }
@@ -171,18 +187,18 @@ const ReferralManagement = () => {
           addToast({
             title: "Success",
             description: "Patient created successfully",
-            color: 'success',
-          })
+            color: "success",
+          });
           formRef.current.resetForm();
           handleClose();
         },
-        onError: (err) => {
+        onError: (err: unknown) => {
           console.error("Failed to create patient:", err);
           addToast({
             title: "Error",
             description: "Failed to create patient",
-            color: 'danger',
-          })
+            color: "danger",
+          });
         },
       });
     } else {
@@ -191,10 +207,13 @@ const ReferralManagement = () => {
       // Force validation + mark touched
       await formRef?.current.validateForm();
       formRef?.current.setTouched(
-        Object.keys(formRef?.current?.values).reduce((acc, key) => {
-          acc[key] = true;
-          return acc;
-        }, {})
+        Object.keys(formRef?.current?.values).reduce(
+          (acc: any, key: string) => {
+            acc[key] = true;
+            return acc;
+          },
+          {}
+        )
       );
     }
   };
@@ -205,26 +224,26 @@ const ReferralManagement = () => {
       onClick: handleExport,
       icon: <FaQrcode />,
       props: {
-        variant: "secondary",
+        variant: "secondary" as const,
       },
     },
     {
       label: "Add Referrer",
       onClick: handleOpen,
-      classNames: "bg-text text-background dark:bg-background dark:text-text",
+      classNames: "bg-foreground text-background  ",
       icon: <LuPlus />,
       props: {
-        variant: "primary",
+        variant: "primary" as const,
       },
     },
   ];
 
   const qrForReferrer = (id: string) => {
-    alert(`QR clicked for id: ${id}`)
-  }
+    alert(`QR clicked for id: ${id}`);
+  };
   const locationForReferrer = (id: string) => {
-    alert(`QR clicked for id: ${id}`)
-  }
+    alert(`QR clicked for id: ${id}`);
+  };
 
   const refererButtonList = [
     {
@@ -233,7 +252,7 @@ const ReferralManagement = () => {
       classNames: "",
       icon: <FaQrcode />,
       props: {
-        variant: "secondary",
+        variant: "bordered",
       },
     },
     {
@@ -242,46 +261,34 @@ const ReferralManagement = () => {
       classNames: "",
       icon: <CiLocationOn className="font-bold" />,
       props: {
-        variant: "secondary",
+        variant: "bordered",
       },
     },
   ];
 
   const cancelBtnData = {
     function: onCancelClick,
-    style:
-      "border-text/10 dark:border-text/30 border text-text hover:bg-background",
+    style: "border-foreground/10  border text-foreground hover:bg-background",
     text: "cancel",
   };
 
   const addBtnData = {
     function: onSaveClick,
-    style: "bg-text text-background",
+    style: "bg-foreground text-background",
     text: "add",
   };
 
-  const headingDate = {
+  const headingData = {
     heading: "Referral Management",
     subHeading:
       "Track doctor and patient referrals for your orthodontic practice",
     buttons: buttonList,
   };
 
-  // const testClick = () => {
-  //   addToast({
-  //     title: "Success",
-  //     description: "Patient created successfully",
-  //     color: 'danger',
-
-  //   })
-  // }
-
   return (
     <>
-      <ComponentContainer headingDate={headingDate}>
+      <ComponentContainer headingData={headingData}>
         <div className="flex flex-col gap-5">
-          {/* <Button onPress={testClick} className="z-50 p-2 border">Test Toast</Button> */}
-
           <RoleToggleTabs
             selected={selectedReferralType}
             onSelectionChange={handleReferralTypeChange}
@@ -289,136 +296,129 @@ const ReferralManagement = () => {
 
           <div className="">
             <div className="flex flex-col gap-4 mt-1">
-              {
-                // referralData?.data?.length > 0
-                1
-                  ?
-                  selectedReferralType === "Referrals"
-                    ? (
-                      <div className="flex flex-col gap-4">
-                        <div className="grid grid-cols md:grid-cols-3 xl:grid-cols-4 gap-4">
-                          {STATCARDDATA.map((data, index) => (
-                            <MiniStatsCard key={index} cardData={data} />
-                          ))}
-                        </div>
+              {1 ? (
+                selectedReferralType === "Referrals" ? (
+                  <div className="flex flex-col gap-4">
+                    <div className="grid grid-cols md:grid-cols-3 xl:grid-cols-4 gap-4">
+                      {STATCARDDATA.map((data, index) => (
+                        <MiniStatsCard key={index} cardData={data} />
+                      ))}
+                    </div>
 
-                        <FilterPanel onFilterChange={setFilters} />
+                    <FilterPanel onFilterChange={setFilters} />
 
-                        <div className="flex flex-col gap-4 border border-primary/10 dark:border-primary/20 rounded-xl p-4  bg-background dark:bg-text/90">
-                          <div className="font-medium text-sm mb-3">
-                            Recent Referrals
-                          </div>
-                          {/* {referralData?.data?.map((referral) => (
-                            <ReferralCard key={referral.id} referral={referral} urgencyLabels={urgencyLabels} />
-                          ))} */}
-                          {[
-                            {
-                              "id": "1",
-                              "fullName": "John Doe",
-                              "referringByName": "Dr. Smith",
-                              "treatmentType": "Dental Checkup",
-                              "createdAt": "2025-09-20T12:30:00Z",
-                              "urgency": "high"
-                            },
-                            {
-                              "id": "2",
-                              "fullName": "Jane Smith",
-                              "referringByName": "Dr. White",
-                              "treatmentType": "Eye Examination",
-                              "createdAt": "2025-09-18T10:15:00Z",
-                              "urgency": "medium"
-                            },
-                            {
-                              "id": "3",
-                              "fullName": "Michael Brown",
-                              "referringByName": "Dr. Green",
-                              "treatmentType": "Physical Therapy",
-                              "createdAt": "2025-09-22T09:00:00Z",
-                              "urgency": "low"
-                            },
-                            {
-                              "id": "4",
-                              "fullName": "Emily Johnson",
-                              "referringByName": "Dr. Blue",
-                              "treatmentType": "General Consultation",
-                              "createdAt": "2025-09-19T14:45:00Z",
-                              "urgency": "high"
-                            },
-                            {
-                              "id": "5",
-                              "fullName": "David Williams",
-                              "referringByName": "Dr. Black",
-                              "treatmentType": "Blood Pressure Monitoring",
-                              "createdAt": "2025-09-21T16:30:00Z",
-                              "urgency": "medium"
-                            }
-                          ].map((referral) => (
-                            <ReferralCard key={referral.id} referral={referral} urgencyLabels={urgencyLabels} />
-                          ))}
-                        </div>
+                    <div className="flex flex-col gap-4 border border-primary/10  rounded-xl p-4  bg-background /90">
+                      <div className="font-medium text-sm mb-3">
+                        Recent Referrals
                       </div>
-                    )
-                    : selectedReferralType === "Referrers"
-                      ? (
-
-                        <div className="flex flex-col gap-4 border border-primary/10 dark:border-primary/10 rounded-xl p-4  bg-background dark:bg-text/70 w-full">
-                          <div className="font-medium text-sm mb-3">
-                            Referrer Management
-                          </div>
-                          {[
-                            {
-                              "id": "1",
-                              "fullName": "Dr. John Doe",
-                              "practice": "Johnson Family Dentistry",
-                              "referredBy": "doctor",
-                              "totalReferrals": 50,
-                              "referralsThisMonth": 12
-                            },
-                            {
-                              "id": "2",
-                              "fullName": "Jane Smith",
-                              "practice": "Brown Dental Care",
-                              "referredBy": "doctor",
-                              "totalReferrals": 10,
-                              "referralsThisMonth": 8
-                            },
-                            {
-                              "id": "3",
-                              "fullName": "Michael Brown",
-                              "practice": "Patient Referrer",
-                              "referredBy": "petient",
-                              "totalReferrals": 25,
-                              "referralsThisMonth": 18
-                            },
-                          ].map((referral) => (
-                            <RefererCard key={referral.id} referral={referral} buttons={refererButtonList} />
-                          ))}
-
-
-                        </div>
-                      )
-
-                      : selectedReferralType === "NFC & QR Tracking"
-                        ? (
-                          <div className="w-full h-80 flex gap-2">
-
-                            <div className="border w-full border-primary/10 dark:border-primary/30"></div>
-                            <div className="border w-full border-primary/10 dark:border-primary/30"></div>
-
-                          </div>
-                        )
-                        : null
-                  : (
-                    <Card className="w-full flex items-center justify-center p-10 border border-text/10 dark:border-text/30" shadow="none">
-                      <p className="text-sm text-text/80">No referrals found</p>
-                    </Card>
-                  )
-              }
+                      {[
+                        {
+                          id: "1",
+                          fullName: "John Doe",
+                          referringByName: "Dr. Smith",
+                          treatmentType: "Dental Checkup",
+                          createdAt: "2025-09-20T12:30:00Z",
+                          urgency: "high",
+                        },
+                        {
+                          id: "2",
+                          fullName: "Jane Smith",
+                          referringByName: "Dr. White",
+                          treatmentType: "Eye Examination",
+                          createdAt: "2025-09-18T10:15:00Z",
+                          urgency: "medium",
+                        },
+                        {
+                          id: "3",
+                          fullName: "Michael Brown",
+                          referringByName: "Dr. Green",
+                          treatmentType: "Physical Therapy",
+                          createdAt: "2025-09-22T09:00:00Z",
+                          urgency: "low",
+                        },
+                        {
+                          id: "4",
+                          fullName: "Emily Johnson",
+                          referringByName: "Dr. Blue",
+                          treatmentType: "General Consultation",
+                          createdAt: "2025-09-19T14:45:00Z",
+                          urgency: "high",
+                        },
+                        {
+                          id: "5",
+                          fullName: "David Williams",
+                          referringByName: "Dr. Black",
+                          treatmentType: "Blood Pressure Monitoring",
+                          createdAt: "2025-09-21T16:30:00Z",
+                          urgency: "medium",
+                        },
+                      ].map((referral) => (
+                        <ReferralCard
+                          key={referral.id}
+                          referral={referral}
+                          urgencyLabels={urgencyLabels}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ) : selectedReferralType === "Referrers" ? (
+                  <div className="flex flex-col gap-4 border border-primary/10  rounded-xl p-4  bg-background /70 w-full">
+                    <div className="font-medium text-sm mb-3">
+                      Referrer Management
+                    </div>
+                    {[
+                      {
+                        id: "1",
+                        fullName: "Dr. John Doe",
+                        practice: "Johnson Family Dentistry",
+                        referringByName: "doctor",
+                        totalReferrals: 50,
+                        referralsThisMonth: 12,
+                      },
+                      {
+                        id: "2",
+                        fullName: "Jane Smith",
+                        practice: "Brown Dental Care",
+                        referringByName: "doctor",
+                        totalReferrals: 10,
+                        referralsThisMonth: 8,
+                      },
+                      {
+                        id: "3",
+                        fullName: "Michael Brown",
+                        practice: "Patient Referrer",
+                        referringByName: "petient",
+                        totalReferrals: 25,
+                        referralsThisMonth: 18,
+                      },
+                    ].map((referral) => (
+                      <RefererCard
+                        key={referral.id}
+                        referral={referral}
+                        buttons={refererButtonList}
+                      />
+                    ))}
+                  </div>
+                ) : selectedReferralType === "NFC & QR Tracking" ? (
+                  <div className="w-full h-80 flex gap-2">
+                    <div className="border w-full border-primary/10 "></div>
+                    <div className="border w-full border-primary/10 "></div>
+                  </div>
+                ) : null
+              ) : (
+                <Card
+                  className="w-full flex items-center justify-center p-10 border border-foreground/10 "
+                  shadow="none"
+                >
+                  <p className="text-sm text-foreground/80">
+                    No referrals found
+                  </p>
+                </Card>
+              )}
             </div>
           </div>
-
         </div>
-      </ComponentContainer >
+      </ComponentContainer>
 
       <AddModal
         isOpen={isModalOpen}

@@ -3,15 +3,15 @@ import ComponentContainer from "../../components/common/ComponentContainer";
 import SettingNavigation from "./SettingNavigation";
 
 const Settings = () => {
-  const headingDate = {
+  const headingData = {
     heading: "Settings",
     subHeading: "Manage your account preferences and configuration",
   };
 
   return (
-    <ComponentContainer headingDate={headingDate}>
+    <ComponentContainer headingData={headingData}>
       <div className="flex items-start gap-4">
-        <div className="max-w-1/6 w-full border border-text/10 dark:border-background/10 rounded-lg bg-background sticky top-0">
+        <div className="max-w-1/6 w-full border border-foreground/10  rounded-lg bg-background sticky top-0">
           <SettingNavigation />
         </div>
         <div className="w-full">

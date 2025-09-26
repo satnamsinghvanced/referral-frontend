@@ -187,7 +187,7 @@ const Notifications: React.FC = () => {
           </div>
         </div>
 
-        <p>{counter}</p>
+        {/* <p>{counter}</p> */}
         {/* Tabs */}
         <Tabs
           aria-label="Notification tabs"
@@ -195,7 +195,7 @@ const Notifications: React.FC = () => {
           items={TAB_ITEMS}
           classNames={{
             base: "w-full",
-            tabList: "w-full bg-primary-50 dark:bg-background/10",
+            tabList: "w-full bg-primary-50 /10",
             tab: "text-xs font-medium",
             panel: "py-0",
           }}
@@ -208,7 +208,7 @@ const Notifications: React.FC = () => {
               title={item.label}
             >
               {/* Notification Rules */}
-              <p>{counter}</p>
+              {/* <p>{counter}</p> */}
 
               {item.id === "notification-rules" && (
                 <div className="space-y-4">
@@ -254,7 +254,7 @@ const Notifications: React.FC = () => {
                           <div className="space-y-5">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3">
-                                <div className="p-2 bg-text/10 dark:bg-background/15 rounded-lg">
+                                <div className="p-2 bg-foreground/10 /15 rounded-lg">
                                   <FiUsers className="h-4 w-4" />
                                 </div>
                                 <div>
@@ -282,7 +282,7 @@ const Notifications: React.FC = () => {
                               <div className="flex items-center gap-2">
                                 <Button
                                   size="sm"
-                                  className="border bg-background dark:bg-text text-foreground font-semibold gap-2"
+                                  className="border bg-background  text-foreground font-semibold gap-2"
                                   onClick={() => {
                                     console.log("Test rule:", rule.id);
                                   }}

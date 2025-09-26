@@ -35,7 +35,7 @@ const AddModal = ({ isOpen, heading, description, cancelBtnData, addBtnData, con
                             <ModalHeader>
                                 <div className=" flex gap-1.5 flex-col">
                                     <h4 className="text-base font-normal">{heading}</h4>
-                                    <p className="text-xs font-extralight text-text/90 dark:text-background/80">{description}</p>
+                                    <p className="text-xs font-extralight text-foreground/90 ">{description}</p>
                                 </div>
                             </ModalHeader>
 

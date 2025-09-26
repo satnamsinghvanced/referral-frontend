@@ -30,7 +30,7 @@ const Overview = () => {
     return (
         <div className="flex flex-col gap-4">
             {/* <div>
-                <Card className="border border-text/10 p-4" shadow='none'>
+                <Card className="border border-foreground/10 p-4" shadow='none'>
                     <h6 className="text-sm">
                         Review Collection Trends
                     </h6>
@@ -40,7 +40,7 @@ const Overview = () => {
                 </Card>
             </div> */}
             <div className='flex gap-4 w-full'>
-                <Card className="border border-primary/10 dark:border-primary/15  w-full p-4 min-h-80" shadow='none'>
+                <Card className="border border-primary/10  w-full p-4 min-h-80" shadow='none'>
                     <h6 className="text-sm">
                         Monthly Review Trends
 
@@ -50,7 +50,7 @@ const Overview = () => {
 
                     </CardBody>
                 </Card>
-                <Card className="border border-primary/10 dark:border-primary/15  w-full p-4 min-h-80" shadow='none'>
+                <Card className="border border-primary/10 w-full p-4 min-h-80" shadow='none'>
                     <h6 className="text-sm">
                         Review Platform Distribution
                     </h6>
@@ -59,7 +59,7 @@ const Overview = () => {
 
                     </CardBody>
                 </Card>
-                {/* <Card className="border border-text/10 w-full p-5" shadow='none'>
+                {/* <Card className="border border-foreground/10 w-full p-5" shadow='none'>
                     <h6 className="text-sm mb-2">
                         Location Performance
                     </h6>

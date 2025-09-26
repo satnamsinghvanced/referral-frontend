@@ -169,9 +169,9 @@ const Success = () => {
 
                 {/* Additional Information */}
                 <div className="mt-4 text-center">
-                    <div className="bg-background border border-text/10 rounded-xl p-4">
+                    <div className="bg-background border border-foreground/10 rounded-xl p-4">
                         <h4 className="font-semibold text-primary mb-2">Need Help?</h4>
-                        <p className="text-sm text-text/70 mb-2">
+                        <p className="text-sm text-foreground/70 mb-2">
                             Our support team is here to help you get started.
                         </p>
                         <div className="flex justify-center gap-4 text-sm">

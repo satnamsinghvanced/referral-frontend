@@ -8,7 +8,7 @@ const HttpErrorDebugPanel = () => {
     };
 
     return (
-        <Button isIconOnly={true} variant="bordered" className="border-1 hover:bg-text/10 dark:hover:bg-text/30 h-9 w-12" onPress={onErrorDebuggingClick} size="sm">
+        <Button isIconOnly={true} variant="bordered" className="border-1 hover:bg-foreground/10 h-9 w-12" onPress={onErrorDebuggingClick} size="sm">
             <LuShield />
         </Button>
     )

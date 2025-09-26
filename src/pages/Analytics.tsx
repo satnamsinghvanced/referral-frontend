@@ -1,17 +1,21 @@
-import ComponentContainer from '../components/common/ComponentContainer'
+import React from "react";
+import ComponentContainer from "../components/common/ComponentContainer";
 
-const Analytics = () => {
-    const headingDate = {
-        heading: 'Analytics Overview',
-        subHeading: "Analytics ",
-    }
+const Analytics: React.FC = () => {
+  const headingData: {
+    heading: string;
+    subHeading?: string;
+    buttons?: undefined;
+  } = {
+    heading: "Analytics Overview",
+    subHeading: "Analytics ",
+  };
 
-    return (
-        <ComponentContainer
-            headingDate={headingDate}
-        >
-        </ComponentContainer>
-    )
-}
+  return (
+    <ComponentContainer headingData={headingData}>
+      Put your content here
+    </ComponentContainer>
+  );
+};
 
-export default Analytics
+export default Analytics;

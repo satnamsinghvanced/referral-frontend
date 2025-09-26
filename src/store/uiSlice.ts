@@ -1,39 +1,51 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-// Read initial states from localStorage or defaults
-const initialTheme =
-  localStorage.getItem("theme") ||
-  (window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light");
+// Initial state types
+export interface UIState {
+  theme: "light" | "dark";
+  sidebarOpen: boolean;
+}
 
-const initialSidebarOpen =
-  localStorage.getItem("sidebarOpen") === "true" ? true : false;
+// Read initial state from localStorage or defaults
+const getInitialTheme = (): UIState["theme"] => {
+  const stored = localStorage.getItem("theme");
+  if (stored === "light" || stored === "dark") return stored;
+  return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+};
+
+const getInitialSidebarOpen = (): boolean => {
+  return localStorage.getItem("sidebarOpen") === "true";
+};
+
+// Initial state
+const initialState: UIState = {
+  theme: getInitialTheme(),
+  sidebarOpen: getInitialSidebarOpen(),
+};
 
 const uiSlice = createSlice({
   name: "ui",
-  initialState: {
-    theme: initialTheme,
-    sidebarOpen: initialSidebarOpen,
-  },
+  initialState,
   reducers: {
     toggleTheme: (state) => {
-      state.theme = state.theme === "dark" ? "light" : "dark";
-      localStorage.setItem("theme", state.theme);
-      document.documentElement.classList.toggle("dark", state.theme === "dark");
+      const newTheme = state.theme === "dark" ? "light" : "dark";
+      state.theme = newTheme;
+      localStorage.setItem("theme", newTheme);
+      document.documentElement.classList.toggle("dark", newTheme === "dark");
     },
-    setTheme: (state, action) => {
-      state.theme = action.payload;
-      localStorage.setItem("theme", state.theme);
-      document.documentElement.classList.toggle("dark", state.theme === "dark");
+    setTheme: (state, action: PayloadAction<UIState["theme"]>) => {
+      const newTheme = action.payload;
+      state.theme = newTheme;
+      localStorage.setItem("theme", newTheme);
+      document.documentElement.classList.toggle("dark", newTheme === "dark");
     },
     toggleSidebar: (state) => {
       state.sidebarOpen = !state.sidebarOpen;
-      localStorage.setItem("sidebarOpen", state?.sidebarOpen);
+      localStorage.setItem("sidebarOpen", String(state.sidebarOpen));
     },
-    setSidebarOpen: (state, action) => {
+    setSidebarOpen: (state, action: PayloadAction<boolean>) => {
       state.sidebarOpen = action.payload;
-      localStorage.setItem("sidebarOpen", state?.sidebarOpen);
+      localStorage.setItem("sidebarOpen", String(state.sidebarOpen));
     },
   },
 });

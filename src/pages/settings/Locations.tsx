@@ -46,7 +46,7 @@ const Locations: React.FC = () => {
   };
 
   return (
-    <Card className="rounded-xl bg-white text-gray-900 shadow-none border border-text/10">
+    <Card className="rounded-xl bg-white text-gray-900 shadow-none border border-foreground/10">
       <CardHeader className="flex items-center gap-3 px-5 pt-5 pb-0">
         <GrLocation className="h-5 w-5 text-gray-700" />
         <p className="text-base">Practice Locations</p>
@@ -57,7 +57,7 @@ const Locations: React.FC = () => {
         {locations.map((location, index) => (
           <div
             key={index}
-            className="p-3 border border-text/10 rounded-lg flex items-start justify-between"
+            className="p-3 border border-foreground/10 rounded-lg flex items-start justify-between"
           >
             <div>
               <div className="flex items-center gap-2 mb-2">
@@ -77,7 +77,7 @@ const Locations: React.FC = () => {
                 isIconOnly
                 size="sm"
                 variant="bordered"
-                className="border-text/10 border-small"
+                className="border-foreground/10 border-small"
                 onClick={() => handleEdit(location.name)}
               >
                 <BiEdit className="size-4" />
@@ -86,7 +86,7 @@ const Locations: React.FC = () => {
                 isIconOnly
                 size="sm"
                 variant="bordered"
-                className="border-text/10 text-red-600 border-small"
+                className="border-foreground/10 text-red-600 border-small"
                 onClick={() => handleDelete(location.name)}
               >
                 <RiDeleteBinLine className="size-4" />
@@ -99,7 +99,7 @@ const Locations: React.FC = () => {
         <Button
           variant="bordered"
           size="sm"
-          className="w-full flex items-center justify-center gap-2 border-text/10 border-small font-medium"
+          className="w-full flex items-center justify-center gap-2 border-foreground/10 border-small font-medium"
         >
           <FiPlus className="h-4 w-4" />
           Add Location

@@ -7,7 +7,7 @@ const ReferralConnectionsContacts = ({ practiceContactsData }) => {
         <div className='flex flex-col gap-3'>
             <div className='flex justify-between items-center'>
                 <h6 className='mb-1.5'>   Practice Contacts {' '} &#40;{practiceContactsData.length} &#41;</h6>
-                <Button size='sm' className='bg-text text-background' startContent={<FaUserPlus />}>
+                <Button size='sm' className='bg-foreground text-background' startContent={<FaUserPlus />}>
                     Add Contact
                 </Button>
             </div>

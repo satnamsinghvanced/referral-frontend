@@ -1,32 +1,46 @@
-import ComponentHeader from './ComponentHeader'
+import React from "react";
+import ComponentHeader from "./ComponentHeader";
+import { Button } from "@heroui/react"; // <-- Import HeroUI Button
+
+type ButtonProps = React.ComponentProps<typeof Button>;
+type AllowedVariants = ButtonProps['variant'];
+
+type ButtonConfig = {
+  label: string;
+  onClick: () => void;
+  props?: Partial<ButtonProps> & { variant?: AllowedVariants };
+  classNames?: string;
+  icon?: React.ReactNode;
+};
 
 interface ComponentContainerProps {
-    headingDate: {
-        heading: string;
-        subHeading?: string;
-        buttons?: React.ReactNode;
-    };
-    children: React.ReactNode;
+  headingData: {
+    heading: string;
+    subHeading?: string | undefined;
+    buttons?: ButtonConfig[] | undefined;
+  };
+  children: React.ReactNode;
 }
 
-const ComponentContainer = ({ headingDate, children }: ComponentContainerProps) => {
-    return (
-        <div className="flex flex-col h-full">
-            {/* Sticky Header */}
-            <div className="sticky top-0 z-40 bg-background text-text dark:bg-text dark:text-background">
-                <ComponentHeader
-                    heading={headingDate.heading}
-                    subHeading={headingDate.subHeading}
-                    buttons={headingDate.buttons}
-                />
-            </div>
-            <div className="flex flex-col gap-2 md:px-7 px-4 py-4 md:py-8 overflow-y-scroll" >
-                {
-                    children
-                }
-            </div>
-        </div>
-    )
-}
+const ComponentContainer: React.FC<ComponentContainerProps> = ({
+  headingData,
+  children,
+}) => {
+  return (
+    <div className="flex flex-col h-full">
+      {/* Sticky Header */}
+      <div className="sticky top-0 z-40 bg-background text-foreground">
+        <ComponentHeader
+          heading={headingData.heading}
+          subHeading={headingData.subHeading}
+          buttons={headingData.buttons}
+        />
+      </div>
+      <div className="flex flex-col gap-2 md:px-7 px-4 py-4 md:py-8 overflow-auto">
+        {children}
+      </div>
+    </div>
+  );
+};
 
-export default ComponentContainer
+export default ComponentContainer;

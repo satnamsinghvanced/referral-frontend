@@ -9,7 +9,7 @@ interface ReviewStatsCardProps {
 
 const ReviewStatsCard = ({ cardHeading, cardStat, subheading, cardIcon }: ReviewStatsCardProps) => {
     return (
-        <Card className='w-full p-0 text-xs font-extralight text-text/80 dark:text-background/90 border border-primary/20 ' shadow='none' >
+        <Card className='w-full p-0 text-xs font-extralight text-foreground/80 /90 border border-primary/20 ' shadow='none' >
             <CardBody>
                 <div className="flex justify-between items-center">
                     <div className="w-full">
@@ -19,7 +19,7 @@ const ReviewStatsCard = ({ cardHeading, cardStat, subheading, cardIcon }: Review
                                 </div>
                                 <div className="h-5 w-5">{cardIcon}</div>
                             </div>
-                        <div className='text-xl font-semibold text-text dark:text-background/95'>{cardStat}</div>
+                        <div className='text-xl font-semibold text-foreground /95'>{cardStat}</div>
                             <div>{subheading}</div>
                     </div>
 

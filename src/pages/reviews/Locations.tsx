@@ -37,7 +37,7 @@ const Locations = () => {
     ];
 
     return (
-        <div className='flex flex-col gap-6 bg-background dark:bg-text border border-text/20 dark:border-background/10 rounded-xl p-5'>
+        <div className='flex flex-col gap-6 bg-background  border border-foreground/20  rounded-xl p-5'>
             <h4 className='flex items-center'>
                 <IoLocationOutline className="text-primary w-4 h-4 mr-2" />
 
@@ -45,7 +45,7 @@ const Locations = () => {
             <div className='grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4'>
                 <ReviewsLocationCard locations={locationData} />
             </div>
-            {/* <Card className="border border-text/10 p-4" shadow='none'>
+            {/* <Card className="border border-foreground/10 p-4" shadow='none'>
                 <h6 className="text-sm">
                     Monthly Review Collection by Location
                 </h6>

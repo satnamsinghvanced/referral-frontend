@@ -10,7 +10,7 @@ interface MiniStatsCardProps {
 }
 const MiniStatsCard = ({ cardData }: MiniStatsCardProps) => {
     return (
-        <Card className='w-full p-0 text-xs font-extralight text-text/80 dark:text-background/80 border border-primary/15 dark:border-sky-400/20 ' shadow='none' >
+        <Card className='w-full p-0 text-xs font-extralight text-foreground/80 border border-primary/15 ' shadow='none' >
             <CardBody>
                 <div className='mb-2 flex gap-1 items-center justify-between'>
                     <div className='font-semibold'>{cardData.heading}</div>

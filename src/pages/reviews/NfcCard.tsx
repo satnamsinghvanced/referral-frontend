@@ -3,8 +3,8 @@ import { FiCreditCard } from 'react-icons/fi'
 
 const NfcCard = () => {
     return (
-        <Card className="border border-text/10" shadow='none'>
-            <CardBody className="text-xs border border-text/10">
+        <Card className="border border-foreground/10" shadow='none'>
+            <CardBody className="text-xs border border-foreground/10">
                 <div className='flex justify-between items-start'>
                     <div className='flex flex-col gap-2.5'>
                         <div className='flex gap-2 items-center'>

@@ -64,8 +64,8 @@ const Sidebar = ({
         stats > 200
           ? "bg-sky-100"
           : stats > 50
-            ? "bg-orange-100"
-            : "bg-green-400",
+          ? "bg-orange-100"
+          : "bg-green-400",
     },
     {
       name: "Referral Connections",
@@ -152,32 +152,34 @@ const Sidebar = ({
     <>
       {/* Mobile overlay when sidebar open in mobile/mini mode */}
       <div
-        className={` z-50  ${isMiniSidebarOpen ? "bg-text/30 fixed inset-0 z-30" : "hidden"
-          } lg:hidden`}
+        className={` z-50  ${
+          isMiniSidebarOpen ? "bg-foreground/30 fixed inset-0 z-30" : "hidden"
+        } lg:hidden`}
         onClick={onCloseSidebar}
         aria-hidden
       />
 
       <aside
-        className={`no-print fixed top-0 left-0 z-60 h-screen border-r border-text/10 dark:border-background/30 bg-background dark:text-background dark:bg-text transition-all duration-300
+        className={`no-print fixed top-0 left-0 z-60 h-screen border-r border-foreground/10  bg-background   transition-all duration-300
           ${isMiniSidebarOpen ? "md:w-[250px] w-[300px]" : "w-18"}
         `}
         aria-label="Primary sidebar"
       >
         <div
-          className={`flex items-center h-16 border-b border-text/10 dark:border-background/30 ${isMiniSidebarOpen ? "justify-between" : "justify-center"
-            } w-full`}
+          className={`flex items-center h-16 border-b border-foreground/10  ${
+            isMiniSidebarOpen ? "justify-between" : "justify-center"
+          } w-full`}
         >
           {isMiniSidebarOpen && (
             <Link
               to="/dashboard"
               className="flex items-center gap-2 cursor-pointer text-sm pl-3"
             >
-              {/* <img src={logo} alt="logo" className="h-8 block dark:hidden" />
+              {/* <img src={logo} alt="logo" className="h-8 block" />
               <img
                 src={logoWhite}
                 alt="logo white"
-                className="h-8 hidden dark:block"
+                className="h-8 hidden"
               /> */}
               <img src={logo} alt="" className="w-8 h-8" />
               <span className="flex flex-col">
@@ -190,17 +192,18 @@ const Sidebar = ({
           <div className="p-2">
             <button
               onClick={onCloseSidebar}
-              className="cursor-pointer lg:hidden p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="cursor-pointer lg:hidden p-2 rounded-md hover:bg-gray-100"
             >
               <HiOutlineChevronLeft className="size-4" />
             </button>
             <button
               onClick={toggleSidebar}
-              className="cursor-pointer hidden lg:flex p-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700"
+              className="cursor-pointer hidden lg:flex p-2 rounded-md hover:bg-gray-100"
             >
               <IoIosArrowRoundForward
-                className={`${isMiniSidebarOpen ? "rotate-180" : ""
-                  } transition-transform w-5 h-5`}
+                className={`${
+                  isMiniSidebarOpen ? "rotate-180" : ""
+                } transition-transform w-5 h-5`}
               />
             </button>
           </div>
@@ -208,10 +211,11 @@ const Sidebar = ({
 
         {/* nav container */}
         <div
-          className={`${isMiniSidebarOpen ? "overflow-y-auto" : ""
-            } flex flex-col justify-between h-[calc(100vh_-_60px)]  px-0`}
+          className={`${
+            isMiniSidebarOpen ? "overflow-y-auto" : ""
+          } flex flex-col justify-between h-[calc(100vh_-_60px)]  px-0`}
         >
-          <ul className="flex flex-col text-gray-900 dark:text-background p-3">
+          <ul className="flex flex-col p-3">
             {navigationRoutes.map((item, index) => {
               const Icon = item.icon;
               const active = pathname === item.href;
@@ -222,34 +226,37 @@ const Sidebar = ({
                     to={item.href}
                     className={({ isActive }: { isActive: boolean }) =>
                       clsx(
-                        "group border my-0.5 cursor-pointer rounded-md transition-all group flex items-center py-2 px-3 hover:text-gray-700 hover:bg-gray-50 h-9",
+                        "group border my-0.5 cursor-pointer rounded-md transition-all group flex items-center py-2 px-3 hover:bg-gray-50 dark:hover:bg-[#0f1214] h-9",
                         isMiniSidebarOpen
                           ? "px-0 justify-start"
                           : "px-4 justify-center",
                         isActive
-                          ? "bg-sky-50 text-sky-700 !border-sky-200 shadow-sm"
-                          : "hover:bg-gray-100 dark:hover:bg-background/90 border-transparent"
+                          ? "!bg-sky-50 !text-sky-700 !border-sky-200 dark:!bg-white dark:!border-sky-50 shadow-sm"
+                          : "hover:bg-gray-100 border-transparent"
                       )
                     }
                   >
                     <span
-                      className={`flex items-center justify-center ${active ? "text-white dark:text-text" : "text-gray-500 dark:text-white dark:group-hover:text-text/80"
-                        }`}
+                      className={`flex items-center justify-center ${
+                        active ? "text-white " : "text-gray-500"
+                      }`}
                     >
                       {isMiniSidebarOpen ? (
                         <Icon
-                          className={` ${active
-                            ? "  text-sky-700"
-                            : ""
-                            }`}
+                          className={` ${active ? "  text-sky-700" : ""}`}
                         />
                       ) : (
-                        <Tooltip content={item.name} placement="right">
+                        <Tooltip
+                          content={item.name}
+                          placement="right"
+                          shadow="sm"
+                        >
                           <Icon
-                            className={` ${active
-                              ? "bg-sky-50 text-sky-700"
-                              : "hover:bg-gray-100 dark:hover:bg-gray-700"
-                              }`}
+                            className={` ${
+                              active
+                                ? "bg-sky-50 text-sky-700"
+                                : "hover:bg-gray-100 dark:bg-transparent"
+                            }`}
                           />
                         </Tooltip>
                       )}
@@ -260,10 +267,11 @@ const Sidebar = ({
                         <p>{item.name}</p>
                         {item.stats && (
                           <p
-                            className={`rounded-full px-2 text-[10px] py-0.5 capitalize !text-text ${typeof item.color === "function"
-                              ? item.color(item.stats)
-                              : item.color
-                              }`}
+                            className={`rounded-full px-2 text-[10px] py-0.5 capitalize !text-foreground ${
+                              typeof item.color === "function"
+                                ? item.color(item.stats)
+                                : item.color
+                            }`}
                           >
                             {" "}
                             {typeof item.stats === "number"
@@ -280,7 +288,7 @@ const Sidebar = ({
           </ul>
 
           {/* bottom items */}
-          <ul className="space-y-1 text-gray-900 dark:text-background p-3">
+          <ul className="space-y-1 p-3">
             {bottomRoutes.map((item, idx) => {
               const Icon = item.icon;
               const isSignOut = item.name.toLowerCase().includes("sign");
@@ -291,13 +299,13 @@ const Sidebar = ({
                     to={item.href}
                     className={({ isActive }) =>
                       clsx(
-                        "border cursor-pointer rounded-lg transition-all group flex items-center py-2 h-9",
+                        "border cursor-pointer rounded-lg transition-all group flex items-center py-2 h-9 dark:hover:bg-[#0f1214]",
                         isMiniSidebarOpen
                           ? "px-3 justify-start"
                           : "px-3 justify-center",
                         isActive
-                          ? "bg-sky-50 text-sky-700 !border-sky-200 shadow-sm"
-                          : "hover:bg-gray-100 dark:hover:bg-gray-700 border-transparent",
+                          ? "!bg-sky-50 !text-sky-700 !border-sky-200 dark:!bg-white dark:!border-sky-50 shadow-sm"
+                          : "hover:bg-gray-100 border-transparent",
                         isSignOut && "block md:hidden"
                       )
                     }
@@ -307,9 +315,7 @@ const Sidebar = ({
                         <span
                           className={clsx(
                             "flex items-center justify-center",
-                            isActive
-                              ? "text-current"
-                              : "text-gray-500 dark:text-white"
+                            isActive ? "text-current" : "text-gray-500 "
                           )}
                         >
                           <Icon />

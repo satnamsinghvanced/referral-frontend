@@ -5,7 +5,7 @@ import ReviewToggle from "./Toggle";
 import { IoQrCodeOutline } from 'react-icons/io5';
 
 const Reviews = () => {
-  const headingDate = {
+  const headingData = {
     heading: 'Reviews & Reputation Management',
     subHeading: "Monitor reviews, track NFC/QR analytics, and manage your online reputation across all locations.",
   }
@@ -40,7 +40,7 @@ const Reviews = () => {
 
   return (
     <ComponentContainer
-      headingDate={headingDate}
+      headingData={headingData}
     >
       <div className="flex flex-col gap-4">
         <div className="grid grid-cols md:grid-cols-3 xl:grid-cols-4 gap-4">
