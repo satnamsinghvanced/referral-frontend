@@ -27,8 +27,8 @@ interface AddModalProps {
 
 const AddModal = ({ isOpen, heading, description, cancelBtnData, addBtnData, config }: AddModalProps) => {
     return (
-        <div className="flex absolute top-0 ">
-            <Modal isOpen={isOpen} onOpenChange={cancelBtnData.function} >
+        <div className="flex absolute top-0">
+            <Modal isOpen={isOpen} onOpenChange={cancelBtnData.function}>
                 <ModalContent>
                     {(onClose) => (
                         <>
@@ -39,8 +39,8 @@ const AddModal = ({ isOpen, heading, description, cancelBtnData, addBtnData, con
                                 </div>
                             </ModalHeader>
 
-                            <div className=" overflow-y-scroll h-[700px]">
-                                <ModalBody className="">
+                            <div className=" overflow-y-scroll h-fit max-h-[700px]">
+                                <ModalBody className="w-full">
 
                                     {config}
                                 </ModalBody>

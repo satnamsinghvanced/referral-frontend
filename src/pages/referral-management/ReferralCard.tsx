@@ -1,56 +1,60 @@
-import { FiEdit, FiEye } from 'react-icons/fi';
-import { IoCallOutline } from 'react-icons/io5';
+import { Button } from '@heroui/react';
 import UrgencyChip from '../../components/chips/UrgencyChip';
  
 interface ReferralCardProps {
   referral: {
-    id: string; 
-    fullName: string;
-    referringByName: string;
-    treatmentType: string;
+    _id: string; 
+    name: string;
+    practiceName: string;
+    practiceAddress: string;
     createdAt: string;
-    urgency?: string;  
+    urgency: string;
+    addedVia: string;
   };
+  actions: any
   urgencyLabels: Record<string, string>; 
 }
 
-const ReferralCard = ({ referral, urgencyLabels }: ReferralCardProps) => {
+const ReferralCard = ({ referral, urgencyLabels, actions }: ReferralCardProps) => {
+
   return (
     <div className="flex justify-between border border-foreground/10  rounded-lg p-4 bg-background ">
-      <div className="font-medium text-sm w-full h-full">
-        {referral.fullName}
+      <div className="font-medium text-sm w-full h-full capitalize">
+        {referral.name}
         <div className="flex gap-2 items-center text-xs font-light">
           <div className="flex gap-1 items-center">
-            {referral.referringByName}
+            {referral.practiceName}
           </div>
           <div className="p-0.5 bg-foreground/50 rounded-full aspect-square h-fit w-fit"></div>
-          <div>{referral.fullName}</div>
+          <div>{referral?.practiceAddress}</div>
         </div>
         <div className="flex gap-2 items-center text-xs font-light">
           <div className="flex gap-1 items-center">
-            {referral.treatmentType}
+            {referral.practiceAddress}
           </div>
           <div className="p-0.5 bg-foreground/50 rounded-full aspect-square h-fit w-fit"></div>
           <div>{referral.createdAt.slice(0, 10)}</div>
           <div className="p-0.5 bg-foreground/50 rounded-full aspect-square h-fit w-fit"></div>
-          <div>via NFC/QR</div>
+          <div>{referral?.addedVia}</div>
         </div>
       </div>
-      <div className="flex text-center justify-end h-full w-full gap-4 text-sm">
-        <span className="">
-          {referral.urgency && (
-            <UrgencyChip urgency={urgencyLabels[referral.urgency] || referral.urgency} />
+      <div className="flex text-center justify-end h-full w-full gap-2 text-sm self-center"  >
+        <div className="self-center">
+          {referral.urgency ? (
+            <UrgencyChip urgency={urgencyLabels[referral.urgency] || referral.urgency} />)
+            :
+            (
+          <UrgencyChip urgency={urgencyLabels['new'] || 'new'} />
           )}
-        </span>
-        <span className="flex items-center">
-          <IoCallOutline />
-        </span>
-        <span className="flex items-center">
-          <FiEye />
-        </span>
-        <span className="flex items-center">
-          <FiEdit />
-        </span>
+        </div>
+        {Array.isArray(actions) &&
+          actions.map((action: any) => (
+            <Button key={action.label} className="flex items-center bg-transparent font-black" size='sm' isIconOnly={true} onPress={() => { action.function(referral._id) }}>
+           {action.icon}
+          </Button>
+          ))
+        }
+        
       </div>
     </div>
   );

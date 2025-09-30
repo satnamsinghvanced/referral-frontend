@@ -1,4 +1,4 @@
-import { Button, Input, Select, SelectItem } from "@heroui/react";
+import { Button, Input } from "@heroui/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { LuFilter } from "react-icons/lu";
 
@@ -82,17 +82,17 @@ const FilterPanel = ({ onFilterChange }: FilterPanelProps) => {
     onFilterChange,
   ]);
 
-  const handleStatusChange = (keys:Set<string>) => {
+  const handleStatusChange = (keys: Set<string>) => {
     const value = Array.from(keys)[0] || "all";
     setStatus(value);
   };
 
-  const handleUrgencyChange = (keys:Set<string>) => {
+  const handleUrgencyChange = (keys: Set<string>) => {
     const value = Array.from(keys)[0] || "all";
     setUrgency(value);
   };
 
-  const handleLocationChange = (keys:Set<string>) => {
+  const handleLocationChange = (keys: Set<string>) => {
     const value = Array.from(keys)[0] || "all";
     setLocation(value);
   };
@@ -113,7 +113,7 @@ const FilterPanel = ({ onFilterChange }: FilterPanelProps) => {
     });
   };
 
-  const getLabel = useCallback((options:string , key: string) => {
+  const getLabel = useCallback((options: string, key: string) => {
     const option = options.find((opt) => opt.key === key);
     return option ? option.label : "";
   }, []);
@@ -131,7 +131,7 @@ const FilterPanel = ({ onFilterChange }: FilterPanelProps) => {
           className="text-xs flex-1 min-w-fit"
         />
 
-        <Select
+        {/* <Select
           size="sm"
           variant="flat"
           selectedKey={status}
@@ -142,9 +142,9 @@ const FilterPanel = ({ onFilterChange }: FilterPanelProps) => {
           {statusOptions.map(({ key, label }) => (
             <SelectItem key={key}>{label}</SelectItem>
           ))}
-        </Select>
+        </Select> */}
 
-        <Select
+        {/* <Select
           size="sm"
           variant="flat"
           selectedKey={urgency}
@@ -155,9 +155,9 @@ const FilterPanel = ({ onFilterChange }: FilterPanelProps) => {
           {urgencyOptions.map(({ key, label }) => (
             <SelectItem key={key}>{label}</SelectItem>
           ))}
-        </Select>
+        </Select> */}
 
-        <Select
+        {/* <Select
           size="sm"
           variant="flat"
           selectedKey={location}
@@ -168,7 +168,7 @@ const FilterPanel = ({ onFilterChange }: FilterPanelProps) => {
           {locationOptions.map(({ key, label }) => (
             <SelectItem key={key}>{label}</SelectItem>
           ))}
-        </Select>
+        </Select> */}
 
         <Button
           size="sm"

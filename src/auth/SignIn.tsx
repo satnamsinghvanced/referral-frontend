@@ -7,18 +7,13 @@ import {
   Link,
   Spinner,
 } from "@heroui/react";
-import { useState } from "react";
-import { FaEyeSlash, FaLock } from "react-icons/fa";
-import { IoMdMail } from "react-icons/io";
-import { TbEyeFilled } from "react-icons/tb";
-import { useNavigate } from "react-router";
-import { useDispatch } from "react-redux";
 import { useFormik } from "formik";
+import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router";
 import * as Yup from "yup";
-import { useLoginMutation } from "../services/authService";
-import { loginSuccess } from "../store/authSlice";
-import { AppDispatch } from "../store/index";
 import Input from "../components/ui/Input";
+import { AppDispatch } from "../store/index";
 
 interface FormData {
   email: string;
@@ -32,7 +27,7 @@ const SignIn = () => {
   const dispatch = useDispatch<AppDispatch>();
 
   // TanStack Query mutation
-  const loginMutation = useLoginMutation();
+  // const loginMutation = useLoginMutation();
 
   // Formik configuration
   const formik = useFormik<FormData>({
@@ -86,7 +81,7 @@ const SignIn = () => {
   };
 
   // Check if form is submitting
-  const isLoading = loginMutation.isPending;
+  // const isLoading = loginMutation.isPending;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
@@ -103,12 +98,12 @@ const SignIn = () => {
           </div>
 
           {/* Error Message from TanStack Query */}
-          {loginMutation.isError && (
+          {/* {loginMutation.isError && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">
               {loginMutation.error?.message ||
                 "Failed to sign in. Please try again."}
             </div>
-          )}
+          )} */}
 
           <form onSubmit={formik.handleSubmit} className="space-y-6">
             {/* Email Input */}
@@ -162,11 +157,13 @@ const SignIn = () => {
               type="submit"
               color="primary"
               className="w-full font-semibold h-12"
-              isLoading={isLoading}
+              // isLoading={isLoading}
+              isLoading={false}
               spinner={<Spinner size="sm" />}
               isDisabled={!formik.isValid || !formik.dirty}
             >
-              {isLoading ? "Signing In..." : "Sign In"}
+              {/* {isLoading ? "Signing In..." : "Sign In"} */}
+              {0 ? "Signing In..." : "Sign In"}
             </Button>
 
             <Divider className="my-6" />

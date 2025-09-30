@@ -16,7 +16,7 @@ const isTokenValid = (token:string) => {
 };
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:9090",
+  baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:9090/api",
   headers: {
     "Content-Type": "application/json",
   },
@@ -28,7 +28,7 @@ axiosInstance.interceptors.request.use(
     if (token) {
       if (!isTokenValid(token)) {
         store.dispatch(logout());
-        window.location.href = "/login"; // redirect if expired
+        window.location.href = "/signin"; // redirect if expired
         return Promise.reject(new Error("Token expired"));
       }
 
@@ -44,7 +44,7 @@ axiosInstance.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       store.dispatch(logout());
-      window.location.href = "/login";
+      window.location.href = "/signin";
     }
     return Promise.reject(error);
   }

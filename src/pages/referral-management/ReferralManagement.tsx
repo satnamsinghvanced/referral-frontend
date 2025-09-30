@@ -1,23 +1,20 @@
 import { addToast, Card } from "@heroui/react";
 import { JSX, useRef, useState } from "react";
+import { CiLocationOn } from "react-icons/ci";
 import { FaQrcode } from "react-icons/fa6";
 import { FiEdit, FiEye, FiStar, FiTarget, FiUsers } from "react-icons/fi";
 import { IoCallOutline } from "react-icons/io5";
 import { LuBuilding2, LuPlus } from "react-icons/lu";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
-import UrgencyChip from "../../components/chips/UrgencyChip";
 import AddModal from "../../components/common/AddModal";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import FilterPanel from "../../components/common/FilterPanel";
 import ReferralManagementConfig from "../../components/formConfigs/ReferralManagementConfig";
-import { useCreatePatient } from "../../queries/patient/useCreateUser";
-import { useUpdatePatient } from "../../queries/patient/userUpdateUser";
-import { usePatientsQuery } from "../../queries/patient/useUsersQuery";
-import RoleToggleTabs from "./RoleToggleTabs"; // Changed from ToggleButton to RoleToggleTabs
-import ReferralCard from "./ReferralCard";
-import RefererCard from "./RefererCard";
-import { CiLocationOn } from "react-icons/ci";
+import { useCreatePatient, usePatientsQuery, useUpdatePatient } from "../../hooks/usePatients";
 import { urgencyLabels } from "../../utils/consts";
+import RefererCard from "./RefererCard";
+import ReferralCard from "./ReferralCard";
+import RoleToggleTabs from "./RoleToggleTabs"; // Changed from ToggleButton to RoleToggleTabs
 
 type StatCardData = {
   icon: JSX.Element;
@@ -80,7 +77,7 @@ type Referer = {
   referralsThisMonth: number;
 };
 
-const ReferralManagement: React.FC = () => {
+const ReferralManagement = () => {
   const formRef = useRef<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -110,16 +107,17 @@ const ReferralManagement: React.FC = () => {
     isLoading,
     isError,
   } = usePatientsQuery({
-    role: "",
+    // role: "",
     search: filters.search,
-    status: filters.status,
-    urgency: filters.urgency,
-    locations: [filters.location],
-    page: 2,
-    limit: 5,
+    // status: filters.status,
+    // urgency: filters.urgency,
+    // locations: [filters.location],
+    // page: 2,
+    // limit: 5,
   });
 
-  console.log("referralData: ", referralData);
+  console.log("referralData: ", referralData?.data?.data);
+  // console.log("referralData fg : ", referralData?.data);
 
   const { mutate: updatePatient } = useUpdatePatient();
 
@@ -179,9 +177,17 @@ const ReferralManagement: React.FC = () => {
 
   const onSaveClick = async () => {
     if (formRef.current?.isValid && formRef.current?.dirty) {
-      const values = formRef.current.values;
+      const Allvalues = formRef.current.values;
 
-      createPatient(values, {
+      const petientData = {
+        email: Allvalues.email,
+        name: Allvalues.fullName,
+        number: Allvalues.patientPhone,
+        notes: Allvalues.notes
+      }
+      console.log('petientData: ', petientData)
+
+      createPatient(petientData, {
         onSuccess: () => {
           console.log("Patient created successfully!");
           addToast({
@@ -201,6 +207,7 @@ const ReferralManagement: React.FC = () => {
           });
         },
       });
+
     } else {
       console.log("⚠️ Form not valid yet");
 
@@ -285,6 +292,36 @@ const ReferralManagement: React.FC = () => {
     buttons: buttonList,
   };
 
+  const editReferral = (id: string, updatedData: string) => {
+    console.log(`Editing referral with ID: ${id}`, updatedData);
+  };
+
+  const callReferral = (id: string) => {
+    console.log(`Deleting referral with ID: ${id}`);
+  };
+
+  const viewReferral = (id: string, updatedStatus: string) => {
+    console.log(`Updating referral with ID: ${id} to status: ${updatedStatus}`);
+  };
+
+  const referralActions = [
+    {
+      label: 'editReferral',
+      function: editReferral,
+      icon: <FiEdit className='w-4 h-4' />
+    },
+    {
+      label: 'callReferral',
+      function: callReferral,
+      icon: <IoCallOutline className='w-4 h-4' />
+    },
+    {
+      label: 'viewReferral',
+      function: viewReferral,
+      icon: <FiEye className='w-4 h-4' />
+    }
+  ]
+
   return (
     <>
       <ComponentContainer headingData={headingData}>
@@ -311,52 +348,12 @@ const ReferralManagement: React.FC = () => {
                       <div className="font-medium text-sm mb-3">
                         Recent Referrals
                       </div>
-                      {[
-                        {
-                          id: "1",
-                          fullName: "John Doe",
-                          referringByName: "Dr. Smith",
-                          treatmentType: "Dental Checkup",
-                          createdAt: "2025-09-20T12:30:00Z",
-                          urgency: "high",
-                        },
-                        {
-                          id: "2",
-                          fullName: "Jane Smith",
-                          referringByName: "Dr. White",
-                          treatmentType: "Eye Examination",
-                          createdAt: "2025-09-18T10:15:00Z",
-                          urgency: "medium",
-                        },
-                        {
-                          id: "3",
-                          fullName: "Michael Brown",
-                          referringByName: "Dr. Green",
-                          treatmentType: "Physical Therapy",
-                          createdAt: "2025-09-22T09:00:00Z",
-                          urgency: "low",
-                        },
-                        {
-                          id: "4",
-                          fullName: "Emily Johnson",
-                          referringByName: "Dr. Blue",
-                          treatmentType: "General Consultation",
-                          createdAt: "2025-09-19T14:45:00Z",
-                          urgency: "high",
-                        },
-                        {
-                          id: "5",
-                          fullName: "David Williams",
-                          referringByName: "Dr. Black",
-                          treatmentType: "Blood Pressure Monitoring",
-                          createdAt: "2025-09-21T16:30:00Z",
-                          urgency: "medium",
-                        },
-                      ].map((referral) => (
+                      {referralData?.data?.data?.map((referral: any) => (
                         <ReferralCard
                           key={referral.id}
                           referral={referral}
                           urgencyLabels={urgencyLabels}
+                          actions={referralActions}
                         />
                       ))}
                     </div>
@@ -401,8 +398,30 @@ const ReferralManagement: React.FC = () => {
                   </div>
                 ) : selectedReferralType === "NFC & QR Tracking" ? (
                   <div className="w-full h-80 flex gap-2">
-                    <div className="border w-full border-primary/10 "></div>
-                    <div className="border w-full border-primary/10 "></div>
+                    <div className="border w-full border-primary/10 ">
+
+                    </div>
+                    <div className="border w-full border-primary/10 p-4">
+                      <h6 className="text-sm">Tracking Analytics</h6>
+                      <div className="flex flex-col gap-2 mt-4  rounded-md ">
+                        <div className="flex justify-between text-xs px-2 py-3 bg-blue-50">
+                          <div>Total Scans Today</div>
+                          <div><span className="px-1.5 py-0.5 bg-green-200 rounded-sm">23</span></div>
+                        </div>
+                        <div className="flex justify-between text-xs px-2 py-3 bg-blue-50">
+                          <div>Total Scans Today</div>
+                          <div><span className="px-1.5 py-0.5 bg-green-200 rounded-sm">23</span></div>
+                        </div>
+                        <div className="flex justify-between text-xs px-2 py-3 bg-blue-50">
+                          <div>Total Scans Today</div>
+                          <div><span className="px-1.5 py-0.5 bg-green-200 rounded-sm">23</span></div>
+                        </div>
+                        <div className="flex justify-between text-xs px-2 py-3 bg-blue-50">
+                          <div>Total Scans Today</div>
+                          <div><span className="px-1.5 py-0.5 bg-green-200 rounded-sm">23</span></div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 ) : null
               ) : (

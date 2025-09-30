@@ -15,12 +15,14 @@ export const fetchPatients = async (params?: {
   page?: number;
   limit?: number;
 }) => {
-  const { data } = await axios.get("/patients", { params });
+  const { data } = await axios.get("/patient", { params });
   return data;
 };
 
+const userId = '68da331a02f71ff8ff945bcc'
 export const createPatient = async (patientData: PatientData) => {
-  const { data } = await axios.post("/patients", patientData);
+  const { data } = await axios.post(`/patient/${userId}`, patientData);
+  console.log('createPatient data: ', data)
   return data;
 };
 
