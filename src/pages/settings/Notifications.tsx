@@ -171,7 +171,7 @@ const Notifications: React.FC = () => {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-base">Notification Settings</h1>
-            <p className="text-xs text-gray-600 mt-1">
+            <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
               Customize how and when you receive notifications
             </p>
           </div>
@@ -221,7 +221,7 @@ const Notifications: React.FC = () => {
                             <FiBell className="h-5 w-5" />
                             Global Notification Settings
                           </h4>
-                          <p className="text-xs text-gray-600 mt-1.5">
+                          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1.5">
                             Turn off to disable all notifications system-wide
                           </p>
                         </div>
@@ -273,7 +273,7 @@ const Notifications: React.FC = () => {
                                       </span>
                                     )}
                                   </h4>
-                                  <p className="text-xs text-gray-600 mt-1.5">
+                                  <p className="text-xs text-gray-600 dark:text-gray-400 mt-1.5">
                                     {rule.description}
                                   </p>
                                 </div>
@@ -487,7 +487,7 @@ const Notifications: React.FC = () => {
                               <label className="flex items-center gap-2 text-xs font-medium">
                                 Browser Push Notifications
                               </label>
-                              <p className="text-xs text-gray-600 mt-0.5">
+                              <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
                                 Receive notifications in your browser
                               </p>
                             </div>
@@ -503,7 +503,7 @@ const Notifications: React.FC = () => {
                               <label className="flex items-center gap-2 text-xs font-medium">
                                 Mobile Push Notifications
                               </label>
-                              <p className="text-xs text-gray-600 mt-0.5">
+                              <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
                                 Receive notifications on your mobile device
                               </p>
                             </div>
@@ -532,7 +532,7 @@ const Notifications: React.FC = () => {
                               <label className="flex items-center gap-2 text-xs font-medium">
                                 Instant Email Alerts
                               </label>
-                              <p className="text-xs text-gray-600 mt-0.5">
+                              <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
                                 Get immediate emails for critical notifications
                               </p>
                             </div>
@@ -548,7 +548,7 @@ const Notifications: React.FC = () => {
                               <label className="flex items-center gap-2 text-xs font-medium">
                                 Daily Summary Email
                               </label>
-                              <p className="text-xs text-gray-600 mt-0.5">
+                              <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
                                 Receive a daily digest of all notifications
                               </p>
                             </div>
@@ -577,7 +577,7 @@ const Notifications: React.FC = () => {
                               <label className="flex items-center gap-2 text-xs font-medium">
                                 Critical Alerts Only
                               </label>
-                              <p className="text-xs text-gray-600 mt-0.5">
+                              <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
                                 Only send SMS for urgent notifications
                               </p>
                             </div>
@@ -610,7 +610,7 @@ const Notifications: React.FC = () => {
                             <label className="flex items-center gap-2 text-xs font-medium">
                               Enable Quiet Hours
                             </label>
-                            <p className="text-xs text-gray-600 mt-0.5">
+                            <p className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
                               Mute non-critical notifications during specific
                               hours
                             </p>

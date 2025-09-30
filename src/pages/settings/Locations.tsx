@@ -46,9 +46,9 @@ const Locations: React.FC = () => {
   };
 
   return (
-    <Card className="rounded-xl bg-white text-gray-900 shadow-none border border-foreground/10">
+    <Card className="rounded-xl shadow-none border border-foreground/10">
       <CardHeader className="flex items-center gap-3 px-5 pt-5 pb-0">
-        <GrLocation className="h-5 w-5 text-gray-700" />
+        <GrLocation className="h-5 w-5" />
         <p className="text-base">Practice Locations</p>
       </CardHeader>
 
@@ -68,8 +68,8 @@ const Locations: React.FC = () => {
                   </span>
                 )}
               </div>
-              <p className="text-xs text-gray-600 mb-1">{location.address}</p>
-              <p className="text-xs text-gray-600">{location.phone}</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">{location.address}</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400">{location.phone}</p>
             </div>
 
             <div className="flex items-center gap-2">

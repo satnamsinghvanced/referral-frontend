@@ -1,14 +1,21 @@
+import React from "react";
 import { HiOutlineCog } from "react-icons/hi";
-// import { useSelector } from "react-redux";
 import { AiOutlineThunderbolt } from "react-icons/ai";
 import { CiLocationOn, CiMobile1 } from "react-icons/ci";
-import { FaRegBell, FaRegChartBar } from "react-icons/fa";
+import { FaRegBell } from "react-icons/fa";
 import { FiCreditCard, FiUser, FiUsers } from "react-icons/fi";
 import { LuShield } from "react-icons/lu";
-import { useLocation, useNavigate } from "react-router";
+import { NavLink } from "react-router-dom";
+import clsx from "clsx";
 
-const SettingNavigation = () => {
-  const navigationRoutes = [
+type NavigationItem = {
+  name: string;
+  icon: React.ComponentType<{ className?: string }>;
+  href: string;
+};
+
+const SettingNavigation: React.FC = () => {
+  const navigationRoutes: NavigationItem[] = [
     { name: "Profile", icon: FiUser, href: "/settings" },
     { name: "Notifications", icon: FaRegBell, href: "/settings/notifications" },
     { name: "Security", icon: LuShield, href: "/settings/security" },
@@ -26,75 +33,46 @@ const SettingNavigation = () => {
       icon: CiMobile1,
       href: "/settings/push-notifications",
     },
-    // {
-    //   name: "Notification Analytics",
-    //   icon: FaRegChartBar,
-    //   href: "/settings/notification-analytics",
-    // },
+    // { name: "Notification Analytics", icon: FaRegChartBar, href: "/settings/notification-analytics" },
   ];
-  const navigate = useNavigate();
-  const { pathname } = useLocation();
-  // const { auth_user } = useSelector((state) => state.user || {});
-
-  const handleNavigate = (href: string) => {
-    navigate(href);
-    // if (typeof onCloseSidebar === "function") onCloseSidebar();
-  };
 
   return (
-    <ul
-      className={`flex flex-col text-foreground    p-2 "ml-[-4.8px]"`}
-    >
+    <ul className="flex flex-col text-foreground p-2">
       {navigationRoutes.map((item, index) => {
         const Icon = item.icon;
-        const active = pathname === item.href;
         return (
           <li key={index}>
-            <div
-              onClick={() => handleNavigate(item.href)}
-              className={`my-0.5 cursor-pointer rounded-md transition-all group flex items-center py-2 px-3 hover:text-gary-700 hover:bg-gray-50 h-9
-                     "px-0 justify-start"
-                                    
-                      ${
-                        active
-                          ? "bg-sky-50 text-sky-700"
-                          : "hover:bg-gray-100"
-                      }
-                    `}
+            <NavLink
+              to={item.href}
+              end // ensures exact match for root routes like "/settings"
+              className={({ isActive }) =>
+                clsx(
+                  "my-0.5 rounded-md transition-all group flex items-center py-2 px-3 hover:bg-gray-50 dark:hover:bg-[#0f1214] h-9 cursor-pointer",
+                  "hover:bg-gray-50",
+                  isActive
+                    ? "!bg-sky-50 !text-sky-700 dark:!bg-white shadow-sm"
+                    : "hover:bg-gray-100"
+                )
+              }
             >
-              <span
-                className={`flex items-center justify-center ${
-                  active ? "text-white" : "text-gray-500 "
-                }`}
-              >
-                {/* {isMiniSidebarOpen ? */}
-                <Icon
-                  className={` 
-                                        ${active
-                      ? "text-sky-700"
-                      : " "
-                    }
-                                        ${
-                                          active
-                                            ? "bg-sky-50 text-sky-700"
-                                            : " "
-                                        }
-                                        `}
-                />
-                {/* //     :
-                                //     <Tooltip content={item.name} placement="right">
-                                //         <Icon className={` ${active
-                                //             ? "bg-sky-50 text-sky-600"
-                                //             : "hover:bg-gray-100"
-                                //             }`} />
-                                //     </Tooltip>
-                                // } */}
-              </span>
-
-              {/* {isMiniSidebarOpen && ( */}
-              <span className="ml-2 truncate text-[12px]">{item.name}</span>
-              {/* )} */}
-            </div>
+              {({ isActive }) => (
+                <>
+                  <span
+                    className={`flex items-center justify-center ${
+                      isActive ? "text-white " : "text-gray-500"
+                    }`}
+                  >
+                    <Icon
+                      className={clsx(
+                        "text-[16px]",
+                        isActive && "text-sky-700"
+                      )}
+                    />
+                  </span>
+                  <span className="ml-2 truncate text-[12px]">{item.name}</span>
+                </>
+              )}
+            </NavLink>
           </li>
         );
       })}

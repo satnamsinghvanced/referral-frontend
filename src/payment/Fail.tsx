@@ -20,7 +20,7 @@ const Fail = () => {
                     <h1 className="text-2xl font-bold text-gray-900 mb-3">
                         Payment Failed
                     </h1>
-                    <p className="text-gray-600 mb-2">
+                    <p className="text-gray-600 dark:text-gray-400 mb-2">
                         {errorMessage}
                     </p>
                     <p className="text-sm text-red-600 mb-6">

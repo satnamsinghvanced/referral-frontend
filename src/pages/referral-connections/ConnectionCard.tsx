@@ -182,7 +182,7 @@ export default ReferralConnectionCard;
 //                                         ? "bg-yellow-200 text-yellow-600"
 //                                         : item.category === "c"
 //                                             ? "bg-green-100 text-green-600"
-//                                             : "bg-gray-100 text-gray-600"
+//                                             : "bg-gray-100 text-gray-600 dark:text-gray-400"
 //                                     }`}>
 //                                     <LuBuilding2 className='text-2xl' />
 //                                 </div>
@@ -199,7 +199,7 @@ export default ReferralConnectionCard;
 //                                                     ? "bg-yellow-200 text-yellow-600"
 //                                                     : item.category === "c"
 //                                                         ? "bg-green-100 text-green-600"
-//                                                         : "bg-gray-100 text-gray-600"
+//                                                         : "bg-gray-100 text-gray-600 dark:text-gray-400"
 //                                                 }`}
 //                                         >
 //                                             {item.category} Level

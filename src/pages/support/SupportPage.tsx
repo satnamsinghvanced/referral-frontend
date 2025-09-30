@@ -226,7 +226,7 @@ const SupportPage = () => {
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             How can we help you?
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 dark:text-gray-400 max-w-3xl mx-auto">
             Get support for your dental practice management needs. Our team is here to help you succeed.
           </p>
 
@@ -271,7 +271,7 @@ const SupportPage = () => {
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex border-b border-gray-200 mb-8">
+        <div className="flex border-b border-foreground/10 mb-8">
           {[
             { key: 'contact', label: 'Contact Support' },
             { key: 'faq', label: 'FAQ' },
@@ -397,7 +397,7 @@ const SupportPage = () => {
                       <method.icon className="text-2xl text-primary-600 mt-1" />
                       <div className="flex-1">
                         <h4 className="font-semibold text-lg mb-1">{method.title}</h4>
-                        <p className="text-gray-600 mb-2">{method.description}</p>
+                        <p className="text-gray-600 dark:text-gray-400 mb-2">{method.description}</p>
                         <p className="text-gray-800 font-medium">{method.details}</p>
                         <p className="text-sm text-gray-500 mt-1">
                           <FaClock className="inline mr-1" />
@@ -425,7 +425,7 @@ const SupportPage = () => {
           <div>
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold mb-4">Frequently Asked Questions</h2>
-              <p className="text-gray-600">Find quick answers to common questions</p>
+              <p className="text-gray-600 dark:text-gray-400">Find quick answers to common questions</p>
             </div>
 
             <Accordion variant="splitted">
@@ -460,7 +460,7 @@ const SupportPage = () => {
           <div>
             <div className="text-center mb-8">
               <h2 className="text-3xl font-bold mb-4">Helpful Resources</h2>
-              <p className="text-gray-600">Documentation and guides to help you get the most out of our platform</p>
+              <p className="text-gray-600 dark:text-gray-400">Documentation and guides to help you get the most out of our platform</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -469,7 +469,7 @@ const SupportPage = () => {
                   <CardBody className="p-6 text-center">
                     <resource.icon className="text-3xl text-primary-600 mx-auto mb-4" />
                     <h3 className="font-semibold text-lg mb-2">{resource.title}</h3>
-                    <p className="text-gray-600 text-sm mb-4">{resource.description}</p>
+                    <p className="text-gray-600 dark:text-gray-400 text-sm mb-4">{resource.description}</p>
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded">
                         {resource.type}

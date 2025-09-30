@@ -192,13 +192,13 @@ const Sidebar = ({
           <div className="p-2">
             <button
               onClick={onCloseSidebar}
-              className="cursor-pointer lg:hidden p-2 rounded-md hover:bg-gray-100"
+              className="cursor-pointer lg:hidden p-2 rounded-md hover:bg-gray-100 dark:hover:bg-[#0f1214]"
             >
               <HiOutlineChevronLeft className="size-4" />
             </button>
             <button
               onClick={toggleSidebar}
-              className="cursor-pointer hidden lg:flex p-2 rounded-md hover:bg-gray-100"
+              className="cursor-pointer hidden lg:flex p-2 rounded-md hover:bg-gray-100 dark:hover:bg-[#0f1214]"
             >
               <IoIosArrowRoundForward
                 className={`${
@@ -267,7 +267,7 @@ const Sidebar = ({
                         <p>{item.name}</p>
                         {item.stats && (
                           <p
-                            className={`rounded-full px-2 text-[10px] py-0.5 capitalize !text-foreground ${
+                            className={`rounded-full px-2 text-[10px] py-0.5 capitalize !text-foreground dark:!text-background ${
                               typeof item.color === "function"
                                 ? item.color(item.stats)
                                 : item.color

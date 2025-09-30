@@ -20,7 +20,7 @@ const PushNotifications = () => {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-base">Push Notification Settings</h1>
-          <p className="text-xs text-gray-600 mt-1">
+          <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
             Configure browser and device push notifications
           </p>
         </div>
@@ -48,7 +48,7 @@ const PushNotifications = () => {
                 <label className="text-sm font-medium">
                   Browser Permission
                 </label>
-                <p className="text-xs text-gray-600">
+                <p className="text-xs text-gray-600 dark:text-gray-400">
                   Current status:{" "}
                   <span className="text-green-600">Granted</span>
                 </p>
@@ -72,7 +72,7 @@ const PushNotifications = () => {
               <label className="text-sm font-medium">
                 Enable Push Notifications
               </label>
-              <p className="text-xs text-gray-600 mt-1">
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
                 Receive real-time notifications for referrals, reviews, and
                 important updates
               </p>
@@ -98,14 +98,14 @@ const PushNotifications = () => {
           <div className="space-y-4">
             <div className="flex items-center justify-between p-3 border border-foreground/10 rounded-lg">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gray-100 rounded-lg">
+                <div className="p-2 bg-gray-100 dark:bg-transparent dark:border dark:border-foreground/10 rounded-lg">
                   <TbDeviceDesktop />
                 </div>
                 <div className="space-y-0.5">
                   <p className="text-sm font-medium mb-1">
                     Chrome on MacBook Pro
                   </p>
-                  <p className="text-xs text-gray-600">Chrome 120.0</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 dark:text-gray-400">Chrome 120.0</p>
                   <p className="text-xs text-gray-500">
                     Last seen: 9/25/2025, 3:56:52 PM
                   </p>
@@ -138,7 +138,7 @@ const PushNotifications = () => {
             </div>
             <div className="text-xs">
               <p className="font-semibold mb-1.5">Privacy Note:</p>
-              <p className="text-gray-600 leading-snug">
+              <p className="text-gray-600 dark:text-gray-400 leading-snug">
                 Push notifications are sent directly from our secure servers to
                 your browser. We never store personal information in
                 notification payloads and all communications are encrypted.

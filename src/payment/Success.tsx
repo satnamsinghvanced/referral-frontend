@@ -92,7 +92,7 @@ const Success = () => {
                         <h1 className="text-3xl font-bold text-gray-900 mb-2">
                             Payment Successful!
                         </h1>
-                        <p className="text-lg text-gray-600 mb-6">
+                        <p className="text-lg text-gray-600 dark:text-gray-400 mb-6">
                             Thank you for subscribing to {planName}. Your account is now active.
                         </p>
 
@@ -104,19 +104,19 @@ const Success = () => {
                             </h3>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                                 <div>
-                                    <span className="text-gray-600">Transaction ID:</span>
+                                    <span className="text-gray-600 dark:text-gray-400">Transaction ID:</span>
                                     <p className="font-mono text-gray-900">{transactionId}</p>
                                 </div>
                                 <div>
-                                    <span className="text-gray-600">Amount Paid:</span>
+                                    <span className="text-gray-600 dark:text-gray-400">Amount Paid:</span>
                                     <p className="font-semibold text-green-600 text-lg">${amount}</p>
                                 </div>
                                 <div>
-                                    <span className="text-gray-600">Plan:</span>
+                                    <span className="text-gray-600 dark:text-gray-400">Plan:</span>
                                     <p className="font-medium text-gray-900">{planName}</p>
                                 </div>
                                 <div>
-                                    <span className="text-gray-600">Status:</span>
+                                    <span className="text-gray-600 dark:text-gray-400">Status:</span>
                                     <p className="font-medium text-green-600">Completed</p>
                                 </div>
                             </div>
@@ -159,7 +159,7 @@ const Success = () => {
                                     <div key={index} className="text-center p-4 bg-gray-50 rounded-lg">
                                         <step.icon className="text-2xl text-green-500 mx-auto mb-2" />
                                         <h4 className="font-medium text-gray-900 mb-1">{step.title}</h4>
-                                        <p className="text-sm text-gray-600">{step.description}</p>
+                                        <p className="text-sm text-gray-600 dark:text-gray-400">{step.description}</p>
                                     </div>
                                 ))}
                             </div>

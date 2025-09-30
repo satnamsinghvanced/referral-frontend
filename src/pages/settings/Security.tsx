@@ -33,9 +33,9 @@ const Security: React.FC = () => {
   };
 
   return (
-    <Card className="rounded-xl bg-white text-gray-900 shadow-none border border-foreground/10">
+    <Card className="rounded-xl shadow-none border border-foreground/10">
       <CardHeader className="flex items-center gap-3 px-5 pt-5 pb-0">
-        <FiShield className="h-5 w-5 text-gray-700" />
+        <FiShield className="h-5 w-5" />
         <h4 className="text-base">Security & Privacy</h4>
       </CardHeader>
 
@@ -58,7 +58,7 @@ const Security: React.FC = () => {
                 <div key={field} className="space-y-1">
                   <label
                     htmlFor={field}
-                    className="text-sm font-medium text-gray-700 select-none"
+                    className="text-sm font-medium select-none"
                   >
                     {labelMap[field]}
                   </label>
