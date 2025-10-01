@@ -32,13 +32,18 @@ export const fetchReferrer = async (params?: {
   return data;
 };
 
-const userId = localStorage.getItem('user_id')
+const storedUser = localStorage.getItem("user");
+const user = storedUser ? JSON.parse(storedUser) : null;
+const userId: string | null = user?.userId || null;
+
 export const createPatient = async (patientData: PatientData, type: string) => {
-  const { data } = await axios.post(`/referrers/${userId}?type=${type}`, patientData);
-  console.log('createPatient data: ', data);
+  const { data } = await axios.post(
+    `/referrers/${userId}?type=${type}`,
+    patientData
+  );
+  console.log("createPatient data: ", data);
   return data;
 };
-
 
 export const updatePatient = async (id: string, patientData: PatientData) => {
   const { data } = await axios.put(`/patients/${id}`, patientData);

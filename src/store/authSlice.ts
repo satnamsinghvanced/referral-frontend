@@ -1,16 +1,13 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { jwtDecode } from 'jwt-decode';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { jwtDecode } from "jwt-decode";
 
 interface User {
-  _id: string;
   firstName: string;
   lastName: string;
   mobile: string;
   email: string;
-  practiceName: string;
   role: string;
-  status: string;
-  __v: number;
+  userId: string;
 }
 
 export interface AuthState {
@@ -22,6 +19,12 @@ export interface AuthState {
 }
 
 interface JwtPayload {
+  firstName: string;
+  lastName: string;
+  mobile: string;
+  email: string;
+  role: string;
+  userId: string;
   exp?: number;
 }
 
@@ -36,8 +39,8 @@ const isTokenValid = (token: string): boolean => {
 };
 
 // Load saved credentials from localStorage
-const savedUser = localStorage.getItem('user');
-const savedToken = localStorage.getItem('token');
+const savedUser = localStorage.getItem("user");
+const savedToken = localStorage.getItem("token");
 
 const initialState: AuthState = {
   user: savedUser ? JSON.parse(savedUser) : null,
@@ -48,43 +51,53 @@ const initialState: AuthState = {
 };
 
 const authSlice = createSlice({
-  name: 'auth',
+  name: "auth",
   initialState,
   reducers: {
     setCredentials: (state, action: PayloadAction<{ token: string }>) => {
       const { token } = action.payload;
       if (!isTokenValid(token)) {
-        console.warn('Token is expired, not saving to state');
+        console.warn("Token is expired, not saving to state");
         return;
       }
 
       state.token = token;
       state.isAuthenticated = true;
-      const userData = jwtDecode(token)
-      // console.log('user data: ', userData)
 
+      const userData = jwtDecode<JwtPayload>(token); // ✅ typed decode
 
-      // localStorage.setItem('user', JSON.stringify(user));
-      localStorage.setItem('token', token);
-      localStorage.setItem('user_name', `${userData?.firstName} ${' '} ${userData?.lastName}`);
-      localStorage.setItem('user_email', userData?.email);
-      localStorage.setItem('user_role', userData?.role);
-      localStorage.setItem('user_id', userData?.userId);
+      // You can also construct your `User` type from here if needed
+      const user: User = {
+        userId: userData.userId,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        mobile: userData.mobile,
+        email: userData.email,
+        role: userData.role,
+      };
+
+      state.user = user;
+
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
     },
 
     logout: (state) => {
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
-      localStorage.removeItem('user');
-      localStorage.removeItem('token');
+      localStorage.removeItem("user");
+      localStorage.removeItem("token");
     },
 
     clearError: (state) => {
       state.error = null;
     },
 
-    loginSuccess: (state, action: PayloadAction<{ user: User; token: string }>) => {
+    loginSuccess: (
+      state,
+      action: PayloadAction<{ user: User; token: string }>
+    ) => {
       // state.user = action.payload.user;
       // state.token = action.payload.token;
       // state.isAuthenticated = true;
@@ -94,5 +107,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { setCredentials, logout, clearError, loginSuccess } = authSlice.actions;
+export const { setCredentials, logout, clearError, loginSuccess } =
+  authSlice.actions;
 export default authSlice.reducer;
