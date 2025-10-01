@@ -1,4 +1,4 @@
-import { addToast, Button, Input, Select, SelectItem } from "@heroui/react";
+import { Button, Input, Select, SelectItem } from "@heroui/react";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
 import { FiUser } from "react-icons/fi";
@@ -7,15 +7,8 @@ import { useFetchUser, useUpdateUser } from "../../hooks/settings/useUser";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { useSpecialties } from "../../hooks/useCommon";
 
-// --- Options ---
-// const specialties = [
-//   { label: "Orthodontics", value: "orthodontics" },
-//   { label: "General Dentistry", value: "general_dentistry" },
-//   { label: "Oral Surgery", value: "oral_surgery" },
-//   { label: "Endodontics", value: "endodontics" },
-//   { label: "Periodontics", value: "periodontics" },
-//   { label: "Other", value: "other" },
-// ];
+// --- Options (or you can keep the same) ---
+// const specialties = [ ... ];
 
 const fields = [
   { name: "firstName", label: "First Name", type: "text" },
@@ -25,7 +18,7 @@ const fields = [
   { name: "practiceName", label: "Practice Name", type: "text" },
 ];
 
-// --- Yup Schema ---
+// --- Yup Schema --- 
 const ProfileSchema = Yup.object().shape({
   firstName: Yup.string().required("First name is required").max(50),
   lastName: Yup.string().required("Last name is required").max(50),
@@ -41,7 +34,6 @@ const ProfileSchema = Yup.object().shape({
     }),
 });
 
-// --- Component ---
 const Profile = () => {
   const { user } = useTypedSelector((state) => state.auth);
   const userId = user?.userId || "";
@@ -50,8 +42,6 @@ const Profile = () => {
   const { data: specialties } = useSpecialties();
   const { mutate: updateUser, isPending } = useUpdateUser(userId);
 
-  console.log(fetchedUser, "FETCGED");
-
   const initialValues = {
     firstName: fetchedUser?.firstName || "Dr. Sarah",
     lastName: fetchedUser?.lastName || "Martinez",
@@ -59,7 +49,7 @@ const Profile = () => {
     mobile: fetchedUser?.mobile || "+1 (918) 555-0100",
     practiceName: fetchedUser?.practiceName || "Tangelo Orthodontics",
     medicalSpecialty: fetchedUser?.medicalSpecialty,
-    image: fetchedUser?.image || (null as File | null),
+    image: fetchedUser?.image || null,
   };
 
   const [previewUrl, setPreviewUrl] = useState(
@@ -82,18 +72,19 @@ const Profile = () => {
   };
 
   const handleSubmit = async (values: typeof initialValues) => {
-    const data = new FormData();
-    Object.entries(values).forEach(([key, value]) => {
-      if (key === "image" && value) {
-        data.append("image", value);
-      } else if (value !== null) {
-        data.append(key, value as string);
-      }
-    });
+    // Prepare data directly without FormData
+    const data = {
+      firstName: values.firstName,
+      lastName: values.lastName,
+      email: values.email,
+      mobile: values.mobile,
+      practiceName: values.practiceName,
+      medicalSpecialty: values.medicalSpecialty,
+      image: values.image || undefined, // Only append image if it's present
+    };
 
-    console.log("Submitting:", Object.fromEntries(data));
-    
-    updateUser(Object.fromEntries(data));
+    // Call the mutation with the prepared data
+    updateUser(data);
   };
 
   return (
@@ -130,9 +121,7 @@ const Profile = () => {
                   variant="bordered"
                 />
                 {errors.image && touched.image && (
-                  <p className="text-xs text-red-500">
-                    {errors.medicalSpecialty as string}
-                  </p>
+                  <p className="text-xs text-red-500">{errors.image as String}</p>
                 )}
                 <p className="text-xs mt-1">JPG, GIF or PNG. 1MB max.</p>
               </div>
@@ -198,8 +187,9 @@ const Profile = () => {
                 size="sm"
                 type="submit"
                 className="bg-foreground text-background"
+                disabled={isPending} // Disable button while submitting
               >
-                Save Changes
+                {isPending ? "Saving..." : "Save Changes"}
               </Button>
             </div>
           </Form>

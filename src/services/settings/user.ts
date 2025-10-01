@@ -22,6 +22,10 @@ export const updateUser = async (
   id: string,
   userData: Partial<User>
 ): Promise<User> => {
-  const response = await axios.put(`/users/${id}`, userData);
+  const response = await axios.put(`/users/${id}`, userData, {
+    headers: {
+      "Content-Type": "multipart/form-data", // override default
+    },
+  });
   return response.data;
 };
