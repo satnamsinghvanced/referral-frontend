@@ -20,20 +20,20 @@ interface ReferralCardProps {
   }>;
 }
 
-const RefererCard: React.FC<ReferralCardProps> = ({ referral, buttons }) => {
+const RefererCard: React.FC<ReferralCardProps> = ({ referrer, buttons }) => {
   return (
     <div className="flex justify-between border border-foreground/10 rounded-lg p-4 bg-background">
       <div className="font-medium text-sm w-full h-full">
-        {referral.fullName}
+        {referrer.name}
         <div className="flex gap-2 items-center text-xs font-light text-foreground/80">
-          {referral.practice}
+          {referrer.practice}
         </div>
         <div className="flex gap-2 mt-1 text-foreground/80">
           <div className="flex gap-1 items-center text-xs font-light">
-            {referral.totalReferrals} total
+            {referrer.total} total
           </div>
           <div className="flex gap-1 items-center text-xs font-light">
-            {referral.referralsThisMonth} this month
+            {referrer.referralsThisMonth} this month
           </div>
         </div>
       </div>
@@ -43,7 +43,7 @@ const RefererCard: React.FC<ReferralCardProps> = ({ referral, buttons }) => {
           <Button
             size="sm"
             key={index}
-            onPress={() => btn.onClick(referral.id)}
+            onPress={() => btn.onClick(referrer.id)}
             {...btn.props}
             className={btn.className ?? "border text-foreground border-foreground/30 bg-transparent"}
             startContent={btn.icon ?? null}

@@ -221,17 +221,17 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   endContent={
-                    <button
+                    <Button
                       className="focus:outline-none"
                       type="button"
-                      onClick={toggleVisibility}
+                      onPress={toggleVisibility}
                     >
                       {isVisible ? (
                         <FaEyeSlash className="text-default-400 pointer-events-none" />
                       ) : (
                         <TbEyeFilled className="text-default-400 pointer-events-none" />
                       )}
-                    </button>
+                    </Button>
                   }
                   isInvalid={isFieldInvalid("password")}
                   errorMessage={getFieldError("password")}

@@ -2,7 +2,7 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { jwtDecode } from 'jwt-decode';
 
 interface User {
-  userId: string;
+  _id: string;
   firstName: string;
   lastName: string;
   mobile: string;
@@ -51,20 +51,25 @@ const authSlice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    setCredentials: (state, action: PayloadAction<{ user: User; token: string }>) => {
-      const { user, token } = action.payload;
-
+    setCredentials: (state, action: PayloadAction<{ token: string }>) => {
+      const { token } = action.payload;
       if (!isTokenValid(token)) {
         console.warn('Token is expired, not saving to state');
         return;
       }
 
-      state.user = user;
       state.token = token;
       state.isAuthenticated = true;
+      const userData = jwtDecode(token)
+      // console.log('user data: ', userData)
 
-      localStorage.setItem('user', JSON.stringify(user));
+
+      // localStorage.setItem('user', JSON.stringify(user));
       localStorage.setItem('token', token);
+      localStorage.setItem('user_name', `${userData?.firstName} ${' '} ${userData?.lastName}`);
+      localStorage.setItem('user_email', userData?.email);
+      localStorage.setItem('user_role', userData?.role);
+      localStorage.setItem('user_id', userData?.userId);
     },
 
     logout: (state) => {
@@ -80,11 +85,11 @@ const authSlice = createSlice({
     },
 
     loginSuccess: (state, action: PayloadAction<{ user: User; token: string }>) => {
-      state.user = action.payload.user;
-      state.token = action.payload.token;
-      state.isAuthenticated = true;
-      localStorage.setItem('user', JSON.stringify(action.payload.user));
-      localStorage.setItem('token', action.payload.token);
+      // state.user = action.payload.user;
+      // state.token = action.payload.token;
+      // state.isAuthenticated = true;
+      // localStorage.setItem('user', JSON.stringify(action.payload.user));
+      // localStorage.setItem('token', action.payload.token);
     },
   },
 });

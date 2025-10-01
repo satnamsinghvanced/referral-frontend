@@ -9,7 +9,7 @@ type ButtonConfig = {
   label: string;
   onClick: () => void;
   props?: Partial<ButtonProps> & { variant?: AllowedVariants };
-  classNames?: string;
+  buttonType: string
   icon?: React.ReactNode;
 };
 

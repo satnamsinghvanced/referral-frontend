@@ -14,6 +14,8 @@ import { useNavigate } from "react-router";
 import * as Yup from "yup";
 import Input from "../components/ui/Input";
 import { AppDispatch } from "../store/index";
+import { loginSuccess, setCredentials } from "../store/authSlice";
+import { useLoginMutation } from "../hooks/auth/login";
 
 interface FormData {
   email: string;
@@ -26,10 +28,8 @@ const SignIn = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
-  // TanStack Query mutation
-  // const loginMutation = useLoginMutation();
+  const { mutate: loginUser, isPending } = useLoginMutation();
 
-  // Formik configuration
   const formik = useFormik<FormData>({
     initialValues: {
       email: "",
@@ -47,25 +47,28 @@ const SignIn = () => {
     }),
     onSubmit: async (values) => {
       try {
-        // const response = await loginMutation.mutateAsync({
-        //     email: values.email,
-        //     password: values.password,
-        // });
-
-        // Dispatch to Redux
-        // dispatch(loginSuccess({
-        //     user: response.data,
-        //     token: response.token, // Make sure this matches your API response key
-        // }));
-
-        // console.log('Login successful:', response);
-
-        // static login
-        localStorage.setItem("token", "its bypass token");
-        navigate("/dashboard");
+        loginUser(
+          {
+            email: values.email,
+            password: values.password,
+          },
+          {
+            onSuccess: (response) => {
+              dispatch(
+                // loginSuccess({
+                //   token: response.accessToken,
+                // })
+                setCredentials({
+                  token: response?.accessToken,
+                })
+              );
+              // localStorage.setItem("token", response.token);
+              navigate("/dashboard");
+            },
+          }
+        );
       } catch (error: any) {
         console.error("Login error:", error);
-        // Error is automatically handled by TanStack Query
       }
     },
   });
@@ -80,33 +83,18 @@ const SignIn = () => {
     navigate("/forgot-password");
   };
 
-  // Check if form is submitting
-  // const isLoading = loginMutation.isPending;
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-md">
         <CardBody className="p-6 sm:p-8">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold mb-2">
-              Welcome Back
-            </h1>
-            <p className="">
-              Sign in to your account to continue
-            </p>
+            <h1 className="text-2xl font-bold mb-2">Welcome Back</h1>
+            <p className="">Sign in to your account to continue</p>
           </div>
 
-          {/* Error Message from TanStack Query */}
-          {/* {loginMutation.isError && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">
-              {loginMutation.error?.message ||
-                "Failed to sign in. Please try again."}
-            </div>
-          )} */}
-
           <form onSubmit={formik.handleSubmit} className="space-y-6">
-            {/* Email Input */}
+            {/* Email Input - Fixed */}
             <div>
               <Input
                 label="Email Address"
@@ -114,11 +102,15 @@ const SignIn = () => {
                 placeholder="Enter your email"
                 type="email"
                 value={formik.values.email}
-                formik={formik}
+                onChange={(value) => formik.setFieldValue("email", value)}
+                onBlur={formik.handleBlur}
+                error={formik.errors.email}
+                touched={formik.touched.email}
+                isRequired
               />
             </div>
 
-            {/* Password Input */}
+            {/* Password Input - Fixed */}
             <div>
               <Input
                 label="Password"
@@ -126,7 +118,11 @@ const SignIn = () => {
                 type="password"
                 name="password"
                 value={formik.values.password}
-                formik={formik}
+                onChange={(value) => formik.setFieldValue("password", value)}
+                onBlur={formik.handleBlur}
+                error={formik.errors.password}
+                touched={formik.touched.password}
+                isRequired
               />
             </div>
 
@@ -152,27 +148,21 @@ const SignIn = () => {
               </Link>
             </div>
 
-            {/* Sign In Button */}
             <Button
               type="submit"
               color="primary"
               className="w-full font-semibold h-12"
-              // isLoading={isLoading}
-              isLoading={false}
+              isLoading={isPending}
               spinner={<Spinner size="sm" />}
-              isDisabled={!formik.isValid || !formik.dirty}
+              isDisabled={!formik.isValid || !formik.dirty || isPending}
             >
-              {/* {isLoading ? "Signing In..." : "Sign In"} */}
-              {0 ? "Signing In..." : "Sign In"}
+              {isPending ? "Signing In..." : "Sign In"}
             </Button>
 
             <Divider className="my-6" />
 
-            {/* Sign Up Link */}
             <div className="text-center">
-              <span className="">
-                Don't have an account?{" "}
-              </span>
+              <span className="">Don't have an account? </span>
               <Link
                 className="font-semibold cursor-pointer text-primary-600 hover:text-primary-700"
                 onPress={onNavigateToSignUp}

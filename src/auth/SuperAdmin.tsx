@@ -11,7 +11,7 @@ const SuperAdminLogin = () => {
 
     return (
         <>
-            <Button isIconOnly={true} className="p-0 m-0 bg-transparent" onPress={onOpen} size="" disableAnimation={true}>
+            <Button isIconOnly={true} className="p-0 m-0 bg-transparent" onPress={onOpen} disableAnimation={true}>
                 <LuShield />
             </Button>
             <Modal isOpen={isOpen} onOpenChange={onOpenChange}>

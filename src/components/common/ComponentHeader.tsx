@@ -1,5 +1,6 @@
 import React from "react";
-import { Button } from "@heroui/react";
+// import { Button } from "@heroui/react";
+import Button from "../ui/Button";
 
 type ButtonProps = React.ComponentProps<typeof Button>;
 type AllowedVariants = ButtonProps['variant'];
@@ -10,6 +11,7 @@ type ButtonConfig = {
   props?: Partial<ButtonProps> & { variant?: AllowedVariants };  // props exactly as Button accepts
   classNames?: string;
   icon?: React.ReactNode;
+  buttonType: any
 };
 
 interface ComponentHeaderProps {
@@ -40,7 +42,8 @@ const ComponentHeader: React.FC<ComponentHeaderProps> = ({
               size="sm"
               onPress={btn.onClick}
               {...btn.props}
-              className={btn.classNames ?? "border border-foreground/30"}
+              className={btn.classNames}
+              buttonType={btn?.buttonType}
               startContent={btn.icon ?? null}
             >
               {btn.label}

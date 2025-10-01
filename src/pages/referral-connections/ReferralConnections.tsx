@@ -27,7 +27,7 @@ interface StatCard {
   subheading: string;
 }
 
-const ReferralConnections: React.FC = () => {
+const ReferralConnections= () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleOpen = () => setIsModalOpen(true);
@@ -47,11 +47,8 @@ const ReferralConnections: React.FC = () => {
     {
       label: "Add Practice",
       onClick: handleOpen,
-      classNames: "bg-foreground text-background",
       icon: <LuPlus />,
-      props: {
-        variant: "solid",
-      },
+      buttonType: 'primary'
     },
   ];
 

@@ -51,6 +51,7 @@ const Terms = React.lazy(() => import("./pages/terms/TermsPage"));
 const PrivacyPolicy = React.lazy(
   () => import("./pages/privacy-policy/PrivacyPolicyPage")
 );
+const PatientForm = React.lazy(() => import("./pages/referral-connections/form/PatientForm"));
 
 // Route type
 interface AppRoute {
@@ -114,6 +115,7 @@ function AppRoutes() {
     { path: "support", element: <Support /> },
     { path: "terms", element: <Terms /> },
     { path: "privacy", element: <PrivacyPolicy /> },
+    { path: "referral", element: <PatientForm /> },
   ];
 
   const renderRoutes = (routes: AppRoute[]): ReactNode =>

@@ -3,7 +3,7 @@ import { jwtDecode } from "jwt-decode";
 import { store } from "../store";
 import { logout } from "../store/authSlice";
 
-const isTokenValid = (token:string) => {
+const isTokenValid = (token: string) => {
   try {
     const { exp } = jwtDecode(token);
     if (!exp) {
@@ -29,7 +29,7 @@ axiosInstance.interceptors.request.use(
     if (token) {
       if (!isTokenValid(token)) {
         store.dispatch(logout());
-        window.location.href = "/signin"; // redirect if expired
+        window.location.href = "/referral-retrieve/signin"; // redirect if expired
         return Promise.reject(new Error("Token expired"));
       }
 
@@ -45,7 +45,7 @@ axiosInstance.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       store.dispatch(logout());
-      window.location.href = "/signin";
+      window.location.href = "/referral-retrieve/signin";
     }
     return Promise.reject(error);
   }

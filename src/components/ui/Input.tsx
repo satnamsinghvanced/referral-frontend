@@ -1,46 +1,53 @@
+// components/ui/Input.tsx
 import React, { useState, ReactNode } from "react";
-import { Input as HeroInput } from "@heroui/react"; // Adjust import based on actual Hero UI package
+import { Input as HeroInput } from "@heroui/react";
 import { IoMdMail } from "react-icons/io";
 import { FaLock, FaEyeSlash } from "react-icons/fa";
 import { TbEyeFilled } from "react-icons/tb";
 
 interface InputProps {
   label: string;
-  name: string;
+  name?: string;
   placeholder?: string;
   type?: string;
   value: any;
   className?: string;
-  formik?: any; // Or better, use FormikProps from formik package
+  // Remove formik prop and use individual props instead
+  onChange?: (value: string) => void;
+  onBlur?: (e: any) => void;
+  error?: string;
+  touched?: boolean;
   startContent?: ReactNode;
   endContent?: ReactNode;
-  [key: string]: any; // For any additional props to pass to Input
+  isRequired?: boolean;
+  [key: string]: any;
 }
 
-const Input: React.FC<InputProps> = ({
+const Input = ({
   label,
-  name,
+  name = '',
   placeholder = "",
   type = "text",
   value,
   className,
-  formik,
+  onChange,
+  onBlur,
+  error,
+  touched,
   startContent,
   endContent,
+  isRequired,
   ...rest
-}) => {
+}: InputProps) => {
   const [passwordVisible, setPasswordVisible] = useState(false);
 
-  // Toggle password visibility helper
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
   };
 
-  // Determine actual input type, especially for password
   const inputType =
     type === "password" ? (passwordVisible ? "text" : "password") : type;
 
-  // Compose startContent and endContent depending on type
   const renderStartContent = () => {
     if (startContent) return startContent;
 
@@ -81,16 +88,13 @@ const Input: React.FC<InputProps> = ({
     return null;
   };
 
-  // Helper functions for form validation states
-  const getFieldError = (name: string) => {
-    return formik.touched[name] && formik.errors[name]
-      ? (formik.errors[name] as string)
-      : "";
+  const handleValueChange = (newValue: string) => {
+    if (onChange) {
+      onChange(newValue);
+    }
   };
 
-  const isFieldInvalid = (name: string) => {
-    return !!(formik.touched[name] && formik.errors[name]);
-  };
+  const isInvalid = touched && !!error;
 
   return (
     <div className={className}>
@@ -100,13 +104,15 @@ const Input: React.FC<InputProps> = ({
         placeholder={placeholder}
         type={inputType}
         value={value}
-        onChange={formik.handleChange}
-        onBlur={formik.handleBlur}
+        onValueChange={handleValueChange}
+        onBlur={onBlur}
         startContent={renderStartContent()}
         endContent={renderEndContent()}
-        isInvalid={isFieldInvalid(name)}
-        errorMessage={getFieldError(name)}
+        isInvalid={isInvalid}
+        errorMessage={isInvalid ? error : ""}
         {...rest}
+        className="w-full"
+        isRequired={isRequired}
       />
     </div>
   );

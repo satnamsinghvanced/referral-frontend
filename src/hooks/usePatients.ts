@@ -2,7 +2,9 @@
 import { useQuery, useMutation, keepPreviousData } from "@tanstack/react-query";
 import {
   createPatient,
-  fetchPatients,
+  // fetchPatients,
+  fetchReferral,
+  fetchReferrer,
   PatientData,
   updatePatient,
 } from "../services/patient";
@@ -19,24 +21,34 @@ interface UsePatientsQueryParams {
   limit?: number;
 }
 
-export function usePatientsQuery(params: UsePatientsQueryParams) {
+export function usefetchReferralQuery(params: UsePatientsQueryParams) {
   return useQuery({
-    queryKey: ["patients", params],
-    queryFn: () => fetchPatients(params),
+    queryKey: ["referral", params],
+    queryFn: () => fetchReferral(params),
     placeholderData: keepPreviousData,
-    staleTime: 1000 * 60, // 1 min cache
+    // staleTime: 1000 * 60, // 1 min cache
+  });
+}
+
+export function usefetchReferrerQuery(params: UsePatientsQueryParams) {
+  return useQuery({
+    queryKey: ["referrer", params],
+    queryFn: () => fetchReferrer(params),
+    placeholderData: keepPreviousData,
+    // staleTime: 1000 * 60, // 1 min cache
   });
 }
 
 // 🔹 Create Patient
 export function useCreatePatient() {
   return useMutation({
-    mutationFn: createPatient,
+    mutationFn: (params: { patientData: PatientData; type: string }) => createPatient(params.patientData, params.type),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["patients"] });
+      queryClient.invalidateQueries({ queryKey: ["createPatient"] });
     },
   });
 }
+
 
 // 🔹 Update Patient
 interface UpdatePatientVariables {
