@@ -25,6 +25,7 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = store.getState().auth.token;
+    // const token = process.env.VITE_TOKEN;
     if (token) {
       if (!isTokenValid(token)) {
         store.dispatch(logout());
@@ -40,7 +41,7 @@ axiosInstance.interceptors.request.use(
 );
 
 axiosInstance.interceptors.response.use(
-  (response) => response,
+  (response) => response.data,
   (error) => {
     if (error.response?.status === 401) {
       store.dispatch(logout());

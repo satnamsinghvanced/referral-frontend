@@ -6,26 +6,28 @@ import {
   Divider,
   Input,
 } from "@heroui/react";
-import React from "react";
+import { Formik, Form, Field, ErrorMessage } from "formik";
+import * as Yup from "yup";
 import { FiShield } from "react-icons/fi";
+import { useUpdatePassword } from "../../hooks/settings/useSecurity";
+import { useState } from "react";
+
+// --- Validation Schema ---
+const SecuritySchema = Yup.object().shape({
+  currentPassword: Yup.string()
+    .required("Current password is required")
+    .min(6, "Password must be at least 6 characters"),
+  newPassword: Yup.string()
+    .required("New password is required")
+    .min(8, "Password must be at least 8 characters"),
+  confirmNewPassword: Yup.string()
+    .oneOf([Yup.ref("newPassword")], "Passwords must match")
+    .required("Please confirm your new password"),
+});
 
 const Security: React.FC = () => {
-  const [passwords, setPasswords] = React.useState({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
-
-  const [twoFAEnabled, setTwoFAEnabled] = React.useState(true);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { id, value } = e.target;
-    setPasswords((prev) => ({ ...prev, [id]: value }));
-  };
-
-  const handlePasswordUpdate = () => {
-    console.log("Updating password...", passwords);
-  };
+  const { mutate: updatePassword, isPending } = useUpdatePassword();
+  const [twoFAEnabled, setTwoFAEnabled] = useState(true);
 
   const handle2FAUpdate = () => {
     setTwoFAEnabled((prev) => !prev);
@@ -41,52 +43,87 @@ const Security: React.FC = () => {
 
       <CardBody className="p-5 space-y-8">
         {/* Change Password */}
-        <div className="space-y-3">
-          {["currentPassword", "newPassword", "confirmPassword"].map(
-            (field) => {
-              const labelMap: Record<string, string> = {
-                currentPassword: "Current Password",
-                newPassword: "New Password",
-                confirmPassword: "Confirm New Password",
-              };
-              const placeholderMap: Record<string, string> = {
-                currentPassword: "Enter current password",
-                newPassword: "Enter new password",
-                confirmPassword: "Confirm new password",
-              };
-              return (
-                <div key={field} className="space-y-1">
-                  <label
-                    htmlFor={field}
-                    className="text-sm font-medium select-none"
-                  >
-                    {labelMap[field]}
-                  </label>
-                  {/* @ts-ignore */}
-                  <Input
-                    id={field}
-                    type="password"
-                    placeholder={placeholderMap[field]}
-                    variant="bordered"
-                    value={passwords[field as keyof typeof passwords]}
-                    onChange={handleChange}
-                    className="mt-1"
-                    classNames={{ inputWrapper: "border-small" }}
-                  />
-                </div>
-              );
-            }
-          )}
+        <Formik
+          initialValues={{
+            currentPassword: "",
+            newPassword: "",
+            confirmNewPassword: "",
+          }}
+          validationSchema={SecuritySchema}
+          onSubmit={(values, { resetForm }) => {
+            updatePassword(
+              {
+                currentPassword: values.currentPassword,
+                newPassword: values.newPassword,
+                confirmNewPassword: values.confirmNewPassword,
+              },
+              {
+                onSuccess: () => {
+                  resetForm();
+                },
+              }
+            );
+          }}
+        >
+          {({ setFieldValue, values }) => (
+            <Form className="space-y-3">
+              {["currentPassword", "newPassword", "confirmNewPassword"].map(
+                (field) => {
+                  const labelMap: Record<string, string> = {
+                    currentPassword: "Current Password",
+                    newPassword: "New Password",
+                    confirmNewPassword: "Confirm New Password",
+                  };
+                  const placeholderMap: Record<string, string> = {
+                    currentPassword: "Enter current password",
+                    newPassword: "Enter new password",
+                    confirmNewPassword: "Confirm new password",
+                  };
 
-          <Button
-            size="sm"
-            color="primary"
-            className="mt-1"
-            onPress={handlePasswordUpdate}
-          >
-            Update Password
-          </Button>
-        </div>
+                  return (
+                    <div key={field} className="space-y-1">
+                      <label
+                        htmlFor={field}
+                        className="text-sm font-medium select-none"
+                      >
+                        {labelMap[field]}
+                      </label>
+                      <Field
+                        as={Input}
+                        id={field}
+                        name={field}
+                        type="password"
+                        placeholder={placeholderMap[field]}
+                        variant="bordered"
+                        value={values[field as keyof typeof values]}
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                          setFieldValue(field, e.target.value)
+                        }
+                        className="mt-1"
+                        classNames={{ inputWrapper: "border-small" }}
+                      />
+                      <ErrorMessage
+                        name={field}
+                        component="p"
+                        className="text-xs text-red-500 mt-1"
+                      />
+                    </div>
+                  );
+                }
+              )}
+
+              <Button
+                size="sm"
+                color="primary"
+                className="mt-1"
+                type="submit"
+                isLoading={isPending}
+              >
+                {isPending ? "Updating..." : "Update Password"}
+              </Button>
+            </Form>
+          )}
+        </Formik>
 
         <Divider className="border-foreground/10 mb-7" />
 

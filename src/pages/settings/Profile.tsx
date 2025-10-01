@@ -1,167 +1,210 @@
 import { addToast, Button, Input, Select, SelectItem } from "@heroui/react";
-import { useState } from "react";
+import { Formik, Form, Field } from "formik";
+import * as Yup from "yup";
 import { FiUser } from "react-icons/fi";
+import { useEffect, useState } from "react";
+import { useFetchUser, useUpdateUser } from "../../hooks/settings/useUser";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
+import { useSpecialties } from "../../hooks/useCommon";
 
-const specialties = [
-  { label: "Orthodontics", value: "orthodontics" },
-  { label: "General Dentistry", value: "general_dentistry" },
-  { label: "Oral Surgery", value: "oral_surgery" },
-  { label: "Endodontics", value: "endodontics" },
-  { label: "Periodontics", value: "periodontics" },
-  { label: "Other", value: "other" },
-];
+// --- Options ---
+// const specialties = [
+//   { label: "Orthodontics", value: "orthodontics" },
+//   { label: "General Dentistry", value: "general_dentistry" },
+//   { label: "Oral Surgery", value: "oral_surgery" },
+//   { label: "Endodontics", value: "endodontics" },
+//   { label: "Periodontics", value: "periodontics" },
+//   { label: "Other", value: "other" },
+// ];
 
 const fields = [
   { name: "firstName", label: "First Name", type: "text" },
   { name: "lastName", label: "Last Name", type: "text" },
   { name: "email", label: "Email Address", type: "email" },
-  { name: "phone", label: "Phone Number", type: "text" },
-  { name: "practice", label: "Practice Name", type: "text" },
+  { name: "mobile", label: "Phone Number", type: "tel" },
+  { name: "practiceName", label: "Practice Name", type: "text" },
 ];
 
-const Profile = () => {
-  const initialData = {
-    firstName: "Dr. Sarah",
-    lastName: "Martinez",
-    email: "sarah.martinez@tangeloortho.com",
-    phone: "+1 (918) 555-0100",
-    practice: "Tangelo Orthodontics",
-    specialty: "orthodontics",
-    image: null,
-  };
+// --- Yup Schema ---
+const ProfileSchema = Yup.object().shape({
+  firstName: Yup.string().required("First name is required").max(50),
+  lastName: Yup.string().required("Last name is required").max(50),
+  email: Yup.string().email("Invalid email").required("Email is required"),
+  mobile: Yup.string().required("Phone number is required"),
+  practiceName: Yup.string().required("Practice name is required"),
+  medicalSpecialty: Yup.string().required("Specialty is required"),
+  image: Yup.mixed()
+    .nullable()
+    .test("fileSize", "File size must be less than 1MB", (value) => {
+      if (!value) return true;
+      return (value as File).size <= 1024 * 1024;
+    }),
+});
 
-  const [formData, setFormData] = useState(initialData);
+// --- Component ---
+const Profile = () => {
+  const { user } = useTypedSelector((state) => state.auth);
+  const userId = user?.userId || "";
+
+  const { data: fetchedUser } = useFetchUser(userId);
+  const { data: specialties } = useSpecialties();
+  const { mutate: updateUser, isPending } = useUpdateUser(userId);
+
+  console.log(fetchedUser, "FETCGED");
+
+  const initialValues = {
+    firstName: fetchedUser?.firstName || "Dr. Sarah",
+    lastName: fetchedUser?.lastName || "Martinez",
+    email: fetchedUser?.email || "sarah.martinez@tangeloortho.com",
+    mobile: fetchedUser?.mobile || "+1 (918) 555-0100",
+    practiceName: fetchedUser?.practiceName || "Tangelo Orthodontics",
+    medicalSpecialty: fetchedUser?.medicalSpecialty,
+    image: fetchedUser?.image || (null as File | null),
+  };
 
   const [previewUrl, setPreviewUrl] = useState(
     "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face"
   );
 
-  const isFormChanged = () => {
-    for (let key in initialData) {
-      if (key === "image") {
-        if (formData.image !== null) return true;
-      } else if (formData[key] !== initialData[key]) {
-        return true;
-      }
-    }
-    return false;
-  };
+  useEffect(() => {
+    setPreviewUrl(import.meta.env.VITE_IMAGE_URL + fetchedUser?.image);
+  }, [fetchedUser]);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
-
-  const handleSpecialtyChange = (selected: any) => {
-    const value = Array.from(selected)[0];
-    setFormData({ ...formData, specialty: value });
-  };
-
-  const handleImageChange = (e: any) => {
-    const file = e.target.files[0];
+  const handleImageChange = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    setFieldValue: any
+  ) => {
+    const file = e.target.files?.[0];
     if (file) {
-      setFormData({ ...formData, image: file });
+      setFieldValue("image", file);
       setPreviewUrl(URL.createObjectURL(file));
     }
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (!isFormChanged()) {
-      addToast({
-        title: "No Changes",
-        description: "Make some changes",
-        color: "danger",
-      });
-      return;
-    }
-
+  const handleSubmit = async (values: typeof initialValues) => {
     const data = new FormData();
-    Object.entries(formData).forEach(([key, value]) => {
+    Object.entries(values).forEach(([key, value]) => {
       if (key === "image" && value) {
         data.append("image", value);
-      } else {
-        data.append(key, value);
+      } else if (value !== null) {
+        data.append(key, value as string);
       }
     });
 
-    for (let pair of data.entries()) {
-      console.log(`${pair[0]}:`, pair[1]);
-    }
-
-    addToast({
-      title: "Success",
-      description: "Profile Updated",
-      color: "success",
-    });
+    console.log("Submitting:", Object.fromEntries(data));
+    
+    updateUser(Object.fromEntries(data));
   };
 
   return (
-    <div className="p-4 bg-background  border border-foreground/10 rounded-lg">
-      <form onSubmit={handleSubmit}>
-        <h4 className="flex gap-2 items-center mb-4">
-          <FiUser className="w-4 h-4" />
-          <span className="text-sm !font-extralight">Profile Information</span>
-        </h4>
+    <div className="p-4 bg-background border border-foreground/10 rounded-lg">
+      <Formik
+        initialValues={initialValues}
+        validationSchema={ProfileSchema}
+        onSubmit={handleSubmit}
+        enableReinitialize
+      >
+        {({ errors, touched, setFieldValue, values }) => (
+          <Form>
+            <h4 className="flex gap-2 items-center mb-4">
+              <FiUser className="w-4 h-4" />
+              <span className="text-sm !font-extralight">
+                Profile Information
+              </span>
+            </h4>
 
-        <div className="flex items-center gap-4 mb-6">
-          <img
-            src={previewUrl}
-            alt="Profile"
-            className="rounded-full w-20 h-20 object-cover"
-          />
-          <div>
-            <Input
-              size="sm"
-              type="file"
-              accept="image/*"
-              className="w-fit shadow-none"
-              onChange={handleImageChange}
-              variant="bordered"
-            />
-            <p className="text-xs mt-1">JPG, GIF or PNG. 1MB max.</p>
-          </div>
-        </div>
+            {/* Avatar Upload */}
+            <div className="flex items-center gap-4 mb-6">
+              <img
+                src={previewUrl}
+                alt="Profile"
+                className="rounded-full w-20 h-20 object-cover"
+              />
+              <div>
+                <Input
+                  size="sm"
+                  type="file"
+                  accept="image/*"
+                  className="w-fit shadow-none"
+                  onChange={(e) => handleImageChange(e, setFieldValue)}
+                  variant="bordered"
+                />
+                {errors.image && touched.image && (
+                  <p className="text-xs text-red-500">
+                    {errors.medicalSpecialty as string}
+                  </p>
+                )}
+                <p className="text-xs mt-1">JPG, GIF or PNG. 1MB max.</p>
+              </div>
+            </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {fields.map(({ name, label, type }) => (
-            <Input
-              key={name}
-              size="sm"
-              type={type}
-              name={name}
-              label={label}
-              labelPlacement="outside"
-              value={formData[name]}
-              onChange={handleChange}
-            />
-          ))}
-
-          <div className="">
-            <Select
-              size="sm"
-              name="specialty"
-              label="Medical Specialty"
-              labelPlacement="outside"
-              selectedKeys={[formData.specialty]}
-              onSelectionChange={handleSpecialtyChange}
-            >
-              {specialties.map(({ label, value }) => (
-                <SelectItem key={value} textValue={value}>
-                  {label}
-                </SelectItem>
+            {/* Fields */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {fields.map(({ name, label, type }) => (
+                <div key={name}>
+                  <Field
+                    as={Input}
+                    size="sm"
+                    type={type}
+                    name={name}
+                    label={label}
+                    labelPlacement="outside"
+                    placeholder={label}
+                    value={values[name as keyof typeof values]}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setFieldValue(name, e.target.value)
+                    }
+                  />
+                  {errors[name as keyof typeof errors] &&
+                    touched[name as keyof typeof touched] && (
+                      <p className="text-xs text-red-500 mt-1">
+                        {errors[name as keyof typeof errors] as string}
+                      </p>
+                    )}
+                </div>
               ))}
-            </Select>
-          </div>
-        </div>
 
-        <div className="mt-5">
-          <Button size="sm" type="submit" className="bg-foreground text-background  ">
-            Save Changes
-          </Button>
-        </div>
-      </form>
+              {/* Specialty */}
+              <div>
+                <Select
+                  size="sm"
+                  name="medicalSpecialty"
+                  label="Medical Specialty"
+                  labelPlacement="outside"
+                  placeholder="Select a Medical Specialty"
+                  selectedKeys={[values.medicalSpecialty]}
+                  onSelectionChange={(keys) =>
+                    setFieldValue("medicalSpecialty", Array.from(keys)[0])
+                  }
+                >
+                  {specialties?.map(
+                    ({ title, _id }: { title: string; _id: string }) => (
+                      <SelectItem key={_id} textValue={title}>
+                        {title}
+                      </SelectItem>
+                    )
+                  )}
+                </Select>
+                {errors.medicalSpecialty && touched.medicalSpecialty && (
+                  <p className="text-xs text-red-500 mt-1">
+                    {errors.medicalSpecialty as string}
+                  </p>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-5">
+              <Button
+                size="sm"
+                type="submit"
+                className="bg-foreground text-background"
+              >
+                Save Changes
+              </Button>
+            </div>
+          </Form>
+        )}
+      </Formik>
     </div>
   );
 };
