@@ -1,37 +1,34 @@
-import { Button, Card, CardBody, CardHeader } from "@heroui/react";
+import { Button, Card, CardBody, CardHeader, Switch } from "@heroui/react";
 import React, { useState } from "react";
 import { BiEdit } from "react-icons/bi";
 import { FiPlus } from "react-icons/fi";
 import { GrLocation } from "react-icons/gr";
 import { RiDeleteBinLine } from "react-icons/ri";
 import AddModal from "../../components/common/AddModal";
-
-interface Location {
-  name: string;
-  address: string;
-  phone: string;
-  isPrimary?: boolean;
-}
-import { Switch } from "@heroui/react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import Input from "../../components/ui/Input";
 import {
   useCreateLocation,
+  useDeleteLocation,
+  useFetchLocationDetails,
   useFetchLocations,
+  useUpdateLocation,
 } from "../../hooks/settings/useLocation";
+import { Location } from "../../services/settings/location";
 
+// ✅ Form values (flattened)
 export interface LocationFormValues {
   name: string;
-  address: {
-    street: string;
-    city: string;
-    state: string;
-    zipcode: string;
-  };
+  street: string;
+  city: string;
+  state: string;
+  zipcode: string;
   phone: string;
   isPrimary: boolean;
 }
+
+const phoneRegex = /^\(\d{3}\) \d{3}-\d{4}$/;
 
 // ✅ Validation schema
 const LocationSchema = Yup.object().shape({
@@ -40,10 +37,10 @@ const LocationSchema = Yup.object().shape({
   city: Yup.string().required("City is required"),
   state: Yup.string().required("State is required"),
   zipcode: Yup.string()
-    .matches(/^\d{5}$/, "Must be a valid 5-digit zip")
+    .matches(/^\d{5}$/, "Must be a valid 5-digit ZIP code")
     .required("Zipcode is required"),
   phone: Yup.string()
-    .matches(/^[0-9()+-\s]*$/, "Invalid phone number")
+    .matches(phoneRegex, "Phone must be in format (XXX) XXX-XXXX")
     .required("Phone is required"),
   isPrimary: Yup.boolean(),
 });
@@ -58,108 +55,94 @@ const fieldConfig = [
   { name: "phone", label: "Phone", placeholder: "Enter phone number" },
 ];
 
-interface AddLocationModalContentProps {
-  editedLocationData: LocationFormValues | null;
-}
-
-const AddLocationModalContent: React.FC<AddLocationModalContentProps> = ({
-  editedLocationData,
-}) => {
-  const { mutate: createLocation } = useCreateLocation();
-
-  const formik = useFormik<LocationFormValues>({
-    enableReinitialize: true,
-    initialValues: {
-      name: "",
-      address: {
-        street: "",
-        city: "",
-        state: "",
-        zipcode: "",
-      },
-      phone: "",
-      isPrimary: false,
-    },
-    validationSchema: LocationSchema,
-    onSubmit: (values) => {
-      // createLocation(values);
-      console.log("Form submitted:", values);
-    },
-  });
-
-  return (
-    <form
-      id="location-form"
-      onSubmit={formik.handleSubmit}
-      className="flex flex-col gap-4"
-    >
-      {fieldConfig.map((field) => (
-        <Input
-          key={field.name}
-          id={field.name}
-          name={field.name}
-          label={field.label}
-          labelPlacement="outside"
-          placeholder={field.placeholder}
-          value={formik.getFieldProps(field.name).value}
-          formik={formik}
-          // onBlur={formik.handleBlur}
-          // isInvalid={
-          //   !!formik.errors[field.name as keyof typeof formik.errors]
-          // }
-          // errorMessage={
-          //   formik.touched[field.name as keyof typeof formik.touched] &&
-          //   formik.errors[field.name as keyof typeof formik.errors]
-          //     ? String(formik.errors[field.name as keyof typeof formik.errors])
-          //     : ""
-          // }
-        />
-      ))}
-
-      {/* Switch for Primary Location */}
-      <div className="flex items-center gap-3">
-        <Switch
-          size="sm"
-          id="isPrimary"
-          name="isPrimary"
-          isSelected={formik.values.isPrimary}
-          onValueChange={(val) => formik.setFieldValue("isPrimary", val)}
-        >
-          Primary Location
-        </Switch>
-      </div>
-    </form>
-  );
-};
-
 const Locations: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [editLocationId, setEditLocationId] = useState<string>("");
+  const [deleteLocationId, setDeleteLocationId] = useState<string>("");
 
-  const { data: locations, isLoading } = useFetchLocations();
+  const { data: locations } = useFetchLocations();
+  const { data: location } = useFetchLocationDetails(editLocationId);
+  const { mutate: createLocation } = useCreateLocation();
+  const { mutate: updateLocation } = useUpdateLocation();
+  const { mutate: deleteLocation } = useDeleteLocation();
 
+  // ✅ Formik setup
+  const formik = useFormik<LocationFormValues>({
+    enableReinitialize: true,
+    initialValues: {
+      name: location?.name || "",
+      street: location?.address?.street || "",
+      city: location?.address?.city || "",
+      state: location?.address?.state || "",
+      zipcode: location?.address?.zipcode || "",
+      phone: location?.phone || "",
+      isPrimary: location?.isPrimary || false,
+    },
+    validationSchema: LocationSchema,
+    onSubmit: (values) => {
+      const payload = {
+        address: {
+          street: values.street,
+          city: values.city,
+          state: values.state,
+          zipcode: values.zipcode,
+        },
+        name: values.name,
+        phone: values.phone,
+        isPrimary: values.isPrimary,
+      };
+
+      if (editLocationId) {
+        // @ts-ignore
+        updateLocation(
+          { id: editLocationId, data: payload },
+          {
+            onSuccess: () => setIsModalOpen(false),
+          }
+        );
+      } else {
+        createLocation(payload, {
+          onSuccess: () => setIsModalOpen(false),
+        });
+      }
+    },
+  });
+
+  // Cancel button for modals
   const cancelBtnData = {
     function: () => {
       setIsModalOpen(false);
       setIsDeleteModalOpen(false);
+      setEditLocationId("");
+      setDeleteLocationId("");
     },
-    style: "border-foreground/10  border text-foreground hover:bg-background",
-    text: "cancel",
+    style: "border-foreground/10 border text-foreground hover:bg-background",
+    text: "Cancel",
   };
 
+  // Add button for Add/Edit modal
   const addBtnData = {
-    function: () => {},
+    function: formik.handleSubmit,
     style: "bg-foreground text-background",
-    text: "add",
+    text: "Save",
   };
 
-  const handleEdit = (name: string) => {
-    console.log("Edit", name);
+  const handleEdit = (id: string) => {
+    setEditLocationId(id);
+    setIsModalOpen(true);
   };
 
-  const handleDelete = (name: string) => {
+  const handleDeleteClick = (id: string) => {
+    setDeleteLocationId(id);
     setIsDeleteModalOpen(true);
-    console.log("Delete", name);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (!deleteLocationId) return;
+    deleteLocation(deleteLocationId, {
+      onSuccess: () => setIsDeleteModalOpen(false),
+    });
   };
 
   return (
@@ -172,25 +155,25 @@ const Locations: React.FC = () => {
 
         <CardBody className="p-5 space-y-3">
           {/* Location List */}
-          {locations?.map((location, index) => (
+          {locations?.map((loc: Location) => (
             <div
-              key={index}
+              key={loc._id}
               className="p-3 border border-foreground/10 rounded-lg flex items-start justify-between"
             >
               <div>
                 <div className="flex items-center gap-2 mb-2">
-                  <h4 className="font-medium text-sm">{location.name}</h4>
-                  {location.isPrimary && (
+                  <h4 className="font-medium text-sm">{loc.name}</h4>
+                  {loc.isPrimary && (
                     <span className="inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[11px] font-medium w-fit whitespace-nowrap shrink-0 bg-blue-100 text-blue-800">
                       Primary
                     </span>
                   )}
                 </div>
                 <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                  {`${location.address.street}, ${location.address.city}, ${location.address.state}, ${location.address.zipcode}`}
+                  {`${loc.address.street}, ${loc.address.city}, ${loc.address.state}, ${loc.address.zipcode}`}
                 </p>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
-                  {location.phone}
+                  {loc.phone}
                 </p>
               </div>
 
@@ -200,7 +183,8 @@ const Locations: React.FC = () => {
                   size="sm"
                   variant="bordered"
                   className="border-foreground/10 border-small"
-                  onPress={() => handleEdit(location.name)}
+                  // @ts-ignore
+                  onPress={() => handleEdit(loc._id)}
                 >
                   <BiEdit className="size-4" />
                 </Button>
@@ -209,7 +193,8 @@ const Locations: React.FC = () => {
                   size="sm"
                   variant="bordered"
                   className="border-foreground/10 text-red-600 border-small"
-                  onPress={() => handleDelete(location.name)}
+                  // @ts-ignore
+                  onPress={() => handleDeleteClick(loc._id)}
                 >
                   <RiDeleteBinLine className="size-4" />
                 </Button>
@@ -222,28 +207,82 @@ const Locations: React.FC = () => {
             variant="bordered"
             size="sm"
             className="w-full flex items-center justify-center gap-2 border-foreground/10 border-small font-medium"
-            onPress={() => setIsModalOpen(true)}
+            onPress={() => {
+              setIsModalOpen(true);
+              setEditLocationId("");
+            }}
           >
             <FiPlus className="h-4 w-4" />
             Add Location
           </Button>
         </CardBody>
       </Card>
+
+      {/* Add / Edit Modal */}
       <AddModal
         isOpen={isModalOpen}
-        heading="Add New Practice Location"
-        description="Add a new doctor practice location to your system. Complete all required fields to add new practice location."
+        heading={
+          editLocationId
+            ? "Edit Practice Location"
+            : "Add New Practice Location"
+        }
+        description="Complete all required fields to add or edit a practice location."
         cancelBtnData={cancelBtnData}
         addBtnData={addBtnData}
-        config={<AddLocationModalContent editedLocationData={null} />}
-      />
+      >
+        <form
+          id="location-form"
+          onSubmit={formik.handleSubmit}
+          className="flex flex-col gap-4"
+        >
+          {fieldConfig.map((field) => (
+            <Input
+              key={field.name}
+              id={field.name}
+              name={field.name}
+              label={field.label}
+              placeholder={field.placeholder}
+              value={
+                formik.values[field.name as keyof LocationFormValues] as string
+              }
+              onChange={(val) => formik.setFieldValue(field.name, val)}
+              onBlur={formik.handleBlur}
+              error={
+                formik.errors[field.name as keyof LocationFormValues] as string
+              }
+              touched={
+                formik.touched[
+                  field.name as keyof LocationFormValues
+                ] as boolean
+              }
+            />
+          ))}
+
+          <div className="flex items-center gap-3">
+            <Switch
+              size="sm"
+              id="isPrimary"
+              name="isPrimary"
+              isSelected={formik.values.isPrimary}
+              onValueChange={(val) => {
+                console.log(val);
+                formik.setFieldValue("isPrimary", val);
+              }}
+            >
+              Primary Location
+            </Switch>
+          </div>
+        </form>
+      </AddModal>
+
+      {/* Delete Modal */}
       <AddModal
         isOpen={isDeleteModalOpen}
         heading="Delete Practice Location"
         description="Are you sure you want to delete this practice location? This action can't be undone."
         cancelBtnData={cancelBtnData}
         addBtnData={{
-          function: () => {},
+          function: handleDeleteConfirm,
           style: "bg-red-700 text-background",
           text: "Delete",
         }}

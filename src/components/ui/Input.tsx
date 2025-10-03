@@ -1,5 +1,5 @@
 // components/ui/Input.tsx
-import React, { useState, ReactNode } from "react";
+import React, { useState, ReactNode, FocusEventHandler } from "react";
 import { Input as HeroInput } from "@heroui/react";
 import { IoMdMail } from "react-icons/io";
 import { FaLock, FaEyeSlash } from "react-icons/fa";
@@ -13,8 +13,8 @@ interface InputProps {
   value: any;
   className?: string;
   // Remove formik prop and use individual props instead
+  onBlur?: FocusEventHandler<HTMLInputElement>;
   onChange?: (value: string) => void;
-  onBlur?: (e: any) => void;
   error?: string;
   touched?: boolean;
   startContent?: ReactNode;
@@ -25,7 +25,7 @@ interface InputProps {
 
 const Input = ({
   label,
-  name = '',
+  name = "",
   placeholder = "",
   type = "text",
   value,
@@ -33,10 +33,10 @@ const Input = ({
   onChange,
   onBlur,
   error,
-  touched,
+  touched = false,
   startContent,
   endContent,
-  isRequired,
+  isRequired = false,
   ...rest
 }: InputProps) => {
   const [passwordVisible, setPasswordVisible] = useState(false);
@@ -104,8 +104,8 @@ const Input = ({
         placeholder={placeholder}
         type={inputType}
         value={value}
-        onValueChange={handleValueChange}
-        onBlur={onBlur}
+        onValueChange={handleValueChange} // passes the new string
+        onBlur={onBlur || (() => {})}
         startContent={renderStartContent()}
         endContent={renderEndContent()}
         isInvalid={isInvalid}

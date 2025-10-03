@@ -47,10 +47,10 @@ const SettingNavigation: React.FC = () => {
               end // ensures exact match for root routes like "/settings"
               className={({ isActive }) =>
                 clsx(
-                  "my-0.5 rounded-md transition-all group flex items-center py-2 px-3 hover:bg-gray-50 dark:hover:bg-[#0f1214] h-9 cursor-pointer",
+                  "my-0.5 rounded-md transition-all group flex items-center py-2 px-3 hover:bg-gray-50 dark:hover:bg-[#0f1214] h-9 cursor-pointer border border-transparent",
                   "hover:bg-gray-50",
                   isActive
-                    ? "!bg-sky-50 !text-sky-700 dark:!bg-white shadow-sm"
+                    ? "!bg-sky-50 !text-sky-700 dark:!bg-white shadow-sm !border-sky-200"
                     : "hover:bg-gray-100"
                 )
               }

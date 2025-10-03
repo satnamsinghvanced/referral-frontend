@@ -22,7 +22,7 @@ interface AddModalProps {
     function: () => void;
     style?: string;
   };
-  config?: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 const AddModal = ({
@@ -31,11 +31,15 @@ const AddModal = ({
   description,
   cancelBtnData,
   addBtnData,
-  config,
+  children,
 }: AddModalProps) => {
   return (
     <div className="flex absolute top-0">
-      <Modal isOpen={isOpen} onOpenChange={cancelBtnData.function}>
+      <Modal
+        isOpen={isOpen}
+        onOpenChange={cancelBtnData.function}
+        classNames={{ closeButton: "cursor-pointer" }}
+      >
         <ModalContent>
           {(onClose) => (
             <>
@@ -50,9 +54,9 @@ const AddModal = ({
                 </div>
               </ModalHeader>
 
-              {config && (
+              {children && (
                 <div className="overflow-y-auto h-fit max-h-[700px]">
-                  <ModalBody className="w-full">{config}</ModalBody>
+                  <ModalBody className="w-full">{children}</ModalBody>
                 </div>
               )}
               <ModalFooter>

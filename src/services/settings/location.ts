@@ -19,6 +19,11 @@ export const fetchLocations = async (): Promise<Location[]> => {
   return (await response).data;
 };
 
+export const fetchLocationDetails = async (id: string): Promise<Location> => {
+  const { data } = await axios.get(`/location/${id}`);
+  return data; // backend should return a single location object
+};
+
 // 🔹 Create new location
 export const createLocation = async (location: Location): Promise<Location> => {
   const response = axios.post("/location/create", location);
