@@ -5,7 +5,7 @@ export interface TeamMember {
   firstName: string;
   lastName: string;
   email: string;
-  role: { role: "Admin" | "Manager" | "Staff" | string };
+  role: { role: "Admin" | "Manager" | "Staff" | string; _id: string };
   invitationStatus: string;
   avatar?: string;
   invitedAt: string;
@@ -24,30 +24,26 @@ export const fetchTeamMembers = async (): Promise<TeamMember[]> => {
   return data;
 };
 
-// Fetch pending invites
-export const fetchPendingInvites = async (): Promise<PendingInvite[]> => {
-  const { data } = await axios.get("/team/pending-invites");
+// Update a team member
+export const updateTeamMember = async (id: string, teamMember: any) => {
+  const { data } = await axios.put(`/team-member/${id}`, teamMember);
   return data;
 };
 
 // Delete a team member or pending invite
 export const deleteTeamMember = async (id: string) => {
-  const { data } = await axios.delete(`/team/member/${id}`);
+  const { data } = await axios.delete(`/team-member/${id}`);
   return data;
 };
 
 // Resend an invitation
 export const resendTeamInvite = async (id: string) => {
-  const { data } = await axios.post(`/team/resend-invite/${id}`);
+  const { data } = await axios.post(`/team-member/${id}`);
   return data;
 };
 
 // Invite a new team member
-export const inviteTeamMember = async (payload: {
-  name: string;
-  email: string;
-  role: string;
-}) => {
-  const { data } = await axios.post("/team/invite", payload);
+export const inviteTeamMember = async (payload: any) => {
+  const { data } = await axios.post("/team-member", payload);
   return data;
 };

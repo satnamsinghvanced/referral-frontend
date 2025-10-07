@@ -4,7 +4,7 @@ import { FiStar, FiTarget, FiUsers } from "react-icons/fi";
 import { LuBuilding2, LuPlus } from "react-icons/lu";
 import MediumStatsCard from "../../components/cards/MediumStatsCard";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
-import AddModal from "../../components/common/AddModal";
+import ActionModal from "../../components/common/ActionModal";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import ReferralConnectionsConfig from "../../components/formConfigs/ReferralConnectionsConfig";
 import ReferralConnectionCard from "./ConnectionCard";
@@ -139,7 +139,7 @@ const ReferralConnections= () => {
         </div>
       </ComponentContainer>
 
-      <AddModal
+      <ActionModal
         isOpen={isModalOpen}
         heading={
           <div className="flex gap-2 items-center">

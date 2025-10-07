@@ -131,20 +131,20 @@ function AppRoutes() {
     });
 
   return (
-    <Suspense
-      fallback={
-        <Spinner
-          label="Loading..."
-          variant="gradient"
-          color="success"
-          className="w-screen h-screen"
-        />
-      }
-    >
+    // <Suspense
+    //   fallback={
+    //     <Spinner
+    //       label="Loading..."
+    //       variant="gradient"
+    //       color="success"
+    //       className="w-screen h-screen"
+    //     />
+    //   }
+    // >
       <BrowserRouter basename="/referral-retrieve">
         <Routes>{renderRoutes(routesList)}</Routes>
       </BrowserRouter>
-    </Suspense>
+    // </Suspense>
   );
 }
 

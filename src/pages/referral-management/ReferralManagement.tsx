@@ -6,11 +6,17 @@ import { FiEdit, FiEye, FiStar, FiTarget, FiUsers } from "react-icons/fi";
 import { IoCallOutline } from "react-icons/io5";
 import { LuBuilding2, LuPlus } from "react-icons/lu";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
-import AddModal from "../../components/common/AddModal";
+import ActionModal from "../../components/common/ActionModal";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import FilterPanel from "../../components/common/FilterPanel";
 import ReferralManagementConfig from "../../components/formConfigs/ReferralManagementConfig";
-import { useCreatePatient, usefetchReferralQuery, usefetchReferrerQuery, usePatientsQuery, useUpdatePatient } from "../../hooks/usePatients";
+import {
+  useCreatePatient,
+  usefetchReferralQuery,
+  usefetchReferrerQuery,
+  usePatientsQuery,
+  useUpdatePatient,
+} from "../../hooks/usePatients";
 import { urgencyLabels } from "../../utils/consts";
 import RefererCard from "./RefererCard";
 import ReferralCard from "./ReferralCard";
@@ -117,11 +123,9 @@ const ReferralManagement = () => {
     limit: 5,
   });
 
-  const {
-    data: referrerData,
-  } = usefetchReferrerQuery({
+  const { data: referrerData } = usefetchReferrerQuery({
     // role: "",
-    filter: '',
+    filter: "",
     // filter: 'doctor',
     // status: filters.status,
     // urgency: filters.urgency,
@@ -192,10 +196,10 @@ const ReferralManagement = () => {
   const onSaveClick = async () => {
     if (formRef.current?.isValid && formRef.current?.dirty) {
       const Allvalues = formRef.current.values;
-      console.log('all val : ', Allvalues)
+      console.log("all val : ", Allvalues);
       const role = formRef.current.values.role;
-      let patientData
-      if (role === 'doctor') {
+      let patientData;
+      if (role === "doctor") {
         patientData = {
           email: Allvalues.email,
           name: Allvalues.fullName,
@@ -204,16 +208,16 @@ const ReferralManagement = () => {
           practiceName: Allvalues.referringPracticeName,
           practiceType: Allvalues.referringSpecialty,
           practiceAddress: Allvalues.practiceAddress,
-        }
+        };
       } else {
         patientData = {
           email: Allvalues.email,
           name: Allvalues.fullName,
           number: Allvalues.patientPhone,
-          notes: Allvalues.notes
-        }
+          notes: Allvalues.notes,
+        };
       }
-      console.log('patientData: ', patientData)
+      console.log("patientData: ", patientData);
 
       createPatient(
         { patientData, type: Allvalues.role },
@@ -240,8 +244,8 @@ const ReferralManagement = () => {
               color: "danger",
             });
           },
-        });
-
+        }
+      );
     } else {
       console.log("⚠️ Form not valid yet");
 
@@ -264,14 +268,13 @@ const ReferralManagement = () => {
       label: "Generate QR Code",
       onClick: handleExport,
       icon: <FaQrcode />,
-      buttonType: 'secondary'
-
+      buttonType: "secondary",
     },
     {
       label: "Add Referrer",
       onClick: handleOpen,
       icon: <LuPlus />,
-      buttonType: 'primary'
+      buttonType: "primary",
     },
   ];
 
@@ -336,21 +339,21 @@ const ReferralManagement = () => {
 
   const referralActions = [
     {
-      label: 'editReferral',
+      label: "editReferral",
       function: editReferral,
-      icon: <FiEdit className='w-4 h-4' />
+      icon: <FiEdit className="w-4 h-4" />,
     },
     {
-      label: 'callReferral',
+      label: "callReferral",
       function: callReferral,
-      icon: <IoCallOutline className='w-4 h-4' />
+      icon: <IoCallOutline className="w-4 h-4" />,
     },
     {
-      label: 'viewReferral',
+      label: "viewReferral",
       function: viewReferral,
-      icon: <FiEye className='w-4 h-4' />
-    }
-  ]
+      icon: <FiEye className="w-4 h-4" />,
+    },
+  ];
 
   return (
     <>
@@ -378,7 +381,7 @@ const ReferralManagement = () => {
                       <div className="font-medium text-sm mb-3">
                         Recent Referrals
                       </div>
-                      {(referralData?.docs && referralData?.docs.length > 0) ?
+                      {referralData?.docs && referralData?.docs.length > 0 ? (
                         referralData?.docs?.map((referral: any) => (
                           <ReferralCard
                             key={referral.id}
@@ -387,12 +390,11 @@ const ReferralManagement = () => {
                             actions={referralActions}
                           />
                         ))
-                        : (
-                          <p className="bg-background text-sm text-center text-foreground/50">
-                            No data to display
-                          </p>
-                        )
-                      }
+                      ) : (
+                        <p className="bg-background text-sm text-center text-foreground/50">
+                          No data to display
+                        </p>
+                      )}
                     </div>
                   </div>
                 ) : selectedReferralType === "Referrers" ? (
@@ -400,7 +402,7 @@ const ReferralManagement = () => {
                     <div className="font-medium text-sm mb-3">
                       Referrer Management
                     </div>
-                    {(referrerData?.data && referrerData?.data.length > 0) ?
+                    {referrerData?.data && referrerData?.data.length > 0 ? (
                       referrerData?.data.map((referrer) => (
                         <RefererCard
                           key={referrer.id}
@@ -408,24 +410,29 @@ const ReferralManagement = () => {
                           buttons={refererButtonList}
                         />
                       ))
-                      : (
-                        <p className="bg-background text-sm text-center text-foreground/50">
-                          No data to display
-                        </p>
-                      )
-                    }
+                    ) : (
+                      <p className="bg-background text-sm text-center text-foreground/50">
+                        No data to display
+                      </p>
+                    )}
                   </div>
                 ) : selectedReferralType === "NFC & QR Tracking" ? (
                   <div className="w-full min-h-80 h-full flex gap-2">
                     <div className="border w-full border-primary/20 p-4 rounded-xl bg-background flex flex-col justify-between">
                       <div>
-                        <h6 className="text-sm flex  items-center gap-2"><FaQrcode className="text-primary" /> QR & NFC Code Generato</h6>
-                        <p className="text-xs mt-1 font-light">Generate personalized QR codes and NFC tags for General Practice</p>
+                        <h6 className="text-sm flex  items-center gap-2">
+                          <FaQrcode className="text-primary" /> QR & NFC Code
+                          Generato
+                        </h6>
+                        <p className="text-xs mt-1 font-light">
+                          Generate personalized QR codes and NFC tags for
+                          General Practice
+                        </p>
                       </div>
 
                       <div className="flex flex-col gap-3 items-center justify-center text-sm">
                         <p>Generate a personalized QR code for this referrer</p>
-                        <Button buttonType="primary" className={'w-1/2'}>
+                        <Button buttonType="primary" className={"w-1/2"}>
                           Generate QR Code
                         </Button>
                       </div>
@@ -435,19 +442,35 @@ const ReferralManagement = () => {
                       <div className="flex flex-col gap-3 mt-4  rounded-md ">
                         <div className="flex justify-between text-xs p-4 rounded-lg bg-blue-50">
                           <div>Total Scans Today</div>
-                          <div><span className="px-1.5 py-0.5 bg-green-200 rounded-sm">23</span></div>
+                          <div>
+                            <span className="px-1.5 py-0.5 bg-green-200 rounded-sm">
+                              23
+                            </span>
+                          </div>
                         </div>
                         <div className="flex justify-between text-xs p-4 rounded-lg bg-blue-50">
                           <div>Active QR Codes</div>
-                          <div><span className="px-1.5 py-0.5 bg-pink-200 rounded-sm">67</span></div>
+                          <div>
+                            <span className="px-1.5 py-0.5 bg-pink-200 rounded-sm">
+                              67
+                            </span>
+                          </div>
                         </div>
                         <div className="flex justify-between text-xs p-4 rounded-lg bg-blue-50">
                           <div>NFC Taps</div>
-                          <div><span className="px-1.5 py-0.5 bg-blue-200 rounded-sm">18 </span></div>
+                          <div>
+                            <span className="px-1.5 py-0.5 bg-blue-200 rounded-sm">
+                              18{" "}
+                            </span>
+                          </div>
                         </div>
                         <div className="flex justify-between text-xs p-4 rounded-lg bg-blue-50">
                           <div>Conversion Rate</div>
-                          <div><span className="px-1.5 py-0.5 bg-indigo-200 rounded-sm">78%</span></div>
+                          <div>
+                            <span className="px-1.5 py-0.5 bg-indigo-200 rounded-sm">
+                              78%
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -468,14 +491,15 @@ const ReferralManagement = () => {
         </div>
       </ComponentContainer>
 
-      <AddModal
+      <ActionModal
         isOpen={isModalOpen}
         heading="Add New Referrer"
         description="Add a new doctor or patient referrer to your system. Complete all required fields to ensure proper referral tracking."
         cancelBtnData={cancelBtnData}
         addBtnData={{ ...addBtnData, function: onSaveClick }}
-        config={<ReferralManagementConfig ref={formRef} />}
-      />
+      >
+        <ReferralManagementConfig ref={formRef} />
+      </ActionModal>
     </>
   );
 };

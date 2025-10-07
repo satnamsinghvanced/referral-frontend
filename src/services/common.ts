@@ -5,4 +5,15 @@ export const fetchSpecialties = async () => {
   return response.data;
 };
 
+export const fetchRoles = async () => {
+  const response = await axios.get("/role");
+  return response.data;
+};
+
+export const fetchPermissions = async () => {
+  const response = await axios.get("/permission");
+  return response.data;
+};
+
+
 // You can add more similar requests here

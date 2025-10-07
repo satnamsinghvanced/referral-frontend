@@ -4,7 +4,7 @@ import { BiEdit } from "react-icons/bi";
 import { FiPlus } from "react-icons/fi";
 import { GrLocation } from "react-icons/gr";
 import { RiDeleteBinLine } from "react-icons/ri";
-import AddModal from "../../components/common/AddModal";
+import ActionModal from "../../components/common/ActionModal";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import Input from "../../components/ui/Input";
@@ -17,7 +17,7 @@ import {
 } from "../../hooks/settings/useLocation";
 import { Location } from "../../services/settings/location";
 
-// ✅ Form values (flattened)
+// ✅ Form values
 export interface LocationFormValues {
   name: string;
   street: string;
@@ -45,7 +45,7 @@ const LocationSchema = Yup.object().shape({
   isPrimary: Yup.boolean(),
 });
 
-// ✅ Input config
+// ✅ Input field configuration
 const fieldConfig = [
   { name: "name", label: "Location Name", placeholder: "Enter location name" },
   { name: "street", label: "Street", placeholder: "Enter street" },
@@ -109,30 +109,21 @@ const Locations: React.FC = () => {
     },
   });
 
-  // Cancel button for modals
-  const cancelBtnData = {
-    function: () => {
-      setIsModalOpen(false);
-      setIsDeleteModalOpen(false);
-      setEditLocationId("");
-      setDeleteLocationId("");
-    },
-    style: "border-foreground/10 border text-foreground hover:bg-background",
-    text: "Cancel",
+  // ✅ Common cancel handler
+  const handleCancel = () => {
+    setIsModalOpen(false);
+    setIsDeleteModalOpen(false);
+    setEditLocationId("");
+    setDeleteLocationId("");
   };
 
-  // Add button for Add/Edit modal
-  const addBtnData = {
-    function: formik.handleSubmit,
-    style: "bg-foreground text-background",
-    text: "Save",
-  };
-
+  // ✅ Edit
   const handleEdit = (id: string) => {
     setEditLocationId(id);
     setIsModalOpen(true);
   };
 
+  // ✅ Delete
   const handleDeleteClick = (id: string) => {
     setDeleteLocationId(id);
     setIsDeleteModalOpen(true);
@@ -218,8 +209,8 @@ const Locations: React.FC = () => {
         </CardBody>
       </Card>
 
-      {/* Add / Edit Modal */}
-      <AddModal
+      {/* ✅ Add / Edit Modal */}
+      <ActionModal
         isOpen={isModalOpen}
         heading={
           editLocationId
@@ -227,8 +218,23 @@ const Locations: React.FC = () => {
             : "Add New Practice Location"
         }
         description="Complete all required fields to add or edit a practice location."
-        cancelBtnData={cancelBtnData}
-        addBtnData={addBtnData}
+        onClose={handleCancel}
+        buttons={[
+          {
+            text: "Cancel",
+            onPress: handleCancel,
+            variant: "light",
+            color: "default",
+            className: "border border-foreground/10",
+          },
+          {
+            text: "Save",
+            onPress: formik.handleSubmit,
+            color: "default",
+            className: "bg-foreground text-background",
+            icon: <FiPlus className="size-4" />,
+          },
+        ]}
       >
         <form
           id="location-form"
@@ -241,6 +247,7 @@ const Locations: React.FC = () => {
               id={field.name}
               name={field.name}
               label={field.label}
+              labelPlacement="outside"
               placeholder={field.placeholder}
               value={
                 formik.values[field.name as keyof LocationFormValues] as string
@@ -258,34 +265,40 @@ const Locations: React.FC = () => {
             />
           ))}
 
-          <div className="flex items-center gap-3">
-            <Switch
-              size="sm"
-              id="isPrimary"
-              name="isPrimary"
-              isSelected={formik.values.isPrimary}
-              onValueChange={(val) => {
-                console.log(val);
-                formik.setFieldValue("isPrimary", val);
-              }}
-            >
-              Primary Location
-            </Switch>
-          </div>
+          <Switch
+            size="sm"
+            id="isPrimary"
+            name="isPrimary"
+            isSelected={formik.values.isPrimary}
+            onValueChange={(val) => formik.setFieldValue("isPrimary", val)}
+          >
+            Primary Location
+          </Switch>
         </form>
-      </AddModal>
+      </ActionModal>
 
-      {/* Delete Modal */}
-      <AddModal
+      {/* ✅ Delete Confirmation Modal */}
+      <ActionModal
         isOpen={isDeleteModalOpen}
         heading="Delete Practice Location"
-        description="Are you sure you want to delete this practice location? This action can't be undone."
-        cancelBtnData={cancelBtnData}
-        addBtnData={{
-          function: handleDeleteConfirm,
-          style: "bg-red-700 text-background",
-          text: "Delete",
-        }}
+        description="Are you sure you want to delete this practice location? This action cannot be undone."
+        onClose={handleCancel}
+        buttons={[
+          {
+            text: "Cancel",
+            onPress: handleCancel,
+            variant: "light",
+            color: "default",
+            className: "border border-foreground/10",
+          },
+          {
+            text: "Delete",
+            onPress: handleDeleteConfirm,
+            color: "danger",
+            className: "bg-red-700 text-background",
+            icon: <RiDeleteBinLine className="size-4" />,
+          },
+        ]}
       />
     </>
   );
