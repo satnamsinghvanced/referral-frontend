@@ -51,9 +51,11 @@ const SignIn = () => {
           {
             email: values.email,
             password: values.password,
+            rememberMe: values.rememberMe,
           },
           {
             onSuccess: (response) => {
+              console.log(response);
               dispatch(
                 // loginSuccess({
                 //   token: response.accessToken,
@@ -103,9 +105,7 @@ const SignIn = () => {
                 type="email"
                 value={formik.values.email}
                 onChange={(value) => formik.setFieldValue("email", value)}
-                onBlur={formik.handleBlur}
-                error={formik.errors.email}
-                touched={formik.touched.email}
+                formik={formik}
                 isRequired
               />
             </div>
@@ -119,9 +119,7 @@ const SignIn = () => {
                 name="password"
                 value={formik.values.password}
                 onChange={(value) => formik.setFieldValue("password", value)}
-                onBlur={formik.handleBlur}
-                error={formik.errors.password}
-                touched={formik.touched.password}
+                formik={formik}
                 isRequired
               />
             </div>

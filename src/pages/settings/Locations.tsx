@@ -16,6 +16,7 @@ import {
   useUpdateLocation,
 } from "../../hooks/settings/useLocation";
 import { Location } from "../../services/settings/location";
+import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
 
 // ✅ Form values
 export interface LocationFormValues {
@@ -241,29 +242,49 @@ const Locations: React.FC = () => {
           onSubmit={formik.handleSubmit}
           className="flex flex-col gap-4"
         >
-          {fieldConfig.map((field) => (
-            <Input
-              key={field.name}
-              id={field.name}
-              name={field.name}
-              label={field.label}
-              labelPlacement="outside"
-              placeholder={field.placeholder}
-              value={
-                formik.values[field.name as keyof LocationFormValues] as string
-              }
-              onChange={(val) => formik.setFieldValue(field.name, val)}
-              onBlur={formik.handleBlur}
-              error={
-                formik.errors[field.name as keyof LocationFormValues] as string
-              }
-              touched={
-                formik.touched[
-                  field.name as keyof LocationFormValues
-                ] as boolean
-              }
-            />
-          ))}
+          {fieldConfig.map((field) =>
+            field.name === "phone" ? (
+              <Input
+                key={field.name}
+                id={field.name}
+                name={field.name}
+                label={field.label}
+                labelPlacement="outside"
+                placeholder={field.placeholder}
+                value={formik.values.phone}
+                onChange={(val) =>
+                  formik.setFieldValue("phone", formatPhoneNumber(val))
+                }
+                formik={formik}
+              />
+            ) : (
+              <Input
+                key={field.name}
+                id={field.name}
+                name={field.name}
+                label={field.label}
+                labelPlacement="outside"
+                placeholder={field.placeholder}
+                value={
+                  formik.values[
+                    field.name as keyof LocationFormValues
+                  ] as string
+                }
+                onChange={(val) => formik.setFieldValue(field.name, val)}
+                onBlur={formik.handleBlur}
+                error={
+                  formik.errors[
+                    field.name as keyof LocationFormValues
+                  ] as string
+                }
+                touched={
+                  formik.touched[
+                    field.name as keyof LocationFormValues
+                  ] as boolean
+                }
+              />
+            )
+          )}
 
           <Switch
             size="sm"

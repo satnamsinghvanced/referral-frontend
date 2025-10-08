@@ -16,7 +16,8 @@ import ThemeToggle from "../common/ThemeToggle";
 import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../store";
 import { logout } from "../../store/authSlice";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
 
 // const HEADER_LINKS = [
 //   {
@@ -46,14 +47,15 @@ export default function Header({
 }: {
   hamburgerMenuClick: () => void;
 }) {
-
   const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+
+  const { user } = useTypedSelector((state) => state.auth);
 
   const handleLogout = () => {
-    dispatch(logout())
-    navigate('/signin')
-  }
+    dispatch(logout());
+    navigate("/signin");
+  };
   return (
     <Navbar
       height={63}
@@ -65,7 +67,10 @@ export default function Header({
     >
       <NavbarContent justify="start" className="items-center gap-3">
         <div className="lg:hidden">
-          <button onClick={hamburgerMenuClick} className="flex cursor-pointer text-xl text-foreground ">
+          <button
+            onClick={hamburgerMenuClick}
+            className="flex cursor-pointer text-xl text-foreground "
+          >
             <HiOutlineMenuAlt1 />
           </button>
         </div>
@@ -141,26 +146,31 @@ export default function Header({
                 className="text-sm flex justify-center items-center gap-2 !cursor-pointer bg-transparent hover:bg-orange-200 hover:text-orange-600"
               >
                 <FiUser fontSize={16} />
-                <p>Dr. Smith</p>
+                <p>{user?.firstName}</p>
               </Button>
             </DropdownTrigger>
             <DropdownMenu aria-label="Profile Actions" variant="flat">
-              <DropdownItem key="profile" className="h-14 gap-2">
-                <p className="font-semibold">Signed in as</p>
-                <p className="font-semibold">zoey@example.com</p>
+              <DropdownItem key="profile" className="h-14 gap-2" href="/referral-retrieve/settings">
+                {/* <Link to="/settings"> */}
+                  <p className="font-semibold">Signed in as</p>
+                  <p className="font-semibold">{user?.email}</p>
+                {/* </Link> */}
               </DropdownItem>
-              <DropdownItem key="settings">My Settings</DropdownItem>
-              <DropdownItem key="team_settings">Team Settings</DropdownItem>
-              <DropdownItem key="analytics">Analytics</DropdownItem>
-              <DropdownItem key="system">System</DropdownItem>
-              <DropdownItem key="configurations">Configurations</DropdownItem>
-              <DropdownItem key="help_and_feedback">
-                Help & Feedback
+              <DropdownItem key="general">
+                <Link to="/settings/general">General</Link>
+              </DropdownItem>
+              <DropdownItem key="locations">
+                <Link to="/settings/locations">Locations</Link>
+              </DropdownItem>
+              <DropdownItem key="team">
+                <Link to="/settings/team">Team Settings</Link>
+              </DropdownItem>
+              <DropdownItem key="billing">
+                <Link to="/settings/billing">Billing</Link>
               </DropdownItem>
               <DropdownItem key="logout" color="danger" onPress={handleLogout}>
                 Log Out
               </DropdownItem>
-              <DropdownItem key="theme">Theme</DropdownItem>
             </DropdownMenu>
           </Dropdown>
         </div>

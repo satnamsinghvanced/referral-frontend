@@ -1,19 +1,17 @@
 import axios from "./axios";
 
 export interface LoginPayload {
-    email: string;
-    password: string;
+  email: string;
+  password: string;
+  rememberMe: boolean;
 }
 
 export interface LoginResponse {
-    data: {
-        user: any; // Replace with your user type
-        token: string;
-    };
-    token: string;
+  accessToken: string; // Replace with your user type
+  refreshToken: string;
 }
 
 export const login = async (payload: LoginPayload): Promise<LoginResponse> => {
-    const response = await axios.post("/users/login", payload);
-    return response.data;
+  const response = await axios.post("/users/login", payload);
+  return response.data;
 };
