@@ -5,6 +5,7 @@ import {
   HiOutlineClipboardList,
   HiOutlineCog,
   HiOutlineDocument,
+  HiOutlineLightningBolt,
   HiOutlineLockClosed,
   HiOutlineMail,
   HiOutlinePhone,
@@ -15,14 +16,15 @@ import { useSelector } from "react-redux";
 import { Link, NavLink, useLocation, useNavigate } from "react-router";
 
 import { Tooltip } from "@heroui/react";
-import { LuBuilding2 } from "react-icons/lu";
+import { LuBuilding2, LuDollarSign, LuQrCode, LuVideo } from "react-icons/lu";
 
-import { FiHome, FiUsers } from "react-icons/fi";
+import { FiHome, FiImage, FiUsers } from "react-icons/fi";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import logo from "../../assets/logos/logo.png";
 // import logoWhite from "../../assets/logo-white.svg";
 import clsx from "clsx";
 import Profile from "../common/Profile";
+import { TbCheckbox } from "react-icons/tb";
 
 interface SidebarProps {
   isMiniSidebarOpen: boolean;
@@ -68,9 +70,9 @@ const Sidebar = ({
           : "bg-green-400",
     },
     {
-      name: "Referral Connections",
+      name: "Partner Network",
       icon: LuBuilding2,
-      href: "/referral-connections",
+      href: "/partner-network",
       stats: 12,
       color: "bg-sky-200",
     },
@@ -114,22 +116,51 @@ const Sidebar = ({
       name: "Analytics",
       icon: HiOutlineChartBar,
       href: "/analytics",
-      stats: 6,
       color: "bg-red-300",
     },
     {
       name: "Reports",
       icon: HiOutlineDocument,
       href: "/reports",
-      stats: 1,
       color: "bg-gray-300",
     },
     {
       name: "Task List",
-      icon: HiOutlineClipboardList,
+      icon: TbCheckbox,
       href: "/task-list",
       stats: 12,
       color: "bg-red-300",
+    },
+    {
+      name: "QR Generator",
+      icon: LuQrCode,
+      href: "/qr-generator",
+      color: "bg-red-300",
+    },
+    {
+      name: "Marketing Budget",
+      icon: LuDollarSign,
+      href: "/marketing-budget",
+      color: "bg-red-300",
+    },
+    {
+      name: "Media Management",
+      icon: LuVideo,
+      href: "/media-management",
+      color: "bg-red-300",
+    },
+    {
+      name: "Image Library",
+      icon: FiImage,
+      href: "/image-library",
+      color: "bg-red-300",
+    },
+    {
+      name: "Integrations",
+      icon: HiOutlineLightningBolt,
+      href: "/integrations",
+      stats: 12,
+      color: "bg-blue-400",
     },
   ];
 
@@ -140,7 +171,7 @@ const Sidebar = ({
       href: "/helpcenter",
     },
     { name: "Settings", icon: HiOutlineCog, href: "/settings" },
-    { name: "Sign Out", icon: HiOutlineLockClosed, href: "/logout" },
+    // { name: "Sign Out", icon: HiOutlineLockClosed, href: "/logout" },
   ];
 
   const handleNavigate = (href: string) => {

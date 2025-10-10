@@ -2,11 +2,11 @@ import { Card, CardBody } from '@heroui/react'
 import { FiCircle } from 'react-icons/fi'
 import UrgencyChip from '../../components/chips/UrgencyChip'
 
-interface ReferralConnectionsTasksProps {
+interface PartnerNetworkTasksProps {
     urgency: string;
 }
 
-const ReferralConnectionsTasks = ({ urgency }: ReferralConnectionsTasksProps) => {
+const PartnerNetworkTasks = ({ urgency }: PartnerNetworkTasksProps) => {
   return (
       <Card className="border border-foreground/10" shadow='none'>
           <CardBody className="text-xs border border-foreground/10">
@@ -25,4 +25,4 @@ const ReferralConnectionsTasks = ({ urgency }: ReferralConnectionsTasksProps) =>
   )
 }
 
-export default ReferralConnectionsTasks
+export default PartnerNetworkTasks

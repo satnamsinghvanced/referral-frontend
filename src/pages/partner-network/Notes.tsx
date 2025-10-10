@@ -1,7 +1,7 @@
 import { Card, CardBody } from '@heroui/react'
 import { CgFileDocument } from 'react-icons/cg'
 
-const ReferralConnectionsNotes = () => {
+const PartnerNetworkNotes = () => {
     return (
         <Card className="border border-foreground/10" shadow='none'>
             <CardBody className="text-xs border border-foreground/10">
@@ -25,4 +25,4 @@ const ReferralConnectionsNotes = () => {
     )
 }
 
-export default ReferralConnectionsNotes
+export default PartnerNetworkNotes

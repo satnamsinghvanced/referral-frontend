@@ -1,63 +1,62 @@
-import React from 'react';
-import { FiEye } from 'react-icons/fi';
-import { Button } from '@heroui/react';
+import React from "react";
+import { FiEye } from "react-icons/fi";
+import { Button } from "@heroui/react";
+import { Referrer } from "../../types/types";
 
-interface ReferralCardProps {
-  referral: {
-    id: string;
-    fullName: string;
-    referringByName: string;
-    practice?: string;
-    totalReferrals: number;
-    referralsThisMonth: number;
-  };
-  buttons?: Array<{
-    label: string;
-    onClick: (id: string) => void;
-    props?: React.ComponentProps<typeof Button>;
-    className?: string;
-    icon?: React.ReactNode;
-  }>;
+interface RefererButton {
+  label: string;
+  onClick: (id: string) => void;
+  icon?: React.ReactNode;
+  variant?: "solid" | "bordered" | "light" | "flat" | "ghost" | "shadow";
+  color?: "default" | "primary" | "secondary" | "success" | "warning" | "danger";
+  className?: string;
 }
 
-const RefererCard: React.FC<ReferralCardProps> = ({ referrer, buttons }) => {
+interface RefererCardProps {
+  referrer: Referrer;
+  buttons?: RefererButton[];
+  onView?: (id: string) => void;
+}
+
+const RefererCard: React.FC<RefererCardProps> = ({ referrer, buttons = [], onView }) => {
   return (
-    <div className="flex justify-between border border-foreground/10 rounded-lg p-4 bg-background">
-      <div className="font-medium text-sm w-full h-full">
-        {referrer.name}
-        <div className="flex gap-2 items-center text-xs font-light text-foreground/80">
-          {referrer.practice}
-        </div>
-        <div className="flex gap-2 mt-1 text-foreground/80">
-          <div className="flex gap-1 items-center text-xs font-light">
-            {referrer.total} total
-          </div>
-          <div className="flex gap-1 items-center text-xs font-light">
-            {referrer.referralsThisMonth} this month
-          </div>
+    <div className="flex justify-between items-start border border-foreground/10 rounded-xl p-4 bg-background hover:bg-foreground/5 transition-colors">
+      {/* Left Section */}
+      <div className="flex flex-col gap-1 w-full">
+        <h3 className="font-semibold text-sm text-foreground">{referrer.fullName}</h3>
+        <p className="text-xs text-foreground/70">{referrer.practice}</p>
+
+        <div className="flex gap-4 mt-2 text-xs text-foreground/70">
+          <span>{referrer.totalReferrals} total</span>
+          <span>{referrer.referralsThisMonth} this month</span>
         </div>
       </div>
 
-      <div className="flex text-center justify-end h-full w-full gap-4 text-sm">
-        {buttons?.map((btn, index) => (
+      {/* Right Section (Buttons) */}
+      <div className="flex flex-wrap justify-end items-center gap-2 ml-3">
+        {buttons.map((btn, index) => (
           <Button
-            size="sm"
             key={index}
-            onPress={() => btn.onClick(referrer.id)}
-            {...btn.props}
-            className={btn.className ?? "border text-foreground border-foreground/30 bg-transparent"}
-            startContent={btn.icon ?? null}
+            size="sm"
+            variant={btn.variant ?? "bordered"}
+            color={btn.color ?? "default"}
+            onPress={() => btn.onClick(referrer._id)}
+            className={btn.className ?? "text-xs"}
           >
+            {btn.icon && <span className="mr-1 text-sm">{btn.icon}</span>}
             {btn.label}
           </Button>
         ))}
 
+        {/* Default Eye Button */}
         <Button
-          isIconOnly={true}
+          isIconOnly
           size="sm"
-          className="flex justify-center items-center bg-transparent hover:bg-secondary-200"
+          variant="light"
+          onPress={() => onView?.(referrer._id)}
+          className="hover:bg-secondary-100"
         >
-          <FiEye />
+          <FiEye className="text-foreground/80" />
         </Button>
       </div>
     </div>

@@ -5,7 +5,7 @@ import { HiCalendarDateRange } from 'react-icons/hi2';
 import { MdGridOn } from "react-icons/md";
 import Calendar from './Calendar';
 
-const ReferralConnectionsVisitScheduling = () => {
+const PartnerNetworkVisitScheduling = () => {
     const [isList, setIsList] = useState(true)
 
     const toggleList = () => {
@@ -54,4 +54,4 @@ const ReferralConnectionsVisitScheduling = () => {
     )
 }
 
-export default ReferralConnectionsVisitScheduling
+export default PartnerNetworkVisitScheduling

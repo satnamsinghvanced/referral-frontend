@@ -17,6 +17,8 @@ import {
 } from "../../hooks/settings/useLocation";
 import { Location } from "../../services/settings/location";
 import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
+import LocationSkeleton from "../../components/skeletons/LocationSkeleton";
+import EmptyState from "../../components/common/EmptyState";
 
 // ✅ Form values
 export interface LocationFormValues {
@@ -62,7 +64,8 @@ const Locations: React.FC = () => {
   const [editLocationId, setEditLocationId] = useState<string>("");
   const [deleteLocationId, setDeleteLocationId] = useState<string>("");
 
-  const { data: locations } = useFetchLocations();
+  const { data: locations, isLoading: locationsIsLoading } =
+    useFetchLocations();
   const { data: location } = useFetchLocationDetails(editLocationId);
   const { mutate: createLocation } = useCreateLocation();
   const { mutate: updateLocation } = useUpdateLocation();
@@ -146,67 +149,81 @@ const Locations: React.FC = () => {
         </CardHeader>
 
         <CardBody className="p-5 space-y-3">
-          {/* Location List */}
-          {locations?.map((loc: Location) => (
-            <div
-              key={loc._id}
-              className="p-3 border border-foreground/10 rounded-lg flex items-start justify-between"
-            >
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <h4 className="font-medium text-sm">{loc.name}</h4>
-                  {loc.isPrimary && (
-                    <span className="inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[11px] font-medium w-fit whitespace-nowrap shrink-0 bg-blue-100 text-blue-800">
-                      Primary
-                    </span>
-                  )}
-                </div>
-                <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                  {`${loc.address.street}, ${loc.address.city}, ${loc.address.state}, ${loc.address.zipcode}`}
-                </p>
-                <p className="text-xs text-gray-600 dark:text-gray-400">
-                  {loc.phone}
-                </p>
-              </div>
+          {locationsIsLoading && <LocationSkeleton count={3} />}
 
-              <div className="flex items-center gap-2">
-                <Button
-                  isIconOnly
-                  size="sm"
-                  variant="bordered"
-                  className="border-foreground/10 border-small"
-                  // @ts-ignore
-                  onPress={() => handleEdit(loc._id)}
-                >
-                  <BiEdit className="size-4" />
-                </Button>
-                <Button
-                  isIconOnly
-                  size="sm"
-                  variant="bordered"
-                  className="border-foreground/10 text-red-600 border-small"
-                  // @ts-ignore
-                  onPress={() => handleDeleteClick(loc._id)}
-                >
-                  <RiDeleteBinLine className="size-4" />
-                </Button>
+          {!locationsIsLoading && (!locations || locations.length === 0) && (
+            <EmptyState
+              icon={<GrLocation className="h-6 w-6" />}
+              title="No Practice Locations Found"
+              message="Add your first practice location to get started."
+            />
+          )}
+          {/* Location List */}
+          {!locationsIsLoading &&
+            locations &&
+            locations?.length > 0 &&
+            locations?.map((loc: Location) => (
+              <div
+                key={loc._id}
+                className="p-3 border border-foreground/10 rounded-lg flex items-start justify-between"
+              >
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <h4 className="font-medium text-sm">{loc.name}</h4>
+                    {loc.isPrimary && (
+                      <span className="inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[11px] font-medium w-fit whitespace-nowrap shrink-0 bg-blue-100 text-blue-800">
+                        Primary
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                    {`${loc.address.street}, ${loc.address.city}, ${loc.address.state}, ${loc.address.zipcode}`}
+                  </p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400">
+                    {loc.phone}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    isIconOnly
+                    size="sm"
+                    variant="bordered"
+                    className="border-foreground/10 border-small"
+                    // @ts-ignore
+                    onPress={() => handleEdit(loc._id)}
+                  >
+                    <BiEdit className="size-4" />
+                  </Button>
+                  <Button
+                    isIconOnly
+                    size="sm"
+                    variant="bordered"
+                    className="border-foreground/10 text-red-600 border-small"
+                    // @ts-ignore
+                    onPress={() => handleDeleteClick(loc._id)}
+                  >
+                    <RiDeleteBinLine className="size-4" />
+                  </Button>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
 
           {/* Add Location */}
-          <Button
-            variant="bordered"
-            size="sm"
-            className="w-full flex items-center justify-center gap-2 border-foreground/10 border-small font-medium"
-            onPress={() => {
-              setIsModalOpen(true);
-              setEditLocationId("");
-            }}
-          >
-            <FiPlus className="h-4 w-4" />
-            Add Location
-          </Button>
+          {!locationsIsLoading && (
+            <Button
+              variant="bordered"
+              size="sm"
+              className="w-full flex items-center justify-center gap-2 border-foreground/10 border-small font-medium"
+              onPress={() => {
+                setIsModalOpen(true);
+                setEditLocationId("");
+              }}
+            >
+              <FiPlus className="h-4 w-4" />
+              Add Location
+            </Button>
+          )}
         </CardBody>
       </Card>
 

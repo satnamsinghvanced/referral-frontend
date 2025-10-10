@@ -7,7 +7,7 @@ import {
   fetchReferrer,
   PatientData,
   updatePatient,
-} from "../services/patient";
+} from "../services/referral";
 import { queryClient } from "../providers/QueryProvider";
 
 // 🔹 Patients Query

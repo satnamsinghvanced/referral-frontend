@@ -1,17 +1,7 @@
 import React from "react";
 import ComponentHeader from "./ComponentHeader";
-import { Button } from "@heroui/react"; // <-- Import HeroUI Button
+import { ButtonConfig } from "../../types/types";
 
-type ButtonProps = React.ComponentProps<typeof Button>;
-type AllowedVariants = ButtonProps['variant'];
-
-type ButtonConfig = {
-  label: string;
-  onClick: () => void;
-  props?: Partial<ButtonProps> & { variant?: AllowedVariants };
-  buttonType: string
-  icon?: React.ReactNode;
-};
 
 interface ComponentContainerProps {
   headingData: {

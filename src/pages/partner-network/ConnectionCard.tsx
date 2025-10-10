@@ -15,7 +15,7 @@ interface ReferralCardProps {
     };
 }
 
-const ReferralConnectionCard = ({ referral }: ReferralCardProps) => {
+const PartnerNetworkCard = ({ referral }: ReferralCardProps) => {
     return (
         <div className="flex justify-between border border-foreground/10  rounded-lg p-4 bg-background ">
             <div className='w-20 aspect-square bg-primary-100 text-primary-600 h-full p-0.5 mr-2 rounded-lg flex justify-center items-center'>
@@ -51,7 +51,7 @@ const ReferralConnectionCard = ({ referral }: ReferralCardProps) => {
     );
 };
 
-export default ReferralConnectionCard;
+export default PartnerNetworkCard;
 
 
 
@@ -66,7 +66,7 @@ export default ReferralConnectionCard;
 // import { HiMiniArrowTrendingUp } from 'react-icons/hi2';
 // import { LuBuilding2 } from 'react-icons/lu';
 // import { PiBaby } from 'react-icons/pi';
-// import ReferralConnectionsToggle from './Toggle';
+// import PartnerNetworksToggle from './Toggle';
 
 
 // const StatCardData = [
@@ -159,7 +159,7 @@ export default ReferralConnectionCard;
 //     }
 // ];
 
-// const ReferralConnectionCard = () => {
+// const PartnerNetworkCard = () => {
 //     const [expandedCards, setExpandedCards] = useState({});
 //     const urgency = 'medium'
 //     const handleViewDetails = (id: any) => {
@@ -281,7 +281,7 @@ export default ReferralConnectionCard;
 //                                 <Divider className='my-4' />
 //                                 <div>
 //                                     <div className="flex w-full flex-col">
-//                                         <ReferralConnectionsToggle
+//                                         <PartnerNetworksToggle
 //                                             StatCardData={StatCardData}
 //                                             practiceContactsData={practiceContactsData}
 //                                             urgency={urgency}
@@ -298,4 +298,4 @@ export default ReferralConnectionCard;
 //     )
 // }
 
-// export default ReferralConnectionCard
+// export default PartnerNetworkCard

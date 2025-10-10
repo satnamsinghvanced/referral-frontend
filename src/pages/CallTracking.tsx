@@ -1,10 +1,9 @@
 import ComponentContainer from "../components/common/ComponentContainer";
 
-const Reports = () => {
+const CallTracking = () => {
   const headingData = {
-    heading: "Marketing Reports",
-    subHeading:
-      "Generate comprehensive reports on all aspects of your marketing performance",
+    heading: "Call Tracking",
+    subHeading: "Monitor and manage your phone communications with Twilio integration.",
   };
 
   return (
@@ -14,4 +13,4 @@ const Reports = () => {
   );
 };
 
-export default Reports;
+export default CallTracking;

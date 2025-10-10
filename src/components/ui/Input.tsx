@@ -102,6 +102,7 @@ const Input = ({
         label={label}
         name={name}
         placeholder={placeholder}
+        radius="sm"
         type={inputType}
         value={value}
         onValueChange={handleValueChange} // passes the new string

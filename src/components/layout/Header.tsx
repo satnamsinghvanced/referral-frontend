@@ -52,6 +52,7 @@ export default function Header({
 
   const { user } = useTypedSelector((state) => state.auth);
 
+
   const handleLogout = () => {
     dispatch(logout());
     navigate("/signin");

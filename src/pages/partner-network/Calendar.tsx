@@ -5,7 +5,7 @@ import { getLocalTimeZone, startOfMonth, startOfWeek, today } from "@internation
 import { useLocale } from "@react-aria/i18n";
 
 
-const ReferralConnectionsCalendar = () => {
+const PartnerNetworkCalendar = () => {
     let defaultDate = today(getLocalTimeZone());
     let [value, setValue] = React.useState(defaultDate);
     let { locale } = useLocale();
@@ -109,4 +109,4 @@ const ReferralConnectionsCalendar = () => {
     )
 }
 
-export default ReferralConnectionsCalendar
+export default PartnerNetworkCalendar

@@ -104,7 +104,6 @@ const FilterPanel = ({ onFilterChange }: FilterPanelProps) => {
     setUrgency("all");
     setLocation("all");
 
-
     onFilterChange?.({
       search: "",
       status: "",
@@ -177,7 +176,7 @@ const FilterPanel = ({ onFilterChange }: FilterPanelProps) => {
           onPress={resetFilters}
         >
           <LuFilter />
-          Clear Filters
+          View All & Filter
         </Button>
       </div>
     </div>

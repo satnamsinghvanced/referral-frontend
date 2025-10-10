@@ -2,18 +2,18 @@ import { Tab, Tabs } from '@heroui/react'
 import { CgFileDocument } from 'react-icons/cg'
 import { FiPieChart, FiUsers } from 'react-icons/fi'
 import { IoMdCheckboxOutline } from 'react-icons/io'
-import ReferralConnectionsAnalytics from './Analytics'
-import ReferralConnectionsContacts from './Contacts'
-import ReferralConnectionsNotes from './Notes'
-import ReferralConnectionsTasks from './Tasks'
+import PartnerNetworkAnalytics from './Analytics'
+import PartnerNetworkContacts from './Contacts'
+import PartnerNetworkNotes from './Notes'
+import PartnerNetworkTasks from './Tasks'
 
-interface ReferralConnectionsToggleProps {
+interface PartnerNetworkToggleProps {
     StatCardData: any;
     practiceContactsData: any;
     urgency: string;
 }
 
-const ReferralConnectionsToggle = ({ StatCardData, practiceContactsData, urgency }: ReferralConnectionsToggleProps) => {
+const PartnerNetworkToggle = ({ StatCardData, practiceContactsData, urgency }: PartnerNetworkToggleProps) => {
     return (
         <Tabs aria-label="Options"
             classNames={{
@@ -30,7 +30,7 @@ const ReferralConnectionsToggle = ({ StatCardData, practiceContactsData, urgency
                     </div>
                 }
                 className="text-sm  w-full">
-                <ReferralConnectionsContacts practiceContactsData={practiceContactsData} />
+                <PartnerNetworkContacts practiceContactsData={practiceContactsData} />
             </Tab>
             <Tab key="tasks"
                 title={
@@ -40,7 +40,7 @@ const ReferralConnectionsToggle = ({ StatCardData, practiceContactsData, urgency
                     </div>
                 }
                 className="text-sm">
-                <ReferralConnectionsTasks urgency={urgency} />
+                <PartnerNetworkTasks urgency={urgency} />
             </Tab>
             <Tab key="notes"
                 title={
@@ -50,7 +50,7 @@ const ReferralConnectionsToggle = ({ StatCardData, practiceContactsData, urgency
                     </div>
                 }
                 className="text-sm">
-                <ReferralConnectionsNotes />
+                <PartnerNetworkNotes />
             </Tab>
             <Tab key="analytics"
                 title={
@@ -60,10 +60,10 @@ const ReferralConnectionsToggle = ({ StatCardData, practiceContactsData, urgency
                     </div>
                 }
                 className="text-sm">
-                <ReferralConnectionsAnalytics StatCardData={StatCardData} />
+                <PartnerNetworkAnalytics StatCardData={StatCardData} />
             </Tab>
         </Tabs>
     )
 }
 
-export default ReferralConnectionsToggle
+export default PartnerNetworkToggle

@@ -1,9 +1,9 @@
-import { Button } from '@heroui/react';
-import UrgencyChip from '../../components/chips/UrgencyChip';
- 
+import { Button } from "@heroui/react";
+import UrgencyChip from "../../components/chips/UrgencyChip";
+
 interface ReferralCardProps {
   referral: {
-    _id: string; 
+    _id: string;
     name: string;
     practiceName: string;
     practiceAddress: string;
@@ -11,59 +11,67 @@ interface ReferralCardProps {
     urgency: string;
     addedVia: string;
   };
-  actions: any
-  urgencyLabels: Record<string, string>; 
+  actions: any;
+  urgencyLabels: Record<string, string>;
 }
 
-const ReferralCard = ({ referral, urgencyLabels, actions }: ReferralCardProps) => {
-
+const ReferralCard = ({
+  referral,
+  urgencyLabels,
+  actions,
+}: ReferralCardProps) => {
   return (
     <div className="flex justify-between border border-foreground/10  rounded-lg p-4 bg-background ">
-      <div className="font-medium text-sm w-full h-full capitalize">
-        {referral.name}
+      <div className="font-medium text-sm w-full h-full capitalize flex flex-col gap-0.5">
+        <p>{referral.name}</p>
         <div className="flex gap-2 items-center text-xs font-light">
-          <div className="flex gap-1 items-center">
-            {referral.practiceName}
-          </div>
-          <div className="p-0.5 bg-foreground/50 rounded-full aspect-square h-fit w-fit"></div>
-          <div>{referral?.practiceAddress}</div>
+          <p className="flex gap-1 items-center">{referral.referredBy.name}</p>
+          <p className="p-0.5 bg-foreground/50 rounded-full aspect-square h-fit w-fit"></p>
+          <p>{referral.referredBy.practiceName}</p>
         </div>
         <div className="flex gap-2 items-center text-xs font-light">
-          <div className="flex gap-1 items-center">
-            {referral.practiceAddress}
-          </div>
-          <div className="p-0.5 bg-foreground/50 rounded-full aspect-square h-fit w-fit"></div>
-          <div>{referral.createdAt.slice(0, 10)}</div>
-          <div className="p-0.5 bg-foreground/50 rounded-full aspect-square h-fit w-fit"></div>
-          <div>{referral?.addedVia}</div>
+          <p className="flex gap-1 items-center">{referral.treatment}</p>
+          <p className="p-0.5 bg-foreground/50 rounded-full aspect-square h-fit w-fit"></p>
+          <p>{referral.createdAt.slice(0, 10)}</p>
+          <p className="p-0.5 bg-foreground/50 rounded-full aspect-square h-fit w-fit"></p>
+          <p>via {referral?.addedVia}</p>
         </div>
       </div>
-      <div className="flex text-center justify-end h-full w-full gap-2 text-sm self-center"  >
-        <div className="self-center">
+      <div className="flex items-center text-center justify-end h-full w-full gap-2 text-sm self-center">
+        <div className="capitalize self-center">
           {referral.urgency ? (
-            <UrgencyChip urgency={urgencyLabels[referral.urgency] || referral.urgency} />)
-            :
-            (
-          <UrgencyChip urgency={urgencyLabels['new'] || 'new'} />
+            <UrgencyChip
+              urgency={urgencyLabels[referral.urgency] || referral.urgency}
+            />
+          ) : (
+            <UrgencyChip urgency={urgencyLabels["new"] || "new"} />
           )}
         </div>
         {Array.isArray(actions) &&
           actions.map((action: any) => (
-            <Button key={action.label} className="flex items-center bg-transparent font-black" size='sm' isIconOnly={true} onPress={() => { action.function(referral._id) }}>
-           {action.icon}
-          </Button>
-          ))
-        }
-        
+            <Button
+              key={action.label}
+              size="sm"
+              isIconOnly={true}
+              onPress={() => {
+                if (action.label === "Call") {
+                  action.function(referral.mobile || "N/A"); // pass phone number
+                } else {
+                  action.function(referral._id); // pass referral ID for view/edit
+                }
+              }}
+              variant={action.variant || "light"}
+              color={action.color || "default"}
+            >
+              {action.icon}
+            </Button>
+          ))}
       </div>
     </div>
   );
 };
 
 export default ReferralCard;
-
-
-
 
 // ------------------------------------- OLD DESIGN --------------------------------
 
@@ -94,7 +102,6 @@ export default ReferralCard;
 //   { value: "completed", label: "Completed", icon: <FiCheckCircle /> },
 // ]
 
-
 // const urgencyColors = {
 //   low: "success",
 //   medium: "warning",
@@ -116,7 +123,7 @@ export default ReferralCard;
 //   urgency?: string;
 //   email: string;
 //   age?: number;
-//   phoneNumber: string;  
+//   phoneNumber: string;
 //   referringByName: string;
 //   relationshipName?: string;
 //   referringPracticeName?: string;
@@ -239,12 +246,11 @@ export default ReferralCard;
 //             </PopoverContent>
 //           </Popover>
 //         </div>
-        
 
 //       </CardHeader>
 
 //       {/* <Divider /> */}
- 
+
 //       <CardBody className="flex text-xs gap-3  !pt-0">
 //         <div className="space-y-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
 //           {/* Patient Information */}

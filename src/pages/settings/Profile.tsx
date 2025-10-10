@@ -6,6 +6,9 @@ import { useEffect, useState } from "react";
 import { useFetchUser, useUpdateUser } from "../../hooks/settings/useUser";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { useSpecialties } from "../../hooks/useCommon";
+import { useDispatch } from "react-redux";
+import { updateUserFirstName } from "../../store/authSlice";
+import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
 
 const fields = [
   { name: "firstName", label: "First Name", type: "text" },
@@ -32,6 +35,7 @@ const ProfileSchema = Yup.object().shape({
 });
 
 const Profile = () => {
+  const dispatch = useDispatch();
   const { user } = useTypedSelector((state) => state.auth);
   const userId = user?.userId || "";
 
@@ -56,7 +60,7 @@ const Profile = () => {
       firstName: fetchedUser?.firstName || "Dr. Sarah",
       lastName: fetchedUser?.lastName || "Martinez",
       email: fetchedUser?.email || "sarah.martinez@tangeloortho.com",
-      mobile: fetchedUser?.mobile || "+1 (918) 555-0100",
+      mobile: fetchedUser?.mobile ? formatPhoneNumber(fetchedUser.mobile) : "(123) 456-7890",
       practiceName: fetchedUser?.practiceName || "Tangelo Orthodontics",
       medicalSpecialty: fetchedUser?.medicalSpecialty || "",
       image: fetchedUser?.image,
@@ -72,7 +76,12 @@ const Profile = () => {
         medicalSpecialty: values.medicalSpecialty,
         image: values.image || "",
       };
-      updateUser(data);
+      updateUser(data, {
+        onSuccess(data) {
+          dispatch(updateUserFirstName({ firstName: data.firstName }));
+          console.log("User updated successfully", data);
+        },
+      });
     },
   });
 
@@ -130,7 +139,15 @@ const Profile = () => {
                 labelPlacement="outside"
                 placeholder={label}
                 value={values[name as keyof typeof values] as string}
-                onChange={handleChange}
+                // onChange={handleChange}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  formik.setFieldValue(
+                    name,
+                    name === "mobile"
+                      ? formatPhoneNumber(e.target.value)
+                      : e.target.value
+                  )
+                }
                 isDisabled={name === "email" && fetchedUser?.email}
                 classNames={{ base: "data-disabled:opacity-70" }}
               />

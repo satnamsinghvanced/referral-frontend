@@ -1,5 +1,4 @@
-import { Spinner } from "@heroui/react";
-import React, { Suspense, ReactNode } from "react";
+import React, { ReactNode } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 // Lazy imports
@@ -15,8 +14,8 @@ const MarketingCalendar = React.lazy(() => import("./pages/MarketingCalendar"));
 const ReferralManagement = React.lazy(
   () => import("./pages/referral-management/ReferralManagement")
 );
-const ReferralConnections = React.lazy(
-  () => import("./pages/referral-connections/ReferralConnections")
+const PartnerNetwork = React.lazy(
+  () => import("./pages/partner-network/PartnerNetwork")
 );
 const Reviews = React.lazy(() => import("./pages/reviews/Reviews"));
 const SocialMedia = React.lazy(() => import("./pages/SocialMedia"));
@@ -51,7 +50,11 @@ const Terms = React.lazy(() => import("./pages/terms/TermsPage"));
 const PrivacyPolicy = React.lazy(
   () => import("./pages/privacy-policy/PrivacyPolicyPage")
 );
-const PatientForm = React.lazy(() => import("./pages/referral-connections/form/PatientForm"));
+const PatientForm = React.lazy(
+  () => import("./pages/partner-network/form/PatientForm")
+);
+const CallTracking = React.lazy(() => import("./pages/CallTracking"));
+
 
 // Route type
 interface AppRoute {
@@ -71,7 +74,7 @@ function AppRoutes() {
         { path: "dashboard", element: <Dashboard /> },
         { path: "referrals", element: <ReferralManagement /> },
         { path: "analytics", element: <Analytics /> },
-        { path: "referral-connections", element: <ReferralConnections /> },
+        { path: "partner-network", element: <PartnerNetwork /> },
         { path: "calls", element: <Calls /> },
         { path: "reviews", element: <Reviews /> },
         { path: "email-campaigns", element: <EmailCampaign /> },
@@ -83,6 +86,7 @@ function AppRoutes() {
         { path: "social", element: <SocialMedia /> },
         { path: "calender", element: <Calender /> },
         { path: "helpcenter", element: <HelpCenter /> },
+        { path: "call-tracking", element: <CallTracking /> },
         {
           path: "settings",
           element: <Settings />,
@@ -141,9 +145,9 @@ function AppRoutes() {
     //     />
     //   }
     // >
-      <BrowserRouter basename="/referral-retrieve">
-        <Routes>{renderRoutes(routesList)}</Routes>
-      </BrowserRouter>
+    <BrowserRouter basename="/referral-retrieve">
+      <Routes>{renderRoutes(routesList)}</Routes>
+    </BrowserRouter>
     // </Suspense>
   );
 }

@@ -2,7 +2,7 @@ import { Button } from '@heroui/react'
 import { FaUserPlus } from 'react-icons/fa6'
 import PracticeContactsCard from './ContactsCard'
 
-const ReferralConnectionsContacts = ({ practiceContactsData }) => {
+const PartnerNetworkContacts = ({ practiceContactsData }) => {
     return (
         <div className='flex flex-col gap-3'>
             <div className='flex justify-between items-center'>
@@ -18,4 +18,4 @@ const ReferralConnectionsContacts = ({ practiceContactsData }) => {
     )
 }
 
-export default ReferralConnectionsContacts
+export default PartnerNetworkContacts

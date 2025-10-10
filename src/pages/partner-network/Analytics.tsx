@@ -10,11 +10,11 @@ interface StatCardData {
     textColor?: string;
 }
 
-interface ReferralConnectionsAnalyticsProps {
+interface PartnerNetworkAnalyticsProps {
     StatCardData: StatCardData[];
 }
 
-const ReferralConnectionsAnalytics = ({ StatCardData }: ReferralConnectionsAnalyticsProps) => {
+const PartnerNetworkAnalytics = ({ StatCardData }: PartnerNetworkAnalyticsProps) => {
     return (
         <Card className="border-none shadow-none">
             <h6 className='py-1'>Practice Analytics</h6>
@@ -27,4 +27,4 @@ const ReferralConnectionsAnalytics = ({ StatCardData }: ReferralConnectionsAnaly
     );
 };
 
-export default ReferralConnectionsAnalytics;
+export default PartnerNetworkAnalytics;

@@ -1,13 +1,13 @@
 import { useState } from "react";
-import { FaStethoscope } from "react-icons/fa6";
 import { FiStar, FiTarget, FiUsers } from "react-icons/fi";
 import { LuBuilding2, LuPlus } from "react-icons/lu";
-import MediumStatsCard from "../../components/cards/MediumStatsCard";
+import { TbCheckbox } from "react-icons/tb";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
 import ActionModal from "../../components/common/ActionModal";
 import ComponentContainer from "../../components/common/ComponentContainer";
-import ReferralConnectionsConfig from "../../components/formConfigs/ReferralConnectionsConfig";
+import PartnerNetworkConfig from "../../components/formConfigs/PartnerNetworkConfig";
 import ReferralConnectionCard from "./ConnectionCard";
+import { AiOutlinePlus } from "react-icons/ai";
 
 interface Referral {
   id: string;
@@ -27,46 +27,38 @@ interface StatCard {
   subheading: string;
 }
 
-const ReferralConnections= () => {
+const PartnerNetwork = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleOpen = () => setIsModalOpen(true);
   const handleClose = () => setIsModalOpen(false);
 
-  const onCancelClick = () => {
-    console.log("onCancelClick");
-    handleClose();
-  };
-
-  const onSaveClick = () => {
-    console.log("handle Save Clicked");
+  const handleSave = () => {
+    console.log("Save clicked");
     handleClose();
   };
 
   const buttonList = [
     {
+      label: "Bulk Select",
+      onClick: handleOpen,
+      icon: <TbCheckbox fontSize={16} />,
+      variant: "bordered",
+      color: "default",
+      className: "border-small",
+    },
+    {
       label: "Add Practice",
       onClick: handleOpen,
-      icon: <LuPlus />,
-      buttonType: 'primary'
+      icon: <AiOutlinePlus fontSize={15} />,
+      variant: "solid",
+      color: "primary",
     },
   ];
 
-  const cancelBtnData = {
-    function: onCancelClick,
-    style: "border-foreground/10 border text-foreground hover:bg-background",
-    text: "cancel",
-  };
-
-  const addBtnData = {
-    function: onSaveClick,
-    style: "bg-foreground text-background",
-    text: "add",
-  };
-
   const headingData = {
-    heading: "Referral Connection",
-    subHeading: "Manage relationships with referring dental practices",
+    heading: "Partner Network",
+    subHeading: "Manage relationships with referring practices",
     buttons: buttonList,
   };
 
@@ -124,12 +116,14 @@ const ReferralConnections= () => {
     <>
       <ComponentContainer headingData={headingData}>
         <div className="flex flex-col gap-5">
+          {/* Stat Cards */}
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 justify-between">
             {StatCardData.map((data) => (
               <MiniStatsCard key={data.heading} cardData={data} />
             ))}
           </div>
 
+          {/* Referral List */}
           <div className="flex flex-col gap-4 border border-primary/10 rounded-xl p-4 bg-background/80">
             <div className="font-medium text-sm mb-2">Recent Referrals</div>
             {dummyReferralData.map((referral) => (
@@ -139,8 +133,10 @@ const ReferralConnections= () => {
         </div>
       </ComponentContainer>
 
+      {/* Add / Bulk Modal */}
       <ActionModal
         isOpen={isModalOpen}
+        onClose={handleClose}
         heading={
           <div className="flex gap-2 items-center">
             <LuBuilding2 className="text-sky-600" />
@@ -148,12 +144,27 @@ const ReferralConnections= () => {
           </div>
         }
         description="Add a new referring dental practice to your network. Fill in the practice details and contact information."
-        cancelBtnData={cancelBtnData}
-        addBtnData={addBtnData}
-        config={<ReferralConnectionsConfig />}
-      />
+        buttons={[
+          {
+            text: "Cancel",
+            onPress: handleClose,
+            variant: "bordered",
+            color: "default",
+            className: "border border-foreground/10",
+          },
+          {
+            text: "Save",
+            onPress: handleSave,
+            color: "primary",
+            variant: "solid",
+            icon: <AiOutlinePlus fontSize={15} />,
+          },
+        ]}
+      >
+        <PartnerNetworkConfig />
+      </ActionModal>
     </>
   );
 };
 
-export default ReferralConnections;
+export default PartnerNetwork;

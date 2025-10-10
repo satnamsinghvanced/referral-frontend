@@ -1,12 +1,12 @@
 import React from "react";
 import {
+  Button,
   Modal,
   ModalBody,
   ModalContent,
   ModalFooter,
   ModalHeader,
 } from "@heroui/react";
-import Button from "../ui/Button";
 
 interface ModalButton {
   text: string;
@@ -55,6 +55,7 @@ const ActionModal: React.FC<ActionModalProps> = ({
       onOpenChange={onClose}
       size={size}
       classNames={{
+        base: `max-sm:!m-3 !m-0`,
         closeButton: "cursor-pointer",
         ...classNames,
       }}
