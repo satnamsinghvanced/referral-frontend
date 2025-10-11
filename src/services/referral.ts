@@ -65,7 +65,7 @@ export const getReferralById = async (id: string) => {
 // Get list of referrals with pagination
 export const fetchReferrals = async (search: any, page = 1, limit = 10) => {
   const { data } = await axios.get("/referral", { params: { search, page, limit } });
-  return data;
+  return data.data;
 };
 
 // Update referral by ID
@@ -104,7 +104,7 @@ export const fetchReferrers = async (filter: string, page = 1, limit = 10) => {
   const { data } = await axios.get("/referrers/", {
     params: { filter, page, limit },
   });
-  return data;
+  return data.data;
 };
 
 // Get referrer by ID

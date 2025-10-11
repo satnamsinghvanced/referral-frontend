@@ -42,11 +42,26 @@ type ReferralType = "Referrals" | "Referrers" | "NFC & QR Tracking";
 interface Referral {
   _id: string;
   name: string;
-  practiceName: string;
-  practiceAddress: string;
-  createdAt: string;
-  urgency: string;
-  addedVia: string;
+  practiceName?: string;
+  practiceAddress?: string;
+  createdAt?: string;
+  urgency?: string;
+  addedVia?: string;
+  age?: number;
+  email?: string;
+  estValue?: number;
+  mobile?: string;
+  priority?: string;
+  referredBy?: {
+    _id: string;
+    name: string;
+    practiceName: string;
+  };
+  referredDate?: string;
+  scheduledDate?: string;
+  status?: string;
+  treatment?: string;
+  updatedAt?: string;
 }
 
 const STAT_CARD_DATA: StatCardData[] = [
@@ -105,14 +120,14 @@ const ReferralManagement = () => {
     page: 1,
     limit: 5,
   });
+console.log(referrerData, "referrerDatareferrerData")
+  // const { mutate: createReferral } = useCreateReferral({
+  //   onSuccess: () => refetchReferrals(),
+  // });
 
-  const { mutate: createReferral } = useCreateReferral({
-    onSuccess: () => refetchReferrals(),
-  });
-
-  const { mutate: updateReferral } = useUpdateReferral({
-    onSuccess: () => refetchReferrals(),
-  });
+  // const { mutate: updateReferral } = useUpdateReferral({
+  //   onSuccess: () => refetchReferrals(),
+  // });
 
   // ----------------------
   // Handlers
@@ -131,7 +146,8 @@ const ReferralManagement = () => {
     {
       label: "Edit",
       function: (id: string, updatedData: Partial<Referral>) => {
-        updateReferral({ id, payload: updatedData });
+         alert(`Working on it }`);
+        // updateReferral({ id, payload: updatedData });
       },
       icon: <FiEdit className="w-4 h-4" />,
     },
@@ -222,17 +238,18 @@ const ReferralManagement = () => {
               <FilterPanel onFilterChange={setFilters} />
               <div className="flex flex-col gap-4 border border-primary/10 rounded-xl p-4 bg-background/90">
                 <div className="font-medium text-sm">Recent Referrals</div>
-                {referralData?.data && referralData.data.length > 0 ? (
-                  referralData.data
-                    .splice(0, 5)
-                    .map((referral: Referral) => (
+                {Array.isArray(referralData) && referralData.length > 0 ? (
+                  referralData.slice(0, 5).map((ref) => {
+                    const referral = ref as Referral; // assertion here
+                    return (
                       <ReferralCard
                         key={referral._id}
                         referral={referral}
                         urgencyLabels={urgencyLabels}
                         actions={referralActions}
                       />
-                    ))
+                    );
+                  })
                 ) : (
                   <p className="bg-background text-sm text-center text-foreground/50">
                     No data to display

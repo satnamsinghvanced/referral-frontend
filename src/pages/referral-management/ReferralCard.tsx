@@ -10,6 +10,9 @@ interface ReferralCardProps {
     createdAt: string;
     urgency: string;
     addedVia: string;
+    referredBy:any;
+    treatment: string;
+    mobile:number;
   };
   actions: any;
   urgencyLabels: Record<string, string>;
