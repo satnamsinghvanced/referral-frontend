@@ -92,7 +92,7 @@ const ReferralManagement = () => {
   // const { data: trackingData, refetch: refetchTrackingData } =
   //   useFetchTrackings();
 
-  console.log("trackingData", trackingData);
+  // console.log("trackingData", trackingData);
   // console.log(referralData, "referrer card data");
   const STAT_CARD_DATA: StatCardData[] = [
     {
