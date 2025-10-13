@@ -1,13 +1,16 @@
 import { useState } from "react";
-import { FiStar, FiTarget, FiUsers } from "react-icons/fi";
+import { FiEdit, FiEye, FiStar, FiTarget, FiUsers } from "react-icons/fi";
 import { LuBuilding2, LuPlus } from "react-icons/lu";
 import { TbCheckbox } from "react-icons/tb";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
 import ActionModal from "../../components/common/ActionModal";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import PartnerNetworkConfig from "../../components/formConfigs/PartnerNetworkConfig";
-import ReferralConnectionCard from "./ConnectionCard";
 import { AiOutlinePlus } from "react-icons/ai";
+import PartnerNetworkCard from "./PartnerNetworkCard";
+import { IoDocumentOutline } from "react-icons/io5";
+import { Button } from "@heroui/react";
+import { MdOutlineCalendarToday } from "react-icons/md";
 
 interface Referral {
   id: string;
@@ -41,7 +44,7 @@ const PartnerNetwork = () => {
   const buttonList = [
     {
       label: "Bulk Select",
-      onClick: handleOpen,
+      onClick: () => alert("Bulk Select Clicked"),
       icon: <TbCheckbox fontSize={16} />,
       variant: "bordered",
       color: "default",
@@ -60,6 +63,26 @@ const PartnerNetwork = () => {
     heading: "Partner Network",
     subHeading: "Manage relationships with referring practices",
     buttons: buttonList,
+    filters: [
+      {
+        label: "Practice Type",
+        options: [
+          { label: "All Practices", value: "all" },
+          { label: "Active", value: "active" },
+          { label: "Inactive", value: "inactive" },
+        ],
+        selectedValue: "all",
+        onChange: (v: any) => console.log("Filter changed:", v),
+      },
+    ],
+    sortOptions: [
+      { label: "Name", value: "name" },
+      { label: "Date Added", value: "date" },
+    ],
+    selectedSortOption: "name",
+    onSortChange: (v: any) => console.log("Sort changed:", v),
+    sortOrder: "asc",
+    onSortOrderChange: (order: any) => console.log("Order:", order),
   };
 
   const StatCardData: StatCard[] = [
@@ -112,6 +135,39 @@ const PartnerNetwork = () => {
     },
   ];
 
+  const partnerNetworkActions = [
+    {
+      label: "Document",
+      function: (id: string, updatedData: Partial<Referral>) => {
+        alert(`Working on it }`);
+        // updateReferral({ id, payload: updatedData });
+      },
+      icon: <IoDocumentOutline className="size-3.5" />,
+      variant: "light",
+      color: "secondary",
+    },
+    {
+      label: "View",
+      function: (id: string) => {
+        alert(`Viewing referral ${id}`);
+        // You can replace alert with modal opening or navigation
+      },
+      icon: <FiEye className="size-3.5" />,
+      variant: "light",
+      color: "primary",
+    },
+    {
+      label: "Edit",
+      function: (id: string) => {
+        alert(`Calling referral at ${id}`);
+        // You can replace alert with actual call logic if needed
+      },
+      icon: <FiEdit className="size-3.5" />,
+      variant: "light",
+      color: "success",
+    },
+  ];
+
   return (
     <>
       <ComponentContainer headingData={headingData}>
@@ -125,10 +181,32 @@ const PartnerNetwork = () => {
 
           {/* Referral List */}
           <div className="flex flex-col gap-4 border border-primary/10 rounded-xl p-4 bg-background/80">
-            <div className="font-medium text-sm mb-2">Recent Referrals</div>
-            {dummyReferralData.map((referral) => (
-              <ReferralConnectionCard key={referral.id} referral={referral} />
+            <div className="font-medium text-sm mb-2">Partner Practices</div>
+            {dummyReferralData.map((referral: any) => (
+              <PartnerNetworkCard
+                key={referral.id}
+                referral={referral}
+                actions={partnerNetworkActions}
+              />
             ))}
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="space-y-1">
+              <h3 className="text-base">Schedule Referrer Visits</h3>
+              <p className="text-xs text-gray-600">
+                Plan monthly visits to multiple referrers with route
+                optimization
+              </p>
+            </div>
+            <Button
+              size="sm"
+              variant="solid"
+              color="primary"
+              startContent={<MdOutlineCalendarToday />}
+            >
+              Create Monthly Plan
+            </Button>
           </div>
         </div>
       </ComponentContainer>

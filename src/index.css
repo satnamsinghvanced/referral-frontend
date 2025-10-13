@@ -74,12 +74,12 @@ html {
   --heroui-secondary-200: 211 99% 80%; /* #6EB3FE */
   --heroui-secondary-300: 211 97% 70%; /* #4A99FD */
   --heroui-secondary-400: 211 97% 60%; /* #0F6EFC */
-  --heroui-secondary-500: 211 97% 53%; /* #0A55D8 */
+  --heroui-secondary-500: 25 100% 53%; /* #0A55D8 */
   --heroui-secondary-600: 211 92% 45%; /* #073FB5 */
   --heroui-secondary-700: 211 95% 38%; /* #042C92 */
   --heroui-secondary-800: 211 97% 32%; /* #021F78 */
   --heroui-secondary-900: 211 97% 26%; /* #000D5A */
-  --heroui-secondary: 211 97% 53%;
+  --heroui-secondary: 25 100% 53%;
   --heroui-secondary-foreground: 0 0% 100%;
 
   /* Warning Colors (Yellow palette) */

@@ -1,22 +1,26 @@
-import ls from "localstorage-slim";
 import { useEffect, useState } from "react";
 import { Outlet } from "react-router";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
-// import AppRoutes from "../../routes";
-
-ls.config.encrypt = true;
 
 const Layout = () => {
-  const initialMini =
-    ls.get("isMiniSidebarOpen") !== null ? ls.get("isMiniSidebarOpen") : true;
+  const getInitialMini = () => {
+    const storedValue = localStorage.getItem("isMiniSidebarOpen");
+    if (storedValue !== null) {
+      try {
+        return JSON.parse(storedValue);
+      } catch {
+        return true;
+      }
+    }
+    return true;
+  };
 
-  const [isMiniSidebarOpen, setIsMiniSidebarOpen] = useState(Boolean(initialMini));
+  const [isMiniSidebarOpen, setIsMiniSidebarOpen] = useState<boolean>(getInitialMini());
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  // const location = useLocation();
 
   const toggleSidebar = () => {
-    setIsMiniSidebarOpen((prev: any) => !prev);
+    setIsMiniSidebarOpen((prev) => !prev);
   };
 
   const onCloseSidebar = () => {
@@ -44,7 +48,7 @@ const Layout = () => {
   }, []);
 
   useEffect(() => {
-    ls.set("isMiniSidebarOpen", isMiniSidebarOpen);
+    localStorage.setItem("isMiniSidebarOpen", JSON.stringify(isMiniSidebarOpen));
   }, [isMiniSidebarOpen]);
 
   return (
