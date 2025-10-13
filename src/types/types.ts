@@ -49,6 +49,10 @@ export type ButtonConfig = {
 
 
 export type Referrer = {
+  qrCode: any;
+  referrals: any;
+  practiceName: ReactNode;
+  name: ReactNode;
   _id: string;
   fullName: string;
   practice: string;

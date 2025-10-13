@@ -65,7 +65,7 @@ export const getReferralById = async (id: string) => {
 // Get list of referrals with pagination
 export const fetchReferrals = async (search: any, page = 1, limit = 10) => {
   const { data } = await axios.get("/referral", { params: { search, page, limit } });
-  return data.data;
+  return data;
 };
 
 // Update referral by ID
@@ -165,10 +165,10 @@ export const updateTracking = async (
 };
 
 // 3. Fetch tracking entries with pagination
-export const fetchTrackings = async (page: number, limit: number) => {
+export const fetchTrackings = async (id: any) => {
   const { data } = await axios.get("/tracking", {
-    params: { page, limit },
-  });
+    params: {id},
+  }); 
   return data;
 };
 

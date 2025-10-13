@@ -260,10 +260,10 @@ export const useUpdateTracking = () =>
   });
 
 // Fetch tracking list
-export const useFetchTrackings = (page = 1, limit = 10) =>
+export const useFetchTrackings = (id:any) =>
   useQuery<any[], Error>({
-    queryKey: ["trackings", page, limit],
-    queryFn: () => fetchTrackings(page, limit),
+    queryKey: ["tracking", id],
+    queryFn: () => fetchTrackings(id),
   });
 
 // Log tracking scan

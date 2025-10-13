@@ -28,14 +28,14 @@ const ReferralCard = ({
       <div className="font-medium text-sm w-full h-full capitalize flex flex-col gap-0.5">
         <p>{referral.name}</p>
         <div className="flex gap-2 items-center text-xs font-light">
-          <p className="flex gap-1 items-center">{referral.referredBy.name}</p>
+          <p className="flex gap-1 items-center">{referral?.referredBy?.name}</p>
           <p className="p-0.5 bg-foreground/50 rounded-full aspect-square h-fit w-fit"></p>
-          <p>{referral.referredBy.practiceName}</p>
+          <p>{referral?.referredBy?.practiceName}</p>
         </div>
         <div className="flex gap-2 items-center text-xs font-light">
           <p className="flex gap-1 items-center">{referral.treatment}</p>
           <p className="p-0.5 bg-foreground/50 rounded-full aspect-square h-fit w-fit"></p>
-          <p>{referral.createdAt.slice(0, 10)}</p>
+          <p>{referral.createdAt?.slice(0, 10)}</p>
           <p className="p-0.5 bg-foreground/50 rounded-full aspect-square h-fit w-fit"></p>
           <p>via {referral?.addedVia}</p>
         </div>

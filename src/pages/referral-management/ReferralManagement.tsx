@@ -1,4 +1,4 @@
-import { JSX, useRef, useState } from "react";
+import { JSX, useEffect, useRef, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { CiLocationOn } from "react-icons/ci";
 import { FaQrcode } from "react-icons/fa6";
@@ -14,6 +14,7 @@ import {
   useUpdateReferral,
   useFetchReferrals,
   useFetchReferrers,
+  useFetchTrackings,
 } from "../../hooks/useReferral"; // make sure these hooks use TanStack properly
 import { ButtonConfig, Referrer } from "../../types/types";
 import { urgencyLabels } from "../../utils/consts";
@@ -61,35 +62,9 @@ interface Referral {
   scheduledDate?: string;
   status?: string;
   treatment?: string;
+  id?: any;
   updatedAt?: string;
 }
-
-const STAT_CARD_DATA: StatCardData[] = [
-  {
-    icon: <LuBuilding2 className="text-[17px] mt-1 text-sky-500" />,
-    heading: "Total Practices",
-    value: "3",
-    subheading: "Referring practices",
-  },
-  {
-    icon: <FiUsers className="text-[17px] mt-1 text-green-500" />,
-    heading: "Total Referrals",
-    value: "247",
-    subheading: "+12% from last month",
-  },
-  {
-    icon: <FiStar className="text-[17px] mt-1 text-yellow-500" />,
-    heading: "A-Level Practices",
-    value: "8",
-    subheading: "67% of total",
-  },
-  {
-    icon: <FiTarget className="text-[17px] mt-1 text-green-500" />,
-    heading: "Avg. Score",
-    value: "78.5",
-    subheading: "+5.2 improvement",
-  },
-];
 
 const ReferralManagement = () => {
   const formRef = useRef<any>(null);
@@ -113,14 +88,45 @@ const ReferralManagement = () => {
     limit: 5,
   });
 
-  console.log(referralData, "Dsdsad");
+
+  // const { data: trackingData, refetch: refetchTrackingData } =
+  //   useFetchTrackings();
+
+  console.log("trackingData", trackingData);
+  // console.log(referralData, "referrer card data");
+  const STAT_CARD_DATA: StatCardData[] = [
+    {
+      icon: <LuBuilding2 className="text-[17px] mt-1 text-sky-500" />,
+      heading: "Total Referrals",
+      value: referralData?.stats?.totalReferrals,
+      subheading: "Click to view all referrals",
+    },
+    {
+      icon: <FiUsers className="text-[17px] mt-1 text-green-500" />,
+      heading: "NFC Referrals",
+      value: referralData?.stats?.nfcReferralTotal,
+      subheading: "Click tc view NFC referrals",
+    },
+    {
+      icon: <FiStar className="text-[17px] mt-1 text-yellow-500" />,
+      heading: "QR Code Referrals",
+      value: referralData?.stats?.qrReferralTotal,
+      subheading: "Click to viev QR referrals",
+    },
+    {
+      icon: <FiTarget className="text-[17px] mt-1 text-green-500" />,
+      heading: "Total Value",
+      value: referralData?.stats?.totalValue,
+      subheading: "Click to view value details",
+    },
+  ];
 
   const { data: referrerData, refetch: refetchReferrers } = useFetchReferrers({
     filter: "",
     page: 1,
     limit: 5,
   });
-console.log(referrerData, "referrerDatareferrerData")
+  // console.log(referrerData, "referrerDatareferrerData")
   // const { mutate: createReferral } = useCreateReferral({
   //   onSuccess: () => refetchReferrals(),
   // });
@@ -146,7 +152,7 @@ console.log(referrerData, "referrerDatareferrerData")
     {
       label: "Edit",
       function: (id: string, updatedData: Partial<Referral>) => {
-         alert(`Working on it }`);
+        alert(`Working on it }`);
         // updateReferral({ id, payload: updatedData });
       },
       icon: <FiEdit className="w-4 h-4" />,
@@ -238,8 +244,9 @@ console.log(referrerData, "referrerDatareferrerData")
               <FilterPanel onFilterChange={setFilters} />
               <div className="flex flex-col gap-4 border border-primary/10 rounded-xl p-4 bg-background/90">
                 <div className="font-medium text-sm">Recent Referrals</div>
-                {Array.isArray(referralData) && referralData.length > 0 ? (
-                  referralData.slice(0, 5).map((ref) => {
+                {Array.isArray(referralData?.data) &&
+                referralData?.data?.length > 0 ? (
+                  referralData?.data?.slice(0, 5).map((ref) => {
                     const referral = ref as Referral; // assertion here
                     return (
                       <ReferralCard
