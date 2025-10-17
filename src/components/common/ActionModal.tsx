@@ -64,18 +64,16 @@ const ActionModal: React.FC<ActionModalProps> = ({
         {() => (
           <>
             <ModalHeader
-              className={`flex justify-between items-start px-5 ${
+              className={`flex justify-between items-start px-5 font-normal ${
                 classNames.header || ""
               }`}
             >
               <div className="flex flex-col gap-1.5">
                 {heading && (
-                  <h4 className="text-base font-medium leading-snug">
-                    {heading}
-                  </h4>
+                  <h4 className="text-base font-medium leading-snug">{heading}</h4>
                 )}
                 {description && (
-                  <p className="text-xs text-foreground/70">{description}</p>
+                  <p className="text-xs text-gray-600">{description}</p>
                 )}
               </div>
             </ModalHeader>

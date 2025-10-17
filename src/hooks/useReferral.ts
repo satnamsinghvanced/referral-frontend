@@ -26,19 +26,25 @@ import {
 // 🔹 Referrals
 // ---------------------------
 
-// Fetch list of referrals
-export const useFetchReferrals = ({
-  search = "",
-  page = 1,
-  limit = 10,
-}: {
-  search?: string;
+interface FetchReferralsParams {
   page?: number;
   limit?: number;
-}) =>
+  search?: string;
+  filter?: string; // Added filter parameter
+  source?: string; // Added source parameter
+}
+
+// Fetch list of referrals
+export const useFetchReferrals = ({
+  page = 1,
+  limit = 20, // Increased default limit to match your previous setup
+  search = "",
+  filter = "",
+  source = "",
+}: FetchReferralsParams) =>
   useQuery<Referral[], Error>({
-    queryKey: ["referrals", search, page, limit],
-    queryFn: () => fetchReferrals(search, page, limit),
+    queryKey: ["referrals", search, page, limit, filter, source],
+    queryFn: () => fetchReferrals({ page, limit, search, filter, source }),
   });
 
 // Get referral by ID
@@ -131,8 +137,6 @@ export const useFetchReferrers = ({
     queryKey: ["referrers", filter, page, limit],
     queryFn: () => fetchReferrers(filter, page, limit),
   });
-
-
 
 // Get referrer by ID
 export const useGetReferrerById = (id: string) =>
@@ -260,7 +264,7 @@ export const useUpdateTracking = () =>
   });
 
 // Fetch tracking list
-export const useFetchTrackings = (id:any) =>
+export const useFetchTrackings = (id: any) =>
   useQuery<any[], Error>({
     queryKey: ["tracking", id],
     queryFn: () => fetchTrackings(id),

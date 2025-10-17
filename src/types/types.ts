@@ -1,7 +1,9 @@
 import { ButtonProps } from "@heroui/react";
+import { ReactNode } from "react";
 
 // button types
 export type ButtonSize = "sm" | "md" | "lg";
+
 export type ButtonVariant =
   | "solid"
   | "bordered"
@@ -10,6 +12,7 @@ export type ButtonVariant =
   | "faded"
   | "shadow"
   | "ghost";
+
 export type ButtonColor =
   | "default"
   | "primary"
@@ -17,8 +20,11 @@ export type ButtonColor =
   | "success"
   | "warning"
   | "danger";
+
 export type ButtonRadius = "none" | "sm" | "md" | "lg" | "full";
+
 export type SpinnerPlacement = "start" | "end";
+
 export type ButtonType =
   | "custom"
   | "primary"
@@ -47,8 +53,8 @@ export type ButtonConfig = {
   radius?: ButtonRadius;
 };
 
-
 export type Referrer = {
+  type: string;
   qrCode: any;
   referrals: any;
   practiceName: ReactNode;
@@ -58,5 +64,22 @@ export type Referrer = {
   practice: string;
   referredBy: string;
   totalReferrals: number;
-  referralsThisMonth: number;
-}
+  thisMonthReferralCount: number;
+};
+
+export const REFERRAL_MOCK_FILTER_STATS = {
+  totalReferrals: 0,
+  totalValue: "",
+  activeCount: 0,
+  highPriorityCount: 0,
+};
+
+export const REFERRAL_MOCK_CURRENT_FILTERS = {
+  page: 1,
+  limit: 20,
+  search: "",
+  filter: "",
+  source: "",
+};
+
+export const mockTotalReferrals = 8;

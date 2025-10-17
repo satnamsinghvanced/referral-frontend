@@ -119,7 +119,9 @@ function AppRoutes() {
     { path: "support", element: <Support /> },
     { path: "terms", element: <Terms /> },
     { path: "privacy", element: <PrivacyPolicy /> },
-    { path: "referral", element: <PatientForm /> },
+    { path: "/referral/general/", element: <PatientForm />, children: [
+      { path: ":id", element: <PatientForm /> }
+    ] },
   ];
 
   const renderRoutes = (routes: AppRoute[]): ReactNode =>

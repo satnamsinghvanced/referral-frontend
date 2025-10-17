@@ -172,7 +172,7 @@ const FilterPanel = ({ onFilterChange }: FilterPanelProps) => {
         <Button
           size="sm"
           variant="bordered"
-          className="text-xs ml-auto min-w-[100px]"
+          className="text-xs ml-auto min-w-[100px] border-small"
           onPress={resetFilters}
         >
           <LuFilter />

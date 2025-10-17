@@ -1,352 +1,425 @@
-import { JSX, useEffect, useRef, useState } from "react";
+import { Button, Input } from "@heroui/react";
+import { JSX, useCallback, useEffect, useMemo, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
-import { CiLocationOn } from "react-icons/ci";
-import { FaQrcode } from "react-icons/fa6";
+import { FaQrcode } from "react-icons/fa";
 import { FiEdit, FiEye, FiStar, FiTarget, FiUsers } from "react-icons/fi";
-import { IoCallOutline } from "react-icons/io5";
-import { LuBuilding2 } from "react-icons/lu";
+import { GrLocation } from "react-icons/gr";
+import { LuBuilding2, LuFilter, LuPhone, LuQrCode } from "react-icons/lu";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
 import ComponentContainer from "../../components/common/ComponentContainer";
-import FilterPanel from "../../components/common/FilterPanel";
-import Button from "../../components/ui/Button";
 import {
-  useCreateReferral,
-  useUpdateReferral,
   useFetchReferrals,
   useFetchReferrers,
   useFetchTrackings,
-} from "../../hooks/useReferral"; // make sure these hooks use TanStack properly
-import { ButtonConfig, Referrer } from "../../types/types";
+  useGetReferrerById,
+} from "../../hooks/useReferral";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
+import {
+  REFERRAL_MOCK_CURRENT_FILTERS,
+  REFERRAL_MOCK_FILTER_STATS,
+  Referrer,
+} from "../../types/types";
 import { urgencyLabels } from "../../utils/consts";
-import RefererCard from "./RefererCard";
+import AllReferralsView from "./AllReferralsView";
+import ReferrerCard from "./ReferrerCard";
 import ReferralCard from "./ReferralCard";
 import ReferralManagementActions from "./ReferralManagementActions";
 import RoleToggleTabs from "./RoleToggleTabs";
-import { Link } from "react-router";
+import TrackingPanel from "./TrackingPanel";
+import { useDispatch } from "react-redux";
+import { setTotalReferrals } from "../../store/statsSlice";
 
+// ----------------------
+// Types
+// ----------------------
 interface StatCardData {
   icon: JSX.Element;
   heading: string;
   value: string;
   subheading: string;
-}
-
-interface FilterType {
-  search: string;
-  status: string;
-  urgency: string;
-  location: string;
+  onClick?: any;
 }
 
 type ReferralType = "Referrals" | "Referrers" | "NFC & QR Tracking";
 
-interface Referral {
-  _id: string;
-  name: string;
-  practiceName?: string;
-  practiceAddress?: string;
-  createdAt?: string;
-  urgency?: string;
-  addedVia?: string;
-  age?: number;
-  email?: string;
-  estValue?: number;
-  mobile?: string;
-  priority?: string;
-  referredBy?: {
-    _id: string;
-    name: string;
-    practiceName: string;
-  };
-  referredDate?: string;
-  scheduledDate?: string;
-  status?: string;
-  treatment?: string;
-  id?: any;
-  updatedAt?: string;
-}
-
+// ----------------------
+// Component
+// ----------------------
 const ReferralManagement = () => {
-  const formRef = useRef<any>(null);
+  const { user } = useTypedSelector((state) => state.auth);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedReferralType, setSelectedReferralType] =
     useState<ReferralType>("Referrals");
-
-  const [filters, setFilters] = useState<FilterType>({
-    search: "",
-    status: "",
-    urgency: "",
-    location: "",
-  });
+  const [isFilterViewActive, setIsFilterViewActive] = useState(false);
+  const [currentFilters, setCurrentFilters] = useState(
+    REFERRAL_MOCK_CURRENT_FILTERS
+  );
+  const [overviewSearchKeyword, setOverviewSearchKeyword] = useState("");
+  const [referrerEditId, setReferrerEditId] = useState("");
 
   // ----------------------
-  // TanStack Queries & Mutations
+  // Queries
   // ----------------------
-  const { data: referralData, refetch: refetchReferrals } = useFetchReferrals({
-    search: filters.search,
-    page: 1,
-    limit: 5,
-  });
+  const { data: referralData, refetch: referralRefetch } =
+    useFetchReferrals(currentFilters);
 
-
-  // const { data: trackingData, refetch: refetchTrackingData } =
-  //   useFetchTrackings();
-
-  // console.log("trackingData", trackingData);
-  // console.log(referralData, "referrer card data");
-  const STAT_CARD_DATA: StatCardData[] = [
-    {
-      icon: <LuBuilding2 className="text-[17px] mt-1 text-sky-500" />,
-      heading: "Total Referrals",
-      value: referralData?.stats?.totalReferrals,
-      subheading: "Click to view all referrals",
-    },
-    {
-      icon: <FiUsers className="text-[17px] mt-1 text-green-500" />,
-      heading: "NFC Referrals",
-      value: referralData?.stats?.nfcReferralTotal,
-      subheading: "Click tc view NFC referrals",
-    },
-    {
-      icon: <FiStar className="text-[17px] mt-1 text-yellow-500" />,
-      heading: "QR Code Referrals",
-      value: referralData?.stats?.qrReferralTotal,
-      subheading: "Click to viev QR referrals",
-    },
-    {
-      icon: <FiTarget className="text-[17px] mt-1 text-green-500" />,
-      heading: "Total Value",
-      value: referralData?.stats?.totalValue,
-      subheading: "Click to view value details",
-    },
-  ];
-
-  const { data: referrerData, refetch: refetchReferrers } = useFetchReferrers({
+  const { data: referrerData } = useFetchReferrers({
     filter: "",
     page: 1,
     limit: 5,
   });
-  // console.log(referrerData, "referrerDatareferrerData")
-  // const { mutate: createReferral } = useCreateReferral({
-  //   onSuccess: () => refetchReferrals(),
-  // });
 
-  // const { mutate: updateReferral } = useUpdateReferral({
-  //   onSuccess: () => refetchReferrals(),
-  // });
+  const { data: singleReferrerData, refetch } =
+    useGetReferrerById(referrerEditId);
+
+  console.log(singleReferrerData);
+
+  useEffect(() => {
+    if (referrerEditId) {
+      refetch();
+    }
+  }, [referrerEditId]);
+
+  const { data: trackings } = useFetchTrackings(user?.userId);
+
+  const dispatch = useDispatch();
+
+  useEffect(() => {
+    dispatch(setTotalReferrals(referralData?.total));
+  }, [referralData]);
+
+  useEffect(() => {
+    referralRefetch();
+  }, [currentFilters, referralRefetch]);
+
+  const handleClearFilters = () => {
+    setCurrentFilters(REFERRAL_MOCK_CURRENT_FILTERS);
+  };
+
+  const handleBackToOverview = () => {
+    setIsFilterViewActive(false);
+    handleClearFilters();
+  };
+
+  const handleViewAllAndFilter = () => {
+    setIsFilterViewActive(true);
+  };
+
+  // ----------------------
+  // Derived Data
+  // ----------------------
+  const STAT_CARD_DATA = useMemo<StatCardData[]>(
+    () => [
+      {
+        icon: <LuBuilding2 className="text-[17px] mt-1 text-sky-500" />,
+        heading: "Total Referrals",
+        value: referralData?.stats?.totalReferrals,
+        subheading: "Click to view all referrals",
+        onClick: handleViewAllAndFilter,
+      },
+      {
+        icon: <FiUsers className="text-[17px] mt-1 text-green-500" />,
+        heading: "NFC Referrals",
+        value: referralData?.stats?.nfcReferralTotal,
+        subheading: "Click to view NFC referrals",
+        onClick: () => {
+          setCurrentFilters((prev) => ({
+            ...prev,
+            source: "NFC",
+          }));
+          handleViewAllAndFilter();
+        },
+      },
+      {
+        icon: <FiStar className="text-[17px] mt-1 text-yellow-500" />,
+        heading: "QR Code Referrals",
+        value: referralData?.stats?.qrReferralTotal,
+        subheading: "Click to view QR referrals",
+        onClick: () => {
+          setCurrentFilters((prev) => ({
+            ...prev,
+            source: "QR",
+          }));
+          handleViewAllAndFilter();
+        },
+      },
+      {
+        icon: <FiTarget className="text-[17px] mt-1 text-green-500" />,
+        heading: "Total Value",
+        value: referralData?.stats?.totalValue,
+        subheading: "Click to view value details",
+        onClick: handleViewAllAndFilter,
+      },
+    ],
+    [referralData]
+  );
+
+  const headingData = useMemo(
+    () => ({
+      heading: "Referral Management",
+      subHeading:
+        "Track doctor and patient referrals for your orthodontic practice",
+      buttons: [
+        {
+          label: "Generate QR Code",
+          onClick: () => setSelectedReferralType("NFC & QR Tracking"),
+          icon: <LuQrCode fontSize={15} />,
+          variant: "bordered",
+          color: "default",
+          className: "border-small",
+        },
+        {
+          label: "Add Referrer",
+          onClick: () => {
+            setIsModalOpen(true);
+            setReferrerEditId("");
+          },
+          icon: <AiOutlinePlus fontSize={15} />,
+          variant: "solid",
+          color: "primary",
+        },
+      ],
+    }),
+    []
+  );
 
   // ----------------------
   // Handlers
   // ----------------------
-  const handleReferralTypeChange = (key: string) => {
+  const handleReferralTypeChange = (key: string) =>
     setSelectedReferralType(key as ReferralType);
-  };
 
-  const handleOpenModal = () => setIsModalOpen(true);
-  const handleCloseModal = () => setIsModalOpen(false);
+  const openSharingModal = useCallback(async (title: string, url: string) => {
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, url });
+      } catch (error) {
+        console.error("Error sharing content:", error);
+      }
+    } else {
+      console.log("Web Share API not supported.");
+    }
+  }, []);
 
-  const handleExportQR = () => alert("Generate QR Code");
-
-  // Referral Actions integrated with mutations
-  const referralActions = [
-    {
-      label: "Edit",
-      function: (id: string, updatedData: Partial<Referral>) => {
-        alert(`Working on it }`);
-        // updateReferral({ id, payload: updatedData });
-      },
-      icon: <FiEdit className="w-4 h-4" />,
-    },
-    {
-      label: "Call",
-      function: (phone: string) => {
-        alert(`Calling referral at ${phone}`);
-        // You can replace alert with actual call logic if needed
-      },
-      icon: <IoCallOutline className="w-4 h-4" />,
-    },
-    {
-      label: "View",
-      function: (id: string) => {
-        alert(`Viewing referral ${id}`);
-        // You can replace alert with modal opening or navigation
-      },
-      icon: <FiEye className="w-4 h-4" />,
-    },
-  ];
-
-  const refererButtonList = [
-    {
-      label: "QR Code",
-      onClick: (id: string) => alert(`QR clicked for id: ${id}`),
-      icon: <FaQrcode />,
-      variant: "bordered",
-      color: "default",
-      className: "border-small",
-    },
-    {
-      label: "Location",
-      onClick: (id: string) => alert(`Location clicked for id: ${id}`),
-      icon: <CiLocationOn className="font-bold" />,
-      variant: "bordered",
-      color: "default",
-      className: "border-small",
-    },
-  ];
-
-  const headingData: {
-    heading: string;
-    subHeading: string;
-    buttons: ButtonConfig[];
-  } = {
-    heading: "Referral Management",
-    subHeading:
-      "Track doctor and patient referrals for your orthodontic practice",
-    buttons: [
+  const refererButtonList = useCallback(
+    (referrer: Referrer) => [
       {
-        label: "Generate QR Code",
-        onClick: handleExportQR,
-        icon: <FaQrcode />,
+        label: "QR Code",
+        icon: <LuQrCode />,
         variant: "bordered",
         color: "default",
         className: "border-small",
+        link: referrer?.qrCode,
+        linkInNewTab: true,
       },
       {
-        label: "Add Referrer",
-        onClick: handleOpenModal,
-        icon: <AiOutlinePlus fontSize={15} />,
-        variant: "solid",
-        color: "primary",
-        className: "",
+        label: "Visit",
+        icon: <GrLocation className="font-bold" />,
+        variant: "bordered",
+        color: "default",
+        className: "border-small",
+        linkInNewTab: true,
       },
     ],
+    []
+  );
+
+  const handleFilterChange = (key: string, value: string) => {
+    // Inside handleFilterChange:
+    const apiValue = value.toLowerCase().includes("all") ? "" : value;
+
+    setCurrentFilters((prev) => ({
+      ...prev,
+      [key]: apiValue,
+      page: 1, // Reset page
+    }));
   };
+
+  const handleEditReferral = (id: string) => {
+    console.log(`Editing referral: ${id}`);
+    // setReferrerEditId(id);
+  };
+
+  const handleExport = () => alert("Exporting data...");
+
+  const handleOverviewSearchChange = (value: string) => {
+    // Only updates the input value, not the main API query for the overview
+    setOverviewSearchKeyword(value);
+  };
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      // if (!isFilterViewActive) {
+      setCurrentFilters((prev) => ({
+        ...prev,
+        search: overviewSearchKeyword,
+        page: 1,
+      }));
+      // }
+    }, 500);
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [overviewSearchKeyword, isFilterViewActive]);
+
+  // ----------------------
+  // Subcomponents
+  // ----------------------
+  const NoData = ({ text = "No data to display" }: { text?: string }) => (
+    <p className="bg-background text-sm text-center text-foreground/50">
+      {text}
+    </p>
+  );
+
+  console.log(referralData, "REFERRALS");
 
   // ----------------------
   // Render
   // ----------------------
   return (
-    <>
-      <ComponentContainer headingData={headingData}>
-        <div className="flex flex-col gap-5">
-          <RoleToggleTabs
-            selected={selectedReferralType}
-            onSelectionChange={handleReferralTypeChange}
-          />
+    <ComponentContainer headingData={headingData}>
+      <div className="flex flex-col gap-5">
+        <RoleToggleTabs
+          selected={selectedReferralType}
+          onSelectionChange={handleReferralTypeChange}
+        />
 
-          {selectedReferralType === "Referrals" && (
-            <>
-              <div className="grid grid-cols md:grid-cols-3 xl:grid-cols-4 gap-4">
-                {STAT_CARD_DATA.map((data, index) => (
-                  <MiniStatsCard key={index} cardData={data} />
-                ))}
-              </div>
-              <FilterPanel onFilterChange={setFilters} />
-              <div className="flex flex-col gap-4 border border-primary/10 rounded-xl p-4 bg-background/90">
-                <div className="font-medium text-sm">Recent Referrals</div>
-                {Array.isArray(referralData?.data) &&
-                referralData?.data?.length > 0 ? (
-                  referralData?.data?.slice(0, 5).map((ref) => {
-                    const referral = ref as Referral; // assertion here
-                    return (
-                      <ReferralCard
-                        key={referral._id}
-                        referral={referral}
-                        urgencyLabels={urgencyLabels}
-                        actions={referralActions}
-                      />
-                    );
-                  })
-                ) : (
-                  <p className="bg-background text-sm text-center text-foreground/50">
-                    No data to display
-                  </p>
-                )}
-              </div>
-            </>
-          )}
-
-          {selectedReferralType === "Referrers" && (
-            <div className="flex flex-col gap-4 border border-primary/10 rounded-xl p-4 bg-background/70 w-full">
-              <div className="font-medium text-sm mb-3">
-                Referrer Management
-              </div>
-              {referrerData && referrerData.length > 0 ? (
-                referrerData.map((referrer: any) => (
-                  <RefererCard
-                    key={referrer._id || referrer.id}
-                    referrer={referrer}
-                    buttons={refererButtonList}
-                  />
-                ))
-              ) : (
-                <p className="bg-background text-sm text-center text-foreground/50">
-                  No data to display
-                </p>
-              )}
-            </div>
-          )}
-
-          {selectedReferralType === "NFC & QR Tracking" && (
-            <div className="w-full min-h-80 h-full flex gap-2">
-              <div className="border w-full border-primary/20 p-4 rounded-xl bg-background flex flex-col justify-between">
-                <div>
-                  <h6 className="text-sm flex items-center gap-2">
-                    <FaQrcode className="text-primary" /> QR & NFC Code
-                    Generator
-                  </h6>
-                  <p className="text-xs mt-1 font-light">
-                    Generate personalized QR codes and NFC tags for General
-                    Practice
-                  </p>
-                </div>
-                <div className="flex flex-col gap-3 items-center justify-center text-sm">
-                  <p>Generate a personalized QR code for this referrer</p>
-                  <Button className="w-1/2">Generate QR Code</Button>
-                </div>
-              </div>
-              <div className="border w-full border-primary/20 p-4 rounded-xl bg-background">
-                <h6 className="text-sm">Tracking Analytics</h6>
-                <div className="flex flex-col gap-3 mt-4 rounded-md">
-                  {[
-                    {
-                      label: "Total Scans Today",
-                      value: 23,
-                      bg: "bg-green-200",
-                    },
-                    { label: "Active QR Codes", value: 67, bg: "bg-pink-200" },
-                    { label: "NFC Taps", value: 18, bg: "bg-blue-200" },
-                    {
-                      label: "Conversion Rate",
-                      value: "78%",
-                      bg: "bg-indigo-200",
-                    },
-                  ].map((item, index) => (
-                    <div
-                      key={index}
-                      className="flex justify-between text-xs p-4 rounded-lg bg-blue-50"
-                    >
-                      <div>{item.label}</div>
-                      <div>
-                        <span className={`px-1.5 py-0.5 rounded-sm ${item.bg}`}>
-                          {item.value}
-                        </span>
-                      </div>
-                    </div>
+        {/* --- REFERRALS TAB --- */}
+        {selectedReferralType === "Referrals" && (
+          <>
+            {isFilterViewActive ? (
+              // RENDER THE NEW FILTERED VIEW
+              <AllReferralsView
+                onBackToOverview={handleBackToOverview}
+                onExport={handleExport}
+                onSearchChange={handleOverviewSearchChange}
+                onFilterChange={handleFilterChange}
+                onClearFilters={handleClearFilters}
+                onViewReferral={(id: any) => console.log("View:", id)}
+                onEditReferral={handleEditReferral}
+                onViewReferralPage={(id: any) =>
+                  console.log("External Link:", id)
+                }
+                onCall={(phone: any) => alert(`Calling ${phone}`)}
+                onEmail={(email: any) => alert(`Emailing ${email}`)}
+                referrals={referralData?.data}
+                totalReferrals={referralData?.total}
+                currentFilters={currentFilters}
+                setCurrentFilters={setCurrentFilters}
+                filterStats={referralData?.filterStats}
+              />
+            ) : (
+              // RENDER THE ORIGINAL OVERVIEW DASHBOARD
+              <div className="space-y-5">
+                <div className="grid md:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {STAT_CARD_DATA.map((data, i) => (
+                    <MiniStatsCard key={i} cardData={data} />
                   ))}
                 </div>
+
+                <div className=" px-4 border-primary/10  border rounded-lg bg-background ">
+                  {/* <h5>Filters</h5> */}
+                  <div className="flex flex-wrap items-center gap-2 w-full rounded-md py-4">
+                    <Input
+                      size="sm"
+                      variant="flat"
+                      placeholder="Search..."
+                      value={overviewSearchKeyword} // Controlled by the overview-specific state
+                      onValueChange={handleOverviewSearchChange}
+                      className="text-xs flex-1 min-w-fit"
+                    />
+
+                    <Button
+                      size="sm"
+                      variant="bordered"
+                      className="text-xs ml-auto min-w-[100px] border-small"
+                      onPress={handleViewAllAndFilter}
+                    >
+                      <LuFilter />
+                      View All & Filter
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="flex flex-col gap-4 border border-primary/10 rounded-xl p-4 bg-background/90">
+                  <p className="font-medium text-sm">Recent Referrals</p>
+                  {referralData?.data?.length ? (
+                    referralData.data.slice(0, 5).map((ref: any) => (
+                      <ReferralCard
+                        key={ref._id}
+                        referral={ref}
+                        urgencyLabels={urgencyLabels}
+                        actions={(referral: any) => [
+                          {
+                            label: "",
+                            icon: <FiEdit className="w-4 h-4" />,
+                            // FIX: Added required onClick function
+                            onClick: (id) =>
+                              console.log(`Editing referral ID: ${id}`),
+                          },
+                          {
+                            label: "",
+                            // FIX: Renamed 'function' to 'onClick' to match the ReferralButton interface
+                            onClick: (id) =>
+                              alert(`Calling mobile for referral ID: ${id}`),
+                            icon: <LuPhone className="w-4 h-4" />,
+                            link: `tel:${referral.mobile}`,
+                          },
+                          {
+                            label: "",
+                            // FIX: Renamed 'function' to 'onClick' to match the ReferralButton interface
+                            onClick: (id) =>
+                              alert(`Viewing referral ID: ${id}`),
+                            icon: <FiEye className="w-4 h-4" />,
+                          },
+                        ]}
+                      />
+                    ))
+                  ) : (
+                    <NoData />
+                  )}
+                </div>
               </div>
-            </div>
-          )}
-        </div>
-      </ComponentContainer>
+            )}
+          </>
+        )}
+
+        {/* --- REFERRERS TAB --- */}
+        {selectedReferralType === "Referrers" && (
+          <div className="flex flex-col gap-4 border border-primary/10 rounded-xl p-4 bg-background/70 w-full">
+            <p className="font-medium text-sm">Referrer Management</p>
+            {referrerData?.length ? (
+              referrerData.map((referrer) => (
+                <ReferrerCard
+                  key={referrer._id}
+                  referrer={referrer}
+                  buttons={refererButtonList}
+                  onView={(id) => {
+                    setReferrerEditId(id);
+                    setIsModalOpen(true);
+                  }}
+                />
+              ))
+            ) : (
+              <NoData />
+            )}
+          </div>
+        )}
+
+        {/* --- NFC & QR TRACKING TAB --- */}
+        {selectedReferralType === "NFC & QR Tracking" && (
+          <TrackingPanel trackings={trackings} onShare={openSharingModal} />
+        )}
+      </div>
 
       <ReferralManagementActions
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
-        editedData={null}
+        editedData={singleReferrerData || null}
+        setReferrerEditId={setReferrerEditId}
       />
-    </>
+    </ComponentContainer>
   );
 };
 

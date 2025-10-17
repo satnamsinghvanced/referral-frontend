@@ -19,7 +19,7 @@ interface InputProps {
   touched?: boolean;
   startContent?: ReactNode;
   endContent?: ReactNode;
-  isRequired?: boolean;
+  isRequired?: boolean | undefined;
   [key: string]: any;
 }
 

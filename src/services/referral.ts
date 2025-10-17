@@ -28,7 +28,7 @@ export interface Referral {
 export interface Referrer {
   _id: string;
   name: string;
-  number: string;
+  phone: string;
   email: string;
   practiceName: string;
   practiceAddress: string;
@@ -63,8 +63,11 @@ export const getReferralById = async (id: string) => {
 };
 
 // Get list of referrals with pagination
-export const fetchReferrals = async (search: any, page = 1, limit = 10) => {
-  const { data } = await axios.get("/referral", { params: { search, page, limit } });
+export const fetchReferrals = async (params: any) => {
+  console.log(params, "HEHEHEHEHHH");
+  const { data } = await axios.get("/referral", {
+    params: params,
+  });
   return data;
 };
 
@@ -166,9 +169,7 @@ export const updateTracking = async (
 
 // 3. Fetch tracking entries with pagination
 export const fetchTrackings = async (id: any) => {
-  const { data } = await axios.get("/tracking", {
-    params: {id},
-  }); 
+  const { data } = await axios.get(`/tracking/${id}`);
   return data;
 };
 

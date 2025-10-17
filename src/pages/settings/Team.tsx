@@ -29,12 +29,14 @@ import { usePermissions, useRoles } from "../../hooks/useCommon";
 import { RiDeleteBinLine } from "react-icons/ri";
 import EmptyState from "../../components/common/EmptyState";
 import TeamSkeleton from "../../components/skeletons/TeamSkeleton";
+import { useFetchLocations } from "../../hooks/settings/useLocation";
 
 interface TeamMember {
   _id: string;
   firstName: string;
   lastName: string;
   email: string;
+  locations: string[];
   role: { role: string; _id: string };
   invitationStatus: string;
   avatar?: string;
@@ -46,6 +48,7 @@ interface TeamFormValues {
   firstName: string;
   lastName: string;
   email: string;
+  locations: string[];
   role: string;
   permissions: string[];
 }
@@ -53,6 +56,7 @@ interface TeamFormValues {
 type UpdatePayload = {
   firstName: string;
   lastName: string;
+  locations: string[];
   role: string;
   permissions: string[];
 };
@@ -76,6 +80,7 @@ const invitationStatusColors: Record<string, string> = {
 const Team: React.FC = () => {
   const { data: roles } = useRoles();
   const { data: permissions } = usePermissions();
+  const { data: locations } = useFetchLocations();
   const { data: members, isLoading: membersIsLoading } = useFetchTeamMembers();
   const { mutate: inviteMember, isPending: addIsPending } =
     useInviteTeamMember();
@@ -84,6 +89,8 @@ const Team: React.FC = () => {
   const { mutate: deleteMember, isPending: deleteIsPending } =
     useDeleteTeamMember();
   const { mutate: resendInvite } = useResendInvite();
+
+  console.log(locations, "PCLAJ");
 
   const [resendingId, setResendingId] = useState<string | null>(null);
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
@@ -112,6 +119,7 @@ const Team: React.FC = () => {
       firstName: "",
       lastName: "",
       email: "",
+      locations: [],
       role: "",
       permissions: [],
     },
@@ -120,6 +128,7 @@ const Team: React.FC = () => {
       let payload: UpdatePayload | AddPayload = {
         firstName: values.firstName,
         lastName: values.lastName,
+        locations: values.locations,
         role: values.role,
         permissions: values.permissions,
       };
@@ -154,6 +163,7 @@ const Team: React.FC = () => {
       lastName: member.lastName,
       email: member.email,
       role: member.role._id,
+      locations: member.locations,
       permissions: member.permissions || [],
     });
     setInviteModalOpen(true);
@@ -420,6 +430,21 @@ const Team: React.FC = () => {
             onChange={(val) => formik.setFieldValue("email", val)}
             formik={formik}
           />
+
+          <Select
+            label="Practice Location"
+            labelPlacement="outside"
+            placeholder="Select a practice location"
+            selectedKeys={new Set(formik.values.locations)}
+            onSelectionChange={(keys) => {
+              formik.setFieldValue("locations", Array.from(keys));
+            }}
+            selectionMode="multiple"
+          >
+            {(locations || []).map((location: any) => (
+              <SelectItem key={location._id}>{location.name}</SelectItem>
+            ))}
+          </Select>
 
           <Select
             label="Role"

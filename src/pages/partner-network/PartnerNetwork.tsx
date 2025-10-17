@@ -181,7 +181,7 @@ const PartnerNetwork = () => {
 
           {/* Referral List */}
           <div className="flex flex-col gap-4 border border-primary/10 rounded-xl p-4 bg-background/80">
-            <div className="font-medium text-sm mb-2">Partner Practices</div>
+            <div className="font-medium text-sm">Partner Practices</div>
             {dummyReferralData.map((referral: any) => (
               <PartnerNetworkCard
                 key={referral.id}

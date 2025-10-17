@@ -2,15 +2,13 @@ import {
   HiOutlineCalendar,
   HiOutlineChartBar,
   HiOutlineChevronLeft,
-  HiOutlineClipboardList,
   HiOutlineCog,
   HiOutlineDocument,
   HiOutlineLightningBolt,
-  HiOutlineLockClosed,
   HiOutlineMail,
   HiOutlinePhone,
   HiOutlineQuestionMarkCircle,
-  HiOutlineStar,
+  HiOutlineStar
 } from "react-icons/hi";
 import { useSelector } from "react-redux";
 import { Link, NavLink, useLocation, useNavigate } from "react-router";
@@ -23,8 +21,8 @@ import { IoIosArrowRoundForward } from "react-icons/io";
 import logo from "../../assets/logos/logo.png";
 // import logoWhite from "../../assets/logo-white.svg";
 import clsx from "clsx";
-import Profile from "../common/Profile";
 import { TbCheckbox } from "react-icons/tb";
+import { useDashboardStats } from "../../hooks/useDashboard";
 
 interface SidebarProps {
   isMiniSidebarOpen: boolean;
@@ -42,6 +40,7 @@ const Sidebar = ({
   const { auth_user } = useSelector(
     (state: { auth: any }) => state?.auth || {}
   );
+  const { data: dashboardStats } = useDashboardStats();
 
   // local state for submenu open states (keyed by index)
   // const [openMenus, setOpenMenus] = useState({});
@@ -61,19 +60,14 @@ const Sidebar = ({
       name: "Referrals",
       icon: FiUsers,
       href: "/referrals",
-      stats: 247,
-      color: (stats: number) =>
-        stats > 200
-          ? "bg-sky-100"
-          : stats > 50
-          ? "bg-orange-100"
-          : "bg-green-400",
+      stats: dashboardStats?.referrals,
+      color: (stats: number) => "bg-sky-100",
     },
     {
       name: "Partner Network",
       icon: LuBuilding2,
       href: "/partner-network",
-      stats: 12,
+      stats: dashboardStats?.partners,
       color: "bg-sky-200",
     },
     {
