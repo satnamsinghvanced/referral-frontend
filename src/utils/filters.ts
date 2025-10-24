@@ -21,16 +21,17 @@ export const locationOptions = [
 
 export const categoryOptions: { _id: string; title: string }[] = [
   {
-    _id: "A-Level (High Value Partner)",
+    _id: "A-Level",
     title: "A-Level (High Value Partner)",
   },
-  { _id: "B-Level (Regular Partner)", title: "B-Level (Regular Partner)" },
+  { _id: "B-Level", title: "B-Level (Regular Partner)" },
   {
-    _id: "C-Level (Occasional Partner)",
+    _id: "C-Level",
     title: "C-Level (Occasional Partner)",
   },
   { _id: "Other/Prospect", title: "Other/Prospect" },
 ];
+
 export const practiceOptions = [
   { key: "all", label: "Practice Name" },
   { key: "category", label: "Category" },
@@ -57,4 +58,23 @@ export const specialtyOptions = [
   "General Dentistry",
   "Periodontics",
   "Dental Implants",
+];
+
+export const PARTNER_FILTERS = [
+  { label: "All Practices", value: "allPractices" },
+  { label: "A-Level Partners", value: "A-Level" },
+  { label: "B-Level Partners", value: "B-Level" },
+  { label: "C-Level Partners", value: "C-Level" },
+  { label: "Has Notes", value: "hasNotes" },
+  { label: "Has Pending Tasks", value: "hasPendingTasks" },
+  { label: "Overdue Tasks", value: "overdueTasks" },
+  { label: "No Activity", value: "noActivity" },
+];
+
+export const PARTNER_SORT_OPTIONS = [
+  { label: "Name", value: "name" },
+  { label: "Notes Count", value: "notesCount" },
+  { label: "Tasks Count", value: "tasksCount" },
+  { label: "Referrals", value: "totalReferrals" },
+  { label: "Last Contact", value: "lastContact" },
 ];

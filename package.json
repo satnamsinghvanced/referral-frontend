@@ -14,7 +14,7 @@
     "@fontsource/inter": "^5.2.6",
     "@fontsource/merriweather-sans": "^5.2.6",
     "@heroui/react": "^2.8.2",
-    "@internationalized/date": "^3.9.0",
+    "@internationalized/date": "^3.10.0",
     "@react-aria/i18n": "^3.12.12",
     "@reduxjs/toolkit": "^2.8.2",
     "@tailwindcss/vite": "^4.1.11",

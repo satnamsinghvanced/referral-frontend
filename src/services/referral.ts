@@ -107,7 +107,7 @@ export const fetchReferrers = async (filter: string, page = 1, limit = 10) => {
   const { data } = await axios.get("/referrers/", {
     params: { filter, page, limit },
   });
-  return data.data;
+  return data;
 };
 
 // Get referrer by ID

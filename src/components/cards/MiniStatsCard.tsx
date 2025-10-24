@@ -1,19 +1,22 @@
 import { Card, CardBody } from "@heroui/react";
 import { JSX } from "react";
 
-interface MiniStatsCardProps {
-  cardData: {
-    heading: string;
-    icon: JSX.Element;
-    value: string | number;
-    subheading: string;
-    onClick?: any;
-  };
+export interface StatCard {
+  heading: string;
+  icon: JSX.Element;
+  value: string | number;
+  subheading: string;
+  onClick?: () => void;
 }
+
+interface MiniStatsCardProps {
+  cardData: StatCard;
+}
+
 const MiniStatsCard = ({ cardData }: MiniStatsCardProps) => {
   return (
     <Card
-      className="w-full p-0 text-xs font-extralight text-foreground/80 border border-primary/15 "
+      className="w-full p-0 text-xs font-extralight text-foreground/80 border border-primary/15"
       shadow="none"
     >
       <CardBody
@@ -24,8 +27,10 @@ const MiniStatsCard = ({ cardData }: MiniStatsCardProps) => {
           <div className="font-semibold">{cardData.heading}</div>
           <div>{cardData.icon}</div>
         </div>
-        <div className="text-lg mt-4 mb-1.5 font-bold">
-          {cardData.value || cardData.value === 0 ? cardData.value : "N/A"}
+        <div className="text-lg mt-4 mb-0.5 font-bold">
+          {cardData.value !== undefined && cardData.value !== null
+            ? cardData.value
+            : "N/A"}
         </div>
         <div>{cardData.subheading}</div>
       </CardBody>

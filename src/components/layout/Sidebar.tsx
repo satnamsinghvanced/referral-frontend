@@ -177,7 +177,7 @@ const Sidebar = ({
     <>
       {/* Mobile overlay when sidebar open in mobile/mini mode */}
       <div
-        className={` z-50  ${
+        className={` z-30  ${
           isMiniSidebarOpen ? "bg-foreground/30 fixed inset-0 z-30" : "hidden"
         } lg:hidden`}
         onClick={onCloseSidebar}
@@ -185,7 +185,7 @@ const Sidebar = ({
       />
 
       <aside
-        className={`no-print fixed top-0 left-0 z-30 h-screen border-r border-foreground/10  bg-background   transition-all duration-300
+        className={`no-print fixed top-0 left-0 z-50 h-screen border-r border-foreground/10  bg-background   transition-all duration-300
           ${isMiniSidebarOpen ? "md:w-[250px] w-[300px]" : "w-18"}
         `}
         aria-label="Primary sidebar"

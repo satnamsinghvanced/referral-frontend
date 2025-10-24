@@ -155,6 +155,7 @@ export const useCreateReferrer = () =>
     mutationFn: ({ id, type, payload }) => createReferrer(id, type, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["referrers"] });
+      queryClient.invalidateQueries({ queryKey: ["partnerStats"] });
       addToast({
         title: "Success",
         description: "Referrer created",
@@ -180,6 +181,7 @@ export const useUpdateReferrer = () =>
     mutationFn: ({ id, type, payload }) => updateReferrer(id, type, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["referrers"] });
+      queryClient.invalidateQueries({ queryKey: ["partnerStats"] });
       addToast({
         title: "Success",
         description: "Referrer updated",

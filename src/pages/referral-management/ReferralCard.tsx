@@ -49,8 +49,12 @@ const ReferralCard = ({
           <p className="flex gap-1 items-center">
             {referral?.referredBy?.name}
           </p>
-          <p className="p-0.5 bg-foreground/50 rounded-full aspect-square h-fit w-fit"></p>
-          <p>{referral?.referredBy?.practiceName}</p>
+          {referral?.referredBy?.practiceName && (
+            <>
+              <p className="p-0.5 bg-foreground/50 rounded-full aspect-square h-fit w-fit"></p>
+              <p>{referral?.referredBy?.practiceName}</p>
+            </>
+          )}
         </div>
         <div className="flex gap-2 items-center text-xs font-light">
           <p className="flex gap-1 items-center">{referral.treatment}</p>

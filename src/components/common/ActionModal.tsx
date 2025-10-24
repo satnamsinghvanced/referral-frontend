@@ -80,7 +80,7 @@ const ActionModal: React.FC<ActionModalProps> = ({
 
             {children && (
               <ModalBody
-                className={`w-full px-5 ${
+                className={`w-full px-5 py-0 ${
                   scrollable ? "max-h-[70vh] overflow-y-auto" : ""
                 } ${classNames.body || ""}`}
               >

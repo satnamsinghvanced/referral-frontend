@@ -10,11 +10,11 @@ interface ComponentContainerProps {
     filters?: {
       label: string;
       options: { label: string; value: string }[];
-      selectedValue?: string;
+      selectedValue?: string | undefined;
       onChange?: (value: string) => void;
     }[];
     sortOptions?: { label: string; value: string }[];
-    selectedSortOption?: string;
+    selectedSortOption?: string | undefined;
     onSortChange?: (value: string) => void;
     sortOrder?: "asc" | "desc";
     onSortOrderChange?: (order: "asc" | "desc") => void;
@@ -29,7 +29,7 @@ const ComponentContainer: React.FC<ComponentContainerProps> = ({
   return (
     <div className="flex flex-col h-full">
       {/* Sticky Header */}
-      <div className="sticky top-0 z-40 bg-background text-foreground">
+      <div className="sticky top-0 bg-background text-foreground">
         <ComponentHeader
           heading={headingData.heading}
           subHeading={headingData.subHeading}
@@ -42,7 +42,7 @@ const ComponentContainer: React.FC<ComponentContainerProps> = ({
           onSortOrderChange={headingData.onSortOrderChange}
         />
       </div>
-      <div className="flex flex-col gap-2 md:px-7 px-4 py-4 md:py-8 overflow-auto">
+      <div className="flex flex-col gap-2 md:px-7 px-4 py-4 md:py-[31px] overflow-auto">
         {children}
       </div>
     </div>

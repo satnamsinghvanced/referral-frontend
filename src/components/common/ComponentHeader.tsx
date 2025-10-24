@@ -13,7 +13,7 @@ interface ComponentHeaderProps {
     | {
         label: string;
         options: { label: string; value: string }[];
-        selectedValue?: string;
+        selectedValue?: string | undefined;
         onChange?: (value: string) => void;
       }[]
     | undefined;
@@ -72,8 +72,9 @@ const ComponentHeader: React.FC<ComponentHeaderProps> = ({
                   size="sm"
                   radius="sm"
                   aria-label={filter.label}
-                  selectedKeys={[filter.selectedValue ?? ""]}
-                  className="min-w-[140px]"
+                  selectedKeys={[filter.selectedValue as string]}
+                  disabledKeys={[filter.selectedValue as string]}
+                  className="min-w-[160px]"
                   classNames={{ value: "text-xs" }}
                   onChange={(e) => filter.onChange?.(e.target.value)}
                 >
@@ -99,7 +100,8 @@ const ComponentHeader: React.FC<ComponentHeaderProps> = ({
                 size="sm"
                 radius="sm"
                 aria-label="Sort"
-                selectedKeys={[selectedSortOption ?? ""]}
+                selectedKeys={[selectedSortOption as string]}
+                disabledKeys={[selectedSortOption as string]}
                 className="min-w-[130px]"
                 classNames={{ value: "text-xs" }}
                 onChange={(e) => onSortChange?.(e.target.value)}

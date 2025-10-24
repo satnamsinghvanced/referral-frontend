@@ -512,7 +512,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
               {referrals?.map(renderReferralCard)}
             </div>
           ) : (
-            <p className="bg-background text-sm text-center text-foreground/50">
+            <p className="bg-background text-xs text-center text-gray-600">
               No data to display
             </p>
           )}

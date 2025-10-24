@@ -61,7 +61,7 @@ export type Referrer = {
   name: ReactNode;
   _id: string;
   fullName: string;
-  practice: string;
+  practice: { name: string };
   referredBy: string;
   totalReferrals: number;
   thisMonthReferralCount: number;

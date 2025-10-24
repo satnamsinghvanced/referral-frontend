@@ -1,11 +1,11 @@
-import { Button, Input } from "@heroui/react";
-import { JSX, useCallback, useEffect, useMemo, useState } from "react";
+import { Button, Input, Pagination } from "@heroui/react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
-import { FaQrcode } from "react-icons/fa";
 import { FiEdit, FiEye, FiStar, FiTarget, FiUsers } from "react-icons/fi";
 import { GrLocation } from "react-icons/gr";
 import { LuBuilding2, LuFilter, LuPhone, LuQrCode } from "react-icons/lu";
-import MiniStatsCard from "../../components/cards/MiniStatsCard";
+import { useDispatch } from "react-redux";
+import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import {
   useFetchReferrals,
@@ -14,31 +14,15 @@ import {
   useGetReferrerById,
 } from "../../hooks/useReferral";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
-import {
-  REFERRAL_MOCK_CURRENT_FILTERS,
-  REFERRAL_MOCK_FILTER_STATS,
-  Referrer,
-} from "../../types/types";
+import { setTotalReferrals } from "../../store/statsSlice";
+import { REFERRAL_MOCK_CURRENT_FILTERS, Referrer } from "../../types/types";
 import { urgencyLabels } from "../../utils/consts";
 import AllReferralsView from "./AllReferralsView";
-import ReferrerCard from "./ReferrerCard";
 import ReferralCard from "./ReferralCard";
 import ReferralManagementActions from "./ReferralManagementActions";
+import ReferrerCard from "./ReferrerCard";
 import RoleToggleTabs from "./RoleToggleTabs";
 import TrackingPanel from "./TrackingPanel";
-import { useDispatch } from "react-redux";
-import { setTotalReferrals } from "../../store/statsSlice";
-
-// ----------------------
-// Types
-// ----------------------
-interface StatCardData {
-  icon: JSX.Element;
-  heading: string;
-  value: string;
-  subheading: string;
-  onClick?: any;
-}
 
 type ReferralType = "Referrals" | "Referrers" | "NFC & QR Tracking";
 
@@ -58,17 +42,23 @@ const ReferralManagement = () => {
   const [overviewSearchKeyword, setOverviewSearchKeyword] = useState("");
   const [referrerEditId, setReferrerEditId] = useState("");
 
+  const [referrerParams, setReferrerParams] = useState({
+    filter: "",
+    page: 1,
+    limit: 5,
+  });
+
   // ----------------------
   // Queries
   // ----------------------
   const { data: referralData, refetch: referralRefetch } =
     useFetchReferrals(currentFilters);
 
-  const { data: referrerData } = useFetchReferrers({
-    filter: "",
-    page: 1,
-    limit: 5,
-  });
+  const { data: referrerData } = useFetchReferrers(referrerParams);
+
+  const referrers = referrerData?.data;
+
+  console.log(referrerData, "GHDSAFAHSHGSASHDHJASGDHASHDGHASDHSA");
 
   const { data: singleReferrerData, refetch } =
     useGetReferrerById(referrerEditId);
@@ -109,7 +99,7 @@ const ReferralManagement = () => {
   // ----------------------
   // Derived Data
   // ----------------------
-  const STAT_CARD_DATA = useMemo<StatCardData[]>(
+  const STAT_CARD_DATA = useMemo<StatCard[]>(
     () => [
       {
         icon: <LuBuilding2 className="text-[17px] mt-1 text-sky-500" />,
@@ -267,9 +257,7 @@ const ReferralManagement = () => {
   // Subcomponents
   // ----------------------
   const NoData = ({ text = "No data to display" }: { text?: string }) => (
-    <p className="bg-background text-sm text-center text-foreground/50">
-      {text}
-    </p>
+    <p className="bg-background text-xs text-center text-gray-600">{text}</p>
   );
 
   console.log(referralData, "REFERRALS");
@@ -389,8 +377,8 @@ const ReferralManagement = () => {
         {selectedReferralType === "Referrers" && (
           <div className="flex flex-col gap-4 border border-primary/10 rounded-xl p-4 bg-background/70 w-full">
             <p className="font-medium text-sm">Referrer Management</p>
-            {referrerData?.length ? (
-              referrerData.map((referrer) => (
+            {referrers?.length ? (
+              referrers.map((referrer: Referrer) => (
                 <ReferrerCard
                   key={referrer._id}
                   referrer={referrer}
@@ -403,6 +391,28 @@ const ReferralManagement = () => {
               ))
             ) : (
               <NoData />
+            )}
+            {referrerData?.totalPages && referrerData.totalPages > 1 ? (
+              <Pagination
+                showControls
+                size="sm"
+                radius="sm"
+                initialPage={1}
+                page={referrerParams.page as number}
+                onChange={(page) => {
+                  setReferrerParams((prev: any) => ({ ...prev, page }));
+                }}
+                total={referrerData?.totalPages as number}
+                classNames={{
+                  base: "flex justify-end py-3",
+                  wrapper: "gap-1.5",
+                  item: "cursor-pointer",
+                  prev: "cursor-pointer",
+                  next: "cursor-pointer",
+                }}
+              />
+            ) : (
+              ""
             )}
           </div>
         )}

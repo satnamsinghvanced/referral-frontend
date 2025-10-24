@@ -2,23 +2,26 @@ import { Button, Checkbox, Select, SelectItem, Textarea } from "@heroui/react";
 import { useFormik } from "formik";
 import { Key, useMemo, useState } from "react"; // 1. Imported useState
 import { AiOutlinePlus } from "react-icons/ai";
-import { BiUserPlus } from "react-icons/bi";
+import { BiSave, BiUserPlus } from "react-icons/bi";
+import { FaStethoscope } from "react-icons/fa";
 import { FiTrash2, FiUsers } from "react-icons/fi";
 import { LuUserRound } from "react-icons/lu";
 import * as Yup from "yup";
 import ActionModal from "../../components/common/ActionModal";
 import Input from "../../components/ui/Input";
 import { useSpecialties } from "../../hooks/useCommon";
-import { categoryOptions } from "../../utils/filters";
-import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
 import { useCreateReferrer, useUpdateReferrer } from "../../hooks/useReferral";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
+import { categoryOptions } from "../../utils/filters";
+import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
+import { STAFF_ROLES } from "../../utils/consts";
 
 interface ReferralManagementActionsProps {
   isModalOpen: boolean;
   setIsModalOpen: (open: boolean) => void;
   editedData?: any;
   setReferrerEditId?: any;
+  isPracticeEdit?: boolean;
 }
 
 type PracticeAddressErrors = Record<string, string | undefined> | undefined;
@@ -29,6 +32,7 @@ export default function ReferralManagementActions({
   setIsModalOpen,
   editedData = {},
   setReferrerEditId,
+  isPracticeEdit,
 }: ReferralManagementActionsProps) {
   const { user } = useTypedSelector((state) => state.auth);
 
@@ -39,30 +43,6 @@ export default function ReferralManagementActions({
 
   const { mutate: updateReferrer, isPending: referrerUpdationPending } =
     useUpdateReferrer();
-
-  // --- 1. LOCAL STATE FOR ROLE INPUT ---
-  // Using an object to store the raw, comma-separated string for each staff member's role field
-  const [roleInputValues, setRoleInputValues] = useState<
-    Record<string, string>
-  >({});
-
-  // A helper function to initialize the local state from initial values
-  const getInitialRoleValue = (staff: any[]): Record<string, string> => {
-    const initialRoles: Record<string, string> = {};
-    staff.forEach((member, index) => {
-      let roleString = "";
-      if (Array.isArray(member.role)) {
-        // If the role is an array (which it is for edited data)
-        roleString = member.role.join(", "); // <--- JOIN THE ARRAY INTO A STRING
-      } else if (typeof member.role === "string") {
-        roleString = member.role;
-      }
-
-      initialRoles[`staff[${index}].role`] = roleString;
-    });
-    return initialRoles;
-  };
-  // ------------------------------------
 
   const processedStaff = (editedData?.staff || []).map((member: any) => ({
     ...member,
@@ -86,32 +66,22 @@ export default function ReferralManagementActions({
       addressLine2: editedData?.practiceAddress?.addressLine2 || "",
       city: editedData?.practiceAddress?.city || "",
     },
-    practicePhone: editedData?.practicePhone || "",
-    practiceEmail: editedData?.practiceEmail || "",
+    // practicePhone: editedData?.practicePhone || "",
+    // practiceEmail: editedData?.practiceEmail || "",
     website: editedData?.website || "",
-    staff: processedStaff,
+    staff: editedData?.staff || [],
   };
 
-  useMemo(() => {
-    setRoleInputValues(getInitialRoleValue(defaultInitialValues.staff));
-  }, [editedData]);
-
   const handleFormSubmission = async (values: any) => {
-    const staffWithUpdatedRoles = values.staff.map(
-      (member: any, index: number) => {
-        const fieldName = `staff[${index}].role`;
-        const rawRoleString = roleInputValues[fieldName] || "";
-
-        return {
-          name: member.name,
-          phone: member.phone,
-          email: member.email,
-          role: rawRoleString?.trim().split(","),
-          isDentist: member.isDentist,
-          experience: member.experience,
-        };
-      }
-    );
+    const staffWithUpdatedRoles = values.staff.map((member: any) => {
+      return {
+        name: member.name,
+        phone: member.phone,
+        email: member.email,
+        role: member.role,
+        isDentist: member.isDentist,
+      };
+    });
 
     const payload =
       values.type === "patient"
@@ -126,16 +96,24 @@ export default function ReferralManagementActions({
             staff: staffWithUpdatedRoles,
           };
 
+    let referrerId = user?.userId;
+
+    if (editedData?.type) {
+      referrerId = editedData?._id;
+    }
+
+    if (isPracticeEdit) {
+      referrerId = editedData?.referrer_id;
+    }
+
     const mutationPayload = {
-      id: editedData?.type
-        ? (editedData?._id as string)
-        : (user?.userId as string),
+      id: referrerId as string,
       type: values.type,
       payload: payload,
     };
 
     const mutationPromise = new Promise((resolve, reject) => {
-      if (editedData?.type) {
+      if (editedData?.type || isPracticeEdit) {
         updateReferrer(mutationPayload, {
           onSuccess: (data) => resolve(data),
           onError: (error) => reject(error),
@@ -179,33 +157,30 @@ export default function ReferralManagementActions({
         is: "doctor",
         then: (schema) => schema.required("Type of practice is required"),
       }),
-      practiceEmail: Yup.string().when("type", {
-        is: "doctor",
-        then: (schema) =>
-          schema.email("Invalid email").required("Practice email is required"),
-      }),
+      // practiceEmail: Yup.string().when("type", {
+      //   is: "doctor",
+      //   then: (schema) =>
+      //     schema.email("Invalid email").required("Practice email is required"),
+      // }),
       practiceAddress: Yup.object().shape({
         addressLine1: Yup.string().when(["$type"], {
           is: (type: string) => type === "doctor",
-          then: (schema) =>
-            schema.required("Address Line 1 is required for doctors"),
+          then: (schema) => schema.required("Address Line 1 is required"),
           otherwise: (schema) => schema.notRequired(),
         }),
         addressLine2: Yup.string().nullable(),
-        city: Yup.string().nullable(),
+        city: Yup.string().when(["$type"], {
+          is: (type: string) => type === "doctor",
+          then: (schema) => schema.required("City & State ZIP is required"),
+          otherwise: (schema) => schema.notRequired(),
+        }),
       }),
       staff: Yup.array().of(
         Yup.object().shape({
           name: Yup.string().required("Name is required"),
-          role: Yup.string().required("Role/Title is required"),
-          email: Yup.string()
-            .email("Invalid email")
-            .required("Email is required"),
+          role: Yup.array().required("Role/Title is required"),
+          email: Yup.string().email("Invalid email"),
           phone: Yup.string().nullable(),
-          experience: Yup.string().when("isDentist", {
-            is: true,
-            then: (schema) => schema.required("Experience is required"),
-          }),
           isDentist: Yup.boolean().nullable(),
         })
       ),
@@ -297,22 +272,26 @@ export default function ReferralManagementActions({
             isRequired: true,
           },
           { id: "addressLine2", placeholder: "Address Line 2 (Optional)" },
-          { id: "city", placeholder: "City, State ZIP (Optional)" },
+          {
+            id: "city",
+            placeholder: "City, State ZIP",
+            isRequired: true,
+          },
         ],
       },
-      {
-        id: "practicePhone",
-        label: "Practice Phone",
-        type: "tel",
-        placeholder: "Enter practice phone",
-      },
-      {
-        id: "practiceEmail",
-        label: "Practice Email",
-        type: "email",
-        placeholder: "Enter practice email",
-        isRequired: true,
-      },
+      // {
+      //   id: "practicePhone",
+      //   label: "Practice Phone",
+      //   type: "tel",
+      //   placeholder: "Enter practice phone",
+      // },
+      // {
+      //   id: "practiceEmail",
+      //   label: "Practice Email",
+      //   type: "email",
+      //   placeholder: "Enter practice email",
+      //   isRequired: true,
+      // },
       {
         id: "website",
         label: "Website",
@@ -342,9 +321,11 @@ export default function ReferralManagementActions({
       {
         id: "role",
         label: "Role/Title",
-        type: "text",
-        placeholder: "General Dentist, Hygienist, Office Manager, etc.",
+        type: "select",
+        options: STAFF_ROLES,
+        placeholder: "Select Role",
         isRequired: true,
+        multiple: true,
       },
       {
         id: "email",
@@ -357,13 +338,6 @@ export default function ReferralManagementActions({
         label: "Phone",
         type: "tel",
         placeholder: "(555) 123-4567",
-      },
-      {
-        id: "experience",
-        label: "Experience",
-        type: "text",
-        placeholder: "15 years",
-        isFullWidth: true,
       },
       {
         id: "isDentist",
@@ -597,6 +571,10 @@ export default function ReferralManagementActions({
               isRequired={isRequired}
               error={formik.errors[field.id as string] as string}
               touched={formik.touched[field.id as string] as boolean}
+              isDisabled={
+                id === "email" && (editedData?.type || isPracticeEdit)
+              }
+              classNames={{ base: "data-disabled:opacity-60" }}
             />
           </div>
         );
@@ -690,35 +668,6 @@ export default function ReferralManagementActions({
         );
 
       default:
-        // *** CRITICAL FIX: Direct Input with Local State for 'role' ***
-        if (field.id === "role") {
-          return (
-            <div key={fieldName as Key} className="w-full">
-              <Input
-                name={fieldName as string}
-                type="text"
-                label={field.label}
-                placeholder={field.placeholder || ""}
-                labelPlacement="outside-top"
-                size="sm"
-                value={roleInputValues[fieldName] || ""}
-                onValueChange={(val: string) => {
-                  setRoleInputValues((prev) => ({
-                    ...prev,
-                    [fieldName]: val,
-                  }));
-
-                  // formik.setFieldValue(fieldName as string, val);
-                }}
-                onBlur={formik.handleBlur}
-                isRequired={field.isRequired}
-                error={errorText as string}
-                touched={isTouched as boolean}
-              />
-            </div>
-          );
-        }
-
         // Default case for all other text/tel inputs (name, phone, experience) using the custom Input
         return (
           <div
@@ -756,21 +705,14 @@ export default function ReferralManagementActions({
   const handleAddStaff = () => {
     const newStaffMember = {
       name: "",
-      role: "", // Initialize as a string to match the updated Yup validation
+      role: [],
       email: "",
       phone: "",
-      experience: "",
       isDentist: false,
     };
 
     const newStaff = [...formik.values.staff, newStaffMember];
     formik.setFieldValue("staff", newStaff);
-
-    // Update local state for the new staff member's role field
-    setRoleInputValues((prev) => ({
-      ...prev,
-      [`staff[${newStaff.length - 1}].role`]: "",
-    }));
   };
 
   const handleRemoveStaff = (index: number) => {
@@ -778,25 +720,33 @@ export default function ReferralManagementActions({
       (_: any, i: number) => i !== index
     );
     formik.setFieldValue("staff", newStaff);
-
-    // Reset local state to correctly map to new staff indexes
-    setRoleInputValues(getInitialRoleValue(newStaff));
   };
 
+  let modalTitle = "Add New Referrer (Enhanced v2.0)";
   let modalDescription =
     "Add a new doctor or patient referrer to your Practice ROI platform. Track referrals and generate QR codes.";
+  let saveButtonText = "Add Referrer";
+  let saveButtonIcon = <AiOutlinePlus fontSize={15} />;
+
+  if (isPracticeEdit) {
+    modalTitle = `Edit Practice - ${editedData?.practiceName}`;
+    modalDescription = `Update practice information, manage staff members, and edit relationship details for ${editedData?.practiceName}.`;
+    saveButtonText = "Save Changes";
+    saveButtonIcon = <BiSave fontSize={15} />;
+  }
 
   if (editedData?.type) {
+    modalTitle = "Edit Referrer (Enhanced v2.0)";
     modalDescription = "Edit your doctor or patient referrer.";
+    saveButtonText = "Update Referrer";
+    saveButtonIcon = <BiSave fontSize={15} />;
   }
 
   return (
     <ActionModal
       isOpen={isModalOpen}
       onClose={() => setIsModalOpen(false)}
-      heading={`${
-        editedData?.type ? "Edit" : "Add New"
-      } Referrer (Enhanced v2.0)`}
+      heading={modalTitle}
       description={modalDescription}
       buttons={[
         {
@@ -808,8 +758,8 @@ export default function ReferralManagementActions({
             "border-foreground/10 border text-foreground hover:bg-background",
         },
         {
-          text: `${editedData?.type ? "Update" : "Add"} Referrer`,
-          icon: <AiOutlinePlus fontSize={15} />,
+          text: saveButtonText,
+          icon: saveButtonIcon,
           onPress: formik.handleSubmit,
           color: "primary",
           variant: "solid",
@@ -821,27 +771,30 @@ export default function ReferralManagementActions({
         onSubmit={formik.handleSubmit}
         className="space-y-4 py-1 h-fit w-full"
       >
-        <div className="border border-primary/20 rounded-lg p-4">
-          <Select
-            size="sm"
-            label="Referrer Type"
-            labelPlacement="outside"
-            isRequired
-            placeholder="Select type"
-            selectedKeys={[formik.values.type]}
-            onSelectionChange={(keys) =>
-              formik.setFieldValue(
-                "type",
-                Array.from(keys)[0] as "doctor" | "patient"
-              )
-            }
-            classNames={{ label: "text-sm font-medium" }}
-            isDisabled={editedData?.type ? true : false}
-          >
-            <SelectItem key="doctor">Doctor Referrer</SelectItem>
-            <SelectItem key="patient">Patient Referrer</SelectItem>
-          </Select>
-        </div>
+        {!isPracticeEdit && (
+          <div className="border border-primary/20 rounded-lg p-4">
+            <Select
+              size="sm"
+              label="Referrer Type"
+              labelPlacement="outside"
+              isRequired
+              placeholder="Select type"
+              selectedKeys={[formik.values.type]}
+              disabledKeys={[formik.values.type]}
+              onSelectionChange={(keys) =>
+                formik.setFieldValue(
+                  "type",
+                  Array.from(keys)[0] as "doctor" | "patient"
+                )
+              }
+              classNames={{ label: "text-sm font-medium" }}
+              isDisabled={editedData?.type ? true : false}
+            >
+              <SelectItem key="doctor">Doctor Referrer</SelectItem>
+              <SelectItem key="patient">Patient Referrer</SelectItem>
+            </Select>
+          </div>
+        )}
 
         <div className="border border-primary/20 rounded-lg p-4">
           <h5 className="text-sm font-medium mb-3">Basic Information</h5>
@@ -909,7 +862,11 @@ export default function ReferralManagementActions({
                 >
                   <div className="flex items-center justify-between mb-4">
                     <div className="flex items-center justify-between gap-2">
-                      <LuUserRound />
+                      {member.isDentist ? (
+                        <FaStethoscope className="text-blue-600 text-[15px] w-4" />
+                      ) : (
+                        <LuUserRound />
+                      )}
                       <span className="text-sm font-medium">
                         Staff Member {index + 1}
                       </span>

@@ -38,7 +38,7 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
   console.log(referrer);
 
   return (
-    <div className="flex justify-between items-start border border-foreground/10 rounded-xl p-4 bg-background">
+    <div className="flex justify-between items-center border border-foreground/10 rounded-xl p-4 bg-background">
       {/* Left Section */}
       <div className="flex items-center gap-3">
         <div
@@ -52,10 +52,14 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
         </div>
         <div className="flex flex-col gap-0.5 w-full">
           <p className="text-sm font-medium">{referrer.name}</p>
-          <p className="text-xs text-gray-600">{referrer.practiceName}</p>
+          <p className="text-xs text-gray-600">
+            {referrer?.type === "doctor"
+              ? referrer?.practice?.name
+              : "Patient Referrer"}
+          </p>
 
           <div className="flex items-center gap-3.5 text-xs text-gray-600">
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-1.5">
               <span>{referrer.referrals.length} total</span>
               <span className="p-0.5 bg-foreground/50 rounded-full aspect-square h-fit w-fit"></span>
               <span>
