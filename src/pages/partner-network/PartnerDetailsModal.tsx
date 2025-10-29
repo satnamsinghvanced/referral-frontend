@@ -157,7 +157,7 @@ const PartnerDetailsModal = ({
                       <div className="space-y-0.5">
                         <div className="text-xs font-medium">Phone</div>
                         <div className="text-xs text-gray-600">
-                          {displayData.practicePhone}
+                          {displayData.phone}
                         </div>
                       </div>
                     </div>
@@ -166,7 +166,7 @@ const PartnerDetailsModal = ({
                       <div className="space-y-0.5">
                         <div className="text-xs font-medium">Email</div>
                         <div className="text-xs text-gray-600 wrap-break-word max-w-[150px]">
-                          {displayData.practiceEmail}
+                          {displayData.email}
                         </div>
                       </div>
                     </div>
@@ -210,7 +210,7 @@ const PartnerDetailsModal = ({
                         </div>
                       </div>
                     </div>
-                    <div className="flex items-center space-x-2">
+                    {/* <div className="flex items-center space-x-2">
                       <LuClock className="size-4 min-w-4 min-h-4 text-gray-400" />
                       <div className="space-y-0.5">
                         <div className="text-xs font-medium">Last Contact</div>
@@ -218,7 +218,7 @@ const PartnerDetailsModal = ({
                           {formatDate(displayData.lastContact)}
                         </div>
                       </div>
-                    </div>
+                    </div> */}
                     <div className="flex items-center space-x-2">
                       <LuBuilding2 className="size-4 min-w-4 min-h-4 text-gray-400" />
                       <div className="space-y-0.5">

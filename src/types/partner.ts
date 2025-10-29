@@ -26,8 +26,8 @@ export interface PartnerPractice {
     addressLine2: string;
     city: string;
   };
-  practicePhone: string;
-  practiceEmail: string;
+  phone: string;
+  email: string;
   website: string;
   partnershipLevel: string;
   status: boolean;

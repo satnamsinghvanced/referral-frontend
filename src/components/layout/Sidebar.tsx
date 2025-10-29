@@ -8,7 +8,7 @@ import {
   HiOutlineMail,
   HiOutlinePhone,
   HiOutlineQuestionMarkCircle,
-  HiOutlineStar
+  HiOutlineStar,
 } from "react-icons/hi";
 import { useSelector } from "react-redux";
 import { Link, NavLink, useLocation, useNavigate } from "react-router";
@@ -97,7 +97,7 @@ const Sidebar = ({
       icon: HiOutlinePhone,
       href: "/call-tracking",
       stats: 34,
-      color: "bg-violet-300",
+      color: "bg-sky-100",
     },
     {
       name: "Email Campaigns",
@@ -290,7 +290,7 @@ const Sidebar = ({
                     {isMiniSidebarOpen && (
                       <div className="ml-2 truncate text-xs w-full flex justify-between items-center">
                         <p>{item.name}</p>
-                        {item.stats && (
+                        {item.stats ? (
                           <p
                             className={`rounded-full px-2 text-[10px] py-0.5 capitalize !text-foreground dark:!text-background ${
                               typeof item.color === "function"
@@ -298,11 +298,12 @@ const Sidebar = ({
                                 : item.color
                             }`}
                           >
-                            {" "}
                             {typeof item.stats === "number"
                               ? `${item.stats}`
                               : item.stats}
                           </p>
+                        ) : (
+                          ""
                         )}
                       </div>
                     )}

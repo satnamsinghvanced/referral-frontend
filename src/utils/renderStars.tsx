@@ -1,5 +1,5 @@
-import { FC, JSX } from 'react';
-import { PiStar, PiStarFill } from 'react-icons/pi';
+import { FC, JSX } from "react";
+import { PiStar, PiStarFill } from "react-icons/pi";
 
 interface RenderStarsProps {
   averageRating: number;
@@ -25,10 +25,7 @@ const RenderStars: FC<RenderStarsProps> = ({ averageRating }) => {
 
     if (hasHalfStar) {
       stars.push(
-        <PiStar
-          key="half-star"
-          className="inline h-4 w-4 text-yellow-400"
-        />
+        <PiStar key="half-star" className="inline h-4 w-4 text-yellow-400" />
       );
     }
 

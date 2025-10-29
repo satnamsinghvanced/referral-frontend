@@ -26,7 +26,7 @@ export const fetchLocationDetails = async (id: string): Promise<Location> => {
 
 // 🔹 Create new location
 export const createLocation = async (location: Location): Promise<Location> => {
-  const response = axios.post("/location/create", location);
+  const response = axios.post("/location", location);
   return (await response).data;
 };
 

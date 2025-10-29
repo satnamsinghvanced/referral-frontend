@@ -180,18 +180,6 @@ const ReferralManagement = () => {
   const handleReferralTypeChange = (key: string) =>
     setSelectedReferralType(key as ReferralType);
 
-  const openSharingModal = useCallback(async (title: string, url: string) => {
-    if (navigator.share) {
-      try {
-        await navigator.share({ title, url });
-      } catch (error) {
-        console.error("Error sharing content:", error);
-      }
-    } else {
-      console.log("Web Share API not supported.");
-    }
-  }, []);
-
   const refererButtonList = useCallback(
     (referrer: Referrer) => [
       {
@@ -306,7 +294,7 @@ const ReferralManagement = () => {
                   ))}
                 </div>
 
-                <div className=" px-4 border-primary/10  border rounded-lg bg-background ">
+                <div className=" px-4 border-primary/15  border rounded-xl bg-background ">
                   {/* <h5>Filters</h5> */}
                   <div className="flex flex-wrap items-center gap-2 w-full rounded-md py-4">
                     <Input
@@ -330,7 +318,7 @@ const ReferralManagement = () => {
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-4 border border-primary/10 rounded-xl p-4 bg-background/90">
+                <div className="flex flex-col gap-4 border border-primary/15 rounded-xl p-4 bg-background/90">
                   <p className="font-medium text-sm">Recent Referrals</p>
                   {referralData?.data?.length ? (
                     referralData.data.slice(0, 5).map((ref: any) => (
@@ -375,7 +363,7 @@ const ReferralManagement = () => {
 
         {/* --- REFERRERS TAB --- */}
         {selectedReferralType === "Referrers" && (
-          <div className="flex flex-col gap-4 border border-primary/10 rounded-xl p-4 bg-background/70 w-full">
+          <div className="flex flex-col gap-4 border border-primary/15 rounded-xl p-4 bg-background/70 w-full">
             <p className="font-medium text-sm">Referrer Management</p>
             {referrers?.length ? (
               referrers.map((referrer: Referrer) => (
@@ -419,7 +407,7 @@ const ReferralManagement = () => {
 
         {/* --- NFC & QR TRACKING TAB --- */}
         {selectedReferralType === "NFC & QR Tracking" && (
-          <TrackingPanel trackings={trackings} onShare={openSharingModal} />
+          <TrackingPanel trackings={trackings} />
         )}
       </div>
 

@@ -90,8 +90,6 @@ const Team: React.FC = () => {
     useDeleteTeamMember();
   const { mutate: resendInvite } = useResendInvite();
 
-  console.log(locations, "PCLAJ");
-
   const [resendingId, setResendingId] = useState<string | null>(null);
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [editMemberId, setEditMemberId] = useState<string>("");
@@ -109,9 +107,14 @@ const Team: React.FC = () => {
     firstName: Yup.string().required("First name is required"),
     lastName: Yup.string().required("Last name is required"),
     email: Yup.string().email("Invalid email").required("Email is required"),
+    locations: Yup.array().required("Practice Location is required"),
     role: Yup.string().required("Role is required"),
-    permissions: Yup.array().of(Yup.string()),
+    permissions: Yup.array()
+      .of(Yup.string())
+      .required("Permissions are required"),
   });
+
+  console.log(permissions);
 
   const formik = useFormik<TeamFormValues>({
     enableReinitialize: true,
@@ -121,7 +124,7 @@ const Team: React.FC = () => {
       email: "",
       locations: [],
       role: "",
-      permissions: [],
+      permissions: permissions?.map((item: any) => item._id),
     },
     validationSchema: TeamSchema,
     onSubmit: (values) => {
@@ -155,6 +158,8 @@ const Team: React.FC = () => {
       }
     },
   });
+
+  console.log(formik.values.permissions, "HEEEEE");
 
   const handleEdit = (member: TeamMember) => {
     setEditMemberId(member._id);
@@ -390,6 +395,10 @@ const Team: React.FC = () => {
             onPress: formik.handleSubmit,
             color: "primary",
             isLoading: editMemberId ? updateIsPending : addIsPending,
+            isDisabled:
+              formik.values.permissions?.length === 0 ||
+              !formik.dirty ||
+              !formik.isValid,
           },
         ]}
       >
@@ -407,6 +416,7 @@ const Team: React.FC = () => {
               value={formik.values.firstName}
               onChange={(val) => formik.setFieldValue("firstName", val)}
               formik={formik}
+              isRequired
             />
             <Input
               id="lastName"
@@ -417,6 +427,7 @@ const Team: React.FC = () => {
               value={formik.values.lastName}
               onChange={(val) => formik.setFieldValue("lastName", val)}
               formik={formik}
+              isRequired
             />
           </div>
 
@@ -429,6 +440,7 @@ const Team: React.FC = () => {
             value={formik.values.email}
             onChange={(val) => formik.setFieldValue("email", val)}
             formik={formik}
+            isRequired
           />
 
           <Select
@@ -440,6 +452,7 @@ const Team: React.FC = () => {
               formik.setFieldValue("locations", Array.from(keys));
             }}
             selectionMode="multiple"
+            isRequired
           >
             {(locations || []).map((location: any) => (
               <SelectItem key={location._id}>{location.name}</SelectItem>
@@ -454,11 +467,8 @@ const Team: React.FC = () => {
             onSelectionChange={(keys) => {
               const selectedRoleId = Array.from(keys)[0] || "";
               formik.setFieldValue("role", selectedRoleId);
-              console.log(
-                roles?.find((item: any) => item?._id === formik.values.role)
-                  ?.role
-              );
             }}
+            isRequired
           >
             {roles?.map((role: any) => (
               <SelectItem
@@ -480,7 +490,7 @@ const Team: React.FC = () => {
               {permissions?.map((perm: any) => (
                 <Checkbox
                   key={perm._id}
-                  isSelected={formik.values.permissions.includes(perm._id)}
+                  isSelected={formik.values.permissions?.includes(perm._id)}
                   onValueChange={(checked) => {
                     const updated = checked
                       ? [...formik.values.permissions, perm._id]
@@ -488,11 +498,17 @@ const Team: React.FC = () => {
                     formik.setFieldValue("permissions", updated);
                   }}
                   size="sm"
+                  isRequired
                 >
                   {perm.title}
                 </Checkbox>
               ))}
             </div>
+            {formik.values.permissions?.length === 0 && (
+              <p className="text-xs text-danger-500 mt-2.5">
+                Atleast one permission is required
+              </p>
+            )}
           </div>
         </form>
       </ActionModal>

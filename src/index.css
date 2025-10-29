@@ -164,8 +164,8 @@ html {
   --heroui-line-height-small: 1.25rem;
   --heroui-line-height-medium: 1.5rem;
   --heroui-line-height-large: 1.75rem;
-  --heroui-radius-small: 8px;
-  --heroui-radius-medium: 12px;
+  --heroui-radius-small: 6px;
+  --heroui-radius-medium: 10px;
   --heroui-radius-large: 14px;
   --heroui-border-width-small: 1px;
   --heroui-border-width-medium: 2px;
@@ -309,8 +309,8 @@ html {
   --heroui-line-height-small: 1.25rem;
   --heroui-line-height-medium: 1.5rem;
   --heroui-line-height-large: 1.75rem;
-  --heroui-radius-small: 8px;
-  --heroui-radius-medium: 12px;
+  --heroui-radius-small: 6px;
+  --heroui-radius-medium: 10px;
   --heroui-radius-large: 14px;
   --heroui-border-width-small: 1px;
   --heroui-border-width-medium: 2px;
@@ -324,7 +324,6 @@ html {
   --heroui-hover-opacity: 0.9;
 }
 
-
 h1,
 h2,
 h3,
@@ -332,4 +331,9 @@ h4,
 h5,
 h6 {
   font-family: var(--font-heading);
+}
+
+.recharts-wrapper,
+.recharts-wrapper * {
+  outline: none;
 }

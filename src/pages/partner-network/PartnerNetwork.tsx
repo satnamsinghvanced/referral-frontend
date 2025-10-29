@@ -18,6 +18,7 @@ import ReferralManagementActions from "../referral-management/ReferralManagement
 import NotesTasksModal from "./NotesTasksModal";
 import PartnerDetailsModal from "./PartnerDetailsModal";
 import PartnerNetworkCard from "./PartnerNetworkCard";
+import PartnerNetworkHeader from "./PartnerNetworkHeader";
 
 const PartnerNetwork = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -90,26 +91,6 @@ const PartnerNetwork = () => {
     },
   ];
 
-  const HEADING_DATA = {
-    heading: "Partner Network",
-    subHeading: "Manage relationships with referring practices",
-    buttons: HEADING_DATA_BUTTONS_LIST,
-    filters: [
-      {
-        label: "Practice Type",
-        options: PARTNER_FILTERS,
-        selectedValue: params.filter, // Bind to state
-        onChange: handleFilterChange, // Use handler
-      },
-    ],
-    sortOptions: PARTNER_SORT_OPTIONS,
-    selectedSortOption: params.sortBy, // Bind to state
-    onSortChange: handleSortChange, // Use handler
-    sortOrder: sortOrder, // Bind to state
-    onSortOrderChange: handleSortOrderChange, // Use handler
-  };
-
-  // Map fetched data to StatCardData (using hardcoded strings for subheadings/icons)
   const STATS_CARD_DATA: StatCard[] = [
     {
       icon: <LuBuilding2 className="text-[17px] mt-1 text-foreground/60" />,
@@ -185,80 +166,102 @@ const PartnerNetwork = () => {
 
   return (
     <>
-      <ComponentContainer headingData={HEADING_DATA}>
-        <div className="flex flex-col gap-5">
-          {/* Stat Cards */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 justify-between">
-            {STATS_CARD_DATA.map((data) => (
-              <MiniStatsCard key={data.heading} cardData={data} />
-            ))}
-          </div>
-
-          {/* Partner List */}
-          <div className="flex flex-col gap-4 border border-primary/10 rounded-xl p-4 bg-background/80">
-            <div className="font-medium text-sm">Partner Practices</div>
-            {isLoading && (
-              <div className="text-gray-600 text-xs text-center">
-                Loading partners...
-              </div>
-            )}
-            {!isLoading && practices.length === 0 && (
-              <div className="text-gray-600 text-xs text-center">
-                No partners found with current filters.
-              </div>
-            )}
-
-            {practices.map((partner: Partner) => (
-              <PartnerNetworkCard
-                key={partner._id}
-                partner={partner}
-                actions={PARTNER_NETWORK_ACTIONS}
-              />
-            ))}
-
-            {stats?.totalPages && stats.totalPages > 1 ? (
-              <Pagination
-                showControls
-                size="sm"
-                radius="sm"
-                initialPage={1}
-                page={params.page as number}
-                onChange={(page) => {
-                  setParams((prev) => ({ ...prev, page }));
-                }}
-                total={stats?.totalPages as number}
-                classNames={{
-                  base: "flex justify-end py-3",
-                  wrapper: "gap-1.5",
-                  item: "cursor-pointer",
-                  prev: "cursor-pointer",
-                  next: "cursor-pointer",
-                }}
-              />
-            ) : (
-              ""
-            )}
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <h3 className="text-base">Schedule Referrer Visits</h3>
-              <p className="text-xs text-gray-600">
-                Plan monthly visits to multiple referrers with route
-                optimization
-              </p>
+      <div className="flex flex-col h-full">
+        <div className="sticky top-0 bg-background text-foreground">
+          <PartnerNetworkHeader
+            heading="Partner Network"
+            subHeading="Manage relationships with referring practices"
+            buttons={HEADING_DATA_BUTTONS_LIST}
+            filters={[
+              {
+                label: "Practice Type",
+                options: PARTNER_FILTERS,
+                selectedValue: params.filter,
+                onChange: handleFilterChange,
+              },
+            ]}
+            sortOptions={PARTNER_SORT_OPTIONS}
+            selectedSortOption={params.sortBy}
+            onSortChange={handleSortChange}
+            sortOrder={sortOrder}
+            onSortOrderChange={handleSortOrderChange}
+          />
+        </div>
+        <div className="flex flex-col gap-2 md:px-7 px-4 py-4 md:py-[31px] overflow-auto">
+          <div className="flex flex-col gap-5">
+            {/* Stat Cards */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 justify-between">
+              {STATS_CARD_DATA.map((data) => (
+                <MiniStatsCard key={data.heading} cardData={data} />
+              ))}
             </div>
-            <Button
-              size="sm"
-              variant="solid"
-              color="primary"
-              startContent={<MdOutlineCalendarToday />}
-            >
-              Create Monthly Plan
-            </Button>
+
+            {/* Partner List */}
+            <div className="flex flex-col gap-4 border border-primary/15 rounded-xl p-4 bg-background/80">
+              <div className="font-medium text-sm">Partner Practices</div>
+              {isLoading && (
+                <div className="text-gray-600 text-xs text-center">
+                  Loading partners...
+                </div>
+              )}
+              {!isLoading && practices.length === 0 && (
+                <div className="text-gray-600 text-xs text-center">
+                  No partners found with current filters.
+                </div>
+              )}
+
+              {practices.map((partner: Partner) => (
+                <PartnerNetworkCard
+                  key={partner._id}
+                  partner={partner}
+                  actions={PARTNER_NETWORK_ACTIONS}
+                />
+              ))}
+
+              {stats?.totalPages && stats.totalPages > 1 ? (
+                <Pagination
+                  showControls
+                  size="sm"
+                  radius="sm"
+                  initialPage={1}
+                  page={params.page as number}
+                  onChange={(page) => {
+                    setParams((prev) => ({ ...prev, page }));
+                  }}
+                  total={stats?.totalPages as number}
+                  classNames={{
+                    base: "flex justify-end py-3",
+                    wrapper: "gap-1.5",
+                    item: "cursor-pointer",
+                    prev: "cursor-pointer",
+                    next: "cursor-pointer",
+                  }}
+                />
+              ) : (
+                ""
+              )}
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <h3 className="text-base">Schedule Referrer Visits</h3>
+                <p className="text-xs text-gray-600">
+                  Plan monthly visits to multiple referrers with route
+                  optimization
+                </p>
+              </div>
+              <Button
+                size="sm"
+                variant="solid"
+                color="primary"
+                startContent={<MdOutlineCalendarToday />}
+              >
+                Create Monthly Plan
+              </Button>
+            </div>
           </div>
         </div>
-      </ComponentContainer>
+      </div>
 
       <ReferralManagementActions
         isModalOpen={isModalOpen}

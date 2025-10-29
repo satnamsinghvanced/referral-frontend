@@ -143,7 +143,12 @@ export default function ReferralManagementActions({
     validationSchema: Yup.object({
       type: Yup.string().required("Referrer type is required"),
       name: Yup.string().required("Full name is required"),
-      phone: Yup.string().required("Phone number is required"),
+      phone: Yup.string()
+        .required("Phone number is required")
+        .matches(
+          /^\(\d{3}\)\s\d{3}-\d{4}$/,
+          "Phone must be in format (XXX) XXX-XXXX"
+        ),
       email: Yup.string().email("Invalid email").required("Email is required"),
       practiceName: Yup.string().when("type", {
         is: "doctor",
@@ -157,6 +162,10 @@ export default function ReferralManagementActions({
         is: "doctor",
         then: (schema) => schema.required("Type of practice is required"),
       }),
+      website: Yup.string().matches(
+        /^(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/[a-zA-Z0-9]+\.[^\s]{2,}|[a-zA-Z0-9]+\.[^\s]{2,})$/i,
+        "Website must be a valid URL.(https://example.com or www.example.com"
+      ),
       // practiceEmail: Yup.string().when("type", {
       //   is: "doctor",
       //   then: (schema) =>

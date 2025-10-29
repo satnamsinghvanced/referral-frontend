@@ -1,5 +1,6 @@
 import React, { ReactNode } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import QrGenerator from "./pages/qr-generator/QrGenerator";
 
 // Lazy imports
 const ProtectedRoute = React.lazy(() => import("./auth/ProtectedRoute"));
@@ -53,7 +54,7 @@ const PrivacyPolicy = React.lazy(
 const PatientForm = React.lazy(
   () => import("./pages/partner-network/form/PatientForm")
 );
-const CallTracking = React.lazy(() => import("./pages/CallTracking"));
+const CallTracking = React.lazy(() => import("./pages/call-tracking/CallTracking"));
 
 
 // Route type
@@ -80,7 +81,7 @@ function AppRoutes() {
         { path: "email-campaigns", element: <EmailCampaign /> },
         { path: "social-media", element: <SocialMedia /> },
         { path: "marketing-calendar", element: <MarketingCalendar /> },
-        { path: "budget", element: <MarketingBudget /> },
+        { path: "qr-generator", element: <QrGenerator /> },
         { path: "marketing-budget", element: <MarketingBudget /> },
         { path: "reports", element: <Reports /> },
         { path: "social", element: <SocialMedia /> },
@@ -119,7 +120,7 @@ function AppRoutes() {
     { path: "support", element: <Support /> },
     { path: "terms", element: <Terms /> },
     { path: "privacy", element: <PrivacyPolicy /> },
-    { path: "/referral/general/", element: <PatientForm />, children: [
+    { path: "/referral/", element: <PatientForm />, children: [
       { path: ":id", element: <PatientForm /> }
     ] },
   ];

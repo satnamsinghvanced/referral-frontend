@@ -1,36 +1,22 @@
-import React, { useState } from "react";
 import { Button, Chip } from "@heroui/react";
+import React, { useCallback, useState } from "react";
+import { FiCalendar, FiShare2 } from "react-icons/fi";
 import { GoGraph } from "react-icons/go";
-import { LuCheck, LuCopy, LuDownload, LuQrCode } from "react-icons/lu";
 import { HiOutlineDeviceMobile } from "react-icons/hi";
+import { LuCheck, LuCopy, LuDownload, LuQrCode } from "react-icons/lu";
 import { RiExternalLinkLine } from "react-icons/ri";
 import { Link } from "react-router";
 import Input from "../../components/ui/Input";
 import { formatDateToMMDDYYYY } from "../../utils/formatDateToMMDDYYYY";
-import { FiCalendar, FiShare2 } from "react-icons/fi";
-
-interface TrackingData {
-  qrCode?: string;
-  referralUrl?: string;
-  nfcUrl?: string;
-  totalScans?: number;
-  createdAt?: string;
-  todayScan?: number;
-  activeQR?: number;
-  nfcSetup?: number;
-  conversionRate?: number;
-}
 
 interface TrackingPanelProps {
   trackings?: any;
   onGenerateQR?: () => void;
-  onShare?: (title: string, url: string) => void;
 }
 
 const TrackingPanel: React.FC<TrackingPanelProps> = ({
   trackings,
   onGenerateQR,
-  onShare,
 }) => {
   const [copied, setCopied] = useState("");
 
@@ -45,11 +31,20 @@ const TrackingPanel: React.FC<TrackingPanelProps> = ({
     }
   };
 
-  const shareReferral = () =>
-    onShare?.(
-      "Referral QR Code - General Practice",
-      "http://localhost:5173/referral-retrieve/referral/general/"
-    );
+  const openSharingModal = useCallback(async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "Referral QR Code - General Practice",
+          url: trackings?.referralUrl,
+        });
+      } catch (error) {
+        console.error("Error sharing content:", error);
+      }
+    } else {
+      console.log("Web Share API not supported.");
+    }
+  }, []);
 
   if (!trackings?.qrCode) {
     return (
@@ -72,7 +67,7 @@ const TrackingPanel: React.FC<TrackingPanelProps> = ({
   }
 
   return (
-    <div className="grid grid-cols-2 gap-5">
+    <div className="grid grid-cols-2 gap-5 items-start">
       <div className="border w-full border-primary/20 p-5 rounded-xl bg-background flex flex-col gap-10">
         {/* Header */}
         <div>
@@ -190,11 +185,11 @@ const TrackingPanel: React.FC<TrackingPanelProps> = ({
             startContent={<FiShare2 fontSize={14} />}
             className="border-small"
             size="sm"
-            onPress={shareReferral}
+            onPress={openSharingModal}
           >
             Share
           </Button>
-          <Link to="/referral/general" target="_blank">
+          <Link to={trackings?.referralUrl} target="_blank">
             <Button
               variant="bordered"
               color="default"

@@ -50,6 +50,8 @@ const Security: React.FC = () => {
             confirmNewPassword: "",
           }}
           validationSchema={SecuritySchema}
+          // The Formik component is configured to run validation on change/blur by default,
+          // so we only need to use its render props.
           onSubmit={(values, { resetForm }) => {
             updatePassword(
               {
@@ -65,7 +67,9 @@ const Security: React.FC = () => {
             );
           }}
         >
-          {({ setFieldValue, values }) => (
+          {(
+            { setFieldValue, values, isValid, dirty } // <-- Destructure isValid and dirty here
+          ) => (
             <Form className="space-y-3">
               {["currentPassword", "newPassword", "confirmNewPassword"].map(
                 (field) => {
@@ -118,6 +122,8 @@ const Security: React.FC = () => {
                 className="mt-1"
                 type="submit"
                 isLoading={isPending}
+                // --- Apply the disabled condition here ---
+                isDisabled={!isValid || !dirty || isPending}
               >
                 {isPending ? "Updating..." : "Update Password"}
               </Button>

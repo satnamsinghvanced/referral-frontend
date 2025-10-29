@@ -20,7 +20,6 @@ import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
 import LocationSkeleton from "../../components/skeletons/LocationSkeleton";
 import EmptyState from "../../components/common/EmptyState";
 
-// ✅ Form values
 export interface LocationFormValues {
   name: string;
   street: string;
@@ -31,9 +30,6 @@ export interface LocationFormValues {
   isPrimary: boolean;
 }
 
-const phoneRegex = /^\(\d{3}\) \d{3}-\d{4}$/;
-
-// ✅ Validation schema
 const LocationSchema = Yup.object().shape({
   name: Yup.string().required("Location name is required"),
   street: Yup.string().required("Street is required"),
@@ -43,12 +39,14 @@ const LocationSchema = Yup.object().shape({
     .matches(/^\d{5}$/, "Must be a valid 5-digit ZIP code")
     .required("Zipcode is required"),
   phone: Yup.string()
-    .matches(phoneRegex, "Phone must be in format (XXX) XXX-XXXX")
-    .required("Phone is required"),
+    .required("Phone is required")
+    .matches(
+      /^\(\d{3}\)\s\d{3}-\d{4}$/,
+      "Phone must be in format (XXX) XXX-XXXX"
+    ),
   isPrimary: Yup.boolean(),
 });
 
-// ✅ Input field configuration
 const fieldConfig = [
   { name: "name", label: "Location Name", placeholder: "Enter location name" },
   { name: "street", label: "Street", placeholder: "Enter street" },
@@ -71,9 +69,7 @@ const Locations: React.FC = () => {
   const { mutate: updateLocation } = useUpdateLocation();
   const { mutate: deleteLocation } = useDeleteLocation();
 
-  // ✅ Formik setup
   const formik = useFormik<LocationFormValues>({
-    enableReinitialize: true,
     initialValues: {
       name: location?.name || "",
       street: location?.address?.street || "",
@@ -83,7 +79,9 @@ const Locations: React.FC = () => {
       phone: location?.phone || "",
       isPrimary: location?.isPrimary || false,
     },
+    enableReinitialize: !!location,
     validationSchema: LocationSchema,
+    validateOnBlur: true,
     onSubmit: (values) => {
       const payload = {
         address: {
@@ -113,21 +111,19 @@ const Locations: React.FC = () => {
     },
   });
 
-  // ✅ Common cancel handler
   const handleCancel = () => {
     setIsModalOpen(false);
     setIsDeleteModalOpen(false);
     setEditLocationId("");
     setDeleteLocationId("");
+    formik.resetForm();
   };
 
-  // ✅ Edit
   const handleEdit = (id: string) => {
     setEditLocationId(id);
     setIsModalOpen(true);
   };
 
-  // ✅ Delete
   const handleDeleteClick = (id: string) => {
     setDeleteLocationId(id);
     setIsDeleteModalOpen(true);
@@ -218,6 +214,7 @@ const Locations: React.FC = () => {
               onPress={() => {
                 setIsModalOpen(true);
                 setEditLocationId("");
+                formik.resetForm();
               }}
             >
               <FiPlus className="h-4 w-4" />
@@ -251,6 +248,7 @@ const Locations: React.FC = () => {
             color: "default",
             className: "bg-foreground text-background",
             icon: <FiPlus className="size-4" />,
+            isDisabled: !formik.isValid || !formik.dirty,
           },
         ]}
       >
@@ -259,56 +257,44 @@ const Locations: React.FC = () => {
           onSubmit={formik.handleSubmit}
           className="flex flex-col gap-4"
         >
-          {fieldConfig.map((field) =>
-            field.name === "phone" ? (
-              <Input
-                key={field.name}
-                id={field.name}
-                name={field.name}
-                label={field.label}
-                labelPlacement="outside"
-                placeholder={field.placeholder}
-                value={formik.values.phone}
-                onChange={(val) =>
-                  formik.setFieldValue("phone", formatPhoneNumber(val))
-                }
-                formik={formik}
-              />
-            ) : (
-              <Input
-                key={field.name}
-                id={field.name}
-                name={field.name}
-                label={field.label}
-                labelPlacement="outside"
-                placeholder={field.placeholder}
-                value={
-                  formik.values[
-                    field.name as keyof LocationFormValues
-                  ] as string
-                }
-                onChange={(val) => formik.setFieldValue(field.name, val)}
-                onBlur={formik.handleBlur}
-                error={
-                  formik.errors[
-                    field.name as keyof LocationFormValues
-                  ] as string
-                }
-                touched={
-                  formik.touched[
-                    field.name as keyof LocationFormValues
-                  ] as boolean
-                }
-              />
-            )
-          )}
+          {fieldConfig.map((field) => (
+            <Input
+              key={field.name}
+              id={field.name}
+              name={field.name}
+              label={field.label}
+              labelPlacement="outside"
+              placeholder={field.placeholder}
+              value={
+                formik.values[field.name as keyof LocationFormValues] as string
+              }
+              onChange={(val: string) => {
+                const newValue =
+                  field.name === "phone" ? formatPhoneNumber(val) : val;
+                formik.setFieldValue(field.name, newValue);
+              }}
+              // FIX: Ensure all fields, including phone, have onBlur, error, and touched
+              onBlur={formik.handleBlur}
+              error={
+                formik.errors[field.name as keyof LocationFormValues] as string
+              }
+              touched={
+                formik.touched[
+                  field.name as keyof LocationFormValues
+                ] as boolean
+              }
+              isRequired
+            />
+          ))}
 
           <Switch
             size="sm"
             id="isPrimary"
             name="isPrimary"
             isSelected={formik.values.isPrimary}
-            onValueChange={(val) => formik.setFieldValue("isPrimary", val)}
+            onValueChange={(val: boolean) =>
+              formik.setFieldValue("isPrimary", val)
+            }
           >
             Primary Location
           </Switch>

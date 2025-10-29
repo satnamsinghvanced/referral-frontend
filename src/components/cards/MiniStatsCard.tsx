@@ -30,7 +30,7 @@ const MiniStatsCard = ({ cardData }: MiniStatsCardProps) => {
         <div className="text-lg mt-4 mb-0.5 font-bold">
           {cardData.value !== undefined && cardData.value !== null
             ? cardData.value
-            : "N/A"}
+            : "0"}
         </div>
         <div>{cardData.subheading}</div>
       </CardBody>
