@@ -2,13 +2,15 @@ import { Input, Select, SelectItem } from "@heroui/react";
 import { useMemo, useState } from "react";
 import { FiPhone, FiPhoneCall, FiSearch, FiSettings } from "react-icons/fi";
 import { LuClock, LuFileAudio, LuRefreshCw } from "react-icons/lu";
-import { MdTrendingUp } from "react-icons/md";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import TwilioConfigurationModal from "./TwilioConfigurationModal";
 import { CALL_STATUS_OPTIONS, CALL_TYPE_OPTIONS } from "../../utils/filters";
 import { CallFilters, CallRecord } from "../../types/call";
 import CallRecordCard from "./CallRecordCard";
+import CallRecordingModal from "./CallRecordingModal";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
+import { MdTrendingUp } from "react-icons/md";
 
 export const callRecordsData: CallRecord[] = [
   {
@@ -19,6 +21,8 @@ export const callRecordsData: CallRecord[] = [
     sentiment: "positive",
     duration: "5:23",
     isVerified: true,
+    type: "incoming",
+    status: "completed",
     tags: [
       { label: "new-patient", type: "category" },
       { label: "referral", type: "category" },
@@ -35,6 +39,8 @@ export const callRecordsData: CallRecord[] = [
     sentiment: "negative",
     duration: "1:45",
     isVerified: true,
+    type: "outgoing",
+    status: "voicemail",
     tags: [
       { label: "existing-client", type: "category" },
       { label: "billing", type: "category" },
@@ -50,21 +56,142 @@ export const callRecordsData: CallRecord[] = [
     sentiment: "neutral",
     duration: "12:01",
     isVerified: false,
+    type: "incoming",
+    status: "recorded",
     tags: [
       { label: "inquiry", type: "category" },
       { label: "Marketing", type: "category" },
       { label: "Recorded", type: "status" },
     ],
   },
+  {
+    id: "crd_004",
+    callerName: "Alex Smith",
+    callerPhone: "(555) 222-3333",
+    timeAgo: "4 hours ago",
+    sentiment: "positive",
+    duration: "3:00",
+    isVerified: true,
+    type: "outgoing",
+    status: "completed",
+    tags: [
+      { label: "follow-up", type: "action" },
+      { label: "Marketing", type: "category" },
+    ],
+  },
 ];
+
+const CALL_DATA = {
+  callerName: "Sarah Johnson",
+  callerPhone: "(555) 123-4567",
+  date: "2024-01-20",
+  duration: "5:23",
+  type: "Incoming",
+  status: "Completed",
+  callSid: "CAxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+  recordingStatus: "Available",
+  sentiment: "positive",
+  source: "Twilio",
+  transcription:
+    "Hi, I'd like to schedule an appointment for my daughter. She needs braces and we were referred by Dr. Smith.",
+  notes: "Patient interested in orthodontic consultation for teenager",
+  followUpRequired: true,
+  appointmentScheduled: false,
+};
 
 const CallTracking = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
   const [currentFilters, setCurrentFilters] = useState<CallFilters>({
     search: "",
     type: "all",
     status: "all",
   });
+
+  const { user } = useTypedSelector((state) => state.auth);
+  const userId = user?.userId || "mock-user-id";
+
+  const onFilterChange = (key: keyof CallFilters, value: string) => {
+    setCurrentFilters((prev) => ({ ...prev, [key]: value }));
+  };
+
+  const onSearchChange = (value: string) => {
+    setCurrentFilters((prev) => ({ ...prev, search: value }));
+  };
+
+  const filteredCalls = useMemo(() => {
+    const { search, type, status } = currentFilters;
+    const normalizedSearch = search.toLowerCase().trim();
+
+    return callRecordsData.filter((record) => {
+      const matchesSearch =
+        normalizedSearch === "" ||
+        record.callerName.toLowerCase().includes(normalizedSearch) ||
+        record.callerPhone.toLowerCase().includes(normalizedSearch) ||
+        record.tags.some((tag) =>
+          tag.label.toLowerCase().includes(normalizedSearch)
+        );
+
+      const matchesType = type === "all" || (record as any).type === type;
+
+      const matchesStatus =
+        status === "all" || (record as any).status === status;
+
+      return matchesSearch && matchesType && matchesStatus;
+    });
+  }, [currentFilters]);
+
+  const STATS_CARD_DATA: StatCard[] = [
+    {
+      icon: <FiPhone className="text-[17px] mt-1 text-foreground/60" />,
+      heading: "Total Calls",
+      value: callRecordsData.length,
+      subheading: `${
+        callRecordsData.filter((r) => (r as any).status === "completed").length
+      } completed`,
+    },
+    {
+      icon: <FiPhoneCall className="text-[17px] mt-1 text-foreground/60" />,
+      heading: "Answer Rate",
+      value: `${
+        Math.round(
+          (callRecordsData.filter(
+            (r) =>
+              (r as any).status === "completed" ||
+              (r as any).status === "recorded"
+          ).length /
+            callRecordsData.length) *
+            100
+        ) || 0
+      }%`,
+      subheading: `${
+        callRecordsData.filter((r) => (r as any).status === "voicemail").length
+      } missed calls`,
+    },
+    {
+      icon: <LuClock className="text-[17px] mt-1 text-foreground/60" />,
+      heading: "Avg Duration",
+      value: `3:00`,
+      subheading: "Average call length",
+    },
+    {
+      icon: <LuFileAudio className="text-[17px] mt-1 text-foreground/60" />,
+      heading: "Recordings",
+      value: callRecordsData.filter(
+        (r) =>
+          (r as any).status === "recorded" || (r as any).status === "completed"
+      ).length,
+      subheading: "Available for playback",
+    },
+    {
+      icon: <MdTrendingUp className="text-[17px] mt-1 text-foreground/60" />,
+      heading: "Follow-ups",
+      value: callRecordsData.filter((r) =>
+        r.tags.some((t) => t.label === "Follow-up")
+      ).length,
+      subheading: "Require attention",
+    },
+  ];
 
   const HEADING_DATA = useMemo(
     () => ({
@@ -93,47 +220,6 @@ const CallTracking = () => {
     []
   );
 
-  const STATS_CARD_DATA: StatCard[] = [
-    {
-      icon: <FiPhone className="text-[17px] mt-1 text-foreground/60" />,
-      heading: "Total Calls",
-      value: 0,
-      subheading: "0 completed",
-    },
-    {
-      icon: <FiPhoneCall className="text-[17px] mt-1 text-foreground/60" />,
-      heading: "Answer Rate",
-      value: `0%`,
-      subheading: "0 missed calls",
-    },
-    {
-      icon: <LuClock className="text-[17px] mt-1 text-foreground/60" />,
-      heading: "Avg Duration",
-      value: `0:00`,
-      subheading: "Average call length",
-    },
-    {
-      icon: <LuFileAudio className="text-[17px] mt-1 text-foreground/60" />,
-      heading: "Recordings",
-      value: 0,
-      subheading: "Available for playback",
-    },
-    {
-      icon: <MdTrendingUp className="text-[17px] mt-1 text-foreground/60" />,
-      heading: "Follow-ups",
-      value: 1,
-      subheading: "Require attention",
-    },
-  ];
-
-  const onFilterChange = (key: keyof CallFilters, value: string) => {
-    setCurrentFilters((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const onSearchChange = (value: string) => {
-    setCurrentFilters((prev) => ({ ...prev, search: value }));
-  };
-
   return (
     <>
       <ComponentContainer headingData={HEADING_DATA}>
@@ -143,10 +229,11 @@ const CallTracking = () => {
               <MiniStatsCard key={data.heading} cardData={data} />
             ))}
           </div>
-          <div className="grid grid-cols-2 gap-4 border border-primary/10 rounded-xl p-4 bg-white shadow-none">
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border border-primary/10 rounded-xl p-4 bg-white shadow-none">
             <div className="relative flex-1">
               <Input
-                placeholder="Search calls by name, phone, or transcription..."
+                placeholder="Search calls by name, phone, or tags..."
                 size="sm"
                 value={currentFilters.search}
                 onValueChange={onSearchChange}
@@ -159,8 +246,7 @@ const CallTracking = () => {
                 aria-label="Call Types"
                 placeholder="All Types"
                 size="sm"
-                selectedKeys={[currentFilters.type]}
-                disabledKeys={[currentFilters.type]}
+                selectedKeys={new Set([currentFilters.type])}
                 onSelectionChange={(keys) =>
                   onFilterChange("type", Array.from(keys)[0] as string)
                 }
@@ -176,8 +262,7 @@ const CallTracking = () => {
                 aria-label="Call Status"
                 placeholder="All Status"
                 size="sm"
-                selectedKeys={[currentFilters.status]}
-                disabledKeys={[currentFilters.status]}
+                selectedKeys={new Set([currentFilters.status])}
                 onSelectionChange={(keys) =>
                   onFilterChange("status", Array.from(keys)[0] as string)
                 }
@@ -190,17 +275,36 @@ const CallTracking = () => {
               </Select>
             </div>
           </div>
+
           <div className="flex flex-col gap-4 border border-primary/15 bg-background rounded-xl p-4">
             <p className="font-medium text-sm">Call History</p>
-            {callRecordsData.map((record) => (
-              <CallRecordCard key={record.id} record={record} />
-            ))}
+
+            {filteredCalls.length > 0 ? (
+              filteredCalls.map((record) => (
+                <CallRecordCard
+                  key={record.id}
+                  record={record}
+                  onPlayClick={() => setIsRecordingModalOpen(true)}
+                />
+              ))
+            ) : (
+              <div className="text-center py-10 text-gray-500 text-sm">
+                No call records found matching your filters.
+              </div>
+            )}
           </div>
         </div>
       </ComponentContainer>
+
       <TwilioConfigurationModal
+        userId={userId as string}
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
+      />
+      <CallRecordingModal
+        isOpen={isRecordingModalOpen}
+        onClose={() => setIsRecordingModalOpen(false)}
+        data={CALL_DATA}
       />
     </>
   );

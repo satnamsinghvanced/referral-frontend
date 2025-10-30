@@ -1,14 +1,32 @@
-import { FiMessageSquare, FiStar, FiWifi } from "react-icons/fi";
+import { FiMessageSquare, FiSettings, FiStar, FiWifi } from "react-icons/fi";
 import { LuQrCode } from "react-icons/lu";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import ReviewStatsCard from "./ReviewStatsCard";
 import ReviewToggle from "./Toggle";
+import { useState } from "react";
+import GoogleApiConfigurationModal from "../call-tracking/GoogleApiConfigurationModal";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
 
 const Reviews = () => {
+  const [isGoogleSettingsModalOpen, setIsGoogleSettingsModalOpen] =
+    useState(false);
+  const { user } = useTypedSelector((state) => state.auth);
+  const userId = user?.userId;
+
   const headingData = {
     heading: "Reviews & Reputation Management",
     subHeading:
       "Monitor reviews, track NFC/QR analytics, and manage your online reputation across all locations.",
+    buttons: [
+      {
+        label: "Google Settings",
+        onClick: () => setIsGoogleSettingsModalOpen(true),
+        icon: <FiSettings fontSize={15} />,
+        variant: "bordered",
+        color: "default",
+        className: "border-small",
+      },
+    ],
   };
 
   const StatCardData = [
@@ -39,22 +57,29 @@ const Reviews = () => {
   ];
 
   return (
-    <ComponentContainer headingData={headingData}>
-      <div className="flex flex-col gap-5">
-        <div className="grid grid-cols md:grid-cols-3 xl:grid-cols-4 gap-4">
-          {StatCardData.map((card, index) => (
-            <ReviewStatsCard
-              key={index}
-              cardHeading={card.heading}
-              cardStat={card.value}
-              subheading={card.subheading}
-              cardIcon={card.icon}
-            />
-          ))}
+    <>
+      <ComponentContainer headingData={headingData}>
+        <div className="flex flex-col gap-5">
+          <div className="grid grid-cols md:grid-cols-3 xl:grid-cols-4 gap-4">
+            {StatCardData.map((card, index) => (
+              <ReviewStatsCard
+                key={index}
+                cardHeading={card.heading}
+                cardStat={card.value}
+                subheading={card.subheading}
+                cardIcon={card.icon}
+              />
+            ))}
+          </div>
+          <ReviewToggle />
         </div>
-        <ReviewToggle />
-      </div>
-    </ComponentContainer>
+      </ComponentContainer>
+      <GoogleApiConfigurationModal
+        userId={userId as string}
+        isOpen={isGoogleSettingsModalOpen}
+        onClose={() => setIsGoogleSettingsModalOpen(false)}
+      />
+    </>
   );
 };
 

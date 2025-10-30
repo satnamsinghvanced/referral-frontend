@@ -157,3 +157,44 @@ export interface EventDetails {
   location: string;
   notes: string;
 }
+
+
+export interface DefaultVisitPurpose {
+  title: string;
+  duration: string;
+}
+
+export interface PlanDetails {
+  planName: string;
+  defaultPriority: string; // e.g., "Medium Priority"
+  durationPerVisit: string; // e.g., "1 hour"
+  defaultVisitPurpose: DefaultVisitPurpose;
+  description: string;
+}
+
+export interface ScheduledVisit {
+  scheduleVisitDate: string; // ISO 8601 format: "2025-10-29T09:00:00Z"
+  startTime: string; // e.g., "9:00 AM"
+  visitPurpose: string; // e.g., "Meet with Dr. Smith"
+  priority: string; // e.g., "Medium Priority"
+  notes: string; // e.g., "Bring brochures"
+}
+
+export interface ReviewSummary {
+  visitDays: string[]; // e.g., ["2025-10-29", "2025-10-30"]
+  totalTime: string; // e.g., "2 hours"
+  distance: string; // e.g., "12 km"
+}
+
+export interface SchedulePlanRequest {
+  practices: string[]; // Array of practice/referrer IDs
+  planDetails: PlanDetails;
+  scheduleVisits: ScheduledVisit[];
+  review: ReviewSummary;
+}
+
+export interface SchedulePlanResponse {
+  success: boolean;
+  message: string;
+  planId: string;
+}

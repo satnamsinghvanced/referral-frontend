@@ -19,9 +19,12 @@ import NotesTasksModal from "./NotesTasksModal";
 import PartnerDetailsModal from "./PartnerDetailsModal";
 import PartnerNetworkCard from "./PartnerNetworkCard";
 import PartnerNetworkHeader from "./PartnerNetworkHeader";
+import { ScheduleVisitsModal } from "./ScheduleVisitsModal";
 
 const PartnerNetwork = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isScheduleVisitModalOpen, setIsScheduleVisitModalOpen] =
+    useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isPracticeEdit, setIsPracticeEdit] = useState(true);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
@@ -74,14 +77,14 @@ const PartnerNetwork = () => {
   };
 
   const HEADING_DATA_BUTTONS_LIST = [
-    {
-      label: "Bulk Select",
-      onClick: () => alert("Bulk Select Clicked"),
-      icon: <TbCheckbox fontSize={16} />,
-      variant: "bordered" as const, // Use 'as const' for literal types in an array
-      color: "default" as const,
-      className: "border-small",
-    },
+    // {
+    //   label: "Bulk Select",
+    //   onClick: () => alert("Bulk Select Clicked"),
+    //   icon: <TbCheckbox fontSize={16} />,
+    //   variant: "bordered" as const, // Use 'as const' for literal types in an array
+    //   color: "default" as const,
+    //   className: "border-small",
+    // },
     {
       label: "Add Practice",
       onClick: handleOpen,
@@ -255,6 +258,7 @@ const PartnerNetwork = () => {
                 variant="solid"
                 color="primary"
                 startContent={<MdOutlineCalendarToday />}
+                onPress={() => setIsScheduleVisitModalOpen(true)}
               >
                 Create Monthly Plan
               </Button>
@@ -292,6 +296,11 @@ const PartnerNetwork = () => {
         onAddTask={() => alert("Add task not implemented")}
         onDeleteNote={() => alert("Delete note not implemented")}
         onDeleteTask={() => alert("Delete task not implemented")}
+      />
+
+      <ScheduleVisitsModal
+        isOpen={isScheduleVisitModalOpen}
+        onClose={() => setIsScheduleVisitModalOpen(false)}
       />
     </>
   );

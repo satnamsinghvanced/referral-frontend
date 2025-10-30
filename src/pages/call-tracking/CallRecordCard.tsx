@@ -7,7 +7,6 @@ import {
   FiPhoneIncoming,
   FiPlay,
 } from "react-icons/fi";
-import { ButtonColor } from "../../types/types";
 import { CallRecord, Tag } from "../../types/call";
 
 const getSentimentColor = (sentiment: CallRecord["sentiment"]) => {
@@ -40,7 +39,13 @@ const getChipColorAndVariant = (tag: Tag) => {
 };
 
 // --- Component ---
-export default function CallRecordCard({ record }: { record: CallRecord }) {
+export default function CallRecordCard({
+  record,
+  onPlayClick,
+}: {
+  record: CallRecord;
+  onPlayClick: () => void;
+}) {
   const sentimentColor = getSentimentColor(record.sentiment);
   const categoryTags = record.tags.filter((t) => t.type === "category");
   const statusTags = record.tags.filter((t) => t.type !== "category");
@@ -88,7 +93,7 @@ export default function CallRecordCard({ record }: { record: CallRecord }) {
           </p>
 
           {/* Tags (Categories) */}
-          <div className="flex space-x-2 mt-1">
+          <div className="flex space-x-2 mt-2">
             {categoryTags.map((tag) => {
               // Default appearance for tags
               const { color, variant, className } = getChipColorAndVariant(tag);
@@ -112,7 +117,7 @@ export default function CallRecordCard({ record }: { record: CallRecord }) {
       {/* RIGHT SECTION: Duration, Status Badges, and Action Buttons */}
       <div className="flex items-center space-x-4">
         {/* Duration and Status */}
-        <div className="text-right text-sm text-gray-600 space-y-1">
+        <div className="text-right text-sm text-gray-600 space-y-1.5">
           {/* Duration */}
           <div className="flex items-center justify-end space-x-1">
             <FiClock className="h-3 w-3" aria-hidden="true" />
@@ -147,6 +152,7 @@ export default function CallRecordCard({ record }: { record: CallRecord }) {
             variant="bordered"
             className="border-small px-0 !min-w-8"
             aria-label="Play recording"
+            onPress={onPlayClick}
           >
             <FiPlay className="size-3.5" />
           </Button>

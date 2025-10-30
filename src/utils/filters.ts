@@ -19,17 +19,27 @@ export const locationOptions = [
   { key: "brooklyn", label: "Brooklyn Heights Orthodontics" },
 ];
 
-export const categoryOptions: { _id: string; title: string }[] = [
+export const categoryOptions: {
+  _id: string;
+  title: string;
+  shortTitle: string;
+}[] = [
   {
     _id: "A-Level",
     title: "A-Level (High Value Partner)",
+    shortTitle: "A-Level",
   },
-  { _id: "B-Level", title: "B-Level (Regular Partner)" },
+  { _id: "B-Level", title: "B-Level (Regular Partner)", shortTitle: "B-Level" },
   {
     _id: "C-Level",
     title: "C-Level (Occasional Partner)",
+    shortTitle: "C-Level",
   },
-  { _id: "Other/Prospect", title: "Other/Prospect" },
+  {
+    _id: "Other/Prospect",
+    title: "Other/Prospect",
+    shortTitle: "Other/Prospect",
+  },
 ];
 
 export const practiceOptions = [

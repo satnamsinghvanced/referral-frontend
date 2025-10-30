@@ -87,6 +87,7 @@ const Overview = () => {
               <XAxis dataKey="name" />
               <YAxis width="auto" />
               <Tooltip />
+              <Legend />
               <Area
                 type="monotone"
                 dataKey="reviews"
