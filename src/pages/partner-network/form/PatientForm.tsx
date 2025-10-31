@@ -4,19 +4,76 @@ import {
     CardBody,
     Checkbox,
     Divider,
+    Input,
     Select,
     SelectItem,
     Textarea
 } from "@heroui/react";
 import { useFormik } from 'formik';
-import { useState } from 'react';
-import { FaCalendarAlt, FaGlobe, FaPhone, FaUserMd } from 'react-icons/fa';
-import Input from '../../../components/ui/Input'; // Your custom Input component
+import { useEffect, useState } from 'react';
+import { FaGlobe, FaPhone } from 'react-icons/fa';
+import * as Yup from 'yup';
 import { timeOptions, treatmentOptions } from "../../../utils/consts";
 import { urgencyOptions } from "../../../Utils/filters";
+import { useCreateReferral } from '../../../hooks/useReferral';
+import { useLocation, useNavigate } from "react-router";
 
 const PatientForm = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [referredBy, setReferredBy] = useState('')
+    const [addedVia, setAddedVia] = useState('')
+    const createReferralMutation = useCreateReferral();
+    const location = useLocation();
+    const navigate = useNavigate();
+    useEffect(() => {
+        const currentPath = window.location.href;
+        const referralId = currentPath.split('/referral/')[1]?.split('?')[0] || currentPath.split('/referral/')[1];
+        setReferredBy(referralId ?? '')
+        console.log('referredBy ', referredBy)
+
+        const queryParams = new URLSearchParams(location.search);
+        const source = queryParams.get('source');
+        console.log('source: ', source)
+        setAddedVia(source)
+        console.log('addedVia ', addedVia)
+
+    }, [])
+    // Validation Schema
+    const validationSchema = Yup.object({
+        fullName: Yup.string()
+            .required('Full name is required')
+            .min(2, 'Full name must be at least 2 characters')
+            .max(100, 'Full name must be less than 100 characters'),
+        email: Yup.string()
+            .required('Email is required')
+            .email('Invalid email address'),
+        phone: Yup.string()
+            .matches(/^[0-9+\-\s()]*$/, 'Phone number can only contain numbers, spaces, hyphens, and parentheses')
+            .test('phone-length', 'Phone number should be between 10-15 digits', (value) => {
+                if (!value) return true; // Optional field
+                const digitsOnly = value.replace(/[^0-9]/g, '');
+                return digitsOnly.length >= 10 && digitsOnly.length <= 15;
+            })
+            .nullable(),
+        insuranceProvider: Yup.string()
+            .max(100, 'Insurance provider must be less than 100 characters')
+            .nullable(),
+        preferredTreatment: Yup.string()
+            .nullable(),
+        urgencyLevel: Yup.string()
+            .nullable(),
+        preferredTime: Yup.string()
+            .nullable(),
+        referralReason: Yup.string()
+            .max(500, 'Referral reason must be less than 500 characters')
+            .nullable(),
+        additionalNotes: Yup.string()
+            .max(1000, 'Additional notes must be less than 1000 characters')
+            .nullable(),
+        agreeToTerms: Yup.boolean()
+            .oneOf([true], 'You must agree to the terms and conditions')
+            .required('You must agree to the terms and conditions')
+    });
 
     const formFields = [
         {
@@ -49,7 +106,6 @@ const PatientForm = () => {
         }
     ];
 
-    // Formik configuration
     const formik = useFormik({
         initialValues: {
             fullName: '',
@@ -63,42 +119,37 @@ const PatientForm = () => {
             additionalNotes: '',
             agreeToTerms: false
         },
+        validationSchema: validationSchema,
         onSubmit: async (values) => {
             setIsSubmitting(true);
+
             try {
-                await new Promise(resolve => setTimeout(resolve, 1000));
+                // Prepare the payload for the API
+                const payload: Partial<Referral> = {
+                    referredBy: referredBy,
+                    addedVia: addedVia,
+                    name: values.fullName,
+                    email: values.email,
+                    phone: values.phone || undefined,
+                    insurance: values.insuranceProvider || undefined,
+                    appointment: values.preferredTreatment || undefined,
+                    priority: values.urgencyLevel || undefined,
+                    scheduledDate: values.preferredTime || undefined,
+                    reason: values.referralReason || undefined,
+                    notes: values.additionalNotes || undefined,
+                };
 
-                console.log('Form submitted with values:', values);
+                console.log('Submitting payload:', payload);
+                const ttt = await createReferralMutation.mutateAsync(payload);
+                console.log('fnjksabdgsdklf: ', ttt)
+                formik.resetForm();
+                navigate('/thank-you');
 
-                // Here you would typically send the data to your backend
-                // await submitForm(values);
-
-                alert('Form submitted successfully! Check console for values.');
             } catch (error) {
                 console.error('Form submission error:', error);
-                alert('Error submitting form. Please try again.');
             } finally {
                 setIsSubmitting(false);
             }
-        },
-        validate: (values) => {
-            const errors: any = {};
-
-            if (!values.fullName) {
-                errors.fullName = 'Full name is required';
-            }
-
-            if (!values.email) {
-                errors.email = 'Email is required';
-            } else if (!/\S+@\S+\.\S+/.test(values.email)) {
-                errors.email = 'Email address is invalid';
-            }
-
-            if (!values.agreeToTerms) {
-                errors.agreeToTerms = 'You must agree to the terms and conditions';
-            }
-
-            return errors;
         }
     });
 
@@ -106,7 +157,7 @@ const PatientForm = () => {
         <div className="min-h-screen bg-gradient-to-br from-blue-50 to-cyan-100 py-8 px-4 text-xs">
             <div className="max-w-4xl mx-auto">
                 {/* Header Card */}
-                <Card className="shadow-lg mb-6 border-0  p-0">
+                <Card className="shadow-lg mb-6 border-0 p-0">
                     <CardBody className="p-0">
                         <div className="flex justify-between items-center mb-4 text-sm bg-gradient-to-l from-green-600 to-blue-600 m-0 p-3 text-background">
                             <div>
@@ -127,7 +178,6 @@ const PatientForm = () => {
                                 </div>
                             </div>
                         </div>
- 
 
                         <div className="p-4">
                             <p className="text-sm text-primary">
@@ -154,20 +204,28 @@ const PatientForm = () => {
                         </div>
 
                         <form onSubmit={formik.handleSubmit} className="space-y-6">
-                            {/* Personal Information Grid - Using Input Component */}
+                            {/* Personal Information Grid */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 {formFields.map((field) => (
                                     <Input
                                         key={field.name}
+                                        type={field.type}
                                         label={field.label}
                                         name={field.name}
                                         placeholder={field.placeholder}
-                                        type={field.type}
                                         value={formik.values[field.name as keyof typeof formik.values]}
-                                        className="w-full"
-                                        formik={formik}
+                                        onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
                                         isRequired={field.required}
-                                    // labelPlacement="outside"
+                                        isInvalid={
+                                            formik.touched[field.name as keyof typeof formik.touched] &&
+                                            !!formik.errors[field.name as keyof typeof formik.errors]
+                                        }
+                                        errorMessage={
+                                            formik.touched[field.name as keyof typeof formik.touched] &&
+                                            formik.errors[field.name as keyof typeof formik.errors]
+                                        }
+                                        className="w-full"
                                     />
                                 ))}
                             </div>
@@ -184,6 +242,11 @@ const PatientForm = () => {
                                         formik.setFieldValue('preferredTreatment', value);
                                     }}
                                     className="w-full"
+                                    isInvalid={
+                                        formik.touched.preferredTreatment &&
+                                        !!formik.errors.preferredTreatment
+                                    }
+                                    errorMessage={formik.touched.preferredTreatment && formik.errors.preferredTreatment}
                                 >
                                     {treatmentOptions.map((treatment) => (
                                         <SelectItem key={treatment.key}>
@@ -202,6 +265,11 @@ const PatientForm = () => {
                                         formik.setFieldValue('urgencyLevel', value);
                                     }}
                                     className="w-full"
+                                    isInvalid={
+                                        formik.touched.urgencyLevel &&
+                                        !!formik.errors.urgencyLevel
+                                    }
+                                    errorMessage={formik.touched.urgencyLevel && formik.errors.urgencyLevel}
                                 >
                                     {urgencyOptions.map((urgency) => (
                                         <SelectItem key={urgency.key}>
@@ -222,6 +290,11 @@ const PatientForm = () => {
                                         formik.setFieldValue('preferredTime', value);
                                     }}
                                     className="w-full"
+                                    isInvalid={
+                                        formik.touched.preferredTime &&
+                                        !!formik.errors.preferredTime
+                                    }
+                                    errorMessage={formik.touched.preferredTime && formik.errors.preferredTime}
                                 >
                                     {timeOptions.map((time) => (
                                         <SelectItem key={time.key}>
@@ -242,6 +315,11 @@ const PatientForm = () => {
                                     onBlur={formik.handleBlur}
                                     minRows={3}
                                     className="w-full"
+                                    isInvalid={
+                                        formik.touched.referralReason &&
+                                        !!formik.errors.referralReason
+                                    }
+                                    errorMessage={formik.touched.referralReason && formik.errors.referralReason}
                                 />
                             </div>
 
@@ -253,7 +331,7 @@ const PatientForm = () => {
                                     <label className="block text-sm font-medium mb-2">
                                         Additional Notes
                                     </label>
-                                    <p className="text-smmb-3">
+                                    <p className="text-sm mb-3">
                                         Any additional information you'd like us to know...
                                     </p>
                                     <Textarea
@@ -264,6 +342,11 @@ const PatientForm = () => {
                                         onBlur={formik.handleBlur}
                                         minRows={3}
                                         className="w-full"
+                                        isInvalid={
+                                            formik.touched.additionalNotes &&
+                                            !!formik.errors.additionalNotes
+                                        }
+                                        errorMessage={formik.touched.additionalNotes && formik.errors.additionalNotes}
                                     />
                                 </div>
                             </div>
@@ -277,6 +360,10 @@ const PatientForm = () => {
                                     label: "text-sm"
                                 }}
                                 isRequired
+                                isInvalid={
+                                    formik.touched.agreeToTerms &&
+                                    !!formik.errors.agreeToTerms
+                                }
                             >
                                 I agree to the terms and conditions and consent to being contacted by Downtown Orthodontics.
                             </Checkbox>
@@ -293,10 +380,10 @@ const PatientForm = () => {
                                     color="primary"
                                     className="px-8 py-3 text-lg font-semibold"
                                     size="lg"
-                                    isLoading={isSubmitting}
-                                    isDisabled={!formik.isValid || isSubmitting}
+                                    isLoading={isSubmitting || createReferralMutation.isPending}
+                                    isDisabled={!formik.isValid || isSubmitting || createReferralMutation.isPending || !formik.dirty}
                                 >
-                                    {isSubmitting ? 'Submitting...' : 'Submit Consultation Request'}
+                                    {isSubmitting || createReferralMutation.isPending ? 'Submitting...' : 'Submit Consultation Request'}
                                 </Button>
                             </div>
                         </form>

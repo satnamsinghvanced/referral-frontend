@@ -6,7 +6,6 @@ import { addToast } from "@heroui/react";
 import {
   Referral,
   Referrer,
-  createReferral,
   getReferralById,
   fetchReferrals,
   updateReferral,
@@ -21,6 +20,7 @@ import {
   fetchTrackings,
   logTrackingScan,
 } from "../services/referral";
+import { createReferral } from "../services/referralBypassFunction";
 
 // ---------------------------
 // 🔹 Referrals

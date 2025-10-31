@@ -9,7 +9,7 @@ export interface Referral {
   addedVia: string;
   name: string;
   age?: number;
-  mobile: string;
+  phone: string;
   email?: string;
   treatment?: string;
   status: string;
@@ -52,7 +52,10 @@ export interface Referrer {
 
 // Create new referral
 export const createReferral = async (payload: Partial<Referral>) => {
-  const { data } = await axios.post("/referral/", payload);
+  console.log('sending data to server: ', payload)
+  debugger
+  const { data } = await axios.post("/referral", payload);
+  console.log('response: ', data)
   return data;
 };
 
@@ -143,11 +146,11 @@ export const createTracking = async (
   adminId: string,
   payload:
     | {
-        referralUrl: string;
-        nfcUrl: string;
-        isActive: boolean;
-        image: File | string;
-      }
+      referralUrl: string;
+      nfcUrl: string;
+      isActive: boolean;
+      image: File | string;
+    }
     | FormData // allow FormData too
 ) => {
   const { data } = await axios.post(`/tracking/${adminId}`, payload, {

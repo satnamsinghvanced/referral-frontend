@@ -55,6 +55,7 @@ const PatientForm = React.lazy(
   () => import("./pages/partner-network/form/PatientForm")
 );
 const CallTracking = React.lazy(() => import("./pages/call-tracking/CallTracking"));
+const ThankYou = React.lazy(() => import("./pages/partner-network/form/ThankYouPage"));
 
 
 // Route type
@@ -114,15 +115,18 @@ function AppRoutes() {
       element: <ProtectedRoute component={PlansPage} role="admin" />,
     },
     { path: "signin", element: <SignIn /> },
-    { path: "signup", element: <SignUp /> },
+    { path: "signin", element: <SignIn /> },
+    { path: "thank-you", element: <ThankYou /> },
     { path: "success", element: <Success /> },
     { path: "fail", element: <Fail /> },
     { path: "support", element: <Support /> },
     { path: "terms", element: <Terms /> },
     { path: "privacy", element: <PrivacyPolicy /> },
-    { path: "/referral/", element: <PatientForm />, children: [
-      { path: ":id", element: <PatientForm /> }
-    ] },
+    {
+      path: "/referral/", element: <PatientForm />, children: [
+        { path: ":id", element: <PatientForm /> }
+      ]
+    },
   ];
 
   const renderRoutes = (routes: AppRoute[]): ReactNode =>
