@@ -1,13 +1,10 @@
-import { Button, Pagination } from "@heroui/react";
+import { Pagination } from "@heroui/react";
 import { useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { FiEdit, FiEye, FiStar, FiUsers } from "react-icons/fi";
 import { IoDocumentOutline } from "react-icons/io5";
 import { LuBuilding2 } from "react-icons/lu";
-import { MdOutlineCalendarToday } from "react-icons/md";
-import { TbCheckbox } from "react-icons/tb";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
-import ComponentContainer from "../../components/common/ComponentContainer";
 import {
   useFetchPartnerDetail,
   useFetchPartners,
@@ -19,12 +16,10 @@ import NotesTasksModal from "./NotesTasksModal";
 import PartnerDetailsModal from "./PartnerDetailsModal";
 import PartnerNetworkCard from "./PartnerNetworkCard";
 import PartnerNetworkHeader from "./PartnerNetworkHeader";
-import { ScheduleVisitsModal } from "./ScheduleVisitsModal";
+import ScheduleVisits from "./schedule-visits/ScheduleVisits";
 
 const PartnerNetwork = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isScheduleVisitModalOpen, setIsScheduleVisitModalOpen] =
-    useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isPracticeEdit, setIsPracticeEdit] = useState(true);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
@@ -190,7 +185,7 @@ const PartnerNetwork = () => {
             onSortOrderChange={handleSortOrderChange}
           />
         </div>
-        <div className="flex flex-col gap-2 md:px-7 px-4 py-4 md:py-[31px] overflow-auto">
+        <div className="flex flex-col gap-2 md:px-7 px-4 py-4 md:py-[31px] overflow-auto space-y-5">
           <div className="flex flex-col gap-5">
             {/* Stat Cards */}
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 justify-between">
@@ -244,26 +239,8 @@ const PartnerNetwork = () => {
                 ""
               )}
             </div>
-
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <h3 className="text-base">Schedule Referrer Visits</h3>
-                <p className="text-xs text-gray-600">
-                  Plan monthly visits to multiple referrers with route
-                  optimization
-                </p>
-              </div>
-              <Button
-                size="sm"
-                variant="solid"
-                color="primary"
-                startContent={<MdOutlineCalendarToday />}
-                onPress={() => setIsScheduleVisitModalOpen(true)}
-              >
-                Create Monthly Plan
-              </Button>
-            </div>
           </div>
+          <ScheduleVisits practices={practices} />
         </div>
       </div>
 
@@ -296,11 +273,6 @@ const PartnerNetwork = () => {
         onAddTask={() => alert("Add task not implemented")}
         onDeleteNote={() => alert("Delete note not implemented")}
         onDeleteTask={() => alert("Delete task not implemented")}
-      />
-
-      <ScheduleVisitsModal
-        isOpen={isScheduleVisitModalOpen}
-        onClose={() => setIsScheduleVisitModalOpen(false)}
       />
     </>
   );

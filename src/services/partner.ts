@@ -8,6 +8,9 @@ import {
   NoteApiData,
   PartnerPractice,
   ScheduleEventPayload,
+  SchedulePlanGetResponse,
+  SchedulePlanPutRequest,
+  SchedulePlanRequest,
   TaskApiData,
   UpdateTaskStatusPayload,
 } from "../types/partner";
@@ -85,4 +88,27 @@ export const scheduleTaskEvent = async (
 ): Promise<EventDetails> => {
   const response = await axios.post("/tasks/schedule", payload);
   return response.data;
+};
+
+export const getSchedulePlan = async (
+  id: string
+): Promise<SchedulePlanGetResponse> => {
+  const response = await axios.get(`/schedule-visit/${id}`);
+  return response.data;
+};
+
+export const createSchedulePlan = async (data: SchedulePlanRequest) => {
+  const response = await axios.post("/schedule-visit", data);
+  return response.data;
+};
+
+export const updateSchedulePlan = async (
+  data: SchedulePlanPutRequest
+): Promise<void> => {
+  // The PUT request uses the base URL and passes the plan ID within the body
+  await axios.put("/schedule-visit", data);
+};
+
+export const deleteSchedulePlan = async (id: string): Promise<void> => {
+  await axios.delete(`/schedule-visit/${id}`);
 };

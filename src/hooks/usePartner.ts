@@ -3,13 +3,17 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryClient } from "../providers/QueryProvider";
 import {
   createNote,
+  createSchedulePlan,
   createTask,
   deleteNote,
+  deleteSchedulePlan,
   deleteTask,
   fetchPartnerDetail,
   fetchPartners,
   getAllNotesAndTasks,
+  getSchedulePlan,
   scheduleTaskEvent,
+  updateSchedulePlan,
   updateTaskStatus,
 } from "../services/partner";
 import {
@@ -20,6 +24,7 @@ import {
   FetchPartnersResponse,
   NoteApiData,
   PartnerPractice,
+  SchedulePlanGetResponse,
   TaskApiData,
 } from "../types/partner";
 
@@ -193,3 +198,57 @@ export const useScheduleTaskEvent = () => {
     },
   });
 };
+
+const SCHEDULE_PLAN_KEY = "schedulePlan";
+
+export function useGetSchedulePlan(planId: string) {
+  return useQuery<SchedulePlanGetResponse>({
+    queryKey: [SCHEDULE_PLAN_KEY, planId],
+    queryFn: () => getSchedulePlan(planId),
+    enabled: !!planId, // Only run if planId exists
+  });
+}
+
+export function useCreateSchedulePlan() {
+  return useMutation({
+    mutationFn: createSchedulePlan,
+    onSuccess: (data) => {
+      console.log("Schedule Plan Created Successfully:", data);
+    },
+    onError: (error) => {
+      console.error("Error creating schedule plan:", error);
+    },
+  }); 
+}
+
+export function useUpdateSchedulePlan() {
+  return useMutation({
+    mutationFn: updateSchedulePlan,
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: [SCHEDULE_PLAN_KEY, variables.scheduleReferrerVisitId],
+      });
+      console.log(
+        "Plan updated successfully:",
+        variables.scheduleReferrerVisitId
+      );
+    },
+    onError: (error) => {
+      console.error("Error updating plan:", error);
+    },
+  });
+}
+
+export function useDeleteSchedulePlan() {
+  return useMutation({
+    mutationFn: deleteSchedulePlan,
+    onSuccess: () => {
+      // Invalidate the list of plans (assuming you have a list key)
+      queryClient.invalidateQueries({ queryKey: [SCHEDULE_PLAN_KEY] });
+      console.log("Plan deleted successfully.");
+    },
+    onError: (error) => {
+      console.error("Error deleting plan:", error);
+    },
+  });
+}

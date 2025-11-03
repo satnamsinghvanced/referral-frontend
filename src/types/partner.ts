@@ -5,6 +5,10 @@ export interface Partner {
     addressLine1: string;
     addressLine2: string;
     city: string;
+    coordinates: {
+      lat: number;
+      long: number;
+    };
   };
   phone: string;
   email: string;
@@ -158,12 +162,7 @@ export interface EventDetails {
   notes: string;
 }
 
-
-export interface DefaultVisitPurpose {
-  title: string;
-  duration: string;
-}
-
+// --- Shared Interfaces (Reused from POST) ---
 export interface PlanDetails {
   planName: string;
   defaultPriority: string; // e.g., "Medium Priority"
@@ -172,29 +171,210 @@ export interface PlanDetails {
   description: string;
 }
 
-export interface ScheduledVisit {
-  scheduleVisitDate: string; // ISO 8601 format: "2025-10-29T09:00:00Z"
+// --- 1. Shared Base Interfaces ---
+
+export interface DefaultVisitPurpose {
+  title: string;
+  duration: string;
+}
+
+export interface ScheduledVisitBase {
+  scheduleVisitDate: string; // e.g., "2025-10-29T09:00:00Z"
   startTime: string; // e.g., "9:00 AM"
-  visitPurpose: string; // e.g., "Meet with Dr. Smith"
-  priority: string; // e.g., "Medium Priority"
-  notes: string; // e.g., "Bring brochures"
+  visitPurpose: string;
+  priority: string;
+  notes: string;
 }
 
-export interface ReviewSummary {
-  visitDays: string[]; // e.g., ["2025-10-29", "2025-10-30"]
-  totalTime: string; // e.g., "2 hours"
-  distance: string; // e.g., "12 km"
+/**
+ * Interface for the core Plan Details section.
+ * Used in POST request body.
+ */
+export interface PlanDetails {
+  planName: string;
+  defaultPriority: string;
+  durationPerVisit: string;
+  defaultVisitPurpose: DefaultVisitPurpose;
+  description: string;
 }
 
+// --- 2. Request Interfaces (POST & PUT) ---
+
+/**
+ * Interface for the COMPLETE POST Request Payload (POST /schedule-visit)
+ */
 export interface SchedulePlanRequest {
   practices: string[]; // Array of practice/referrer IDs
   planDetails: PlanDetails;
-  scheduleVisits: ScheduledVisit[];
-  review: ReviewSummary;
+  scheduleVisits: ScheduledVisitBase[];
+  review: {
+    visitDays: string[];
+    totalTime: string;
+    distance: string;
+  };
 }
 
-export interface SchedulePlanResponse {
-  success: boolean;
-  message: string;
-  planId: string;
+/**
+ * Interface for the COMPLETE PUT Request Payload (PUT /schedule-visit)
+ */
+export interface SchedulePlanPutRequest {
+  scheduleReferrerVisitId: string; // Plan ID for update
+  practices: string[];
+  // PlanDetails without 'month' for PUT request
+  planDetails: PlanDetails;
+  scheduleVisits: ScheduledVisitBase[];
+  review: {
+    visitDays: string[];
+    totalReferrers: number;
+    totalTime: string;
+    distance: string;
+  };
+}
+
+// --- 3. GET Response Interfaces ---
+
+export interface PlanDetailsGet extends PlanDetails {
+  month: string; // Added field for GET response
+}
+
+export interface ReviewSummaryGet {
+  visitDays: string[];
+  totalTime: string;
+  distance: string;
+  totalReferrers: number; // Added field for GET response
+}
+
+export interface ScheduledVisitGet extends ScheduledVisitBase {
+  _id: string; // ID returned from the database
+}
+
+/**
+ * Interface for the COMPLETE GET Response Payload (/schedule-visit/{id})
+ */
+export interface SchedulePlanGetResponse {
+  planDetails: PlanDetailsGet;
+  review: ReviewSummaryGet;
+  _id: string; // Plan ID
+  createdBy: string;
+  practices: string[];
+  scheduleVisits: ScheduledVisitGet[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Define common types based on mock data
+export interface Referrer {
+  id: string;
+  practiceId: string;
+  name: string;
+  address: string;
+  score: string;
+  category: string;
+  phone: string;
+}
+
+export interface CategoryOption {
+  _id: string;
+  shortTitle: string;
+}
+
+export interface OptimizedRouteStop {
+  id: string;
+  name: string;
+  address: string;
+  arrive: string;
+  depart: string;
+  driveMin: number;
+  miles: number;
+}
+
+export interface MockInitialData {
+  planName: string;
+  description: string;
+  month: string;
+  defaultVisitPurpose: string;
+  customVisitPurpose: string;
+  defaultPriority: string;
+  durationPerVisit: string;
+  enableAutoRoute: boolean;
+  selectedReferrers: string[];
+  estimatedTotalTime: string;
+  estimatedDistance: string;
+  mileageCost: string;
+  visitSchedule: {
+    [date: string]: { visits: number; optimized: boolean };
+  };
+  optimizedRoute: OptimizedRouteStop[];
+}
+
+export interface FilterState {
+  search: string;
+  category: string;
+}
+
+export interface PlanDetailsOption {
+  title: string;
+  duration: string;
+}
+
+// Interfaces for component props
+export interface SelectReferrersTabProps {
+  filters: FilterState;
+  setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
+  selectedReferrersState: string[];
+  handleReferrerToggle: (id: string) => void;
+  handleSelectAll: () => void;
+  handleClearAll: () => void;
+  showRoutePreview: boolean;
+  setShowRoutePreview: React.Dispatch<React.SetStateAction<boolean>>;
+  practices: Partner[];
+  categoryOptions: CategoryOption[];
+  mockOptimizedRouteData: OptimizedRouteStop[];
+  data: MockInitialData;
+}
+
+export interface PlanDetailsTabProps {
+  formik: any; // Using 'any' for Formik object due to its complexity
+  data: MockInitialData;
+  selectedReferrerObjects: Partner[];
+  purposeOptions: PlanDetailsOption[];
+  durationOptions: string[];
+}
+
+export interface ScheduleVisitsTabProps {
+  formik: any; // Using 'any' for Formik object
+  data: MockInitialData;
+  selectedReferrerObjects: any;
+}
+
+export interface ReviewSaveTabProps {
+  formik: any; // Using 'any' for Formik object
+  data: MockInitialData;
+  selectedReferrerObjects: Partner[];
+}
+
+
+export interface RoutePlanningTabProps {
+  formik: any;
+  selectedReferrerObjects: Partner[];
+  durationOptions: string[];
+  onGenerateRoute: () => void;
+  routeOptimizationResults: any;
+  setRouteOptimizationResults: any;
+}
+
+export interface RouteMetrics {
+  routeDetails: any[];
+  totalStops: number;
+  estimatedTotalTime: string;
+  estimatedDistance: string;
+  mileageCost: string;
+  travelTime: string;
+  travelDistance: string;
+}
+
+export interface RouteOptimizationResults {
+  original: RouteMetrics;
+  optimized: RouteMetrics;
+  bestRoute: RouteMetrics;
 }

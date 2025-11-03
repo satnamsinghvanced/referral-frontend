@@ -4,7 +4,6 @@ import {
   CardBody,
   Checkbox,
   Divider,
-  Link,
   Spinner,
 } from "@heroui/react";
 import { useFormik } from "formik";
@@ -13,9 +12,9 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import * as Yup from "yup";
 import Input from "../components/ui/Input";
-import { AppDispatch } from "../store/index";
-import { loginSuccess, setCredentials } from "../store/authSlice";
 import { useLoginMutation } from "../hooks/auth/login";
+import { setCredentials } from "../store/authSlice";
+import { AppDispatch } from "../store/index";
 
 interface FormData {
   email: string;
@@ -57,14 +56,10 @@ const SignIn = () => {
             onSuccess: (response) => {
               console.log(response);
               dispatch(
-                // loginSuccess({
-                //   token: response.accessToken,
-                // })
                 setCredentials({
                   token: response?.accessToken,
                 })
               );
-              // localStorage.setItem("token", response.token);
               navigate("/dashboard");
             },
           }
@@ -75,28 +70,16 @@ const SignIn = () => {
     },
   });
 
-  const toggleVisibility = () => setIsVisible(!isVisible);
-
-  const onNavigateToSignUp = () => {
-    navigate("/signup");
-  };
-
-  const onNavigateToForgotPassword = () => {
-    navigate("/forgot-password");
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md shadow-none">
         <CardBody className="p-6 sm:p-8">
-          {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold mb-2">Welcome Back</h1>
             <p className="">Sign in to your account to continue</p>
           </div>
 
           <form onSubmit={formik.handleSubmit} className="space-y-6">
-            {/* Email Input - Fixed */}
             <div>
               <Input
                 label="Email Address"
@@ -105,12 +88,13 @@ const SignIn = () => {
                 type="email"
                 value={formik.values.email}
                 onChange={(value) => formik.setFieldValue("email", value)}
-                formik={formik}
+                onBlur={formik.handleBlur}
+                errorMessage={formik.touched.email && formik.errors.email}
+                isInvalid={!!(formik.touched.email && formik.errors.email)}
                 isRequired
               />
             </div>
 
-            {/* Password Input - Fixed */}
             <div>
               <Input
                 label="Password"
@@ -119,12 +103,15 @@ const SignIn = () => {
                 name="password"
                 value={formik.values.password}
                 onChange={(value) => formik.setFieldValue("password", value)}
-                formik={formik}
+                onBlur={formik.handleBlur}
+                errorMessage={formik.touched.password && formik.errors.password}
+                isInvalid={
+                  !!(formik.touched.password && formik.errors.password)
+                }
                 isRequired
               />
             </div>
 
-            {/* Remember Me & Forgot Password */}
             <div className="flex justify-between items-center">
               <Checkbox
                 name="rememberMe"
@@ -138,12 +125,6 @@ const SignIn = () => {
               >
                 Remember me
               </Checkbox>
-              <Link
-                className="text-sm cursor-pointer text-primary-600 hover:text-primary-700"
-                onPress={onNavigateToForgotPassword}
-              >
-                Forgot password?
-              </Link>
             </div>
 
             <Button
@@ -152,34 +133,16 @@ const SignIn = () => {
               className="w-full font-semibold h-12"
               isLoading={isPending}
               spinner={<Spinner size="sm" />}
-              isDisabled={!formik.isValid || !formik.dirty || isPending}
+              isDisabled={isPending || !formik.isValid}
             >
               {isPending ? "Signing In..." : "Sign In"}
             </Button>
 
-            <Divider className="my-6" />
-
-            <div className="text-center">
-              <span className="">Don't have an account? </span>
-              <Link
-                className="font-semibold cursor-pointer text-primary-600 hover:text-primary-700"
-                onPress={onNavigateToSignUp}
-              >
-                Create an account
-              </Link>
-            </div>
+            <Divider className="my-0" />
           </form>
 
           <div className="mt-6 text-center text-xs">
-            By signing in, you agree to our
-            <Link href="/terms" className="text-xs mx-1">
-              Terms of Service
-            </Link>
-            and
-            <Link href="/privacy" className="text-xs mx-1">
-              Privacy Policy
-            </Link>
-            .
+            By signing in, you agree to our Terms of Service and Privacy Policy
           </div>
         </CardBody>
       </Card>
