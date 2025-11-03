@@ -1,5 +1,5 @@
 import ComponentContainer from "../components/common/ComponentContainer";
-
+import { useDashboard } from "../hooks/useDashboard";
 type Color = "sky" | "orange" | "emerald" | "purple";
 
 interface QuickAction {
@@ -8,17 +8,93 @@ interface QuickAction {
   color: Color;
 }
 
+const headingData = {
+  heading: "Dashboard Overview",
+  subHeading:
+    "Welcome back! Here's what's happening with your referrals today.",
+};
+
+
+
+const quickActions: QuickAction[] = [
+  { label: "Add Referral", icon: "👥", color: "sky" },
+  { label: "Marketing Calendar", icon: "📅", color: "orange" },
+  { label: "View Reviews", icon: "⭐", color: "emerald" },
+  { label: "Analytics", icon: "📊", color: "purple" },
+];
+
+const colorClasses: Record<
+  Color,
+  { bg: string; text: string; border: string; hover: string }
+> = {
+  sky: {
+    bg: "bg-sky-50",
+    text: "text-sky-700",
+    border: "border-sky-200",
+    hover: "hover:bg-sky-100",
+  },
+  orange: {
+    bg: "bg-orange-50",
+    text: "text-orange-700",
+    border: "border-orange-200",
+    hover: "hover:bg-orange-100",
+  },
+  emerald: {
+    bg: "bg-emerald-50",
+    text: "text-emerald-700",
+    border: "border-emerald-200",
+    hover: "hover:bg-emerald-100",
+  },
+  purple: {
+    bg: "bg-purple-50",
+    text: "text-purple-700",
+    border: "border-purple-200",
+    hover: "hover:bg-purple-100",
+  },
+};
+
+
+
+const systemStatuses = [
+  {
+    name: "Google Calendar",
+    status: "✓ Connected",
+    bg: "bg-green-100",
+    text: "text-green-800",
+  },
+  {
+    name: "Review Tracking",
+    status: "✓ Active",
+    bg: "bg-green-100",
+    text: "text-green-800",
+  },
+  {
+    name: "NFC System",
+    status: "✓ Online",
+    bg: "bg-green-100",
+    text: "text-green-800",
+  },
+];
+
 const Dashboard = () => {
-  const headingData = {
-    heading: "Dashboard Overview",
-    subHeading:
-      "Welcome back! Here's what's happening with your referrals today.",
-  };
+  const userDataString = localStorage.getItem("user");
+  const userData = userDataString ? JSON.parse(userDataString) : undefined;
+  const userId = userData?.userId;
+
+  const { data: dashboard, isLoading, isError, error } = useDashboard(userId);
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (isError) {
+    return <div>Error: {error.message}</div>;
+  }
 
   const stats = [
     {
       title: "Total Referrals",
-      value: "247",
+      value: dashboard.totalReferrals,
       change: "↗ +12% from last month",
       icon: "👥",
       color: "sky",
@@ -46,50 +122,30 @@ const Dashboard = () => {
     },
   ];
 
-  const quickActions: QuickAction[] = [
-    { label: "Add Referral", icon: "👥", color: "sky" },
-    { label: "Marketing Calendar", icon: "📅", color: "orange" },
-    { label: "View Reviews", icon: "⭐", color: "emerald" },
-    { label: "Analytics", icon: "📊", color: "purple" },
-  ];
+  const getTimeAgo = (dateString: string) => {
+    const now = new Date();
+    const createdAt = new Date(dateString);
+    const diffMs = now.getTime() - createdAt.getTime();
 
-  const colorClasses: Record<
-    Color,
-    { bg: string; text: string; border: string; hover: string }
-  > = {
-    sky: {
-      bg: "bg-sky-50",
-      text: "text-sky-700",
-      border: "border-sky-200",
-      hover: "hover:bg-sky-100",
-    },
-    orange: {
-      bg: "bg-orange-50",
-      text: "text-orange-700",
-      border: "border-orange-200",
-      hover: "hover:bg-orange-100",
-    },
-    emerald: {
-      bg: "bg-emerald-50",
-      text: "text-emerald-700",
-      border: "border-emerald-200",
-      hover: "hover:bg-emerald-100",
-    },
-    purple: {
-      bg: "bg-purple-50",
-      text: "text-purple-700",
-      border: "border-purple-200",
-      hover: "hover:bg-purple-100",
-    },
+    const seconds = Math.floor(diffMs / 1000);
+    const minutes = Math.floor(seconds / 60);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (seconds < 60) return `${seconds} sec ago`;
+    if (minutes < 60) return `${minutes} min ago`;
+    if (hours < 24) return `${hours} hours ago`;
+    return `${days} day${days > 1 ? 's' : ''} ago`;
   };
+
 
   const recentActivities = [
     {
       icon: "👥",
       iconBg: "bg-sky-50",
-      title: "New referral from Dr. Smith",
-      description: "Patient: John Doe - Orthodontic consultation",
-      time: "2 hours ago",
+      title: `New referral from ${dashboard.recentReferrals[0].referredBy.name}`,
+      description: `Patient: ${dashboard.recentReferrals[0].name} - ${dashboard.recentReferrals[0].referredBy.practice.type.title}`,
+      time: `${getTimeAgo(dashboard.recentReferrals[0].createdAt)}`,
     },
     {
       icon: "⭐",
@@ -106,28 +162,6 @@ const Dashboard = () => {
       time: "6 hours ago",
     },
   ];
-
-  const systemStatuses = [
-    {
-      name: "Google Calendar",
-      status: "✓ Connected",
-      bg: "bg-green-100",
-      text: "text-green-800",
-    },
-    {
-      name: "Review Tracking",
-      status: "✓ Active",
-      bg: "bg-green-100",
-      text: "text-green-800",
-    },
-    {
-      name: "NFC System",
-      status: "✓ Online",
-      bg: "bg-green-100",
-      text: "text-green-800",
-    },
-  ];
-
   return (
     <ComponentContainer headingData={headingData}>
       <div className="container mx-auto">
@@ -206,21 +240,17 @@ const Dashboard = () => {
                           <span className="text-lg">{activity.icon}</span>
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900">
-                            {activity.title}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            {activity.description}
-                          </p>
-                          <p className="text-xs text-gray-500 mt-1">
-                            {activity.time}
-                          </p>
+                          <p className="text-sm font-medium text-gray-900">{activity.title}</p>
+                          <p className="text-sm text-gray-600">{activity.description}</p>
+                          <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
               </div>
+
+
 
               <div className="space-y-6">
                 <div className="bg-white rounded-lg shadow p-6">
@@ -233,13 +263,13 @@ const Dashboard = () => {
                         Active Codes
                       </span>
                       <span className="bg-sky-100 text-sky-800 px-2 py-1 rounded text-sm font-medium">
-                        67
+                        {dashboard?.nfcQrData?.activeQRCodes || 0}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm text-gray-600">Scans Today</span>
                       <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded text-sm font-medium">
-                        23
+                        {dashboard?.nfcQrData?.totalScansToday || 0}
                       </span>
                     </div>
                     <div className="flex justify-between items-center">
@@ -247,7 +277,9 @@ const Dashboard = () => {
                         Conversion Rate
                       </span>
                       <span className="bg-emerald-100 text-emerald-800 px-2 py-1 rounded text-sm font-medium">
-                        78%
+                        {dashboard?.nfcQrData?.avgConversionRate > 0
+                          ? `${dashboard.nfcQrData.avgConversionRate}%`
+                          : "0"}
                       </span>
                     </div>
                     <button className="w-full mt-4 bg-sky-600 text-white px-4 py-2 rounded-lg hover:bg-sky-700 transition-colors cursor-pointer">

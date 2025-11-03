@@ -125,6 +125,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
   currentFilters,
   filterStats,
 }) => {
+  console.log("referrals>>>>>>", referrals)
   const isFiltered =
     currentFilters.search !== "" ||
     currentFilters.filter !== "" ||
@@ -133,16 +134,14 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
   const filteredCountText = isFiltered ? (
     <span className="text-green-600 capitalize">
       {currentFilters.filter !== ""
-        ? `  •  ${
-            statusOptions.find((item) => item.value === currentFilters.filter)
-              ?.label
-          } status`
+        ? `  •  ${statusOptions.find((item) => item.value === currentFilters.filter)
+          ?.label
+        } status`
         : ""}
       {currentFilters.source !== ""
-        ? `  •  ${
-            sourceOptions.find((item) => item.value === currentFilters.source)
-              ?.label
-          } only`
+        ? `  •  ${sourceOptions.find((item) => item.value === currentFilters.source)
+          ?.label
+        } only`
         : ""}
     </span>
   ) : null;
