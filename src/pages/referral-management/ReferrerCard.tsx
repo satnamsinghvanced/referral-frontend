@@ -6,6 +6,7 @@ import { Chip } from "@heroui/react";
 import { LuUsers } from "react-icons/lu";
 import { Link } from "react-router";
 import { FaRegStar } from "react-icons/fa";
+import { useGetReferrerById } from "../../hooks/useReferral";
 
 interface ReferrerButton {
   label: string;
@@ -35,7 +36,9 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
   buttons = () => [],
   onView,
 }) => {
-  console.log(referrer);
+  const { data, isLoading } = useGetReferrerById(referrer._id);
+  const lat = data?.practiceAddress?.coordinates?.lat;
+  const long = data?.practiceAddress?.coordinates?.long;
 
   return (
     <div className="flex justify-between items-center border border-foreground/10 rounded-xl p-4 bg-background">
@@ -93,7 +96,14 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
               size="sm"
               variant={btn.variant ?? "bordered"}
               color={btn.color ?? "default"}
-              onPress={() => btn.onClick}
+              onPress={() => {
+                if (typeof lat === "number" && typeof long === "number") {
+                  const url = `https://www.google.com/maps?q=${lat},${long}`;
+                  window.open(url, "_blank");
+                } else {
+                  alert("Location not available");
+                }
+              }}
               className={btn.className ?? "text-xs"}
             >
               {btn.icon && <span className="text-sm">{btn.icon}</span>}

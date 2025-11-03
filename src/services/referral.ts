@@ -53,7 +53,6 @@ export interface Referrer {
 // Create new referral
 export const createReferral = async (payload: Partial<Referral>) => {
   console.log('sending data to server: ', payload)
-  debugger
   const { data } = await axios.post("/referral", payload);
   console.log('response: ', data)
   return data;

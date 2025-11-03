@@ -65,6 +65,8 @@ export default function ReferralManagementActions({
       addressLine1: editedData?.practiceAddress?.addressLine1 || "",
       addressLine2: editedData?.practiceAddress?.addressLine2 || "",
       city: editedData?.practiceAddress?.city || "",
+      state: editedData?.practiceAddress?.state || "",
+      zip: editedData?.practiceAddress?.zip || "",
     },
     // practicePhone: editedData?.practicePhone || "",
     // practiceEmail: editedData?.practiceEmail || "",
@@ -180,7 +182,17 @@ export default function ReferralManagementActions({
         addressLine2: Yup.string().nullable(),
         city: Yup.string().when(["$type"], {
           is: (type: string) => type === "doctor",
-          then: (schema) => schema.required("City & State ZIP is required"),
+          then: (schema) => schema.required("City is required"),
+          otherwise: (schema) => schema.notRequired(),
+        }),
+        state: Yup.string().when(["$type"], {
+          is: (type: string) => type === "doctor",
+          then: (schema) => schema.required("State is required"),
+          otherwise: (schema) => schema.notRequired(),
+        }),
+        zip: Yup.number().when(["$type"], {
+          is: (type: string) => type === "doctor",
+          then: (schema) => schema.required("ZIP is required"),
           otherwise: (schema) => schema.notRequired(),
         }),
       }),
@@ -241,6 +253,7 @@ export default function ReferralManagementActions({
       subFields?: Array<{
         id: keyof typeof formik.values;
         placeholder?: string;
+        type: string;
         isRequired?: boolean;
       }>;
     }[] = [
@@ -279,11 +292,29 @@ export default function ReferralManagementActions({
             id: "addressLine1",
             placeholder: "123 Main Street, Suite 100",
             isRequired: true,
+            type: "text",
           },
-          { id: "addressLine2", placeholder: "Address Line 2 (Optional)" },
+          {
+            id: "addressLine2",
+            placeholder: "Address Line 2 (Optional)",
+            type: "text",
+          },
           {
             id: "city",
-            placeholder: "City, State ZIP",
+            placeholder: "City",
+            type: "text",
+            isRequired: true,
+          },
+          {
+            id: "state",
+            placeholder: "State",
+            type: "text",
+            isRequired: true,
+          },
+          {
+            id: "zip",
+            placeholder: "Zip",
+            type: "number",
             isRequired: true,
           },
         ],
@@ -531,6 +562,7 @@ export default function ReferralManagementActions({
                 <Input
                   key={sub.id}
                   name={fieldPath}
+                  type={sub.type}
                   label={index === 0 ? "Practice Address" : ""}
                   labelPlacement="outside-top"
                   size="sm"
