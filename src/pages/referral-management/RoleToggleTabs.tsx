@@ -14,14 +14,13 @@ const RoleToggleTabs: React.FC<RoleToggleTabsProps> = ({
     <div className="bg-primary/10 rounded-full w-full">
       <Tabs
         selectedKey={selected}
-        onSelectionChange={onSelectionChange}
+        onSelectionChange={onSelectionChange as any}
         aria-label="Select Role"
         variant="light"
         radius="full"
         classNames={{
           tabList: "flex w-full rounded-full",
-          tab: "flex-1 px-4 py-1 text-sm font-medium transition-all bg-green-500",
-          tabWrapper: "bg-green-500",
+          tab: "flex-1 px-4 py-1 text-sm font-medium transition-all",
           cursor: "rounded-full",
         }}
         className="text-background w-full"
@@ -30,9 +29,7 @@ const RoleToggleTabs: React.FC<RoleToggleTabsProps> = ({
           <Tab
             key={role}
             title={role}
-            classNames={{
-              base: `rounded-full data-[selected=true]:bg-white data-[selected=true]:text-black data-[selected=false]:text-white w-full border-0`,
-            }}
+            className="rounded-full data-[selected=true]:bg-white data-[selected=true]:text-black data-[selected=false]:text-white w-full border-0"
           />
         ))}
       </Tabs>

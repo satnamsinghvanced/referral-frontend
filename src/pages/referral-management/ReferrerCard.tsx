@@ -1,12 +1,11 @@
 import React from "react";
 import { FiEye } from "react-icons/fi";
 import { Button } from "@heroui/react";
-import { Referrer } from "../../types/types";
 import { Chip } from "@heroui/react";
 import { LuUsers } from "react-icons/lu";
 import { Link } from "react-router";
 import { FaRegStar } from "react-icons/fa";
-import { useGetReferrerById } from "../../hooks/useReferral";
+import { Referrer } from "../../types/partner";
 
 interface ReferrerButton {
   label: string;
@@ -37,10 +36,11 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
   onView,
 }) => {
   // console.log(referrer);
-  
+
   const lat = referrer?.practice?.address?.coordinates?.lat;
   const long = referrer?.practice?.address?.coordinates?.long;
-    const handleVisit = () => {
+  
+  const handleVisit = () => {
     if (typeof lat === "number" && typeof long === "number") {
       const url = `https://www.google.com/maps?q=${lat},${long}`;
       window.open(url, "_blank");

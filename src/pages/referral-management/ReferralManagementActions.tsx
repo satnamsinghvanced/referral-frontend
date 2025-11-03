@@ -12,9 +12,9 @@ import Input from "../../components/ui/Input";
 import { useSpecialties } from "../../hooks/useCommon";
 import { useCreateReferrer, useUpdateReferrer } from "../../hooks/useReferral";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
-import { categoryOptions } from "../../utils/filters";
+import { categoryOptions } from "../../consts/filters";
 import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
-import { STAFF_ROLES } from "../../utils/consts";
+import { STAFF_ROLES } from "../../consts/practice";
 
 interface ReferralManagementActionsProps {
   isModalOpen: boolean;

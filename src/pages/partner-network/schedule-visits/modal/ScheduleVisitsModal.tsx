@@ -282,7 +282,7 @@ export function ScheduleVisitsModal({
   const handleNext = async () => {
     if (activeStep === "select_referrers") {
       if (selectedReferrersState.length === 0) {
-        alert("Please select at least one referrer to continue.");
+        console.log("Please select at least one referrer to continue.");
         return;
       }
       formik.setFieldValue("selectedReferrers", selectedReferrersState);
@@ -304,7 +304,7 @@ export function ScheduleVisitsModal({
         !formik.values.estimatedTotalTime ||
         formik.values.estimatedTotalTime === mockInitialData.estimatedTotalTime
       ) {
-        alert("Please generate the route before proceeding.");
+        console.log("Please generate the route before proceeding.");
         hasError = true;
       }
 

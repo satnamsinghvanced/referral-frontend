@@ -99,7 +99,6 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
       try {
         await dispatch(setCredentials(values)).unwrap();
         console.log("Sign up successful");
-        alert("Sign up successful!");
         // Navigate to sign in or dashboard after successful signup
         // navigate('/signin');
       } catch (error: any) {

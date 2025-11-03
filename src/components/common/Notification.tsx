@@ -4,7 +4,7 @@ import { FaRegBell } from 'react-icons/fa';
 const Notification = () => {
 
     const onBadgeClick = () => {
-        alert("Badge clicked");
+        console.log("Badge clicked");
     };
 
     return (

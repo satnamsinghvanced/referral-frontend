@@ -12,13 +12,6 @@ export const urgencyOptions = [
   { key: "low", label: "Low" },
 ];
 
-export const locationOptions = [
-  { key: "all", label: "All Locations" },
-  { key: "downtown", label: "Downtown Orthodontics" },
-  { key: "westside", label: "Westside Dental Specialists" },
-  { key: "brooklyn", label: "Brooklyn Heights Orthodontics" },
-];
-
 export const categoryOptions: {
   _id: string;
   title: string;
@@ -40,34 +33,6 @@ export const categoryOptions: {
     title: "Other/Prospect",
     shortTitle: "Other/Prospect",
   },
-];
-
-export const practiceOptions = [
-  { key: "all", label: "Practice Name" },
-  { key: "category", label: "Category" },
-  { key: "totalReferrals", label: "Total Referrals" },
-  { key: "relationshipScore", label: "Relationship Score" },
-  { key: "familyCandidates", label: "Family Candidates" },
-];
-
-export const short = [
-  { key: "all", label: "Filter" },
-  { key: "ascending", label: "Ascending" },
-  { key: "descending", label: "Descending" },
-];
-
-export const specialtyOptions = [
-  "Prosthodontics",
-  "Implant Dentistry",
-  "Cosmetic Dentistry",
-  "Endodontics",
-  "Orthodontics",
-  "Oral Surgery",
-  "Pediatric Dentistry",
-  "Teeth Whitening",
-  "General Dentistry",
-  "Periodontics",
-  "Dental Implants",
 ];
 
 export const PARTNER_FILTERS = [

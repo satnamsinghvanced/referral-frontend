@@ -8,6 +8,7 @@ import { RiExternalLinkLine } from "react-icons/ri";
 import { Link } from "react-router";
 import Input from "../../components/ui/Input";
 import { formatDateToMMDDYYYY } from "../../utils/formatDateToMMDDYYYY";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
 
 interface TrackingPanelProps {
   trackings?: any;
@@ -19,6 +20,9 @@ const TrackingPanel: React.FC<TrackingPanelProps> = ({
   onGenerateQR,
 }) => {
   const [copied, setCopied] = useState("");
+
+  const { user } = useTypedSelector((state) => state.auth);
+  const userId = user?.userId;
 
   const handleCopy = async (identifier: string, value?: string) => {
     if (!value) return;
@@ -189,7 +193,7 @@ const TrackingPanel: React.FC<TrackingPanelProps> = ({
           >
             Share
           </Button>
-          <Link to={trackings?.referralUrl} target="_blank">
+          <Link to={`/referral/${userId}`} target="_blank">
             <Button
               variant="bordered"
               color="default"

@@ -1,15 +1,89 @@
+export interface CreatedBy {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+}
+
+export interface PracticeType {
+  _id: string;
+  title: string;
+}
+
+export interface PracticeAddress {
+  addressLine1: string;
+  addressLine2: string;
+  city: string;
+  state: string;
+  zip: number;
+  coordinates: {
+    lat: number;
+    long: number;
+  };
+}
+
+export interface Practice {
+  _id: string;
+  name: string;
+  address: PracticeAddress;
+  website: string;
+  level: string; // e.g., "B-Level"
+  practiceType: PracticeType;
+  coordinates: {
+    lat: number;
+    long: number;
+  };
+}
+
+export interface StaffMember {
+  _id: string;
+  name: string;
+  role: string[]; // e.g., ["Dental Assistant"]
+  email: string;
+  phone: string;
+  isDentist: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Referrer {
+  _id: string;
+  createdBy: CreatedBy;
+  type: string; // e.g., "doctor"
+  name: string;
+  phone: string;
+  email: string;
+  practice: Practice;
+  notes: string;
+  staffMembers: StaffMember[];
+  isActive: boolean;
+  referrals: any[]; // Assuming an array of referral IDs or objects (can be refined if data is available)
+  createdAt: string;
+  updatedAt: string;
+  nfcUrl: string;
+  qrCode: string;
+  qrUrl: string;
+  thisMonthReferralCount: number;
+}
+
+export interface ReferrersResponse {
+  data: Referrer[];
+  limit: number;
+  page: number;
+  totalPages: number;
+  totalReferrals: number;
+}
+
+export interface FetchReferrersParams {
+  filter?: string;
+  page?: number;
+  limit?: number;
+}
+
 export interface Partner {
   _id: string;
   name: string;
-  address: {
-    addressLine1: string;
-    addressLine2: string;
-    city: string;
-    coordinates: {
-      lat: number;
-      long: number;
-    };
-  };
+  address: PracticeAddress;
   phone: string;
   email: string;
   website: string;
@@ -262,17 +336,6 @@ export interface SchedulePlanGetResponse {
   updatedAt: string;
 }
 
-// Define common types based on mock data
-export interface Referrer {
-  id: string;
-  practiceId: string;
-  name: string;
-  address: string;
-  score: string;
-  category: string;
-  phone: string;
-}
-
 export interface CategoryOption {
   _id: string;
   shortTitle: string;
@@ -352,7 +415,6 @@ export interface ReviewSaveTabProps {
   data: MockInitialData;
   selectedReferrerObjects: Partner[];
 }
-
 
 export interface RoutePlanningTabProps {
   formik: any;

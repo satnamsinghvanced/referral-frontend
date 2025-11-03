@@ -1,60 +1,19 @@
-import axios from "./axios"; // your axios instance
+import {
+  FetchReferrersParams,
+  Referrer,
+  ReferrersResponse,
+} from "../types/partner";
+import {
+  FetchReferralsParams,
+  Referral,
+  ReferralsResponse,
+} from "../types/referral";
+import axios from "./axios";
 
-// ---------------------------
-// Referral Interfaces
-// ---------------------------
-export interface Referral {
-  _id: string;
-  referredBy: string;
-  addedVia: string;
-  name: string;
-  age?: number;
-  phone: string;
-  email?: string;
-  treatment?: string;
-  status: string;
-  priority?: string;
-  estValue?: number;
-  scheduledDate?: string;
-  notes?: string;
-  insurance?: string;
-  appointment?: string;
-  reason?: string;
-}
-
-// ---------------------------
-// Referrer Interfaces
-// ---------------------------
-export interface Referrer {
-  _id: string;
-  name: string;
-  phone: string;
-  email: string;
-  practiceName: string;
-  practiceAddress: string;
-  practiceEmail?: string;
-  practicePhone?: string;
-  partnershipLevel?: string;
-  practiceType?: string;
-  notes?: string;
-  staff?: {
-    name: string;
-    role: string;
-    email: string;
-    phone: string;
-    isDentist: boolean;
-  };
-}
-
-// ---------------------------
-// Referral APIs
-// ---------------------------
-
-// Create new referral
 export const createReferral = async (payload: Partial<Referral>) => {
   console.log('sending data to server: ', payload)
   const { data } = await axios.post("/referral", payload);
-  console.log('response: ', data)
+  console.log("response: ", data);
   return data;
 };
 
@@ -65,9 +24,10 @@ export const getReferralById = async (id: string) => {
 };
 
 // Get list of referrals with pagination
-export const fetchReferrals = async (params: any) => {
-  console.log(params, "HEHEHEHEHHH");
-  const { data } = await axios.get("/referral", {
+export const fetchReferrals = async (
+  params: FetchReferralsParams
+): Promise<ReferralsResponse> => {
+  const { data } = await axios.get<ReferralsResponse>("/referral", {
     params: params,
   });
   return data;
@@ -105,15 +65,19 @@ export const createReferrer = async (
 };
 
 // Fetch referrers list with filter & pagination
-export const fetchReferrers = async (filter: string, page = 1, limit = 10) => {
-  const { data } = await axios.get("/referrers/", {
+export const fetchReferrers = async (
+  params: FetchReferrersParams
+): Promise<ReferrersResponse> => {
+  const { filter = "", page = 1, limit = 10 } = params;
+
+  const { data } = await axios.get<ReferrersResponse>("/referrers/", {
     params: { filter, page, limit },
   });
   return data;
 };
 
 // Get referrer by ID
-export const getReferrerById = async (id: string) => {
+export const getReferrerById = async (id: string): Promise<Referrer> => {
   const { data } = await axios.get(`/referrers/${id}`);
   return data;
 };
@@ -145,11 +109,11 @@ export const createTracking = async (
   adminId: string,
   payload:
     | {
-      referralUrl: string;
-      nfcUrl: string;
-      isActive: boolean;
-      image: File | string;
-    }
+        referralUrl: string;
+        nfcUrl: string;
+        isActive: boolean;
+        image: File | string;
+      }
     | FormData // allow FormData too
 ) => {
   const { data } = await axios.post(`/tracking/${adminId}`, payload, {

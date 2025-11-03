@@ -62,7 +62,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
     const routes = directionsData?.routes;
 
     if (!routes || routes.length === 0) {
-      alert("No routes found for the selected practices.");
+      console.log("No routes found for the selected practices.");
       return;
     }
 

@@ -5,7 +5,7 @@ import { LuClock, LuFileAudio, LuRefreshCw } from "react-icons/lu";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import TwilioConfigurationModal from "./TwilioConfigurationModal";
-import { CALL_STATUS_OPTIONS, CALL_TYPE_OPTIONS } from "../../utils/filters";
+import { CALL_STATUS_OPTIONS, CALL_TYPE_OPTIONS } from "../../consts/filters";
 import { CallFilters, CallRecord } from "../../types/call";
 import CallRecordCard from "./CallRecordCard";
 import CallRecordingModal from "./CallRecordingModal";
@@ -222,7 +222,7 @@ const CallTracking = () => {
 
   return (
     <>
-      <ComponentContainer headingData={HEADING_DATA}>
+      <ComponentContainer headingData={HEADING_DATA as any}>
         <div className="flex flex-col gap-5">
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-5 gap-4 justify-between">
             {STATS_CARD_DATA.map((data) => (

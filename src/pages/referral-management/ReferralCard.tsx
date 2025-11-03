@@ -1,6 +1,7 @@
 import { Button } from "@heroui/react";
-import UrgencyChip from "../../components/chips/UrgencyChip";
 import { Link } from "react-router";
+import ReferralStatusChip from "../../components/chips/ReferralStatusChip";
+import { Referral } from "../../types/referral";
 
 interface ReferralButton {
   label: string;
@@ -20,27 +21,13 @@ interface ReferralButton {
 }
 
 interface ReferralCardProps {
-  referral: {
-    _id: string;
-    name: string;
-    practiceName: string;
-    practiceAddress: string;
-    createdAt: string;
-    urgency: string;
-    addedVia: string;
-    referredBy: any;
-    treatment: string;
-    mobile: number;
-  };
+  referral: Referral;
   actions?: (referral: any) => ReferralButton[];
-  urgencyLabels: Record<string, string>;
 }
 
-const ReferralCard = ({
-  referral,
-  urgencyLabels,
-  actions = () => [],
-}: ReferralCardProps) => {
+const ReferralCard = ({ referral, actions = () => [] }: ReferralCardProps) => {
+  console.log(referral, "REFERRAL HAI");
+
   return (
     <div className="flex justify-between border border-foreground/10  rounded-lg p-4 bg-background ">
       <div className="font-medium text-sm w-full h-full capitalize flex flex-col gap-0.5">
@@ -65,14 +52,8 @@ const ReferralCard = ({
         </div>
       </div>
       <div className="flex items-center text-center justify-end h-full w-full gap-3 text-sm self-center">
-        <div className="capitalize self-center">
-          {referral.urgency ? (
-            <UrgencyChip
-              urgency={urgencyLabels[referral.urgency] || referral.urgency}
-            />
-          ) : (
-            <UrgencyChip urgency={urgencyLabels["new"] || "new"} />
-          )}
+        <div className="self-center">
+          <ReferralStatusChip status={referral.status} />
         </div>
         {actions && (
           <div className="flex items-center gap-1">

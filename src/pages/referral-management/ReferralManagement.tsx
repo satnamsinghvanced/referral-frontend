@@ -1,4 +1,12 @@
-import { Button, Input, Pagination } from "@heroui/react";
+import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Chip,
+  Input,
+  Pagination,
+} from "@heroui/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { FiEdit, FiEye, FiStar, FiTarget, FiUsers } from "react-icons/fi";
@@ -15,14 +23,14 @@ import {
 } from "../../hooks/useReferral";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { setTotalReferrals } from "../../store/statsSlice";
-import { REFERRAL_MOCK_CURRENT_FILTERS, Referrer } from "../../types/types";
-import { urgencyLabels } from "../../utils/consts";
 import AllReferralsView from "./AllReferralsView";
 import ReferralCard from "./ReferralCard";
 import ReferralManagementActions from "./ReferralManagementActions";
 import ReferrerCard from "./ReferrerCard";
 import RoleToggleTabs from "./RoleToggleTabs";
 import TrackingPanel from "./TrackingPanel";
+import { FilterStats, Referral } from "../../types/referral";
+import { Referrer } from "../../types/partner";
 
 type ReferralType = "Referrals" | "Referrers" | "NFC & QR Tracking";
 
@@ -36,9 +44,13 @@ const ReferralManagement = () => {
   const [selectedReferralType, setSelectedReferralType] =
     useState<ReferralType>("Referrals");
   const [isFilterViewActive, setIsFilterViewActive] = useState(false);
-  const [currentFilters, setCurrentFilters] = useState(
-    REFERRAL_MOCK_CURRENT_FILTERS
-  );
+  const [currentFilters, setCurrentFilters] = useState({
+    page: 1,
+    limit: 10,
+    search: "",
+    filter: "",
+    source: "",
+  });
   const [overviewSearchKeyword, setOverviewSearchKeyword] = useState("");
   const [referrerEditId, setReferrerEditId] = useState("");
 
@@ -76,7 +88,7 @@ const ReferralManagement = () => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(setTotalReferrals(referralData?.total));
+    dispatch(setTotalReferrals(referralData?.total as number));
   }, [referralData]);
 
   useEffect(() => {
@@ -84,7 +96,13 @@ const ReferralManagement = () => {
   }, [currentFilters, referralRefetch]);
 
   const handleClearFilters = () => {
-    setCurrentFilters(REFERRAL_MOCK_CURRENT_FILTERS);
+    setCurrentFilters({
+      page: 1,
+      limit: 10,
+      search: "",
+      filter: "",
+      source: "",
+    });
   };
 
   const handleBackToOverview = () => {
@@ -104,14 +122,14 @@ const ReferralManagement = () => {
       {
         icon: <LuBuilding2 className="text-[17px] mt-1 text-sky-500" />,
         heading: "Total Referrals",
-        value: referralData?.stats?.totalReferrals,
+        value: referralData?.stats?.totalReferrals as number,
         subheading: "Click to view all referrals",
         onClick: handleViewAllAndFilter,
       },
       {
         icon: <FiUsers className="text-[17px] mt-1 text-green-500" />,
         heading: "NFC Referrals",
-        value: referralData?.stats?.nfcReferralTotal,
+        value: referralData?.stats?.nfcReferralTotal as number,
         subheading: "Click to view NFC referrals",
         onClick: () => {
           setCurrentFilters((prev) => ({
@@ -124,7 +142,7 @@ const ReferralManagement = () => {
       {
         icon: <FiStar className="text-[17px] mt-1 text-yellow-500" />,
         heading: "QR Code Referrals",
-        value: referralData?.stats?.qrReferralTotal,
+        value: referralData?.stats?.qrReferralTotal as number,
         subheading: "Click to view QR referrals",
         onClick: () => {
           setCurrentFilters((prev) => ({
@@ -137,7 +155,7 @@ const ReferralManagement = () => {
       {
         icon: <FiTarget className="text-[17px] mt-1 text-green-500" />,
         heading: "Total Value",
-        value: referralData?.stats?.totalValue,
+        value: referralData?.stats?.totalValue as number,
         subheading: "Click to view value details",
         onClick: handleViewAllAndFilter,
       },
@@ -219,7 +237,7 @@ const ReferralManagement = () => {
     // setReferrerEditId(id);
   };
 
-  const handleExport = () => alert("Exporting data...");
+  const handleExport = () => console.log("Exporting data...");
 
   const handleOverviewSearchChange = (value: string) => {
     // Only updates the input value, not the main API query for the overview
@@ -254,7 +272,7 @@ const ReferralManagement = () => {
   // Render
   // ----------------------
   return (
-    <ComponentContainer headingData={headingData}>
+    <ComponentContainer headingData={headingData as any}>
       <div className="flex flex-col gap-5">
         <RoleToggleTabs
           selected={selectedReferralType}
@@ -277,13 +295,13 @@ const ReferralManagement = () => {
                 onViewReferralPage={(id: any) =>
                   console.log("External Link:", id)
                 }
-                onCall={(phone: any) => alert(`Calling ${phone}`)}
-                onEmail={(email: any) => alert(`Emailing ${email}`)}
-                referrals={referralData?.data}
-                totalReferrals={referralData?.total}
+                onCall={(phone: any) => console.log(`Calling ${phone}`)}
+                onEmail={(email: any) => console.log(`Emailing ${email}`)}
+                referrals={referralData?.data as Referral[]}
+                totalReferrals={referralData?.total as number}
                 currentFilters={currentFilters}
                 setCurrentFilters={setCurrentFilters}
-                filterStats={referralData?.filterStats}
+                filterStats={referralData?.filterStats as FilterStats}
               />
             ) : (
               // RENDER THE ORIGINAL OVERVIEW DASHBOARD
@@ -294,7 +312,28 @@ const ReferralManagement = () => {
                   ))}
                 </div>
 
-                <div className=" px-4 border-primary/15  border rounded-xl bg-background ">
+                <Card className="shadow-none border border-primary/15">
+                  <CardHeader className="p-4 pb-0">
+                    <p className="font-medium text-sm">Status Breakdown</p>
+                  </CardHeader>
+                  <CardBody className="p-4">
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="flex items-center justify-between bg-gray-100 p-2.5 rounded-lg">
+                        <Chip
+                          size="sm"
+                          radius="sm"
+                          variant="flat"
+                          className="text-[11px] h-5 capitalize"
+                        >
+                          Contacted
+                        </Chip>
+                        <span className="text-sm">1</span>
+                      </div>
+                    </div>
+                  </CardBody>
+                </Card>
+
+                <div className="px-4 border-primary/15 border rounded-xl bg-background">
                   {/* <h5>Filters</h5> */}
                   <div className="flex flex-wrap items-center gap-2 w-full rounded-md py-4">
                     <Input
@@ -309,7 +348,7 @@ const ReferralManagement = () => {
                     <Button
                       size="sm"
                       variant="bordered"
-                      className="text-xs ml-auto min-w-[100px] border-small"
+                      className="text-xs ml-auto min-w-[100px] border-small border-primary/15"
                       onPress={handleViewAllAndFilter}
                     >
                       <LuFilter />
@@ -325,7 +364,6 @@ const ReferralManagement = () => {
                       <ReferralCard
                         key={ref._id}
                         referral={ref}
-                        urgencyLabels={urgencyLabels}
                         actions={(referral: any) => [
                           {
                             label: "",
@@ -338,7 +376,7 @@ const ReferralManagement = () => {
                             label: "",
                             // FIX: Renamed 'function' to 'onClick' to match the ReferralButton interface
                             onClick: (id) =>
-                              alert(`Calling mobile for referral ID: ${id}`),
+                              console.log(`Calling mobile for referral ID: ${id}`),
                             icon: <LuPhone className="w-4 h-4" />,
                             link: `tel:${referral.mobile}`,
                           },
@@ -346,7 +384,7 @@ const ReferralManagement = () => {
                             label: "",
                             // FIX: Renamed 'function' to 'onClick' to match the ReferralButton interface
                             onClick: (id) =>
-                              alert(`Viewing referral ID: ${id}`),
+                              console.log(`Viewing referral ID: ${id}`),
                             icon: <FiEye className="w-4 h-4" />,
                           },
                         ]}
@@ -370,7 +408,7 @@ const ReferralManagement = () => {
                 <ReferrerCard
                   key={referrer._id}
                   referrer={referrer}
-                  buttons={refererButtonList}
+                  buttons={refererButtonList as any}
                   onView={(id) => {
                     setReferrerEditId(id);
                     setIsModalOpen(true);

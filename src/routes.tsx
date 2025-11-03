@@ -52,10 +52,10 @@ const PrivacyPolicy = React.lazy(
   () => import("./pages/privacy-policy/PrivacyPolicyPage")
 );
 const PatientForm = React.lazy(
-  () => import("./pages/partner-network/form/PatientForm")
+  () => import("./pages/referral-management/PatientForm")
 );
 const CallTracking = React.lazy(() => import("./pages/call-tracking/CallTracking"));
-const ThankYou = React.lazy(() => import("./pages/partner-network/form/ThankYouPage"));
+const ThankYou = React.lazy(() => import("./pages/referral-management/ThankYouPage"));
 
 
 // Route type

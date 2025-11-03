@@ -160,7 +160,7 @@ const SupportPage = () => {
       //   'We\'ve received your support request and will respond within 24 hours.',
       //   5000
       // ));
-      alert('Message Sent!')
+      console.log('Message Sent!')
 
       // Reset form
       setFormData({

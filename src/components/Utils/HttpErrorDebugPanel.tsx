@@ -4,7 +4,7 @@ import { LuShield } from 'react-icons/lu';
 const HttpErrorDebugPanel = () => {
 
     const onErrorDebuggingClick = () => {
-        alert("Debug HTTP errors Clicked");
+        console.log("Debug HTTP errors Clicked");
     };
 
     return (

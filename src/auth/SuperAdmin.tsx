@@ -5,7 +5,6 @@ const SuperAdminLogin = () => {
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
     const loginClick = () => {
-        // alert("Super AdminLogin clicked");
         onOpenChange(false);
     };
 

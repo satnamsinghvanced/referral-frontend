@@ -4,8 +4,6 @@ import { AxiosError } from "axios";
 import { queryClient } from "../providers/QueryProvider";
 import { addToast } from "@heroui/react";
 import {
-  Referral,
-  Referrer,
   getReferralById,
   fetchReferrals,
   updateReferral,
@@ -21,6 +19,12 @@ import {
   logTrackingScan,
 } from "../services/referral";
 import { createReferral } from "../services/referralBypassFunction";
+import { Referral, ReferralsResponse } from "../types/referral";
+import {
+  FetchReferrersParams,
+  Referrer,
+  ReferrersResponse,
+} from "../types/partner";
 
 // ---------------------------
 // 🔹 Referrals
@@ -37,14 +41,15 @@ interface FetchReferralsParams {
 // Fetch list of referrals
 export const useFetchReferrals = ({
   page = 1,
-  limit = 20, // Increased default limit to match your previous setup
+  limit = 20,
   search = "",
   filter = "",
   source = "",
 }: FetchReferralsParams) =>
-  useQuery<Referral[], Error>({
+  useQuery<ReferralsResponse, Error>({
     queryKey: ["referrals", search, page, limit, filter, source],
     queryFn: () => fetchReferrals({ page, limit, search, filter, source }),
+    // Optional: Add refetchOnWindowFocus, keepPreviousData, etc. as needed
   });
 
 // Get referral by ID
@@ -128,14 +133,10 @@ export const useFetchReferrers = ({
   filter = "",
   page = 1,
   limit = 10,
-}: {
-  filter?: string;
-  page?: number;
-  limit?: number;
-}) =>
-  useQuery<Referrer[], Error>({
+}: FetchReferrersParams) =>
+  useQuery<ReferrersResponse, Error>({
     queryKey: ["referrers", filter, page, limit],
-    queryFn: () => fetchReferrers(filter, page, limit),
+    queryFn: () => fetchReferrers({ filter, page, limit }),
   });
 
 // Get referrer by ID

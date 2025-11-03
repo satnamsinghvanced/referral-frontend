@@ -7,29 +7,11 @@ import { LuExternalLink, LuSquarePen } from "react-icons/lu";
 import { PiFunnelX } from "react-icons/pi";
 import { formatDateToYYYYMMDD } from "../../utils/formatDateToYYYYMMDD";
 import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
-
-// --- Types (Mocked based on HTML data structure) ---
-interface Referral {
-  _id: string;
-  name: string;
-  age: number;
-  mobile: string;
-  email: string;
-  referrerName: string;
-  referrerPractice: string;
-  referredDate: string;
-  scheduledDate: string;
-  treatment: string;
-  source: string;
-  status: "Scheduled" | "Pending" | "Completed";
-  priority: "High Priority" | "Medium Priority" | "Low Priority";
-  estimatedValue: string;
-  notes: string;
-  createdAt: string;
-  addedVia: string;
-  estValue: string;
-  referredBy: { name: string; practiceName: string };
-}
+import {
+  FetchReferralsParams,
+  FilterStats,
+  Referral,
+} from "../../types/referral";
 
 interface AllReferralsViewProps {
   // Functions to handle user interactions
@@ -48,20 +30,8 @@ interface AllReferralsViewProps {
   referrals: Referral[];
   totalReferrals: number;
   setCurrentFilters: any;
-  currentFilters: {
-    page: number;
-    limit: number;
-    search: string;
-    filter: string;
-    source: string;
-  };
-  filterStats: {
-    totalReferrals: number;
-    totalValue: number;
-    activeCount: number;
-    highPriorityCount: number;
-    filterTotalReferrals: number;
-  };
+  currentFilters: FetchReferralsParams;
+  filterStats: FilterStats;
 }
 
 const statusOptions = [
@@ -169,7 +139,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
             <div className="flex items-center space-x-1.5 text-sm">
               <BiPhone className="h-4 w-4 text-gray-400" aria-hidden="true" />
               <span className="text-xs">
-                {formatPhoneNumber(referral.mobile)}
+                {formatPhoneNumber(referral.phone)}
               </span>
             </div>
             <div className="flex items-center space-x-1.5 text-sm">
@@ -194,7 +164,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                 aria-hidden="true"
               />
               <span className="text-xs">
-                Referred: {formatDateToYYYYMMDD(referral.createdAt)}
+                Referred: {formatDateToYYYYMMDD(referral.createdAt as string)}
               </span>
             </div>
             <div className="flex items-center space-x-1.5">
@@ -203,7 +173,8 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                 aria-hidden="true"
               />
               <span className="text-xs">
-                Scheduled: {formatDateToYYYYMMDD(referral.scheduledDate)}
+                Scheduled:{" "}
+                {formatDateToYYYYMMDD(referral.scheduledDate as string)}
               </span>
             </div>
           </div>
@@ -251,7 +222,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
               isIconOnly
               size="sm"
               variant="light"
-              onPress={() => onCall(referral.mobile)}
+              onPress={() => onCall(referral.phone)}
             >
               <BiPhone className="h-4 w-4" />
             </Button>
@@ -260,7 +231,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
               isIconOnly
               size="sm"
               variant="light"
-              onPress={() => onEmail(referral.email)}
+              onPress={() => onEmail(referral.email as string)}
             >
               <CgMail className="h-4 w-4" />
             </Button>
@@ -420,7 +391,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
               aria-label="Statuses"
               placeholder="All Statuses"
               size="sm"
-              selectedKeys={[currentFilters.filter]}
+              selectedKeys={[currentFilters.filter as string]}
               onSelectionChange={(keys) =>
                 onFilterChange("filter", Array.from(keys)[0] as string)
               }
@@ -437,7 +408,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
               aria-label="Sources"
               placeholder="All Sources"
               size="sm"
-              selectedKeys={[currentFilters.source]}
+              selectedKeys={[currentFilters.source as string]}
               onSelectionChange={(keys) =>
                 onFilterChange("source", Array.from(keys)[0] as string)
               }

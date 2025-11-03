@@ -37,7 +37,7 @@ import {
   NOTE_CATEGORIES,
   TASK_PRIORITIES,
   TASK_TYPES,
-} from "../../utils/consts";
+} from "../../consts/practice";
 import { formatDateToReadable } from "../../utils/formatDateToReadable";
 import { formatCalendarDate } from "../../utils/formatCalendarDate";
 import ScheduleTaskModal from "./ScheduleTaskModal";

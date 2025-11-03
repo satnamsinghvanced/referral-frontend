@@ -10,7 +10,7 @@ import {
   useFetchPartners,
 } from "../../hooks/usePartner"; // Import the custom hook
 import { FetchPartnersParams, Partner } from "../../types/partner"; // Import types
-import { PARTNER_FILTERS, PARTNER_SORT_OPTIONS } from "../../utils/filters";
+import { PARTNER_FILTERS, PARTNER_SORT_OPTIONS } from "../../consts/filters";
 import ReferralManagementActions from "../referral-management/ReferralManagementActions";
 import NotesTasksModal from "./NotesTasksModal";
 import PartnerDetailsModal from "./PartnerDetailsModal";
@@ -74,7 +74,7 @@ const PartnerNetwork = () => {
   const HEADING_DATA_BUTTONS_LIST = [
     // {
     //   label: "Bulk Select",
-    //   onClick: () => alert("Bulk Select Clicked"),
+    //   onClick: () => console.log("Bulk Select Clicked"),
     //   icon: <TbCheckbox fontSize={16} />,
     //   variant: "bordered" as const, // Use 'as const' for literal types in an array
     //   color: "default" as const,
@@ -269,10 +269,10 @@ const PartnerNetwork = () => {
         practice={notesTasksPartner}
         // notes={MOCK_NOTES}
         // tasks={MOCK_TASKS}
-        onAddNote={() => alert("Add note not implemented")}
-        onAddTask={() => alert("Add task not implemented")}
-        onDeleteNote={() => alert("Delete note not implemented")}
-        onDeleteTask={() => alert("Delete task not implemented")}
+        onAddNote={() => console.log("Add note not implemented")}
+        onAddTask={() => console.log("Add task not implemented")}
+        onDeleteNote={() => console.log("Delete note not implemented")}
+        onDeleteTask={() => console.log("Delete task not implemented")}
       />
     </>
   );
