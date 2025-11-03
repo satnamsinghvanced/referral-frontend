@@ -36,10 +36,26 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
   buttons = () => [],
   onView,
 }) => {
-  const { data, isLoading } = useGetReferrerById(referrer._id);
-  const lat = data?.practiceAddress?.coordinates?.lat;
-  const long = data?.practiceAddress?.coordinates?.long;
+  // console.log(referrer);
+  
+  const lat = referrer?.practice?.address?.coordinates?.lat;
+  const long = referrer?.practice?.address?.coordinates?.long;
+    const handleVisit = () => {
+    if (typeof lat === "number" && typeof long === "number") {
+      const url = `https://www.google.com/maps?q=${lat},${long}`;
+      window.open(url, "_blank");
+    }
+  };
 
+  const handleOpenQR = () => {
+    if (referrer.qrCode) {
+      const qrUrl =
+        typeof referrer.qrCode === "string"
+          ? referrer.qrCode
+          : URL.createObjectURL(referrer.qrCode);
+      window.open(qrUrl, "_blank");
+    }
+  };
   return (
     <div className="flex justify-between items-center border border-foreground/10 rounded-xl p-4 bg-background">
       {/* Left Section */}
@@ -79,6 +95,7 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
                 variant="flat"
                 radius="sm"
                 className="capitalize text-[11px] h-5"
+                onClick={handleOpenQR}
               >
                 QR
               </Chip>
@@ -97,11 +114,10 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
               variant={btn.variant ?? "bordered"}
               color={btn.color ?? "default"}
               onPress={() => {
-                if (typeof lat === "number" && typeof long === "number") {
-                  const url = `https://www.google.com/maps?q=${lat},${long}`;
-                  window.open(url, "_blank");
+                if (btn.label.toLowerCase().includes("visit")) {
+                  handleVisit();
                 } else {
-                  alert("Location not available");
+                  btn.onClick(referrer._id);
                 }
               }}
               className={btn.className ?? "text-xs"}

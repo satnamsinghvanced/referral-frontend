@@ -58,7 +58,7 @@ const ReferralManagement = () => {
 
   const referrers = referrerData?.data;
 
-  console.log(referrerData, "GHDSAFAHSHGSASHDHJASGDHASHDGHASDHSA");
+  // console.log(referrerData, "GHDSAFAHSHGSASHDHJASGDHASHDGHASDHSA");
 
   const { data: singleReferrerData, refetch } =
     useGetReferrerById(referrerEditId);

@@ -61,7 +61,20 @@ export type Referrer = {
   name: ReactNode;
   _id: string;
   fullName: string;
-  practice: { name: string };
+  practice: {
+    name: string;
+    address?: {
+      coordinates?: {
+        lat?: number;
+        long?: number;
+      };
+      street?: string;
+      city?: string;
+      state?: string;
+      zip?: string;
+    };
+  };
+
   referredBy: string;
   totalReferrals: number;
   thisMonthReferralCount: number;
