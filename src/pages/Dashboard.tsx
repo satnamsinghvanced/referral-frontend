@@ -143,9 +143,9 @@ const Dashboard = () => {
     {
       icon: "👥",
       iconBg: "bg-sky-50",
-      title: `New referral from ${dashboard.recentReferrals[0].referredBy.name}`,
-      description: `Patient: ${dashboard.recentReferrals[0].name} - ${dashboard.recentReferrals[0].referredBy.practice.type.title}`,
-      time: `${getTimeAgo(dashboard.recentReferrals[0].createdAt)}`,
+      title: `New referral from ${dashboard?.referrer?.name || "Unknown"}`,
+      description: `Patient: ${dashboard?.recentReferrals[0]?.name || "Unknown"} - ${dashboard?.referrer?.type || "Unknown"}`,
+      time: `${getTimeAgo(dashboard?.recentReferrals[0]?.createdAt)}`,
     },
     {
       icon: "⭐",
