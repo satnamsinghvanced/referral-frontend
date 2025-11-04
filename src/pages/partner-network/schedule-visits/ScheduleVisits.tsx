@@ -23,7 +23,7 @@ export default function ScheduleVisits({ practices }: any) {
           startContent={<MdOutlineCalendarToday />}
           onPress={() => setIsScheduleVisitModalOpen(true)}
         >
-          Create Plan
+          Schedule Visit
         </Button>
       </div>
       <ScheduleVisitsModal

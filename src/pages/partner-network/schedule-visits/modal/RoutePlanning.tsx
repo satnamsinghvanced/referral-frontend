@@ -1,4 +1,5 @@
 import {
+  addToast,
   Button,
   Card,
   CardBody,
@@ -8,29 +9,44 @@ import {
   Select,
   SelectItem,
 } from "@heroui/react";
-import { getLocalTimeZone, today } from "@internationalized/date";
+import { parseDate } from "@internationalized/date";
 import React, { useEffect, useState } from "react";
 import { BiCar } from "react-icons/bi";
 import { FiChevronRight, FiClock, FiDownload, FiMapPin } from "react-icons/fi";
 import { LuRoute } from "react-icons/lu";
 import { RiErrorWarningLine } from "react-icons/ri";
-import { useDirectionsQuery } from "../../../../hooks/useDirections";
-import { Partner, RoutePlanningTabProps } from "../../../../types/partner";
+import { useDirectionsMutation } from "../../../../hooks/useDirections";
+import { Partner, RouteOptimizationResults } from "../../../../types/partner";
 import { formatRouteData } from "./formatRouteData";
+import { formatCalendarDate } from "../../../../utils/formatCalendarDate";
+
+// Define the new expected props for this component
+interface RoutePlanningTabProps {
+  planState: any; // The central plan state object
+  onStateChange: (key: string, value: any) => void;
+  errors: any;
+  selectedReferrerObjects: Partner[];
+  durationOptions: string[];
+  routeOptimizationResults: RouteOptimizationResults | null;
+  setRouteOptimizationResults: React.Dispatch<
+    React.SetStateAction<RouteOptimizationResults | null>
+  >;
+}
 
 export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
-  formik,
+  planState,
+  onStateChange,
+  errors,
   selectedReferrerObjects,
   durationOptions,
-  onGenerateRoute,
   routeOptimizationResults,
   setRouteOptimizationResults,
 }) => {
   const [coordinateString, setCoordinateString] = useState<string>("");
-  const [routeEnabled, setRouteEnabled] = useState<boolean>(false);
 
   const summary = routeOptimizationResults?.bestRoute;
-  const routeDetailsList = routeOptimizationResults?.bestRoute.routeDetails;
+  const routeDetailsList =
+    routeOptimizationResults?.bestRoute?.routeDetails || [];
 
   useEffect(() => {
     if (!selectedReferrerObjects || selectedReferrerObjects.length === 0) {
@@ -47,105 +63,112 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
     setCoordinateString(coordinateStrings.join(";"));
   }, [selectedReferrerObjects]);
 
-  const {
-    data: directionsData,
-    isLoading,
-    isError,
-  } = useDirectionsQuery({
-    coordinateString,
-    enabled: routeEnabled,
-  });
+  const { mutate: generateRouteMutate, isPending } = useDirectionsMutation();
 
-  const handleGenerateRoute = () => {
-    console.log("HELO");
-
-    const routes = directionsData?.routes;
-
-    if (!routes || routes.length === 0) {
-      console.log("No routes found for the selected practices.");
-      return;
-    }
-
-    // 1. Identify Original and Optimized Routes
-    const originalRoute = routes[0];
-    let optimizedRoute = routes[0];
-
-    // Find the shortest route based on travel duration
-    if (routes.length > 1) {
-      for (let i = 1; i < routes.length; i++) {
-        if (routes[i].duration < optimizedRoute.duration) {
-          optimizedRoute = routes[i];
-        }
-      }
-    }
-
-    // 2. Determine the optimized order of referrers
-    // The optimized route contains a 'waypoints' array at the top level of the API response,
-    // but a specific route object might contain it if a reordering was performed.
-    // Since the Mapbox API response provided has NO waypoint index reordering in the route objects,
-    // and the waypoints array at the response root is for the whole route regardless of order,
-    // we must assume the mapbox service is returning routes based on the *same* coordinate order
-    // unless you use the 'mapbox/driving-traffic' service with 'approaches'.
-    // For safety, we check for a hypothetical 'waypoint_index' array on the route object itself
-    // (which is typically available in the full Mapbox optimization API) or fall back to the original order.
-
-    const optimizedOrderMap = optimizedRoute.waypoints
-      ? optimizedRoute.waypoints.map((waypoint: any) => waypoint.waypoint_index)
-      : null;
-
-    // We use the original order for the original route
-    const originalRouteMetrics: RouteMetrics = formatRouteData(
-      formik,
-      originalRoute,
-      selectedReferrerObjects,
-      formik.values.visitDuration
-    );
-
-    // Use the re-ordered list of referrers if an optimization index is provided
-    const optimizedReferrerOrder = optimizedOrderMap
-      ? optimizedOrderObjects(selectedReferrerObjects, optimizedOrderMap)
-      : selectedReferrerObjects; // Fallback to original order if no optimization info
-
-    const optimizedRouteMetrics: RouteMetrics = formatRouteData(
-      formik,
-      optimizedRoute,
-      optimizedReferrerOrder,
-      formik.values.visitDuration
-    );
-
-    // 3. Determine the Best Route to Display
-    const isOptimizedBetter =
-      optimizedRouteMetrics.travelTime !== originalRouteMetrics.travelTime;
-
-    const finalResults: RouteOptimizationResults = {
-      original: {
-        ...originalRouteMetrics,
-        travelTime: formatRouteData.formatDuration(originalRoute.duration),
-        travelDistance: formatRouteData.formatDistance(originalRoute.distance),
-      },
-      optimized: {
-        ...optimizedRouteMetrics,
-        travelTime: formatRouteData.formatDuration(optimizedRoute.duration),
-        travelDistance: formatRouteData.formatDistance(optimizedRoute.distance),
-      },
-      bestRoute:
-        optimizedRouteMetrics.estimatedTotalTime !==
-        originalRouteMetrics.estimatedTotalTime
-          ? optimizedRouteMetrics
-          : originalRouteMetrics,
-    };
-
-    setRouteOptimizationResults(finalResults);
-  };
-
-  console.log(routeOptimizationResults, "HEHEHEH");
-
-  // Helper function to reorder the referrer objects
   const optimizedOrderObjects = (
     referrers: Partner[],
     orderMap: number[]
   ): Partner[] => {
     return orderMap.map((index) => referrers[index]);
+  };
+
+  const handleGenerateRoute = () => {
+    // Check if required route fields are filled before calling the API
+    if (
+      !planState.routeDate ||
+      !planState.startTime ||
+      !planState.durationPerVisit
+    ) {
+      addToast({
+        title: "Validation Error",
+        description:
+          "Please configure Route Date, Start Time, and Visit Duration first.",
+      });
+      return;
+    }
+
+    generateRouteMutate(coordinateString, {
+      onSuccess: (data) => {
+        const routes = data?.routes;
+
+        if (!routes || routes.length === 0) {
+          addToast({
+            title: "Error",
+            description: "No routes found for the selected practices.",
+          });
+          return;
+        }
+
+        const originalRoute = routes[0];
+        let optimizedRoute = routes[0];
+
+        if (routes.length > 1) {
+          for (let i = 1; i < routes.length; i++) {
+            if (routes[i].duration < optimizedRoute.duration) {
+              optimizedRoute = routes[i];
+            }
+          }
+        }
+
+        const optimizedOrderMap = optimizedRoute.waypoints
+          ? optimizedRoute.waypoints.map(
+              (waypoint: any) => waypoint.waypoint_index
+            )
+          : null;
+
+        const originalRouteMetrics: any = formatRouteData(
+          planState.routeDate,
+          planState.startTime,
+          originalRoute,
+          selectedReferrerObjects,
+          planState?.durationPerVisit
+        );
+
+        const optimizedReferrerOrder = optimizedOrderMap
+          ? optimizedOrderObjects(selectedReferrerObjects, optimizedOrderMap)
+          : selectedReferrerObjects;
+
+        const optimizedRouteMetrics: any = formatRouteData(
+          planState.routeDate,
+          planState.startTime,
+          optimizedRoute,
+          optimizedReferrerOrder,
+          planState?.durationPerVisit
+        );
+
+        const finalResults: RouteOptimizationResults = {
+          original: {
+            ...originalRouteMetrics,
+            travelTime: formatRouteData.formatDuration(originalRoute?.duration),
+            travelDistance: formatRouteData.formatDistance(
+              originalRoute?.distance
+            ),
+          },
+          optimized: {
+            ...optimizedRouteMetrics,
+            travelTime: formatRouteData.formatDuration(
+              optimizedRoute?.duration
+            ),
+            travelDistance: formatRouteData.formatDistance(
+              optimizedRoute?.distance
+            ),
+          },
+          bestRoute:
+            optimizedRouteMetrics.estimatedTotalTime <=
+            originalRouteMetrics.estimatedTotalTime
+              ? optimizedRouteMetrics
+              : originalRouteMetrics,
+        };
+
+        setRouteOptimizationResults(finalResults);
+      },
+      onError: () => {
+        addToast({
+          title: "Route Error",
+          description: "Failed to calculate route. Check inputs and API key.",
+        });
+      },
+    });
   };
 
   if (selectedReferrerObjects.length <= 0) {
@@ -183,8 +206,16 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                   labelPlacement="outside"
                   size="sm"
                   radius="sm"
-                  value={formik.values.routeDate}
-                  onChange={formik.handleChange}
+                  value={
+                    planState?.routeDate
+                      ? parseDate(planState?.routeDate.split("T")[0] as string)
+                      : null
+                  }
+                  onChange={(value) => {
+                    onStateChange("routeDate", formatCalendarDate(value));
+                  }}
+                  errorMessage={errors.routeDate}
+                  isInvalid={!!errors.routeDate}
                   classNames={{
                     inputWrapper:
                       "border border-primary/15 bg-background shadow-none min-w-[150px]",
@@ -201,8 +232,10 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                   placeholder="Start Time"
                   size="sm"
                   radius="sm"
-                  value={formik.values.startTime || "09:00"}
-                  onChange={formik.handleChange}
+                  value={planState?.startTime || "09:00"}
+                  onChange={(e) => onStateChange("startTime", e.target.value)}
+                  errorMessage={errors.startTime}
+                  isInvalid={!!errors.startTime}
                   className="w-[100px]"
                   classNames={{
                     inputWrapper:
@@ -213,19 +246,22 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
 
               <div>
                 <Select
-                  name="visitDuration"
-                  label="Visit Duration"
+                  name="durationPerVisit"
+                  label="Duration per visit"
                   labelPlacement="outside"
                   placeholder="Select duration"
                   size="sm"
                   radius="sm"
-                  selectedKeys={[formik.values.visitDuration]}
-                  onSelectionChange={(keys: any) =>
-                    formik.setFieldValue(
-                      "visitDuration",
-                      Array.from(keys).join("")
-                    )
+                  selectedKeys={
+                    planState?.durationPerVisit
+                      ? [planState.durationPerVisit]
+                      : []
                   }
+                  onChange={(keys: any) =>
+                    onStateChange("durationPerVisit", Array.from(keys).join(""))
+                  }
+                  errorMessage={errors.durationPerVisit}
+                  isInvalid={!!errors.durationPerVisit}
                   classNames={{
                     base: "!mt-0 gap-2 w-38",
                     label: "!translate-0 !static",
@@ -245,15 +281,16 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
               radius="sm"
               color="primary"
               className="mt-1 data-disabled:!opacity-80"
-              onPress={() => {
-                setRouteEnabled(true);
-                handleGenerateRoute();
-              }}
-              isLoading={isLoading}
-              isDisabled={isLoading || !coordinateString || selectedReferrerObjects.length < 2}
+              onPress={handleGenerateRoute}
+              isLoading={isPending}
+              isDisabled={
+                isPending ||
+                !coordinateString ||
+                selectedReferrerObjects.length < 2
+              }
             >
               <LuRoute className="size-4" />
-              {isLoading ? "Calculating..." : "Generate Route"}
+              {isPending ? "Calculating..." : "Generate Route"}
             </Button>
           </div>
         </CardBody>
@@ -314,14 +351,13 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
               <div className="flex items-center justify-between w-full">
                 <h4 className="text-sm font-medium">
                   Route Details (
-                  {routeOptimizationResults.original.travelTime !==
+                  {routeOptimizationResults.original.travelTime >=
                   routeOptimizationResults.optimized.travelTime
                     ? "Optimized"
                     : "Original"}
                   )
                 </h4>
                 <div className="flex items-center gap-2">
-                  {/* <Link to={`/`}> */}
                   <Button
                     size="sm"
                     variant="bordered"
@@ -331,7 +367,6 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                     <FiMapPin className="size-3.5" />
                     Open in Maps
                   </Button>
-                  {/* </Link> */}
                   <Button
                     size="sm"
                     variant="bordered"
@@ -396,25 +431,25 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                   <div className="text-center">
                     <div className="font-semibold text-blue-600">
-                      {summary.totalStops}
+                      {summary?.totalStops}
                     </div>
                     <div className="text-xs text-gray-600">Stops</div>
                   </div>
                   <div className="text-center">
                     <div className="font-semibold text-blue-600">
-                      {summary.estimatedDistance}
+                      {summary?.estimatedDistance}
                     </div>
                     <div className="text-xs text-gray-600">Total Distance</div>
                   </div>
                   <div className="text-center">
                     <div className="font-semibold text-blue-600">
-                      {summary.estimatedTotalTime}
+                      {summary?.estimatedTotalTime}
                     </div>
                     <div className="text-xs text-gray-600">Total Time</div>
                   </div>
                   <div className="text-center">
                     <div className="font-semibold text-blue-600">
-                      {summary.mileageCost}
+                      {summary?.mileageCost}
                     </div>
                     <div className="text-xs text-gray-600">Mileage Cost</div>
                   </div>

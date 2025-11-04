@@ -1,4 +1,11 @@
-import { Button, Chip, Input, Select, SelectItem } from "@heroui/react";
+import {
+  Button,
+  Chip,
+  Input,
+  Pagination,
+  Select,
+  SelectItem,
+} from "@heroui/react";
 import React from "react";
 import { BiCalendar, BiPhone } from "react-icons/bi";
 import { CgMail } from "react-icons/cg";
@@ -12,6 +19,9 @@ import {
   FilterStats,
   Referral,
 } from "../../types/referral";
+import { Link } from "react-router";
+import ReferralStatusChip from "../../components/chips/ReferralStatusChip";
+import { STATUS_OPTIONS } from "../../consts/filters";
 
 interface AllReferralsViewProps {
   // Functions to handle user interactions
@@ -23,26 +33,15 @@ interface AllReferralsViewProps {
   onViewReferral: (id: string) => void;
   onEditReferral: (id: string) => void;
   onViewReferralPage: (id: string) => void;
-  onCall: (phone: string) => void;
-  onEmail: (email: string) => void;
 
   // Data to display
   referrals: Referral[];
   totalReferrals: number;
+  totalPages: number;
   setCurrentFilters: any;
   currentFilters: FetchReferralsParams;
   filterStats: FilterStats;
 }
-
-const statusOptions = [
-  { label: "All Statuses", value: "" },
-  { label: "New", value: "new" },
-  { label: "Scheduled", value: "scheduled" },
-  { label: "Consultation Complete", value: "consultation_completed" },
-  { label: "In Treatment", value: "in_treatment" },
-  { label: "Completed", value: "completed" },
-  { label: "No Show", value: "no_show" },
-];
 
 const sourceOptions = [
   { label: "All Sources", value: "" },
@@ -50,22 +49,6 @@ const sourceOptions = [
   { label: "NFC", value: "NFC" },
   { label: "Direct Referral", value: "Direct" },
 ];
-
-// Utility to determine chip color
-const getStatusColor = (status: Referral["status"] | string) => {
-  switch (status) {
-    case "new":
-      return "primary";
-    case "scheduled":
-      return "warning";
-    case "pending":
-      return "default";
-    case "completed":
-      return "success";
-    default:
-      return "default";
-  }
-};
 
 const getPriorityColor = (priority: Referral["priority"]) => {
   switch (priority) {
@@ -87,15 +70,14 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
   onViewReferral,
   onEditReferral,
   onViewReferralPage,
-  onCall,
-  onEmail,
   referrals,
   totalReferrals,
+  totalPages,
   setCurrentFilters,
   currentFilters,
   filterStats,
 }) => {
-  console.log("referrals>>>>>>", referrals)
+  console.log("referrals>>>>>>", referrals);
   const isFiltered =
     currentFilters.search !== "" ||
     currentFilters.filter !== "" ||
@@ -104,14 +86,16 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
   const filteredCountText = isFiltered ? (
     <span className="text-green-600 capitalize">
       {currentFilters.filter !== ""
-        ? `  •  ${statusOptions.find((item) => item.value === currentFilters.filter)
-          ?.label
-        } status`
+        ? `  •  ${
+            STATUS_OPTIONS.find((item) => item.value === currentFilters.filter)
+              ?.label
+          } status`
         : ""}
       {currentFilters.source !== ""
-        ? `  •  ${sourceOptions.find((item) => item.value === currentFilters.source)
-          ?.label
-        } only`
+        ? `  •  ${
+            sourceOptions.find((item) => item.value === currentFilters.source)
+              ?.label
+          } only`
         : ""}
     </span>
   ) : null;
@@ -130,9 +114,9 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
           <div className="flex items-center space-x-3">
             <div>
               <h3 className="text-sm font-medium">{referral.name}</h3>
-              <p className="text-xs text-gray-600 mt-0.5">
+              {/* <p className="text-xs text-gray-600 mt-0.5">
                 Age: {referral.age}
-              </p>
+              </p> */}
             </div>
           </div>
           <div className="space-y-1.5">
@@ -167,7 +151,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                 Referred: {formatDateToYYYYMMDD(referral.createdAt as string)}
               </span>
             </div>
-            <div className="flex items-center space-x-1.5">
+            {/* <div className="flex items-center space-x-1.5">
               <BiCalendar
                 className="h-4 w-4 text-blue-400"
                 aria-hidden="true"
@@ -176,14 +160,18 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                 Scheduled:{" "}
                 {formatDateToYYYYMMDD(referral.scheduledDate as string)}
               </span>
-            </div>
+            </div> */}
           </div>
           <div className="space-y-2">
+            {referral.treatment && (
+              <p className="text-xs">
+                <strong>Treatment:</strong> {referral.treatment}
+              </p>
+            )}
+
             <p className="text-xs">
-              <strong>Treatment:</strong> {referral.treatment}
-            </p>
-            <p className="text-xs">
-              <strong>Source:</strong> {referral.addedVia}
+              <strong>Source:</strong>{" "}
+              {referral.addedVia ? referral.addedVia : "Direct"}
             </p>
           </div>
         </div>
@@ -191,15 +179,12 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
         {/* Status, Value & Actions */}
         <div className="space-y-3">
           <div className="flex flex-wrap gap-2">
-            <Chip
-              color={getStatusColor(referral.status)}
-              size="sm"
-              variant="flat"
-              radius="sm"
-              className="capitalize text-[11px] h-5"
+            <span
+              onClick={() => onEditReferral(referral._id)}
+              className="flex cursor-pointer"
             >
-              {referral.status}
-            </Chip>
+              <ReferralStatusChip status={referral.status} />
+            </span>
             <Chip
               color={getPriorityColor(referral.priority)}
               size="sm"
@@ -218,23 +203,21 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
           </div>
           <div className="flex items-center space-x-1">
             {/* Phone */}
-            <Button
-              isIconOnly
-              size="sm"
-              variant="light"
-              onPress={() => onCall(referral.phone)}
-            >
-              <BiPhone className="h-4 w-4" />
-            </Button>
+            {referral.phone && (
+              <Link to={`tel:${referral.phone}`}>
+                <Button isIconOnly size="sm" variant="light">
+                  <BiPhone className="h-4 w-4" />
+                </Button>
+              </Link>
+            )}
             {/* Mail */}
-            <Button
-              isIconOnly
-              size="sm"
-              variant="light"
-              onPress={() => onEmail(referral.email as string)}
-            >
-              <CgMail className="h-4 w-4" />
-            </Button>
+            {referral.email && (
+              <Link to={`mailto:${referral.email}`}>
+                <Button isIconOnly size="sm" variant="light">
+                  <CgMail className="h-4 w-4" />
+                </Button>
+              </Link>
+            )}
             {/* View */}
             <Button
               isIconOnly
@@ -252,15 +235,6 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
               onPress={() => onEditReferral(referral._id)}
             >
               <LuSquarePen className="size-3.5" />
-            </Button>
-            {/* External Link */}
-            <Button
-              isIconOnly
-              size="sm"
-              variant="light"
-              onPress={() => onViewReferralPage(referral._id)}
-            >
-              <LuExternalLink className="size-3.5" />
             </Button>
           </div>
         </div>
@@ -396,11 +370,16 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                 onFilterChange("filter", Array.from(keys)[0] as string)
               }
             >
-              {statusOptions.map((status) => (
-                <SelectItem key={status.value} className="capitalize">
-                  {status.label}
+              <>
+                <SelectItem key="" className="capitalize">
+                  All Statuses
                 </SelectItem>
-              ))}
+                {STATUS_OPTIONS.map((status) => (
+                  <SelectItem key={status.value} className="capitalize">
+                    {status.label}
+                  </SelectItem>
+                ))}
+              </>
             </Select>
 
             {/* Source Select */}
@@ -478,9 +457,35 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
         </div>
         <div data-slot="card-content" className="px-4 pb-4">
           {referrals && referrals?.length > 0 ? (
-            <div className="space-y-4">
-              {referrals?.map(renderReferralCard)}
-            </div>
+            <>
+              <div className="space-y-4">
+                {referrals?.map(renderReferralCard)}
+              </div>
+              {totalPages && totalPages > 1 ? (
+                <div className="mt-5">
+                  <Pagination
+                    showControls
+                    size="sm"
+                    radius="sm"
+                    initialPage={1}
+                    page={currentFilters.page as number}
+                    onChange={(page) => {
+                      setCurrentFilters((prev: any) => ({ ...prev, page }));
+                    }}
+                    total={totalPages as number}
+                    classNames={{
+                      base: "flex justify-end py-3",
+                      wrapper: "gap-1.5",
+                      item: "cursor-pointer",
+                      prev: "cursor-pointer",
+                      next: "cursor-pointer",
+                    }}
+                  />
+                </div>
+              ) : (
+                ""
+              )}
+            </>
           ) : (
             <p className="bg-background text-xs text-center text-gray-600">
               No data to display

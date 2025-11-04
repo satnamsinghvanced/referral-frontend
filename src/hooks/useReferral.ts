@@ -18,8 +18,13 @@ import {
   fetchTrackings,
   logTrackingScan,
 } from "../services/referral";
-import { createReferral } from "../services/referralBypassFunction";
-import { Referral, ReferralsResponse } from "../types/referral";
+import { createReferral, trackScan } from "../services/referralBypassFunction";
+import {
+  Referral,
+  ReferralsResponse,
+  ScanTrackingParams,
+  ScanTrackingResponse,
+} from "../types/referral";
 import {
   FetchReferrersParams,
   Referrer,
@@ -57,6 +62,7 @@ export const useGetReferralById = (id: string) =>
   useQuery<Referral, Error>({
     queryKey: ["referral", id],
     queryFn: () => getReferralById(id),
+    enabled: !!id,
   });
 
 // Create a new referral
@@ -80,28 +86,40 @@ export const useCreateReferral = () =>
     },
   });
 
+export const useTrackScan = () => {
+  return useMutation<ScanTrackingResponse, Error, ScanTrackingParams>({
+    mutationFn: trackScan,
+    onSuccess: (data, variables) => {
+      console.log(
+        `Scan tracked successfully for user ${variables.userId} via ${variables.source}`
+      );
+    },
+    onError: (error) => {
+      console.error("Error tracking scan:", error);
+    },
+  });
+};
+
 // Update referral
 export const useUpdateReferral = () =>
-  useMutation<Referral, AxiosError, { id: string; payload: Partial<Referral> }>(
-    {
-      mutationFn: ({ id, payload }) => updateReferral(id, payload),
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ["referrals"] });
-        addToast({
-          title: "Success",
-          description: "Referral updated",
-          color: "success",
-        });
-      },
-      onError: (error: AxiosError) => {
-        const message =
-          (error.response?.data as any)?.message ||
-          error.message ||
-          "Failed to update referral";
-        addToast({ title: "Error", description: message, color: "danger" });
-      },
-    }
-  );
+  useMutation<Referral, AxiosError, { id: string; payload: any }>({
+    mutationFn: ({ id, payload }) => updateReferral(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["referrals"] });
+      addToast({
+        title: "Success",
+        description: "Referral updated",
+        color: "success",
+      });
+    },
+    onError: (error: AxiosError) => {
+      const message =
+        (error.response?.data as any)?.message ||
+        error.message ||
+        "Failed to update referral";
+      addToast({ title: "Error", description: message, color: "danger" });
+    },
+  });
 
 // Delete referral
 export const useDeleteReferral = () =>
@@ -144,6 +162,7 @@ export const useGetReferrerById = (id: string) =>
   useQuery<Referrer, Error>({
     queryKey: ["referrer", id],
     queryFn: () => getReferrerById(id),
+    enabled: !!id,
   });
 
 // Create referrer

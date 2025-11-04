@@ -95,7 +95,6 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
                 variant="flat"
                 radius="sm"
                 className="capitalize text-[11px] h-5"
-                onClick={handleOpenQR}
               >
                 QR
               </Chip>

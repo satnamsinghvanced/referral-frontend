@@ -3,7 +3,6 @@ import {
   Card,
   CardBody,
   CardHeader,
-  Chip,
   Input,
   Pagination,
 } from "@heroui/react";
@@ -14,23 +13,27 @@ import { GrLocation } from "react-icons/gr";
 import { LuBuilding2, LuFilter, LuPhone, LuQrCode } from "react-icons/lu";
 import { useDispatch } from "react-redux";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
+import ReferralStatusChip from "../../components/chips/ReferralStatusChip";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import {
   useFetchReferrals,
   useFetchReferrers,
   useFetchTrackings,
+  useGetReferralById,
   useGetReferrerById,
 } from "../../hooks/useReferral";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { setTotalReferrals } from "../../store/statsSlice";
+import { Referrer } from "../../types/partner";
+import { FilterStats, Referral } from "../../types/referral";
+import { downloadJson } from "../../utils/jsonDownloader";
 import AllReferralsView from "./AllReferralsView";
 import ReferralCard from "./ReferralCard";
 import ReferralManagementActions from "./ReferralManagementActions";
+import ReferralStatusModal from "./ReferralStatusModal";
 import ReferrerCard from "./ReferrerCard";
 import RoleToggleTabs from "./RoleToggleTabs";
 import TrackingPanel from "./TrackingPanel";
-import { FilterStats, Referral } from "../../types/referral";
-import { Referrer } from "../../types/partner";
 
 type ReferralType = "Referrals" | "Referrers" | "NFC & QR Tracking";
 
@@ -41,6 +44,10 @@ const ReferralManagement = () => {
   const { user } = useTypedSelector((state) => state.auth);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isReferralStatusModalOpen, setIsReferralStatusModalOpen] =
+    useState(false);
+  const [isReferralStatusModalViewMode, setIsReferralStatusModalViewMode] =
+    useState(false);
   const [selectedReferralType, setSelectedReferralType] =
     useState<ReferralType>("Referrals");
   const [isFilterViewActive, setIsFilterViewActive] = useState(false);
@@ -52,6 +59,7 @@ const ReferralManagement = () => {
     source: "",
   });
   const [overviewSearchKeyword, setOverviewSearchKeyword] = useState("");
+  const [referralEditId, setReferralEditId] = useState<string>("");
   const [referrerEditId, setReferrerEditId] = useState("");
 
   const [referrerParams, setReferrerParams] = useState({
@@ -72,16 +80,22 @@ const ReferralManagement = () => {
 
   // console.log(referrerData, "GHDSAFAHSHGSASHDHJASGDHASHDGHASDHSA");
 
+  const { data: singleReferralData, refetch: singleReferralRefetch } =
+    useGetReferralById(referralEditId);
   const { data: singleReferrerData, refetch } =
     useGetReferrerById(referrerEditId);
-
-  console.log(singleReferrerData);
 
   useEffect(() => {
     if (referrerEditId) {
       refetch();
     }
   }, [referrerEditId]);
+
+  useEffect(() => {
+    if (referralEditId) {
+      singleReferralRefetch();
+    }
+  }, [referralEditId]);
 
   const { data: trackings } = useFetchTrackings(user?.userId);
 
@@ -233,11 +247,21 @@ const ReferralManagement = () => {
   };
 
   const handleEditReferral = (id: string) => {
-    console.log(`Editing referral: ${id}`);
-    // setReferrerEditId(id);
+    setIsReferralStatusModalViewMode(false);
+    setReferralEditId(id);
+    setIsReferralStatusModalOpen(true);
   };
 
-  const handleExport = () => console.log("Exporting data...");
+  const handleExport = () => {
+    const exportData = {
+      timestamp: new Date().toISOString(),
+      reportTitle: "Referrals",
+      records: referralData?.data,
+    };
+
+    // Trigger the download
+    downloadJson(exportData, "referrals");
+  };
 
   const handleOverviewSearchChange = (value: string) => {
     // Only updates the input value, not the main API query for the overview
@@ -266,196 +290,255 @@ const ReferralManagement = () => {
     <p className="bg-background text-xs text-center text-gray-600">{text}</p>
   );
 
-  console.log(referralData, "REFERRALS");
+  const STATUS_BREAKDOWN = [
+    {
+      label: "Contacted",
+      status: "contacted",
+      count: referralData?.statusStats?.contacted,
+    },
+    {
+      label: "Appointed",
+      status: "appointed",
+      count: referralData?.statusStats?.appointed,
+    },
+    {
+      label: "In Process",
+      status: "inProcess",
+      count: referralData?.statusStats?.inProcess,
+    },
+    {
+      label: "Started Treatment",
+      status: "started",
+      count: referralData?.statusStats?.started,
+    },
+    {
+      label: "Declined Treatment",
+      status: "declined",
+      count: referralData?.statusStats?.declined,
+    },
+  ];
 
   // ----------------------
   // Render
   // ----------------------
   return (
-    <ComponentContainer headingData={headingData as any}>
-      <div className="flex flex-col gap-5">
-        <RoleToggleTabs
-          selected={selectedReferralType}
-          onSelectionChange={handleReferralTypeChange}
-        />
+    <>
+      <ComponentContainer headingData={headingData as any}>
+        <div className="flex flex-col gap-5">
+          <RoleToggleTabs
+            selected={selectedReferralType}
+            onSelectionChange={handleReferralTypeChange}
+          />
 
-        {/* --- REFERRALS TAB --- */}
-        {selectedReferralType === "Referrals" && (
-          <>
-            {isFilterViewActive ? (
-              // RENDER THE NEW FILTERED VIEW
-              <AllReferralsView
-                onBackToOverview={handleBackToOverview}
-                onExport={handleExport}
-                onSearchChange={handleOverviewSearchChange}
-                onFilterChange={handleFilterChange}
-                onClearFilters={handleClearFilters}
-                onViewReferral={(id: any) => console.log("View:", id)}
-                onEditReferral={handleEditReferral}
-                onViewReferralPage={(id: any) =>
-                  console.log("External Link:", id)
-                }
-                onCall={(phone: any) => console.log(`Calling ${phone}`)}
-                onEmail={(email: any) => console.log(`Emailing ${email}`)}
-                referrals={referralData?.data as Referral[]}
-                totalReferrals={referralData?.total as number}
-                currentFilters={currentFilters}
-                setCurrentFilters={setCurrentFilters}
-                filterStats={referralData?.filterStats as FilterStats}
-              />
-            ) : (
-              // RENDER THE ORIGINAL OVERVIEW DASHBOARD
-              <div className="space-y-5">
-                <div className="grid md:grid-cols-3 xl:grid-cols-4 gap-4">
-                  {STAT_CARD_DATA.map((data, i) => (
-                    <MiniStatsCard key={i} cardData={data} />
-                  ))}
-                </div>
+          {/* --- REFERRALS TAB --- */}
+          {selectedReferralType === "Referrals" && (
+            <>
+              {isFilterViewActive ? (
+                // RENDER THE NEW FILTERED VIEW
+                <AllReferralsView
+                  onBackToOverview={handleBackToOverview}
+                  onExport={handleExport}
+                  onSearchChange={handleOverviewSearchChange}
+                  onFilterChange={handleFilterChange}
+                  onClearFilters={handleClearFilters}
+                  onViewReferral={(id: any) => {
+                    setReferralEditId(id);
+                    setIsReferralStatusModalViewMode(true);
+                    setIsReferralStatusModalOpen(true);
+                  }}
+                  onEditReferral={handleEditReferral}
+                  onViewReferralPage={(id: any) =>
+                    console.log("External Link:", id)
+                  }
+                  referrals={referralData?.data as Referral[]}
+                  totalReferrals={referralData?.total as number}
+                  totalPages={referralData?.totalPages as number}
+                  currentFilters={currentFilters}
+                  setCurrentFilters={setCurrentFilters}
+                  filterStats={referralData?.filterStats as FilterStats}
+                />
+              ) : (
+                // RENDER THE ORIGINAL OVERVIEW DASHBOARD
+                <div className="space-y-5">
+                  <div className="grid md:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {STAT_CARD_DATA.map((data, i) => (
+                      <MiniStatsCard key={i} cardData={data} />
+                    ))}
+                  </div>
 
-                <Card className="shadow-none border border-primary/15">
-                  <CardHeader className="p-4 pb-0">
-                    <p className="font-medium text-sm">Status Breakdown</p>
-                  </CardHeader>
-                  <CardBody className="p-4">
-                    <div className="grid grid-cols-3 gap-3">
-                      <div className="flex items-center justify-between bg-gray-100 p-2.5 rounded-lg">
-                        <Chip
+                  <Card className="shadow-none border border-primary/15">
+                    <CardHeader className="p-4 pb-0">
+                      <p className="font-medium text-sm">Status Breakdown</p>
+                    </CardHeader>
+                    <CardBody className="p-4">
+                      <div className="grid grid-cols-3 gap-3">
+                        {STATUS_BREAKDOWN.map((statusItem) => {
+                          return (
+                            <div
+                              key={statusItem.status}
+                              className="flex items-center justify-between bg-gray-50 hover:bg-gray-100 p-2.5 rounded-lg cursor-pointer"
+                              onClick={() => {
+                                setIsFilterViewActive(true);
+                                setCurrentFilters((prev: any) => ({
+                                  ...prev,
+                                  filter: statusItem.status,
+                                  source: "",
+                                }));
+                              }}
+                            >
+                              <ReferralStatusChip status={statusItem.status} />
+                              <span className="text-sm">
+                                {statusItem.count}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </CardBody>
+                  </Card>
+
+                  <div className="px-4 border-primary/15 border rounded-xl bg-background">
+                    {/* <h5>Filters</h5> */}
+                    <div className="flex flex-wrap items-center gap-2 w-full rounded-md py-4">
+                      <Input
+                        size="sm"
+                        variant="flat"
+                        placeholder="Search..."
+                        value={overviewSearchKeyword} // Controlled by the overview-specific state
+                        onValueChange={handleOverviewSearchChange}
+                        className="text-xs flex-1 min-w-fit"
+                      />
+
+                      <Button
+                        size="sm"
+                        variant="bordered"
+                        className="text-xs ml-auto min-w-[100px] border-small border-primary/15"
+                        onPress={handleViewAllAndFilter}
+                      >
+                        <LuFilter />
+                        View All & Filter
+                      </Button>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-4 border border-primary/15 rounded-xl p-4 bg-background/90">
+                    <p className="font-medium text-sm">Recent Referrals</p>
+                    {referralData?.data?.length ? (
+                      referralData.data.slice(0, 5).map((ref: any) => (
+                        <ReferralCard
+                          key={ref._id}
+                          referral={ref}
+                          actions={(referral: any) => [
+                            {
+                              label: "",
+                              onClick: (id) => {},
+                              icon: <LuPhone className="w-4 h-4" />,
+                              link: `tel:${referral.phone}`,
+                            },
+                            {
+                              label: "",
+                              onClick: (id) => {
+                                setReferralEditId(id);
+                                setIsReferralStatusModalViewMode(true);
+                                setIsReferralStatusModalOpen(true);
+                              },
+                              icon: <FiEye className="w-4 h-4" />,
+                            },
+                            {
+                              label: "",
+                              icon: <FiEdit className="w-4 h-4" />,
+                              onClick: handleEditReferral,
+                            },
+                          ]}
+                        />
+                      ))
+                    ) : (
+                      <NoData />
+                    )}
+                    {referralData && referralData?.total > 5 && (
+                      <div className="text-center mt-2">
+                        <Button
                           size="sm"
                           radius="sm"
-                          variant="flat"
-                          className="text-[11px] h-5 capitalize"
+                          variant="ghost"
+                          className="border-primary/15 border-small"
+                          onPress={handleViewAllAndFilter}
                         >
-                          Contacted
-                        </Chip>
-                        <span className="text-sm">1</span>
+                          View all {referralData?.total} referrals
+                        </Button>
                       </div>
-                    </div>
-                  </CardBody>
-                </Card>
-
-                <div className="px-4 border-primary/15 border rounded-xl bg-background">
-                  {/* <h5>Filters</h5> */}
-                  <div className="flex flex-wrap items-center gap-2 w-full rounded-md py-4">
-                    <Input
-                      size="sm"
-                      variant="flat"
-                      placeholder="Search..."
-                      value={overviewSearchKeyword} // Controlled by the overview-specific state
-                      onValueChange={handleOverviewSearchChange}
-                      className="text-xs flex-1 min-w-fit"
-                    />
-
-                    <Button
-                      size="sm"
-                      variant="bordered"
-                      className="text-xs ml-auto min-w-[100px] border-small border-primary/15"
-                      onPress={handleViewAllAndFilter}
-                    >
-                      <LuFilter />
-                      View All & Filter
-                    </Button>
+                    )}
                   </div>
                 </div>
+              )}
+            </>
+          )}
 
-                <div className="flex flex-col gap-4 border border-primary/15 rounded-xl p-4 bg-background/90">
-                  <p className="font-medium text-sm">Recent Referrals</p>
-                  {referralData?.data?.length ? (
-                    referralData.data.slice(0, 5).map((ref: any) => (
-                      <ReferralCard
-                        key={ref._id}
-                        referral={ref}
-                        actions={(referral: any) => [
-                          {
-                            label: "",
-                            icon: <FiEdit className="w-4 h-4" />,
-                            // FIX: Added required onClick function
-                            onClick: (id) =>
-                              console.log(`Editing referral ID: ${id}`),
-                          },
-                          {
-                            label: "",
-                            // FIX: Renamed 'function' to 'onClick' to match the ReferralButton interface
-                            onClick: (id) =>
-                              console.log(`Calling mobile for referral ID: ${id}`),
-                            icon: <LuPhone className="w-4 h-4" />,
-                            link: `tel:${referral.mobile}`,
-                          },
-                          {
-                            label: "",
-                            // FIX: Renamed 'function' to 'onClick' to match the ReferralButton interface
-                            onClick: (id) =>
-                              console.log(`Viewing referral ID: ${id}`),
-                            icon: <FiEye className="w-4 h-4" />,
-                          },
-                        ]}
-                      />
-                    ))
-                  ) : (
-                    <NoData />
-                  )}
-                </div>
-              </div>
-            )}
-          </>
-        )}
-
-        {/* --- REFERRERS TAB --- */}
-        {selectedReferralType === "Referrers" && (
-          <div className="flex flex-col gap-4 border border-primary/15 rounded-xl p-4 bg-background/70 w-full">
-            <p className="font-medium text-sm">Referrer Management</p>
-            {referrers?.length ? (
-              referrers.map((referrer: Referrer) => (
-                <ReferrerCard
-                  key={referrer._id}
-                  referrer={referrer}
-                  buttons={refererButtonList as any}
-                  onView={(id) => {
-                    setReferrerEditId(id);
-                    setIsModalOpen(true);
+          {/* --- REFERRERS TAB --- */}
+          {selectedReferralType === "Referrers" && (
+            <div className="flex flex-col gap-4 border border-primary/15 rounded-xl p-4 bg-background/70 w-full">
+              <p className="font-medium text-sm">Referrer Management</p>
+              {referrers?.length ? (
+                referrers.map((referrer: Referrer) => (
+                  <ReferrerCard
+                    key={referrer._id}
+                    referrer={referrer}
+                    buttons={refererButtonList as any}
+                    onView={(id) => {
+                      setReferrerEditId(id);
+                      setIsModalOpen(true);
+                    }}
+                  />
+                ))
+              ) : (
+                <NoData />
+              )}
+              {referrerData?.totalPages && referrerData.totalPages > 1 ? (
+                <Pagination
+                  showControls
+                  size="sm"
+                  radius="sm"
+                  initialPage={1}
+                  page={referrerParams.page as number}
+                  onChange={(page) => {
+                    setReferrerParams((prev: any) => ({ ...prev, page }));
+                  }}
+                  total={referrerData?.totalPages as number}
+                  classNames={{
+                    base: "flex justify-end py-3",
+                    wrapper: "gap-1.5",
+                    item: "cursor-pointer",
+                    prev: "cursor-pointer",
+                    next: "cursor-pointer",
                   }}
                 />
-              ))
-            ) : (
-              <NoData />
-            )}
-            {referrerData?.totalPages && referrerData.totalPages > 1 ? (
-              <Pagination
-                showControls
-                size="sm"
-                radius="sm"
-                initialPage={1}
-                page={referrerParams.page as number}
-                onChange={(page) => {
-                  setReferrerParams((prev: any) => ({ ...prev, page }));
-                }}
-                total={referrerData?.totalPages as number}
-                classNames={{
-                  base: "flex justify-end py-3",
-                  wrapper: "gap-1.5",
-                  item: "cursor-pointer",
-                  prev: "cursor-pointer",
-                  next: "cursor-pointer",
-                }}
-              />
-            ) : (
-              ""
-            )}
-          </div>
-        )}
+              ) : (
+                ""
+              )}
+            </div>
+          )}
 
-        {/* --- NFC & QR TRACKING TAB --- */}
-        {selectedReferralType === "NFC & QR Tracking" && (
-          <TrackingPanel trackings={trackings} />
-        )}
-      </div>
+          {/* --- NFC & QR TRACKING TAB --- */}
+          {selectedReferralType === "NFC & QR Tracking" && (
+            <TrackingPanel trackings={trackings} />
+          )}
+        </div>
 
-      <ReferralManagementActions
-        isModalOpen={isModalOpen}
-        setIsModalOpen={setIsModalOpen}
-        editedData={singleReferrerData || null}
-        setReferrerEditId={setReferrerEditId}
+        <ReferralManagementActions
+          isModalOpen={isModalOpen}
+          setIsModalOpen={setIsModalOpen}
+          editedData={singleReferrerData || null}
+          setReferrerEditId={setReferrerEditId}
+        />
+      </ComponentContainer>
+      <ReferralStatusModal
+        isOpen={isReferralStatusModalOpen}
+        onClose={() => setIsReferralStatusModalOpen(false)}
+        referral={singleReferralData}
+        isViewMode={isReferralStatusModalViewMode}
+        setReferralEditId={setReferralEditId}
       />
-    </ComponentContainer>
+    </>
   );
 };
 

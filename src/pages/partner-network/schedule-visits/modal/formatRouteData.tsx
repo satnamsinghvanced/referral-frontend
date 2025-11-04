@@ -17,11 +17,11 @@ export const formatDistance = (meters: number): string => {
 };
 
 const parseVisitDurationToSeconds = (durationString: string): number => {
-  if (durationString.includes("hour")) {
+  if (durationString.includes("hour") || durationString.includes("hours")) {
     const hours = parseFloat(durationString.split(" ")[0] as string);
     return hours * 3600;
   }
-  if (durationString.includes("minute")) {
+  if (durationString.includes("minute") || durationString.includes("minutes")) {
     const minutes = parseFloat(durationString.split(" ")[0] as string);
     return minutes * 60;
   }
@@ -29,16 +29,17 @@ const parseVisitDurationToSeconds = (durationString: string): number => {
 };
 
 export const formatRouteData = (
-  formik: any,
+  routeDate: string,
+  startTime: string,
   mapboxRoute: MapboxRoute,
   selectedReferrers: Partner[],
   visitDurationString: string
 ) => {
   const visitDurationSeconds = parseVisitDurationToSeconds(visitDurationString);
+  
+  // Use routeDate and startTime directly
   let currentTimeSeconds =
-    new Date(
-      formik.values.routeDate + "T" + formik.values.startTime
-    ).getTime() / 1000;
+    new Date(routeDate + "T" + startTime).getTime() / 1000;
 
   let totalTravelTimeSeconds = 0;
   let totalStops = selectedReferrers.length;

@@ -1,4 +1,5 @@
 import { Chip } from "@heroui/react";
+import { STATUS_OPTIONS } from "../../consts/filters";
 
 export default function ReferralStatusChip({ status }: { status: string }) {
   let classNames;
@@ -46,7 +47,7 @@ export default function ReferralStatusChip({ status }: { status: string }) {
       radius="sm"
       className={`capitalize text-[11px] h-5 ${classNames}`}
     >
-      {status}
+      {STATUS_OPTIONS.find((option: any) => option.value === status)?.label}
     </Chip>
   );
 }

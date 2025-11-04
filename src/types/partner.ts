@@ -388,12 +388,12 @@ export interface SelectReferrersTabProps {
   handleReferrerToggle: (id: string) => void;
   handleSelectAll: () => void;
   handleClearAll: () => void;
-  showRoutePreview: boolean;
-  setShowRoutePreview: React.Dispatch<React.SetStateAction<boolean>>;
+  showRoutePreview?: boolean;
+  setShowRoutePreview?: React.Dispatch<React.SetStateAction<boolean>>;
   practices: Partner[];
   categoryOptions: CategoryOption[];
-  mockOptimizedRouteData: OptimizedRouteStop[];
-  data: MockInitialData;
+  mockOptimizedRouteData?: OptimizedRouteStop[];
+  data?: MockInitialData;
 }
 
 export interface PlanDetailsTabProps {

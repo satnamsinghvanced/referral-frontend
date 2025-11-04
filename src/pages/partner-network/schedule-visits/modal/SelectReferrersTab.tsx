@@ -39,40 +39,6 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
     selectedReferrersState.includes(r._id)
   );
 
-  const routePreviewData =
-    selectedReferrerObjects.length === 3 ? mockOptimizedRouteData : [];
-
-  let estTotalTime = "0h 0m";
-  let estDistance = "0.0mi";
-  let mileageCost = "$0";
-
-  if (selectedReferrerObjects.length === 3) {
-    const totalDriveTimeMinutes = routePreviewData.reduce(
-      (sum: number, stop: any) => sum + stop.driveMin,
-      0
-    );
-    const totalVisitTimeMinutes = selectedReferrerObjects.length * 60;
-    const totalMinutes = Math.round(
-      totalDriveTimeMinutes + totalVisitTimeMinutes
-    );
-
-    estTotalTime = `${Math.floor(totalMinutes / 60)}h ${totalMinutes % 60}m`;
-
-    const totalMiles = routePreviewData.reduce(
-      (sum: number, stop: any) => sum + stop.miles,
-      0
-    );
-    estDistance = `${totalMiles.toFixed(1)}mi`;
-
-    mileageCost = `$${Math.ceil(totalMiles * 0.56)}`;
-  }
-
-  // Update estimates on the shared data object
-  data.estimatedTotalTime = estTotalTime;
-  data.estimatedDistance = estDistance;
-  data.mileageCost = mileageCost;
-  // --- End Data Calculation Logic ---
-
   return (
     <div className="space-y-3 h-full">
       <div className="flex justify-between items-center text-sm gap-2.5 px-1">

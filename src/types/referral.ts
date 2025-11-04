@@ -26,6 +26,7 @@ export interface Referral {
     | "completed"
     | "declined"
     | "noShow";
+  statusNotes?: string;
   createdAt?: string;
 }
 
@@ -64,6 +65,7 @@ export interface ReferralsResponse {
   stats: GeneralStats;
   statusStats: StatusStats;
   total: number;
+  totalPages: number;
   page: number;
   limit: number;
 }
@@ -75,4 +77,27 @@ export interface FetchReferralsParams {
   search?: string;
   filter?: string;
   source?: string;
+}
+
+export interface ScanTrackingParams {
+  userId: string; // From URL path
+  source: "NFC" | "QR" | string; // From URL query
+}
+
+export interface ScanTrackingResponse {
+  message: string;
+  success: boolean;
+}
+
+// Define the shape of the form data
+export interface StatusUpdateFormValues {
+  status: string;
+  statusNotes: string;
+}
+
+// Define the shape of the data being sent to the API
+export interface UpdateStatusPayload {
+  referralId: string;
+  newStatus: string;
+  notes: string;
 }

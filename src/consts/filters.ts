@@ -1,8 +1,15 @@
-export const statusOptions = [
-  { key: "all", label: "All Statuses" },
-  { key: "contacted", label: "Mark as Contacted" },
-  { key: "scheduled", label: "Mark as Scheduled" },
-  { key: "completed", label: "Mark as Completed" },
+export const STATUS_OPTIONS = [
+  { label: "Contacted", value: "contacted" },
+  { label: "Appointed", value: "appointed" },
+  { label: "In Process", value: "inProcess" },
+  { label: "Started Treatment", value: "started" },
+  { label: "Declined Treatment", value: "declined" },
+  { label: "New", value: "new" },
+  { label: "Scheduled", value: "scheduled" },
+  { label: "Consultation Complete", value: "consultation" },
+  { label: "In Treatment", value: "inTreatment" },
+  { label: "Completed", value: "completed" },
+  { label: "No Show", value: "noShow" },
 ];
 
 export const urgencyOptions = [

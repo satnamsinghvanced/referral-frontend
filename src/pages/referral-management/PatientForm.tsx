@@ -14,12 +14,11 @@ import { FiDownload } from "react-icons/fi";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import { TREATMENT_OPTIONS, URGENCY_OPTIONS } from "../../consts/referral";
-import { useFetchUser } from "../../hooks/settings/useUser";
-import { useSpecialties } from "../../hooks/useCommon";
-import { useCreateReferral } from "../../hooks/useReferral";
-import { useTypedSelector } from "../../hooks/useTypedSelector";
+import { useFetchUserForTrackings } from "../../hooks/settings/useUser";
+import { useCreateReferral, useTrackScan } from "../../hooks/useReferral";
 import { Referral } from "../../types/referral";
 import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
+import { downloadVcf } from "../../utils/vcfGenerator";
 
 interface PatientFormValues {
   fullName: string;
@@ -41,24 +40,25 @@ const PatientForm = () => {
   const [addedVia, setAddedVia] = useState<string>("");
 
   const { mutateAsync: createReferral, isPending } = useCreateReferral();
+  const { data: fetchedUser } = useFetchUserForTrackings(referredBy);
+  const { mutate: trackScan } = useTrackScan();
 
   useEffect(() => {
     const pathSegments = location.pathname.split("/referral/");
     const referralIdSegment = pathSegments.length > 1 ? pathSegments[1] : null;
 
-    const referralId = referralIdSegment?.split("?")[0] || null;
-    setReferredBy(referralId ?? "");
+    setReferredBy(referralIdSegment?.split("?")[0] || "");
 
     const queryParams = new URLSearchParams(location.search);
     const source = queryParams.get("source");
     setAddedVia(source || "");
   }, [location.pathname, location.search]);
 
-  const { user } = useTypedSelector((state) => state.auth);
-  const userId = user?.userId || "";
-  const { data: fetchedUser } = useFetchUser(userId);
-
-  const { data: specialties } = useSpecialties();
+  useEffect(() => {
+    if (referredBy && addedVia) {
+      trackScan({ userId: referredBy, source: addedVia });
+    }
+  }, [referredBy, addedVia]);
 
   const validationSchema = Yup.object<PatientFormValues>().shape({
     fullName: Yup.string()
@@ -132,7 +132,7 @@ const PatientForm = () => {
       try {
         const payload: Partial<Referral> = {
           referredBy: referredBy,
-          addedVia: addedVia,
+          addedVia: addedVia || "Direct",
           name: values.fullName,
           email: values.email,
           phone: values.phone || "",
@@ -146,16 +146,14 @@ const PatientForm = () => {
 
         await createReferral(payload);
         formik.resetForm();
-        navigate("/thank-you");
+        navigate("/thank-you", { state: { user: fetchedUser } });
       } catch (error) {
         console.error("Form submission error:", error);
       }
     },
   });
 
-  const specialtyTitle = specialties?.find(
-    (specialty: any) => specialty._id === fetchedUser?.medicalSpecialty
-  )?.title;
+  console.log(fetchedUser);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 py-5 px-4 flex items-center justify-center">
@@ -190,7 +188,7 @@ const PatientForm = () => {
                 from {fetchedUser?.practiceName}
               </p>
               <p className="text-xs text-gray-600 mt-1">
-                Specialty in {specialtyTitle}
+                Specialty in {fetchedUser?.medicalSpecialty?.title}
               </p>
             </div>
           </CardBody>
@@ -427,17 +425,26 @@ const PatientForm = () => {
                   size="sm"
                   radius="sm"
                   isLoading={isPending}
-                  isDisabled={!formik.isValid || isPending}
+                  isDisabled={!formik.isValid || isPending || !formik.dirty}
                 >
                   {isPending ? "Submitting..." : "Submit Referral"}
                 </Button>
                 <Button
-                  type="submit"
+                  type="button"
                   variant="ghost"
                   size="sm"
                   radius="sm"
                   className="border-small"
                   startContent={<FiDownload className="text-sm" />}
+                  onPress={() => {
+                    downloadVcf({
+                      firstName: fetchedUser?.firstName,
+                      lastName: fetchedUser?.lastName,
+                      phone: fetchedUser?.phone,
+                      email: fetchedUser?.email,
+                      organization: fetchedUser?.practiceName,
+                    });
+                  }}
                 >
                   {isPending ? "Submitting..." : "Save Our Contact"}
                 </Button>
