@@ -1,11 +1,25 @@
 import ComponentContainer from "../components/common/ComponentContainer";
 import { useDashboard } from "../hooks/useDashboard";
+import {
+  Button,
+  Card,
+  CardBody,
+  Checkbox,
+  Divider,
+  Input,
+  Link,
+  Select,
+  SelectItem,
+  Spinner,
+} from "@heroui/react";
+
 type Color = "sky" | "orange" | "emerald" | "purple";
 
 interface QuickAction {
   label: string;
   icon: string;
   color: Color;
+  link: string
 }
 
 const headingData = {
@@ -17,10 +31,10 @@ const headingData = {
 
 
 const quickActions: QuickAction[] = [
-  { label: "Add Referral", icon: "👥", color: "sky" },
-  { label: "Marketing Calendar", icon: "📅", color: "orange" },
-  { label: "View Reviews", icon: "⭐", color: "emerald" },
-  { label: "Analytics", icon: "📊", color: "purple" },
+  { label: "Add Referral", icon: "👥", color: "sky", link: "/referral-retrieve/referrals" },
+  { label: "Marketing Calendar", icon: "📅", color: "orange", link: "" },
+  { label: "View Reviews", icon: "⭐", color: "emerald", link: "" },
+  { label: "Analytics", icon: "📊", color: "purple", link: "" },
 ];
 
 const colorClasses: Record<
@@ -52,7 +66,6 @@ const colorClasses: Record<
     hover: "hover:bg-purple-100",
   },
 };
-
 
 
 const systemStatuses = [
@@ -94,10 +107,13 @@ const Dashboard = () => {
   const stats = [
     {
       title: "Total Referrals",
-      value: dashboard.totalReferrals,
-      change: "↗ +12% from last month",
+      value: dashboard?.totalReferrals,
+      change: dashboard?.totalLastMonth > 0
+        ? `↗ +${dashboard.totalLastMonth}% from last month`
+        : "0 from last month",
       icon: "👥",
       color: "sky",
+      link: "/referral-retrieve/referrals",
     },
     {
       title: "Active Campaigns",
@@ -138,15 +154,19 @@ const Dashboard = () => {
     return `${days} day${days > 1 ? 's' : ''} ago`;
   };
 
-
+  console.log(dashboard)
   const recentActivities = [
-    {
-      icon: "👥",
-      iconBg: "bg-sky-50",
-      title: `New referral from ${dashboard?.referrer?.name || "Unknown"}`,
-      description: `Patient: ${dashboard?.recentReferrals[0]?.name || "Unknown"} - ${dashboard?.referrer?.type || "Unknown"}`,
-      time: `${getTimeAgo(dashboard?.recentReferrals[0]?.createdAt)}`,
-    },
+    ...(dashboard?.recentReferrals?.length > 0
+      ? [
+        {
+          icon: "👥",
+          iconBg: "bg-sky-50",
+          title: `New referral from ${dashboard?.referrer?.name || "Unknown"}`,
+          description: `Patient: ${dashboard?.recentReferrals[0]?.name || "Unknown"} - ${dashboard?.referrer?.type || "Unknown"}`,
+          time: `${getTimeAgo(dashboard?.recentReferrals[0]?.createdAt)}`,
+        },
+      ]
+      : []),
     {
       icon: "⭐",
       iconBg: "bg-yellow-50",
@@ -162,6 +182,7 @@ const Dashboard = () => {
       time: "6 hours ago",
     },
   ];
+
   return (
     <ComponentContainer headingData={headingData}>
       <div className="container mx-auto">
@@ -179,9 +200,10 @@ const Dashboard = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
               {stats?.map((item, i) => (
-                <div
+                <Link
                   key={i}
-                  className={`bg-white rounded-lg shadow p-6 border border-${item.color}-100 cursor-pointer hover:shadow-lg hover:border-${item.color}-200 transition-all`}
+                  href={item.link || ""}
+                  className={`bg-white rounded-lg shadow p-6 border border-${item.color}-100 cursor-pointer hover:shadow-lg hover:border-${item.color}-200 transition-all block`}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <h1 className="text-sm">{item.title}</h1>
@@ -193,7 +215,7 @@ const Dashboard = () => {
                       </span>
                     </div>
                   </div>
-                  <div className="text-lg mt-4 mb-0.5 font-bold ">
+                  <div className="text-lg mt-4 mb-0.5 font-bold">
                     {item.value}
                   </div>
                   <div className="flex items-center mt-1">
@@ -201,9 +223,10 @@ const Dashboard = () => {
                       {item.change}
                     </span>
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
+
 
             <div className="bg-white rounded-lg shadow p-6 mb-8">
               <h1 className="text-lg mb-4">Quick Actions</h1>
@@ -211,14 +234,18 @@ const Dashboard = () => {
                 {quickActions.map((action, i) => {
                   const color = colorClasses[action.color];
                   return (
-                    <button
+                    <Link
                       key={i}
+                      href={action.link || ""}
+                      onClick={(e) => {
+                        if (!action.link) e.preventDefault();
+                      }}
                       className={`flex items-center justify-center space-x-2 px-3 py-2 rounded-lg border transition-colors cursor-pointer text-sm
                    ${color.bg} ${color.text} ${color.border} ${color.hover}`}
                     >
                       <span>{action.icon}</span>
                       <span>{action.label}</span>
-                    </button>
+                    </Link>
                   );
                 })}
               </div>
