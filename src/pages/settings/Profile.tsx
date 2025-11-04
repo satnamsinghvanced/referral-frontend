@@ -9,6 +9,7 @@ import { useSpecialties } from "../../hooks/useCommon";
 import { useDispatch } from "react-redux";
 import { updateUserFirstName } from "../../store/authSlice";
 import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
+import { EMAIL_REGEX, PHONE_REGEX } from "../../consts/consts";
 
 // 1. Define the type for the form fields
 interface ProfileFormValues {
@@ -32,13 +33,12 @@ const fields = [
 const ProfileSchema = Yup.object().shape({
   firstName: Yup.string().required("First name is required").max(50),
   lastName: Yup.string().required("Last name is required").max(50),
-  email: Yup.string().email("Invalid email").required("Email is required"),
+  email: Yup.string()
+    .required("Email is required")
+    .matches(EMAIL_REGEX, "Invalid email format"),
   phone: Yup.string()
     .required("Phone number is required")
-    .matches(
-      /^\(\d{3}\)\s\d{3}-\d{4}$/,
-      "Phone must be in format (XXX) XXX-XXXX"
-    ),
+    .matches(PHONE_REGEX, "Phone must be in format (XXX) XXX-XXXX"),
   practiceName: Yup.string().required("Practice name is required"),
   medicalSpecialty: Yup.string().required("Specialty is required"),
   // 1. UPDATED: Add custom validation test for file type and size

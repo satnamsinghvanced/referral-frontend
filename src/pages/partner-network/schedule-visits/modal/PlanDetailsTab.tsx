@@ -8,20 +8,35 @@ import {
   Textarea,
 } from "@heroui/react";
 import React from "react";
-import { FiClock, FiStar } from "react-icons/fi";
-import { GoLocation } from "react-icons/go";
-import { PlanDetailsTabProps } from "../../../../types/partner";
-import { RxTarget } from "react-icons/rx";
 import { RiErrorWarningLine } from "react-icons/ri";
 import { BiStopwatch } from "react-icons/bi";
+import { RxTarget } from "react-icons/rx";
+
+// Assuming PlanDetailsTabProps is updated to:
+// interface PlanDetailsTabProps {
+//   planState: any; 
+//   onStateChange: (key: string, value: any) => void;
+//   errors: any;
+//   data: any; // Route summary data
+//   selectedReferrerObjects: any[];
+//   purposeOptions: any[];
+//   durationOptions: string[];
+// }
 
 export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
-  formik,
+  planState,
+  onStateChange,
+  errors,
   data,
   selectedReferrerObjects,
   purposeOptions,
   durationOptions,
 }) => {
+  // Helper function to handle Select changes (converts Set to string)
+  const handleSelectChange = (key: string, keys: any) => {
+    onStateChange(key, Array.from(keys).join(""));
+  };
+
   return (
     <form>
       <div className="grid grid-cols-2 gap-6">
@@ -34,40 +49,14 @@ export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
               placeholder="e.g., March 2024 Practice Visits"
               size="sm"
               radius="sm"
-              value={formik.values.planName}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              isInvalid={formik.touched.planName && !!formik.errors.planName}
-              errorMessage={formik.touched.planName && formik.errors.planName}
+              value={planState.planName}
+              onChange={(e) => onStateChange("planName", e.target.value)}
+              isInvalid={!!errors.planName}
+              errorMessage={errors.planName}
               isRequired
             />
           </div>
-          {/* <div className="space-y-2">
-            <label className="text-sm font-medium text-gray-700">Month</label>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="bordered"
-                isIconOnly
-                size="sm"
-                radius="sm"
-                className="text-gray-500 hover:bg-gray-100"
-              >
-                <FiChevronLeft className="size-4" />
-              </Button>
-              <span className="font-semibold text-base flex-1 text-center">
-                {formik.values.month}
-              </span>
-              <Button
-                variant="bordered"
-                isIconOnly
-                size="sm"
-                radius="sm"
-                className="text-gray-500 hover:bg-gray-100"
-              >
-                <FiChevronRight className="size-4" />
-              </Button>
-            </div>
-          </div> */}
+
           <div>
             <Select
               name="defaultVisitPurpose"
@@ -76,22 +65,13 @@ export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
               placeholder="Select purpose"
               size="sm"
               radius="sm"
-              selectedKeys={[formik.values.defaultVisitPurpose]}
+              selectedKeys={[planState.defaultVisitPurpose]}
               onSelectionChange={(keys: any) =>
-                formik.setFieldValue(
-                  "defaultVisitPurpose",
-                  Array.from(keys).join("")
-                )
+                handleSelectChange("defaultVisitPurpose", keys)
               }
               startContent={<RxTarget className="size-4 text-gray-500" />}
-              isInvalid={
-                formik.touched.defaultVisitPurpose &&
-                !!formik.errors.defaultVisitPurpose
-              }
-              errorMessage={
-                formik.touched.defaultVisitPurpose &&
-                formik.errors.defaultVisitPurpose
-              }
+              isInvalid={!!errors.defaultVisitPurpose}
+              errorMessage={errors.defaultVisitPurpose}
               isRequired
               classNames={{
                 base: "!mt-0 gap-2",
@@ -106,7 +86,7 @@ export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
             </Select>
           </div>
 
-          {formik.values.defaultVisitPurpose === "Custom Purpose" && (
+          {planState.defaultVisitPurpose === "Custom Purpose" && (
             <div>
               <Input
                 name="customVisitPurpose"
@@ -115,17 +95,12 @@ export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
                 placeholder="Enter Custom Purpose Title"
                 size="sm"
                 radius="sm"
-                value={formik.values.customVisitPurpose}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                isInvalid={
-                  formik.touched.customVisitPurpose &&
-                  !!formik.errors.customVisitPurpose
+                value={planState.customVisitPurpose}
+                onChange={(e) =>
+                  onStateChange("customVisitPurpose", e.target.value)
                 }
-                errorMessage={
-                  formik.touched.customVisitPurpose &&
-                  formik.errors.customVisitPurpose
-                }
+                isInvalid={!!errors.customVisitPurpose}
+                errorMessage={errors.customVisitPurpose}
               />
             </div>
           )}
@@ -138,23 +113,15 @@ export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
               placeholder="Select priority"
               size="sm"
               radius="sm"
-              selectedKeys={[formik.values.defaultPriority]}
+              selectedKeys={[planState.defaultPriority]}
               onSelectionChange={(keys: any) =>
-                formik.setFieldValue(
-                  "defaultPriority",
-                  Array.from(keys).join("")
-                )
+                handleSelectChange("defaultPriority", keys)
               }
               startContent={
                 <RiErrorWarningLine className="size-4 text-gray-500" />
               }
-              isInvalid={
-                formik.touched.defaultPriority &&
-                !!formik.errors.defaultPriority
-              }
-              errorMessage={
-                formik.touched.defaultPriority && formik.errors.defaultPriority
-              }
+              isInvalid={!!errors.defaultPriority}
+              errorMessage={errors.defaultPriority}
               isRequired
               classNames={{
                 base: "!mt-0 gap-2",
@@ -175,22 +142,13 @@ export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
               placeholder="Select duration"
               size="sm"
               radius="sm"
-              selectedKeys={[formik.values.durationPerVisit]}
+              selectedKeys={[planState.durationPerVisit]}
               onSelectionChange={(keys: any) =>
-                formik.setFieldValue(
-                  "durationPerVisit",
-                  Array.from(keys).join("")
-                )
+                handleSelectChange("durationPerVisit", keys)
               }
               startContent={<BiStopwatch className="size-4 text-gray-500" />}
-              isInvalid={
-                formik.touched.durationPerVisit &&
-                !!formik.errors.durationPerVisit
-              }
-              errorMessage={
-                formik.touched.durationPerVisit &&
-                formik.errors.durationPerVisit
-              }
+              isInvalid={!!errors.durationPerVisit}
+              errorMessage={errors.durationPerVisit}
               isRequired
               classNames={{
                 base: "!mt-0 gap-2",
@@ -205,9 +163,9 @@ export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
 
           <Checkbox
             name="enableAutoRoute"
-            isSelected={formik.values.enableAutoRoute}
+            isSelected={planState.enableAutoRoute}
             onValueChange={(checked: boolean) =>
-              formik.setFieldValue("enableAutoRoute", checked)
+              onStateChange("enableAutoRoute", checked)
             }
             size="sm"
           >
@@ -224,9 +182,8 @@ export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
             size="sm"
             radius="sm"
             minRows={3}
-            value={formik.values.description}
-            onChange={formik.handleChange}
-            onBlur={formik.handleBlur}
+            value={planState.description}
+            onChange={(e) => onStateChange("description", e.target.value)}
           />
 
           <Card className="shadow-none border border-primary/15 bg-blue-50/20">
@@ -241,15 +198,15 @@ export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
                 </p>
                 <p className="flex justify-between">
                   <span>Estimated Total Time:</span>{" "}
-                  <span className="font-medium">{data.estimatedTotalTime}</span>
+                  <span className="font-medium">{data?.estimatedTotalTime}</span>
                 </p>
                 <p className="flex justify-between">
                   <span>Estimated Distance:</span>{" "}
-                  <span className="font-medium">{data.estimatedDistance}</span>
+                  <span className="font-medium">{data?.estimatedDistance}</span>
                 </p>
                 <p className="flex justify-between">
                   <span>Mileage Cost (IRS Rate):</span>{" "}
-                  <span className="font-medium">{data.mileageCost}</span>
+                  <span className="font-medium">{data?.mileageCost}</span>
                 </p>
                 <p className="pt-3 mt-3 border-t border-primary/15 text-gray-500">
                   * Estimates based on 60min per visit and route optimization

@@ -19,6 +19,7 @@ import { useCreateReferral, useTrackScan } from "../../hooks/useReferral";
 import { Referral } from "../../types/referral";
 import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
 import { downloadVcf } from "../../utils/vcfGenerator";
+import { EMAIL_REGEX, PHONE_REGEX } from "../../consts/consts";
 
 interface PatientFormValues {
   fullName: string;
@@ -55,10 +56,14 @@ const PatientForm = () => {
   }, [location.pathname, location.search]);
 
   useEffect(() => {
-    if (referredBy && addedVia) {
+    const trackingKey = `scanTracked_${referredBy}_${addedVia}`;
+    const alreadyTracked = sessionStorage.getItem(trackingKey);
+
+    if (referredBy && addedVia && !alreadyTracked) {
       trackScan({ userId: referredBy, source: addedVia });
+      sessionStorage.setItem(trackingKey, "true");
     }
-  }, [referredBy, addedVia]);
+  }, [referredBy, addedVia, trackScan]);
 
   const validationSchema = Yup.object<PatientFormValues>().shape({
     fullName: Yup.string()
@@ -67,9 +72,9 @@ const PatientForm = () => {
       .max(100, "Full name must be less than 100 characters"),
     email: Yup.string()
       .required("Email is required")
-      .email("Invalid email address"),
+      .matches(EMAIL_REGEX, "Invalid email format"),
     phone: Yup.string().matches(
-      /^\(\d{3}\)\s\d{3}-\d{4}$/,
+      PHONE_REGEX,
       "Phone must be in format (XXX) XXX-XXXX"
     ),
     insuranceProvider: Yup.string()

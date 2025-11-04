@@ -28,6 +28,24 @@ const parseVisitDurationToSeconds = (durationString: string): number => {
   return 3600;
 };
 
+// Helper function to format the time and include a day offset if necessary
+const formatTimeWithDayOffset = (
+  time: Date,
+  startDate: Date
+): { timeString: string; dayOffset: number } => {
+  const dayOffset = Math.floor(
+    (time.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+  );
+
+  const timeString = time.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  });
+
+  return { timeString, dayOffset };
+};
+
 export const formatRouteData = (
   routeDate: string,
   startTime: string,
@@ -36,16 +54,14 @@ export const formatRouteData = (
   visitDurationString: string
 ) => {
   const visitDurationSeconds = parseVisitDurationToSeconds(visitDurationString);
-  
-  // Use routeDate and startTime directly
-  let currentTimeSeconds =
-    new Date(routeDate + "T" + startTime).getTime() / 1000;
+
+  const startDateTime = new Date(routeDate + "T" + startTime);
+  let currentTimeSeconds = startDateTime.getTime() / 1000;
 
   let totalTravelTimeSeconds = 0;
   let totalStops = selectedReferrers.length;
 
   const routeDetails = selectedReferrers.map((referrer, index) => {
-    // Leg duration for travel TO this stop is at index-1
     const travelToStopSeconds =
       index === 0 ? 0 : mapboxRoute.legs[index - 1].duration;
     const travelToStopDistance =
@@ -59,22 +75,25 @@ export const formatRouteData = (
     currentTimeSeconds += visitDurationSeconds;
     const departureTime = new Date(currentTimeSeconds * 1000);
 
+    // Calculate time strings with day offset indicator
+    const { timeString: arrivalTimeString, dayOffset: arrivalDayOffset } =
+      formatTimeWithDayOffset(arrivalTime, startDateTime);
+    const { timeString: departureTimeString, dayOffset: departureDayOffset } =
+      formatTimeWithDayOffset(departureTime, startDateTime);
+
+    const arrivalIndicator =
+      arrivalDayOffset > 0 ? ` (+${arrivalDayOffset}d)` : "";
+    const departureIndicator =
+      departureDayOffset > 0 ? ` (+${departureDayOffset}d)` : "";
+
     return {
       id: referrer._id,
       name: referrer.name,
       address: referrer.address,
       isFirstStop: index === 0,
 
-      arrivalTime: arrivalTime.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      }),
-      departureTime: departureTime.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      }),
+      arrivalTime: arrivalTimeString + arrivalIndicator,
+      departureTime: departureTimeString + departureIndicator,
 
       travelTime: formatDuration(travelToStopSeconds),
       travelDistance: formatDistance(travelToStopDistance),

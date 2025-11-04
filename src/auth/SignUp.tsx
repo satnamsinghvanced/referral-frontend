@@ -19,6 +19,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { setCredentials, signUp } from "../store/authSlice";
 import { AppDispatch, RootState } from "../store/index";
+import { EMAIL_REGEX } from "../consts/consts";
 
 interface FormData {
   firstName: string;
@@ -58,8 +59,8 @@ const validationSchema = Yup.object({
     .matches(/^\d{10}$/, "Mobile number must be 10 digits")
     .required("Mobile number is required"),
   email: Yup.string()
-    .email("Invalid email address")
-    .required("Email is required"),
+    .required("Email is required")
+    .matches(EMAIL_REGEX, "Invalid email format"),
   password: Yup.string()
     .min(6, "Password must be at least 6 characters")
     .required("Password is required"),

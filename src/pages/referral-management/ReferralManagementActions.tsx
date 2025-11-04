@@ -15,6 +15,7 @@ import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { categoryOptions } from "../../consts/filters";
 import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
 import { STAFF_ROLES } from "../../consts/practice";
+import { EMAIL_REGEX, PHONE_REGEX, ZIP_CODE_REGEX } from "../../consts/consts";
 
 interface ReferralManagementActionsProps {
   isModalOpen: boolean;
@@ -147,11 +148,10 @@ export default function ReferralManagementActions({
       name: Yup.string().required("Full name is required"),
       phone: Yup.string()
         .required("Phone number is required")
-        .matches(
-          /^\(\d{3}\)\s\d{3}-\d{4}$/,
-          "Phone must be in format (XXX) XXX-XXXX"
-        ),
-      email: Yup.string().email("Invalid email").required("Email is required"),
+        .matches(PHONE_REGEX, "Phone must be in format (XXX) XXX-XXXX"),
+      email: Yup.string()
+        .required("Email is required")
+        .matches(EMAIL_REGEX, "Invalid email format"),
       practiceName: Yup.string().when("type", {
         is: "doctor",
         then: (schema) => schema.required("Practice name is required"),
@@ -190,17 +190,24 @@ export default function ReferralManagementActions({
           then: (schema) => schema.required("State is required"),
           otherwise: (schema) => schema.notRequired(),
         }),
-        zip: Yup.number().when(["$type"], {
-          is: (type: string) => type === "doctor",
-          then: (schema) => schema.required("ZIP is required"),
-          otherwise: (schema) => schema.notRequired(),
-        }),
+        zip: Yup.string()
+          .matches(
+            ZIP_CODE_REGEX,
+            "Invalid ZIP code format (e.g., 12345 or 12345-6789)"
+          )
+          .when(["$type"], {
+            is: (type: string) => type === "doctor",
+            then: (schema) => schema.required("ZIP is required"),
+            otherwise: (schema) => schema.notRequired(),
+          }),
       }),
       staff: Yup.array().of(
         Yup.object().shape({
           name: Yup.string().required("Name is required"),
           role: Yup.array().required("Role/Title is required"),
-          email: Yup.string().email("Invalid email"),
+          email: Yup.string()
+            .required("Email is required")
+            .matches(EMAIL_REGEX, "Invalid email format"),
           phone: Yup.string().nullable(),
           isDentist: Yup.boolean().nullable(),
         })

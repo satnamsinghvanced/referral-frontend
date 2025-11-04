@@ -59,12 +59,12 @@ interface CategoryOption {
 // Initial state for all form data
 const initialPlanState = {
   // Select Referrers State (handled separately by selectedReferrersState)
-  
+
   // Route Planning State
   routeDate: "",
   startTime: "",
   durationPerVisit: "", // Used in RoutePlanningTab
-  
+
   // Plan Details State
   planName: "",
   defaultPriority: "",
@@ -72,7 +72,6 @@ const initialPlanState = {
   customVisitPurpose: "", // Only used if defaultVisitPurpose is 'Custom Purpose'
   description: "",
 };
-
 
 const purposeOptions: PlanDetailsOption[] = [
   { title: "Relationship Building", duration: "45 min duration" },
@@ -136,28 +135,33 @@ export function ScheduleVisitsModal({
   const [selectedReferrersState, setSelectedReferrersState] = useState<
     string[]
   >([]);
-  
+
   // Central State Management
   const [planState, setPlanState] = useState(initialPlanState);
   const [validationErrors, setValidationErrors] = useState<any>({});
-  
+
   const createPlanMutation = useCreateSchedulePlan();
 
   const handleStateChange = useCallback(
     (key: keyof typeof initialPlanState, value: any) => {
       setPlanState((prev) => ({ ...prev, [key]: value }));
       // Clear validation error for the field being updated
-      setValidationErrors((prev: any) => ({ ...prev, [key]: undefined }));
+      setValidationErrors((prev: any) => ({ ...prev, [key]: null }));
     },
     []
   );
 
   const handleReferrerToggle = (id: string) => {
     setSelectedReferrersState((prev) => {
-      const newState = prev.includes(id) ? prev.filter((refId) => refId !== id) : [...prev, id];
+      const newState = prev.includes(id)
+        ? prev.filter((refId) => refId !== id)
+        : [...prev, id];
       // Clear validation error for selectedReferrers if one is selected
       if (newState.length > 0) {
-        setValidationErrors((prev: any) => ({ ...prev, selectedReferrers: undefined }));
+        setValidationErrors((prev: any) => ({
+          ...prev,
+          selectedReferrers: null,
+        }));
       }
       return newState;
     });
@@ -181,53 +185,57 @@ export function ScheduleVisitsModal({
     setRouteOptimizationResults(null);
   };
 
-  const selectedReferrerObjects = useMemo(() => 
-    practices.filter((r) => selectedReferrersState.includes(r._id)),
+  const selectedReferrerObjects = useMemo(
+    () => practices.filter((r) => selectedReferrersState.includes(r._id)),
     [practices, selectedReferrersState]
   );
-  
+
   // --- Validation Logic (Manual) ---
 
-  const validateStep = useCallback((step: string): boolean => {
-    let errors: any = {};
-    let fieldsToValidate: (keyof typeof initialPlanState | 'selectedReferrers')[] = [];
+  const validateStep = useCallback(
+    (step: string): boolean => {
+      let errors: any = {};
+      let fieldsToValidate: (
+        | keyof typeof initialPlanState
+        | "selectedReferrers"
+      )[] = [];
 
-    if (step === "select_referrers") {
-      if (selectedReferrersState.length === 0) {
-        errors.selectedReferrers = "Select at least one referrer to continue.";
-      }
-    } 
-    else if (step === "route_planning") {
-      fieldsToValidate = ["routeDate", "startTime", "durationPerVisit"];
-    } 
-    else if (step === "plan_details") {
-      fieldsToValidate = [
-        "planName",
-        "defaultVisitPurpose",
-        "defaultPriority",
-        // Note: durationPerVisit is also required for the plan
-        "durationPerVisit", 
-      ];
-      if (planState.defaultVisitPurpose === "Custom Purpose") {
-        fieldsToValidate.push("customVisitPurpose");
-      }
-    }
-
-    // Run field-level validation for route/plan details
-    for (const field of fieldsToValidate) {
-        const value = planState[field as keyof typeof initialPlanState];
-        if (!value || (typeof value === 'string' && value.trim() === '')) {
-            errors[field] = `${field} is required.`;
+      if (step === "select_referrers") {
+        if (selectedReferrersState.length === 0) {
+          errors.selectedReferrers =
+            "Select at least one referrer to continue.";
         }
-    }
+      } else if (step === "route_planning") {
+        fieldsToValidate = ["routeDate", "startTime", "durationPerVisit"];
+      } else if (step === "plan_details") {
+        fieldsToValidate = [
+          "planName",
+          "defaultVisitPurpose",
+          "defaultPriority",
+          // Note: durationPerVisit is also required for the plan
+          "durationPerVisit",
+        ];
+        if (planState.defaultVisitPurpose === "Custom Purpose") {
+          fieldsToValidate.push("customVisitPurpose");
+        }
+      }
 
-    setValidationErrors(errors);
-    return Object.keys(errors).length === 0;
-  }, [planState, selectedReferrersState]);
+      // Run field-level validation for route/plan details
+      for (const field of fieldsToValidate) {
+        const value = planState[field as keyof typeof initialPlanState];
+        if (!value || (typeof value === "string" && value.trim() === "")) {
+          errors[field] = `${field} is required.`;
+        }
+      }
 
+      setValidationErrors(errors);
+      return Object.keys(errors).length === 0;
+    },
+    [planState, selectedReferrersState]
+  );
 
   // --- Step Handlers ---
-  
+
   const handleNext = async () => {
     if (!validateStep(activeStep)) {
       return;
@@ -253,10 +261,15 @@ export function ScheduleVisitsModal({
       return;
     }
 
-    const finalVisitPurpose = planState.defaultVisitPurpose === "Custom Purpose" 
-      ? { title: planState.customVisitPurpose, duration: planState.durationPerVisit }
-      : purposeOptions.find(p => p.title === planState.defaultVisitPurpose) || planState.defaultVisitPurpose;
-
+    const finalVisitPurpose =
+      planState.defaultVisitPurpose === "Custom Purpose"
+        ? {
+            title: planState.customVisitPurpose,
+            duration: planState.durationPerVisit,
+          }
+        : purposeOptions.find(
+            (p) => p.title === planState.defaultVisitPurpose
+          ) || planState.defaultVisitPurpose;
 
     const payload: SchedulePlanPayload = {
       isDraft: "draft",
@@ -279,7 +292,7 @@ export function ScheduleVisitsModal({
       onSuccess: () => {
         // Handle post-submit success (e.g., reset form, close modal)
         // addToast({ title: "Success", description: "Plan submitted!", variant: "success" });
-        // onClose(); 
+        // onClose();
       },
       // Note: onError is handled in useCreateSchedulePlan
     });
@@ -287,7 +300,7 @@ export function ScheduleVisitsModal({
 
   const isSubmitting = createPlanMutation.isPending;
   const isSuccess = createPlanMutation.isSuccess;
-  
+
   const tabs = [
     { key: "select_referrers", label: "Select Referrers" },
     { key: "route_planning", label: "Route Planning" },
@@ -296,6 +309,7 @@ export function ScheduleVisitsModal({
   ];
   const currentTabIndex = tabs.findIndex((t) => t.key === activeStep);
 
+  console.log(routeOptimizationResults, "RESULTS");
 
   return (
     <Modal
@@ -373,7 +387,7 @@ export function ScheduleVisitsModal({
                 practices={practices}
                 categoryOptions={categoryOptions}
                 // Display validation error if present
-                error={validationErrors.selectedReferrers} 
+                error={validationErrors.selectedReferrers}
               />
             </div>
 
@@ -385,16 +399,13 @@ export function ScheduleVisitsModal({
             >
               <RoutePlanningTab
                 // Pass state and handler instead of formik
-                plan={planState}
+                planState={planState}
                 onStateChange={handleStateChange}
                 errors={validationErrors}
-                
                 selectedReferrerObjects={selectedReferrerObjects}
                 durationOptions={durationOptions}
-                
                 // Placeholder removed, route generation is self-contained in tab
-                onGenerateRoute={() => {}} 
-                
+                onGenerateRoute={() => {}}
                 routeOptimizationResults={routeOptimizationResults}
                 setRouteOptimizationResults={setRouteOptimizationResults}
               />
@@ -406,17 +417,15 @@ export function ScheduleVisitsModal({
                 display: activeStep === "plan_details" ? "block" : "none",
               }}
             >
-              {/* <PlanDetailsTab
-                // Pass state and handler instead of formik
+              <PlanDetailsTab
                 planState={planState}
                 onStateChange={handleStateChange}
                 errors={validationErrors}
-                
+                data={routeOptimizationResults?.bestRoute}
                 selectedReferrerObjects={selectedReferrerObjects}
                 purposeOptions={purposeOptions}
                 durationOptions={durationOptions}
-                // data={mockInitialData}
-              /> */}
+              />
             </div>
 
             <div

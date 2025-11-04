@@ -8,8 +8,16 @@ import {
   Input,
   Select,
   SelectItem,
+  TimeInput,
 } from "@heroui/react";
-import { parseDate } from "@internationalized/date";
+import {
+  getLocalTimeZone,
+  now,
+  parseDate,
+  parseTime,
+  Time,
+  today,
+} from "@internationalized/date";
 import React, { useEffect, useState } from "react";
 import { BiCar } from "react-icons/bi";
 import { FiChevronRight, FiClock, FiDownload, FiMapPin } from "react-icons/fi";
@@ -20,9 +28,8 @@ import { Partner, RouteOptimizationResults } from "../../../../types/partner";
 import { formatRouteData } from "./formatRouteData";
 import { formatCalendarDate } from "../../../../utils/formatCalendarDate";
 
-// Define the new expected props for this component
 interface RoutePlanningTabProps {
-  planState: any; // The central plan state object
+  planState: any;
   onStateChange: (key: string, value: any) => void;
   errors: any;
   selectedReferrerObjects: Partner[];
@@ -47,6 +54,23 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
   const summary = routeOptimizationResults?.bestRoute;
   const routeDetailsList =
     routeOptimizationResults?.bestRoute?.routeDetails || [];
+
+  const todayNow = new Date();
+
+  const currentHour = todayNow.getHours();
+  const currentMinute = todayNow.getMinutes();
+  const currentTimeObject = new Time(currentHour, currentMinute);
+
+  const currentTimeString = `${String(currentTimeObject.hour).padStart(
+    2,
+    "0"
+  )}:${String(currentTimeObject.minute).padStart(2, "0")}`;
+
+  useEffect(() => {
+    if (!planState.startTime) {
+      onStateChange("startTime", currentTimeString);
+    }
+  }, [planState.startTime, onStateChange, currentTimeString]);
 
   useEffect(() => {
     if (!selectedReferrerObjects || selectedReferrerObjects.length === 0) {
@@ -73,20 +97,6 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
   };
 
   const handleGenerateRoute = () => {
-    // Check if required route fields are filled before calling the API
-    if (
-      !planState.routeDate ||
-      !planState.startTime ||
-      !planState.durationPerVisit
-    ) {
-      addToast({
-        title: "Validation Error",
-        description:
-          "Please configure Route Date, Start Time, and Visit Duration first.",
-      });
-      return;
-    }
-
     generateRouteMutate(coordinateString, {
       onSuccess: (data) => {
         const routes = data?.routes;
@@ -95,6 +105,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
           addToast({
             title: "Error",
             description: "No routes found for the selected practices.",
+            color: "danger",
           });
           return;
         }
@@ -162,13 +173,47 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
 
         setRouteOptimizationResults(finalResults);
       },
-      onError: () => {
+      onError: (error) => {
         addToast({
           title: "Route Error",
-          description: "Failed to calculate route. Check inputs and API key.",
+          description:
+            error.response?.data?.message ||
+            "Failed to calculate route. Check inputs and API key.",
+          color: "danger",
         });
       },
     });
+  };
+
+  const handleOpenInMaps = () => {
+    if (routeDetailsList.length === 0) {
+      addToast({
+        title: "Error",
+        description: "No route details available to open in maps.",
+      });
+      return;
+    }
+
+    const firstStop = routeDetailsList[0].address.addressLine1;
+    const lastStop =
+      routeDetailsList[routeDetailsList.length - 1].address.addressLine1;
+
+    const waypoints = routeDetailsList
+      .slice(1, -1)
+      .map((stop) => stop.address.addressLine1)
+      .join("|");
+
+    let url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(
+      firstStop
+    )}&destination=${encodeURIComponent(lastStop)}`;
+
+    if (waypoints) {
+      url += `&waypoints=${encodeURIComponent(waypoints)}`;
+    }
+
+    url += `&travelmode=driving`;
+
+    window.open(url, "_blank");
   };
 
   if (selectedReferrerObjects.length <= 0) {
@@ -206,10 +251,14 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                   labelPlacement="outside"
                   size="sm"
                   radius="sm"
+                  minValue={today(getLocalTimeZone())}
+                  hideTimeZone
+                  granularity="day"
                   value={
                     planState?.routeDate
-                      ? parseDate(planState?.routeDate.split("T")[0] as string)
-                      : null
+                      ? parseDate(planState.routeDate)
+                      : // ✅ FIX: Use today() to get only the date part, matching granularity="day"
+                        today(getLocalTimeZone())
                   }
                   onChange={(value) => {
                     onStateChange("routeDate", formatCalendarDate(value));
@@ -224,16 +273,26 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
               </div>
 
               <div>
-                <Input
-                  type="time"
+                <TimeInput
                   name="startTime"
                   label="Start Time"
-                  labelPlacement="outside-top"
-                  placeholder="Start Time"
+                  labelPlacement="outside"
                   size="sm"
                   radius="sm"
-                  value={planState?.startTime || "09:00"}
-                  onChange={(e) => onStateChange("startTime", e.target.value)}
+                  // Value is now guaranteed to be the current time if not previously set
+                  value={
+                    planState.startTime
+                      ? parseTime(planState.startTime)
+                      : currentTimeObject // Use the calculated Time object for the default
+                  }
+                  onChange={(timeValue) => {
+                    const timeString = timeValue
+                      ? `${String(timeValue.hour).padStart(2, "0")}:${String(
+                          timeValue.minute
+                        ).padStart(2, "0")}`
+                      : currentTimeString; // Fallback to current time string
+                    onStateChange("startTime", timeString);
+                  }}
                   errorMessage={errors.startTime}
                   isInvalid={!!errors.startTime}
                   className="w-[100px]"
@@ -253,11 +312,20 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                   size="sm"
                   radius="sm"
                   selectedKeys={
-                    planState?.durationPerVisit
+                    planState.durationPerVisit
                       ? [planState.durationPerVisit]
+                      : durationOptions.length > 0
+                      ? [durationOptions[0]]
                       : []
                   }
-                  onChange={(keys: any) =>
+                  disabledKeys={
+                    planState.durationPerVisit
+                      ? [planState.durationPerVisit]
+                      : durationOptions.length > 0
+                      ? [durationOptions[0]]
+                      : []
+                  }
+                  onSelectionChange={(keys: any) =>
                     onStateChange("durationPerVisit", Array.from(keys).join(""))
                   }
                   errorMessage={errors.durationPerVisit}
@@ -363,6 +431,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                     variant="bordered"
                     radius="sm"
                     className="border-small"
+                    onPress={handleOpenInMaps}
                   >
                     <FiMapPin className="size-3.5" />
                     Open in Maps

@@ -19,6 +19,7 @@ import { Location } from "../../services/settings/location";
 import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
 import LocationSkeleton from "../../components/skeletons/LocationSkeleton";
 import EmptyState from "../../components/common/EmptyState";
+import { PHONE_REGEX } from "../../consts/consts";
 
 export interface LocationFormValues {
   name: string;
@@ -41,7 +42,7 @@ const LocationSchema = Yup.object().shape({
   phone: Yup.string()
     .required("Phone is required")
     .matches(
-      /^\(\d{3}\)\s\d{3}-\d{4}$/,
+      PHONE_REGEX,
       "Phone must be in format (XXX) XXX-XXXX"
     ),
   isPrimary: Yup.boolean(),

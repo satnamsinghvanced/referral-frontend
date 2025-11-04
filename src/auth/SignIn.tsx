@@ -15,6 +15,7 @@ import Input from "../components/ui/Input";
 import { useLoginMutation } from "../hooks/auth/login";
 import { setCredentials } from "../store/authSlice";
 import { AppDispatch } from "../store/index";
+import { EMAIL_REGEX } from "../consts/consts";
 
 interface FormData {
   email: string;
@@ -37,8 +38,8 @@ const SignIn = () => {
     },
     validationSchema: Yup.object({
       email: Yup.string()
-        .email("Invalid email address")
-        .required("Email is required"),
+        .required("Email is required")
+        .matches(EMAIL_REGEX, "Invalid email format"),
       password: Yup.string()
         .min(6, "Password must be at least 6 characters")
         .required("Password is required"),
