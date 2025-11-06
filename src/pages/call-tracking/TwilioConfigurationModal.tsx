@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import {
@@ -11,7 +11,7 @@ import {
   ModalHeader,
   Spinner,
 } from "@heroui/react";
-import { FiExternalLink } from "react-icons/fi";
+import { FiExternalLink, FiEye, FiEyeOff } from "react-icons/fi";
 import {
   useFetchTwilioConfig,
   useSaveTwilioConfig,
@@ -49,6 +49,7 @@ export default function TwilioConfigurationModal({
   isOpen: boolean;
   onClose: () => void;
 }) {
+  const [showPassword, setShowPassword] = useState(false);
   // 1. TanStack Query Hooks
   const {
     data: existingConfig,
@@ -196,7 +197,7 @@ export default function TwilioConfigurationModal({
                 label="Auth Token"
                 labelPlacement="outside-top"
                 name="authToken"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 placeholder="••••••••••••••••••••••••••••••••"
                 isRequired
                 // Formik Props
@@ -209,6 +210,15 @@ export default function TwilioConfigurationModal({
                 }
                 errorMessage={
                   formik.touched.authToken && formik.errors.authToken
+                }
+                endContent={
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="text-gray-500"
+                  >
+                    {showPassword ? <FiEyeOff /> : <FiEye />}
+                  </button>
                 }
               />
 

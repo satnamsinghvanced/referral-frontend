@@ -22,6 +22,8 @@ interface PartnerNetworkHeaderProps {
   onSortChange?: ((value: string) => void) | undefined;
   sortOrder?: "asc" | "desc" | undefined;
   onSortOrderChange?: ((order: "asc" | "desc") => void) | undefined;
+  totalItems?: number;
+  visibleItems?: number;
 }
 
 const PartnerNetworkHeader: React.FC<PartnerNetworkHeaderProps> = ({
@@ -34,6 +36,8 @@ const PartnerNetworkHeader: React.FC<PartnerNetworkHeaderProps> = ({
   onSortChange,
   sortOrder,
   onSortOrderChange,
+  totalItems,
+  visibleItems,
 }) => {
   return (
     <div className="md:px-7 px-4 py-3 md:py-6 bg-background border-b-1 border-foreground/10">
@@ -123,6 +127,11 @@ const PartnerNetworkHeader: React.FC<PartnerNetworkHeaderProps> = ({
               >
                 {sortOrder === "asc" ? <GrAscend /> : <GrDescend />}
               </Button>
+              {/* Dynamic display of items */}
+              <div className="text-xs w-100 flex text-gray-500">
+                <div className="w-[80px]">Showing {visibleItems ?? totalItems ?? 0} of</div>
+                <div className="w-[80px]"> {totalItems ?? 0} practices </div>
+              </div>
             </div>
           )}
         </div>

@@ -79,7 +79,7 @@ const Profile = () => {
 
   useEffect(() => {
     if (fetchedUser?.image) {
-      setPreviewUrl(import.meta.env.VITE_IMAGE_URL + fetchedUser.image);
+      setPreviewUrl(fetchedUser.image);
     }
   }, [fetchedUser]);
 
@@ -153,23 +153,27 @@ const Profile = () => {
   const isDisabled = !isValid || !dirty || isPending;
 
   return (
-    <div className="p-4 bg-background border border-foreground/10 rounded-lg">
-      <form onSubmit={handleSubmit}>
-        <h4 className="flex gap-2 items-center mb-4">
-          <FiUser className="w-4 h-4" />
-          <span className="text-sm !font-extralight">Profile Information</span>
-        </h4>
+    <>
+      <div className="p-4 bg-background border border-foreground/10 rounded-lg">
+        <form onSubmit={handleSubmit}>
+          <h4 className="flex gap-2 items-center mb-4">
+            <FiUser className="w-4 h-4" />
+            <span className="text-sm !font-extralight">
+              Profile Information
+            </span>
+          </h4>
 
-        <div className="flex items-center gap-4 mb-6">
-          <img
-            src={previewUrl}
-            alt="Profile"
-            className="rounded-full w-20 h-20 object-cover"
-          />
-          <div>
+          <div className="flex items-center gap-4 mb-6">
+            <img
+              src={previewUrl}
+              alt="Profile"
+              className="rounded-full w-20 h-20 object-cover"
+            />
+            {/* <div>
+                     
             <Input
               size="sm"
-              type="file"
+              // type="file"
               // Set the accepted file types for browser filtering
               accept="image/jpeg,image/png"
               className="w-fit shadow-none"
@@ -177,90 +181,118 @@ const Profile = () => {
               variant="bordered"
             />
             {/* 5. Update error access with specific type checking */}
-            {touched.image && errors.image && (
+            {/* {touched.image && errors.image && (
               <p className="text-xs text-red-500">{errors.image as string}</p>
-            )}
+            )} */}
             {/* UPDATED: Corrected accepted file types */}
-            <p className="text-xs mt-1">JPG, JPEG or PNG. 1MB max.</p>
-          </div>
-        </div>
+            {/* <p className="text-xs mt-1">JPG, JPEG or PNG. 1MB max.</p> */}
+            {/* </div> */}
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {fields.map(({ name, label, type }) => (
-            <div key={name}>
-              <Input
-                size="sm"
-                type={type}
-                name={name}
-                label={label}
-                labelPlacement="outside"
-                placeholder={label}
-                // Use type assertion to safely access values[name]
-                value={values[name as FormKey] as string}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                  const newValue =
-                    name === "phone"
-                      ? formatPhoneNumber(e.target.value)
-                      : e.target.value;
-                  setFieldValue(name, newValue);
-                }}
-                onBlur={handleBlur}
-                isDisabled={name === "email" && fetchedUser?.email}
-                classNames={{ base: "data-disabled:opacity-70" }}
+            <div>
+              <input
+                id="profileImage"
+                type="file"
+                accept="image/jpeg,image/png"
+                className="hidden"
+                onChange={handleImageChange}
               />
-              {/* Use type assertion to safely access errors[name] and touched[name] */}
-              {touched[name as FormKey] && errors[name as FormKey] && (
+
+              <Button
+                size="sm"
+                className=" font-[12px] border border-gray-200 bg-transparent hover:text-[#ea580c] hover:bg-[#fed7aa] hover:border-0 hover:font-medium"
+                onClick={() => document.getElementById("profileImage")?.click()}
+              >
+                Change Photo
+              </Button>
+
+              {values.image instanceof File && (
+                <p className="text-xs mt-1">{values.image.name}</p>
+              )}
+
+              {touched.image && errors.image && (
                 <p className="text-xs text-red-500 mt-1">
-                  {errors[name as FormKey] as string}
+                  {errors.image as string}
+                </p>
+              )}
+
+              <p className="text-xs mt-1">JPG, JPEG or PNG. 1MB max.</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {fields.map(({ name, label, type }) => (
+              <div key={name}>
+                <Input
+                  size="sm"
+                  type={type}
+                  name={name}
+                  label={label}
+                  labelPlacement="outside"
+                  placeholder={label}
+                  // Use type assertion to safely access values[name]
+                  value={values[name as FormKey] as string}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                    const newValue =
+                      name === "phone"
+                        ? formatPhoneNumber(e.target.value)
+                        : e.target.value;
+                    setFieldValue(name, newValue);
+                  }}
+                  onBlur={handleBlur}
+                  isDisabled={name === "email" && fetchedUser?.email}
+                  classNames={{ base: "data-disabled:opacity-70" }}
+                />
+                {/* Use type assertion to safely access errors[name] and touched[name] */}
+                {touched[name as FormKey] && errors[name as FormKey] && (
+                  <p className="text-xs text-red-500 mt-1">
+                    {errors[name as FormKey] as string}
+                  </p>
+                )}
+              </div>
+            ))}
+
+            <div>
+              <Select
+                size="sm"
+                name="medicalSpecialty"
+                label="Medical Specialty"
+                labelPlacement="outside"
+                placeholder="Select a Medical Specialty"
+                selectedKeys={new Set([values.medicalSpecialty])}
+                onSelectionChange={(keys) => {
+                  const selected = Array.from(keys).join("");
+                  setFieldValue("medicalSpecialty", selected, true);
+                }}
+              >
+                {specialties?.map(
+                  ({ title, _id }: { title: string; _id: string }) => (
+                    <SelectItem key={_id}>{title}</SelectItem>
+                  )
+                )}
+              </Select>
+
+              {/* Use type assertion for errors.medicalSpecialty */}
+              {touched.medicalSpecialty && errors.medicalSpecialty && (
+                <p className="text-xs text-red-500 mt-1">
+                  {errors.medicalSpecialty as string}
                 </p>
               )}
             </div>
-          ))}
-
-          <div>
-            <Select
-              size="sm"
-              name="medicalSpecialty"
-              label="Medical Specialty"
-              labelPlacement="outside"
-              placeholder="Select a Medical Specialty"
-              selectedKeys={[values.medicalSpecialty]}
-              onSelectionChange={(keys) =>
-                setFieldValue("medicalSpecialty", Array.from(keys)[0], true)
-              }
-              onClose={() =>
-                setFieldValue("medicalSpecialty", values.medicalSpecialty, true)
-              }
-            >
-              {specialties?.map(
-                ({ title, _id }: { title: string; _id: string }) => (
-                  <SelectItem key={_id} textValue={title}>
-                    {title}
-                  </SelectItem>
-                )
-              )}
-            </Select>
-            {/* Use type assertion for errors.medicalSpecialty */}
-            {touched.medicalSpecialty && errors.medicalSpecialty && (
-              <p className="text-xs text-red-500 mt-1">
-                {errors.medicalSpecialty as string}
-              </p>
-            )}
           </div>
-        </div>
 
-        <div className="mt-5">
-          <Button
-            size="sm"
-            type="submit"
-            className="bg-foreground text-background"
-            disabled={isDisabled}
-          >
-            {isPending ? "Saving..." : "Save Changes"}
-          </Button>
-        </div>
-      </form>
-    </div>
+          <div className="mt-5">
+            <Button
+              size="sm"
+              type="submit"
+              className="bg-foreground text-background"
+              disabled={isDisabled}
+            >
+              {isPending ? "Saving..." : "Save Changes"}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </>
   );
 };
 

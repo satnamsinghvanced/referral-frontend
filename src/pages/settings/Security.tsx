@@ -8,7 +8,7 @@ import {
 } from "@heroui/react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { FiShield } from "react-icons/fi";
+import { FiEye, FiEyeOff, FiShield } from "react-icons/fi";
 import { useUpdatePassword } from "../../hooks/settings/useSecurity";
 import { useState } from "react";
 
@@ -32,6 +32,19 @@ const Security: React.FC = () => {
   const handle2FAUpdate = () => {
     setTwoFAEnabled((prev) => !prev);
     console.log("Toggled 2FA:", !twoFAEnabled);
+  };
+
+  const [showPassword, setShowPassword] = useState({
+    currentPassword: false,
+    newPassword: false,
+    confirmNewPassword: false,
+  });
+
+  const togglePasswordVisibility = (field: string) => {
+    setShowPassword((prev) => ({
+      ...prev,
+      [field]: !prev[field],
+    }));
   };
 
   return (
@@ -96,7 +109,7 @@ const Security: React.FC = () => {
                         as={Input}
                         id={field}
                         name={field}
-                        type="password"
+                        type={showPassword[field] ? "text" : "password"}
                         placeholder={placeholderMap[field]}
                         variant="bordered"
                         value={values[field as keyof typeof values]}
@@ -104,7 +117,15 @@ const Security: React.FC = () => {
                           setFieldValue(field, e.target.value)
                         }
                         className="mt-1"
-                        classNames={{ inputWrapper: "border-small" }}
+                        endContent={
+                          <button
+                            type="button"
+                            onClick={() => togglePasswordVisibility(field)}
+                            className="text-gray-400 hover:text-gray-600"
+                          >
+                            {showPassword[field] ? <FiEyeOff /> : <FiEye />}
+                          </button>
+                        }
                       />
                       <ErrorMessage
                         name={field}

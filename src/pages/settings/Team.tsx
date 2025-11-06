@@ -397,6 +397,7 @@ const Team: React.FC = () => {
             isLoading: editMemberId ? updateIsPending : addIsPending,
             isDisabled:
               formik.values.permissions?.length === 0 ||
+              formik.values.locations?.length === 0 ||
               !formik.dirty ||
               !formik.isValid,
           },

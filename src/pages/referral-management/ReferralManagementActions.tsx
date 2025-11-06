@@ -36,6 +36,7 @@ export default function ReferralManagementActions({
   isPracticeEdit,
 }: ReferralManagementActionsProps) {
   const { user } = useTypedSelector((state) => state.auth);
+console.log("editedData", editedData);
 
   const { data: specialties } = useSpecialties();
 
@@ -73,6 +74,7 @@ export default function ReferralManagementActions({
     // practiceEmail: editedData?.practiceEmail || "",
     website: editedData?.website || "",
     staff: editedData?.staff || [],
+
   };
 
   const handleFormSubmission = async (values: any) => {
@@ -97,6 +99,7 @@ export default function ReferralManagementActions({
         : {
             ...values,
             staff: staffWithUpdatedRoles,
+            notes: values.notes,
           };
 
     let referrerId = user?.userId;
@@ -193,7 +196,7 @@ export default function ReferralManagementActions({
         zip: Yup.string()
           .matches(
             ZIP_CODE_REGEX,
-            "Invalid ZIP code format (e.g., 12345 or 12345-6789)"
+            "Invalid ZIP code format (e.g., 12345 )"
           )
           .when(["$type"], {
             is: (type: string) => type === "doctor",

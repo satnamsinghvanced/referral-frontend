@@ -31,12 +31,13 @@ const PartnerNetworkCard = ({ partner, actions }: PartnerNetworkCardProps) => {
           <p className="flex gap-1 items-center text-gray-600">
             <IoLocationOutline fontSize={15} />
             {partner.address.addressLine1}
-            {partner.address.city && `, ${partner.address.city}`}
+            {partner.address.city && `, ${partner.address.city}`}   
           </p>
           {partner.phone && (
             <p className="flex gap-1.5 items-center text-gray-600">
               <FiPhone fontSize={14} />
-              {partner.phone}
+              {partner?.phone}
+            
             </p>
           )}
         </div>

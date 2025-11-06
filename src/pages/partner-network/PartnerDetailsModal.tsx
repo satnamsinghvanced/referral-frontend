@@ -45,6 +45,7 @@ const PartnerDetailsModal = ({
     isLoading,
     isError,
   } = useFetchPartnerDetail(partnerId || "");
+console.log("data of parteners ",partnerData );
 
   if (!isOpen) return null;
 

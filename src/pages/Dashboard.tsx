@@ -19,7 +19,7 @@ interface QuickAction {
   label: string;
   icon: string;
   color: Color;
-  link: string
+  link: string;
 }
 
 const headingData = {
@@ -28,10 +28,13 @@ const headingData = {
     "Welcome back! Here's what's happening with your referrals today.",
 };
 
-
-
 const quickActions: QuickAction[] = [
-  { label: "Add Referral", icon: "👥", color: "sky", link: "/referral-retrieve/referrals" },
+  {
+    label: "Add Referral",
+    icon: "👥",
+    color: "sky",
+    link: "/referral-retrieve/referrals",
+  },
   { label: "Marketing Calendar", icon: "📅", color: "orange", link: "" },
   { label: "View Reviews", icon: "⭐", color: "emerald", link: "" },
   { label: "Analytics", icon: "📊", color: "purple", link: "" },
@@ -66,7 +69,6 @@ const colorClasses: Record<
     hover: "hover:bg-purple-100",
   },
 };
-
 
 const systemStatuses = [
   {
@@ -108,9 +110,10 @@ const Dashboard = () => {
     {
       title: "Total Referrals",
       value: dashboard?.totalReferrals,
-      change: dashboard?.totalLastMonth > 0
-        ? `↗ +${dashboard.totalLastMonth}% from last month`
-        : "0 from last month",
+      change:
+        dashboard?.totalLastMonth > 0
+          ? `↗ +${dashboard.totalLastMonth}% from last month`
+          : "0 from last month",
       icon: "👥",
       color: "sky",
       link: "/referral-retrieve/referrals",
@@ -151,21 +154,25 @@ const Dashboard = () => {
     if (seconds < 60) return `${seconds} sec ago`;
     if (minutes < 60) return `${minutes} min ago`;
     if (hours < 24) return `${hours} hours ago`;
-    return `${days} day${days > 1 ? 's' : ''} ago`;
+    return `${days} day${days > 1 ? "s" : ""} ago`;
   };
 
-  console.log(dashboard)
+  console.log(dashboard);
   const recentActivities = [
     ...(dashboard?.recentReferrals?.length > 0
       ? [
-        {
-          icon: "👥",
-          iconBg: "bg-sky-50",
-          title: `New referral from ${dashboard?.referrer?.name || "Unknown"}`,
-          description: `Patient: ${dashboard?.recentReferrals[0]?.name || "Unknown"} - ${dashboard?.referrer?.type || "Unknown"}`,
-          time: `${getTimeAgo(dashboard?.recentReferrals[0]?.createdAt)}`,
-        },
-      ]
+          {
+            icon: "👥",
+            iconBg: "bg-sky-50",
+            title: `New referral from ${
+              dashboard?.referrer?.name || "Unknown"
+            }`,
+            description: `Patient: ${
+              dashboard?.recentReferrals[0]?.name || "Unknown"
+            } - ${dashboard?.referrer?.type || "Unknown"}`,
+            time: `${getTimeAgo(dashboard?.recentReferrals[0]?.createdAt)}`,
+          },
+        ]
       : []),
     {
       icon: "⭐",
@@ -203,7 +210,11 @@ const Dashboard = () => {
                 <Link
                   key={i}
                   href={item.link || ""}
-                  className={`bg-white rounded-lg shadow p-6 border border-${item.color}-100 cursor-pointer hover:shadow-lg hover:border-${item.color}-200 transition-all block`}
+                  className={`
+    bg-white rounded-lg shadow p-6 border border-transparent 
+    hover:border-${item.color}-300 hover:shadow-lg 
+    transition-all block
+  `}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <h1 className="text-sm">{item.title}</h1>
@@ -226,7 +237,6 @@ const Dashboard = () => {
                 </Link>
               ))}
             </div>
-
 
             <div className="bg-white rounded-lg shadow p-6 mb-8">
               <h1 className="text-lg mb-4">Quick Actions</h1>
@@ -267,17 +277,21 @@ const Dashboard = () => {
                           <span className="text-lg">{activity.icon}</span>
                         </div>
                         <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900">{activity.title}</p>
-                          <p className="text-sm text-gray-600">{activity.description}</p>
-                          <p className="text-xs text-gray-500 mt-1">{activity.time}</p>
+                          <p className="text-sm font-medium text-gray-900">
+                            {activity.title}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            {activity.description}
+                          </p>
+                          <p className="text-xs text-gray-500 mt-1">
+                            {activity.time}
+                          </p>
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
               </div>
-
-
 
               <div className="space-y-6">
                 <div className="bg-white rounded-lg shadow p-6">

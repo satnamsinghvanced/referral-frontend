@@ -183,6 +183,8 @@ const PartnerNetwork = () => {
             onSortChange={handleSortChange}
             sortOrder={sortOrder}
             onSortOrderChange={handleSortOrderChange}
+            visibleItems={practices?.length}
+            totalItems={stats?.totalPractices ?? 0}
           />
         </div>
         <div className="flex flex-col gap-2 md:px-7 px-4 py-4 md:py-[31px] overflow-auto space-y-5">

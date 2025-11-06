@@ -1,4 +1,5 @@
 import { Card, CardBody } from "@heroui/react";
+import clsx from "clsx";
 import { JSX } from "react";
 
 export interface StatCard {
@@ -16,13 +17,17 @@ interface MiniStatsCardProps {
 const MiniStatsCard = ({ cardData }: MiniStatsCardProps) => {
   return (
     <Card
-      className="w-full p-0 text-xs font-extralight text-foreground/80 border border-primary/15"
       shadow="none"
+      isPressable={!!cardData?.onClick}
+      onPress={cardData?.onClick}
+      className={clsx(
+        "w-full p-0 text-xs font-extralight text-foreground/80",
+        "border border-transparent transition-all",
+        "hover:border-primary/30 hover:shadow-md hover:-translate-y-0.5",
+        cardData?.onClick && "cursor-pointer"
+      )}
     >
-      <CardBody
-        onClick={cardData?.onClick}
-        className={`${cardData?.onClick ? "cursor-pointer" : ""}`}
-      >
+      <CardBody>
         <div className="mb-2 flex gap-1 items-center justify-between">
           <div className="font-semibold">{cardData.heading}</div>
           <div>{cardData.icon}</div>
