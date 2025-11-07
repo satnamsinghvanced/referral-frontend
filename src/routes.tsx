@@ -73,7 +73,7 @@ function AppRoutes() {
       element: <Layout />,
       children: [
         { index: true, element: <Dashboard /> },
-        { path: "dashboard", element: <Dashboard /> },
+        // { path: "dashboard", element: <Dashboard /> },
         { path: "referrals", element: <ReferralManagement /> },
         { path: "analytics", element: <Analytics /> },
         { path: "partner-network", element: <PartnerNetwork /> },
@@ -152,7 +152,7 @@ function AppRoutes() {
     //     />
     //   }
     // >
-    <BrowserRouter basename="/referral-retrieve">
+    <BrowserRouter basename="/referral-retrieve/">
       <Routes>{renderRoutes(routesList)}</Routes>
     </BrowserRouter>
     // </Suspense>

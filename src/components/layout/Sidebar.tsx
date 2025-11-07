@@ -246,6 +246,8 @@ const Sidebar = ({
               const active =
                 pathname === item.href ||
                 (item.href === "/dashboard" && pathname === "/");
+
+                console.log(item.href, "HREF")
               return (
                 <li key={index}>
                   {/* if item.list exists in future, we can render expand. For now single links */}
