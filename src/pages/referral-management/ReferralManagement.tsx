@@ -219,7 +219,7 @@ const ReferralManagement = () => {
         icon: <LuQrCode />,
         variant: "bordered",
         color: "default",
-        className: "border-small hover:bg-orange-200 hover:text-orange-500 transition-colors",
+        className: "border-small hover:bg-orange-200  hover:text-orange-500 transition-colors",
         link: referrer?.qrCode,
         linkInNewTab: true,
       },

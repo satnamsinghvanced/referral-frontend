@@ -11,7 +11,7 @@ const Calls = React.lazy(() => import("./pages/Calls"));
 const HelpCenter = React.lazy(() => import("./pages/HelpCenter"));
 const EmailCampaign = React.lazy(() => import("./pages/EmailCampaigns"));
 const MarketingBudget = React.lazy(() => import("./pages/MarketingBudget"));
-const MarketingCalendar = React.lazy(() => import("./pages/MarketingCalendar"));
+const MarketingCalendar = React.lazy(() => import("./pages/marketing-calender/MarketingCalendar"));
 const ReferralManagement = React.lazy(
   () => import("./pages/referral-management/ReferralManagement")
 );
