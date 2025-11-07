@@ -57,7 +57,7 @@ const StatsGrid = ({ stats }: any) => {
     },
     {
       label: "Total Hours",
-      value: stats.totalHours,
+      value: Number(stats?.totalHours ?? 0).toFixed(2),
       bg: "bg-indigo-50",
       text: "text-indigo-600",
     },
