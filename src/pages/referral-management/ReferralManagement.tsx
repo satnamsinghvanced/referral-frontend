@@ -34,6 +34,7 @@ import ReferralStatusModal from "./ReferralStatusModal";
 import ReferrerCard from "./ReferrerCard";
 import RoleToggleTabs from "./RoleToggleTabs";
 import TrackingPanel from "./TrackingPanel";
+import { useInitiateCall } from "../../hooks/useTwilio";
 
 type ReferralType = "Referrals" | "Referrers" | "NFC & QR Tracking";
 
@@ -84,6 +85,10 @@ const ReferralManagement = () => {
     useGetReferralById(referralEditId);
   const { data: singleReferrerData, refetch } =
     useGetReferrerById(referrerEditId);
+
+  const { mutate: initiateCall, isPending } = useInitiateCall(
+    user?.userId || ""
+  );
 
   useEffect(() => {
     if (referrerEditId) {
@@ -189,7 +194,8 @@ const ReferralManagement = () => {
           icon: <LuQrCode fontSize={15} />,
           variant: "bordered",
           color: "default",
-          className: "border-small hover:bg-orange-200 hover:text-orange-500 transition-colors",
+          className:
+            "border-small hover:bg-orange-200 hover:text-orange-500 transition-colors",
         },
         {
           label: "Add Referrer",
@@ -219,7 +225,8 @@ const ReferralManagement = () => {
         icon: <LuQrCode />,
         variant: "bordered",
         color: "default",
-        className: "border-small hover:bg-orange-200  hover:text-orange-500 transition-colors",
+        className:
+          "border-small hover:bg-orange-200  hover:text-orange-500 transition-colors",
         link: referrer?.qrCode,
         linkInNewTab: true,
       },
@@ -228,7 +235,8 @@ const ReferralManagement = () => {
         icon: <GrLocation className="font-bold" />,
         variant: "bordered",
         color: "default",
-        className: "border-small hover:bg-orange-200 hover:text-orange-500 transition-colors",
+        className:
+          "border-small hover:bg-orange-200 hover:text-orange-500 transition-colors",
         linkInNewTab: true,
       },
     ],
@@ -431,9 +439,14 @@ const ReferralManagement = () => {
                           actions={(referral: any) => [
                             {
                               label: "",
-                              onClick: (id) => {},
+                              onClick: (id) => {
+                                initiateCall({
+                                  referredBy: referral._id,
+                                  to: referral.phone,
+                                });
+                              },
                               icon: <LuPhone className="w-4 h-4" />,
-                              link: `tel:${referral.phone}`,
+                              // link: `tel:${referral.phone}`,
                             },
                             {
                               label: "",
