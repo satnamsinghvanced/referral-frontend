@@ -17,6 +17,8 @@ import {
   SchedulePlansResponse,
   TaskApiData,
   UpdateTaskStatusPayload,
+  VisitHistoryQueryParams,
+  VisitHistoryResponse,
 } from "../types/partner";
 import axios from "./axios";
 
@@ -121,15 +123,28 @@ export const createSchedulePlan = async ({
 export const updateSchedulePlan = async (
   data: SchedulePlanPutRequest
 ): Promise<void> => {
-  // The PUT request uses the base URL and passes the plan ID within the body
-  await axios.put("/schedule-visit", data);
+  const planId = data._id;
+  if (!planId) {
+    throw new Error(
+      "Plan ID (_id) is required for updating the schedule plan."
+    );
+  }
+  const url = `/schedule-visit/${planId}`;
+  await axios.put(url, data);
 };
 
 export const copySchedulePlan = async (id: string): Promise<void> => {
   await axios.post(`/schedule-visit/copy/${id}`);
 };
 
-
 export const deleteSchedulePlan = async (id: string): Promise<void> => {
   await axios.delete(`/schedule-visit/${id}`);
+};
+
+export const fetchVisitHistory = async (
+  params: VisitHistoryQueryParams
+): Promise<VisitHistoryResponse> => {
+  const url = `/schedule-visit/history`;
+  const response = await axios.get<VisitHistoryResponse>(url, { params });
+  return response.data;
 };

@@ -53,7 +53,7 @@ export const ReviewSaveTab: React.FC<ReviewSaveTabProps> = ({
                 radius="sm"
                 variant="flat"
                 color="warning"
-                className="text-[11px] h-5"
+                className="text-[11px] h-5 capitalize"
               >
                 {planState.defaultPriority}
               </Chip>
@@ -71,12 +71,12 @@ export const ReviewSaveTab: React.FC<ReviewSaveTabProps> = ({
             )}
           </div>
           {planState.defaultVisitPurpose && (
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-600">
               Visit Purpose: {finalVisitPurposeTitle}
             </p>
           )}
           {planState.description && (
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-600">
               Schedule notes: {planState.description || "None"}
             </p>
           )}
@@ -163,7 +163,7 @@ export const ReviewSaveTab: React.FC<ReviewSaveTabProps> = ({
                 <p className="text-xs text-gray-600">
                   {finalVisitPurposeTitle}
                 </p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-600">
                   {visitSchedule[dateKey].totalStops} offices &bull;{" "}
                   {visitSchedule[dateKey].totalVisitDuration} total &bull;{" "}
                   {visitSchedule[dateKey].totalDistance} distance

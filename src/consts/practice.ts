@@ -44,13 +44,14 @@ export const PER_VISIT_DURATION_OPTIONS: string[] = [
   "30 minutes",
   "45 minutes",
   "1 hour",
-  "1.5 hours",
-  "2 hours",
+  "1.5 hour",
+  "2 hour",
 ];
 
 export const VISIT_STATUSES = [
   { label: "Completed", value: "completed" },
   { label: "Cancelled", value: "cancelled" },
+  { label: "Pending", value: "pending" },
 ];
 
 export const PRIORITY_LEVELS = [

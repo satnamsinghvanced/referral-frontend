@@ -1,5 +1,5 @@
 import { Pagination } from "@heroui/react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { FiEdit, FiEye, FiStar, FiUsers } from "react-icons/fi";
 import { IoDocumentOutline } from "react-icons/io5";
@@ -18,7 +18,7 @@ import PartnerNetworkCard from "./PartnerNetworkCard";
 import PartnerNetworkHeader from "./PartnerNetworkHeader";
 import ScheduleVisits from "./schedule-visits/ScheduleVisits";
 import { TbArchive, TbCheckbox } from "react-icons/tb";
-import VisitHistoryModal from "./VisitHistoryModal";
+import VisitHistoryModal from "./schedule-visits/history-modal/VisitHistoryModal";
 
 const PartnerNetwork = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -163,6 +163,10 @@ const PartnerNetwork = () => {
     },
   ];
 
+  const handleHistoryModalClose = useCallback(() => {
+    setIsHistoryModalOpen(false);
+  }, []);
+
   return (
     <>
       <div className="flex flex-col h-full">
@@ -280,7 +284,7 @@ const PartnerNetwork = () => {
 
       <VisitHistoryModal
         isOpen={isHistoryModalOpen}
-        onClose={() => setIsHistoryModalOpen(false)}
+        onClose={handleHistoryModalClose}
       />
     </>
   );

@@ -48,7 +48,7 @@ const Fail = () => {
 
                     {/* Support Link */}
                     <div className="mt-6 text-center">
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-600">
                             Need help?{' '}
                             <button
                                 className="text-red-600 hover:text-red-800 underline"

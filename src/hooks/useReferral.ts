@@ -161,7 +161,7 @@ export const useFetchReferrers = ({
 // Get referrer by ID
 export const useGetReferrerById = (id: string) =>
   useQuery<Referrer, Error>({
-    queryKey: ["referrer", id],
+    queryKey: ["referrers", id],
     queryFn: () => getReferrerById(id),
     enabled: !!id,
   });
@@ -200,9 +200,13 @@ export const useUpdateReferrer = () =>
     { id: string; type: string; payload: Partial<Referrer> }
   >({
     mutationFn: ({ id, type, payload }) => updateReferrer(id, type, payload),
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["referrers"] });
       queryClient.invalidateQueries({ queryKey: ["partnerStats"] });
+      queryClient.invalidateQueries({
+        queryKey: ["partnerStats", variables.id],
+      });
+
       addToast({
         title: "Success",
         description: "Referrer updated",

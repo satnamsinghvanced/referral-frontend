@@ -41,7 +41,7 @@ const initialPlanState = {
   customVisitPurpose: "",
   description: "",
   enableAutoRoute: true,
-  visitDays: ""
+  visitDays: "",
 };
 
 const tabs = [
@@ -289,7 +289,7 @@ export function ScheduleVisitsModal({
       isDraft: action === "draft" ? true : false,
       practices: selectedReferrersState,
       route: {
-        routeDate: planState.routeDate,
+        date: planState.routeDate,
         startTime: planState.startTime,
         durationPerVisit: planState.durationPerVisit,
         routeDetails: bestRoute.routeDetails as any,
@@ -297,12 +297,12 @@ export function ScheduleVisitsModal({
         estimatedTotalTime: bestRoute.estimatedTotalTime,
         estimatedDistance: bestRoute.estimatedDistance,
         mileageCost: bestRoute.mileageCost,
-        visitDays: bestRoute.visitDays
+        visitDays: bestRoute.visitDays,
       },
       planDetails: {
-        planName: planState.planName,
-        defaultPriority: planState.defaultPriority,
-        defaultVisitPurpose: finalVisitPurpose,
+        name: planState.planName,
+        priority: planState.defaultPriority,
+        visitPurpose: finalVisitPurpose,
         description: planState.description,
       },
     };
@@ -478,7 +478,9 @@ export function ScheduleVisitsModal({
                   variant="ghost"
                   size="sm"
                   onPress={() => handleSubmit("draft")}
-                  isDisabled={isSubmitting}
+                  isDisabled={
+                    isSubmitting || Object.keys(validationErrors).length > 0
+                  }
                   className="border-small"
                   startContent={<FiSave className="text-sm" />}
                 >
@@ -488,7 +490,9 @@ export function ScheduleVisitsModal({
                   color="primary"
                   size="sm"
                   onPress={() => handleSubmit("submit")}
-                  isDisabled={isSubmitting}
+                  isDisabled={
+                    isSubmitting || Object.keys(validationErrors).length > 0
+                  }
                   isLoading={isSubmitting}
                 >
                   {createPlanMutation.isSuccess

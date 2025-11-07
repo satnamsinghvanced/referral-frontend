@@ -54,7 +54,7 @@ const Sidebar = ({
     {
       name: "Dashboard",
       icon: FiHome,
-      href: "/dashboard",
+      href: "/",
     },
     {
       name: "Referrals",

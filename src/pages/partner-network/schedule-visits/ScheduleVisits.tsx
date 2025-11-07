@@ -15,6 +15,7 @@ import { GetSchedulePlansQuery } from "../../../types/partner";
 import CompactPlanCard from "./CompactPlanCard";
 import { ScheduleVisitsModal } from "./modal/ScheduleVisitsModal";
 import PlanCard from "./PlanCard";
+import ViewScheduledVisitModal from "./ViewScheduledVisitModal";
 
 const StatsGrid = ({ stats }: any) => {
   const statData = [
@@ -86,7 +87,10 @@ const StatsGrid = ({ stats }: any) => {
 export default function ScheduleVisits({ practices }: any) {
   const [isScheduleVisitModalOpen, setIsScheduleVisitModalOpen] =
     useState(false);
+  const [isViewScheduleVisitModalOpen, setIsViewScheduleVisitModalOpen] =
+    useState(false);
   const [isCompactMode, setIsCompactMode] = useState(false);
+  const [viewPlan, setViewPlan] = useState();
 
   const [filters, setFilters] = useState<GetSchedulePlansQuery>({
     status: "all",
@@ -251,9 +255,23 @@ export default function ScheduleVisits({ practices }: any) {
 
           {schedulePlans.map((plan) =>
             isCompactMode ? (
-              <CompactPlanCard key={plan._id} plan={plan} />
+              <CompactPlanCard
+                key={plan._id}
+                plan={plan}
+                onView={(plan: any) => {
+                  setIsViewScheduleVisitModalOpen(true);
+                  setViewPlan(plan);
+                }}
+              />
             ) : (
-              <PlanCard key={plan._id} plan={plan} />
+              <PlanCard
+                key={plan._id}
+                plan={plan}
+                onView={(plan: any) => {
+                  setIsViewScheduleVisitModalOpen(true);
+                  setViewPlan(plan);
+                }}
+              />
             )
           )}
         </div>
@@ -264,6 +282,14 @@ export default function ScheduleVisits({ practices }: any) {
         onClose={() => setIsScheduleVisitModalOpen(false)}
         practices={practices}
       />
+
+      {viewPlan && (
+        <ViewScheduledVisitModal
+          isOpen={isViewScheduleVisitModalOpen}
+          onClose={() => setIsViewScheduleVisitModalOpen(false)}
+          plan={viewPlan}
+        />
+      )}
     </>
   );
 }

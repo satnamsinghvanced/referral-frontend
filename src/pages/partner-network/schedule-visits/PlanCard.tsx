@@ -8,7 +8,10 @@ import {
   useDeleteSchedulePlan,
 } from "../../../hooks/usePartner";
 
-const PlanCard: React.FC<{ plan: SchedulePlan }> = ({ plan }) => {
+const PlanCard: React.FC<{ plan: SchedulePlan; onView: any }> = ({
+  plan,
+  onView,
+}) => {
   const progress = 0; // Assuming progress calculation is pending or based on completion data not explicitly shown
   const monthYear = new Date(plan.createdAt).toLocaleDateString("en-US", {
     month: "long",
@@ -88,7 +91,7 @@ const PlanCard: React.FC<{ plan: SchedulePlan }> = ({ plan }) => {
             </div>
             <div className="text-center p-2 bg-purple-50 rounded">
               <div className="font-semibold text-purple-600">
-                {plan.summary.estimatedMiles}
+                {plan.summary.estimatedDistance}
               </div>
               <div className="text-xs text-gray-600">Est. Miles</div>
             </div>
@@ -96,12 +99,18 @@ const PlanCard: React.FC<{ plan: SchedulePlan }> = ({ plan }) => {
 
           <div className="flex items-center justify-between pt-2 border-t border-primary/15">
             <div className="flex items-center gap-1">
-              <Button size="sm" variant="light" title="View Details" isIconOnly>
+              <Button
+                size="sm"
+                variant="light"
+                title="View Details"
+                isIconOnly
+                onPress={() => onView(plan)}
+              >
                 <FiEye className="size-3.5" />
               </Button>
-              <Button size="sm" variant="light" title="Edit Plan" isIconOnly>
+              {/* <Button size="sm" variant="light" title="Edit Plan" isIconOnly>
                 <FiEdit className="size-3.5" />
-              </Button>
+              </Button> */}
               <Button
                 size="sm"
                 variant="light"

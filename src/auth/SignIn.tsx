@@ -61,7 +61,7 @@ const SignIn = () => {
                   token: response?.accessToken,
                 })
               );
-              navigate("/dashboard");
+              navigate("/");
             },
           }
         );

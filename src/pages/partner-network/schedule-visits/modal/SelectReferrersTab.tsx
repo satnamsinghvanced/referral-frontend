@@ -181,13 +181,13 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
                 />
                 <div>
                   <p className="text-sm">{r.name}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">
+                  <p className="text-xs text-gray-600 mt-0.5">
                     {r.address.addressLine1}, {r.address.city}
                   </p>
                   <div className="flex items-center sapce-x-2 mt-0.5">
-                    <p className="text-xs text-gray-500">{r.phone}</p>
+                    <p className="text-xs text-gray-600">{r.phone}</p>
                     {r.totalReferrals > 0 && (
-                      <p className="text-xs text-gray-500 ml-2">
+                      <p className="text-xs text-gray-600 ml-2">
                         • {r.totalReferrals} Referrals
                       </p>
                     )}

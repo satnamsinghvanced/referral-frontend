@@ -535,6 +535,7 @@ const ReferralManagement = () => {
       <ReferralStatusModal
         isOpen={isReferralStatusModalOpen}
         onClose={() => setIsReferralStatusModalOpen(false)}
+        // @ts-ignore
         referral={singleReferralData}
         isViewMode={isReferralStatusModalViewMode}
         setReferralEditId={setReferralEditId}

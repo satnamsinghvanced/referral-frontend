@@ -248,13 +248,13 @@ export interface RouteDetailStop {
 }
 
 // --- Shared Interfaces (Reused from POST) ---
-export interface DefaultVisitPurpose {
+export interface VisitPurpose {
   title: string;
   duration: string;
 }
 
 export interface RouteDataPayload {
-  routeDate: string; // e.g., "2025-11-06"
+  date: string; // e.g., "2025-11-06"
   startTime: string; // e.g., "12:50"
   durationPerVisit: string; // e.g., "30 minutes"
   routeDetails: RouteDetailStop[];
@@ -269,14 +269,14 @@ export interface PlanDetails {
   planName: string;
   defaultPriority: string;
   durationPerVisit: string; // NOTE: This is likely redundant now that it's in RouteDataPayload
-  defaultVisitPurpose: DefaultVisitPurpose;
+  defaultVisitPurpose: VisitPurpose;
   description: string;
 }
 
 export interface PlanDetailsPayload {
-  planName: string; // e.g., "November Monthly Visit"
-  defaultPriority: string; // e.g., "High Priority"
-  defaultVisitPurpose: DefaultVisitPurpose;
+  name: string; // e.g., "November Monthly Visit"
+  priority: string; // e.g., "High Priority"
+  visitPurpose: VisitPurpose;
   description: string;
 }
 
@@ -317,7 +317,7 @@ export interface SchedulePlanRequest {
  * Interface for the COMPLETE PUT Request Payload (PUT /schedule-visit)
  */
 export interface SchedulePlanPutRequest {
-  scheduleReferrerVisitId: string; // Plan ID for update
+  _id: string; // Plan ID for update
   practices: string[];
   // PlanDetails without 'month' for PUT request
   planDetails: PlanDetails;
@@ -459,7 +459,7 @@ interface PlanSummary {
   totalPractices: number;
   visitDays: number;
   estimatedTime: string;
-  estimatedMiles: string;
+  estimatedDistance: string;
 }
 
 // --- 3. Full Schedule Plan Data Type ---
@@ -500,4 +500,54 @@ export interface SchedulePlansResponse {
   hasNextPage: boolean;
   hasPrevPage: boolean;
   dashboardStats: SchedulePlanDashboardStats;
+}
+
+interface VisitHistoryItem {
+  route: RouteMetrics;
+  planDetails: PlanDetails;
+  _id: string;
+  createdBy: string;
+  practices: Practice[];
+  isDraft: boolean;
+  status: "pending" | "completed" | "cancelled"; // Assuming statuses based on context
+  createdAt: string;
+  updatedAt: string;
+}
+
+// --- 5. Monthly Grouping Type ---
+interface MonthlyVisitGroup {
+  month: string; // e.g., "November 2025"
+  totalPlansThisMonth: number;
+  visits: VisitHistoryItem[];
+}
+
+// --- 6. Response Metadata Types ---
+interface Stats {
+  totalVisits: number;
+  completedVisits: number;
+  totalTime: string;
+  officeVisits: number;
+}
+
+interface Pagination {
+  currentPage: number;
+  pageSize: number;
+  totalPages: number;
+  totalData: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
+// --- 7. Final API Response Type ---
+export interface VisitHistoryResponse {
+  data: MonthlyVisitGroup[];
+  stats: Stats;
+  pagination: Pagination;
+}
+
+export interface VisitHistoryQueryParams {
+  filter: "all" | "draft" | "completed" | "pending" | "cancelled";
+  // source: "list" | "map"; // Assuming potential sources
+  search: string;
+  // Add pagination params if needed, e.g., page: number, limit: number
 }

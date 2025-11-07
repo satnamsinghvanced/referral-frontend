@@ -60,7 +60,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
     () => now(localTimeZone),
     [localTimeZone]
   );
-  
+
   const currentTimeObject = new Time(
     currentZonedDateTime.hour,
     currentZonedDateTime.minute
@@ -94,18 +94,18 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
     if (!planState.routeDate) {
       onStateChange("routeDate", todayDate);
     }
-    
+
     // Only set default time if planState.startTime is undefined/null
     if (!planState.startTime) {
       let defaultStartTime = "09:00";
-      
+
       // Check if 9:00 AM today is already past the current time
       if (nineAMToday.compare(currentZonedDateTime) < 0) {
         defaultStartTime = "21:00";
       }
 
       // We only set the default time if we are setting the default date (which is today)
-      // or if the planState.routeDate is today. This ensures the 9PM adjustment 
+      // or if the planState.routeDate is today. This ensures the 9PM adjustment
       // is only applied when the date is the current date.
       if (!planState.routeDate || planState.routeDate === todayDate) {
         onStateChange("startTime", defaultStartTime);
@@ -259,7 +259,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
           description:
             error.response?.data?.message ||
             "Failed to calculate route. Check inputs and API key.",
-            color: "danger",
+          color: "danger",
         });
       },
     });
@@ -446,6 +446,12 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
               {isPending ? "Calculating..." : "Generate Route"}
             </Button>
           </div>
+          {errors.routeOptimizationResults &&
+            !routeOptimizationResults?.bestRoute && (
+              <p className="text-xs mt-2 text-red-600">
+                {errors.routeOptimizationResults}
+              </p>
+            )}
         </CardBody>
       </Card>
 
@@ -554,7 +560,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                       <p className="text-xs text-gray-600 mt-1">
                         {stop.address.addressLine1}
                       </p>
-                      <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                      <div className="flex items-center gap-4 mt-2 text-xs text-gray-600">
                         <span className="flex items-center gap-1">
                           <FiClock className="h-3 w-3" />
                           {stop.arrivalTime} - {stop.departureTime}

@@ -236,7 +236,7 @@ const Team: React.FC = () => {
                     <p className="font-medium text-sm">
                       {member.firstName} {member.lastName}
                     </p>
-                    <p className="text-xs text-gray-500">{member.email}</p>
+                    <p className="text-xs text-gray-600">{member.email}</p>
                   </div>
                 </div>
 
@@ -314,7 +314,7 @@ const Team: React.FC = () => {
                   </span>
                   <div className="space-y-0.5">
                     <p className="font-medium text-sm">{member.email}</p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-600">
                       Invited as {member.role.role} on{" "}
                       {formatDateToYYYYMMDD(member.invitedAt)}
                     </p>

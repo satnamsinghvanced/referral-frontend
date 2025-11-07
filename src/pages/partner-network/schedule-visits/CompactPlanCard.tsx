@@ -8,10 +8,13 @@ import {
   useDeleteSchedulePlan,
 } from "../../../hooks/usePartner";
 
-const CompactPlanCard: React.FC<{ plan: SchedulePlan }> = ({ plan }) => {
+const CompactPlanCard: React.FC<{ plan: SchedulePlan; onView: any }> = ({
+  plan,
+  onView,
+}) => {
   const statClass =
     "flex flex-col items-center justify-center text-center w-12";
-  const statValueClass = "font-semibold text-xs";
+  const statValueClass = "font-medium text-xs whitespace-nowrap";
   const statLabelClass = "text-xs text-gray-600";
   const completePercentage = 0;
   const monthYear = new Date(plan.createdAt).toLocaleDateString("en-US", {
@@ -50,7 +53,7 @@ const CompactPlanCard: React.FC<{ plan: SchedulePlan }> = ({ plan }) => {
       </div>
 
       <div className="flex items-center gap-4">
-        <div className="flex gap-4">
+        <div className="flex gap-6">
           <div className={statClass}>
             <div className={statValueClass}>{plan.summary.totalPractices}</div>
             <div className={statLabelClass}>Practices</div>
@@ -64,7 +67,9 @@ const CompactPlanCard: React.FC<{ plan: SchedulePlan }> = ({ plan }) => {
             <div className={statLabelClass}>Time</div>
           </div>
           <div className={statClass}>
-            <div className={statValueClass}>{plan.summary.estimatedMiles}</div>
+            <div className={statValueClass}>
+              {plan.summary.estimatedDistance}
+            </div>
             <div className={statLabelClass}>Miles</div>
           </div>
           <div className={statClass}>
@@ -74,12 +79,18 @@ const CompactPlanCard: React.FC<{ plan: SchedulePlan }> = ({ plan }) => {
         </div>
 
         <div className="flex items-center gap-1">
-          <Button size="sm" variant="light" title="View Details" isIconOnly>
+          <Button
+            size="sm"
+            variant="light"
+            title="View Details"
+            isIconOnly
+            onPress={onView}
+          >
             <FiEye className="size-3.5" />
           </Button>
-          <Button size="sm" variant="light" title="Edit Plan" isIconOnly>
+          {/* <Button size="sm" variant="light" title="Edit Plan" isIconOnly>
             <FiEdit className="size-3.5" />
-          </Button>
+          </Button> */}
           <Button
             size="sm"
             variant="light"

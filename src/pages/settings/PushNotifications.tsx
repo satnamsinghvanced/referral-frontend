@@ -106,7 +106,7 @@ const PushNotifications = () => {
                     Chrome on MacBook Pro
                   </p>
                   <p className="text-xs text-gray-600 dark:text-gray-400 dark:text-gray-400">Chrome 120.0</p>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-gray-600">
                     Last seen: 9/25/2025, 3:56:52 PM
                   </p>
                 </div>

@@ -5,6 +5,10 @@ export default function VisitStatusChip({ status }: { status: string }) {
   let classNames;
 
   switch (status) {
+    case "pending":
+      classNames = "bg-yellow-100 text-yellow-800";
+      break;
+
     case "cancelled":
       classNames = "bg-[#e0f2fe] text-[#0c4a6e]";
       break;

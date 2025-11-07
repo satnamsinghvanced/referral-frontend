@@ -11,6 +11,7 @@ import {
   deleteTask,
   fetchPartnerDetail,
   fetchPartners,
+  fetchVisitHistory,
   getAllNotesAndTasks,
   getSchedulePlans,
   scheduleTaskEvent,
@@ -29,6 +30,7 @@ import {
   SchedulePlanGetResponse,
   SchedulePlansResponse,
   TaskApiData,
+  VisitHistoryResponse,
 } from "../types/partner";
 import { addToast } from "@heroui/react";
 
@@ -53,7 +55,7 @@ export const useFetchPartners = (params: FetchPartnersParams = {}) => {
 
 export const useFetchPartnerDetail = (id: string) =>
   useQuery<PartnerPractice, Error>({
-    queryKey: ["partnerStat", id],
+    queryKey: ["partnerStats", id],
     queryFn: () => fetchPartnerDetail(id),
     enabled: !!id,
   });
@@ -203,7 +205,7 @@ export const useScheduleTaskEvent = () => {
   });
 };
 
-const SCHEDULE_PLAN_KEY = "schedulePlan";
+const SCHEDULE_PLAN_KEY = "schedulePlans";
 
 export function useGetSchedulePlans(query: GetSchedulePlansQuery) {
   return useQuery<SchedulePlansResponse, Error>({
@@ -220,7 +222,7 @@ export function useCreateSchedulePlan() {
         `Schedule Plan Created Successfully for ID ${variables.id}:`,
         data
       );
-      queryClient.invalidateQueries({ queryKey: ["schedulePlans"] });
+      queryClient.invalidateQueries({ queryKey: [SCHEDULE_PLAN_KEY] });
     },
     onError: (error, variables) => {
       console.error(
@@ -231,23 +233,20 @@ export function useCreateSchedulePlan() {
   });
 }
 
-export function useUpdateSchedulePlan() {
+export const useUpdateSchedulePlan = () => {
   return useMutation({
     mutationFn: updateSchedulePlan,
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: [SCHEDULE_PLAN_KEY, variables.scheduleReferrerVisitId],
-      });
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: [SCHEDULE_PLAN_KEY] });
       console.log(
-        "Plan updated successfully:",
-        variables.scheduleReferrerVisitId
+        `Schedule Plan with ID ${variables._id} updated successfully.`
       );
     },
-    onError: (error) => {
-      console.error("Error updating plan:", error);
+    onError: (error, variables, context) => {
+      console.error(`Failed to update Schedule Plan ${variables._id}:`, error);
     },
   });
-}
+};
 
 export function useCopySchedulePlan() {
   return useMutation({
@@ -271,7 +270,6 @@ export function useDeleteSchedulePlan() {
   return useMutation({
     mutationFn: deleteSchedulePlan,
     onSuccess: () => {
-      // Invalidate the list of plans (assuming you have a list key)
       queryClient.invalidateQueries({ queryKey: [SCHEDULE_PLAN_KEY] });
       addToast({
         title: "Success",
@@ -284,3 +282,18 @@ export function useDeleteSchedulePlan() {
     },
   });
 }
+
+interface UseVisitHistoryParams {
+  filter: "all" | "draft" | "completed" | "pending" | "cancelled";
+  // source: "list" | "map";
+  search: string;
+}
+
+export const VISIT_HISTORY_QUERY_KEY = "visitHistory";
+
+export const useVisitHistory = (params: UseVisitHistoryParams) => {
+  return useQuery<VisitHistoryResponse, Error>({
+    queryKey: [VISIT_HISTORY_QUERY_KEY, params],
+    queryFn: () => fetchVisitHistory(params),
+  });
+};

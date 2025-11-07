@@ -299,7 +299,7 @@ console.log("data of parteners ",partnerData );
                             <div className="text-xs font-medium">
                               {staff.experience}
                             </div>
-                            <div className="text-xs text-gray-500">
+                            <div className="text-xs text-gray-600">
                               Experience
                             </div>
                           </div>
