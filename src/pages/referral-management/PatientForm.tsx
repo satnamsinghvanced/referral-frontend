@@ -144,7 +144,7 @@ const PatientForm = () => {
           insurance: values.insuranceProvider || "",
           treatment: values.preferredTreatment || "",
           priority: values.urgencyLevel || "medium",
-          scheduledDate: values.preferredTime || new Date().toISOString(),
+          appointmentTime: values.preferredTime || new Date().toISOString(),
           reason: values.referralReason || "",
           notes: values.additionalNotes || "",
         };

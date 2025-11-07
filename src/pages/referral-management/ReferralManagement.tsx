@@ -189,7 +189,7 @@ const ReferralManagement = () => {
           icon: <LuQrCode fontSize={15} />,
           variant: "bordered",
           color: "default",
-          className: "border-small",
+          className: "border-small hover:bg-orange-200 hover:text-orange-500 transition-colors",
         },
         {
           label: "Add Referrer",
@@ -219,7 +219,7 @@ const ReferralManagement = () => {
         icon: <LuQrCode />,
         variant: "bordered",
         color: "default",
-        className: "border-small",
+        className: "border-small hover:bg-orange-200 hover:text-orange-500 transition-colors",
         link: referrer?.qrCode,
         linkInNewTab: true,
       },
@@ -228,7 +228,7 @@ const ReferralManagement = () => {
         icon: <GrLocation className="font-bold" />,
         variant: "bordered",
         color: "default",
-        className: "border-small",
+        className: "border-small hover:bg-orange-200 hover:text-orange-500 transition-colors",
         linkInNewTab: true,
       },
     ],
@@ -412,7 +412,7 @@ const ReferralManagement = () => {
                       <Button
                         size="sm"
                         variant="bordered"
-                        className="text-xs ml-auto min-w-[100px] border-small border-primary/15"
+                        className="text-xs ml-auto min-w-[100px] border-small border-primary/15 hover:bg-orange-200 hover:text-orange-500 transition-colors"
                         onPress={handleViewAllAndFilter}
                       >
                         <LuFilter />
@@ -447,6 +447,7 @@ const ReferralManagement = () => {
                             {
                               label: "",
                               icon: <FiEdit className="w-4 h-4" />,
+
                               onClick: handleEditReferral,
                             },
                           ]}

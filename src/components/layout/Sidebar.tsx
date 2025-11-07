@@ -243,14 +243,20 @@ const Sidebar = ({
           <ul className="flex flex-col p-3">
             {navigationRoutes.map((item, index) => {
               const Icon = item.icon;
-              const active = pathname === item.href;
+              const active =
+                pathname === item.href ||
+                (item.href === "/dashboard" && pathname === "/");
               return (
                 <li key={index}>
                   {/* if item.list exists in future, we can render expand. For now single links */}
                   <NavLink
                     to={item.href}
-                    className={({ isActive }: { isActive: boolean }) =>
-                      clsx(
+                    className={() => {
+                      const isActive =
+                        pathname === item.href ||
+                        (item.href === "/dashboard" && pathname === "/");
+
+                      return clsx(
                         "group border my-0.5 cursor-pointer rounded-md transition-all group flex items-center py-2 px-3 hover:bg-gray-50 dark:hover:bg-[#0f1214] h-9",
                         isMiniSidebarOpen
                           ? "px-0 justify-start"
@@ -258,8 +264,8 @@ const Sidebar = ({
                         isActive
                           ? "!bg-sky-50 !text-sky-700 !border-sky-200 dark:!bg-white dark:!border-sky-50 shadow-sm"
                           : "hover:bg-gray-100 border-transparent"
-                      )
-                    }
+                      );
+                    }}
                   >
                     <span
                       className={`flex items-center justify-center ${
