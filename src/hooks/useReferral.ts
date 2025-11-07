@@ -67,7 +67,7 @@ export const useGetReferralById = (id: string) =>
 
 // Create a new referral
 export const useCreateReferral = () =>
-  useMutation<Referral, AxiosError, Partial<Referral>>({
+  useMutation<Referral, Error, Partial<Referral>>({
     mutationFn: (payload) => createReferral(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["referrals"] });
@@ -77,9 +77,10 @@ export const useCreateReferral = () =>
         color: "success",
       });
     },
-    onError: (error: AxiosError) => {
+    onError: (error: Error) => {
       const message =
-        (error.response?.data as any)?.message ||
+        // @ts-ignore
+        (error?.response?.data as any)?.message ||
         error.message ||
         "Failed to create referral";
       addToast({ title: "Error", description: message, color: "danger" });

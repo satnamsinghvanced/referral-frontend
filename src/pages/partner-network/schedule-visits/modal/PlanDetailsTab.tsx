@@ -8,20 +8,23 @@ import {
   Textarea,
 } from "@heroui/react";
 import React from "react";
-import { RiErrorWarningLine } from "react-icons/ri";
 import { BiStopwatch } from "react-icons/bi";
+import { RiErrorWarningLine } from "react-icons/ri";
 import { RxTarget } from "react-icons/rx";
+import {
+  PER_VISIT_DURATION_OPTIONS,
+  PRIORITY_LEVELS,
+  PURPOSE_OPTIONS,
+} from "../../../../consts/practice";
 
 // Assuming PlanDetailsTabProps is updated to:
-// interface PlanDetailsTabProps {
-//   planState: any; 
-//   onStateChange: (key: string, value: any) => void;
-//   errors: any;
-//   data: any; // Route summary data
-//   selectedReferrerObjects: any[];
-//   purposeOptions: any[];
-//   durationOptions: string[];
-// }
+interface PlanDetailsTabProps {
+  planState: any;
+  onStateChange: any;
+  errors: any;
+  data: any; // Route summary data
+  selectedReferrerObjects: any[];
+}
 
 export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
   planState,
@@ -29,8 +32,6 @@ export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
   errors,
   data,
   selectedReferrerObjects,
-  purposeOptions,
-  durationOptions,
 }) => {
   // Helper function to handle Select changes (converts Set to string)
   const handleSelectChange = (key: string, keys: any) => {
@@ -78,7 +79,7 @@ export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
                 label: "!translate-0 !static",
               }}
             >
-              {purposeOptions.map((opt: any) => (
+              {PURPOSE_OPTIONS.map((opt: any) => (
                 <SelectItem key={opt.title} description={opt.duration}>
                   {opt.title}
                 </SelectItem>
@@ -128,36 +129,9 @@ export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
                 label: "!translate-0 !static",
               }}
             >
-              <SelectItem key="High Priority">High Priority</SelectItem>
-              <SelectItem key="Medium Priority">Medium Priority</SelectItem>
-              <SelectItem key="Low Priority">Low Priority</SelectItem>
-            </Select>
-          </div>
-
-          <div>
-            <Select
-              name="durationPerVisit"
-              label="Duration per Visit"
-              labelPlacement="outside"
-              placeholder="Select duration"
-              size="sm"
-              radius="sm"
-              selectedKeys={[planState.durationPerVisit]}
-              onSelectionChange={(keys: any) =>
-                handleSelectChange("durationPerVisit", keys)
-              }
-              startContent={<BiStopwatch className="size-4 text-gray-500" />}
-              isInvalid={!!errors.durationPerVisit}
-              errorMessage={errors.durationPerVisit}
-              isRequired
-              classNames={{
-                base: "!mt-0 gap-2",
-                label: "!translate-0 !static",
-              }}
-            >
-              {durationOptions.map((duration: any) => (
-                <SelectItem key={duration}>{duration}</SelectItem>
-              ))}
+              {PRIORITY_LEVELS.map((level) => {
+                return <SelectItem key={level.value}>{level.label}</SelectItem>;
+              })}
             </Select>
           </div>
 
@@ -186,34 +160,41 @@ export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
             onChange={(e) => onStateChange("description", e.target.value)}
           />
 
-          <Card className="shadow-none border border-primary/15 bg-blue-50/20">
-            <CardBody className="p-4 space-y-2">
-              <p className="font-medium text-sm mb-2">Plan Summary</p>
-              <div className="text-xs space-y-2">
-                <p className="flex justify-between">
-                  <span>Selected Referrers:</span>{" "}
-                  <span className="font-medium">
-                    {selectedReferrerObjects.length}
-                  </span>
-                </p>
-                <p className="flex justify-between">
-                  <span>Estimated Total Time:</span>{" "}
-                  <span className="font-medium">{data?.estimatedTotalTime}</span>
-                </p>
-                <p className="flex justify-between">
-                  <span>Estimated Distance:</span>{" "}
-                  <span className="font-medium">{data?.estimatedDistance}</span>
-                </p>
-                <p className="flex justify-between">
-                  <span>Mileage Cost (IRS Rate):</span>{" "}
-                  <span className="font-medium">{data?.mileageCost}</span>
-                </p>
-                <p className="pt-3 mt-3 border-t border-primary/15 text-gray-500">
-                  * Estimates based on 60min per visit and route optimization
-                </p>
-              </div>
-            </CardBody>
-          </Card>
+          {data && (
+            <Card className="shadow-none border border-primary/15 bg-blue-50/20">
+              <CardBody className="p-4 space-y-2">
+                <p className="font-medium text-sm mb-2">Plan Summary</p>
+                <div className="text-xs space-y-2">
+                  <p className="flex justify-between">
+                    <span>Selected Referrers:</span>{" "}
+                    <span className="font-medium">
+                      {selectedReferrerObjects.length}
+                    </span>
+                  </p>
+                  <p className="flex justify-between">
+                    <span>Estimated Total Time:</span>{" "}
+                    <span className="font-medium">
+                      {data?.estimatedTotalTime}
+                    </span>
+                  </p>
+                  <p className="flex justify-between">
+                    <span>Estimated Distance:</span>{" "}
+                    <span className="font-medium">
+                      {data?.estimatedDistance}
+                    </span>
+                  </p>
+                  <p className="flex justify-between">
+                    <span>Mileage Cost (IRS Rate):</span>{" "}
+                    <span className="font-medium">{data?.mileageCost}</span>
+                  </p>
+                  <p className="pt-3 mt-3 border-t border-primary/15 text-gray-500">
+                    * Estimates based on {planState.durationPerVisit} per visit
+                    and route optimization
+                  </p>
+                </div>
+              </CardBody>
+            </Card>
+          )}
         </div>
       </div>
     </form>

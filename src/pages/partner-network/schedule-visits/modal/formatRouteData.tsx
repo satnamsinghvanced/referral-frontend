@@ -46,6 +46,38 @@ const formatTimeWithDayOffset = (
   return { timeString, dayOffset };
 };
 
+const parseTimeToMinutes = (timeStr: string): number => {
+  if (!timeStr) return 0;
+  const hoursMatch = timeStr.match(/(\d+)\s*h/);
+  const minutesMatch = timeStr.match(/(\d+)\s*m/);
+  // @ts-ignore
+  const hours = hoursMatch ? parseInt(hoursMatch[1]) : 0;
+  // @ts-ignore
+  const minutes = minutesMatch ? parseInt(minutesMatch[1]) : 0;
+  return hours * 60 + minutes;
+};
+
+const convertTimeToDaysHoursMinutes = (timeStr: string): string => {
+  const totalMinutes = parseTimeToMinutes(timeStr);
+  if (totalMinutes === 0) return "0d 0h 0m";
+
+  const MINUTES_IN_A_DAY = 24 * 60; // 1440
+
+  const days = Math.floor(totalMinutes / MINUTES_IN_A_DAY);
+  const remainingMinutesAfterDays = totalMinutes % MINUTES_IN_A_DAY;
+
+  const hours = Math.floor(remainingMinutesAfterDays / 60);
+  const minutes = remainingMinutesAfterDays % 60;
+
+  // Ensure all components (d, h, m) are included, displaying 0 when necessary
+  let result = [];
+  result.push(`${days}d`);
+  result.push(`${hours}h`);
+  result.push(`${minutes}m`);
+
+  return result.join(" ");
+};
+
 export const formatRouteData = (
   routeDate: string,
   startTime: string,
@@ -63,9 +95,9 @@ export const formatRouteData = (
 
   const routeDetails = selectedReferrers.map((referrer, index) => {
     const travelToStopSeconds =
-      index === 0 ? 0 : mapboxRoute.legs[index - 1].duration;
+      index === 0 ? 0 : mapboxRoute?.legs[index - 1]?.duration || 0;
     const travelToStopDistance =
-      index === 0 ? 0 : mapboxRoute.legs[index - 1].distance;
+      index === 0 ? 0 : mapboxRoute?.legs[index - 1]?.distance || 0;
 
     totalTravelTimeSeconds += travelToStopSeconds;
 
@@ -87,7 +119,7 @@ export const formatRouteData = (
       departureDayOffset > 0 ? ` (+${departureDayOffset}d)` : "";
 
     return {
-      id: referrer._id,
+      // id: referrer._id,
       name: referrer.name,
       address: referrer.address,
       isFirstStop: index === 0,
@@ -103,12 +135,17 @@ export const formatRouteData = (
   const estimatedTotalTimeSeconds =
     totalTravelTimeSeconds + totalStops * visitDurationSeconds;
 
+  const convertedTotalTime = convertTimeToDaysHoursMinutes(
+    formatDuration(estimatedTotalTimeSeconds)
+  );
+
   return {
     routeDetails: routeDetails,
     totalStops: totalStops,
     estimatedTotalTime: formatDuration(estimatedTotalTimeSeconds),
     estimatedDistance: formatDistance(mapboxRoute.distance),
     mileageCost: `$${(mapboxRoute.distance * 0.000621371 * 0.67).toFixed(2)}`,
+    visitDays: convertedTotalTime,
   };
 };
 

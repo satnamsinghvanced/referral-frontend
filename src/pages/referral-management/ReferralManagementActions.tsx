@@ -12,7 +12,7 @@ import Input from "../../components/ui/Input";
 import { useSpecialties } from "../../hooks/useCommon";
 import { useCreateReferrer, useUpdateReferrer } from "../../hooks/useReferral";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
-import { categoryOptions } from "../../consts/filters";
+import { CATEGORY_OPTIONS } from "../../consts/filters";
 import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
 import { STAFF_ROLES } from "../../consts/practice";
 import { EMAIL_REGEX, PHONE_REGEX, ZIP_CODE_REGEX } from "../../consts/consts";
@@ -193,11 +193,11 @@ console.log("editedData", editedData);
           then: (schema) => schema.required("State is required"),
           otherwise: (schema) => schema.notRequired(),
         }),
-        zip: Yup.string()
-          .matches(
-            ZIP_CODE_REGEX,
-            "Invalid ZIP code format (e.g., 12345 )"
-          )
+        zip: Yup.number()
+          .typeError("ZIP must be a number") // Custom error if input is not a number
+          .integer("ZIP must be a whole number")
+          .min(10000, "ZIP code must be 5 digits (e.g., 10000)") // Enforces min 5 digits
+          .max(99999, "ZIP code must be 5 digits (e.g., 99999)") // Enforces max 5 digits
           .when(["$type"], {
             is: (type: string) => type === "doctor",
             then: (schema) => schema.required("ZIP is required"),
@@ -208,9 +208,7 @@ console.log("editedData", editedData);
         Yup.object().shape({
           name: Yup.string().required("Name is required"),
           role: Yup.array().required("Role/Title is required"),
-          email: Yup.string()
-            .required("Email is required")
-            .matches(EMAIL_REGEX, "Invalid email format"),
+          email: Yup.string().matches(EMAIL_REGEX, "Invalid email format"),
           phone: Yup.string().nullable(),
           isDentist: Yup.boolean().nullable(),
         })
@@ -278,7 +276,7 @@ console.log("editedData", editedData);
         id: "partnershipLevel",
         label: "Referrer Level",
         type: "select",
-        options: categoryOptions,
+        options: CATEGORY_OPTIONS,
         placeholder: "Select level",
         isRequired: true,
       },

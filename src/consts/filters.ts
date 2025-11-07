@@ -19,7 +19,7 @@ export const urgencyOptions = [
   { key: "low", label: "Low" },
 ];
 
-export const categoryOptions: {
+export const CATEGORY_OPTIONS: {
   _id: string;
   title: string;
   shortTitle: string;

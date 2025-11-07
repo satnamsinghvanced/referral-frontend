@@ -2,6 +2,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryClient } from "../providers/QueryProvider";
 import {
+  copySchedulePlan,
   createNote,
   createSchedulePlan,
   createTask,
@@ -11,7 +12,7 @@ import {
   fetchPartnerDetail,
   fetchPartners,
   getAllNotesAndTasks,
-  getSchedulePlan,
+  getSchedulePlans,
   scheduleTaskEvent,
   updateSchedulePlan,
   updateTaskStatus,
@@ -22,11 +23,14 @@ import {
   CreateTaskPayload,
   FetchPartnersParams,
   FetchPartnersResponse,
+  GetSchedulePlansQuery,
   NoteApiData,
   PartnerPractice,
   SchedulePlanGetResponse,
+  SchedulePlansResponse,
   TaskApiData,
 } from "../types/partner";
+import { addToast } from "@heroui/react";
 
 // ---------------------------
 // 🔹 Partner Network Stats
@@ -201,24 +205,30 @@ export const useScheduleTaskEvent = () => {
 
 const SCHEDULE_PLAN_KEY = "schedulePlan";
 
-export function useGetSchedulePlan(planId: string) {
-  return useQuery<SchedulePlanGetResponse>({
-    queryKey: [SCHEDULE_PLAN_KEY, planId],
-    queryFn: () => getSchedulePlan(planId),
-    enabled: !!planId, // Only run if planId exists
+export function useGetSchedulePlans(query: GetSchedulePlansQuery) {
+  return useQuery<SchedulePlansResponse, Error>({
+    queryKey: [SCHEDULE_PLAN_KEY, query],
+    queryFn: () => getSchedulePlans(query),
   });
 }
-
 export function useCreateSchedulePlan() {
   return useMutation({
     mutationFn: createSchedulePlan,
-    onSuccess: (data) => {
-      console.log("Schedule Plan Created Successfully:", data);
+
+    onSuccess: (data, variables) => {
+      console.log(
+        `Schedule Plan Created Successfully for ID ${variables.id}:`,
+        data
+      );
+      queryClient.invalidateQueries({ queryKey: ["schedulePlans"] });
     },
-    onError: (error) => {
-      console.error("Error creating schedule plan:", error);
+    onError: (error, variables) => {
+      console.error(
+        `Error creating schedule plan for ID ${variables.id}:`,
+        error
+      );
     },
-  }); 
+  });
 }
 
 export function useUpdateSchedulePlan() {
@@ -239,13 +249,35 @@ export function useUpdateSchedulePlan() {
   });
 }
 
+export function useCopySchedulePlan() {
+  return useMutation({
+    mutationFn: copySchedulePlan,
+    onSuccess: () => {
+      // Invalidate the list of plans (assuming you have a list key)
+      queryClient.invalidateQueries({ queryKey: [SCHEDULE_PLAN_KEY] });
+      addToast({
+        title: "Success",
+        description: "Plan duplicated successfully.",
+        color: "success",
+      });
+    },
+    onError: (error) => {
+      console.error("Error duplicating plan:", error);
+    },
+  });
+}
+
 export function useDeleteSchedulePlan() {
   return useMutation({
     mutationFn: deleteSchedulePlan,
     onSuccess: () => {
       // Invalidate the list of plans (assuming you have a list key)
       queryClient.invalidateQueries({ queryKey: [SCHEDULE_PLAN_KEY] });
-      console.log("Plan deleted successfully.");
+      addToast({
+        title: "Success",
+        description: "Plan deleted successfully.",
+        color: "success",
+      });
     },
     onError: (error) => {
       console.error("Error deleting plan:", error);
