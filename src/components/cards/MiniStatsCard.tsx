@@ -6,7 +6,7 @@ export interface StatCard {
   heading: string;
   icon: JSX.Element | string;
   value: string | number;
-  subheading: string;
+  subheading?: string;
   onClick?: () => void;
 }
 
@@ -42,7 +42,7 @@ const MiniStatsCard = ({ cardData }: MiniStatsCardProps) => {
             ? cardData.value
             : "0"}
         </div>
-        <div>{cardData.subheading}</div>
+        {cardData.subheading && <div>{cardData.subheading}</div>}
       </CardBody>
     </Card>
   );

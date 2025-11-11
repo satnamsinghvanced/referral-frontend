@@ -194,7 +194,7 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
                   </div>
                 </div>
               </div>
-              <LevelChip level={r.level.toLowerCase()} />
+              <LevelChip level={r.level} />
             </CardBody>
           </Card>
         ))}

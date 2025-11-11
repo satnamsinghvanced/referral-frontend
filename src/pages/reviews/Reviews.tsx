@@ -13,7 +13,7 @@ const Reviews = () => {
   const { user } = useTypedSelector((state) => state.auth);
   const userId = user?.userId;
 
-  const headingData = {
+  const HEADING_DATA = {
     heading: "Reviews & Reputation Management",
     subHeading:
       "Monitor reviews, track NFC/QR analytics, and manage your online reputation across all locations.",
@@ -58,7 +58,7 @@ const Reviews = () => {
 
   return (
     <>
-      <ComponentContainer headingData={headingData}>
+      <ComponentContainer headingData={HEADING_DATA}>
         <div className="flex flex-col gap-5">
           <div className="grid grid-cols md:grid-cols-3 xl:grid-cols-4 gap-4">
             {StatCardData.map((card, index) => (

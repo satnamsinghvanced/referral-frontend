@@ -149,18 +149,26 @@ export interface NoteApiData {
   updatedAt: string; // ISO date string
 }
 
+export interface FetchTasksParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: string;
+  priority?: string;
+}
+
 export interface TaskApiData {
   _id: string;
   title: string;
   description: string;
   dueDate: string; // YYYY-MM-DD
-  practiceId: string;
   priority: "low" | "medium" | "high" | string;
   category: "follow-up" | "meeting" | "other" | string;
-  assigned_to: string; // userId
+  practiceId: any;
   status: "pending" | "completed" | string;
   createdAt: string;
   updatedAt: string;
+  isOverDue?: boolean;
 }
 
 export interface AllNotesTasksResponse {
@@ -185,7 +193,6 @@ export interface CreateTaskPayload {
   practiceId: string;
   priority: string;
   category: string;
-  assigned_to?: string;
 }
 
 export interface UpdateTaskStatusPayload {

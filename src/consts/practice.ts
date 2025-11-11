@@ -1,3 +1,10 @@
+export const PARTNER_LEVELS = [
+  { label: "A-Level Partner", value: "A-Level" },
+  { label: "B-Level Partner", value: "B-Level" },
+  { label: "C-Level Partner", value: "C-Level" },
+  { label: "Other/Prospect", value: "Other/Prospect" },
+];
+
 export const STAFF_ROLES = [
   { title: "Dentist", _id: "Dentist" },
   { title: "Treatment Coordinator", _id: "Treatment Coordinator" },
@@ -9,7 +16,11 @@ export const STAFF_ROLES = [
 ];
 
 export const NOTE_CATEGORIES = ["General", "Referral", "Contact", "Meeting"];
-export const TASK_PRIORITIES = ["low", "medium", "high"];
+export const TASK_PRIORITIES = [
+  { label: "Low", value: "low" },
+  { label: "Medium", value: "medium" },
+  { label: "High", value: "high" },
+];
 
 export const TASK_TYPES = [
   { label: "Follow-up", key: "follow-up" },
@@ -20,10 +31,10 @@ export const TASK_TYPES = [
 ];
 
 export const TASK_STATUSES = [
-  { label: "Not Started", key: "not-started" },
-  { label: "In Progress", key: "in-progress" },
-  { label: "Completed", key: "completed" },
-  { label: "No Longer Needed", key: "no-longer-needed" },
+  { label: "Not Started", value: "not-started" },
+  { label: "In Progress", value: "in-progress" },
+  { label: "Completed", value: "completed" },
+  { label: "No Longer Needed", value: "no-longer-needed" },
 ];
 
 export const PURPOSE_OPTIONS = [

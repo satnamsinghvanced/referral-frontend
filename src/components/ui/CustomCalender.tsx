@@ -1,23 +1,41 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { FiChevronLeft, FiChevronRight, FiPlus } from "react-icons/fi";
 import clsx from "clsx";
 import { Button, Chip } from "@heroui/react";
+import { ACTIVITY_TYPES } from "../../consts/marketing";
 
 interface CalendarProps {
   weekendDisabled?: boolean;
   onDayClick?: (date: string) => void;
-  selectedReferrerObjects: any;
+  activities: any[];
 }
+
+const getActivitiesByDate = (activities: any[]) => {
+  return activities.reduce((acc, activity) => {
+    // 💡 FIX: Ensure dateKey is in 'YYYY-MM-DD' format by taking
+    // the first part of the startDate string, regardless of whether
+    // it is a full ISO string or already just the date.
+    const dateKey = activity.startDate ? activity.startDate.split("T")[0] : "";
+
+    if (dateKey) {
+      if (!acc[dateKey]) {
+        acc[dateKey] = [];
+      }
+      acc[dateKey].push(activity);
+    }
+    return acc;
+  }, {});
+};
 
 const CustomCalendar: React.FC<CalendarProps> = ({
   weekendDisabled = true,
   onDayClick,
-  selectedReferrerObjects,
+  activities,
 }) => {
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
-  const [selectedDates, setSelectedDates] = useState<any>([]);
+  const [selectedDate, setSelectedDate] = useState<any>(null);
 
   const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const monthNames = [
@@ -34,6 +52,11 @@ const CustomCalendar: React.FC<CalendarProps> = ({
     "November",
     "December",
   ];
+
+  const activitiesMap = useMemo(
+    () => getActivitiesByDate(activities),
+    [activities]
+  );
 
   const firstDay = new Date(currentYear, currentMonth, 1);
   const lastDay = new Date(currentYear, currentMonth + 1, 0);
@@ -64,7 +87,7 @@ const CustomCalendar: React.FC<CalendarProps> = ({
     if (weekendDisabled && isWeekend) return;
 
     onDayClick?.(dateKey);
-    setSelectedDates((prev: any) => [...prev, dateKey]);
+    setSelectedDate(dateKey);
   };
 
   const isToday = (day: number) => {
@@ -88,33 +111,49 @@ const CustomCalendar: React.FC<CalendarProps> = ({
       )}-${String(day).padStart(2, "0")}`;
       const dateObj = new Date(dateKey);
       const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+      const dayActivities = activitiesMap[dateKey] || [];
+      const hasActivities = dayActivities.length > 0;
 
       cells.push(
         <div
           key={day}
           onClick={() => handleDayClick(day)}
           className={clsx(
-            "relative h-20 rounded-lg border border-gray-100 flex flex-col items-start justify-start cursor-pointer transition-all group p-2",
-            "hover:bg-gray-50",
-            isWeekend && weekendDisabled && "!cursor-not-allowed !bg-gray-100",
-            isToday(day) && "ring-2 ring-blue-200 !border-blue-200 !bg-blue-100"
+            "relative h-26 rounded-lg border border-gray-100 flex flex-col items-start justify-start cursor-pointer transition-all group p-1.5",
+            "hover:bg-gray-50 hover:ring-1 hover:ring-primary",
+            isWeekend &&
+              weekendDisabled &&
+              "!cursor-not-allowed !bg-gray-100 !ring-0",
+            isToday(day) && "!ring-2 !ring-primary !bg-transparent",
+            selectedDate === dateKey && "!ring-2 !ring-orange-500 !bg-orange-50"
           )}
-          style={{
-            backgroundColor: isToday(day) ? "#0f75bc" : undefined,
-          }}
         >
-          {selectedDates.includes(dateKey) <= 0 && !isWeekend && (
-            <span className="text-gray-300 absolute top-1/2 left-1/2 -translate-1/2 transition-all opacity-0 group-hover:opacity-100">
-              <FiPlus />
-            </span>
-          )}
-          <span className="text-sm text-gray-700 font-medium">{day}</span>
-          {selectedDates.includes(dateKey) && (
-            <Chip className="absolute top-1/2 left-1/2 -translate-1/2 text-[11px] h-5 w-full max-w-[calc(100%-20px)] text-center flex rounded-sm bg-red-100 text-red-800">
-              {selectedReferrerObjects.length} visit
-              {selectedReferrerObjects.length > 1 ? "s" : ""}
-            </Chip>
-          )}
+          <span className="text-sm text-gray-700 font-medium mb-1">{day}</span>
+          <div className="flex flex-col gap-0.5 w-full overflow-hidden">
+            {hasActivities &&
+              dayActivities.slice(0, 2).map((activity: any) => {
+                const activityColor = ACTIVITY_TYPES.find(
+                  (activityType: any) =>
+                    activityType.label === activity.type.title
+                )?.color;
+
+                return (
+                  <Chip
+                    key={activity._id}
+                    size="sm"
+                    className="text-[11px] h-5 max-w-full truncate rounded-sm font-normal text-white"
+                    style={{ backgroundColor: activityColor }}
+                  >
+                    {activity.title}
+                  </Chip>
+                );
+              })}
+            {dayActivities.length > 2 && (
+              <p className="text-[10px] text-gray-500 mt-0.5">
+                +{dayActivities.length - 2} more
+              </p>
+            )}
+          </div>
         </div>
       );
     }
@@ -124,7 +163,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
 
   return (
     <div className="w-full">
-      {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <Button
           size="sm"
@@ -149,14 +187,12 @@ const CustomCalendar: React.FC<CalendarProps> = ({
         </Button>
       </div>
 
-      {/* Days of Week */}
       <div className="grid grid-cols-7 text-center text-sm font-medium text-gray-500 mb-2">
         {daysOfWeek.map((d) => (
           <div key={d}>{d}</div>
         ))}
       </div>
 
-      {/* Calendar Grid */}
       <div className="grid grid-cols-7 gap-2">{renderDays()}</div>
     </div>
   );

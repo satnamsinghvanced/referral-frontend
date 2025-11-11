@@ -53,7 +53,12 @@ export const useUpdateTwilioConfig = () => {
   >({
     mutationFn: ({ userId, data }) => updateTwilioConfig(userId, data),
     onSuccess: (data) => {
-      // Invalidate the fetch query to show the updated data
+      addToast({
+        title: "Success",
+        description: "Twilio keys updated successfully.",
+        color: "success",
+      });
+
       queryClient.invalidateQueries({
         queryKey: twilioKeys.details(data.userId),
       });

@@ -158,13 +158,13 @@ const Dashboard = () => {
   };
 
   // --- Conditional Renders follow all Hook calls ---
-  if (isLoading) {
-    return <div></div>;
-  }
+  // if (isLoading) {
+  //   return <div></div>;
+  // }
 
-  if (isError) {
-    return <div>Error: {error.message}</div>;
-  }
+  // if (isError) {
+  //   return <div>Error: {error.message}</div>;
+  // }
 
   // --- Rest of the component logic (which relies on `dashboard` being defined) ---
   console.log(dashboard);

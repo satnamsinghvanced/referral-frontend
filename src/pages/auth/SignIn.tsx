@@ -11,11 +11,11 @@ import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import * as Yup from "yup";
-import Input from "../components/ui/Input";
-import { useLoginMutation } from "../hooks/auth/login";
-import { setCredentials } from "../store/authSlice";
-import { AppDispatch } from "../store/index";
-import { EMAIL_REGEX } from "../consts/consts";
+import { AppDispatch } from "../../store";
+import { useLogin } from "../../hooks/useAuth";
+import { EMAIL_REGEX } from "../../consts/consts";
+import { setCredentials } from "../../store/authSlice";
+import Input from "../../components/ui/Input";
 
 interface FormData {
   email: string;
@@ -28,7 +28,7 @@ const SignIn = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
-  const { mutate: loginUser, isPending } = useLoginMutation();
+  const { mutate: loginUser, isPending } = useLogin();
 
   const formik = useFormik<FormData>({
     initialValues: {

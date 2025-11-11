@@ -74,3 +74,11 @@ export const CALL_STATUS_OPTIONS = [
   { label: "Recorded", value: "recorded" },
   { label: "Voicemail", value: "voicemail" },
 ];
+
+export const TASK_STATUS_OPTIONS = [
+  { label: "All Status", value: "all" },
+  { label: "Not Started", value: "notStarted" },
+  { label: "In Progress", value: "inProgress" },
+  { label: "Completed", value: "completed" },
+  { label: "No Longer Needed", value: "noLongerNeeded" },
+];

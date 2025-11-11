@@ -15,5 +15,11 @@ export const fetchPermissions = async () => {
   return response.data;
 };
 
+export const fetchActivityTypes = async () => {
+  const response = await axios.get("/activity-type");
+  return response.data;
+};
+
+
 
 // You can add more similar requests here

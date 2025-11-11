@@ -208,6 +208,9 @@ export default function ScheduleVisits({ practices }: any) {
               radius="sm"
               defaultSelectedKeys={["month"]}
               className="min-w-[160px]"
+              onSelectionChange={(keys) => {
+                handleFilterChange("sortBy", Array.from(keys)[0] as string);
+              }}
             >
               <SelectItem key="month">Month</SelectItem>
               <SelectItem key="name">Name</SelectItem>

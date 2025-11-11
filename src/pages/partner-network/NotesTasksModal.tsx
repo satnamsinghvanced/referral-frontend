@@ -82,7 +82,7 @@ NotesTasksModalProps) => {
   const [newTaskDueDate, setNewTaskDueDate] = useState("");
   const [newTaskDescription, setNewTaskDescription] = useState("");
   const [newTaskPriority, setNewTaskPriority] = useState(
-    TASK_PRIORITIES[0]?.toLowerCase()
+    TASK_PRIORITIES[0]?.value
   );
   const [newTaskType, setNewTaskType] = useState(TASK_TYPES[0]?.key);
 
@@ -332,9 +332,7 @@ NotesTasksModalProps) => {
                       }
                     >
                       {TASK_PRIORITIES.map((p) => (
-                        <SelectItem key={p.toLowerCase()}>
-                          {p.charAt(0).toUpperCase() + p.slice(1)}
-                        </SelectItem>
+                        <SelectItem key={p.value}>{p.label}</SelectItem>
                       ))}
                     </Select>
                     <Select
@@ -393,7 +391,7 @@ NotesTasksModalProps) => {
                   >
                     <CardBody className="p-4">
                       <div className="flex items-start justify-between gap-0.5">
-                        <div>
+                        <div className="-mt-0.5">
                           <Checkbox
                             size="sm"
                             radius="sm"
@@ -413,7 +411,8 @@ NotesTasksModalProps) => {
                                 });
                               }
                             }}
-                          ></Checkbox>
+                            classNames={{ base: "p-0 m-0" }}
+                          />
                         </div>
                         <div className="flex-1">
                           <div className="flex items-start justify-between gap-2">
@@ -427,7 +426,7 @@ NotesTasksModalProps) => {
                               >
                                 {task.title}
                               </div>
-                              <div className="flex flex-wrap items-center justify-end gap-1.5 min-w-[140px]">
+                              <div className="flex flex-wrap items-center justify-start gap-1.5 min-w-[140px]">
                                 <Chip
                                   size="sm"
                                   radius="sm"

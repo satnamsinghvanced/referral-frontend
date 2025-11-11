@@ -9,6 +9,7 @@ import {
   deleteNote,
   deleteSchedulePlan,
   deleteTask,
+  fetchAllTasks,
   fetchPartnerDetail,
   fetchPartners,
   fetchVisitHistory,
@@ -24,6 +25,7 @@ import {
   CreateTaskPayload,
   FetchPartnersParams,
   FetchPartnersResponse,
+  FetchTasksParams,
   GetSchedulePlansQuery,
   NoteApiData,
   PartnerPractice,
@@ -83,6 +85,11 @@ export const useCreateNote = () => {
   return useMutation<NoteApiData, Error, CreateNotePayload>({
     mutationFn: createNote,
     onSuccess: (newNote) => {
+      addToast({
+        title: "Success",
+        description: "Note created successfully.",
+        color: "success",
+      });
       // Invalidate the detail query for the relevant practice to refetch all notes/tasks
       queryClient.invalidateQueries({
         queryKey: ["partnerStats"],
@@ -98,7 +105,12 @@ export const useDeleteNote = () => {
   return useMutation<void, Error, { noteId: string; partnerId: string }>({
     mutationFn: ({ noteId }) => deleteNote(noteId),
     onSuccess: (_, variables) => {
-      // Invalidate the detail query for the relevant practice
+      addToast({
+        title: "Success",
+        description: "Note deleted successfully.",
+        color: "success",
+      });
+
       queryClient.invalidateQueries({
         queryKey: ["partnerStats"],
       });
@@ -109,16 +121,37 @@ export const useDeleteNote = () => {
   });
 };
 
-// --- Task Mutations (POST, PATCH, DELETE) ---
+// --- Task Mutations (GET, POST, PATCH, DELETE) ---
+
+export const useFetchAllTasks = (params: FetchTasksParams = {}) => {
+  const {
+    page = 1,
+    limit = 10,
+    search = "",
+    status = "all",
+    priority = "all",
+  } = params;
+
+  return useQuery<any, Error>({
+    queryKey: ["tasks", page, limit, search, status, priority],
+    queryFn: () => fetchAllTasks({ page, limit, search, status, priority }),
+  });
+};
 
 export const useCreateTask = () => {
   return useMutation<TaskApiData, Error, CreateTaskPayload>({
     mutationFn: createTask,
     onSuccess: (newTask) => {
+      addToast({
+        title: "Success",
+        description: "Task created successfully.",
+        color: "success",
+      });
       // Invalidate the detail query for the relevant practice
       queryClient.invalidateQueries({
         queryKey: ["partnerStats"],
       });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
       queryClient.invalidateQueries({
         queryKey: notesTasksKeys.detail(newTask.practiceId),
       });
@@ -138,9 +171,16 @@ export const useUpdateTaskStatus = () => {
   >({
     mutationFn: ({ taskId, status }) => updateTaskStatus(taskId, { status }),
     onSuccess: (updatedTask) => {
-      // Invalidate the detail query for the relevant practice
+      addToast({
+        title: "Success",
+        description: "Task status updated successfully.",
+        color: "success",
+      });
       queryClient.invalidateQueries({
         queryKey: notesTasksKeys.detail(updatedTask.practiceId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["tasks"],
       });
     },
     // Optional: Optimistic update for immediate feedback
@@ -177,10 +217,16 @@ export const useDeleteTask = () => {
   return useMutation<void, Error, { taskId: string; partnerId: string }>({
     mutationFn: ({ taskId }) => deleteTask(taskId),
     onSuccess: (_, variables) => {
-      // Invalidate the detail query for the relevant practice
+      addToast({
+        title: "Success",
+        description: "Task deleted successfully.",
+        color: "success",
+      });
+
       queryClient.invalidateQueries({
         queryKey: ["partnerStats"],
       });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
       queryClient.invalidateQueries({
         queryKey: notesTasksKeys.detail(variables.partnerId),
       });
@@ -218,10 +264,11 @@ export function useCreateSchedulePlan() {
     mutationFn: createSchedulePlan,
 
     onSuccess: (data, variables) => {
-      console.log(
-        `Schedule Plan Created Successfully for ID ${variables.id}:`,
-        data
-      );
+      addToast({
+        title: "Success",
+        description: "Plan created successfully.",
+        color: "success",
+      });
       queryClient.invalidateQueries({ queryKey: [SCHEDULE_PLAN_KEY] });
     },
     onError: (error, variables) => {
@@ -237,10 +284,13 @@ export const useUpdateSchedulePlan = () => {
   return useMutation({
     mutationFn: updateSchedulePlan,
     onSuccess: (data, variables) => {
+      addToast({
+        title: "Success",
+        description: "Plan updated successfully.",
+        color: "success",
+      });
+
       queryClient.invalidateQueries({ queryKey: [SCHEDULE_PLAN_KEY] });
-      console.log(
-        `Schedule Plan with ID ${variables._id} updated successfully.`
-      );
     },
     onError: (error, variables, context) => {
       console.error(`Failed to update Schedule Plan ${variables._id}:`, error);
@@ -270,12 +320,12 @@ export function useDeleteSchedulePlan() {
   return useMutation({
     mutationFn: deleteSchedulePlan,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [SCHEDULE_PLAN_KEY] });
       addToast({
         title: "Success",
         description: "Plan deleted successfully.",
         color: "success",
       });
+      queryClient.invalidateQueries({ queryKey: [SCHEDULE_PLAN_KEY] });
     },
     onError: (error) => {
       console.error("Error deleting plan:", error);

@@ -5,7 +5,7 @@ import SettingNavigation from "./SettingNavigation";
 const Settings = () => {
   const headingData = {
     heading: "Settings",
-    subHeading: "Manage your account preferences and configuration",
+    subHeading: "Manage your account preferences and configurations.",
   };
 
   return (

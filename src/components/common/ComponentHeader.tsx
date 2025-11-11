@@ -34,7 +34,7 @@ const ComponentHeader: React.FC<ComponentHeaderProps> = ({
                 startContent={btn.icon ?? null}
                 variant={btn.variant ?? "solid"}
                 color={btn.color ?? "primary"}
-                {...btn}
+                className={btn.className ?? ""}
               >
                 {btn.label}
               </Button>

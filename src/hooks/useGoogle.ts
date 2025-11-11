@@ -10,6 +10,7 @@ import {
   GoogleApiKeyResponse,
   UserIdParam,
 } from "../types/google";
+import { addToast } from "@heroui/react";
 
 export const googleKeys = {
   all: ["googleApi"] as const,
@@ -47,6 +48,11 @@ export const useUpdateGoogleApiKey = () => {
   >({
     mutationFn: ({ userId, data }) => updateGoogleApiKey(userId, data),
     onSuccess: (data) => {
+      addToast({
+        title: "Success",
+        description: "Google keys updated successfully.",
+        color: "success",
+      });
       queryClient.invalidateQueries({
         queryKey: googleKeys.details(data.userId),
       });

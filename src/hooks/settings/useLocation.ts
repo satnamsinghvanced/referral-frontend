@@ -36,19 +36,19 @@ export function useCreateLocation() {
   return useMutation({
     mutationFn: (newLocation: Location) => createLocation(newLocation),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: LOCATION_KEY });
-
       addToast({
         title: "Success",
-        description: "New practice location added successfully",
+        description: "Practice location added successfully",
         color: "success",
       });
+
+      queryClient.invalidateQueries({ queryKey: LOCATION_KEY });
     },
     onError: (error: AxiosError) => {
       const errorMessage =
         (error.response?.data as { message?: string })?.message ||
         error.message ||
-        "Failed to add new practice location";
+        "Failed to add practice location";
 
       addToast({
         title: "Error",
@@ -65,13 +65,13 @@ export function useUpdateLocation() {
     mutationFn: ({ id, data }: { id: string; data: Location }) =>
       updateLocation(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: LOCATION_KEY });
-
       addToast({
         title: "Success",
-        description: "Practice location updated successfully",
+        description: "Practice location updated successfully.",
         color: "success",
       });
+
+      queryClient.invalidateQueries({ queryKey: LOCATION_KEY });
     },
     onError: (error: AxiosError) => {
       const errorMessage =
@@ -93,13 +93,13 @@ export function useDeleteLocation() {
   return useMutation({
     mutationFn: (id: string) => deleteLocation(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: LOCATION_KEY });
-
       addToast({
         title: "Success",
-        description: "Practice location deleted successfully",
+        description: "Practice location deleted successfully.",
         color: "success",
       });
+      
+      queryClient.invalidateQueries({ queryKey: LOCATION_KEY });
     },
     onError: (error: AxiosError) => {
       const errorMessage =

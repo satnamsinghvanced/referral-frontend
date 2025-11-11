@@ -230,7 +230,7 @@ const CallTracking = () => {
             ))}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border border-primary/10 rounded-xl p-4 bg-white shadow-none">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border border-primary/15 rounded-xl p-4 bg-white shadow-none">
             <div className="relative flex-1">
               <Input
                 placeholder="Search calls by name, phone, or tags..."

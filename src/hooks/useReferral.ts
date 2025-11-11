@@ -70,12 +70,13 @@ export const useCreateReferral = () =>
   useMutation<Referral, Error, Partial<Referral>>({
     mutationFn: (payload) => createReferral(payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["referrals"] });
       addToast({
         title: "Success",
-        description: "Referral created",
+        description: "Referral created successfully.",
         color: "success",
       });
+      queryClient.invalidateQueries({ queryKey: ["referrals"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     },
     onError: (error: Error) => {
       const message =
@@ -106,12 +107,12 @@ export const useUpdateReferral = () =>
   useMutation<Referral, AxiosError, { id: string; payload: any }>({
     mutationFn: ({ id, payload }) => updateReferral(id, payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["referrals"] });
       addToast({
         title: "Success",
-        description: "Referral updated",
+        description: "Referral updated successfully.",
         color: "success",
       });
+      queryClient.invalidateQueries({ queryKey: ["referrals"] });
     },
     onError: (error: AxiosError) => {
       const message =
@@ -127,12 +128,13 @@ export const useDeleteReferral = () =>
   useMutation<Referral, AxiosError, string>({
     mutationFn: (id) => deleteReferral(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["referrals"] });
       addToast({
         title: "Success",
-        description: "Referral deleted",
+        description: "Referral deleted successfully.",
         color: "success",
       });
+      queryClient.invalidateQueries({ queryKey: ["referrals"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     },
     onError: (error: AxiosError) => {
       const message =
@@ -175,13 +177,14 @@ export const useCreateReferrer = () =>
   >({
     mutationFn: ({ id, type, payload }) => createReferrer(id, type, payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["referrers"] });
-      queryClient.invalidateQueries({ queryKey: ["partnerStats"] });
       addToast({
         title: "Success",
-        description: "Referrer created",
+        description: "Referrer created successfully.",
         color: "success",
       });
+      queryClient.invalidateQueries({ queryKey: ["referrers"] });
+      queryClient.invalidateQueries({ queryKey: ["partnerStats"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     },
     onError: (error: AxiosError) => {
       const message =
@@ -201,16 +204,16 @@ export const useUpdateReferrer = () =>
   >({
     mutationFn: ({ id, type, payload }) => updateReferrer(id, type, payload),
     onSuccess: (data, variables) => {
+      addToast({
+        title: "Success",
+        description: "Referrer updated successfully.",
+        color: "success",
+      });
+
       queryClient.invalidateQueries({ queryKey: ["referrers"] });
       queryClient.invalidateQueries({ queryKey: ["partnerStats"] });
       queryClient.invalidateQueries({
         queryKey: ["partnerStats", variables.id],
-      });
-
-      addToast({
-        title: "Success",
-        description: "Referrer updated",
-        color: "success",
       });
     },
     onError: (error: AxiosError) => {
@@ -227,12 +230,14 @@ export const useDeleteReferrer = () =>
   useMutation<Referrer, AxiosError, string>({
     mutationFn: (id) => deleteReferrer(id),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["referrers"] });
       addToast({
         title: "Success",
-        description: "Referrer deleted",
+        description: "Referrer deleted successfully.",
         color: "success",
       });
+      queryClient.invalidateQueries({ queryKey: ["referrers"] });
+      queryClient.invalidateQueries({ queryKey: ["partnerStats"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     },
     onError: (error: AxiosError) => {
       const message =
@@ -252,12 +257,12 @@ export const useCreateTracking = () =>
   useMutation<any, AxiosError, { adminId: string; payload: FormData }>({
     mutationFn: ({ adminId, payload }) => createTracking(adminId, payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["trackings"] });
       addToast({
         title: "Success",
-        description: "Tracking created",
+        description: "Tracking created successfully.",
         color: "success",
       });
+      queryClient.invalidateQueries({ queryKey: ["trackings"] });
     },
     onError: (error: AxiosError) => {
       const message =
@@ -274,12 +279,13 @@ export const useUpdateTracking = () =>
     mutationFn: ({ trackingId, payload }) =>
       updateTracking(trackingId, payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["trackings"] });
       addToast({
         title: "Success",
-        description: "Tracking updated",
+        description: "Trackings updated successfully.",
         color: "success",
       });
+
+      queryClient.invalidateQueries({ queryKey: ["trackings"] });
     },
     onError: (error: AxiosError) => {
       const message =

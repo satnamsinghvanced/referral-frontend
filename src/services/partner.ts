@@ -5,15 +5,13 @@ import {
   EventDetails,
   FetchPartnersParams,
   FetchPartnersResponse,
+  FetchTasksParams,
   GetSchedulePlansQuery,
   NoteApiData,
   PartnerPractice,
-  PlanDetailsPayload,
   SaveSchedulePlanPayload,
   ScheduleEventPayload,
-  SchedulePlanGetResponse,
   SchedulePlanPutRequest,
-  SchedulePlanRequest,
   SchedulePlansResponse,
   TaskApiData,
   UpdateTaskStatusPayload,
@@ -44,7 +42,7 @@ export const fetchPartnerDetail = async (
   return response.data;
 };
 
-// --- Queries ---
+// NOTES & TASKS
 
 export const getAllNotesAndTasks = async (
   partnerId: string
@@ -54,8 +52,6 @@ export const getAllNotesAndTasks = async (
   );
   return response.data;
 };
-
-// --- Note Mutations ---
 
 export const createNote = async (
   payload: CreateNotePayload
@@ -68,7 +64,20 @@ export const deleteNote = async (noteId: string): Promise<void> => {
   await axios.delete(`/notes/${noteId}`);
 };
 
-// --- Task Mutations ---
+export const fetchAllTasks = async (
+  params: FetchTasksParams = {}
+): Promise<any> => {
+  const response = await axios.get<any>("/tasks/practice-tasks", {
+    params: {
+      page: params.page,
+      limit: params.limit,
+      search: params.search,
+      status: params.status,
+      priority: params.priority,
+    },
+  });
+  return response.data;
+};
 
 export const createTask = async (
   payload: CreateTaskPayload
@@ -95,6 +104,8 @@ export const scheduleTaskEvent = async (
   const response = await axios.post("/tasks/schedule", payload);
   return response.data;
 };
+
+// SCHEDULE PLANS
 
 export const getSchedulePlans = async (
   query: GetSchedulePlansQuery
@@ -140,6 +151,8 @@ export const copySchedulePlan = async (id: string): Promise<void> => {
 export const deleteSchedulePlan = async (id: string): Promise<void> => {
   await axios.delete(`/schedule-visit/${id}`);
 };
+
+// VISIT HISTORY
 
 export const fetchVisitHistory = async (
   params: VisitHistoryQueryParams
