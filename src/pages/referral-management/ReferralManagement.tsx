@@ -15,6 +15,7 @@ import { useDispatch } from "react-redux";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
 import ReferralStatusChip from "../../components/chips/ReferralStatusChip";
 import ComponentContainer from "../../components/common/ComponentContainer";
+import { LoadingState } from "../../components/common/LoadingState";
 import {
   useFetchReferrals,
   useFetchReferrers,
@@ -22,6 +23,7 @@ import {
   useGetReferralById,
   useGetReferrerById,
 } from "../../hooks/useReferral";
+import { useInitiateCall } from "../../hooks/useTwilio";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { setTotalReferrals } from "../../store/statsSlice";
 import { Referrer } from "../../types/partner";
@@ -34,15 +36,13 @@ import ReferralStatusModal from "./ReferralStatusModal";
 import ReferrerCard from "./ReferrerCard";
 import RoleToggleTabs from "./RoleToggleTabs";
 import TrackingPanel from "./TrackingPanel";
-import { useInitiateCall } from "../../hooks/useTwilio";
+import EmptyState from "../../components/common/EmptyState";
 
 type ReferralType = "Referrals" | "Referrers" | "NFC & QR Tracking";
 
-// ----------------------
-// Component
-// ----------------------
 const ReferralManagement = () => {
   const { user } = useTypedSelector((state) => state.auth);
+  const dispatch = useDispatch();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isReferralStatusModalOpen, setIsReferralStatusModalOpen] =
@@ -66,55 +66,74 @@ const ReferralManagement = () => {
   const [referrerParams, setReferrerParams] = useState({
     filter: "",
     page: 1,
-    limit: 5,
+    limit: 10,
   });
 
   // ----------------------
   // Queries
   // ----------------------
-  const { data: referralData, refetch: referralRefetch } =
-    useFetchReferrals(currentFilters);
+  const {
+    data: referralData,
+    refetch: referralRefetch,
+    isLoading: isLoadingReferrals,
+    isFetching: isFetchingReferrals,
+  } = useFetchReferrals(currentFilters);
 
-  const { data: referrerData } = useFetchReferrers(referrerParams);
-
+  const { data: referrerData, isLoading: isLoadingReferrers } =
+    useFetchReferrers(referrerParams);
   const referrers = referrerData?.data;
-
-  // console.log(referrerData, "GHDSAFAHSHGSASHDHJASGDHASHDGHASDHSA");
 
   const { data: singleReferralData, refetch: singleReferralRefetch } =
     useGetReferralById(referralEditId);
-  const { data: singleReferrerData, refetch } =
+  const { data: singleReferrerData, refetch: singleReferrerRefetch } =
     useGetReferrerById(referrerEditId);
 
-  const { mutate: initiateCall, isPending } = useInitiateCall(
-    user?.userId || ""
+  const { data: trackings, isLoading: isLoadingTrackings } = useFetchTrackings(
+    user?.userId
   );
 
+  const { mutate: initiateCall } = useInitiateCall(user?.userId || "");
+
+  // ----------------------
+  // Effects
+  // ----------------------
   useEffect(() => {
     if (referrerEditId) {
-      refetch();
+      singleReferrerRefetch();
     }
-  }, [referrerEditId]);
+  }, [referrerEditId, singleReferrerRefetch]);
 
   useEffect(() => {
     if (referralEditId) {
       singleReferralRefetch();
     }
-  }, [referralEditId]);
+  }, [referralEditId, singleReferralRefetch]);
 
-  const { data: trackings } = useFetchTrackings(user?.userId);
-
-  const dispatch = useDispatch();
-
+  // Update total referrals in Redux store
   useEffect(() => {
-    dispatch(setTotalReferrals(referralData?.total as number));
-  }, [referralData]);
+    if (referralData?.total !== undefined) {
+      dispatch(setTotalReferrals(referralData.total));
+    }
+  }, [referralData, dispatch]);
 
+  // Debounced search for overview
   useEffect(() => {
-    referralRefetch();
-  }, [currentFilters, referralRefetch]);
+    const handler = setTimeout(() => {
+      setCurrentFilters((prev) => ({
+        ...prev,
+        search: overviewSearchKeyword,
+        page: 1,
+      }));
+    }, 500);
+    return () => {
+      clearTimeout(handler);
+    };
+  }, [overviewSearchKeyword]);
 
-  const handleClearFilters = () => {
+  // ----------------------
+  // Handlers
+  // ----------------------
+  const handleClearFilters = useCallback(() => {
     setCurrentFilters({
       page: 1,
       limit: 10,
@@ -122,33 +141,67 @@ const ReferralManagement = () => {
       filter: "",
       source: "",
     });
-  };
+  }, []);
 
-  const handleBackToOverview = () => {
+  const handleBackToOverview = useCallback(() => {
     setIsFilterViewActive(false);
     handleClearFilters();
+  }, [handleClearFilters]);
+
+  const handleViewAllAndFilter = useCallback(() => {
+    setIsFilterViewActive(true);
+  }, []);
+
+  const handleReferralTypeChange = (key: string) =>
+    setSelectedReferralType(key as ReferralType);
+
+  const handleFilterChange = (key: string, value: string) => {
+    const apiValue = value.toLowerCase().includes("all") ? "" : value;
+
+    setCurrentFilters((prev) => ({
+      ...prev,
+      [key]: apiValue,
+      page: 1, // Reset page
+    }));
   };
 
-  const handleViewAllAndFilter = () => {
-    setIsFilterViewActive(true);
+  const handleEditReferral = (id: string) => {
+    setIsReferralStatusModalViewMode(false);
+    setReferralEditId(id);
+    setIsReferralStatusModalOpen(true);
+  };
+
+  const handleExport = () => {
+    const exportData = {
+      timestamp: new Date().toISOString(),
+      reportTitle: "Referrals",
+      records: referralData?.data,
+    };
+
+    downloadJson(exportData, "referrals");
+  };
+
+  const handleOverviewSearchChange = (value: string) => {
+    // Only updates the input value, the search effect handles the API call
+    setOverviewSearchKeyword(value);
   };
 
   // ----------------------
-  // Derived Data
+  // Derived Data (useMemo)
   // ----------------------
   const STAT_CARD_DATA = useMemo<StatCard[]>(
     () => [
       {
         icon: <LuBuilding2 className="text-[17px] mt-1 text-sky-500" />,
         heading: "Total Referrals",
-        value: referralData?.stats?.totalReferrals as number,
+        value: referralData?.stats?.totalReferrals ?? 0,
         subheading: "Click to view all referrals",
         onClick: handleViewAllAndFilter,
       },
       {
         icon: <FiUsers className="text-[17px] mt-1 text-green-500" />,
         heading: "NFC Referrals",
-        value: referralData?.stats?.nfcReferralTotal as number,
+        value: referralData?.stats?.nfcReferralTotal ?? 0,
         subheading: "Click to view NFC referrals",
         onClick: () => {
           setCurrentFilters((prev) => ({
@@ -161,7 +214,7 @@ const ReferralManagement = () => {
       {
         icon: <FiStar className="text-[17px] mt-1 text-yellow-500" />,
         heading: "QR Code Referrals",
-        value: referralData?.stats?.qrReferralTotal as number,
+        value: referralData?.stats?.qrReferralTotal ?? 0,
         subheading: "Click to view QR referrals",
         onClick: () => {
           setCurrentFilters((prev) => ({
@@ -174,12 +227,12 @@ const ReferralManagement = () => {
       {
         icon: <FiTarget className="text-[17px] mt-1 text-green-500" />,
         heading: "Total Value",
-        value: referralData?.stats?.totalValue as number,
+        value: referralData?.stats?.totalValue ?? 0,
         subheading: "Click to view value details",
         onClick: handleViewAllAndFilter,
       },
     ],
-    [referralData]
+    [referralData, handleViewAllAndFilter]
   );
 
   const headingData = useMemo(
@@ -212,12 +265,6 @@ const ReferralManagement = () => {
     []
   );
 
-  // ----------------------
-  // Handlers
-  // ----------------------
-  const handleReferralTypeChange = (key: string) =>
-    setSelectedReferralType(key as ReferralType);
-
   const refererButtonList = useCallback(
     (referrer: Referrer) => [
       {
@@ -243,88 +290,36 @@ const ReferralManagement = () => {
     []
   );
 
-  const handleFilterChange = (key: string, value: string) => {
-    // Inside handleFilterChange:
-    const apiValue = value.toLowerCase().includes("all") ? "" : value;
-
-    setCurrentFilters((prev) => ({
-      ...prev,
-      [key]: apiValue,
-      page: 1, // Reset page
-    }));
-  };
-
-  const handleEditReferral = (id: string) => {
-    setIsReferralStatusModalViewMode(false);
-    setReferralEditId(id);
-    setIsReferralStatusModalOpen(true);
-  };
-
-  const handleExport = () => {
-    const exportData = {
-      timestamp: new Date().toISOString(),
-      reportTitle: "Referrals",
-      records: referralData?.data,
-    };
-
-    // Trigger the download
-    downloadJson(exportData, "referrals");
-  };
-
-  const handleOverviewSearchChange = (value: string) => {
-    // Only updates the input value, not the main API query for the overview
-    setOverviewSearchKeyword(value);
-  };
-
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      // if (!isFilterViewActive) {
-      setCurrentFilters((prev) => ({
-        ...prev,
-        search: overviewSearchKeyword,
-        page: 1,
-      }));
-      // }
-    }, 500);
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [overviewSearchKeyword, isFilterViewActive]);
-
-  // ----------------------
-  // Subcomponents
-  // ----------------------
-  const NoData = ({ text = "No data to display" }: { text?: string }) => (
-    <p className="bg-background text-xs text-center text-gray-600">{text}</p>
+  const STATUS_BREAKDOWN = useMemo(
+    () => [
+      {
+        label: "Contacted",
+        status: "contacted",
+        count: referralData?.statusStats?.contacted ?? 0,
+      },
+      {
+        label: "Appointed",
+        status: "appointed",
+        count: referralData?.statusStats?.appointed ?? 0,
+      },
+      {
+        label: "In Process",
+        status: "inProcess",
+        count: referralData?.statusStats?.inProcess ?? 0,
+      },
+      {
+        label: "Started Treatment",
+        status: "started",
+        count: referralData?.statusStats?.started ?? 0,
+      },
+      {
+        label: "Declined Treatment",
+        status: "declined",
+        count: referralData?.statusStats?.declined ?? 0,
+      },
+    ],
+    [referralData?.statusStats]
   );
-
-  const STATUS_BREAKDOWN = [
-    {
-      label: "Contacted",
-      status: "contacted",
-      count: referralData?.statusStats?.contacted,
-    },
-    {
-      label: "Appointed",
-      status: "appointed",
-      count: referralData?.statusStats?.appointed,
-    },
-    {
-      label: "In Process",
-      status: "inProcess",
-      count: referralData?.statusStats?.inProcess,
-    },
-    {
-      label: "Started Treatment",
-      status: "started",
-      count: referralData?.statusStats?.started,
-    },
-    {
-      label: "Declined Treatment",
-      status: "declined",
-      count: referralData?.statusStats?.declined,
-    },
-  ];
 
   // ----------------------
   // Render
@@ -349,21 +344,22 @@ const ReferralManagement = () => {
                   onSearchChange={handleOverviewSearchChange}
                   onFilterChange={handleFilterChange}
                   onClearFilters={handleClearFilters}
-                  onViewReferral={(id: any) => {
+                  onViewReferral={(id: string) => {
                     setReferralEditId(id);
                     setIsReferralStatusModalViewMode(true);
                     setIsReferralStatusModalOpen(true);
                   }}
                   onEditReferral={handleEditReferral}
-                  onViewReferralPage={(id: any) =>
+                  onViewReferralPage={(id: string) =>
                     console.log("External Link:", id)
                   }
                   referrals={referralData?.data as Referral[]}
-                  totalReferrals={referralData?.total as number}
-                  totalPages={referralData?.totalPages as number}
+                  totalReferrals={referralData?.total ?? 0}
+                  totalPages={referralData?.totalPages ?? 1}
                   currentFilters={currentFilters}
                   setCurrentFilters={setCurrentFilters}
                   filterStats={referralData?.filterStats as FilterStats}
+                  isLoading={isLoadingReferrals || isFetchingReferrals}
                 />
               ) : (
                 // RENDER THE ORIGINAL OVERVIEW DASHBOARD
@@ -379,15 +375,17 @@ const ReferralManagement = () => {
                       <p className="font-medium text-sm">Status Breakdown</p>
                     </CardHeader>
                     <CardBody className="p-4">
-                      <div className="grid grid-cols-3 gap-3">
-                        {STATUS_BREAKDOWN.map((statusItem) => {
-                          return (
+                      {isLoadingReferrals || isFetchingReferrals ? (
+                        <LoadingState />
+                      ) : (
+                        <div className="grid grid-cols-3 gap-3">
+                          {STATUS_BREAKDOWN.map((statusItem) => (
                             <div
                               key={statusItem.status}
                               className="flex items-center justify-between bg-gray-50 hover:bg-gray-100 p-2.5 rounded-lg cursor-pointer"
                               onClick={() => {
                                 setIsFilterViewActive(true);
-                                setCurrentFilters((prev: any) => ({
+                                setCurrentFilters((prev) => ({
                                   ...prev,
                                   filter: statusItem.status,
                                   source: "",
@@ -399,20 +397,19 @@ const ReferralManagement = () => {
                                 {statusItem.count}
                               </span>
                             </div>
-                          );
-                        })}
-                      </div>
+                          ))}
+                        </div>
+                      )}
                     </CardBody>
                   </Card>
 
                   <div className="px-4 border-primary/15 border rounded-xl bg-background">
-                    {/* <h5>Filters</h5> */}
                     <div className="flex flex-wrap items-center gap-2 w-full rounded-md py-4">
                       <Input
                         size="sm"
                         variant="flat"
                         placeholder="Search..."
-                        value={overviewSearchKeyword} // Controlled by the overview-specific state
+                        value={overviewSearchKeyword}
                         onValueChange={handleOverviewSearchChange}
                         className="text-xs flex-1 min-w-fit"
                       />
@@ -431,22 +428,23 @@ const ReferralManagement = () => {
 
                   <div className="flex flex-col gap-4 border border-primary/15 rounded-xl p-4 bg-background/90">
                     <p className="font-medium text-sm">Recent Referrals</p>
-                    {referralData?.data?.length ? (
-                      referralData.data.slice(0, 5).map((ref: any) => (
+                    {isLoadingReferrals || isFetchingReferrals ? (
+                      <LoadingState />
+                    ) : referralData?.data?.length ? (
+                      referralData.data.slice(0, 5).map((ref: Referral) => (
                         <ReferralCard
                           key={ref._id}
                           referral={ref}
-                          actions={(referral: any) => [
+                          actions={(referral: Referral) => [
                             {
                               label: "",
-                              onClick: (id) => {
+                              onClick: () => {
                                 initiateCall({
                                   referredBy: referral._id,
                                   to: referral.phone,
                                 });
                               },
                               icon: <LuPhone className="w-4 h-4" />,
-                              // link: `tel:${referral.phone}`,
                             },
                             {
                               label: "",
@@ -460,16 +458,15 @@ const ReferralManagement = () => {
                             {
                               label: "",
                               icon: <FiEdit className="w-4 h-4" />,
-
                               onClick: handleEditReferral,
                             },
                           ]}
                         />
                       ))
                     ) : (
-                      <NoData />
+                      <EmptyState />
                     )}
-                    {referralData && referralData?.total > 5 && (
+                    {referralData && referralData.total > 5 && (
                       <div className="text-center mt-2">
                         <Button
                           size="sm"
@@ -478,7 +475,7 @@ const ReferralManagement = () => {
                           className="border-primary/15 border-small"
                           onPress={handleViewAllAndFilter}
                         >
-                          View all {referralData?.total} referrals
+                          View all {referralData.total} referrals
                         </Button>
                       </div>
                     )}
@@ -492,7 +489,9 @@ const ReferralManagement = () => {
           {selectedReferralType === "Referrers" && (
             <div className="flex flex-col gap-4 border border-primary/15 rounded-xl p-4 bg-background/70 w-full">
               <p className="font-medium text-sm">Referrer Management</p>
-              {referrers?.length ? (
+              {isLoadingReferrers ? (
+                <LoadingState />
+              ) : referrers?.length ? (
                 referrers.map((referrer: Referrer) => (
                   <ReferrerCard
                     key={referrer._id}
@@ -505,7 +504,7 @@ const ReferralManagement = () => {
                   />
                 ))
               ) : (
-                <NoData />
+                <EmptyState />
               )}
               {referrerData?.totalPages && referrerData.totalPages > 1 ? (
                 <Pagination
@@ -513,11 +512,11 @@ const ReferralManagement = () => {
                   size="sm"
                   radius="sm"
                   initialPage={1}
-                  page={referrerParams.page as number}
+                  page={referrerParams.page}
                   onChange={(page) => {
-                    setReferrerParams((prev: any) => ({ ...prev, page }));
+                    setReferrerParams((prev) => ({ ...prev, page }));
                   }}
-                  total={referrerData?.totalPages as number}
+                  total={referrerData.totalPages}
                   classNames={{
                     base: "flex justify-end py-3",
                     wrapper: "gap-1.5",
@@ -534,7 +533,13 @@ const ReferralManagement = () => {
 
           {/* --- NFC & QR TRACKING TAB --- */}
           {selectedReferralType === "NFC & QR Tracking" && (
-            <TrackingPanel trackings={trackings} />
+            <>
+              {isLoadingTrackings ? (
+                <LoadingState />
+              ) : (
+                <TrackingPanel trackings={trackings} />
+              )}
+            </>
           )}
         </div>
 
@@ -548,7 +553,7 @@ const ReferralManagement = () => {
       <ReferralStatusModal
         isOpen={isReferralStatusModalOpen}
         onClose={() => setIsReferralStatusModalOpen(false)}
-        // @ts-ignore
+        // @ts-ignore - Assuming type mismatch is handled by external types
         referral={singleReferralData}
         isViewMode={isReferralStatusModalViewMode}
         setReferralEditId={setReferralEditId}

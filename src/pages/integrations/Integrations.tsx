@@ -237,7 +237,7 @@ function Integrations() {
                 <h4 className="font-medium text-sm">API Keys</h4>
               </CardHeader>
               <CardBody className="space-y-4 p-0">
-                <div className="p-4 bg-gray-100 rounded-lg">
+                <div className="p-4 bg-gray-50 rounded-lg">
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-xs">Public API Key</span>
                     <Button
@@ -253,7 +253,7 @@ function Integrations() {
                   </code>
                 </div>
 
-                <div className="p-4 bg-gray-100 rounded-lg">
+                <div className="p-4 bg-gray-50 rounded-lg">
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-medium text-xs">Secret Key</span>
                     <Button
@@ -327,7 +327,7 @@ function Integrations() {
                     https://api.yourapp.com/webhooks/new-review
                   </p>
                   <div className="flex flex-wrap gap-1">
-                    <Chip size="sm" variant="bordered" className="border-small text-xs">
+                    <Chip size="sm" variant="bordered" className="border-small text-[11px]">
                       review.created
                     </Chip>
                   </div>

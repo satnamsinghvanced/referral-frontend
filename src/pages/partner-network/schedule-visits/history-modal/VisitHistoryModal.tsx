@@ -70,7 +70,7 @@ export function VisitHistoryModal({ isOpen, onClose }: VisitHistoryModalProps) {
         {/* Loading Overlay: This prevents content from collapsing during refetch */}
         {isFetching && (
           <div className="absolute inset-0 bg-white/70 backdrop-blur-sm z-50 flex items-center justify-center transition-opacity duration-300">
-            <FiLoader className="animate-spin h-6 w-6 text-blue-600" />
+            <FiLoader className="animate-spin h-6 w-6 text-primary" />
           </div>
         )}
 

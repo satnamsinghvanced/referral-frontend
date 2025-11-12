@@ -1,6 +1,12 @@
-import { Button, Checkbox, Select, SelectItem, Textarea } from "@heroui/react";
+import {
+  Button,
+  Checkbox,
+  Select,
+  SelectItem,
+  Textarea
+} from "@heroui/react";
 import { useFormik } from "formik";
-import { Key, useMemo, useState } from "react"; // 1. Imported useState
+import { Key, useMemo } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { BiSave, BiUserPlus } from "react-icons/bi";
 import { FaStethoscope } from "react-icons/fa";
@@ -9,13 +15,13 @@ import { LuUserRound } from "react-icons/lu";
 import * as Yup from "yup";
 import ActionModal from "../../components/common/ActionModal";
 import Input from "../../components/ui/Input";
+import { EMAIL_REGEX, PHONE_REGEX } from "../../consts/consts";
+import { CATEGORY_OPTIONS } from "../../consts/filters";
+import { STAFF_ROLES } from "../../consts/practice";
 import { useSpecialties } from "../../hooks/useCommon";
 import { useCreateReferrer, useUpdateReferrer } from "../../hooks/useReferral";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
-import { CATEGORY_OPTIONS } from "../../consts/filters";
 import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
-import { STAFF_ROLES } from "../../consts/practice";
-import { EMAIL_REGEX, PHONE_REGEX, ZIP_CODE_REGEX } from "../../consts/consts";
 
 interface ReferralManagementActionsProps {
   isModalOpen: boolean;
@@ -36,7 +42,7 @@ export default function ReferralManagementActions({
   isPracticeEdit,
 }: ReferralManagementActionsProps) {
   const { user } = useTypedSelector((state) => state.auth);
-console.log("editedData", editedData);
+  console.log("editedData", editedData);
 
   const { data: specialties } = useSpecialties();
 
@@ -46,20 +52,11 @@ console.log("editedData", editedData);
   const { mutate: updateReferrer, isPending: referrerUpdationPending } =
     useUpdateReferrer();
 
-  const processedStaff = (editedData?.staff || []).map((member: any) => ({
-    ...member,
-    // Convert array role back to a comma-separated string for Formik/Validation
-    role: Array.isArray(member.role)
-      ? member.role.join(", ")
-      : member.role || "",
-  }));
-
   const defaultInitialValues: any = {
     type: editedData?.type || "doctor",
     name: editedData?.name || "",
     phone: editedData?.phone || "",
     email: editedData?.email || "",
-    notes: editedData?.notes || "",
     practiceName: editedData?.practiceName || "",
     partnershipLevel: editedData?.partnershipLevel || "",
     practiceType: editedData?.practiceType || "",
@@ -70,11 +67,9 @@ console.log("editedData", editedData);
       state: editedData?.practiceAddress?.state || "",
       zip: editedData?.practiceAddress?.zip || "",
     },
-    // practicePhone: editedData?.practicePhone || "",
-    // practiceEmail: editedData?.practiceEmail || "",
     website: editedData?.website || "",
     staff: editedData?.staff || [],
-
+    additionalNotes: editedData?.additionalNotes || "",
   };
 
   const handleFormSubmission = async (values: any) => {
@@ -94,12 +89,12 @@ console.log("editedData", editedData);
             name: values.name,
             phone: values.phone,
             email: values.email,
-            notes: values.notes,
+            additionalNotes: values.additionalNotes,
           }
         : {
             ...values,
             staff: staffWithUpdatedRoles,
-            notes: values.notes,
+            additionalNotes: values.additionalNotes,
           };
 
     let referrerId = user?.userId;
@@ -171,11 +166,6 @@ console.log("editedData", editedData);
         /^(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/[a-zA-Z0-9]+\.[^\s]{2,}|[a-zA-Z0-9]+\.[^\s]{2,})$/i,
         "Website must be a valid URL.(https://example.com or www.example.com"
       ),
-      // practiceEmail: Yup.string().when("type", {
-      //   is: "doctor",
-      //   then: (schema) =>
-      //     schema.email("Invalid email").required("Practice email is required"),
-      // }),
       practiceAddress: Yup.object().shape({
         addressLine1: Yup.string().when(["$type"], {
           is: (type: string) => type === "doctor",
@@ -194,10 +184,10 @@ console.log("editedData", editedData);
           otherwise: (schema) => schema.notRequired(),
         }),
         zip: Yup.number()
-          .typeError("ZIP must be a number") // Custom error if input is not a number
+          .typeError("ZIP must be a number")
           .integer("ZIP must be a whole number")
-          .min(10000, "ZIP code must be 5 digits (e.g., 10000)") // Enforces min 5 digits
-          .max(99999, "ZIP code must be 5 digits (e.g., 99999)") // Enforces max 5 digits
+          .min(10000, "ZIP code must be 5 digits (e.g., 10000)")
+          .max(99999, "ZIP code must be 5 digits (e.g., 99999)")
           .when(["$type"], {
             is: (type: string) => type === "doctor",
             then: (schema) => schema.required("ZIP is required"),
@@ -207,7 +197,9 @@ console.log("editedData", editedData);
       staff: Yup.array().of(
         Yup.object().shape({
           name: Yup.string().required("Name is required"),
-          role: Yup.array().required("Role/Title is required"),
+          role: Yup.array()
+            .min(1, "At least one Role/Title must be selected.")
+            .required("Role/Title is required"),
           email: Yup.string().matches(EMAIL_REGEX, "Invalid email format"),
           phone: Yup.string().nullable(),
           isDentist: Yup.boolean().nullable(),
@@ -327,19 +319,6 @@ console.log("editedData", editedData);
           },
         ],
       },
-      // {
-      //   id: "practicePhone",
-      //   label: "Practice Phone",
-      //   type: "tel",
-      //   placeholder: "Enter practice phone",
-      // },
-      // {
-      //   id: "practiceEmail",
-      //   label: "Practice Email",
-      //   type: "email",
-      //   placeholder: "Enter practice email",
-      //   isRequired: true,
-      // },
       {
         id: "website",
         label: "Website",
@@ -403,7 +382,7 @@ console.log("editedData", editedData);
       minRows?: number;
     }[] = [
       {
-        id: "notes",
+        id: "additionalNotes",
         label: "Notes (optional)",
         type: "textarea",
         placeholder: "Any additional information about this referrer...",
@@ -637,16 +616,16 @@ console.log("editedData", editedData);
     const fieldName = `staff[${index}].${field.id}`;
     const valuePath = formik.values.staff[index]?.[field.id];
 
-    // Access the specific validation error for this staff member and field
     const staffErrors = formik.errors.staff as any[] | undefined;
     const staffTouched = formik.touched.staff as any[] | undefined;
+
+    console.log(staffErrors, "stafferror");
 
     const isTouched = staffTouched?.[index]?.[field.id];
     let errorText = staffErrors?.[index]?.[field.id];
 
     switch (field.type) {
       case "select":
-        // ... (Select case remains unchanged)
         return (
           <div
             key={fieldName as Key}
@@ -677,8 +656,10 @@ console.log("editedData", editedData);
                 formik.setFieldValue(fieldName as string, finalValue);
                 formik.setFieldTouched(fieldName as string, true, false);
               }}
-              isInvalid={!!errorText}
-              errorMessage={errorText as string}
+              isInvalid={!!(isTouched && errorText)}
+              errorMessage={
+                isTouched && errorText ? (errorText as string) : undefined
+              }
               classNames={{
                 base: "gap-2 !mt-0",
                 label: "static !translate-y-0",
@@ -695,7 +676,6 @@ console.log("editedData", editedData);
         );
 
       case "checkbox":
-        // ... (Checkbox case remains unchanged)
         return (
           <div key={fieldName as Key} className="w-full">
             <Checkbox
@@ -717,7 +697,6 @@ console.log("editedData", editedData);
         );
 
       default:
-        // Default case for all other text/tel inputs (name, phone, experience) using the custom Input
         return (
           <div
             key={fieldName as Key}
@@ -735,7 +714,6 @@ console.log("editedData", editedData);
                 let finalValue: any = val;
 
                 if (field.type === "tel") {
-                  // Only apply formatPhoneNumber to phone fields
                   finalValue = formatPhoneNumber(val);
                 }
 
@@ -752,6 +730,38 @@ console.log("editedData", editedData);
   };
 
   const handleAddStaff = () => {
+    const staffArray = formik.values.staff;
+    const lastStaffMember = staffArray[staffArray.length - 1];
+
+    const isLastMemberValid =
+      staffArray.length === 0 ||
+      (lastStaffMember?.name &&
+        lastStaffMember?.role &&
+        (Array.isArray(lastStaffMember.role)
+          ? lastStaffMember.role.length > 0
+          : lastStaffMember.role !== ""));
+
+    if (!isLastMemberValid) {
+      // Optionally, you might want to show a notification/toast here
+      // to inform the user that they must fill the current staff member's
+      // required fields before adding a new one.
+      // Also manually touch the fields to show validation errors if not already touched
+      if (lastStaffMember) {
+        formik.setFieldTouched(
+          `staff[${staffArray.length - 1}].name`,
+          true,
+          true
+        );
+        formik.setFieldTouched(
+          `staff[${staffArray.length - 1}].role`,
+          true,
+          true
+        );
+      }
+
+      return;
+    }
+
     const newStaffMember = {
       name: "",
       role: [],
