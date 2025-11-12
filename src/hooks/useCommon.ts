@@ -1,8 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
 import { useDispatch } from "react-redux";
-import { fetchPermissions, fetchRoles, fetchSpecialties } from "../services/common";
+import {
+  fetchActivityTypes,
+  fetchPermissions,
+  fetchRoles,
+  fetchSpecialties,
+} from "../services/common";
 import { useEffect } from "react";
-import { setError, setPermissions, setSpecialties } from "../store/commonSlice";
+import {
+  setActivityTypes,
+  setError,
+  setPermissions,
+  setSpecialties,
+} from "../store/commonSlice";
 
 export const useSpecialties = () => {
   const dispatch = useDispatch();
@@ -16,7 +26,7 @@ export const useSpecialties = () => {
     if (queryResult.data) {
       dispatch(setSpecialties(queryResult.data));
     }
-    
+
     if (queryResult.error) {
       dispatch(setError(queryResult.error.message));
     }
@@ -37,7 +47,7 @@ export const useRoles = () => {
     if (queryResult.data) {
       dispatch(setSpecialties(queryResult.data));
     }
-    
+
     if (queryResult.error) {
       dispatch(setError(queryResult.error.message));
     }
@@ -58,7 +68,28 @@ export const usePermissions = () => {
     if (queryResult.data) {
       dispatch(setPermissions(queryResult.data));
     }
-    
+
+    if (queryResult.error) {
+      dispatch(setError(queryResult.error.message));
+    }
+  }, [queryResult.data, queryResult.error, dispatch]);
+
+  return queryResult;
+};
+
+export const useActivityTypes = () => {
+  const dispatch = useDispatch();
+
+  const queryResult = useQuery({
+    queryKey: ["activity_types"],
+    queryFn: fetchActivityTypes,
+  });
+
+  useEffect(() => {
+    if (queryResult.data) {
+      dispatch(setActivityTypes(queryResult.data));
+    }
+
     if (queryResult.error) {
       dispatch(setError(queryResult.error.message));
     }

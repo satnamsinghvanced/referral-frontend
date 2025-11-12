@@ -24,14 +24,14 @@ export const useUpdateTeamMember = () => {
     mutationFn: ({ id, data }: { id: string; data: any }) =>
       updateTeamMember(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["team-members"] });
-      queryClient.invalidateQueries({ queryKey: ["pending-invites"] });
-
       addToast({
         title: "Success",
-        description: "Team member updated successfully",
+        description: "Team member updated successfully.",
         color: "success",
       });
+
+      queryClient.invalidateQueries({ queryKey: ["team-members"] });
+      queryClient.invalidateQueries({ queryKey: ["pending-invites"] });
     },
     onError: (error: AxiosError) => {
       const errorMessage =
@@ -53,14 +53,14 @@ export const useDeleteTeamMember = () => {
   return useMutation({
     mutationFn: deleteTeamMember,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["team-members"] });
-      queryClient.invalidateQueries({ queryKey: ["pending-invites"] });
-
       addToast({
         title: "Success",
-        description: "Team member deleted successfully",
+        description: "Team member deleted successfully.",
         color: "success",
       });
+
+      queryClient.invalidateQueries({ queryKey: ["team-members"] });
+      queryClient.invalidateQueries({ queryKey: ["pending-invites"] });
     },
     onError: (error: AxiosError) => {
       const errorMessage =

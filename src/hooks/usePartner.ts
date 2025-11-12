@@ -2,16 +2,19 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryClient } from "../providers/QueryProvider";
 import {
+  copySchedulePlan,
   createNote,
   createSchedulePlan,
   createTask,
   deleteNote,
   deleteSchedulePlan,
   deleteTask,
+  fetchAllTasks,
   fetchPartnerDetail,
   fetchPartners,
+  fetchVisitHistory,
   getAllNotesAndTasks,
-  getSchedulePlan,
+  getSchedulePlans,
   scheduleTaskEvent,
   updateSchedulePlan,
   updateTaskStatus,
@@ -22,11 +25,16 @@ import {
   CreateTaskPayload,
   FetchPartnersParams,
   FetchPartnersResponse,
+  FetchTasksParams,
+  GetSchedulePlansQuery,
   NoteApiData,
   PartnerPractice,
   SchedulePlanGetResponse,
+  SchedulePlansResponse,
   TaskApiData,
+  VisitHistoryResponse,
 } from "../types/partner";
+import { addToast } from "@heroui/react";
 
 // ---------------------------
 // 🔹 Partner Network Stats
@@ -49,7 +57,7 @@ export const useFetchPartners = (params: FetchPartnersParams = {}) => {
 
 export const useFetchPartnerDetail = (id: string) =>
   useQuery<PartnerPractice, Error>({
-    queryKey: ["partnerStat", id],
+    queryKey: ["partnerStats", id],
     queryFn: () => fetchPartnerDetail(id),
     enabled: !!id,
   });
@@ -77,6 +85,11 @@ export const useCreateNote = () => {
   return useMutation<NoteApiData, Error, CreateNotePayload>({
     mutationFn: createNote,
     onSuccess: (newNote) => {
+      addToast({
+        title: "Success",
+        description: "Note created successfully.",
+        color: "success",
+      });
       // Invalidate the detail query for the relevant practice to refetch all notes/tasks
       queryClient.invalidateQueries({
         queryKey: ["partnerStats"],
@@ -92,7 +105,12 @@ export const useDeleteNote = () => {
   return useMutation<void, Error, { noteId: string; partnerId: string }>({
     mutationFn: ({ noteId }) => deleteNote(noteId),
     onSuccess: (_, variables) => {
-      // Invalidate the detail query for the relevant practice
+      addToast({
+        title: "Success",
+        description: "Note deleted successfully.",
+        color: "success",
+      });
+
       queryClient.invalidateQueries({
         queryKey: ["partnerStats"],
       });
@@ -103,16 +121,37 @@ export const useDeleteNote = () => {
   });
 };
 
-// --- Task Mutations (POST, PATCH, DELETE) ---
+// --- Task Mutations (GET, POST, PATCH, DELETE) ---
+
+export const useFetchAllTasks = (params: FetchTasksParams = {}) => {
+  const {
+    page = 1,
+    limit = 10,
+    search = "",
+    status = "all",
+    priority = "all",
+  } = params;
+
+  return useQuery<any, Error>({
+    queryKey: ["tasks", page, limit, search, status, priority],
+    queryFn: () => fetchAllTasks({ page, limit, search, status, priority }),
+  });
+};
 
 export const useCreateTask = () => {
   return useMutation<TaskApiData, Error, CreateTaskPayload>({
     mutationFn: createTask,
     onSuccess: (newTask) => {
+      addToast({
+        title: "Success",
+        description: "Task created successfully.",
+        color: "success",
+      });
       // Invalidate the detail query for the relevant practice
       queryClient.invalidateQueries({
         queryKey: ["partnerStats"],
       });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
       queryClient.invalidateQueries({
         queryKey: notesTasksKeys.detail(newTask.practiceId),
       });
@@ -132,9 +171,16 @@ export const useUpdateTaskStatus = () => {
   >({
     mutationFn: ({ taskId, status }) => updateTaskStatus(taskId, { status }),
     onSuccess: (updatedTask) => {
-      // Invalidate the detail query for the relevant practice
+      addToast({
+        title: "Success",
+        description: "Task status updated successfully.",
+        color: "success",
+      });
       queryClient.invalidateQueries({
         queryKey: notesTasksKeys.detail(updatedTask.practiceId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["tasks"],
       });
     },
     // Optional: Optimistic update for immediate feedback
@@ -171,10 +217,16 @@ export const useDeleteTask = () => {
   return useMutation<void, Error, { taskId: string; partnerId: string }>({
     mutationFn: ({ taskId }) => deleteTask(taskId),
     onSuccess: (_, variables) => {
-      // Invalidate the detail query for the relevant practice
+      addToast({
+        title: "Success",
+        description: "Task deleted successfully.",
+        color: "success",
+      });
+
       queryClient.invalidateQueries({
         queryKey: ["partnerStats"],
       });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
       queryClient.invalidateQueries({
         queryKey: notesTasksKeys.detail(variables.partnerId),
       });
@@ -199,42 +251,67 @@ export const useScheduleTaskEvent = () => {
   });
 };
 
-const SCHEDULE_PLAN_KEY = "schedulePlan";
+const SCHEDULE_PLAN_KEY = "schedulePlans";
 
-export function useGetSchedulePlan(planId: string) {
-  return useQuery<SchedulePlanGetResponse>({
-    queryKey: [SCHEDULE_PLAN_KEY, planId],
-    queryFn: () => getSchedulePlan(planId),
-    enabled: !!planId, // Only run if planId exists
+export function useGetSchedulePlans(query: GetSchedulePlansQuery) {
+  return useQuery<SchedulePlansResponse, Error>({
+    queryKey: [SCHEDULE_PLAN_KEY, query],
+    queryFn: () => getSchedulePlans(query),
   });
 }
-
 export function useCreateSchedulePlan() {
   return useMutation({
     mutationFn: createSchedulePlan,
-    onSuccess: (data) => {
-      console.log("Schedule Plan Created Successfully:", data);
-    },
-    onError: (error) => {
-      console.error("Error creating schedule plan:", error);
-    },
-  }); 
-}
 
-export function useUpdateSchedulePlan() {
-  return useMutation({
-    mutationFn: updateSchedulePlan,
-    onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: [SCHEDULE_PLAN_KEY, variables.scheduleReferrerVisitId],
+    onSuccess: (data, variables) => {
+      addToast({
+        title: "Success",
+        description: "Plan created successfully.",
+        color: "success",
       });
-      console.log(
-        "Plan updated successfully:",
-        variables.scheduleReferrerVisitId
+      queryClient.invalidateQueries({ queryKey: [SCHEDULE_PLAN_KEY] });
+    },
+    onError: (error, variables) => {
+      console.error(
+        `Error creating schedule plan for ID ${variables.id}:`,
+        error
       );
     },
+  });
+}
+
+export const useUpdateSchedulePlan = () => {
+  return useMutation({
+    mutationFn: updateSchedulePlan,
+    onSuccess: (data, variables) => {
+      addToast({
+        title: "Success",
+        description: "Plan updated successfully.",
+        color: "success",
+      });
+
+      queryClient.invalidateQueries({ queryKey: [SCHEDULE_PLAN_KEY] });
+    },
+    onError: (error, variables, context) => {
+      console.error(`Failed to update Schedule Plan ${variables._id}:`, error);
+    },
+  });
+};
+
+export function useCopySchedulePlan() {
+  return useMutation({
+    mutationFn: copySchedulePlan,
+    onSuccess: () => {
+      // Invalidate the list of plans (assuming you have a list key)
+      queryClient.invalidateQueries({ queryKey: [SCHEDULE_PLAN_KEY] });
+      addToast({
+        title: "Success",
+        description: "Plan duplicated successfully.",
+        color: "success",
+      });
+    },
     onError: (error) => {
-      console.error("Error updating plan:", error);
+      console.error("Error duplicating plan:", error);
     },
   });
 }
@@ -243,12 +320,30 @@ export function useDeleteSchedulePlan() {
   return useMutation({
     mutationFn: deleteSchedulePlan,
     onSuccess: () => {
-      // Invalidate the list of plans (assuming you have a list key)
+      addToast({
+        title: "Success",
+        description: "Plan deleted successfully.",
+        color: "success",
+      });
       queryClient.invalidateQueries({ queryKey: [SCHEDULE_PLAN_KEY] });
-      console.log("Plan deleted successfully.");
     },
     onError: (error) => {
       console.error("Error deleting plan:", error);
     },
   });
 }
+
+interface UseVisitHistoryParams {
+  filter: "all" | "draft" | "completed" | "pending" | "cancelled";
+  // source: "list" | "map";
+  search: string;
+}
+
+export const VISIT_HISTORY_QUERY_KEY = "visitHistory";
+
+export const useVisitHistory = (params: UseVisitHistoryParams) => {
+  return useQuery<VisitHistoryResponse, Error>({
+    queryKey: [VISIT_HISTORY_QUERY_KEY, params],
+    queryFn: () => fetchVisitHistory(params),
+  });
+};

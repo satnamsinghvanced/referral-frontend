@@ -1,9 +1,12 @@
 import axios from "axios";
+import { store } from "../store";
+import { logout } from "../store/authSlice";
 
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:9090/api",
   headers: {
     "Content-Type": "application/json",
+    'ngrok-skip-browser-warning': 'true',
   },
 });
 
@@ -17,12 +20,11 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => response.data,
   (error) => {
-    console.log("error: ", error);
-    // if (error.response?.status === 401) {
-    //     // Redirect to login if unauthorized (no token, expired, etc.)
-    //     window.location.href = "/referral-retrieve/signin";
-    // }
-    // return Promise.reject(error);
+    if (error.response?.status === 401) {
+      store.dispatch(logout());
+      window.location.href = "/referral-retrieve/signin";
+    }
+    return Promise.reject(error);
   }
 );
 

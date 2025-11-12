@@ -1,4 +1,7 @@
 import {
+  TwilioCallHistoryResponse,
+  TwilioCallRequestBody,
+  TwilioCallResponse,
   TwilioConfigRequest,
   TwilioConfigResponse,
   UserIdParam,
@@ -31,5 +34,24 @@ export const updateTwilioConfig = async (
     `/twilio/${userId}`,
     data
   );
+  return response.data;
+};
+
+export const initiateCall = async (
+  userId: string,
+  body: TwilioCallRequestBody
+): Promise<TwilioCallResponse> => {
+  const url = `/twilio/call/${userId}`;
+  const response = await axios.post<TwilioCallResponse>(url, body);
+  return response.data;
+};
+
+export const getCallHistory = async (
+  userId: string
+  // Optional: You can add parameters for pagination here if supported by API
+  // page: number = 1, limit: number = 10
+): Promise<TwilioCallHistoryResponse> => {
+  const url = `/twilio/history/${userId}`;
+  const response = await axios.get<TwilioCallHistoryResponse>(url);
   return response.data;
 };

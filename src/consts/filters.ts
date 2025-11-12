@@ -19,7 +19,7 @@ export const urgencyOptions = [
   { key: "low", label: "Low" },
 ];
 
-export const categoryOptions: {
+export const CATEGORY_OPTIONS: {
   _id: string;
   title: string;
   shortTitle: string;
@@ -73,4 +73,12 @@ export const CALL_STATUS_OPTIONS = [
   { label: "Completed", value: "completed" },
   { label: "Recorded", value: "recorded" },
   { label: "Voicemail", value: "voicemail" },
+];
+
+export const TASK_STATUS_OPTIONS = [
+  { label: "All Status", value: "all" },
+  { label: "Not Started", value: "notStarted" },
+  { label: "In Progress", value: "inProgress" },
+  { label: "Completed", value: "completed" },
+  { label: "No Longer Needed", value: "noLongerNeeded" },
 ];

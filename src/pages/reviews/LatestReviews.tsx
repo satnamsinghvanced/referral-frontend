@@ -202,7 +202,7 @@ const LatestReviewItem = ({ review }: any) => {
         {/* Rating and Date */}
         <div className="text-right flex flex-col items-end">
           <StarRating rating={rating} />
-          <div className="text-xs text-gray-500">{date}</div>
+          <div className="text-xs text-gray-600">{date}</div>
         </div>
       </div>
 

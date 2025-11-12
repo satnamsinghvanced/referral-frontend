@@ -1,4 +1,7 @@
-export const formatDateToReadable = (date: string | null | undefined): string => {
+export const formatDateToReadable = (
+  date: string | null | undefined,
+  showTime: boolean = false // Added optional parameter with default value true
+): string => {
   if (!date) {
     return "N/A";
   }
@@ -10,19 +13,33 @@ export const formatDateToReadable = (date: string | null | undefined): string =>
       return "Invalid Date";
     }
 
-    const formatter = new Intl.DateTimeFormat("en-US", {
+    const baseOptions: Intl.DateTimeFormatOptions = {
       month: "short",
       day: "numeric",
       year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-      timeZone: "UTC",
-    });
+    };
+
+    const timeOptions: Intl.DateTimeFormatOptions = showTime
+      ? {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+          timeZone: "UTC",
+        }
+      : {};
+
+    const options: Intl.DateTimeFormatOptions = {
+      ...baseOptions,
+      ...timeOptions,
+    };
+
+    const formatter = new Intl.DateTimeFormat("en-US", options);
 
     let formattedDate = formatter.format(JSdate);
 
-    formattedDate = formattedDate.replace("AM", " AM").replace("PM", " PM");
+    if (showTime) {
+      formattedDate = formattedDate.replace("AM", " AM").replace("PM", " PM");
+    }
 
     return formattedDate;
   } catch (error) {

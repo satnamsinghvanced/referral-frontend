@@ -1,5 +1,5 @@
 import { Pagination } from "@heroui/react";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { FiEdit, FiEye, FiStar, FiUsers } from "react-icons/fi";
 import { IoDocumentOutline } from "react-icons/io5";
@@ -17,10 +17,13 @@ import PartnerDetailsModal from "./PartnerDetailsModal";
 import PartnerNetworkCard from "./PartnerNetworkCard";
 import PartnerNetworkHeader from "./PartnerNetworkHeader";
 import ScheduleVisits from "./schedule-visits/ScheduleVisits";
+import { TbArchive, TbCheckbox } from "react-icons/tb";
+import VisitHistoryModal from "./schedule-visits/history-modal/VisitHistoryModal";
 
 const PartnerNetwork = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
   const [isPracticeEdit, setIsPracticeEdit] = useState(true);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [partnerEditId, setPartnerEditId] = useState("");
@@ -46,8 +49,6 @@ const PartnerNetwork = () => {
 
   const { data: singlePartnerData } = useFetchPartnerDetail(partnerEditId);
 
-  console.log(data, "PARTNERS");
-
   const practices = data?.data || [];
   const stats = data;
 
@@ -72,14 +73,14 @@ const PartnerNetwork = () => {
   };
 
   const HEADING_DATA_BUTTONS_LIST = [
-    // {
-    //   label: "Bulk Select",
-    //   onClick: () => console.log("Bulk Select Clicked"),
-    //   icon: <TbCheckbox fontSize={16} />,
-    //   variant: "bordered" as const, // Use 'as const' for literal types in an array
-    //   color: "default" as const,
-    //   className: "border-small",
-    // },
+    {
+      label: "Visit History",
+      onClick: () => setIsHistoryModalOpen(true),
+      icon: <TbArchive fontSize={15} />,
+      variant: "ghost" as const, // Use 'as const' for literal types in an array
+      color: "default" as const,
+      className: "border-small",
+    },
     {
       label: "Add Practice",
       onClick: handleOpen,
@@ -161,6 +162,10 @@ const PartnerNetwork = () => {
       color: "success" as const,
     },
   ];
+
+  const handleHistoryModalClose = useCallback(() => {
+    setIsHistoryModalOpen(false);
+  }, []);
 
   return (
     <>
@@ -275,6 +280,11 @@ const PartnerNetwork = () => {
         onAddTask={() => console.log("Add task not implemented")}
         onDeleteNote={() => console.log("Delete note not implemented")}
         onDeleteTask={() => console.log("Delete task not implemented")}
+      />
+
+      <VisitHistoryModal
+        isOpen={isHistoryModalOpen}
+        onClose={handleHistoryModalClose}
       />
     </>
   );

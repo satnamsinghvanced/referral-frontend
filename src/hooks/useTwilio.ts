@@ -1,15 +1,20 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryClient } from "../providers/QueryProvider";
 import {
-    fetchTwilioConfig,
-    saveTwilioConfig,
-    updateTwilioConfig,
+  fetchTwilioConfig,
+  getCallHistory,
+  initiateCall,
+  saveTwilioConfig,
+  updateTwilioConfig,
 } from "../services/twilio"; // Import your Axios functions
 import {
-    TwilioConfigRequest,
-    TwilioConfigResponse,
-    UserIdParam,
+  TwilioCallHistoryResponse,
+  TwilioCallRequestBody,
+  TwilioConfigRequest,
+  TwilioConfigResponse,
+  UserIdParam,
 } from "../types/call";
+import { addToast } from "@heroui/react";
 
 export const twilioKeys = {
   all: ["twilio"] as const,
@@ -48,10 +53,39 @@ export const useUpdateTwilioConfig = () => {
   >({
     mutationFn: ({ userId, data }) => updateTwilioConfig(userId, data),
     onSuccess: (data) => {
-      // Invalidate the fetch query to show the updated data
+      addToast({
+        title: "Success",
+        description: "Twilio keys updated successfully.",
+        color: "success",
+      });
+
       queryClient.invalidateQueries({
         queryKey: twilioKeys.details(data.userId),
       });
     },
+  });
+};
+
+export const useInitiateCall = (userId: string) => {
+  return useMutation({
+    mutationFn: (body: TwilioCallRequestBody) => initiateCall(userId, body),
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["twilioCallHistory", userId],
+      });
+      addToast({ title: "Success", description: "Calling..." });
+    },
+
+    onError: (error) => {
+      console.error("Failed to initiate call:", error);
+    },
+  });
+};
+
+export const useCallHistory = (userId: string) => {
+  return useQuery<TwilioCallHistoryResponse, Error>({
+    queryKey: ["twilioCallHistory", userId],
+    queryFn: () => getCallHistory(userId),
   });
 };

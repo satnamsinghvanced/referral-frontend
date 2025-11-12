@@ -1,7 +1,6 @@
-import { FaMoon, FaSun } from "react-icons/fa";
-import { useDispatch, useSelector } from "react-redux";
-import { toggleTheme } from "../../store/uiSlice";
 import { Switch } from "@heroui/react";
+import { useDispatch } from "react-redux";
+import { toggleTheme } from "../../store/uiSlice";
 
 export default function ThemeToggle() {
   const dispatch = useDispatch();

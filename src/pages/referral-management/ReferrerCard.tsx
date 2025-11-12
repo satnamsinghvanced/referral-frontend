@@ -39,7 +39,7 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
 
   const lat = referrer?.practice?.address?.coordinates?.lat;
   const long = referrer?.practice?.address?.coordinates?.long;
-  
+
   const handleVisit = () => {
     if (typeof lat === "number" && typeof long === "number") {
       const url = `https://www.google.com/maps?q=${lat},${long}`;
@@ -145,9 +145,9 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
           size="sm"
           variant="light"
           onPress={() => onView?.(referrer._id)}
-          className="hover:bg-secondary-100"
+          className=" hover:!bg-orange-200 hover:text-orange-500 transition-colors " 
         >
-          <FiEye className="size-4" />
+          <FiEye className="size-4 " />
         </Button>
       </div>
     </div>

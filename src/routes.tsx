@@ -2,16 +2,15 @@ import React, { ReactNode } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import QrGenerator from "./pages/qr-generator/QrGenerator";
 
-// Lazy imports
-const ProtectedRoute = React.lazy(() => import("./auth/ProtectedRoute"));
 const Layout = React.lazy(() => import("./components/layout/Layout"));
 const Dashboard = React.lazy(() => import("./pages/Dashboard"));
 const Analytics = React.lazy(() => import("./pages/Analytics"));
-const Calls = React.lazy(() => import("./pages/Calls"));
 const HelpCenter = React.lazy(() => import("./pages/HelpCenter"));
 const EmailCampaign = React.lazy(() => import("./pages/EmailCampaigns"));
 const MarketingBudget = React.lazy(() => import("./pages/MarketingBudget"));
-const MarketingCalendar = React.lazy(() => import("./pages/MarketingCalendar"));
+const MarketingCalendar = React.lazy(
+  () => import("./pages/marketing-calender/MarketingCalendar")
+);
 const ReferralManagement = React.lazy(
   () => import("./pages/referral-management/ReferralManagement")
 );
@@ -21,7 +20,13 @@ const PartnerNetwork = React.lazy(
 const Reviews = React.lazy(() => import("./pages/reviews/Reviews"));
 const SocialMedia = React.lazy(() => import("./pages/SocialMedia"));
 const Reports = React.lazy(() => import("./pages/Reports"));
-const Calender = React.lazy(() => import("./pages/Calender"));
+const Tasks = React.lazy(() => import("./pages/tasks/Tasks"));
+const MediaManagement = React.lazy(
+  () => import("./pages/media-management/MediaManagement")
+);
+const Integrations = React.lazy(
+  () => import("./pages/integrations/Integrations")
+);
 const Settings = React.lazy(() => import("./pages/settings/Settings"));
 const Notifications = React.lazy(
   () => import("./pages/settings/Notifications")
@@ -41,11 +46,7 @@ const NotificationAnalytics = React.lazy(
   () => import("./pages/settings/NotificationAnalytics")
 );
 const Profile = React.lazy(() => import("./pages/settings/Profile"));
-const PlansPage = React.lazy(() => import("./pages/plans/PlansPage"));
-const SignIn = React.lazy(() => import("./auth/SignIn")); // ✅ corrected typo
-const SignUp = React.lazy(() => import("./auth/SignUp"));
-const Success = React.lazy(() => import("./payment/Success"));
-const Fail = React.lazy(() => import("./payment/Fail"));
+const SignIn = React.lazy(() => import("./pages/auth/SignIn")); // ✅ corrected typo
 const Support = React.lazy(() => import("./pages/support/SupportPage"));
 const Terms = React.lazy(() => import("./pages/terms/TermsPage"));
 const PrivacyPolicy = React.lazy(
@@ -54,9 +55,12 @@ const PrivacyPolicy = React.lazy(
 const PatientForm = React.lazy(
   () => import("./pages/referral-management/PatientForm")
 );
-const CallTracking = React.lazy(() => import("./pages/call-tracking/CallTracking"));
-const ThankYou = React.lazy(() => import("./pages/referral-management/ThankYouPage"));
-
+const CallTracking = React.lazy(
+  () => import("./pages/call-tracking/CallTracking")
+);
+const ThankYou = React.lazy(
+  () => import("./pages/referral-management/ThankYouPage")
+);
 
 // Route type
 interface AppRoute {
@@ -73,11 +77,10 @@ function AppRoutes() {
       element: <Layout />,
       children: [
         { index: true, element: <Dashboard /> },
-        { path: "dashboard", element: <Dashboard /> },
+        // { path: "dashboard", element: <Dashboard /> },
         { path: "referrals", element: <ReferralManagement /> },
         { path: "analytics", element: <Analytics /> },
         { path: "partner-network", element: <PartnerNetwork /> },
-        { path: "calls", element: <Calls /> },
         { path: "reviews", element: <Reviews /> },
         { path: "email-campaigns", element: <EmailCampaign /> },
         { path: "social-media", element: <SocialMedia /> },
@@ -85,8 +88,9 @@ function AppRoutes() {
         { path: "qr-generator", element: <QrGenerator /> },
         { path: "marketing-budget", element: <MarketingBudget /> },
         { path: "reports", element: <Reports /> },
-        { path: "social", element: <SocialMedia /> },
-        { path: "calender", element: <Calender /> },
+        { path: "tasks", element: <Tasks /> },
+        { path: "media-management", element: <MediaManagement /> },
+        { path: "integrations", element: <Integrations /> },
         { path: "helpcenter", element: <HelpCenter /> },
         { path: "call-tracking", element: <CallTracking /> },
         {
@@ -110,22 +114,16 @@ function AppRoutes() {
         },
       ],
     },
-    {
-      path: "plans",
-      element: <ProtectedRoute component={PlansPage} role="admin" />,
-    },
     { path: "signin", element: <SignIn /> },
     { path: "signin", element: <SignIn /> },
     { path: "thank-you", element: <ThankYou /> },
-    { path: "success", element: <Success /> },
-    { path: "fail", element: <Fail /> },
     { path: "support", element: <Support /> },
     { path: "terms", element: <Terms /> },
     { path: "privacy", element: <PrivacyPolicy /> },
     {
-      path: "/referral/", element: <PatientForm />, children: [
-        { path: ":id", element: <PatientForm /> }
-      ]
+      path: "/referral/",
+      element: <PatientForm />,
+      children: [{ path: ":id", element: <PatientForm /> }],
     },
   ];
 
@@ -152,7 +150,7 @@ function AppRoutes() {
     //     />
     //   }
     // >
-    <BrowserRouter basename="/referral-retrieve">
+    <BrowserRouter basename="/referral-retrieve/">
       <Routes>{renderRoutes(routesList)}</Routes>
     </BrowserRouter>
     // </Suspense>

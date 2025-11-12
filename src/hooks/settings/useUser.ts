@@ -30,12 +30,12 @@ export function useUpdateUser(id: string) {
   return useMutation<User, AxiosError, Partial<User>>({
     mutationFn: (userData) => updateUser(id, userData),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["user", id] });
       addToast({
         title: "Success",
-        description: "Profile Updated",
+        description: "Profile updated successfully.",
         color: "success",
       });
+      queryClient.invalidateQueries({ queryKey: ["user", id] });
     },
     onError: (error) => {
       const errorMessage =

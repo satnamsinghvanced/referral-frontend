@@ -149,18 +149,26 @@ export interface NoteApiData {
   updatedAt: string; // ISO date string
 }
 
+export interface FetchTasksParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: string;
+  priority?: string;
+}
+
 export interface TaskApiData {
   _id: string;
   title: string;
   description: string;
   dueDate: string; // YYYY-MM-DD
-  practiceId: string;
   priority: "low" | "medium" | "high" | string;
   category: "follow-up" | "meeting" | "other" | string;
-  assigned_to: string; // userId
+  practiceId: any;
   status: "pending" | "completed" | string;
   createdAt: string;
   updatedAt: string;
+  isOverDue?: boolean;
 }
 
 export interface AllNotesTasksResponse {
@@ -185,7 +193,6 @@ export interface CreateTaskPayload {
   practiceId: string;
   priority: string;
   category: string;
-  assigned_to?: string;
 }
 
 export interface UpdateTaskStatusPayload {
@@ -236,21 +243,58 @@ export interface EventDetails {
   notes: string;
 }
 
-// --- Shared Interfaces (Reused from POST) ---
-export interface PlanDetails {
-  planName: string;
-  defaultPriority: string; // e.g., "Medium Priority"
-  durationPerVisit: string; // e.g., "1 hour"
-  defaultVisitPurpose: DefaultVisitPurpose;
-  description: string;
+export interface RouteDetailStop {
+  id: string; // Practice ID
+  name: string;
+  address: PracticeAddress;
+  isFirstStop: boolean;
+  arrivalTime: string; // e.g., "12:50 PM"
+  departureTime: string; // e.g., "01:20 PM"
+  travelTime: string; // e.g., "0m" or "21h 3m"
+  travelDistance: string; // e.g., "0.0mi" or "1370.9mi"
 }
 
-// --- 1. Shared Base Interfaces ---
-
-export interface DefaultVisitPurpose {
+// --- Shared Interfaces (Reused from POST) ---
+export interface VisitPurpose {
   title: string;
   duration: string;
 }
+
+export interface RouteDataPayload {
+  date: string; // e.g., "2025-11-06"
+  startTime: string; // e.g., "12:50"
+  durationPerVisit: string; // e.g., "30 minutes"
+  routeDetails: RouteDetailStop[];
+  totalStops: number;
+  estimatedTotalTime: string;
+  estimatedDistance: string;
+  mileageCost: string;
+  visitDays: string;
+}
+
+export interface PlanDetails {
+  planName: string;
+  defaultPriority: string;
+  durationPerVisit: string; // NOTE: This is likely redundant now that it's in RouteDataPayload
+  defaultVisitPurpose: VisitPurpose;
+  description: string;
+}
+
+export interface PlanDetailsPayload {
+  name: string; // e.g., "November Monthly Visit"
+  priority: string; // e.g., "High Priority"
+  visitPurpose: VisitPurpose;
+  description: string;
+}
+
+export interface SaveSchedulePlanPayload {
+  isDraft: boolean;
+  practices: string[];
+  route: RouteDataPayload;
+  planDetails: PlanDetailsPayload;
+}
+
+// --- 1. Shared Base Interfaces ---
 
 export interface ScheduledVisitBase {
   scheduleVisitDate: string; // e.g., "2025-10-29T09:00:00Z"
@@ -258,18 +302,6 @@ export interface ScheduledVisitBase {
   visitPurpose: string;
   priority: string;
   notes: string;
-}
-
-/**
- * Interface for the core Plan Details section.
- * Used in POST request body.
- */
-export interface PlanDetails {
-  planName: string;
-  defaultPriority: string;
-  durationPerVisit: string;
-  defaultVisitPurpose: DefaultVisitPurpose;
-  description: string;
 }
 
 // --- 2. Request Interfaces (POST & PUT) ---
@@ -292,7 +324,7 @@ export interface SchedulePlanRequest {
  * Interface for the COMPLETE PUT Request Payload (PUT /schedule-visit)
  */
 export interface SchedulePlanPutRequest {
-  scheduleReferrerVisitId: string; // Plan ID for update
+  _id: string; // Plan ID for update
   practices: string[];
   // PlanDetails without 'month' for PUT request
   planDetails: PlanDetails;
@@ -375,68 +407,154 @@ export interface FilterState {
   category: string;
 }
 
-export interface PlanDetailsOption {
-  title: string;
-  duration: string;
-}
-
-// Interfaces for component props
-export interface SelectReferrersTabProps {
-  filters: FilterState;
-  setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
-  selectedReferrersState: string[];
-  handleReferrerToggle: (id: string) => void;
-  handleSelectAll: () => void;
-  handleClearAll: () => void;
-  showRoutePreview?: boolean;
-  setShowRoutePreview?: React.Dispatch<React.SetStateAction<boolean>>;
-  practices: Partner[];
-  categoryOptions: CategoryOption[];
-  mockOptimizedRouteData?: OptimizedRouteStop[];
-  data?: MockInitialData;
-}
-
-export interface PlanDetailsTabProps {
-  formik: any; // Using 'any' for Formik object due to its complexity
-  data: MockInitialData;
-  selectedReferrerObjects: Partner[];
-  purposeOptions: PlanDetailsOption[];
-  durationOptions: string[];
-}
-
-export interface ScheduleVisitsTabProps {
-  formik: any; // Using 'any' for Formik object
-  data: MockInitialData;
-  selectedReferrerObjects: any;
-}
-
-export interface ReviewSaveTabProps {
-  formik: any; // Using 'any' for Formik object
-  data: MockInitialData;
-  selectedReferrerObjects: Partner[];
-}
-
-export interface RoutePlanningTabProps {
-  formik: any;
-  selectedReferrerObjects: Partner[];
-  durationOptions: string[];
-  onGenerateRoute: () => void;
-  routeOptimizationResults: any;
-  setRouteOptimizationResults: any;
-}
-
 export interface RouteMetrics {
-  routeDetails: any[];
+  routeDetails: RouteDetailStop[];
   totalStops: number;
   estimatedTotalTime: string;
   estimatedDistance: string;
   mileageCost: string;
-  travelTime: string;
-  travelDistance: string;
+  visitDays: string;
 }
 
 export interface RouteOptimizationResults {
   original: RouteMetrics;
   optimized: RouteMetrics;
   bestRoute: RouteMetrics;
+}
+
+// HEHEHHEHEHE
+// --- 1. Query Parameters Type ---
+export interface GetSchedulePlansQuery {
+  status?: "draft" | "active" | "completed" | "pending" | "cancel" | string;
+  order?: "asc" | "desc" | string;
+  sortBy?: "name" | "createdAt" | string;
+}
+
+// --- 2. Plan Sub-Types ---
+interface AddressCoordinates {
+  lat: number;
+  long: number;
+}
+
+interface PlanAddress {
+  coordinates: AddressCoordinates;
+  addressLine1: string;
+  addressLine2: string;
+  city: string;
+  state: string;
+  zip: string | number;
+}
+
+interface RouteDetail {
+  address: PlanAddress;
+  name: string;
+  isFirstStop: boolean;
+  date: string; // ISO Date string
+  arrivalTime: string;
+  departureTime: string;
+  travelDistance: string;
+  durationPerVisit: string;
+  _id: string;
+}
+
+interface PlanPurpose {
+  title: string;
+  duration: string;
+}
+
+interface PlanSummary {
+  totalPractices: number;
+  visitDays: number;
+  estimatedTime: string;
+  estimatedDistance: string;
+}
+
+// --- 3. Full Schedule Plan Data Type ---
+export interface SchedulePlan {
+  planDetails: PlanDetails;
+  isDraft?: boolean; // Can be implicitly determined from 'label'
+  _id: string;
+  createdBy: string;
+  practices: Practice[];
+  route: RouteDetail[];
+  label: "active" | "draft";
+  status: "pending" | "completed" | "cancel" | string;
+  createdAt: string;
+  updatedAt: string;
+  summary: PlanSummary;
+}
+
+export interface SchedulePlanDashboardStats {
+  totalPlans: number;
+  draftCount: number;
+  activeCount: number;
+  completedCount: number;
+  totalPractices: number;
+  totalVisits: number;
+  totalHours: string;
+  totalMiles: string;
+}
+
+// --- 5. Full API Response Type ---
+export interface SchedulePlansResponse {
+  success: boolean;
+  message: string;
+  data: SchedulePlan[];
+  totalData: number;
+  totalPages: number;
+  currentPage: number;
+  pageSize: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+  dashboardStats: SchedulePlanDashboardStats;
+}
+
+interface VisitHistoryItem {
+  route: RouteMetrics;
+  planDetails: PlanDetails;
+  _id: string;
+  createdBy: string;
+  practices: Practice[];
+  isDraft: boolean;
+  status: "pending" | "completed" | "cancelled"; // Assuming statuses based on context
+  createdAt: string;
+  updatedAt: string;
+}
+
+// --- 5. Monthly Grouping Type ---
+interface MonthlyVisitGroup {
+  month: string; // e.g., "November 2025"
+  totalPlansThisMonth: number;
+  visits: VisitHistoryItem[];
+}
+
+// --- 6. Response Metadata Types ---
+interface Stats {
+  totalVisits: number;
+  completedVisits: number;
+  totalTime: string;
+  officeVisits: number;
+}
+
+interface Pagination {
+  currentPage: number;
+  pageSize: number;
+  totalPages: number;
+  totalData: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
+// --- 7. Final API Response Type ---
+export interface VisitHistoryResponse {
+  data: MonthlyVisitGroup[];
+  stats: Stats;
+  pagination: Pagination;
+}
+
+export interface VisitHistoryQueryParams {
+  filter: "all" | "draft" | "completed" | "pending" | "cancelled";
+  // source: "list" | "map"; // Assuming potential sources
+  search: string;
+  // Add pagination params if needed, e.g., page: number, limit: number
 }

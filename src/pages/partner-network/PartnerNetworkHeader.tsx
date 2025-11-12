@@ -97,7 +97,7 @@ const PartnerNetworkHeader: React.FC<PartnerNetworkHeaderProps> = ({
 
           {sortOptions && sortOptions.length > 0 && (
             <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-500 whitespace-nowrap">
+              <span className="text-xs text-gray-600 whitespace-nowrap">
                 Sort by:
               </span>
               <Select
@@ -106,7 +106,7 @@ const PartnerNetworkHeader: React.FC<PartnerNetworkHeaderProps> = ({
                 aria-label="Sort"
                 selectedKeys={[selectedSortOption as string]}
                 disabledKeys={[selectedSortOption as string]}
-                className="min-w-[130px]"
+                className="w-[130px]"
                 classNames={{ value: "text-xs" }}
                 onChange={(e) => onSortChange?.(e.target.value)}
               >

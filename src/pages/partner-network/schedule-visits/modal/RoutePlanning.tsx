@@ -5,7 +5,6 @@ import {
   CardBody,
   CardHeader,
   DatePicker,
-  Input,
   Select,
   SelectItem,
   TimeInput,
@@ -18,22 +17,23 @@ import {
   Time,
   today,
 } from "@internationalized/date";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { BiCar } from "react-icons/bi";
 import { FiChevronRight, FiClock, FiDownload, FiMapPin } from "react-icons/fi";
 import { LuRoute } from "react-icons/lu";
 import { RiErrorWarningLine } from "react-icons/ri";
+import { PER_VISIT_DURATION_OPTIONS } from "../../../../consts/practice";
 import { useDirectionsMutation } from "../../../../hooks/useDirections";
+import { MapboxRoute } from "../../../../types/mapbox";
 import { Partner, RouteOptimizationResults } from "../../../../types/partner";
-import { formatRouteData } from "./formatRouteData";
 import { formatCalendarDate } from "../../../../utils/formatCalendarDate";
+import { formatRouteData } from "./formatRouteData";
 
 interface RoutePlanningTabProps {
   planState: any;
-  onStateChange: (key: string, value: any) => void;
+  onStateChange: any;
   errors: any;
   selectedReferrerObjects: Partner[];
-  durationOptions: string[];
   routeOptimizationResults: RouteOptimizationResults | null;
   setRouteOptimizationResults: React.Dispatch<
     React.SetStateAction<RouteOptimizationResults | null>
@@ -45,32 +45,101 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
   onStateChange,
   errors,
   selectedReferrerObjects,
-  durationOptions,
   routeOptimizationResults,
   setRouteOptimizationResults,
 }) => {
   const [coordinateString, setCoordinateString] = useState<string>("");
+  const [isTimeInPastError, setIsTimeInPastError] = useState(false);
 
-  const summary = routeOptimizationResults?.bestRoute;
-  const routeDetailsList =
-    routeOptimizationResults?.bestRoute?.routeDetails || [];
+  const localTimeZone = getLocalTimeZone();
+  const todayDate = today(localTimeZone).toString();
+  const isToday = planState.routeDate === todayDate;
 
-  const todayNow = new Date();
+  // Use ZonedDateTime for precise current time and day checks
+  const currentZonedDateTime = useMemo(
+    () => now(localTimeZone),
+    [localTimeZone]
+  );
 
-  const currentHour = todayNow.getHours();
-  const currentMinute = todayNow.getMinutes();
-  const currentTimeObject = new Time(currentHour, currentMinute);
+  const currentTimeObject = new Time(
+    currentZonedDateTime.hour,
+    currentZonedDateTime.minute
+  );
 
-  const currentTimeString = `${String(currentTimeObject.hour).padStart(
-    2,
-    "0"
-  )}:${String(currentTimeObject.minute).padStart(2, "0")}`;
+  const nineAMToday = useMemo(() => {
+    return currentZonedDateTime.set({
+      hour: 9,
+      minute: 0,
+      second: 0,
+      millisecond: 0,
+    });
+  }, [currentZonedDateTime]);
+
+  const { summary, routeDetailsList } = useMemo(() => {
+    if (!routeOptimizationResults) {
+      return { summary: {}, routeDetailsList: [] };
+    }
+
+    const activeRoute = planState.enableAutoRoute
+      ? routeOptimizationResults.bestRoute
+      : routeOptimizationResults.original;
+
+    return {
+      summary: activeRoute,
+      routeDetailsList: activeRoute.routeDetails || [],
+    };
+  }, [routeOptimizationResults, planState.enableAutoRoute]);
 
   useEffect(() => {
-    if (!planState.startTime) {
-      onStateChange("startTime", currentTimeString);
+    if (!planState.routeDate) {
+      onStateChange("routeDate", todayDate);
     }
-  }, [planState.startTime, onStateChange, currentTimeString]);
+
+    // Only set default time if planState.startTime is undefined/null
+    if (!planState.startTime) {
+      let defaultStartTime = "09:00";
+
+      // Check if 9:00 AM today is already past the current time
+      if (nineAMToday.compare(currentZonedDateTime) < 0) {
+        defaultStartTime = "21:00";
+      }
+
+      // We only set the default time if we are setting the default date (which is today)
+      // or if the planState.routeDate is today. This ensures the 9PM adjustment
+      // is only applied when the date is the current date.
+      if (!planState.routeDate || planState.routeDate === todayDate) {
+        onStateChange("startTime", defaultStartTime);
+      }
+    }
+  }, [
+    planState.startTime,
+    planState.routeDate,
+    onStateChange,
+    todayDate,
+    nineAMToday,
+    currentZonedDateTime,
+  ]);
+
+  useEffect(() => {
+    if (planState.routeDate && planState.startTime) {
+      if (isToday) {
+        const selectedTimeObject = parseTime(planState.startTime);
+
+        const selectedTimeInMinutes =
+          selectedTimeObject.hour * 60 + selectedTimeObject.minute;
+        const currentTimeInMinutes =
+          currentTimeObject.hour * 60 + currentTimeObject.minute;
+
+        if (selectedTimeInMinutes < currentTimeInMinutes) {
+          setIsTimeInPastError(true);
+        } else {
+          setIsTimeInPastError(false);
+        }
+      } else {
+        setIsTimeInPastError(false);
+      }
+    }
+  }, [planState.routeDate, planState.startTime, isToday, currentTimeObject]);
 
   useEffect(() => {
     if (!selectedReferrerObjects || selectedReferrerObjects.length === 0) {
@@ -89,14 +158,23 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
 
   const { mutate: generateRouteMutate, isPending } = useDirectionsMutation();
 
-  const optimizedOrderObjects = (
-    referrers: Partner[],
-    orderMap: number[]
-  ): Partner[] => {
-    return orderMap.map((index) => referrers[index]);
-  };
+  const optimizedOrderObjects = useCallback(
+    (referrers: Partner[], orderMap: number[]): Partner[] => {
+      return orderMap.map((index) => referrers[index]);
+    },
+    []
+  );
 
   const handleGenerateRoute = () => {
+    if (isTimeInPastError) {
+      addToast({
+        title: "Validation Error",
+        description: "The selected start time is in the past.",
+        color: "danger",
+      });
+      return;
+    }
+
     generateRouteMutate(coordinateString, {
       onSuccess: (data) => {
         const routes = data?.routes;
@@ -121,8 +199,8 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
           }
         }
 
-        const optimizedOrderMap = optimizedRoute.waypoints
-          ? optimizedRoute.waypoints.map(
+        const optimizedOrderMap = optimizedRoute?.waypoints
+          ? optimizedRoute?.waypoints?.map(
               (waypoint: any) => waypoint.waypoint_index
             )
           : null;
@@ -130,7 +208,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
         const originalRouteMetrics: any = formatRouteData(
           planState.routeDate,
           planState.startTime,
-          originalRoute,
+          originalRoute as MapboxRoute,
           selectedReferrerObjects,
           planState?.durationPerVisit
         );
@@ -142,7 +220,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
         const optimizedRouteMetrics: any = formatRouteData(
           planState.routeDate,
           planState.startTime,
-          optimizedRoute,
+          optimizedRoute as MapboxRoute,
           optimizedReferrerOrder,
           planState?.durationPerVisit
         );
@@ -150,18 +228,20 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
         const finalResults: RouteOptimizationResults = {
           original: {
             ...originalRouteMetrics,
-            travelTime: formatRouteData.formatDuration(originalRoute?.duration),
+            travelTime: formatRouteData.formatDuration(
+              originalRoute?.duration || 0
+            ),
             travelDistance: formatRouteData.formatDistance(
-              originalRoute?.distance
+              originalRoute?.distance || 0
             ),
           },
           optimized: {
             ...optimizedRouteMetrics,
             travelTime: formatRouteData.formatDuration(
-              optimizedRoute?.duration
+              optimizedRoute?.duration || 0
             ),
             travelDistance: formatRouteData.formatDistance(
-              optimizedRoute?.distance
+              optimizedRoute?.distance || 0
             ),
           },
           bestRoute:
@@ -200,10 +280,10 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
 
     const waypoints = routeDetailsList
       .slice(1, -1)
-      .map((stop) => stop.address.addressLine1)
+      .map((stop: any) => stop.address.addressLine1)
       .join("|");
 
-    let url = `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(
+    let url = `https://www.google.com/maps/dir/?api=1&origin=$${encodeURIComponent(
       firstStop
     )}&destination=${encodeURIComponent(lastStop)}`;
 
@@ -251,14 +331,13 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                   labelPlacement="outside"
                   size="sm"
                   radius="sm"
-                  minValue={today(getLocalTimeZone())}
+                  minValue={today(localTimeZone)}
                   hideTimeZone
                   granularity="day"
                   value={
                     planState?.routeDate
                       ? parseDate(planState.routeDate)
-                      : // ✅ FIX: Use today() to get only the date part, matching granularity="day"
-                        today(getLocalTimeZone())
+                      : today(localTimeZone)
                   }
                   onChange={(value) => {
                     onStateChange("routeDate", formatCalendarDate(value));
@@ -279,30 +358,34 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                   labelPlacement="outside"
                   size="sm"
                   radius="sm"
-                  // Value is now guaranteed to be the current time if not previously set
                   value={
                     planState.startTime
                       ? parseTime(planState.startTime)
-                      : currentTimeObject // Use the calculated Time object for the default
+                      : new Time(9, 0)
                   }
                   onChange={(timeValue) => {
                     const timeString = timeValue
                       ? `${String(timeValue.hour).padStart(2, "0")}:${String(
                           timeValue.minute
                         ).padStart(2, "0")}`
-                      : currentTimeString; // Fallback to current time string
+                      : "09:00";
                     onStateChange("startTime", timeString);
                   }}
-                  errorMessage={errors.startTime}
-                  isInvalid={!!errors.startTime}
-                  className="w-[100px]"
+                  errorMessage={
+                    isTimeInPastError
+                      ? "Cannot be in the past."
+                      : errors.startTime
+                  }
+                  isInvalid={isTimeInPastError || !!errors.startTime}
+                  className="w-[140px]"
                   classNames={{
+                    base: "!pb-0",
                     inputWrapper:
                       "border border-primary/15 bg-background px-2 py-1 shadow-none",
+                    helperWrapper: "pl-0 pt-0.5",
                   }}
                 />
               </div>
-
               <div>
                 <Select
                   name="durationPerVisit"
@@ -314,15 +397,15 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                   selectedKeys={
                     planState.durationPerVisit
                       ? [planState.durationPerVisit]
-                      : durationOptions.length > 0
-                      ? [durationOptions[0]]
+                      : PER_VISIT_DURATION_OPTIONS.length > 0
+                      ? [PER_VISIT_DURATION_OPTIONS[0]]
                       : []
                   }
                   disabledKeys={
                     planState.durationPerVisit
                       ? [planState.durationPerVisit]
-                      : durationOptions.length > 0
-                      ? [durationOptions[0]]
+                      : PER_VISIT_DURATION_OPTIONS.length > 0
+                      ? [PER_VISIT_DURATION_OPTIONS[0]]
                       : []
                   }
                   onSelectionChange={(keys: any) =>
@@ -337,7 +420,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                       "border border-primary/15 bg-background shadow-none",
                   }}
                 >
-                  {durationOptions.map((duration: string) => (
+                  {PER_VISIT_DURATION_OPTIONS.map((duration: string) => (
                     <SelectItem key={duration}>{duration}</SelectItem>
                   ))}
                 </Select>
@@ -354,13 +437,21 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
               isDisabled={
                 isPending ||
                 !coordinateString ||
-                selectedReferrerObjects.length < 2
+                selectedReferrerObjects.length < 2 ||
+                isTimeInPastError ||
+                !!errors.durationPerVisit
               }
             >
               <LuRoute className="size-4" />
               {isPending ? "Calculating..." : "Generate Route"}
             </Button>
           </div>
+          {errors.routeOptimizationResults &&
+            !routeOptimizationResults?.bestRoute && (
+              <p className="text-xs mt-2 text-red-600">
+                {errors.routeOptimizationResults}
+              </p>
+            )}
         </CardBody>
       </Card>
 
@@ -451,7 +542,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
 
             <CardBody className="px-5 pb-5">
               <div className="space-y-3">
-                {routeDetailsList.map((stop: any, index: number) => (
+                {routeDetailsList?.map((stop: any, index: number) => (
                   <div
                     key={index}
                     className="flex items-center gap-3 p-3 bg-gray-50 rounded-md"
@@ -469,7 +560,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                       <p className="text-xs text-gray-600 mt-1">
                         {stop.address.addressLine1}
                       </p>
-                      <div className="flex items-center gap-4 mt-2 text-xs text-gray-500">
+                      <div className="flex items-center gap-4 mt-2 text-xs text-gray-600">
                         <span className="flex items-center gap-1">
                           <FiClock className="h-3 w-3" />
                           {stop.arrivalTime} - {stop.departureTime}

@@ -12,7 +12,18 @@ import React from "react";
 import { IoClose, IoSearch } from "react-icons/io5";
 import { LuFilter } from "react-icons/lu";
 import LevelChip from "../../../../components/chips/LevelChip";
-import { Partner, SelectReferrersTabProps } from "../../../../types/partner";
+import { CATEGORY_OPTIONS } from "../../../../consts/filters";
+import { FilterState, Partner } from "../../../../types/partner";
+
+export interface SelectReferrersTabProps {
+  filters: FilterState;
+  setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
+  selectedReferrersState: string[];
+  handleReferrerToggle: (id: string) => void;
+  handleSelectAll: () => void;
+  handleClearAll: () => void;
+  practices: Partner[];
+}
 
 export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
   filters,
@@ -21,14 +32,8 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
   handleReferrerToggle,
   handleSelectAll,
   handleClearAll,
-  showRoutePreview,
-  setShowRoutePreview,
   practices,
-  categoryOptions,
-  mockOptimizedRouteData,
-  data,
 }) => {
-  // --- Filtering and Data Calculation Logic ---
   const filteredReferrers = practices.filter(
     (r: Partner) =>
       r.name.toLowerCase().includes(filters.search.toLowerCase()) &&
@@ -42,6 +47,7 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
   return (
     <div className="space-y-3 h-full">
       <div className="flex justify-between items-center text-sm gap-2.5 px-1">
+        {/* ... (Search Input and Select component remains unchanged) ... */}
         <Input
           placeholder="Search referrers..."
           size="sm"
@@ -71,7 +77,7 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
             <SelectItem key="" classNames={{ title: "text-xs" }}>
               All Categories
             </SelectItem>
-            {categoryOptions.map((opt: any) => (
+            {CATEGORY_OPTIONS.map((opt: any) => (
               <SelectItem key={opt._id} classNames={{ title: "text-xs" }}>
                 {opt.shortTitle}
               </SelectItem>
@@ -99,7 +105,7 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
             Clear All
           </Button>
         </div>
-        <p className="">
+        <p>
           <span>{selectedReferrersState.length}</span> of {practices.length}{" "}
           referrers selected
         </p>
@@ -111,16 +117,7 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
             <p className="font-medium text-sm">
               Selected Referrers ({selectedReferrerObjects.length})
             </p>
-            {/* <Button
-              size="sm"
-              variant="ghost"
-              className="min-w-fit border-small"
-              onPress={() => setShowRoutePreview(!showRoutePreview)}
-              isDisabled={selectedReferrerObjects.length < 2}
-              startContent={<FaRegMap />}
-            >
-              {showRoutePreview ? "Hide Route Preview" : "Show Route Preview"}
-            </Button> */}
+            {/* Removed commented-out Button */}
           </CardHeader>
           <CardBody className="pt-3 pb-4 px-4 space-y-3">
             {selectedReferrerObjects.length > 0 && (
@@ -134,8 +131,8 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
                       <span className="min-h-[18px] min-w-[18px] size-[18px] rounded-full bg-primary text-white inline-flex items-center justify-center text-xs">
                         {index + 1}
                       </span>
-                      <div className="text-xs">
-                        <p>{r.name}</p>
+                      <div className="text-xs space-y-0.5">
+                        <p className="font-medium">{r.name}</p>
                         <p className="text-gray-600">
                           {r.address.addressLine1}, {r.address.city}
                         </p>
@@ -146,7 +143,7 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
                       size="sm"
                       radius="sm"
                       isIconOnly
-                      className="size-5 min-w-auto border-none"
+                      className="min-w-5 min-h-5 size-5 border-none"
                       onPress={() => handleReferrerToggle(r._id)}
                     >
                       <IoClose />
@@ -155,72 +152,11 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
                 ))}
               </div>
             )}
-
-            {/* <div className="flex justify-around items-center bg-background border border-primary/15 rounded-md p-3">
-              <div className="text-center">
-                <p className="text-sm font-semibold text-primary">
-                  {selectedReferrerObjects.length}
-                </p>
-                <p className="text-xs text-gray-600">Referrers</p>
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-semibold text-primary">
-                  {estTotalTime}
-                </p>
-                <p className="text-xs text-gray-600">Est. Time</p>
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-semibold text-primary">
-                  {estDistance}
-                </p>
-                <p className="text-xs text-gray-600">Est. Miles</p>
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-semibold text-primary">
-                  {mileageCost}
-                </p>
-                <p className="text-xs text-gray-600">Mileage Cost</p>
-              </div>
-            </div> */}
           </CardBody>
         </Card>
       )}
 
-      {/* {showRoutePreview && selectedReferrerObjects.length >= 2 && (
-        <Card className="shadow-none border border-primary/15 mt-4">
-          <CardBody className="p-4 space-y-3">
-            <p className="font-medium text-sm">Optimized Route Preview</p>
-            <div className="">
-              {routePreviewData.map((stop, index) => (
-                <div key={stop.id} className="flex items-start space-x-3">
-                  <div className="flex flex-col items-center">
-                    <div className="size-6 rounded-full bg-primary text-white flex items-center justify-center text-sm">
-                      {index + 1}
-                    </div>
-                    {index < routePreviewData.length - 1 && (
-                      <div className="w-0.5 h-12 bg-gray-300"></div>
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-sm">{stop.name}</p>
-                    <p className="text-xs text-gray-500">{stop.address}</p>
-                    <div className="flex space-x-3 text-[11px] text-gray-600 mt-1">
-                      <span>Arrive: {stop.arrive}</span>
-                      <span>Depart: {stop.depart}</span>
-                      {stop.miles > 0 && (
-                        <>
-                          <span>• {stop.driveMin.toFixed(1)}min drive</span>
-                          <span>• {stop.miles.toFixed(1)}mi</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardBody>
-        </Card>
-      )} */}
+      {/* Removed commented-out Route Preview Card */}
 
       <div className="space-y-3 max-h-80 overflow-y-auto p-1 pr-2">
         {filteredReferrers.map((r) => (
@@ -245,25 +181,25 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
                 />
                 <div>
                   <p className="text-sm">{r.name}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">
+                  <p className="text-xs text-gray-600 mt-0.5">
                     {r.address.addressLine1}, {r.address.city}
                   </p>
                   <div className="flex items-center sapce-x-2 mt-0.5">
-                    <p className="text-xs text-gray-500">{r.phone}</p>
+                    <p className="text-xs text-gray-600">{r.phone}</p>
                     {r.totalReferrals > 0 && (
-                      <p className="text-xs text-gray-500">
-                        {r.totalReferrals} Referrals
+                      <p className="text-xs text-gray-600 ml-2">
+                        • {r.totalReferrals} Referrals
                       </p>
                     )}
                   </div>
                 </div>
               </div>
-              <LevelChip level={r.level.toLowerCase()} />
+              <LevelChip level={r.level} />
             </CardBody>
           </Card>
         ))}
         {filteredReferrers.length === 0 && (
-          <p className="text-center text-gray-500 pt-5">
+          <p className="text-center text-gray-600 text-sm py-5">
             No referrers match the current filters.
           </p>
         )}

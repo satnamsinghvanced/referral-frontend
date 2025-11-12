@@ -22,6 +22,7 @@ const Profile = ({ className, imgClass, user }: ProfileProps) => {
       : null;
 
   return (
+    // @ts-ignore
     <Avatar
       src={avatarUrl || undefined}
       name={display?.toUpperCase()}

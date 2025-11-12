@@ -1,5 +1,4 @@
 import {
-  HiOutlineCalendar,
   HiOutlineChartBar,
   HiOutlineChevronLeft,
   HiOutlineCog,
@@ -14,13 +13,20 @@ import { useSelector } from "react-redux";
 import { Link, NavLink, useLocation, useNavigate } from "react-router";
 
 import { Tooltip } from "@heroui/react";
-import { LuBuilding2, LuDollarSign, LuQrCode, LuVideo } from "react-icons/lu";
+import {
+  LuBuilding2,
+  LuCalendar,
+  LuDollarSign,
+  LuQrCode,
+  LuVideo,
+} from "react-icons/lu";
 
-import { FiHome, FiImage, FiUsers } from "react-icons/fi";
+import { FiFileText, FiHome, FiImage, FiUsers } from "react-icons/fi";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import logo from "../../assets/logos/logo.png";
 // import logoWhite from "../../assets/logo-white.svg";
 import clsx from "clsx";
+import { MdOutlineModeComment } from "react-icons/md";
 import { TbCheckbox } from "react-icons/tb";
 import { useDashboardStats } from "../../hooks/useDashboard";
 
@@ -54,7 +60,7 @@ const Sidebar = ({
     {
       name: "Dashboard",
       icon: FiHome,
-      href: "/dashboard",
+      href: "/",
     },
     {
       name: "Referrals",
@@ -80,14 +86,14 @@ const Sidebar = ({
     },
     {
       name: "Marketing Calendar",
-      icon: HiOutlineCalendar,
+      icon: LuCalendar,
       href: "/marketing-calendar",
-      stats: 8,
+      stats: dashboardStats?.activities,
       color: "bg-orange-300",
     },
     {
       name: "Social Media",
-      icon: HiOutlineMail,
+      icon: MdOutlineModeComment,
       href: "/social-media",
       stats: "NEW", // Special case for NEW label
       color: "bg-purple-300",
@@ -114,15 +120,15 @@ const Sidebar = ({
     },
     {
       name: "Reports",
-      icon: HiOutlineDocument,
+      icon: FiFileText,
       href: "/reports",
       color: "bg-gray-300",
     },
     {
       name: "Task List",
       icon: TbCheckbox,
-      href: "/task-list",
-      stats: 12,
+      href: "/tasks",
+      stats: dashboardStats?.tasks,
       color: "bg-red-300",
     },
     {
@@ -143,12 +149,12 @@ const Sidebar = ({
       href: "/media-management",
       color: "bg-red-300",
     },
-    {
-      name: "Image Library",
-      icon: FiImage,
-      href: "/image-library",
-      color: "bg-red-300",
-    },
+    // {
+    //   name: "Image Library",
+    //   icon: FiImage,
+    //   href: "/image-library",
+    //   color: "bg-red-300",
+    // },
     {
       name: "Integrations",
       icon: HiOutlineLightningBolt,
@@ -156,17 +162,10 @@ const Sidebar = ({
       stats: 12,
       color: "bg-blue-400",
     },
+    { name: "Settings", icon: HiOutlineCog, href: "/settings" },
   ];
 
-  const bottomRoutes = [
-    {
-      name: "Help Center",
-      icon: HiOutlineQuestionMarkCircle,
-      href: "/helpcenter",
-    },
-    { name: "Settings", icon: HiOutlineCog, href: "/settings" },
-    // { name: "Sign Out", icon: HiOutlineLockClosed, href: "/logout" },
-  ];
+  // const bottomRoutes = [];
 
   const handleNavigate = (href: string) => {
     navigate(href);
@@ -243,14 +242,22 @@ const Sidebar = ({
           <ul className="flex flex-col p-3">
             {navigationRoutes.map((item, index) => {
               const Icon = item.icon;
-              const active = pathname === item.href;
+              const active =
+                pathname === item.href ||
+                (item.href === "/dashboard" && pathname === "/");
+
+              console.log(item.href, "HREF");
               return (
                 <li key={index}>
                   {/* if item.list exists in future, we can render expand. For now single links */}
                   <NavLink
                     to={item.href}
-                    className={({ isActive }: { isActive: boolean }) =>
-                      clsx(
+                    className={() => {
+                      const isActive =
+                        pathname === item.href ||
+                        (item.href === "/dashboard" && pathname === "/");
+
+                      return clsx(
                         "group border my-0.5 cursor-pointer rounded-md transition-all group flex items-center py-2 px-3 hover:bg-gray-50 dark:hover:bg-[#0f1214] h-9",
                         isMiniSidebarOpen
                           ? "px-0 justify-start"
@@ -258,8 +265,8 @@ const Sidebar = ({
                         isActive
                           ? "!bg-sky-50 !text-sky-700 !border-sky-200 dark:!bg-white dark:!border-sky-50 shadow-sm"
                           : "hover:bg-gray-100 border-transparent"
-                      )
-                    }
+                      );
+                    }}
                   >
                     <span
                       className={`flex items-center justify-center ${
@@ -314,7 +321,7 @@ const Sidebar = ({
           </ul>
 
           {/* bottom items */}
-          <ul className="space-y-1 p-3">
+          {/* <ul className="space-y-1 p-3">
             {bottomRoutes.map((item, idx) => {
               const Icon = item.icon;
               const isSignOut = item.name.toLowerCase().includes("sign");
@@ -357,7 +364,7 @@ const Sidebar = ({
                 </li>
               );
             })}
-          </ul>
+          </ul> */}
         </div>
 
         {/* bottom SwitchMode (kept as ThemeToggle usage above) */}

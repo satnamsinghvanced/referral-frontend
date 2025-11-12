@@ -200,7 +200,7 @@ const ReferralStatusModal = ({
                   <label className="inline-block text-xs mb-2">
                     Original Notes
                   </label>
-                  <div className="text-xs text-gray-600 bg-gray-50 p-3 rounded border border-primary/15">
+                  <div className="text-xs text-gray-600 bg-gray-50 p-3 rounded-md border border-primary/15">
                     {referral?.notes}
                   </div>
                 </div>

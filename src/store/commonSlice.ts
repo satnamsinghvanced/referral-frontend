@@ -5,6 +5,7 @@ export interface commonState {
   specialties: string[];
   roles: string[];
   permissions: string[];
+  activityTypes: string[];
   error: string | null;
 }
 
@@ -12,6 +13,7 @@ const initialState: commonState = {
   specialties: [],
   roles: [],
   permissions: [],
+  activityTypes: [],
   error: null,
 };
 
@@ -31,12 +33,21 @@ const commmonSlice = createSlice({
       state.permissions = action.payload;
       state.error = null;
     },
+    setActivityTypes: (state, action: PayloadAction<string[]>) => {
+      state.activityTypes = action.payload;
+      state.error = null;
+    },
     setError: (state, action: PayloadAction<string>) => {
       state.error = action.payload;
     },
   },
 });
 
-export const { setSpecialties, setRoles, setPermissions, setError } =
-  commmonSlice.actions;
+export const {
+  setSpecialties,
+  setRoles,
+  setPermissions,
+  setActivityTypes,
+  setError,
+} = commmonSlice.actions;
 export default commmonSlice.reducer;

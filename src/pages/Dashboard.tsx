@@ -1,17 +1,10 @@
+import { Button } from "@heroui/react";
+import { useMemo } from "react";
+import { Link, useNavigate } from "react-router";
+import MiniStatsCard, { StatCard } from "../components/cards/MiniStatsCard";
 import ComponentContainer from "../components/common/ComponentContainer";
 import { useDashboard } from "../hooks/useDashboard";
-import {
-  Button,
-  Card,
-  CardBody,
-  Checkbox,
-  Divider,
-  Input,
-  Link,
-  Select,
-  SelectItem,
-  Spinner,
-} from "@heroui/react";
+import { useTypedSelector } from "../hooks/useTypedSelector";
 
 type Color = "sky" | "orange" | "emerald" | "purple";
 
@@ -22,25 +15,30 @@ interface QuickAction {
   link: string;
 }
 
-const headingData = {
+const HEADING_DATA = {
   heading: "Dashboard Overview",
   subHeading:
     "Welcome back! Here's what's happening with your referrals today.",
 };
 
-const quickActions: QuickAction[] = [
+const QUICK_ACTIONS: QuickAction[] = [
   {
     label: "Add Referral",
     icon: "👥",
     color: "sky",
-    link: "/referral-retrieve/referrals",
+    link: "/referrals",
   },
-  { label: "Marketing Calendar", icon: "📅", color: "orange", link: "" },
-  { label: "View Reviews", icon: "⭐", color: "emerald", link: "" },
-  { label: "Analytics", icon: "📊", color: "purple", link: "" },
+  {
+    label: "Marketing Calendar",
+    icon: "📅",
+    color: "orange",
+    link: "/marketing-calendar",
+  },
+  { label: "View Reviews", icon: "⭐", color: "emerald", link: "/reviews" },
+  { label: "Analytics", icon: "📊", color: "purple", link: "/analytics" },
 ];
 
-const colorClasses: Record<
+const QUICK_ACTIONS_COLOR_CLASSES: Record<
   Color,
   { bg: string; text: string; border: string; hover: string }
 > = {
@@ -70,7 +68,7 @@ const colorClasses: Record<
   },
 };
 
-const systemStatuses = [
+const SYSTEM_STATUSES = [
   {
     name: "Google Calendar",
     status: "✓ Connected",
@@ -92,55 +90,57 @@ const systemStatuses = [
 ];
 
 const Dashboard = () => {
-  const userDataString = localStorage.getItem("user");
-  const userData = userDataString ? JSON.parse(userDataString) : undefined;
-  const userId = userData?.userId;
+  // --- All Hooks must be called unconditionally first ---
 
+  // HOOK 1
+  const navigate = useNavigate();
+
+  // HOOK 2
+  const { user } = useTypedSelector((state) => state.auth);
+  const userId = user?.userId || "";
+
+  // HOOK 3 (useDashboard is a custom hook which internally uses other hooks)
   const { data: dashboard, isLoading, isError, error } = useDashboard(userId);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+  // HOOK 4: useMemo must be called here, before any conditional returns
+  const STAT_CARD_DATA = useMemo<StatCard[]>(
+    () => [
+      {
+        icon: "👥",
+        heading: "Total Referrals",
+        value: dashboard?.totalReferrals as number,
+        subheading:
+          dashboard?.totalLastMonth > 0
+            ? `↗ +${dashboard.totalLastMonth}% from last month`
+            : "0 from last month",
+        onClick: () => navigate("/referrals"),
+      },
+      {
+        icon: "📢",
+        heading: "Active Campaigns",
+        value: "12",
+        subheading: "↗ +2 this month",
+        onClick: () => navigate("/email-campaigns"),
+      },
+      {
+        icon: "⭐",
+        heading: "Reviews",
+        value: "1,248",
+        subheading: "↗ 4.8 avg rating",
+        onClick: () => navigate("/reviews"),
+      },
+      {
+        icon: "🎯",
+        heading: "ROI",
+        value: "284%",
+        subheading: "↗ +12% vs last month",
+        onClick: () => navigate("/reports"),
+      },
+    ],
+    [dashboard]
+  );
 
-  if (isError) {
-    return <div>Error: {error.message}</div>;
-  }
-
-  const stats = [
-    {
-      title: "Total Referrals",
-      value: dashboard?.totalReferrals,
-      change:
-        dashboard?.totalLastMonth > 0
-          ? `↗ +${dashboard.totalLastMonth}% from last month`
-          : "0 from last month",
-      icon: "👥",
-      color: "sky",
-      link: "/referral-retrieve/referrals",
-    },
-    {
-      title: "Active Campaigns",
-      value: "12",
-      change: "↗ +2 this month",
-      icon: "📢",
-      color: "orange",
-    },
-    {
-      title: "Reviews",
-      value: "1,248",
-      change: "↗ 4.8 avg rating",
-      icon: "⭐",
-      color: "emerald",
-    },
-    {
-      title: "ROI",
-      value: "284%",
-      change: "↗ +12% vs last month",
-      icon: "🎯",
-      color: "purple",
-    },
-  ];
-
+  // Define regular functions (these are fine anywhere)
   const getTimeAgo = (dateString: string) => {
     const now = new Date();
     const createdAt = new Date(dateString);
@@ -157,22 +157,30 @@ const Dashboard = () => {
     return `${days} day${days > 1 ? "s" : ""} ago`;
   };
 
+  // --- Conditional Renders follow all Hook calls ---
+  // if (isLoading) {
+  //   return <div></div>;
+  // }
+
+  // if (isError) {
+  //   return <div>Error: {error.message}</div>;
+  // }
+
+  // --- Rest of the component logic (which relies on `dashboard` being defined) ---
   console.log(dashboard);
   const recentActivities = [
     ...(dashboard?.recentReferrals?.length > 0
       ? [
-          {
-            icon: "👥",
-            iconBg: "bg-sky-50",
-            title: `New referral from ${
-              dashboard?.referrer?.name || "Unknown"
+        {
+          icon: "👥",
+          iconBg: "bg-sky-50",
+          title: `New referral from ${dashboard?.referrer?.name || "Unknown"
             }`,
-            description: `Patient: ${
-              dashboard?.recentReferrals[0]?.name || "Unknown"
+          description: `Patient: ${dashboard?.recentReferrals[0]?.name || "Unknown"
             } - ${dashboard?.referrer?.type || "Unknown"}`,
-            time: `${getTimeAgo(dashboard?.recentReferrals[0]?.createdAt)}`,
-          },
-        ]
+          time: `${getTimeAgo(dashboard?.recentReferrals[0]?.createdAt)}`,
+        },
+      ]
       : []),
     {
       icon: "⭐",
@@ -190,172 +198,135 @@ const Dashboard = () => {
     },
   ];
 
-   const handleClick = (item : any, e: any) => {
+  const handleClick = (item: any, e: any) => {
     if (!item.link) {
       e.preventDefault();
     }
   };
 
   return (
-    <ComponentContainer headingData={headingData}>
-      <div className="container mx-auto">
-        <div className="min-h-screen bg-gray-50">
-          <div className="max-w-full mx-auto">
-            <div className="mb-6">
-              <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <p className="text-sm text-blue-800">
-                  <span className="font-medium">Navigation is now active!</span>{" "}
-                  Click on any metric card, quick action button, or activity
-                  item to navigate to different sections.
-                </p>
-              </div>
-            </div>
+    <ComponentContainer headingData={HEADING_DATA}>
+      <div className="space-y-5">
+        <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+          <p className="text-sm text-blue-800">
+            <span className="font-medium">Navigation is now active!</span> Click
+            on any metric card, quick action button, or activity item to
+            navigate to different sections.
+          </p>
+        </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              {stats?.map((item, i) => (
+        <div className="grid md:grid-cols-3 xl:grid-cols-4 gap-4">
+          {STAT_CARD_DATA.map((data, i) => (
+            <MiniStatsCard key={i} cardData={data} />
+          ))}
+        </div>
+
+        <div className="bg-background rounded-xl p-5">
+          <h1 className="text-base mb-5">Quick Actions</h1>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {QUICK_ACTIONS.map((action, i) => {
+              const color = QUICK_ACTIONS_COLOR_CLASSES[action.color];
+              return (
                 <Link
                   key={i}
-                  href={item.link || ""}
-                  onClick={(e) => handleClick(item, e)}
-                  className={`
-    bg-white rounded-lg shadow p-6 border border-transparent 
-    hover:border-${item.color}-300 hover:shadow-lg 
-    transition-all block
-  `}
+                  to={action.link || ""}
+                  onClick={(e) => {
+                    if (!action.link) e.preventDefault();
+                  }}
+                  className={`flex items-center justify-center space-x-2 px-3 py-2.5 rounded-lg border transition-colors cursor-pointer text-sm
+                    ${color.bg} ${color.text} ${color.border} ${color.hover}`}
                 >
-                  <div className="flex items-center justify-between mb-2">
-                    <h1 className="text-sm">{item.title}</h1>
-                    <div
-                      className={`w-8 h-8 bg-${item.color}-100 rounded-lg flex items-center justify-center`}
-                    >
-                      <span className={`text-${item.color}-600 text-lg`}>
-                        {item.icon}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="text-lg mt-4 mb-0.5 font-bold">
-                    {item.value}
-                  </div>
-                  <div className="flex items-center mt-1">
-                    <span className="text-xs text-emerald-600">
-                      {item.change}
-                    </span>
-                  </div>
+                  <span>{action.icon}</span>
+                  <span>{action.label}</span>
                 </Link>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
+          <div className="xl:col-span-2 bg-background rounded-xl p-5">
+            <h3 className="text-base mb-4">Recent Activity</h3>
+            <div className="space-y-2">
+              {recentActivities.map((activity, index) => (
+                <div
+                  key={index}
+                  className="flex items-start space-x-3 p-3 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+                >
+                  <div
+                    className={`p-0 rounded-lg flex items-center justify-center size-9 ${activity.iconBg}`}
+                  >
+                    <span className="text-md">{activity.icon}</span>
+                  </div>
+                  <div className="flex-1 space-y-1">
+                    <p className="text-sm font-medium">{activity.title}</p>
+                    <p className="text-xs text-gray-600">
+                      {activity.description}
+                    </p>
+                    <p className="text-xs text-gray-600">{activity.time}</p>
+                  </div>
+                </div>
               ))}
             </div>
+          </div>
 
-            <div className="bg-white rounded-lg shadow p-6 mb-8">
-              <h1 className="text-lg mb-4">Quick Actions</h1>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {quickActions.map((action, i) => {
-                  const color = colorClasses[action.color];
-                  return (
-                    <Link
-                      key={i}
-                      href={action.link || ""}
-                      onClick={(e) => {
-                        if (!action.link) e.preventDefault();
-                      }}
-                      className={`flex items-center justify-center space-x-2 px-3 py-2 rounded-lg border transition-colors cursor-pointer text-sm
-                   ${color.bg} ${color.text} ${color.border} ${color.hover}`}
-                    >
-                      <span>{action.icon}</span>
-                      <span>{action.label}</span>
-                    </Link>
-                  );
-                })}
+          <div className="space-y-5">
+            <div className="bg-background rounded-xl p-5">
+              <h3 className="text-base mb-4">
+                <span className="mr-1">📱</span>NFC & QR Tracking
+              </h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-gray-600">Active Codes</span>
+                  <span className="bg-sky-100 text-sky-800 size-6 p-0 flex items-center justify-center rounded text-xs font-medium">
+                    {dashboard?.nfcQrData?.activeQRCodes || 0}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-gray-600">Scans Today</span>
+                  <span className="bg-orange-100 text-orange-800 size-6 p-0 flex items-center justify-center rounded text-xs font-medium">
+                    {dashboard?.nfcQrData?.totalScansToday || 0}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-gray-600">Conversion Rate</span>
+                  <span className="bg-emerald-100 text-emerald-800 size-6 p-0 flex items-center justify-center rounded text-xs font-medium">
+                    {dashboard?.nfcQrData?.avgConversionRate > 0
+                      ? `${dashboard.nfcQrData.avgConversionRate}%`
+                      : "0"}
+                  </span>
+                </div>
+                <Link to="/qr-generator">
+                  <Button
+                    size="sm"
+                    radius="sm"
+                    variant="solid"
+                    color="primary"
+                    fullWidth
+                    className="mt-2"
+                  >
+                    📱 Generate New Code
+                  </Button>
+                </Link>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-              <div className="xl:col-span-2">
-                <div className="bg-white rounded-lg shadow p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                    Recent Activity
-                  </h3>
-                  <div className="space-y-4">
-                    {recentActivities.map((activity, index) => (
-                      <div
-                        key={index}
-                        className="flex items-start space-x-3 p-3 hover:bg-gray-50 rounded-lg transition-colors cursor-pointer"
-                      >
-                        <div className={`p-2 rounded-lg ${activity.iconBg}`}>
-                          <span className="text-lg">{activity.icon}</span>
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm font-medium text-gray-900">
-                            {activity.title}
-                          </p>
-                          <p className="text-sm text-gray-600">
-                            {activity.description}
-                          </p>
-                          <p className="text-xs text-gray-500 mt-1">
-                            {activity.time}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
+            <div className="bg-background rounded-xl p-5">
+              <h3 className="text-base mb-4">System Status</h3>
+              <div className="space-y-2">
+                {SYSTEM_STATUSES.map((system, index) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between"
+                  >
+                    <span className="text-xs text-gray-600">{system.name}</span>
+                    <span
+                      className={`${system.bg} ${system.text} px-2 py-1 rounded text-xs`}
+                    >
+                      {system.status}
+                    </span>
                   </div>
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                <div className="bg-white rounded-lg shadow p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4 flex items-center">
-                    <span className="mr-2">📱</span>NFC & QR Tracking
-                  </h3>
-                  <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">
-                        Active Codes
-                      </span>
-                      <span className="bg-sky-100 text-sky-800 px-2 py-1 rounded text-sm font-medium">
-                        {dashboard?.nfcQrData?.activeQRCodes || 0}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Scans Today</span>
-                      <span className="bg-orange-100 text-orange-800 px-2 py-1 rounded text-sm font-medium">
-                        {dashboard?.nfcQrData?.totalScansToday || 0}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">
-                        Conversion Rate
-                      </span>
-                      <span className="bg-emerald-100 text-emerald-800 px-2 py-1 rounded text-sm font-medium">
-                        {dashboard?.nfcQrData?.avgConversionRate > 0
-                          ? `${dashboard.nfcQrData.avgConversionRate}%`
-                          : "0"}
-                      </span>
-                    </div>
-                    <button className="w-full mt-4 bg-sky-600 text-white px-4 py-2 rounded-lg hover:bg-sky-700 transition-colors cursor-pointer">
-                      📱 Generate New Code
-                    </button>
-                  </div>
-                </div>
-
-                <div className="bg-white rounded-lg shadow p-6">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                    System Status
-                  </h3>
-                  <div className="space-y-2">
-                    {systemStatuses.map((system, index) => (
-                      <div
-                        key={index}
-                        className="flex items-center justify-between"
-                      >
-                        <span className="text-gray-600">{system.name}</span>
-                        <span
-                          className={`${system.bg} ${system.text} px-2 py-1 rounded text-sm`}
-                        >
-                          {system.status}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
           </div>

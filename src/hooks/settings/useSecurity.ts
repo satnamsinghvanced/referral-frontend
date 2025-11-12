@@ -13,7 +13,7 @@ export function useUpdatePassword() {
     onSuccess: () => {
       addToast({
         title: "Success",
-        description: "Password updated",
+        description: "Password updated successfully.",
         color: "success",
       });
     },

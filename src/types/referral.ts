@@ -9,7 +9,7 @@ export interface Referral {
   treatment?: string;
   priority?: string;
   estValue?: number;
-  scheduledDate?: string;
+  appointmentTime?: string;
   notes?: string;
   insurance?: string;
   appointment?: string;

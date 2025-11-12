@@ -25,7 +25,7 @@ const PartnerNetworkCard = ({ partner, actions }: PartnerNetworkCardProps) => {
       <div className="font-medium text-sm w-full h-full flex flex-col justify-center gap-1">
         <div className="flex items-center gap-2">
           <p>{partner.name}</p>
-          <LevelChip level={partner.level.toLowerCase()} />
+          <LevelChip level={partner.level} />
         </div>
         <div className="flex gap-3.5 items-center text-xs font-light">
           <p className="flex gap-1 items-center text-gray-600">

@@ -115,7 +115,7 @@ const NfcCard = ({ data, isOpen, toggleUsers }: any) => {
         <IoIosWifi className="text-xl text-blue-600" />
         <span className="ml-1.5 text-base">{title}</span>
       </div>
-      <div className="flex items-center text-xs text-gray-500 mb-4">
+      <div className="flex items-center text-xs text-gray-600 mb-4">
         <MdOutlineLocationOn className="text-base" />
         <span className="ml-1">{location}</span>
       </div>
@@ -124,18 +124,18 @@ const NfcCard = ({ data, isOpen, toggleUsers }: any) => {
       <div className="flex justify-between items-center mb-4">
         <div className="flex-1 mr-2 text-center p-3 bg-gradient-to-br from-sky-50 to-sky-100 rounded-lg">
           <p className="text-xl font-bold text-sky-700">{totalTaps}</p>
-          <p className="text-xs text-gray-500">Total Taps</p>
+          <p className="text-xs text-gray-600">Total Taps</p>
         </div>
         <div className="flex-1 ml-2 text-center p-3 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-lg">
           <p className="text-xl font-bold text-green-700">{conversions}</p>
-          <p className="text-xs text-gray-500">Conversions</p>
+          <p className="text-xs text-gray-600">Conversions</p>
         </div>
       </div>
 
       {/* Conversion Rate Bar */}
       <div className="flex flex-col justify-start">
         <div className="flex justify-between items-center text-sm font-medium">
-          <p className="text-xs text-gray-500">Conversion Rate</p>
+          <p className="text-xs text-gray-600">Conversion Rate</p>
           <span className="text-xs text-gray-900">
             {conversionRate.toFixed(1)}%
           </span>
@@ -146,7 +146,7 @@ const NfcCard = ({ data, isOpen, toggleUsers }: any) => {
             style={{ width: progressBarWidth }}
           ></div>
         </div>
-        <span className="text-xs text-gray-500 mt-3 text-left">
+        <span className="text-xs text-gray-600 mt-3 text-left">
           Last used: {lastUsed}
         </span>
       </div>
@@ -180,7 +180,7 @@ const NfcCard = ({ data, isOpen, toggleUsers }: any) => {
                     <p className="text-xs font-medium text-gray-900">
                       {user.name}
                     </p>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-600">
                       {user.taps} taps • Last: {user.last}
                     </p>
                   </div>
@@ -197,7 +197,7 @@ const NfcCard = ({ data, isOpen, toggleUsers }: any) => {
               </div>
             ))}
             {users.length === 0 && (
-              <p className="text-xs text-gray-500 text-center py-2">
+              <p className="text-xs text-gray-600 text-center py-2">
                 No associated users to display.
               </p>
             )}

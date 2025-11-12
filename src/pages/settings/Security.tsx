@@ -163,7 +163,7 @@ const Security: React.FC = () => {
           <div className="flex items-center justify-between p-4 border border-foreground/10 rounded-lg">
             <div className="space-y-1">
               <p className="font-medium text-sm">SMS Authentication</p>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-600">
                 Receive codes via SMS to +1 (918) ***-0100
               </p>
             </div>
