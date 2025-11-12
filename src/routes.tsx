@@ -18,7 +18,7 @@ const PartnerNetwork = React.lazy(
   () => import("./pages/partner-network/PartnerNetwork")
 );
 const Reviews = React.lazy(() => import("./pages/reviews/Reviews"));
-const SocialMedia = React.lazy(() => import("./pages/SocialMedia"));
+const SocialMedia = React.lazy(() => import("./pages/social-media/SocialMedia"));
 const Reports = React.lazy(() => import("./pages/Reports"));
 const Tasks = React.lazy(() => import("./pages/tasks/Tasks"));
 const MediaManagement = React.lazy(
