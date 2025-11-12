@@ -18,7 +18,6 @@ export const fetchLocations = async (): Promise<Location[]> => {
   const response = axios.get("/location");
   return (await response).data;
 };
-
 export const fetchLocationDetails = async (id: string): Promise<Location> => {
   const { data } = await axios.get(`/location/${id}`);
   return data; // backend should return a single location object
@@ -29,7 +28,6 @@ export const createLocation = async (location: Location): Promise<Location> => {
   const response = axios.post("/location", location);
   return (await response).data;
 };
-
 // 🔹 Update location
 export const updateLocation = async (
   id: string,

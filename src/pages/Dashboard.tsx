@@ -190,6 +190,12 @@ const Dashboard = () => {
     },
   ];
 
+   const handleClick = (item : any, e: any) => {
+    if (!item.link) {
+      e.preventDefault();
+    }
+  };
+
   return (
     <ComponentContainer headingData={headingData}>
       <div className="container mx-auto">
@@ -210,6 +216,7 @@ const Dashboard = () => {
                 <Link
                   key={i}
                   href={item.link || ""}
+                  onClick={(e) => handleClick(item, e)}
                   className={`
     bg-white rounded-lg shadow p-6 border border-transparent 
     hover:border-${item.color}-300 hover:shadow-lg 
