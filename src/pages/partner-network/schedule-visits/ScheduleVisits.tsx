@@ -3,11 +3,12 @@ import {
   Card,
   CardBody,
   CardHeader,
+  Pagination,
   Select,
   SelectItem,
   Spinner,
 } from "@heroui/react";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { LuCalendar } from "react-icons/lu";
 import { MdOutlineCalendarToday } from "react-icons/md";
 import { useGetSchedulePlans } from "../../../hooks/usePartner";
@@ -16,6 +17,9 @@ import CompactPlanCard from "./CompactPlanCard";
 import { ScheduleVisitsModal } from "./modal/ScheduleVisitsModal";
 import PlanCard from "./PlanCard";
 import ViewScheduledVisitModal from "./ViewScheduledVisitModal";
+import { FiUsers } from "react-icons/fi";
+import { LoadingState } from "../../../components/common/LoadingState";
+import EmptyState from "../../../components/common/EmptyState";
 
 const StatsGrid = ({ stats }: any) => {
   const statData = [
@@ -90,29 +94,79 @@ export default function ScheduleVisits({ practices }: any) {
   const [isViewScheduleVisitModalOpen, setIsViewScheduleVisitModalOpen] =
     useState(false);
   const [isCompactMode, setIsCompactMode] = useState(false);
-  const [viewPlan, setViewPlan] = useState();
+  const [viewPlan, setViewPlan] = useState<any>();
 
   const [filters, setFilters] = useState<GetSchedulePlansQuery>({
+    page: 1,
+    limit: 12,
     status: "all",
     order: "desc",
-    sortBy: "createdAt",
+    sortBy: "month",
   });
 
   const { data, isLoading, isError, error } = useGetSchedulePlans(filters);
 
   const schedulePlans = data?.data || [];
   const dashboardStats = data?.dashboardStats;
-  const totalPlans = data?.totalData || 0;
+  const pagination = data?.pagination;
 
-  const handleFilterChange = (
-    key: keyof GetSchedulePlansQuery,
-    value: string
-  ) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
-  };
+  const handleFilterChange = useCallback(
+    (key: keyof GetSchedulePlansQuery, value: string) => {
+      setFilters((prev) => ({ ...prev, [key]: value }));
+    },
+    []
+  );
 
   const handleOrderToggle = () => {
     handleFilterChange("order", filters.order === "desc" ? "asc" : "desc");
+  };
+
+  const PlanListContent = () => {
+    if (isLoading && !dashboardStats) {
+      return (
+        <div className="col-span-full text-center p-8">
+          <LoadingState />
+        </div>
+      );
+    }
+
+    if (isError) {
+      return (
+        <div className="col-span-full p-4 border border-red-300 bg-red-50 text-red-700 rounded">
+          Failed to load plans: {(error as Error)?.message}
+        </div>
+      );
+    }
+
+    if (schedulePlans.length === 0) {
+      return (
+        <div className="col-span-full text-center p-8 text-gray-500 border border-primary/15 rounded-xl bg-background text-sm">
+          <EmptyState title="No schedule plans found based on current filters." />
+        </div>
+      );
+    }
+
+    return schedulePlans.map((plan: any) =>
+      isCompactMode ? (
+        <CompactPlanCard
+          key={plan._id}
+          plan={plan}
+          onView={(p: any) => {
+            setIsViewScheduleVisitModalOpen(true);
+            setViewPlan(p);
+          }}
+        />
+      ) : (
+        <PlanCard
+          key={plan._id}
+          plan={plan}
+          onView={(p: any) => {
+            setIsViewScheduleVisitModalOpen(true);
+            setViewPlan(p);
+          }}
+        />
+      )
+    );
   };
 
   return (
@@ -168,14 +222,10 @@ export default function ScheduleVisits({ practices }: any) {
           </CardHeader>
 
           <CardBody data-slot="card-content" className="px-5 pt-0 pb-5">
-            {isLoading && (
-              <div className="text-center p-8">
-                <Spinner label="Loading stats..." />
-              </div>
-            )}
-            {isError && (
+            {isLoading && !dashboardStats && <LoadingState />}
+            {isError && !dashboardStats && (
               <div className="p-4 border border-red-300 bg-red-50 text-red-700 rounded">
-                Error: {error.message}
+                Error: {(error as Error)?.message}
               </div>
             )}
             {dashboardStats && <StatsGrid stats={dashboardStats} />}
@@ -190,6 +240,7 @@ export default function ScheduleVisits({ practices }: any) {
               size="sm"
               radius="sm"
               selectedKeys={[filters.status] as string[]}
+              disabledKeys={[filters.status] as string[]}
               onSelectionChange={(keys) =>
                 handleFilterChange("status", Array.from(keys)[0] as string)
               }
@@ -206,11 +257,12 @@ export default function ScheduleVisits({ practices }: any) {
               placeholder="Month"
               size="sm"
               radius="sm"
-              defaultSelectedKeys={["month"]}
-              className="min-w-[160px]"
+              selectedKeys={[filters.sortBy] as string[]}
+              disabledKeys={[filters.sortBy] as string[]}
               onSelectionChange={(keys) => {
                 handleFilterChange("sortBy", Array.from(keys)[0] as string);
               }}
+              className="min-w-[160px]"
             >
               <SelectItem key="month">Month</SelectItem>
               <SelectItem key="name">Name</SelectItem>
@@ -227,55 +279,41 @@ export default function ScheduleVisits({ practices }: any) {
             </Button>
           </div>
           <div className="text-xs text-gray-600">
-            Showing {schedulePlans.length} of {totalPlans} plans
+            Showing {schedulePlans.length} of {pagination?.totalData} plans
           </div>
         </div>
 
-        <div
-          className={`${
-            !isCompactMode
-              ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-              : "space-y-4"
-          }`}
-        >
-          {isLoading && !dashboardStats && (
-            <div className="col-span-full text-center p-8">
-              <Spinner color="primary" label="Loading schedule plans..." />
-            </div>
-          )}
-
-          {isError && (
-            <div className="col-span-full p-4 border border-red-300 bg-red-50 text-red-700 rounded">
-              Failed to load plans: {error.message}
-            </div>
-          )}
-
-          {!isLoading && schedulePlans.length === 0 && (
-            <div className="col-span-full text-center p-8 text-gray-500 border border-primary/15 rounded-xl bg-background text-sm">
-              No schedule plans found based on current filters.
-            </div>
-          )}
-
-          {schedulePlans.map((plan) =>
-            isCompactMode ? (
-              <CompactPlanCard
-                key={plan._id}
-                plan={plan}
-                onView={(plan: any) => {
-                  setIsViewScheduleVisitModalOpen(true);
-                  setViewPlan(plan);
-                }}
-              />
-            ) : (
-              <PlanCard
-                key={plan._id}
-                plan={plan}
-                onView={(plan: any) => {
-                  setIsViewScheduleVisitModalOpen(true);
-                  setViewPlan(plan);
-                }}
-              />
-            )
+        <div>
+          <div
+            className={`${
+              !isCompactMode
+                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                : "space-y-4"
+            }`}
+          >
+            <PlanListContent />
+          </div>
+          {pagination && pagination.totalPages > 1 ? (
+            <Pagination
+              showControls
+              size="sm"
+              radius="sm"
+              initialPage={1}
+              page={filters.page as number}
+              onChange={(page) => {
+                setFilters((prev) => ({ ...prev, page }));
+              }}
+              total={pagination?.totalPages as number}
+              classNames={{
+                base: "flex justify-center py-3 mt-3",
+                wrapper: "gap-1.5",
+                item: "bg-white cursor-pointer",
+                prev: "bg-white cursor-pointer",
+                next: "bg-white cursor-pointer",
+              }}
+            />
+          ) : (
+            ""
           )}
         </div>
       </div>

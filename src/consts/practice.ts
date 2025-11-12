@@ -61,7 +61,7 @@ export const PER_VISIT_DURATION_OPTIONS: string[] = [
 
 export const VISIT_STATUSES = [
   { label: "Completed", value: "completed" },
-  { label: "Cancelled", value: "cancelled" },
+  { label: "Cancelled", value: "cancel" },
   { label: "Pending", value: "pending" },
 ];
 

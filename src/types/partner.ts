@@ -425,6 +425,8 @@ export interface RouteOptimizationResults {
 // HEHEHHEHEHE
 // --- 1. Query Parameters Type ---
 export interface GetSchedulePlansQuery {
+  page: number;
+  limit: number;
   status?: "draft" | "active" | "completed" | "pending" | "cancel" | string;
   order?: "asc" | "desc" | string;
   sortBy?: "name" | "createdAt" | string;
@@ -471,7 +473,7 @@ interface PlanSummary {
 
 // --- 3. Full Schedule Plan Data Type ---
 export interface SchedulePlan {
-  planDetails: PlanDetails;
+  planDetails: any;
   isDraft?: boolean; // Can be implicitly determined from 'label'
   _id: string;
   createdBy: string;
@@ -500,13 +502,15 @@ export interface SchedulePlansResponse {
   success: boolean;
   message: string;
   data: SchedulePlan[];
-  totalData: number;
-  totalPages: number;
-  currentPage: number;
-  pageSize: number;
-  hasNextPage: boolean;
-  hasPrevPage: boolean;
   dashboardStats: SchedulePlanDashboardStats;
+  pagination: {
+    totalPages: number;
+    currentPage: number;
+    pageSize: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+    totalData: number;
+  };
 }
 
 interface VisitHistoryItem {
@@ -554,7 +558,5 @@ export interface VisitHistoryResponse {
 
 export interface VisitHistoryQueryParams {
   filter: "all" | "draft" | "completed" | "pending" | "cancelled";
-  // source: "list" | "map"; // Assuming potential sources
   search: string;
-  // Add pagination params if needed, e.g., page: number, limit: number
 }

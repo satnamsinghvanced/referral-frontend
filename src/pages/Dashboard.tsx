@@ -5,6 +5,7 @@ import MiniStatsCard, { StatCard } from "../components/cards/MiniStatsCard";
 import ComponentContainer from "../components/common/ComponentContainer";
 import { useDashboard } from "../hooks/useDashboard";
 import { useTypedSelector } from "../hooks/useTypedSelector";
+import { TREATMENT_OPTIONS } from "../consts/referral";
 
 type Color = "sky" | "orange" | "emerald" | "purple";
 
@@ -176,11 +177,18 @@ const Dashboard = () => {
           iconBg: "bg-sky-50",
           title: `New referral from ${dashboard?.referrer?.name || "Unknown"
             }`,
-          description: `Patient: ${dashboard?.recentReferrals[0]?.name || "Unknown"
-            } - ${dashboard?.referrer?.type || "Unknown"}`,
-          time: `${getTimeAgo(dashboard?.recentReferrals[0]?.createdAt)}`,
-        },
-      ]
+            description: `Patient: ${
+              dashboard?.recentReferrals[0]?.name || "Unknown"
+            } - ${
+              TREATMENT_OPTIONS.find(
+                (treatmentOption: any) =>
+                  treatmentOption.key ===
+                  dashboard?.recentReferrals[0]?.treatment
+              )?.label || "Unknown"
+            }`,
+            time: `${getTimeAgo(dashboard?.recentReferrals[0]?.createdAt)}`,
+          },
+        ]
       : []),
     {
       icon: "⭐",

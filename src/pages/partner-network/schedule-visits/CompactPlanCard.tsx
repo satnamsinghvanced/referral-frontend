@@ -7,6 +7,7 @@ import {
   useCopySchedulePlan,
   useDeleteSchedulePlan,
 } from "../../../hooks/usePartner";
+import VisitStatusChip from "../../../components/chips/VisitStatusChip";
 
 const CompactPlanCard: React.FC<{ plan: SchedulePlan; onView: any }> = ({
   plan,
@@ -43,6 +44,7 @@ const CompactPlanCard: React.FC<{ plan: SchedulePlan; onView: any }> = ({
           <h4 className="text-sm font-medium truncate">
             {plan.planDetails.name}
           </h4>
+          <VisitStatusChip status={plan.status} />
         </div>
         <p className="text-xs text-gray-600">{monthYear}</p>
         {plan.planDetails.description && (
@@ -84,7 +86,7 @@ const CompactPlanCard: React.FC<{ plan: SchedulePlan; onView: any }> = ({
             variant="light"
             title="View Details"
             isIconOnly
-            onPress={onView}
+            onPress={() => onView(plan)}
           >
             <FiEye className="size-3.5" />
           </Button>

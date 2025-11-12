@@ -7,6 +7,7 @@ import {
   useCopySchedulePlan,
   useDeleteSchedulePlan,
 } from "../../../hooks/usePartner";
+import VisitStatusChip from "../../../components/chips/VisitStatusChip";
 
 const PlanCard: React.FC<{ plan: SchedulePlan; onView: any }> = ({
   plan,
@@ -38,20 +39,21 @@ const PlanCard: React.FC<{ plan: SchedulePlan; onView: any }> = ({
       className="bg-background flex flex-col gap-1 rounded-xl border border-primary/15 shadow-none"
     >
       <CardHeader data-slot="card-header" className="px-5 pt-5 pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <h4 data-slot="card-title" className="text-sm mb-2">
+        <div className="w-full">
+          <div className="flex items-center justify-between mb-2 w-full">
+            <h4 data-slot="card-title" className="text-sm">
               {plan.planDetails.name}
             </h4>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs text-gray-600">{monthYear}</span>
-            </div>
-            {plan.planDetails.description && (
-              <p className="text-xs text-gray-600 line-clamp-2">
-                {plan.planDetails.description}
-              </p>
-            )}
+            <VisitStatusChip status={plan.status} />
           </div>
+          <div className="flex items-center gap-2 mb-2 ">
+            <span className="text-xs text-gray-600">{monthYear}</span>
+          </div>
+          {plan.planDetails.description && (
+            <p className="text-xs text-gray-600 line-clamp-2">
+              {plan.planDetails.description}
+            </p>
+          )}
         </div>
       </CardHeader>
 
