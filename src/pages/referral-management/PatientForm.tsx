@@ -25,6 +25,7 @@ interface PatientFormValues {
   fullName: string;
   email: string;
   phone: string;
+  age: number | "";
   insuranceProvider: string;
   preferredTreatment: string;
   urgencyLevel: string;
@@ -77,6 +78,12 @@ const PatientForm = () => {
       PHONE_REGEX,
       "Phone must be in format (XXX) XXX-XXXX"
     ),
+    age: Yup.number()
+      .required("Age is required")
+      .integer("Age must be a whole number")
+      .min(1, "Age must be greater than 0")
+      .max(120, "Age must be less than or equal to 120")
+      .typeError("Age must be a number"),
     insuranceProvider: Yup.string()
       .max(100, "Insurance provider must be less than 100 characters")
       .nullable(),
@@ -97,6 +104,13 @@ const PatientForm = () => {
       name: "fullName",
       label: "Full Name",
       placeholder: "Enter your full name",
+      required: true,
+    },
+    {
+      type: "number",
+      name: "age",
+      label: "Age",
+      placeholder: "Enter age",
       required: true,
     },
     {
@@ -125,6 +139,7 @@ const PatientForm = () => {
       fullName: "",
       email: "",
       phone: "",
+      age: "",
       insuranceProvider: "",
       preferredTreatment: "",
       urgencyLevel: "medium",
@@ -141,6 +156,7 @@ const PatientForm = () => {
           name: values.fullName,
           email: values.email,
           phone: values.phone || "",
+          age: values.age ? Number(values.age) : undefined,
           insurance: values.insuranceProvider || "",
           treatment: values.preferredTreatment || "",
           priority: values.urgencyLevel || "medium",
@@ -234,6 +250,10 @@ const PatientForm = () => {
                         field.name,
                         field.type === "tel"
                           ? formatPhoneNumber(event.target.value)
+                          : field.type === "number"
+                          ? event.target.value === ""
+                            ? ""
+                            : Number(event.target.value)
                           : event.target.value
                       )
                     }
@@ -451,7 +471,7 @@ const PatientForm = () => {
                     });
                   }}
                 >
-                  {isPending ? "Submitting..." : "Save Our Contact"}
+                  {"Save Our Contact"}
                 </Button>
               </div>
             </form>

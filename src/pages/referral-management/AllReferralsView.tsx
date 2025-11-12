@@ -123,7 +123,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
           <div className="flex items-center space-x-3">
             <div>
               <h3 className="text-sm font-medium">{referral.name}</h3>
-              {referral.age && <span className="text-xs">{referral.age}</span>}
+              {referral.age && <span className="text-xs">Age: {referral.age}</span>}
             </div>
           </div>
           <div className="space-y-1.5">
