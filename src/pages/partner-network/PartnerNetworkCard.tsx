@@ -28,9 +28,9 @@ const PartnerNetworkCard = ({ partner, actions }: PartnerNetworkCardProps) => {
           <LevelChip level={partner.level} />
         </div>
         <div className="flex gap-3.5 items-center text-xs font-light">
-          <p className="flex gap-1 items-center text-gray-600 max-w-[400px]">
+          <p className="flex gap-1 items-center text-gray-600">
             <IoLocationOutline className="size-[15px] min-w-[15px] min-h-[15px]" />
-            <span>
+            <span className="max-w-[320px] line-clamp-1">
               {partner.address.addressLine1}
               {partner.address.city && `, ${partner.address.city}`}
               {partner.address.state && `, ${partner.address.state}`}

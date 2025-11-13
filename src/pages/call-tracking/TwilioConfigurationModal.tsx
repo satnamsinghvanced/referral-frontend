@@ -107,7 +107,15 @@ export default function TwilioConfigurationModal({
   // Handle loading and error states
   if (isLoading) {
     return (
-      <Modal isOpen={isOpen} onOpenChange={onClose} size="md">
+      <Modal
+        isOpen={isOpen}
+        onOpenChange={onClose}
+        size="md"
+        classNames={{
+          base: `max-sm:!m-3 !m-0`,
+          closeButton: "cursor-pointer",
+        }}
+      >
         <ModalContent className="py-10">
           <div className="flex flex-col items-center justify-center space-y-3">
             <Spinner size="md" />
@@ -120,7 +128,15 @@ export default function TwilioConfigurationModal({
 
   if (isError) {
     return (
-      <Modal isOpen={isOpen} onOpenChange={onClose} size="md">
+      <Modal
+        isOpen={isOpen}
+        onOpenChange={onClose}
+        size="md"
+        classNames={{
+          base: `max-sm:!m-3 !m-0`,
+          closeButton: "cursor-pointer",
+        }}
+      >
         <ModalContent>
           <ModalBody className="p-5 text-center">
             <p className="text-red-600 text-sm px-5">

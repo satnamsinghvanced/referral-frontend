@@ -1,8 +1,13 @@
-
 "use client";
 
 import React, { useState, useRef } from "react";
-import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/modal";
+import {
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
+} from "@heroui/modal";
 import { Input, Textarea, Button, Card, CardBody } from "@heroui/react"; // Import the Card component
 import ErrorBoundary from "./ErrorBoundary"; // Import ErrorBoundary
 
@@ -13,7 +18,8 @@ interface CreateNewPostProps {
 const CreateNewPost: React.FC<CreateNewPostProps> = ({ setIsModalOpen }) => {
   const [postContent, setPostContent] = useState<string>("");
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
-  const [selectedSchedule, setSelectedSchedule] = useState<string>("Publish Now");
+  const [selectedSchedule, setSelectedSchedule] =
+    useState<string>("Publish Now");
   const [showScheduleMenu, setShowScheduleMenu] = useState<boolean>(false);
   const [scheduledDate, setScheduledDate] = useState<string>("");
   const [scheduledTime, setScheduledTime] = useState<string>("");
@@ -44,7 +50,9 @@ const CreateNewPost: React.FC<CreateNewPostProps> = ({ setIsModalOpen }) => {
 
   const handlePlatformClick = (platform: string) => {
     setSelectedPlatforms((prev) =>
-      prev.includes(platform) ? prev.filter((p) => p !== platform) : [...prev, platform]
+      prev.includes(platform)
+        ? prev.filter((p) => p !== platform)
+        : [...prev, platform]
     );
   };
 
@@ -58,7 +66,9 @@ const CreateNewPost: React.FC<CreateNewPostProps> = ({ setIsModalOpen }) => {
       content: postContent,
       platforms: selectedPlatforms,
       schedule:
-        selectedSchedule === "Schedule for Later" ? { date: scheduledDate, time: scheduledTime } : null,
+        selectedSchedule === "Schedule for Later"
+          ? { date: scheduledDate, time: scheduledTime }
+          : null,
       hashtags,
     };
     console.log("Post Data:", postData);
@@ -70,13 +80,22 @@ const CreateNewPost: React.FC<CreateNewPostProps> = ({ setIsModalOpen }) => {
   };
 
   return (
-    <Modal isOpen={true} onClose={() => setIsModalOpen(false)}>
+    <Modal
+      isOpen={true}
+      onClose={() => setIsModalOpen(false)}
+      classNames={{
+        base: `max-sm:!m-3 !m-0`,
+        closeButton: "cursor-pointer",
+      }}
+    >
       <ModalContent className="max-w-2xl w-full mx-auto p-6 shadow-lg rounded-2xl max-h-[85vh] overflow-y-auto">
         <ModalHeader>
           <p className="text-xs text-gray-500 mt-10 mb-5">
             Create and schedule posts across your social media platforms
           </p>
-          <h2 className="text-sm text-black-900 mb-2 mt-3 text-left"> {/* Added text-left to align the title to the left */}
+          <h2 className="text-sm text-black-900 mb-2 mt-3 text-left">
+            {" "}
+            {/* Added text-left to align the title to the left */}
             Create New Post
           </h2>
         </ModalHeader>
@@ -99,32 +118,42 @@ const CreateNewPost: React.FC<CreateNewPostProps> = ({ setIsModalOpen }) => {
                     setPostContent(value);
                   }
                 }}
-                className={`w-full rounded p-2 bg-gray-100 focus:ring-2 focus:ring-blue-500 border ${postContent.length === 0
-                  ? "border-gray-100"
-                  : postContent.length >= 280
+                className={`w-full rounded p-2 bg-gray-100 focus:ring-2 focus:ring-blue-500 border ${
+                  postContent.length === 0
+                    ? "border-gray-100"
+                    : postContent.length >= 280
                     ? "border-red-500 border-5"
                     : "border-blue-500"
-                  }`}
+                }`}
               />
-              <p className={`text-xs mt-1 ${postContent.length >= 280 ? "text-red-500" : "text-gray-400"}`}>
+              <p
+                className={`text-xs mt-1 ${
+                  postContent.length >= 280 ? "text-red-500" : "text-gray-400"
+                }`}
+              >
                 {postContent.length}/280 characters
               </p>
               {postContent.length >= 280 && (
-                <p className="text-red-500 text-xs mt-1">You cannot write more than 280 characters.</p>
+                <p className="text-red-500 text-xs mt-1">
+                  You cannot write more than 280 characters.
+                </p>
               )}
             </div>
 
             {/* Platforms */}
-            <h3 className="text-[12px] text-black-900 mb-3">Select Platforms</h3>
+            <h3 className="text-[12px] text-black-900 mb-3">
+              Select Platforms
+            </h3>
             <div className="grid grid-cols-3 gap-4 mb-6 w-full min-h-[150px]">
               {platforms.map((platform) => (
                 <button
                   key={platform.name}
                   onClick={() => handlePlatformClick(platform.name)}
-                  className={`flex flex-col items-center justify-center border rounded-lg py-2 text-xs font-medium transition duration-200 ${selectedPlatforms.includes(platform.name)
-                    ? "bg-blue-500 text-white border-blue-500 shadow-md"
-                    : "bg-white text-gray-600 border-sky-100 hover:bg-blue-100 hover:text-blue-500"
-                    }`}
+                  className={`flex flex-col items-center justify-center border rounded-lg py-2 text-xs font-medium transition duration-200 ${
+                    selectedPlatforms.includes(platform.name)
+                      ? "bg-blue-500 text-white border-blue-500 shadow-md"
+                      : "bg-white text-gray-600 border-sky-100 hover:bg-blue-100 hover:text-blue-500"
+                  }`}
                 >
                   <span className="text-xl mb-1">{platform.icon}</span>
                   <span className="text-xs">{platform.name}</span>
@@ -133,10 +162,15 @@ const CreateNewPost: React.FC<CreateNewPostProps> = ({ setIsModalOpen }) => {
             </div>
 
             {/* Publishing Schedule */}
-            <h3 className="text-[12px] text-gray-800 mb-2">Publishing Schedule</h3>
+            <h3 className="text-[12px] text-gray-800 mb-2">
+              Publishing Schedule
+            </h3>
             <button
-              className={`w-full rounded text-[12px] text-black text-left pl-3 flex justify-between items-center ${selectedSchedule ? "border-2 border-gray-50 bg-gray-50 py-1" : "border border-gray-300 bg-gray-200 py-2"
-                }`}
+              className={`w-full rounded text-[12px] text-black text-left pl-3 flex justify-between items-center ${
+                selectedSchedule
+                  ? "border-2 border-gray-50 bg-gray-50 py-1"
+                  : "border border-gray-300 bg-gray-200 py-2"
+              }`}
               onClick={() => setShowScheduleMenu(!showScheduleMenu)}
             >
               {selectedSchedule}
@@ -241,22 +275,30 @@ const CreateNewPost: React.FC<CreateNewPostProps> = ({ setIsModalOpen }) => {
                         strokeLinejoin="round"
                         d="M7 2a2 2 0 00-2 2v16a2 2 0 002 2h10a2 2 0 002-2V8l-6-6H7z"
                       />
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M13 2v6h6" />
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M13 2v6h6"
+                      />
                     </svg>
                   </a>
                 </div>
-                <p className="text-xs text-black">Drop files here or click to upload</p>
+                <p className="text-xs text-black">
+                  Drop files here or click to upload
+                </p>
 
                 <p className="text-xs mt-1 text-gray-400">
-                  Images: JPEG, PNG, GIF, WEBP • Videos: MP4, MOV, AVI • Documents:
-                  PDF, DOCX • Max 10MB each
+                  Images: JPEG, PNG, GIF, WEBP • Videos: MP4, MOV, AVI •
+                  Documents: PDF, DOCX • Max 10MB each
                 </p>
               </div>
             </div>
 
             {/* Hashtags Input */}
             <div className="mt-6">
-              <h3 className="text-xs font-medium text-black-900 mb-3">Hashtags</h3>
+              <h3 className="text-xs font-medium text-black-900 mb-3">
+                Hashtags
+              </h3>
               <div className="flex gap-2 mb-4">
                 <Input
                   ref={inputRef}
@@ -265,7 +307,9 @@ const CreateNewPost: React.FC<CreateNewPostProps> = ({ setIsModalOpen }) => {
                   onKeyDown={(e) => {
                     if (["Enter", ",", "Tab"].includes(e.key)) {
                       e.preventDefault();
-                      const newTag = (e.target as HTMLInputElement).value.trim();
+                      const newTag = (
+                        e.target as HTMLInputElement
+                      ).value.trim();
                       if (newTag) {
                         setHashtags([newTag]); //  Replace previous tag with new one
                       }
@@ -320,10 +364,11 @@ const CreateNewPost: React.FC<CreateNewPostProps> = ({ setIsModalOpen }) => {
                   <button
                     key={tag}
                     onClick={() => toggleHashtag(tag)}
-                    className={`text-[11px] px-3 py-1 rounded-md border border-sky-100 transition-all duration-200 ${hashtags.includes(tag)
+                    className={`text-[11px] px-3 py-1 rounded-md border border-sky-100 transition-all duration-200 ${
+                      hashtags.includes(tag)
                         ? "bg-blue-500 text-white border-blue-500"
                         : "bg-white text-black hover:bg-sky-50"
-                      }`}
+                    }`}
                   >
                     {tag}
                   </button>
@@ -356,10 +401,10 @@ const CreateNewPost: React.FC<CreateNewPostProps> = ({ setIsModalOpen }) => {
         </ModalBody>
 
         <ModalFooter>
-
-
           {/* Cancel & Publish Buttons */}
-          <div className="flex justify-between mt-6 gap-x-4"> {/* Added gap-x-4 */}
+          <div className="flex justify-between mt-6 gap-x-4">
+            {" "}
+            {/* Added gap-x-4 */}
             <Button
               variant="bordered"
               className="text-[12px] text-black-900 px-4 py-2 border-sky-50 hover:bg-orange-200"
@@ -375,7 +420,6 @@ const CreateNewPost: React.FC<CreateNewPostProps> = ({ setIsModalOpen }) => {
               Schedule Post
             </Button>
           </div>
-
         </ModalFooter>
       </ModalContent>
     </Modal>

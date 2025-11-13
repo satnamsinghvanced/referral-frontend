@@ -67,7 +67,7 @@ export function ActivityDetailModal({
       isOpen={isOpen}
       onOpenChange={onClose}
       classNames={{
-        base: "max-w-xl",
+        base: `max-sm:!m-3 !m-0`,
         closeButton: "cursor-pointer",
       }}
       size="xl"

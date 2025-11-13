@@ -120,7 +120,14 @@ const ScheduleTaskModal = ({
     eventDetails.eventType;
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onClose}>
+    <Modal
+      isOpen={isOpen}
+      onOpenChange={onClose}
+      classNames={{
+        base: `max-sm:!m-3 !m-0`,
+        closeButton: "cursor-pointer",
+      }}
+    >
       <ModalContent className="p-5 flex flex-col gap-4 !my-2">
         <ModalHeader className="flex flex-col gap-2 text-center sm:text-left flex-shrink-0 p-0">
           <h4 className="text-base leading-none font-medium flex items-center space-x-2">

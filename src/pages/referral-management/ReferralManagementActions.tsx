@@ -36,7 +36,6 @@ export default function ReferralManagementActions({
   isPracticeEdit,
 }: ReferralManagementActionsProps) {
   const { user } = useTypedSelector((state) => state.auth);
-  console.log("editedData", editedData);
 
   const { data: specialties } = useSpecialties();
 

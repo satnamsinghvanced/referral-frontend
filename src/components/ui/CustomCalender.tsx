@@ -163,7 +163,7 @@ const CustomCalendar: React.FC<CalendarProps> = ({
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-5">
         <Button
           size="sm"
           radius="sm"
@@ -173,7 +173,7 @@ const CustomCalendar: React.FC<CalendarProps> = ({
         >
           <FiChevronLeft className="text-gray-700" size={16} />
         </Button>
-        <p className="text-base font-medium text-gray-800">
+        <p className="text-base font-medium">
           {monthNames[currentMonth]} {currentYear}
         </p>
         <Button

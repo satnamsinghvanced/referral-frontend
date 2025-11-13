@@ -11,7 +11,11 @@ import {
 import { useState, useCallback } from "react";
 import { LuCalendar } from "react-icons/lu";
 import { MdOutlineCalendarToday } from "react-icons/md";
-import { useGetSchedulePlans } from "../../../hooks/usePartner";
+import {
+  useDeleteSchedulePlan,
+  useFetchPartners,
+  useGetSchedulePlans,
+} from "../../../hooks/usePartner";
 import { GetSchedulePlansQuery } from "../../../types/partner";
 import CompactPlanCard from "./CompactPlanCard";
 import { ScheduleVisitsModal } from "./modal/ScheduleVisitsModal";
@@ -20,6 +24,8 @@ import ViewScheduledVisitModal from "./ViewScheduledVisitModal";
 import { FiUsers } from "react-icons/fi";
 import { LoadingState } from "../../../components/common/LoadingState";
 import EmptyState from "../../../components/common/EmptyState";
+import { VisitHistoryModal } from "./history-modal/VisitHistoryModal";
+import DeleteConfirmationModal from "../../../components/common/DeleteConfirmationModal";
 
 const StatsGrid = ({ stats }: any) => {
   const statData = [
@@ -88,27 +94,38 @@ const StatsGrid = ({ stats }: any) => {
   );
 };
 
-export default function ScheduleVisits({ practices }: any) {
+export default function ScheduleVisits({
+  isHistoryModalOpen,
+  setIsHistoryModalOpen,
+}: any) {
   const [isScheduleVisitModalOpen, setIsScheduleVisitModalOpen] =
     useState(false);
   const [isViewScheduleVisitModalOpen, setIsViewScheduleVisitModalOpen] =
     useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [deleteVisitId, setDeleteVisitId] = useState("");
   const [isCompactMode, setIsCompactMode] = useState(false);
   const [viewPlan, setViewPlan] = useState<any>();
 
   const [filters, setFilters] = useState<GetSchedulePlansQuery>({
     page: 1,
-    limit: 12,
+    limit: 9,
     status: "all",
     order: "desc",
     sortBy: "month",
   });
+
+  const { data: practicesData } = useFetchPartners();
+
+  const practices = practicesData?.data || [];
 
   const { data, isLoading, isError, error } = useGetSchedulePlans(filters);
 
   const schedulePlans = data?.data || [];
   const dashboardStats = data?.dashboardStats;
   const pagination = data?.pagination;
+
+  const { mutate: deleteSchedulePlan, isPending } = useDeleteSchedulePlan();
 
   const handleFilterChange = useCallback(
     (key: keyof GetSchedulePlansQuery, value: string) => {
@@ -155,6 +172,10 @@ export default function ScheduleVisits({ practices }: any) {
             setIsViewScheduleVisitModalOpen(true);
             setViewPlan(p);
           }}
+          onDelete={(planId: string) => {
+            setIsDeleteModalOpen(true);
+            setDeleteVisitId(planId);
+          }}
         />
       ) : (
         <PlanCard
@@ -163,6 +184,10 @@ export default function ScheduleVisits({ practices }: any) {
           onView={(p: any) => {
             setIsViewScheduleVisitModalOpen(true);
             setViewPlan(p);
+          }}
+          onDelete={(planId: string) => {
+            setIsDeleteModalOpen(true);
+            setDeleteVisitId(planId);
           }}
         />
       )
@@ -331,6 +356,29 @@ export default function ScheduleVisits({ practices }: any) {
           plan={viewPlan}
         />
       )}
+
+      <VisitHistoryModal
+        isOpen={isHistoryModalOpen}
+        onClose={() => setIsHistoryModalOpen(false)}
+        onItemView={(p: any) => {
+          setIsViewScheduleVisitModalOpen(true);
+          setViewPlan(p);
+        }}
+      />
+
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={() => {
+          deleteSchedulePlan(deleteVisitId, {
+            onSuccess() {
+              setDeleteVisitId("");
+              setIsDeleteModalOpen(false);
+            },
+          });
+        }}
+        isLoading={isPending}
+      />
     </>
   );
 }

@@ -334,7 +334,7 @@ export function useDeleteSchedulePlan() {
 }
 
 interface UseVisitHistoryParams {
-  filter: "all" | "draft" | "completed" | "pending" | "cancelled";
+  filter: "all" | "draft" | "completed" | "pending" | "cancel";
   // source: "list" | "map";
   search: string;
 }

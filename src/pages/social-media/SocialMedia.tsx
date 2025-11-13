@@ -30,65 +30,80 @@ export default function SocialMedia() {
     []
   );
 
-  // Sample data for Overview component
-  const topCards = [
-    { title: "Total Followers", value: "3.5k", subtitle: "Followers on all platforms", icon: "👥" },
-    { title: "Total Posts", value: "150", subtitle: "Total posts across platforms", icon: "📈" },
-    { title: "Total Impressions", value: "1.2M", subtitle: "Total impressions this month", icon: "👁️" },
-    { title: "Engagement Rate", value: "8.5%", subtitle: "Overall engagement rate", icon: "💬" },
+  const PLATFORMS = [
+    {
+      id: "Facebook",
+      stats: [
+        { label: "Followers", value: "5000" },
+        { label: "Engagement", value: "6.2%" },
+        { label: "Posts", value: "45" },
+      ],
+    },
+    {
+      id: "Instagram",
+      stats: [
+        { label: "Followers", value: "7000" },
+        { label: "Engagement", value: "8.1%" },
+        { label: "Posts", value: "70" },
+      ],
+    },
+    {
+      id: "LinkedIn",
+      stats: [
+        { label: "Connections", value: "2500" },
+        { label: "Engagement", value: "5.4%" },
+        { label: "Posts", value: "35" },
+      ],
+    },
   ];
 
-  const platforms = [
-    { name: "Facebook", followers: "5000", connections: "3000", engagement: "6.2%", posts: "45" },
-    { name: "Instagram", followers: "7000", connections: "3500", engagement: "8.1%", posts: "70" },
-    { name: "LinkedIn", followers: "4000", connections: "2500", engagement: "5.4%", posts: "35" },
-  ];
-
-  const recentPerformance = { totalReach: "1.5M", totalImpressions: "1.2M", avgClickRate: "4.2%" };
-  const contentCalendar = { scheduledPosts: 12, draftPosts: 5, publishedThisMonth: 8 };
+  const recentPerformance = {
+    totalReach: "1.5M",
+    totalImpressions: "1.2M",
+    avgClickRate: "4.2%",
+  };
+  const contentCalendar = {
+    scheduledPosts: 12,
+    draftPosts: 5,
+    publishedThisMonth: 8,
+  };
 
   return (
     <ComponentContainer headingData={HEADING_DATA}>
-      {/* Tabs */}
-      <Tabs
-        selectedKey={activeTab}
-        onSelectionChange={(key) => setActiveTab(key)}
-        classNames={{
-          tabList: "flex w-full rounded-full bg-sky-50 text-xs mb-4",
-          tab: "flex-1 text-xs font-medium transition-all",
-          cursor: "rounded-full text-xs",
-          panel: "p-0",
-        }}
-        className="text-background w-full text-xs"
-      >
-        <Tab key="Overview" title="Overview">
-          <Overview
-            topCards={topCards}
-            platforms={platforms}
-            recentPerformance={recentPerformance}
-            contentCalendar={contentCalendar}
-          />
-        </Tab>
+      <div className="flex flex-col gap-5">
+        <Tabs
+          aria-label="Options"
+          classNames={{
+            tabList: "flex w-full rounded-full bg-primary/10 text-xs",
+            tab: "flex-1 text-sm font-medium transition-all",
+            cursor: "rounded-full text-sm",
+            panel: "p-0",
+          }}
+          className="text-background w-full"
+        >
+          <Tab key="overview" title="Overview">
+            <Overview
+              platforms={PLATFORMS}
+              recentPerformance={recentPerformance}
+              contentCalendar={contentCalendar}
+            />
+          </Tab>
 
-        <Tab key="Posts" title="Posts">
-          <Posts />
-        </Tab>
+          <Tab key="posts" title="Posts">
+            <Posts />
+          </Tab>
 
-        <Tab key="Analytics" title="Analytics">
-          <Analytics />
-        </Tab>
+          <Tab key="analytics" title="Analytics">
+            <Analytics />
+          </Tab>
 
-        <Tab key="Platform" title="Platform">
-          <Platforms />
-        </Tab>
-      </Tabs>
+          <Tab key="platform" title="Platform">
+            <Platforms />
+          </Tab>
+        </Tabs>
+      </div>
 
-      {/* Modal for Create New Post */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black/30 z-50 flex justify-center items-start pt-20">
-          <CreateNewPost setIsModalOpen={setIsModalOpen} />
-        </div>
-      )}
+      {isModalOpen && <CreateNewPost setIsModalOpen={setIsModalOpen} />}
     </ComponentContainer>
   );
 }

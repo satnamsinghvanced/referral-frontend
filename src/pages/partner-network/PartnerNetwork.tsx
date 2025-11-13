@@ -249,7 +249,10 @@ const PartnerNetwork = () => {
               )}
             </div>
           </div>
-          <ScheduleVisits practices={practices} />
+          <ScheduleVisits
+            isHistoryModalOpen={isHistoryModalOpen}
+            setIsHistoryModalOpen={setIsHistoryModalOpen}
+          />
         </div>
       </div>
 
@@ -280,11 +283,6 @@ const PartnerNetwork = () => {
         onAddTask={() => console.log("Add task not implemented")}
         onDeleteNote={() => console.log("Delete note not implemented")}
         onDeleteTask={() => console.log("Delete task not implemented")}
-      />
-
-      <VisitHistoryModal
-        isOpen={isHistoryModalOpen}
-        onClose={handleHistoryModalClose}
       />
     </>
   );

@@ -19,6 +19,7 @@ interface ReferralButton {
   className?: string;
   link?: string;
   linkInNewTab?: boolean;
+  hideButton?: boolean;
 }
 
 interface ReferralCardProps {
@@ -90,6 +91,10 @@ const ReferralCard = ({ referral, actions = () => [] }: ReferralCardProps) => {
                   {btn.label}
                 </Button>
               );
+
+              if (btn.hideButton) {
+                return;
+              }
 
               return btn.link ? (
                 <Link

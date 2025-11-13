@@ -86,7 +86,15 @@ export default function GoogleApiConfigurationModal({
   // Handle loading and error states
   if (isLoading) {
     return (
-      <Modal isOpen={isOpen} onOpenChange={onClose} size="md">
+      <Modal
+        isOpen={isOpen}
+        onOpenChange={onClose}
+        size="md"
+        classNames={{
+          base: `max-sm:!m-3 !m-0`,
+          closeButton: "cursor-pointer",
+        }}
+      >
         <ModalContent className="py-10">
           <div className="flex flex-col items-center justify-center space-y-3">
             <Spinner size="md" />
@@ -99,7 +107,15 @@ export default function GoogleApiConfigurationModal({
 
   if (isError) {
     return (
-      <Modal isOpen={isOpen} onOpenChange={onClose} size="md">
+      <Modal
+        isOpen={isOpen}
+        onOpenChange={onClose}
+        size="md"
+        classNames={{
+          base: `max-sm:!m-3 !m-0`,
+          closeButton: "cursor-pointer",
+        }}
+      >
         <ModalContent>
           <ModalBody className="p-5 text-center">
             <p className="text-red-600 text-sm px-5">
@@ -166,7 +182,9 @@ export default function GoogleApiConfigurationModal({
                   (formik.touched.googleKey as boolean) &&
                   (!!formik.errors.googleKey as boolean)
                 }
-                errorMessage={formik.touched.googleKey && formik.errors.googleKey}
+                errorMessage={
+                  formik.touched.googleKey && formik.errors.googleKey
+                }
               />
 
               {/* Information Box */}

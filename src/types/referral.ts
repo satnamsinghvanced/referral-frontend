@@ -3,16 +3,17 @@ export interface Referral {
   referredBy: any;
   addedVia: string;
   name: string;
-  age?: number;
+  age?: number | null;
   phone: string;
   email?: string;
   treatment?: string;
   priority?: string;
   estValue?: number;
   appointmentTime?: string;
-  additionalNotes?: string;
+  notes?: string;
   insurance?: string;
   appointment?: string;
+  scheduledDate?: string;
   reason?: string;
   status:
     | "new"

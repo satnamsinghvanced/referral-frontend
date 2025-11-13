@@ -348,6 +348,7 @@ export function ScheduleVisitsModal({
       onOpenChange={onClose}
       size="4xl"
       classNames={{
+        base: `max-sm:!m-3 !m-0`,
         closeButton: "cursor-pointer",
       }}
       className="!my-4 !mx-2"

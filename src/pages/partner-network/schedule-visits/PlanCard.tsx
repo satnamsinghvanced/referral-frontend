@@ -1,18 +1,16 @@
 import { Button, Card, CardBody, CardHeader } from "@heroui/react";
-import { SchedulePlan } from "../../../types/partner";
-import { FiCopy, FiEdit, FiEye, FiTrash2 } from "react-icons/fi";
+import { FiCopy, FiEye, FiTrash2 } from "react-icons/fi";
 import { LuDownload } from "react-icons/lu";
-import { downloadJson } from "../../../utils/jsonDownloader";
-import {
-  useCopySchedulePlan,
-  useDeleteSchedulePlan,
-} from "../../../hooks/usePartner";
 import VisitStatusChip from "../../../components/chips/VisitStatusChip";
+import { useCopySchedulePlan } from "../../../hooks/usePartner";
+import { SchedulePlan } from "../../../types/partner";
+import { downloadJson } from "../../../utils/jsonDownloader";
 
-const PlanCard: React.FC<{ plan: SchedulePlan; onView: any }> = ({
-  plan,
-  onView,
-}) => {
+const PlanCard: React.FC<{
+  plan: SchedulePlan;
+  onView: any;
+  onDelete: any;
+}> = ({ plan, onView, onDelete }) => {
   const progress = 0; // Assuming progress calculation is pending or based on completion data not explicitly shown
   const monthYear = new Date(plan.createdAt).toLocaleDateString("en-US", {
     month: "long",
@@ -20,7 +18,6 @@ const PlanCard: React.FC<{ plan: SchedulePlan; onView: any }> = ({
   });
 
   const { mutate: copySchedulePlan } = useCopySchedulePlan();
-  const { mutate: deleteSchedulePlan } = useDeleteSchedulePlan();
 
   const handleExport = () => {
     const exportData = {
@@ -40,7 +37,7 @@ const PlanCard: React.FC<{ plan: SchedulePlan; onView: any }> = ({
     >
       <CardHeader data-slot="card-header" className="px-5 pt-5 pb-3">
         <div className="w-full">
-          <div className="flex items-center justify-between mb-2 w-full">
+          <div className="flex items-center justify-between mb-2 w-full gap-2">
             <h4 data-slot="card-title" className="text-sm">
               {plan.planDetails.name}
             </h4>
@@ -142,7 +139,7 @@ const PlanCard: React.FC<{ plan: SchedulePlan; onView: any }> = ({
                 title="Delete Plan"
                 isIconOnly
                 onPress={() => {
-                  deleteSchedulePlan(plan._id);
+                  onDelete(plan._id);
                 }}
               >
                 <FiTrash2 className="size-3.5" />

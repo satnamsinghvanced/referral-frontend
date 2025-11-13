@@ -301,7 +301,7 @@ const Dashboard = () => {
                   <span className="bg-emerald-100 text-emerald-800 size-6 p-0 flex items-center justify-center rounded text-xs font-medium">
                     {dashboard?.nfcQrData?.avgConversionRate > 0
                       ? `${dashboard.nfcQrData.avgConversionRate}%`
-                      : "0"}
+                      : "0%"}
                   </span>
                 </div>
                 <Link to="/qr-generator">

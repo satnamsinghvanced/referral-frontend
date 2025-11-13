@@ -2,6 +2,7 @@ import {
   Button,
   Card,
   CardBody,
+  DatePicker,
   Input,
   Select,
   SelectItem,
@@ -20,6 +21,7 @@ import { Referral } from "../../types/referral";
 import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
 import { downloadVcf } from "../../utils/vcfGenerator";
 import { EMAIL_REGEX, PHONE_REGEX } from "../../consts/consts";
+import { getLocalTimeZone, now, today } from "@internationalized/date";
 
 interface PatientFormValues {
   fullName: string;
@@ -28,10 +30,11 @@ interface PatientFormValues {
   age: number | "";
   insuranceProvider: string;
   preferredTreatment: string;
+  scheduledDate: string;
   urgencyLevel: string;
   preferredTime: string;
   referralReason: string;
-  additionalNotes: string;
+  notes: string;
 }
 
 const PatientForm = () => {
@@ -132,6 +135,12 @@ const PatientForm = () => {
       label: "Insurance Provider",
       placeholder: "e.g., Delta Dental, Aetna, Cigna, etc.",
     },
+    {
+      type: "date",
+      name: "scheduledDate",
+      label: "Scheduled Date",
+      placeholder: "Select scheduled date",
+    },
   ];
 
   const formik = useFormik<PatientFormValues>({
@@ -144,8 +153,9 @@ const PatientForm = () => {
       preferredTreatment: "",
       urgencyLevel: "medium",
       preferredTime: "",
+      scheduledDate: "",
       referralReason: "",
-      additionalNotes: "",
+      notes: "",
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
@@ -156,18 +166,22 @@ const PatientForm = () => {
           name: values.fullName,
           email: values.email,
           phone: values.phone || "",
-          age: values.age ? Number(values.age) : undefined,
+          age: values.age ? Number(values.age) : null,
           insurance: values.insuranceProvider || "",
           treatment: values.preferredTreatment || "",
           priority: values.urgencyLevel || "medium",
-          appointmentTime: values.preferredTime || new Date().toISOString(),
+          appointmentTime: values.preferredTime || "",
           reason: values.referralReason || "",
-          notes: values.additionalNotes || "",
+          notes: values.notes || "",
+          scheduledDate: values.scheduledDate || ""
         };
 
-        await createReferral(payload);
-        formik.resetForm();
-        navigate("/thank-you", { state: { user: fetchedUser } });
+        await createReferral(payload, {
+          onSuccess() {
+            formik.resetForm();
+            navigate("/thank-you", { state: { user: fetchedUser } });
+          },
+        });
       } catch (error) {
         console.error("Form submission error:", error);
       }
@@ -230,50 +244,97 @@ const PatientForm = () => {
 
             <form onSubmit={formik.handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {formFields.map((field) => (
-                  <Input
-                    key={field.name}
-                    type={field.type}
-                    label={field.label}
-                    labelPlacement="outside-top"
-                    size="sm"
-                    radius="sm"
-                    name={field.name}
-                    placeholder={field.placeholder}
-                    value={
-                      (formik.values[
-                        field.name as keyof PatientFormValues
-                      ] as string) || ""
-                    }
-                    onChange={(event: any) =>
-                      formik.setFieldValue(
-                        field.name,
-                        field.type === "tel"
-                          ? formatPhoneNumber(event.target.value)
-                          : field.type === "number"
-                          ? event.target.value === ""
-                            ? ""
-                            : Number(event.target.value)
-                          : event.target.value
-                      )
-                    }
-                    onBlur={formik.handleBlur}
-                    isRequired={field.required as boolean}
-                    isInvalid={
-                      !!(
+                {formFields.map((field) =>
+                  field.type !== "date" ? (
+                    <Input
+                      key={field.name}
+                      type={field.type}
+                      label={field.label}
+                      labelPlacement="outside-top"
+                      size="sm"
+                      radius="sm"
+                      name={field.name}
+                      placeholder={field.placeholder}
+                      value={
+                        (formik.values[
+                          field.name as keyof PatientFormValues
+                        ] as string) || ""
+                      }
+                      onChange={(event: any) =>
+                        formik.setFieldValue(
+                          field.name,
+                          field.type === "tel"
+                            ? formatPhoneNumber(event.target.value)
+                            : field.type === "number"
+                            ? event.target.value === ""
+                              ? ""
+                              : Number(event.target.value)
+                            : event.target.value
+                        )
+                      }
+                      onBlur={formik.handleBlur}
+                      isRequired={field.required as boolean}
+                      isInvalid={
+                        !!(
+                          formik.touched[
+                            field.name as keyof PatientFormValues
+                          ] &&
+                          formik.errors[field.name as keyof PatientFormValues]
+                        )
+                      }
+                      errorMessage={
                         formik.touched[field.name as keyof PatientFormValues] &&
-                        formik.errors[field.name as keyof PatientFormValues]
-                      )
-                    }
-                    errorMessage={
-                      formik.touched[field.name as keyof PatientFormValues] &&
-                      (formik.errors[
-                        field.name as keyof PatientFormValues
-                      ] as string)
-                    }
-                    className="w-full"
-                  />
-                ))}
+                        (formik.errors[
+                          field.name as keyof PatientFormValues
+                        ] as string)
+                      }
+                      className="w-full"
+                    />
+                  ) : (
+                    <DatePicker
+                      key={field.name}
+                      id={field.name}
+                      name={field.name}
+                      label={field.label}
+                      labelPlacement="outside"
+                      size="sm"
+                      radius="sm"
+                      hideTimeZone
+                      minValue={today(getLocalTimeZone())}
+                      granularity="minute"
+                      // defaultValue={now(getLocalTimeZone())}
+                      onChange={(dateObject) => {
+                        if (dateObject) {
+                          const year = dateObject.year;
+                          const month = String(dateObject.month).padStart(
+                            2,
+                            "0"
+                          );
+                          const day = String(dateObject.day).padStart(2, "0");
+                          const hour = String(dateObject.hour).padStart(2, "0");
+                          const minute = String(dateObject.minute).padStart(
+                            2,
+                            "0"
+                          );
+                          const second = String(dateObject.second).padStart(
+                            2,
+                            "0"
+                          );
+
+                          const millisecond = String(
+                            dateObject.millisecond
+                          ).padStart(3, "0");
+
+                          const localDateTimeString = `${year}-${month}-${day}T${hour}:${minute}:${second}.${millisecond}`;
+                          formik.setFieldValue(field.name, localDateTimeString);
+                        } else {
+                          formik.setFieldValue(field.name, null);
+                        }
+                      }}
+                      onBlur={() => formik.setFieldTouched(field.name, true)}
+                    />
+                  )
+                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -350,7 +411,7 @@ const PatientForm = () => {
                 </Select>
               </div>
 
-              <div>
+              {/* <div>
                 <Input
                   key="preferredTime"
                   type="text"
@@ -383,7 +444,7 @@ const PatientForm = () => {
                   }
                   className="w-full"
                 />
-              </div>
+              </div> */}
 
               <div className="grid grid-cols-1 gap-6">
                 <Textarea
@@ -418,26 +479,20 @@ const PatientForm = () => {
                 <Textarea
                   label="Additional Notes"
                   labelPlacement="outside-top"
-                  name="additionalNotes"
+                  name="notes"
                   placeholder="Any additional information you'd like us to know..."
                   size="sm"
                   radius="sm"
-                  value={formik.values.additionalNotes}
+                  value={formik.values.notes}
                   onValueChange={(val: string) =>
-                    formik.setFieldValue("additionalNotes", val)
+                    formik.setFieldValue("notes", val)
                   }
                   onBlur={formik.handleBlur}
                   minRows={3}
                   className="w-full"
-                  isInvalid={
-                    !!(
-                      formik.touched.additionalNotes &&
-                      formik.errors.additionalNotes
-                    )
-                  }
+                  isInvalid={!!(formik.touched.notes && formik.errors.notes)}
                   errorMessage={
-                    formik.touched.additionalNotes &&
-                    (formik.errors.additionalNotes as string)
+                    formik.touched.notes && (formik.errors.notes as string)
                   }
                   classNames={{ inputWrapper: "py-2" }}
                 />

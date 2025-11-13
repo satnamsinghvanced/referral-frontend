@@ -123,16 +123,20 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
           <div className="flex items-center space-x-3">
             <div>
               <h3 className="text-sm font-medium">{referral.name}</h3>
-              {referral.age && <span className="text-xs">Age: {referral.age}</span>}
+              {referral.age && (
+                <span className="text-xs">Age: {referral.age}</span>
+              )}
             </div>
           </div>
           <div className="space-y-1.5">
-            <div className="flex items-center space-x-1.5 text-sm">
-              <BiPhone className="h-4 w-4 text-gray-400" aria-hidden="true" />
-              <span className="text-xs">
-                {formatPhoneNumber(referral.phone)}
-              </span>
-            </div>
+            {referral.phone && (
+              <div className="flex items-center space-x-1.5 text-sm">
+                <BiPhone className="h-4 w-4 text-gray-400" aria-hidden="true" />
+                <span className="text-xs">
+                  {formatPhoneNumber(referral.phone)}
+                </span>
+              </div>
+            )}
             <div className="flex items-center space-x-1.5 text-sm">
               <CgMail className="h-4 w-4 text-gray-400" aria-hidden="true" />
               <span className="text-xs">{referral.email}</span>

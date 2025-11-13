@@ -115,7 +115,8 @@ export interface PartnerPractice {
   taskCount: number;
   lastContact: string | null;
   staff: any[];
-  notes: any;
+  additionalNotes: any;
+  pendingTaskCount?: number;
 }
 
 export interface FetchPartnersResponse {
@@ -557,6 +558,6 @@ export interface VisitHistoryResponse {
 }
 
 export interface VisitHistoryQueryParams {
-  filter: "all" | "draft" | "completed" | "pending" | "cancelled";
+  filter: "all" | "draft" | "completed" | "pending" | "cancel";
   search: string;
 }

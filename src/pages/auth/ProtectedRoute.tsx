@@ -25,7 +25,7 @@ const ProtectedRoute = ({ component: Component, role }: ProtectedRouteProps) => 
             }
             if (role === 'bypass') {
                 console.log('bypass routes')
-                navigate('/dashboard');
+                navigate('/');
             }
             if (role === 'role-allow-routes') {
                 console.log('bypass role-allow-routes')

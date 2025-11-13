@@ -37,29 +37,25 @@ function MediaManagement() {
           <Tabs
             aria-label="Options"
             classNames={{
-              tabList: "flex w-full rounded-full bg-primary/10 text-xs",
-              tab: "flex-1 text-xs font-medium transition-all",
-              cursor: "rounded-full text-xs",
+              tabList: "flex w-full rounded-full bg-primary/10 text-sm",
+              tab: "flex-1 text-sm font-medium transition-all",
+              cursor: "rounded-full text-sm",
               panel: "p-0",
             }}
-            className="text-background w-full text-xs"
+            className="text-background w-full"
           >
-            <Tab key="browse_media" title="Browse Media" className="text-sm">
+            <Tab key="browse_media" title="Browse Media">
               <BrowseMedia
                 currentFilters={currentFilters}
                 onFilterChange={onFilterChange}
               />
             </Tab>
 
-            <Tab
-              key="folder_management"
-              title="Folder Management"
-              className="text-sm"
-            >
+            <Tab key="folder_management" title="Folder Management">
               <FolderManagement />
             </Tab>
 
-            <Tab key="upload_media" title="Upload Media" className="text-sm">
+            <Tab key="upload_media" title="Upload Media">
               <UploadMedia />
             </Tab>
           </Tabs>

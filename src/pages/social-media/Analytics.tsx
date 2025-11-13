@@ -1,178 +1,130 @@
+import { Card, CardBody, CardHeader, Chip } from "@heroui/react";
+import MiniStatsCard from "../../components/cards/MiniStatsCard";
+
+const STAT_CARD_DATA = [
+  {
+    heading: "Total Reach",
+    value: "3,056",
+    subheading: "All time",
+  },
+  {
+    heading: "Total Impressions",
+    value: "5,460",
+    subheading: "All time",
+  },
+  {
+    heading: "Avg. CTR",
+    value: "4.1%",
+    subheading: "Average rate",
+  },
+  {
+    heading: "Total Engagement",
+    value: 160,
+    subheading: "All interactions",
+  },
+];
+
+const PLATFORM_BREAKDOWN_DATA = [
+  {
+    name: "Facebook",
+    posts: 3,
+    color: "bg-blue-500",
+    metrics: { likes: 107, comments: 30, shares: 23, views: 546 },
+  },
+  {
+    name: "Instagram",
+    posts: 2,
+    color: "bg-pink-500",
+    metrics: { likes: 87, comments: 20, shares: 15, views: 490 },
+  },
+  {
+    name: "LinkedIn",
+    posts: 2,
+    color: "bg-primary-500",
+    metrics: { likes: 124, comments: 48, shares: 35, views: "1,200" },
+  },
+];
+
 const Analytics = () => {
   return (
-    <div className="flex flex-col items-center">
-      {/* 🧠 ANALYTICS CONTENT */}
-      {/* Top Cards */}
-      <div className="grid grid-cols-4 gap-6 mb-8">
-        {/* Total Reach */}
-        <div className="bg-white rounded-xl shadow p-8 w-90 h-33 border border-gray-50 hover:border-sky-200 transition-colors relative">
-          <div className="flex justify-between items-start">
-            <p className="text-xs font-extralight text-black text-left relative -top-4 mt-1">
-              Total Reach
-            </p>
-          </div>
-          <h2 className="text-3xl font-bold text-brand text-sky-600 mt-2">
-            3,056
-          </h2>
-          <p className="text-xs font-extralight text-gray-600 mt-1">All time</p>
-        </div>
-
-        {/* Total Impressions */}
-        <div className="bg-white rounded-xl shadow p-8 w-90 h-33 border border-gray-50 hover:border-sky-200 transition-colors relative">
-          <div className="flex justify-between items-start">
-            <p className="text-xs font-extralight text-black text-left relative -top-4 mt-1">
-              Total Impressions
-            </p>
-          </div>
-          <h2 className="text-3xl font-bold text-brand text-sky-600 mt-2">
-            5,460
-          </h2>
-          <p className="text-xs font-extralight text-gray-600 mt-1">All time</p>
-        </div>
-
-        {/* Avg. CTR */}
-        <div className="bg-white rounded-xl shadow p-8 w-90 h-33 border border-gray-50 hover:border-sky-200 transition-colors relative">
-          <div className="flex justify-between items-start">
-            <p className="text-xs font-extralight text-black text-left relative -top-4 mt-1">
-              Avg. CTR
-            </p>
-          </div>
-          <h2 className="text-3xl font-bold text-brand text-sky-600 mt-2">
-            4.1%
-          </h2>
-          <p className="text-xs font-extralight text-gray-600 mt-1">
-            Average rate
-          </p>
-        </div>
-
-        {/* Total Engagement */}
-        <div className="bg-white rounded-xl shadow p-8 w-90 h-33 border border-gray-50 hover:border-sky-200 transition-colors relative">
-          <div className="flex justify-between items-start">
-            <p className="text-xs font-extralight text-black text-left relative -top-4 mt-1">
-              Total Engagement
-            </p>
-          </div>
-          <h2 className="text-3xl font-bold text-brand text-sky-600 mt-2">
-            160
-          </h2>
-          <p className="text-xs font-extralight text-gray-600 mt-1">
-            All interactions
-          </p>
-        </div>
+    <div className="flex flex-col items-center gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
+        {STAT_CARD_DATA.map((data, i) => (
+          <MiniStatsCard key={i} cardData={data} />
+        ))}
       </div>
 
       {/* Platform Breakdown */}
-      <div className="bg-white rounded-xl shadow p-6 w-full max-w-10xl h-[400px] overflow-auto">
-        <h3 className="text-sm text-extralight text-gray-700 mb-6">
-          Platform Performance Breakdown
-        </h3>
-        <div className="space-y-6">
+      <Card className="bg-background rounded-xl shadow-none p-5 w-full border border-primary/15">
+        <CardHeader className="p-0 pb-5">
+          <h3 className="text-sm">Platform Performance Breakdown</h3>
+        </CardHeader>
+        <CardBody className="p-0 space-y-4">
           {/* Facebook */}
-          <div className="bg-white rounded-xl shadow p-6 border border-gray-50 transition-colors">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
-              <div className="flex items-center gap-3">
-                <div className="inline-block w-4 h-4 font-sans bg-blue-600 rounded-sm relative -top-4"></div>
-                <span className="text-[13px] text-black relative -top-4">
-                  Facebook
-                </span>
-              </div>
-              <div className="text-sm text-gray-600 mt-2 sm:mt-0 flex flex-wrap gap-54  relative -bottom-4 items-end">
-                <div className="flex flex-col items-center">
-                  <span className="text-[12px] text-sky-400">107</span>
-                  <span className="text-[11px]">Likes</span>
+          {PLATFORM_BREAKDOWN_DATA.map((platform, i) => (
+            <Card
+              key={platform.name}
+              className="bg-white rounded-xl shadow-none p-4 w-full border border-primary/15"
+            >
+              <div className="">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    {/* Color Block and Name */}
+                    <div
+                      className={`inline-block size-4 font-sans ${platform.color} rounded-sm`}
+                    ></div>
+                    <span className="text-sm">{platform.name}</span>
+                  </div>
+                  <Chip
+                    size="sm"
+                    radius="sm"
+                    variant="bordered"
+                    className="text-[11px] border-small border-gray-100 dark:text-white dark:border-gray-600"
+                  >
+                    {platform.posts} posts
+                  </Chip>
                 </div>
-                <div className="flex flex-col items-center">
-                  <span className="text-[12px] text-sky-400">30</span>
-                  <span className="text-[11px]">Comments</span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <span className="text-[12px] text-sky-400">23</span>
-                  <span className="text-[11px]">Shares</span>
-                </div>
-                <div className="flex flex-col items-center -translate-x-1">
-                  <span className="text-[12px] text-sky-400">546</span>
-                  <span className="text-[11px]">Views</span>
-                </div>
-                <div className="flex flex-col items-center -translate-y-9 -translate-x-1">
-                  <span className="text-[12px] text-black px-2 py-0.5 rounded-md border border-gray-100">
-                    3 posts
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          {/* Instagram */}
-          <div className="bg-white rounded-xl shadow p-6 border border-gray-50 transition-colors">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
-              <div className="flex items-center gap-3">
-                <div className="inline-block w-4 h-4 font-sans bg-pink-600 rounded-sm relative -top-4"></div>
-                <span className="text-[13px] text-black relative -top-4">
-                  Instagram
-                </span>
-              </div>
-              <div className="text-sm text-gray-600 mt-2 sm:mt-0 flex flex-wrap gap-54 relative -bottom-4 items-end">
-                <div className="flex flex-col items-center">
-                  <span className="text-[12px] text-sky-400">87</span>
-                  <span className="text-[11px]">Likes</span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <span className="text-[12px] text-sky-400">20</span>
-                  <span className="text-[11px]">Comments</span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <span className="text-[12px] text-sky-400">15</span>
-                  <span className="text-[11px]">Shares</span>
-                </div>
-                <div className="flex flex-col items-center -translate-x-1">
-                  <span className="text-[12px] text-sky-400">490</span>
-                  <span className="text-[11px]">Views</span>
-                </div>
-                <div className="flex flex-col items-center -translate-y-9 -translate-x-1">
-                  <span className="text-[12px] text-black px-2 py-0.5 rounded-md border border-gray-100">
-                    2 posts
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* LinkedIn */}
-          <div className="bg-white rounded-xl shadow p-6 border border-gray-50 transition-colors">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center">
-              <div className="flex items-center gap-3">
-                <div className="inline-block w-4 h-4 font-sans bg-blue-800 rounded-sm relative -top-4"></div>
-                <span className="text-[13px] text-black relative -top-4">
-                  LinkedIn
-                </span>
-              </div>
-              <div className="text-sm text-gray-600 mt-2 sm:mt-0 flex flex-wrap gap-54  relative -bottom-4 items-end">
-                <div className="flex flex-col items-center">
-                  <span className="text-[12px] text-sky-400">124</span>
-                  <span className="text-[11px]">Likes</span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <span className="text-[12px] text-sky-400">48</span>
-                  <span className="text-[11px]">Comments</span>
-                </div>
-                <div className="flex flex-col items-center">
-                  <span className="text-[12px] text-sky-400">35</span>
-                  <span className="text-[11px]">Shares</span>
-                </div>
-                <div className="flex flex-col items-center -translate-x-1">
-                  <span className="text-[12px] text-sky-400">1,200</span>
-                  <span className="text-[11px]">Views</span>
-                </div>
-                <div className="flex flex-col items-center -translate-y-9 -translate-x-1">
-                  <span className="text-[12px] text-black px-2 py-0.5 rounded-md border border-gray-100">
-                    2 posts
-                  </span>
+                <div className="text-sm text-gray-600 flex flex-wrap justify-around gap-x-5 mt-2">
+                  {/* Metrics Grid */}
+                  <div className="flex flex-col items-center">
+                    <span className="text-[12px] text-sky-400">
+                      {platform.metrics.likes}
+                    </span>
+                    <span className="text-[11px] dark:text-gray-400">
+                      Likes
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <span className="text-[12px] text-sky-400">
+                      {platform.metrics.comments}
+                    </span>
+                    <span className="text-[11px] dark:text-gray-400">
+                      Comments
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-center">
+                    <span className="text-[12px] text-sky-400">
+                      {platform.metrics.shares}
+                    </span>
+                    <span className="text-[11px] dark:text-gray-400">
+                      Shares
+                    </span>
+                  </div>
+                  <div className="flex flex-col items-center -translate-x-1">
+                    <span className="text-[12px] text-sky-400">
+                      {platform.metrics.views}
+                    </span>
+                    <span className="text-[11px] dark:text-gray-400">
+                      Views
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
+            </Card>
+          ))}
+        </CardBody>
+      </Card>
     </div>
   );
 };

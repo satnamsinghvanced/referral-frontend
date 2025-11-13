@@ -438,13 +438,10 @@ const ReferralManagement = () => {
                           actions={(referral: Referral) => [
                             {
                               label: "",
-                              onClick: () => {
-                                initiateCall({
-                                  referredBy: referral._id,
-                                  to: referral.phone,
-                                });
-                              },
+                              onClick: () => {},
                               icon: <LuPhone className="w-4 h-4" />,
+                              link: `tel:${referral.phone}`,
+                              hideButton: referral.phone ? false : true,
                             },
                             {
                               label: "",

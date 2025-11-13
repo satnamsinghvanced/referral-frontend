@@ -142,7 +142,15 @@ NotesTasksModalProps) => {
 
   return (
     <>
-      <Modal isOpen={isOpen} onOpenChange={onClose} size="md">
+      <Modal
+        isOpen={isOpen}
+        onOpenChange={onClose}
+        size="md"
+        classNames={{
+          base: `max-sm:!m-3 !m-0`,
+          closeButton: "cursor-pointer",
+        }}
+      >
         <ModalContent className="p-5 flex flex-col gap-4">
           <ModalHeader className="flex flex-col gap-2 text-center sm:text-left flex-shrink-0 p-0">
             <h4 className="text-base leading-none font-medium flex items-center space-x-2">
@@ -184,6 +192,7 @@ NotesTasksModalProps) => {
                     <Select
                       aria-label="Note Category"
                       defaultSelectedKeys={[newNoteCategory as string]}
+                      disabledKeys={[newNoteCategory as string]}
                       onChange={(event) =>
                         setNewNoteCategory(event.target.value)
                       }
@@ -327,6 +336,7 @@ NotesTasksModalProps) => {
                       size="sm"
                       radius="sm"
                       defaultSelectedKeys={[newTaskPriority as string]}
+                      disabledKeys={[newTaskPriority as string]}
                       onChange={(event) =>
                         setNewTaskPriority(event.target.value)
                       }
@@ -340,6 +350,7 @@ NotesTasksModalProps) => {
                       size="sm"
                       radius="sm"
                       defaultSelectedKeys={[newTaskType as string]}
+                      disabledKeys={[newTaskType as string]}
                       onChange={(event) => setNewTaskType(event.target.value)}
                     >
                       {TASK_TYPES.map((t) => (
