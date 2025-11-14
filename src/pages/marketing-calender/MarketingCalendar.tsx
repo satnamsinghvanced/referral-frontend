@@ -385,6 +385,7 @@ const MarketingCalendar = () => {
               placeholder="All Activities"
               size="sm"
               selectedKeys={new Set([currentFilters.type])}
+              disabledKeys={new Set([currentFilters.type])}
               onSelectionChange={(keys) =>
                 handleFilterChange("type", Array.from(keys)[0] as string)
               }

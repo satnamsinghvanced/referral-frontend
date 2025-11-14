@@ -77,6 +77,7 @@ function BrowseMedia({ currentFilters, onFilterChange }: BrowseMediaProps) {
             placeholder="All Types"
             size="sm"
             selectedKeys={new Set([currentFilters.type])}
+            disabledKeys={new Set([currentFilters.type])}
             onSelectionChange={(keys) =>
               onFilterChange("type", Array.from(keys)[0] as string)
             }
