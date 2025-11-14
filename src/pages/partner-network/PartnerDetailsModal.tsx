@@ -26,6 +26,7 @@ import {
 import { Partner, PartnerPractice } from "../../types/partner"; // Adjust path as necessary
 import { useFetchPartnerDetail } from "../../hooks/usePartner";
 import LevelChip from "../../components/chips/LevelChip";
+import { LoadingState } from "../../components/common/LoadingState";
 
 interface PartnerDetailsModalProps {
   isOpen: boolean;
@@ -45,7 +46,6 @@ const PartnerDetailsModal = ({
     isLoading,
     isError,
   } = useFetchPartnerDetail(partnerId || "");
-console.log("data of parteners ",partnerData );
 
   if (!isOpen) return null;
 
@@ -97,11 +97,9 @@ console.log("data of parteners ",partnerData );
         </ModalHeader>
 
         {isLoading ? (
-          <div className="flex-1 flex items-center justify-center">
-            <p>Loading partner details...</p>
-          </div>
+          <LoadingState />
         ) : isError || !displayData ? (
-          <div className="flex-1 flex items-center justify-center text-red-600">
+          <div className="flex-1 flex items-center justify-center text-red-600 text-sm">
             <p>Failed to load partner details.</p>
           </div>
         ) : (

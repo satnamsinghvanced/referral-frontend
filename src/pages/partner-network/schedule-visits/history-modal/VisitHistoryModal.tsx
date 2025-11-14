@@ -43,10 +43,10 @@ export function VisitHistoryModal({ isOpen, onClose, onItemView }: VisitHistoryM
   const stats = visitHistoryData?.stats;
 
   const displayStats = stats || {
-    totalVisits: "—",
-    completedVisits: "—",
-    officeVisits: "—",
-    totalTime: "—",
+    totalVisits: "0",
+    completedVisits: "0",
+    officeVisits: "0",
+    totalTime: "0",
   };
 
   // Handler for Select change, using useCallback for stability
@@ -163,7 +163,7 @@ export function VisitHistoryModal({ isOpen, onClose, onItemView }: VisitHistoryM
             ))}
             {/* Display if no visits are found */}
             {(!visits || visits.length === 0) && !isFetching && (
-              <div className="text-center text-gray-500 py-10">
+              <div className="text-center text-gray-500 pt-10 pb-6 text-sm">
                 No visits found matching the current filters.
               </div>
             )}

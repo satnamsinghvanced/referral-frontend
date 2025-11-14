@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, CardHeader } from "@heroui/react";
+import { Button, Card, CardBody, CardHeader, Chip } from "@heroui/react";
 import { FiCopy, FiEye, FiTrash2 } from "react-icons/fi";
 import { LuDownload } from "react-icons/lu";
 import VisitStatusChip from "../../../components/chips/VisitStatusChip";
@@ -41,7 +41,20 @@ const PlanCard: React.FC<{
             <h4 data-slot="card-title" className="text-sm">
               {plan.planDetails.name}
             </h4>
-            <VisitStatusChip status={plan.status} />
+            <div className="flex items-center gap-1.5">
+              <VisitStatusChip status={plan.status} />
+              {plan.isDraft && (
+                <Chip
+                  size="sm"
+                  radius="sm"
+                  className="capitalize text-[11px] h-5"
+                  variant="flat"
+                  color="danger"
+                >
+                  Draft
+                </Chip>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-2 mb-2 ">
             <span className="text-xs text-gray-600">{monthYear}</span>

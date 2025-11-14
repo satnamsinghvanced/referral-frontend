@@ -166,6 +166,15 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
   );
 
   const handleGenerateRoute = () => {
+    if (selectedReferrerObjects.length < 2) {
+      addToast({
+        title: "Error",
+        description: "Please select at least two referrers to continue.",
+        color: "danger",
+      });
+      return;
+    }
+
     if (isTimeInPastError) {
       addToast({
         title: "Validation Error",
@@ -437,7 +446,6 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
               isDisabled={
                 isPending ||
                 !coordinateString ||
-                selectedReferrerObjects.length < 2 ||
                 isTimeInPastError ||
                 !!errors.durationPerVisit
               }
@@ -446,12 +454,6 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
               {isPending ? "Calculating..." : "Generate Route"}
             </Button>
           </div>
-          {errors.routeOptimizationResults &&
-            !routeOptimizationResults?.bestRoute && (
-              <p className="text-xs mt-2 text-red-600">
-                {errors.routeOptimizationResults}
-              </p>
-            )}
         </CardBody>
       </Card>
 

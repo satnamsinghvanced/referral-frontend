@@ -143,9 +143,9 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
         <Button
           isIconOnly
           size="sm"
-          variant="light"
+          variant="ghost"
           onPress={() => onView?.(referrer._id)}
-          className=" hover:!bg-orange-200 hover:text-orange-500 transition-colors " 
+          className="border-none"
         >
           <FiEye className="size-4 " />
         </Button>

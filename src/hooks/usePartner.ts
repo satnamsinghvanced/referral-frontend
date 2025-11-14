@@ -15,6 +15,7 @@ import {
   fetchVisitHistory,
   getAllNotesAndTasks,
   getSchedulePlans,
+  getScheduleTaskEvent,
   scheduleTaskEvent,
   updateSchedulePlan,
   updateTaskStatus,
@@ -239,6 +240,11 @@ export const useScheduleTaskEvent = () => {
     mutationFn: scheduleTaskEvent,
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["notesAndTasks"] });
+      addToast({
+        title: "Success",
+        description: "Task event scheduled successfully.",
+        color: "success",
+      });
     },
 
     onError: (error, variables) => {
@@ -250,6 +256,13 @@ export const useScheduleTaskEvent = () => {
     },
   });
 };
+
+export const useGetScheduleTaskEvent = (taskId: string) =>
+  useQuery({
+    queryKey: ["partnerStats", taskId],
+    queryFn: () => getScheduleTaskEvent(taskId),
+    enabled: !!taskId,
+  });
 
 const SCHEDULE_PLAN_KEY = "schedulePlans";
 

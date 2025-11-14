@@ -15,7 +15,7 @@ import * as Yup from "yup";
 import { PRIORITY_LEVELS } from "../../consts/practice";
 import { useCreateActivity, useUpdateActivity } from "../../hooks/useMarketing";
 import { ActivityItem, ActivityType } from "../../types/marketing";
-import { parseDate, CalendarDate } from "@internationalized/date";
+import { parseDate, CalendarDate, getLocalTimeZone, today } from "@internationalized/date";
 
 interface ActivityFormValues {
   title: string;
@@ -247,6 +247,7 @@ export default function ActivityActionsModal({
                 labelPlacement="outside"
                 size="sm"
                 radius="sm"
+                minValue={today(getLocalTimeZone())}
                 value={stringToCalendarDate(formik.values.startDate)}
                 onChange={(dateObject) => {
                   formik.setFieldValue(
@@ -268,6 +269,7 @@ export default function ActivityActionsModal({
                 labelPlacement="outside"
                 size="sm"
                 radius="sm"
+                minValue={today(getLocalTimeZone())}
                 value={stringToCalendarDate(formik.values.endDate)}
                 onChange={(dateObject) => {
                   formik.setFieldValue(

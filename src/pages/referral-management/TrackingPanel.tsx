@@ -1,4 +1,4 @@
-import { Button, Chip } from "@heroui/react";
+import { addToast, Button, Chip } from "@heroui/react";
 import React, { useCallback, useState } from "react";
 import { FiCalendar, FiShare2 } from "react-icons/fi";
 import { GoGraph } from "react-icons/go";
@@ -36,43 +36,93 @@ const TrackingPanel: React.FC<TrackingPanelProps> = ({
   };
 
   const handleNFCSetup = async () => {
-  if (!("NDEFReader" in window)) {
-    console.log("NDEFReader" in window);
+    if (!("NDEFReader" in window)) {
+      addToast({
+        title: "Error",
+        description: "NFC is not supported on this device/browser.",
+        color: "danger",
+      });
+      return;
+    }
 
-    alert("NFC is not supported on this device/browser.");
-    return;
-  }
+    try {
+      const ndef = new (window as any).NDEFReader();
+      await ndef.scan();
+      addToast({
+        title: "Success",
+        description:
+          "NFC scan started. Bring your NFC tag close to the device.",
+        color: "success",
+      });
+      ndef.onreading = (event: { message: { records: any[] } }) => {
+        const decoder = new TextDecoder();
+        const tagMessage = event.message.records
+          .map((record) => decoder.decode(record.data))
+          .join(", ");
 
-  try {
-    const ndef = new (window as any).NDEFReader();
-    await ndef.scan();
-    alert("NFC scan started. Bring your NFC tag close to the device.");
-    ndef.onreading = (event: { message: { records: any[]; }; }) => {
-      const decoder = new TextDecoder();
-      const tagMessage = event.message.records
-        .map((record) => decoder.decode(record.data))
-        .join(", ");
+        addToast({
+          title: "Success",
+          description: `NFC tag detected: ${tagMessage}`,
+          color: "success",
+        });
+      };
 
-      console.log("NFC tag detected:", tagMessage);
-      alert(`NFC tag detected: ${tagMessage}`);
-    };
+      await ndef.write(trackings?.nfcUrl || "https://example.com");
+      addToast({
+        title: "Success",
+        description: "NFC data written successfully!",
+        color: "success",
+      });
+    } catch (error: any) {
+      addToast({
+        title: "Error",
+        description: `NFC setup failed: ${error.message}`,
+        color: "danger",
+      });
+    }
+  };
 
-    await ndef.write(trackings?.nfcUrl || "https://example.com");
-    alert("NFC data written successfully!");
+  // UPDATED FUNCTION TO HANDLE DIRECT DOWNLOAD
+  const handleDownloadQR = async () => {
+    const qrCodeUrl = trackings?.qrCode;
+    if (!qrCodeUrl) {
+      addToast({
+        title: "Error",
+        description: "QR Code URL is missing.",
+        color: "danger",
+      });
+      return;
+    }
 
-  } catch (error: any) {
-    console.error("NFC setup failed:", error);
-    alert(`NFC setup failed: ${error.message}`);
-  }
-};
+    try {
+      const response = await fetch(qrCodeUrl);
 
+      if (!response.ok) throw new Error("Failed to fetch QR code image.");
+      const imageBlob = await response.blob();
+      const blobUrl = window.URL.createObjectURL(imageBlob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = "referral_qr_code.png";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(blobUrl);
+    } catch (error) {
+      console.error("Download failed:", error);
+      addToast({
+        title: "Download Error",
+        description: "Could not download the QR code image.",
+        color: "danger",
+      });
+    }
+  };
 
   const openSharingModal = useCallback(async () => {
     if (navigator.share) {
       try {
         await navigator.share({
           title: "Referral QR Code - General Practice",
-          url: trackings?.referralUrl,
+          url: `${import.meta.env.VITE_URL_PREFIX}/referral/${userId}`,
         });
       } catch (error) {
         console.error("Error sharing content:", error);
@@ -80,7 +130,7 @@ const TrackingPanel: React.FC<TrackingPanelProps> = ({
     } else {
       console.log("Web Share API not supported.");
     }
-  }, []);
+  }, [userId]);
 
   if (!trackings?.qrCode) {
     return (
@@ -203,18 +253,17 @@ const TrackingPanel: React.FC<TrackingPanelProps> = ({
 
         {/* Action Buttons */}
         <div className="grid grid-cols-2 gap-3">
-          <Link to={trackings?.qrCode || "#"} target="_blank">
-            <Button
-              variant="bordered"
-              color="default"
-              startContent={<LuDownload fontSize={14} />}
-              className="border-small"
-              size="sm"
-              fullWidth
-            >
-              Download QR
-            </Button>
-          </Link>
+          <Button
+            variant="bordered"
+            color="default"
+            startContent={<LuDownload fontSize={14} />}
+            className="border-small"
+            size="sm"
+            fullWidth
+            onPress={handleDownloadQR} // Calling the robust async download function
+          >
+            Download QR
+          </Button>
           <Button
             variant="bordered"
             color="default"
@@ -256,7 +305,7 @@ const TrackingPanel: React.FC<TrackingPanelProps> = ({
         <div className="flex flex-col gap-3 mt-4 rounded-md">
           {[
             {
-              label: "Total Scans Today",
+              label: "Total Scans",
               value: trackings?.todayScan,
               className: "bg-green-100 text-green-800",
             },

@@ -31,6 +31,7 @@ import {
   useDeleteNote,
   useDeleteTask,
   useGetAllNotesAndTasks,
+  useGetScheduleTaskEvent,
   useUpdateTaskStatus,
 } from "../../hooks/usePartner";
 import {
@@ -101,6 +102,10 @@ NotesTasksModalProps) => {
 
   const notes = data?.notes;
   const tasks = data?.tasks;
+
+  const { data: scheduleEventDetail } = useGetScheduleTaskEvent(
+    taskToSchedule?._id as string
+  );
 
   const formatDate = (dateString: string) => {
     try {
@@ -425,9 +430,9 @@ NotesTasksModalProps) => {
                             classNames={{ base: "p-0 m-0" }}
                           />
                         </div>
-                        <div className="flex-1">
+                        <div className="flex-1 space-y-2">
                           <div className="flex items-start justify-between gap-2">
-                            <div className="flex items-center gap-2">
+                            <div className="space-y-1.5">
                               <div
                                 className={`font-medium text-sm ${
                                   task.status === "completed"
@@ -456,6 +461,17 @@ NotesTasksModalProps) => {
                                 >
                                   {task?.status}
                                 </Chip>
+                                {task?.schedule && (
+                                  <Chip
+                                    size="sm"
+                                    radius="sm"
+                                    variant="flat"
+                                    color="primary"
+                                    className="capitalize text-[11px] h-5"
+                                  >
+                                    Scheduled
+                                  </Chip>
+                                )}
                               </div>
                             </div>
                             <div className="flex items-center gap-1">
@@ -533,6 +549,7 @@ NotesTasksModalProps) => {
           isOpen={isScheduleModalOpen}
           onClose={() => setIsScheduleModalOpen(false)}
           task={taskToSchedule}
+          scheduleEventDetail={scheduleEventDetail}
           practice={practice}
           onSchedule={(details) => console.log("Scheduled Event:", details)} // API call integration here
         />

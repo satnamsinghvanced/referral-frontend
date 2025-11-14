@@ -402,20 +402,24 @@ const CreateNewPost: React.FC<CreateNewPostProps> = ({ setIsModalOpen }) => {
 
         <ModalFooter>
           {/* Cancel & Publish Buttons */}
-          <div className="flex justify-between mt-6 gap-x-4">
+          <div className="flex justify-between mt-6 gap-x-2">
             {" "}
             {/* Added gap-x-4 */}
             <Button
-              variant="bordered"
-              className="text-[12px] text-black-900 px-4 py-2 border-sky-50 hover:bg-orange-200"
-              onClick={() => setIsModalOpen(false)}
+              size="sm"
+              radius="sm"
+              variant="ghost"
+              onPress={() => setIsModalOpen(false)}
+              className="border-small"
             >
               Cancel
             </Button>
             <Button
+              size="sm"
+              radius="sm"
+              variant="solid"
               color="primary"
-              className="text-[13px] px-7 py-2 text-white hover:text-white bg-sky-300"
-              onClick={handleSavePost}
+              onPress={handleSavePost}
             >
               Schedule Post
             </Button>

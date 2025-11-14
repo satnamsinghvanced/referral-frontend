@@ -170,6 +170,7 @@ export interface TaskApiData {
   createdAt: string;
   updatedAt: string;
   isOverDue?: boolean;
+  schedule?: string;
 }
 
 export interface AllNotesTasksResponse {

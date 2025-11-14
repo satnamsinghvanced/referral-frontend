@@ -61,6 +61,7 @@ export function ScheduleVisitsModal({
   practices: Partner[];
 }) {
   const [activeStep, setActiveStep] = useState<string>("select_referrers");
+  const [clearedSteps, setClearedSteps] = useState<Set<string>>(new Set());
   const [filters, setFilters] = useState<FilterState>({
     search: "",
     category: "",
@@ -134,15 +135,26 @@ export function ScheduleVisitsModal({
       )[] = [];
 
       if (step === "select_referrers") {
-        // if (selectedReferrersState.length === 0) {
-        //   errors.selectedReferrers =
-        //     "Select at least one referrer to continue.";
-        // }
+        if (selectedReferrersState.length < 2) {
+          const errorMsg = "Please select at least two referrers to continue.";
+          errors.selectedReferrers = errorMsg;
+          addToast({
+            title: "Error",
+            description: errorMsg,
+            color: "danger",
+          });
+        }
       } else if (step === "route_planning") {
         fieldsToValidate = ["routeDate", "startTime", "durationPerVisit"];
         if (!routeOptimizationResults?.bestRoute) {
-          errors.routeOptimizationResults =
+          const errorMsg =
             "A route must be successfully generated before proceeding.";
+          errors.routeOptimizationResults = errorMsg;
+          addToast({
+            title: "Error",
+            description: errorMsg,
+            color: "danger",
+          });
         }
       } else if (step === "plan_details") {
         fieldsToValidate = [
@@ -155,15 +167,21 @@ export function ScheduleVisitsModal({
         }
       } else if (step === "review_save") {
         if (!routeOptimizationResults?.bestRoute) {
-          errors.routeOptimizationResults =
+          const errorMsg =
             "Route data is missing. Please return to Route Planning.";
+          errors.routeOptimizationResults = errorMsg;
+          addToast({
+            title: "Error",
+            description: errorMsg,
+            color: "danger",
+          });
         }
       }
 
       for (const field of fieldsToValidate) {
         const value = planState[field as keyof typeof initialPlanState];
         if (!value || (typeof value === "string" && value.trim() === "")) {
-          errors[field] = `${
+          const fieldLabel =
             field === "routeDate"
               ? "Route date"
               : field === "startTime"
@@ -174,11 +192,19 @@ export function ScheduleVisitsModal({
               ? "Visit purpose"
               : field === "defaultPriority"
               ? "Priority"
-              : field
-          } is required.`;
+              : field;
+
+          const errorMsg = `${fieldLabel} is required.`;
+          errors[field] = errorMsg;
+          // addToast({
+          // 	title: "Required Field Missing",
+          // 	description: errorMsg,
+          // 	color: "danger",
+          // });
         }
       }
 
+      setValidationErrors(errors);
       return Object.keys(errors).length === 0;
     },
     [planState, selectedReferrersState, routeOptimizationResults]
@@ -188,54 +214,13 @@ export function ScheduleVisitsModal({
     const isValid = validateStep(activeStep);
 
     if (!isValid) {
-      let errors: any = {};
-      let fieldsToValidate: (
-        | keyof typeof initialPlanState
-        | "selectedReferrers"
-      )[] = [];
-
-      if (activeStep === "select_referrers") {
-        // if (selectedReferrersState.length === 0)
-        //   errors.selectedReferrers =
-        //     "Select at least one referrer to continue.";
-      } else if (activeStep === "route_planning") {
-        fieldsToValidate = ["routeDate", "startTime", "durationPerVisit"];
-        if (!routeOptimizationResults?.bestRoute)
-          errors.routeOptimizationResults =
-            "A route must be successfully generated before proceeding.";
-      } else if (activeStep === "plan_details") {
-        fieldsToValidate = [
-          "planName",
-          "defaultVisitPurpose",
-          "defaultPriority",
-        ];
-        if (planState.defaultVisitPurpose === "Custom Purpose")
-          fieldsToValidate.push("customVisitPurpose");
-      }
-
-      for (const field of fieldsToValidate) {
-        const value = planState[field as keyof typeof initialPlanState];
-        if (!value || (typeof value === "string" && value.trim() === "")) {
-          errors[field] = `${
-            field === "routeDate"
-              ? "Route date"
-              : field === "startTime"
-              ? "Start time"
-              : field === "planName"
-              ? "Plan name"
-              : field === "defaultVisitPurpose"
-              ? "Visit purpose"
-              : field === "defaultPriority"
-              ? "Priority"
-              : field
-          } is required.`;
-        }
-      }
-
-      setValidationErrors(errors);
+      // If validation fails, validateStep has already updated validationErrors
+      // and shown the required toast messages. We just return here.
       return;
     }
 
+    setClearedSteps((prev) => new Set(prev).add(activeStep));
+    // Validation passed, clear any lingering errors and proceed
     setValidationErrors({});
 
     const currentTabIndex = tabs.findIndex((t) => t.key === activeStep);
@@ -252,10 +237,27 @@ export function ScheduleVisitsModal({
   };
 
   const handleSubmit = (action: string) => {
-    if (!validateStep("plan_details") || !validateStep("review_save")) {
+    if (!validateStep("select_referrers")) {
       addToast({
-        title: "Validation Failed",
-        description: "Please check all required fields and route data.",
+        title: "Error",
+        description: "Please select at least two referrers to continue.",
+        color: "danger",
+      });
+      return;
+    }
+    if (!validateStep("route_planning")) {
+      addToast({
+        title: "Error",
+        description:
+          "A route must be successfully generated before proceeding.",
+        color: "danger",
+      });
+      return;
+    }
+    if (!validateStep("plan_details")) {
+      addToast({
+        title: "Error",
+        description: "Please fill all required fields.",
         color: "danger",
       });
       return;
@@ -276,12 +278,6 @@ export function ScheduleVisitsModal({
 
     const bestRoute = routeOptimizationResults?.bestRoute;
     if (!bestRoute) {
-      addToast({
-        title: "Error",
-        description:
-          "Cannot save: Route data is missing. Please regenerate the route.",
-        color: "danger",
-      });
       return;
     }
 
@@ -320,15 +316,9 @@ export function ScheduleVisitsModal({
           setRouteOptimizationResults(null);
           setSelectedReferrersState([]);
           setValidationErrors({});
-
-          addToast({
-            title: "Success",
-            description: "Plan Scheduled!",
-            color: "success",
-          });
           onClose();
         },
-        onError: (error) => {
+        onError: (error: any) => {
           addToast({
             title: "Submission Failed",
             description: error.message || "An unknown error occurred.",
@@ -356,7 +346,7 @@ export function ScheduleVisitsModal({
       <ModalContent>
         <ModalHeader className="p-5 pb-4 flex-col">
           <h2 className="leading-none font-medium text-base">
-            Schedule Referrer Visits
+            Schedule Referrer Visit
           </h2>
           <p className="text-xs text-gray-600 mt-1.5 font-normal">
             Create and manage visit schedules with optimized routes for maximum
@@ -380,7 +370,19 @@ export function ScheduleVisitsModal({
             }}
             className="w-full"
           >
-            {(item) => <Tab key={item.key} title={item.label} />}
+            {(item) => {
+              const itemIndex = tabs.findIndex((t) => t.key === item.key);
+              const isAhead = itemIndex < currentTabIndex;
+              const isNotCleared = !clearedSteps.has(item.key);
+              const isDisabled = isAhead && isNotCleared;
+              return (
+                <Tab
+                  key={item.key}
+                  title={item.label}
+                  // isDisabled={isDisabled}
+                />
+              );
+            }}
           </Tabs>
 
           <div className="pt-4 pb-4 relative overflow-hidden">

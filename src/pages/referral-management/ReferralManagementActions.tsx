@@ -448,6 +448,15 @@ export default function ReferralManagementActions({
                   ? [formik.values[id]]
                   : []
               }
+              disabledKeys={
+                multiple
+                  ? Array.isArray(formik.values[id])
+                    ? formik.values[id]
+                    : []
+                  : formik.values[id]
+                  ? [formik.values[id]]
+                  : []
+              }
               onSelectionChange={(keys) => {
                 const selectedKeysArray = Array.from(keys);
                 const finalValue = multiple
@@ -637,6 +646,15 @@ export default function ReferralManagementActions({
               placeholder={field.placeholder || "Select an option"}
               selectionMode={field.multiple ? "multiple" : "single"}
               selectedKeys={
+                field.multiple
+                  ? Array.isArray(valuePath)
+                    ? valuePath
+                    : []
+                  : valuePath
+                  ? [valuePath]
+                  : []
+              }
+              disabledKeys={
                 field.multiple
                   ? Array.isArray(valuePath)
                     ? valuePath

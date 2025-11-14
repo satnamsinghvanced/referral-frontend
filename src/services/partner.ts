@@ -105,6 +105,13 @@ export const scheduleTaskEvent = async (
   return response.data;
 };
 
+export const getScheduleTaskEvent = async (
+  taskId: string
+): Promise<EventDetails> => {
+  const response = await axios.get(`/tasks/schedule/${taskId}`);
+  return response.data;
+};
+
 // SCHEDULE PLANS
 
 export const getSchedulePlans = async (

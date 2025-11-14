@@ -22,6 +22,7 @@ import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
 import { downloadVcf } from "../../utils/vcfGenerator";
 import { EMAIL_REGEX, PHONE_REGEX } from "../../consts/consts";
 import { getLocalTimeZone, now, today } from "@internationalized/date";
+import { RiPhoneFill } from "react-icons/ri";
 
 interface PatientFormValues {
   fullName: string;
@@ -51,6 +52,11 @@ const PatientForm = () => {
   useEffect(() => {
     const pathSegments = location.pathname.split("/referral/");
     const referralIdSegment = pathSegments.length > 1 ? pathSegments[1] : null;
+
+    if (!referralIdSegment) {
+      navigate("/signin");
+      return;
+    }
 
     setReferredBy(referralIdSegment?.split("?")[0] || "");
 
@@ -172,7 +178,7 @@ const PatientForm = () => {
           appointmentTime: values.preferredTime || "",
           reason: values.referralReason || "",
           notes: values.notes || "",
-          scheduledDate: values.scheduledDate || ""
+          scheduledDate: values.scheduledDate || "",
         };
 
         await createReferral(payload, {
@@ -196,35 +202,47 @@ const PatientForm = () => {
           <CardBody className="p-0">
             <div className="flex justify-between items-center text-sm bg-gradient-to-l from-green-600 to-blue-600 m-0 px-5 py-4 text-background">
               <div>
-                <h1 className="text-base font-medium mb-1">
-                  {fetchedUser?.practiceName}
-                </h1>
+                {fetchedUser?.practiceName && (
+                  <h1 className="text-base font-medium mb-1">
+                    {fetchedUser?.practiceName}
+                  </h1>
+                )}
                 <div>
-                  {fetchedUser?.firstName} {fetchedUser?.lastName}
+                  {fetchedUser?.practiceName
+                    ? `${fetchedUser?.firstName} ${fetchedUser?.lastName}`
+                    : `Referred by ${fetchedUser?.firstName} ${fetchedUser?.lastName}`}
                 </div>
               </div>
               <div>
                 {fetchedUser?.phone && (
                   <Link
                     to={`tel:${fetchedUser?.phone}`}
-                    className="mb-1 flex items-center justify-center gap-2"
+                    className="flex items-center justify-center gap-1.5"
                   >
-                    <FaPhone className="text-sm" />
+                    <RiPhoneFill className="text-lg" />
                     {fetchedUser?.phone}
                   </Link>
                 )}
               </div>
             </div>
 
-            <div className="px-5 py-4">
-              <p className="text-sm font-medium">
-                Referred by {fetchedUser?.firstName} {fetchedUser?.lastName}{" "}
-                from {fetchedUser?.practiceName}
-              </p>
-              <p className="text-xs text-gray-600 mt-1">
-                Specialty in {fetchedUser?.medicalSpecialty?.title}
-              </p>
-            </div>
+            {fetchedUser?.practiceName && (
+              <div className="px-5 py-4">
+                <p className="text-sm font-medium">
+                  {`Referred by ${fetchedUser?.firstName} ${
+                    fetchedUser?.lastName
+                  } ${
+                    fetchedUser?.practiceName &&
+                    `from ${fetchedUser?.practiceName}`
+                  }`}
+                </p>
+                {fetchedUser?.medicalSpecialty && (
+                  <p className="text-xs text-gray-600 mt-1">
+                    Specialty in {fetchedUser?.medicalSpecialty?.title}
+                  </p>
+                )}
+              </div>
+            )}
           </CardBody>
         </Card>
 

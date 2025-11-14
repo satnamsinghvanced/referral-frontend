@@ -70,17 +70,13 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
             setFilters({ ...filters, category });
           }}
           className="w-[220px]"
-          classNames={{ value: "text-xs" }}
+          // classNames={{ value: "text-xs" }}
           startContent={<LuFilter className="text-gray-400 text-base" />}
         >
           <>
-            <SelectItem key="" classNames={{ title: "text-xs" }}>
-              All Categories
-            </SelectItem>
+            <SelectItem key="">All Categories</SelectItem>
             {CATEGORY_OPTIONS.map((opt: any) => (
-              <SelectItem key={opt._id} classNames={{ title: "text-xs" }}>
-                {opt.shortTitle}
-              </SelectItem>
+              <SelectItem key={opt._id}>{opt.shortTitle}</SelectItem>
             ))}
           </>
         </Select>

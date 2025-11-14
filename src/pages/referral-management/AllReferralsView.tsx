@@ -118,7 +118,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
       key={referral._id}
       className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
     >
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr_1fr] gap-6">
         <div className="space-y-3">
           <div className="flex items-center space-x-3">
             <div>
@@ -195,7 +195,9 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
           {/* <p className="text-xs font-medium">
               Est. Value: ${referral?.estValue}
             </p> */}
-          <p className="text-xs text-gray-600">{referral.additionalNotes}</p>
+          {referral.notes && (
+            <p className="text-xs text-gray-600">{referral.notes}</p>
+          )}
           <div className="flex items-center space-x-1">
             {referral.phone && (
               <Link to={`tel:${referral.phone}`}>

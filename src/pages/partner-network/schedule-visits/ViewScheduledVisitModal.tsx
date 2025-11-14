@@ -1,4 +1,4 @@
-import { Modal, ModalBody, ModalContent, ModalHeader } from "@heroui/react";
+import { Chip, Modal, ModalBody, ModalContent, ModalHeader } from "@heroui/react";
 import { TbCalendarStats, TbRoute, TbNotes } from "react-icons/tb"; // Icons for new structure
 import VisitStatusChip from "../../../components/chips/VisitStatusChip";
 import { LuCar, LuClock, LuTimer } from "react-icons/lu";
@@ -69,11 +69,17 @@ export default function ViewScheduledVisitModal({
           </h4>
           <div className="flex items-center gap-2 ml-2">
             <VisitStatusChip status={plan?.status} />
-            {/* {plan.isOptimized && (
-              <span className="px-2 py-0.5 text-xs font-medium rounded bg-green-100 text-green-600">
-                Optimized
-              </span>
-            )} */}
+            {plan.isDraft && (
+              <Chip
+                size="sm"
+                radius="sm"
+                className="capitalize text-[11px] h-5"
+                variant="flat"
+                color="danger"
+              >
+                Draft
+              </Chip>
+            )}
           </div>
         </ModalHeader>
 
