@@ -1,17 +1,16 @@
 import { Button, Card } from "@heroui/react";
-import { SchedulePlan } from "../../../types/partner";
-import { FiCopy, FiEdit, FiEye, FiTrash2 } from "react-icons/fi";
+import { FiCopy, FiEye, FiTrash2 } from "react-icons/fi";
 import { LuDownload } from "react-icons/lu";
+import VisitStatusChip from "../../../components/chips/VisitStatusChip";
+import { useCopySchedulePlan } from "../../../hooks/usePartner";
+import { SchedulePlan } from "../../../types/partner";
 import { downloadJson } from "../../../utils/jsonDownloader";
-import {
-  useCopySchedulePlan,
-  useDeleteSchedulePlan,
-} from "../../../hooks/usePartner";
 
-const CompactPlanCard: React.FC<{ plan: SchedulePlan; onView: any }> = ({
-  plan,
-  onView,
-}) => {
+const CompactPlanCard: React.FC<{
+  plan: SchedulePlan;
+  onView: any;
+  onDelete: any;
+}> = ({ plan, onView, onDelete }) => {
   const statClass =
     "flex flex-col items-center justify-center text-center w-12";
   const statValueClass = "font-medium text-xs whitespace-nowrap";
@@ -23,7 +22,6 @@ const CompactPlanCard: React.FC<{ plan: SchedulePlan; onView: any }> = ({
   });
 
   const { mutate: copySchedulePlan } = useCopySchedulePlan();
-  const { mutate: deleteSchedulePlan } = useDeleteSchedulePlan();
 
   const handleExport = () => {
     const exportData = {
@@ -43,6 +41,7 @@ const CompactPlanCard: React.FC<{ plan: SchedulePlan; onView: any }> = ({
           <h4 className="text-sm font-medium truncate">
             {plan.planDetails.name}
           </h4>
+          <VisitStatusChip status={plan.status} />
         </div>
         <p className="text-xs text-gray-600">{monthYear}</p>
         {plan.planDetails.description && (
@@ -84,7 +83,7 @@ const CompactPlanCard: React.FC<{ plan: SchedulePlan; onView: any }> = ({
             variant="light"
             title="View Details"
             isIconOnly
-            onPress={onView}
+            onPress={() => onView(plan)}
           >
             <FiEye className="size-3.5" />
           </Button>
@@ -117,9 +116,7 @@ const CompactPlanCard: React.FC<{ plan: SchedulePlan; onView: any }> = ({
             variant="light"
             title="Delete Plan"
             isIconOnly
-            onPress={() => {
-              deleteSchedulePlan(plan._id);
-            }}
+            onPress={() => onDelete(plan._id)}
           >
             <FiTrash2 className="size-3.5" />
           </Button>

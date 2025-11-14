@@ -156,7 +156,7 @@ export default function ActivityActionsModal({
       isOpen={isOpen}
       onOpenChange={onClose}
       classNames={{
-        base: "max-w-2xl",
+        base: `max-sm:!m-3 !m-0`,
         closeButton: "cursor-pointer",
       }}
       size="2xl"

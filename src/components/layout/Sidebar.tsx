@@ -196,7 +196,7 @@ const Sidebar = ({
         >
           {isMiniSidebarOpen && (
             <Link
-              to="/dashboard"
+              to="/"
               className="flex items-center gap-2 cursor-pointer text-sm pl-3"
             >
               {/* <img src={logo} alt="logo" className="h-8 block" />

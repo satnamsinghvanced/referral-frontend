@@ -25,6 +25,8 @@ import { formatDateToYYYYMMDD } from "../../utils/formatDateToYYYYMMDD";
 import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
 import EmptyState from "../../components/common/EmptyState";
 import { LoadingState } from "../../components/common/LoadingState";
+import { TREATMENT_OPTIONS } from "../../consts/referral";
+import PriorityLevelChip from "../../components/chips/PriorityLevelChip";
 
 interface AllReferralsViewProps {
   onBackToOverview: () => void;
@@ -121,15 +123,20 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
           <div className="flex items-center space-x-3">
             <div>
               <h3 className="text-sm font-medium">{referral.name}</h3>
+              {referral.age && (
+                <span className="text-xs">Age: {referral.age}</span>
+              )}
             </div>
           </div>
           <div className="space-y-1.5">
-            <div className="flex items-center space-x-1.5 text-sm">
-              <BiPhone className="h-4 w-4 text-gray-400" aria-hidden="true" />
-              <span className="text-xs">
-                {formatPhoneNumber(referral.phone)}
-              </span>
-            </div>
+            {referral.phone && (
+              <div className="flex items-center space-x-1.5 text-sm">
+                <BiPhone className="h-4 w-4 text-gray-400" aria-hidden="true" />
+                <span className="text-xs">
+                  {formatPhoneNumber(referral.phone)}
+                </span>
+              </div>
+            )}
             <div className="flex items-center space-x-1.5 text-sm">
               <CgMail className="h-4 w-4 text-gray-400" aria-hidden="true" />
               <span className="text-xs">{referral.email}</span>
@@ -158,7 +165,13 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
           <div className="space-y-2">
             {referral.treatment && (
               <p className="text-xs">
-                <strong>Treatment:</strong> {referral.treatment}
+                <strong>Treatment:</strong>{" "}
+                {
+                  TREATMENT_OPTIONS.find(
+                    (treatmentOption: any) =>
+                      treatmentOption.key === referral.treatment
+                  )?.label
+                }
               </p>
             )}
 
@@ -177,22 +190,12 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
             >
               <ReferralStatusChip status={referral.status} />
             </span>
-            <Chip
-              color={getPriorityColor(referral.priority)}
-              size="sm"
-              variant="flat"
-              radius="sm"
-              className="capitalize text-[11px] h-5"
-            >
-              {referral.priority}
-            </Chip>
+            <PriorityLevelChip level={referral.priority as string} />
           </div>
-          <div className="space-y-1">
-            <p className="text-xs font-medium">
+          {/* <p className="text-xs font-medium">
               Est. Value: ${referral?.estValue}
-            </p>
-            <p className="text-xs text-gray-600">{referral.notes}</p>
-          </div>
+            </p> */}
+          <p className="text-xs text-gray-600">{referral.additionalNotes}</p>
           <div className="flex items-center space-x-1">
             {referral.phone && (
               <Link to={`tel:${referral.phone}`}>

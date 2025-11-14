@@ -1,10 +1,4 @@
-import {
-  Button,
-  Checkbox,
-  Select,
-  SelectItem,
-  Textarea
-} from "@heroui/react";
+import { Button, Checkbox, Select, SelectItem, Textarea } from "@heroui/react";
 import { useFormik } from "formik";
 import { Key, useMemo } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
@@ -42,7 +36,6 @@ export default function ReferralManagementActions({
   isPracticeEdit,
 }: ReferralManagementActionsProps) {
   const { user } = useTypedSelector((state) => state.auth);
-  console.log("editedData", editedData);
 
   const { data: specialties } = useSpecialties();
 
@@ -116,14 +109,20 @@ export default function ReferralManagementActions({
     const mutationPromise = new Promise((resolve, reject) => {
       if (editedData?.type || isPracticeEdit) {
         updateReferrer(mutationPayload, {
-          onSuccess: (data) => resolve(data),
+          onSuccess: (data) => {
+            resolve(data);
+            setIsModalOpen(false);
+            setReferrerEditId("");
+          },
           onError: (error) => reject(error),
         });
-        setIsModalOpen(false);
-        setReferrerEditId("");
       } else {
         createReferrer(mutationPayload, {
-          onSuccess: (data) => resolve(data),
+          onSuccess: (data) => {
+            resolve(data);
+            setIsModalOpen(false);
+            formik.resetForm();
+          },
           onError: (error) => reject(error),
         });
       }
@@ -131,8 +130,6 @@ export default function ReferralManagementActions({
 
     try {
       await mutationPromise;
-      setIsModalOpen(false);
-      formik.resetForm();
     } catch (error) {
       console.error("Referrer creation failed:", error);
     }

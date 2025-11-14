@@ -5,6 +5,7 @@ import MiniStatsCard, { StatCard } from "../components/cards/MiniStatsCard";
 import ComponentContainer from "../components/common/ComponentContainer";
 import { useDashboard } from "../hooks/useDashboard";
 import { useTypedSelector } from "../hooks/useTypedSelector";
+import { TREATMENT_OPTIONS } from "../consts/referral";
 
 type Color = "sky" | "orange" | "emerald" | "purple";
 
@@ -171,15 +172,20 @@ const Dashboard = () => {
   const recentActivities = [
     ...(dashboard?.recentReferrals?.length > 0
       ? [
-          {
-            icon: "👥",
-            iconBg: "bg-sky-50",
-            title: `New referral from ${
-              dashboard?.referrer?.name || "Unknown"
+        {
+          icon: "👥",
+          iconBg: "bg-sky-50",
+          title: `New referral from ${dashboard?.referrer?.name || "Unknown"
             }`,
             description: `Patient: ${
               dashboard?.recentReferrals[0]?.name || "Unknown"
-            } - ${dashboard?.referrer?.type || "Unknown"}`,
+            } - ${
+              TREATMENT_OPTIONS.find(
+                (treatmentOption: any) =>
+                  treatmentOption.key ===
+                  dashboard?.recentReferrals[0]?.treatment
+              )?.label || "Unknown"
+            }`,
             time: `${getTimeAgo(dashboard?.recentReferrals[0]?.createdAt)}`,
           },
         ]
@@ -199,6 +205,12 @@ const Dashboard = () => {
       time: "6 hours ago",
     },
   ];
+
+  const handleClick = (item: any, e: any) => {
+    if (!item.link) {
+      e.preventDefault();
+    }
+  };
 
   return (
     <ComponentContainer headingData={HEADING_DATA}>
@@ -289,7 +301,7 @@ const Dashboard = () => {
                   <span className="bg-emerald-100 text-emerald-800 size-6 p-0 flex items-center justify-center rounded text-xs font-medium">
                     {dashboard?.nfcQrData?.avgConversionRate > 0
                       ? `${dashboard.nfcQrData.avgConversionRate}%`
-                      : "0"}
+                      : "0%"}
                   </span>
                 </div>
                 <Link to="/qr-generator">

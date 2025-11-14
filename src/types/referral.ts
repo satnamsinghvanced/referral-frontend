@@ -3,7 +3,7 @@ export interface Referral {
   referredBy: any;
   addedVia: string;
   name: string;
-  age?: number;
+  age?: number | null;
   phone: string;
   email?: string;
   treatment?: string;
@@ -13,6 +13,7 @@ export interface Referral {
   notes?: string;
   insurance?: string;
   appointment?: string;
+  scheduledDate?: string;
   reason?: string;
   status:
     | "new"

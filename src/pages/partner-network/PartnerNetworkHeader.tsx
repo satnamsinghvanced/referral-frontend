@@ -129,8 +129,9 @@ const PartnerNetworkHeader: React.FC<PartnerNetworkHeaderProps> = ({
               </Button>
               {/* Dynamic display of items */}
               <div className="text-xs w-100 flex text-gray-500">
-                <div className="w-[80px]">Showing {visibleItems ?? totalItems ?? 0} of</div>
-                <div className="w-[80px]"> {totalItems ?? 0} practices </div>
+                {`Showing ${visibleItems ?? totalItems ?? 0} of ${
+                  totalItems ?? 0
+                } practices`}
               </div>
             </div>
           )}
