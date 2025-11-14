@@ -35,6 +35,38 @@ const TrackingPanel: React.FC<TrackingPanelProps> = ({
     }
   };
 
+  const handleNFCSetup = async () => {
+  if (!("NDEFReader" in window)) {
+    console.log("NDEFReader" in window);
+
+    alert("NFC is not supported on this device/browser.");
+    return;
+  }
+
+  try {
+    const ndef = new (window as any).NDEFReader();
+    await ndef.scan();
+    alert("NFC scan started. Bring your NFC tag close to the device.");
+    ndef.onreading = (event: { message: { records: any[]; }; }) => {
+      const decoder = new TextDecoder();
+      const tagMessage = event.message.records
+        .map((record) => decoder.decode(record.data))
+        .join(", ");
+
+      console.log("NFC tag detected:", tagMessage);
+      alert(`NFC tag detected: ${tagMessage}`);
+    };
+
+    await ndef.write(trackings?.nfcUrl || "https://example.com");
+    alert("NFC data written successfully!");
+
+  } catch (error: any) {
+    console.error("NFC setup failed:", error);
+    alert(`NFC setup failed: ${error.message}`);
+  }
+};
+
+
   const openSharingModal = useCallback(async () => {
     if (navigator.share) {
       try {
@@ -211,6 +243,7 @@ const TrackingPanel: React.FC<TrackingPanelProps> = ({
             startContent={<HiOutlineDeviceMobile fontSize={14} />}
             className="border-small"
             size="sm"
+            onPress={handleNFCSetup}
           >
             NFC Setup
           </Button>
@@ -239,7 +272,7 @@ const TrackingPanel: React.FC<TrackingPanelProps> = ({
             },
             {
               label: "Conversion Rate",
-              value: trackings?.conversionRate,
+              value: `${trackings?.conversionRate}%`,
               className: "bg-purple-100 text-purple-800",
             },
           ].map((item, index) => (

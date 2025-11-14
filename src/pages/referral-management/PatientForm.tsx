@@ -58,7 +58,6 @@ const PatientForm = () => {
   useEffect(() => {
     const trackingKey = `scanTracked_${referredBy}_${addedVia}`;
     const alreadyTracked = sessionStorage.getItem(trackingKey);
-
     if (referredBy && addedVia && !alreadyTracked) {
       trackScan({ userId: referredBy, source: addedVia });
       sessionStorage.setItem(trackingKey, "true");
