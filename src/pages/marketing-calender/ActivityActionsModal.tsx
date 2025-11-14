@@ -203,6 +203,7 @@ export default function ActivityActionsModal({
                 size="sm"
                 radius="sm"
                 selectedKeys={formik.values.type ? [formik.values.type] : []}
+                disabledKeys={formik.values.type ? [formik.values.type] : []}
                 onSelectionChange={(keys) =>
                   formik.setFieldValue("type", Array.from(keys)[0] as string)
                 }
