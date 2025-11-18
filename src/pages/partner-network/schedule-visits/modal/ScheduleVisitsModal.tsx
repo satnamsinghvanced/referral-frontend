@@ -9,14 +9,19 @@ import {
   Tab,
   Tabs,
 } from "@heroui/react";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { PURPOSE_OPTIONS } from "../../../../consts/practice";
-import { useCreateSchedulePlan } from "../../../../hooks/usePartner";
+import {
+  useCreateSchedulePlan,
+  useUpdateSchedulePlan,
+} from "../../../../hooks/usePartner";
 import {
   Partner,
   RouteOptimizationResults,
   SaveSchedulePlanPayload,
+  SchedulePlan,
+  SchedulePlanPutRequest, // Import the necessary type for update
 } from "../../../../types/partner";
 import { PlanDetailsTab } from "./PlanDetailsTab";
 import { ReviewSaveTab } from "./ReviewSaveTab";
@@ -31,19 +36,6 @@ interface FilterState {
   category: string;
 }
 
-const initialPlanState = {
-  routeDate: "",
-  startTime: "",
-  durationPerVisit: "30 minutes",
-  planName: "",
-  defaultPriority: "",
-  defaultVisitPurpose: "",
-  customVisitPurpose: "",
-  description: "",
-  enableAutoRoute: true,
-  visitDays: "",
-};
-
 const tabs = [
   { key: "select_referrers", label: "Select Referrers", index: 0 },
   { key: "route_planning", label: "Route Planning", index: 1 },
@@ -55,12 +47,31 @@ export function ScheduleVisitsModal({
   isOpen,
   onClose,
   practices,
+  editedData,
 }: {
   isOpen: boolean;
   onClose: () => void;
   practices: Partner[];
+  editedData?: SchedulePlan; // Made optional if used for creation
 }) {
-  const [activeStep, setActiveStep] = useState<string>("select_referrers");
+  const initialPlanState = {
+    routeDate: "",
+    startTime: "21:00",
+    durationPerVisit: "30 minutes",
+    planName: "",
+    defaultPriority: "",
+    defaultVisitPurpose: "",
+    customVisitPurpose: "",
+    description: "",
+    enableAutoRoute: true,
+    visitDays: "",
+  };
+
+  const isEditing = !!editedData?._id; // Check if we are editing an existing plan
+
+  const [activeStep, setActiveStep] = useState<string>(
+    isEditing ? "review_save" : "select_referrers"
+  );
   const [clearedSteps, setClearedSteps] = useState<Set<string>>(new Set());
   const [filters, setFilters] = useState<FilterState>({
     search: "",
@@ -78,7 +89,39 @@ export function ScheduleVisitsModal({
   const { user } = useTypedSelector((state) => state.auth);
   const userId = user?.userId;
 
+  useEffect(() => {
+    if (editedData) {
+      console.log(editedData?.practices, "HOHOHOHOHO");
+      // Set initial state from editedData
+      setSelectedReferrersState(editedData?.practices || []);
+      setPlanState({
+        routeDate: editedData?.route.date || "",
+        startTime: editedData?.route.startTime || "21:00",
+        durationPerVisit: editedData?.route.durationPerVisit || "30 minutes",
+        planName: editedData?.planDetails.name || "",
+        defaultPriority: editedData?.planDetails.priority || "",
+        defaultVisitPurpose: editedData?.planDetails.visitPurpose.title || "",
+        customVisitPurpose:
+          (editedData?.planDetails.visitPurpose.title &&
+            !PURPOSE_OPTIONS.some(
+              (p) => p.title === editedData.planDetails.visitPurpose.title
+            ) &&
+            editedData.planDetails.visitPurpose.title) ||
+          "",
+        description: editedData?.planDetails.description || "",
+        enableAutoRoute: true,
+        visitDays: editedData?.route.visitDays || "",
+      });
+    } else {
+      // Reset state if not editing
+      setSelectedReferrersState([]);
+      setPlanState(initialPlanState);
+      setRouteOptimizationResults(null);
+    }
+  }, [editedData]);
+
   const createPlanMutation = useCreateSchedulePlan();
+  const updatePlanMutation = useUpdateSchedulePlan(); // Utilize the imported hook
 
   const handleStateChange = useCallback(
     (key: keyof typeof initialPlanState, value: any) => {
@@ -122,7 +165,7 @@ export function ScheduleVisitsModal({
   };
 
   const selectedReferrerObjects = useMemo(
-    () => practices.filter((r) => selectedReferrersState.includes(r._id)),
+    () => practices.filter((r) => selectedReferrersState?.includes(r._id)),
     [practices, selectedReferrersState]
   );
 
@@ -135,7 +178,7 @@ export function ScheduleVisitsModal({
       )[] = [];
 
       if (step === "select_referrers") {
-        if (selectedReferrersState.length < 2) {
+        if (selectedReferrersState?.length < 2) {
           const errorMsg = "Please select at least two referrers to continue.";
           errors.selectedReferrers = errorMsg;
           addToast({
@@ -146,7 +189,7 @@ export function ScheduleVisitsModal({
         }
       } else if (step === "route_planning") {
         fieldsToValidate = ["routeDate", "startTime", "durationPerVisit"];
-        if (!routeOptimizationResults?.bestRoute) {
+        if (!routeOptimizationResults?.optimized) {
           const errorMsg =
             "A route must be successfully generated before proceeding.";
           errors.routeOptimizationResults = errorMsg;
@@ -166,7 +209,7 @@ export function ScheduleVisitsModal({
           fieldsToValidate.push("customVisitPurpose");
         }
       } else if (step === "review_save") {
-        if (!routeOptimizationResults?.bestRoute) {
+        if (!routeOptimizationResults?.optimized) {
           const errorMsg =
             "Route data is missing. Please return to Route Planning.";
           errors.routeOptimizationResults = errorMsg;
@@ -196,11 +239,6 @@ export function ScheduleVisitsModal({
 
           const errorMsg = `${fieldLabel} is required.`;
           errors[field] = errorMsg;
-          // addToast({
-          // 	title: "Required Field Missing",
-          // 	description: errorMsg,
-          // 	color: "danger",
-          // });
         }
       }
 
@@ -214,13 +252,10 @@ export function ScheduleVisitsModal({
     const isValid = validateStep(activeStep);
 
     if (!isValid) {
-      // If validation fails, validateStep has already updated validationErrors
-      // and shown the required toast messages. We just return here.
       return;
     }
 
     setClearedSteps((prev) => new Set(prev).add(activeStep));
-    // Validation passed, clear any lingering errors and proceed
     setValidationErrors({});
 
     const currentTabIndex = tabs.findIndex((t) => t.key === activeStep);
@@ -237,21 +272,7 @@ export function ScheduleVisitsModal({
   };
 
   const handleSubmit = (action: string) => {
-    if (!validateStep("select_referrers")) {
-      addToast({
-        title: "Error",
-        description: "Please select at least two referrers to continue.",
-        color: "danger",
-      });
-      return;
-    }
-    if (!validateStep("route_planning")) {
-      addToast({
-        title: "Error",
-        description:
-          "A route must be successfully generated before proceeding.",
-        color: "danger",
-      });
+    if (!validateStep("select_referrers") || !validateStep("route_planning")) {
       return;
     }
     if (!validateStep("plan_details")) {
@@ -276,13 +297,13 @@ export function ScheduleVisitsModal({
             duration: planState.durationPerVisit,
           };
 
-    const bestRoute = routeOptimizationResults?.bestRoute;
+    const bestRoute = routeOptimizationResults?.optimized;
     if (!bestRoute) {
       return;
     }
 
-    const payload: SaveSchedulePlanPayload = {
-      isDraft: action === "draft" ? true : false,
+    // Prepare the common payload structure
+    const basePayload: Omit<SaveSchedulePlanPayload, "isDraft"> = {
       practices: selectedReferrersState,
       route: {
         date: planState.routeDate,
@@ -293,7 +314,7 @@ export function ScheduleVisitsModal({
         estimatedTotalTime: bestRoute.estimatedTotalTime,
         estimatedDistance: bestRoute.estimatedDistance,
         mileageCost: bestRoute.mileageCost,
-        visitDays: bestRoute.visitDays,
+        visitDays: planState.visitDays, // Use visitDays from planState (or ensure bestRoute has it)
       },
       planDetails: {
         name: planState.planName,
@@ -303,39 +324,81 @@ export function ScheduleVisitsModal({
       },
     };
 
-    createPlanMutation.mutate(
-      { id: userId || "", data: payload },
-      {
-        onSuccess: () => {
-          setPlanState(initialPlanState);
-          setActiveStep("select_referrers");
-          setFilters({
-            search: "",
-            category: "",
-          });
-          setRouteOptimizationResults(null);
-          setSelectedReferrersState([]);
-          setValidationErrors({});
-          onClose();
+    const onSuccess = () => {
+      setPlanState(initialPlanState);
+      setActiveStep("select_referrers");
+      setFilters({
+        search: "",
+        category: "",
+      });
+      setRouteOptimizationResults(null);
+      setSelectedReferrersState([]);
+      setValidationErrors({});
+      onClose();
+    };
+
+    const onError = (error: any) => {
+      addToast({
+        title: "Submission Failed",
+        description: error.message || "An unknown error occurred.",
+        color: "danger",
+      });
+    };
+
+    if (isEditing && editedData?._id) {
+      // 🚀 UPDATE Logic
+      const updatePayload: SchedulePlanPutRequest = {
+        id: editedData._id,
+        data: {
+          isDraft: action === "draft" ? true : false,
+          ...basePayload,
         },
-        onError: (error: any) => {
-          addToast({
-            title: "Submission Failed",
-            description: error.message || "An unknown error occurred.",
-            color: "danger",
-          });
-        },
-      }
-    );
+      };
+
+      updatePlanMutation.mutate(updatePayload, { onSuccess, onError });
+    } else {
+      // 🚀 CREATE Logic
+      const createPayload: SaveSchedulePlanPayload = {
+        isDraft: action === "draft" ? true : false,
+        ...basePayload,
+      };
+
+      createPlanMutation.mutate(
+        { id: userId || "", data: createPayload },
+        { onSuccess, onError }
+      );
+    }
   };
 
-  const isSubmitting = createPlanMutation.isPending;
+  const isSubmitting =
+    createPlanMutation.isPending || updatePlanMutation.isPending;
   const currentTabIndex = tabs.findIndex((t) => t.key === activeStep);
+  const mutationSuccess = isEditing
+    ? updatePlanMutation.isSuccess
+    : createPlanMutation.isSuccess;
+  const submitButtonText = isEditing ? "Update Plan" : "Save & Schedule Visit";
+  const draftButtonText = isEditing ? "Save Draft Changes" : "Save as Draft";
+
+  function clearModalStates() {
+    setActiveStep("select_referrers");
+    setClearedSteps(new Set());
+    setPlanState(initialPlanState);
+    setRouteOptimizationResults(null);
+    setSelectedReferrersState([]);
+    setValidationErrors({});
+  }
+
+  function closeModal() {
+    if (!isEditing && !editedData?._id) {
+      clearModalStates();
+    }
+    onClose();
+  }
 
   return (
     <Modal
       isOpen={isOpen}
-      onOpenChange={onClose}
+      onOpenChange={closeModal}
       size="4xl"
       classNames={{
         base: `max-sm:!m-3 !m-0`,
@@ -346,7 +409,9 @@ export function ScheduleVisitsModal({
       <ModalContent>
         <ModalHeader className="p-5 pb-4 flex-col">
           <h2 className="leading-none font-medium text-base">
-            Schedule Referrer Visit
+            {isEditing
+              ? "Edit Referrer Visit Schedule"
+              : "Schedule Referrer Visit"}
           </h2>
           <p className="text-xs text-gray-600 mt-1.5 font-normal">
             Create and manage visit schedules with optimized routes for maximum
@@ -371,10 +436,10 @@ export function ScheduleVisitsModal({
             className="w-full"
           >
             {(item) => {
-              const itemIndex = tabs.findIndex((t) => t.key === item.key);
-              const isAhead = itemIndex < currentTabIndex;
-              const isNotCleared = !clearedSteps.has(item.key);
-              const isDisabled = isAhead && isNotCleared;
+              // const itemIndex = tabs.findIndex((t) => t.key === item.key);
+              // const isAhead = itemIndex < currentTabIndex;
+              // const isNotCleared = !clearedSteps.has(item.key);
+              // const isDisabled = isAhead && isNotCleared;
               return (
                 <Tab
                   key={item.key}
@@ -429,7 +494,11 @@ export function ScheduleVisitsModal({
                 planState={planState}
                 onStateChange={handleStateChange}
                 errors={validationErrors}
-                data={routeOptimizationResults?.bestRoute}
+                data={
+                  planState.enableAutoRoute
+                    ? routeOptimizationResults?.optimized
+                    : routeOptimizationResults?.original
+                }
                 selectedReferrerObjects={selectedReferrerObjects}
               />
             </div>
@@ -487,7 +556,7 @@ export function ScheduleVisitsModal({
                   className="border-small"
                   startContent={<FiSave className="text-sm" />}
                 >
-                  {createPlanMutation.isSuccess ? "Saved" : "Save as Draft"}
+                  {draftButtonText}
                 </Button>
                 <Button
                   color="primary"
@@ -498,9 +567,7 @@ export function ScheduleVisitsModal({
                   }
                   isLoading={isSubmitting}
                 >
-                  {createPlanMutation.isSuccess
-                    ? "Visit Scheduled"
-                    : "Save & Schedule Visit"}
+                  {submitButtonText}
                 </Button>
               </>
             )}

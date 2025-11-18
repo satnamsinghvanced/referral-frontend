@@ -20,6 +20,9 @@ const ReferralManagement = React.lazy(
 const PartnerNetwork = React.lazy(
   () => import("./pages/partner-network/PartnerNetwork")
 );
+const VisitMap = React.lazy(
+  () => import("./pages/visit-map/VisitMap")
+);
 const Reviews = React.lazy(() => import("./pages/reviews/Reviews"));
 const SocialMedia = React.lazy(
   () => import("./pages/social-media/SocialMedia")
@@ -77,6 +80,7 @@ interface AppRoute {
 
 function AppRoutes() {
   const routesList: AppRoute[] = [
+    { path: "visit-map", element: <VisitMap /> },
     {
       path: "/",
       element: (

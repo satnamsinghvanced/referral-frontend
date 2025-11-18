@@ -1,5 +1,5 @@
 import { Button, Card, Chip } from "@heroui/react";
-import { FiCopy, FiEye, FiTrash2 } from "react-icons/fi";
+import { FiCopy, FiEdit, FiEye, FiTrash2 } from "react-icons/fi";
 import { LuDownload } from "react-icons/lu";
 import VisitStatusChip from "../../../components/chips/VisitStatusChip";
 import { useCopySchedulePlan } from "../../../hooks/usePartner";
@@ -9,8 +9,9 @@ import { downloadJson } from "../../../utils/jsonDownloader";
 const CompactPlanCard: React.FC<{
   plan: SchedulePlan;
   onView: any;
+  onEdit: any;
   onDelete: any;
-}> = ({ plan, onView, onDelete }) => {
+}> = ({ plan, onView, onEdit, onDelete }) => {
   const statClass =
     "flex flex-col items-center justify-center text-center w-12";
   const statValueClass = "font-medium text-xs whitespace-nowrap";
@@ -100,9 +101,15 @@ const CompactPlanCard: React.FC<{
           >
             <FiEye className="size-3.5" />
           </Button>
-          {/* <Button size="sm" variant="light" title="Edit Plan" isIconOnly>
+          <Button
+            size="sm"
+            variant="light"
+            title="Edit Plan"
+            isIconOnly
+            onPress={() => onEdit(plan)}
+          >
             <FiEdit className="size-3.5" />
-          </Button> */}
+          </Button>
           <Button
             size="sm"
             variant="light"

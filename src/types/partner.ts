@@ -326,17 +326,8 @@ export interface SchedulePlanRequest {
  * Interface for the COMPLETE PUT Request Payload (PUT /schedule-visit)
  */
 export interface SchedulePlanPutRequest {
-  _id: string; // Plan ID for update
-  practices: string[];
-  // PlanDetails without 'month' for PUT request
-  planDetails: PlanDetails;
-  scheduleVisits: ScheduledVisitBase[];
-  review: {
-    visitDays: string[];
-    totalReferrers: number;
-    totalTime: string;
-    distance: string;
-  };
+  id: string; // Plan ID for update
+  data: any;
 }
 
 // --- 3. GET Response Interfaces ---
@@ -416,12 +407,13 @@ export interface RouteMetrics {
   estimatedDistance: string;
   mileageCost: string;
   visitDays: string;
+  travelDistance: string;
+  travelTime: string;
 }
 
 export interface RouteOptimizationResults {
   original: RouteMetrics;
   optimized: RouteMetrics;
-  bestRoute: RouteMetrics;
 }
 
 // HEHEHHEHEHE

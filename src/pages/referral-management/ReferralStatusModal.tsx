@@ -104,10 +104,14 @@ const ReferralStatusModal = ({
               <span className="text-sm font-medium">{referral?.name}</span>
             </div>
             <div className="grid grid-cols-2 gap-2 text-sm">
-              <div className="flex items-center gap-2">
-                <FiPhone className="size-3.5 text-gray-600" />
-                <span className="text-xs text-gray-600">{referral?.phone}</span>
-              </div>
+              {referral?.phone && (
+                <div className="flex items-center gap-2">
+                  <FiPhone className="size-3.5 text-gray-600" />
+                  <span className="text-xs text-gray-600">
+                    {referral?.phone}
+                  </span>
+                </div>
+              )}
               <div className="flex items-center gap-2">
                 <FiMail className="size-3.5 text-gray-600" />
                 <span className="text-xs text-gray-600">{referral?.email}</span>

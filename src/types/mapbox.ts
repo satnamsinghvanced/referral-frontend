@@ -30,6 +30,7 @@ export interface MapboxRoute {
     coordinates: Coordinate[];
     type: "LineString";
   };
+  waypoints: any;
 }
 
 export interface MapboxWaypoint {

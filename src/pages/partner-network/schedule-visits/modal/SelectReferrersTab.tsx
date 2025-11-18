@@ -41,7 +41,7 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
   );
 
   const selectedReferrerObjects: Partner[] = practices.filter((r: Partner) =>
-    selectedReferrersState.includes(r._id)
+    selectedReferrersState?.includes(r._id)
   );
 
   return (
@@ -102,7 +102,7 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
           </Button>
         </div>
         <p>
-          <span>{selectedReferrersState.length}</span> of {practices.length}{" "}
+          <span>{selectedReferrersState?.length}</span> of {practices.length}{" "}
           referrers selected
         </p>
       </div>
@@ -155,45 +155,49 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
       {/* Removed commented-out Route Preview Card */}
 
       <div className="space-y-3 max-h-80 overflow-y-auto p-1 pr-2">
-        {filteredReferrers.map((r) => (
-          <Card
-            key={r._id}
-            className={`border border-primary/15 shadow-none cursor-pointer w-full ${
-              selectedReferrersState.includes(r._id)
-                ? "outline-2 outline-primary bg-primary/5"
-                : "outline-none hover:bg-gray-50"
-            }`}
-            isPressable
-            onPress={() => handleReferrerToggle(r._id)}
-            disableRipple
-          >
-            <CardBody className="p-3 flex justify-between items-center flex-row">
-              <div className="flex items-center space-x-3">
-                <Checkbox
-                  isSelected={selectedReferrersState.includes(r._id)}
-                  onValueChange={() => handleReferrerToggle(r._id)}
-                  size="sm"
-                  className="pointer-events-none"
-                />
-                <div>
-                  <p className="text-sm">{r.name}</p>
-                  <p className="text-xs text-gray-600 mt-0.5">
-                    {r.address.addressLine1}, {r.address.city}
-                  </p>
-                  <div className="flex items-center sapce-x-2 mt-0.5">
-                    <p className="text-xs text-gray-600">{r.phone}</p>
-                    {r.totalReferrals > 0 && (
-                      <p className="text-xs text-gray-600 ml-2">
-                        • {r.totalReferrals} Referrals
-                      </p>
-                    )}
+        {filteredReferrers.map((r) => {
+          console.log(selectedReferrersState?.includes(r._id), "HNHNHNHNHNH")
+
+          return (
+            <Card
+              key={r._id}
+              className={`border border-primary/15 shadow-none cursor-pointer w-full ${
+                selectedReferrersState?.includes(r._id)
+                  ? "outline-2 outline-primary bg-primary/5"
+                  : "outline-none hover:bg-gray-50"
+              }`}
+              isPressable
+              onPress={() => handleReferrerToggle(r._id)}
+              disableRipple
+            >
+              <CardBody className="p-3 flex justify-between items-center flex-row">
+                <div className="flex items-center space-x-3">
+                  <Checkbox
+                    isSelected={selectedReferrersState?.includes(r._id)}
+                    onValueChange={() => handleReferrerToggle(r._id)}
+                    size="sm"
+                    className="pointer-events-none"
+                  />
+                  <div>
+                    <p className="text-sm">{r.name}</p>
+                    <p className="text-xs text-gray-600 mt-0.5">
+                      {r.address.addressLine1}, {r.address.city}
+                    </p>
+                    <div className="flex items-center sapce-x-2 mt-0.5">
+                      <p className="text-xs text-gray-600">{r.phone}</p>
+                      {r.totalReferrals > 0 && (
+                        <p className="text-xs text-gray-600 ml-2">
+                          • {r.totalReferrals} Referrals
+                        </p>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-              <LevelChip level={r.level} />
-            </CardBody>
-          </Card>
-        ))}
+                <LevelChip level={r.level} />
+              </CardBody>
+            </Card>
+          );
+        })}
         {filteredReferrers.length === 0 && (
           <p className="text-center text-gray-600 text-sm py-5">
             No referrers match the current filters.

@@ -106,6 +106,7 @@ export default function ScheduleVisits({
   const [deleteVisitId, setDeleteVisitId] = useState("");
   const [isCompactMode, setIsCompactMode] = useState(false);
   const [viewPlan, setViewPlan] = useState<any>();
+  const [editPlan, setEditPlan] = useState<any>();
 
   const [filters, setFilters] = useState<GetSchedulePlansQuery>({
     page: 1,
@@ -172,6 +173,10 @@ export default function ScheduleVisits({
             setIsViewScheduleVisitModalOpen(true);
             setViewPlan(p);
           }}
+          onEdit={(p: any) => {
+            setIsScheduleVisitModalOpen(true);
+            setEditPlan(p);
+          }}
           onDelete={(planId: string) => {
             setIsDeleteModalOpen(true);
             setDeleteVisitId(planId);
@@ -184,6 +189,10 @@ export default function ScheduleVisits({
           onView={(p: any) => {
             setIsViewScheduleVisitModalOpen(true);
             setViewPlan(p);
+          }}
+          onEdit={(p: any) => {
+            setIsScheduleVisitModalOpen(true);
+            setEditPlan(p);
           }}
           onDelete={(planId: string) => {
             setIsDeleteModalOpen(true);
@@ -208,7 +217,10 @@ export default function ScheduleVisits({
           variant="solid"
           color="primary"
           startContent={<MdOutlineCalendarToday />}
-          onPress={() => setIsScheduleVisitModalOpen(true)}
+          onPress={() => {
+            setIsScheduleVisitModalOpen(true);
+            setEditPlan(null);
+          }}
         >
           Schedule Visit
         </Button>
@@ -351,6 +363,7 @@ export default function ScheduleVisits({
         isOpen={isScheduleVisitModalOpen}
         onClose={() => setIsScheduleVisitModalOpen(false)}
         practices={practices}
+        editedData={editPlan}
       />
 
       {viewPlan && (

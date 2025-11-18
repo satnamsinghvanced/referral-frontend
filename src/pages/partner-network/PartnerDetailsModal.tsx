@@ -97,7 +97,9 @@ const PartnerDetailsModal = ({
         </ModalHeader>
 
         {isLoading ? (
-          <LoadingState />
+          <div className="min-h-[500px] flex items-center justify-center">
+            <LoadingState />
+          </div>
         ) : isError || !displayData ? (
           <div className="flex-1 flex items-center justify-center text-red-600 text-sm">
             <p>Failed to load partner details.</p>

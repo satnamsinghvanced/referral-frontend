@@ -31,6 +31,7 @@ import {
   NoteApiData,
   PartnerPractice,
   SchedulePlanGetResponse,
+  SchedulePlanPutRequest,
   SchedulePlansResponse,
   TaskApiData,
   VisitHistoryResponse,
@@ -294,8 +295,12 @@ export function useCreateSchedulePlan() {
 }
 
 export const useUpdateSchedulePlan = () => {
+  const SCHEDULE_PLAN_KEY = "schedulePlans"; // Placeholder if not globally imported
+
   return useMutation({
-    mutationFn: updateSchedulePlan,
+    mutationFn: (variables: SchedulePlanPutRequest) =>
+      updateSchedulePlan(variables),
+
     onSuccess: (data, variables) => {
       addToast({
         title: "Success",
@@ -306,7 +311,13 @@ export const useUpdateSchedulePlan = () => {
       queryClient.invalidateQueries({ queryKey: [SCHEDULE_PLAN_KEY] });
     },
     onError: (error, variables, context) => {
-      console.error(`Failed to update Schedule Plan ${variables._id}:`, error);
+      // Accessing variables.id for logging
+      console.error(`Failed to update Schedule Plan ${variables.id}:`, error);
+      addToast({
+        title: "Update Failed",
+        description: error.message || "An unknown error occurred.",
+        color: "danger",
+      });
     },
   });
 };

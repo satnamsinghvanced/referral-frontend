@@ -54,6 +54,7 @@ const PartnerNetwork = () => {
   const totalPractices = stats?.totalPractices ?? 0;
 
   const handleOpen = () => {
+    setPartnerEditId("");
     setIsPracticeEdit(false);
     setIsModalOpen(true);
   };
@@ -162,6 +163,7 @@ const PartnerNetwork = () => {
         label: "Edit",
         function: (id: string) => {
           setPartnerEditId(id);
+          setIsPracticeEdit(true);
           setIsModalOpen(true);
         },
         icon: <FiEdit className="size-3.5" />,
@@ -270,6 +272,7 @@ const PartnerNetwork = () => {
         partnerId={selectedPartnerId}
         primaryButtonHandler={(practiceId: any) => {
           setPartnerEditId(practiceId || "");
+          setIsPracticeEdit(true);
           setIsViewModalOpen(false);
           setIsModalOpen(true);
         }}

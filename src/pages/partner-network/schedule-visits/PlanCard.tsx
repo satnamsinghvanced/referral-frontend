@@ -1,5 +1,5 @@
 import { Button, Card, CardBody, CardHeader, Chip } from "@heroui/react";
-import { FiCopy, FiEye, FiTrash2 } from "react-icons/fi";
+import { FiCopy, FiEdit, FiEye, FiTrash2 } from "react-icons/fi";
 import { LuDownload } from "react-icons/lu";
 import VisitStatusChip from "../../../components/chips/VisitStatusChip";
 import { useCopySchedulePlan } from "../../../hooks/usePartner";
@@ -9,8 +9,9 @@ import { downloadJson } from "../../../utils/jsonDownloader";
 const PlanCard: React.FC<{
   plan: SchedulePlan;
   onView: any;
+  onEdit: any;
   onDelete: any;
-}> = ({ plan, onView, onDelete }) => {
+}> = ({ plan, onView, onEdit, onDelete }) => {
   const progress = 0; // Assuming progress calculation is pending or based on completion data not explicitly shown
   const monthYear = new Date(plan.createdAt).toLocaleDateString("en-US", {
     month: "long",
@@ -120,9 +121,9 @@ const PlanCard: React.FC<{
               >
                 <FiEye className="size-3.5" />
               </Button>
-              {/* <Button size="sm" variant="light" title="Edit Plan" isIconOnly>
+              <Button size="sm" variant="light" title="Edit Plan" isIconOnly onPress={() => onEdit(plan)}>
                 <FiEdit className="size-3.5" />
-              </Button> */}
+              </Button>
               <Button
                 size="sm"
                 variant="light"
