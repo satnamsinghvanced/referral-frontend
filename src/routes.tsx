@@ -154,17 +154,17 @@ function AppRoutes() {
     });
 
   return (
-    <Suspense
-      fallback={
-        <div className="bg-background flex items-center justify-center p-4 min-h-screen">
-          <FiLoader className="animate-spin size-10 text-primary" />
-        </div>
-      }
-    >
+    // <Suspense
+    //   fallback={
+    //     <div className="bg-background flex items-center justify-center p-4 min-h-screen">
+    //       <FiLoader className="animate-spin size-10 text-primary" />
+    //     </div>
+    //   }
+    // >
       <BrowserRouter basename="/referral-retrieve/">
         <Routes>{renderRoutes(routesList)}</Routes>
       </BrowserRouter>
-    </Suspense>
+    // </Suspense>
   );
 }
 

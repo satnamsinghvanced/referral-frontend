@@ -55,7 +55,7 @@ export function ScheduleVisitsModal({
   editedData?: SchedulePlan; // Made optional if used for creation
 }) {
   const initialPlanState = {
-    routeDate: "",
+    routeDate: new Date().toISOString(),
     startTime: "21:00",
     durationPerVisit: "30 minutes",
     planName: "",
