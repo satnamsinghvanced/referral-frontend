@@ -28,6 +28,7 @@ interface ScheduleTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
   task: TaskApiData; // The task details to pre-populate the event
+  scheduleEventDetail: EventDetails;
   practice: any;
   onSchedule: (eventDetails: EventDetails) => void;
 }
@@ -35,15 +36,23 @@ interface ScheduleTaskModalProps {
 // Dummy options for Time, Duration, and Event Type
 const TIME_OPTIONS = [
   "08:00",
+  "08:30",
   "09:00",
+  "09:30",
   "10:00",
+  "10:30",
   "11:00",
+  "11:30",
   "12:00",
+  "12:30",
   "13:00",
+  "13:30",
   "14:00",
+  "14:30",
   "15:00",
+  "15:30",
   "16:00",
-  "17:00",
+  "16:30",
 ];
 const DURATION_OPTIONS = [
   { value: "30min", label: "30 minutes" },
@@ -62,6 +71,7 @@ const ScheduleTaskModal = ({
   isOpen,
   onClose,
   task,
+  scheduleEventDetail,
   practice,
   onSchedule,
 }: ScheduleTaskModalProps) => {
@@ -70,31 +80,35 @@ const ScheduleTaskModal = ({
     title: task.title,
     description: task.description,
     date: task.dueDate || "",
-    time: TIME_OPTIONS[1] as string,
-    duration: DURATION_OPTIONS[1]?.value as string,
-    eventType: EVENT_TYPE_OPTIONS[0]?.value as string,
-    location: "",
-    notes: "",
+    time: scheduleEventDetail?.time || (TIME_OPTIONS[1] as string),
+    duration:
+      scheduleEventDetail?.duration || (DURATION_OPTIONS[1]?.value as string),
+    eventType:
+      scheduleEventDetail?.eventType ||
+      (EVENT_TYPE_OPTIONS[0]?.value as string),
+    location: scheduleEventDetail?.location || "",
+    notes: scheduleEventDetail?.notes || "",
   });
 
   const { mutate: scheduleTaskEvent } = useScheduleTaskEvent();
 
   // Effect to reset state when a new task is passed or modal opens
   useEffect(() => {
-    if (isOpen) {
-      setEventDetails({
-        taskId: task?._id,
-        title: task.title,
-        description: task.description,
-        date: task.dueDate || "",
-        time: TIME_OPTIONS[1] as string,
-        duration: DURATION_OPTIONS[1]?.value as string,
-        eventType: task.category || (EVENT_TYPE_OPTIONS[0]?.value as string),
-        location: "",
-        notes: "",
-      });
-    }
-  }, [isOpen, task]);
+    setEventDetails({
+      taskId: task?._id,
+      title: task.title,
+      description: task.description,
+      date: task.dueDate || "",
+      time: scheduleEventDetail?.time || (TIME_OPTIONS[1] as string),
+      duration:
+        scheduleEventDetail?.duration || (DURATION_OPTIONS[1]?.value as string),
+      eventType:
+        scheduleEventDetail?.eventType ||
+        (EVENT_TYPE_OPTIONS[0]?.value as string),
+      location: scheduleEventDetail?.location || "",
+      notes: scheduleEventDetail?.notes || "",
+    });
+  }, [task, scheduleEventDetail]);
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -120,7 +134,14 @@ const ScheduleTaskModal = ({
     eventDetails.eventType;
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onClose}>
+    <Modal
+      isOpen={isOpen}
+      onOpenChange={onClose}
+      classNames={{
+        base: `max-sm:!m-3 !m-0`,
+        closeButton: "cursor-pointer",
+      }}
+    >
       <ModalContent className="p-5 flex flex-col gap-4 !my-2">
         <ModalHeader className="flex flex-col gap-2 text-center sm:text-left flex-shrink-0 p-0">
           <h4 className="text-base leading-none font-medium flex items-center space-x-2">
@@ -199,6 +220,7 @@ const ScheduleTaskModal = ({
                       labelPlacement="outside"
                       placeholder="Select time"
                       value={eventDetails.time}
+                      defaultSelectedKeys={[eventDetails.time]}
                       onChange={(event) =>
                         handleSelectChange("time", event.target.value)
                       }
@@ -216,6 +238,7 @@ const ScheduleTaskModal = ({
                       labelPlacement="outside"
                       placeholder="Select duration"
                       value={eventDetails.duration}
+                      defaultSelectedKeys={[eventDetails.duration]}
                       onChange={(event) =>
                         handleSelectChange("duration", event.target.value)
                       }
@@ -234,6 +257,7 @@ const ScheduleTaskModal = ({
                     labelPlacement="outside"
                     placeholder="Select event type"
                     value={eventDetails.eventType}
+                    defaultSelectedKeys={[eventDetails.eventType]}
                     onChange={(event) =>
                       handleSelectChange("eventType", event.target.value)
                     }

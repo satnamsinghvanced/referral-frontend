@@ -1,6 +1,9 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, Suspense } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import QrGenerator from "./pages/qr-generator/QrGenerator";
+import ProtectedRoute from "./pages/auth/ProtectedRoute";
+import { LoadingState } from "./components/common/LoadingState";
+import { FiLoader } from "react-icons/fi";
 
 const Layout = React.lazy(() => import("./components/layout/Layout"));
 const Dashboard = React.lazy(() => import("./pages/Dashboard"));
@@ -17,8 +20,13 @@ const ReferralManagement = React.lazy(
 const PartnerNetwork = React.lazy(
   () => import("./pages/partner-network/PartnerNetwork")
 );
+const VisitMap = React.lazy(
+  () => import("./pages/visit-map/VisitMap")
+);
 const Reviews = React.lazy(() => import("./pages/reviews/Reviews"));
-const SocialMedia = React.lazy(() => import("./pages/social-media/SocialMedia"));
+const SocialMedia = React.lazy(
+  () => import("./pages/social-media/SocialMedia")
+);
 const Reports = React.lazy(() => import("./pages/Reports"));
 const Tasks = React.lazy(() => import("./pages/tasks/Tasks"));
 const MediaManagement = React.lazy(
@@ -72,14 +80,19 @@ interface AppRoute {
 
 function AppRoutes() {
   const routesList: AppRoute[] = [
+    { path: "visit-map", element: <VisitMap /> },
     {
       path: "/",
-      element: <Layout />,
+      element: (
+        // 2. Wrap the Layout element with the ProtectedRoute
+        <ProtectedRoute>
+          <Layout />
+        </ProtectedRoute>
+      ),
       children: [
         { index: true, element: <Dashboard /> },
-        // { path: "dashboard", element: <Dashboard /> },
         { path: "referrals", element: <ReferralManagement /> },
-        { path: "analytics", element: <Analytics /> },
+        { path: "analytics", element: <Analytics /> }, // ... (rest of the children routes remain the same) ...
         { path: "partner-network", element: <PartnerNetwork /> },
         { path: "reviews", element: <Reviews /> },
         { path: "email-campaigns", element: <EmailCampaign /> },
@@ -95,8 +108,9 @@ function AppRoutes() {
         { path: "call-tracking", element: <CallTracking /> },
         {
           path: "settings",
-          element: <Settings />,
+          element: <Settings />, // Note: Settings itself is protected by its parent Layout
           children: [
+            // ... (rest of settings children) ...
             { index: true, element: <Profile /> },
             { path: "notifications", element: <Notifications /> },
             { path: "security", element: <Security /> },
@@ -114,7 +128,7 @@ function AppRoutes() {
         },
       ],
     },
-    { path: "signin", element: <SignIn /> },
+    // Public Routes (not wrapped)
     { path: "signin", element: <SignIn /> },
     { path: "thank-you", element: <ThankYou /> },
     { path: "support", element: <Support /> },
@@ -140,20 +154,17 @@ function AppRoutes() {
     });
 
   return (
-    // <Suspense
-    //   fallback={
-    //     <Spinner
-    //       label="Loading..."
-    //       variant="gradient"
-    //       color="success"
-    //       className="w-screen h-screen"
-    //     />
-    //   }
-    // >
-    <BrowserRouter basename="/referral-retrieve/">
-      <Routes>{renderRoutes(routesList)}</Routes>
-    </BrowserRouter>
-    // </Suspense>
+    <Suspense
+      fallback={
+        <div className="bg-background flex items-center justify-center p-4 min-h-screen">
+          <FiLoader className="animate-spin size-10 text-primary" />
+        </div>
+      }
+    >
+      <BrowserRouter basename="/referral-retrieve/">
+        <Routes>{renderRoutes(routesList)}</Routes>
+      </BrowserRouter>
+    </Suspense>
   );
 }
 

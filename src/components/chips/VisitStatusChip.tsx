@@ -10,7 +10,6 @@ export default function VisitStatusChip({ status }: { status: string }) {
       break;
 
     case "cancel":
-    case "cancelled":
       classNames = "bg-[#e0f2fe] text-[#0c4a6e]";
       break;
 

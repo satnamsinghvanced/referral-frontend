@@ -104,10 +104,14 @@ const ReferralStatusModal = ({
               <span className="text-sm font-medium">{referral?.name}</span>
             </div>
             <div className="grid grid-cols-2 gap-2 text-sm">
-              <div className="flex items-center gap-2">
-                <FiPhone className="size-3.5 text-gray-600" />
-                <span className="text-xs text-gray-600">{referral?.phone}</span>
-              </div>
+              {referral?.phone && (
+                <div className="flex items-center gap-2">
+                  <FiPhone className="size-3.5 text-gray-600" />
+                  <span className="text-xs text-gray-600">
+                    {referral?.phone}
+                  </span>
+                </div>
+              )}
               <div className="flex items-center gap-2">
                 <FiMail className="size-3.5 text-gray-600" />
                 <span className="text-xs text-gray-600">{referral?.email}</span>
@@ -116,10 +120,12 @@ const ReferralStatusModal = ({
             <div className="text-xs">
               <span className="text-gray-600">Referred by: </span>
               <span className="font-medium">{referral?.referredBy?.name}</span>
-              <span className="text-gray-600">
-                {" "}
-                • {referral?.referredBy?.practice?.name}
-              </span>
+              {referral?.referredBy?.practice?.name && (
+                <span className="text-gray-600">
+                  {" "}
+                  • {referral?.referredBy?.practice?.name}
+                </span>
+              )}
             </div>
             {referral?.treatment && (
               <div className="text-xs text-gray-600">
@@ -195,13 +201,13 @@ const ReferralStatusModal = ({
               </div>
 
               {/* Original Notes Read-only */}
-              {referral?.notes && (
+              {referral?.additionalNotes && (
                 <div>
                   <label className="inline-block text-xs mb-2">
                     Original Notes
                   </label>
                   <div className="text-xs text-gray-600 bg-gray-50 p-3 rounded-md border border-primary/15">
-                    {referral?.notes}
+                    {referral?.additionalNotes}
                   </div>
                 </div>
               )}

@@ -52,7 +52,6 @@ export default function Header({
 
   const { user } = useTypedSelector((state) => state.auth);
 
-
   const handleLogout = () => {
     dispatch(logout());
     navigate("/signin");
@@ -144,17 +143,23 @@ export default function Header({
               /> */}
               <Button
                 size="sm"
-                className="text-sm flex justify-center items-center gap-2 !cursor-pointer bg-transparent hover:bg-orange-200 hover:text-orange-600"
+                radius="sm"
+                variant="ghost"
+                className="text-sm flex justify-center items-center gap-2 border-none"
+                startContent={<FiUser fontSize={16} />}
               >
-                <FiUser fontSize={16} />
                 <p>{user?.firstName}</p>
               </Button>
             </DropdownTrigger>
             <DropdownMenu aria-label="Profile Actions" variant="flat">
-              <DropdownItem key="profile" className="h-14 gap-2" href="/referral-retrieve/settings">
+              <DropdownItem
+                key="profile"
+                className="h-14 gap-2"
+                href="/referral-retrieve/settings"
+              >
                 {/* <Link to="/settings"> */}
-                  <p className="font-semibold">Signed in as</p>
-                  <p className="font-semibold">{user?.email}</p>
+                <p className="font-semibold">Signed in as</p>
+                <p className="font-semibold">{user?.email}</p>
                 {/* </Link> */}
               </DropdownItem>
               <DropdownItem key="general">

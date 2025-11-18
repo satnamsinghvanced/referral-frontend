@@ -11,49 +11,56 @@ import { FiSearch, FiLoader } from "react-icons/fi";
 import { TbArchive } from "react-icons/tb";
 import VisitHistoryCard from "./VisitHistoryCard";
 import { useVisitHistory } from "../../../../hooks/usePartner";
-import { memo, useState } from "react";
+import { memo, useState, useCallback, useMemo } from "react";
 import { useDebouncedValue } from "../../../../hooks/common/useDebouncedValue";
-// Assuming you have this hook implemented correctly
 
 interface VisitHistoryModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onItemView: any;
 }
 
-export function VisitHistoryModal({ isOpen, onClose }: VisitHistoryModalProps) {
-  // 1. State for immediate input value (to control the input field)
+export function VisitHistoryModal({ isOpen, onClose, onItemView }: VisitHistoryModalProps) {
   const [searchInput, setSearchInput] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
-  // 2. Debounced value for triggering the data fetch (500ms delay)
+  // Debounce the search input value
   const debouncedSearch = useDebouncedValue(searchInput, 500);
 
-  // 3. Filters passed to the query hook
-  const filters = {
-    filter: statusFilter,
-    search: debouncedSearch,
-  };
+  // Memoize filters object to prevent unnecessary re-fetches
+  const filters = useMemo(
+    () => ({
+      filter: statusFilter,
+      search: debouncedSearch,
+    }),
+    [statusFilter, debouncedSearch]
+  );
 
-  const {
-    data: visitHistoryData,
-    isLoading,
-    isFetching, // TanStack Query state for background refetch
-    error,
-  } = useVisitHistory(filters);
-
-  // Handle initial full-screen loading and errors
-  if (isLoading) return <div>Loading visit history...</div>;
-  if (error) return <div>An error occurred: {error.message}</div>;
+  // @ts-ignore
+  const { data: visitHistoryData, isFetching } = useVisitHistory(filters);
 
   const visits = visitHistoryData?.data;
   const stats = visitHistoryData?.stats;
 
   const displayStats = stats || {
-    totalVisits: "—",
-    completedVisits: "—",
-    officeVisits: "—",
-    totalTime: "—",
+    totalVisits: "0",
+    completedVisits: "0",
+    officeVisits: "0",
+    totalTime: "0",
   };
+
+  // Handler for Select change, using useCallback for stability
+  const handleStatusChange = useCallback(
+    (event: React.ChangeEvent<HTMLSelectElement>) => {
+      setStatusFilter(event.target.value);
+    },
+    []
+  );
+
+  // Handler for Input change, using useCallback for stability
+  const handleSearchChange = useCallback((value: string) => {
+    setSearchInput(value);
+  }, []);
 
   return (
     <Modal
@@ -65,9 +72,7 @@ export function VisitHistoryModal({ isOpen, onClose }: VisitHistoryModalProps) {
       }}
       size="md"
     >
-      {/* Set ModalContent to relative for absolute loading overlay positioning */}
       <ModalContent className="max-h-[90vh] overflow-hidden p-5 w-full relative">
-        {/* Loading Overlay: This prevents content from collapsing during refetch */}
         {isFetching && (
           <div className="absolute inset-0 bg-white/70 backdrop-blur-sm z-50 flex items-center justify-center transition-opacity duration-300">
             <FiLoader className="animate-spin h-6 w-6 text-primary" />
@@ -118,14 +123,12 @@ export function VisitHistoryModal({ isOpen, onClose }: VisitHistoryModalProps) {
               size="sm"
               radius="sm"
               classNames={{ input: "!pl-5" }}
-              placeholder="Search visits, offices, notes..."
+              placeholder="Search visits, offices..."
               startContent={
                 <FiSearch className="size-3.5 text-gray-400 absolute left-2 top-1/2 -translate-y-1/2" />
               }
-              // Set the input value to the immediate state (searchInput)
               value={searchInput}
-              // Update immediate state on change
-              onValueChange={setSearchInput}
+              onValueChange={handleSearchChange}
             />
           </div>
           <Select
@@ -134,31 +137,36 @@ export function VisitHistoryModal({ isOpen, onClose }: VisitHistoryModalProps) {
             size="sm"
             radius="sm"
             selectedKeys={[statusFilter]}
-            disabledKeys={[statusFilter]}
             className="max-w-[150px]"
-            onChange={(event) => setStatusFilter(event.target.value)}
+            onChange={handleStatusChange}
+            // 🚨 FIX: Removed `disabledKeys={[statusFilter]}`. This often causes instability in Select components when used for controlled filtering, leading to unexpected re-renders or state resets that can affect the Modal's open state.
           >
             <SelectItem key="all">All Visits</SelectItem>
             <SelectItem key="completed">Completed</SelectItem>
-            <SelectItem key="pending">Pending</SelectItem>
-            <SelectItem key="cancelled">Cancelled</SelectItem>
+            <SelectItem key="cancel">Cancelled</SelectItem>
           </Select>
         </div>
 
         <ModalBody className="p-0 overflow-y-auto flex-1">
           <div>
-            {visits?.map((monthGroup, index) => (
+            {visits?.map((monthGroup: any, index: number) => (
               <div key={index} className="space-y-3">
                 <h3 className="text-sm font-medium sticky top-0 bg-white py-2.5 border-b border-primary/15 z-10">
                   {monthGroup.month} ({monthGroup.visits.length} visits)
                 </h3>
                 <div className="space-y-2">
                   {monthGroup.visits.map((visit: any) => (
-                    <VisitHistoryCard key={visit._id} visit={visit} />
+                    <VisitHistoryCard key={visit._id} visit={visit} onView={onItemView} />
                   ))}
                 </div>
               </div>
             ))}
+            {/* Display if no visits are found */}
+            {(!visits || visits.length === 0) && !isFetching && (
+              <div className="text-center text-gray-500 pt-10 pb-6 text-sm">
+                No visits found matching the current filters.
+              </div>
+            )}
           </div>
         </ModalBody>
       </ModalContent>

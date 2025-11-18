@@ -115,7 +115,8 @@ export interface PartnerPractice {
   taskCount: number;
   lastContact: string | null;
   staff: any[];
-  notes: any;
+  additionalNotes: any;
+  pendingTaskCount?: number;
 }
 
 export interface FetchPartnersResponse {
@@ -169,6 +170,7 @@ export interface TaskApiData {
   createdAt: string;
   updatedAt: string;
   isOverDue?: boolean;
+  schedule?: string;
 }
 
 export interface AllNotesTasksResponse {
@@ -324,17 +326,8 @@ export interface SchedulePlanRequest {
  * Interface for the COMPLETE PUT Request Payload (PUT /schedule-visit)
  */
 export interface SchedulePlanPutRequest {
-  _id: string; // Plan ID for update
-  practices: string[];
-  // PlanDetails without 'month' for PUT request
-  planDetails: PlanDetails;
-  scheduleVisits: ScheduledVisitBase[];
-  review: {
-    visitDays: string[];
-    totalReferrers: number;
-    totalTime: string;
-    distance: string;
-  };
+  id: string; // Plan ID for update
+  data: any;
 }
 
 // --- 3. GET Response Interfaces ---
@@ -414,17 +407,20 @@ export interface RouteMetrics {
   estimatedDistance: string;
   mileageCost: string;
   visitDays: string;
+  travelDistance: string;
+  travelTime: string;
 }
 
 export interface RouteOptimizationResults {
   original: RouteMetrics;
   optimized: RouteMetrics;
-  bestRoute: RouteMetrics;
 }
 
 // HEHEHHEHEHE
 // --- 1. Query Parameters Type ---
 export interface GetSchedulePlansQuery {
+  page: number;
+  limit: number;
   status?: "draft" | "active" | "completed" | "pending" | "cancel" | string;
   order?: "asc" | "desc" | string;
   sortBy?: "name" | "createdAt" | string;
@@ -471,7 +467,7 @@ interface PlanSummary {
 
 // --- 3. Full Schedule Plan Data Type ---
 export interface SchedulePlan {
-  planDetails: PlanDetails;
+  planDetails: any;
   isDraft?: boolean; // Can be implicitly determined from 'label'
   _id: string;
   createdBy: string;
@@ -500,13 +496,15 @@ export interface SchedulePlansResponse {
   success: boolean;
   message: string;
   data: SchedulePlan[];
-  totalData: number;
-  totalPages: number;
-  currentPage: number;
-  pageSize: number;
-  hasNextPage: boolean;
-  hasPrevPage: boolean;
   dashboardStats: SchedulePlanDashboardStats;
+  pagination: {
+    totalPages: number;
+    currentPage: number;
+    pageSize: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+    totalData: number;
+  };
 }
 
 interface VisitHistoryItem {
@@ -553,8 +551,6 @@ export interface VisitHistoryResponse {
 }
 
 export interface VisitHistoryQueryParams {
-  filter: "all" | "draft" | "completed" | "pending" | "cancelled";
-  // source: "list" | "map"; // Assuming potential sources
+  filter: "all" | "draft" | "completed" | "pending" | "cancel";
   search: string;
-  // Add pagination params if needed, e.g., page: number, limit: number
 }

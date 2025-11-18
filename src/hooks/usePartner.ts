@@ -15,6 +15,7 @@ import {
   fetchVisitHistory,
   getAllNotesAndTasks,
   getSchedulePlans,
+  getScheduleTaskEvent,
   scheduleTaskEvent,
   updateSchedulePlan,
   updateTaskStatus,
@@ -30,6 +31,7 @@ import {
   NoteApiData,
   PartnerPractice,
   SchedulePlanGetResponse,
+  SchedulePlanPutRequest,
   SchedulePlansResponse,
   TaskApiData,
   VisitHistoryResponse,
@@ -239,6 +241,11 @@ export const useScheduleTaskEvent = () => {
     mutationFn: scheduleTaskEvent,
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["notesAndTasks"] });
+      addToast({
+        title: "Success",
+        description: "Task event scheduled successfully.",
+        color: "success",
+      });
     },
 
     onError: (error, variables) => {
@@ -250,6 +257,13 @@ export const useScheduleTaskEvent = () => {
     },
   });
 };
+
+export const useGetScheduleTaskEvent = (taskId: string) =>
+  useQuery({
+    queryKey: ["partnerStats", taskId],
+    queryFn: () => getScheduleTaskEvent(taskId),
+    enabled: !!taskId,
+  });
 
 const SCHEDULE_PLAN_KEY = "schedulePlans";
 
@@ -281,8 +295,12 @@ export function useCreateSchedulePlan() {
 }
 
 export const useUpdateSchedulePlan = () => {
+  const SCHEDULE_PLAN_KEY = "schedulePlans"; // Placeholder if not globally imported
+
   return useMutation({
-    mutationFn: updateSchedulePlan,
+    mutationFn: (variables: SchedulePlanPutRequest) =>
+      updateSchedulePlan(variables),
+
     onSuccess: (data, variables) => {
       addToast({
         title: "Success",
@@ -293,7 +311,13 @@ export const useUpdateSchedulePlan = () => {
       queryClient.invalidateQueries({ queryKey: [SCHEDULE_PLAN_KEY] });
     },
     onError: (error, variables, context) => {
-      console.error(`Failed to update Schedule Plan ${variables._id}:`, error);
+      // Accessing variables.id for logging
+      console.error(`Failed to update Schedule Plan ${variables.id}:`, error);
+      addToast({
+        title: "Update Failed",
+        description: error.message || "An unknown error occurred.",
+        color: "danger",
+      });
     },
   });
 };
@@ -334,7 +358,7 @@ export function useDeleteSchedulePlan() {
 }
 
 interface UseVisitHistoryParams {
-  filter: "all" | "draft" | "completed" | "pending" | "cancelled";
+  filter: "all" | "draft" | "completed" | "pending" | "cancel";
   // source: "list" | "map";
   search: string;
 }

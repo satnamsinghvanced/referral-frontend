@@ -105,6 +105,13 @@ export const scheduleTaskEvent = async (
   return response.data;
 };
 
+export const getScheduleTaskEvent = async (
+  taskId: string
+): Promise<EventDetails> => {
+  const response = await axios.get(`/tasks/schedule/${taskId}`);
+  return response.data;
+};
+
 // SCHEDULE PLANS
 
 export const getSchedulePlans = async (
@@ -131,16 +138,14 @@ export const createSchedulePlan = async ({
   return response.data;
 };
 
-export const updateSchedulePlan = async (
-  data: SchedulePlanPutRequest
-): Promise<void> => {
-  const planId = data._id;
-  if (!planId) {
-    throw new Error(
-      "Plan ID (_id) is required for updating the schedule plan."
-    );
+export const updateSchedulePlan = async ({
+  id,
+  data,
+}: SchedulePlanPutRequest): Promise<void> => {
+  if (!id) {
+    throw new Error("Plan ID (id) is required for updating the schedule plan.");
   }
-  const url = `/schedule-visit/${planId}`;
+  const url = `/schedule-visit/${id}`;
   await axios.put(url, data);
 };
 

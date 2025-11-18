@@ -199,8 +199,10 @@ const Profile = () => {
 
               <Button
                 size="sm"
-                className=" font-[12px] border border-gray-200 bg-transparent hover:text-[#ea580c] hover:bg-[#fed7aa] hover:border-0 hover:font-medium"
-                onClick={() => document.getElementById("profileImage")?.click()}
+                radius="sm"
+                variant="ghost"
+                className="border-small mb-1"
+                onPress={() => document.getElementById("profileImage")?.click()}
               >
                 Change Photo
               </Button>

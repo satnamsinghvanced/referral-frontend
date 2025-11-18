@@ -12,8 +12,7 @@ import {
 import { FiEye } from "react-icons/fi";
 import { formatDateToReadable } from "../../../../utils/formatDateToReadable";
 
-const VisitHistoryCard = ({ visit }: any) => {
-  console.log("visit >>>>",visit)
+const VisitHistoryCard = ({ visit, onView }: any) => {
   return (
     <Card
       data-slot="card"
@@ -47,6 +46,7 @@ const VisitHistoryCard = ({ visit }: any) => {
                 variant="light"
                 radius="sm"
                 className="hover:bg-accent hover:text-accent-foreground p-0 min-w-0 h-8 px-2"
+                onPress={() => onView(visit)}
               >
                 <FiEye className="size-3.5" />
               </Button>
@@ -72,7 +72,9 @@ const VisitHistoryCard = ({ visit }: any) => {
             <div className="mt-3">
               <p className="text-xs text-gray-700">
                 <span className="font-medium">Visited: </span>
-                {visit.route.routeDetails.map((route: any) => route.name).join(", ")}
+                {visit.route.routeDetails
+                  .map((route: any) => route.name)
+                  .join(", ")}
               </p>
             </div>
             <div className="mt-2 text-xs text-gray-600">

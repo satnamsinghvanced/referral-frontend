@@ -2,6 +2,7 @@ import { Button } from "@heroui/react";
 import { Link } from "react-router";
 import ReferralStatusChip from "../../components/chips/ReferralStatusChip";
 import { Referral } from "../../types/referral";
+import { TREATMENT_OPTIONS } from "../../consts/referral";
 
 interface ReferralButton {
   label: string;
@@ -18,6 +19,7 @@ interface ReferralButton {
   className?: string;
   link?: string;
   linkInNewTab?: boolean;
+  hideButton?: boolean;
 }
 
 interface ReferralCardProps {
@@ -43,7 +45,14 @@ const ReferralCard = ({ referral, actions = () => [] }: ReferralCardProps) => {
         </div>
         <div className="flex gap-2 items-center text-xs font-light">
           {referral.treatment && (
-            <p className="flex gap-1 items-center">{referral.treatment}</p>
+            <p className="flex gap-1 items-center">
+              {
+                TREATMENT_OPTIONS.find(
+                  (treatmentOption: any) =>
+                    treatmentOption.key === referral.treatment
+                )?.label
+              }
+            </p>
           )}
           {referral.treatment && referral.createdAt && (
             <p className="p-0.5 bg-foreground/50 rounded-full aspect-square h-fit w-fit"></p>
@@ -82,6 +91,10 @@ const ReferralCard = ({ referral, actions = () => [] }: ReferralCardProps) => {
                   {btn.label}
                 </Button>
               );
+
+              if (btn.hideButton) {
+                return;
+              }
 
               return btn.link ? (
                 <Link

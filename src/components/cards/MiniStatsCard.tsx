@@ -4,7 +4,7 @@ import { JSX } from "react";
 
 export interface StatCard {
   heading: string;
-  icon: JSX.Element | string;
+  icon?: JSX.Element | string;
   value: string | number;
   subheading?: string;
   onClick?: () => void;
@@ -31,11 +31,15 @@ const MiniStatsCard = ({ cardData }: MiniStatsCardProps) => {
       <CardBody>
         <div className="mb-2 flex gap-1 items-center justify-between">
           <div className="font-semibold">{cardData.heading}</div>
-          <div
-            className={`${typeof cardData.icon === "string" ? `text-lg` : ""}`}
-          >
-            {cardData.icon}
-          </div>
+          {cardData.icon && (
+            <div
+              className={`${
+                typeof cardData.icon === "string" ? `text-lg` : ""
+              }`}
+            >
+              {cardData.icon}
+            </div>
+          )}
         </div>
         <div className="text-lg mt-4 mb-0.5 font-bold">
           {cardData.value !== undefined && cardData.value !== null

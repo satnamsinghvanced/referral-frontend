@@ -5,6 +5,7 @@ import MiniStatsCard, { StatCard } from "../components/cards/MiniStatsCard";
 import ComponentContainer from "../components/common/ComponentContainer";
 import { useDashboard } from "../hooks/useDashboard";
 import { useTypedSelector } from "../hooks/useTypedSelector";
+import { TREATMENT_OPTIONS } from "../consts/referral";
 
 type Color = "sky" | "orange" | "emerald" | "purple";
 
@@ -90,19 +91,13 @@ const SYSTEM_STATUSES = [
 ];
 
 const Dashboard = () => {
-  // --- All Hooks must be called unconditionally first ---
-
-  // HOOK 1
   const navigate = useNavigate();
 
-  // HOOK 2
   const { user } = useTypedSelector((state) => state.auth);
   const userId = user?.userId || "";
 
-  // HOOK 3 (useDashboard is a custom hook which internally uses other hooks)
-  const { data: dashboard, isLoading, isError, error } = useDashboard(userId);
+  const { data: dashboard } = useDashboard(userId);
 
-  // HOOK 4: useMemo must be called here, before any conditional returns
   const STAT_CARD_DATA = useMemo<StatCard[]>(
     () => [
       {
@@ -137,10 +132,9 @@ const Dashboard = () => {
         onClick: () => navigate("/reports"),
       },
     ],
-    [dashboard]
+    [dashboard, navigate]
   );
 
-  // Define regular functions (these are fine anywhere)
   const getTimeAgo = (dateString: string) => {
     const now = new Date();
     const createdAt = new Date(dateString);
@@ -157,30 +151,28 @@ const Dashboard = () => {
     return `${days} day${days > 1 ? "s" : ""} ago`;
   };
 
-  // --- Conditional Renders follow all Hook calls ---
-  // if (isLoading) {
-  //   return <div></div>;
-  // }
-
-  // if (isError) {
-  //   return <div>Error: {error.message}</div>;
-  // }
-
-  // --- Rest of the component logic (which relies on `dashboard` being defined) ---
-  console.log(dashboard);
   const recentActivities = [
     ...(dashboard?.recentReferrals?.length > 0
       ? [
-        {
-          icon: "👥",
-          iconBg: "bg-sky-50",
-          title: `New referral from ${dashboard?.referrer?.name || "Unknown"
+          {
+            icon: "👥",
+            iconBg: "bg-sky-50",
+            title: `New referral from ${dashboard?.referrer?.name}`,
+            description: `Patient: ${dashboard?.recentReferrals[0]?.name}${
+              dashboard?.recentReferrals[0]?.treatment
+                ? ` - ${
+                    TREATMENT_OPTIONS.find(
+                      (treatmentOption: any) =>
+                        treatmentOption.key ===
+                        dashboard?.recentReferrals[0]?.treatment
+                    )?.label
+                  }`
+                : ""
             }`,
-          description: `Patient: ${dashboard?.recentReferrals[0]?.name || "Unknown"
-            } - ${dashboard?.referrer?.type || "Unknown"}`,
-          time: `${getTimeAgo(dashboard?.recentReferrals[0]?.createdAt)}`,
-        },
-      ]
+            time: `${getTimeAgo(dashboard?.recentReferrals[0]?.createdAt)}`,
+            onClick: () => navigate("/referrals"),
+          },
+        ]
       : []),
     {
       icon: "⭐",
@@ -188,6 +180,7 @@ const Dashboard = () => {
       title: "5-star review received",
       description: 'Sarah Johnson - "Excellent service and care!"',
       time: "4 hours ago",
+      onClick: () => navigate("/reviews"),
     },
     {
       icon: "📢",
@@ -195,14 +188,9 @@ const Dashboard = () => {
       title: "Marketing campaign launched",
       description: "Back-to-School Smile Campaign - Social Media",
       time: "6 hours ago",
+      onClick: () => navigate("/marketing-calendar"),
     },
   ];
-
-  const handleClick = (item: any, e: any) => {
-    if (!item.link) {
-      e.preventDefault();
-    }
-  };
 
   return (
     <ComponentContainer headingData={HEADING_DATA}>
@@ -233,8 +221,8 @@ const Dashboard = () => {
                   onClick={(e) => {
                     if (!action.link) e.preventDefault();
                   }}
-                  className={`flex items-center justify-center space-x-2 px-3 py-2.5 rounded-lg border transition-colors cursor-pointer text-sm
-                    ${color.bg} ${color.text} ${color.border} ${color.hover}`}
+                  className={`flex items-center justify-center gap-x-1.5 px-3 py-2.5 rounded-lg border transition-colors cursor-pointer text-sm
+					${color.bg} ${color.text} ${color.border} ${color.hover}`}
                 >
                   <span>{action.icon}</span>
                   <span>{action.label}</span>
@@ -252,6 +240,7 @@ const Dashboard = () => {
                 <div
                   key={index}
                   className="flex items-start space-x-3 p-3 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+                  onClick={activity.onClick}
                 >
                   <div
                     className={`p-0 rounded-lg flex items-center justify-center size-9 ${activity.iconBg}`}
@@ -278,22 +267,22 @@ const Dashboard = () => {
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-gray-600">Active Codes</span>
-                  <span className="bg-sky-100 text-sky-800 size-6 p-0 flex items-center justify-center rounded text-xs font-medium">
+                  <span className="bg-sky-100 text-sky-800 h-6 p-0 px-2 flex items-center justify-center rounded text-xs font-medium">
                     {dashboard?.nfcQrData?.activeQRCodes || 0}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-xs text-gray-600">Scans Today</span>
-                  <span className="bg-orange-100 text-orange-800 size-6 p-0 flex items-center justify-center rounded text-xs font-medium">
+                  <span className="text-xs text-gray-600">Total Scans</span>
+                  <span className="bg-orange-100 text-orange-800 h-6 p-0 px-2 flex items-center justify-center rounded text-xs font-medium">
                     {dashboard?.nfcQrData?.totalScansToday || 0}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-gray-600">Conversion Rate</span>
-                  <span className="bg-emerald-100 text-emerald-800 size-6 p-0 flex items-center justify-center rounded text-xs font-medium">
+                  <span className="bg-emerald-100 text-emerald-800 h-6 p-0 px-2 flex items-center justify-center rounded text-xs font-medium">
                     {dashboard?.nfcQrData?.avgConversionRate > 0
                       ? `${dashboard.nfcQrData.avgConversionRate}%`
-                      : "0"}
+                      : "0%"}
                   </span>
                 </div>
                 <Link to="/qr-generator">

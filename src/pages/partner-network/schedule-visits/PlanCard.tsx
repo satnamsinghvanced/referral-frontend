@@ -1,17 +1,17 @@
-import { Button, Card, CardBody, CardHeader } from "@heroui/react";
-import { SchedulePlan } from "../../../types/partner";
+import { Button, Card, CardBody, CardHeader, Chip } from "@heroui/react";
 import { FiCopy, FiEdit, FiEye, FiTrash2 } from "react-icons/fi";
 import { LuDownload } from "react-icons/lu";
+import VisitStatusChip from "../../../components/chips/VisitStatusChip";
+import { useCopySchedulePlan } from "../../../hooks/usePartner";
+import { SchedulePlan } from "../../../types/partner";
 import { downloadJson } from "../../../utils/jsonDownloader";
-import {
-  useCopySchedulePlan,
-  useDeleteSchedulePlan,
-} from "../../../hooks/usePartner";
 
-const PlanCard: React.FC<{ plan: SchedulePlan; onView: any }> = ({
-  plan,
-  onView,
-}) => {
+const PlanCard: React.FC<{
+  plan: SchedulePlan;
+  onView: any;
+  onEdit: any;
+  onDelete: any;
+}> = ({ plan, onView, onEdit, onDelete }) => {
   const progress = 0; // Assuming progress calculation is pending or based on completion data not explicitly shown
   const monthYear = new Date(plan.createdAt).toLocaleDateString("en-US", {
     month: "long",
@@ -19,7 +19,6 @@ const PlanCard: React.FC<{ plan: SchedulePlan; onView: any }> = ({
   });
 
   const { mutate: copySchedulePlan } = useCopySchedulePlan();
-  const { mutate: deleteSchedulePlan } = useDeleteSchedulePlan();
 
   const handleExport = () => {
     const exportData = {
@@ -38,20 +37,34 @@ const PlanCard: React.FC<{ plan: SchedulePlan; onView: any }> = ({
       className="bg-background flex flex-col gap-1 rounded-xl border border-primary/15 shadow-none"
     >
       <CardHeader data-slot="card-header" className="px-5 pt-5 pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <h4 data-slot="card-title" className="text-sm mb-2">
+        <div className="w-full">
+          <div className="flex items-center justify-between mb-2 w-full gap-2">
+            <h4 data-slot="card-title" className="text-sm">
               {plan.planDetails.name}
             </h4>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs text-gray-600">{monthYear}</span>
+            <div className="flex items-center gap-1.5">
+              <VisitStatusChip status={plan.status} />
+              {plan.isDraft && (
+                <Chip
+                  size="sm"
+                  radius="sm"
+                  className="capitalize text-[11px] h-5"
+                  variant="flat"
+                  color="danger"
+                >
+                  Draft
+                </Chip>
+              )}
             </div>
-            {plan.planDetails.description && (
-              <p className="text-xs text-gray-600 line-clamp-2">
-                {plan.planDetails.description}
-              </p>
-            )}
           </div>
+          <div className="flex items-center gap-2 mb-2 ">
+            <span className="text-xs text-gray-600">{monthYear}</span>
+          </div>
+          {plan.planDetails.description && (
+            <p className="text-xs text-gray-600 line-clamp-2">
+              {plan.planDetails.description}
+            </p>
+          )}
         </div>
       </CardHeader>
 
@@ -108,9 +121,9 @@ const PlanCard: React.FC<{ plan: SchedulePlan; onView: any }> = ({
               >
                 <FiEye className="size-3.5" />
               </Button>
-              {/* <Button size="sm" variant="light" title="Edit Plan" isIconOnly>
+              <Button size="sm" variant="light" title="Edit Plan" isIconOnly onPress={() => onEdit(plan)}>
                 <FiEdit className="size-3.5" />
-              </Button> */}
+              </Button>
               <Button
                 size="sm"
                 variant="light"
@@ -140,7 +153,7 @@ const PlanCard: React.FC<{ plan: SchedulePlan; onView: any }> = ({
                 title="Delete Plan"
                 isIconOnly
                 onPress={() => {
-                  deleteSchedulePlan(plan._id);
+                  onDelete(plan._id);
                 }}
               >
                 <FiTrash2 className="size-3.5" />

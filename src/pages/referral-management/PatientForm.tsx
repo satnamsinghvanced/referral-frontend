@@ -2,6 +2,7 @@ import {
   Button,
   Card,
   CardBody,
+  DatePicker,
   Input,
   Select,
   SelectItem,
@@ -20,17 +21,21 @@ import { Referral } from "../../types/referral";
 import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
 import { downloadVcf } from "../../utils/vcfGenerator";
 import { EMAIL_REGEX, PHONE_REGEX } from "../../consts/consts";
+import { getLocalTimeZone, now, today } from "@internationalized/date";
+import { RiPhoneFill } from "react-icons/ri";
 
 interface PatientFormValues {
   fullName: string;
   email: string;
   phone: string;
+  age: number | "";
   insuranceProvider: string;
   preferredTreatment: string;
+  scheduledDate: string;
   urgencyLevel: string;
   preferredTime: string;
   referralReason: string;
-  additionalNotes: string;
+  notes: string;
 }
 
 const PatientForm = () => {
@@ -48,6 +53,11 @@ const PatientForm = () => {
     const pathSegments = location.pathname.split("/referral/");
     const referralIdSegment = pathSegments.length > 1 ? pathSegments[1] : null;
 
+    if (!referralIdSegment) {
+      navigate("/signin");
+      return;
+    }
+
     setReferredBy(referralIdSegment?.split("?")[0] || "");
 
     const queryParams = new URLSearchParams(location.search);
@@ -58,7 +68,6 @@ const PatientForm = () => {
   useEffect(() => {
     const trackingKey = `scanTracked_${referredBy}_${addedVia}`;
     const alreadyTracked = sessionStorage.getItem(trackingKey);
-
     if (referredBy && addedVia && !alreadyTracked) {
       trackScan({ userId: referredBy, source: addedVia });
       sessionStorage.setItem(trackingKey, "true");
@@ -77,6 +86,12 @@ const PatientForm = () => {
       PHONE_REGEX,
       "Phone must be in format (XXX) XXX-XXXX"
     ),
+    age: Yup.number()
+      .required("Age is required")
+      .integer("Age must be a whole number")
+      .min(1, "Age must be greater than 0")
+      .max(120, "Age must be less than or equal to 120")
+      .typeError("Age must be a number"),
     insuranceProvider: Yup.string()
       .max(100, "Insurance provider must be less than 100 characters")
       .nullable(),
@@ -100,6 +115,13 @@ const PatientForm = () => {
       required: true,
     },
     {
+      type: "number",
+      name: "age",
+      label: "Age",
+      placeholder: "Enter age",
+      required: true,
+    },
+    {
       type: "email",
       name: "email",
       label: "Email Address",
@@ -118,6 +140,12 @@ const PatientForm = () => {
       label: "Insurance Provider",
       placeholder: "e.g., Delta Dental, Aetna, Cigna, etc.",
     },
+    {
+      type: "date",
+      name: "scheduledDate",
+      label: "Scheduled Date",
+      placeholder: "Select scheduled date",
+    },
   ];
 
   const formik = useFormik<PatientFormValues>({
@@ -125,12 +153,14 @@ const PatientForm = () => {
       fullName: "",
       email: "",
       phone: "",
+      age: "",
       insuranceProvider: "",
       preferredTreatment: "",
       urgencyLevel: "medium",
       preferredTime: "",
+      scheduledDate: "",
       referralReason: "",
-      additionalNotes: "",
+      notes: "",
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
@@ -141,17 +171,22 @@ const PatientForm = () => {
           name: values.fullName,
           email: values.email,
           phone: values.phone || "",
+          age: values.age ? Number(values.age) : null,
           insurance: values.insuranceProvider || "",
           treatment: values.preferredTreatment || "",
           priority: values.urgencyLevel || "medium",
-          appointmentTime: values.preferredTime || new Date().toISOString(),
+          appointmentTime: values.preferredTime || "",
           reason: values.referralReason || "",
-          notes: values.additionalNotes || "",
+          notes: values.notes || "",
+          scheduledDate: values.scheduledDate || "",
         };
 
-        await createReferral(payload);
-        formik.resetForm();
-        navigate("/thank-you", { state: { user: fetchedUser } });
+        await createReferral(payload, {
+          onSuccess() {
+            formik.resetForm();
+            navigate("/thank-you", { state: { user: fetchedUser } });
+          },
+        });
       } catch (error) {
         console.error("Form submission error:", error);
       }
@@ -167,35 +202,47 @@ const PatientForm = () => {
           <CardBody className="p-0">
             <div className="flex justify-between items-center text-sm bg-gradient-to-l from-green-600 to-blue-600 m-0 px-5 py-4 text-background">
               <div>
-                <h1 className="text-base font-medium mb-1">
-                  {fetchedUser?.practiceName}
-                </h1>
+                {fetchedUser?.practiceName && (
+                  <h1 className="text-base font-medium mb-1">
+                    {fetchedUser?.practiceName}
+                  </h1>
+                )}
                 <div>
-                  {fetchedUser?.firstName} {fetchedUser?.lastName}
+                  {fetchedUser?.practiceName
+                    ? `${fetchedUser?.firstName} ${fetchedUser?.lastName}`
+                    : `Referred by ${fetchedUser?.firstName} ${fetchedUser?.lastName}`}
                 </div>
               </div>
               <div>
                 {fetchedUser?.phone && (
                   <Link
                     to={`tel:${fetchedUser?.phone}`}
-                    className="mb-1 flex items-center justify-center gap-2"
+                    className="flex items-center justify-center gap-1.5"
                   >
-                    <FaPhone className="text-sm" />
+                    <RiPhoneFill className="text-lg" />
                     {fetchedUser?.phone}
                   </Link>
                 )}
               </div>
             </div>
 
-            <div className="px-5 py-4">
-              <p className="text-sm font-medium">
-                Referred by {fetchedUser?.firstName} {fetchedUser?.lastName}{" "}
-                from {fetchedUser?.practiceName}
-              </p>
-              <p className="text-xs text-gray-600 mt-1">
-                Specialty in {fetchedUser?.medicalSpecialty?.title}
-              </p>
-            </div>
+            {fetchedUser?.practiceName && (
+              <div className="px-5 py-4">
+                <p className="text-sm font-medium">
+                  {`Referred by ${fetchedUser?.firstName} ${
+                    fetchedUser?.lastName
+                  } ${
+                    fetchedUser?.practiceName &&
+                    `from ${fetchedUser?.practiceName}`
+                  }`}
+                </p>
+                {fetchedUser?.medicalSpecialty && (
+                  <p className="text-xs text-gray-600 mt-1">
+                    Specialty in {fetchedUser?.medicalSpecialty?.title}
+                  </p>
+                )}
+              </div>
+            )}
           </CardBody>
         </Card>
 
@@ -214,46 +261,97 @@ const PatientForm = () => {
 
             <form onSubmit={formik.handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {formFields.map((field) => (
-                  <Input
-                    key={field.name}
-                    type={field.type}
-                    label={field.label}
-                    labelPlacement="outside-top"
-                    size="sm"
-                    radius="sm"
-                    name={field.name}
-                    placeholder={field.placeholder}
-                    value={
-                      (formik.values[
-                        field.name as keyof PatientFormValues
-                      ] as string) || ""
-                    }
-                    onChange={(event: any) =>
-                      formik.setFieldValue(
-                        field.name,
-                        field.type === "tel"
-                          ? formatPhoneNumber(event.target.value)
-                          : event.target.value
-                      )
-                    }
-                    onBlur={formik.handleBlur}
-                    isRequired={field.required as boolean}
-                    isInvalid={
-                      !!(
+                {formFields.map((field) =>
+                  field.type !== "date" ? (
+                    <Input
+                      key={field.name}
+                      type={field.type}
+                      label={field.label}
+                      labelPlacement="outside-top"
+                      size="sm"
+                      radius="sm"
+                      name={field.name}
+                      placeholder={field.placeholder}
+                      value={
+                        (formik.values[
+                          field.name as keyof PatientFormValues
+                        ] as string) || ""
+                      }
+                      onChange={(event: any) =>
+                        formik.setFieldValue(
+                          field.name,
+                          field.type === "tel"
+                            ? formatPhoneNumber(event.target.value)
+                            : field.type === "number"
+                            ? event.target.value === ""
+                              ? ""
+                              : Number(event.target.value)
+                            : event.target.value
+                        )
+                      }
+                      onBlur={formik.handleBlur}
+                      isRequired={field.required as boolean}
+                      isInvalid={
+                        !!(
+                          formik.touched[
+                            field.name as keyof PatientFormValues
+                          ] &&
+                          formik.errors[field.name as keyof PatientFormValues]
+                        )
+                      }
+                      errorMessage={
                         formik.touched[field.name as keyof PatientFormValues] &&
-                        formik.errors[field.name as keyof PatientFormValues]
-                      )
-                    }
-                    errorMessage={
-                      formik.touched[field.name as keyof PatientFormValues] &&
-                      (formik.errors[
-                        field.name as keyof PatientFormValues
-                      ] as string)
-                    }
-                    className="w-full"
-                  />
-                ))}
+                        (formik.errors[
+                          field.name as keyof PatientFormValues
+                        ] as string)
+                      }
+                      className="w-full"
+                    />
+                  ) : (
+                    <DatePicker
+                      key={field.name}
+                      id={field.name}
+                      name={field.name}
+                      label={field.label}
+                      labelPlacement="outside"
+                      size="sm"
+                      radius="sm"
+                      hideTimeZone
+                      minValue={today(getLocalTimeZone())}
+                      granularity="minute"
+                      // defaultValue={now(getLocalTimeZone())}
+                      onChange={(dateObject) => {
+                        if (dateObject) {
+                          const year = dateObject.year;
+                          const month = String(dateObject.month).padStart(
+                            2,
+                            "0"
+                          );
+                          const day = String(dateObject.day).padStart(2, "0");
+                          const hour = String(dateObject.hour).padStart(2, "0");
+                          const minute = String(dateObject.minute).padStart(
+                            2,
+                            "0"
+                          );
+                          const second = String(dateObject.second).padStart(
+                            2,
+                            "0"
+                          );
+
+                          const millisecond = String(
+                            dateObject.millisecond
+                          ).padStart(3, "0");
+
+                          const localDateTimeString = `${year}-${month}-${day}T${hour}:${minute}:${second}.${millisecond}`;
+                          formik.setFieldValue(field.name, localDateTimeString);
+                        } else {
+                          formik.setFieldValue(field.name, null);
+                        }
+                      }}
+                      onBlur={() => formik.setFieldTouched(field.name, true)}
+                    />
+                  )
+                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -330,7 +428,7 @@ const PatientForm = () => {
                 </Select>
               </div>
 
-              <div>
+              {/* <div>
                 <Input
                   key="preferredTime"
                   type="text"
@@ -363,7 +461,7 @@ const PatientForm = () => {
                   }
                   className="w-full"
                 />
-              </div>
+              </div> */}
 
               <div className="grid grid-cols-1 gap-6">
                 <Textarea
@@ -398,26 +496,20 @@ const PatientForm = () => {
                 <Textarea
                   label="Additional Notes"
                   labelPlacement="outside-top"
-                  name="additionalNotes"
+                  name="notes"
                   placeholder="Any additional information you'd like us to know..."
                   size="sm"
                   radius="sm"
-                  value={formik.values.additionalNotes}
+                  value={formik.values.notes}
                   onValueChange={(val: string) =>
-                    formik.setFieldValue("additionalNotes", val)
+                    formik.setFieldValue("notes", val)
                   }
                   onBlur={formik.handleBlur}
                   minRows={3}
                   className="w-full"
-                  isInvalid={
-                    !!(
-                      formik.touched.additionalNotes &&
-                      formik.errors.additionalNotes
-                    )
-                  }
+                  isInvalid={!!(formik.touched.notes && formik.errors.notes)}
                   errorMessage={
-                    formik.touched.additionalNotes &&
-                    (formik.errors.additionalNotes as string)
+                    formik.touched.notes && (formik.errors.notes as string)
                   }
                   classNames={{ inputWrapper: "py-2" }}
                 />
@@ -451,7 +543,7 @@ const PatientForm = () => {
                     });
                   }}
                 >
-                  {isPending ? "Submitting..." : "Save Our Contact"}
+                  {"Save Our Contact"}
                 </Button>
               </div>
             </form>

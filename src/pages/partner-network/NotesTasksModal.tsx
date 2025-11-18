@@ -31,6 +31,7 @@ import {
   useDeleteNote,
   useDeleteTask,
   useGetAllNotesAndTasks,
+  useGetScheduleTaskEvent,
   useUpdateTaskStatus,
 } from "../../hooks/usePartner";
 import {
@@ -102,6 +103,10 @@ NotesTasksModalProps) => {
   const notes = data?.notes;
   const tasks = data?.tasks;
 
+  const { data: scheduleEventDetail } = useGetScheduleTaskEvent(
+    taskToSchedule?._id as string
+  );
+
   const formatDate = (dateString: string) => {
     try {
       return new Date(dateString).toLocaleDateString("en-US", {
@@ -142,7 +147,15 @@ NotesTasksModalProps) => {
 
   return (
     <>
-      <Modal isOpen={isOpen} onOpenChange={onClose} size="md">
+      <Modal
+        isOpen={isOpen}
+        onOpenChange={onClose}
+        size="md"
+        classNames={{
+          base: `max-sm:!m-3 !m-0`,
+          closeButton: "cursor-pointer",
+        }}
+      >
         <ModalContent className="p-5 flex flex-col gap-4">
           <ModalHeader className="flex flex-col gap-2 text-center sm:text-left flex-shrink-0 p-0">
             <h4 className="text-base leading-none font-medium flex items-center space-x-2">
@@ -184,6 +197,7 @@ NotesTasksModalProps) => {
                     <Select
                       aria-label="Note Category"
                       defaultSelectedKeys={[newNoteCategory as string]}
+                      disabledKeys={[newNoteCategory as string]}
                       onChange={(event) =>
                         setNewNoteCategory(event.target.value)
                       }
@@ -327,6 +341,7 @@ NotesTasksModalProps) => {
                       size="sm"
                       radius="sm"
                       defaultSelectedKeys={[newTaskPriority as string]}
+                      disabledKeys={[newTaskPriority as string]}
                       onChange={(event) =>
                         setNewTaskPriority(event.target.value)
                       }
@@ -340,6 +355,7 @@ NotesTasksModalProps) => {
                       size="sm"
                       radius="sm"
                       defaultSelectedKeys={[newTaskType as string]}
+                      disabledKeys={[newTaskType as string]}
                       onChange={(event) => setNewTaskType(event.target.value)}
                     >
                       {TASK_TYPES.map((t) => (
@@ -414,9 +430,9 @@ NotesTasksModalProps) => {
                             classNames={{ base: "p-0 m-0" }}
                           />
                         </div>
-                        <div className="flex-1">
+                        <div className="flex-1 space-y-2">
                           <div className="flex items-start justify-between gap-2">
-                            <div className="flex items-center gap-2">
+                            <div className="space-y-1.5">
                               <div
                                 className={`font-medium text-sm ${
                                   task.status === "completed"
@@ -445,6 +461,17 @@ NotesTasksModalProps) => {
                                 >
                                   {task?.status}
                                 </Chip>
+                                {task?.schedule && (
+                                  <Chip
+                                    size="sm"
+                                    radius="sm"
+                                    variant="flat"
+                                    color="primary"
+                                    className="capitalize text-[11px] h-5"
+                                  >
+                                    Scheduled
+                                  </Chip>
+                                )}
                               </div>
                             </div>
                             <div className="flex items-center gap-1">
@@ -522,6 +549,7 @@ NotesTasksModalProps) => {
           isOpen={isScheduleModalOpen}
           onClose={() => setIsScheduleModalOpen(false)}
           task={taskToSchedule}
+          scheduleEventDetail={scheduleEventDetail}
           practice={practice}
           onSchedule={(details) => console.log("Scheduled Event:", details)} // API call integration here
         />

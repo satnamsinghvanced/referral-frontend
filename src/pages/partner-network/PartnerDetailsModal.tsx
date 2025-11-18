@@ -26,6 +26,7 @@ import {
 import { Partner, PartnerPractice } from "../../types/partner"; // Adjust path as necessary
 import { useFetchPartnerDetail } from "../../hooks/usePartner";
 import LevelChip from "../../components/chips/LevelChip";
+import { LoadingState } from "../../components/common/LoadingState";
 
 interface PartnerDetailsModalProps {
   isOpen: boolean;
@@ -45,7 +46,6 @@ const PartnerDetailsModal = ({
     isLoading,
     isError,
   } = useFetchPartnerDetail(partnerId || "");
-console.log("data of parteners ",partnerData );
 
   if (!isOpen) return null;
 
@@ -97,11 +97,11 @@ console.log("data of parteners ",partnerData );
         </ModalHeader>
 
         {isLoading ? (
-          <div className="flex-1 flex items-center justify-center">
-            <p>Loading partner details...</p>
+          <div className="min-h-[500px] flex items-center justify-center">
+            <LoadingState />
           </div>
         ) : isError || !displayData ? (
-          <div className="flex-1 flex items-center justify-center text-red-600">
+          <div className="flex-1 flex items-center justify-center text-red-600 text-sm">
             <p>Failed to load partner details.</p>
           </div>
         ) : (
@@ -333,7 +333,7 @@ console.log("data of parteners ",partnerData );
                     <LuSquareCheckBig className="size-4 text-orange-600" />
                     <div>
                       <div className="text-sm font-semibold">
-                        {displayData.taskCount ?? 0}
+                        {displayData.pendingTaskCount ?? 0}
                       </div>
                       <div className="text-xs text-gray-600">Pending Tasks</div>
                     </div>
@@ -343,7 +343,7 @@ console.log("data of parteners ",partnerData );
             </Card>
 
             {/* Notes Card (example from screenshot) */}
-            {displayData.notes && (
+            {displayData.additionalNotes && (
               <Card className="rounded-xl border border-primary/15 shadow-none">
                 <CardHeader className="grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-4 pt-4 has-data-[slot=card-action]:grid-cols-[1fr_auto]">
                   <h4 className="leading-none flex items-center space-x-2 text-sm font-normal">
@@ -355,7 +355,7 @@ console.log("data of parteners ",partnerData );
                   {/* This would be dynamic, mapping over actual notes */}
                   <div className="p-3 bg-gray-50 rounded-lg">
                     <p className="text-xs text-gray-700 whitespace-pre-wrap">
-                      {displayData.notes}
+                      {displayData.additionalNotes}
                     </p>
                   </div>
                 </div>

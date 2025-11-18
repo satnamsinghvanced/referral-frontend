@@ -2,7 +2,6 @@ import {
   Button,
   Card,
   CardBody,
-  CardHeader,
   Input,
   Pagination,
   Select,
@@ -10,7 +9,14 @@ import {
 } from "@heroui/react";
 import { useCallback, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
-import { FiGlobe, FiSearch, FiShare2 } from "react-icons/fi";
+import {
+  FiGlobe,
+  FiSearch,
+  FiShare2,
+  FiLoader,
+  FiFilter,
+  FiActivity,
+} from "react-icons/fi";
 import { LuCalendar, LuTarget, LuTrophy, LuUserPlus } from "react-icons/lu";
 import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { RiMegaphoneLine } from "react-icons/ri";
@@ -30,11 +36,13 @@ import { ActivityCard } from "./ActivityCard";
 import { ActivityDetailModal } from "./ActivityDetailModal";
 import ActivityStatusChip from "../../components/chips/ActivityStatusChip";
 import { formatDateToMMDDYYYY } from "../../utils/formatDateToMMDDYYYY";
+import EmptyState from "../../components/common/EmptyState";
+import { LoadingState } from "../../components/common/LoadingState";
 
 const MarketingCalendar = () => {
   const [currentFilters, setCurrentFilters] = useState<any>({
     page: 1,
-    limit: 10,
+    limit: 9,
     search: "",
     type: "all",
   });
@@ -148,14 +156,150 @@ const MarketingCalendar = () => {
   ];
 
   const filteredActivities = activities.filter(
-    (activity) =>
+    (activity: any) =>
       !selectedDate ||
       (activity.startDate &&
         activity.startDate.split("T")[0] === selectedDate) ||
       (activity.endDate && activity.endDate.split("T")[0] === selectedDate)
   );
 
-  console.log(selectedDate);
+  const ActivityListForSelectedDate = () => {
+    if (!selectedDate) {
+      return <EmptyState title="Click on a date to view or add activities" />;
+    }
+
+    if (filteredActivities.length === 0) {
+      return (
+        <div className="flex flex-col gap-3 items-center justify-center min-h-[100px]">
+          <LuCalendar className="text-4xl text-gray-300" />
+          <p className="text-xs text-gray-600">No activities scheduled</p>
+          <Button
+            size="sm"
+            radius="sm"
+            variant="solid"
+            color="primary"
+            startContent={<AiOutlinePlus fontSize={15} />}
+            onPress={() => {
+              setSelectedActivityId("");
+              setIsModalOpen(true);
+            }}
+          >
+            Add Activity
+          </Button>
+        </div>
+      );
+    }
+
+    return (
+      <>
+        <div className="flex flex-col gap-3 max-h-[315px] overflow-y-auto">
+          {filteredActivities.map((activity: any) => {
+            const activityColor = ACTIVITY_TYPES.find(
+              (activityType: any) => activityType.label === activity.type.title
+            )?.color;
+
+            return (
+              <div
+                key={activity._id}
+                className={`shadow-none bg-white !rounded-r-xl p-3 h-full flex flex-col justify-between border border-l-4 border-gray-100 cursor-pointer`}
+                style={{ borderLeftColor: activityColor }}
+                onClick={() => handleViewActivity(activity._id)}
+              >
+                <div className="flex justify-between items-start mb-2 p-0">
+                  <h3 className="text-sm font-medium">{activity.title}</h3>
+                  <ActivityStatusChip status={activity.status} />
+                </div>
+
+                <div className="text-sm text-gray-600 space-y-2 p-0">
+                  <div className="flex items-center gap-1.5">
+                    <LuCalendar fontSize={14} />
+                    <p className="flex items-center space-x-1 text-xs">
+                      <span>{formatDateToMMDDYYYY(activity.startDate)}</span>
+                      {activity.time && (
+                        <span className="text-gray-600">
+                          {" "}
+                          at <span className="uppercase">{activity.time}</span>
+                        </span>
+                      )}
+                    </p>
+                  </div>
+
+                  <p className="text-xs flex items-center gap-1.5 capitalize">
+                    <FiGlobe fontSize={14} /> {activity.type.title}
+                  </p>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <Button
+          size="sm"
+          radius="sm"
+          variant="solid"
+          color="primary"
+          startContent={<AiOutlinePlus fontSize={15} />}
+          onPress={() => {
+            setSelectedActivityId("");
+            setIsModalOpen(true);
+          }}
+        >
+          Add Activity
+        </Button>
+      </>
+    );
+  };
+
+  const UpcomingActivitiesSection = () => {
+    if (isLoading) {
+      return <LoadingState />;
+    }
+
+    if (activities.length === 0) {
+      return (
+        <EmptyState
+          title={
+            isFiltered
+              ? "No activities found matching your filters."
+              : "No upcoming marketing activities scheduled."
+          }
+          // icon={FiFilter}
+        />
+      );
+    }
+
+    return (
+      <>
+        <div className="grid grid-cols-3 gap-3">
+          {activities.map((activity: any) => (
+            <ActivityCard
+              key={activity._id}
+              activity={activity}
+              onView={handleViewActivity}
+            />
+          ))}
+        </div>
+
+        {pagination && pagination?.totalPages > 1 && (
+          <Pagination
+            showControls
+            size="sm"
+            radius="sm"
+            initialPage={1}
+            page={currentFilters.page as number}
+            onChange={(page) => handleFilterChange("page", page)}
+            total={pagination.totalPages as number}
+            classNames={{
+              base: "flex justify-end py-3",
+              wrapper: "gap-1.5",
+              item: "cursor-pointer",
+              prev: "cursor-pointer",
+              next: "cursor-pointer",
+            }}
+          />
+        )}
+      </>
+    );
+  };
 
   return (
     <>
@@ -182,109 +326,12 @@ const MarketingCalendar = () => {
               <div className="bg-background p-4 border border-primary/15 rounded-xl">
                 <h4 className="text-base font-medium flex items-center gap-2">
                   <TbWaveSawTool className="text-primary text-xl" />
-                  {filteredActivities.length > 0
+                  {selectedDate
                     ? `Activities for ${selectedDate}`
                     : "Selected Date"}
                 </h4>
-                <div className="mt-4 space-y-3">
-                  {selectedDate ? (
-                    filteredActivities.length > 0 ? (
-                      <>
-                        <div className="flex flex-col gap-3 max-h-[315px] overflow-y-auto">
-                          {filteredActivities.map((activity: any) => {
-                            const activityColor = ACTIVITY_TYPES.find(
-                              (activityType: any) =>
-                                activityType.label === activity.type.title
-                            )?.color;
-
-                            return (
-                              <div
-                                className={`shadow-none bg-white !rounded-r-xl p-3 h-full flex flex-col justify-between border border-l-4 border-gray-100 cursor-pointer`}
-                                style={{ borderLeftColor: activityColor }}
-                                onClick={() => handleViewActivity(activity._id)}
-                              >
-                                <div className="flex justify-between items-start mb-2 p-0">
-                                  <h3 className="text-sm font-medium">
-                                    {activity.title}
-                                  </h3>
-                                  <ActivityStatusChip
-                                    status={activity.status}
-                                  />
-                                </div>
-
-                                <div className="text-sm text-gray-600 space-y-2 p-0">
-                                  <div className="flex items-center gap-1.5">
-                                    <LuCalendar fontSize={14} />
-                                    <p className="flex items-center space-x-1 text-xs">
-                                      <span>
-                                        {formatDateToMMDDYYYY(
-                                          activity.startDate
-                                        )}
-                                      </span>
-                                      {activity.time && (
-                                        <span className="text-gray-600">
-                                          {" "}
-                                          at{" "}
-                                          <span className="uppercase">
-                                            {activity.time}
-                                          </span>
-                                        </span>
-                                      )}
-                                    </p>
-                                  </div>
-
-                                  <p className="text-xs flex items-center gap-1.5 capitalize">
-                                    <FiGlobe fontSize={14} />{" "}
-                                    {activity.type.title}
-                                  </p>
-                                </div>
-                              </div>
-                            );
-                          })}
-                        </div>
-                        <Button
-                          size="sm"
-                          radius="sm"
-                          variant="solid"
-                          color="primary"
-                          startContent={<AiOutlinePlus fontSize={15} />}
-                          onPress={() => {
-                            setSelectedActivityId("");
-                            setIsModalOpen(true);
-                          }}
-                        >
-                          Add Activity
-                        </Button>
-                      </>
-                    ) : (
-                      <div className="flex flex-col gap-3 items-center justify-center min-h-[100px]">
-                        <LuCalendar className="text-4xl text-gray-300" />
-                        <p className="text-xs text-gray-600">
-                          No activities scheduled
-                        </p>
-                        <Button
-                          size="sm"
-                          radius="sm"
-                          variant="solid"
-                          color="primary"
-                          startContent={<AiOutlinePlus fontSize={15} />}
-                          onPress={() => {
-                            setSelectedActivityId("");
-                            setIsModalOpen(true);
-                          }}
-                        >
-                          Add Activity
-                        </Button>
-                      </div>
-                    )
-                  ) : (
-                    <div className="flex flex-col gap-3 items-center justify-center min-h-[100px]">
-                      <LuCalendar className="text-4xl text-gray-300" />
-                      <p className="text-xs text-gray-600">
-                        Click on a date to view or add activities
-                      </p>
-                    </div>
-                  )}
+                <div className="mt-6 mb-2 space-y-3">
+                  <ActivityListForSelectedDate />
                 </div>
               </div>
               <div className="bg-background p-4 border border-primary/15 rounded-xl">
@@ -305,7 +352,9 @@ const MarketingCalendar = () => {
                       >
                         <span
                           className="size-[18px] rounded-full inline-flex items-center justify-center text-white"
-                          style={{ backgroundColor: activityTypeData?.color }}
+                          style={{
+                            backgroundColor: activityTypeData?.color,
+                          }}
                         >
                           {/* @ts-ignore */}
                           {ActivityIcon && <ActivityIcon />}
@@ -336,6 +385,7 @@ const MarketingCalendar = () => {
               placeholder="All Activities"
               size="sm"
               selectedKeys={new Set([currentFilters.type])}
+              disabledKeys={new Set([currentFilters.type])}
               onSelectionChange={(keys) =>
                 handleFilterChange("type", Array.from(keys)[0] as string)
               }
@@ -353,45 +403,7 @@ const MarketingCalendar = () => {
           </div>
           <div className="flex flex-col gap-4 border border-primary/15 bg-background rounded-xl p-4">
             <p className="font-medium text-sm">Upcoming Marketing Activities</p>
-
-            {isLoading ? (
-              <div className="text-center py-10 text-gray-500 text-sm">
-                Loading activities...
-              </div>
-            ) : activities.length > 0 ? (
-              <div className="grid grid-cols-3 gap-3">
-                {activities.map((activity: any) => (
-                  <ActivityCard
-                    key={activity._id}
-                    activity={activity}
-                    onView={handleViewActivity}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-10 text-gray-500 text-sm">
-                No activities found matching your filters.
-              </div>
-            )}
-
-            {pagination && pagination?.totalPages > 1 && (
-              <Pagination
-                showControls
-                size="sm"
-                radius="sm"
-                initialPage={1}
-                page={currentFilters.page as number}
-                onChange={(page) => handleFilterChange("page", page)}
-                total={pagination.totalPages as number}
-                classNames={{
-                  base: "flex justify-end py-3",
-                  wrapper: "gap-1.5",
-                  item: "cursor-pointer",
-                  prev: "cursor-pointer",
-                  next: "cursor-pointer",
-                }}
-              />
-            )}
+            <UpcomingActivitiesSection />
           </div>
         </div>
       </ComponentContainer>

@@ -245,10 +245,9 @@ const ReferralManagement = () => {
           label: "Generate QR Code",
           onClick: () => setSelectedReferralType("NFC & QR Tracking"),
           icon: <LuQrCode fontSize={15} />,
-          variant: "bordered",
+          variant: "ghost",
           color: "default",
-          className:
-            "border-small hover:bg-orange-200 hover:text-orange-500 transition-colors",
+          className: "border-small"
         },
         {
           label: "Add Referrer",
@@ -270,21 +269,19 @@ const ReferralManagement = () => {
       {
         label: "QR Code",
         icon: <LuQrCode />,
-        variant: "bordered",
+        variant: "ghost",
         color: "default",
-        className:
-          "border-small hover:bg-orange-200  hover:text-orange-500 transition-colors",
+        className: "border-small",
         link: referrer?.qrCode,
         linkInNewTab: true,
       },
       {
         label: "Visit",
         icon: <GrLocation className="font-bold" />,
-        variant: "bordered",
+        variant: "ghost",
         color: "default",
-        className:
-          "border-small hover:bg-orange-200 hover:text-orange-500 transition-colors",
         linkInNewTab: true,
+        className: "border-small",
       },
     ],
     []
@@ -416,9 +413,9 @@ const ReferralManagement = () => {
 
                       <Button
                         size="sm"
-                        variant="bordered"
-                        className="text-xs ml-auto min-w-[100px] border-small border-primary/15 hover:bg-orange-200 hover:text-orange-500 transition-colors"
+                        variant="ghost"
                         onPress={handleViewAllAndFilter}
+                        className="border-small"
                       >
                         <LuFilter />
                         View All & Filter
@@ -438,13 +435,10 @@ const ReferralManagement = () => {
                           actions={(referral: Referral) => [
                             {
                               label: "",
-                              onClick: () => {
-                                initiateCall({
-                                  referredBy: referral._id,
-                                  to: referral.phone,
-                                });
-                              },
+                              onClick: () => {},
                               icon: <LuPhone className="w-4 h-4" />,
+                              link: `tel:${referral.phone}`,
+                              hideButton: referral.phone ? false : true,
                             },
                             {
                               label: "",
@@ -467,7 +461,7 @@ const ReferralManagement = () => {
                       <EmptyState />
                     )}
                     {referralData && referralData.total > 5 && (
-                      <div className="text-center mt-2">
+                      <div className="text-center">
                         <Button
                           size="sm"
                           radius="sm"

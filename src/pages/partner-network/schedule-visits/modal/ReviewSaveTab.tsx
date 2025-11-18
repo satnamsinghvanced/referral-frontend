@@ -19,8 +19,10 @@ export const ReviewSaveTab: React.FC<ReviewSaveTabProps> = ({
       ? planState.customVisitPurpose
       : planState.defaultVisitPurpose;
 
-  const summary = routeOptimizationResults?.bestRoute;
-  const visitSchedule = routeOptimizationResults?.bestRoute?.routeDetails;
+  const summary = planState.enableAutoRoute
+    ? routeOptimizationResults?.optimized
+    : routeOptimizationResults?.original;
+  const visitSchedule = routeOptimizationResults?.optimized?.routeDetails;
 
   if (!summary || !visitSchedule) {
     return (
