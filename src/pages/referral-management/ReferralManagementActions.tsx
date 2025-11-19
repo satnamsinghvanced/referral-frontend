@@ -796,6 +796,11 @@ export default function ReferralManagementActions({
     formik.setFieldValue("staff", newStaff);
   };
 
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    formik.resetForm();
+  };
+
   let modalTitle = "Add New Referrer (Enhanced v2.0)";
   let modalDescription =
     "Add a new doctor or patient referrer to your Practice ROI platform. Track referrals and generate QR codes.";
@@ -819,13 +824,13 @@ export default function ReferralManagementActions({
   return (
     <ActionModal
       isOpen={isModalOpen}
-      onClose={() => setIsModalOpen(false)}
+      onClose={handleCloseModal}
       heading={modalTitle}
       description={modalDescription}
       buttons={[
         {
           text: "Cancel",
-          onPress: () => setIsModalOpen(false),
+          onPress: handleCloseModal,
           color: "default",
           variant: "bordered",
           className:

@@ -69,9 +69,7 @@ export function ScheduleVisitsModal({
 
   const isEditing = !!editedData?._id; // Check if we are editing an existing plan
 
-  const [activeStep, setActiveStep] = useState<string>(
-    isEditing ? "review_save" : "select_referrers"
-  );
+  const [activeStep, setActiveStep] = useState<string>("select_referrers");
   const [clearedSteps, setClearedSteps] = useState<Set<string>>(new Set());
   const [filters, setFilters] = useState<FilterState>({
     search: "",
@@ -90,6 +88,8 @@ export function ScheduleVisitsModal({
   const userId = user?.userId;
 
   useEffect(() => {
+    setActiveStep("select_referrers");
+    console.log(editedData?.practices, "EDITED")
     if (editedData) {
       setSelectedReferrersState(editedData?.practices || []);
       setPlanState({
@@ -393,6 +393,7 @@ export function ScheduleVisitsModal({
   }
 
   function closeModal() {
+    setActiveStep("select_referrers");
     if (!isEditing && !editedData?._id) {
       clearModalStates();
     }

@@ -140,7 +140,7 @@ export default function ScheduleVisits({
   };
 
   const PlanListContent = () => {
-    if (isLoading && !dashboardStats) {
+    if (isLoading) {
       return (
         <div className="col-span-full text-center p-8">
           <LoadingState />
@@ -226,7 +226,7 @@ export default function ScheduleVisits({
         </Button>
       </div>
 
-      {schedulePlans.length > 0 && (
+      {/* {dashboardStats?.totalPlans > 0 && ( */}
         <div className="space-y-6">
           <Card
             data-slot="card"
@@ -262,12 +262,7 @@ export default function ScheduleVisits({
             </CardHeader>
 
             <CardBody data-slot="card-content" className="px-5 pt-0 pb-5">
-              {isLoading && !dashboardStats && <LoadingState />}
-              {isError && !dashboardStats && (
-                <div className="p-4 border border-red-300 bg-red-50 text-red-700 rounded">
-                  Error: {(error as Error)?.message}
-                </div>
-              )}
+              {isLoading && <LoadingState />}
               {dashboardStats && <StatsGrid stats={dashboardStats} />}
             </CardBody>
           </Card>
@@ -357,7 +352,7 @@ export default function ScheduleVisits({
             )}
           </div>
         </div>
-      )}
+      {/* )} */}
 
       <ScheduleVisitsModal
         isOpen={isScheduleVisitModalOpen}

@@ -247,7 +247,7 @@ const ReferralManagement = () => {
           icon: <LuQrCode fontSize={15} />,
           variant: "ghost",
           color: "default",
-          className: "border-small"
+          className: "border-small",
         },
         {
           label: "Add Referrer",
@@ -282,6 +282,7 @@ const ReferralManagement = () => {
         color: "default",
         linkInNewTab: true,
         className: "border-small",
+        isHide: referrer.type === "patient"
       },
     ],
     []

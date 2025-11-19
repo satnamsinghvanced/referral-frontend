@@ -265,14 +265,14 @@ function BrowseMedia() {
     if (deleteFolderId) {
       const parentId =
         breadcrumbPath.length > 1
-          ? breadcrumbPath[breadcrumbPath.length - 2].id
+          ? breadcrumbPath[breadcrumbPath.length - 2]?.id
           : null;
 
       await deleteFolderMutation.mutateAsync();
 
       setDeleteFolderId(null);
       // Navigate back to the parent folder (or Root if the deleted folder was a top-level folder)
-      onNavigateFolder(parentId);
+      onNavigateFolder(parentId as string);
     }
   };
 
@@ -384,6 +384,7 @@ function BrowseMedia() {
                 aria-label="Media Types"
                 size="sm"
                 selectedKeys={new Set([currentFilters.type])}
+                disabledKeys={new Set([currentFilters.type])}
                 onSelectionChange={(keys) =>
                   onFilterChange("type", Array.from(keys)[0] as string)
                 }

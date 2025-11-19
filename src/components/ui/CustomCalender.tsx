@@ -1,28 +1,68 @@
-import React, { useState, useMemo } from "react";
+import React, { useMemo, useState } from "react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import clsx from "clsx";
 import { Button, Chip } from "@heroui/react";
+// Assuming ACTIVITY_TYPES is defined in this path
 import { ACTIVITY_TYPES } from "../../consts/marketing";
+
+// --- Interfaces ---
+interface Activity {
+  _id: string;
+  startDate: string; // ISO string
+  endDate: string; // ISO string
+  type: { title: string };
+  title: string;
+}
 
 interface CalendarProps {
   weekendDisabled?: boolean;
   disablePastDates?: boolean;
   onDayClick?: (date: string) => void;
-  activities: any[];
+  onViewActivity?: (id: string) => void;
+  activities: Activity[];
 }
 
-const getActivitiesByDate = (activities: any[]) => {
-  return activities.reduce((acc, activity) => {
-    const dateKey = activity.startDate ? activity.startDate.split("T")[0] : "";
+// --- Utility Functions ---
 
-    if (dateKey) {
-      if (!acc[dateKey]) {
-        acc[dateKey] = [];
+/**
+ * Helper to get the date part (YYYY-MM-DD) from an ISO string.
+ * @param dateIsoString
+ * @returns YYYY-MM-DD string
+ */
+const getFormattedDate = (dateIsoString: string): string => {
+  return dateIsoString.split("T")[0];
+};
+
+/**
+ * Creates a map where the key is the date (YYYY-MM-DD) and the value is an array of activities
+ * scheduled for that specific day, spanning from startDate to endDate.
+ */
+const getActivitiesByDate = (activities: Activity[]) => {
+  const activityMap: Record<string, Activity[]> = {};
+
+  activities.forEach((activity) => {
+    if (!activity.startDate || !activity.endDate) return;
+
+    const start = new Date(getFormattedDate(activity.startDate));
+    const end = new Date(getFormattedDate(activity.endDate));
+
+    let currentDay = new Date(start);
+
+    // Ensure the end date is inclusive
+    while (currentDay <= end) {
+      const dateKey = currentDay.toISOString().split("T")[0];
+
+      if (!activityMap[dateKey]) {
+        activityMap[dateKey] = [];
       }
-      acc[dateKey].push(activity);
+      activityMap[dateKey].push(activity);
+
+      // Move to the next day
+      currentDay.setDate(currentDay.getDate() + 1);
     }
-    return acc;
-  }, {});
+  });
+
+  return activityMap;
 };
 
 const isPastDate = (year: number, month: number, day: number, today: Date) => {
@@ -35,16 +75,64 @@ const isPastDate = (year: number, month: number, day: number, today: Date) => {
   return checkDay.getTime() < currentDay.getTime();
 };
 
+// --- New Extracted Component for Chips ---
+interface ActivityChipListProps {
+  dayActivities: Activity[];
+  onViewActivity?: any;
+}
+
+const ActivityChipList: React.FC<ActivityChipListProps> = ({
+  dayActivities,
+  onViewActivity,
+}) => {
+  if (dayActivities.length === 0) return null;
+
+  // Show only the first 2 activities, count the rest
+  const visibleActivities = dayActivities.slice(0, 2);
+  const hiddenCount = dayActivities.length - visibleActivities.length;
+
+  return (
+    <div className="flex flex-col gap-0.5 w-full overflow-hidden">
+      {visibleActivities.map((activity) => {
+        const activityColor = ACTIVITY_TYPES.find(
+          (activityType: any) => activityType.label === activity.type.title
+        )?.color;
+
+        return (
+          <Chip
+            key={activity._id}
+            size="sm"
+            className="text-[11px] h-5 max-w-full truncate rounded-sm font-normal text-white hover:opacity-80"
+            style={{ backgroundColor: activityColor }}
+            // Essential fix: Stop propagation to prevent selecting the day when clicking the chip
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewActivity?.(activity._id);
+            }}
+          >
+            {activity.title}
+          </Chip>
+        );
+      })}
+      {hiddenCount > 0 && (
+        <p className="text-[10px] text-gray-500 mt-0.5">+{hiddenCount} more</p>
+      )}
+    </div>
+  );
+};
+// --- End Extracted Component ---
+
 const CustomCalendar: React.FC<CalendarProps> = ({
   weekendDisabled = true,
   disablePastDates = true,
   onDayClick,
+  onViewActivity,
   activities,
 }) => {
   const today = new Date();
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
-  const [selectedDate, setSelectedDate] = useState<any>(null);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const monthNames = [
@@ -57,7 +145,7 @@ const CustomCalendar: React.FC<CalendarProps> = ({
     "July",
     "August",
     "September",
-    "October",
+    "Ocober",
     "November",
     "December",
   ];
@@ -73,6 +161,7 @@ const CustomCalendar: React.FC<CalendarProps> = ({
   const startingDay = firstDay.getDay();
 
   const handleMonthChange = (direction: "prev" | "next") => {
+    // Logic to prevent going into past months if disablePastDates is true
     if (disablePastDates && direction === "prev") {
       const isCurrentMonth =
         currentMonth === today.getMonth() &&
@@ -122,15 +211,19 @@ const CustomCalendar: React.FC<CalendarProps> = ({
 
   const renderDays = () => {
     const cells = [];
+
+    // Render empty cells for preceding days
     for (let i = 0; i < startingDay; i++) {
       cells.push(<div key={`empty-${i}`} className="h-26" />);
     }
 
+    // Render day cells
     for (let day = 1; day <= daysInMonth; day++) {
       const dateKey = `${currentYear}-${String(currentMonth + 1).padStart(
         2,
         "0"
       )}-${String(day).padStart(2, "0")}`;
+
       const dateObj = new Date(dateKey);
       const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
       const isPast = isPastDate(currentYear, currentMonth, day, today);
@@ -139,7 +232,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
         (weekendDisabled && isWeekend) || (disablePastDates && isPast);
 
       const dayActivities = activitiesMap[dateKey] || [];
-      const hasActivities = dayActivities.length > 0;
 
       cells.push(
         <div
@@ -160,31 +252,11 @@ const CustomCalendar: React.FC<CalendarProps> = ({
           style={isDisabled ? { pointerEvents: "none", opacity: 0.6 } : {}}
         >
           <span className="text-sm text-gray-700 font-medium mb-1">{day}</span>
-          <div className="flex flex-col gap-0.5 w-full overflow-hidden">
-            {hasActivities &&
-              dayActivities.slice(0, 2).map((activity: any) => {
-                const activityColor = ACTIVITY_TYPES.find(
-                  (activityType: any) =>
-                    activityType.label === activity.type.title
-                )?.color;
 
-                return (
-                  <Chip
-                    key={activity._id}
-                    size="sm"
-                    className="text-[11px] h-5 max-w-full truncate rounded-sm font-normal text-white"
-                    style={{ backgroundColor: activityColor }}
-                  >
-                    {activity.title}
-                  </Chip>
-                );
-              })}
-            {dayActivities.length > 2 && (
-              <p className="text-[10px] text-gray-500 mt-0.5">
-                +{dayActivities.length - 2} more
-              </p>
-            )}
-          </div>
+          <ActivityChipList
+            dayActivities={dayActivities}
+            onViewActivity={onViewActivity}
+          />
         </div>
       );
     }

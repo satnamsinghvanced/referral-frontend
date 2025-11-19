@@ -23,11 +23,16 @@ interface ProfileFormValues {
 }
 
 const fields = [
-  { name: "firstName", label: "First Name", type: "text" },
-  { name: "lastName", label: "Last Name", type: "text" },
-  { name: "email", label: "Email Address", type: "email" },
-  { name: "phone", label: "Phone Number", type: "tel" },
-  { name: "practiceName", label: "Practice Name", type: "text" },
+  { name: "firstName", label: "First Name", type: "text", isRequired: true },
+  { name: "lastName", label: "Last Name", type: "text", isRequired: false },
+  { name: "email", label: "Email Address", type: "email", isRequired: true },
+  { name: "phone", label: "Phone Number", type: "tel", isRequired: false },
+  {
+    name: "practiceName",
+    label: "Practice Name",
+    type: "text",
+    isRequired: true,
+  },
 ];
 
 const ProfileSchema = Yup.object().shape({
@@ -222,7 +227,7 @@ const Profile = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {fields.map(({ name, label, type }) => (
+            {fields.map(({ name, label, type, isRequired }) => (
               <div key={name}>
                 <Input
                   size="sm"
@@ -243,13 +248,15 @@ const Profile = () => {
                   onBlur={handleBlur}
                   isDisabled={name === "email" && fetchedUser?.email}
                   classNames={{ base: "data-disabled:opacity-70" }}
+                  isRequired={isRequired}
+                  errorMessage={errors[name as FormKey] as string}
                 />
                 {/* Use type assertion to safely access errors[name] and touched[name] */}
-                {touched[name as FormKey] && errors[name as FormKey] && (
+                {/* {touched[name as FormKey] && errors[name as FormKey] && (
                   <p className="text-xs text-red-500 mt-1">
                     {errors[name as FormKey] as string}
                   </p>
-                )}
+                )} */}
               </div>
             ))}
 
@@ -261,10 +268,12 @@ const Profile = () => {
                 labelPlacement="outside"
                 placeholder="Select a Medical Specialty"
                 selectedKeys={new Set([values.medicalSpecialty])}
+                disabledKeys={new Set([values.medicalSpecialty])}
                 onSelectionChange={(keys) => {
                   const selected = Array.from(keys).join("");
                   setFieldValue("medicalSpecialty", selected, true);
                 }}
+                isRequired={true}
               >
                 {specialties?.map(
                   ({ title, _id }: { title: string; _id: string }) => (

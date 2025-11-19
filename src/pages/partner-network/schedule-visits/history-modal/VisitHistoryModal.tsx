@@ -163,7 +163,7 @@ export function VisitHistoryModal({ isOpen, onClose, onItemView }: VisitHistoryM
             ))}
             {/* Display if no visits are found */}
             {(!visits || visits.length === 0) && !isFetching && (
-              <div className="text-center text-gray-500 pt-10 pb-6 text-sm">
+              <div className="text-center text-gray-500 pt-6 pb-2 text-sm">
                 No visits found matching the current filters.
               </div>
             )}
