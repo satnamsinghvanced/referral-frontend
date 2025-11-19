@@ -91,8 +91,6 @@ export function ScheduleVisitsModal({
 
   useEffect(() => {
     if (editedData) {
-      console.log(editedData?.practices, "HOHOHOHOHO");
-      // Set initial state from editedData
       setSelectedReferrersState(editedData?.practices || []);
       setPlanState({
         routeDate: editedData?.route.date || "",
@@ -100,7 +98,11 @@ export function ScheduleVisitsModal({
         durationPerVisit: editedData?.route.durationPerVisit || "30 minutes",
         planName: editedData?.planDetails.name || "",
         defaultPriority: editedData?.planDetails.priority || "",
-        defaultVisitPurpose: editedData?.planDetails.visitPurpose.title || "",
+        defaultVisitPurpose: PURPOSE_OPTIONS.some(
+          (p) => p.title === editedData.planDetails.visitPurpose.title
+        )
+          ? editedData?.planDetails.visitPurpose.title
+          : PURPOSE_OPTIONS[PURPOSE_OPTIONS.length - 1]?.title || "",
         customVisitPurpose:
           (editedData?.planDetails.visitPurpose.title &&
             !PURPOSE_OPTIONS.some(
@@ -302,6 +304,8 @@ export function ScheduleVisitsModal({
       return;
     }
 
+    console.log(bestRoute, "MY ROUTE");
+
     // Prepare the common payload structure
     const basePayload: Omit<SaveSchedulePlanPayload, "isDraft"> = {
       practices: selectedReferrersState,
@@ -314,7 +318,7 @@ export function ScheduleVisitsModal({
         estimatedTotalTime: bestRoute.estimatedTotalTime,
         estimatedDistance: bestRoute.estimatedDistance,
         mileageCost: bestRoute.mileageCost,
-        visitDays: planState.visitDays, // Use visitDays from planState (or ensure bestRoute has it)
+        visitDays: bestRoute.visitDays, // Use visitDays from planState (or ensure bestRoute has it)
       },
       planDetails: {
         name: planState.planName,

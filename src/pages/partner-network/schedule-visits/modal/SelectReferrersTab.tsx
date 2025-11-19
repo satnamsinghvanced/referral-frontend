@@ -156,8 +156,6 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
 
       <div className="space-y-3 max-h-80 overflow-y-auto p-1 pr-2">
         {filteredReferrers.map((r) => {
-          console.log(selectedReferrersState?.includes(r._id), "HNHNHNHNHNH")
-
           return (
             <Card
               key={r._id}

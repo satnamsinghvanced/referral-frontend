@@ -1,9 +1,7 @@
-import React, { ReactNode, Suspense } from "react";
+import React, { ReactNode } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import QrGenerator from "./pages/qr-generator/QrGenerator";
 import ProtectedRoute from "./pages/auth/ProtectedRoute";
-import { LoadingState } from "./components/common/LoadingState";
-import { FiLoader } from "react-icons/fi";
+import QrGenerator from "./pages/qr-generator/QrGenerator";
 
 const Layout = React.lazy(() => import("./components/layout/Layout"));
 const Dashboard = React.lazy(() => import("./pages/Dashboard"));
@@ -20,9 +18,7 @@ const ReferralManagement = React.lazy(
 const PartnerNetwork = React.lazy(
   () => import("./pages/partner-network/PartnerNetwork")
 );
-const VisitMap = React.lazy(
-  () => import("./pages/visit-map/VisitMap")
-);
+const VisitMap = React.lazy(() => import("./pages/visit-map/VisitMap"));
 const Reviews = React.lazy(() => import("./pages/reviews/Reviews"));
 const SocialMedia = React.lazy(
   () => import("./pages/social-media/SocialMedia")
@@ -161,9 +157,9 @@ function AppRoutes() {
     //     </div>
     //   }
     // >
-      <BrowserRouter basename="/referral-retrieve/">
-        <Routes>{renderRoutes(routesList)}</Routes>
-      </BrowserRouter>
+    <BrowserRouter basename="/referral-retrieve/">
+      <Routes>{renderRoutes(routesList)}</Routes>
+    </BrowserRouter>
     // </Suspense>
   );
 }

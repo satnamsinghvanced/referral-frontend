@@ -22,9 +22,8 @@ export const ReviewSaveTab: React.FC<ReviewSaveTabProps> = ({
   const summary = planState.enableAutoRoute
     ? routeOptimizationResults?.optimized
     : routeOptimizationResults?.original;
-  const visitSchedule = routeOptimizationResults?.optimized?.routeDetails;
 
-  if (!summary || !visitSchedule) {
+  if (!summary) {
     return (
       <Card className="w-full shadow-none border border-yellow-200 bg-yellow-50 text-center">
         <CardBody className="p-6 space-y-2 text-center">
