@@ -402,6 +402,14 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                       ? [PER_VISIT_DURATION_OPTIONS[0]]
                       : []
                   }
+                  disabledKeys={
+                    // Use the stored value or the first option as default
+                    planState.durationPerVisit
+                      ? [planState.durationPerVisit]
+                      : PER_VISIT_DURATION_OPTIONS.length > 0
+                      ? [PER_VISIT_DURATION_OPTIONS[0]]
+                      : []
+                  }
                   // OPTIMIZATION 3: Removed redundant and incorrect disabledKeys
                   onSelectionChange={(keys: any) =>
                     onStateChange("durationPerVisit", Array.from(keys).join(""))

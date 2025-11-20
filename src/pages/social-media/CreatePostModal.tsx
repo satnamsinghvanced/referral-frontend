@@ -261,6 +261,7 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
               size="sm"
               radius="sm"
               selectedKeys={[publishSchedule]}
+              disabledKeys={[publishSchedule]}
               onChange={(e) => setPublishSchedule(e.target.value)}
             >
               <SelectItem

@@ -65,6 +65,7 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
           radius="sm"
           aria-label="Categories"
           selectedKeys={[filters.category]}
+          disabledKeys={[filters.category]}
           onSelectionChange={(keys: any) => {
             const category = Array.from(keys).join("") as string;
             setFilters({ ...filters, category });

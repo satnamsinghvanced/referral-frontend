@@ -40,6 +40,7 @@ function Tasks() {
   } = useFetchAllTasks(currentFilters);
   const tasks = tasksData?.tasks;
   const stats = tasksData?.stats;
+  const pagination = tasksData?.pagination;
 
   const STAT_CARD_DATA = [
     {
@@ -97,6 +98,7 @@ function Tasks() {
               placeholder="All Statuses"
               size="sm"
               selectedKeys={new Set([currentFilters.status])}
+              disabledKeys={new Set([currentFilters.status])}
               onSelectionChange={(keys) =>
                 onFilterChange("status", Array.from(keys)[0] as string)
               }
@@ -118,6 +120,7 @@ function Tasks() {
               placeholder="All Priorities"
               size="sm"
               selectedKeys={new Set([currentFilters.priority])}
+              disabledKeys={new Set([currentFilters.priority])}
               onSelectionChange={(keys) =>
                 onFilterChange("priority", Array.from(keys)[0] as string)
               }
@@ -147,7 +150,7 @@ function Tasks() {
               {tasks?.map((task: any) => (
                 <TaskCard key={task._id} task={task} />
               ))}
-              {stats?.totalPages && stats.totalPages > 1 ? (
+              {pagination?.totalPages && pagination.totalPages > 1 ? (
                 <Pagination
                   showControls
                   size="sm"
@@ -157,7 +160,7 @@ function Tasks() {
                   onChange={(page) => {
                     setCurrentFilters((prev: any) => ({ ...prev, page }));
                   }}
-                  total={stats?.totalPages as number}
+                  total={pagination?.totalPages as number}
                   classNames={{
                     base: "flex justify-end py-3",
                     wrapper: "gap-1.5",

@@ -227,131 +227,127 @@ export default function ScheduleVisits({
       </div>
 
       {/* {dashboardStats?.totalPlans > 0 && ( */}
-        <div className="space-y-6">
-          <Card
-            data-slot="card"
-            className="rounded-xl border border-primary/15 shadow-none"
-          >
-            <CardHeader data-slot="card-header" className="px-5 pt-5 pb-5">
-              <div className="flex items-center justify-between w-full">
-                <div className="space-y-2">
-                  <h4
-                    data-slot="card-title"
-                    className="leading-none text-sm font-medium"
-                  >
-                    Monthly Visit Plans
-                  </h4>
-                  <p className="text-xs text-gray-600 mt-1">
-                    Manage and track your monthly practice visit schedules
-                  </p>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    onPress={() => setIsCompactMode(!isCompactMode)}
-                    className="border-small min-w-auto border-primary/15 size-8 p-0"
-                    title={
-                      isCompactMode ? "Show Grid View" : "Show Compact View"
-                    }
-                  >
-                    <LuCalendar className="h-4 w-4" />
-                  </Button>
-                </div>
+      <div className="space-y-6">
+        <Card
+          data-slot="card"
+          className="rounded-xl border border-primary/15 shadow-none"
+        >
+          <CardHeader data-slot="card-header" className="px-5 pt-5 pb-5">
+            <div className="flex items-center justify-between w-full">
+              <div className="space-y-2">
+                <h4
+                  data-slot="card-title"
+                  className="leading-none text-sm font-medium"
+                >
+                  Monthly Visit Plans
+                </h4>
+                <p className="text-xs text-gray-600 mt-1">
+                  Manage and track your monthly practice visit schedules
+                </p>
               </div>
-            </CardHeader>
-
-            <CardBody data-slot="card-content" className="px-5 pt-0 pb-5">
-              {isLoading && <LoadingState />}
-              {dashboardStats && <StatsGrid stats={dashboardStats} />}
-            </CardBody>
-          </Card>
-
-          <div className="flex items-center justify-between border-primary/15 border rounded-xl bg-background p-4">
-            <div className="flex items-center gap-2">
-              <Select
-                aria-label="Filter Plans"
-                placeholder="All Plans"
-                size="sm"
-                radius="sm"
-                selectedKeys={[filters.status] as string[]}
-                disabledKeys={[filters.status] as string[]}
-                onSelectionChange={(keys) =>
-                  handleFilterChange("status", Array.from(keys)[0] as string)
-                }
-                className="min-w-[160px]"
-              >
-                <SelectItem key="all">All Plans</SelectItem>
-                <SelectItem key="active">Active</SelectItem>
-                <SelectItem key="draft">Draft</SelectItem>
-                <SelectItem key="completed">Completed</SelectItem>
-                <SelectItem key="archived">Archived</SelectItem>
-              </Select>
-              <Select
-                aria-label="Filter by Month"
-                placeholder="Month"
-                size="sm"
-                radius="sm"
-                selectedKeys={[filters.sortBy] as string[]}
-                disabledKeys={[filters.sortBy] as string[]}
-                onSelectionChange={(keys) => {
-                  handleFilterChange("sortBy", Array.from(keys)[0] as string);
-                }}
-                className="min-w-[160px]"
-              >
-                <SelectItem key="month">Month</SelectItem>
-                <SelectItem key="name">Name</SelectItem>
-                <SelectItem key="createdDate">Created Date</SelectItem>
-                <SelectItem key="updatedDate">Updated Date</SelectItem>
-              </Select>
-              <Button
-                size="sm"
-                variant="ghost"
-                onPress={handleOrderToggle}
-                className="min-w-[100px] border-small"
-              >
-                {filters.order === "desc" ? "Descending" : "Ascending"}
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onPress={() => setIsCompactMode(!isCompactMode)}
+                  className="border-small min-w-auto border-primary/15 size-8 p-0"
+                  title={isCompactMode ? "Show Grid View" : "Show Compact View"}
+                >
+                  <LuCalendar className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
-            <div className="text-xs text-gray-600">
-              Showing {schedulePlans.length} of {pagination?.totalData} plans
-            </div>
-          </div>
+          </CardHeader>
 
-          <div>
-            <div
-              className={`${
-                !isCompactMode
-                  ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-                  : "space-y-4"
-              }`}
+          <CardBody data-slot="card-content" className="px-5 pt-0 pb-5">
+            {isLoading && <LoadingState />}
+            {dashboardStats && <StatsGrid stats={dashboardStats} />}
+          </CardBody>
+        </Card>
+
+        <div className="flex items-center justify-between border-primary/15 border rounded-xl bg-background p-4">
+          <div className="flex items-center gap-2">
+            <Select
+              aria-label="Filter Plans"
+              placeholder="All Plans"
+              size="sm"
+              radius="sm"
+              selectedKeys={[filters.status] as string[]}
+              disabledKeys={[filters.status] as string[]}
+              onSelectionChange={(keys) =>
+                handleFilterChange("status", Array.from(keys)[0] as string)
+              }
+              className="min-w-[160px]"
             >
-              <PlanListContent />
-            </div>
-            {pagination && pagination.totalPages > 1 ? (
-              <Pagination
-                showControls
-                size="sm"
-                radius="sm"
-                initialPage={1}
-                page={filters.page as number}
-                onChange={(page) => {
-                  setFilters((prev) => ({ ...prev, page }));
-                }}
-                total={pagination?.totalPages as number}
-                classNames={{
-                  base: "flex justify-center py-3 mt-3",
-                  wrapper: "gap-1.5",
-                  item: "bg-white cursor-pointer",
-                  prev: "bg-white cursor-pointer",
-                  next: "bg-white cursor-pointer",
-                }}
-              />
-            ) : (
-              ""
-            )}
+              <SelectItem key="all">All Plans</SelectItem>
+              <SelectItem key="active">Active</SelectItem>
+              <SelectItem key="draft">Draft</SelectItem>
+            </Select>
+            <Select
+              aria-label="Filter by Month"
+              placeholder="Month"
+              size="sm"
+              radius="sm"
+              selectedKeys={[filters.sortBy] as string[]}
+              disabledKeys={[filters.sortBy] as string[]}
+              onSelectionChange={(keys) => {
+                handleFilterChange("sortBy", Array.from(keys)[0] as string);
+              }}
+              className="min-w-[160px]"
+            >
+              <SelectItem key="month">Month</SelectItem>
+              <SelectItem key="name">Name</SelectItem>
+              <SelectItem key="createdDate">Created Date</SelectItem>
+              <SelectItem key="updatedDate">Updated Date</SelectItem>
+            </Select>
+            <Button
+              size="sm"
+              variant="ghost"
+              onPress={handleOrderToggle}
+              className="min-w-[100px] border-small"
+            >
+              {filters.order === "desc" ? "Descending" : "Ascending"}
+            </Button>
+          </div>
+          <div className="text-xs text-gray-600">
+            Showing {schedulePlans.length} of {pagination?.totalData} plans
           </div>
         </div>
+
+        <div>
+          <div
+            className={`${
+              !isCompactMode
+                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+                : "space-y-4"
+            }`}
+          >
+            <PlanListContent />
+          </div>
+          {pagination && pagination.totalPages > 1 ? (
+            <Pagination
+              showControls
+              size="sm"
+              radius="sm"
+              initialPage={1}
+              page={filters.page as number}
+              onChange={(page) => {
+                setFilters((prev) => ({ ...prev, page }));
+              }}
+              total={pagination?.totalPages as number}
+              classNames={{
+                base: "flex justify-center py-3 mt-3",
+                wrapper: "gap-1.5",
+                item: "bg-white cursor-pointer",
+                prev: "bg-white cursor-pointer",
+                next: "bg-white cursor-pointer",
+              }}
+            />
+          ) : (
+            ""
+          )}
+        </div>
+      </div>
       {/* )} */}
 
       <ScheduleVisitsModal

@@ -247,6 +247,7 @@ const CallTracking = () => {
                 placeholder="All Types"
                 size="sm"
                 selectedKeys={new Set([currentFilters.type])}
+                disabledKeys={new Set([currentFilters.type])}
                 onSelectionChange={(keys) =>
                   onFilterChange("type", Array.from(keys)[0] as string)
                 }
@@ -263,6 +264,7 @@ const CallTracking = () => {
                 placeholder="All Status"
                 size="sm"
                 selectedKeys={new Set([currentFilters.status])}
+                disabledKeys={new Set([currentFilters.status])}
                 onSelectionChange={(keys) =>
                   onFilterChange("status", Array.from(keys)[0] as string)
                 }

@@ -5,6 +5,7 @@ import VisitStatusChip from "../../../components/chips/VisitStatusChip";
 import { useCopySchedulePlan } from "../../../hooks/usePartner";
 import { SchedulePlan } from "../../../types/partner";
 import { downloadJson } from "../../../utils/jsonDownloader";
+import { motion } from "framer-motion";
 
 const CompactPlanCard: React.FC<{
   plan: SchedulePlan;
