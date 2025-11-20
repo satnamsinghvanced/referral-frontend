@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, UseQueryResult } from "@tanstack/react-query";
 import { queryClient } from "../providers/QueryProvider";
 import {
   createFolder,
@@ -7,6 +7,7 @@ import {
   getAllFolders,
   getFolderDetails,
   getImageDetails,
+  getTags,
   moveImages,
   searchImages,
   updateFolderName,
@@ -16,6 +17,7 @@ import {
 import {
   CreateFolderRequest,
   GetAllFoldersQuery,
+  GetTagsResponse,
   MoveImagesRequest,
   SearchImagesQuery,
   UpdateFolderRequest,
@@ -184,5 +186,18 @@ export const useMoveImages = () => {
       queryClient.invalidateQueries({ queryKey: IMAGE_KEYS.all });
       queryClient.invalidateQueries({ queryKey: FOLDER_KEYS.all });
     },
+  });
+};
+
+const TAGS_QUERY_KEY = ["tags"];
+
+/**
+ * Custom hook to fetch the list of image tags.
+ * @returns A Tanstack Query result object.
+ */
+export const useTagsQuery = (): UseQueryResult<GetTagsResponse> => {
+  return useQuery({
+    queryKey: TAGS_QUERY_KEY,
+    queryFn: getTags,
   });
 };

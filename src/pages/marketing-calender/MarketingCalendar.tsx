@@ -7,9 +7,16 @@ import {
   Select,
   SelectItem,
 } from "@heroui/react";
-import { useCallback, useState, useMemo } from "react";
+import { useCallback, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
-import { FiGlobe, FiSearch, FiShare2, FiFilter } from "react-icons/fi";
+import {
+  FiGlobe,
+  FiSearch,
+  FiShare2,
+  FiLoader,
+  FiFilter,
+  FiActivity,
+} from "react-icons/fi";
 import { LuCalendar, LuTarget, LuTrophy, LuUserPlus } from "react-icons/lu";
 import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { RiMegaphoneLine } from "react-icons/ri";
@@ -32,31 +39,6 @@ import { formatDateToMMDDYYYY } from "../../utils/formatDateToMMDDYYYY";
 import EmptyState from "../../components/common/EmptyState";
 import { LoadingState } from "../../components/common/LoadingState";
 
-// --- Utility Functions (Duplicated here for completeness, usually imported) ---
-const getFormattedDate = (dateIsoString: string): string => {
-  return dateIsoString.split("T")[0];
-};
-
-const getActivitiesByDate = (activities: any[]) => {
-  const activityMap: Record<string, any[]> = {};
-  activities.forEach((activity) => {
-    if (!activity.startDate || !activity.endDate) return;
-    const start = new Date(getFormattedDate(activity.startDate));
-    const end = new Date(getFormattedDate(activity.endDate));
-    let currentDay = new Date(start);
-    while (currentDay <= end) {
-      const dateKey = currentDay.toISOString().split("T")[0];
-      if (!activityMap[dateKey]) {
-        activityMap[dateKey] = [];
-      }
-      activityMap[dateKey].push(activity);
-      currentDay.setDate(currentDay.getDate() + 1);
-    }
-  });
-  return activityMap;
-};
-// --- End Utility Functions ---
-
 const MarketingCalendar = () => {
   const [currentFilters, setCurrentFilters] = useState<any>({
     page: 1,
@@ -76,7 +58,6 @@ const MarketingCalendar = () => {
     isLoading,
     refetch: marketingActivitiesRefetch,
   } = useMarketingActivities(currentFilters);
-
   const { data: activityDetail, refetch: refetchActivityDetail } =
     useActivityDetail(selectedActivityId);
 
@@ -87,17 +68,6 @@ const MarketingCalendar = () => {
   const pagination = marketingActivitiesData?.pagination;
   const stats = marketingActivitiesData?.stats;
   const isFiltered = currentFilters.search || currentFilters.type !== "all";
-
-  // New map for calendar logic (uses all activities, not paginated)
-  const activitiesByDateMap = useMemo(
-    () => getActivitiesByDate(activities),
-    [activities]
-  );
-
-  // Activities for the selected date (used in the sidebar)
-  const activitiesForSelectedDate = useMemo(() => {
-    return selectedDate ? activitiesByDateMap[selectedDate] || [] : [];
-  }, [selectedDate, activitiesByDateMap]);
 
   const handleFilterChange = useCallback((key: string, value: any) => {
     setCurrentFilters((prev: any) => ({
@@ -120,13 +90,10 @@ const MarketingCalendar = () => {
   }, [refetchActivityDetail]);
 
   const handleDeleteActivity = () => {
-    deleteActivity(selectedActivityId, {
-      onSuccess: () => {
-        setIsDetailOpen(false);
-        setSelectedActivityId("");
-        marketingActivitiesRefetch();
-      },
-    });
+    deleteActivity(selectedActivityId);
+    setIsDetailOpen(false);
+    setSelectedActivityId("");
+    marketingActivitiesRefetch();
   };
 
   const HEADING_DATA = {
@@ -188,12 +155,20 @@ const MarketingCalendar = () => {
     },
   ];
 
+  const filteredActivities = activities.filter(
+    (activity: any) =>
+      !selectedDate ||
+      (activity.startDate &&
+        activity.startDate.split("T")[0] === selectedDate) ||
+      (activity.endDate && activity.endDate.split("T")[0] === selectedDate)
+  );
+
   const ActivityListForSelectedDate = () => {
     if (!selectedDate) {
       return <EmptyState title="Click on a date to view or add activities" />;
     }
 
-    if (activitiesForSelectedDate.length === 0) {
+    if (filteredActivities.length === 0) {
       return (
         <div className="flex flex-col gap-3 items-center justify-center min-h-[100px]">
           <LuCalendar className="text-4xl text-gray-300" />
@@ -218,7 +193,7 @@ const MarketingCalendar = () => {
     return (
       <>
         <div className="flex flex-col gap-3 max-h-[315px] overflow-y-auto">
-          {activitiesForSelectedDate.map((activity: any) => {
+          {filteredActivities.map((activity: any) => {
             const activityColor = ACTIVITY_TYPES.find(
               (activityType: any) => activityType.label === activity.type.title
             )?.color;
@@ -287,6 +262,7 @@ const MarketingCalendar = () => {
               ? "No activities found matching your filters."
               : "No upcoming marketing activities scheduled."
           }
+          // icon={FiFilter}
         />
       );
     }
@@ -325,14 +301,6 @@ const MarketingCalendar = () => {
     );
   };
 
-  const selectedDateFormatted = selectedDate
-    ? new Date(selectedDate).toLocaleDateString("en-US", {
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-      })
-    : "Selected Date";
-
   return (
     <>
       <ComponentContainer headingData={HEADING_DATA}>
@@ -350,9 +318,8 @@ const MarketingCalendar = () => {
                 <CustomCalendar
                   weekendDisabled={false}
                   onDayClick={setSelectedDate}
-                  // ADDED: Pass the handleViewActivity function
-                  onViewActivity={handleViewActivity}
                   activities={activities}
+                  onActivityClick={handleViewActivity}
                 />
               </div>
             </div>
@@ -360,7 +327,9 @@ const MarketingCalendar = () => {
               <div className="bg-background p-4 border border-primary/15 rounded-xl">
                 <h4 className="text-base font-medium flex items-center gap-2">
                   <TbWaveSawTool className="text-primary text-xl" />
-                  {`Activities for ${selectedDateFormatted}`}
+                  {selectedDate
+                    ? `Activities for ${selectedDate}`
+                    : "Selected Date"}
                 </h4>
                 <div className="mt-6 mb-2 space-y-3">
                   <ActivityListForSelectedDate />
@@ -445,7 +414,6 @@ const MarketingCalendar = () => {
         onClose={() => {
           setIsModalOpen(false);
           setSelectedActivityId("");
-          marketingActivitiesRefetch();
         }}
         // @ts-ignore
         defaultStartDate={selectedDate}

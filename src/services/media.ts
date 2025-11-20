@@ -5,6 +5,7 @@ import {
   GetAllFoldersResponse,
   GetFolderDetailsResponse,
   GetImageDetailsResponse,
+  GetTagsResponse,
   MoveImagesRequest,
   SearchImagesQuery,
   SearchImagesResponse,
@@ -85,4 +86,15 @@ export const searchImages = (params: SearchImagesQuery) => {
 
 export const moveImages = (data: MoveImagesRequest) => {
   return axios.post(`${IMAGES_API_BASE}/move`, data);
+};
+
+const TAGS_URL = "/images/tags";
+
+/**
+ * Fetches the list of all available image tags and their total count.
+ * @returns A promise that resolves to the GetTagsResponse data.
+ */
+export const getTags = async (): Promise<GetTagsResponse> => {
+  const response = await axios.get<GetTagsResponse>(TAGS_URL);
+  return response.data;
 };

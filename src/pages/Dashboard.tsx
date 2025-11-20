@@ -268,13 +268,13 @@ const Dashboard = () => {
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-gray-600">Active Codes</span>
                   <span className="bg-sky-100 text-sky-800 h-6 p-0 px-2 flex items-center justify-center rounded text-xs font-medium">
-                    {dashboard?.nfcQrData?.activeQR || 0}
+                    {dashboard?.nfcQrData?.activeQRCodes || 0}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-gray-600">Total Scans</span>
                   <span className="bg-orange-100 text-orange-800 h-6 p-0 px-2 flex items-center justify-center rounded text-xs font-medium">
-                    {dashboard?.nfcQrData?.totalScans || 0}
+                    {dashboard?.nfcQrData?.totalScansToday || 0}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">

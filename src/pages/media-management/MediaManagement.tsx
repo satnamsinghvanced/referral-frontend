@@ -9,15 +9,7 @@ function MediaManagement() {
     heading: "Media Management",
     subHeading:
       "Organize and manage your images and videos with tags and folders.",
-    buttons: [
-      {
-        label: "Show Debug",
-        onClick: () => {},
-        variant: "ghost" as const,
-        color: "default" as const,
-        className: "border-small",
-      },
-    ],
+    buttons: [],
   };
 
   return (

@@ -25,6 +25,7 @@ import {
   useDeleteImage,
   useUpdateImageTags,
   useGetAllFolders,
+  useTagsQuery,
 } from "../../hooks/useMedia";
 import { CreateFolderModal } from "./modal/CreateFolderModal";
 import { UploadMediaModal } from "./modal/UploadMediaModal";
@@ -39,7 +40,7 @@ import { useDebouncedValue } from "../../hooks/common/useDebouncedValue";
 const Breadcrumb = ({ path, onNavigate }: any) => (
   <p className="text-sm flex items-center space-x-1">
     <span
-      className="cursor-pointer hover:underline underline-offset-2 text-primary-600"
+      className="cursor-pointer hover:underline underline-offset-2"
       onClick={() => onNavigate(null)}
     >
       Root
@@ -48,7 +49,7 @@ const Breadcrumb = ({ path, onNavigate }: any) => (
       <span key={item.id} className="flex items-center space-x-1">
         <span className="text-gray-400">/</span>
         <span
-          className="cursor-pointer hover:underline underline-offset-2 text-primary-600"
+          className="cursor-pointer hover:underline underline-offset-2"
           onClick={() => onNavigate(item.id)}
         >
           {item.name}
@@ -178,7 +179,7 @@ function BrowseMedia() {
     type: "all",
     tags: [],
   });
-  const [availableTags, setAvailableTags] = useState(mockTags);
+  // const [availableTags, setAvailableTags] = useState(mockTags);
 
   const { data: allFolders, isLoading: isAllFoldersLoading } = useGetAllFolders(
     {
@@ -190,6 +191,9 @@ function BrowseMedia() {
   const { data: folderData, isLoading: isLoadingFolder } = useGetFolderDetails(
     currentFolderId as string
   );
+
+  const { data: availableTagsData, isLoading: isTagsLoading } = useTagsQuery();
+  const availableTags = availableTagsData?.tags;
 
   const { mutate: updateImageTags } = useUpdateImageTags(
     viewMedia?._id as string
@@ -241,11 +245,11 @@ function BrowseMedia() {
   };
 
   const handleToggleTag = (tagName: string) => {
-    setAvailableTags((prevTags) =>
-      prevTags.map((tag) =>
-        tag.name === tagName ? { ...tag, isSelected: !tag.isSelected } : tag
-      )
-    );
+    // setAvailableTags((prevTags) =>
+    //   prevTags.map((tag) =>
+    //     tag.name === tagName ? { ...tag, isSelected: !tag.isSelected } : tag
+    //   )
+    // );
     setCurrentFilters((prev: any) => {
       const newTags = prev.tags.includes(tagName)
         ? prev.tags.filter((t: string) => t !== tagName)
@@ -255,9 +259,9 @@ function BrowseMedia() {
   };
 
   const clearAllTags = () => {
-    setAvailableTags((prevTags) =>
-      prevTags.map((tag) => ({ ...tag, isSelected: false }))
-    );
+    // setAvailableTags((prevTags) =>
+    //   prevTags.map((tag) => ({ ...tag, isSelected: false }))
+    // );
     setCurrentFilters((prev: any) => ({ ...prev, tags: [] }));
   };
 
@@ -321,8 +325,6 @@ function BrowseMedia() {
   const handleMediaView = (media: Media) => {
     setViewMedia(media);
   };
-
-  const activeTagsCount = availableTags.filter((t) => t.isSelected).length;
 
   const currentFolderMediaGroup = mediaData?.find(
     (group: any) =>
@@ -399,7 +401,7 @@ function BrowseMedia() {
           <div className="pt-4">
             <h5 className="text-xs font-medium mb-3">Filter by tags:</h5>
             <div className="flex flex-wrap gap-2">
-              {availableTags.map((tag) => {
+              {availableTags?.map((tag) => {
                 const base =
                   "inline-flex items-center rounded-full text-[11px] font-medium px-3 py-0.5 cursor-pointer transition-colors";
                 const active = "bg-primary text-white";
@@ -407,16 +409,18 @@ function BrowseMedia() {
 
                 return (
                   <span
-                    key={tag.name}
-                    className={`${base} ${tag.isSelected ? active : inactive}`}
-                    onClick={() => handleToggleTag(tag.name)}
+                    key={tag}
+                    className={`${base} ${
+                      currentFilters.tags.includes(tag) ? active : inactive
+                    }`}
+                    onClick={() => handleToggleTag(tag)}
                   >
-                    {tag.name}
+                    {tag}
                   </span>
                 );
               })}
 
-              {activeTagsCount > 0 && (
+              {currentFilters.tags.length > 0 && (
                 <Button
                   size="sm"
                   radius="full"
@@ -470,7 +474,7 @@ function BrowseMedia() {
                           {folder.name}
                         </p>
                         <p className="text-xs text-gray-500">
-                          {folder.totalImages} items
+                          {folder.totalItems} items
                         </p>
                       </div>
                     </div>
