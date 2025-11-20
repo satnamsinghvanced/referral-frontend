@@ -165,7 +165,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
           <div className="space-y-2">
             {referral.treatment && (
               <p className="text-xs">
-                <strong>Treatment:</strong>{" "}
+                <span className="font-medium">Treatment:</span>{" "}
                 {
                   TREATMENT_OPTIONS.find(
                     (treatmentOption: any) =>
@@ -176,7 +176,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
             )}
 
             <p className="text-xs">
-              <strong>Source:</strong>{" "}
+              <span className="font-medium">Source:</span>{" "}
               {referral.addedVia ? referral.addedVia : "Direct"}
             </p>
           </div>

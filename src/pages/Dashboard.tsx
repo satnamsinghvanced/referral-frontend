@@ -268,20 +268,20 @@ const Dashboard = () => {
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-gray-600">Active Codes</span>
                   <span className="bg-sky-100 text-sky-800 h-6 p-0 px-2 flex items-center justify-center rounded text-xs font-medium">
-                    {dashboard?.nfcQrData?.activeQRCodes || 0}
+                    {dashboard?.nfcQrData?.activeQR || 0}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-gray-600">Total Scans</span>
                   <span className="bg-orange-100 text-orange-800 h-6 p-0 px-2 flex items-center justify-center rounded text-xs font-medium">
-                    {dashboard?.nfcQrData?.totalScansToday || 0}
+                    {dashboard?.nfcQrData?.totalScans || 0}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-gray-600">Conversion Rate</span>
                   <span className="bg-emerald-100 text-emerald-800 h-6 p-0 px-2 flex items-center justify-center rounded text-xs font-medium">
-                    {dashboard?.nfcQrData?.avgConversionRate > 0
-                      ? `${dashboard.nfcQrData.avgConversionRate}%`
+                    {dashboard?.nfcQrData?.conversionRate > 0
+                      ? `${dashboard.nfcQrData.conversionRate}%`
                       : "0%"}
                   </span>
                 </div>

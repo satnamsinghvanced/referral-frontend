@@ -1,7 +1,15 @@
-import { Chip, Modal, ModalBody, ModalContent, ModalHeader } from "@heroui/react";
+import {
+  Chip,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+} from "@heroui/react";
 import { TbCalendarStats, TbRoute, TbNotes } from "react-icons/tb"; // Icons for new structure
 import VisitStatusChip from "../../../components/chips/VisitStatusChip";
 import { LuCar, LuClock, LuTimer } from "react-icons/lu";
+import { formatDateToReadable } from "../../../utils/formatDateToReadable";
+import { convertTo12HourClock } from "../../../utils/convertTo12HourClock";
 
 // Assuming the data structure for a single plan
 interface PlanData {
@@ -31,25 +39,13 @@ interface ViewScheduleModalProps {
   plan: PlanData; // The data for the specific plan to display
 }
 
-// Helper to render Status Tag
-const StatusTag = ({ status }: { status: string }) => {
-  let color = "bg-gray-200 text-gray-800";
-  if (status === "active") color = "bg-blue-100 text-blue-600";
-  if (status === "completed") color = "bg-green-100 text-green-600";
-  if (status === "draft") color = "bg-yellow-100 text-yellow-600";
-
-  return (
-    <span className={`px-2 py-0.5 text-xs font-medium rounded ${color}`}>
-      {status.charAt(0).toUpperCase() + status.slice(1)}
-    </span>
-  );
-};
-
 export default function ViewScheduledVisitModal({
   isOpen,
   onClose,
   plan,
 }: ViewScheduleModalProps) {
+  const progress = plan.status === "completed" ? 100 : 0;
+
   return (
     <Modal
       isOpen={isOpen}
@@ -108,6 +104,21 @@ export default function ViewScheduledVisitModal({
             />
           </div>
 
+          <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs">
+                <span>Progress</span>
+                <span>{progress}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${progress}%` }}
+                ></div>
+              </div>
+            </div>
+          </div>
+
           {/* --- Plan Configuration --- */}
           <div className="space-y-4 border border-primary/15 p-4 rounded-xl">
             <h3 className="text-sm font-medium flex items-center gap-2">
@@ -115,12 +126,28 @@ export default function ViewScheduledVisitModal({
             </h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <DetailItem
+                label="Scheduled Date"
+                value={formatDateToReadable(plan.route.date)}
+              />
+              <DetailItem
+                label="Scheduled Time"
+                value={convertTo12HourClock(plan?.route?.startTime)}
+              />
+              <DetailItem
                 label="Visit Purpose"
                 value={plan?.planDetails?.visitPurpose?.title}
               />
               <DetailItem
                 label="Default Priority"
                 value={plan?.planDetails?.priority}
+              />
+              <DetailItem
+                label="Created At"
+                value={formatDateToReadable(plan?.createdAt, true)}
+              />
+              <DetailItem
+                label="Updated At"
+                value={formatDateToReadable(plan?.updatedAt, true)}
               />
               {plan?.planDetails?.description && (
                 <div className="col-span-2">
@@ -181,7 +208,7 @@ const DetailItem = ({
 }) => (
   <div className={fullWidth ? "col-span-2" : "col-span-1"}>
     <div className="text-xs font-medium text-gray-500">{label}</div>
-    <div className="text-sm font-medium text-gray-800 capitalize mt-0.5">
+    <div className="text-xs font-medium text-gray-800 capitalize mt-0.5">
       {value}
     </div>
   </div>

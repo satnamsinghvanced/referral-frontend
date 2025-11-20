@@ -12,7 +12,7 @@ const PlanCard: React.FC<{
   onEdit: any;
   onDelete: any;
 }> = ({ plan, onView, onEdit, onDelete }) => {
-  const progress = 0; // Assuming progress calculation is pending or based on completion data not explicitly shown
+  const progress = plan.status === "completed" ? 100 : 0; // Assuming progress calculation is pending or based on completion data not explicitly shown
   const monthYear = new Date(plan.createdAt).toLocaleDateString("en-US", {
     month: "long",
     year: "numeric",

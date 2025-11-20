@@ -47,7 +47,7 @@ export function ActivityDetailModal({
 }: ActivityDetailModalProps) {
   if (!activity) return;
 
-  const dateTimeValue = `${formatDateToMMDDYYYY(activity.startDate)}${
+  const startDate = `${formatDateToMMDDYYYY(activity.startDate)}${
     activity.time ? ` at ${activity.time}` : ""
   }`;
 
@@ -89,8 +89,33 @@ export function ActivityDetailModal({
 
         <ModalBody className="gap-0 px-0 py-5 space-y-3">
           <div className="grid grid-cols-2 gap-4">
-            <DetailItem label="Date & Time" value={dateTimeValue} />
+            <DetailItem label="Date & Time" value={startDate} />
+            {activity.endDate ? (
+              <DetailItem
+                label="End Date"
+                value={formatDateToMMDDYYYY(activity.endDate)}
+              />
+            ) : (
+              <DetailItem
+                label="End Date"
+                value="Same Day"
+              />
+            )}
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
             <DetailItem label="Platform" value={activity.platform || "N/A"} />
+            <DetailItem
+              label="Priority"
+              value={<TaskPriorityChip priority={activity.priority} />}
+            />
+          </div>
+
+          <div className={`grid grid-cols-${activity.reach ? "3" : "2"} gap-4`}>
+            <DetailItem label="Budget" value={formattedBudget} />
+            {activity.reach !== undefined && (
+              <DetailItem label="Estimated Reach" value={formattedReach} />
+            )}
           </div>
 
           <div className="pt-2">
@@ -98,17 +123,6 @@ export function ActivityDetailModal({
               label="Description"
               value={activity.description || "No description provided."}
             />
-          </div>
-
-          <div className={`grid grid-cols-${activity.reach ? "3" : "2"} gap-4`}>
-            <DetailItem
-              label="Priority"
-              value={<TaskPriorityChip priority={activity.priority} />}
-            />
-            <DetailItem label="Budget" value={formattedBudget} />
-            {activity.reach !== undefined && (
-              <DetailItem label="Estimated Reach" value={formattedReach} />
-            )}
           </div>
         </ModalBody>
 

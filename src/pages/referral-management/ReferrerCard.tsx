@@ -22,6 +22,7 @@ interface ReferrerButton {
   className?: string;
   link?: string;
   linkInNewTab?: boolean;
+  isHide?: false;
 }
 
 interface ReferrerCardProps {
@@ -135,7 +136,7 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
               {buttonElement}
             </Link>
           ) : (
-            buttonElement
+            !btn.isHide && buttonElement
           );
         })}
 
