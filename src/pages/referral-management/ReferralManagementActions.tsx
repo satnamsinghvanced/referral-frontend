@@ -332,7 +332,7 @@ export default function ReferralManagementActions({
           {
             id: "zip",
             placeholder: "Zip",
-            type: "number",
+            type: "text",
             isRequired: true,
           },
         ],

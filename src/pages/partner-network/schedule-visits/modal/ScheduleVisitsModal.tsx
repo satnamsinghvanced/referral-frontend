@@ -180,8 +180,8 @@ export function ScheduleVisitsModal({
       )[] = [];
 
       if (step === "select_referrers") {
-        if (selectedReferrersState?.length < 2) {
-          const errorMsg = "Please select at least two referrers to continue.";
+        if (selectedReferrersState?.length < 1) {
+          const errorMsg = "Please select at least one referrer to continue.";
           errors.selectedReferrers = errorMsg;
           addToast({
             title: "Error",

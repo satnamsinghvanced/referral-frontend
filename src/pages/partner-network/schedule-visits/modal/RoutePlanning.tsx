@@ -75,7 +75,10 @@ const getOptimizedCoordinates = (
   initialCoords: number[][]
 ): { optimizedOrder: number[][]; orderMap: number[] } => {
   if (initialCoords.length < 2) {
-    return { optimizedOrder: initialCoords, orderMap: initialCoords.map((_, i) => i) };
+    return {
+      optimizedOrder: initialCoords,
+      orderMap: initialCoords.map((_, i) => i),
+    };
   }
 
   // The first point is always the fixed starting point
@@ -122,7 +125,6 @@ const getOptimizedCoordinates = (
 
   return { optimizedOrder, orderMap: optimizedOrderMap };
 };
-
 
 // ------------------------------------------
 // --- MAIN COMPONENT ---
@@ -208,7 +210,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
         return [long, lat];
       }
     );
-    
+
     setInitialCoordinates(initialCoords);
 
     // The coordinate string is based on the initial/original order
@@ -235,10 +237,10 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
   );
 
   const handleGenerateRoute = () => {
-    if (selectedReferrerObjects.length < 2) {
+    if (selectedReferrerObjects.length < 1) {
       addToast({
         title: "Error",
-        description: "Please select at least two referrers to continue.",
+        description: "Please select at least one referrer to continue.",
         color: "danger",
       });
       return;
@@ -269,9 +271,8 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
     let hasCustomOptimization = false;
 
     if (initialCoordinates.length > 2) {
-      const { optimizedOrder, orderMap } = getOptimizedCoordinates(
-        initialCoordinates
-      );
+      const { optimizedOrder, orderMap } =
+        getOptimizedCoordinates(initialCoordinates);
 
       optimizedCoordString = optimizedOrder.map((c) => c.join(",")).join(";");
       optimizedOrderMap = orderMap;
@@ -283,114 +284,156 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
     // 1. The Original order (using `originalCoordString`)
     // 2. The Optimized order (using `optimizedCoordString`)
 
-    // Step 1: Get Original Route Metrics
-    generateRouteMutate(originalCoordString, {
-      onSuccess: (originalData) => {
-        const originalRoute = originalData?.routes?.[0];
+    if (selectedReferrerObjects && selectedReferrerObjects.length === 1) {
+      const originalRouteMetrics: any = formatRouteData(
+        planState.routeDate,
+        planState.startTime,
+        { distance: 0, duration: 0 } as MapboxRoute,
+        selectedReferrerObjects, // Use the original order
+        planState?.durationPerVisit
+      );
 
-        if (!originalRoute) {
-          addToast({
-            title: "Error",
-            description: "Could not generate original route.",
-            color: "danger",
-          });
-          return;
-        }
+      const optimizedRouteMetrics: any = formatRouteData(
+        planState.routeDate,
+        planState.startTime,
+        { distance: 0, duration: 0 } as MapboxRoute,
+        selectedReferrerObjects, // Use the custom optimized order
+        planState?.durationPerVisit
+      );
 
-        const originalRouteMetrics: any = formatRouteData(
-          planState.routeDate,
-          planState.startTime,
-          originalRoute as MapboxRoute,
-          selectedReferrerObjects, // Use the original order
-          planState?.durationPerVisit
-        );
+      const finalResults: RouteOptimizationResults = {
+        original: {
+          ...originalRouteMetrics,
+          travelTime: 0,
+          travelDistance: 0,
+        },
+        optimized: {
+          ...optimizedRouteMetrics,
+          travelTime: 0,
+          travelDistance: 0,
+        },
+      };
 
-        // Step 2: Get Optimized Route Metrics (using Nearest Neighbor ordering)
-        generateRouteMutate(optimizedCoordString, {
-          onSuccess: (optimizedData) => {
-            let optimizedRoute = optimizedData?.routes?.[0];
+      setRouteOptimizationResults(finalResults);
+    } else {
+      generateRouteMutate(originalCoordString, {
+        onSuccess: (originalData) => {
+          const originalRoute = originalData?.routes?.[0];
 
-            if (!optimizedRoute) {
-              addToast({
-                title: "Error",
-                description: "Could not generate optimized route.",
-                color: "danger",
-              });
-              return;
-            }
-
-            // Mapbox Directions API might return alternatives. We pick the fastest
-            // one based on our *already optimized* stop order.
-            optimizedRoute = optimizedData.routes.reduce(
-              (best: MapboxRoute, current: MapboxRoute) =>
-                current.duration < best.duration ? current : best,
-              optimizedRoute as MapboxRoute
-            );
-            
-            // Re-map the referrers using the Nearest Neighbor order if it was calculated
-            const optimizedReferrerOrder = hasCustomOptimization && optimizedOrderMap
-              ? optimizedOrderObjects(selectedReferrerObjects, optimizedOrderMap)
-              : selectedReferrerObjects; // Fallback
-
-            const optimizedRouteMetrics: any = formatRouteData(
-              planState.routeDate,
-              planState.startTime,
-              optimizedRoute as MapboxRoute,
-              optimizedReferrerOrder, // Use the custom optimized order
-              planState?.durationPerVisit
-            );
-
-            const finalResults: RouteOptimizationResults = {
-              original: {
-                ...originalRouteMetrics,
-                travelTime: formatRouteData.formatDuration(
-                  originalRoute?.duration || 0
-                ),
-                travelDistance: formatRouteData.formatDistance(
-                  originalRoute?.distance || 0
-                ),
-              },
-              optimized: {
-                ...optimizedRouteMetrics,
-                travelTime: formatRouteData.formatDuration(
-                  optimizedRoute?.duration || 0
-                ),
-                travelDistance: formatRouteData.formatDistance(
-                  optimizedRoute?.distance || 0
-                ),
-              },
-            };
-
-            setRouteOptimizationResults(finalResults);
-
-            const travelTimeSaved = Math.max(0, originalRoute.duration - optimizedRoute.duration);
-            
-            // Add success toast
+          if (!originalRoute) {
             addToast({
-              title: "Route Generated",
-              description: `Route calculation complete. Optimized route saves ${
-                formatRouteData.formatDuration(travelTimeSaved)
-              } of travel time.`,
-              color: "success",
-            });
-          },
-          onError: (e) => {
-             addToast({
-              title: "API Error",
-              description: `Error fetching optimized route: ${e.message}`,
+              title: "Error",
+              description: "Could not generate original route.",
               color: "danger",
             });
+            return;
           }
-        });
-      },
-       onError: (e) => {
-           addToast({
+
+          const originalRouteMetrics: any = formatRouteData(
+            planState.routeDate,
+            planState.startTime,
+            originalRoute as MapboxRoute,
+            selectedReferrerObjects, // Use the original order
+            planState?.durationPerVisit
+          );
+
+          // Step 2: Get Optimized Route Metrics (using Nearest Neighbor ordering)
+          generateRouteMutate(optimizedCoordString, {
+            onSuccess: (optimizedData) => {
+              let optimizedRoute = optimizedData?.routes?.[0];
+
+              if (!optimizedRoute) {
+                addToast({
+                  title: "Error",
+                  description: "Could not generate optimized route.",
+                  color: "danger",
+                });
+                return;
+              }
+
+              // Mapbox Directions API might return alternatives. We pick the fastest
+              // one based on our *already optimized* stop order.
+              optimizedRoute = optimizedData.routes.reduce(
+                (best: MapboxRoute, current: MapboxRoute) =>
+                  current.duration < best.duration ? current : best,
+                optimizedRoute as MapboxRoute
+              );
+
+              // Re-map the referrers using the Nearest Neighbor order if it was calculated
+              const optimizedReferrerOrder =
+                hasCustomOptimization && optimizedOrderMap
+                  ? optimizedOrderObjects(
+                      selectedReferrerObjects,
+                      optimizedOrderMap
+                    )
+                  : selectedReferrerObjects; // Fallback
+
+              const optimizedRouteMetrics: any = formatRouteData(
+                planState.routeDate,
+                planState.startTime,
+                optimizedRoute as MapboxRoute,
+                optimizedReferrerOrder, // Use the custom optimized order
+                planState?.durationPerVisit
+              );
+
+              console.log(optimizedRouteMetrics, "OPTIMIZED");
+              console.log(originalRouteMetrics, "ORIGINAL");
+
+              const finalResults: RouteOptimizationResults = {
+                original: {
+                  ...originalRouteMetrics,
+                  travelTime: formatRouteData.formatDuration(
+                    originalRoute?.duration || 0
+                  ),
+                  travelDistance: formatRouteData.formatDistance(
+                    originalRoute?.distance || 0
+                  ),
+                },
+                optimized: {
+                  ...optimizedRouteMetrics,
+                  travelTime: formatRouteData.formatDuration(
+                    optimizedRoute?.duration || 0
+                  ),
+                  travelDistance: formatRouteData.formatDistance(
+                    optimizedRoute?.distance || 0
+                  ),
+                },
+              };
+
+              setRouteOptimizationResults(finalResults);
+
+              // const travelTimeSaved = Math.max(
+              //   0,
+              //   originalRoute.duration - optimizedRoute.duration
+              // );
+
+              // // Add success toast
+              // addToast({
+              //   title: "Route Generated",
+              //   description: `Route calculation complete. Optimized route saves ${formatRouteData.formatDuration(
+              //     travelTimeSaved
+              //   )} of travel time.`,
+              //   color: "success",
+              // });
+            },
+            onError: (e) => {
+              addToast({
+                title: "API Error",
+                description: `Error fetching optimized route: ${e.message}`,
+                color: "danger",
+              });
+            },
+          });
+        },
+        onError: (e) => {
+          addToast({
             title: "API Error",
             description: `Error fetching original route: ${e.message}`,
             color: "danger",
           });
-        }
-    });
+        },
+      });
+    }
   };
 
   const handleOpenInMaps = () => {
@@ -414,7 +457,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
 
     const baseUrl = `${import.meta.env.VITE_URL_PREFIX}/visit-map`;
 
-    // The 'optimized' flag in the URL tells the map component whether to display 
+    // The 'optimized' flag in the URL tells the map component whether to display
     // the route based on Mapbox's internal optimization (if implemented there) or the default order.
     const url = `${baseUrl}?coordinates=${encodeURIComponent(
       activeCoordinateString
@@ -569,7 +612,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
               isLoading={isPending}
               isDisabled={
                 isPending ||
-                selectedReferrerObjects.length < 2 || // Disabled if less than 2 stops
+                selectedReferrerObjects.length < 1 || // Disabled if less than 2 stops
                 !coordinateString ||
                 isTimeInPastError ||
                 !planState.durationPerVisit ||

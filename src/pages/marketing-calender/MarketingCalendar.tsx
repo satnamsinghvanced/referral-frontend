@@ -9,12 +9,7 @@ import {
 } from "@heroui/react";
 import { useCallback, useState, useMemo } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
-import {
-  FiGlobe,
-  FiSearch,
-  FiShare2,
-  FiFilter,
-} from "react-icons/fi";
+import { FiGlobe, FiSearch, FiShare2, FiFilter } from "react-icons/fi";
 import { LuCalendar, LuTarget, LuTrophy, LuUserPlus } from "react-icons/lu";
 import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { RiMegaphoneLine } from "react-icons/ri";
@@ -50,7 +45,7 @@ const getActivitiesByDate = (activities: any[]) => {
     const end = new Date(getFormattedDate(activity.endDate));
     let currentDay = new Date(start);
     while (currentDay <= end) {
-      const dateKey = currentDay.toISOString().split('T')[0];
+      const dateKey = currentDay.toISOString().split("T")[0];
       if (!activityMap[dateKey]) {
         activityMap[dateKey] = [];
       }
@@ -81,9 +76,7 @@ const MarketingCalendar = () => {
     isLoading,
     refetch: marketingActivitiesRefetch,
   } = useMarketingActivities(currentFilters);
-  const { data: allMarketingActivities, refetch: refetchAllMarketingActivities } =
-    useMarketingActivities({ page: 1, limit: 9999 }); 
-    
+
   const { data: activityDetail, refetch: refetchActivityDetail } =
     useActivityDetail(selectedActivityId);
 
@@ -91,22 +84,20 @@ const MarketingCalendar = () => {
     useDeleteActivity();
 
   const activities = marketingActivitiesData?.data || [];
-  const allActivitiesForCalendar = allMarketingActivities?.data || [];
   const pagination = marketingActivitiesData?.pagination;
   const stats = marketingActivitiesData?.stats;
   const isFiltered = currentFilters.search || currentFilters.type !== "all";
 
   // New map for calendar logic (uses all activities, not paginated)
   const activitiesByDateMap = useMemo(
-    () => getActivitiesByDate(allActivitiesForCalendar),
-    [allActivitiesForCalendar]
+    () => getActivitiesByDate(activities),
+    [activities]
   );
-  
+
   // Activities for the selected date (used in the sidebar)
   const activitiesForSelectedDate = useMemo(() => {
     return selectedDate ? activitiesByDateMap[selectedDate] || [] : [];
   }, [selectedDate, activitiesByDateMap]);
-
 
   const handleFilterChange = useCallback((key: string, value: any) => {
     setCurrentFilters((prev: any) => ({
@@ -134,8 +125,7 @@ const MarketingCalendar = () => {
         setIsDetailOpen(false);
         setSelectedActivityId("");
         marketingActivitiesRefetch();
-        refetchAllMarketingActivities(); // Refetch all activities to update the calendar map
-      }
+      },
     });
   };
 
@@ -335,14 +325,13 @@ const MarketingCalendar = () => {
     );
   };
 
-  const selectedDateFormatted = selectedDate 
-    ? new Date(selectedDate).toLocaleDateString('en-US', {
-        year: 'numeric',
-        month: 'short',
-        day: 'numeric'
+  const selectedDateFormatted = selectedDate
+    ? new Date(selectedDate).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
       })
     : "Selected Date";
-
 
   return (
     <>
@@ -362,8 +351,8 @@ const MarketingCalendar = () => {
                   weekendDisabled={false}
                   onDayClick={setSelectedDate}
                   // ADDED: Pass the handleViewActivity function
-                  onViewActivity={handleViewActivity} 
-                  activities={allActivitiesForCalendar} 
+                  onViewActivity={handleViewActivity}
+                  activities={activities}
                 />
               </div>
             </div>
@@ -457,7 +446,6 @@ const MarketingCalendar = () => {
           setIsModalOpen(false);
           setSelectedActivityId("");
           marketingActivitiesRefetch();
-          refetchAllMarketingActivities(); // Update calendar and list after adding/editing
         }}
         // @ts-ignore
         defaultStartDate={selectedDate}
