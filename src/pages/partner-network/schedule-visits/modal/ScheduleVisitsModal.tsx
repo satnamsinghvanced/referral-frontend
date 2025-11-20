@@ -196,7 +196,7 @@ export function ScheduleVisitsModal({
             "A route must be successfully generated before proceeding.";
           errors.routeOptimizationResults = errorMsg;
           addToast({
-            title: "Error",
+            title: "Route Error",
             description: errorMsg,
             color: "danger",
           });

@@ -28,6 +28,27 @@ interface ReferralManagementActionsProps {
 type PracticeAddressErrors = Record<string, string | undefined> | undefined;
 type PracticeAddressTouched = Record<string, boolean | undefined> | undefined;
 
+// Define a truly clean slate outside the component or inside as a constant
+const CLEAN_INITIAL_VALUES = {
+  type: "doctor",
+  name: "",
+  phone: "",
+  email: "",
+  practiceName: "",
+  partnershipLevel: "",
+  practiceType: "",
+  practiceAddress: {
+    addressLine1: "",
+    addressLine2: "",
+    city: "",
+    state: "",
+    zip: "",
+  },
+  website: "",
+  staff: [],
+  additionalNotes: "",
+};
+
 export default function ReferralManagementActions({
   isModalOpen,
   setIsModalOpen,
@@ -45,9 +66,10 @@ export default function ReferralManagementActions({
   const { mutate: updateReferrer, isPending: referrerUpdationPending } =
     useUpdateReferrer();
 
-  const defaultInitialValues: any = {
-    type: editedData?.type || "doctor",
-    name: editedData?.name || "",
+    
+    const defaultInitialValues: any = {
+      type: editedData?.type || "doctor",
+      name: editedData?.name || "",
     phone: editedData?.phone || "",
     email: editedData?.email || "",
     practiceName: editedData?.practiceName || "",
@@ -64,7 +86,7 @@ export default function ReferralManagementActions({
     staff: editedData?.staff || [],
     additionalNotes: editedData?.additionalNotes || "",
   };
-
+  
   const handleFormSubmission = async (values: any) => {
     const staffWithUpdatedRoles = values.staff.map((member: any) => {
       return {
@@ -798,7 +820,7 @@ export default function ReferralManagementActions({
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
-    formik.resetForm();
+    formik.resetForm({ values: CLEAN_INITIAL_VALUES });
   };
 
   let modalTitle = "Add New Referrer (Enhanced v2.0)";

@@ -209,7 +209,7 @@ export default function ScheduleVisits({
         <div className="space-y-1">
           <h3 className="text-base">Schedule Referrer Visits</h3>
           <p className="text-xs text-gray-600">
-            Plan monthly visits to multiple referrers with route optimization
+            Plan your visits to multiple referrers with route optimization
           </p>
         </div>
         <Button
@@ -239,10 +239,10 @@ export default function ScheduleVisits({
                   data-slot="card-title"
                   className="leading-none text-sm font-medium"
                 >
-                  Monthly Visit Plans
+                  All Visit Plans
                 </h4>
                 <p className="text-xs text-gray-600 mt-1">
-                  Manage and track your monthly practice visit schedules
+                  Manage and track your practice visit schedules
                 </p>
               </div>
               <div className="flex items-center gap-2">
