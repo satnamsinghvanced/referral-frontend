@@ -41,6 +41,93 @@ interface RoutePlanningTabProps {
   >;
 }
 
+// ------------------------------------------
+// --- NEAREST NEIGHBOR IMPLEMENTATION ---
+// ------------------------------------------
+
+// Helper function to calculate the Haversine distance between two coordinates
+// [lng, lat] format expected
+const haversineDistance = (
+  [lng1, lat1]: number[],
+  [lng2, lat2]: number[]
+): number => {
+  const R = 6371e3; // metres
+  const φ1 = (lat1 * Math.PI) / 180;
+  const φ2 = (lat2 * Math.PI) / 180;
+  const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+  const Δλ = ((lng2 - lng1) * Math.PI) / 180;
+
+  const a =
+    Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+    Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return R * c; // distance in meters
+};
+
+/**
+ * Sequences the stops using the Nearest Neighbor approach.
+ * The first point (index 0) is always the fixed starting point.
+ * @param initialCoords Array of coordinates in [lng, lat] format.
+ * @returns An object containing the optimized coordinate list and the index map
+ */
+const getOptimizedCoordinates = (
+  initialCoords: number[][]
+): { optimizedOrder: number[][]; orderMap: number[] } => {
+  if (initialCoords.length < 2) {
+    return { optimizedOrder: initialCoords, orderMap: initialCoords.map((_, i) => i) };
+  }
+
+  // The first point is always the fixed starting point
+  const startPoint = initialCoords[0];
+  const stopsWithOriginalIndex = initialCoords
+    .slice(1)
+    .map((coord, index) => ({ coord, originalIndex: index + 1 }));
+
+  const optimizedOrder: number[][] = [startPoint];
+  const optimizedOrderMap: number[] = [0]; // Index 0 is always the start point
+  let currentPoint = startPoint;
+
+  // Clone the stops array to mutate it
+  let remainingStops = [...stopsWithOriginalIndex];
+
+  while (remainingStops.length > 0) {
+    let nearestIndexInRemaining = -1;
+    let minDistance = Infinity;
+
+    // Find the nearest remaining stop
+    for (let i = 0; i < remainingStops.length; i++) {
+      const distance = haversineDistance(currentPoint, remainingStops[i].coord);
+      if (distance < minDistance) {
+        minDistance = distance;
+        nearestIndexInRemaining = i;
+      }
+    }
+
+    if (nearestIndexInRemaining !== -1) {
+      const nearestStop = remainingStops[nearestIndexInRemaining];
+
+      // Add the nearest stop's coordinates and original index to the results
+      currentPoint = nearestStop.coord;
+      optimizedOrder.push(currentPoint);
+      optimizedOrderMap.push(nearestStop.originalIndex);
+
+      // Remove the stop from the list of remaining stops
+      remainingStops.splice(nearestIndexInRemaining, 1);
+    } else {
+      // Safety break, should not happen
+      break;
+    }
+  }
+
+  return { optimizedOrder, orderMap: optimizedOrderMap };
+};
+
+
+// ------------------------------------------
+// --- MAIN COMPONENT ---
+// ------------------------------------------
+
 export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
   planState,
   onStateChange,
@@ -50,6 +137,8 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
   setRouteOptimizationResults,
 }) => {
   const [coordinateString, setCoordinateString] = useState<string>("");
+  // Store the coordinates as an array of [long, lat] for the Nearest Neighbor calculation
+  const [initialCoordinates, setInitialCoordinates] = useState<number[][]>([]);
   const [isTimeInPastError, setIsTimeInPastError] = useState(false);
 
   const localTimeZone = getLocalTimeZone();
@@ -72,6 +161,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
       return { summary: {}, routeDetailsList: [] };
     }
 
+    // Select the route based on the optimization toggle
     const activeRoute = planState.enableAutoRoute
       ? routeOptimizationResults?.optimized
       : routeOptimizationResults?.original;
@@ -103,26 +193,42 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
     }
   }, [planState.routeDate, planState.startTime, isToday, currentTimeObject]);
 
+  // Update coordinate strings and array when referrers change
   useEffect(() => {
     if (!selectedReferrerObjects || selectedReferrerObjects.length === 0) {
       setCoordinateString("");
+      setInitialCoordinates([]);
       return;
     }
 
-    const coordinateStrings = selectedReferrerObjects.map(
+    const initialCoords: number[][] = selectedReferrerObjects.map(
       (referrer: Partner) => {
+        // Mapbox uses [longitude, latitude]
         const { lat, long } = referrer?.address?.coordinates;
-        return `${long},${lat}`;
+        return [long, lat];
       }
     );
+    
+    setInitialCoordinates(initialCoords);
 
+    // The coordinate string is based on the initial/original order
+    const coordinateStrings = initialCoords.map((c) => c.join(","));
     setCoordinateString(coordinateStrings.join(";"));
   }, [selectedReferrerObjects]);
 
   const { mutate: generateRouteMutate, isPending } = useDirectionsMutation();
 
+  /**
+   * Reorders the list of referrer objects based on the index map returned by Mapbox
+   * NOTE: This function is now adapted to handle both Mapbox's internal optimization
+   * (if used) AND the custom Nearest Neighbor optimization.
+   * @param referrers The original array of selected Partner objects
+   * @param orderMap The array of indices (waypoint_index or custom index map)
+   * @returns A new array of Partner objects in the optimized order
+   */
   const optimizedOrderObjects = useCallback(
     (referrers: Partner[], orderMap: number[]): Partner[] => {
+      // The orderMap contains the *original* index of the stop
       return orderMap.map((index) => referrers[index]);
     },
     []
@@ -156,85 +262,134 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
       return;
     }
 
-    generateRouteMutate(coordinateString, {
-      onSuccess: (data) => {
-        const routes = data?.routes;
+    // --- APPLY NEAREST NEIGHBOR LOGIC FOR OPTIMIZED ROUTE ---
+    let originalCoordString = coordinateString; // The order based on the user's selection
+    let optimizedCoordString = coordinateString;
+    let optimizedOrderMap: number[] | null = null;
+    let hasCustomOptimization = false;
 
-        if (!routes || routes.length === 0) {
+    if (initialCoordinates.length > 2) {
+      const { optimizedOrder, orderMap } = getOptimizedCoordinates(
+        initialCoordinates
+      );
+
+      optimizedCoordString = optimizedOrder.map((c) => c.join(",")).join(";");
+      optimizedOrderMap = orderMap;
+      hasCustomOptimization = true;
+    }
+
+    // Since the API call usually generates one route per query, we need to call
+    // the API twice to get metrics for both:
+    // 1. The Original order (using `originalCoordString`)
+    // 2. The Optimized order (using `optimizedCoordString`)
+
+    // Step 1: Get Original Route Metrics
+    generateRouteMutate(originalCoordString, {
+      onSuccess: (originalData) => {
+        const originalRoute = originalData?.routes?.[0];
+
+        if (!originalRoute) {
           addToast({
             title: "Error",
-            description: "No routes found for the selected practices.",
+            description: "Could not generate original route.",
             color: "danger",
           });
           return;
         }
 
-        // The 'Original Route' is typically the one with the input sequence, usually routes[0]
-        const originalRoute = routes[0];
-
-        // The 'Optimized Route' is the one with the minimum travel time
-        const optimizedRoute = routes.reduce((minRoute, currentRoute) => {
-          const currentDuration = Math.round(currentRoute.duration);
-          const minDuration = Math.round(minRoute.duration);
-
-          if (currentDuration < minDuration) {
-            return currentRoute;
-          } else {
-            return minRoute;
-          }
-        });
-
-        const optimizedOrderMap = optimizedRoute?.waypoints
-          ? optimizedRoute?.waypoints?.map(
-              (waypoint: any) => waypoint.waypoint_index
-            )
-          : null;
-
-        // For the Original Route, the referrer order is simply the selectedReferrerObjects
         const originalRouteMetrics: any = formatRouteData(
           planState.routeDate,
           planState.startTime,
           originalRoute as MapboxRoute,
-          selectedReferrerObjects,
+          selectedReferrerObjects, // Use the original order
           planState?.durationPerVisit
         );
 
-        // For the Optimized Route, the referrer order is determined by the optimized waypoints
-        const optimizedReferrerOrder = optimizedOrderMap
-          ? optimizedOrderObjects(selectedReferrerObjects, optimizedOrderMap)
-          : selectedReferrerObjects;
+        // Step 2: Get Optimized Route Metrics (using Nearest Neighbor ordering)
+        generateRouteMutate(optimizedCoordString, {
+          onSuccess: (optimizedData) => {
+            let optimizedRoute = optimizedData?.routes?.[0];
 
-        const optimizedRouteMetrics: any = formatRouteData(
-          planState.routeDate,
-          planState.startTime,
-          optimizedRoute as MapboxRoute,
-          optimizedReferrerOrder,
-          planState?.durationPerVisit
-        );
+            if (!optimizedRoute) {
+              addToast({
+                title: "Error",
+                description: "Could not generate optimized route.",
+                color: "danger",
+              });
+              return;
+            }
 
-        const finalResults: RouteOptimizationResults = {
-          original: {
-            ...originalRouteMetrics,
-            travelTime: formatRouteData.formatDuration(
-              originalRoute?.duration || 0
-            ),
-            travelDistance: formatRouteData.formatDistance(
-              originalRoute?.distance || 0
-            ),
+            // Mapbox Directions API might return alternatives. We pick the fastest
+            // one based on our *already optimized* stop order.
+            optimizedRoute = optimizedData.routes.reduce(
+              (best: MapboxRoute, current: MapboxRoute) =>
+                current.duration < best.duration ? current : best,
+              optimizedRoute as MapboxRoute
+            );
+            
+            // Re-map the referrers using the Nearest Neighbor order if it was calculated
+            const optimizedReferrerOrder = hasCustomOptimization && optimizedOrderMap
+              ? optimizedOrderObjects(selectedReferrerObjects, optimizedOrderMap)
+              : selectedReferrerObjects; // Fallback
+
+            const optimizedRouteMetrics: any = formatRouteData(
+              planState.routeDate,
+              planState.startTime,
+              optimizedRoute as MapboxRoute,
+              optimizedReferrerOrder, // Use the custom optimized order
+              planState?.durationPerVisit
+            );
+
+            const finalResults: RouteOptimizationResults = {
+              original: {
+                ...originalRouteMetrics,
+                travelTime: formatRouteData.formatDuration(
+                  originalRoute?.duration || 0
+                ),
+                travelDistance: formatRouteData.formatDistance(
+                  originalRoute?.distance || 0
+                ),
+              },
+              optimized: {
+                ...optimizedRouteMetrics,
+                travelTime: formatRouteData.formatDuration(
+                  optimizedRoute?.duration || 0
+                ),
+                travelDistance: formatRouteData.formatDistance(
+                  optimizedRoute?.distance || 0
+                ),
+              },
+            };
+
+            setRouteOptimizationResults(finalResults);
+
+            const travelTimeSaved = Math.max(0, originalRoute.duration - optimizedRoute.duration);
+            
+            // Add success toast
+            addToast({
+              title: "Route Generated",
+              description: `Route calculation complete. Optimized route saves ${
+                formatRouteData.formatDuration(travelTimeSaved)
+              } of travel time.`,
+              color: "success",
+            });
           },
-          optimized: {
-            ...optimizedRouteMetrics,
-            travelTime: formatRouteData.formatDuration(
-              optimizedRoute?.duration || 0
-            ),
-            travelDistance: formatRouteData.formatDistance(
-              optimizedRoute?.distance || 0
-            ),
-          },
-        };
-
-        setRouteOptimizationResults(finalResults);
+          onError: (e) => {
+             addToast({
+              title: "API Error",
+              description: `Error fetching optimized route: ${e.message}`,
+              color: "danger",
+            });
+          }
+        });
       },
+       onError: (e) => {
+           addToast({
+            title: "API Error",
+            description: `Error fetching original route: ${e.message}`,
+            color: "danger",
+          });
+        }
     });
   };
 
@@ -248,6 +403,8 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
       return;
     }
 
+    // Ensure we use the coordinates from the currently active route details list,
+    // which already reflects the optimized or original order.
     const activeCoordinateString = routeDetailsList
       .map(
         (stop: any) =>
@@ -257,6 +414,8 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
 
     const baseUrl = `${import.meta.env.VITE_URL_PREFIX}/visit-map`;
 
+    // The 'optimized' flag in the URL tells the map component whether to display 
+    // the route based on Mapbox's internal optimization (if implemented there) or the default order.
     const url = `${baseUrl}?coordinates=${encodeURIComponent(
       activeCoordinateString
     )}&optimized=${planState.enableAutoRoute}`;
@@ -267,11 +426,11 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
   const exportRoute = () => {
     const exportData = {
       timestamp: new Date().toISOString(),
-      reportTitle: "route",
+      reportTitle: `${routeType.toLowerCase()}_route`,
       details: routeDetailsList,
     };
 
-    downloadJson(exportData, "route");
+    downloadJson(exportData, `${routeType.toLowerCase()}_route`);
   };
 
   const routeType = planState.enableAutoRoute ? "Optimized" : "Original";
@@ -372,6 +531,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                   placeholder="Select duration"
                   size="sm"
                   radius="sm"
+                  // Fix: Ensure selectedKeys is an array of strings
                   selectedKeys={
                     planState.durationPerVisit
                       ? [planState.durationPerVisit]
@@ -379,7 +539,6 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                       ? [PER_VISIT_DURATION_OPTIONS[0]]
                       : []
                   }
-                  // Removed incorrect disabledKeys prop
                   onSelectionChange={(keys: any) =>
                     onStateChange("durationPerVisit", Array.from(keys).join(""))
                   }
@@ -393,7 +552,9 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                   }}
                 >
                   {PER_VISIT_DURATION_OPTIONS.map((duration: string) => (
-                    <SelectItem key={duration}>{duration}</SelectItem>
+                    <SelectItem key={duration} value={duration}>
+                      {duration}
+                    </SelectItem>
                   ))}
                 </Select>
               </div>
@@ -408,6 +569,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
               isLoading={isPending}
               isDisabled={
                 isPending ||
+                selectedReferrerObjects.length < 2 || // Disabled if less than 2 stops
                 !coordinateString ||
                 isTimeInPastError ||
                 !planState.durationPerVisit ||
