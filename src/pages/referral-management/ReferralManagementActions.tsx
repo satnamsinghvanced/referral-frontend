@@ -42,7 +42,7 @@ const CLEAN_INITIAL_VALUES = {
     addressLine2: "",
     city: "",
     state: "",
-    zip: "",
+    zip: null,
   },
   website: "",
   staff: [],
@@ -66,10 +66,9 @@ export default function ReferralManagementActions({
   const { mutate: updateReferrer, isPending: referrerUpdationPending } =
     useUpdateReferrer();
 
-    
-    const defaultInitialValues: any = {
-      type: editedData?.type || "doctor",
-      name: editedData?.name || "",
+  const defaultInitialValues: any = {
+    type: editedData?.type || "doctor",
+    name: editedData?.name || "",
     phone: editedData?.phone || "",
     email: editedData?.email || "",
     practiceName: editedData?.practiceName || "",
@@ -80,13 +79,13 @@ export default function ReferralManagementActions({
       addressLine2: editedData?.practiceAddress?.addressLine2 || "",
       city: editedData?.practiceAddress?.city || "",
       state: editedData?.practiceAddress?.state || "",
-      zip: editedData?.practiceAddress?.zip || "",
+      zip: editedData?.practiceAddress?.zip || null,
     },
     website: editedData?.website || "",
     staff: editedData?.staff || [],
     additionalNotes: editedData?.additionalNotes || "",
   };
-  
+
   const handleFormSubmission = async (values: any) => {
     const staffWithUpdatedRoles = values.staff.map((member: any) => {
       return {
