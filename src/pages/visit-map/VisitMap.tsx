@@ -2,7 +2,10 @@ import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { useEffect, useRef, useState } from "react";
 
+// Assuming VITE_MAPBOX_API_KEY is correctly set in your environment
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_API_KEY;
+
+// Utility functions (formatDistance, formatDuration, getCoordinatesFromUrl) are kept as is
 
 const formatDistance = (distance: number) => {
   const km = distance / 1000;
@@ -46,14 +49,16 @@ const getCoordinatesFromUrl = () => {
   const coordsString = params.get("coordinates");
   const optimizedString = params.get("optimized");
 
-  const optimized = optimizedString !== "false";
+  // Default to optimized=true if not specified or not 'false'
+  const optimized = optimizedString !== "false"; 
 
   if (!coordsString) {
+    // Default coordinates for a route (SAS Nagar)
     return {
       coordinates: [
-        [76.6971535, 30.691342],
-        [76.6939939, 30.7115894],
-        [76.6857059, 30.7094125],
+        [76.6971535, 30.691342], // Start
+        [76.6939939, 30.7115894], // Stop 1
+        // [76.6857059, 30.7094125], // Stop 2 (Removed for simple A -> B click scenario)
       ],
       optimized,
     };
@@ -76,24 +81,182 @@ export default function VisitMap() {
 
   const [routeSummary, setRouteSummary] = useState<any>(null);
   const [directionsList, setDirectionsList] = useState<any[]>([]);
-  const [coordinates, setCoordinates] = useState<any[]>([]);
+  // Store all coordinates, where the last one is the changeable destination
+  const [coordinates, setCoordinates] = useState<any[]>([]); 
   const [startLabel, setStartLabel] = useState("Start Point");
   const [isLoading, setIsLoading] = useState(true);
-
   const [isOptimized, setIsOptimized] = useState(true);
 
-  const movingMarkerRef = useRef<any>(null);
-  const routeCoordsRef = useRef<any[]>([]);
-  const animIndexRef = useRef(0);
+  // References for map components
+  const startMarkerRef = useRef<mapboxgl.Marker | null>(null);
+  const destinationMarkerRef = useRef<mapboxgl.Marker | null>(null);
+
+  const getRoute = async (
+    map: mapboxgl.Map,
+    coords: any[],
+    isOptimized: boolean
+  ) => {
+    if (coords.length < 2 || !mapboxgl.accessToken) {
+      setRouteSummary({
+        distance: 0,
+        duration: 0,
+        error: "Route Error: Invalid Mapbox token or insufficient stops.",
+      });
+      return;
+    }
+
+    const coordsQuery = coords.map((c) => c.join(",")).join(";");
+
+    // Profile is now 'driving'
+    const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${coordsQuery}?steps=true&geometries=geojson&alternatives=true&overview=full&access_token=${mapboxgl.accessToken}`;
+
+    try {
+      const response = await fetch(url);
+      const json = await response.json();
+
+      if (!json.routes || json.routes.length === 0) {
+        setRouteSummary({ distance: 0, duration: 0, error: "No route found." });
+        return;
+      }
+
+      const routes = json.routes;
+
+      // Find the fastest route (shortest duration)
+      let shortestRoute = routes.reduce((best: any, current: any) => 
+        (current.duration < best.duration ? current : best), routes[0]
+      );
+
+      // Find the route to display based on the 'optimized' flag
+      let primaryRoute: any;
+      let alternativeRoute: any = null;
+
+      if (isOptimized) {
+        // Optimized: Display the fastest route
+        primaryRoute = shortestRoute;
+        // Find the second fastest as the alternative
+        alternativeRoute = routes.find((r: any) => r !== shortestRoute);
+
+      } else {
+        // Not Optimized: Use the first route returned by the API as the primary 
+        // (which is often a less optimal but valid route if alternatives=true is used)
+        primaryRoute = routes[0]; 
+        // Find the fastest route as the alternative (unless it's the same as the primary)
+        if (shortestRoute !== primaryRoute) {
+            alternativeRoute = shortestRoute;
+        } else if (routes.length > 1) {
+            // If the first route is the fastest, pick the next one as alternative
+            alternativeRoute = routes[1];
+        } else {
+            // Only one route
+            alternativeRoute = null;
+        }
+      }
+
+      // 1. Update UI state with the chosen primary route
+      setDirectionsList(primaryRoute.legs.flatMap((leg: any) => leg.steps));
+      setRouteSummary({
+        distance: primaryRoute.distance,
+        duration: primaryRoute.duration,
+        error: null,
+      });
+
+      const primaryGeojson = {
+        type: "Feature",
+        geometry: primaryRoute.geometry,
+      };
+      const primaryRouteId = "route-primary";
+
+      // 2. Draw Primary Route (Blue)
+      if (map.getSource(primaryRouteId)) {
+        (map.getSource(primaryRouteId) as any).setData(primaryGeojson);
+      } else {
+        map.addSource(primaryRouteId, {
+          type: "geojson",
+          data: primaryGeojson,
+        });
+        map.addLayer({
+          id: primaryRouteId,
+          type: "line",
+          source: primaryRouteId,
+          layout: { "line-join": "round", "line-cap": "round" },
+          paint: {
+            "line-color": "#20a9f8",
+            "line-width": 6,
+            "line-opacity": 0.85,
+          },
+        });
+      }
+
+      // 3. Draw Alternative Route (Grey dashed)
+      const alternativeRouteId = "route-alternative";
+      if (alternativeRoute && alternativeRoute !== primaryRoute) {
+        const alternativeGeojson = {
+          type: "Feature",
+          geometry: alternativeRoute.geometry,
+        };
+
+        if (map.getSource(alternativeRouteId)) {
+          (map.getSource(alternativeRouteId) as any).setData(
+            alternativeGeojson
+          );
+        } else {
+          map.addSource(alternativeRouteId, {
+            type: "geojson",
+            data: alternativeGeojson,
+          });
+          map.addLayer(
+            {
+              id: alternativeRouteId,
+              type: "line",
+              source: alternativeRouteId,
+              layout: { "line-join": "round", "line-cap": "round" },
+              paint: {
+                "line-color": "#212121",
+                "line-width": 4,
+                "line-opacity": 0.5,
+                "line-dasharray": [1, 1.5],
+              },
+            },
+            primaryRouteId // Draw beneath the primary route
+          );
+        }
+      } else {
+        // Remove alternative layer if it exists and there's no suitable alternative
+        if (map.getLayer(alternativeRouteId)) {
+          map.removeLayer(alternativeRouteId);
+          map.removeSource(alternativeRouteId);
+        }
+      }
+
+      if (primaryRoute.bbox) {
+        const bounds: [mapboxgl.LngLatLike, mapboxgl.LngLatLike] = [
+          [primaryRoute.bbox[0], primaryRoute.bbox[1]],
+          [primaryRoute.bbox[2], primaryRoute.bbox[3]],
+        ];
+        map.fitBounds(bounds, { padding: 50, duration: 1000 });
+      }
+
+    } catch (e) {
+        console.error("Route fetching error:", e);
+      setRouteSummary({
+        distance: 0,
+        duration: 0,
+        error: "Network error fetching route.",
+      });
+    }
+  };
+
 
   const fetchAndAddMarker = async (
     map: mapboxgl.Map,
     lng: number,
     lat: number,
-    index: number
+    index: number,
+    isDestination: boolean // New flag
   ) => {
-    let label = `Stop ${index + 1}`;
-
+    let label = isDestination ? "Destination" : `Stop ${index + 1}`;
+    
+    // Reverse geocode to get a better label
     try {
       const url = `https://api.mapbox.com/search/geocode/v6/reverse?longitude=${lng}&latitude=${lat}&access_token=${mapboxgl.accessToken}`;
       const res = await fetch(url);
@@ -108,15 +271,65 @@ export default function VisitMap() {
       closeButton: false,
     }).setHTML(`<h3 class="font-medium text-sm text-gray-700">${label}</h3>`);
 
-    new mapboxgl.Marker().setLngLat([lng, lat]).setPopup(popup).addTo(map);
+    const markerColor = isDestination ? '#f30' : '#4ce05b'; // Red for destination, Green for others
+
+    const newMarker = new mapboxgl.Marker({ color: markerColor })
+        .setLngLat([lng, lat])
+        .setPopup(popup)
+        .addTo(map);
 
     if (index === 0) {
-      setStartLabel(label);
+        setStartLabel(label);
+        startMarkerRef.current = newMarker;
+    }
+    
+    // Only set the destination marker ref for the *last* coordinate
+    if (isDestination) {
+        destinationMarkerRef.current = newMarker;
     }
   };
 
+  // const handleMapClick = (event: mapboxgl.MapMouseEvent) => {
+  //   const map = mapRef.current;
+  //   if (!map) return;
+
+  //   const newCoords = [event.lngLat.lng, event.lngLat.lat];
+    
+  //   // 1. Update the coordinates state: Replace the *last* coordinate
+  //   setCoordinates(prevCoords => {
+  //     if (prevCoords.length === 0) return [newCoords]; // Should not happen in this setup
+      
+  //     const updatedCoords = [...prevCoords];
+  //     // The last coordinate is the destination
+  //     updatedCoords[updatedCoords.length - 1] = newCoords; 
+
+  //     // 2. Remove old marker and add new one
+  //     if (destinationMarkerRef.current) {
+  //       destinationMarkerRef.current.remove();
+  //     }
+
+  //     // The new destination is always the last coordinate in the list
+  //     fetchAndAddMarker(map, newCoords[0], newCoords[1], updatedCoords.length - 1, true);
+
+  //     // 3. Get the new route
+  //     getRoute(map, updatedCoords, isOptimized);
+
+  //     return updatedCoords;
+  //   });
+  // };
+
   useEffect(() => {
     const { coordinates: initialCoords, optimized } = getCoordinatesFromUrl();
+    
+    // Ensure at least a start point is available to prevent map initialization issues
+    if (initialCoords.length === 0) {
+        // Fallback if URL is empty
+        initialCoords.push([76.6971535, 30.691342], [76.6939939, 30.7115894]); 
+    } else if (initialCoords.length === 1) {
+        // Ensure there is always a start AND a destination for the route
+        initialCoords.push(initialCoords[0]); 
+    }
+    
     setCoordinates(initialCoords);
     setIsOptimized(optimized);
     setIsLoading(false);
@@ -159,10 +372,15 @@ export default function VisitMap() {
         },
       });
 
+      // Add markers for all points, with the last one being the destination
       coordinates.forEach((coord, index) => {
         const [lng, lat] = coord;
-        fetchAndAddMarker(map, lng, lat, index);
+        const isDestination = index === coordinates.length - 1;
+        fetchAndAddMarker(map, lng, lat, index, isDestination);
       });
+
+      // Attach the click event handler
+      // map.on('click', handleMapClick);
 
       getRoute(map, coordinates, isOptimized);
     });
@@ -171,169 +389,7 @@ export default function VisitMap() {
       mapRef.current?.remove();
       mapRef.current = null;
     };
-  }, [coordinates, isOptimized]);
-
-  const animateCar = () => {
-    const coords = routeCoordsRef.current;
-    const marker = movingMarkerRef.current;
-    if (!coords || coords.length === 0 || !marker) return;
-
-    animIndexRef.current++;
-    if (animIndexRef.current >= coords.length) animIndexRef.current = 0;
-
-    marker.setLngLat(coords[animIndexRef.current]);
-    requestAnimationFrame(animateCar);
-  };
-
-  const getRoute = async (
-    map: mapboxgl.Map,
-    coords: any[],
-    isOptimized: boolean
-  ) => {
-    if (coords.length < 2 || !mapboxgl.accessToken) {
-      setRouteSummary({
-        distance: 0,
-        duration: 0,
-        error: "Route Error: Invalid Mapbox token.",
-      });
-      return;
-    }
-
-    const coordsQuery = coords.map((c) => c.join(",")).join(";");
-    const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${coordsQuery}?geometries=geojson&steps=true&alternatives=true&access_token=${mapboxgl.accessToken}`;
-
-    try {
-      const response = await fetch(url);
-      const json = await response.json();
-
-      if (!json.routes || json.routes.length === 0) {
-        setRouteSummary({ distance: 0, duration: 0, error: "No route found." });
-        return;
-      }
-
-      const routes = json.routes;
-      let shortestRoute = routes[0];
-      let longestRoute = routes[0];
-
-      for (const route of routes) {
-        if (route.duration < shortestRoute.duration) {
-          shortestRoute = route;
-        }
-        if (route.duration > longestRoute.duration) {
-          longestRoute = route;
-        }
-      }
-
-      let primaryRoute: any;
-      let alternativeRoute: any;
-
-      // CORRECTED LOGIC:
-      if (isOptimized) {
-        // If optimized=true, primary is shortest (less time)
-        primaryRoute = shortestRoute;
-        alternativeRoute = longestRoute;
-      } else {
-        // If optimized=false, primary is longest (more time)
-        primaryRoute = longestRoute;
-        alternativeRoute = shortestRoute;
-      }
-
-      // 1. Update UI state with the chosen primary route
-      routeCoordsRef.current = primaryRoute.geometry.coordinates;
-      setDirectionsList(primaryRoute.legs.flatMap((leg: any) => leg.steps));
-
-      setRouteSummary({
-        distance: primaryRoute.distance,
-        duration: primaryRoute.duration,
-        error: null,
-      });
-
-      const primaryGeojson = {
-        type: "Feature",
-        geometry: primaryRoute.geometry,
-      };
-      const primaryRouteId = "route-primary";
-
-      // 2. Draw Primary Route
-      if (map.getSource(primaryRouteId)) {
-        (map.getSource(primaryRouteId) as any).setData(primaryGeojson);
-      } else {
-        map.addSource(primaryRouteId, {
-          type: "geojson",
-          data: primaryGeojson,
-        });
-        map.addLayer({
-          id: primaryRouteId,
-          type: "line",
-          source: primaryRouteId,
-          layout: { "line-join": "round", "line-cap": "round" },
-          paint: {
-            "line-color": "#20a9f8",
-            "line-width": 6,
-            "line-opacity": 0.85,
-          },
-        });
-      }
-
-      // 3. Draw Alternative Route (only if it's actually different)
-      const alternativeRouteId = "route-alternative";
-      if (
-        primaryRoute.duration !== alternativeRoute.duration ||
-        primaryRoute.distance !== alternativeRoute.distance
-      ) {
-        const alternativeGeojson = {
-          type: "Feature",
-          geometry: alternativeRoute.geometry,
-        };
-
-        if (map.getSource(alternativeRouteId)) {
-          (map.getSource(alternativeRouteId) as any).setData(
-            alternativeGeojson
-          );
-        } else {
-          map.addSource(alternativeRouteId, {
-            type: "geojson",
-            data: alternativeGeojson,
-          });
-          map.addLayer(
-            {
-              id: alternativeRouteId,
-              type: "line",
-              source: alternativeRouteId,
-              layout: { "line-join": "round", "line-cap": "round" },
-              paint: {
-                "line-color": "#212121",
-                "line-width": 4,
-                "line-opacity": 0.5,
-                "line-dasharray": [1, 1.5],
-              },
-            },
-            primaryRouteId
-          );
-        }
-      } else {
-        // Remove alternative layer if it exists and there's only one route
-        if (map.getLayer(alternativeRouteId)) {
-          map.removeLayer(alternativeRouteId);
-          map.removeSource(alternativeRouteId);
-        }
-      }
-
-      if (primaryRoute.bbox) {
-        const bounds: [mapboxgl.LngLatLike, mapboxgl.LngLatLike] = [
-          [primaryRoute.bbox[0], primaryRoute.bbox[1]],
-          [primaryRoute.bbox[2], primaryRoute.bbox[3]],
-        ];
-        // map.fitBounds(bounds, { padding: 50, duration: 1000 });
-      }
-    } catch {
-      setRouteSummary({
-        distance: 0,
-        duration: 0,
-        error: "Network error fetching route.",
-      });
-    }
-  };
+  }, [coordinates.length, isOptimized]); // Depend on length, not the coordinates themselves to prevent unnecessary re-runs
 
   if (isLoading) {
     return (
@@ -348,8 +404,7 @@ export default function VisitMap() {
       <div className="flex flex-col items-center justify-center h-screen bg-red-50 p-4 rounded-lg">
         <h2 className="text-xl font-bold text-red-600">Invalid Coordinates</h2>
         <p className="text-sm text-red-500 mt-2 text-center">
-          The URL must contain at least two lng,lat pairs separated by
-          semicolons.
+          The map requires at least two coordinates (start and end).
         </p>
       </div>
     );
@@ -360,36 +415,33 @@ export default function VisitMap() {
       {routeSummary && (
         <div className="absolute top-8 left-8 bg-white shadow-lg rounded-xl p-4 z-20 w-64">
           <h2 className="text-lg font-semibold mb-2">
-            {isOptimized ? "Optimized Route" : "Original Route"}
+            {isOptimized ? "Optimized Route (Fastest)" : "Original Route (First Result)"}
           </h2>
-          <div className="text-sm">
-            <p>
-              <span className="text-gray-600"> Total Distance: </span>
-              <span className="font-bold">
-                {formatDistance(routeSummary.distance)} mi
-              </span>
-            </p>
-            <p>
-              <span className="text-gray-600">Estimated Time: </span>
-              <span className="font-bold">
-                {formatDuration(routeSummary.duration)}
-              </span>
-            </p>
-            <p>
-              <span className="text-gray-600">Stops: </span>
-              <span className="font-bold">{coordinates.length}</span>
-            </p>
-            <p>
-              <span className="text-gray-600">Avg Speed: </span>
-              <span className="font-bold">
-                {(
-                  (routeSummary.distance / routeSummary.duration) *
-                  2.23694
-                ).toFixed(1)}{" "}
-                mph
-              </span>
-            </p>
-          </div>
+          {routeSummary.error ? (
+              <p className="text-red-500 font-bold">{routeSummary.error}</p>
+          ) : (
+            <div className="text-sm">
+              <p>
+                <span className="text-gray-600"> Total Distance: </span>
+                <span className="font-bold">
+                  {formatDistance(routeSummary.distance)} mi
+                </span>
+              </p>
+              <p>
+                <span className="text-gray-600">Estimated Time: </span>
+                <span className="font-bold">
+                  {formatDuration(routeSummary.duration)} 🚗
+                </span>
+              </p>
+              <p>
+                <span className="text-gray-600">Start Point: </span>
+                <span className="font-bold">{startLabel}</span>
+              </p>
+              <p className="mt-2 text-xs text-gray-400">
+                Click anywhere on the map to set a new destination!
+              </p>
+            </div>
+          )}
         </div>
       )}
 

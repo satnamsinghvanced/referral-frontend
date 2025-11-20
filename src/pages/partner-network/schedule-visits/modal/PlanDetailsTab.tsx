@@ -67,6 +67,7 @@ export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
               size="sm"
               radius="sm"
               selectedKeys={[planState.defaultVisitPurpose]}
+              disabledKeys={[planState.defaultVisitPurpose]}
               onSelectionChange={(keys: any) =>
                 handleSelectChange("defaultVisitPurpose", keys)
               }
@@ -115,6 +116,7 @@ export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
               size="sm"
               radius="sm"
               selectedKeys={[planState.defaultPriority]}
+              disabledKeys={[planState.defaultPriority]}
               onSelectionChange={(keys: any) =>
                 handleSelectChange("defaultPriority", keys)
               }

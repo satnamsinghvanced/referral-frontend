@@ -20,7 +20,11 @@ interface VisitHistoryModalProps {
   onItemView: any;
 }
 
-export function VisitHistoryModal({ isOpen, onClose, onItemView }: VisitHistoryModalProps) {
+export function VisitHistoryModal({
+  isOpen,
+  onClose,
+  onItemView,
+}: VisitHistoryModalProps) {
   const [searchInput, setSearchInput] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
 
@@ -72,7 +76,7 @@ export function VisitHistoryModal({ isOpen, onClose, onItemView }: VisitHistoryM
       }}
       size="md"
     >
-      <ModalContent className="max-h-[90vh] overflow-hidden p-5 w-full relative">
+      <ModalContent className="h-[90vh] overflow-hidden p-5 w-full relative">
         {isFetching && (
           <div className="absolute inset-0 bg-white/70 backdrop-blur-sm z-50 flex items-center justify-center transition-opacity duration-300">
             <FiLoader className="animate-spin h-6 w-6 text-primary" />
@@ -137,9 +141,9 @@ export function VisitHistoryModal({ isOpen, onClose, onItemView }: VisitHistoryM
             size="sm"
             radius="sm"
             selectedKeys={[statusFilter]}
+            disabledKeys={[statusFilter]}
             className="max-w-[150px]"
             onChange={handleStatusChange}
-            // 🚨 FIX: Removed `disabledKeys={[statusFilter]}`. This often causes instability in Select components when used for controlled filtering, leading to unexpected re-renders or state resets that can affect the Modal's open state.
           >
             <SelectItem key="all">All Visits</SelectItem>
             <SelectItem key="completed">Completed</SelectItem>
@@ -156,7 +160,11 @@ export function VisitHistoryModal({ isOpen, onClose, onItemView }: VisitHistoryM
                 </h3>
                 <div className="space-y-2">
                   {monthGroup.visits.map((visit: any) => (
-                    <VisitHistoryCard key={visit._id} visit={visit} onView={onItemView} />
+                    <VisitHistoryCard
+                      key={visit._id}
+                      visit={visit}
+                      onView={onItemView}
+                    />
                   ))}
                 </div>
               </div>

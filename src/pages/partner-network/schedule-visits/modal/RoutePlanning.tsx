@@ -55,13 +55,11 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
   const localTimeZone = getLocalTimeZone();
   const todayDateString = today(localTimeZone).toString();
 
-  // ZonedDateTime representing the current moment (used for comparison)
   const currentZonedDateTime = useMemo(
     () => now(localTimeZone),
     [localTimeZone]
   );
 
-  // Time object representing the current time of day
   const currentTimeObject = new Time(
     currentZonedDateTime.hour,
     currentZonedDateTime.minute
@@ -87,7 +85,6 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
   useEffect(() => {
     if (planState.routeDate && planState.startTime) {
       if (isToday) {
-        // Use parseStringTime imported utility
         const selectedTimeObject = parseStringTime(planState.startTime);
 
         const selectedTimeInMinutes =
@@ -150,7 +147,6 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
       return;
     }
 
-    // Check if durationPerVisit has a valid selection
     if (!planState.durationPerVisit) {
       addToast({
         title: "Validation Error",
@@ -173,13 +169,10 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
           return;
         }
 
-        const originalRoute = routes.reduce((maxRoute, currentRoute) => {
-          const currentDuration = Math.round(currentRoute.duration);
-          const maxDuration = Math.round(maxRoute.duration);
+        // The 'Original Route' is typically the one with the input sequence, usually routes[0]
+        const originalRoute = routes[0];
 
-          return currentDuration > maxDuration ? currentRoute : maxRoute;
-        });
-
+        // The 'Optimized Route' is the one with the minimum travel time
         const optimizedRoute = routes.reduce((minRoute, currentRoute) => {
           const currentDuration = Math.round(currentRoute.duration);
           const minDuration = Math.round(minRoute.duration);
@@ -197,6 +190,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
             )
           : null;
 
+        // For the Original Route, the referrer order is simply the selectedReferrerObjects
         const originalRouteMetrics: any = formatRouteData(
           planState.routeDate,
           planState.startTime,
@@ -205,6 +199,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
           planState?.durationPerVisit
         );
 
+        // For the Optimized Route, the referrer order is determined by the optimized waypoints
         const optimizedReferrerOrder = optimizedOrderMap
           ? optimizedOrderObjects(selectedReferrerObjects, optimizedOrderMap)
           : selectedReferrerObjects;
@@ -240,15 +235,6 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
 
         setRouteOptimizationResults(finalResults);
       },
-      onError: (error) => {
-        addToast({
-          title: "Route Error",
-          description:
-            error.response?.data?.message ||
-            "Failed to calculate route. Check inputs and API key.",
-          color: "danger",
-        });
-      },
     });
   };
 
@@ -262,7 +248,6 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
       return;
     }
 
-    // Reconstruct the coordinate string based on the active/optimized route order
     const activeCoordinateString = routeDetailsList
       .map(
         (stop: any) =>
@@ -270,10 +255,8 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
       )
       .join(";");
 
-    // The base URL specified by the user
     const baseUrl = `${import.meta.env.VITE_URL_PREFIX}/visit-map`;
 
-    // Construct the final URL with coordinates as a query parameter
     const url = `${baseUrl}?coordinates=${encodeURIComponent(
       activeCoordinateString
     )}&optimized=${planState.enableAutoRoute}`;
@@ -288,7 +271,6 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
       details: routeDetailsList,
     };
 
-    // Trigger the download
     downloadJson(exportData, "route");
   };
 
@@ -333,13 +315,11 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                   hideTimeZone
                   granularity="day"
                   value={
-                    // Using the established safe parsing for ISO date string
                     planState?.routeDate
                       ? parseDate(planState.routeDate.split("T")[0])
                       : today(localTimeZone)
                   }
                   onChange={(value) => {
-                    // Uses formatCalendarDate to ensure the output is the full ISO string
                     onStateChange("routeDate", formatCalendarDate(value));
                   }}
                   errorMessage={errors.routeDate}
@@ -358,13 +338,11 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                   size="sm"
                   radius="sm"
                   value={
-                    // Using parseStringTime for 24-hour string to Time object conversion
                     planState.startTime
                       ? parseStringTime(planState.startTime)
                       : new Time(9, 0)
                   }
                   onChange={(timeValue) => {
-                    // Converting Time object back to 24-hour string (HH:MM)
                     const timeString = `${String(timeValue?.hour).padStart(
                       2,
                       "0"
@@ -395,14 +373,13 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                   size="sm"
                   radius="sm"
                   selectedKeys={
-                    // Use the stored value or the first option as default
                     planState.durationPerVisit
                       ? [planState.durationPerVisit]
                       : PER_VISIT_DURATION_OPTIONS.length > 0
                       ? [PER_VISIT_DURATION_OPTIONS[0]]
                       : []
                   }
-                  // OPTIMIZATION 3: Removed redundant and incorrect disabledKeys
+                  // Removed incorrect disabledKeys prop
                   onSelectionChange={(keys: any) =>
                     onStateChange("durationPerVisit", Array.from(keys).join(""))
                   }
@@ -433,7 +410,6 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                 isPending ||
                 !coordinateString ||
                 isTimeInPastError ||
-                // Check for existence of durationPerVisit state value
                 !planState.durationPerVisit ||
                 !!errors.durationPerVisit
               }
@@ -445,7 +421,6 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
         </CardBody>
       </Card>
 
-      {/* ... (Rest of the JSX remains the same) ... */}
       {routeOptimizationResults && (
         <>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

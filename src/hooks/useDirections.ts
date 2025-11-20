@@ -22,7 +22,7 @@ export const useDirectionsMutation = () => {
         error.response?.data?.message ||
         error.message ||
         "An unexpected error occurred while calculating the route.";
-      addToast({ title: "Error", description: message, color: "danger" });
+      addToast({ title: "Route Error", description: message, color: "danger" });
     },
   });
 };
