@@ -28,6 +28,7 @@ import { Partner, RouteOptimizationResults } from "../../../../types/partner";
 import { formatCalendarDate } from "../../../../utils/formatCalendarDate";
 import { formatRouteData } from "./formatRouteData";
 import { parseStringTime } from "../../../../utils/parseStringTime";
+import { downloadJson } from "../../../../utils/jsonDownloader";
 
 interface RoutePlanningTabProps {
   planState: any;
@@ -275,13 +276,21 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
     // Construct the final URL with coordinates as a query parameter
     const url = `${baseUrl}?coordinates=${encodeURIComponent(
       activeCoordinateString
-    )}`;
+    )}&optimized=${planState.enableAutoRoute}`;
 
     window.open(url, "_blank");
   };
 
+  const exportRoute = () => {
+    const exportData = {
+      timestamp: new Date().toISOString(),
+      reportTitle: "route",
+      details: routeDetailsList,
+    };
 
-  console.log(routeDetailsList, "HAHAH")
+    // Trigger the download
+    downloadJson(exportData, "route");
+  };
 
   const routeType = planState.enableAutoRoute ? "Optimized" : "Original";
 
@@ -509,6 +518,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                     variant="bordered"
                     radius="sm"
                     className="border-small"
+                    onPress={exportRoute}
                   >
                     <FiDownload className="size-3.5" />
                     Export

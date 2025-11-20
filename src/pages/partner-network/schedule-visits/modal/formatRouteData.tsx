@@ -95,8 +95,6 @@ export const formatRouteData = (
   selectedReferrers: Partner[],
   visitDurationString: string
 ) => {
-  console.log(routeDate, "ROUTESDATE");
-  console.log(startTime, "START_TIME");
   const visitDurationSeconds = parseVisitDurationToSeconds(visitDurationString);
   const startDateTime = new Date(routeDate.split("T")[0] + "T" + startTime);
   let currentTimeSeconds = startDateTime.getTime() / 1000;

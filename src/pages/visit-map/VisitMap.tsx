@@ -4,8 +4,6 @@ import { useEffect, useRef, useState } from "react";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_API_KEY;
 
-// --- Utility Functions (Kept as is for context) ---
-
 const formatDistance = (distance: number) => {
   const km = distance / 1000;
   const miles = km * 0.621371;
@@ -42,26 +40,35 @@ export const formatDuration = (seconds: number): string => {
 };
 
 const getCoordinatesFromUrl = () => {
-  if (typeof window === "undefined") return [];
+  if (typeof window === "undefined")
+    return { coordinates: [], optimized: true };
   const params = new URLSearchParams(window.location.search);
   const coordsString = params.get("coordinates");
+  const optimizedString = params.get("optimized");
+
+  const optimized = optimizedString !== "false";
+
   if (!coordsString) {
-    return [
-      [76.6971535, 30.691342],
-      [76.6939939, 30.7115894],
-      [76.6857059, 30.7094125],
-    ];
+    return {
+      coordinates: [
+        [76.6971535, 30.691342],
+        [76.6939939, 30.7115894],
+        [76.6857059, 30.7094125],
+      ],
+      optimized,
+    };
   }
-  return coordsString
+
+  const coordinates = coordsString
     .split(";")
     .map((pair) => {
       const [lng, lat] = pair.split(",").map(Number);
       return [lng, lat];
     })
     .filter((c) => c.length === 2 && !isNaN(c[0]) && !isNaN(c[1]));
-};
 
-// --- Component Start ---
+  return { coordinates, optimized };
+};
 
 export default function VisitMap() {
   const mapContainerRef = useRef(null);
@@ -73,22 +80,20 @@ export default function VisitMap() {
   const [startLabel, setStartLabel] = useState("Start Point");
   const [isLoading, setIsLoading] = useState(true);
 
-  const [trafficOn, setTrafficOn] = useState(true);
+  const [isOptimized, setIsOptimized] = useState(true);
 
   const movingMarkerRef = useRef<any>(null);
   const routeCoordsRef = useRef<any[]>([]);
   const animIndexRef = useRef(0);
 
-  // --- New Function to fetch and display the label for a single marker ---
   const fetchAndAddMarker = async (
     map: mapboxgl.Map,
     lng: number,
     lat: number,
     index: number
   ) => {
-    let label = `Stop ${index + 1}`; // Default label
-    
-    // 1. Reverse Geocoding to get the location name
+    let label = `Stop ${index + 1}`;
+
     try {
       const url = `https://api.mapbox.com/search/geocode/v6/reverse?longitude=${lng}&latitude=${lat}&access_token=${mapboxgl.accessToken}`;
       const res = await fetch(url);
@@ -96,31 +101,24 @@ export default function VisitMap() {
       if (json.features && json.features.length > 0) {
         label = json.features[0].properties.name || label;
       }
-    } catch {
-      // If geocoding fails, use the default label
-    }
+    } catch {}
 
-    // 2. Create the Popup content
-    const popup = new mapboxgl.Popup({ offset: 25, closeButton: false })
-      .setHTML(`<h3 class="font-bold text-base text-violet-700">${label}</h3>`);
+    const popup = new mapboxgl.Popup({
+      offset: 25,
+      closeButton: false,
+    }).setHTML(`<h3 class="font-medium text-sm text-gray-700">${label}</h3>`);
 
-    // 3. Create the Marker and attach the Popup
-    new mapboxgl.Marker()
-      .setLngLat([lng, lat])
-      .setPopup(popup)
-      .addTo(map);
-      
-    // 4. For the first marker (index 0), set the main start label
+    new mapboxgl.Marker().setLngLat([lng, lat]).setPopup(popup).addTo(map);
+
     if (index === 0) {
-        setStartLabel(label);
+      setStartLabel(label);
     }
   };
-  // (Removed original fetchStartLabel as its logic is now merged here)
-  
+
   useEffect(() => {
-    const initialCoords = getCoordinatesFromUrl();
+    const { coordinates: initialCoords, optimized } = getCoordinatesFromUrl();
     setCoordinates(initialCoords);
-    // Removed direct fetchStartLabel call
+    setIsOptimized(optimized);
     setIsLoading(false);
   }, []);
 
@@ -139,7 +137,7 @@ export default function VisitMap() {
       container: mapContainerRef.current as any,
       style: "mapbox://styles/mapbox/streets-v11",
       center,
-      zoom: 13,
+      zoom: 14,
       pitch: 45,
     });
 
@@ -161,27 +159,20 @@ export default function VisitMap() {
         },
       });
 
-      // --- Updated Marker Logic ---
       coordinates.forEach((coord, index) => {
         const [lng, lat] = coord;
-        // Call the new async function to fetch the label and add the marker/popup
         fetchAndAddMarker(map, lng, lat, index);
       });
-      // --- End Updated Marker Logic ---
 
-      getRoute(map, coordinates);
+      getRoute(map, coordinates, isOptimized);
     });
 
     return () => {
       mapRef.current?.remove();
       mapRef.current = null;
     };
-  }, [coordinates]);
-  
-  // (animateCar and getRoute functions are omitted here for brevity, 
-  // but they remain exactly the same as in your original code)
-  
-  // ... (animateCar and getRoute functions here)
+  }, [coordinates, isOptimized]);
+
   const animateCar = () => {
     const coords = routeCoordsRef.current;
     const marker = movingMarkerRef.current;
@@ -194,7 +185,11 @@ export default function VisitMap() {
     requestAnimationFrame(animateCar);
   };
 
-  const getRoute = async (map: mapboxgl.Map, coords: any[]) => {
+  const getRoute = async (
+    map: mapboxgl.Map,
+    coords: any[],
+    isOptimized: boolean
+  ) => {
     if (coords.length < 2 || !mapboxgl.accessToken) {
       setRouteSummary({
         distance: 0,
@@ -205,7 +200,7 @@ export default function VisitMap() {
     }
 
     const coordsQuery = coords.map((c) => c.join(",")).join(";");
-    const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${coordsQuery}?geometries=geojson&steps=true&access_token=${mapboxgl.accessToken}`;
+    const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${coordsQuery}?geometries=geojson&steps=true&alternatives=true&access_token=${mapboxgl.accessToken}`;
 
     try {
       const response = await fetch(url);
@@ -216,41 +211,120 @@ export default function VisitMap() {
         return;
       }
 
-      const route = json.routes[0];
-      const geojson = { type: "Feature", geometry: route.geometry };
-      routeCoordsRef.current = route.geometry.coordinates;
-      setDirectionsList(route.legs.flatMap((leg: any) => leg.steps));
+      const routes = json.routes;
+      let shortestRoute = routes[0];
+      let longestRoute = routes[0];
+
+      for (const route of routes) {
+        if (route.duration < shortestRoute.duration) {
+          shortestRoute = route;
+        }
+        if (route.duration > longestRoute.duration) {
+          longestRoute = route;
+        }
+      }
+
+      let primaryRoute: any;
+      let alternativeRoute: any;
+
+      // CORRECTED LOGIC:
+      if (isOptimized) {
+        // If optimized=true, primary is shortest (less time)
+        primaryRoute = shortestRoute;
+        alternativeRoute = longestRoute;
+      } else {
+        // If optimized=false, primary is longest (more time)
+        primaryRoute = longestRoute;
+        alternativeRoute = shortestRoute;
+      }
+
+      // 1. Update UI state with the chosen primary route
+      routeCoordsRef.current = primaryRoute.geometry.coordinates;
+      setDirectionsList(primaryRoute.legs.flatMap((leg: any) => leg.steps));
 
       setRouteSummary({
-        distance: route.distance,
-        duration: route.duration,
+        distance: primaryRoute.distance,
+        duration: primaryRoute.duration,
         error: null,
       });
 
-      if (map.getSource("route")) {
-        (map.getSource("route") as any).setData(geojson);
-      } else {
-        map.addSource("route", { type: "geojson", data: geojson });
+      const primaryGeojson = {
+        type: "Feature",
+        geometry: primaryRoute.geometry,
+      };
+      const primaryRouteId = "route-primary";
 
+      // 2. Draw Primary Route
+      if (map.getSource(primaryRouteId)) {
+        (map.getSource(primaryRouteId) as any).setData(primaryGeojson);
+      } else {
+        map.addSource(primaryRouteId, {
+          type: "geojson",
+          data: primaryGeojson,
+        });
         map.addLayer({
-          id: "route",
+          id: primaryRouteId,
           type: "line",
-          source: "route",
+          source: primaryRouteId,
           layout: { "line-join": "round", "line-cap": "round" },
           paint: {
-            "line-color": "#4C1D95",
+            "line-color": "#20a9f8",
             "line-width": 6,
             "line-opacity": 0.85,
           },
         });
       }
 
-      if (route.bbox) {
-        const bounds = [
-          [route.bbox[0], route.bbox[1]],
-          [route.bbox[2], route.bbox[3]],
+      // 3. Draw Alternative Route (only if it's actually different)
+      const alternativeRouteId = "route-alternative";
+      if (
+        primaryRoute.duration !== alternativeRoute.duration ||
+        primaryRoute.distance !== alternativeRoute.distance
+      ) {
+        const alternativeGeojson = {
+          type: "Feature",
+          geometry: alternativeRoute.geometry,
+        };
+
+        if (map.getSource(alternativeRouteId)) {
+          (map.getSource(alternativeRouteId) as any).setData(
+            alternativeGeojson
+          );
+        } else {
+          map.addSource(alternativeRouteId, {
+            type: "geojson",
+            data: alternativeGeojson,
+          });
+          map.addLayer(
+            {
+              id: alternativeRouteId,
+              type: "line",
+              source: alternativeRouteId,
+              layout: { "line-join": "round", "line-cap": "round" },
+              paint: {
+                "line-color": "#212121",
+                "line-width": 4,
+                "line-opacity": 0.5,
+                "line-dasharray": [1, 1.5],
+              },
+            },
+            primaryRouteId
+          );
+        }
+      } else {
+        // Remove alternative layer if it exists and there's only one route
+        if (map.getLayer(alternativeRouteId)) {
+          map.removeLayer(alternativeRouteId);
+          map.removeSource(alternativeRouteId);
+        }
+      }
+
+      if (primaryRoute.bbox) {
+        const bounds: [mapboxgl.LngLatLike, mapboxgl.LngLatLike] = [
+          [primaryRoute.bbox[0], primaryRoute.bbox[1]],
+          [primaryRoute.bbox[2], primaryRoute.bbox[3]],
         ];
-        // map.fitBounds(bounds, { padding: 50, duration: 1000 }); // Optional: fit map to route bounds
+        // map.fitBounds(bounds, { padding: 50, duration: 1000 });
       }
     } catch {
       setRouteSummary({
@@ -260,7 +334,6 @@ export default function VisitMap() {
       });
     }
   };
-  // ... (rest of the component's JSX render)
 
   if (isLoading) {
     return (
@@ -286,7 +359,9 @@ export default function VisitMap() {
     <div className="flex flex-col h-screen bg-gray-50 font-sans">
       {routeSummary && (
         <div className="absolute top-8 left-8 bg-white shadow-lg rounded-xl p-4 z-20 w-64">
-          <h2 className="text-lg font-semibold mb-2">{startLabel}</h2>
+          <h2 className="text-lg font-semibold mb-2">
+            {isOptimized ? "Optimized Route" : "Original Route"}
+          </h2>
           <div className="text-sm">
             <p>
               <span className="text-gray-600"> Total Distance: </span>
