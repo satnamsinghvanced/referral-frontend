@@ -56,9 +56,9 @@ export default function ViewScheduledVisitModal({
         closeButton: "cursor-pointer",
       }}
     >
-      <ModalContent className="max-h-[90vh] overflow-hidden p-6 w-full">
+      <ModalContent className="max-h-[95vh] overflow-hidden w-full">
         {/* Modal Header */}
-        <ModalHeader className="flex gap-1 text-center sm:text-left p-0">
+        <ModalHeader className="flex gap-1 text-center sm:text-left p-5">
           <h4 className="text-base font-medium flex items-center gap-2">
             <TbCalendarStats className="h-6 w-6 text-blue-600" />
             <span>{plan?.planDetails?.name}</span>
@@ -79,7 +79,7 @@ export default function ViewScheduledVisitModal({
           </div>
         </ModalHeader>
 
-        <ModalBody className="p-0 overflow-y-auto space-y-4 mt-4 gap-0">
+        <ModalBody className="px-5 pt-0 pb-5 overflow-y-auto space-y-4 gap-0">
           {/* --- Summary Stats (Reference: Review & Save Tab) --- */}
           <div className="grid grid-cols-4 gap-4 py-3 bg-gray-50 rounded-lg border border-gray-100">
             <StatPill

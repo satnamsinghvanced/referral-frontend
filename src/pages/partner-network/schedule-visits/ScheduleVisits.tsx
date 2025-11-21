@@ -9,7 +9,7 @@ import {
   Spinner,
 } from "@heroui/react";
 import { useState, useCallback } from "react";
-import { LuCalendar } from "react-icons/lu";
+import { LuCalendar, LuList } from "react-icons/lu";
 import { MdOutlineCalendarToday } from "react-icons/md";
 import {
   useDeleteSchedulePlan,
@@ -21,7 +21,7 @@ import CompactPlanCard from "./CompactPlanCard";
 import { ScheduleVisitsModal } from "./modal/ScheduleVisitsModal";
 import PlanCard from "./PlanCard";
 import ViewScheduledVisitModal from "./ViewScheduledVisitModal";
-import { FiUsers } from "react-icons/fi";
+import { FiFileText, FiUsers } from "react-icons/fi";
 import { LoadingState } from "../../../components/common/LoadingState";
 import EmptyState from "../../../components/common/EmptyState";
 import { VisitHistoryModal } from "./history-modal/VisitHistoryModal";
@@ -228,7 +228,7 @@ export default function ScheduleVisits({
 
       {/* {dashboardStats?.totalPlans > 0 && ( */}
       <div className="space-y-6">
-        <Card
+        {/* <Card
           data-slot="card"
           className="rounded-xl border border-primary/15 shadow-none"
         >
@@ -263,7 +263,7 @@ export default function ScheduleVisits({
             {isLoading && <LoadingState />}
             {dashboardStats && <StatsGrid stats={dashboardStats} />}
           </CardBody>
-        </Card>
+        </Card> */}
 
         <div className="flex items-center justify-between border-primary/15 border rounded-xl bg-background p-4">
           <div className="flex items-center gap-2">
@@ -308,6 +308,21 @@ export default function ScheduleVisits({
             >
               {filters.order === "desc" ? "Descending" : "Ascending"}
             </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onPress={() => setIsCompactMode(!isCompactMode)}
+              className="border-small size-8 min-w-8 p-0"
+              title={isCompactMode ? "Show Grid View" : "Show List View"}
+              startContent={
+                isCompactMode ? (
+                  <LuCalendar className="size-3.5" />
+                ) : (
+                  <FiFileText className="size-3.5" />
+                )
+              }
+              isIconOnly
+            />
           </div>
           <div className="text-xs text-gray-600">
             Showing {schedulePlans.length} of {pagination?.totalData} plans

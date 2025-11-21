@@ -348,3 +348,7 @@ input[type="number"] {
   appearance: textfield;
   -moz-appearance: textfield;
 }
+
+.mapboxgl-popup-close-button {
+  display: none;
+}

@@ -13,10 +13,9 @@ const CompactPlanCard: React.FC<{
   onEdit: any;
   onDelete: any;
 }> = ({ plan, onView, onEdit, onDelete }) => {
-  const statClass =
-    "flex flex-col items-center justify-center text-center w-12";
+  const statClass = "flex flex-col items-center justify-center text-center w-18";
   const statValueClass = "font-medium text-xs whitespace-nowrap";
-  const statLabelClass = "text-xs text-gray-600";
+  const statLabelClass = "text-xs text-gray-600 whitespace-nowrap";
   const completePercentage = 0;
   const monthYear = new Date(plan.createdAt).toLocaleDateString("en-US", {
     month: "long",
@@ -67,14 +66,14 @@ const CompactPlanCard: React.FC<{
       </div>
 
       <div className="flex items-center gap-4">
-        <div className="flex gap-6">
+        <div className="flex gap-4">
           <div className={statClass}>
             <div className={statValueClass}>{plan.summary.totalPractices}</div>
             <div className={statLabelClass}>Practices</div>
           </div>
           <div className={statClass}>
             <div className={statValueClass}>{plan.summary.visitDays}</div>
-            <div className={statLabelClass}>Visits</div>
+            <div className={statLabelClass}>Visit Days</div>
           </div>
           <div className={statClass}>
             <div className={statValueClass}>{plan.summary.estimatedTime}</div>
