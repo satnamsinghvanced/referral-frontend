@@ -76,7 +76,7 @@ export function VisitHistoryModal({
       }}
       size="md"
     >
-      <ModalContent className="h-[90vh] overflow-hidden p-5 w-full relative">
+      <ModalContent className="max-h-[90vh] overflow-hidden p-5 w-full relative">
         {isFetching && (
           <div className="absolute inset-0 bg-white/70 backdrop-blur-sm z-50 flex items-center justify-center transition-opacity duration-300">
             <FiLoader className="animate-spin h-6 w-6 text-primary" />

@@ -332,7 +332,7 @@ export default function ReferralManagementActions({
           {
             id: "zip",
             placeholder: "Zip",
-            type: "text",
+            type: "number",
             isRequired: true,
           },
         ],
@@ -864,6 +864,7 @@ export default function ReferralManagementActions({
           color: "primary",
           variant: "solid",
           isLoading: referrerCreationPending || referrerUpdationPending,
+          isDisabled: !formik.isValid || !formik.dirty,
         },
       ]}
     >

@@ -1,4 +1,5 @@
 import {
+  Avatar,
   Button,
   Dropdown,
   DropdownItem,
@@ -133,14 +134,6 @@ export default function Header({
           {/* <ThemeToggle /> */}
           <Dropdown placement="bottom-end">
             <DropdownTrigger>
-              {/* <Avatar
-                as="button"
-                className="transition-transform cursor-pointer"
-                color="primary"
-                name="Jason Hughes"
-                size="sm"
-                src="https://i.pravatar.cc/150?u=a042581f4e29026704d"
-              /> */}
               <Button
                 size="sm"
                 radius="sm"
@@ -152,15 +145,11 @@ export default function Header({
               </Button>
             </DropdownTrigger>
             <DropdownMenu aria-label="Profile Actions" variant="flat">
-              <DropdownItem
-                key="profile"
-                className="h-14 gap-2"
-                href="/referral-retrieve/settings"
-              >
-                {/* <Link to="/settings"> */}
-                <p className="font-semibold">Signed in as</p>
-                <p className="font-semibold">{user?.email}</p>
-                {/* </Link> */}
+              <DropdownItem key="profile" className="h-14 gap-2">
+                <Link to="/settings">
+                  <p className="font-semibold">Signed in as</p>
+                  <p className="font-semibold">{user?.email}</p>
+                </Link>
               </DropdownItem>
               <DropdownItem key="general">
                 <Link to="/settings/general">General</Link>

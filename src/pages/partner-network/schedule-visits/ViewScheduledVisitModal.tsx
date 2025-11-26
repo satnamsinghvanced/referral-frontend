@@ -69,7 +69,7 @@ export default function ViewScheduledVisitModal({
               <Chip
                 size="sm"
                 radius="sm"
-                className="capitalize text-[11px] h-5"
+                className="capitalize text-[11px] h-5 bg-red-100 text-red-800"
                 variant="flat"
                 color="danger"
               >

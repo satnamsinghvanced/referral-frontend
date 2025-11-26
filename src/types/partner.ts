@@ -165,12 +165,13 @@ export interface TaskApiData {
   dueDate: string; // YYYY-MM-DD
   priority: "low" | "medium" | "high" | string;
   category: "follow-up" | "meeting" | "other" | string;
-  practiceId: any;
+  practiceId?: any;
   status: "pending" | "completed" | string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
   isOverDue?: boolean;
   schedule?: string;
+  assignTo?: any;
 }
 
 export interface AllNotesTasksResponse {
@@ -195,10 +196,16 @@ export interface CreateTaskPayload {
   practiceId: string;
   priority: string;
   category: string;
+  assignTo: string[];
 }
 
 export interface UpdateTaskStatusPayload {
   status: "not-started" | "in-progress" | "completed" | "no-longer-needed";
+}
+
+export interface UpdateTaskPayload {
+  taskId: string;
+  data: any;
 }
 
 export interface Note {

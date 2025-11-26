@@ -15,6 +15,7 @@ import { useDispatch } from "react-redux";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
 import ReferralStatusChip from "../../components/chips/ReferralStatusChip";
 import ComponentContainer from "../../components/common/ComponentContainer";
+import EmptyState from "../../components/common/EmptyState";
 import { LoadingState } from "../../components/common/LoadingState";
 import {
   useFetchReferrals,
@@ -25,7 +26,6 @@ import {
 } from "../../hooks/useReferral";
 import { useInitiateCall } from "../../hooks/useTwilio";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
-import { setTotalReferrals } from "../../store/statsSlice";
 import { Referrer } from "../../types/partner";
 import { FilterStats, Referral } from "../../types/referral";
 import { downloadJson } from "../../utils/jsonDownloader";
@@ -36,7 +36,6 @@ import ReferralStatusModal from "./ReferralStatusModal";
 import ReferrerCard from "./ReferrerCard";
 import RoleToggleTabs from "./RoleToggleTabs";
 import TrackingPanel from "./TrackingPanel";
-import EmptyState from "../../components/common/EmptyState";
 
 type ReferralType = "Referrals" | "Referrers" | "NFC & QR Tracking";
 
@@ -108,13 +107,6 @@ const ReferralManagement = () => {
       singleReferralRefetch();
     }
   }, [referralEditId, singleReferralRefetch]);
-
-  // Update total referrals in Redux store
-  useEffect(() => {
-    if (referralData?.total !== undefined) {
-      dispatch(setTotalReferrals(referralData.total));
-    }
-  }, [referralData, dispatch]);
 
   // Debounced search for overview
   useEffect(() => {
@@ -282,7 +274,7 @@ const ReferralManagement = () => {
         color: "default",
         linkInNewTab: true,
         className: "border-small",
-        isHide: referrer.type === "patient"
+        isHide: referrer.type === "patient",
       },
     ],
     []

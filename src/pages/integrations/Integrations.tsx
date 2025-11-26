@@ -19,6 +19,9 @@ import { PiDatabase } from "react-icons/pi";
 import { BsLightningCharge } from "react-icons/bs";
 import { BiCheckCircle } from "react-icons/bi";
 import { LuCalendar } from "react-icons/lu";
+import { useState } from "react";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
+import GoogleCalendarConfigModal from "./modal/GoogleCalendarConfigModal";
 
 interface IntegrationItemProps {
   name: string;
@@ -94,7 +97,7 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
       radius="sm"
       variant="solid"
       color="primary"
-      onPress={() => onConnect}
+      onPress={onConnect}
       endContent={<FiExternalLink className="size-3.5" />}
     >
       Connect
@@ -145,6 +148,14 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
 };
 
 function Integrations() {
+  const { user } = useTypedSelector((state) => state.auth);
+  const userId = user?.userId;
+
+  const [
+    isGoogleCalendarIntegrationModalOpen,
+    setIsGoogleCalendarIntegrationModalOpen,
+  ] = useState(false);
+
   const HEADING_DATA = {
     heading: "Integrations",
     subHeading:
@@ -152,7 +163,7 @@ function Integrations() {
     buttons: [],
   };
 
-  const integrationsData = [
+  const AVAILABLE_INTEGRATIONS = [
     {
       name: "Google My Business",
       icon: <span className="text-red-600 font-bold text-sm">G</span>,
@@ -204,6 +215,7 @@ function Integrations() {
         "Availability management",
       ],
       lastSync: "3 days ago",
+      onConnect: () => setIsGoogleCalendarIntegrationModalOpen(true),
     },
     {
       name: "Analytics Platform",
@@ -225,7 +237,7 @@ function Integrations() {
               <h4 className="font-medium text-sm">Available Integrations</h4>
             </CardHeader>
             <CardBody className="divide-y divide-gray-100 p-0">
-              {integrationsData.map((item, index) => (
+              {AVAILABLE_INTEGRATIONS.map((item, index) => (
                 <IntegrationItem key={index} {...item} />
               ))}
             </CardBody>
@@ -294,7 +306,11 @@ function Integrations() {
                     <span className="font-medium text-xs">
                       New Referral Webhook
                     </span>
-                    <Chip size="sm" color="primary" className="text-[11px] h-5 capitalize">
+                    <Chip
+                      size="sm"
+                      color="primary"
+                      className="text-[11px] h-5 capitalize"
+                    >
                       active
                     </Chip>
                   </div>
@@ -302,10 +318,18 @@ function Integrations() {
                     https://api.yourapp.com/webhooks/new-referral
                   </p>
                   <div className="flex flex-wrap gap-1">
-                    <Chip size="sm" variant="bordered" className="border-small text-[11px]">
+                    <Chip
+                      size="sm"
+                      variant="bordered"
+                      className="border-small text-[11px]"
+                    >
                       referral.created
                     </Chip>
-                    <Chip size="sm" variant="bordered" className="border-small text-[11px]">
+                    <Chip
+                      size="sm"
+                      variant="bordered"
+                      className="border-small text-[11px]"
+                    >
                       referral.updated
                     </Chip>
                   </div>
@@ -327,7 +351,11 @@ function Integrations() {
                     https://api.yourapp.com/webhooks/new-review
                   </p>
                   <div className="flex flex-wrap gap-1">
-                    <Chip size="sm" variant="bordered" className="border-small text-[11px]">
+                    <Chip
+                      size="sm"
+                      variant="bordered"
+                      className="border-small text-[11px]"
+                    >
                       review.created
                     </Chip>
                   </div>
@@ -337,6 +365,12 @@ function Integrations() {
           </div>
         </div>
       </ComponentContainer>
+
+      <GoogleCalendarConfigModal
+        isOpen={isGoogleCalendarIntegrationModalOpen}
+        onClose={() => setIsGoogleCalendarIntegrationModalOpen(false)}
+        userId={userId as string}
+      />
     </>
   );
 }

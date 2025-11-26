@@ -6,6 +6,7 @@ import ComponentContainer from "../components/common/ComponentContainer";
 import { useDashboard } from "../hooks/useDashboard";
 import { useTypedSelector } from "../hooks/useTypedSelector";
 import { TREATMENT_OPTIONS } from "../consts/referral";
+import { MdTrendingUp } from "react-icons/md";
 
 type Color = "sky" | "orange" | "emerald" | "purple";
 
@@ -104,31 +105,48 @@ const Dashboard = () => {
         icon: "👥",
         heading: "Total Referrals",
         value: dashboard?.totalReferrals as number,
-        subheading:
-          dashboard?.totalLastMonth > 0
-            ? `↗ +${dashboard.totalLastMonth}% from last month`
-            : "0 from last month",
+        subheading: (
+          <p className="text-emerald-600 flex items-center gap-1.5">
+            <MdTrendingUp fontSize={15} />
+            {dashboard?.totalLastMonth ? dashboard.totalLastMonth : "0"}% from last month
+          </p>
+        ),
         onClick: () => navigate("/referrals"),
       },
       {
         icon: "📢",
         heading: "Active Campaigns",
         value: "12",
-        subheading: "↗ +2 this month",
+        subheading: (
+          <p className="text-emerald-600 flex items-center gap-1.5">
+            <MdTrendingUp fontSize={15} />
+            +2 this month
+          </p>
+        ),
         onClick: () => navigate("/email-campaigns"),
       },
       {
         icon: "⭐",
         heading: "Reviews",
         value: "1,248",
-        subheading: "↗ 4.8 avg rating",
+        subheading: (
+          <p className="text-emerald-600 flex items-center gap-1.5">
+            <MdTrendingUp fontSize={15} />
+            4.8 avg rating
+          </p>
+        ),
         onClick: () => navigate("/reviews"),
       },
       {
         icon: "🎯",
         heading: "ROI",
         value: "284%",
-        subheading: "↗ +12% vs last month",
+        subheading: (
+          <p className="text-emerald-600 flex items-center gap-1.5">
+            <MdTrendingUp fontSize={15} />
+            +12% vs last month
+          </p>
+        ),
         onClick: () => navigate("/reports"),
       },
     ],

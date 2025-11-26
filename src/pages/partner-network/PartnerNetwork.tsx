@@ -1,11 +1,13 @@
 import { Pagination } from "@heroui/react";
-import { useCallback, useState, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { FiEdit, FiEye, FiStar, FiUsers } from "react-icons/fi";
 import { IoDocumentOutline } from "react-icons/io5";
 import { LuBuilding2 } from "react-icons/lu";
 import { TbArchive } from "react-icons/tb";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
+import EmptyState from "../../components/common/EmptyState";
+import { LoadingState } from "../../components/common/LoadingState";
 import { PARTNER_FILTERS, PARTNER_SORT_OPTIONS } from "../../consts/filters";
 import {
   useFetchPartnerDetail,
@@ -17,10 +19,7 @@ import NotesTasksModal from "./NotesTasksModal";
 import PartnerDetailsModal from "./PartnerDetailsModal";
 import PartnerNetworkCard from "./PartnerNetworkCard";
 import PartnerNetworkHeader from "./PartnerNetworkHeader";
-import VisitHistoryModal from "./schedule-visits/history-modal/VisitHistoryModal";
 import ScheduleVisits from "./schedule-visits/ScheduleVisits";
-import { LoadingState } from "../../components/common/LoadingState";
-import EmptyState from "../../components/common/EmptyState";
 
 const PartnerNetwork = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);

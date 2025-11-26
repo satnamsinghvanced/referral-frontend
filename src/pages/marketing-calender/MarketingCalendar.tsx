@@ -16,9 +16,16 @@ import {
   FiLoader,
   FiFilter,
   FiActivity,
+  FiClock,
 } from "react-icons/fi";
-import { LuCalendar, LuTarget, LuTrophy, LuUserPlus } from "react-icons/lu";
-import { MdOutlineRemoveRedEye } from "react-icons/md";
+import {
+  LuCalendar,
+  LuTarget,
+  LuTrophy,
+  LuUserPlus,
+  LuUsers,
+} from "react-icons/lu";
+import { MdOutlineRemoveRedEye, MdTrendingUp } from "react-icons/md";
 import { RiMegaphoneLine } from "react-icons/ri";
 import { TbWaveSawTool } from "react-icons/tb";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
@@ -119,25 +126,34 @@ const MarketingCalendar = () => {
       icon: <RiMegaphoneLine className="text-[17px] mt-1 text-sky-600" />,
       heading: "Active Campaigns",
       value: stats?.activeCampaigns || 0,
-      subheading: "+3 this week",
+      subheading: (
+        <p className="text-emerald-600 flex items-center gap-1.5">
+          <MdTrendingUp fontSize={15} />
+          Currently running
+        </p>
+      ),
     },
     {
       icon: <FiShare2 className="text-[17px] mt-1 text-blue-600" />,
       heading: "Scheduled Posts",
       value: stats?.scheduledPosts || 0,
-      subheading: "Next 30 days",
+      subheading: (
+        <p className="text-blue-600 flex items-center gap-1.5">
+          <FiClock fontSize={15} />
+          Ready to post
+        </p>
+      ),
     },
     {
       icon: <LuUserPlus className="text-[17px] mt-1 text-purple-600" />,
       heading: "Referral Activities",
       value: stats?.referralActivities || 0,
-      subheading: "This month",
-    },
-    {
-      icon: <LuTarget className="text-[17px] mt-1 text-emerald-600" />,
-      heading: "Monthly ROI",
-      value: stats?.monthlyROI || 0,
-      subheading: "+12% vs last month",
+      subheading: (
+        <p className="text-purple-600 flex items-center gap-1.5">
+          <LuCalendar fontSize={15} />
+          Scheduled
+        </p>
+      ),
     },
     {
       icon: (
@@ -145,13 +161,12 @@ const MarketingCalendar = () => {
       ),
       heading: "Total Reach",
       value: stats?.totalReach || 0,
-      subheading: "This month",
-    },
-    {
-      icon: <LuTrophy className="text-[17px] mt-1 text-green-500" />,
-      heading: "Conversions",
-      value: stats?.conversions || 0,
-      subheading: "+24% this month",
+      subheading: (
+        <p className="text-orange-600 flex items-center gap-1.5">
+          <LuUsers fontSize={15} />
+          Combined reach
+        </p>
+      ),
     },
   ];
 
@@ -306,7 +321,7 @@ const MarketingCalendar = () => {
       <ComponentContainer headingData={HEADING_DATA}>
         <div className="flex flex-col gap-5">
           <div className="space-y-5">
-            <div className="grid md:grid-cols-3 xl:grid-cols-6 gap-4">
+            <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
               {STAT_CARD_DATA.map((data, i) => (
                 <MiniStatsCard key={i} cardData={data} />
               ))}

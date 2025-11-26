@@ -6,7 +6,7 @@ export interface StatCard {
   heading: string;
   icon?: JSX.Element | string;
   value: string | number;
-  subheading?: string;
+  subheading?: string | JSX.Element;
   onClick?: () => void;
 }
 

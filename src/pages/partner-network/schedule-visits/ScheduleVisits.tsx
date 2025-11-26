@@ -266,7 +266,7 @@ export default function ScheduleVisits({
         </Card> */}
 
         <div className="flex items-center justify-between border-primary/15 border rounded-xl bg-background p-4">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <Select
               aria-label="Filter Plans"
               placeholder="All Plans"
