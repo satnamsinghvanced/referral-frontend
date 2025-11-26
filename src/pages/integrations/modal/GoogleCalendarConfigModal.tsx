@@ -19,6 +19,7 @@ import {
 } from "../../../hooks/integrations/useGoogleCalendar";
 import {
   GenerateAuthUrlRequest,
+  GoogleCalendarIntegrationResponse,
   UpdateGoogleCalendarRequest,
 } from "../../../types/integrations/googleCalendar";
 
@@ -26,7 +27,6 @@ import {
 const validationSchema = Yup.object().shape({
   clientId: Yup.string()
     .required("Client ID is required.")
-    // Relaxing regex slightly to avoid environment-specific issues, though the intent remains clear.
     .matches(
       /.apps.googleusercontent.com$/,
       "Invalid Client ID format. Usually ends with '.apps.googleusercontent.com'"
@@ -37,34 +37,22 @@ const validationSchema = Yup.object().shape({
     .required("Redirect URI is required."),
 });
 
-/**
- * NOTE: The original code used imports from "@heroui/react" and "react-icons/fi",
- * which could not be resolved in the current environment.
- * For compatibility, I have assumed the original component props and structure,
- * but if these dependencies are not available, this component will fail
- * to render due to unresolved imports.
- * * Assuming the original component library and react-icons are available
- * as they are used extensively throughout the component.
- * I removed the unused 'useEffect' import and fixed the two type imports.
- */
-
 export default function GoogleCalendarConfigModal({
   userId,
   isOpen,
   onClose,
+  existingConfig,
+  isLoading,
+  isError,
 }: {
   userId: string;
   isOpen: boolean;
   onClose: () => void;
+  existingConfig: GoogleCalendarIntegrationResponse;
+  isLoading: boolean;
+  isError: boolean;
 }) {
   const [showSecret, setShowSecret] = useState(false);
-
-  // TanStack Query Hooks
-  const {
-    data: existingConfig,
-    isLoading: isConfigLoading,
-    isError: isConfigError,
-  } = useFetchGoogleCalendarIntegration();
 
   // Save (Generate Auth URL) Mutation
   const generateAuthUrlMutation = useGenerateGoogleCalendarAuthUrl();
@@ -75,7 +63,7 @@ export default function GoogleCalendarConfigModal({
   const isUpdateMode = !!existingConfig?._id;
 
   // Determine global loading state
-  const isGlobalLoading = isConfigLoading;
+  const isGlobalLoading = isLoading;
 
   // Determine submitting state
   const isSubmitting =
@@ -163,7 +151,7 @@ export default function GoogleCalendarConfigModal({
   }
 
   // Handle error state
-  if (isConfigError) {
+  if (isError) {
     return (
       <Modal
         isOpen={isOpen}
@@ -261,7 +249,7 @@ export default function GoogleCalendarConfigModal({
                   <button
                     type="button"
                     onClick={() => setShowSecret(!showSecret)}
-                    className="text-gray-500 focus:outline-none"
+                    className="text-gray-500 focus:outline-none cursor-pointer"
                   >
                     {showSecret ? <FiEyeOff /> : <FiEye />}
                   </button>
@@ -290,14 +278,14 @@ export default function GoogleCalendarConfigModal({
                     formik.touched.redirectUri && formik.errors.redirectUri
                   }
                 />
-                <p className="text-[10px] text-gray-500 mt-1">
+                <p className="text-[11px] text-gray-500 mt-1">
                   Must match the authorized redirect URI in your Google Cloud
                   Console.
                 </p>
               </div>
 
               {/* Helper Information Box */}
-              <div className="text-sm text-gray-700 bg-blue-50 p-3.5 rounded-lg border border-blue-200 mt-4">
+              <div className="text-sm text-gray-700 bg-blue-50 p-3 rounded-lg border border-blue-200 mt-4">
                 <div className="flex items-start gap-3">
                   <div>
                     <p className="font-semibold mb-1.5 text-gray-900">
@@ -328,13 +316,13 @@ export default function GoogleCalendarConfigModal({
 
               {/* Status Message for Configured Integration */}
               {isUpdateMode && existingConfig?.refreshToken && (
-                <div className="p-3 bg-green-50 text-green-700 text-xs rounded-lg border border-green-200 font-medium">
+                <div className="p-3 bg-green-50 text-green-700 text-xs rounded-lg border border-green-200">
                   ✅ Integration is currently active and configured. Tokens are
                   stored securely.
                 </div>
               )}
               {isUpdateMode && !existingConfig?.refreshToken && (
-                <div className="p-3 bg-yellow-50 text-yellow-700 text-xs rounded-lg border border-yellow-200 font-medium">
+                <div className="p-3 bg-yellow-50 text-yellow-700 text-xs rounded-lg border border-yellow-200">
                   ⚠️ Configuration saved, but authorization is pending. Click
                   'Save and Authorize' to complete the OAuth flow.
                 </div>

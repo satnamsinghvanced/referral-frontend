@@ -6,22 +6,18 @@ import {
   Chip,
   Switch,
 } from "@heroui/react";
-import ComponentContainer from "../../components/common/ComponentContainer";
-import {
-  FiSettings,
-  FiExternalLink,
-  FiSearch,
-  FiAlertCircle,
-} from "react-icons/fi";
-import { IoCalendarOutline } from "react-icons/io5";
-import { FaRegEnvelope } from "react-icons/fa6";
-import { PiDatabase } from "react-icons/pi";
-import { BsLightningCharge } from "react-icons/bs";
-import { BiCheckCircle } from "react-icons/bi";
-import { LuCalendar } from "react-icons/lu";
 import { useState } from "react";
+import { BiCheckCircle } from "react-icons/bi";
+import { BsLightningCharge } from "react-icons/bs";
+import { FaRegEnvelope } from "react-icons/fa6";
+import { FiAlertCircle, FiExternalLink, FiSettings } from "react-icons/fi";
+import { LuCalendar } from "react-icons/lu";
+import { PiDatabase } from "react-icons/pi";
+import ComponentContainer from "../../components/common/ComponentContainer";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import GoogleCalendarConfigModal from "./modal/GoogleCalendarConfigModal";
+import { useFetchGoogleCalendarIntegration } from "../../hooks/integrations/useGoogleCalendar";
+import { GoogleCalendarIntegrationResponse } from "../../types/integrations/googleCalendar";
 
 interface IntegrationItemProps {
   name: string;
@@ -73,31 +69,32 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
   }
 
   const actionButton = isConnected ? (
-    <>
-      {onConfigure && (
-        <Button
-          size="sm"
-          radius="sm"
-          variant="ghost"
-          onPress={onConfigure}
-          startContent={<FiSettings className="size-3.5" />}
-        >
-          Configure
-        </Button>
-      )}
-      <Switch
-        size="sm"
-        checked={isSwitchChecked}
-        onValueChange={onSwitchChange}
-      />
-    </>
+    // <>
+    //   {onConfigure && (
+    //     <Button
+    //       size="sm"
+    //       radius="sm"
+    //       variant="ghost"
+    //       onPress={onConfigure}
+    //       startContent={<FiSettings className="size-3.5" />}
+    //     >
+    //       Configure
+    //     </Button>
+    //   )}
+    //   <Switch
+    //     size="sm"
+    //     checked={isSwitchChecked}
+    //     onValueChange={onSwitchChange}
+    //   />
+    // </>
+    ""
   ) : (
     <Button
       size="sm"
       radius="sm"
       variant="solid"
       color="primary"
-      onPress={onConnect}
+      onPress={() => onConnect}
       endContent={<FiExternalLink className="size-3.5" />}
     >
       Connect
@@ -156,6 +153,12 @@ function Integrations() {
     setIsGoogleCalendarIntegrationModalOpen,
   ] = useState(false);
 
+  const {
+    data: googleCalendarExistingConfig,
+    isLoading: isGoogleCalendarConfigLoading,
+    isError: isGoogleCalendarConfigError,
+  } = useFetchGoogleCalendarIntegration();
+
   const HEADING_DATA = {
     heading: "Integrations",
     subHeading:
@@ -169,7 +172,7 @@ function Integrations() {
       icon: <span className="text-red-600 font-bold text-sm">G</span>,
       iconBg: "bg-red-100",
       iconColor: "text-red-600",
-      status: "Connected" as const,
+      status: "Disconnected" as const,
       description:
         "Automatically sync reviews and manage your practice listing",
       badges: [
@@ -184,7 +187,7 @@ function Integrations() {
       icon: <PiDatabase className="w-4 h-4" />,
       iconBg: "bg-blue-100",
       iconColor: "text-blue-600",
-      status: "Connected" as const,
+      status: "Disconnected" as const,
       description: "Connect your PMS to automatically track patient referrals",
       badges: [
         "Patient data sync",
@@ -207,7 +210,7 @@ function Integrations() {
       icon: <LuCalendar className="w-4 h-4" />,
       iconBg: "bg-purple-100",
       iconColor: "text-purple-600",
-      status: "Error" as const,
+      status: "Connected" as const,
       description: "Sync appointments and referral scheduling",
       badges: [
         "Appointment sync",
@@ -370,6 +373,11 @@ function Integrations() {
         isOpen={isGoogleCalendarIntegrationModalOpen}
         onClose={() => setIsGoogleCalendarIntegrationModalOpen(false)}
         userId={userId as string}
+        existingConfig={
+          googleCalendarExistingConfig as GoogleCalendarIntegrationResponse
+        }
+        isLoading={isGoogleCalendarConfigLoading}
+        isError={isGoogleCalendarConfigError}
       />
     </>
   );

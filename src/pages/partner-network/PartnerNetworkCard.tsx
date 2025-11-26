@@ -13,6 +13,7 @@ interface PartnerNetworkCardProps {
     function: Function;
     variant?: string;
     color?: string;
+    className?: string;
   }[];
 }
 
@@ -92,7 +93,7 @@ const PartnerNetworkCard = ({ partner, actions }: PartnerNetworkCardProps) => {
                   onPress={() => action.function(partner._id, partner.name)}
                   variant={action.variant || "light"}
                   color={action.color || "default"}
-                  className="overflow-visible"
+                  className={`overflow-visible ${action.className}`}
                 >
                   {action.icon}
                   {action.label === "Notes" && partner.tasksCount > 0 && (

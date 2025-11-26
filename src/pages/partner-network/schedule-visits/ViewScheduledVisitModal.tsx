@@ -10,6 +10,7 @@ import VisitStatusChip from "../../../components/chips/VisitStatusChip";
 import { LuCar, LuClock, LuTimer } from "react-icons/lu";
 import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 import { convertTo12HourClock } from "../../../utils/convertTo12HourClock";
+import { FiCheckCircle } from "react-icons/fi";
 
 // Assuming the data structure for a single plan
 interface PlanData {
@@ -65,17 +66,6 @@ export default function ViewScheduledVisitModal({
           </h4>
           <div className="flex items-center gap-2 ml-2">
             <VisitStatusChip status={plan?.status} />
-            {plan.isDraft && (
-              <Chip
-                size="sm"
-                radius="sm"
-                className="capitalize text-[11px] h-5 bg-red-100 text-red-800"
-                variant="flat"
-                color="danger"
-              >
-                Draft
-              </Chip>
-            )}
           </div>
         </ModalHeader>
 
@@ -174,6 +164,33 @@ export default function ViewScheduledVisitModal({
               ))}
             </div>
           </div>
+
+          {plan?.visitNotes && (
+            <div className="space-y-1.5">
+              <div className="text-xs">Visit Notes</div>
+              <div className="text-xs text-gray-700 capitalize bg-gray-50 p-2 rounded-lg">
+                {plan?.visitNotes}
+              </div>
+            </div>
+          )}
+
+          {plan?.visitOutcome && (
+            <div className="space-y-1.5">
+              <div className="text-xs">Visit Outcome/Result</div>
+              <div className="text-xs text-gray-700 p-2 bg-green-50 border border-green-200 rounded-lg">
+                {plan?.visitOutcome}
+              </div>
+            </div>
+          )}
+
+          {plan?.followUp && (
+            <div className="p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <div className="flex items-center gap-2 text-yellow-800">
+                <FiCheckCircle fontSize={14} />
+                <span className="text-xs ">Follow-up Action Required</span>
+              </div>
+            </div>
+          )}
         </ModalBody>
       </ModalContent>
     </Modal>

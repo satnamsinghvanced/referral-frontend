@@ -1,5 +1,9 @@
 // src/hooks/useReferral.ts
-import { useQuery, useMutation } from "@tanstack/react-query";
+import {
+  useQuery,
+  useMutation,
+  UseMutationOptions,
+} from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { queryClient } from "../providers/QueryProvider";
 import { addToast } from "@heroui/react";
@@ -13,10 +17,10 @@ import {
   getReferrerById,
   updateReferrer,
   deleteReferrer,
-  createTracking,
   updateTracking,
   fetchTrackings,
   logTrackingScan,
+  createTrackingSetup,
 } from "../services/referral";
 import { createReferral, trackScan } from "../services/referralBypassFunction";
 import {
@@ -24,6 +28,8 @@ import {
   ReferralsResponse,
   ScanTrackingParams,
   ScanTrackingResponse,
+  TrackingRequestBody,
+  TrackingResponseData,
 } from "../types/referral";
 import {
   FetchReferrersParams,
@@ -253,9 +259,9 @@ export const useDeleteReferrer = () =>
 // ---------------------------
 
 // Create tracking (FormData)
-export const useCreateTracking = () =>
-  useMutation<any, AxiosError, { adminId: string; payload: FormData }>({
-    mutationFn: ({ adminId, payload }) => createTracking(adminId, payload),
+export const useCreateTrackingSetup = () => {
+  return useMutation<TrackingResponseData, Error, TrackingRequestBody>({
+    mutationFn: createTrackingSetup,
     onSuccess: () => {
       addToast({
         title: "Success",
@@ -264,14 +270,16 @@ export const useCreateTracking = () =>
       });
       queryClient.invalidateQueries({ queryKey: ["trackings"] });
     },
-    onError: (error: AxiosError) => {
+    onError: (error) => {
       const message =
+        // @ts-ignore
         (error.response?.data as any)?.message ||
         error.message ||
         "Failed to create tracking";
       addToast({ title: "Error", description: message, color: "danger" });
     },
   });
+};
 
 // Update tracking
 export const useUpdateTracking = () =>
@@ -297,10 +305,10 @@ export const useUpdateTracking = () =>
   });
 
 // Fetch tracking list
-export const useFetchTrackings = (id: any) =>
-  useQuery<any[], Error>({
-    queryKey: ["tracking", id],
-    queryFn: () => fetchTrackings(id),
+export const useFetchTrackings = () =>
+  useQuery<TrackingResponseData, Error>({
+    queryKey: ["trackings"],
+    queryFn: () => fetchTrackings(),
   });
 
 // Log tracking scan

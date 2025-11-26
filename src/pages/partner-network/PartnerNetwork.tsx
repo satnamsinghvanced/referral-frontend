@@ -147,6 +147,7 @@ const PartnerNetwork = () => {
         icon: <IoDocumentOutline className="size-3.5" />,
         variant: "light" as const,
         color: "secondary" as const,
+        className: "text-orange-600 hover:!bg-orange-50"
       },
       {
         label: "View",

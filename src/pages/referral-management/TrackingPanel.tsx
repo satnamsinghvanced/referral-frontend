@@ -1,4 +1,4 @@
-import { addToast, Button, Chip } from "@heroui/react";
+import { addToast, Button, Checkbox, Chip, Input } from "@heroui/react";
 import React, { useCallback, useState } from "react";
 import { FiCalendar, FiShare2 } from "react-icons/fi";
 import { GoGraph } from "react-icons/go";
@@ -6,23 +6,23 @@ import { HiOutlineDeviceMobile } from "react-icons/hi";
 import { LuCheck, LuCopy, LuDownload, LuQrCode } from "react-icons/lu";
 import { RiExternalLinkLine } from "react-icons/ri";
 import { Link } from "react-router";
-import Input from "../../components/ui/Input";
 import { formatDateToMMDDYYYY } from "../../utils/formatDateToMMDDYYYY";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
+import {
+  useCreateTrackingSetup,
+  useFetchTrackings,
+} from "../../hooks/useReferral";
 
-interface TrackingPanelProps {
-  trackings?: any;
-  onGenerateQR?: () => void;
-}
-
-const TrackingPanel: React.FC<TrackingPanelProps> = ({
-  trackings,
-  onGenerateQR,
-}) => {
+const TrackingPanel = () => {
   const [copied, setCopied] = useState("");
+  const [customPath, setCustomPath] = useState("");
+  const [isCustomLandingPage, setIsCustomLandingPage] = useState(false);
 
   const { user } = useTypedSelector((state) => state.auth);
   const userId = user?.userId;
+
+  const { data: trackings } = useFetchTrackings();
+  const { mutate: createTrackingSetup } = useCreateTrackingSetup();
 
   const handleCopy = async (identifier: string, value?: string) => {
     if (!value) return;
@@ -132,29 +132,16 @@ const TrackingPanel: React.FC<TrackingPanelProps> = ({
     }
   }, [userId]);
 
-  if (!trackings?.qrCode) {
-    return (
-      <div className="border w-full border-primary/20 p-6 rounded-xl bg-background flex flex-col gap-8 items-center justify-center text-sm">
-        <LuQrCode className="text-gray-300 text-6xl" />
-        <p className="text-gray-600 text-center max-w-xs">
-          Generate a personalized QR code and NFC tag for your practice
-        </p>
-        <Button
-          variant="solid"
-          color="primary"
-          className="w-1/3"
-          size="sm"
-          onPress={() => onGenerateQR?.()}
-        >
-          Generate QR Code
-        </Button>
-      </div>
-    );
-  }
+  const generateTracking = () => {
+    createTrackingSetup({
+      id: userId as string,
+      customPath: customPath as string,
+    });
+  };
 
   return (
     <div className="grid grid-cols-2 gap-5 items-start">
-      <div className="border w-full border-primary/20 p-5 rounded-xl bg-background flex flex-col gap-10">
+      <div className="border w-full border-primary/20 p-5 rounded-xl bg-background flex flex-col gap-5">
         {/* Header */}
         <div>
           <h6 className="text-sm flex items-center gap-2">
@@ -165,140 +152,198 @@ const TrackingPanel: React.FC<TrackingPanelProps> = ({
             Generate personalized QR codes and NFC tags for General Practice
           </p>
         </div>
-
-        {/* QR Preview */}
-        <div className="flex flex-col items-center justify-center">
-          <div className="bg-white rounded-lg border-2 border-gray-200 inline-block overflow-hidden">
-            <img
-              src={trackings?.qrCode}
-              alt="QR Code"
-              className="w-48 h-48 mx-auto"
-            />
-          </div>
-          <p className="text-gray-600 mt-3 text-xs">
-            Scan to access referral form
-          </p>
-        </div>
-
-        {/* URLs Section */}
-        <div className="space-y-4">
-          <Input
-            label="Referral Landing Page URL"
-            labelPlacement="outside-top"
-            value={trackings?.referralUrl || ""}
-            endContent={
-              <button
-                onClick={() =>
-                  handleCopy("REFERRAL_URL", trackings?.referralUrl)
-                }
-                type="button"
-                className="text-gray-500 cursor-pointer"
-              >
-                {copied === "REFERRAL_URL" ? (
-                  <LuCheck className="text-green-600" />
-                ) : (
-                  <LuCopy />
+        {!trackings?.qrCode ? (
+          <>
+            <div>
+              <div className="flex flex-col items-center gap-4 mt-4 mb-8">
+                <LuQrCode className="text-gray-300 text-5xl" />
+                <p className="text-gray-600 text-center text-xs">
+                  Generate a personalized QR code and NFC tag for your practice
+                </p>
+              </div>
+              <div className="space-y-1">
+                <div className="flex">
+                  <Checkbox
+                    size="sm"
+                    radius="sm"
+                    isSelected={isCustomLandingPage}
+                    onValueChange={setIsCustomLandingPage}
+                  >
+                    Use Custom Landing Page URL
+                  </Checkbox>
+                </div>
+                <p className="text-[11px] text-gray-500">
+                  {!isCustomLandingPage
+                    ? "Default: https://practicemarketer.ai/referral"
+                    : "Enter your custom referral landing page URL"}
+                </p>
+                {isCustomLandingPage && (
+                  <div className="mt-2.5">
+                    <Input
+                      size="sm"
+                      radius="sm"
+                      label="Custom Landing Page URL"
+                      labelPlacement="outside-top"
+                      placeholder="referral"
+                      startContent={
+                        <div className="pointer-events-none flex items-center">
+                          <span className="text-default-400 text-small whitespace-nowrap">
+                            {import.meta.env.VITE_LIVE_URL}
+                          </span>
+                        </div>
+                      }
+                      type="text"
+                      value={customPath}
+                      onValueChange={(value) => setCustomPath(value)}
+                    />
+                  </div>
                 )}
-              </button>
-            }
-            isReadOnly
-          />
-          <Input
-            label="NFC Data"
-            labelPlacement="outside-top"
-            value={trackings?.nfcUrl || ""}
-            endContent={
-              <button
-                onClick={() => handleCopy("NFC_URL", trackings?.nfcUrl)}
-                type="button"
-                className="text-gray-500 cursor-pointer"
-              >
-                {copied === "NFC_URL" ? (
-                  <LuCheck className="text-green-600" />
-                ) : (
-                  <LuCopy />
-                )}
-              </button>
-            }
-            isReadOnly
-          />
-        </div>
-
-        {/* QR Info Grid */}
-        <div className="grid grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
-          <div className="flex flex-col gap-0.5 items-center justify-center text-center">
-            <GoGraph className="text-blue-600 text-lg mb-1.5" />
-            <p className="text-xs font-medium">{trackings?.totalScans}</p>
-            <p className="text-[11px] text-gray-600">Total Scans</p>
-          </div>
-          <div className="flex flex-col gap-0.5 items-center justify-center text-center">
-            <FiCalendar className="text-green-600 text-lg mb-1.5" />
-            <p className="text-xs font-medium">
-              {formatDateToMMDDYYYY(trackings?.createdAt || "")}
-            </p>
-            <p className="text-[11px] text-gray-600">Created</p>
-          </div>
-          <div className="text-center">
-            <Chip
-              size="sm"
+              </div>
+            </div>
+            <Button
               variant="solid"
               color="primary"
-              className="capitalize h-5"
-              radius="sm"
-            >
-              Active
-            </Chip>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="grid grid-cols-2 gap-3">
-          <Button
-            variant="bordered"
-            color="default"
-            startContent={<LuDownload fontSize={14} />}
-            className="border-small"
-            size="sm"
-            fullWidth
-            onPress={handleDownloadQR} // Calling the robust async download function
-          >
-            Download QR
-          </Button>
-          <Button
-            variant="bordered"
-            color="default"
-            startContent={<FiShare2 fontSize={14} />}
-            className="border-small"
-            size="sm"
-            onPress={openSharingModal}
-          >
-            Share
-          </Button>
-          <Link to={`/referral/${userId}`} target="_blank">
-            <Button
-              variant="bordered"
-              color="default"
-              startContent={<RiExternalLinkLine fontSize={14} />}
-              className="border-small"
               size="sm"
+              onPress={generateTracking}
               fullWidth
             >
-              Preview Page
+              Generate QR Code
             </Button>
-          </Link>
-          <Button
-            variant="bordered"
-            color="default"
-            startContent={<HiOutlineDeviceMobile fontSize={14} />}
-            className="border-small"
-            size="sm"
-            onPress={handleNFCSetup}
-          >
-            NFC Setup
-          </Button>
-        </div>
+          </>
+        ) : (
+          <div className="space-y-5 mt-2">
+            <div className="flex flex-col items-center justify-center">
+              <div className="bg-white rounded-lg border-2 border-gray-200 inline-block overflow-hidden">
+                <img
+                  src={trackings?.qrCode}
+                  alt="QR Code"
+                  className="w-48 h-48 mx-auto"
+                />
+              </div>
+              <p className="text-gray-600 mt-3 text-xs">
+                Scan to access referral form
+              </p>
+            </div>
 
-        {/* Analytics Section */}
+            {/* URLs Section */}
+            <div className="space-y-4">
+              <Input
+                label="Referral Landing Page URL"
+                labelPlacement="outside-top"
+                value={trackings?.referralUrl || ""}
+                endContent={
+                  <button
+                    onClick={() =>
+                      handleCopy("REFERRAL_URL", trackings?.referralUrl)
+                    }
+                    type="button"
+                    className="text-gray-500 cursor-pointer"
+                  >
+                    {copied === "REFERRAL_URL" ? (
+                      <LuCheck className="text-green-600" />
+                    ) : (
+                      <LuCopy />
+                    )}
+                  </button>
+                }
+                isReadOnly
+              />
+              <Input
+                label="NFC Data"
+                labelPlacement="outside-top"
+                value={trackings?.nfcUrl || ""}
+                endContent={
+                  <button
+                    onClick={() => handleCopy("NFC_URL", trackings?.nfcUrl)}
+                    type="button"
+                    className="text-gray-500 cursor-pointer"
+                  >
+                    {copied === "NFC_URL" ? (
+                      <LuCheck className="text-green-600" />
+                    ) : (
+                      <LuCopy />
+                    )}
+                  </button>
+                }
+                isReadOnly
+              />
+            </div>
+
+            {/* QR Info Grid */}
+            <div className="grid grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
+              <div className="flex flex-col gap-0.5 items-center justify-center text-center">
+                <GoGraph className="text-blue-600 text-lg mb-1.5" />
+                <p className="text-xs font-medium">{trackings?.totalScans}</p>
+                <p className="text-[11px] text-gray-600">Total Scans</p>
+              </div>
+              <div className="flex flex-col gap-0.5 items-center justify-center text-center">
+                <FiCalendar className="text-green-600 text-lg mb-1.5" />
+                <p className="text-xs font-medium">
+                  {formatDateToMMDDYYYY(trackings?.createdAt || "")}
+                </p>
+                <p className="text-[11px] text-gray-600">Created</p>
+              </div>
+              <div className="text-center">
+                <Chip
+                  size="sm"
+                  variant="solid"
+                  color="primary"
+                  className="capitalize h-5"
+                  radius="sm"
+                >
+                  Active
+                </Chip>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="grid grid-cols-2 gap-3">
+              <Button
+                variant="bordered"
+                color="default"
+                startContent={<LuDownload fontSize={14} />}
+                className="border-small"
+                size="sm"
+                fullWidth
+                onPress={handleDownloadQR} // Calling the robust async download function
+              >
+                Download QR
+              </Button>
+              <Button
+                variant="bordered"
+                color="default"
+                startContent={<FiShare2 fontSize={14} />}
+                className="border-small"
+                size="sm"
+                onPress={openSharingModal}
+              >
+                Share
+              </Button>
+              <Link to={`/referral/${userId}`} target="_blank">
+                <Button
+                  variant="bordered"
+                  color="default"
+                  startContent={<RiExternalLinkLine fontSize={14} />}
+                  className="border-small"
+                  size="sm"
+                  fullWidth
+                >
+                  Preview Page
+                </Button>
+              </Link>
+              <Button
+                variant="bordered"
+                color="default"
+                startContent={<HiOutlineDeviceMobile fontSize={14} />}
+                className="border-small"
+                size="sm"
+                onPress={handleNFCSetup}
+              >
+                NFC Setup
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
       <div className="border w-full border-primary/20 p-5 rounded-xl bg-background">
         <h6 className="text-sm flex items-center gap-2">Tracking Analytics</h6>
@@ -321,7 +366,11 @@ const TrackingPanel: React.FC<TrackingPanelProps> = ({
             },
             {
               label: "Conversion Rate",
-              value: `${trackings?.conversionRate}%`,
+              value: `${
+                trackings?.conversionRate
+                  ? `${trackings?.conversionRate}%`
+                  : "0"
+              }`,
               className: "bg-purple-100 text-purple-800",
             },
           ].map((item, index) => (
@@ -332,7 +381,7 @@ const TrackingPanel: React.FC<TrackingPanelProps> = ({
               <p className="font-medium">{item.label}</p>
               <div>
                 <span className={`px-1.5 py-0.5 rounded-sm ${item.className}`}>
-                  {item.value ?? "-"}
+                  {item.value ?? "0"}
                 </span>
               </div>
             </div>

@@ -297,7 +297,6 @@ export interface PlanDetailsPayload {
 }
 
 export interface SaveSchedulePlanPayload {
-  isDraft: boolean;
   practices: string[];
   route: RouteDataPayload;
   planDetails: PlanDetailsPayload;
@@ -475,7 +474,6 @@ interface PlanSummary {
 // --- 3. Full Schedule Plan Data Type ---
 export interface SchedulePlan {
   planDetails: any;
-  isDraft?: boolean; // Can be implicitly determined from 'label'
   _id: string;
   createdBy: string;
   practices: Practice[];
@@ -485,6 +483,9 @@ export interface SchedulePlan {
   createdAt: string;
   updatedAt: string;
   summary: PlanSummary;
+  visitNotes?: string;
+  visitOutcome?: string;
+  followUp?: boolean;
 }
 
 export interface SchedulePlanDashboardStats {
@@ -520,7 +521,6 @@ interface VisitHistoryItem {
   _id: string;
   createdBy: string;
   practices: Practice[];
-  isDraft: boolean;
   status: "pending" | "completed" | "cancelled"; // Assuming statuses based on context
   createdAt: string;
   updatedAt: string;
@@ -560,4 +560,11 @@ export interface VisitHistoryResponse {
 export interface VisitHistoryQueryParams {
   filter: "all" | "draft" | "completed" | "pending" | "cancel";
   search: string;
+}
+
+export interface VisitStatusUpdateFormValues {
+  status: string;
+  visitNotes: string | null;
+  visitOutcome: string | null;
+  followUp: boolean;
 }

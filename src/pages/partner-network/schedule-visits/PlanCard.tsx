@@ -11,8 +11,24 @@ const PlanCard: React.FC<{
   onView: any;
   onEdit: any;
   onDelete: any;
-}> = ({ plan, onView, onEdit, onDelete }) => {
-  const progress = plan.status === "completed" ? 100 : 0; // Assuming progress calculation is pending or based on completion data not explicitly shown
+  onStatusClick: any;
+}> = ({ plan, onView, onEdit, onDelete, onStatusClick }) => {
+  let progress;
+
+  switch (plan.status) {
+    case "completed":
+      progress = 100;
+      break;
+
+    case "inProgress":
+      progress = 50;
+      break;
+
+    default:
+      progress = 0;
+      break;
+  }
+
   const monthYear = new Date(plan.createdAt).toLocaleDateString("en-US", {
     month: "long",
     year: "numeric",
@@ -43,18 +59,12 @@ const PlanCard: React.FC<{
               {plan.planDetails.name}
             </h4>
             <div className="flex items-center gap-1.5">
-              <VisitStatusChip status={plan.status} />
-              {plan.isDraft && (
-                <Chip
-                  size="sm"
-                  radius="sm"
-                  className="capitalize text-[11px] h-5 bg-red-100 text-red-800"
-                  variant="flat"
-                  color="danger"
-                >
-                  Draft
-                </Chip>
-              )}
+              <span
+                className="flex cursor-pointer"
+                onClick={() => onStatusClick(plan)}
+              >
+                <VisitStatusChip status={plan.status} />
+              </span>
             </div>
           </div>
           <div className="flex items-center gap-2 mb-2 ">
@@ -121,7 +131,13 @@ const PlanCard: React.FC<{
               >
                 <FiEye className="size-3.5" />
               </Button>
-              <Button size="sm" variant="light" title="Edit Plan" isIconOnly onPress={() => onEdit(plan)}>
+              <Button
+                size="sm"
+                variant="light"
+                title="Edit Plan"
+                isIconOnly
+                onPress={() => onEdit(plan)}
+              >
                 <FiEdit className="size-3.5" />
               </Button>
               <Button

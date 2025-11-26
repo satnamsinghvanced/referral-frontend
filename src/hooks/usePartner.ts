@@ -361,6 +361,7 @@ export const useUpdateSchedulePlan = () => {
       });
 
       queryClient.invalidateQueries({ queryKey: [SCHEDULE_PLAN_KEY] });
+      queryClient.invalidateQueries({ queryKey: ["visitHistory"] });
     },
     onError: (error, variables, context) => {
       // Accessing variables.id for logging

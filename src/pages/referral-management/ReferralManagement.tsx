@@ -87,10 +87,6 @@ const ReferralManagement = () => {
   const { data: singleReferrerData, refetch: singleReferrerRefetch } =
     useGetReferrerById(referrerEditId);
 
-  const { data: trackings, isLoading: isLoadingTrackings } = useFetchTrackings(
-    user?.userId
-  );
-
   const { mutate: initiateCall } = useInitiateCall(user?.userId || "");
 
   // ----------------------
@@ -519,15 +515,7 @@ const ReferralManagement = () => {
           )}
 
           {/* --- NFC & QR TRACKING TAB --- */}
-          {selectedReferralType === "NFC & QR Tracking" && (
-            <>
-              {isLoadingTrackings ? (
-                <LoadingState />
-              ) : (
-                <TrackingPanel trackings={trackings} />
-              )}
-            </>
-          )}
+          {selectedReferralType === "NFC & QR Tracking" && <TrackingPanel />}
         </div>
 
         <ReferralManagementActions

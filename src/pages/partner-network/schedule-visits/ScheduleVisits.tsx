@@ -26,79 +26,82 @@ import { LoadingState } from "../../../components/common/LoadingState";
 import EmptyState from "../../../components/common/EmptyState";
 import { VisitHistoryModal } from "./history-modal/VisitHistoryModal";
 import DeleteConfirmationModal from "../../../components/common/DeleteConfirmationModal";
+import ScheduleVisitStatusModal from "./ScheduleVisitStatusModal";
 
-const StatsGrid = ({ stats }: any) => {
-  const statData = [
-    {
-      label: "Total Plans",
-      value: stats.totalPlans,
-      bg: "bg-blue-50",
-      text: "text-blue-600",
-    },
-    {
-      label: "Draft",
-      value: stats.draftCount,
-      bg: "bg-gray-50",
-      text: "text-gray-600",
-    },
-    {
-      label: "Active",
-      value: stats.activeCount,
-      bg: "bg-green-50",
-      text: "text-green-600",
-    },
-    {
-      label: "Completed",
-      value: stats.completedCount,
-      bg: "bg-emerald-50",
-      text: "text-emerald-600",
-    },
-    {
-      label: "Total Practices",
-      value: stats.totalPractices,
-      bg: "bg-orange-50",
-      text: "text-orange-600",
-    },
-    {
-      label: "Total Visits",
-      value: stats.totalVisits,
-      bg: "bg-purple-50",
-      text: "text-purple-600",
-    },
-    {
-      label: "Total Hours",
-      value: Number(stats?.totalHours ?? 0).toFixed(2),
-      bg: "bg-indigo-50",
-      text: "text-indigo-600",
-    },
-    {
-      label: "Total Miles",
-      value: stats.totalMiles,
-      bg: "bg-pink-50",
-      text: "text-pink-600",
-    },
-  ];
+// const StatsGrid = ({ stats }: any) => {
+//   const statData = [
+//     {
+//       label: "Total Plans",
+//       value: stats.totalPlans,
+//       bg: "bg-blue-50",
+//       text: "text-blue-600",
+//     },
+//     {
+//       label: "Draft",
+//       value: stats.draftCount,
+//       bg: "bg-gray-50",
+//       text: "text-gray-600",
+//     },
+//     {
+//       label: "Active",
+//       value: stats.activeCount,
+//       bg: "bg-green-50",
+//       text: "text-green-600",
+//     },
+//     {
+//       label: "Completed",
+//       value: stats.completedCount,
+//       bg: "bg-emerald-50",
+//       text: "text-emerald-600",
+//     },
+//     {
+//       label: "Total Practices",
+//       value: stats.totalPractices,
+//       bg: "bg-orange-50",
+//       text: "text-orange-600",
+//     },
+//     {
+//       label: "Total Visits",
+//       value: stats.totalVisits,
+//       bg: "bg-purple-50",
+//       text: "text-purple-600",
+//     },
+//     {
+//       label: "Total Hours",
+//       value: Number(stats?.totalHours ?? 0).toFixed(2),
+//       bg: "bg-indigo-50",
+//       text: "text-indigo-600",
+//     },
+//     {
+//       label: "Total Miles",
+//       value: stats.totalMiles,
+//       bg: "bg-pink-50",
+//       text: "text-pink-600",
+//     },
+//   ];
 
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 text-sm">
-      {statData.map((stat) => (
-        <div
-          key={stat.label}
-          className={`text-center p-3 ${stat.bg} rounded flex flex-col items-center justify-center`}
-        >
-          <div className={`font-semibold ${stat.text}`}>{stat.value}</div>
-          <div className="text-xs text-gray-600">{stat.label}</div>
-        </div>
-      ))}
-    </div>
-  );
-};
+//   return (
+//     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 text-sm">
+//       {statData.map((stat) => (
+//         <div
+//           key={stat.label}
+//           className={`text-center p-3 ${stat.bg} rounded flex flex-col items-center justify-center`}
+//         >
+//           <div className={`font-semibold ${stat.text}`}>{stat.value}</div>
+//           <div className="text-xs text-gray-600">{stat.label}</div>
+//         </div>
+//       ))}
+//     </div>
+//   );
+// };
 
 export default function ScheduleVisits({
   isHistoryModalOpen,
   setIsHistoryModalOpen,
 }: any) {
   const [isScheduleVisitModalOpen, setIsScheduleVisitModalOpen] =
+    useState(false);
+  const [isScheduleVisitStatusModalOpen, setIsScheduleVisitStatusModalOpen] =
     useState(false);
   const [isViewScheduleVisitModalOpen, setIsViewScheduleVisitModalOpen] =
     useState(false);
@@ -181,6 +184,10 @@ export default function ScheduleVisits({
             setIsDeleteModalOpen(true);
             setDeleteVisitId(planId);
           }}
+          onStatusClick={(p: any) => {
+            setIsScheduleVisitStatusModalOpen(true);
+            setEditPlan(p);
+          }}
         />
       ) : (
         <PlanCard
@@ -197,6 +204,10 @@ export default function ScheduleVisits({
           onDelete={(planId: string) => {
             setIsDeleteModalOpen(true);
             setDeleteVisitId(planId);
+          }}
+          onStatusClick={(p: any) => {
+            setIsScheduleVisitStatusModalOpen(true);
+            setEditPlan(p);
           }}
         />
       )
@@ -281,6 +292,7 @@ export default function ScheduleVisits({
             >
               <SelectItem key="all">All Plans</SelectItem>
               <SelectItem key="active">Active</SelectItem>
+              <SelectItem key="inProgress">In Progress</SelectItem>
               <SelectItem key="draft">Draft</SelectItem>
             </Select>
             <Select
@@ -370,6 +382,13 @@ export default function ScheduleVisits({
         onClose={() => setIsScheduleVisitModalOpen(false)}
         practices={practices}
         editedData={editPlan}
+      />
+
+      <ScheduleVisitStatusModal
+        isOpen={isScheduleVisitStatusModalOpen}
+        onClose={() => setIsScheduleVisitStatusModalOpen(false)}
+        visit={editPlan}
+        setVisitEdit={setEditPlan}
       />
 
       {viewPlan && (
