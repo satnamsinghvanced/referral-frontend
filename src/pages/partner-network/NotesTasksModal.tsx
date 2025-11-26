@@ -418,7 +418,6 @@ NotesTasksModalProps) => {
                               setNewTaskTitle("");
                               setNewTaskDescription("");
                               setNewTaskDueDate("");
-                              setNewTaskAssignTo([""]);
                               refetch();
                             },
                           }
