@@ -212,7 +212,7 @@ const PartnerNetwork = () => {
             </div>
 
             <div className="flex flex-col gap-4 border border-primary/15 rounded-xl p-4 bg-background/80">
-              <div className="font-medium text-sm">Partner Practices</div>
+              <h4 className="font-medium text-sm">Partner Practices</h4>
               {isLoading && <LoadingState />}
               {!isLoading && practices.length === 0 && (
                 <EmptyState title="No partners found with current filters." />

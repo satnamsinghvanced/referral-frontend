@@ -19,7 +19,7 @@ interface PartnerNetworkCardProps {
 
 const PartnerNetworkCard = ({ partner, actions }: PartnerNetworkCardProps) => {
   return (
-    <div className="flex items-center justify-between border border-foreground/10  rounded-lg p-4 bg-background ">
+    <div className="flex items-center justify-between border border-foreground/10 rounded-lg p-4 bg-background">
       <div className="min-size-10 size-10 aspect-square bg-blue-100 text-blue-600 p-0.5 mr-2 rounded-lg flex justify-center items-center">
         <LuBuilding2 className="text-[22px]" />
       </div>

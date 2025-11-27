@@ -82,7 +82,6 @@ function AppRoutes() {
   const [referralPath, setReferralPath] = useState("referral");
   const pathname = window.location.pathname;
   const segments = pathname.split("/");
-  console.log(segments)
   const documentId = segments[3];
 
   const { data: trackings } = useFetchTrackings(documentId as string);
