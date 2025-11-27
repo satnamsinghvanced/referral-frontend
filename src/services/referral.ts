@@ -122,8 +122,8 @@ export const updateTracking = async (
 };
 
 // 3. Fetch tracking entries with pagination
-export const fetchTrackings = async () => {
-  const { data } = await axios.get("/tracking/");
+export const fetchTrackings = async (id: any) => {
+  const { data } = await axios.get(`/tracking/${id}`);
   return data;
 };
 

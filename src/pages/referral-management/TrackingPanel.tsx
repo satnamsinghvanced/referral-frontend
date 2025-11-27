@@ -21,7 +21,7 @@ const TrackingPanel = () => {
   const { user } = useTypedSelector((state) => state.auth);
   const userId = user?.userId;
 
-  const { data: trackings } = useFetchTrackings();
+  const { data: trackings } = useFetchTrackings(userId as string);
   const { mutate: createTrackingSetup } = useCreateTrackingSetup();
 
   const handleCopy = async (identifier: string, value?: string) => {

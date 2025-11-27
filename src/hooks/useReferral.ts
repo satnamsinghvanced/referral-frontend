@@ -305,10 +305,11 @@ export const useUpdateTracking = () =>
   });
 
 // Fetch tracking list
-export const useFetchTrackings = () =>
+export const useFetchTrackings = (id: string) =>
   useQuery<TrackingResponseData, Error>({
     queryKey: ["trackings"],
-    queryFn: () => fetchTrackings(),
+    queryFn: () => fetchTrackings(id),
+    enabled: !!id
   });
 
 // Log tracking scan

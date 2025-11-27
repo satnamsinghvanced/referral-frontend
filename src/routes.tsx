@@ -1,14 +1,17 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./pages/auth/ProtectedRoute";
 import QrGenerator from "./pages/qr-generator/QrGenerator";
+import { useFetchTrackings } from "./hooks/useReferral";
 
 const Layout = React.lazy(() => import("./components/layout/Layout"));
 const Dashboard = React.lazy(() => import("./pages/Dashboard"));
 const Analytics = React.lazy(() => import("./pages/Analytics"));
 const HelpCenter = React.lazy(() => import("./pages/HelpCenter"));
 const EmailCampaign = React.lazy(() => import("./pages/EmailCampaigns"));
-const MarketingBudget = React.lazy(() => import("./pages/marketing-budget/MarketingBudget"));
+const MarketingBudget = React.lazy(
+  () => import("./pages/marketing-budget/MarketingBudget")
+);
 const MarketingCalendar = React.lazy(
   () => import("./pages/marketing-calender/MarketingCalendar")
 );
@@ -75,6 +78,26 @@ interface AppRoute {
 }
 
 function AppRoutes() {
+  const [referralPath, setReferralPath] = useState("referral");
+  const pathname = window.location.pathname;
+  const segments = pathname.split("/");
+  console.log(segments)
+  const documentId = segments[3];
+
+  const { data: trackings } = useFetchTrackings(documentId as string);
+
+  useEffect(() => {
+    if (trackings?.referralUrl) {
+      const urlObject = new URL(trackings?.referralUrl);
+      const pathname = urlObject.pathname;
+      const segments = pathname
+        .split("/")
+        .filter((segment) => segment.length > 0);
+      const targetSegment = segments[1];
+      setReferralPath(targetSegment as string);
+    }
+  }, [trackings, referralPath]);
+
   const routesList: AppRoute[] = [
     { path: "visit-map", element: <VisitMap /> },
     {
@@ -131,7 +154,7 @@ function AppRoutes() {
     { path: "terms", element: <Terms /> },
     { path: "privacy", element: <PrivacyPolicy /> },
     {
-      path: "/referral/",
+      path: `/${referralPath}/`,
       element: <PatientForm />,
       children: [{ path: ":id", element: <PatientForm /> }],
     },
