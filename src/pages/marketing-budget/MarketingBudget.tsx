@@ -20,6 +20,7 @@ import {
   YAxis,
 } from "recharts";
 import { FiPieChart } from "react-icons/fi";
+import YearlyBudgetItems from "./YearlyBudget";
 
 const MarketingBudget = () => {
   const HEADING_DATA = {
@@ -239,6 +240,8 @@ const MarketingBudget = () => {
             </CardBody>
           </Card>
         </div>
+        {/*  Yearly List  */}
+        <YearlyBudgetItems />
       </div>
     </ComponentContainer>
   );
