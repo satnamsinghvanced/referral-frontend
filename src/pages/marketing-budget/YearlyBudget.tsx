@@ -98,7 +98,6 @@ const BudgetItemCard: React.FC<{ item: BudgetItem }> = ({ item }) => {
           >
             {item.status}
           </Chip>
-
           <Chip
             size="sm"
             variant="flat"
@@ -106,7 +105,6 @@ const BudgetItemCard: React.FC<{ item: BudgetItem }> = ({ item }) => {
           >
             {item.priority}
           </Chip>
-
           <Button
             isIconOnly
             size="sm"
@@ -115,7 +113,6 @@ const BudgetItemCard: React.FC<{ item: BudgetItem }> = ({ item }) => {
           >
             <PencilSquareIcon className="h-4 w-4" />
           </Button>
-
           <Button
             isIconOnly
             size="sm"
@@ -127,15 +124,12 @@ const BudgetItemCard: React.FC<{ item: BudgetItem }> = ({ item }) => {
           </Button>
         </div>
       </CardHeader>
-
       <CardBody className="space-y-4">
         <p className="text-sm text-gray-600">{item.description}</p>
-
         <div className="flex items-center gap-2 text-sm text-gray-500">
           <CalendarIcon className="h-4 w-4" />
           <span>{item.dateRange}</span>
         </div>
-
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm pt-2">
           <div>
             <p className="text-gray-500">Budget</p>
@@ -143,27 +137,23 @@ const BudgetItemCard: React.FC<{ item: BudgetItem }> = ({ item }) => {
               ${item.budget.toLocaleString()}
             </p>
           </div>
-
           <div>
             <p className="text-gray-500">Spent</p>
             <p className="font-medium text-gray-900">
               ${item.spent.toLocaleString()}
             </p>
           </div>
-
           <div>
             <p className="text-gray-500">Remaining</p>
             <p className="font-medium text-gray-900">
               ${(item.budget - item.spent).toLocaleString()}
             </p>
           </div>
-
           <div>
             <p className="text-gray-500">ROI</p>
             <p className="font-medium text-yellow-600">{item.roi}%</p>
           </div>
         </div>
-
         <div className="pt-1 space-y-2">
           <div className="flex justify-between text-xs font-medium">
             <span className="text-gray-500">Budget utilization</span>

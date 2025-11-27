@@ -3,6 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./pages/auth/ProtectedRoute";
 import QrGenerator from "./pages/qr-generator/QrGenerator";
 import { useFetchTrackings } from "./hooks/useReferral";
+import MarketingReport from "./pages/reports/MarketingReports";
 
 const Layout = React.lazy(() => import("./components/layout/Layout"));
 const Dashboard = React.lazy(() => import("./pages/Dashboard"));
@@ -26,7 +27,7 @@ const Reviews = React.lazy(() => import("./pages/reviews/Reviews"));
 const SocialMedia = React.lazy(
   () => import("./pages/social-media/SocialMedia")
 );
-const Reports = React.lazy(() => import("./pages/Reports"));
+const Reports = React.lazy(() => import("./pages/reports/Report"));
 const Tasks = React.lazy(() => import("./pages/tasks/Tasks"));
 const MediaManagement = React.lazy(
   () => import("./pages/media-management/MediaManagement")
@@ -53,7 +54,7 @@ const NotificationAnalytics = React.lazy(
   () => import("./pages/settings/NotificationAnalytics")
 );
 const Profile = React.lazy(() => import("./pages/settings/Profile"));
-const SignIn = React.lazy(() => import("./pages/auth/SignIn")); // ✅ corrected typo
+const SignIn = React.lazy(() => import("./pages/auth/SignIn"));
 const Support = React.lazy(() => import("./pages/support/SupportPage"));
 const Terms = React.lazy(() => import("./pages/terms/TermsPage"));
 const PrivacyPolicy = React.lazy(
@@ -119,7 +120,15 @@ function AppRoutes() {
         { path: "marketing-calendar", element: <MarketingCalendar /> },
         { path: "qr-generator", element: <QrGenerator /> },
         { path: "marketing-budget", element: <MarketingBudget /> },
-        { path: "reports", element: <Reports /> },
+        {
+          path: "reports",
+          element: <Reports />,
+          children: [
+            { path: "marketing", element: <MarketingReport /> },
+            // { path: "referral-performance", element: <ReferralReport /> },
+            // { path: "reviews", element: <ReviewReport /> },
+          ],
+        },
         { path: "tasks", element: <Tasks /> },
         { path: "media-management", element: <MediaManagement /> },
         { path: "integrations", element: <Integrations /> },
