@@ -69,7 +69,7 @@ const Analytics: React.FC = () => {
           ))}
         </div>
         <div>
-          {/* <GoogleAnalytics /> */}
+          <GoogleAnalytics />
         </div>
       </div>
     </ComponentContainer>
