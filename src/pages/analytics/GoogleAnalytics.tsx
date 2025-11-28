@@ -3,12 +3,12 @@ import ComponentContainer from "../../components/common/ComponentContainer";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
 import { LuTrendingUp, LuUsers, LuTarget, LuCalendar } from "react-icons/lu";
 import { MdBarChart } from "react-icons/md";
-import GoogleAnalytics from "./GoogleAnalytics";
 
-const Analytics: React.FC = () => {
+const GoogleAnalytics: React.FC = () => {
   const HEADING_DATA = {
+    
     heading: "Analytics Dashboard",
-    subHeading:
+    subHeading: 
       "Track your practice performance and referral trends with detailed insights.",
   };
 
@@ -61,19 +61,14 @@ const Analytics: React.FC = () => {
   ];
 
   return (
-    <ComponentContainer headingData={HEADING_DATA}>
       <div className=" ">
         <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
           {STAT_CARD_DATA.map((data, i) => (
             <MiniStatsCard key={i} cardData={data} />
           ))}
         </div>
-        <div>
-          {/* <GoogleAnalytics /> */}
-        </div>
       </div>
-    </ComponentContainer>
   );
 };
 
-export default Analytics;
+export default GoogleAnalytics;
