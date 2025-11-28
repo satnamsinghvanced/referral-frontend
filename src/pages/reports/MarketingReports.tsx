@@ -9,8 +9,8 @@ import {
   LuDollarSign,
   LuTrendingDown,
 } from "react-icons/lu";
-import { ArrowUpRight, ArrowDownRight } from "lucide-react";
 import React from "react";
+import { BsArrowDownRight, BsArrowUpRight } from "react-icons/bs";
 
 const LocalCardTitle: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = ({
   className,
@@ -280,7 +280,7 @@ const MetricBlock: React.FC<{ metric: MetricData }> = ({ metric }) => {
     },
   };
   const colors = colorMap[metric.color];
-  const Icon = metric.changeType === "up" ? ArrowUpRight : ArrowDownRight;
+  const Icon = metric.changeType === "up" ? BsArrowUpRight : BsArrowDownRight;
   const changeColor =
     metric.changeType === "up" ? "text-emerald-600" : "text-red-600";
 
