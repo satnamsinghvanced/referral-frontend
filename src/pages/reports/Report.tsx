@@ -1,17 +1,18 @@
-import React, { useState } from 'react';
+import { useState } from "react";
 import { LuFileText, LuActivity, LuClock, LuDownload } from "react-icons/lu";
 import { AiOutlinePlus } from "react-icons/ai";
-
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import SampleReports from "./SampleReports";
 import RecentReportsList from "./RecentReport";
-
-// import { GenerateReportDialog } from './GenerateReportDialog'; 
+import GenerateNewReport from "./GenerateNewReport";
 
 const Reports = () => {
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-
+  const [isNewReportModalOpen, setIsNewReportModalOpen] = useState(false);
+  const [reportData, setReportData] = useState({
+    id: "report-001",
+    name: "Generate New Report",
+  });
   const STAT_CARD_DATA = [
     {
       icon: <LuFileText className="text-[20px] mt-1 text-blue-500" />,
@@ -41,7 +42,6 @@ const Reports = () => {
       ),
     },
   ];
-
   const HEADING_DATA = {
     heading: "Marketing Reports",
     subHeading:
@@ -50,8 +50,11 @@ const Reports = () => {
       {
         label: "Generate New Report",
         onClick: () => {
-          setIsDialogOpen(true);
-          console.log("Click on Generate New Report - Opening Dialog");
+          setReportData({
+            id: "report-001",
+            name: "Generate New Report",
+          });
+          setIsNewReportModalOpen(true);
         },
         icon: <AiOutlinePlus fontSize={15} />,
         variant: "solid" as const,
@@ -61,26 +64,28 @@ const Reports = () => {
   };
 
   return (
-    <ComponentContainer headingData={HEADING_DATA}>
-      <div className="flex flex-col gap-5">
-        <div className="space-y-5">
-          <SampleReports />
-          <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
-            {STAT_CARD_DATA.map((data, i) => (
-              <MiniStatsCard key={i} cardData={data} />
-            ))}
+    <>
+      <ComponentContainer headingData={HEADING_DATA}>
+        <div className="flex flex-col gap-5">
+          <div className="space-y-5">
+            <SampleReports />
+            <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
+              {STAT_CARD_DATA.map((data, i) => (
+                <MiniStatsCard key={i} cardData={data} />
+              ))}
+            </div>
+          </div>
+          <div className="border border-gray-200 bg-white rounded-[12px] p-[21px]">
+            <RecentReportsList />
           </div>
         </div>
-        <div className=" border border-gray-200 bg-[#fff] rounded-[12px] p-[21px]">
-          <RecentReportsList />
-        </div>
-      </div>
-
-      {/* <GenerateReportDialog 
-        isOpen={isDialogOpen} 
-        onOpenChange={setIsDialogOpen} 
-      /> */}
-    </ComponentContainer>
+      </ComponentContainer>
+      <GenerateNewReport
+        isOpen={isNewReportModalOpen}
+        onClose={() => setIsNewReportModalOpen(false)}
+        practice={reportData}
+      />
+    </>
   );
 };
 

@@ -103,7 +103,6 @@ function AppRoutes() {
     {
       path: "/",
       element: (
-        // 2. Wrap the Layout element with the ProtectedRoute
         <ProtectedRoute>
           <Layout />
         </ProtectedRoute>
