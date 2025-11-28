@@ -1,18 +1,19 @@
 import React from "react";
-import ComponentContainer from "../components/common/ComponentContainer";
+import ComponentContainer from "../../components/common/ComponentContainer";
 
 const Analytics: React.FC = () => {
-  const headingData: {
+  const HEADING_DATA: {
     heading: string;
     subHeading?: string;
     buttons?: undefined;
   } = {
     heading: "Analytics Overview",
-    subHeading: "Analytics ",
+    subHeading:
+      "Track your practice performance and referral trends with detailed insights.",
   };
 
   return (
-    <ComponentContainer headingData={headingData}>
+    <ComponentContainer headingData={HEADING_DATA}>
       <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
         <p className="text-sm text-yellow-800 flex items-center">
           <span className="text-xl mr-2">🚧</span>

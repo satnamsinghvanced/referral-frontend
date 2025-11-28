@@ -5,8 +5,8 @@ import QrGenerator from "./pages/qr-generator/QrGenerator";
 import { useFetchTrackings } from "./hooks/useReferral";
 
 const Layout = React.lazy(() => import("./components/layout/Layout"));
-const Dashboard = React.lazy(() => import("./pages/Dashboard"));
-const Analytics = React.lazy(() => import("./pages/Analytics"));
+const Dashboard = React.lazy(() => import("./pages/dashboard/Dashboard"));
+const Analytics = React.lazy(() => import("./pages/analytics/Analytics"));
 const HelpCenter = React.lazy(() => import("./pages/HelpCenter"));
 const EmailCampaign = React.lazy(() => import("./pages/EmailCampaigns"));
 const MarketingBudget = React.lazy(

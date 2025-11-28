@@ -35,27 +35,6 @@ import {
 } from "../../hooks/useBudget";
 import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
 
-// Mock Chart data for demonstration, this would ideally be calculated from allBudgetItems
-const TREND_GRAPH_DATA = [
-  { name: "Jan", budget: 456, spent: 142 },
-  { name: "Feb", budget: 338, spent: 98 },
-  { name: "Mar", budget: 289, spent: 67 },
-  { name: "Apr", budget: 165, spent: 35 },
-  { name: "May", budget: 165, spent: 35 },
-  { name: "Jun", budget: 165, spent: 35 },
-  { name: "Jul", budget: 165, spent: 35 },
-  { name: "Aug", budget: 165, spent: 35 },
-  { name: "Sep", budget: 165, spent: 35 },
-  { name: "Oct", budget: 165, spent: 35 },
-  { name: "Nov", budget: 165, spent: 35 },
-  { name: "Dec", budget: 165, spent: 35 },
-];
-
-const BUDGET_BY_CATEGORY_GRAPH = [
-  { name: "Digital Advertising", value: 5000, fill: "#3b82f6" },
-  { name: "Social Media Marketing", value: 2500, fill: "#8b5cf6" },
-];
-
 const MarketingBudget = () => {
   const [selectedDuration, setSelectedDuration] = useState("monthly"); // Set default to 'yearly' to match API example
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -79,8 +58,6 @@ const MarketingBudget = () => {
   const budgetItemEditHandler = (budget: BudgetItem) => {
     setEditBudgetItem(budget);
     setIsModalOpen(true);
-
-    console.log("HHUHU", budget)
   };
 
   const PieChartCustomLabel = (props: any) => {
@@ -95,6 +72,7 @@ const MarketingBudget = () => {
     totalBudget: 0,
     totalSpent: 0,
     remainingBudget: 0,
+    roi: 0,
   };
   const percentageSpent = stats.totalBudget
     ? ((stats.totalSpent / stats.totalBudget) * 100).toFixed(1)
@@ -122,7 +100,7 @@ const MarketingBudget = () => {
     {
       icon: <IoMdTrendingUp className="text-[17px] mt-1 text-purple-600" />,
       heading: "Average ROI",
-      value: isLoading ? "..." : "---", // ROI needs calculation logic
+      value: isLoading ? "..." : `${stats.roi.toLocaleString()}%`, // ROI needs calculation logic
     },
   ];
 
@@ -139,10 +117,6 @@ const MarketingBudget = () => {
       },
     ],
   };
-
-  if (isError) {
-    return <p className="text-red-500">Error fetching budget data.</p>;
-  }
 
   return (
     <>
@@ -204,7 +178,7 @@ const MarketingBudget = () => {
                       fontSize: "14px",
                     }}
                     responsive
-                    data={TREND_GRAPH_DATA}
+                    data={data?.monthlyStats}
                     margin={{ top: 5, right: 0, left: 0, bottom: 5 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
@@ -220,13 +194,13 @@ const MarketingBudget = () => {
                     <Bar
                       dataKey="budget"
                       barSize={30}
-                      fill="#e5e7eb"
+                      fill="#3b82f6"
                       isAnimationActive
                     />
                     <Bar
                       dataKey="spent"
                       barSize={30}
-                      fill="#3b82f6"
+                      fill="#10b981"
                       isAnimationActive
                     />
                   </BarChart>
@@ -248,22 +222,20 @@ const MarketingBudget = () => {
                   style={{
                     width: "100%",
                     height: "100%",
-                    maxHeight: "340px",
-                    aspectRatio: 1,
-                    display: "flex",
-                    flexDirection: "column-reverse",
-                    gap: "20px",
+                    maxHeight: "400px",
+                    padding: "40px"
                   }}
                   responsive
                 >
                   <Pie
-                    data={BUDGET_BY_CATEGORY_GRAPH}
+                    data={data?.budgetByCategoryGraph}
                     dataKey="value"
                     cx="50%"
                     cy="50%"
                     outerRadius="100%"
                     isAnimationActive
                     label={PieChartCustomLabel}
+                    className="w-1/2"
                   />
                   <Tooltip />
                 </PieChart>
@@ -280,8 +252,8 @@ const MarketingBudget = () => {
             </div>
 
             <div className="space-y-4">
-              {data?.allBudgetItems.length ? (
-                data.allBudgetItems.map((item: BudgetItem) => (
+              {data?.budgetItems.length ? (
+                data.budgetItems.map((item: BudgetItem) => (
                   <BudgetItemCard
                     key={item._id}
                     item={item}

@@ -46,11 +46,14 @@ export interface BudgetItem {
 }
 
 export interface BudgetListResponse {
-  allBudgetItems: BudgetItem[];
+  budgetItems: BudgetItem[];
+  monthlyStats: any;
+  budgetByCategoryGraph: any;
   stats: {
     totalBudget: number;
     totalSpent: number;
     remainingBudget: number;
+    roi: number;
   };
   pagination: {
     page: number;

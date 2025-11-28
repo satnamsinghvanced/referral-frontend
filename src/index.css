@@ -352,3 +352,7 @@ input[type="number"] {
 .mapboxgl-popup-close-button {
   display: none;
 }
+
+.recharts-surface {
+  overflow: visible;
+}

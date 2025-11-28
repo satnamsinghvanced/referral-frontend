@@ -7,6 +7,7 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
+  Progress,
   Select,
   SelectItem,
   Textarea,
@@ -45,6 +46,8 @@ interface BudgetFormValues {
   category: string;
   subCategory: string;
   budgetAmount: number | "";
+  actualSpent?: number | "";
+  roi?: number | "";
   period: string;
   priority: string;
   status: string;
@@ -76,24 +79,28 @@ export default function BudgetActionModal({
         category: editedData.marketingCategory?._id || "",
         subCategory: editedData.subCategory?._id || "",
         budgetAmount: editedData.budget,
-        period: editedData.period || "monthly",
-        priority: editedData.priority || "medium",
-        status: editedData.status || "active",
+        actualSpent: editedData.spent || "", // ⬅ added
+        roi: editedData.roi || "", // ⬅ added
+        period: editedData.period,
+        priority: editedData.priority,
+        status: editedData.status,
         description: editedData.description || "",
-        startDate: editedData.startDate.split("T")[0] || "",
-        endDate: editedData.endDate.split("T")[0] || "",
+        startDate: editedData.startDate.split("T")[0],
+        endDate: editedData.endDate.split("T")[0],
       };
     }
     return {
       category: "",
       subCategory: "",
       budgetAmount: "",
+      actualSpent: "", // add empty for new item (hidden anyway)
+      roi: "",
       period: "monthly",
       priority: "medium",
       status: "active",
       description: "",
       startDate: "",
-      endDate: null,
+      endDate: "",
     };
   }, [editedData]);
 
@@ -104,6 +111,8 @@ export default function BudgetActionModal({
     onSubmit: (values) => {
       const payload = {
         budget: Number(values.budgetAmount),
+        spent: Number(values.actualSpent),
+        roi: Number(values.roi),
         period: values.period,
         priority: values.priority,
         status: values.status,
@@ -129,6 +138,11 @@ export default function BudgetActionModal({
     }
   }, [createMutation.isSuccess, updateMutation.isSuccess]);
 
+  const utilization =
+    formik.values.actualSpent && formik.values.budgetAmount
+      ? (formik.values.actualSpent / formik.values.budgetAmount) * 100
+      : 0;
+
   const modalTitle = isEdit ? "Edit Budget Item" : "Add New Budget Item";
   const buttonLabel = isEdit ? "Save Changes" : "Add Budget Item";
 
@@ -148,9 +162,7 @@ export default function BudgetActionModal({
             <h2 className="leading-none font-medium text-base">{modalTitle}</h2>
             <p className="text-xs text-gray-600 mt-2 font-normal">
               {isEdit
-                ? `Update the details for budget item ${editedData?._id?.slice(
-                    -4
-                  )}.`
+                ? `Update the details for ${editedData?.marketingCategory.title} budget item.`
                 : "Create a new budget item to track your marketing spend across different categories and periods."}
             </p>
           </ModalHeader>
@@ -172,7 +184,10 @@ export default function BudgetActionModal({
                   formik.setFieldValue("subCategory", ""); // Reset subcategory on category change
                 }}
                 onBlur={() => formik.handleBlur("category")}
-                isInvalid={!!formik.errors.category && (!!formik.touched.category as boolean)}
+                isInvalid={
+                  !!formik.errors.category &&
+                  (!!formik.touched.category as boolean)
+                }
                 errorMessage={formik.touched.category && formik.errors.category}
               >
                 {(categories || [])?.map((cat: any) => (
@@ -242,6 +257,42 @@ export default function BudgetActionModal({
               />
             </div>
 
+            {isEdit && (
+              <div className="col-span-2 sm:col-span-1">
+                <Input
+                  size="sm"
+                  radius="sm"
+                  label="Actual Spent"
+                  labelPlacement="outside-top"
+                  name="actualSpent"
+                  type="number"
+                  startContent={<span className="text-gray-500">$</span>}
+                  placeholder="0"
+                  max={formik.values.budgetAmount}
+                  value={formik.values.actualSpent?.toString() ?? ""}
+                  onChange={(e) =>
+                    formik.setFieldValue("actualSpent", e.target.value)
+                  }
+                />
+              </div>
+            )}
+
+            {isEdit && (
+              <div className="col-span-2 sm:col-span-1">
+                <Input
+                  size="sm"
+                  radius="sm"
+                  label="ROI (%)"
+                  labelPlacement="outside-top"
+                  name="roi"
+                  type="number"
+                  placeholder="0"
+                  value={formik.values.roi?.toString() ?? ""}
+                  onChange={(e) => formik.setFieldValue("roi", e.target.value)}
+                />
+              </div>
+            )}
+
             <div className="col-span-2 sm:col-span-1">
               <Select
                 size="sm"
@@ -251,7 +302,6 @@ export default function BudgetActionModal({
                 placeholder="Select period"
                 selectedKeys={[formik.values.period]}
                 disabledKeys={[formik.values.period]}
-                isRequired
                 onSelectionChange={(keys) =>
                   formik.setFieldValue("period", Array.from(keys)[0] || "")
                 }
@@ -390,26 +440,56 @@ export default function BudgetActionModal({
             </div>
           </ModalBody>
 
-          <ModalFooter className="flex justify-end gap-2 px-5 pb-5 pt-0">
-            <Button
-              size="sm"
-              variant="ghost"
-              onPress={onClose}
-              className="border border-gray-300 text-gray-700 hover:bg-gray-50"
-              isDisabled={isLoading}
-            >
-              Cancel
-            </Button>
-            <Button
-              size="sm"
-              variant="solid"
-              color="primary"
-              type="submit"
-              isLoading={isLoading}
-              isDisabled={isLoading || !formik.isValid}
-            >
-              {buttonLabel}
-            </Button>
+          <ModalFooter className="flex flex-col justify-end gap-2 px-5 pb-5 pt-0">
+            {isEdit && (
+              <div className="col-span-2 rounded-md bg-gray-100 px-4 py-3">
+                <div className="flex justify-between text-xs mb-2">
+                  <span className="text-gray-600">Remaining Budget:</span>
+                  <span className="font-medium">
+                    $
+                    {formik.values.budgetAmount && formik.values.actualSpent
+                      ? formik.values.budgetAmount - formik.values.actualSpent
+                      : 0}
+                  </span>
+                </div>
+
+                <div className="flex justify-between text-xs mb-2">
+                  <span className="text-gray-600">Budget Utilization:</span>
+                  <span className="font-medium">{utilization.toFixed(1)}%</span>
+                </div>
+
+                {/* Progress Bar */}
+                <Progress
+                  aria-label="Budget utilization"
+                  value={utilization}
+                  color="primary"
+                  className="h-2"
+                  radius="full"
+                />
+              </div>
+            )}
+
+            <div className="flex items-center justify-end gap-2 mt-2">
+              <Button
+                size="sm"
+                variant="ghost"
+                onPress={onClose}
+                className="border border-gray-300 text-gray-700 hover:bg-gray-50"
+                isDisabled={isLoading}
+              >
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                variant="solid"
+                color="primary"
+                type="submit"
+                isLoading={isLoading}
+                isDisabled={isLoading || !formik.isValid || !formik.dirty}
+              >
+                {buttonLabel}
+              </Button>
+            </div>
           </ModalFooter>
         </form>
       </ModalContent>
