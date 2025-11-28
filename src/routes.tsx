@@ -3,7 +3,6 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./pages/auth/ProtectedRoute";
 import QrGenerator from "./pages/qr-generator/QrGenerator";
 import { useFetchTrackings } from "./hooks/useReferral";
-import MarketingReport from "./pages/reports/MarketingReports";
 
 const Layout = React.lazy(() => import("./components/layout/Layout"));
 const Dashboard = React.lazy(() => import("./pages/Dashboard"));
@@ -28,6 +27,10 @@ const SocialMedia = React.lazy(
   () => import("./pages/social-media/SocialMedia")
 );
 const Reports = React.lazy(() => import("./pages/reports/Report"));
+const MarketingReport = React.lazy(
+  () => import("./pages/reports/MarketingReports")
+);
+
 const Tasks = React.lazy(() => import("./pages/tasks/Tasks"));
 const MediaManagement = React.lazy(
   () => import("./pages/media-management/MediaManagement")
@@ -39,6 +42,7 @@ const Settings = React.lazy(() => import("./pages/settings/Settings"));
 const Notifications = React.lazy(
   () => import("./pages/settings/Notifications")
 );
+
 const Security = React.lazy(() => import("./pages/settings/Security"));
 const Billing = React.lazy(() => import("./pages/settings/Billing"));
 const Locations = React.lazy(() => import("./pages/settings/Locations"));
@@ -121,11 +125,7 @@ function AppRoutes() {
         {
           path: "reports",
           element: <Reports />,
-          children: [
-            { path: "marketing", element: <MarketingReport /> },
-            // { path: "referral-performance", element: <ReferralReport /> },
-            // { path: "reviews", element: <ReviewReport /> },
-          ],
+          children: [{ path: "marketing", element: <MarketingReport /> }],
         },
         { path: "tasks", element: <Tasks /> },
         { path: "media-management", element: <MediaManagement /> },

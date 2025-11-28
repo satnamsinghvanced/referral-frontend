@@ -8,9 +8,19 @@ import {
   Select,
   SelectItem,
 } from "@heroui/react";
-
 import { useState } from "react";
-import { LuFileText, LuDownload, LuUsers } from "react-icons/lu";
+import {
+  LuTrendingUp,
+  LuDownload,
+  LuUsers,
+  LuFileText,
+  LuMessageSquare,
+  LuStar,
+  LuPhone,
+  LuDollarSign,
+  LuActivity,
+} from "react-icons/lu";
+import { MdOutlineBarChart } from "react-icons/md";
 
 const REPORT_CATEGORIES = [
   {
@@ -18,8 +28,31 @@ const REPORT_CATEGORIES = [
     label: "Referral Analytics",
     icon: <LuUsers className="h-4 w-4 text-blue-600" />,
   },
-  { key: "roi", label: "Marketing ROI" },
-  { key: "campaign", label: "Campaign Performance" },
+  {
+    key: "marketing",
+    label: "Marketing Performance",
+    icon: <LuTrendingUp className="h-4 w-4 text-green-600" />,
+  },
+  {
+    key: "analytics",
+    label: "Social Media Analytics",
+    icon: <LuMessageSquare className="h-4 w-4 text-purple-600" />,
+  },
+  {
+    key: "review",
+    label: "Review  Analytics",
+    icon: <LuStar className="h-4 w-4 text-orange-600" />,
+  },
+  {
+    key: "communication",
+    label: "Communication  Analytics",
+    icon: <LuPhone className="h-4 w-4 text-red-600" />,
+  },
+  {
+    key: "financial",
+    label: "Financial Reports",
+    icon: <LuDollarSign className="h-4 w-4 text-green-600" />,
+  },
 ];
 
 const EXPORT_FORMATS = [
@@ -28,15 +61,31 @@ const EXPORT_FORMATS = [
     label: "PDF Document",
     icon: <LuFileText className="h-4 w-4" />,
   },
-  { key: "csv", label: "CSV File" },
-  { key: "xlsx", label: "Excel Spreadsheet" },
+  {
+    key: "xlsx",
+    label: "Excel Spreadsheet",
+    icon: <MdOutlineBarChart className="h-4 w-4" />,
+  },
+  {
+    key: "csv",
+    label: "CSV File",
+    icon: <LuFileText className="h-4 w-4" />,
+  },
+  {
+    key: "interactive-dashboard",
+    label: "Interactive Dashboard",
+    icon: <LuActivity className="h-4 w-4" />,
+  },
 ];
 
 const TIME_RANGES = [
+  { key: "7days", label: "Last 7 Days" },
   { key: "30days", label: "Last 30 Days" },
   { key: "90days", label: "Last 90 Days" },
-  { key: "q1_2024", label: "Q1 2024" },
-  { key: "custom", label: "Custom Range" },
+  { key: "quarter", label: "Last Quarter" },
+  { key: "lastYear", label: "Last Year" },
+  // { key: "YearToDate", label: "Year to Date" },
+  // { key: "custom", label: "Custom Range" },
 ];
 
 interface ReportFormState {
@@ -53,15 +102,16 @@ interface ReportFormState {
 interface ReportModalProps {
   isOpen: boolean;
   onClose: () => void;
+  practice:any | null;
 }
 
-const GenerateNewReportModal = ({ isOpen, onClose  }: ReportModalProps) => {
+const GenerateNewReportModal = ({ isOpen, onClose , practice }: ReportModalProps) => {
   const [formData, setFormData] = useState<ReportFormState>({
     reportName: "",
-    category: REPORT_CATEGORIES[0].key,
+    category: REPORT_CATEGORIES[0]?.key as string,
     reportType: "",
-    timeRange: TIME_RANGES[0].key,
-    exportFormat: EXPORT_FORMATS[0].key,
+    timeRange: TIME_RANGES[0]?.key as any,
+    exportFormat: EXPORT_FORMATS[0]?.key as any,
     includeCharts: true,
     includeRawData: false,
     scheduleRecurring: false,
@@ -119,6 +169,7 @@ const GenerateNewReportModal = ({ isOpen, onClose  }: ReportModalProps) => {
             </label>
             <Select
               selectedKeys={[formData.category]}
+              disabledKeys={[formData.category]}
               onSelectionChange={(keys) =>
                 handleChange("category", keys.currentKey as string)
               }
@@ -127,10 +178,7 @@ const GenerateNewReportModal = ({ isOpen, onClose  }: ReportModalProps) => {
                 if (!item) return null;
                 const cat = REPORT_CATEGORIES.find((c) => c.key === item.key);
                 return (
-                  <div className="flex items-center gap-2">
-                    {cat?.icon}
-                    {item.rendered}
-                  </div>
+                  <div className="flex items-center gap-2">{item.rendered}</div>
                 );
               }}
             >
@@ -152,13 +200,24 @@ const GenerateNewReportModal = ({ isOpen, onClose  }: ReportModalProps) => {
             <Select
               placeholder="Select report type"
               selectedKeys={formData.reportType ? [formData.reportType] : []}
+              disabledKeys={formData.reportType ? [formData.reportType] : []}
               onSelectionChange={(keys) =>
                 handleChange("reportType", keys.currentKey as string)
               }
             >
-              <SelectItem key="summary">Summary Report</SelectItem>
-              <SelectItem key="detailed">Detailed Drilldown</SelectItem>
-              <SelectItem key="trend">Historical Trend</SelectItem>
+              <SelectItem key="social-engagement">
+                Social Engagement{" "}
+              </SelectItem>
+              <SelectItem key="social-reach">Social Reach</SelectItem>
+              <SelectItem key="social-conversion">
+                Social Conversions
+              </SelectItem>
+              <SelectItem key="influencer-performance">
+                Influencer Performance
+              </SelectItem>
+              <SelectItem key="content-performance">
+                Content Performance
+              </SelectItem>
             </Select>
           </div>
 
@@ -168,6 +227,7 @@ const GenerateNewReportModal = ({ isOpen, onClose  }: ReportModalProps) => {
             </label>
             <Select
               selectedKeys={[formData.timeRange]}
+              disabledKeys={[formData.timeRange]}
               onSelectionChange={(keys) =>
                 handleChange("timeRange", keys.currentKey as string)
               }
@@ -184,6 +244,7 @@ const GenerateNewReportModal = ({ isOpen, onClose  }: ReportModalProps) => {
             </label>
             <Select
               selectedKeys={[formData.exportFormat]}
+              disabledKeys={[formData.exportFormat]}
               onSelectionChange={(keys) =>
                 handleChange("exportFormat", keys.currentKey as string)
               }
@@ -193,10 +254,7 @@ const GenerateNewReportModal = ({ isOpen, onClose  }: ReportModalProps) => {
                 const fmt = EXPORT_FORMATS.find((f) => f.key === item.key);
 
                 return (
-                  <div className="flex items-center gap-2">
-                    {fmt?.icon}
-                    {item.rendered}
-                  </div>
+                  <div className="flex items-center gap-2">{item.rendered}</div>
                 );
               }}
             >
