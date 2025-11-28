@@ -26,9 +26,15 @@ const Reviews = React.lazy(() => import("./pages/reviews/Reviews"));
 const SocialMedia = React.lazy(
   () => import("./pages/social-media/SocialMedia")
 );
-const Reports = React.lazy(() => import("./pages/reports/Report"));
+const Reports = React.lazy(() => import("./pages/reports/Reports"));
 const MarketingReport = React.lazy(
-  () => import("./pages/reports/MarketingReports")
+  () => import("./pages/reports/sample-reports/MarketingReport")
+);
+const ReferralPerformanceReport = React.lazy(
+  () => import("./pages/reports/sample-reports/ReferralPerformanceReport")
+);
+const ReviewSentimentAnalysisReport = React.lazy(
+  () => import("./pages/reports/sample-reports/ReviewSentimentAnalysisReport")
 );
 
 const Tasks = React.lazy(() => import("./pages/tasks/Tasks"));
@@ -124,8 +130,13 @@ function AppRoutes() {
         { path: "marketing-budget", element: <MarketingBudget /> },
         {
           path: "reports",
-          element: <Reports />,
-          children: [{ path: "marketing", element: <MarketingReport /> }],
+          element: "",
+          children: [
+            { index: true, element: <Reports /> },
+            { path: "marketing", element: <MarketingReport /> },
+            { path: "referral", element: <ReferralPerformanceReport /> },
+            { path: "review", element: <ReviewSentimentAnalysisReport /> },
+          ],
         },
         { path: "tasks", element: <Tasks /> },
         { path: "media-management", element: <MediaManagement /> },

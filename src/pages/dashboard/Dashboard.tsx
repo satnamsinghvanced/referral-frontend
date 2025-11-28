@@ -1,12 +1,12 @@
 import { Button } from "@heroui/react";
 import { useMemo } from "react";
 import { Link, useNavigate } from "react-router";
-import MiniStatsCard, { StatCard } from "../components/cards/MiniStatsCard";
-import ComponentContainer from "../components/common/ComponentContainer";
-import { useDashboard } from "../hooks/useDashboard";
-import { useTypedSelector } from "../hooks/useTypedSelector";
-import { TREATMENT_OPTIONS } from "../consts/referral";
 import { MdTrendingUp } from "react-icons/md";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
+import { useDashboard } from "../../hooks/useDashboard";
+import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
+import { TREATMENT_OPTIONS } from "../../consts/referral";
+import ComponentContainer from "../../components/common/ComponentContainer";
 
 type Color = "sky" | "orange" | "emerald" | "purple";
 
@@ -108,7 +108,8 @@ const Dashboard = () => {
         subheading: (
           <p className="text-emerald-600 flex items-center gap-1.5">
             <MdTrendingUp fontSize={15} />
-            {dashboard?.totalLastMonth ? dashboard.totalLastMonth : "0"}% from last month
+            {dashboard?.totalLastMonth ? dashboard.totalLastMonth : "0"}% from
+            last month
           </p>
         ),
         onClick: () => navigate("/referrals"),

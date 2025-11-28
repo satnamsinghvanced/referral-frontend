@@ -11,6 +11,8 @@ import {
 } from "react-icons/lu";
 import React from "react";
 import { BsArrowDownRight, BsArrowUpRight } from "react-icons/bs";
+import ComponentContainer from "../../../components/common/ComponentContainer";
+import { useNavigate } from "react-router";
 
 const LocalCardTitle: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = ({
   className,
@@ -391,223 +393,211 @@ const ChannelRow: React.FC<{ channel: ChannelData }> = ({ channel }) => {
 };
 
 const MarketingReport = () => {
-  const handleBack = () => console.log("Navigating back to reports list.");
+  const navigate = useNavigate();
+
+  const HEADING_DATA = {
+    heading: "Sample Report",
+    subHeading: "Preview of comprehensive marketing analytics",
+    buttons: [
+      {
+        label: "Back to Reports",
+        onClick: () => navigate(-1),
+        icon: <IoArrowBack fontSize={15} />,
+        variant: "ghost" as const,
+        color: "default" as const,
+        className: "border-small",
+      },
+    ],
+  };
 
   return (
-    <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-50">
-      <div className="container mx-auto px-6 py-6">
-        <div className="h-full flex flex-col">
-          <div className="flex-shrink-0 p-6 border-b bg-white sticky top-0 z-10">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-2xl font-semibold text-gray-900">
-                  Sample Report
-                </h1>
-                <p className="text-gray-600 mt-1">
-                  Preview of comprehensive marketing analytics
-                </p>
+    <ComponentContainer headingData={HEADING_DATA}>
+      <div className="flex flex-col gap-5">
+        <div className="max-w-7xl mx-auto p-6 space-y-6">
+          <Card className="border-l-4 border-l-sky-500 card-brand hover:shadow-lg transition-all duration-300">
+            <LocalCardHeader>
+              <LocalCardTitle>
+                <div className="w-1 h-6 bg-brand-gradient rounded-full"></div>
+                <LuTrendingUp
+                  className="h-5 w-5 text-sky-600"
+                  aria-hidden="true"
+                />
+                Executive Summary - Q1 2024 Marketing ROI Analysis
+              </LocalCardTitle>
+            </LocalCardHeader>
+            <LocalCardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                {METRICS_DATA.map((metric, index) => (
+                  <MetricBlock key={index} metric={metric} />
+                ))}
               </div>
-              <Button
-                variant="ghost"
-                onClick={handleBack}
-                className="has-[&>svg]:px-3"
-              >
-                <IoArrowBack className="size-4" />
-                Back to Reports
-              </Button>
-            </div>
-          </div>
+            </LocalCardContent>
+          </Card>
 
-          <div className="flex-1 overflow-y-auto bg-gray-50 min-h-0">
-            <div className="max-w-7xl mx-auto p-6 space-y-6">
-              <Card className="border-l-4 border-l-sky-500 card-brand hover:shadow-lg transition-all duration-300">
-                <LocalCardHeader>
-                  <LocalCardTitle>
-                    <div className="w-1 h-6 bg-brand-gradient rounded-full"></div>
-                    <LuTrendingUp
-                      className="h-5 w-5 text-sky-600"
-                      aria-hidden="true"
-                    />
-                    Executive Summary - Q1 2024 Marketing ROI Analysis
-                  </LocalCardTitle>
-                </LocalCardHeader>
-                <LocalCardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {METRICS_DATA.map((metric, index) => (
-                      <MetricBlock key={index} metric={metric} />
-                    ))}
-                  </div>
-                </LocalCardContent>
-              </Card>
-
-              <Card className="card-brand hover:shadow-lg transition-all duration-300">
-                <LocalCardHeader>
-                  <LocalCardTitle>
-                    <div className="w-1 h-6 bg-brand-gradient rounded-full"></div>
-                    <LuChartColumn
-                      className="h-5 w-5 text-sky-600"
-                      aria-hidden="true"
-                    />
-                    Channel Performance Breakdown
-                  </LocalCardTitle>
-                </LocalCardHeader>
-                <LocalCardContent>
-                  <div className="space-y-4">
-                    {CHANNELS_DATA.map((channel, index) => (
-                      <ChannelRow key={index} channel={channel} />
-                    ))}
-                  </div>
-                </LocalCardContent>
-              </Card>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card className="card-brand hover:shadow-lg transition-all duration-300">
-                  <LocalCardHeader>
-                    <LocalCardTitle>
-                      <div className="w-1 h-6 bg-brand-gradient rounded-full"></div>
-                      <LuTarget
-                        className="h-5 w-5 text-sky-600"
-                        aria-hidden="true"
-                      />
-                      Key Insights
-                    </LocalCardTitle>
-                  </LocalCardHeader>
-                  <LocalCardContent>
-                    <div className="space-y-4">
-                      {INSIGHTS_DATA.map((insight, index) => (
-                        <div
-                          key={index}
-                          className={clsx(
-                            "flex items-start gap-3 p-3 rounded-lg border",
-                            `bg-${insight.color}-50 border-${insight.color}-200`
-                          )}
-                        >
-                          <div
-                            className={clsx(
-                              "w-3 h-3 rounded-full mt-2 flex-shrink-0",
-                              `bg-${insight.color}-500`
-                            )}
-                          ></div>
-                          <div>
-                            <h4
-                              className={clsx(
-                                "font-semibold",
-                                `text-${insight.color}-800`
-                              )}
-                            >
-                              {insight.title}
-                            </h4>
-                            <p
-                              className={clsx(
-                                "text-sm",
-                                `text-${insight.color}-700`
-                              )}
-                            >
-                              {insight.description}
-                            </p>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </LocalCardContent>
-                </Card>
-
-                <Card className="card-brand hover:shadow-lg transition-all duration-300">
-                  <LocalCardHeader>
-                    <LocalCardTitle>
-                      <div className="w-1 h-6 bg-brand-gradient rounded-full"></div>
-                      <LuUsers
-                        className="h-5 w-5 text-orange-600"
-                        aria-hidden="true"
-                      />
-                      Recommendations
-                    </LocalCardTitle>
-                  </LocalCardHeader>
-                  <LocalCardContent>
-                    <div className="space-y-4">
-                      {RECOMMENDATIONS_DATA.map((rec, index) => (
-                        <div
-                          key={index}
-                          className={clsx(
-                            "pl-4 p-3 rounded-r-lg",
-                            `border-l-4 border-l-${rec.color}-500 bg-${rec.color}-50`
-                          )}
-                        >
-                          <h4
-                            className={clsx(
-                              "font-semibold",
-                              `text-${rec.color}-800`
-                            )}
-                          >
-                            {rec.title}
-                          </h4>
-                          <p
-                            className={clsx("text-sm", `text-${rec.color}-700`)}
-                          >
-                            {rec.description}
-                          </p>
-                        </div>
-                      ))}
-                    </div>
-                  </LocalCardContent>
-                </Card>
+          <Card className="card-brand hover:shadow-lg transition-all duration-300">
+            <LocalCardHeader>
+              <LocalCardTitle>
+                <div className="w-1 h-6 bg-brand-gradient rounded-full"></div>
+                <LuChartColumn
+                  className="h-5 w-5 text-sky-600"
+                  aria-hidden="true"
+                />
+                Channel Performance Breakdown
+              </LocalCardTitle>
+            </LocalCardHeader>
+            <LocalCardContent>
+              <div className="space-y-4">
+                {CHANNELS_DATA.map((channel, index) => (
+                  <ChannelRow key={index} channel={channel} />
+                ))}
               </div>
+            </LocalCardContent>
+          </Card>
 
-              <Card className="border-l-4 border-l-sky-500 card-brand hover:shadow-lg transition-all duration-300">
-                <LocalCardHeader>
-                  <LocalCardTitle>
-                    <div className="w-1 h-6 bg-brand-gradient rounded-full"></div>
-                    <LuDollarSign
-                      className="h-5 w-5 text-sky-600"
-                      aria-hidden="true"
-                    />
-                    Q2 2024 Projections Based on Current Performance
-                  </LocalCardTitle>
-                </LocalCardHeader>
-                <LocalCardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    {PROJECTIONS_DATA.map((proj, index) => (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card className="card-brand hover:shadow-lg transition-all duration-300">
+              <LocalCardHeader>
+                <LocalCardTitle>
+                  <div className="w-1 h-6 bg-brand-gradient rounded-full"></div>
+                  <LuTarget
+                    className="h-5 w-5 text-sky-600"
+                    aria-hidden="true"
+                  />
+                  Key Insights
+                </LocalCardTitle>
+              </LocalCardHeader>
+              <LocalCardContent>
+                <div className="space-y-4">
+                  {INSIGHTS_DATA.map((insight, index) => (
+                    <div
+                      key={index}
+                      className={clsx(
+                        "flex items-start gap-3 p-3 rounded-lg border",
+                        `bg-${insight.color}-50 border-${insight.color}-200`
+                      )}
+                    >
                       <div
-                        key={index}
                         className={clsx(
-                          "text-center p-6 rounded-xl border hover:shadow-md transition-all duration-300",
-                          `bg-gradient-to-br from-${proj.color}-50 to-${proj.color}-100 border-${proj.color}-200`
+                          "w-3 h-3 rounded-full mt-2 flex-shrink-0",
+                          `bg-${insight.color}-500`
+                        )}
+                      ></div>
+                      <div>
+                        <h4
+                          className={clsx(
+                            "font-semibold",
+                            `text-${insight.color}-800`
+                          )}
+                        >
+                          {insight.title}
+                        </h4>
+                        <p
+                          className={clsx(
+                            "text-sm",
+                            `text-${insight.color}-700`
+                          )}
+                        >
+                          {insight.description}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </LocalCardContent>
+            </Card>
+
+            <Card className="card-brand hover:shadow-lg transition-all duration-300">
+              <LocalCardHeader>
+                <LocalCardTitle>
+                  <div className="w-1 h-6 bg-brand-gradient rounded-full"></div>
+                  <LuUsers
+                    className="h-5 w-5 text-orange-600"
+                    aria-hidden="true"
+                  />
+                  Recommendations
+                </LocalCardTitle>
+              </LocalCardHeader>
+              <LocalCardContent>
+                <div className="space-y-4">
+                  {RECOMMENDATIONS_DATA.map((rec, index) => (
+                    <div
+                      key={index}
+                      className={clsx(
+                        "pl-4 p-3 rounded-r-lg",
+                        `border-l-4 border-l-${rec.color}-500 bg-${rec.color}-50`
+                      )}
+                    >
+                      <h4
+                        className={clsx(
+                          "font-semibold",
+                          `text-${rec.color}-800`
                         )}
                       >
-                        <div
-                          className={clsx(
-                            "text-3xl font-bold",
-                            `text-${proj.color}-700`
-                          )}
-                        >
-                          {proj.value}
-                        </div>
-                        <div
-                          className={clsx(
-                            "text-sm font-medium",
-                            `text-${proj.color}-800`
-                          )}
-                        >
-                          {proj.label}
-                        </div>
-                        <div
-                          className={clsx(
-                            "text-xs mt-2 font-medium",
-                            `text-${proj.color}-600`
-                          )}
-                        >
-                          {proj.subtext}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </LocalCardContent>
-              </Card>
-            </div>
+                        {rec.title}
+                      </h4>
+                      <p className={clsx("text-sm", `text-${rec.color}-700`)}>
+                        {rec.description}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </LocalCardContent>
+            </Card>
           </div>
+
+          <Card className="border-l-4 border-l-sky-500 card-brand hover:shadow-lg transition-all duration-300">
+            <LocalCardHeader>
+              <LocalCardTitle>
+                <div className="w-1 h-6 bg-brand-gradient rounded-full"></div>
+                <LuDollarSign
+                  className="h-5 w-5 text-sky-600"
+                  aria-hidden="true"
+                />
+                Q2 2024 Projections Based on Current Performance
+              </LocalCardTitle>
+            </LocalCardHeader>
+            <LocalCardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {PROJECTIONS_DATA.map((proj, index) => (
+                  <div
+                    key={index}
+                    className={clsx(
+                      "text-center p-6 rounded-xl border hover:shadow-md transition-all duration-300",
+                      `bg-gradient-to-br from-${proj.color}-50 to-${proj.color}-100 border-${proj.color}-200`
+                    )}
+                  >
+                    <div
+                      className={clsx(
+                        "text-3xl font-bold",
+                        `text-${proj.color}-700`
+                      )}
+                    >
+                      {proj.value}
+                    </div>
+                    <div
+                      className={clsx(
+                        "text-sm font-medium",
+                        `text-${proj.color}-800`
+                      )}
+                    >
+                      {proj.label}
+                    </div>
+                    <div
+                      className={clsx(
+                        "text-xs mt-2 font-medium",
+                        `text-${proj.color}-600`
+                      )}
+                    >
+                      {proj.subtext}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </LocalCardContent>
+          </Card>
         </div>
       </div>
-    </main>
+    </ComponentContainer>
   );
 };
 
