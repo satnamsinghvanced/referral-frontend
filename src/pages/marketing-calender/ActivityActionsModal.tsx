@@ -15,7 +15,13 @@ import * as Yup from "yup";
 import { PRIORITY_LEVELS } from "../../consts/practice";
 import { useCreateActivity, useUpdateActivity } from "../../hooks/useMarketing";
 import { ActivityItem, ActivityType } from "../../types/marketing";
-import { parseDate, CalendarDate, getLocalTimeZone, today } from "@internationalized/date";
+import {
+  parseDate,
+  CalendarDate,
+  getLocalTimeZone,
+  today,
+  now,
+} from "@internationalized/date";
 
 interface ActivityFormValues {
   title: string;
@@ -111,11 +117,8 @@ export default function ActivityActionsModal({
     budget: initialData?.budget || 0,
   };
 
-  const { mutate: createActivity } = useCreateActivity();
-  const { mutate: updateActivity, isPending: isUpdating } = useUpdateActivity(
-    initialData?._id as string
-  );
-  const { isPending: isCreating } = useCreateActivity();
+  const { mutate: createActivity, isPending: isCreating } = useCreateActivity();
+  const { mutate: updateActivity, isPending: isUpdating } = useUpdateActivity();
 
   const formik = useFormik({
     initialValues: initialValues,
@@ -123,16 +126,28 @@ export default function ActivityActionsModal({
     enableReinitialize: true,
     onSubmit: (values) => {
       if (isEditing) {
-        // @ts-ignore
-        updateActivity(values, {
-          onSuccess: onClose,
-        });
+        updateActivity(
+          // {
+          //   ...values,
+          //   eventId: formik.values.platform?.toLowerCase()?.includes("google") ? "" : initialData?._id,
+          //   googleId: formik.values.platform?.toLowerCase()?.includes("google")
+          //     ? initialData?._id
+          //     : "",
+          // },
+          // @ts-ignore
+          values,
+          {
+            onSuccess: onClose,
+          }
+        );
       } else {
         // @ts-ignore
         createActivity(values, {
-          onSuccess: onClose,
+          onSuccess: () => {
+            onClose();
+            formik.resetForm();
+          },
         });
-        formik.resetForm();
       }
     },
   });
@@ -248,17 +263,34 @@ export default function ActivityActionsModal({
                 labelPlacement="outside"
                 size="sm"
                 radius="sm"
-                minValue={today(getLocalTimeZone())}
-                value={stringToCalendarDate(formik.values.startDate)}
+                defaultValue={now(getLocalTimeZone())}
+                minValue={now(getLocalTimeZone())}
+                // value={stringToCalendarDate(formik.values.startDate)}
                 onChange={(dateObject) => {
-                  formik.setFieldValue(
-                    "startDate",
-                    calendarDateToString(dateObject)
-                  );
+                  if (dateObject) {
+                    const year = dateObject.year;
+                    const month = String(dateObject.month).padStart(2, "0");
+                    const day = String(dateObject.day).padStart(2, "0");
+                    const hour = String(dateObject.hour).padStart(2, "0");
+                    const minute = String(dateObject.minute).padStart(2, "0");
+                    const second = String(dateObject.second).padStart(2, "0");
+
+                    const millisecond = String(dateObject.millisecond).padStart(
+                      3,
+                      "0"
+                    );
+
+                    const localDateTimeString = `${year}-${month}-${day}T${hour}:${minute}:${second}.${millisecond}`;
+                    formik.setFieldValue("startDate", localDateTimeString);
+                  } else {
+                    formik.setFieldValue("startDate", null);
+                  }
                 }}
+                granularity="minute"
                 onBlur={() => formik.setFieldTouched("startDate", true)}
                 isInvalid={!!hasError("startDate")}
                 isRequired
+                hideTimeZone
               />
               <ErrorText field="startDate" />
             </div>
@@ -270,16 +302,33 @@ export default function ActivityActionsModal({
                 labelPlacement="outside"
                 size="sm"
                 radius="sm"
-                minValue={today(getLocalTimeZone())}
-                value={stringToCalendarDate(formik.values.endDate)}
+                defaultValue={null}
+                minValue={now(getLocalTimeZone())}
+                // value={stringToCalendarDate(formik.values.endDate)}
                 onChange={(dateObject) => {
-                  formik.setFieldValue(
-                    "endDate",
-                    calendarDateToString(dateObject)
-                  );
+                  if (dateObject) {
+                    const year = dateObject.year;
+                    const month = String(dateObject.month).padStart(2, "0");
+                    const day = String(dateObject.day).padStart(2, "0");
+                    const hour = String(dateObject.hour).padStart(2, "0");
+                    const minute = String(dateObject.minute).padStart(2, "0");
+                    const second = String(dateObject.second).padStart(2, "0");
+
+                    const millisecond = String(dateObject.millisecond).padStart(
+                      3,
+                      "0"
+                    );
+
+                    const localDateTimeString = `${year}-${month}-${day}T${hour}:${minute}:${second}.${millisecond}`;
+                    formik.setFieldValue("endDate", localDateTimeString);
+                  } else {
+                    formik.setFieldValue("endDate", null);
+                  }
                 }}
+                granularity="minute"
                 onBlur={() => formik.setFieldTouched("endDate", true)}
                 isInvalid={!!hasError("endDate")}
+                hideTimeZone
               />
               <div className="text-[11px] text-gray-500 mt-1">
                 Leave empty for single-day activity
@@ -289,7 +338,7 @@ export default function ActivityActionsModal({
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div>
+            {/* <div>
               <Input
                 id="time"
                 name="time"
@@ -305,7 +354,7 @@ export default function ActivityActionsModal({
                 startContent={<LuClock className="text-gray-400 size-4" />}
               />
               <ErrorText field="time" />
-            </div>
+            </div> */}
             <div>
               <Select
                 name="priority"
@@ -330,25 +379,6 @@ export default function ActivityActionsModal({
               </Select>
               <ErrorText field="priority" />
             </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Input
-                id="platform"
-                name="platform"
-                label="Platform/Location"
-                labelPlacement="outside-top"
-                placeholder="Facebook, Instagram, Email, etc."
-                size="sm"
-                radius="sm"
-                value={formik.values.platform}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                isInvalid={!!hasError("platform")}
-              />
-              <ErrorText field="platform" />
-            </div>
             <div>
               <Input
                 id="budget"
@@ -365,6 +395,25 @@ export default function ActivityActionsModal({
                 isInvalid={!!hasError("budget")}
               />
               <ErrorText field="budget" />
+            </div>
+          </div>
+
+          <div className="col-span-2">
+            <div>
+              <Input
+                id="platform"
+                name="platform"
+                label="Platform/Location"
+                labelPlacement="outside-top"
+                placeholder="Facebook, Instagram, Email, etc."
+                size="sm"
+                radius="sm"
+                value={formik.values.platform}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                isInvalid={!!hasError("platform")}
+              />
+              <ErrorText field="platform" />
             </div>
           </div>
 

@@ -11,6 +11,8 @@ import ActivityStatusChip from "../../components/chips/ActivityStatusChip";
 import TaskPriorityChip from "../../components/chips/TaskPriorityChip";
 import { ActivityItem } from "../../types/marketing";
 import { formatDateToMMDDYYYY } from "../../utils/formatDateToMMDDYYYY";
+import { formatDateToReadable } from "../../utils/formatDateToReadable";
+import { LoadingState } from "../../components/common/LoadingState";
 
 const DetailItem: React.FC<{ label: string; value: React.ReactNode }> = ({
   label,
@@ -34,7 +36,6 @@ interface ActivityDetailModalProps {
   activity: ActivityItem | null;
   onEdit: (id: string) => void;
   onDelete: (id: string) => void;
-  deleteLoading: boolean;
 }
 
 export function ActivityDetailModal({
@@ -43,20 +44,13 @@ export function ActivityDetailModal({
   activity,
   onEdit,
   onDelete,
-  deleteLoading,
 }: ActivityDetailModalProps) {
   if (!activity) return;
 
-  const startDate = `${formatDateToMMDDYYYY(activity.startDate)}${
-    activity.time ? ` at ${activity.time}` : ""
-  }`;
-
-  const formattedBudget = activity.budget
-    ? `$${activity.budget.toLocaleString(undefined, {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 2,
-      })}`
-    : "N/A";
+  const formattedBudget = `$${activity.budget.toLocaleString(undefined, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 2,
+  })}`;
 
   const formattedReach = activity.reach
     ? activity.reach.toLocaleString()
@@ -79,7 +73,7 @@ export function ActivityDetailModal({
             className="text-base leading-none font-medium flex items-center gap-2"
           >
             {activity.title}
-            <ActivityStatusChip status={activity.status} />
+            {activity.status && <ActivityStatusChip status={activity.status} />}
           </h4>
           <p className="text-gray-600 text-xs">
             View and manage details for this marketing activity including
@@ -89,36 +83,46 @@ export function ActivityDetailModal({
 
         <ModalBody className="gap-0 px-0 py-5 space-y-3">
           <div className="grid grid-cols-2 gap-4">
-            <DetailItem label="Date & Time" value={startDate} />
+            <DetailItem
+              label="Start Date"
+              value={formatDateToReadable(activity.startDate, true)}
+            />
             {activity.endDate ? (
               <DetailItem
                 label="End Date"
-                value={formatDateToMMDDYYYY(activity.endDate)}
+                value={formatDateToReadable(activity.endDate, true)}
               />
             ) : (
-              <DetailItem
-                label="End Date"
-                value="Same Day"
-              />
+              <DetailItem label="End Date" value="Same Day" />
             )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <DetailItem label="Platform" value={activity.platform || "N/A"} />
-            <DetailItem
-              label="Priority"
-              value={<TaskPriorityChip priority={activity.priority} />}
-            />
-          </div>
-
-          <div className={`grid grid-cols-${activity.reach ? "3" : "2"} gap-4`}>
-            <DetailItem label="Budget" value={formattedBudget} />
-            {activity.reach !== undefined && (
-              <DetailItem label="Estimated Reach" value={formattedReach} />
+            {activity.priority && (
+              <DetailItem
+                label="Priority"
+                value={<TaskPriorityChip priority={activity.priority} />}
+              />
             )}
           </div>
 
-          <div className="pt-2">
+          {(activity.budget || activity.reach) && (
+            <div
+              className={`grid grid-cols-${activity.reach ? "3" : "2"} gap-4`}
+            >
+              {activity.budget ? (
+                <DetailItem label="Budget" value={formattedBudget} />
+              ) : (
+                ""
+              )}
+              {activity.reach !== undefined && (
+                <DetailItem label="Estimated Reach" value={formattedReach} />
+              )}
+            </div>
+          )}
+
+          <div>
             <DetailItem
               label="Description"
               value={activity.description || "No description provided."}
@@ -133,8 +137,6 @@ export function ActivityDetailModal({
             radius="sm"
             onPress={() => activity._id && onDelete(activity._id)}
             startContent={<LuTrash2 className="size-4" />}
-            isLoading={deleteLoading}
-            isDisabled={deleteLoading || !activity._id}
           >
             Delete
           </Button>

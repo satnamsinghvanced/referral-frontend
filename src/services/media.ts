@@ -46,6 +46,10 @@ export const getAllFolders = (params: GetAllFoldersQuery) => {
   return axios.get<GetAllFoldersResponse>(FOLDER_API_BASE, { params });
 };
 
+export const getAllFoldersWithChildFolders = () => {
+  return axios.get(`${FOLDER_API_BASE}/child_folder`);
+};
+
 const IMAGES_API_BASE = "/images";
 
 export const uploadMedia = (data: UploadMediaRequest) => {

@@ -5,6 +5,7 @@ import {
   deleteFolder,
   deleteImage,
   getAllFolders,
+  getAllFoldersWithChildFolders,
   getFolderDetails,
   getImageDetails,
   getTags,
@@ -38,6 +39,13 @@ export const useGetAllFolders = (query: GetAllFoldersQuery) => {
     queryKey: FOLDER_KEYS.list(query),
     queryFn: async () => (await getAllFolders(query)).data,
     placeholderData: (previousData) => previousData,
+  });
+};
+
+export const useGetAllFoldersWithChildFolders = () => {
+  return useQuery({
+    queryKey: ["folders"],
+    queryFn: async () => (await getAllFoldersWithChildFolders()).data,
   });
 };
 
@@ -185,6 +193,12 @@ export const useMoveImages = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: IMAGE_KEYS.all });
       queryClient.invalidateQueries({ queryKey: FOLDER_KEYS.all });
+
+      addToast({
+        title: "Success",
+        description: "Media moved successfully.",
+        color: "success",
+      });
     },
   });
 };

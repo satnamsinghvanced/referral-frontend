@@ -150,7 +150,7 @@ const Reports = () => {
                   className="flex items-center justify-between border border-foreground/10 p-4 bg-background rounded-lg"
                 >
                   <div className="flex items-center gap-3">
-                    <LuFileText className="size-4 text-gray-500" />
+                    <LuFileText className="size-5 text-gray-500" />
                     <div className="space-y-1">
                       <h4 className="font-medium text-sm">{report.title}</h4>
                       <p className="text-xs text-gray-600">

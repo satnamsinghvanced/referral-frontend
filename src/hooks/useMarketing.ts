@@ -48,10 +48,9 @@ export const useActivityDetail = (activityId: string) => {
   });
 };
 
-export const useUpdateActivity = (activityId: string) => {
+export const useUpdateActivity = () => {
   return useMutation({
-    mutationFn: (payload: ActivityPayload) =>
-      updateMarketingActivity(activityId, payload),
+    mutationFn: (payload: ActivityPayload) => updateMarketingActivity(payload),
     onSuccess: () => {
       addToast({
         title: "Success",
@@ -61,7 +60,7 @@ export const useUpdateActivity = (activityId: string) => {
 
       queryClient.invalidateQueries({ queryKey: ["marketingActivities"] });
       queryClient.invalidateQueries({
-        queryKey: ["marketingActivityDetail", activityId],
+        queryKey: ["marketingActivityDetail"],
       });
     },
   });
@@ -69,7 +68,7 @@ export const useUpdateActivity = (activityId: string) => {
 
 export const useDeleteActivity = () => {
   return useMutation<DeleteActivityResponse, Error, string>({
-    mutationFn: (activityId: string) => deleteMarketingActivity(activityId),
+    mutationFn: (payload: any) => deleteMarketingActivity(payload),
 
     onSuccess: (data, variables) => {
       addToast({
@@ -80,9 +79,9 @@ export const useDeleteActivity = () => {
 
       queryClient.invalidateQueries({ queryKey: ["marketingActivities"] });
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
-      queryClient.invalidateQueries({
-        queryKey: ["marketingActivityDetail", variables],
-      });
+      // queryClient.invalidateQueries({
+      //   queryKey: ["marketingActivityDetail", variables],
+      // });
     },
   });
 };

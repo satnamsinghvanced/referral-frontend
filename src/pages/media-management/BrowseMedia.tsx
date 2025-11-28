@@ -10,157 +10,27 @@ import {
 import { useState } from "react";
 import { FaRegFolder } from "react-icons/fa";
 import { FiImage, FiSearch, FiUpload } from "react-icons/fi";
-import {
-  LuDownload,
-  LuFolderOpen,
-  LuFolderPlus,
-  LuTrash2,
-} from "react-icons/lu";
-import { IoClose } from "react-icons/io5";
-import { FaDownload, FaEye } from "react-icons/fa";
-import {
-  useGetFolderDetails,
-  useDeleteFolder,
-  useSearchImages,
-  useDeleteImage,
-  useUpdateImageTags,
-  useGetAllFolders,
-  useTagsQuery,
-} from "../../hooks/useMedia";
-import { CreateFolderModal } from "./modal/CreateFolderModal";
-import { UploadMediaModal } from "./modal/UploadMediaModal";
+import { LuFolderOpen, LuFolderPlus, LuMove, LuTrash2 } from "react-icons/lu";
+import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
 import EmptyState from "../../components/common/EmptyState";
 import { LoadingState } from "../../components/common/LoadingState";
-import { MdOutlineRemoveRedEye } from "react-icons/md";
-import { MediaDetailModal } from "./modal/MediaDetailModal";
-import { Media } from "../../types/media";
-import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
 import { useDebouncedValue } from "../../hooks/common/useDebouncedValue";
-
-const Breadcrumb = ({ path, onNavigate }: any) => (
-  <p className="text-sm flex items-center space-x-1">
-    <span
-      className="cursor-pointer hover:underline underline-offset-2"
-      onClick={() => onNavigate(null)}
-    >
-      Root
-    </span>
-    {path.map((item: any) => (
-      <span key={item.id} className="flex items-center space-x-1">
-        <span className="text-gray-400">/</span>
-        <span
-          className="cursor-pointer hover:underline underline-offset-2"
-          onClick={() => onNavigate(item.id)}
-        >
-          {item.name}
-        </span>
-      </span>
-    ))}
-  </p>
-);
-
-const MediaItem = ({
-  media,
-  onDelete,
-  onView,
-  onDownload,
-}: {
-  media: Media;
-  onDelete: (id: string) => void;
-  onView: (media: Media) => void;
-  onDownload: (path: string, name: string) => void;
-}) => {
-  const isVideo = media.type.startsWith("video/");
-
-  return (
-    <div
-      key={media._id}
-      className="relative border border-gray-200 rounded-lg overflow-hidden group bg-white"
-    >
-      <div className="w-full h-32 flex items-center justify-center bg-gray-100 overflow-hidden">
-        {isVideo ? (
-          <video
-            src={media.path}
-            controls={false}
-            muted
-            className="w-full h-full object-cover"
-            title={media.name}
-          />
-        ) : (
-          <img
-            src={media.path}
-            alt={media.name}
-            className="w-full h-full object-cover"
-          />
-        )}
-      </div>
-
-      <div className="p-2">
-        <p className="text-xs font-medium truncate mb-0.5">{media.name}</p>
-        <div className="space-x-1">
-          {media?.tags?.map((tag: string) => (
-            <span
-              key={tag}
-              className="inline-flex items-center rounded-full text-[10px] font-medium px-2 py-0.5 border border-primary/15"
-            >
-              {tag}
-            </span>
-          ))}
-        </div>
-      </div>
-
-      <div className="absolute inset-0 bg-black/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-        <div className="flex space-x-1.5">
-          <Button
-            size="sm"
-            radius="sm"
-            variant="solid"
-            color="primary"
-            isIconOnly
-            onPress={() => onView(media)}
-            className="p-0 size-7 min-w-0"
-            title="View Media"
-          >
-            <MdOutlineRemoveRedEye fontSize={14} />
-          </Button>
-
-          <Button
-            size="sm"
-            radius="sm"
-            variant="solid"
-            color="primary"
-            isIconOnly
-            onPress={() => onDownload(media.path, media.name)}
-            className="p-0 size-7 min-w-0"
-            title="Download Media"
-          >
-            <LuDownload fontSize={14} />
-          </Button>
-
-          <Button
-            size="sm"
-            radius="sm"
-            variant="solid"
-            color="danger"
-            isIconOnly
-            onPress={() => onDelete(media._id)}
-            className="p-0 size-7 min-w-0"
-            title="Delete Media"
-          >
-            <LuTrash2 fontSize={14} />
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const mockTags = [
-  { name: "woman", isSelected: false, color: "bg-blue-500" },
-  { name: "red shirt", isSelected: false, color: "bg-red-500" },
-  { name: "beach", isSelected: false, color: "bg-cyan-500" },
-  { name: "smile", isSelected: false, color: "bg-gray-200" },
-];
+import {
+  useDeleteFolder,
+  useDeleteImage,
+  useGetAllFolders,
+  useGetFolderDetails,
+  useSearchImages,
+  useTagsQuery,
+  useUpdateImageTags,
+} from "../../hooks/useMedia";
+import { Media } from "../../types/media";
+import { CreateFolderModal } from "./modal/CreateFolderModal";
+import { MediaDetailModal } from "./modal/MediaDetailModal";
+import { UploadMediaModal } from "./modal/UploadMediaModal";
+import FolderBreadcrumb from "./FolderBreadcrumb";
+import MediaItem from "./MediaItem";
+import { MoveMediaModal } from "./modal/MoveMediaModal";
 
 function BrowseMedia() {
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
@@ -169,17 +39,18 @@ function BrowseMedia() {
   >([]);
 
   const [isCreateFolderModalOpen, setIsCreateFolderModalOpen] = useState(false);
+  const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
   const [isUploadMediaModalOpen, setIsUploadMediaModalOpen] = useState(false);
   const [deleteFolderId, setDeleteFolderId] = useState<string | null>(null);
   const [deleteImageId, setDeleteImageId] = useState<string | null>(null);
   const [viewMedia, setViewMedia] = useState<Media | null>(null);
+  const [selectedMedia, setSelectedMedia] = useState<any>([]);
 
   const [currentFilters, setCurrentFilters] = useState<any>({
     search: "",
     type: "all",
     tags: [],
   });
-  // const [availableTags, setAvailableTags] = useState(mockTags);
 
   const { data: allFolders, isLoading: isAllFoldersLoading } = useGetAllFolders(
     {
@@ -245,11 +116,6 @@ function BrowseMedia() {
   };
 
   const handleToggleTag = (tagName: string) => {
-    // setAvailableTags((prevTags) =>
-    //   prevTags.map((tag) =>
-    //     tag.name === tagName ? { ...tag, isSelected: !tag.isSelected } : tag
-    //   )
-    // );
     setCurrentFilters((prev: any) => {
       const newTags = prev.tags.includes(tagName)
         ? prev.tags.filter((t: string) => t !== tagName)
@@ -259,9 +125,6 @@ function BrowseMedia() {
   };
 
   const clearAllTags = () => {
-    // setAvailableTags((prevTags) =>
-    //   prevTags.map((tag) => ({ ...tag, isSelected: false }))
-    // );
     setCurrentFilters((prev: any) => ({ ...prev, tags: [] }));
   };
 
@@ -275,7 +138,6 @@ function BrowseMedia() {
       await deleteFolderMutation.mutateAsync();
 
       setDeleteFolderId(null);
-      // Navigate back to the parent folder (or Root if the deleted folder was a top-level folder)
       onNavigateFolder(parentId as string);
     }
   };
@@ -338,11 +200,23 @@ function BrowseMedia() {
     <>
       <div className="flex flex-col gap-5">
         <div className="flex items-center justify-between gap-4 border border-gray-200 rounded-xl p-4 bg-white">
-          <Breadcrumb
+          <FolderBreadcrumb
             path={breadcrumbPath}
             onNavigate={(id: string) => onNavigateFolder(id)}
           />
           <div className="space-x-2">
+            {selectedMedia.length > 0 && (
+              <Button
+                size="sm"
+                radius="sm"
+                variant="ghost"
+                startContent={<LuMove fontSize={15} />}
+                className="border-small"
+                onPress={() => setIsMoveModalOpen(true)}
+              >
+                Move
+              </Button>
+            )}
             <Button
               size="sm"
               radius="sm"
@@ -398,40 +272,42 @@ function BrowseMedia() {
             </div>
           </div>
 
-          <div className="pt-4">
-            <h5 className="text-xs font-medium mb-3">Filter by tags:</h5>
-            <div className="flex flex-wrap gap-2">
-              {availableTags?.map((tag) => {
-                const base =
-                  "inline-flex items-center rounded-full text-[11px] font-medium px-3 py-0.5 cursor-pointer transition-colors";
-                const active = "bg-primary text-white";
-                const inactive = "bg-gray-100 hover:bg-gray-200";
+          {availableTags && availableTags.length > 0 && (
+            <div className="pt-4">
+              <h5 className="text-xs font-medium mb-3">Filter by tags:</h5>
+              <div className="flex flex-wrap gap-2">
+                {availableTags?.map((tag) => {
+                  const base =
+                    "inline-flex items-center rounded-full text-[11px] font-medium px-3 py-0.5 cursor-pointer transition-colors";
+                  const active = "bg-primary text-white";
+                  const inactive = "bg-gray-100 hover:bg-gray-200";
 
-                return (
-                  <span
-                    key={tag}
-                    className={`${base} ${
-                      currentFilters.tags.includes(tag) ? active : inactive
-                    }`}
-                    onClick={() => handleToggleTag(tag)}
+                  return (
+                    <span
+                      key={tag}
+                      className={`${base} ${
+                        currentFilters.tags.includes(tag) ? active : inactive
+                      }`}
+                      onClick={() => handleToggleTag(tag)}
+                    >
+                      {tag}
+                    </span>
+                  );
+                })}
+
+                {currentFilters.tags.length > 0 && (
+                  <Button
+                    size="sm"
+                    radius="full"
+                    onPress={clearAllTags}
+                    className="border-small p-0 px-1.5 h-auto font-medium border-none bg-transparent underline underline-offset-2 text-gray-600"
                   >
-                    {tag}
-                  </span>
-                );
-              })}
-
-              {currentFilters.tags.length > 0 && (
-                <Button
-                  size="sm"
-                  radius="full"
-                  onPress={clearAllTags}
-                  className="border-small p-0 px-1.5 h-auto font-medium border-none bg-transparent underline underline-offset-2 text-gray-600"
-                >
-                  Clear filters
-                </Button>
-              )}
+                    Clear filters
+                  </Button>
+                )}
+              </div>
             </div>
-          </div>
+          )}
         </div>
 
         <div className="space-y-5">
@@ -521,6 +397,16 @@ function BrowseMedia() {
                       onDelete={setDeleteImageId}
                       onView={handleMediaView}
                       onDownload={handleMediaDownload}
+                      onSelect={(isSelected, mediaId) => {
+                        if (isSelected) {
+                          setSelectedMedia((prev: any) => [...prev, mediaId]);
+                        } else {
+                          setSelectedMedia((prev: any) =>
+                            prev?.filter((item: string) => item != mediaId)
+                          );
+                        }
+                      }}
+                      selectedMedia={selectedMedia}
                     />
                   ))}
                 </div>
@@ -534,6 +420,13 @@ function BrowseMedia() {
         isOpen={isCreateFolderModalOpen}
         onClose={() => setIsCreateFolderModalOpen(false)}
         parentFolderId={currentFolderId || ""}
+      />
+
+      <MoveMediaModal
+        isOpen={isMoveModalOpen}
+        onClose={() => setIsMoveModalOpen(false)}
+        selectedMedia={selectedMedia}
+        setSelectedMedia={setSelectedMedia}
       />
 
       <UploadMediaModal

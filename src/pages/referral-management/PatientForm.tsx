@@ -314,9 +314,9 @@ const PatientForm = () => {
                       size="sm"
                       radius="sm"
                       hideTimeZone
-                      minValue={today(getLocalTimeZone())}
+                      minValue={now(getLocalTimeZone())}
+                      defaultValue={now(getLocalTimeZone())}
                       granularity="minute"
-                      // defaultValue={now(getLocalTimeZone())}
                       onChange={(dateObject) => {
                         if (dateObject) {
                           const year = dateObject.year;

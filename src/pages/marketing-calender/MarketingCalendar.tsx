@@ -45,6 +45,7 @@ import ActivityStatusChip from "../../components/chips/ActivityStatusChip";
 import { formatDateToMMDDYYYY } from "../../utils/formatDateToMMDDYYYY";
 import EmptyState from "../../components/common/EmptyState";
 import { LoadingState } from "../../components/common/LoadingState";
+import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
 
 const MarketingCalendar = () => {
   const [currentFilters, setCurrentFilters] = useState<any>({
@@ -57,7 +58,8 @@ const MarketingCalendar = () => {
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [selectedActivityId, setSelectedActivityId] = useState("");
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [selectedActivity, setSelectedActivity] = useState<any>();
 
   const { data: activityTypes = [] } = useActivityTypes();
   const {
@@ -65,8 +67,8 @@ const MarketingCalendar = () => {
     isLoading,
     refetch: marketingActivitiesRefetch,
   } = useMarketingActivities(currentFilters);
-  const { data: activityDetail, refetch: refetchActivityDetail } =
-    useActivityDetail(selectedActivityId);
+  // const { data: activityDetail, refetch: refetchActivityDetail, isLoading: isDetailLoading } =
+  //   useActivityDetail(selectedActivityId);
 
   const { mutate: deleteActivity, isPending: isDeletePending } =
     useDeleteActivity();
@@ -84,23 +86,33 @@ const MarketingCalendar = () => {
     }));
   }, []);
 
-  const handleViewActivity = useCallback((id: string) => {
-    setSelectedActivityId(id);
+  const handleViewActivity = useCallback((activity: any) => {
     setIsDetailOpen(true);
+    setSelectedActivity(activity);
   }, []);
 
   const handleEditActivity = useCallback(() => {
     setIsDetailOpen(false);
-    refetchActivityDetail().then(() => {
-      setIsModalOpen(true);
-    });
-  }, [refetchActivityDetail]);
+    // refetchActivityDetail();
+    setIsModalOpen(true);
+  }, []);
 
   const handleDeleteActivity = () => {
-    deleteActivity(selectedActivityId);
-    setIsDetailOpen(false);
-    setSelectedActivityId("");
-    marketingActivitiesRefetch();
+    deleteActivity(
+      // @ts-ignore
+      {
+        eventId: "",
+        googleId: selectedActivity._id,
+      },
+      {
+        onSuccess: () => {
+          setIsDeleteModalOpen(false);
+          setIsDetailOpen(false);
+          setSelectedActivity(null);
+          marketingActivitiesRefetch();
+        },
+      }
+    );
   };
 
   const HEADING_DATA = {
@@ -111,7 +123,7 @@ const MarketingCalendar = () => {
       {
         label: "Add Activity",
         onClick: () => {
-          setSelectedActivityId("");
+          setSelectedActivity(null);
           setIsModalOpen(true);
         },
         icon: <AiOutlinePlus fontSize={15} />,
@@ -195,7 +207,7 @@ const MarketingCalendar = () => {
             color="primary"
             startContent={<AiOutlinePlus fontSize={15} />}
             onPress={() => {
-              setSelectedActivityId("");
+              setSelectedActivity(null);
               setIsModalOpen(true);
             }}
           >
@@ -218,7 +230,7 @@ const MarketingCalendar = () => {
                 key={activity._id}
                 className={`shadow-none bg-white !rounded-r-xl p-3 h-full flex flex-col justify-between border border-l-4 border-gray-100 cursor-pointer`}
                 style={{ borderLeftColor: activityColor }}
-                onClick={() => handleViewActivity(activity._id)}
+                onClick={() => handleViewActivity(activity)}
               >
                 <div className="flex justify-between items-start mb-2 p-0">
                   <h3 className="text-sm font-medium">{activity.title}</h3>
@@ -254,7 +266,7 @@ const MarketingCalendar = () => {
           color="primary"
           startContent={<AiOutlinePlus fontSize={15} />}
           onPress={() => {
-            setSelectedActivityId("");
+            setSelectedActivity(null);
             setIsModalOpen(true);
           }}
         >
@@ -428,11 +440,11 @@ const MarketingCalendar = () => {
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);
-          setSelectedActivityId("");
+          setSelectedActivity(null);
         }}
         // @ts-ignore
         defaultStartDate={selectedDate}
-        initialData={selectedActivityId ? activityDetail || null : null}
+        initialData={selectedActivity || null}
         activityTypes={activityTypes}
       />
 
@@ -440,12 +452,18 @@ const MarketingCalendar = () => {
         isOpen={isDetailOpen}
         onClose={() => {
           setIsDetailOpen(false);
-          setSelectedActivityId("");
+          setSelectedActivity(null);
         }}
-        activity={activityDetail || null}
+        activity={selectedActivity || null}
         onEdit={handleEditActivity}
-        onDelete={handleDeleteActivity}
-        deleteLoading={isDeletePending}
+        onDelete={() => setIsDeleteModalOpen(true)}
+      />
+
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDeleteActivity}
+        isLoading={isDeletePending}
       />
     </>
   );

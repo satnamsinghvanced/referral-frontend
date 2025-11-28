@@ -8,7 +8,7 @@ interface CalendarProps {
   weekendDisabled?: boolean;
   disablePastDates?: boolean;
   onDayClick?: (date: string) => void;
-  onActivityClick?: (activityId: string) => void;
+  onActivityClick?: (activity: any) => void;
   activities: any[];
 }
 
@@ -179,7 +179,7 @@ const CustomCalendar: React.FC<CalendarProps> = ({
                     // 3. Add the click handler here
                     onClick={(e) => {
                       e.stopPropagation(); // Prevents the Day Cell click from firing
-                      onActivityClick?.(activity._id);
+                      onActivityClick?.(activity);
                     }}
                   >
                     {activity.title}

@@ -53,7 +53,7 @@ export interface BudgetListResponse {
     totalBudget: number;
     totalSpent: number;
     remainingBudget: number;
-    roi: number;
+    averageROI: number;
   };
   pagination: {
     page: number;

@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, CardHeader } from "@heroui/react";
+import { Button, Card, CardBody, CardHeader, Pagination } from "@heroui/react";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
@@ -23,32 +23,27 @@ import {
 } from "recharts";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
 import ComponentContainer from "../../components/common/ComponentContainer";
+import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
+import EmptyState from "../../components/common/EmptyState";
+import { LoadingState } from "../../components/common/LoadingState";
 import { BUDGET_DURATIONS } from "../../consts/budget";
+import { useBudgetItems, useDeleteBudgetItem } from "../../hooks/useBudget";
 import { BudgetItem } from "../../types/budget";
 import BudgetActionModal from "./BudgetActionModal";
 import BudgetItemCard from "./BudgetItemCard";
-import {
-  useBudgetCategories,
-  useBudgetItems,
-  useDeleteBudgetItem,
-  useUpdateBudgetItem,
-} from "../../hooks/useBudget";
-import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
 
 const MarketingBudget = () => {
-  const [selectedDuration, setSelectedDuration] = useState("monthly"); // Set default to 'yearly' to match API example
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editBudgetItem, setEditBudgetItem] = useState<BudgetItem | null>(null);
   const [deleteBudgetItemId, setDeleteBudgetItemId] = useState("");
+  const [currentFilters, setCurrentFilters] = useState({
+    period: "monthly",
+    page: 1,
+    limit: 2,
+  });
 
-  const listQueryParams = {
-    period: selectedDuration,
-    page: 1, // Default to first page for simplicity
-    limit: 10, // Default to 10 items per page
-  };
-
-  const { data, isLoading, isError } = useBudgetItems(listQueryParams);
-  const deleteMutation = useDeleteBudgetItem(listQueryParams);
+  const { data, isLoading, isError } = useBudgetItems(currentFilters);
+  const deleteMutation = useDeleteBudgetItem(currentFilters);
 
   const handleOpenCreateModal = () => {
     setEditBudgetItem(null); // Clear any editing data
@@ -68,11 +63,13 @@ const MarketingBudget = () => {
     return `${name}: $${value}`;
   };
 
+  const pagination = data?.pagination;
+
   const stats = data?.stats || {
     totalBudget: 0,
     totalSpent: 0,
     remainingBudget: 0,
-    roi: 0,
+    averageROI: 0,
   };
   const percentageSpent = stats.totalBudget
     ? ((stats.totalSpent / stats.totalBudget) * 100).toFixed(1)
@@ -100,7 +97,7 @@ const MarketingBudget = () => {
     {
       icon: <IoMdTrendingUp className="text-[17px] mt-1 text-purple-600" />,
       heading: "Average ROI",
-      value: isLoading ? "..." : `${stats.roi.toLocaleString()}%`, // ROI needs calculation logic
+      value: isLoading ? "..." : `${stats.averageROI.toLocaleString()}%`, // ROI needs calculation logic
     },
   ];
 
@@ -131,13 +128,18 @@ const MarketingBudget = () => {
                     radius="full"
                     color="default"
                     className="relative z-1 font-medium text-sm bg-transparent"
-                    onPress={() => setSelectedDuration(duration.value)}
+                    onPress={() =>
+                      setCurrentFilters((prev) => ({
+                        ...prev,
+                        period: duration.value,
+                      }))
+                    }
                     fullWidth
                     disableRipple
                   >
                     {duration.label}
                   </Button>
-                  {selectedDuration === duration.value ? (
+                  {currentFilters.period === duration.value ? (
                     <motion.div
                       layoutId="underline"
                       transition={{ duration: 0.3 }}
@@ -193,13 +195,13 @@ const MarketingBudget = () => {
                     />
                     <Bar
                       dataKey="budget"
-                      barSize={30}
+                      barSize={40}
                       fill="#3b82f6"
                       isAnimationActive
                     />
                     <Bar
                       dataKey="spent"
-                      barSize={30}
+                      barSize={40}
                       fill="#10b981"
                       isAnimationActive
                     />
@@ -223,7 +225,7 @@ const MarketingBudget = () => {
                     width: "100%",
                     height: "100%",
                     maxHeight: "400px",
-                    padding: "40px"
+                    padding: "40px",
                   }}
                   responsive
                 >
@@ -246,25 +248,49 @@ const MarketingBudget = () => {
           <div className="bg-background flex flex-col rounded-xl border border-primary/15 p-4">
             <div className="pb-4">
               <h4 className="text-sm font-medium">
-                <span className="capitalize">{selectedDuration}</span> Budget
-                Items {isLoading && "(Loading Items...)"}
+                <span className="capitalize">{currentFilters.period}</span>{" "}
+                Budget Items {isLoading && "(Loading Items...)"}
               </h4>
             </div>
 
             <div className="space-y-4">
-              {data?.budgetItems.length ? (
-                data.budgetItems.map((item: BudgetItem) => (
-                  <BudgetItemCard
-                    key={item._id}
-                    item={item}
-                    onEdit={budgetItemEditHandler}
-                    onDelete={() => setDeleteBudgetItemId(item._id)}
-                  />
-                ))
+              {isLoading ? (
+                <LoadingState />
+              ) : !data || data?.budgetItems?.length <= 0 ? (
+                <EmptyState title="No budget items found for the selected period." />
               ) : (
-                <p className="text-center text-gray-500 py-4 text-sm">
-                  No budget items found for the selected period.
-                </p>
+                <>
+                  {data?.budgetItems.map((item: BudgetItem) => (
+                    <BudgetItemCard
+                      key={item._id}
+                      item={item}
+                      onEdit={budgetItemEditHandler}
+                      onDelete={() => setDeleteBudgetItemId(item._id)}
+                    />
+                  ))}
+                  {pagination?.totalPages && pagination.totalPages > 1 ? (
+                    <Pagination
+                      showControls
+                      size="sm"
+                      radius="sm"
+                      initialPage={1}
+                      page={currentFilters.page as number}
+                      onChange={(page) => {
+                        setCurrentFilters((prev: any) => ({ ...prev, page }));
+                      }}
+                      total={pagination?.totalPages as number}
+                      classNames={{
+                        base: "flex justify-end py-3",
+                        wrapper: "gap-1.5",
+                        item: "cursor-pointer",
+                        prev: "cursor-pointer",
+                        next: "cursor-pointer",
+                      }}
+                    />
+                  ) : (
+                    ""
+                  )}
+                </>
               )}
             </div>
           </div>

@@ -76,5 +76,4 @@ export interface DeleteActivityParams {
 
 export interface DeleteActivityResponse {
   message: string; // e.g., "Activity deleted successfully."
-  deletedId: string;
 }

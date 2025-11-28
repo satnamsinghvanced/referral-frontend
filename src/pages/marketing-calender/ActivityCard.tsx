@@ -5,6 +5,7 @@ import ActivityStatusChip from "../../components/chips/ActivityStatusChip";
 import { ACTIVITY_TYPES } from "../../consts/marketing";
 import { ActivityItem } from "../../types/marketing";
 import { formatDateToMMDDYYYY } from "../../utils/formatDateToMMDDYYYY";
+import { formatDateToReadable } from "../../utils/formatDateToReadable";
 
 interface ActivityCardProps {
   activity: ActivityItem;
@@ -35,7 +36,7 @@ export function ActivityCard({ activity, onView }: ActivityCardProps) {
       radius="none"
       className={`shadow-none bg-white !rounded-r-xl p-4 h-full flex flex-col justify-between border border-l-4 border-gray-100`}
       style={{ borderLeftColor: activityColor }}
-      onPress={() => onView(_id)}
+      onPress={() => onView(activity)}
       isPressable
       disableRipple
     >
@@ -48,13 +49,7 @@ export function ActivityCard({ activity, onView }: ActivityCardProps) {
         <div className="flex items-center gap-1.5">
           <LuCalendar fontSize={14} />
           <p className="flex items-center space-x-1 text-xs">
-            <span>{formatDateToMMDDYYYY(startDate)}</span>
-            {time && (
-              <span className="text-gray-600">
-                {" "}
-                at <span className="uppercase">{time}</span>
-              </span>
-            )}
+            <span>{formatDateToReadable(startDate, true)}</span>
           </p>
         </div>
 

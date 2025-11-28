@@ -3,7 +3,9 @@ import {
   Checkbox,
   Input,
   Modal,
+  ModalBody,
   ModalContent,
+  ModalFooter,
   ModalHeader,
   Select,
   SelectItem,
@@ -19,8 +21,10 @@ import {
   LuPhone,
   LuDollarSign,
   LuActivity,
+  LuChartColumn,
 } from "react-icons/lu";
 import { MdOutlineBarChart } from "react-icons/md";
+import { TIME_RANGES } from "../../consts/reports";
 
 const REPORT_CATEGORIES = [
   {
@@ -64,7 +68,7 @@ const EXPORT_FORMATS = [
   {
     key: "xlsx",
     label: "Excel Spreadsheet",
-    icon: <MdOutlineBarChart className="h-4 w-4" />,
+    icon: <LuChartColumn className="h-4 w-4" />,
   },
   {
     key: "csv",
@@ -76,16 +80,6 @@ const EXPORT_FORMATS = [
     label: "Interactive Dashboard",
     icon: <LuActivity className="h-4 w-4" />,
   },
-];
-
-const TIME_RANGES = [
-  { key: "7days", label: "Last 7 Days" },
-  { key: "30days", label: "Last 30 Days" },
-  { key: "90days", label: "Last 90 Days" },
-  { key: "quarter", label: "Last Quarter" },
-  { key: "lastYear", label: "Last Year" },
-  // { key: "YearToDate", label: "Year to Date" },
-  // { key: "custom", label: "Custom Range" },
 ];
 
 interface ReportFormState {
@@ -102,10 +96,14 @@ interface ReportFormState {
 interface ReportModalProps {
   isOpen: boolean;
   onClose: () => void;
-  practice:any | null;
+  practice: any | null;
 }
 
-const GenerateNewReportModal = ({ isOpen, onClose , practice }: ReportModalProps) => {
+const GenerateNewReportModal = ({
+  isOpen,
+  onClose,
+  practice,
+}: ReportModalProps) => {
   const [formData, setFormData] = useState<ReportFormState>({
     reportName: "",
     category: REPORT_CATEGORIES[0]?.key as string,
@@ -139,75 +137,87 @@ const GenerateNewReportModal = ({ isOpen, onClose , practice }: ReportModalProps
   };
 
   return (
-    <Modal isOpen={isOpen} onOpenChange={onClose} size="lg">
-      <ModalContent className="p-6">
-        <ModalHeader className="flex flex-col gap-2 !px-0">
-          <h2 className="text-[16px] font-semibold">
+    <Modal
+      isOpen={isOpen}
+      onOpenChange={onClose}
+      size="lg"
+      classNames={{
+        base: `max-sm:!m-3 !m-0`,
+        closeButton: "cursor-pointer",
+      }}
+    >
+      <ModalContent>
+        <ModalHeader className="flex flex-col gap-1 p-5">
+          <h2 className="text-base font-medium">
             Generate New Marketing Report
           </h2>
-          <p className="text-[#64748b] font-normal text-[12px]">
+          <p className="text-gray-500 font-normal text-xs">
             Create a custom report with specific metrics, time ranges, and
             export formats
           </p>
         </ModalHeader>
 
-        <div className="space-y-6 py-4">
+        <ModalBody className="space-y-2 py-0 px-5">
           <div>
-            <label className="block text-[12px] font-medium mb-1">
-              Report Name *
-            </label>
             <Input
+              size="sm"
+              radius="sm"
+              label="Report Name"
+              labelPlacement="outside-top"
               placeholder="e.g., Q1 2024 Marketing ROI Analysis"
               value={formData.reportName}
               onChange={(e) => handleChange("reportName", e.target.value)}
+              isRequired
             />
           </div>
 
           <div>
-            <label className="block text-[12px] font-medium mb-1">
-              Report Category *
-            </label>
             <Select
+              size="sm"
+              radius="sm"
+              label="Report Category"
+              labelPlacement="outside"
               selectedKeys={[formData.category]}
               disabledKeys={[formData.category]}
               onSelectionChange={(keys) =>
                 handleChange("category", keys.currentKey as string)
               }
+              isRequired
               renderValue={(items) => {
                 const item = items[0];
                 if (!item) return null;
                 const cat = REPORT_CATEGORIES.find((c) => c.key === item.key);
                 return (
-                  <div className="flex items-center gap-2">{item.rendered}</div>
+                  <div className="flex items-center gap-2">
+                    {cat?.icon}
+                    {item.rendered}
+                  </div>
                 );
               }}
             >
               {REPORT_CATEGORIES.map((cat) => (
-                <SelectItem key={cat.key} textValue={cat.label}>
-                  <div className="flex items-center gap-2">
-                    {cat.icon}
-                    {cat.label}
-                  </div>
+                <SelectItem key={cat.key} startContent={cat.icon}>
+                  {cat.label}
                 </SelectItem>
               ))}
             </Select>
           </div>
 
           <div>
-            <label className="block text-[12px] font-medium mb-1">
-              Report Type *
-            </label>
             <Select
+              size="sm"
+              radius="sm"
+              label="Report Type"
+              labelPlacement="outside"
               placeholder="Select report type"
               selectedKeys={formData.reportType ? [formData.reportType] : []}
               disabledKeys={formData.reportType ? [formData.reportType] : []}
+              isRequired
               onSelectionChange={(keys) =>
                 handleChange("reportType", keys.currentKey as string)
               }
             >
-              <SelectItem key="social-engagement">
-                Social Engagement{" "}
-              </SelectItem>
+              <SelectItem key="social-engagement">Social Engagement</SelectItem>
               <SelectItem key="social-reach">Social Reach</SelectItem>
               <SelectItem key="social-conversion">
                 Social Conversions
@@ -222,12 +232,14 @@ const GenerateNewReportModal = ({ isOpen, onClose , practice }: ReportModalProps
           </div>
 
           <div>
-            <label className="block text-[12px] font-medium mb-1">
-              Time Range *
-            </label>
             <Select
+              size="sm"
+              radius="sm"
+              label="Time Range"
+              labelPlacement="outside"
               selectedKeys={[formData.timeRange]}
               disabledKeys={[formData.timeRange]}
+              isRequired
               onSelectionChange={(keys) =>
                 handleChange("timeRange", keys.currentKey as string)
               }
@@ -239,15 +251,17 @@ const GenerateNewReportModal = ({ isOpen, onClose , practice }: ReportModalProps
           </div>
 
           <div>
-            <label className="block text-[12px] font-medium mb-1">
-              Export Format *
-            </label>
             <Select
+              size="sm"
+              radius="sm"
+              label="Export Format"
+              labelPlacement="outside"
               selectedKeys={[formData.exportFormat]}
               disabledKeys={[formData.exportFormat]}
               onSelectionChange={(keys) =>
                 handleChange("exportFormat", keys.currentKey as string)
               }
+              isRequired
               renderValue={(items) => {
                 const item = items[0];
                 if (!item) return null;
@@ -269,66 +283,70 @@ const GenerateNewReportModal = ({ isOpen, onClose , practice }: ReportModalProps
             </Select>
           </div>
 
-          <div className="space-y-3 pt-2">
-            <label className="block text-[12px] font-medium">
-              Report Options
-            </label>
-
-            <div className="flex flex-col">
+          <div className="space-y-2">
+            <label className="block text-xs">Report Options</label>
+            <div className="flex flex-col gap-1">
               <Checkbox
+                size="sm"
+                radius="sm"
                 isSelected={formData.includeCharts}
                 onChange={(e) =>
                   handleChange("includeCharts", e.target.checked)
                 }
               >
-                <span className="text-[12px] font-medium">
+                <span className="text-xs">
                   Include Charts and Visualizations
                 </span>
               </Checkbox>
 
               <Checkbox
+                size="sm"
+                radius="sm"
                 isSelected={formData.includeRawData}
                 onChange={(e) =>
                   handleChange("includeRawData", e.target.checked)
                 }
               >
-                <span className="text-[12px] font-medium">
-                  Include Raw Data Tables
-                </span>
+                <span className="text-xs">Include Raw Data Tables</span>
               </Checkbox>
 
               <Checkbox
+                size="sm"
+                radius="sm"
                 isSelected={formData.scheduleRecurring}
                 onChange={(e) =>
                   handleChange("scheduleRecurring", e.target.checked)
                 }
               >
-                <span className="text-[12px] font-medium">
-                  Schedule Recurring Report
-                </span>
+                <span className="text-xs">Schedule Recurring Report</span>
               </Checkbox>
             </div>
           </div>
-        </div>
+        </ModalBody>
 
-        <div className="flex justify-end gap-3 pt-4 border-t">
+        <ModalFooter className="flex justify-end gap-2 p-5">
           <Button
-            className="border-1 border-[#0ea5e91a] text-[12px] rounded-[6px] px-[14px] py-[7px] h-[31px] hover:bg-[#fed7aa] hover:text-[#ea580c]"
-            variant="light"
+            size="sm"
+            radius="sm"
+            variant="ghost"
+            color="default"
             onPress={onClose}
+            className="border-small"
           >
             Cancel
           </Button>
 
           <Button
+            size="sm"
+            radius="sm"
             color="primary"
             isDisabled={!isFormValid}
             onPress={handleGenerateReport}
+            startContent={<LuDownload className="size-3.5" />}
           >
-            <LuDownload className="h-4 w-4 mr-2" />
             Generate Report
           </Button>
-        </div>
+        </ModalFooter>
       </ModalContent>
     </Modal>
   );
