@@ -2,6 +2,23 @@ import React from "react";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
 import { LuTrendingUp, LuUsers, LuTarget, LuCalendar } from "react-icons/lu";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Legend,
+  BarChart,
+  Bar,
+  AreaChart,
+  Area,
+} from "recharts";
 import { MdBarChart } from "react-icons/md";
 import GoogleAnalytics from "./GoogleAnalytics";
 
@@ -60,15 +77,323 @@ const Analytics: React.FC = () => {
     },
   ];
 
+  const donutData = [
+    { name: "Direct", value: 30 },
+    { name: "Email", value: 22 },
+    { name: "Google", value: 18 },
+    { name: "Referral", value: 15 },
+    { name: "Social Media", value: 13 },
+  ];
+
+  const performanceData = [
+    { month: "Jan", conversions: 38, referrals: 45 },
+    { month: "Feb", conversions: 44, referrals: 52 },
+    { month: "Mar", conversions: 41, referrals: 48 },
+    { month: "Apr", conversions: 52, referrals: 61 },
+    { month: "May", conversions: 49, referrals: 58 },
+    { month: "Jun", conversions: 58, referrals: 67 },
+  ];
+
+  const COLORS = ["#f97316", "#fbbf24", "#0ea5e9", "#3b82f6", "#1e40af"];
+
+  const renderCenterLabel = ({ cx, cy }: any) => {
+    return (
+      <g>
+        <rect
+          x={cx - 40}
+          y={cy - 20}
+          rx={10}
+          ry={10}
+          width={80}
+          height={40}
+          fill="#fff"
+          stroke="#e5e7eb"
+        />
+        <text
+          x={cx}
+          y={cy}
+          textAnchor="middle"
+          dominantBaseline="middle"
+          fill="#111827"
+          style={{ fontSize: "12px", fontWeight: 500 }}
+        >
+          value: 98
+        </text>
+      </g>
+    );
+  };
+  const data = [
+    { name: "Google Reviews", leads: 140, roi: 280 },
+    { name: "Direct Referrals", leads: 95, roi: 320 },
+    { name: "Social Media", leads: 78, roi: 260 },
+    { name: "Email Campaigns", leads: 65, roi: 340 },
+    { name: "Print Ads", leads: 45, roi: 150 },
+  ];
+
+  const WeeklyActivity = [
+    { day: "Mon", calls: 22, appointments: 18, reviews: 5 },
+    { day: "Tue", calls: 28, appointments: 22, reviews: 7 },
+    { day: "Wed", calls: 31, appointments: 25, reviews: 6 },
+    { day: "Thu", calls: 36, appointments: 28, reviews: 8 },
+    { day: "Fri", calls: 33, appointments: 26, reviews: 7 },
+    { day: "Sat", calls: 18, appointments: 12, reviews: 4 },
+    { day: "Sun", calls: 12, appointments: 9, reviews: 3 },
+  ];
+
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white shadow-lg rounded-lg p-3 border">
+          <p className="font-semibold mb-1">{label}</p>
+
+          <div className="flex flex-col gap-1 text-sm">
+            <span className="flex items-center gap-2 text-sky-500">
+              ● calls: {payload[0]?.value}
+            </span>
+            <span className="flex items-center gap-2 text-orange-400">
+              ● appointments: {payload[1]?.value}
+            </span>
+            <span className="flex items-center gap-2 text-indigo-600">
+              ● reviews: {payload[2]?.value}
+            </span>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
+
+  const MonthlyReferral = [
+    { name: "Google", value: 140 },
+    { name: "Direct", value: 95 },
+    { name: "Social Media", value: 75 },
+    { name: "Referrals", value: 62 },
+    { name: "Email", value: 42 },
+  ];
+
   return (
     <ComponentContainer headingData={HEADING_DATA}>
-      <div className=" ">
-        <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="bg-none">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-4 gap-4">
           {STAT_CARD_DATA.map((data, i) => (
             <MiniStatsCard key={i} cardData={data} />
           ))}
         </div>
-        <div className="bg-transparent">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+          <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className="grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 pt-6 pb-3">
+              <h4 className="text-base sm:text-lg flex items-center gap-2">
+                <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
+                Referral Sources Distribution
+              </h4>
+            </div>
+            <div className="px-6 [&:last-child]:pb-6 pt-0">
+              <div className="h-[250px] sm:h-[300px] md:h-[350px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Tooltip />
+                    <Pie
+                      data={donutData}
+                      innerRadius={70}
+                      outerRadius={100}
+                      paddingAngle={3}
+                      dataKey="value"
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={renderCenterLabel}
+                    >
+                      {donutData.map((_, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={COLORS[index % COLORS.length]}
+                        />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+
+              <div className="flex flex-wrap justify-center gap-4 mt-4 text-sm pb-4">
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-orange-500"></div>
+                  <span className="text-gray-600">Direct</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-amber-400"></div>
+                  <span className="text-gray-600">Email</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-sky-500"></div>
+                  <span className="text-gray-600">Google</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-blue-500"></div>
+                  <span className="text-gray-600">Referral</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-blue-800"></div>
+                  <span className="text-gray-600">Social Media</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className="grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 pt-6 pb-3">
+              <h4 className="text-base sm:text-lg flex items-center gap-2">
+                <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
+                Performance Trends
+              </h4>
+            </div>
+            <div className="px-6 [&:last-child]:pb-6 pt-0">
+              <div className="h-[250px] sm:h-[300px] md:h-[350px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart data={performanceData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="month" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+
+                    <Line
+                      type="monotone"
+                      dataKey="conversions"
+                      stroke="#f97316"
+                      strokeWidth={3}
+                      dot={{ r: 4 }}
+                      name="Conversions"
+                    />
+
+                    <Line
+                      type="monotone"
+                      dataKey="referrals"
+                      stroke="#0ea5e9"
+                      strokeWidth={3}
+                      dot={{ r: 4 }}
+                      name="Referrals"
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className="grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 pt-6 pb-3">
+              <h4 className="text-base sm:text-lg flex items-center gap-2">
+                <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
+                Channel ROI Analysis
+              </h4>
+            </div>
+            <div className="px-6 [&:last-child]:pb-6 pt-0">
+              <div className="h-[250px] sm:h-[300px] md:h-[350px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={data}
+                    margin={{ top: 20, right: 30, left: 10, bottom: 40 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis
+                      dataKey="name"
+                      angle={-25}
+                      textAnchor="end"
+                      height={60}
+                      tick={{ fontSize: 12 }}
+                    />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Bar
+                      dataKey="Leads Generated"
+                      fill="#0ea5e9"
+                      radius={[6, 6, 0, 0]}
+                    />
+                    <Bar dataKey="ROI %" fill="#fb923c" radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl p-6 shadow-sm">
+            <div className="grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 pt-6 pb-3">
+              <h4 className="text-base sm:text-lg flex items-center gap-2">
+                <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
+                Weekly Activity Overview
+              </h4>
+            </div>
+            <div className="px-6 [&:last-child]:pb-6 pt-0">
+              <div className="h-[250px] sm:h-[300px] md:h-[350px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <AreaChart
+                    data={WeeklyActivity}
+                    margin={{ top: 20, right: 10, left: 0, bottom: 0 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="day" />
+                    <YAxis />
+                    <Tooltip content={<CustomTooltip />} />
+                    <Legend />
+
+                    <Area
+                      type="monotone"
+                      dataKey="Calls"
+                      stackId="1"
+                      stroke="#0ea5e9"
+                      fill="#7dd3fc"
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="Appointments"
+                      stackId="1"
+                      stroke="#fb923c"
+                      fill="#fdba74"
+                    />
+                    <Area
+                      type="monotone"
+                      dataKey="Reviews"
+                      stackId="1"
+                      stroke="#4f46e5"
+                      fill="#818cf8"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+          <div className="bg-white rounded-xl p-6 shadow-sm col-span-[2]">
+            <div className="grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 pt-6 pb-3">
+              <h4 className="text-base sm:text-lg flex items-center gap-2">
+                <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
+                Monthly Referral Sources Breakdown
+              </h4>
+            </div>
+            <div className="px-6 [&:last-child]:pb-6 pt-0">
+              <div className="h-[250px] sm:h-[300px] md:h-[350px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={MonthlyReferral}
+                    margin={{ top: 20, right: 10, left: 0, bottom: 20 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+
+                    <Bar
+                      dataKey="value"
+                      fill="#38bdf8"
+                      radius={[8, 8, 0, 0]}
+                      barSize={50}
+                    />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-4">
           <GoogleAnalytics />
         </div>
       </div>
