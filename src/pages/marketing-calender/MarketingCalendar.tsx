@@ -1,51 +1,28 @@
-import {
-  Button,
-  Card,
-  CardBody,
-  Input,
-  Pagination,
-  Select,
-  SelectItem,
-} from "@heroui/react";
+import { Button, Input, Pagination, Select, SelectItem } from "@heroui/react";
 import { useCallback, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
-import {
-  FiGlobe,
-  FiSearch,
-  FiShare2,
-  FiLoader,
-  FiFilter,
-  FiActivity,
-  FiClock,
-} from "react-icons/fi";
-import {
-  LuCalendar,
-  LuTarget,
-  LuTrophy,
-  LuUserPlus,
-  LuUsers,
-} from "react-icons/lu";
+import { FiClock, FiGlobe, FiSearch, FiShare2 } from "react-icons/fi";
+import { LuCalendar, LuUserPlus, LuUsers } from "react-icons/lu";
 import { MdOutlineRemoveRedEye, MdTrendingUp } from "react-icons/md";
 import { RiMegaphoneLine } from "react-icons/ri";
 import { TbWaveSawTool } from "react-icons/tb";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
+import ActivityStatusChip from "../../components/chips/ActivityStatusChip";
 import ComponentContainer from "../../components/common/ComponentContainer";
+import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
+import EmptyState from "../../components/common/EmptyState";
+import { LoadingState } from "../../components/common/LoadingState";
 import CustomCalendar from "../../components/ui/CustomCalender";
 import { ACTIVITY_TYPES } from "../../consts/marketing";
 import { useActivityTypes } from "../../hooks/useCommon";
 import {
-  useActivityDetail,
   useDeleteActivity,
   useMarketingActivities,
 } from "../../hooks/useMarketing";
+import { formatDateToMMDDYYYY } from "../../utils/formatDateToMMDDYYYY";
 import ActivityActionsModal from "./ActivityActionsModal";
 import { ActivityCard } from "./ActivityCard";
 import { ActivityDetailModal } from "./ActivityDetailModal";
-import ActivityStatusChip from "../../components/chips/ActivityStatusChip";
-import { formatDateToMMDDYYYY } from "../../utils/formatDateToMMDDYYYY";
-import EmptyState from "../../components/common/EmptyState";
-import { LoadingState } from "../../components/common/LoadingState";
-import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
 
 const MarketingCalendar = () => {
   const [currentFilters, setCurrentFilters] = useState<any>({
@@ -101,8 +78,8 @@ const MarketingCalendar = () => {
     deleteActivity(
       // @ts-ignore
       {
-        eventId: "",
-        googleId: selectedActivity._id,
+        eventId: selectedActivity._id,
+        googleId: selectedActivity.googleId,
       },
       {
         onSuccess: () => {
@@ -222,8 +199,8 @@ const MarketingCalendar = () => {
         <div className="flex flex-col gap-3 max-h-[315px] overflow-y-auto">
           {filteredActivities.map((activity: any) => {
             const activityColor = ACTIVITY_TYPES.find(
-              (activityType: any) => activityType.label === activity.type.title
-            )?.color;
+              (activityType: any) => activityType.label === activity.type
+            )?.color.value;
 
             return (
               <div
@@ -367,27 +344,24 @@ const MarketingCalendar = () => {
                   Activity Types
                 </h4>
                 <ul className="space-y-3">
-                  {activityTypes?.map((activity: any) => {
-                    const activityTypeData = ACTIVITY_TYPES.find(
-                      (type: any) => type.label === activity.title
-                    );
-                    const ActivityIcon = activityTypeData?.icon;
+                  {ACTIVITY_TYPES?.map((activity: any) => {
+                    const ActivityIcon = activity?.icon;
 
                     return (
                       <li
                         className="text-xs flex items-center gap-2"
-                        key={activity._id}
+                        key={activity.label}
                       >
                         <span
                           className="size-[18px] rounded-full inline-flex items-center justify-center text-white"
                           style={{
-                            backgroundColor: activityTypeData?.color,
+                            backgroundColor: activity?.color?.value,
                           }}
                         >
                           {/* @ts-ignore */}
                           {ActivityIcon && <ActivityIcon />}
                         </span>
-                        {activity.title}
+                        {activity.label}
                       </li>
                     );
                   })}
@@ -419,14 +393,16 @@ const MarketingCalendar = () => {
               }
               className="max-w-60"
             >
-              <SelectItem key="all" className="capitalize">
-                All Activities
-              </SelectItem>
-              {activityTypes?.map((type: any) => (
-                <SelectItem key={type._id} className="capitalize">
-                  {type.title}
+              <>
+                <SelectItem key="all" className="capitalize">
+                  All Activities
                 </SelectItem>
-              ))}
+                {ACTIVITY_TYPES?.map((type: any) => (
+                  <SelectItem key={type.label} className="capitalize">
+                    {type.label}
+                  </SelectItem>
+                ))}
+              </>
             </Select>
           </div>
           <div className="flex flex-col gap-4 border border-primary/15 bg-background rounded-xl p-4">

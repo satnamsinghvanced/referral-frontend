@@ -7,6 +7,7 @@ import { useDashboard } from "../../hooks/useDashboard";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
 import { TREATMENT_OPTIONS } from "../../consts/referral";
 import ComponentContainer from "../../components/common/ComponentContainer";
+import { timeAgo } from "../../utils/timeAgo";
 
 type Color = "sky" | "orange" | "emerald" | "purple";
 
@@ -69,27 +70,6 @@ const QUICK_ACTIONS_COLOR_CLASSES: Record<
     hover: "hover:bg-purple-100",
   },
 };
-
-const SYSTEM_STATUSES = [
-  {
-    name: "Google Calendar",
-    status: "✓ Connected",
-    bg: "bg-green-100",
-    text: "text-green-800",
-  },
-  {
-    name: "Review Tracking",
-    status: "✓ Active",
-    bg: "bg-green-100",
-    text: "text-green-800",
-  },
-  {
-    name: "NFC System",
-    status: "✓ Online",
-    bg: "bg-green-100",
-    text: "text-green-800",
-  },
-];
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -154,22 +134,6 @@ const Dashboard = () => {
     [dashboard, navigate]
   );
 
-  const getTimeAgo = (dateString: string) => {
-    const now = new Date();
-    const createdAt = new Date(dateString);
-    const diffMs = now.getTime() - createdAt.getTime();
-
-    const seconds = Math.floor(diffMs / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-
-    if (seconds < 60) return `${seconds} sec ago`;
-    if (minutes < 60) return `${minutes} min ago`;
-    if (hours < 24) return `${hours} hours ago`;
-    return `${days} day${days > 1 ? "s" : ""} ago`;
-  };
-
   const recentActivities = [
     ...(dashboard?.recentReferrals?.length > 0
       ? [
@@ -188,7 +152,7 @@ const Dashboard = () => {
                   }`
                 : ""
             }`,
-            time: `${getTimeAgo(dashboard?.recentReferrals[0]?.createdAt)}`,
+            time: `${timeAgo(dashboard?.recentReferrals[0]?.createdAt)}`,
             onClick: () => navigate("/referrals"),
           },
         ]
@@ -208,6 +172,39 @@ const Dashboard = () => {
       description: "Back-to-School Smile Campaign - Social Media",
       time: "6 hours ago",
       onClick: () => navigate("/marketing-calendar"),
+    },
+  ];
+
+  const SYSTEM_STATUSES = [
+    {
+      name: "Google Calendar",
+      status: dashboard?.systemStatus?.googleCalendar
+        ? "✓ Connected"
+        : "Disconnected",
+      bg: dashboard?.systemStatus?.googleCalendar
+        ? "bg-green-100"
+        : "bg-red-100",
+      text: dashboard?.systemStatus?.googleCalendar
+        ? "text-green-800"
+        : "text-red-800",
+    },
+    {
+      name: "Review Tracking",
+      status: dashboard?.systemStatus?.reviewTracking ? "✓ Active" : "Inactive",
+      bg: dashboard?.systemStatus?.reviewTracking
+        ? "bg-green-100"
+        : "bg-red-100",
+      text: dashboard?.systemStatus?.reviewTracking
+        ? "text-green-800"
+        : "text-red-800",
+    },
+    {
+      name: "NFC System",
+      status: dashboard?.systemStatus?.nfcSetup ? "✓ Active" : "Inactive",
+      bg: dashboard?.systemStatus?.nfcSetup ? "bg-green-100" : "bg-red-100",
+      text: dashboard?.systemStatus?.nfcSetup
+        ? "text-green-800"
+        : "text-red-800",
     },
   ];
 

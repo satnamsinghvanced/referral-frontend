@@ -166,9 +166,8 @@ const CustomCalendar: React.FC<CalendarProps> = ({
             {hasActivities &&
               dayActivities.slice(0, 2).map((activity: any) => {
                 const activityColor = ACTIVITY_TYPES.find(
-                  (activityType: any) =>
-                    activityType.label === activity.type.title
-                )?.color;
+                  (activityType: any) => activityType.label === activity.type
+                )?.color.value;
 
                 return (
                   <Chip

@@ -1,6 +1,7 @@
 import {
   CreateFolderRequest,
   CreateFolderResponse,
+  DeleteImagesRequest,
   GetAllFoldersQuery,
   GetAllFoldersResponse,
   GetFolderDetailsResponse,
@@ -80,8 +81,8 @@ export const updateImageTags = (
   );
 };
 
-export const deleteImage = (imageId: string) => {
-  return axios.delete(`${IMAGES_API_BASE}/${imageId}`);
+export const deleteImages = (data: DeleteImagesRequest) => {
+  return axios.delete(`${IMAGES_API_BASE}/delete`, { data });
 };
 
 export const searchImages = (params: SearchImagesQuery) => {

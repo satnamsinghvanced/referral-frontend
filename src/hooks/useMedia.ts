@@ -1,9 +1,10 @@
+import { addToast } from "@heroui/react";
 import { useMutation, useQuery, UseQueryResult } from "@tanstack/react-query";
 import { queryClient } from "../providers/QueryProvider";
 import {
   createFolder,
   deleteFolder,
-  deleteImage,
+  deleteImages,
   getAllFolders,
   getAllFoldersWithChildFolders,
   getFolderDetails,
@@ -17,6 +18,7 @@ import {
 } from "../services/media";
 import {
   CreateFolderRequest,
+  DeleteImagesRequest,
   GetAllFoldersQuery,
   GetTagsResponse,
   MoveImagesRequest,
@@ -25,7 +27,6 @@ import {
   UpdateImageTagsRequest,
   UploadMediaRequest,
 } from "../types/media";
-import { addToast } from "@heroui/react";
 
 const FOLDER_KEYS = {
   all: ["folders"] as const,
@@ -169,12 +170,18 @@ export const useUpdateImageTags = (imageId: string) => {
   });
 };
 
-export const useDeleteImage = (imageId: string) => {
+export const useDeleteImages = () => {
   return useMutation({
-    mutationFn: () => deleteImage(imageId),
+    mutationFn: (data: DeleteImagesRequest) => deleteImages(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: IMAGE_KEYS.all });
       queryClient.invalidateQueries({ queryKey: FOLDER_KEYS.all });
+
+      addToast({
+        title: "Success",
+        description: "Selected media deleted successfully.",
+        color: "success",
+      });
     },
     onError: (error) => {
       addToast({
@@ -198,6 +205,14 @@ export const useMoveImages = () => {
         title: "Success",
         description: "Media moved successfully.",
         color: "success",
+      });
+    },
+    onError: (error) => {
+      addToast({
+        title: "Failed",
+        description:
+          error.response.data.message || "An unknown error occurred.",
+        color: "danger",
       });
     },
   });

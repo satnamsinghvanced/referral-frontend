@@ -1,4 +1,4 @@
-import { Button, Card } from "@heroui/react";
+import { Button, Card, CardBody, CardHeader } from "@heroui/react";
 import clsx from "clsx";
 import { IoArrowBack } from "react-icons/io5";
 import {
@@ -294,16 +294,18 @@ const MetricBlock: React.FC<{ metric: MetricData }> = ({ metric }) => {
         colors.border
       )}
     >
-      <div className={clsx("text-3xl font-bold", colors.text)}>
+      <div className={clsx("text-2xl font-bold", colors.text)}>
         {metric.value}
       </div>
-      <div className="text-sm text-gray-700 font-medium">{metric.label}</div>
-      <div className="flex items-center justify-center gap-1 mt-2">
+      <div className="text-sm text-gray-700 font-medium mt-1">
+        {metric.label}
+      </div>
+      {/* <div className="flex items-center justify-center gap-1 mt-2">
         <Icon className={clsx("h-3 w-3", changeColor)} aria-hidden="true" />
         <span className={clsx("text-xs font-medium", changeColor)}>
           {metric.change}
         </span>
-      </div>
+      </div> */}
     </div>
   );
 };
@@ -413,151 +415,162 @@ const MarketingReport = () => {
   return (
     <ComponentContainer headingData={HEADING_DATA}>
       <div className="flex flex-col gap-5">
-        <div className="max-w-7xl mx-auto p-6 space-y-6">
-          <Card className="border-l-4 border-l-sky-500 card-brand hover:shadow-lg transition-all duration-300">
-            <LocalCardHeader>
-              <LocalCardTitle>
-                <div className="w-1 h-6 bg-brand-gradient rounded-full"></div>
-                <LuTrendingUp
-                  className="h-5 w-5 text-sky-600"
-                  aria-hidden="true"
-                />
-                Executive Summary - Q1 2024 Marketing ROI Analysis
-              </LocalCardTitle>
-            </LocalCardHeader>
-            <LocalCardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="space-y-5">
+          <Card shadow="none" className="border border-primary/15 p-5">
+            <CardHeader className="p-0 pb-4 flex items-center gap-2">
+              <LuTrendingUp
+                className="h-5 w-5 text-sky-600"
+                aria-hidden="true"
+              />
+              <h4>Executive Summary - Q1 2024 Marketing ROI Analysis</h4>
+            </CardHeader>
+            <CardBody className="p-0">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {METRICS_DATA.map((metric, index) => (
                   <MetricBlock key={index} metric={metric} />
                 ))}
               </div>
-            </LocalCardContent>
+            </CardBody>
           </Card>
 
-          <Card className="card-brand hover:shadow-lg transition-all duration-300">
-            <LocalCardHeader>
-              <LocalCardTitle>
-                <div className="w-1 h-6 bg-brand-gradient rounded-full"></div>
-                <LuChartColumn
-                  className="h-5 w-5 text-sky-600"
-                  aria-hidden="true"
-                />
-                Channel Performance Breakdown
-              </LocalCardTitle>
-            </LocalCardHeader>
-            <LocalCardContent>
+          <Card shadow="none" className="border border-primary/15 p-5">
+            <CardHeader className="p-0 pb-4 flex items-center gap-2">
+              <LuChartColumn
+                className="h-5 w-5 text-sky-600"
+                aria-hidden="true"
+              />
+              <h4>Channel Performance Breakdown</h4>
+            </CardHeader>
+            <CardBody className="p-0">
               <div className="space-y-4">
                 {CHANNELS_DATA.map((channel, index) => (
                   <ChannelRow key={index} channel={channel} />
                 ))}
               </div>
-            </LocalCardContent>
+            </CardBody>
           </Card>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card className="card-brand hover:shadow-lg transition-all duration-300">
-              <LocalCardHeader>
-                <LocalCardTitle>
-                  <div className="w-1 h-6 bg-brand-gradient rounded-full"></div>
-                  <LuTarget
-                    className="h-5 w-5 text-sky-600"
-                    aria-hidden="true"
-                  />
-                  Key Insights
-                </LocalCardTitle>
-              </LocalCardHeader>
-              <LocalCardContent>
-                <div className="space-y-4">
-                  {INSIGHTS_DATA.map((insight, index) => (
-                    <div
-                      key={index}
-                      className={clsx(
-                        "flex items-start gap-3 p-3 rounded-lg border",
-                        `bg-${insight.color}-50 border-${insight.color}-200`
-                      )}
-                    >
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            <Card shadow="none" className="border border-primary/15 p-5">
+              <CardHeader className="p-0 pb-4 flex items-center gap-2">
+                <LuTarget
+                  className="size-[18px] text-sky-600"
+                  aria-hidden="true"
+                />
+                <h4 className="text-sm">Key Insights</h4>
+              </CardHeader>
+              <CardBody className="p-0">
+                <div className="space-y-3">
+                  {INSIGHTS_DATA.map((insight, index) => {
+                    let color;
+
+                    switch (index) {
+                      case 1:
+                        color = "sky";
+                        break;
+
+                      case 2:
+                        color = "yellow";
+                        break;
+
+                      default:
+                        color = "emerald";
+                        break;
+                    }
+
+                    return (
                       <div
+                        key={index}
                         className={clsx(
-                          "w-3 h-3 rounded-full mt-2 flex-shrink-0",
-                          `bg-${insight.color}-500`
+                          "p-3 rounded-lg border space-y-1",
+                          `bg-${color}-50 border-${color}-200`
                         )}
-                      ></div>
-                      <div>
+                      >
                         <h4
                           className={clsx(
-                            "font-semibold",
-                            `text-${insight.color}-800`
+                            "text-sm font-medium",
+                            `text-${color}-800`
                           )}
                         >
                           {insight.title}
                         </h4>
-                        <p
-                          className={clsx(
-                            "text-sm",
-                            `text-${insight.color}-700`
-                          )}
-                        >
+                        <p className={clsx("text-xs", `text-${color}-700`)}>
                           {insight.description}
                         </p>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
-              </LocalCardContent>
+              </CardBody>
             </Card>
 
-            <Card className="card-brand hover:shadow-lg transition-all duration-300">
-              <LocalCardHeader>
-                <LocalCardTitle>
-                  <div className="w-1 h-6 bg-brand-gradient rounded-full"></div>
-                  <LuUsers
-                    className="h-5 w-5 text-orange-600"
-                    aria-hidden="true"
-                  />
-                  Recommendations
-                </LocalCardTitle>
-              </LocalCardHeader>
-              <LocalCardContent>
-                <div className="space-y-4">
-                  {RECOMMENDATIONS_DATA.map((rec, index) => (
-                    <div
-                      key={index}
-                      className={clsx(
-                        "pl-4 p-3 rounded-r-lg",
-                        `border-l-4 border-l-${rec.color}-500 bg-${rec.color}-50`
-                      )}
-                    >
-                      <h4
+            <Card shadow="none" className="border border-primary/15 p-5">
+              <CardHeader className="p-0 pb-4 flex items-center gap-2">
+                <LuUsers
+                  className="size-[18px] text-orange-600"
+                  aria-hidden="true"
+                />
+                <h4 className="text-sm">Recommendations</h4>
+              </CardHeader>
+              <CardBody className="p-0">
+                <div className="space-y-3">
+                  {RECOMMENDATIONS_DATA.map((rec, index) => {
+                    let color;
+
+                    switch (index) {
+                      case 1:
+                        color = "sky";
+                        break;
+
+                      case 2:
+                        color = "yellow";
+                        break;
+
+                      default:
+                        color = "emerald";
+                        break;
+                    }
+
+                    return (
+                      <div
+                        key={index}
                         className={clsx(
-                          "font-semibold",
-                          `text-${rec.color}-800`
+                          "pl-4 p-3 rounded-r-lg space-y-1",
+                          `border-l-4 border-l-${color}-500 bg-${color}-50`,
+                          index === 0 && "border-l-emerald-500"
                         )}
                       >
-                        {rec.title}
-                      </h4>
-                      <p className={clsx("text-sm", `text-${rec.color}-700`)}>
-                        {rec.description}
-                      </p>
-                    </div>
-                  ))}
+                        <h4
+                          className={clsx(
+                            "text-sm font-medium",
+                            `text-${color}-800`
+                          )}
+                        >
+                          {rec.title}
+                        </h4>
+                        <p className={clsx("text-xs", `text-${color}-700`)}>
+                          {rec.description}
+                        </p>
+                      </div>
+                    );
+                  })}
                 </div>
-              </LocalCardContent>
+              </CardBody>
             </Card>
           </div>
 
-          <Card className="border-l-4 border-l-sky-500 card-brand hover:shadow-lg transition-all duration-300">
-            <LocalCardHeader>
-              <LocalCardTitle>
-                <div className="w-1 h-6 bg-brand-gradient rounded-full"></div>
-                <LuDollarSign
-                  className="h-5 w-5 text-sky-600"
-                  aria-hidden="true"
-                />
+          <Card shadow="none" className="border border-primary/15 p-5">
+            <CardHeader className="p-0 pb-4 flex items-center gap-1.5">
+              <LuDollarSign
+                className="size-[18px] text-sky-600"
+                aria-hidden="true"
+              />
+              <h4 className="text-sm">
                 Q2 2024 Projections Based on Current Performance
-              </LocalCardTitle>
-            </LocalCardHeader>
-            <LocalCardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              </h4>
+            </CardHeader>
+            <CardBody className="p-0">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {PROJECTIONS_DATA.map((proj, index) => (
                   <div
                     key={index}
@@ -568,7 +581,7 @@ const MarketingReport = () => {
                   >
                     <div
                       className={clsx(
-                        "text-3xl font-bold",
+                        "text-2xl mb-0.5 font-bold",
                         `text-${proj.color}-700`
                       )}
                     >
@@ -593,7 +606,7 @@ const MarketingReport = () => {
                   </div>
                 ))}
               </div>
-            </LocalCardContent>
+            </CardBody>
           </Card>
         </div>
       </div>

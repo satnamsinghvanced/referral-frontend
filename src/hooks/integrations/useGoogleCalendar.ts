@@ -10,6 +10,7 @@ import {
   GoogleCalendarIntegrationResponse,
   UpdateGoogleCalendarRequest,
 } from "../../types/integrations/googleCalendar";
+import { queryClient } from "../../providers/QueryProvider";
 
 export const GOOGLE_CALENDAR_KEYS = {
   all: ["googleCalendar"] as const,
@@ -31,8 +32,6 @@ export const useFetchGoogleCalendarIntegration = () => {
 };
 
 export const useUpdateGoogleCalendarIntegration = () => {
-  const queryClient = useQueryClient();
-
   return useMutation<
     GoogleCalendarIntegrationResponse,
     Error,

@@ -22,13 +22,16 @@ export interface GoogleCalendarIntegrationResponse {
   accessToken?: string;
   createdAt: string;
   updatedAt: string;
+  status: string;
+  lastSyncAt: string;
 }
 
 export interface UpdateGoogleCalendarRequest {
-  platform: string;
-  clientId: string;
-  clientSecret: string;
-  redirectUri: string;
+  platform?: string;
+  clientId?: string;
+  clientSecret?: string;
+  redirectUri?: string;
   accessToken?: string;
   refreshToken?: string;
+  status?: string;
 }

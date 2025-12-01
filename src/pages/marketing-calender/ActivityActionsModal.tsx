@@ -1,27 +1,21 @@
 import {
   Button,
+  DatePicker,
+  Input,
   Modal,
   ModalContent,
   ModalHeader,
-  Input,
-  Textarea,
   Select,
   SelectItem,
-  DatePicker,
+  Textarea,
 } from "@heroui/react";
-import { LuClock } from "react-icons/lu";
+import { CalendarDate, getLocalTimeZone, now, parseAbsoluteToLocal } from "@internationalized/date";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { ACTIVITY_TYPES } from "../../consts/marketing";
 import { PRIORITY_LEVELS } from "../../consts/practice";
 import { useCreateActivity, useUpdateActivity } from "../../hooks/useMarketing";
 import { ActivityItem, ActivityType } from "../../types/marketing";
-import {
-  parseDate,
-  CalendarDate,
-  getLocalTimeZone,
-  today,
-  now,
-} from "@internationalized/date";
 
 interface ActivityFormValues {
   title: string;
@@ -29,10 +23,11 @@ interface ActivityFormValues {
   description: string;
   startDate: string;
   endDate: string;
-  time: string;
+  time?: string;
   priority: string;
   platform: string;
   budget: number;
+  colorId: string;
 }
 
 export const ActivityValidationSchema = Yup.object().shape({
@@ -68,30 +63,6 @@ interface ActivityActionsModalProps {
   activityTypes: ActivityType[];
 }
 
-const stringToCalendarDate = (
-  dateString: string | null
-): CalendarDate | null => {
-  if (!dateString) return null;
-  try {
-    return parseDate(dateString);
-  } catch (e) {
-    return null;
-  }
-};
-
-const calendarDateToString = (dateObject: CalendarDate | null): string => {
-  return dateObject?.toString() || "";
-};
-
-const extractDateOnly = (isoString: string | undefined | null): string => {
-  if (!isoString) return "";
-  if (isoString.includes("T")) {
-    // @ts-ignore
-    return isoString.split("T")[0];
-  }
-  return isoString;
-};
-
 export default function ActivityActionsModal({
   isOpen,
   onClose,
@@ -104,14 +75,17 @@ export default function ActivityActionsModal({
   const initialValues: ActivityFormValues = {
     title: initialData?.title || "",
     // @ts-ignore
-    type: initialData?.type || "",
+    type:
+      initialData?.type ||
+      ACTIVITY_TYPES.find(
+        (activity) => activity.color.value === initialData?.colorId
+      )?.label ||
+      "",
+    colorId: initialData?.colorId || "1",
     description: initialData?.description || "",
-    startDate:
-      extractDateOnly(initialData?.startDate) ||
-      (defaultStartDate ? defaultStartDate.toString() : "") ||
-      (new Date().toISOString().split("T")[0] as string),
-    endDate: extractDateOnly(initialData?.endDate) || "",
-    time: initialData?.time || "09:00",
+    startDate: initialData?.startDate || "",
+    endDate: initialData?.endDate || "",
+    // time: initialData?.time || "09:00",
     priority: initialData?.priority || "medium",
     platform: initialData?.platform || "",
     budget: initialData?.budget || 0,
@@ -127,27 +101,34 @@ export default function ActivityActionsModal({
     onSubmit: (values) => {
       if (isEditing) {
         updateActivity(
-          // {
-          //   ...values,
-          //   eventId: formik.values.platform?.toLowerCase()?.includes("google") ? "" : initialData?._id,
-          //   googleId: formik.values.platform?.toLowerCase()?.includes("google")
-          //     ? initialData?._id
-          //     : "",
-          // },
+          {
+            ...values,
+            id: initialData?._id,
+            googleId: initialData?.googleId,
+          },
           // @ts-ignore
-          values,
+          // values,
           {
             onSuccess: onClose,
           }
         );
       } else {
         // @ts-ignore
-        createActivity(values, {
-          onSuccess: () => {
-            onClose();
-            formik.resetForm();
+        createActivity(
+          {
+            ...values,
+            colorId:
+              ACTIVITY_TYPES.find(
+                (activity) => activity.label === values.type
+              )?.color.id.toString() || "1",
           },
-        });
+          {
+            onSuccess: () => {
+              onClose();
+              formik.resetForm();
+            },
+          }
+        );
       }
     },
   });
@@ -226,8 +207,8 @@ export default function ActivityActionsModal({
                 isInvalid={!!hasError("type")}
                 isRequired
               >
-                {activityTypes?.map((type) => (
-                  <SelectItem key={type._id}>{type.title}</SelectItem>
+                {ACTIVITY_TYPES?.map((type) => (
+                  <SelectItem key={type.label}>{type.label}</SelectItem>
                 ))}
               </Select>
               <ErrorText field="type" />
@@ -265,8 +246,8 @@ export default function ActivityActionsModal({
                 radius="sm"
                 defaultValue={now(getLocalTimeZone())}
                 minValue={now(getLocalTimeZone())}
-                // value={stringToCalendarDate(formik.values.startDate)}
                 onChange={(dateObject) => {
+                  console.log(getLocalTimeZone(), "JHGSjh")
                   if (dateObject) {
                     const year = dateObject.year;
                     const month = String(dateObject.month).padStart(2, "0");
@@ -304,7 +285,6 @@ export default function ActivityActionsModal({
                 radius="sm"
                 defaultValue={null}
                 minValue={now(getLocalTimeZone())}
-                // value={stringToCalendarDate(formik.values.endDate)}
                 onChange={(dateObject) => {
                   if (dateObject) {
                     const year = dateObject.year;

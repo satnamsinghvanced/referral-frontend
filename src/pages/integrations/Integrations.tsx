@@ -6,7 +6,7 @@ import {
   Chip,
   Switch,
 } from "@heroui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BiCheckCircle } from "react-icons/bi";
 import { BsLightningCharge } from "react-icons/bs";
 import { FaRegEnvelope } from "react-icons/fa6";
@@ -16,15 +16,19 @@ import { PiDatabase } from "react-icons/pi";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import GoogleCalendarConfigModal from "./modal/GoogleCalendarConfigModal";
-import { useFetchGoogleCalendarIntegration } from "../../hooks/integrations/useGoogleCalendar";
+import {
+  useFetchGoogleCalendarIntegration,
+  useUpdateGoogleCalendarIntegration,
+} from "../../hooks/integrations/useGoogleCalendar";
 import { GoogleCalendarIntegrationResponse } from "../../types/integrations/googleCalendar";
+import { timeAgo } from "../../utils/timeAgo";
 
 interface IntegrationItemProps {
   name: string;
   icon: React.ReactNode;
   iconBg: string;
   iconColor: string;
-  status: "Connected" | "Disconnected" | "Error";
+  status: "Connected" | "Disconnected" | "Error" | string;
   description: string;
   badges: string[];
   lastSync?: string;
@@ -69,32 +73,33 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
   }
 
   const actionButton = isConnected ? (
-    // <>
-    //   {onConfigure && (
-    //     <Button
-    //       size="sm"
-    //       radius="sm"
-    //       variant="ghost"
-    //       onPress={onConfigure}
-    //       startContent={<FiSettings className="size-3.5" />}
-    //     >
-    //       Configure
-    //     </Button>
-    //   )}
-    //   <Switch
-    //     size="sm"
-    //     checked={isSwitchChecked}
-    //     onValueChange={onSwitchChange}
-    //   />
-    // </>
-    ""
+    <>
+      {onConfigure && (
+        <Button
+          size="sm"
+          radius="sm"
+          variant="ghost"
+          onPress={onConfigure}
+          startContent={<FiSettings className="size-3.5" />}
+          className="border-small"
+        >
+          Configure
+        </Button>
+      )}
+      <Switch
+        size="sm"
+        isSelected={isSwitchChecked}
+        onValueChange={onSwitchChange}
+      />
+    </>
   ) : (
+    // @ts-ignore
     <Button
       size="sm"
       radius="sm"
       variant="solid"
       color="primary"
-      onPress={() => onConnect}
+      onPress={onConnect}
       endContent={<FiExternalLink className="size-3.5" />}
     >
       Connect
@@ -159,6 +164,9 @@ function Integrations() {
     isError: isGoogleCalendarConfigError,
   } = useFetchGoogleCalendarIntegration();
 
+  const { mutate: updateGoogleCalendarIntegration } =
+    useUpdateGoogleCalendarIntegration();
+
   const HEADING_DATA = {
     heading: "Integrations",
     subHeading:
@@ -210,15 +218,30 @@ function Integrations() {
       icon: <LuCalendar className="w-4 h-4" />,
       iconBg: "bg-purple-100",
       iconColor: "text-purple-600",
-      status: "Connected" as const,
+      status: googleCalendarExistingConfig?.status as string,
       description: "Sync appointments and referral scheduling",
       badges: [
         "Appointment sync",
         "Referral scheduling",
         "Availability management",
       ],
-      lastSync: "3 days ago",
+      lastSync: timeAgo(
+        googleCalendarExistingConfig?.lastSyncAt || new Date().toISOString()
+      ),
       onConnect: () => setIsGoogleCalendarIntegrationModalOpen(true),
+      onConfigure: () => setIsGoogleCalendarIntegrationModalOpen(true),
+      isSwitchChecked: googleCalendarExistingConfig?.status === "Connected",
+      onSwitchChange: () => {
+        updateGoogleCalendarIntegration({
+          id: googleCalendarExistingConfig?._id as string,
+          data: {
+            status:
+              googleCalendarExistingConfig?.status === "Connected"
+                ? "Disconnected"
+                : "Connected",
+          },
+        });
+      },
     },
     {
       name: "Analytics Platform",

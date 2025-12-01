@@ -4,7 +4,6 @@ import { LuCalendar } from "react-icons/lu";
 import ActivityStatusChip from "../../components/chips/ActivityStatusChip";
 import { ACTIVITY_TYPES } from "../../consts/marketing";
 import { ActivityItem } from "../../types/marketing";
-import { formatDateToMMDDYYYY } from "../../utils/formatDateToMMDDYYYY";
 import { formatDateToReadable } from "../../utils/formatDateToReadable";
 
 interface ActivityCardProps {
@@ -28,8 +27,10 @@ export function ActivityCard({ activity, onView }: ActivityCardProps) {
   } = activity;
 
   const activityColor = ACTIVITY_TYPES.find(
-    (activityType: any) => activityType.label === type.title
-  )?.color;
+    (activityType: any) => activityType.label === type
+  )?.color.value;
+
+  console.log(startDate);
 
   return (
     <Card
@@ -54,7 +55,7 @@ export function ActivityCard({ activity, onView }: ActivityCardProps) {
         </div>
 
         <p className="text-xs flex items-center gap-1.5 capitalize">
-          <FiGlobe fontSize={14} /> {type.title}
+          <FiGlobe fontSize={14} /> {type}
         </p>
 
         {description && (
