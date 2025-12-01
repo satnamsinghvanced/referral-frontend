@@ -122,7 +122,7 @@ const Analytics: React.FC = () => {
       </g>
     );
   };
-  const data = [
+  const ChannelROI = [
     { name: "Google Reviews", leads: 140, roi: 280 },
     { name: "Direct Referrals", leads: 95, roi: 320 },
     { name: "Social Media", leads: 78, roi: 260 },
@@ -289,7 +289,7 @@ const Analytics: React.FC = () => {
               <div className="h-[250px] sm:h-[300px] md:h-[350px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
-                    data={data}
+                    data={ChannelROI}
                     margin={{ top: 20, right: 30, left: 10, bottom: 40 }}
                   >
                     <CartesianGrid strokeDasharray="3 3" />
@@ -304,11 +304,17 @@ const Analytics: React.FC = () => {
                     <Tooltip />
                     <Legend />
                     <Bar
-                      dataKey="Leads Generated"
+                      dataKey="leads"
                       fill="#0ea5e9"
                       radius={[6, 6, 0, 0]}
+                      name="Leads Generated"
                     />
-                    <Bar dataKey="ROI %" fill="#fb923c" radius={[6, 6, 0, 0]} />
+                    <Bar
+                      dataKey="roi"
+                      fill="#fb923c"
+                      radius={[6, 6, 0, 0]}
+                      name="ROI %"
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -337,31 +343,34 @@ const Analytics: React.FC = () => {
 
                     <Area
                       type="monotone"
-                      dataKey="Calls"
+                      dataKey="calls"
                       stackId="1"
                       stroke="#0ea5e9"
                       fill="#7dd3fc"
+                      name="Calls"
                     />
                     <Area
                       type="monotone"
-                      dataKey="Appointments"
+                      dataKey="appointments"
                       stackId="1"
                       stroke="#fb923c"
                       fill="#fdba74"
+                      name="Appointments"
                     />
                     <Area
                       type="monotone"
-                      dataKey="Reviews"
+                      dataKey="reviews"
                       stackId="1"
                       stroke="#4f46e5"
                       fill="#818cf8"
+                      name="Reviews"
                     />
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
             </div>
           </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm col-span-[2]">
+          <div className="bg-white rounded-xl p-6 shadow-sm col-span-full">
             <div className="grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 pt-6 pb-3">
               <h4 className="text-base sm:text-lg flex items-center gap-2">
                 <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
@@ -373,18 +382,55 @@ const Analytics: React.FC = () => {
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
                     data={MonthlyReferral}
-                    margin={{ top: 20, right: 10, left: 0, bottom: 20 }}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                    barCategoryGap="20%"
                   >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
+                    <defs>
+                      <linearGradient
+                        id="barGradient"
+                        x1="0"
+                        y1="0"
+                        x2="0"
+                        y2="1"
+                      >
+                        <stop
+                          offset="0%"
+                          stopColor="#0ea5e9"
+                          stopOpacity={0.8}
+                        />
+                        <stop
+                          offset="100%"
+                          stopColor="#0ea5e9"
+                          stopOpacity={0.4}
+                        />
+                      </linearGradient>
+                    </defs>
+
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      vertical={false}
+                      stroke="rgba(14, 165, 233, 0.1)"
+                    />
+
+                    <XAxis
+                      dataKey="name"
+                      tick={{ fill: "#64748b", fontSize: 12 }}
+                    />
+
+                    <YAxis
+                      tick={{ fill: "#64748b", fontSize: 12 }}
+                      tickCount={5}
+                      domain={[0, 160]}
+                    />
+
                     <Tooltip />
 
                     <Bar
                       dataKey="value"
-                      fill="#38bdf8"
-                      radius={[8, 8, 0, 0]}
-                      barSize={50}
+                      fill="url(#barGradient)"
+                      stroke="#0ea5e9"
+                      strokeWidth={1}
+                      radius={[6, 6, 0, 0]}
                     />
                   </BarChart>
                 </ResponsiveContainer>
