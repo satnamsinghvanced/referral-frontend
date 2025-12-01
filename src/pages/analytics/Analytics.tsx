@@ -68,7 +68,7 @@ const Analytics: React.FC = () => {
             <MiniStatsCard key={i} cardData={data} />
           ))}
         </div>
-        <div>
+        <div className="bg-transparent">
           <GoogleAnalytics />
         </div>
       </div>

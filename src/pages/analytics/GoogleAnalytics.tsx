@@ -4,17 +4,16 @@ import {
   LuTrendingUp,
   LuTrendingDown,
   LuMonitor,
-  LuClock,
-  LuEye,
-  LuMousePointer,
   LuGlobe,
   LuHardHat,
   LuZap,
   LuTag,
+  LuEye,
+  LuClock,
+  LuMousePointer,
 } from "react-icons/lu";
 import { MdBarChart } from "react-icons/md";
-
-// --- Placeholder Components for Charts ---
+import MiniStatsCard from "../../components/cards/MiniStatsCard";
 
 const TrafficTrendsChart: React.FC = () => (
   <div className="h-[350px] w-full bg-gray-50 flex items-center justify-center rounded-lg border border-dashed border-gray-300">
@@ -33,8 +32,6 @@ const DeviceDonutChart: React.FC = () => (
     </span>
   </div>
 );
-
-// --- Interface Definitions ---
 
 interface StatCardProps {
   title: string;
@@ -61,8 +58,6 @@ interface DeviceMetricProps {
   color: string;
 }
 
-// --- Component Definitions ---
-
 const StatCard: React.FC<StatCardProps> = ({
   title,
   value,
@@ -73,7 +68,6 @@ const StatCard: React.FC<StatCardProps> = ({
 }) => {
   const isUp = changeType === "up";
   const changeClass = isUp ? "text-emerald-600" : "text-red-600";
-  // Using LuTrendingUp/LuTrendingDown from react-icons/lu
   const ChangeIcon = isUp ? LuTrendingUp : LuTrendingDown;
 
   return (
@@ -135,8 +129,8 @@ const DeviceMetric: React.FC<DeviceMetricProps> = ({
         style: { color },
       })}
     </div>
-    <div className="text-sm font-medium">{device}</div>
-    <div className="text-lg font-bold" style={{ color }}>
+    <div className="text-[12px] font-medium">{device}</div>
+    <div className="text-[12px] font-bold" style={{ color }}>
       {users.toLocaleString()}
     </div>
     <div className="text-xs text-gray-500">{percentage.toFixed(1)}%</div>
@@ -180,7 +174,7 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
       device: "Desktop",
       users: 1890,
       percentage: 48.2,
-      icon: <LuMonitor />,
+      icon: <LuMonitor className="w-[21px] h-[21px]" />,
       color: "rgb(14, 165, 233)",
     },
     {
@@ -199,66 +193,128 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
     },
   ];
 
+  const STAT_CARD_DATA = [
+    {
+      icon: <LuUsers className="text-[20px] mt-1 text-blue-500" />,
+      heading: "Total Users",
+      value: "3,920",
+      subheading: (
+        <span className="text-green-600 flex items-center">
+          <LuTrendingUp className="h-4 w-4 mr-1 text-green-700" />
+          +6.5% vs last month
+        </span>
+      ),
+      subValueClass: "text-green-600",
+    },
+    {
+      icon: <LuEye className="text-[20px] mt-1 text-blue-500" />,
+      heading: "Page Views",
+      value: "12,450",
+      subheading: (
+        <span className="text-green-600 flex items-center">
+          <LuTrendingUp className="h-4 w-4 mr-1 text-green-700" />
+          +8.1% vs last month
+        </span>
+      ),
+    },
+    {
+      icon: <LuClock className="text-[20px] mt-1 text-orange-500" />,
+      heading: "Avg. Session Duration",
+      value: "2:47",
+      subheading: (
+        <span className="text-green-600 flex items-center">
+          <LuTrendingUp className="h-4 w-4 mr-1 text-green-700" />
+          +12s vs last month
+        </span>
+      ),
+    },
+    {
+      icon: <LuMousePointer className="text-[20px] mt-1 text-purple-600" />,
+      heading: "Bounce Rate",
+      value: "31%",
+      subheading: (
+        <span className="text-green-700 flex items-center">
+          <LuTrendingUp className="h-4 w-4 mr-1 text-green-700" />
+          -11% vs last month
+        </span>
+      ),
+    },
+  ];
+
+  const TOP_PAGES = [
+    {
+      page: "/home",
+      views: "3,450",
+      unique: "2,890",
+      time: "2:45",
+      bounce: "28%",
+      good: true,
+    },
+    {
+      page: "/services/orthodontics",
+      views: "2,890",
+      unique: "2,340",
+      time: "3:12",
+      bounce: "22%",
+      good: true,
+    },
+    {
+      page: "/about",
+      views: "1,980",
+      unique: "1,650",
+      time: "2:18",
+      bounce: "35%",
+      good: false,
+    },
+    {
+      page: "/contact",
+      views: "1,560",
+      unique: "1,320",
+      time: "1:56",
+      bounce: "45%",
+      good: false,
+    },
+    {
+      page: "/blog/braces-guide",
+      views: "1,240",
+      unique: "1,050",
+      time: "4:23",
+      bounce: "18%",
+      good: true,
+    },
+  ];
+
   return (
     <div className="p-4 sm:p-6 lg:p-8 bg-gray-50 min-h-screen">
       <div className="flex items-center gap-3 mb-8 bg-white p-6 rounded-xl shadow-md">
         <LuGlobe className="h-8 w-8 text-sky-600" aria-hidden="true" />
         <div>
-          <h2 className="text-2xl font-semibold text-gray-900">
+          <h2 className="text-[21px] font-semibold text-gray-800">
             Google Analytics - Website Statistics
           </h2>
-          <p className="text-gray-600">
+          <p className="text-gray-600 text-[14px]">
             Comprehensive website performance and user behavior insights
           </p>
         </div>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <StatCard
-          title="Total Users"
-          value="3,920"
-          change="+6.5% vs last month"
-          changeType="up"
-          icon={<LuUsers className="h-5 w-5" />}
-          iconColor="rgb(14, 165, 233)"
-        />
-        <StatCard
-          title="Page Views"
-          value="12,450"
-          change="+8.1% vs last month"
-          changeType="up"
-          icon={<LuEye className="h-5 w-5" />}
-          iconColor="rgb(37, 99, 235)"
-        />
-        <StatCard
-          title="Avg. Session Duration"
-          value="2:47"
-          change="+12s vs last month"
-          changeType="up"
-          icon={<LuClock className="h-5 w-5" />}
-          iconColor="rgb(234, 88, 12)"
-        />
-        <StatCard
-          title="Bounce Rate"
-          value="31%"
-          change="-11% vs last month"
-          changeType="down"
-          icon={<LuMousePointer className="h-5 w-5" />}
-          iconColor="rgb(168, 85, 247)"
-        />
+      {/* Google Analytics - Website Statistics Here */}
+      <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+        {STAT_CARD_DATA.map((data, i) => (
+          <MiniStatsCard key={i} cardData={data} />
+        ))}
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
-        <div className="bg-white rounded-xl border p-6 shadow-sm">
-          <h4 className="text-lg font-medium mb-4 flex items-center gap-2">
+        <div className="bg-white rounded-xl p-6 shadow-sm">
+          <h4 className="text-[16px] font-medium color-[#0A0A0A] mb-4 flex items-center gap-2">
             <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
             Website Traffic Trends
           </h4>
           <TrafficTrendsChart />
         </div>
 
-        <div className="bg-white rounded-xl border p-6 shadow-sm">
-          <h4 className="text-lg font-medium mb-4 flex items-center gap-2">
+        <div className="bg-white rounded-xl  p-6 shadow-sm">
+          <h4 className="text-[16px] font-medium color-[#0A0A0A] mb-4 flex items-center gap-2">
             <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
             Device Analytics
           </h4>
@@ -274,8 +330,8 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl border p-6 shadow-sm">
-          <h4 className="text-lg font-medium mb-4 flex items-center gap-2">
+        <div className="bg-white rounded-xl  p-6 shadow-sm">
+          <h4 className="text-[16px] font-medium color-[#0A0A0A] mb-4 flex items-center gap-2">
             <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
             Traffic Sources
           </h4>
@@ -286,14 +342,77 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border p-6 shadow-sm">
-          <h4 className="text-lg font-medium mb-4 flex items-center gap-2">
+        <div className="bg-white rounded-xl p-6 shadow-sm">
+          <h4 className="text-[16px] font-medium color-[#0A0A0A] mb-4 flex items-center gap-2">
             <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
             Conversion Goals
           </h4>
           <div className="h-64 flex items-center justify-center text-gray-400 border border-dashed rounded-lg">
             Conversion Goals Data Area
           </div>
+        </div>
+      </div>
+
+      {/* Top Pages Here */}
+      <div className="mt-8 bg-white rounded-xl p-6 shadow-sm">
+        <h4 className="text-lg font-medium mb-6 flex items-center gap-2">
+          <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
+          Top Pages Performance
+        </h4>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-gray-200">
+                <th className="text-left py-3 px-2 font-medium text-gray-700">
+                  Page
+                </th>
+                <th className="text-right py-3 px-2 font-medium text-gray-700">
+                  Page Views
+                </th>
+                <th className="text-right py-3 px-2 font-medium text-gray-700">
+                  Unique Views
+                </th>
+                <th className="text-right py-3 px-2 font-medium text-gray-700">
+                  Avg. Time
+                </th>
+                <th className="text-right py-3 px-2 font-medium text-gray-700">
+                  Bounce Rate
+                </th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {TOP_PAGES.map((p, index) => (
+                <tr
+                  key={index}
+                  className="border-b border-gray-100 hover:bg-gray-50"
+                >
+                  <td className="py-3 px-2 font-medium text-gray-900">
+                    {p.page}
+                  </td>
+                  <td className="py-3 px-2 text-right text-gray-700">
+                    {p.views}
+                  </td>
+                  <td className="py-3 px-2 text-right text-gray-700">
+                    {p.unique}
+                  </td>
+                  <td className="py-3 px-2 text-right text-gray-700">
+                    {p.time}
+                  </td>
+                  <td className="py-3 px-2 text-right">
+                    <span
+                      className={`font-medium ${
+                        p.good ? "text-emerald-600" : "text-orange-600"
+                      }`}
+                    >
+                      {p.bounce}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
