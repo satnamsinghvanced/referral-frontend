@@ -1,14 +1,30 @@
+import { Card, CardBody, CardHeader, Chip, Progress } from "@heroui/react";
+import { FaRegStar, FaStar } from "react-icons/fa";
 import {
   IoArrowBack,
-  IoStar,
-  IoThumbsUp,
-  IoChatbubbleEllipses,
-  IoAlertCircle,
   IoCheckmarkCircle,
+  IoStar,
   IoTime,
 } from "react-icons/io5";
-import ComponentContainer from "../../../components/common/ComponentContainer";
+import {
+  LuCircleCheckBig,
+  LuTarget,
+  LuThumbsUp,
+  LuUsers,
+} from "react-icons/lu";
+import { MdChatBubbleOutline } from "react-icons/md";
+import { TiWarningOutline } from "react-icons/ti";
 import { useNavigate } from "react-router-dom";
+import ComponentContainer from "../../../components/common/ComponentContainer";
+import { FiClock } from "react-icons/fi";
+import clsx from "clsx";
+import { IoMdTrendingUp } from "react-icons/io";
+
+interface InsightData {
+  title: string;
+  description: string;
+  color: "emerald" | "sky" | "amber" | "orange" | "blue" | "yellow";
+}
 
 const StarRating: React.FC<{ rating: number; maxStars?: number }> = ({
   rating,
@@ -19,9 +35,9 @@ const StarRating: React.FC<{ rating: number; maxStars?: number }> = ({
   for (let i = 0; i < maxStars; i++) {
     const isFull = i < fullStars;
     stars.push(
-      <IoStar
+      <FaStar
         key={i}
-        className={`h-3 w-3 ${
+        className={`size-3.5 ${
           isFull ? "fill-yellow-500 text-yellow-500" : "text-gray-300"
         }`}
       />
@@ -39,9 +55,9 @@ const reportData = {
     avgResponseTime: "4.2h",
   },
   sentimentDistribution: [
-    { label: "Positive", value: 89, color: "green", icon: IoThumbsUp },
-    { label: "Neutral", value: 8, color: "yellow", icon: IoChatbubbleEllipses },
-    { label: "Negative", value: 3, color: "red", icon: IoAlertCircle },
+    { label: "Positive", value: 89, color: "green", icon: LuThumbsUp },
+    { label: "Neutral", value: 50, color: "yellow", icon: MdChatBubbleOutline },
+    { label: "Negative", value: 3, color: "red", icon: TiWarningOutline },
   ],
   platformPerformance: [
     {
@@ -149,37 +165,79 @@ const colorMap: {
   },
 };
 
-const Card: React.FC<
+const INSIGHTS_DATA: InsightData[] = [
+  {
+    title: "Exceptional Clinical Results",
+    description:
+      "Patients consistently praise treatment outcomes and clinical expertise",
+    color: "emerald",
+  },
+  {
+    title: "Staff Professionalism",
+    description:
+      "Frequent mentions of caring, professional, and knowledgeable staff",
+    color: "emerald",
+  },
+  {
+    title: "Appointment Scheduling",
+    description:
+      "Some reviews mention longer wait times and scheduling challenges",
+    color: "amber",
+  },
+  {
+    title: "Treatment Timeline Communication",
+    description:
+      "Opportunity to better communicate treatment duration expectations",
+    color: "amber",
+  },
+];
+
+const RECOMMENDATIONS_DATA: InsightData[] = [
+  {
+    title: "Continue Excellence",
+    description:
+      "Maintain current high standards in clinical care and staff training that drive positive reviews.",
+    color: "emerald",
+  },
+  {
+    title: "Improve Communication",
+    description:
+      "Implement better timeline communication and appointment scheduling processes.",
+    color: "blue",
+  },
+  {
+    title: "Response Strategy",
+    description:
+      "Focus on responding to neutral/negative reviews faster to improve overall satisfaction.",
+    color: "yellow",
+  },
+];
+
+const CustomCard: React.FC<
   React.PropsWithChildren<{
     title?: string;
     className?: string;
-    borderL?: string;
   }>
-> = ({ title, children, className = "", borderL }) => (
-  <div
-    className={`bg-white text-card-foreground flex flex-col gap-6 rounded-xl border ${
-      borderL ? `border-l-4 ${borderL}` : ""
-    } ${className}`}
+> = ({ title, children, className = "" }) => (
+  <Card
+    shadow="none"
+    className={`bg-white text-card-foreground flex flex-col rounded-xl p-5 border border-primary/15 ${className}`}
   >
     {title && (
-      <div className="grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 pt-6 [.border-b]:pb-6">
-        <h4 className="leading-none flex items-center gap-2">
+      <CardHeader className="p-0 pb-4">
+        <h4 className="text-sm flex items-center gap-2">
           {title === "Review Sentiment Analysis - January 2024" && (
-            <IoStar className="h-5 w-5 text-yellow-600 fill-yellow-600" />
+            <FaRegStar className="size-[18px] text-yellow-600 fill-yellow-600" />
           )}
-          {title === "Sentiment Distribution" && (
-            <IoChatbubbleEllipses className="h-5 w-5" />
-          )}
-          {title === "Platform Performance" && <></>}
           {title === "Recent Review Analysis" && (
-            <IoChatbubbleEllipses className="h-5 w-5" />
+            <MdChatBubbleOutline className="size-[18px]" />
           )}
           {title}
         </h4>
-      </div>
+      </CardHeader>
     )}
-    <div className="px-6 [&:last-child]:pb-6">{children}</div>
-  </div>
+    <CardBody className="p-0">{children}</CardBody>
+  </Card>
 );
 
 const ReviewSentimentAnalysisReport = () => {
@@ -202,10 +260,6 @@ const ReviewSentimentAnalysisReport = () => {
     ],
   };
 
-  const getProgressWidth = (value: number) => {
-    return `${value}%`;
-  };
-
   const getSentimentBadge = (sentiment: string) => {
     switch (sentiment) {
       case "Very Positive":
@@ -222,49 +276,46 @@ const ReviewSentimentAnalysisReport = () => {
 
   return (
     <ComponentContainer headingData={HEADING_DATA}>
-      <div className="flex flex-col gap-6 max-w-7xl mx-auto p-6 space-y-6">
-        <Card
-          title="Review Sentiment Analysis - January 2024"
-          borderL="border-l-yellow-500"
-        >
+      <div className="flex flex-col gap-5">
+        <CustomCard title="Review Sentiment Analysis - January 2024">
           <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-6">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-yellow-600 flex items-center justify-center gap-1">
-                <IoStar className="h-6 w-6 fill-yellow-500" />
+            <div className="text-center space-y-0.5">
+              <div className="text-xl font-bold text-yellow-600 flex items-center justify-center gap-1">
+                <IoStar className="size-5 fill-yellow-600" />
                 {overall.averageRating}
               </div>
-              <div className="text-sm text-gray-600">Average Rating</div>
+              <div className="text-xs text-gray-600">Average Rating</div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">
+            <div className="text-center space-y-0.5">
+              <div className="text-xl font-bold text-blue-600">
                 {overall.totalReviews}
               </div>
-              <div className="text-sm text-gray-600">Total Reviews</div>
+              <div className="text-xs text-gray-600">Total Reviews</div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">
+            <div className="text-center space-y-0.5">
+              <div className="text-xl font-bold text-green-600">
                 {overall.positiveSentiment}%
               </div>
-              <div className="text-sm text-gray-600">Positive Sentiment</div>
+              <div className="text-xs text-gray-600">Positive Sentiment</div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">
+            <div className="text-center space-y-0.5">
+              <div className="text-xl font-bold text-purple-600">
                 {overall.responseRate}%
               </div>
-              <div className="text-sm text-gray-600">Response Rate</div>
+              <div className="text-xs text-gray-600">Response Rate</div>
             </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-orange-600">
+            <div className="text-center space-y-0.5">
+              <div className="text-xl font-bold text-orange-600">
                 {overall.avgResponseTime}
               </div>
-              <div className="text-sm text-gray-600">Avg Response Time</div>
+              <div className="text-xs text-gray-600">Avg Response Time</div>
             </div>
           </div>
-        </Card>
+        </CustomCard>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card title="Sentiment Distribution">
-            <div className="space-y-4">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <CustomCard title="Sentiment Distribution">
+            <div className="space-y-5">
               {sentimentDistribution.map((sentiment, index) => {
                 const colors = colorMap[sentiment.color];
                 const IconComponent = sentiment.icon;
@@ -272,108 +323,232 @@ const ReviewSentimentAnalysisReport = () => {
                   <div key={index}>
                     <div className="flex justify-between items-center mb-2">
                       <span
-                        className={`text-sm font-medium flex items-center gap-2 ${colors.text}`}
+                        className={`text-xs font-medium flex items-center gap-1.5`}
                       >
-                        <IconComponent className="h-4 w-4" />
+                        <IconComponent className={`h-4 w-4 ${colors?.text}`} />
                         {sentiment.label} ({sentiment.value}%)
                       </span>
-                      <span className="text-sm text-gray-600">
+                      <span className="text-xs text-gray-600">
                         {sentiment.value}%
                       </span>
                     </div>
-                    <div className="bg-primary/20 relative w-full overflow-hidden rounded-full h-3">
-                      <div
-                        className={`bg-${sentiment.color}-600 h-full flex-1 transition-all rounded-full`}
-                        style={{ width: getProgressWidth(sentiment.value) }}
-                      ></div>
-                    </div>
+                    <Progress
+                      aria-label="Budget utilization"
+                      value={sentiment.value}
+                      color="primary"
+                      className="h-2.5"
+                      radius="full"
+                    />
                   </div>
                 );
               })}
             </div>
-          </Card>
+          </CustomCard>
 
-          <Card title="Platform Performance">
-            <div className="space-y-4">
+          <CustomCard title="Platform Performance">
+            <div className="space-y-3">
               {platformPerformance.map((platformData, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between p-3 border rounded-lg bg-gray-50"
+                  className="flex items-center justify-between p-3 rounded-lg border border-primary/15"
                 >
                   <div>
-                    <h4 className="font-medium">{platformData.platform}</h4>
+                    <h4 className="text-sm font-medium">
+                      {platformData.platform}
+                    </h4>
                     <div className="flex items-center gap-2 mt-1">
                       <div className="flex items-center gap-1">
                         <StarRating rating={platformData.rating} />
-                        <span className="text-sm">{platformData.rating}</span>
+                        <span className="text-xs">{platformData.rating}</span>
                       </div>
-                      <span className="text-sm text-gray-500">•</span>
-                      <span className="text-sm text-gray-600">
+                      <span className="text-xs text-gray-500">•</span>
+                      <span className="text-xs text-gray-600">
                         {platformData.reviews} reviews
                       </span>
                     </div>
                   </div>
-                  <span
-                    className={`inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium ${
+                  <Chip
+                    size="sm"
+                    radius="sm"
+                    className={`text-[11px] h-5 ${
                       colorMap[platformData.color]?.bg
                     } ${colorMap[platformData.color]?.text}`}
                   >
                     {platformData.positive}% positive
-                  </span>
+                  </Chip>
                 </div>
               ))}
             </div>
-          </Card>
+          </CustomCard>
         </div>
 
-        <Card title="Recent Review Analysis">
+        <CustomCard title="Recent Review Analysis">
           <div className="space-y-4">
             {recentReviews.map((review, index) => (
-              <div
+              <Card
                 key={index}
-                className="border rounded-lg p-4 bg-white shadow-sm"
+                shadow="none"
+                className="border border-primary/15 p-4"
               >
-                <div className="flex items-start justify-between mb-3">
+                <CardHeader className="flex items-start justify-between p-0 pb-3">
                   <div className="flex items-center gap-3">
                     <div className="flex items-center gap-1">
                       <StarRating rating={review.stars} />
                     </div>
-                    <span className="inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium bg-gray-100 text-gray-700">
-                      {review.platform}
-                    </span>
-                    <span
-                      className={`inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium ${getSentimentBadge(
-                        review.sentiment
-                      )}`}
-                    >
-                      {review.sentiment}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <Chip
+                        size="sm"
+                        radius="sm"
+                        className="text-[11px] h-5 bg-[#e0f2fe] text-[#0c4a6e]"
+                      >
+                        {review.platform}
+                      </Chip>
+                      <Chip
+                        size="sm"
+                        radius="sm"
+                        className={`text-[11px] h-5 ${getSentimentBadge(
+                          review.sentiment
+                        )}`}
+                      >
+                        {review.sentiment}
+                      </Chip>
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     {review.response.status === "Responded" ? (
                       <div className="flex items-center gap-1 text-green-600">
-                        <IoCheckmarkCircle className="h-4 w-4" />
-                        <span className="text-sm">
+                        <LuCircleCheckBig className="size-3.5" />
+                        <span className="text-xs">
                           Responded ({review.response.time})
                         </span>
                       </div>
                     ) : (
                       <div className="flex items-center gap-1 text-red-600">
-                        <IoTime className="h-4 w-4" />
-                        <span className="text-sm">Unresponded</span>
+                        <FiClock className="size-3.5" />
+                        <span className="text-xs">Unresponded</span>
                       </div>
                     )}
                   </div>
-                </div>
-                <p className="text-gray-700 mb-2">"{review.content}"</p>
-                <div className="flex items-center justify-between text-sm text-gray-500">
-                  <span>{review.author}</span>
-                  <span>{review.date}</span>
-                </div>
-              </div>
+                </CardHeader>
+                <CardBody className="p-0">
+                  <p className="text-sm text-gray-600 mb-2">
+                    "{review.content}"
+                  </p>
+                  <div className="flex items-center justify-between text-xs text-gray-500">
+                    <span>{review.author}</span>
+                    <span>{review.date}</span>
+                  </div>
+                </CardBody>
+              </Card>
             ))}
           </div>
-        </Card>
+        </CustomCard>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          <Card shadow="none" className="border border-primary/15 p-5">
+            <CardHeader className="p-0 pb-4 flex items-center gap-2">
+              <IoMdTrendingUp
+                className="size-[18px] text-blue-600"
+                aria-hidden="true"
+              />
+              <h4 className="text-sm">Key Insights</h4>
+            </CardHeader>
+            <CardBody className="p-0">
+              <div className="space-y-3">
+                {INSIGHTS_DATA.map((insight, index) => {
+                  let color;
+
+                  switch (index) {
+                    case 0:
+                    case 1:
+                      color = "emerald";
+                      break;
+
+                    default:
+                      color = "yellow";
+                      break;
+                  }
+
+                  return (
+                    <div
+                      key={index}
+                      className={clsx(
+                        "p-3 rounded-lg border space-y-1",
+                        `bg-${color}-50 border-${color}-200`
+                      )}
+                    >
+                      <h4
+                        className={clsx(
+                          "text-sm font-medium",
+                          `text-${color}-800`
+                        )}
+                      >
+                        {insight.title}
+                      </h4>
+                      <p className={clsx("text-xs", `text-${color}-700`)}>
+                        {insight.description}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardBody>
+          </Card>
+
+          <Card shadow="none" className="border border-primary/15 p-5">
+            <CardHeader className="p-0 pb-4 flex items-center gap-2">
+              <LuUsers
+                className="size-[18px] text-purple-600"
+                aria-hidden="true"
+              />
+              <h4 className="text-sm">Action Recommendations</h4>
+            </CardHeader>
+            <CardBody className="p-0">
+              <div className="space-y-3">
+                {RECOMMENDATIONS_DATA.map((rec, index) => {
+                  let color;
+
+                  switch (index) {
+                    case 1:
+                      color = "blue";
+                      break;
+
+                    case 2:
+                      color = "yellow";
+                      break;
+
+                    default:
+                      color = "emerald";
+                      break;
+                  }
+
+                  return (
+                    <div
+                      key={index}
+                      className={clsx(
+                        "pl-4 p-3 rounded-r-lg space-y-1",
+                        `border-l-4 border-l-${color}-500 bg-${color}-50`,
+                        index === 0 && "border-l-emerald-500"
+                      )}
+                    >
+                      <h4
+                        className={clsx(
+                          "text-sm font-medium",
+                          `text-${color}-800`
+                        )}
+                      >
+                        {rec.title}
+                      </h4>
+                      <p className={clsx("text-xs", `text-${color}-700`)}>
+                        {rec.description}
+                      </p>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardBody>
+          </Card>
+        </div>
       </div>
     </ComponentContainer>
   );

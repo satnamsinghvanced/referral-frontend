@@ -8,9 +8,10 @@ import {
 } from "@heroui/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
-import { FiEdit, FiEye, FiStar, FiTarget, FiUsers } from "react-icons/fi";
+import { FiEdit, FiEye, FiUsers, FiWifi } from "react-icons/fi";
 import { GrLocation } from "react-icons/gr";
-import { LuBuilding2, LuFilter, LuPhone, LuQrCode } from "react-icons/lu";
+import { LuFilter, LuPhone, LuQrCode } from "react-icons/lu";
+import { MdTrendingUp } from "react-icons/md";
 import { useDispatch } from "react-redux";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
 import ReferralStatusChip from "../../components/chips/ReferralStatusChip";
@@ -20,7 +21,6 @@ import { LoadingState } from "../../components/common/LoadingState";
 import {
   useFetchReferrals,
   useFetchReferrers,
-  useFetchTrackings,
   useGetReferralById,
   useGetReferrerById,
 } from "../../hooks/useReferral";
@@ -180,14 +180,14 @@ const ReferralManagement = () => {
   const STAT_CARD_DATA = useMemo<StatCard[]>(
     () => [
       {
-        icon: <LuBuilding2 className="text-[17px] mt-1 text-sky-500" />,
+        icon: <FiUsers className="text-sky-500" />,
         heading: "Total Referrals",
         value: referralData?.stats?.totalReferrals ?? 0,
         subheading: "Click to view all referrals",
         onClick: handleViewAllAndFilter,
       },
       {
-        icon: <FiUsers className="text-[17px] mt-1 text-green-500" />,
+        icon: <FiWifi className="text-purple-500" />,
         heading: "NFC Referrals",
         value: referralData?.stats?.nfcReferralTotal ?? 0,
         subheading: "Click to view NFC referrals",
@@ -200,7 +200,7 @@ const ReferralManagement = () => {
         },
       },
       {
-        icon: <FiStar className="text-[17px] mt-1 text-yellow-500" />,
+        icon: <LuQrCode className="text-yellow-500" />,
         heading: "QR Code Referrals",
         value: referralData?.stats?.qrReferralTotal ?? 0,
         subheading: "Click to view QR referrals",
@@ -213,9 +213,11 @@ const ReferralManagement = () => {
         },
       },
       {
-        icon: <FiTarget className="text-[17px] mt-1 text-green-500" />,
+        icon: <MdTrendingUp className="text-green-500" />,
         heading: "Total Value",
-        value: referralData?.stats?.totalValue ?? 0,
+        value: referralData?.stats?.totalValue
+          ? `$${referralData?.stats?.totalValue}`
+          : "$0",
         subheading: "Click to view value details",
         onClick: handleViewAllAndFilter,
       },
@@ -364,7 +366,7 @@ const ReferralManagement = () => {
                       {isLoadingReferrals || isFetchingReferrals ? (
                         <LoadingState />
                       ) : (
-                        <div className="grid grid-cols-3 gap-3">
+                        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-3">
                           {STATUS_BREAKDOWN.map((statusItem) => (
                             <div
                               key={statusItem.status}

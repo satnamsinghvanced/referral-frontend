@@ -198,6 +198,14 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
           {referral.notes && (
             <p className="text-xs text-gray-600">{referral.notes}</p>
           )}
+          {referral.estValue ? (
+            <p className="text-xs">
+              <span className="font-medium">Estimated Value:</span> $
+              {referral.estValue}
+            </p>
+          ) : (
+            ""
+          )}
           <div className="flex items-center space-x-1">
             {referral.phone && (
               <Link to={`tel:${referral.phone}`}>

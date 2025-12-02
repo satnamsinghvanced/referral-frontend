@@ -10,6 +10,10 @@ import {
 import ComponentContainer from "../../../components/common/ComponentContainer";
 import { useNavigate } from "react-router";
 import React from "react";
+import { Card, CardBody, CardHeader, Chip } from "@heroui/react";
+import { LuPin, LuTarget, LuUsers } from "react-icons/lu";
+import { FaRegStar } from "react-icons/fa";
+import { GrLocation } from "react-icons/gr";
 
 const Users = IoPeople;
 const TrendingUp = IoTrendingUp;
@@ -139,9 +143,9 @@ const ReferralPerformanceReport = () => {
       label: "Patient Referrers",
       trend: "+2 new this month",
       trendColor: "text-emerald-600",
-      from: "rose",
-      to: "rose",
-      borderColor: "rose",
+      from: "red",
+      to: "red",
+      borderColor: "red",
     },
   ];
 
@@ -192,7 +196,7 @@ const ReferralPerformanceReport = () => {
       lastReferral: "1/18/2024",
       contact: "(555) 345-6789",
       avatarSrc: null,
-      avatarFallback: "DER",
+      avatarFallback: "DE",
     },
     {
       rank: 4,
@@ -313,46 +317,58 @@ const ReferralPerformanceReport = () => {
     children: React.ReactNode;
     className?: string;
   }) => (
-    <div
-      data-slot="card"
-      className={`bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-l-4 border-l-sky-500 card-brand hover:shadow-lg transition-all duration-300 ${className}`}
-    >
-      <div
-        data-slot="card-header"
-        className="px-6 pt-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6"
-      >
-        <h4
-          data-slot="card-title"
-          className="leading-none flex items-center gap-2"
-        >
-          <div className="w-1 h-6 bg-brand-gradient rounded-full"></div>
-          {Icon && <Icon className={`h-5 w-5 ${iconColor}`} aria-hidden="true" />}
+    <Card shadow="none" className="border border-primary/15 p-5">
+      <CardHeader className="p-0 pb-4">
+        <h4 className="text-sm leading-none flex items-center gap-2">
+          {Icon && (
+            <Icon className={`size-[18px] ${iconColor}`} aria-hidden="true" />
+          )}
           {title}
         </h4>
-      </div>
-      <div data-slot="card-content" className="px-6 [&:last-child]:pb-6">
-        {children}
-      </div>
-    </div>
+      </CardHeader>
+      <CardBody className="p-0">{children}</CardBody>
+    </Card>
   );
 
   return (
     <ComponentContainer headingData={HEADING_DATA}>
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-5">
         {renderReportCard({
           title: "Referral Performance Summary - January 2024",
-          icon: Users,
+          icon: LuUsers,
           iconColor: "text-sky-600",
           children: (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
               {summaryData.map((data, index) => (
                 <div
                   key={index}
-                  className={`text-center p-4 bg-gradient-to-br from-${data.from}-50 to-${data.to}-100 rounded-xl border border-${data.borderColor}-200`}
+                  className={`text-center p-4 bg-gradient-to-br from-${
+                    data.from
+                  }-50 to-${data.to}-100 rounded-xl border border-${
+                    data.borderColor
+                  }-200 space-y-1 ${
+                    index === summaryData.length - 1
+                      ? "from-rose-50 to-rose-100 border-rose-200"
+                      : ""
+                  }`}
                 >
-                  <div className={`text-3xl font-bold text-${data.borderColor}-700`}>{data.value}</div>
-                  <div className="text-sm text-gray-700 font-medium">{data.label}</div>
-                  <div className={`text-xs ${data.trendColor} mt-2 font-medium`}>{data.trend}</div>
+                  <h4
+                    className={`text-xl font-bold text-${
+                      data.borderColor
+                    }-700 !font-sans ${
+                      index === summaryData.length - 1 ? "text-rose-700" : ""
+                    }`}
+                  >
+                    {data.value}
+                  </h4>
+                  <div className="text-xs text-gray-700 font-medium">
+                    {data.label}
+                  </div>
+                  {/* <div
+                    className={`text-xs ${data.trendColor} mt-2 font-medium`}
+                  >
+                    {data.trend}
+                  </div> */}
                 </div>
               ))}
             </div>
@@ -361,7 +377,7 @@ const ReferralPerformanceReport = () => {
 
         {renderReportCard({
           title: "Top Doctor Referrers",
-          icon: Star,
+          icon: FaRegStar,
           iconColor: "text-amber-500",
           children: (
             <div className="space-y-4">
@@ -372,16 +388,17 @@ const ReferralPerformanceReport = () => {
                 const isTrendingDown = referrer.conversion.includes("82.8%");
 
                 return (
-                  <div
+                  <Card
                     key={index}
-                    className="border rounded-lg p-4 hover:shadow-md transition-shadow"
+                    shadow="none"
+                    className="border border-primary/15 p-4"
                   >
-                    <div className="flex items-start justify-between mb-4">
+                    <CardHeader className="flex items-start justify-between p-0 pb-4">
                       <div className="flex items-center gap-4">
                         <div className="relative">
                           <span
                             data-slot="avatar"
-                            className="relative flex size-10 shrink-0 overflow-hidden rounded-full h-12 w-12"
+                            className="relative flex size-10 shrink-0 overflow-hidden rounded-full"
                           >
                             {referrer.avatarSrc ? (
                               <img
@@ -393,32 +410,40 @@ const ReferralPerformanceReport = () => {
                             ) : (
                               <span
                                 data-slot="avatar-fallback"
-                                className="bg-muted flex size-full items-center justify-center rounded-full"
+                                className="bg-[#f0f9ff] flex size-full items-center justify-center rounded-full font-medium text-sm text-blue-700"
                               >
                                 {referrer.avatarFallback}
                               </span>
                             )}
                           </span>
                           <div className="absolute -top-1 -right-1">
-                            <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                              <span className="text-xs font-bold text-blue-600">
+                            <div className="size-5 bg-blue-100 rounded-full flex items-center justify-center">
+                              <span className="text-[11px] font-semibold text-blue-600">
                                 #{referrer.rank}
                               </span>
                             </div>
                           </div>
                         </div>
                         <div>
-                          <h3 className="font-medium text-lg">{referrer.name}</h3>
-                          <p className="text-gray-600">{referrer.practice}</p>
-                          <div className="flex items-center gap-2 mt-1">
-                            <span
-                              data-slot="badge"
-                              className="inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 border-transparent bg-secondary text-secondary-foreground"
+                          <h4 className="font-medium text-sm">
+                            {referrer.name}
+                          </h4>
+                          <p className="text-gray-600 text-xs mt-0.5">
+                            {referrer.practice}
+                          </p>
+                          <div className="flex items-center gap-2 mt-1.5">
+                            <Chip
+                              size="sm"
+                              radius="sm"
+                              className="text-[#0c4a6e] bg-[#e0f2fe] h-5 text-[11px]"
                             >
                               {referrer.specialty}
-                            </span>
-                            <div className="flex items-center gap-1 text-sm text-gray-500">
-                              <MapPin className="h-3 w-3" aria-hidden="true" />
+                            </Chip>
+                            <div className="flex items-center gap-1 text-xs text-gray-600">
+                              <GrLocation
+                                className="size-3.5"
+                                aria-hidden="true"
+                              />
                               {referrer.location}
                             </div>
                           </div>
@@ -442,9 +467,10 @@ const ReferralPerformanceReport = () => {
                               aria-hidden="true"
                             />
                           )}
-                          <span
-                            data-slot="badge"
-                            className={`inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 border-transparent ${
+                          <Chip
+                            size="sm"
+                            radius="sm"
+                            className={`h-5 text-[11px] ${
                               referrer.conversion.includes("green")
                                 ? "bg-green-100 text-green-800"
                                 : referrer.conversion.includes("yellow")
@@ -453,60 +479,76 @@ const ReferralPerformanceReport = () => {
                             }`}
                           >
                             {referrer.conversion}
-                          </span>
+                          </Chip>
                         </div>
-                        <div className="text-lg font-semibold">{referrer.revenue}</div>
-                        <div className="text-sm text-gray-600">Revenue Generated</div>
+                        <div className="text-base font-semibold">
+                          {referrer.revenue}
+                        </div>
+                        <div className="text-xs text-gray-600 mt-0.5">
+                          Revenue Generated
+                        </div>
                       </div>
-                    </div>
-                    <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-                      <div>
-                        <div className="text-sm text-gray-600">Referrals</div>
-                        <div className="font-medium text-blue-600">{referrer.referrals}</div>
+                    </CardHeader>
+                    <CardBody className="grid grid-cols-2 md:grid-cols-5 gap-4 p-0">
+                      <div className="space-y-0.5">
+                        <div className="text-xs text-gray-600">Referrals</div>
+                        <div className="text-sm font-medium text-blue-600">
+                          {referrer.referrals}
+                        </div>
                       </div>
-                      <div>
-                        <div className="text-sm text-gray-600">Conversions</div>
-                        <div className="font-medium text-green-600">
+                      <div className="space-y-0.5">
+                        <div className="text-xs text-gray-600">Conversions</div>
+                        <div className="text-sm font-medium text-green-600">
                           {referrer.conversions}
                         </div>
                       </div>
-                      <div>
-                        <div className="text-sm text-gray-600">Avg Patient Value</div>
-                        <div className="font-medium">{referrer.avgPatientValue}</div>
+                      <div className="space-y-0.5">
+                        <div className="text-xs text-gray-600">
+                          Avg Patient Value
+                        </div>
+                        <div className="text-sm font-medium">
+                          {referrer.avgPatientValue}
+                        </div>
                       </div>
-                      <div>
-                        <div className="text-sm text-gray-600">Last Referral</div>
-                        <div className="font-medium">{referrer.lastReferral}</div>
+                      <div className="space-y-0.5">
+                        <div className="text-xs text-gray-600">
+                          Last Referral
+                        </div>
+                        <div className="text-sm font-medium">
+                          {referrer.lastReferral}
+                        </div>
                       </div>
-                      <div>
-                        <div className="text-sm text-gray-600">Contact</div>
-                        <div className="font-medium text-blue-600">{referrer.contact}</div>
+                      <div className="space-y-0.5">
+                        <div className="text-xs text-gray-600">Contact</div>
+                        <div className="text-sm font-medium text-blue-600">
+                          {referrer.contact}
+                        </div>
                       </div>
-                    </div>
-                  </div>
+                    </CardBody>
+                  </Card>
                 );
               })}
             </div>
           ),
         })}
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           {renderReportCard({
             title: "Top Patient Referrers",
-            icon: Users,
+            icon: LuUsers,
             iconColor: "text-orange-600",
             className: "lg:col-span-1",
             children: (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {topPatientReferrers.map((referrer, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-3 border rounded-lg"
+                    className="border border-primary/15 p-4 flex items-center justify-between rounded-xl"
                   >
-                    <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2.5 p-0">
                       <span
                         data-slot="avatar"
-                        className="relative flex size-10 shrink-0 overflow-hidden rounded-full h-10 w-10"
+                        className="relative flex size-10 shrink-0 overflow-hidden rounded-full"
                       >
                         {referrer.avatarSrc ? (
                           <img
@@ -518,15 +560,17 @@ const ReferralPerformanceReport = () => {
                         ) : (
                           <span
                             data-slot="avatar-fallback"
-                            className="bg-muted flex size-full items-center justify-center rounded-full"
+                            className="bg-[#f0f9ff] flex size-full items-center justify-center rounded-full font-medium text-sm text-blue-700"
                           >
                             {referrer.avatarFallback}
                           </span>
                         )}
                       </span>
                       <div>
-                        <h4 className="font-medium">{referrer.name}</h4>
-                        <p className="text-sm text-gray-600">{referrer.description}</p>
+                        <h4 className="text-sm font-medium">{referrer.name}</h4>
+                        <p className="text-xs text-gray-600 mt-0.5">
+                          {referrer.description}
+                        </p>
                         <div className="flex items-center gap-2 mt-1">
                           <span className="text-xs text-blue-600">
                             {referrer.referrals} referrals
@@ -539,8 +583,10 @@ const ReferralPerformanceReport = () => {
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="font-medium">{referrer.revenue}</div>
-                      <div className="text-sm text-gray-600">Revenue</div>
+                      <div className="text-sm font-semibold">
+                        {referrer.revenue}
+                      </div>
+                      <div className="text-xs text-gray-600">Revenue</div>
                     </div>
                   </div>
                 ))}
@@ -554,26 +600,30 @@ const ReferralPerformanceReport = () => {
             iconColor: "text-emerald-600",
             className: "lg:col-span-1",
             children: (
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {monthlyTrends.map((trend, index) => (
                   <div
                     key={index}
                     className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
                   >
                     <div>
-                      <h4 className="font-medium">{trend.month}</h4>
+                      <h4 className="!font-sans text-sm font-medium">
+                        {trend.month}
+                      </h4>
                       <div className="flex items-center gap-4 mt-1">
-                        <span className="text-sm text-blue-600">
+                        <span className="text-xs text-blue-600">
                           {trend.referrals} referrals
                         </span>
-                        <span className="text-sm text-green-600">
+                        <span className="text-xs text-green-600">
                           {trend.conversions} conversions
                         </span>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="font-medium">{trend.revenue}</div>
-                      <div className="text-sm text-gray-600">Revenue</div>
+                      <div className="text-sm font-semibold">
+                        {trend.revenue}
+                      </div>
+                      <div className="text-xs text-gray-600">Revenue</div>
                     </div>
                   </div>
                 ))}
@@ -584,12 +634,12 @@ const ReferralPerformanceReport = () => {
 
         {renderReportCard({
           title: "Strategic Recommendations",
-          icon: Target,
+          icon: LuTarget,
           iconColor: "text-sky-600",
           children: (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               <div className="space-y-4">
-                <h4 className="font-medium text-green-700">
+                <h4 className="text-sm font-medium text-green-700">
                   Opportunities for Growth
                 </h4>
                 <div className="space-y-3">
@@ -598,17 +648,23 @@ const ReferralPerformanceReport = () => {
                     .map((rec, index) => (
                       <div
                         key={index}
-                        className={`border-l-4 border-l-${rec.color}-500 pl-4`}
+                        className={`border-l-4 space-y-1 ${
+                          index === 0
+                            ? "border-l-green-500"
+                            : "border-l-blue-500"
+                        } py-1 pl-3`}
                       >
-                        <h5 className="font-medium">{rec.title}</h5>
-                        <p className="text-sm text-gray-600">{rec.description}</p>
+                        <h5 className="text-sm font-medium">{rec.title}</h5>
+                        <p className="text-xs text-gray-600">
+                          {rec.description}
+                        </p>
                       </div>
                     ))}
                 </div>
               </div>
 
               <div className="space-y-4">
-                <h4 className="font-medium text-yellow-700">
+                <h4 className="text-sm font-medium text-yellow-700">
                   Areas for Improvement
                 </h4>
                 <div className="space-y-3">
@@ -617,10 +673,16 @@ const ReferralPerformanceReport = () => {
                     .map((rec, index) => (
                       <div
                         key={index}
-                        className={`border-l-4 border-l-${rec.color}-500 pl-4`}
+                        className={`border-l-4 space-y-1 ${
+                          index === 0
+                            ? "border-l-yellow-500"
+                            : "border-l-purple-500"
+                        } py-1 pl-3`}
                       >
-                        <h5 className="font-medium">{rec.title}</h5>
-                        <p className="text-sm text-gray-600">{rec.description}</p>
+                        <h5 className="text-sm font-medium">{rec.title}</h5>
+                        <p className="text-xs text-gray-600">
+                          {rec.description}
+                        </p>
                       </div>
                     ))}
                 </div>

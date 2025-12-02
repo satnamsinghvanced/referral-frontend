@@ -112,7 +112,7 @@ const MarketingCalendar = () => {
 
   const STAT_CARD_DATA = [
     {
-      icon: <RiMegaphoneLine className="text-[17px] mt-1 text-sky-600" />,
+      icon: <RiMegaphoneLine className="text-sky-600" />,
       heading: "Active Campaigns",
       value: stats?.activeCampaigns || 0,
       subheading: (
@@ -123,7 +123,7 @@ const MarketingCalendar = () => {
       ),
     },
     {
-      icon: <FiShare2 className="text-[17px] mt-1 text-blue-600" />,
+      icon: <FiShare2 className="text-blue-600" />,
       heading: "Scheduled Posts",
       value: stats?.scheduledPosts || 0,
       subheading: (
@@ -134,7 +134,7 @@ const MarketingCalendar = () => {
       ),
     },
     {
-      icon: <LuUserPlus className="text-[17px] mt-1 text-purple-600" />,
+      icon: <LuUserPlus className="text-purple-600" />,
       heading: "Referral Activities",
       value: stats?.referralActivities || 0,
       subheading: (
@@ -146,7 +146,7 @@ const MarketingCalendar = () => {
     },
     {
       icon: (
-        <MdOutlineRemoveRedEye className="text-[17px] mt-1 text-orange-600" />
+        <MdOutlineRemoveRedEye className="text-orange-600" />
       ),
       heading: "Total Reach",
       value: stats?.totalReach || 0,
@@ -398,7 +398,7 @@ const MarketingCalendar = () => {
                   All Activities
                 </SelectItem>
                 {ACTIVITY_TYPES?.map((type: any) => (
-                  <SelectItem key={type.label} className="capitalize">
+                  <SelectItem key={type.color.id} className="capitalize">
                     {type.label}
                   </SelectItem>
                 ))}

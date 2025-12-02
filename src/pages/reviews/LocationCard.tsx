@@ -1,6 +1,7 @@
 import { Card, CardBody } from "@heroui/react";
 import { FiWifi } from "react-icons/fi";
 import { IoQrCodeOutline } from "react-icons/io5";
+import { LuQrCode } from "react-icons/lu";
 import { PiStarFill } from "react-icons/pi";
 
 interface LocationProp {
@@ -50,13 +51,13 @@ const ReviewsLocationCard = ({ locations }: ReviewsLocationCardProps) => {
             <ul className="flex flex-col gap-2 text-xs font-extralight mt-3">
               <li className="flex justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <FiWifi className="text-primary-600" /> NFC Taps
+                  <FiWifi className="text-sm text-primary-600" /> NFC Taps
                 </div>
                 <div className="font-semibold">{location.nfcTaps}</div>
               </li>
               <li className="flex justify-between gap-2">
                 <div className="flex items-center gap-2">
-                  <IoQrCodeOutline className="text-orange-700" /> QR Scans
+                  <LuQrCode className="text-sm text-orange-700" /> QR Scans
                 </div>
                 <div className="font-semibold">{location.qrScans}</div>
               </li>

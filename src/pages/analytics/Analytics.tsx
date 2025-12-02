@@ -1,25 +1,31 @@
+import { Card, CardBody, CardHeader } from "@heroui/react";
 import React from "react";
-import ComponentContainer from "../../components/common/ComponentContainer";
-import MiniStatsCard from "../../components/cards/MiniStatsCard";
-import { LuTrendingUp, LuUsers, LuTarget, LuCalendar } from "react-icons/lu";
 import {
-  PieChart,
-  Pie,
+  LuCalendar,
+  LuChartColumn,
+  LuTarget,
+  LuTrendingUp,
+  LuUsers,
+} from "react-icons/lu";
+import {
+  Area,
+  AreaChart,
+  Bar,
+  BarChart,
+  CartesianGrid,
   Cell,
+  Legend,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
   ResponsiveContainer,
   Tooltip,
-  LineChart,
-  Line,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Legend,
-  BarChart,
-  Bar,
-  AreaChart,
-  Area,
 } from "recharts";
-import { MdBarChart } from "react-icons/md";
+import MiniStatsCard from "../../components/cards/MiniStatsCard";
+import ComponentContainer from "../../components/common/ComponentContainer";
 import GoogleAnalytics from "./GoogleAnalytics";
 
 const Analytics: React.FC = () => {
@@ -31,7 +37,7 @@ const Analytics: React.FC = () => {
 
   const STAT_CARD_DATA = [
     {
-      icon: <LuUsers className="text-[20px] mt-1 text-blue-500" />,
+      icon: <LuUsers className="text-blue-500" />,
       heading: "Monthly Referrals",
       value: "247",
       subheading: (
@@ -43,7 +49,7 @@ const Analytics: React.FC = () => {
       subValueClass: "text-green-600",
     },
     {
-      icon: <LuTarget className="text-[20px] mt-1 text-orange-500" />,
+      icon: <LuTarget className="text-orange-500" />,
       heading: "Conversion Rate",
       value: "86.3%",
       subheading: (
@@ -54,7 +60,7 @@ const Analytics: React.FC = () => {
       ),
     },
     {
-      icon: <LuCalendar className="text-[20px] mt-1 text-blue-500" />,
+      icon: <LuCalendar className="text-blue-500" />,
       heading: "Appointments",
       value: "189",
       subheading: (
@@ -65,7 +71,7 @@ const Analytics: React.FC = () => {
       ),
     },
     {
-      icon: <MdBarChart className="text-[20px] mt-1 text-green-500" />,
+      icon: <LuChartColumn className="text-green-500" />,
       heading: "Revenue Growth",
       value: "+15%",
       subheading: (
@@ -96,32 +102,6 @@ const Analytics: React.FC = () => {
 
   const COLORS = ["#f97316", "#fbbf24", "#0ea5e9", "#3b82f6", "#1e40af"];
 
-  const renderCenterLabel = ({ cx, cy }: any) => {
-    return (
-      <g>
-        <rect
-          x={cx - 40}
-          y={cy - 20}
-          rx={10}
-          ry={10}
-          width={80}
-          height={40}
-          fill="#fff"
-          stroke="#e5e7eb"
-        />
-        <text
-          x={cx}
-          y={cy}
-          textAnchor="middle"
-          dominantBaseline="middle"
-          fill="#111827"
-          style={{ fontSize: "12px", fontWeight: 500 }}
-        >
-          value: 98
-        </text>
-      </g>
-    );
-  };
   const ChannelROI = [
     { name: "Google Reviews", leads: 140, roi: 280 },
     { name: "Direct Referrals", leads: 95, roi: 320 },
@@ -173,82 +153,68 @@ const Analytics: React.FC = () => {
 
   return (
     <ComponentContainer headingData={HEADING_DATA}>
-      <div className="bg-none">
+      <div className="space-y-5">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-4 gap-4">
           {STAT_CARD_DATA.map((data, i) => (
             <MiniStatsCard key={i} cardData={data} />
           ))}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <div className="grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 pt-6 pb-3">
-              <h4 className="text-base sm:text-lg flex items-center gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <Card shadow="none" className="border border-primary/15 p-5">
+            <CardHeader className="p-0 pb-4">
+              <h4 className="text-sm font-medium flex items-center gap-2">
                 <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
                 Referral Sources Distribution
               </h4>
-            </div>
-            <div className="px-6 [&:last-child]:pb-6 pt-0">
-              <div className="h-[250px] sm:h-[300px] md:h-[350px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Tooltip />
-                    <Pie
-                      data={donutData}
-                      innerRadius={70}
-                      outerRadius={100}
-                      paddingAngle={3}
-                      dataKey="value"
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={renderCenterLabel}
-                    >
-                      {donutData.map((_, index) => (
-                        <Cell
-                          key={`cell-${index}`}
-                          fill={COLORS[index % COLORS.length]}
-                        />
-                      ))}
-                    </Pie>
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
+            </CardHeader>
+            <CardBody className="p-0 overflow-visible">
+              {/* <div className="h-[350px] sm:h-[300px] md:h-[400px] text-sm"> */}
+              <ResponsiveContainer width="100%" maxHeight={320}>
+                <PieChart
+                  style={{
+                    // width: "100%",
+                    // maxWidth: "500px",
+                    // maxHeight: "80vh",
+                    aspectRatio: 1,
+                    fontSize: "14px",
+                  }}
+                >
+                  <Pie
+                    data={donutData}
+                    innerRadius={60}
+                    outerRadius={110}
+                    paddingAngle={3}
+                    dataKey="value"
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    width={400}
+                  >
+                    {donutData.map((_, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[index % COLORS.length]}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend iconType="circle" />
+                </PieChart>
+              </ResponsiveContainer>
+              {/* </div> */}
+            </CardBody>
+          </Card>
 
-              <div className="flex flex-wrap justify-center gap-4 mt-4 text-sm pb-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-orange-500"></div>
-                  <span className="text-gray-600">Direct</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-amber-400"></div>
-                  <span className="text-gray-600">Email</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-sky-500"></div>
-                  <span className="text-gray-600">Google</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                  <span className="text-gray-600">Referral</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-3 h-3 rounded-full bg-blue-800"></div>
-                  <span className="text-gray-600">Social Media</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <div className="grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 pt-6 pb-3">
-              <h4 className="text-base sm:text-lg flex items-center gap-2">
+          <Card shadow="none" className="border border-primary/15 p-5">
+            <CardHeader className="p-0 pb-8">
+              <h4 className="text-sm font-medium flex items-center gap-2">
                 <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
                 Performance Trends
               </h4>
-            </div>
-            <div className="px-6 [&:last-child]:pb-6 pt-0">
-              <div className="h-[250px] sm:h-[300px] md:h-[350px]">
-                <ResponsiveContainer width="100%" height="100%">
+            </CardHeader>
+            <CardBody className="p-0 overflow-visible">
+              <div className="-ml-10 text-sm">
+                <ResponsiveContainer width="100%" aspect={1.85} maxHeight={320}>
                   <LineChart data={performanceData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
@@ -276,22 +242,20 @@ const Analytics: React.FC = () => {
                   </LineChart>
                 </ResponsiveContainer>
               </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <div className="grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 pt-6 pb-3">
-              <h4 className="text-base sm:text-lg flex items-center gap-2">
+            </CardBody>
+          </Card>
+
+          <Card shadow="none" className="border border-primary/15 p-5">
+            <CardHeader className="p-0 pb-8">
+              <h4 className="text-sm font-medium flex items-center gap-2">
                 <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
                 Channel ROI Analysis
               </h4>
-            </div>
-            <div className="px-6 [&:last-child]:pb-6 pt-0">
-              <div className="h-[250px] sm:h-[300px] md:h-[350px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={ChannelROI}
-                    margin={{ top: 20, right: 30, left: 10, bottom: 40 }}
-                  >
+            </CardHeader>
+            <CardBody className="p-0">
+              <div className="-ml-8 text-sm">
+                <ResponsiveContainer width="100%" aspect={1.85} maxHeight={380}>
+                  <BarChart data={ChannelROI}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis
                       dataKey="name"
@@ -318,23 +282,20 @@ const Analytics: React.FC = () => {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
-            </div>
-          </div>
+            </CardBody>
+          </Card>
 
-          <div className="bg-white rounded-xl p-6 shadow-sm">
-            <div className="grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 pt-6 pb-3">
-              <h4 className="text-base sm:text-lg flex items-center gap-2">
+          <Card shadow="none" className="border border-primary/15 p-5">
+            <CardHeader className="p-0 pb-8">
+              <h4 className="text-sm font-medium flex items-center gap-2">
                 <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
                 Weekly Activity Overview
               </h4>
-            </div>
-            <div className="px-6 [&:last-child]:pb-6 pt-0">
-              <div className="h-[250px] sm:h-[300px] md:h-[350px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <AreaChart
-                    data={WeeklyActivity}
-                    margin={{ top: 20, right: 10, left: 0, bottom: 0 }}
-                  >
+            </CardHeader>
+            <CardBody className="p-0">
+              <div className="-ml-10 text-sm">
+                <ResponsiveContainer width="100%" aspect={1.85} maxHeight={380}>
+                  <AreaChart data={WeeklyActivity}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="day" />
                     <YAxis />
@@ -368,23 +329,23 @@ const Analytics: React.FC = () => {
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
-            </div>
-          </div>
-          <div className="bg-white rounded-xl p-6 shadow-sm col-span-full">
-            <div className="grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 pt-6 pb-3">
-              <h4 className="text-base sm:text-lg flex items-center gap-2">
+            </CardBody>
+          </Card>
+
+          <Card
+            shadow="none"
+            className="border border-primary/15 p-5 col-span-2"
+          >
+            <CardHeader className="p-0 pb-8">
+              <h4 className="text-sm font-medium flex items-center gap-2">
                 <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
                 Monthly Referral Sources Breakdown
               </h4>
-            </div>
-            <div className="px-6 [&:last-child]:pb-6 pt-0">
-              <div className="h-[250px] sm:h-[300px] md:h-[350px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={MonthlyReferral}
-                    margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                    barCategoryGap="20%"
-                  >
+            </CardHeader>
+            <CardBody className="p-0">
+              <div className="-ml-8 text-sm">
+                <ResponsiveContainer width="100%" aspect={1.85} maxHeight={380}>
+                  <BarChart data={MonthlyReferral} barCategoryGap="20%">
                     <defs>
                       <linearGradient
                         id="barGradient"
@@ -435,11 +396,11 @@ const Analytics: React.FC = () => {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
-            </div>
-          </div>
+            </CardBody>
+          </Card>
         </div>
 
-        <div className="mt-4">
+        <div className="mt-10">
           <GoogleAnalytics />
         </div>
       </div>

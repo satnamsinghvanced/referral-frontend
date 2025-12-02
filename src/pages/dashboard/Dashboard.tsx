@@ -8,6 +8,9 @@ import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
 import { TREATMENT_OPTIONS } from "../../consts/referral";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import { timeAgo } from "../../utils/timeAgo";
+import { LuTarget, LuUsers } from "react-icons/lu";
+import { TbSpeakerphone } from "react-icons/tb";
+import { FaRegStar } from "react-icons/fa";
 
 type Color = "sky" | "orange" | "emerald" | "purple";
 
@@ -82,7 +85,7 @@ const Dashboard = () => {
   const STAT_CARD_DATA = useMemo<StatCard[]>(
     () => [
       {
-        icon: "👥",
+        icon: <LuUsers className="text-purple-600" />,
         heading: "Total Referrals",
         value: dashboard?.totalReferrals as number,
         subheading: (
@@ -95,7 +98,7 @@ const Dashboard = () => {
         onClick: () => navigate("/referrals"),
       },
       {
-        icon: "📢",
+        icon: <TbSpeakerphone className="text-green-600" />,
         heading: "Active Campaigns",
         value: "12",
         subheading: (
@@ -107,7 +110,7 @@ const Dashboard = () => {
         onClick: () => navigate("/email-campaigns"),
       },
       {
-        icon: "⭐",
+        icon: <FaRegStar className="text-yellow-600" />,
         heading: "Reviews",
         value: "1,248",
         subheading: (
@@ -119,7 +122,7 @@ const Dashboard = () => {
         onClick: () => navigate("/reviews"),
       },
       {
-        icon: "🎯",
+        icon: <LuTarget className="text-rose-600" />,
         heading: "ROI",
         value: "284%",
         subheading: (

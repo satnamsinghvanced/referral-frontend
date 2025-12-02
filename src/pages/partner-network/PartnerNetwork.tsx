@@ -102,7 +102,7 @@ const PartnerNetwork = () => {
   const STATS_CARD_DATA: StatCard[] = useMemo(
     () => [
       {
-        icon: <LuBuilding2 className="text-[17px] mt-1 text-foreground/60" />,
+        icon: <LuBuilding2 className="text-foreground/60" />,
         heading: "Total Practices",
         value: isLoading ? "..." : totalPractices,
         subheading: `${
@@ -110,7 +110,7 @@ const PartnerNetwork = () => {
         } active practices`,
       },
       {
-        icon: <FiUsers className="text-[17px] mt-1 text-foreground/60" />,
+        icon: <FiUsers className="text-foreground/60" />,
         heading: "Total Referrals",
         value: isLoading ? "..." : stats?.totalReferrals ?? 0,
         subheading: `${
@@ -118,7 +118,7 @@ const PartnerNetwork = () => {
         } this month`,
       },
       {
-        icon: <FiStar className="text-[17px] mt-1 text-foreground/60" />,
+        icon: <FiStar className="text-foreground/60" />,
         heading: "A-Level Practices",
         value: isLoading ? "..." : stats?.totalALevelPractices ?? 0,
         subheading: `${

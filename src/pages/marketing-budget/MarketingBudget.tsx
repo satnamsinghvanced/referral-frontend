@@ -78,24 +78,24 @@ const MarketingBudget = () => {
 
   const STAT_CARD_DATA = [
     {
-      icon: <LuTarget className="text-[17px] mt-1 text-blue-600" />,
+      icon: <LuTarget className="text-blue-600" />,
       heading: "Total Budget",
       value: isLoading ? "..." : `$${stats.totalBudget.toLocaleString()}`,
     },
     {
-      icon: <LuDollarSign className="text-[17px] mt-1 text-green-600" />,
+      icon: <LuDollarSign className="text-green-600" />,
       heading: "Total Spent",
       value: isLoading ? "..." : `$${stats.totalSpent.toLocaleString()}`,
       // subheading: <p>{percentageSpent}% of budget</p>,
     },
     {
-      icon: <LuCalculator className="text-[17px] mt-1 text-yellow-600" />,
+      icon: <LuCalculator className="text-yellow-600" />,
       heading: "Remaining Budget",
       value: isLoading ? "..." : `$${stats.remainingBudget.toLocaleString()}`,
       // subheading: <p>{percentageRemaining}% remaining</p>,
     },
     {
-      icon: <IoMdTrendingUp className="text-[17px] mt-1 text-purple-600" />,
+      icon: <IoMdTrendingUp className="text-purple-600" />,
       heading: "Average ROI",
       value: isLoading ? "..." : `${stats.averageROI.toLocaleString()}%`, // ROI needs calculation logic
     },
@@ -169,7 +169,7 @@ const MarketingBudget = () => {
                 </h4>
               </CardHeader>
               <CardBody className="p-5 pt-0">
-                <div className="my-1">
+                <div className="my-1 -ml-3">
                   <BarChart
                     style={{
                       width: "100%",

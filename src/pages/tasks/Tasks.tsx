@@ -44,22 +44,22 @@ function Tasks() {
 
   const STAT_CARD_DATA = [
     {
-      icon: <GoTasklist className="text-lg mt-1 text-sky-600" />,
+      icon: <GoTasklist className="text-sky-600" />,
       heading: "Total Tasks",
       value: stats?.allTasksCount || 0,
     },
     {
-      icon: <MdOutlineTaskAlt className="text-[17px] mt-1 text-green-600" />,
+      icon: <MdOutlineTaskAlt className="text-green-600" />,
       heading: "Completed Tasks",
       value: stats?.completedCount || 0,
     },
     {
-      icon: <FaRegClock className="text-[17px] mt-1 text-yellow-600" />,
+      icon: <FaRegClock className="text-yellow-600" />,
       heading: "In Progress Tasks",
       value: stats?.inProgressCount || 0,
     },
     {
-      icon: <LuInfo className="text-[17px] mt-1 text-red-600" />,
+      icon: <LuInfo className="text-red-600" />,
       heading: "Overdue Tasks",
       value: stats?.overDueCount || 0,
     },

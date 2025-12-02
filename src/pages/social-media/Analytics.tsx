@@ -88,7 +88,7 @@ const Analytics = () => {
                 <div className="text-sm text-gray-600 flex flex-wrap justify-around gap-x-5 mt-2">
                   {/* Metrics Grid */}
                   <div className="flex flex-col items-center">
-                    <span className="text-[12px] text-sky-400">
+                    <span className="text-sm font-medium text-sky-400">
                       {platform.metrics.likes}
                     </span>
                     <span className="text-[11px] dark:text-gray-400">
@@ -96,7 +96,7 @@ const Analytics = () => {
                     </span>
                   </div>
                   <div className="flex flex-col items-center">
-                    <span className="text-[12px] text-sky-400">
+                    <span className="text-sm font-medium text-sky-400">
                       {platform.metrics.comments}
                     </span>
                     <span className="text-[11px] dark:text-gray-400">
@@ -104,7 +104,7 @@ const Analytics = () => {
                     </span>
                   </div>
                   <div className="flex flex-col items-center">
-                    <span className="text-[12px] text-sky-400">
+                    <span className="text-sm font-medium text-sky-400">
                       {platform.metrics.shares}
                     </span>
                     <span className="text-[11px] dark:text-gray-400">
@@ -112,7 +112,7 @@ const Analytics = () => {
                     </span>
                   </div>
                   <div className="flex flex-col items-center -translate-x-1">
-                    <span className="text-[12px] text-sky-400">
+                    <span className="text-sm font-medium text-sky-400">
                       {platform.metrics.views}
                     </span>
                     <span className="text-[11px] dark:text-gray-400">

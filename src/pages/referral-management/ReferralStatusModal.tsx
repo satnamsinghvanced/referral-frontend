@@ -75,7 +75,6 @@ const ReferralStatusModal = ({
     },
   });
 
-  console.log(formik.values.status);
   let modalTitle = "Update Referral Status";
   let modalDescription = "Update the status and add notes for this referral.";
 

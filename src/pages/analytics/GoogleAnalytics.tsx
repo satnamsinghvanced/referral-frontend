@@ -8,6 +8,8 @@ import {
   LuEye,
   LuClock,
   LuMousePointer,
+  LuPhone,
+  LuSmartphone,
 } from "react-icons/lu";
 import {
   LineChart,
@@ -21,9 +23,9 @@ import {
   PieChart,
   Pie,
   Cell,
-  
 } from "recharts";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
+import { Card, CardBody, CardHeader } from "@heroui/react";
 
 const TrafficTrendsChart: React.FC = () => {
   const data = [
@@ -36,21 +38,18 @@ const TrafficTrendsChart: React.FC = () => {
   ];
 
   return (
-    <div className="h-[350px] w-full">
-      <ResponsiveContainer width="100%" height="100%">
-        <LineChart
-          data={data}
-          margin={{ top: 10, right: 20, left: 0, bottom: 10 }}
-        >
+    <div className="-ml-5 text-sm">
+      <ResponsiveContainer width="100%" aspect={1.85} maxHeight={380}>
+        <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
           <XAxis dataKey="name" tick={{ fontSize: 12 }} />
           <YAxis tick={{ fontSize: 12 }} />
           <Tooltip
-            contentStyle={{
-              borderRadius: "8px",
-              border: "1px solid #E5E7EB",
-              fontSize: "12px",
-            }}
+          // contentStyle={{
+          //   borderRadius: "8px",
+          //   border: "1px solid #E5E7EB",
+          //   fontSize: "12px",
+          // }}
           />
           <Legend />
           <Line
@@ -115,14 +114,14 @@ const DeviceDonutChart: React.FC = () => {
   };
 
   return (
-    <div className="w-full h-[230px] flex items-center justify-center">
-      <ResponsiveContainer width="100%" height="100%">
+    <div className="w-full h-[280px] flex items-center justify-center text-sm">
+      <ResponsiveContainer width="100%" aspect={1.85} maxHeight={380}>
         <PieChart>
           <Pie
             data={data}
             dataKey="value"
             nameKey="name"
-            outerRadius={85}
+            outerRadius={100}
             innerRadius={0}
             label={renderLabel}
             labelLine={false}
@@ -131,6 +130,7 @@ const DeviceDonutChart: React.FC = () => {
               <Cell key={index} fill={entry.color} />
             ))}
           </Pie>
+          <Tooltip />
         </PieChart>
       </ResponsiveContainer>
     </div>
@@ -175,37 +175,6 @@ interface DeviceMetricProps {
   color: string;
 }
 
-const StatCard: React.FC<StatCardProps> = ({
-  title,
-  value,
-  change,
-  changeType,
-  icon,
-  iconColor,
-}) => {
-  const isUp = changeType === "up";
-  const changeClass = isUp ? "text-emerald-600" : "text-red-600";
-  const ChangeIcon = isUp ? LuTrendingUp : LuTrendingDown;
-
-  return (
-    <div className="bg-white rounded-xl border p-6 flex flex-col gap-4 shadow-sm hover:shadow-md transition-shadow">
-      <div className="flex items-center justify-between">
-        <h4 className="text-sm font-medium text-gray-700">{title}</h4>
-        <div className={`p-2 rounded-full`} style={{ color: iconColor }}>
-          {icon}
-        </div>
-      </div>
-      <div>
-        <div className="text-3xl font-bold text-gray-900">{value}</div>
-        <div className="flex items-center mt-1">
-          <ChangeIcon className={`h-4 w-4 mr-1 ${changeClass}`} />
-          <p className={`text-sm font-medium ${changeClass}`}>{change}</p>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const TrafficSourceItem: React.FC<TrafficSourceItemProps> = ({
   source,
   sessions,
@@ -214,18 +183,16 @@ const TrafficSourceItem: React.FC<TrafficSourceItemProps> = ({
 }) => (
   <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
     <div className="flex-1 flex items-center gap-3">
-      <div>
-        <div className="font-medium text-[14px] text-gray-900">{source}</div>
-        <div className="text-[13px] text-gray-500">
+      <div className="space-y-0.5">
+        <h5 className="font-medium text-sm !font-sans">{source}</h5>
+        <p className="text-xs text-gray-500">
           {sessions.toLocaleString()} sessions
-        </div>
+        </p>
       </div>
     </div>
-    <div className="text-right">
-      <div className="font-bold text-[16px] text-gray-900">
-        {users.toLocaleString()}
-      </div>
-      <div className="text-[12px] text-gray-500">{percentage.toFixed(1)}%</div>
+    <div className="text-right space-y-0.5">
+      <div className="font-semibold text-sm">{users.toLocaleString()}</div>
+      <div className="text-xs text-gray-500">{percentage.toFixed(1)}%</div>
     </div>
   </div>
 );
@@ -237,21 +204,17 @@ const ConversionGoalsItem: React.FC<ConversationItemProps> = ({
   percentage,
 }) => {
   return (
-    <div className="flex items-center justify-between bg-[#F9FAFB] border border-gray-100 rounded-xl px-5 py-4">
-      <div>
-        <h5 className="text-[14px] font-semibold text-gray-700">{source}</h5>
-        <p className="text-[12px] text-gray-600 mt-1">
+    <div className="flex items-center justify-between bg-gray-50 border border-gray-100 rounded-lg p-3">
+      <div className="space-y-0.5">
+        <h5 className="text-sm font-medium !font-sans">{source}</h5>
+        <p className="text-xs text-gray-600">
           {percentage.toFixed(1)}% conversion rate
         </p>
       </div>
-      <div className="text-right">
-        <p className="text-[16px] font-bold text-gray-900">
-          {sessions.toLocaleString()}
-        </p>
-        <p className="text-[13px] text-gray-500 mt -1">
-          <span className="text-12px text-green-700">
-            ${price.toLocaleString()}
-          </span>
+      <div className="text-right space-y-0.5">
+        <p className="text-sm font-semibold">{sessions.toLocaleString()}</p>
+        <p className="text-xs text-gray-500">
+          <span className="text-green-700">${price.toLocaleString()}</span>
         </p>
       </div>
     </div>
@@ -265,15 +228,15 @@ const DeviceMetric: React.FC<DeviceMetricProps> = ({
   icon,
   color,
 }) => (
-  <div className="space-y-2">
+  <div className="space-y-1">
     <div className="flex justify-center">
-      {/* {React.cloneElement(icon as React.ReactElement, {
-        className: "h-6 w-6",
+      {React.cloneElement(icon as React.ReactElement, {
+        className: "h-6 w-6 mb-1",
         style: { color },
-      })} */}
+      })}
     </div>
-    <div className="text-[12px] font-medium">{device}</div>
-    <div className="text-[12px] font-bold" style={{ color }}>
+    <div className="text-xs font-medium">{device}</div>
+    <div className="text-sm font-bold" style={{ color }}>
       {users.toLocaleString()}
     </div>
     <div className="text-xs text-gray-500">{percentage.toFixed(1)}%</div>
@@ -353,7 +316,7 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
       device: "Mobile",
       users: 1650,
       percentage: 42.1,
-      icon: <LuMonitor />,
+      icon: <LuSmartphone />,
       color: "rgb(249, 115, 22)",
     },
     {
@@ -367,7 +330,7 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
 
   const STAT_CARD_DATA = [
     {
-      icon: <LuUsers className="text-[20px] mt-1 text-blue-500" />,
+      icon: <LuUsers className="text-blue-500" />,
       heading: "Total Users",
       value: "3,920",
       subheading: (
@@ -379,7 +342,7 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
       subValueClass: "text-green-600",
     },
     {
-      icon: <LuEye className="text-[20px] mt-1 text-blue-500" />,
+      icon: <LuEye className="text-blue-500" />,
       heading: "Page Views",
       value: "12,450",
       subheading: (
@@ -390,7 +353,7 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
       ),
     },
     {
-      icon: <LuClock className="text-[20px] mt-1 text-orange-500" />,
+      icon: <LuClock className="text-orange-500" />,
       heading: "Avg. Session Duration",
       value: "2:47",
       subheading: (
@@ -401,7 +364,7 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
       ),
     },
     {
-      icon: <LuMousePointer className="text-[20px] mt-1 text-purple-600" />,
+      icon: <LuMousePointer className="text-purple-600" />,
       heading: "Bounce Rate",
       value: "31%",
       subheading: (
@@ -457,14 +420,14 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
   ];
 
   return (
-    <div className=" min-h-screen">
-      <div className="flex items-center gap-3 mb-8">
+    <div className="space-y-5">
+      <div className="flex items-center gap-3 mb-6">
         <LuGlobe
           className="h-[28px] w-[28px] text-sky-600"
           aria-hidden="true"
         />
         <div>
-          <h2 className="text-[21px] font-semibold text-gray-700">
+          <h2 className="text-xl font-medium text-gray-700">
             Google Analytics - Website Statistics
           </h2>
           <p className="text-gray-600 text-[14px]">
@@ -473,89 +436,99 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4 mb-8">
+      <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
         {STAT_CARD_DATA.map((data, i) => (
           <MiniStatsCard key={i} cardData={data} />
         ))}
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
-        <div className="bg-white rounded-xl p-6 shadow-sm ">
-          <h4 className="text-[16px] font-medium color-[#0A0A0A] mb-4 flex items-center gap-2">
-            <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
-            Website Traffic Trends
-          </h4>
-          <div className="mt-10">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+        <Card shadow="none" className="border border-primary/15 p-5">
+          <CardHeader className="p-0 pb-8">
+            <h4 className="text-sm font-medium flex items-center gap-2">
+              <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
+              Website Traffic Trends
+            </h4>
+          </CardHeader>
+          <CardBody className="p-0">
             <TrafficTrendsChart />
-          </div>
-        </div>
+          </CardBody>
+        </Card>
 
-        <div className="bg-white rounded-xl  p-6 shadow-sm">
-          <h4 className="text-[16px] font-medium color-[#0A0A0A] mb-4 flex items-center gap-2">
-            <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
-            Device Analytics
-          </h4>
-          <div className="space-y-4">
+        <Card shadow="none" className="border border-primary/15 p-5">
+          <CardHeader className="p-0 pb-8">
+            <h4 className="text-sm font-medium flex items-center gap-2">
+              <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
+              Device Analytics
+            </h4>
+          </CardHeader>
+          <CardBody className="p-0 space-y-4">
             <DeviceDonutChart />
             <div className="grid grid-cols-3 gap-4 text-center">
               {deviceMetrics.map((metric) => (
                 <DeviceMetric key={metric.device} {...metric} />
               ))}
             </div>
-          </div>
-        </div>
+          </CardBody>
+        </Card>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <div className="bg-white rounded-xl  p-6 shadow-sm">
-          <h4 className="text-[16px] font-medium color-[#0A0A0A] mb-4 flex items-center gap-2">
-            <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
-            Traffic Sources
-          </h4>
-          <div className="space-y-3">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
+        <Card shadow="none" className="border border-primary/15 p-5">
+          <CardHeader className="p-0 pb-4">
+            <h4 className="text-sm font-medium flex items-center gap-2">
+              <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
+              Traffic Sources
+            </h4>
+          </CardHeader>
+          <CardBody className="p-0 space-y-3">
             {trafficSources.map((source) => (
               <TrafficSourceItem key={source.source} {...source} />
             ))}
-          </div>
-        </div>
+          </CardBody>
+        </Card>
 
-        <div className="bg-white rounded-xl p-6 shadow-sm">
-          <h4 className="text-[16px] font-medium color-[#0A0A0A] mb-4 flex items-center gap-2">
-            <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
-            Conversion Goals
-          </h4>
-          <div className="space-y-3">
+        <Card shadow="none" className="border border-primary/15 p-5">
+          <CardHeader className="p-0 pb-4">
+            <h4 className="text-sm font-medium flex items-center gap-2">
+              <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
+              Conversion Goals
+            </h4>
+          </CardHeader>
+          <CardBody className="p-0 space-y-3">
             {conversionGoals.map((source: any) => (
               <ConversionGoalsItem key={source.source} {...source} />
             ))}
-          </div>
-        </div>
+          </CardBody>
+        </Card>
       </div>
 
       {/* Top Pages Here */}
-      <div className="mt-8 bg-white rounded-xl p-6 shadow-sm">
-        <h4 className="text-[16px] font-semibold mb-10 flex items-center gap-2 ">
-          <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
-          Top Pages Performance
-        </h4>
+      <Card shadow="none" className="border border-primary/15 p-5">
+        <CardHeader className="p-0 pb-4">
+          <h4 className="text-sm font-medium flex items-center gap-2">
+            <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
+            Top Pages Performance
+          </h4>
+        </CardHeader>
 
-        <div className="overflow-x-auto">
+        <CardBody className="p-0 overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-200">
-                <th className="text-left text-[13px] py-3 px-2 font-medium text-gray-700">
+                <th className="text-left text-xs py-3 px-2 font-medium text-gray-700">
                   Page
                 </th>
-                <th className="text-right text-[13px] py-3 px-2 font-medium text-gray-700">
+                <th className="text-right text-xs py-3 px-2 font-medium text-gray-700">
                   Page Views
                 </th>
-                <th className="text-right text-[13px] py-3 px-2 font-medium text-gray-700">
+                <th className="text-right text-xs py-3 px-2 font-medium text-gray-700">
                   Unique Views
                 </th>
-                <th className="text-right text-[13px] py-3 px-2 font-medium text-gray-700">
+                <th className="text-right text-xs py-3 px-2 font-medium text-gray-700">
                   Avg. Time
                 </th>
-                <th className="text-right text-[13px] not-odd:py-3 px-2 font-medium text-gray-700">
+                <th className="text-right text-xs not-odd:py-3 px-2 font-medium text-gray-700">
                   Bounce Rate
                 </th>
               </tr>
@@ -567,19 +540,19 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
                   key={index}
                   className="border-b border-gray-100 hover:bg-gray-50"
                 >
-                  <td className="py-3 text-[13px] not-last:px-2 font-medium text-gray-900">
+                  <td className="py-3 text-xs not-last:px-2 font-medium text-gray-900">
                     {p.page}
                   </td>
-                  <td className="py-3 text-[13px] px-2 text-right text-gray-700">
+                  <td className="py-3 text-xs px-2 text-right text-gray-700">
                     {p.views}
                   </td>
-                  <td className="py-3 text-[13px] px-2 text-right text-gray-700">
+                  <td className="py-3 text-xs px-2 text-right text-gray-700">
                     {p.unique}
                   </td>
-                  <td className="py-3 text-[13px] not-only-of-type:px-2 text-right text-gray-700">
+                  <td className="py-3 text-xs not-only-of-type:px-2 text-right text-gray-700">
                     {p.time}
                   </td>
-                  <td className="py-3 text-[13px] px-2 text-right">
+                  <td className="py-3 text-xs px-2 text-right">
                     <span
                       className={`font-medium ${
                         p.good ? "text-emerald-600" : "text-orange-600"
@@ -592,8 +565,8 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
               ))}
             </tbody>
           </table>
-        </div>
-      </div>
+        </CardBody>
+      </Card>
     </div>
   );
 };

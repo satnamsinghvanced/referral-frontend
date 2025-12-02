@@ -145,23 +145,37 @@ export default function Header({
               </Button>
             </DropdownTrigger>
             <DropdownMenu aria-label="Profile Actions" variant="flat">
-              <DropdownItem key="profile" className="h-14 gap-2">
-                <Link to="/settings">
-                  <p className="font-semibold">Signed in as</p>
-                  <p className="font-semibold">{user?.email}</p>
-                </Link>
+              <DropdownItem
+                key="profile"
+                className="h-14 gap-2"
+                onPress={() => navigate("/settings")}
+              >
+                <p className="font-semibold">Signed in as</p>
+                <p className="font-semibold">{user?.email}</p>
               </DropdownItem>
-              <DropdownItem key="general">
-                <Link to="/settings/general">General</Link>
+              <DropdownItem
+                key="general"
+                onPress={() => navigate("/settings/general")}
+              >
+                General
               </DropdownItem>
-              <DropdownItem key="locations">
-                <Link to="/settings/locations">Locations</Link>
+              <DropdownItem
+                key="locations"
+                onPress={() => navigate("/settings/locations")}
+              >
+                Locations
               </DropdownItem>
-              <DropdownItem key="team">
-                <Link to="/settings/team">Team Settings</Link>
+              <DropdownItem
+                key="team"
+                onPress={() => navigate("/settings/team")}
+              >
+                Team Settings
               </DropdownItem>
-              <DropdownItem key="billing">
-                <Link to="/settings/billing">Billing</Link>
+              <DropdownItem
+                key="billing"
+                onPress={() => navigate("/settings/billing")}
+              >
+                Billing
               </DropdownItem>
               <DropdownItem key="logout" color="danger" onPress={handleLogout}>
                 Log Out

@@ -31,15 +31,7 @@ const MiniStatsCard = ({ cardData }: MiniStatsCardProps) => {
       <CardBody>
         <div className="mb-2 flex gap-1 items-center justify-between">
           <div className="font-semibold">{cardData.heading}</div>
-          {cardData.icon && (
-            <div
-              className={`${
-                typeof cardData.icon === "string" ? `text-lg` : ""
-              }`}
-            >
-              {cardData.icon}
-            </div>
-          )}
+          {cardData.icon && <div className="text-lg">{cardData.icon}</div>}
         </div>
         <div className="text-lg mt-4 mb-0.5 font-bold">
           {cardData.value !== undefined && cardData.value !== null

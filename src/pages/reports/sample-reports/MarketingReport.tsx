@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, CardHeader } from "@heroui/react";
+import { Button, Card, CardBody, CardHeader, Progress } from "@heroui/react";
 import clsx from "clsx";
 import { IoArrowBack } from "react-icons/io5";
 import {
@@ -289,17 +289,15 @@ const MetricBlock: React.FC<{ metric: MetricData }> = ({ metric }) => {
   return (
     <div
       className={clsx(
-        "text-center p-4 rounded-xl border",
+        "space-y-1 text-center p-4 rounded-xl border",
         `bg-gradient-to-br ${colors.from} ${colors.to}`,
         colors.border
       )}
     >
-      <div className={clsx("text-2xl font-bold", colors.text)}>
+      <div className={clsx("text-xl font-bold", colors.text)}>
         {metric.value}
       </div>
-      <div className="text-sm text-gray-700 font-medium mt-1">
-        {metric.label}
-      </div>
+      <div className="text-xs text-gray-700 font-medium">{metric.label}</div>
       {/* <div className="flex items-center justify-center gap-1 mt-2">
         <Icon className={clsx("h-3 w-3", changeColor)} aria-hidden="true" />
         <span className={clsx("text-xs font-medium", changeColor)}>
@@ -320,77 +318,61 @@ const ChannelRow: React.FC<{ channel: ChannelData }> = ({ channel }) => {
   const TrendIcon = channel.trend === "up" ? LuTrendingUp : LuTrendingDown;
 
   return (
-    <div className="border border-sky-100 rounded-lg p-5 bg-gradient-to-r from-white to-sky-50/30 hover:shadow-md transition-all duration-300">
-      <div className="flex items-center justify-between mb-4">
+    <Card shadow="none" className="border border-primary/15 rounded-xl p-4">
+      <CardHeader className="p-0 pb-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <h3 className="font-semibold text-lg text-gray-900">
-            {channel.name}
-          </h3>
+          <h4 className="font-medium text-sm">{channel.name}</h4>
           <span
             data-slot="badge"
             className={clsx(
-              "inline-flex items-center justify-center rounded-md border px-2 py-0.5 text-xs font-medium",
+              "inline-flex items-center justify-center rounded-md border px-1.5 py-0.5 text-[11px] h-5",
               roiBg
             )}
           >
             {channel.roi} ROI
           </span>
           <TrendIcon
-            className={clsx("h-4 w-4", trendText)}
+            className={clsx("size-3.5", trendText)}
             aria-hidden="true"
           />
         </div>
         <div className="text-right">
-          <div className="font-bold text-xl text-sky-700">
+          <div className="font-bold text-base text-sky-700">
             {channel.revenue}
           </div>
-          <div className="text-sm text-gray-600 font-medium">Revenue</div>
+          <div className="text-xs text-gray-600">Revenue</div>
         </div>
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-3">
-        <div className="bg-white/50 p-3 rounded-lg border border-gray-100">
-          <div className="text-sm text-gray-600 font-medium">Spend</div>
-          <div className="font-bold text-lg text-gray-900">{channel.spend}</div>
+      </CardHeader>
+      <CardBody className="p-0 grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="p-3 rounded-lg border border-gray-100 space-y-0.5 flex flex-col justify-center">
+          <div className="text-xs text-gray-600">Spend</div>
+          <div className="font-semibold text-sm">{channel.spend}</div>
         </div>
-        <div className="bg-white/50 p-3 rounded-lg border border-gray-100">
-          <div className="text-sm text-gray-600 font-medium">Conversions</div>
-          <div className="font-bold text-lg text-gray-900">
-            {channel.conversions}
-          </div>
+        <div className="p-3 rounded-lg border border-gray-100 space-y-0.5 flex flex-col justify-center">
+          <div className="text-xs text-gray-600">Conversions</div>
+          <div className="font-semibold text-sm">{channel.conversions}</div>
         </div>
-        <div className="bg-white/50 p-3 rounded-lg border border-gray-100">
-          <div className="text-sm text-gray-600 font-medium">
-            Cost per Acquisition
-          </div>
-          <div className="font-bold text-lg text-gray-900">{channel.cpa}</div>
+        <div className="p-3 rounded-lg border border-gray-100 space-y-0.5 flex flex-col justify-center">
+          <div className="text-xs text-gray-600">Cost per Acquisition</div>
+          <div className="font-semibold text-sm">{channel.cpa}</div>
         </div>
-        <div className="bg-white/50 p-3 rounded-lg border border-gray-100">
-          <div className="text-sm text-gray-600 font-medium">Efficiency</div>
+        <div className="p-3 rounded-lg border border-gray-100 space-y-0.5 flex flex-col justify-center">
+          <div className="text-xs text-gray-600">Efficiency</div>
           <div className="flex items-center gap-2">
-            <div
-              role="progressbar"
-              aria-valuemax={100}
-              aria-valuemin={0}
-              data-slot="progress"
-              className="bg-primary/20 relative w-full overflow-hidden rounded-full flex-1 h-3"
-            >
-              <div
-                data-slot="progress-indicator"
-                className="bg-primary h-full transition-all"
-                style={{
-                  transform: `translateX(-${
-                    100 - channel.efficiencyPercentage
-                  }%)`,
-                }}
-              ></div>
-            </div>
-            <span className="text-sm font-bold text-sky-700">
+            <Progress
+              aria-label="Efficiency"
+              value={channel.efficiencyPercentage}
+              color="primary"
+              className="h-2"
+              radius="full"
+            />
+            <span className="text-xs font-semibold text-sky-700">
               {channel.efficiency}
             </span>
           </div>
         </div>
-      </div>
-    </div>
+      </CardBody>
+    </Card>
   );
 };
 
@@ -419,10 +401,12 @@ const MarketingReport = () => {
           <Card shadow="none" className="border border-primary/15 p-5">
             <CardHeader className="p-0 pb-4 flex items-center gap-2">
               <LuTrendingUp
-                className="h-5 w-5 text-sky-600"
+                className="size-[18px] text-sky-600"
                 aria-hidden="true"
               />
-              <h4>Executive Summary - Q1 2024 Marketing ROI Analysis</h4>
+              <h4 className="text-sm">
+                Executive Summary - Q1 2024 Marketing ROI Analysis
+              </h4>
             </CardHeader>
             <CardBody className="p-0">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -436,10 +420,10 @@ const MarketingReport = () => {
           <Card shadow="none" className="border border-primary/15 p-5">
             <CardHeader className="p-0 pb-4 flex items-center gap-2">
               <LuChartColumn
-                className="h-5 w-5 text-sky-600"
+                className="size-[18px] text-sky-600"
                 aria-hidden="true"
               />
-              <h4>Channel Performance Breakdown</h4>
+              <h4 className="text-sm">Channel Performance Breakdown</h4>
             </CardHeader>
             <CardBody className="p-0">
               <div className="space-y-4">
@@ -537,7 +521,8 @@ const MarketingReport = () => {
                         className={clsx(
                           "pl-4 p-3 rounded-r-lg space-y-1",
                           `border-l-4 border-l-${color}-500 bg-${color}-50`,
-                          index === 0 && "border-l-emerald-500"
+                          index === 0 && "border-l-emerald-500",
+                          index === 1 && "border-l-sky-500"
                         )}
                       >
                         <h4
@@ -575,13 +560,13 @@ const MarketingReport = () => {
                   <div
                     key={index}
                     className={clsx(
-                      "text-center p-6 rounded-xl border hover:shadow-md transition-all duration-300",
+                      "text-center p-4 rounded-xl border hover:shadow-md transition-all duration-300 space-y-1",
                       `bg-gradient-to-br from-${proj.color}-50 to-${proj.color}-100 border-${proj.color}-200`
                     )}
                   >
                     <div
                       className={clsx(
-                        "text-2xl mb-0.5 font-bold",
+                        "text-xl font-bold",
                         `text-${proj.color}-700`
                       )}
                     >
@@ -589,20 +574,20 @@ const MarketingReport = () => {
                     </div>
                     <div
                       className={clsx(
-                        "text-sm font-medium",
+                        "text-xs font-medium",
                         `text-${proj.color}-800`
                       )}
                     >
                       {proj.label}
                     </div>
-                    <div
+                    {/* <div
                       className={clsx(
                         "text-xs mt-2 font-medium",
                         `text-${proj.color}-600`
                       )}
                     >
                       {proj.subtext}
-                    </div>
+                    </div> */}
                   </div>
                 ))}
               </div>

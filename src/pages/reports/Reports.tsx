@@ -24,26 +24,26 @@ const Reports = () => {
 
   const STAT_CARD_DATA = [
     {
-      icon: <LuFileText className="text-[17px] mt-1 text-blue-500" />,
+      icon: <LuFileText className="text-blue-500" />,
       heading: "Reports Generated",
       value: "45",
       subheading: <span className="text-green-600">+8 this month</span>,
       subValueClass: "text-green-600",
     },
     {
-      icon: <LuActivity className="text-[17px] mt-1 text-green-500" />,
+      icon: <LuActivity className="text-green-500" />,
       heading: "Data Sources",
       value: "12",
       subheading: <span className="text-gray-600">Connected</span>,
     },
     {
-      icon: <LuClock className="text-[17px] mt-1 text-purple-500" />,
+      icon: <LuClock className="text-purple-500" />,
       heading: "Scheduled Reports",
       value: "8",
       subheading: <span className="text-blue-500">Auto-generated</span>,
     },
     {
-      icon: <LuDownload className="text-[17px] mt-1 text-orange-500" />,
+      icon: <LuDownload className="text-orange-500" />,
       heading: "Export Formats",
       value: "4",
       subheading: (
