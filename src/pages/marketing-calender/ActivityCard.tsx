@@ -46,22 +46,28 @@ export function ActivityCard({ activity, onView }: ActivityCardProps) {
         <ActivityStatusChip status={status} />
       </CardHeader>
 
-      <CardBody className="text-sm text-gray-600 space-y-2 mb-3 p-0">
-        <div className="flex items-center gap-1.5">
-          <LuCalendar fontSize={14} />
-          <p className="flex items-center space-x-1 text-xs">
-            <span>{formatDateToReadable(startDate, true)}</span>
-          </p>
-        </div>
+      {(startDate || type || description) && (
+        <CardBody className="text-sm text-gray-600 space-y-2 mb-3 p-0">
+          {startDate && (
+            <div className="flex items-center gap-1.5">
+              <LuCalendar fontSize={14} />
+              <p className="flex items-center space-x-1 text-xs">
+                <span>{formatDateToReadable(startDate, true)}</span>
+              </p>
+            </div>
+          )}
 
-        <p className="text-xs flex items-center gap-1.5 capitalize">
-          <FiGlobe fontSize={14} /> {type}
-        </p>
+          {type && (
+            <p className="text-xs flex items-center gap-1.5 capitalize">
+              <FiGlobe fontSize={14} /> {type}
+            </p>
+          )}
 
-        {description && (
-          <p className="text-xs text-gray-600 line-clamp-2">{description}</p>
-        )}
-      </CardBody>
+          {description && (
+            <p className="text-xs text-gray-600 line-clamp-2">{description}</p>
+          )}
+        </CardBody>
+      )}
 
       <CardFooter className="flex justify-between items-center text-gray-600 text-xs p-0">
         {budget ? <div className="text-emerald-600">${budget} budget</div> : ""}

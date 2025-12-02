@@ -224,7 +224,7 @@ function MediaManagement() {
             <div className="space-x-2">
               {selectedMedia.length > 0 && (
                 <>
-                  <Button
+                  {/* <Button
                     size="sm"
                     radius="sm"
                     variant="ghost"
@@ -236,7 +236,7 @@ function MediaManagement() {
                     }}
                   >
                     Delete
-                  </Button>
+                  </Button> */}
                   <Button
                     size="sm"
                     radius="sm"

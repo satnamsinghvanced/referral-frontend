@@ -229,7 +229,7 @@ const Dashboard = () => {
         </div>
 
         <div className="bg-background rounded-xl p-5">
-          <h1 className="text-base mb-5">Quick Actions</h1>
+          <h4 className="text-base mb-4">Quick Actions</h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {QUICK_ACTIONS.map((action, i) => {
               const color = QUICK_ACTIONS_COLOR_CLASSES[action.color];

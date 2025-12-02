@@ -244,7 +244,7 @@ export default function ActivityActionsModal({
                 labelPlacement="outside"
                 size="sm"
                 radius="sm"
-                defaultValue={now(getLocalTimeZone())}
+                // defaultValue={now(getLocalTimeZone())}
                 minValue={now(getLocalTimeZone())}
                 onChange={(dateObject) => {
                   console.log(getLocalTimeZone(), "JHGSjh")

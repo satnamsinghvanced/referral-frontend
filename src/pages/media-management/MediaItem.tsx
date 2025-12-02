@@ -95,7 +95,7 @@ const MediaItem = ({
             <LuDownload fontSize={14} />
           </Button>
 
-          <Button
+          {/* <Button
             size="sm"
             radius="sm"
             variant="solid"
@@ -106,7 +106,7 @@ const MediaItem = ({
             title="Delete Media"
           >
             <LuTrash2 fontSize={14} />
-          </Button>
+          </Button> */}
         </div>
       </div>
     </div>

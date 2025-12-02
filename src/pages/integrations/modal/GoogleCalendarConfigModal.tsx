@@ -151,33 +151,33 @@ export default function GoogleCalendarConfigModal({
   }
 
   // Handle error state
-  if (isError) {
-    return (
-      <Modal
-        isOpen={isOpen}
-        onOpenChange={onClose}
-        size="md"
-        classNames={{ base: `max-sm:!m-3 !m-0`, closeButton: "cursor-pointer" }}
-      >
-        <ModalContent>
-          <ModalBody className="p-5 text-center">
-            <p className="text-red-600 text-sm px-5">
-              Failed to load Google Calendar configuration. Please try again.
-            </p>
-            <Button
-              color="danger"
-              variant="flat"
-              onPress={onClose}
-              size="sm"
-              className="mt-4"
-            >
-              Close
-            </Button>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-    );
-  }
+  // if (isError) {
+  //   return (
+  //     <Modal
+  //       isOpen={isOpen}
+  //       onOpenChange={onClose}
+  //       size="md"
+  //       classNames={{ base: `max-sm:!m-3 !m-0`, closeButton: "cursor-pointer" }}
+  //     >
+  //       <ModalContent>
+  //         <ModalBody className="p-5 text-center">
+  //           <p className="text-red-600 text-sm px-5">
+  //             Failed to load Google Calendar configuration. Please try again.
+  //           </p>
+  //           <Button
+  //             color="danger"
+  //             variant="flat"
+  //             onPress={onClose}
+  //             size="sm"
+  //             className="mt-4"
+  //           >
+  //             Close
+  //           </Button>
+  //         </ModalBody>
+  //       </ModalContent>
+  //     </Modal>
+  //   );
+  // }
 
   return (
     <Modal
