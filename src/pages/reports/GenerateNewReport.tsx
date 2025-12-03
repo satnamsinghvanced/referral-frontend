@@ -12,18 +12,16 @@ import {
 } from "@heroui/react";
 import { useState } from "react";
 import {
-  LuTrendingUp,
-  LuDownload,
-  LuUsers,
-  LuFileText,
-  LuMessageSquare,
-  LuStar,
-  LuPhone,
-  LuDollarSign,
   LuActivity,
   LuChartColumn,
+  LuDownload,
+  LuFileText,
+  LuMessageSquare,
+  LuPhone,
+  LuStar,
+  LuTrendingUp,
+  LuUsers,
 } from "react-icons/lu";
-import { MdOutlineBarChart } from "react-icons/md";
 import { TIME_RANGES } from "../../consts/reports";
 
 const REPORT_CATEGORIES = [
@@ -51,11 +49,6 @@ const REPORT_CATEGORIES = [
     key: "communication",
     label: "Communication  Analytics",
     icon: <LuPhone className="h-4 w-4 text-red-600" />,
-  },
-  {
-    key: "financial",
-    label: "Financial Reports",
-    icon: <LuDollarSign className="h-4 w-4 text-green-600" />,
   },
 ];
 
@@ -140,7 +133,7 @@ const GenerateNewReportModal = ({
     <Modal
       isOpen={isOpen}
       onOpenChange={onClose}
-      size="lg"
+      size="md"
       classNames={{
         base: `max-sm:!m-3 !m-0`,
         closeButton: "cursor-pointer",
@@ -200,34 +193,6 @@ const GenerateNewReportModal = ({
                   {cat.label}
                 </SelectItem>
               ))}
-            </Select>
-          </div>
-
-          <div>
-            <Select
-              size="sm"
-              radius="sm"
-              label="Report Type"
-              labelPlacement="outside"
-              placeholder="Select report type"
-              selectedKeys={formData.reportType ? [formData.reportType] : []}
-              disabledKeys={formData.reportType ? [formData.reportType] : []}
-              isRequired
-              onSelectionChange={(keys) =>
-                handleChange("reportType", keys.currentKey as string)
-              }
-            >
-              <SelectItem key="social-engagement">Social Engagement</SelectItem>
-              <SelectItem key="social-reach">Social Reach</SelectItem>
-              <SelectItem key="social-conversion">
-                Social Conversions
-              </SelectItem>
-              <SelectItem key="influencer-performance">
-                Influencer Performance
-              </SelectItem>
-              <SelectItem key="content-performance">
-                Content Performance
-              </SelectItem>
             </Select>
           </div>
 

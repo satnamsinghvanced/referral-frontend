@@ -23,6 +23,7 @@ import { formatDateToMMDDYYYY } from "../../utils/formatDateToMMDDYYYY";
 import ActivityActionsModal from "./ActivityActionsModal";
 import { ActivityCard } from "./ActivityCard";
 import { ActivityDetailModal } from "./ActivityDetailModal";
+import { formatDateToReadable } from "../../utils/formatDateToReadable";
 
 const MarketingCalendar = () => {
   const [currentFilters, setCurrentFilters] = useState<any>({
@@ -41,7 +42,7 @@ const MarketingCalendar = () => {
   const { data: activityTypes = [] } = useActivityTypes();
   const {
     data: marketingActivitiesData,
-    isLoading,
+    isFetching: isLoading,
     refetch: marketingActivitiesRefetch,
   } = useMarketingActivities(currentFilters);
   // const { data: activityDetail, refetch: refetchActivityDetail, isLoading: isDetailLoading } =
@@ -145,9 +146,7 @@ const MarketingCalendar = () => {
       ),
     },
     {
-      icon: (
-        <MdOutlineRemoveRedEye className="text-orange-600" />
-      ),
+      icon: <MdOutlineRemoveRedEye className="text-orange-600" />,
       heading: "Total Reach",
       value: stats?.totalReach || 0,
       subheading: (
@@ -163,8 +162,9 @@ const MarketingCalendar = () => {
     (activity: any) =>
       !selectedDate ||
       (activity.startDate &&
-        activity.startDate.split("T")[0] === selectedDate) ||
-      (activity.endDate && activity.endDate.split("T")[0] === selectedDate)
+        activity.startDate.split("T")[0] === selectedDate.split("T")[0]) ||
+      (activity.endDate &&
+        activity.endDate.split("T")[0] === selectedDate.split("T")[0])
   );
 
   const ActivityListForSelectedDate = () => {
@@ -218,7 +218,7 @@ const MarketingCalendar = () => {
                   <div className="flex items-center gap-1.5">
                     <LuCalendar fontSize={14} />
                     <p className="flex items-center space-x-1 text-xs">
-                      <span>{formatDateToMMDDYYYY(activity.startDate)}</span>
+                      <span>{formatDateToReadable(activity.startDate)}</span>
                       {activity.time && (
                         <span className="text-gray-600">
                           {" "}
@@ -228,9 +228,11 @@ const MarketingCalendar = () => {
                     </p>
                   </div>
 
-                  <p className="text-xs flex items-center gap-1.5 capitalize">
-                    <FiGlobe fontSize={14} /> {activity.type.title}
-                  </p>
+                  {activity.type && (
+                    <p className="text-xs flex items-center gap-1.5 capitalize">
+                      <FiGlobe fontSize={14} /> {activity.type}
+                    </p>
+                  )}
                 </div>
               </div>
             );
@@ -332,8 +334,8 @@ const MarketingCalendar = () => {
                 <h4 className="text-base font-medium flex items-center gap-2">
                   <TbWaveSawTool className="text-primary text-xl" />
                   {selectedDate
-                    ? `Activities for ${selectedDate}`
-                    : "Selected Date"}
+                    ? `Activities for ${formatDateToReadable(selectedDate)}`
+                    : "Select a Date"}
                 </h4>
                 <div className="mt-6 mb-2 space-y-3">
                   <ActivityListForSelectedDate />

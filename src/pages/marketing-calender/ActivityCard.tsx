@@ -19,7 +19,9 @@ export function ActivityCard({ activity, onView }: ActivityCardProps) {
     startDate,
     endDate,
     time,
-    type,
+    colorId,
+    type = ACTIVITY_TYPES.find((type) => type.color.id == activity.colorId)
+      ?.label,
     status,
     priority,
     budget,
@@ -27,10 +29,8 @@ export function ActivityCard({ activity, onView }: ActivityCardProps) {
   } = activity;
 
   const activityColor = ACTIVITY_TYPES.find(
-    (activityType: any) => activityType.label === type
+    (activityType: any) => activityType.color.id == colorId
   )?.color.value;
-
-  console.log(startDate);
 
   return (
     <Card

@@ -6,22 +6,25 @@ import {
   Chip,
   Switch,
 } from "@heroui/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { BiCheckCircle } from "react-icons/bi";
 import { BsLightningCharge } from "react-icons/bs";
-import { FaRegEnvelope } from "react-icons/fa6";
+import { FaGoogle, FaTiktok } from "react-icons/fa";
+import { FaMeta, FaRegEnvelope } from "react-icons/fa6";
 import { FiAlertCircle, FiExternalLink, FiSettings } from "react-icons/fi";
 import { LuCalendar } from "react-icons/lu";
 import { PiDatabase } from "react-icons/pi";
+import { SiGoogleads } from "react-icons/si";
+import { TbBrandTwilio, TbDatabase } from "react-icons/tb";
 import ComponentContainer from "../../components/common/ComponentContainer";
-import { useTypedSelector } from "../../hooks/useTypedSelector";
-import GoogleCalendarConfigModal from "./modal/GoogleCalendarConfigModal";
 import {
   useFetchGoogleCalendarIntegration,
   useUpdateGoogleCalendarIntegration,
 } from "../../hooks/integrations/useGoogleCalendar";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { GoogleCalendarIntegrationResponse } from "../../types/integrations/googleCalendar";
 import { timeAgo } from "../../utils/timeAgo";
+import GoogleCalendarConfigModal from "./modal/GoogleCalendarConfigModal";
 
 interface IntegrationItemProps {
   name: string;
@@ -67,7 +70,7 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
       break;
     case "Error":
       statusClasses =
-        "bg-destructive text-white focus-visible:ring-destructive/20 dark:bg-destructive/60";
+        "bg-red text-white focus-visible:ring-red/20 dark:bg-red/60";
       StatusIcon = <FiAlertCircle className="h-4 w-4 text-red-600" />;
       break;
   }
@@ -177,7 +180,7 @@ function Integrations() {
   const AVAILABLE_INTEGRATIONS = [
     {
       name: "Google My Business",
-      icon: <span className="text-red-600 font-bold text-sm">G</span>,
+      icon: <FaGoogle className="w-4 h-4" />,
       iconBg: "bg-red-100",
       iconColor: "text-red-600",
       status: "Disconnected" as const,
@@ -192,7 +195,7 @@ function Integrations() {
     },
     {
       name: "Practice Management System",
-      icon: <PiDatabase className="w-4 h-4" />,
+      icon: <TbDatabase className="w-4 h-4" />,
       iconBg: "bg-blue-100",
       iconColor: "text-blue-600",
       status: "Disconnected" as const,
@@ -214,11 +217,12 @@ function Integrations() {
       badges: ["Automated campaigns", "Patient follow-ups", "Email analytics"],
     },
     {
-      name: "Calendar Integration",
+      name: "Google Calendar Integration",
       icon: <LuCalendar className="w-4 h-4" />,
       iconBg: "bg-purple-100",
       iconColor: "text-purple-600",
-      status: googleCalendarExistingConfig?.status as string,
+      status:
+        (googleCalendarExistingConfig?.status as string) || "Disconnected",
       description: "Sync appointments and referral scheduling",
       badges: [
         "Appointment sync",
@@ -243,6 +247,57 @@ function Integrations() {
         });
       },
     },
+
+    // ------------------------------------------
+    // 📌 NEW INTEGRATIONS ADDED BELOW
+    // ------------------------------------------
+
+    {
+      name: "Google Ads",
+      icon: <SiGoogleads className="w-4 h-4" />,
+      iconBg: "bg-blue-100",
+      iconColor: "text-blue-600",
+      status: "Disconnected" as const,
+      description: "Sync ad performance and optimize referral-based campaigns",
+      badges: [
+        "Campaign tracking",
+        "Conversion attribution",
+        "Ad spend analytics",
+      ],
+    },
+    {
+      name: "Meta Ads",
+      icon: <FaMeta className="w-4 h-4" />,
+      iconBg: "bg-indigo-100",
+      iconColor: "text-indigo-600",
+      status: "Disconnected" as const,
+      description: "Connect Facebook & Instagram Ads for referral targeting",
+      badges: [
+        "Audience sync",
+        "Lead tracking",
+        "Campaign performance insights",
+      ],
+    },
+    {
+      name: "TikTok Ads",
+      icon: <FaTiktok className="w-4 h-4" />,
+      iconBg: "bg-gray-100",
+      iconColor: "text-gray-700",
+      status: "Disconnected" as const,
+      description: "Track TikTok ad campaigns and boost referral engagement",
+      badges: ["Pixel tracking", "Campaign reporting", "Audience insights"],
+    },
+    {
+      name: "Twilio Calling Integration",
+      icon: <TbBrandTwilio className="w-4 h-4" />,
+      iconBg: "bg-red-100",
+      iconColor: "text-red-600",
+      status: "Disconnected" as const,
+      description:
+        "Automate patient calls and streamline referral communication",
+      badges: ["Click-to-call", "Call analytics", "Automated voice follow-ups"],
+    },
+
     {
       name: "Analytics Platform",
       icon: <BsLightningCharge className="w-4 h-4" />,

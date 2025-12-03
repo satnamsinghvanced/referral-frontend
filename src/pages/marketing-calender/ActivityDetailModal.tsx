@@ -10,9 +10,7 @@ import { LuSquarePen, LuTrash2 } from "react-icons/lu";
 import ActivityStatusChip from "../../components/chips/ActivityStatusChip";
 import TaskPriorityChip from "../../components/chips/TaskPriorityChip";
 import { ActivityItem } from "../../types/marketing";
-import { formatDateToMMDDYYYY } from "../../utils/formatDateToMMDDYYYY";
 import { formatDateToReadable } from "../../utils/formatDateToReadable";
-import { LoadingState } from "../../components/common/LoadingState";
 
 const DetailItem: React.FC<{ label: string; value: React.ReactNode }> = ({
   label,
@@ -34,8 +32,8 @@ interface ActivityDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
   activity: ActivityItem | null;
-  onEdit: (id: string) => void;
-  onDelete: (id: string) => void;
+  onEdit: () => void;
+  onDelete: () => void;
 }
 
 export function ActivityDetailModal({
@@ -135,7 +133,7 @@ export function ActivityDetailModal({
             color="danger"
             size="sm"
             radius="sm"
-            onPress={() => activity._id && onDelete(activity._id)}
+            onPress={() => onDelete()}
             startContent={<LuTrash2 className="size-4" />}
           >
             Delete
@@ -154,9 +152,8 @@ export function ActivityDetailModal({
               color="primary"
               size="sm"
               radius="sm"
-              onPress={() => activity._id && onEdit(activity._id)}
+              onPress={() => onEdit()}
               startContent={<LuSquarePen className="size-4" />}
-              isDisabled={!activity._id}
             >
               Edit Activity
             </Button>

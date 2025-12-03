@@ -51,7 +51,6 @@ const MONTHLY_REVIEW_TRENDS = [
 ];
 
 const REVIEWS_PLATFORM_DISTRUBUTION = [
-  { name: "Facebook", value: 234, fill: "#1e40af" },
   { name: "Google", value: 542, fill: "#0ea5e9" },
   { name: "Healthgrades", value: 174, fill: "#0284c7" },
   { name: "Yelp", value: 298, fill: "#f97316" },
@@ -134,6 +133,7 @@ const Overview = () => {
                 cy="50%"
                 innerRadius="45%"
                 outerRadius="80%"
+                paddingAngle={3}
                 label
                 isAnimationActive
               />

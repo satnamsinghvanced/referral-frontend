@@ -110,7 +110,7 @@ const CustomCalendar: React.FC<CalendarProps> = ({
       return;
     }
 
-    onDayClick?.(dateKey);
+    onDayClick?.(new Date(dateKey).toISOString());
     setSelectedDate(dateKey);
   };
 
@@ -166,7 +166,8 @@ const CustomCalendar: React.FC<CalendarProps> = ({
             {hasActivities &&
               dayActivities.slice(0, 2).map((activity: any) => {
                 const activityColor = ACTIVITY_TYPES.find(
-                  (activityType: any) => activityType.label === activity.type
+                  (activityType: any) =>
+                    activityType.color.id === activity.colorId
                 )?.color.value;
 
                 return (

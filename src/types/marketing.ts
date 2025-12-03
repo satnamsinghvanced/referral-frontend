@@ -8,6 +8,7 @@ export interface ActivityType {
 
 export interface ActivityItem {
   _id: string;
+  googleId: string;
   createdBy: string;
   title: string;
   type: string;
@@ -68,7 +69,7 @@ export interface ActivityPayload {
   time?: string;
   priority?: ActivityPriority;
   platform: string;
-  budget: number;
+  budget: number | null;
   status?: ActivityStatus;
 }
 

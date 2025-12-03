@@ -88,7 +88,7 @@ const Profile = () => {
         `${
           fetchedUser.image.includes("http")
             ? ""
-            : `${import.meta.env.VITE_IMAGE_URL}/`
+            : `${import.meta.env.VITE_IMAGE_URL}`
         }${fetchedUser.image}`
       );
     }

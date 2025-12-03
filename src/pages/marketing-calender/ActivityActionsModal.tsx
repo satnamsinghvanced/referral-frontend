@@ -9,13 +9,19 @@ import {
   SelectItem,
   Textarea,
 } from "@heroui/react";
-import { CalendarDate, getLocalTimeZone, now, parseAbsoluteToLocal } from "@internationalized/date";
+import {
+  CalendarDate,
+  getLocalTimeZone,
+  now,
+  parseDate,
+} from "@internationalized/date";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { ACTIVITY_TYPES } from "../../consts/marketing";
 import { PRIORITY_LEVELS } from "../../consts/practice";
 import { useCreateActivity, useUpdateActivity } from "../../hooks/useMarketing";
 import { ActivityItem, ActivityType } from "../../types/marketing";
+import { keepUTCWallClock } from "../../utils/keepUTCWallClock";
 
 interface ActivityFormValues {
   title: string;
@@ -26,7 +32,7 @@ interface ActivityFormValues {
   time?: string;
   priority: string;
   platform: string;
-  budget: number;
+  budget: number | null;
   colorId: string;
 }
 
@@ -58,7 +64,7 @@ export const ActivityValidationSchema = Yup.object().shape({
 interface ActivityActionsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  defaultStartDate: CalendarDate | null;
+  defaultStartDate: string | null;
   initialData: ActivityItem | null;
   activityTypes: ActivityType[];
 }
@@ -70,7 +76,7 @@ export default function ActivityActionsModal({
   initialData,
   activityTypes,
 }: ActivityActionsModalProps) {
-  const isEditing = !!initialData?._id;
+  const isEditing = !!initialData?._id || !!initialData?.googleId;
 
   const initialValues: ActivityFormValues = {
     title: initialData?.title || "",
@@ -78,17 +84,17 @@ export default function ActivityActionsModal({
     type:
       initialData?.type ||
       ACTIVITY_TYPES.find(
-        (activity) => activity.color.value === initialData?.colorId
+        (activity) => activity.color.id === initialData?.colorId
       )?.label ||
       "",
-    colorId: initialData?.colorId || "1",
+    colorId: initialData?.colorId || "7",
     description: initialData?.description || "",
     startDate: initialData?.startDate || "",
     endDate: initialData?.endDate || "",
     // time: initialData?.time || "09:00",
     priority: initialData?.priority || "medium",
     platform: initialData?.platform || "",
-    budget: initialData?.budget || 0,
+    budget: initialData?.budget || null,
   };
 
   const { mutate: createActivity, isPending: isCreating } = useCreateActivity();
@@ -244,10 +250,15 @@ export default function ActivityActionsModal({
                 labelPlacement="outside"
                 size="sm"
                 radius="sm"
-                // defaultValue={now(getLocalTimeZone())}
+                defaultValue={
+                  formik.values.startDate
+                    ? keepUTCWallClock(formik.values.startDate)
+                    : defaultStartDate
+                    ? keepUTCWallClock(defaultStartDate)
+                    : null
+                }
                 minValue={now(getLocalTimeZone())}
                 onChange={(dateObject) => {
-                  console.log(getLocalTimeZone(), "JHGSjh")
                   if (dateObject) {
                     const year = dateObject.year;
                     const month = String(dateObject.month).padStart(2, "0");
@@ -255,13 +266,13 @@ export default function ActivityActionsModal({
                     const hour = String(dateObject.hour).padStart(2, "0");
                     const minute = String(dateObject.minute).padStart(2, "0");
                     const second = String(dateObject.second).padStart(2, "0");
-
                     const millisecond = String(dateObject.millisecond).padStart(
                       3,
                       "0"
                     );
 
-                    const localDateTimeString = `${year}-${month}-${day}T${hour}:${minute}:${second}.${millisecond}`;
+                    const localDateTimeString = `${year}-${month}-${day}T${hour}:${minute}:${second}.${millisecond}Z`;
+
                     formik.setFieldValue("startDate", localDateTimeString);
                   } else {
                     formik.setFieldValue("startDate", null);
@@ -273,6 +284,7 @@ export default function ActivityActionsModal({
                 isRequired
                 hideTimeZone
               />
+
               <ErrorText field="startDate" />
             </div>
             <div>
@@ -283,7 +295,11 @@ export default function ActivityActionsModal({
                 labelPlacement="outside"
                 size="sm"
                 radius="sm"
-                defaultValue={null}
+                defaultValue={
+                  formik.values.endDate
+                    ? keepUTCWallClock(formik.values.endDate)
+                    : null
+                }
                 minValue={now(getLocalTimeZone())}
                 onChange={(dateObject) => {
                   if (dateObject) {
@@ -293,13 +309,13 @@ export default function ActivityActionsModal({
                     const hour = String(dateObject.hour).padStart(2, "0");
                     const minute = String(dateObject.minute).padStart(2, "0");
                     const second = String(dateObject.second).padStart(2, "0");
-
                     const millisecond = String(dateObject.millisecond).padStart(
                       3,
                       "0"
                     );
 
-                    const localDateTimeString = `${year}-${month}-${day}T${hour}:${minute}:${second}.${millisecond}`;
+                    const localDateTimeString = `${year}-${month}-${day}T${hour}:${minute}:${second}.${millisecond}Z`;
+
                     formik.setFieldValue("endDate", localDateTimeString);
                   } else {
                     formik.setFieldValue("endDate", null);
@@ -310,6 +326,7 @@ export default function ActivityActionsModal({
                 isInvalid={!!hasError("endDate")}
                 hideTimeZone
               />
+
               <div className="text-[11px] text-gray-500 mt-1">
                 Leave empty for single-day activity
               </div>
@@ -373,6 +390,7 @@ export default function ActivityActionsModal({
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 isInvalid={!!hasError("budget")}
+                startContent={<span className="text-gray-500">$</span>}
               />
               <ErrorText field="budget" />
             </div>

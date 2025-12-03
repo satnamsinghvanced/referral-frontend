@@ -352,6 +352,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
               <Input
                 placeholder="Search referrals..."
                 size="sm"
+                value={currentFilters.search as string}
                 onValueChange={(value) => onSearchChange(value)}
                 startContent={<FiSearch className="text-gray-600" />}
               />

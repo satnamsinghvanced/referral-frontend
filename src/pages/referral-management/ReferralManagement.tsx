@@ -36,6 +36,7 @@ import ReferralStatusModal from "./ReferralStatusModal";
 import ReferrerCard from "./ReferrerCard";
 import RoleToggleTabs from "./RoleToggleTabs";
 import TrackingPanel from "./TrackingPanel";
+import { useDebouncedValue } from "../../hooks/common/useDebouncedValue";
 
 type ReferralType = "Referrals" | "Referrers" | "NFC & QR Tracking";
 
@@ -58,7 +59,6 @@ const ReferralManagement = () => {
     filter: "",
     source: "",
   });
-  const [overviewSearchKeyword, setOverviewSearchKeyword] = useState("");
   const [referralEditId, setReferralEditId] = useState<string>("");
   const [referrerEditId, setReferrerEditId] = useState("");
 
@@ -68,15 +68,17 @@ const ReferralManagement = () => {
     limit: 10,
   });
 
-  // ----------------------
-  // Queries
-  // ----------------------
+  const debouncedSearch = useDebouncedValue(currentFilters.search, 500);
+
+  useEffect(() => {
+    setCurrentFilters((prev) => ({ ...prev, search: debouncedSearch }));
+  }, [debouncedSearch]);
+
   const {
     data: referralData,
-    refetch: referralRefetch,
     isLoading: isLoadingReferrals,
     isFetching: isFetchingReferrals,
-  } = useFetchReferrals(currentFilters);
+  } = useFetchReferrals({ ...currentFilters, search: debouncedSearch });
 
   const { data: referrerData, isLoading: isLoadingReferrers } =
     useFetchReferrers(referrerParams);
@@ -87,11 +89,6 @@ const ReferralManagement = () => {
   const { data: singleReferrerData, refetch: singleReferrerRefetch } =
     useGetReferrerById(referrerEditId);
 
-  const { mutate: initiateCall } = useInitiateCall(user?.userId || "");
-
-  // ----------------------
-  // Effects
-  // ----------------------
   useEffect(() => {
     if (referrerEditId) {
       singleReferrerRefetch();
@@ -104,23 +101,6 @@ const ReferralManagement = () => {
     }
   }, [referralEditId, singleReferralRefetch]);
 
-  // Debounced search for overview
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setCurrentFilters((prev) => ({
-        ...prev,
-        search: overviewSearchKeyword,
-        page: 1,
-      }));
-    }, 500);
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [overviewSearchKeyword]);
-
-  // ----------------------
-  // Handlers
-  // ----------------------
   const handleClearFilters = useCallback(() => {
     setCurrentFilters({
       page: 1,
@@ -167,11 +147,6 @@ const ReferralManagement = () => {
     };
 
     downloadJson(exportData, "referrals");
-  };
-
-  const handleOverviewSearchChange = (value: string) => {
-    // Only updates the input value, the search effect handles the API call
-    setOverviewSearchKeyword(value);
   };
 
   // ----------------------
@@ -329,7 +304,9 @@ const ReferralManagement = () => {
                 <AllReferralsView
                   onBackToOverview={handleBackToOverview}
                   onExport={handleExport}
-                  onSearchChange={handleOverviewSearchChange}
+                  onSearchChange={(value) =>
+                    setCurrentFilters((prev) => ({ ...prev, search: value }))
+                  }
                   onFilterChange={handleFilterChange}
                   onClearFilters={handleClearFilters}
                   onViewReferral={(id: string) => {
@@ -397,8 +374,13 @@ const ReferralManagement = () => {
                         size="sm"
                         variant="flat"
                         placeholder="Search..."
-                        value={overviewSearchKeyword}
-                        onValueChange={handleOverviewSearchChange}
+                        value={currentFilters.search}
+                        onValueChange={(value) =>
+                          setCurrentFilters((prev) => ({
+                            ...prev,
+                            search: value,
+                          }))
+                        }
                         className="text-xs flex-1 min-w-fit"
                       />
 
