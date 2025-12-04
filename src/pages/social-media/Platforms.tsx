@@ -119,7 +119,7 @@ const Platforms = () => {
                   radius="sm"
                   variant="ghost"
                   startContent={<FiSettings className="size-3.5" />}
-                  onPress={() => console.log(`Manage ${platform.name}`)}
+                  onPress={() => {}}
                   fullWidth
                   className="border-small"
                 >
@@ -131,7 +131,7 @@ const Platforms = () => {
                   radius="sm"
                   variant="solid"
                   color="primary"
-                  onPress={() => console.log(`Connect ${platform.name}`)}
+                  onPress={() => {}}
                   fullWidth
                 >
                   Connect Account

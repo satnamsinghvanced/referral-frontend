@@ -311,9 +311,7 @@ export default function VisitMap() {
 
       map.addControl(geolocateControl, "top-right");
 
-      geolocateControl.on("geolocate", (e) => {
-        console.log("📍 User Location:", e.coords);
-      });
+      geolocateControl.on("geolocate", (e) => {});
 
       geolocateControl.trigger();
 

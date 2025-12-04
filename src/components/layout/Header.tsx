@@ -1,5 +1,4 @@
 import {
-  Avatar,
   Button,
   Dropdown,
   DropdownItem,
@@ -10,38 +9,14 @@ import {
   NavbarContent,
 } from "@heroui/react";
 import { FiUser } from "react-icons/fi";
-import { IoSearch } from "react-icons/io5";
-import Notification from "../common/Notification";
 import { HiOutlineMenuAlt1 } from "react-icons/hi";
-import ThemeToggle from "../common/ThemeToggle";
+import { IoSearch } from "react-icons/io5";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { AppDispatch } from "../../store";
 import { logout } from "../../store/authSlice";
-import { Link, useNavigate } from "react-router";
-import { useTypedSelector } from "../../hooks/useTypedSelector";
-
-// const HEADER_LINKS = [
-//   {
-//     label: "Home",
-//     link: "/",
-//   },
-//   {
-//     label: "Reports",
-//     link: "/reports",
-//   },
-//   {
-//     label: "Social Media",
-//     link: "/social",
-//   },
-//   {
-//     label: "Calender",
-//     link: "/calender",
-//   },
-//   {
-//     label: "Budget",
-//     link: "/budget",
-//   },
-// ];
+import Notification from "../common/Notification";
 
 export default function Header({
   hamburgerMenuClick,
@@ -76,16 +51,6 @@ export default function Header({
           </button>
         </div>
         <NavbarContent className="hidden sm:flex gap-6">
-          {/* {HEADER_LINKS.map((navItem) => (
-            <NavbarItem key={navItem.link}>
-              <Link
-                to={navItem.link}
-                className="text-sm px-3.5 py-1.5 text-foreground hover:bg-foreground/4 rounded-md"
-              >
-                {navItem.label}
-              </Link>
-            </NavbarItem>
-          ))} */}
           <Input
             size="sm"
             classNames={{
@@ -94,7 +59,6 @@ export default function Header({
               input: "text-small",
               inputWrapper:
                 "min-h-8 font-normal text-default-500 shadow-none bg-foreground/4 group-data-[focus=true]:border-default-400 text-foreground /10",
-              // "min-h-9 font-normal text-default-500 shadow-none border-small bg-foreground-10 group-data-[focus=true]:border-default-400 text-foreground",
             }}
             placeholder="Search referrals..."
             startContent={<IoSearch size={18} className="text-foreground/50" />}
@@ -105,33 +69,8 @@ export default function Header({
       </NavbarContent>
 
       <NavbarContent as="div" className="items-center gap-4" justify="end">
-        <div className="flex gap-3">
-          {/* <Input
-            size='sm'
-            classNames={{
-              base: "max-w-full sm:max-w-[15rem]",
-              mainWrapper: "h-full",
-              input: "text-small",
-              inputWrapper:
-                "min-h-9 font-normal text-default-500 shadow-none border-small bg-foreground-10 group-data-[focus=true]:border-default-400 text-foreground",
-            }}
-            placeholder="Search referrals..."
-            startContent={<IoSearch size={18} />}
-            type="search"
-            variant="bordered"
-          /> */}
-
-          {/* HTTP Error Debug Panel */}
-          {/* <HttpErrorDebugPanel /> */}
-        </div>
-
-        {/* admin access only  */}
-        {/* <SuperAdminLogin /> */}
-
         <div className="flex gap-3 justify-center items-center">
-          {/* notification */}
           <Notification />
-          {/* <ThemeToggle /> */}
           <Dropdown placement="bottom-end">
             <DropdownTrigger>
               <Button

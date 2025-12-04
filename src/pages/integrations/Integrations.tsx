@@ -1,19 +1,9 @@
-import {
-  Button,
-  Card,
-  CardBody,
-  CardHeader,
-  Chip,
-  Switch,
-} from "@heroui/react";
+import { Button, Card, CardBody, CardHeader, Chip } from "@heroui/react";
 import { useState } from "react";
-import { BiCheckCircle } from "react-icons/bi";
 import { BsLightningCharge } from "react-icons/bs";
 import { FaGoogle, FaTiktok } from "react-icons/fa";
 import { FaMeta, FaRegEnvelope } from "react-icons/fa6";
-import { FiAlertCircle, FiExternalLink, FiSettings } from "react-icons/fi";
 import { LuCalendar } from "react-icons/lu";
-import { PiDatabase } from "react-icons/pi";
 import { SiGoogleads } from "react-icons/si";
 import { TbBrandTwilio, TbDatabase } from "react-icons/tb";
 import ComponentContainer from "../../components/common/ComponentContainer";
@@ -24,133 +14,9 @@ import {
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { GoogleCalendarIntegrationResponse } from "../../types/integrations/googleCalendar";
 import { timeAgo } from "../../utils/timeAgo";
+import IntegrationItem from "./IntegrationItem";
 import GoogleCalendarConfigModal from "./modal/GoogleCalendarConfigModal";
-
-interface IntegrationItemProps {
-  name: string;
-  icon: React.ReactNode;
-  iconBg: string;
-  iconColor: string;
-  status: "Connected" | "Disconnected" | "Error" | string;
-  description: string;
-  badges: string[];
-  lastSync?: string;
-  onConfigure?: () => void;
-  onConnect?: () => void;
-  isSwitchChecked?: boolean;
-  onSwitchChange?: (checked: boolean) => void;
-}
-
-const IntegrationItem: React.FC<IntegrationItemProps> = ({
-  name,
-  icon,
-  iconBg,
-  iconColor,
-  status,
-  description,
-  badges,
-  lastSync,
-  onConfigure,
-  onConnect,
-  isSwitchChecked = true,
-  onSwitchChange,
-}) => {
-  const isConnected = status === "Connected";
-  const isError = status === "Error";
-
-  let statusClasses = "";
-  let StatusIcon = null;
-  switch (status) {
-    case "Connected":
-      statusClasses = "bg-green-100 text-green-700";
-      StatusIcon = <BiCheckCircle className="h-4 w-4 text-green-600" />;
-      break;
-    case "Disconnected":
-      statusClasses = "bg-secondary text-secondary-foreground";
-      break;
-    case "Error":
-      statusClasses =
-        "bg-red text-white focus-visible:ring-red/20 dark:bg-red/60";
-      StatusIcon = <FiAlertCircle className="h-4 w-4 text-red-600" />;
-      break;
-  }
-
-  const actionButton = isConnected ? (
-    <>
-      {onConfigure && (
-        <Button
-          size="sm"
-          radius="sm"
-          variant="ghost"
-          onPress={onConfigure}
-          startContent={<FiSettings className="size-3.5" />}
-          className="border-small"
-        >
-          Configure
-        </Button>
-      )}
-      <Switch
-        size="sm"
-        isSelected={isSwitchChecked}
-        onValueChange={onSwitchChange}
-      />
-    </>
-  ) : (
-    // @ts-ignore
-    <Button
-      size="sm"
-      radius="sm"
-      variant="solid"
-      color="primary"
-      onPress={onConnect}
-      endContent={<FiExternalLink className="size-3.5" />}
-    >
-      Connect
-    </Button>
-  );
-
-  return (
-    <div className="flex items-start justify-between py-5 first:pt-0 last:pb-4">
-      <div className="flex items-start gap-3">
-        <div
-          className={`w-8 h-8 rounded-lg flex items-center justify-center ${iconBg} ${iconColor}`}
-        >
-          {icon}
-        </div>
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2">
-            <h3 className="text-sm font-normal">{name}</h3>
-            {StatusIcon}
-            <Chip
-              size="sm"
-              radius="sm"
-              className={`text-[11px] capitalize h-5 ${statusClasses}`}
-            >
-              {status}
-            </Chip>
-          </div>
-          <p className="text-xs text-gray-600 mb-3">{description}</p>
-          <div className="flex flex-wrap gap-2">
-            {badges.map((badge) => (
-              <Chip
-                key={badge}
-                size="sm"
-                variant="bordered"
-                className="text-[11px] border-small h-5"
-              >
-                {badge}
-              </Chip>
-            ))}
-          </div>
-          {lastSync && (
-            <p className="text-xs text-gray-600 mt-2">Last sync: {lastSync}</p>
-          )}
-        </div>
-      </div>
-      <div className="flex items-center gap-2">{actionButton}</div>
-    </div>
-  );
-};
+import TwilioConfigurationModal from "./modal/TwilioConfigurationModal";
 
 function Integrations() {
   const { user } = useTypedSelector((state) => state.auth);
@@ -160,6 +26,9 @@ function Integrations() {
     isGoogleCalendarIntegrationModalOpen,
     setIsGoogleCalendarIntegrationModalOpen,
   ] = useState(false);
+
+  const [isTwilioIntegrationModalOpen, setIsTwilioIntegrationModalOpen] =
+    useState(false);
 
   const {
     data: googleCalendarExistingConfig,
@@ -247,11 +116,6 @@ function Integrations() {
         });
       },
     },
-
-    // ------------------------------------------
-    // 📌 NEW INTEGRATIONS ADDED BELOW
-    // ------------------------------------------
-
     {
       name: "Google Ads",
       icon: <SiGoogleads className="w-4 h-4" />,
@@ -296,6 +160,8 @@ function Integrations() {
       description:
         "Automate patient calls and streamline referral communication",
       badges: ["Click-to-call", "Call analytics", "Automated voice follow-ups"],
+      onConnect: () => setIsTwilioIntegrationModalOpen(true),
+      onConfigure: () => setIsTwilioIntegrationModalOpen(true),
     },
 
     {
@@ -456,6 +322,12 @@ function Integrations() {
         }
         isLoading={isGoogleCalendarConfigLoading}
         isError={isGoogleCalendarConfigError}
+      />
+
+      <TwilioConfigurationModal
+        userId={userId as string}
+        isOpen={isTwilioIntegrationModalOpen}
+        onClose={() => setIsTwilioIntegrationModalOpen(false)}
       />
     </>
   );

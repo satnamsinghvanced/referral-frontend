@@ -6,7 +6,6 @@ import {
 import { addToast } from "@heroui/react";
 import { AxiosError } from "axios";
 
-// ✅ Correct type order
 export function useUpdatePassword() {
   return useMutation<void, AxiosError, UpdatePasswordPayload>({
     mutationFn: (payload) => updatePassword(payload),

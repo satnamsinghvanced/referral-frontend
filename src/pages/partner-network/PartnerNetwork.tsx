@@ -41,7 +41,7 @@ const PartnerNetwork = () => {
     page: 1,
     limit: 10,
     sortBy: "name",
-    order: sortOrder,
+    order: "asc",
     filter: "allPractices",
   });
 
@@ -147,7 +147,7 @@ const PartnerNetwork = () => {
         icon: <IoDocumentOutline className="size-3.5" />,
         variant: "light" as const,
         color: "secondary" as const,
-        className: "text-orange-600 hover:!bg-orange-50"
+        className: "text-orange-600 hover:!bg-orange-50",
       },
       {
         label: "View",
@@ -173,10 +173,6 @@ const PartnerNetwork = () => {
     ],
     []
   );
-
-  const handleHistoryModalClose = useCallback(() => {
-    setIsHistoryModalOpen(false);
-  }, []);
 
   return (
     <>
@@ -282,10 +278,6 @@ const PartnerNetwork = () => {
         isOpen={isNotesTasksModalOpen}
         onClose={() => setIsNotesTasksModalOpen(false)}
         practice={notesTasksPartner}
-        onAddNote={() => console.log("Add note not implemented")}
-        onAddTask={() => console.log("Add task not implemented")}
-        onDeleteNote={() => console.log("Delete note not implemented")}
-        onDeleteTask={() => console.log("Delete task not implemented")}
       />
     </>
   );

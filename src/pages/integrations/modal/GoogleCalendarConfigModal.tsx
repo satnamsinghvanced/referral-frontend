@@ -1,6 +1,3 @@
-import React, { useState } from "react";
-import { useFormik } from "formik";
-import * as Yup from "yup";
 import {
   Button,
   Input,
@@ -11,9 +8,11 @@ import {
   ModalHeader,
   Spinner,
 } from "@heroui/react";
+import { useFormik } from "formik";
+import { useState } from "react";
 import { FiExternalLink, FiEye, FiEyeOff } from "react-icons/fi";
+import * as Yup from "yup";
 import {
-  useFetchGoogleCalendarIntegration,
   useGenerateGoogleCalendarAuthUrl,
   useUpdateGoogleCalendarIntegration,
 } from "../../../hooks/integrations/useGoogleCalendar";

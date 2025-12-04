@@ -6,12 +6,12 @@ export const useDashboardStats = () => {
     queryKey: ["dashboardStats"],
     queryFn: fetchDashboardStats,
   });
-  return queryResult
+  return queryResult;
 };
 
 export const useDashboard = (id: string) => {
   return useQuery({
-    queryKey: ['dashboard', id],
+    queryKey: ["dashboard", id],
     queryFn: () => fetchDashboardData(id),
     enabled: !!id,
   });

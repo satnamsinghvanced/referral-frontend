@@ -124,7 +124,6 @@ const Profile = () => {
       updateUser(data, {
         onSuccess(data) {
           dispatch(updateUserFirstName({ firstName: data.firstName }));
-          console.log("User updated successfully", data);
         },
       });
     },

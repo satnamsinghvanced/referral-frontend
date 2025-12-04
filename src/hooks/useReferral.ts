@@ -1,28 +1,28 @@
-// src/hooks/useReferral.ts
-import {
-  useQuery,
-  useMutation,
-  UseMutationOptions,
-} from "@tanstack/react-query";
+import { addToast } from "@heroui/react";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { queryClient } from "../providers/QueryProvider";
-import { addToast } from "@heroui/react";
 import {
-  getReferralById,
-  fetchReferrals,
-  updateReferral,
-  deleteReferral,
   createReferrer,
-  fetchReferrers,
-  getReferrerById,
-  updateReferrer,
-  deleteReferrer,
-  updateTracking,
-  fetchTrackings,
-  logTrackingScan,
   createTrackingSetup,
+  deleteReferral,
+  deleteReferrer,
+  fetchReferrals,
+  fetchReferrers,
+  fetchTrackings,
+  getReferralById,
+  getReferrerById,
+  logTrackingScan,
+  updateReferral,
+  updateReferrer,
+  updateTracking,
 } from "../services/referral";
 import { createReferral, trackScan } from "../services/referralBypassFunction";
+import {
+  FetchReferrersParams,
+  Referrer,
+  ReferrersResponse,
+} from "../types/partner";
 import {
   Referral,
   ReferralsResponse,
@@ -31,25 +31,15 @@ import {
   TrackingRequestBody,
   TrackingResponseData,
 } from "../types/referral";
-import {
-  FetchReferrersParams,
-  Referrer,
-  ReferrersResponse,
-} from "../types/partner";
-
-// ---------------------------
-// 🔹 Referrals
-// ---------------------------
 
 interface FetchReferralsParams {
   page?: number;
   limit?: number;
   search?: string;
-  filter?: string; // Added filter parameter
-  source?: string; // Added source parameter
+  filter?: string;
+  source?: string;
 }
 
-// Fetch list of referrals
 export const useFetchReferrals = ({
   page = 1,
   limit = 20,
@@ -60,10 +50,8 @@ export const useFetchReferrals = ({
   useQuery<ReferralsResponse, Error>({
     queryKey: ["referrals", search, page, limit, filter, source],
     queryFn: () => fetchReferrals({ page, limit, search, filter, source }),
-    // Optional: Add refetchOnWindowFocus, keepPreviousData, etc. as needed
   });
 
-// Get referral by ID
 export const useGetReferralById = (id: string) =>
   useQuery<Referral, Error>({
     queryKey: ["referral", id],
@@ -71,9 +59,8 @@ export const useGetReferralById = (id: string) =>
     enabled: !!id,
   });
 
-// Create a new referral
 export const useCreateReferral = () =>
-  useMutation<Referral, Error, Partial<Referral>>({
+  useMutation<Referral, any, Partial<Referral>>({
     mutationFn: (payload) => createReferral(payload),
     onSuccess: () => {
       addToast({
@@ -84,9 +71,8 @@ export const useCreateReferral = () =>
       queryClient.invalidateQueries({ queryKey: ["referrals"] });
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     },
-    onError: (error: Error) => {
+    onError: (error) => {
       const message =
-        // @ts-ignore
         (error?.response?.data as any)?.message ||
         error.message ||
         "Failed to create referral";
@@ -94,8 +80,8 @@ export const useCreateReferral = () =>
     },
   });
 
-export const useTrackScan = () => {
-  return useMutation<ScanTrackingResponse, Error, ScanTrackingParams>({
+export const useTrackScan = () =>
+  useMutation<ScanTrackingResponse, Error, ScanTrackingParams>({
     mutationFn: trackScan,
     onSuccess: (data, variables) => {
       console.log(
@@ -106,9 +92,7 @@ export const useTrackScan = () => {
       console.error("Error tracking scan:", error);
     },
   });
-};
 
-// Update referral
 export const useUpdateReferral = () =>
   useMutation<Referral, AxiosError, { id: string; payload: any }>({
     mutationFn: ({ id, payload }) => updateReferral(id, payload),
@@ -129,7 +113,6 @@ export const useUpdateReferral = () =>
     },
   });
 
-// Delete referral
 export const useDeleteReferral = () =>
   useMutation<Referral, AxiosError, string>({
     mutationFn: (id) => deleteReferral(id),
@@ -151,11 +134,6 @@ export const useDeleteReferral = () =>
     },
   });
 
-// ---------------------------
-// 🔹 Referrers
-// ---------------------------
-
-// Fetch list of referrers
 export const useFetchReferrers = ({
   filter = "",
   page = 1,
@@ -166,7 +144,6 @@ export const useFetchReferrers = ({
     queryFn: () => fetchReferrers({ filter, page, limit }),
   });
 
-// Get referrer by ID
 export const useGetReferrerById = (id: string) =>
   useQuery<Referrer, Error>({
     queryKey: ["referrers", id],
@@ -174,7 +151,6 @@ export const useGetReferrerById = (id: string) =>
     enabled: !!id,
   });
 
-// Create referrer
 export const useCreateReferrer = () =>
   useMutation<
     Referrer,
@@ -201,7 +177,6 @@ export const useCreateReferrer = () =>
     },
   });
 
-// Update referrer
 export const useUpdateReferrer = () =>
   useMutation<
     Referrer,
@@ -209,13 +184,12 @@ export const useUpdateReferrer = () =>
     { id: string; type: string; payload: Partial<Referrer> }
   >({
     mutationFn: ({ id, type, payload }) => updateReferrer(id, type, payload),
-    onSuccess: (data, variables) => {
+    onSuccess: (_, variables) => {
       addToast({
         title: "Success",
         description: "Referrer updated successfully.",
         color: "success",
       });
-
       queryClient.invalidateQueries({ queryKey: ["referrers"] });
       queryClient.invalidateQueries({ queryKey: ["partnerStats"] });
       queryClient.invalidateQueries({
@@ -231,7 +205,6 @@ export const useUpdateReferrer = () =>
     },
   });
 
-// Delete referrer
 export const useDeleteReferrer = () =>
   useMutation<Referrer, AxiosError, string>({
     mutationFn: (id) => deleteReferrer(id),
@@ -254,13 +227,8 @@ export const useDeleteReferrer = () =>
     },
   });
 
-// ---------------------------
-// 🔹 Tracking
-// ---------------------------
-
-// Create tracking (FormData)
-export const useCreateTrackingSetup = () => {
-  return useMutation<TrackingResponseData, Error, TrackingRequestBody>({
+export const useCreateTrackingSetup = () =>
+  useMutation<TrackingResponseData, any, TrackingRequestBody>({
     mutationFn: createTrackingSetup,
     onSuccess: () => {
       addToast({
@@ -272,16 +240,13 @@ export const useCreateTrackingSetup = () => {
     },
     onError: (error) => {
       const message =
-        // @ts-ignore
         (error.response?.data as any)?.message ||
         error.message ||
         "Failed to create tracking";
       addToast({ title: "Error", description: message, color: "danger" });
     },
   });
-};
 
-// Update tracking
 export const useUpdateTracking = () =>
   useMutation<any, AxiosError, { trackingId: string; payload: any }>({
     mutationFn: ({ trackingId, payload }) =>
@@ -292,7 +257,6 @@ export const useUpdateTracking = () =>
         description: "Trackings updated successfully.",
         color: "success",
       });
-
       queryClient.invalidateQueries({ queryKey: ["trackings"] });
     },
     onError: (error: AxiosError) => {
@@ -304,15 +268,13 @@ export const useUpdateTracking = () =>
     },
   });
 
-// Fetch tracking list
 export const useFetchTrackings = (id: string) =>
   useQuery<TrackingResponseData, Error>({
     queryKey: ["trackings"],
     queryFn: () => fetchTrackings(id),
-    enabled: !!id
+    enabled: !!id,
   });
 
-// Log tracking scan
 export const useLogTrackingScan = () =>
   useMutation<any, AxiosError, { trackingId: string; source: "QR" | "NFC" }>({
     mutationFn: ({ trackingId, source }) => logTrackingScan(trackingId, source),

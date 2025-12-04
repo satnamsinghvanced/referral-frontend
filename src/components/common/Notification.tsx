@@ -2,15 +2,11 @@ import { Badge, Button } from "@heroui/react";
 import { FaRegBell } from "react-icons/fa";
 
 const Notification = () => {
-  const onBadgeClick = () => {
-    console.log("Badge clicked");
-  };
-
   return (
     <Button
       isIconOnly={true}
       className="p-0 m-0 bg-transparent"
-      onPress={onBadgeClick}
+      onPress={() => {}}
       disableAnimation={true}
     >
       <Badge

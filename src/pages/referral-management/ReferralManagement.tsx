@@ -18,13 +18,13 @@ import ReferralStatusChip from "../../components/chips/ReferralStatusChip";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import EmptyState from "../../components/common/EmptyState";
 import { LoadingState } from "../../components/common/LoadingState";
+import { useDebouncedValue } from "../../hooks/common/useDebouncedValue";
 import {
   useFetchReferrals,
   useFetchReferrers,
   useGetReferralById,
   useGetReferrerById,
 } from "../../hooks/useReferral";
-import { useInitiateCall } from "../../hooks/useTwilio";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { Referrer } from "../../types/partner";
 import { FilterStats, Referral } from "../../types/referral";
@@ -36,7 +36,6 @@ import ReferralStatusModal from "./ReferralStatusModal";
 import ReferrerCard from "./ReferrerCard";
 import RoleToggleTabs from "./RoleToggleTabs";
 import TrackingPanel from "./TrackingPanel";
-import { useDebouncedValue } from "../../hooks/common/useDebouncedValue";
 
 type ReferralType = "Referrals" | "Referrers" | "NFC & QR Tracking";
 
@@ -315,9 +314,6 @@ const ReferralManagement = () => {
                     setIsReferralStatusModalOpen(true);
                   }}
                   onEditReferral={handleEditReferral}
-                  onViewReferralPage={(id: string) =>
-                    console.log("External Link:", id)
-                  }
                   referrals={referralData?.data as Referral[]}
                   totalReferrals={referralData?.total ?? 0}
                   totalPages={referralData?.totalPages ?? 1}

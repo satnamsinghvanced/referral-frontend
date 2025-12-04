@@ -113,8 +113,6 @@ const Team: React.FC = () => {
       .required("Permissions are required"),
   });
 
-  console.log(permissions);
-
   const formik = useFormik<TeamFormValues>({
     enableReinitialize: true,
     initialValues: {
@@ -157,8 +155,6 @@ const Team: React.FC = () => {
       }
     },
   });
-
-  console.log(formik.values.permissions, "HEEEEE");
 
   const handleEdit = (member: TeamMember) => {
     setEditMemberId(member._id);

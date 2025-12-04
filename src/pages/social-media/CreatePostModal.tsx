@@ -178,13 +178,6 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
   // --- END NEW MEDIA LOGIC ---
 
   const handlePublish = () => {
-    console.log("Publishing/Scheduling Post:", {
-      content: postContent,
-      platforms: selectedPlatforms,
-      schedule: publishSchedule,
-      hashtags: activeHashtags,
-      files: files.map((f) => f.name), // Log file names
-    });
     onClose();
   };
 

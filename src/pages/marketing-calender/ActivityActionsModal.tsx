@@ -9,12 +9,7 @@ import {
   SelectItem,
   Textarea,
 } from "@heroui/react";
-import {
-  CalendarDate,
-  getLocalTimeZone,
-  now,
-  parseDate,
-} from "@internationalized/date";
+import { getLocalTimeZone, now } from "@internationalized/date";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { ACTIVITY_TYPES } from "../../consts/marketing";
@@ -32,7 +27,7 @@ interface ActivityFormValues {
   time?: string;
   priority: string;
   platform: string;
-  budget: number | null;
+  budget: number;
   colorId: string;
 }
 
@@ -94,7 +89,7 @@ export default function ActivityActionsModal({
     // time: initialData?.time || "09:00",
     priority: initialData?.priority || "medium",
     platform: initialData?.platform || "",
-    budget: initialData?.budget || null,
+    budget: initialData?.budget || 0,
   };
 
   const { mutate: createActivity, isPending: isCreating } = useCreateActivity();

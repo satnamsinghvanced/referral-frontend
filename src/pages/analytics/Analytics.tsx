@@ -25,6 +25,9 @@ import {
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import GoogleAnalytics from "./GoogleAnalytics";
+import GoogleAds from "./GoogleAds";
+import MetaAds from "./MetaAds";
+import TiktokAds from "./TiktokAds";
 
 const Analytics: React.FC = () => {
   const HEADING_DATA = {
@@ -40,7 +43,7 @@ const Analytics: React.FC = () => {
       value: "247",
       subheading: (
         <span className="text-green-600 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1 text-green-700" />
+          <LuTrendingUp className="h-4 w-4 mr-1 text-green-600" />
           +12% from last month
         </span>
       ),
@@ -52,7 +55,7 @@ const Analytics: React.FC = () => {
       value: "86.3%",
       subheading: (
         <span className="text-green-600 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1 text-green-700" />
+          <LuTrendingUp className="h-4 w-4 mr-1 text-green-600" />
           +3.2% from last month
         </span>
       ),
@@ -63,7 +66,7 @@ const Analytics: React.FC = () => {
       value: "189",
       subheading: (
         <span className="text-green-600 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1 text-green-700" />
+          <LuTrendingUp className="h-4 w-4 mr-1 text-green-600" />
           +8% from last month
         </span>
       ),
@@ -74,7 +77,7 @@ const Analytics: React.FC = () => {
       value: "+15%",
       subheading: (
         <span className="text-green-700 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1 text-green-700" />
+          <LuTrendingUp className="h-4 w-4 mr-1 text-green-600" />
           Monthly revenue increase
         </span>
       ),
@@ -242,8 +245,11 @@ const Analytics: React.FC = () => {
           </Card>
         </div>
 
-        <div className="mt-10">
+        <div className="mt-10 space-y-10">
           <GoogleAnalytics />
+          <GoogleAds />
+          <MetaAds />
+          <TiktokAds />
         </div>
       </div>
     </ComponentContainer>

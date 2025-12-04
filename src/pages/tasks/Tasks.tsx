@@ -1,18 +1,18 @@
-import { useMemo, useState } from "react";
-import ComponentContainer from "../../components/common/ComponentContainer";
-import MiniStatsCard from "../../components/cards/MiniStatsCard";
-import { GoTasklist } from "react-icons/go";
-import { MdOutlineTaskAlt } from "react-icons/md";
-import { LuInfo } from "react-icons/lu";
-import { Input, Pagination, Select, SelectItem, Spinner } from "@heroui/react";
+import { Input, Pagination, Select, SelectItem } from "@heroui/react";
+import { useEffect, useMemo, useState } from "react";
+import { FaRegClock } from "react-icons/fa";
 import { FiSearch } from "react-icons/fi";
+import { GoTasklist } from "react-icons/go";
+import { LuInfo } from "react-icons/lu";
+import { MdOutlineTaskAlt } from "react-icons/md";
+import MiniStatsCard from "../../components/cards/MiniStatsCard";
+import ComponentContainer from "../../components/common/ComponentContainer";
+import EmptyState from "../../components/common/EmptyState";
+import { LoadingState } from "../../components/common/LoadingState";
 import { TASK_PRIORITIES, TASK_STATUSES } from "../../consts/practice";
+import { useDebouncedValue } from "../../hooks/common/useDebouncedValue";
 import { useFetchAllTasks } from "../../hooks/usePartner";
 import TaskCard from "./TaskCard";
-import { FaRegClock } from "react-icons/fa";
-import EmptyState from "../../components/common/EmptyState";
-import { BiTask } from "react-icons/bi";
-import { LoadingState } from "../../components/common/LoadingState";
 
 function Tasks() {
   const HEADING_DATA = useMemo(
@@ -33,11 +33,18 @@ function Tasks() {
     priority: "all",
   });
 
+  const debouncedSearch = useDebouncedValue(currentFilters.search, 500);
+
+  useEffect(() => {
+    setCurrentFilters((prev: any) => ({ ...prev, search: debouncedSearch }));
+  }, [debouncedSearch]);
+
   const {
     data: tasksData,
     isLoading,
     isFetching,
-  } = useFetchAllTasks(currentFilters);
+  } = useFetchAllTasks({ ...currentFilters, search: debouncedSearch });
+
   const tasks = tasksData?.tasks;
   const stats = tasksData?.stats;
   const pagination = tasksData?.pagination;

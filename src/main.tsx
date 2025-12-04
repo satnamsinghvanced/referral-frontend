@@ -23,9 +23,7 @@ createRoot(rootElement).render(
           <ToastProvider
             placement="top-right"
             toastProps={{
-              // shouldShowTimeoutProgress: true,
-              timeout: 4000, // number is expected, not string
-              // color: "primary",
+              timeout: 4000,
               classNames: {
                 base: "shadow-none top-1.5",
                 content: "gap-x-2",

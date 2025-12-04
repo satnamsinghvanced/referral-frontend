@@ -1,3 +1,4 @@
+import { addToast } from "@heroui/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryClient } from "../providers/QueryProvider";
 import {
@@ -14,7 +15,6 @@ import {
   GetActivitiesResponse,
   GetActivityDetailResponse,
 } from "../types/marketing";
-import { addToast } from "@heroui/react";
 
 export const useMarketingActivities = (query: GetActivitiesQuery) => {
   return useQuery<GetActivitiesResponse, Error>({
@@ -27,14 +27,24 @@ export const useMarketingActivities = (query: GetActivitiesQuery) => {
 export const useCreateActivity = () => {
   return useMutation({
     mutationFn: (payload: ActivityPayload) => createMarketingActivity(payload),
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["marketingActivities"] });
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
-
       addToast({
         title: "Success",
         description: "Activity created successfully.",
         color: "success",
+      });
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        (error.response?.data as { message?: string })?.message ||
+        error.message ||
+        "Failed to create activity";
+      addToast({
+        title: "Error",
+        description: errorMessage,
+        color: "danger",
       });
     },
   });
@@ -52,36 +62,50 @@ export const useUpdateActivity = () => {
   return useMutation({
     mutationFn: (payload: ActivityPayload) => updateMarketingActivity(payload),
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["marketingActivities"] });
+      queryClient.invalidateQueries({ queryKey: ["marketingActivityDetail"] });
       addToast({
         title: "Success",
         description: "Activity updated successfully.",
         color: "success",
       });
-
-      queryClient.invalidateQueries({ queryKey: ["marketingActivities"] });
-      queryClient.invalidateQueries({
-        queryKey: ["marketingActivityDetail"],
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        (error.response?.data as { message?: string })?.message ||
+        error.message ||
+        "Failed to update activity";
+      addToast({
+        title: "Error",
+        description: errorMessage,
+        color: "danger",
       });
     },
   });
 };
 
 export const useDeleteActivity = () => {
-  return useMutation<DeleteActivityResponse, Error, string>({
-    mutationFn: (payload: any) => deleteMarketingActivity(payload),
-
-    onSuccess: (data, variables) => {
+  return useMutation<DeleteActivityResponse, any, string>({
+    mutationFn: (id: string) => deleteMarketingActivity(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["marketingActivities"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
       addToast({
         title: "Success",
         description: "Activity deleted successfully.",
         color: "success",
       });
-
-      queryClient.invalidateQueries({ queryKey: ["marketingActivities"] });
-      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
-      // queryClient.invalidateQueries({
-      //   queryKey: ["marketingActivityDetail", variables],
-      // });
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        (error.response?.data as { message?: string })?.message ||
+        error.message ||
+        "Failed to delete activity";
+      addToast({
+        title: "Error",
+        description: errorMessage,
+        color: "danger",
+      });
     },
   });
 };

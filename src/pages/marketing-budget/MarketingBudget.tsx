@@ -42,7 +42,7 @@ const MarketingBudget = () => {
     limit: 2,
   });
 
-  const { data, isLoading, isError } = useBudgetItems(currentFilters);
+  const { data, isLoading } = useBudgetItems(currentFilters);
   const deleteMutation = useDeleteBudgetItem(currentFilters);
 
   const handleOpenCreateModal = () => {

@@ -1,32 +1,14 @@
-import { FiMessageSquare, FiSettings, FiStar, FiWifi } from "react-icons/fi";
+import { FiMessageSquare, FiStar, FiWifi } from "react-icons/fi";
 import { LuQrCode } from "react-icons/lu";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import ReviewStatsCard from "./ReviewStatsCard";
 import ReviewToggle from "./Toggle";
-import { useState } from "react";
-import GoogleApiConfigurationModal from "../call-tracking/GoogleApiConfigurationModal";
-import { useTypedSelector } from "../../hooks/useTypedSelector";
 
 const Reviews = () => {
-  const [isGoogleSettingsModalOpen, setIsGoogleSettingsModalOpen] =
-    useState(false);
-  const { user } = useTypedSelector((state) => state.auth);
-  const userId = user?.userId;
-
   const HEADING_DATA = {
     heading: "Reviews & Reputation Management",
     subHeading:
       "Monitor reviews, track NFC/QR analytics, and manage your online reputation across all locations.",
-    buttons: [
-      {
-        label: "Google Settings",
-        onClick: () => setIsGoogleSettingsModalOpen(true),
-        icon: <FiSettings fontSize={15} />,
-        variant: "ghost" as const,
-        color: "default" as const,
-        className: "border-small",
-      },
-    ],
   };
 
   const StatCardData = [
@@ -74,11 +56,6 @@ const Reviews = () => {
           <ReviewToggle />
         </div>
       </ComponentContainer>
-      <GoogleApiConfigurationModal
-        userId={userId as string}
-        isOpen={isGoogleSettingsModalOpen}
-        onClose={() => setIsGoogleSettingsModalOpen(false)}
-      />
     </>
   );
 };

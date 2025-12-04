@@ -11,14 +11,12 @@ import {
   updateTeamMember,
 } from "../../services/settings/team";
 
-// 🔹 Fetch Team Members
 export const useFetchTeamMembers = () =>
   useQuery<TeamMember[], Error>({
     queryKey: ["team-members"],
     queryFn: fetchTeamMembers,
   });
 
-// 🔹 Delete Team Member or Pending Invite
 export const useUpdateTeamMember = () => {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) =>
@@ -48,7 +46,6 @@ export const useUpdateTeamMember = () => {
   });
 };
 
-// 🔹 Delete Team Member or Pending Invite
 export const useDeleteTeamMember = () => {
   return useMutation({
     mutationFn: deleteTeamMember,
@@ -77,7 +74,6 @@ export const useDeleteTeamMember = () => {
   });
 };
 
-// 🔹 Resend Invitation
 export const useResendInvite = () => {
   return useMutation({
     mutationFn: resendTeamInvite,
@@ -105,7 +101,6 @@ export const useResendInvite = () => {
   });
 };
 
-// 🔹 Invite New Team Member
 export const useInviteTeamMember = () => {
   return useMutation({
     mutationFn: inviteTeamMember,

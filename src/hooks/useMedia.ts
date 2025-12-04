@@ -63,14 +63,18 @@ export const useCreateFolder = (userId: string) => {
     mutationFn: (data: CreateFolderRequest) => createFolder(userId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: FOLDER_KEYS.all });
-    },
-    onError: (error) => {
       addToast({
-        title: "Failed",
-        description:
-          error.response.data.message || "An unknown error occurred.",
-        color: "danger",
+        title: "Success",
+        description: "Folder created successfully.",
+        color: "success",
       });
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        (error.response?.data as { message?: string })?.message ||
+        error.message ||
+        "Failed to create folder";
+      addToast({ title: "Error", description: errorMessage, color: "danger" });
     },
   });
 };
@@ -78,17 +82,21 @@ export const useCreateFolder = (userId: string) => {
 export const useUpdateFolderName = (folderId: string) => {
   return useMutation({
     mutationFn: (data: UpdateFolderRequest) => updateFolderName(folderId, data),
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: FOLDER_KEYS.detail(folderId) });
       queryClient.invalidateQueries({ queryKey: FOLDER_KEYS.all });
-    },
-    onError: (error) => {
       addToast({
-        title: "Failed",
-        description:
-          error.response.data.message || "An unknown error occurred.",
-        color: "danger",
+        title: "Success",
+        description: "Folder name updated successfully.",
+        color: "success",
       });
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        (error.response?.data as { message?: string })?.message ||
+        error.message ||
+        "Failed to update folder";
+      addToast({ title: "Error", description: errorMessage, color: "danger" });
     },
   });
 };
@@ -99,14 +107,18 @@ export const useDeleteFolder = (folderId: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: FOLDER_KEYS.all });
       queryClient.invalidateQueries({ queryKey: IMAGE_KEYS.all });
-    },
-    onError: (error) => {
       addToast({
-        title: "Failed",
-        description:
-          error.response.data.message || "An unknown error occurred.",
-        color: "danger",
+        title: "Success",
+        description: "Folder deleted successfully.",
+        color: "success",
       });
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        (error.response?.data as { message?: string })?.message ||
+        error.message ||
+        "Failed to delete folder";
+      addToast({ title: "Error", description: errorMessage, color: "danger" });
     },
   });
 };
@@ -139,14 +151,18 @@ export const useUploadMedia = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: IMAGE_KEYS.all });
       queryClient.invalidateQueries({ queryKey: FOLDER_KEYS.all });
-    },
-    onError: (error) => {
       addToast({
-        title: "Failed",
-        description:
-          error.response.data.message || "An unknown error occurred.",
-        color: "danger",
+        title: "Success",
+        description: "Media uploaded successfully.",
+        color: "success",
       });
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        (error.response?.data as { message?: string })?.message ||
+        error.message ||
+        "Failed to upload media";
+      addToast({ title: "Error", description: errorMessage, color: "danger" });
     },
   });
 };
@@ -155,17 +171,21 @@ export const useUpdateImageTags = (imageId: string) => {
   return useMutation({
     mutationFn: (data: UpdateImageTagsRequest) =>
       updateImageTags(imageId, data),
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: IMAGE_KEYS.detail(imageId) });
       queryClient.invalidateQueries({ queryKey: IMAGE_KEYS.all });
-    },
-    onError: (error) => {
       addToast({
-        title: "Failed",
-        description:
-          error.response.data.message || "An unknown error occurred.",
-        color: "danger",
+        title: "Success",
+        description: "Image tags updated successfully.",
+        color: "success",
       });
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        (error.response?.data as { message?: string })?.message ||
+        error.message ||
+        "Failed to update image tags";
+      addToast({ title: "Error", description: errorMessage, color: "danger" });
     },
   });
 };
@@ -176,20 +196,18 @@ export const useDeleteImages = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: IMAGE_KEYS.all });
       queryClient.invalidateQueries({ queryKey: FOLDER_KEYS.all });
-
       addToast({
         title: "Success",
         description: "Selected media deleted successfully.",
         color: "success",
       });
     },
-    onError: (error) => {
-      addToast({
-        title: "Failed",
-        description:
-          error.response.data.message || "An unknown error occurred.",
-        color: "danger",
-      });
+    onError: (error: any) => {
+      const errorMessage =
+        (error.response?.data as { message?: string })?.message ||
+        error.message ||
+        "Failed to delete media";
+      addToast({ title: "Error", description: errorMessage, color: "danger" });
     },
   });
 };
@@ -200,30 +218,24 @@ export const useMoveImages = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: IMAGE_KEYS.all });
       queryClient.invalidateQueries({ queryKey: FOLDER_KEYS.all });
-
       addToast({
         title: "Success",
         description: "Media moved successfully.",
         color: "success",
       });
     },
-    onError: (error) => {
-      addToast({
-        title: "Failed",
-        description:
-          error.response.data.message || "An unknown error occurred.",
-        color: "danger",
-      });
+    onError: (error: any) => {
+      const errorMessage =
+        (error.response?.data as { message?: string })?.message ||
+        error.message ||
+        "Failed to move media";
+      addToast({ title: "Error", description: errorMessage, color: "danger" });
     },
   });
 };
 
 const TAGS_QUERY_KEY = ["tags"];
 
-/**
- * Custom hook to fetch the list of image tags.
- * @returns A Tanstack Query result object.
- */
 export const useTagsQuery = (): UseQueryResult<GetTagsResponse> => {
   return useQuery({
     queryKey: TAGS_QUERY_KEY,

@@ -1,16 +1,11 @@
-import {
-  Button,
-  Card,
-  CardBody,
-  CardHeader,
-  Pagination,
-  Select,
-  SelectItem,
-  Spinner,
-} from "@heroui/react";
-import { useState, useCallback } from "react";
-import { LuCalendar, LuList } from "react-icons/lu";
+import { Button, Pagination, Select, SelectItem } from "@heroui/react";
+import { useCallback, useState } from "react";
+import { FiFileText } from "react-icons/fi";
+import { LuCalendar } from "react-icons/lu";
 import { MdOutlineCalendarToday } from "react-icons/md";
+import DeleteConfirmationModal from "../../../components/common/DeleteConfirmationModal";
+import EmptyState from "../../../components/common/EmptyState";
+import { LoadingState } from "../../../components/common/LoadingState";
 import {
   useDeleteSchedulePlan,
   useFetchPartners,
@@ -18,15 +13,11 @@ import {
 } from "../../../hooks/usePartner";
 import { GetSchedulePlansQuery } from "../../../types/partner";
 import CompactPlanCard from "./CompactPlanCard";
+import { VisitHistoryModal } from "./history-modal/VisitHistoryModal";
 import { ScheduleVisitsModal } from "./modal/ScheduleVisitsModal";
 import PlanCard from "./PlanCard";
-import ViewScheduledVisitModal from "./ViewScheduledVisitModal";
-import { FiFileText, FiUsers } from "react-icons/fi";
-import { LoadingState } from "../../../components/common/LoadingState";
-import EmptyState from "../../../components/common/EmptyState";
-import { VisitHistoryModal } from "./history-modal/VisitHistoryModal";
-import DeleteConfirmationModal from "../../../components/common/DeleteConfirmationModal";
 import ScheduleVisitStatusModal from "./ScheduleVisitStatusModal";
+import ViewScheduledVisitModal from "./ViewScheduledVisitModal";
 
 // const StatsGrid = ({ stats }: any) => {
 //   const statData = [
@@ -123,7 +114,7 @@ export default function ScheduleVisits({
 
   const practices = practicesData?.data || [];
 
-  const { data, isLoading, isError, error } = useGetSchedulePlans(filters);
+  const { data, isLoading } = useGetSchedulePlans(filters);
 
   const schedulePlans = data?.data || [];
   const dashboardStats = data?.dashboardStats;
@@ -145,23 +136,15 @@ export default function ScheduleVisits({
   const PlanListContent = () => {
     if (isLoading) {
       return (
-        <div className="col-span-full text-center p-8">
+        <div className="col-span-full p-5 border border-primary/15 rounded-xl bg-background">
           <LoadingState />
-        </div>
-      );
-    }
-
-    if (isError) {
-      return (
-        <div className="col-span-full p-4 border border-red-300 bg-red-50 text-red-700 rounded">
-          Failed to load plans: {(error as Error)?.message}
         </div>
       );
     }
 
     if (schedulePlans.length === 0) {
       return (
-        <div className="col-span-full text-center p-8 text-gray-500 border border-primary/15 rounded-xl bg-background text-sm">
+        <div className="col-span-full p-5 border border-primary/15 rounded-xl bg-background">
           <EmptyState title="No schedule plans found based on current filters." />
         </div>
       );
