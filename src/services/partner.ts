@@ -14,6 +14,7 @@ import {
   SchedulePlanPutRequest,
   SchedulePlansResponse,
   TaskApiData,
+  UpdateTaskPayload,
   UpdateTaskStatusPayload,
   VisitHistoryQueryParams,
   VisitHistoryResponse,
@@ -94,6 +95,14 @@ export const updateTaskStatus = async (
   return response.data;
 };
 
+export const updateTask = async ({
+  taskId,
+  data,
+}: UpdateTaskPayload): Promise<void> => {
+  const url = `/tasks/${taskId}`;
+  await axios.put(url, data);
+};
+
 export const deleteTask = async (taskId: string): Promise<void> => {
   await axios.delete(`/tasks/${taskId}`);
 };
@@ -115,11 +124,9 @@ export const getScheduleTaskEvent = async (
 // SCHEDULE PLANS
 
 export const getSchedulePlans = async (
-  query: GetSchedulePlansQuery
+  query: any
 ): Promise<SchedulePlansResponse> => {
-  const params = new URLSearchParams(
-    query as Record<string, string>
-  ).toString();
+  const params = new URLSearchParams(query).toString();
 
   const url = `/schedule-visit${params ? `?${params}` : ""}`;
 

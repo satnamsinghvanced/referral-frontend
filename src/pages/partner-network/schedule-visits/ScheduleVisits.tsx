@@ -9,7 +9,7 @@ import {
   Spinner,
 } from "@heroui/react";
 import { useState, useCallback } from "react";
-import { LuCalendar } from "react-icons/lu";
+import { LuCalendar, LuList } from "react-icons/lu";
 import { MdOutlineCalendarToday } from "react-icons/md";
 import {
   useDeleteSchedulePlan,
@@ -21,84 +21,87 @@ import CompactPlanCard from "./CompactPlanCard";
 import { ScheduleVisitsModal } from "./modal/ScheduleVisitsModal";
 import PlanCard from "./PlanCard";
 import ViewScheduledVisitModal from "./ViewScheduledVisitModal";
-import { FiUsers } from "react-icons/fi";
+import { FiFileText, FiUsers } from "react-icons/fi";
 import { LoadingState } from "../../../components/common/LoadingState";
 import EmptyState from "../../../components/common/EmptyState";
 import { VisitHistoryModal } from "./history-modal/VisitHistoryModal";
 import DeleteConfirmationModal from "../../../components/common/DeleteConfirmationModal";
+import ScheduleVisitStatusModal from "./ScheduleVisitStatusModal";
 
-const StatsGrid = ({ stats }: any) => {
-  const statData = [
-    {
-      label: "Total Plans",
-      value: stats.totalPlans,
-      bg: "bg-blue-50",
-      text: "text-blue-600",
-    },
-    {
-      label: "Draft",
-      value: stats.draftCount,
-      bg: "bg-gray-50",
-      text: "text-gray-600",
-    },
-    {
-      label: "Active",
-      value: stats.activeCount,
-      bg: "bg-green-50",
-      text: "text-green-600",
-    },
-    {
-      label: "Completed",
-      value: stats.completedCount,
-      bg: "bg-emerald-50",
-      text: "text-emerald-600",
-    },
-    {
-      label: "Total Practices",
-      value: stats.totalPractices,
-      bg: "bg-orange-50",
-      text: "text-orange-600",
-    },
-    {
-      label: "Total Visits",
-      value: stats.totalVisits,
-      bg: "bg-purple-50",
-      text: "text-purple-600",
-    },
-    {
-      label: "Total Hours",
-      value: Number(stats?.totalHours ?? 0).toFixed(2),
-      bg: "bg-indigo-50",
-      text: "text-indigo-600",
-    },
-    {
-      label: "Total Miles",
-      value: stats.totalMiles,
-      bg: "bg-pink-50",
-      text: "text-pink-600",
-    },
-  ];
+// const StatsGrid = ({ stats }: any) => {
+//   const statData = [
+//     {
+//       label: "Total Plans",
+//       value: stats.totalPlans,
+//       bg: "bg-blue-50",
+//       text: "text-blue-600",
+//     },
+//     {
+//       label: "Draft",
+//       value: stats.draftCount,
+//       bg: "bg-gray-50",
+//       text: "text-gray-600",
+//     },
+//     {
+//       label: "Active",
+//       value: stats.activeCount,
+//       bg: "bg-green-50",
+//       text: "text-green-600",
+//     },
+//     {
+//       label: "Completed",
+//       value: stats.completedCount,
+//       bg: "bg-emerald-50",
+//       text: "text-emerald-600",
+//     },
+//     {
+//       label: "Total Practices",
+//       value: stats.totalPractices,
+//       bg: "bg-orange-50",
+//       text: "text-orange-600",
+//     },
+//     {
+//       label: "Total Visits",
+//       value: stats.totalVisits,
+//       bg: "bg-purple-50",
+//       text: "text-purple-600",
+//     },
+//     {
+//       label: "Total Hours",
+//       value: Number(stats?.totalHours ?? 0).toFixed(2),
+//       bg: "bg-indigo-50",
+//       text: "text-indigo-600",
+//     },
+//     {
+//       label: "Total Miles",
+//       value: stats.totalMiles,
+//       bg: "bg-pink-50",
+//       text: "text-pink-600",
+//     },
+//   ];
 
-  return (
-    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 text-sm">
-      {statData.map((stat) => (
-        <div
-          key={stat.label}
-          className={`text-center p-3 ${stat.bg} rounded flex flex-col items-center justify-center`}
-        >
-          <div className={`font-semibold ${stat.text}`}>{stat.value}</div>
-          <div className="text-xs text-gray-600">{stat.label}</div>
-        </div>
-      ))}
-    </div>
-  );
-};
+//   return (
+//     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 text-sm">
+//       {statData.map((stat) => (
+//         <div
+//           key={stat.label}
+//           className={`text-center p-3 ${stat.bg} rounded flex flex-col items-center justify-center`}
+//         >
+//           <div className={`font-semibold ${stat.text}`}>{stat.value}</div>
+//           <div className="text-xs text-gray-600">{stat.label}</div>
+//         </div>
+//       ))}
+//     </div>
+//   );
+// };
 
 export default function ScheduleVisits({
   isHistoryModalOpen,
   setIsHistoryModalOpen,
 }: any) {
   const [isScheduleVisitModalOpen, setIsScheduleVisitModalOpen] =
+    useState(false);
+  const [isScheduleVisitStatusModalOpen, setIsScheduleVisitStatusModalOpen] =
     useState(false);
   const [isViewScheduleVisitModalOpen, setIsViewScheduleVisitModalOpen] =
     useState(false);
@@ -181,6 +184,10 @@ export default function ScheduleVisits({
             setIsDeleteModalOpen(true);
             setDeleteVisitId(planId);
           }}
+          onStatusClick={(p: any) => {
+            setIsScheduleVisitStatusModalOpen(true);
+            setEditPlan(p);
+          }}
         />
       ) : (
         <PlanCard
@@ -197,6 +204,10 @@ export default function ScheduleVisits({
           onDelete={(planId: string) => {
             setIsDeleteModalOpen(true);
             setDeleteVisitId(planId);
+          }}
+          onStatusClick={(p: any) => {
+            setIsScheduleVisitStatusModalOpen(true);
+            setEditPlan(p);
           }}
         />
       )
@@ -228,7 +239,7 @@ export default function ScheduleVisits({
 
       {/* {dashboardStats?.totalPlans > 0 && ( */}
       <div className="space-y-6">
-        <Card
+        {/* <Card
           data-slot="card"
           className="rounded-xl border border-primary/15 shadow-none"
         >
@@ -263,10 +274,10 @@ export default function ScheduleVisits({
             {isLoading && <LoadingState />}
             {dashboardStats && <StatsGrid stats={dashboardStats} />}
           </CardBody>
-        </Card>
+        </Card> */}
 
         <div className="flex items-center justify-between border-primary/15 border rounded-xl bg-background p-4">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2.5">
             <Select
               aria-label="Filter Plans"
               placeholder="All Plans"
@@ -281,6 +292,7 @@ export default function ScheduleVisits({
             >
               <SelectItem key="all">All Plans</SelectItem>
               <SelectItem key="active">Active</SelectItem>
+              <SelectItem key="inProgress">In Progress</SelectItem>
               <SelectItem key="draft">Draft</SelectItem>
             </Select>
             <Select
@@ -308,6 +320,21 @@ export default function ScheduleVisits({
             >
               {filters.order === "desc" ? "Descending" : "Ascending"}
             </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              onPress={() => setIsCompactMode(!isCompactMode)}
+              className="border-small size-8 min-w-8 p-0"
+              title={isCompactMode ? "Show Grid View" : "Show List View"}
+              startContent={
+                isCompactMode ? (
+                  <LuCalendar className="size-3.5" />
+                ) : (
+                  <FiFileText className="size-3.5" />
+                )
+              }
+              isIconOnly
+            />
           </div>
           <div className="text-xs text-gray-600">
             Showing {schedulePlans.length} of {pagination?.totalData} plans
@@ -355,6 +382,13 @@ export default function ScheduleVisits({
         onClose={() => setIsScheduleVisitModalOpen(false)}
         practices={practices}
         editedData={editPlan}
+      />
+
+      <ScheduleVisitStatusModal
+        isOpen={isScheduleVisitStatusModalOpen}
+        onClose={() => setIsScheduleVisitStatusModalOpen(false)}
+        visit={editPlan}
+        setVisitEdit={setEditPlan}
       />
 
       {viewPlan && (

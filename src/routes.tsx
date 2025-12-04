@@ -1,14 +1,17 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useEffect, useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./pages/auth/ProtectedRoute";
 import QrGenerator from "./pages/qr-generator/QrGenerator";
+import { useFetchTrackings } from "./hooks/useReferral";
 
 const Layout = React.lazy(() => import("./components/layout/Layout"));
-const Dashboard = React.lazy(() => import("./pages/Dashboard"));
-const Analytics = React.lazy(() => import("./pages/Analytics"));
+const Dashboard = React.lazy(() => import("./pages/dashboard/Dashboard"));
+const Analytics = React.lazy(() => import("./pages/analytics/Analytics"));
 const HelpCenter = React.lazy(() => import("./pages/HelpCenter"));
 const EmailCampaign = React.lazy(() => import("./pages/EmailCampaigns"));
-const MarketingBudget = React.lazy(() => import("./pages/MarketingBudget"));
+const MarketingBudget = React.lazy(
+  () => import("./pages/marketing-budget/MarketingBudget")
+);
 const MarketingCalendar = React.lazy(
   () => import("./pages/marketing-calender/MarketingCalendar")
 );
@@ -23,7 +26,17 @@ const Reviews = React.lazy(() => import("./pages/reviews/Reviews"));
 const SocialMedia = React.lazy(
   () => import("./pages/social-media/SocialMedia")
 );
-const Reports = React.lazy(() => import("./pages/Reports"));
+const Reports = React.lazy(() => import("./pages/reports/Reports"));
+const MarketingReport = React.lazy(
+  () => import("./pages/reports/sample-reports/MarketingReport")
+);
+const ReferralPerformanceReport = React.lazy(
+  () => import("./pages/reports/sample-reports/ReferralPerformanceReport")
+);
+const ReviewSentimentAnalysisReport = React.lazy(
+  () => import("./pages/reports/sample-reports/ReviewSentimentAnalysisReport")
+);
+
 const Tasks = React.lazy(() => import("./pages/tasks/Tasks"));
 const MediaManagement = React.lazy(
   () => import("./pages/media-management/MediaManagement")
@@ -35,6 +48,7 @@ const Settings = React.lazy(() => import("./pages/settings/Settings"));
 const Notifications = React.lazy(
   () => import("./pages/settings/Notifications")
 );
+
 const Security = React.lazy(() => import("./pages/settings/Security"));
 const Billing = React.lazy(() => import("./pages/settings/Billing"));
 const Locations = React.lazy(() => import("./pages/settings/Locations"));
@@ -50,7 +64,7 @@ const NotificationAnalytics = React.lazy(
   () => import("./pages/settings/NotificationAnalytics")
 );
 const Profile = React.lazy(() => import("./pages/settings/Profile"));
-const SignIn = React.lazy(() => import("./pages/auth/SignIn")); // ✅ corrected typo
+const SignIn = React.lazy(() => import("./pages/auth/SignIn"));
 const Support = React.lazy(() => import("./pages/support/SupportPage"));
 const Terms = React.lazy(() => import("./pages/terms/TermsPage"));
 const PrivacyPolicy = React.lazy(
@@ -75,12 +89,30 @@ interface AppRoute {
 }
 
 function AppRoutes() {
+  const [referralPath, setReferralPath] = useState("referral");
+  const pathname = window.location.pathname;
+  const segments = pathname.split("/");
+  const documentId = segments[3];
+
+  const { data: trackings } = useFetchTrackings(documentId as string);
+
+  useEffect(() => {
+    if (trackings?.referralUrl) {
+      const urlObject = new URL(trackings?.referralUrl);
+      const pathname = urlObject.pathname;
+      const segments = pathname
+        .split("/")
+        .filter((segment) => segment.length > 0);
+      const targetSegment = segments[1];
+      setReferralPath(targetSegment as string);
+    }
+  }, [trackings, referralPath]);
+
   const routesList: AppRoute[] = [
     { path: "visit-map", element: <VisitMap /> },
     {
       path: "/",
       element: (
-        // 2. Wrap the Layout element with the ProtectedRoute
         <ProtectedRoute>
           <Layout />
         </ProtectedRoute>
@@ -96,7 +128,16 @@ function AppRoutes() {
         { path: "marketing-calendar", element: <MarketingCalendar /> },
         { path: "qr-generator", element: <QrGenerator /> },
         { path: "marketing-budget", element: <MarketingBudget /> },
-        { path: "reports", element: <Reports /> },
+        {
+          path: "reports",
+          element: "",
+          children: [
+            { index: true, element: <Reports /> },
+            { path: "marketing", element: <MarketingReport /> },
+            { path: "referral", element: <ReferralPerformanceReport /> },
+            { path: "review", element: <ReviewSentimentAnalysisReport /> },
+          ],
+        },
         { path: "tasks", element: <Tasks /> },
         { path: "media-management", element: <MediaManagement /> },
         { path: "integrations", element: <Integrations /> },
@@ -131,7 +172,7 @@ function AppRoutes() {
     { path: "terms", element: <Terms /> },
     { path: "privacy", element: <PrivacyPolicy /> },
     {
-      path: "/referral/",
+      path: `/${referralPath}/`,
       element: <PatientForm />,
       children: [{ path: ":id", element: <PatientForm /> }],
     },

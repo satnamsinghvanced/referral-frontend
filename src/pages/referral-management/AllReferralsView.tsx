@@ -198,6 +198,14 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
           {referral.notes && (
             <p className="text-xs text-gray-600">{referral.notes}</p>
           )}
+          {referral.estValue ? (
+            <p className="text-xs">
+              <span className="font-medium">Estimated Value:</span> $
+              {referral.estValue}
+            </p>
+          ) : (
+            ""
+          )}
           <div className="flex items-center space-x-1">
             {referral.phone && (
               <Link to={`tel:${referral.phone}`}>
@@ -248,7 +256,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
         data-slot="card"
         className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-primary/15 bg-background"
       >
-        <div data-slot="card-content" className="[&amp;:last-child]:pb-6 p-4">
+        <div data-slot="card-content" className="p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
               <div className="flex flex-col gap-1">
@@ -303,7 +311,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
           data-slot="card"
           className="text-card-foreground flex flex-col gap-6 rounded-xl border bg-blue-50 border-blue-200"
         >
-          <div data-slot="card-content" className="[&amp;:last-child]:pb-6 p-4">
+          <div data-slot="card-content" className="p-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               <div className="flex flex-col items-center gap-0.5">
                 <div className="font-semibold text-blue-900">
@@ -338,12 +346,13 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
         data-slot="card"
         className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-primary/15 bg-background"
       >
-        <div data-slot="card-content" className="[&amp;:last-child]:pb-6 p-4">
+        <div data-slot="card-content" className="p-4">
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="relative">
               <Input
                 placeholder="Search referrals..."
                 size="sm"
+                value={currentFilters.search as string}
                 onValueChange={(value) => onSearchChange(value)}
                 startContent={<FiSearch className="text-gray-600" />}
               />

@@ -84,7 +84,13 @@ const Profile = () => {
 
   useEffect(() => {
     if (fetchedUser?.image) {
-      setPreviewUrl(fetchedUser.image);
+      setPreviewUrl(
+        `${
+          fetchedUser.image.includes("http")
+            ? ""
+            : `${import.meta.env.VITE_IMAGE_URL}`
+        }${fetchedUser.image}`
+      );
     }
   }, [fetchedUser]);
 

@@ -117,7 +117,7 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
                 if (btn.label.toLowerCase().includes("visit")) {
                   handleVisit();
                 } else {
-                  btn.onClick(referrer._id);
+                  btn.onClick && btn.onClick(referrer._id);
                 }
               }}
               className={btn.className ?? "text-xs"}

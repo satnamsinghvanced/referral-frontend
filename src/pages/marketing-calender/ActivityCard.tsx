@@ -4,7 +4,7 @@ import { LuCalendar } from "react-icons/lu";
 import ActivityStatusChip from "../../components/chips/ActivityStatusChip";
 import { ACTIVITY_TYPES } from "../../consts/marketing";
 import { ActivityItem } from "../../types/marketing";
-import { formatDateToMMDDYYYY } from "../../utils/formatDateToMMDDYYYY";
+import { formatDateToReadable } from "../../utils/formatDateToReadable";
 
 interface ActivityCardProps {
   activity: ActivityItem;
@@ -19,7 +19,9 @@ export function ActivityCard({ activity, onView }: ActivityCardProps) {
     startDate,
     endDate,
     time,
-    type,
+    colorId,
+    type = ACTIVITY_TYPES.find((type) => type.color.id == activity.colorId)
+      ?.label,
     status,
     priority,
     budget,
@@ -27,15 +29,15 @@ export function ActivityCard({ activity, onView }: ActivityCardProps) {
   } = activity;
 
   const activityColor = ACTIVITY_TYPES.find(
-    (activityType: any) => activityType.label === type.title
-  )?.color;
+    (activityType: any) => activityType.color.id == colorId
+  )?.color.value;
 
   return (
     <Card
       radius="none"
       className={`shadow-none bg-white !rounded-r-xl p-4 h-full flex flex-col justify-between border border-l-4 border-gray-100`}
       style={{ borderLeftColor: activityColor }}
-      onPress={() => onView(_id)}
+      onPress={() => onView(activity)}
       isPressable
       disableRipple
     >
@@ -44,28 +46,28 @@ export function ActivityCard({ activity, onView }: ActivityCardProps) {
         <ActivityStatusChip status={status} />
       </CardHeader>
 
-      <CardBody className="text-sm text-gray-600 space-y-2 mb-3 p-0">
-        <div className="flex items-center gap-1.5">
-          <LuCalendar fontSize={14} />
-          <p className="flex items-center space-x-1 text-xs">
-            <span>{formatDateToMMDDYYYY(startDate)}</span>
-            {time && (
-              <span className="text-gray-600">
-                {" "}
-                at <span className="uppercase">{time}</span>
-              </span>
-            )}
-          </p>
-        </div>
+      {(startDate || type || description) && (
+        <CardBody className="text-sm text-gray-600 space-y-2 mb-3 p-0">
+          {startDate && (
+            <div className="flex items-center gap-1.5">
+              <LuCalendar fontSize={14} />
+              <p className="flex items-center space-x-1 text-xs">
+                <span>{formatDateToReadable(startDate, true)}</span>
+              </p>
+            </div>
+          )}
 
-        <p className="text-xs flex items-center gap-1.5 capitalize">
-          <FiGlobe fontSize={14} /> {type.title}
-        </p>
+          {type && (
+            <p className="text-xs flex items-center gap-1.5 capitalize">
+              <FiGlobe fontSize={14} /> {type}
+            </p>
+          )}
 
-        {description && (
-          <p className="text-xs text-gray-600 line-clamp-2">{description}</p>
-        )}
-      </CardBody>
+          {description && (
+            <p className="text-xs text-gray-600 line-clamp-2">{description}</p>
+          )}
+        </CardBody>
+      )}
 
       <CardFooter className="flex justify-between items-center text-gray-600 text-xs p-0">
         {budget ? <div className="text-emerald-600">${budget} budget</div> : ""}

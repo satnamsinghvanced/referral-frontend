@@ -30,7 +30,7 @@ const MediaPreview = ({ media }: { media: Media }) => {
     return (
       <div className="w-full relative flex items-center justify-center bg-black">
         <video
-          src={media.path}
+          src={`${import.meta.env.VITE_IMAGE_URL}${media.path}`}
           controls
           className="max-w-full max-h-full object-contain"
         />
@@ -40,7 +40,7 @@ const MediaPreview = ({ media }: { media: Media }) => {
   return (
     <div className="w-full h-full flex items-center justify-center">
       <img
-        src={media.path}
+        src={`${import.meta.env.VITE_IMAGE_URL}${media.path}`}
         alt={media.name}
         className="max-w-full max-h-full object-contain"
       />

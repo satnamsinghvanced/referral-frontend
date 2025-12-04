@@ -31,25 +31,25 @@ const Overview: React.FC<OverviewProps> = ({
 }) => {
   const STAT_CARD_DATA = [
     {
-      icon: <LuUsers className="text-[17px] mt-1" />,
+      icon: <LuUsers className="" />,
       heading: "Total Followers",
       value: 2847,
       subheading: "+124 this month",
     },
     {
-      icon: <IoMdTrendingUp className="text-[17px] mt-1" />,
+      icon: <IoMdTrendingUp className="" />,
       heading: "Engagement Rate",
       value: "4.8%",
       subheading: "+0.6% from last month",
     },
     {
-      icon: <FiHeart className="text-[17px] mt-1" />,
+      icon: <FiHeart className="" />,
       heading: "Total Likes",
       value: 107,
       subheading: "This month",
     },
     {
-      icon: <FaRegComment className="text-[17px] mt-1" />,
+      icon: <FaRegComment className="" />,
       heading: "Comments",
       value: 30,
       subheading: "This month",

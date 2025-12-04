@@ -165,12 +165,13 @@ export interface TaskApiData {
   dueDate: string; // YYYY-MM-DD
   priority: "low" | "medium" | "high" | string;
   category: "follow-up" | "meeting" | "other" | string;
-  practiceId: any;
+  practiceId?: any;
   status: "pending" | "completed" | string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
   isOverDue?: boolean;
   schedule?: string;
+  assignTo?: any;
 }
 
 export interface AllNotesTasksResponse {
@@ -195,10 +196,16 @@ export interface CreateTaskPayload {
   practiceId: string;
   priority: string;
   category: string;
+  assignTo: string[];
 }
 
 export interface UpdateTaskStatusPayload {
   status: "not-started" | "in-progress" | "completed" | "no-longer-needed";
+}
+
+export interface UpdateTaskPayload {
+  taskId: string;
+  data: any;
 }
 
 export interface Note {
@@ -290,7 +297,6 @@ export interface PlanDetailsPayload {
 }
 
 export interface SaveSchedulePlanPayload {
-  isDraft: boolean;
   practices: string[];
   route: RouteDataPayload;
   planDetails: PlanDetailsPayload;
@@ -468,7 +474,6 @@ interface PlanSummary {
 // --- 3. Full Schedule Plan Data Type ---
 export interface SchedulePlan {
   planDetails: any;
-  isDraft?: boolean; // Can be implicitly determined from 'label'
   _id: string;
   createdBy: string;
   practices: Practice[];
@@ -478,6 +483,9 @@ export interface SchedulePlan {
   createdAt: string;
   updatedAt: string;
   summary: PlanSummary;
+  visitNotes?: string;
+  visitOutcome?: string;
+  followUp?: boolean;
 }
 
 export interface SchedulePlanDashboardStats {
@@ -513,7 +521,6 @@ interface VisitHistoryItem {
   _id: string;
   createdBy: string;
   practices: Practice[];
-  isDraft: boolean;
   status: "pending" | "completed" | "cancelled"; // Assuming statuses based on context
   createdAt: string;
   updatedAt: string;
@@ -553,4 +560,11 @@ export interface VisitHistoryResponse {
 export interface VisitHistoryQueryParams {
   filter: "all" | "draft" | "completed" | "pending" | "cancel";
   search: string;
+}
+
+export interface VisitStatusUpdateFormValues {
+  status: string;
+  visitNotes: string | null;
+  visitOutcome: string | null;
+  followUp: boolean;
 }

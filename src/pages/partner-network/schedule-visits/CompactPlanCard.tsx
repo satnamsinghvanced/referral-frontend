@@ -12,12 +12,29 @@ const CompactPlanCard: React.FC<{
   onView: any;
   onEdit: any;
   onDelete: any;
-}> = ({ plan, onView, onEdit, onDelete }) => {
+  onStatusClick: any;
+}> = ({ plan, onView, onEdit, onDelete, onStatusClick }) => {
   const statClass =
-    "flex flex-col items-center justify-center text-center w-12";
+    "flex flex-col items-center justify-center text-center w-18";
   const statValueClass = "font-medium text-xs whitespace-nowrap";
-  const statLabelClass = "text-xs text-gray-600";
-  const completePercentage = 0;
+  const statLabelClass = "text-xs text-gray-600 whitespace-nowrap";
+
+  let completePercentage;
+
+  switch (plan.status) {
+    case "completed":
+      completePercentage = 100;
+      break;
+
+    case "inProgress":
+      completePercentage = 50;
+      break;
+
+    default:
+      completePercentage = 0;
+      break;
+  }
+
   const monthYear = new Date(plan.createdAt).toLocaleDateString("en-US", {
     month: "long",
     year: "numeric",
@@ -44,18 +61,9 @@ const CompactPlanCard: React.FC<{
             {plan.planDetails.name}
           </h4>
           <div className="flex items-center gap-1.5">
-            <VisitStatusChip status={plan.status} />
-            {plan.isDraft && (
-              <Chip
-                size="sm"
-                radius="sm"
-                className="capitalize text-[11px] h-5"
-                variant="flat"
-                color="danger"
-              >
-                Draft
-              </Chip>
-            )}
+            <span className="flex cursor-pointer" onClick={() => onStatusClick(plan)}>
+              <VisitStatusChip status={plan.status} />
+            </span>
           </div>
         </div>
         <p className="text-xs text-gray-600">{monthYear}</p>
@@ -67,14 +75,14 @@ const CompactPlanCard: React.FC<{
       </div>
 
       <div className="flex items-center gap-4">
-        <div className="flex gap-6">
+        <div className="flex gap-4">
           <div className={statClass}>
             <div className={statValueClass}>{plan.summary.totalPractices}</div>
             <div className={statLabelClass}>Practices</div>
           </div>
           <div className={statClass}>
             <div className={statValueClass}>{plan.summary.visitDays}</div>
-            <div className={statLabelClass}>Visits</div>
+            <div className={statLabelClass}>Visit Days</div>
           </div>
           <div className={statClass}>
             <div className={statValueClass}>{plan.summary.estimatedTime}</div>

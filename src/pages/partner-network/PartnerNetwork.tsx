@@ -1,11 +1,13 @@
 import { Pagination } from "@heroui/react";
-import { useCallback, useState, useMemo } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { FiEdit, FiEye, FiStar, FiUsers } from "react-icons/fi";
 import { IoDocumentOutline } from "react-icons/io5";
 import { LuBuilding2 } from "react-icons/lu";
 import { TbArchive } from "react-icons/tb";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
+import EmptyState from "../../components/common/EmptyState";
+import { LoadingState } from "../../components/common/LoadingState";
 import { PARTNER_FILTERS, PARTNER_SORT_OPTIONS } from "../../consts/filters";
 import {
   useFetchPartnerDetail,
@@ -17,10 +19,7 @@ import NotesTasksModal from "./NotesTasksModal";
 import PartnerDetailsModal from "./PartnerDetailsModal";
 import PartnerNetworkCard from "./PartnerNetworkCard";
 import PartnerNetworkHeader from "./PartnerNetworkHeader";
-import VisitHistoryModal from "./schedule-visits/history-modal/VisitHistoryModal";
 import ScheduleVisits from "./schedule-visits/ScheduleVisits";
-import { LoadingState } from "../../components/common/LoadingState";
-import EmptyState from "../../components/common/EmptyState";
 
 const PartnerNetwork = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -103,7 +102,7 @@ const PartnerNetwork = () => {
   const STATS_CARD_DATA: StatCard[] = useMemo(
     () => [
       {
-        icon: <LuBuilding2 className="text-[17px] mt-1 text-foreground/60" />,
+        icon: <LuBuilding2 className="text-foreground/60" />,
         heading: "Total Practices",
         value: isLoading ? "..." : totalPractices,
         subheading: `${
@@ -111,7 +110,7 @@ const PartnerNetwork = () => {
         } active practices`,
       },
       {
-        icon: <FiUsers className="text-[17px] mt-1 text-foreground/60" />,
+        icon: <FiUsers className="text-foreground/60" />,
         heading: "Total Referrals",
         value: isLoading ? "..." : stats?.totalReferrals ?? 0,
         subheading: `${
@@ -119,7 +118,7 @@ const PartnerNetwork = () => {
         } this month`,
       },
       {
-        icon: <FiStar className="text-[17px] mt-1 text-foreground/60" />,
+        icon: <FiStar className="text-foreground/60" />,
         heading: "A-Level Practices",
         value: isLoading ? "..." : stats?.totalALevelPractices ?? 0,
         subheading: `${
@@ -148,6 +147,7 @@ const PartnerNetwork = () => {
         icon: <IoDocumentOutline className="size-3.5" />,
         variant: "light" as const,
         color: "secondary" as const,
+        className: "text-orange-600 hover:!bg-orange-50"
       },
       {
         label: "View",
@@ -212,7 +212,7 @@ const PartnerNetwork = () => {
             </div>
 
             <div className="flex flex-col gap-4 border border-primary/15 rounded-xl p-4 bg-background/80">
-              <div className="font-medium text-sm">Partner Practices</div>
+              <h4 className="font-medium text-sm">Partner Practices</h4>
               {isLoading && <LoadingState />}
               {!isLoading && practices.length === 0 && (
                 <EmptyState title="No partners found with current filters." />

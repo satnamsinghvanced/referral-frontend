@@ -18,6 +18,7 @@ import {
   getScheduleTaskEvent,
   scheduleTaskEvent,
   updateSchedulePlan,
+  updateTask,
   updateTaskStatus,
 } from "../services/partner";
 import {
@@ -34,9 +35,11 @@ import {
   SchedulePlanPutRequest,
   SchedulePlansResponse,
   TaskApiData,
+  UpdateTaskPayload,
   VisitHistoryResponse,
 } from "../types/partner";
 import { addToast } from "@heroui/react";
+import { AxiosError } from "axios";
 
 // ---------------------------
 // 🔹 Partner Network Stats
@@ -158,6 +161,19 @@ export const useCreateTask = () => {
         queryKey: notesTasksKeys.detail(newTask.practiceId),
       });
     },
+    onError: (error) => {
+      const errorMessage =
+        // @ts-ignore
+        (error.response?.data as { message?: string })?.message ||
+        error.message ||
+        "An unknown error occurred.";
+
+      addToast({
+        title: "Create Failed",
+        description: errorMessage,
+        color: "danger",
+      });
+    },
   });
 };
 
@@ -212,6 +228,42 @@ export const useUpdateTaskStatus = () => {
     //     );
     //   }
     // },
+  });
+};
+
+export const useUpdateTask = () => {
+  return useMutation({
+    mutationFn: (variables: UpdateTaskPayload) => updateTask(variables),
+
+    onSuccess: (data, variables) => {
+      addToast({
+        title: "Success",
+        description: "Task updated successfully.",
+        color: "success",
+      });
+
+      console.log(variables, "VARI");
+
+      queryClient.invalidateQueries({
+        queryKey: notesTasksKeys.detail(variables.data.practiceId),
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["tasks"],
+      });
+    },
+    onError: (error: AxiosError) => {
+      const errorMessage =
+        (error.response?.data as { message?: string })?.message ||
+        error.message ||
+        "An unknown error occurred.";
+
+      addToast({
+        title: "Update Failed",
+        description: errorMessage,
+        color: "danger",
+      });
+    },
   });
 };
 
@@ -309,6 +361,7 @@ export const useUpdateSchedulePlan = () => {
       });
 
       queryClient.invalidateQueries({ queryKey: [SCHEDULE_PLAN_KEY] });
+      queryClient.invalidateQueries({ queryKey: ["visitHistory"] });
     },
     onError: (error, variables, context) => {
       // Accessing variables.id for logging

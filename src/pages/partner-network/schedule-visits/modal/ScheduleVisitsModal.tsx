@@ -89,7 +89,7 @@ export function ScheduleVisitsModal({
 
   useEffect(() => {
     setActiveStep("select_referrers");
-    console.log(editedData?.practices, "EDITED")
+    console.log(editedData?.practices, "EDITED");
     if (editedData) {
       setSelectedReferrersState(editedData?.practices || []);
       setPlanState({
@@ -180,8 +180,8 @@ export function ScheduleVisitsModal({
       )[] = [];
 
       if (step === "select_referrers") {
-        if (selectedReferrersState?.length < 2) {
-          const errorMsg = "Please select at least two referrers to continue.";
+        if (selectedReferrersState?.length < 1) {
+          const errorMsg = "Please select at least one referrer to continue.";
           errors.selectedReferrers = errorMsg;
           addToast({
             title: "Error",
@@ -307,7 +307,7 @@ export function ScheduleVisitsModal({
     console.log(bestRoute, "MY ROUTE");
 
     // Prepare the common payload structure
-    const basePayload: Omit<SaveSchedulePlanPayload, "isDraft"> = {
+    const basePayload: SaveSchedulePlanPayload = {
       practices: selectedReferrersState,
       route: {
         date: planState.routeDate,
@@ -353,22 +353,13 @@ export function ScheduleVisitsModal({
       // 🚀 UPDATE Logic
       const updatePayload: SchedulePlanPutRequest = {
         id: editedData._id,
-        data: {
-          isDraft: action === "draft" ? true : false,
-          ...basePayload,
-        },
+        data: basePayload,
       };
 
       updatePlanMutation.mutate(updatePayload, { onSuccess, onError });
     } else {
-      // 🚀 CREATE Logic
-      const createPayload: SaveSchedulePlanPayload = {
-        isDraft: action === "draft" ? true : false,
-        ...basePayload,
-      };
-
       createPlanMutation.mutate(
-        { id: userId || "", data: createPayload },
+        { id: userId || "", data: basePayload },
         { onSuccess, onError }
       );
     }

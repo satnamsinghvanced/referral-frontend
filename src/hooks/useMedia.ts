@@ -1,12 +1,15 @@
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { addToast } from "@heroui/react";
+import { useMutation, useQuery, UseQueryResult } from "@tanstack/react-query";
 import { queryClient } from "../providers/QueryProvider";
 import {
   createFolder,
   deleteFolder,
-  deleteImage,
+  deleteImages,
   getAllFolders,
+  getAllFoldersWithChildFolders,
   getFolderDetails,
   getImageDetails,
+  getTags,
   moveImages,
   searchImages,
   updateFolderName,
@@ -15,14 +18,15 @@ import {
 } from "../services/media";
 import {
   CreateFolderRequest,
+  DeleteImagesRequest,
   GetAllFoldersQuery,
+  GetTagsResponse,
   MoveImagesRequest,
   SearchImagesQuery,
   UpdateFolderRequest,
   UpdateImageTagsRequest,
   UploadMediaRequest,
 } from "../types/media";
-import { addToast } from "@heroui/react";
 
 const FOLDER_KEYS = {
   all: ["folders"] as const,
@@ -36,6 +40,13 @@ export const useGetAllFolders = (query: GetAllFoldersQuery) => {
     queryKey: FOLDER_KEYS.list(query),
     queryFn: async () => (await getAllFolders(query)).data,
     placeholderData: (previousData) => previousData,
+  });
+};
+
+export const useGetAllFoldersWithChildFolders = () => {
+  return useQuery({
+    queryKey: ["folders"],
+    queryFn: async () => (await getAllFoldersWithChildFolders()).data,
   });
 };
 
@@ -159,12 +170,18 @@ export const useUpdateImageTags = (imageId: string) => {
   });
 };
 
-export const useDeleteImage = (imageId: string) => {
+export const useDeleteImages = () => {
   return useMutation({
-    mutationFn: () => deleteImage(imageId),
+    mutationFn: (data: DeleteImagesRequest) => deleteImages(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: IMAGE_KEYS.all });
       queryClient.invalidateQueries({ queryKey: FOLDER_KEYS.all });
+
+      addToast({
+        title: "Success",
+        description: "Selected media deleted successfully.",
+        color: "success",
+      });
     },
     onError: (error) => {
       addToast({
@@ -183,6 +200,33 @@ export const useMoveImages = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: IMAGE_KEYS.all });
       queryClient.invalidateQueries({ queryKey: FOLDER_KEYS.all });
+
+      addToast({
+        title: "Success",
+        description: "Media moved successfully.",
+        color: "success",
+      });
     },
+    onError: (error) => {
+      addToast({
+        title: "Failed",
+        description:
+          error.response.data.message || "An unknown error occurred.",
+        color: "danger",
+      });
+    },
+  });
+};
+
+const TAGS_QUERY_KEY = ["tags"];
+
+/**
+ * Custom hook to fetch the list of image tags.
+ * @returns A Tanstack Query result object.
+ */
+export const useTagsQuery = (): UseQueryResult<GetTagsResponse> => {
+  return useQuery({
+    queryKey: TAGS_QUERY_KEY,
+    queryFn: getTags,
   });
 };

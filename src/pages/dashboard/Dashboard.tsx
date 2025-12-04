@@ -1,11 +1,16 @@
 import { Button } from "@heroui/react";
 import { useMemo } from "react";
 import { Link, useNavigate } from "react-router";
-import MiniStatsCard, { StatCard } from "../components/cards/MiniStatsCard";
-import ComponentContainer from "../components/common/ComponentContainer";
-import { useDashboard } from "../hooks/useDashboard";
-import { useTypedSelector } from "../hooks/useTypedSelector";
-import { TREATMENT_OPTIONS } from "../consts/referral";
+import { MdTrendingUp } from "react-icons/md";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
+import { useDashboard } from "../../hooks/useDashboard";
+import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
+import { TREATMENT_OPTIONS } from "../../consts/referral";
+import ComponentContainer from "../../components/common/ComponentContainer";
+import { timeAgo } from "../../utils/timeAgo";
+import { LuTarget, LuUsers } from "react-icons/lu";
+import { TbSpeakerphone } from "react-icons/tb";
+import { FaRegStar } from "react-icons/fa";
 
 type Color = "sky" | "orange" | "emerald" | "purple";
 
@@ -69,27 +74,6 @@ const QUICK_ACTIONS_COLOR_CLASSES: Record<
   },
 };
 
-const SYSTEM_STATUSES = [
-  {
-    name: "Google Calendar",
-    status: "✓ Connected",
-    bg: "bg-green-100",
-    text: "text-green-800",
-  },
-  {
-    name: "Review Tracking",
-    status: "✓ Active",
-    bg: "bg-green-100",
-    text: "text-green-800",
-  },
-  {
-    name: "NFC System",
-    status: "✓ Online",
-    bg: "bg-green-100",
-    text: "text-green-800",
-  },
-];
-
 const Dashboard = () => {
   const navigate = useNavigate();
 
@@ -101,55 +85,57 @@ const Dashboard = () => {
   const STAT_CARD_DATA = useMemo<StatCard[]>(
     () => [
       {
-        icon: "👥",
+        icon: <LuUsers className="text-purple-600" />,
         heading: "Total Referrals",
         value: dashboard?.totalReferrals as number,
-        subheading:
-          dashboard?.totalLastMonth > 0
-            ? `↗ +${dashboard.totalLastMonth}% from last month`
-            : "0 from last month",
+        subheading: (
+          <p className="text-emerald-600 flex items-center gap-1.5">
+            <MdTrendingUp fontSize={15} />
+            {dashboard?.totalLastMonth ? dashboard.totalLastMonth : "0"}% from
+            last month
+          </p>
+        ),
         onClick: () => navigate("/referrals"),
       },
       {
-        icon: "📢",
+        icon: <TbSpeakerphone className="text-green-600" />,
         heading: "Active Campaigns",
         value: "12",
-        subheading: "↗ +2 this month",
+        subheading: (
+          <p className="text-emerald-600 flex items-center gap-1.5">
+            <MdTrendingUp fontSize={15} />
+            +2 this month
+          </p>
+        ),
         onClick: () => navigate("/email-campaigns"),
       },
       {
-        icon: "⭐",
+        icon: <FaRegStar className="text-yellow-600" />,
         heading: "Reviews",
         value: "1,248",
-        subheading: "↗ 4.8 avg rating",
+        subheading: (
+          <p className="text-emerald-600 flex items-center gap-1.5">
+            <MdTrendingUp fontSize={15} />
+            4.8 avg rating
+          </p>
+        ),
         onClick: () => navigate("/reviews"),
       },
       {
-        icon: "🎯",
+        icon: <LuTarget className="text-rose-600" />,
         heading: "ROI",
         value: "284%",
-        subheading: "↗ +12% vs last month",
+        subheading: (
+          <p className="text-emerald-600 flex items-center gap-1.5">
+            <MdTrendingUp fontSize={15} />
+            +12% vs last month
+          </p>
+        ),
         onClick: () => navigate("/reports"),
       },
     ],
     [dashboard, navigate]
   );
-
-  const getTimeAgo = (dateString: string) => {
-    const now = new Date();
-    const createdAt = new Date(dateString);
-    const diffMs = now.getTime() - createdAt.getTime();
-
-    const seconds = Math.floor(diffMs / 1000);
-    const minutes = Math.floor(seconds / 60);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-
-    if (seconds < 60) return `${seconds} sec ago`;
-    if (minutes < 60) return `${minutes} min ago`;
-    if (hours < 24) return `${hours} hours ago`;
-    return `${days} day${days > 1 ? "s" : ""} ago`;
-  };
 
   const recentActivities = [
     ...(dashboard?.recentReferrals?.length > 0
@@ -169,7 +155,7 @@ const Dashboard = () => {
                   }`
                 : ""
             }`,
-            time: `${getTimeAgo(dashboard?.recentReferrals[0]?.createdAt)}`,
+            time: `${timeAgo(dashboard?.recentReferrals[0]?.createdAt)}`,
             onClick: () => navigate("/referrals"),
           },
         ]
@@ -192,6 +178,39 @@ const Dashboard = () => {
     },
   ];
 
+  const SYSTEM_STATUSES = [
+    {
+      name: "Google Calendar",
+      status: dashboard?.systemStatus?.googleCalendar
+        ? "✓ Connected"
+        : "Disconnected",
+      bg: dashboard?.systemStatus?.googleCalendar
+        ? "bg-green-100"
+        : "bg-red-100",
+      text: dashboard?.systemStatus?.googleCalendar
+        ? "text-green-800"
+        : "text-red-800",
+    },
+    {
+      name: "Review Tracking",
+      status: dashboard?.systemStatus?.reviewTracking ? "✓ Active" : "Inactive",
+      bg: dashboard?.systemStatus?.reviewTracking
+        ? "bg-green-100"
+        : "bg-red-100",
+      text: dashboard?.systemStatus?.reviewTracking
+        ? "text-green-800"
+        : "text-red-800",
+    },
+    {
+      name: "NFC System",
+      status: dashboard?.systemStatus?.nfcSetup ? "✓ Active" : "Inactive",
+      bg: dashboard?.systemStatus?.nfcSetup ? "bg-green-100" : "bg-red-100",
+      text: dashboard?.systemStatus?.nfcSetup
+        ? "text-green-800"
+        : "text-red-800",
+    },
+  ];
+
   return (
     <ComponentContainer headingData={HEADING_DATA}>
       <div className="space-y-5">
@@ -210,7 +229,7 @@ const Dashboard = () => {
         </div>
 
         <div className="bg-background rounded-xl p-5">
-          <h1 className="text-base mb-5">Quick Actions</h1>
+          <h4 className="text-base mb-4">Quick Actions</h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {QUICK_ACTIONS.map((action, i) => {
               const color = QUICK_ACTIONS_COLOR_CLASSES[action.color];
@@ -268,13 +287,13 @@ const Dashboard = () => {
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-gray-600">Active Codes</span>
                   <span className="bg-sky-100 text-sky-800 h-6 p-0 px-2 flex items-center justify-center rounded text-xs font-medium">
-                    {dashboard?.nfcQrData?.activeQR || 0}
+                    {dashboard?.nfcQrData?.activeQRCodes || 0}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-xs text-gray-600">Total Scans</span>
                   <span className="bg-orange-100 text-orange-800 h-6 p-0 px-2 flex items-center justify-center rounded text-xs font-medium">
-                    {dashboard?.nfcQrData?.totalScans || 0}
+                    {dashboard?.nfcQrData?.totalScansToday || 0}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">

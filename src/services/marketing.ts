@@ -36,21 +36,18 @@ export const fetchActivityDetail = async (
 };
 
 export const updateMarketingActivity = async (
-  activityId: string,
   payload: ActivityPayload
 ): Promise<ActivityItem> => {
-  const response = await axios.put<ActivityItem>(
-    `${BASE_URL}/${activityId}`,
-    payload
-  );
+  const response = await axios.put<ActivityItem>(`${BASE_URL}`, payload);
   return response.data;
 };
 
 export const deleteMarketingActivity = async (
-  activityId: string
+  payload: any
 ): Promise<DeleteActivityResponse> => {
-  const response = await axios.delete<DeleteActivityResponse>(
-    `${BASE_URL}/${activityId}`
-  );
+  console.log(payload);
+  const response = await axios.delete<DeleteActivityResponse>(`${BASE_URL}`, {
+    data: payload, // MUST be inside config
+  });
   return response.data;
 };

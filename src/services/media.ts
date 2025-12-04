@@ -1,10 +1,12 @@
 import {
   CreateFolderRequest,
   CreateFolderResponse,
+  DeleteImagesRequest,
   GetAllFoldersQuery,
   GetAllFoldersResponse,
   GetFolderDetailsResponse,
   GetImageDetailsResponse,
+  GetTagsResponse,
   MoveImagesRequest,
   SearchImagesQuery,
   SearchImagesResponse,
@@ -45,6 +47,10 @@ export const getAllFolders = (params: GetAllFoldersQuery) => {
   return axios.get<GetAllFoldersResponse>(FOLDER_API_BASE, { params });
 };
 
+export const getAllFoldersWithChildFolders = () => {
+  return axios.get(`${FOLDER_API_BASE}/child_folder`);
+};
+
 const IMAGES_API_BASE = "/images";
 
 export const uploadMedia = (data: UploadMediaRequest) => {
@@ -75,8 +81,8 @@ export const updateImageTags = (
   );
 };
 
-export const deleteImage = (imageId: string) => {
-  return axios.delete(`${IMAGES_API_BASE}/${imageId}`);
+export const deleteImages = (data: DeleteImagesRequest) => {
+  return axios.delete(`${IMAGES_API_BASE}/delete`, { data });
 };
 
 export const searchImages = (params: SearchImagesQuery) => {
@@ -85,4 +91,15 @@ export const searchImages = (params: SearchImagesQuery) => {
 
 export const moveImages = (data: MoveImagesRequest) => {
   return axios.post(`${IMAGES_API_BASE}/move`, data);
+};
+
+const TAGS_URL = "/images/tags";
+
+/**
+ * Fetches the list of all available image tags and their total count.
+ * @returns A promise that resolves to the GetTagsResponse data.
+ */
+export const getTags = async (): Promise<GetTagsResponse> => {
+  const response = await axios.get<GetTagsResponse>(TAGS_URL);
+  return response.data;
 };

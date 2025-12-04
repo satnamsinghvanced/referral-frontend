@@ -42,7 +42,7 @@ const CLEAN_INITIAL_VALUES = {
     addressLine2: "",
     city: "",
     state: "",
-    zip: null,
+    zip: "",
   },
   website: "",
   staff: [],
@@ -79,7 +79,7 @@ export default function ReferralManagementActions({
       addressLine2: editedData?.practiceAddress?.addressLine2 || "",
       city: editedData?.practiceAddress?.city || "",
       state: editedData?.practiceAddress?.state || "",
-      zip: editedData?.practiceAddress?.zip || null,
+      zip: editedData?.practiceAddress?.zip || "",
     },
     website: editedData?.website || "",
     staff: editedData?.staff || [],
@@ -201,11 +201,8 @@ export default function ReferralManagementActions({
           then: (schema) => schema.required("State is required"),
           otherwise: (schema) => schema.notRequired(),
         }),
-        zip: Yup.number()
-          .typeError("ZIP must be a number")
-          .integer("ZIP must be a whole number")
-          .min(10000, "ZIP code must be 5 digits (e.g., 10000)")
-          .max(99999, "ZIP code must be 5 digits (e.g., 99999)")
+        zip: Yup.string()
+          .matches(/^\d{5}$/, "ZIP code must be exactly 5 digits")
           .when(["$type"], {
             is: (type: string) => type === "doctor",
             then: (schema) => schema.required("ZIP is required"),
@@ -332,7 +329,7 @@ export default function ReferralManagementActions({
           {
             id: "zip",
             placeholder: "Zip",
-            type: "number",
+            type: "text",
             isRequired: true,
           },
         ],
@@ -592,6 +589,7 @@ export default function ReferralManagementActions({
                       sub.type === "tel" ? formatPhoneNumber(val) : val
                     )
                   }
+                  onBlur={() => formik.setFieldTouched(fieldPath)}
                   isRequired={sub.isRequired}
                   touched={isTouched as boolean}
                   error={errorText as string}
@@ -864,6 +862,7 @@ export default function ReferralManagementActions({
           color: "primary",
           variant: "solid",
           isLoading: referrerCreationPending || referrerUpdationPending,
+          isDisabled: !formik.isValid || !formik.dirty,
         },
       ]}
     >

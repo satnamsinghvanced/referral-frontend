@@ -114,3 +114,15 @@ export interface MoveImagesRequest {
   imageIds: string[];
   folderId: string;
 }
+
+export interface DeleteImagesRequest {
+  imageIds: string[];
+}
+
+export type Tag = string;
+
+// Define the structure of the API response data
+export interface GetTagsResponse {
+  tags: Tag[];
+  totalTags: number;
+}

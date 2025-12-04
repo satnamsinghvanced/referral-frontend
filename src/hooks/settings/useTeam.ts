@@ -1,15 +1,15 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { addToast } from "@heroui/react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+import { queryClient } from "../../providers/QueryProvider";
 import {
-  fetchTeamMembers,
   deleteTeamMember,
-  resendTeamInvite,
+  fetchTeamMembers,
   inviteTeamMember,
+  resendTeamInvite,
   TeamMember,
   updateTeamMember,
 } from "../../services/settings/team";
-import { queryClient } from "../../providers/QueryProvider";
-import { AxiosError } from "axios";
-import { addToast } from "@heroui/react";
 
 // 🔹 Fetch Team Members
 export const useFetchTeamMembers = () =>

@@ -7,6 +7,8 @@ import {
   FetchReferralsParams,
   Referral,
   ReferralsResponse,
+  TrackingRequestBody,
+  TrackingResponseData,
 } from "../types/referral";
 import axios from "./axios";
 
@@ -103,23 +105,11 @@ export const deleteReferrer = async (id: string) => {
 // ---------------------------
 
 // 1. Create a new tracking entry with FormData
-export const createTracking = async (
-  adminId: string,
-  payload:
-    | {
-        referralUrl: string;
-        nfcUrl: string;
-        isActive: boolean;
-        image: File | string;
-      }
-    | FormData // allow FormData too
-) => {
-  const { data } = await axios.post(`/tracking/${adminId}`, payload, {
-    headers: {
-      "Content-Type": "multipart/form-data",
-    },
-  });
-  return data;
+export const createTrackingSetup = async (
+  data: TrackingRequestBody
+): Promise<TrackingResponseData> => {
+  const response = await axios.post<TrackingResponseData>("/tracking/", data);
+  return response.data;
 };
 
 // 2. Update an existing tracking entry

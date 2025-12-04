@@ -50,15 +50,12 @@ const PatientForm = () => {
   const { mutate: trackScan } = useTrackScan();
 
   useEffect(() => {
-    const pathSegments = location.pathname.split("/referral/");
-    const referralIdSegment = pathSegments.length > 1 ? pathSegments[1] : null;
+    const pathname = window.location.pathname;
+    const segments = pathname.split("/");
+    console.log(segments);
+    const documentId = segments[3];
 
-    if (!referralIdSegment) {
-      navigate("/signin");
-      return;
-    }
-
-    setReferredBy(referralIdSegment?.split("?")[0] || "");
+    setReferredBy(documentId || "");
 
     const queryParams = new URLSearchParams(location.search);
     const source = queryParams.get("source");
@@ -317,9 +314,9 @@ const PatientForm = () => {
                       size="sm"
                       radius="sm"
                       hideTimeZone
-                      minValue={today(getLocalTimeZone())}
+                      minValue={now(getLocalTimeZone())}
+                      defaultValue={now(getLocalTimeZone())}
                       granularity="minute"
-                      // defaultValue={now(getLocalTimeZone())}
                       onChange={(dateObject) => {
                         if (dateObject) {
                           const year = dateObject.year;

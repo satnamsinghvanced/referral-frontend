@@ -10,6 +10,7 @@ import VisitStatusChip from "../../../components/chips/VisitStatusChip";
 import { LuCar, LuClock, LuTimer } from "react-icons/lu";
 import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 import { convertTo12HourClock } from "../../../utils/convertTo12HourClock";
+import { FiCheckCircle } from "react-icons/fi";
 
 // Assuming the data structure for a single plan
 interface PlanData {
@@ -56,30 +57,19 @@ export default function ViewScheduledVisitModal({
         closeButton: "cursor-pointer",
       }}
     >
-      <ModalContent className="max-h-[90vh] overflow-hidden p-6 w-full">
+      <ModalContent className="max-h-[95vh] overflow-hidden w-full">
         {/* Modal Header */}
-        <ModalHeader className="flex gap-1 text-center sm:text-left p-0">
+        <ModalHeader className="flex gap-1 text-center sm:text-left p-5">
           <h4 className="text-base font-medium flex items-center gap-2">
             <TbCalendarStats className="h-6 w-6 text-blue-600" />
             <span>{plan?.planDetails?.name}</span>
           </h4>
           <div className="flex items-center gap-2 ml-2">
             <VisitStatusChip status={plan?.status} />
-            {plan.isDraft && (
-              <Chip
-                size="sm"
-                radius="sm"
-                className="capitalize text-[11px] h-5"
-                variant="flat"
-                color="danger"
-              >
-                Draft
-              </Chip>
-            )}
           </div>
         </ModalHeader>
 
-        <ModalBody className="p-0 overflow-y-auto space-y-4 mt-4 gap-0">
+        <ModalBody className="px-5 pt-0 pb-5 overflow-y-auto space-y-4 gap-0">
           {/* --- Summary Stats (Reference: Review & Save Tab) --- */}
           <div className="grid grid-cols-4 gap-4 py-3 bg-gray-50 rounded-lg border border-gray-100">
             <StatPill
@@ -174,6 +164,33 @@ export default function ViewScheduledVisitModal({
               ))}
             </div>
           </div>
+
+          {plan?.visitNotes && (
+            <div className="space-y-1.5">
+              <div className="text-xs">Visit Notes</div>
+              <div className="text-xs text-gray-700 capitalize bg-gray-50 p-2 rounded-lg">
+                {plan?.visitNotes}
+              </div>
+            </div>
+          )}
+
+          {plan?.visitOutcome && (
+            <div className="space-y-1.5">
+              <div className="text-xs">Visit Outcome/Result</div>
+              <div className="text-xs text-gray-700 p-2 bg-green-50 border border-green-200 rounded-lg">
+                {plan?.visitOutcome}
+              </div>
+            </div>
+          )}
+
+          {plan?.followUp && (
+            <div className="p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <div className="flex items-center gap-2 text-yellow-800">
+                <FiCheckCircle fontSize={14} />
+                <span className="text-xs ">Follow-up Action Required</span>
+              </div>
+            </div>
+          )}
         </ModalBody>
       </ModalContent>
     </Modal>

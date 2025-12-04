@@ -1,7 +1,7 @@
 import { Card, Chip } from "@heroui/react"; // Assuming 'Card' and 'Chip' are available
 import { useState } from "react";
-import { FiUsers } from "react-icons/fi";
-import { IoIosWifi } from "react-icons/io";
+import { FiUsers, FiWifi } from "react-icons/fi";
+import { GrLocation } from "react-icons/gr";
 import { MdOutlineLocationOn } from "react-icons/md";
 
 // Mock Data (as defined above)
@@ -112,11 +112,11 @@ const NfcCard = ({ data, isOpen, toggleUsers }: any) => {
       onPress={() => toggleUsers(data.id)}
     >
       <div className="flex items-center font-medium mb-2">
-        <IoIosWifi className="text-xl text-blue-600" />
+        <FiWifi className="text-xl text-blue-600" />
         <span className="ml-1.5 text-base">{title}</span>
       </div>
       <div className="flex items-center text-xs text-gray-600 mb-4">
-        <MdOutlineLocationOn className="text-base" />
+        <GrLocation className="text-base" />
         <span className="ml-1">{location}</span>
       </div>
 

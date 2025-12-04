@@ -143,7 +143,7 @@ const CallTracking = () => {
 
   const STATS_CARD_DATA: StatCard[] = [
     {
-      icon: <FiPhone className="text-[17px] mt-1 text-foreground/60" />,
+      icon: <FiPhone className="text-foreground/60" />,
       heading: "Total Calls",
       value: callRecordsData.length,
       subheading: `${
@@ -151,7 +151,7 @@ const CallTracking = () => {
       } completed`,
     },
     {
-      icon: <FiPhoneCall className="text-[17px] mt-1 text-foreground/60" />,
+      icon: <FiPhoneCall className="text-foreground/60" />,
       heading: "Answer Rate",
       value: `${
         Math.round(
@@ -169,13 +169,13 @@ const CallTracking = () => {
       } missed calls`,
     },
     {
-      icon: <LuClock className="text-[17px] mt-1 text-foreground/60" />,
+      icon: <LuClock className="text-foreground/60" />,
       heading: "Avg Duration",
       value: `3:00`,
       subheading: "Average call length",
     },
     {
-      icon: <LuFileAudio className="text-[17px] mt-1 text-foreground/60" />,
+      icon: <LuFileAudio className="text-foreground/60" />,
       heading: "Recordings",
       value: callRecordsData.filter(
         (r) =>
@@ -184,7 +184,7 @@ const CallTracking = () => {
       subheading: "Available for playback",
     },
     {
-      icon: <MdTrendingUp className="text-[17px] mt-1 text-foreground/60" />,
+      icon: <MdTrendingUp className="text-foreground/60" />,
       heading: "Follow-ups",
       value: callRecordsData.filter((r) =>
         r.tags.some((t) => t.label === "Follow-up")
