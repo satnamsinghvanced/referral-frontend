@@ -1,9 +1,9 @@
 import { Button, Input, Select, SelectItem } from "@heroui/react";
-import CampaignCard from "./CampaignCard";
-import { PiFunnelX } from "react-icons/pi";
-import { FiSearch } from "react-icons/fi";
 import { useState } from "react";
+import { FiSearch } from "react-icons/fi";
+import { PiFunnelX } from "react-icons/pi";
 import { CAMPAIGN_CATEGORIES, CAMPAIGN_STATUSES } from "../../consts/campaign";
+import CampaignCard from "./CampaignCard";
 
 const CAMPAIGNS = [
   {
@@ -69,8 +69,6 @@ const Campaigns = () => {
   const [currentFilters, setCurrentFilters] = useState(INITIAL_FILTERS);
 
   const handleFilterChange = (key: string, value: string) => {
-    // const apiValue = value.toLowerCase().includes("all") ? "" : value;
-
     setCurrentFilters((prev) => ({
       ...prev,
       [key]: value,
@@ -133,7 +131,8 @@ const Campaigns = () => {
             <Button
               onPress={() => setCurrentFilters(INITIAL_FILTERS)}
               size="sm"
-              variant="bordered"
+              variant="ghost"
+              color="default"
               className="border-small flex-1"
               startContent={<PiFunnelX className="h-4 w-4" />}
             >
