@@ -24,3 +24,12 @@ export interface Segment {
   avgClickRate: string;
   size: number;
 }
+
+export interface CampaignMetric {
+  id: number;
+  rank: number;
+  name: string;
+  openRate: string;
+  clickRate: string;
+  conversions: number;
+}

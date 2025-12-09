@@ -6,7 +6,7 @@ import Overview from "./Overview";
 import Platforms from "./Platforms";
 import Posts from "./Posts";
 import { Tab, Tabs } from "@heroui/react";
-import CreateNewPost, { CreatePostModal } from "./CreatePostModal"; // Import your CreateNewPost component
+import { CreatePostModal } from "./CreatePostModal"; // Import your CreateNewPost component
 
 export default function SocialMedia() {
   const [activeTab, setActiveTab] = useState("Overview");

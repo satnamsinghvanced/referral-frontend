@@ -12,8 +12,13 @@ import Automation from "./automation/Automation";
 import Campaigns from "./Campaigns";
 import Overview from "./Overview";
 import Templates from "./Templates";
+import { useState } from "react";
+import CampaignActionModal from "./modal/CampaignActionModal";
 
 const EmailCampaigns = () => {
+  const [isActionModalOpen, setIsActionModalOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
+
   const HEADING_DATA = {
     heading: "Email Campaigns",
     subHeading: "Create and manage email campaigns for your referral network.",
@@ -28,7 +33,7 @@ const EmailCampaigns = () => {
       },
       {
         label: "New Campaign",
-        onClick: () => {},
+        onClick: () => setIsActionModalOpen(true),
         icon: <AiOutlinePlus fontSize={15} />,
         variant: "solid" as const,
         color: "primary" as const,
@@ -76,47 +81,60 @@ const EmailCampaigns = () => {
   ];
 
   return (
-    <ComponentContainer headingData={HEADING_DATA}>
-      <div className="flex flex-col gap-5">
-        <div className="grid md:grid-cols-2 xl:grid-cols-6 gap-4">
-          {STAT_CARD_DATA.map((data, i) => (
-            <MiniStatsCard key={i} cardData={data} />
-          ))}
+    <>
+      <ComponentContainer headingData={HEADING_DATA}>
+        <div className="flex flex-col gap-5">
+          <div className="grid md:grid-cols-2 xl:grid-cols-6 gap-4">
+            {STAT_CARD_DATA.map((data, i) => (
+              <MiniStatsCard key={i} cardData={data} />
+            ))}
+          </div>
+          <Tabs
+            aria-label="Options"
+            selectedKey={activeTab}
+            onSelectionChange={(key) => setActiveTab(key as string)}
+            classNames={{
+              tabList: "flex w-full rounded-full bg-primary/10 text-xs",
+              tab: "flex-1 text-sm font-medium transition-all",
+              cursor: "rounded-full text-xs",
+              panel: "p-0",
+            }}
+            className="text-background w-full text-xs"
+          >
+            <Tab key="overview" title="Overview">
+              <Overview
+                setIsActionModalOpen={setIsActionModalOpen}
+                setActiveTab={setActiveTab}
+              />
+            </Tab>
+
+            <Tab key="campaigns" title="Campaigns">
+              <Campaigns />
+            </Tab>
+
+            <Tab key="automation" title="Automation">
+              <Automation />
+            </Tab>
+
+            <Tab key="templates" title="Templates">
+              <Templates />
+            </Tab>
+            <Tab key="audiences" title="Audiences">
+              <Audiences />
+            </Tab>
+            <Tab key="analytics" title="Analytics">
+              <Analytics />
+            </Tab>
+          </Tabs>
         </div>
-        <Tabs
-          aria-label="Options"
-          classNames={{
-            tabList: "flex w-full rounded-full bg-primary/10 text-xs",
-            tab: "flex-1 text-sm font-medium transition-all",
-            cursor: "rounded-full text-xs",
-            panel: "p-0",
-          }}
-          className="text-background w-full text-xs"
-        >
-          <Tab key="overview" title="Overview">
-            <Overview />
-          </Tab>
+      </ComponentContainer>
 
-          <Tab key="campaigns" title="Campaigns">
-            <Campaigns />
-          </Tab>
-
-          <Tab key="automation" title="Automation">
-            <Automation />
-          </Tab>
-
-          <Tab key="templates" title="Templates">
-            <Templates />
-          </Tab>
-          <Tab key="audiences" title="Audiences">
-            <Audiences />
-          </Tab>
-          <Tab key="analytics" title="Analytics">
-            <Analytics />
-          </Tab>
-        </Tabs>
-      </div>
-    </ComponentContainer>
+      <CampaignActionModal
+        isOpen={isActionModalOpen}
+        onClose={() => setIsActionModalOpen(false)}
+        onSubmit={() => {}}
+      />
+    </>
   );
 };
 

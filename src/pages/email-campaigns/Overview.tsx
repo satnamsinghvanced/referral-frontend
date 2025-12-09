@@ -2,6 +2,7 @@ import { FaRegEnvelope } from "react-icons/fa";
 import { FiClock, FiEdit, FiZap } from "react-icons/fi";
 import { LuChartColumn, LuPause, LuPlay } from "react-icons/lu";
 import CampaignStatusChip from "../../components/chips/CampaignStatusChip";
+import { Dispatch, SetStateAction } from "react";
 
 const RECENT_CAMPAIGNS = [
   {
@@ -31,25 +32,33 @@ const RECENT_CAMPAIGNS = [
   },
 ];
 
-const ACTION_CARDS = [
-  {
-    title: "Create Email Campaign",
-    description: "Send targeted emails to specific audiences",
-    icon: FaRegEnvelope,
-  },
-  {
-    title: "Setup Automation",
-    description: "Create automated email sequences",
-    icon: FiZap,
-  },
-  {
-    title: "Browse Templates",
-    description: "Use pre-built email templates",
-    icon: LuChartColumn,
-  },
-];
+interface OverviewProps {
+  setIsActionModalOpen: Dispatch<SetStateAction<boolean>>;
+  setActiveTab: Dispatch<SetStateAction<string>>;
+}
 
-const Overview = () => {
+const Overview = ({ setIsActionModalOpen, setActiveTab }: OverviewProps) => {
+  const ACTION_CARDS = [
+    {
+      title: "Create Email Campaign",
+      description: "Send targeted emails to specific audiences",
+      icon: FaRegEnvelope,
+      onClick: () => setIsActionModalOpen(true),
+    },
+    {
+      title: "Setup Automation",
+      description: "Create automated email sequences",
+      icon: FiZap,
+      onClick: () => setActiveTab("automation"),
+    },
+    {
+      title: "Browse Templates",
+      description: "Use pre-built email templates",
+      icon: LuChartColumn,
+      onClick: () => setActiveTab("templates"),
+    },
+  ];
+
   return (
     <div className="space-y-5">
       <div className="flex flex-col gap-4 border border-primary/15 rounded-xl p-4 bg-background/80">
@@ -117,7 +126,7 @@ const Overview = () => {
 
       <div className="flex justify-between gap-4">
         {ACTION_CARDS.map((card) => {
-          const { title, description, icon: Icon } = card;
+          const { title, description, icon: Icon, onClick } = card;
 
           let iconClasses = "";
           if (title.includes("Campaign")) {
@@ -132,6 +141,7 @@ const Overview = () => {
             <div
               key={card.title}
               className="flex flex-col items-center text-center px-5 py-6 bg-white border border-primary/15 rounded-xl cursor-pointer w-full"
+              onClick={onClick}
             >
               <Icon className={`size-8 ${iconClasses}`} />
               <h4 className="text-sm mt-3 mb-2">{title}</h4>

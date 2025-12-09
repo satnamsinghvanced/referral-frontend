@@ -1,4 +1,5 @@
-import { Card, CardBody, CardHeader } from "@heroui/react";
+import { Button, Card, CardBody, CardHeader } from "@heroui/react";
+import { LuChartColumn } from "react-icons/lu";
 import {
   CartesianGrid,
   Cell,
@@ -12,6 +13,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { CampaignMetric } from "../../../types/campaign";
 
 interface LabelProps {
   cx: number;
@@ -37,6 +39,41 @@ const Overview = () => {
     { name: "Dental Practices", value: 45 },
     { name: "Patients", value: 35 },
     { name: "Referral Partners", value: 20 },
+  ];
+
+  const TOP_CAMPAIGNS: CampaignMetric[] = [
+    {
+      id: 1,
+      rank: 1,
+      name: "Patient Welcome Series",
+      openRate: "89.2%",
+      clickRate: "34.5%",
+      conversions: 156,
+    },
+    {
+      id: 2,
+      rank: 2,
+      name: "Partner Outreach Q2",
+      openRate: "76.8%",
+      clickRate: "28.3%",
+      conversions: 89,
+    },
+    {
+      id: 3,
+      rank: 3,
+      name: "Monthly Newsletter",
+      openRate: "68.5%",
+      clickRate: "24.3%",
+      conversions: 67,
+    },
+    {
+      id: 4,
+      rank: 4,
+      name: "Referral Thank You",
+      openRate: "82.1%",
+      clickRate: "31.7%",
+      conversions: 45,
+    },
   ];
 
   const COLORS = ["#0ea5e9", "#f97316", "#1e40af"];
@@ -153,6 +190,54 @@ const Overview = () => {
           </CardBody>
         </Card>
       </div>
+      <Card shadow="none" className="border border-primary/15 p-5">
+        <CardHeader className="p-0 pb-4">
+          <h4 className="text-sm font-medium flex items-center gap-2">
+            <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
+            Top Performing Campaigns
+          </h4>
+        </CardHeader>
+        <CardBody className="p-0 overflow-visible">
+          <div className="space-y-3.5">
+            {TOP_CAMPAIGNS.map((campaign) => {
+              return (
+                <div key={campaign.id} className="bg-background rounded-lg border border-primary/15 p-3 flex items-center justify-between">
+                  <div className="flex items-center space-x-2.5 flex-grow">
+                    <div className="bg-sky-100 w-7 h-7 flex items-center justify-center rounded-full text-xs text-sky-600">
+                      #{campaign.rank}
+                    </div>
+                    <div className="space-y-0.5">
+                      <h4 className="text-sm font-medium">{campaign.name}</h4>
+                      <div className="text-xs text-gray-500 space-x-3">
+                        <span className="text-green-600">
+                          {campaign.openRate} opens
+                        </span>
+                        <span className="text-blue-600">
+                          {campaign.clickRate} clicks
+                        </span>
+                        <span className="text-gray-600">
+                          {campaign.conversions} conversions
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Button
+                    size="sm"
+                    radius="sm"
+                    variant="ghost"
+                    color="default"
+                    startContent={<LuChartColumn className="size-3.5" />}
+                    className="border-small"
+                  >
+                    View Details
+                  </Button>
+                </div>
+              );
+            })}
+          </div>
+        </CardBody>
+      </Card>
     </div>
   );
 };
