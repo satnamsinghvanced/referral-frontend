@@ -199,7 +199,7 @@ const PartnerNetwork = () => {
             totalItems={totalPractices}
           />
         </div>
-        <div className="flex flex-col gap-2 md:px-7 px-4 py-4 md:py-[31px] overflow-auto space-y-5">
+        <div className="flex flex-col md:px-7 px-4 py-4 md:py-[31px] overflow-auto space-y-5">
           <div className="flex flex-col gap-5">
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 justify-between">
               {STATS_CARD_DATA.map((data) => (
@@ -207,21 +207,24 @@ const PartnerNetwork = () => {
               ))}
             </div>
 
-            <div className="flex flex-col gap-4 border border-primary/15 rounded-xl p-4 bg-background/80">
+            <div className="bg-background flex flex-col gap-4 border border-primary/15 rounded-xl p-4">
               <h4 className="font-medium text-sm">Partner Practices</h4>
               {isLoading && <LoadingState />}
               {!isLoading && practices.length === 0 && (
                 <EmptyState title="No partners found with current filters." />
               )}
 
-              {!isLoading &&
-                practices.map((partner: Partner) => (
-                  <PartnerNetworkCard
-                    key={partner._id}
-                    partner={partner}
-                    actions={PARTNER_NETWORK_ACTIONS}
-                  />
-                ))}
+              {!isLoading && (
+                <div className="space-y-3">
+                  {practices.map((partner: Partner) => (
+                    <PartnerNetworkCard
+                      key={partner._id}
+                      partner={partner}
+                      actions={PARTNER_NETWORK_ACTIONS}
+                    />
+                  ))}
+                </div>
+              )}
 
               {stats?.totalPages && stats.totalPages > 1 ? (
                 <Pagination

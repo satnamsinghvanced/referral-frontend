@@ -27,22 +27,22 @@ const Platforms = () => {
     useGetSocialMediaCredentials();
 
   const SOCIAL_MEDIA_PLATFORMS: PlatformItem[] = [
-    {
-      id: "facebook",
-      name: "Facebook",
-      iconColor: "bg-blue-500",
-      status: "Not Connected",
-      followers: 1234,
-      engagementRate: "5.2%",
-    },
-    {
-      id: "instagram",
-      name: "Instagram",
-      iconColor: "bg-pink-500",
-      status: "Not Connected",
-      followers: 987,
-      engagementRate: "6.1%",
-    },
+    // {
+    //   id: "facebook",
+    //   name: "Facebook",
+    //   iconColor: "bg-blue-500",
+    //   status: "Not Connected",
+    //   followers: 1234,
+    //   engagementRate: "5.2%",
+    // },
+    // {
+    //   id: "instagram",
+    //   name: "Instagram",
+    //   iconColor: "bg-pink-500",
+    //   status: "Not Connected",
+    //   followers: 987,
+    //   engagementRate: "6.1%",
+    // },
     {
       id: "linkedin",
       name: "LinkedIn",

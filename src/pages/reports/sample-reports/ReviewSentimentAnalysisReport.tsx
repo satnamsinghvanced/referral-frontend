@@ -383,12 +383,12 @@ const ReviewSentimentAnalysisReport = () => {
         </div>
 
         <CustomCard title="Recent Review Analysis">
-          <div className="space-y-4">
+          <div className="space-y-3">
             {recentReviews.map((review, index) => (
               <Card
                 key={index}
                 shadow="none"
-                className="border border-primary/15 p-4"
+                className="border border-primary/15 p-4 rounded-lg"
               >
                 <CardHeader className="flex items-start justify-between p-0 pb-3">
                   <div className="flex items-center gap-3">

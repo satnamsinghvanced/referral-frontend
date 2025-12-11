@@ -164,13 +164,11 @@ const Profile = () => {
 
   return (
     <>
-      <div className="p-4 bg-background border border-foreground/10 rounded-lg">
+      <div className="p-4 bg-background border border-foreground/10 rounded-xl">
         <form onSubmit={handleSubmit}>
           <h4 className="flex gap-2 items-center mb-4">
-            <FiUser className="w-4 h-4" />
-            <span className="text-sm !font-extralight">
-              Profile Information
-            </span>
+            <FiUser className="size-5" />
+            <span>Profile Information</span>
           </h4>
 
           <div className="flex items-center gap-4 mb-6">

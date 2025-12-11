@@ -198,10 +198,13 @@ const Overview = () => {
           </h4>
         </CardHeader>
         <CardBody className="p-0 overflow-visible">
-          <div className="space-y-3.5">
+          <div className="space-y-3">
             {TOP_CAMPAIGNS.map((campaign) => {
               return (
-                <div key={campaign.id} className="bg-background rounded-lg border border-primary/15 p-3 flex items-center justify-between">
+                <div
+                  key={campaign.id}
+                  className="bg-background rounded-lg border border-primary/15 p-3 flex items-center justify-between"
+                >
                   <div className="flex items-center space-x-2.5 flex-grow">
                     <div className="bg-sky-100 w-7 h-7 flex items-center justify-center rounded-full text-xs text-sky-600">
                       #{campaign.rank}

@@ -70,7 +70,9 @@ const ActionModal: React.FC<ActionModalProps> = ({
             >
               <div className="flex flex-col gap-1.5">
                 {heading && (
-                  <h4 className="text-base font-medium leading-snug">{heading}</h4>
+                  <h4 className="text-base font-medium leading-snug">
+                    {heading}
+                  </h4>
                 )}
                 {description && (
                   <p className="text-xs text-gray-600">{description}</p>
@@ -105,7 +107,7 @@ const ActionModal: React.FC<ActionModalProps> = ({
                     color={btn.color || "default"}
                     variant={btn.variant || "solid"}
                     onPress={btn.onPress}
-                    className={`capitalize ${btn.className || ""}`}
+                    className={`capitalize border-small ${btn.className || ""}`}
                     isDisabled={btn.isDisabled ?? false}
                     isLoading={btn.isLoading ?? false}
                   >

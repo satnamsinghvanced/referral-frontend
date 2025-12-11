@@ -65,7 +65,7 @@ const Posts = () => {
         </Chip>
       </CardHeader>
 
-      <CardBody className="p-0 space-y-4">
+      <CardBody className="p-0 space-y-3">
         {DUMMY_POSTS.map((post) => {
           const statusBg =
             post.statusColor === "green" ? "bg-green-100" : "bg-blue-100";

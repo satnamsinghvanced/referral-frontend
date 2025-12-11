@@ -17,6 +17,7 @@ import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { AppDispatch } from "../../store";
 import { logout } from "../../store/authSlice";
 import Notification from "../common/Notification";
+import NotificationPopover from "../ui/NotificationsPopover";
 
 export default function Header({
   hamburgerMenuClick,
@@ -37,7 +38,7 @@ export default function Header({
       height={63}
       isBordered
       classNames={{
-        base: "border-foreground/10  bg-background ",
+        base: "border-foreground/10 bg-background",
         wrapper: "max-w-none px-4 md:px-6",
       }}
     >
@@ -70,7 +71,7 @@ export default function Header({
 
       <NavbarContent as="div" className="items-center gap-4" justify="end">
         <div className="flex gap-3 justify-center items-center">
-          <Notification />
+          <NotificationPopover />
           <Dropdown placement="bottom-end">
             <DropdownTrigger>
               <Button
@@ -88,6 +89,7 @@ export default function Header({
                 key="profile"
                 className="h-14 gap-2"
                 onPress={() => navigate("/settings")}
+                textValue={`Signed in as ${user?.email}`}
               >
                 <p className="font-semibold">Signed in as</p>
                 <p className="font-semibold">{user?.email}</p>
@@ -95,28 +97,37 @@ export default function Header({
               <DropdownItem
                 key="general"
                 onPress={() => navigate("/settings/general")}
+                textValue="General"
               >
                 General
               </DropdownItem>
               <DropdownItem
                 key="locations"
                 onPress={() => navigate("/settings/locations")}
+                textValue="Locations"
               >
                 Locations
               </DropdownItem>
               <DropdownItem
                 key="team"
                 onPress={() => navigate("/settings/team")}
+                textValue="Team Settings"
               >
                 Team Settings
               </DropdownItem>
               <DropdownItem
                 key="billing"
                 onPress={() => navigate("/settings/billing")}
+                textValue="Billing"
               >
                 Billing
               </DropdownItem>
-              <DropdownItem key="logout" color="danger" onPress={handleLogout}>
+              <DropdownItem
+                key="logout"
+                color="danger"
+                textValue="Log Out"
+                onPress={handleLogout}
+              >
                 Log Out
               </DropdownItem>
             </DropdownMenu>

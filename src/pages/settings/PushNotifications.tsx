@@ -15,7 +15,7 @@ const PushNotifications = () => {
   };
 
   return (
-    <div className="mx-10 space-y-6">
+    <div className="space-y-6">
       {/* Title */}
       <div className="flex items-center justify-between">
         <div>
@@ -105,7 +105,9 @@ const PushNotifications = () => {
                   <p className="text-sm font-medium mb-1">
                     Chrome on MacBook Pro
                   </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400 dark:text-gray-400">Chrome 120.0</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 dark:text-gray-400">
+                    Chrome 120.0
+                  </p>
                   <p className="text-xs text-gray-600">
                     Last seen: 9/25/2025, 3:56:52 PM
                   </p>

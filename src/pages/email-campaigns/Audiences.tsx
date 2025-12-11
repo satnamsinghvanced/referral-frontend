@@ -186,7 +186,7 @@ const Audiences: React.FC = () => {
         </div>
       </div>
 
-      <div className="space-y-5">
+      <div className="space-y-4">
         {MOCK_SEGMENTS.map((segment) => (
           <SegmentCard key={segment.id} segment={segment} />
         ))}

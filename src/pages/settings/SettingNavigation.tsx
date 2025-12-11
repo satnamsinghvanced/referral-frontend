@@ -1,12 +1,12 @@
+import clsx from "clsx";
 import React from "react";
-import { HiOutlineCog } from "react-icons/hi";
 import { AiOutlineThunderbolt } from "react-icons/ai";
-import { CiLocationOn, CiMobile1 } from "react-icons/ci";
 import { FaRegBell } from "react-icons/fa";
 import { FiCreditCard, FiUser, FiUsers } from "react-icons/fi";
-import { LuShield } from "react-icons/lu";
+import { GrLocation } from "react-icons/gr";
+import { HiOutlineCog } from "react-icons/hi";
+import { LuShield, LuSmartphone } from "react-icons/lu";
 import { NavLink } from "react-router-dom";
-import clsx from "clsx";
 
 type NavigationItem = {
   name: string;
@@ -20,7 +20,7 @@ const SettingNavigation: React.FC = () => {
     { name: "Notifications", icon: FaRegBell, href: "/settings/notifications" },
     { name: "Security", icon: LuShield, href: "/settings/security" },
     { name: "Billing", icon: FiCreditCard, href: "/settings/billing" },
-    { name: "Locations", icon: CiLocationOn, href: "/settings/locations" },
+    { name: "Locations", icon: GrLocation, href: "/settings/locations" },
     { name: "Team", icon: FiUsers, href: "/settings/team" },
     { name: "General", icon: HiOutlineCog, href: "/settings/general" },
     {
@@ -30,7 +30,7 @@ const SettingNavigation: React.FC = () => {
     },
     {
       name: "Push Notifications",
-      icon: CiMobile1,
+      icon: LuSmartphone,
       href: "/settings/push-notifications",
     },
     // { name: "Notification Analytics", icon: FaRegChartBar, href: "/settings/notification-analytics" },

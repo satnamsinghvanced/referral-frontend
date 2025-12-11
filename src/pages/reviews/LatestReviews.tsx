@@ -1,14 +1,14 @@
 import { useMemo, useState } from "react";
 // Assuming these components are available in your Hero UI library
 import {
-    Avatar,
-    Button,
-    Card,
-    CardBody,
-    CardHeader,
-    Chip,
-    Select,
-    SelectItem
+  Avatar,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Chip,
+  Select,
+  SelectItem,
 } from "@heroui/react";
 import { FaStar } from "react-icons/fa";
 import { FiExternalLink, FiMapPin, FiMessageSquare } from "react-icons/fi";
@@ -153,7 +153,7 @@ const LatestReviewItem = ({ review }: any) => {
     : "bg-red-100 text-red-800 border-red-200";
 
   return (
-    <div className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-all duration-300 bg-gradient-to-r from-white to-gray-50/50">
+    <div className="p-4 border border-gray-200 rounded-lg transition-all duration-300 bg-gradient-to-r from-white to-gray-50/50">
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">
           {/* Avatar */}
@@ -265,10 +265,17 @@ export default function LatestReviews() {
   return (
     <Card className="shadow-none border border-primary/15 p-5">
       {/* Card Header */}
-      <CardHeader className="flex flex-col items-start gap-3 p-0 mb-6">
+      <CardHeader className="flex items-center justify-between gap-3 p-0 mb-5">
         <h4 className="font-medium">Recent Reviews & Interactions</h4>
         <div className="flex items-center gap-3">
-          {/* Hero UI Select component */}
+          <Chip
+            size="sm"
+            radius="sm"
+            className="text-[11px] font-medium h-5 border bg-sky-100 text-sky-800 border-sky-200"
+          >
+            {filteredReviews.length} review
+            {filteredReviews.length !== 1 ? "s" : ""}
+          </Chip>
           <Select
             size="sm"
             radius="sm"
@@ -281,21 +288,12 @@ export default function LatestReviews() {
               <SelectItem key={option}>{option}</SelectItem>
             ))}
           </Select>
-          {/* Review Count Badge */}
-          <Chip
-            size="sm"
-            radius="sm"
-            className="text-[11px] font-medium h-5 border bg-sky-100 text-sky-800 border-sky-200"
-          >
-            {filteredReviews.length} review
-            {filteredReviews.length !== 1 ? "s" : ""}
-          </Chip>
         </div>
       </CardHeader>
 
       {/* Card Content (Reviews List) */}
       <CardBody className="p-0">
-        <div className="space-y-4 max-h-96 overflow-y-auto pr-2">
+        <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
           {filteredReviews.length > 0 ? (
             filteredReviews.map((review) => (
               <LatestReviewItem key={review.id} review={review} />

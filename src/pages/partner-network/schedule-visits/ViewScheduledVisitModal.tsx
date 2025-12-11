@@ -144,7 +144,7 @@ export default function ViewScheduledVisitModal({
                   <div className="text-xs font-medium text-gray-500">
                     Description
                   </div>
-                  <div className="text-sm font-medium text-gray-800 capitalize">
+                  <div className="text-xs font-medium text-gray-800 capitalize mt-0.5">
                     {plan?.planDetails?.description}
                   </div>
                 </div>

@@ -40,7 +40,7 @@ const PartnerNetworkHeader: React.FC<PartnerNetworkHeaderProps> = ({
   visibleItems,
 }) => {
   return (
-    <div className="md:px-7 px-4 py-3 md:py-6 bg-background border-b-1 border-foreground/10">
+    <div className="md:p-6 px-4 py-3 bg-background border-b-1 border-foreground/10">
       <div className="flex justify-between items-center">
         <div className="space-y-1">
           <h3 className="text-lg">{heading}</h3>

@@ -221,7 +221,7 @@ export default function ScheduleVisits({
       </div>
 
       {/* {dashboardStats?.totalPlans > 0 && ( */}
-      <div className="space-y-6">
+      <div className="space-y-5">
         {/* <Card
           data-slot="card"
           className="rounded-xl border border-primary/15 shadow-none"
@@ -329,7 +329,7 @@ export default function ScheduleVisits({
             className={`${
               !isCompactMode
                 ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-                : "space-y-4"
+                : "space-y-3"
             }`}
           >
             <PlanListContent />
@@ -346,7 +346,7 @@ export default function ScheduleVisits({
               }}
               total={pagination?.totalPages as number}
               classNames={{
-                base: "flex justify-center py-3 mt-3",
+                base: "flex justify-center py-3 mt-2",
                 wrapper: "gap-1.5",
                 item: "bg-white cursor-pointer",
                 prev: "bg-white cursor-pointer",

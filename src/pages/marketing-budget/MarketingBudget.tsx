@@ -260,14 +260,16 @@ const MarketingBudget = () => {
                 <EmptyState title="No budget items found for the selected period." />
               ) : (
                 <>
-                  {data?.budgetItems.map((item: BudgetItem) => (
-                    <BudgetItemCard
-                      key={item._id}
-                      item={item}
-                      onEdit={budgetItemEditHandler}
-                      onDelete={() => setDeleteBudgetItemId(item._id)}
-                    />
-                  ))}
+                  <div className="space-y-3">
+                    {data?.budgetItems.map((item: BudgetItem) => (
+                      <BudgetItemCard
+                        key={item._id}
+                        item={item}
+                        onEdit={budgetItemEditHandler}
+                        onDelete={() => setDeleteBudgetItemId(item._id)}
+                      />
+                    ))}
+                  </div>
                   {pagination?.totalPages && pagination.totalPages > 1 ? (
                     <Pagination
                       showControls

@@ -376,7 +376,7 @@ const MarketingCalendar = () => {
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-4 border border-primary/15 rounded-xl p-4 bg-white shadow-none">
+          <div className="flex items-center gap-3 border border-primary/15 rounded-xl p-4 bg-white shadow-none">
             <Input
               size="sm"
               variant="flat"

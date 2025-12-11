@@ -161,7 +161,7 @@ const Notifications: React.FC = () => {
   }, [globalEnabled]);
 
   return (
-    <div className="mx-10">
+    <div className="">
       <div className="mb-6 space-y-5">
         {/* Header */}
         <div className="flex items-center justify-between">
@@ -191,8 +191,8 @@ const Notifications: React.FC = () => {
           items={TAB_ITEMS}
           classNames={{
             base: "w-full",
-            tabList: "w-full bg-primary-50 /10",
-            tab: "text-xs font-medium",
+            tabList: "w-full bg-primary/10",
+            tab: "font-medium",
             panel: "py-0",
           }}
           key={`globalEnabled__${globalEnabled}`}

@@ -88,7 +88,7 @@ function Tasks() {
             <MiniStatsCard key={i} cardData={data} />
           ))}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border border-primary/15 rounded-xl p-4 bg-white shadow-none">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 border border-primary/15 rounded-xl p-4 bg-white shadow-none">
           <div className="relative flex-1">
             <Input
               placeholder="Search tasks..."
@@ -99,7 +99,7 @@ function Tasks() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <Select
               aria-label="Task Status"
               placeholder="All Statuses"
@@ -154,9 +154,11 @@ function Tasks() {
             <EmptyState title="There are no tasks matching your current filters. Try adjusting your search or filters." />
           ) : (
             <>
-              {tasks?.map((task: any) => (
-                <TaskCard key={task._id} task={task} />
-              ))}
+              <div className="space-y-3">
+                {tasks?.map((task: any) => (
+                  <TaskCard key={task._id} task={task} />
+                ))}
+              </div>
               {pagination?.totalPages && pagination.totalPages > 1 ? (
                 <Pagination
                   showControls

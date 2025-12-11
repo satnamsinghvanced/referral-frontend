@@ -198,11 +198,11 @@ const Team: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* Active Members */}
       <Card shadow="none" className="rounded-xl border border-foreground/10">
         <CardHeader className="flex items-center gap-2 px-5 pt-5 pb-0">
-          <LuUsers className="w-5 h-5" />
+          <LuUsers className="size-5" />
           <p>Team Members ({activeMembers?.length || 0})</p>
         </CardHeader>
         <CardBody className="p-5 space-y-3">

@@ -158,7 +158,7 @@ export function VisitHistoryModal({
                 <h3 className="text-sm font-medium sticky top-0 bg-white py-2.5 border-b border-primary/15 z-10">
                   {monthGroup.month} ({monthGroup.visits.length} visits)
                 </h3>
-                <div className="space-y-2">
+                <div className="space-y-2.5">
                   {monthGroup.visits.map((visit: any) => (
                     <VisitHistoryCard
                       key={visit._id}

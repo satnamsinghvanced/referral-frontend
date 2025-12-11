@@ -5,6 +5,8 @@ import {
   CardHeader,
   Input,
   Pagination,
+  Tab,
+  Tabs,
 } from "@heroui/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
@@ -34,7 +36,6 @@ import ReferralCard from "./ReferralCard";
 import ReferralManagementActions from "./ReferralManagementActions";
 import ReferralStatusModal from "./ReferralStatusModal";
 import ReferrerCard from "./ReferrerCard";
-import RoleToggleTabs from "./RoleToggleTabs";
 import TrackingPanel from "./TrackingPanel";
 
 type ReferralType = "Referrals" | "Referrers" | "NFC & QR Tracking";
@@ -119,7 +120,7 @@ const ReferralManagement = () => {
     setIsFilterViewActive(true);
   }, []);
 
-  const handleReferralTypeChange = (key: string) =>
+  const handleReferralTypeChange = (key: string | number) =>
     setSelectedReferralType(key as ReferralType);
 
   const handleFilterChange = (key: string, value: string) => {
@@ -290,10 +291,29 @@ const ReferralManagement = () => {
     <>
       <ComponentContainer headingData={headingData as any}>
         <div className="flex flex-col gap-5">
-          <RoleToggleTabs
-            selected={selectedReferralType}
-            onSelectionChange={handleReferralTypeChange}
-          />
+          <div className="bg-primary/10 rounded-full w-full">
+            <Tabs
+              selectedKey={selectedReferralType}
+              onSelectionChange={handleReferralTypeChange}
+              aria-label="Select Role"
+              variant="light"
+              radius="full"
+              classNames={{
+                tabList: "flex w-full rounded-full",
+                tab: "flex-1 px-4 py-1 text-sm font-medium transition-all",
+                cursor: "rounded-full",
+              }}
+              className="text-background w-full"
+            >
+              {["Referrals", "Referrers", "NFC & QR Tracking"].map((role) => (
+                <Tab
+                  key={role}
+                  title={role}
+                  className="rounded-full data-[selected=true]:bg-white data-[selected=true]:text-black data-[selected=false]:text-white w-full border-0"
+                />
+              ))}
+            </Tabs>
+          </div>
 
           {/* --- REFERRALS TAB --- */}
           {selectedReferralType === "Referrals" && (
@@ -365,7 +385,7 @@ const ReferralManagement = () => {
                   </Card>
 
                   <div className="px-4 border-primary/15 border rounded-xl bg-background">
-                    <div className="flex flex-wrap items-center gap-2 w-full rounded-md py-4">
+                    <div className="flex flex-wrap items-center gap-3 w-full rounded-md py-4">
                       <Input
                         size="sm"
                         variant="flat"
@@ -397,35 +417,37 @@ const ReferralManagement = () => {
                     {isLoadingReferrals || isFetchingReferrals ? (
                       <LoadingState />
                     ) : referralData?.data?.length ? (
-                      referralData.data.slice(0, 5).map((ref: Referral) => (
-                        <ReferralCard
-                          key={ref._id}
-                          referral={ref}
-                          actions={(referral: Referral) => [
-                            {
-                              label: "",
-                              onClick: () => {},
-                              icon: <LuPhone className="w-4 h-4" />,
-                              link: `tel:${referral.phone}`,
-                              hideButton: referral.phone ? false : true,
-                            },
-                            {
-                              label: "",
-                              onClick: (id) => {
-                                setReferralEditId(id);
-                                setIsReferralStatusModalViewMode(true);
-                                setIsReferralStatusModalOpen(true);
+                      <div className="space-y-3">
+                        {referralData.data.slice(0, 5).map((ref: Referral) => (
+                          <ReferralCard
+                            key={ref._id}
+                            referral={ref}
+                            actions={(referral: Referral) => [
+                              {
+                                label: "",
+                                onClick: () => {},
+                                icon: <LuPhone className="w-4 h-4" />,
+                                link: `tel:${referral.phone}`,
+                                hideButton: referral.phone ? false : true,
                               },
-                              icon: <FiEye className="w-4 h-4" />,
-                            },
-                            {
-                              label: "",
-                              icon: <FiEdit className="w-4 h-4" />,
-                              onClick: handleEditReferral,
-                            },
-                          ]}
-                        />
-                      ))
+                              {
+                                label: "",
+                                onClick: (id) => {
+                                  setReferralEditId(id);
+                                  setIsReferralStatusModalViewMode(true);
+                                  setIsReferralStatusModalOpen(true);
+                                },
+                                icon: <FiEye className="w-4 h-4" />,
+                              },
+                              {
+                                label: "",
+                                icon: <FiEdit className="w-4 h-4" />,
+                                onClick: handleEditReferral,
+                              },
+                            ]}
+                          />
+                        ))}
+                      </div>
                     ) : (
                       <EmptyState />
                     )}
@@ -455,17 +477,19 @@ const ReferralManagement = () => {
               {isLoadingReferrers ? (
                 <LoadingState />
               ) : referrers?.length ? (
-                referrers.map((referrer: Referrer) => (
-                  <ReferrerCard
-                    key={referrer._id}
-                    referrer={referrer}
-                    buttons={refererButtonList as any}
-                    onView={(id) => {
-                      setReferrerEditId(id);
-                      setIsModalOpen(true);
-                    }}
-                  />
-                ))
+                <div className="space-y-3">
+                  {referrers.map((referrer: Referrer) => (
+                    <ReferrerCard
+                      key={referrer._id}
+                      referrer={referrer}
+                      buttons={refererButtonList as any}
+                      onView={(id) => {
+                        setReferrerEditId(id);
+                        setIsModalOpen(true);
+                      }}
+                    />
+                  ))}
+                </div>
               ) : (
                 <EmptyState />
               )}

@@ -329,7 +329,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
 
       <div className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-primary/15 bg-background">
         <div data-slot="card-content" className="p-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
             <div className="relative">
               <Input
                 placeholder="Search referrals..."
@@ -435,7 +435,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
             <LoadingState />
           ) : referrals?.length > 0 ? (
             <>
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {referrals.map(renderReferralCard)}
               </div>
               {totalPages > 1 && (

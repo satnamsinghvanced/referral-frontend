@@ -45,7 +45,7 @@ const Devices: React.FC = () => {
         <h4 className="text-sm font-medium">Device Performance</h4>
       </CardHeader>
 
-      <CardBody className="p-0 space-y-3.5">
+      <CardBody className="p-0 space-y-3">
         {mockDeviceMetrics.map((metric) => {
           const Icon = metric.icon;
 

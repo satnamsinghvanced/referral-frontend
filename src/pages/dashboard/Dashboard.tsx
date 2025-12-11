@@ -1,22 +1,23 @@
 import { Button } from "@heroui/react";
 import { useMemo } from "react";
-import { Link, useNavigate } from "react-router";
-import { MdTrendingUp } from "react-icons/md";
-import { useTypedSelector } from "../../hooks/useTypedSelector";
-import { useDashboard } from "../../hooks/useDashboard";
-import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
-import { TREATMENT_OPTIONS } from "../../consts/referral";
-import ComponentContainer from "../../components/common/ComponentContainer";
-import { timeAgo } from "../../utils/timeAgo";
-import { LuTarget, LuUsers } from "react-icons/lu";
-import { TbSpeakerphone } from "react-icons/tb";
 import { FaRegStar } from "react-icons/fa";
+import { HiOutlineChartBar, HiOutlineStar } from "react-icons/hi";
+import { LuCalendar, LuTarget, LuUsers } from "react-icons/lu";
+import { MdTrendingUp } from "react-icons/md";
+import { TbSpeakerphone } from "react-icons/tb";
+import { Link, useNavigate } from "react-router";
+import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
+import ComponentContainer from "../../components/common/ComponentContainer";
+import { TREATMENT_OPTIONS } from "../../consts/referral";
+import { useDashboard } from "../../hooks/useDashboard";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
+import { timeAgo } from "../../utils/timeAgo";
 
 type Color = "sky" | "orange" | "emerald" | "purple";
 
 interface QuickAction {
   label: string;
-  icon: string;
+  icon: React.ReactNode;
   color: Color;
   link: string;
 }
@@ -30,18 +31,28 @@ const HEADING_DATA = {
 const QUICK_ACTIONS: QuickAction[] = [
   {
     label: "Add Referral",
-    icon: "👥",
+    icon: <LuUsers />,
     color: "sky",
     link: "/referrals",
   },
   {
     label: "Marketing Calendar",
-    icon: "📅",
+    icon: <LuCalendar />,
     color: "orange",
     link: "/marketing-calendar",
   },
-  { label: "View Reviews", icon: "⭐", color: "emerald", link: "/reviews" },
-  { label: "Analytics", icon: "📊", color: "purple", link: "/analytics" },
+  {
+    label: "View Reviews",
+    icon: <HiOutlineStar />,
+    color: "emerald",
+    link: "/reviews",
+  },
+  {
+    label: "Analytics",
+    icon: <HiOutlineChartBar />,
+    color: "purple",
+    link: "/analytics",
+  },
 ];
 
 const QUICK_ACTIONS_COLOR_CLASSES: Record<
@@ -233,6 +244,8 @@ const Dashboard = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {QUICK_ACTIONS.map((action, i) => {
               const color = QUICK_ACTIONS_COLOR_CLASSES[action.color];
+              const Icon = action.icon;
+
               return (
                 <Link
                   key={i}
@@ -243,7 +256,7 @@ const Dashboard = () => {
                   className={`flex items-center justify-center gap-x-1.5 px-3 py-2.5 rounded-lg border transition-colors cursor-pointer text-sm
 					${color.bg} ${color.text} ${color.border} ${color.hover}`}
                 >
-                  <span>{action.icon}</span>
+                  <span className="text-base">{Icon}</span>
                   <span>{action.label}</span>
                 </Link>
               );

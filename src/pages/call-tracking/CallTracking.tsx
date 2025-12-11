@@ -272,13 +272,15 @@ const CallTracking = () => {
             <p className="font-medium text-sm">Call History</p>
 
             {filteredCalls.length > 0 ? (
-              filteredCalls.map((record) => (
-                <CallRecordCard
-                  key={record.id}
-                  record={record}
-                  onPlayClick={() => setIsRecordingModalOpen(true)}
-                />
-              ))
+              <div className="space-y-3">
+                {filteredCalls.map((record) => (
+                  <CallRecordCard
+                    key={record.id}
+                    record={record}
+                    onPlayClick={() => setIsRecordingModalOpen(true)}
+                  />
+                ))}
+              </div>
             ) : (
               <div className="text-center py-10 text-gray-500 text-sm">
                 No call records found matching your filters.

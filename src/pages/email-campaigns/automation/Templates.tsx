@@ -43,7 +43,7 @@ const TEMPLATES_DATA = [
 const Templates = () => {
   return (
     <div className="space-y-5">
-      <div className="flex flex-col gap-4 border border-primary/15 rounded-xl p-4 bg-background/80">
+      <div className="flex flex-col gap-4 border border-primary/15 rounded-xl p-4">
         <h4 className="font-medium text-sm">Automation Templates</h4>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
