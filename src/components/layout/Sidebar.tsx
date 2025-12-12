@@ -158,7 +158,7 @@ const Sidebar = ({
       name: "Integrations",
       icon: HiOutlineLightningBolt,
       href: "/integrations",
-      stats: 12,
+      stats: 1,
       color: "bg-blue-400",
     },
     { name: "Settings", icon: HiOutlineCog, href: "/settings" },

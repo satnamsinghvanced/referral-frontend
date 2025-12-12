@@ -166,16 +166,19 @@ const CustomCalendar: React.FC<CalendarProps> = ({
             {hasActivities &&
               dayActivities.slice(0, 2).map((activity: any) => {
                 const activityColor = ACTIVITY_TYPES.find(
-                  (activityType: any) =>
-                    activityType.color.id === activity.colorId
+                  (activityType: any) => activityType.label == activity.type
                 )?.color.value;
 
                 return (
                   <Chip
                     key={activity._id}
                     size="sm"
-                    className="text-[11px] h-5 max-w-full truncate rounded-sm font-normal text-white cursor-pointer hover:opacity-80 transition-opacity" // Added hover effects
-                    style={{ backgroundColor: activityColor }}
+                    className="text-[11px] h-5 min-w-full max-w-full truncate rounded-sm font-normal text-white cursor-pointer hover:opacity-80 transition-opacity" // Added hover effects
+                    style={{
+                      background: activityColor
+                        ? activityColor
+                        : "linear-gradient(to right, #4285F4 50%, #FBBC04 50%)",
+                    }}
                     // 3. Add the click handler here
                     onClick={(e) => {
                       e.stopPropagation(); // Prevents the Day Cell click from firing

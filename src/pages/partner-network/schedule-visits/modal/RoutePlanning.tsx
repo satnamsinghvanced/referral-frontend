@@ -354,13 +354,13 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                   optimized: formattedResult,
                 });
               },
-              onError: (e) => {
-                addToast({
-                  title: "API Error",
-                  description: `Error calculating route from your location: ${e.message}`,
-                  color: "danger",
-                });
-              },
+              // onError: (e) => {
+              //   addToast({
+              //     title: "API Error",
+              //     description: `Error calculating route from your location: ${e.message}`,
+              //     color: "danger",
+              //   });
+              // },
             });
           },
           (error) => {
@@ -372,6 +372,10 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                 title: "Location Access Denied",
                 description: "Showing destination only.",
                 color: "warning",
+                classNames: {
+                  title: "text-warning-800",
+                  description: "text-warning-700",
+                },
               });
             }
           },

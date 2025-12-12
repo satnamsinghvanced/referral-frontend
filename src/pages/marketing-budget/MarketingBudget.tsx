@@ -39,7 +39,7 @@ const MarketingBudget = () => {
   const [currentFilters, setCurrentFilters] = useState({
     period: "monthly",
     page: 1,
-    limit: 2,
+    limit: 5,
   });
 
   const { data, isLoading } = useBudgetItems(currentFilters);
@@ -157,93 +157,95 @@ const MarketingBudget = () => {
               ))}
             </div>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            <Card
-              shadow="none"
-              radius="lg"
-              className="p-0 border border-primary/15"
-            >
-              <CardHeader className="p-5">
-                <h4 className="flex items-center gap-2 text-sm">
-                  <LuChartColumn /> Spending vs Budget Trend
-                </h4>
-              </CardHeader>
-              <CardBody className="p-5 pt-0">
-                <div className="my-1 -ml-3">
-                  <BarChart
+          {data && data?.budgetItems.length > 0 && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+              <Card
+                shadow="none"
+                radius="lg"
+                className="p-0 border border-primary/15"
+              >
+                <CardHeader className="p-5">
+                  <h4 className="flex items-center gap-2 text-sm">
+                    <LuChartColumn /> Spending vs Budget Trend
+                  </h4>
+                </CardHeader>
+                <CardBody className="p-5 pt-0">
+                  <div className="my-1 -ml-3">
+                    <BarChart
+                      style={{
+                        width: "100%",
+                        maxHeight: "400px",
+                        aspectRatio: 1.618,
+                        outline: "none",
+                        overflow: "hidden",
+                        fontSize: "14px",
+                      }}
+                      responsive
+                      data={data?.monthlyStats}
+                      margin={{ top: 5, right: 0, left: 0, bottom: 5 }}
+                    >
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="name" tickMargin={8} />
+                      <YAxis width={60} tickMargin={8} />
+                      <Tooltip isAnimationActive />
+                      <Legend
+                        wrapperStyle={{
+                          bottom: "-2px",
+                          textTransform: "capitalize",
+                        }}
+                      />
+                      <Bar
+                        dataKey="budget"
+                        barSize={40}
+                        fill="#3b82f6"
+                        isAnimationActive
+                      />
+                      <Bar
+                        dataKey="spent"
+                        barSize={40}
+                        fill="#10b981"
+                        isAnimationActive
+                      />
+                    </BarChart>
+                  </div>
+                </CardBody>
+              </Card>
+              <Card
+                shadow="none"
+                radius="lg"
+                className="p-0 border border-primary/15"
+              >
+                <CardHeader className="p-5">
+                  <h4 className="flex items-center gap-2 text-sm">
+                    <FiPieChart /> Budget by Category
+                  </h4>
+                </CardHeader>
+                <CardBody className="text-xs px-3 pb-0 items-center">
+                  <PieChart
                     style={{
                       width: "100%",
+                      height: "100%",
                       maxHeight: "400px",
-                      aspectRatio: 1.618,
-                      outline: "none",
-                      overflow: "hidden",
-                      fontSize: "14px",
+                      padding: "40px",
                     }}
                     responsive
-                    data={data?.monthlyStats}
-                    margin={{ top: 5, right: 0, left: 0, bottom: 5 }}
                   >
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="name" tickMargin={8} />
-                    <YAxis width={60} tickMargin={8} />
-                    <Tooltip isAnimationActive />
-                    <Legend
-                      wrapperStyle={{
-                        bottom: "-2px",
-                        textTransform: "capitalize",
-                      }}
-                    />
-                    <Bar
-                      dataKey="budget"
-                      barSize={40}
-                      fill="#3b82f6"
+                    <Pie
+                      data={data?.budgetByCategoryGraph}
+                      dataKey="value"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius="100%"
                       isAnimationActive
+                      label={PieChartCustomLabel}
+                      className="w-1/2"
                     />
-                    <Bar
-                      dataKey="spent"
-                      barSize={40}
-                      fill="#10b981"
-                      isAnimationActive
-                    />
-                  </BarChart>
-                </div>
-              </CardBody>
-            </Card>
-            <Card
-              shadow="none"
-              radius="lg"
-              className="p-0 border border-primary/15"
-            >
-              <CardHeader className="p-5">
-                <h4 className="flex items-center gap-2 text-sm">
-                  <FiPieChart /> Budget by Category
-                </h4>
-              </CardHeader>
-              <CardBody className="text-xs px-3 pb-0 items-center">
-                <PieChart
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    maxHeight: "400px",
-                    padding: "40px",
-                  }}
-                  responsive
-                >
-                  <Pie
-                    data={data?.budgetByCategoryGraph}
-                    dataKey="value"
-                    cx="50%"
-                    cy="50%"
-                    outerRadius="100%"
-                    isAnimationActive
-                    label={PieChartCustomLabel}
-                    className="w-1/2"
-                  />
-                  <Tooltip />
-                </PieChart>
-              </CardBody>
-            </Card>
-          </div>
+                    <Tooltip />
+                  </PieChart>
+                </CardBody>
+              </Card>
+            </div>
+          )}
 
           <div className="bg-background flex flex-col rounded-xl border border-primary/15 p-4">
             <div className="pb-4">
@@ -306,6 +308,7 @@ const MarketingBudget = () => {
           setEditBudgetItem(null);
         }}
         editedData={editBudgetItem} // Pass data for editing
+        setCurrentFilters={setCurrentFilters}
       />
 
       <DeleteConfirmationModal

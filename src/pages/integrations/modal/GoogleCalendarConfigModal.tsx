@@ -80,43 +80,22 @@ export default function GoogleCalendarConfigModal({
     onSubmit: async (values, { setSubmitting }) => {
       setSubmitting(true);
       try {
-        if (isUpdateMode && existingConfig) {
-          // --- UPDATE MODE: User is updating credentials for an existing integration ---
-          const updateData: UpdateGoogleCalendarRequest = {
-            platform: "google_calendar", // Assuming a fixed platform value
-            clientId: values.clientId,
-            clientSecret: values.clientSecret,
-            redirectUri: values.redirectUri,
-            // Tokens are deliberately excluded here as they are managed by the backend.
-          };
+        // --- INITIAL SAVE MODE: First time setup, generate Auth URL ---
+        const savePayload: GenerateAuthUrlRequest = {
+          userId: userId,
+          clientId: values.clientId,
+          clientSecret: values.clientSecret,
+          redirectUri: values.redirectUri,
+        };
 
-          await updateConfigMutation.mutateAsync({
-            id: existingConfig._id,
-            data: updateData,
-          });
+        const response = await generateAuthUrlMutation.mutateAsync(savePayload);
 
-          // On successful update, TanStack Query automatically refetches the config.
-          onClose();
+        // On success, redirect the user to Google for authorization
+        if (response?.authUrl) {
+          window.open(response.authUrl, "_blank");
+          onClose(); // Close modal after initiating OAuth flow
         } else {
-          // --- INITIAL SAVE MODE: First time setup, generate Auth URL ---
-          const savePayload: GenerateAuthUrlRequest = {
-            userId: userId,
-            clientId: values.clientId,
-            clientSecret: values.clientSecret,
-            redirectUri: values.redirectUri,
-          };
-
-          const response = await generateAuthUrlMutation.mutateAsync(
-            savePayload
-          );
-
-          // On success, redirect the user to Google for authorization
-          if (response?.authUrl) {
-            window.open(response.authUrl, "_blank");
-            onClose(); // Close modal after initiating OAuth flow
-          } else {
-            throw new Error("Failed to generate authorization URL.");
-          }
+          throw new Error("Failed to generate authorization URL.");
         }
       } catch (error) {
         // Display a general error message or log
@@ -346,7 +325,7 @@ export default function GoogleCalendarConfigModal({
               color="primary"
               type="submit"
               isLoading={isSubmitting}
-              isDisabled={isSubmitting || !formik.isValid}
+              isDisabled={isSubmitting || !formik.isValid || !formik.dirty}
             >
               {isUpdateMode ? "Update Credentials" : "Save and Authorize"}
             </Button>

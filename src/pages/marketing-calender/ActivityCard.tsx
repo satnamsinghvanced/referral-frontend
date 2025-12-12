@@ -20,8 +20,7 @@ export function ActivityCard({ activity, onView }: ActivityCardProps) {
     endDate,
     time,
     colorId,
-    type = ACTIVITY_TYPES.find((type) => type.color.id == activity.colorId)
-      ?.label,
+    type = "Google Calendar",
     status,
     priority,
     budget,
@@ -29,18 +28,25 @@ export function ActivityCard({ activity, onView }: ActivityCardProps) {
   } = activity;
 
   const activityColor = ACTIVITY_TYPES.find(
-    (activityType: any) => activityType.color.id == colorId
+    (activityType: any) => activityType.label == type
   )?.color.value;
 
   return (
     <Card
       radius="none"
-      className={`shadow-none bg-background !rounded-r-xl p-4 h-full flex flex-col justify-between border border-l-4 border-gray-100`}
-      style={{ borderLeftColor: activityColor }}
+      className={`relative overflow-visible shadow-none bg-background !rounded-r-xl p-4 h-full flex flex-col justify-between border border-l-0 border-gray-100`}
       onPress={() => onView(activity)}
       isPressable
       disableRipple
     >
+      <div
+        className="absolute top-1/2 -translate-y-1/2 left-0 w-1 h-[calc(100%+2px)] z-0"
+        style={{
+          background: activityColor
+            ? activityColor
+            : "linear-gradient(to bottom, #4285F4 50%, #FBBC04 50%)",
+        }}
+      ></div>
       <CardHeader className="flex justify-between items-start mb-2 p-0">
         <h3 className="text-sm font-medium">{title}</h3>
         <ActivityStatusChip status={status} />
@@ -57,11 +63,9 @@ export function ActivityCard({ activity, onView }: ActivityCardProps) {
             </div>
           )}
 
-          {type && (
-            <p className="text-xs flex items-center gap-1.5 capitalize">
-              <FiGlobe fontSize={14} /> {type}
-            </p>
-          )}
+          <p className="text-xs flex items-center gap-1.5 capitalize">
+            <FiGlobe fontSize={14} /> {type ? type : "Google Calendar"}
+          </p>
 
           {description && (
             <p className="text-xs text-gray-600 line-clamp-2">{description}</p>
