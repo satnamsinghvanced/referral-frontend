@@ -23,6 +23,7 @@ interface ReferralManagementActionsProps {
   editedData?: any;
   setReferrerEditId?: any;
   isPracticeEdit?: boolean;
+  setSelectedTab?: any;
 }
 
 type PracticeAddressErrors = Record<string, string | undefined> | undefined;
@@ -55,6 +56,7 @@ export default function ReferralManagementActions({
   editedData = {},
   setReferrerEditId,
   isPracticeEdit,
+  setSelectedTab,
 }: ReferralManagementActionsProps) {
   const { user } = useTypedSelector((state) => state.auth);
 
@@ -143,6 +145,7 @@ export default function ReferralManagementActions({
             resolve(data);
             setIsModalOpen(false);
             formik.resetForm();
+            setSelectedTab("Referrers");
           },
           onError: (error) => reject(error),
         });
@@ -589,6 +592,7 @@ export default function ReferralManagementActions({
                       sub.type === "tel" ? formatPhoneNumber(val) : val
                     )
                   }
+                  maxLength={sub.id === "zip" ? 5 : undefined}
                   onBlur={() => formik.setFieldTouched(fieldPath)}
                   isRequired={sub.isRequired}
                   touched={isTouched as boolean}
@@ -818,7 +822,7 @@ export default function ReferralManagementActions({
     formik.resetForm({ values: CLEAN_INITIAL_VALUES });
   };
 
-  let modalTitle = "Add New Referrer (Enhanced v2.0)";
+  let modalTitle = "Add New Referrer";
   let modalDescription =
     "Add a new doctor or patient referrer to your Practice ROI platform. Track referrals and generate QR codes.";
   let saveButtonText = "Add Referrer";
@@ -832,7 +836,7 @@ export default function ReferralManagementActions({
   }
 
   if (editedData?.type) {
-    modalTitle = "Edit Referrer (Enhanced v2.0)";
+    modalTitle = "Edit Referrer";
     modalDescription = "Edit your doctor or patient referrer.";
     saveButtonText = "Update Referrer";
     saveButtonIcon = <BiSave fontSize={15} />;
@@ -866,7 +870,7 @@ export default function ReferralManagementActions({
     >
       <form
         onSubmit={formik.handleSubmit}
-        className="space-y-4 py-1 h-fit w-full"
+        className="md:space-y-4 space-y-3 py-1 h-fit w-full"
       >
         {!isPracticeEdit && (
           <div className="border border-primary/20 rounded-lg p-4">
@@ -934,7 +938,7 @@ export default function ReferralManagementActions({
             </div>
 
             {formik.values.staff.length === 0 ? (
-              <div className="flex flex-col items-center justify-center border-2 border-dashed border-foreground/20 rounded-lg py-6 mb-4 gap-3">
+              <div className="flex flex-col items-center justify-center border-2 border-dashed border-foreground/20 rounded-lg py-6 gap-3">
                 <FiUsers className="inline mr-2 text-4xl text-default-400" />
                 <span className="text-sm text-gray-500">
                   No additional staff members added yet

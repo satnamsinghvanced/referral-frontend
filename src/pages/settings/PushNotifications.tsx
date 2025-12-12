@@ -127,7 +127,7 @@ const PushNotifications = () => {
 
       {/* Security and Privacy Card */}
       <Card className="shadow-none">
-        <CardBody className="p-5 space-y-5">
+        <CardBody className="p-5 space-y-4 md:space-y-5">
           <div className="flex items-center justify-between">
             <h4 className="leading-none flex items-center gap-2 text-sm">
               <MdOutlineShield className="h-5 w-5" />

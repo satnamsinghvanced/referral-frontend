@@ -35,7 +35,7 @@ export function ActivityCard({ activity, onView }: ActivityCardProps) {
   return (
     <Card
       radius="none"
-      className={`shadow-none bg-white !rounded-r-xl p-4 h-full flex flex-col justify-between border border-l-4 border-gray-100`}
+      className={`shadow-none bg-background !rounded-r-xl p-4 h-full flex flex-col justify-between border border-l-4 border-gray-100`}
       style={{ borderLeftColor: activityColor }}
       onPress={() => onView(activity)}
       isPressable

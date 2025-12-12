@@ -115,7 +115,7 @@ const CampaignAudienceStep: React.ForwardRefRenderFunction<
                 "p-3 h-full flex flex-col items-start justify-between text-left gap-1",
                 isSelected
                   ? "bg-blue-50 border-2 border-blue-500 text-blue-800 shadow-md"
-                  : "border-gray-200 bg-white"
+                  : "border-gray-200 bg-background"
               )}
               variant="bordered"
               radius="md"
@@ -145,9 +145,7 @@ const CampaignAudienceStep: React.ForwardRefRenderFunction<
       >
         <div className="flex items-center gap-1.5 mb-1.5 text-blue-900">
           <LuTarget />
-          <p className="text-xs font-medium">
-            Selected Audience
-          </p>
+          <p className="text-xs font-medium">Selected Audience</p>
         </div>
         <p className="text-sm font-medium text-blue-700">
           {selectedAudience?.name || "No Audience Selected"}

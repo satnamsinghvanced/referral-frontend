@@ -64,7 +64,7 @@ const Analytics = () => {
           {PLATFORM_BREAKDOWN_DATA.map((platform, i) => (
             <Card
               key={platform.name}
-              className="bg-white rounded-xl shadow-none p-4 w-full border border-primary/15"
+              className="bg-background rounded-xl shadow-none p-4 w-full border border-primary/15"
             >
               <div className="">
                 <div className="flex items-center justify-between">

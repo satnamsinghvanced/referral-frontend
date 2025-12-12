@@ -198,7 +198,7 @@ const Team: React.FC = () => {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 md:space-y-5">
       {/* Active Members */}
       <Card shadow="none" className="rounded-xl border border-foreground/10">
         <CardHeader className="flex items-center gap-2 px-5 pt-5 pb-0">
@@ -332,7 +332,7 @@ const Team: React.FC = () => {
                     variant="bordered"
                     onPress={() => handleResend(member._id)}
                     isLoading={resendingId === member._id}
-                    className="border-small bg-white"
+                    className="border-small bg-background"
                   >
                     Resend
                   </Button>

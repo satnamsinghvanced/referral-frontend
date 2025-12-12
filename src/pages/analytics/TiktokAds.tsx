@@ -143,7 +143,7 @@ export const TiktokAds: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 md:space-y-5">
       <div className="flex items-center gap-3 mb-6">
         <FaTiktok className="size-7 text-black" aria-hidden="true" />
         <div>
@@ -156,7 +156,7 @@ export const TiktokAds: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
         {STAT_CARD_DATA.map((data, i) => (
           <MiniStatsCard key={i} cardData={data} />
         ))}

@@ -396,8 +396,8 @@ const MarketingReport = () => {
 
   return (
     <ComponentContainer headingData={HEADING_DATA}>
-      <div className="flex flex-col gap-5">
-        <div className="space-y-5">
+      <div className="flex flex-col gap-4 md:gap-5">
+        <div className="space-y-4 md:space-y-5">
           <Card shadow="none" className="border border-primary/15 p-5">
             <CardHeader className="p-0 pb-4 flex items-center gap-2">
               <LuTrendingUp

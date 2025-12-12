@@ -8,7 +8,9 @@ const Layout = React.lazy(() => import("./components/layout/Layout"));
 const Dashboard = React.lazy(() => import("./pages/dashboard/Dashboard"));
 const Analytics = React.lazy(() => import("./pages/analytics/Analytics"));
 const HelpCenter = React.lazy(() => import("./pages/HelpCenter"));
-const EmailCampaign = React.lazy(() => import("./pages/email-campaigns/EmailCampaigns"));
+const EmailCampaign = React.lazy(
+  () => import("./pages/email-campaigns/EmailCampaigns")
+);
 const MarketingBudget = React.lazy(
   () => import("./pages/marketing-budget/MarketingBudget")
 );
@@ -79,6 +81,7 @@ const CallTracking = React.lazy(
 const ThankYou = React.lazy(
   () => import("./pages/referral-management/ThankYouPage")
 );
+const NotFoundPage = React.lazy(() => import("./pages/NotFoundPage"));
 
 // Route type
 interface AppRoute {
@@ -172,10 +175,10 @@ function AppRoutes() {
     { path: "terms", element: <Terms /> },
     { path: "privacy", element: <PrivacyPolicy /> },
     {
-      path: `/${referralPath}/`,
+      path: `${referralPath}/:id`,
       element: <PatientForm />,
-      children: [{ path: ":id", element: <PatientForm /> }],
     },
+    { path: "*", element: <NotFoundPage /> },
   ];
 
   const renderRoutes = (routes: AppRoute[]): ReactNode =>

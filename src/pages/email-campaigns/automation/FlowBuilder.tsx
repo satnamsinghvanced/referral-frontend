@@ -74,7 +74,7 @@ const FlowBuilder = () => {
   return (
     <div className="bg-background rounded-xl border border-primary/15 p-5">
       <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-5">
-        <div className="space-y-5">
+        <div className="space-y-4 md:space-y-5">
           {/* Flow Settings Card */}
           <div className="border border-primary/15 p-4 rounded-xl">
             <h4 className="text-sm font-medium mb-4">Flow Settings</h4>

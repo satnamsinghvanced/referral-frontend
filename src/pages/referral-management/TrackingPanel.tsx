@@ -12,6 +12,7 @@ import {
   useCreateTrackingSetup,
   useFetchTrackings,
 } from "../../hooks/useReferral";
+import { LoadingState } from "../../components/common/LoadingState";
 
 const TrackingPanel = () => {
   const [copied, setCopied] = useState("");
@@ -21,7 +22,7 @@ const TrackingPanel = () => {
   const { user } = useTypedSelector((state) => state.auth);
   const userId = user?.userId;
 
-  const { data: trackings } = useFetchTrackings(userId as string);
+  const { data: trackings, isLoading } = useFetchTrackings(userId as string);
   const { mutate: createTrackingSetup } = useCreateTrackingSetup();
 
   const handleCopy = async (identifier: string, value?: string) => {
@@ -143,12 +144,12 @@ const TrackingPanel = () => {
     }
   };
 
-  const openSharingModal = useCallback(async () => {
+  const openSharingModal = async () => {
     if (navigator.share) {
       try {
         await navigator.share({
           title: "Referral QR Code - General Practice",
-          url: trackings?.referralUrl || "",
+          url: trackings?.referralUrl.split("?")[0] as string,
         });
       } catch (error) {
         console.error("Error sharing content:", error);
@@ -156,7 +157,7 @@ const TrackingPanel = () => {
     } else {
       console.log("Web Share API not supported.");
     }
-  }, [userId]);
+  };
 
   const generateTracking = () => {
     createTrackingSetup({
@@ -166,8 +167,8 @@ const TrackingPanel = () => {
   };
 
   return (
-    <div className="grid grid-cols-2 gap-5 items-start">
-      <div className="border w-full border-primary/20 p-5 rounded-xl bg-background flex flex-col gap-5">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 items-start">
+      <div className="border w-full border-primary/20 p-4 md:p-5 rounded-xl bg-background flex flex-col gap-4 md:gap-5">
         <div>
           <h6 className="text-sm flex items-center gap-2">
             <LuQrCode className="text-blue-600 text-lg" /> QR & NFC Code
@@ -177,7 +178,11 @@ const TrackingPanel = () => {
             Generate personalized QR codes and NFC tags for General Practice
           </p>
         </div>
-        {!trackings?.qrCode ? (
+        {isLoading ? (
+          <div className="flex items-center justify-center min-h-[300px]">
+            <LoadingState />
+          </div>
+        ) : !trackings?.qrCode ? (
           <>
             <div>
               <div className="flex flex-col items-center gap-4 mt-4 mb-8">
@@ -236,9 +241,9 @@ const TrackingPanel = () => {
             </Button>
           </>
         ) : (
-          <div className="space-y-5 mt-2">
+          <div className="space-y-4 md:space-y-5 mt-2">
             <div className="flex flex-col items-center justify-center">
-              <div className="bg-white rounded-lg border-2 border-gray-200 inline-block overflow-hidden">
+              <div className="bg-background rounded-lg border-2 border-gray-200 inline-block overflow-hidden">
                 <img
                   src={trackings?.qrCode}
                   alt="QR Code"
@@ -319,7 +324,7 @@ const TrackingPanel = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-2 md:gap-3">
               <Button
                 variant="bordered"
                 color="default"
@@ -341,7 +346,10 @@ const TrackingPanel = () => {
               >
                 Share
               </Button>
-              <Link to={trackings?.referralUrl} target="_blank">
+              <Link
+                to={trackings?.referralUrl.split("?")[0] || ""}
+                target="_blank"
+              >
                 <Button
                   variant="bordered"
                   color="default"
@@ -367,9 +375,9 @@ const TrackingPanel = () => {
           </div>
         )}
       </div>
-      <div className="border w-full border-primary/20 p-5 rounded-xl bg-background">
+      <div className="border w-full border-primary/20 p-4 md:p-5 rounded-xl bg-background">
         <h6 className="text-sm flex items-center gap-2">Tracking Analytics</h6>
-        <div className="flex flex-col gap-3 mt-4 rounded-md">
+        <div className="flex flex-col gap-2 md:gap-3 mt-4 rounded-md">
           {[
             {
               label: "Total Scans",
@@ -398,7 +406,7 @@ const TrackingPanel = () => {
           ].map((item, index) => (
             <div
               key={index}
-              className="flex justify-between text-xs p-4 rounded-lg bg-gray-50"
+              className="flex justify-between text-xs p-3 md:p-4 rounded-lg bg-gray-50"
             >
               <p className="font-medium">{item.label}</p>
               <div>

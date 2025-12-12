@@ -53,7 +53,7 @@ const DUMMY_POSTS: PostItem[] = [
 
 const Posts = () => {
   return (
-    <Card className="bg-white rounded-xl shadow-none p-5 border border-primary/15 w-full">
+    <Card className="bg-background rounded-xl shadow-none p-5 border border-primary/15 w-full">
       <CardHeader className="flex justify-between items-center mb-5 p-0">
         <h2 className="text-sm">Recent Posts</h2>
         <Chip

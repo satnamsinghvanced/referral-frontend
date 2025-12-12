@@ -66,7 +66,7 @@ const CampaignSidebar: React.FC<CampaignSidebarProps> = ({
                       ? "border-blue-600 bg-blue-50 text-blue-600"
                       : isCompleted
                       ? "border-green-500 bg-green-500 text-white"
-                      : "border-gray-300 text-gray-400 bg-white"
+                      : "border-gray-300 text-gray-400 bg-background"
                   )}
                 >
                   {isCompleted ? (

@@ -45,7 +45,7 @@ const Reviews = () => {
   return (
     <>
       <ComponentContainer headingData={HEADING_DATA}>
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-4 md:gap-5">
           <div className="grid grid-cols md:grid-cols-3 xl:grid-cols-4 gap-4">
             {STATS_CARD_DATA.map((card, index) => (
               <MiniStatsCard key={index} cardData={card} />

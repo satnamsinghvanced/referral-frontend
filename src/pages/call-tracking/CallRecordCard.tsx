@@ -56,7 +56,7 @@ export default function CallRecordCard({
     record.sentiment === "positive" ? "text-green-600" : "text-gray-600";
 
   return (
-    <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg bg-white">
+    <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg bg-background">
       <div className="flex items-center space-x-3.5">
         <div className={`p-2 rounded-lg ${iconBgClass}`}>
           <FiPhoneIncoming

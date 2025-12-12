@@ -182,11 +182,12 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
   };
 
   const previewHashtags = activeHashtags.join(" ");
-  
+
   // Dynamic classes for the upload area
-  const uploadWrapperClasses = files.length > 0 
-    ? "border-green-400 bg-green-50/50 hover:border-green-500"
-    : "border-gray-200 hover:border-gray-300 hover:bg-gray-50";
+  const uploadWrapperClasses =
+    files.length > 0
+      ? "border-green-400 bg-green-50/50 hover:border-green-500"
+      : "border-gray-200 hover:border-gray-300 hover:bg-gray-50";
 
   return (
     <Modal
@@ -208,7 +209,7 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
           </p>
         </ModalHeader>
 
-        <ModalBody className="space-y-5 px-5 py-0 gap-0 max-h-[75vh] overflow-auto">
+        <ModalBody className="space-y-4 md:space-y-5 px-5 py-0 gap-0 max-h-[75vh] overflow-auto">
           {/* Post Content */}
           <div className="space-y-0.5">
             <Textarea

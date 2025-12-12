@@ -12,12 +12,25 @@ import { RiErrorWarningLine } from "react-icons/ri";
 import { RxTarget } from "react-icons/rx";
 import { PRIORITY_LEVELS, PURPOSE_OPTIONS } from "../../../../consts/practice";
 
+import { Partner } from "../../../../types/partner";
+
 interface PlanDetailsTabProps {
-  planState: any;
-  onStateChange: any;
-  errors: any;
+  planState: {
+    routeDate: string;
+    startTime: string;
+    durationPerVisit: string;
+    planName: string;
+    defaultPriority: string;
+    defaultVisitPurpose: string;
+    customVisitPurpose: string;
+    description: string;
+    enableAutoRoute: boolean;
+    visitDays: string;
+  };
+  onStateChange: (key: string, value: string | boolean) => void;
+  errors: Record<string, string>;
   data: any;
-  selectedReferrerObjects: any[];
+  selectedReferrerObjects: Partner[];
 }
 
 export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
@@ -33,7 +46,7 @@ export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
 
   return (
     <form>
-      <div className="grid grid-cols-2 gap-6">
+      <div className="md:grid md:grid-cols-2 md:gap-6 max-md:space-y-4">
         <div className="space-y-4">
           <div>
             <Input

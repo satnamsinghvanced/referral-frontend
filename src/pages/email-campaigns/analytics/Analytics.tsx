@@ -51,14 +51,14 @@ const Analytics = () => {
   };
 
   return (
-    <div className="flex flex-col gap-5">
-      <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
+    <div className="flex flex-col gap-4 md:gap-5">
+      <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
         {STAT_CARD_DATA.map((data, i) => (
           <MiniStatsCard key={i} cardData={data} />
         ))}
       </div>
       <div className="flex items-center gap-3 border-primary/15 border rounded-xl bg-background p-4">
-        <div className="flex items-center gap-2.5">
+        <div className="flex items-center gap-3">
           <Select
             aria-label="Filter"
             placeholder="All filters"
@@ -98,7 +98,7 @@ const Analytics = () => {
           Export
         </Button>
       </div>
-      <div className="space-y-5">
+      <div className="space-y-4 md:space-y-5">
         <Tabs
           aria-label="Options"
           classNames={{

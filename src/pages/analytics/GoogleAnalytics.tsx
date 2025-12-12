@@ -405,7 +405,7 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 md:space-y-5">
       <div className="flex items-center gap-3 mb-6">
         <SiGoogleanalytics
           className="size-7 text-yellow-500"
@@ -421,7 +421,7 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
         {STAT_CARD_DATA.map((data, i) => (
           <MiniStatsCard key={i} cardData={data} />
         ))}

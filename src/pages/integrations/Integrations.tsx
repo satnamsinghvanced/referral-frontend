@@ -178,7 +178,7 @@ function Integrations() {
   return (
     <>
       <ComponentContainer headingData={HEADING_DATA}>
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4 md:gap-5">
           <Card className="shadow-none border border-primary/15 rounded-xl p-5">
             <CardHeader className="p-0 pb-6">
               <h4 className="font-medium text-sm">Available Integrations</h4>
@@ -190,7 +190,7 @@ function Integrations() {
             </CardBody>
           </Card>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             <Card className="shadow-none border border-primary/15 rounded-xl p-5">
               <CardHeader className="p-0 pb-5">
                 <h4 className="font-medium text-sm">API Keys</h4>
@@ -202,7 +202,7 @@ function Integrations() {
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="bg-white border-small h-7 px-2"
+                      className="bg-background border-small h-7 px-2"
                     >
                       Copy
                     </Button>
@@ -218,7 +218,7 @@ function Integrations() {
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="bg-white border-small h-7 px-2"
+                      className="bg-background border-small h-7 px-2"
                     >
                       Reveal
                     </Button>

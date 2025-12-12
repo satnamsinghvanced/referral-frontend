@@ -31,9 +31,14 @@ import { parseStringTime } from "../../../../utils/parseStringTime";
 import { downloadJson } from "../../../../utils/jsonDownloader";
 
 interface RoutePlanningTabProps {
-  planState: any;
-  onStateChange: any;
-  errors: any;
+  planState: {
+    routeDate: string;
+    startTime: string;
+    durationPerVisit: string;
+    enableAutoRoute: boolean;
+  };
+  onStateChange: (key: string, value: string | boolean) => void;
+  errors: Record<string, string>;
   selectedReferrerObjects: Partner[];
   routeOptimizationResults: RouteOptimizationResults | null;
   setRouteOptimizationResults: React.Dispatch<
@@ -41,10 +46,12 @@ interface RoutePlanningTabProps {
   >;
 }
 
-const haversineDistance = (
-  [lng1, lat1]: number[],
-  [lng2, lat2]: number[]
-): number => {
+const haversineDistance = (p1: number[], p2: number[]): number => {
+  const lng1 = p1[0] || 0;
+  const lat1 = p1[1] || 0;
+  const lng2 = p2[0] || 0;
+  const lat2 = p2[1] || 0;
+
   const R = 6371e3;
   const φ1 = (lat1 * Math.PI) / 180;
   const φ2 = (lat2 * Math.PI) / 180;
@@ -70,13 +77,15 @@ const getOptimizedCoordinates = (
   }
 
   const startPoint = initialCoords[0];
+  if (!startPoint) return { optimizedOrder: initialCoords, orderMap: [] }; // Should be covered by length check but satisfies TS
+
   const stopsWithOriginalIndex = initialCoords
     .slice(1)
     .map((coord, index) => ({ coord, originalIndex: index + 1 }));
 
   const optimizedOrder: number[][] = [startPoint];
   const optimizedOrderMap: number[] = [0];
-  let currentPoint = startPoint;
+  let currentPoint: number[] = startPoint;
 
   let remainingStops = [...stopsWithOriginalIndex];
 
@@ -85,19 +94,26 @@ const getOptimizedCoordinates = (
     let minDistance = Infinity;
 
     for (let i = 0; i < remainingStops.length; i++) {
-      const distance = haversineDistance(currentPoint, remainingStops[i].coord);
-      if (distance < minDistance) {
-        minDistance = distance;
-        nearestIndexInRemaining = i;
+      const stop = remainingStops[i];
+      if (stop) {
+        const distance = haversineDistance(currentPoint, stop.coord);
+        if (distance < minDistance) {
+          minDistance = distance;
+          nearestIndexInRemaining = i;
+        }
       }
     }
 
     if (nearestIndexInRemaining !== -1) {
       const nearestStop = remainingStops[nearestIndexInRemaining];
-      currentPoint = nearestStop.coord;
-      optimizedOrder.push(currentPoint);
-      optimizedOrderMap.push(nearestStop.originalIndex);
-      remainingStops.splice(nearestIndexInRemaining, 1);
+      if (nearestStop) {
+        currentPoint = nearestStop.coord;
+        optimizedOrder.push(currentPoint);
+        optimizedOrderMap.push(nearestStop.originalIndex);
+        remainingStops.splice(nearestIndexInRemaining, 1);
+      } else {
+        remainingStops.splice(nearestIndexInRemaining, 1);
+      }
     } else {
       break;
     }
@@ -139,7 +155,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
 
   const { summary, routeDetailsList } = useMemo(() => {
     if (!routeOptimizationResults) {
-      return { summary: {}, routeDetailsList: [] };
+      return { summary: undefined, routeDetailsList: [] };
     }
 
     const activeRoute = planState.enableAutoRoute
@@ -182,8 +198,8 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
 
     const initialCoords: number[][] = selectedReferrerObjects.map(
       (referrer: Partner) => {
-        const { lat, long } = referrer?.address?.coordinates;
-        return [long, lat];
+        const coords = referrer?.address?.coordinates;
+        return coords ? [coords.long, coords.lat] : [0, 0];
       }
     );
 
@@ -196,7 +212,9 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
 
   const optimizedOrderObjects = useCallback(
     (referrers: Partner[], orderMap: number[]): Partner[] => {
-      return orderMap.map((index) => referrers[index]);
+      return orderMap
+        .map((index) => referrers[index])
+        .filter((p): p is Partner => !!p);
     },
     []
   );
@@ -273,6 +291,16 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
 
             const userCoords = `${position.coords.longitude},${position.coords.latitude}`;
             const referrer = selectedReferrerObjects[0];
+
+            if (!referrer) {
+              addToast({
+                title: "Error",
+                description: "Reviewer data missing.",
+                color: "danger",
+              });
+              return;
+            }
+
             const destinationCoords = `${referrer.address.coordinates.long},${referrer.address.coordinates.lat}`;
 
             const singleStopCoordString = `${userCoords};${destinationCoords}`;
@@ -543,15 +571,15 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
   }
 
   return (
-    <div className="space-y-4 max-h-[600px] overflow-auto">
+    <div className="space-y-3 md:space-y-4 max-h-[600px] overflow-auto">
       <Card className="shadow-none border border-primary/15">
-        <CardHeader className="pt-5 px-5 pb-1">
+        <CardHeader className="pt-4 px-4 pb-0">
           <h4 className="text-sm font-medium">Route Configuration</h4>
         </CardHeader>
-        <CardBody className="px-5 pb-5">
-          <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-            <div className="flex items-center gap-4 flex-wrap">
-              <div>
+        <CardBody className="px-4 pb-4">
+          <div className="md:flex md:items-center md:justify-between gap-3 p-4 bg-gray-50 rounded-lg max-md:space-y-3">
+            <div className="flex items-center gap-3 flex-wrap md:w-[70%] max-w-[500px]">
+              <div className="flex-1">
                 <DatePicker
                   name="routeDate"
                   label="Route Date"
@@ -563,21 +591,23 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                   granularity="day"
                   value={
                     planState?.routeDate
-                      ? parseDate(planState.routeDate.split("T")[0])
+                      ? parseDate(planState.routeDate.split("T")[0] as string)
                       : today(localTimeZone)
                   }
                   onChange={(value) => {
-                    onStateChange("routeDate", formatCalendarDate(value));
+                    if (value) {
+                      onStateChange("routeDate", formatCalendarDate(value));
+                    }
                   }}
                   errorMessage={errors.routeDate}
                   isInvalid={!!errors.routeDate}
                   classNames={{
                     inputWrapper:
-                      "border border-primary/15 bg-background shadow-none min-w-[150px]",
+                      "border border-primary/15 bg-background shadow-none",
                   }}
                 />
               </div>
-              <div>
+              <div className="flex-1">
                 <TimeInput
                   name="startTime"
                   label="Start Time"
@@ -602,7 +632,6 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                       : errors.startTime
                   }
                   isInvalid={isTimeInPastError || !!errors.startTime}
-                  className="w-[140px]"
                   classNames={{
                     base: "!pb-0",
                     inputWrapper:
@@ -611,7 +640,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                   }}
                 />
               </div>
-              <div>
+              <div className="flex-1">
                 <Select
                   name="durationPerVisit"
                   label="Duration per visit"
@@ -621,7 +650,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                   radius="sm"
                   selectedKeys={
                     planState.durationPerVisit
-                      ? [planState.durationPerVisit]
+                      ? ([planState.durationPerVisit] as any)
                       : PER_VISIT_DURATION_OPTIONS.length > 0
                       ? [PER_VISIT_DURATION_OPTIONS[0]]
                       : []
@@ -632,16 +661,14 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                   errorMessage={errors.durationPerVisit}
                   isInvalid={!!errors.durationPerVisit}
                   classNames={{
-                    base: "!mt-0 gap-2 w-38",
+                    base: "!mt-0 gap-2",
                     label: "!translate-0 !static",
                     trigger:
                       "border border-primary/15 bg-background shadow-none",
                   }}
                 >
                   {PER_VISIT_DURATION_OPTIONS.map((duration: string) => (
-                    <SelectItem key={duration} value={duration}>
-                      {duration}
-                    </SelectItem>
+                    <SelectItem key={duration}>{duration}</SelectItem>
                   ))}
                 </Select>
               </div>
@@ -674,11 +701,11 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
         <>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <Card className="shadow-none border border-primary/15">
-              <CardHeader className="pt-5 px-5 pb-1">
+              <CardHeader className="pt-4 px-4 pb-0">
                 <h4 className="text-sm font-medium">Original Route</h4>
               </CardHeader>
-              <CardBody className="px-5 pb-5">
-                <div className="grid grid-cols-2 gap-4 text-sm">
+              <CardBody className="px-4 pb-4">
+                <div className="grid grid-cols-2 gap-4 max-md:gap-3 text-sm">
                   <div className="text-center p-3 bg-gray-50 rounded">
                     <div className="font-medium">
                       {routeOptimizationResults.original.travelDistance}
@@ -696,13 +723,13 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
             </Card>
 
             <Card className="shadow-none border border-green-200">
-              <CardHeader className="pt-5 px-5 pb-1">
+              <CardHeader className="pt-4 px-4 pb-0">
                 <h4 className="text-sm font-medium text-green-600">
                   Optimized Route
                 </h4>
               </CardHeader>
-              <CardBody className="px-5 pb-5">
-                <div className="grid grid-cols-2 gap-4 text-sm">
+              <CardBody className="px-4 pb-4">
+                <div className="grid grid-cols-2 gap-4 max-md:gap-3 text-sm">
                   <div className="text-center p-3 bg-green-50 rounded">
                     <div className="font-semibold text-green-600">
                       {routeOptimizationResults?.optimized.travelDistance}
@@ -721,7 +748,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
           </div>
 
           <Card className="shadow-none border border-primary/15">
-            <CardHeader className="pt-5 px-5 pb-1">
+            <CardHeader className="pt-4 px-4 pb-0">
               <div className="flex items-center justify-between w-full">
                 <h4 className="text-sm font-medium">
                   Route Details ({routeType})
@@ -751,12 +778,12 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
               </div>
             </CardHeader>
 
-            <CardBody className="px-5 pb-5">
+            <CardBody className="px-4 pb-4">
               <div className="space-y-3">
                 {routeDetailsList?.map((stop: any, index: number) => (
                   <div
                     key={index}
-                    className="flex items-center gap-3 p-3 bg-gray-50 rounded-md"
+                    className="flex items-center gap-3 max-md:gap-2 p-3 bg-gray-50 rounded-md"
                   >
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-medium">
@@ -771,19 +798,19 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                       <p className="text-xs text-gray-600 mt-1">
                         {stop.address.addressLine1}
                       </p>
-                      <div className="flex items-center gap-4 mt-2 text-xs text-gray-600">
-                        <span className="flex items-center gap-1">
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2 text-xs text-gray-600">
+                        <span className="flex items-center gap-1 whitespace-nowrap">
                           <FiClock className="h-3 w-3" />
                           {stop.arrivalTime} - {stop.departureTime}
                         </span>
 
                         {!stop.isFirstStop && (
                           <>
-                            <span className="flex items-center gap-1">
+                            <span className="flex items-center gap-1 whitespace-nowrap">
                               <BiCar className="h-3 w-3" />
                               {stop.travelTime}
                             </span>
-                            <span className="flex items-center gap-1">
+                            <span className="flex items-center gap-1 whitespace-nowrap">
                               <FiMapPin className="h-3 w-3" />
                               {stop.travelDistance}
                             </span>

@@ -14,7 +14,7 @@ function TaskCard({ task }: { task: TaskApiData }) {
       className={`rounded-xl p-3.5 border shadow-none ${
         task.isOverDue
           ? "border-red-200 bg-red-50"
-          : "bg-white border-primary/15"
+          : "bg-background border-primary/15"
       }`}
     >
       <CardHeader className="flex items-center justify-between gap-2 mb-2 p-0">

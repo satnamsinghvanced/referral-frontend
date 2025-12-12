@@ -112,7 +112,7 @@ const PlaybackTab = ({ data }: any) => (
               <FiVolume2 className="h-4 w-4 text-gray-500" />
               {/* Simplified Slider Placeholder */}
               <div className="flex-1 h-2 bg-primary-500 rounded-full relative">
-                <div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-white border border-primary-500 rounded-full shadow-md right-0"></div>
+                <div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-background border border-primary-500 rounded-full shadow-md right-0"></div>
               </div>
             </div>
 

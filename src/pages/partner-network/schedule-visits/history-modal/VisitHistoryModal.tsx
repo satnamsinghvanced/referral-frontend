@@ -78,7 +78,7 @@ export function VisitHistoryModal({
     >
       <ModalContent className="max-h-[90vh] overflow-hidden p-0 w-full relative">
         {isFetching && (
-          <div className="absolute inset-0 bg-white/70 backdrop-blur-sm z-50 flex items-center justify-center transition-opacity duration-300">
+          <div className="absolute inset-0 bg-background/70 backdrop-blur-sm z-50 flex items-center justify-center transition-opacity duration-300">
             <FiLoader className="animate-spin h-6 w-6 text-primary" />
           </div>
         )}
@@ -155,7 +155,7 @@ export function VisitHistoryModal({
           <div>
             {visits?.map((monthGroup: any, index: number) => (
               <div key={index} className="space-y-3">
-                <h3 className="text-sm font-medium sticky top-0 bg-white py-2.5 border-b border-primary/15 z-10">
+                <h3 className="text-sm font-medium sticky top-0 bg-background py-2.5 border-b border-primary/15 z-10">
                   {monthGroup.month} ({monthGroup.visits.length} visits)
                 </h3>
                 <div className="space-y-2.5">

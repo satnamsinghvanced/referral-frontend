@@ -118,7 +118,7 @@ const MarketingBudget = () => {
   return (
     <>
       <ComponentContainer headingData={HEADING_DATA}>
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-4 md:gap-5">
           <div className="relative p-1 h-fit gap-2 items-center flex-nowrap overflow-x-scroll scrollbar-hide flex w-full rounded-full bg-primary/10 text-xs">
             {BUDGET_DURATIONS.map((duration: any) => {
               return (
@@ -143,15 +143,15 @@ const MarketingBudget = () => {
                     <motion.div
                       layoutId="underline"
                       transition={{ duration: 0.3 }}
-                      className="absolute top-0 left-0 w-full h-full bg-white shadow-small rounded-full -z-0"
+                      className="absolute top-0 left-0 w-full h-full bg-background shadow-small rounded-full -z-0"
                     />
                   ) : null}
                 </div>
               );
             })}
           </div>
-          <div className="space-y-5">
-            <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
+          <div className="space-y-4 md:space-y-5">
+            <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
               {STAT_CARD_DATA.map((data, i) => (
                 <MiniStatsCard key={i} cardData={data} />
               ))}

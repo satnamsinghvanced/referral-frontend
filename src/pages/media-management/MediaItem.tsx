@@ -23,7 +23,7 @@ const MediaItem = ({
   return (
     <div
       key={media._id}
-      className="relative border border-gray-200 rounded-lg overflow-hidden group bg-white"
+      className="relative border border-gray-200 rounded-lg overflow-hidden group bg-background"
     >
       <div className="w-full h-32 flex items-center justify-center bg-gray-100 overflow-hidden">
         {isVideo ? (

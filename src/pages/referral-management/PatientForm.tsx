@@ -10,8 +10,8 @@ import {
 } from "@heroui/react";
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
-import { FaPhone, FaRegStar } from "react-icons/fa";
-import { FiDownload } from "react-icons/fi";
+import { FaRegStar } from "react-icons/fa";
+import { FiDownload, FiLoader } from "react-icons/fi";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import { TREATMENT_OPTIONS, URGENCY_OPTIONS } from "../../consts/referral";
@@ -21,7 +21,7 @@ import { Referral } from "../../types/referral";
 import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
 import { downloadVcf } from "../../utils/vcfGenerator";
 import { EMAIL_REGEX, PHONE_REGEX } from "../../consts/consts";
-import { getLocalTimeZone, now, today } from "@internationalized/date";
+import { getLocalTimeZone, now } from "@internationalized/date";
 import { RiPhoneFill } from "react-icons/ri";
 
 interface PatientFormValues {
@@ -46,12 +46,14 @@ const PatientForm = () => {
   const [addedVia, setAddedVia] = useState<string>("");
 
   const { mutateAsync: createReferral, isPending } = useCreateReferral();
-  const { data: fetchedUser } = useFetchUserForTrackings(referredBy);
+  const { data: fetchedUser, isLoading: isUserLoading } =
+    useFetchUserForTrackings(referredBy);
   const { mutate: trackScan } = useTrackScan();
 
   useEffect(() => {
     const pathname = window.location.pathname;
     const segments = pathname.split("/");
+    // Assumes URL structure is /<base>/<custom-path>/<documentId>/
     const documentId = segments[3];
 
     setReferredBy(documentId || "");
@@ -70,7 +72,7 @@ const PatientForm = () => {
     }
   }, [referredBy, addedVia, trackScan]);
 
-  const validationSchema = Yup.object<PatientFormValues>().shape({
+  const validationSchema = Yup.object().shape({
     fullName: Yup.string()
       .required("Full name is required")
       .min(2, "Full name must be at least 2 characters")
@@ -97,9 +99,10 @@ const PatientForm = () => {
     referralReason: Yup.string()
       .max(500, "Referral reason must be less than 500 characters")
       .nullable(),
-    additionalNotes: Yup.string()
+    notes: Yup.string()
       .max(1000, "Additional notes must be less than 1000 characters")
       .nullable(),
+    scheduledDate: Yup.string().nullable(),
   });
 
   const formFields = [
@@ -109,6 +112,7 @@ const PatientForm = () => {
       label: "Full Name",
       placeholder: "Enter your full name",
       required: true,
+      maxLength: 100,
     },
     {
       type: "number",
@@ -116,6 +120,7 @@ const PatientForm = () => {
       label: "Age",
       placeholder: "Enter age",
       required: true,
+      maxLength: 3,
     },
     {
       type: "email",
@@ -123,18 +128,21 @@ const PatientForm = () => {
       label: "Email Address",
       placeholder: "your.email@example.com",
       required: true,
+      maxLength: 255,
     },
     {
       type: "tel",
       name: "phone",
       label: "Phone Number",
       placeholder: "(555) 123-4567",
+      maxLength: 14, // (XXX) XXX-XXXX
     },
     {
       type: "text",
       name: "insuranceProvider",
       label: "Insurance Provider",
       placeholder: "e.g., Delta Dental, Aetna, Cigna, etc.",
+      maxLength: 100,
     },
     {
       type: "date",
@@ -160,398 +168,381 @@ const PatientForm = () => {
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
-      try {
-        const payload: Partial<Referral> = {
-          referredBy: referredBy,
-          addedVia: addedVia || "Direct",
-          name: values.fullName,
-          email: values.email,
-          phone: values.phone || "",
-          age: values.age ? Number(values.age) : null,
-          insurance: values.insuranceProvider || "",
-          treatment: values.preferredTreatment || "",
-          priority: values.urgencyLevel || "medium",
-          appointmentTime: values.preferredTime || "",
-          reason: values.referralReason || "",
-          notes: values.notes || "",
-          scheduledDate: values.scheduledDate || "",
-        };
+      const payload: Partial<Referral> = {
+        referredBy: referredBy,
+        addedVia: addedVia || "Direct",
+        name: values.fullName,
+        email: values.email,
+        phone: values.phone || "",
+        age: values.age ? Number(values.age) : null,
+        insurance: values.insuranceProvider || "",
+        treatment: values.preferredTreatment || "",
+        priority: values.urgencyLevel || "medium",
+        appointmentTime: values.preferredTime || "",
+        reason: values.referralReason || "",
+        notes: values.notes || "",
+        scheduledDate: values.scheduledDate || "",
+      };
 
-        await createReferral(payload, {
-          onSuccess() {
-            formik.resetForm();
-            navigate("/thank-you", { state: { user: fetchedUser } });
-          },
-        });
-      } catch (error) {
-        console.error("Form submission error:", error);
-      }
+      await createReferral(payload, {
+        onSuccess() {
+          formik.resetForm();
+          navigate("/thank-you", { state: { user: fetchedUser } });
+        },
+      });
     },
   });
 
+  const handleInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    fieldName: keyof PatientFormValues,
+    type: string,
+    maxLength?: number
+  ) => {
+    let value: string | number | undefined = event.target.value;
+
+    if (type === "tel") {
+      value = formatPhoneNumber(value);
+    } else if (type === "number") {
+      if (maxLength && value.length > maxLength) {
+        // Enforce max length for age by not updating the value
+        return;
+      }
+      // Convert to number or empty string if input is empty
+      value = value === "" ? "" : Number(value);
+    }
+
+    formik.setFieldValue(fieldName as string, value);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 py-5 px-4 flex items-center justify-center">
-      <div className="max-w-3xl w-full mx-auto">
-        <Card className="shadow-lg mb-5 border-0">
-          <CardBody className="p-0">
-            <div className="flex justify-between items-center text-sm bg-gradient-to-l from-green-600 to-blue-600 m-0 px-5 py-4 text-background">
-              <div>
-                {fetchedUser?.practiceName && (
-                  <h1 className="text-base font-medium mb-1">
-                    {fetchedUser?.practiceName}
-                  </h1>
-                )}
+      {isUserLoading ? (
+        <div className="flex items-center justify-center p-4">
+          <FiLoader className="animate-spin size-8 text-primary" />
+        </div>
+      ) : (
+        <div className="max-w-3xl w-full mx-auto">
+          <Card className="shadow-lg mb-5 border-0">
+            <CardBody className="p-0">
+              <div className="flex justify-between items-center text-sm bg-gradient-to-l from-green-600 to-blue-600 m-0 px-5 py-4 text-background">
                 <div>
-                  {fetchedUser?.practiceName
-                    ? `${fetchedUser?.firstName} ${fetchedUser?.lastName}`
-                    : `Referred by ${fetchedUser?.firstName} ${fetchedUser?.lastName}`}
+                  {fetchedUser?.practiceName && (
+                    <h1 className="text-base font-medium mb-1">
+                      {fetchedUser?.practiceName}
+                    </h1>
+                  )}
+                  <div>
+                    {fetchedUser?.practiceName
+                      ? `${fetchedUser?.firstName} ${fetchedUser?.lastName}`
+                      : `Referred by ${fetchedUser?.firstName} ${fetchedUser?.lastName}`}
+                  </div>
+                </div>
+                <div>
+                  {fetchedUser?.phone && (
+                    <Link
+                      to={`tel:${fetchedUser?.phone}`}
+                      className="flex items-center justify-center gap-1.5"
+                    >
+                      <RiPhoneFill className="text-lg" />
+                      {fetchedUser?.phone}
+                    </Link>
+                  )}
                 </div>
               </div>
-              <div>
-                {fetchedUser?.phone && (
-                  <Link
-                    to={`tel:${fetchedUser?.phone}`}
-                    className="flex items-center justify-center gap-1.5"
-                  >
-                    <RiPhoneFill className="text-lg" />
-                    {fetchedUser?.phone}
-                  </Link>
-                )}
-              </div>
-            </div>
 
-            {fetchedUser?.practiceName && (
-              <div className="px-5 py-4">
-                <p className="text-sm font-medium">
-                  {`Referred by ${fetchedUser?.firstName} ${
-                    fetchedUser?.lastName
-                  } ${
-                    fetchedUser?.practiceName &&
-                    `from ${fetchedUser?.practiceName}`
-                  }`}
-                </p>
-                {fetchedUser?.medicalSpecialty && (
-                  <p className="text-xs text-gray-600 mt-1">
-                    Specialty in {fetchedUser?.medicalSpecialty?.title}
+              {fetchedUser?.practiceName && (
+                <div className="px-5 py-4">
+                  <p className="text-sm font-medium">
+                    {`Referred by ${fetchedUser?.firstName} ${
+                      fetchedUser?.lastName
+                    } ${
+                      fetchedUser?.practiceName &&
+                      `from ${fetchedUser?.practiceName}`
+                    }`}
                   </p>
-                )}
+                  {fetchedUser?.medicalSpecialty && (
+                    <p className="text-xs text-gray-600 mt-1">
+                      Specialty in {fetchedUser?.medicalSpecialty?.title}
+                    </p>
+                  )}
+                </div>
+              )}
+            </CardBody>
+          </Card>
+
+          <Card className="shadow-xl border-0">
+            <CardBody className="p-5">
+              <div className="mb-5">
+                <h2 className="text-base font-medium mb-1.5 flex items-center gap-1.5">
+                  <FaRegStar className="text-yellow-500 text-lg" /> Schedule
+                  Your Orthodontic Consultation
+                </h2>
+                <p className="text-left text-gray-600 text-xs">
+                  Please fill out the form below and we'll contact you to
+                  schedule your appointment.
+                </p>
               </div>
-            )}
-          </CardBody>
-        </Card>
 
-        <Card className="shadow-xl border-0">
-          <CardBody className="p-5">
-            <div className="mb-5">
-              <h2 className="text-base font-medium mb-1.5 flex items-center gap-1.5">
-                <FaRegStar className="text-yellow-500 text-lg" /> Schedule Your
-                Orthodontic Consultation
-              </h2>
-              <p className="text-left text-gray-600 text-xs">
-                Please fill out the form below and we'll contact you to schedule
-                your appointment.
-              </p>
-            </div>
+              <form onSubmit={formik.handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {formFields.map((field) => {
+                    const fieldName = field.name as keyof PatientFormValues;
+                    const value = formik.values[fieldName];
+                    const touched = formik.touched[fieldName];
+                    const error = formik.errors[fieldName];
 
-            <form onSubmit={formik.handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {formFields.map((field) =>
-                  field.type !== "date" ? (
-                    <Input
-                      key={field.name}
-                      type={field.type}
-                      label={field.label}
-                      labelPlacement="outside-top"
-                      size="sm"
-                      radius="sm"
-                      name={field.name}
-                      placeholder={field.placeholder}
-                      value={
-                        (formik.values[
-                          field.name as keyof PatientFormValues
-                        ] as string) || ""
-                      }
-                      onChange={(event: any) =>
-                        formik.setFieldValue(
-                          field.name,
-                          field.type === "tel"
-                            ? formatPhoneNumber(event.target.value)
-                            : field.type === "number"
-                            ? event.target.value === ""
-                              ? ""
-                              : Number(event.target.value)
-                            : event.target.value
-                        )
-                      }
-                      onBlur={formik.handleBlur}
-                      isRequired={field.required as boolean}
-                      isInvalid={
-                        !!(
-                          formik.touched[
-                            field.name as keyof PatientFormValues
-                          ] &&
-                          formik.errors[field.name as keyof PatientFormValues]
-                        )
-                      }
-                      errorMessage={
-                        formik.touched[field.name as keyof PatientFormValues] &&
-                        (formik.errors[
-                          field.name as keyof PatientFormValues
-                        ] as string)
-                      }
-                      className="w-full"
-                    />
-                  ) : (
-                    <DatePicker
-                      key={field.name}
-                      id={field.name}
-                      name={field.name}
-                      label={field.label}
-                      labelPlacement="outside"
-                      size="sm"
-                      radius="sm"
-                      hideTimeZone
-                      minValue={now(getLocalTimeZone())}
-                      defaultValue={now(getLocalTimeZone())}
-                      granularity="minute"
-                      onChange={(dateObject) => {
-                        if (dateObject) {
-                          const year = dateObject.year;
-                          const month = String(dateObject.month).padStart(
-                            2,
-                            "0"
-                          );
-                          const day = String(dateObject.day).padStart(2, "0");
-                          const hour = String(dateObject.hour).padStart(2, "0");
-                          const minute = String(dateObject.minute).padStart(
-                            2,
-                            "0"
-                          );
-                          const second = String(dateObject.second).padStart(
-                            2,
-                            "0"
-                          );
-
-                          const millisecond = String(
-                            dateObject.millisecond
-                          ).padStart(3, "0");
-
-                          const localDateTimeString = `${year}-${month}-${day}T${hour}:${minute}:${second}.${millisecond}`;
-                          formik.setFieldValue(field.name, localDateTimeString);
-                        } else {
-                          formik.setFieldValue(field.name, null);
+                    return field.type !== "date" ? (
+                      <Input
+                        key={field.name}
+                        type={field.type}
+                        label={field.label}
+                        labelPlacement="outside-top"
+                        size="sm"
+                        radius="sm"
+                        name={field.name}
+                        placeholder={field.placeholder}
+                        value={(value as string) || ""}
+                        onChange={(e) =>
+                          handleInputChange(
+                            e as React.ChangeEvent<HTMLInputElement>,
+                            fieldName,
+                            field.type,
+                            field.maxLength
+                          )
                         }
-                      }}
-                      onBlur={() => formik.setFieldTouched(field.name, true)}
-                    />
-                  )
-                )}
-              </div>
+                        onBlur={formik.handleBlur}
+                        isRequired={field.required as boolean}
+                        isInvalid={!!(touched && error)}
+                        errorMessage={touched && (error as string)}
+                        className="w-full"
+                        {...(field.name === "age"
+                          ? { maxLength: field.maxLength }
+                          : {})}
+                      />
+                    ) : (
+                      <DatePicker
+                        key={field.name}
+                        id={field.name}
+                        name={field.name}
+                        label={field.label}
+                        labelPlacement="outside"
+                        size="sm"
+                        radius="sm"
+                        hideTimeZone
+                        minValue={now(getLocalTimeZone())}
+                        granularity="minute"
+                        onChange={(dateObject: any) => {
+                          if (dateObject) {
+                            // Extract parts, pad with leading zeros
+                            const year = dateObject.year;
+                            const month = String(dateObject.month).padStart(
+                              2,
+                              "0"
+                            );
+                            const day = String(dateObject.day).padStart(2, "0");
+                            const hour = String(dateObject.hour).padStart(
+                              2,
+                              "0"
+                            );
+                            const minute = String(dateObject.minute).padStart(
+                              2,
+                              "0"
+                            );
+                            const second = String(dateObject.second).padStart(
+                              2,
+                              "0"
+                            );
+                            const millisecond = String(
+                              dateObject.millisecond
+                            ).padStart(3, "0");
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Select
-                  label="Preferred Treatment"
-                  labelPlacement="outside"
-                  placeholder="Select treatment type"
-                  size="sm"
-                  radius="sm"
-                  name="preferredTreatment"
-                  selectedKeys={
-                    formik.values.preferredTreatment
-                      ? new Set([formik.values.preferredTreatment])
-                      : new Set([])
-                  }
-                  onSelectionChange={(keys) => {
-                    const value = Array.from(keys)[0] as string;
-                    formik.setFieldValue("preferredTreatment", value);
-                  }}
-                  onBlur={() =>
-                    formik.setFieldTouched("preferredTreatment", true)
-                  }
-                  isInvalid={
-                    !!(
+                            const localDateTimeString = `${year}-${month}-${day}T${hour}:${minute}:${second}.${millisecond}`;
+                            formik.setFieldValue(
+                              fieldName as string,
+                              localDateTimeString
+                            );
+                          } else {
+                            formik.setFieldValue(fieldName as string, null);
+                          }
+                        }}
+                        onBlur={() => formik.setFieldTouched(fieldName, true)}
+                      />
+                    );
+                  })}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Select
+                    label="Preferred Treatment"
+                    labelPlacement="outside"
+                    placeholder="Select treatment type"
+                    size="sm"
+                    radius="sm"
+                    name="preferredTreatment"
+                    selectedKeys={
+                      formik.values.preferredTreatment
+                        ? new Set([formik.values.preferredTreatment])
+                        : new Set([])
+                    }
+                    onSelectionChange={(keys) => {
+                      const value = Array.from(keys)[0] as string;
+                      formik.setFieldValue("preferredTreatment", value);
+                    }}
+                    onBlur={() =>
+                      formik.setFieldTouched("preferredTreatment", true)
+                    }
+                    isInvalid={
+                      !!(
+                        formik.touched.preferredTreatment &&
+                        formik.errors.preferredTreatment
+                      )
+                    }
+                    errorMessage={
                       formik.touched.preferredTreatment &&
-                      formik.errors.preferredTreatment
-                    )
-                  }
-                  errorMessage={
-                    formik.touched.preferredTreatment &&
-                    (formik.errors.preferredTreatment as string)
-                  }
-                  className="w-full"
-                >
-                  {TREATMENT_OPTIONS.map((treatment) => (
-                    <SelectItem key={treatment.key}>
-                      {treatment.label}
-                    </SelectItem>
-                  ))}
-                </Select>
+                      (formik.errors.preferredTreatment as string)
+                    }
+                    className="w-full"
+                  >
+                    {TREATMENT_OPTIONS.map((treatment) => (
+                      <SelectItem key={treatment.key}>
+                        {treatment.label}
+                      </SelectItem>
+                    ))}
+                  </Select>
 
-                <Select
-                  label="Urgency Level"
-                  labelPlacement="outside"
-                  placeholder="Select urgency level"
-                  size="sm"
-                  radius="sm"
-                  name="urgencyLevel"
-                  selectedKeys={
-                    formik.values.urgencyLevel
-                      ? new Set([formik.values.urgencyLevel])
-                      : new Set([])
-                  }
-                  disabledKeys={[formik.values.urgencyLevel]}
-                  onSelectionChange={(keys) => {
-                    const value = Array.from(keys)[0] as string;
-                    formik.setFieldValue("urgencyLevel", value);
-                  }}
-                  onBlur={() => formik.setFieldTouched("urgencyLevel", true)}
-                  isInvalid={
-                    !!(
-                      formik.touched.urgencyLevel && formik.errors.urgencyLevel
-                    )
-                  }
-                  errorMessage={
-                    formik.touched.urgencyLevel &&
-                    (formik.errors.urgencyLevel as string)
-                  }
-                  className="w-full"
-                >
-                  {URGENCY_OPTIONS.map((urgency) => (
-                    <SelectItem key={urgency.key}>{urgency.label}</SelectItem>
-                  ))}
-                </Select>
-              </div>
+                  <Select
+                    label="Urgency Level"
+                    labelPlacement="outside"
+                    placeholder="Select urgency level"
+                    size="sm"
+                    radius="sm"
+                    name="urgencyLevel"
+                    selectedKeys={
+                      formik.values.urgencyLevel
+                        ? new Set([formik.values.urgencyLevel])
+                        : new Set([])
+                    }
+                    disabledKeys={[formik.values.urgencyLevel]}
+                    onSelectionChange={(keys) => {
+                      const value = Array.from(keys)[0] as string;
+                      formik.setFieldValue("urgencyLevel", value);
+                    }}
+                    onBlur={() => formik.setFieldTouched("urgencyLevel", true)}
+                    isInvalid={
+                      !!(
+                        formik.touched.urgencyLevel &&
+                        formik.errors.urgencyLevel
+                      )
+                    }
+                    errorMessage={
+                      formik.touched.urgencyLevel &&
+                      (formik.errors.urgencyLevel as string)
+                    }
+                    className="w-full"
+                  >
+                    {URGENCY_OPTIONS.map((urgency) => (
+                      <SelectItem key={urgency.key}>{urgency.label}</SelectItem>
+                    ))}
+                  </Select>
+                </div>
 
-              {/* <div>
-                <Input
-                  key="preferredTime"
-                  type="text"
-                  label="Preferred Appointment Time"
-                  labelPlacement="outside-top"
-                  size="sm"
-                  radius="sm"
-                  name="preferredTime"
-                  placeholder="e.g., Mornings, After 3 PM, Weekends"
-                  value={formik.values.preferredTime}
-                  onValueChange={(value: any) =>
-                    formik.setFieldValue("preferredTime", value)
-                  }
-                  onBlur={formik.handleBlur}
-                  isInvalid={
-                    !!(
-                      formik.touched[
-                        "preferredTime" as keyof PatientFormValues
-                      ] &&
-                      formik.errors["preferredTime" as keyof PatientFormValues]
-                    )
-                  }
-                  errorMessage={
-                    formik.touched[
-                      "preferredTime" as keyof PatientFormValues
-                    ] &&
-                    (formik.errors[
-                      "preferredTime" as keyof PatientFormValues
-                    ] as string)
-                  }
-                  className="w-full"
-                />
-              </div> */}
-
-              <div className="grid grid-cols-1 gap-6">
-                <Textarea
-                  label="Reason for Referral"
-                  labelPlacement="outside-top"
-                  name="referralReason"
-                  placeholder="Please describe what brings you to our practice..."
-                  size="sm"
-                  radius="sm"
-                  value={formik.values.referralReason}
-                  onValueChange={(val: string) =>
-                    formik.setFieldValue("referralReason", val)
-                  }
-                  onBlur={formik.handleBlur}
-                  minRows={3}
-                  className="w-full"
-                  isInvalid={
-                    !!(
+                <div className="grid grid-cols-1 gap-6">
+                  <Textarea
+                    label="Reason for Referral"
+                    labelPlacement="outside-top"
+                    name="referralReason"
+                    placeholder="Please describe what brings you to our practice..."
+                    size="sm"
+                    radius="sm"
+                    value={formik.values.referralReason}
+                    onValueChange={(val: string) =>
+                      formik.setFieldValue("referralReason", val)
+                    }
+                    onBlur={formik.handleBlur}
+                    minRows={3}
+                    className="w-full"
+                    isInvalid={
+                      !!(
+                        formik.touched.referralReason &&
+                        formik.errors.referralReason
+                      )
+                    }
+                    errorMessage={
                       formik.touched.referralReason &&
-                      formik.errors.referralReason
-                    )
-                  }
-                  errorMessage={
-                    formik.touched.referralReason &&
-                    (formik.errors.referralReason as string)
-                  }
-                  classNames={{ inputWrapper: "py-2" }}
-                />
-              </div>
+                      (formik.errors.referralReason as string)
+                    }
+                    classNames={{ inputWrapper: "py-2" }}
+                  />
+                </div>
 
-              <div>
-                <Textarea
-                  label="Additional Notes"
-                  labelPlacement="outside-top"
-                  name="notes"
-                  placeholder="Any additional information you'd like us to know..."
-                  size="sm"
-                  radius="sm"
-                  value={formik.values.notes}
-                  onValueChange={(val: string) =>
-                    formik.setFieldValue("notes", val)
-                  }
-                  onBlur={formik.handleBlur}
-                  minRows={3}
-                  className="w-full"
-                  isInvalid={!!(formik.touched.notes && formik.errors.notes)}
-                  errorMessage={
-                    formik.touched.notes && (formik.errors.notes as string)
-                  }
-                  classNames={{ inputWrapper: "py-2" }}
-                />
-              </div>
+                <div>
+                  <Textarea
+                    label="Additional Notes"
+                    labelPlacement="outside-top"
+                    name="notes"
+                    placeholder="Any additional information you'd like us to know..."
+                    size="sm"
+                    radius="sm"
+                    value={formik.values.notes}
+                    onValueChange={(val: string) =>
+                      formik.setFieldValue("notes", val)
+                    }
+                    onBlur={formik.handleBlur}
+                    minRows={3}
+                    className="w-full"
+                    isInvalid={!!(formik.touched.notes && formik.errors.notes)}
+                    errorMessage={
+                      formik.touched.notes && (formik.errors.notes as string)
+                    }
+                    classNames={{ inputWrapper: "py-2" }}
+                  />
+                </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <Button
-                  type="submit"
-                  color="primary"
-                  size="sm"
-                  radius="sm"
-                  isLoading={isPending}
-                  isDisabled={!formik.isValid || isPending || !formik.dirty}
-                >
-                  {isPending ? "Submitting..." : "Submit Referral"}
-                </Button>
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  radius="sm"
-                  className="border-small"
-                  startContent={<FiDownload className="text-sm" />}
-                  onPress={() => {
-                    downloadVcf({
-                      firstName: fetchedUser?.firstName,
-                      lastName: fetchedUser?.lastName,
-                      phone: fetchedUser?.phone,
-                      email: fetchedUser?.email,
-                      organization: fetchedUser?.practiceName,
-                    });
-                  }}
-                >
-                  {"Save Our Contact"}
-                </Button>
-              </div>
-            </form>
-          </CardBody>
-        </Card>
+                <div className="grid grid-cols-2 gap-3">
+                  <Button
+                    type="submit"
+                    color="primary"
+                    size="sm"
+                    radius="sm"
+                    isLoading={isPending}
+                    isDisabled={!formik.isValid || isPending || !formik.dirty}
+                  >
+                    {isPending ? "Submitting..." : "Submit Referral"}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    radius="sm"
+                    className="border-small"
+                    startContent={<FiDownload className="text-sm" />}
+                    onPress={() => {
+                      downloadVcf({
+                        firstName: fetchedUser?.firstName,
+                        lastName: fetchedUser?.lastName,
+                        phone: fetchedUser?.phone,
+                        email: fetchedUser?.email,
+                        organization: fetchedUser?.practiceName,
+                      });
+                    }}
+                  >
+                    {"Save Our Contact"}
+                  </Button>
+                </div>
+              </form>
+            </CardBody>
+          </Card>
 
-        <div className="">
-          <p className="text-center mt-5 text-xs">
-            Questions? Call us directly at{" "}
-            <span className="font-medium">+1 (555) 123-4567</span> or visit{" "}
-            <span className="font-medium">www.orthodontics.com</span>
-          </p>
+          <div>
+            <p className="text-center mt-5 text-xs">
+              Questions? Call us directly at{" "}
+              <span className="font-medium">+1 (555) 123-4567</span> or visit{" "}
+              <span className="font-medium">www.orthodontics.com</span>
+            </p>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

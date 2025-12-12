@@ -224,24 +224,24 @@ const Dashboard = () => {
 
   return (
     <ComponentContainer headingData={HEADING_DATA}>
-      <div className="space-y-5">
-        <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
+      <div className="space-y-4 md:space-y-5">
+        {/* <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
           <p className="text-sm text-blue-800">
             <span className="font-medium">Navigation is now active!</span> Click
             on any metric card, quick action button, or activity item to
             navigate to different sections.
           </p>
-        </div>
+        </div> */}
 
-        <div className="grid md:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
           {STAT_CARD_DATA.map((data, i) => (
             <MiniStatsCard key={i} cardData={data} />
           ))}
         </div>
 
-        <div className="bg-background rounded-xl p-5">
-          <h4 className="text-base mb-4">Quick Actions</h4>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="bg-background rounded-xl p-4 md:p-5">
+          <h4 className="text-sm md:text-base mb-4">Quick Actions</h4>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
             {QUICK_ACTIONS.map((action, i) => {
               const color = QUICK_ACTIONS_COLOR_CLASSES[action.color];
               const Icon = action.icon;
@@ -264,23 +264,25 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-3 gap-5">
-          <div className="xl:col-span-2 bg-background rounded-xl p-5">
-            <h3 className="text-base mb-4">Recent Activity</h3>
-            <div className="space-y-2">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
+          <div className="md:col-span-2 bg-background rounded-xl p-4 md:p-5">
+            <h3 className="text-sm md:text-base mb-4">Recent Activity</h3>
+            <div className="space-y-4 md:space-y-2">
               {recentActivities.map((activity, index) => (
                 <div
                   key={index}
-                  className="flex items-start space-x-3 p-3 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+                  className="flex items-start space-x-3 md:p-3 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
                   onClick={activity.onClick}
                 >
                   <div
-                    className={`p-0 rounded-lg flex items-center justify-center size-9 ${activity.iconBg}`}
+                    className={`p-0 rounded-lg flex items-center justify-center size-8 md:size-9 ${activity.iconBg}`}
                   >
                     <span className="text-md">{activity.icon}</span>
                   </div>
                   <div className="flex-1 space-y-1">
-                    <p className="text-sm font-medium">{activity.title}</p>
+                    <p className="text-xs md:text-sm font-medium">
+                      {activity.title}
+                    </p>
                     <p className="text-xs text-gray-600">
                       {activity.description}
                     </p>
@@ -291,9 +293,9 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="space-y-5">
-            <div className="bg-background rounded-xl p-5">
-              <h3 className="text-base mb-4">
+          <div className="space-y-4 md:space-y-5">
+            <div className="bg-background rounded-xl p-4 md:p-5">
+              <h3 className="text-sm md:text-base mb-4">
                 <span className="mr-1">📱</span>NFC & QR Tracking
               </h3>
               <div className="space-y-3">
@@ -332,8 +334,8 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <div className="bg-background rounded-xl p-5">
-              <h3 className="text-base mb-4">System Status</h3>
+            <div className="bg-background rounded-xl p-4 md:p-5">
+              <h3 className="text-sm md:text-base mb-4">System Status</h3>
               <div className="space-y-2">
                 {SYSTEM_STATUSES.map((system, index) => (
                   <div
