@@ -40,15 +40,17 @@ const PartnerNetworkHeader: React.FC<PartnerNetworkHeaderProps> = ({
   visibleItems,
 }) => {
   return (
-    <div className="md:px-7 px-4 py-3 md:py-6 bg-background border-b-1 border-foreground/10">
-      <div className="flex justify-between items-center">
+    <div className="md:p-6 p-4 bg-background border-b-1 border-foreground/10">
+      <div className="md:flex md:justify-between md:items-center max-md:space-y-3.5">
         <div className="space-y-1">
-          <h3 className="text-lg">{heading}</h3>
-          {subHeading && <p className="text-sm text-gray-600">{subHeading}</p>}
+          <h3 className="text-base md:text-lg">{heading}</h3>
+          {subHeading && (
+            <p className="text-xs md:text-sm text-gray-600">{subHeading}</p>
+          )}
         </div>
 
         {buttons && buttons.length > 0 && (
-          <div className="flex gap-2 flex-wrap">
+          <div className="space-x-2 md:space-x-3">
             {buttons.map((btn, index) => (
               <Button
                 key={index}
@@ -66,23 +68,51 @@ const PartnerNetworkHeader: React.FC<PartnerNetworkHeaderProps> = ({
         )}
       </div>
       {(filters || sortOptions) && (
-        <div className="flex flex-wrap items-center gap-3 mt-3.5">
-          {filters && filters.length > 0 && (
-            <div className="flex items-center gap-2">
-              <FiFilter className="text-gray-500" />
-              {filters.map((filter, i) => (
+        <div className="md:flex md:items-center md:gap-3 max-md:space-y-3.5 mt-3.5">
+          <div className="md:flex md:items-center md:gap-3 max-md:space-y-3.5">
+            {filters && filters.length > 0 && (
+              <div className="flex items-center gap-2">
+                <FiFilter className="text-gray-500" />
+                {filters.map((filter, i) => (
+                  <Select
+                    key={i}
+                    size="sm"
+                    radius="sm"
+                    aria-label={filter.label}
+                    selectedKeys={[filter.selectedValue as string]}
+                    disabledKeys={[filter.selectedValue as string]}
+                    className="md:w-[160px]"
+                    classNames={{ value: "text-xs" }}
+                    onChange={(e) => filter.onChange?.(e.target.value)}
+                  >
+                    {filter.options.map((opt) => (
+                      <SelectItem
+                        key={opt.value}
+                        classNames={{ title: "text-xs" }}
+                      >
+                        {opt.label}
+                      </SelectItem>
+                    ))}
+                  </Select>
+                ))}
+              </div>
+            )}
+            {sortOptions && sortOptions.length > 0 && (
+              <div className="flex items-center gap-2">
+                <span className="text-xs text-gray-600 whitespace-nowrap">
+                  Sort by:
+                </span>
                 <Select
-                  key={i}
                   size="sm"
                   radius="sm"
-                  aria-label={filter.label}
-                  selectedKeys={[filter.selectedValue as string]}
-                  disabledKeys={[filter.selectedValue as string]}
-                  className="min-w-[160px]"
+                  aria-label="Sort"
+                  selectedKeys={[selectedSortOption as string]}
+                  disabledKeys={[selectedSortOption as string]}
+                  className="md:w-[140px]"
                   classNames={{ value: "text-xs" }}
-                  onChange={(e) => filter.onChange?.(e.target.value)}
+                  onChange={(e) => onSortChange?.(e.target.value)}
                 >
-                  {filter.options.map((opt) => (
+                  {sortOptions.map((opt) => (
                     <SelectItem
                       key={opt.value}
                       classNames={{ title: "text-xs" }}
@@ -91,49 +121,26 @@ const PartnerNetworkHeader: React.FC<PartnerNetworkHeaderProps> = ({
                     </SelectItem>
                   ))}
                 </Select>
-              ))}
-            </div>
-          )}
-
-          {sortOptions && sortOptions.length > 0 && (
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-gray-600 whitespace-nowrap">
-                Sort by:
-              </span>
-              <Select
-                size="sm"
-                radius="sm"
-                aria-label="Sort"
-                selectedKeys={[selectedSortOption as string]}
-                disabledKeys={[selectedSortOption as string]}
-                className="w-[130px]"
-                classNames={{ value: "text-xs" }}
-                onChange={(e) => onSortChange?.(e.target.value)}
-              >
-                {sortOptions.map((opt) => (
-                  <SelectItem key={opt.value} classNames={{ title: "text-xs" }}>
-                    {opt.label}
-                  </SelectItem>
-                ))}
-              </Select>
-              <Button
-                size="sm"
-                isIconOnly
-                variant="light"
-                onPress={() =>
-                  onSortOrderChange?.(sortOrder === "asc" ? "desc" : "asc")
-                }
-                className="text-sm"
-              >
-                {sortOrder === "asc" ? <GrAscend /> : <GrDescend />}
-              </Button>
-              {/* Dynamic display of items */}
-              <div className="text-xs w-100 flex text-gray-500">
-                <div className="w-[80px]">Showing {visibleItems ?? totalItems ?? 0} of</div>
-                <div className="w-[80px]"> {totalItems ?? 0} practices </div>
+                <Button
+                  size="sm"
+                  isIconOnly
+                  variant="light"
+                  onPress={() =>
+                    onSortOrderChange?.(sortOrder === "asc" ? "desc" : "asc")
+                  }
+                  className="text-sm"
+                >
+                  {sortOrder === "asc" ? <GrAscend /> : <GrDescend />}
+                </Button>
               </div>
-            </div>
-          )}
+            )}
+          </div>
+          {/* Dynamic display of items */}
+          <div className="text-xs flex text-gray-500">
+            {`Showing ${visibleItems ?? totalItems ?? 0} of ${
+              totalItems ?? 0
+            } practices`}
+          </div>
         </div>
       )}
     </div>

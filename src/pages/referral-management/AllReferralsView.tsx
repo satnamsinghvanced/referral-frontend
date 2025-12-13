@@ -6,25 +6,29 @@ import {
   Select,
   SelectItem,
 } from "@heroui/react";
-import React from "react";
+import React, { useMemo } from "react";
 import { BiCalendar, BiPhone } from "react-icons/bi";
 import { CgMail } from "react-icons/cg";
 import { FiArrowLeft, FiDownload, FiEye, FiSearch } from "react-icons/fi";
-import { LuExternalLink, LuSquarePen } from "react-icons/lu";
+import { LuCalendar, LuSquarePen } from "react-icons/lu";
 import { PiFunnelX } from "react-icons/pi";
-import { formatDateToYYYYMMDD } from "../../utils/formatDateToYYYYMMDD";
-import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
+import { Link } from "react-router";
+
+import PriorityLevelChip from "../../components/chips/PriorityLevelChip";
+import ReferralStatusChip from "../../components/chips/ReferralStatusChip";
+import EmptyState from "../../components/common/EmptyState";
+import { LoadingState } from "../../components/common/LoadingState";
+import { STATUS_OPTIONS } from "../../consts/filters";
+import { TREATMENT_OPTIONS } from "../../consts/referral";
 import {
   FetchReferralsParams,
   FilterStats,
   Referral,
 } from "../../types/referral";
-import { Link } from "react-router";
-import ReferralStatusChip from "../../components/chips/ReferralStatusChip";
-import { STATUS_OPTIONS } from "../../consts/filters";
+import { formatDateToYYYYMMDD } from "../../utils/formatDateToYYYYMMDD";
+import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
 
 interface AllReferralsViewProps {
-  // Functions to handle user interactions
   onBackToOverview: () => void;
   onExport: () => void;
   onSearchChange: (query: string) => void;
@@ -32,15 +36,13 @@ interface AllReferralsViewProps {
   onClearFilters: () => void;
   onViewReferral: (id: string) => void;
   onEditReferral: (id: string) => void;
-  onViewReferralPage: (id: string) => void;
-
-  // Data to display
   referrals: Referral[];
   totalReferrals: number;
   totalPages: number;
   setCurrentFilters: any;
   currentFilters: FetchReferralsParams;
   filterStats: FilterStats;
+  isLoading: boolean;
 }
 
 const sourceOptions = [
@@ -50,17 +52,6 @@ const sourceOptions = [
   { label: "Direct Referral", value: "Direct" },
 ];
 
-const getPriorityColor = (priority: Referral["priority"]) => {
-  switch (priority) {
-    case "High Priority":
-      return "danger";
-    case "Medium Priority":
-      return "warning";
-    default:
-      return "default";
-  }
-};
-
 const AllReferralsView: React.FC<AllReferralsViewProps> = ({
   onBackToOverview,
   onExport,
@@ -69,63 +60,68 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
   onClearFilters,
   onViewReferral,
   onEditReferral,
-  onViewReferralPage,
   referrals,
   totalReferrals,
   totalPages,
   setCurrentFilters,
   currentFilters,
   filterStats,
+  isLoading,
 }) => {
-  console.log("referrals>>>>>>", referrals);
   const isFiltered =
     currentFilters.search !== "" ||
     currentFilters.filter !== "" ||
     currentFilters.source !== "";
 
-  const filteredCountText = isFiltered ? (
-    <span className="text-green-600 capitalize">
-      {currentFilters.filter !== ""
-        ? `  •  ${
-            STATUS_OPTIONS.find((item) => item.value === currentFilters.filter)
-              ?.label
-          } status`
-        : ""}
-      {currentFilters.source !== ""
-        ? `  •  ${
-            sourceOptions.find((item) => item.value === currentFilters.source)
-              ?.label
-          } only`
-        : ""}
-    </span>
-  ) : null;
+  const filteredCountText = useMemo(() => {
+    if (!isFiltered) return null;
 
-  const LucideFunnelX = PiFunnelX;
+    const filterStatus = currentFilters.filter
+      ? `  •  ${
+          STATUS_OPTIONS.find((item) => item.value === currentFilters.filter)
+            ?.label
+        } status`
+      : "";
 
-  // Helper to render a single referral card
+    const filterSource = currentFilters.source
+      ? `  •  ${
+          sourceOptions.find((item) => item.value === currentFilters.source)
+            ?.label
+        } only`
+      : "";
+
+    return (
+      <span className="text-green-600 capitalize">
+        {filterStatus}
+        {filterSource}
+      </span>
+    );
+  }, [isFiltered, currentFilters.filter, currentFilters.source]);
+
   const renderReferralCard = (referral: Referral) => (
     <div
       key={referral._id}
       className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
     >
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Patient Info */}
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_1.5fr_1fr] gap-4 md:gap-6">
         <div className="space-y-3">
           <div className="flex items-center space-x-3">
             <div>
               <h3 className="text-sm font-medium">{referral.name}</h3>
-              {/* <p className="text-xs text-gray-600 mt-0.5">
-                Age: {referral.age}
-              </p> */}
+              {referral.age && (
+                <span className="text-xs">Age: {referral.age}</span>
+              )}
             </div>
           </div>
           <div className="space-y-1.5">
-            <div className="flex items-center space-x-1.5 text-sm">
-              <BiPhone className="h-4 w-4 text-gray-400" aria-hidden="true" />
-              <span className="text-xs">
-                {formatPhoneNumber(referral.phone)}
-              </span>
-            </div>
+            {referral.phone && (
+              <div className="flex items-center space-x-1.5 text-sm">
+                <BiPhone className="h-4 w-4 text-gray-400" aria-hidden="true" />
+                <span className="text-xs">
+                  {formatPhoneNumber(referral.phone)}
+                </span>
+              </div>
+            )}
             <div className="flex items-center space-x-1.5 text-sm">
               <CgMail className="h-4 w-4 text-gray-400" aria-hidden="true" />
               <span className="text-xs">{referral.email}</span>
@@ -133,7 +129,6 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
           </div>
         </div>
 
-        {/* Referrer & Dates Info */}
         <div className="space-y-3">
           <div>
             <p className="text-sm font-medium">{referral?.referredBy?.name}</p>
@@ -143,7 +138,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
           </div>
           <div className="space-y-2">
             <div className="flex items-center space-x-1.5">
-              <BiCalendar
+              <LuCalendar
                 className="h-4 w-4 text-gray-400"
                 aria-hidden="true"
               />
@@ -151,32 +146,27 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                 Referred: {formatDateToYYYYMMDD(referral.createdAt as string)}
               </span>
             </div>
-            {/* <div className="flex items-center space-x-1.5">
-              <BiCalendar
-                className="h-4 w-4 text-blue-400"
-                aria-hidden="true"
-              />
-              <span className="text-xs">
-                Scheduled:{" "}
-                {formatDateToYYYYMMDD(referral.scheduledDate as string)}
-              </span>
-            </div> */}
           </div>
           <div className="space-y-2">
             {referral.treatment && (
               <p className="text-xs">
-                <strong>Treatment:</strong> {referral.treatment}
+                <span className="font-medium">Treatment:</span>{" "}
+                {
+                  TREATMENT_OPTIONS.find(
+                    (treatmentOption: any) =>
+                      treatmentOption.key === referral.treatment
+                  )?.label
+                }
               </p>
             )}
 
             <p className="text-xs">
-              <strong>Source:</strong>{" "}
+              <span className="font-medium">Source:</span>{" "}
               {referral.addedVia ? referral.addedVia : "Direct"}
             </p>
           </div>
         </div>
 
-        {/* Status, Value & Actions */}
         <div className="space-y-3">
           <div className="flex flex-wrap gap-2">
             <span
@@ -185,24 +175,23 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
             >
               <ReferralStatusChip status={referral.status} />
             </span>
-            <Chip
-              color={getPriorityColor(referral.priority)}
-              size="sm"
-              variant="flat"
-              radius="sm"
-              className="capitalize text-[11px] h-5"
-            >
-              {referral.priority}
-            </Chip>
+            <PriorityLevelChip level={referral.priority as string} />
           </div>
-          <div className="space-y-1">
-            <p className="text-xs font-medium">
+          {/* <p className="text-xs font-medium">
               Est. Value: ${referral?.estValue}
-            </p>
+            </p> */}
+          {referral.notes && (
             <p className="text-xs text-gray-600">{referral.notes}</p>
-          </div>
+          )}
+          {referral.estValue ? (
+            <p className="text-xs">
+              <span className="font-medium">Estimated Value:</span> $
+              {referral.estValue}
+            </p>
+          ) : (
+            ""
+          )}
           <div className="flex items-center space-x-1">
-            {/* Phone */}
             {referral.phone && (
               <Link to={`tel:${referral.phone}`}>
                 <Button isIconOnly size="sm" variant="light">
@@ -210,7 +199,6 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                 </Button>
               </Link>
             )}
-            {/* Mail */}
             {referral.email && (
               <Link to={`mailto:${referral.email}`}>
                 <Button isIconOnly size="sm" variant="light">
@@ -218,7 +206,6 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                 </Button>
               </Link>
             )}
-            {/* View */}
             <Button
               isIconOnly
               size="sm"
@@ -227,7 +214,6 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
             >
               <FiEye className="h-4 w-4" />
             </Button>
-            {/* Edit */}
             <Button
               isIconOnly
               size="sm"
@@ -247,18 +233,16 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
       data-state="active"
       data-orientation="horizontal"
       role="tabpanel"
-      id="radix-:r3:-content-referrals"
       tabIndex={0}
       data-slot="tabs-content"
-      className="flex-1 outline-none space-y-6"
+      className="flex-1 outline-none space-y-4 md:space-y-5"
     >
-      {/* 1. Header and Export Button */}
       <div
         data-slot="card"
         className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-primary/15 bg-background"
       >
-        <div data-slot="card-content" className="[&amp;:last-child]:pb-6 p-4">
-          <div className="flex items-center justify-between">
+        <div data-slot="card-content" className="p-4">
+          <div className="md:flex md:items-center md:justify-between max-md:space-y-3.5">
             <div className="flex items-center space-x-4">
               <div className="flex flex-col gap-1">
                 <div className="flex items-center space-x-2">
@@ -307,13 +291,12 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
         </div>
       </div>
 
-      {/* 2. Filter Stats Card (Blue Box) */}
       {isFiltered && (
         <div
           data-slot="card"
           className="text-card-foreground flex flex-col gap-6 rounded-xl border bg-blue-50 border-blue-200"
         >
-          <div data-slot="card-content" className="[&amp;:last-child]:pb-6 p-4">
+          <div data-slot="card-content" className="p-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               <div className="flex flex-col items-center gap-0.5">
                 <div className="font-semibold text-blue-900">
@@ -344,23 +327,18 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
         </div>
       )}
 
-      {/* 3. Search and Filters Bar */}
-      <div
-        data-slot="card"
-        className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-primary/15 bg-background"
-      >
-        <div data-slot="card-content" className="[&amp;:last-child]:pb-6 p-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            {/* Search Input */}
+      <div className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-primary/15 bg-background">
+        <div data-slot="card-content" className="p-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
             <div className="relative">
               <Input
                 placeholder="Search referrals..."
                 size="sm"
+                value={currentFilters.search as string}
                 onValueChange={(value) => onSearchChange(value)}
                 startContent={<FiSearch className="text-gray-600" />}
               />
             </div>
-            {/* Status Select */}
             <Select
               aria-label="Statuses"
               placeholder="All Statuses"
@@ -382,7 +360,6 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
               </>
             </Select>
 
-            {/* Source Select */}
             <Select
               aria-label="Sources"
               placeholder="All Sources"
@@ -399,14 +376,13 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
               ))}
             </Select>
 
-            {/* Action/Toggle Buttons */}
-            <div className="grid grid-cols-3 gap-3">
+            <div className="flex gap-2 md:gap-3">
               <Button
                 onPress={onClearFilters}
                 size="sm"
                 variant="bordered"
-                className="border-small"
-                startContent={<LucideFunnelX className="h-4 w-4" />}
+                className="border-small flex-1"
+                startContent={<PiFunnelX className="h-4 w-4 max-lg:hidden" />}
               >
                 Clear Filters
               </Button>
@@ -419,7 +395,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                   }))
                 }
                 size="sm"
-                className="border-small"
+                className="border-small flex-1"
                 variant="bordered"
                 color="default"
               >
@@ -434,7 +410,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                   }))
                 }
                 size="sm"
-                className="border-small"
+                className="border-small flex-1"
                 variant="bordered"
                 color="default"
               >
@@ -445,7 +421,6 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
         </div>
       </div>
 
-      {/* 4. Referral List */}
       <div
         data-slot="card"
         className="bg-card text-card-foreground flex flex-col gap-4 rounded-xl border border-primary/15 bg-background"
@@ -456,12 +431,14 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
           </h4>
         </div>
         <div data-slot="card-content" className="px-4 pb-4">
-          {referrals && referrals?.length > 0 ? (
+          {isLoading ? (
+            <LoadingState />
+          ) : referrals?.length > 0 ? (
             <>
-              <div className="space-y-4">
-                {referrals?.map(renderReferralCard)}
+              <div className="space-y-3">
+                {referrals.map(renderReferralCard)}
               </div>
-              {totalPages && totalPages > 1 ? (
+              {totalPages > 1 && (
                 <div className="mt-5">
                   <Pagination
                     showControls
@@ -472,7 +449,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                     onChange={(page) => {
                       setCurrentFilters((prev: any) => ({ ...prev, page }));
                     }}
-                    total={totalPages as number}
+                    total={totalPages}
                     classNames={{
                       base: "flex justify-end py-3",
                       wrapper: "gap-1.5",
@@ -482,14 +459,10 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                     }}
                   />
                 </div>
-              ) : (
-                ""
               )}
             </>
           ) : (
-            <p className="bg-background text-xs text-center text-gray-600">
-              No data to display
-            </p>
+            <EmptyState />
           )}
         </div>
       </div>

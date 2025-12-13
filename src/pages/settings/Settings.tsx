@@ -10,7 +10,7 @@ const Settings = () => {
 
   return (
     <ComponentContainer headingData={headingData}>
-      <div className="flex items-start gap-4">
+      <div className="flex items-start gap-5">
         <div className="max-w-1/5 w-full border border-foreground/10  rounded-xl bg-background sticky top-0">
           <SettingNavigation />
         </div>

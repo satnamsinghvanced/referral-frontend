@@ -145,8 +145,6 @@ const Notifications: React.FC = () => {
         endTime: formatTime(r.endTime),
       })),
     };
-    console.log("Prepared payload for backend:", payload);
-    // axios.post('/api/notifications/settings', payload)...
   };
 
   // When global is turned off, disable all rules & channels
@@ -162,11 +160,9 @@ const Notifications: React.FC = () => {
     }
   }, [globalEnabled]);
 
-  console.log(globalEnabled, "fdhsjkf");
-
   return (
-    <div className="mx-10">
-      <div className="mb-6 space-y-5">
+    <div className="">
+      <div className="mb-6 space-y-4 md:space-y-5">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
@@ -195,8 +191,8 @@ const Notifications: React.FC = () => {
           items={TAB_ITEMS}
           classNames={{
             base: "w-full",
-            tabList: "w-full bg-primary-50 /10",
-            tab: "text-xs font-medium",
+            tabList: "w-full bg-primary/10",
+            tab: "font-medium",
             panel: "py-0",
           }}
           key={`globalEnabled__${globalEnabled}`}
@@ -240,7 +236,6 @@ const Notifications: React.FC = () => {
                   </Card>
 
                   {rules.map((rule) => {
-                    console.log(rule.enabled);
                     return (
                       <Card
                         key={`${rule.id}__${rule.enabled}`}
@@ -250,8 +245,8 @@ const Notifications: React.FC = () => {
                             : ""
                         }`}
                       >
-                        <CardBody className="p-4 space-y-5">
-                          <div className="space-y-5">
+                        <CardBody className="p-4 space-y-4 md:space-y-5">
+                          <div className="space-y-4 md:space-y-5">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-3">
                                 <div className="p-2 bg-foreground/10 /15 rounded-lg">
@@ -283,9 +278,7 @@ const Notifications: React.FC = () => {
                                 <Button
                                   size="sm"
                                   className="border bg-background  text-foreground font-semibold gap-2"
-                                  onClick={() => {
-                                    console.log("Test rule:", rule.id);
-                                  }}
+                                  onPress={() => {}}
                                   disabled={!globalEnabled || !rule.enabled}
                                 >
                                   <FiZap className="h-4 w-4" />
@@ -317,7 +310,7 @@ const Notifications: React.FC = () => {
                               </div>
                             </div>
 
-                            <div className="space-y-5">
+                            <div className="space-y-4 md:space-y-5">
                               <div>
                                 <label className="flex items-center gap-2 select-none text-xs font-medium">
                                   Notification Channels

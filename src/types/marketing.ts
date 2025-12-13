@@ -1,5 +1,5 @@
 type ActivityStatus = "scheduled" | "in-progress" | "completed" | "cancelled";
-type ActivityPriority = "low" | "medium" | "high";
+type ActivityPriority = "low" | "medium" | "high" | string;
 
 export interface ActivityType {
   _id: string;
@@ -8,9 +8,11 @@ export interface ActivityType {
 
 export interface ActivityItem {
   _id: string;
+  googleId: string;
   createdBy: string;
   title: string;
-  type: ActivityType;
+  type: string;
+  colorId: string;
   description: string;
   startDate: string;
   endDate: string;
@@ -56,15 +58,18 @@ export interface GetActivitiesResponse {
 }
 
 export interface ActivityPayload {
+  id?: string;
+  googleId?: string;
   title: string;
   type: string;
+  colorId: string;
   description: string;
   startDate: string;
   endDate: string;
-  time: string;
+  time?: string;
   priority?: ActivityPriority;
   platform: string;
-  budget: number;
+  budget: number | null;
   status?: ActivityStatus;
 }
 
@@ -76,5 +81,4 @@ export interface DeleteActivityParams {
 
 export interface DeleteActivityResponse {
   message: string; // e.g., "Activity deleted successfully."
-  deletedId: string;
 }

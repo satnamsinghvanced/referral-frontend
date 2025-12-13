@@ -64,13 +64,15 @@ const ActionModal: React.FC<ActionModalProps> = ({
         {() => (
           <>
             <ModalHeader
-              className={`flex justify-between items-start px-5 font-normal ${
+              className={`flex justify-between items-start px-4 md:px-5 font-normal ${
                 classNames.header || ""
               }`}
             >
               <div className="flex flex-col gap-1.5">
                 {heading && (
-                  <h4 className="text-base font-medium leading-snug">{heading}</h4>
+                  <h4 className="text-base font-medium leading-snug">
+                    {heading}
+                  </h4>
                 )}
                 {description && (
                   <p className="text-xs text-gray-600">{description}</p>
@@ -80,7 +82,7 @@ const ActionModal: React.FC<ActionModalProps> = ({
 
             {children && (
               <ModalBody
-                className={`w-full px-5 py-0 ${
+                className={`w-full px-4 md:px-5 py-0 ${
                   scrollable ? "max-h-[70vh] overflow-y-auto" : ""
                 } ${classNames.body || ""}`}
               >
@@ -90,7 +92,7 @@ const ActionModal: React.FC<ActionModalProps> = ({
 
             {buttons.length > 0 && (
               <ModalFooter
-                className={`flex px-5 ${
+                className={`flex px-4 md:px-5 ${
                   footerAlign === "center"
                     ? "justify-center"
                     : footerAlign === "left"
@@ -105,7 +107,7 @@ const ActionModal: React.FC<ActionModalProps> = ({
                     color={btn.color || "default"}
                     variant={btn.variant || "solid"}
                     onPress={btn.onPress}
-                    className={`capitalize ${btn.className || ""}`}
+                    className={`capitalize border-small ${btn.className || ""}`}
                     isDisabled={btn.isDisabled ?? false}
                     isLoading={btn.isLoading ?? false}
                   >

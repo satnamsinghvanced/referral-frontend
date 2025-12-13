@@ -1,4 +1,6 @@
+import { addToast } from "@heroui/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { AxiosError } from "axios";
 import { queryClient } from "../providers/QueryProvider";
 import {
   fetchGoogleApiKey,
@@ -10,7 +12,6 @@ import {
   GoogleApiKeyResponse,
   UserIdParam,
 } from "../types/google";
-import { addToast } from "@heroui/react";
 
 export const googleKeys = {
   all: ["googleApi"] as const,
@@ -28,13 +29,33 @@ export const useFetchGoogleApiKey = (userId: UserIdParam["userId"]) => {
 export const useSaveGoogleApiKey = () => {
   return useMutation<
     GoogleApiKeyResponse,
-    Error,
+    AxiosError,
     { userId: UserIdParam["userId"]; data: GoogleApiKeyRequest }
   >({
     mutationFn: ({ userId, data }) => saveGoogleApiKey(userId, data),
+
     onSuccess: (data) => {
+      addToast({
+        title: "Success",
+        description: "Google API key saved successfully.",
+        color: "success",
+      });
+
       queryClient.invalidateQueries({
         queryKey: googleKeys.details(data.userId),
+      });
+    },
+
+    onError: (error) => {
+      const message =
+        (error.response?.data as { error?: string })?.error ||
+        error.message ||
+        "Failed to save Google API key.";
+
+      addToast({
+        title: "Error",
+        description: message,
+        color: "danger",
       });
     },
   });
@@ -43,18 +64,33 @@ export const useSaveGoogleApiKey = () => {
 export const useUpdateGoogleApiKey = () => {
   return useMutation<
     GoogleApiKeyResponse,
-    Error,
+    AxiosError,
     { userId: UserIdParam["userId"]; data: GoogleApiKeyRequest }
   >({
     mutationFn: ({ userId, data }) => updateGoogleApiKey(userId, data),
+
     onSuccess: (data) => {
       addToast({
         title: "Success",
-        description: "Google keys updated successfully.",
+        description: "Google API key updated successfully.",
         color: "success",
       });
+
       queryClient.invalidateQueries({
         queryKey: googleKeys.details(data.userId),
+      });
+    },
+
+    onError: (error) => {
+      const message =
+        (error.response?.data as { error?: string })?.error ||
+        error.message ||
+        "Failed to update Google API key.";
+
+      addToast({
+        title: "Error",
+        description: message,
+        color: "danger",
       });
     },
   });

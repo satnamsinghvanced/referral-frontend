@@ -1,20 +1,19 @@
 import React, { useState, useMemo } from "react";
-import { FiChevronLeft, FiChevronRight, FiPlus } from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import clsx from "clsx";
 import { Button, Chip } from "@heroui/react";
 import { ACTIVITY_TYPES } from "../../consts/marketing";
 
 interface CalendarProps {
   weekendDisabled?: boolean;
+  disablePastDates?: boolean;
   onDayClick?: (date: string) => void;
+  onActivityClick?: (activity: any) => void;
   activities: any[];
 }
 
 const getActivitiesByDate = (activities: any[]) => {
   return activities.reduce((acc, activity) => {
-    // 💡 FIX: Ensure dateKey is in 'YYYY-MM-DD' format by taking
-    // the first part of the startDate string, regardless of whether
-    // it is a full ISO string or already just the date.
     const dateKey = activity.startDate ? activity.startDate.split("T")[0] : "";
 
     if (dateKey) {
@@ -27,9 +26,21 @@ const getActivitiesByDate = (activities: any[]) => {
   }, {});
 };
 
+const isPastDate = (year: number, month: number, day: number, today: Date) => {
+  const currentDay = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate()
+  );
+  const checkDay = new Date(year, month, day);
+  return checkDay.getTime() < currentDay.getTime();
+};
+
 const CustomCalendar: React.FC<CalendarProps> = ({
   weekendDisabled = true,
+  disablePastDates = true,
   onDayClick,
+  onActivityClick,
   activities,
 }) => {
   const today = new Date();
@@ -64,6 +75,15 @@ const CustomCalendar: React.FC<CalendarProps> = ({
   const startingDay = firstDay.getDay();
 
   const handleMonthChange = (direction: "prev" | "next") => {
+    if (disablePastDates && direction === "prev") {
+      const isCurrentMonth =
+        currentMonth === today.getMonth() &&
+        currentYear === today.getFullYear();
+      if (isCurrentMonth) {
+        return;
+      }
+    }
+
     if (direction === "prev") {
       if (currentMonth === 0) {
         setCurrentMonth(11);
@@ -84,9 +104,13 @@ const CustomCalendar: React.FC<CalendarProps> = ({
     )}-${String(day).padStart(2, "0")}`;
     const dateObj = new Date(dateKey);
     const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
-    if (weekendDisabled && isWeekend) return;
 
-    onDayClick?.(dateKey);
+    const isPast = isPastDate(currentYear, currentMonth, day, today);
+    if ((weekendDisabled && isWeekend) || (disablePastDates && isPast)) {
+      return;
+    }
+
+    onDayClick?.(new Date(dateKey).toISOString());
     setSelectedDate(dateKey);
   };
 
@@ -101,7 +125,7 @@ const CustomCalendar: React.FC<CalendarProps> = ({
   const renderDays = () => {
     const cells = [];
     for (let i = 0; i < startingDay; i++) {
-      cells.push(<div key={`empty-${i}`} className="h-20" />);
+      cells.push(<div key={`empty-${i}`} className="h-26" />);
     }
 
     for (let day = 1; day <= daysInMonth; day++) {
@@ -111,6 +135,11 @@ const CustomCalendar: React.FC<CalendarProps> = ({
       )}-${String(day).padStart(2, "0")}`;
       const dateObj = new Date(dateKey);
       const isWeekend = dateObj.getDay() === 0 || dateObj.getDay() === 6;
+      const isPast = isPastDate(currentYear, currentMonth, day, today);
+
+      const isDisabled =
+        (weekendDisabled && isWeekend) || (disablePastDates && isPast);
+
       const dayActivities = activitiesMap[dateKey] || [];
       const hasActivities = dayActivities.length > 0;
 
@@ -124,35 +153,44 @@ const CustomCalendar: React.FC<CalendarProps> = ({
             isWeekend &&
               weekendDisabled &&
               "!cursor-not-allowed !bg-gray-100 !ring-0",
+            isPast &&
+              disablePastDates &&
+              "!cursor-not-allowed !bg-gray-100 !text-gray-400 !border-gray-200 !ring-0 !pointer-events-none",
             isToday(day) && "!ring-2 !ring-primary !bg-transparent",
             selectedDate === dateKey && "!ring-2 !ring-orange-500 !bg-orange-50"
           )}
+          style={isDisabled ? { pointerEvents: "none", opacity: 0.6 } : {}}
         >
           <span className="text-sm text-gray-700 font-medium mb-1">{day}</span>
           <div className="flex flex-col gap-0.5 w-full overflow-hidden">
             {hasActivities &&
               dayActivities.slice(0, 2).map((activity: any) => {
                 const activityColor = ACTIVITY_TYPES.find(
-                  (activityType: any) =>
-                    activityType.label === activity.type.title
-                )?.color;
+                  (activityType: any) => activityType.label == activity.type
+                )?.color.value;
 
                 return (
                   <Chip
                     key={activity._id}
                     size="sm"
-                    className="text-[11px] h-5 max-w-full truncate rounded-sm font-normal text-white"
-                    style={{ backgroundColor: activityColor }}
+                    className="text-[11px] h-5 min-w-full max-w-full truncate rounded-sm font-normal text-white cursor-pointer hover:opacity-80 transition-opacity" // Added hover effects
+                    style={{
+                      background: activityColor
+                        ? activityColor
+                        : "linear-gradient(to right, #4285F4 50%, #FBBC04 50%)",
+                    }}
+                    // 3. Add the click handler here
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevents the Day Cell click from firing
+                      onActivityClick?.(activity);
+                    }}
                   >
                     {activity.title}
                   </Chip>
                 );
               })}
-            {dayActivities.length > 2 && (
-              <p className="text-[10px] text-gray-500 mt-0.5">
-                +{dayActivities.length - 2} more
-              </p>
-            )}
+
+            {/* ... keep the "+ more" text logic */}
           </div>
         </div>
       );
@@ -163,17 +201,22 @@ const CustomCalendar: React.FC<CalendarProps> = ({
 
   return (
     <div className="w-full">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-5">
         <Button
           size="sm"
           radius="sm"
           variant="ghost"
           className="min-w-auto p-0 w-8 h-8 hover:bg-gray-50 border-small"
           onPress={() => handleMonthChange("prev")}
+          isDisabled={
+            disablePastDates &&
+            currentMonth === today.getMonth() &&
+            currentYear === today.getFullYear()
+          }
         >
           <FiChevronLeft className="text-gray-700" size={16} />
         </Button>
-        <p className="text-base font-medium text-gray-800">
+        <p className="text-base font-medium">
           {monthNames[currentMonth]} {currentYear}
         </p>
         <Button

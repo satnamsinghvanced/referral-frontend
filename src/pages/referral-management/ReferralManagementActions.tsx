@@ -1,6 +1,6 @@
 import { Button, Checkbox, Select, SelectItem, Textarea } from "@heroui/react";
 import { useFormik } from "formik";
-import { Key, useMemo, useState } from "react"; // 1. Imported useState
+import { Key, useMemo } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { BiSave, BiUserPlus } from "react-icons/bi";
 import { FaStethoscope } from "react-icons/fa";
@@ -9,13 +9,13 @@ import { LuUserRound } from "react-icons/lu";
 import * as Yup from "yup";
 import ActionModal from "../../components/common/ActionModal";
 import Input from "../../components/ui/Input";
+import { EMAIL_REGEX, PHONE_REGEX } from "../../consts/consts";
+import { CATEGORY_OPTIONS } from "../../consts/filters";
+import { STAFF_ROLES } from "../../consts/practice";
 import { useSpecialties } from "../../hooks/useCommon";
 import { useCreateReferrer, useUpdateReferrer } from "../../hooks/useReferral";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
-import { CATEGORY_OPTIONS } from "../../consts/filters";
 import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
-import { STAFF_ROLES } from "../../consts/practice";
-import { EMAIL_REGEX, PHONE_REGEX, ZIP_CODE_REGEX } from "../../consts/consts";
 
 interface ReferralManagementActionsProps {
   isModalOpen: boolean;
@@ -23,10 +23,32 @@ interface ReferralManagementActionsProps {
   editedData?: any;
   setReferrerEditId?: any;
   isPracticeEdit?: boolean;
+  setSelectedTab?: any;
 }
 
 type PracticeAddressErrors = Record<string, string | undefined> | undefined;
 type PracticeAddressTouched = Record<string, boolean | undefined> | undefined;
+
+// Define a truly clean slate outside the component or inside as a constant
+const CLEAN_INITIAL_VALUES = {
+  type: "doctor",
+  name: "",
+  phone: "",
+  email: "",
+  practiceName: "",
+  partnershipLevel: "",
+  practiceType: "",
+  practiceAddress: {
+    addressLine1: "",
+    addressLine2: "",
+    city: "",
+    state: "",
+    zip: "",
+  },
+  website: "",
+  staff: [],
+  additionalNotes: "",
+};
 
 export default function ReferralManagementActions({
   isModalOpen,
@@ -34,9 +56,9 @@ export default function ReferralManagementActions({
   editedData = {},
   setReferrerEditId,
   isPracticeEdit,
+  setSelectedTab,
 }: ReferralManagementActionsProps) {
   const { user } = useTypedSelector((state) => state.auth);
-console.log("editedData", editedData);
 
   const { data: specialties } = useSpecialties();
 
@@ -46,20 +68,11 @@ console.log("editedData", editedData);
   const { mutate: updateReferrer, isPending: referrerUpdationPending } =
     useUpdateReferrer();
 
-  const processedStaff = (editedData?.staff || []).map((member: any) => ({
-    ...member,
-    // Convert array role back to a comma-separated string for Formik/Validation
-    role: Array.isArray(member.role)
-      ? member.role.join(", ")
-      : member.role || "",
-  }));
-
   const defaultInitialValues: any = {
     type: editedData?.type || "doctor",
     name: editedData?.name || "",
     phone: editedData?.phone || "",
     email: editedData?.email || "",
-    notes: editedData?.notes || "",
     practiceName: editedData?.practiceName || "",
     partnershipLevel: editedData?.partnershipLevel || "",
     practiceType: editedData?.practiceType || "",
@@ -70,11 +83,9 @@ console.log("editedData", editedData);
       state: editedData?.practiceAddress?.state || "",
       zip: editedData?.practiceAddress?.zip || "",
     },
-    // practicePhone: editedData?.practicePhone || "",
-    // practiceEmail: editedData?.practiceEmail || "",
     website: editedData?.website || "",
     staff: editedData?.staff || [],
-
+    additionalNotes: editedData?.additionalNotes || "",
   };
 
   const handleFormSubmission = async (values: any) => {
@@ -94,12 +105,12 @@ console.log("editedData", editedData);
             name: values.name,
             phone: values.phone,
             email: values.email,
-            notes: values.notes,
+            additionalNotes: values.additionalNotes,
           }
         : {
             ...values,
             staff: staffWithUpdatedRoles,
-            notes: values.notes,
+            additionalNotes: values.additionalNotes,
           };
 
     let referrerId = user?.userId;
@@ -121,14 +132,21 @@ console.log("editedData", editedData);
     const mutationPromise = new Promise((resolve, reject) => {
       if (editedData?.type || isPracticeEdit) {
         updateReferrer(mutationPayload, {
-          onSuccess: (data) => resolve(data),
+          onSuccess: (data) => {
+            resolve(data);
+            setIsModalOpen(false);
+            setReferrerEditId("");
+          },
           onError: (error) => reject(error),
         });
-        setIsModalOpen(false);
-        setReferrerEditId("");
       } else {
         createReferrer(mutationPayload, {
-          onSuccess: (data) => resolve(data),
+          onSuccess: (data) => {
+            resolve(data);
+            setIsModalOpen(false);
+            formik.resetForm();
+            setSelectedTab("Referrers");
+          },
           onError: (error) => reject(error),
         });
       }
@@ -136,8 +154,6 @@ console.log("editedData", editedData);
 
     try {
       await mutationPromise;
-      setIsModalOpen(false);
-      formik.resetForm();
     } catch (error) {
       console.error("Referrer creation failed:", error);
     }
@@ -171,11 +187,6 @@ console.log("editedData", editedData);
         /^(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/[a-zA-Z0-9]+\.[^\s]{2,}|[a-zA-Z0-9]+\.[^\s]{2,})$/i,
         "Website must be a valid URL.(https://example.com or www.example.com"
       ),
-      // practiceEmail: Yup.string().when("type", {
-      //   is: "doctor",
-      //   then: (schema) =>
-      //     schema.email("Invalid email").required("Practice email is required"),
-      // }),
       practiceAddress: Yup.object().shape({
         addressLine1: Yup.string().when(["$type"], {
           is: (type: string) => type === "doctor",
@@ -193,11 +204,8 @@ console.log("editedData", editedData);
           then: (schema) => schema.required("State is required"),
           otherwise: (schema) => schema.notRequired(),
         }),
-        zip: Yup.number()
-          .typeError("ZIP must be a number") // Custom error if input is not a number
-          .integer("ZIP must be a whole number")
-          .min(10000, "ZIP code must be 5 digits (e.g., 10000)") // Enforces min 5 digits
-          .max(99999, "ZIP code must be 5 digits (e.g., 99999)") // Enforces max 5 digits
+        zip: Yup.string()
+          .matches(/^\d{5}$/, "ZIP code must be exactly 5 digits")
           .when(["$type"], {
             is: (type: string) => type === "doctor",
             then: (schema) => schema.required("ZIP is required"),
@@ -207,7 +215,9 @@ console.log("editedData", editedData);
       staff: Yup.array().of(
         Yup.object().shape({
           name: Yup.string().required("Name is required"),
-          role: Yup.array().required("Role/Title is required"),
+          role: Yup.array()
+            .min(1, "At least one Role/Title must be selected.")
+            .required("Role/Title is required"),
           email: Yup.string().matches(EMAIL_REGEX, "Invalid email format"),
           phone: Yup.string().nullable(),
           isDentist: Yup.boolean().nullable(),
@@ -322,24 +332,11 @@ console.log("editedData", editedData);
           {
             id: "zip",
             placeholder: "Zip",
-            type: "number",
+            type: "text",
             isRequired: true,
           },
         ],
       },
-      // {
-      //   id: "practicePhone",
-      //   label: "Practice Phone",
-      //   type: "tel",
-      //   placeholder: "Enter practice phone",
-      // },
-      // {
-      //   id: "practiceEmail",
-      //   label: "Practice Email",
-      //   type: "email",
-      //   placeholder: "Enter practice email",
-      //   isRequired: true,
-      // },
       {
         id: "website",
         label: "Website",
@@ -403,7 +400,7 @@ console.log("editedData", editedData);
       minRows?: number;
     }[] = [
       {
-        id: "notes",
+        id: "additionalNotes",
         label: "Notes (optional)",
         type: "textarea",
         placeholder: "Any additional information about this referrer...",
@@ -464,6 +461,15 @@ console.log("editedData", editedData);
               placeholder={placeholder || "Select an option"}
               selectionMode={multiple ? "multiple" : "single"}
               selectedKeys={
+                multiple
+                  ? Array.isArray(formik.values[id])
+                    ? formik.values[id]
+                    : []
+                  : formik.values[id]
+                  ? [formik.values[id]]
+                  : []
+              }
+              disabledKeys={
                 multiple
                   ? Array.isArray(formik.values[id])
                     ? formik.values[id]
@@ -586,6 +592,8 @@ console.log("editedData", editedData);
                       sub.type === "tel" ? formatPhoneNumber(val) : val
                     )
                   }
+                  maxLength={sub.id === "zip" ? 5 : undefined}
+                  onBlur={() => formik.setFieldTouched(fieldPath)}
                   isRequired={sub.isRequired}
                   touched={isTouched as boolean}
                   error={errorText as string}
@@ -637,7 +645,6 @@ console.log("editedData", editedData);
     const fieldName = `staff[${index}].${field.id}`;
     const valuePath = formik.values.staff[index]?.[field.id];
 
-    // Access the specific validation error for this staff member and field
     const staffErrors = formik.errors.staff as any[] | undefined;
     const staffTouched = formik.touched.staff as any[] | undefined;
 
@@ -646,7 +653,6 @@ console.log("editedData", editedData);
 
     switch (field.type) {
       case "select":
-        // ... (Select case remains unchanged)
         return (
           <div
             key={fieldName as Key}
@@ -669,6 +675,15 @@ console.log("editedData", editedData);
                   ? [valuePath]
                   : []
               }
+              disabledKeys={
+                field.multiple
+                  ? Array.isArray(valuePath)
+                    ? valuePath
+                    : []
+                  : valuePath
+                  ? [valuePath]
+                  : []
+              }
               onSelectionChange={(keys) => {
                 const selectedKeysArray = Array.from(keys);
                 const finalValue = field.multiple
@@ -677,8 +692,10 @@ console.log("editedData", editedData);
                 formik.setFieldValue(fieldName as string, finalValue);
                 formik.setFieldTouched(fieldName as string, true, false);
               }}
-              isInvalid={!!errorText}
-              errorMessage={errorText as string}
+              isInvalid={!!(isTouched && errorText)}
+              errorMessage={
+                isTouched && errorText ? (errorText as string) : undefined
+              }
               classNames={{
                 base: "gap-2 !mt-0",
                 label: "static !translate-y-0",
@@ -695,7 +712,6 @@ console.log("editedData", editedData);
         );
 
       case "checkbox":
-        // ... (Checkbox case remains unchanged)
         return (
           <div key={fieldName as Key} className="w-full">
             <Checkbox
@@ -717,7 +733,6 @@ console.log("editedData", editedData);
         );
 
       default:
-        // Default case for all other text/tel inputs (name, phone, experience) using the custom Input
         return (
           <div
             key={fieldName as Key}
@@ -735,7 +750,6 @@ console.log("editedData", editedData);
                 let finalValue: any = val;
 
                 if (field.type === "tel") {
-                  // Only apply formatPhoneNumber to phone fields
                   finalValue = formatPhoneNumber(val);
                 }
 
@@ -752,6 +766,38 @@ console.log("editedData", editedData);
   };
 
   const handleAddStaff = () => {
+    const staffArray = formik.values.staff;
+    const lastStaffMember = staffArray[staffArray.length - 1];
+
+    const isLastMemberValid =
+      staffArray.length === 0 ||
+      (lastStaffMember?.name &&
+        lastStaffMember?.role &&
+        (Array.isArray(lastStaffMember.role)
+          ? lastStaffMember.role.length > 0
+          : lastStaffMember.role !== ""));
+
+    if (!isLastMemberValid) {
+      // Optionally, you might want to show a notification/toast here
+      // to inform the user that they must fill the current staff member's
+      // required fields before adding a new one.
+      // Also manually touch the fields to show validation errors if not already touched
+      if (lastStaffMember) {
+        formik.setFieldTouched(
+          `staff[${staffArray.length - 1}].name`,
+          true,
+          true
+        );
+        formik.setFieldTouched(
+          `staff[${staffArray.length - 1}].role`,
+          true,
+          true
+        );
+      }
+
+      return;
+    }
+
     const newStaffMember = {
       name: "",
       role: [],
@@ -771,7 +817,12 @@ console.log("editedData", editedData);
     formik.setFieldValue("staff", newStaff);
   };
 
-  let modalTitle = "Add New Referrer (Enhanced v2.0)";
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    formik.resetForm({ values: CLEAN_INITIAL_VALUES });
+  };
+
+  let modalTitle = "Add New Referrer";
   let modalDescription =
     "Add a new doctor or patient referrer to your Practice ROI platform. Track referrals and generate QR codes.";
   let saveButtonText = "Add Referrer";
@@ -785,7 +836,7 @@ console.log("editedData", editedData);
   }
 
   if (editedData?.type) {
-    modalTitle = "Edit Referrer (Enhanced v2.0)";
+    modalTitle = "Edit Referrer";
     modalDescription = "Edit your doctor or patient referrer.";
     saveButtonText = "Update Referrer";
     saveButtonIcon = <BiSave fontSize={15} />;
@@ -794,13 +845,13 @@ console.log("editedData", editedData);
   return (
     <ActionModal
       isOpen={isModalOpen}
-      onClose={() => setIsModalOpen(false)}
+      onClose={handleCloseModal}
       heading={modalTitle}
       description={modalDescription}
       buttons={[
         {
           text: "Cancel",
-          onPress: () => setIsModalOpen(false),
+          onPress: handleCloseModal,
           color: "default",
           variant: "bordered",
           className:
@@ -813,12 +864,13 @@ console.log("editedData", editedData);
           color: "primary",
           variant: "solid",
           isLoading: referrerCreationPending || referrerUpdationPending,
+          isDisabled: !formik.isValid || !formik.dirty,
         },
       ]}
     >
       <form
         onSubmit={formik.handleSubmit}
-        className="space-y-4 py-1 h-fit w-full"
+        className="md:space-y-4 space-y-3 py-1 h-fit w-full"
       >
         {!isPracticeEdit && (
           <div className="border border-primary/20 rounded-lg p-4">
@@ -886,7 +938,7 @@ console.log("editedData", editedData);
             </div>
 
             {formik.values.staff.length === 0 ? (
-              <div className="flex flex-col items-center justify-center border-2 border-dashed border-foreground/20 rounded-lg py-6 mb-4 gap-3">
+              <div className="flex flex-col items-center justify-center border-2 border-dashed border-foreground/20 rounded-lg py-6 gap-3">
                 <FiUsers className="inline mr-2 text-4xl text-default-400" />
                 <span className="text-sm text-gray-500">
                   No additional staff members added yet

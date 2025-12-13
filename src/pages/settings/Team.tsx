@@ -113,8 +113,6 @@ const Team: React.FC = () => {
       .required("Permissions are required"),
   });
 
-  console.log(permissions);
-
   const formik = useFormik<TeamFormValues>({
     enableReinitialize: true,
     initialValues: {
@@ -158,8 +156,6 @@ const Team: React.FC = () => {
     },
   });
 
-  console.log(formik.values.permissions, "HEEEEE");
-
   const handleEdit = (member: TeamMember) => {
     setEditMemberId(member._id);
     formik.setValues({
@@ -202,11 +198,11 @@ const Team: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 md:space-y-5">
       {/* Active Members */}
       <Card shadow="none" className="rounded-xl border border-foreground/10">
         <CardHeader className="flex items-center gap-2 px-5 pt-5 pb-0">
-          <LuUsers className="w-5 h-5" />
+          <LuUsers className="size-5" />
           <p>Team Members ({activeMembers?.length || 0})</p>
         </CardHeader>
         <CardBody className="p-5 space-y-3">
@@ -336,7 +332,7 @@ const Team: React.FC = () => {
                     variant="bordered"
                     onPress={() => handleResend(member._id)}
                     isLoading={resendingId === member._id}
-                    className="border-small bg-white"
+                    className="border-small bg-background"
                   >
                     Resend
                   </Button>

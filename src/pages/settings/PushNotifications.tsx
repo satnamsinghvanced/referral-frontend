@@ -15,7 +15,7 @@ const PushNotifications = () => {
   };
 
   return (
-    <div className="mx-10 space-y-6">
+    <div className="space-y-6">
       {/* Title */}
       <div className="flex items-center justify-between">
         <div>
@@ -105,7 +105,9 @@ const PushNotifications = () => {
                   <p className="text-sm font-medium mb-1">
                     Chrome on MacBook Pro
                   </p>
-                  <p className="text-xs text-gray-600 dark:text-gray-400 dark:text-gray-400">Chrome 120.0</p>
+                  <p className="text-xs text-gray-600 dark:text-gray-400 dark:text-gray-400">
+                    Chrome 120.0
+                  </p>
                   <p className="text-xs text-gray-600">
                     Last seen: 9/25/2025, 3:56:52 PM
                   </p>
@@ -125,7 +127,7 @@ const PushNotifications = () => {
 
       {/* Security and Privacy Card */}
       <Card className="shadow-none">
-        <CardBody className="p-5 space-y-5">
+        <CardBody className="p-5 space-y-4 md:space-y-5">
           <div className="flex items-center justify-between">
             <h4 className="leading-none flex items-center gap-2 text-sm">
               <MdOutlineShield className="h-5 w-5" />

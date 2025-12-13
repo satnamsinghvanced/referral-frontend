@@ -6,13 +6,12 @@ import {
   Divider,
   Input,
 } from "@heroui/react";
-import { Formik, Form, Field, ErrorMessage } from "formik";
-import * as Yup from "yup";
-import { FiEye, FiEyeOff, FiShield } from "react-icons/fi";
-import { useUpdatePassword } from "../../hooks/settings/useSecurity";
+import { ErrorMessage, Field, Form, Formik } from "formik";
 import { useState } from "react";
+import { FiEye, FiEyeOff, FiShield } from "react-icons/fi";
+import * as Yup from "yup";
+import { useUpdatePassword } from "../../hooks/settings/useSecurity";
 
-// --- Validation Schema ---
 const SecuritySchema = Yup.object().shape({
   currentPassword: Yup.string()
     .required("Current password is required")
@@ -31,17 +30,16 @@ const Security: React.FC = () => {
 
   const handle2FAUpdate = () => {
     setTwoFAEnabled((prev) => !prev);
-    console.log("Toggled 2FA:", !twoFAEnabled);
   };
 
-  const [showPassword, setShowPassword] = useState({
+  const [showPassword, setShowPassword] = useState<any>({
     currentPassword: false,
     newPassword: false,
     confirmNewPassword: false,
   });
 
   const togglePasswordVisibility = (field: string) => {
-    setShowPassword((prev) => ({
+    setShowPassword((prev: any) => ({
       ...prev,
       [field]: !prev[field],
     }));
@@ -49,13 +47,12 @@ const Security: React.FC = () => {
 
   return (
     <Card className="rounded-xl shadow-none border border-foreground/10">
-      <CardHeader className="flex items-center gap-3 px-5 pt-5 pb-0">
-        <FiShield className="h-5 w-5" />
+      <CardHeader className="flex items-center gap-2 px-5 pt-5 pb-0">
+        <FiShield className="size-5" />
         <h4 className="text-base">Security & Privacy</h4>
       </CardHeader>
 
       <CardBody className="p-5 space-y-8">
-        {/* Change Password */}
         <Formik
           initialValues={{
             currentPassword: "",
@@ -63,8 +60,6 @@ const Security: React.FC = () => {
             confirmNewPassword: "",
           }}
           validationSchema={SecuritySchema}
-          // The Formik component is configured to run validation on change/blur by default,
-          // so we only need to use its render props.
           onSubmit={(values, { resetForm }) => {
             updatePassword(
               {
@@ -80,9 +75,7 @@ const Security: React.FC = () => {
             );
           }}
         >
-          {(
-            { setFieldValue, values, isValid, dirty } // <-- Destructure isValid and dirty here
-          ) => (
+          {({ setFieldValue, values, isValid, dirty }) => (
             <Form className="space-y-3">
               {["currentPassword", "newPassword", "confirmNewPassword"].map(
                 (field) => {
@@ -143,7 +136,6 @@ const Security: React.FC = () => {
                 className="mt-1"
                 type="submit"
                 isLoading={isPending}
-                // --- Apply the disabled condition here ---
                 isDisabled={!isValid || !dirty || isPending}
               >
                 {isPending ? "Updating..." : "Update Password"}
@@ -154,7 +146,6 @@ const Security: React.FC = () => {
 
         <Divider className="border-foreground/10 mb-7" />
 
-        {/* Two-Factor Authentication */}
         <div className="space-y-4">
           <h4 className="leading-none flex items-center gap-2 text-sm">
             Two-Factor Authentication

@@ -26,7 +26,7 @@ export interface LocationFormValues {
   street: string;
   city: string;
   state: string;
-  zipcode: string;
+  zipcode: number;
   phone: string;
   isPrimary: boolean;
 }
@@ -36,25 +36,44 @@ const LocationSchema = Yup.object().shape({
   street: Yup.string().required("Street is required"),
   city: Yup.string().required("City is required"),
   state: Yup.string().required("State is required"),
-  zipcode: Yup.string()
-    .matches(/^\d{5}$/, "Must be a valid 5-digit ZIP code")
-    .required("Zipcode is required"),
+  zipcode: Yup.number()
+    .typeError("ZIP must be a number")
+    .integer("ZIP must be a whole number")
+    .min(10000, "ZIP code must be 5 digits (e.g., 10000)")
+    .max(99999, "ZIP code must be 5 digits (e.g., 99999)"),
   phone: Yup.string()
     .required("Phone is required")
-    .matches(
-      PHONE_REGEX,
-      "Phone must be in format (XXX) XXX-XXXX"
-    ),
+    .matches(PHONE_REGEX, "Phone must be in format (XXX) XXX-XXXX"),
   isPrimary: Yup.boolean(),
 });
 
 const fieldConfig = [
-  { name: "name", label: "Location Name", placeholder: "Enter location name" },
-  { name: "street", label: "Street", placeholder: "Enter street" },
-  { name: "city", label: "City", placeholder: "Enter city" },
-  { name: "state", label: "State", placeholder: "Enter state" },
-  { name: "zipcode", label: "Zipcode", placeholder: "Enter zipcode" },
-  { name: "phone", label: "Phone", placeholder: "Enter phone number" },
+  {
+    name: "name",
+    type: "text",
+    label: "Location Name",
+    placeholder: "Enter location name",
+  },
+  {
+    name: "street",
+    type: "text",
+    label: "Street",
+    placeholder: "Enter street",
+  },
+  { name: "city", type: "text", label: "City", placeholder: "Enter city" },
+  { name: "state", type: "text", label: "State", placeholder: "Enter state" },
+  {
+    name: "zipcode",
+    type: "number",
+    label: "Zipcode",
+    placeholder: "Enter zipcode",
+  },
+  {
+    name: "phone",
+    type: "tel",
+    label: "Phone",
+    placeholder: "Enter phone number",
+  },
 ];
 
 const Locations: React.FC = () => {
@@ -76,7 +95,7 @@ const Locations: React.FC = () => {
       street: location?.address?.street || "",
       city: location?.address?.city || "",
       state: location?.address?.state || "",
-      zipcode: location?.address?.zipcode || "",
+      zipcode: location?.address?.zipcode || null,
       phone: location?.phone || "",
       isPrimary: location?.isPrimary || false,
     },
@@ -140,8 +159,8 @@ const Locations: React.FC = () => {
   return (
     <>
       <Card className="rounded-xl shadow-none border border-foreground/10">
-        <CardHeader className="flex items-center gap-3 px-5 pt-5 pb-0">
-          <GrLocation className="h-5 w-5" />
+        <CardHeader className="flex items-center gap-2 px-5 pt-5 pb-0">
+          <GrLocation className="size-5" />
           <p className="text-base">Practice Locations</p>
         </CardHeader>
 
@@ -262,6 +281,7 @@ const Locations: React.FC = () => {
             <Input
               key={field.name}
               id={field.name}
+              type={field.type}
               name={field.name}
               label={field.label}
               labelPlacement="outside"

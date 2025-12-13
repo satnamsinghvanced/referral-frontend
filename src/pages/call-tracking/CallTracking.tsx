@@ -4,7 +4,6 @@ import { FiPhone, FiPhoneCall, FiSearch, FiSettings } from "react-icons/fi";
 import { LuClock, LuFileAudio, LuRefreshCw } from "react-icons/lu";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
 import ComponentContainer from "../../components/common/ComponentContainer";
-import TwilioConfigurationModal from "./TwilioConfigurationModal";
 import { CALL_STATUS_OPTIONS, CALL_TYPE_OPTIONS } from "../../consts/filters";
 import { CallFilters, CallRecord } from "../../types/call";
 import CallRecordCard from "./CallRecordCard";
@@ -100,7 +99,6 @@ const CALL_DATA = {
 };
 
 const CallTracking = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
   const [currentFilters, setCurrentFilters] = useState<CallFilters>({
     search: "",
@@ -143,7 +141,7 @@ const CallTracking = () => {
 
   const STATS_CARD_DATA: StatCard[] = [
     {
-      icon: <FiPhone className="text-[17px] mt-1 text-foreground/60" />,
+      icon: <FiPhone className="text-foreground/60" />,
       heading: "Total Calls",
       value: callRecordsData.length,
       subheading: `${
@@ -151,7 +149,7 @@ const CallTracking = () => {
       } completed`,
     },
     {
-      icon: <FiPhoneCall className="text-[17px] mt-1 text-foreground/60" />,
+      icon: <FiPhoneCall className="text-foreground/60" />,
       heading: "Answer Rate",
       value: `${
         Math.round(
@@ -169,13 +167,13 @@ const CallTracking = () => {
       } missed calls`,
     },
     {
-      icon: <LuClock className="text-[17px] mt-1 text-foreground/60" />,
+      icon: <LuClock className="text-foreground/60" />,
       heading: "Avg Duration",
       value: `3:00`,
       subheading: "Average call length",
     },
     {
-      icon: <LuFileAudio className="text-[17px] mt-1 text-foreground/60" />,
+      icon: <LuFileAudio className="text-foreground/60" />,
       heading: "Recordings",
       value: callRecordsData.filter(
         (r) =>
@@ -184,7 +182,7 @@ const CallTracking = () => {
       subheading: "Available for playback",
     },
     {
-      icon: <MdTrendingUp className="text-[17px] mt-1 text-foreground/60" />,
+      icon: <MdTrendingUp className="text-foreground/60" />,
       heading: "Follow-ups",
       value: callRecordsData.filter((r) =>
         r.tags.some((t) => t.label === "Follow-up")
@@ -207,14 +205,6 @@ const CallTracking = () => {
           color: "default",
           className: "border-small",
         },
-        {
-          label: "Twilio Settings",
-          onClick: () => setIsOpen(true),
-          icon: <FiSettings fontSize={15} />,
-          variant: "bordered",
-          color: "default",
-          className: "border-small",
-        },
       ],
     }),
     []
@@ -223,14 +213,14 @@ const CallTracking = () => {
   return (
     <>
       <ComponentContainer headingData={HEADING_DATA as any}>
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-4 md:gap-5">
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-5 gap-4 justify-between">
             {STATS_CARD_DATA.map((data) => (
               <MiniStatsCard key={data.heading} cardData={data} />
             ))}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border border-primary/15 rounded-xl p-4 bg-white shadow-none">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border border-primary/15 rounded-xl p-4 bg-background shadow-none">
             <div className="relative flex-1">
               <Input
                 placeholder="Search calls by name, phone, or tags..."
@@ -247,6 +237,7 @@ const CallTracking = () => {
                 placeholder="All Types"
                 size="sm"
                 selectedKeys={new Set([currentFilters.type])}
+                disabledKeys={new Set([currentFilters.type])}
                 onSelectionChange={(keys) =>
                   onFilterChange("type", Array.from(keys)[0] as string)
                 }
@@ -263,6 +254,7 @@ const CallTracking = () => {
                 placeholder="All Status"
                 size="sm"
                 selectedKeys={new Set([currentFilters.status])}
+                disabledKeys={new Set([currentFilters.status])}
                 onSelectionChange={(keys) =>
                   onFilterChange("status", Array.from(keys)[0] as string)
                 }
@@ -280,13 +272,15 @@ const CallTracking = () => {
             <p className="font-medium text-sm">Call History</p>
 
             {filteredCalls.length > 0 ? (
-              filteredCalls.map((record) => (
-                <CallRecordCard
-                  key={record.id}
-                  record={record}
-                  onPlayClick={() => setIsRecordingModalOpen(true)}
-                />
-              ))
+              <div className="space-y-3">
+                {filteredCalls.map((record) => (
+                  <CallRecordCard
+                    key={record.id}
+                    record={record}
+                    onPlayClick={() => setIsRecordingModalOpen(true)}
+                  />
+                ))}
+              </div>
             ) : (
               <div className="text-center py-10 text-gray-500 text-sm">
                 No call records found matching your filters.
@@ -296,11 +290,6 @@ const CallTracking = () => {
         </div>
       </ComponentContainer>
 
-      <TwilioConfigurationModal
-        userId={userId as string}
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-      />
       <CallRecordingModal
         isOpen={isRecordingModalOpen}
         onClose={() => setIsRecordingModalOpen(false)}

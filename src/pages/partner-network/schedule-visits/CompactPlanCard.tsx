@@ -1,29 +1,46 @@
-import { Button, Card } from "@heroui/react";
-import { SchedulePlan } from "../../../types/partner";
+import { Button, Card, Chip } from "@heroui/react";
 import { FiCopy, FiEdit, FiEye, FiTrash2 } from "react-icons/fi";
 import { LuDownload } from "react-icons/lu";
+import VisitStatusChip from "../../../components/chips/VisitStatusChip";
+import { useCopySchedulePlan } from "../../../hooks/usePartner";
+import { SchedulePlan } from "../../../types/partner";
 import { downloadJson } from "../../../utils/jsonDownloader";
-import {
-  useCopySchedulePlan,
-  useDeleteSchedulePlan,
-} from "../../../hooks/usePartner";
+import { motion } from "framer-motion";
 
-const CompactPlanCard: React.FC<{ plan: SchedulePlan; onView: any }> = ({
-  plan,
-  onView,
-}) => {
+const CompactPlanCard: React.FC<{
+  plan: SchedulePlan;
+  onView: any;
+  onEdit: any;
+  onDelete: any;
+  onStatusClick: any;
+}> = ({ plan, onView, onEdit, onDelete, onStatusClick }) => {
   const statClass =
-    "flex flex-col items-center justify-center text-center w-12";
+    "flex flex-col items-center justify-center text-center w-18";
   const statValueClass = "font-medium text-xs whitespace-nowrap";
-  const statLabelClass = "text-xs text-gray-600";
-  const completePercentage = 0;
+  const statLabelClass = "text-xs text-gray-600 whitespace-nowrap";
+
+  let completePercentage;
+
+  switch (plan.status) {
+    case "completed":
+      completePercentage = 100;
+      break;
+
+    case "inProgress":
+      completePercentage = 50;
+      break;
+
+    default:
+      completePercentage = 0;
+      break;
+  }
+
   const monthYear = new Date(plan.createdAt).toLocaleDateString("en-US", {
     month: "long",
     year: "numeric",
   });
 
   const { mutate: copySchedulePlan } = useCopySchedulePlan();
-  const { mutate: deleteSchedulePlan } = useDeleteSchedulePlan();
 
   const handleExport = () => {
     const exportData = {
@@ -37,12 +54,20 @@ const CompactPlanCard: React.FC<{ plan: SchedulePlan; onView: any }> = ({
   };
 
   return (
-    <Card className="p-4 rounded-xl border border-primary/15 bg-background shadow-none flex flex-row items-center justify-between">
-      <div className="flex-1 min-w-0 pr-4">
-        <div className="flex items-center gap-2 mb-1">
+    <Card className="p-4 rounded-xl border border-primary/15 bg-background shadow-none flex xl:flex-row xl:items-center xl:justify-between max-xl:gap-4">
+      <div className="flex-1 min-w-0 xl:pr-4">
+        <div className="flex items-center gap-2 mb-1 max-xl:justify-between">
           <h4 className="text-sm font-medium truncate">
             {plan.planDetails.name}
           </h4>
+          <div className="flex items-center gap-1.5">
+            <span
+              className="flex cursor-pointer"
+              onClick={() => onStatusClick(plan)}
+            >
+              <VisitStatusChip status={plan.status} />
+            </span>
+          </div>
         </div>
         <p className="text-xs text-gray-600">{monthYear}</p>
         {plan.planDetails.description && (
@@ -52,15 +77,15 @@ const CompactPlanCard: React.FC<{ plan: SchedulePlan; onView: any }> = ({
         )}
       </div>
 
-      <div className="flex items-center gap-4">
-        <div className="flex gap-6">
+      <div className="flex items-center gap-4 max-xl:justify-between max-md:flex-col max-md:items-start">
+        <div className="flex gap-4 max-xl:gap-2 max-md:justify-between max-md:w-full max-sm:flex-wrap max-sm:justify-start max-sm:gap-4">
           <div className={statClass}>
             <div className={statValueClass}>{plan.summary.totalPractices}</div>
             <div className={statLabelClass}>Practices</div>
           </div>
           <div className={statClass}>
             <div className={statValueClass}>{plan.summary.visitDays}</div>
-            <div className={statLabelClass}>Visits</div>
+            <div className={statLabelClass}>Visit Days</div>
           </div>
           <div className={statClass}>
             <div className={statValueClass}>{plan.summary.estimatedTime}</div>
@@ -84,13 +109,19 @@ const CompactPlanCard: React.FC<{ plan: SchedulePlan; onView: any }> = ({
             variant="light"
             title="View Details"
             isIconOnly
-            onPress={onView}
+            onPress={() => onView(plan)}
           >
             <FiEye className="size-3.5" />
           </Button>
-          {/* <Button size="sm" variant="light" title="Edit Plan" isIconOnly>
+          <Button
+            size="sm"
+            variant="light"
+            title="Edit Plan"
+            isIconOnly
+            onPress={() => onEdit(plan)}
+          >
             <FiEdit className="size-3.5" />
-          </Button> */}
+          </Button>
           <Button
             size="sm"
             variant="light"
@@ -117,9 +148,7 @@ const CompactPlanCard: React.FC<{ plan: SchedulePlan; onView: any }> = ({
             variant="light"
             title="Delete Plan"
             isIconOnly
-            onPress={() => {
-              deleteSchedulePlan(plan._id);
-            }}
+            onPress={() => onDelete(plan._id)}
           >
             <FiTrash2 className="size-3.5" />
           </Button>

@@ -55,7 +55,6 @@ const SignIn = () => {
           },
           {
             onSuccess: (response) => {
-              console.log(response);
               dispatch(
                 setCredentials({
                   token: response?.accessToken,

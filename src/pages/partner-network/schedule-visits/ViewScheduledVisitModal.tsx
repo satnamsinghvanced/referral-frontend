@@ -1,7 +1,16 @@
-import { Modal, ModalBody, ModalContent, ModalHeader } from "@heroui/react";
+import {
+  Chip,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+} from "@heroui/react";
 import { TbCalendarStats, TbRoute, TbNotes } from "react-icons/tb"; // Icons for new structure
 import VisitStatusChip from "../../../components/chips/VisitStatusChip";
 import { LuCar, LuClock, LuTimer } from "react-icons/lu";
+import { formatDateToReadable } from "../../../utils/formatDateToReadable";
+import { convertTo12HourClock } from "../../../utils/convertTo12HourClock";
+import { FiCheckCircle } from "react-icons/fi";
 
 // Assuming the data structure for a single plan
 interface PlanData {
@@ -31,45 +40,36 @@ interface ViewScheduleModalProps {
   plan: PlanData; // The data for the specific plan to display
 }
 
-// Helper to render Status Tag
-const StatusTag = ({ status }: { status: string }) => {
-  let color = "bg-gray-200 text-gray-800";
-  if (status === "active") color = "bg-blue-100 text-blue-600";
-  if (status === "completed") color = "bg-green-100 text-green-600";
-  if (status === "draft") color = "bg-yellow-100 text-yellow-600";
-
-  return (
-    <span className={`px-2 py-0.5 text-xs font-medium rounded ${color}`}>
-      {status.charAt(0).toUpperCase() + status.slice(1)}
-    </span>
-  );
-};
-
 export default function ViewScheduledVisitModal({
   isOpen,
   onClose,
   plan,
 }: ViewScheduleModalProps) {
+  const progress = plan.status === "completed" ? 100 : 0;
+
   return (
-    <Modal isOpen={isOpen} onOpenChange={onClose} size="lg">
-      <ModalContent className="max-h-[90vh] overflow-hidden p-6 w-full">
+    <Modal
+      isOpen={isOpen}
+      onOpenChange={onClose}
+      size="md"
+      classNames={{
+        base: `max-sm:!m-3 !m-0`,
+        closeButton: "cursor-pointer",
+      }}
+    >
+      <ModalContent className="max-h-[95vh] overflow-hidden w-full">
         {/* Modal Header */}
-        <ModalHeader className="flex gap-1 text-center sm:text-left p-0">
+        <ModalHeader className="flex gap-1 text-center sm:text-left p-4">
           <h4 className="text-base font-medium flex items-center gap-2">
             <TbCalendarStats className="h-6 w-6 text-blue-600" />
             <span>{plan?.planDetails?.name}</span>
           </h4>
           <div className="flex items-center gap-2 ml-2">
             <VisitStatusChip status={plan?.status} />
-            {/* {plan.isOptimized && (
-              <span className="px-2 py-0.5 text-xs font-medium rounded bg-green-100 text-green-600">
-                Optimized
-              </span>
-            )} */}
           </div>
         </ModalHeader>
 
-        <ModalBody className="p-0 overflow-y-auto space-y-4 mt-4 gap-0">
+        <ModalBody className="px-4 pt-0 pb-4 overflow-y-auto space-y-3 md:space-y-4 gap-0">
           {/* --- Summary Stats (Reference: Review & Save Tab) --- */}
           <div className="grid grid-cols-4 gap-4 py-3 bg-gray-50 rounded-lg border border-gray-100">
             <StatPill
@@ -94,12 +94,35 @@ export default function ViewScheduledVisitModal({
             />
           </div>
 
+          <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs">
+                <span>Progress</span>
+                <span>{progress}%</span>
+              </div>
+              <div className="w-full bg-gray-200 rounded-full h-2">
+                <div
+                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${progress}%` }}
+                ></div>
+              </div>
+            </div>
+          </div>
+
           {/* --- Plan Configuration --- */}
           <div className="space-y-4 border border-primary/15 p-4 rounded-xl">
             <h3 className="text-sm font-medium flex items-center gap-2">
               <TbNotes className="h-4 w-4" /> Plan Details
             </h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
+              <DetailItem
+                label="Scheduled Date"
+                value={formatDateToReadable(plan.route.date)}
+              />
+              <DetailItem
+                label="Scheduled Time"
+                value={convertTo12HourClock(plan?.route?.startTime)}
+              />
               <DetailItem
                 label="Visit Purpose"
                 value={plan?.planDetails?.visitPurpose?.title}
@@ -108,12 +131,20 @@ export default function ViewScheduledVisitModal({
                 label="Default Priority"
                 value={plan?.planDetails?.priority}
               />
+              <DetailItem
+                label="Created At"
+                value={formatDateToReadable(plan?.createdAt, true)}
+              />
+              <DetailItem
+                label="Updated At"
+                value={formatDateToReadable(plan?.updatedAt, true)}
+              />
               {plan?.planDetails?.description && (
                 <div className="col-span-2">
                   <div className="text-xs font-medium text-gray-500">
                     Description
                   </div>
-                  <div className="text-sm font-medium text-gray-800 capitalize">
+                  <div className="text-xs font-medium text-gray-800 capitalize mt-0.5">
                     {plan?.planDetails?.description}
                   </div>
                 </div>
@@ -133,6 +164,33 @@ export default function ViewScheduledVisitModal({
               ))}
             </div>
           </div>
+
+          {plan?.visitNotes && (
+            <div className="space-y-1.5">
+              <div className="text-xs">Visit Notes</div>
+              <div className="text-xs text-gray-700 capitalize bg-gray-50 p-2 rounded-lg">
+                {plan?.visitNotes}
+              </div>
+            </div>
+          )}
+
+          {plan?.visitOutcome && (
+            <div className="space-y-1.5">
+              <div className="text-xs">Visit Outcome/Result</div>
+              <div className="text-xs text-gray-700 p-2 bg-green-50 border border-green-200 rounded-lg">
+                {plan?.visitOutcome}
+              </div>
+            </div>
+          )}
+
+          {plan?.followUp && (
+            <div className="p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <div className="flex items-center gap-2 text-yellow-800">
+                <FiCheckCircle fontSize={14} />
+                <span className="text-xs ">Follow-up Action Required</span>
+              </div>
+            </div>
+          )}
         </ModalBody>
       </ModalContent>
     </Modal>
@@ -167,7 +225,9 @@ const DetailItem = ({
 }) => (
   <div className={fullWidth ? "col-span-2" : "col-span-1"}>
     <div className="text-xs font-medium text-gray-500">{label}</div>
-    <div className="text-sm font-medium text-gray-800 capitalize mt-0.5">{value}</div>
+    <div className="text-xs font-medium text-gray-800 capitalize mt-0.5">
+      {value}
+    </div>
   </div>
 );
 
@@ -188,18 +248,18 @@ const RouteStopCard = ({
     <div className="flex-grow space-y-1">
       <div className="font-medium text-sm">{route.name}</div>
       <div className="text-xs text-gray-600">{route.address.addressLine1}</div>
-      <div className="flex items-center gap-3 text-xs text-gray-600 pt-1">
-        <span className="flex items-center gap-1.5">
-          <LuTimer className="min-h-3.5 min-w-3.5 size-3.5" />{" "}
-          {route.arrivalTime} - {route.departureTime}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-gray-600 pt-1">
+        <span className="flex items-center gap-1.5 whitespace-nowrap">
+          <LuTimer className="min-h-4 min-w-4 size-4" /> {route.arrivalTime} -{" "}
+          {route.departureTime}
         </span>
         {route.travelDistance !== "0.0mi" && (
-          <span className="flex items-center gap-1.5">
+          <span className="flex items-center gap-1.5 whitespace-nowrap">
             <LuCar className="min-h-4 min-w-4 size-4" /> {route.travelDistance}
           </span>
         )}
         {route.travelTime !== "0m" && (
-          <span className="flex items-center gap-1.5">
+          <span className="flex items-center gap-1.5 whitespace-nowrap">
             <LuClock className="min-h-3.5 min-w-3.5 size-3.5" />{" "}
             {route.travelTime}
           </span>

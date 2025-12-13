@@ -115,7 +115,8 @@ export interface PartnerPractice {
   taskCount: number;
   lastContact: string | null;
   staff: any[];
-  notes: any;
+  additionalNotes: any;
+  pendingTaskCount?: number;
 }
 
 export interface FetchPartnersResponse {
@@ -164,11 +165,13 @@ export interface TaskApiData {
   dueDate: string; // YYYY-MM-DD
   priority: "low" | "medium" | "high" | string;
   category: "follow-up" | "meeting" | "other" | string;
-  practiceId: any;
+  practiceId?: any;
   status: "pending" | "completed" | string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
   isOverDue?: boolean;
+  schedule?: string;
+  assignTo?: any;
 }
 
 export interface AllNotesTasksResponse {
@@ -193,10 +196,16 @@ export interface CreateTaskPayload {
   practiceId: string;
   priority: string;
   category: string;
+  assignTo: string[];
 }
 
 export interface UpdateTaskStatusPayload {
   status: "not-started" | "in-progress" | "completed" | "no-longer-needed";
+}
+
+export interface UpdateTaskPayload {
+  taskId: string;
+  data: any;
 }
 
 export interface Note {
@@ -288,7 +297,6 @@ export interface PlanDetailsPayload {
 }
 
 export interface SaveSchedulePlanPayload {
-  isDraft: boolean;
   practices: string[];
   route: RouteDataPayload;
   planDetails: PlanDetailsPayload;
@@ -324,17 +332,8 @@ export interface SchedulePlanRequest {
  * Interface for the COMPLETE PUT Request Payload (PUT /schedule-visit)
  */
 export interface SchedulePlanPutRequest {
-  _id: string; // Plan ID for update
-  practices: string[];
-  // PlanDetails without 'month' for PUT request
-  planDetails: PlanDetails;
-  scheduleVisits: ScheduledVisitBase[];
-  review: {
-    visitDays: string[];
-    totalReferrers: number;
-    totalTime: string;
-    distance: string;
-  };
+  id: string; // Plan ID for update
+  data: any;
 }
 
 // --- 3. GET Response Interfaces ---
@@ -414,17 +413,20 @@ export interface RouteMetrics {
   estimatedDistance: string;
   mileageCost: string;
   visitDays: string;
+  travelDistance: string;
+  travelTime: string;
 }
 
 export interface RouteOptimizationResults {
   original: RouteMetrics;
   optimized: RouteMetrics;
-  bestRoute: RouteMetrics;
 }
 
 // HEHEHHEHEHE
 // --- 1. Query Parameters Type ---
 export interface GetSchedulePlansQuery {
+  page: number;
+  limit: number;
   status?: "draft" | "active" | "completed" | "pending" | "cancel" | string;
   order?: "asc" | "desc" | string;
   sortBy?: "name" | "createdAt" | string;
@@ -471,8 +473,7 @@ interface PlanSummary {
 
 // --- 3. Full Schedule Plan Data Type ---
 export interface SchedulePlan {
-  planDetails: PlanDetails;
-  isDraft?: boolean; // Can be implicitly determined from 'label'
+  planDetails: any;
   _id: string;
   createdBy: string;
   practices: Practice[];
@@ -482,6 +483,9 @@ export interface SchedulePlan {
   createdAt: string;
   updatedAt: string;
   summary: PlanSummary;
+  visitNotes?: string;
+  visitOutcome?: string;
+  followUp?: boolean;
 }
 
 export interface SchedulePlanDashboardStats {
@@ -500,13 +504,15 @@ export interface SchedulePlansResponse {
   success: boolean;
   message: string;
   data: SchedulePlan[];
-  totalData: number;
-  totalPages: number;
-  currentPage: number;
-  pageSize: number;
-  hasNextPage: boolean;
-  hasPrevPage: boolean;
   dashboardStats: SchedulePlanDashboardStats;
+  pagination: {
+    totalPages: number;
+    currentPage: number;
+    pageSize: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+    totalData: number;
+  };
 }
 
 interface VisitHistoryItem {
@@ -515,7 +521,6 @@ interface VisitHistoryItem {
   _id: string;
   createdBy: string;
   practices: Practice[];
-  isDraft: boolean;
   status: "pending" | "completed" | "cancelled"; // Assuming statuses based on context
   createdAt: string;
   updatedAt: string;
@@ -553,8 +558,13 @@ export interface VisitHistoryResponse {
 }
 
 export interface VisitHistoryQueryParams {
-  filter: "all" | "draft" | "completed" | "pending" | "cancelled";
-  // source: "list" | "map"; // Assuming potential sources
+  filter: "all" | "draft" | "completed" | "pending" | "cancel";
   search: string;
-  // Add pagination params if needed, e.g., page: number, limit: number
+}
+
+export interface VisitStatusUpdateFormValues {
+  status: string;
+  visitNotes: string | null;
+  visitOutcome: string | null;
+  followUp: boolean;
 }

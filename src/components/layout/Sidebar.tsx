@@ -2,11 +2,9 @@ import {
   HiOutlineChartBar,
   HiOutlineChevronLeft,
   HiOutlineCog,
-  HiOutlineDocument,
   HiOutlineLightningBolt,
   HiOutlineMail,
   HiOutlinePhone,
-  HiOutlineQuestionMarkCircle,
   HiOutlineStar,
 } from "react-icons/hi";
 import { useSelector } from "react-redux";
@@ -18,17 +16,18 @@ import {
   LuCalendar,
   LuDollarSign,
   LuQrCode,
+  LuUsers,
   LuVideo,
 } from "react-icons/lu";
 
-import { FiFileText, FiHome, FiImage, FiUsers } from "react-icons/fi";
+import { FiFileText, FiHome } from "react-icons/fi";
 import { IoIosArrowRoundForward } from "react-icons/io";
-import logo from "../../assets/logos/logo.png";
 // import logoWhite from "../../assets/logo-white.svg";
 import clsx from "clsx";
 import { MdOutlineModeComment } from "react-icons/md";
 import { TbCheckbox } from "react-icons/tb";
 import { useDashboardStats } from "../../hooks/useDashboard";
+import Logo from "../ui/Logo";
 
 interface SidebarProps {
   isMiniSidebarOpen: boolean;
@@ -64,7 +63,7 @@ const Sidebar = ({
     },
     {
       name: "Referrals",
-      icon: FiUsers,
+      icon: LuUsers,
       href: "/referrals",
       stats: dashboardStats?.referrals,
       color: (stats: number) => "bg-sky-100",
@@ -159,7 +158,7 @@ const Sidebar = ({
       name: "Integrations",
       icon: HiOutlineLightningBolt,
       href: "/integrations",
-      stats: 12,
+      stats: 1,
       color: "bg-blue-400",
     },
     { name: "Settings", icon: HiOutlineCog, href: "/settings" },
@@ -176,8 +175,8 @@ const Sidebar = ({
     <>
       {/* Mobile overlay when sidebar open in mobile/mini mode */}
       <div
-        className={` z-30  ${
-          isMiniSidebarOpen ? "bg-foreground/30 fixed inset-0 z-30" : "hidden"
+        className={`${
+          isMiniSidebarOpen ? "bg-foreground/30 fixed inset-0 z-41" : "hidden"
         } lg:hidden`}
         onClick={onCloseSidebar}
         aria-hidden
@@ -190,26 +189,22 @@ const Sidebar = ({
         aria-label="Primary sidebar"
       >
         <div
-          className={`flex items-center h-16 border-b border-foreground/10  ${
+          className={`flex items-center h-[58px] md:h-[64px] border-b border-foreground/10 ${
             isMiniSidebarOpen ? "justify-between" : "justify-center"
           } w-full`}
         >
           {isMiniSidebarOpen && (
             <Link
-              to="/dashboard"
-              className="flex items-center gap-2 cursor-pointer text-sm pl-3"
+              to="/"
+              className="flex items-center gap-2 cursor-pointer text-sm py-2 pl-3 h-full"
+              onClick={onCloseSidebar}
             >
-              {/* <img src={logo} alt="logo" className="h-8 block" />
-              <img
-                src={logoWhite}
-                alt="logo white"
-                className="h-8 hidden"
-              /> */}
-              <img src={logo} alt="" className="w-8 h-8" />
-              <span className="flex flex-col">
-                <span className="font-bold">Referral Retriever</span>
-                <span className="text-[10px]">Orthodontic Management</span>
-              </span>
+              <Logo style={{ height: "100%" }} />
+              {/* <img src={logo} alt="" className="w-8 h-8" />
+              <span className="flex flex-col text-[#055fa4]">
+                <span className="font-bold">PRACTICE ROI</span>
+                <span className="text-[11px]">Intelligent Marketing</span>
+              </span> */}
             </Link>
           )}
 
@@ -237,55 +232,53 @@ const Sidebar = ({
         <div
           className={`${
             isMiniSidebarOpen ? "overflow-y-auto" : ""
-          } flex flex-col justify-between h-[calc(100vh_-_60px)]  px-0`}
+          } flex flex-col justify-between h-[calc(100vh_-_60px)] px-0`}
         >
           <ul className="flex flex-col p-3">
             {navigationRoutes.map((item, index) => {
               const Icon = item.icon;
-              const active =
-                pathname === item.href ||
-                (item.href === "/dashboard" && pathname === "/");
+              const isActive =
+                item.href === "/"
+                  ? pathname === "/"
+                  : pathname.startsWith(item.href);
 
-              console.log(item.href, "HREF");
               return (
                 <li key={index}>
-                  {/* if item.list exists in future, we can render expand. For now single links */}
                   <NavLink
                     to={item.href}
                     className={() => {
-                      const isActive =
-                        pathname === item.href ||
-                        (item.href === "/dashboard" && pathname === "/");
-
                       return clsx(
                         "group border my-0.5 cursor-pointer rounded-md transition-all group flex items-center py-2 px-3 hover:bg-gray-50 dark:hover:bg-[#0f1214] h-9",
                         isMiniSidebarOpen
                           ? "px-0 justify-start"
                           : "px-4 justify-center",
                         isActive
-                          ? "!bg-sky-50 !text-sky-700 !border-sky-200 dark:!bg-white dark:!border-sky-50 shadow-sm"
+                          ? "!bg-sky-50 !text-sky-700 !border-sky-200 dark:!border-sky-50 shadow-sm"
                           : "hover:bg-gray-100 border-transparent"
                       );
                     }}
+                    onClick={onCloseSidebar}
                   >
                     <span
                       className={`flex items-center justify-center ${
-                        active ? "text-white " : "text-gray-500"
+                        isActive ? "text-white " : "text-gray-500"
                       }`}
                     >
                       {isMiniSidebarOpen ? (
                         <Icon
-                          className={` ${active ? "  text-sky-700" : ""}`}
+                          className={` ${isActive ? "  text-sky-700" : ""}`}
                         />
                       ) : (
                         <Tooltip
                           content={item.name}
                           placement="right"
                           shadow="sm"
+                          size="sm"
+                          radius="sm"
                         >
                           <Icon
                             className={` ${
-                              active
+                              isActive
                                 ? "bg-sky-50 text-sky-700"
                                 : "hover:bg-gray-100 dark:bg-transparent"
                             }`}
@@ -337,7 +330,7 @@ const Sidebar = ({
                           ? "px-3 justify-start"
                           : "px-3 justify-center",
                         isActive
-                          ? "!bg-sky-50 !text-sky-700 !border-sky-200 dark:!bg-white dark:!border-sky-50 shadow-sm"
+                          ? "!bg-sky-50 !text-sky-700 !border-sky-200 dark:!bg-background dark:!border-sky-50 shadow-sm"
                           : "hover:bg-gray-100 border-transparent",
                         isSignOut && "block md:hidden"
                       )
@@ -366,8 +359,6 @@ const Sidebar = ({
             })}
           </ul> */}
         </div>
-
-        {/* bottom SwitchMode (kept as ThemeToggle usage above) */}
       </aside>
     </>
   );

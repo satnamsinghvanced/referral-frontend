@@ -14,6 +14,7 @@ import {
   SchedulePlanPutRequest,
   SchedulePlansResponse,
   TaskApiData,
+  UpdateTaskPayload,
   UpdateTaskStatusPayload,
   VisitHistoryQueryParams,
   VisitHistoryResponse,
@@ -94,6 +95,14 @@ export const updateTaskStatus = async (
   return response.data;
 };
 
+export const updateTask = async ({
+  taskId,
+  data,
+}: UpdateTaskPayload): Promise<void> => {
+  const url = `/tasks/${taskId}`;
+  await axios.put(url, data);
+};
+
 export const deleteTask = async (taskId: string): Promise<void> => {
   await axios.delete(`/tasks/${taskId}`);
 };
@@ -105,14 +114,19 @@ export const scheduleTaskEvent = async (
   return response.data;
 };
 
+export const getScheduleTaskEvent = async (
+  taskId: string
+): Promise<EventDetails> => {
+  const response = await axios.get(`/tasks/schedule/${taskId}`);
+  return response.data;
+};
+
 // SCHEDULE PLANS
 
 export const getSchedulePlans = async (
-  query: GetSchedulePlansQuery
+  query: any
 ): Promise<SchedulePlansResponse> => {
-  const params = new URLSearchParams(
-    query as Record<string, string>
-  ).toString();
+  const params = new URLSearchParams(query).toString();
 
   const url = `/schedule-visit${params ? `?${params}` : ""}`;
 
@@ -131,16 +145,14 @@ export const createSchedulePlan = async ({
   return response.data;
 };
 
-export const updateSchedulePlan = async (
-  data: SchedulePlanPutRequest
-): Promise<void> => {
-  const planId = data._id;
-  if (!planId) {
-    throw new Error(
-      "Plan ID (_id) is required for updating the schedule plan."
-    );
+export const updateSchedulePlan = async ({
+  id,
+  data,
+}: SchedulePlanPutRequest): Promise<void> => {
+  if (!id) {
+    throw new Error("Plan ID (id) is required for updating the schedule plan.");
   }
-  const url = `/schedule-visit/${planId}`;
+  const url = `/schedule-visit/${id}`;
   await axios.put(url, data);
 };
 

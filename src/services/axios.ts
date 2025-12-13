@@ -19,18 +19,16 @@ const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:9090/api",
   headers: {
     "Content-Type": "application/json",
-    'ngrok-skip-browser-warning': 'true',
   },
 });
 
 axiosInstance.interceptors.request.use(
   (config) => {
     const token = store.getState().auth.token;
-    // const token = process.env.VITE_TOKEN;
     if (token) {
       if (!isTokenValid(token)) {
         store.dispatch(logout());
-        window.location.href = "/referral-retrieve/signin"; // redirect if expired
+        window.location.href = `${import.meta.env.VITE_URL_PREFIX}/signin`; // redirect if expired
         return Promise.reject(new Error("Token expired"));
       }
 
@@ -47,7 +45,7 @@ axiosInstance.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401 || error.response?.status === 403) {
       store.dispatch(logout());
-      window.location.href = "/referral-retrieve/signin";
+      window.location.href = `${import.meta.env.VITE_URL_PREFIX}/signin`;
     }
     return Promise.reject(error);
   }

@@ -1,24 +1,25 @@
 import { Pagination } from "@heroui/react";
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { FiEdit, FiEye, FiStar, FiUsers } from "react-icons/fi";
 import { IoDocumentOutline } from "react-icons/io5";
 import { LuBuilding2 } from "react-icons/lu";
+import { TbArchive } from "react-icons/tb";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
+import EmptyState from "../../components/common/EmptyState";
+import { LoadingState } from "../../components/common/LoadingState";
+import { PARTNER_FILTERS, PARTNER_SORT_OPTIONS } from "../../consts/filters";
 import {
   useFetchPartnerDetail,
   useFetchPartners,
-} from "../../hooks/usePartner"; // Import the custom hook
-import { FetchPartnersParams, Partner } from "../../types/partner"; // Import types
-import { PARTNER_FILTERS, PARTNER_SORT_OPTIONS } from "../../consts/filters";
+} from "../../hooks/usePartner";
+import { FetchPartnersParams, Partner } from "../../types/partner";
 import ReferralManagementActions from "../referral-management/ReferralManagementActions";
 import NotesTasksModal from "./NotesTasksModal";
 import PartnerDetailsModal from "./PartnerDetailsModal";
 import PartnerNetworkCard from "./PartnerNetworkCard";
 import PartnerNetworkHeader from "./PartnerNetworkHeader";
 import ScheduleVisits from "./schedule-visits/ScheduleVisits";
-import { TbArchive, TbCheckbox } from "react-icons/tb";
-import VisitHistoryModal from "./schedule-visits/history-modal/VisitHistoryModal";
 
 const PartnerNetwork = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -40,88 +41,93 @@ const PartnerNetwork = () => {
     page: 1,
     limit: 10,
     sortBy: "name",
-    order: sortOrder,
-    filter: "allPractices", // Default filter value
+    order: "asc",
+    filter: "allPractices",
   });
 
-  // Fetch data using the hook and current parameters
   const { data, isLoading } = useFetchPartners(params);
-
   const { data: singlePartnerData } = useFetchPartnerDetail(partnerEditId);
 
   const practices = data?.data || [];
   const stats = data;
+  const totalPractices = stats?.totalPractices ?? 0;
 
   const handleOpen = () => {
+    setPartnerEditId("");
     setIsPracticeEdit(false);
     setIsModalOpen(true);
   };
 
-  // Handlers to update the state, which triggers a re-fetch
+  const updateParams = useCallback(
+    (newParams: Partial<FetchPartnersParams>) => {
+      setParams((prev) => ({ ...prev, ...newParams, page: 1 }));
+    },
+    []
+  );
+
   const handleFilterChange = (value: any) => {
-    setParams((prev) => ({ ...prev, filter: value, page: 1 }));
+    updateParams({ filter: value });
   };
 
   const handleSortChange = (value: any) => {
-    setParams((prev) => ({ ...prev, sortBy: value, page: 1 }));
+    updateParams({ sortBy: value });
   };
 
   const handleSortOrderChange = (order: "asc" | "desc") => {
-    console.log(order, "ORDER HAI");
     setSortOrder(order);
     setParams((prev) => ({ ...prev, order }));
   };
 
-  const HEADING_DATA_BUTTONS_LIST = [
-    {
-      label: "Visit History",
-      onClick: () => setIsHistoryModalOpen(true),
-      icon: <TbArchive fontSize={15} />,
-      variant: "ghost" as const, // Use 'as const' for literal types in an array
-      color: "default" as const,
-      className: "border-small",
-    },
-    {
-      label: "Add Practice",
-      onClick: handleOpen,
-      icon: <AiOutlinePlus fontSize={15} />,
-      variant: "solid" as const,
-      color: "primary" as const,
-    },
-  ];
+  const HEADING_DATA_BUTTONS_LIST = useMemo(
+    () => [
+      {
+        label: "Visit History",
+        onClick: () => setIsHistoryModalOpen(true),
+        icon: <TbArchive fontSize={15} />,
+        variant: "ghost" as const,
+        color: "default" as const,
+        className: "border-small",
+      },
+      {
+        label: "Add Practice",
+        onClick: handleOpen,
+        icon: <AiOutlinePlus fontSize={15} />,
+        variant: "solid" as const,
+        color: "primary" as const,
+      },
+    ],
+    []
+  );
 
-  const STATS_CARD_DATA: StatCard[] = [
-    {
-      icon: <LuBuilding2 className="text-[17px] mt-1 text-foreground/60" />,
-      heading: "Total Practices",
-      value: isLoading ? "..." : stats?.totalPractices ?? 0, // Use fetched total
-      subheading: `${
-        stats?.activePractices ? stats?.activePractices : 0
-      } active practices`,
-    },
-    {
-      icon: <FiUsers className="text-[17px] mt-1 text-foreground/60" />,
-      heading: "Total Referrals",
-      value: isLoading ? "..." : stats?.totalReferrals ?? 0, // Use fetched total
-      subheading: `${
-        stats?.monthlyReferrals ? stats?.monthlyReferrals : 0
-      } this month`,
-    },
-    {
-      icon: <FiStar className="text-[17px] mt-1 text-foreground/60" />,
-      heading: "A-Level Practices",
-      value: isLoading ? "..." : stats?.totalALevelPractices ?? 0, // Use fetched total
-      subheading: `${
-        stats?.aLevelPercentage ? stats?.aLevelPercentage : 0
-      }% of total`,
-    },
-    // {
-    //   icon: <FiTarget className="text-[17px] mt-1 text-foreground/60" />,
-    //   heading: "Avg. Score",
-    //   value: isLoading ? "..." : "N/A", // Placeholder for derived metric
-    //   subheading: "0 improvement",
-    // },
-  ];
+  const STATS_CARD_DATA: StatCard[] = useMemo(
+    () => [
+      {
+        icon: <LuBuilding2 className="text-foreground/60" />,
+        heading: "Total Practices",
+        value: isLoading ? "..." : totalPractices,
+        subheading: `${
+          stats?.activePractices ? stats.activePractices : 0
+        } active practices`,
+      },
+      {
+        icon: <FiUsers className="text-foreground/60" />,
+        heading: "Total Referrals",
+        value: isLoading ? "..." : stats?.totalReferrals ?? 0,
+        subheading: `${
+          stats?.monthlyReferrals ? stats.monthlyReferrals : 0
+        } this month`,
+      },
+      {
+        icon: <FiStar className="text-foreground/60" />,
+        heading: "A-Level Practices",
+        value: isLoading ? "..." : stats?.totalALevelPractices ?? 0,
+        subheading: `${
+          stats?.aLevelPercentage ? stats.aLevelPercentage : 0
+        }% of total`,
+      },
+    ],
+    [isLoading, totalPractices, stats]
+  );
 
   const handleOpenNotesTasksModal = (
     partnerId: string,
@@ -131,41 +137,42 @@ const PartnerNetwork = () => {
     setIsNotesTasksModalOpen(true);
   };
 
-  const PARTNER_NETWORK_ACTIONS = [
-    {
-      label: "Notes",
-      function: (id: string, name: string) => {
-        handleOpenNotesTasksModal(id, name);
+  const PARTNER_NETWORK_ACTIONS = useMemo(
+    () => [
+      {
+        label: "Notes",
+        function: (id: string, name: string) => {
+          handleOpenNotesTasksModal(id, name);
+        },
+        icon: <IoDocumentOutline className="size-3.5" />,
+        variant: "light" as const,
+        color: "secondary" as const,
+        className: "text-orange-600 hover:!bg-orange-50",
       },
-      icon: <IoDocumentOutline className="size-3.5" />,
-      variant: "light" as const,
-      color: "secondary" as const,
-    },
-    {
-      label: "View",
-      function: (id: string) => {
-        setSelectedPartnerId(id);
-        setIsViewModalOpen(true);
+      {
+        label: "View",
+        function: (id: string) => {
+          setSelectedPartnerId(id);
+          setIsViewModalOpen(true);
+        },
+        icon: <FiEye className="size-3.5" />,
+        variant: "light" as const,
+        color: "primary" as const,
       },
-      icon: <FiEye className="size-3.5" />,
-      variant: "light" as const,
-      color: "primary" as const,
-    },
-    {
-      label: "Edit",
-      function: (id: string) => {
-        setPartnerEditId(id);
-        setIsModalOpen(true);
+      {
+        label: "Edit",
+        function: (id: string) => {
+          setPartnerEditId(id);
+          setIsPracticeEdit(true);
+          setIsModalOpen(true);
+        },
+        icon: <FiEdit className="size-3.5" />,
+        variant: "light" as const,
+        color: "success" as const,
       },
-      icon: <FiEdit className="size-3.5" />,
-      variant: "light" as const,
-      color: "success" as const,
-    },
-  ];
-
-  const handleHistoryModalClose = useCallback(() => {
-    setIsHistoryModalOpen(false);
-  }, []);
+    ],
+    []
+  );
 
   return (
     <>
@@ -189,39 +196,35 @@ const PartnerNetwork = () => {
             sortOrder={sortOrder}
             onSortOrderChange={handleSortOrderChange}
             visibleItems={practices?.length}
-            totalItems={stats?.totalPractices ?? 0}
+            totalItems={totalPractices}
           />
         </div>
-        <div className="flex flex-col gap-2 md:px-7 px-4 py-4 md:py-[31px] overflow-auto space-y-5">
-          <div className="flex flex-col gap-5">
-            {/* Stat Cards */}
+        <div className="flex flex-col md:p-6 p-4 overflow-auto space-y-4 md:space-y-5">
+          <div className="flex flex-col gap-4 md:gap-5">
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 justify-between">
               {STATS_CARD_DATA.map((data) => (
                 <MiniStatsCard key={data.heading} cardData={data} />
               ))}
             </div>
 
-            {/* Partner List */}
-            <div className="flex flex-col gap-4 border border-primary/15 rounded-xl p-4 bg-background/80">
-              <div className="font-medium text-sm">Partner Practices</div>
-              {isLoading && (
-                <div className="text-gray-600 text-xs text-center">
-                  Loading partners...
-                </div>
-              )}
+            <div className="bg-background flex flex-col gap-4 border border-primary/15 rounded-xl p-4">
+              <h4 className="font-medium text-sm">Partner Practices</h4>
+              {isLoading && <LoadingState />}
               {!isLoading && practices.length === 0 && (
-                <div className="text-gray-600 text-xs text-center">
-                  No partners found with current filters.
-                </div>
+                <EmptyState title="No partners found with current filters." />
               )}
 
-              {practices.map((partner: Partner) => (
-                <PartnerNetworkCard
-                  key={partner._id}
-                  partner={partner}
-                  actions={PARTNER_NETWORK_ACTIONS}
-                />
-              ))}
+              {!isLoading && (
+                <div className="space-y-3">
+                  {practices.map((partner: Partner) => (
+                    <PartnerNetworkCard
+                      key={partner._id}
+                      partner={partner}
+                      actions={PARTNER_NETWORK_ACTIONS}
+                    />
+                  ))}
+                </div>
+              )}
 
               {stats?.totalPages && stats.totalPages > 1 ? (
                 <Pagination
@@ -247,7 +250,10 @@ const PartnerNetwork = () => {
               )}
             </div>
           </div>
-          <ScheduleVisits practices={practices} />
+          <ScheduleVisits
+            isHistoryModalOpen={isHistoryModalOpen}
+            setIsHistoryModalOpen={setIsHistoryModalOpen}
+          />
         </div>
       </div>
 
@@ -265,6 +271,7 @@ const PartnerNetwork = () => {
         partnerId={selectedPartnerId}
         primaryButtonHandler={(practiceId: any) => {
           setPartnerEditId(practiceId || "");
+          setIsPracticeEdit(true);
           setIsViewModalOpen(false);
           setIsModalOpen(true);
         }}
@@ -274,17 +281,6 @@ const PartnerNetwork = () => {
         isOpen={isNotesTasksModalOpen}
         onClose={() => setIsNotesTasksModalOpen(false)}
         practice={notesTasksPartner}
-        // notes={MOCK_NOTES}
-        // tasks={MOCK_TASKS}
-        onAddNote={() => console.log("Add note not implemented")}
-        onAddTask={() => console.log("Add task not implemented")}
-        onDeleteNote={() => console.log("Delete note not implemented")}
-        onDeleteTask={() => console.log("Delete task not implemented")}
-      />
-
-      <VisitHistoryModal
-        isOpen={isHistoryModalOpen}
-        onClose={handleHistoryModalClose}
       />
     </>
   );

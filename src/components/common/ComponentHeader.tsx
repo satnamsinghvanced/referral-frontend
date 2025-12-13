@@ -1,9 +1,7 @@
 import React from "react";
 // import { Button } from "@heroui/react";
+import { Button } from "@heroui/react";
 import { ButtonConfig } from "../../types/types";
-import { Button, Select, SelectItem } from "@heroui/react";
-import { FiArrowDown, FiArrowUp, FiFilter } from "react-icons/fi";
-import { GrAscend, GrDescend } from "react-icons/gr";
 
 interface ComponentHeaderProps {
   heading: string;
@@ -17,15 +15,17 @@ const ComponentHeader: React.FC<ComponentHeaderProps> = ({
   buttons,
 }) => {
   return (
-    <div className="md:px-7 px-4 py-3 md:py-6 bg-background border-b-1 border-foreground/10">
-      <div className="flex justify-between items-center">
+    <div className="md:p-6 p-4 bg-background border-b-1 border-foreground/10">
+      <div className="md:flex md:justify-between md:items-center max-md:space-y-3.5">
         <div className="space-y-1">
-          <h3 className="text-lg">{heading}</h3>
-          {subHeading && <p className="text-sm text-gray-600">{subHeading}</p>}
+          <h3 className="text-base md:text-lg">{heading}</h3>
+          {subHeading && (
+            <p className="text-xs md:text-sm text-gray-600">{subHeading}</p>
+          )}
         </div>
 
         {buttons && buttons.length > 0 && (
-          <div className="flex gap-2 flex-wrap">
+          <div className="space-x-2 md:space-x-3">
             {buttons.map((btn, index) => (
               <Button
                 key={index}

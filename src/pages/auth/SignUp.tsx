@@ -10,16 +10,16 @@ import {
   SelectItem,
   Spinner,
 } from "@heroui/react";
+import { useFormik } from "formik";
 import { useState } from "react";
 import { FaEyeSlash } from "react-icons/fa";
 import { TbEyeFilled } from "react-icons/tb";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
-import { useDispatch, useSelector } from "react-redux";
-import { useFormik } from "formik";
 import * as Yup from "yup";
-import { setCredentials, signUp } from "../store/authSlice";
-import { AppDispatch, RootState } from "../store/index";
-import { EMAIL_REGEX } from "../consts/consts";
+import { EMAIL_REGEX } from "../../consts/consts";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
+import { AppDispatch } from "../../store";
 
 interface FormData {
   firstName: string;
@@ -37,7 +37,6 @@ interface SignUpProps {
   onNavigateToSignIn?: () => void;
 }
 
-// Medical specialties options
 const MEDICAL_SPECIALTIES = [
   { key: "orthodontics", label: "Orthodontics" },
   { key: "generalDentistry", label: "General Dentistry" },
@@ -47,7 +46,6 @@ const MEDICAL_SPECIALTIES = [
   { key: "other", label: "Other" },
 ];
 
-// Validation schema
 const validationSchema = Yup.object({
   firstName: Yup.string()
     .min(2, "First name must be at least 2 characters")
@@ -80,7 +78,7 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error } = useSelector((state: RootState) => state.auth);
+  const { loading, error } = useTypedSelector((state) => state.auth);
 
   const formik = useFormik<FormData>({
     initialValues: {
@@ -96,14 +94,9 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
     },
     validationSchema,
     onSubmit: async (values) => {
-      console.log("valuesvalues:", values);
       try {
-        await dispatch(setCredentials(values)).unwrap();
-        console.log("Sign up successful");
-        // Navigate to sign in or dashboard after successful signup
-        // navigate('/signin');
+        // await dispatch(setCredentials(values)).unwrap();
       } catch (error: any) {
-        // Error is handled by Redux, no need to set it here
         console.error("Sign up error:", error);
       }
     },
@@ -119,14 +112,12 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
     navigate("/signin");
   };
 
-  // Helper function to check if field has error
   const getFieldError = (fieldName: keyof FormData) => {
     return formik.touched[fieldName] && formik.errors[fieldName]
       ? (formik.errors[fieldName] as string)
       : "";
   };
 
-  // Helper function to check if field is invalid
   const isFieldInvalid = (fieldName: keyof FormData) => {
     return !!(formik.touched[fieldName] && formik.errors[fieldName]);
   };
@@ -135,14 +126,11 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-2xl">
         <CardBody className="p-6 sm:p-8">
-          {/* Header */}
           <div className="text-center mb-8">
             <h2 className="text-2xl font-bold text-foreground/90 mb-2">
               Create Your Account
             </h2>
           </div>
-
-          {/* Error Message */}
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">
               {error}
@@ -151,7 +139,6 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
 
           <form onSubmit={formik.handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* First Name */}
               <div>
                 <Input
                   label="First Name"
@@ -166,7 +153,6 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
                 />
               </div>
 
-              {/* Last Name */}
               <div>
                 <Input
                   label="Last Name"
@@ -181,7 +167,6 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
                 />
               </div>
 
-              {/* Mobile Number */}
               <div>
                 <Input
                   label="Mobile Number"
@@ -196,7 +181,6 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
                 />
               </div>
 
-              {/* Email */}
               <div>
                 <Input
                   label="Email Address"
@@ -211,7 +195,6 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
                 />
               </div>
 
-              {/* Password */}
               <div>
                 <Input
                   label="Password"
@@ -239,7 +222,6 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
                 />
               </div>
 
-              {/* Confirm Password */}
               <div>
                 <Input
                   label="Confirm Password"
@@ -254,7 +236,6 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
                 />
               </div>
 
-              {/* Practice Name */}
               <div className="md:col-span-2">
                 <Input
                   label="Practice Name"
@@ -269,11 +250,11 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
                 />
               </div>
 
-              {/* Medical Specialty Multi-Select */}
               <div className="md:col-span-2">
                 <Select
                   label="Medical Specialty"
                   selectedKeys={new Set(formik.values.medicalSpecialty)}
+                  // @ts-ignore
                   onSelectionChange={handleMultiSelectChange}
                   isInvalid={isFieldInvalid("medicalSpecialty")}
                   errorMessage={getFieldError("medicalSpecialty")}
@@ -290,7 +271,6 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
               </div>
             </div>
 
-            {/* Terms and Conditions */}
             <div className="pt-2">
               <Checkbox
                 isSelected={formik.values.agreeToTerms}
@@ -318,7 +298,6 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
               )}
             </div>
 
-            {/* Sign Up Button */}
             <Button
               type="submit"
               color="primary"
@@ -331,7 +310,6 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
 
             <Divider className="my-6" />
 
-            {/* Sign In Link */}
             <div className="text-center">
               <span className="text-foreground/60">
                 Already have an account?{" "}

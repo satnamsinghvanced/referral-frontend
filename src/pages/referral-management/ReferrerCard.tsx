@@ -22,6 +22,7 @@ interface ReferrerButton {
   className?: string;
   link?: string;
   linkInNewTab?: boolean;
+  isHide?: false;
 }
 
 interface ReferrerCardProps {
@@ -35,8 +36,6 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
   buttons = () => [],
   onView,
 }) => {
-  // console.log(referrer);
-
   const lat = referrer?.practice?.address?.coordinates?.lat;
   const long = referrer?.practice?.address?.coordinates?.long;
 
@@ -47,21 +46,12 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
     }
   };
 
-  const handleOpenQR = () => {
-    if (referrer.qrCode) {
-      const qrUrl =
-        typeof referrer.qrCode === "string"
-          ? referrer.qrCode
-          : URL.createObjectURL(referrer.qrCode);
-      window.open(qrUrl, "_blank");
-    }
-  };
   return (
-    <div className="flex justify-between items-center border border-foreground/10 rounded-xl p-4 bg-background">
+    <div className="md:flex md:justify-between md:items-center border border-foreground/10 rounded-xl p-4 bg-background max-md:space-y-3.5">
       {/* Left Section */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5 md:gap-3">
         <div
-          className={`text-[22px] min-w-10 aspect-square h-full p-0.5 rounded-lg flex justify-center items-center ${
+          className={`text-lg md:text-[22px] min-w-8 md:min-w-10 aspect-square h-full p-0.5 rounded-lg flex justify-center items-center ${
             referrer?.type === "doctor"
               ? "bg-blue-100 text-blue-600"
               : "bg-green-100 text-green-600"
@@ -104,7 +94,7 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
       </div>
 
       {/* Right Section (Buttons) */}
-      <div className="flex justify-end items-center gap-2 ml-3">
+      <div className="flex md:justify-end items-center gap-2 md:ml-3">
         {buttons(referrer).map((btn, index) => {
           const buttonElement = (
             <Button
@@ -116,7 +106,7 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
                 if (btn.label.toLowerCase().includes("visit")) {
                   handleVisit();
                 } else {
-                  btn.onClick(referrer._id);
+                  btn.onClick && btn.onClick(referrer._id);
                 }
               }}
               className={btn.className ?? "text-xs"}
@@ -135,7 +125,7 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
               {buttonElement}
             </Link>
           ) : (
-            buttonElement
+            !btn.isHide && buttonElement
           );
         })}
 
@@ -143,9 +133,9 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
         <Button
           isIconOnly
           size="sm"
-          variant="light"
+          variant="ghost"
           onPress={() => onView?.(referrer._id)}
-          className=" hover:!bg-orange-200 hover:text-orange-500 transition-colors " 
+          className="border-none"
         >
           <FiEye className="size-4 " />
         </Button>

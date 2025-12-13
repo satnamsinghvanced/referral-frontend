@@ -3,12 +3,31 @@ import { Partner } from "../../../../types/partner";
 
 export const formatDuration = (seconds: number): string => {
   const hours = Math.floor(seconds / 3600);
-  const minutes = Math.ceil((seconds % 3600) / 60);
+  const remainingSecondsAfterHours = seconds % 3600;
+  const minutes = Math.floor(remainingSecondsAfterHours / 60);
+  const remainingSeconds = Math.round(remainingSecondsAfterHours % 60);
+
+  const parts = [];
 
   if (hours > 0) {
-    return `${hours}h ${minutes}m`;
+    parts.push(`${hours}h`);
   }
-  return `${minutes}m`;
+
+  if (minutes > 0) {
+    parts.push(`${minutes}m`);
+  }
+
+  if (hours === 0 && minutes === 0) {
+    parts.push(`${remainingSeconds}s`);
+  } else if (remainingSeconds > 0) {
+    parts.push(`${remainingSeconds}s`);
+  }
+
+  if (parts.length === 0) {
+    return "0s";
+  }
+
+  return parts.join(" ");
 };
 
 export const formatDistance = (meters: number): string => {
@@ -28,7 +47,6 @@ const parseVisitDurationToSeconds = (durationString: string): number => {
   return 3600;
 };
 
-// Helper function to format the time and include a day offset if necessary
 const formatTimeWithDayOffset = (
   time: Date,
   startDate: Date
@@ -50,9 +68,7 @@ const parseTimeToMinutes = (timeStr: string): number => {
   if (!timeStr) return 0;
   const hoursMatch = timeStr.match(/(\d+)\s*h/);
   const minutesMatch = timeStr.match(/(\d+)\s*m/);
-  // @ts-ignore
   const hours = hoursMatch ? parseInt(hoursMatch[1]) : 0;
-  // @ts-ignore
   const minutes = minutesMatch ? parseInt(minutesMatch[1]) : 0;
   return hours * 60 + minutes;
 };
@@ -60,21 +76,15 @@ const parseTimeToMinutes = (timeStr: string): number => {
 const convertTimeToDaysHoursMinutes = (timeStr: string): string => {
   const totalMinutes = parseTimeToMinutes(timeStr);
   if (totalMinutes === 0) return "0d 0h 0m";
-
-  const MINUTES_IN_A_DAY = 24 * 60; // 1440
-
+  const MINUTES_IN_A_DAY = 24 * 60;
   const days = Math.floor(totalMinutes / MINUTES_IN_A_DAY);
   const remainingMinutesAfterDays = totalMinutes % MINUTES_IN_A_DAY;
-
   const hours = Math.floor(remainingMinutesAfterDays / 60);
   const minutes = remainingMinutesAfterDays % 60;
-
-  // Ensure all components (d, h, m) are included, displaying 0 when necessary
   let result = [];
   result.push(`${days}d`);
   result.push(`${hours}h`);
   result.push(`${minutes}m`);
-
   return result.join(" ");
 };
 
@@ -86,10 +96,8 @@ export const formatRouteData = (
   visitDurationString: string
 ) => {
   const visitDurationSeconds = parseVisitDurationToSeconds(visitDurationString);
-
-  const startDateTime = new Date(routeDate + "T" + startTime);
+  const startDateTime = new Date(routeDate.split("T")[0] + "T" + startTime);
   let currentTimeSeconds = startDateTime.getTime() / 1000;
-
   let totalTravelTimeSeconds = 0;
   let totalStops = selectedReferrers.length;
 
@@ -107,7 +115,6 @@ export const formatRouteData = (
     currentTimeSeconds += visitDurationSeconds;
     const departureTime = new Date(currentTimeSeconds * 1000);
 
-    // Calculate time strings with day offset indicator
     const { timeString: arrivalTimeString, dayOffset: arrivalDayOffset } =
       formatTimeWithDayOffset(arrivalTime, startDateTime);
     const { timeString: departureTimeString, dayOffset: departureDayOffset } =
@@ -119,14 +126,11 @@ export const formatRouteData = (
       departureDayOffset > 0 ? ` (+${departureDayOffset}d)` : "";
 
     return {
-      // id: referrer._id,
       name: referrer.name,
       address: referrer.address,
       isFirstStop: index === 0,
-
       arrivalTime: arrivalTimeString + arrivalIndicator,
       departureTime: departureTimeString + departureIndicator,
-
       travelTime: formatDuration(travelToStopSeconds),
       travelDistance: formatDistance(travelToStopDistance),
     };

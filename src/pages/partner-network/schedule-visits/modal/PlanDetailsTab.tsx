@@ -8,22 +8,29 @@ import {
   Textarea,
 } from "@heroui/react";
 import React from "react";
-import { BiStopwatch } from "react-icons/bi";
 import { RiErrorWarningLine } from "react-icons/ri";
 import { RxTarget } from "react-icons/rx";
-import {
-  PER_VISIT_DURATION_OPTIONS,
-  PRIORITY_LEVELS,
-  PURPOSE_OPTIONS,
-} from "../../../../consts/practice";
+import { PRIORITY_LEVELS, PURPOSE_OPTIONS } from "../../../../consts/practice";
 
-// Assuming PlanDetailsTabProps is updated to:
+import { Partner } from "../../../../types/partner";
+
 interface PlanDetailsTabProps {
-  planState: any;
-  onStateChange: any;
-  errors: any;
-  data: any; // Route summary data
-  selectedReferrerObjects: any[];
+  planState: {
+    routeDate: string;
+    startTime: string;
+    durationPerVisit: string;
+    planName: string;
+    defaultPriority: string;
+    defaultVisitPurpose: string;
+    customVisitPurpose: string;
+    description: string;
+    enableAutoRoute: boolean;
+    visitDays: string;
+  };
+  onStateChange: (key: string, value: string | boolean) => void;
+  errors: Record<string, string>;
+  data: any;
+  selectedReferrerObjects: Partner[];
 }
 
 export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
@@ -33,14 +40,13 @@ export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
   data,
   selectedReferrerObjects,
 }) => {
-  // Helper function to handle Select changes (converts Set to string)
   const handleSelectChange = (key: string, keys: any) => {
     onStateChange(key, Array.from(keys).join(""));
   };
 
   return (
     <form>
-      <div className="grid grid-cols-2 gap-6">
+      <div className="md:grid md:grid-cols-2 md:gap-6 max-md:space-y-4">
         <div className="space-y-4">
           <div>
             <Input
@@ -67,6 +73,7 @@ export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
               size="sm"
               radius="sm"
               selectedKeys={[planState.defaultVisitPurpose]}
+              disabledKeys={[planState.defaultVisitPurpose]}
               onSelectionChange={(keys: any) =>
                 handleSelectChange("defaultVisitPurpose", keys)
               }
@@ -115,6 +122,7 @@ export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
               size="sm"
               radius="sm"
               selectedKeys={[planState.defaultPriority]}
+              disabledKeys={[planState.defaultPriority]}
               onSelectionChange={(keys: any) =>
                 handleSelectChange("defaultPriority", keys)
               }

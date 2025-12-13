@@ -1,25 +1,40 @@
-import { Button, Card, CardBody, CardHeader } from "@heroui/react";
-import { SchedulePlan } from "../../../types/partner";
+import { Button, Card, CardBody, CardHeader, Chip } from "@heroui/react";
 import { FiCopy, FiEdit, FiEye, FiTrash2 } from "react-icons/fi";
 import { LuDownload } from "react-icons/lu";
+import VisitStatusChip from "../../../components/chips/VisitStatusChip";
+import { useCopySchedulePlan } from "../../../hooks/usePartner";
+import { SchedulePlan } from "../../../types/partner";
 import { downloadJson } from "../../../utils/jsonDownloader";
-import {
-  useCopySchedulePlan,
-  useDeleteSchedulePlan,
-} from "../../../hooks/usePartner";
 
-const PlanCard: React.FC<{ plan: SchedulePlan; onView: any }> = ({
-  plan,
-  onView,
-}) => {
-  const progress = 0; // Assuming progress calculation is pending or based on completion data not explicitly shown
+const PlanCard: React.FC<{
+  plan: SchedulePlan;
+  onView: any;
+  onEdit: any;
+  onDelete: any;
+  onStatusClick: any;
+}> = ({ plan, onView, onEdit, onDelete, onStatusClick }) => {
+  let progress;
+
+  switch (plan.status) {
+    case "completed":
+      progress = 100;
+      break;
+
+    case "inProgress":
+      progress = 50;
+      break;
+
+    default:
+      progress = 0;
+      break;
+  }
+
   const monthYear = new Date(plan.createdAt).toLocaleDateString("en-US", {
     month: "long",
     year: "numeric",
   });
 
   const { mutate: copySchedulePlan } = useCopySchedulePlan();
-  const { mutate: deleteSchedulePlan } = useDeleteSchedulePlan();
 
   const handleExport = () => {
     const exportData = {
@@ -37,25 +52,33 @@ const PlanCard: React.FC<{ plan: SchedulePlan; onView: any }> = ({
       data-slot="card"
       className="bg-background flex flex-col gap-1 rounded-xl border border-primary/15 shadow-none"
     >
-      <CardHeader data-slot="card-header" className="px-5 pt-5 pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <h4 data-slot="card-title" className="text-sm mb-2">
+      <CardHeader data-slot="card-header" className="px-4 pt-4 pb-1">
+        <div className="w-full">
+          <div className="flex items-center justify-between mb-2 w-full gap-2 max-md:mb-1">
+            <h4 data-slot="card-title" className="text-sm">
               {plan.planDetails.name}
             </h4>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs text-gray-600">{monthYear}</span>
+            <div className="flex items-center gap-1.5">
+              <span
+                className="flex cursor-pointer"
+                onClick={() => onStatusClick(plan)}
+              >
+                <VisitStatusChip status={plan.status} />
+              </span>
             </div>
-            {plan.planDetails.description && (
-              <p className="text-xs text-gray-600 line-clamp-2">
-                {plan.planDetails.description}
-              </p>
-            )}
           </div>
+          <div className="flex items-center gap-2 mb-2">
+            <span className="text-xs text-gray-600">{monthYear}</span>
+          </div>
+          {plan.planDetails.description && (
+            <p className="text-xs text-gray-600 line-clamp-2">
+              {plan.planDetails.description}
+            </p>
+          )}
         </div>
       </CardHeader>
 
-      <CardBody data-slot="card-content" className="px-5 pb-5 pt-0">
+      <CardBody data-slot="card-content" className="px-4 pb-4 pt-0">
         <div className="space-y-3">
           <div className="space-y-1.5">
             <div className="flex justify-between text-xs">
@@ -70,7 +93,7 @@ const PlanCard: React.FC<{ plan: SchedulePlan; onView: any }> = ({
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="grid grid-cols-2 gap-2 md:gap-3 text-sm">
             <div className="text-center p-2 bg-blue-50 rounded">
               <div className="font-semibold text-blue-600">
                 {plan.summary.totalPractices}
@@ -108,9 +131,15 @@ const PlanCard: React.FC<{ plan: SchedulePlan; onView: any }> = ({
               >
                 <FiEye className="size-3.5" />
               </Button>
-              {/* <Button size="sm" variant="light" title="Edit Plan" isIconOnly>
+              <Button
+                size="sm"
+                variant="light"
+                title="Edit Plan"
+                isIconOnly
+                onPress={() => onEdit(plan)}
+              >
                 <FiEdit className="size-3.5" />
-              </Button> */}
+              </Button>
               <Button
                 size="sm"
                 variant="light"
@@ -140,7 +169,7 @@ const PlanCard: React.FC<{ plan: SchedulePlan; onView: any }> = ({
                 title="Delete Plan"
                 isIconOnly
                 onPress={() => {
-                  deleteSchedulePlan(plan._id);
+                  onDelete(plan._id);
                 }}
               >
                 <FiTrash2 className="size-3.5" />

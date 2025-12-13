@@ -1,24 +1,22 @@
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { addToast } from "@heroui/react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { AxiosError } from "axios";
+import { queryClient } from "../../providers/QueryProvider";
 import {
-  fetchTeamMembers,
   deleteTeamMember,
-  resendTeamInvite,
+  fetchTeamMembers,
   inviteTeamMember,
+  resendTeamInvite,
   TeamMember,
   updateTeamMember,
 } from "../../services/settings/team";
-import { queryClient } from "../../providers/QueryProvider";
-import { AxiosError } from "axios";
-import { addToast } from "@heroui/react";
 
-// 🔹 Fetch Team Members
 export const useFetchTeamMembers = () =>
   useQuery<TeamMember[], Error>({
     queryKey: ["team-members"],
     queryFn: fetchTeamMembers,
   });
 
-// 🔹 Delete Team Member or Pending Invite
 export const useUpdateTeamMember = () => {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: any }) =>
@@ -48,7 +46,6 @@ export const useUpdateTeamMember = () => {
   });
 };
 
-// 🔹 Delete Team Member or Pending Invite
 export const useDeleteTeamMember = () => {
   return useMutation({
     mutationFn: deleteTeamMember,
@@ -77,7 +74,6 @@ export const useDeleteTeamMember = () => {
   });
 };
 
-// 🔹 Resend Invitation
 export const useResendInvite = () => {
   return useMutation({
     mutationFn: resendTeamInvite,
@@ -105,7 +101,6 @@ export const useResendInvite = () => {
   });
 };
 
-// 🔹 Invite New Team Member
 export const useInviteTeamMember = () => {
   return useMutation({
     mutationFn: inviteTeamMember,

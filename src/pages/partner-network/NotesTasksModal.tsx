@@ -16,7 +16,9 @@ import {
   Tabs,
   Textarea,
 } from "@heroui/react";
-import { useState } from "react";
+import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
+import { useEffect, useState } from "react";
+import { FiEdit } from "react-icons/fi";
 import { IoCheckmarkCircleOutline } from "react-icons/io5";
 import {
   LuClock,
@@ -26,42 +28,29 @@ import {
   LuUser,
 } from "react-icons/lu";
 import {
+  NOTE_CATEGORIES,
+  TASK_PRIORITIES,
+  TASK_TYPES,
+} from "../../consts/practice";
+import { useFetchTeamMembers } from "../../hooks/settings/useTeam";
+import {
   useCreateNote,
   useCreateTask,
   useDeleteNote,
   useDeleteTask,
   useGetAllNotesAndTasks,
-  useUpdateTaskStatus,
+  useUpdateTask,
 } from "../../hooks/usePartner";
-import {
-  NOTE_CATEGORIES,
-  TASK_PRIORITIES,
-  TASK_TYPES,
-} from "../../consts/practice";
-import { formatDateToReadable } from "../../utils/formatDateToReadable";
+import { TeamMember } from "../../services/settings/team";
+import { TaskApiData } from "../../types/partner";
 import { formatCalendarDate } from "../../utils/formatCalendarDate";
-import ScheduleTaskModal from "./ScheduleTaskModal";
-import { Task, TaskApiData } from "../../types/partner";
-import { TbCalendarPlus } from "react-icons/tb";
-import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
+import { formatDateToReadable } from "../../utils/formatDateToReadable";
+import EditTaskModal from "./EditTaskModal";
 
 interface NotesTasksModalProps {
   isOpen: boolean;
   onClose: () => void;
   practice: any;
-  // notes: Note[];
-  // tasks: Task[];
-  // Handlers for interaction would be passed here in a real app
-  onAddNote: (note: { content: string; category: string }) => void;
-  onAddTask: (task: {
-    title: string;
-    description: string;
-    priority: string;
-    type: string;
-    dueDate: string;
-  }) => void;
-  onDeleteNote: (id: string) => void;
-  onDeleteTask: (id: string) => void;
 }
 
 const NotesTasksModal = ({
@@ -85,18 +74,26 @@ NotesTasksModalProps) => {
     TASK_PRIORITIES[0]?.value
   );
   const [newTaskType, setNewTaskType] = useState(TASK_TYPES[0]?.key);
+  const [newTaskAssignTo, setNewTaskAssignTo] = useState<string[]>([""]);
 
-  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
-  const [taskToSchedule, setTaskToSchedule] = useState<TaskApiData | null>(
-    null
-  );
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [taskToEdit, setTaskToEdit] = useState<TaskApiData | null>(null);
+
+  const { data: teamMembers } = useFetchTeamMembers();
+
+  useEffect(() => {
+    if (teamMembers) {
+      setNewTaskAssignTo([teamMembers[0]?._id as string]);
+    }
+  }, [teamMembers]);
 
   const { data, refetch } = useGetAllNotesAndTasks(practice?.id);
   const { mutate: createNote } = useCreateNote();
   const { mutate: deleteNote } = useDeleteNote();
 
   const { mutate: createTask } = useCreateTask();
-  const { mutate: updateTaskStatus } = useUpdateTaskStatus();
+  const { mutate: updateTask } = useUpdateTask();
+  // const { mutate: updateTaskStatus } = useUpdateTaskStatus();
   const { mutate: deleteTask } = useDeleteTask();
 
   const notes = data?.notes;
@@ -142,7 +139,15 @@ NotesTasksModalProps) => {
 
   return (
     <>
-      <Modal isOpen={isOpen} onOpenChange={onClose} size="md">
+      <Modal
+        isOpen={isOpen}
+        onOpenChange={onClose}
+        size="md"
+        classNames={{
+          base: `max-sm:!m-3 !m-0`,
+          closeButton: "cursor-pointer",
+        }}
+      >
         <ModalContent className="p-5 flex flex-col gap-4">
           <ModalHeader className="flex flex-col gap-2 text-center sm:text-left flex-shrink-0 p-0">
             <h4 className="text-base leading-none font-medium flex items-center space-x-2">
@@ -184,6 +189,7 @@ NotesTasksModalProps) => {
                     <Select
                       aria-label="Note Category"
                       defaultSelectedKeys={[newNoteCategory as string]}
+                      disabledKeys={[newNoteCategory as string]}
                       onChange={(event) =>
                         setNewNoteCategory(event.target.value)
                       }
@@ -327,6 +333,7 @@ NotesTasksModalProps) => {
                       size="sm"
                       radius="sm"
                       defaultSelectedKeys={[newTaskPriority as string]}
+                      disabledKeys={[newTaskPriority as string]}
                       onChange={(event) =>
                         setNewTaskPriority(event.target.value)
                       }
@@ -340,15 +347,44 @@ NotesTasksModalProps) => {
                       size="sm"
                       radius="sm"
                       defaultSelectedKeys={[newTaskType as string]}
+                      disabledKeys={[newTaskType as string]}
                       onChange={(event) => setNewTaskType(event.target.value)}
                     >
                       {TASK_TYPES.map((t) => (
                         <SelectItem key={t.key}>{t.label}</SelectItem>
                       ))}
                     </Select>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <Select
+                      size="sm"
+                      radius="sm"
+                      aria-label="Assigned To"
+                      placeholder="Select assign member"
+                      selectionMode="multiple"
+                      selectedKeys={newTaskAssignTo || new Set([])}
+                      onSelectionChange={(keys: any) => {
+                        const values = Array.from(keys) as string[];
+                        setNewTaskAssignTo(values);
+                      }}
+                    >
+                      {(teamMembers ?? []).map((teamMember: TeamMember) => (
+                        <SelectItem
+                          key={teamMember._id}
+                          textValue={`${teamMember.firstName} ${teamMember.lastName}`}
+                        >
+                          {teamMember.firstName} {teamMember.lastName}
+                        </SelectItem>
+                      ))}
+                    </Select>
                     <Button
                       color="primary"
-                      isDisabled={!newTaskTitle.trim() || !newTaskDueDate}
+                      isDisabled={
+                        !newTaskTitle.trim() ||
+                        !newTaskDueDate ||
+                        !Array.isArray(newTaskAssignTo) ||
+                        newTaskAssignTo.length < 1
+                      }
                       onPress={() => {
                         createTask(
                           {
@@ -358,6 +394,7 @@ NotesTasksModalProps) => {
                             category: newTaskType as string,
                             dueDate: newTaskDueDate,
                             practiceId: practice?.id,
+                            assignTo: newTaskAssignTo || [],
                           },
                           {
                             onSuccess: () => {
@@ -398,25 +435,29 @@ NotesTasksModalProps) => {
                             defaultSelected={task.status === "completed"}
                             onValueChange={(isSelected: boolean) => {
                               if (isSelected) {
-                                updateTaskStatus({
+                                updateTask({
                                   taskId: task?._id,
-                                  partnerId: practice?.id,
-                                  status: "completed",
+                                  data: {
+                                    status: "completed",
+                                    practiceId: practice.id,
+                                  },
                                 });
                               } else {
-                                updateTaskStatus({
+                                updateTask({
                                   taskId: task?._id,
-                                  partnerId: practice?.id,
-                                  status: "not-started",
+                                  data: {
+                                    status: "not-started",
+                                    practiceId: practice.id,
+                                  },
                                 });
                               }
                             }}
                             classNames={{ base: "p-0 m-0" }}
                           />
                         </div>
-                        <div className="flex-1">
+                        <div className="flex-1 space-y-2">
                           <div className="flex items-start justify-between gap-2">
-                            <div className="flex items-center gap-2">
+                            <div className="space-y-1.5">
                               <div
                                 className={`font-medium text-sm ${
                                   task.status === "completed"
@@ -445,6 +486,17 @@ NotesTasksModalProps) => {
                                 >
                                   {task?.status}
                                 </Chip>
+                                {task?.schedule && (
+                                  <Chip
+                                    size="sm"
+                                    radius="sm"
+                                    variant="flat"
+                                    color="primary"
+                                    className="capitalize text-[11px] h-5"
+                                  >
+                                    Scheduled
+                                  </Chip>
+                                )}
                               </div>
                             </div>
                             <div className="flex items-center gap-1">
@@ -454,11 +506,11 @@ NotesTasksModalProps) => {
                                 size="sm"
                                 isIconOnly
                                 onPress={() => {
-                                  setTaskToSchedule(task);
-                                  setIsScheduleModalOpen(true);
+                                  setTaskToEdit(task);
+                                  setIsEditModalOpen(true);
                                 }}
                               >
-                                <TbCalendarPlus className="h-4 w-4" />
+                                <FiEdit className="h-4 w-4" />
                               </Button>
                               <Button
                                 variant="light"
@@ -477,16 +529,24 @@ NotesTasksModalProps) => {
                             </div>
                           </div>
                           {task.description && (
-                            <p className="text-xs text-gray-700 mb-2">
+                            <p className="text-xs text-gray-700 mb-1.5">
                               {task.description}
                             </p>
                           )}
-                          <div className="flex flex-wrap items-center gap-x-2.5 gap-y-1 text-xs text-gray-600">
-                            <span>Due: {formatDate(task.dueDate)}</span>
-                            <span className="flex items-center space-x-1">
-                              <LuUser className="size-3" />
-                              <span>Current User</span>
-                            </span>
+                          <div className="flex flex-col items-start gap-1.5 text-xs text-gray-600">
+                            <p>Due: {formatDate(task.dueDate)}</p>
+                            {task.assignTo && task.assignTo?.length > 0 && (
+                              <p className="flex items-center space-x-1">
+                                <LuUser className="size-3.5" />
+                                <span>
+                                  {task.assignTo
+                                    ?.map((assignMember: any) => {
+                                      return `${assignMember.firstName} ${assignMember.lastName}`;
+                                    })
+                                    .join(", ")}
+                                </span>
+                              </p>
+                            )}
                             {task.status === "completed" && (
                               <Chip
                                 size="sm"
@@ -517,13 +577,11 @@ NotesTasksModalProps) => {
         </ModalContent>
       </Modal>
 
-      {taskToSchedule && (
-        <ScheduleTaskModal
-          isOpen={isScheduleModalOpen}
-          onClose={() => setIsScheduleModalOpen(false)}
-          task={taskToSchedule}
-          practice={practice}
-          onSchedule={(details) => console.log("Scheduled Event:", details)} // API call integration here
+      {taskToEdit && (
+        <EditTaskModal
+          isOpen={isEditModalOpen}
+          onClose={() => setIsEditModalOpen(false)}
+          task={taskToEdit}
         />
       )}
     </>

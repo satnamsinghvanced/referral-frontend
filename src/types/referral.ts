@@ -3,7 +3,7 @@ export interface Referral {
   referredBy: any;
   addedVia: string;
   name: string;
-  age?: number;
+  age?: number | null;
   phone: string;
   email?: string;
   treatment?: string;
@@ -13,6 +13,7 @@ export interface Referral {
   notes?: string;
   insurance?: string;
   appointment?: string;
+  scheduledDate?: string;
   reason?: string;
   status:
     | "new"
@@ -28,6 +29,7 @@ export interface Referral {
     | "noShow";
   statusNotes?: string;
   createdAt?: string;
+  additionalNotes?: string;
 }
 
 export interface FilterStats {
@@ -91,6 +93,7 @@ export interface ScanTrackingResponse {
 
 // Define the shape of the form data
 export interface StatusUpdateFormValues {
+  estValue: number;
   status: string;
   statusNotes: string;
 }
@@ -100,4 +103,26 @@ export interface UpdateStatusPayload {
   referralId: string;
   newStatus: string;
   notes: string;
+}
+
+export interface TrackingRequestBody {
+  customPath: string;
+  id: string;
+}
+
+export interface TrackingResponseData {
+  userId: string;
+  qrCode: string;
+  referralUrl: string;
+  nfcUrl: string;
+  totalScans: number;
+  isActive: boolean;
+  scanHistory: any[];
+  todayScan: number;
+  activeQR: number;
+  nfcSetup: number;
+  _id: string;
+  createdAt: string;
+  updatedAt: string;
+  conversionRate?: string;
 }

@@ -1,150 +1,44 @@
-import {
-  Button,
-  Card,
-  CardBody,
-  CardHeader,
-  Chip,
-  Switch,
-} from "@heroui/react";
+import { Button, Card, CardBody, CardHeader, Chip } from "@heroui/react";
+import { useState } from "react";
+import { BsLightningCharge } from "react-icons/bs";
+import { FaGoogle, FaTiktok } from "react-icons/fa";
+import { FaMeta, FaRegEnvelope } from "react-icons/fa6";
+import { LuCalendar } from "react-icons/lu";
+import { SiGoogleads } from "react-icons/si";
+import { TbBrandTwilio, TbDatabase } from "react-icons/tb";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import {
-  FiSettings,
-  FiExternalLink,
-  FiSearch,
-  FiAlertCircle,
-} from "react-icons/fi";
-import { IoCalendarOutline } from "react-icons/io5";
-import { FaRegEnvelope } from "react-icons/fa6";
-import { PiDatabase } from "react-icons/pi";
-import { BsLightningCharge } from "react-icons/bs";
-import { BiCheckCircle } from "react-icons/bi";
-import { LuCalendar } from "react-icons/lu";
-
-interface IntegrationItemProps {
-  name: string;
-  icon: React.ReactNode;
-  iconBg: string;
-  iconColor: string;
-  status: "Connected" | "Disconnected" | "Error";
-  description: string;
-  badges: string[];
-  lastSync?: string;
-  onConfigure?: () => void;
-  onConnect?: () => void;
-  isSwitchChecked?: boolean;
-  onSwitchChange?: (checked: boolean) => void;
-}
-
-const IntegrationItem: React.FC<IntegrationItemProps> = ({
-  name,
-  icon,
-  iconBg,
-  iconColor,
-  status,
-  description,
-  badges,
-  lastSync,
-  onConfigure,
-  onConnect,
-  isSwitchChecked = true,
-  onSwitchChange,
-}) => {
-  const isConnected = status === "Connected";
-  const isError = status === "Error";
-
-  let statusClasses = "";
-  let StatusIcon = null;
-  switch (status) {
-    case "Connected":
-      statusClasses = "bg-green-100 text-green-700";
-      StatusIcon = <BiCheckCircle className="h-4 w-4 text-green-600" />;
-      break;
-    case "Disconnected":
-      statusClasses = "bg-secondary text-secondary-foreground";
-      break;
-    case "Error":
-      statusClasses =
-        "bg-destructive text-white focus-visible:ring-destructive/20 dark:bg-destructive/60";
-      StatusIcon = <FiAlertCircle className="h-4 w-4 text-red-600" />;
-      break;
-  }
-
-  const actionButton = isConnected ? (
-    <>
-      {onConfigure && (
-        <Button
-          size="sm"
-          radius="sm"
-          variant="ghost"
-          onPress={onConfigure}
-          startContent={<FiSettings className="size-3.5" />}
-        >
-          Configure
-        </Button>
-      )}
-      <Switch
-        size="sm"
-        checked={isSwitchChecked}
-        onValueChange={onSwitchChange}
-      />
-    </>
-  ) : (
-    <Button
-      size="sm"
-      radius="sm"
-      variant="solid"
-      color="primary"
-      onPress={() => onConnect}
-      endContent={<FiExternalLink className="size-3.5" />}
-    >
-      Connect
-    </Button>
-  );
-
-  return (
-    <div className="flex items-start justify-between py-5 first:pt-0 last:pb-4">
-      <div className="flex items-start gap-3">
-        <div
-          className={`w-8 h-8 rounded-lg flex items-center justify-center ${iconBg} ${iconColor}`}
-        >
-          {icon}
-        </div>
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2">
-            <h3 className="text-sm font-normal">{name}</h3>
-            {StatusIcon}
-            <Chip
-              size="sm"
-              radius="sm"
-              className={`text-[11px] capitalize h-5 ${statusClasses}`}
-            >
-              {status}
-            </Chip>
-          </div>
-          <p className="text-xs text-gray-600 mb-3">{description}</p>
-          <div className="flex flex-wrap gap-2">
-            {badges.map((badge) => (
-              <Chip
-                key={badge}
-                size="sm"
-                variant="bordered"
-                className="text-[11px] border-small h-5"
-              >
-                {badge}
-              </Chip>
-            ))}
-          </div>
-          {lastSync && (
-            <p className="text-xs text-gray-600 mt-2">Last sync: {lastSync}</p>
-          )}
-        </div>
-      </div>
-      <div className="flex items-center gap-2">{actionButton}</div>
-    </div>
-  );
-};
+  useFetchGoogleCalendarIntegration,
+  useUpdateGoogleCalendarIntegration,
+} from "../../hooks/integrations/useGoogleCalendar";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
+import { GoogleCalendarIntegrationResponse } from "../../types/integrations/googleCalendar";
+import { timeAgo } from "../../utils/timeAgo";
+import IntegrationItem from "./IntegrationItem";
+import GoogleCalendarConfigModal from "./modal/GoogleCalendarConfigModal";
+import TwilioConfigurationModal from "./modal/TwilioConfigurationModal";
 
 function Integrations() {
+  const { user } = useTypedSelector((state) => state.auth);
+  const userId = user?.userId;
+
+  const [
+    isGoogleCalendarIntegrationModalOpen,
+    setIsGoogleCalendarIntegrationModalOpen,
+  ] = useState(false);
+
+  const [isTwilioIntegrationModalOpen, setIsTwilioIntegrationModalOpen] =
+    useState(false);
+
+  const {
+    data: googleCalendarExistingConfig,
+    isLoading: isGoogleCalendarConfigLoading,
+    isError: isGoogleCalendarConfigError,
+  } = useFetchGoogleCalendarIntegration();
+
+  const { mutate: updateGoogleCalendarIntegration } =
+    useUpdateGoogleCalendarIntegration();
+
   const HEADING_DATA = {
     heading: "Integrations",
     subHeading:
@@ -152,13 +46,13 @@ function Integrations() {
     buttons: [],
   };
 
-  const integrationsData = [
+  const AVAILABLE_INTEGRATIONS = [
     {
       name: "Google My Business",
-      icon: <span className="text-red-600 font-bold text-sm">G</span>,
+      icon: <FaGoogle className="w-4 h-4" />,
       iconBg: "bg-red-100",
       iconColor: "text-red-600",
-      status: "Connected" as const,
+      status: "Disconnected" as const,
       description:
         "Automatically sync reviews and manage your practice listing",
       badges: [
@@ -170,10 +64,10 @@ function Integrations() {
     },
     {
       name: "Practice Management System",
-      icon: <PiDatabase className="w-4 h-4" />,
+      icon: <TbDatabase className="w-4 h-4" />,
       iconBg: "bg-blue-100",
       iconColor: "text-blue-600",
-      status: "Connected" as const,
+      status: "Disconnected" as const,
       description: "Connect your PMS to automatically track patient referrals",
       badges: [
         "Patient data sync",
@@ -192,19 +86,84 @@ function Integrations() {
       badges: ["Automated campaigns", "Patient follow-ups", "Email analytics"],
     },
     {
-      name: "Calendar Integration",
+      name: "Google Calendar Integration",
       icon: <LuCalendar className="w-4 h-4" />,
       iconBg: "bg-purple-100",
       iconColor: "text-purple-600",
-      status: "Error" as const,
+      status:
+        (googleCalendarExistingConfig?.status as string) || "Disconnected",
       description: "Sync appointments and referral scheduling",
       badges: [
         "Appointment sync",
         "Referral scheduling",
         "Availability management",
       ],
-      lastSync: "3 days ago",
+      lastSync: timeAgo(
+        googleCalendarExistingConfig?.lastSyncAt || new Date().toISOString()
+      ),
+      onConnect: () => setIsGoogleCalendarIntegrationModalOpen(true),
+      onConfigure: () => setIsGoogleCalendarIntegrationModalOpen(true),
+      isSwitchChecked: googleCalendarExistingConfig?.status === "Connected",
+      onSwitchChange: () => {
+        updateGoogleCalendarIntegration({
+          id: googleCalendarExistingConfig?._id as string,
+          data: {
+            status:
+              googleCalendarExistingConfig?.status === "Connected"
+                ? "Disconnected"
+                : "Connected",
+          },
+        });
+      },
     },
+    {
+      name: "Google Ads",
+      icon: <SiGoogleads className="w-4 h-4" />,
+      iconBg: "bg-blue-100",
+      iconColor: "text-blue-600",
+      status: "Disconnected" as const,
+      description: "Sync ad performance and optimize referral-based campaigns",
+      badges: [
+        "Campaign tracking",
+        "Conversion attribution",
+        "Ad spend analytics",
+      ],
+    },
+    {
+      name: "Meta Ads",
+      icon: <FaMeta className="w-4 h-4" />,
+      iconBg: "bg-indigo-100",
+      iconColor: "text-indigo-600",
+      status: "Disconnected" as const,
+      description: "Connect Facebook & Instagram Ads for referral targeting",
+      badges: [
+        "Audience sync",
+        "Lead tracking",
+        "Campaign performance insights",
+      ],
+    },
+    {
+      name: "TikTok Ads",
+      icon: <FaTiktok className="w-4 h-4" />,
+      iconBg: "bg-gray-100",
+      iconColor: "text-gray-700",
+      status: "Disconnected" as const,
+      description: "Track TikTok ad campaigns and boost referral engagement",
+      badges: ["Pixel tracking", "Campaign reporting", "Audience insights"],
+    },
+    {
+      name: "Twilio Calling Integration",
+      icon: <TbBrandTwilio className="w-4 h-4" />,
+      iconBg: "bg-red-100",
+      iconColor: "text-red-600",
+      status: "Disconnected" as const,
+      description:
+        "Automate patient calls and streamline referral communication",
+      badges: ["Click-to-call", "Call analytics", "Automated voice follow-ups"],
+      onConnect: () => setIsTwilioIntegrationModalOpen(true),
+      onConfigure: () => setIsTwilioIntegrationModalOpen(true),
+    },
+
     {
       name: "Analytics Platform",
       icon: <BsLightningCharge className="w-4 h-4" />,
@@ -219,31 +178,31 @@ function Integrations() {
   return (
     <>
       <ComponentContainer headingData={HEADING_DATA}>
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-4 md:gap-5">
           <Card className="shadow-none border border-primary/15 rounded-xl p-5">
             <CardHeader className="p-0 pb-6">
               <h4 className="font-medium text-sm">Available Integrations</h4>
             </CardHeader>
             <CardBody className="divide-y divide-gray-100 p-0">
-              {integrationsData.map((item, index) => (
+              {AVAILABLE_INTEGRATIONS.map((item, index) => (
                 <IntegrationItem key={index} {...item} />
               ))}
             </CardBody>
           </Card>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             <Card className="shadow-none border border-primary/15 rounded-xl p-5">
               <CardHeader className="p-0 pb-5">
                 <h4 className="font-medium text-sm">API Keys</h4>
               </CardHeader>
               <CardBody className="space-y-4 p-0">
-                <div className="p-4 bg-gray-100 rounded-lg">
+                <div className="p-4 bg-gray-50 rounded-lg">
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-xs">Public API Key</span>
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="bg-white border-small h-7 px-2"
+                      className="bg-background border-small h-7 px-2"
                     >
                       Copy
                     </Button>
@@ -253,13 +212,13 @@ function Integrations() {
                   </code>
                 </div>
 
-                <div className="p-4 bg-gray-100 rounded-lg">
+                <div className="p-4 bg-gray-50 rounded-lg">
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-medium text-xs">Secret Key</span>
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="bg-white border-small h-7 px-2"
+                      className="bg-background border-small h-7 px-2"
                     >
                       Reveal
                     </Button>
@@ -294,7 +253,11 @@ function Integrations() {
                     <span className="font-medium text-xs">
                       New Referral Webhook
                     </span>
-                    <Chip size="sm" color="primary" className="text-[11px] h-5 capitalize">
+                    <Chip
+                      size="sm"
+                      color="primary"
+                      className="text-[11px] h-5 capitalize"
+                    >
                       active
                     </Chip>
                   </div>
@@ -302,10 +265,18 @@ function Integrations() {
                     https://api.yourapp.com/webhooks/new-referral
                   </p>
                   <div className="flex flex-wrap gap-1">
-                    <Chip size="sm" variant="bordered" className="border-small text-[11px]">
+                    <Chip
+                      size="sm"
+                      variant="bordered"
+                      className="border-small text-[11px]"
+                    >
                       referral.created
                     </Chip>
-                    <Chip size="sm" variant="bordered" className="border-small text-[11px]">
+                    <Chip
+                      size="sm"
+                      variant="bordered"
+                      className="border-small text-[11px]"
+                    >
                       referral.updated
                     </Chip>
                   </div>
@@ -327,7 +298,11 @@ function Integrations() {
                     https://api.yourapp.com/webhooks/new-review
                   </p>
                   <div className="flex flex-wrap gap-1">
-                    <Chip size="sm" variant="bordered" className="border-small text-xs">
+                    <Chip
+                      size="sm"
+                      variant="bordered"
+                      className="border-small text-[11px]"
+                    >
                       review.created
                     </Chip>
                   </div>
@@ -337,6 +312,23 @@ function Integrations() {
           </div>
         </div>
       </ComponentContainer>
+
+      <GoogleCalendarConfigModal
+        isOpen={isGoogleCalendarIntegrationModalOpen}
+        onClose={() => setIsGoogleCalendarIntegrationModalOpen(false)}
+        userId={userId as string}
+        existingConfig={
+          googleCalendarExistingConfig as GoogleCalendarIntegrationResponse
+        }
+        isLoading={isGoogleCalendarConfigLoading}
+        isError={isGoogleCalendarConfigError}
+      />
+
+      <TwilioConfigurationModal
+        userId={userId as string}
+        isOpen={isTwilioIntegrationModalOpen}
+        onClose={() => setIsTwilioIntegrationModalOpen(false)}
+      />
     </>
   );
 }

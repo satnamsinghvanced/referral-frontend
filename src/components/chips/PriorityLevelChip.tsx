@@ -6,15 +6,15 @@ export default function PriorityLevelChip({ level }: { level: string }) {
 
   switch (level) {
     case "low":
-      classNames = "bg-[#e0f2fe] text-[#0c4a6e]";
+      classNames = "bg-green-100 text-green-800";
       break;
 
     case "medium":
-      classNames = "bg-primary text-white";
+      classNames = "bg-yellow-100 text-yellow-800";
       break;
 
     default:
-      classNames = "bg-[#dc2626] text-white";
+      classNames = "bg-red-100 text-red-800";
       break;
   }
 

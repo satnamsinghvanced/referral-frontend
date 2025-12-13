@@ -4,6 +4,7 @@ import { IoLocationOutline } from "react-icons/io5";
 import { LuBuilding2 } from "react-icons/lu";
 import LevelChip from "../../components/chips/LevelChip";
 import { Partner } from "../../types/partner";
+import { GrLocation } from "react-icons/gr";
 
 interface PartnerNetworkCardProps {
   partner: Partner;
@@ -13,57 +14,65 @@ interface PartnerNetworkCardProps {
     function: Function;
     variant?: string;
     color?: string;
+    className?: string;
   }[];
 }
 
 const PartnerNetworkCard = ({ partner, actions }: PartnerNetworkCardProps) => {
   return (
-    <div className="flex items-center justify-between border border-foreground/10  rounded-lg p-4 bg-background ">
-      <div className="min-size-10 size-10 aspect-square bg-blue-100 text-blue-600 h-full p-0.5 mr-2 rounded-lg flex justify-center items-center">
-        <LuBuilding2 className="text-[22px]" />
-      </div>
-      <div className="font-medium text-sm w-full h-full flex flex-col justify-center gap-1">
-        <div className="flex items-center gap-2">
-          <p>{partner.name}</p>
-          <LevelChip level={partner.level} />
+    <div className="lg:flex lg:items-center lg:justify-between border border-foreground/10 rounded-lg p-4 bg-background max-lg:space-y-3.5">
+      <div className="flex items-center gap-2.5">
+        <div className="min-size-8 md:min-size-10 size-8 md:size-10 aspect-square bg-blue-100 text-blue-600 p-0.5 rounded-lg flex justify-center items-center">
+          <LuBuilding2 className="text-lg md:text-[22px]" />
         </div>
-        <div className="flex gap-3.5 items-center text-xs font-light">
-          <p className="flex gap-1 items-center text-gray-600">
-            <IoLocationOutline fontSize={15} />
-            {partner.address.addressLine1}
-            {partner.address.city && `, ${partner.address.city}`}   
-          </p>
-          {partner.phone && (
-            <p className="flex gap-1.5 items-center text-gray-600">
-              <FiPhone fontSize={14} />
-              {partner?.phone}
-            
+        <div className="font-medium text-sm w-full h-full flex flex-col justify-center gap-1">
+          <div className="flex items-center gap-2 max-sm:flex-col-reverse max-sm:gap-1.5 max-sm:items-start max-sm:mb-0.5">
+            <p>{partner.name}</p>
+            <LevelChip level={partner.level} />
+          </div>
+          <div className="md:flex md:gap-3.5 md:items-center text-xs max-md:space-y-2">
+            <p className="flex gap-1 items-center text-gray-600">
+              <GrLocation className="size-[15px] min-w-[15px] min-h-[15px]" />
+              <span className="md:max-w-[200px] xl:max-w-[300px] sm:line-clamp-1 sm:whitespace-nowrap text-ellipsis">
+                {partner.address.addressLine1}
+                {partner.address.city && `, ${partner.address.city}`}
+                {partner.address.state && `, ${partner.address.state}`}
+                {partner.address.zip && `, ${partner.address.zip}`}
+              </span>
             </p>
-          )}
+            {partner.phone && (
+              <p className="flex gap-1.5 items-center text-gray-600 whitespace-nowrap">
+                <FiPhone fontSize={14} />
+                <span>{partner?.phone}</span>
+              </p>
+            )}
+          </div>
         </div>
       </div>
-      <div className="flex text-center justify-end h-full w-full gap-5 text-sm">
-        <div className="flex flex-col items-center text-center justify-center">
-          <p className="text-sm font-semibold">{partner.totalReferrals}</p>
-          <p className="text-[11px] font-thin">Total</p>
-        </div>
-        <div className="flex flex-col items-center text-center justify-center">
-          <p className="text-sm font-semibold text-blue-500">
-            {partner.monthlyReferrals}
-          </p>
-          <p className="text-[11px] font-thin">This Month</p>
-        </div>
-        <div className="flex flex-col items-center text-center justify-center">
-          <p className="text-sm font-semibold text-gray-700">
-            {partner.notesCount}
-          </p>
-          <p className="text-[11px] font-thin">Notes</p>
-        </div>
-        <div className="flex flex-col items-center text-center justify-center">
-          <p className="text-sm font-semibold text-orange-600">
-            {partner.tasksCount}
-          </p>
-          <p className="text-[11px] font-thin">Tasks</p>
+      <div className="flex items-center justify-between lg:justify-end h-full w-full gap-5 text-sm max-md:flex-col max-md:items-start max-md:gap-3">
+        <div className="flex items-center gap-3 md:gap-5">
+          <div className="flex flex-col items-center text-center justify-center">
+            <p className="text-sm font-semibold">{partner.totalReferrals}</p>
+            <p className="text-[11px] font-thin">Total</p>
+          </div>
+          <div className="flex flex-col items-center text-center justify-center">
+            <p className="text-sm font-semibold text-blue-500">
+              {partner.monthlyReferrals}
+            </p>
+            <p className="text-[11px] font-thin">This Month</p>
+          </div>
+          <div className="flex flex-col items-center text-center justify-center">
+            <p className="text-sm font-semibold text-gray-700">
+              {partner.notesCount}
+            </p>
+            <p className="text-[11px] font-thin">Notes</p>
+          </div>
+          <div className="flex flex-col items-center text-center justify-center">
+            <p className="text-sm font-semibold text-orange-600">
+              {partner.tasksCount}
+            </p>
+            <p className="text-[11px] font-thin">Tasks</p>
+          </div>
         </div>
         <div className="flex items-center gap-2.5">
           <div className="flex items-center text-center justify-center">
@@ -89,7 +98,7 @@ const PartnerNetworkCard = ({ partner, actions }: PartnerNetworkCardProps) => {
                   onPress={() => action.function(partner._id, partner.name)}
                   variant={action.variant || "light"}
                   color={action.color || "default"}
-                  className="overflow-visible"
+                  className={`overflow-visible ${action.className}`}
                 >
                   {action.icon}
                   {action.label === "Notes" && partner.tasksCount > 0 && (

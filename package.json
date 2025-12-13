@@ -13,6 +13,7 @@
   "dependencies": {
     "@fontsource/inter": "^5.2.6",
     "@fontsource/merriweather-sans": "^5.2.6",
+    "@heroicons/react": "^2.2.0",
     "@heroui/react": "^2.8.2",
     "@internationalized/date": "^3.10.0",
     "@react-aria/i18n": "^3.12.12",
@@ -26,6 +27,7 @@
     "framer-motion": "^12.23.12",
     "jwt-decode": "^4.0.0",
     "localstorage-slim": "^2.7.1",
+    "mapbox-gl": "^3.16.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
     "react-icons": "^5.5.0",
@@ -42,6 +44,7 @@
     "@types/react": "^19.1.13",
     "@types/react-dom": "^19.1.9",
     "@vitejs/plugin-react": "^5.0.0",
+    "baseline-browser-mapping": "^2.9.7",
     "eslint": "^9.33.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
