@@ -195,16 +195,23 @@ const LatestReviewItem = ({ review }: any) => {
                 />
                 {interaction}
               </div>
+              
             </div>
+            <div className="sm:hidden mt-1">
+             <StarRating rating={rating} />
+             </div>
+
           </div>
         </div>
 
         {/* Rating and Date */}
-        <div className="text-right flex flex-col items-end">
-          <StarRating rating={rating} />
-          <div className="text-xs text-gray-600">{date}</div>
-        </div>
-      </div>
+         <div className="flex flex-col items-end gap-1">
+    <div className="hidden sm:block">
+      <StarRating rating={rating} />
+    </div>
+    <div className="text-xs text-gray-600">{date}</div>
+  </div>
+</div>
 
       {/* Review Text */}
       <p className="text-gray-700 mb-2.5 leading-relaxed">{text}</p>
@@ -263,15 +270,15 @@ export default function LatestReviews() {
   };
 
   return (
-    <Card className="shadow-none border border-primary/15 p-5">
+    <Card className="bg-background flex flex-col gap-4 border border-primary/15 rounded-xl p-4">
       {/* Card Header */}
-      <CardHeader className="flex items-center justify-between gap-3 p-0 mb-5">
+      <CardHeader className="w-full flex flex-col items-start gap-3 p-0 mb-5 sm:flex-row sm:items-center sm:justify-between">
         <h4 className="font-medium">Recent Reviews & Interactions</h4>
-        <div className="flex items-center gap-3">
+        <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:justify-end">
           <Chip
             size="sm"
             radius="sm"
-            className="text-[11px] font-medium h-5 border bg-sky-100 text-sky-800 border-sky-200"
+            className="order-1 sm:order-2 text-[11px] font-medium h-5 border bg-sky-100 text-sky-800 border-sky-200"
           >
             {filteredReviews.length} review
             {filteredReviews.length !== 1 ? "s" : ""}

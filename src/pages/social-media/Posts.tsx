@@ -77,7 +77,7 @@ const Posts = () => {
               key={post.id}
               className="border border-primary/15 p-4 rounded-xl shadow-none"
             >
-              <p className="text-sm mb-2 whitespace-pre-wrap">{post.content}</p>
+              <p className="text-xs sm:text-sm mb-2 whitespace-pre-wrap">{post.content}</p>
 
               {/* Status and Published Date */}
               <div className="flex items-center gap-3 mb-2.5">
@@ -92,8 +92,9 @@ const Posts = () => {
               </div>
 
               {/* Platforms (Tags) */}
-              <div className="flex items-center justify-between">
-                <div className="flex gap-2 text-[11px]">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+
+                <div className="flex flex-wrap gap-2 text-[11px]">
                   {post.platforms.map((platform, index) => (
                     <span
                       key={index}
@@ -104,7 +105,7 @@ const Posts = () => {
                   ))}
                 </div>
 
-                <div className="flex justify-end gap-3 text-gray-500 text-[11px] px-3">
+                <div className="flex flex-wrap gap-3 text-gray-500 text-[10px] sm:text-[11px] mt-2 sm:mt-0">
                   <span title={`${post.metrics.likes} Likes`}>
                     <BiHeart className="inline w-3 h-3 relative -top-px" />{" "}
                     {post.metrics.likes}
