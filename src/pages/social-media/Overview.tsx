@@ -58,13 +58,14 @@ const Overview: React.FC<OverviewProps> = ({
 
   return (
     <div className="space-y-4 md:space-y-5">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3">
         {STAT_CARD_DATA.map((data, i) => (
           <MiniStatsCard key={i} cardData={data} />
         ))}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div  className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-3">
+
         {platforms.map((platform, i) => (
           <Card
             key={platform.id}
@@ -100,7 +101,8 @@ const Overview: React.FC<OverviewProps> = ({
         ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-3">
+
         <Card className="bg-background rounded-xl shadow-none p-5 border border-primary/15">
           <h4 className="text-sm mb-4 flex items-center gap-2">
             <LuChartColumnIncreasing className="text-base text-primary" />{" "}

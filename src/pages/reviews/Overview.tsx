@@ -59,7 +59,7 @@ const REVIEWS_PLATFORM_DISTRUBUTION = [
 const Overview = () => {
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex gap-4 w-full">
+      <div className="flex flex-col sm:flex-row gap-4 w-full">
         <Card
           className="border border-primary/15  w-full p-4 min-h-80"
           shadow="none"

@@ -74,7 +74,7 @@ const LOCATIONS_GRAPH_DATA = [
 
 const Locations = () => {
   return (
-    <div className="flex flex-col gap-6 bg-background  border border-primary/15  rounded-xl p-5">
+    <div className="flex flex-col gap-4 border border-primary/15 rounded-xl p-4 bg-background w-full"> 
       <h4 className="flex items-center">
         <GrLocation className="text-primary size-[18px] mr-2" />
         Review Performance by Location
