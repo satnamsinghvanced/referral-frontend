@@ -1,9 +1,4 @@
-import {
-  Button,
-  Card,
-  CardBody,
-  CardHeader
-} from "@heroui/react";
+import { Button, Card, CardBody, CardHeader } from "@heroui/react";
 import React, { useState } from "react";
 import { FiCreditCard } from "react-icons/fi";
 
@@ -28,8 +23,8 @@ const Billing: React.FC = () => {
 
   return (
     <Card className="rounded-xl shadow-none border border-foreground/10">
-      <CardHeader className="flex items-center gap-3 px-5 pt-5 pb-0">
-        <FiCreditCard className="h-5 w-5" />
+      <CardHeader className="flex items-center gap-2 px-5 pt-5 pb-0">
+        <FiCreditCard className="size-5" />
         <p className="text-base">Billing & Subscription</p>
       </CardHeader>
 

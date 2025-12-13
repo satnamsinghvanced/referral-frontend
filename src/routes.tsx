@@ -8,7 +8,7 @@ const Layout = React.lazy(() => import("./components/layout/Layout"));
 const Dashboard = React.lazy(() => import("./pages/dashboard/Dashboard"));
 const Analytics = React.lazy(() => import("./pages/analytics/Analytics"));
 const HelpCenter = React.lazy(() => import("./pages/HelpCenter"));
-const EmailCampaign = React.lazy(() => import("./pages/EmailCampaigns"));
+const EmailCampaign = React.lazy(() => import("./pages/email-campaigns/EmailCampaigns"));
 const MarketingBudget = React.lazy(
   () => import("./pages/marketing-budget/MarketingBudget")
 );

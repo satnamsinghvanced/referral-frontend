@@ -1,10 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchUser, updateUser, User } from "../../services/settings/user";
 import { addToast } from "@heroui/react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { fetchUserForTrackings } from "../../services/referralBypassFunction";
+import { fetchUser, updateUser, User } from "../../services/settings/user";
 
-// 🔹 Get user detail
 export function useFetchUser(id: string) {
   return useQuery({
     queryKey: ["user", id],
@@ -14,7 +13,6 @@ export function useFetchUser(id: string) {
   });
 }
 
-// 🔹 Get user detail for tracking
 export function useFetchUserForTrackings(id: string) {
   return useQuery({
     queryKey: ["user", id],
@@ -23,7 +21,6 @@ export function useFetchUserForTrackings(id: string) {
   });
 }
 
-// 🔹 Update user detail
 export function useUpdateUser(id: string) {
   const queryClient = useQueryClient();
 

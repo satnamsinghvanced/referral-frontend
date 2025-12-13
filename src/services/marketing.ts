@@ -45,7 +45,6 @@ export const updateMarketingActivity = async (
 export const deleteMarketingActivity = async (
   payload: any
 ): Promise<DeleteActivityResponse> => {
-  console.log(payload);
   const response = await axios.delete<DeleteActivityResponse>(`${BASE_URL}`, {
     data: payload, // MUST be inside config
   });

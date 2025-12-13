@@ -16,7 +16,9 @@ const Layout = () => {
     return true;
   };
 
-  const [isMiniSidebarOpen, setIsMiniSidebarOpen] = useState<boolean>(getInitialMini());
+  const [isMiniSidebarOpen, setIsMiniSidebarOpen] = useState<boolean>(
+    getInitialMini()
+  );
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   const toggleSidebar = () => {
@@ -48,7 +50,10 @@ const Layout = () => {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("isMiniSidebarOpen", JSON.stringify(isMiniSidebarOpen));
+    localStorage.setItem(
+      "isMiniSidebarOpen",
+      JSON.stringify(isMiniSidebarOpen)
+    );
   }, [isMiniSidebarOpen]);
 
   return (
@@ -72,7 +77,7 @@ const Layout = () => {
       />
       <main
         id="main"
-        className="h-[calc(100vh-4.5rem)] main !z-10 flex-grow-1 md:h-[calc(100vh-65px)] transition-all ease-in-out duration-300 bg-foreground/3 dark:bg-[#0f1214]"
+        className="h-[calc(100vh-4.5rem)] main !z-10 flex-grow-1 md:h-[calc(100vh-64px)] transition-all ease-in-out duration-300 bg-foreground/3 dark:bg-[#0f1214]"
       >
         <Outlet />
       </main>

@@ -380,7 +380,7 @@ const ReferralPerformanceReport = () => {
           icon: FaRegStar,
           iconColor: "text-amber-500",
           children: (
-            <div className="space-y-4">
+            <div className="space-y-3">
               {topDoctorReferrers.map((referrer, index) => {
                 const isTrendingUp =
                   referrer.conversion.includes("93.3%") ||

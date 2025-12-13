@@ -1,18 +1,18 @@
-import { useMemo, useState } from "react";
-import ComponentContainer from "../../components/common/ComponentContainer";
-import MiniStatsCard from "../../components/cards/MiniStatsCard";
-import { GoTasklist } from "react-icons/go";
-import { MdOutlineTaskAlt } from "react-icons/md";
-import { LuInfo } from "react-icons/lu";
-import { Input, Pagination, Select, SelectItem, Spinner } from "@heroui/react";
+import { Input, Pagination, Select, SelectItem } from "@heroui/react";
+import { useEffect, useMemo, useState } from "react";
+import { FaRegClock } from "react-icons/fa";
 import { FiSearch } from "react-icons/fi";
+import { GoTasklist } from "react-icons/go";
+import { LuInfo } from "react-icons/lu";
+import { MdOutlineTaskAlt } from "react-icons/md";
+import MiniStatsCard from "../../components/cards/MiniStatsCard";
+import ComponentContainer from "../../components/common/ComponentContainer";
+import EmptyState from "../../components/common/EmptyState";
+import { LoadingState } from "../../components/common/LoadingState";
 import { TASK_PRIORITIES, TASK_STATUSES } from "../../consts/practice";
+import { useDebouncedValue } from "../../hooks/common/useDebouncedValue";
 import { useFetchAllTasks } from "../../hooks/usePartner";
 import TaskCard from "./TaskCard";
-import { FaRegClock } from "react-icons/fa";
-import EmptyState from "../../components/common/EmptyState";
-import { BiTask } from "react-icons/bi";
-import { LoadingState } from "../../components/common/LoadingState";
 
 function Tasks() {
   const HEADING_DATA = useMemo(
@@ -33,11 +33,18 @@ function Tasks() {
     priority: "all",
   });
 
+  const debouncedSearch = useDebouncedValue(currentFilters.search, 500);
+
+  useEffect(() => {
+    setCurrentFilters((prev: any) => ({ ...prev, search: debouncedSearch }));
+  }, [debouncedSearch]);
+
   const {
     data: tasksData,
     isLoading,
     isFetching,
-  } = useFetchAllTasks(currentFilters);
+  } = useFetchAllTasks({ ...currentFilters, search: debouncedSearch });
+
   const tasks = tasksData?.tasks;
   const stats = tasksData?.stats;
   const pagination = tasksData?.pagination;
@@ -81,7 +88,7 @@ function Tasks() {
             <MiniStatsCard key={i} cardData={data} />
           ))}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border border-primary/15 rounded-xl p-4 bg-white shadow-none">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 border border-primary/15 rounded-xl p-4 bg-white shadow-none">
           <div className="relative flex-1">
             <Input
               placeholder="Search tasks..."
@@ -92,7 +99,7 @@ function Tasks() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <Select
               aria-label="Task Status"
               placeholder="All Statuses"
@@ -147,9 +154,11 @@ function Tasks() {
             <EmptyState title="There are no tasks matching your current filters. Try adjusting your search or filters." />
           ) : (
             <>
-              {tasks?.map((task: any) => (
-                <TaskCard key={task._id} task={task} />
-              ))}
+              <div className="space-y-3">
+                {tasks?.map((task: any) => (
+                  <TaskCard key={task._id} task={task} />
+                ))}
+              </div>
               {pagination?.totalPages && pagination.totalPages > 1 ? (
                 <Pagination
                   showControls

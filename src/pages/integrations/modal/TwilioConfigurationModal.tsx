@@ -1,6 +1,3 @@
-import React, { useEffect, useState } from "react";
-import { useFormik } from "formik";
-import * as Yup from "yup";
 import {
   Button,
   Input,
@@ -11,13 +8,16 @@ import {
   ModalHeader,
   Spinner,
 } from "@heroui/react";
+import { useFormik } from "formik";
+import { useEffect, useState } from "react";
 import { FiExternalLink, FiEye, FiEyeOff } from "react-icons/fi";
+import * as Yup from "yup";
 import {
   useFetchTwilioConfig,
   useSaveTwilioConfig,
   useUpdateTwilioConfig,
-} from "../../hooks/useTwilio";
-import { TwilioConfigRequest } from "../../types/call";
+} from "../../../hooks/useTwilio";
+import { TwilioConfigRequest } from "../../../types/call";
 
 // --- Yup Validation Schema ---
 const validationSchema = Yup.object().shape({
@@ -126,30 +126,30 @@ export default function TwilioConfigurationModal({
     );
   }
 
-  if (isError) {
-    return (
-      <Modal
-        isOpen={isOpen}
-        onOpenChange={onClose}
-        size="md"
-        classNames={{
-          base: `max-sm:!m-3 !m-0`,
-          closeButton: "cursor-pointer",
-        }}
-      >
-        <ModalContent>
-          <ModalBody className="p-5 text-center">
-            <p className="text-red-600 text-sm px-5">
-              Failed to load Twilio configuration. Please try again.
-            </p>
-            <Button color="danger" variant="flat" onPress={onClose} size="sm">
-              Close
-            </Button>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-    );
-  }
+  // if (isError) {
+  //   return (
+  //     <Modal
+  //       isOpen={isOpen}
+  //       onOpenChange={onClose}
+  //       size="md"
+  //       classNames={{
+  //         base: `max-sm:!m-3 !m-0`,
+  //         closeButton: "cursor-pointer",
+  //       }}
+  //     >
+  //       <ModalContent>
+  //         <ModalBody className="p-5 text-center">
+  //           <p className="text-red-600 text-sm px-5">
+  //             Failed to load Twilio configuration. Please try again.
+  //           </p>
+  //           <Button color="danger" variant="flat" onPress={onClose} size="sm">
+  //             Close
+  //           </Button>
+  //         </ModalBody>
+  //       </ModalContent>
+  //     </Modal>
+  //   );
+  // }
 
   const isSubmitting = mutation.isPending;
 

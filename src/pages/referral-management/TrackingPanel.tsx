@@ -82,10 +82,9 @@ const TrackingPanel = () => {
     }
   };
 
-  // UPDATED FUNCTION TO HANDLE DIRECT DOWNLOAD
   const handleDownloadQR = async () => {
-    const qrCodeUrl = trackings?.qrCode;
-    if (!qrCodeUrl) {
+    const imageUrl = trackings?.qrCode;
+    if (!imageUrl) {
       addToast({
         title: "Error",
         description: "QR Code URL is missing.",
@@ -95,23 +94,50 @@ const TrackingPanel = () => {
     }
 
     try {
-      const response = await fetch(qrCodeUrl);
+      const img = new Image();
+      img.crossOrigin = "anonymous"; // IMPORTANT for Canvas usage
+      img.src = imageUrl;
 
-      if (!response.ok) throw new Error("Failed to fetch QR code image.");
-      const imageBlob = await response.blob();
-      const blobUrl = window.URL.createObjectURL(imageBlob);
-      const link = document.createElement("a");
-      link.href = blobUrl;
-      link.download = "referral_qr_code.png";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(blobUrl);
-    } catch (error) {
-      console.error("Download failed:", error);
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext("2d");
+        ctx?.drawImage(img, 0, 0);
+
+        canvas.toBlob((blob) => {
+          if (!blob) return;
+
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement("a");
+          link.href = url;
+          link.download = `referral_qr_${user?.userId}.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+          URL.revokeObjectURL(url);
+
+          addToast({
+            title: "Success",
+            description: "QR Code downloaded successfully.",
+            color: "success",
+          });
+        });
+      };
+
+      img.onerror = () => {
+        addToast({
+          title: "Error",
+          description:
+            "Failed to load image. Enable CORS on server for QR image endpoint.",
+          color: "danger",
+        });
+      };
+    } catch (e) {
+      console.error("QR Download failed", e);
       addToast({
-        title: "Download Error",
-        description: "Could not download the QR code image.",
+        title: "Error",
+        description: "Unable to download QR Code.",
         color: "danger",
       });
     }
@@ -122,7 +148,7 @@ const TrackingPanel = () => {
       try {
         await navigator.share({
           title: "Referral QR Code - General Practice",
-          url: `${import.meta.env.VITE_URL_PREFIX}/referral/${userId}`,
+          url: trackings?.referralUrl || "",
         });
       } catch (error) {
         console.error("Error sharing content:", error);
@@ -142,7 +168,6 @@ const TrackingPanel = () => {
   return (
     <div className="grid grid-cols-2 gap-5 items-start">
       <div className="border w-full border-primary/20 p-5 rounded-xl bg-background flex flex-col gap-5">
-        {/* Header */}
         <div>
           <h6 className="text-sm flex items-center gap-2">
             <LuQrCode className="text-blue-600 text-lg" /> QR & NFC Code
@@ -225,7 +250,6 @@ const TrackingPanel = () => {
               </p>
             </div>
 
-            {/* URLs Section */}
             <div className="space-y-4">
               <Input
                 label="Referral Landing Page URL"
@@ -269,7 +293,6 @@ const TrackingPanel = () => {
               />
             </div>
 
-            {/* QR Info Grid */}
             <div className="grid grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
               <div className="flex flex-col gap-0.5 items-center justify-center text-center">
                 <GoGraph className="text-blue-600 text-lg mb-1.5" />
@@ -296,7 +319,6 @@ const TrackingPanel = () => {
               </div>
             </div>
 
-            {/* Action Buttons */}
             <div className="grid grid-cols-2 gap-3">
               <Button
                 variant="bordered"
@@ -305,7 +327,7 @@ const TrackingPanel = () => {
                 className="border-small"
                 size="sm"
                 fullWidth
-                onPress={handleDownloadQR} // Calling the robust async download function
+                onPress={handleDownloadQR}
               >
                 Download QR
               </Button>
@@ -319,7 +341,7 @@ const TrackingPanel = () => {
               >
                 Share
               </Button>
-              <Link to={`/referral/${userId}`} target="_blank">
+              <Link to={trackings?.referralUrl} target="_blank">
                 <Button
                   variant="bordered"
                   color="default"

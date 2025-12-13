@@ -16,7 +16,9 @@ import {
   Tabs,
   Textarea,
 } from "@heroui/react";
+import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
 import { useEffect, useState } from "react";
+import { FiEdit } from "react-icons/fi";
 import { IoCheckmarkCircleOutline } from "react-icons/io5";
 import {
   LuClock,
@@ -26,48 +28,29 @@ import {
   LuUser,
 } from "react-icons/lu";
 import {
+  NOTE_CATEGORIES,
+  TASK_PRIORITIES,
+  TASK_TYPES,
+} from "../../consts/practice";
+import { useFetchTeamMembers } from "../../hooks/settings/useTeam";
+import {
   useCreateNote,
   useCreateTask,
   useDeleteNote,
   useDeleteTask,
   useGetAllNotesAndTasks,
-  useGetScheduleTaskEvent,
   useUpdateTask,
-  useUpdateTaskStatus,
 } from "../../hooks/usePartner";
-import {
-  NOTE_CATEGORIES,
-  TASK_PRIORITIES,
-  TASK_TYPES,
-} from "../../consts/practice";
-import { formatDateToReadable } from "../../utils/formatDateToReadable";
-import { formatCalendarDate } from "../../utils/formatCalendarDate";
-import ScheduleTaskModal from "./ScheduleTaskModal";
-import { Task, TaskApiData } from "../../types/partner";
-import { TbCalendarPlus } from "react-icons/tb";
-import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
-import { FiEdit } from "react-icons/fi";
-import EditTaskModal from "./EditTaskModal";
 import { TeamMember } from "../../services/settings/team";
-import { useFetchTeamMembers } from "../../hooks/settings/useTeam";
+import { TaskApiData } from "../../types/partner";
+import { formatCalendarDate } from "../../utils/formatCalendarDate";
+import { formatDateToReadable } from "../../utils/formatDateToReadable";
+import EditTaskModal from "./EditTaskModal";
 
 interface NotesTasksModalProps {
   isOpen: boolean;
   onClose: () => void;
   practice: any;
-  // notes: Note[];
-  // tasks: Task[];
-  // Handlers for interaction would be passed here in a real app
-  onAddNote: (note: { content: string; category: string }) => void;
-  onAddTask: (task: {
-    title: string;
-    description: string;
-    priority: string;
-    type: string;
-    dueDate: string;
-  }) => void;
-  onDeleteNote: (id: string) => void;
-  onDeleteTask: (id: string) => void;
 }
 
 const NotesTasksModal = ({

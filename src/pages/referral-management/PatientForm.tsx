@@ -52,7 +52,6 @@ const PatientForm = () => {
   useEffect(() => {
     const pathname = window.location.pathname;
     const segments = pathname.split("/");
-    console.log(segments);
     const documentId = segments[3];
 
     setReferredBy(documentId || "");
@@ -189,8 +188,6 @@ const PatientForm = () => {
       }
     },
   });
-
-  console.log(fetchedUser);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 py-5 px-4 flex items-center justify-center">

@@ -1,31 +1,29 @@
+import { Card, CardBody, CardHeader } from "@heroui/react";
 import React from "react";
 import {
-  LuUsers,
-  LuTrendingUp,
-  LuTrendingDown,
-  LuMonitor,
-  LuGlobe,
-  LuEye,
   LuClock,
+  LuEye,
+  LuMonitor,
   LuMousePointer,
-  LuPhone,
   LuSmartphone,
+  LuTrendingUp,
+  LuUsers,
 } from "react-icons/lu";
+import { SiGoogleanalytics } from "react-icons/si";
 import {
-  LineChart,
+  CartesianGrid,
+  Cell,
+  Legend,
   Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
   XAxis,
   YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Legend,
-  PieChart,
-  Pie,
-  Cell,
 } from "recharts";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
-import { Card, CardBody, CardHeader } from "@heroui/react";
 
 const TrafficTrendsChart: React.FC = () => {
   const data = [
@@ -38,19 +36,13 @@ const TrafficTrendsChart: React.FC = () => {
   ];
 
   return (
-    <div className="-ml-5 text-sm">
+    <div className="-ml-4 text-sm">
       <ResponsiveContainer width="100%" aspect={1.85} maxHeight={380}>
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-          <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-          <YAxis tick={{ fontSize: 12 }} />
-          <Tooltip
-          // contentStyle={{
-          //   borderRadius: "8px",
-          //   border: "1px solid #E5E7EB",
-          //   fontSize: "12px",
-          // }}
-          />
+          <XAxis dataKey="name" />
+          <YAxis />
+          <Tooltip />
           <Legend />
           <Line
             type="monotone"
@@ -137,14 +129,6 @@ const DeviceDonutChart: React.FC = () => {
   );
 };
 
-interface StatCardProps {
-  title: string;
-  value: string;
-  change: string;
-  changeType: "up" | "down";
-  icon: React.ReactNode;
-  iconColor: string;
-}
 interface LabelProps {
   cx: number;
   cy: number;
@@ -231,6 +215,7 @@ const DeviceMetric: React.FC<DeviceMetricProps> = ({
   <div className="space-y-1">
     <div className="flex justify-center">
       {React.cloneElement(icon as React.ReactElement, {
+        // @ts-ignore
         className: "h-6 w-6 mb-1",
         style: { color },
       })}
@@ -335,7 +320,7 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
       value: "3,920",
       subheading: (
         <span className="text-green-600 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1 text-green-700" />
+          <LuTrendingUp className="h-4 w-4 mr-1 text-green-600" />
           +6.5% vs last month
         </span>
       ),
@@ -347,7 +332,7 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
       value: "12,450",
       subheading: (
         <span className="text-green-600 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1 text-green-700" />
+          <LuTrendingUp className="h-4 w-4 mr-1 text-green-600" />
           +8.1% vs last month
         </span>
       ),
@@ -358,7 +343,7 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
       value: "2:47",
       subheading: (
         <span className="text-green-600 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1 text-green-700" />
+          <LuTrendingUp className="h-4 w-4 mr-1 text-green-600" />
           +12s vs last month
         </span>
       ),
@@ -369,7 +354,7 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
       value: "31%",
       subheading: (
         <span className="text-green-700 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1 text-green-700" />
+          <LuTrendingUp className="h-4 w-4 mr-1 text-green-600" />
           -11% vs last month
         </span>
       ),
@@ -422,8 +407,8 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
   return (
     <div className="space-y-5">
       <div className="flex items-center gap-3 mb-6">
-        <LuGlobe
-          className="h-[28px] w-[28px] text-sky-600"
+        <SiGoogleanalytics
+          className="size-7 text-yellow-500"
           aria-hidden="true"
         />
         <div>

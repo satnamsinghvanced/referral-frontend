@@ -125,7 +125,6 @@ const GenerateNewReportModal = ({
   const handleGenerateReport = async () => {
     if (!isFormValid) return;
     const reportPayload = { ...formData };
-    console.log("Report generation initiated:", reportPayload);
     onClose();
   };
 

@@ -38,8 +38,8 @@ const General: React.FC = () => {
 
   return (
     <Card className="rounded-xl shadow-none border border-foreground/10">
-      <CardHeader className="flex items-center gap-3 px-5 pt-5 pb-0">
-        <FiSettings className="h-5 w-5" />
+      <CardHeader className="flex items-center gap-2 px-5 pt-5 pb-0">
+        <FiSettings className="size-5" />
         <p className="text-base">General Settings</p>
       </CardHeader>
 
@@ -48,7 +48,9 @@ const General: React.FC = () => {
         <div className="flex items-center justify-between">
           <div className="space-y-1">
             <h4 className="text-sm">Dark Mode</h4>
-            <p className="text-xs text-gray-600 dark:text-gray-400">Switch to dark theme</p>
+            <p className="text-xs text-gray-600 dark:text-gray-400">
+              Switch to dark theme
+            </p>
           </div>
           <Switch
             size="sm"

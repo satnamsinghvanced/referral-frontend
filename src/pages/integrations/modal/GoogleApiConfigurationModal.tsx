@@ -16,8 +16,8 @@ import {
   useFetchGoogleApiKey,
   useSaveGoogleApiKey,
   useUpdateGoogleApiKey,
-} from "../../hooks/useGoogle";
-import { GoogleApiKeyRequest } from "../../types/google";
+} from "../../../hooks/useGoogle";
+import { GoogleApiKeyRequest } from "../../../types/google";
 
 const validationSchema = Yup.object().shape({
   googleKey: Yup.string()

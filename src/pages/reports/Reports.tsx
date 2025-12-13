@@ -143,7 +143,7 @@ const Reports = () => {
             <div className="pb-4">
               <h4 className="text-sm font-medium">Recent Reports</h4>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-3">
               {MOCK_REPORTS.map((report: ReportItem) => (
                 <div
                   key={report.id}

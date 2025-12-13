@@ -59,7 +59,7 @@ const Analytics = () => {
         <CardHeader className="p-0 pb-5">
           <h3 className="text-sm">Platform Performance Breakdown</h3>
         </CardHeader>
-        <CardBody className="p-0 space-y-4">
+        <CardBody className="p-0 space-y-3">
           {/* Facebook */}
           {PLATFORM_BREAKDOWN_DATA.map((platform, i) => (
             <Card

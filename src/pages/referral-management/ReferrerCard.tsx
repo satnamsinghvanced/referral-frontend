@@ -36,8 +36,6 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
   buttons = () => [],
   onView,
 }) => {
-  // console.log(referrer);
-
   const lat = referrer?.practice?.address?.coordinates?.lat;
   const long = referrer?.practice?.address?.coordinates?.long;
 

@@ -17,8 +17,7 @@ const BudgetItemCard: React.FC<{
   return (
     <Card
       shadow="none"
-      radius="lg"
-      className="flex items-center justify-between border border-foreground/10 p-4 bg-background"
+      className="flex items-center justify-between border border-foreground/10 p-4 bg-background rounded-lg"
     >
       <CardHeader className="flex justify-between items-start p-0">
         <div className="flex items-center gap-2.5">

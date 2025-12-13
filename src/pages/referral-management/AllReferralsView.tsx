@@ -10,12 +10,16 @@ import React, { useMemo } from "react";
 import { BiCalendar, BiPhone } from "react-icons/bi";
 import { CgMail } from "react-icons/cg";
 import { FiArrowLeft, FiDownload, FiEye, FiSearch } from "react-icons/fi";
-import { LuExternalLink, LuSquarePen } from "react-icons/lu";
+import { LuSquarePen } from "react-icons/lu";
 import { PiFunnelX } from "react-icons/pi";
 import { Link } from "react-router";
 
+import PriorityLevelChip from "../../components/chips/PriorityLevelChip";
 import ReferralStatusChip from "../../components/chips/ReferralStatusChip";
+import EmptyState from "../../components/common/EmptyState";
+import { LoadingState } from "../../components/common/LoadingState";
 import { STATUS_OPTIONS } from "../../consts/filters";
+import { TREATMENT_OPTIONS } from "../../consts/referral";
 import {
   FetchReferralsParams,
   FilterStats,
@@ -23,10 +27,6 @@ import {
 } from "../../types/referral";
 import { formatDateToYYYYMMDD } from "../../utils/formatDateToYYYYMMDD";
 import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
-import EmptyState from "../../components/common/EmptyState";
-import { LoadingState } from "../../components/common/LoadingState";
-import { TREATMENT_OPTIONS } from "../../consts/referral";
-import PriorityLevelChip from "../../components/chips/PriorityLevelChip";
 
 interface AllReferralsViewProps {
   onBackToOverview: () => void;
@@ -36,7 +36,6 @@ interface AllReferralsViewProps {
   onClearFilters: () => void;
   onViewReferral: (id: string) => void;
   onEditReferral: (id: string) => void;
-  onViewReferralPage: (id: string) => void;
   referrals: Referral[];
   totalReferrals: number;
   totalPages: number;
@@ -53,17 +52,6 @@ const sourceOptions = [
   { label: "Direct Referral", value: "Direct" },
 ];
 
-const getPriorityColor = (priority: Referral["priority"]) => {
-  switch (priority) {
-    case "High Priority":
-      return "danger";
-    case "Medium Priority":
-      return "warning";
-    default:
-      return "default";
-  }
-};
-
 const AllReferralsView: React.FC<AllReferralsViewProps> = ({
   onBackToOverview,
   onExport,
@@ -72,7 +60,6 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
   onClearFilters,
   onViewReferral,
   onEditReferral,
-  onViewReferralPage,
   referrals,
   totalReferrals,
   totalPages,
@@ -110,8 +97,6 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
       </span>
     );
   }, [isFiltered, currentFilters.filter, currentFilters.source]);
-
-  const LucideFunnelX = PiFunnelX;
 
   const renderReferralCard = (referral: Referral) => (
     <div
@@ -342,12 +327,9 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
         </div>
       )}
 
-      <div
-        data-slot="card"
-        className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-primary/15 bg-background"
-      >
+      <div className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-primary/15 bg-background">
         <div data-slot="card-content" className="p-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
             <div className="relative">
               <Input
                 placeholder="Search referrals..."
@@ -400,7 +382,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                 size="sm"
                 variant="bordered"
                 className="border-small flex-1"
-                startContent={<LucideFunnelX className="h-4 w-4" />}
+                startContent={<PiFunnelX className="h-4 w-4" />}
               >
                 Clear Filters
               </Button>
@@ -453,7 +435,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
             <LoadingState />
           ) : referrals?.length > 0 ? (
             <>
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {referrals.map(renderReferralCard)}
               </div>
               {totalPages > 1 && (

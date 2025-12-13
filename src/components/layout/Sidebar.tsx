@@ -16,10 +16,11 @@ import {
   LuCalendar,
   LuDollarSign,
   LuQrCode,
+  LuUsers,
   LuVideo,
 } from "react-icons/lu";
 
-import { FiFileText, FiHome, FiUsers } from "react-icons/fi";
+import { FiFileText, FiHome } from "react-icons/fi";
 import { IoIosArrowRoundForward } from "react-icons/io";
 // import logoWhite from "../../assets/logo-white.svg";
 import clsx from "clsx";
@@ -62,7 +63,7 @@ const Sidebar = ({
     },
     {
       name: "Referrals",
-      icon: FiUsers,
+      icon: LuUsers,
       href: "/referrals",
       stats: dashboardStats?.referrals,
       color: (stats: number) => "bg-sky-100",
@@ -270,6 +271,8 @@ const Sidebar = ({
                           content={item.name}
                           placement="right"
                           shadow="sm"
+                          size="sm"
+                          radius="sm"
                         >
                           <Icon
                             className={` ${

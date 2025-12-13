@@ -1,5 +1,5 @@
 import { Button, Input, Pagination, Select, SelectItem } from "@heroui/react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { FiClock, FiGlobe, FiSearch, FiShare2 } from "react-icons/fi";
 import { LuCalendar, LuUserPlus, LuUsers } from "react-icons/lu";
@@ -14,16 +14,16 @@ import EmptyState from "../../components/common/EmptyState";
 import { LoadingState } from "../../components/common/LoadingState";
 import CustomCalendar from "../../components/ui/CustomCalender";
 import { ACTIVITY_TYPES } from "../../consts/marketing";
+import { useDebouncedValue } from "../../hooks/common/useDebouncedValue";
 import { useActivityTypes } from "../../hooks/useCommon";
 import {
   useDeleteActivity,
   useMarketingActivities,
 } from "../../hooks/useMarketing";
-import { formatDateToMMDDYYYY } from "../../utils/formatDateToMMDDYYYY";
+import { formatDateToReadable } from "../../utils/formatDateToReadable";
 import ActivityActionsModal from "./ActivityActionsModal";
 import { ActivityCard } from "./ActivityCard";
 import { ActivityDetailModal } from "./ActivityDetailModal";
-import { formatDateToReadable } from "../../utils/formatDateToReadable";
 
 const MarketingCalendar = () => {
   const [currentFilters, setCurrentFilters] = useState<any>({
@@ -40,13 +40,18 @@ const MarketingCalendar = () => {
   const [selectedActivity, setSelectedActivity] = useState<any>();
 
   const { data: activityTypes = [] } = useActivityTypes();
+
+  const debouncedSearch = useDebouncedValue(currentFilters.search, 500);
+
+  useEffect(() => {
+    setCurrentFilters((prev: any) => ({ ...prev, search: debouncedSearch }));
+  }, [debouncedSearch]);
+
   const {
     data: marketingActivitiesData,
     isFetching: isLoading,
     refetch: marketingActivitiesRefetch,
-  } = useMarketingActivities(currentFilters);
-  // const { data: activityDetail, refetch: refetchActivityDetail, isLoading: isDetailLoading } =
-  //   useActivityDetail(selectedActivityId);
+  } = useMarketingActivities({ ...currentFilters, search: debouncedSearch });
 
   const { mutate: deleteActivity, isPending: isDeletePending } =
     useDeleteActivity();
@@ -371,7 +376,7 @@ const MarketingCalendar = () => {
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-4 border border-primary/15 rounded-xl p-4 bg-white shadow-none">
+          <div className="flex items-center gap-3 border border-primary/15 rounded-xl p-4 bg-white shadow-none">
             <Input
               size="sm"
               variant="flat"

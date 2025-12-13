@@ -644,8 +644,6 @@ export default function ReferralManagementActions({
     const staffErrors = formik.errors.staff as any[] | undefined;
     const staffTouched = formik.touched.staff as any[] | undefined;
 
-    console.log(staffErrors, "stafferror");
-
     const isTouched = staffTouched?.[index]?.[field.id];
     let errorText = staffErrors?.[index]?.[field.id];
 

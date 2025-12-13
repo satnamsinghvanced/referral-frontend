@@ -4,7 +4,6 @@ import { FiPhone, FiPhoneCall, FiSearch, FiSettings } from "react-icons/fi";
 import { LuClock, LuFileAudio, LuRefreshCw } from "react-icons/lu";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
 import ComponentContainer from "../../components/common/ComponentContainer";
-import TwilioConfigurationModal from "./TwilioConfigurationModal";
 import { CALL_STATUS_OPTIONS, CALL_TYPE_OPTIONS } from "../../consts/filters";
 import { CallFilters, CallRecord } from "../../types/call";
 import CallRecordCard from "./CallRecordCard";
@@ -100,7 +99,6 @@ const CALL_DATA = {
 };
 
 const CallTracking = () => {
-  const [isOpen, setIsOpen] = useState(false);
   const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
   const [currentFilters, setCurrentFilters] = useState<CallFilters>({
     search: "",
@@ -207,14 +205,6 @@ const CallTracking = () => {
           color: "default",
           className: "border-small",
         },
-        {
-          label: "Twilio Settings",
-          onClick: () => setIsOpen(true),
-          icon: <FiSettings fontSize={15} />,
-          variant: "bordered",
-          color: "default",
-          className: "border-small",
-        },
       ],
     }),
     []
@@ -282,13 +272,15 @@ const CallTracking = () => {
             <p className="font-medium text-sm">Call History</p>
 
             {filteredCalls.length > 0 ? (
-              filteredCalls.map((record) => (
-                <CallRecordCard
-                  key={record.id}
-                  record={record}
-                  onPlayClick={() => setIsRecordingModalOpen(true)}
-                />
-              ))
+              <div className="space-y-3">
+                {filteredCalls.map((record) => (
+                  <CallRecordCard
+                    key={record.id}
+                    record={record}
+                    onPlayClick={() => setIsRecordingModalOpen(true)}
+                  />
+                ))}
+              </div>
             ) : (
               <div className="text-center py-10 text-gray-500 text-sm">
                 No call records found matching your filters.
@@ -298,11 +290,6 @@ const CallTracking = () => {
         </div>
       </ComponentContainer>
 
-      <TwilioConfigurationModal
-        userId={userId as string}
-        isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
-      />
       <CallRecordingModal
         isOpen={isRecordingModalOpen}
         onClose={() => setIsRecordingModalOpen(false)}

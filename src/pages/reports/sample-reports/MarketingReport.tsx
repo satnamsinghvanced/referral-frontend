@@ -426,7 +426,7 @@ const MarketingReport = () => {
               <h4 className="text-sm">Channel Performance Breakdown</h4>
             </CardHeader>
             <CardBody className="p-0">
-              <div className="space-y-4">
+              <div className="space-y-3">
                 {CHANNELS_DATA.map((channel, index) => (
                   <ChannelRow key={index} channel={channel} />
                 ))}

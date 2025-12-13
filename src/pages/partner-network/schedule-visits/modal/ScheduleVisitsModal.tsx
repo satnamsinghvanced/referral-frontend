@@ -89,7 +89,6 @@ export function ScheduleVisitsModal({
 
   useEffect(() => {
     setActiveStep("select_referrers");
-    console.log(editedData?.practices, "EDITED");
     if (editedData) {
       setSelectedReferrersState(editedData?.practices || []);
       setPlanState({
@@ -303,8 +302,6 @@ export function ScheduleVisitsModal({
     if (!bestRoute) {
       return;
     }
-
-    console.log(bestRoute, "MY ROUTE");
 
     // Prepare the common payload structure
     const basePayload: SaveSchedulePlanPayload = {

@@ -273,7 +273,7 @@ function MediaManagement() {
           </div>
 
           <div className="border border-gray-200 rounded-xl p-4 bg-white">
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
               <div className="relative flex-1">
                 <Input
                   placeholder="Search media by name or tags..."
@@ -306,7 +306,7 @@ function MediaManagement() {
 
             {availableTags && availableTags.length > 0 && (
               <div className="pt-4">
-                <h5 className="text-xs font-medium mb-3">Filter by tags:</h5>
+                <h5 className="text-xs font-medium mb-2">Filter by tags:</h5>
                 <div className="flex flex-wrap gap-2">
                   {availableTags?.map((tag) => {
                     const base =
@@ -343,8 +343,8 @@ function MediaManagement() {
           </div>
 
           <div className="space-y-5">
-            <Card className="border border-gray-200 p-5 shadow-none">
-              <CardHeader className="p-0 pb-5 flex justify-between items-center">
+            <Card className="border border-gray-200 p-4 shadow-none">
+              <CardHeader className="p-0 pb-4 flex justify-between items-center">
                 <h4 className="flex items-center gap-2 text-sm font-medium">
                   <FaRegFolder className="size-4" />
                   Folders
@@ -394,8 +394,8 @@ function MediaManagement() {
               </CardBody>
             </Card>
 
-            <Card className="border border-gray-200 p-5 shadow-none">
-              <CardHeader className="p-0 pb-5">
+            <Card className="border border-gray-200 p-4 shadow-none">
+              <CardHeader className="p-0 pb-4">
                 <div className="flex justify-between items-center">
                   <h4 className="flex items-center gap-2 text-sm font-medium">
                     <FiImage className="size-4" /> Media ({mediaCount})
