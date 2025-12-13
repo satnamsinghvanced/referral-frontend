@@ -169,36 +169,37 @@ const Dashboard = () => {
   // --- Rest of the component logic (which relies on `dashboard` being defined) ---
   console.log(dashboard);
   const recentActivities = [
-    ...(dashboard?.recentReferrals?.length > 0
-      ? [
-          {
-            icon: "👥",
-            iconBg: "bg-sky-50",
-            title: `New referral from ${
-              dashboard?.referrer?.name || "Unknown"
-            }`,
-            description: `Patient: ${
-              dashboard?.recentReferrals[0]?.name || "Unknown"
-            } - ${dashboard?.referrer?.type || "Unknown"}`,
-            time: `${getTimeAgo(dashboard?.recentReferrals[0]?.createdAt)}`,
-          },
-        ]
-      : []),
-    {
-      icon: "⭐",
-      iconBg: "bg-yellow-50",
-      title: "5-star review received",
-      description: 'Sarah Johnson - "Excellent service and care!"',
-      time: "4 hours ago",
-    },
-    {
-      icon: "📢",
-      iconBg: "bg-orange-50",
-      title: "Marketing campaign launched",
-      description: "Back-to-School Smile Campaign - Social Media",
-      time: "6 hours ago",
-    },
-  ];
+  ...(dashboard?.recentReferrals?.length > 0
+    ? [
+        {
+          icon: "👥",
+          iconBg: "bg-sky-50",
+          title: `New referral from ${
+            dashboard?.referrer?.name || ""
+          }`,
+          description: `Patient: ${
+            dashboard?.recentReferrals[0]?.name || ""
+          } - ${dashboard?.referrer?.type || ""}`,
+          time: `${getTimeAgo(dashboard?.recentReferrals[0]?.createdAt)}`,
+        },
+      ]
+    : []),
+  {
+    icon: "⭐",
+    iconBg: "bg-yellow-50",
+    title: "5-star review received",
+    description: 'Sarah Johnson - "Excellent service and care!"',
+    time: "4 hours ago",
+  },
+  {
+    icon: "📢",
+    iconBg: "bg-orange-50",
+    title: "Marketing campaign launched",
+    description: "Back-to-School Smile Campaign - Social Media",
+    time: "6 hours ago",
+  },
+];
+console.log("dashboard", dashboard);
 
   return (
     <ComponentContainer headingData={HEADING_DATA}>
