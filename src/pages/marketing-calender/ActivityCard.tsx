@@ -20,15 +20,21 @@ export function ActivityCard({ activity, onView }: ActivityCardProps) {
     endDate,
     time,
     colorId,
-    type = "Google Calendar",
+    type = "googleCalendar",
     status,
     priority,
     budget,
     reach,
   } = activity;
 
+  console.log(type);
+
+  const activityType = ACTIVITY_TYPES.find(
+    (activityType: any) => activityType.value == type
+  )?.label;
+
   const activityColor = ACTIVITY_TYPES.find(
-    (activityType: any) => activityType.label == type
+    (activityType: any) => activityType.value == type
   )?.color.value;
 
   return (
@@ -42,9 +48,7 @@ export function ActivityCard({ activity, onView }: ActivityCardProps) {
       <div
         className="absolute top-1/2 -translate-y-1/2 left-0 w-1 h-[calc(100%+2px)] z-0"
         style={{
-          background: activityColor
-            ? activityColor
-            : "linear-gradient(to bottom, #4285F4 50%, #FBBC04 50%)",
+          background: activityColor ? activityColor : "#4285F4",
         }}
       ></div>
       <CardHeader className="flex justify-between items-start mb-2 p-0">
@@ -52,7 +56,7 @@ export function ActivityCard({ activity, onView }: ActivityCardProps) {
         <ActivityStatusChip status={status} />
       </CardHeader>
 
-      {(startDate || type || description) && (
+      {(startDate || activityType || description) && (
         <CardBody className="text-sm text-gray-600 space-y-2 mb-3 p-0">
           {startDate && (
             <div className="flex items-center gap-1.5">
@@ -64,7 +68,8 @@ export function ActivityCard({ activity, onView }: ActivityCardProps) {
           )}
 
           <p className="text-xs flex items-center gap-1.5 capitalize">
-            <FiGlobe fontSize={14} /> {type ? type : "Google Calendar"}
+            <FiGlobe fontSize={14} />{" "}
+            {activityType ? activityType : "Google Calendar"}
           </p>
 
           {description && (

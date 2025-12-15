@@ -47,7 +47,7 @@ interface TeamFormValues {
   firstName: string;
   lastName: string;
   email: string;
-  locations: string[];
+  locations: string;
   role: string;
   permissions: string[];
 }
@@ -55,7 +55,7 @@ interface TeamFormValues {
 type UpdatePayload = {
   firstName: string;
   lastName: string;
-  locations: string[];
+  locations: string;
   role: string;
   permissions: string[];
 };
@@ -106,7 +106,7 @@ const Team: React.FC = () => {
     firstName: Yup.string().required("First name is required"),
     lastName: Yup.string().required("Last name is required"),
     email: Yup.string().email("Invalid email").required("Email is required"),
-    locations: Yup.array().required("Practice Location is required"),
+    locations: Yup.string().required("Practice Location is required"),
     role: Yup.string().required("Role is required"),
     permissions: Yup.array()
       .of(Yup.string())
@@ -119,7 +119,7 @@ const Team: React.FC = () => {
       firstName: "",
       lastName: "",
       email: "",
-      locations: [],
+      locations: "",
       role: "",
       permissions: permissions?.map((item: any) => item._id),
     },
@@ -163,7 +163,7 @@ const Team: React.FC = () => {
       lastName: member.lastName,
       email: member.email,
       role: member.role._id,
-      locations: member.locations,
+      locations: member.locations[0] || "",
       permissions: member.permissions || [],
     });
     setInviteModalOpen(true);
@@ -443,11 +443,10 @@ const Team: React.FC = () => {
             label="Practice Location"
             labelPlacement="outside"
             placeholder="Select a practice location"
-            selectedKeys={new Set(formik.values.locations)}
+            selectedKeys={new Set([formik.values.locations])}
             onSelectionChange={(keys) => {
-              formik.setFieldValue("locations", Array.from(keys));
+              formik.setFieldValue("locations", Array.from(keys)[0] || "");
             }}
-            selectionMode="multiple"
             isRequired
           >
             {(locations || []).map((location: any) => (

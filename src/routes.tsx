@@ -201,9 +201,7 @@ function AppRoutes() {
     //     </div>
     //   }
     // >
-    <BrowserRouter basename="/referral-retrieve/">
-      <Routes>{renderRoutes(routesList)}</Routes>
-    </BrowserRouter>
+    <Routes>{renderRoutes(routesList)}</Routes>
     // </Suspense>
   );
 }

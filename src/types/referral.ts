@@ -110,19 +110,24 @@ export interface TrackingRequestBody {
   id: string;
 }
 
-export interface TrackingResponseData {
-  userId: string;
+export interface PersonalizedQR {
   qrCode: string;
   referralUrl: string;
   nfcUrl: string;
-  totalScans: number;
-  isActive: boolean;
-  scanHistory: any[];
+  customPath: string;
   todayScan: number;
-  activeQR: number;
-  nfcSetup: number;
+  active: boolean;
+  scanHistory: any[];
   _id: string;
   createdAt: string;
   updatedAt: string;
-  conversionRate?: string;
+}
+
+export interface TrackingResponseData {
+  userId: string;
+  personalizedQR: PersonalizedQR[];
+  activeQR: number;
+  totalScans: number;
+  nfcSetup: number;
+  conversionRate: number;
 }

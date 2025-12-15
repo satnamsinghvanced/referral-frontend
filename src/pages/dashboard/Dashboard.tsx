@@ -12,6 +12,7 @@ import { TREATMENT_OPTIONS } from "../../consts/referral";
 import { useDashboard } from "../../hooks/useDashboard";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { timeAgo } from "../../utils/timeAgo";
+import { useTour } from "../../providers/TourProvider";
 
 type Color = "sky" | "orange" | "emerald" | "purple";
 
@@ -86,6 +87,8 @@ const QUICK_ACTIONS_COLOR_CLASSES: Record<
 };
 
 const Dashboard = () => {
+  const { startTour } = useTour();
+
   const navigate = useNavigate();
 
   const { user } = useTypedSelector((state) => state.auth);
@@ -335,7 +338,12 @@ const Dashboard = () => {
             </div>
 
             <div className="bg-background rounded-xl p-4 md:p-5">
-              <h3 className="text-sm md:text-base mb-4">System Status</h3>
+              <h3
+                className="text-sm md:text-base mb-4"
+                onClick={() => startTour()}
+              >
+                System Status
+              </h3>
               <div className="space-y-2">
                 {SYSTEM_STATUSES.map((system, index) => (
                   <div

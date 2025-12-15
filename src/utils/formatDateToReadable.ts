@@ -28,20 +28,28 @@ export const formatDateToReadable = (
         }
       : {};
 
-    const options: Intl.DateTimeFormatOptions = {
-      ...baseOptions,
-      ...timeOptions,
-    };
-
-    const formatter = new Intl.DateTimeFormat("en-US", options);
-
-    let formattedDate = formatter.format(JSdate);
+    const dateStr = new Intl.DateTimeFormat("en-US", baseOptions).format(
+      JSdate
+    );
 
     if (showTime) {
-      formattedDate = formattedDate.replace("AM", " AM").replace("PM", " PM");
+      const timeOptions: Intl.DateTimeFormatOptions = {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+        // timeZone: "UTC", // Keeping UTC as per original code if intended, or maybe it should be local?
+        // Original code had timeZone: "UTC" in the conditional block. I will preserve it.
+        timeZone: "UTC",
+      };
+      const timeStr = new Intl.DateTimeFormat("en-US", timeOptions).format(
+        JSdate
+      );
+      // Ensure AM/PM spacing if that was the intent of previous replace, though standard usually has it.
+      // But simply joining with ' at ' replaces the comma separator behavior.
+      return `${dateStr} at ${timeStr}`;
     }
 
-    return formattedDate;
+    return dateStr;
   } catch (error) {
     return "Error";
   }

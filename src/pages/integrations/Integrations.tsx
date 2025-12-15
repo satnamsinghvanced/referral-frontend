@@ -165,7 +165,7 @@ function Integrations() {
     },
 
     {
-      name: "Analytics Platform",
+      name: "Google Analytics",
       icon: <BsLightningCharge className="w-4 h-4" />,
       iconBg: "bg-yellow-100",
       iconColor: "text-yellow-600",
@@ -195,37 +195,37 @@ function Integrations() {
               <CardHeader className="p-0 pb-5">
                 <h4 className="font-medium text-sm">API Keys</h4>
               </CardHeader>
-              <CardBody className="space-y-4 p-0">
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <div className="flex items-center justify-between">
+              <CardBody className="space-y-3 p-0">
+                <div className="p-4 bg-gray-50 rounded-lg flex items-start justify-between">
+                  <div className="flex flex-col gap-1.5">
                     <span className="font-medium text-xs">Public API Key</span>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="bg-background border-small h-7 px-2"
-                    >
-                      Copy
-                    </Button>
+                    <code className="text-xs text-gray-600 font-mono">
+                      pk_live_1234567890abcdef...
+                    </code>
                   </div>
-                  <code className="text-xs text-gray-600 font-mono">
-                    pk_live_1234567890abcdef...
-                  </code>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="bg-background border-small h-7 px-2"
+                  >
+                    Copy
+                  </Button>
                 </div>
 
-                <div className="p-4 bg-gray-50 rounded-lg">
-                  <div className="flex items-center justify-between mb-2">
+                <div className="p-4 bg-gray-50 rounded-lg flex items-start justify-between">
+                  <div className="flex flex-col gap-1.5">
                     <span className="font-medium text-xs">Secret Key</span>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="bg-background border-small h-7 px-2"
-                    >
-                      Reveal
-                    </Button>
+                    <code className="text-xs text-gray-600 font-mono">
+                      pk_live_1234567890abcdef...
+                    </code>
                   </div>
-                  <code className="text-xs text-gray-600 font-mono">
-                    sk_live_••••••••••••••••••••
-                  </code>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    className="bg-background border-small h-7 px-2"
+                  >
+                    Reveal
+                  </Button>
                 </div>
 
                 <Button
@@ -247,7 +247,7 @@ function Integrations() {
                   Add Webhook
                 </Button>
               </CardHeader>
-              <CardBody className="space-y-4 p-0">
+              <CardBody className="space-y-3 p-0">
                 <div className="p-4 border border-gray-200 rounded-lg">
                   <div className="flex items-center justify-between mb-1">
                     <span className="font-medium text-xs">

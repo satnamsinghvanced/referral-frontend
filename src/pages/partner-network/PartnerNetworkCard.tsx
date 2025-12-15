@@ -25,7 +25,7 @@ const PartnerNetworkCard = ({ partner, actions }: PartnerNetworkCardProps) => {
         <div className="min-size-8 md:min-size-10 size-8 md:size-10 aspect-square bg-blue-100 text-blue-600 p-0.5 rounded-lg flex justify-center items-center">
           <LuBuilding2 className="text-lg md:text-[22px]" />
         </div>
-        <div className="font-medium text-sm w-full h-full flex flex-col justify-center gap-1">
+        <div className="font-medium text-sm w-full h-full flex flex-col justify-center gap-1.5">
           <div className="flex items-center gap-2 max-sm:flex-col-reverse max-sm:gap-1.5 max-sm:items-start max-sm:mb-0.5">
             <p>{partner.name}</p>
             <LevelChip level={partner.level} />

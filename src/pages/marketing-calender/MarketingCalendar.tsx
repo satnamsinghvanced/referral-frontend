@@ -12,7 +12,7 @@ import ComponentContainer from "../../components/common/ComponentContainer";
 import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
 import EmptyState from "../../components/common/EmptyState";
 import { LoadingState } from "../../components/common/LoadingState";
-import CustomCalendar from "../../components/ui/CustomCalender";
+import CustomCalendar from "./CustomCalender";
 import { ACTIVITY_TYPES } from "../../consts/marketing";
 import { useDebouncedValue } from "../../hooks/common/useDebouncedValue";
 import { useActivityTypes } from "../../hooks/useCommon";
@@ -34,6 +34,7 @@ const MarketingCalendar = () => {
   });
 
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [selectedEndDate, setSelectedEndDate] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -163,14 +164,25 @@ const MarketingCalendar = () => {
     },
   ];
 
-  const filteredActivities = activities.filter(
-    (activity: any) =>
-      !selectedDate ||
-      (activity.startDate &&
-        activity.startDate.split("T")[0] === selectedDate.split("T")[0]) ||
-      (activity.endDate &&
-        activity.endDate.split("T")[0] === selectedDate.split("T")[0])
-  );
+  const filteredActivities = activities.filter((activity: any) => {
+    if (!selectedDate) return true;
+
+    const selected = new Date(selectedDate);
+    selected.setHours(0, 0, 0, 0);
+
+    if (!activity.startDate) return false;
+
+    const start = new Date(activity.startDate);
+    start.setHours(0, 0, 0, 0);
+
+    const end = activity.endDate ? new Date(activity.endDate) : new Date(start);
+    end.setHours(0, 0, 0, 0);
+
+    return (
+      selected.getTime() >= start.getTime() &&
+      selected.getTime() <= end.getTime()
+    );
+  });
 
   const ActivityListForSelectedDate = () => {
     if (!selectedDate) {
@@ -203,17 +215,27 @@ const MarketingCalendar = () => {
       <>
         <div className="flex flex-col gap-3 max-h-[315px] overflow-y-auto">
           {filteredActivities.map((activity: any) => {
+            const activityType = ACTIVITY_TYPES.find(
+              (activityType: any) => activityType.value == activity.type
+            )?.label;
+
             const activityColor = ACTIVITY_TYPES.find(
-              (activityType: any) => activityType.label === activity.type
+              (activityType: any) => activityType.value === activity.type
             )?.color.value;
 
             return (
               <div
                 key={activity._id}
-                className={`shadow-none bg-background !rounded-r-xl p-3 h-full flex flex-col justify-between border border-l-4 border-gray-100 cursor-pointer`}
+                className={`relative overflow-visible shadow-none bg-background !rounded-r-xl p-3 h-full flex flex-col justify-between border border-gray-100 cursor-pointer`}
                 style={{ borderLeftColor: activityColor }}
                 onClick={() => handleViewActivity(activity)}
               >
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 left-0 w-1 h-[calc(100%+2px)] z-0"
+                  style={{
+                    background: activityColor ? activityColor : "#4285F4",
+                  }}
+                ></div>
                 <div className="flex justify-between items-start mb-2 p-0">
                   <h3 className="text-sm font-medium">{activity.title}</h3>
                   <ActivityStatusChip status={activity.status} />
@@ -223,19 +245,15 @@ const MarketingCalendar = () => {
                   <div className="flex items-center gap-1.5">
                     <LuCalendar fontSize={14} />
                     <p className="flex items-center space-x-1 text-xs">
-                      <span>{formatDateToReadable(activity.startDate)}</span>
-                      {activity.time && (
-                        <span className="text-gray-600">
-                          {" "}
-                          at <span className="uppercase">{activity.time}</span>
-                        </span>
-                      )}
+                      <span>
+                        {formatDateToReadable(activity.startDate, true)}
+                      </span>
                     </p>
                   </div>
 
-                  {activity.type && (
+                  {activityType && (
                     <p className="text-xs flex items-center gap-1.5 capitalize">
-                      <FiGlobe fontSize={14} /> {activity.type}
+                      <FiGlobe fontSize={14} /> {activityType}
                     </p>
                   )}
                 </div>
@@ -325,10 +343,19 @@ const MarketingCalendar = () => {
           </div>
           <div className="grid grid-cols-4 gap-4">
             <div className="col-start-1 col-end-4">
-              <div className="w-full shadow-none p-5 bg-background border border-primary/15 rounded-xl">
+              <div className="w-full shadow-none bg-background border border-primary/15 rounded-xl">
                 <CustomCalendar
                   weekendDisabled={false}
-                  onDayClick={setSelectedDate}
+                  onRangeSelect={(start, end) => {
+                    setSelectedDate(start.toISOString());
+                    setSelectedEndDate(
+                      start.getTime() !== end.getTime()
+                        ? end.toISOString()
+                        : null
+                    );
+                    setSelectedActivity(null);
+                    setIsModalOpen(true);
+                  }}
                   activities={activities}
                   onActivityClick={handleViewActivity}
                 />
@@ -409,6 +436,9 @@ const MarketingCalendar = () => {
                     {type.label}
                   </SelectItem>
                 ))}
+                <SelectItem key="googleCalendar" className="capitalize">
+                  Google Calendar
+                </SelectItem>
               </>
             </Select>
           </div>
@@ -427,8 +457,8 @@ const MarketingCalendar = () => {
         }}
         // @ts-ignore
         defaultStartDate={selectedDate}
+        defaultEndDate={selectedEndDate}
         initialData={selectedActivity || null}
-        activityTypes={activityTypes}
       />
 
       <ActivityDetailModal

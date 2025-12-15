@@ -254,7 +254,8 @@ const Sidebar = ({
                           : "px-4 justify-center",
                         isActive
                           ? "!bg-sky-50 !text-sky-700 !border-sky-200 dark:!border-sky-50 shadow-sm"
-                          : "hover:bg-gray-100 border-transparent"
+                          : "hover:bg-gray-100 border-transparent",
+                        item.name === "Settings" && "tour-step-settings"
                       );
                     }}
                     onClick={onCloseSidebar}

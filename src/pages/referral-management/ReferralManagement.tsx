@@ -30,6 +30,7 @@ import { Referrer } from "../../types/partner";
 import { FilterStats, Referral } from "../../types/referral";
 import { downloadJson } from "../../utils/jsonDownloader";
 import AllReferralsView from "./AllReferralsView";
+import QrCodeDownloadModal from "./QrCodeDownloadModal";
 import ReferralCard from "./ReferralCard";
 import ReferralManagementActions from "./ReferralManagementActions";
 import ReferralStatusModal from "./ReferralStatusModal";
@@ -60,6 +61,8 @@ const ReferralManagement = () => {
   );
   const [referralEditId, setReferralEditId] = useState<string>("");
   const [referrerEditId, setReferrerEditId] = useState("");
+  const [isQrModalOpen, setIsQrModalOpen] = useState(false);
+  const [qrModalData, setQrModalData] = useState({ name: "", url: "" });
 
   const [referrerParams, setReferrerParams] = useState({
     filter: "",
@@ -216,7 +219,21 @@ const ReferralManagement = () => {
         variant: "ghost",
         color: "default",
         className: "border-small",
-        link: referrer?.qrCode,
+        onClick: () => {
+          setQrModalData({
+            name: referrer.name,
+            url: referrer.qrCode,
+          });
+          setIsQrModalOpen(true);
+        },
+      },
+      {
+        label: "NFC Tag",
+        icon: <FiWifi />,
+        variant: "ghost",
+        color: "default",
+        className: "border-small",
+        link: referrer.nfcUrl,
         linkInNewTab: true,
       },
       {
@@ -516,6 +533,12 @@ const ReferralManagement = () => {
         referral={singleReferralData}
         isViewMode={isReferralStatusModalViewMode}
         setReferralEditId={setReferralEditId}
+      />
+      <QrCodeDownloadModal
+        isOpen={isQrModalOpen}
+        onClose={() => setIsQrModalOpen(false)}
+        referrerName={qrModalData.name}
+        qrCodeUrl={qrModalData.url}
       />
     </>
   );
