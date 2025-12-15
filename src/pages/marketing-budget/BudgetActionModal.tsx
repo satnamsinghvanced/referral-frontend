@@ -159,8 +159,9 @@ export default function BudgetActionModal({
       onOpenChange={onClose}
       size="md"
       classNames={{
-        base: `max-sm:!m-3 !m-0`,
+        base: `max-sm:m-1 m-0`,
         closeButton: "cursor-pointer",
+         // content: "!top-10 translate-y-0",
       }}
     >
       <ModalContent>
