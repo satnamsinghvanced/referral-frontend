@@ -59,7 +59,7 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
         >
           {referrer?.type === "doctor" ? <LuUsers /> : <FaRegStar />}
         </div>
-        <div className="flex flex-col gap-0.5 w-full">
+        <div className="flex flex-col gap-1 w-full">
           <p className="text-sm font-medium">{referrer.name}</p>
           <p className="text-xs text-gray-600">
             {referrer?.type === "doctor"
@@ -78,7 +78,7 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
               </span>
             </div>
 
-            {referrer.qrCode ? (
+            {/* {referrer.qrCode ? (
               <Chip
                 color="primary"
                 size="sm"
@@ -88,7 +88,7 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
               >
                 QR
               </Chip>
-            ) : null}
+            ) : null} */}
           </div>
         </div>
       </div>

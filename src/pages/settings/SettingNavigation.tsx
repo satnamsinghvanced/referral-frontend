@@ -51,7 +51,10 @@ const SettingNavigation: React.FC = () => {
                   "hover:bg-gray-50",
                   isActive
                     ? "!bg-sky-50 !text-sky-700 dark:!bg-background shadow-sm !border-sky-200"
-                    : "hover:bg-gray-100"
+                    : "hover:bg-gray-100",
+                  item.name === "Profile" && "tour-step-profile",
+                  item.name === "Locations" && "tour-step-locations",
+                  item.name === "Team" && "tour-step-team"
                 )
               }
             >

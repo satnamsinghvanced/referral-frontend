@@ -108,7 +108,7 @@ const ReferralStatusModal = ({
             <LoadingState />
           </ModalBody>
         ) : (
-          <ModalBody className="space-y-3 py-4 pt-1 px-5 gap-0">
+          <ModalBody className="space-y-4 py-4 pt-1 px-5 gap-0">
             {/* Patient Info Card */}
             <div className="bg-gray-50 p-4 rounded-lg space-y-2">
               <div className="flex items-center gap-2">
