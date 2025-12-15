@@ -154,7 +154,7 @@ const LatestReviewItem = ({ review }: any) => {
 
   return (
     <div className="p-4 border border-gray-200 rounded-lg transition-all duration-300 bg-gradient-to-r from-white to-gray-50/50">
-      <div className="flex items-start justify-between mb-3">
+      <div className="flex items-start justify-between mb-3 flex-wrap">
         <div className="flex items-center gap-3">
           {/* Avatar */}
           <Avatar
@@ -176,7 +176,7 @@ const LatestReviewItem = ({ review }: any) => {
               )}
             </div>
             {/* Platform, Location, Interaction */}
-            <div className="flex items-center gap-2 mt-1 text-sm text-gray-500">
+            <div className="flex flex-wrap items-center gap-2 mt-1 text-sm text-gray-500">
               <Chip
                 size="sm"
                 radius="sm"
@@ -200,6 +200,7 @@ const LatestReviewItem = ({ review }: any) => {
             <div className="sm:hidden mt-1">
              <StarRating rating={rating} />
              </div>
+              <div className="sm:hidden mt-2 text-xs text-gray-600">{date}</div>
 
           </div>
         </div>
@@ -209,7 +210,7 @@ const LatestReviewItem = ({ review }: any) => {
     <div className="hidden sm:block">
       <StarRating rating={rating} />
     </div>
-    <div className="text-xs text-gray-600">{date}</div>
+    <div className="hidden sm:block text-xs text-gray-600">{date}</div>
   </div>
 </div>
 
@@ -270,7 +271,7 @@ export default function LatestReviews() {
   };
 
   return (
-    <Card className="bg-background flex flex-col gap-4 border border-primary/15 rounded-xl p-4">
+    <Card className="bg-background flex flex-col gap-4 border border-primary/15 rounded-xl p-4 ">
       {/* Card Header */}
       <CardHeader className="w-full flex flex-col items-start gap-3 p-0 mb-5 sm:flex-row sm:items-center sm:justify-between">
         <h4 className="font-medium">Recent Reviews & Interactions</h4>

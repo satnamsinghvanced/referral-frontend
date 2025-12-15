@@ -61,7 +61,7 @@ const Overview = () => {
     <div className="flex flex-col gap-4">
       <div className="flex flex-col sm:flex-row gap-4 w-full">
         <Card
-          className="border border-primary/15  w-full p-4 min-h-80"
+          className="border border-primary/15  w-full p-4"
           shadow="none"
         >
           <h6 className="text-sm">Monthly Review Trends</h6>
@@ -112,7 +112,7 @@ const Overview = () => {
           </CardBody>
         </Card>
         <Card
-          className="border border-primary/15 w-full p-4 min-h-80"
+          className="border border-primary/15 w-full p-4 "
           shadow="none"
         >
           <h6 className="text-sm">Review Platform Distribution</h6>

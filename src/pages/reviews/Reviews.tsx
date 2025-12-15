@@ -55,7 +55,7 @@ const Reviews = () => {
             aria-label="Options"
             classNames={{
               tabList:
-                "flex w-full rounded-full bg-foreground/5 text-xs bg-foreground/5",
+                "flex w-full rounded-full bg-foreground/5 text-xs bg-foreground/5 ",
               tab: "flex-1 text-xs font-medium transition-all",
               cursor: "rounded-full text-xs",
               panel: "p-0",
