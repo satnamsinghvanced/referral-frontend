@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, CardHeader, Chip } from "@heroui/react";
+import { addToast, Button, Card, CardBody, CardHeader } from "@heroui/react";
 import { useState } from "react";
 import { BsLightningCharge } from "react-icons/bs";
 import { FaGoogle, FaTiktok } from "react-icons/fa";
@@ -14,9 +14,12 @@ import {
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { GoogleCalendarIntegrationResponse } from "../../types/integrations/googleCalendar";
 import { timeAgo } from "../../utils/timeAgo";
+import APIKeysCard from "./APIKeysCard";
 import IntegrationItem from "./IntegrationItem";
 import GoogleCalendarConfigModal from "./modal/GoogleCalendarConfigModal";
 import TwilioConfigurationModal from "./modal/TwilioConfigurationModal";
+import AddWebhookModal, { WebhookConfig } from "./modal/AddWebhookModal";
+import WebhooksList from "./WebhooksList";
 
 function Integrations() {
   const { user } = useTypedSelector((state) => state.auth);
@@ -29,6 +32,37 @@ function Integrations() {
 
   const [isTwilioIntegrationModalOpen, setIsTwilioIntegrationModalOpen] =
     useState(false);
+
+  const [isWebhookModalOpen, setIsWebhookModalOpen] = useState(false);
+  const [editingWebhook, setEditingWebhook] = useState<WebhookConfig | null>(
+    null
+  );
+
+  // API Keys State
+  const [apiKeys, setApiKeys] = useState({
+    publicKey: "pk_live_1234567890abcdef1234567890abcdef",
+    secretKey: "sk_live_abcdef1234567890abcdef1234567890",
+  });
+
+  // Webhooks State
+  const [webhooks, setWebhooks] = useState<WebhookConfig[]>([
+    {
+      id: "1",
+      name: "New Referral Webhook",
+      url: "https://api.yourapp.com/webhooks/referrals/new-referral",
+      source: "referrals",
+      events: ["create", "update"],
+      isActive: true,
+    },
+    {
+      id: "2",
+      name: "Review Notification",
+      url: "https://api.yourapp.com/webhooks/reviews/new-review",
+      source: "reviews",
+      events: ["create"],
+      isActive: false,
+    },
+  ]);
 
   const {
     data: googleCalendarExistingConfig,
@@ -44,6 +78,67 @@ function Integrations() {
     subHeading:
       "Connect your favorite tools and services to streamline your referral workflow.",
     buttons: [],
+  };
+
+  // Generate random API keys
+  const generateRandomKey = (prefix: string) => {
+    const chars =
+      "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    let key = prefix;
+    for (let i = 0; i < 32; i++) {
+      key += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return key;
+  };
+
+  const handleGenerateNewKeys = () => {
+    const newKeys = {
+      publicKey: generateRandomKey("pk_live_"),
+      secretKey: generateRandomKey("sk_live_"),
+    };
+    setApiKeys(newKeys);
+    addToast({
+      title: "Success",
+      description: "New API keys generated successfully",
+      color: "success",
+    });
+  };
+
+  const handleSaveWebhook = (webhook: WebhookConfig) => {
+    if (editingWebhook) {
+      // Update existing webhook
+      setWebhooks((prev) =>
+        prev.map((w) => (w.id === webhook.id ? webhook : w))
+      );
+      addToast({
+        title: "Success",
+        description: "Webhook updated successfully",
+        color: "success",
+      });
+    } else {
+      // Add new webhook
+      setWebhooks((prev) => [...prev, webhook]);
+      addToast({
+        title: "Success",
+        description: "Webhook added successfully",
+        color: "success",
+      });
+    }
+    setEditingWebhook(null);
+  };
+
+  const handleEditWebhook = (webhook: WebhookConfig) => {
+    setEditingWebhook(webhook);
+    setIsWebhookModalOpen(true);
+  };
+
+  const handleDeleteWebhook = (webhookId: string) => {
+    setWebhooks((prev) => prev.filter((w) => w.id !== webhookId));
+    addToast({
+      title: "Success",
+      description: "Webhook deleted successfully",
+      color: "success",
+    });
   };
 
   const AVAILABLE_INTEGRATIONS = [
@@ -191,122 +286,42 @@ function Integrations() {
           </Card>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            {/* API Keys Card */}
             <Card className="shadow-none border border-primary/15 rounded-xl p-5">
               <CardHeader className="p-0 pb-5">
                 <h4 className="font-medium text-sm">API Keys</h4>
               </CardHeader>
-              <CardBody className="space-y-3 p-0">
-                <div className="p-4 bg-gray-50 rounded-lg flex items-start justify-between">
-                  <div className="flex flex-col gap-1.5">
-                    <span className="font-medium text-xs">Public API Key</span>
-                    <code className="text-xs text-gray-600 font-mono">
-                      pk_live_1234567890abcdef...
-                    </code>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="bg-background border-small h-7 px-2"
-                  >
-                    Copy
-                  </Button>
-                </div>
-
-                <div className="p-4 bg-gray-50 rounded-lg flex items-start justify-between">
-                  <div className="flex flex-col gap-1.5">
-                    <span className="font-medium text-xs">Secret Key</span>
-                    <code className="text-xs text-gray-600 font-mono">
-                      pk_live_1234567890abcdef...
-                    </code>
-                  </div>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="bg-background border-small h-7 px-2"
-                  >
-                    Reveal
-                  </Button>
-                </div>
-
-                <Button
-                  size="sm"
-                  radius="sm"
-                  variant="ghost"
-                  fullWidth
-                  className="border-small"
-                >
-                  Generate New Keys
-                </Button>
+              <CardBody className="p-0">
+                <APIKeysCard
+                  publicKey={apiKeys.publicKey}
+                  secretKey={apiKeys.secretKey}
+                  onGenerateNew={handleGenerateNewKeys}
+                />
               </CardBody>
             </Card>
 
+            {/* Webhooks Card */}
             <Card className="shadow-none border border-primary/15 rounded-xl p-5">
               <CardHeader className="flex items-center justify-between p-0 pb-5">
                 <h4 className="font-medium text-sm">Webhooks</h4>
-                <Button size="sm" radius="sm" color="primary">
+                <Button
+                  size="sm"
+                  radius="sm"
+                  color="primary"
+                  onPress={() => {
+                    setEditingWebhook(null);
+                    setIsWebhookModalOpen(true);
+                  }}
+                >
                   Add Webhook
                 </Button>
               </CardHeader>
-              <CardBody className="space-y-3 p-0">
-                <div className="p-4 border border-gray-200 rounded-lg">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-medium text-xs">
-                      New Referral Webhook
-                    </span>
-                    <Chip
-                      size="sm"
-                      color="primary"
-                      className="text-[11px] h-5 capitalize"
-                    >
-                      active
-                    </Chip>
-                  </div>
-                  <p className="text-xs text-gray-600 font-mono mb-2">
-                    https://api.yourapp.com/webhooks/new-referral
-                  </p>
-                  <div className="flex flex-wrap gap-1">
-                    <Chip
-                      size="sm"
-                      variant="bordered"
-                      className="border-small text-[11px]"
-                    >
-                      referral.created
-                    </Chip>
-                    <Chip
-                      size="sm"
-                      variant="bordered"
-                      className="border-small text-[11px]"
-                    >
-                      referral.updated
-                    </Chip>
-                  </div>
-                </div>
-
-                <div className="p-4 border border-gray-200 rounded-lg">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-medium text-xs">
-                      Review Notification
-                    </span>
-                    <Chip
-                      size="sm"
-                      className="text-[11px] h-5 bg-gray-100 text-gray-700 capitalize"
-                    >
-                      inactive
-                    </Chip>
-                  </div>
-                  <p className="text-xs text-gray-600 font-mono mb-2">
-                    https://api.yourapp.com/webhooks/new-review
-                  </p>
-                  <div className="flex flex-wrap gap-1">
-                    <Chip
-                      size="sm"
-                      variant="bordered"
-                      className="border-small text-[11px]"
-                    >
-                      review.created
-                    </Chip>
-                  </div>
-                </div>
+              <CardBody className="p-0">
+                <WebhooksList
+                  webhooks={webhooks}
+                  onEdit={handleEditWebhook}
+                  onDelete={handleDeleteWebhook}
+                />
               </CardBody>
             </Card>
           </div>
@@ -328,6 +343,16 @@ function Integrations() {
         userId={userId as string}
         isOpen={isTwilioIntegrationModalOpen}
         onClose={() => setIsTwilioIntegrationModalOpen(false)}
+      />
+
+      <AddWebhookModal
+        isOpen={isWebhookModalOpen}
+        onClose={() => {
+          setIsWebhookModalOpen(false);
+          setEditingWebhook(null);
+        }}
+        onSave={handleSaveWebhook}
+        editingWebhook={editingWebhook}
       />
     </>
   );

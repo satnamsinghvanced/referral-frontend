@@ -145,9 +145,12 @@ export const useGetImageDetails = (imageId: string) => {
   });
 };
 
-export const useUploadMedia = () => {
+export const useUploadMedia = (
+  onUploadProgress?: (progressEvent: any) => void
+) => {
   return useMutation({
-    mutationFn: (data: UploadMediaRequest) => uploadMedia(data),
+    mutationFn: (data: UploadMediaRequest) =>
+      uploadMedia(data, onUploadProgress),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: IMAGE_KEYS.all });
       queryClient.invalidateQueries({ queryKey: FOLDER_KEYS.all });

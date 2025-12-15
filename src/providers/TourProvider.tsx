@@ -31,6 +31,7 @@ export const useTour = () => {
 
 export const TourProvider = ({ children }: { children: React.ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
   const [targetRect, setTargetRect] = useState<DOMRect | null>(null);
   const [targetElement, setTargetElement] = useState<Element | null>(null);
@@ -100,11 +101,17 @@ export const TourProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const nextStep = () => {
-    if (currentStepIndex < STEPS.length - 1) {
-      setCurrentStepIndex((prev) => prev + 1);
-    } else {
-      closeTour();
-    }
+    // Add a delay so user can process the current step/action
+    setIsTransitioning(true);
+    setTimeout(() => {
+      if (currentStepIndex < STEPS.length - 1) {
+        setCurrentStepIndex((prev) => prev + 1);
+        setIsTransitioning(false);
+      } else {
+        closeTour();
+        setIsTransitioning(false);
+      }
+    }, 1000);
   };
 
   const prevStep = () => {
@@ -125,7 +132,7 @@ export const TourProvider = ({ children }: { children: React.ReactNode }) => {
       }}
     >
       {children}
-      {isOpen && targetRect && targetElement && (
+      {isOpen && !isTransitioning && targetRect && targetElement && (
         <TourOverlay
           rect={targetRect}
           step={currentStep}
@@ -216,6 +223,23 @@ const TourOverlay = ({
         />
       </svg>
 
+      {/* Block interaction if click is NOT required */}
+      {!step.requiredClick && (
+        <div
+          className="fixed z-[5005] pointer-events-auto cursor-default"
+          style={{
+            top: rect.top,
+            left: rect.left,
+            width: rect.width,
+            height: rect.height,
+          }}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
+        />
+      )}
+
       {/* Tooltip */}
       <div
         style={tooltipStyle}
@@ -252,10 +276,21 @@ const TourOverlay = ({
                 </Button>
               )}
 
-              {/* Force User to click the Item - Text Hint */}
-              <span className="text-xs text-blue-600 font-medium animate-pulse ml-auto">
-                Click highlighted item
-              </span>
+              {/* Next Button or Click Instruction */}
+              {step.requiredClick ? (
+                <span className="text-xs text-blue-600 font-medium animate-pulse ml-auto">
+                  Click text to proceed
+                </span>
+              ) : (
+                <Button
+                  size="sm"
+                  color="primary"
+                  onPress={onNext}
+                  className="h-8 min-w-0 px-3"
+                >
+                  {currentStepIndex === totalSteps - 1 ? "Finish" : "Next"}
+                </Button>
+              )}
             </div>
           </div>
         </div>

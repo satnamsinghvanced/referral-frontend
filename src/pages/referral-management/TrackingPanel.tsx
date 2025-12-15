@@ -1,18 +1,18 @@
 import { addToast, Button, Checkbox, Chip, Input } from "@heroui/react";
-import React, { useState } from "react";
+import { useState } from "react";
 import { FiCalendar, FiShare2 } from "react-icons/fi";
 import { GoGraph } from "react-icons/go";
 import { HiOutlineDeviceMobile } from "react-icons/hi";
 import { LuCheck, LuCopy, LuDownload, LuQrCode } from "react-icons/lu";
 import { RiExternalLinkLine } from "react-icons/ri";
 import { Link } from "react-router";
-import { formatDateToMMDDYYYY } from "../../utils/formatDateToMMDDYYYY";
-import { useTypedSelector } from "../../hooks/useTypedSelector";
+import { LoadingState } from "../../components/common/LoadingState";
 import {
   useCreateTrackingSetup,
   useFetchTrackings,
 } from "../../hooks/useReferral";
-import { LoadingState } from "../../components/common/LoadingState";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
+import { formatDateToMMDDYYYY } from "../../utils/formatDateToMMDDYYYY";
 
 const TrackingPanel = () => {
   const [copied, setCopied] = useState("");
@@ -176,7 +176,7 @@ const TrackingPanel = () => {
   return (
     <div className="flex flex-col gap-4 md:gap-5">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 items-start">
-        <div className="border w-full border-primary/20 p-4 md:p-5 rounded-xl bg-background flex flex-col gap-4 md:gap-5 h-full">
+        <div className="border w-full border-primary/20 p-4 md:p-5 rounded-xl bg-background flex flex-col gap-4 md:gap-5 h-full tour-step-qr-area">
           <div>
             <h6 className="text-sm flex items-center gap-2">
               <LuQrCode className="text-blue-600 text-lg" /> QR & NFC Code
@@ -313,8 +313,8 @@ const TrackingPanel = () => {
                 <div className="grid grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
                   <div className="flex flex-col gap-0.5 items-center justify-center text-center">
                     <GoGraph className="text-blue-600 text-lg mb-1.5" />
-                    <p className="text-xs font-medium">{latestQr.todayScan}</p>
-                    <p className="text-[11px] text-gray-600">Today Scans</p>
+                    <p className="text-xs font-medium">{latestQr.totalScan}</p>
+                    <p className="text-[11px] text-gray-600">Total Scans</p>
                   </div>
                   <div className="flex flex-col gap-0.5 items-center justify-center text-center">
                     <FiCalendar className="text-green-600 text-lg mb-1.5" />
@@ -343,6 +343,7 @@ const TrackingPanel = () => {
                     startContent={<LuDownload fontSize={14} />}
                     className="border-small"
                     size="sm"
+                    radius="sm"
                     fullWidth
                     onPress={() => handleDownloadQR(latestQr.qrCode)}
                   >
@@ -354,6 +355,7 @@ const TrackingPanel = () => {
                     startContent={<FiShare2 fontSize={14} />}
                     className="border-small"
                     size="sm"
+                    radius="sm"
                     onPress={() => openSharingModal(latestQr.referralUrl)}
                   >
                     Share
@@ -368,6 +370,7 @@ const TrackingPanel = () => {
                       startContent={<RiExternalLinkLine fontSize={14} />}
                       className="border-small"
                       size="sm"
+                      radius="sm"
                       fullWidth
                     >
                       Preview Page
@@ -379,17 +382,20 @@ const TrackingPanel = () => {
                     startContent={<HiOutlineDeviceMobile fontSize={14} />}
                     className="border-small"
                     size="sm"
+                    radius="sm"
                     onPress={() => handleNFCSetup(latestQr.nfcUrl)}
                   >
                     NFC Setup
                   </Button>
                   <div className="col-span-full">
                     <Button
-                      variant="solid"
-                      color="primary"
+                      variant="bordered"
+                      color="default"
                       size="sm"
+                      radius="sm"
                       fullWidth
                       onPress={() => setShowGenerator(true)}
+                      className="border-small"
                     >
                       Generate New QR Code
                     </Button>
@@ -461,7 +467,7 @@ const TrackingPanel = () => {
                     Path / URL
                   </th>
                   <th className="text-left text-xs py-3 px-2 font-medium text-gray-700">
-                    Today Scans
+                    Total Scans
                   </th>
                   <th className="text-left text-xs py-3 px-2 font-medium text-gray-700">
                     Created
@@ -499,7 +505,7 @@ const TrackingPanel = () => {
                       </div>
                     </td>
                     <td className="text-left text-xs py-3 px-2 font-medium">
-                      {qr.todayScan}
+                      {qr.totalScan}
                     </td>
                     <td className="text-left text-xs py-3 px-2 whitespace-nowrap">
                       {formatDateToMMDDYYYY(qr.createdAt)}

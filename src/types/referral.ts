@@ -111,6 +111,7 @@ export interface TrackingRequestBody {
 }
 
 export interface PersonalizedQR {
+  totalScan: number;
   qrCode: string;
   referralUrl: string;
   nfcUrl: string;

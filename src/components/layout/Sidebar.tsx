@@ -255,7 +255,10 @@ const Sidebar = ({
                         isActive
                           ? "!bg-sky-50 !text-sky-700 !border-sky-200 dark:!border-sky-50 shadow-sm"
                           : "hover:bg-gray-100 border-transparent",
-                        item.name === "Settings" && "tour-step-settings"
+                        item.name === "Settings" && "tour-step-settings",
+                        `tour-step-${item.name
+                          .toLowerCase()
+                          .replace(/\s+/g, "-")}`
                       );
                     }}
                     onClick={onCloseSidebar}

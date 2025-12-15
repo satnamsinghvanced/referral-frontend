@@ -64,65 +64,65 @@ const MarketingBudget = () => {
     }
     return `${name}: $${value}`;
   };
-const renderCustomLabelAdaptive = (props: any) => {
-  const { cx, cy, outerRadius, midAngle, name, value } = props;
+  const renderCustomLabelAdaptive = (props: any) => {
+    const { cx, cy, outerRadius, midAngle, name, value } = props;
 
-  if (value === 0) return null;
+    if (value === 0) return null;
 
-  const lineLength = 20;       
-  const textShift = 105;       
-  const bottomTextShift = 30;  
+    const lineLength = 20;
+    const textShift = 105;
+    const bottomTextShift = 30;
 
-  let startX = cx;
-  let startY: number;
-  let endX: number;
-  let endY: number;
-  let textY: number;
+    let startX = cx;
+    let startY: number;
+    let endX: number;
+    let endY: number;
+    let textY: number;
 
-  if (midAngle <= 180) {
-   
-    startY = cy - outerRadius;
-    startX = cx - 10;          
-    endX = startX - lineLength;
-    endY = startY - lineLength;
-    textY = endY - 5;
-  } else {
-   
-    startY = cy + outerRadius;
-    startX = cx + 20;        
-    endX = startX - lineLength + 50; 
-    endY = startY + lineLength;
-    textY = endY + 8;
-  }
+    if (midAngle <= 180) {
+      startY = cy - outerRadius;
+      startX = cx - 10;
+      endX = startX - lineLength;
+      endY = startY - lineLength;
+      textY = endY - 5;
+    } else {
+      startY = cy + outerRadius;
+      startX = cx + 20;
+      endX = startX - lineLength + 50;
+      endY = startY + lineLength;
+      textY = endY + 8;
+    }
 
-  return (
-    <g>
-      {/* Diagonal line */}
-      <line
-        x1={startX}
-        y1={startY}
-        x2={endX}
-        y2={endY}
-        stroke="#9ca3af"
-        strokeWidth={1}
-      />
+    return (
+      <g>
+        {/* Diagonal line */}
+        <line
+          x1={startX}
+          y1={startY}
+          x2={endX}
+          y2={endY}
+          stroke="#9ca3af"
+          strokeWidth={1}
+        />
 
-      {/* Text */}
-      <text
-        x={midAngle > 180 ? endX - textShift + bottomTextShift : endX - textShift}
-        y={textY}
-        textAnchor="start"
-        dominantBaseline="middle"
-        fontSize={11}
-        fill="#374151"
-      >
-        {name}: ${value}
-      </text>
-    </g>
-  );
-};
-
-
+        {/* Text */}
+        <text
+          x={
+            midAngle > 180
+              ? endX - textShift + bottomTextShift
+              : endX - textShift
+          }
+          y={textY}
+          textAnchor="start"
+          dominantBaseline="middle"
+          fontSize={11}
+          fill="#374151"
+        >
+          {name}: ${value}
+        </text>
+      </g>
+    );
+  };
 
   const pagination = data?.pagination;
 
@@ -272,45 +272,49 @@ const renderCustomLabelAdaptive = (props: any) => {
                 </CardBody>
               </Card>
 
-
-            <Card shadow="none" radius="lg" className="p-0 border border-primary/15">
-  <CardHeader className="p-1">
-    <h4 className="flex items-center gap-1 text-sm  mt-4">
-      <FiPieChart className="ml-2" /> Budget by Category
-    </h4>
-  </CardHeader>
-
-  <CardBody className="text-xs px-3 pb-0 flex items-center justify-center">
-    <div className="relative w-full max-w-[300px] mx-auto" style={{ height: 300 }}>
-  <ResponsiveContainer width="100%" height="100%">
-    <PieChart margin={{ top: 0, bottom: 0, left: 0, right: 0 }}>
-      <Pie
-        data={data?.budgetByCategoryGraph}
-        dataKey="value"
-        cx="50%"
-        cy="50%"
-        outerRadius="55%"
-        label={renderCustomLabelAdaptive}
-        labelLine={false}
-      />
-    </PieChart>
-  </ResponsiveContainer>
-</div>
-
-  </CardBody>
-</Card>
-
-
+              <Card
+                shadow="none"
+                radius="lg"
+                className="p-0 border border-primary/15"
+              >
+                <CardHeader className="p-5">
+                  <h4 className="flex items-center gap-2 text-sm">
+                    <FiPieChart /> Budget by Category
+                  </h4>
+                </CardHeader>
+                <CardBody className="text-xs px-3 pb-0 items-center">
+                  <PieChart
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      maxHeight: "400px",
+                      padding: "40px",
+                    }}
+                    responsive
+                  >
+                    <Pie
+                      data={data?.budgetByCategoryGraph}
+                      dataKey="value"
+                      cx="50%"
+                      cy="50%"
+                      outerRadius="100%"
+                      isAnimationActive
+                      label={PieChartCustomLabel}
+                      className="w-1/2"
+                    />
+                    <Tooltip />
+                  </PieChart>
+                </CardBody>
+              </Card>
             </div>
           )}
 
           <div className="bg-background flex flex-col rounded-xl border border-primary/15 p-4">
             <div className="pb-4">
               <h4 className="text-sm font-medium w-full truncate whitespace-nowrap">
-  <span className="capitalize">{currentFilters.period}</span>{" "}
-  Budget Items {isLoading && "(Loading Items...)"}
-</h4>
-
+                <span className="capitalize">{currentFilters.period}</span>{" "}
+                Budget Items {isLoading && "(Loading Items...)"}
+              </h4>
             </div>
 
             <div className="space-y-4">
@@ -386,10 +390,3 @@ const renderCustomLabelAdaptive = (props: any) => {
 };
 
 export default MarketingBudget;
-
-
-
-
-
-
-

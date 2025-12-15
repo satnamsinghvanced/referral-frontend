@@ -194,7 +194,7 @@ const ReferralManagement = () => {
           icon: <LuQrCode fontSize={15} />,
           variant: "ghost",
           color: "default",
-          className: "border-small",
+          className: "border-small tour-step-generate-qr-btn",
         },
         {
           label: "Add Referrer",
@@ -205,6 +205,7 @@ const ReferralManagement = () => {
           icon: <AiOutlinePlus fontSize={15} />,
           variant: "solid",
           color: "primary",
+          className: "tour-step-add-referrer-btn",
         },
       ],
     }),
@@ -301,11 +302,18 @@ const ReferralManagement = () => {
               }}
               className="text-background w-full"
             >
-              {["Referrals", "Referrers", "NFC & QR Tracking"].map((role) => (
+              {[
+                { title: "Referrals", className: "tour-step-referrals-tab" },
+                { title: "Referrers", className: "tour-step-referrers-tab" },
+                {
+                  title: "NFC & QR Tracking",
+                  className: "tour-step-nfc-tab",
+                },
+              ].map((role) => (
                 <Tab
-                  key={role}
-                  title={role}
-                  className="rounded-full data-[selected=true]:bg-background data-[selected=true]:text-black data-[selected=false]:text-white w-full border-0"
+                  key={role.title}
+                  title={role.title}
+                  className={`rounded-full data-[selected=true]:bg-background data-[selected=true]:text-black data-[selected=false]:text-white w-full border-0 ${role.className}`}
                 />
               ))}
             </Tabs>
