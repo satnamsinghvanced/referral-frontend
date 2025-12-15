@@ -40,8 +40,8 @@ function Integrations() {
 
   // API Keys State
   const [apiKeys, setApiKeys] = useState({
-    publicKey: "pk_live_1234567890abcdef1234567890abcdef",
-    secretKey: "sk_live_abcdef1234567890abcdef1234567890",
+    publicKey: import.meta.env.VITE_WEBHOOK_PUBLIC_KEY,
+    secretKey: import.meta.env.VITE_WEBHOOK_SECRET_KEY,
   });
 
   // Webhooks State
