@@ -1,17 +1,20 @@
-import { addToast, Button } from "@heroui/react";
+import { addToast, Button, Spinner } from "@heroui/react";
 import { useState } from "react";
 import { FiCheck, FiCopy, FiEye, FiEyeOff } from "react-icons/fi";
+import { IntegrationKey } from "../../../types/webhook"; // Confirmed type import
 
 interface APIKeysCardProps {
-  publicKey: string;
-  secretKey: string;
+  integrationKey?: IntegrationKey;
+  isLoading?: boolean;
   onGenerateNew: () => void;
+  isGenerating?: boolean;
 }
 
 export default function APIKeysCard({
-  publicKey,
-  secretKey,
+  integrationKey,
+  isLoading,
   onGenerateNew,
+  isGenerating,
 }: APIKeysCardProps) {
   const [isSecretRevealed, setIsSecretRevealed] = useState(false);
   const [copiedKey, setCopiedKey] = useState<string | null>(null);
@@ -40,6 +43,38 @@ export default function APIKeysCard({
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Spinner size="sm" />
+      </div>
+    );
+  }
+
+  if (!integrationKey) {
+    return (
+      <div className="space-y-3">
+        <div className="p-8 text-center border border-dashed border-gray-300 rounded-lg">
+          <p className="text-sm">No API keys generated yet</p>
+          <p className="text-xs text-gray-500 mt-1">
+            Click "Generate New Keys" to create your first API key
+          </p>
+        </div>
+        <Button
+          size="sm"
+          radius="sm"
+          variant="ghost"
+          fullWidth
+          className="border-small"
+          onPress={onGenerateNew}
+          isLoading={isGenerating || false}
+        >
+          Generate New Keys
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-3">
       {/* Public API Key */}
@@ -47,14 +82,14 @@ export default function APIKeysCard({
         <div className="flex flex-col gap-1.5 flex-1 min-w-0">
           <span className="font-medium text-xs">Public API Key</span>
           <code className="text-xs text-gray-600 font-mono truncate">
-            {maskKey(publicKey)}
+            {maskKey(integrationKey.publicKey)}
           </code>
         </div>
         <Button
           size="sm"
           variant="ghost"
           className="bg-background border-small h-7 px-2 flex-shrink-0"
-          onPress={() => handleCopy(publicKey, "Public Key")}
+          onPress={() => handleCopy(integrationKey.publicKey, "Public Key")}
           startContent={
             copiedKey === "Public Key" ? (
               <FiCheck className="w-3 h-3" />
@@ -72,7 +107,9 @@ export default function APIKeysCard({
         <div className="flex flex-col gap-1.5 flex-1 min-w-0">
           <span className="font-medium text-xs">Secret Key</span>
           <code className="text-xs text-gray-600 font-mono truncate">
-            {isSecretRevealed ? secretKey : "••••••••••••••••••••••••"}
+            {isSecretRevealed
+              ? integrationKey.secretKey
+              : "••••••••••••••••••••••••"}
           </code>
         </div>
         <div className="flex gap-2 flex-shrink-0">
@@ -96,7 +133,7 @@ export default function APIKeysCard({
               size="sm"
               variant="ghost"
               className="bg-background border-small h-7 px-2"
-              onPress={() => handleCopy(secretKey, "Secret Key")}
+              onPress={() => handleCopy(integrationKey.secretKey, "Secret Key")}
               startContent={
                 copiedKey === "Secret Key" ? (
                   <FiCheck className="w-3 h-3" />
@@ -119,6 +156,7 @@ export default function APIKeysCard({
         fullWidth
         className="border-small"
         onPress={onGenerateNew}
+        isLoading={isGenerating || false}
       >
         Generate New Keys
       </Button>

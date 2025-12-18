@@ -33,17 +33,19 @@ const ReferralCard = ({ referral, actions = () => [] }: ReferralCardProps) => {
     <div className="md:flex md:justify-between border border-foreground/10 rounded-lg p-4 bg-background max-md:space-y-2">
       <div className="font-medium text-sm w-full h-full capitalize flex flex-col gap-1">
         <p>{referral.name}</p>
-        <div className="flex gap-2 items-center text-xs font-light">
-          <p className="flex gap-1 items-center">
-            {referral?.referredBy?.name}
-          </p>
-          {referral?.referredBy?.practiceName && (
-            <>
-              <p className="p-0.5 bg-foreground/50 rounded-full aspect-square h-fit w-fit"></p>
-              <p>{referral?.referredBy?.practiceName}</p>
-            </>
-          )}
-        </div>
+        {(referral?.referredBy?.name || referral?.referredBy?.practiceName) && (
+          <div className="flex gap-2 items-center text-xs font-light">
+            <p className="flex gap-1 items-center">
+              {referral?.referredBy?.name}
+            </p>
+            {referral?.referredBy?.practiceName && (
+              <>
+                <p className="p-0.5 bg-foreground/50 rounded-full aspect-square h-fit w-fit"></p>
+                <p>{referral?.referredBy?.practiceName}</p>
+              </>
+            )}
+          </div>
+        )}
         <div className="flex gap-2 items-center text-xs font-light mt-0.5">
           {referral.treatment && (
             <p className="flex gap-1 items-center">

@@ -100,16 +100,26 @@ function AppRoutes() {
   const { data: trackings } = useFetchTrackings(documentId as string);
 
   useEffect(() => {
-    if (trackings?.referralUrl) {
-      const urlObject = new URL(trackings?.referralUrl);
-      const pathname = urlObject.pathname;
-      const segments = pathname
-        .split("/")
-        .filter((segment) => segment.length > 0);
-      const targetSegment = segments[1];
-      setReferralPath(targetSegment as string);
+    if (trackings?.personalizedQR && trackings.personalizedQR.length > 0) {
+      // Find the QR code that matches the current documentId
+      const matchingQR = trackings.personalizedQR.find(
+        (qr) => qr._id === documentId
+      );
+
+      // If a matching QR is found, use it; otherwise fall back to the first one
+      const targetQR = matchingQR || trackings.personalizedQR[0];
+
+      if (targetQR?.referralUrl) {
+        const urlObject = new URL(targetQR.referralUrl);
+        const pathname = urlObject.pathname;
+        const segments = pathname
+          .split("/")
+          .filter((segment) => segment.length > 0);
+        const targetSegment = segments[1];
+        setReferralPath(targetSegment as string);
+      }
     }
-  }, [trackings, referralPath]);
+  }, [trackings, documentId]);
 
   const routesList: AppRoute[] = [
     { path: "visit-map", element: <VisitMap /> },

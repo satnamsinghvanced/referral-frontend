@@ -1,24 +1,34 @@
-import { Button, Chip } from "@heroui/react";
-import { FiEdit, FiEdit2, FiTrash2 } from "react-icons/fi";
-import { WebhookConfig } from "./modal/AddWebhookModal";
+import { Button, Chip, Spinner } from "@heroui/react";
+import { FiEdit } from "react-icons/fi";
 import { LuTrash2 } from "react-icons/lu";
+import { WebhookSubscription } from "../../../types/webhook"; // Confirmed type import
 
 interface WebhooksListProps {
-  webhooks: WebhookConfig[];
-  onEdit: (webhook: WebhookConfig) => void;
+  webhooks: WebhookSubscription[];
+  isLoading?: boolean;
+  onEdit: (webhook: WebhookSubscription) => void;
   onDelete: (webhookId: string) => void;
 }
 
 export default function WebhooksList({
   webhooks,
+  isLoading,
   onEdit,
   onDelete,
 }: WebhooksListProps) {
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <Spinner size="sm" />
+      </div>
+    );
+  }
+
   if (webhooks.length === 0) {
     return (
       <div className="p-8 text-center border border-dashed border-gray-300 rounded-lg">
-        <p className="text-sm text-gray-500">No webhooks configured yet</p>
-        <p className="text-xs text-gray-400 mt-1">
+        <p className="text-sm">No webhooks configured yet</p>
+        <p className="text-xs text-gray-500 mt-1">
           Click "Add Webhook" to create your first webhook
         </p>
       </div>
@@ -35,22 +45,23 @@ export default function WebhooksList({
           <div className="flex items-start justify-between mb-2.5">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-2">
-                <span className="font-medium text-xs">{webhook.name}</span>
+                <span className="font-medium text-xs">{webhook.type}</span>
                 <Chip
                   size="sm"
-                  color={webhook.isActive ? "primary" : "default"}
+                  color={webhook.status === "active" ? "primary" : "default"}
                   className={`text-[11px] h-5 capitalize ${
-                    webhook.isActive ? "" : "bg-gray-100 text-gray-700"
+                    webhook.status === "active"
+                      ? ""
+                      : "bg-gray-100 text-gray-700"
                   }`}
                 >
-                  {webhook.isActive ? "active" : "inactive"}
+                  {webhook.status}
                 </Chip>
               </div>
-              {webhook.url && (
-                <p className="text-xs text-gray-600 font-mono break-all">
-                  {webhook.url}
-                </p>
-              )}
+              {/* URL is now guaranteed to be present from the API model */}
+              <p className="text-xs text-gray-600 font-mono break-all">
+                {webhook.url}
+              </p>
             </div>
             <div className="flex gap-1 ml-2">
               <Button
@@ -67,21 +78,21 @@ export default function WebhooksList({
                 variant="light"
                 isIconOnly
                 className="min-w-0 text-danger"
-                onPress={() => onDelete(webhook.id!)}
+                onPress={() => onDelete(webhook.id)}
               >
                 <LuTrash2 className="size-3.5" />
               </Button>
             </div>
           </div>
           <div className="flex flex-wrap gap-1">
-            {webhook.events.map((event) => (
+            {webhook.action.map((action) => (
               <Chip
-                key={event}
+                key={action}
                 size="sm"
                 variant="bordered"
                 className="border-small text-[11px]"
               >
-                {webhook.source}.{event}
+                {webhook.type}.{action}
               </Chip>
             ))}
           </div>

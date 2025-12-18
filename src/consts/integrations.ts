@@ -1,7 +1,6 @@
 export const SOURCES = [
-  { value: "referrals", label: "Referrals" },
-  { value: "partners", label: "Partners" },
-  { value: "reviews", label: "Reviews" },
+  { value: "referral", label: "Referral" },
+  { value: "review", label: "Review" },
 ];
 
 export const EVENTS = [
