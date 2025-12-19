@@ -2,7 +2,7 @@ import { Button, Card, CardBody } from "@heroui/react";
 import { FiDownload } from "react-icons/fi";
 import { LuCircleCheckBig } from "react-icons/lu";
 import { useLocation } from "react-router-dom";
-import { downloadVcf } from "../../utils/vcfGenerator";
+import { downloadVcf } from "../../../utils/vcfGenerator";
 
 const ThankYouPage = () => {
   const location = useLocation();

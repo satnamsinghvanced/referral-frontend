@@ -22,8 +22,8 @@ import {
   FiVideo,
   FiX,
 } from "react-icons/fi";
-import { Media } from "../../types/media";
-import GalleryMediaUploadModal from "../media-management/modal/GalleryMediaUploadModal";
+import { Media } from "../../../types/media";
+import GalleryMediaUploadModal from "../../media-management/modal/GalleryMediaUploadModal";
 
 // --- Dynamic Data ---
 

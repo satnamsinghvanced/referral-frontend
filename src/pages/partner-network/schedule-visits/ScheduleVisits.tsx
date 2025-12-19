@@ -14,8 +14,8 @@ import {
 import { GetSchedulePlansQuery } from "../../../types/partner";
 import CompactPlanCard from "./CompactPlanCard";
 import { VisitHistoryModal } from "./history-modal/VisitHistoryModal";
-import { ScheduleVisitsModal } from "./modal/ScheduleVisitsModal";
 import PlanCard from "./PlanCard";
+import { ScheduleVisitsModal } from "./schedule-visit-modal/ScheduleVisitsModal";
 import ScheduleVisitStatusModal from "./ScheduleVisitStatusModal";
 import ViewScheduledVisitModal from "./ViewScheduledVisitModal";
 

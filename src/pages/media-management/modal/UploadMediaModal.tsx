@@ -92,6 +92,10 @@ export function UploadMediaModal({
         title: "Too Many Files",
         description: `You can only upload up to ${MAX_FILES_COUNT} files at once. Currently selected: ${currentCount}`,
         color: "warning",
+        classNames: {
+          title: "text-warning-800",
+          description: "text-warning-700",
+        },
       });
       return;
     }
@@ -109,6 +113,10 @@ export function UploadMediaModal({
         title: "Invalid Files Detected",
         description: `${invalidFiles.length} file(s) exceed the 1GB size limit and will be marked.`,
         color: "warning",
+        classNames: {
+          title: "text-warning-800",
+          description: "text-warning-700",
+        },
       });
     }
 
@@ -143,6 +151,10 @@ export function UploadMediaModal({
         title: "No Valid Files",
         description: "Please select valid files to upload.",
         color: "warning",
+        classNames: {
+          title: "text-warning-800",
+          description: "text-warning-700",
+        },
       });
       return;
     }

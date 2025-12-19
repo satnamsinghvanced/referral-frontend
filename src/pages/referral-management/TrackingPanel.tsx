@@ -16,7 +16,7 @@ import { formatDateToMMDDYYYY } from "../../utils/formatDateToMMDDYYYY";
 
 const TrackingPanel = () => {
   const [copied, setCopied] = useState("");
-  const [customPath, setCustomPath] = useState("referral");
+  const [customPath, setCustomPath] = useState("");
   const [isCustomLandingPage, setIsCustomLandingPage] = useState(false);
   const [showGenerator, setShowGenerator] = useState(false);
 
@@ -157,7 +157,7 @@ const TrackingPanel = () => {
     createTrackingSetup(
       {
         id: userId as string,
-        customPath: customPath as string,
+        customPath: (customPath as string) || "referral",
       },
       {
         onSuccess: () => {
@@ -423,7 +423,7 @@ const TrackingPanel = () => {
               },
               {
                 label: "NFC Taps",
-                value: trackings?.nfcSetup ?? 0,
+                value: trackings?.nfcTaps ?? 0,
                 className: "bg-blue-100 text-blue-800",
               },
               {

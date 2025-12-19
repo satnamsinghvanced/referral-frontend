@@ -29,10 +29,8 @@ import { LoadingState } from "../../components/common/LoadingState";
 import { BUDGET_DURATIONS } from "../../consts/budget";
 import { useBudgetItems, useDeleteBudgetItem } from "../../hooks/useBudget";
 import { BudgetItem } from "../../types/budget";
-import BudgetActionModal from "./BudgetActionModal";
 import BudgetItemCard from "./BudgetItemCard";
-import { ResponsiveContainer } from "recharts";
-import { TbH1 } from "react-icons/tb";
+import BudgetActionModal from "./modal/BudgetActionModal";
 
 const MarketingBudget = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);

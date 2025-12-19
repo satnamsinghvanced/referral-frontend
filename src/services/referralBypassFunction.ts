@@ -23,6 +23,7 @@ export const trackScan = async (
     {
       params: {
         source: source,
+        sourceId: params.sourceId,
       },
     }
   );

@@ -1,4 +1,4 @@
-import { addToast, Button, Card, CardBody, CardHeader } from "@heroui/react";
+import { Card, CardBody, CardHeader } from "@heroui/react";
 import { useState } from "react";
 import { BsLightningCharge } from "react-icons/bs";
 import { FaGoogle, FaTiktok } from "react-icons/fa";
@@ -14,36 +14,13 @@ import {
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { GoogleCalendarIntegrationResponse } from "../../types/integrations/googleCalendar";
 import { timeAgo } from "../../utils/timeAgo";
-import APIKeysCard from "./webhooks/APIKeysCard";
 import IntegrationItem from "./IntegrationItem";
 import GoogleCalendarConfigModal from "./modal/GoogleCalendarConfigModal";
 import TwilioConfigurationModal from "./modal/TwilioConfigurationModal";
-import AddWebhookModal, { WebhookConfig } from "./webhooks/AddWebhookModal";
-import WebhooksList from "./webhooks/WebhooksList";
-import {
-  // --- Integrated API/Webhook Hooks ---
-  useIntegrationKeys,
-  useCreateIntegrationKey,
-  useDeleteIntegrationKey,
-  useWebhooks,
-  useCreateWebhook,
-  useUpdateWebhook,
-  useDeleteWebhook,
-} from "../../hooks/useWebhook";
-import {
-  WebhookAction,
-  WebhookType,
-  WebhookSubscription,
-  IntegrationKey,
-} from "../../types/webhook"; // Import types for casting
-import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
 
 function Integrations() {
   const { user } = useTypedSelector((state) => state.auth);
   const userId = user?.userId;
-  const [isDeleteWebhookModalOpen, setIsDeleteWebhookModalOpen] =
-    useState(false);
-  const [deleteWebhookId, setDeleteWebhookId] = useState("");
 
   const [
     isGoogleCalendarIntegrationModalOpen,
@@ -52,26 +29,6 @@ function Integrations() {
 
   const [isTwilioIntegrationModalOpen, setIsTwilioIntegrationModalOpen] =
     useState(false);
-
-  const [isWebhookModalOpen, setIsWebhookModalOpen] = useState(false);
-  const [editingWebhook, setEditingWebhook] = useState<WebhookConfig | null>(
-    null
-  );
-
-  // API Hooks
-  const { data: integrationKeys, isLoading: isKeysLoading } =
-    useIntegrationKeys();
-  const { mutate: createIntegrationKey, isPending: isCreatingKey } =
-    useCreateIntegrationKey();
-  const { mutate: deleteIntegrationKey } = useDeleteIntegrationKey();
-
-  const { data: webhooks, isLoading: isWebhooksLoading } = useWebhooks();
-  const { mutate: createWebhook, isPending: isCreatingWebhook } =
-    useCreateWebhook();
-  const { mutate: updateWebhook, isPending: isUpdatingWebhook } =
-    useUpdateWebhook();
-  const { mutate: deleteWebhookMutation, isPending: isDeletingWebhook } =
-    useDeleteWebhook();
 
   const {
     data: googleCalendarExistingConfig,
@@ -87,129 +44,6 @@ function Integrations() {
     subHeading:
       "Connect your favorite tools and services to streamline your referral workflow.",
     buttons: [],
-  };
-
-  // Handler: Generate New Integration Keys
-  const handleGenerateNewKeys = () => {
-    // Label is required in the body, but can be generic if not used otherwise
-    createIntegrationKey(
-      { label: "Webhooks API Key" },
-      {
-        onSuccess: () => {
-          addToast({
-            title: "Success",
-            description: "New API keys generated successfully",
-            color: "success",
-          });
-        },
-        onError: (error) => {
-          addToast({
-            title: "Error",
-            description: error.message || "Failed to generate API keys",
-            color: "danger",
-          });
-        },
-      }
-    );
-  };
-
-  // Handler: Save Webhook (Create or Update)
-  const handleSaveWebhook = (webhook: WebhookConfig) => {
-    // Cast string arrays to the required API types
-    const type = webhook.source as WebhookType;
-    const action = webhook.events as WebhookAction[];
-    const status = webhook.isActive ? "active" : "inActive";
-
-    if (editingWebhook) {
-      // --- Update existing webhook ---
-      updateWebhook(
-        {
-          id: webhook.id!, // ID is guaranteed on edit
-          body: { type, action, status },
-        },
-        {
-          onSuccess: () => {
-            addToast({
-              title: "Success",
-              description: "Webhook updated successfully",
-              color: "success",
-            });
-            setEditingWebhook(null);
-            setIsWebhookModalOpen(false); // Close modal on success
-          },
-          onError: (error) => {
-            addToast({
-              title: "Error",
-              description: error.message || "Failed to update webhook",
-              color: "danger",
-            });
-          },
-        }
-      );
-    } else {
-      // --- Create new webhook ---
-      createWebhook(
-        { type, action, status },
-        {
-          onSuccess: () => {
-            addToast({
-              title: "Success",
-              description: "Webhook added successfully",
-              color: "success",
-            });
-            setIsWebhookModalOpen(false); // Close modal on success
-          },
-          onError: (error) => {
-            addToast({
-              title: "Error",
-              description: error.message || "Failed to add webhook",
-              color: "danger",
-            });
-          },
-        }
-      );
-    }
-  };
-
-  // Handler: Edit Webhook
-  const handleEditWebhook = (webhook: WebhookSubscription) => {
-    // Convert WebhookSubscription (API model) to WebhookConfig (UI model)
-    const webhookConfig: WebhookConfig = {
-      id: webhook.id,
-      source: webhook.type,
-      events: webhook.action,
-      isActive: webhook.status === "active",
-      url: webhook.url,
-    };
-    setEditingWebhook(webhookConfig);
-    setIsWebhookModalOpen(true);
-  };
-
-  // Handler: Delete Webhook
-  const handleDeleteWebhook = (webhookId: string) => {
-    setDeleteWebhookId(webhookId);
-    setIsDeleteWebhookModalOpen(true);
-  };
-
-  const handleDeleteWebhookConfirm = () => {
-    deleteWebhookMutation(deleteWebhookId, {
-      onSuccess: () => {
-        setDeleteWebhookId("");
-        setIsDeleteWebhookModalOpen(false);
-        addToast({
-          title: "Success",
-          description: "Webhook deleted successfully",
-          color: "success",
-        });
-      },
-      onError: (error) => {
-        addToast({
-          title: "Error",
-          description: error.message || "Failed to delete webhook",
-          color: "danger",
-        });
-      },
-    });
   };
 
   const AVAILABLE_INTEGRATIONS = [
@@ -355,50 +189,6 @@ function Integrations() {
               ))}
             </CardBody>
           </Card>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            {/* API Keys Card */}
-            <Card className="shadow-none border border-primary/15 rounded-xl p-5">
-              <CardHeader className="p-0 pb-4">
-                <h4 className="font-medium text-sm">API Keys</h4>
-              </CardHeader>
-              <CardBody className="p-0">
-                {/* Note: integrationKeys is an array, passing the first element as per your previous logic */}
-                <APIKeysCard
-                  integrationKey={integrationKeys?.[0] as IntegrationKey}
-                  isLoading={isKeysLoading}
-                  onGenerateNew={handleGenerateNewKeys}
-                  isGenerating={isCreatingKey}
-                />
-              </CardBody>
-            </Card>
-
-            {/* Webhooks Card */}
-            <Card className="shadow-none border border-primary/15 rounded-xl p-5">
-              <CardHeader className="flex items-center justify-between p-0 pb-4">
-                <h4 className="font-medium text-sm">Webhooks</h4>
-                <Button
-                  size="sm"
-                  radius="sm"
-                  color="primary"
-                  onPress={() => {
-                    setEditingWebhook(null);
-                    setIsWebhookModalOpen(true);
-                  }}
-                >
-                  Add Webhook
-                </Button>
-              </CardHeader>
-              <CardBody className="p-0">
-                <WebhooksList
-                  webhooks={webhooks || []}
-                  isLoading={isWebhooksLoading}
-                  onEdit={handleEditWebhook}
-                  onDelete={handleDeleteWebhook}
-                />
-              </CardBody>
-            </Card>
-          </div>
         </div>
       </ComponentContainer>
 
@@ -417,24 +207,6 @@ function Integrations() {
         userId={userId as string}
         isOpen={isTwilioIntegrationModalOpen}
         onClose={() => setIsTwilioIntegrationModalOpen(false)}
-      />
-
-      <AddWebhookModal
-        isOpen={isWebhookModalOpen}
-        onClose={() => {
-          setIsWebhookModalOpen(false);
-          setEditingWebhook(null);
-        }}
-        onSave={handleSaveWebhook}
-        editingWebhook={editingWebhook}
-        isSaving={isCreatingWebhook || isUpdatingWebhook}
-      />
-
-      <DeleteConfirmationModal
-        isOpen={isDeleteWebhookModalOpen}
-        onClose={() => setIsDeleteWebhookModalOpen(false)}
-        onConfirm={handleDeleteWebhookConfirm}
-        isLoading={isDeletingWebhook}
       />
     </>
   );

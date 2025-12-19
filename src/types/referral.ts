@@ -84,6 +84,7 @@ export interface FetchReferralsParams {
 export interface ScanTrackingParams {
   userId: string; // From URL path
   source: "NFC" | "QR" | string; // From URL query
+  sourceId?: string;
 }
 
 export interface ScanTrackingResponse {
@@ -129,6 +130,6 @@ export interface TrackingResponseData {
   personalizedQR: PersonalizedQR[];
   activeQR: number;
   totalScans: number;
-  nfcSetup: number;
+  nfcTaps: number;
   conversionRate: number;
 }

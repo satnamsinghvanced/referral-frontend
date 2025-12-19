@@ -11,24 +11,22 @@ import {
 } from "@heroui/react";
 import {
   LuBuilding2,
+  LuCalendarDays,
+  LuGlobe,
   LuMail,
   LuMapPin,
   LuPhone,
-  LuGlobe,
-  LuClock,
-  LuCalendarDays,
-  LuUsers,
   LuSquareCheckBig,
+  LuSquarePen,
+  LuStar,
   LuStickyNote,
   LuTrendingUp,
-  LuStar,
-  LuSquarePen,
-  LuX,
+  LuUsers,
 } from "react-icons/lu"; // More comprehensive icon imports
-import { Partner, PartnerPractice } from "../../types/partner"; // Adjust path as necessary
-import { useFetchPartnerDetail } from "../../hooks/usePartner";
 import LevelChip from "../../components/chips/LevelChip";
 import { LoadingState } from "../../components/common/LoadingState";
+import { useFetchPartnerDetail } from "../../hooks/usePartner";
+import { PartnerPractice } from "../../types/partner"; // Adjust path as necessary
 
 interface PartnerDetailsModalProps {
   isOpen: boolean;

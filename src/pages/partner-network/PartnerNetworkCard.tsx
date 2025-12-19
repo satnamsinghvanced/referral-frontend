@@ -1,10 +1,9 @@
 import { Button, Chip } from "@heroui/react";
 import { FiPhone } from "react-icons/fi";
-import { IoLocationOutline } from "react-icons/io5";
+import { GrLocation } from "react-icons/gr";
 import { LuBuilding2 } from "react-icons/lu";
 import LevelChip from "../../components/chips/LevelChip";
 import { Partner } from "../../types/partner";
-import { GrLocation } from "react-icons/gr";
 
 interface PartnerNetworkCardProps {
   partner: Partner;

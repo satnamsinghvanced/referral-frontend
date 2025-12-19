@@ -12,7 +12,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { FiEdit, FiEye, FiUsers, FiWifi } from "react-icons/fi";
 import { GrLocation } from "react-icons/gr";
-import { LuFilter, LuPhone, LuQrCode } from "react-icons/lu";
+import { LuFilter, LuNfc, LuPhone, LuQrCode } from "react-icons/lu";
 import { MdTrendingUp } from "react-icons/md";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
 import ReferralStatusChip from "../../components/chips/ReferralStatusChip";
@@ -21,6 +21,7 @@ import EmptyState from "../../components/common/EmptyState";
 import { LoadingState } from "../../components/common/LoadingState";
 import { useDebouncedValue } from "../../hooks/common/useDebouncedValue";
 import {
+  useCreateReferral,
   useFetchReferrals,
   useFetchReferrers,
   useGetReferralById,
@@ -29,13 +30,17 @@ import {
 import { Referrer } from "../../types/partner";
 import { FilterStats, Referral } from "../../types/referral";
 import { downloadJson } from "../../utils/jsonDownloader";
-import AllReferralsView from "./AllReferralsView";
-import QrCodeDownloadModal from "./QrCodeDownloadModal";
-import ReferralCard from "./ReferralCard";
+import AllReferralsView from "./referrals/AllReferralsView";
+import BulkImportModal from "./referrals/BulkImportModal";
 import ReferralManagementActions from "./ReferralManagementActions";
-import ReferralStatusModal from "./ReferralStatusModal";
-import ReferrerCard from "./ReferrerCard";
+import ReferralStatusModal from "./referrals/ReferralStatusModal";
+import ReferrerCard from "./referrers/ReferrerCard";
 import TrackingPanel from "./TrackingPanel";
+import TrackReferralBar from "./referrals/TrackReferralBar";
+import TrackReferralModal from "./referrals/TrackReferralModal";
+import ReferralCard from "./referrals/ReferralCard";
+import QrCodeDownloadModal from "./referrers/QrCodeDownloadModal";
+import NfcTagModal from "./referrers/NfcTagModal";
 
 type ReferralType = "Referrals" | "Referrers" | "NFC & QR Tracking";
 
@@ -62,7 +67,12 @@ const ReferralManagement = () => {
   const [referralEditId, setReferralEditId] = useState<string>("");
   const [referrerEditId, setReferrerEditId] = useState("");
   const [isQrModalOpen, setIsQrModalOpen] = useState(false);
-  const [qrModalData, setQrModalData] = useState({ name: "", url: "" });
+  const [qrModalData, setQrModalData] = useState<Referrer | null>(null);
+  const [nfcModalData, setNfcModalData] = useState<Referrer | null>(null);
+  const [isNfcModalOpen, setIsNfcModalOpen] = useState(false);
+  const [isTrackReferralModalOpen, setIsTrackReferralModalOpen] =
+    useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   const [referrerParams, setReferrerParams] = useState({
     filter: "",
@@ -71,6 +81,8 @@ const ReferralManagement = () => {
   });
 
   const debouncedSearch = useDebouncedValue(currentFilters.search, 500);
+
+  const createReferralMutation = useCreateReferral();
 
   useEffect(() => {
     setCurrentFilters((prev) => ({ ...prev, search: debouncedSearch }));
@@ -129,6 +141,14 @@ const ReferralManagement = () => {
     };
 
     downloadJson(exportData, "referrals");
+  };
+
+  const handleTrackReferralSubmit = (values: any) => {
+    createReferralMutation.mutate(values, {
+      onSuccess: () => {
+        setIsTrackReferralModalOpen(false);
+      },
+    });
   };
 
   // ----------------------
@@ -221,21 +241,20 @@ const ReferralManagement = () => {
         color: "default",
         className: "border-small",
         onClick: () => {
-          setQrModalData({
-            name: referrer.name,
-            url: referrer.qrCode,
-          });
+          setQrModalData(referrer);
           setIsQrModalOpen(true);
         },
       },
       {
-        label: "NFC Tag",
-        icon: <FiWifi />,
+        label: "NFC Tap",
+        icon: <LuNfc />,
         variant: "ghost",
         color: "default",
         className: "border-small",
-        link: referrer.nfcUrl,
-        linkInNewTab: true,
+        onClick: () => {
+          setNfcModalData(referrer);
+          setIsNfcModalOpen(true);
+        },
       },
       {
         label: "Visit",
@@ -349,6 +368,11 @@ const ReferralManagement = () => {
               ) : (
                 // RENDER THE ORIGINAL OVERVIEW DASHBOARD
                 <div className="space-y-4 md:space-y-5">
+                  <TrackReferralBar
+                    onTrackReferral={() => setIsTrackReferralModalOpen(true)}
+                    onImport={() => setIsImportModalOpen(true)}
+                  />
+
                   <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
                     {STAT_CARD_DATA.map((data, i) => (
                       <MiniStatsCard key={i} cardData={data} />
@@ -410,7 +434,7 @@ const ReferralManagement = () => {
                         onPress={handleViewAllAndFilter}
                         className="border-small"
                       >
-                        <LuFilter />
+                        <LuFilter className="size-3.5" />
                         View All & Filter
                       </Button>
                     </div>
@@ -542,11 +566,34 @@ const ReferralManagement = () => {
         isViewMode={isReferralStatusModalViewMode}
         setReferralEditId={setReferralEditId}
       />
-      <QrCodeDownloadModal
-        isOpen={isQrModalOpen}
-        onClose={() => setIsQrModalOpen(false)}
-        referrerName={qrModalData.name}
-        qrCodeUrl={qrModalData.url}
+      {qrModalData && (
+        <QrCodeDownloadModal
+          isOpen={isQrModalOpen}
+          onClose={() => setIsQrModalOpen(false)}
+          referrer={qrModalData}
+        />
+      )}
+      {nfcModalData && (
+        <NfcTagModal
+          isOpen={isNfcModalOpen}
+          onClose={() => setIsNfcModalOpen(false)}
+          referrer={nfcModalData}
+        />
+      )}
+      <TrackReferralModal
+        isOpen={isTrackReferralModalOpen}
+        onClose={() => setIsTrackReferralModalOpen(false)}
+        referrers={referrers || []}
+        onCreateNewReferrer={() => {
+          setIsTrackReferralModalOpen(false);
+          setIsModalOpen(true);
+        }}
+        onSubmit={handleTrackReferralSubmit}
+        isLoading={createReferralMutation.isPending}
+      />
+      <BulkImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
       />
     </>
   );

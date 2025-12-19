@@ -5,7 +5,7 @@ import { Chip } from "@heroui/react";
 import { LuUsers } from "react-icons/lu";
 import { Link } from "react-router";
 import { FaRegStar } from "react-icons/fa";
-import { Referrer } from "../../types/partner";
+import { Referrer } from "../../../types/partner";
 
 interface ReferrerButton {
   label: string;

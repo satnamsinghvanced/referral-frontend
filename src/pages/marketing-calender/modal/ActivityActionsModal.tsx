@@ -9,14 +9,17 @@ import {
   SelectItem,
   Textarea,
 } from "@heroui/react";
-import { getLocalTimeZone, now } from "@internationalized/date";
+import { now } from "@internationalized/date";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { ACTIVITY_TYPES } from "../../consts/marketing";
-import { PRIORITY_LEVELS } from "../../consts/practice";
-import { useCreateActivity, useUpdateActivity } from "../../hooks/useMarketing";
-import { ActivityItem, ActivityType } from "../../types/marketing";
-import { keepUTCWallClock } from "../../utils/keepUTCWallClock";
+import { ActivityItem } from "../../../types/marketing";
+import {
+  useCreateActivity,
+  useUpdateActivity,
+} from "../../../hooks/useMarketing";
+import { ACTIVITY_TYPES } from "../../../consts/marketing";
+import { keepUTCWallClock } from "../../../utils/keepUTCWallClock";
+import { PRIORITY_LEVELS } from "../../../consts/practice";
 
 interface ActivityFormValues {
   title: string;

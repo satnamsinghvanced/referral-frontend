@@ -433,36 +433,6 @@ export interface GetSchedulePlansQuery {
 }
 
 // --- 2. Plan Sub-Types ---
-interface AddressCoordinates {
-  lat: number;
-  long: number;
-}
-
-interface PlanAddress {
-  coordinates: AddressCoordinates;
-  addressLine1: string;
-  addressLine2: string;
-  city: string;
-  state: string;
-  zip: string | number;
-}
-
-interface RouteDetail {
-  address: PlanAddress;
-  name: string;
-  isFirstStop: boolean;
-  date: string; // ISO Date string
-  arrivalTime: string;
-  departureTime: string;
-  travelDistance: string;
-  durationPerVisit: string;
-  _id: string;
-}
-
-interface PlanPurpose {
-  title: string;
-  duration: string;
-}
 
 interface PlanSummary {
   totalPractices: number;
@@ -477,7 +447,7 @@ export interface SchedulePlan {
   _id: string;
   createdBy: string;
   practices: Practice[];
-  route: RouteDetail[];
+  route: RouteDataPayload;
   label: "active" | "draft";
   status: "pending" | "completed" | "cancel" | string;
   createdAt: string;

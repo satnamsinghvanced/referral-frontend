@@ -192,22 +192,17 @@ const TourOverlay = ({
 
   return (
     <div className="fixed inset-0 z-[5000] pointer-events-none">
-      {/* SVG Mask */}
+      {/* SVG Overlay */}
       <svg
         width="100%"
         height="100%"
         className="fixed inset-0 pointer-events-none"
       >
-        <defs>
-          <mask id="tour-mask">
-            <path d={maskPath} fill="white" fillRule="evenodd" />
-          </mask>
-        </defs>
-        <rect
-          width="100%"
-          height="100%"
+        <path
+          d={maskPath}
           fill="rgba(0, 0, 0, 0.6)"
-          mask="url(#tour-mask)"
+          fillRule="evenodd"
+          className="pointer-events-auto"
         />
         {/* Highlight Border */}
         <rect
@@ -218,8 +213,7 @@ const TourOverlay = ({
           fill="none"
           stroke="#0ea5e9"
           strokeWidth="2"
-          // rx="8"  rounded corners for the highlight
-          className="transition-all duration-300 ease-in-out"
+          className="transition-all duration-300 ease-in-out pointer-events-none"
         />
       </svg>
 

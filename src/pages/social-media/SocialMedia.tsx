@@ -1,15 +1,14 @@
-import { useState, useMemo } from "react";
+import { Tab, Tabs } from "@heroui/react";
+import { useMemo, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import Analytics from "./Analytics";
+import { CreatePostModal } from "./modal/CreatePostModal";
 import Overview from "./Overview";
 import Platforms from "./Platforms";
 import Posts from "./Posts";
-import { Tab, Tabs } from "@heroui/react";
-import { CreatePostModal } from "./CreatePostModal"; // Import your CreateNewPost component
 
 export default function SocialMedia() {
-  const [activeTab, setActiveTab] = useState("Overview");
   const [isModalOpen, setIsModalOpen] = useState(false); // Modal state
 
   // Heading Data with button

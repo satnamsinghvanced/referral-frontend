@@ -12,8 +12,11 @@ import { useFormik } from "formik";
 import { useMemo, useState } from "react";
 import { FiExternalLink, FiEye, FiEyeOff } from "react-icons/fi";
 import * as Yup from "yup";
-import { useInitiateAuthIntegration } from "../../hooks/useSocial";
-import { PlatformAuthParams, SocialMediaCredential } from "../../types/social";
+import { useInitiateAuthIntegration } from "../../../hooks/useSocial";
+import {
+  PlatformAuthParams,
+  SocialMediaCredential,
+} from "../../../types/social";
 
 // --- Constants for each Platform ---
 const PLATFORM_CONFIGS = {
@@ -45,6 +48,13 @@ const PLATFORM_CONFIGS = {
     infoLink: "https://developers.tiktok.com/my-apps",
     linkText: "TikTok Developer Portal",
   },
+  meta: {
+    title: "Meta (Facebook & Instagram)",
+    description:
+      "Connect your Meta app to manage Facebook and Instagram content.",
+    infoLink: "https://developers.facebook.com/apps",
+    linkText: "Meta for Developers",
+  },
 };
 
 // --- Yup Validation Schema ---
@@ -63,7 +73,7 @@ export default function SocialMediaConfigModal({
   allCredentials,
   isGlobalLoading,
 }: {
-  platform: PlatformAuthParams["platform"]; // Dynamic platform key
+  platform: Exclude<PlatformAuthParams["platform"], "googleBusiness">; // Dynamic platform key
   isOpen: boolean;
   onClose: () => void;
   allCredentials: any;

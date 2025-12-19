@@ -1,9 +1,9 @@
 import { Button } from "@heroui/react";
 import { Link } from "react-router";
-import ReferralStatusChip from "../../components/chips/ReferralStatusChip";
-import { Referral } from "../../types/referral";
-import { TREATMENT_OPTIONS } from "../../consts/referral";
-import { formatDateToReadable } from "../../utils/formatDateToReadable";
+import ReferralStatusChip from "../../../components/chips/ReferralStatusChip";
+import { TREATMENT_OPTIONS } from "../../../consts/referral";
+import { Referral } from "../../../types/referral";
+import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 
 interface ReferralButton {
   label: string;

@@ -21,9 +21,9 @@ import {
   useMarketingActivities,
 } from "../../hooks/useMarketing";
 import { formatDateToReadable } from "../../utils/formatDateToReadable";
-import ActivityActionsModal from "./ActivityActionsModal";
+import ActivityActionsModal from "./modal/ActivityActionsModal";
 import { ActivityCard } from "./ActivityCard";
-import { ActivityDetailModal } from "./ActivityDetailModal";
+import { ActivityDetailModal } from "./modal/ActivityDetailModal";
 
 const MarketingCalendar = () => {
   const [currentFilters, setCurrentFilters] = useState<any>({

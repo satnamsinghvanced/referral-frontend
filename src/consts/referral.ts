@@ -11,3 +11,12 @@ export const URGENCY_OPTIONS = [
   { key: "medium", label: "Medium - Within a month" },
   { key: "high", label: "High - As soon as possible" },
 ];
+
+export const SOURCE_OPTIONS = [
+  { key: "direct", label: "Direct Referral" },
+  { key: "NFC", label: "NFC Tap" },
+  { key: "QR", label: "QR Code" },
+  { key: "call", label: "Phone Call" },
+  { key: "email", label: "Email" },
+  { key: "other", label: "Other" },
+];
