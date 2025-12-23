@@ -10,11 +10,11 @@ interface IntegrationItemProps {
   status: "Connected" | "Disconnected" | "Error" | string;
   description: string;
   badges: string[];
-  lastSync?: string;
-  onConfigure?: () => void;
-  onConnect?: () => void;
-  isSwitchChecked?: boolean;
-  onSwitchChange?: (checked: boolean) => void;
+  lastSync?: string | undefined;
+  onConfigure?: (() => void) | undefined;
+  onConnect?: (() => void) | undefined;
+  isSwitchChecked?: boolean | undefined;
+  onSwitchChange?: ((checked: boolean) => void) | undefined;
 }
 
 const IntegrationItem: React.FC<IntegrationItemProps> = ({

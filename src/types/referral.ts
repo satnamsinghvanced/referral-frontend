@@ -1,3 +1,16 @@
+export type ReferralStatus =
+  | "new"
+  | "contacted"
+  | "appointed"
+  | "scheduled"
+  | "consultation"
+  | "inProcess"
+  | "started"
+  | "inTreatment"
+  | "completed"
+  | "declined"
+  | "noShow";
+
 export interface Referral {
   _id: string;
   referredBy: any;
@@ -15,21 +28,30 @@ export interface Referral {
   appointment?: string;
   scheduledDate?: string;
   reason?: string;
-  status:
-    | "new"
-    | "contacted"
-    | "appointed"
-    | "scheduled"
-    | "consultation"
-    | "inProcess"
-    | "started"
-    | "inTreatment"
-    | "completed"
-    | "declined"
-    | "noShow";
+  status: ReferralStatus;
   statusNotes?: string;
   createdAt?: string;
   additionalNotes?: string;
+}
+
+export type ReferralSource = "NFC" | "QR" | "direct" | string;
+
+export interface CreateReferralPayload {
+  name: string;
+  age: number;
+  phone: string;
+  email?: string | undefined;
+  referredBy: string; // The ID of the referrer
+  treatment: string;
+  addedVia: ReferralSource;
+  priority: string;
+  estValue: number;
+  notes: string;
+  status: ReferralStatus;
+  insurance?: string;
+  reason?: string;
+  scheduledDate?: string | undefined;
+  appointmentTime?: string | undefined;
 }
 
 export interface FilterStats {

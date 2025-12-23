@@ -32,7 +32,7 @@ import { FilterStats, Referral } from "../../types/referral";
 import { downloadJson } from "../../utils/jsonDownloader";
 import AllReferralsView from "./referrals/AllReferralsView";
 import BulkImportModal from "./referrals/BulkImportModal";
-import ReferralManagementActions from "./ReferralManagementActions";
+import ReferrerActionsModal from "./referrer-actions/ReferrerActionsModal";
 import ReferralStatusModal from "./referrals/ReferralStatusModal";
 import ReferrerCard from "./referrers/ReferrerCard";
 import TrackingPanel from "./TrackingPanel";
@@ -141,14 +141,6 @@ const ReferralManagement = () => {
     };
 
     downloadJson(exportData, "referrals");
-  };
-
-  const handleTrackReferralSubmit = (values: any) => {
-    createReferralMutation.mutate(values, {
-      onSuccess: () => {
-        setIsTrackReferralModalOpen(false);
-      },
-    });
   };
 
   // ----------------------
@@ -453,13 +445,6 @@ const ReferralManagement = () => {
                             actions={(referral: Referral) => [
                               {
                                 label: "",
-                                onClick: () => {},
-                                icon: <LuPhone className="w-4 h-4" />,
-                                link: `tel:${referral.phone}`,
-                                hideButton: referral.phone ? false : true,
-                              },
-                              {
-                                label: "",
                                 onClick: (id) => {
                                   setReferralEditId(id);
                                   setIsReferralStatusModalViewMode(true);
@@ -550,7 +535,7 @@ const ReferralManagement = () => {
           {selectedReferralType === "NFC & QR Tracking" && <TrackingPanel />}
         </div>
 
-        <ReferralManagementActions
+        <ReferrerActionsModal
           isModalOpen={isModalOpen}
           setIsModalOpen={setIsModalOpen}
           editedData={singleReferrerData || null}
@@ -588,8 +573,6 @@ const ReferralManagement = () => {
           setIsTrackReferralModalOpen(false);
           setIsModalOpen(true);
         }}
-        onSubmit={handleTrackReferralSubmit}
-        isLoading={createReferralMutation.isPending}
       />
       <BulkImportModal
         isOpen={isImportModalOpen}

@@ -3,6 +3,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { queryClient } from "../providers/QueryProvider";
 import {
+  createReferral,
   createReferrer,
   createTrackingSetup,
   deleteReferral,
@@ -12,18 +13,21 @@ import {
   fetchTrackings,
   getReferralById,
   getReferrerById,
+  importReferralsCSV,
   logTrackingScan,
   updateReferral,
   updateReferrer,
   updateTracking,
 } from "../services/referral";
-import { createReferral, trackScan } from "../services/referralBypassFunction";
+import { trackScan } from "../services/referralBypassFunction";
 import {
+  CreateReferrerPayload,
   FetchReferrersParams,
   Referrer,
   ReferrersResponse,
 } from "../types/partner";
 import {
+  CreateReferralPayload,
   Referral,
   ReferralsResponse,
   ScanTrackingParams,
@@ -60,7 +64,7 @@ export const useGetReferralById = (id: string) =>
   });
 
 export const useCreateReferral = () =>
-  useMutation<Referral, any, Partial<Referral>>({
+  useMutation<Referral, any, CreateReferralPayload>({
     mutationFn: (payload) => createReferral(payload),
     onSuccess: () => {
       addToast({
@@ -155,7 +159,7 @@ export const useCreateReferrer = () =>
   useMutation<
     Referrer,
     AxiosError,
-    { id: string; type: string; payload: Partial<Referrer> }
+    { id: string; type: string; payload: CreateReferrerPayload }
   >({
     mutationFn: ({ id, type, payload }) => createReferrer(id, type, payload),
     onSuccess: () => {
@@ -181,7 +185,7 @@ export const useUpdateReferrer = () =>
   useMutation<
     Referrer,
     AxiosError,
-    { id: string; type: string; payload: Partial<Referrer> }
+    { id: string; type: string; payload: Partial<CreateReferrerPayload> }
   >({
     mutationFn: ({ id, type, payload }) => updateReferrer(id, type, payload),
     onSuccess: () => {
@@ -288,6 +292,26 @@ export const useLogTrackingScan = () =>
         (error.response?.data as any)?.message ||
         error.message ||
         "Failed to log scan";
+      addToast({ title: "Error", description: message, color: "danger" });
+    },
+  });
+export const useImportReferralsCSV = () =>
+  useMutation<any, AxiosError, FormData>({
+    mutationFn: (formData) => importReferralsCSV(formData),
+    onSuccess: () => {
+      addToast({
+        title: "Success",
+        description: "Referrals imported successfully.",
+        color: "success",
+      });
+      queryClient.invalidateQueries({ queryKey: ["referrals"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+    },
+    onError: (error: AxiosError) => {
+      const message =
+        (error.response?.data as any)?.message ||
+        error.message ||
+        "Failed to import referrals";
       addToast({ title: "Error", description: message, color: "danger" });
     },
   });

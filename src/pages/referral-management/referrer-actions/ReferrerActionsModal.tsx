@@ -2,22 +2,32 @@ import { Button, Checkbox, Select, SelectItem, Textarea } from "@heroui/react";
 import { useFormik } from "formik";
 import { Key, useMemo } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
-import { BiSave, BiUserPlus } from "react-icons/bi";
-import { FaStethoscope } from "react-icons/fa";
-import { FiTrash2, FiUsers } from "react-icons/fi";
-import { LuUserRound } from "react-icons/lu";
+import { BiSave } from "react-icons/bi";
 import * as Yup from "yup";
-import ActionModal from "../../components/common/ActionModal";
-import Input from "../../components/ui/Input";
-import { EMAIL_REGEX, PHONE_REGEX } from "../../consts/consts";
-import { CATEGORY_OPTIONS } from "../../consts/filters";
-import { STAFF_ROLES } from "../../consts/practice";
-import { useSpecialties } from "../../hooks/useCommon";
-import { useCreateReferrer, useUpdateReferrer } from "../../hooks/useReferral";
-import { useTypedSelector } from "../../hooks/useTypedSelector";
-import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
+import ActionModal from "../../../components/common/ActionModal";
+import Input from "../../../components/ui/Input";
+import { EMAIL_REGEX, PHONE_REGEX } from "../../../consts/consts";
+import { STAFF_ROLES } from "../../../consts/practice";
+import { useSpecialties } from "../../../hooks/useCommon";
+import {
+  useCreateReferrer,
+  useUpdateReferrer,
+} from "../../../hooks/useReferral";
+import { useTypedSelector } from "../../../hooks/useTypedSelector";
+import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
 
-interface ReferralManagementActionsProps {
+// Sub-components
+import AdditionalNotesSection from "./AdditionalNotesSection";
+import BasicInfoSection from "./BasicInfoSection";
+import CommunitySection from "./CommunitySection";
+import DoctorSection from "./DoctorSection";
+import EventSection from "./EventSection";
+import GoogleSection from "./GoogleSection";
+import ReferrerTypeSelector from "./ReferrerTypeSelector";
+import SocialMediaSection from "./SocialMediaSection";
+import StaffSection from "./StaffSection";
+
+interface ReferrerActionsModalProps {
   isModalOpen: boolean;
   setIsModalOpen: (open: boolean) => void;
   editedData?: any;
@@ -29,7 +39,6 @@ interface ReferralManagementActionsProps {
 type PracticeAddressErrors = Record<string, string | undefined> | undefined;
 type PracticeAddressTouched = Record<string, boolean | undefined> | undefined;
 
-// Define a truly clean slate outside the component or inside as a constant
 const CLEAN_INITIAL_VALUES = {
   type: "doctor",
   name: "",
@@ -48,18 +57,37 @@ const CLEAN_INITIAL_VALUES = {
   website: "",
   staff: [],
   additionalNotes: "",
+  communityreferrer: {
+    orgName: "",
+    orgAddress: "",
+    orgUrl: "",
+  },
+  googlereferrer: {
+    glSource: "",
+    glPlatform: "",
+    glUrl: "",
+  },
+  socialmediareferrer: {
+    smPlatform: "",
+    smSource: "",
+  },
+  eventreferrer: {
+    evName: "",
+    evLocation: "",
+    evType: "",
+    evUrl: "",
+  },
 };
 
-export default function ReferralManagementActions({
+export default function ReferrerActionsModal({
   isModalOpen,
   setIsModalOpen,
   editedData = {},
   setReferrerEditId,
   isPracticeEdit,
   setSelectedTab,
-}: ReferralManagementActionsProps) {
+}: ReferrerActionsModalProps) {
   const { user } = useTypedSelector((state) => state.auth);
-
   const { data: specialties } = useSpecialties();
 
   const { mutate: createReferrer, isPending: referrerCreationPending } =
@@ -86,32 +114,72 @@ export default function ReferralManagementActions({
     website: editedData?.website || "",
     staff: editedData?.staff || [],
     additionalNotes: editedData?.additionalNotes || "",
+    communityreferrer: {
+      orgName: editedData?.communityreferrer?.orgName || "",
+      orgAddress: editedData?.communityreferrer?.orgAddress || "",
+      orgUrl: editedData?.communityreferrer?.orgUrl || "",
+    },
+    googlereferrer: {
+      glSource: editedData?.googlereferrer?.glSource || "",
+      glPlatform: editedData?.googlereferrer?.glPlatform || "",
+      glUrl: editedData?.googlereferrer?.glUrl || "",
+    },
+    socialmediareferrer: {
+      smPlatform: editedData?.socialmediareferrer?.smPlatform || "",
+      smSource: editedData?.socialmediareferrer?.smSource || "",
+    },
+    eventreferrer: {
+      evName: editedData?.eventreferrer?.evName || "",
+      evLocation: editedData?.eventreferrer?.evLocation || "",
+      evType: editedData?.eventreferrer?.evType || "",
+      evUrl: editedData?.eventreferrer?.evUrl || "",
+    },
   };
 
   const handleFormSubmission = async (values: any) => {
-    const staffWithUpdatedRoles = values.staff.map((member: any) => {
-      return {
-        name: member.name,
-        phone: member.phone,
-        email: member.email,
-        role: member.role,
-        isDentist: member.isDentist,
-      };
-    });
+    const basePayload = {
+      name: values.name,
+      phone: values.phone,
+      email: values.email,
+      additionalNotes: values.additionalNotes,
+    };
 
-    const payload =
-      values.type === "patient"
-        ? {
-            name: values.name,
-            phone: values.phone,
-            email: values.email,
-            additionalNotes: values.additionalNotes,
-          }
-        : {
-            ...values,
-            staff: staffWithUpdatedRoles,
-            additionalNotes: values.additionalNotes,
-          };
+    let payload: any = { ...basePayload };
+
+    switch (values.type) {
+      case "doctor":
+        payload = {
+          ...payload,
+          practiceName: values.practiceName,
+          partnershipLevel: values.partnershipLevel,
+          practiceType: values.practiceType,
+          practiceAddress: values.practiceAddress,
+          website: values.website,
+          staff: values.staff.map((member: any) => ({
+            name: member.name,
+            phone: member.phone,
+            email: member.email,
+            role: member.role,
+            isDentist: member.isDentist,
+          })),
+        };
+        break;
+      case "communityreferrer":
+        payload.communityreferrer = values.communityreferrer;
+        break;
+      case "googlereferrer":
+        payload.googlereferrer = values.googlereferrer;
+        break;
+      case "socialmediareferrer":
+        payload.socialmediareferrer = values.socialmediareferrer;
+        break;
+      case "eventreferrer":
+        payload.eventreferrer = values.eventreferrer;
+        break;
+      case "patient":
+      default:
+        break;
+    }
 
     let referrerId = user?.userId;
 
@@ -223,139 +291,66 @@ export default function ReferralManagementActions({
           isDentist: Yup.boolean().nullable(),
         })
       ),
+      communityreferrer: Yup.object().when("type", {
+        is: "communityreferrer",
+        then: () =>
+          Yup.object().shape({
+            orgName: Yup.string().required("Organization name is required"),
+            orgAddress: Yup.string().optional(),
+            orgUrl: Yup.string().url("Invalid URL").optional(),
+          }),
+      }),
+      googlereferrer: Yup.object().when("type", {
+        is: "googlereferrer",
+        then: () =>
+          Yup.object().shape({
+            glSource: Yup.string().required("Source is required"),
+            glPlatform: Yup.string().optional(),
+            glUrl: Yup.string().url("Invalid URL").optional(),
+          }),
+      }),
+      socialmediareferrer: Yup.object().when("type", {
+        is: "socialmediareferrer",
+        then: () =>
+          Yup.object().shape({
+            smPlatform: Yup.string().required("Platform is required"),
+            smSource: Yup.string().optional(),
+          }),
+      }),
+      eventreferrer: Yup.object().when("type", {
+        is: "eventreferrer",
+        then: () =>
+          Yup.object().shape({
+            evName: Yup.string().required("Event name is required"),
+            evLocation: Yup.string().optional(),
+            evType: Yup.string().required("Event type is required"),
+            evUrl: Yup.string().url("Invalid URL").optional(),
+          }),
+      }),
     }),
     onSubmit: handleFormSubmission,
   });
 
-  const fieldGroups = useMemo(() => {
-    const basicFields: {
-      id: keyof typeof formik.values;
-      label: string;
-      type: string;
-      placeholder?: string;
-      isFullWidth?: boolean;
-      isRequired?: boolean;
-    }[] = [
-      {
-        id: "name",
-        label: "Full Name",
-        type: "text",
-        placeholder: "Enter full name",
-        isRequired: true,
-      },
-      {
-        id: "phone",
-        label: "Phone",
-        type: "tel",
-        placeholder: "e.g., (123) 456-7890",
-        isRequired: true,
-      },
-      {
-        id: "email",
-        label: "Email",
-        type: "email",
-        placeholder: "e.g., johndoe@gmail.com",
-        isFullWidth: true,
-        isRequired: true,
-      },
-    ];
+  const getNestedValue = (path: string) => {
+    return path
+      .split(".")
+      .reduce((obj: any, key: string) => obj?.[key], formik.values);
+  };
 
-    const doctorFields: {
-      id: keyof typeof formik.values;
-      label: string;
-      type: string;
-      options?: { _id: string; title: string }[];
-      placeholder?: string;
-      isFullWidth?: boolean;
-      isRequired?: boolean;
-      subFields?: Array<{
-        id: keyof typeof formik.values;
-        placeholder?: string;
-        type: string;
-        isRequired?: boolean;
-      }>;
-    }[] = [
-      {
-        id: "practiceName",
-        label: "Practice Name",
-        type: "text",
-        placeholder: "Enter practice name",
-        isRequired: true,
-      },
-      {
-        id: "partnershipLevel",
-        label: "Referrer Level",
-        type: "select",
-        options: CATEGORY_OPTIONS,
-        placeholder: "Select level",
-        isRequired: true,
-      },
-      {
-        id: "practiceType",
-        label: "Type of Practice",
-        type: "select",
-        options: specialties,
-        placeholder: "Select specialty",
-        isFullWidth: true,
-        isRequired: true,
-      },
-      {
-        id: "practiceAddress",
-        label: "Practice Address",
-        type: "group",
-        isFullWidth: true,
-        isRequired: true,
-        subFields: [
-          {
-            id: "addressLine1",
-            placeholder: "123 Main Street, Suite 100",
-            isRequired: true,
-            type: "text",
-          },
-          {
-            id: "addressLine2",
-            placeholder: "Address Line 2 (Optional)",
-            type: "text",
-          },
-          {
-            id: "city",
-            placeholder: "City",
-            type: "text",
-            isRequired: true,
-          },
-          {
-            id: "state",
-            placeholder: "State",
-            type: "text",
-            isRequired: true,
-          },
-          {
-            id: "zip",
-            placeholder: "Zip",
-            type: "text",
-            isRequired: true,
-          },
-        ],
-      },
-      {
-        id: "website",
-        label: "Website",
-        type: "url",
-        placeholder: "https://www.practice.com",
-        isFullWidth: true,
-      },
-    ];
+  const getNestedError = (path: string) => {
+    return path
+      .split(".")
+      .reduce((obj: any, key: string) => obj?.[key], formik.errors);
+  };
 
-    const staffMemberFields: {
-      id: string;
-      label: string;
-      type: string;
-      options?: { _id: string; title: string }[];
-      placeholder?: string;
-      isFullWidth?: boolean;
-      multiple?: boolean;
-      isRequired?: boolean;
-    }[] = [
+  const getNestedTouched = (path: string) => {
+    return path
+      .split(".")
+      .reduce((obj: any, key: string) => obj?.[key], formik.touched);
+  };
+
+  const staffMemberFields = useMemo(
+    () => [
       {
         id: "name",
         label: "Name",
@@ -390,34 +385,12 @@ export default function ReferralManagementActions({
         type: "checkbox",
         isFullWidth: true,
       },
-    ];
-
-    const notesField: {
-      id: keyof typeof formik.values;
-      label: string;
-      type: string;
-      placeholder?: string;
-      minRows?: number;
-    }[] = [
-      {
-        id: "additionalNotes",
-        label: "Notes (optional)",
-        type: "textarea",
-        placeholder: "Any additional information about this referrer...",
-        minRows: 2,
-      },
-    ];
-
-    return {
-      basic: basicFields,
-      doctor: doctorFields,
-      staffMember: staffMemberFields,
-      notes: notesField,
-    };
-  }, [specialties]);
+    ],
+    []
+  );
 
   const renderField = (field: {
-    id: keyof typeof formik.values;
+    id: string;
     label: string;
     type: string;
     options?: { _id: string; title: string }[];
@@ -427,7 +400,8 @@ export default function ReferralManagementActions({
     isRequired?: boolean;
     multiple?: boolean;
     subFields?: Array<{
-      id: keyof typeof formik.values;
+      id: string;
+      type?: string;
       placeholder?: string;
       isRequired?: boolean;
     }>;
@@ -445,12 +419,16 @@ export default function ReferralManagementActions({
       subFields,
     } = field;
 
+    const value = getNestedValue(id);
+    const error = getNestedError(id);
+    const touched = getNestedTouched(id);
+
     switch (type) {
       case "select":
         return (
           <div
             key={id as Key}
-            className={`w-full ${isFullWidth ? "col-span-3" : ""}`}
+            className={`w-full ${isFullWidth ? "md:col-span-2" : ""}`}
           >
             <Select
               name={id as string}
@@ -462,20 +440,20 @@ export default function ReferralManagementActions({
               selectionMode={multiple ? "multiple" : "single"}
               selectedKeys={
                 multiple
-                  ? Array.isArray(formik.values[id])
-                    ? formik.values[id]
+                  ? Array.isArray(value)
+                    ? value
                     : []
-                  : formik.values[id]
-                  ? [formik.values[id]]
+                  : value
+                  ? [value]
                   : []
               }
               disabledKeys={
                 multiple
-                  ? Array.isArray(formik.values[id])
-                    ? formik.values[id]
+                  ? Array.isArray(value)
+                    ? value
                     : []
-                  : formik.values[id]
-                  ? [formik.values[id]]
+                  : value
+                  ? [value]
                   : []
               }
               onSelectionChange={(keys) => {
@@ -486,14 +464,8 @@ export default function ReferralManagementActions({
                 formik.setFieldValue(id as string, finalValue);
                 formik.setFieldTouched(id as string, true, false);
               }}
-              isInvalid={
-                !!(formik.touched[id as string] && formik.errors[id as string])
-              }
-              errorMessage={
-                formik.touched[id as string] && formik.errors[id as string]
-                  ? (formik.errors[id as string] as string)
-                  : undefined
-              }
+              isInvalid={!!(touched && error)}
+              errorMessage={touched && error ? (error as string) : undefined}
               classNames={{
                 base: "gap-2 !mt-0",
                 label: "static !translate-y-0",
@@ -518,19 +490,11 @@ export default function ReferralManagementActions({
               label={label}
               labelPlacement="outside"
               placeholder={placeholder || ""}
-              value={formik.values[id]}
-              onValueChange={(value) =>
-                formik.setFieldValue(id as string, value)
-              }
+              value={value as string}
+              onValueChange={(val) => formik.setFieldValue(id as string, val)}
               onBlur={formik.handleBlur}
-              isInvalid={
-                !!(formik.touched[id as string] && formik.errors[id as string])
-              }
-              errorMessage={
-                formik.touched[id as string] && formik.errors[id as string]
-                  ? (formik.errors[id as string] as string)
-                  : undefined
-              }
+              isInvalid={!!(touched && error)}
+              errorMessage={touched && error ? (error as string) : undefined}
               minRows={minRows || 3}
               className="text-sm"
             />
@@ -543,16 +507,16 @@ export default function ReferralManagementActions({
             <Checkbox
               name={id as string}
               size="sm"
-              isSelected={formik.values[id as string]}
+              isSelected={value as boolean}
               onChange={formik.handleChange}
               onBlur={formik.handleBlur}
               classNames={{ label: "text-xs" }}
             >
               {label}
             </Checkbox>
-            {formik.touched[id as string] && formik.errors[id as string] && (
+            {touched && error && (
               <div className="text-xs text-red-500 mt-1 ml-6">
-                {formik.errors[id as string] as string}
+                {error as string}
               </div>
             )}
           </div>
@@ -561,45 +525,50 @@ export default function ReferralManagementActions({
       case "group":
         return (
           <div key={field.id as Key} className="space-y-2">
-            {subFields?.map((sub: any, index: number) => {
-              const fieldPath = `practiceAddress.${sub.id}`;
-              const addressErrors = formik.errors
-                .practiceAddress as PracticeAddressErrors;
-              const addressTouched = formik.touched
-                .practiceAddress as PracticeAddressTouched;
+            <p className="text-xs">
+              {label} <span className="text-red-500">*</span>
+            </p>
+            <div className="space-y-2">
+              {subFields?.map((sub: any) => {
+                const fieldPath = `practiceAddress.${sub.id}`;
+                const addressErrors = formik.errors
+                  .practiceAddress as PracticeAddressErrors;
+                const addressTouched = formik.touched
+                  .practiceAddress as PracticeAddressTouched;
 
-              const subIdKey = sub.id as string;
-              const isTouched = addressTouched?.[subIdKey];
-              const errorText = addressErrors?.[subIdKey];
+                const subIdKey = sub.id as string;
+                const isSubTouched = addressTouched?.[subIdKey];
+                const errorText = addressErrors?.[subIdKey];
 
-              return (
-                <Input
-                  key={sub.id}
-                  name={fieldPath}
-                  type={sub.type}
-                  label={index === 0 ? "Practice Address" : ""}
-                  labelPlacement="outside-top"
-                  size="sm"
-                  placeholder={sub.placeholder || ""}
-                  value={
-                    formik.values.practiceAddress[
-                      sub.id as keyof typeof formik.values.practiceAddress
-                    ] as string
-                  }
-                  onChange={(val) =>
-                    formik.setFieldValue(
-                      fieldPath,
-                      sub.type === "tel" ? formatPhoneNumber(val) : val
-                    )
-                  }
-                  maxLength={sub.id === "zip" ? 5 : undefined}
-                  onBlur={() => formik.setFieldTouched(fieldPath)}
-                  isRequired={sub.isRequired}
-                  touched={isTouched as boolean}
-                  error={errorText as string}
-                />
-              );
-            })}
+                return (
+                  <Input
+                    key={sub.id}
+                    name={fieldPath}
+                    type={sub.type}
+                    label={""}
+                    labelPlacement="outside-top"
+                    size="sm"
+                    placeholder={sub.placeholder || ""}
+                    value={
+                      formik.values.practiceAddress[
+                        sub.id as keyof typeof formik.values.practiceAddress
+                      ] as string
+                    }
+                    onChange={(val) =>
+                      formik.setFieldValue(
+                        fieldPath,
+                        sub.type === "tel" ? formatPhoneNumber(val) : val
+                      )
+                    }
+                    maxLength={sub.id === "zip" ? 5 : undefined}
+                    onBlur={() => formik.setFieldTouched(fieldPath)}
+                    isRequired={sub.isRequired}
+                    touched={isSubTouched as boolean}
+                    error={errorText as string}
+                  />
+                );
+              })}
+            </div>
           </div>
         );
 
@@ -617,7 +586,7 @@ export default function ReferralManagementActions({
               placeholder={placeholder || ""}
               labelPlacement="outside-top"
               size="sm"
-              value={formik.values[id] as string}
+              value={value as string}
               onChange={(val) =>
                 formik.setFieldValue(
                   id as string,
@@ -626,8 +595,8 @@ export default function ReferralManagementActions({
               }
               onBlur={formik.handleBlur}
               isRequired={isRequired}
-              error={formik.errors[field.id as string] as string}
-              touched={formik.touched[field.id as string] as boolean}
+              error={error as string}
+              touched={touched as boolean}
               isDisabled={
                 id === "email" && (editedData?.type || isPracticeEdit)
               }
@@ -639,7 +608,7 @@ export default function ReferralManagementActions({
   };
 
   const renderArrayField = (
-    field: (typeof fieldGroups.staffMember)[number],
+    field: (typeof staffMemberFields)[number],
     index: number
   ) => {
     const fieldName = `staff[${index}].${field.id}`;
@@ -778,10 +747,6 @@ export default function ReferralManagementActions({
           : lastStaffMember.role !== ""));
 
     if (!isLastMemberValid) {
-      // Optionally, you might want to show a notification/toast here
-      // to inform the user that they must fill the current staff member's
-      // required fields before adding a new one.
-      // Also manually touch the fields to show validation errors if not already touched
       if (lastStaffMember) {
         formik.setFieldTouched(
           `staff[${staffArray.length - 1}].name`,
@@ -794,7 +759,6 @@ export default function ReferralManagementActions({
           true
         );
       }
-
       return;
     }
 
@@ -872,149 +836,49 @@ export default function ReferralManagementActions({
         onSubmit={formik.handleSubmit}
         className="space-y-3 pb-0.5 h-fit w-full"
       >
-        {!isPracticeEdit && (
-          <div className="border border-gray-200 rounded-xl p-4">
-            <Select
-              size="sm"
-              label="Referrer Type"
-              labelPlacement="outside"
-              isRequired
-              placeholder="Select type"
-              selectedKeys={[formik.values.type]}
-              disabledKeys={[formik.values.type]}
-              onSelectionChange={(keys) =>
-                formik.setFieldValue(
-                  "type",
-                  Array.from(keys)[0] as "doctor" | "patient"
-                )
-              }
-              classNames={{ label: "text-sm font-medium" }}
-              isDisabled={editedData?.type ? true : false}
-            >
-              <SelectItem key="doctor">Doctor Referrer</SelectItem>
-              <SelectItem key="patient">Patient Referrer</SelectItem>
-            </Select>
-          </div>
-        )}
+        <ReferrerTypeSelector
+          formik={formik}
+          isPracticeEdit={!!isPracticeEdit}
+          editedData={editedData}
+        />
 
-        <div className="border border-gray-200 rounded-xl p-4">
-          <h5 className="text-sm font-medium mb-3">Basic Information</h5>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-2.5">
-            {fieldGroups.basic.map(renderField)}
-          </div>
-        </div>
+        <BasicInfoSection formik={formik} renderField={renderField} />
 
         {formik.values.type === "doctor" && (
-          <div className="border border-gray-200 rounded-xl p-4">
-            <h5 className="text-sm font-medium mb-3">Practice Information</h5>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-2.5">
-              {fieldGroups.doctor.map((f) => (
-                <div
-                  key={f.id as string}
-                  className={f.isFullWidth ? "md:col-span-2" : ""}
-                >
-                  {renderField(f)}
-                </div>
-              ))}
-            </div>
-          </div>
+          <DoctorSection
+            formik={formik}
+            renderField={renderField}
+            specialties={specialties || []}
+          />
+        )}
+
+        {formik.values.type === "communityreferrer" && (
+          <CommunitySection formik={formik} renderField={renderField} />
+        )}
+
+        {formik.values.type === "googlereferrer" && (
+          <GoogleSection formik={formik} renderField={renderField} />
+        )}
+
+        {formik.values.type === "socialmediareferrer" && (
+          <SocialMediaSection formik={formik} renderField={renderField} />
+        )}
+
+        {formik.values.type === "eventreferrer" && (
+          <EventSection formik={formik} renderField={renderField} />
         )}
 
         {formik.values.type === "doctor" && (
-          <div className="border border-gray-200 rounded-xl p-4">
-            <div className="flex items-center justify-between mb-3">
-              <h5 className="text-sm font-medium">Doctors & Staff Members</h5>
-              <Button
-                size="sm"
-                variant="bordered"
-                color="default"
-                startContent={<BiUserPlus fontSize={18} />}
-                className="border-small"
-                onPress={handleAddStaff}
-                type="button"
-              >
-                Add Staff
-              </Button>
-            </div>
-
-            {formik.values.staff.length === 0 ? (
-              <div className="flex flex-col items-center justify-center border-2 border-dashed border-foreground/20 rounded-lg py-6 gap-3">
-                <FiUsers className="inline mr-2 text-4xl text-default-400" />
-                <span className="text-sm text-gray-500">
-                  No additional staff members added yet
-                </span>
-                <Button
-                  size="sm"
-                  variant="bordered"
-                  color="default"
-                  startContent={<BiUserPlus fontSize={18} />}
-                  className="border-small"
-                  onPress={handleAddStaff}
-                  type="button"
-                >
-                  Add First Staff Member
-                </Button>
-              </div>
-            ) : (
-              formik.values.staff.map((member: any, index: number) => (
-                <div
-                  key={index}
-                  className="bg-gray-50 p-4 rounded-lg mb-4 border border-gray-200"
-                >
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center justify-between gap-2">
-                      {member.isDentist ? (
-                        <FaStethoscope className="text-blue-600 text-[15px] w-4" />
-                      ) : (
-                        <LuUserRound />
-                      )}
-                      <span className="text-sm font-medium">
-                        Staff Member {index + 1}
-                      </span>
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="light"
-                      color="danger"
-                      isIconOnly
-                      onPress={() => handleRemoveStaff(index)}
-                      type="button"
-                    >
-                      <FiTrash2 className="text-base" />
-                    </Button>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-2.5">
-                    {fieldGroups.staffMember.map((f) => {
-                      const isExperienceField = f.id === "experience";
-                      const isDoctor = member.isDentist;
-
-                      if (isExperienceField && !isDoctor) {
-                        return null;
-                      }
-
-                      return (
-                        <div
-                          key={`${f.id as string}-${index}`}
-                          className={f.isFullWidth ? "md:col-span-2" : ""}
-                        >
-                          {renderArrayField(f, index)}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
+          <StaffSection
+            formik={formik}
+            handleAddStaff={handleAddStaff}
+            handleRemoveStaff={handleRemoveStaff}
+            renderArrayField={renderArrayField}
+            staffMemberFields={staffMemberFields}
+          />
         )}
 
-        <div className="border border-gray-200 rounded-xl p-4">
-          <h5 className="text-sm font-medium mb-3">Additional Information</h5>
-          <div className="grid grid-cols-1 gap-4">
-            {fieldGroups.notes.map(renderField)}
-          </div>
-        </div>
+        <AdditionalNotesSection formik={formik} renderField={renderField} />
       </form>
     </ActionModal>
   );

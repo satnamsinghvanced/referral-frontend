@@ -6,12 +6,15 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@heroui/react";
+import { useRef, useState } from "react";
 import {
   FiCheckCircle,
   FiDownload,
   FiFileText,
   FiUploadCloud,
 } from "react-icons/fi";
+import { IoClose } from "react-icons/io5";
+import { useImportReferralsCSV } from "../../../hooks/useReferral";
 
 interface BulkImportModalProps {
   isOpen: boolean;
@@ -19,6 +22,30 @@ interface BulkImportModalProps {
 }
 
 const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { mutate: importCSV, isPending } = useImportReferralsCSV();
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
+    }
+  };
+
+  const handleImport = () => {
+    if (!selectedFile) return;
+
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+
+    importCSV(formData, {
+      onSuccess: () => {
+        setSelectedFile(null);
+        onClose();
+      },
+    });
+  };
+
   const handleDownloadTemplate = () => {
     // Generate a simple CSV blob
     const headers = [
@@ -26,21 +53,15 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
       "Patient Age*",
       "Phone Number*",
       "Email Address",
-      "Referrer Name*",
-      "Practice Name",
       "Treatment/Reason*",
-      "Date Received*",
       "Referral Source",
     ];
     const dummyRow = [
       "John Doe",
       "30",
-      "555-0123",
+      "555-0123-485",
       "john@example.com",
-      "Dr. Smith",
-      "Smith Dental",
       "Invisalign",
-      "2023-12-01",
       "Direct Referral",
     ];
 
@@ -133,16 +154,60 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
                   </p>
                 </div>
 
-                <div className="border-2 border-dashed border-gray-200 rounded-xl p-6 flex flex-col items-center justify-center text-center gap-3 bg-gray-50/50 hover:bg-gray-50 transition-all cursor-pointer group">
-                  <FiUploadCloud className="size-8 text-gray-400 group-hover:text-primary transition-colors" />
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium text-gray-900">
-                      Click to upload or drag and drop
-                    </p>
-                    <p className="text-xs text-gray-500">
-                      CSV, XLS, or XLSX file
-                    </p>
-                  </div>
+                <input
+                  type="file"
+                  accept=".csv, .xls, .xlsx"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  className="hidden"
+                />
+
+                <div
+                  onClick={() => fileInputRef.current?.click()}
+                  className={`border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center text-center gap-3 transition-all cursor-pointer group ${
+                    selectedFile
+                      ? "border-primary bg-primary/5"
+                      : "border-gray-200 bg-gray-50/50 hover:bg-gray-50"
+                  }`}
+                >
+                  {selectedFile ? (
+                    <>
+                      <div className="size-10 rounded-full bg-primary/10 flex items-center justify-center text-primary relative">
+                        <FiFileText className="size-6" />
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedFile(null);
+                            if (fileInputRef.current)
+                              fileInputRef.current.value = "";
+                          }}
+                          className="absolute -top-0.5 -right-0.5 size-4 rounded-full bg-red-600 text-white flex items-center justify-center hover:bg-red-700/90 transition-colors cursor-pointer"
+                        >
+                          <IoClose className="size-3" />
+                        </button>
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium text-gray-900 truncate max-w-[250px]">
+                          {selectedFile.name}
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          {(selectedFile.size / 1024).toFixed(2)} KB
+                        </p>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <FiUploadCloud className="size-8 text-gray-400 group-hover:text-primary transition-colors" />
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium text-gray-900">
+                          Click to upload or drag and drop
+                        </p>
+                        <p className="text-xs text-gray-500">
+                          CSV, XLS, or XLSX file
+                        </p>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -151,14 +216,12 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
                 <h4 className="font-medium text-sm mb-3">
                   Required Fields Reference
                 </h4>
-                <div className="grid grid-cols-2 gap-y-2 gap-x-4">
+                <div className="grid grid-cols-2 gap-y-2 gap-x-3">
                   {[
                     "Patient Name (required)",
                     "Patient Age (required)",
                     "Referral Source (required)",
-                    "Practice Name (required)",
                     "Treatment/Reason (required)",
-                    "Date Received (required)",
                   ].map((req, i) => (
                     <div
                       key={i}
@@ -188,7 +251,9 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
                 radius="sm"
                 variant="solid"
                 color="primary"
-                onPress={onClose}
+                onPress={handleImport}
+                isLoading={isPending}
+                disabled={!selectedFile}
               >
                 Import Referrals
               </Button>

@@ -13,10 +13,10 @@ export const URGENCY_OPTIONS = [
 ];
 
 export const SOURCE_OPTIONS = [
-  { key: "direct", label: "Direct Referral" },
+  { key: "Direct", label: "Direct Referral" },
   { key: "NFC", label: "NFC Tap" },
   { key: "QR", label: "QR Code" },
-  { key: "call", label: "Phone Call" },
-  { key: "email", label: "Email" },
-  { key: "other", label: "Other" },
+  { key: "Phone", label: "Phone Call" },
+  { key: "Email", label: "Email" },
+  { key: "Other", label: "Other" },
 ];

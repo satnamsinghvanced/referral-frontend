@@ -53,9 +53,9 @@ const CompactPlanCard: React.FC<{
   };
 
   return (
-    <Card className="p-4 rounded-xl border border-primary/15 bg-background shadow-none flex xl:flex-row xl:items-center xl:justify-between max-xl:gap-4">
-      <div className="flex-1 min-w-0 xl:pr-4">
-        <div className="flex items-center gap-2 mb-1 max-xl:justify-between">
+    <Card className="p-4 rounded-lg border border-primary/15 bg-background shadow-none flex items-start justify-between gap-4">
+      <div className="w-full">
+        <div className="flex items-center gap-2 mb-1 justify-between">
           <h4 className="text-sm font-medium truncate">
             {plan.planDetails.name}
           </h4>
@@ -76,7 +76,7 @@ const CompactPlanCard: React.FC<{
         )}
       </div>
 
-      <div className="flex items-center gap-4 max-xl:justify-between max-md:flex-col max-md:items-start">
+      <div className="flex items-start gap-4 justify-between w-full">
         <div className="flex gap-4 max-xl:gap-2 max-md:justify-between max-md:w-full max-sm:flex-wrap max-sm:justify-start max-sm:gap-4">
           <div className={statClass}>
             <div className={statValueClass}>{plan.summary.totalPractices}</div>

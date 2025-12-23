@@ -14,27 +14,34 @@ import {
   Textarea,
   addToast,
 } from "@heroui/react";
-import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
+import {
+  getLocalTimeZone,
+  parseDate,
+  parseDateTime,
+  today,
+} from "@internationalized/date";
 import { useFormik } from "formik";
 import { useState } from "react";
 import { FiCheckCircle, FiPlus } from "react-icons/fi";
 import { LuBuilding } from "react-icons/lu";
 import * as Yup from "yup";
+import { EMAIL_REGEX, PHONE_REGEX } from "../../../consts/consts";
 import { STATUS_OPTIONS } from "../../../consts/filters";
 import {
   SOURCE_OPTIONS,
   TREATMENT_OPTIONS,
   URGENCY_OPTIONS,
 } from "../../../consts/referral";
+import { useCreateReferral } from "../../../hooks/useReferral";
 import { Referrer } from "../../../types/partner";
+import { CreateReferralPayload, ReferralStatus } from "../../../types/referral";
+import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
 
 interface TrackReferralModalProps {
   isOpen: boolean;
   onClose: () => void;
   referrers?: Referrer[];
   onCreateNewReferrer: () => void;
-  onSubmit: (values: any) => void;
-  isLoading?: boolean;
 }
 
 const TrackReferralModal = ({
@@ -42,30 +49,35 @@ const TrackReferralModal = ({
   onClose,
   referrers = [],
   onCreateNewReferrer,
-  onSubmit,
-  isLoading,
 }: TrackReferralModalProps) => {
+  const { mutate: createReferral, isPending: isLoading } = useCreateReferral();
   // Mode: 'existing' | 'new'
   const [referrerMode, setReferrerMode] = useState<"existing" | "new">(
     "existing"
   );
 
   const validationSchema = Yup.object().shape({
-    patientName: Yup.string().required("Patient name is required"),
+    patientName: Yup.string()
+      .required("Patient name is required")
+      .min(2, "Name must be at least 2 characters")
+      .max(100, "Name must be less than 100 characters"),
     patientAge: Yup.number()
       .required("Age is required")
       .integer("Age must be a whole number")
       .min(1, "Age must be greater than 0")
       .max(120, "Age must be less than or equal to 120")
       .typeError("Age must be a number"),
-    phone: Yup.string().required("Phone number is required"),
-    email: Yup.string().email("Invalid email"),
+    phone: Yup.string()
+      .required("Phone number is required")
+      .matches(PHONE_REGEX, "Phone must be in format (XXX) XXX-XXXX"),
+    email: Yup.string()
+      .required("Email is required")
+      .matches(EMAIL_REGEX, "Invalid email format"),
     referrerId: Yup.string().when([], {
       is: () => referrerMode === "existing",
       then: (schema) => schema.required("Please select a referrer"),
     }),
     treatment: Yup.string().required("Reason for referral is required"),
-    dateReceived: Yup.date().required("Date received is required"),
     source: Yup.string().required("Referral source is required"),
   });
 
@@ -76,12 +88,11 @@ const TrackReferralModal = ({
       phone: "",
       email: "",
       referrerId: "",
-      treatment: "",
-      dateReceived: new Date().toISOString().split("T")[0],
+      treatment: TREATMENT_OPTIONS[0]?.key,
       scheduledDate: "",
       status: "new",
       urgency: "medium",
-      source: "direct",
+      source: "Direct",
       estimatedValue: "",
       notes: "",
     },
@@ -100,9 +111,49 @@ const TrackReferralModal = ({
         });
         return;
       }
-      onSubmit(values);
+
+      const payload: CreateReferralPayload = {
+        name: values.patientName,
+        age: Number(values.patientAge),
+        phone: values.phone,
+        email: values.email || undefined,
+        referredBy: values.referrerId,
+        treatment: values.treatment as string,
+        addedVia: values.source,
+        priority: values.urgency,
+        estValue: Number(values.estimatedValue) || 0,
+        notes: values.notes,
+        status: values.status as ReferralStatus,
+        scheduledDate: values.scheduledDate || undefined,
+      };
+
+      createReferral(payload, {
+        onSuccess: () => {
+          onClose();
+          formik.resetForm();
+        },
+      });
     },
   });
+  const handleInputChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    fieldName: string,
+    type: string,
+    maxLength?: number
+  ) => {
+    let value: string | number | undefined = event.target.value;
+
+    if (type === "tel") {
+      value = formatPhoneNumber(value);
+    } else if (type === "number") {
+      if (maxLength && value.length > maxLength) {
+        return;
+      }
+      value = value === "" ? "" : value.replace(/\D/g, "");
+    }
+
+    formik.setFieldValue(fieldName, value);
+  };
 
   return (
     <Modal
@@ -139,6 +190,7 @@ const TrackReferralModal = ({
                     radius="sm"
                     variant="flat"
                     name="patientName"
+                    maxLength={100}
                     value={formik.values.patientName || ""}
                     onChange={formik.handleChange}
                     isInvalid={
@@ -149,17 +201,24 @@ const TrackReferralModal = ({
                     errorMessage={formik.errors.patientName}
                   />
                   <Input
+                    size="sm"
+                    radius="sm"
+                    variant="flat"
                     label="Patient Age"
                     labelPlacement="outside"
                     placeholder="e.g., 25"
                     isRequired
-                    type="number"
-                    size="sm"
-                    radius="sm"
-                    variant="flat"
                     name="patientAge"
+                    maxLength={3}
                     value={formik.values.patientAge.toString() || ""}
-                    onChange={formik.handleChange}
+                    onChange={(e) =>
+                      handleInputChange(
+                        e as React.ChangeEvent<HTMLInputElement>,
+                        "patientAge",
+                        "number",
+                        3
+                      )
+                    }
                     isInvalid={
                       !!(formik.errors.patientAge && formik.touched.patientAge)
                     }
@@ -174,8 +233,15 @@ const TrackReferralModal = ({
                     radius="sm"
                     variant="flat"
                     name="phone"
+                    maxLength={14}
                     value={formik.values.phone || ""}
-                    onChange={formik.handleChange}
+                    onChange={(e) =>
+                      handleInputChange(
+                        e as React.ChangeEvent<HTMLInputElement>,
+                        "phone",
+                        "tel"
+                      )
+                    }
                     isInvalid={!!(formik.errors.phone && formik.touched.phone)}
                     errorMessage={formik.errors.phone}
                   />
@@ -187,6 +253,7 @@ const TrackReferralModal = ({
                     radius="sm"
                     variant="flat"
                     name="email"
+                    maxLength={255}
                     value={formik.values.email || ""}
                     onChange={formik.handleChange}
                     isInvalid={!!(formik.errors.email && formik.touched.email)}
@@ -200,7 +267,7 @@ const TrackReferralModal = ({
                 <h4 className="font-medium text-sm">Referrer Information</h4>
 
                 <div className="space-y-3">
-                  <div className="space-y-1.5">
+                  <div className="space-y-2">
                     <label className="block text-xs">
                       How would you like to track this referrer?
                     </label>
@@ -300,10 +367,10 @@ const TrackReferralModal = ({
               <div className="border border-gray-200 rounded-xl p-4 space-y-3">
                 <h4 className="font-medium text-sm">Referral Details</h4>
 
-                <div className="space-y-4">
+                <div className="flex flex-col gap-y-4">
                   <div className="flex">
                     <Select
-                      label="Reason for Referral"
+                      label="Treatment/Reason for Referral"
                       labelPlacement="outside"
                       placeholder="Select reason"
                       isRequired
@@ -322,6 +389,7 @@ const TrackReferralModal = ({
                         !!(formik.errors.treatment && formik.touched.treatment)
                       }
                       errorMessage={formik.errors.treatment}
+                      variant="flat"
                     >
                       {TREATMENT_OPTIONS.map((option) => (
                         <SelectItem key={option.key}>{option.label}</SelectItem>
@@ -329,35 +397,7 @@ const TrackReferralModal = ({
                     </Select>
                   </div>
 
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-2.5 gap-y-4">
-                    <DatePicker
-                      label="Date Received"
-                      labelPlacement="outside"
-                      isRequired
-                      variant="flat"
-                      radius="sm"
-                      size="sm"
-                      name="dateReceived"
-                      value={
-                        formik.values.dateReceived
-                          ? parseDate(formik.values.dateReceived)
-                          : null
-                      }
-                      onChange={(date) =>
-                        formik.setFieldValue(
-                          "dateReceived",
-                          date ? date.toString() : ""
-                        )
-                      }
-                      isInvalid={
-                        !!(
-                          formik.errors.dateReceived &&
-                          formik.touched.dateReceived
-                        )
-                      }
-                      errorMessage={formik.errors.dateReceived as string}
-                    />
-
+                  <div className="flex">
                     <DatePicker
                       label="Scheduled Date"
                       labelPlacement="outside"
@@ -365,18 +405,50 @@ const TrackReferralModal = ({
                       radius="sm"
                       size="sm"
                       name="scheduledDate"
+                      hideTimeZone
+                      granularity="minute"
                       minValue={today(getLocalTimeZone())}
                       value={
                         formik.values.scheduledDate
-                          ? parseDate(formik.values.scheduledDate)
+                          ? formik.values.scheduledDate.includes("T")
+                            ? parseDateTime(
+                                formik.values.scheduledDate.slice(0, 19)
+                              )
+                            : parseDateTime(
+                                `${formik.values.scheduledDate}T00:00:00`
+                              )
                           : null
                       }
-                      onChange={(date) =>
-                        formik.setFieldValue(
-                          "scheduledDate",
-                          date ? date.toString() : ""
-                        )
-                      }
+                      onChange={(dateObject: any) => {
+                        if (dateObject) {
+                          const year = dateObject.year;
+                          const month = String(dateObject.month).padStart(
+                            2,
+                            "0"
+                          );
+                          const day = String(dateObject.day).padStart(2, "0");
+                          const hour = String(dateObject.hour).padStart(2, "0");
+                          const minute = String(dateObject.minute).padStart(
+                            2,
+                            "0"
+                          );
+                          const second = String(dateObject.second).padStart(
+                            2,
+                            "0"
+                          );
+                          const millisecond = String(
+                            dateObject.millisecond
+                          ).padStart(3, "0");
+
+                          const localDateTimeString = `${year}-${month}-${day}T${hour}:${minute}:${second}.${millisecond}`;
+                          formik.setFieldValue(
+                            "scheduledDate",
+                            localDateTimeString
+                          );
+                        } else {
+                          formik.setFieldValue("scheduledDate", "");
+                        }
+                      }}
                     />
                   </div>
 

@@ -1,5 +1,5 @@
 import { Card, CardBody, CardHeader } from "@heroui/react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { BsLightningCharge } from "react-icons/bs";
 import { FaGoogle, FaTiktok } from "react-icons/fa";
 import { FaMeta, FaRegEnvelope } from "react-icons/fa6";
@@ -17,6 +17,11 @@ import { timeAgo } from "../../utils/timeAgo";
 import IntegrationItem from "./IntegrationItem";
 import GoogleCalendarConfigModal from "./modal/GoogleCalendarConfigModal";
 import TwilioConfigurationModal from "./modal/TwilioConfigurationModal";
+import EmailMarketingConfigModal from "./modal/EmailMarketingConfigModal";
+import {
+  useFetchEmailIntegration,
+  useUpdateEmailIntegration,
+} from "../../hooks/integrations/useEmailMarketing";
 
 function Integrations() {
   const { user } = useTypedSelector((state) => state.auth);
@@ -30,6 +35,11 @@ function Integrations() {
   const [isTwilioIntegrationModalOpen, setIsTwilioIntegrationModalOpen] =
     useState(false);
 
+  const [
+    isEmailMarketingIntegrationModalOpen,
+    setIsEmailMarketingIntegrationModalOpen,
+  ] = useState(false);
+
   const {
     data: googleCalendarExistingConfig,
     isLoading: isGoogleCalendarConfigLoading,
@@ -39,6 +49,16 @@ function Integrations() {
   const { mutate: updateGoogleCalendarIntegration } =
     useUpdateGoogleCalendarIntegration();
 
+  const { data: emailExistingConfig, isLoading: isEmailConfigLoading } =
+    useFetchEmailIntegration();
+
+  const { mutate: updateEmailIntegration } = useUpdateEmailIntegration();
+
+  // Normalize email config to handle both single object and array responses
+  const emailConfig = Array.isArray(emailExistingConfig)
+    ? emailExistingConfig[0]
+    : emailExistingConfig;
+
   const HEADING_DATA = {
     heading: "Integrations",
     subHeading:
@@ -46,134 +66,171 @@ function Integrations() {
     buttons: [],
   };
 
-  const AVAILABLE_INTEGRATIONS = [
-    {
-      name: "Google My Business",
-      icon: <FaGoogle className="w-4 h-4" />,
-      iconBg: "bg-red-100",
-      iconColor: "text-red-600",
-      status: "Disconnected" as const,
-      description:
-        "Automatically sync reviews and manage your practice listing",
-      badges: [
-        "Review sync",
-        "Business listing management",
-        "Analytics integration",
-      ],
-      lastSync: "2 hours ago",
-    },
-    {
-      name: "Practice Management System",
-      icon: <TbDatabase className="w-4 h-4" />,
-      iconBg: "bg-blue-100",
-      iconColor: "text-blue-600",
-      status: "Disconnected" as const,
-      description: "Connect your PMS to automatically track patient referrals",
-      badges: [
-        "Patient data sync",
-        "Appointment tracking",
-        "Referral automation",
-      ],
-      lastSync: "15 minutes ago",
-    },
-    {
-      name: "Email Marketing Platform",
-      icon: <FaRegEnvelope className="w-4 h-4" />,
-      iconBg: "bg-green-100",
-      iconColor: "text-green-600",
-      status: "Disconnected" as const,
-      description: "Send automated follow-up emails to referred patients",
-      badges: ["Automated campaigns", "Patient follow-ups", "Email analytics"],
-    },
-    {
-      name: "Google Calendar Integration",
-      icon: <LuCalendar className="w-4 h-4" />,
-      iconBg: "bg-purple-100",
-      iconColor: "text-purple-600",
-      status:
-        (googleCalendarExistingConfig?.status as string) || "Disconnected",
-      description: "Sync appointments and referral scheduling",
-      badges: [
-        "Appointment sync",
-        "Referral scheduling",
-        "Availability management",
-      ],
-      lastSync: timeAgo(
-        googleCalendarExistingConfig?.lastSyncAt || new Date().toISOString()
-      ),
-      onConnect: () => setIsGoogleCalendarIntegrationModalOpen(true),
-      onConfigure: () => setIsGoogleCalendarIntegrationModalOpen(true),
-      isSwitchChecked: googleCalendarExistingConfig?.status === "Connected",
-      onSwitchChange: () => {
-        updateGoogleCalendarIntegration({
-          id: googleCalendarExistingConfig?._id as string,
-          data: {
-            status:
-              googleCalendarExistingConfig?.status === "Connected"
-                ? "Disconnected"
-                : "Connected",
-          },
-        });
+  const AVAILABLE_INTEGRATIONS = useMemo(() => {
+    return [
+      {
+        name: "Google My Business",
+        icon: <FaGoogle className="w-4 h-4" />,
+        iconBg: "bg-red-100",
+        iconColor: "text-red-600",
+        status: "Disconnected" as const,
+        description:
+          "Automatically sync reviews and manage your practice listing",
+        badges: [
+          "Review sync",
+          "Business listing management",
+          "Analytics integration",
+        ],
+        lastSync: "2 hours ago",
       },
-    },
-    {
-      name: "Google Ads",
-      icon: <SiGoogleads className="w-4 h-4" />,
-      iconBg: "bg-blue-100",
-      iconColor: "text-blue-600",
-      status: "Disconnected" as const,
-      description: "Sync ad performance and optimize referral-based campaigns",
-      badges: [
-        "Campaign tracking",
-        "Conversion attribution",
-        "Ad spend analytics",
-      ],
-    },
-    {
-      name: "Meta Ads",
-      icon: <FaMeta className="w-4 h-4" />,
-      iconBg: "bg-indigo-100",
-      iconColor: "text-indigo-600",
-      status: "Disconnected" as const,
-      description: "Connect Facebook & Instagram Ads for referral targeting",
-      badges: [
-        "Audience sync",
-        "Lead tracking",
-        "Campaign performance insights",
-      ],
-    },
-    {
-      name: "TikTok Ads",
-      icon: <FaTiktok className="w-4 h-4" />,
-      iconBg: "bg-gray-100",
-      iconColor: "text-gray-700",
-      status: "Disconnected" as const,
-      description: "Track TikTok ad campaigns and boost referral engagement",
-      badges: ["Pixel tracking", "Campaign reporting", "Audience insights"],
-    },
-    {
-      name: "Twilio Calling Integration",
-      icon: <TbBrandTwilio className="w-4 h-4" />,
-      iconBg: "bg-red-100",
-      iconColor: "text-red-600",
-      status: "Disconnected" as const,
-      description:
-        "Automate patient calls and streamline referral communication",
-      badges: ["Click-to-call", "Call analytics", "Automated voice follow-ups"],
-      onConnect: () => setIsTwilioIntegrationModalOpen(true),
-      onConfigure: () => setIsTwilioIntegrationModalOpen(true),
-    },
+      {
+        name: "Practice Management System",
+        icon: <TbDatabase className="w-4 h-4" />,
+        iconBg: "bg-blue-100",
+        iconColor: "text-blue-600",
+        status: "Disconnected" as const,
+        description:
+          "Connect your PMS to automatically track patient referrals",
+        badges: [
+          "Patient data sync",
+          "Appointment tracking",
+          "Referral automation",
+        ],
+        lastSync: "15 minutes ago",
+      },
+      {
+        name: "Email Marketing Platform",
+        icon: <FaRegEnvelope className="w-4 h-4" />,
+        iconBg: "bg-green-100",
+        iconColor: "text-green-600",
+        status:
+          emailConfig?.status === "connected" ? "Connected" : "Disconnected",
+        description: "Send automated follow-up emails to referred patients",
+        badges: [
+          "Automated campaigns",
+          "Patient follow-ups",
+          "Email analytics",
+        ],
+        lastSync: emailConfig?.lastTestedAt
+          ? timeAgo(emailConfig.lastTestedAt)
+          : undefined,
+        onConnect: () => setIsEmailMarketingIntegrationModalOpen(true),
+        onConfigure: () => setIsEmailMarketingIntegrationModalOpen(true),
+        isSwitchChecked: emailConfig?.status === "connected",
+        onSwitchChange: () => {
+          if (emailConfig?._id) {
+            updateEmailIntegration({
+              id: emailConfig._id,
+              data: {
+                ...emailConfig,
+                status:
+                  emailConfig.status === "connected"
+                    ? "disconnected"
+                    : "connected",
+              },
+            });
+          }
+        },
+      },
+      {
+        name: "Google Calendar Integration",
+        icon: <LuCalendar className="w-4 h-4" />,
+        iconBg: "bg-purple-100",
+        iconColor: "text-purple-600",
+        status: googleCalendarExistingConfig?.status || "Disconnected",
+        description: "Sync appointments and referral scheduling",
+        badges: [
+          "Appointment sync",
+          "Referral scheduling",
+          "Availability management",
+        ],
+        lastSync: timeAgo(
+          googleCalendarExistingConfig?.lastSyncAt || new Date().toISOString()
+        ),
+        onConnect: () => setIsGoogleCalendarIntegrationModalOpen(true),
+        onConfigure: () => setIsGoogleCalendarIntegrationModalOpen(true),
+        isSwitchChecked: googleCalendarExistingConfig?.status === "Connected",
+        onSwitchChange: () => {
+          updateGoogleCalendarIntegration({
+            id: googleCalendarExistingConfig?._id as string,
+            data: {
+              status:
+                googleCalendarExistingConfig?.status === "Connected"
+                  ? "Disconnected"
+                  : "Connected",
+            },
+          });
+        },
+      },
+      {
+        name: "Google Ads",
+        icon: <SiGoogleads className="w-4 h-4" />,
+        iconBg: "bg-blue-100",
+        iconColor: "text-blue-600",
+        status: "Disconnected" as const,
+        description:
+          "Sync ad performance and optimize referral-based campaigns",
+        badges: [
+          "Campaign tracking",
+          "Conversion attribution",
+          "Ad spend analytics",
+        ],
+      },
+      {
+        name: "Meta Ads",
+        icon: <FaMeta className="w-4 h-4" />,
+        iconBg: "bg-indigo-100",
+        iconColor: "text-indigo-600",
+        status: "Disconnected" as const,
+        description: "Connect Facebook & Instagram Ads for referral targeting",
+        badges: [
+          "Audience sync",
+          "Lead tracking",
+          "Campaign performance insights",
+        ],
+      },
+      {
+        name: "TikTok Ads",
+        icon: <FaTiktok className="w-4 h-4" />,
+        iconBg: "bg-gray-100",
+        iconColor: "text-gray-700",
+        status: "Disconnected" as const,
+        description: "Track TikTok ad campaigns and boost referral engagement",
+        badges: ["Pixel tracking", "Campaign reporting", "Audience insights"],
+      },
+      {
+        name: "Twilio Calling Integration",
+        icon: <TbBrandTwilio className="w-4 h-4" />,
+        iconBg: "bg-red-100",
+        iconColor: "text-red-600",
+        status: "Disconnected" as const,
+        description:
+          "Automate patient calls and streamline referral communication",
+        badges: [
+          "Click-to-call",
+          "Call analytics",
+          "Automated voice follow-ups",
+        ],
+        onConnect: () => setIsTwilioIntegrationModalOpen(true),
+        onConfigure: () => setIsTwilioIntegrationModalOpen(true),
+      },
 
-    {
-      name: "Google Analytics",
-      icon: <BsLightningCharge className="w-4 h-4" />,
-      iconBg: "bg-yellow-100",
-      iconColor: "text-yellow-600",
-      status: "Disconnected" as const,
-      description: "Advanced reporting and data visualization tools",
-      badges: ["Custom dashboards", "Advanced analytics", "Data export"],
-    },
-  ];
+      {
+        name: "Google Analytics",
+        icon: <BsLightningCharge className="w-4 h-4" />,
+        iconBg: "bg-yellow-100",
+        iconColor: "text-yellow-600",
+        status: "Disconnected" as const,
+        description: "Advanced reporting and data visualization tools",
+        badges: ["Custom dashboards", "Advanced analytics", "Data export"],
+      },
+    ];
+  }, [
+    emailConfig,
+    googleCalendarExistingConfig,
+    updateEmailIntegration,
+    updateGoogleCalendarIntegration,
+  ]);
 
   return (
     <>
@@ -207,6 +264,13 @@ function Integrations() {
         userId={userId as string}
         isOpen={isTwilioIntegrationModalOpen}
         onClose={() => setIsTwilioIntegrationModalOpen(false)}
+      />
+
+      <EmailMarketingConfigModal
+        isOpen={isEmailMarketingIntegrationModalOpen}
+        onOpenChange={setIsEmailMarketingIntegrationModalOpen}
+        existingConfig={emailConfig}
+        isLoading={isEmailConfigLoading}
       />
     </>
   );

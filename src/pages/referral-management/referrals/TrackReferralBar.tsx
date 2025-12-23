@@ -27,7 +27,7 @@ const TrackReferralBar = ({
           startContent={<FiPlus className="text-[15px]" />}
           onPress={onTrackReferral}
         >
-          Track Referral
+          Add Referral
         </Button>
         <Button
           startContent={<FiUpload className="text-[15px]" />}

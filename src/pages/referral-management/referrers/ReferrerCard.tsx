@@ -1,11 +1,12 @@
-import React from "react";
-import { FiEye } from "react-icons/fi";
 import { Button } from "@heroui/react";
-import { Chip } from "@heroui/react";
-import { LuUsers } from "react-icons/lu";
+import React from "react";
+import { FaGoogle, FaRegStar } from "react-icons/fa";
+import { FiEye } from "react-icons/fi";
+import { LuShare2, LuTrophy, LuUsers } from "react-icons/lu";
+import { RiUserCommunityLine } from "react-icons/ri";
 import { Link } from "react-router";
-import { FaRegStar } from "react-icons/fa";
 import { Referrer } from "../../../types/partner";
+import { SiGoogle } from "react-icons/si";
 
 interface ReferrerButton {
   label: string;
@@ -22,7 +23,7 @@ interface ReferrerButton {
   className?: string;
   link?: string;
   linkInNewTab?: boolean;
-  isHide?: false;
+  isHide?: boolean;
 }
 
 interface ReferrerCardProps {
@@ -46,49 +47,82 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
     }
   };
 
+  const config = React.useMemo(() => {
+    switch (referrer.type) {
+      case "doctor":
+        return {
+          icon: <LuUsers />,
+          bgColor: "bg-blue-100",
+          textColor: "text-blue-600",
+          label: referrer?.practice?.name || "Doctor Referrer",
+        };
+      case "patient":
+        return {
+          icon: <FaRegStar />,
+          bgColor: "bg-emerald-100",
+          textColor: "text-emerald-600",
+          label: "Patient Referrer",
+        };
+      case "communityreferrer":
+        return {
+          icon: <RiUserCommunityLine />,
+          bgColor: "bg-orange-100",
+          textColor: "text-orange-600",
+          label: "Community Referrer",
+        };
+      case "googlereferrer":
+        return {
+          icon: <SiGoogle />,
+          bgColor: "bg-indigo-100",
+          textColor: "text-indigo-600",
+          label: "Online/Google Referrer",
+        };
+      case "socialmediareferrer":
+        return {
+          icon: <LuShare2 />,
+          bgColor: "bg-purple-100",
+          textColor: "text-purple-600",
+          label: "Social Media Referrer",
+        };
+      case "eventreferrer":
+        return {
+          icon: <LuTrophy />,
+          bgColor: "bg-amber-100",
+          textColor: "text-amber-600",
+          label: "Event Referrer",
+        };
+      default:
+        return {
+          icon: <LuUsers />,
+          bgColor: "bg-gray-100",
+          textColor: "text-gray-600",
+          label: "Referrer",
+        };
+    }
+  }, [referrer]);
+
   return (
-    <div className="md:flex md:justify-between md:items-center border border-foreground/10 rounded-xl p-4 bg-background max-md:space-y-3.5">
+    <div className="md:flex md:justify-between md:items-center border border-foreground/10 rounded-lg p-3.5 bg-background max-md:space-y-3.5">
       {/* Left Section */}
       <div className="flex items-center gap-2.5 md:gap-3">
         <div
-          className={`text-lg md:text-[22px] min-w-8 md:min-w-10 aspect-square h-full p-0.5 rounded-lg flex justify-center items-center ${
-            referrer?.type === "doctor"
-              ? "bg-blue-100 text-blue-600"
-              : "bg-green-100 text-green-600"
-          }`}
+          className={`text-lg md:text-xl min-w-8 md:min-w-10 aspect-square h-full p-0.5 rounded-lg flex justify-center items-center ${config.bgColor} ${config.textColor}`}
         >
-          {referrer?.type === "doctor" ? <LuUsers /> : <FaRegStar />}
+          {config.icon}
         </div>
-        <div className="flex flex-col gap-1 w-full">
+        <div className="flex flex-col gap-1 w-full text-left">
           <p className="text-sm font-medium">{referrer.name}</p>
-          <p className="text-xs text-gray-600">
-            {referrer?.type === "doctor"
-              ? referrer?.practice?.name
-              : "Patient Referrer"}
-          </p>
+          <p className="text-xs text-gray-600 line-clamp-1">{config.label}</p>
 
           <div className="flex items-center gap-3.5 text-xs text-gray-600">
             <div className="flex items-center gap-1.5">
               <span>{referrer.referrals.length} total</span>
-              <span className="p-0.5 bg-foreground/50 rounded-full aspect-square h-fit w-fit"></span>
+              <span className="p-0.5 bg-gray-600/60 rounded-full aspect-square h-fit w-fit"></span>
               <span>
-                {referrer.thisMonthReferralCount &&
-                  referrer.thisMonthReferralCount}
+                {referrer.thisMonthReferralCount || 0}
                 <span> this month</span>
               </span>
             </div>
-
-            {/* {referrer.qrCode ? (
-              <Chip
-                color="primary"
-                size="sm"
-                variant="flat"
-                radius="sm"
-                className="capitalize text-[11px] h-5"
-              >
-                QR
-              </Chip>
-            ) : null} */}
           </div>
         </div>
       </div>

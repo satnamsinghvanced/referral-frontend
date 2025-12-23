@@ -19,7 +19,7 @@ import ReferralStatusChip from "../../../components/chips/ReferralStatusChip";
 import EmptyState from "../../../components/common/EmptyState";
 import { LoadingState } from "../../../components/common/LoadingState";
 import { STATUS_OPTIONS } from "../../../consts/filters";
-import { TREATMENT_OPTIONS } from "../../../consts/referral";
+import { SOURCE_OPTIONS, TREATMENT_OPTIONS } from "../../../consts/referral";
 import {
   FetchReferralsParams,
   FilterStats,
@@ -44,13 +44,6 @@ interface AllReferralsViewProps {
   filterStats: FilterStats;
   isLoading: boolean;
 }
-
-const sourceOptions = [
-  { label: "All Sources", value: "" },
-  { label: "QR Code", value: "QR" },
-  { label: "NFC", value: "NFC" },
-  { label: "Direct Referral", value: "Direct" },
-];
 
 const AllReferralsView: React.FC<AllReferralsViewProps> = ({
   onBackToOverview,
@@ -85,7 +78,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
 
     const filterSource = currentFilters.source
       ? `  •  ${
-          sourceOptions.find((item) => item.value === currentFilters.source)
+          SOURCE_OPTIONS.find((item) => item.key === currentFilters.source)
             ?.label
         } only`
       : "";
@@ -192,13 +185,6 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
             ""
           )}
           <div className="flex items-center space-x-1">
-            {referral.phone && (
-              <Link to={`tel:${referral.phone}`}>
-                <Button isIconOnly size="sm" variant="light">
-                  <BiPhone className="h-4 w-4" />
-                </Button>
-              </Link>
-            )}
             {referral.email && (
               <Link to={`mailto:${referral.email}`}>
                 <Button isIconOnly size="sm" variant="light">
@@ -369,11 +355,16 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                 onFilterChange("source", Array.from(keys)[0] as string)
               }
             >
-              {sourceOptions.map((source) => (
-                <SelectItem key={source.value} className="capitalize">
-                  {source.label}
+              <>
+                <SelectItem key="" className="capitalize">
+                  All Sources
                 </SelectItem>
-              ))}
+                {SOURCE_OPTIONS.map((source) => (
+                  <SelectItem key={source.key} className="capitalize">
+                    {source.label}
+                  </SelectItem>
+                ))}
+              </>
             </Select>
 
             <div className="flex gap-2 md:gap-3">

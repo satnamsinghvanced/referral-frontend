@@ -54,7 +54,7 @@ const PlanCard: React.FC<{
     >
       <CardHeader data-slot="card-header" className="px-4 pt-4 pb-1">
         <div className="w-full">
-          <div className="flex items-center justify-between mb-2 w-full gap-2 max-md:mb-1">
+          <div className="flex items-center justify-between mb-1 w-full gap-2">
             <h4 data-slot="card-title" className="text-sm">
               {plan.planDetails.name}
             </h4>

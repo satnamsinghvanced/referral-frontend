@@ -199,30 +199,31 @@ export default function ScheduleVisits({
 
   return (
     <>
-      <div className="md:flex md:items-center md:justify-between max-md:space-y-3.5 max-md:mt-2">
-        <div className="space-y-1">
-          <h3 className="text-base">Schedule Referrer Visits</h3>
-          <p className="text-xs text-gray-600">
-            Plan your visits to multiple referrers with route optimization
-          </p>
+      <div className="bg-background flex flex-col gap-4 border border-primary/15 rounded-xl p-4">
+        <div className="md:flex md:items-center md:justify-between max-md:space-y-3.5 max-md:mt-2">
+          <div className="space-y-1">
+            <h3 className="text-sm">Schedule Referrer Visits</h3>
+            <p className="text-xs text-gray-600">
+              Plan your visits to multiple referrers with route optimization
+            </p>
+          </div>
+          <Button
+            size="sm"
+            variant="solid"
+            color="primary"
+            startContent={<MdOutlineCalendarToday />}
+            onPress={() => {
+              setIsScheduleVisitModalOpen(true);
+              setEditPlan(null);
+            }}
+          >
+            Schedule Visit
+          </Button>
         </div>
-        <Button
-          size="sm"
-          variant="solid"
-          color="primary"
-          startContent={<MdOutlineCalendarToday />}
-          onPress={() => {
-            setIsScheduleVisitModalOpen(true);
-            setEditPlan(null);
-          }}
-        >
-          Schedule Visit
-        </Button>
-      </div>
 
-      {/* {dashboardStats?.totalPlans > 0 && ( */}
-      <div className="space-y-4 md:space-y-5">
-        {/* <Card
+        {/* {dashboardStats?.totalPlans > 0 && ( */}
+        <div className="space-y-4 md:space-y-5">
+          {/* <Card
           data-slot="card"
           className="rounded-xl border border-primary/15 shadow-none"
         >
@@ -259,106 +260,106 @@ export default function ScheduleVisits({
           </CardBody>
         </Card> */}
 
-        <div className="md:flex md:items-center md:justify-between border-primary/15 border rounded-xl bg-background p-4 max-md:space-y-3">
-          <div className="md:flex md:items-center md:gap-3 grid grid-cols-6 gap-2">
-            <Select
-              aria-label="Filter Plans"
-              placeholder="All Plans"
-              size="sm"
-              radius="sm"
-              selectedKeys={[filters.status] as string[]}
-              disabledKeys={[filters.status] as string[]}
-              onSelectionChange={(keys) =>
-                handleFilterChange("status", Array.from(keys)[0] as string)
-              }
-              className="min-w-[160px] col-span-full"
-            >
-              <SelectItem key="all">All Plans</SelectItem>
-              <SelectItem key="active">Active</SelectItem>
-              <SelectItem key="inProgress">In Progress</SelectItem>
-              <SelectItem key="draft">Draft</SelectItem>
-            </Select>
-            <Select
-              aria-label="Filter by Month"
-              placeholder="Month"
-              size="sm"
-              radius="sm"
-              selectedKeys={[filters.sortBy] as string[]}
-              disabledKeys={[filters.sortBy] as string[]}
-              onSelectionChange={(keys) => {
-                handleFilterChange("sortBy", Array.from(keys)[0] as string);
-              }}
-              className="md:min-w-[160px] col-span-3"
-            >
-              <SelectItem key="month">Month</SelectItem>
-              <SelectItem key="name">Name</SelectItem>
-              <SelectItem key="createdDate">Created Date</SelectItem>
-              <SelectItem key="updatedDate">Updated Date</SelectItem>
-            </Select>
-            <Button
-              size="sm"
-              variant="ghost"
-              onPress={handleOrderToggle}
-              className="border-small md:min-w-[90px] col-span-2"
-            >
-              {filters.order === "desc" ? "Descending" : "Ascending"}
-            </Button>
-            <Button
-              size="sm"
-              variant="ghost"
-              onPress={() => setIsCompactMode(!isCompactMode)}
-              className="border-small size-8 min-w-8 p-0 max-md:w-full"
-              title={isCompactMode ? "Show Grid View" : "Show List View"}
-              startContent={
-                isCompactMode ? (
-                  <LuCalendar className="size-3.5" />
-                ) : (
-                  <FiFileText className="size-3.5" />
-                )
-              }
-              isIconOnly
-            />
+          <div className="md:flex md:items-center md:justify-between max-md:space-y-3">
+            <div className="md:flex md:items-center md:gap-3 grid grid-cols-6 gap-2">
+              <Select
+                aria-label="Filter Plans"
+                placeholder="All Plans"
+                size="sm"
+                radius="sm"
+                selectedKeys={[filters.status] as string[]}
+                disabledKeys={[filters.status] as string[]}
+                onSelectionChange={(keys) =>
+                  handleFilterChange("status", Array.from(keys)[0] as string)
+                }
+                className="min-w-[160px] col-span-full"
+              >
+                <SelectItem key="all">All Plans</SelectItem>
+                <SelectItem key="active">Active</SelectItem>
+                <SelectItem key="inProgress">In Progress</SelectItem>
+                <SelectItem key="draft">Draft</SelectItem>
+              </Select>
+              <Select
+                aria-label="Filter by Month"
+                placeholder="Month"
+                size="sm"
+                radius="sm"
+                selectedKeys={[filters.sortBy] as string[]}
+                disabledKeys={[filters.sortBy] as string[]}
+                onSelectionChange={(keys) => {
+                  handleFilterChange("sortBy", Array.from(keys)[0] as string);
+                }}
+                className="md:min-w-[160px] col-span-3"
+              >
+                <SelectItem key="month">Month</SelectItem>
+                <SelectItem key="name">Name</SelectItem>
+                <SelectItem key="createdDate">Created Date</SelectItem>
+                <SelectItem key="updatedDate">Updated Date</SelectItem>
+              </Select>
+              <Button
+                size="sm"
+                variant="ghost"
+                onPress={handleOrderToggle}
+                className="border-small md:min-w-[90px] col-span-2"
+              >
+                {filters.order === "desc" ? "Descending" : "Ascending"}
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                onPress={() => setIsCompactMode(!isCompactMode)}
+                className="border-small size-8 min-w-8 p-0 max-md:w-full"
+                title={isCompactMode ? "Show Grid View" : "Show List View"}
+                startContent={
+                  isCompactMode ? (
+                    <LuCalendar className="size-3.5" />
+                  ) : (
+                    <FiFileText className="size-3.5" />
+                  )
+                }
+                isIconOnly
+              />
+            </div>
+            <div className="text-xs text-gray-600">
+              Showing {schedulePlans.length} of {pagination?.totalData} plans
+            </div>
           </div>
-          <div className="text-xs text-gray-600">
-            Showing {schedulePlans.length} of {pagination?.totalData} plans
-          </div>
-        </div>
 
-        <div>
-          <div
-            className={`${
-              !isCompactMode
-                ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
-                : "space-y-3"
-            }`}
-          >
-            <PlanListContent />
+          <div>
+            <div
+              className={`${
+                !isCompactMode
+                  ? "grid grid-cols-1 md:grid-cols-2 gap-4"
+                  : "space-y-3"
+              }`}
+            >
+              <PlanListContent />
+            </div>
+            {pagination && pagination.totalPages > 1 ? (
+              <Pagination
+                showControls
+                size="sm"
+                radius="sm"
+                initialPage={1}
+                page={filters.page as number}
+                onChange={(page) => {
+                  setFilters((prev) => ({ ...prev, page }));
+                }}
+                total={pagination?.totalPages as number}
+                classNames={{
+                  base: "flex justify-center py-3 mt-2",
+                  wrapper: "gap-1.5",
+                  item: "bg-background cursor-pointer",
+                  prev: "bg-background cursor-pointer",
+                  next: "bg-background cursor-pointer",
+                }}
+              />
+            ) : (
+              ""
+            )}
           </div>
-          {pagination && pagination.totalPages > 1 ? (
-            <Pagination
-              showControls
-              size="sm"
-              radius="sm"
-              initialPage={1}
-              page={filters.page as number}
-              onChange={(page) => {
-                setFilters((prev) => ({ ...prev, page }));
-              }}
-              total={pagination?.totalPages as number}
-              classNames={{
-                base: "flex justify-center py-3 mt-2",
-                wrapper: "gap-1.5",
-                item: "bg-background cursor-pointer",
-                prev: "bg-background cursor-pointer",
-                next: "bg-background cursor-pointer",
-              }}
-            />
-          ) : (
-            ""
-          )}
         </div>
       </div>
-      {/* )} */}
 
       <ScheduleVisitsModal
         isOpen={isScheduleVisitModalOpen}

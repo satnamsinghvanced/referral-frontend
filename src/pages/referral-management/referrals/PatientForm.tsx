@@ -24,7 +24,7 @@ import {
   useFetchTrackings,
   useTrackScan,
 } from "../../../hooks/useReferral";
-import { Referral } from "../../../types/referral";
+import { CreateReferralPayload, ReferralStatus } from "../../../types/referral";
 import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
 import { downloadVcf } from "../../../utils/vcfGenerator";
 import NotFoundPage from "../../NotFoundPage";
@@ -188,13 +188,13 @@ const PatientForm = () => {
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
-      const payload: Partial<Referral> = {
+      const payload: CreateReferralPayload = {
         referredBy: id as string,
         addedVia: addedVia || "Direct",
         name: values.fullName,
         email: values.email,
         phone: values.phone || "",
-        age: values.age ? Number(values.age) : null,
+        age: Number(values.age),
         insurance: values.insuranceProvider || "",
         treatment: values.preferredTreatment || "",
         priority: values.urgencyLevel || "medium",
@@ -202,6 +202,8 @@ const PatientForm = () => {
         reason: values.referralReason || "",
         notes: values.notes || "",
         scheduledDate: values.scheduledDate || "",
+        status: "new" as ReferralStatus,
+        estValue: 0,
       };
 
       await createReferral(payload, {
@@ -306,7 +308,10 @@ const PatientForm = () => {
                 </p>
               </div>
 
-              <form onSubmit={formik.handleSubmit} className="space-y-4">
+              <form
+                onSubmit={formik.handleSubmit}
+                className="md:space-y-6 space-y-4"
+              >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {formFields.map((field) => {
                     const fieldName = field.name as keyof PatientFormValues;
@@ -469,7 +474,7 @@ const PatientForm = () => {
                   </Select>
                 </div>
 
-                <div className="grid grid-cols-1 gap-6">
+                {/* <div className="grid grid-cols-1 gap-6">
                   <Textarea
                     label="Reason for Referral"
                     labelPlacement="outside-top"
@@ -496,7 +501,7 @@ const PatientForm = () => {
                     }
                     classNames={{ inputWrapper: "py-2" }}
                   />
-                </div>
+                </div> */}
 
                 <div>
                   <Textarea
