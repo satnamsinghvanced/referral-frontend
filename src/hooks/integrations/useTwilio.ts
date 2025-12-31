@@ -14,23 +14,18 @@ import {
 
 export const twilioKeys = {
   all: ["twilio"] as const,
-  details: (userId: string) => [...twilioKeys.all, userId] as const,
+  details: () => [...twilioKeys.all] as const,
 };
 
-export const useFetchTwilioConfig = (userId: UserIdParam["userId"]) =>
+export const useFetchTwilioConfig = () =>
   useQuery<TwilioConfigResponse>({
-    queryKey: twilioKeys.details(userId),
-    queryFn: () => fetchTwilioConfig(userId),
-    enabled: !!userId,
+    queryKey: twilioKeys.details(),
+    queryFn: () => fetchTwilioConfig(),
   });
 
 export const useSaveTwilioConfig = () =>
-  useMutation<
-    TwilioConfigResponse,
-    Error,
-    { userId: string; data: TwilioConfigRequest }
-  >({
-    mutationFn: ({ userId, data }) => saveTwilioConfig(userId, data),
+  useMutation<TwilioConfigResponse, Error, { data: TwilioConfigRequest }>({
+    mutationFn: ({ data }) => saveTwilioConfig(data),
     onSuccess: (data) => {
       addToast({
         title: "Success",
@@ -38,7 +33,7 @@ export const useSaveTwilioConfig = () =>
         color: "success",
       });
       queryClient.invalidateQueries({
-        queryKey: twilioKeys.details(data.userId),
+        queryKey: twilioKeys.details(),
       });
     },
     onError: (error: Error) => {
@@ -54,9 +49,9 @@ export const useUpdateTwilioConfig = () =>
   useMutation<
     TwilioConfigResponse,
     Error,
-    { userId: string; data: TwilioConfigRequest }
+    { id: string; data: TwilioConfigRequest }
   >({
-    mutationFn: ({ userId, data }) => updateTwilioConfig(userId, data),
+    mutationFn: ({ id, data }) => updateTwilioConfig(id, data),
     onSuccess: (data) => {
       addToast({
         title: "Success",
@@ -64,7 +59,7 @@ export const useUpdateTwilioConfig = () =>
         color: "success",
       });
       queryClient.invalidateQueries({
-        queryKey: twilioKeys.details(data.userId),
+        queryKey: twilioKeys.details(),
       });
     },
     onError: (error: Error) => {

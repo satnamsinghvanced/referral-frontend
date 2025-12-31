@@ -111,11 +111,11 @@ const Dashboard = () => {
       {
         icon: <TbSpeakerphone className="text-green-600" />,
         heading: "Active Campaigns",
-        value: "12",
+        value: "0",
         subheading: (
           <p className="text-emerald-600 flex items-center gap-1.5">
             <MdTrendingUp fontSize={15} />
-            +2 this month
+            +0 this month
           </p>
         ),
         onClick: () => navigate("/email-campaigns"),
@@ -123,11 +123,10 @@ const Dashboard = () => {
       {
         icon: <FaRegStar className="text-yellow-600" />,
         heading: "Reviews",
-        value: "1,248",
+        value: "0",
         subheading: (
           <p className="text-emerald-600 flex items-center gap-1.5">
-            <MdTrendingUp fontSize={15} />
-            4.8 avg rating
+            <MdTrendingUp fontSize={15} />0 avg rating
           </p>
         ),
         onClick: () => navigate("/reviews"),
@@ -135,11 +134,11 @@ const Dashboard = () => {
       {
         icon: <LuTarget className="text-rose-600" />,
         heading: "ROI",
-        value: "284%",
+        value: "0%",
         subheading: (
           <p className="text-emerald-600 flex items-center gap-1.5">
             <MdTrendingUp fontSize={15} />
-            +12% vs last month
+            +0% vs last month
           </p>
         ),
         onClick: () => navigate("/reports"),

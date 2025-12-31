@@ -260,6 +260,9 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
               selectedKeys={
                 formik.values.locations ? [formik.values.locations] : []
               }
+              disabledKeys={
+                formik.values.locations ? [formik.values.locations] : []
+              }
               onSelectionChange={(keys) => {
                 formik.setFieldValue("locations", Array.from(keys)[0] || "");
               }}
@@ -278,6 +281,7 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
               labelPlacement="outside"
               placeholder="Select a role"
               selectedKeys={formik.values.role ? [formik.values.role] : []}
+              disabledKeys={formik.values.role ? [formik.values.role] : []}
               onSelectionChange={(keys) => {
                 const selectedRoleId = Array.from(keys)[0] || "";
                 formik.setFieldValue("role", selectedRoleId);

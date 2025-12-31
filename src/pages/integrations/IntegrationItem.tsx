@@ -3,6 +3,7 @@ import { BiCheckCircle } from "react-icons/bi";
 import { FiAlertCircle, FiExternalLink, FiSettings } from "react-icons/fi";
 
 interface IntegrationItemProps {
+  id: string;
   name: string;
   icon: React.ReactNode;
   iconBg: string;
@@ -18,20 +19,23 @@ interface IntegrationItemProps {
 }
 
 const IntegrationItem: React.FC<IntegrationItemProps> = ({
+  id,
   name,
   icon,
   iconBg,
   iconColor,
-  status,
+  status = "Disconnected",
   description,
   badges,
   lastSync,
   onConfigure,
   onConnect,
-  isSwitchChecked = true,
+  isSwitchChecked = status === "Connected",
   onSwitchChange,
 }) => {
-  const isConnected = status === "Connected";
+  console.log("IntegrationItem", id);
+
+  const isCredentialsSaved = !!id;
 
   let statusClasses = "";
   let StatusIcon = null;
@@ -50,7 +54,7 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
       break;
   }
 
-  const actionButton = isConnected ? (
+  const actionButton = isCredentialsSaved ? (
     <>
       {onConfigure && (
         <Button

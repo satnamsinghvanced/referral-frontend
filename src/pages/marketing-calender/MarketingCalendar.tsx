@@ -340,7 +340,7 @@ const MarketingCalendar = () => {
             <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-center justify-between">
               <p className="text-sm text-yellow-800">
                 Google Calendar is not connected. Connect your Google Calendar
-                to sync scheduled activities.
+                to sync activities.
               </p>
               <Button
                 as={Link}

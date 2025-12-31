@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   Button,
   DatePicker,
@@ -55,6 +56,10 @@ const TaskActionModal = ({
 
   const { data: teamMembersData } = useFetchTeamMembers();
   const teamMembers = teamMembersData?.data;
+  const activeTeamMembers = useMemo(
+    () => teamMembers?.filter((member) => member.status === "active"),
+    [teamMembers]
+  );
 
   // @ts-ignore
   const { user } = useTypedSelector((state) => state.auth);
@@ -83,7 +88,9 @@ const TaskActionModal = ({
       // @ts-ignore
       assignTo:
         task?.assignTo?.map((m: any) => m._id) ??
-        (teamMembers && teamMembers.length > 0 ? [] : [user?.userId]),
+        (activeTeamMembers && activeTeamMembers.length > 0
+          ? []
+          : [user?.userId]),
       // @ts-ignore
       practiceId: task?.practiceId?._id || "",
     },
@@ -300,7 +307,7 @@ const TaskActionModal = ({
 
             {/* Assigned To */}
             <div className="flex flex-col justify-start gap-1">
-              {teamMembers && teamMembers.length > 0 ? (
+              {activeTeamMembers && activeTeamMembers.length > 0 ? (
                 <Select
                   label="Assigned To"
                   labelPlacement="outside"
@@ -318,7 +325,7 @@ const TaskActionModal = ({
                   }
                   errorMessage={formik.errors.assignTo as string}
                 >
-                  {(teamMembers ?? []).map((tm: TeamMember) => (
+                  {(activeTeamMembers ?? []).map((tm: TeamMember) => (
                     <SelectItem
                       key={tm._id}
                       textValue={`${tm.firstName} ${tm.lastName}`}
@@ -329,8 +336,8 @@ const TaskActionModal = ({
                 </Select>
               ) : (
                 <div className="text-xs text-gray-500 italic">
-                  No team members found. Task will be assigned to you. Add team
-                  members in settings to assign tasks to others.
+                  No active team members found. Task will be assigned to you.
+                  Add active team members in settings to assign tasks to others.
                 </div>
               )}
             </div>

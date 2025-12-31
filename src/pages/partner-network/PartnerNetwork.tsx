@@ -68,6 +68,7 @@ const PartnerNetwork = () => {
     ...params,
     search: debouncedSearch as string,
   });
+  
   const { data: singlePartnerData } = useFetchPartnerDetail(partnerEditId);
 
   const practices = data?.data || [];
@@ -81,12 +82,13 @@ const PartnerNetwork = () => {
     setIsModalOpen(true);
   };
 
-  const updateParams = useCallback(
-    (newParams: Partial<FetchPartnersParams>) => {
-      setParams((prev) => ({ ...prev, ...newParams, page: 1 }));
-    },
-    []
-  );
+  const handleFieldChange = useCallback((key: string, value: any) => {
+    setParams((prev) => ({
+      ...prev,
+      page: 1,
+      [key]: value,
+    }));
+  }, []);
 
   const handleOpenNotesTasksModal = (
     partnerId: string,
@@ -124,6 +126,7 @@ const PartnerNetwork = () => {
         icon: <AiOutlinePlus fontSize={15} />,
         variant: "solid" as const,
         color: "primary" as const,
+        className: "bg-primary text-white",
       },
     ],
     []
@@ -279,7 +282,7 @@ const PartnerNetwork = () => {
                         placeholder="Search partner practices..."
                         value={params.search as string}
                         onValueChange={(value: string) =>
-                          updateParams({ search: value })
+                          handleFieldChange("search", value)
                         }
                         className="text-xs min-w-fit"
                         startContent={
@@ -294,9 +297,10 @@ const PartnerNetwork = () => {
                         radius="sm"
                         selectedKeys={[params.filter as string]}
                         onSelectionChange={(keys) =>
-                          updateParams({
-                            filter: Array.from(keys)[0] as string,
-                          })
+                          handleFieldChange(
+                            "filter",
+                            Array.from(keys)[0] as string
+                          )
                         }
                         className="md:min-w-[200px] flex-1"
                       >
@@ -319,9 +323,10 @@ const PartnerNetwork = () => {
                             radius="sm"
                             selectedKeys={[params.sortBy as string]}
                             onSelectionChange={(keys) =>
-                              updateParams({
-                                sortBy: Array.from(keys)[0] as string,
-                              })
+                              handleFieldChange(
+                                "sortBy",
+                                Array.from(keys)[0] as string
+                              )
                             }
                             className="md:min-w-[140px] flex-1"
                           >
@@ -341,9 +346,10 @@ const PartnerNetwork = () => {
                             setSortOrder((prev) =>
                               prev === "asc" ? "desc" : "asc"
                             );
-                            updateParams({
-                              order: sortOrder,
-                            });
+                            handleFieldChange(
+                              "order",
+                              sortOrder === "asc" ? "desc" : "asc"
+                            );
                           }}
                           title={
                             sortOrder === "asc"
@@ -368,7 +374,7 @@ const PartnerNetwork = () => {
                   <EmptyState title="No partners found with current filters. Try adjusting your search or filters." />
                 )}
 
-                {!isLoading && (
+                {!isLoading ? (
                   <div className="space-y-3">
                     {practices.map((partner: Partner) => (
                       <PartnerNetworkCard
@@ -378,23 +384,25 @@ const PartnerNetwork = () => {
                       />
                     ))}
                   </div>
+                ) : (
+                  ""
                 )}
 
-                {stats?.totalPages && stats.totalPages > 1 && (
+                {stats?.totalPages && stats.totalPages > 1 ? (
                   <Pagination
                     showControls
                     size="sm"
                     radius="sm"
                     page={params.page as number}
-                    onChange={(page) =>
-                      setParams((prev) => ({ ...prev, page }))
-                    }
+                    onChange={(page) => handleFieldChange("page", page)}
                     total={stats.totalPages}
                     classNames={{
                       base: "flex justify-center py-3",
                       wrapper: "gap-1.5",
                     }}
                   />
+                ) : (
+                  ""
                 )}
               </div>
             </div>

@@ -496,13 +496,13 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
           },
         });
       },
-      onError: (e) => {
-        addToast({
-          title: "API Error",
-          description: `Error fetching original route: ${e.message}`,
-          color: "danger",
-        });
-      },
+      // onError: (e) => {
+      //   addToast({
+      //     title: "API Error",
+      //     description: `Error fetching original route: ${e.message}`,
+      //     color: "danger",
+      //   });
+      // },
     });
   };
 

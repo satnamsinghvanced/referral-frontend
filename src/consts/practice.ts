@@ -61,10 +61,10 @@ export const PER_VISIT_DURATION_OPTIONS: string[] = [
 
 export const VISIT_STATUSES = [
   { label: "Active", value: "active" },
-  { label: "Draft", value: "draft" },
+  { label: "In Progress", value: "inProgress" },
   { label: "Completed", value: "completed" },
   { label: "Cancelled", value: "cancel" },
-  { label: "In Progress", value: "inProgress" },
+  { label: "Draft", value: "draft" },
 ];
 
 export const PRIORITY_LEVELS = [

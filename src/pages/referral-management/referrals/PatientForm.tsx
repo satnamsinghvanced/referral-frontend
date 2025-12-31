@@ -100,10 +100,9 @@ const PatientForm = () => {
     email: Yup.string()
       .required("Email is required")
       .matches(EMAIL_REGEX, "Invalid email format"),
-    phone: Yup.string().matches(
-      PHONE_REGEX,
-      "Phone must be in format (XXX) XXX-XXXX"
-    ),
+    phone: Yup.string()
+      .matches(PHONE_REGEX, "Phone must be in format (XXX) XXX-XXXX")
+      .required("Phone is required"),
     age: Yup.number()
       .required("Age is required")
       .integer("Age must be a whole number")
@@ -156,6 +155,7 @@ const PatientForm = () => {
       label: "Phone Number",
       placeholder: "(555) 123-4567",
       maxLength: 14, // (XXX) XXX-XXXX
+      required: true,
     },
     {
       type: "text",

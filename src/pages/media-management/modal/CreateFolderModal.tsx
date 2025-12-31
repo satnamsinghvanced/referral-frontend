@@ -9,7 +9,6 @@ import {
 } from "@heroui/react";
 import { useState } from "react";
 import { useCreateFolder } from "../../../hooks/useMedia";
-import { useTypedSelector } from "../../../hooks/useTypedSelector";
 
 interface CreateFolderModalProps {
   isOpen: boolean;
@@ -23,10 +22,8 @@ export function CreateFolderModal({
   parentFolderId,
 }: CreateFolderModalProps) {
   const [folderName, setFolderName] = useState("");
-  const { user } = useTypedSelector((state) => state.auth);
-  const userId = user?.userId;
 
-  const { mutate, isPending } = useCreateFolder(userId as string);
+  const { mutate, isPending } = useCreateFolder();
 
   const handleCreate = () => {
     if (!folderName.trim()) return;

@@ -22,6 +22,11 @@ import {
   useFetchEmailIntegration,
   useUpdateEmailIntegration,
 } from "../../hooks/integrations/useEmailMarketing";
+import {
+  useFetchTwilioConfig,
+  useUpdateTwilioConfig,
+} from "../../hooks/integrations/useTwilio";
+import { updateTwilioConfig } from "../../services/integrations/twilio";
 
 function Integrations() {
   const { user } = useTypedSelector((state) => state.auth);
@@ -54,6 +59,14 @@ function Integrations() {
 
   const { mutate: updateEmailIntegration } = useUpdateEmailIntegration();
 
+  const {
+    data: twilioConfig,
+    isLoading: isTwilioConfigLoading,
+    isError: isTwilioConfigError,
+  } = useFetchTwilioConfig();
+
+  const { mutate: updateTwilioConfig } = useUpdateTwilioConfig();
+
   // Normalize email config to handle both single object and array responses
   const emailConfig = Array.isArray(emailExistingConfig)
     ? emailExistingConfig[0]
@@ -66,9 +79,17 @@ function Integrations() {
     buttons: [],
   };
 
+  const isTwilioConnected = !!(
+    twilioConfig &&
+    twilioConfig.authToken &&
+    twilioConfig.accountId &&
+    twilioConfig.phone
+  );
+
   const AVAILABLE_INTEGRATIONS = useMemo(() => {
     return [
       {
+        id: "",
         name: "Google My Business",
         icon: <FaGoogle className="w-4 h-4" />,
         iconBg: "bg-red-100",
@@ -84,6 +105,7 @@ function Integrations() {
         lastSync: "2 hours ago",
       },
       {
+        id: "",
         name: "Practice Management System",
         icon: <TbDatabase className="w-4 h-4" />,
         iconBg: "bg-blue-100",
@@ -99,12 +121,12 @@ function Integrations() {
         lastSync: "15 minutes ago",
       },
       {
+        id: emailConfig?._id || "",
         name: "Email Marketing Platform",
         icon: <FaRegEnvelope className="w-4 h-4" />,
         iconBg: "bg-green-100",
         iconColor: "text-green-600",
-        status:
-          emailConfig?.status === "connected" ? "Connected" : "Disconnected",
+        status: emailConfig?.status,
         description: "Send automated follow-up emails to referred patients",
         badges: [
           "Automated campaigns",
@@ -116,23 +138,24 @@ function Integrations() {
           : undefined,
         onConnect: () => setIsEmailMarketingIntegrationModalOpen(true),
         onConfigure: () => setIsEmailMarketingIntegrationModalOpen(true),
-        isSwitchChecked: emailConfig?.status === "connected",
+        isSwitchChecked: emailConfig?.status === "Connected",
         onSwitchChange: () => {
           if (emailConfig?._id) {
             updateEmailIntegration({
               id: emailConfig._id,
+              // @ts-ignore
               data: {
-                ...emailConfig,
                 status:
-                  emailConfig.status === "connected"
-                    ? "disconnected"
-                    : "connected",
+                  emailConfig.status === "Connected"
+                    ? "Disconnected"
+                    : "Connected",
               },
             });
           }
         },
       },
       {
+        id: googleCalendarExistingConfig?._id || "",
         name: "Google Calendar Integration",
         icon: <LuCalendar className="w-4 h-4" />,
         iconBg: "bg-purple-100",
@@ -163,6 +186,7 @@ function Integrations() {
         },
       },
       {
+        id: "",
         name: "Google Ads",
         icon: <SiGoogleads className="w-4 h-4" />,
         iconBg: "bg-blue-100",
@@ -177,6 +201,7 @@ function Integrations() {
         ],
       },
       {
+        id: "",
         name: "Meta Ads",
         icon: <FaMeta className="w-4 h-4" />,
         iconBg: "bg-indigo-100",
@@ -190,6 +215,7 @@ function Integrations() {
         ],
       },
       {
+        id: "",
         name: "TikTok Ads",
         icon: <FaTiktok className="w-4 h-4" />,
         iconBg: "bg-gray-100",
@@ -199,11 +225,12 @@ function Integrations() {
         badges: ["Pixel tracking", "Campaign reporting", "Audience insights"],
       },
       {
+        id: twilioConfig?._id || "",
         name: "Twilio Calling Integration",
         icon: <TbBrandTwilio className="w-4 h-4" />,
         iconBg: "bg-red-100",
         iconColor: "text-red-600",
-        status: "Disconnected" as const,
+        status: isTwilioConnected ? "Connected" : "Disconnected",
         description:
           "Automate patient calls and streamline referral communication",
         badges: [
@@ -213,9 +240,21 @@ function Integrations() {
         ],
         onConnect: () => setIsTwilioIntegrationModalOpen(true),
         onConfigure: () => setIsTwilioIntegrationModalOpen(true),
+        isSwitchChecked: twilioConfig?.status === "Connected",
+        onSwitchChange: () => {
+          updateTwilioConfig({
+            id: twilioConfig?._id as string,
+            data: {
+              status:
+                twilioConfig?.status === "Connected"
+                  ? "Disconnected"
+                  : "Connected",
+            },
+          });
+        },
       },
-
       {
+        id: "",
         name: "Google Analytics",
         icon: <BsLightningCharge className="w-4 h-4" />,
         iconBg: "bg-yellow-100",
@@ -230,6 +269,8 @@ function Integrations() {
     googleCalendarExistingConfig,
     updateEmailIntegration,
     updateGoogleCalendarIntegration,
+    twilioConfig,
+    isTwilioConnected,
   ]);
 
   return (
@@ -264,6 +305,9 @@ function Integrations() {
         userId={userId as string}
         isOpen={isTwilioIntegrationModalOpen}
         onClose={() => setIsTwilioIntegrationModalOpen(false)}
+        existingConfig={twilioConfig}
+        isLoading={isTwilioConfigLoading}
+        isError={isTwilioConfigError}
       />
 
       <EmailMarketingConfigModal

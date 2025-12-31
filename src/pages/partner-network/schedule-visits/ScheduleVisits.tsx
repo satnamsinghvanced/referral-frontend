@@ -219,18 +219,20 @@ export default function ScheduleVisits({
               Plan your visits to multiple referrers with route optimization
             </p>
           </div>
-          <Button
-            size="sm"
-            variant="solid"
-            color="primary"
-            startContent={<MdOutlineCalendarToday />}
-            onPress={() => {
-              setIsScheduleVisitModalOpen(true);
-              setEditPlan(null);
-            }}
-          >
-            Schedule Visit
-          </Button>
+          {practices.length > 0 && (
+            <Button
+              size="sm"
+              variant="solid"
+              color="primary"
+              startContent={<MdOutlineCalendarToday />}
+              onPress={() => {
+                setIsScheduleVisitModalOpen(true);
+                setEditPlan(null);
+              }}
+            >
+              Schedule Visit
+            </Button>
+          )}
         </div>
 
         {/* {dashboardStats?.totalPlans > 0 && ( */}

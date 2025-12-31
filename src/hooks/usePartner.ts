@@ -43,14 +43,16 @@ export const useFetchPartners = (params: FetchPartnersParams = {}) => {
   const {
     page = 1,
     limit = 10,
+    search = "",
     sortBy = "name",
     order = "asc",
     filter = "allPractices",
   } = params;
 
   return useQuery<FetchPartnersResponse, Error>({
-    queryKey: ["partnerStats", page, limit, sortBy, order, filter],
-    queryFn: () => fetchPartners({ page, limit, sortBy, order, filter }),
+    queryKey: ["partnerStats", page, limit, search, sortBy, order, filter],
+    queryFn: () =>
+      fetchPartners({ page, limit, search, sortBy, order, filter }),
   });
 };
 

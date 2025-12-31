@@ -125,7 +125,7 @@ export default function GoogleBusinessConfigModal({
     >
       <ModalContent>
         <form onSubmit={formik.handleSubmit}>
-          <ModalHeader className="p-5 pb-0 flex-col">
+          <ModalHeader className="p-4 pb-0 flex-col">
             <h2 className="leading-none font-medium text-base">
               {config.title}
             </h2>
@@ -134,7 +134,7 @@ export default function GoogleBusinessConfigModal({
             </p>
           </ModalHeader>
 
-          <ModalBody className="px-5 py-5">
+          <ModalBody className="px-4 py-4">
             <div className="space-y-4">
               <Input
                 size="sm"
@@ -261,7 +261,7 @@ export default function GoogleBusinessConfigModal({
             </div>
           </ModalBody>
 
-          <ModalFooter className="flex justify-end gap-2 px-5 pb-5 pt-0">
+          <ModalFooter className="flex justify-end gap-2 px-4 pb-4 pt-0">
             <Button
               size="sm"
               variant="ghost"

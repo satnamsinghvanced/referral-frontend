@@ -365,7 +365,10 @@ const CustomCalendar: React.FC<CalendarProps> = ({
                 );
 
                 return (
-                  <div key={activity._id} className="relative w-full h-5">
+                  <div
+                    key={activity._id}
+                    className="relative w-full h-5 overflow-hidden"
+                  >
                     <div
                       className={clsx(
                         "absolute top-0 h-5 overflow-hidden text-[10px] font-normal text-white cursor-pointer transition-opacity",

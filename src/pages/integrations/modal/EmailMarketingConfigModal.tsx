@@ -23,6 +23,7 @@ import {
   EmailIntegrationResponse,
 } from "../../../types/integrations/emailMarketing";
 import { ENCRYPTION_TYPES, PROVIDERS } from "../../../consts/integrations";
+import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 
 // --- Yup Validation Schema ---
 const validationSchema = Yup.object().shape({
@@ -131,7 +132,7 @@ export default function EmailMarketingConfigModal({
     >
       <ModalContent>
         <form onSubmit={formik.handleSubmit}>
-          <ModalHeader className="p-5 pb-0 flex-col">
+          <ModalHeader className="p-4 pb-0 flex-col">
             <h2 className="leading-none font-medium text-base">
               Email Marketing Integration
             </h2>
@@ -141,7 +142,7 @@ export default function EmailMarketingConfigModal({
             </p>
           </ModalHeader>
 
-          <ModalBody className="px-5 py-5">
+          <ModalBody className="px-4 py-4">
             <div className="space-y-4">
               <Select
                 size="sm"
@@ -151,6 +152,9 @@ export default function EmailMarketingConfigModal({
                 name="provider"
                 placeholder="Select an email provider"
                 selectedKeys={
+                  formik.values.provider ? [formik.values.provider] : []
+                }
+                disabledKeys={
                   formik.values.provider ? [formik.values.provider] : []
                 }
                 onChange={formik.handleChange}
@@ -260,6 +264,9 @@ export default function EmailMarketingConfigModal({
                   selectedKeys={
                     formik.values.encryption ? [formik.values.encryption] : []
                   }
+                  disabledKeys={
+                    formik.values.encryption ? [formik.values.encryption] : []
+                  }
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   isInvalid={
@@ -274,13 +281,13 @@ export default function EmailMarketingConfigModal({
               </div>
 
               {/* Status Message */}
-              {isUpdateMode && existingConfig?.status === "connected" && (
+              {isUpdateMode && existingConfig?.status === "Connected" && (
                 <div className="p-3 bg-green-50 text-green-700 text-xs rounded-lg border border-green-200">
                   ✅ SMTP configuration is active. Last tested:{" "}
-                  {new Date(existingConfig.lastTestedAt).toLocaleString()}
+                  {formatDateToReadable(existingConfig.lastTestedAt, true)}
                 </div>
               )}
-              {isUpdateMode && existingConfig?.status === "disconnected" && (
+              {isUpdateMode && existingConfig?.status === "Disconnected" && (
                 <div className="p-3 bg-red-50 text-red-700 text-xs rounded-lg border border-red-200">
                   ⚠️ Connection failed. Please check your credentials and try
                   again.
@@ -289,7 +296,7 @@ export default function EmailMarketingConfigModal({
             </div>
           </ModalBody>
 
-          <ModalFooter className="flex justify-end gap-2 px-5 pb-5 pt-0">
+          <ModalFooter className="flex justify-end gap-2 px-4 pb-4 pt-0">
             <Button
               size="sm"
               variant="ghost"

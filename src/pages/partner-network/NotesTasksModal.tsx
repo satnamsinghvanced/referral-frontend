@@ -17,7 +17,7 @@ import {
   Textarea,
 } from "@heroui/react";
 import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FiEdit } from "react-icons/fi";
 import { IoCheckmarkCircleOutline } from "react-icons/io5";
 import {
@@ -85,14 +85,18 @@ NotesTasksModalProps) => {
 
   const { data: teamMembersData } = useFetchTeamMembers();
   const teamMembers = teamMembersData?.data;
+  const activeTeamMembers = useMemo(
+    () => teamMembers?.filter((member) => member.status === "active"),
+    [teamMembers]
+  );
 
   useEffect(() => {
-    if (teamMembers && teamMembers.length > 0) {
-      setNewTaskAssignTo([teamMembers[0]?._id as string]);
+    if (activeTeamMembers && activeTeamMembers.length > 0) {
+      setNewTaskAssignTo([activeTeamMembers[0]?._id as string]);
     } else if (user?.userId) {
       setNewTaskAssignTo([user.userId]);
     }
-  }, [teamMembers, user]);
+  }, [activeTeamMembers, user]);
 
   const { data, refetch } = useGetAllNotesAndTasks(practice?.id);
   const { mutate: createNote } = useCreateNote();
@@ -369,12 +373,12 @@ NotesTasksModalProps) => {
                   </div>
                   <div
                     className={`flex items-center space-x-2 ${
-                      teamMembers && teamMembers.length > 0
+                      activeTeamMembers && activeTeamMembers.length > 0
                         ? ""
                         : "flex-col-reverse gap-2 items-stretch"
                     }`}
                   >
-                    {teamMembers && teamMembers.length > 0 ? (
+                    {activeTeamMembers && activeTeamMembers.length > 0 ? (
                       <Select
                         size="sm"
                         radius="sm"
@@ -387,19 +391,21 @@ NotesTasksModalProps) => {
                           setNewTaskAssignTo(values);
                         }}
                       >
-                        {(teamMembers ?? []).map((teamMember: TeamMember) => (
-                          <SelectItem
-                            key={teamMember._id}
-                            textValue={`${teamMember.firstName} ${teamMember.lastName}`}
-                          >
-                            {teamMember.firstName} {teamMember.lastName}
-                          </SelectItem>
-                        ))}
+                        {(activeTeamMembers ?? []).map(
+                          (teamMember: TeamMember) => (
+                            <SelectItem
+                              key={teamMember._id}
+                              textValue={`${teamMember.firstName} ${teamMember.lastName}`}
+                            >
+                              {teamMember.firstName} {teamMember.lastName}
+                            </SelectItem>
+                          )
+                        )}
                       </Select>
                     ) : (
                       <div className="text-xs text-gray-500 italic flex-1">
-                        No team members found. Task will be assigned to you. Add
-                        team members to assign tasks to them.
+                        No active team members found. Task will be assigned to
+                        you. Add active team members to assign tasks to them.
                       </div>
                     )}
                     <Button

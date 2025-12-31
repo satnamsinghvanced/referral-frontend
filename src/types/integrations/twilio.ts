@@ -1,7 +1,8 @@
 export interface TwilioConfigRequest {
-  accountId: string;
-  authToken: string;
-  phone: string; // E.g., "+12185516174"
+  accountId?: string;
+  authToken?: string;
+  phone?: string; // E.g., "+12185516174"
+  status?: string;
 }
 
 export interface TwilioConfigResponse {
@@ -12,6 +13,7 @@ export interface TwilioConfigResponse {
   phone: string;
   createdAt: string;
   updatedAt: string;
+  status?: string;
 }
 
 export interface UserIdParam {

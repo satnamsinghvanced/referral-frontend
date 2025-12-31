@@ -117,8 +117,8 @@ export default function GoogleApiConfigurationModal({
         }}
       >
         <ModalContent>
-          <ModalBody className="p-5 text-center">
-            <p className="text-red-600 text-sm px-5">
+          <ModalBody className="p-4 text-center">
+            <p className="text-red-600 text-sm px-4">
               Failed to load Google API configuration. Please check your
               network.
             </p>
@@ -146,7 +146,7 @@ export default function GoogleApiConfigurationModal({
       <ModalContent>
         <form onSubmit={formik.handleSubmit}>
           {/* Modal Header */}
-          <ModalHeader className="p-5 pb-0 flex-col">
+          <ModalHeader className="p-4 pb-0 flex-col">
             <h2
               data-slot="dialog-title"
               className="leading-none font-medium text-base"
@@ -163,7 +163,7 @@ export default function GoogleApiConfigurationModal({
           </ModalHeader>
 
           {/* Modal Body (Form Fields) */}
-          <ModalBody className="px-5 py-5">
+          <ModalBody className="px-4 py-4">
             <div className="space-y-4">
               <Input
                 size="sm"
@@ -215,7 +215,7 @@ export default function GoogleApiConfigurationModal({
           </ModalBody>
 
           {/* Modal Footer (Action Buttons) */}
-          <ModalFooter className="flex justify-end gap-2 px-5 pb-5 pt-0">
+          <ModalFooter className="flex justify-end gap-2 px-4 pb-4 pt-0">
             <Button
               size="sm"
               variant="ghost"

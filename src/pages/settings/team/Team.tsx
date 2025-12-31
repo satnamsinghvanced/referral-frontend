@@ -14,6 +14,8 @@ import {
 import { TeamMember } from "../../../services/settings/team";
 import PendingTeamMembers from "./PendingTeamMembers";
 import TeamMemberActionModal, { TeamFormValues } from "./TeamMemberActionModal";
+import { useFetchEmailIntegration } from "../../../hooks/integrations/useEmailMarketing";
+import { Link } from "react-router-dom";
 
 const roleColors: Record<string, string> = {
   admin: "bg-red-100 text-red-600",
@@ -38,6 +40,14 @@ const Team: React.FC = () => {
 
   const { mutate: deleteMember, isPending: deleteIsPending } =
     useDeleteTeamMember();
+
+  const { data: emailExistingConfig, isLoading: isEmailConfigLoading } =
+    useFetchEmailIntegration();
+
+  // Normalize email config to handle both single object and array responses
+  const emailConfig = Array.isArray(emailExistingConfig)
+    ? emailExistingConfig[0]
+    : emailExistingConfig;
 
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [editMemberId, setEditMemberId] = useState<string>("");
@@ -205,20 +215,42 @@ const Team: React.FC = () => {
         pendingMembers={pendingMembers}
       />
 
+      {/* Email Integration Warning */}
+      {!isEmailConfigLoading && emailConfig?.status !== "Connected" && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-center justify-between">
+          <p className="text-sm text-yellow-800">
+            Email Marketing Platform is not connected. You can't invite team
+            members until you connect your Email Marketing Platform.
+          </p>
+          <Button
+            as={Link}
+            to="/integrations"
+            size="sm"
+            color="warning"
+            variant="flat"
+            className="bg-yellow-200 text-yellow-800"
+          >
+            Connect Email
+          </Button>
+        </div>
+      )}
+
       {/* Invite Button */}
-      <Button
-        variant="bordered"
-        size="sm"
-        className="w-full flex items-center justify-center gap-2 border-foreground/10 border-small font-medium bg-background"
-        onPress={() => {
-          setInviteModalOpen(true);
-          setEditMemberId("");
-          setModalInitialValues(null);
-        }}
-      >
-        <HiOutlineUserAdd className="h-4 w-4" />
-        Invite Team Member
-      </Button>
+      {emailConfig?.status === "Connected" && (
+        <Button
+          variant="bordered"
+          size="sm"
+          className="w-full flex items-center justify-center gap-2 border-foreground/10 border-small font-medium bg-background"
+          onPress={() => {
+            setInviteModalOpen(true);
+            setEditMemberId("");
+            setModalInitialValues(null);
+          }}
+        >
+          <HiOutlineUserAdd className="h-4 w-4" />
+          Invite Team Member
+        </Button>
+      )}
 
       <TeamMemberActionModal
         isOpen={inviteModalOpen}

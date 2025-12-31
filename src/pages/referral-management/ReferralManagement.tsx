@@ -255,7 +255,7 @@ const ReferralManagement = () => {
         color: "default",
         linkInNewTab: true,
         className: "border-small",
-        isHide: referrer.type === "patient",
+        isHide: referrer.type !== "doctor",
       },
     ],
     []

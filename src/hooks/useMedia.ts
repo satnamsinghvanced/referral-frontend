@@ -58,9 +58,9 @@ export const useGetFolderDetails = (folderId: string) => {
   });
 };
 
-export const useCreateFolder = (userId: string) => {
+export const useCreateFolder = () => {
   return useMutation({
-    mutationFn: (data: CreateFolderRequest) => createFolder(userId, data),
+    mutationFn: (data: CreateFolderRequest) => createFolder(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: FOLDER_KEYS.all });
       addToast({

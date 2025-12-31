@@ -28,6 +28,7 @@ export const fetchPartners = async (
     params: {
       page: params.page,
       limit: params.limit,
+      search: params.search,
       sortBy: params.sortBy,
       order: params.order,
       filter: params.filter,
