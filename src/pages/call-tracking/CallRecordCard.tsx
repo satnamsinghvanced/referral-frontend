@@ -9,6 +9,7 @@ import {
 import { CallRecord } from "../../types/call";
 import { timeAgo as formatTimeAgo } from "../../utils/timeAgo";
 import CallStatusChip from "../../components/chips/CallStatusChip";
+import { Link } from "react-router";
 
 export default function CallRecordCard({
   record,
@@ -93,14 +94,16 @@ export default function CallRecordCard({
             </Button>
           )}
 
-          <Button
-            size="sm"
-            variant="bordered"
-            className="border-small px-0 !min-w-8"
-            aria-label="External Link"
-          >
-            <FiExternalLink className="size-3.5" />
-          </Button>
+          <Link to="https://www.twilio.com/login" target="_blank">
+            <Button
+              size="sm"
+              variant="bordered"
+              className="border-small px-0 !min-w-8"
+              aria-label="External Link"
+            >
+              <FiExternalLink className="size-3.5" />
+            </Button>
+          </Link>
         </div>
       </div>
     </div>
