@@ -41,6 +41,7 @@ import {
   useGetAllNotesAndTasks,
   useUpdateTask,
 } from "../../hooks/usePartner";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { TeamMember } from "../../services/settings/team";
 import { TaskApiData } from "../../types/partner";
 import { formatCalendarDate } from "../../utils/formatCalendarDate";
@@ -79,13 +80,19 @@ NotesTasksModalProps) => {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [taskToEdit, setTaskToEdit] = useState<TaskApiData | null>(null);
 
-  const { data: teamMembers } = useFetchTeamMembers();
+  // @ts-ignore
+  const { user } = useTypedSelector((state) => state.auth);
+
+  const { data: teamMembersData } = useFetchTeamMembers();
+  const teamMembers = teamMembersData?.data;
 
   useEffect(() => {
-    if (teamMembers) {
+    if (teamMembers && teamMembers.length > 0) {
       setNewTaskAssignTo([teamMembers[0]?._id as string]);
+    } else if (user?.userId) {
+      setNewTaskAssignTo([user.userId]);
     }
-  }, [teamMembers]);
+  }, [teamMembers, user]);
 
   const { data, refetch } = useGetAllNotesAndTasks(practice?.id);
   const { mutate: createNote } = useCreateNote();
@@ -164,8 +171,13 @@ NotesTasksModalProps) => {
             aria-label="Notes & Tasks"
             selectedKey={activeTab}
             onSelectionChange={(key) => setActiveTab(key as string)}
-            className="flex flex-col gap-2 flex-1 overflow-hidden"
-            classNames={{ cursor: "mb-0", base: "h-10 min-h-10" }}
+            classNames={{
+              tabList: "flex w-full rounded-full bg-primary/10 text-xs",
+              tab: "flex-1 text-sm font-medium transition-all",
+              cursor: "rounded-full text-xs",
+              panel: "p-0",
+            }}
+            className="text-background w-full text-xs"
           >
             {/* Notes Tab Content */}
             <Tab
@@ -355,28 +367,41 @@ NotesTasksModalProps) => {
                       ))}
                     </Select>
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Select
-                      size="sm"
-                      radius="sm"
-                      aria-label="Assigned To"
-                      placeholder="Select assign member"
-                      selectionMode="multiple"
-                      selectedKeys={newTaskAssignTo || new Set([])}
-                      onSelectionChange={(keys: any) => {
-                        const values = Array.from(keys) as string[];
-                        setNewTaskAssignTo(values);
-                      }}
-                    >
-                      {(teamMembers ?? []).map((teamMember: TeamMember) => (
-                        <SelectItem
-                          key={teamMember._id}
-                          textValue={`${teamMember.firstName} ${teamMember.lastName}`}
-                        >
-                          {teamMember.firstName} {teamMember.lastName}
-                        </SelectItem>
-                      ))}
-                    </Select>
+                  <div
+                    className={`flex items-center space-x-2 ${
+                      teamMembers && teamMembers.length > 0
+                        ? ""
+                        : "flex-col-reverse gap-2 items-stretch"
+                    }`}
+                  >
+                    {teamMembers && teamMembers.length > 0 ? (
+                      <Select
+                        size="sm"
+                        radius="sm"
+                        aria-label="Assigned To"
+                        placeholder="Select assign member"
+                        selectionMode="multiple"
+                        selectedKeys={newTaskAssignTo || new Set([])}
+                        onSelectionChange={(keys: any) => {
+                          const values = Array.from(keys) as string[];
+                          setNewTaskAssignTo(values);
+                        }}
+                      >
+                        {(teamMembers ?? []).map((teamMember: TeamMember) => (
+                          <SelectItem
+                            key={teamMember._id}
+                            textValue={`${teamMember.firstName} ${teamMember.lastName}`}
+                          >
+                            {teamMember.firstName} {teamMember.lastName}
+                          </SelectItem>
+                        ))}
+                      </Select>
+                    ) : (
+                      <div className="text-xs text-gray-500 italic flex-1">
+                        No team members found. Task will be assigned to you. Add
+                        team members to assign tasks to them.
+                      </div>
+                    )}
                     <Button
                       color="primary"
                       isDisabled={

@@ -356,3 +356,7 @@ input[type="number"] {
 .recharts-surface {
   overflow: visible;
 }
+
+.pagination li {
+  cursor: pointer;
+}

@@ -1,20 +1,16 @@
 import { addToast } from "@heroui/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { queryClient } from "../providers/QueryProvider";
+import { queryClient } from "../../providers/QueryProvider";
 import {
   fetchTwilioConfig,
-  getCallHistory,
-  initiateCall,
   saveTwilioConfig,
   updateTwilioConfig,
-} from "../services/twilio";
+} from "../../services/integrations/twilio";
 import {
-  TwilioCallHistoryResponse,
-  TwilioCallRequestBody,
   TwilioConfigRequest,
   TwilioConfigResponse,
   UserIdParam,
-} from "../types/call";
+} from "../../types/integrations/twilio";
 
 export const twilioKeys = {
   all: ["twilio"] as const,
@@ -78,33 +74,4 @@ export const useUpdateTwilioConfig = () =>
         color: "danger",
       });
     },
-  });
-
-export const useInitiateCall = (userId: string) =>
-  useMutation({
-    mutationFn: (body: TwilioCallRequestBody) => initiateCall(userId, body),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["twilioCallHistory", userId],
-      });
-      addToast({
-        title: "Success",
-        description: "Calling...",
-        color: "success",
-      });
-    },
-    onError: (error: Error) => {
-      addToast({
-        title: "Error",
-        description: error.message || "Failed to initiate call",
-        color: "danger",
-      });
-    },
-  });
-
-export const useCallHistory = (userId: string) =>
-  useQuery<TwilioCallHistoryResponse, Error>({
-    queryKey: ["twilioCallHistory", userId],
-    queryFn: () => getCallHistory(userId),
-    enabled: !!userId,
   });

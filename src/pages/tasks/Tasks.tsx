@@ -13,14 +13,37 @@ import { TASK_PRIORITIES, TASK_STATUSES } from "../../consts/practice";
 import { useDebouncedValue } from "../../hooks/common/useDebouncedValue";
 import { useFetchAllTasks } from "../../hooks/usePartner";
 import TaskCard from "./TaskCard";
+import { AiOutlinePlus } from "react-icons/ai";
+import TaskActionModal from "./modal/TaskActionModal";
 
 function Tasks() {
+  const [openTaskModal, setOpenTaskModal] = useState(false);
+  const [taskToEdit, setTaskToEdit] = useState<any>(null);
+
+  const handleOpenTaskModal = (task?: any) => {
+    if (task) setTaskToEdit(task);
+    setOpenTaskModal(true);
+  };
+
+  const handleCloseTaskModal = () => {
+    setOpenTaskModal(false);
+    setTaskToEdit(null);
+  };
+
   const HEADING_DATA = useMemo(
     () => ({
       heading: "Tasks",
       subHeading:
         "Manage and prioritize tasks for efficient practice operations.",
-      buttons: [],
+      buttons: [
+        {
+          label: "Create Task",
+          onClick: () => handleOpenTaskModal(),
+          icon: <AiOutlinePlus fontSize={15} />,
+          variant: "solid" as const,
+          color: "primary" as const,
+        },
+      ],
     }),
     []
   );
@@ -43,6 +66,7 @@ function Tasks() {
     data: tasksData,
     isLoading,
     isFetching,
+    refetch,
   } = useFetchAllTasks({ ...currentFilters, search: debouncedSearch });
 
   const tasks = tasksData?.tasks;
@@ -156,7 +180,11 @@ function Tasks() {
             <>
               <div className="space-y-3">
                 {tasks?.map((task: any) => (
-                  <TaskCard key={task._id} task={task} />
+                  <TaskCard
+                    key={task._id}
+                    task={task}
+                    onEdit={handleOpenTaskModal}
+                  />
                 ))}
               </div>
               {pagination?.totalPages && pagination.totalPages > 1 ? (
@@ -173,9 +201,6 @@ function Tasks() {
                   classNames={{
                     base: "flex justify-end py-3",
                     wrapper: "gap-1.5",
-                    item: "cursor-pointer",
-                    prev: "cursor-pointer",
-                    next: "cursor-pointer",
                   }}
                 />
               ) : (
@@ -185,6 +210,12 @@ function Tasks() {
           )}
         </div>
       </div>
+      <TaskActionModal
+        isOpen={openTaskModal}
+        onClose={handleCloseTaskModal}
+        refetch={refetch}
+        task={taskToEdit}
+      />
     </ComponentContainer>
   );
 }

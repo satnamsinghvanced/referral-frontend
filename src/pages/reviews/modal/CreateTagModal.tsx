@@ -221,7 +221,7 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({
                     </SelectItem>
                   ))}
                 </Select>
-                <p className="text-[10px] text-gray-400 mt-1.5 leading-tight">
+                <p className="text-xs text-gray-500 mt-1.5">
                   Where patients will be directed to leave a review
                 </p>
               </div>

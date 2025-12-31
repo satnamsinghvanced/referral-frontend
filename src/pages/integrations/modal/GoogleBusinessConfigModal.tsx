@@ -12,6 +12,8 @@ import { useFormik } from "formik";
 import { useMemo, useState } from "react";
 import { FiExternalLink, FiEye, FiEyeOff } from "react-icons/fi";
 import * as Yup from "yup";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../store";
 import { useInitiateAuthIntegration } from "../../../hooks/useSocial";
 import {
   PlatformAuthParams,
@@ -47,6 +49,7 @@ export default function GoogleBusinessConfigModal({
   allCredentials: any;
   isGlobalLoading: boolean;
 }) {
+  const user = useSelector((state: RootState) => state.auth.user);
   const [showSecret, setShowSecret] = useState(false);
   const platformName = "googleBusiness";
   const config = GOOGLE_BUSINESS_CONFIG;
@@ -64,6 +67,7 @@ export default function GoogleBusinessConfigModal({
 
   const formik = useFormik<Omit<PlatformAuthParams, "platform">>({
     initialValues: {
+      userId: user?.userId || "",
       clientId: existingConfig?.clientId || "",
       clientSecret: existingConfig?.clientSecret || "",
       redirectUri: existingConfig?.redirectUri || "",
@@ -74,6 +78,7 @@ export default function GoogleBusinessConfigModal({
       try {
         const savePayload: PlatformAuthParams = {
           platform: "googleBusiness",
+          userId: user?.userId || "",
           clientId: values.clientId,
           clientSecret: values.clientSecret,
           redirectUri: values.redirectUri,

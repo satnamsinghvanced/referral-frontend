@@ -61,20 +61,6 @@ export const PARTNER_SORT_OPTIONS = [
   // { label: "Last Contact", value: "lastContact" },
 ];
 
-export const CALL_TYPE_OPTIONS = [
-  { label: "All types", value: "all" },
-  { label: "Inbound", value: "inbound" },
-  { label: "Outbound", value: "outbound" },
-  { label: "Missed", value: "missed" },
-];
-
-export const CALL_STATUS_OPTIONS = [
-  { label: "All Status", value: "all" },
-  { label: "Completed", value: "completed" },
-  { label: "Recorded", value: "recorded" },
-  { label: "Voicemail", value: "voicemail" },
-];
-
 export const TASK_STATUS_OPTIONS = [
   { label: "All Status", value: "all" },
   { label: "Not Started", value: "notStarted" },

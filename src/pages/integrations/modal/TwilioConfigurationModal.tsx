@@ -16,8 +16,8 @@ import {
   useFetchTwilioConfig,
   useSaveTwilioConfig,
   useUpdateTwilioConfig,
-} from "../../../hooks/useTwilio";
-import { TwilioConfigRequest } from "../../../types/call";
+} from "../../../hooks/integrations/useTwilio";
+import { TwilioConfigRequest } from "../../../types/integrations/twilio";
 
 // --- Yup Validation Schema ---
 const validationSchema = Yup.object().shape({

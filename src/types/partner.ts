@@ -172,22 +172,31 @@ export interface PartnerPractice {
   pendingTaskCount?: number;
 }
 
+export interface StoppedReferringPartner {
+  name: string;
+  lastReferralDate: string;
+  totalDays: number;
+}
+
 export interface FetchPartnersResponse {
   data: Partner[];
-  page: number;
-  limit: number;
-  totalPages: number;
+  stoppedReferring: StoppedReferringPartner[];
   totalPractices: number;
+  filteredPractices: number;
   activePractices: number;
   totalReferrals: number;
   monthlyReferrals: number;
   totalALevelPractices: number;
   aLevelPercentage: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 export interface FetchPartnersParams {
   page?: number;
   limit?: number;
+  search?: string;
   sortBy?: string;
   order?: "asc" | "desc";
   filter?: string;
@@ -480,6 +489,7 @@ export interface RouteOptimizationResults {
 export interface GetSchedulePlansQuery {
   page: number;
   limit: number;
+  search?: string;
   status?: "draft" | "active" | "completed" | "pending" | "cancel" | string;
   order?: "asc" | "desc" | string;
   sortBy?: "name" | "createdAt" | string;

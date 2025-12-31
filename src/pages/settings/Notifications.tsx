@@ -166,7 +166,7 @@ const Notifications: React.FC = () => {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-base">Notification Settings</h1>
+            <h4 className="text-base">Notification Settings</h4>
             <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
               Customize how and when you receive notifications
             </p>

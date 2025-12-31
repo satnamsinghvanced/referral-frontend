@@ -41,7 +41,8 @@ const validationSchema = Yup.object({
 });
 
 const EditTaskModal = ({ isOpen, onClose, task }: EditTaskModalProps) => {
-  const { data: teamMembers } = useFetchTeamMembers();
+  const { data: teamMembersData } = useFetchTeamMembers();
+  const teamMembers = teamMembersData?.data;
   const { mutate: updateTask } = useUpdateTask();
 
   const formik = useFormik({
@@ -235,7 +236,13 @@ const EditTaskModal = ({ isOpen, onClose, task }: EditTaskModalProps) => {
 
           {/* Buttons */}
           <div className="flex items-center justify-end space-x-2 pt-2">
-            <Button size="sm" radius="sm" variant="ghost" onPress={onClose} className="border-small">
+            <Button
+              size="sm"
+              radius="sm"
+              variant="ghost"
+              onPress={onClose}
+              className="border-small"
+            >
               Cancel
             </Button>
             <Button

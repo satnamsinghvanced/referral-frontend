@@ -12,6 +12,8 @@ import { useFormik } from "formik";
 import { useMemo, useState } from "react";
 import { FiExternalLink, FiEye, FiEyeOff } from "react-icons/fi";
 import * as Yup from "yup";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../store";
 import { useInitiateAuthIntegration } from "../../../hooks/useSocial";
 import {
   PlatformAuthParams,
@@ -78,6 +80,7 @@ export default function SocialMediaConfigModal({
   allCredentials: any;
   isGlobalLoading: boolean;
 }) {
+  const user = useSelector((state: RootState) => state.auth.user);
   const [showSecret, setShowSecret] = useState(false);
   const platformName = platform; // e.g., 'linkedin'
   const config = PLATFORM_CONFIGS[platformName];
@@ -92,9 +95,10 @@ export default function SocialMediaConfigModal({
   const isSubmitting = initiateAuthMutation.isPending;
 
   const isConfigured = !!existingConfig?.clientId;
-  const isAuthorized = !!existingConfig?.refreshToken;
+  const isAuthorized = !!existingConfig?.accessToken;
   const formik = useFormik<Omit<PlatformAuthParams, "platform">>({
     initialValues: {
+      userId: user?.userId || "",
       clientId: existingConfig?.clientId || "",
       clientSecret: existingConfig?.clientSecret || "",
       redirectUri: existingConfig?.redirectUri || "",
@@ -105,6 +109,7 @@ export default function SocialMediaConfigModal({
       try {
         const savePayload: PlatformAuthParams = {
           platform: platformName,
+          userId: user?.userId || "",
           clientId: values.clientId,
           clientSecret: values.clientSecret,
           redirectUri: values.redirectUri,

@@ -55,8 +55,10 @@ const Notifications = React.lazy(
 
 const Security = React.lazy(() => import("./pages/settings/Security"));
 const Billing = React.lazy(() => import("./pages/settings/Billing"));
-const Locations = React.lazy(() => import("./pages/settings/Locations"));
-const Team = React.lazy(() => import("./pages/settings/Team"));
+const Locations = React.lazy(
+  () => import("./pages/settings/locations/Locations")
+);
+const Team = React.lazy(() => import("./pages/settings/team/Team"));
 const General = React.lazy(() => import("./pages/settings/General"));
 const IntegrationTests = React.lazy(
   () => import("./pages/settings/IntegrationTests")
@@ -76,6 +78,9 @@ const PrivacyPolicy = React.lazy(
 );
 const PatientForm = React.lazy(
   () => import("./pages/referral-management/referrals/PatientForm")
+);
+const AcceptInvitation = React.lazy(
+  () => import("./pages/auth/AcceptInvitation")
 );
 const CallTracking = React.lazy(
   () => import("./pages/call-tracking/CallTracking")
@@ -156,6 +161,7 @@ function AppRoutes() {
     { path: "support", element: <Support /> },
     { path: "terms", element: <Terms /> },
     { path: "privacy", element: <PrivacyPolicy /> },
+    { path: "team-member/:id", element: <AcceptInvitation /> },
     {
       path: ":customPath/:id",
       element: <PatientForm />,

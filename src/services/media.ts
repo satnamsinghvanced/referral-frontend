@@ -86,7 +86,7 @@ export const updateImageTags = (
 };
 
 export const deleteImages = (data: DeleteImagesRequest) => {
-  return axios.delete(`${IMAGES_API_BASE}/delete`, { data });
+  return axios.delete(`${IMAGES_API_BASE}`, { data });
 };
 
 export const searchImages = (params: SearchImagesQuery) => {

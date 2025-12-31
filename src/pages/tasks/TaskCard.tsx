@@ -1,12 +1,26 @@
-import { Card, CardBody, CardHeader, Select, SelectItem } from "@heroui/react";
+import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Select,
+  SelectItem,
+} from "@heroui/react";
 import { LuBuilding2, LuCalendar, LuInfo } from "react-icons/lu";
+import { FiEdit } from "react-icons/fi";
 import TaskPriorityChip from "../../components/chips/TaskPriorityChip";
 import { TASK_STATUSES } from "../../consts/practice";
 import { useUpdateTaskStatus } from "../../hooks/usePartner";
 import { TaskApiData } from "../../types/partner";
 import { formatDateToMMDDYYYY } from "../../utils/formatDateToMMDDYYYY";
 
-function TaskCard({ task }: { task: TaskApiData }) {
+function TaskCard({
+  task,
+  onEdit,
+}: {
+  task: TaskApiData;
+  onEdit: (task: TaskApiData) => void;
+}) {
   const { mutate: updateTaskStatus } = useUpdateTaskStatus();
 
   return (
@@ -19,7 +33,18 @@ function TaskCard({ task }: { task: TaskApiData }) {
     >
       <CardHeader className="flex items-center justify-between gap-2 mb-2 p-0">
         <p className="text-sm">{task.title}</p>
-        <TaskPriorityChip priority={task.priority} />
+        <div className="flex items-center gap-2">
+          <Button
+            isIconOnly
+            size="sm"
+            variant="light"
+            className="h-6 w-6 min-w-6"
+            onPress={() => onEdit(task)}
+          >
+            <FiEdit className="text-gray-500" />
+          </Button>
+          <TaskPriorityChip priority={task.priority} />
+        </div>
       </CardHeader>
       <CardBody className="p-0 overflow-hidden">
         <div className="flex flex-row justify-between">

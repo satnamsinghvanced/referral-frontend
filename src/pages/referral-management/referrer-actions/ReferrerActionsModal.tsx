@@ -1,11 +1,21 @@
-import { Button, Checkbox, Select, SelectItem, Textarea } from "@heroui/react";
+import {
+  Button,
+  Checkbox,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  Select,
+  SelectItem,
+  Textarea,
+  Input,
+} from "@heroui/react";
 import { useFormik } from "formik";
 import { Key, useMemo } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { BiSave } from "react-icons/bi";
 import * as Yup from "yup";
-import ActionModal from "../../../components/common/ActionModal";
-import Input from "../../../components/ui/Input";
 import { EMAIL_REGEX, PHONE_REGEX } from "../../../consts/consts";
 import { STAFF_ROLES } from "../../../consts/practice";
 import { useSpecialties } from "../../../hooks/useCommon";
@@ -191,32 +201,39 @@ export default function ReferrerActionsModal({
       referrerId = editedData?.referrer_id;
     }
 
-    const mutationPayload = {
-      id: referrerId as string,
-      type: values.type,
-      payload: payload,
-    };
-
     const mutationPromise = new Promise((resolve, reject) => {
       if (editedData?.type || isPracticeEdit) {
-        updateReferrer(mutationPayload, {
-          onSuccess: (data) => {
-            resolve(data);
-            setIsModalOpen(false);
-            setReferrerEditId("");
+        updateReferrer(
+          {
+            id: referrerId as string,
+            type: values.type,
+            payload: payload,
           },
-          onError: (error) => reject(error),
-        });
+          {
+            onSuccess: (data) => {
+              resolve(data);
+              setIsModalOpen(false);
+              setReferrerEditId("");
+            },
+            onError: (error) => reject(error),
+          }
+        );
       } else {
-        createReferrer(mutationPayload, {
-          onSuccess: (data) => {
-            resolve(data);
-            setIsModalOpen(false);
-            formik.resetForm();
-            setSelectedTab("Referrers");
+        createReferrer(
+          {
+            type: values.type,
+            payload: payload,
           },
-          onError: (error) => reject(error),
-        });
+          {
+            onSuccess: (data) => {
+              resolve(data);
+              setIsModalOpen(false);
+              formik.resetForm();
+              setSelectedTab("Referrers");
+            },
+            onError: (error) => reject(error),
+          }
+        );
       }
     });
 
@@ -495,7 +512,7 @@ export default function ReferrerActionsModal({
               onBlur={formik.handleBlur}
               isInvalid={!!(touched && error)}
               errorMessage={touched && error ? (error as string) : undefined}
-              minRows={minRows || 3}
+              minRows={minRows || 5}
               className="text-sm"
             />
           </div>
@@ -546,25 +563,31 @@ export default function ReferrerActionsModal({
                     name={fieldPath}
                     type={sub.type}
                     label={""}
-                    labelPlacement="outside-top"
+                    labelPlacement="outside"
                     size="sm"
+                    radius="sm"
+                    variant="flat"
                     placeholder={sub.placeholder || ""}
                     value={
                       formik.values.practiceAddress[
                         sub.id as keyof typeof formik.values.practiceAddress
                       ] as string
                     }
-                    onChange={(val) =>
+                    onValueChange={(val) =>
                       formik.setFieldValue(
                         fieldPath,
                         sub.type === "tel" ? formatPhoneNumber(val) : val
                       )
                     }
-                    maxLength={sub.id === "zip" ? 5 : undefined}
+                    {...(sub.id === "zip" ? { maxLength: 5 } : {})}
                     onBlur={() => formik.setFieldTouched(fieldPath)}
-                    isRequired={sub.isRequired}
-                    touched={isSubTouched as boolean}
-                    error={errorText as string}
+                    isRequired={!!sub.isRequired}
+                    isInvalid={!!(isSubTouched && errorText)}
+                    errorMessage={
+                      isSubTouched && errorText
+                        ? (errorText as string)
+                        : undefined
+                    }
                   />
                 );
               })}
@@ -584,19 +607,21 @@ export default function ReferrerActionsModal({
               type={type}
               label={label}
               placeholder={placeholder || ""}
-              labelPlacement="outside-top"
+              labelPlacement="outside"
               size="sm"
+              radius="sm"
+              variant="flat"
               value={value as string}
-              onChange={(val) =>
+              onValueChange={(val) =>
                 formik.setFieldValue(
                   id as string,
                   type === "tel" ? formatPhoneNumber(val) : val
                 )
               }
               onBlur={formik.handleBlur}
-              isRequired={isRequired}
-              error={error as string}
-              touched={touched as boolean}
+              isRequired={!!isRequired}
+              isInvalid={!!(touched && error)}
+              errorMessage={touched && error ? (error as string) : undefined}
               isDisabled={
                 id === "email" && (editedData?.type || isPracticeEdit)
               }
@@ -712,10 +737,12 @@ export default function ReferrerActionsModal({
               type={field.type}
               label={field.label}
               placeholder={field.placeholder || ""}
-              labelPlacement="outside-top"
+              labelPlacement="outside"
               size="sm"
+              radius="sm"
+              variant="flat"
               value={valuePath as string}
-              onChange={(val) => {
+              onValueChange={(val) => {
                 let finalValue: any = val;
 
                 if (field.type === "tel") {
@@ -725,9 +752,11 @@ export default function ReferrerActionsModal({
                 formik.setFieldValue(fieldName as string, finalValue);
               }}
               onBlur={formik.handleBlur}
-              isRequired={field.isRequired}
-              error={errorText as string}
-              touched={isTouched as boolean}
+              isRequired={!!field.isRequired}
+              isInvalid={!!(isTouched && errorText)}
+              errorMessage={
+                isTouched && errorText ? (errorText as string) : undefined
+              }
             />
           </div>
         );
@@ -807,79 +836,98 @@ export default function ReferrerActionsModal({
   }
 
   return (
-    <ActionModal
+    <Modal
       isOpen={isModalOpen}
-      onClose={handleCloseModal}
-      heading={modalTitle}
-      description={modalDescription}
-      buttons={[
-        {
-          text: "Cancel",
-          onPress: handleCloseModal,
-          color: "default",
-          variant: "bordered",
-          className:
-            "border-foreground/10 border text-foreground hover:bg-background",
-        },
-        {
-          text: saveButtonText,
-          icon: saveButtonIcon,
-          onPress: formik.handleSubmit,
-          color: "primary",
-          variant: "solid",
-          isLoading: referrerCreationPending || referrerUpdationPending,
-          isDisabled: !formik.isValid || !formik.dirty,
-        },
-      ]}
+      onOpenChange={handleCloseModal}
+      classNames={{
+        base: `max-sm:!m-3 !m-0`,
+        closeButton: "cursor-pointer",
+      }}
+      size="md"
+      scrollBehavior="inside"
     >
-      <form
-        onSubmit={formik.handleSubmit}
-        className="space-y-3 pb-0.5 h-fit w-full"
-      >
-        <ReferrerTypeSelector
-          formik={formik}
-          isPracticeEdit={!!isPracticeEdit}
-          editedData={editedData}
-        />
+      <ModalContent>
+        <ModalHeader className="flex flex-col gap-1 px-5 py-4">
+          <h4 className="text-base font-medium">{modalTitle}</h4>
+          <p className="text-xs text-gray-500 font-normal">
+            {modalDescription}
+          </p>
+        </ModalHeader>
+        <ModalBody className="px-5 py-0 overflow-y-auto">
+          <form
+            id="referrer-actions-form"
+            onSubmit={formik.handleSubmit}
+            className="space-y-3 pb-0.5 h-fit w-full"
+          >
+            <ReferrerTypeSelector
+              formik={formik}
+              isPracticeEdit={!!isPracticeEdit}
+              editedData={editedData}
+            />
 
-        <BasicInfoSection formik={formik} renderField={renderField} />
+            <BasicInfoSection formik={formik} renderField={renderField} />
 
-        {formik.values.type === "doctor" && (
-          <DoctorSection
-            formik={formik}
-            renderField={renderField}
-            specialties={specialties || []}
-          />
-        )}
+            {formik.values.type === "doctor" && (
+              <DoctorSection
+                formik={formik}
+                renderField={renderField}
+                specialties={specialties || []}
+              />
+            )}
 
-        {formik.values.type === "communityreferrer" && (
-          <CommunitySection formik={formik} renderField={renderField} />
-        )}
+            {formik.values.type === "communityreferrer" && (
+              <CommunitySection formik={formik} renderField={renderField} />
+            )}
 
-        {formik.values.type === "googlereferrer" && (
-          <GoogleSection formik={formik} renderField={renderField} />
-        )}
+            {formik.values.type === "googlereferrer" && (
+              <GoogleSection formik={formik} renderField={renderField} />
+            )}
 
-        {formik.values.type === "socialmediareferrer" && (
-          <SocialMediaSection formik={formik} renderField={renderField} />
-        )}
+            {formik.values.type === "socialmediareferrer" && (
+              <SocialMediaSection formik={formik} renderField={renderField} />
+            )}
 
-        {formik.values.type === "eventreferrer" && (
-          <EventSection formik={formik} renderField={renderField} />
-        )}
+            {formik.values.type === "eventreferrer" && (
+              <EventSection formik={formik} renderField={renderField} />
+            )}
 
-        {formik.values.type === "doctor" && (
-          <StaffSection
-            formik={formik}
-            handleAddStaff={handleAddStaff}
-            handleRemoveStaff={handleRemoveStaff}
-            renderArrayField={renderArrayField}
-            staffMemberFields={staffMemberFields}
-          />
-        )}
+            {formik.values.type === "doctor" && (
+              <StaffSection
+                formik={formik}
+                handleAddStaff={handleAddStaff}
+                handleRemoveStaff={handleRemoveStaff}
+                renderArrayField={renderArrayField}
+                staffMemberFields={staffMemberFields}
+              />
+            )}
 
-        <AdditionalNotesSection formik={formik} renderField={renderField} />
-      </form>
-    </ActionModal>
+            <AdditionalNotesSection formik={formik} renderField={renderField} />
+          </form>
+        </ModalBody>
+        <ModalFooter className="px-5 py-4">
+          <Button
+            onPress={handleCloseModal}
+            color="default"
+            variant="bordered"
+            size="sm"
+            className="border-foreground/10 border text-foreground hover:bg-background"
+          >
+            Cancel
+          </Button>
+          <Button
+            type="submit"
+            form="referrer-actions-form"
+            color="primary"
+            variant="solid"
+            size="sm"
+            startContent={saveButtonIcon}
+            isLoading={referrerCreationPending || referrerUpdationPending}
+            isDisabled={!formik.isValid || !formik.dirty}
+          >
+            {saveButtonText}
+          </Button>
+        </ModalFooter>
+      </ModalContent>
+    </Modal>
   );
 }

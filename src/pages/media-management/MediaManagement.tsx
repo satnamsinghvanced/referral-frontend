@@ -154,12 +154,13 @@ function MediaManagement() {
   const handleConfirmImagesDelete = async () => {
     await deleteImagesMutation.mutateAsync(
       {
-        imageIds: deleteMediaId ? [deleteMediaId] : selectedMedia,
+        ids: deleteMediaId ? [deleteMediaId] : selectedMedia,
       },
       {
         onSuccess: () => {
           setSelectedMedia([]);
           setDeleteMediaId("");
+          setIsDeleteModalOpen(false);
         },
       }
     );
@@ -224,7 +225,7 @@ function MediaManagement() {
             <div className="space-x-2">
               {selectedMedia.length > 0 && (
                 <>
-                  {/* <Button
+                  <Button
                     size="sm"
                     radius="sm"
                     variant="ghost"
@@ -236,7 +237,7 @@ function MediaManagement() {
                     }}
                   >
                     Delete
-                  </Button> */}
+                  </Button>
                   <Button
                     size="sm"
                     radius="sm"

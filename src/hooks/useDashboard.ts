@@ -9,10 +9,9 @@ export const useDashboardStats = () => {
   return queryResult;
 };
 
-export const useDashboard = (id: string) => {
+export const useDashboard = () => {
   return useQuery({
-    queryKey: ["dashboard", id],
-    queryFn: () => fetchDashboardData(id),
-    enabled: !!id,
+    queryKey: ["dashboard"],
+    queryFn: fetchDashboardData,
   });
 };

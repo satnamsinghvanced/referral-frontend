@@ -7,15 +7,50 @@ import {
   fetchTeamMembers,
   inviteTeamMember,
   resendTeamInvite,
+  setTeamMemberPassword,
   TeamMember,
+  TeamMembersResponse,
   updateTeamMember,
 } from "../../services/settings/team";
+import { fetchTeamMemberById } from "../../services/referralBypassFunction";
 
 export const useFetchTeamMembers = () =>
-  useQuery<TeamMember[], Error>({
+  useQuery<TeamMembersResponse, Error>({
     queryKey: ["team-members"],
     queryFn: fetchTeamMembers,
   });
+
+export const useFetchTeamMemberById = (id: string) =>
+  useQuery<TeamMember, Error>({
+    queryKey: ["team-member", id],
+    queryFn: () => fetchTeamMemberById(id),
+    enabled: !!id,
+  });
+
+export const useSetTeamMemberPassword = () => {
+  return useMutation({
+    mutationFn: setTeamMemberPassword,
+    onSuccess: () => {
+      addToast({
+        title: "Success",
+        description: "Password set successfully. You can now login.",
+        color: "success",
+      });
+    },
+    onError: (error: AxiosError) => {
+      const errorMessage =
+        (error.response?.data as { message?: string })?.message ||
+        error.message ||
+        "Failed to set password";
+
+      addToast({
+        title: "Error",
+        description: errorMessage,
+        color: "danger",
+      });
+    },
+  });
+};
 
 export const useUpdateTeamMember = () => {
   return useMutation({

@@ -11,6 +11,7 @@ import { FiSettings } from "react-icons/fi";
 import { useGetSocialMediaCredentials } from "../../hooks/useSocial";
 import GoogleBusinessConfigModal from "../integrations/modal/GoogleBusinessConfigModal";
 import SocialMediaConfigModal from "./modal/SocialMediaConfigModal";
+import { LoadingState } from "../../components/common/LoadingState";
 
 interface PlatformItem {
   id: string;
@@ -32,109 +33,123 @@ const Platforms = () => {
       id: "meta",
       name: "Meta (Facebook & Instagram)",
       iconColor: "bg-[#0081FB]",
-      status: "Not Connected",
-      followers: 1234,
-      engagementRate: "5.2%",
+      status: allCredentials?.meta?.status as string,
+      followers: allCredentials?.meta?.followers || 0,
+      engagementRate: allCredentials?.meta
+        ? `${allCredentials?.meta?.engagementRate}%`
+        : "0%",
     },
     {
       id: "linkedin",
       name: "LinkedIn",
       iconColor: "bg-[#0077B5]",
       status: allCredentials?.linkedin?.status as string,
-      followers: 626,
-      engagementRate: "3.8%",
+      followers: allCredentials?.linkedin?.followers || 0,
+      engagementRate: allCredentials?.linkedin
+        ? `${allCredentials?.linkedin?.engagementRate}%`
+        : "0%",
     },
     {
       id: "youTube",
       name: "YouTube",
       iconColor: "bg-[#FF0000]",
       status: allCredentials?.youTube?.status as string,
-      followers: 0,
-      engagementRate: "0%",
+      followers: allCredentials?.youTube?.followers || 0,
+      engagementRate: allCredentials?.youTube
+        ? `${allCredentials?.youTube?.engagementRate}%`
+        : "0%",
     },
     {
       id: "googleBusiness",
       name: "Google Business",
       iconColor: "bg-[#0F9D58]",
-      status: "Not Connected",
-      followers: 987,
-      engagementRate: "6.1%",
+      status: allCredentials?.googleBusiness?.status as string,
+      followers: allCredentials?.googleBusiness?.followers || 0,
+      engagementRate: allCredentials?.googleBusiness
+        ? `${allCredentials?.googleBusiness?.engagementRate}%`
+        : "0%",
     },
   ];
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        {SOCIAL_MEDIA_PLATFORMS.map((platform) => {
-          const isConnected = platform.status === "connected";
-          const statusColor = isConnected
-            ? "bg-green-100 text-green-700"
-            : "bg-gray-100 text-gray-700";
-          const statusText = isConnected ? "Connected" : "Not Connected";
+      {isGlobalLoading ? (
+        <div className="border border-primary/15 rounded-xl p-5 bg-background">
+          <LoadingState />
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          {SOCIAL_MEDIA_PLATFORMS.map((platform) => {
+            const isConnected = platform.status === "Connected";
+            const statusColor = isConnected
+              ? "bg-green-100 text-green-700"
+              : "bg-gray-100 text-gray-700";
+            const statusText = isConnected ? "Connected" : "Disconnected";
 
-          return (
-            <Card className="bg-background p-5 border border-primary/15 rouned-xl shadow-none">
-              {/* Header: Platform Name and Status */}
-              <CardHeader className="flex items-center justify-between p-0 pb-4">
-                <div className="flex items-center gap-2">
-                  <div
-                    className={`w-4 h-4 rounded-sm ${platform.iconColor}`}
-                  ></div>
-                  <span className="text-sm font-medium">{platform.name}</span>
-                </div>
-                <Chip
-                  size="sm"
-                  radius="sm"
-                  className={`text-[11px] ${statusColor}`}
-                >
-                  {statusText}
-                </Chip>
-              </CardHeader>
-
-              {/* Stats */}
-              <CardBody className="p-0 space-y-2">
-                <div className="flex items-center justify-between text-xs">
-                  <p className="text-gray-600">Followers</p>
-                  <p className="font-medium">
-                    {platform.followers.toLocaleString()}
-                  </p>
-                </div>
-                <div className="flex items-center justify-between text-xs">
-                  <p className="text-gray-600">Engagement Rate</p>
-                  <p className="font-medium">{platform.engagementRate}</p>
-                </div>
-              </CardBody>
-
-              <CardFooter className="p-0 pt-5 rounded-none">
-                {isConnected ? (
-                  <Button
+            return (
+              <Card className="bg-background p-5 border border-primary/15 rouned-xl shadow-none">
+                {/* Header: Platform Name and Status */}
+                <CardHeader className="flex items-center justify-between p-0 pb-4">
+                  <div className="flex items-center gap-2">
+                    <div
+                      className={`w-4 h-4 rounded-sm ${platform.iconColor}`}
+                    ></div>
+                    <span className="text-sm font-medium">{platform.name}</span>
+                  </div>
+                  <Chip
                     size="sm"
                     radius="sm"
-                    variant="ghost"
-                    startContent={<FiSettings className="size-3.5" />}
-                    onPress={() => setOpenPlatform(platform.id)}
-                    fullWidth
-                    className="border-small"
+                    className={`text-[11px] ${statusColor}`}
                   >
-                    Manage
-                  </Button>
-                ) : (
-                  <Button
-                    size="sm"
-                    radius="sm"
-                    variant="solid"
-                    color="primary"
-                    onPress={() => setOpenPlatform(platform.id)}
-                    fullWidth
-                  >
-                    Connect Account
-                  </Button>
-                )}
-              </CardFooter>
-            </Card>
-          );
-        })}
-      </div>
+                    {statusText}
+                  </Chip>
+                </CardHeader>
+
+                {/* Stats */}
+                <CardBody className="p-0 space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <p className="text-gray-600">Followers</p>
+                    <p className="font-medium">
+                      {platform.followers.toLocaleString()}
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-between text-xs">
+                    <p className="text-gray-600">Engagement Rate</p>
+                    <p className="font-medium">{platform.engagementRate}</p>
+                  </div>
+                </CardBody>
+
+                <CardFooter className="p-0 pt-5 rounded-none">
+                  {isConnected ? (
+                    <Button
+                      size="sm"
+                      radius="sm"
+                      variant="ghost"
+                      startContent={<FiSettings className="size-3.5" />}
+                      onPress={() => setOpenPlatform(platform.id)}
+                      fullWidth
+                      className="border-small"
+                    >
+                      Manage
+                    </Button>
+                  ) : (
+                    <Button
+                      size="sm"
+                      radius="sm"
+                      variant="solid"
+                      color="primary"
+                      onPress={() => setOpenPlatform(platform.id)}
+                      fullWidth
+                    >
+                      Connect Account
+                    </Button>
+                  )}
+                </CardFooter>
+              </Card>
+            );
+          })}
+        </div>
+      )}
 
       {openPlatform === "googleBusiness" ? (
         <GoogleBusinessConfigModal

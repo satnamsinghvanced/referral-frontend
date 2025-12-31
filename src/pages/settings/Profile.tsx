@@ -1,15 +1,15 @@
 import { Button, Input, Select, SelectItem } from "@heroui/react";
 import { useFormik } from "formik";
-import * as Yup from "yup";
-import { FiUser } from "react-icons/fi";
 import { useEffect, useState } from "react";
-import { useFetchUser, useUpdateUser } from "../../hooks/settings/useUser";
-import { useTypedSelector } from "../../hooks/useTypedSelector";
-import { useSpecialties } from "../../hooks/useCommon";
+import { FiUser } from "react-icons/fi";
 import { useDispatch } from "react-redux";
+import * as Yup from "yup";
+import { EMAIL_REGEX, PHONE_REGEX } from "../../consts/consts";
+import { useFetchUser, useUpdateUser } from "../../hooks/settings/useUser";
+import { useSpecialties } from "../../hooks/useCommon";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { updateUserFirstName } from "../../store/authSlice";
 import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
-import { EMAIL_REGEX, PHONE_REGEX } from "../../consts/consts";
 
 interface ProfileFormValues {
   firstName: string;
@@ -152,8 +152,6 @@ const Profile = () => {
     setFieldTouched,
   } = formik;
 
-  const isDisabled = !isValid || !dirty || isPending;
-
   return (
     <>
       <div className="p-4 bg-background border border-foreground/10 rounded-xl">
@@ -229,7 +227,7 @@ const Profile = () => {
               );
             })}
 
-            <div>
+            <div className="relative flex">
               <Select
                 size="sm"
                 name="medicalSpecialty"
@@ -237,22 +235,19 @@ const Profile = () => {
                 labelPlacement="outside"
                 placeholder="Select a Medical Specialty"
                 selectedKeys={new Set([values.medicalSpecialty])}
-                onSelectionChange={(keys) => {
-                  const selected = Array.from(keys).join("");
-                  setFieldValue("medicalSpecialty", selected, true);
-                  setFieldTouched("medicalSpecialty", true, true);
-                }}
+                onChange={handleChange}
+                onBlur={handleBlur}
                 isRequired={true}
                 isInvalid={
                   !!(touched.medicalSpecialty && errors.medicalSpecialty)
                 }
                 errorMessage={errors.medicalSpecialty as string}
               >
-                {specialties?.map(
-                  ({ title, _id }: { title: string; _id: string }) => (
-                    <SelectItem key={_id}>{title}</SelectItem>
-                  )
-                )}
+                {(specialties ?? []).map((item: any) => (
+                  <SelectItem key={item._id} textValue={item.title}>
+                    {item.title}
+                  </SelectItem>
+                ))}
               </Select>
             </div>
           </div>
@@ -261,8 +256,9 @@ const Profile = () => {
             <Button
               size="sm"
               type="submit"
-              className="bg-foreground text-background"
-              disabled={isDisabled}
+              variant="solid"
+              color="primary"
+              isDisabled={!formik.isValid || !formik.dirty || isPending}
               isLoading={isPending}
             >
               {isPending ? "Saving..." : "Save Changes"}

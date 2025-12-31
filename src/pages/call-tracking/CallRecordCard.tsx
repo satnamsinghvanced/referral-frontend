@@ -1,44 +1,15 @@
 import { Button, Chip } from "@heroui/react";
 import {
-  FiCheckCircle,
   FiClock,
-  FiDownload,
   FiExternalLink,
   FiPhoneIncoming,
+  FiPhoneOutgoing,
   FiPlay,
 } from "react-icons/fi";
-import { CallRecord, Tag } from "../../types/call";
+import { CallRecord } from "../../types/call";
+import { timeAgo as formatTimeAgo } from "../../utils/timeAgo";
+import CallStatusChip from "../../components/chips/CallStatusChip";
 
-const getSentimentColor = (sentiment: CallRecord["sentiment"]) => {
-  switch (sentiment) {
-    case "positive":
-      return { color: "success", className: "bg-green-100 text-green-800" }; // maps to green in most UI systems
-    case "negative":
-      return { color: "danger", className: "text-red-600 bg-red-200" }; // maps to red/danger
-    default:
-      return { color: "default", className: "" }; // maps to gray/neutral
-  }
-};
-
-const getChipColorAndVariant = (tag: Tag) => {
-  if (tag.label === "Completed") {
-    return {
-      color: "success",
-      variant: "flat",
-      className: "bg-green-100 text-green-800 border-0",
-    };
-  }
-  if (tag.label === "Follow-up") {
-    return {
-      color: "danger",
-      variant: "bordered",
-      className: "text-orange-600 border-orange-200",
-    };
-  }
-  return { color: "default", variant: "bordered", className: "" };
-};
-
-// --- Component ---
 export default function CallRecordCard({
   record,
   onPlayClick,
@@ -46,133 +17,87 @@ export default function CallRecordCard({
   record: CallRecord;
   onPlayClick: () => void;
 }) {
-  const sentimentColor = getSentimentColor(record.sentiment);
-  const categoryTags = record.tags.filter((t) => t.type === "category");
-  const statusTags = record.tags.filter((t) => t.type !== "category");
+  const isIncoming = record.direction === "Incoming";
 
-  const iconBgClass =
-    record.sentiment === "positive" ? "bg-green-100/70" : "bg-gray-100/70";
-  const iconColorClass =
-    record.sentiment === "positive" ? "text-green-600" : "text-gray-600";
+  const displayTags = [
+    { label: record.direction, type: "category" },
+    ...(record.followUp ? [{ label: "Follow-up", type: "action" }] : []),
+    ...(record.appointment ? [{ label: "Appointment", type: "action" }] : []),
+  ];
+
+  const timeAgo = record.createdAt ? formatTimeAgo(record.createdAt) : "";
 
   return (
-    <div className="flex items-center justify-between p-4 border border-gray-200 rounded-lg bg-background">
+    <div className="flex items-center justify-between p-3.5 border border-gray-200 rounded-lg bg-background">
       <div className="flex items-center space-x-3.5">
-        <div className={`p-2 rounded-lg ${iconBgClass}`}>
-          <FiPhoneIncoming
-            className={`h-4 w-4 ${iconColorClass}`}
-            aria-hidden="true"
-          />
+        <div className={`p-2 rounded-lg bg-gray-100/70`}>
+          {isIncoming ? (
+            <FiPhoneIncoming className="h-4 w-4 text-gray-600" />
+          ) : (
+            <FiPhoneOutgoing className="h-4 w-4 text-gray-600" />
+          )}
         </div>
 
-        <div className="space-y-1">
+        <div className="space-y-2">
           <div className="flex items-center space-x-2">
             <h3 className="font-medium text-foreground text-sm">
-              {record.callerName}
+              {record.contact.name || record.contact.phone || "Unknown"}
             </h3>
-            <Chip
-              size="sm"
-              radius="sm"
-              color={sentimentColor.color} // Use Hero UI color prop
-              variant="flat"
-              className={`text-[11px] h-5 capitalize ${sentimentColor.className}`}
-            >
-              {record.sentiment}
-            </Chip>
-
-            {record.isVerified && (
-              <FiCheckCircle
-                className="h-4 w-4 text-green-600"
-                aria-hidden="true"
-              />
-            )}
+            <CallStatusChip status={record.status} />
           </div>
 
           <p className="text-xs text-gray-600">
-            {record.callerPhone} &bull; {record.timeAgo}
+            {record.contact.phone || record.from}{" "}
+            <span className="mx-0.5 text-gray-500">&bull;</span> {timeAgo}
           </p>
 
-          {/* Tags (Categories) */}
           <div className="flex space-x-2 mt-2">
-            {categoryTags.map((tag) => {
-              // Default appearance for tags
-              const { color, variant, className } = getChipColorAndVariant(tag);
-              return (
-                <Chip
-                  key={tag.label}
-                  size="sm"
-                  radius="sm"
-                  //   color={color as ButtonColor}
-                  variant={variant as string}
-                  className={`text-[11px] h-5 capitalize border-small ${className}`}
-                >
-                  {tag.label}
-                </Chip>
-              );
-            })}
+            {displayTags.map((tag) => (
+              <Chip
+                key={tag.label}
+                size="sm"
+                radius="sm"
+                variant="bordered"
+                className={`text-[11px] h-5 capitalize border-small ${
+                  tag.type === "action"
+                    ? "text-orange-600 border-orange-200"
+                    : ""
+                }`}
+              >
+                {tag.label}
+              </Chip>
+            ))}
           </div>
         </div>
       </div>
 
-      {/* RIGHT SECTION: Duration, Status Badges, and Action Buttons */}
+      {/* RIGHT SECTION */}
       <div className="flex items-center space-x-4">
-        {/* Duration and Status */}
         <div className="text-right text-sm text-gray-600 space-y-1.5">
-          {/* Duration */}
           <div className="flex items-center justify-end space-x-1">
             <FiClock className="h-3 w-3" aria-hidden="true" />
-            <span className="text-xs">{record.duration}</span>
-          </div>
-
-          {/* Status Tags */}
-          <div className="flex items-center justify-end space-x-2 mt-1">
-            {statusTags.map((tag) => {
-              const { color, variant, className } = getChipColorAndVariant(tag);
-              return (
-                <Chip
-                  key={tag.label}
-                  size="sm"
-                  radius="sm"
-                  //   color={color as ButtonColor}
-                  variant={variant}
-                  className={`text-[11px] h-5 capitalize border-small ${className}`}
-                >
-                  {tag.label}
-                </Chip>
-              );
-            })}
+            <span className="text-xs">{record.duration}s</span>
           </div>
         </div>
 
-        {/* Action Buttons */}
         <div className="flex space-x-2">
-          {/* Play Button */}
-          <Button
-            size="sm"
-            variant="bordered"
-            className="border-small px-0 !min-w-8"
-            aria-label="Play recording"
-            onPress={onPlayClick}
-          >
-            <FiPlay className="size-3.5" />
-          </Button>
+          {record.recordingUrl && (
+            <Button
+              size="sm"
+              variant="bordered"
+              className="border-small px-0 !min-w-8"
+              aria-label="Play recording"
+              onPress={onPlayClick}
+            >
+              <FiPlay className="size-3.5" />
+            </Button>
+          )}
 
-          {/* Download Button */}
           <Button
             size="sm"
             variant="bordered"
             className="border-small px-0 !min-w-8"
-            aria-label="Download recording"
-          >
-            <FiDownload className="size-3.5" />
-          </Button>
-
-          {/* External Link Button */}
-          <Button
-            size="sm"
-            variant="bordered"
-            className="border-small px-0 !min-w-8"
-            aria-label="View in Twilio Console"
+            aria-label="External Link"
           >
             <FiExternalLink className="size-3.5" />
           </Button>

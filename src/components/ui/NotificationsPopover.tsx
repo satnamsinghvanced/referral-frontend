@@ -57,14 +57,8 @@ export default function NotificationPopover() {
           onPress={() => setOpen(!open)}
           disableAnimation
         >
-          <Badge
-            size="md"
-            shape="circle"
-            content={unreadCount}
-            className="bg-[#fb2c36] text-background !rounded-lg !text-[11px]"
-          >
-            <FiBell className="size-[18px]" />
-          </Badge>
+          <FiBell className="size-4" />
+          <span className="absolute top-1.5 right-2 w-1.5 h-1.5 bg-red-500 rounded-full"></span>
         </Button>
       </PopoverTrigger>
 

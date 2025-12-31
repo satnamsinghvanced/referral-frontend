@@ -3,18 +3,24 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { AxiosError } from "axios";
 import { fetchUserForTrackings } from "../../services/referralBypassFunction";
 import { fetchUser, updateUser, User } from "../../services/settings/user";
+import { store } from "../../store";
+import { logout } from "../../store/authSlice";
 
 export function useFetchUser(id: string) {
-  return useQuery({
+  return useQuery<User, AxiosError>({
     queryKey: ["user", id],
     queryFn: () => fetchUser(id),
     enabled: !!id,
-    select: (data) => data.data,
+    // @ts-ignore - onError is deprecated in v5 but keeping for backward compatibility if needed, or it might be v4
+    onError: () => {
+      store.dispatch(logout());
+      window.location.href = `${import.meta.env.VITE_URL_PREFIX}/signin`;
+    },
   });
 }
 
 export function useFetchUserForTrackings(id: string) {
-  return useQuery({
+  return useQuery<User, AxiosError>({
     queryKey: ["user", id],
     queryFn: () => fetchUserForTrackings(id),
     enabled: !!id,
@@ -36,7 +42,7 @@ export function useUpdateUser(id: string) {
     },
     onError: (error) => {
       const errorMessage =
-        (error.response?.data as { error?: string })?.error ||
+        (error.response?.data as { message?: string })?.message ||
         error.message ||
         "Failed to update user profile";
 

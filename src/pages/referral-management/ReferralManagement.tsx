@@ -462,7 +462,7 @@ const ReferralManagement = () => {
                         ))}
                       </div>
                     ) : (
-                      <EmptyState />
+                      <EmptyState title="No referrals found with current filters. Try adjusting your search or filters." />
                     )}
                     {referralData && referralData.total > 5 && (
                       <div className="text-center">
@@ -470,7 +470,7 @@ const ReferralManagement = () => {
                           size="sm"
                           radius="sm"
                           variant="ghost"
-                          className="border-primary/15 border-small"
+                          className="border-small"
                           onPress={handleViewAllAndFilter}
                         >
                           View all {referralData.total} referrals
@@ -504,7 +504,7 @@ const ReferralManagement = () => {
                   ))}
                 </div>
               ) : (
-                <EmptyState />
+                <EmptyState title="No referrers found with current filters. Try adjusting your search or filters." />
               )}
               {referrerData?.totalPages && referrerData.totalPages > 1 ? (
                 <Pagination
@@ -520,9 +520,6 @@ const ReferralManagement = () => {
                   classNames={{
                     base: "flex justify-end py-3",
                     wrapper: "gap-1.5",
-                    item: "cursor-pointer",
-                    prev: "cursor-pointer",
-                    next: "cursor-pointer",
                   }}
                 />
               ) : (

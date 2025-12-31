@@ -91,10 +91,7 @@ const Dashboard = () => {
 
   const navigate = useNavigate();
 
-  const { user } = useTypedSelector((state) => state.auth);
-  const userId = user?.userId || "";
-
-  const { data: dashboard } = useDashboard(userId);
+  const { data: dashboard } = useDashboard();
 
   const STAT_CARD_DATA = useMemo<StatCard[]>(
     () => [

@@ -159,9 +159,9 @@ export const useCreateReferrer = () =>
   useMutation<
     Referrer,
     AxiosError,
-    { id: string; type: string; payload: CreateReferrerPayload }
+    { type: string; payload: CreateReferrerPayload }
   >({
-    mutationFn: ({ id, type, payload }) => createReferrer(id, type, payload),
+    mutationFn: ({ type, payload }) => createReferrer(type, payload),
     onSuccess: () => {
       addToast({
         title: "Success",

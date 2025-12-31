@@ -56,11 +56,10 @@ export const deleteReferral = async (id: string) => {
 
 // Add a new referrer (doctor/patient/community/google/social/event)
 export const createReferrer = async (
-  id: string,
   type: string,
   payload: CreateReferrerPayload
 ) => {
-  const { data } = await axios.post(`/referrers/${id}`, payload, {
+  const { data } = await axios.post(`/referrers`, payload, {
     params: { type },
   });
   return data;
@@ -72,7 +71,7 @@ export const fetchReferrers = async (
 ): Promise<ReferrersResponse> => {
   const { filter = "", page = 1, limit = 10 } = params;
 
-  const { data } = await axios.get<ReferrersResponse>("/referrers/", {
+  const { data } = await axios.get<ReferrersResponse>("/referrers", {
     params: { filter, page, limit },
   });
   return data;

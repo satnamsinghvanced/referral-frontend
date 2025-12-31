@@ -444,9 +444,6 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                     classNames={{
                       base: "flex justify-end py-3",
                       wrapper: "gap-1.5",
-                      item: "cursor-pointer",
-                      prev: "cursor-pointer",
-                      next: "cursor-pointer",
                     }}
                   />
                 </div>
