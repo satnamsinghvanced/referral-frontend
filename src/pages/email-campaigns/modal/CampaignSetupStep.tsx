@@ -55,7 +55,7 @@ const CampaignSetupStep: React.ForwardRefRenderFunction<
     formik.touched[field] ? formik.errors[field] : undefined;
 
   return (
-    <form onSubmit={formik.handleSubmit} className="space-y-5">
+    <form onSubmit={formik.handleSubmit} className="space-y-4 md:space-y-5">
       <h4 className="font-medium mb-4">Campaign Basics</h4>
 
       <Input

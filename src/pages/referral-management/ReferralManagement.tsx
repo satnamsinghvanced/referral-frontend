@@ -14,7 +14,6 @@ import { FiEdit, FiEye, FiUsers, FiWifi } from "react-icons/fi";
 import { GrLocation } from "react-icons/gr";
 import { LuFilter, LuPhone, LuQrCode } from "react-icons/lu";
 import { MdTrendingUp } from "react-icons/md";
-import { useDispatch } from "react-redux";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
 import ReferralStatusChip from "../../components/chips/ReferralStatusChip";
 import ComponentContainer from "../../components/common/ComponentContainer";
@@ -27,7 +26,6 @@ import {
   useGetReferralById,
   useGetReferrerById,
 } from "../../hooks/useReferral";
-import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { Referrer } from "../../types/partner";
 import { FilterStats, Referral } from "../../types/referral";
 import { downloadJson } from "../../utils/jsonDownloader";
@@ -40,10 +38,15 @@ import TrackingPanel from "./TrackingPanel";
 
 type ReferralType = "Referrals" | "Referrers" | "NFC & QR Tracking";
 
-const ReferralManagement = () => {
-  const { user } = useTypedSelector((state) => state.auth);
-  const dispatch = useDispatch();
+const REFERRAL_INITIAL_FILTERS = {
+  page: 1,
+  limit: 10,
+  search: "",
+  filter: "",
+  source: "",
+};
 
+const ReferralManagement = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isReferralStatusModalOpen, setIsReferralStatusModalOpen] =
     useState(false);
@@ -52,13 +55,9 @@ const ReferralManagement = () => {
   const [selectedReferralType, setSelectedReferralType] =
     useState<ReferralType>("Referrals");
   const [isFilterViewActive, setIsFilterViewActive] = useState(false);
-  const [currentFilters, setCurrentFilters] = useState({
-    page: 1,
-    limit: 10,
-    search: "",
-    filter: "",
-    source: "",
-  });
+  const [currentFilters, setCurrentFilters] = useState(
+    REFERRAL_INITIAL_FILTERS
+  );
   const [referralEditId, setReferralEditId] = useState<string>("");
   const [referrerEditId, setReferrerEditId] = useState("");
 
@@ -84,31 +83,11 @@ const ReferralManagement = () => {
     useFetchReferrers(referrerParams);
   const referrers = referrerData?.data;
 
-  const { data: singleReferralData, refetch: singleReferralRefetch } =
-    useGetReferralById(referralEditId);
-  const { data: singleReferrerData, refetch: singleReferrerRefetch } =
-    useGetReferrerById(referrerEditId);
-
-  useEffect(() => {
-    if (referrerEditId) {
-      singleReferrerRefetch();
-    }
-  }, [referrerEditId, singleReferrerRefetch]);
-
-  useEffect(() => {
-    if (referralEditId) {
-      singleReferralRefetch();
-    }
-  }, [referralEditId, singleReferralRefetch]);
+  const { data: singleReferralData } = useGetReferralById(referralEditId);
+  const { data: singleReferrerData } = useGetReferrerById(referrerEditId);
 
   const handleClearFilters = useCallback(() => {
-    setCurrentFilters({
-      page: 1,
-      limit: 10,
-      search: "",
-      filter: "",
-      source: "",
-    });
+    setCurrentFilters(REFERRAL_INITIAL_FILTERS);
   }, []);
 
   const handleBackToOverview = useCallback(() => {
@@ -200,7 +179,7 @@ const ReferralManagement = () => {
     [referralData, handleViewAllAndFilter]
   );
 
-  const headingData = useMemo(
+  const HEADING_DATA = useMemo(
     () => ({
       heading: "Referral Management",
       subHeading:
@@ -229,7 +208,7 @@ const ReferralManagement = () => {
     []
   );
 
-  const refererButtonList = useCallback(
+  const REFERRER_CARD_BUTTONS = useCallback(
     (referrer: Referrer) => [
       {
         label: "QR Code",
@@ -289,8 +268,8 @@ const ReferralManagement = () => {
   // ----------------------
   return (
     <>
-      <ComponentContainer headingData={headingData as any}>
-        <div className="flex flex-col gap-5">
+      <ComponentContainer headingData={HEADING_DATA as any}>
+        <div className="flex flex-col gap-4 md:gap-5">
           <div className="bg-primary/10 rounded-full w-full">
             <Tabs
               selectedKey={selectedReferralType}
@@ -309,7 +288,7 @@ const ReferralManagement = () => {
                 <Tab
                   key={role}
                   title={role}
-                  className="rounded-full data-[selected=true]:bg-white data-[selected=true]:text-black data-[selected=false]:text-white w-full border-0"
+                  className="rounded-full data-[selected=true]:bg-background data-[selected=true]:text-black data-[selected=false]:text-white w-full border-0"
                 />
               ))}
             </Tabs>
@@ -344,8 +323,8 @@ const ReferralManagement = () => {
                 />
               ) : (
                 // RENDER THE ORIGINAL OVERVIEW DASHBOARD
-                <div className="space-y-5">
-                  <div className="grid md:grid-cols-3 xl:grid-cols-4 gap-4">
+                <div className="space-y-4 md:space-y-5">
+                  <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
                     {STAT_CARD_DATA.map((data, i) => (
                       <MiniStatsCard key={i} cardData={data} />
                     ))}
@@ -412,7 +391,7 @@ const ReferralManagement = () => {
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-4 border border-primary/15 rounded-xl p-4 bg-background/90">
+                  <div className="flex flex-col gap-4 border border-primary/15 rounded-xl p-4 bg-background">
                     <p className="font-medium text-sm">Recent Referrals</p>
                     {isLoadingReferrals || isFetchingReferrals ? (
                       <LoadingState />
@@ -472,7 +451,7 @@ const ReferralManagement = () => {
 
           {/* --- REFERRERS TAB --- */}
           {selectedReferralType === "Referrers" && (
-            <div className="flex flex-col gap-4 border border-primary/15 rounded-xl p-4 bg-background/70 w-full">
+            <div className="flex flex-col gap-4 border border-primary/15 rounded-xl p-4 bg-background w-full">
               <p className="font-medium text-sm">Referrer Management</p>
               {isLoadingReferrers ? (
                 <LoadingState />
@@ -482,7 +461,7 @@ const ReferralManagement = () => {
                     <ReferrerCard
                       key={referrer._id}
                       referrer={referrer}
-                      buttons={refererButtonList as any}
+                      buttons={REFERRER_CARD_BUTTONS as any}
                       onView={(id) => {
                         setReferrerEditId(id);
                         setIsModalOpen(true);
@@ -527,6 +506,7 @@ const ReferralManagement = () => {
           setIsModalOpen={setIsModalOpen}
           editedData={singleReferrerData || null}
           setReferrerEditId={setReferrerEditId}
+          setSelectedTab={setSelectedReferralType}
         />
       </ComponentContainer>
       <ReferralStatusModal

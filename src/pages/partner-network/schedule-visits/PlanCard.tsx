@@ -52,9 +52,9 @@ const PlanCard: React.FC<{
       data-slot="card"
       className="bg-background flex flex-col gap-1 rounded-xl border border-primary/15 shadow-none"
     >
-      <CardHeader data-slot="card-header" className="px-5 pt-5 pb-3">
+      <CardHeader data-slot="card-header" className="px-4 pt-4 pb-1">
         <div className="w-full">
-          <div className="flex items-center justify-between mb-2 w-full gap-2">
+          <div className="flex items-center justify-between mb-2 w-full gap-2 max-md:mb-1">
             <h4 data-slot="card-title" className="text-sm">
               {plan.planDetails.name}
             </h4>
@@ -67,7 +67,7 @@ const PlanCard: React.FC<{
               </span>
             </div>
           </div>
-          <div className="flex items-center gap-2 mb-2 ">
+          <div className="flex items-center gap-2 mb-2">
             <span className="text-xs text-gray-600">{monthYear}</span>
           </div>
           {plan.planDetails.description && (
@@ -78,7 +78,7 @@ const PlanCard: React.FC<{
         </div>
       </CardHeader>
 
-      <CardBody data-slot="card-content" className="px-5 pb-5 pt-0">
+      <CardBody data-slot="card-content" className="px-4 pb-4 pt-0">
         <div className="space-y-3">
           <div className="space-y-1.5">
             <div className="flex justify-between text-xs">
@@ -93,7 +93,7 @@ const PlanCard: React.FC<{
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="grid grid-cols-2 gap-2 md:gap-3 text-sm">
             <div className="text-center p-2 bg-blue-50 rounded">
               <div className="font-semibold text-blue-600">
                 {plan.summary.totalPractices}

@@ -199,7 +199,7 @@ export default function ScheduleVisits({
 
   return (
     <>
-      <div className="flex items-center justify-between">
+      <div className="md:flex md:items-center md:justify-between max-md:space-y-3.5 max-md:mt-2">
         <div className="space-y-1">
           <h3 className="text-base">Schedule Referrer Visits</h3>
           <p className="text-xs text-gray-600">
@@ -221,7 +221,7 @@ export default function ScheduleVisits({
       </div>
 
       {/* {dashboardStats?.totalPlans > 0 && ( */}
-      <div className="space-y-5">
+      <div className="space-y-4 md:space-y-5">
         {/* <Card
           data-slot="card"
           className="rounded-xl border border-primary/15 shadow-none"
@@ -259,8 +259,8 @@ export default function ScheduleVisits({
           </CardBody>
         </Card> */}
 
-        <div className="flex items-center justify-between border-primary/15 border rounded-xl bg-background p-4">
-          <div className="flex items-center gap-2.5">
+        <div className="md:flex md:items-center md:justify-between border-primary/15 border rounded-xl bg-background p-4 max-md:space-y-3">
+          <div className="md:flex md:items-center md:gap-3 grid grid-cols-6 gap-2">
             <Select
               aria-label="Filter Plans"
               placeholder="All Plans"
@@ -271,7 +271,7 @@ export default function ScheduleVisits({
               onSelectionChange={(keys) =>
                 handleFilterChange("status", Array.from(keys)[0] as string)
               }
-              className="min-w-[160px]"
+              className="min-w-[160px] col-span-full"
             >
               <SelectItem key="all">All Plans</SelectItem>
               <SelectItem key="active">Active</SelectItem>
@@ -288,7 +288,7 @@ export default function ScheduleVisits({
               onSelectionChange={(keys) => {
                 handleFilterChange("sortBy", Array.from(keys)[0] as string);
               }}
-              className="min-w-[160px]"
+              className="md:min-w-[160px] col-span-3"
             >
               <SelectItem key="month">Month</SelectItem>
               <SelectItem key="name">Name</SelectItem>
@@ -299,7 +299,7 @@ export default function ScheduleVisits({
               size="sm"
               variant="ghost"
               onPress={handleOrderToggle}
-              className="min-w-[100px] border-small"
+              className="border-small md:min-w-[90px] col-span-2"
             >
               {filters.order === "desc" ? "Descending" : "Ascending"}
             </Button>
@@ -307,7 +307,7 @@ export default function ScheduleVisits({
               size="sm"
               variant="ghost"
               onPress={() => setIsCompactMode(!isCompactMode)}
-              className="border-small size-8 min-w-8 p-0"
+              className="border-small size-8 min-w-8 p-0 max-md:w-full"
               title={isCompactMode ? "Show Grid View" : "Show List View"}
               startContent={
                 isCompactMode ? (
@@ -348,9 +348,9 @@ export default function ScheduleVisits({
               classNames={{
                 base: "flex justify-center py-3 mt-2",
                 wrapper: "gap-1.5",
-                item: "bg-white cursor-pointer",
-                prev: "bg-white cursor-pointer",
-                next: "bg-white cursor-pointer",
+                item: "bg-background cursor-pointer",
+                prev: "bg-background cursor-pointer",
+                next: "bg-background cursor-pointer",
               }}
             />
           ) : (

@@ -210,7 +210,7 @@ const MarketingCalendar = () => {
             return (
               <div
                 key={activity._id}
-                className={`shadow-none bg-white !rounded-r-xl p-3 h-full flex flex-col justify-between border border-l-4 border-gray-100 cursor-pointer`}
+                className={`shadow-none bg-background !rounded-r-xl p-3 h-full flex flex-col justify-between border border-l-4 border-gray-100 cursor-pointer`}
                 style={{ borderLeftColor: activityColor }}
                 onClick={() => handleViewActivity(activity)}
               >
@@ -315,9 +315,9 @@ const MarketingCalendar = () => {
   return (
     <>
       <ComponentContainer headingData={HEADING_DATA}>
-        <div className="flex flex-col gap-5">
-          <div className="space-y-5">
-            <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
+        <div className="flex flex-col gap-4 md:gap-5">
+          <div className="space-y-4 md:space-y-5">
+            <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
               {STAT_CARD_DATA.map((data, i) => (
                 <MiniStatsCard key={i} cardData={data} />
               ))}
@@ -376,7 +376,7 @@ const MarketingCalendar = () => {
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-3 border border-primary/15 rounded-xl p-4 bg-white shadow-none">
+          <div className="flex items-center gap-3 border border-primary/15 rounded-xl p-4 bg-background shadow-none">
             <Input
               size="sm"
               variant="flat"

@@ -90,7 +90,13 @@ export function ScheduleVisitsModal({
   useEffect(() => {
     setActiveStep("select_referrers");
     if (editedData) {
-      setSelectedReferrersState(editedData?.practices || []);
+      // Ensure we extract IDs if practices are objects
+      const practiceIds =
+        editedData?.practices?.map((p: any) =>
+          typeof p === "object" ? p._id : p
+        ) || [];
+      setSelectedReferrersState(practiceIds);
+
       setPlanState({
         routeDate: editedData?.route.date || "",
         startTime: editedData?.route.startTime || "21:00",
@@ -125,7 +131,7 @@ export function ScheduleVisitsModal({
   const updatePlanMutation = useUpdateSchedulePlan(); // Utilize the imported hook
 
   const handleStateChange = useCallback(
-    (key: keyof typeof initialPlanState, value: any) => {
+    (key: string, value: string | boolean) => {
       setPlanState((prev) => ({ ...prev, [key]: value }));
       setValidationErrors((prev: any) => ({ ...prev, [key]: null }));
     },
@@ -369,7 +375,7 @@ export function ScheduleVisitsModal({
     ? updatePlanMutation.isSuccess
     : createPlanMutation.isSuccess;
   const submitButtonText = isEditing ? "Update Plan" : "Save & Schedule Visit";
-  const draftButtonText = isEditing ? "Save Draft Changes" : "Save as Draft";
+  const draftButtonText = isEditing ? "Save Draft" : "Save as Draft";
 
   function clearModalStates() {
     setActiveStep("select_referrers");
@@ -400,7 +406,7 @@ export function ScheduleVisitsModal({
       className="!my-4 !mx-2"
     >
       <ModalContent>
-        <ModalHeader className="p-5 pb-4 flex-col">
+        <ModalHeader className="p-4 pb-3 flex-col">
           <h2 className="leading-none font-medium text-base">
             {isEditing
               ? "Edit Referrer Visit Schedule"
@@ -412,7 +418,7 @@ export function ScheduleVisitsModal({
           </p>
         </ModalHeader>
 
-        <ModalBody className="px-5 py-0 gap-0">
+        <ModalBody className="px-4 py-0 gap-0">
           <Tabs
             aria-label="Schedule Steps"
             selectedKey={activeStep}
@@ -511,7 +517,7 @@ export function ScheduleVisitsModal({
           </div>
         </ModalBody>
 
-        <ModalFooter className="flex justify-between px-5 py-3.5 border-t border-gray-200">
+        <ModalFooter className="flex justify-between gap-3 max-sm:gap-1.5 px-4 py-3.5 border-t border-gray-200">
           {currentTabIndex > 0 ? (
             <Button
               variant="ghost"
@@ -519,7 +525,7 @@ export function ScheduleVisitsModal({
               onPress={handleBack}
               isDisabled={currentTabIndex === 0 || isSubmitting}
               className="border-small"
-              startContent={<IoChevronBack className="text-sm" />}
+              startContent={<IoChevronBack className="text-sm max-sm:hidden" />}
             >
               Back to {tabs[currentTabIndex - 1]?.label || ""}
             </Button>
@@ -527,7 +533,7 @@ export function ScheduleVisitsModal({
             <p></p>
           )}
 
-          <div className="flex space-x-3">
+          <div className="flex space-x-3 max-sm:space-x-1.5">
             {currentTabIndex < tabs.length - 1 ? (
               <Button
                 color="primary"
@@ -547,7 +553,7 @@ export function ScheduleVisitsModal({
                     isSubmitting || Object.keys(validationErrors).length > 0
                   }
                   className="border-small"
-                  startContent={<FiSave className="text-sm" />}
+                  startContent={<FiSave className="text-sm max-sm:hidden" />}
                 >
                   {draftButtonText}
                 </Button>

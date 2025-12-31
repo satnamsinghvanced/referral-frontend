@@ -57,7 +57,7 @@ const Overview: React.FC<OverviewProps> = ({
   ];
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 md:space-y-5">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {STAT_CARD_DATA.map((data, i) => (
           <MiniStatsCard key={i} cardData={data} />

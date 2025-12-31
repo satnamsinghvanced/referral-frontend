@@ -102,7 +102,7 @@ const Overview = () => {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 md:space-y-5">
       <div className="grid grid-cols-2 gap-5">
         <Card shadow="none" className="border border-primary/15 p-5">
           <CardHeader className="p-0 pb-8">

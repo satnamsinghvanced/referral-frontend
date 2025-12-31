@@ -59,7 +59,7 @@ export default function ViewScheduledVisitModal({
     >
       <ModalContent className="max-h-[95vh] overflow-hidden w-full">
         {/* Modal Header */}
-        <ModalHeader className="flex gap-1 text-center sm:text-left p-5">
+        <ModalHeader className="flex gap-1 text-center sm:text-left p-4">
           <h4 className="text-base font-medium flex items-center gap-2">
             <TbCalendarStats className="h-6 w-6 text-blue-600" />
             <span>{plan?.planDetails?.name}</span>
@@ -69,7 +69,7 @@ export default function ViewScheduledVisitModal({
           </div>
         </ModalHeader>
 
-        <ModalBody className="px-5 pt-0 pb-5 overflow-y-auto space-y-4 gap-0">
+        <ModalBody className="px-4 pt-0 pb-4 overflow-y-auto space-y-3 md:space-y-4 gap-0">
           {/* --- Summary Stats (Reference: Review & Save Tab) --- */}
           <div className="grid grid-cols-4 gap-4 py-3 bg-gray-50 rounded-lg border border-gray-100">
             <StatPill
@@ -248,18 +248,18 @@ const RouteStopCard = ({
     <div className="flex-grow space-y-1">
       <div className="font-medium text-sm">{route.name}</div>
       <div className="text-xs text-gray-600">{route.address.addressLine1}</div>
-      <div className="flex items-center gap-3 text-xs text-gray-600 pt-1">
-        <span className="flex items-center gap-1.5">
-          <LuTimer className="min-h-3.5 min-w-3.5 size-3.5" />{" "}
-          {route.arrivalTime} - {route.departureTime}
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-gray-600 pt-1">
+        <span className="flex items-center gap-1.5 whitespace-nowrap">
+          <LuTimer className="min-h-4 min-w-4 size-4" /> {route.arrivalTime} -{" "}
+          {route.departureTime}
         </span>
         {route.travelDistance !== "0.0mi" && (
-          <span className="flex items-center gap-1.5">
+          <span className="flex items-center gap-1.5 whitespace-nowrap">
             <LuCar className="min-h-4 min-w-4 size-4" /> {route.travelDistance}
           </span>
         )}
         {route.travelTime !== "0m" && (
-          <span className="flex items-center gap-1.5">
+          <span className="flex items-center gap-1.5 whitespace-nowrap">
             <LuClock className="min-h-3.5 min-w-3.5 size-3.5" />{" "}
             {route.travelTime}
           </span>

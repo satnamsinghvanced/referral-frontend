@@ -215,8 +215,8 @@ function MediaManagement() {
   return (
     <>
       <ComponentContainer headingData={HEADING_DATA}>
-        <div className="flex flex-col gap-5">
-          <div className="flex items-center justify-between gap-4 border border-gray-200 rounded-xl p-4 bg-white">
+        <div className="flex flex-col gap-4 md:gap-5">
+          <div className="flex items-center justify-between gap-4 border border-gray-200 rounded-xl p-4 bg-background">
             <FolderBreadcrumb
               path={breadcrumbPath}
               onNavigate={(id: string) => onNavigateFolder(id)}
@@ -272,7 +272,7 @@ function MediaManagement() {
             </div>
           </div>
 
-          <div className="border border-gray-200 rounded-xl p-4 bg-white">
+          <div className="border border-gray-200 rounded-xl p-4 bg-background">
             <div className="flex items-center gap-3">
               <div className="relative flex-1">
                 <Input
@@ -342,7 +342,7 @@ function MediaManagement() {
             )}
           </div>
 
-          <div className="space-y-5">
+          <div className="space-y-4 md:space-y-5">
             <Card className="border border-gray-200 p-4 shadow-none">
               <CardHeader className="p-0 pb-4 flex justify-between items-center">
                 <h4 className="flex items-center gap-2 text-sm font-medium">

@@ -213,14 +213,14 @@ const CallTracking = () => {
   return (
     <>
       <ComponentContainer headingData={HEADING_DATA as any}>
-        <div className="flex flex-col gap-5">
+        <div className="flex flex-col gap-4 md:gap-5">
           <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-5 gap-4 justify-between">
             {STATS_CARD_DATA.map((data) => (
               <MiniStatsCard key={data.heading} cardData={data} />
             ))}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border border-primary/15 rounded-xl p-4 bg-white shadow-none">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border border-primary/15 rounded-xl p-4 bg-background shadow-none">
             <div className="relative flex-1">
               <Input
                 placeholder="Search calls by name, phone, or tags..."

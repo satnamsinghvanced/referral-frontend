@@ -82,13 +82,13 @@ function Tasks() {
 
   return (
     <ComponentContainer headingData={HEADING_DATA as any}>
-      <div className="flex flex-col gap-5">
-        <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
+      <div className="flex flex-col gap-4 md:gap-5">
+        <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
           {STAT_CARD_DATA.map((data, i) => (
             <MiniStatsCard key={i} cardData={data} />
           ))}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 border border-primary/15 rounded-xl p-4 bg-white shadow-none">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 border border-primary/15 rounded-xl p-4 bg-background shadow-none">
           <div className="relative flex-1">
             <Input
               placeholder="Search tasks..."

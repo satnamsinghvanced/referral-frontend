@@ -10,7 +10,7 @@ import React, { useMemo } from "react";
 import { BiCalendar, BiPhone } from "react-icons/bi";
 import { CgMail } from "react-icons/cg";
 import { FiArrowLeft, FiDownload, FiEye, FiSearch } from "react-icons/fi";
-import { LuSquarePen } from "react-icons/lu";
+import { LuCalendar, LuSquarePen } from "react-icons/lu";
 import { PiFunnelX } from "react-icons/pi";
 import { Link } from "react-router";
 
@@ -103,7 +103,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
       key={referral._id}
       className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
     >
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1.5fr_1fr] gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-[1fr_1.5fr_1fr] gap-4 md:gap-6">
         <div className="space-y-3">
           <div className="flex items-center space-x-3">
             <div>
@@ -138,7 +138,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
           </div>
           <div className="space-y-2">
             <div className="flex items-center space-x-1.5">
-              <BiCalendar
+              <LuCalendar
                 className="h-4 w-4 text-gray-400"
                 aria-hidden="true"
               />
@@ -235,14 +235,14 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
       role="tabpanel"
       tabIndex={0}
       data-slot="tabs-content"
-      className="flex-1 outline-none space-y-6"
+      className="flex-1 outline-none space-y-4 md:space-y-5"
     >
       <div
         data-slot="card"
         className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-primary/15 bg-background"
       >
         <div data-slot="card-content" className="p-4">
-          <div className="flex items-center justify-between">
+          <div className="md:flex md:items-center md:justify-between max-md:space-y-3.5">
             <div className="flex items-center space-x-4">
               <div className="flex flex-col gap-1">
                 <div className="flex items-center space-x-2">
@@ -329,7 +329,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
 
       <div className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-primary/15 bg-background">
         <div data-slot="card-content" className="p-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
             <div className="relative">
               <Input
                 placeholder="Search referrals..."
@@ -376,13 +376,13 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
               ))}
             </Select>
 
-            <div className="flex gap-3">
+            <div className="flex gap-2 md:gap-3">
               <Button
                 onPress={onClearFilters}
                 size="sm"
                 variant="bordered"
                 className="border-small flex-1"
-                startContent={<PiFunnelX className="h-4 w-4" />}
+                startContent={<PiFunnelX className="h-4 w-4 max-lg:hidden" />}
               >
                 Clear Filters
               </Button>

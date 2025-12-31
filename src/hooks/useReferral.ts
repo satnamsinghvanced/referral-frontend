@@ -184,7 +184,7 @@ export const useUpdateReferrer = () =>
     { id: string; type: string; payload: Partial<Referrer> }
   >({
     mutationFn: ({ id, type, payload }) => updateReferrer(id, type, payload),
-    onSuccess: (_, variables) => {
+    onSuccess: () => {
       addToast({
         title: "Success",
         description: "Referrer updated successfully.",
@@ -192,9 +192,6 @@ export const useUpdateReferrer = () =>
       });
       queryClient.invalidateQueries({ queryKey: ["referrers"] });
       queryClient.invalidateQueries({ queryKey: ["partnerStats"] });
-      queryClient.invalidateQueries({
-        queryKey: ["partnerStats", variables.id],
-      });
     },
     onError: (error: AxiosError) => {
       const message =

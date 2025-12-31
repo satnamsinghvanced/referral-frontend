@@ -64,7 +64,7 @@ const ActionModal: React.FC<ActionModalProps> = ({
         {() => (
           <>
             <ModalHeader
-              className={`flex justify-between items-start px-5 font-normal ${
+              className={`flex justify-between items-start px-4 md:px-5 font-normal ${
                 classNames.header || ""
               }`}
             >
@@ -82,7 +82,7 @@ const ActionModal: React.FC<ActionModalProps> = ({
 
             {children && (
               <ModalBody
-                className={`w-full px-5 py-0 ${
+                className={`w-full px-4 md:px-5 py-0 ${
                   scrollable ? "max-h-[70vh] overflow-y-auto" : ""
                 } ${classNames.body || ""}`}
               >
@@ -92,7 +92,7 @@ const ActionModal: React.FC<ActionModalProps> = ({
 
             {buttons.length > 0 && (
               <ModalFooter
-                className={`flex px-5 ${
+                className={`flex px-4 md:px-5 ${
                   footerAlign === "center"
                     ? "justify-center"
                     : footerAlign === "left"

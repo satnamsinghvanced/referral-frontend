@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import ReferralStatusChip from "../../components/chips/ReferralStatusChip";
 import { Referral } from "../../types/referral";
 import { TREATMENT_OPTIONS } from "../../consts/referral";
+import { formatDateToReadable } from "../../utils/formatDateToReadable";
 
 interface ReferralButton {
   label: string;
@@ -29,8 +30,8 @@ interface ReferralCardProps {
 
 const ReferralCard = ({ referral, actions = () => [] }: ReferralCardProps) => {
   return (
-    <div className="flex justify-between border border-foreground/10  rounded-lg p-4 bg-background ">
-      <div className="font-medium text-sm w-full h-full capitalize flex flex-col gap-0.5">
+    <div className="md:flex md:justify-between border border-foreground/10 rounded-lg p-4 bg-background max-md:space-y-2">
+      <div className="font-medium text-sm w-full h-full capitalize flex flex-col gap-1">
         <p>{referral.name}</p>
         <div className="flex gap-2 items-center text-xs font-light">
           <p className="flex gap-1 items-center">
@@ -43,7 +44,7 @@ const ReferralCard = ({ referral, actions = () => [] }: ReferralCardProps) => {
             </>
           )}
         </div>
-        <div className="flex gap-2 items-center text-xs font-light">
+        <div className="flex gap-2 items-center text-xs font-light mt-0.5">
           {referral.treatment && (
             <p className="flex gap-1 items-center">
               {
@@ -57,7 +58,9 @@ const ReferralCard = ({ referral, actions = () => [] }: ReferralCardProps) => {
           {referral.treatment && referral.createdAt && (
             <p className="p-0.5 bg-foreground/50 rounded-full aspect-square h-fit w-fit"></p>
           )}
-          {referral.createdAt && <p>{referral.createdAt?.slice(0, 10)}</p>}
+          {referral.createdAt && (
+            <p>{formatDateToReadable(referral.createdAt)}</p>
+          )}
           {referral?.addedVia && (
             <>
               <p className="p-0.5 bg-foreground/50 rounded-full aspect-square h-fit w-fit"></p>
@@ -66,7 +69,7 @@ const ReferralCard = ({ referral, actions = () => [] }: ReferralCardProps) => {
           )}
         </div>
       </div>
-      <div className="flex items-center text-center justify-end h-full w-full gap-3 text-sm self-center">
+      <div className="flex items-center text-center md:justify-end h-full w-full gap-1 md:gap-3 text-sm self-center">
         <div
           className="self-center cursor-pointer"
           onClick={() => actions(referral)[2]?.onClick(referral._id)}

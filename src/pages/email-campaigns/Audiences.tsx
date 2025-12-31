@@ -92,7 +92,7 @@ const Audiences: React.FC = () => {
   };
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 md:space-y-5">
       <div className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-primary/15 bg-background">
         <div data-slot="card-content" className="p-4">
           <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-3">

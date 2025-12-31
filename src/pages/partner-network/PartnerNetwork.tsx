@@ -199,8 +199,8 @@ const PartnerNetwork = () => {
             totalItems={totalPractices}
           />
         </div>
-        <div className="flex flex-col md:px-7 px-4 py-4 md:py-[31px] overflow-auto space-y-5">
-          <div className="flex flex-col gap-5">
+        <div className="flex flex-col md:p-6 p-4 overflow-auto space-y-4 md:space-y-5">
+          <div className="flex flex-col gap-4 md:gap-5">
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 justify-between">
               {STATS_CARD_DATA.map((data) => (
                 <MiniStatsCard key={data.heading} cardData={data} />

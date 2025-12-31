@@ -221,7 +221,7 @@ const CustomCard: React.FC<
 > = ({ title, children, className = "" }) => (
   <Card
     shadow="none"
-    className={`bg-white text-card-foreground flex flex-col rounded-xl p-5 border border-primary/15 ${className}`}
+    className={`bg-background text-card-foreground flex flex-col rounded-xl p-5 border border-primary/15 ${className}`}
   >
     {title && (
       <CardHeader className="p-0 pb-4">
@@ -276,7 +276,7 @@ const ReviewSentimentAnalysisReport = () => {
 
   return (
     <ComponentContainer headingData={HEADING_DATA}>
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-4 md:gap-5">
         <CustomCard title="Review Sentiment Analysis - January 2024">
           <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-5 gap-6">
             <div className="text-center space-y-0.5">
@@ -315,7 +315,7 @@ const ReviewSentimentAnalysisReport = () => {
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           <CustomCard title="Sentiment Distribution">
-            <div className="space-y-5">
+            <div className="space-y-4 md:space-y-5">
               {sentimentDistribution.map((sentiment, index) => {
                 const colors = colorMap[sentiment.color];
                 const IconComponent = sentiment.icon;

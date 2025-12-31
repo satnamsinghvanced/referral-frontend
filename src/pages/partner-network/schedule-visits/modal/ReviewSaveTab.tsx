@@ -1,12 +1,19 @@
 import { Card, CardBody, CardHeader, Chip } from "@heroui/react";
 import React from "react";
-import { RouteOptimizationResults } from "../../../../types/partner";
+import { Partner, RouteOptimizationResults } from "../../../../types/partner";
 import { RiErrorWarningLine } from "react-icons/ri";
 
 interface ReviewSaveTabProps {
-  planState: any;
+  planState: {
+    planName: string;
+    defaultPriority: string;
+    enableAutoRoute: boolean;
+    defaultVisitPurpose: string;
+    customVisitPurpose: string;
+    description: string;
+  };
   routeOptimizationResults: RouteOptimizationResults | null;
-  selectedReferrerObjects: any[];
+  selectedReferrerObjects: Partner[];
 }
 
 export const ReviewSaveTab: React.FC<ReviewSaveTabProps> = ({
@@ -82,9 +89,9 @@ export const ReviewSaveTab: React.FC<ReviewSaveTabProps> = ({
             </p>
           )}
         </CardHeader>
-        <CardBody className="p-0 grid grid-cols-4 gap-3 text-center">
+        <CardBody className="p-0 grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 text-center">
           <Card className="shadow-none rounded-md bg-blue-100/50">
-            <CardBody className="py-3 items-center">
+            <CardBody className="py-3 items-center text-center">
               <p className="text-sm font-semibold text-blue-800">
                 {selectedReferrerObjects.length}
               </p>
@@ -93,7 +100,7 @@ export const ReviewSaveTab: React.FC<ReviewSaveTabProps> = ({
           </Card>
 
           <Card className="shadow-none rounded-md bg-green-100/50">
-            <CardBody className="py-3 items-center">
+            <CardBody className="py-3 items-center text-center">
               <p className="text-sm font-semibold text-green-800">
                 {summary.visitDays}
               </p>
@@ -102,7 +109,7 @@ export const ReviewSaveTab: React.FC<ReviewSaveTabProps> = ({
           </Card>
 
           <Card className="shadow-none rounded-md bg-orange-100/50">
-            <CardBody className="py-3 items-center">
+            <CardBody className="py-3 items-center text-center">
               <p className="text-sm font-semibold text-orange-800">
                 {summary.estimatedTotalTime}
               </p>
@@ -111,7 +118,7 @@ export const ReviewSaveTab: React.FC<ReviewSaveTabProps> = ({
           </Card>
 
           <Card className="shadow-none rounded-md bg-purple-100/50">
-            <CardBody className="py-3 items-center">
+            <CardBody className="py-3 items-center text-center">
               <p className="text-sm font-semibold text-purple-800">
                 {summary.estimatedDistance}
               </p>

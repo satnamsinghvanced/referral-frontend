@@ -130,10 +130,10 @@ const Reports = () => {
   return (
     <>
       <ComponentContainer headingData={HEADING_DATA}>
-        <div className="flex flex-col gap-5">
-          <div className="space-y-5">
+        <div className="flex flex-col gap-4 md:gap-5">
+          <div className="space-y-4 md:space-y-5">
             <SampleReports />
-            <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-4">
+            <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
               {STAT_CARD_DATA.map((data, i) => (
                 <MiniStatsCard key={i} cardData={data} />
               ))}

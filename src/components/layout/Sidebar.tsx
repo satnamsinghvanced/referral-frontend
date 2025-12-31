@@ -158,7 +158,7 @@ const Sidebar = ({
       name: "Integrations",
       icon: HiOutlineLightningBolt,
       href: "/integrations",
-      stats: 12,
+      stats: 1,
       color: "bg-blue-400",
     },
     { name: "Settings", icon: HiOutlineCog, href: "/settings" },
@@ -175,8 +175,8 @@ const Sidebar = ({
     <>
       {/* Mobile overlay when sidebar open in mobile/mini mode */}
       <div
-        className={` z-30  ${
-          isMiniSidebarOpen ? "bg-foreground/30 fixed inset-0 z-30" : "hidden"
+        className={`${
+          isMiniSidebarOpen ? "bg-foreground/30 fixed inset-0 z-41" : "hidden"
         } lg:hidden`}
         onClick={onCloseSidebar}
         aria-hidden
@@ -189,7 +189,7 @@ const Sidebar = ({
         aria-label="Primary sidebar"
       >
         <div
-          className={`flex items-center h-[64px] border-b border-foreground/10  ${
+          className={`flex items-center h-[58px] md:h-[64px] border-b border-foreground/10 ${
             isMiniSidebarOpen ? "justify-between" : "justify-center"
           } w-full`}
         >
@@ -197,6 +197,7 @@ const Sidebar = ({
             <Link
               to="/"
               className="flex items-center gap-2 cursor-pointer text-sm py-2 pl-3 h-full"
+              onClick={onCloseSidebar}
             >
               <Logo style={{ height: "100%" }} />
               {/* <img src={logo} alt="" className="w-8 h-8" />
@@ -252,10 +253,11 @@ const Sidebar = ({
                           ? "px-0 justify-start"
                           : "px-4 justify-center",
                         isActive
-                          ? "!bg-sky-50 !text-sky-700 !border-sky-200 dark:!bg-white dark:!border-sky-50 shadow-sm"
+                          ? "!bg-sky-50 !text-sky-700 !border-sky-200 dark:!border-sky-50 shadow-sm"
                           : "hover:bg-gray-100 border-transparent"
                       );
                     }}
+                    onClick={onCloseSidebar}
                   >
                     <span
                       className={`flex items-center justify-center ${
@@ -328,7 +330,7 @@ const Sidebar = ({
                           ? "px-3 justify-start"
                           : "px-3 justify-center",
                         isActive
-                          ? "!bg-sky-50 !text-sky-700 !border-sky-200 dark:!bg-white dark:!border-sky-50 shadow-sm"
+                          ? "!bg-sky-50 !text-sky-700 !border-sky-200 dark:!bg-background dark:!border-sky-50 shadow-sm"
                           : "hover:bg-gray-100 border-transparent",
                         isSignOut && "block md:hidden"
                       )

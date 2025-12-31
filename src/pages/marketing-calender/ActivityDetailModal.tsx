@@ -45,7 +45,7 @@ export function ActivityDetailModal({
 }: ActivityDetailModalProps) {
   if (!activity) return;
 
-  const formattedBudget = `$${activity.budget.toLocaleString(undefined, {
+  const formattedBudget = `$${activity?.budget?.toLocaleString(undefined, {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   })}`;

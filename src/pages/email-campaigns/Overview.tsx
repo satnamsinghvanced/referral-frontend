@@ -60,7 +60,7 @@ const Overview = ({ setIsActionModalOpen, setActiveTab }: OverviewProps) => {
   ];
 
   return (
-    <div className="space-y-5">
+    <div className="space-y-4 md:space-y-5">
       <div className="flex flex-col gap-4 border border-primary/15 rounded-xl p-4 bg-background">
         <h4 className="font-medium text-sm">Recent Campaigns</h4>
 
@@ -140,7 +140,7 @@ const Overview = ({ setIsActionModalOpen, setActiveTab }: OverviewProps) => {
           return (
             <div
               key={card.title}
-              className="flex flex-col items-center text-center px-5 py-6 bg-white border border-primary/15 rounded-xl cursor-pointer w-full"
+              className="flex flex-col items-center text-center px-5 py-6 bg-background border border-primary/15 rounded-xl cursor-pointer w-full"
               onClick={onClick}
             >
               <Icon className={`size-8 ${iconClasses}`} />

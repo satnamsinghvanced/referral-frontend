@@ -11,7 +11,6 @@ import { updateUserFirstName } from "../../store/authSlice";
 import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
 import { EMAIL_REGEX, PHONE_REGEX } from "../../consts/consts";
 
-// 1. Define the type for the form fields
 interface ProfileFormValues {
   firstName: string;
   lastName: string;
@@ -19,14 +18,14 @@ interface ProfileFormValues {
   phone: string;
   practiceName: string;
   medicalSpecialty: string;
-  image: File | string | undefined; // Allow File object, string (for URL/name), or undefined
+  image: File | string | undefined;
 }
 
 const fields = [
   { name: "firstName", label: "First Name", type: "text", isRequired: true },
-  { name: "lastName", label: "Last Name", type: "text", isRequired: false },
+  { name: "lastName", label: "Last Name", type: "text", isRequired: true },
   { name: "email", label: "Email Address", type: "email", isRequired: true },
-  { name: "phone", label: "Phone Number", type: "tel", isRequired: false },
+  { name: "phone", label: "Phone Number", type: "tel", isRequired: true },
   {
     name: "practiceName",
     label: "Practice Name",
@@ -46,27 +45,22 @@ const ProfileSchema = Yup.object().shape({
     .matches(PHONE_REGEX, "Phone must be in format (XXX) XXX-XXXX"),
   practiceName: Yup.string().required("Practice name is required"),
   medicalSpecialty: Yup.string().required("Specialty is required"),
-  // 1. UPDATED: Add custom validation test for file type and size
   image: Yup.mixed<File | string>()
     .nullable()
     .test(
       "fileType",
       "Only JPG, JPEG, or PNG formats are accepted.",
       (value) => {
-        if (!value) return true; // Allow null/undefined/empty string (no change)
-
-        // If it's a string, assume it's an existing URL/path and pass
+        if (!value) return true;
         if (typeof value === "string") return true;
-
-        // Check file type for uploaded file (File object)
         const supportedFormats = ["image/jpeg", "image/png"];
         return supportedFormats.includes(value.type);
       }
     )
     .test("fileSize", "Image file is too large (max 1MB).", (value) => {
       if (!value || typeof value === "string") return true;
-      return value.size <= 1048576; // 1MB in bytes
-    }) as Yup.Schema<File | string | undefined | null>, // Cast back to full type
+      return value.size <= 1048576;
+    }) as Yup.Schema<File | string | undefined | null>,
 });
 
 const Profile = () => {
@@ -94,7 +88,6 @@ const Profile = () => {
     }
   }, [fetchedUser]);
 
-  // 2. Pass ProfileFormValues as the generic type to useFormik
   const formik = useFormik<ProfileFormValues>({
     enableReinitialize: true,
     initialValues: {
@@ -110,8 +103,6 @@ const Profile = () => {
     },
     validationSchema: ProfileSchema,
     onSubmit: (values) => {
-      // The 'image' field can be a File or a string (URL/name), but your mutation expects a string.
-      // If a File is present, you would typically upload it here and get the resulting string URL/path.
       const data = {
         firstName: values.firstName,
         lastName: values.lastName,
@@ -129,22 +120,23 @@ const Profile = () => {
     },
   });
 
-  // 3. Update handleImageChange type to React.ChangeEvent<HTMLInputElement>
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-
-    // Set field value and run validation
     formik.setFieldValue("image", file);
-    formik.setFieldTouched("image", true, false); // Mark touched to show error immediately
+    formik.setFieldTouched("image", true, false);
 
     if (file) {
       setPreviewUrl(URL.createObjectURL(file));
     } else {
-      // Reset preview if file is cleared
       setPreviewUrl(
         "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face"
       );
     }
+  };
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formattedValue = formatPhoneNumber(e.target.value);
+    formik.setFieldValue("phone", formattedValue);
   };
 
   const {
@@ -156,10 +148,10 @@ const Profile = () => {
     setFieldValue,
     isValid,
     dirty,
+    handleChange,
+    setFieldTouched,
   } = formik;
 
-  // 4. Update the key access type for errors and touched
-  type FormKey = keyof ProfileFormValues;
   const isDisabled = !isValid || !dirty || isPending;
 
   return (
@@ -177,25 +169,6 @@ const Profile = () => {
               alt="Profile"
               className="rounded-full w-20 h-20 object-cover"
             />
-            {/* <div>
-                     
-            <Input
-              size="sm"
-              // type="file"
-              // Set the accepted file types for browser filtering
-              accept="image/jpeg,image/png"
-              className="w-fit shadow-none"
-              onChange={handleImageChange}
-              variant="bordered"
-            />
-            {/* 5. Update error access with specific type checking */}
-            {/* {touched.image && errors.image && (
-              <p className="text-xs text-red-500">{errors.image as string}</p>
-            )} */}
-            {/* UPDATED: Corrected accepted file types */}
-            {/* <p className="text-xs mt-1">JPG, JPEG or PNG. 1MB max.</p> */}
-            {/* </div> */}
-
             <div>
               <input
                 id="profileImage"
@@ -230,38 +203,31 @@ const Profile = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {fields.map(({ name, label, type, isRequired }) => (
-              <div key={name}>
-                <Input
-                  size="sm"
-                  type={type}
-                  name={name}
-                  label={label}
-                  labelPlacement="outside"
-                  placeholder={label}
-                  // Use type assertion to safely access values[name]
-                  value={values[name as FormKey] as string}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    const newValue =
-                      name === "phone"
-                        ? formatPhoneNumber(e.target.value)
-                        : e.target.value;
-                    setFieldValue(name, newValue);
-                  }}
-                  onBlur={handleBlur}
-                  isDisabled={name === "email" && fetchedUser?.email}
-                  classNames={{ base: "data-disabled:opacity-70" }}
-                  isRequired={isRequired}
-                  errorMessage={errors[name as FormKey] as string}
-                />
-                {/* Use type assertion to safely access errors[name] and touched[name] */}
-                {/* {touched[name as FormKey] && errors[name as FormKey] && (
-                  <p className="text-xs text-red-500 mt-1">
-                    {errors[name as FormKey] as string}
-                  </p>
-                )} */}
-              </div>
-            ))}
+            {fields.map(({ name, label, type, isRequired }) => {
+              const key = name as keyof ProfileFormValues;
+              const isPhone = name === "phone";
+
+              return (
+                <div key={name}>
+                  <Input
+                    size="sm"
+                    type={type}
+                    name={name}
+                    label={label}
+                    labelPlacement="outside"
+                    placeholder={label}
+                    value={(values[key] as string) || ""}
+                    onChange={isPhone ? handlePhoneChange : handleChange}
+                    onBlur={handleBlur}
+                    isDisabled={name === "email" && !!fetchedUser?.email}
+                    classNames={{ base: "data-disabled:opacity-70" }}
+                    isRequired={isRequired}
+                    isInvalid={!!(touched[key] && errors[key])}
+                    errorMessage={errors[key] as string}
+                  />
+                </div>
+              );
+            })}
 
             <div>
               <Select
@@ -271,12 +237,16 @@ const Profile = () => {
                 labelPlacement="outside"
                 placeholder="Select a Medical Specialty"
                 selectedKeys={new Set([values.medicalSpecialty])}
-                disabledKeys={new Set([values.medicalSpecialty])}
                 onSelectionChange={(keys) => {
                   const selected = Array.from(keys).join("");
                   setFieldValue("medicalSpecialty", selected, true);
+                  setFieldTouched("medicalSpecialty", true, true);
                 }}
                 isRequired={true}
+                isInvalid={
+                  !!(touched.medicalSpecialty && errors.medicalSpecialty)
+                }
+                errorMessage={errors.medicalSpecialty as string}
               >
                 {specialties?.map(
                   ({ title, _id }: { title: string; _id: string }) => (
@@ -284,13 +254,6 @@ const Profile = () => {
                   )
                 )}
               </Select>
-
-              {/* Use type assertion for errors.medicalSpecialty */}
-              {touched.medicalSpecialty && errors.medicalSpecialty && (
-                <p className="text-xs text-red-500 mt-1">
-                  {errors.medicalSpecialty as string}
-                </p>
-              )}
             </div>
           </div>
 
@@ -300,6 +263,7 @@ const Profile = () => {
               type="submit"
               className="bg-foreground text-background"
               disabled={isDisabled}
+              isLoading={isPending}
             >
               {isPending ? "Saving..." : "Save Changes"}
             </Button>

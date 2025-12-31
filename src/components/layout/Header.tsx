@@ -35,11 +35,10 @@ export default function Header({
   };
   return (
     <Navbar
-      height={63}
       isBordered
       classNames={{
-        base: "border-foreground/10 bg-background",
-        wrapper: "max-w-none px-4 md:px-6",
+        base: "border-foreground/10 bg-background h-[58px] md:h-[64px]",
+        wrapper: "max-w-none px-4 md:px-6 h-auto",
       }}
     >
       <NavbarContent justify="start" className="items-center gap-3">

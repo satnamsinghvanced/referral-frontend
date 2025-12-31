@@ -83,7 +83,7 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
         </Select>
       </div>
 
-      <div className="flex justify-between items-center text-xs px-1">
+      <div className="flex justify-between items-center text-xs px-1 gap-2">
         <div className="flex space-x-2">
           <Button
             variant="ghost"
@@ -118,7 +118,7 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
           </CardHeader>
           <CardBody className="pt-3 pb-4 px-4 space-y-3">
             {selectedReferrerObjects.length > 0 && (
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid md:grid-cols-3 gap-2">
                 {selectedReferrerObjects.map((r, index) => (
                   <div
                     key={r._id}
@@ -132,6 +132,9 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
                         <p className="font-medium">{r.name}</p>
                         <p className="text-gray-600">
                           {r.address.addressLine1}, {r.address.city}
+                          {r.address.city && `, ${r.address.city}`}
+                          {r.address.state && `, ${r.address.state}`}
+                          {r.address.zip && `, ${r.address.zip}`}
                         </p>
                       </div>
                     </div>
@@ -155,7 +158,7 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
 
       {/* Removed commented-out Route Preview Card */}
 
-      <div className="space-y-3 max-h-80 overflow-y-auto p-1 pr-2">
+      <div className="space-y-3 max-h-72 md:max-h-80 overflow-y-auto p-1 pr-2">
         {filteredReferrers.map((r) => {
           return (
             <Card
@@ -169,7 +172,7 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
               onPress={() => handleReferrerToggle(r._id)}
               disableRipple
             >
-              <CardBody className="p-3 flex justify-between items-center flex-row">
+              <CardBody className="p-3 flex justify-between items-center flex-row gap-1">
                 <div className="flex items-center space-x-3">
                   <Checkbox
                     isSelected={selectedReferrersState?.includes(r._id)}
@@ -181,6 +184,9 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
                     <p className="text-sm">{r.name}</p>
                     <p className="text-xs text-gray-600 mt-0.5">
                       {r.address.addressLine1}, {r.address.city}
+                      {r.address.city && `, ${r.address.city}`}
+                      {r.address.state && `, ${r.address.state}`}
+                      {r.address.zip && `, ${r.address.zip}`}
                     </p>
                     <div className="flex items-center sapce-x-2 mt-0.5">
                       <p className="text-xs text-gray-600">{r.phone}</p>

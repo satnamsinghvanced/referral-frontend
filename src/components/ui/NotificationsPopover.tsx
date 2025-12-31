@@ -87,7 +87,7 @@ export default function NotificationPopover() {
                 // Tailwind class to highlight unread items
                 className={`p-3 border-b border-gray-100 last:border-b-0 cursor-pointer transition-colors ${
                   notification.read
-                    ? "bg-white hover:bg-gray-50"
+                    ? "bg-background hover:bg-gray-50"
                     : "bg-blue-50 hover:bg-blue-100"
                 }`}
                 onClick={() => {

@@ -11,13 +11,15 @@ import {
 } from "@heroui/react";
 import { useFormik } from "formik";
 import { FiMail, FiPhone, FiUser } from "react-icons/fi";
+import { LuCalendar } from "react-icons/lu";
 import * as Yup from "yup";
 import ReferralStatusChip from "../../components/chips/ReferralStatusChip";
-import { STATUS_OPTIONS } from "../../consts/filters";
-import { Referral, StatusUpdateFormValues } from "../../types/referral";
-import { useUpdateReferral } from "../../hooks/useReferral";
-import { queryClient } from "../../providers/QueryProvider";
 import { LoadingState } from "../../components/common/LoadingState";
+import { STATUS_OPTIONS } from "../../consts/filters";
+import { useUpdateReferral } from "../../hooks/useReferral";
+import { Referral, StatusUpdateFormValues } from "../../types/referral";
+import { formatDateToReadable } from "../../utils/formatDateToReadable";
+import PriorityLevelChip from "../../components/chips/PriorityLevelChip";
 
 interface ReferralStatusModalProps {
   isOpen: boolean;
@@ -125,6 +127,22 @@ const ReferralStatusModal = ({
                 <FiMail className="size-3.5 text-gray-600" />
                 <span className="text-xs text-gray-600">{referral?.email}</span>
               </div>
+
+              {referral?.createdAt && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-600">
+                    Referred on: {formatDateToReadable(referral.createdAt)}
+                  </span>
+                </div>
+              )}
+              {referral?.scheduledDate && (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-gray-600">
+                    Scheduled:{" "}
+                    {formatDateToReadable(referral.scheduledDate, true)}
+                  </span>
+                </div>
+              )}
               {referral?.referredBy?.name && (
                 <div className="text-xs text-gray-600">
                   <span>Referred by: </span>
@@ -137,6 +155,11 @@ const ReferralStatusModal = ({
               {referral?.treatment && (
                 <div className="text-xs text-gray-600">
                   Treatment: {referral?.treatment}
+                </div>
+              )}
+              {referral?.addedVia && (
+                <div className="text-xs text-gray-600">
+                  Source: {referral?.addedVia}
                 </div>
               )}
               {isViewMode && referral.estValue ? (
@@ -153,6 +176,20 @@ const ReferralStatusModal = ({
               <label className="text-xs block">Current Status</label>
               <ReferralStatusChip status={referral?.status} />
             </div>
+
+            <div className="space-y-0.5">
+              <label className="text-xs block">Priority Level</label>
+              <PriorityLevelChip level={referral?.priority as string} />
+            </div>
+
+            {referral?.additionalNotes && (
+              <div className="space-y-0.5">
+                <label className="text-xs block">Additional Notes</label>
+                <p className="text-xs text-gray-600">
+                  {referral?.additionalNotes}
+                </p>
+              </div>
+            )}
 
             {!isViewMode && (
               <form onSubmit={formik.handleSubmit} className="space-y-4">

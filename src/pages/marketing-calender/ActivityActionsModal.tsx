@@ -76,12 +76,7 @@ export default function ActivityActionsModal({
   const initialValues: ActivityFormValues = {
     title: initialData?.title || "",
     // @ts-ignore
-    type:
-      initialData?.type ||
-      ACTIVITY_TYPES.find(
-        (activity) => activity.color.id === initialData?.colorId
-      )?.label ||
-      "",
+    type: initialData?.type || "Google Calendar",
     colorId: initialData?.colorId || "7",
     description: initialData?.description || "",
     startDate: initialData?.startDate || "",

@@ -70,7 +70,7 @@ export default function SocialMedia() {
 
   return (
     <ComponentContainer headingData={HEADING_DATA}>
-      <div className="flex flex-col gap-5">
+      <div className="flex flex-col gap-4 md:gap-5">
         <Tabs
           aria-label="Options"
           classNames={{

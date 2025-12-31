@@ -60,10 +60,12 @@ export default function BudgetActionModal({
   isOpen,
   onClose,
   editedData,
+  setCurrentFilters,
 }: {
   isOpen: boolean;
   onClose: () => void;
   editedData: BudgetItem | null;
+  setCurrentFilters: any;
 }) {
   const isEdit = !!editedData;
 
@@ -128,6 +130,11 @@ export default function BudgetActionModal({
       } else {
         createMutation.mutate(payload);
       }
+
+      setCurrentFilters((prev: any) => ({
+        ...prev,
+        period: values.period,
+      }));
     },
   });
 
