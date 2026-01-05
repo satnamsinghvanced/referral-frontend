@@ -7,36 +7,63 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@heroui/react";
-import { useState } from "react";
-import { useCreateFolder } from "../../../hooks/useMedia";
+import { useEffect, useState } from "react";
+import { useCreateFolder, useUpdateFolderName } from "../../../hooks/useMedia";
 
 interface CreateFolderModalProps {
   isOpen: boolean;
   onClose: () => void;
-  parentFolderId: any;
+  parentFolderId?: any;
+  folderToEdit?: { id: string; name: string } | null;
 }
 
 export function CreateFolderModal({
   isOpen,
   onClose,
   parentFolderId,
+  folderToEdit,
 }: CreateFolderModalProps) {
   const [folderName, setFolderName] = useState("");
 
-  const { mutate, isPending } = useCreateFolder();
+  useEffect(() => {
+    if (folderToEdit) {
+      setFolderName(folderToEdit.name);
+    } else {
+      setFolderName("");
+    }
+  }, [folderToEdit, isOpen]);
 
-  const handleCreate = () => {
+  const { mutate: createFolder, isPending: isCreatePending } =
+    useCreateFolder();
+  const { mutate: updateFolder, isPending: isUpdatePending } =
+    useUpdateFolderName(folderToEdit?.id || "");
+
+  const isPending = isCreatePending || isUpdatePending;
+  const isEditMode = !!folderToEdit;
+
+  const handleSubmit = () => {
     if (!folderName.trim()) return;
 
-    mutate(
-      { name: folderName, parentFolder: parentFolderId },
-      {
-        onSuccess: () => {
-          setFolderName("");
-          onClose();
-        },
-      }
-    );
+    if (isEditMode) {
+      updateFolder(
+        { name: folderName },
+        {
+          onSuccess: () => {
+            onClose();
+          },
+        }
+      );
+    } else {
+      createFolder(
+        { name: folderName, parentFolder: parentFolderId },
+        {
+          onSuccess: () => {
+            setFolderName("");
+            onClose();
+          },
+        }
+      );
+    }
   };
 
   const isNameValid = folderName.trim().length > 0;
@@ -50,11 +77,15 @@ export function CreateFolderModal({
         closeButton: "cursor-pointer",
       }}
     >
-      <ModalContent className="p-5">
+      <ModalContent className="p-4">
         <ModalHeader className="flex flex-col gap-1 font-normal p-0">
-          <h4 className="text-base font-medium">Create New Folder</h4>
+          <h4 className="text-base font-medium">
+            {isEditMode ? "Rename Folder" : "Create New Folder"}
+          </h4>
           <p className="text-xs text-gray-500">
-            Create a new folder in the root directory
+            {isEditMode
+              ? `Rename the current folder "${folderToEdit?.name}"`
+              : "Create a new folder in the current directory"}
           </p>
         </ModalHeader>
 
@@ -71,7 +102,7 @@ export function CreateFolderModal({
             onChange={(e) => setFolderName(e.target.value)}
             onKeyDown={(e) => {
               if (e.key === "Enter" && isNameValid && !isPending)
-                handleCreate();
+                handleSubmit();
             }}
           />
         </ModalBody>
@@ -92,11 +123,11 @@ export function CreateFolderModal({
             variant="solid"
             color="primary"
             className="border-small"
-            onPress={handleCreate}
+            onPress={handleSubmit}
             isDisabled={!isNameValid || isPending}
             isLoading={isPending}
           >
-            Create Folder
+            {isEditMode ? "Save Changes" : "Create Folder"}
           </Button>
         </ModalFooter>
       </ModalContent>

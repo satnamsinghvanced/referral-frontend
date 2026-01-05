@@ -65,6 +65,7 @@ export const useUpdateTeamMember = () => {
 
       queryClient.invalidateQueries({ queryKey: ["team-members"] });
       queryClient.invalidateQueries({ queryKey: ["pending-invites"] });
+      queryClient.invalidateQueries({ queryKey: ["notes-tasks"] });
     },
     onError: (error: AxiosError) => {
       const errorMessage =

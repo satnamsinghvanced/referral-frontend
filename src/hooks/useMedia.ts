@@ -83,8 +83,8 @@ export const useUpdateFolderName = (folderId: string) => {
   return useMutation({
     mutationFn: (data: UpdateFolderRequest) => updateFolderName(folderId, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: FOLDER_KEYS.detail(folderId) });
       queryClient.invalidateQueries({ queryKey: FOLDER_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: FOLDER_KEYS.detail(folderId) });
       addToast({
         title: "Success",
         description: "Folder name updated successfully.",

@@ -56,9 +56,10 @@ const PendingTeamMembers: React.FC<PendingTeamMembersProps> = ({
                   <p className="font-medium text-sm">{member.email}</p>
                   <p className="text-xs text-gray-600">
                     Invited as{" "}
-                    {member.role?.title || member.role?.role || "No Role"} on{" "}
-                    {member.invitedAt
-                      ? formatDateToYYYYMMDD(member.invitedAt)
+                    {member.role?.title || member.role?.role || "No Role"} at{" "}
+                    {member.locations?.[0]?.name} on{" "}
+                    {member.createdAt
+                      ? formatDateToYYYYMMDD(member.createdAt)
                       : "N/A"}
                   </p>
                 </div>

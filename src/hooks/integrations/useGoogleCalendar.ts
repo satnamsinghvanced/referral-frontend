@@ -28,6 +28,8 @@ export const useGenerateGoogleCalendarAuthUrl = () => {
         description: "Google calendar connected successfully",
         color: "success",
       });
+
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     },
 
     onError: (error) => {
@@ -70,6 +72,8 @@ export const useUpdateGoogleCalendarIntegration = () => {
       queryClient.invalidateQueries({
         queryKey: GOOGLE_CALENDAR_KEYS.integration(),
       });
+
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     },
 
     onError: (error) => {

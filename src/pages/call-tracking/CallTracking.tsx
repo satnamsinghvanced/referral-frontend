@@ -1,27 +1,23 @@
-import { Input, Pagination, Select, SelectItem, Button } from "@heroui/react";
+import { Button, Input, Pagination, Select, SelectItem } from "@heroui/react";
 import { useMemo, useState } from "react";
 import { FiPhone, FiPhoneCall, FiSearch } from "react-icons/fi";
 import { LuClock, LuFileAudio, LuRefreshCw } from "react-icons/lu";
 import { MdTrendingUp } from "react-icons/md";
+import { Link } from "react-router-dom";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
 import ComponentContainer from "../../components/common/ComponentContainer";
+import EmptyState from "../../components/common/EmptyState";
+import { LoadingState } from "../../components/common/LoadingState";
+import { CALL_STATUSES, CALL_TYPES } from "../../consts/call";
+import { useFetchTwilioConfig } from "../../hooks/integrations/useTwilio";
 import { useFetchCallRecords } from "../../hooks/useCall";
 import { CallRecord } from "../../types/call";
 import CallRecordCard from "./CallRecordCard";
 import CallRecordingModal from "./modal/CallRecordingModal";
-import { CALL_STATUSES, CALL_TYPES } from "../../consts/call";
-import { LoadingState } from "../../components/common/LoadingState";
-import EmptyState from "../../components/common/EmptyState";
-import { Link } from "react-router-dom";
-import { useFetchTwilioConfig } from "../../hooks/integrations/useTwilio";
-import { useTypedSelector } from "../../hooks/useTypedSelector";
 
 const CallTracking = () => {
-  const { user } = useTypedSelector((state) => state.auth);
-  const userId = user?.userId;
-
   const { data: twilioConfig, isPending: isTwilioConfigLoading } =
-    useFetchTwilioConfig(userId as string);
+    useFetchTwilioConfig();
 
   const isTwilioConnected = !!(
     twilioConfig &&
@@ -42,12 +38,8 @@ const CallTracking = () => {
     limit: 10,
   });
 
-  const {
-    data,
-    isPending: isLoading,
-    refetch,
-    isRefetching,
-  } = useFetchCallRecords(filters);
+  const { data, isLoading, refetch, isRefetching } =
+    useFetchCallRecords(filters);
 
   const onFilterChange = (key: string, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value, page: 1 }));
@@ -217,47 +209,54 @@ const CallTracking = () => {
               <p className="font-medium text-sm">Call History</p>
             </div>
 
-            {isLoading ? (
+            {isLoading && (
               <div className="min-h-[200px] flex items-center justify-center">
                 <LoadingState />
               </div>
-            ) : data?.paginatedCalls.data &&
-              data.paginatedCalls.data.length > 0 ? (
-              <div className="space-y-3">
-                {data.paginatedCalls.data.map((record: CallRecord) => (
-                  <CallRecordCard
-                    key={record._id}
-                    record={record}
-                    onPlayClick={() => handlePlayClick(record)}
-                  />
-                ))}
-              </div>
-            ) : (
-              <EmptyState title="No call records found with current filters. Try adjusting your search or filters." />
             )}
 
-            {data?.paginatedCalls && data.paginatedCalls.totalPages > 1 && (
-              <div className="flex items-center justify-between gap-2">
-                {!isLoading && data?.paginatedCalls && (
+            {!isLoading &&
+              data?.paginatedCalls.data &&
+              data.paginatedCalls.data.length > 0 && (
+                <div className="space-y-3">
+                  {data.paginatedCalls.data.map((record: CallRecord) => (
+                    <CallRecordCard
+                      key={record._id}
+                      record={record}
+                      onPlayClick={() => handlePlayClick(record)}
+                    />
+                  ))}
+                </div>
+              )}
+
+            {!isLoading &&
+              data?.paginatedCalls.data &&
+              data.paginatedCalls.data.length === 0 && (
+                <EmptyState title="No call records found with current filters. Try adjusting your search or filters." />
+              )}
+
+            {!isLoading &&
+              data?.paginatedCalls &&
+              data.paginatedCalls.totalPages > 1 && (
+                <div className="flex items-center justify-between gap-2">
                   <p className="text-xs text-gray-600">
                     Showing {data.paginatedCalls.data.length} of{" "}
                     {data.paginatedCalls.totalData} calls
                   </p>
-                )}
-                <Pagination
-                  total={data.paginatedCalls.totalPages}
-                  page={filters.page}
-                  onChange={handlePageChange}
-                  size="sm"
-                  radius="sm"
-                  showControls
-                  classNames={{
-                    base: "pagination flex justify-end py-3",
-                    wrapper: "gap-1.5",
-                  }}
-                />
-              </div>
-            )}
+                  <Pagination
+                    total={data.paginatedCalls.totalPages}
+                    page={filters.page}
+                    onChange={handlePageChange}
+                    size="sm"
+                    radius="sm"
+                    showControls
+                    classNames={{
+                      base: "pagination flex justify-end py-3",
+                      wrapper: "gap-1.5",
+                    }}
+                  />
+                </div>
+              )}
           </div>
         </div>
       </ComponentContainer>

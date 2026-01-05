@@ -15,7 +15,12 @@ export const STAFF_ROLES = [
   { title: "Other", _id: "Other" },
 ];
 
-export const NOTE_CATEGORIES = ["General", "Referral", "Contact", "Meeting"];
+export const NOTE_CATEGORIES = [
+  { label: "General", value: "general" },
+  { label: "Referral", value: "referral" },
+  { label: "Contact", value: "contact" },
+  { label: "Meeting", value: "meeting" },
+];
 export const TASK_PRIORITIES = [
   { label: "Low", value: "low" },
   { label: "Medium", value: "medium" },

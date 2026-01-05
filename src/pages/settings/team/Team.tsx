@@ -265,7 +265,7 @@ const Team: React.FC = () => {
         onConfirm={handleDeleteConfirm}
         isLoading={deleteIsPending}
         title="Delete Team Member"
-        message="Are you sure you want to delete this team member? This action cannot be undone."
+        description="Are you sure you want to delete this team member? This action cannot be undone."
       />
     </div>
   );

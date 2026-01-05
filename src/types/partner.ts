@@ -157,7 +157,7 @@ export interface PartnerPractice {
     addressLine2: string;
     city: string;
   };
-  phone: string;
+  practicePhone: string;
   email: string;
   website: string;
   partnershipLevel: string;
@@ -205,7 +205,10 @@ export interface FetchPartnersParams {
 export interface NoteApiData {
   _id: string;
   description: string;
-  practice: string; // partnerId
+  practice: {
+    _id: string;
+    name: string;
+  }; // partnerId
   category: string;
   createdBy: string; // userId
   createdAt: string; // ISO date string
@@ -259,10 +262,6 @@ export interface CreateTaskPayload {
   priority: string;
   category: string;
   assignTo: string[];
-}
-
-export interface UpdateTaskStatusPayload {
-  status: "not-started" | "in-progress" | "completed" | "no-longer-needed";
 }
 
 export interface UpdateTaskPayload {

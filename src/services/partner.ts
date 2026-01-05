@@ -15,7 +15,6 @@ import {
   SchedulePlansResponse,
   TaskApiData,
   UpdateTaskPayload,
-  UpdateTaskStatusPayload,
   VisitHistoryQueryParams,
   VisitHistoryResponse,
 } from "../types/partner";
@@ -85,14 +84,6 @@ export const createTask = async (
   payload: CreateTaskPayload
 ): Promise<TaskApiData> => {
   const response = await axios.post<TaskApiData>("/tasks", payload);
-  return response.data;
-};
-
-export const updateTaskStatus = async (
-  taskId: string,
-  payload: UpdateTaskStatusPayload
-): Promise<TaskApiData> => {
-  const response = await axios.patch<TaskApiData>(`/tasks/${taskId}`, payload);
   return response.data;
 };
 

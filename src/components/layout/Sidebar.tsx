@@ -42,9 +42,6 @@ const Sidebar = ({
 }: SidebarProps) => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { auth_user } = useSelector(
-    (state: { auth: any }) => state?.auth || {}
-  );
   const { data: dashboardStats } = useDashboardStats();
 
   // local state for submenu open states (keyed by index)
@@ -101,7 +98,7 @@ const Sidebar = ({
       name: "Call Tracking",
       icon: HiOutlinePhone,
       href: "/call-tracking",
-      stats: 34,
+      stats: dashboardStats?.totalCalls,
       color: "bg-sky-100",
     },
     {
@@ -158,7 +155,7 @@ const Sidebar = ({
       name: "Integrations",
       icon: HiOutlineLightningBolt,
       href: "/integrations",
-      stats: 1,
+      stats: dashboardStats?.integrations,
       color: "bg-blue-400",
     },
     { name: "Settings", icon: HiOutlineCog, href: "/settings" },

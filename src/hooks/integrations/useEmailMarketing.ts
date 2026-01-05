@@ -25,6 +25,7 @@ export const useCreateEmailIntegration = () => {
     mutationFn: (data: EmailIntegrationBody) => createEmailIntegration(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [EMAIL_KEY] });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     },
     onError: (error: AxiosError<{ message: string }>) => {
       addToast({
@@ -43,6 +44,7 @@ export const useUpdateEmailIntegration = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: [EMAIL_KEY] });
       queryClient.invalidateQueries({ queryKey: [EMAIL_KEY, data._id] });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     },
     onError: (error: AxiosError<{ message: string }>) => {
       addToast({

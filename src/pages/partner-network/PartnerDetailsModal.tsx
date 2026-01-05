@@ -27,6 +27,7 @@ import LevelChip from "../../components/chips/LevelChip";
 import { LoadingState } from "../../components/common/LoadingState";
 import { useFetchPartnerDetail } from "../../hooks/usePartner";
 import { PartnerPractice } from "../../types/partner"; // Adjust path as necessary
+import { formatDateToReadable } from "../../utils/formatDateToReadable";
 
 interface PartnerDetailsModalProps {
   isOpen: boolean;
@@ -158,7 +159,9 @@ const PartnerDetailsModal = ({
                       <div className="space-y-0.5">
                         <div className="text-xs font-medium">Phone</div>
                         <div className="text-xs text-gray-600">
-                          {displayData.phone ? displayData.phone : "N/A"}
+                          {displayData.practicePhone
+                            ? displayData.practicePhone
+                            : "N/A"}
                         </div>
                       </div>
                     </div>
@@ -225,8 +228,9 @@ const PartnerDetailsModal = ({
                         <div className="text-xs font-medium">Last Updated</div>
                         {/* Assuming a 'lastUpdated' field exists or can be derived */}
                         <div className="text-xs text-gray-600">
-                          {formatDate(
-                            (displayData as any).lastUpdated || "Oct 22, 2025"
+                          {formatDateToReadable(
+                            (displayData as any).updatedAt,
+                            true
                           )}
                         </div>
                       </div>

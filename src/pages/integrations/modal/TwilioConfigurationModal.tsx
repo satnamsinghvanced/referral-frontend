@@ -75,7 +75,7 @@ export default function TwilioConfigurationModal({
     },
     validationSchema: validationSchema,
     onSubmit: async (values, { setSubmitting }) => {
-      const payload = {
+      let payload: any = {
         userId: userId,
         data: {
           accountId: values.accountId,
@@ -83,6 +83,15 @@ export default function TwilioConfigurationModal({
           phone: values.phone,
         },
       };
+
+      if (isUpdateMode) {
+        payload = {
+          id: existingConfig._id,
+          data: {
+            ...payload.data,
+          },
+        };
+      }
 
       try {
         await mutation.mutateAsync(payload);
@@ -198,7 +207,7 @@ export default function TwilioConfigurationModal({
                 placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
                 isRequired
                 // Formik Props
-                value={formik.values.accountId}
+                value={formik.values.accountId as string}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 isInvalid={
@@ -220,7 +229,7 @@ export default function TwilioConfigurationModal({
                 placeholder="••••••••••••••••••••••••••••••••"
                 isRequired
                 // Formik Props
-                value={formik.values.authToken}
+                value={formik.values.authToken as string}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 isInvalid={
@@ -251,7 +260,7 @@ export default function TwilioConfigurationModal({
                 placeholder="+15551234567"
                 isRequired
                 // Formik Props
-                value={formik.values.phone}
+                value={formik.values.phone as string}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 isInvalid={

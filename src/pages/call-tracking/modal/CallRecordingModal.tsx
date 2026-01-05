@@ -4,31 +4,24 @@ import {
   CardBody,
   Checkbox,
   Chip,
+  DatePicker,
   Modal,
   ModalBody,
   ModalContent,
   ModalHeader,
-  Select,
-  SelectItem,
   Tab,
   Tabs,
   Textarea,
   addToast,
 } from "@heroui/react";
+import { getLocalTimeZone, now } from "@internationalized/date";
 import { useEffect, useState } from "react";
-import {
-  FiCalendar,
-  FiCheckCircle,
-  FiPause,
-  FiSave,
-  FiSkipBack,
-  FiSkipForward,
-  FiVolume2,
-} from "react-icons/fi";
+import { FiCalendar, FiCheckCircle, FiXCircle } from "react-icons/fi";
 import { LuPhoneIncoming, LuPhoneOutgoing } from "react-icons/lu";
 import { MdChatBubbleOutline } from "react-icons/md";
 import { useUpdateCallRecord } from "../../../hooks/useCall";
 import { CallRecord } from "../../../types/call";
+import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 
 const PlaybackTab = ({ data }: { data: CallRecord }) => (
   <div className="flex-1 outline-none space-y-4">
@@ -41,7 +34,8 @@ const PlaybackTab = ({ data }: { data: CallRecord }) => (
               {data.contact.name || data.contact.phone || "Unknown"}
             </h4>
             <p className="text-xs text-gray-600">
-              {data.contact.phone || data.from} &bull; {data.date}
+              {data.contact.phone || data.from} &bull;{" "}
+              {formatDateToReadable(data.date, true)}
             </p>
           </div>
           <div className="flex items-center space-x-2">
@@ -50,7 +44,7 @@ const PlaybackTab = ({ data }: { data: CallRecord }) => (
               size="sm"
               radius="sm"
               variant="bordered"
-              className="capitalize text-blue-600 border-blue-200 text-[11px] h-5 px-2 bg-blue-50/50 border-small"
+              className="capitalize text-blue-600 border-blue-200 text-[11px] h-5 bg-blue-50/50 border-small"
             >
               Twilio
             </Chip>
@@ -58,7 +52,7 @@ const PlaybackTab = ({ data }: { data: CallRecord }) => (
         </div>
 
         {/* Playback Controls */}
-        <div className="space-y-4 mt-6">
+        <div className="space-y-4 mt-4">
           {data.recordingUrl ? (
             <audio
               controls
@@ -95,16 +89,24 @@ const TranscriptionTab = ({ data }: { data: CallRecord }) => (
   </div>
 );
 
-const DetailsTab = ({ data }: { data: CallRecord }) => {
+const DetailsTab = ({
+  data,
+  onClose,
+}: {
+  data: CallRecord;
+  onClose: () => void;
+}) => {
   const { mutate: updateRecord, isPending } = useUpdateCallRecord();
   const [notes, setNotes] = useState(data.notes || "");
   const [followUp, setFollowUp] = useState(data.followUp || false);
   const [appointment, setAppointment] = useState(data.appointment || false);
+  const [appointmentDate, setAppointmentDate] = useState(data.date || "");
 
   useEffect(() => {
     setNotes(data.notes || "");
     setFollowUp(data.followUp || false);
     setAppointment(data.appointment || false);
+    setAppointmentDate(data.date || "");
   }, [data]);
 
   const handleSave = () => {
@@ -115,6 +117,7 @@ const DetailsTab = ({ data }: { data: CallRecord }) => {
           notes,
           followUp,
           appointment,
+          date: appointmentDate,
         },
       },
       {
@@ -124,6 +127,7 @@ const DetailsTab = ({ data }: { data: CallRecord }) => {
             description: "Call record updated successfully.",
             color: "success",
           });
+          onClose();
         },
         onError: () => {
           addToast({
@@ -166,8 +170,12 @@ const DetailsTab = ({ data }: { data: CallRecord }) => {
                   <span className="w-24 inline-block text-gray-600">
                     Status:
                   </span>{" "}
-                  <span className="inline-flex items-center gap-1.5">
-                    <FiCheckCircle className="size-3.5 text-green-600" />{" "}
+                  <span className="inline-flex items-center gap-1.5 capitalize">
+                    {data.status === "completed" ? (
+                      <FiCheckCircle className="size-3.5 text-green-600" />
+                    ) : (
+                      <FiXCircle className="size-3.5 text-red-600" />
+                    )}
                     {data.status}
                   </span>
                 </p>
@@ -175,7 +183,7 @@ const DetailsTab = ({ data }: { data: CallRecord }) => {
                   <span className="w-24 inline-block text-gray-600">
                     Call SID:
                   </span>{" "}
-                  <span className="font-mono text-[10px] text-gray-500">
+                  <span className="font-mono text-[11px] text-gray-500">
                     {data.callSid}
                   </span>
                 </p>
@@ -200,19 +208,11 @@ const DetailsTab = ({ data }: { data: CallRecord }) => {
             <CardBody className="space-y-3">
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-medium">Notes & Actions</h4>
-                <Button
-                  size="sm"
-                  color="primary"
-                  variant="flat"
-                  onPress={handleSave}
-                  isLoading={isPending}
-                  className="h-7 min-w-16"
-                >
-                  Save
-                </Button>
               </div>
               <div className="space-y-3">
                 <Textarea
+                  size="sm"
+                  radius="sm"
                   placeholder="Review notes..."
                   value={notes}
                   onValueChange={setNotes}
@@ -220,7 +220,7 @@ const DetailsTab = ({ data }: { data: CallRecord }) => {
                   classNames={{
                     input: "text-xs",
                   }}
-                  variant="faded"
+                  variant="flat"
                 />
 
                 {/* Checkboxes */}
@@ -245,11 +245,59 @@ const DetailsTab = ({ data }: { data: CallRecord }) => {
                       Appointment scheduled
                     </Checkbox>
                   </div>
+                  {appointment && (
+                    <DatePicker
+                      key="date"
+                      id="appointmentDate"
+                      name="date"
+                      aria-label="Appointment Date"
+                      size="sm"
+                      radius="sm"
+                      hideTimeZone
+                      minValue={now(getLocalTimeZone())}
+                      granularity="minute"
+                      onChange={(dateObject: any) => {
+                        if (dateObject) {
+                          // Extract parts, pad with leading zeros
+                          const year = dateObject.year;
+                          const month = String(dateObject.month).padStart(
+                            2,
+                            "0"
+                          );
+                          const day = String(dateObject.day).padStart(2, "0");
+                          const hour = String(dateObject.hour).padStart(2, "0");
+                          const minute = String(dateObject.minute).padStart(
+                            2,
+                            "0"
+                          );
+                          const second = String(dateObject.second).padStart(
+                            2,
+                            "0"
+                          );
+                          const millisecond = String(
+                            dateObject.millisecond
+                          ).padStart(3, "0");
+
+                          const localDateTimeString = `${year}-${month}-${day}T${hour}:${minute}:${second}.${millisecond}`;
+                          setAppointmentDate(localDateTimeString);
+                        } else {
+                          setAppointmentDate("");
+                        }
+                      }}
+                    />
+                  )}
                 </div>
 
                 {/* Schedule Follow-up Button */}
                 <div className="border-t border-primary/15 pt-2 mt-4">
-                  <Button color="primary" size="sm" radius="sm" fullWidth>
+                  <Button
+                    color="primary"
+                    size="sm"
+                    radius="sm"
+                    fullWidth
+                    onPress={handleSave}
+                    isLoading={isPending}
+                  >
                     <FiCalendar className="size-3.5" />
                     <span>Schedule Follow-up</span>
                   </Button>
@@ -290,7 +338,7 @@ export default function CallRecordingModal({
     {
       key: "details",
       label: "Details",
-      content: <DetailsTab data={data} />,
+      content: <DetailsTab data={data} onClose={onClose} />,
     },
   ];
 

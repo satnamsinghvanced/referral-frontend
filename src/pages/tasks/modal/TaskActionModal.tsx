@@ -156,6 +156,7 @@ const TaskActionModal = ({
                   !!formik.errors.title && (formik.touched.title as boolean)
                 }
                 errorMessage={formik.errors.title}
+                isRequired
               />
             </div>
 
@@ -195,6 +196,7 @@ const TaskActionModal = ({
                   !!formik.errors.dueDate && (formik.touched.dueDate as boolean)
                 }
                 errorMessage={formik.errors.dueDate}
+                isRequired
               />
             </div>
 
@@ -219,6 +221,7 @@ const TaskActionModal = ({
                   (formik.touched.priority as boolean)
                 }
                 errorMessage={formik.errors.priority}
+                isRequired
               >
                 {TASK_PRIORITIES.map((p) => (
                   <SelectItem key={p.value} textValue={p.label}>
@@ -241,6 +244,7 @@ const TaskActionModal = ({
                   (formik.touched.category as boolean)
                 }
                 errorMessage={formik.errors.category}
+                isRequired
               >
                 {TASK_TYPES.map((t) => (
                   <SelectItem key={t.key} textValue={t.label}>
@@ -259,6 +263,11 @@ const TaskActionModal = ({
                   onSelectionChange={(keys) =>
                     formik.setFieldValue("status", Array.from(keys)[0])
                   }
+                  isInvalid={
+                    !!formik.errors.status && (formik.touched.status as boolean)
+                  }
+                  errorMessage={formik.errors.status}
+                  isRequired
                 >
                   {TASK_STATUSES.map((s) => (
                     <SelectItem key={s.value} textValue={s.label}>
@@ -296,6 +305,7 @@ const TaskActionModal = ({
                 }
                 errorMessage={formik.errors.practiceId as string}
                 isLoading={!partnersData}
+                isRequired
               >
                 {practices.map((practice: any) => (
                   <SelectItem key={practice._id} textValue={practice.name}>
@@ -324,6 +334,7 @@ const TaskActionModal = ({
                     (formik.touched.assignTo as boolean)
                   }
                   errorMessage={formik.errors.assignTo as string}
+                  isRequired
                 >
                   {(activeTeamMembers ?? []).map((tm: TeamMember) => (
                     <SelectItem

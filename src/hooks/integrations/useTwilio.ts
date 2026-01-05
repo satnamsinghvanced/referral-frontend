@@ -35,6 +35,7 @@ export const useSaveTwilioConfig = () =>
       queryClient.invalidateQueries({
         queryKey: twilioKeys.details(),
       });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     },
     onError: (error: Error) => {
       addToast({
@@ -61,6 +62,7 @@ export const useUpdateTwilioConfig = () =>
       queryClient.invalidateQueries({
         queryKey: twilioKeys.details(),
       });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     },
     onError: (error: Error) => {
       addToast({

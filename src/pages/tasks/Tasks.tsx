@@ -11,14 +11,17 @@ import EmptyState from "../../components/common/EmptyState";
 import { LoadingState } from "../../components/common/LoadingState";
 import { TASK_PRIORITIES, TASK_STATUSES } from "../../consts/practice";
 import { useDebouncedValue } from "../../hooks/common/useDebouncedValue";
-import { useFetchAllTasks } from "../../hooks/usePartner";
+import { useDeleteTask, useFetchAllTasks } from "../../hooks/usePartner";
 import TaskCard from "./TaskCard";
+import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
 import { AiOutlinePlus } from "react-icons/ai";
 import TaskActionModal from "./modal/TaskActionModal";
 
 function Tasks() {
   const [openTaskModal, setOpenTaskModal] = useState(false);
   const [taskToEdit, setTaskToEdit] = useState<any>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [taskIdToDelete, setTaskIdToDelete] = useState<string | null>(null);
 
   const handleOpenTaskModal = (task?: any) => {
     if (task) setTaskToEdit(task);
@@ -28,6 +31,16 @@ function Tasks() {
   const handleCloseTaskModal = () => {
     setOpenTaskModal(false);
     setTaskToEdit(null);
+  };
+
+  const handleOpenDeleteModal = (taskId: string) => {
+    setTaskIdToDelete(taskId);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleCloseDeleteModal = () => {
+    setIsDeleteModalOpen(false);
+    setTaskIdToDelete(null);
   };
 
   const HEADING_DATA = useMemo(
@@ -68,6 +81,8 @@ function Tasks() {
     isFetching,
     refetch,
   } = useFetchAllTasks({ ...currentFilters, search: debouncedSearch });
+
+  const { mutate: deleteTask, isPending: isDeletePending } = useDeleteTask();
 
   const tasks = tasksData?.tasks;
   const stats = tasksData?.stats;
@@ -184,6 +199,7 @@ function Tasks() {
                     key={task._id}
                     task={task}
                     onEdit={handleOpenTaskModal}
+                    onDelete={handleOpenDeleteModal}
                   />
                 ))}
               </div>
@@ -215,6 +231,24 @@ function Tasks() {
         onClose={handleCloseTaskModal}
         refetch={refetch}
         task={taskToEdit}
+      />
+
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={handleCloseDeleteModal}
+        onConfirm={() => {
+          if (taskIdToDelete) {
+            deleteTask(taskIdToDelete, {
+              onSuccess: () => {
+                handleCloseDeleteModal();
+                refetch();
+              },
+            });
+          }
+        }}
+        isLoading={isDeletePending}
+        title="Delete Task"
+        description="Are you sure you want to delete this task? This action cannot be undone."
       />
     </ComponentContainer>
   );

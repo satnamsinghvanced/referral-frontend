@@ -14,7 +14,7 @@ interface DeleteConfirmationModalProps {
   onConfirm: () => void;
   isLoading?: boolean;
   title?: string;
-  message?: string;
+  description?: string;
 }
 
 const DeleteConfirmationModal = ({
@@ -23,7 +23,7 @@ const DeleteConfirmationModal = ({
   onConfirm,
   isLoading = false,
   title = "Confirm Deletion",
-  message = "This action cannot be undone. Are you absolutely sure you want to proceed?",
+  description = "This action cannot be undone. Are you absolutely sure you want to proceed?",
 }: DeleteConfirmationModalProps) => {
   return (
     <Modal
@@ -44,7 +44,7 @@ const DeleteConfirmationModal = ({
           </div>
         </ModalHeader>
         <ModalBody className="py-4 px-0">
-          <p className="text-sm">{message}</p>
+          <p className="text-sm">{description}</p>
         </ModalBody>
         <ModalFooter className="flex justify-end gap-2 p-0">
           <Button

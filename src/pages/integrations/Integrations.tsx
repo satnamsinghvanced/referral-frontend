@@ -230,7 +230,7 @@ function Integrations() {
         icon: <TbBrandTwilio className="w-4 h-4" />,
         iconBg: "bg-red-100",
         iconColor: "text-red-600",
-        status: isTwilioConnected ? "Connected" : "Disconnected",
+        status: twilioConfig?.status || "Disconnected",
         description:
           "Automate patient calls and streamline referral communication",
         badges: [

@@ -8,7 +8,6 @@ export const useFetchCallRecords = (params: GetCallRecordsParams) => {
   return useQuery({
     queryKey: [CALL_RECORDS_QUERY_KEY, params],
     queryFn: () => getCallRecords(params),
-    placeholderData: (previousData) => previousData,
   });
 };
 

@@ -68,7 +68,7 @@ const PartnerNetwork = () => {
     ...params,
     search: debouncedSearch as string,
   });
-  
+
   const { data: singlePartnerData } = useFetchPartnerDetail(partnerEditId);
 
   const practices = data?.data || [];
@@ -296,6 +296,7 @@ const PartnerNetwork = () => {
                         size="sm"
                         radius="sm"
                         selectedKeys={[params.filter as string]}
+                        disabledKeys={[params.filter as string]}
                         onSelectionChange={(keys) =>
                           handleFieldChange(
                             "filter",
@@ -322,6 +323,7 @@ const PartnerNetwork = () => {
                             size="sm"
                             radius="sm"
                             selectedKeys={[params.sortBy as string]}
+                            disabledKeys={[params.sortBy as string]}
                             onSelectionChange={(keys) =>
                               handleFieldChange(
                                 "sortBy",

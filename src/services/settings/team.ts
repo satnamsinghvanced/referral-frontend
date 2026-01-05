@@ -15,7 +15,7 @@ export interface TeamMember {
   } | null;
   status: string;
   avatar?: string;
-  invitedAt?: string;
+  createdAt?: string;
   permissions?: any[]; // permissions can be populated
   isVerified?: boolean;
   termsAccepted?: boolean;

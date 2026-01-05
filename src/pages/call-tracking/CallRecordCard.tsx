@@ -82,17 +82,15 @@ export default function CallRecordCard({
         </div>
 
         <div className="flex space-x-2">
-          {record.recordingUrl && (
-            <Button
-              size="sm"
-              variant="bordered"
-              className="border-small px-0 !min-w-8"
-              aria-label="Play recording"
-              onPress={onPlayClick}
-            >
-              <FiPlay className="size-3.5" />
-            </Button>
-          )}
+          <Button
+            size="sm"
+            variant="bordered"
+            className="border-small px-0 !min-w-8"
+            aria-label="Play recording"
+            onPress={onPlayClick}
+          >
+            <FiPlay className="size-3.5" />
+          </Button>
 
           <Link to="https://www.twilio.com/login" target="_blank">
             <Button
