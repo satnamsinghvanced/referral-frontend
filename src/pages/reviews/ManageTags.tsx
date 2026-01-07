@@ -195,7 +195,7 @@ const ManageTags = () => {
       {/* Tags Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
         {tags.map((tag) => (
-          <div className="bg-white rounded-xl border border-primary/15 p-4 flex flex-col gap-5">
+          <div className="bg-white rounded-xl border border-primary/15 p-4 flex flex-col gap-5" key={tag.id}>
             {/* Header */}
             <div className="flex justify-between items-start">
               <div className="flex gap-2">

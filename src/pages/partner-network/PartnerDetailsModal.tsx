@@ -268,7 +268,10 @@ const PartnerDetailsModal = ({
                     )}
                     {displayData.staff &&
                       displayData.staff.map((staff: any) => (
-                        <div className="flex items-center space-x-2.5 p-3 bg-gray-50 rounded-lg">
+                        <div
+                          className="flex items-center space-x-2.5 p-3 bg-gray-50 rounded-lg"
+                          key={staff._id}
+                        >
                           <div className="size-9 bg-blue-100 rounded-full flex items-center justify-center">
                             <LuUsers className="size-4 text-blue-600" />
                           </div>
@@ -370,7 +373,7 @@ const PartnerDetailsModal = ({
           )}
         </ModalBody>
         {/* Footer with buttons */}
-        <ModalFooter className="flex-shrink-0 flex justify-end space-x-2 px-5 py-4 border-t border-primary/15">
+        <ModalFooter className="flex-shrink-0 flex justify-end px-5 py-4 border-t border-primary/15">
           <Button
             variant="bordered"
             size="sm"
@@ -380,9 +383,10 @@ const PartnerDetailsModal = ({
             Close
           </Button>
           <Button
+            variant="solid"
             color="primary"
             size="sm"
-            className="bg-blue-600 hover:bg-blue-700"
+            radius="sm"
             onPress={() => primaryButtonHandler(partnerId)}
           >
             <LuSquarePen className="size-3.5" />

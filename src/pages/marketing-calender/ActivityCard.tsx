@@ -27,8 +27,6 @@ export function ActivityCard({ activity, onView }: ActivityCardProps) {
     reach,
   } = activity;
 
-  console.log(type);
-
   const activityType = ACTIVITY_TYPES.find(
     (activityType: any) => activityType.value == type
   )?.label;

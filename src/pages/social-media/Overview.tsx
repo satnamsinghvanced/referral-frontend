@@ -85,10 +85,13 @@ const Overview: React.FC<OverviewProps> = ({
               </h3>
             </CardHeader>
             <CardBody className="p-0 space-y-3">
-              {platform.stats.map((stat) => {
+              {platform.stats.map((stat, i) => {
                 return (
                   stat.value && (
-                    <div className="text-xs flex items-center justify-between">
+                    <div
+                      className="text-xs flex items-center justify-between"
+                      key={i}
+                    >
                       <p className="text-gray-600">{stat.label}</p>
                       <p className="font-medium">{stat.value}</p>
                     </div>

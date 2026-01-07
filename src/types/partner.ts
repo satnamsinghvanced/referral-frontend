@@ -537,6 +537,7 @@ export interface SchedulePlansResponse {
   message: string;
   data: SchedulePlan[];
   dashboardStats: SchedulePlanDashboardStats;
+  visitHistoryCount: number;
   pagination: {
     totalPages: number;
     currentPage: number;

@@ -87,7 +87,10 @@ const Platforms = () => {
             const statusText = isConnected ? "Connected" : "Disconnected";
 
             return (
-              <Card className="bg-background p-5 border border-primary/15 rouned-xl shadow-none">
+              <Card
+                className="bg-background p-5 border border-primary/15 rouned-xl shadow-none"
+                key={platform.id}
+              >
                 {/* Header: Platform Name and Status */}
                 <CardHeader className="flex items-center justify-between p-0 pb-4">
                   <div className="flex items-center gap-2">

@@ -36,7 +36,7 @@ const Audience: React.FC = () => {
         <CardBody className="p-0 overflow-visible">
           <div className="space-y-4 text-sm">
             {ENGAGEMENT_GRAPH.map((item) => (
-              <div className="space-y-1.5">
+              <div className="space-y-1.5" key={item.segment}>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">{item.segment}</span>
                   <span className="text-xs text-gray-600">

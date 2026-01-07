@@ -80,7 +80,7 @@ const PatientForm = React.lazy(
   () => import("./pages/referral-management/referrals/PatientForm")
 );
 const AcceptInvitation = React.lazy(
-  () => import("./pages/auth/AcceptInvitation")
+  () => import("./pages/settings/team/AcceptInvitation")
 );
 const CallTracking = React.lazy(
   () => import("./pages/call-tracking/CallTracking")

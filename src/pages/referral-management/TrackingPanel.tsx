@@ -234,7 +234,9 @@ const TrackingPanel = () => {
                           }
                           type="text"
                           value={customPath}
-                          onValueChange={(value) => setCustomPath(value)}
+                          onValueChange={(value) =>
+                            setCustomPath(value.replace(/\s+/g, ""))
+                          }
                         />
                       </div>
                     )}

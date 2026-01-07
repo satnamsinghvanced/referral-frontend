@@ -131,6 +131,7 @@ export default function ScheduleVisits({
   const schedulePlans = data?.data || [];
   const dashboardStats = data?.dashboardStats;
   const pagination = data?.pagination;
+  const visitHistoryCount = data?.visitHistoryCount || 0;
 
   const { mutate: deleteSchedulePlan, isPending } = useDeleteSchedulePlan();
 
@@ -219,20 +220,37 @@ export default function ScheduleVisits({
               Plan your visits to multiple referrers with route optimization
             </p>
           </div>
-          {practices.length > 0 && (
-            <Button
-              size="sm"
-              variant="solid"
-              color="primary"
-              startContent={<MdOutlineCalendarToday />}
-              onPress={() => {
-                setIsScheduleVisitModalOpen(true);
-                setEditPlan(null);
-              }}
-            >
-              Schedule Visit
-            </Button>
-          )}
+          <div className="flex items-center gap-2">
+            {visitHistoryCount > 0 && (
+              <Button
+                size="sm"
+                variant="ghost"
+                color="default"
+                startContent={<MdOutlineCalendarToday />}
+                onPress={() => {
+                  setIsHistoryModalOpen(true);
+                  setEditPlan(null);
+                }}
+                className="border-small"
+              >
+                Visit History
+              </Button>
+            )}
+            {practices.length > 0 && (
+              <Button
+                size="sm"
+                variant="solid"
+                color="primary"
+                startContent={<MdOutlineCalendarToday />}
+                onPress={() => {
+                  setIsScheduleVisitModalOpen(true);
+                  setEditPlan(null);
+                }}
+              >
+                Schedule Visit
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* {dashboardStats?.totalPlans > 0 && ( */}

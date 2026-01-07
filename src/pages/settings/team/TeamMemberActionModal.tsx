@@ -20,6 +20,7 @@ import {
 } from "../../../hooks/settings/useTeam";
 import { usePermissions, useRoles } from "../../../hooks/useCommon";
 import { Permission, Role } from "../../../types/common";
+import { NAME_REGEX } from "../../../consts/consts";
 
 interface TeamMemberActionModalProps {
   isOpen: boolean;
@@ -48,8 +49,22 @@ type UpdatePayload = {
 type AddPayload = UpdatePayload & { email: string };
 
 const TeamSchema = Yup.object().shape({
-  firstName: Yup.string().required("First name is required"),
-  lastName: Yup.string().required("Last name is required"),
+  firstName: Yup.string()
+    .required("First name is required")
+    .matches(
+      NAME_REGEX,
+      "First name can only contain letters, spaces, hyphens, apostrophes, and full stops"
+    )
+    .min(2, "First name must be at least 2 characters")
+    .max(50, "First name must be less than 50 characters"),
+  lastName: Yup.string()
+    .required("Last name is required")
+    .matches(
+      NAME_REGEX,
+      "Last name can only contain letters, spaces, hyphens, apostrophes, and full stops"
+    )
+    .min(2, "Last name must be at least 2 characters")
+    .max(50, "Last name must be less than 50 characters"),
   email: Yup.string().email("Invalid email").required("Email is required"),
   locations: Yup.string().required("Practice Location is required"),
   role: Yup.string().required("Role is required"),
@@ -124,41 +139,6 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
       }
     }
   }, [locations, formik.values.locations]);
-
-  useEffect(() => {
-    if (formik.values.role && roles) {
-      const selectedRole = roles.find(
-        (r: Role) => r._id === formik.values.role
-      );
-
-      if (selectedRole && selectedRole.permissions) {
-        const defaultPermIds = selectedRole.permissions.map(
-          (p: Permission) => p._id
-        );
-
-        if (formik.touched.role || !editMemberId) {
-          formik.setFieldValue("permissions", defaultPermIds);
-        }
-      }
-    }
-  }, [formik.values.role, roles]);
-
-  useEffect(() => {
-    if (formik.values.role && roles) {
-      const selectedRole = roles.find(
-        (r: Role) => r._id === formik.values.role
-      );
-      if (selectedRole && selectedRole.permissions) {
-        const defaultPermIds = selectedRole.permissions.map(
-          (p: Permission) => p._id
-        );
-
-        if (formik.touched.role || !editMemberId) {
-          formik.setFieldValue("permissions", defaultPermIds);
-        }
-      }
-    }
-  }, [formik.values.role, roles, formik.touched.role, editMemberId]);
 
   return (
     <Modal
@@ -285,8 +265,17 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
               onSelectionChange={(keys) => {
                 const selectedRoleId = Array.from(keys)[0] || "";
                 formik.setFieldValue("role", selectedRoleId);
-                // Mark as touched to trigger the effect correctly
-                formik.setFieldTouched("role", true);
+
+                // Update permissions to defaults for this role
+                const selectedRole = roles?.find(
+                  (r: Role) => r._id === selectedRoleId
+                );
+                if (selectedRole && selectedRole.permissions) {
+                  const defaultPermIds = selectedRole.permissions.map(
+                    (p: Permission) => p._id
+                  );
+                  formik.setFieldValue("permissions", defaultPermIds);
+                }
               }}
               isRequired
               renderValue={(items) => {

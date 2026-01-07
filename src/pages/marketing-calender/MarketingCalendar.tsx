@@ -452,7 +452,7 @@ const MarketingCalendar = () => {
                   All Activities
                 </SelectItem>
                 {ACTIVITY_TYPES?.map((type: any) => (
-                  <SelectItem key={type.color.id} className="capitalize">
+                  <SelectItem key={type.value} className="capitalize">
                     {type.label}
                   </SelectItem>
                 ))}

@@ -21,6 +21,7 @@ export const NOTE_CATEGORIES = [
   { label: "Contact", value: "contact" },
   { label: "Meeting", value: "meeting" },
 ];
+
 export const TASK_PRIORITIES = [
   { label: "Low", value: "low" },
   { label: "Medium", value: "medium" },
@@ -76,4 +77,11 @@ export const PRIORITY_LEVELS = [
   { label: "Low", value: "low" },
   { label: "Medium", value: "medium" },
   { label: "High", value: "high" },
+];
+
+export const STATUS_OPTIONS = [
+  { _id: "active", title: "Active" },
+  { _id: "inactive", title: "Inactive" },
+  { _id: "prospect", title: "Prospect" },
+  { _id: "followUp", title: "Follow-up Required" },
 ];

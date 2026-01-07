@@ -11,14 +11,21 @@ import { useState } from "react";
 import { FiEye, FiEyeOff, FiShield } from "react-icons/fi";
 import * as Yup from "yup";
 import { useUpdatePassword } from "../../hooks/settings/useSecurity";
+import { PASSWORD_REGEX } from "../../consts/consts";
 
 const SecuritySchema = Yup.object().shape({
   currentPassword: Yup.string()
     .required("Current password is required")
-    .min(6, "Password must be at least 6 characters"),
+    .matches(
+      PASSWORD_REGEX,
+      "Password must be at least 8 characters, include one uppercase letter, one lowercase letter, one number and one special character"
+    ),
   newPassword: Yup.string()
     .required("New password is required")
-    .min(8, "Password must be at least 8 characters"),
+    .matches(
+      PASSWORD_REGEX,
+      "Password must be at least 8 characters, include one uppercase letter, one lowercase letter, one number and one special character"
+    ),
   confirmNewPassword: Yup.string()
     .oneOf([Yup.ref("newPassword")], "Passwords must match")
     .required("Please confirm your new password"),
@@ -75,7 +82,15 @@ const Security: React.FC = () => {
             );
           }}
         >
-          {({ setFieldValue, values, isValid, dirty }) => (
+          {({
+            setFieldValue,
+            handleBlur,
+            touched,
+            errors,
+            values,
+            isValid,
+            dirty,
+          }) => (
             <Form className="space-y-3.5">
               {["currentPassword", "newPassword", "confirmNewPassword"].map(
                 (field) => {
@@ -90,16 +105,25 @@ const Security: React.FC = () => {
                     confirmNewPassword: "Confirm new password",
                   };
 
+                  const fieldName = field as keyof typeof values;
+                  const isInvalid = !!(touched[fieldName] && errors[fieldName]);
+                  const errorMessage = touched[fieldName]
+                    ? (errors[fieldName] as string)
+                    : "";
+
                   return (
                     <div key={field} className="space-y-1.5">
                       <Input
                         id={field}
                         name={field}
                         type={showPassword[field] ? "text" : "password"}
-                        value={values[field as keyof typeof values]}
+                        value={values[fieldName]}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                           setFieldValue(field, e.target.value)
                         }
+                        onBlur={handleBlur}
+                        isInvalid={isInvalid}
+                        errorMessage={errorMessage}
                         variant="flat"
                         size="sm"
                         radius="sm"
@@ -115,11 +139,7 @@ const Security: React.FC = () => {
                             {showPassword[field] ? <FiEyeOff /> : <FiEye />}
                           </button>
                         }
-                      />
-                      <ErrorMessage
-                        name={field}
-                        component="p"
-                        className="block text-xs text-red-500"
+                        isRequired
                       />
                     </div>
                   );

@@ -200,7 +200,6 @@ const PartnerNetwork = () => {
           <PartnerNetworkHeader
             heading="Partner Network"
             subHeading="Manage relationships with referring practices"
-            buttons={HEADING_DATA_BUTTONS_LIST}
           />
         </div>
 

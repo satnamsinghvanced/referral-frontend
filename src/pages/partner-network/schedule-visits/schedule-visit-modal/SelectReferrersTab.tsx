@@ -131,10 +131,9 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
                       <div className="text-xs space-y-0.5">
                         <p className="font-medium">{r.name}</p>
                         <p className="text-gray-600">
-                          {r.address.addressLine1}, {r.address.city}
-                          {r.address.city && `, ${r.address.city}`}
+                          {r.address.addressLine1} {r.address.city}
                           {r.address.state && `, ${r.address.state}`}
-                          {r.address.zip && `, ${r.address.zip}`}
+                          {r.address.zip && ` ${r.address.zip}`}
                         </p>
                       </div>
                     </div>
@@ -171,6 +170,7 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
               isPressable
               onPress={() => handleReferrerToggle(r._id)}
               disableRipple
+              radius="md"
             >
               <CardBody className="p-3 flex justify-between items-center flex-row gap-1">
                 <div className="flex items-center space-x-3">
@@ -183,10 +183,9 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
                   <div>
                     <p className="text-sm">{r.name}</p>
                     <p className="text-xs text-gray-600 mt-0.5">
-                      {r.address.addressLine1}, {r.address.city}
-                      {r.address.city && `, ${r.address.city}`}
+                      {r.address.addressLine1} {r.address.city}
                       {r.address.state && `, ${r.address.state}`}
-                      {r.address.zip && `, ${r.address.zip}`}
+                      {r.address.zip && ` ${r.address.zip}`}
                     </p>
                     <div className="flex items-center sapce-x-2 mt-0.5">
                       <p className="text-xs text-gray-600">{r.phone}</p>

@@ -169,6 +169,7 @@ const Locations: React.FC = () => {
         isOpen={isModalOpen}
         onClose={handleCancel}
         editLocationId={editLocationId}
+        locationsCount={totalLocations}
       />
 
       {/* ✅ Delete Confirmation Modal */}

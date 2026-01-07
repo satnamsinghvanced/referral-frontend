@@ -4,6 +4,7 @@ import { AxiosError } from "axios";
 import { queryClient } from "../../providers/QueryProvider";
 import {
   deleteTeamMember,
+  fetchPendingTeamMembers,
   fetchTeamMembers,
   inviteTeamMember,
   resendTeamInvite,
@@ -14,10 +15,24 @@ import {
 } from "../../services/settings/team";
 import { fetchTeamMemberById } from "../../services/referralBypassFunction";
 
-export const useFetchTeamMembers = () =>
+export const useFetchTeamMembers = (params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+}) =>
   useQuery<TeamMembersResponse, Error>({
-    queryKey: ["team-members"],
-    queryFn: fetchTeamMembers,
+    queryKey: ["team-members", params],
+    queryFn: () => fetchTeamMembers(params),
+  });
+
+export const useFetchPendingTeamMembers = (params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+}) =>
+  useQuery<TeamMembersResponse, Error>({
+    queryKey: ["pending-invites", params],
+    queryFn: () => fetchPendingTeamMembers(params),
   });
 
 export const useFetchTeamMemberById = (id: string) =>

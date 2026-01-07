@@ -14,9 +14,9 @@ import { IoSearch } from "react-icons/io5";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
+import { queryClient } from "../../providers/QueryProvider";
 import { AppDispatch } from "../../store";
 import { logout } from "../../store/authSlice";
-import Notification from "../common/Notification";
 import NotificationPopover from "../ui/NotificationsPopover";
 
 export default function Header({
@@ -31,6 +31,7 @@ export default function Header({
 
   const handleLogout = () => {
     dispatch(logout());
+    queryClient.clear();
     navigate("/signin");
   };
   return (

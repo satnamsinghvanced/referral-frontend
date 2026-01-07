@@ -58,7 +58,7 @@ export const useFetchReferrals = ({
 
 export const useGetReferralById = (id: string) =>
   useQuery<Referral, Error>({
-    queryKey: ["referral", id],
+    queryKey: ["referrals", id],
     queryFn: () => getReferralById(id),
     enabled: !!id,
   });

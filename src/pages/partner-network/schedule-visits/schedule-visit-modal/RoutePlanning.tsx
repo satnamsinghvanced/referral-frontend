@@ -137,6 +137,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
   const [userStartLocation, setUserStartLocation] = useState<number[] | null>(
     null
   );
+  const [isGeolocationLoading, setIsGeolocationLoading] = useState(false);
 
   const localTimeZone = getLocalTimeZone();
   const todayDateString = today(localTimeZone).toString();
@@ -282,6 +283,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
       };
 
       if ("geolocation" in navigator) {
+        setIsGeolocationLoading(true);
         navigator.geolocation.getCurrentPosition(
           (position) => {
             setUserStartLocation([
@@ -353,17 +355,20 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                   original: formattedResult,
                   optimized: formattedResult,
                 });
+                setIsGeolocationLoading(false);
               },
-              // onError: (e) => {
-              //   addToast({
-              //     title: "API Error",
-              //     description: `Error calculating route from your location: ${e.message}`,
-              //     color: "danger",
-              //   });
-              // },
+              onError: (e) => {
+                setIsGeolocationLoading(false);
+                // addToast({
+                //   title: "API Error",
+                //   description: `Error calculating route from your location: ${e.message}`,
+                //   color: "danger",
+                // });
+              },
             });
           },
           (error) => {
+            setIsGeolocationLoading(false);
             console.warn("Geolocation denied or error:", error);
             fallbackToStaticDestination();
 
@@ -387,11 +392,12 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
         );
       } else {
         fallbackToStaticDestination();
+        setIsGeolocationLoading(false);
       }
       return;
     }
 
-    // --- MULTI REFERRER LOGIC (>1 stops) --- (Unchanged)
+    // --- MULTI REFERRER LOGIC (>1 stops) ---
     setUserStartLocation(null);
 
     let originalCoordString = coordinateString;
@@ -684,9 +690,10 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
               color="primary"
               className="mt-1 data-disabled:!opacity-80"
               onPress={handleGenerateRoute}
-              isLoading={isPending}
+              isLoading={isPending || isGeolocationLoading}
               isDisabled={
                 isPending ||
+                isGeolocationLoading ||
                 selectedReferrerObjects.length < 1 ||
                 !coordinateString ||
                 isTimeInPastError ||
@@ -695,7 +702,9 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
               }
             >
               <LuRoute className="size-4" />
-              {isPending ? "Calculating..." : "Generate Route"}
+              {isPending || isGeolocationLoading
+                ? "Calculating..."
+                : "Generate Route"}
             </Button>
           </div>
         </CardBody>
@@ -800,7 +809,9 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                     <div className="flex-1">
                       <h4 className="font-medium text-sm">{stop.name}</h4>
                       <p className="text-xs text-gray-600 mt-1">
-                        {stop.address.addressLine1}
+                        {stop.address.addressLine1} {stop.address.addressLine2}{" "}
+                        {stop.address.city}, {stop.address.state}{" "}
+                        {stop.address.zipCode}
                       </p>
                       <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2 text-xs text-gray-600">
                         <span className="flex items-center gap-1 whitespace-nowrap">

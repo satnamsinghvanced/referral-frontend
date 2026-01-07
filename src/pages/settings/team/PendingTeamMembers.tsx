@@ -1,9 +1,12 @@
-import { Button, Card, CardBody, CardHeader } from "@heroui/react";
+import { Button, Card, CardBody, CardHeader, Pagination } from "@heroui/react";
 import React, { useState } from "react";
 import { FiMail } from "react-icons/fi";
 import EmptyState from "../../../components/common/EmptyState";
 import TeamSkeleton from "../../../components/skeletons/TeamSkeleton";
-import { useResendInvite } from "../../../hooks/settings/useTeam";
+import {
+  useFetchPendingTeamMembers,
+  useResendInvite,
+} from "../../../hooks/settings/useTeam";
 import { TeamMember } from "../../../services/settings/team";
 import { formatDateToYYYYMMDD } from "../../../utils/formatDateToYYYYMMDD";
 
@@ -14,15 +17,21 @@ const invitationStatusColors: Record<string, string> = {
   expired: "bg-gray-100 text-gray-600 border-gray-200",
 };
 
-interface PendingTeamMembersProps {
-  membersIsLoading: boolean;
-  pendingMembers: TeamMember[] | undefined;
-}
+const PendingTeamMembers = () => {
+  const [filters, setFilters] = useState({
+    page: 1,
+    limit: 10,
+  });
 
-const PendingTeamMembers: React.FC<PendingTeamMembersProps> = ({
-  membersIsLoading,
-  pendingMembers,
-}) => {
+  const { data: pendingMembersData, isLoading: membersIsLoading } =
+    useFetchPendingTeamMembers(filters);
+
+  const pendingMembers = pendingMembersData?.data;
+
+  const handlePageChange = (page: number) => {
+    setFilters((prev) => ({ ...prev, page }));
+  };
+
   const { mutate: resendInvite } = useResendInvite();
   const [resendingId, setResendingId] = useState<string | null>(null);
 
@@ -37,7 +46,7 @@ const PendingTeamMembers: React.FC<PendingTeamMembersProps> = ({
     <Card shadow="none" className="rounded-xl border border-foreground/10">
       <CardHeader className="flex items-center gap-2 px-4 pt-4 pb-0">
         <FiMail className="w-5 h-5" />
-        <h4>Pending Invitations ({pendingMembers?.length || 0})</h4>
+        <h4>Pending Invitations ({pendingMembersData?.totalData || 0})</h4>
       </CardHeader>
       <CardBody className="p-4 space-y-3">
         {membersIsLoading ? (
@@ -94,6 +103,27 @@ const PendingTeamMembers: React.FC<PendingTeamMembersProps> = ({
             title="No pending invitations"
             message="All invitations have been accepted or none have been sent yet."
           />
+        )}
+
+        {pendingMembersData && pendingMembersData.totalPages > 1 && (
+          <div className="flex items-center justify-between pt-1">
+            <p className="text-xs text-gray-500">
+              Showing {pendingMembers?.length || 0} of{" "}
+              {pendingMembersData.totalData} invitations
+            </p>
+            <Pagination
+              total={pendingMembersData.totalPages}
+              page={filters.page}
+              onChange={handlePageChange}
+              size="sm"
+              radius="sm"
+              showControls
+              classNames={{
+                base: "pagination flex justify-end",
+                wrapper: "gap-1.5",
+              }}
+            />
+          </div>
         )}
       </CardBody>
     </Card>

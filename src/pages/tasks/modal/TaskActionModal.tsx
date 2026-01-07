@@ -54,7 +54,7 @@ const TaskActionModal = ({
 }: TaskActionModalProps) => {
   const isEditMode = !!task;
 
-  const { data: teamMembersData } = useFetchTeamMembers();
+  const { data: teamMembersData } = useFetchTeamMembers({ limit: 100 });
   const teamMembers = teamMembersData?.data;
   const activeTeamMembers = useMemo(
     () => teamMembers?.filter((member) => member.status === "active"),

@@ -43,7 +43,7 @@ const validationSchema = Yup.object({
 });
 
 const EditTaskModal = ({ isOpen, onClose, task }: EditTaskModalProps) => {
-  const { data: teamMembersData } = useFetchTeamMembers();
+  const { data: teamMembersData } = useFetchTeamMembers({ limit: 100 });
   const teamMembers = teamMembersData?.data;
 
   // @ts-ignore

@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, CardHeader } from "@heroui/react";
+import { Button, Card, CardBody, CardHeader, Pagination } from "@heroui/react";
 import React, { useState } from "react";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 import { HiOutlineUserAdd } from "react-icons/hi";
@@ -33,10 +33,19 @@ const invitationStatusColors: Record<string, string> = {
 };
 
 const Team: React.FC = () => {
+  const [filters, setFilters] = useState({
+    page: 1,
+    limit: 10,
+  });
+
   const { data: membersData, isLoading: membersIsLoading } =
-    useFetchTeamMembers();
+    useFetchTeamMembers(filters);
 
   const members = membersData?.data;
+
+  const handlePageChange = (page: number) => {
+    setFilters((prev) => ({ ...prev, page }));
+  };
 
   const { mutate: deleteMember, isPending: deleteIsPending } =
     useDeleteTeamMember();
@@ -56,13 +65,6 @@ const Team: React.FC = () => {
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteMemberId, setDeleteMemberId] = useState<string>("");
-
-  const activeMembers = members?.filter(
-    (member: TeamMember) => member.status === "active"
-  );
-  const pendingMembers = members?.filter(
-    (member: TeamMember) => member.status === "pending"
-  );
 
   const handleEdit = (member: TeamMember) => {
     setEditMemberId(member._id);
@@ -116,16 +118,19 @@ const Team: React.FC = () => {
   return (
     <div className="space-y-4 md:space-y-5">
       {/* Active Members */}
-      <Card shadow="none" className="rounded-xl border border-foreground/10">
+      <Card
+        shadow="none"
+        className="rounded-xl border border-foreground/10 tour-step-team-members"
+      >
         <CardHeader className="flex items-center gap-2 px-4 pt-4 pb-0">
           <LuUsers className="size-5" />
-          <h4>Team Members ({activeMembers?.length || 0})</h4>
+          <h4>Team Members ({membersData?.totalData || 0})</h4>
         </CardHeader>
         <CardBody className="p-4 space-y-3">
           {membersIsLoading ? (
             <TeamSkeleton type="active" />
-          ) : activeMembers && activeMembers.length > 0 ? (
-            activeMembers.map((member: TeamMember) => (
+          ) : members && members.length > 0 ? (
+            members.map((member: TeamMember) => (
               <div
                 key={member._id}
                 className="flex items-center justify-between p-3 border border-foreground/10 rounded-lg"
@@ -206,14 +211,32 @@ const Team: React.FC = () => {
               message="Invite team members to collaborate in your practice."
             />
           )}
+
+          {membersData && membersData.totalPages > 1 && (
+            <div className="flex items-center justify-between pt-1">
+              <p className="text-xs text-gray-500">
+                Showing {members?.length || 0} of {membersData.totalData}{" "}
+                members
+              </p>
+              <Pagination
+                total={membersData.totalPages}
+                page={filters.page}
+                onChange={handlePageChange}
+                size="sm"
+                radius="sm"
+                showControls
+                classNames={{
+                  base: "pagination flex justify-end",
+                  wrapper: "gap-1.5",
+                }}
+              />
+            </div>
+          )}
         </CardBody>
       </Card>
 
       {/* Pending Members */}
-      <PendingTeamMembers
-        membersIsLoading={membersIsLoading}
-        pendingMembers={pendingMembers}
-      />
+      <PendingTeamMembers />
 
       {/* Email Integration Warning */}
       {!isEmailConfigLoading && emailConfig?.status !== "Connected" && (

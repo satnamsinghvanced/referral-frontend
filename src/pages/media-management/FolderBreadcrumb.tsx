@@ -1,23 +1,39 @@
-const FolderBreadcrumb = ({ path, onNavigate }: any) => (
-  <p className="text-sm flex items-center space-x-1">
-    <span
-      className="cursor-pointer hover:underline underline-offset-2"
-      onClick={() => onNavigate(null)}
+import { Breadcrumbs, BreadcrumbItem } from "@heroui/react";
+import { FiHome } from "react-icons/fi";
+import { LuFolder } from "react-icons/lu";
+
+const FolderBreadcrumb = ({ path, onNavigate }: any) => {
+  return (
+    <Breadcrumbs
+      size="sm"
+      variant="light"
+      classNames={{
+        list: "gap-1",
+      }}
+      itemClasses={{
+        item: "text-sm text-gray-700 hover:text-primary transition-colors cursor-pointer data-[current=true]:text-gray-900 data-[current=true]:font-medium data-[current=true]:cursor-default",
+        separator: "text-gray-600 mx-0.5",
+      }}
     >
-      Root
-    </span>
-    {path.map((item: any) => (
-      <span key={item.id} className="flex items-center space-x-1">
-        <span className="text-gray-400">/</span>
-        <span
-          className="cursor-pointer hover:underline underline-offset-2"
+      <BreadcrumbItem
+        startContent={<FiHome className="size-4 text-primary mr-0.5" />}
+        onClick={() => onNavigate(null)}
+        isCurrent={path.length === 0}
+      >
+        Root
+      </BreadcrumbItem>
+      {path.map((item: any, index: number) => (
+        <BreadcrumbItem
+          key={item.id}
+          startContent={<LuFolder className="size-4 text-primary mr-0.5" />}
           onClick={() => onNavigate(item.id)}
+          isCurrent={index === path.length - 1}
         >
           {item.name}
-        </span>
-      </span>
-    ))}
-  </p>
-);
+        </BreadcrumbItem>
+      ))}
+    </Breadcrumbs>
+  );
+};
 
 export default FolderBreadcrumb;

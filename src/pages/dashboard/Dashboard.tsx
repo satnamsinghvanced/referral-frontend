@@ -148,28 +148,26 @@ const Dashboard = () => {
   );
 
   const recentActivities = [
-    ...(dashboard?.recentReferrals?.length > 0
-      ? [
-          {
-            icon: "👥",
-            iconBg: "bg-sky-50",
-            title: `New referral from ${dashboard?.referrer?.name}`,
-            description: `Patient: ${dashboard?.recentReferrals[0]?.name}${
-              dashboard?.recentReferrals[0]?.treatment
-                ? ` - ${
-                    TREATMENT_OPTIONS.find(
-                      (treatmentOption: any) =>
-                        treatmentOption.key ===
-                        dashboard?.recentReferrals[0]?.treatment
-                    )?.label
-                  }`
-                : ""
-            }`,
-            time: `${timeAgo(dashboard?.recentReferrals[0]?.createdAt)}`,
-            onClick: () => navigate("/referrals"),
-          },
-        ]
-      : []),
+    dashboard?.recentActivity
+      ? {
+          icon: "👥",
+          iconBg: "bg-sky-50",
+          title: `New referral from ${dashboard?.recentActivity.referrer?.name}`,
+          description: `Patient: ${dashboard?.recentActivity.name}${
+            dashboard?.recentActivity.treatment
+              ? ` - ${
+                  TREATMENT_OPTIONS.find(
+                    (treatmentOption: any) =>
+                      treatmentOption.key ===
+                      dashboard?.recentActivity.treatment
+                  )?.label
+                }`
+              : ""
+          }`,
+          time: `${timeAgo(dashboard?.recentActivity.createdAt)}`,
+          onClick: () => navigate("/referrals"),
+        }
+      : null,
     {
       icon: "⭐",
       iconBg: "bg-yellow-50",
@@ -267,28 +265,30 @@ const Dashboard = () => {
           <div className="md:col-span-2 bg-background rounded-xl p-4 md:p-5">
             <h3 className="text-sm md:text-base mb-4">Recent Activity</h3>
             <div className="space-y-4 md:space-y-2">
-              {recentActivities.map((activity, index) => (
-                <div
-                  key={index}
-                  className="flex items-start space-x-3 md:p-3 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
-                  onClick={activity.onClick}
-                >
+              {recentActivities.map((activity, index) =>
+                activity ? (
                   <div
-                    className={`p-0 rounded-lg flex items-center justify-center size-8 md:size-9 ${activity.iconBg}`}
+                    key={index}
+                    className="flex items-start space-x-3 md:p-3 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+                    onClick={activity.onClick && activity.onClick}
                   >
-                    <span className="text-md">{activity.icon}</span>
+                    <div
+                      className={`p-0 rounded-lg flex items-center justify-center size-8 md:size-9 ${activity.iconBg}`}
+                    >
+                      <span className="text-md">{activity.icon}</span>
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <p className="text-xs md:text-sm font-medium">
+                        {activity.title}
+                      </p>
+                      <p className="text-xs text-gray-600">
+                        {activity.description}
+                      </p>
+                      <p className="text-xs text-gray-600">{activity.time}</p>
+                    </div>
                   </div>
-                  <div className="flex-1 space-y-1">
-                    <p className="text-xs md:text-sm font-medium">
-                      {activity.title}
-                    </p>
-                    <p className="text-xs text-gray-600">
-                      {activity.description}
-                    </p>
-                    <p className="text-xs text-gray-600">{activity.time}</p>
-                  </div>
-                </div>
-              ))}
+                ) : null
+              )}
             </div>
           </div>
 

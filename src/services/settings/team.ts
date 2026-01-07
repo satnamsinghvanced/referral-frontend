@@ -32,8 +32,22 @@ export interface TeamMembersResponse {
 }
 
 // Fetch all team members
-export const fetchTeamMembers = async (): Promise<TeamMembersResponse> => {
-  const { data } = await axios.get("/team-member");
+export const fetchTeamMembers = async (params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+}): Promise<TeamMembersResponse> => {
+  const { data } = await axios.get("/team-member", { params });
+  return data;
+};
+
+// Fetch pending team members
+export const fetchPendingTeamMembers = async (params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+}): Promise<TeamMembersResponse> => {
+  const { data } = await axios.get("/team-member/pending-member", { params });
   return data;
 };
 

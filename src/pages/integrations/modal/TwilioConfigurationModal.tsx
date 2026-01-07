@@ -206,6 +206,7 @@ export default function TwilioConfigurationModal({
                 type="text"
                 placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
                 isRequired
+                maxLength={34}
                 // Formik Props
                 value={formik.values.accountId as string}
                 onChange={formik.handleChange}
@@ -228,6 +229,7 @@ export default function TwilioConfigurationModal({
                 type={showPassword ? "text" : "password"}
                 placeholder="••••••••••••••••••••••••••••••••"
                 isRequired
+                maxLength={32}
                 // Formik Props
                 value={formik.values.authToken as string}
                 onChange={formik.handleChange}
@@ -259,9 +261,17 @@ export default function TwilioConfigurationModal({
                 type="tel"
                 placeholder="+15551234567"
                 isRequired
+                maxLength={16}
                 // Formik Props
                 value={formik.values.phone as string}
-                onChange={formik.handleChange}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  // Allow only '+' at the beginning and digits thereafter
+                  const filteredVal = val.startsWith("+")
+                    ? "+" + val.slice(1).replace(/\D/g, "")
+                    : val.replace(/\D/g, "");
+                  formik.setFieldValue("phone", filteredVal);
+                }}
                 onBlur={formik.handleBlur}
                 isInvalid={
                   (formik.touched.phone as boolean) &&
@@ -298,6 +308,24 @@ export default function TwilioConfigurationModal({
                   </div>
                 </div>
               </div>
+              {/* Status Message */}
+              {isUpdateMode && existingConfig?.status === "Connected" && (
+                <div className="p-3 bg-green-50 text-green-700 text-xs rounded-lg border border-green-200">
+                  ✅ Twilio integration is active and connected.
+                </div>
+              )}
+              {isUpdateMode && existingConfig?.status === "Disconnected" && (
+                <div className="p-3 bg-blue-50 text-blue-700 text-xs rounded-lg border border-blue-200">
+                  ℹ️ Twilio is disconnected. Please reconnect it by using
+                  switch.
+                </div>
+              )}
+              {isUpdateMode && existingConfig?.status === "Error" && (
+                <div className="p-3 bg-red-50 text-red-700 text-xs rounded-lg border border-red-200">
+                  ⚠️ Connection failed. Please check your credentials and try
+                  again.
+                </div>
+              )}
             </div>
           </ModalBody>
 

@@ -34,7 +34,7 @@ const validationSchema = Yup.object().shape({
     .positive("Port must be positive")
     .integer("Port must be an integer"),
   username: Yup.string().required("Username is required."),
-  password: Yup.string().optional(),
+  password: Yup.string().required("Password is required."),
   encryption: Yup.string()
     .oneOf(["TLS", "SSL", "None"], "Invalid encryption type")
     .required("Encryption is required."),
@@ -193,11 +193,15 @@ export default function EmailMarketingConfigModal({
                   label="Port"
                   labelPlacement="outside"
                   name="port"
-                  type="number"
+                  type="text"
                   placeholder="587"
                   isRequired
+                  maxLength={4}
                   value={formik.values.port.toString()}
-                  onChange={formik.handleChange}
+                  onChange={(e) => {
+                    const value = e.target.value.replace(/\D/g, "");
+                    formik.setFieldValue("port", value);
+                  }}
                   onBlur={formik.handleBlur}
                   isInvalid={!!(formik.touched.port && formik.errors.port)}
                   errorMessage={formik.errors.port}
@@ -288,6 +292,12 @@ export default function EmailMarketingConfigModal({
                 </div>
               )}
               {isUpdateMode && existingConfig?.status === "Disconnected" && (
+                <div className="p-3 bg-blue-50 text-blue-700 text-xs rounded-lg border border-blue-200">
+                  ℹ️ Email Marketing is disconnected. Please reconnect it by
+                  using switch.
+                </div>
+              )}
+              {isUpdateMode && existingConfig?.status === "Error" && (
                 <div className="p-3 bg-red-50 text-red-700 text-xs rounded-lg border border-red-200">
                   ⚠️ Connection failed. Please check your credentials and try
                   again.
@@ -312,11 +322,7 @@ export default function EmailMarketingConfigModal({
               color="primary"
               type="submit"
               isLoading={isSubmitting}
-              isDisabled={
-                isSubmitting ||
-                !formik.isValid ||
-                (isUpdateMode && !formik.dirty)
-              }
+              isDisabled={isSubmitting || !formik.isValid || !formik.dirty}
             >
               {isUpdateMode ? "Update Configuration" : "Save Integration"}
             </Button>

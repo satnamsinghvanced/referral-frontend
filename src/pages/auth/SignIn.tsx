@@ -15,7 +15,7 @@ import { useNavigate } from "react-router";
 import * as Yup from "yup";
 import { AppDispatch } from "../../store";
 import { useLogin } from "../../hooks/useAuth";
-import { EMAIL_REGEX } from "../../consts/consts";
+import { EMAIL_REGEX, PASSWORD_REGEX } from "../../consts/consts";
 import { setCredentials } from "../../store/authSlice";
 
 interface FormData {
@@ -36,15 +36,18 @@ const SignIn = () => {
     initialValues: {
       email: "",
       password: "",
-      rememberMe: false,
+      rememberMe: true,
     },
     validationSchema: Yup.object({
       email: Yup.string()
         .required("Email is required")
         .matches(EMAIL_REGEX, "Invalid email format"),
       password: Yup.string()
-        .min(6, "Password must be at least 6 characters")
-        .required("Password is required"),
+        .required("Password is required")
+        .matches(
+          PASSWORD_REGEX,
+          "Password must be at least 8 characters, include one uppercase letter, one lowercase letter, one number and one special character"
+        ),
       rememberMe: Yup.boolean(),
     }),
     onSubmit: async (values) => {

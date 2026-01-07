@@ -10,12 +10,13 @@ import {
   Textarea,
 } from "@heroui/react";
 import { useFormik } from "formik";
-import { FiMail, FiPhone, FiUser } from "react-icons/fi";
+import { FiUser } from "react-icons/fi";
 import * as Yup from "yup";
 import PriorityLevelChip from "../../../components/chips/PriorityLevelChip";
 import ReferralStatusChip from "../../../components/chips/ReferralStatusChip";
 import { LoadingState } from "../../../components/common/LoadingState";
 import { STATUS_OPTIONS } from "../../../consts/filters";
+import { TREATMENT_OPTIONS } from "../../../consts/referral";
 import { useUpdateReferral } from "../../../hooks/useReferral";
 import { Referral, StatusUpdateFormValues } from "../../../types/referral";
 import { formatDateToReadable } from "../../../utils/formatDateToReadable";
@@ -111,20 +112,20 @@ const ReferralStatusModal = ({
             {/* Patient Info Card */}
             <div className="bg-gray-50 p-4 rounded-lg space-y-2">
               <div className="flex items-center gap-2">
-                <FiUser className="size-3.5 text-gray-600" />
+                <FiUser className="size-4 text-gray-600" />
                 <span className="text-sm font-medium">{referral?.name}</span>
               </div>
               {referral?.phone && (
                 <div className="flex items-center gap-2">
-                  <FiPhone className="size-3.5 text-gray-600" />
                   <span className="text-xs text-gray-600">
-                    {referral?.phone}
+                    Phone: {referral?.phone}
                   </span>
                 </div>
               )}
               <div className="flex items-center gap-2">
-                <FiMail className="size-3.5 text-gray-600" />
-                <span className="text-xs text-gray-600">{referral?.email}</span>
+                <span className="text-xs text-gray-600">
+                  Email: {referral?.email}
+                </span>
               </div>
 
               {referral?.createdAt && (
@@ -153,7 +154,13 @@ const ReferralStatusModal = ({
               )}
               {referral?.treatment && (
                 <div className="text-xs text-gray-600">
-                  Treatment: {referral?.treatment}
+                  Treatment:{" "}
+                  {
+                    TREATMENT_OPTIONS.find(
+                      (treatmentOption: any) =>
+                        treatmentOption.key === referral.treatment
+                    )?.label
+                  }
                 </div>
               )}
               {referral?.addedVia && (
@@ -214,6 +221,7 @@ const ReferralStatusModal = ({
                     errorMessage={
                       formik.touched.status && (formik.errors.status as string)
                     }
+                    isRequired
                   >
                     {STATUS_OPTIONS.map((status) => (
                       <SelectItem key={status.value} textValue={status.label}>
@@ -307,7 +315,7 @@ const ReferralStatusModal = ({
                     size="sm"
                     radius="sm"
                     isLoading={isPending}
-                    isDisabled={!formik.isValid || isPending}
+                    isDisabled={!formik.isValid || isPending || !formik.dirty}
                   >
                     Update Status
                   </Button>

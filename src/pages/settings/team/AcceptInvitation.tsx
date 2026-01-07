@@ -2,26 +2,24 @@ import { Button, Card, CardBody, Input, Spinner } from "@heroui/react";
 import { useFormik } from "formik";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
-import { Link, useNavigate, useParams } from "react-router-dom";
-import * as Yup from "yup";
-import { FiLoader } from "react-icons/fi";
 import {
-  useFetchTeamMemberById,
-  useSetTeamMemberPassword,
-} from "../../hooks/settings/useTeam";
-import NotFoundPage from "../NotFoundPage";
+  Link,
+  useNavigate,
+  useParams,
+  useSearchParams,
+} from "react-router-dom";
+import * as Yup from "yup";
+import { PASSWORD_REGEX } from "../../../consts/consts";
+import { useSetTeamMemberPassword } from "../../../hooks/settings/useTeam";
+import NotFoundPage from "../../NotFoundPage";
 
 const AcceptInvitation = () => {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const email = searchParams.get("email");
   const [isVisible, setIsVisible] = useState(false);
   const [isConfirmVisible, setIsConfirmVisible] = useState(false);
   const navigate = useNavigate();
-
-  const {
-    data: member,
-    isLoading: isMemberLoading,
-    isError,
-  } = useFetchTeamMemberById(id || "");
 
   const { mutate: setPassword, isPending } = useSetTeamMemberPassword();
 
@@ -31,15 +29,18 @@ const AcceptInvitation = () => {
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
-      email: member?.email || "",
+      email: email || "",
       password: "",
       confirmPassword: "",
     },
     validationSchema: Yup.object({
       email: Yup.string().email("Invalid email").required("Email is required"),
       password: Yup.string()
-        .min(6, "Password must be at least 6 characters")
-        .required("Password is required"),
+        .required("Password is required")
+        .matches(
+          PASSWORD_REGEX,
+          "Password must be at least 8 characters, include one uppercase letter, one lowercase letter, one number and one special character"
+        ),
       confirmPassword: Yup.string()
         .oneOf([Yup.ref("password")], "Passwords must match")
         .required("Please confirm your password"),
@@ -58,19 +59,7 @@ const AcceptInvitation = () => {
     },
   });
 
-  if (!id || (isError && !isMemberLoading)) {
-    return <NotFoundPage />;
-  }
-
-  if (isMemberLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 flex items-center justify-center p-4">
-        <FiLoader className="animate-spin size-8 text-primary" />
-      </div>
-    );
-  }
-
-  if (!member && !isMemberLoading) {
+  if (!id || !email) {
     return <NotFoundPage />;
   }
 

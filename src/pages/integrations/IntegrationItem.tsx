@@ -33,8 +33,6 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
   isSwitchChecked = status === "Connected",
   onSwitchChange,
 }) => {
-  console.log("IntegrationItem", id);
-
   const isCredentialsSaved = !!id;
 
   let statusClasses = "";

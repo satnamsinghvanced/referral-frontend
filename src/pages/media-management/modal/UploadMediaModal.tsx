@@ -323,7 +323,7 @@ export function UploadMediaModal({
                         e.stopPropagation();
                         handleRemoveFile(index);
                       }}
-                      className="text-gray-400 hover:text-red-600 transition-colors p-1"
+                      className="text-gray-400 hover:text-red-600 transition-colors p-1 cursor-pointer"
                       title="Remove file"
                     >
                       <FiX className="size-4" />

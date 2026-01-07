@@ -11,7 +11,7 @@ import {
 import { useFormik } from "formik";
 import { FiPlus } from "react-icons/fi";
 import * as Yup from "yup";
-import { PHONE_REGEX } from "../../../consts/consts";
+import { PHONE_REGEX, ZIP_CODE_REGEX } from "../../../consts/consts";
 import {
   useCreateLocation,
   useFetchLocationDetails,
@@ -35,7 +35,7 @@ const LocationSchema = Yup.object().shape({
   city: Yup.string().required("City is required"),
   state: Yup.string().required("State is required"),
   zipcode: Yup.string()
-    .matches(/^\d{5}$/, "ZIP code must be exactly 5 digits")
+    .matches(ZIP_CODE_REGEX, "ZIP code must be exactly 5 digits")
     .required("ZIP code is required"),
   phone: Yup.string()
     .required("Phone is required")
@@ -76,12 +76,14 @@ interface LocationActionModalProps {
   isOpen: boolean;
   onClose: () => void;
   editLocationId: string;
+  locationsCount: number;
 }
 
 const LocationActionModal = ({
   isOpen,
   onClose,
   editLocationId,
+  locationsCount,
 }: LocationActionModalProps) => {
   const { data: location } = useFetchLocationDetails(editLocationId);
   const { mutate: createLocation } = useCreateLocation();
@@ -95,7 +97,7 @@ const LocationActionModal = ({
       state: location?.address?.state || "",
       zipcode: location?.address?.zipcode || "",
       phone: location?.phone || "",
-      isPrimary: location?.isPrimary || false,
+      isPrimary: location?.isPrimary || locationsCount === 0 ? true : false,
     },
     enableReinitialize: !!location || !editLocationId,
     validationSchema: LocationSchema,
@@ -150,7 +152,7 @@ const LocationActionModal = ({
       size="md"
     >
       <ModalContent>
-        <ModalHeader className="flex flex-col gap-1 px-5 py-4">
+        <ModalHeader className="flex flex-col gap-1 p-4">
           <h4 className="text-base font-medium">
             {editLocationId
               ? "Edit Practice Location"
@@ -160,7 +162,7 @@ const LocationActionModal = ({
             Complete all required fields to add or edit a practice location.
           </p>
         </ModalHeader>
-        <ModalBody className="px-5 py-0">
+        <ModalBody className="px-4 py-0">
           <form
             id="location-form"
             onSubmit={formik.handleSubmit}
@@ -184,11 +186,17 @@ const LocationActionModal = ({
                   ] as string
                 }
                 onValueChange={(val: string) => {
-                  const newValue =
-                    field.name === "phone" ? formatPhoneNumber(val) : val;
+                  let newValue = val;
+                  if (field.name === "phone") {
+                    newValue = formatPhoneNumber(val);
+                  } else if (field.name === "zipcode") {
+                    newValue = val.replace(/\D/g, "").slice(0, 5);
+                  }
                   formik.setFieldValue(field.name, newValue);
                 }}
                 onBlur={formik.handleBlur}
+                {...(field.name === "zipcode" ? { maxLength: 5 } : {})}
+                {...(field.name === "phone" ? { maxLength: 14 } : {})}
                 isInvalid={
                   !!(
                     formik.touched[field.name as keyof LocationFormValues] &&
@@ -218,7 +226,7 @@ const LocationActionModal = ({
             </Switch>
           </form>
         </ModalBody>
-        <ModalFooter className="px-5 py-4">
+        <ModalFooter className="p-4">
           <Button
             onPress={handleClose}
             variant="ghost"

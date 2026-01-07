@@ -35,6 +35,15 @@ const FOLDER_KEYS = {
   detail: (folderId: string) => [...FOLDER_KEYS.all, folderId] as const,
 };
 
+const IMAGE_KEYS = {
+  all: ["images"] as const,
+  search: (query: SearchImagesQuery) =>
+    [...IMAGE_KEYS.all, "search", query] as const,
+  detail: (imageId: string) => [...IMAGE_KEYS.all, imageId] as const,
+};
+
+const TAGS_KEYS = ["tags"];
+
 export const useGetAllFolders = (query: GetAllFoldersQuery) => {
   return useQuery({
     queryKey: FOLDER_KEYS.list(query),
@@ -84,6 +93,7 @@ export const useUpdateFolderName = (folderId: string) => {
     mutationFn: (data: UpdateFolderRequest) => updateFolderName(folderId, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: FOLDER_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: IMAGE_KEYS.all });
       queryClient.invalidateQueries({ queryKey: FOLDER_KEYS.detail(folderId) });
       addToast({
         title: "Success",
@@ -123,13 +133,6 @@ export const useDeleteFolder = (folderId: string) => {
   });
 };
 
-const IMAGE_KEYS = {
-  all: ["images"] as const,
-  search: (query: SearchImagesQuery) =>
-    [...IMAGE_KEYS.all, "search", query] as const,
-  detail: (imageId: string) => [...IMAGE_KEYS.all, imageId] as const,
-};
-
 export const useSearchImages = (query: SearchImagesQuery) => {
   return useQuery({
     queryKey: IMAGE_KEYS.search(query),
@@ -154,6 +157,7 @@ export const useUploadMedia = (
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: IMAGE_KEYS.all });
       queryClient.invalidateQueries({ queryKey: FOLDER_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: TAGS_KEYS });
       addToast({
         title: "Success",
         description: "Media uploaded successfully.",
@@ -177,6 +181,7 @@ export const useUpdateImageTags = (imageId: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: IMAGE_KEYS.detail(imageId) });
       queryClient.invalidateQueries({ queryKey: IMAGE_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: TAGS_KEYS });
       addToast({
         title: "Success",
         description: "Image tags updated successfully.",
@@ -199,6 +204,7 @@ export const useDeleteImages = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: IMAGE_KEYS.all });
       queryClient.invalidateQueries({ queryKey: FOLDER_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: TAGS_KEYS });
       addToast({
         title: "Success",
         description: "Selected media deleted successfully.",
@@ -237,11 +243,9 @@ export const useMoveImages = () => {
   });
 };
 
-const TAGS_QUERY_KEY = ["tags"];
-
 export const useTagsQuery = (): UseQueryResult<GetTagsResponse> => {
   return useQuery({
-    queryKey: TAGS_QUERY_KEY,
+    queryKey: TAGS_KEYS,
     queryFn: getTags,
   });
 };

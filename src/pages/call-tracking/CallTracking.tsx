@@ -74,7 +74,7 @@ const CallTracking = () => {
     {
       icon: <LuClock className="text-foreground/60" />,
       heading: "Avg Duration",
-      value: data?.stats?.avgDuration || "0:00",
+      value: data?.stats?.avgDuration || "0 sec",
       subheading: "Average call length",
     },
     {
@@ -230,8 +230,8 @@ const CallTracking = () => {
               )}
 
             {!isLoading &&
-              data?.paginatedCalls.data &&
-              data.paginatedCalls.data.length === 0 && (
+              (!data?.paginatedCalls.data ||
+                data.paginatedCalls.data.length === 0) && (
                 <EmptyState title="No call records found with current filters. Try adjusting your search or filters." />
               )}
 

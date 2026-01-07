@@ -76,7 +76,7 @@ const Sidebar = ({
       name: "Reviews",
       icon: HiOutlineStar,
       href: "/reviews",
-      stats: 1200,
+      stats: 0,
       color: "bg-yellow-200",
       label: "1.2k",
     },
@@ -91,7 +91,7 @@ const Sidebar = ({
       name: "Social Media",
       icon: MdOutlineModeComment,
       href: "/social-media",
-      stats: "NEW", // Special case for NEW label
+      stats: 0, // Special case for NEW label
       color: "bg-purple-300",
     },
     {
@@ -105,7 +105,7 @@ const Sidebar = ({
       name: "Email Campaigns",
       icon: HiOutlineMail,
       href: "/email-campaigns",
-      stats: 5,
+      stats: 0,
       color: "bg-green-300",
     },
     {

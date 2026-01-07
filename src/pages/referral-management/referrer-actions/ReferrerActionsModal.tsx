@@ -16,7 +16,12 @@ import { Key, useMemo } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { BiSave } from "react-icons/bi";
 import * as Yup from "yup";
-import { EMAIL_REGEX, PHONE_REGEX } from "../../../consts/consts";
+import {
+  EMAIL_REGEX,
+  NAME_REGEX,
+  PHONE_REGEX,
+  ZIP_CODE_REGEX,
+} from "../../../consts/consts";
 import { STAFF_ROLES } from "../../../consts/practice";
 import { useSpecialties } from "../../../hooks/useCommon";
 import {
@@ -87,6 +92,7 @@ const CLEAN_INITIAL_VALUES = {
     evType: "",
     evUrl: "",
   },
+  status: "",
 };
 
 export default function ReferrerActionsModal({
@@ -144,6 +150,7 @@ export default function ReferrerActionsModal({
       evType: editedData?.eventreferrer?.evType || "",
       evUrl: editedData?.eventreferrer?.evUrl || "",
     },
+    status: editedData?.status || "",
   };
 
   const handleFormSubmission = async (values: any) => {
@@ -172,6 +179,7 @@ export default function ReferrerActionsModal({
             role: member.role,
             isDentist: member.isDentist,
           })),
+          status: values.status || "active",
         };
         break;
       case "communityreferrer":
@@ -229,7 +237,7 @@ export default function ReferrerActionsModal({
               resolve(data);
               setIsModalOpen(false);
               formik.resetForm();
-              setSelectedTab("Referrers");
+              setSelectedTab?.("Referrers");
             },
             onError: (error) => reject(error),
           }
@@ -249,7 +257,14 @@ export default function ReferrerActionsModal({
     enableReinitialize: true,
     validationSchema: Yup.object({
       type: Yup.string().required("Referrer type is required"),
-      name: Yup.string().required("Full name is required"),
+      name: Yup.string()
+        .required("Full name is required")
+        .matches(
+          NAME_REGEX,
+          "Full name can only contain letters, spaces, hyphens, apostrophes, and full stops"
+        )
+        .min(2, "Full name must be at least 2 characters")
+        .max(100, "Full name must be less than 100 characters"),
       phone: Yup.string()
         .required("Phone number is required")
         .matches(PHONE_REGEX, "Phone must be in format (XXX) XXX-XXXX"),
@@ -258,7 +273,15 @@ export default function ReferrerActionsModal({
         .matches(EMAIL_REGEX, "Invalid email format"),
       practiceName: Yup.string().when("type", {
         is: "doctor",
-        then: (schema) => schema.required("Practice name is required"),
+        then: (schema) =>
+          schema
+            .required("Practice name is required")
+            .matches(
+              NAME_REGEX,
+              "Practice name can only contain letters, spaces, hyphens, apostrophes, and full stops"
+            )
+            .min(2, "Practice name must be at least 2 characters")
+            .max(100, "Practice name must be less than 100 characters"),
       }),
       partnershipLevel: Yup.string().when("type", {
         is: "doctor",
@@ -267,6 +290,11 @@ export default function ReferrerActionsModal({
       practiceType: Yup.string().when("type", {
         is: "doctor",
         then: (schema) => schema.required("Type of practice is required"),
+      }),
+      status: Yup.string().when(["type"], {
+        is: (type: string) => type === "doctor" && isPracticeEdit,
+        then: (schema) => schema.required("Status is required"),
+        otherwise: (schema) => schema.notRequired(),
       }),
       website: Yup.string().matches(
         /^(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/[a-zA-Z0-9]+\.[^\s]{2,}|[a-zA-Z0-9]+\.[^\s]{2,})$/i,
@@ -290,7 +318,7 @@ export default function ReferrerActionsModal({
           otherwise: (schema) => schema.notRequired(),
         }),
         zip: Yup.string()
-          .matches(/^\d{5}$/, "ZIP code must be exactly 5 digits")
+          .matches(ZIP_CODE_REGEX, "ZIP code must be exactly 5 digits")
           .when(["$type"], {
             is: (type: string) => type === "doctor",
             then: (schema) => schema.required("ZIP is required"),
@@ -299,7 +327,14 @@ export default function ReferrerActionsModal({
       }),
       staff: Yup.array().of(
         Yup.object().shape({
-          name: Yup.string().required("Name is required"),
+          name: Yup.string()
+            .required("Name is required")
+            .matches(
+              NAME_REGEX,
+              "Name can only contain letters, spaces, hyphens, apostrophes, and full stops"
+            )
+            .min(2, "Name must be at least 2 characters")
+            .max(100, "Name must be less than 100 characters"),
           role: Yup.array()
             .min(1, "At least one Role/Title must be selected.")
             .required("Role/Title is required"),
@@ -573,12 +608,15 @@ export default function ReferrerActionsModal({
                         sub.id as keyof typeof formik.values.practiceAddress
                       ] as string
                     }
-                    onValueChange={(val) =>
-                      formik.setFieldValue(
-                        fieldPath,
-                        sub.type === "tel" ? formatPhoneNumber(val) : val
-                      )
-                    }
+                    onValueChange={(val) => {
+                      let newValue = val;
+                      if (sub.type === "tel") {
+                        newValue = formatPhoneNumber(val);
+                      } else if (sub.id === "zip") {
+                        newValue = val.replace(/\D/g, "").slice(0, 5);
+                      }
+                      formik.setFieldValue(fieldPath, newValue);
+                    }}
                     {...(sub.id === "zip" ? { maxLength: 5 } : {})}
                     onBlur={() => formik.setFieldTouched(fieldPath)}
                     isRequired={!!sub.isRequired}
@@ -661,15 +699,6 @@ export default function ReferrerActionsModal({
               placeholder={field.placeholder || "Select an option"}
               selectionMode={field.multiple ? "multiple" : "single"}
               selectedKeys={
-                field.multiple
-                  ? Array.isArray(valuePath)
-                    ? valuePath
-                    : []
-                  : valuePath
-                  ? [valuePath]
-                  : []
-              }
-              disabledKeys={
                 field.multiple
                   ? Array.isArray(valuePath)
                     ? valuePath
@@ -872,6 +901,7 @@ export default function ReferrerActionsModal({
                 formik={formik}
                 renderField={renderField}
                 specialties={specialties || []}
+                isPracticeEdit={!!isPracticeEdit}
               />
             )}
 

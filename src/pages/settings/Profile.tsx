@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { FiUser } from "react-icons/fi";
 import { useDispatch } from "react-redux";
 import * as Yup from "yup";
-import { EMAIL_REGEX, PHONE_REGEX } from "../../consts/consts";
+import { EMAIL_REGEX, NAME_REGEX, PHONE_REGEX } from "../../consts/consts";
 import { useFetchUser, useUpdateUser } from "../../hooks/settings/useUser";
 import { useSpecialties } from "../../hooks/useCommon";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
@@ -35,8 +35,22 @@ const fields = [
 ];
 
 const ProfileSchema = Yup.object().shape({
-  firstName: Yup.string().required("First name is required").max(50),
-  lastName: Yup.string().required("Last name is required").max(50),
+  firstName: Yup.string()
+    .required("First name is required")
+    .matches(
+      NAME_REGEX,
+      "First name can only contain letters, spaces, hyphens, apostrophes, and full stops"
+    )
+    .min(2, "First name must be at least 2 characters")
+    .max(50, "First name must be less than 50 characters"),
+  lastName: Yup.string()
+    .required("Last name is required")
+    .matches(
+      NAME_REGEX,
+      "Last name can only contain letters, spaces, hyphens, apostrophes, and full stops"
+    )
+    .min(2, "Last name must be at least 2 characters")
+    .max(50, "Last name must be less than 50 characters"),
   email: Yup.string()
     .required("Email is required")
     .matches(EMAIL_REGEX, "Invalid email format"),
