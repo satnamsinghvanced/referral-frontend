@@ -301,7 +301,6 @@ function MediaManagement() {
                     onFilterChange("search", value as string)
                   }
                   startContent={<FiSearch className="text-gray-400 h-4 w-4" />}
-                  className="h-9"
                 />
               </div>
 

@@ -27,7 +27,7 @@ import {
 } from "../../../hooks/usePartner";
 import { useTypedSelector } from "../../../hooks/useTypedSelector";
 import { TeamMember } from "../../../services/settings/team";
-import { TaskApiData } from "../../../types/partner";
+import { FetchPartnersResponse, TaskApiData } from "../../../types/partner";
 import { formatCalendarDate } from "../../../utils/formatCalendarDate";
 
 interface TaskActionModalProps {
@@ -35,6 +35,7 @@ interface TaskActionModalProps {
   onClose: () => void;
   task?: TaskApiData | null;
   refetch?: () => void;
+  practices?: any;
 }
 
 const validationSchema = Yup.object({
@@ -51,6 +52,7 @@ const TaskActionModal = ({
   onClose,
   task,
   refetch,
+  practices,
 }: TaskActionModalProps) => {
   const isEditMode = !!task;
 
@@ -63,10 +65,6 @@ const TaskActionModal = ({
 
   // @ts-ignore
   const { user } = useTypedSelector((state) => state.auth);
-
-  // Fetch partners for Practice selection
-  const { data: partnersData } = useFetchPartners({ limit: 100 });
-  const practices = partnersData?.data || [];
 
   const { mutate: createTask, isPending: isCreating } = useCreateTask();
   const { mutate: updateTask, isPending: isUpdating } = useUpdateTask();
@@ -92,7 +90,7 @@ const TaskActionModal = ({
           ? []
           : [user?.userId]),
       // @ts-ignore
-      practiceId: task?.practiceId?._id || "",
+      practiceId: task?.practiceId?._id || practices?.[0]?._id,
     },
     validationSchema,
     onSubmit: (values) => {
@@ -176,7 +174,7 @@ const TaskActionModal = ({
             </div>
 
             {/* Due Date */}
-            <div>
+            <div className="flex">
               <DatePicker
                 label="Due Date"
                 labelPlacement="outside"
@@ -304,10 +302,10 @@ const TaskActionModal = ({
                   (formik.touched.practiceId as boolean)
                 }
                 errorMessage={formik.errors.practiceId as string}
-                isLoading={!partnersData}
+                isLoading={!practices}
                 isRequired
               >
-                {practices.map((practice: any) => (
+                {practices?.map((practice: any) => (
                   <SelectItem key={practice._id} textValue={practice.name}>
                     {practice.name}
                   </SelectItem>

@@ -119,7 +119,7 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
               </Chip>
             ))}
           </div>
-          {lastSync && (
+          {isCredentialsSaved && lastSync && (
             <p className="text-xs text-gray-600 mt-2">Last sync: {lastSync}</p>
           )}
         </div>

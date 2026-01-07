@@ -33,7 +33,7 @@ const SecuritySchema = Yup.object().shape({
 
 const Security: React.FC = () => {
   const { mutate: updatePassword, isPending } = useUpdatePassword();
-  const [twoFAEnabled, setTwoFAEnabled] = useState(true);
+  const [twoFAEnabled, setTwoFAEnabled] = useState(false);
 
   const handle2FAUpdate = () => {
     setTwoFAEnabled((prev) => !prev);

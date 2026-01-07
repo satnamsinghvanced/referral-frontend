@@ -4,6 +4,7 @@ import { GrLocation } from "react-icons/gr";
 import { LuBuilding2 } from "react-icons/lu";
 import LevelChip from "../../components/chips/LevelChip";
 import { Partner } from "../../types/partner";
+import PracticeStatusChip from "../../components/chips/PracticeStatusChip";
 
 interface PartnerNetworkCardProps {
   partner: Partner;
@@ -73,17 +74,7 @@ const PartnerNetworkCard = ({ partner, actions }: PartnerNetworkCardProps) => {
             <p className="text-[11px] font-thin">Tasks</p>
           </div>
           <div className="flex items-center text-center justify-center">
-            <Chip
-              size="sm"
-              radius="sm"
-              className={`capitalize text-[11px] h-5 ${
-                partner.status
-                  ? "bg-green-100 text-green-800"
-                  : "bg-yellow-100 text-yellow-600"
-              }`}
-            >
-              {partner.status ? "Active" : "Inactive"}
-            </Chip>
+            <PracticeStatusChip status={partner.status} />
           </div>
         </div>
         <div className="flex items-center gap-2.5">

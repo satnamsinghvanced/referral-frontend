@@ -1,3 +1,4 @@
+import React from "react";
 import {
   Button,
   Input,
@@ -169,48 +170,49 @@ const LocationActionModal = ({
             className="flex flex-col gap-4"
           >
             {FORM_FIELDS.map((field) => (
-              <Input
-                key={field.name}
-                id={field.name}
-                type={field.type}
-                name={field.name}
-                label={field.label}
-                labelPlacement="outside"
-                placeholder={field.placeholder}
-                size="sm"
-                radius="sm"
-                variant="flat"
-                value={
-                  formik.values[
-                    field.name as keyof LocationFormValues
-                  ] as string
-                }
-                onValueChange={(val: string) => {
-                  let newValue = val;
-                  if (field.name === "phone") {
-                    newValue = formatPhoneNumber(val);
-                  } else if (field.name === "zipcode") {
-                    newValue = val.replace(/\D/g, "").slice(0, 5);
+              <React.Fragment key={field.name}>
+                <Input
+                  id={field.name}
+                  type={field.type}
+                  name={field.name}
+                  label={field.label}
+                  labelPlacement="outside"
+                  placeholder={field.placeholder}
+                  size="sm"
+                  radius="sm"
+                  variant="flat"
+                  value={
+                    formik.values[
+                      field.name as keyof LocationFormValues
+                    ] as string
                   }
-                  formik.setFieldValue(field.name, newValue);
-                }}
-                onBlur={formik.handleBlur}
-                {...(field.name === "zipcode" ? { maxLength: 5 } : {})}
-                {...(field.name === "phone" ? { maxLength: 14 } : {})}
-                isInvalid={
-                  !!(
+                  onValueChange={(val: string) => {
+                    let newValue = val;
+                    if (field.name === "phone") {
+                      newValue = formatPhoneNumber(val);
+                    } else if (field.name === "zipcode") {
+                      newValue = val.replace(/\D/g, "").slice(0, 5);
+                    }
+                    formik.setFieldValue(field.name, newValue);
+                  }}
+                  onBlur={formik.handleBlur}
+                  {...(field.name === "zipcode" ? { maxLength: 5 } : {})}
+                  {...(field.name === "phone" ? { maxLength: 14 } : {})}
+                  isInvalid={
+                    !!(
+                      formik.touched[field.name as keyof LocationFormValues] &&
+                      formik.errors[field.name as keyof LocationFormValues]
+                    )
+                  }
+                  errorMessage={
                     formik.touched[field.name as keyof LocationFormValues] &&
-                    formik.errors[field.name as keyof LocationFormValues]
-                  )
-                }
-                errorMessage={
-                  formik.touched[field.name as keyof LocationFormValues] &&
-                  (formik.errors[
-                    field.name as keyof LocationFormValues
-                  ] as string)
-                }
-                isRequired
-              />
+                    (formik.errors[
+                      field.name as keyof LocationFormValues
+                    ] as string)
+                  }
+                  isRequired
+                />
+              </React.Fragment>
             ))}
 
             <Switch
@@ -224,6 +226,10 @@ const LocationActionModal = ({
             >
               Primary Location
             </Switch>
+            <p className="text-xs text-gray-500 italic">
+              Note: Please ensure the address is accurate as it will be verified
+              with Google Maps.
+            </p>
           </form>
         </ModalBody>
         <ModalFooter className="p-4">

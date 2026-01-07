@@ -8,10 +8,10 @@ import {
 } from "@heroui/react";
 import { useState } from "react";
 import { FiSettings } from "react-icons/fi";
+import { LoadingState } from "../../components/common/LoadingState";
 import { useGetSocialMediaCredentials } from "../../hooks/useSocial";
 import GoogleBusinessConfigModal from "../integrations/modal/GoogleBusinessConfigModal";
 import SocialMediaConfigModal from "./modal/SocialMediaConfigModal";
-import { LoadingState } from "../../components/common/LoadingState";
 
 interface PlatformItem {
   id: string;
@@ -59,16 +59,16 @@ const Platforms = () => {
         ? `${allCredentials?.youTube?.engagementRate}%`
         : "0%",
     },
-    {
-      id: "googleBusiness",
-      name: "Google Business",
-      iconColor: "bg-[#0F9D58]",
-      status: allCredentials?.googleBusiness?.status as string,
-      followers: allCredentials?.googleBusiness?.followers || 0,
-      engagementRate: allCredentials?.googleBusiness
-        ? `${allCredentials?.googleBusiness?.engagementRate}%`
-        : "0%",
-    },
+    // {
+    //   id: "googleBusiness",
+    //   name: "Google Business",
+    //   iconColor: "bg-[#0F9D58]",
+    //   status: allCredentials?.googleBusiness?.status as string,
+    //   followers: allCredentials?.googleBusiness?.followers || 0,
+    //   engagementRate: allCredentials?.googleBusiness
+    //     ? `${allCredentials?.googleBusiness?.engagementRate}%`
+    //     : "0%",
+    // },
   ];
 
   return (

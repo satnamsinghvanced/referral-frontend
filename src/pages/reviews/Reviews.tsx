@@ -55,8 +55,7 @@ const Reviews = () => {
           <Tabs
             aria-label="Options"
             classNames={{
-              tabList:
-                "flex w-full rounded-full bg-foreground/5 text-xs",
+              tabList: "flex w-full rounded-full bg-foreground/5 text-xs",
               tab: "flex-1 text-xs font-medium transition-all",
               cursor: "rounded-full text-xs",
               panel: "p-0",
@@ -75,9 +74,9 @@ const Reviews = () => {
               <Locations />
             </Tab>
 
-            <Tab key="nfc-cards" title="NFC Analytics" className="text-sm">
+            {/* <Tab key="nfc-cards" title="NFC Analytics" className="text-sm">
               <NfcAnalytics />
-            </Tab>
+            </Tab> */}
 
             <Tab
               key="recent-reviews"

@@ -74,7 +74,7 @@ const LOCATIONS_GRAPH_DATA = [
 
 const Locations = () => {
   return (
-    <div className="flex flex-col gap-4 border border-primary/15 rounded-xl p-4 bg-background w-full"> 
+    <div className="flex flex-col gap-4 border border-primary/15 rounded-xl p-4 bg-background w-full">
       <h4 className="flex items-center">
         <GrLocation className="text-primary size-[18px] mr-2" />
         Review Performance by Location
@@ -154,18 +154,21 @@ const Locations = () => {
           <Legend wrapperStyle={{ bottom: "-2px" }} />
           <Bar
             dataKey="reviews"
+            name="Reviews"
             barSize={60}
             fill="#f97316"
             isAnimationActive
           />
           <Bar
             dataKey="nfcTaps"
+            name="NFC Taps"
             barSize={60}
             fill="#1e40af"
             isAnimationActive
           />
           <Bar
             dataKey="qrScans"
+            name="QR Scans"
             barSize={60}
             fill="#0ea5e9"
             isAnimationActive

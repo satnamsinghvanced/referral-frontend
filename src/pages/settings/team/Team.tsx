@@ -16,6 +16,7 @@ import PendingTeamMembers from "./PendingTeamMembers";
 import TeamMemberActionModal, { TeamFormValues } from "./TeamMemberActionModal";
 import { useFetchEmailIntegration } from "../../../hooks/integrations/useEmailMarketing";
 import { Link } from "react-router-dom";
+import { LoadingState } from "../../../components/common/LoadingState";
 
 const roleColors: Record<string, string> = {
   admin: "bg-red-100 text-red-600",
@@ -128,7 +129,9 @@ const Team: React.FC = () => {
         </CardHeader>
         <CardBody className="p-4 space-y-3">
           {membersIsLoading ? (
-            <TeamSkeleton type="active" />
+            <div className="flex items-center justify-center min-h-[156px]">
+              <LoadingState />
+            </div>
           ) : members && members.length > 0 ? (
             members.map((member: TeamMember) => (
               <div

@@ -11,7 +11,11 @@ import EmptyState from "../../components/common/EmptyState";
 import { LoadingState } from "../../components/common/LoadingState";
 import { TASK_PRIORITIES, TASK_STATUSES } from "../../consts/practice";
 import { useDebouncedValue } from "../../hooks/common/useDebouncedValue";
-import { useDeleteTask, useFetchAllTasks } from "../../hooks/usePartner";
+import {
+  useDeleteTask,
+  useFetchAllTasks,
+  useFetchPartners,
+} from "../../hooks/usePartner";
 import TaskCard from "./TaskCard";
 import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
 import { AiOutlinePlus } from "react-icons/ai";
@@ -43,24 +47,6 @@ function Tasks() {
     setTaskIdToDelete(null);
   };
 
-  const HEADING_DATA = useMemo(
-    () => ({
-      heading: "Tasks",
-      subHeading:
-        "Manage and prioritize tasks for efficient practice operations.",
-      buttons: [
-        {
-          label: "Create Task",
-          onClick: () => handleOpenTaskModal(),
-          icon: <AiOutlinePlus fontSize={15} />,
-          variant: "solid" as const,
-          color: "primary" as const,
-        },
-      ],
-    }),
-    []
-  );
-
   const [currentFilters, setCurrentFilters] = useState<any>({
     page: 1,
     limit: 10,
@@ -75,6 +61,10 @@ function Tasks() {
     setCurrentFilters((prev: any) => ({ ...prev, search: debouncedSearch }));
   }, [debouncedSearch]);
 
+  // Fetch partners for Practice selection
+  const { data: partnersData } = useFetchPartners({ limit: 100 });
+  const practices = partnersData?.data || [];
+
   const {
     data: tasksData,
     isLoading,
@@ -87,6 +77,30 @@ function Tasks() {
   const tasks = tasksData?.tasks;
   const stats = tasksData?.stats;
   const pagination = tasksData?.pagination;
+
+  let TASKS_BUTONS: any[] = [
+    {
+      label: "Create Task",
+      onClick: () => handleOpenTaskModal(),
+      icon: <AiOutlinePlus fontSize={15} />,
+      variant: "solid" as const,
+      color: "primary" as const,
+    },
+  ];
+
+  if (practices.length <= 0) {
+    TASKS_BUTONS = [];
+  }
+
+  const HEADING_DATA = useMemo(
+    () => ({
+      heading: "Tasks",
+      subHeading:
+        "Manage and prioritize tasks for efficient practice operations.",
+      buttons: TASKS_BUTONS,
+    }),
+    [TASKS_BUTONS]
+  );
 
   const STAT_CARD_DATA = [
     {
@@ -231,6 +245,7 @@ function Tasks() {
         onClose={handleCloseTaskModal}
         refetch={refetch}
         task={taskToEdit}
+        practices={practices}
       />
 
       <DeleteConfirmationModal

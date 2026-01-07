@@ -335,9 +335,7 @@ export default function ReferrerActionsModal({
             )
             .min(2, "Name must be at least 2 characters")
             .max(100, "Name must be less than 100 characters"),
-          role: Yup.array()
-            .min(1, "At least one Role/Title must be selected.")
-            .required("Role/Title is required"),
+          role: Yup.string().required("Role/Title is required"),
           email: Yup.string().matches(EMAIL_REGEX, "Invalid email format"),
           phone: Yup.string().nullable(),
           isDentist: Yup.boolean().nullable(),
@@ -417,7 +415,6 @@ export default function ReferrerActionsModal({
         options: STAFF_ROLES,
         placeholder: "Select Role",
         isRequired: true,
-        multiple: true,
       },
       {
         id: "email",
@@ -629,6 +626,10 @@ export default function ReferrerActionsModal({
                   />
                 );
               })}
+              <p className="text-xs text-gray-500 italic">
+                Note: Please ensure the address is accurate as it will be
+                verified with Google Maps.
+              </p>
             </div>
           </div>
         );
@@ -670,10 +671,7 @@ export default function ReferrerActionsModal({
     }
   };
 
-  const renderArrayField = (
-    field: (typeof staffMemberFields)[number],
-    index: number
-  ) => {
+  const renderArrayField = (field: any, index: number) => {
     const fieldName = `staff[${index}].${field.id}`;
     const valuePath = formik.values.staff[index]?.[field.id];
 
@@ -699,6 +697,15 @@ export default function ReferrerActionsModal({
               placeholder={field.placeholder || "Select an option"}
               selectionMode={field.multiple ? "multiple" : "single"}
               selectedKeys={
+                field.multiple
+                  ? Array.isArray(valuePath)
+                    ? valuePath
+                    : []
+                  : valuePath
+                  ? [valuePath]
+                  : []
+              }
+              disabledKeys={
                 field.multiple
                   ? Array.isArray(valuePath)
                     ? valuePath
@@ -822,7 +829,7 @@ export default function ReferrerActionsModal({
 
     const newStaffMember = {
       name: "",
-      role: [],
+      role: "",
       email: "",
       phone: "",
       isDentist: false,

@@ -88,38 +88,38 @@ function Integrations() {
 
   const AVAILABLE_INTEGRATIONS = useMemo(() => {
     return [
-      {
-        id: "",
-        name: "Google My Business",
-        icon: <FaGoogle className="w-4 h-4" />,
-        iconBg: "bg-red-100",
-        iconColor: "text-red-600",
-        status: "Disconnected" as const,
-        description:
-          "Automatically sync reviews and manage your practice listing",
-        badges: [
-          "Review sync",
-          "Business listing management",
-          "Analytics integration",
-        ],
-        lastSync: "2 hours ago",
-      },
-      {
-        id: "",
-        name: "Practice Management System",
-        icon: <TbDatabase className="w-4 h-4" />,
-        iconBg: "bg-blue-100",
-        iconColor: "text-blue-600",
-        status: "Disconnected" as const,
-        description:
-          "Connect your PMS to automatically track patient referrals",
-        badges: [
-          "Patient data sync",
-          "Appointment tracking",
-          "Referral automation",
-        ],
-        lastSync: "15 minutes ago",
-      },
+      // {
+      //   id: "",
+      //   name: "Google My Business",
+      //   icon: <FaGoogle className="w-4 h-4" />,
+      //   iconBg: "bg-red-100",
+      //   iconColor: "text-red-600",
+      //   status: "Disconnected" as const,
+      //   description:
+      //     "Automatically sync reviews and manage your practice listing",
+      //   badges: [
+      //     "Review sync",
+      //     "Business listing management",
+      //     "Analytics integration",
+      //   ],
+      //   lastSync: "2 hours ago",
+      // },
+      // {
+      //   id: "",
+      //   name: "Practice Management System",
+      //   icon: <TbDatabase className="w-4 h-4" />,
+      //   iconBg: "bg-blue-100",
+      //   iconColor: "text-blue-600",
+      //   status: "Disconnected" as const,
+      //   description:
+      //     "Connect your PMS to automatically track patient referrals",
+      //   badges: [
+      //     "Patient data sync",
+      //     "Appointment tracking",
+      //     "Referral automation",
+      //   ],
+      //   lastSync: "15 minutes ago",
+      // },
       {
         id: emailConfig?._id || "",
         name: "Email Marketing Platform",
@@ -185,45 +185,45 @@ function Integrations() {
           });
         },
       },
-      {
-        id: "",
-        name: "Google Ads",
-        icon: <SiGoogleads className="w-4 h-4" />,
-        iconBg: "bg-blue-100",
-        iconColor: "text-blue-600",
-        status: "Disconnected" as const,
-        description:
-          "Sync ad performance and optimize referral-based campaigns",
-        badges: [
-          "Campaign tracking",
-          "Conversion attribution",
-          "Ad spend analytics",
-        ],
-      },
-      {
-        id: "",
-        name: "Meta Ads",
-        icon: <FaMeta className="w-4 h-4" />,
-        iconBg: "bg-indigo-100",
-        iconColor: "text-indigo-600",
-        status: "Disconnected" as const,
-        description: "Connect Facebook & Instagram Ads for referral targeting",
-        badges: [
-          "Audience sync",
-          "Lead tracking",
-          "Campaign performance insights",
-        ],
-      },
-      {
-        id: "",
-        name: "TikTok Ads",
-        icon: <FaTiktok className="w-4 h-4" />,
-        iconBg: "bg-gray-100",
-        iconColor: "text-gray-700",
-        status: "Disconnected" as const,
-        description: "Track TikTok ad campaigns and boost referral engagement",
-        badges: ["Pixel tracking", "Campaign reporting", "Audience insights"],
-      },
+      // {
+      //   id: "",
+      //   name: "Google Ads",
+      //   icon: <SiGoogleads className="w-4 h-4" />,
+      //   iconBg: "bg-blue-100",
+      //   iconColor: "text-blue-600",
+      //   status: "Disconnected" as const,
+      //   description:
+      //     "Sync ad performance and optimize referral-based campaigns",
+      //   badges: [
+      //     "Campaign tracking",
+      //     "Conversion attribution",
+      //     "Ad spend analytics",
+      //   ],
+      // },
+      // {
+      //   id: "",
+      //   name: "Meta Ads",
+      //   icon: <FaMeta className="w-4 h-4" />,
+      //   iconBg: "bg-indigo-100",
+      //   iconColor: "text-indigo-600",
+      //   status: "Disconnected" as const,
+      //   description: "Connect Facebook & Instagram Ads for referral targeting",
+      //   badges: [
+      //     "Audience sync",
+      //     "Lead tracking",
+      //     "Campaign performance insights",
+      //   ],
+      // },
+      // {
+      //   id: "",
+      //   name: "TikTok Ads",
+      //   icon: <FaTiktok className="w-4 h-4" />,
+      //   iconBg: "bg-gray-100",
+      //   iconColor: "text-gray-700",
+      //   status: "Disconnected" as const,
+      //   description: "Track TikTok ad campaigns and boost referral engagement",
+      //   badges: ["Pixel tracking", "Campaign reporting", "Audience insights"],
+      // },
       {
         id: twilioConfig?._id || "",
         name: "Twilio Calling Integration",
@@ -253,16 +253,16 @@ function Integrations() {
           });
         },
       },
-      {
-        id: "",
-        name: "Google Analytics",
-        icon: <BsLightningCharge className="w-4 h-4" />,
-        iconBg: "bg-yellow-100",
-        iconColor: "text-yellow-600",
-        status: "Disconnected" as const,
-        description: "Advanced reporting and data visualization tools",
-        badges: ["Custom dashboards", "Advanced analytics", "Data export"],
-      },
+      // {
+      //   id: "",
+      //   name: "Google Analytics",
+      //   icon: <BsLightningCharge className="w-4 h-4" />,
+      //   iconBg: "bg-yellow-100",
+      //   iconColor: "text-yellow-600",
+      //   status: "Disconnected" as const,
+      //   description: "Advanced reporting and data visualization tools",
+      //   badges: ["Custom dashboards", "Advanced analytics", "Data export"],
+      // },
     ];
   }, [
     emailConfig,

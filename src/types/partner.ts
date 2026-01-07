@@ -141,7 +141,7 @@ export interface Partner {
   email: string;
   website: string;
   level: string;
-  status: boolean;
+  status: string;
   totalReferrals: number;
   monthlyReferrals: number;
   notesCount: number;
@@ -161,7 +161,7 @@ export interface PartnerPractice {
   email: string;
   website: string;
   partnershipLevel: string;
-  status: boolean;
+  status: string;
   totalReferrals: number;
   monthlyReferrals: number;
   noteCount: number;

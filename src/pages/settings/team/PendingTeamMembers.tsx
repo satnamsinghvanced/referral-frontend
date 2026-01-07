@@ -9,6 +9,7 @@ import {
 } from "../../../hooks/settings/useTeam";
 import { TeamMember } from "../../../services/settings/team";
 import { formatDateToYYYYMMDD } from "../../../utils/formatDateToYYYYMMDD";
+import { LoadingState } from "../../../components/common/LoadingState";
 
 const invitationStatusColors: Record<string, string> = {
   active: "bg-green-100 text-green-700 border-green-200",
@@ -50,7 +51,9 @@ const PendingTeamMembers = () => {
       </CardHeader>
       <CardBody className="p-4 space-y-3">
         {membersIsLoading ? (
-          <TeamSkeleton type="pending" />
+          <div className="flex items-center justify-center min-h-[156px]">
+            <LoadingState />
+          </div>
         ) : pendingMembers && pendingMembers.length > 0 ? (
           pendingMembers.map((member: TeamMember) => (
             <div

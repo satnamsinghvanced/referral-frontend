@@ -9,7 +9,8 @@ export const STAFF_ROLES = [
   { title: "Dentist", _id: "Dentist" },
   { title: "Treatment Coordinator", _id: "Treatment Coordinator" },
   { title: "Dental Assistant", _id: "Dental Assistant" },
-  { title: "Front Office", _id: "Front Office" },
+  { title: "Hygienist", _id: "Hygienist" },
+  { title: "Front Desk", _id: "Front Desk" },
   { title: "Finance", _id: "Finance" },
   { title: "Office Manager", _id: "Office Manager" },
   { title: "Other", _id: "Other" },
@@ -81,7 +82,7 @@ export const PRIORITY_LEVELS = [
 
 export const STATUS_OPTIONS = [
   { _id: "active", title: "Active" },
-  { _id: "inactive", title: "Inactive" },
+  { _id: "inActive", title: "Inactive" },
   { _id: "prospect", title: "Prospect" },
   { _id: "followUp", title: "Follow-up Required" },
 ];

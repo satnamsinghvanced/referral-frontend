@@ -195,7 +195,10 @@ const ManageTags = () => {
       {/* Tags Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
         {tags.map((tag) => (
-          <div className="bg-white rounded-xl border border-primary/15 p-4 flex flex-col gap-5" key={tag.id}>
+          <div
+            className="bg-white rounded-xl border border-primary/15 p-4 flex flex-col gap-5"
+            key={tag.id}
+          >
             {/* Header */}
             <div className="flex justify-between items-start">
               <div className="flex gap-2">
@@ -293,7 +296,7 @@ const ManageTags = () => {
               </div>
             </div>
 
-            <div
+            {/* <div
               className={`border-t border-primary/15 pt-4 transition-all duration-300 h-auto opacity-100 visible`}
             >
               <div className="flex items-center text-sm text-gray-700 font-medium mb-3">
@@ -308,7 +311,6 @@ const ManageTags = () => {
                     className="flex items-center justify-between bg-gray-50 p-2 rounded-md"
                   >
                     <div className="flex items-center justify-start">
-                      {/* User Initials Badge */}
                       <div className="w-8 h-8 rounded-full bg-blue-100 text-foreground flex items-center justify-center text-xs font-medium mr-2">
                         {user.initials}
                       </div>
@@ -338,7 +340,7 @@ const ManageTags = () => {
                   </p>
                 )}
               </div>
-            </div>
+            </div> */}
 
             {/* Actions */}
             <div className="flex gap-2 mt-auto">

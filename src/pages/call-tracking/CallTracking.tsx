@@ -137,127 +137,136 @@ const CallTracking = () => {
               </Button>
             </div>
           )}
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-5 gap-4 justify-between">
-            {STATS_CARD_DATA.map((data) => (
-              <MiniStatsCard key={data.heading} cardData={data} />
-            ))}
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 border border-primary/15 rounded-xl p-4 bg-background shadow-none">
-            <div className="relative flex-1">
-              <Input
-                placeholder="Search calls by name, phone..."
-                size="sm"
-                value={filters.search}
-                onValueChange={onSearchChange}
-                startContent={<FiSearch className="text-gray-400 h-4 w-4" />}
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <Select
-                aria-label="Call Types"
-                placeholder="All Types"
-                size="sm"
-                selectedKeys={[filters.type]}
-                disabledKeys={[filters.type]}
-                onSelectionChange={(keys) =>
-                  onFilterChange("type", (Array.from(keys)[0] as string) || "")
-                }
-              >
-                <>
-                  <SelectItem key="" className="capitalize">
-                    All Types
-                  </SelectItem>
-                  {CALL_TYPES.map((type) => (
-                    <SelectItem key={type.value} className="capitalize">
-                      {type.label}
-                    </SelectItem>
-                  ))}
-                </>
-              </Select>
-
-              <Select
-                aria-label="Call Status"
-                placeholder="All Status"
-                size="sm"
-                selectedKeys={[filters.status]}
-                disabledKeys={[filters.status]}
-                onSelectionChange={(keys) =>
-                  onFilterChange(
-                    "status",
-                    (Array.from(keys)[0] as string) || ""
-                  )
-                }
-              >
-                <>
-                  <SelectItem key="" className="capitalize">
-                    All Status
-                  </SelectItem>
-                  {CALL_STATUSES.map((status) => (
-                    <SelectItem key={status.value} className="capitalize">
-                      {status.label}
-                    </SelectItem>
-                  ))}
-                </>
-              </Select>
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-4 border border-primary/15 bg-background rounded-xl p-4">
-            <div className="flex items-center justify-between">
-              <p className="font-medium text-sm">Call History</p>
-            </div>
-
-            {isLoading && (
-              <div className="min-h-[200px] flex items-center justify-center">
-                <LoadingState />
+          {isTwilioConnected && !isTwilioConfigLoading && (
+            <>
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-5 gap-4 justify-between">
+                {STATS_CARD_DATA.map((data) => (
+                  <MiniStatsCard key={data.heading} cardData={data} />
+                ))}
               </div>
-            )}
 
-            {!isLoading &&
-              data?.paginatedCalls.data &&
-              data.paginatedCalls.data.length > 0 && (
-                <div className="space-y-3">
-                  {data.paginatedCalls.data.map((record: CallRecord) => (
-                    <CallRecordCard
-                      key={record._id}
-                      record={record}
-                      onPlayClick={() => handlePlayClick(record)}
-                    />
-                  ))}
-                </div>
-              )}
-
-            {!isLoading &&
-              (!data?.paginatedCalls.data ||
-                data.paginatedCalls.data.length === 0) && (
-                <EmptyState title="No call records found with current filters. Try adjusting your search or filters." />
-              )}
-
-            {!isLoading &&
-              data?.paginatedCalls &&
-              data.paginatedCalls.totalPages > 1 && (
-                <div className="flex items-center justify-between gap-2">
-                  <p className="text-xs text-gray-600">
-                    Showing {data.paginatedCalls.data.length} of{" "}
-                    {data.paginatedCalls.totalData} calls
-                  </p>
-                  <Pagination
-                    total={data.paginatedCalls.totalPages}
-                    page={filters.page}
-                    onChange={handlePageChange}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 border border-primary/15 rounded-xl p-4 bg-background shadow-none">
+                <div className="relative flex-1">
+                  <Input
+                    placeholder="Search calls by name, phone..."
                     size="sm"
-                    radius="sm"
-                    showControls
-                    classNames={{
-                      base: "pagination flex justify-end py-3",
-                      wrapper: "gap-1.5",
-                    }}
+                    value={filters.search}
+                    onValueChange={onSearchChange}
+                    startContent={
+                      <FiSearch className="text-gray-400 h-4 w-4" />
+                    }
                   />
                 </div>
-              )}
-          </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <Select
+                    aria-label="Call Types"
+                    placeholder="All Types"
+                    size="sm"
+                    selectedKeys={[filters.type]}
+                    disabledKeys={[filters.type]}
+                    onSelectionChange={(keys) =>
+                      onFilterChange(
+                        "type",
+                        (Array.from(keys)[0] as string) || ""
+                      )
+                    }
+                  >
+                    <>
+                      <SelectItem key="" className="capitalize">
+                        All Types
+                      </SelectItem>
+                      {CALL_TYPES.map((type) => (
+                        <SelectItem key={type.value} className="capitalize">
+                          {type.label}
+                        </SelectItem>
+                      ))}
+                    </>
+                  </Select>
+
+                  <Select
+                    aria-label="Call Status"
+                    placeholder="All Status"
+                    size="sm"
+                    selectedKeys={[filters.status]}
+                    disabledKeys={[filters.status]}
+                    onSelectionChange={(keys) =>
+                      onFilterChange(
+                        "status",
+                        (Array.from(keys)[0] as string) || ""
+                      )
+                    }
+                  >
+                    <>
+                      <SelectItem key="" className="capitalize">
+                        All Status
+                      </SelectItem>
+                      {CALL_STATUSES.map((status) => (
+                        <SelectItem key={status.value} className="capitalize">
+                          {status.label}
+                        </SelectItem>
+                      ))}
+                    </>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-4 border border-primary/15 bg-background rounded-xl p-4">
+                <div className="flex items-center justify-between">
+                  <p className="font-medium text-sm">Call History</p>
+                </div>
+
+                {isLoading && (
+                  <div className="min-h-[200px] flex items-center justify-center">
+                    <LoadingState />
+                  </div>
+                )}
+
+                {!isLoading &&
+                  data?.paginatedCalls.data &&
+                  data.paginatedCalls.data.length > 0 && (
+                    <div className="space-y-3">
+                      {data.paginatedCalls.data.map((record: CallRecord) => (
+                        <CallRecordCard
+                          key={record._id}
+                          record={record}
+                          onPlayClick={() => handlePlayClick(record)}
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                {!isLoading &&
+                  (!data?.paginatedCalls.data ||
+                    data.paginatedCalls.data.length === 0) && (
+                    <EmptyState title="No call records found with current filters. Try adjusting your search or filters." />
+                  )}
+
+                {!isLoading &&
+                  data?.paginatedCalls &&
+                  data.paginatedCalls.totalPages > 1 && (
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-xs text-gray-600">
+                        Showing {data.paginatedCalls.data.length} of{" "}
+                        {data.paginatedCalls.totalData} calls
+                      </p>
+                      <Pagination
+                        total={data.paginatedCalls.totalPages}
+                        page={filters.page}
+                        onChange={handlePageChange}
+                        size="sm"
+                        radius="sm"
+                        showControls
+                        classNames={{
+                          base: "pagination flex justify-end py-3",
+                          wrapper: "gap-1.5",
+                        }}
+                      />
+                    </div>
+                  )}
+              </div>
+            </>
+          )}
         </div>
       </ComponentContainer>
 

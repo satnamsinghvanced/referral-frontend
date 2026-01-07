@@ -12,6 +12,7 @@ import {
 } from "../../../hooks/settings/useLocation";
 import { Location } from "../../../types/common";
 import LocationActionModal from "./LocationActionModal";
+import { LoadingState } from "../../../components/common/LoadingState";
 
 const Locations: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -82,7 +83,11 @@ const Locations: React.FC = () => {
         </CardHeader>
 
         <CardBody className="p-4 space-y-3">
-          {locationsIsLoading && <LocationSkeleton count={3} />}
+          {locationsIsLoading && (
+            <div className="flex items-center justify-center min-h-[160px]">
+              <LoadingState />
+            </div>
+          )}
 
           {!locationsIsLoading && (!locations || locations.length === 0) && (
             <EmptyState

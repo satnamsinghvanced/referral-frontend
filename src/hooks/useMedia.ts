@@ -165,6 +165,7 @@ export const useUploadMedia = (
       });
     },
     onError: (error: any) => {
+      console.log(error);
       const errorMessage =
         (error.response?.data as { message?: string })?.message ||
         error.message ||

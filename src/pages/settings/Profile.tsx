@@ -1,4 +1,4 @@
-import { Button, Input, Select, SelectItem } from "@heroui/react";
+import { Button, Input, Select, SelectItem, Skeleton } from "@heroui/react";
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import { FiUser } from "react-icons/fi";
@@ -82,13 +82,12 @@ const Profile = () => {
   const { user } = useTypedSelector((state) => state.auth);
   const userId = user?.userId || "";
 
-  const { data: fetchedUser } = useFetchUser(userId);
+  const { data: fetchedUser, isLoading } = useFetchUser(userId);
   const { data: specialties } = useSpecialties();
   const { mutate: updateUser, isPending } = useUpdateUser(userId);
 
-  const [previewUrl, setPreviewUrl] = useState(
-    "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face"
-  );
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
     if (fetchedUser?.image) {
@@ -101,6 +100,10 @@ const Profile = () => {
       );
     }
   }, [fetchedUser]);
+
+  useEffect(() => {
+    setImageLoaded(false);
+  }, [previewUrl]);
 
   const formik = useFormik<ProfileFormValues>({
     enableReinitialize: true,
@@ -176,11 +179,21 @@ const Profile = () => {
           </h4>
 
           <div className="flex items-center gap-4 mb-6">
-            <img
-              src={previewUrl}
-              alt="Profile"
-              className="rounded-full w-20 h-20 object-cover"
-            />
+            <div className="relative size-20 overflow-hidden rounded-full">
+              {previewUrl && !isLoading && (
+                <img
+                  src={previewUrl}
+                  alt="Profile"
+                  className={`size-full object-cover transition-opacity duration-300 ${
+                    imageLoaded ? "opacity-100" : "opacity-0"
+                  }`}
+                  onLoad={() => setImageLoaded(true)}
+                />
+              )}
+              {(isLoading || !previewUrl || !imageLoaded) && (
+                <Skeleton className="absolute inset-0 size-full" />
+              )}
+            </div>
             <div>
               <input
                 id="profileImage"
@@ -249,6 +262,7 @@ const Profile = () => {
                 labelPlacement="outside"
                 placeholder="Select a Medical Specialty"
                 selectedKeys={new Set([values.medicalSpecialty])}
+                disabledKeys={new Set([values.medicalSpecialty])}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 isRequired={true}
