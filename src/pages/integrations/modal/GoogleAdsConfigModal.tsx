@@ -9,54 +9,11 @@ import {
   Spinner,
 } from "@heroui/react";
 import { useFormik } from "formik";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { FiExternalLink, FiEye, FiEyeOff } from "react-icons/fi";
 import * as Yup from "yup";
-import { useSelector } from "react-redux";
-import { RootState } from "../../../store";
-import { useInitiateAuthIntegration } from "../../../hooks/useSocial";
-import {
-  PlatformAuthParams,
-  SocialMediaCredential,
-} from "../../../types/social";
-
-const PLATFORM_CONFIGS = {
-  linkedin: {
-    title: "LinkedIn Integration",
-    description:
-      "Connect your LinkedIn app to manage professional referrals and sharing.",
-    infoLink: "https://www.linkedin.com/developers/apps",
-    linkText: "LinkedIn Developer Portal",
-  },
-  youTube: {
-    title: "YouTube Integration",
-    description:
-      "Connect your YouTube API credentials to manage video content.",
-    infoLink: "https://console.cloud.google.com/apis/credentials",
-    linkText: "Google Cloud Console",
-  },
-  twitter: {
-    title: "Twitter (X) Integration",
-    description:
-      "Connect your Twitter API keys for social media updates and monitoring.",
-    infoLink: "https://developer.twitter.com/en/portal/projects",
-    linkText: "Twitter Developer Portal",
-  },
-  tikTok: {
-    title: "TikTok Integration",
-    description:
-      "Connect your TikTok app credentials to manage short-form video content.",
-    infoLink: "https://developers.tiktok.com/my-apps",
-    linkText: "TikTok Developer Portal",
-  },
-  meta: {
-    title: "Meta (Facebook & Instagram)",
-    description:
-      "Connect your Meta app to manage Facebook and Instagram content.",
-    infoLink: "https://developers.facebook.com/apps",
-    linkText: "Meta for Developers",
-  },
-};
+import { useGenerateGoogleAdsAuthUrl } from "../../../hooks/integrations/useAds";
+import { GenerateAuthUrlRequest } from "../../../types/integrations/googleCalendar";
 
 // --- Yup Validation Schema ---
 const validationSchema = Yup.object().shape({
@@ -65,67 +22,67 @@ const validationSchema = Yup.object().shape({
   redirectUri: Yup.string()
     .url("Must be a valid URL")
     .required("Redirect URI is required."),
+  developerToken: Yup.string().required("Developer Token is required."),
 });
 
-export default function SocialMediaConfigModal({
-  platform,
+export default function GoogleAdsConfigModal({
+  userId,
   isOpen,
   onClose,
-  allCredentials,
-  isGlobalLoading,
+  existingConfig,
+  isLoading,
 }: {
-  platform: Exclude<PlatformAuthParams["platform"], "googleBusiness">; // Dynamic platform key
+  userId: string;
   isOpen: boolean;
   onClose: () => void;
-  allCredentials: any;
-  isGlobalLoading: boolean;
+  existingConfig: any;
+  isLoading: boolean;
 }) {
-  const user = useSelector((state: RootState) => state.auth.user);
   const [showSecret, setShowSecret] = useState(false);
-  const platformName = platform; // e.g., 'linkedin'
-  const config = PLATFORM_CONFIGS[platformName];
 
-  const existingConfig = useMemo(
-    () => allCredentials?.[platformName] as SocialMediaCredential | undefined,
-    [allCredentials, platformName]
-  );
+  // Save (Generate Auth URL) Mutation
+  const generateAuthUrlMutation = useGenerateGoogleAdsAuthUrl();
 
-  const initiateAuthMutation = useInitiateAuthIntegration();
+  // Determine if we are in update mode
+  const isUpdateMode = !!existingConfig?._id;
 
-  const isSubmitting = initiateAuthMutation.isPending;
+  // Determine global loading state
+  const isGlobalLoading = isLoading;
 
-  const isConfigured = !!existingConfig?.clientId;
-  const isAuthorized = !!existingConfig?.accessToken;
-  const formik = useFormik<Omit<PlatformAuthParams, "platform">>({
+  // Determine submitting state
+  const isSubmitting = generateAuthUrlMutation.isPending;
+
+  // 2. Formik Setup
+  const formik = useFormik<any>({
     initialValues: {
-      userId: user?.userId || "",
+      userId: userId || "",
       clientId: existingConfig?.clientId || "",
       clientSecret: existingConfig?.clientSecret || "",
       redirectUri: existingConfig?.redirectUri || "",
+      developerToken: existingConfig?.developerToken || "",
     },
     validationSchema: validationSchema,
     onSubmit: async (values, { setSubmitting }) => {
       setSubmitting(true);
       try {
-        const savePayload: PlatformAuthParams = {
-          platform: platformName,
-          userId: user?.userId || "",
+        const savePayload = {
+          userId: userId,
           clientId: values.clientId,
           clientSecret: values.clientSecret,
           redirectUri: values.redirectUri,
+          developerToken: values.developerToken,
         };
 
-        const response = await initiateAuthMutation.mutateAsync(savePayload);
+        const response = await generateAuthUrlMutation.mutateAsync(savePayload);
 
-        // On success, redirect the user to the platform for authorization
         if (response?.authUrl) {
           window.open(response.authUrl, "_blank");
-          onClose(); // Close modal after initiating OAuth flow
+          onClose();
         } else {
           throw new Error("Failed to generate authorization URL.");
         }
       } catch (error) {
-        console.error(`${platformName} Configuration Error:`, error);
+        console.error("Google Ads Configuration Error:", error);
       } finally {
         setSubmitting(false);
       }
@@ -133,7 +90,6 @@ export default function SocialMediaConfigModal({
     enableReinitialize: true,
   });
 
-  // Handle loading state
   if (isGlobalLoading) {
     return (
       <Modal
@@ -164,20 +120,18 @@ export default function SocialMediaConfigModal({
     >
       <ModalContent>
         <form onSubmit={formik.handleSubmit}>
-          {/* Modal Header */}
           <ModalHeader className="p-4 pb-0 flex-col">
             <h2 className="leading-none font-medium text-base">
-              {config.title}
+              Google Ads Integration
             </h2>
             <p className="text-xs text-gray-600 mt-2 font-normal">
-              {config.description}
+              Connect your Google Ads account to sync performance and manage
+              campaigns.
             </p>
           </ModalHeader>
 
-          {/* Modal Body */}
-          <ModalBody className="p-4">
+          <ModalBody className="px-4 py-4">
             <div className="space-y-4">
-              {/* Client ID */}
               <Input
                 size="sm"
                 radius="sm"
@@ -185,19 +139,20 @@ export default function SocialMediaConfigModal({
                 labelPlacement="outside-top"
                 name="clientId"
                 type="text"
-                placeholder={`Enter ${platformName} Client ID`}
+                placeholder="xxxxxxxxxxxx-xxxxxxxx.apps.googleusercontent.com"
                 isRequired
                 value={formik.values.clientId}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 isInvalid={
-                  (formik.touched.clientId as boolean) &&
-                  (!!formik.errors.clientId as boolean)
+                  !!(formik.touched.clientId && formik.errors.clientId)
                 }
-                errorMessage={formik.touched.clientId && formik.errors.clientId}
+                errorMessage={
+                  formik.touched.clientId &&
+                  (formik.errors.clientId as React.ReactNode)
+                }
               />
 
-              {/* Client Secret */}
               <Input
                 size="sm"
                 radius="sm"
@@ -211,11 +166,11 @@ export default function SocialMediaConfigModal({
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 isInvalid={
-                  (formik.touched.clientSecret as boolean) &&
-                  (!!formik.errors.clientSecret as boolean)
+                  !!(formik.touched.clientSecret && formik.errors.clientSecret)
                 }
                 errorMessage={
-                  formik.touched.clientSecret && formik.errors.clientSecret
+                  formik.touched.clientSecret &&
+                  (formik.errors.clientSecret as React.ReactNode)
                 }
                 endContent={
                   <button
@@ -228,7 +183,30 @@ export default function SocialMediaConfigModal({
                 }
               />
 
-              {/* Redirect URI */}
+              <Input
+                size="sm"
+                radius="sm"
+                label="Developer Token"
+                labelPlacement="outside-top"
+                name="developerToken"
+                type="text"
+                placeholder="Enter your Google Ads Developer Token"
+                isRequired
+                value={formik.values.developerToken}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                isInvalid={
+                  !!(
+                    formik.touched.developerToken &&
+                    formik.errors.developerToken
+                  )
+                }
+                errorMessage={
+                  formik.touched.developerToken &&
+                  (formik.errors.developerToken as React.ReactNode)
+                }
+              />
+
               <div>
                 <Input
                   size="sm"
@@ -237,26 +215,25 @@ export default function SocialMediaConfigModal({
                   labelPlacement="outside-top"
                   name="redirectUri"
                   type="url"
-                  placeholder={`Your ${platformName} callback URL`}
+                  placeholder="https://your-app.com/api/auth/callback/google"
                   isRequired
                   value={formik.values.redirectUri}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   isInvalid={
-                    (formik.touched.redirectUri as boolean) &&
-                    (!!formik.errors.redirectUri as boolean)
+                    !!(formik.touched.redirectUri && formik.errors.redirectUri)
                   }
                   errorMessage={
-                    formik.touched.redirectUri && formik.errors.redirectUri
+                    formik.touched.redirectUri &&
+                    (formik.errors.redirectUri as React.ReactNode)
                   }
                 />
                 <p className="text-[11px] text-gray-500 mt-1">
-                  Must exactly match the authorized redirect URI in your{" "}
-                  {platformName} developer settings.
+                  Must match the authorized redirect URI in your Google Cloud
+                  Console.
                 </p>
               </div>
 
-              {/* Helper Information Box */}
               <div className="text-sm text-gray-700 bg-blue-50 p-3 rounded-lg border border-blue-200 mt-4">
                 <div className="flex items-start gap-3">
                   <div>
@@ -267,47 +244,36 @@ export default function SocialMediaConfigModal({
                       <li>
                         Go to the{" "}
                         <a
-                          href={config.infoLink}
+                          href="https://console.cloud.google.com/apis/credentials"
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-blue-600 hover:underline font-medium inline-flex items-center"
                         >
-                          {config.linkText}{" "}
+                          Google Cloud Console{" "}
                           <FiExternalLink className="ml-1 h-3 w-3" />
                         </a>
                       </li>
-                      <li>Create or select your application.</li>
                       <li>
-                        Configure the <strong>Redirect URI</strong> to match the
-                        value above.
+                        Enable <strong>Google Ads API</strong>.
                       </li>
                       <li>
-                        Retrieve the <strong>Client ID</strong> and{" "}
-                        <strong>Client Secret</strong>.
+                        Get a <strong>Developer Token</strong> from Google Ads
+                        API Center.
                       </li>
+                      <li>Create OAuth 2.0 Client credentials.</li>
                     </ul>
                   </div>
                 </div>
               </div>
 
-              {/* Status Message */}
-              {isConfigured && isAuthorized && (
+              {isUpdateMode && existingConfig?.status === "Connected" && (
                 <div className="p-3 bg-green-50 text-green-700 text-xs rounded-lg border border-green-200">
-                  ✅ Integration is currently <strong>Connected</strong> and
-                  configured.
-                </div>
-              )}
-              {isConfigured && !isAuthorized && (
-                <div className="p-3 bg-yellow-50 text-yellow-700 text-xs rounded-lg border border-yellow-200">
-                  ⚠️ Credentials saved, but{" "}
-                  <strong>Authorization is required</strong>. Click 'Save and
-                  Authorize' to complete the OAuth flow.
+                  ✅ Google Ads is active and synchronized.
                 </div>
               )}
             </div>
           </ModalBody>
 
-          {/* Modal Footer */}
           <ModalFooter className="flex justify-end gap-2 px-4 pb-4 pt-0">
             <Button
               size="sm"
@@ -324,11 +290,9 @@ export default function SocialMediaConfigModal({
               color="primary"
               type="submit"
               isLoading={isSubmitting}
-              isDisabled={isSubmitting || !formik.isValid}
+              isDisabled={isSubmitting || !formik.isValid || !formik.dirty}
             >
-              {isConfigured && isAuthorized
-                ? "Re-authorize"
-                : "Save and Authorize"}
+              {isUpdateMode ? "Update Credentials" : "Save and Authorize"}
             </Button>
           </ModalFooter>
         </form>

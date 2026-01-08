@@ -137,6 +137,11 @@ const CallTracking = () => {
               </Button>
             </div>
           )}
+          {isTwilioConfigLoading && (
+            <div className="flex items-center justify-center min-h-[200px] bg-background border border-primary/15 rounded-xl p-4">
+              <LoadingState />
+            </div>
+          )}
           {isTwilioConnected && !isTwilioConfigLoading && (
             <>
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-5 gap-4 justify-between">

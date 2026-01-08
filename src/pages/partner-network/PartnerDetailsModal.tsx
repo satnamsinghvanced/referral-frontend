@@ -77,8 +77,8 @@ const PartnerDetailsModal = ({
       }}
       size="md"
     >
-      <ModalContent className="max-h-[90vh] flex flex-col">
-        <ModalHeader className="flex flex-col gap-2 text-center sm:text-left flex-shrink-0 p-5">
+      <ModalContent className="max-h-[92vh] flex flex-col">
+        <ModalHeader className="flex flex-col gap-2 text-center sm:text-left flex-shrink-0 p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <h4 className="text-base font-medium leading-snug flex items-center space-x-2">
@@ -97,7 +97,7 @@ const PartnerDetailsModal = ({
           </p>
         </ModalHeader>
 
-        <ModalBody className="px-5 pt-0 pb-5 h-full overflow-auto">
+        <ModalBody className="px-4 pt-0 pb-4 h-full overflow-auto">
           {isLoading ? (
             <div className="flex-1 min-h-[500px] flex items-center justify-center">
               <LoadingState />
@@ -107,9 +107,9 @@ const PartnerDetailsModal = ({
               <p>Failed to load partner details.</p>
             </div>
           ) : (
-            <div className="flex-1 space-y-4">
+            <div className="flex-1 space-y-3">
               {/* Top Stat Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <Card className="rounded-xl border border-primary/15 text-center px-4 py-3 shadow-none justify-center">
                   <div className="text-xl font-bold text-blue-600">
                     {displayData.totalReferrals ?? 0}
@@ -373,7 +373,7 @@ const PartnerDetailsModal = ({
           )}
         </ModalBody>
         {/* Footer with buttons */}
-        <ModalFooter className="flex-shrink-0 flex justify-end px-5 py-4 border-t border-primary/15">
+        <ModalFooter className="flex-shrink-0 flex justify-end px-4 py-4 border-t border-primary/15">
           <Button
             variant="bordered"
             size="sm"

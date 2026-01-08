@@ -69,10 +69,10 @@ export const createReferrer = async (
 export const fetchReferrers = async (
   params: FetchReferrersParams
 ): Promise<ReferrersResponse> => {
-  const { filter = "", page = 1, limit = 10 } = params;
+  const { filter = "", page = 1, limit = 10, search = "" } = params;
 
   const { data } = await axios.get<ReferrersResponse>("/referrers", {
-    params: { filter, page, limit },
+    params: { filter, page, limit, search },
   });
   return data;
 };

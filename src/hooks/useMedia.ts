@@ -166,10 +166,45 @@ export const useUploadMedia = (
     },
     onError: (error: any) => {
       console.log(error);
-      const errorMessage =
-        (error.response?.data as { message?: string })?.message ||
-        error.message ||
-        "Failed to upload media";
+      const status = error.response?.status;
+      const data = error.response?.data as { message?: string; code?: string };
+
+      let errorMessage =
+        data?.message || error.message || "Failed to upload media";
+
+      // Enhanced error messages based on status codes and Multer codes
+      if (status === 413) {
+        errorMessage =
+          "File size is too large. Please upload smaller files or check the server limits.";
+      } else if (status === 400 && data?.code) {
+        switch (data.code) {
+          case "LIMIT_FILE_SIZE":
+            errorMessage =
+              "The file you are trying to upload exceeds the maximum allowed size.";
+            break;
+          case "LIMIT_FILE_COUNT":
+            errorMessage =
+              "You have exceeded the maximum number of files allowed.";
+            break;
+          case "LIMIT_UNEXPECTED_FILE":
+            errorMessage = "Unexpected file type or field found in the upload.";
+            break;
+          case "LIMIT_FIELD_KEY":
+            errorMessage = "Field name in the upload is too long.";
+            break;
+          case "LIMIT_FIELD_VALUE":
+            errorMessage = "Field value in the upload is too long.";
+            break;
+          case "LIMIT_FIELD_COUNT":
+            errorMessage = "Too many textual fields in the upload.";
+            break;
+          default:
+            break;
+        }
+      } else if (status >= 500) {
+        errorMessage = "Server error occurred. Please try again later.";
+      }
+
       addToast({ title: "Error", description: errorMessage, color: "danger" });
     },
   });

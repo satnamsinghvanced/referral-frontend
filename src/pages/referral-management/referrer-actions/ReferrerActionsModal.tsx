@@ -883,13 +883,13 @@ export default function ReferrerActionsModal({
       scrollBehavior="inside"
     >
       <ModalContent>
-        <ModalHeader className="flex flex-col gap-1 px-5 py-4">
+        <ModalHeader className="flex flex-col gap-1 px-4 py-4">
           <h4 className="text-base font-medium">{modalTitle}</h4>
           <p className="text-xs text-gray-500 font-normal">
             {modalDescription}
           </p>
         </ModalHeader>
-        <ModalBody className="px-5 py-0 overflow-y-auto">
+        <ModalBody className="px-4 py-0 overflow-y-auto">
           <form
             id="referrer-actions-form"
             onSubmit={formik.handleSubmit}
@@ -941,7 +941,7 @@ export default function ReferrerActionsModal({
             <AdditionalNotesSection formik={formik} renderField={renderField} />
           </form>
         </ModalBody>
-        <ModalFooter className="px-5 py-4">
+        <ModalFooter className="p-4">
           <Button
             onPress={handleCloseModal}
             color="default"

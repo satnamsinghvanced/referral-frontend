@@ -41,10 +41,19 @@ export function useUpdateUser(id: string) {
       queryClient.invalidateQueries({ queryKey: ["user", id] });
     },
     onError: (error) => {
-      const errorMessage =
-        (error.response?.data as { message?: string })?.message ||
-        error.message ||
-        "Failed to update user profile";
+      console.log(error);
+      const status = error.response?.status;
+      const data = error.response?.data as { message?: string; code?: string };
+
+      let errorMessage =
+        data?.message || error.message || "Failed to update user profile";
+
+      if (status === 413) {
+        errorMessage =
+          "The profile image is too large. Please upload a smaller image.";
+      } else if (status === 400 && data?.code === "LIMIT_FILE_SIZE") {
+        errorMessage = "Profile image exceeds the maximum size limit.";
+      }
 
       addToast({
         title: "Error",

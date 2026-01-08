@@ -12,18 +12,18 @@ import { useFormik } from "formik";
 import { useState } from "react";
 import { FiExternalLink, FiEye, FiEyeOff } from "react-icons/fi";
 import * as Yup from "yup";
-import { useGenerateGoogleBusinessAuthUrl } from "../../../hooks/integrations/useGoogleBusiness";
+import { useGenerateMetaAdsAuthUrl } from "../../../hooks/integrations/useAds";
 
 // --- Yup Validation Schema ---
 const validationSchema = Yup.object().shape({
-  clientId: Yup.string().required("Client ID is required."),
-  clientSecret: Yup.string().required("Client Secret is required."),
+  clientId: Yup.string().required("App ID is required."),
+  clientSecret: Yup.string().required("App Secret is required."),
   redirectUri: Yup.string()
     .url("Must be a valid URL")
     .required("Redirect URI is required."),
 });
 
-export default function GoogleBusinessConfigModal({
+export default function MetaAdsConfigModal({
   userId,
   isOpen,
   onClose,
@@ -39,7 +39,7 @@ export default function GoogleBusinessConfigModal({
   const [showSecret, setShowSecret] = useState(false);
 
   // Save (Generate Auth URL) Mutation
-  const generateAuthUrlMutation = useGenerateGoogleBusinessAuthUrl();
+  const generateAuthUrlMutation = useGenerateMetaAdsAuthUrl();
 
   // Determine if we are in update mode
   const isUpdateMode = !!existingConfig?._id;
@@ -78,7 +78,7 @@ export default function GoogleBusinessConfigModal({
           throw new Error("Failed to generate authorization URL.");
         }
       } catch (error) {
-        console.error("Google Business Configuration Error:", error);
+        console.error("Meta Ads Configuration Error:", error);
       } finally {
         setSubmitting(false);
       }
@@ -118,11 +118,11 @@ export default function GoogleBusinessConfigModal({
         <form onSubmit={formik.handleSubmit}>
           <ModalHeader className="p-4 pb-0 flex-col">
             <h2 className="leading-none font-medium text-base">
-              Google Business Profile Integration
+              Meta Ads Integration
             </h2>
             <p className="text-xs text-gray-600 mt-2 font-normal">
-              Connect your Google Business Profile to sync reviews and manage
-              your practice listing.
+              Connect your Meta (Facebook/Instagram) Ads account for referral
+              targeting.
             </p>
           </ModalHeader>
 
@@ -131,11 +131,11 @@ export default function GoogleBusinessConfigModal({
               <Input
                 size="sm"
                 radius="sm"
-                label="Client ID"
+                label="App ID"
                 labelPlacement="outside-top"
                 name="clientId"
                 type="text"
-                placeholder="xxxxxxxxxxxx-xxxxxxxx.apps.googleusercontent.com"
+                placeholder="Enter your Facebook App ID"
                 isRequired
                 value={formik.values.clientId}
                 onChange={formik.handleChange}
@@ -152,11 +152,11 @@ export default function GoogleBusinessConfigModal({
               <Input
                 size="sm"
                 radius="sm"
-                label="Client Secret"
+                label="App Secret"
                 labelPlacement="outside-top"
                 name="clientSecret"
                 type={showSecret ? "text" : "password"}
-                placeholder="Enter your Client Secret"
+                placeholder="Enter your Facebook App Secret"
                 isRequired
                 value={formik.values.clientSecret}
                 onChange={formik.handleChange}
@@ -186,7 +186,7 @@ export default function GoogleBusinessConfigModal({
                 labelPlacement="outside-top"
                 name="redirectUri"
                 type="url"
-                placeholder="https://your-app.com/api/auth/callback/google"
+                placeholder="https://your-app.com/api/auth/callback/facebook"
                 isRequired
                 value={formik.values.redirectUri}
                 onChange={formik.handleChange}
@@ -211,19 +211,20 @@ export default function GoogleBusinessConfigModal({
                       <li>
                         Go to the{" "}
                         <a
-                          href="https://console.cloud.google.com/apis/credentials"
+                          href="https://developers.facebook.com/apps/"
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-blue-600 hover:underline font-medium inline-flex items-center"
                         >
-                          Google Cloud Console{" "}
+                          Meta for Developers{" "}
                           <FiExternalLink className="ml-1 h-3 w-3" />
                         </a>
                       </li>
+                      <li>Create a new App or select an existing one.</li>
                       <li>
-                        Enable <strong>Google Business Profile API</strong>.
+                        Add the <strong>Marketing API</strong> product.
                       </li>
-                      <li>Create OAuth 2.0 Client credentials.</li>
+                      <li>Configure your App ID and App Secret.</li>
                     </ul>
                   </div>
                 </div>
@@ -231,7 +232,7 @@ export default function GoogleBusinessConfigModal({
 
               {isUpdateMode && existingConfig?.status === "Connected" && (
                 <div className="p-3 bg-green-50 text-green-700 text-xs rounded-lg border border-green-200">
-                  ✅ Google Business Profile is active and synchronized.
+                  ✅ Meta Ads is active and synchronized.
                 </div>
               )}
             </div>
