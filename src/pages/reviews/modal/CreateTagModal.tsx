@@ -15,6 +15,10 @@ import {
 import React, { useState } from "react";
 import { FiSmartphone } from "react-icons/fi";
 import { LuQrCode } from "react-icons/lu";
+import { fetchLocations } from "../../../services/settings/location";
+import { fetchTeamMembers, TeamMember } from "../../../services/settings/team";
+import { Location } from "../../../types/common";
+
 
 interface CreateTagModalProps {
   isOpen: boolean;
@@ -22,19 +26,13 @@ interface CreateTagModalProps {
   onCreate: (data: any) => void;
 }
 
-const LOCATIONS = [
-  { id: "loc1", name: "Downtown Office" },
-  { id: "loc2", name: "Westside Clinic" },
-  { id: "loc3", name: "Medical Center" },
-  { id: "loc4", name: "Northgate Branch" },
-];
-
 const PLATFORMS = [
   { id: "google", name: "Google" },
   { id: "facebook", name: "Facebook" },
   { id: "yelp", name: "Yelp" },
   { id: "healthgrades", name: "Healthgrades" },
 ];
+
 
 const CreateTagModal: React.FC<CreateTagModalProps> = ({
   isOpen,
@@ -45,23 +43,56 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({
   const [name, setName] = useState("");
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
   const [platform, setPlatform] = useState<string>("google");
+  const [teamMember, setTeamMember] = useState<string>("");
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleCreate = () => {
-    onCreate({
-      type,
-      name,
-      locations: selectedLocations,
-      platform,
-    });
-    onClose();
-    resetForm();
+  React.useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [locsRes, teamRes] = await Promise.all([
+          fetchLocations({ limit: 100 }),
+          fetchTeamMembers({ limit: 100 }),
+        ]);
+        setLocations(locsRes.data);
+        setTeamMembers(teamRes.data);
+      } catch (error) {
+        console.error("Error loading modal data:", error);
+      }
+    };
+
+    if (isOpen) {
+      loadData();
+    }
+  }, [isOpen]);
+
+  const handleCreate = async () => {
+    setIsLoading(true);
+    try {
+      await onCreate({
+        type,
+        name,
+        locations: selectedLocations,
+        platform,
+        teamMember,
+      });
+      onClose();
+      resetForm();
+    } catch (error) {
+      console.error("Error creating tag:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
+
 
   const resetForm = () => {
     setName("");
     setSelectedLocations([]);
     setPlatform("google");
     setType("nfc");
+    resetForm();
   };
 
   const handleLocationChange = (locId: string, checked: boolean) => {
@@ -74,11 +105,14 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({
 
   const handleSelectAllLocations = (checked: boolean) => {
     if (checked) {
-      setSelectedLocations(LOCATIONS.map((l) => l.id));
+      setSelectedLocations(
+        locations.map((l) => l._id).filter((id): id is string => !!id)
+      );
     } else {
       setSelectedLocations([]);
     }
   };
+
 
   return (
     <Modal
@@ -165,8 +199,8 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({
                   <div className="p-3 pt-2 hover:bg-default-50 transition-colors">
                     <Checkbox
                       isSelected={
-                        selectedLocations.length === LOCATIONS.length &&
-                        LOCATIONS.length > 0
+                        selectedLocations.length === locations.length &&
+                        locations.length > 0
                       }
                       onValueChange={handleSelectAllLocations}
                       classNames={{
@@ -179,15 +213,17 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({
                       All Locations
                     </Checkbox>
                   </div>
-                  {LOCATIONS.map((loc) => (
+                  {locations.map((loc) => (
                     <div
-                      key={loc.id}
+                      key={loc._id}
                       className="relative px-3 pt-1.5 pb-2.5 hover:bg-default-50 transition-colors"
                     >
                       <Checkbox
-                        isSelected={selectedLocations.includes(loc.id)}
+                        isSelected={
+                          !!loc._id && selectedLocations.includes(loc._id)
+                        }
                         onValueChange={(checked) =>
-                          handleLocationChange(loc.id, checked)
+                          loc._id && handleLocationChange(loc._id, checked)
                         }
                         classNames={{
                           base: "max-w-full w-full p-0 m-0",
@@ -200,8 +236,36 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({
                       </Checkbox>
                     </div>
                   ))}
+
                 </div>
               </div>
+
+              {/* Team Member Selection */}
+              <div>
+                <Select
+                  label="Assign Team Member"
+                  labelPlacement="outside"
+                  placeholder="Select a team member"
+                  selectedKeys={teamMember ? [teamMember] : []}
+                  onChange={(e) => setTeamMember(e.target.value)}
+                  size="sm"
+                  radius="sm"
+                  variant="flat"
+                >
+                  {teamMembers.map((member) => (
+                    <SelectItem
+                      key={member._id}
+                      textValue={`${member.firstName} ${member.lastName}`}
+                    >
+                      {member.firstName} {member.lastName}
+                    </SelectItem>
+                  ))}
+                </Select>
+                <p className="text-xs text-gray-500 mt-1.5">
+                  The team member who will be credited for reviews
+                </p>
+              </div>
+
 
               {/* Review Platform */}
               <div>
@@ -268,9 +332,11 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({
                 size="sm"
                 radius="sm"
                 className="font-medium"
+                isLoading={isLoading}
               >
                 Create Tag
               </Button>
+
             </ModalFooter>
           </>
         )}

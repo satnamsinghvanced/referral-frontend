@@ -11,129 +11,57 @@ import {
 import { LuNfc, LuQrCode, LuTrash2 } from "react-icons/lu";
 import CreateTagModal from "./modal/CreateTagModal";
 import { AiOutlinePlus } from "react-icons/ai";
+import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
 
-interface TagData {
-  id: string;
-  type: "nfc" | "qr";
-  name: string;
-  location: string;
-  status: "active" | "inactive";
-  taps: number;
-  reviews: number;
-  conversionRate: number;
-  url: string;
-  created: string;
-  lastUsed: string;
-  displayId: string;
-  users: {
-    initials: string;
-    name: string;
-    taps: number;
-    last: string;
-    status: string;
-  }[];
-}
+import {
+  createNFCDesk,
+  deleteNFCDesk,
+  fetchNFCDesks,
+  updateNFCDesk,
+} from "../../services/nfcDesk";
+import { NFCDeskCard } from "../../types/nfcDesk";
+import { useEffect } from "react";
+import { fetchLocations } from "../../services/settings/location";
+import { Location } from "../../types/common";
 
-const INITIAL_TAGS: TagData[] = [
-  {
-    id: "1",
-    type: "nfc",
-    name: "Front Desk Card",
-    location: "Downtown Office",
-    status: "active",
-    taps: 142,
-    reviews: 89,
-    conversionRate: 62.7,
-    url: "https://practiceroi.com/review/nfc-001",
-    created: "1/1/2024",
-    lastUsed: "1/20/2024",
-    displayId: "NFC-001",
-    users: [
-      {
-        initials: "MB",
-        name: "Michael Brown",
-        taps: 2,
-        last: "1/19/2024",
-        status: "Reviewed",
-      },
-      {
-        initials: "ED",
-        name: "Emily Davis",
-        taps: 1,
-        last: "1/18/2024",
-        status: "Pending",
-      },
-      {
-        initials: "AS",
-        name: "Adam Smith",
-        taps: 0,
-        last: "N/A",
-        status: "New",
-      },
-    ],
-  },
-  {
-    id: "2",
-    type: "nfc",
-    name: "Waiting Room Card",
-    location: "Downtown Office",
-    status: "active",
-    taps: 87,
-    reviews: 52,
-    conversionRate: 59.8,
-    url: "https://practiceroi.com/review/nfc-002",
-    created: "1/10/2024",
-    lastUsed: "1/19/2024",
-    displayId: "NFC-002",
-    users: [
-      {
-        initials: "JS",
-        name: "Jessica Stone",
-        taps: 5,
-        last: "1/19/2024",
-        status: "Reviewed",
-      },
-      {
-        initials: "PK",
-        name: "Peter King",
-        taps: 3,
-        last: "1/17/2024",
-        status: "Pending",
-      },
-    ],
-  },
-  {
-    id: "3",
-    type: "nfc",
-    name: "Checkout Counter",
-    location: "Westside Clinic",
-    status: "active",
-    taps: 98,
-    reviews: 71,
-    conversionRate: 72.4,
-    url: "https://practiceroi.com/review/nfc-003",
-    created: "1/5/2024",
-    lastUsed: "1/20/2024",
-    displayId: "NFC-003",
-    users: [],
-  },
-];
 
-const getStatusColor = (status: string) => {
-  switch (status) {
-    case "Reviewed":
-      return "bg-green-100 text-green-700 border-green-200";
-    case "Pending":
-      return "bg-yellow-100 text-yellow-700 border-yellow-200";
-    default:
-      return "bg-gray-100 text-gray-700 border-gray-200";
-  }
-};
+
 
 const ManageTags = () => {
-  const [tags, setTags] = useState<TagData[]>(INITIAL_TAGS);
+  const [tags, setTags] = useState<NFCDeskCard[]>([]);
+  const [locations, setLocations] = useState<Location[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const isDeleteModalOpen = !!deleteId;
+
+
+  const loadTags = async () => {
+    setIsLoading(true);
+    try {
+      const [tagsRes, locsRes] = await Promise.all([
+        fetchNFCDesks(1, 100),
+        fetchLocations({ limit: 100 }),
+      ]);
+      console.log(tagsRes);
+      // Handle different possible response structures
+      const tagsData = tagsRes?.data?.docs || tagsRes?.data || [];
+      const locationsData = Array.isArray(locsRes) ? locsRes : locsRes?.data || [];
+
+      setTags(Array.isArray(tagsData) ? tagsData : []);
+      setLocations(Array.isArray(locationsData) ? locationsData : []);
+    } catch (error) {
+      console.error("Error loading tags:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadTags();
+  }, []);
 
   const handleCopy = (id: string, text: string) => {
     navigator.clipboard.writeText(text);
@@ -143,32 +71,63 @@ const ManageTags = () => {
     }, 2000);
   };
 
-  const handleCreateTag = (data: any) => {
-    const newTag: TagData = {
-      id: Math.random().toString(36).substr(2, 9),
-      type: data.type,
-      name: data.name,
-      location: data.locations.length > 0 ? "Multiple Locations" : "Unknown", // Simplified for demo
-      status: "active",
-      taps: 0,
-      reviews: 0,
-      conversionRate: 0,
-      url: `https://practiceroi.com/review/${data.type}-${Math.random()
-        .toString(36)
-        .substr(2, 4)}`,
-      created: new Date().toLocaleDateString(),
-      lastUsed: "-",
-      displayId: `${data.type.toUpperCase()}-${Math.floor(
-        Math.random() * 1000
-      )}`,
-      users: [],
-    };
-    setTags([...tags, newTag]);
+  const handleCreateTag = async (data: any) => {
+    try {
+      await createNFCDesk({
+        type: data.type.toUpperCase(),
+        name: data.name,
+        locations: data.locations,
+        platform: data.platform,
+        teamMember: data.teamMember,
+      });
+      loadTags();
+    } catch (error) {
+      console.error("Error creating tag:", error);
+    }
   };
 
   const handleDelete = (id: string) => {
-    setTags(tags.filter((t) => t.id !== id));
+    setDeleteId(id);
   };
+
+  const handleDeleteConfirm = async () => {
+    if (!deleteId) return;
+    setIsDeleting(true);
+    try {
+      await deleteNFCDesk(deleteId);
+      setTags(tags.filter((t) => t._id !== deleteId));
+      setDeleteId(null);
+    } catch (error) {
+      console.error("Error deleting tag:", error);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteId(null);
+  };
+
+
+  const handleToggleStatus = async (tag: NFCDeskCard) => {
+    const newStatus = tag.status === "active" ? "inActive" : "active";
+    try {
+      await updateNFCDesk(tag._id, { status: newStatus });
+      setTags(
+        tags.map((t) => (t._id === tag._id ? { ...t, status: newStatus } : t))
+      );
+    } catch (error) {
+      console.error("Error updating tag status:", error);
+    }
+  };
+
+  const getLocationNames = (locationIds: string[]) => {
+    if (!locationIds || locationIds.length === 0) return "No Location";
+    if (locationIds.length > 1) return `${locationIds.length} Locations`;
+    const loc = locations.find((l) => l._id === locationIds[0]);
+    return loc ? loc.name : "Unknown Location";
+  };
+
 
   return (
     <div className="flex flex-col gap-5">
@@ -194,16 +153,17 @@ const ManageTags = () => {
 
       {/* Tags Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-        {tags.map((tag) => (
+        {tags?.map((tag) => (
           <div
             className="bg-white rounded-xl border border-primary/15 p-4 flex flex-col gap-5"
-            key={tag.id}
+            key={tag._id}
           >
+
             {/* Header */}
             <div className="flex justify-between items-start">
               <div className="flex gap-2">
                 <div className={`mt-1`}>
-                  {tag.type === "nfc" ? (
+                  {tag.type.toLowerCase() === "nfc" ? (
                     <LuNfc className="text-blue-500 text-xl" />
                   ) : (
                     <LuQrCode className="text-blue-500 text-xl" />
@@ -212,54 +172,71 @@ const ManageTags = () => {
 
                 <div className="space-y-0.5">
                   <h4 className="font-medium">{tag.name}</h4>
-                  <p className="text-xs text-gray-500">{tag.location}</p>
+                  <p className="text-xs text-gray-500">
+                    {getLocationNames(tag.locations)}
+                  </p>
                 </div>
               </div>
               <Chip
                 size="sm"
                 radius="sm"
                 variant="solid"
-                color="success"
-                className="bg-emerald-100 text-emerald-800 text-[11px] h-5"
+                color={tag.status === "active" ? "success" : "danger"}
+                className={`${tag.status === "active"
+                  ? "bg-emerald-100 text-emerald-800"
+                  : "bg-red-100 text-red-800"
+                  } text-[11px] h-5`}
               >
                 {tag.status}
               </Chip>
             </div>
 
+
             {/* Stats */}
             <div className="grid grid-cols-2 gap-3">
               <div className="bg-sky-50 rounded-lg p-3 text-center space-y-0.5">
-                <div className="text-xl font-bold text-sky-600">{tag.taps}</div>
+                <div className="text-xl font-bold text-sky-600">
+                  {tag.totalTab}
+                </div>
                 <div className="text-xs text-gray-500 font-medium">Taps</div>
               </div>
               <div className="bg-emerald-50 rounded-lg p-3 text-center space-y-0.5">
                 <div className="text-xl font-bold text-emerald-600">
-                  {tag.reviews}
+                  {tag.totalReview}
                 </div>
                 <div className="text-xs text-gray-500 font-medium">Reviews</div>
               </div>
             </div>
 
+
             {/* Conversion Rate */}
             <div className="space-y-1.5">
               <div className="flex justify-between text-xs font-medium text-gray-500">
                 <span>Conversion Rate</span>
-                <span className="text-gray-900">{tag.conversionRate}%</span>
+                <span className="text-gray-900">
+                  {tag.totalTab > 0
+                    ? ((tag.totalReview / tag.totalTab) * 100).toFixed(1)
+                    : 0}
+                  %
+                </span>
               </div>
               <Progress
                 aria-label="Conversion rate"
-                value={tag.conversionRate}
+                value={
+                  tag.totalTab > 0 ? (tag.totalReview / tag.totalTab) * 100 : 0
+                }
                 size="sm"
                 color="primary"
                 classNames={{ track: "bg-gray-100 h-2" }}
               />
             </div>
 
+
             {/* URL */}
             <div className="bg-gray-50 rounded-lg border border-gray-200 p-2.5 flex items-end justify-between">
-              <div className="space-y-0.5">
+              <div className="flex-1 min-w-0 space-y-0.5">
                 <div className="text-[11px] text-gray-500">Review URL</div>
-                <div className="text-xs text-gray-700 truncate font-medium">
+                <div className="text-xs text-gray-700 font-medium truncate">
                   {tag.url}
                 </div>
               </div>
@@ -267,10 +244,11 @@ const ManageTags = () => {
                 size="sm"
                 radius="sm"
                 variant="light"
-                color={copiedId === tag.id ? "success" : "default"}
-                onPress={() => handleCopy(tag.id, tag.url)}
+                color={copiedId === tag._id ? "success" : "default"}
+                onPress={() => handleCopy(tag._id, tag.url)}
+
                 startContent={
-                  copiedId === tag.id ? (
+                  copiedId === tag._id ? (
                     <FiCheck size={14} />
                   ) : (
                     <FiCopy size={14} />
@@ -278,69 +256,29 @@ const ManageTags = () => {
                 }
                 className="min-w-auto size-8 p-0"
               />
+
             </div>
 
             {/* Metadata */}
             <div className="space-y-1.5">
               <div className="flex items-center gap-1 text-xs text-gray-500">
                 <span>Created:</span>
-                <span>{tag.created}</span>
+                <span>{new Date(tag.createdAt).toLocaleDateString()}</span>
               </div>
               <div className="flex items-center gap-1 text-xs text-gray-500">
                 <span>Last used:</span>
-                <span>{tag.lastUsed}</span>
+                <span>
+                  {tag.lastScan
+                    ? new Date(tag.lastScan).toLocaleDateString()
+                    : "-"}
+                </span>
               </div>
               <div className="flex items-center gap-1 text-xs text-gray-500">
                 <span>ID:</span>
-                <span>{tag.displayId}</span>
+                <span>{(tag.nfcId).toUpperCase()}</span>
               </div>
             </div>
 
-            {/* <div
-              className={`border-t border-primary/15 pt-4 transition-all duration-300 h-auto opacity-100 visible`}
-            >
-              <div className="flex items-center text-sm text-gray-700 font-medium mb-3">
-                <FiUsers className="mr-2" />
-                Associated Users ({tag.users.length})
-              </div>
-
-              <div className="space-y-2 max-h-[110px] overflow-auto">
-                {tag.users.map((user: any, index: number) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between bg-gray-50 p-2 rounded-md"
-                  >
-                    <div className="flex items-center justify-start">
-                      <div className="w-8 h-8 rounded-full bg-blue-100 text-foreground flex items-center justify-center text-xs font-medium mr-2">
-                        {user.initials}
-                      </div>
-                      <div className="text-left">
-                        <p className="text-xs font-medium text-gray-900">
-                          {user.name}
-                        </p>
-                        <p className="text-xs text-gray-600">
-                          {user.taps} taps • Last: {user.last}
-                        </p>
-                      </div>
-                    </div>
-                    <Chip
-                      size="sm"
-                      radius="sm"
-                      className={`text-[11px] font-medium h-5 border ${getStatusColor(
-                        user.status
-                      )}`}
-                    >
-                      {user.status}
-                    </Chip>
-                  </div>
-                ))}
-                {tag.users.length === 0 && (
-                  <p className="text-xs text-gray-600 text-center py-2">
-                    No associated users to display.
-                  </p>
-                )}
-              </div>
-            </div> */}
 
             {/* Actions */}
             <div className="flex gap-2 mt-auto">
@@ -360,8 +298,9 @@ const ManageTags = () => {
                 variant="ghost"
                 color="default"
                 className="border-small min-w-[100px]"
+                onPress={() => handleToggleStatus(tag)}
               >
-                Deactivate
+                {tag.status === "active" ? "Deactivate" : "Activate"}
               </Button>
               <Button
                 size="sm"
@@ -370,11 +309,12 @@ const ManageTags = () => {
                 color="default"
                 className="border-small"
                 isIconOnly
-                onPress={() => handleDelete(tag.id)}
+                onPress={() => handleDelete(tag._id)}
               >
                 <LuTrash2 className="text-sm text-red-500" />
               </Button>
             </div>
+
           </div>
         ))}
       </div>
@@ -394,22 +334,36 @@ const ManageTags = () => {
           />
           <StatsBox
             label="Total Interactions"
-            value={327}
+            value={tags.reduce((acc, tag) => acc + (tag.totalTab || 0), 0)}
             bg="bg-emerald-50"
             text="text-emerald-600"
           />
           <StatsBox
             label="Total Reviews"
-            value={212}
+            value={tags.reduce((acc, tag) => acc + (tag.totalReview || 0), 0)}
             bg="bg-orange-50"
             text="text-orange-600"
           />
           <StatsBox
             label="Avg. Conversion"
-            value="65%"
+            value={`${tags.reduce((acc, tag) => acc + (tag.totalTab || 0), 0) > 0
+              ? (
+                (tags.reduce(
+                  (acc, tag) => acc + (tag.totalReview || 0),
+                  0
+                ) /
+                  tags.reduce(
+                    (acc, tag) => acc + (tag.totalTab || 0),
+                    0
+                  )) *
+                100
+              ).toFixed(1)
+              : 0
+              }%`}
             bg="bg-purple-50"
             text="text-purple-600"
           />
+
         </div>
       </div>
 
@@ -418,7 +372,17 @@ const ManageTags = () => {
         onClose={onClose}
         onCreate={handleCreateTag}
       />
+
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={handleDeleteCancel}
+        onConfirm={handleDeleteConfirm}
+        isLoading={isDeleting}
+        title="Delete NFC/QR Tag"
+        description="Are you sure you want to delete this tag? This action cannot be undone and patients will no longer be directed to your review page using this tag."
+      />
     </div>
+
   );
 };
 
