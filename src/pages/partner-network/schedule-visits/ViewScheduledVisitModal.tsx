@@ -1,5 +1,11 @@
-import { Modal, ModalBody, ModalContent, ModalHeader } from "@heroui/react";
-import { FiCheckCircle } from "react-icons/fi";
+import {
+  Button,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+} from "@heroui/react";
+import { FiCheckCircle, FiMapPin } from "react-icons/fi";
 import { LuCar, LuClock, LuTimer } from "react-icons/lu";
 import { TbCalendarStats, TbNotes, TbRoute } from "react-icons/tb"; // Icons for new structure
 import VisitStatusChip from "../../../components/chips/VisitStatusChip";
@@ -20,6 +26,28 @@ export default function ViewScheduledVisitModal({
   plan,
 }: ViewScheduleModalProps) {
   const progress = plan.status === "completed" ? 100 : 0;
+
+  const handleOpenInMaps = () => {
+    if (!plan?.route?.routeDetails || plan.route.routeDetails.length === 0) {
+      return;
+    }
+
+    const activeCoordinateString = plan.route.routeDetails
+      .map(
+        (stop: any) =>
+          `${stop.address.coordinates.long},${stop.address.coordinates.lat}`
+      )
+      .join(";");
+
+    const baseUrl = `${import.meta.env.VITE_URL_PREFIX}/visit-map`;
+
+    // Passing optimized as true since this is a saved route that was presumably optimized if intended
+    const url = `${baseUrl}?coordinates=${encodeURIComponent(
+      activeCoordinateString
+    )}&optimized=true`;
+
+    window.open(url, "_blank");
+  };
 
   return (
     <Modal
@@ -126,12 +154,23 @@ export default function ViewScheduledVisitModal({
             </div>
           </div>
 
-          {/* --- Route Details (Reference: Route Planning Tab) --- */}
           <div className="space-y-4 border border-primary/15 p-4 rounded-xl">
-            <h3 className="text-sm font-medium flex items-center gap-2">
-              <TbRoute className="h-4 w-4" /> Route Stops (
-              {plan.route.routeDetails?.length})
-            </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-medium flex items-center gap-2">
+                <TbRoute className="h-4 w-4" /> Route Stops (
+                {plan.route.routeDetails?.length})
+              </h3>
+              <Button
+                size="sm"
+                variant="bordered"
+                radius="sm"
+                className="border-small h-8"
+                onPress={handleOpenInMaps}
+              >
+                <FiMapPin className="size-3.5" />
+                Open in Maps
+              </Button>
+            </div>
             <div className="space-y-2">
               {plan?.route?.routeDetails?.map((route, index) => (
                 <RouteStopCard key={index} route={route} index={index} />

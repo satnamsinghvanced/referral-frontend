@@ -32,10 +32,10 @@ export default function ReferrerTypeSelector({
       >
         <SelectItem key="doctor">Doctor Referrer</SelectItem>
         <SelectItem key="patient">Patient Referrer</SelectItem>
-        <SelectItem key="communityreferrer">Community Referrer</SelectItem>
-        <SelectItem key="googlereferrer">Google Referrer</SelectItem>
-        <SelectItem key="socialmediareferrer">Social Media Referrer</SelectItem>
-        <SelectItem key="eventreferrer">Event Referrer</SelectItem>
+        <SelectItem key="communityReferrer">Community Referrer</SelectItem>
+        <SelectItem key="googleReferrer">Google Referrer</SelectItem>
+        <SelectItem key="socialMediaReferrer">Social Media Referrer</SelectItem>
+        <SelectItem key="eventReferrer">Event Referrer</SelectItem>
       </Select>
     </div>
   );

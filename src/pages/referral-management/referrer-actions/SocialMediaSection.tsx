@@ -11,7 +11,7 @@ export default function SocialMediaSection({
 }: SocialMediaSectionProps) {
   const socialFields = [
     {
-      id: "socialmediareferrer.smPlatform",
+      id: "socialMediaReferrer.smPlatform",
       label: "Platform/Channel",
       type: "select",
       options: [
@@ -30,7 +30,7 @@ export default function SocialMediaSection({
       isFullWidth: true,
     },
     {
-      id: "socialmediareferrer.smSource",
+      id: "socialMediaReferrer.smSource",
       label: "Source Name (Optional)",
       type: "text",
       placeholder: "Campaign Name, Ad Name, etc.",

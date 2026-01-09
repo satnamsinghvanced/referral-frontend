@@ -55,12 +55,12 @@ const Reviews = () => {
           <Tabs
             aria-label="Options"
             classNames={{
-              tabList: "flex w-full rounded-full bg-foreground/5 text-xs",
-              tab: "flex-1 text-xs font-medium transition-all",
-              cursor: "rounded-full text-xs",
+              tabList: "flex w-full rounded-full bg-primary/10",
+              tab: "flex-1 text-sm font-medium transition-all",
+              cursor: "rounded-full",
               panel: "p-0",
             }}
-            className="text-background w-full text-xs"
+            className="text-background w-full text-sm"
           >
             <Tab key="overview" title="Overview" className="text-sm">
               <Overview />

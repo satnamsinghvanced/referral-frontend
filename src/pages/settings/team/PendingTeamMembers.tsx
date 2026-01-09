@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, CardHeader, Pagination } from "@heroui/react";
+import { Button, Card, CardBody, CardHeader } from "@heroui/react";
 import React, { useState } from "react";
 import { FiMail } from "react-icons/fi";
 import EmptyState from "../../../components/common/EmptyState";
@@ -10,6 +10,7 @@ import {
 import { TeamMember } from "../../../services/settings/team";
 import { formatDateToYYYYMMDD } from "../../../utils/formatDateToYYYYMMDD";
 import { LoadingState } from "../../../components/common/LoadingState";
+import Pagination from "../../../components/common/Pagination";
 
 const invitationStatusColors: Record<string, string> = {
   active: "bg-green-100 text-green-700 border-green-200",
@@ -66,14 +67,25 @@ const PendingTeamMembers = () => {
                 </span>
                 <div className="space-y-0.5">
                   <p className="font-medium text-sm">{member.email}</p>
-                  <p className="text-xs text-gray-600">
+                  <div className="text-xs text-gray-600">
                     Invited as{" "}
-                    {member.role?.title || member.role?.role || "No Role"} at{" "}
-                    {member.locations?.[0]?.name} on{" "}
+                    {member.role?.title || member.role?.role || "No Role"}
+                    {member.locations && member.locations.length > 0 && (
+                      <>
+                        {" "}
+                        at{" "}
+                        {member.locations
+                          .map((loc: any) =>
+                            typeof loc === "object" ? loc.name : "Location"
+                          )
+                          .join(", ")}
+                      </>
+                    )}
+                    {" on "}
                     {member.createdAt
                       ? formatDateToYYYYMMDD(member.createdAt)
                       : "N/A"}
-                  </p>
+                  </div>
                 </div>
               </div>
 
@@ -109,24 +121,14 @@ const PendingTeamMembers = () => {
         )}
 
         {pendingMembersData && pendingMembersData.totalPages > 1 && (
-          <div className="flex items-center justify-between pt-1">
-            <p className="text-xs text-gray-500">
-              Showing {pendingMembers?.length || 0} of{" "}
-              {pendingMembersData.totalData} invitations
-            </p>
-            <Pagination
-              total={pendingMembersData.totalPages}
-              page={filters.page}
-              onChange={handlePageChange}
-              size="sm"
-              radius="sm"
-              showControls
-              classNames={{
-                base: "pagination flex justify-end",
-                wrapper: "gap-1.5",
-              }}
-            />
-          </div>
+          <Pagination
+            identifier="pending team members"
+            items={pendingMembersData.data}
+            totalItems={pendingMembersData.totalData}
+            currentPage={filters.page}
+            totalPages={pendingMembersData.totalPages}
+            handlePageChange={handlePageChange}
+          />
         )}
       </CardBody>
     </Card>

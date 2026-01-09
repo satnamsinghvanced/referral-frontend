@@ -1,9 +1,9 @@
-import { Button, Input, Pagination, Select, SelectItem } from "@heroui/react";
+import { Button, Input, Select, SelectItem } from "@heroui/react";
 import { useMemo, useState } from "react";
 import { FiPhone, FiPhoneCall, FiSearch } from "react-icons/fi";
 import { LuClock, LuFileAudio, LuRefreshCw } from "react-icons/lu";
 import { MdTrendingUp } from "react-icons/md";
-import { Link } from "react-router-dom";
+import { data, Link } from "react-router-dom";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import EmptyState from "../../components/common/EmptyState";
@@ -14,6 +14,7 @@ import { useFetchCallRecords } from "../../hooks/useCall";
 import { CallRecord } from "../../types/call";
 import CallRecordCard from "./CallRecordCard";
 import CallRecordingModal from "./modal/CallRecordingModal";
+import Pagination from "../../components/common/Pagination";
 
 const CallTracking = () => {
   const { data: twilioConfig, isPending: isTwilioConfigLoading } =
@@ -250,24 +251,14 @@ const CallTracking = () => {
                 {!isLoading &&
                   data?.paginatedCalls &&
                   data.paginatedCalls.totalPages > 1 && (
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-xs text-gray-600">
-                        Showing {data.paginatedCalls.data.length} of{" "}
-                        {data.paginatedCalls.totalData} calls
-                      </p>
-                      <Pagination
-                        total={data.paginatedCalls.totalPages}
-                        page={filters.page}
-                        onChange={handlePageChange}
-                        size="sm"
-                        radius="sm"
-                        showControls
-                        classNames={{
-                          base: "pagination flex justify-end py-3",
-                          wrapper: "gap-1.5",
-                        }}
-                      />
-                    </div>
+                    <Pagination
+                      identifier="calls"
+                      items={data.paginatedCalls.data}
+                      totalItems={data.paginatedCalls.totalData}
+                      currentPage={filters.page}
+                      totalPages={data.paginatedCalls.totalPages}
+                      handlePageChange={handlePageChange}
+                    />
                   )}
               </div>
             </>

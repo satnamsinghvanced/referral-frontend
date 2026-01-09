@@ -13,6 +13,7 @@ import { useDashboard } from "../../hooks/useDashboard";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { timeAgo } from "../../utils/timeAgo";
 import { useTour } from "../../providers/TourProvider";
+import { formatNumberWithCommas } from "../../utils/formatNumberWithCommas";
 
 type Color = "sky" | "orange" | "emerald" | "purple";
 
@@ -99,48 +100,48 @@ const Dashboard = () => {
         icon: <LuUsers className="text-purple-600" />,
         heading: "Total Referrals",
         value: dashboard?.totalReferrals as number,
-        subheading: (
-          <p className="text-emerald-600 flex items-center gap-1.5">
-            <MdTrendingUp fontSize={15} />
-            {dashboard?.totalLastMonth ? dashboard.totalLastMonth : "0"}% from
-            last month
-          </p>
-        ),
+        // subheading: (
+        //   <p className="text-emerald-600 flex items-center gap-1.5">
+        //     <MdTrendingUp fontSize={15} />
+        //     {dashboard?.totalLastMonth ? dashboard.totalLastMonth : "0"}% from
+        //     last month
+        //   </p>
+        // ),
         onClick: () => navigate("/referrals"),
       },
       {
         icon: <TbSpeakerphone className="text-green-600" />,
         heading: "Active Campaigns",
         value: "0",
-        subheading: (
-          <p className="text-emerald-600 flex items-center gap-1.5">
-            <MdTrendingUp fontSize={15} />
-            +0 this month
-          </p>
-        ),
+        // subheading: (
+        //   <p className="text-emerald-600 flex items-center gap-1.5">
+        //     <MdTrendingUp fontSize={15} />
+        //     +0 this month
+        //   </p>
+        // ),
         onClick: () => navigate("/email-campaigns"),
       },
       {
         icon: <FaRegStar className="text-yellow-600" />,
         heading: "Reviews",
         value: "0",
-        subheading: (
-          <p className="text-emerald-600 flex items-center gap-1.5">
-            <MdTrendingUp fontSize={15} />0 avg rating
-          </p>
-        ),
+        // subheading: (
+        //   <p className="text-emerald-600 flex items-center gap-1.5">
+        //     <MdTrendingUp fontSize={15} />0 avg rating
+        //   </p>
+        // ),
         onClick: () => navigate("/reviews"),
       },
       {
         icon: <LuTarget className="text-rose-600" />,
-        heading: "ROI",
-        value: "0%",
-        subheading: (
-          <p className="text-emerald-600 flex items-center gap-1.5">
-            <MdTrendingUp fontSize={15} />
-            +0% vs last month
-          </p>
-        ),
+        heading: "Total Value",
+        value: `$${formatNumberWithCommas(dashboard?.totalValue as number)}`,
+        // subheading: (
+        //   <p className="text-emerald-600 flex items-center gap-1.5">
+        //     <MdTrendingUp fontSize={15} />
+        //     +0 vs last month
+        //   </p>
+        // ),
         onClick: () => navigate("/reports"),
       },
     ],

@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, CardHeader, Pagination } from "@heroui/react";
+import { Button, Card, CardBody, CardHeader } from "@heroui/react";
 import React, { useState } from "react";
 import { FiEdit, FiPlus } from "react-icons/fi";
 import { GrLocation } from "react-icons/gr";
@@ -13,6 +13,7 @@ import {
 import { Location } from "../../../types/common";
 import LocationActionModal from "./LocationActionModal";
 import { LoadingState } from "../../../components/common/LoadingState";
+import Pagination from "../../../components/common/Pagination";
 
 const Locations: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -148,23 +149,14 @@ const Locations: React.FC = () => {
 
           {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex items-center justify-between">
-              <p className="text-xs text-gray-600">
-                Showing {locations?.length} of {totalLocations} locations
-              </p>
-              <Pagination
-                showControls
-                size="sm"
-                radius="sm"
-                page={page}
-                total={totalPages}
-                onChange={setPage}
-                classNames={{
-                  base: "pagination flex justify-center py-3",
-                  wrapper: "gap-1.5",
-                }}
-              />
-            </div>
+            <Pagination
+              identifier="locations"
+              items={locations}
+              totalItems={totalLocations}
+              currentPage={page}
+              totalPages={totalPages}
+              handlePageChange={setPage}
+            />
           )}
         </CardBody>
       </Card>

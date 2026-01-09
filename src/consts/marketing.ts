@@ -105,12 +105,12 @@ export const ACTIVITY_STATUSES = [
     value: "scheduled",
   },
   {
-    label: "Scheduled",
-    value: "confirmed",
+    label: "Active",
+    value: "active",
   },
   {
     label: "In Progress",
-    value: "in-progress",
+    value: "inProgress",
   },
   {
     label: "Completed",

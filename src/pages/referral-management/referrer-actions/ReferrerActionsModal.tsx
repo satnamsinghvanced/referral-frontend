@@ -72,21 +72,21 @@ const CLEAN_INITIAL_VALUES = {
   website: "",
   staff: [],
   additionalNotes: "",
-  communityreferrer: {
+  communityReferrer: {
     orgName: "",
     orgAddress: "",
     orgUrl: "",
   },
-  googlereferrer: {
+  googleReferrer: {
     glSource: "",
     glPlatform: "",
     glUrl: "",
   },
-  socialmediareferrer: {
+  socialMediaReferrer: {
     smPlatform: "",
     smSource: "",
   },
-  eventreferrer: {
+  eventReferrer: {
     evName: "",
     evLocation: "",
     evType: "",
@@ -130,25 +130,25 @@ export default function ReferrerActionsModal({
     website: editedData?.website || "",
     staff: editedData?.staff || [],
     additionalNotes: editedData?.additionalNotes || "",
-    communityreferrer: {
-      orgName: editedData?.communityreferrer?.orgName || "",
-      orgAddress: editedData?.communityreferrer?.orgAddress || "",
-      orgUrl: editedData?.communityreferrer?.orgUrl || "",
+    communityReferrer: {
+      orgName: editedData?.communityReferrer?.orgName || "",
+      orgAddress: editedData?.communityReferrer?.orgAddress || "",
+      orgUrl: editedData?.communityReferrer?.orgUrl || "",
     },
-    googlereferrer: {
-      glSource: editedData?.googlereferrer?.glSource || "",
-      glPlatform: editedData?.googlereferrer?.glPlatform || "",
-      glUrl: editedData?.googlereferrer?.glUrl || "",
+    googleReferrer: {
+      glSource: editedData?.googleReferrer?.glSource || "",
+      glPlatform: editedData?.googleReferrer?.glPlatform || "",
+      glUrl: editedData?.googleReferrer?.glUrl || "",
     },
-    socialmediareferrer: {
-      smPlatform: editedData?.socialmediareferrer?.smPlatform || "",
-      smSource: editedData?.socialmediareferrer?.smSource || "",
+    socialMediaReferrer: {
+      smPlatform: editedData?.socialMediaReferrer?.smPlatform || "",
+      smSource: editedData?.socialMediaReferrer?.smSource || "",
     },
-    eventreferrer: {
-      evName: editedData?.eventreferrer?.evName || "",
-      evLocation: editedData?.eventreferrer?.evLocation || "",
-      evType: editedData?.eventreferrer?.evType || "",
-      evUrl: editedData?.eventreferrer?.evUrl || "",
+    eventReferrer: {
+      evName: editedData?.eventReferrer?.evName || "",
+      evLocation: editedData?.eventReferrer?.evLocation || "",
+      evType: editedData?.eventReferrer?.evType || "",
+      evUrl: editedData?.eventReferrer?.evUrl || "",
     },
     status: editedData?.status || "",
   };
@@ -182,17 +182,17 @@ export default function ReferrerActionsModal({
           status: values.status || "active",
         };
         break;
-      case "communityreferrer":
-        payload.communityreferrer = values.communityreferrer;
+      case "communityReferrer":
+        payload.communityReferrer = values.communityReferrer;
         break;
-      case "googlereferrer":
-        payload.googlereferrer = values.googlereferrer;
+      case "googleReferrer":
+        payload.googleReferrer = values.googleReferrer;
         break;
-      case "socialmediareferrer":
-        payload.socialmediareferrer = values.socialmediareferrer;
+      case "socialMediaReferrer":
+        payload.socialMediaReferrer = values.socialMediaReferrer;
         break;
-      case "eventreferrer":
-        payload.eventreferrer = values.eventreferrer;
+      case "eventReferrer":
+        payload.eventReferrer = values.eventReferrer;
         break;
       case "patient":
       default:
@@ -341,8 +341,8 @@ export default function ReferrerActionsModal({
           isDentist: Yup.boolean().nullable(),
         })
       ),
-      communityreferrer: Yup.object().when("type", {
-        is: "communityreferrer",
+      communityReferrer: Yup.object().when("type", {
+        is: "communityReferrer",
         then: () =>
           Yup.object().shape({
             orgName: Yup.string().required("Organization name is required"),
@@ -350,8 +350,8 @@ export default function ReferrerActionsModal({
             orgUrl: Yup.string().url("Invalid URL").optional(),
           }),
       }),
-      googlereferrer: Yup.object().when("type", {
-        is: "googlereferrer",
+      googleReferrer: Yup.object().when("type", {
+        is: "googleReferrer",
         then: () =>
           Yup.object().shape({
             glSource: Yup.string().required("Source is required"),
@@ -359,16 +359,16 @@ export default function ReferrerActionsModal({
             glUrl: Yup.string().url("Invalid URL").optional(),
           }),
       }),
-      socialmediareferrer: Yup.object().when("type", {
-        is: "socialmediareferrer",
+      socialMediaReferrer: Yup.object().when("type", {
+        is: "socialMediaReferrer",
         then: () =>
           Yup.object().shape({
             smPlatform: Yup.string().required("Platform is required"),
             smSource: Yup.string().optional(),
           }),
       }),
-      eventreferrer: Yup.object().when("type", {
-        is: "eventreferrer",
+      eventReferrer: Yup.object().when("type", {
+        is: "eventReferrer",
         then: () =>
           Yup.object().shape({
             evName: Yup.string().required("Event name is required"),
@@ -912,19 +912,19 @@ export default function ReferrerActionsModal({
               />
             )}
 
-            {formik.values.type === "communityreferrer" && (
+            {formik.values.type === "communityReferrer" && (
               <CommunitySection formik={formik} renderField={renderField} />
             )}
 
-            {formik.values.type === "googlereferrer" && (
+            {formik.values.type === "googleReferrer" && (
               <GoogleSection formik={formik} renderField={renderField} />
             )}
 
-            {formik.values.type === "socialmediareferrer" && (
+            {formik.values.type === "socialMediaReferrer" && (
               <SocialMediaSection formik={formik} renderField={renderField} />
             )}
 
-            {formik.values.type === "eventreferrer" && (
+            {formik.values.type === "eventReferrer" && (
               <EventSection formik={formik} renderField={renderField} />
             )}
 

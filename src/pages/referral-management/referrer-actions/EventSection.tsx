@@ -11,7 +11,7 @@ export default function EventSection({
 }: EventSectionProps) {
   const eventFields = [
     {
-      id: "eventreferrer.evName",
+      id: "eventReferrer.evName",
       label: "Event Name",
       type: "text",
       placeholder: "Community Health Fair, School Event, etc.",
@@ -19,14 +19,14 @@ export default function EventSection({
       isFullWidth: true,
     },
     {
-      id: "eventreferrer.evLocation",
+      id: "eventReferrer.evLocation",
       label: "Event Location",
       type: "text",
       placeholder: "123 Event Center Drive",
       isFullWidth: true,
     },
     {
-      id: "eventreferrer.evType",
+      id: "eventReferrer.evType",
       label: "Event Type",
       type: "select",
       options: [
@@ -43,7 +43,7 @@ export default function EventSection({
       isFullWidth: true,
     },
     {
-      id: "eventreferrer.evUrl",
+      id: "eventReferrer.evUrl",
       label: "Campaign URL / Landing Page",
       type: "url",
       placeholder: "https://example.com/campaign",

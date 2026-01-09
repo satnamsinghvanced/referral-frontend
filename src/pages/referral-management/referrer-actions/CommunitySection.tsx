@@ -11,7 +11,7 @@ export default function CommunitySection({
 }: CommunitySectionProps) {
   const communityFields = [
     {
-      id: "communityreferrer.orgName",
+      id: "communityReferrer.orgName",
       label: "Organization/Group Name",
       type: "text",
       placeholder: "Rotary Club, Chamber of Commerce, etc.",
@@ -19,14 +19,14 @@ export default function CommunitySection({
       isFullWidth: true,
     },
     {
-      id: "communityreferrer.orgAddress",
+      id: "communityReferrer.orgAddress",
       label: "Organization Address (Optional)",
       type: "text",
       placeholder: "123 Community Street",
       isFullWidth: true,
     },
     {
-      id: "communityreferrer.orgUrl",
+      id: "communityReferrer.orgUrl",
       label: "Organization Website",
       type: "url",
       placeholder: "https://www.organization.com",

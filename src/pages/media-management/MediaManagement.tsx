@@ -9,7 +9,13 @@ import {
 } from "@heroui/react";
 import { useEffect, useState } from "react";
 import { FaRegFolder } from "react-icons/fa";
-import { FiEdit, FiImage, FiSearch, FiUpload } from "react-icons/fi";
+import {
+  FiCheckSquare,
+  FiEdit,
+  FiImage,
+  FiSearch,
+  FiUpload,
+} from "react-icons/fi";
 import { LuFolderOpen, LuFolderPlus, LuMove, LuTrash2 } from "react-icons/lu";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
@@ -222,6 +228,14 @@ function MediaManagement() {
     setViewMedia(media);
   };
 
+  const handleSelectAll = (currentFolderMedia: Media[]) => {
+    if (selectedMedia.length === currentFolderMedia.length) {
+      setSelectedMedia([]);
+    } else {
+      setSelectedMedia(currentFolderMedia.map((m: Media) => m._id));
+    }
+  };
+
   const currentFolderMediaGroup = mediaData?.find(
     (group: any) =>
       group.folderName ===
@@ -266,6 +280,20 @@ function MediaManagement() {
                     Move
                   </Button>
                 </>
+              )}
+              {mediaCount > 0 && (
+                <Button
+                  size="sm"
+                  radius="sm"
+                  variant="ghost"
+                  startContent={<FiCheckSquare fontSize={15} />}
+                  className="border-small"
+                  onPress={() => handleSelectAll(currentFolderMedia)}
+                >
+                  {selectedMedia.length === mediaCount
+                    ? "Deselect All"
+                    : "Select All"}
+                </Button>
               )}
               <Button
                 size="sm"

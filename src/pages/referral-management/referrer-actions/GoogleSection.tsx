@@ -11,7 +11,7 @@ export default function GoogleSection({
 }: GoogleSectionProps) {
   const googleFields = [
     {
-      id: "googlereferrer.glSource",
+      id: "googleReferrer.glSource",
       label: "Source",
       type: "select",
       options: [
@@ -27,14 +27,14 @@ export default function GoogleSection({
       isFullWidth: true,
     },
     {
-      id: "googlereferrer.glPlatform",
+      id: "googleReferrer.glPlatform",
       label: "Platform/Channel (Optional)",
       type: "text",
       placeholder: "e.g., Organic Search, Display Ads, Search Campaign",
       isFullWidth: true,
     },
     {
-      id: "googlereferrer.glUrl",
+      id: "googleReferrer.glUrl",
       label: "Campaign URL / Landing Page",
       type: "url",
       placeholder: "https://example.com/campaign",

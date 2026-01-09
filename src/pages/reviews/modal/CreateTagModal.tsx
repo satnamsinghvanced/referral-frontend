@@ -12,13 +12,14 @@ import {
   Tab,
   Tabs,
 } from "@heroui/react";
+import { useFormik } from "formik";
 import React, { useState } from "react";
 import { FiSmartphone } from "react-icons/fi";
 import { LuQrCode } from "react-icons/lu";
+import * as Yup from "yup";
 import { fetchLocations } from "../../../services/settings/location";
 import { fetchTeamMembers, TeamMember } from "../../../services/settings/team";
 import { Location } from "../../../types/common";
-
 
 interface CreateTagModalProps {
   isOpen: boolean;
@@ -28,28 +29,63 @@ interface CreateTagModalProps {
 
 const PLATFORMS = [
   { id: "google", name: "Google" },
-  { id: "facebook", name: "Facebook" },
   { id: "yelp", name: "Yelp" },
   { id: "healthgrades", name: "Healthgrades" },
 ];
 
+interface CreateTagFormValues {
+  type: "nfc" | "qr";
+  name: string;
+  locations: string[];
+  platform: string;
+  teamMember: string;
+}
+
+const CreateTagSchema = Yup.object().shape({
+  type: Yup.string().oneOf(["nfc", "qr"]).required("Type is required"),
+  name: Yup.string().required("Tag name is required").max(100, "Too long"),
+  locations: Yup.array()
+    .of(Yup.string())
+    .min(1, "Select at least one location")
+    .required("Locations are required"),
+  platform: Yup.string().required("Platform is required"),
+  teamMember: Yup.string().required("Team member is required"),
+});
 
 const CreateTagModal: React.FC<CreateTagModalProps> = ({
   isOpen,
   onClose,
   onCreate,
 }) => {
-  const [type, setType] = useState<"nfc" | "qr">("nfc");
-  const [name, setName] = useState("");
-  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
-  const [platform, setPlatform] = useState<string>("google");
-  const [teamMember, setTeamMember] = useState<string>("");
   const [locations, setLocations] = useState<Location[]>([]);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isDataLoading, setIsDataLoading] = useState(false);
+
+  const formik = useFormik<CreateTagFormValues>({
+    initialValues: {
+      type: "nfc",
+      name: "",
+      locations: [],
+      platform: "google",
+      teamMember: "",
+    },
+    validationSchema: CreateTagSchema,
+    onSubmit: async (values, { setSubmitting, resetForm }) => {
+      try {
+        await onCreate(values);
+        onClose();
+        resetForm();
+      } catch (error) {
+        console.error("Error creating tag:", error);
+      } finally {
+        setSubmitting(false);
+      }
+    },
+  });
 
   React.useEffect(() => {
     const loadData = async () => {
+      setIsDataLoading(true);
       try {
         const [locsRes, teamRes] = await Promise.all([
           fetchLocations({ limit: 100 }),
@@ -59,60 +95,40 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({
         setTeamMembers(teamRes.data);
       } catch (error) {
         console.error("Error loading modal data:", error);
+      } finally {
+        setIsDataLoading(false);
       }
     };
 
     if (isOpen) {
       loadData();
+    } else {
+      formik.resetForm();
     }
   }, [isOpen]);
 
-  const handleCreate = async () => {
-    setIsLoading(true);
-    try {
-      await onCreate({
-        type,
-        name,
-        locations: selectedLocations,
-        platform,
-        teamMember,
-      });
-      onClose();
-      resetForm();
-    } catch (error) {
-      console.error("Error creating tag:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-
-  const resetForm = () => {
-    setName("");
-    setSelectedLocations([]);
-    setPlatform("google");
-    setType("nfc");
-    resetForm();
-  };
-
   const handleLocationChange = (locId: string, checked: boolean) => {
+    const currentLocations = formik.values.locations;
     if (checked) {
-      setSelectedLocations([...selectedLocations, locId]);
+      formik.setFieldValue("locations", [...currentLocations, locId]);
     } else {
-      setSelectedLocations(selectedLocations.filter((id) => id !== locId));
+      formik.setFieldValue(
+        "locations",
+        currentLocations.filter((id) => id !== locId)
+      );
     }
   };
 
   const handleSelectAllLocations = (checked: boolean) => {
     if (checked) {
-      setSelectedLocations(
+      formik.setFieldValue(
+        "locations",
         locations.map((l) => l._id).filter((id): id is string => !!id)
       );
     } else {
-      setSelectedLocations([]);
+      formik.setFieldValue("locations", []);
     }
   };
-
 
   return (
     <Modal
@@ -144,8 +160,10 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({
                 </label>
                 <Tabs
                   aria-label="Tag Type"
-                  selectedKey={type}
-                  onSelectionChange={(key) => setType(key as "nfc" | "qr")}
+                  selectedKey={formik.values.type}
+                  onSelectionChange={(key) =>
+                    formik.setFieldValue("type", key as "nfc" | "qr")
+                  }
                   classNames={{
                     tabList: "flex w-full rounded-full bg-primary/10",
                     tab: "flex-1 text-xs font-medium transition-all",
@@ -180,14 +198,18 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({
                 label="Tag Name/Description"
                 labelPlacement="outside"
                 placeholder="e.g., Front Desk Card, Waiting Room Poster"
-                value={name}
-                onValueChange={setName}
+                name="name"
+                value={formik.values.name}
+                onValueChange={(val) => formik.setFieldValue("name", val)}
+                onBlur={formik.handleBlur}
                 description="Help you identify where this tag is placed"
                 size="sm"
                 radius="sm"
                 variant="flat"
                 classNames={{ description: "mt-1 text-xs text-gray-500" }}
                 isRequired
+                isInvalid={!!(formik.touched.name && formik.errors.name)}
+                errorMessage={formik.touched.name && formik.errors.name}
               />
 
               {/* Practice Locations */}
@@ -195,11 +217,17 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({
                 <label className="text-xs">
                   Practice Locations <span className="text-[#eb0000]">*</span>
                 </label>
-                <div className="border border-default-200 rounded-lg divide-y divide-default-100 max-h-56 overflow-y-auto">
+                <div
+                  className={`border ${
+                    formik.touched.locations && formik.errors.locations
+                      ? "border-danger"
+                      : "border-default-200"
+                  } rounded-lg divide-y divide-default-100 max-h-56 overflow-y-auto`}
+                >
                   <div className="p-3 pt-2 hover:bg-default-50 transition-colors">
                     <Checkbox
                       isSelected={
-                        selectedLocations.length === locations.length &&
+                        formik.values.locations.length === locations.length &&
                         locations.length > 0
                       }
                       onValueChange={handleSelectAllLocations}
@@ -220,7 +248,7 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({
                     >
                       <Checkbox
                         isSelected={
-                          !!loc._id && selectedLocations.includes(loc._id)
+                          !!loc._id && formik.values.locations.includes(loc._id)
                         }
                         onValueChange={(checked) =>
                           loc._id && handleLocationChange(loc._id, checked)
@@ -236,8 +264,12 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({
                       </Checkbox>
                     </div>
                   ))}
-
                 </div>
+                {formik.touched.locations && formik.errors.locations && (
+                  <p className="text-tiny text-danger">
+                    {formik.errors.locations as string}
+                  </p>
+                )}
               </div>
 
               {/* Team Member Selection */}
@@ -246,11 +278,24 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({
                   label="Assign Team Member"
                   labelPlacement="outside"
                   placeholder="Select a team member"
-                  selectedKeys={teamMember ? [teamMember] : []}
-                  onChange={(e) => setTeamMember(e.target.value)}
+                  name="teamMember"
+                  selectedKeys={
+                    formik.values.teamMember ? [formik.values.teamMember] : []
+                  }
+                  onSelectionChange={(keys) => {
+                    formik.setFieldValue("teamMember", Array.from(keys)[0]);
+                  }}
+                  onBlur={formik.handleBlur}
+                  isInvalid={
+                    !!(formik.touched.teamMember && formik.errors.teamMember)
+                  }
+                  errorMessage={
+                    formik.touched.teamMember && formik.errors.teamMember
+                  }
                   size="sm"
                   radius="sm"
                   variant="flat"
+                  isRequired
                 >
                   {teamMembers.map((member) => (
                     <SelectItem
@@ -266,18 +311,28 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({
                 </p>
               </div>
 
-
               {/* Review Platform */}
               <div>
                 <Select
                   label="Review Platform"
                   labelPlacement="outside"
                   placeholder="Select a platform"
-                  selectedKeys={[platform]}
-                  onChange={(e) => setPlatform(e.target.value)}
+                  name="platform"
+                  selectedKeys={[formik.values.platform]}
+                  onSelectionChange={(keys) => {
+                    formik.setFieldValue("platform", Array.from(keys)[0]);
+                  }}
+                  onBlur={formik.handleBlur}
+                  isInvalid={
+                    !!(formik.touched.platform && formik.errors.platform)
+                  }
+                  errorMessage={
+                    formik.touched.platform && formik.errors.platform
+                  }
                   size="sm"
                   radius="sm"
                   variant="flat"
+                  isRequired
                 >
                   {PLATFORMS.map((p) => (
                     <SelectItem key={p.id} textValue={p.name}>
@@ -293,14 +348,14 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({
               {/* Info Box */}
               <div className="px-2 py-2.5 rounded-lg bg-sky-50 border border-sky-100 flex gap-2 items-center">
                 <div className="mt-0.5 shrink-0">
-                  {type === "nfc" ? (
+                  {formik.values.type === "nfc" ? (
                     <FiSmartphone className="text-sky-500 text-lg" />
                   ) : (
                     <LuQrCode className="text-sky-500 text-lg" />
                   )}
                 </div>
                 <p className="text-xs text-sky-900 leading-[1.5]">
-                  {type === "nfc" ? (
+                  {formik.values.type === "nfc" ? (
                     <>
                       <span className="font-semibold">NFC Tag:</span> After
                       creation, use the "Write to NFC" button to program a
@@ -328,15 +383,14 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({
               </Button>
               <Button
                 color="primary"
-                onPress={handleCreate}
+                onPress={() => formik.handleSubmit()}
                 size="sm"
                 radius="sm"
-                className="font-medium"
-                isLoading={isLoading}
+                isLoading={formik.isSubmitting}
+                isDisabled={!formik.isValid || !formik.dirty}
               >
                 Create Tag
               </Button>
-
             </ModalFooter>
           </>
         )}

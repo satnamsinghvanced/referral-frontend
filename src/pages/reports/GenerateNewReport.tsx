@@ -81,8 +81,6 @@ interface ReportFormState {
   reportType: string;
   timeRange: string;
   exportFormat: string;
-  includeCharts: boolean;
-  includeRawData: boolean;
   scheduleRecurring: boolean;
 }
 
@@ -103,8 +101,6 @@ const GenerateNewReportModal = ({
     reportType: "",
     timeRange: TIME_RANGES[0]?.key as any,
     exportFormat: EXPORT_FORMATS[0]?.key as any,
-    includeCharts: true,
-    includeRawData: false,
     scheduleRecurring: false,
   });
 
@@ -149,7 +145,7 @@ const GenerateNewReportModal = ({
           </p>
         </ModalHeader>
 
-        <ModalBody className="space-y-2 py-0 px-5">
+        <ModalBody className="gap-5 py-0 px-5">
           <div>
             <Input
               size="sm"
@@ -248,32 +244,8 @@ const GenerateNewReportModal = ({
           </div>
 
           <div className="space-y-2">
-            <label className="block text-xs">Report Options</label>
+            {/* <label className="block text-xs">Report Options</label> */}
             <div className="flex flex-col gap-1">
-              <Checkbox
-                size="sm"
-                radius="sm"
-                isSelected={formData.includeCharts}
-                onChange={(e) =>
-                  handleChange("includeCharts", e.target.checked)
-                }
-              >
-                <span className="text-xs">
-                  Include Charts and Visualizations
-                </span>
-              </Checkbox>
-
-              <Checkbox
-                size="sm"
-                radius="sm"
-                isSelected={formData.includeRawData}
-                onChange={(e) =>
-                  handleChange("includeRawData", e.target.checked)
-                }
-              >
-                <span className="text-xs">Include Raw Data Tables</span>
-              </Checkbox>
-
               <Checkbox
                 size="sm"
                 radius="sm"
@@ -282,7 +254,7 @@ const GenerateNewReportModal = ({
                   handleChange("scheduleRecurring", e.target.checked)
                 }
               >
-                <span className="text-xs">Schedule Recurring Report</span>
+                <span className="text-sm">Schedule Recurring Report</span>
               </Checkbox>
             </div>
           </div>

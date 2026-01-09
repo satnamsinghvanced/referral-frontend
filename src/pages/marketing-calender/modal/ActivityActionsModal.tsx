@@ -12,12 +12,12 @@ import {
 import { now } from "@internationalized/date";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { ActivityItem } from "../../../types/marketing";
+import { ActivityItem, ActivityStatus } from "../../../types/marketing";
 import {
   useCreateActivity,
   useUpdateActivity,
 } from "../../../hooks/useMarketing";
-import { ACTIVITY_TYPES } from "../../../consts/marketing";
+import { ACTIVITY_STATUSES, ACTIVITY_TYPES } from "../../../consts/marketing";
 import { keepUTCWallClock } from "../../../utils/keepUTCWallClock";
 import { PRIORITY_LEVELS } from "../../../consts/practice";
 
@@ -32,6 +32,7 @@ interface ActivityFormValues {
   platform: string;
   budget: number;
   colorId: string;
+  status?: ActivityStatus;
 }
 
 export const ActivityValidationSchema = Yup.object().shape({
@@ -55,6 +56,7 @@ export const ActivityValidationSchema = Yup.object().shape({
   priority: Yup.string()
     .oneOf(["high", "medium", "low"])
     .required("Priority is required."),
+  status: Yup.string().optional(),
   platform: Yup.string().optional(),
   budget: Yup.number().min(0, "Budget cannot be negative.").optional(),
 });
@@ -88,6 +90,12 @@ export default function ActivityActionsModal({
     priority: initialData?.priority || "medium",
     platform: initialData?.platform || "",
     budget: initialData?.budget || 0,
+    // status:
+    //   (initialData?.status &&
+    //     (initialData?.status === "confirmed"
+    //       ? "scheduled"
+    //       : initialData?.status)) ||
+    //   "scheduled",
   };
 
   const { mutate: createActivity, isPending: isCreating } = useCreateActivity();
@@ -391,8 +399,8 @@ export default function ActivityActionsModal({
             </div>
           </div>
 
-          <div className="col-span-2">
-            <div>
+          <div className="grid grid-cols-1 gap-4">
+            <div className={`${isEditing ? "col-span-1" : "col-span-2"}`}>
               <Input
                 id="platform"
                 name="platform"
@@ -408,6 +416,33 @@ export default function ActivityActionsModal({
               />
               <ErrorText field="platform" />
             </div>
+            {/* {isEditing && (
+              <div>
+                <Select
+                  name="status"
+                  label="Status"
+                  labelPlacement="outside"
+                  placeholder="Select status"
+                  size="sm"
+                  radius="sm"
+                  selectedKeys={[formik.values.status]}
+                  disabledKeys={[formik.values.status]}
+                  onSelectionChange={(keys) =>
+                    formik.setFieldValue(
+                      "status",
+                      Array.from(keys)[0] as string
+                    )
+                  }
+                  onBlur={() => formik.setFieldTouched("status", true)}
+                  isInvalid={!!hasError("status")}
+                >
+                  {ACTIVITY_STATUSES.map((status) => (
+                    <SelectItem key={status.value}>{status.label}</SelectItem>
+                  ))}
+                </Select>
+                <ErrorText field="status" />
+              </div>
+            )} */}
           </div>
 
           <div className="flex justify-end space-x-2 pt-1">

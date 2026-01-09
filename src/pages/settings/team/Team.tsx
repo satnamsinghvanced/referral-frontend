@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, CardHeader, Pagination } from "@heroui/react";
+import { Button, Card, CardBody, CardHeader } from "@heroui/react";
 import React, { useState } from "react";
 import { FiEdit, FiTrash2 } from "react-icons/fi";
 import { HiOutlineUserAdd } from "react-icons/hi";
@@ -17,6 +17,7 @@ import TeamMemberActionModal, { TeamFormValues } from "./TeamMemberActionModal";
 import { useFetchEmailIntegration } from "../../../hooks/integrations/useEmailMarketing";
 import { Link } from "react-router-dom";
 import { LoadingState } from "../../../components/common/LoadingState";
+import Pagination from "../../../components/common/Pagination";
 
 const roleColors: Record<string, string> = {
   admin: "bg-red-100 text-red-600",
@@ -70,13 +71,12 @@ const Team: React.FC = () => {
   const handleEdit = (member: TeamMember) => {
     setEditMemberId(member._id);
 
-    // Extract location ID
-    const locationId =
-      member.locations && member.locations.length > 0
-        ? typeof member.locations[0] === "object"
-          ? member.locations[0]._id
-          : member.locations[0]
-        : "";
+    // Extract location IDs
+    const locationIds = member.locations
+      ? member.locations.map((loc: any) =>
+          typeof loc === "object" ? loc._id : loc
+        )
+      : [];
 
     // Extract permission IDs
     const permissionIds = member.permissions
@@ -88,7 +88,7 @@ const Team: React.FC = () => {
       lastName: member.lastName,
       email: member.email,
       role: member.role?._id || "",
-      locations: locationId,
+      locations: locationIds,
       permissions: permissionIds,
     });
     setInviteModalOpen(true);
@@ -151,11 +151,23 @@ const Team: React.FC = () => {
                       {member.lastName.charAt(0)}
                     </div>
                   )}
-                  <div className="space-y-0.5">
+                  <div className="space-y-1">
                     <p className="font-medium text-sm">
                       {member.firstName} {member.lastName}
                     </p>
                     <p className="text-xs text-gray-600">{member.email}</p>
+                    {member.locations && member.locations.length > 0 && (
+                      <div className="flex flex-wrap gap-1 mt-2">
+                        {member.locations.map((loc: any, idx) => (
+                          <span
+                            key={typeof loc === "object" ? loc._id : idx}
+                            className="bg-blue-50 text-blue-600 text-[10px] px-2 py-0.5 rounded-full border border-blue-100 font-medium"
+                          >
+                            {typeof loc === "object" ? loc.name : "Location"}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -216,24 +228,14 @@ const Team: React.FC = () => {
           )}
 
           {membersData && membersData.totalPages > 1 && (
-            <div className="flex items-center justify-between pt-1">
-              <p className="text-xs text-gray-500">
-                Showing {members?.length || 0} of {membersData.totalData}{" "}
-                members
-              </p>
-              <Pagination
-                total={membersData.totalPages}
-                page={filters.page}
-                onChange={handlePageChange}
-                size="sm"
-                radius="sm"
-                showControls
-                classNames={{
-                  base: "pagination flex justify-end",
-                  wrapper: "gap-1.5",
-                }}
-              />
-            </div>
+            <Pagination
+              identifier="team members"
+              items={membersData.data}
+              totalItems={membersData.totalData}
+              currentPage={filters.page}
+              totalPages={membersData.totalPages}
+              handlePageChange={handlePageChange}
+            />
           )}
         </CardBody>
       </Card>

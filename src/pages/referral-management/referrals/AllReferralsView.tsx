@@ -1,11 +1,4 @@
-import {
-  Button,
-  Chip,
-  Input,
-  Pagination,
-  Select,
-  SelectItem,
-} from "@heroui/react";
+import { Button, Chip, Input, Select, SelectItem } from "@heroui/react";
 import React, { useMemo } from "react";
 import { BiPhone } from "react-icons/bi";
 import { CgMail } from "react-icons/cg";
@@ -35,6 +28,7 @@ import {
 import { formatDateToYYYYMMDD } from "../../../utils/formatDateToYYYYMMDD";
 import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
 import { formatDateToReadable } from "../../../utils/formatDateToReadable";
+import Pagination from "../../../components/common/Pagination";
 
 interface AllReferralsViewProps {
   onBackToOverview: () => void;
@@ -263,12 +257,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                     </Chip>
                   )}
                 </div>
-                <p className="text-xs text-gray-600">
-                  Showing{" "}
-                  {isFiltered ? filterStats?.totalReferrals : totalReferrals} of{" "}
-                  {totalReferrals} referrals
-                  {filteredCountText}
-                </p>
+                <p className="text-xs text-gray-600">Manage all referrals</p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
@@ -450,23 +439,16 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                 {referrals.map(renderReferralCard)}
               </div>
               {totalPages > 1 && (
-                <div className="mt-5">
-                  <Pagination
-                    showControls
-                    size="sm"
-                    radius="sm"
-                    initialPage={1}
-                    page={currentFilters.page as number}
-                    onChange={(page) => {
-                      setCurrentFilters((prev: any) => ({ ...prev, page }));
-                    }}
-                    total={totalPages}
-                    classNames={{
-                      base: "flex justify-end py-3",
-                      wrapper: "gap-1.5",
-                    }}
-                  />
-                </div>
+                <Pagination
+                  identifier="referrals"
+                  items={referrals}
+                  totalItems={totalReferrals}
+                  currentPage={currentFilters.page || 1}
+                  totalPages={totalPages}
+                  handlePageChange={(page: number) => {
+                    setCurrentFilters((prev: any) => ({ ...prev, page }));
+                  }}
+                />
               )}
             </>
           ) : (

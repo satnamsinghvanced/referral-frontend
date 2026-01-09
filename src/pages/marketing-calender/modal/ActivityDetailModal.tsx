@@ -71,7 +71,15 @@ export function ActivityDetailModal({
             className="text-base leading-none font-medium flex items-center gap-2"
           >
             {activity.title}
-            {activity.status && <ActivityStatusChip status={activity.status} />}
+            {activity.status && (
+              <ActivityStatusChip
+                status={
+                  activity.status === "confirmed"
+                    ? "scheduled"
+                    : activity.status
+                }
+              />
+            )}
           </h4>
           <p className="text-gray-600 text-xs">
             View and manage details for this marketing activity including

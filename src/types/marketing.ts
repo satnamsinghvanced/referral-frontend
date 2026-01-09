@@ -1,4 +1,10 @@
-type ActivityStatus = "scheduled" | "in-progress" | "completed" | "cancelled";
+export type ActivityStatus =
+  | "scheduled"
+  | "active"
+  | "in-progress"
+  | "completed"
+  | "cancelled"
+  | "confirmed";
 type ActivityPriority = "low" | "medium" | "high" | string;
 
 export interface ActivityType {

@@ -33,7 +33,7 @@ export interface TeamFormValues {
   firstName: string;
   lastName: string;
   email: string;
-  locations: string;
+  locations: string[]; // Changed from string to string[]
   role: string;
   permissions: string[];
 }
@@ -41,7 +41,7 @@ export interface TeamFormValues {
 type UpdatePayload = {
   firstName: string;
   lastName: string;
-  locations: string;
+  locations: string[]; // Changed from string to string[]
   role: string;
   permissions: string[];
 };
@@ -66,10 +66,14 @@ const TeamSchema = Yup.object().shape({
     .min(2, "Last name must be at least 2 characters")
     .max(50, "Last name must be less than 50 characters"),
   email: Yup.string().email("Invalid email").required("Email is required"),
-  locations: Yup.string().required("Practice Location is required"),
+  locations: Yup.array()
+    .of(Yup.string())
+    .min(1, "At least one practice location is required")
+    .required("Practice Location is required"),
   role: Yup.string().required("Role is required"),
   permissions: Yup.array()
     .of(Yup.string())
+    .min(1, "At least one permission is required")
     .required("Permissions are required"),
 });
 
@@ -95,7 +99,7 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
       firstName: "",
       lastName: "",
       email: "",
-      locations: "",
+      locations: [],
       role: roles?.[0]?._id || "",
       permissions: roles?.[0]?.permissions?.map((p: Permission) => p._id) || [],
     },
@@ -131,11 +135,15 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
   });
 
   useEffect(() => {
-    if (!formik.values.locations && locations && locations.length > 0) {
+    if (
+      (!formik.values.locations || formik.values.locations.length === 0) &&
+      locations &&
+      locations.length > 0
+    ) {
       const primaryLoc =
         locations.find((l: any) => l.isPrimary) || locations[0];
       if (primaryLoc) {
-        formik.setFieldValue("locations", primaryLoc._id);
+        formik.setFieldValue("locations", [primaryLoc._id]);
       }
     }
   }, [locations, formik.values.locations]);
@@ -236,16 +244,19 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
               variant="flat"
               label="Practice Location"
               labelPlacement="outside"
-              placeholder="Select a practice location"
-              selectedKeys={
-                formik.values.locations ? [formik.values.locations] : []
-              }
-              disabledKeys={
-                formik.values.locations ? [formik.values.locations] : []
-              }
+              placeholder="Select practice locations"
+              selectionMode="multiple"
+              selectedKeys={new Set(formik.values.locations)}
               onSelectionChange={(keys) => {
-                formik.setFieldValue("locations", Array.from(keys)[0] || "");
+                formik.setFieldValue("locations", Array.from(keys) as string[]);
               }}
+              onBlur={() => formik.setFieldTouched("locations", true)}
+              isInvalid={
+                !!(formik.touched.locations && formik.errors.locations)
+              }
+              errorMessage={
+                formik.touched.locations && (formik.errors.locations as string)
+              }
               isRequired
             >
               {(locations || []).map((location: any) => (

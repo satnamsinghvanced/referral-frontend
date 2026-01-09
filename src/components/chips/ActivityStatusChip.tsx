@@ -16,6 +16,10 @@ export default function ActivityStatusChip({ status }: { status: string }) {
       classNames = "bg-red-100 text-red-800 border-red-200";
       break;
 
+    case "active":
+      classNames = "bg-orange-100 text-orange-800 border-orange-200";
+      break;
+    case "completed":
     default:
       classNames = "bg-emerald-100 text-emerald-800 border-emerald-200";
       break;
@@ -27,7 +31,8 @@ export default function ActivityStatusChip({ status }: { status: string }) {
       radius="sm"
       className={`capitalize text-[11px] h-5 ${classNames}`}
     >
-      {ACTIVITY_STATUSES.find((option: any) => option.value === status)?.label}
+      {ACTIVITY_STATUSES.find((option: any) => option.value === status)
+        ?.label || status}
     </Chip>
   );
 }

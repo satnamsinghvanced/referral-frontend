@@ -381,9 +381,13 @@ export default function ScheduleVisits({
                   isIconOnly
                 />
               </div>
-              <p className="text-xs text-gray-600">
-                Showing {schedulePlans.length} of {pagination?.totalData} plans
-              </p>
+              {schedulePlans.length > 10 && (
+                <p className="text-xs text-gray-600">
+                  Showing {schedulePlans.length * (filters.page - 1) + 1} -{" "}
+                  {schedulePlans.length * filters.page} of{" "}
+                  {pagination?.totalData} plans
+                </p>
+              )}
             </div>
           </div>
 

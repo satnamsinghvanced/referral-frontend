@@ -42,6 +42,7 @@ import ReferralCard from "./referrals/ReferralCard";
 import QrCodeDownloadModal from "./referrers/QrCodeDownloadModal";
 import NfcTagModal from "./referrers/NfcTagModal";
 import { IoSearch } from "react-icons/io5";
+import { formatNumberWithCommas } from "../../utils/formatNumberWithCommas";
 
 type ReferralType = "Referrals" | "Referrers" | "NFC & QR Tracking";
 
@@ -187,9 +188,9 @@ const ReferralManagement = () => {
       {
         icon: <MdTrendingUp className="text-green-500" />,
         heading: "Total Value",
-        value: referralData?.stats?.totalValue
-          ? `$${referralData?.stats?.totalValue}`
-          : "$0",
+        value: `$${formatNumberWithCommas(
+          referralData?.stats?.totalValue as number
+        )}`,
         subheading: "Click to view value details",
         onClick: handleViewAllAndFilter,
       },
@@ -491,7 +492,7 @@ const ReferralManagement = () => {
             <div className="flex flex-col gap-4 border border-primary/15 rounded-xl p-4 bg-background w-full">
               <div className="flex flex-col gap-4">
                 <p className="font-medium text-sm">Referrer Management</p>
-                {/* <div className="flex-1">
+                <div className="flex-1">
                   <Input
                     size="sm"
                     variant="flat"
@@ -509,7 +510,7 @@ const ReferralManagement = () => {
                       <IoSearch size={18} className="text-gray-400" />
                     }
                   />
-                </div> */}
+                </div>
               </div>
               {isLoadingReferrers ? (
                 <LoadingState />

@@ -51,7 +51,9 @@ export function ActivityCard({ activity, onView }: ActivityCardProps) {
       ></div>
       <CardHeader className="flex justify-between items-start mb-2 p-0">
         <h3 className="text-sm font-medium">{title}</h3>
-        <ActivityStatusChip status={status} />
+        <ActivityStatusChip
+          status={status === "confirmed" ? "scheduled" : status}
+        />
       </CardHeader>
 
       {(startDate || activityType || description) && (

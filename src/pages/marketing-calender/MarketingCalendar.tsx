@@ -25,6 +25,7 @@ import ActivityActionsModal from "./modal/ActivityActionsModal";
 import { ActivityDetailModal } from "./modal/ActivityDetailModal";
 import { Link } from "react-router-dom";
 import { useFetchGoogleCalendarIntegration } from "../../hooks/integrations/useGoogleCalendar";
+import { formatNumberWithCommas } from "../../utils/formatNumberWithCommas";
 
 const MarketingCalendar = () => {
   const { data: googleCalendarConfig, isLoading: isGoogleCalendarLoading } =
@@ -159,7 +160,7 @@ const MarketingCalendar = () => {
     {
       icon: <MdOutlineRemoveRedEye className="text-orange-600" />,
       heading: "Total Reach",
-      value: stats?.totalReach || 0,
+      value: formatNumberWithCommas(stats?.totalReach as number),
       subheading: (
         <p className="text-orange-600 flex items-center gap-1.5">
           <LuUsers fontSize={15} />
@@ -243,7 +244,13 @@ const MarketingCalendar = () => {
                 ></div>
                 <div className="flex justify-between items-start mb-2 p-0">
                   <h3 className="text-sm font-medium">{activity.title}</h3>
-                  <ActivityStatusChip status={activity.status} />
+                  <ActivityStatusChip
+                    status={
+                      activity.status === "confirmed"
+                        ? "scheduled"
+                        : activity.status
+                    }
+                  />
                 </div>
 
                 <div className="text-sm text-gray-600 space-y-2 p-0">

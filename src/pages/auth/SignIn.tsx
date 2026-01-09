@@ -126,7 +126,7 @@ const SignIn = () => {
                 isRequired
                 endContent={
                   <button
-                    className="focus:outline-none"
+                    className="focus:outline-none cursor-pointer"
                     type="button"
                     onClick={toggleVisibility}
                   >
