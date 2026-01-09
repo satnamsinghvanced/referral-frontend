@@ -16,14 +16,14 @@ import { parseDate } from "@internationalized/date";
 import { useFormik } from "formik";
 import { useEffect, useMemo } from "react";
 import * as Yup from "yup";
-import { BUDGET_DURATIONS, BUDGET_STATUSES } from "../../consts/budget";
-import { PRIORITY_LEVELS } from "../../consts/practice";
-import { BudgetItem } from "../../types/budget";
+import { BUDGET_DURATIONS, BUDGET_STATUSES } from "../../../consts/budget";
+import { PRIORITY_LEVELS } from "../../../consts/practice";
 import {
   useBudgetCategories,
   useCreateBudgetItem,
   useUpdateBudgetItem,
-} from "../../hooks/useBudget";
+} from "../../../hooks/useBudget";
+import { BudgetItem } from "../../../types/budget";
 
 const validationSchema = Yup.object().shape({
   category: Yup.string().required("Category is required."),
@@ -159,8 +159,9 @@ export default function BudgetActionModal({
       onOpenChange={onClose}
       size="md"
       classNames={{
-        base: `max-sm:!m-3 !m-0`,
+        base: `max-sm:m-1 m-0`,
         closeButton: "cursor-pointer",
+        // content: "!top-10 translate-y-0",
       }}
     >
       <ModalContent>

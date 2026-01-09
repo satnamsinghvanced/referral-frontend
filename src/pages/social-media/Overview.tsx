@@ -58,17 +58,17 @@ const Overview: React.FC<OverviewProps> = ({
 
   return (
     <div className="space-y-4 md:space-y-5">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
         {STAT_CARD_DATA.map((data, i) => (
           <MiniStatsCard key={i} cardData={data} />
         ))}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
         {platforms.map((platform, i) => (
           <Card
             key={platform.id}
-            className="bg-background rounded-xl shadow-none p-5 border border-primary/15"
+            className="bg-background rounded-xl shadow-none p-4 border border-primary/15"
           >
             <CardHeader className="p-0 pb-4">
               <h3 className="text-sm font-extralight text-gray-800 flex items-center gap-2">
@@ -100,8 +100,8 @@ const Overview: React.FC<OverviewProps> = ({
         ))}
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <Card className="bg-background rounded-xl shadow-none p-5 border border-primary/15">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4">
+        <Card className="bg-background rounded-xl shadow-none p-4 border border-primary/15">
           <h4 className="text-sm mb-4 flex items-center gap-2">
             <LuChartColumnIncreasing className="text-base text-primary" />{" "}
             Recent Performance
@@ -124,7 +124,7 @@ const Overview: React.FC<OverviewProps> = ({
           </div>
         </Card>
 
-        <Card className="bg-background rounded-xl shadow-none p-5 border border-primary/15">
+        <Card className="bg-background rounded-xl shadow-none p-4 border border-primary/15">
           <h4 className="text-sm mb-4 flex items-center gap-2">
             <FiClock className="text-base text-primary" /> Content Calendar
           </h4>

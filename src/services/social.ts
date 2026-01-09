@@ -22,6 +22,8 @@ export const initiateAuthIntegration = async ({
     youTube: "/social-media/youtubeAuthIntegration",
     twitter: "/social-media/twitterAuthIntegration",
     tikTok: "/social-media/tiktokAuthIntegration",
+    meta: "/social-media/metaAuthIntegration",
+    googleBusiness: "/social-media/googleBusinessAuthIntegration",
   };
 
   const endpoint = endpointMap[platform];

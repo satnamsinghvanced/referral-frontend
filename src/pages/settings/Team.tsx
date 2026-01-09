@@ -1,53 +1,41 @@
-import React, { useState } from "react";
 import {
+  Button,
   Card,
-  CardHeader,
   CardBody,
+  CardHeader,
   Checkbox,
   Select,
   SelectItem,
-  Button,
 } from "@heroui/react";
-import { HiOutlineUserAdd } from "react-icons/hi";
-import { FiEdit, FiTrash2, FiMail, FiLoader } from "react-icons/fi";
-import { MdCheck } from "react-icons/md";
-import { LuUsers } from "react-icons/lu";
 import { useFormik } from "formik";
+import React, { useState } from "react";
+import { FiEdit, FiMail, FiTrash2 } from "react-icons/fi";
+import { HiOutlineUserAdd } from "react-icons/hi";
+import { LuUsers } from "react-icons/lu";
+import { MdCheck } from "react-icons/md";
+import { RiDeleteBinLine } from "react-icons/ri";
 import * as Yup from "yup";
 import ActionModal from "../../components/common/ActionModal";
-import Input from "../../components/ui/Input";
-import {
-  useFetchTeamMembers,
-  useDeleteTeamMember,
-  useResendInvite,
-  useInviteTeamMember,
-  useUpdateTeamMember,
-} from "../../hooks/settings/useTeam";
-import { formatDateToYYYYMMDD } from "../../utils/formatDateToYYYYMMDD";
-import { usePermissions, useRoles } from "../../hooks/useCommon";
-import { RiDeleteBinLine } from "react-icons/ri";
 import EmptyState from "../../components/common/EmptyState";
 import TeamSkeleton from "../../components/skeletons/TeamSkeleton";
+import Input from "../../components/ui/Input";
 import { useFetchLocations } from "../../hooks/settings/useLocation";
-
-interface TeamMember {
-  _id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  locations: string[];
-  role: { role: string; _id: string };
-  invitationStatus: string;
-  avatar?: string;
-  invitedAt: string;
-  permissions?: string[];
-}
+import {
+  useDeleteTeamMember,
+  useFetchTeamMembers,
+  useInviteTeamMember,
+  useResendInvite,
+  useUpdateTeamMember,
+} from "../../hooks/settings/useTeam";
+import { usePermissions, useRoles } from "../../hooks/useCommon";
+import { TeamMember } from "../../services/settings/team";
+import { formatDateToYYYYMMDD } from "../../utils/formatDateToYYYYMMDD";
 
 interface TeamFormValues {
   firstName: string;
   lastName: string;
   email: string;
-  locations: string[];
+  locations: string;
   role: string;
   permissions: string[];
 }
@@ -55,7 +43,7 @@ interface TeamFormValues {
 type UpdatePayload = {
   firstName: string;
   lastName: string;
-  locations: string[];
+  locations: string;
   role: string;
   permissions: string[];
 };
@@ -106,7 +94,7 @@ const Team: React.FC = () => {
     firstName: Yup.string().required("First name is required"),
     lastName: Yup.string().required("Last name is required"),
     email: Yup.string().email("Invalid email").required("Email is required"),
-    locations: Yup.array().required("Practice Location is required"),
+    locations: Yup.string().required("Practice Location is required"),
     role: Yup.string().required("Role is required"),
     permissions: Yup.array()
       .of(Yup.string())
@@ -119,7 +107,7 @@ const Team: React.FC = () => {
       firstName: "",
       lastName: "",
       email: "",
-      locations: [],
+      locations: "",
       role: "",
       permissions: permissions?.map((item: any) => item._id),
     },
@@ -163,7 +151,7 @@ const Team: React.FC = () => {
       lastName: member.lastName,
       email: member.email,
       role: member.role._id,
-      locations: member.locations,
+      locations: member.locations || "",
       permissions: member.permissions || [],
     });
     setInviteModalOpen(true);
@@ -404,6 +392,8 @@ const Team: React.FC = () => {
         >
           <div className="grid grid-cols-2 gap-3">
             <Input
+              size="sm"
+              radius="sm"
               id="firstName"
               name="firstName"
               label="First Name"
@@ -415,6 +405,8 @@ const Team: React.FC = () => {
               isRequired
             />
             <Input
+              size="sm"
+              radius="sm"
               id="lastName"
               name="lastName"
               label="Last Name"
@@ -428,6 +420,8 @@ const Team: React.FC = () => {
           </div>
 
           <Input
+            size="sm"
+            radius="sm"
             id="email"
             name="email"
             label="Email Address"
@@ -440,14 +434,15 @@ const Team: React.FC = () => {
           />
 
           <Select
+            size="sm"
+            radius="sm"
             label="Practice Location"
             labelPlacement="outside"
             placeholder="Select a practice location"
-            selectedKeys={new Set(formik.values.locations)}
+            selectedKeys={new Set([formik.values.locations])}
             onSelectionChange={(keys) => {
-              formik.setFieldValue("locations", Array.from(keys));
+              formik.setFieldValue("locations", Array.from(keys)[0] || "");
             }}
-            selectionMode="multiple"
             isRequired
           >
             {(locations || []).map((location: any) => (
@@ -456,6 +451,8 @@ const Team: React.FC = () => {
           </Select>
 
           <Select
+            size="sm"
+            radius="sm"
             label="Role"
             labelPlacement="outside"
             placeholder="Select a role"
@@ -485,6 +482,8 @@ const Team: React.FC = () => {
             <div className="grid grid-cols-2 gap-2">
               {permissions?.map((perm: any) => (
                 <Checkbox
+                  size="sm"
+                  radius="sm"
                   key={perm._id}
                   isSelected={formik.values.permissions?.includes(perm._id)}
                   onValueChange={(checked) => {
@@ -493,7 +492,6 @@ const Team: React.FC = () => {
                       : formik.values.permissions.filter((p) => p !== perm._id);
                     formik.setFieldValue("permissions", updated);
                   }}
-                  size="sm"
                   isRequired
                 >
                   {perm.title}

@@ -1,6 +1,6 @@
 import {
   Button,
-  Input,
+  Checkbox,
   Modal,
   ModalBody,
   ModalContent,
@@ -8,18 +8,16 @@ import {
   Select,
   SelectItem,
   Textarea,
-  Checkbox, // New component imported
 } from "@heroui/react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { FiMail, FiPhone, FiUser } from "react-icons/fi";
+import { LoadingState } from "../../../components/common/LoadingState";
+import { VISIT_STATUSES } from "../../../consts/practice";
 import { useUpdateSchedulePlan } from "../../../hooks/usePartner";
 import {
   SchedulePlan,
   VisitStatusUpdateFormValues,
 } from "../../../types/partner";
-import { LoadingState } from "../../../components/common/LoadingState";
-import { VISIT_STATUSES } from "../../../consts/practice";
 
 interface ScheduleVisitStatusModalProps {
   isOpen: boolean;

@@ -11,15 +11,14 @@ import {
 } from "@heroui/react";
 import { useFormik } from "formik";
 import { FiMail, FiPhone, FiUser } from "react-icons/fi";
-import { LuCalendar } from "react-icons/lu";
 import * as Yup from "yup";
-import ReferralStatusChip from "../../components/chips/ReferralStatusChip";
-import { LoadingState } from "../../components/common/LoadingState";
-import { STATUS_OPTIONS } from "../../consts/filters";
-import { useUpdateReferral } from "../../hooks/useReferral";
-import { Referral, StatusUpdateFormValues } from "../../types/referral";
-import { formatDateToReadable } from "../../utils/formatDateToReadable";
-import PriorityLevelChip from "../../components/chips/PriorityLevelChip";
+import PriorityLevelChip from "../../../components/chips/PriorityLevelChip";
+import ReferralStatusChip from "../../../components/chips/ReferralStatusChip";
+import { LoadingState } from "../../../components/common/LoadingState";
+import { STATUS_OPTIONS } from "../../../consts/filters";
+import { useUpdateReferral } from "../../../hooks/useReferral";
+import { Referral, StatusUpdateFormValues } from "../../../types/referral";
+import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 
 interface ReferralStatusModalProps {
   isOpen: boolean;
@@ -108,7 +107,7 @@ const ReferralStatusModal = ({
             <LoadingState />
           </ModalBody>
         ) : (
-          <ModalBody className="space-y-3 py-4 pt-1 px-5 gap-0">
+          <ModalBody className="space-y-4 py-4 pt-1 px-5 gap-0">
             {/* Patient Info Card */}
             <div className="bg-gray-50 p-4 rounded-lg space-y-2">
               <div className="flex items-center gap-2">

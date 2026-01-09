@@ -8,21 +8,26 @@ import {
   SelectItem,
   Textarea,
 } from "@heroui/react";
+import { getLocalTimeZone, now } from "@internationalized/date";
 import { useFormik } from "formik";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FaRegStar } from "react-icons/fa";
 import { FiDownload, FiLoader } from "react-icons/fi";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import * as Yup from "yup";
-import { TREATMENT_OPTIONS, URGENCY_OPTIONS } from "../../consts/referral";
-import { useFetchUserForTrackings } from "../../hooks/settings/useUser";
-import { useCreateReferral, useTrackScan } from "../../hooks/useReferral";
-import { Referral } from "../../types/referral";
-import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
-import { downloadVcf } from "../../utils/vcfGenerator";
-import { EMAIL_REGEX, PHONE_REGEX } from "../../consts/consts";
-import { getLocalTimeZone, now } from "@internationalized/date";
 import { RiPhoneFill } from "react-icons/ri";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import * as Yup from "yup";
+import { EMAIL_REGEX, PHONE_REGEX } from "../../../consts/consts";
+import { TREATMENT_OPTIONS, URGENCY_OPTIONS } from "../../../consts/referral";
+import { useFetchUserForTrackings } from "../../../hooks/settings/useUser";
+import {
+  useCreateReferral,
+  useFetchTrackings,
+  useTrackScan,
+} from "../../../hooks/useReferral";
+import { CreateReferralPayload, ReferralStatus } from "../../../types/referral";
+import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
+import { downloadVcf } from "../../../utils/vcfGenerator";
+import NotFoundPage from "../../NotFoundPage";
 
 interface PatientFormValues {
   fullName: string;
@@ -39,38 +44,53 @@ interface PatientFormValues {
 }
 
 const PatientForm = () => {
+  const { customPath, id } = useParams<{ customPath: string; id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
 
-  const [referredBy, setReferredBy] = useState("");
   const [addedVia, setAddedVia] = useState<string>("");
+  const [sourceId, setSourceId] = useState<string>("");
 
   const { mutateAsync: createReferral, isPending } = useCreateReferral();
   const { data: fetchedUser, isLoading: isUserLoading } =
-    useFetchUserForTrackings(referredBy);
+    useFetchUserForTrackings(id || "");
+  const { data: trackings, isLoading: isTrackingsLoading } = useFetchTrackings(
+    id || ""
+  );
   const { mutate: trackScan } = useTrackScan();
 
   useEffect(() => {
-    const pathname = window.location.pathname;
-    const segments = pathname.split("/");
-    // Assumes URL structure is /<base>/<custom-path>/<documentId>/
-    const documentId = segments[3];
-
-    setReferredBy(documentId || "");
-
     const queryParams = new URLSearchParams(location.search);
     const source = queryParams.get("source");
+    const sId = queryParams.get("sourceId");
     setAddedVia(source || "");
-  }, [location.pathname, location.search]);
+    setSourceId(sId || "");
+  }, [location.search]);
+
+  // Validate if the current URL's custom path exists in the user's personalized QR configurations
+  const isValidPath = useMemo(() => {
+    if (isTrackingsLoading || !trackings) return true; // specific logic: assume valid while loading
+    // Check if any QR config matches the current customPath from the URL
+    return trackings.personalizedQR.some(
+      (qr: any) => qr.customPath === customPath
+    );
+  }, [trackings, customPath, isTrackingsLoading]);
 
   useEffect(() => {
-    const trackingKey = `scanTracked_${referredBy}_${addedVia}`;
+    const trackingKey = `scanTracked_${id}_${addedVia}_${sourceId}`;
     const alreadyTracked = sessionStorage.getItem(trackingKey);
-    if (referredBy && addedVia && !alreadyTracked) {
-      trackScan({ userId: referredBy, source: addedVia });
+
+    if (id && isValidPath && addedVia && !alreadyTracked) {
+      trackScan({
+        userId: id,
+        source: addedVia,
+        ...(sourceId ? { sourceId } : {}),
+      });
       sessionStorage.setItem(trackingKey, "true");
     }
-  }, [referredBy, addedVia, trackScan]);
+  }, [id, addedVia, sourceId, trackScan, isValidPath]);
+
+  const showInvalidLink = !isTrackingsLoading && trackings && !isValidPath;
 
   const validationSchema = Yup.object().shape({
     fullName: Yup.string()
@@ -168,13 +188,13 @@ const PatientForm = () => {
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
-      const payload: Partial<Referral> = {
-        referredBy: referredBy,
+      const payload: CreateReferralPayload = {
+        referredBy: id as string,
         addedVia: addedVia || "Direct",
         name: values.fullName,
         email: values.email,
         phone: values.phone || "",
-        age: values.age ? Number(values.age) : null,
+        age: Number(values.age),
         insurance: values.insuranceProvider || "",
         treatment: values.preferredTreatment || "",
         priority: values.urgencyLevel || "medium",
@@ -182,6 +202,8 @@ const PatientForm = () => {
         reason: values.referralReason || "",
         notes: values.notes || "",
         scheduledDate: values.scheduledDate || "",
+        status: "new" as ReferralStatus,
+        estValue: 0,
       };
 
       await createReferral(payload, {
@@ -216,13 +238,15 @@ const PatientForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 py-5 px-4 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 flex items-center justify-center">
       {isUserLoading ? (
         <div className="flex items-center justify-center p-4">
           <FiLoader className="animate-spin size-8 text-primary" />
         </div>
+      ) : showInvalidLink ? (
+        <NotFoundPage />
       ) : (
-        <div className="max-w-3xl w-full mx-auto">
+        <div className="max-w-3xl w-full mx-auto max-lg:py-5 max-lg:px-4">
           <Card className="shadow-lg mb-5 border-0">
             <CardBody className="p-0">
               <div className="flex justify-between items-center text-sm bg-gradient-to-l from-green-600 to-blue-600 m-0 px-5 py-4 text-background">
@@ -284,7 +308,10 @@ const PatientForm = () => {
                 </p>
               </div>
 
-              <form onSubmit={formik.handleSubmit} className="space-y-4">
+              <form
+                onSubmit={formik.handleSubmit}
+                className="md:space-y-6 space-y-4"
+              >
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {formFields.map((field) => {
                     const fieldName = field.name as keyof PatientFormValues;
@@ -447,7 +474,7 @@ const PatientForm = () => {
                   </Select>
                 </div>
 
-                <div className="grid grid-cols-1 gap-6">
+                {/* <div className="grid grid-cols-1 gap-6">
                   <Textarea
                     label="Reason for Referral"
                     labelPlacement="outside-top"
@@ -474,7 +501,7 @@ const PatientForm = () => {
                     }
                     classNames={{ inputWrapper: "py-2" }}
                   />
-                </div>
+                </div> */}
 
                 <div>
                   <Textarea

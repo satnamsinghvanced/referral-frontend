@@ -5,11 +5,12 @@ export interface TeamMember {
   firstName: string;
   lastName: string;
   email: string;
-  locations: string[];
+  locations: string;
   role: { role: "Admin" | "Manager" | "Staff" | string; _id: string };
   invitationStatus: string;
   avatar?: string;
   invitedAt: string;
+  permissions?: string[];
 }
 
 export interface PendingInvite {

@@ -1,6 +1,5 @@
 import clsx from "clsx";
 import React from "react";
-import { AiOutlineThunderbolt } from "react-icons/ai";
 import { FaRegBell } from "react-icons/fa";
 import { FiCreditCard, FiUser, FiUsers } from "react-icons/fi";
 import { GrLocation } from "react-icons/gr";
@@ -17,23 +16,17 @@ type NavigationItem = {
 const SettingNavigation: React.FC = () => {
   const navigationRoutes: NavigationItem[] = [
     { name: "Profile", icon: FiUser, href: "/settings" },
-    { name: "Notifications", icon: FaRegBell, href: "/settings/notifications" },
+    { name: "General", icon: HiOutlineCog, href: "/settings/general" },
     { name: "Security", icon: LuShield, href: "/settings/security" },
     { name: "Billing", icon: FiCreditCard, href: "/settings/billing" },
     { name: "Locations", icon: GrLocation, href: "/settings/locations" },
     { name: "Team", icon: FiUsers, href: "/settings/team" },
-    { name: "General", icon: HiOutlineCog, href: "/settings/general" },
-    {
-      name: "Integration Tests",
-      icon: AiOutlineThunderbolt,
-      href: "/settings/integration-tests",
-    },
-    {
-      name: "Push Notifications",
-      icon: LuSmartphone,
-      href: "/settings/push-notifications",
-    },
-    // { name: "Notification Analytics", icon: FaRegChartBar, href: "/settings/notification-analytics" },
+    { name: "Notifications", icon: FaRegBell, href: "/settings/notifications" },
+    // {
+    //   name: "Notification Analytics",
+    //   icon: FaRegChartBar,
+    //   href: "/settings/notification-analytics",
+    // },
   ];
 
   return (
@@ -51,7 +44,10 @@ const SettingNavigation: React.FC = () => {
                   "hover:bg-gray-50",
                   isActive
                     ? "!bg-sky-50 !text-sky-700 dark:!bg-background shadow-sm !border-sky-200"
-                    : "hover:bg-gray-100"
+                    : "hover:bg-gray-100",
+                  item.name === "Profile" && "tour-step-profile",
+                  item.name === "Locations" && "tour-step-locations",
+                  item.name === "Team" && "tour-step-team"
                 )
               }
             >

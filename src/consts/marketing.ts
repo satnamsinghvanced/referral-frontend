@@ -14,7 +14,7 @@ export const ACTIVITY_TYPES = [
       value: "#039be5",
     },
     label: "Social Media Post",
-    value: "social media post",
+    value: "socialMediaPost",
   },
   {
     icon: MdOutlineMail,
@@ -23,7 +23,7 @@ export const ACTIVITY_TYPES = [
       value: "#33b679",
     },
     label: "Email Campaign",
-    value: "email campaign",
+    value: "emailCampaign",
   },
   {
     icon: GrLocation,
@@ -32,7 +32,7 @@ export const ACTIVITY_TYPES = [
       value: "#8e24aa",
     },
     label: "Local Event",
-    value: "local event",
+    value: "localEvent",
   },
   {
     icon: LuGift,
@@ -50,7 +50,7 @@ export const ACTIVITY_TYPES = [
       value: "#f6c026",
     },
     label: "Referral Activity",
-    value: "referral activity",
+    value: "referralActivity",
   },
   {
     icon: RiMegaphoneLine,
@@ -59,7 +59,7 @@ export const ACTIVITY_TYPES = [
       value: "#f5511d",
     },
     label: "Ad Campaign",
-    value: "ad campaign",
+    value: "adCampaign",
   },
   {
     icon: FiFileText,
@@ -68,7 +68,7 @@ export const ACTIVITY_TYPES = [
       value: "#7986cb",
     },
     label: "Content Creation",
-    value: "content creation",
+    value: "contentCreation",
   },
   {
     icon: PiCrownSimpleBold,
@@ -86,7 +86,7 @@ export const ACTIVITY_TYPES = [
       value: "#3f51b5",
     },
     label: "Review Request",
-    value: "review request",
+    value: "reviewRequest",
   },
   {
     icon: FiPhone,
@@ -95,7 +95,7 @@ export const ACTIVITY_TYPES = [
       value: "#0b8043",
     },
     label: "Call Campaign",
-    value: "call campaign",
+    value: "callCampaign",
   },
 ];
 

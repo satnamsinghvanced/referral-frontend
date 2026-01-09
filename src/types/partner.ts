@@ -15,7 +15,7 @@ export interface PracticeAddress {
   addressLine2: string;
   city: string;
   state: string;
-  zip: number;
+  zip: string | number;
   coordinates: {
     lat: number;
     long: number;
@@ -44,6 +44,59 @@ export interface StaffMember {
   isDentist: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface CommunityReferrerInfo {
+  orgName: string;
+  orgAddress: string;
+  orgUrl: string;
+}
+
+export interface GoogleReferrerInfo {
+  glSource: string;
+  glPlatform: string;
+  glUrl: string;
+}
+
+export interface SocialMediaReferrerInfo {
+  smPlatform: string;
+  smSource: string;
+}
+
+export interface EventReferrerInfo {
+  evName: string;
+  evLocation: string;
+  evType: string;
+  evUrl: string;
+}
+
+export interface CreateReferrerPayload {
+  name: string;
+  phone: string;
+  email: string;
+  communityreferrer?: CommunityReferrerInfo;
+  googlereferrer?: GoogleReferrerInfo;
+  socialmediareferrer?: SocialMediaReferrerInfo;
+  eventreferrer?: EventReferrerInfo;
+  practiceName?: string;
+  partnershipLevel?: string;
+  practiceAddress?: {
+    addressLine1: string;
+    addressLine2: string;
+    city: string;
+    state: string;
+    zip: string | number;
+  };
+  practiceType?: string;
+  website?: string;
+  additionalNotes?: string;
+  staff?: {
+    name: string;
+    role: string[];
+    email: string;
+    phone: string;
+    isDentist: boolean;
+  }[];
 }
 
 export interface Referrer {
@@ -433,36 +486,6 @@ export interface GetSchedulePlansQuery {
 }
 
 // --- 2. Plan Sub-Types ---
-interface AddressCoordinates {
-  lat: number;
-  long: number;
-}
-
-interface PlanAddress {
-  coordinates: AddressCoordinates;
-  addressLine1: string;
-  addressLine2: string;
-  city: string;
-  state: string;
-  zip: string | number;
-}
-
-interface RouteDetail {
-  address: PlanAddress;
-  name: string;
-  isFirstStop: boolean;
-  date: string; // ISO Date string
-  arrivalTime: string;
-  departureTime: string;
-  travelDistance: string;
-  durationPerVisit: string;
-  _id: string;
-}
-
-interface PlanPurpose {
-  title: string;
-  duration: string;
-}
 
 interface PlanSummary {
   totalPractices: number;
@@ -477,7 +500,7 @@ export interface SchedulePlan {
   _id: string;
   createdBy: string;
   practices: Practice[];
-  route: RouteDetail[];
+  route: RouteDataPayload;
   label: "active" | "draft";
   status: "pending" | "completed" | "cancel" | string;
   createdAt: string;

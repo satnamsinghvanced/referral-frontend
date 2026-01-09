@@ -9,7 +9,8 @@ import {
 import { useState } from "react";
 import { FiSettings } from "react-icons/fi";
 import { useGetSocialMediaCredentials } from "../../hooks/useSocial";
-import SocialMediaConfigModal from "./SocialMediaConfigModal";
+import GoogleBusinessConfigModal from "../integrations/modal/GoogleBusinessConfigModal";
+import SocialMediaConfigModal from "./modal/SocialMediaConfigModal";
 
 interface PlatformItem {
   id: string;
@@ -27,59 +28,43 @@ const Platforms = () => {
     useGetSocialMediaCredentials();
 
   const SOCIAL_MEDIA_PLATFORMS: PlatformItem[] = [
-    // {
-    //   id: "facebook",
-    //   name: "Facebook",
-    //   iconColor: "bg-blue-500",
-    //   status: "Not Connected",
-    //   followers: 1234,
-    //   engagementRate: "5.2%",
-    // },
-    // {
-    //   id: "instagram",
-    //   name: "Instagram",
-    //   iconColor: "bg-pink-500",
-    //   status: "Not Connected",
-    //   followers: 987,
-    //   engagementRate: "6.1%",
-    // },
+    {
+      id: "meta",
+      name: "Meta (Facebook & Instagram)",
+      iconColor: "bg-[#0081FB]",
+      status: "Not Connected",
+      followers: 1234,
+      engagementRate: "5.2%",
+    },
     {
       id: "linkedin",
       name: "LinkedIn",
-      iconColor: "bg-primary-500",
+      iconColor: "bg-[#0077B5]",
       status: allCredentials?.linkedin?.status as string,
       followers: 626,
       engagementRate: "3.8%",
     },
     {
-      id: "twitter",
-      name: "Twitter",
-      iconColor: "bg-sky-500",
-      status: allCredentials?.twitter?.status as string,
-      followers: 0,
-      engagementRate: "0%",
-    },
-    {
       id: "youTube",
       name: "YouTube",
-      iconColor: "bg-red-500",
+      iconColor: "bg-[#FF0000]",
       status: allCredentials?.youTube?.status as string,
       followers: 0,
       engagementRate: "0%",
     },
     {
-      id: "tikTok",
-      name: "TikTok",
-      iconColor: "bg-black",
-      status: allCredentials?.tikTok?.status as string,
-      followers: 0,
-      engagementRate: "0%",
+      id: "googleBusiness",
+      name: "Google Business",
+      iconColor: "bg-[#0F9D58]",
+      status: "Not Connected",
+      followers: 987,
+      engagementRate: "6.1%",
     },
   ];
 
   return (
     <>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {SOCIAL_MEDIA_PLATFORMS.map((platform) => {
           const isConnected = platform.status === "connected";
           const statusColor = isConnected
@@ -151,14 +136,23 @@ const Platforms = () => {
         })}
       </div>
 
-      {openPlatform && (
-        <SocialMediaConfigModal
-          platform={openPlatform}
+      {openPlatform === "googleBusiness" ? (
+        <GoogleBusinessConfigModal
           isOpen={!!openPlatform}
           onClose={() => setOpenPlatform(null)}
           allCredentials={allCredentials}
           isGlobalLoading={isGlobalLoading}
         />
+      ) : (
+        openPlatform && (
+          <SocialMediaConfigModal
+            platform={openPlatform}
+            isOpen={!!openPlatform}
+            onClose={() => setOpenPlatform(null)}
+            allCredentials={allCredentials}
+            isGlobalLoading={isGlobalLoading}
+          />
+        )
       )}
     </>
   );

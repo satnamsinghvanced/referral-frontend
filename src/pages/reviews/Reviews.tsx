@@ -5,6 +5,7 @@ import MiniStatsCard from "../../components/cards/MiniStatsCard";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import LatestReviews from "./LatestReviews";
 import Locations from "./Locations";
+import ManageTags from "./ManageTags";
 import NfcAnalytics from "./NfcAnalytics";
 import Overview from "./Overview";
 
@@ -46,7 +47,7 @@ const Reviews = () => {
     <>
       <ComponentContainer headingData={HEADING_DATA}>
         <div className="flex flex-col gap-4 md:gap-5">
-          <div className="grid grid-cols md:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4 justify-between">
             {STATS_CARD_DATA.map((card, index) => (
               <MiniStatsCard key={index} cardData={card} />
             ))}
@@ -55,7 +56,7 @@ const Reviews = () => {
             aria-label="Options"
             classNames={{
               tabList:
-                "flex w-full rounded-full bg-foreground/5 text-xs bg-foreground/5",
+                "flex w-full rounded-full bg-foreground/5 text-xs",
               tab: "flex-1 text-xs font-medium transition-all",
               cursor: "rounded-full text-xs",
               panel: "p-0",
@@ -66,11 +67,15 @@ const Reviews = () => {
               <Overview />
             </Tab>
 
+            <Tab key="manage-tags" title="Manage Tags/QR" className="text-sm">
+              <ManageTags />
+            </Tab>
+
             <Tab key="locations" title="Locations" className="text-sm">
               <Locations />
             </Tab>
 
-            <Tab key="nfc-cards" title="NFC Cards" className="text-sm">
+            <Tab key="nfc-cards" title="NFC Analytics" className="text-sm">
               <NfcAnalytics />
             </Tab>
 

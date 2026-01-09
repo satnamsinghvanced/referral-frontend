@@ -7,10 +7,10 @@ import {
   ModalHeader,
 } from "@heroui/react";
 import { LuSquarePen, LuTrash2 } from "react-icons/lu";
-import ActivityStatusChip from "../../components/chips/ActivityStatusChip";
-import TaskPriorityChip from "../../components/chips/TaskPriorityChip";
-import { ActivityItem } from "../../types/marketing";
-import { formatDateToReadable } from "../../utils/formatDateToReadable";
+import ActivityStatusChip from "../../../components/chips/ActivityStatusChip";
+import TaskPriorityChip from "../../../components/chips/TaskPriorityChip";
+import { ActivityItem } from "../../../types/marketing";
+import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 
 const DetailItem: React.FC<{ label: string; value: React.ReactNode }> = ({
   label,

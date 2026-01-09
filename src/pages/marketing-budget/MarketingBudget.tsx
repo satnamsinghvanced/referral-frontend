@@ -29,8 +29,8 @@ import { LoadingState } from "../../components/common/LoadingState";
 import { BUDGET_DURATIONS } from "../../consts/budget";
 import { useBudgetItems, useDeleteBudgetItem } from "../../hooks/useBudget";
 import { BudgetItem } from "../../types/budget";
-import BudgetActionModal from "./BudgetActionModal";
 import BudgetItemCard from "./BudgetItemCard";
+import BudgetActionModal from "./modal/BudgetActionModal";
 
 const MarketingBudget = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -61,6 +61,65 @@ const MarketingBudget = () => {
       return null;
     }
     return `${name}: $${value}`;
+  };
+  const renderCustomLabelAdaptive = (props: any) => {
+    const { cx, cy, outerRadius, midAngle, name, value } = props;
+
+    if (value === 0) return null;
+
+    const lineLength = 20;
+    const textShift = 105;
+    const bottomTextShift = 30;
+
+    let startX = cx;
+    let startY: number;
+    let endX: number;
+    let endY: number;
+    let textY: number;
+
+    if (midAngle <= 180) {
+      startY = cy - outerRadius;
+      startX = cx - 10;
+      endX = startX - lineLength;
+      endY = startY - lineLength;
+      textY = endY - 5;
+    } else {
+      startY = cy + outerRadius;
+      startX = cx + 20;
+      endX = startX - lineLength + 50;
+      endY = startY + lineLength;
+      textY = endY + 8;
+    }
+
+    return (
+      <g>
+        {/* Diagonal line */}
+        <line
+          x1={startX}
+          y1={startY}
+          x2={endX}
+          y2={endY}
+          stroke="#9ca3af"
+          strokeWidth={1}
+        />
+
+        {/* Text */}
+        <text
+          x={
+            midAngle > 180
+              ? endX - textShift + bottomTextShift
+              : endX - textShift
+          }
+          y={textY}
+          textAnchor="start"
+          dominantBaseline="middle"
+          fontSize={11}
+          fill="#374151"
+        >
+          {name}: ${value}
+        </text>
+      </g>
+    );
   };
 
   const pagination = data?.pagination;
@@ -165,7 +224,7 @@ const MarketingBudget = () => {
                 className="p-0 border border-primary/15"
               >
                 <CardHeader className="p-5">
-                  <h4 className="flex items-center gap-2 text-sm">
+                  <h4 className="flex  items-center gap-2 text-sm">
                     <LuChartColumn /> Spending vs Budget Trend
                   </h4>
                 </CardHeader>
@@ -210,6 +269,7 @@ const MarketingBudget = () => {
                   </div>
                 </CardBody>
               </Card>
+
               <Card
                 shadow="none"
                 radius="lg"
@@ -249,7 +309,7 @@ const MarketingBudget = () => {
 
           <div className="bg-background flex flex-col rounded-xl border border-primary/15 p-4">
             <div className="pb-4">
-              <h4 className="text-sm font-medium">
+              <h4 className="text-sm font-medium w-full truncate whitespace-nowrap">
                 <span className="capitalize">{currentFilters.period}</span>{" "}
                 Budget Items {isLoading && "(Loading Items...)"}
               </h4>

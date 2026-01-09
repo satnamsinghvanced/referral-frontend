@@ -7,7 +7,7 @@ import ComponentContainer from "../../components/common/ComponentContainer";
 import { CALL_STATUS_OPTIONS, CALL_TYPE_OPTIONS } from "../../consts/filters";
 import { CallFilters, CallRecord } from "../../types/call";
 import CallRecordCard from "./CallRecordCard";
-import CallRecordingModal from "./CallRecordingModal";
+import CallRecordingModal from "./modal/CallRecordingModal";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { MdTrendingUp } from "react-icons/md";
 

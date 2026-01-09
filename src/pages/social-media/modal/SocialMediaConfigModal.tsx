@@ -12,10 +12,12 @@ import { useFormik } from "formik";
 import { useMemo, useState } from "react";
 import { FiExternalLink, FiEye, FiEyeOff } from "react-icons/fi";
 import * as Yup from "yup";
-import { useInitiateAuthIntegration } from "../../hooks/useSocial";
-import { PlatformAuthParams, SocialMediaCredential } from "../../types/social";
+import { useInitiateAuthIntegration } from "../../../hooks/useSocial";
+import {
+  PlatformAuthParams,
+  SocialMediaCredential,
+} from "../../../types/social";
 
-// --- Constants for each Platform ---
 const PLATFORM_CONFIGS = {
   linkedin: {
     title: "LinkedIn Integration",
@@ -45,6 +47,13 @@ const PLATFORM_CONFIGS = {
     infoLink: "https://developers.tiktok.com/my-apps",
     linkText: "TikTok Developer Portal",
   },
+  meta: {
+    title: "Meta (Facebook & Instagram)",
+    description:
+      "Connect your Meta app to manage Facebook and Instagram content.",
+    infoLink: "https://developers.facebook.com/apps",
+    linkText: "Meta for Developers",
+  },
 };
 
 // --- Yup Validation Schema ---
@@ -63,7 +72,7 @@ export default function SocialMediaConfigModal({
   allCredentials,
   isGlobalLoading,
 }: {
-  platform: PlatformAuthParams["platform"]; // Dynamic platform key
+  platform: Exclude<PlatformAuthParams["platform"], "googleBusiness">; // Dynamic platform key
   isOpen: boolean;
   onClose: () => void;
   allCredentials: any;
@@ -78,17 +87,12 @@ export default function SocialMediaConfigModal({
     [allCredentials, platformName]
   );
 
-  // 2. Use the shared mutation hook
   const initiateAuthMutation = useInitiateAuthIntegration();
 
-  // Determine submitting state
   const isSubmitting = initiateAuthMutation.isPending;
 
-  // Determine if configuration exists
   const isConfigured = !!existingConfig?.clientId;
   const isAuthorized = !!existingConfig?.refreshToken;
-
-  // 3. Formik Setup
   const formik = useFormik<Omit<PlatformAuthParams, "platform">>({
     initialValues: {
       clientId: existingConfig?.clientId || "",
@@ -99,7 +103,6 @@ export default function SocialMediaConfigModal({
     onSubmit: async (values, { setSubmitting }) => {
       setSubmitting(true);
       try {
-        // --- This single call handles both initial save and re-authorization ---
         const savePayload: PlatformAuthParams = {
           platform: platformName,
           clientId: values.clientId,
@@ -107,19 +110,21 @@ export default function SocialMediaConfigModal({
           redirectUri: values.redirectUri,
         };
 
-        // Mutate the state and automatically redirect if successful (handled by the hook)
-        await initiateAuthMutation.mutateAsync(savePayload);
+        const response = await initiateAuthMutation.mutateAsync(savePayload);
 
-        // Modal closes after successful submission which triggers the redirect
-        onClose();
+        // On success, redirect the user to the platform for authorization
+        if (response?.authUrl) {
+          window.open(response.authUrl, "_blank");
+          onClose(); // Close modal after initiating OAuth flow
+        } else {
+          throw new Error("Failed to generate authorization URL.");
+        }
       } catch (error) {
         console.error(`${platformName} Configuration Error:`, error);
-        // Error handling in production would use a toast/alert
       } finally {
         setSubmitting(false);
       }
     },
-    // Reinitialize form values when existingConfig changes
     enableReinitialize: true,
   });
 

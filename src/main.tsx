@@ -1,10 +1,11 @@
 import { HeroUIProvider, ToastProvider } from "@heroui/react";
+import { BrowserRouter } from "react-router";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import App from "./App";
 import QueryProvider from "./providers/QueryProvider";
 import ReduxProvider from "./providers/ReduxProvider";
-
+import { TourProvider } from "./providers/TourProvider";
 import "./index.css";
 
 const rootElement = document.getElementById("root");
@@ -34,9 +35,13 @@ createRoot(rootElement).render(
               },
             }}
           />
-          <main className="text-foreground bg-background">
-            <App />
-          </main>
+          <BrowserRouter basename="/referral-retrieve/">
+            <TourProvider>
+              <main className="text-foreground bg-background">
+                <App />
+              </main>
+            </TourProvider>
+          </BrowserRouter>
         </QueryProvider>
       </ReduxProvider>
     </HeroUIProvider>

@@ -1,27 +1,29 @@
-import React, { useState, useCallback, useMemo, useRef } from "react";
 import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
   Button,
+  Chip,
   Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
   Select,
   SelectItem,
   Textarea,
-  Chip,
 } from "@heroui/react";
+import React, { useCallback, useMemo, useState } from "react";
+import { BiChevronDown } from "react-icons/bi";
 import {
+  FiCheckCircle,
   FiHash,
   FiImage,
   FiSend,
   FiUpload,
   FiVideo,
   FiX,
-  FiCheckCircle,
 } from "react-icons/fi";
-import { BiChevronDown } from "react-icons/bi";
+import { Media } from "../../../types/media";
+import GalleryMediaUploadModal from "../../media-management/modal/GalleryMediaUploadModal";
 
 // --- Dynamic Data ---
 
@@ -75,7 +77,6 @@ interface CreatePostModalProps {
 }
 
 export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
-  const fileInputRef = useRef<HTMLInputElement>(null); // REF for hidden input
   const [postContent, setPostContent] = useState("");
   const [selectedPlatforms, setSelectedPlatforms] = useState<string[]>([]);
   const [publishSchedule, setPublishSchedule] = useState("publish-now");
@@ -85,7 +86,9 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
     "#BracesLife",
     "#HealthySmile",
   ]);
-  const [files, setFiles] = useState<File[]>([]); // NEW STATE for files
+
+  const [selectedMedia, setSelectedMedia] = useState<Media[]>([]);
+  const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
   const maxCharacters = 280;
   const isPublishDisabled =
@@ -167,12 +170,7 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
   // --- NEW MEDIA LOGIC ---
 
   const handleWrapperClick = () => {
-    fileInputRef.current?.click(); // Programmatically click the hidden input
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const uploadedFiles = Array.from(e.target.files || []);
-    setFiles(uploadedFiles);
+    setIsGalleryOpen(true);
   };
 
   // --- END NEW MEDIA LOGIC ---
@@ -185,7 +183,7 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
 
   // Dynamic classes for the upload area
   const uploadWrapperClasses =
-    files.length > 0
+    selectedMedia.length > 0
       ? "border-green-400 bg-green-50/50 hover:border-green-500"
       : "border-gray-200 hover:border-gray-300 hover:bg-gray-50";
 
@@ -278,7 +276,7 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
             >
               <div className="flex flex-col items-center gap-3">
                 <div className="flex gap-2">
-                  {files.length > 0 ? (
+                  {selectedMedia.length > 0 ? (
                     <FiCheckCircle className="size-5 text-green-500" />
                   ) : (
                     <>
@@ -289,13 +287,14 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
                   )}
                 </div>
                 <div>
-                  {files.length > 0 ? (
+                  {selectedMedia.length > 0 ? (
                     <p className="text-xs font-medium text-green-700">
-                      {files.length} file(s) selected. Click to change.
+                      {selectedMedia.length} media item(s) selected. Click to
+                      change.
                     </p>
                   ) : (
                     <p className="text-xs font-medium">
-                      Drop files here or click to upload
+                      Click to select media from gallery or upload
                     </p>
                   )}
                   <p className="text-xs text-gray-500 mt-1.5">
@@ -305,16 +304,6 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
                 </div>
               </div>
             </div>
-            {/* Hidden input element connected to the ref and handler */}
-            <input
-              ref={fileInputRef}
-              id="media-upload-input"
-              type="file"
-              multiple
-              className="hidden"
-              onChange={handleFileChange}
-              accept="image/*,video/*"
-            />
           </div>
 
           {/* Hashtags */}
@@ -415,6 +404,13 @@ export function CreatePostModal({ isOpen, onClose }: CreatePostModalProps) {
           </Button>
         </ModalFooter>
       </ModalContent>
+
+      <GalleryMediaUploadModal
+        isOpen={isGalleryOpen}
+        onClose={() => setIsGalleryOpen(false)}
+        onSelect={(media: any) => setSelectedMedia(media)}
+        preselectedMedia={selectedMedia}
+      />
     </Modal>
   );
 }

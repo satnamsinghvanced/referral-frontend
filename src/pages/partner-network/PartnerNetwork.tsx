@@ -1,7 +1,8 @@
-import { Pagination } from "@heroui/react";
+import { Button, Pagination, Select, SelectItem } from "@heroui/react";
 import { useCallback, useMemo, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
-import { FiEdit, FiEye, FiStar, FiUsers } from "react-icons/fi";
+import { FiEdit, FiEye, FiFilter, FiStar, FiUsers } from "react-icons/fi";
+import { GrAscend, GrDescend } from "react-icons/gr";
 import { IoDocumentOutline } from "react-icons/io5";
 import { LuBuilding2 } from "react-icons/lu";
 import { TbArchive } from "react-icons/tb";
@@ -14,12 +15,12 @@ import {
   useFetchPartners,
 } from "../../hooks/usePartner";
 import { FetchPartnersParams, Partner } from "../../types/partner";
-import ReferralManagementActions from "../referral-management/ReferralManagementActions";
 import NotesTasksModal from "./NotesTasksModal";
 import PartnerDetailsModal from "./PartnerDetailsModal";
 import PartnerNetworkCard from "./PartnerNetworkCard";
 import PartnerNetworkHeader from "./PartnerNetworkHeader";
 import ScheduleVisits from "./schedule-visits/ScheduleVisits";
+import ReferrerActionsModal from "../referral-management/referrer-actions/ReferrerActionsModal";
 
 const PartnerNetwork = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -182,33 +183,85 @@ const PartnerNetwork = () => {
             heading="Partner Network"
             subHeading="Manage relationships with referring practices"
             buttons={HEADING_DATA_BUTTONS_LIST}
-            filters={[
-              {
-                label: "Practice Type",
-                options: PARTNER_FILTERS,
-                selectedValue: params.filter,
-                onChange: handleFilterChange,
-              },
-            ]}
-            sortOptions={PARTNER_SORT_OPTIONS}
-            selectedSortOption={params.sortBy}
-            onSortChange={handleSortChange}
-            sortOrder={sortOrder}
-            onSortOrderChange={handleSortOrderChange}
-            visibleItems={practices?.length}
-            totalItems={totalPractices}
           />
         </div>
         <div className="flex flex-col md:p-6 p-4 overflow-auto space-y-4 md:space-y-5">
-          <div className="flex flex-col gap-4 md:gap-5">
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 justify-between">
-              {STATS_CARD_DATA.map((data) => (
-                <MiniStatsCard key={data.heading} cardData={data} />
-              ))}
-            </div>
-
+          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 justify-between">
+            {STATS_CARD_DATA.map((data) => (
+              <MiniStatsCard key={data.heading} cardData={data} />
+            ))}
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-5">
             <div className="bg-background flex flex-col gap-4 border border-primary/15 rounded-xl p-4">
-              <h4 className="font-medium text-sm">Partner Practices</h4>
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium text-sm">Partner Practices</h4>
+                </div>
+
+                <div className="md:flex md:items-center md:justify-between max-md:space-y-3">
+                  <div className="md:flex md:items-center md:gap-3 grid grid-cols-6 gap-2">
+                    <div className="flex items-center gap-2 col-span-full md:col-span-auto">
+                      <FiFilter className="text-gray-500 max-md:hidden" />
+                      <Select
+                        aria-label="Practice Type"
+                        placeholder="Practice Type"
+                        size="sm"
+                        radius="sm"
+                        selectedKeys={[params.filter as string]}
+                        disabledKeys={[params.filter as string]}
+                        onSelectionChange={(keys) =>
+                          handleFilterChange(Array.from(keys)[0] as string)
+                        }
+                        className="md:min-w-[160px] flex-1"
+                      >
+                        {PARTNER_FILTERS.map((opt) => (
+                          <SelectItem key={opt.value}>{opt.label}</SelectItem>
+                        ))}
+                      </Select>
+                    </div>
+
+                    <div className="flex items-center gap-2 col-span-4 md:col-span-auto">
+                      <span className="text-xs text-gray-600 whitespace-nowrap max-md:hidden">
+                        Sort by:
+                      </span>
+                      <Select
+                        aria-label="Sort By"
+                        placeholder="Sort By"
+                        size="sm"
+                        radius="sm"
+                        selectedKeys={[params.sortBy as string]}
+                        disabledKeys={[params.sortBy as string]}
+                        onSelectionChange={(keys) =>
+                          handleSortChange(Array.from(keys)[0] as string)
+                        }
+                        className="md:min-w-[140px] flex-1"
+                      >
+                        {PARTNER_SORT_OPTIONS.map((opt) => (
+                          <SelectItem key={opt.value}>{opt.label}</SelectItem>
+                        ))}
+                      </Select>
+                    </div>
+
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      isIconOnly
+                      onPress={() =>
+                        handleSortOrderChange(
+                          sortOrder === "asc" ? "desc" : "asc"
+                        )
+                      }
+                      className="border-small col-span-2 md:min-w-auto"
+                    >
+                      {sortOrder === "asc" ? <GrAscend /> : <GrDescend />}
+                    </Button>
+                  </div>
+
+                  <div className="text-xs text-gray-500">
+                    {`Showing ${practices?.length} of ${totalPractices} practices`}
+                  </div>
+                </div>
+              </div>
               {isLoading && <LoadingState />}
               {!isLoading && practices.length === 0 && (
                 <EmptyState title="No partners found with current filters." />
@@ -249,15 +302,15 @@ const PartnerNetwork = () => {
                 ""
               )}
             </div>
+            <ScheduleVisits
+              isHistoryModalOpen={isHistoryModalOpen}
+              setIsHistoryModalOpen={setIsHistoryModalOpen}
+            />
           </div>
-          <ScheduleVisits
-            isHistoryModalOpen={isHistoryModalOpen}
-            setIsHistoryModalOpen={setIsHistoryModalOpen}
-          />
         </div>
       </div>
 
-      <ReferralManagementActions
+      <ReferrerActionsModal
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}
         editedData={singlePartnerData || null}

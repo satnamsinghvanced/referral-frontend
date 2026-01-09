@@ -1,7 +1,13 @@
 export interface SocialMediaCredential {
   _id: string;
   userId: string;
-  platform: "linkedin" | "youTube" | "twitter" | "tikTok";
+  platform:
+    | "linkedin"
+    | "youTube"
+    | "twitter"
+    | "tikTok"
+    | "meta"
+    | "googleBusiness";
   clientId: string;
   clientSecret: string;
   redirectUri: string;
@@ -32,5 +38,11 @@ export interface AuthIntegrationResponse {
 }
 
 export interface PlatformAuthParams extends AuthIntegrationRequest {
-  platform: "linkedin" | "youTube" | "twitter" | "tikTok";
+  platform:
+    | "linkedin"
+    | "youTube"
+    | "twitter"
+    | "tikTok"
+    | "meta"
+    | "googleBusiness";
 }

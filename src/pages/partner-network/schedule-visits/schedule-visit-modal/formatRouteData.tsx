@@ -68,8 +68,8 @@ const parseTimeToMinutes = (timeStr: string): number => {
   if (!timeStr) return 0;
   const hoursMatch = timeStr.match(/(\d+)\s*h/);
   const minutesMatch = timeStr.match(/(\d+)\s*m/);
-  const hours = hoursMatch ? parseInt(hoursMatch[1]) : 0;
-  const minutes = minutesMatch ? parseInt(minutesMatch[1]) : 0;
+  const hours = hoursMatch ? parseInt(hoursMatch[1] as string) : 0;
+  const minutes = minutesMatch ? parseInt(minutesMatch[1] as string) : 0;
   return hours * 60 + minutes;
 };
 

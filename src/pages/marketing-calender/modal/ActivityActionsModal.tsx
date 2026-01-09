@@ -9,14 +9,17 @@ import {
   SelectItem,
   Textarea,
 } from "@heroui/react";
-import { getLocalTimeZone, now } from "@internationalized/date";
+import { now } from "@internationalized/date";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { ACTIVITY_TYPES } from "../../consts/marketing";
-import { PRIORITY_LEVELS } from "../../consts/practice";
-import { useCreateActivity, useUpdateActivity } from "../../hooks/useMarketing";
-import { ActivityItem, ActivityType } from "../../types/marketing";
-import { keepUTCWallClock } from "../../utils/keepUTCWallClock";
+import { ActivityItem } from "../../../types/marketing";
+import {
+  useCreateActivity,
+  useUpdateActivity,
+} from "../../../hooks/useMarketing";
+import { ACTIVITY_TYPES } from "../../../consts/marketing";
+import { keepUTCWallClock } from "../../../utils/keepUTCWallClock";
+import { PRIORITY_LEVELS } from "../../../consts/practice";
 
 interface ActivityFormValues {
   title: string;
@@ -60,27 +63,27 @@ interface ActivityActionsModalProps {
   isOpen: boolean;
   onClose: () => void;
   defaultStartDate: string | null;
+  defaultEndDate?: string | null;
   initialData: ActivityItem | null;
-  activityTypes: ActivityType[];
 }
 
 export default function ActivityActionsModal({
   isOpen,
   onClose,
   defaultStartDate,
+  defaultEndDate,
   initialData,
-  activityTypes,
 }: ActivityActionsModalProps) {
   const isEditing = !!initialData?._id || !!initialData?.googleId;
 
   const initialValues: ActivityFormValues = {
     title: initialData?.title || "",
     // @ts-ignore
-    type: initialData?.type || "Google Calendar",
+    type: initialData?.type || "googleCalendar",
     colorId: initialData?.colorId || "7",
     description: initialData?.description || "",
-    startDate: initialData?.startDate || "",
-    endDate: initialData?.endDate || "",
+    startDate: initialData?.startDate || defaultStartDate || "",
+    endDate: initialData?.endDate || defaultEndDate || "",
     // time: initialData?.time || "09:00",
     priority: initialData?.priority || "medium",
     platform: initialData?.platform || "",
@@ -115,7 +118,7 @@ export default function ActivityActionsModal({
             ...values,
             colorId:
               ACTIVITY_TYPES.find(
-                (activity) => activity.label === values.type
+                (activity) => activity.value === values.type
               )?.color.id.toString() || "1",
           },
           {
@@ -204,7 +207,7 @@ export default function ActivityActionsModal({
                 isRequired
               >
                 {ACTIVITY_TYPES?.map((type) => (
-                  <SelectItem key={type.label}>{type.label}</SelectItem>
+                  <SelectItem key={type.value}>{type.label}</SelectItem>
                 ))}
               </Select>
               <ErrorText field="type" />
@@ -240,14 +243,12 @@ export default function ActivityActionsModal({
                 labelPlacement="outside"
                 size="sm"
                 radius="sm"
-                defaultValue={
+                value={
                   formik.values.startDate
                     ? keepUTCWallClock(formik.values.startDate)
-                    : defaultStartDate
-                    ? keepUTCWallClock(defaultStartDate)
                     : null
                 }
-                minValue={now(getLocalTimeZone())}
+                minValue={now("America/New_York")}
                 onChange={(dateObject) => {
                   if (dateObject) {
                     const year = dateObject.year;
@@ -272,7 +273,6 @@ export default function ActivityActionsModal({
                 onBlur={() => formik.setFieldTouched("startDate", true)}
                 isInvalid={!!hasError("startDate")}
                 isRequired
-                hideTimeZone
               />
 
               <ErrorText field="startDate" />
@@ -285,12 +285,16 @@ export default function ActivityActionsModal({
                 labelPlacement="outside"
                 size="sm"
                 radius="sm"
-                defaultValue={
+                value={
                   formik.values.endDate
                     ? keepUTCWallClock(formik.values.endDate)
                     : null
                 }
-                minValue={now(getLocalTimeZone())}
+                minValue={
+                  formik.values.startDate
+                    ? keepUTCWallClock(formik.values.startDate)
+                    : now("America/New_York")
+                }
                 onChange={(dateObject) => {
                   if (dateObject) {
                     const year = dateObject.year;
@@ -314,7 +318,6 @@ export default function ActivityActionsModal({
                 granularity="minute"
                 onBlur={() => formik.setFieldTouched("endDate", true)}
                 isInvalid={!!hasError("endDate")}
-                hideTimeZone
               />
 
               <div className="text-[11px] text-gray-500 mt-1">

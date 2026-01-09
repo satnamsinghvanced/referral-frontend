@@ -4,6 +4,8 @@ import ProtectedRoute from "./pages/auth/ProtectedRoute";
 import QrGenerator from "./pages/qr-generator/QrGenerator";
 import { useFetchTrackings } from "./hooks/useReferral";
 
+import { FiLoader } from "react-icons/fi";
+
 const Layout = React.lazy(() => import("./components/layout/Layout"));
 const Dashboard = React.lazy(() => import("./pages/dashboard/Dashboard"));
 const Analytics = React.lazy(() => import("./pages/analytics/Analytics"));
@@ -73,13 +75,13 @@ const PrivacyPolicy = React.lazy(
   () => import("./pages/privacy-policy/PrivacyPolicyPage")
 );
 const PatientForm = React.lazy(
-  () => import("./pages/referral-management/PatientForm")
+  () => import("./pages/referral-management/referrals/PatientForm")
 );
 const CallTracking = React.lazy(
   () => import("./pages/call-tracking/CallTracking")
 );
 const ThankYou = React.lazy(
-  () => import("./pages/referral-management/ThankYouPage")
+  () => import("./pages/referral-management/referrals/ThankYouPage")
 );
 const NotFoundPage = React.lazy(() => import("./pages/NotFoundPage"));
 
@@ -92,25 +94,6 @@ interface AppRoute {
 }
 
 function AppRoutes() {
-  const [referralPath, setReferralPath] = useState("referral");
-  const pathname = window.location.pathname;
-  const segments = pathname.split("/");
-  const documentId = segments[3];
-
-  const { data: trackings } = useFetchTrackings(documentId as string);
-
-  useEffect(() => {
-    if (trackings?.referralUrl) {
-      const urlObject = new URL(trackings?.referralUrl);
-      const pathname = urlObject.pathname;
-      const segments = pathname
-        .split("/")
-        .filter((segment) => segment.length > 0);
-      const targetSegment = segments[1];
-      setReferralPath(targetSegment as string);
-    }
-  }, [trackings, referralPath]);
-
   const routesList: AppRoute[] = [
     { path: "visit-map", element: <VisitMap /> },
     {
@@ -123,7 +106,7 @@ function AppRoutes() {
       children: [
         { index: true, element: <Dashboard /> },
         { path: "referrals", element: <ReferralManagement /> },
-        { path: "analytics", element: <Analytics /> }, // ... (rest of the children routes remain the same) ...
+        { path: "analytics", element: <Analytics /> },
         { path: "partner-network", element: <PartnerNetwork /> },
         { path: "reviews", element: <Reviews /> },
         { path: "email-campaigns", element: <EmailCampaign /> },
@@ -150,7 +133,6 @@ function AppRoutes() {
           path: "settings",
           element: <Settings />, // Note: Settings itself is protected by its parent Layout
           children: [
-            // ... (rest of settings children) ...
             { index: true, element: <Profile /> },
             { path: "notifications", element: <Notifications /> },
             { path: "security", element: <Security /> },
@@ -175,7 +157,7 @@ function AppRoutes() {
     { path: "terms", element: <Terms /> },
     { path: "privacy", element: <PrivacyPolicy /> },
     {
-      path: `${referralPath}/:id`,
+      path: ":customPath/:id",
       element: <PatientForm />,
     },
     { path: "*", element: <NotFoundPage /> },
@@ -201,9 +183,7 @@ function AppRoutes() {
     //     </div>
     //   }
     // >
-    <BrowserRouter basename="/referral-retrieve/">
-      <Routes>{renderRoutes(routesList)}</Routes>
-    </BrowserRouter>
+    <Routes>{renderRoutes(routesList)}</Routes>
     // </Suspense>
   );
 }

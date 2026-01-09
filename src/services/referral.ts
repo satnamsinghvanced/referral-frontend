@@ -1,9 +1,11 @@
 import {
+  CreateReferrerPayload,
   FetchReferrersParams,
   Referrer,
   ReferrersResponse,
 } from "../types/partner";
 import {
+  CreateReferralPayload,
   FetchReferralsParams,
   Referral,
   ReferralsResponse,
@@ -12,7 +14,7 @@ import {
 } from "../types/referral";
 import axios from "./axios";
 
-export const createReferral = async (payload: Partial<Referral>) => {
+export const createReferral = async (payload: CreateReferralPayload) => {
   const { data } = await axios.post("/referral", payload);
   return data;
 };
@@ -52,11 +54,11 @@ export const deleteReferral = async (id: string) => {
 // Referrer APIs
 // ---------------------------
 
-// Add a new referrer (doctor/patient)
+// Add a new referrer (doctor/patient/community/google/social/event)
 export const createReferrer = async (
   id: string,
   type: string,
-  payload: Partial<Referrer>
+  payload: CreateReferrerPayload
 ) => {
   const { data } = await axios.post(`/referrers/${id}`, payload, {
     params: { type },
@@ -86,7 +88,7 @@ export const getReferrerById = async (id: string): Promise<Referrer> => {
 export const updateReferrer = async (
   id: string,
   type: string,
-  payload: Partial<Referrer>
+  payload: Partial<CreateReferrerPayload>
 ) => {
   const { data } = await axios.put(`/referrers/${id}`, payload, {
     params: { type },
@@ -134,6 +136,15 @@ export const logTrackingScan = async (
 ) => {
   const { data } = await axios.post(`/tracking/scan/${trackingId}`, null, {
     params: { source },
+  });
+  return data;
+};
+// 5. Import referrals from CSV
+export const importReferralsCSV = async (formData: FormData) => {
+  const { data } = await axios.post("/referral/import-csv/", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
   });
   return data;
 };

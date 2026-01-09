@@ -53,7 +53,10 @@ export const getAllFoldersWithChildFolders = () => {
 
 const IMAGES_API_BASE = "/images";
 
-export const uploadMedia = (data: UploadMediaRequest) => {
+export const uploadMedia = (
+  data: UploadMediaRequest,
+  onUploadProgress?: (progressEvent: any) => void
+) => {
   const formData = new FormData();
   formData.append("folderId", data.folderId || "");
   data.images.forEach((file: any) => formData.append("images", file));
@@ -64,6 +67,7 @@ export const uploadMedia = (data: UploadMediaRequest) => {
     headers: {
       "Content-Type": "multipart/form-data",
     },
+    ...(onUploadProgress && { onUploadProgress }),
   });
 };
 

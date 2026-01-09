@@ -1,43 +1,17 @@
-import {
-  Chip,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalHeader,
-} from "@heroui/react";
-import { TbCalendarStats, TbRoute, TbNotes } from "react-icons/tb"; // Icons for new structure
-import VisitStatusChip from "../../../components/chips/VisitStatusChip";
-import { LuCar, LuClock, LuTimer } from "react-icons/lu";
-import { formatDateToReadable } from "../../../utils/formatDateToReadable";
-import { convertTo12HourClock } from "../../../utils/convertTo12HourClock";
+import { Modal, ModalBody, ModalContent, ModalHeader } from "@heroui/react";
 import { FiCheckCircle } from "react-icons/fi";
+import { LuCar, LuClock, LuTimer } from "react-icons/lu";
+import { TbCalendarStats, TbNotes, TbRoute } from "react-icons/tb"; // Icons for new structure
+import VisitStatusChip from "../../../components/chips/VisitStatusChip";
+import { convertTo12HourClock } from "../../../utils/convertTo12HourClock";
+import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 
-// Assuming the data structure for a single plan
-interface PlanData {
-  planName: string;
-  status: "active" | "draft" | "completed";
-  visitPurpose: string;
-  defaultPriority: string;
-  description: string;
-  isOptimized: boolean;
-  estimatedTotalTime: string; // e.g., "1h 0m"
-  estimatedDistance: string; // e.g., "0.0mi"
-  referrerCount: number;
-  visitDaysCount: string; // e.g., "0d 1h 0m" for display
-  routeDetails: Array<{
-    stop: number;
-    name: string;
-    address: string;
-    timeWindow: string; // e.g., "09:00 PM - 09:30 PM"
-    travelTime: string;
-    travelDistance: string;
-  }>;
-}
+import { RouteDetailStop, SchedulePlan } from "../../../types/partner";
 
 interface ViewScheduleModalProps {
   isOpen: boolean;
   onClose: () => void;
-  plan: PlanData; // The data for the specific plan to display
+  plan: SchedulePlan; // The data for the specific plan to display
 }
 
 export default function ViewScheduledVisitModal({
@@ -235,7 +209,7 @@ const RouteStopCard = ({
   route,
   index,
 }: {
-  route: PlanData["routeDetails"][0];
+  route: RouteDetailStop;
   index: number;
 }) => (
   <div className="p-3 border border-primary/15 rounded-xl flex items-start gap-2">
