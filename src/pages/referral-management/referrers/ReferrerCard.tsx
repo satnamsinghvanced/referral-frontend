@@ -63,28 +63,28 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
           textColor: "text-emerald-600",
           label: "Patient Referrer",
         };
-      case "communityreferrer":
+      case "communityReferrer":
         return {
           icon: <RiUserCommunityLine />,
           bgColor: "bg-orange-100",
           textColor: "text-orange-600",
           label: "Community Referrer",
         };
-      case "googlereferrer":
+      case "googleReferrer":
         return {
           icon: <SiGoogle />,
           bgColor: "bg-indigo-100",
           textColor: "text-indigo-600",
           label: "Online/Google Referrer",
         };
-      case "socialmediareferrer":
+      case "socialMediaReferrer":
         return {
           icon: <LuShare2 />,
           bgColor: "bg-purple-100",
           textColor: "text-purple-600",
           label: "Social Media Referrer",
         };
-      case "eventreferrer":
+      case "eventReferrer":
         return {
           icon: <LuTrophy />,
           bgColor: "bg-amber-100",
