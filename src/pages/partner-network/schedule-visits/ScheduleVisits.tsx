@@ -1,11 +1,13 @@
-import { Button, Pagination, Select, SelectItem } from "@heroui/react";
-import { useCallback, useState } from "react";
-import { FiFileText } from "react-icons/fi";
+import { Button, Input, Pagination, Select, SelectItem } from "@heroui/react";
+import { useCallback, useEffect, useState } from "react";
+import { FiFileText, FiSearch } from "react-icons/fi";
+import { GrAscend, GrDescend } from "react-icons/gr";
 import { LuCalendar } from "react-icons/lu";
 import { MdOutlineCalendarToday } from "react-icons/md";
 import DeleteConfirmationModal from "../../../components/common/DeleteConfirmationModal";
 import EmptyState from "../../../components/common/EmptyState";
 import { LoadingState } from "../../../components/common/LoadingState";
+import { useDebouncedValue } from "../../../hooks/common/useDebouncedValue";
 import {
   useDeleteSchedulePlan,
   useFetchPartners,
@@ -105,20 +107,31 @@ export default function ScheduleVisits({
   const [filters, setFilters] = useState<GetSchedulePlansQuery>({
     page: 1,
     limit: 9,
+    search: "",
     status: "all",
     order: "desc",
     sortBy: "month",
   });
 
+  const debouncedSearch = useDebouncedValue(filters.search, 500);
+
+  useEffect(() => {
+    setFilters((prev: any) => ({ ...prev, search: debouncedSearch }));
+  }, [debouncedSearch]);
+
   const { data: practicesData } = useFetchPartners();
 
   const practices = practicesData?.data || [];
 
-  const { data, isLoading } = useGetSchedulePlans(filters);
+  const { data, isLoading } = useGetSchedulePlans({
+    ...filters,
+    search: debouncedSearch as string,
+  });
 
   const schedulePlans = data?.data || [];
   const dashboardStats = data?.dashboardStats;
   const pagination = data?.pagination;
+  const visitHistoryCount = data?.visitHistoryCount || 0;
 
   const { mutate: deleteSchedulePlan, isPending } = useDeleteSchedulePlan();
 
@@ -144,8 +157,8 @@ export default function ScheduleVisits({
 
     if (schedulePlans.length === 0) {
       return (
-        <div className="col-span-full p-5 border border-primary/15 rounded-xl bg-background">
-          <EmptyState title="No schedule plans found based on current filters." />
+        <div className="col-span-full">
+          <EmptyState title="No schedule plans found based on current filters. Try adjusting your search or filters." />
         </div>
       );
     }
@@ -207,18 +220,37 @@ export default function ScheduleVisits({
               Plan your visits to multiple referrers with route optimization
             </p>
           </div>
-          <Button
-            size="sm"
-            variant="solid"
-            color="primary"
-            startContent={<MdOutlineCalendarToday />}
-            onPress={() => {
-              setIsScheduleVisitModalOpen(true);
-              setEditPlan(null);
-            }}
-          >
-            Schedule Visit
-          </Button>
+          <div className="flex items-center gap-2">
+            {visitHistoryCount > 0 && (
+              <Button
+                size="sm"
+                variant="ghost"
+                color="default"
+                startContent={<MdOutlineCalendarToday />}
+                onPress={() => {
+                  setIsHistoryModalOpen(true);
+                  setEditPlan(null);
+                }}
+                className="border-small"
+              >
+                Visit History
+              </Button>
+            )}
+            {practices.length > 0 && (
+              <Button
+                size="sm"
+                variant="solid"
+                color="primary"
+                startContent={<MdOutlineCalendarToday />}
+                onPress={() => {
+                  setIsScheduleVisitModalOpen(true);
+                  setEditPlan(null);
+                }}
+              >
+                Schedule Visit
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* {dashboardStats?.totalPlans > 0 && ( */}
@@ -260,8 +292,20 @@ export default function ScheduleVisits({
           </CardBody>
         </Card> */}
 
-          <div className="md:flex md:items-center md:justify-between max-md:space-y-3">
-            <div className="md:flex md:items-center md:gap-3 grid grid-cols-6 gap-2">
+          <div className="space-y-3">
+            <div className="flex items-center gap-3">
+              <Input
+                size="sm"
+                variant="flat"
+                placeholder="Search visits..."
+                value={filters.search as string}
+                onValueChange={(value: string) =>
+                  setFilters({ ...filters, search: value })
+                }
+                className="text-xs min-w-fit"
+                startContent={<FiSearch className="text-gray-400 h-4 w-4" />}
+                fullWidth
+              />
               <Select
                 aria-label="Filter Plans"
                 placeholder="All Plans"
@@ -272,56 +316,74 @@ export default function ScheduleVisits({
                 onSelectionChange={(keys) =>
                   handleFilterChange("status", Array.from(keys)[0] as string)
                 }
-                className="min-w-[160px] col-span-full"
+                className="min-w-[160px] max-w-[160px]"
               >
                 <SelectItem key="all">All Plans</SelectItem>
                 <SelectItem key="active">Active</SelectItem>
                 <SelectItem key="inProgress">In Progress</SelectItem>
                 <SelectItem key="draft">Draft</SelectItem>
               </Select>
-              <Select
-                aria-label="Filter by Month"
-                placeholder="Month"
-                size="sm"
-                radius="sm"
-                selectedKeys={[filters.sortBy] as string[]}
-                disabledKeys={[filters.sortBy] as string[]}
-                onSelectionChange={(keys) => {
-                  handleFilterChange("sortBy", Array.from(keys)[0] as string);
-                }}
-                className="md:min-w-[160px] col-span-3"
-              >
-                <SelectItem key="month">Month</SelectItem>
-                <SelectItem key="name">Name</SelectItem>
-                <SelectItem key="createdDate">Created Date</SelectItem>
-                <SelectItem key="updatedDate">Updated Date</SelectItem>
-              </Select>
-              <Button
-                size="sm"
-                variant="ghost"
-                onPress={handleOrderToggle}
-                className="border-small md:min-w-[90px] col-span-2"
-              >
-                {filters.order === "desc" ? "Descending" : "Ascending"}
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                onPress={() => setIsCompactMode(!isCompactMode)}
-                className="border-small size-8 min-w-8 p-0 max-md:w-full"
-                title={isCompactMode ? "Show Grid View" : "Show List View"}
-                startContent={
-                  isCompactMode ? (
-                    <LuCalendar className="size-3.5" />
-                  ) : (
-                    <FiFileText className="size-3.5" />
-                  )
-                }
-                isIconOnly
-              />
             </div>
-            <div className="text-xs text-gray-600">
-              Showing {schedulePlans.length} of {pagination?.totalData} plans
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 col-span-4 md:col-span-auto">
+                  <span className="text-xs text-gray-600 whitespace-nowrap max-md:hidden">
+                    Sort by:
+                  </span>
+                  <Select
+                    aria-label="Filter by Month"
+                    placeholder="Month"
+                    size="sm"
+                    radius="sm"
+                    selectedKeys={[filters.sortBy] as string[]}
+                    disabledKeys={[filters.sortBy] as string[]}
+                    onSelectionChange={(keys) => {
+                      handleFilterChange(
+                        "sortBy",
+                        Array.from(keys)[0] as string
+                      );
+                    }}
+                    className="md:min-w-[160px] col-span-3"
+                  >
+                    <SelectItem key="month">Month</SelectItem>
+                    <SelectItem key="name">Name</SelectItem>
+                    <SelectItem key="createdDate">Created Date</SelectItem>
+                    <SelectItem key="updatedDate">Updated Date</SelectItem>
+                  </Select>
+                </div>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onPress={handleOrderToggle}
+                  className="border-small col-span-2 md:min-w-auto"
+                  title={
+                    filters.order === "asc"
+                      ? "Sort Ascending"
+                      : "Sort Descending"
+                  }
+                  isIconOnly
+                >
+                  {filters.order === "asc" ? <GrAscend /> : <GrDescend />}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onPress={() => setIsCompactMode(!isCompactMode)}
+                  className="border-small size-8 min-w-8 p-0 max-md:w-full"
+                  title={isCompactMode ? "Show Grid View" : "Show List View"}
+                  startContent={
+                    isCompactMode ? (
+                      <LuCalendar className="size-3.5" />
+                    ) : (
+                      <FiFileText className="size-3.5" />
+                    )
+                  }
+                  isIconOnly
+                />
+              </div>
+              <p className="text-xs text-gray-600">
+                Showing {schedulePlans.length} of {pagination?.totalData} plans
+              </p>
             </div>
           </div>
 
@@ -349,9 +411,6 @@ export default function ScheduleVisits({
                 classNames={{
                   base: "flex justify-center py-3 mt-2",
                   wrapper: "gap-1.5",
-                  item: "bg-background cursor-pointer",
-                  prev: "bg-background cursor-pointer",
-                  next: "bg-background cursor-pointer",
                 }}
               />
             ) : (

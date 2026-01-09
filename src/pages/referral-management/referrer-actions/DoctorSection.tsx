@@ -1,16 +1,19 @@
 import { FormikProps } from "formik";
 import { CATEGORY_OPTIONS } from "../../../consts/filters";
+import { STATUS_OPTIONS } from "../../../consts/practice";
 
 interface DoctorSectionProps {
   formik: FormikProps<any>;
   renderField: (field: any) => any;
   specialties: any[];
+  isPracticeEdit?: boolean;
 }
 
 export default function DoctorSection({
   formik,
   renderField,
   specialties,
+  isPracticeEdit,
 }: DoctorSectionProps) {
   const doctorFields = [
     {
@@ -34,9 +37,21 @@ export default function DoctorSection({
       type: "select",
       options: specialties,
       placeholder: "Select specialty",
-      isFullWidth: true,
+      isFullWidth: !isPracticeEdit,
       isRequired: true,
     },
+    ...(isPracticeEdit
+      ? [
+          {
+            id: "status",
+            label: "Status",
+            type: "select",
+            options: STATUS_OPTIONS,
+            placeholder: "Select status",
+            isRequired: true,
+          },
+        ]
+      : []),
     {
       id: "practiceAddress",
       label: "Practice Address",

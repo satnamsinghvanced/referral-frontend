@@ -11,14 +11,21 @@ import { useState } from "react";
 import { FiEye, FiEyeOff, FiShield } from "react-icons/fi";
 import * as Yup from "yup";
 import { useUpdatePassword } from "../../hooks/settings/useSecurity";
+import { PASSWORD_REGEX } from "../../consts/consts";
 
 const SecuritySchema = Yup.object().shape({
   currentPassword: Yup.string()
     .required("Current password is required")
-    .min(6, "Password must be at least 6 characters"),
+    .matches(
+      PASSWORD_REGEX,
+      "Password must be at least 8 characters, include one uppercase letter, one lowercase letter, one number and one special character"
+    ),
   newPassword: Yup.string()
     .required("New password is required")
-    .min(8, "Password must be at least 8 characters"),
+    .matches(
+      PASSWORD_REGEX,
+      "Password must be at least 8 characters, include one uppercase letter, one lowercase letter, one number and one special character"
+    ),
   confirmNewPassword: Yup.string()
     .oneOf([Yup.ref("newPassword")], "Passwords must match")
     .required("Please confirm your new password"),
@@ -26,7 +33,7 @@ const SecuritySchema = Yup.object().shape({
 
 const Security: React.FC = () => {
   const { mutate: updatePassword, isPending } = useUpdatePassword();
-  const [twoFAEnabled, setTwoFAEnabled] = useState(true);
+  const [twoFAEnabled, setTwoFAEnabled] = useState(false);
 
   const handle2FAUpdate = () => {
     setTwoFAEnabled((prev) => !prev);
@@ -47,12 +54,12 @@ const Security: React.FC = () => {
 
   return (
     <Card className="rounded-xl shadow-none border border-foreground/10">
-      <CardHeader className="flex items-center gap-2 px-5 pt-5 pb-0">
+      <CardHeader className="flex items-center gap-2 px-4 pt-4 pb-1">
         <FiShield className="size-5" />
         <h4 className="text-base">Security & Privacy</h4>
       </CardHeader>
 
-      <CardBody className="p-5 space-y-8">
+      <CardBody className="p-4">
         <Formik
           initialValues={{
             currentPassword: "",
@@ -75,8 +82,16 @@ const Security: React.FC = () => {
             );
           }}
         >
-          {({ setFieldValue, values, isValid, dirty }) => (
-            <Form className="space-y-3">
+          {({
+            setFieldValue,
+            handleBlur,
+            touched,
+            errors,
+            values,
+            isValid,
+            dirty,
+          }) => (
+            <Form className="space-y-3.5">
               {["currentPassword", "newPassword", "confirmNewPassword"].map(
                 (field) => {
                   const labelMap: Record<string, string> = {
@@ -90,40 +105,41 @@ const Security: React.FC = () => {
                     confirmNewPassword: "Confirm new password",
                   };
 
+                  const fieldName = field as keyof typeof values;
+                  const isInvalid = !!(touched[fieldName] && errors[fieldName]);
+                  const errorMessage = touched[fieldName]
+                    ? (errors[fieldName] as string)
+                    : "";
+
                   return (
-                    <div key={field} className="space-y-1">
-                      <label
-                        htmlFor={field}
-                        className="text-sm font-medium select-none"
-                      >
-                        {labelMap[field]}
-                      </label>
-                      <Field
-                        as={Input}
+                    <div key={field} className="space-y-1.5">
+                      <Input
                         id={field}
                         name={field}
                         type={showPassword[field] ? "text" : "password"}
-                        placeholder={placeholderMap[field]}
-                        variant="bordered"
-                        value={values[field as keyof typeof values]}
+                        value={values[fieldName]}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
                           setFieldValue(field, e.target.value)
                         }
-                        className="mt-1"
+                        onBlur={handleBlur}
+                        isInvalid={isInvalid}
+                        errorMessage={errorMessage}
+                        variant="flat"
+                        size="sm"
+                        radius="sm"
+                        label={labelMap[field]}
+                        labelPlacement="outside-top"
+                        placeholder={placeholderMap[field] as string}
                         endContent={
                           <button
                             type="button"
                             onClick={() => togglePasswordVisibility(field)}
-                            className="text-gray-400 hover:text-gray-600"
+                            className="text-gray-400 hover:text-gray-600 cursor-pointer"
                           >
                             {showPassword[field] ? <FiEyeOff /> : <FiEye />}
                           </button>
                         }
-                      />
-                      <ErrorMessage
-                        name={field}
-                        component="p"
-                        className="text-xs text-red-500 mt-1"
+                        isRequired
                       />
                     </div>
                   );
@@ -144,14 +160,14 @@ const Security: React.FC = () => {
           )}
         </Formik>
 
-        <Divider className="border-foreground/10 mb-7" />
+        <Divider className="border-foreground/10 my-5" />
 
         <div className="space-y-4">
           <h4 className="leading-none flex items-center gap-2 text-sm">
             Two-Factor Authentication
           </h4>
 
-          <div className="flex items-center justify-between p-4 border border-foreground/10 rounded-lg">
+          <div className="flex items-center justify-between p-3 border border-foreground/10 rounded-lg">
             <div className="space-y-1">
               <p className="font-medium text-sm">SMS Authentication</p>
               <p className="text-xs text-gray-600">

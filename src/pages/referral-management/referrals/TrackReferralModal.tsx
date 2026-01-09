@@ -25,7 +25,7 @@ import { useState } from "react";
 import { FiCheckCircle, FiPlus } from "react-icons/fi";
 import { LuBuilding } from "react-icons/lu";
 import * as Yup from "yup";
-import { EMAIL_REGEX, PHONE_REGEX } from "../../../consts/consts";
+import { EMAIL_REGEX, PHONE_REGEX, NAME_REGEX } from "../../../consts/consts";
 import { STATUS_OPTIONS } from "../../../consts/filters";
 import {
   SOURCE_OPTIONS,
@@ -36,6 +36,7 @@ import { useCreateReferral } from "../../../hooks/useReferral";
 import { Referrer } from "../../../types/partner";
 import { CreateReferralPayload, ReferralStatus } from "../../../types/referral";
 import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
+import { useTypedSelector } from "../../../hooks/useTypedSelector";
 
 interface TrackReferralModalProps {
   isOpen: boolean;
@@ -50,6 +51,9 @@ const TrackReferralModal = ({
   referrers = [],
   onCreateNewReferrer,
 }: TrackReferralModalProps) => {
+  const { user } = useTypedSelector((state) => state.auth);
+  const userId = user?.userId;
+
   const { mutate: createReferral, isPending: isLoading } = useCreateReferral();
   // Mode: 'existing' | 'new'
   const [referrerMode, setReferrerMode] = useState<"existing" | "new">(
@@ -59,6 +63,10 @@ const TrackReferralModal = ({
   const validationSchema = Yup.object().shape({
     patientName: Yup.string()
       .required("Patient name is required")
+      .matches(
+        NAME_REGEX,
+        "Name can only contain letters, spaces, hyphens, apostrophes, and full stops"
+      )
       .min(2, "Name must be at least 2 characters")
       .max(100, "Name must be less than 100 characters"),
     patientAge: Yup.number()
@@ -79,6 +87,8 @@ const TrackReferralModal = ({
     }),
     treatment: Yup.string().required("Reason for referral is required"),
     source: Yup.string().required("Referral source is required"),
+    status: Yup.string().required("Status is required"),
+    urgency: Yup.string().required("Urgency is required"),
   });
 
   const formik = useFormik({
@@ -193,6 +203,7 @@ const TrackReferralModal = ({
                     maxLength={100}
                     value={formik.values.patientName || ""}
                     onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
                     isInvalid={
                       !!(
                         formik.errors.patientName && formik.touched.patientName
@@ -219,6 +230,7 @@ const TrackReferralModal = ({
                         3
                       )
                     }
+                    onBlur={formik.handleBlur}
                     isInvalid={
                       !!(formik.errors.patientAge && formik.touched.patientAge)
                     }
@@ -242,6 +254,7 @@ const TrackReferralModal = ({
                         "tel"
                       )
                     }
+                    onBlur={formik.handleBlur}
                     isInvalid={!!(formik.errors.phone && formik.touched.phone)}
                     errorMessage={formik.errors.phone}
                   />
@@ -256,8 +269,10 @@ const TrackReferralModal = ({
                     maxLength={255}
                     value={formik.values.email || ""}
                     onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
                     isInvalid={!!(formik.errors.email && formik.touched.email)}
                     errorMessage={formik.errors.email}
+                    isRequired
                   />
                 </div>
               </div>
@@ -314,6 +329,7 @@ const TrackReferralModal = ({
                         onSelectionChange={(key) =>
                           formik.setFieldValue("referrerId", key)
                         }
+                        onBlur={formik.handleBlur}
                         isInvalid={
                           !!(
                             formik.errors.referrerId &&
@@ -322,15 +338,24 @@ const TrackReferralModal = ({
                         }
                         errorMessage={formik.errors.referrerId}
                       >
-                        {(item) => (
+                        <>
                           <AutocompleteItem
-                            key={item._id}
-                            textValue={item.name}
-                            description={item.practice?.name}
+                            key={userId}
+                            textValue="Myself"
+                            description={user?.firstName + " " + user?.lastName}
                           >
-                            {item.name}
+                            Myself
                           </AutocompleteItem>
-                        )}
+                          {(item: any) => (
+                            <AutocompleteItem
+                              key={item._id}
+                              textValue={item.name}
+                              description={item.practice?.name}
+                            >
+                              {item.name}
+                            </AutocompleteItem>
+                          )}
+                        </>
                       </Autocomplete>
                     </div>
                   ) : (
@@ -385,6 +410,7 @@ const TrackReferralModal = ({
                       onChange={(e) =>
                         formik.setFieldValue("treatment", e.target.value)
                       }
+                      onBlur={formik.handleBlur}
                       isInvalid={
                         !!(formik.errors.treatment && formik.touched.treatment)
                       }
@@ -464,9 +490,18 @@ const TrackReferralModal = ({
                       selectedKeys={
                         formik.values.status ? [formik.values.status] : []
                       }
+                      disabledKeys={
+                        formik.values.status ? [formik.values.status] : []
+                      }
                       onChange={(e) =>
                         formik.setFieldValue("status", e.target.value)
                       }
+                      onBlur={formik.handleBlur}
+                      isInvalid={
+                        !!(formik.errors.status && formik.touched.status)
+                      }
+                      errorMessage={formik.errors.status}
+                      isRequired
                     >
                       {STATUS_OPTIONS.map((s) => (
                         <SelectItem key={s.value}>{s.label}</SelectItem>
@@ -484,9 +519,18 @@ const TrackReferralModal = ({
                       selectedKeys={
                         formik.values.urgency ? [formik.values.urgency] : []
                       }
+                      disabledKeys={
+                        formik.values.urgency ? [formik.values.urgency] : []
+                      }
                       onChange={(e) =>
                         formik.setFieldValue("urgency", e.target.value)
                       }
+                      onBlur={formik.handleBlur}
+                      isInvalid={
+                        !!(formik.errors.urgency && formik.touched.urgency)
+                      }
+                      errorMessage={formik.errors.urgency}
+                      isRequired
                     >
                       {URGENCY_OPTIONS.map((u) => (
                         <SelectItem key={u.key}>{u.label}</SelectItem>
@@ -506,9 +550,18 @@ const TrackReferralModal = ({
                       selectedKeys={
                         formik.values.source ? [formik.values.source] : []
                       }
+                      disabledKeys={
+                        formik.values.source ? [formik.values.source] : []
+                      }
                       onChange={(e) =>
                         formik.setFieldValue("source", e.target.value)
                       }
+                      onBlur={formik.handleBlur}
+                      isInvalid={
+                        !!(formik.errors.source && formik.touched.source)
+                      }
+                      errorMessage={formik.errors.source}
+                      isRequired
                     >
                       {SOURCE_OPTIONS.map((s) => (
                         <SelectItem key={s.key}>{s.label}</SelectItem>
@@ -529,6 +582,14 @@ const TrackReferralModal = ({
                       name="estimatedValue"
                       value={formik.values.estimatedValue.toString() || ""}
                       onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      isInvalid={
+                        !!(
+                          formik.errors.estimatedValue &&
+                          formik.touched.estimatedValue
+                        )
+                      }
+                      errorMessage={formik.errors.estimatedValue}
                     />
                   </div>
 
@@ -543,6 +604,9 @@ const TrackReferralModal = ({
                     name="notes"
                     value={formik.values.notes || ""}
                     onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    isInvalid={!!(formik.errors.notes && formik.touched.notes)}
+                    errorMessage={formik.errors.notes}
                   />
                 </div>
               </div>
@@ -566,6 +630,7 @@ const TrackReferralModal = ({
                 onPress={() => formik.handleSubmit()}
                 isLoading={!!isLoading}
                 startContent={!isLoading && <FiPlus className="text-[15px]" />}
+                isDisabled={isLoading || !formik.isValid || !formik.dirty}
               >
                 Add Referral
               </Button>

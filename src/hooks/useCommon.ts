@@ -5,27 +5,28 @@ import {
   fetchRoles,
   fetchSpecialties,
 } from "../services/common";
+import { ActivityType, Permission, Role, Specialty } from "../types/common";
 
 export const useSpecialties = () =>
-  useQuery({
+  useQuery<Specialty[]>({
     queryKey: ["specialties"],
     queryFn: fetchSpecialties,
   });
 
 export const useRoles = () =>
-  useQuery({
+  useQuery<Role[]>({
     queryKey: ["roles"],
     queryFn: fetchRoles,
   });
 
 export const usePermissions = () =>
-  useQuery({
+  useQuery<Permission[]>({
     queryKey: ["permissions"],
     queryFn: fetchPermissions,
   });
 
 export const useActivityTypes = () =>
-  useQuery({
+  useQuery<ActivityType[]>({
     queryKey: ["activity_types"],
     queryFn: fetchActivityTypes,
   });

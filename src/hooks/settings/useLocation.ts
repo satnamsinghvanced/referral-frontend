@@ -7,16 +7,16 @@ import {
   deleteLocation,
   fetchLocationDetails,
   fetchLocations,
-  Location,
   updateLocation,
 } from "../../services/settings/location";
+import { Location, LocationsResponse } from "../../types/common";
 
 const LOCATION_KEY = ["locations"];
 
-export function useFetchLocations() {
-  return useQuery<Location[]>({
-    queryKey: LOCATION_KEY,
-    queryFn: fetchLocations,
+export function useFetchLocations(params?: { page?: number; limit?: number }) {
+  return useQuery<LocationsResponse<Location>>({
+    queryKey: [...LOCATION_KEY, params],
+    queryFn: () => fetchLocations(params),
   });
 }
 

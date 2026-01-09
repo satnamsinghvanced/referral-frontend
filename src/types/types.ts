@@ -1,5 +1,4 @@
 import { ButtonProps } from "@heroui/react";
-import { ReactNode } from "react";
 
 // button types
 export type ButtonSize = "sm" | "md" | "lg";

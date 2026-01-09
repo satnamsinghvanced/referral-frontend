@@ -319,7 +319,7 @@ const MarketingBudget = () => {
               {isLoading ? (
                 <LoadingState />
               ) : !data || data?.budgetItems?.length <= 0 ? (
-                <EmptyState title="No budget items found for the selected period." />
+                <EmptyState title="No budget items found for the selected period. Try adjusting your search or filters." />
               ) : (
                 <>
                   <div className="space-y-3">
@@ -346,9 +346,6 @@ const MarketingBudget = () => {
                       classNames={{
                         base: "flex justify-end py-3",
                         wrapper: "gap-1.5",
-                        item: "cursor-pointer",
-                        prev: "cursor-pointer",
-                        next: "cursor-pointer",
                       }}
                     />
                   ) : (

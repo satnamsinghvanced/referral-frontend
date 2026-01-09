@@ -8,6 +8,7 @@ import {
   ModalHeader,
   addToast,
 } from "@heroui/react";
+import { useState } from "react";
 import { FiShare2, FiUsers } from "react-icons/fi";
 import { LuNfc } from "react-icons/lu";
 import { Referrer } from "../../../types/partner";
@@ -19,16 +20,14 @@ interface NfcTagModalProps {
 }
 
 const NfcTagModal = ({ isOpen, onClose, referrer }: NfcTagModalProps) => {
+  const [isCopied, setIsCopied] = useState(false);
   const referralLink =
     referrer.nfcUrl || `https://practiceroi.com/refer/${referrer._id}`;
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(referralLink);
-    addToast({
-      title: "Success",
-      description: "Referral link copied to clipboard!",
-      color: "success",
-    });
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 2000);
   };
 
   const handleShare = async () => {
@@ -147,10 +146,14 @@ const NfcTagModal = ({ isOpen, onClose, referrer }: NfcTagModalProps) => {
                   <Button
                     size="sm"
                     radius="sm"
-                    className="min-w-fit px-4 border border-gray-200 bg-white hover:bg-gray-50 font-medium text-gray-700"
+                    className={`min-w-fit px-4 border font-medium ${
+                      isCopied
+                        ? "bg-green-100 text-green-700 border-green-200"
+                        : "bg-white border-gray-200 hover:bg-gray-50 text-gray-700"
+                    }`}
                     onPress={handleCopyLink}
                   >
-                    Copy
+                    {isCopied ? "Copied" : "Copy"}
                   </Button>
                 </div>
               </div>

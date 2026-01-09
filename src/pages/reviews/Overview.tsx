@@ -1,14 +1,14 @@
 import { Card, CardBody } from "@heroui/react";
 import {
-    Area,
-    AreaChart,
-    CartesianGrid,
-    Legend,
-    Pie,
-    PieChart,
-    Tooltip,
-    XAxis,
-    YAxis,
+  Area,
+  AreaChart,
+  CartesianGrid,
+  Legend,
+  Pie,
+  PieChart,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from "recharts";
 
 const MONTHLY_REVIEW_TRENDS = [
@@ -60,10 +60,7 @@ const Overview = () => {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col sm:flex-row gap-4 w-full">
-        <Card
-          className="border border-primary/15  w-full p-4"
-          shadow="none"
-        >
+        <Card className="border border-primary/15  w-full p-4" shadow="none">
           <h6 className="text-sm">Monthly Review Trends</h6>
           <CardBody className="text-xs px-3 pb-0 overflow-hidden">
             <AreaChart
@@ -93,6 +90,7 @@ const Overview = () => {
                 stroke="#0ea5e9"
                 fill="#0ea5e9"
                 fillOpacity={0.6}
+                name="Reviews"
               />
               <Area
                 type="monotone"
@@ -100,6 +98,7 @@ const Overview = () => {
                 stroke="#fa8433"
                 fill="#fa8433"
                 fillOpacity={0.6}
+                name="NFC"
               />
               <Area
                 type="monotone"
@@ -107,14 +106,12 @@ const Overview = () => {
                 stroke="#1e40af"
                 fill="#1e40af"
                 fillOpacity={0.6}
+                name="QR"
               />
             </AreaChart>
           </CardBody>
         </Card>
-        <Card
-          className="border border-primary/15 w-full p-4 "
-          shadow="none"
-        >
+        <Card className="border border-primary/15 w-full p-4 " shadow="none">
           <h6 className="text-sm">Review Platform Distribution</h6>
           <CardBody className="text-xs px-3 pb-0 items-center">
             <PieChart

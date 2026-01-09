@@ -5,7 +5,7 @@ export const fetchDashboardStats = async () => {
   return response.data;
 };
 
-export const fetchDashboardData = async (id: string) => {
-  const response = await axios.get(`/dashboard/${id}`);
+export const fetchDashboardData = async () => {
+  const response = await axios.get(`/dashboard`);
   return response.data;
 };

@@ -116,7 +116,7 @@ export interface MoveImagesRequest {
 }
 
 export interface DeleteImagesRequest {
-  imageIds: string[];
+  ids: string[];
 }
 
 export type Tag = string;

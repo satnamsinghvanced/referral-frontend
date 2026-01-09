@@ -42,9 +42,6 @@ const Sidebar = ({
 }: SidebarProps) => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { auth_user } = useSelector(
-    (state: { auth: any }) => state?.auth || {}
-  );
   const { data: dashboardStats } = useDashboardStats();
 
   // local state for submenu open states (keyed by index)
@@ -79,7 +76,7 @@ const Sidebar = ({
       name: "Reviews",
       icon: HiOutlineStar,
       href: "/reviews",
-      stats: 1200,
+      stats: 0,
       color: "bg-yellow-200",
       label: "1.2k",
     },
@@ -94,21 +91,21 @@ const Sidebar = ({
       name: "Social Media",
       icon: MdOutlineModeComment,
       href: "/social-media",
-      stats: "NEW", // Special case for NEW label
+      stats: 0, // Special case for NEW label
       color: "bg-purple-300",
     },
     {
       name: "Call Tracking",
       icon: HiOutlinePhone,
       href: "/call-tracking",
-      stats: 34,
+      stats: dashboardStats?.totalCalls,
       color: "bg-sky-100",
     },
     {
       name: "Email Campaigns",
       icon: HiOutlineMail,
       href: "/email-campaigns",
-      stats: 5,
+      stats: 0,
       color: "bg-green-300",
     },
     {
@@ -158,7 +155,7 @@ const Sidebar = ({
       name: "Integrations",
       icon: HiOutlineLightningBolt,
       href: "/integrations",
-      stats: 1,
+      stats: dashboardStats?.integrations,
       color: "bg-blue-400",
     },
     { name: "Settings", icon: HiOutlineCog, href: "/settings" },

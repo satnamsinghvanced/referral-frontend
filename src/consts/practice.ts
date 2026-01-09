@@ -9,13 +9,20 @@ export const STAFF_ROLES = [
   { title: "Dentist", _id: "Dentist" },
   { title: "Treatment Coordinator", _id: "Treatment Coordinator" },
   { title: "Dental Assistant", _id: "Dental Assistant" },
-  { title: "Front Office", _id: "Front Office" },
+  { title: "Hygienist", _id: "Hygienist" },
+  { title: "Front Desk", _id: "Front Desk" },
   { title: "Finance", _id: "Finance" },
   { title: "Office Manager", _id: "Office Manager" },
   { title: "Other", _id: "Other" },
 ];
 
-export const NOTE_CATEGORIES = ["General", "Referral", "Contact", "Meeting"];
+export const NOTE_CATEGORIES = [
+  { label: "General", value: "general" },
+  { label: "Referral", value: "referral" },
+  { label: "Contact", value: "contact" },
+  { label: "Meeting", value: "meeting" },
+];
+
 export const TASK_PRIORITIES = [
   { label: "Low", value: "low" },
   { label: "Medium", value: "medium" },
@@ -61,14 +68,21 @@ export const PER_VISIT_DURATION_OPTIONS: string[] = [
 
 export const VISIT_STATUSES = [
   { label: "Active", value: "active" },
-  { label: "Draft", value: "draft" },
+  { label: "In Progress", value: "inProgress" },
   { label: "Completed", value: "completed" },
   { label: "Cancelled", value: "cancel" },
-  { label: "In Progress", value: "inProgress" },
+  { label: "Draft", value: "draft" },
 ];
 
 export const PRIORITY_LEVELS = [
   { label: "Low", value: "low" },
   { label: "Medium", value: "medium" },
   { label: "High", value: "high" },
+];
+
+export const STATUS_OPTIONS = [
+  { _id: "active", title: "Active" },
+  { _id: "inActive", title: "Inactive" },
+  { _id: "prospect", title: "Prospect" },
+  { _id: "followUp", title: "Follow-up Required" },
 ];

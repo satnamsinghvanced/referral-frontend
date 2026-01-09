@@ -4,18 +4,68 @@ import { AxiosError } from "axios";
 import { queryClient } from "../../providers/QueryProvider";
 import {
   deleteTeamMember,
+  fetchPendingTeamMembers,
   fetchTeamMembers,
   inviteTeamMember,
   resendTeamInvite,
+  setTeamMemberPassword,
   TeamMember,
+  TeamMembersResponse,
   updateTeamMember,
 } from "../../services/settings/team";
+import { fetchTeamMemberById } from "../../services/referralBypassFunction";
 
-export const useFetchTeamMembers = () =>
-  useQuery<TeamMember[], Error>({
-    queryKey: ["team-members"],
-    queryFn: fetchTeamMembers,
+export const useFetchTeamMembers = (params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+}) =>
+  useQuery<TeamMembersResponse, Error>({
+    queryKey: ["team-members", params],
+    queryFn: () => fetchTeamMembers(params),
   });
+
+export const useFetchPendingTeamMembers = (params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+}) =>
+  useQuery<TeamMembersResponse, Error>({
+    queryKey: ["pending-invites", params],
+    queryFn: () => fetchPendingTeamMembers(params),
+  });
+
+export const useFetchTeamMemberById = (id: string) =>
+  useQuery<TeamMember, Error>({
+    queryKey: ["team-member", id],
+    queryFn: () => fetchTeamMemberById(id),
+    enabled: !!id,
+  });
+
+export const useSetTeamMemberPassword = () => {
+  return useMutation({
+    mutationFn: setTeamMemberPassword,
+    onSuccess: () => {
+      addToast({
+        title: "Success",
+        description: "Password set successfully. You can now login.",
+        color: "success",
+      });
+    },
+    onError: (error: AxiosError) => {
+      const errorMessage =
+        (error.response?.data as { message?: string })?.message ||
+        error.message ||
+        "Failed to set password";
+
+      addToast({
+        title: "Error",
+        description: errorMessage,
+        color: "danger",
+      });
+    },
+  });
+};
 
 export const useUpdateTeamMember = () => {
   return useMutation({
@@ -30,6 +80,7 @@ export const useUpdateTeamMember = () => {
 
       queryClient.invalidateQueries({ queryKey: ["team-members"] });
       queryClient.invalidateQueries({ queryKey: ["pending-invites"] });
+      queryClient.invalidateQueries({ queryKey: ["notes-tasks"] });
     },
     onError: (error: AxiosError) => {
       const errorMessage =

@@ -13,11 +13,13 @@ import { useEffect, useState } from "react";
 import { FiExternalLink, FiEye, FiEyeOff } from "react-icons/fi";
 import * as Yup from "yup";
 import {
-  useFetchTwilioConfig,
   useSaveTwilioConfig,
   useUpdateTwilioConfig,
-} from "../../../hooks/useTwilio";
-import { TwilioConfigRequest } from "../../../types/call";
+} from "../../../hooks/integrations/useTwilio";
+import {
+  TwilioConfigResponse,
+  TwilioConfigRequest,
+} from "../../../types/integrations/twilio";
 
 // --- Yup Validation Schema ---
 const validationSchema = Yup.object().shape({
@@ -44,18 +46,19 @@ export default function TwilioConfigurationModal({
   userId,
   isOpen,
   onClose,
-}: {
+  existingConfig,
+  isLoading,
+}: // isError,
+{
   userId: string;
   isOpen: boolean;
   onClose: () => void;
+  existingConfig?: TwilioConfigResponse | undefined;
+  isLoading?: boolean;
+  isError?: boolean;
 }) {
   const [showPassword, setShowPassword] = useState(false);
-  // 1. TanStack Query Hooks
-  const {
-    data: existingConfig,
-    isLoading,
-    isError,
-  } = useFetchTwilioConfig(userId);
+
   const saveMutation = useSaveTwilioConfig();
   const updateMutation = useUpdateTwilioConfig();
 
@@ -72,7 +75,7 @@ export default function TwilioConfigurationModal({
     },
     validationSchema: validationSchema,
     onSubmit: async (values, { setSubmitting }) => {
-      const payload = {
+      let payload: any = {
         userId: userId,
         data: {
           accountId: values.accountId,
@@ -80,6 +83,15 @@ export default function TwilioConfigurationModal({
           phone: values.phone,
         },
       };
+
+      if (isUpdateMode) {
+        payload = {
+          id: existingConfig._id,
+          data: {
+            ...payload.data,
+          },
+        };
+      }
 
       try {
         await mutation.mutateAsync(payload);
@@ -166,7 +178,7 @@ export default function TwilioConfigurationModal({
       <ModalContent>
         <form onSubmit={formik.handleSubmit}>
           {/* Modal Header */}
-          <ModalHeader className="p-5 pb-0 flex-col">
+          <ModalHeader className="p-4 pb-0 flex-col">
             <h2
               data-slot="dialog-title"
               className="leading-none font-medium text-base"
@@ -183,7 +195,7 @@ export default function TwilioConfigurationModal({
           </ModalHeader>
 
           {/* Modal Body (Form Fields) */}
-          <ModalBody className="px-5 py-5">
+          <ModalBody className="px-4 py-4">
             <div className="space-y-4">
               <Input
                 size="sm"
@@ -194,8 +206,9 @@ export default function TwilioConfigurationModal({
                 type="text"
                 placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
                 isRequired
+                maxLength={34}
                 // Formik Props
-                value={formik.values.accountId}
+                value={formik.values.accountId as string}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 isInvalid={
@@ -216,8 +229,9 @@ export default function TwilioConfigurationModal({
                 type={showPassword ? "text" : "password"}
                 placeholder="••••••••••••••••••••••••••••••••"
                 isRequired
+                maxLength={32}
                 // Formik Props
-                value={formik.values.authToken}
+                value={formik.values.authToken as string}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 isInvalid={
@@ -247,9 +261,17 @@ export default function TwilioConfigurationModal({
                 type="tel"
                 placeholder="+15551234567"
                 isRequired
+                maxLength={16}
                 // Formik Props
-                value={formik.values.phone}
-                onChange={formik.handleChange}
+                value={formik.values.phone as string}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  // Allow only '+' at the beginning and digits thereafter
+                  const filteredVal = val.startsWith("+")
+                    ? "+" + val.slice(1).replace(/\D/g, "")
+                    : val.replace(/\D/g, "");
+                  formik.setFieldValue("phone", filteredVal);
+                }}
                 onBlur={formik.handleBlur}
                 isInvalid={
                   (formik.touched.phone as boolean) &&
@@ -286,11 +308,29 @@ export default function TwilioConfigurationModal({
                   </div>
                 </div>
               </div>
+              {/* Status Message */}
+              {isUpdateMode && existingConfig?.status === "Connected" && (
+                <div className="p-3 bg-green-50 text-green-700 text-xs rounded-lg border border-green-200">
+                  ✅ Twilio integration is active and connected.
+                </div>
+              )}
+              {isUpdateMode && existingConfig?.status === "Disconnected" && (
+                <div className="p-3 bg-blue-50 text-blue-700 text-xs rounded-lg border border-blue-200">
+                  ℹ️ Twilio is disconnected. Please reconnect it by using
+                  switch.
+                </div>
+              )}
+              {isUpdateMode && existingConfig?.status === "Error" && (
+                <div className="p-3 bg-red-50 text-red-700 text-xs rounded-lg border border-red-200">
+                  ⚠️ Connection failed. Please check your credentials and try
+                  again.
+                </div>
+              )}
             </div>
           </ModalBody>
 
           {/* Modal Footer (Action Buttons) */}
-          <ModalFooter className="flex justify-end gap-2 px-5 pb-5 pt-0">
+          <ModalFooter className="flex justify-end gap-2 px-4 pb-4 pt-0">
             <Button
               size="sm"
               variant="ghost"

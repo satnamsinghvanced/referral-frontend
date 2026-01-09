@@ -9,23 +9,10 @@ import {
   Spinner,
 } from "@heroui/react";
 import { useFormik } from "formik";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { FiExternalLink, FiEye, FiEyeOff } from "react-icons/fi";
 import * as Yup from "yup";
-import { useInitiateAuthIntegration } from "../../../hooks/useSocial";
-import {
-  PlatformAuthParams,
-  SocialMediaCredential,
-} from "../../../types/social";
-
-// --- Google Business Specific Config ---
-const GOOGLE_BUSINESS_CONFIG = {
-  title: "Google Business Profile Integration",
-  description:
-    "Connect your Google Business Profile to manage reviews, posts, and business information directly.",
-  infoLink: "https://console.cloud.google.com/apis/credentials",
-  linkText: "Google Cloud Console",
-};
+import { useGenerateGoogleBusinessAuthUrl } from "../../../hooks/integrations/useGoogleBusiness";
 
 // --- Yup Validation Schema ---
 const validationSchema = Yup.object().shape({
@@ -37,33 +24,36 @@ const validationSchema = Yup.object().shape({
 });
 
 export default function GoogleBusinessConfigModal({
+  userId,
   isOpen,
   onClose,
-  allCredentials,
-  isGlobalLoading,
+  existingConfig,
+  isLoading,
 }: {
+  userId: string;
   isOpen: boolean;
   onClose: () => void;
-  allCredentials: any;
-  isGlobalLoading: boolean;
+  existingConfig: any;
+  isLoading: boolean;
 }) {
   const [showSecret, setShowSecret] = useState(false);
-  const platformName = "googleBusiness";
-  const config = GOOGLE_BUSINESS_CONFIG;
 
-  const existingConfig = useMemo(
-    () => allCredentials?.[platformName] as SocialMediaCredential | undefined,
-    [allCredentials, platformName]
-  );
+  // Save (Generate Auth URL) Mutation
+  const generateAuthUrlMutation = useGenerateGoogleBusinessAuthUrl();
 
-  const initiateAuthMutation = useInitiateAuthIntegration();
-  const isSubmitting = initiateAuthMutation.isPending;
+  // Determine if we are in update mode
+  const isUpdateMode = !!existingConfig?._id;
 
-  const isConfigured = !!existingConfig?.clientId;
-  const isAuthorized = !!existingConfig?.refreshToken;
+  // Determine global loading state
+  const isGlobalLoading = isLoading;
 
-  const formik = useFormik<Omit<PlatformAuthParams, "platform">>({
+  // Determine submitting state
+  const isSubmitting = generateAuthUrlMutation.isPending;
+
+  // 2. Formik Setup
+  const formik = useFormik<any>({
     initialValues: {
+      userId: userId || "",
       clientId: existingConfig?.clientId || "",
       clientSecret: existingConfig?.clientSecret || "",
       redirectUri: existingConfig?.redirectUri || "",
@@ -72,17 +62,23 @@ export default function GoogleBusinessConfigModal({
     onSubmit: async (values, { setSubmitting }) => {
       setSubmitting(true);
       try {
-        const savePayload: PlatformAuthParams = {
-          platform: "googleBusiness",
+        const savePayload = {
+          userId: userId,
           clientId: values.clientId,
           clientSecret: values.clientSecret,
           redirectUri: values.redirectUri,
         };
 
-        await initiateAuthMutation.mutateAsync(savePayload);
-        onClose();
+        const response = await generateAuthUrlMutation.mutateAsync(savePayload);
+
+        if (response?.authUrl) {
+          window.open(response.authUrl, "_blank");
+          onClose();
+        } else {
+          throw new Error("Failed to generate authorization URL.");
+        }
       } catch (error) {
-        console.error(`${platformName} Configuration Error:`, error);
+        console.error("Google Business Configuration Error:", error);
       } finally {
         setSubmitting(false);
       }
@@ -120,16 +116,17 @@ export default function GoogleBusinessConfigModal({
     >
       <ModalContent>
         <form onSubmit={formik.handleSubmit}>
-          <ModalHeader className="p-5 pb-0 flex-col">
+          <ModalHeader className="p-4 pb-0 flex-col">
             <h2 className="leading-none font-medium text-base">
-              {config.title}
+              Google Business Profile Integration
             </h2>
             <p className="text-xs text-gray-600 mt-2 font-normal">
-              {config.description}
+              Connect your Google Business Profile to sync reviews and manage
+              your practice listing.
             </p>
           </ModalHeader>
 
-          <ModalBody className="px-5 py-5">
+          <ModalBody className="px-4 py-4">
             <div className="space-y-4">
               <Input
                 size="sm"
@@ -138,16 +135,18 @@ export default function GoogleBusinessConfigModal({
                 labelPlacement="outside-top"
                 name="clientId"
                 type="text"
-                placeholder="Enter Google Client ID"
+                placeholder="xxxxxxxxxxxx-xxxxxxxx.apps.googleusercontent.com"
                 isRequired
                 value={formik.values.clientId}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 isInvalid={
-                  (formik.touched.clientId as boolean) &&
-                  (!!formik.errors.clientId as boolean)
+                  !!(formik.touched.clientId && formik.errors.clientId)
                 }
-                errorMessage={formik.touched.clientId && formik.errors.clientId}
+                errorMessage={
+                  formik.touched.clientId &&
+                  (formik.errors.clientId as React.ReactNode)
+                }
               />
 
               <Input
@@ -157,17 +156,17 @@ export default function GoogleBusinessConfigModal({
                 labelPlacement="outside-top"
                 name="clientSecret"
                 type={showSecret ? "text" : "password"}
-                placeholder="Enter Google Client Secret"
+                placeholder="Enter your Client Secret"
                 isRequired
                 value={formik.values.clientSecret}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 isInvalid={
-                  (formik.touched.clientSecret as boolean) &&
-                  (!!formik.errors.clientSecret as boolean)
+                  !!(formik.touched.clientSecret && formik.errors.clientSecret)
                 }
                 errorMessage={
-                  formik.touched.clientSecret && formik.errors.clientSecret
+                  formik.touched.clientSecret &&
+                  (formik.errors.clientSecret as React.ReactNode)
                 }
                 endContent={
                   <button
@@ -180,33 +179,28 @@ export default function GoogleBusinessConfigModal({
                 }
               />
 
-              <div>
-                <Input
-                  size="sm"
-                  radius="sm"
-                  label="Redirect URI"
-                  labelPlacement="outside-top"
-                  name="redirectUri"
-                  type="url"
-                  placeholder="Your Google callback URL"
-                  isRequired
-                  value={formik.values.redirectUri}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  isInvalid={
-                    (formik.touched.redirectUri as boolean) &&
-                    (!!formik.errors.redirectUri as boolean)
-                  }
-                  errorMessage={
-                    formik.touched.redirectUri && formik.errors.redirectUri
-                  }
-                />
-                <p className="text-[11px] text-gray-500 mt-1">
-                  Must exactly match the authorized redirect URI in your Google
-                  Cloud Console.
-                </p>
-              </div>
+              <Input
+                size="sm"
+                radius="sm"
+                label="Redirect URI"
+                labelPlacement="outside-top"
+                name="redirectUri"
+                type="url"
+                placeholder="https://your-app.com/api/auth/callback/google"
+                isRequired
+                value={formik.values.redirectUri}
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                isInvalid={
+                  !!(formik.touched.redirectUri && formik.errors.redirectUri)
+                }
+                errorMessage={
+                  formik.touched.redirectUri &&
+                  (formik.errors.redirectUri as React.ReactNode)
+                }
+              />
 
+              {/* Helper Information Box */}
               <div className="text-sm text-gray-700 bg-blue-50 p-3 rounded-lg border border-blue-200 mt-4">
                 <div className="flex items-start gap-3">
                   <div>
@@ -217,46 +211,33 @@ export default function GoogleBusinessConfigModal({
                       <li>
                         Go to the{" "}
                         <a
-                          href={config.infoLink}
+                          href="https://console.cloud.google.com/apis/credentials"
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-blue-600 hover:underline font-medium inline-flex items-center"
                         >
-                          {config.linkText}{" "}
+                          Google Cloud Console{" "}
                           <FiExternalLink className="ml-1 h-3 w-3" />
                         </a>
                       </li>
-                      <li>Select your project and create OAuth credentials.</li>
                       <li>
-                        Configure the <strong>Redirect URI</strong> to match the
-                        value above.
+                        Enable <strong>Google Business Profile API</strong>.
                       </li>
-                      <li>
-                        Retrieve the <strong>Client ID</strong> and{" "}
-                        <strong>Client Secret</strong>.
-                      </li>
+                      <li>Create OAuth 2.0 Client credentials.</li>
                     </ul>
                   </div>
                 </div>
               </div>
 
-              {isConfigured && isAuthorized && (
+              {isUpdateMode && existingConfig?.status === "Connected" && (
                 <div className="p-3 bg-green-50 text-green-700 text-xs rounded-lg border border-green-200">
-                  ✅ Integration is currently <strong>Connected</strong> and
-                  configured.
-                </div>
-              )}
-              {isConfigured && !isAuthorized && (
-                <div className="p-3 bg-yellow-50 text-yellow-700 text-xs rounded-lg border border-yellow-200">
-                  ⚠️ Credentials saved, but{" "}
-                  <strong>Authorization is required</strong>. Click 'Save and
-                  Authorize' to complete the OAuth flow.
+                  ✅ Google Business Profile is active and synchronized.
                 </div>
               )}
             </div>
           </ModalBody>
 
-          <ModalFooter className="flex justify-end gap-2 px-5 pb-5 pt-0">
+          <ModalFooter className="flex justify-end gap-2 px-4 pb-4 pt-0">
             <Button
               size="sm"
               variant="ghost"
@@ -272,11 +253,9 @@ export default function GoogleBusinessConfigModal({
               color="primary"
               type="submit"
               isLoading={isSubmitting}
-              isDisabled={isSubmitting || !formik.isValid}
+              isDisabled={isSubmitting || !formik.isValid || !formik.dirty}
             >
-              {isConfigured && isAuthorized
-                ? "Re-authorize"
-                : "Save and Authorize"}
+              {isUpdateMode ? "Update Credentials" : "Save and Authorize"}
             </Button>
           </ModalFooter>
         </form>

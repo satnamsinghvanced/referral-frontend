@@ -253,7 +253,7 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
                 color="primary"
                 onPress={handleImport}
                 isLoading={isPending}
-                disabled={!selectedFile}
+                isDisabled={!selectedFile || isPending}
               >
                 Import Referrals
               </Button>

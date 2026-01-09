@@ -12,6 +12,8 @@ import { useFormik } from "formik";
 import { useMemo, useState } from "react";
 import { FiExternalLink, FiEye, FiEyeOff } from "react-icons/fi";
 import * as Yup from "yup";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../store";
 import { useInitiateAuthIntegration } from "../../../hooks/useSocial";
 import {
   PlatformAuthParams,
@@ -78,6 +80,7 @@ export default function SocialMediaConfigModal({
   allCredentials: any;
   isGlobalLoading: boolean;
 }) {
+  const user = useSelector((state: RootState) => state.auth.user);
   const [showSecret, setShowSecret] = useState(false);
   const platformName = platform; // e.g., 'linkedin'
   const config = PLATFORM_CONFIGS[platformName];
@@ -92,9 +95,10 @@ export default function SocialMediaConfigModal({
   const isSubmitting = initiateAuthMutation.isPending;
 
   const isConfigured = !!existingConfig?.clientId;
-  const isAuthorized = !!existingConfig?.refreshToken;
+  const isAuthorized = !!existingConfig?.accessToken;
   const formik = useFormik<Omit<PlatformAuthParams, "platform">>({
     initialValues: {
+      userId: user?.userId || "",
       clientId: existingConfig?.clientId || "",
       clientSecret: existingConfig?.clientSecret || "",
       redirectUri: existingConfig?.redirectUri || "",
@@ -105,6 +109,7 @@ export default function SocialMediaConfigModal({
       try {
         const savePayload: PlatformAuthParams = {
           platform: platformName,
+          userId: user?.userId || "",
           clientId: values.clientId,
           clientSecret: values.clientSecret,
           redirectUri: values.redirectUri,
@@ -160,7 +165,7 @@ export default function SocialMediaConfigModal({
       <ModalContent>
         <form onSubmit={formik.handleSubmit}>
           {/* Modal Header */}
-          <ModalHeader className="p-5 pb-0 flex-col">
+          <ModalHeader className="p-4 pb-0 flex-col">
             <h2 className="leading-none font-medium text-base">
               {config.title}
             </h2>
@@ -170,7 +175,7 @@ export default function SocialMediaConfigModal({
           </ModalHeader>
 
           {/* Modal Body */}
-          <ModalBody className="px-5 py-5">
+          <ModalBody className="p-4">
             <div className="space-y-4">
               {/* Client ID */}
               <Input
@@ -303,7 +308,7 @@ export default function SocialMediaConfigModal({
           </ModalBody>
 
           {/* Modal Footer */}
-          <ModalFooter className="flex justify-end gap-2 px-5 pb-5 pt-0">
+          <ModalFooter className="flex justify-end gap-2 px-4 pb-4 pt-0">
             <Button
               size="sm"
               variant="ghost"

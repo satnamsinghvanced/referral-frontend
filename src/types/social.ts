@@ -16,6 +16,8 @@ export interface SocialMediaCredential {
   status: "connected" | "notConnected";
   createdAt: string;
   updatedAt: string;
+  followers: number;
+  engagementRate: number;
 }
 
 export interface GetCredentialsResponse {
@@ -27,6 +29,7 @@ export interface GetCredentialsResponse {
 }
 
 export interface AuthIntegrationRequest {
+  userId: string;
   clientId: string;
   clientSecret: string;
   redirectUri: string;

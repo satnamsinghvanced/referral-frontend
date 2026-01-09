@@ -30,7 +30,7 @@ interface ReferralCardProps {
 
 const ReferralCard = ({ referral, actions = () => [] }: ReferralCardProps) => {
   return (
-    <div className="md:flex md:justify-between border border-foreground/10 rounded-lg p-4 bg-background max-md:space-y-2">
+    <div className="md:flex md:justify-between border border-foreground/10 rounded-lg p-3.5 bg-background max-md:space-y-2">
       <div className="font-medium text-sm w-full h-full capitalize flex flex-col gap-1">
         <p>{referral.name}</p>
         {(referral?.referredBy?.name || referral?.referredBy?.practiceName) && (

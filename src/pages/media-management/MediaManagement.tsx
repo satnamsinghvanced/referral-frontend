@@ -7,9 +7,9 @@ import {
   Select,
   SelectItem,
 } from "@heroui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaRegFolder } from "react-icons/fa";
-import { FiImage, FiSearch, FiUpload } from "react-icons/fi";
+import { FiEdit, FiImage, FiSearch, FiUpload } from "react-icons/fi";
 import { LuFolderOpen, LuFolderPlus, LuMove, LuTrash2 } from "react-icons/lu";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
@@ -47,6 +47,10 @@ function MediaManagement() {
   >([]);
 
   const [isCreateFolderModalOpen, setIsCreateFolderModalOpen] = useState(false);
+  const [folderToEdit, setFolderToEdit] = useState<{
+    id: string;
+    name: string;
+  } | null>(null);
   const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
   const [isUploadMediaModalOpen, setIsUploadMediaModalOpen] = useState(false);
   const [deleteFolderId, setDeleteFolderId] = useState<string | null>(null);
@@ -97,6 +101,19 @@ function MediaManagement() {
     useSearchImages(searchQueryParams);
 
   const isFoldersLoading = isAllFoldersLoading || isLoadingFolder;
+
+  // Sync breadcrumb path with updated folder name
+  useEffect(() => {
+    if (currentFolderId && folderData?.folder?.name) {
+      setBreadcrumbPath((prev) =>
+        prev.map((item) =>
+          item.id === currentFolderId
+            ? { ...item, name: folderData.folder.name }
+            : item
+        )
+      );
+    }
+  }, [folderData?.folder?.name, currentFolderId]);
 
   const deleteFolderMutation = useDeleteFolder(deleteFolderId || "");
   const deleteImagesMutation = useDeleteImages();
@@ -154,12 +171,13 @@ function MediaManagement() {
   const handleConfirmImagesDelete = async () => {
     await deleteImagesMutation.mutateAsync(
       {
-        imageIds: deleteMediaId ? [deleteMediaId] : selectedMedia,
+        ids: deleteMediaId ? [deleteMediaId] : selectedMedia,
       },
       {
         onSuccess: () => {
           setSelectedMedia([]);
           setDeleteMediaId("");
+          setIsDeleteModalOpen(false);
         },
       }
     );
@@ -224,7 +242,7 @@ function MediaManagement() {
             <div className="space-x-2">
               {selectedMedia.length > 0 && (
                 <>
-                  {/* <Button
+                  <Button
                     size="sm"
                     radius="sm"
                     variant="ghost"
@@ -236,7 +254,7 @@ function MediaManagement() {
                     }}
                   >
                     Delete
-                  </Button> */}
+                  </Button>
                   <Button
                     size="sm"
                     radius="sm"
@@ -283,7 +301,6 @@ function MediaManagement() {
                     onFilterChange("search", value as string)
                   }
                   startContent={<FiSearch className="text-gray-400 h-4 w-4" />}
-                  className="h-9"
                 />
               </div>
 
@@ -350,17 +367,36 @@ function MediaManagement() {
                   Folders
                 </h4>
                 {currentFolderId && (
-                  <Button
-                    size="sm"
-                    radius="sm"
-                    variant="ghost"
-                    color="danger"
-                    startContent={<LuTrash2 fontSize={15} />}
-                    className="border-small"
-                    onPress={() => setDeleteFolderId(currentFolderId)}
-                  >
-                    Delete Current Folder
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Button
+                      size="sm"
+                      radius="sm"
+                      variant="ghost"
+                      color="default"
+                      startContent={<FiEdit fontSize={15} />}
+                      className="border-small"
+                      onPress={() => {
+                        setFolderToEdit({
+                          id: currentFolderId,
+                          name: currentFolderName,
+                        });
+                        setIsCreateFolderModalOpen(true);
+                      }}
+                    >
+                      Rename Current Folder
+                    </Button>
+                    <Button
+                      size="sm"
+                      radius="sm"
+                      variant="ghost"
+                      color="danger"
+                      startContent={<LuTrash2 fontSize={15} />}
+                      className="border-small"
+                      onPress={() => setDeleteFolderId(currentFolderId)}
+                    >
+                      Delete Current Folder
+                    </Button>
+                  </div>
                 )}
               </CardHeader>
               <CardBody className="p-0">
@@ -456,8 +492,12 @@ function MediaManagement() {
 
       <CreateFolderModal
         isOpen={isCreateFolderModalOpen}
-        onClose={() => setIsCreateFolderModalOpen(false)}
+        onClose={() => {
+          setIsCreateFolderModalOpen(false);
+          setFolderToEdit(null);
+        }}
         parentFolderId={currentFolderId || ""}
+        folderToEdit={folderToEdit}
       />
 
       <MoveMediaModal

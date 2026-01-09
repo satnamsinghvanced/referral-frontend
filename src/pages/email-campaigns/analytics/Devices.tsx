@@ -50,7 +50,10 @@ const Devices: React.FC = () => {
           const Icon = metric.icon;
 
           return (
-            <div className="bg-background border border-primary/15 p-3 flex items-center gap-2 rounded-lg">
+            <div
+              className="bg-background border border-primary/15 p-3 flex items-center gap-2 rounded-lg"
+              key={metric.name}
+            >
               <div className="flex items-center space-x-2.5 flex-grow">
                 <div className="p-2 bg-blue-50 rounded-lg shrink-0">
                   <Icon className="w-5 h-5 text-blue-600" />

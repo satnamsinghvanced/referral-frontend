@@ -170,7 +170,7 @@ export default function GoogleCalendarConfigModal({
       <ModalContent>
         <form onSubmit={formik.handleSubmit}>
           {/* Modal Header */}
-          <ModalHeader className="p-5 pb-0 flex-col">
+          <ModalHeader className="p-4 pb-0 flex-col">
             <h2 className="leading-none font-medium text-base">
               Google Calendar Integration
             </h2>
@@ -181,7 +181,7 @@ export default function GoogleCalendarConfigModal({
           </ModalHeader>
 
           {/* Modal Body */}
-          <ModalBody className="px-5 py-5">
+          <ModalBody className="px-4 py-4">
             <div className="space-y-4">
               {/* Client ID */}
               <Input
@@ -292,24 +292,37 @@ export default function GoogleCalendarConfigModal({
                 </div>
               </div>
 
-              {/* Status Message for Configured Integration */}
-              {isUpdateMode && existingConfig?.refreshToken && (
+              {/* Status Message */}
+              {isUpdateMode && existingConfig?.status === "Connected" && (
                 <div className="p-3 bg-green-50 text-green-700 text-xs rounded-lg border border-green-200">
-                  ✅ Integration is currently active and configured. Tokens are
-                  stored securely.
+                  ✅ Google Calendar is active and synchronized.
                 </div>
               )}
-              {isUpdateMode && !existingConfig?.refreshToken && (
-                <div className="p-3 bg-yellow-50 text-yellow-700 text-xs rounded-lg border border-yellow-200">
-                  ⚠️ Configuration saved, but authorization is pending. Click
-                  'Save and Authorize' to complete the OAuth flow.
+              {isUpdateMode && existingConfig?.status === "Disconnected" && (
+                <div className="p-3 bg-blue-50 text-blue-700 text-xs rounded-lg border border-blue-200">
+                  ℹ️ Google Calendar is disconnected. Please reconnect it by
+                  using switch.
                 </div>
               )}
+              {isUpdateMode && existingConfig?.status === "Error" && (
+                <div className="p-3 bg-red-50 text-red-700 text-xs rounded-lg border border-red-200">
+                  ⚠️ Connection failed. Please check your credentials and try
+                  again.
+                </div>
+              )}
+              {isUpdateMode &&
+                existingConfig?.status !== "Connected" &&
+                !existingConfig?.refreshToken && (
+                  <div className="p-3 bg-yellow-50 text-yellow-700 text-xs rounded-lg border border-yellow-200">
+                    ⚠️ Configuration saved, but authorization is pending. Click
+                    'Save and Authorize' to complete the OAuth flow.
+                  </div>
+                )}
             </div>
           </ModalBody>
 
           {/* Modal Footer */}
-          <ModalFooter className="flex justify-end gap-2 px-5 pb-5 pt-0">
+          <ModalFooter className="flex justify-end gap-2 px-4 pb-4 pt-0">
             <Button
               size="sm"
               variant="ghost"

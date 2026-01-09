@@ -17,7 +17,7 @@ import { TbEyeFilled } from "react-icons/tb";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import * as Yup from "yup";
-import { EMAIL_REGEX } from "../../consts/consts";
+import { EMAIL_REGEX, NAME_REGEX, PASSWORD_REGEX } from "../../consts/consts";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { AppDispatch } from "../../store";
 
@@ -48,11 +48,19 @@ const MEDICAL_SPECIALTIES = [
 
 const validationSchema = Yup.object({
   firstName: Yup.string()
+    .matches(
+      NAME_REGEX,
+      "First name can only contain letters, spaces, hyphens, apostrophes, and full stops"
+    )
     .min(2, "First name must be at least 2 characters")
-    .required("First name is required"),
+    .max(50, "First name must be less than 50 characters"),
   lastName: Yup.string()
+    .matches(
+      NAME_REGEX,
+      "Last name can only contain letters, spaces, hyphens, apostrophes, and full stops"
+    )
     .min(2, "Last name must be at least 2 characters")
-    .required("Last name is required"),
+    .max(50, "Last name must be less than 50 characters"),
   mobile: Yup.string()
     .matches(/^\d{10}$/, "Mobile number must be 10 digits")
     .required("Mobile number is required"),
@@ -60,8 +68,11 @@ const validationSchema = Yup.object({
     .required("Email is required")
     .matches(EMAIL_REGEX, "Invalid email format"),
   password: Yup.string()
-    .min(6, "Password must be at least 6 characters")
-    .required("Password is required"),
+    .required("Password is required")
+    .matches(
+      PASSWORD_REGEX,
+      "Password must be at least 8 characters, include one uppercase letter, one lowercase letter, one number and one special character"
+    ),
   confirmPassword: Yup.string()
     .oneOf([Yup.ref("password")], "Passwords must match")
     .required("Please confirm your password"),

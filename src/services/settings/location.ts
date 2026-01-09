@@ -1,21 +1,13 @@
 import axios from "../axios";
-
-export interface Location {
-  _id?: string;
-  name: string;
-  address: {
-    street: string;
-    city: string;
-    state: string;
-    zipcode: string;
-  };
-  phone: string;
-  isPrimary: boolean;
-}
+import { Location, LocationsResponse } from "../../types/common";
 
 // 🔹 Get all locations
-export const fetchLocations = async (): Promise<Location[]> => {
-  const response = axios.get("/location");
+// 🔹 Get all locations
+export const fetchLocations = async (params?: {
+  page?: number;
+  limit?: number;
+}): Promise<LocationsResponse<Location>> => {
+  const response = axios.get("/location", { params });
   return (await response).data;
 };
 export const fetchLocationDetails = async (id: string): Promise<Location> => {

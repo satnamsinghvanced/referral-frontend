@@ -12,20 +12,27 @@ import ComponentContainer from "../../components/common/ComponentContainer";
 import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
 import EmptyState from "../../components/common/EmptyState";
 import { LoadingState } from "../../components/common/LoadingState";
-import CustomCalendar from "./CustomCalender";
 import { ACTIVITY_TYPES } from "../../consts/marketing";
 import { useDebouncedValue } from "../../hooks/common/useDebouncedValue";
-import { useActivityTypes } from "../../hooks/useCommon";
 import {
   useDeleteActivity,
   useMarketingActivities,
 } from "../../hooks/useMarketing";
 import { formatDateToReadable } from "../../utils/formatDateToReadable";
-import ActivityActionsModal from "./modal/ActivityActionsModal";
 import { ActivityCard } from "./ActivityCard";
+import CustomCalendar from "./CustomCalender";
+import ActivityActionsModal from "./modal/ActivityActionsModal";
 import { ActivityDetailModal } from "./modal/ActivityDetailModal";
+import { Link } from "react-router-dom";
+import { useFetchGoogleCalendarIntegration } from "../../hooks/integrations/useGoogleCalendar";
 
 const MarketingCalendar = () => {
+  const { data: googleCalendarConfig, isLoading: isGoogleCalendarLoading } =
+    useFetchGoogleCalendarIntegration();
+
+  const isGoogleCalendarConnected =
+    googleCalendarConfig?.status === "Connected";
+
   const [currentFilters, setCurrentFilters] = useState<any>({
     page: 1,
     limit: 9,
@@ -39,8 +46,6 @@ const MarketingCalendar = () => {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState<any>();
-
-  const { data: activityTypes = [] } = useActivityTypes();
 
   const debouncedSearch = useDebouncedValue(currentFilters.search, 500);
 
@@ -320,9 +325,6 @@ const MarketingCalendar = () => {
             classNames={{
               base: "flex justify-end py-3",
               wrapper: "gap-1.5",
-              item: "cursor-pointer",
-              prev: "cursor-pointer",
-              next: "cursor-pointer",
             }}
           />
         )}
@@ -334,6 +336,24 @@ const MarketingCalendar = () => {
     <>
       <ComponentContainer headingData={HEADING_DATA}>
         <div className="flex flex-col gap-4 md:gap-5">
+          {!isGoogleCalendarConnected && !isGoogleCalendarLoading && (
+            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-center justify-between">
+              <p className="text-sm text-yellow-800">
+                Google Calendar is not connected. Connect your Google Calendar
+                to sync activities.
+              </p>
+              <Button
+                as={Link}
+                to="/integrations"
+                size="sm"
+                color="warning"
+                variant="flat"
+                className="bg-yellow-200 text-yellow-800"
+              >
+                Connect Calendar
+              </Button>
+            </div>
+          )}
           <div className="space-y-4 md:space-y-5">
             <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
               {STAT_CARD_DATA.map((data, i) => (
@@ -432,7 +452,7 @@ const MarketingCalendar = () => {
                   All Activities
                 </SelectItem>
                 {ACTIVITY_TYPES?.map((type: any) => (
-                  <SelectItem key={type.color.id} className="capitalize">
+                  <SelectItem key={type.value} className="capitalize">
                     {type.label}
                   </SelectItem>
                 ))}

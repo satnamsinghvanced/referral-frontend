@@ -20,7 +20,6 @@ import {
   scheduleTaskEvent,
   updateSchedulePlan,
   updateTask,
-  updateTaskStatus,
 } from "../services/partner";
 import {
   AllNotesTasksResponse,
@@ -43,14 +42,16 @@ export const useFetchPartners = (params: FetchPartnersParams = {}) => {
   const {
     page = 1,
     limit = 10,
+    search = "",
     sortBy = "name",
     order = "asc",
     filter = "allPractices",
   } = params;
 
   return useQuery<FetchPartnersResponse, Error>({
-    queryKey: ["partnerStats", page, limit, sortBy, order, filter],
-    queryFn: () => fetchPartners({ page, limit, sortBy, order, filter }),
+    queryKey: ["partnerStats", page, limit, search, sortBy, order, filter],
+    queryFn: () =>
+      fetchPartners({ page, limit, search, sortBy, order, filter }),
   });
 };
 
@@ -86,7 +87,7 @@ export const useCreateNote = () => {
       });
       queryClient.invalidateQueries({ queryKey: ["partnerStats"] });
       queryClient.invalidateQueries({
-        queryKey: notesTasksKeys.detail(newNote.practice),
+        queryKey: notesTasksKeys.detail(newNote.practice._id),
       });
     },
     onError: (error) => {
@@ -149,8 +150,9 @@ export const useCreateTask = () => {
       });
       queryClient.invalidateQueries({ queryKey: ["partnerStats"] });
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
       queryClient.invalidateQueries({
-        queryKey: notesTasksKeys.detail(newTask.practiceId),
+        queryKey: notesTasksKeys.detail(newTask.practiceId._id),
       });
     },
     onError: (error) => {
@@ -167,48 +169,6 @@ export const useCreateTask = () => {
   });
 };
 
-export const useUpdateTaskStatus = () => {
-  return useMutation<
-    TaskApiData,
-    Error,
-    {
-      taskId: string;
-      partnerId: string;
-      status: "not-started" | "in-progress" | "completed" | "no-longer-needed";
-    }
-  >({
-    mutationFn: ({ taskId, status }) => updateTaskStatus(taskId, { status }),
-    onSuccess: (updatedTask) => {
-      addToast({
-        title: "Success",
-        description: "Task status updated successfully.",
-        color: "success",
-      });
-      queryClient.invalidateQueries({
-        queryKey: notesTasksKeys.detail(updatedTask.practiceId),
-      });
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
-    },
-    onMutate: async ({ partnerId, taskId, status }) => {
-      await queryClient.cancelQueries({
-        queryKey: notesTasksKeys.detail(partnerId),
-      });
-      const previousData = queryClient.getQueryData<AllNotesTasksResponse>(
-        notesTasksKeys.detail(partnerId)
-      );
-      if (previousData) {
-        queryClient.setQueryData(notesTasksKeys.detail(partnerId), {
-          ...previousData,
-          tasks: previousData.tasks.map((task) =>
-            task._id === taskId ? { ...task, status } : task
-          ),
-        });
-      }
-      return { previousData };
-    },
-  });
-};
-
 export const useUpdateTask = () => {
   return useMutation({
     mutationFn: (variables: UpdateTaskPayload) => updateTask(variables),
@@ -218,6 +178,8 @@ export const useUpdateTask = () => {
         description: "Task updated successfully.",
         color: "success",
       });
+      queryClient.invalidateQueries({ queryKey: ["partnerStats"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
       queryClient.invalidateQueries({
         queryKey: notesTasksKeys.detail(variables.data.practiceId),
       });
@@ -238,9 +200,9 @@ export const useUpdateTask = () => {
 };
 
 export const useDeleteTask = () => {
-  return useMutation<void, any, { taskId: string; partnerId: string }>({
-    mutationFn: ({ taskId }) => deleteTask(taskId),
-    onSuccess: (_, variables) => {
+  return useMutation<void, any, any>({
+    mutationFn: deleteTask,
+    onSuccess: () => {
       addToast({
         title: "Success",
         description: "Task deleted successfully.",
@@ -248,8 +210,9 @@ export const useDeleteTask = () => {
       });
       queryClient.invalidateQueries({ queryKey: ["partnerStats"] });
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
       queryClient.invalidateQueries({
-        queryKey: notesTasksKeys.detail(variables.partnerId),
+        queryKey: ["notes-tasks"],
       });
     },
     onError: (error) => {

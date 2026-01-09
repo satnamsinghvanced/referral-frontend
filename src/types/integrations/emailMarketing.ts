@@ -1,6 +1,6 @@
 export type EmailProvider = "SendGrid" | "Mailchimp" | "Custom";
 export type EncryptionType = "TLS" | "SSL" | "None";
-export type IntegrationStatus = "connected" | "disconnected";
+export type IntegrationStatus = "Connected" | "Disconnected" | "Error";
 export type TestStatus = "success" | "failure";
 
 export interface EmailIntegrationBody {

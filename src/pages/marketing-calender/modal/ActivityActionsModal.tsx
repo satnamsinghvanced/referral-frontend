@@ -281,7 +281,7 @@ export default function ActivityActionsModal({
               <DatePicker
                 id="endDate"
                 name="endDate"
-                label="End Date (Optional)"
+                label="End Date"
                 labelPlacement="outside"
                 size="sm"
                 radius="sm"
@@ -354,6 +354,7 @@ export default function ActivityActionsModal({
                 size="sm"
                 radius="sm"
                 selectedKeys={[formik.values.priority]}
+                disabledKeys={[formik.values.priority]}
                 onSelectionChange={(keys) =>
                   formik.setFieldValue(
                     "priority",
@@ -362,6 +363,7 @@ export default function ActivityActionsModal({
                 }
                 onBlur={() => formik.setFieldTouched("priority", true)}
                 isInvalid={!!hasError("priority")}
+                isRequired
               >
                 {PRIORITY_LEVELS.map((priority) => (
                   <SelectItem key={priority.value}>{priority.label}</SelectItem>
@@ -374,7 +376,7 @@ export default function ActivityActionsModal({
                 id="budget"
                 name="budget"
                 type="number"
-                label="Budget (Optional)"
+                label="Budget"
                 labelPlacement="outside-top"
                 placeholder="0"
                 size="sm"

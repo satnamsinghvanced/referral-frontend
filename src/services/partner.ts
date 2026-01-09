@@ -15,7 +15,6 @@ import {
   SchedulePlansResponse,
   TaskApiData,
   UpdateTaskPayload,
-  UpdateTaskStatusPayload,
   VisitHistoryQueryParams,
   VisitHistoryResponse,
 } from "../types/partner";
@@ -28,6 +27,7 @@ export const fetchPartners = async (
     params: {
       page: params.page,
       limit: params.limit,
+      search: params.search,
       sortBy: params.sortBy,
       order: params.order,
       filter: params.filter,
@@ -84,14 +84,6 @@ export const createTask = async (
   payload: CreateTaskPayload
 ): Promise<TaskApiData> => {
   const response = await axios.post<TaskApiData>("/tasks", payload);
-  return response.data;
-};
-
-export const updateTaskStatus = async (
-  taskId: string,
-  payload: UpdateTaskStatusPayload
-): Promise<TaskApiData> => {
-  const response = await axios.patch<TaskApiData>(`/tasks/${taskId}`, payload);
   return response.data;
 };
 

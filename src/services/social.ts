@@ -13,6 +13,7 @@ export const getSocialMediaCredentials =
 
 export const initiateAuthIntegration = async ({
   platform,
+  userId,
   clientId,
   clientSecret,
   redirectUri,
@@ -29,6 +30,7 @@ export const initiateAuthIntegration = async ({
   const endpoint = endpointMap[platform];
 
   const response = await axios.post(endpoint, {
+    userId,
     clientId,
     clientSecret,
     redirectUri,

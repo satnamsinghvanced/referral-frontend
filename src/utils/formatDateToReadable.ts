@@ -19,16 +19,7 @@ export const formatDateToReadable = (
       year: "numeric",
     };
 
-    const timeOptions: Intl.DateTimeFormatOptions = showTime
-      ? {
-          hour: "2-digit",
-          minute: "2-digit",
-          hour12: true,
-          timeZone: "UTC",
-        }
-      : {};
-
-    const dateStr = new Intl.DateTimeFormat("en-US", baseOptions).format(
+    const dateStr = new Intl.DateTimeFormat(undefined, baseOptions).format(
       JSdate
     );
 
@@ -37,15 +28,10 @@ export const formatDateToReadable = (
         hour: "2-digit",
         minute: "2-digit",
         hour12: true,
-        // timeZone: "UTC", // Keeping UTC as per original code if intended, or maybe it should be local?
-        // Original code had timeZone: "UTC" in the conditional block. I will preserve it.
-        timeZone: "UTC",
       };
-      const timeStr = new Intl.DateTimeFormat("en-US", timeOptions).format(
+      const timeStr = new Intl.DateTimeFormat(undefined, timeOptions).format(
         JSdate
       );
-      // Ensure AM/PM spacing if that was the intent of previous replace, though standard usually has it.
-      // But simply joining with ' at ' replaces the comma separator behavior.
       return `${dateStr} at ${timeStr}`;
     }
 

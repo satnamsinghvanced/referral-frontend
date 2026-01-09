@@ -5,6 +5,7 @@ import {
   FiCopy,
   FiSmartphone,
   FiTrash2,
+  FiUsers,
   FiWifi,
 } from "react-icons/fi";
 import { LuNfc, LuQrCode, LuTrash2 } from "react-icons/lu";
@@ -24,6 +25,13 @@ interface TagData {
   created: string;
   lastUsed: string;
   displayId: string;
+  users: {
+    initials: string;
+    name: string;
+    taps: number;
+    last: string;
+    status: string;
+  }[];
 }
 
 const INITIAL_TAGS: TagData[] = [
@@ -40,6 +48,29 @@ const INITIAL_TAGS: TagData[] = [
     created: "1/1/2024",
     lastUsed: "1/20/2024",
     displayId: "NFC-001",
+    users: [
+      {
+        initials: "MB",
+        name: "Michael Brown",
+        taps: 2,
+        last: "1/19/2024",
+        status: "Reviewed",
+      },
+      {
+        initials: "ED",
+        name: "Emily Davis",
+        taps: 1,
+        last: "1/18/2024",
+        status: "Pending",
+      },
+      {
+        initials: "AS",
+        name: "Adam Smith",
+        taps: 0,
+        last: "N/A",
+        status: "New",
+      },
+    ],
   },
   {
     id: "2",
@@ -54,6 +85,22 @@ const INITIAL_TAGS: TagData[] = [
     created: "1/10/2024",
     lastUsed: "1/19/2024",
     displayId: "NFC-002",
+    users: [
+      {
+        initials: "JS",
+        name: "Jessica Stone",
+        taps: 5,
+        last: "1/19/2024",
+        status: "Reviewed",
+      },
+      {
+        initials: "PK",
+        name: "Peter King",
+        taps: 3,
+        last: "1/17/2024",
+        status: "Pending",
+      },
+    ],
   },
   {
     id: "3",
@@ -68,8 +115,20 @@ const INITIAL_TAGS: TagData[] = [
     created: "1/5/2024",
     lastUsed: "1/20/2024",
     displayId: "NFC-003",
+    users: [],
   },
 ];
+
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case "Reviewed":
+      return "bg-green-100 text-green-700 border-green-200";
+    case "Pending":
+      return "bg-yellow-100 text-yellow-700 border-yellow-200";
+    default:
+      return "bg-gray-100 text-gray-700 border-gray-200";
+  }
+};
 
 const ManageTags = () => {
   const [tags, setTags] = useState<TagData[]>(INITIAL_TAGS);
@@ -102,6 +161,7 @@ const ManageTags = () => {
       displayId: `${data.type.toUpperCase()}-${Math.floor(
         Math.random() * 1000
       )}`,
+      users: [],
     };
     setTags([...tags, newTag]);
   };
@@ -135,7 +195,10 @@ const ManageTags = () => {
       {/* Tags Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
         {tags.map((tag) => (
-          <div className="bg-white rounded-xl border border-primary/15 p-4 flex flex-col gap-5">
+          <div
+            className="bg-white rounded-xl border border-primary/15 p-4 flex flex-col gap-5"
+            key={tag.id}
+          >
             {/* Header */}
             <div className="flex justify-between items-start">
               <div className="flex gap-2">
@@ -232,6 +295,52 @@ const ManageTags = () => {
                 <span>{tag.displayId}</span>
               </div>
             </div>
+
+            {/* <div
+              className={`border-t border-primary/15 pt-4 transition-all duration-300 h-auto opacity-100 visible`}
+            >
+              <div className="flex items-center text-sm text-gray-700 font-medium mb-3">
+                <FiUsers className="mr-2" />
+                Associated Users ({tag.users.length})
+              </div>
+
+              <div className="space-y-2 max-h-[110px] overflow-auto">
+                {tag.users.map((user: any, index: number) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between bg-gray-50 p-2 rounded-md"
+                  >
+                    <div className="flex items-center justify-start">
+                      <div className="w-8 h-8 rounded-full bg-blue-100 text-foreground flex items-center justify-center text-xs font-medium mr-2">
+                        {user.initials}
+                      </div>
+                      <div className="text-left">
+                        <p className="text-xs font-medium text-gray-900">
+                          {user.name}
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          {user.taps} taps • Last: {user.last}
+                        </p>
+                      </div>
+                    </div>
+                    <Chip
+                      size="sm"
+                      radius="sm"
+                      className={`text-[11px] font-medium h-5 border ${getStatusColor(
+                        user.status
+                      )}`}
+                    >
+                      {user.status}
+                    </Chip>
+                  </div>
+                ))}
+                {tag.users.length === 0 && (
+                  <p className="text-xs text-gray-600 text-center py-2">
+                    No associated users to display.
+                  </p>
+                )}
+              </div>
+            </div> */}
 
             {/* Actions */}
             <div className="flex gap-2 mt-auto">

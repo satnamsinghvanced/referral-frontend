@@ -131,6 +131,7 @@ export interface FetchReferrersParams {
   filter?: string;
   page?: number;
   limit?: number;
+  search?: string;
 }
 
 export interface Partner {
@@ -141,7 +142,7 @@ export interface Partner {
   email: string;
   website: string;
   level: string;
-  status: boolean;
+  status: string;
   totalReferrals: number;
   monthlyReferrals: number;
   notesCount: number;
@@ -157,11 +158,11 @@ export interface PartnerPractice {
     addressLine2: string;
     city: string;
   };
-  phone: string;
+  practicePhone: string;
   email: string;
   website: string;
   partnershipLevel: string;
-  status: boolean;
+  status: string;
   totalReferrals: number;
   monthlyReferrals: number;
   noteCount: number;
@@ -172,22 +173,31 @@ export interface PartnerPractice {
   pendingTaskCount?: number;
 }
 
+export interface StoppedReferringPartner {
+  name: string;
+  lastReferralDate: string;
+  totalDays: number;
+}
+
 export interface FetchPartnersResponse {
   data: Partner[];
-  page: number;
-  limit: number;
-  totalPages: number;
+  stoppedReferring: StoppedReferringPartner[];
   totalPractices: number;
+  filteredPractices: number;
   activePractices: number;
   totalReferrals: number;
   monthlyReferrals: number;
   totalALevelPractices: number;
   aLevelPercentage: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 export interface FetchPartnersParams {
   page?: number;
   limit?: number;
+  search?: string;
   sortBy?: string;
   order?: "asc" | "desc";
   filter?: string;
@@ -196,7 +206,10 @@ export interface FetchPartnersParams {
 export interface NoteApiData {
   _id: string;
   description: string;
-  practice: string; // partnerId
+  practice: {
+    _id: string;
+    name: string;
+  }; // partnerId
   category: string;
   createdBy: string; // userId
   createdAt: string; // ISO date string
@@ -250,10 +263,6 @@ export interface CreateTaskPayload {
   priority: string;
   category: string;
   assignTo: string[];
-}
-
-export interface UpdateTaskStatusPayload {
-  status: "not-started" | "in-progress" | "completed" | "no-longer-needed";
 }
 
 export interface UpdateTaskPayload {
@@ -480,6 +489,7 @@ export interface RouteOptimizationResults {
 export interface GetSchedulePlansQuery {
   page: number;
   limit: number;
+  search?: string;
   status?: "draft" | "active" | "completed" | "pending" | "cancel" | string;
   order?: "asc" | "desc" | string;
   sortBy?: "name" | "createdAt" | string;
@@ -528,6 +538,7 @@ export interface SchedulePlansResponse {
   message: string;
   data: SchedulePlan[];
   dashboardStats: SchedulePlanDashboardStats;
+  visitHistoryCount: number;
   pagination: {
     totalPages: number;
     currentPage: number;

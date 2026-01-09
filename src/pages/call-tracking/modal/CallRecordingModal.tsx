@@ -4,144 +4,76 @@ import {
   CardBody,
   Checkbox,
   Chip,
+  DatePicker,
   Modal,
   ModalBody,
   ModalContent,
   ModalHeader,
-  Select,
-  SelectItem,
   Tab,
   Tabs,
+  Textarea,
+  addToast,
 } from "@heroui/react";
-import {
-  FiCalendar,
-  FiCheckCircle,
-  FiPause,
-  FiSkipBack,
-  FiSkipForward,
-  FiVolume2,
-} from "react-icons/fi";
-import { LuPhoneIncoming } from "react-icons/lu"; // Used for phone type icon
+import { getLocalTimeZone, now } from "@internationalized/date";
+import { useEffect, useState } from "react";
+import { FiCalendar, FiCheckCircle, FiXCircle } from "react-icons/fi";
+import { LuPhoneIncoming, LuPhoneOutgoing } from "react-icons/lu";
 import { MdChatBubbleOutline } from "react-icons/md";
-import { TbMessageChatbot } from "react-icons/tb"; // Used for transcription icon
+import { useUpdateCallRecord } from "../../../hooks/useCall";
+import { CallRecord } from "../../../types/call";
+import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 
-const PlaybackTab = ({ data }: any) => (
+const PlaybackTab = ({ data }: { data: CallRecord }) => (
   <div className="flex-1 outline-none space-y-4">
     <Card className="bg-card text-card-foreground flex flex-col rounded-xl border border-primary/15 shadow-none">
       <CardBody className="p-4">
         {/* Header Info */}
         <div className="flex items-center justify-between">
           <div>
-            <h4 className="font-medium text-sm mb-0.5">{data.callerName}</h4>
+            <h4 className="font-medium text-sm mb-0.5">
+              {data.contact.name || data.contact.phone || "Unknown"}
+            </h4>
             <p className="text-xs text-gray-600">
-              {data.callerPhone} &bull; {data.date}
+              {data.contact.phone || data.from} &bull;{" "}
+              {formatDateToReadable(data.date, true)}
             </p>
           </div>
           <div className="flex items-center space-x-2">
-            {/* Sentiment Chip */}
-            <Chip
-              size="sm"
-              radius="sm"
-              variant="flat"
-              color="success"
-              className="capitalize bg-green-100 text-green-800 text-[11px] h-5 px-1"
-            >
-              {data.sentiment}
-            </Chip>
-            {/* Source Chip */}
+            {/* Source Chip - Hardcoded to Twilio for now as it's not in API */}
             <Chip
               size="sm"
               radius="sm"
               variant="bordered"
-              className="capitalize text-blue-600 border-blue-200 text-[11px] h-5 px-2 bg-blue-50/50 border-small"
+              className="capitalize text-blue-600 border-blue-200 text-[11px] h-5 bg-blue-50/50 border-small"
             >
-              {data.source}
+              Twilio
             </Chip>
           </div>
         </div>
 
         {/* Playback Controls */}
-        <div className="space-y-4 mt-6">
-          {/* Play/Pause/Skip Buttons */}
-          <div className="flex items-center justify-center space-x-2.5 mb-3">
-            <Button
-              variant="bordered"
-              className="min-w-8 h-8 rounded-md px-0 border-small border-primary/15 text-gray-700 hover:bg-gray-50"
+        <div className="space-y-4 mt-4">
+          {data.recordingUrl ? (
+            <audio
+              controls
+              src={data.recordingUrl}
+              className="w-full h-10"
+              style={{ borderRadius: "8px" }}
             >
-              <FiSkipBack className="size-3.5" />
-            </Button>
-            <Button
-              color="primary"
-              className="min-w-9 h-9 px-0 rounded-md shadow-md"
-            >
-              <FiPause className="size-3.5" />
-            </Button>
-            <Button
-              variant="bordered"
-              className="min-w-8 h-8 rounded-md px-0 border-small border-primary/15 text-gray-700 hover:bg-gray-50"
-            >
-              <FiSkipForward className="size-3.5" />
-            </Button>
-            <Button
-              variant="bordered"
-              className="min-w-8 h-8 rounded-md px-0 border-small border-primary/15 text-gray-700 hover:bg-gray-50"
-            >
-              <FiVolume2 className="size-3.5" />
-            </Button>
-          </div>
-
-          {/* Progress Bar & Timeline */}
-          <div className="space-y-1.5">
-            <div className="flex justify-between text-xs text-gray-600">
-              <span>0:00</span>
-              <span>{data.duration}</span>
+              Your browser does not support the audio element.
+            </audio>
+          ) : (
+            <div className="text-center text-sm text-gray-500 py-4">
+              No recording available.
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-2 cursor-pointer">
-              {/* Progress Range */}
-              <div
-                className="bg-primary-500 h-2 rounded-full transition-all duration-200"
-                style={{ width: "30%" }}
-              ></div>
-            </div>
-          </div>
-
-          {/* Volume Slider & Speed Select */}
-          <div className="flex items-center space-x-4">
-            {/* Volume Slider */}
-            <div className="flex items-center space-x-2 flex-1">
-              <FiVolume2 className="h-4 w-4 text-gray-500" />
-              {/* Simplified Slider Placeholder */}
-              <div className="flex-1 h-2 bg-primary-500 rounded-full relative">
-                <div className="absolute top-1/2 -translate-y-1/2 w-3 h-3 bg-background border border-primary-500 rounded-full shadow-md right-0"></div>
-              </div>
-            </div>
-
-            {/* Speed Select */}
-            <div className="flex items-center space-x-2">
-              <span className="text-xs text-gray-600">Speed:</span>
-              <Select
-                placeholder="1x"
-                size="sm"
-                radius="sm"
-                className="w-20"
-                classNames={{
-                  trigger: "h-8 border-gray-300 bg-gray-100",
-                }}
-              >
-                <SelectItem key="0.5x">0.5x</SelectItem>
-                <SelectItem key="1x">1x</SelectItem>
-                <SelectItem key="1.5x">1.5x</SelectItem>
-                <SelectItem key="2x">2x</SelectItem>
-              </Select>
-            </div>
-          </div>
+          )}
         </div>
       </CardBody>
     </Card>
   </div>
 );
 
-const TranscriptionTab = ({ data }: any) => (
+const TranscriptionTab = ({ data }: { data: CallRecord }) => (
   <div className="flex-1 outline-none space-y-4">
     <Card className="bg-card text-card-foreground flex flex-col rounded-xl border border-primary/15 shadow-none">
       <CardBody className="p-4 space-y-4">
@@ -149,106 +81,249 @@ const TranscriptionTab = ({ data }: any) => (
           <MdChatBubbleOutline className="h-5 w-5" />
           <span>Call Transcription</span>
         </div>
-        <div className="p-3 bg-gray-50 rounded-lg text-gray-800 leading-relaxed text-xs">
-          {data.transcription}
+        <div className="p-3 bg-gray-50 rounded-lg text-gray-800 leading-relaxed text-xs max-h-60 overflow-y-auto">
+          {data.transcriptionText || "No transcription available."}
         </div>
       </CardBody>
     </Card>
   </div>
 );
 
-const DetailsTab = ({ data }: any) => (
-  <div className="flex-1 outline-none space-y-4">
-    <div>
-      <div className="grid grid-cols-2 gap-3">
-        {/* Call Information */}
-        <Card className="shadow-none border border-primary/15">
-          <CardBody className="space-y-3">
-            <h4 className="text-sm font-medium">Call Information</h4>
-            <div className="space-y-3 text-sm">
-              <p className="flex items-center justify-between text-xs">
-                <span className="w-24 inline-block text-gray-600">
-                  Duration:
-                </span>{" "}
-                {data.duration}
-              </p>
-              <p className="flex items-center justify-between text-xs">
-                <span className="w-24 inline-block text-gray-600">Type:</span>{" "}
-                <span className="inline-flex items-center gap-1.5">
-                  <LuPhoneIncoming className="size-3.5 text-green-600" />{" "}
-                  {data.type}
-                </span>
-              </p>
-              <p className="flex items-center justify-between text-xs">
-                <span className="w-24 inline-block text-gray-600">Status:</span>{" "}
-                <span className="inline-flex items-center gap-1.5">
-                  <FiCheckCircle className="size-3.5 text-green-600" />{" "}
-                  {data.status}
-                </span>
-              </p>
-              <p className="flex items-center justify-between text-xs">
-                <span className="w-24 inline-block text-gray-600">
-                  Call SID:
-                </span>{" "}
-                {data.callSid}
-              </p>
-              <p className="flex items-center justify-between text-xs border-t border-primary/15 pt-3 mt-3">
-                <span className="w-24 inline-block text-gray-600">
-                  Recording:
-                </span>{" "}
-                <span className="text-green-600">{data.recordingStatus}</span>
-              </p>
-            </div>
-          </CardBody>
-        </Card>
+const DetailsTab = ({
+  data,
+  onClose,
+}: {
+  data: CallRecord;
+  onClose: () => void;
+}) => {
+  const { mutate: updateRecord, isPending } = useUpdateCallRecord();
+  const [notes, setNotes] = useState(data.notes || "");
+  const [followUp, setFollowUp] = useState(data.followUp || false);
+  const [appointment, setAppointment] = useState(data.appointment || false);
+  const [appointmentDate, setAppointmentDate] = useState(data.date || "");
 
-        {/* Notes & Actions */}
-        <Card className="shadow-none border border-primary/15">
-          <CardBody className="space-y-3">
-            <h4 className="text-sm font-medium">Notes & Actions</h4>
-            <div className="space-y-3">
-              <p className="p-3 bg-gray-50 rounded-lg text-gray-800 text-xs">
-                {data.notes}
-              </p>
+  useEffect(() => {
+    setNotes(data.notes || "");
+    setFollowUp(data.followUp || false);
+    setAppointment(data.appointment || false);
+    setAppointmentDate(data.date || "");
+  }, [data]);
 
-              {/* Checkboxes Placeholder */}
-              <div className="flex flex-col space-y-2 text-xs">
-                <div>
-                  <Checkbox
-                    isSelected={data.followUpRequired}
-                    size="sm"
-                    classNames={{ label: "text-xs" }}
+  const handleSave = () => {
+    updateRecord(
+      {
+        id: data._id,
+        payload: {
+          notes,
+          followUp,
+          appointment,
+          date: appointmentDate,
+        },
+      },
+      {
+        onSuccess: () => {
+          addToast({
+            title: "Success",
+            description: "Call record updated successfully.",
+            color: "success",
+          });
+          onClose();
+        },
+        onError: () => {
+          addToast({
+            title: "Error",
+            description: "Failed to update call record.",
+            color: "danger",
+          });
+        },
+      }
+    );
+  };
+
+  return (
+    <div className="flex-1 outline-none space-y-4">
+      <div>
+        <div className="grid grid-cols-2 gap-3">
+          {/* Call Information */}
+          <Card className="shadow-none border border-primary/15">
+            <CardBody className="space-y-3">
+              <h4 className="text-sm font-medium">Call Information</h4>
+              <div className="space-y-3 text-sm">
+                <p className="flex items-center justify-between text-xs">
+                  <span className="w-24 inline-block text-gray-600">
+                    Duration:
+                  </span>{" "}
+                  {data.duration}s
+                </p>
+                <p className="flex items-center justify-between text-xs transition-colors">
+                  <span className="w-24 inline-block text-gray-600">Type:</span>{" "}
+                  <span className="inline-flex items-center gap-1.5">
+                    {data.direction === "Incoming" ? (
+                      <LuPhoneIncoming className="size-3.5 text-green-600" />
+                    ) : (
+                      <LuPhoneOutgoing className="size-3.5 text-blue-600" />
+                    )}{" "}
+                    {data.direction}
+                  </span>
+                </p>
+                <p className="flex items-center justify-between text-xs">
+                  <span className="w-24 inline-block text-gray-600">
+                    Status:
+                  </span>{" "}
+                  <span className="inline-flex items-center gap-1.5 capitalize">
+                    {data.status === "completed" ? (
+                      <FiCheckCircle className="size-3.5 text-green-600" />
+                    ) : (
+                      <FiXCircle className="size-3.5 text-red-600" />
+                    )}
+                    {data.status}
+                  </span>
+                </p>
+                <p className="flex items-center justify-between text-xs">
+                  <span className="w-24 inline-block text-gray-600">
+                    Call SID:
+                  </span>{" "}
+                  <span className="font-mono text-[11px] text-gray-500">
+                    {data.callSid}
+                  </span>
+                </p>
+                <p className="flex items-center justify-between text-xs border-t border-primary/15 pt-3 mt-3">
+                  <span className="w-24 inline-block text-gray-600">
+                    Recording:
+                  </span>{" "}
+                  <span
+                    className={
+                      data.recordingUrl ? "text-green-600" : "text-gray-400"
+                    }
                   >
-                    Follow-up required
-                  </Checkbox>
+                    {data.recordingUrl ? "Available" : "Unavailable"}
+                  </span>
+                </p>
+              </div>
+            </CardBody>
+          </Card>
+
+          {/* Notes & Actions */}
+          <Card className="shadow-none border border-primary/15">
+            <CardBody className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h4 className="text-sm font-medium">Notes & Actions</h4>
+              </div>
+              <div className="space-y-3">
+                <Textarea
+                  size="sm"
+                  radius="sm"
+                  placeholder="Review notes..."
+                  value={notes}
+                  onValueChange={setNotes}
+                  minRows={3}
+                  classNames={{
+                    input: "text-xs",
+                  }}
+                  variant="flat"
+                />
+
+                {/* Checkboxes */}
+                <div className="flex flex-col space-y-2 text-xs">
+                  <div>
+                    <Checkbox
+                      isSelected={followUp}
+                      onValueChange={setFollowUp}
+                      size="sm"
+                      classNames={{ label: "text-xs" }}
+                    >
+                      Follow-up required
+                    </Checkbox>
+                  </div>
+                  <div>
+                    <Checkbox
+                      isSelected={appointment}
+                      onValueChange={setAppointment}
+                      size="sm"
+                      classNames={{ label: "text-xs" }}
+                    >
+                      Appointment scheduled
+                    </Checkbox>
+                  </div>
+                  {appointment && (
+                    <DatePicker
+                      key="date"
+                      id="appointmentDate"
+                      name="date"
+                      aria-label="Appointment Date"
+                      size="sm"
+                      radius="sm"
+                      hideTimeZone
+                      minValue={now(getLocalTimeZone())}
+                      granularity="minute"
+                      onChange={(dateObject: any) => {
+                        if (dateObject) {
+                          // Extract parts, pad with leading zeros
+                          const year = dateObject.year;
+                          const month = String(dateObject.month).padStart(
+                            2,
+                            "0"
+                          );
+                          const day = String(dateObject.day).padStart(2, "0");
+                          const hour = String(dateObject.hour).padStart(2, "0");
+                          const minute = String(dateObject.minute).padStart(
+                            2,
+                            "0"
+                          );
+                          const second = String(dateObject.second).padStart(
+                            2,
+                            "0"
+                          );
+                          const millisecond = String(
+                            dateObject.millisecond
+                          ).padStart(3, "0");
+
+                          const localDateTimeString = `${year}-${month}-${day}T${hour}:${minute}:${second}.${millisecond}`;
+                          setAppointmentDate(localDateTimeString);
+                        } else {
+                          setAppointmentDate("");
+                        }
+                      }}
+                    />
+                  )}
                 </div>
-                <div>
-                  <Checkbox
-                    isSelected={data.appointmentScheduled}
+
+                {/* Schedule Follow-up Button */}
+                <div className="border-t border-primary/15 pt-2 mt-4">
+                  <Button
+                    color="primary"
                     size="sm"
-                    classNames={{ label: "text-xs" }}
+                    radius="sm"
+                    fullWidth
+                    onPress={handleSave}
+                    isLoading={isPending}
                   >
-                    Appointment scheduled
-                  </Checkbox>
+                    <FiCalendar className="size-3.5" />
+                    <span>Schedule Follow-up</span>
+                  </Button>
                 </div>
               </div>
-
-              {/* Schedule Follow-up Button */}
-              <div className="border-t border-primary/15 pt-2 mt-4">
-                <Button color="primary" size="sm" radius="sm" fullWidth>
-                  <FiCalendar className="size-3.5" />
-                  <span>Schedule Follow-up</span>
-                </Button>
-              </div>
-            </div>
-          </CardBody>
-        </Card>
+            </CardBody>
+          </Card>
+        </div>
       </div>
     </div>
-  </div>
-);
+  );
+};
 
-export default function CallRecordingModal({ isOpen, onClose, data }: any) {
+interface CallRecordingModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  data: CallRecord | null;
+}
+
+export default function CallRecordingModal({
+  isOpen,
+  onClose,
+  data,
+}: CallRecordingModalProps) {
+  if (!data) return null;
+
   const tabs = [
     {
       key: "playback",
@@ -263,7 +338,7 @@ export default function CallRecordingModal({ isOpen, onClose, data }: any) {
     {
       key: "details",
       label: "Details",
-      content: <DetailsTab data={data} />,
+      content: <DetailsTab data={data} onClose={onClose} />,
     },
   ];
 
@@ -283,14 +358,16 @@ export default function CallRecordingModal({ isOpen, onClose, data }: any) {
             data-slot="dialog-title"
             className="leading-none font-medium text-base"
           >
-            Call Recording - {data.callerName}
+            Call Recording -{" "}
+            {data.contact.name || data.contact.phone || "Unknown"}
           </h2>
           <p
             data-slot="dialog-description"
             className="text-xs text-gray-600 mt-2 font-normal"
           >
             Listen to the call recording, view transcription, and manage call
-            details for {data.callerName}.
+            details for{" "}
+            {data.contact.name || data.contact.phone || "this contact"}.
           </p>
         </ModalHeader>
         <ModalBody className="px-5 py-5">

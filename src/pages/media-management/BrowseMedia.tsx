@@ -59,7 +59,9 @@ function NewFolderModal({
           />
 
           <div className="flex justify-end  gap-3">
-            <Button size="sm" onClick={onClose}>Cancel</Button>
+            <Button size="sm" onClick={onClose}>
+              Cancel
+            </Button>
             <Button size="sm" color="primary" onClick={onCreateFolder}>
               Create Folder
             </Button>
@@ -101,17 +103,17 @@ function UploadMediaModal({
           <p className="text-xs text-gray-400 mb-4">
             Upload images and videos to the root folder
           </p>
-  <h4 className="text-xs mb-1">Tags(comma-Separated,optinonal)</h4>
-         <input
-          placeholder="e.g , marketing,Product,Campaign"
-  type="text"
-  className="mb-4 bg-gray-100 rounded-md p-2 w-full text-xs text-gray-700 border border-gray-200"
-/>
-
-          
+          <h4 className="text-xs mb-1">Tags(comma-Separated,optinonal)</h4>
+          <input
+            placeholder="e.g , marketing,Product,Campaign"
+            type="text"
+            className="mb-4 bg-gray-100 rounded-md p-2 w-full text-xs text-gray-700 border border-gray-200"
+          />
 
           <div className="flex justify-end gap-3">
-            <Button size="sm" onClick={onClose}>Cancel</Button>
+            <Button size="sm" onClick={onClose}>
+              Cancel
+            </Button>
           </div>
         </div>
       </div>
@@ -152,24 +154,20 @@ function BrowseMedia({ currentFilters, onFilterChange }: BrowseMediaProps) {
   const [newFolderName, setNewFolderName] = useState("");
 
   const handleCreateFolder = () => {
-    console.log("Folder Created:", newFolderName);
     setNewFolderName("");
     setIsFolderModalOpen(false);
   };
 
   const handleUpload = () => {
-    console.log("Media Uploaded");
     setIsUploadModalOpen(false);
   };
 
   return (
     <div className="flex flex-col gap-5">
-
       {/* ---------------- Top Buttons --------------- */}
       <div className="flex items-center justify-between gap-4 border border-primary/15 rounded-xl p-4 bg-white shadow-none">
         <p className="text-sm">Root</p>
         <div className="space-x-2">
-
           <Button
             size="sm"
             radius="sm"
@@ -191,7 +189,6 @@ function BrowseMedia({ currentFilters, onFilterChange }: BrowseMediaProps) {
           >
             Upload Here
           </Button>
-
         </div>
       </div>
 

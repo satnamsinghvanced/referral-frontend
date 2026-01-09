@@ -1,5 +1,5 @@
 import { addToast, Button, Checkbox, Chip, Input } from "@heroui/react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { FiCalendar, FiShare2 } from "react-icons/fi";
 import { GoGraph } from "react-icons/go";
 import { HiOutlineDeviceMobile } from "react-icons/hi";
@@ -19,6 +19,7 @@ const TrackingPanel = () => {
   const [customPath, setCustomPath] = useState("");
   const [isCustomLandingPage, setIsCustomLandingPage] = useState(false);
   const [showGenerator, setShowGenerator] = useState(false);
+  const [selectedQrId, setSelectedQrId] = useState<string | null>(null);
 
   const { user } = useTypedSelector((state) => state.auth);
   const userId = user?.userId;
@@ -163,15 +164,23 @@ const TrackingPanel = () => {
         onSuccess: () => {
           setShowGenerator(false);
           setCustomPath("");
+          setSelectedQrId(null);
         },
       }
     );
   };
 
-  const latestQr =
-    trackings?.personalizedQR && trackings.personalizedQR.length > 0
-      ? trackings.personalizedQR[trackings.personalizedQR.length - 1]
-      : null;
+  const latestQr = useMemo(() => {
+    if (!trackings?.personalizedQR || trackings.personalizedQR.length === 0)
+      return null;
+    if (selectedQrId) {
+      return (
+        trackings.personalizedQR.find((q: any) => q._id === selectedQrId) ||
+        trackings.personalizedQR[trackings.personalizedQR.length - 1]
+      );
+    }
+    return trackings.personalizedQR[trackings.personalizedQR.length - 1];
+  }, [trackings?.personalizedQR, selectedQrId]);
 
   return (
     <div className="flex flex-col gap-4 md:gap-5">
@@ -234,7 +243,9 @@ const TrackingPanel = () => {
                           }
                           type="text"
                           value={customPath}
-                          onValueChange={(value) => setCustomPath(value)}
+                          onValueChange={(value) =>
+                            setCustomPath(value.replace(/\s+/g, ""))
+                          }
                         />
                       </div>
                     )}
@@ -479,7 +490,19 @@ const TrackingPanel = () => {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {trackings.personalizedQR.map((qr) => (
-                  <tr key={qr._id} className="hover:bg-gray-50/50">
+                  <tr
+                    key={qr._id}
+                    onClick={() => {
+                      setSelectedQrId(qr._id);
+                      setShowGenerator(false);
+                      // Scroll to target if needed, but usually just updating the state is enough
+                    }}
+                    className={`cursor-pointer transition-colors border-l-2 ${
+                      qr._id === latestQr?._id
+                        ? "bg-blue-50/80 border-l-blue-600"
+                        : "border-transparent hover:bg-gray-50/50"
+                    }`}
+                  >
                     <td className="text-left text-xs py-3 px-2 max-w-fit">
                       <div className="bg-white border border-gray-200 rounded p-0.5 w-12 h-12 flex items-center justify-center">
                         <img
@@ -491,13 +514,14 @@ const TrackingPanel = () => {
                     </td>
                     <td className="text-left text-xs py-3 px-2">
                       <div className="flex flex-col max-w-[200px] md:max-w-full space-y-0.5">
-                        <span className="truncate">
+                        <span className="font-medium text-gray-900 truncate">
                           {qr.customPath || "Default"}
                         </span>
                         <a
                           href={qr.referralUrl}
                           target="_blank"
                           rel="noreferrer"
+                          onClick={(e) => e.stopPropagation()}
                           className="text-[11px] text-blue-500 hover:underline truncate w-fit"
                         >
                           {qr.referralUrl}
@@ -511,7 +535,10 @@ const TrackingPanel = () => {
                       {formatDateToMMDDYYYY(qr.createdAt)}
                     </td>
                     <td className="text-left text-xs py-3 px-2">
-                      <div className="flex items-center justify-end gap-1">
+                      <div
+                        className="flex items-center justify-end gap-1"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Button
                           isIconOnly
                           size="sm"

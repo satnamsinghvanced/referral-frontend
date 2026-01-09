@@ -5,24 +5,49 @@ export interface TeamMember {
   firstName: string;
   lastName: string;
   email: string;
-  locations: string;
-  role: { role: "Admin" | "Manager" | "Staff" | string; _id: string };
-  invitationStatus: string;
+  locations: any[]; // using any[] for now as Location type might need to be imported or defined
+  role: {
+    role: string;
+    _id: string;
+    title?: string;
+    description?: string;
+    permissions?: string[];
+  } | null;
+  status: string;
   avatar?: string;
-  invitedAt: string;
-  permissions?: string[];
+  createdAt?: string;
+  permissions?: any[]; // permissions can be populated
+  isVerified?: boolean;
+  termsAccepted?: boolean;
 }
 
-export interface PendingInvite {
-  id: string;
-  email: string;
-  role: string;
-  invitedAt: string;
+export interface TeamMembersResponse {
+  data: TeamMember[];
+  totalData: number;
+  totalPages: number;
+  currentPage: number;
+  pageSize: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
 }
 
 // Fetch all team members
-export const fetchTeamMembers = async (): Promise<TeamMember[]> => {
-  const { data } = await axios.get("/team-member");
+export const fetchTeamMembers = async (params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+}): Promise<TeamMembersResponse> => {
+  const { data } = await axios.get("/team-member", { params });
+  return data;
+};
+
+// Fetch pending team members
+export const fetchPendingTeamMembers = async (params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+}): Promise<TeamMembersResponse> => {
+  const { data } = await axios.get("/team-member/pending-member", { params });
   return data;
 };
 
@@ -47,5 +72,14 @@ export const resendTeamInvite = async (id: string) => {
 // Invite a new team member
 export const inviteTeamMember = async (payload: any) => {
   const { data } = await axios.post("/team-member", payload);
+  return data;
+};
+
+// Set team member password
+export const setTeamMemberPassword = async (payload: {
+  email: string;
+  password: string;
+}) => {
+  const { data } = await axios.post("/team-member/set-password", payload);
   return data;
 };

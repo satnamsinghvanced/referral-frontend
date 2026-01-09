@@ -35,6 +35,15 @@ const FOLDER_KEYS = {
   detail: (folderId: string) => [...FOLDER_KEYS.all, folderId] as const,
 };
 
+const IMAGE_KEYS = {
+  all: ["images"] as const,
+  search: (query: SearchImagesQuery) =>
+    [...IMAGE_KEYS.all, "search", query] as const,
+  detail: (imageId: string) => [...IMAGE_KEYS.all, imageId] as const,
+};
+
+const TAGS_KEYS = ["tags"];
+
 export const useGetAllFolders = (query: GetAllFoldersQuery) => {
   return useQuery({
     queryKey: FOLDER_KEYS.list(query),
@@ -58,9 +67,9 @@ export const useGetFolderDetails = (folderId: string) => {
   });
 };
 
-export const useCreateFolder = (userId: string) => {
+export const useCreateFolder = () => {
   return useMutation({
-    mutationFn: (data: CreateFolderRequest) => createFolder(userId, data),
+    mutationFn: (data: CreateFolderRequest) => createFolder(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: FOLDER_KEYS.all });
       addToast({
@@ -83,8 +92,9 @@ export const useUpdateFolderName = (folderId: string) => {
   return useMutation({
     mutationFn: (data: UpdateFolderRequest) => updateFolderName(folderId, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: FOLDER_KEYS.detail(folderId) });
       queryClient.invalidateQueries({ queryKey: FOLDER_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: IMAGE_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: FOLDER_KEYS.detail(folderId) });
       addToast({
         title: "Success",
         description: "Folder name updated successfully.",
@@ -123,13 +133,6 @@ export const useDeleteFolder = (folderId: string) => {
   });
 };
 
-const IMAGE_KEYS = {
-  all: ["images"] as const,
-  search: (query: SearchImagesQuery) =>
-    [...IMAGE_KEYS.all, "search", query] as const,
-  detail: (imageId: string) => [...IMAGE_KEYS.all, imageId] as const,
-};
-
 export const useSearchImages = (query: SearchImagesQuery) => {
   return useQuery({
     queryKey: IMAGE_KEYS.search(query),
@@ -154,6 +157,7 @@ export const useUploadMedia = (
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: IMAGE_KEYS.all });
       queryClient.invalidateQueries({ queryKey: FOLDER_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: TAGS_KEYS });
       addToast({
         title: "Success",
         description: "Media uploaded successfully.",
@@ -161,10 +165,46 @@ export const useUploadMedia = (
       });
     },
     onError: (error: any) => {
-      const errorMessage =
-        (error.response?.data as { message?: string })?.message ||
-        error.message ||
-        "Failed to upload media";
+      console.log(error);
+      const status = error.response?.status;
+      const data = error.response?.data as { message?: string; code?: string };
+
+      let errorMessage =
+        data?.message || error.message || "Failed to upload media";
+
+      // Enhanced error messages based on status codes and Multer codes
+      if (status === 413) {
+        errorMessage =
+          "File size is too large. Please upload smaller files or check the server limits.";
+      } else if (status === 400 && data?.code) {
+        switch (data.code) {
+          case "LIMIT_FILE_SIZE":
+            errorMessage =
+              "The file you are trying to upload exceeds the maximum allowed size.";
+            break;
+          case "LIMIT_FILE_COUNT":
+            errorMessage =
+              "You have exceeded the maximum number of files allowed.";
+            break;
+          case "LIMIT_UNEXPECTED_FILE":
+            errorMessage = "Unexpected file type or field found in the upload.";
+            break;
+          case "LIMIT_FIELD_KEY":
+            errorMessage = "Field name in the upload is too long.";
+            break;
+          case "LIMIT_FIELD_VALUE":
+            errorMessage = "Field value in the upload is too long.";
+            break;
+          case "LIMIT_FIELD_COUNT":
+            errorMessage = "Too many textual fields in the upload.";
+            break;
+          default:
+            break;
+        }
+      } else if (status >= 500) {
+        errorMessage = "Server error occurred. Please try again later.";
+      }
+
       addToast({ title: "Error", description: errorMessage, color: "danger" });
     },
   });
@@ -177,6 +217,7 @@ export const useUpdateImageTags = (imageId: string) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: IMAGE_KEYS.detail(imageId) });
       queryClient.invalidateQueries({ queryKey: IMAGE_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: TAGS_KEYS });
       addToast({
         title: "Success",
         description: "Image tags updated successfully.",
@@ -199,6 +240,7 @@ export const useDeleteImages = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: IMAGE_KEYS.all });
       queryClient.invalidateQueries({ queryKey: FOLDER_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: TAGS_KEYS });
       addToast({
         title: "Success",
         description: "Selected media deleted successfully.",
@@ -237,11 +279,9 @@ export const useMoveImages = () => {
   });
 };
 
-const TAGS_QUERY_KEY = ["tags"];
-
 export const useTagsQuery = (): UseQueryResult<GetTagsResponse> => {
   return useQuery({
-    queryKey: TAGS_QUERY_KEY,
+    queryKey: TAGS_KEYS,
     queryFn: getTags,
   });
 };

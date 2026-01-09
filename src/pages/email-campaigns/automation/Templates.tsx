@@ -58,7 +58,10 @@ const Templates = () => {
             } = template;
 
             return (
-              <div className="border border-primary/15 rounded-xl p-4">
+              <div
+                className="border border-primary/15 rounded-xl p-4"
+                key={index}
+              >
                 <div className="flex flex-col">
                   <div className="flex items-center gap-3 mb-4">
                     <div className={clsx("p-2 rounded-lg", iconBgClass)}>

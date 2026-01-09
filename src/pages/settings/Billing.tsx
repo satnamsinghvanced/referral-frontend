@@ -23,12 +23,12 @@ const Billing: React.FC = () => {
 
   return (
     <Card className="rounded-xl shadow-none border border-foreground/10">
-      <CardHeader className="flex items-center gap-2 px-5 pt-5 pb-0">
+      <CardHeader className="flex items-center gap-2 px-4 pt-4 pb-1">
         <FiCreditCard className="size-5" />
-        <p className="text-base">Billing & Subscription</p>
+        <h4 className="text-base">Billing & Subscription</h4>
       </CardHeader>
 
-      <CardBody className="p-5 space-y-6">
+      <CardBody className="p-4 space-y-5">
         {/* Current Plan */}
         <div className="space-y-1 bg-green-50 border border-green-200 dark:bg-green-200 p-3 rounded-lg">
           <div className="flex items-center justify-between mb-2">

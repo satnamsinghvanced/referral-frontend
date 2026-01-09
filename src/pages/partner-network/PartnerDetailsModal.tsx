@@ -27,6 +27,7 @@ import LevelChip from "../../components/chips/LevelChip";
 import { LoadingState } from "../../components/common/LoadingState";
 import { useFetchPartnerDetail } from "../../hooks/usePartner";
 import { PartnerPractice } from "../../types/partner"; // Adjust path as necessary
+import { formatDateToReadable } from "../../utils/formatDateToReadable";
 
 interface PartnerDetailsModalProps {
   isOpen: boolean;
@@ -76,8 +77,8 @@ const PartnerDetailsModal = ({
       }}
       size="md"
     >
-      <ModalContent className="max-h-[90vh] flex flex-col">
-        <ModalHeader className="flex flex-col gap-2 text-center sm:text-left flex-shrink-0 p-5">
+      <ModalContent className="max-h-[92vh] flex flex-col">
+        <ModalHeader className="flex flex-col gap-2 text-center sm:text-left flex-shrink-0 p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <h4 className="text-base font-medium leading-snug flex items-center space-x-2">
@@ -96,7 +97,7 @@ const PartnerDetailsModal = ({
           </p>
         </ModalHeader>
 
-        <ModalBody className="px-5 pt-0 pb-5 h-full overflow-auto">
+        <ModalBody className="px-4 pt-0 pb-4 h-full overflow-auto">
           {isLoading ? (
             <div className="flex-1 min-h-[500px] flex items-center justify-center">
               <LoadingState />
@@ -106,9 +107,9 @@ const PartnerDetailsModal = ({
               <p>Failed to load partner details.</p>
             </div>
           ) : (
-            <div className="flex-1 space-y-4">
+            <div className="flex-1 space-y-3">
               {/* Top Stat Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <Card className="rounded-xl border border-primary/15 text-center px-4 py-3 shadow-none justify-center">
                   <div className="text-xl font-bold text-blue-600">
                     {displayData.totalReferrals ?? 0}
@@ -158,7 +159,9 @@ const PartnerDetailsModal = ({
                       <div className="space-y-0.5">
                         <div className="text-xs font-medium">Phone</div>
                         <div className="text-xs text-gray-600">
-                          {displayData.phone ? displayData.phone : "N/A"}
+                          {displayData.practicePhone
+                            ? displayData.practicePhone
+                            : "N/A"}
                         </div>
                       </div>
                     </div>
@@ -225,8 +228,9 @@ const PartnerDetailsModal = ({
                         <div className="text-xs font-medium">Last Updated</div>
                         {/* Assuming a 'lastUpdated' field exists or can be derived */}
                         <div className="text-xs text-gray-600">
-                          {formatDate(
-                            (displayData as any).lastUpdated || "Oct 22, 2025"
+                          {formatDateToReadable(
+                            (displayData as any).updatedAt,
+                            true
                           )}
                         </div>
                       </div>
@@ -264,7 +268,10 @@ const PartnerDetailsModal = ({
                     )}
                     {displayData.staff &&
                       displayData.staff.map((staff: any) => (
-                        <div className="flex items-center space-x-2.5 p-3 bg-gray-50 rounded-lg">
+                        <div
+                          className="flex items-center space-x-2.5 p-3 bg-gray-50 rounded-lg"
+                          key={staff._id}
+                        >
                           <div className="size-9 bg-blue-100 rounded-full flex items-center justify-center">
                             <LuUsers className="size-4 text-blue-600" />
                           </div>
@@ -366,7 +373,7 @@ const PartnerDetailsModal = ({
           )}
         </ModalBody>
         {/* Footer with buttons */}
-        <ModalFooter className="flex-shrink-0 flex justify-end space-x-2 px-5 py-4 border-t border-primary/15">
+        <ModalFooter className="flex-shrink-0 flex justify-end px-4 py-4 border-t border-primary/15">
           <Button
             variant="bordered"
             size="sm"
@@ -376,9 +383,10 @@ const PartnerDetailsModal = ({
             Close
           </Button>
           <Button
+            variant="solid"
             color="primary"
             size="sm"
-            className="bg-blue-600 hover:bg-blue-700"
+            radius="sm"
             onPress={() => primaryButtonHandler(partnerId)}
           >
             <LuSquarePen className="size-3.5" />

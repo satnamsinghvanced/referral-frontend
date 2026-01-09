@@ -13,6 +13,7 @@ import VisitHistoryCard from "./VisitHistoryCard";
 import { useVisitHistory } from "../../../../hooks/usePartner";
 import { memo, useState, useCallback, useMemo } from "react";
 import { useDebouncedValue } from "../../../../hooks/common/useDebouncedValue";
+import EmptyState from "../../../../components/common/EmptyState";
 
 interface VisitHistoryModalProps {
   isOpen: boolean;
@@ -171,9 +172,7 @@ export function VisitHistoryModal({
             ))}
             {/* Display if no visits are found */}
             {(!visits || visits.length === 0) && !isFetching && (
-              <div className="text-center text-gray-500 pt-6 pb-2 text-sm">
-                No visits found matching the current filters.
-              </div>
+              <EmptyState title="No visits found matching the current filters. Try adjusting your search or filters." />
             )}
           </div>
         </ModalBody>

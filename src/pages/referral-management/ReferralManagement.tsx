@@ -41,6 +41,7 @@ import TrackReferralModal from "./referrals/TrackReferralModal";
 import ReferralCard from "./referrals/ReferralCard";
 import QrCodeDownloadModal from "./referrers/QrCodeDownloadModal";
 import NfcTagModal from "./referrers/NfcTagModal";
+import { IoSearch } from "react-icons/io5";
 
 type ReferralType = "Referrals" | "Referrers" | "NFC & QR Tracking";
 
@@ -78,9 +79,11 @@ const ReferralManagement = () => {
     filter: "",
     page: 1,
     limit: 10,
+    search: "",
   });
 
   const debouncedSearch = useDebouncedValue(currentFilters.search, 500);
+  const debouncedReferrerSearch = useDebouncedValue(referrerParams.search, 500);
 
   const createReferralMutation = useCreateReferral();
 
@@ -95,7 +98,7 @@ const ReferralManagement = () => {
   } = useFetchReferrals({ ...currentFilters, search: debouncedSearch });
 
   const { data: referrerData, isLoading: isLoadingReferrers } =
-    useFetchReferrers(referrerParams);
+    useFetchReferrers({ ...referrerParams, search: debouncedReferrerSearch });
   const referrers = referrerData?.data;
 
   const { data: singleReferralData } = useGetReferralById(referralEditId);
@@ -255,7 +258,7 @@ const ReferralManagement = () => {
         color: "default",
         linkInNewTab: true,
         className: "border-small",
-        isHide: referrer.type === "patient",
+        isHide: referrer.type !== "doctor",
       },
     ],
     []
@@ -409,7 +412,7 @@ const ReferralManagement = () => {
                       <Input
                         size="sm"
                         variant="flat"
-                        placeholder="Search..."
+                        placeholder="Search referrals by patient name, doctor, or practice..."
                         value={currentFilters.search}
                         onValueChange={(value) =>
                           setCurrentFilters((prev) => ({
@@ -462,7 +465,7 @@ const ReferralManagement = () => {
                         ))}
                       </div>
                     ) : (
-                      <EmptyState />
+                      <EmptyState title="No referrals found with current filters. Try adjusting your search or filters." />
                     )}
                     {referralData && referralData.total > 5 && (
                       <div className="text-center">
@@ -470,7 +473,7 @@ const ReferralManagement = () => {
                           size="sm"
                           radius="sm"
                           variant="ghost"
-                          className="border-primary/15 border-small"
+                          className="border-small"
                           onPress={handleViewAllAndFilter}
                         >
                           View all {referralData.total} referrals
@@ -486,7 +489,28 @@ const ReferralManagement = () => {
           {/* --- REFERRERS TAB --- */}
           {selectedReferralType === "Referrers" && (
             <div className="flex flex-col gap-4 border border-primary/15 rounded-xl p-4 bg-background w-full">
-              <p className="font-medium text-sm">Referrer Management</p>
+              <div className="flex flex-col gap-4">
+                <p className="font-medium text-sm">Referrer Management</p>
+                {/* <div className="flex-1">
+                  <Input
+                    size="sm"
+                    variant="flat"
+                    placeholder="Search referrers by name, practice, email, phone or type..."
+                    value={referrerParams.search}
+                    onValueChange={(value) =>
+                      setReferrerParams((prev) => ({
+                        ...prev,
+                        search: value,
+                        page: 1,
+                      }))
+                    }
+                    className="text-xs"
+                    startContent={
+                      <IoSearch size={18} className="text-gray-400" />
+                    }
+                  />
+                </div> */}
+              </div>
               {isLoadingReferrers ? (
                 <LoadingState />
               ) : referrers?.length ? (
@@ -504,7 +528,7 @@ const ReferralManagement = () => {
                   ))}
                 </div>
               ) : (
-                <EmptyState />
+                <EmptyState title="No referrers found with current filters. Try adjusting your search or filters." />
               )}
               {referrerData?.totalPages && referrerData.totalPages > 1 ? (
                 <Pagination
@@ -520,9 +544,6 @@ const ReferralManagement = () => {
                   classNames={{
                     base: "flex justify-end py-3",
                     wrapper: "gap-1.5",
-                    item: "cursor-pointer",
-                    prev: "cursor-pointer",
-                    next: "cursor-pointer",
                   }}
                 />
               ) : (

@@ -9,11 +9,18 @@ import {
 import React, { useMemo } from "react";
 import { BiPhone } from "react-icons/bi";
 import { CgMail } from "react-icons/cg";
-import { FiArrowLeft, FiDownload, FiEye, FiSearch } from "react-icons/fi";
-import { LuCalendar, LuSquarePen } from "react-icons/lu";
+import {
+  FiArrowLeft,
+  FiDownload,
+  FiEdit,
+  FiEye,
+  FiSearch,
+} from "react-icons/fi";
+import { LuCalendar, LuDownload } from "react-icons/lu";
 import { PiFunnelX } from "react-icons/pi";
 import { Link } from "react-router";
 
+import { FaRegEnvelope } from "react-icons/fa";
 import PriorityLevelChip from "../../../components/chips/PriorityLevelChip";
 import ReferralStatusChip from "../../../components/chips/ReferralStatusChip";
 import EmptyState from "../../../components/common/EmptyState";
@@ -27,6 +34,7 @@ import {
 } from "../../../types/referral";
 import { formatDateToYYYYMMDD } from "../../../utils/formatDateToYYYYMMDD";
 import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
+import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 
 interface AllReferralsViewProps {
   onBackToOverview: () => void;
@@ -136,9 +144,22 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                 aria-hidden="true"
               />
               <span className="text-xs">
-                Referred: {formatDateToYYYYMMDD(referral.createdAt as string)}
+                Referred:{" "}
+                {formatDateToReadable(referral.createdAt as string, true)}
               </span>
             </div>
+            {referral.scheduledDate && (
+              <div className="flex items-center space-x-1.5">
+                <LuCalendar
+                  className="h-4 w-4 text-primary-600"
+                  aria-hidden="true"
+                />
+                <span className="text-xs">
+                  Scheduled:{" "}
+                  {formatDateToReadable(referral.scheduledDate as string, true)}
+                </span>
+              </div>
+            )}
           </div>
           <div className="space-y-2">
             {referral.treatment && (
@@ -170,9 +191,6 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
             </span>
             <PriorityLevelChip level={referral.priority as string} />
           </div>
-          {/* <p className="text-xs font-medium">
-              Est. Value: ${referral?.estValue}
-            </p> */}
           {referral.notes && (
             <p className="text-xs text-gray-600">{referral.notes}</p>
           )}
@@ -188,7 +206,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
             {referral.email && (
               <Link to={`mailto:${referral.email}`}>
                 <Button isIconOnly size="sm" variant="light">
-                  <CgMail className="h-4 w-4" />
+                  <FaRegEnvelope className="size-3.5" />
                 </Button>
               </Link>
             )}
@@ -198,7 +216,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
               variant="light"
               onPress={() => onViewReferral(referral._id)}
             >
-              <FiEye className="h-4 w-4" />
+              <FiEye className="size-4" />
             </Button>
             <Button
               isIconOnly
@@ -206,7 +224,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
               variant="light"
               onPress={() => onEditReferral(referral._id)}
             >
-              <LuSquarePen className="size-3.5" />
+              <FiEdit className="size-3.5" />
             </Button>
           </div>
         </div>
@@ -259,7 +277,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                 size="sm"
                 variant="bordered"
                 className="border-small"
-                startContent={<FiArrowLeft className="h-4 w-4" />}
+                startContent={<FiArrowLeft className="size-3.5" />}
               >
                 Back to Overview
               </Button>
@@ -268,7 +286,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                 size="sm"
                 variant="bordered"
                 className="border-small"
-                startContent={<FiDownload className="h-4 w-4" />}
+                startContent={<LuDownload className="size-3.5" />}
               >
                 Export
               </Button>
@@ -330,6 +348,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
               placeholder="All Statuses"
               size="sm"
               selectedKeys={[currentFilters.filter as string]}
+              disabledKeys={[currentFilters.filter as string]}
               onSelectionChange={(keys) =>
                 onFilterChange("filter", Array.from(keys)[0] as string)
               }
@@ -351,6 +370,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
               placeholder="All Sources"
               size="sm"
               selectedKeys={[currentFilters.source as string]}
+              disabledKeys={[currentFilters.source as string]}
               onSelectionChange={(keys) =>
                 onFilterChange("source", Array.from(keys)[0] as string)
               }
@@ -444,16 +464,13 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                     classNames={{
                       base: "flex justify-end py-3",
                       wrapper: "gap-1.5",
-                      item: "cursor-pointer",
-                      prev: "cursor-pointer",
-                      next: "cursor-pointer",
                     }}
                   />
                 </div>
               )}
             </>
           ) : (
-            <EmptyState />
+            <EmptyState title="No referrals found with current filters. Try adjusting your search or filters." />
           )}
         </div>
       </div>

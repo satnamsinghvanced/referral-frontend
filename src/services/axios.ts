@@ -2,6 +2,7 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { store } from "../store";
 import { logout } from "../store/authSlice";
+import { queryClient } from "../providers/QueryProvider";
 
 const isTokenValid = (token: string) => {
   try {
@@ -28,6 +29,7 @@ axiosInstance.interceptors.request.use(
     if (token) {
       if (!isTokenValid(token)) {
         store.dispatch(logout());
+        queryClient.clear();
         window.location.href = `${import.meta.env.VITE_URL_PREFIX}/signin`; // redirect if expired
         return Promise.reject(new Error("Token expired"));
       }
@@ -45,6 +47,7 @@ axiosInstance.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401 || error.response?.status === 403) {
       store.dispatch(logout());
+      queryClient.clear();
       window.location.href = `${import.meta.env.VITE_URL_PREFIX}/signin`;
     }
     return Promise.reject(error);

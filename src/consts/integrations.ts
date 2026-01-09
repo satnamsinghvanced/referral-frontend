@@ -16,7 +16,7 @@ export const EVENTS = [
 export const PROVIDERS = [
   { label: "SendGrid", value: "SendGrid" },
   { label: "Mailchimp", value: "Mailchimp" },
-  { label: "Custom SMTP", value: "Custom" },
+  { label: "Custom SMTP", value: "CustomSMTP" },
 ];
 
 export const ENCRYPTION_TYPES: { label: string; value: EncryptionType }[] = [

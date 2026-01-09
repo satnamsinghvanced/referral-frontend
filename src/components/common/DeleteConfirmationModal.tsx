@@ -13,6 +13,8 @@ interface DeleteConfirmationModalProps {
   onClose: () => void;
   onConfirm: () => void;
   isLoading?: boolean;
+  title?: string;
+  description?: string;
 }
 
 const DeleteConfirmationModal = ({
@@ -20,6 +22,8 @@ const DeleteConfirmationModal = ({
   onClose,
   onConfirm,
   isLoading = false,
+  title = "Confirm Deletion",
+  description = "This action cannot be undone. Are you absolutely sure you want to proceed?",
 }: DeleteConfirmationModalProps) => {
   return (
     <Modal
@@ -32,20 +36,17 @@ const DeleteConfirmationModal = ({
         closeButton: "cursor-pointer",
       }}
     >
-      <ModalContent className="p-5">
+      <ModalContent className="p-4">
         <ModalHeader className="p-0">
           <div className="flex items-center gap-3">
             <FiAlertTriangle className="text-red-500 text-xl" />
-            <h4 className="text-base font-medium">Confirm Deletion</h4>
+            <h4 className="text-base font-medium">{title}</h4>
           </div>
         </ModalHeader>
         <ModalBody className="py-4 px-0">
-          <p className="text-sm">
-            This action cannot be undone. Are you absolutely sure you want to
-            proceed?
-          </p>
+          <p className="text-sm">{description}</p>
         </ModalBody>
-        <ModalFooter className="flex justify-end gap-3 p-0">
+        <ModalFooter className="flex justify-end gap-2 p-0">
           <Button
             size="sm"
             radius="sm"

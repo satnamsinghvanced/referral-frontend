@@ -16,7 +16,7 @@ import { FiDownload, FiLoader } from "react-icons/fi";
 import { RiPhoneFill } from "react-icons/ri";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import * as Yup from "yup";
-import { EMAIL_REGEX, PHONE_REGEX } from "../../../consts/consts";
+import { EMAIL_REGEX, NAME_REGEX, PHONE_REGEX } from "../../../consts/consts";
 import { TREATMENT_OPTIONS, URGENCY_OPTIONS } from "../../../consts/referral";
 import { useFetchUserForTrackings } from "../../../hooks/settings/useUser";
 import {
@@ -95,15 +95,18 @@ const PatientForm = () => {
   const validationSchema = Yup.object().shape({
     fullName: Yup.string()
       .required("Full name is required")
+      .matches(
+        NAME_REGEX,
+        "Full name can only contain letters, spaces, hyphens, apostrophes, and full stops"
+      )
       .min(2, "Full name must be at least 2 characters")
       .max(100, "Full name must be less than 100 characters"),
     email: Yup.string()
       .required("Email is required")
       .matches(EMAIL_REGEX, "Invalid email format"),
-    phone: Yup.string().matches(
-      PHONE_REGEX,
-      "Phone must be in format (XXX) XXX-XXXX"
-    ),
+    phone: Yup.string()
+      .matches(PHONE_REGEX, "Phone must be in format (XXX) XXX-XXXX")
+      .required("Phone is required"),
     age: Yup.number()
       .required("Age is required")
       .integer("Age must be a whole number")
@@ -113,8 +116,10 @@ const PatientForm = () => {
     insuranceProvider: Yup.string()
       .max(100, "Insurance provider must be less than 100 characters")
       .nullable(),
-    preferredTreatment: Yup.string().nullable(),
-    urgencyLevel: Yup.string().nullable(),
+    preferredTreatment: Yup.string().required(
+      "Preferred treatment is required"
+    ),
+    urgencyLevel: Yup.string().required("Urgency level is required"),
     preferredTime: Yup.string().nullable(),
     referralReason: Yup.string()
       .max(500, "Referral reason must be less than 500 characters")
@@ -156,6 +161,7 @@ const PatientForm = () => {
       label: "Phone Number",
       placeholder: "(555) 123-4567",
       maxLength: 14, // (XXX) XXX-XXXX
+      required: true,
     },
     {
       type: "text",
@@ -179,8 +185,8 @@ const PatientForm = () => {
       phone: "",
       age: "",
       insuranceProvider: "",
-      preferredTreatment: "",
-      urgencyLevel: "medium",
+      preferredTreatment: TREATMENT_OPTIONS[0]?.key || "invisalign",
+      urgencyLevel: URGENCY_OPTIONS[0]?.key || "medium",
       preferredTime: "",
       scheduledDate: "",
       referralReason: "",
@@ -247,7 +253,7 @@ const PatientForm = () => {
         <NotFoundPage />
       ) : (
         <div className="max-w-3xl w-full mx-auto max-lg:py-5 max-lg:px-4">
-          <Card className="shadow-lg mb-5 border-0">
+          <Card className="shadow-sm mb-5 border-0">
             <CardBody className="p-0">
               <div className="flex justify-between items-center text-sm bg-gradient-to-l from-green-600 to-blue-600 m-0 px-5 py-4 text-background">
                 <div>
@@ -295,7 +301,7 @@ const PatientForm = () => {
             </CardBody>
           </Card>
 
-          <Card className="shadow-xl border-0">
+          <Card className="shadow-sm border-0">
             <CardBody className="p-5">
               <div className="mb-5">
                 <h2 className="text-base font-medium mb-1.5 flex items-center gap-1.5">
@@ -310,9 +316,9 @@ const PatientForm = () => {
 
               <form
                 onSubmit={formik.handleSubmit}
-                className="md:space-y-6 space-y-4"
+                className="md:space-y-6 space-y-5"
               >
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-x-4 md:gap-y-6">
                   {formFields.map((field) => {
                     const fieldName = field.name as keyof PatientFormValues;
                     const value = formik.values[fieldName];
@@ -399,7 +405,7 @@ const PatientForm = () => {
                   })}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-x-4 md:gap-y-6">
                   <Select
                     label="Preferred Treatment"
                     labelPlacement="outside"
@@ -408,6 +414,11 @@ const PatientForm = () => {
                     radius="sm"
                     name="preferredTreatment"
                     selectedKeys={
+                      formik.values.preferredTreatment
+                        ? new Set([formik.values.preferredTreatment])
+                        : new Set([])
+                    }
+                    disabledKeys={
                       formik.values.preferredTreatment
                         ? new Set([formik.values.preferredTreatment])
                         : new Set([])
@@ -430,6 +441,7 @@ const PatientForm = () => {
                       (formik.errors.preferredTreatment as string)
                     }
                     className="w-full"
+                    isRequired
                   >
                     {TREATMENT_OPTIONS.map((treatment) => (
                       <SelectItem key={treatment.key}>
@@ -467,6 +479,7 @@ const PatientForm = () => {
                       (formik.errors.urgencyLevel as string)
                     }
                     className="w-full"
+                    isRequired
                   >
                     {URGENCY_OPTIONS.map((urgency) => (
                       <SelectItem key={urgency.key}>{urgency.label}</SelectItem>
@@ -562,7 +575,7 @@ const PatientForm = () => {
           </Card>
 
           <div>
-            <p className="text-center mt-5 text-xs">
+            <p className="text-center mt-5 text-xs leading-relaxed">
               Questions? Call us directly at{" "}
               <span className="font-medium">+1 (555) 123-4567</span> or visit{" "}
               <span className="font-medium">www.orthodontics.com</span>

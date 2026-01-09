@@ -156,81 +156,52 @@ const LatestReviewItem = ({ review }: any) => {
     <div className="p-4 border border-gray-200 rounded-lg transition-all duration-300 bg-gradient-to-r from-white to-gray-50/50">
       <div className="flex items-start justify-between mb-3 flex-wrap">
         <div className="flex items-center gap-3">
-          <div
-  className="
-    flex-shrink-0
-    rounded-full
-    overflow-hidden
-    h-10 w-10
-    aspect-square
-    flex items-center justify-center
-    -mt-15        
-    sm:-mt-0
-  "
->
-  <Avatar
-    src={avatarUrl}
-    name={initials || name}
-    radius="none"
-    classNames={{
-      base: "w-full h-full !rounded-none",
-      img: "w-full h-full object-cover",
-      fallback: "w-full h-full flex items-center justify-center",
-    }}
-  />
-</div>
-
-
-
+          <div className="flex-shrink-0 rounded-full overflow-hidden h-10 w-10 aspect-square flex items-center justify-center -mt-15 sm:-mt-0">
+            <Avatar
+              src={avatarUrl}
+              name={initials || name}
+              radius="none"
+              classNames={{
+                base: "w-full h-full !rounded-none",
+                img: "w-full h-full object-cover",
+                fallback: "w-full h-full flex items-center justify-center",
+              }}
+            />
+          </div>
 
           <div>
-            <div className="flex flex-col gap-1">
-  {/* Name on top */}
-  <h3 className="text-[13px] text-gray-900 truncate w-28 sm:w-80 md:w-90">
-  {name}
-</h3>
+            <div className="flex justify-start gap-2">
+              {/* Name on top */}
+              <h3 className="text-sm">{name}</h3>
 
-
-
-  {/* Platform + Verified side by side */}
-  <div className="flex items-center gap-2">
-    <Chip
-      size="sm"
-      radius="sm"
-      className={`text-[11px] font-medium h-5 border ${platformColor}`}
-    >
-      {platform}
-    </Chip>
-
-    {isVerified && (
-      <Chip
-        size="sm"
-        radius="sm"
-        className="text-[11px] font-medium h-5 bg-emerald-100 text-emerald-800 border border-emerald-200"
-      >
-        Verified
-      </Chip>
-    )}
-  </div>
-</div>
+              {isVerified && (
+                <Chip
+                  size="sm"
+                  radius="sm"
+                  className="text-[11px] font-medium h-5 bg-emerald-100 text-emerald-800 border border-emerald-200"
+                >
+                  Verified
+                </Chip>
+              )}
+            </div>
 
             {/* Platform, Location, Interaction */}
-            <div className="flex flex-wrap items-center gap-2 mt-1 text-sm text-gray-500">
-              {/* <Chip
+            <div className="flex flex-wrap items-center gap-2 mt-1.5 text-sm text-gray-500">
+              <Chip
                 size="sm"
                 radius="sm"
                 className={`text-[11px] font-medium h-5 border ${platformColor}`}
               >
                 {platform}
-              </Chip> */}
+              </Chip>
               <div className="flex items-center gap-1 text-xs">
-                <FiMapPin className="h-3 w-3" />
+                <FiMapPin className="size-3.5" />
                 {location}
               </div>
               <div className="flex items-center gap-1 text-xs">
                 <InteractionIcon
                   iconName={interactionIcon}
-                  className="h-4 w-4"
+                  className="size-3.5"
                 />
                 {interaction}
               </div>
@@ -252,44 +223,41 @@ const LatestReviewItem = ({ review }: any) => {
       </div>
 
       {/* Review Text */}
-      <p className="text-gray-700 mb-2.5 text-[12px] leading-relaxed">{text}</p>
+      <p className="text-gray-700 mb-1.5 text-sm leading-relaxed">{text}</p>
 
       {/* Actions and Tags */}
-    <div className="flex flex-wrap items-center justify-between gap-1">
-  <div className="flex items-center gap-1">
-    {reviewTag && (
-      <Chip
-        size="sm"
-        radius="sm"
-        className="text-[9px] font-medium h-4 border bg-sky-100 text-sky-800 border-sky-200 px-1"
-      >
-        {reviewTag}
-      </Chip>
-    )}
-  </div>
+      <div className="flex flex-wrap items-center justify-between gap-1">
+        <div className="flex items-center gap-1">
+          {reviewTag && (
+            <Chip
+              size="sm"
+              radius="sm"
+              className="text-[11px] font-medium h-5 border bg-sky-100 text-sky-800 border-sky-200 px-1"
+            >
+              {reviewTag}
+            </Chip>
+          )}
+        </div>
 
-  <div className="flex items-center gap-1 mt-1 sm:mt-0">
-    <Chip
-      size="sm"
-      radius="sm"
-      className={`text-[9px] font-medium h-4 border ${statusColor} px-1`}
-    >
-      {responseStatus}
-    </Chip>
-    <Button
-      variant="ghost"
-      size="sm"
-      radius="sm"
-      className="flex items-center gap-1 border border-gray-300 text-[9px] h-4 px-1"
-    >
-      <FiExternalLink className="w-3 h-3" />
-      View
-    </Button>
-  </div>
-</div>
-
-
-
+        <div className="flex items-center gap-2 mt-1 sm:mt-0">
+          <Chip
+            size="sm"
+            radius="sm"
+            className={`text-[11px] font-medium h-5 border ${statusColor} px-1`}
+          >
+            {responseStatus}
+          </Chip>
+          <Button
+            variant="ghost"
+            size="sm"
+            radius="sm"
+            className="flex items-center gap-1.5 border border-gray-300 px-2"
+          >
+            <FiExternalLink className="size-3.5" />
+            View
+          </Button>
+        </div>
+      </div>
     </div>
   );
 };
@@ -323,7 +291,7 @@ export default function LatestReviews() {
           <Chip
             size="sm"
             radius="sm"
-            className="order-1 sm:order-2 text-[11px] font-medium h-5 border bg-sky-100 text-sky-800 border-sky-200"
+            className="text-[11px] font-medium h-5 border bg-sky-100 text-sky-800 border-sky-200"
           >
             {filteredReviews.length} review
             {filteredReviews.length !== 1 ? "s" : ""}

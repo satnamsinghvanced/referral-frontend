@@ -58,7 +58,7 @@ export const useFetchReferrals = ({
 
 export const useGetReferralById = (id: string) =>
   useQuery<Referral, Error>({
-    queryKey: ["referral", id],
+    queryKey: ["referrals", id],
     queryFn: () => getReferralById(id),
     enabled: !!id,
   });
@@ -142,10 +142,11 @@ export const useFetchReferrers = ({
   filter = "",
   page = 1,
   limit = 10,
+  search = "",
 }: FetchReferrersParams) =>
   useQuery<ReferrersResponse, Error>({
-    queryKey: ["referrers", filter, page, limit],
-    queryFn: () => fetchReferrers({ filter, page, limit }),
+    queryKey: ["referrers", filter, page, limit, search],
+    queryFn: () => fetchReferrers({ filter, page, limit, search }),
   });
 
 export const useGetReferrerById = (id: string) =>
@@ -159,9 +160,9 @@ export const useCreateReferrer = () =>
   useMutation<
     Referrer,
     AxiosError,
-    { id: string; type: string; payload: CreateReferrerPayload }
+    { type: string; payload: CreateReferrerPayload }
   >({
-    mutationFn: ({ id, type, payload }) => createReferrer(id, type, payload),
+    mutationFn: ({ type, payload }) => createReferrer(type, payload),
     onSuccess: () => {
       addToast({
         title: "Success",
@@ -308,10 +309,28 @@ export const useImportReferralsCSV = () =>
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     },
     onError: (error: AxiosError) => {
-      const message =
-        (error.response?.data as any)?.message ||
-        error.message ||
-        "Failed to import referrals";
-      addToast({ title: "Error", description: message, color: "danger" });
+      console.log(error);
+      const status = error.response?.status;
+      const data = error.response?.data as { message?: string; code?: string };
+
+      let errorMessage =
+        data?.message || error.message || "Failed to import referrals";
+
+      if (status === 413) {
+        errorMessage = "File is too large. Please upload smaller CSV files.";
+      } else if (status === 400 && data?.code) {
+        switch (data.code) {
+          case "LIMIT_FILE_SIZE":
+            errorMessage = "The CSV file is too large.";
+            break;
+          case "LIMIT_UNEXPECTED_FILE":
+            errorMessage = "Invalid file type. Please upload a CSV file.";
+            break;
+          default:
+            break;
+        }
+      }
+
+      addToast({ title: "Error", description: errorMessage, color: "danger" });
     },
   });

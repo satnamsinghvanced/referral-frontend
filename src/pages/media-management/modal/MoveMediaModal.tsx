@@ -55,7 +55,7 @@ export function MoveMediaModal({
         closeButton: "cursor-pointer",
       }}
     >
-      <ModalContent className="p-5">
+      <ModalContent className="p-4">
         <ModalHeader className="flex flex-col gap-1 font-normal p-0">
           <h4 className="text-base font-medium">Move Media</h4>
           <p className="text-xs text-gray-500">
@@ -63,7 +63,7 @@ export function MoveMediaModal({
           </p>
         </ModalHeader>
 
-        <ModalBody className="px-0 pt-4 pb-5">
+        <ModalBody className="px-0 py-4">
           <Select
             size="sm"
             radius="sm"

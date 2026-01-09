@@ -4,6 +4,7 @@ import {
   ScanTrackingResponse,
 } from "../types/referral";
 import axiosInstance from "./referralByPass";
+import { TeamMember } from "./settings/team";
 
 export const createReferral = async (payload: Partial<Referral>) => {
   const { data } = await axiosInstance.post("/referral", payload);
@@ -34,4 +35,9 @@ export const trackScan = async (
 export const fetchUserForTrackings = async (id: string) => {
   const response = await axiosInstance.get(`/users/tracking/${id}`);
   return response.data;
+};
+
+export const fetchTeamMemberById = async (id: string): Promise<TeamMember> => {
+  const { data } = await axiosInstance.get(`/team-member/${id}`);
+  return data;
 };

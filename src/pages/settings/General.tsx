@@ -8,10 +8,9 @@ import {
 } from "@heroui/react";
 import React, { useState } from "react";
 import { FiSettings } from "react-icons/fi";
-import { useDispatch, useSelector } from "react-redux";
-import { toggleTheme } from "../../store/uiSlice";
-import { RootState } from "../../store";
+import { useDispatch } from "react-redux";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
+import { toggleTheme } from "../../store/uiSlice";
 
 interface GeneralSettingsProps {
   darkMode: boolean;
@@ -38,12 +37,12 @@ const General: React.FC = () => {
 
   return (
     <Card className="rounded-xl shadow-none border border-foreground/10">
-      <CardHeader className="flex items-center gap-2 px-5 pt-5 pb-0">
+      <CardHeader className="flex items-center gap-2 px-4 pt-4 pb-1">
         <FiSettings className="size-5" />
-        <p className="text-base">General Settings</p>
+        <h4 className="text-base">General Settings</h4>
       </CardHeader>
 
-      <CardBody className="p-5 space-y-6">
+      <CardBody className="p-4 space-y-5">
         {/* Dark Mode Setting */}
         <div className="flex items-center justify-between">
           <div className="space-y-1">

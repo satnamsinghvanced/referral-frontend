@@ -1,15 +1,15 @@
-import { Button, Input, Select, SelectItem } from "@heroui/react";
+import { Button, Input, Select, SelectItem, Skeleton } from "@heroui/react";
 import { useFormik } from "formik";
-import * as Yup from "yup";
-import { FiUser } from "react-icons/fi";
 import { useEffect, useState } from "react";
-import { useFetchUser, useUpdateUser } from "../../hooks/settings/useUser";
-import { useTypedSelector } from "../../hooks/useTypedSelector";
-import { useSpecialties } from "../../hooks/useCommon";
+import { FiUser } from "react-icons/fi";
 import { useDispatch } from "react-redux";
+import * as Yup from "yup";
+import { EMAIL_REGEX, NAME_REGEX, PHONE_REGEX } from "../../consts/consts";
+import { useFetchUser, useUpdateUser } from "../../hooks/settings/useUser";
+import { useSpecialties } from "../../hooks/useCommon";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { updateUserFirstName } from "../../store/authSlice";
 import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
-import { EMAIL_REGEX, PHONE_REGEX } from "../../consts/consts";
 
 interface ProfileFormValues {
   firstName: string;
@@ -35,8 +35,22 @@ const fields = [
 ];
 
 const ProfileSchema = Yup.object().shape({
-  firstName: Yup.string().required("First name is required").max(50),
-  lastName: Yup.string().required("Last name is required").max(50),
+  firstName: Yup.string()
+    .required("First name is required")
+    .matches(
+      NAME_REGEX,
+      "First name can only contain letters, spaces, hyphens, apostrophes, and full stops"
+    )
+    .min(2, "First name must be at least 2 characters")
+    .max(50, "First name must be less than 50 characters"),
+  lastName: Yup.string()
+    .required("Last name is required")
+    .matches(
+      NAME_REGEX,
+      "Last name can only contain letters, spaces, hyphens, apostrophes, and full stops"
+    )
+    .min(2, "Last name must be at least 2 characters")
+    .max(50, "Last name must be less than 50 characters"),
   email: Yup.string()
     .required("Email is required")
     .matches(EMAIL_REGEX, "Invalid email format"),
@@ -68,13 +82,12 @@ const Profile = () => {
   const { user } = useTypedSelector((state) => state.auth);
   const userId = user?.userId || "";
 
-  const { data: fetchedUser } = useFetchUser(userId);
+  const { data: fetchedUser, isLoading } = useFetchUser(userId);
   const { data: specialties } = useSpecialties();
   const { mutate: updateUser, isPending } = useUpdateUser(userId);
 
-  const [previewUrl, setPreviewUrl] = useState(
-    "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face"
-  );
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
     if (fetchedUser?.image) {
@@ -87,6 +100,10 @@ const Profile = () => {
       );
     }
   }, [fetchedUser]);
+
+  useEffect(() => {
+    setImageLoaded(false);
+  }, [previewUrl]);
 
   const formik = useFormik<ProfileFormValues>({
     enableReinitialize: true,
@@ -152,8 +169,6 @@ const Profile = () => {
     setFieldTouched,
   } = formik;
 
-  const isDisabled = !isValid || !dirty || isPending;
-
   return (
     <>
       <div className="p-4 bg-background border border-foreground/10 rounded-xl">
@@ -164,11 +179,21 @@ const Profile = () => {
           </h4>
 
           <div className="flex items-center gap-4 mb-6">
-            <img
-              src={previewUrl}
-              alt="Profile"
-              className="rounded-full w-20 h-20 object-cover"
-            />
+            <div className="relative size-20 overflow-hidden rounded-full">
+              {previewUrl && !isLoading && (
+                <img
+                  src={previewUrl}
+                  alt="Profile"
+                  className={`size-full object-cover transition-opacity duration-300 ${
+                    imageLoaded ? "opacity-100" : "opacity-0"
+                  }`}
+                  onLoad={() => setImageLoaded(true)}
+                />
+              )}
+              {(isLoading || !previewUrl || !imageLoaded) && (
+                <Skeleton className="absolute inset-0 size-full" />
+              )}
+            </div>
             <div>
               <input
                 id="profileImage"
@@ -229,7 +254,7 @@ const Profile = () => {
               );
             })}
 
-            <div>
+            <div className="relative flex">
               <Select
                 size="sm"
                 name="medicalSpecialty"
@@ -237,22 +262,20 @@ const Profile = () => {
                 labelPlacement="outside"
                 placeholder="Select a Medical Specialty"
                 selectedKeys={new Set([values.medicalSpecialty])}
-                onSelectionChange={(keys) => {
-                  const selected = Array.from(keys).join("");
-                  setFieldValue("medicalSpecialty", selected, true);
-                  setFieldTouched("medicalSpecialty", true, true);
-                }}
+                disabledKeys={new Set([values.medicalSpecialty])}
+                onChange={handleChange}
+                onBlur={handleBlur}
                 isRequired={true}
                 isInvalid={
                   !!(touched.medicalSpecialty && errors.medicalSpecialty)
                 }
                 errorMessage={errors.medicalSpecialty as string}
               >
-                {specialties?.map(
-                  ({ title, _id }: { title: string; _id: string }) => (
-                    <SelectItem key={_id}>{title}</SelectItem>
-                  )
-                )}
+                {(specialties ?? []).map((item: any) => (
+                  <SelectItem key={item._id} textValue={item.title}>
+                    {item.title}
+                  </SelectItem>
+                ))}
               </Select>
             </div>
           </div>
@@ -261,8 +284,9 @@ const Profile = () => {
             <Button
               size="sm"
               type="submit"
-              className="bg-foreground text-background"
-              disabled={isDisabled}
+              variant="solid"
+              color="primary"
+              isDisabled={!formik.isValid || !formik.dirty || isPending}
               isLoading={isPending}
             >
               {isPending ? "Saving..." : "Save Changes"}
