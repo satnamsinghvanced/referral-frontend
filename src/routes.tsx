@@ -27,6 +27,9 @@ const PartnerNetwork = React.lazy(
 );
 const VisitMap = React.lazy(() => import("./pages/visit-map/VisitMap"));
 const Reviews = React.lazy(() => import("./pages/reviews/Reviews"));
+const ReviewSubmission = React.lazy(
+  () => import("./pages/reviews/ReviewSubmission")
+);
 const SocialMedia = React.lazy(
   () => import("./pages/social-media/SocialMedia")
 );
@@ -165,6 +168,10 @@ function AppRoutes() {
     {
       path: ":customPath/:id",
       element: <PatientForm />,
+    },
+    {
+      path: "review/:tagId/:type/:nfcId",
+      element: <ReviewSubmission />,
     },
     { path: "*", element: <NotFoundPage /> },
   ];

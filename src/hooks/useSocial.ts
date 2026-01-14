@@ -6,6 +6,10 @@ import {
   UseQueryResult,
 } from "@tanstack/react-query";
 import {
+  createSocialPost,
+  fetchPostsAnalytics,
+  fetchRecentPosts,
+  fetchSocialOverview,
   getSocialMediaCredentials,
   initiateAuthIntegration,
 } from "../services/social";
@@ -41,6 +45,40 @@ export const useInitiateAuthIntegration = (): UseMutationResult<
     },
     onError: (error) => {
       console.error("Failed to initiate authentication:", error);
+    },
+  });
+};
+
+export const useSocialOverview = () => {
+  return useQuery({
+    queryKey: ["social-overview"],
+    queryFn: fetchSocialOverview,
+  });
+};
+
+export const usePostsAnalytics = () => {
+  return useQuery({
+    queryKey: ["posts-analytics"],
+    queryFn: fetchPostsAnalytics,
+  });
+};
+
+export const useRecentPosts = (page: number, limit: number) => {
+  return useQuery({
+    queryKey: ["recent-posts", page, limit],
+    queryFn: () => fetchRecentPosts(page, limit),
+  });
+};
+
+export const useCreateSocialPost = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (formData: FormData) => createSocialPost(formData),
+    onSuccess: () => {
+      // Refresh lists after a new post is created
+      queryClient.invalidateQueries({ queryKey: ["social-overview"] });
+      queryClient.invalidateQueries({ queryKey: ["recent-posts"] });
     },
   });
 };

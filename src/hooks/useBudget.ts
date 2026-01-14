@@ -13,6 +13,8 @@ import {
   getBudgetItemById,
   getBudgetItems,
   updateBudgetItem,
+  importBudgetItemsCSV,
+  exportBudgetItems,
 } from "../services/budget";
 import {
   CreateBudgetItemRequest,
@@ -132,6 +134,86 @@ export const useDeleteBudgetItem = (
         (error.response?.data as { message?: string })?.message ||
         error.message ||
         "Failed to delete budget item";
+
+      addToast({
+        title: "Error",
+        description: errorMessage,
+        color: "danger",
+      });
+    },
+  });
+};
+
+export const useImportBudgetItemsCSV = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (formData: FormData) => importBudgetItemsCSV(formData),
+    onSuccess: () => {
+      addToast({
+        title: "Success",
+        description: "Budget items imported successfully.",
+        color: "success",
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["budget-items"],
+      });
+    },
+    onError: (error: AxiosError) => {
+      const errorMessage =
+        (error.response?.data as { message?: string })?.message ||
+        error.message ||
+        "Failed to import budget items";
+
+      addToast({
+        title: "Error",
+        description: errorMessage,
+        color: "danger",
+      });
+    },
+  });
+};
+
+export const useExportBudgetItems = () => {
+  return useMutation({
+    mutationFn: (type: "csv" | "excel" | "pdf") => exportBudgetItems(type),
+    onSuccess: (blob, type) => {
+      // Validate that we received a proper Blob
+      if (!(blob instanceof Blob)) {
+        addToast({
+          title: "Error",
+          description: "Invalid file format received from server.",
+          color: "danger",
+        });
+        return;
+      }
+
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+
+      // Set filename based on type
+      const fileExtension = type === "excel" ? "xlsx" : type;
+      a.download = `budget_export_${
+        new Date().toISOString().split("T")[0]
+      }.${fileExtension}`;
+
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      addToast({
+        title: "Success",
+        description: `Budget data exported successfully as ${type.toUpperCase()}.`,
+        color: "success",
+      });
+    },
+    onError: (error: AxiosError) => {
+      const errorMessage =
+        (error.response?.data as { message?: string })?.message ||
+        error.message ||
+        "Failed to export budget items";
 
       addToast({
         title: "Error",

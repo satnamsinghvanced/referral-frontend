@@ -22,39 +22,53 @@ interface OverviewProps {
     draftPosts: number;
     publishedThisMonth: number;
   };
+  stats: {
+    totalFollowers: number;
+    totalEngagement: string;
+    totalLikes: number;
+    totalComments: number;
+  };
 }
 
 const Overview: React.FC<OverviewProps> = ({
   platforms,
   recentPerformance,
   contentCalendar,
+  stats,
 }) => {
   const STAT_CARD_DATA = [
     {
       icon: <LuUsers className="" />,
       heading: "Total Followers",
-      value: 2847,
-      subheading: "+124 this month",
+      value: stats.totalFollowers.toLocaleString(),
+      subheading: "All time",
     },
     {
       icon: <IoMdTrendingUp className="" />,
       heading: "Engagement Rate",
-      value: "4.8%",
-      subheading: "+0.6% from last month",
+      value: stats.totalEngagement,
+      subheading: "Total engagement",
     },
     {
       icon: <FiHeart className="" />,
       heading: "Total Likes",
-      value: 107,
-      subheading: "This month",
+      value: stats.totalLikes.toLocaleString(),
+      subheading: "All time",
     },
     {
       icon: <FaRegComment className="" />,
       heading: "Comments",
-      value: 30,
-      subheading: "This month",
+      value: stats.totalComments.toLocaleString(),
+      subheading: "All time",
     },
   ];
+
+  const gridColsClass =
+    platforms.length === 1
+      ? "grid-cols-1"
+      : platforms.length === 2
+      ? "grid-cols-1 lg:grid-cols-2"
+      : "grid-cols-1 lg:grid-cols-2 xl:grid-cols-3";
 
   return (
     <div className="space-y-4 md:space-y-5">
@@ -64,7 +78,7 @@ const Overview: React.FC<OverviewProps> = ({
         ))}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-3 md:gap-4">
+      <div className={`grid ${gridColsClass} gap-3 md:gap-4`}>
         {platforms.map((platform, i) => (
           <Card
             key={platform.id}
@@ -78,6 +92,8 @@ const Overview: React.FC<OverviewProps> = ({
                       Facebook: "bg-blue-500",
                       Instagram: "bg-pink-500",
                       LinkedIn: "bg-sky-400",
+                      YouTube: "bg-red-500",
+                      GoogleBusiness: "bg-green-500",
                     }[platform.id]
                   }`}
                 ></span>

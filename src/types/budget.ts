@@ -1,84 +1,109 @@
 export interface BudgetCategory {
   _id: string;
-  createdBy: string;
   title: string;
-  subCategories: SubCategory[];
+  subCategory: SubCategory[];
   createdAt: string;
   updatedAt: string;
 }
 
 export interface SubCategory {
   _id: string;
-  createdBy: string;
-  title: string;
+  subCategory: string;
   createdAt: string;
   updatedAt: string;
 }
 
-interface BudgetReference {
+export interface BudgetCategoryRef {
   _id: string;
-  title: string;
-  color: string;
+  category: string;
+}
+
+export interface SubCategoryRef {
+  _id: string;
+  subCategory: string;
 }
 
 export interface BudgetItem {
   _id: string;
-  createdBy: {
-    _id: string;
-    email: string;
-  };
-  marketingCategory: BudgetReference;
-  subCategory: BudgetReference;
-  budget: number;
-  period: string; // e.g., "yearly", "monthly"
-  priority: string; // e.g., "high", "medium"
-  status: string; // e.g., "active", "paused"
-  description: string;
-  spent: number;
-  progressBar: number; // Percentage
-  roi: number;
-  startDate: string; // ISO 8601 Date String
-  endDate: string; // ISO 8601 Date String
+  userId: string;
+  category: string | BudgetCategoryRef;
+  subCategory: string | SubCategoryRef;
+  amount: number;
+  spent: string | number;
+  remainingBudget: string | number;
+  budgetUtilization: string | number;
+  roi: string | number;
+  conversions: number;
+  conversionsValue?: string;
+  currency?: string;
+  type?: "google" | "meta" | "tiktok" | "local";
+  status: string;
+  startDate: string | null;
+  endDate: string | null;
+  period?: string;
+  priority?: string;
+  description?: string;
   createdAt: string;
   updatedAt: string;
-  remainingBudget: number;
-  color?: string;
+}
+
+export interface BudgetStats {
+  totalBudget: string;
+  totalSpent: string;
+  remainingBudget: string;
+  budgetUtilization: string;
+  avgROI: string;
+}
+
+export interface MonthlyBudgetGraphItem {
+  month: string;
+  budget: string;
+  spend: string;
+}
+
+export interface BudgetByCategoryItem {
+  name: string;
+  amount: string;
+  [key: string]: any;
+}
+
+export interface BudgetGraphs {
+  monthlyBudgetGraph: MonthlyBudgetGraphItem[];
+  budgetByCategory: BudgetByCategoryItem[];
 }
 
 export interface BudgetListResponse {
-  budgetItems: BudgetItem[];
-  monthlyStats: any;
-  budgetByCategoryGraph: any;
-  stats: {
-    totalBudget: number;
-    totalSpent: number;
-    remainingBudget: number;
-    averageROI: number;
-  };
+  budgets: BudgetItem[];
+  stats: BudgetStats;
+  graphs: BudgetGraphs;
   pagination: {
-    page: number;
-    limit: number;
+    totalData: number;
     totalPages: number;
-    totalItems: number;
+    currentPage: number;
+    pageSize: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
   };
 }
 
 export interface CreateBudgetItemRequest {
-  marketingCategory: string; // ID
+  category: string; // ID
   subCategory: string; // ID
-  budget: number;
+  amount: number;
   period: string;
   priority: string;
   status: string;
   description: string;
-  startDate: string; // YYYY-MM-DD format
-  endDate: string; // YYYY-MM-DD format
+  startDate: string; // YYYY-MM-DD
+  endDate: string; // YYYY-MM-DD
+  spent?: number;
+  roi?: number;
 }
 
 export type UpdateBudgetItemRequest = CreateBudgetItemRequest;
 
 export interface FetchBudgetItemsParams {
-  period: string; // e.g., 'yearly', 'monthly'
+  period: string;
   page: number;
   limit: number;
 }

@@ -74,7 +74,7 @@ const ReferralCard = ({ referral, actions = () => [] }: ReferralCardProps) => {
       <div className="flex items-center text-center md:justify-end h-full w-full gap-1 md:gap-3 text-sm self-center">
         <div
           className="self-center cursor-pointer"
-          onClick={() => actions(referral)[2]?.onClick(referral._id)}
+          onClick={() => actions(referral)[1]?.onClick(referral._id)}
         >
           <ReferralStatusChip status={referral.status} />
         </div>

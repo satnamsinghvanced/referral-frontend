@@ -17,14 +17,15 @@ import React, { useState } from "react";
 import { FiSmartphone } from "react-icons/fi";
 import { LuQrCode } from "react-icons/lu";
 import * as Yup from "yup";
-import { fetchLocations } from "../../../services/settings/location";
-import { fetchTeamMembers, TeamMember } from "../../../services/settings/team";
+import { useFetchLocations } from "../../../hooks/settings/useLocation";
+import { useFetchTeamMembers } from "../../../hooks/settings/useTeam";
+import { useCreateNFCDesk } from "../../../hooks/useNFCDesk";
 import { Location } from "../../../types/common";
+import { TeamMember } from "../../../services/settings/team";
 
 interface CreateTagModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreate: (data: any) => void;
 }
 
 const PLATFORMS = [
@@ -52,14 +53,15 @@ const CreateTagSchema = Yup.object().shape({
   teamMember: Yup.string().required("Team member is required"),
 });
 
-const CreateTagModal: React.FC<CreateTagModalProps> = ({
-  isOpen,
-  onClose,
-  onCreate,
-}) => {
-  const [locations, setLocations] = useState<Location[]>([]);
-  const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
-  const [isDataLoading, setIsDataLoading] = useState(false);
+const CreateTagModal: React.FC<CreateTagModalProps> = ({ isOpen, onClose }) => {
+  const { data: locationsProps } = useFetchLocations();
+  const { data: teamProps } = useFetchTeamMembers();
+  const createMutation = useCreateNFCDesk();
+
+  const locations =
+    locationsProps?.data ||
+    (Array.isArray(locationsProps) ? locationsProps : []);
+  const teamMembers = teamProps?.data || [];
 
   const formik = useFormik<CreateTagFormValues>({
     initialValues: {
@@ -72,7 +74,10 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({
     validationSchema: CreateTagSchema,
     onSubmit: async (values, { setSubmitting, resetForm }) => {
       try {
-        await onCreate(values);
+        await createMutation.mutateAsync({
+          ...values,
+          type: values.type.toUpperCase(),
+        });
         onClose();
         resetForm();
       } catch (error) {
@@ -84,25 +89,7 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({
   });
 
   React.useEffect(() => {
-    const loadData = async () => {
-      setIsDataLoading(true);
-      try {
-        const [locsRes, teamRes] = await Promise.all([
-          fetchLocations({ limit: 100 }),
-          fetchTeamMembers({ limit: 100 }),
-        ]);
-        setLocations(locsRes.data);
-        setTeamMembers(teamRes.data);
-      } catch (error) {
-        console.error("Error loading modal data:", error);
-      } finally {
-        setIsDataLoading(false);
-      }
-    };
-
-    if (isOpen) {
-      loadData();
-    } else {
+    if (!isOpen) {
       formik.resetForm();
     }
   }, [isOpen]);
@@ -143,7 +130,7 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({
       <ModalContent>
         {() => (
           <>
-            <ModalHeader className="flex flex-col gap-1 px-5">
+            <ModalHeader className="flex flex-col gap-1 px-4">
               <h4 className="text-base font-medium">
                 Create NFC Tag or QR Code
               </h4>
@@ -152,7 +139,7 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({
                 at your practice.
               </p>
             </ModalHeader>
-            <ModalBody className="py-0 px-5 gap-5">
+            <ModalBody className="py-0 px-4 gap-5">
               {/* Type Selection */}
               <div className="flex flex-col gap-2">
                 <label className="text-xs">
@@ -282,6 +269,9 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({
                   selectedKeys={
                     formik.values.teamMember ? [formik.values.teamMember] : []
                   }
+                  disabledKeys={
+                    formik.values.teamMember ? [formik.values.teamMember] : []
+                  }
                   onSelectionChange={(keys) => {
                     formik.setFieldValue("teamMember", Array.from(keys)[0]);
                   }}
@@ -319,6 +309,7 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({
                   placeholder="Select a platform"
                   name="platform"
                   selectedKeys={[formik.values.platform]}
+                  disabledKeys={[formik.values.platform]}
                   onSelectionChange={(keys) => {
                     formik.setFieldValue("platform", Array.from(keys)[0]);
                   }}
@@ -370,7 +361,7 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({
                 </p>
               </div>
             </ModalBody>
-            <ModalFooter className="px-5 py-4">
+            <ModalFooter className="px-4 py-4">
               <Button
                 variant="ghost"
                 color="default"

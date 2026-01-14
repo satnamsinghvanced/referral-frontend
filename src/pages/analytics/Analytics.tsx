@@ -24,12 +24,16 @@ import {
 } from "recharts";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
 import ComponentContainer from "../../components/common/ComponentContainer";
+import { LoadingState } from "../../components/common/LoadingState";
+import { useGeneralAnalytics } from "../../hooks/useAnalytics";
 import GoogleAnalytics from "./GoogleAnalytics";
 import GoogleAds from "./GoogleAds";
 import MetaAds from "./MetaAds";
 import TiktokAds from "./TiktokAds";
 
 const Analytics: React.FC = () => {
+  const { data, isLoading } = useGeneralAnalytics();
+
   const HEADING_DATA = {
     heading: "Analytics Dashboard",
     subHeading:
@@ -40,11 +44,15 @@ const Analytics: React.FC = () => {
     {
       icon: <LuUsers className="text-blue-500" />,
       heading: "Monthly Referrals",
-      value: "247",
+      value: isLoading
+        ? "..."
+        : data?.monthlyReferrals?.totalReferrals?.toString() || "0",
       subheading: (
         <span className="text-green-600 flex items-center">
           <LuTrendingUp className="h-4 w-4 mr-1 text-green-600" />
-          +12% from last month
+          {isLoading
+            ? "..."
+            : `${data?.monthlyReferrals?.growthPercent || 0}% from last month`}
         </span>
       ),
       subValueClass: "text-green-600",
@@ -52,66 +60,55 @@ const Analytics: React.FC = () => {
     {
       icon: <LuTarget className="text-orange-500" />,
       heading: "Conversion Rate",
-      value: "86.3%",
+      value: isLoading ? "..." : `${data?.conversionRate || "0"}%`,
       subheading: (
         <span className="text-green-600 flex items-center">
           <LuTrendingUp className="h-4 w-4 mr-1 text-green-600" />
-          +3.2% from last month
+          Conversion performance
         </span>
       ),
     },
     {
       icon: <LuCalendar className="text-blue-500" />,
       heading: "Appointments",
-      value: "189",
+      value: isLoading
+        ? "..."
+        : data?.appointments?.totalAppointments?.toString() || "0",
       subheading: (
         <span className="text-green-600 flex items-center">
           <LuTrendingUp className="h-4 w-4 mr-1 text-green-600" />
-          +8% from last month
+          {isLoading
+            ? "..."
+            : `${data?.appointments?.growthPercent || 0}% from last month`}
         </span>
       ),
     },
     {
       icon: <LuChartColumn className="text-green-500" />,
       heading: "Revenue Growth",
-      value: "+15%",
+      value: isLoading ? "..." : `${data?.revenue?.growthPercent || 0}%`,
       subheading: (
         <span className="text-green-700 flex items-center">
           <LuTrendingUp className="h-4 w-4 mr-1 text-green-600" />
-          Monthly revenue increase
+          {isLoading ? "..." : `$${data?.revenue?.totalRevenue || 0} revenue`}
         </span>
       ),
     },
   ];
 
-  const donutData = [
-    { name: "Direct", value: 30 },
-    { name: "Email", value: 22 },
-    { name: "Google", value: 18 },
-    { name: "Referral", value: 15 },
-    { name: "Social Media", value: 13 },
-  ];
-
-  const performanceData = [
-    { month: "Jan", conversions: 38, referrals: 45 },
-    { month: "Feb", conversions: 44, referrals: 52 },
-    { month: "Mar", conversions: 41, referrals: 48 },
-    { month: "Apr", conversions: 52, referrals: 61 },
-    { month: "May", conversions: 49, referrals: 58 },
-    { month: "Jun", conversions: 58, referrals: 67 },
-  ];
+  const donutData = data?.referralSources || [];
+  const performanceData = data?.performanceData || [];
+  const WeeklyActivity = data?.weeklyActivity || [];
 
   const COLORS = ["#f97316", "#fbbf24", "#0ea5e9", "#3b82f6", "#1e40af"];
 
-  const WeeklyActivity = [
-    { day: "Mon", calls: 22, reviews: 5 },
-    { day: "Tue", calls: 28, reviews: 7 },
-    { day: "Wed", calls: 31, reviews: 6 },
-    { day: "Thu", calls: 36, reviews: 8 },
-    { day: "Fri", calls: 33, reviews: 7 },
-    { day: "Sat", calls: 18, reviews: 4 },
-    { day: "Sun", calls: 12, reviews: 3 },
-  ];
+  if (isLoading) {
+    return (
+      <ComponentContainer headingData={HEADING_DATA}>
+        <LoadingState />
+      </ComponentContainer>
+    );
+  }
 
   return (
     <ComponentContainer headingData={HEADING_DATA}>
@@ -129,8 +126,8 @@ const Analytics: React.FC = () => {
                 Referral Sources Distribution
               </h4>
             </CardHeader>
-            <CardBody className="p-0 overflow-visible">
-              <ResponsiveContainer width="100%" maxHeight={320}>
+            <CardBody className="p-0 overflow-visible flex items-center justify-center">
+              <ResponsiveContainer width="100%" height={320} aspect={1}>
                 <PieChart
                   style={{
                     aspectRatio: 1,
@@ -138,7 +135,10 @@ const Analytics: React.FC = () => {
                   }}
                 >
                   <Pie
-                    data={donutData}
+                    data={donutData.map((item: any) => ({
+                      name: item.name,
+                      value: item.value,
+                    }))}
                     innerRadius={60}
                     outerRadius={110}
                     paddingAngle={3}
@@ -148,7 +148,7 @@ const Analytics: React.FC = () => {
                     labelLine={false}
                     width={400}
                   >
-                    {donutData.map((_, index) => (
+                    {donutData.map((item: any, index: number) => (
                       <Cell
                         key={`cell-${index}`}
                         fill={COLORS[index % COLORS.length]}
@@ -171,7 +171,7 @@ const Analytics: React.FC = () => {
             </CardHeader>
             <CardBody className="p-0 overflow-visible">
               <div className="-ml-10 text-sm">
-                <ResponsiveContainer width="100%" aspect={1.85} maxHeight={320}>
+                <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={performanceData}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="month" />
@@ -214,7 +214,7 @@ const Analytics: React.FC = () => {
             </CardHeader>
             <CardBody className="p-0">
               <div className="-ml-10 text-sm">
-                <ResponsiveContainer width="100%" aspect={1.85} maxHeight={380}>
+                <ResponsiveContainer width="100%" height={350}>
                   <AreaChart data={WeeklyActivity}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="day" />

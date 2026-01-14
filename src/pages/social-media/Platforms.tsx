@@ -74,7 +74,7 @@ const Platforms = () => {
   return (
     <>
       {isGlobalLoading ? (
-        <div className="border border-primary/15 rounded-xl p-5 bg-background">
+        <div className="min-h-[250px] flex items-center justify-center">
           <LoadingState />
         </div>
       ) : (
@@ -156,10 +156,11 @@ const Platforms = () => {
 
       {openPlatform === "googleBusiness" ? (
         <GoogleBusinessConfigModal
+          userId={allCredentials?.googleBusiness?.userId as string}
           isOpen={!!openPlatform}
           onClose={() => setOpenPlatform(null)}
-          allCredentials={allCredentials}
-          isGlobalLoading={isGlobalLoading}
+          existingConfig={allCredentials?.googleBusiness}
+          isLoading={isGlobalLoading}
         />
       ) : (
         openPlatform && (

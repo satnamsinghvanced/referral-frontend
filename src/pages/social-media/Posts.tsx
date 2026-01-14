@@ -1,134 +1,156 @@
 import { Card, CardBody, CardHeader, Chip } from "@heroui/react";
-import { BiHeart, BiLink } from "react-icons/bi";
-import { BsEye } from "react-icons/bs";
-import { FiMessageCircle } from "react-icons/fi";
-
-interface PostItem {
-  id: number;
-  content: string;
-  status: "Published" | "Scheduled";
-  statusColor: "green" | "blue";
-  dateTime: string;
-  platforms: string[];
-  metrics: {
-    likes: number;
-    comments: number;
-    shares: number;
-    views: number;
-  };
-}
-
-const DUMMY_POSTS: PostItem[] = [
-  {
-    id: 1,
-    content:
-      "Transform your smile with our advanced orthodontic treatments! Schedule your consultation today. #OrthodonticCare #SmileTransformation",
-    status: "Published",
-    statusColor: "green",
-    dateTime: "15/01/2024",
-    platforms: ["Facebook", "Instagram", "LinkedIn"],
-    metrics: { likes: 45, comments: 12, shares: 8, views: 234 },
-  },
-  {
-    id: 2,
-    content:
-      "Did you know? Clear aligners are nearly invisible and can straighten your teeth comfortably. Learn more about our Invisalign options!",
-    status: "Published",
-    statusColor: "green",
-    dateTime: "12/01/2024",
-    platforms: ["Instagram", "Facebook"],
-    metrics: { likes: 62, comments: 18, shares: 15, views: 312 },
-  },
-  {
-    id: 3,
-    content:
-      "Exciting news! Our practice now offers extended hours on weekends. Book your appointment today!",
-    status: "Scheduled",
-    statusColor: "blue",
-    dateTime: "20/01/2024",
-    platforms: ["Facebook", "LinkedIn"],
-    metrics: { likes: 0, comments: 0, shares: 0, views: 0 },
-  },
-];
+import { useState } from "react";
+import { BiHeart, BiSolidError } from "react-icons/bi";
+import { FaRegCircleCheck } from "react-icons/fa6";
+import { FiClock, FiMessageCircle } from "react-icons/fi";
+import { LuEye } from "react-icons/lu";
+import { RiLinksFill } from "react-icons/ri";
+import { LoadingState } from "../../components/common/LoadingState";
+import Pagination from "../../components/common/Pagination";
+import { EVEN_PAGINATION_LIMIT } from "../../consts/consts";
+import { useRecentPosts } from "../../hooks/useSocial";
+import { formatDateToReadable } from "../../utils/formatDateToReadable";
 
 const Posts = () => {
+  const [page, setPage] = useState(1);
+  const limit = EVEN_PAGINATION_LIMIT;
+  const { data, isLoading } = useRecentPosts(page, limit);
+
+  const posts = data?.posts || [];
+  const pagination = data?.pagination;
+
+  if (isLoading)
+    return (
+      <div className="min-h-[250px] flex items-center justify-center">
+        <LoadingState />
+      </div>
+    );
+
   return (
-    <Card className="bg-background rounded-xl shadow-none p-5 border border-primary/15 w-full">
-      <CardHeader className="flex justify-between items-center mb-5 p-0">
-        <h2 className="text-sm">Recent Posts</h2>
-        <Chip
-          size="sm"
-          radius="sm"
-          className="text-[11px] text-sky-900 bg-sky-100"
-        >
-          3 total posts
-        </Chip>
-      </CardHeader>
+    <div className="space-y-4 w-full">
+      <Card className="bg-background rounded-xl shadow-none p-5 border border-primary/15 w-full">
+        <CardHeader className="flex justify-between items-center mb-5 p-0">
+          <h2 className="text-sm">Recent Posts</h2>
+          <Chip
+            size="sm"
+            radius="sm"
+            className="text-[11px] text-sky-900 bg-sky-100"
+          >
+            {pagination?.total || 0} total posts
+          </Chip>
+        </CardHeader>
 
-      <CardBody className="p-0 space-y-3">
-        {DUMMY_POSTS.map((post) => {
-          const statusBg =
-            post.statusColor === "green" ? "bg-green-100" : "bg-blue-100";
-          const statusText =
-            post.statusColor === "green" ? "text-green-900" : "text-blue-600";
+        <CardBody className="p-0 space-y-3">
+          {posts.length === 0 ? (
+            <div className="text-center py-10 text-gray-500 text-sm">
+              No posts found.
+            </div>
+          ) : (
+            <>
+              <div className="space-y-3">
+                {posts.map((post) => {
+                  const statusColors = {
+                    Published: { text: "text-green-900", bg: "bg-green-100" },
+                    Scheduled: { text: "text-blue-600", bg: "bg-blue-100" },
+                    Failed: { text: "text-red-600", bg: "bg-red-100" },
+                  }[post.status] || {
+                    text: "text-gray-600",
+                    bg: "bg-gray-100",
+                  };
 
-          return (
-            <Card
-              key={post.id}
-              className="border border-primary/15 p-4 rounded-xl shadow-none"
-            >
-              <p className="text-xs sm:text-sm mb-2 whitespace-pre-wrap">{post.content}</p>
-
-              {/* Status and Published Date */}
-              <div className="flex whitespace-nowrap items-center gap-3 mb-2.5">
-                <span
-                  className={`text-[11px] px-2 py-0.5 rounded-full ${statusText} ${statusBg} `}
-                >
-                  ● {post.status}
-                </span>
-                <span className="text-gray-500 font-extralight text-[11px]  whitespace-nowrap">
-                  {post.status}: {post.dateTime}
-                </span>
-              </div>
-
-              {/* Platforms (Tags) */}
-              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
-
-                <div className="flex flex-wrap gap-2 text-[11px]">
-                  {post.platforms.map((platform, index) => (
-                    <span
-                      key={index}
-                      className={`border border-primary/15 px-2 py-0.5 rounded-xl`}
+                  return (
+                    <Card
+                      key={post._id}
+                      className="border border-primary/15 p-4 rounded-xl shadow-none"
                     >
-                      {platform}
-                    </span>
-                  ))}
-                </div>
+                      <div className="flex justify-between items-start mb-1.5">
+                        <h4 className="text-sm font-medium">{post.title}</h4>
+                      </div>
+                      <p className="text-xs mb-2.5 whitespace-pre-wrap text-gray-700">
+                        {post.description}
+                      </p>
 
-                <div className="flex flex-wrap gap-3 text-gray-500 text-[12px] sm:text-[11px] mt-2 sm:mt-0">
-                  <span title={`${post.metrics.likes} Likes`}>
-                    <BiHeart className="inline w-4 h-4 sm:w-3 sm:h-3 relative -top-px" />{" "}
-                    {post.metrics.likes}
-                  </span>
-                  <span title={`${post.metrics.comments} Comments`}>
-                    <FiMessageCircle className="inline w-4 h-4 sm:w-3 sm:h-3 relative -top-px" />{" "}
-                    {post.metrics.comments}
-                  </span>
-                  <span title={`${post.metrics.shares} Shares`}>
-                    <BiLink className="inline w-4 h-4 sm:w-3 sm:h-3 relative -top-px" />{" "}
-                    {post.metrics.shares}
-                  </span>
-                  <span title={`${post.metrics.views} Views`}>
-                    <BsEye className="inline w-4 h-4 sm:w-3 sm:h-3 relative -top-px" />{" "}
-                    {post.metrics.views}
-                  </span>
-                </div>
+                      <div className="flex whitespace-nowrap items-center gap-3 mb-2.5">
+                        <span
+                          className={`text-[11px] px-2 py-0.5 rounded-full ${statusColors.text} ${statusColors.bg} flex items-center gap-1`}
+                        >
+                          {post.status === "Failed" ? (
+                            <BiSolidError />
+                          ) : post.status === "Published" ? (
+                            <FaRegCircleCheck className="w-2.5 h-2.5" />
+                          ) : (
+                            <FiClock className="w-2.5 h-2.5" />
+                          )}{" "}
+                          {post.status}
+                        </span>
+                        <span className="text-gray-500 font-extralight text-[11px] whitespace-nowrap">
+                          {post.status === "Published"
+                            ? "Published"
+                            : "Modified"}
+                          :{" "}
+                          {formatDateToReadable(
+                            post.publishedTime || post.updatedAt,
+                            true
+                          )}
+                        </span>
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+                        <div className="flex flex-wrap gap-2 text-[11px]">
+                          {post.platforms.map((platform, index) => (
+                            <span
+                              key={index}
+                              className={`border border-primary/15 px-2 py-0.5 rounded-xl capitalize`}
+                            >
+                              {platform}
+                            </span>
+                          ))}
+                        </div>
+
+                        <div className="flex flex-wrap gap-3 text-gray-500 text-xs mt-2">
+                          <span title={`${post.summary?.likes || 0} Likes`}>
+                            <BiHeart className="inline w-3.5 h-3.5 max-sm:w-3 max-sm:h-3 relative -top-px" />{" "}
+                            {post.summary?.likes || 0}
+                          </span>
+                          <span
+                            title={`${post.summary?.comments || 0} Comments`}
+                          >
+                            <FiMessageCircle className="inline w-3.5 h-3.5 max-sm:w-3 max-sm:h-3 relative -top-px" />{" "}
+                            {post.summary?.comments || 0}
+                          </span>
+                          <span title={`${post.summary?.views || 0} Views`}>
+                            <LuEye className="inline w-3.5 h-3.5 max-sm:w-3 max-sm:h-3 relative -top-px" />{" "}
+                            {post.summary?.views || 0}
+                          </span>
+                          <span title={`${post.summary?.shares || 0} Shares`}>
+                            <RiLinksFill className="inline w-3.5 h-3.5 max-sm:w-3 max-sm:h-3 relative -top-px" />{" "}
+                            {post.summary?.shares || 0}
+                          </span>
+                        </div>
+                      </div>
+
+                      {post.status === "Failed" && post.failureReason && (
+                        <div className="mt-3 p-2 bg-red-50 rounded-lg text-[11px] text-red-700 border border-red-100">
+                          <strong>Failure Reason:</strong> {post.failureReason}
+                        </div>
+                      )}
+                    </Card>
+                  );
+                })}
               </div>
-            </Card>
-          );
-        })}
-      </CardBody>
-    </Card>
+              <Pagination
+                identifier="posts"
+                limit={limit}
+                totalItems={pagination?.total || 0}
+                currentPage={page}
+                totalPages={pagination?.totalPages || 0}
+                handlePageChange={setPage}
+              />
+            </>
+          )}
+        </CardBody>
+      </Card>
+    </div>
   );
 };
 

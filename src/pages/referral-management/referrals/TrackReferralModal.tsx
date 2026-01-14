@@ -92,6 +92,7 @@ const TrackReferralModal = ({
   });
 
   const formik = useFormik({
+    enableReinitialize: true,
     initialValues: {
       patientName: "",
       patientAge: "",
@@ -324,7 +325,17 @@ const TrackReferralModal = ({
                         variant="flat"
                         size="sm"
                         radius="sm"
-                        defaultItems={referrers}
+                        items={[
+                          {
+                            _id: userId,
+                            name: "Myself",
+                            practice: {
+                              name: `${user?.firstName} ${user?.lastName}`,
+                            },
+                            isMyself: true,
+                          },
+                          ...referrers,
+                        ]}
                         selectedKey={formik.values.referrerId}
                         onSelectionChange={(key) =>
                           formik.setFieldValue("referrerId", key)
@@ -338,24 +349,15 @@ const TrackReferralModal = ({
                         }
                         errorMessage={formik.errors.referrerId}
                       >
-                        <>
+                        {(item: any) => (
                           <AutocompleteItem
-                            key={userId}
-                            textValue="Myself"
-                            description={user?.firstName + " " + user?.lastName}
+                            key={item._id}
+                            textValue={item.name}
+                            description={item.practice?.name}
                           >
-                            Myself
+                            {item.name}
                           </AutocompleteItem>
-                          {(item: any) => (
-                            <AutocompleteItem
-                              key={item._id}
-                              textValue={item.name}
-                              description={item.practice?.name}
-                            >
-                              {item.name}
-                            </AutocompleteItem>
-                          )}
-                        </>
+                        )}
                       </Autocomplete>
                     </div>
                   ) : (

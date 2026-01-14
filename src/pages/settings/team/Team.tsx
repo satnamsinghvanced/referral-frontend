@@ -118,6 +118,26 @@ const Team: React.FC = () => {
 
   return (
     <div className="space-y-4 md:space-y-5">
+      {/* Email Integration Warning */}
+      {!isEmailConfigLoading && emailConfig?.status !== "Connected" && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-center justify-between">
+          <p className="text-sm text-yellow-800">
+            Email Marketing Platform is not connected. You can't invite team
+            members until you connect your Email Marketing Platform.
+          </p>
+          <Button
+            as={Link}
+            to="/integrations"
+            size="sm"
+            color="warning"
+            variant="flat"
+            className="bg-yellow-200 text-yellow-800"
+          >
+            Connect Email
+          </Button>
+        </div>
+      )}
+
       {/* Active Members */}
       <Card
         shadow="none"
@@ -242,26 +262,6 @@ const Team: React.FC = () => {
 
       {/* Pending Members */}
       <PendingTeamMembers />
-
-      {/* Email Integration Warning */}
-      {!isEmailConfigLoading && emailConfig?.status !== "Connected" && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-center justify-between">
-          <p className="text-sm text-yellow-800">
-            Email Marketing Platform is not connected. You can't invite team
-            members until you connect your Email Marketing Platform.
-          </p>
-          <Button
-            as={Link}
-            to="/integrations"
-            size="sm"
-            color="warning"
-            variant="flat"
-            className="bg-yellow-200 text-yellow-800"
-          >
-            Connect Email
-          </Button>
-        </div>
-      )}
 
       {/* Invite Button */}
       {emailConfig?.status === "Connected" && (

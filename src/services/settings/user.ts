@@ -19,7 +19,7 @@ export interface User {
   updatedAt?: string;
   practice?: string;
   specialty?: string;
-  medicalSpecialty?: string;
+  medicalSpecialty?: { title: string; _id: string };
   image?: string;
 }
 

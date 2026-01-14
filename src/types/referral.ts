@@ -52,6 +52,7 @@ export interface CreateReferralPayload {
   reason?: string;
   scheduledDate?: string | undefined;
   appointmentTime?: string | undefined;
+  sourceId?: string;
 }
 
 export interface FilterStats {
@@ -145,6 +146,10 @@ export interface PersonalizedQR {
   _id: string;
   createdAt: string;
   updatedAt: string;
+  qrScan: number;
+  nfcTaps: number;
+  totalReferrals: number;
+  conversionRate: number;
 }
 
 export interface TrackingResponseData {
@@ -152,6 +157,8 @@ export interface TrackingResponseData {
   personalizedQR: PersonalizedQR[];
   activeQR: number;
   totalScans: number;
+  qrScans: number;
   nfcTaps: number;
+  totalReferrals: number;
   conversionRate: number;
 }

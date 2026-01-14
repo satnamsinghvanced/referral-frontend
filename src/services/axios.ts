@@ -1,3 +1,4 @@
+import { addToast } from "@heroui/react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { store } from "../store";
@@ -42,9 +43,26 @@ axiosInstance.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+let isToastShowing = false;
+
 axiosInstance.interceptors.response.use(
   (response) => response.data,
   (error) => {
+    if (!error.response && !isToastShowing) {
+      isToastShowing = true;
+      addToast({
+        title: "Network Error",
+        description:
+          "Unable to connect to the server. This may be a CORS issue or network failure.",
+        color: "danger",
+      });
+
+      // Reset the flag after some time to allow future toasts
+      setTimeout(() => {
+        isToastShowing = false;
+      }, 5000);
+    }
+
     if (error.response?.status === 401 || error.response?.status === 403) {
       store.dispatch(logout());
       queryClient.clear();

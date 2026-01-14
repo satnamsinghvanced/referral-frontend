@@ -12,7 +12,7 @@ import {
   SelectItem,
   Textarea,
 } from "@heroui/react";
-import { parseDate } from "@internationalized/date";
+import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
 import { useFormik } from "formik";
 import { useEffect, useMemo } from "react";
 import * as Yup from "yup";
@@ -42,6 +42,11 @@ const validationSchema = Yup.object().shape({
   endDate: Yup.string().required("End Date is required."),
 });
 
+// ... (imports remain)
+import { useState } from "react";
+
+// ... (schema remains)
+
 interface BudgetFormValues {
   category: string;
   subCategory: string;
@@ -61,13 +66,20 @@ export default function BudgetActionModal({
   onClose,
   editedData,
   setCurrentFilters,
+  syncedProviders = [],
 }: {
   isOpen: boolean;
   onClose: () => void;
   editedData: BudgetItem | null;
   setCurrentFilters: any;
+  syncedProviders?: string[];
 }) {
   const isEdit = !!editedData;
+  const [showConfirmation, setShowConfirmation] = useState(false);
+  const [pendingValues, setPendingValues] = useState<BudgetFormValues | null>(
+    null
+  );
+  const [confirmationMessage, setConfirmationMessage] = useState("");
 
   const { data: categories } = useBudgetCategories();
   const createMutation = useCreateBudgetItem();
@@ -77,25 +89,36 @@ export default function BudgetActionModal({
   // @ts-ignore
   const initialValues: BudgetFormValues = useMemo(() => {
     if (editedData) {
+      const categoryId =
+        typeof editedData.category === "string"
+          ? editedData.category
+          : editedData.category?._id || "";
+      const subCategoryId =
+        typeof editedData.subCategory === "string"
+          ? editedData.subCategory
+          : editedData.subCategory?._id || "";
+
       return {
-        category: editedData.marketingCategory?._id || "",
-        subCategory: editedData.subCategory?._id || "",
-        budgetAmount: editedData.budget,
-        actualSpent: editedData.spent || "", // ⬅ added
-        roi: editedData.roi || "", // ⬅ added
-        period: editedData.period,
-        priority: editedData.priority,
-        status: editedData.status,
+        category: categoryId,
+        subCategory: subCategoryId,
+        budgetAmount: editedData.amount, // Updated from budget to amount
+        actualSpent: Number(editedData.spent) || "",
+        roi: Number(editedData.roi) || "",
+        period: editedData.period || "monthly",
+        priority: editedData.priority || "medium",
+        status: editedData.status || "active",
         description: editedData.description || "",
-        startDate: editedData.startDate.split("T")[0],
-        endDate: editedData.endDate.split("T")[0],
+        startDate: editedData.startDate
+          ? editedData.startDate.split("T")[0]
+          : "",
+        endDate: editedData.endDate ? editedData.endDate.split("T")[0] : "",
       };
     }
     return {
       category: "",
       subCategory: "",
       budgetAmount: "",
-      actualSpent: "", // add empty for new item (hidden anyway)
+      actualSpent: "",
       roi: "",
       period: "monthly",
       priority: "medium",
@@ -106,35 +129,87 @@ export default function BudgetActionModal({
     };
   }, [editedData]);
 
+  const proceedWithSubmission = (values: BudgetFormValues) => {
+    const payload = {
+      amount: Number(values.budgetAmount), // Updated key
+      spent: Number(values.actualSpent),
+      roi: Number(values.roi),
+      period: values.period,
+      priority: values.priority,
+      status: values.status,
+      description: values.description,
+      startDate: values.startDate,
+      endDate: values.endDate,
+      category: values.category, // Updated key
+      subCategory: values.subCategory, // Updated key
+    };
+
+    if (isEdit) {
+      updateMutation.mutate({ id: editedData._id, data: payload as any });
+    } else {
+      createMutation.mutate(payload as any);
+    }
+
+    setCurrentFilters((prev: any) => ({
+      ...prev,
+      period: values.period,
+    }));
+    setShowConfirmation(false);
+    setPendingValues(null);
+  };
+
   const formik = useFormik<BudgetFormValues>({
     initialValues: initialValues,
     validationSchema: validationSchema,
     enableReinitialize: true,
     onSubmit: (values) => {
-      const payload = {
-        budget: Number(values.budgetAmount),
-        spent: Number(values.actualSpent),
-        roi: Number(values.roi),
-        period: values.period,
-        priority: values.priority,
-        status: values.status,
-        description: values.description,
-        startDate: values.startDate,
-        endDate: values.endDate,
-        marketingCategory: values.category,
-        subCategory: values.subCategory,
-      };
+      // Logic to check for synced conflicts only for NEW items
+      if (!isEdit && categories) {
+        // Find the selected subcategory title
+        let selectedSubCategoryTitle = "";
+        for (const cat of categories) {
+          const found = cat.subCategory.find(
+            (sub) => sub._id === values.subCategory
+          );
+          if (found) {
+            selectedSubCategoryTitle = found.subCategory;
+            break;
+          }
+        }
 
-      if (isEdit) {
-        updateMutation.mutate({ id: editedData._id, data: payload });
-      } else {
-        createMutation.mutate(payload);
+        const lowerTitle = selectedSubCategoryTitle.toLowerCase();
+        let conflictProvider = "";
+
+        if (
+          lowerTitle.includes("google ads") &&
+          syncedProviders.includes("google")
+        ) {
+          conflictProvider = "Google Ads";
+        } else if (
+          (lowerTitle.includes("meta") ||
+            lowerTitle.includes("facebook") ||
+            lowerTitle.includes("instagram")) &&
+          syncedProviders.includes("meta")
+        ) {
+          conflictProvider = "Meta Ads";
+        } else if (
+          lowerTitle.includes("tiktok") &&
+          syncedProviders.includes("tiktok")
+        ) {
+          conflictProvider = "TikTok Ads";
+        }
+
+        if (conflictProvider) {
+          setConfirmationMessage(
+            `${conflictProvider} is already synced. Do you want to add another item of ${conflictProvider}?`
+          );
+          setPendingValues(values);
+          setShowConfirmation(true);
+          return;
+        }
       }
 
-      setCurrentFilters((prev: any) => ({
-        ...prev,
-        period: values.period,
-      }));
+      proceedWithSubmission(values);
     },
   });
 
@@ -166,16 +241,21 @@ export default function BudgetActionModal({
     >
       <ModalContent>
         <form onSubmit={formik.handleSubmit}>
-          <ModalHeader className="p-5 pb-0 flex-col">
+          <ModalHeader className="p-4 pb-0 flex-col">
             <h2 className="leading-none font-medium text-base">{modalTitle}</h2>
             <p className="text-xs text-gray-600 mt-2 font-normal">
               {isEdit
-                ? `Update the details for ${editedData?.marketingCategory.title} budget item.`
+                ? `Update the details for ${
+                    typeof editedData.category === "string"
+                      ? "this"
+                      : editedData.category?.category
+                  } budget item.`
                 : "Create a new budget item to track your marketing spend across different categories and periods."}
             </p>
           </ModalHeader>
 
-          <ModalBody className="px-5 py-5 grid grid-cols-2 gap-4">
+          <ModalBody className="px-4 py-4 grid grid-cols-2 gap-4">
+            {/* ... form fields ... */}
             <div className="col-span-2">
               <Select
                 size="sm"
@@ -185,6 +265,9 @@ export default function BudgetActionModal({
                 placeholder="Select category"
                 isRequired
                 selectedKeys={
+                  formik.values.category ? [formik.values.category] : []
+                }
+                disabledKeys={
                   formik.values.category ? [formik.values.category] : []
                 }
                 onSelectionChange={(keys) => {
@@ -199,7 +282,7 @@ export default function BudgetActionModal({
                 errorMessage={formik.touched.category && formik.errors.category}
               >
                 {(categories || [])?.map((cat: any) => (
-                  <SelectItem key={cat._id}>{cat.title}</SelectItem>
+                  <SelectItem key={cat._id}>{cat.category}</SelectItem>
                 ))}
               </Select>
             </div>
@@ -213,6 +296,9 @@ export default function BudgetActionModal({
                 placeholder="Select subcategory"
                 isRequired
                 selectedKeys={
+                  formik.values.subCategory ? [formik.values.subCategory] : []
+                }
+                disabledKeys={
                   formik.values.subCategory ? [formik.values.subCategory] : []
                 }
                 onSelectionChange={(keys) =>
@@ -230,9 +316,9 @@ export default function BudgetActionModal({
                 {(
                   (categories || [])?.find(
                     (category: any) => category._id === formik.values.category
-                  )?.subCategories || []
+                  )?.subCategory || []
                 ).map((cat: any) => (
-                  <SelectItem key={cat._id}>{cat.title}</SelectItem>
+                  <SelectItem key={cat._id}>{cat.subCategory}</SelectItem>
                 ))}
               </Select>
             </div>
@@ -316,6 +402,7 @@ export default function BudgetActionModal({
                 onBlur={formik.handleBlur("period")}
                 isInvalid={!!formik.touched.period && !!formik.errors.period}
                 errorMessage={formik.touched.period && formik.errors.period}
+                isRequired
               >
                 {BUDGET_DURATIONS.map((duration) => (
                   <SelectItem key={duration.value}>{duration.label}</SelectItem>
@@ -340,6 +427,7 @@ export default function BudgetActionModal({
                   !!formik.touched.priority && !!formik.errors.priority
                 }
                 errorMessage={formik.touched.priority && formik.errors.priority}
+                isRequired
               >
                 {PRIORITY_LEVELS.map((level) => (
                   <SelectItem key={level.value}>{level.label}</SelectItem>
@@ -362,6 +450,7 @@ export default function BudgetActionModal({
                 onBlur={formik.handleBlur("status")}
                 isInvalid={!!formik.touched.status && !!formik.errors.status}
                 errorMessage={formik.touched.status && formik.errors.status}
+                isRequired
               >
                 {BUDGET_STATUSES.map((status) => (
                   <SelectItem key={status.value}>{status.label}</SelectItem>
@@ -397,6 +486,7 @@ export default function BudgetActionModal({
                 label="Start Date"
                 labelPlacement="outside"
                 isRequired
+                minValue={today(getLocalTimeZone())}
                 value={
                   formik.values.startDate
                     ? parseDate(formik.values.startDate)
@@ -448,7 +538,7 @@ export default function BudgetActionModal({
             </div>
           </ModalBody>
 
-          <ModalFooter className="flex flex-col justify-end gap-2 px-5 pb-5 pt-0">
+          <ModalFooter className="flex flex-col justify-end gap-2 px-4 pb-4 pt-0">
             {isEdit && (
               <div className="col-span-2 rounded-md bg-gray-100 px-4 py-3">
                 <div className="flex justify-between text-xs mb-2">
@@ -456,7 +546,10 @@ export default function BudgetActionModal({
                   <span className="font-medium">
                     $
                     {formik.values.budgetAmount && formik.values.actualSpent
-                      ? formik.values.budgetAmount - formik.values.actualSpent
+                      ? (
+                          (formik.values.budgetAmount as number) -
+                          (formik.values.actualSpent as number)
+                        ).toLocaleString()
                       : 0}
                   </span>
                 </div>
@@ -493,7 +586,7 @@ export default function BudgetActionModal({
                 color="primary"
                 type="submit"
                 isLoading={isLoading}
-                isDisabled={isLoading || !formik.isValid || !formik.dirty}
+                isDisabled={isLoading || !formik.isValid}
               >
                 {buttonLabel}
               </Button>
@@ -501,6 +594,61 @@ export default function BudgetActionModal({
           </ModalFooter>
         </form>
       </ModalContent>
+
+      <Modal
+        isOpen={showConfirmation}
+        onOpenChange={(open) => {
+          if (!open) {
+            setShowConfirmation(false);
+            setPendingValues(null);
+          }
+        }}
+        size="sm"
+        classNames={{
+          base: `max-sm:m-1 m-0`,
+          closeButton: "cursor-pointer",
+          // content: "!top-10 translate-y-0",
+        }}
+      >
+        <ModalContent className="p-0">
+          <ModalHeader className="p-4 pb-3 leading-none font-medium text-base">
+            Confirmation
+          </ModalHeader>
+          <ModalBody className="px-4 py-0">
+            <p className="text-sm">{confirmationMessage}</p>
+          </ModalBody>
+          <ModalFooter className="p-4">
+            <Button
+              size="sm"
+              radius="sm"
+              variant="ghost"
+              color="default"
+              onPress={() => {
+                setShowConfirmation(false);
+                setPendingValues(null);
+              }}
+              className="border-small"
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="solid"
+              color="primary"
+              size="sm"
+              radius="sm"
+              isDisabled={isLoading}
+              isLoading={isLoading}
+              onPress={() => {
+                if (pendingValues) {
+                  proceedWithSubmission(pendingValues);
+                }
+              }}
+            >
+              Confirm
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </Modal>
   );
 }

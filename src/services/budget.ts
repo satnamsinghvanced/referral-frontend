@@ -46,3 +46,33 @@ export const updateBudgetItem = async ({
 export const deleteBudgetItem = async (id: string): Promise<void> => {
   await axios.delete(`/marketing-budget/${id}`);
 };
+
+export const importBudgetItemsCSV = async (
+  formData: FormData
+): Promise<any> => {
+  const response = await axios.post("/marketing-budget/import", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return response.data;
+};
+
+export const exportBudgetItems = async (
+  type: "csv" | "excel" | "pdf"
+): Promise<Blob> => {
+  const response = await axios.post(
+    "/marketing-budget/export",
+    { type },
+    {
+      responseType: "blob",
+    }
+  );
+
+  // Ensure we have a valid blob
+  if (!(response.data instanceof Blob)) {
+    throw new Error("Invalid response format from server");
+  }
+
+  return response.data;
+};

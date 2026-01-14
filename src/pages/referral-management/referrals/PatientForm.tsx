@@ -210,6 +210,7 @@ const PatientForm = () => {
         scheduledDate: values.scheduledDate || "",
         status: "new" as ReferralStatus,
         estValue: 0,
+        sourceId,
       };
 
       await createReferral(payload, {
@@ -559,11 +560,11 @@ const PatientForm = () => {
                     startContent={<FiDownload className="text-sm" />}
                     onPress={() => {
                       downloadVcf({
-                        firstName: fetchedUser?.firstName,
-                        lastName: fetchedUser?.lastName,
-                        phone: fetchedUser?.phone,
-                        email: fetchedUser?.email,
-                        organization: fetchedUser?.practiceName,
+                        firstName: fetchedUser?.firstName || "",
+                        lastName: fetchedUser?.lastName || "",
+                        phone: fetchedUser?.phone || "",
+                        email: fetchedUser?.email || "",
+                        organization: fetchedUser?.practiceName || "",
                       });
                     }}
                   >

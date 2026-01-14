@@ -423,18 +423,28 @@ const TrackingPanel = () => {
           <div className="flex flex-col gap-2 md:gap-3 mt-4 rounded-md">
             {[
               {
+                label: "Total Active QR Codes",
+                value: trackings?.activeQR ?? 0,
+                className: "bg-[#e0f2fe] text-[#0c4a6e]",
+              },
+              {
                 label: "Total Scans",
                 value: trackings?.totalScans ?? 0,
                 className: "bg-green-100 text-green-800",
               },
               {
-                label: "Active QR Codes",
-                value: trackings?.activeQR ?? 0,
-                className: "bg-[#e0f2fe] text-[#0c4a6e]",
+                label: "QR Scans",
+                value: trackings?.qrScans ?? 0,
+                className: "bg-green-100 text-green-800",
               },
               {
                 label: "NFC Taps",
                 value: trackings?.nfcTaps ?? 0,
+                className: "bg-blue-100 text-blue-800",
+              },
+              {
+                label: "Total Referrals",
+                value: trackings?.totalReferrals ?? 0,
                 className: "bg-blue-100 text-blue-800",
               },
               {
@@ -479,6 +489,18 @@ const TrackingPanel = () => {
                   </th>
                   <th className="text-left text-xs py-3 px-2 font-medium text-gray-700">
                     Total Scans
+                  </th>
+                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700">
+                    QR Scans
+                  </th>
+                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700">
+                    NFC Taps
+                  </th>
+                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700">
+                    Referrals
+                  </th>
+                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700">
+                    Conversion Rate
                   </th>
                   <th className="text-left text-xs py-3 px-2 font-medium text-gray-700">
                     Created
@@ -528,8 +550,20 @@ const TrackingPanel = () => {
                         </a>
                       </div>
                     </td>
-                    <td className="text-left text-xs py-3 px-2 font-medium">
+                    <td className="text-left text-xs py-3 px-2 font-medium min-w-[80px]">
                       {qr.totalScan}
+                    </td>
+                    <td className="text-left text-xs py-3 px-2 font-medium min-w-[80px]">
+                      {qr.qrScan}
+                    </td>
+                    <td className="text-left text-xs py-3 px-2 font-medium min-w-[80px]">
+                      {qr.nfcTaps}
+                    </td>
+                    <td className="text-left text-xs py-3 px-2 font-medium min-w-[80px]">
+                      {qr.totalReferrals}
+                    </td>
+                    <td className="text-left text-xs py-3 px-2 font-medium min-w-[80px]">
+                      {qr.conversionRate}%
                     </td>
                     <td className="text-left text-xs py-3 px-2 whitespace-nowrap">
                       {formatDateToMMDDYYYY(qr.createdAt)}

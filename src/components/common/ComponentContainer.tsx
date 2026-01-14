@@ -25,7 +25,7 @@ const ComponentContainer: React.FC<ComponentContainerProps> = ({
           buttons={headingData.buttons}
         />
       </div>
-      <div className="flex flex-col gap-2 md:p-6 p-4 overflow-auto">
+      <div className="flex flex-col gap-4 md:gap-5 md:p-6 p-4 overflow-auto">
         {children}
       </div>
     </div>

@@ -68,11 +68,11 @@ const EXPORT_FORMATS = [
     label: "CSV File",
     icon: <LuFileText className="h-4 w-4" />,
   },
-  {
-    key: "interactive-dashboard",
-    label: "Interactive Dashboard",
-    icon: <LuActivity className="h-4 w-4" />,
-  },
+  // {
+  //   key: "interactive-dashboard",
+  //   label: "Interactive Dashboard",
+  //   icon: <LuActivity className="h-4 w-4" />,
+  // },
 ];
 
 interface ReportFormState {

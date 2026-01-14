@@ -19,10 +19,14 @@ interface UploadMediaModalProps {
   onClose: () => void;
   folderId: string | null;
   folderName: string;
+  allowedImageFormats?: string[] | undefined;
+  maxImageSize?: number | undefined;
+  allowedVideoFormats?: string[] | undefined;
+  maxVideoSize?: number | undefined;
 }
 
 // Constants for validation
-const MAX_FILE_SIZE = 1024 * 1024 * 1024; // 1GB in bytes
+const DEFAULT_MAX_FILE_SIZE = 1024 * 1024 * 1024; // 1GB in bytes
 const MAX_FILES_COUNT = 10;
 
 interface FileWithError {
@@ -35,6 +39,10 @@ export function UploadMediaModal({
   onClose,
   folderId,
   folderName,
+  allowedImageFormats = ["image/jpeg", "image/png", "image/gif", "image/webp"],
+  maxImageSize = DEFAULT_MAX_FILE_SIZE,
+  allowedVideoFormats = ["video/mp4", "video/webm", "video/quicktime"],
+  maxVideoSize = DEFAULT_MAX_FILE_SIZE,
 }: UploadMediaModalProps) {
   const [tags, setTags] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -73,10 +81,29 @@ export function UploadMediaModal({
   };
 
   const validateFile = (file: File): string | undefined => {
-    // Check file size
-    if (file.size > MAX_FILE_SIZE) {
-      return `File exceeds 1GB limit (${formatFileSize(file.size)})`;
+    const isImage = file.type.startsWith("image/");
+    const isVideo = file.type.startsWith("video/");
+
+    if (isImage) {
+      if (!allowedImageFormats.includes(file.type)) {
+        const format = file.type.split("/")[1]?.toUpperCase() || "UNKNOWN";
+        return `Format ${format} not supported for selected platforms.`;
+      }
+      if (file.size > maxImageSize) {
+        return `Image exceeds limit (${formatFileSize(maxImageSize)})`;
+      }
+    } else if (isVideo) {
+      if (!allowedVideoFormats.includes(file.type)) {
+        const format = file.type.split("/")[1]?.toUpperCase() || "UNKNOWN";
+        return `Format ${format} not supported for selected platforms.`;
+      }
+      if (file.size > maxVideoSize) {
+        return `Video exceeds limit (${formatFileSize(maxVideoSize)})`;
+      }
+    } else {
+      return "Only image and video files are allowed.";
     }
+
     return undefined;
   };
 
@@ -224,7 +251,9 @@ export function UploadMediaModal({
             Uploading to: {folderId === null ? "Root" : folderName}
           </p>
           <p className="text-xs text-blue-600 mt-1">
-            Max: {MAX_FILES_COUNT} files, 1GB per file
+            Max: {MAX_FILES_COUNT} files | Images:{" "}
+            {formatFileSize(maxImageSize)} | Videos:{" "}
+            {formatFileSize(maxVideoSize)}
           </p>
         </ModalHeader>
 
@@ -261,7 +290,14 @@ export function UploadMediaModal({
                 : "Drag files here or click to browse"}
             </p>
             <p className="text-xs text-gray-500 mb-1">
-              Images (JPG, PNG, GIF, WebP, SVG) and videos (MP4, WebM, MOV)
+              Supports:{" "}
+              {allowedImageFormats
+                .map((f) => f.split("/")[1]?.toUpperCase())
+                .join(", ")}{" "}
+              and{" "}
+              {allowedVideoFormats
+                .map((f) => f.split("/")[1]?.toUpperCase())
+                .join(", ")}
             </p>
             <p className="text-xs text-gray-400">
               {filesToUpload.length}/{MAX_FILES_COUNT} files
@@ -271,7 +307,9 @@ export function UploadMediaModal({
               radius="sm"
               type="file"
               multiple
-              accept="image/*,video/*"
+              accept={[...allowedImageFormats, ...allowedVideoFormats].join(
+                ","
+              )}
               ref={fileInputRef}
               onChange={(e) => handleFileSelect(e.target.files)}
               className="hidden"

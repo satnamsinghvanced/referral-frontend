@@ -1,15 +1,16 @@
 import { Pagination as HeroPagination } from "@heroui/react";
+import { EVEN_PAGINATION_LIMIT } from "../../consts/consts";
 
 const Pagination = ({
   identifier,
-  items,
+  limit = EVEN_PAGINATION_LIMIT,
   totalItems,
   currentPage,
   totalPages,
   handlePageChange,
 }: {
   identifier: string;
-  items: any;
+  limit?: number;
   totalItems: number;
   currentPage: number;
   totalPages: number;
@@ -18,8 +19,9 @@ const Pagination = ({
   return (
     <div className="flex items-center justify-between gap-2">
       <p className="text-xs text-gray-600">
-        Showing {items.length * (currentPage - 1) + 1} -{" "}
-        {items.length * currentPage} of {totalItems} {identifier}
+        Showing {limit * (currentPage - 1) + 1} -{" "}
+        {limit * currentPage > totalItems ? totalItems : limit * currentPage} of{" "}
+        {totalItems} {identifier}
       </p>
       <HeroPagination
         total={totalPages}
@@ -29,7 +31,7 @@ const Pagination = ({
         radius="sm"
         showControls
         classNames={{
-          base: "pagination flex justify-end py-3",
+          base: "pagination flex justify-end p-0 m-0",
           wrapper: "gap-1.5",
         }}
       />

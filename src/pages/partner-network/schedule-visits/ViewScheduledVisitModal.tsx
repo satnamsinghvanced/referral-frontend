@@ -260,7 +260,10 @@ const RouteStopCard = ({
     {/* Details */}
     <div className="flex-grow space-y-1">
       <div className="font-medium text-sm">{route.name}</div>
-      <div className="text-xs text-gray-600">{route.address.addressLine1}</div>
+      <div className="text-xs text-gray-600">
+        {route.address.addressLine1} {route.address.addressLine2}{" "}
+        {route.address.city}, {route.address.state} {route.address.zip}
+      </div>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-gray-600 pt-1">
         <span className="flex items-center gap-1.5 whitespace-nowrap">
           <LuTimer className="min-h-4 min-w-4 size-4" /> {route.arrivalTime} -{" "}

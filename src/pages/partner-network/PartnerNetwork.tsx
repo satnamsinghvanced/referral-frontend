@@ -30,6 +30,7 @@ import NotesTasksModal from "./NotesTasksModal";
 import PartnerDetailsModal from "./PartnerDetailsModal";
 import PartnerNetworkCard from "./PartnerNetworkCard";
 import ScheduleVisits from "./schedule-visits/ScheduleVisits";
+import { EVEN_PAGINATION_LIMIT } from "../../consts/consts";
 
 const PartnerNetwork = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -48,9 +49,9 @@ const PartnerNetwork = () => {
     name: string;
   } | null>(null);
 
-  const [params, setParams] = useState<FetchPartnersParams>({
+  const [params, setParams] = useState<Required<FetchPartnersParams>>({
     page: 1,
-    limit: 10,
+    limit: EVEN_PAGINATION_LIMIT,
     search: "",
     sortBy: "name",
     order: "asc",
@@ -206,7 +207,7 @@ const PartnerNetwork = () => {
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-5">
+        <div className="grid grid-cols-1 lg:grid-cols-2 items-start gap-4">
           <div className="space-y-5">
             {/* --- STOPPED REFERRALS ALERT BOX --- */}
             {stoppedReferring.length > 0 && (
@@ -275,7 +276,7 @@ const PartnerNetwork = () => {
                       size="sm"
                       variant="flat"
                       placeholder="Search partner practices..."
-                      value={params.search as string}
+                      value={params.search}
                       onValueChange={(value: string) =>
                         handleFieldChange("search", value)
                       }
@@ -290,8 +291,8 @@ const PartnerNetwork = () => {
                       placeholder="Practice Type"
                       size="sm"
                       radius="sm"
-                      selectedKeys={[params.filter as string]}
-                      disabledKeys={[params.filter as string]}
+                      selectedKeys={[params.filter]}
+                      disabledKeys={[params.filter]}
                       onSelectionChange={(keys) =>
                         handleFieldChange(
                           "filter",
@@ -317,8 +318,8 @@ const PartnerNetwork = () => {
                           placeholder="Sort By"
                           size="sm"
                           radius="sm"
-                          selectedKeys={[params.sortBy as string]}
-                          disabledKeys={[params.sortBy as string]}
+                          selectedKeys={[params.sortBy]}
+                          disabledKeys={[params.sortBy]}
                           onSelectionChange={(keys) =>
                             handleFieldChange(
                               "sortBy",
@@ -356,12 +357,12 @@ const PartnerNetwork = () => {
                         {sortOrder === "asc" ? <GrAscend /> : <GrDescend />}
                       </Button>
                     </div>
-                    {practices.length > 10 && (
+                    {stats?.totalPages && stats.totalPages > 1 && (
                       <p className="text-xs text-gray-600">
-                        {`Showing ${
-                          practices.length * (params?.page - 1) + 1
-                        } - ${
-                          practices.length * params?.page
+                        {`Showing ${params.limit * (params.page - 1) + 1} - ${
+                          params.limit * params.page > totalPractices
+                            ? totalPractices
+                            : params.limit * params.page
                         } of ${totalPractices} practices`}
                       </p>
                     )}
@@ -394,7 +395,7 @@ const PartnerNetwork = () => {
                   showControls
                   size="sm"
                   radius="sm"
-                  page={params.page as number}
+                  page={params.page}
                   onChange={(page) => handleFieldChange("page", page)}
                   total={stats.totalPages}
                   classNames={{

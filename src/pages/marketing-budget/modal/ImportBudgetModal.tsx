@@ -14,17 +14,17 @@ import {
   FiUploadCloud,
 } from "react-icons/fi";
 import { IoClose } from "react-icons/io5";
-import { useImportReferralsCSV } from "../../../hooks/useReferral";
+import { useImportBudgetItemsCSV } from "../../../hooks/useBudget";
 
-interface BulkImportModalProps {
+interface ImportBudgetModalProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
+const ImportBudgetModal = ({ isOpen, onClose }: ImportBudgetModalProps) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { mutate: importCSV, isPending } = useImportReferralsCSV();
+  const { mutate: importCSV, isPending } = useImportBudgetItemsCSV();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -47,22 +47,28 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
   };
 
   const handleDownloadTemplate = () => {
-    // Generate a simple CSV blob
+    // Generate CSV template with required fields
     const headers = [
-      "Patient Name*",
-      "Patient Age*",
-      "Phone Number*",
-      "Email Address*",
-      "Treatment/Reason*",
-      "Referral Source",
+      "Category*",
+      "Subcategory*",
+      "Budget Amount*",
+      "Period*",
+      "Priority*",
+      "Status*",
+      "Start Date*",
+      "End Date*",
+      "Description",
     ];
     const dummyRow = [
-      "John Doe",
-      "30",
-      "555-0123-485",
-      "john@example.com",
-      "Invisalign",
-      "Direct Referral",
+      "Digital Marketing",
+      "Google Ads",
+      "5000",
+      "monthly",
+      "high",
+      "active",
+      "2026-01-01",
+      "2026-01-31",
+      "Q1 Google Ads campaign budget",
     ];
 
     const csvContent = [headers.join(","), dummyRow.join(",")].join("\n");
@@ -70,7 +76,7 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "referral_import_template.csv";
+    a.download = "budget_import_template.csv";
     a.click();
     window.URL.revokeObjectURL(url);
   };
@@ -92,10 +98,12 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
             <ModalHeader className="flex flex-col gap-1 px-4">
               <div className="flex items-center gap-2">
                 <FiFileText className="text-primary text-xl" />
-                <h4 className="text-base font-medium">Bulk Import Referrals</h4>
+                <h4 className="text-base font-medium">
+                  Bulk Import Budget Items
+                </h4>
               </div>
               <p className="text-xs text-gray-500 font-normal">
-                Import multiple referrals at once from a CSV spreadsheet.
+                Import multiple budget items at once from a CSV spreadsheet.
                 Download our template to get started.
               </p>
             </ModalHeader>
@@ -106,16 +114,14 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
                 <div className="flex items-center gap-2 mb-2.5 text-gray-900">
                   <FiFileText className="size-4" />
                   <h4 className="font-medium text-sm">
-                    How to import referrals:
+                    How to import budget items:
                   </h4>
                 </div>
                 <ol className="text-xs text-gray-600 space-y-1.5 list-decimal list-inside pl-1">
                   <li>Download the CSV template below</li>
-                  <li>
-                    Fill in your referral data following the example format
-                  </li>
+                  <li>Fill in your budget data following the example format</li>
                   <li>Save the file and upload it here</li>
-                  <li>Review the matched referrers and confirm import</li>
+                  <li>Review the imported items and confirm</li>
                 </ol>
               </div>
 
@@ -150,13 +156,13 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
                 <div className="space-y-1">
                   <h4 className="font-medium text-sm">Upload Your File</h4>
                   <p className="text-xs text-gray-500">
-                    Accepted formats: CSV, XLS, XLSX
+                    Accepted format: CSV only
                   </p>
                 </div>
 
                 <input
                   type="file"
-                  accept=".csv, .xls, .xlsx"
+                  accept=".csv"
                   ref={fileInputRef}
                   onChange={handleFileChange}
                   className="hidden"
@@ -202,9 +208,7 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
                         <p className="text-sm font-medium text-gray-900">
                           Click to upload or drag and drop
                         </p>
-                        <p className="text-xs text-gray-500">
-                          CSV, XLS, or XLSX file
-                        </p>
+                        <p className="text-xs text-gray-500">CSV file only</p>
                       </div>
                     </>
                   )}
@@ -218,11 +222,14 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
                 </h4>
                 <div className="grid grid-cols-2 gap-y-2 gap-x-3">
                   {[
-                    "Patient Name (required)",
-                    "Patient Email (required)",
-                    "Patient Age (required)",
-                    "Referral Source (required)",
-                    "Treatment/Reason (required)",
+                    "Category (required)",
+                    "Subcategory (required)",
+                    "Budget Amount (required)",
+                    "Period (required)",
+                    "Priority (required)",
+                    "Status (required)",
+                    "Start Date (required)",
+                    "End Date (required)",
                   ].map((req, i) => (
                     <div
                       key={i}
@@ -256,7 +263,7 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
                 isLoading={isPending}
                 isDisabled={!selectedFile || isPending}
               >
-                Import Referrals
+                Import Budget Items
               </Button>
             </ModalFooter>
           </>
@@ -266,4 +273,4 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
   );
 };
 
-export default BulkImportModal;
+export default ImportBudgetModal;

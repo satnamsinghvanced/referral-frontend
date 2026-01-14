@@ -24,14 +24,6 @@ const EmailCampaigns = () => {
     subHeading: "Create and manage email campaigns for your referral network.",
     buttons: [
       {
-        label: "Settings",
-        onClick: () => {},
-        icon: <FiSettings fontSize={15} />,
-        variant: "ghost" as const,
-        color: "default" as const,
-        className: "border-small",
-      },
-      {
         label: "New Campaign",
         onClick: () => setIsActionModalOpen(true),
         icon: <AiOutlinePlus fontSize={15} />,

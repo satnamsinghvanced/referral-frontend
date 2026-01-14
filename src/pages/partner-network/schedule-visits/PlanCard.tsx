@@ -5,6 +5,7 @@ import VisitStatusChip from "../../../components/chips/VisitStatusChip";
 import { useCopySchedulePlan } from "../../../hooks/usePartner";
 import { SchedulePlan } from "../../../types/partner";
 import { downloadJson } from "../../../utils/jsonDownloader";
+import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 
 const PlanCard: React.FC<{
   plan: SchedulePlan;
@@ -29,10 +30,9 @@ const PlanCard: React.FC<{
       break;
   }
 
-  const monthYear = new Date(plan.createdAt).toLocaleDateString("en-US", {
-    month: "long",
-    year: "numeric",
-  });
+  const fullRouteDateTime = `${plan.route.date.split("T")[0]}T${
+    plan.route.startTime
+  }`;
 
   const { mutate: copySchedulePlan } = useCopySchedulePlan();
 
@@ -68,13 +68,15 @@ const PlanCard: React.FC<{
             </div>
           </div>
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-xs text-gray-600">{monthYear}</span>
+            <span className="text-xs text-gray-600">
+              {formatDateToReadable(fullRouteDateTime as string, true)}
+            </span>
           </div>
-          {plan.planDetails.description && (
+          {/* {plan.planDetails.description && (
             <p className="text-xs text-gray-600 line-clamp-2">
               {plan.planDetails.description}
             </p>
-          )}
+          )} */}
         </div>
       </CardHeader>
 

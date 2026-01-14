@@ -11,8 +11,44 @@ const BudgetItemCard: React.FC<{
   onEdit: any;
   onDelete: any;
 }> = ({ item, onEdit, onDelete }) => {
-  const utilization = (item.spent / item.budget) * 100;
-  // const Icon = item.icon;
+  const budgetAmount = item.amount || 0;
+  const spentAmount = Number(item.spent) || 0;
+  const utilization = budgetAmount > 0 ? (spentAmount / budgetAmount) * 100 : 0;
+
+  const isSynced =
+    item.type && ["google", "meta", "tiktok"].includes(item.type);
+
+  const categoryTitle =
+    typeof item.category === "string"
+      ? item.category
+      : item.category?.category || "Unknown Category";
+
+  const subCategoryTitle =
+    typeof item.subCategory === "string"
+      ? item.subCategory
+      : item.subCategory?.subCategory || "Unknown Subcategory";
+
+  // Assign colors based on platforms if possible, or default
+  const getCategoryColor = (cat: string) => {
+    const lower = cat.toLowerCase();
+    // if (lower.includes("google")) return "#DB4437";
+    // if (lower.includes("meta") || lower.includes("facebook")) return "#4267B2";
+    // if (lower.includes("tiktok")) return "#000000";
+    return "#3b82f6"; // Default blue
+  };
+
+  const getPlatformName = (type?: string) => {
+    switch (type) {
+      case "google":
+        return "Google Ads";
+      case "meta":
+        return "Meta Ads";
+      case "tiktok":
+        return "TikTok Ads";
+      default:
+        return categoryTitle;
+    }
+  };
 
   return (
     <Card
@@ -21,85 +57,99 @@ const BudgetItemCard: React.FC<{
     >
       <CardHeader className="flex flex-col sm:flex-row justify-between items-start p-0 gap-2">
         <div className="flex items-center gap-2.5">
-          {/* <div
-            className="size-9 rounded-md flex items-center justify-center"
-            style={{ backgroundColor: item.iconBgColor }}
-          >
-            <Icon className="size-[18px]" style={{ color: item.iconColor }} />
-          </div> */}
           <span
             className={`size-4 rounded-sm`}
-            style={{ backgroundColor: item.marketingCategory.color }}
+            style={{
+              backgroundColor: getCategoryColor(
+                isSynced ? getPlatformName(item.type) : categoryTitle
+              ),
+            }}
           ></span>
 
           <div className="space-y-0.5">
-            <h4 className="text-sm font-medium">{item.subCategory.title}</h4>
+            <h4 className="text-sm font-medium">
+              {isSynced ? getPlatformName(item.type) : subCategoryTitle}
+            </h4>
             <p className="text-xs text-gray-500">
-              {item.marketingCategory.title}
+              {isSynced
+                ? `Synced with ${getPlatformName(item.type)}`
+                : categoryTitle}
             </p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <BudgetStatusChip status={item.status} />
-          <PriorityLevelChip level={item.priority} />
+          {!isSynced && (
+            <>
+              {item.status && <BudgetStatusChip status={item.status} />}
+              {item.priority && <PriorityLevelChip level={item.priority} />}
 
-          <div className="flex items-center gap-0.5">
-            <Button
-              isIconOnly
-              size="sm"
-              variant="light"
-              className="text-gray-500 hover:bg-gray-100"
-              onPress={() => onEdit(item)}
-            >
-              <FiEdit className="size-3.5" />
-            </Button>
+              <div className="flex items-center gap-0.5">
+                <Button
+                  isIconOnly
+                  size="sm"
+                  variant="light"
+                  className="text-gray-500 hover:bg-gray-100"
+                  onPress={() => onEdit(item)}
+                >
+                  <FiEdit className="size-3.5" />
+                </Button>
 
-            <Button
-              isIconOnly
-              size="sm"
-              variant="light"
-              color="danger"
-              onPress={() => onDelete(item._id)}
-            >
-              <FiTrash2 className="size-3.5" />
-            </Button>
-          </div>
+                <Button
+                  isIconOnly
+                  size="sm"
+                  variant="light"
+                  color="danger"
+                  onPress={() => onDelete(item._id)}
+                >
+                  <FiTrash2 className="size-3.5" />
+                </Button>
+              </div>
+            </>
+          )}
         </div>
       </CardHeader>
 
       <CardBody className="space-y-3 p-0 pt-4">
-        <p className="text-xs text-gray-600">{item.description}</p>
+        {item.description && (
+          <p className="text-xs text-gray-600">{item.description}</p>
+        )}
 
-        <div className="flex items-center gap-1.5 text-xs text-gray-500">
-          <FiCalendar className="size-3.5" />
-          <span>
-            {formatDateToReadable(item.startDate)}
-            {item.endDate ? ` - ${formatDateToReadable(item.endDate)}` : ""}
-          </span>
-        </div>
+        {!isSynced && (
+          <div className="flex items-center gap-1.5 text-xs text-gray-500">
+            <FiCalendar className="size-3.5" />
+            <span>
+              {item.startDate ? formatDateToReadable(item.startDate) : "N/A"}
+              {item.endDate
+                ? ` - ${formatDateToReadable(item.endDate)}`
+                : " - N/A"}
+            </span>
+          </div>
+        )}
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm pt-1">
           <div className="text-xs space-y-0.5">
             <p className="text-gray-500">Budget</p>
-            <p className="font-medium">${item.budget.toLocaleString()}</p>
+            <p className="font-medium">${budgetAmount.toLocaleString()}</p>
           </div>
 
           <div className="text-xs space-y-0.5">
             <p className="text-gray-500">Spent</p>
-            <p className="font-medium">${item.spent.toLocaleString()}</p>
+            <p className="font-medium">${spentAmount.toLocaleString()}</p>
           </div>
 
           <div className="text-xs space-y-0.5">
             <p className="text-gray-500">Remaining</p>
             <p className="font-medium">
-              ${(item.budget - item.spent).toLocaleString()}
+              ${(budgetAmount - spentAmount).toLocaleString()}
             </p>
           </div>
 
           <div className="text-xs space-y-0.5">
             <p className="text-gray-500">ROI</p>
-            <p className="font-medium text-yellow-600">{item.roi}%</p>
+            <p className="font-medium text-yellow-600">
+              {Number(item.roi).toFixed(2)}%
+            </p>
           </div>
         </div>
 

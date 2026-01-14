@@ -5,3 +5,6 @@ export const PASSWORD_REGEX =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
 export const NAME_REGEX = /^[a-zA-Z\s'.-]+$/;
 export const ZIP_CODE_REGEX = /^\d{5}$/;
+
+export const ODD_PAGINATION_LIMIT = 9;
+export const EVEN_PAGINATION_LIMIT = 10;

@@ -24,20 +24,13 @@ import {
   YAxis,
 } from "recharts";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
+import { LoadingState } from "../../components/common/LoadingState";
+import { useGoogleAnalytics } from "../../hooks/useAnalytics";
 
-const TrafficTrendsChart: React.FC = () => {
-  const data = [
-    { name: "Jan", users: 8500, sessions: 4200, pageviews: 3000 },
-    { name: "Feb", users: 9800, sessions: 4800, pageviews: 3300 },
-    { name: "Mar", users: 9000, sessions: 4500, pageviews: 3100 },
-    { name: "Apr", users: 10500, sessions: 5300, pageviews: 3500 },
-    { name: "May", users: 11000, sessions: 5600, pageviews: 3700 },
-    { name: "Jun", users: 12000, sessions: 6100, pageviews: 4000 },
-  ];
-
+const TrafficTrendsChart: React.FC<{ data: any[] }> = ({ data }) => {
   return (
     <div className="-ml-4 text-sm">
-      <ResponsiveContainer width="100%" aspect={1.85} maxHeight={380}>
+      <ResponsiveContainer width="100%" height={300}>
         <LineChart data={data}>
           <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
           <XAxis dataKey="name" />
@@ -75,12 +68,22 @@ const TrafficTrendsChart: React.FC = () => {
   );
 };
 
-const DeviceDonutChart: React.FC = () => {
-  const data = [
-    { name: "Desktop", value: 1890, color: "#0EA5E9" },
-    { name: "Mobile", value: 1650, color: "#F97316" },
-    { name: "Tablet", value: 380, color: "#1E40AF" },
-  ];
+const DeviceDonutChart: React.FC<{ data: any[] }> = ({ data: deviceData }) => {
+  const data = deviceData.map((d: any) => ({
+    name:
+      d.device === "desktop"
+        ? "Desktop"
+        : d.device === "mobile"
+        ? "Mobile"
+        : "Tablet",
+    value: d.users,
+    color:
+      d.device === "desktop"
+        ? "#0EA5E9"
+        : d.device === "mobile"
+        ? "#F97316"
+        : "#1E40AF",
+  }));
 
   const renderLabel = (props: any) => {
     const { cx, cy, midAngle, outerRadius, percent, name } =
@@ -107,7 +110,7 @@ const DeviceDonutChart: React.FC = () => {
 
   return (
     <div className="w-full h-[280px] flex items-center justify-center text-sm">
-      <ResponsiveContainer width="100%" aspect={1.85} maxHeight={380}>
+      <ResponsiveContainer width="100%" height={280}>
         <PieChart>
           <Pie
             data={data}
@@ -187,18 +190,22 @@ const ConversionGoalsItem: React.FC<ConversationItemProps> = ({
   price,
   percentage,
 }) => {
+  const safePercentage = typeof percentage === "number" ? percentage : 0;
+  const safeSessions = typeof sessions === "number" ? sessions : 0;
+  const safePrice = typeof price === "number" ? price : 0;
+
   return (
     <div className="flex items-center justify-between bg-gray-50 border border-gray-100 rounded-lg p-3">
       <div className="space-y-0.5">
         <h5 className="text-sm font-medium !font-sans">{source}</h5>
         <p className="text-xs text-gray-600">
-          {percentage.toFixed(1)}% conversion rate
+          {safePercentage.toFixed(1)}% conversion rate
         </p>
       </div>
       <div className="text-right space-y-0.5">
-        <p className="text-sm font-semibold">{sessions.toLocaleString()}</p>
+        <p className="text-sm font-semibold">{safeSessions.toLocaleString()}</p>
         <p className="text-xs text-gray-500">
-          <span className="text-green-700">${price.toLocaleString()}</span>
+          <span className="text-green-700">${safePrice.toLocaleString()}</span>
         </p>
       </div>
     </div>
@@ -229,99 +236,36 @@ const DeviceMetric: React.FC<DeviceMetricProps> = ({
 );
 
 export const GoogleAnalyticsDashboard: React.FC = () => {
-  const trafficSources = [
-    {
-      source: "Organic Search",
-      sessions: 2450,
-      users: 1580,
-      percentage: 40.3,
-    },
-    {
-      source: "Direct",
-      sessions: 1520,
-      users: 980,
-      percentage: 25,
-    },
-    {
-      source: "Social Media",
-      sessions: 1050,
-      users: 670,
-      percentage: 17.1,
-    },
-    {
-      source: "Paid Search",
-      sessions: 720,
-      users: 450,
-      percentage: 11.5,
-    },
-    {
-      source: "Referral",
-      sessions: 380,
-      users: 240,
-      percentage: 6.1,
-    },
-  ];
+  const { data, isLoading } = useGoogleAnalytics();
 
-  const conversionGoals = [
-    {
-      source: "Contact Form",
-      sessions: 156,
-      price: 1580,
-      percentage: 4.2,
-    },
-    {
-      source: "Direct",
-      sessions: 1520,
-      price: 980,
-      percentage: 25.0,
-    },
-    {
-      source: "Social",
-      sessions: 1020,
-      price: 650,
-      percentage: 16.6,
-    },
-    {
-      source: "Referral",
-      sessions: 650,
-      price: 410,
-      percentage: 10.5,
-    },
-  ];
-
-  const deviceMetrics = [
-    {
-      device: "Desktop",
-      users: 1890,
-      percentage: 48.2,
-      icon: <LuMonitor className="w-[21px] h-[21px]" />,
-      color: "rgb(14, 165, 233)",
-    },
-    {
-      device: "Mobile",
-      users: 1650,
-      percentage: 42.1,
-      icon: <LuSmartphone />,
-      color: "rgb(249, 115, 22)",
-    },
-    {
-      device: "Tablet",
-      users: 380,
-      percentage: 9.7,
-      icon: <LuMonitor />,
-      color: "rgb(30, 64, 175)",
-    },
-  ];
+  const trafficSources = data?.trafficSources?.data || [];
+  const conversionGoals = data?.conversions || [];
+  const deviceMetrics = (data?.deviceAnalytics || []).map((d: any) => ({
+    device: d.device === "desktop" ? "Desktop" : "Mobile",
+    users: d.users,
+    percentage: 0,
+    icon:
+      d.device === "desktop" ? (
+        <LuMonitor className="w-[21px] h-[21px]" />
+      ) : (
+        <LuSmartphone />
+      ),
+    color: d.device === "desktop" ? "rgb(14, 165, 233)" : "rgb(249, 115, 22)",
+  }));
 
   const STAT_CARD_DATA = [
     {
       icon: <LuUsers className="text-blue-500" />,
       heading: "Total Users",
-      value: "3,920",
+      value: isLoading
+        ? "..."
+        : data?.donutData?.users?.totalUsers?.toLocaleString() || "0",
       subheading: (
         <span className="text-green-600 flex items-center">
           <LuTrendingUp className="h-4 w-4 mr-1 text-green-600" />
-          +6.5% vs last month
+          {isLoading
+            ? "..."
+            : `${data?.donutData?.users?.growthPercent || 0} vs last month`}
         </span>
       ),
       subValueClass: "text-green-600",
@@ -329,80 +273,57 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
     {
       icon: <LuEye className="text-blue-500" />,
       heading: "Page Views",
-      value: "12,450",
+      value: isLoading
+        ? "..."
+        : data?.donutData?.pageViews?.totalPageViews?.toLocaleString() || "0",
       subheading: (
         <span className="text-green-600 flex items-center">
           <LuTrendingUp className="h-4 w-4 mr-1 text-green-600" />
-          +8.1% vs last month
+          {isLoading
+            ? "..."
+            : `${data?.donutData?.pageViews?.growthPercent || 0} vs last month`}
         </span>
       ),
     },
     {
       icon: <LuClock className="text-orange-500" />,
-      heading: "Avg. Session Duration",
-      value: "2:47",
+      heading: "Total Sessions",
+      value: isLoading
+        ? "..."
+        : data?.donutData?.sessions?.totalSessions?.toLocaleString() || "0",
       subheading: (
         <span className="text-green-600 flex items-center">
           <LuTrendingUp className="h-4 w-4 mr-1 text-green-600" />
-          +12s vs last month
+          {isLoading
+            ? "..."
+            : `${data?.donutData?.sessions?.growthPercent || 0} vs last month`}
         </span>
       ),
     },
     {
       icon: <LuMousePointer className="text-purple-600" />,
       heading: "Bounce Rate",
-      value: "31%",
+      value: isLoading
+        ? "..."
+        : data?.donutData?.bounceRate?.totalBounceRate?.toLocaleString() || "0",
       subheading: (
         <span className="text-green-700 flex items-center">
           <LuTrendingUp className="h-4 w-4 mr-1 text-green-600" />
-          -11% vs last month
+          {isLoading
+            ? "..."
+            : `${
+                data?.donutData?.bounceRate?.growthPercent || 0
+              } vs last month`}
         </span>
       ),
     },
   ];
 
-  const TOP_PAGES = [
-    {
-      page: "/home",
-      views: "3,450",
-      unique: "2,890",
-      time: "2:45",
-      bounce: "28%",
-      good: true,
-    },
-    {
-      page: "/services/orthodontics",
-      views: "2,890",
-      unique: "2,340",
-      time: "3:12",
-      bounce: "22%",
-      good: true,
-    },
-    {
-      page: "/about",
-      views: "1,980",
-      unique: "1,650",
-      time: "2:18",
-      bounce: "35%",
-      good: false,
-    },
-    {
-      page: "/contact",
-      views: "1,560",
-      unique: "1,320",
-      time: "1:56",
-      bounce: "45%",
-      good: false,
-    },
-    {
-      page: "/blog/braces-guide",
-      views: "1,240",
-      unique: "1,050",
-      time: "4:23",
-      bounce: "18%",
-      good: true,
-    },
-  ];
+  const TOP_PAGES = data?.topPages || [];
+
+  if (isLoading) {
+    return <LoadingState />;
+  }
 
   return (
     <div className="space-y-4 md:space-y-5">
@@ -436,7 +357,7 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
             </h4>
           </CardHeader>
           <CardBody className="p-0">
-            <TrafficTrendsChart />
+            <TrafficTrendsChart data={data?.trafficTrends || []} />
           </CardBody>
         </Card>
 
@@ -448,7 +369,7 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
             </h4>
           </CardHeader>
           <CardBody className="p-0 space-y-4">
-            <DeviceDonutChart />
+            <DeviceDonutChart data={data?.deviceAnalytics || []} />
             <div className="grid grid-cols-3 gap-4 text-center">
               {deviceMetrics.map((metric) => (
                 <DeviceMetric key={metric.device} {...metric} />
@@ -467,8 +388,12 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
             </h4>
           </CardHeader>
           <CardBody className="p-0 space-y-3">
-            {trafficSources.map((source) => (
-              <TrafficSourceItem key={source.source} {...source} />
+            {trafficSources.map((source: any) => (
+              <TrafficSourceItem
+                key={source.source}
+                {...source}
+                users={source.sessions}
+              />
             ))}
           </CardBody>
         </Card>
@@ -477,12 +402,18 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
           <CardHeader className="p-0 pb-4">
             <h4 className="text-sm font-medium flex items-center gap-2">
               <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
-              Conversion Goals
+              Key Conversion Events
             </h4>
           </CardHeader>
           <CardBody className="p-0 space-y-3">
-            {conversionGoals.map((source: any) => (
-              <ConversionGoalsItem key={source.source} {...source} />
+            {conversionGoals.map((goal: any, index: number) => (
+              <ConversionGoalsItem
+                key={goal.event || `goal-${index}`}
+                source={goal.event || "Unknown"}
+                sessions={goal.count || 0}
+                price={0}
+                percentage={0}
+              />
             ))}
           </CardBody>
         </Card>
@@ -520,30 +451,33 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
             </thead>
 
             <tbody>
-              {TOP_PAGES.map((p, index) => (
+              {TOP_PAGES.map((p: any, index) => (
                 <tr
                   key={index}
                   className="border-b border-gray-100 hover:bg-gray-50"
                 >
                   <td className="py-3 text-xs not-last:px-2 font-medium text-gray-900">
-                    {p.page}
+                    {p.path}
                   </td>
                   <td className="py-3 text-xs px-2 text-right text-gray-700">
                     {p.views}
                   </td>
                   <td className="py-3 text-xs px-2 text-right text-gray-700">
-                    {p.unique}
+                    {p.users}
                   </td>
                   <td className="py-3 text-xs not-only-of-type:px-2 text-right text-gray-700">
-                    {p.time}
+                    {Math.floor(p.avgSessionDuration / 60)}:
+                    {String(p.avgSessionDuration % 60).padStart(2, "0")}
                   </td>
                   <td className="py-3 text-xs px-2 text-right">
                     <span
                       className={`font-medium ${
-                        p.good ? "text-emerald-600" : "text-orange-600"
+                        p.bounceRate < 30
+                          ? "text-emerald-600"
+                          : "text-orange-600"
                       }`}
                     >
-                      {p.bounce}
+                      {p.bounceRate}%
                     </span>
                   </td>
                 </tr>

@@ -1,4 +1,5 @@
 import {
+  addToast,
   Button,
   Card,
   CardBody,
@@ -35,6 +36,10 @@ interface GalleryMediaUploadModalProps {
   onClose: () => void;
   onSelect: (media: Media[]) => void;
   preselectedMedia?: Media[];
+  allowedImageFormats?: string[];
+  maxImageSize?: number;
+  allowedVideoFormats?: string[];
+  maxVideoSize?: number;
 }
 
 function GalleryMediaUploadModal({
@@ -42,6 +47,10 @@ function GalleryMediaUploadModal({
   onClose,
   onSelect,
   preselectedMedia = [],
+  allowedImageFormats,
+  maxImageSize,
+  allowedVideoFormats,
+  maxVideoSize,
 }: GalleryMediaUploadModalProps) {
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [breadcrumbPath, setBreadcrumbPath] = useState<
@@ -145,6 +154,49 @@ function GalleryMediaUploadModal({
 
   const handleMediaSelect = (isSelected: boolean, media: Media) => {
     if (isSelected) {
+      const isImage = media.type.startsWith("image/");
+      const isVideo = media.type.startsWith("video/");
+
+      if (isImage) {
+        if (allowedImageFormats && !allowedImageFormats.includes(media.type)) {
+          addToast({
+            title: "Invalid Format",
+            description: `Image format ${media.type
+              .split("/")[1]
+              ?.toUpperCase()} is not supported for selected platforms.`,
+            color: "warning",
+          });
+          return;
+        }
+        if (maxImageSize && media.size > maxImageSize) {
+          addToast({
+            title: "File Too Large",
+            description: `This image exceeds the size limit for selected platforms.`,
+            color: "warning",
+          });
+          return;
+        }
+      } else if (isVideo) {
+        if (allowedVideoFormats && !allowedVideoFormats.includes(media.type)) {
+          addToast({
+            title: "Invalid Format",
+            description: `Video format ${media.type
+              .split("/")[1]
+              ?.toUpperCase()} is not supported for selected platforms.`,
+            color: "warning",
+          });
+          return;
+        }
+        if (maxVideoSize && media.size > maxVideoSize) {
+          addToast({
+            title: "File Too Large",
+            description: `This video exceeds the size limit for selected platforms.`,
+            color: "warning",
+          });
+          return;
+        }
+      }
+
       setSelectedMediaIds((prev) => [...prev, media._id]);
       setSelectedMediaItems((prev) => [...prev, media]);
     } else {
@@ -385,6 +437,10 @@ function GalleryMediaUploadModal({
         onClose={() => setIsUploadMediaModalOpen(false)}
         folderId={currentFolderId}
         folderName={currentFolderName}
+        allowedImageFormats={allowedImageFormats}
+        maxImageSize={maxImageSize}
+        allowedVideoFormats={allowedVideoFormats}
+        maxVideoSize={maxVideoSize}
       />
     </Modal>
   );

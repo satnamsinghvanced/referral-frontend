@@ -1,55 +1,72 @@
 import { Card, CardBody, CardHeader, Chip } from "@heroui/react";
+import { useMemo } from "react";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
-
-const STAT_CARD_DATA = [
-  {
-    heading: "Total Reach",
-    value: "3,056",
-    subheading: "All time",
-  },
-  {
-    heading: "Total Impressions",
-    value: "5,460",
-    subheading: "All time",
-  },
-  {
-    heading: "Avg. CTR",
-    value: "4.1%",
-    subheading: "Average rate",
-  },
-  {
-    heading: "Total Engagement",
-    value: 160,
-    subheading: "All interactions",
-  },
-];
-
-const PLATFORM_BREAKDOWN_DATA = [
-  {
-    name: "Facebook",
-    posts: 3,
-    color: "bg-blue-500",
-    metrics: { likes: 107, comments: 30, shares: 23, views: 546 },
-  },
-  {
-    name: "Instagram",
-    posts: 2,
-    color: "bg-pink-500",
-    metrics: { likes: 87, comments: 20, shares: 15, views: 490 },
-  },
-  {
-    name: "LinkedIn",
-    posts: 2,
-    color: "bg-primary-500",
-    metrics: { likes: 124, comments: 48, shares: 35, views: "1,200" },
-  },
-];
+import { LoadingState } from "../../components/common/LoadingState";
+import { usePostsAnalytics } from "../../hooks/useSocial";
 
 const Analytics = () => {
+  const { data, isLoading } = usePostsAnalytics();
+
+  const statCardData = useMemo(
+    () => [
+      {
+        heading: "Total Reach",
+        value: data?.stats?.totalReach?.toLocaleString() || "0",
+        subheading: "All time",
+      },
+      {
+        heading: "Total Impressions",
+        value: data?.stats?.totalImpressions?.toLocaleString() || "0",
+        subheading: "All time",
+      },
+      {
+        heading: "Avg. CTR",
+        value: data?.stats?.avgCTR ? `${data.stats.avgCTR}%` : "0%",
+        subheading: "Average rate",
+      },
+      {
+        heading: "Total Engagement",
+        value: data?.stats?.totalEngagement?.toLocaleString() || "0",
+        subheading: "All interactions",
+      },
+    ],
+    [data]
+  );
+
+  const platformBreakdown = useMemo(() => {
+    if (!data?.platformPerformance) return [];
+    return Object.entries(data.platformPerformance)
+      .filter(([_, stats]) => stats.connected)
+      .map(([name, stats]) => ({
+        name: name.charAt(0).toUpperCase() + name.slice(1),
+        posts: stats.posts || 0,
+        color:
+          {
+            facebook: "bg-blue-500",
+            instagram: "bg-pink-500",
+            linkedin: "bg-primary-500",
+            youtube: "bg-red-500",
+          }[name.toLowerCase()] || "bg-gray-500",
+        metrics: {
+          likes: stats.likes || 0,
+          comments: stats.comments || 0,
+          shares: stats.shares || 0,
+          views: stats.views || 0,
+        },
+      }));
+  }, [data]);
+
+  if (isLoading)
+    return (
+      <div className="min-h-[250px] flex items-center justify-center">
+        <LoadingState />
+      </div>
+    );
+
   return (
     <div className="flex flex-col items-center gap-5">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full">
-        {STAT_CARD_DATA.map((data, i) => (
+        {statCardData.map((data, i) => (
           <MiniStatsCard key={i} cardData={data} />
         ))}
       </div>
@@ -60,8 +77,7 @@ const Analytics = () => {
           <h3 className="text-sm">Platform Performance Breakdown</h3>
         </CardHeader>
         <CardBody className="p-0 space-y-3">
-          {/* Facebook */}
-          {PLATFORM_BREAKDOWN_DATA.map((platform, i) => (
+          {platformBreakdown.map((platform, i) => (
             <Card
               key={platform.name}
               className="bg-background rounded-xl shadow-none p-4 w-full border border-primary/15"
@@ -69,7 +85,6 @@ const Analytics = () => {
               <div className="">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    {/* Color Block and Name */}
                     <div
                       className={`inline-block size-4 font-sans ${platform.color} rounded-sm`}
                     ></div>
@@ -86,10 +101,9 @@ const Analytics = () => {
                 </div>
 
                 <div className="text-sm text-gray-600 flex flex-wrap justify-around gap-x-5 mt-2">
-                  {/* Metrics Grid */}
                   <div className="flex flex-col items-center">
                     <span className="text-sm font-medium text-sky-400">
-                      {platform.metrics.likes}
+                      {platform.metrics.likes.toLocaleString()}
                     </span>
                     <span className="text-[11px] dark:text-gray-400">
                       Likes
@@ -97,7 +111,7 @@ const Analytics = () => {
                   </div>
                   <div className="flex flex-col items-center">
                     <span className="text-sm font-medium text-sky-400">
-                      {platform.metrics.comments}
+                      {platform.metrics.comments.toLocaleString()}
                     </span>
                     <span className="text-[11px] dark:text-gray-400">
                       Comments
@@ -105,7 +119,7 @@ const Analytics = () => {
                   </div>
                   <div className="flex flex-col items-center">
                     <span className="text-sm font-medium text-sky-400">
-                      {platform.metrics.shares}
+                      {platform.metrics.shares.toLocaleString()}
                     </span>
                     <span className="text-[11px] dark:text-gray-400">
                       Shares
@@ -113,7 +127,7 @@ const Analytics = () => {
                   </div>
                   <div className="flex flex-col items-center -translate-x-1">
                     <span className="text-sm font-medium text-sky-400">
-                      {platform.metrics.views}
+                      {platform.metrics.views.toLocaleString()}
                     </span>
                     <span className="text-[11px] dark:text-gray-400">
                       Views

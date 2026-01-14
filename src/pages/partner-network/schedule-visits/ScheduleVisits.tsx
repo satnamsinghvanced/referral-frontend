@@ -20,6 +20,7 @@ import PlanCard from "./PlanCard";
 import { ScheduleVisitsModal } from "./schedule-visit-modal/ScheduleVisitsModal";
 import ScheduleVisitStatusModal from "./ScheduleVisitStatusModal";
 import ViewScheduledVisitModal from "./ViewScheduledVisitModal";
+import { ODD_PAGINATION_LIMIT } from "../../../consts/consts";
 
 // const StatsGrid = ({ stats }: any) => {
 //   const statData = [
@@ -106,10 +107,10 @@ export default function ScheduleVisits({
 
   const [filters, setFilters] = useState<GetSchedulePlansQuery>({
     page: 1,
-    limit: 9,
+    limit: ODD_PAGINATION_LIMIT,
     search: "",
     status: "all",
-    order: "desc",
+    order: "asc",
     sortBy: "month",
   });
 
@@ -149,7 +150,7 @@ export default function ScheduleVisits({
   const PlanListContent = () => {
     if (isLoading) {
       return (
-        <div className="col-span-full p-5 border border-primary/15 rounded-xl bg-background">
+        <div className="col-span-full flex items-center justify-center">
           <LoadingState />
         </div>
       );
@@ -381,11 +382,13 @@ export default function ScheduleVisits({
                   isIconOnly
                 />
               </div>
-              {schedulePlans.length > 10 && (
+              {pagination && pagination.totalPages > 1 && (
                 <p className="text-xs text-gray-600">
-                  Showing {schedulePlans.length * (filters.page - 1) + 1} -{" "}
-                  {schedulePlans.length * filters.page} of{" "}
-                  {pagination?.totalData} plans
+                  Showing {filters.limit * (filters.page - 1) + 1} -{" "}
+                  {filters.limit * filters.page > pagination?.totalData
+                    ? pagination?.totalData
+                    : filters.limit * filters.page}{" "}
+                  of {pagination?.totalData} plans
                 </p>
               )}
             </div>

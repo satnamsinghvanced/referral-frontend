@@ -3,8 +3,8 @@ export interface NFCDeskCard {
   userId: string;
   type: string;
   name: string;
-  nfcId: string;
-  totalTab: number;
+  Id: string;
+  totalTap: number;
   totalReview: number;
   locations: { _id: string; name: string }[];
   teamMember: string | null;
@@ -14,6 +14,7 @@ export interface NFCDeskCard {
   createdAt: string;
   updatedAt: string;
   url: string;
+  conversionRate: number;
 }
 
 export interface CreateNFCDeskPayload {

@@ -2,6 +2,9 @@ import {
   AuthIntegrationResponse,
   GetCredentialsResponse,
   PlatformAuthParams,
+  PostAnalyticsResponse,
+  RecentPostsResponse,
+  SocialOverviewResponse,
 } from "../types/social";
 import axios from "./axios";
 
@@ -36,5 +39,35 @@ export const initiateAuthIntegration = async ({
     redirectUri,
   });
 
+  return response.data;
+};
+
+export const fetchSocialOverview =
+  async (): Promise<SocialOverviewResponse> => {
+    const response = await axios.get("/social-media-post/");
+    return response.data;
+  };
+
+export const fetchPostsAnalytics = async (): Promise<PostAnalyticsResponse> => {
+  const response = await axios.get("/social-media-post/posts-analytics");
+  return response.data;
+};
+
+export const fetchRecentPosts = async (
+  page: number = 1,
+  limit: number = 10
+): Promise<RecentPostsResponse> => {
+  const response = await axios.get("/social-media-post/recent-posts", {
+    params: { page, limit },
+  });
+  return response.data;
+};
+
+export const createSocialPost = async (payload: FormData): Promise<any> => {
+  const response = await axios.post("/social-media-post/", payload, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
   return response.data;
 };
