@@ -26,10 +26,9 @@ import MiniStatsCard from "../../components/cards/MiniStatsCard";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import { LoadingState } from "../../components/common/LoadingState";
 import { useGeneralAnalytics } from "../../hooks/useAnalytics";
-import GoogleAnalytics from "./GoogleAnalytics";
 import GoogleAds from "./GoogleAds";
+import GoogleAnalytics from "./GoogleAnalytics";
 import MetaAds from "./MetaAds";
-import TiktokAds from "./TiktokAds";
 
 const Analytics: React.FC = () => {
   const { data, isLoading } = useGeneralAnalytics();
@@ -249,7 +248,7 @@ const Analytics: React.FC = () => {
           <GoogleAnalytics />
           <GoogleAds />
           <MetaAds />
-          <TiktokAds />
+          {/* <TiktokAds /> */}
         </div>
       </div>
     </ComponentContainer>

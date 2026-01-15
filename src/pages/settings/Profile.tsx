@@ -108,13 +108,11 @@ const Profile = () => {
   const formik = useFormik<ProfileFormValues>({
     enableReinitialize: true,
     initialValues: {
-      firstName: fetchedUser?.firstName || "Dr. Sarah",
-      lastName: fetchedUser?.lastName || "Martinez",
-      email: fetchedUser?.email || "sarah.martinez@tangeloortho.com",
-      phone: fetchedUser?.phone
-        ? formatPhoneNumber(fetchedUser.phone)
-        : "(123) 456-7890",
-      practiceName: fetchedUser?.practiceName || "Tangelo Orthodontics",
+      firstName: fetchedUser?.firstName || "",
+      lastName: fetchedUser?.lastName || "",
+      email: fetchedUser?.email || "",
+      phone: fetchedUser?.phone ? formatPhoneNumber(fetchedUser.phone) : "",
+      practiceName: fetchedUser?.practiceName || "",
       medicalSpecialty: fetchedUser?.medicalSpecialty || "",
       image: fetchedUser?.image,
     },

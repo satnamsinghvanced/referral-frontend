@@ -371,12 +371,14 @@ const MarketingBudget = () => {
                       />
                       <Bar
                         dataKey="budget"
+                        name="Budget"
                         barSize={40}
                         fill="#3b82f6"
                         isAnimationActive
                       />
                       <Bar
                         dataKey="spend"
+                        name="Spend"
                         barSize={40}
                         fill="#10b981"
                         isAnimationActive

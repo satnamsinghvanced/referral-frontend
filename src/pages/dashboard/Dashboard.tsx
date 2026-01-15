@@ -1,5 +1,5 @@
 import { Button } from "@heroui/react";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { FaRegStar } from "react-icons/fa";
 import { HiOutlineChartBar, HiOutlineStar } from "react-icons/hi";
 import { LuCalendar, LuTarget, LuUsers } from "react-icons/lu";
@@ -89,6 +89,12 @@ const QUICK_ACTIONS_COLOR_CLASSES: Record<
 
 const Dashboard = () => {
   const { startTour } = useTour();
+
+  useEffect(() => {
+    if ("Notification" in window && Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  }, []);
 
   const navigate = useNavigate();
 
