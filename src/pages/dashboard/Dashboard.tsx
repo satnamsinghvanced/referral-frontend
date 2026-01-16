@@ -2,7 +2,13 @@ import { Button } from "@heroui/react";
 import { useEffect, useMemo } from "react";
 import { FaRegStar } from "react-icons/fa";
 import { HiOutlineChartBar, HiOutlineStar } from "react-icons/hi";
-import { LuCalendar, LuTarget, LuUsers } from "react-icons/lu";
+import {
+  LuCalendar,
+  LuTarget,
+  LuTrendingDown,
+  LuTrendingUp,
+  LuUsers,
+} from "react-icons/lu";
 import { TbSpeakerphone } from "react-icons/tb";
 import { Link, useNavigate } from "react-router";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
@@ -98,30 +104,105 @@ const Dashboard = () => {
 
   const { data: dashboard } = useDashboard();
 
+  const renderTrend = (
+    status: string,
+    percentage: number,
+    label: string = "from last month"
+  ) => {
+    const isIncrement = status === "increment" || percentage > 0;
+    const isDecrement = status === "decrement" || percentage < 0; // Assuming 'decrement' is the status for down
+
+    const colorClass = isIncrement
+      ? "text-emerald-600 dark:text-emerald-400"
+      : isDecrement
+      ? "text-red-600 dark:text-red-400"
+      : "text-gray-500";
+
+    const Icon = isIncrement
+      ? LuTrendingUp
+      : isDecrement
+      ? LuTrendingDown
+      : null;
+
+    return (
+      <div className={`flex items-center gap-1 text-xs ${colorClass}`}>
+        {Icon && <Icon className="text-sm" />}
+        <span className="font-medium">
+          {percentage > 0 ? "+" : ""}
+          {percentage}%
+        </span>
+        <span className="text-gray-500 dark:text-foreground/60">{label}</span>
+      </div>
+    );
+  };
+
+  const renderReviewTrend = (status: string, avgRating: number) => {
+    const isIncrement = status === "increment";
+    const colorClass = isIncrement
+      ? "text-emerald-600 dark:text-emerald-400"
+      : status === "decrement"
+      ? "text-red-600 dark:text-red-400"
+      : "text-yellow-600 dark:text-yellow-400"; // Neutral/steady
+
+    const Icon =
+      status === "increment"
+        ? LuTrendingUp
+        : status === "decrement"
+        ? LuTrendingDown
+        : null;
+
+    return (
+      <div className={`flex items-center gap-1 text-xs ${colorClass}`}>
+        {Icon && <Icon className="text-sm" />}
+        <span className="font-medium">{avgRating} avg rating</span>
+      </div>
+    );
+  };
+
   const STAT_CARD_DATA = useMemo<StatCard[]>(
     () => [
       {
         icon: <LuUsers className="text-purple-600 dark:text-purple-400" />,
         heading: "Total Referrals",
-        value: dashboard?.totalReferrals as number,
+        value: dashboard?.totalReferrals?.total || 0,
+        subheading: renderTrend(
+          dashboard?.totalReferrals?.status || "",
+          dashboard?.totalReferrals?.percentage || 0
+        ),
         onClick: () => navigate("/referrals"),
       },
       {
         icon: <TbSpeakerphone className="text-green-600 dark:text-green-400" />,
         heading: "Active Campaigns",
-        value: "0",
+        value: dashboard?.activeCampaigns?.totalActiveCampaigns || 0,
+        subheading: renderTrend(
+          dashboard?.activeCampaigns?.status || "",
+          dashboard?.activeCampaigns?.percentage || 0,
+          "this month"
+        ), // Custom label based on image
         onClick: () => navigate("/email-campaigns"),
       },
       {
         icon: <FaRegStar className="text-yellow-600 dark:text-yellow-400" />,
         heading: "Reviews",
-        value: "0",
+        value: dashboard?.reviews?.totalReviews
+          ? formatNumberWithCommas(dashboard.reviews.totalReviews)
+          : "0",
+        subheading: renderReviewTrend(
+          dashboard?.reviews?.status || "",
+          dashboard?.reviews?.avgRating || 0
+        ),
         onClick: () => navigate("/reviews"),
       },
       {
         icon: <LuTarget className="text-rose-600 dark:text-rose-400" />,
         heading: "Total Value",
-        value: `$${formatNumberWithCommas(dashboard?.totalValue as number)}`,
+        value: `$${formatNumberWithCommas(dashboard?.totalValue?.total || 0)}`,
+        subheading: renderTrend(
+          dashboard?.totalValue?.status || "",
+          dashboard?.totalValue?.percentage || 0,
+          "vs last month"
+        ),
         onClick: () => navigate("/reports"),
       },
     ],
@@ -296,7 +377,7 @@ const Dashboard = () => {
                     Total Scans
                   </span>
                   <span className="bg-orange-100 dark:bg-orange-900/20 text-orange-800 dark:text-orange-300 h-6 p-0 px-2 flex items-center justify-center rounded text-xs font-medium">
-                    {dashboard?.nfcQrData?.totalScansToday || 0}
+                    {dashboard?.nfcQrData?.totalScans || 0}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">

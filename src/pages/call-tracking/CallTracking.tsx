@@ -64,14 +64,16 @@ const CallTracking = () => {
     {
       icon: <FiPhone className="text-foreground/60" />,
       heading: "Total Calls",
-      value: data?.stats?.totalCalls || 0,
-      subheading: "All time calls",
+      value: data?.stats?.totalCalls?.value || 0,
+      subheading: `${
+        data?.stats?.totalCalls?.completedCalls || 0
+      } completed calls`,
     },
     {
       icon: <FiPhoneCall className="text-foreground/60" />,
       heading: "Answer Rate",
-      value: data?.stats?.answerRate || "0%",
-      subheading: `${data?.stats?.missedCalls || 0} missed calls`,
+      value: data?.stats?.answerRate?.value || "0%",
+      subheading: `${data?.stats?.answerRate?.missedCalls || 0} missed calls`,
     },
     {
       icon: <LuClock className="text-foreground/60" />,

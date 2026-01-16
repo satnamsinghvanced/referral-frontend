@@ -77,8 +77,8 @@ const SignIn = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-950 dark:to-background flex items-center justify-center p-4">
-      <Card className="w-full max-w-md shadow-2xl dark:shadow-primary/5 border border-foreground/5/50 bg-white/80 bg-content1 backdrop-blur-xl">
-        <CardBody className="p-8 sm:p-10">
+      <Card className="w-full max-w-md shadow-xl border border-foreground/10 bg-content1 backdrop-blur-xl">
+        <CardBody className="p-6 sm:p-8">
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold mb-2 text-foreground">
               Welcome Back

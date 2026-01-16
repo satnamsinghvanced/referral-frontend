@@ -8,10 +8,16 @@ export interface TwilioContact {
 }
 
 export interface CallStats {
-  totalCalls: number;
+  totalCalls: {
+    value: number;
+    completedCalls: number;
+  };
   completedCalls: number;
   missedCalls: number;
-  answerRate: string;
+  answerRate: {
+    value: string;
+    missedCalls: number;
+  };
   avgDuration: string;
   recordings: number;
   followUps: number;
