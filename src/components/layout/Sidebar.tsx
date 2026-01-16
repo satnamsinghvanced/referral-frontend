@@ -204,7 +204,9 @@ const Sidebar = ({
       {/* Mobile overlay when sidebar open in mobile/mini mode */}
       <div
         className={`${
-          isMiniSidebarOpen ? "bg-foreground/30 fixed inset-0 z-41" : "hidden"
+          isMiniSidebarOpen
+            ? "bg-foreground/30 dark:bg-background/70 fixed inset-0 z-41"
+            : "hidden"
         } lg:hidden`}
         onClick={onCloseSidebar}
         aria-hidden

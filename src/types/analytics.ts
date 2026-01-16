@@ -16,21 +16,39 @@ export interface WeeklyActivity {
   reviews: number;
 }
 
-export interface GrowthMetric {
-  totalReferrals?: number;
-  totalAppointments?: number;
-  totalRevenue?: number;
-  growthPercent: string | number;
+export interface AnalyticsStatBase {
+  percentage: number;
+  status: "increment" | "decrement";
+}
+
+export interface ReferralsStat extends AnalyticsStatBase {
+  totalReferrals: number;
+}
+
+export interface AppointmentsStat extends AnalyticsStatBase {
+  totalAppointments: number;
+}
+
+export interface RevenueStat extends AnalyticsStatBase {
+  totalRevenue: number;
+}
+
+export interface ConversionStat extends AnalyticsStatBase {
+  conversionRate: number;
+}
+
+export interface GeneralAnalyticsStats {
+  monthlyReferrals: ReferralsStat;
+  appointments: AppointmentsStat;
+  revenue: RevenueStat;
+  conversionRate: ConversionStat;
 }
 
 export interface GeneralAnalyticsResponse {
+  stats: GeneralAnalyticsStats;
   referralSources: ReferralSource[];
   performanceData: PerformanceData[];
   weeklyActivity: WeeklyActivity[];
-  monthlyReferrals: GrowthMetric;
-  appointments: GrowthMetric;
-  revenue: GrowthMetric;
-  conversionRate: string;
 }
 
 // --- Google Analytics ---

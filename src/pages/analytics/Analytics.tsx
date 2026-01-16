@@ -4,6 +4,7 @@ import {
   LuCalendar,
   LuChartColumn,
   LuTarget,
+  LuTrendingDown,
   LuTrendingUp,
   LuUsers,
 } from "react-icons/lu";
@@ -39,31 +40,56 @@ const Analytics: React.FC = () => {
       "Track your practice performance and referral trends with detailed insights.",
   };
 
+  const renderTrend = (
+    status: string,
+    percentage: number,
+    label: string = "from last month"
+  ) => {
+    const isIncrement = status === "increment" || percentage > 0;
+    const isDecrement = status === "decrement" || percentage < 0;
+
+    const colorClass = isIncrement
+      ? "text-green-600 dark:text-emerald-400"
+      : isDecrement
+      ? "text-red-600 dark:text-red-400"
+      : "text-gray-500";
+
+    const Icon = isIncrement
+      ? LuTrendingUp
+      : isDecrement
+      ? LuTrendingDown
+      : null;
+
+    return (
+      <span className={`${colorClass} flex items-center`}>
+        {Icon && <Icon className="h-4 w-4 mr-1" />}
+        {isLoading ? "..." : `${percentage}% ${label}`}
+      </span>
+    );
+  };
+
   const STAT_CARD_DATA = [
     {
       icon: <LuUsers className="text-blue-500 dark:text-blue-400" />,
       heading: "Monthly Referrals",
       value: isLoading
         ? "..."
-        : data?.monthlyReferrals?.totalReferrals?.toString() || "0",
-      subheading: (
-        <span className="text-green-600 dark:text-green-400 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1" />
-          {isLoading
-            ? "..."
-            : `${data?.monthlyReferrals?.growthPercent || 0}% from last month`}
-        </span>
+        : data?.stats?.monthlyReferrals?.totalReferrals?.toString() || "0",
+      subheading: renderTrend(
+        data?.stats?.monthlyReferrals?.status || "",
+        data?.stats?.monthlyReferrals?.percentage || 0
       ),
     },
     {
       icon: <LuTarget className="text-orange-500 dark:text-orange-400" />,
       heading: "Conversion Rate",
-      value: isLoading ? "..." : `${data?.conversionRate || "0"}%`,
-      subheading: (
-        <span className="text-green-600 dark:text-green-400 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1" />
-          Conversion performance
-        </span>
+      value: isLoading
+        ? "..."
+        : `${data?.stats?.conversionRate?.conversionRate || "0"}%`,
+      subheading: renderTrend(
+        data?.stats?.conversionRate?.status || "",
+        data?.stats?.conversionRate?.percentage || 0,
+        "conversion performance"
       ),
     },
     {
@@ -71,25 +97,22 @@ const Analytics: React.FC = () => {
       heading: "Appointments",
       value: isLoading
         ? "..."
-        : data?.appointments?.totalAppointments?.toString() || "0",
-      subheading: (
-        <span className="text-green-600 dark:text-green-400 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1" />
-          {isLoading
-            ? "..."
-            : `${data?.appointments?.growthPercent || 0}% from last month`}
-        </span>
+        : data?.stats?.appointments?.totalAppointments?.toString() || "0",
+      subheading: renderTrend(
+        data?.stats?.appointments?.status || "",
+        data?.stats?.appointments?.percentage || 0
       ),
     },
     {
       icon: <LuChartColumn className="text-green-500 dark:text-green-400" />,
       heading: "Revenue Growth",
-      value: isLoading ? "..." : `${data?.revenue?.growthPercent || 0}%`,
-      subheading: (
-        <span className="text-green-600 dark:text-green-400 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1" />
-          {isLoading ? "..." : `$${data?.revenue?.totalRevenue || 0} revenue`}
-        </span>
+      value: isLoading
+        ? "..."
+        : `$${data?.stats?.revenue?.totalRevenue?.toLocaleString() || "0"}`,
+      subheading: renderTrend(
+        data?.stats?.revenue?.status || "",
+        data?.stats?.revenue?.percentage || 0,
+        "revenue growth"
       ),
     },
   ];

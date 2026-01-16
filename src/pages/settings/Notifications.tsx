@@ -1,5 +1,12 @@
 // Notifications.tsx
-import { Button, Card, CardBody, Switch, TimeInput } from "@heroui/react";
+import {
+  Button,
+  Card,
+  CardBody,
+  Switch,
+  TimeInput,
+  addToast,
+} from "@heroui/react";
 import { Time } from "@internationalized/date";
 import React, { useEffect, useState } from "react";
 import {
@@ -13,6 +20,15 @@ import {
   FiXCircle,
   FiZap,
 } from "react-icons/fi";
+import {
+  useNotifications,
+  useUpdateNotifications,
+} from "../../hooks/settings/useNotification";
+import {
+  UpdateNotificationPayload,
+  NotificationItem,
+} from "../../types/notification";
+import { LoadingState } from "../../components/common/LoadingState";
 
 type Channels = {
   push: boolean;
@@ -35,10 +51,45 @@ type Rule = {
 };
 
 const formatTime = (t: Time | null) => {
-  if (!t) return null;
+  if (!t) return "00:00";
   const hour = String((t as any).hour ?? 0).padStart(2, "0");
   const minute = String((t as any).minute ?? 0).padStart(2, "0");
   return `${hour}:${minute}`;
+};
+
+const parseTime = (t: string): Time => {
+  if (!t) return new Time(9, 0);
+  const [hour, minute] = t.split(":").map(Number);
+  return new Time(hour || 0, minute || 0);
+};
+
+const RULE_CONFIG: Record<
+  string,
+  {
+    title: string;
+    description: string;
+    badge?: string;
+    priority: "low" | "medium" | "high";
+  }
+> = {
+  newPatientReferrals: {
+    title: "New Patient Referrals",
+    description: "Get notified when new patients are referred to your practice",
+    badge: "high",
+    priority: "medium",
+  },
+  urgentReferrals: {
+    title: "Urgent Referrals",
+    description: "High-priority referrals that need immediate attention",
+    badge: "critical",
+    priority: "high",
+  },
+  newReviews: {
+    title: "New Reviews",
+    description: "Get notified about new patient reviews",
+    badge: "medium",
+    priority: "low",
+  },
 };
 
 const Notifications: React.FC = () => {
@@ -70,57 +121,68 @@ const Notifications: React.FC = () => {
     }
   }, []);
 
-  const [rules, setRules] = useState<Rule[]>([
-    {
-      id: "new-patient-referrals",
-      title: "New Patient Referrals",
-      description:
-        "Get notified when new patients are referred to your practice",
-      badge: "high",
-      enabled: true,
-      channels: { push: true, email: true, sms: true, inApp: true },
-      priority: "medium",
-      activeHoursEnabled: false,
-      startTime: new Time(8, 0),
-      endTime: new Time(18, 0),
-    },
-    {
-      id: "urgent-referrals",
-      title: "Urgent Referrals",
-      description: "High-priority referrals that need immediate attention",
-      badge: "critical",
-      enabled: true,
-      channels: { push: true, email: true, sms: true, inApp: true },
-      priority: "high",
-      activeHoursEnabled: false,
-      startTime: new Time(8, 0),
-      endTime: new Time(18, 0),
-    },
-    {
-      id: "new-reviews",
-      title: "New Reviews",
-      description: "Get notified about new patient reviews",
-      badge: "medium",
-      enabled: true,
-      channels: { push: true, email: true, sms: true, inApp: true },
-      priority: "low",
-      activeHoursEnabled: false,
-      startTime: new Time(9, 0),
-      endTime: new Time(17, 0),
-    },
-    // {
-    //   id: "missed-calls",
-    //   title: "Missed Calls",
-    //   description: "Alert when potential patients call but don't reach anyone",
-    //   badge: "high",
-    //   enabled: true,
-    //   channels: { push: true, email: true, sms: true, inApp: true },
-    //   priority: "medium",
-    //   activeHoursEnabled: false,
-    //   startTime: new Time(9, 0),
-    //   endTime: new Time(17, 0),
-    // },
-  ]);
+  const { data: settings, isLoading } = useNotifications();
+  const updateMutation = useUpdateNotifications();
+
+  // Initialize rules with default config
+  const [rules, setRules] = useState<Rule[]>([]);
+
+  useEffect(() => {
+    if (settings) {
+      setGlobalEnabled(settings.globalEnabled);
+
+      const newRules: Rule[] = Object.entries(RULE_CONFIG).map(
+        ([key, config]) => {
+          const backendRule = settings.notifications.find(
+            (n) => n.label === key
+          );
+
+          // Default values if not found in backend response
+          const defaultEnabled = true;
+          const defaultChannels = {
+            push: true,
+            email: true,
+            sms: true,
+            inApp: true,
+          };
+          const defaultActiveHours = {
+            enabled: false,
+            startTime: "09:00",
+            endTime: "17:00",
+          };
+
+          return {
+            id: key,
+            ...config,
+            enabled: backendRule ? backendRule.enabled : defaultEnabled,
+            channels: backendRule
+              ? {
+                  push: backendRule.push,
+                  email: backendRule.email,
+                  sms: backendRule.sms,
+                  inApp: backendRule.inApp,
+                }
+              : defaultChannels,
+            activeHoursEnabled: backendRule
+              ? backendRule.activeHours.enabled
+              : defaultActiveHours.enabled,
+            startTime: parseTime(
+              backendRule
+                ? backendRule.activeHours.startTime
+                : defaultActiveHours.startTime
+            ),
+            endTime: parseTime(
+              backendRule
+                ? backendRule.activeHours.endTime
+                : defaultActiveHours.endTime
+            ),
+          };
+        }
+      );
+
+      setRules(newRules);
+    }
+  }, [settings]);
 
   const updateRule = (id: string, patch: Partial<Rule>) =>
     setRules((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
@@ -157,18 +219,37 @@ const Notifications: React.FC = () => {
   };
 
   const handleSave = () => {
-    const payload = {
+    if (!settings?._id) return;
+
+    const payload: UpdateNotificationPayload = {
       globalEnabled,
-      rules: rules.map((r) => ({
-        id: r.id,
+      notifications: rules.map((r) => ({
+        label: r.id,
         enabled: r.enabled,
-        channels: r.channels,
-        priority: r.priority,
-        activeHoursEnabled: r.activeHoursEnabled,
-        startTime: formatTime(r.startTime),
-        endTime: formatTime(r.endTime),
+        push: r.channels.push,
+        email: r.channels.email,
+        sms: r.channels.sms,
+        inApp: r.channels.inApp,
+        activeHours: {
+          enabled: r.activeHoursEnabled,
+          startTime: formatTime(r.startTime),
+          endTime: formatTime(r.endTime),
+        },
       })),
     };
+
+    updateMutation.mutate(
+      { id: settings._id, payload },
+      {
+        onSuccess: () => {
+          addToast({
+            title: "Settings Saved",
+            description: "Your notification preferences have been updated.",
+            color: "success",
+          });
+        },
+      }
+    );
   };
 
   // When global is turned off, disable all rules & channels
@@ -195,6 +276,10 @@ const Notifications: React.FC = () => {
     }
   }, [globalEnabled]);
 
+  if (isLoading) {
+    return <LoadingState />;
+  }
+
   return (
     <div className="">
       <div className="mb-6 space-y-4 md:space-y-5">
@@ -211,6 +296,7 @@ const Notifications: React.FC = () => {
               size="sm"
               className="bg-primary-500 text-background flex items-center gap-2"
               onClick={handleSave}
+              isLoading={updateMutation.isPending}
             >
               <FiCheckCircle fontSize={16} />
               Save Settings

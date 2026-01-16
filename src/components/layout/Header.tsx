@@ -46,7 +46,7 @@ export default function Header({
         <div className="lg:hidden">
           <button
             onClick={hamburgerMenuClick}
-            className="flex cursor-pointer text-xl text-foreground hover:bg-foreground/5 p-1.5 rounded-lg transition-colors"
+            className="flex cursor-pointer text-xl text-foreground hover:bg-foreground/5 p-1.5 rounded-lg transition-colors -ml-1.5"
           >
             <HiOutlineMenuAlt1 />
           </button>

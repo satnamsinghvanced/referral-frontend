@@ -60,7 +60,7 @@ const General: React.FC = () => {
         </div>
 
         {/* Auto-refresh Setting */}
-        <div className="flex items-center justify-between">
+        {/* <div className="flex items-center justify-between">
           <div className="space-y-1">
             <h4 className="text-sm">Auto-refresh Data</h4>
             <p className="text-xs text-gray-600 dark:text-gray-400">
@@ -68,7 +68,7 @@ const General: React.FC = () => {
             </p>
           </div>
           <Switch size="sm" aria-label="Auto-refresh Data" />
-        </div>
+        </div> */}
 
         {/* Show Tips Setting */}
         <div className="flex items-center justify-between">

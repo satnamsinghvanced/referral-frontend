@@ -14,6 +14,8 @@ import {
   LuDownload,
   LuRefreshCw,
   LuTarget,
+  LuTrendingDown,
+  LuTrendingUp,
   LuUpload,
   LuX,
 } from "react-icons/lu";
@@ -165,16 +167,45 @@ const MarketingBudget = () => {
 
   const stats = data?.stats || {
     totalBudget: "0",
-    totalSpent: "0",
-    remainingBudget: "0",
+    totalSpent: { value: "0", percentage: "0", status: "" },
+    remainingBudget: { value: "0", percentage: "0", status: "" },
     budgetUtilization: "0",
     avgROI: "0",
   };
 
   const totalBudget = Number(stats.totalBudget);
-  const totalSpent = Number(stats.totalSpent);
-  const remainingBudget = Number(stats.remainingBudget);
+  const totalSpent = Number(stats.totalSpent.value);
+  const remainingBudget = Number(stats.remainingBudget.value);
   const avgROI = Number(stats.avgROI);
+
+  const renderTrend = (
+    status: string | undefined,
+    percentage: string | number,
+    label: string
+  ) => {
+    const isIncrement = status === "increment";
+    const isDecrement = status === "decrement";
+    const numPercentage = Number(percentage);
+
+    const colorClass = isIncrement
+      ? "text-green-600 dark:text-green-400"
+      : isDecrement
+      ? "text-red-600 dark:text-red-400"
+      : "text-gray-500";
+
+    const Icon = isIncrement
+      ? LuTrendingUp
+      : isDecrement
+      ? LuTrendingDown
+      : null;
+
+    return (
+      <span className={`${colorClass} flex items-center`}>
+        {Icon && <Icon className="h-4 w-4 mr-1" />}
+        {isLoading ? "..." : `${numPercentage}% ${label}`}
+      </span>
+    );
+  };
 
   const STAT_CARD_DATA = [
     {
@@ -186,11 +217,21 @@ const MarketingBudget = () => {
       icon: <LuDollarSign className="text-green-600 dark:text-green-400" />,
       heading: "Total Spent",
       value: isLoading ? "..." : `$${totalSpent.toLocaleString()}`,
+      subheading: renderTrend(
+        stats.totalSpent.status,
+        stats.totalSpent.percentage,
+        "of budget"
+      ),
     },
     {
       icon: <LuCalculator className="text-yellow-600 dark:text-yellow-400" />,
       heading: "Remaining Budget",
       value: isLoading ? "..." : `$${remainingBudget.toLocaleString()}`,
+      subheading: renderTrend(
+        stats.remainingBudget.status,
+        stats.remainingBudget.percentage,
+        "remaining"
+      ),
     },
     {
       icon: <IoMdTrendingUp className="text-purple-600 dark:text-purple-400" />,

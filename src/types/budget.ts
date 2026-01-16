@@ -49,8 +49,16 @@ export interface BudgetItem {
 
 export interface BudgetStats {
   totalBudget: string;
-  totalSpent: string;
-  remainingBudget: string;
+  totalSpent: {
+    value: string;
+    percentage: string;
+    status?: "increment" | "decrement";
+  };
+  remainingBudget: {
+    value: string;
+    percentage: string;
+    status?: "increment" | "decrement";
+  };
   budgetUtilization: string;
   avgROI: string;
 }
