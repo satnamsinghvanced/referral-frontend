@@ -79,11 +79,11 @@ const dashboardCards = [
 const getStatusColor = (status: string) => {
   switch (status) {
     case "Reviewed":
-      return "bg-green-100 text-green-700 border-green-200";
+      return "bg-green-100 text-green-700 border-green-200 dark:bg-green-500/20 dark:text-green-300 dark:border-green-500/30";
     case "Pending":
-      return "bg-yellow-100 text-yellow-700 border-yellow-200";
+      return "bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-500/20 dark:text-yellow-300 dark:border-yellow-500/30";
     default:
-      return "bg-gray-100 text-gray-700 border-gray-200";
+      return "bg-gray-100 text-gray-700 border-foreground/10 dark:bg-content2 dark:text-foreground/70";
   }
 };
 
@@ -106,7 +106,7 @@ const NfcCard = ({ data, isOpen, toggleUsers }: any) => {
   return (
     // Card component from @heroui/react
     <Card
-      className="p-4 border border-primary/15 shadow-none transition-shadow hover:shadow-lg cursor-pointer flex flex-col"
+      className="p-4 border border-foreground/10 shadow-none transition-shadow hover:shadow-lg cursor-pointer flex flex-col"
       isPressable
       disableAnimation
       onPress={() => toggleUsers(data.id)}
@@ -115,28 +115,38 @@ const NfcCard = ({ data, isOpen, toggleUsers }: any) => {
         <FiWifi className="text-xl text-blue-600" />
         <span className="ml-1.5 text-base">{title}</span>
       </div>
-      <div className="flex items-center text-xs text-gray-600 mb-4">
+      <div className="flex items-center text-xs text-gray-600 dark:text-foreground/60 mb-4">
         <GrLocation className="text-base" />
         <span className="ml-1">{location}</span>
       </div>
 
       {/* Taps & Conversions Stats */}
       <div className="flex justify-between items-center mb-4">
-        <div className="flex-1 mr-2 text-center p-3 bg-gradient-to-br from-sky-50 to-sky-100 rounded-lg">
-          <p className="text-xl font-bold text-sky-700">{totalTaps}</p>
-          <p className="text-xs text-gray-600">Total Taps</p>
+        <div className="flex-1 mr-2 text-center p-3 bg-gradient-to-br from-sky-50 to-sky-100 dark:from-sky-500/10 dark:to-sky-500/20 rounded-lg">
+          <p className="text-xl font-bold text-sky-700 dark:text-sky-300">
+            {totalTaps}
+          </p>
+          <p className="text-xs text-gray-600 dark:text-sky-200/70">
+            Total Taps
+          </p>
         </div>
-        <div className="flex-1 ml-2 text-center p-3 bg-gradient-to-br from-emerald-50 to-emerald-100 rounded-lg">
-          <p className="text-xl font-bold text-green-700">{conversions}</p>
-          <p className="text-xs text-gray-600">Conversions</p>
+        <div className="flex-1 ml-2 text-center p-3 bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-500/10 dark:to-emerald-500/20 rounded-lg">
+          <p className="text-xl font-bold text-green-700 dark:text-emerald-300">
+            {conversions}
+          </p>
+          <p className="text-xs text-gray-600 dark:text-emerald-200/70">
+            Conversions
+          </p>
         </div>
       </div>
 
       {/* Conversion Rate Bar */}
       <div className="flex flex-col justify-start">
         <div className="flex justify-between items-center text-sm font-medium">
-          <p className="text-xs text-gray-600">Conversion Rate</p>
-          <span className="text-xs text-gray-900">
+          <p className="text-xs text-gray-600 dark:text-foreground/60">
+            Conversion Rate
+          </p>
+          <span className="text-xs text-gray-900 dark:text-foreground">
             {conversionRate.toFixed(1)}%
           </span>
         </div>
@@ -146,7 +156,7 @@ const NfcCard = ({ data, isOpen, toggleUsers }: any) => {
             style={{ width: progressBarWidth }}
           ></div>
         </div>
-        <span className="text-xs text-gray-600 mt-3 text-left">
+        <span className="text-xs text-gray-600 dark:text-foreground/60 mt-3 text-left">
           Last used: {lastUsed}
         </span>
       </div>
@@ -154,13 +164,13 @@ const NfcCard = ({ data, isOpen, toggleUsers }: any) => {
       {/* Associated Users Section (Initially hidden) */}
       {isOpen && (
         <div
-          className={`mt-4 border-t border-primary/15 pt-4 transition-all duration-300 ${
+          className={`mt-4 border-t border-foreground/10 pt-4 transition-all duration-300 ${
             isOpen
               ? "h-auto opacity-100 visible"
               : "max-h-0 opacity-0 overflow-hidden"
           }`}
         >
-          <div className="flex items-center text-sm text-gray-700 font-medium mb-3">
+          <div className="flex items-center text-sm text-gray-700 dark:text-foreground/80 font-medium mb-3">
             <FiUsers className="mr-2" />
             Associated Users ({users.length})
           </div>
@@ -169,18 +179,18 @@ const NfcCard = ({ data, isOpen, toggleUsers }: any) => {
             {users.map((user: any, index: number) => (
               <div
                 key={index}
-                className="flex items-center justify-between bg-gray-50 p-2 rounded-md"
+                className="flex items-center justify-between bg-gray-50 dark:bg-content1 p-2 rounded-md"
               >
                 <div className="flex items-center justify-start">
                   {/* User Initials Badge */}
-                  <div className="w-8 h-8 rounded-full bg-blue-100 text-foreground flex items-center justify-center text-xs font-medium mr-2">
+                  <div className="w-8 h-8 rounded-full bg-blue-100 text-foreground dark:bg-blue-900/30 flex items-center justify-center text-xs font-medium mr-2">
                     {user.initials}
                   </div>
                   <div className="text-left">
-                    <p className="text-xs font-medium text-gray-900">
+                    <p className="text-xs font-medium text-gray-900 dark:text-foreground">
                       {user.name}
                     </p>
-                    <p className="text-xs text-gray-600">
+                    <p className="text-xs text-gray-600 dark:text-foreground/60">
                       {user.taps} taps • Last: {user.last}
                     </p>
                   </div>
@@ -197,7 +207,7 @@ const NfcCard = ({ data, isOpen, toggleUsers }: any) => {
               </div>
             ))}
             {users.length === 0 && (
-              <p className="text-xs text-gray-600 text-center py-2">
+              <p className="text-xs text-gray-600 dark:text-foreground/60 text-center py-2">
                 No associated users to display.
               </p>
             )}

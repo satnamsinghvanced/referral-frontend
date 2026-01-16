@@ -34,7 +34,9 @@ const Reports = () => {
       icon: <LuActivity className="text-green-500" />,
       heading: "Data Sources",
       value: "12",
-      subheading: <span className="text-gray-600">Connected</span>,
+      subheading: (
+        <span className="text-gray-600 dark:text-foreground/40">Connected</span>
+      ),
     },
     {
       icon: <LuClock className="text-purple-500" />,
@@ -47,7 +49,9 @@ const Reports = () => {
       heading: "Export Formats",
       value: "4",
       subheading: (
-        <span className="text-gray-600">PDF, Excel, CSV, Dashboard</span>
+        <span className="text-gray-600 dark:text-foreground/40">
+          PDF, Excel, CSV, Dashboard
+        </span>
       ),
     },
   ];
@@ -139,7 +143,7 @@ const Reports = () => {
               ))}
             </div>
           </div>
-          <div className="bg-background flex flex-col rounded-xl border border-primary/15 p-4">
+          <div className="bg-background flex flex-col rounded-xl border border-foreground/10 p-4">
             <div className="pb-4">
               <h4 className="text-sm font-medium">Recent Reports</h4>
             </div>
@@ -147,18 +151,18 @@ const Reports = () => {
               {MOCK_REPORTS.map((report: ReportItem) => (
                 <div
                   key={report.id}
-                  className="flex items-center justify-between border border-foreground/10 p-4 bg-background rounded-lg"
+                  className="flex items-center justify-between border border-foreground/10 p-4 bg-content1 rounded-lg"
                 >
                   <div className="flex items-center gap-3">
-                    <LuFileText className="size-5 text-gray-500" />
+                    <LuFileText className="size-5 text-gray-500 dark:text-foreground/40" />
                     <div className="space-y-1">
                       <h4 className="font-medium text-sm">{report.title}</h4>
-                      <p className="text-xs text-gray-600">
+                      <p className="text-xs text-gray-600 dark:text-foreground/60">
                         {report.description}
                       </p>
                       <div className="flex items-center gap-2 mt-1.5 text-xs">
                         <ReportStatusChip status={report.status} />
-                        <span className="text-gray-500">
+                        <span className="text-gray-500 dark:text-foreground/40">
                           {`${report.fileType}${
                             report.fileSize ? ` • ${report.fileSize}` : ""
                           }`}

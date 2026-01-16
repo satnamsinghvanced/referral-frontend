@@ -98,11 +98,11 @@ const ImportBudgetModal = ({ isOpen, onClose }: ImportBudgetModalProps) => {
             <ModalHeader className="flex flex-col gap-1 px-4">
               <div className="flex items-center gap-2">
                 <FiFileText className="text-primary text-xl" />
-                <h4 className="text-base font-medium">
+                <h4 className="text-base font-medium text-foreground">
                   Bulk Import Budget Items
                 </h4>
               </div>
-              <p className="text-xs text-gray-500 font-normal">
+              <p className="text-xs text-gray-500 dark:text-foreground/40 font-normal">
                 Import multiple budget items at once from a CSV spreadsheet.
                 Download our template to get started.
               </p>
@@ -110,14 +110,14 @@ const ImportBudgetModal = ({ isOpen, onClose }: ImportBudgetModalProps) => {
 
             <ModalBody className="py-0 px-4 gap-3">
               {/* Instructions Section */}
-              <div className="border border-blue-200 bg-blue-50/50 rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-2.5 text-gray-900">
+              <div className="border border-blue-200 dark:border-blue-500/30 bg-blue-50/50 dark:bg-blue-900/10 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-2.5 text-gray-900 dark:text-foreground">
                   <FiFileText className="size-4" />
                   <h4 className="font-medium text-sm">
                     How to import budget items:
                   </h4>
                 </div>
-                <ol className="text-xs text-gray-600 space-y-1.5 list-decimal list-inside pl-1">
+                <ol className="text-xs text-gray-600 dark:text-foreground/60 space-y-1.5 list-decimal list-inside pl-1">
                   <li>Download the CSV template below</li>
                   <li>Fill in your budget data following the example format</li>
                   <li>Save the file and upload it here</li>
@@ -126,16 +126,16 @@ const ImportBudgetModal = ({ isOpen, onClose }: ImportBudgetModalProps) => {
               </div>
 
               {/* Download Template Section */}
-              <div className="border border-gray-200 rounded-xl p-4 flex items-center justify-between">
+              <div className="border border-foreground/10 rounded-xl p-4 flex items-center justify-between bg-content1">
                 <div className="flex items-center gap-2.5">
-                  <div className="size-10 rounded-lg bg-blue-50 text-primary flex items-center justify-center">
+                  <div className="size-10 rounded-lg bg-blue-50 dark:bg-blue-900/10 text-primary flex items-center justify-center">
                     <FiDownload className="size-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-sm font-medium text-gray-900 dark:text-foreground">
                       Download Template
                     </p>
-                    <p className="text-xs text-gray-500 max-w-[150px]">
+                    <p className="text-xs text-gray-500 dark:text-foreground/40 max-w-[150px]">
                       Get our pre-formatted CSV template with example data
                     </p>
                   </div>
@@ -145,17 +145,19 @@ const ImportBudgetModal = ({ isOpen, onClose }: ImportBudgetModalProps) => {
                   variant="bordered"
                   onPress={handleDownloadTemplate}
                   startContent={<FiDownload className="size-3.5" />}
-                  className="border-small"
+                  className="border-small border-gray-300 dark:border-default-200"
                 >
                   Download CSV
                 </Button>
               </div>
 
               {/* Upload Section */}
-              <div className="border border-gray-200 rounded-xl p-4 space-y-3">
+              <div className="border border-foreground/10 rounded-xl p-4 space-y-3 bg-content1">
                 <div className="space-y-1">
-                  <h4 className="font-medium text-sm">Upload Your File</h4>
-                  <p className="text-xs text-gray-500">
+                  <h4 className="font-medium text-sm text-foreground">
+                    Upload Your File
+                  </h4>
+                  <p className="text-xs text-gray-500 dark:text-foreground/40">
                     Accepted format: CSV only
                   </p>
                 </div>
@@ -173,7 +175,7 @@ const ImportBudgetModal = ({ isOpen, onClose }: ImportBudgetModalProps) => {
                   className={`border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center text-center gap-3 transition-all cursor-pointer group ${
                     selectedFile
                       ? "border-primary bg-primary/5"
-                      : "border-gray-200 bg-gray-50/50 hover:bg-gray-50"
+                      : "border-foreground/10 dark:border-default-200 bg-gray-50/50 dark:bg-default-100/50 hover:bg-gray-50 dark:hover:bg-default-100"
                   }`}
                 >
                   {selectedFile ? (
@@ -193,22 +195,24 @@ const ImportBudgetModal = ({ isOpen, onClose }: ImportBudgetModalProps) => {
                         </button>
                       </div>
                       <div className="space-y-1">
-                        <p className="text-sm font-medium text-gray-900 truncate max-w-[250px]">
+                        <p className="text-sm font-medium text-gray-900 dark:text-foreground truncate max-w-[250px]">
                           {selectedFile.name}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-500 dark:text-foreground/40">
                           {(selectedFile.size / 1024).toFixed(2)} KB
                         </p>
                       </div>
                     </>
                   ) : (
                     <>
-                      <FiUploadCloud className="size-8 text-gray-400 group-hover:text-primary transition-colors" />
+                      <FiUploadCloud className="size-8 text-gray-400 dark:text-foreground/20 group-hover:text-primary transition-colors" />
                       <div className="space-y-1">
-                        <p className="text-sm font-medium text-gray-900">
+                        <p className="text-sm font-medium text-gray-900 dark:text-foreground">
                           Click to upload or drag and drop
                         </p>
-                        <p className="text-xs text-gray-500">CSV file only</p>
+                        <p className="text-xs text-gray-500 dark:text-foreground/40">
+                          CSV file only
+                        </p>
                       </div>
                     </>
                   )}
@@ -216,8 +220,8 @@ const ImportBudgetModal = ({ isOpen, onClose }: ImportBudgetModalProps) => {
               </div>
 
               {/* Requirements Note */}
-              <div className="border border-gray-200 rounded-xl p-4">
-                <h4 className="font-medium text-sm mb-3">
+              <div className="border border-foreground/10 rounded-xl p-4 bg-content1">
+                <h4 className="font-medium text-sm mb-3 text-foreground">
                   Required Fields Reference
                 </h4>
                 <div className="grid grid-cols-2 gap-y-2 gap-x-3">
@@ -233,7 +237,7 @@ const ImportBudgetModal = ({ isOpen, onClose }: ImportBudgetModalProps) => {
                   ].map((req, i) => (
                     <div
                       key={i}
-                      className="flex items-center gap-1.5 text-xs text-gray-600"
+                      className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-foreground/60"
                     >
                       <FiCheckCircle className="text-green-500 shrink-0 size-3.5" />
                       <span>{req}</span>
@@ -250,7 +254,7 @@ const ImportBudgetModal = ({ isOpen, onClose }: ImportBudgetModalProps) => {
                 variant="ghost"
                 color="default"
                 onPress={onClose}
-                className="border-small"
+                className="border-small border-gray-300 dark:border-default-200 text-gray-700 dark:text-foreground/70 hover:bg-gray-50 dark:hover:bg-default-100"
               >
                 Cancel
               </Button>

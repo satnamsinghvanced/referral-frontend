@@ -10,7 +10,9 @@ export interface UIState {
 const getInitialTheme = (): UIState["theme"] => {
   const stored = localStorage.getItem("theme");
   if (stored === "light" || stored === "dark") return stored;
-  return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+  return window.matchMedia("(prefers-color-scheme: light)").matches
+    ? "light"
+    : "dark";
 };
 
 const getInitialSidebarOpen = (): boolean => {
@@ -31,13 +33,11 @@ const uiSlice = createSlice({
       const newTheme = state.theme === "dark" ? "light" : "dark";
       state.theme = newTheme;
       localStorage.setItem("theme", newTheme);
-      document.documentElement.classList.toggle("dark", newTheme === "dark");
     },
     setTheme: (state, action: PayloadAction<UIState["theme"]>) => {
       const newTheme = action.payload;
       state.theme = newTheme;
       localStorage.setItem("theme", newTheme);
-      document.documentElement.classList.toggle("dark", newTheme === "dark");
     },
     toggleSidebar: (state) => {
       state.sidebarOpen = !state.sidebarOpen;

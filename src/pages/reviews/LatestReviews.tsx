@@ -24,7 +24,8 @@ const REVIEWS = [
     initials: "SJ",
     isVerified: true,
     platform: "Google",
-    platformColor: "bg-blue-100 text-blue-800 border-blue-200",
+    platformColor:
+      "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/30",
     location: "Downtown Office",
     interaction: "NFC",
     interactionIcon: "IoIosWifi",
@@ -41,7 +42,8 @@ const REVIEWS = [
       "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face",
     isVerified: true,
     platform: "Yelp",
-    platformColor: "bg-red-100 text-red-800 border-red-200",
+    platformColor:
+      "bg-red-100 text-red-800 border-red-200 dark:bg-red-500/20 dark:text-red-300 dark:border-red-500/30",
     location: "Westside Clinic",
     interaction: "QR Code",
     interactionIcon: "FiQrCode",
@@ -58,7 +60,8 @@ const REVIEWS = [
       "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face",
     isVerified: true,
     platform: "Google",
-    platformColor: "bg-blue-100 text-blue-800 border-blue-200",
+    platformColor:
+      "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/30",
     location: "Downtown Office",
     interaction: "NFC",
     interactionIcon: "IoIosWifi",
@@ -75,7 +78,8 @@ const REVIEWS = [
       "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face",
     isVerified: false,
     platform: "Facebook",
-    platformColor: "bg-indigo-100 text-indigo-800 border-indigo-200",
+    platformColor:
+      "bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-500/30",
     location: "Medical Center",
     interaction: "Direct",
     interactionIcon: "FiMessageSquare",
@@ -149,11 +153,11 @@ const LatestReviewItem = ({ review }: any) => {
 
   const isResponded = responseStatus === "Responded";
   const statusColor = isResponded
-    ? "bg-emerald-100 text-emerald-800 border-emerald-200"
-    : "bg-red-100 text-red-800 border-red-200";
+    ? "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30"
+    : "bg-red-100 text-red-800 border-red-200 dark:bg-red-500/20 dark:text-red-300 dark:border-red-500/30";
 
   return (
-    <div className="p-4 border border-gray-200 rounded-lg transition-all duration-300 bg-gradient-to-r from-white to-gray-50/50">
+    <div className="p-4 border border-foreground/10 rounded-lg transition-all duration-300 bg-gradient-to-r from-white to-gray-50/50 dark:from-content1 dark:to-background">
       <div className="flex items-start justify-between mb-3 flex-wrap">
         <div className="flex items-center gap-3">
           <div className="flex-shrink-0 rounded-full overflow-hidden h-10 w-10 aspect-square flex items-center justify-center -mt-15 sm:-mt-0">
@@ -178,7 +182,7 @@ const LatestReviewItem = ({ review }: any) => {
                 <Chip
                   size="sm"
                   radius="sm"
-                  className="text-[11px] font-medium h-5 bg-emerald-100 text-emerald-800 border border-emerald-200"
+                  className="text-[11px] font-medium h-5 bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30"
                 >
                   Verified
                 </Chip>
@@ -186,7 +190,7 @@ const LatestReviewItem = ({ review }: any) => {
             </div>
 
             {/* Platform, Location, Interaction */}
-            <div className="flex flex-wrap items-center gap-2 mt-1.5 text-sm text-gray-500">
+            <div className="flex flex-wrap items-center gap-2 mt-1.5 text-sm text-gray-500 dark:text-foreground/60">
               <Chip
                 size="sm"
                 radius="sm"
@@ -209,7 +213,9 @@ const LatestReviewItem = ({ review }: any) => {
             <div className="sm:hidden mt-1">
               <StarRating rating={rating} />
             </div>
-            <div className="sm:hidden mt-2 text-xs text-gray-600">{date}</div>
+            <div className="sm:hidden mt-2 text-xs text-gray-600 dark:text-foreground/60">
+              {date}
+            </div>
           </div>
         </div>
 
@@ -218,12 +224,16 @@ const LatestReviewItem = ({ review }: any) => {
           <div className="hidden sm:block">
             <StarRating rating={rating} />
           </div>
-          <div className="hidden sm:block text-xs text-gray-600">{date}</div>
+          <div className="hidden sm:block text-xs text-gray-600 dark:text-foreground/60">
+            {date}
+          </div>
         </div>
       </div>
 
       {/* Review Text */}
-      <p className="text-gray-700 mb-1.5 text-sm leading-relaxed">{text}</p>
+      <p className="text-gray-700 dark:text-foreground/80 mb-1.5 text-sm leading-relaxed">
+        {text}
+      </p>
 
       {/* Actions and Tags */}
       <div className="flex flex-wrap items-center justify-between gap-1">
@@ -232,7 +242,7 @@ const LatestReviewItem = ({ review }: any) => {
             <Chip
               size="sm"
               radius="sm"
-              className="text-[11px] font-medium h-5 border bg-sky-100 text-sky-800 border-sky-200 px-1"
+              className="text-[11px] font-medium h-5 border bg-sky-100 text-sky-800 border-sky-200 dark:bg-sky-500/20 dark:text-sky-300 dark:border-sky-500/30 px-1"
             >
               {reviewTag}
             </Chip>
@@ -251,7 +261,7 @@ const LatestReviewItem = ({ review }: any) => {
             variant="ghost"
             size="sm"
             radius="sm"
-            className="flex items-center gap-1.5 border border-gray-300 px-2"
+            className="flex items-center gap-1.5 border border-gray-300 dark:border-foreground/20 px-2"
           >
             <FiExternalLink className="size-3.5" />
             View
@@ -282,7 +292,7 @@ export default function LatestReviews() {
   return (
     <Card
       shadow="none"
-      className="bg-background flex flex-col gap-4 border border-primary/15 rounded-xl p-4"
+      className="bg-background flex flex-col gap-4 border border-foreground/10 rounded-xl p-4"
     >
       {/* Card Header */}
       <CardHeader className="w-full flex flex-col items-start gap-3 p-0 sm:flex-row sm:items-center sm:justify-between">
@@ -291,7 +301,7 @@ export default function LatestReviews() {
           <Chip
             size="sm"
             radius="sm"
-            className="text-[11px] font-medium h-5 border bg-sky-100 text-sky-800 border-sky-200"
+            className="text-[11px] font-medium h-5 border bg-sky-100 text-sky-800 border-sky-200 dark:bg-sky-500/20 dark:text-sky-300 dark:border-sky-500/30"
           >
             {filteredReviews.length} review
             {filteredReviews.length !== 1 ? "s" : ""}
@@ -319,7 +329,7 @@ export default function LatestReviews() {
               <LatestReviewItem key={review.id} review={review} />
             ))
           ) : (
-            <p className="text-center text-gray-500 py-6">
+            <p className="text-center text-gray-500 dark:text-foreground/60 py-6">
               No reviews found for {selectedLocation}.
             </p>
           )}

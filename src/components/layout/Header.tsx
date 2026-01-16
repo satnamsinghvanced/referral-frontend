@@ -46,7 +46,7 @@ export default function Header({
         <div className="lg:hidden">
           <button
             onClick={hamburgerMenuClick}
-            className="flex cursor-pointer text-xl text-foreground "
+            className="flex cursor-pointer text-xl text-foreground hover:bg-foreground/5 p-1.5 rounded-lg transition-colors"
           >
             <HiOutlineMenuAlt1 />
           </button>
@@ -59,7 +59,7 @@ export default function Header({
               mainWrapper: "h-full",
               input: "text-small",
               inputWrapper:
-                "min-h-8 font-normal text-default-500 shadow-none bg-foreground/4 group-data-[focus=true]:border-default-400 text-foreground /10",
+                "min-h-8 font-normal text-default-500 shadow-none bg-foreground/4 dark:bg-foreground/10 group-data-[focus=true]:border-default-400 text-foreground /10",
             }}
             placeholder="Search referrals..."
             startContent={<IoSearch size={18} className="text-foreground/50" />}

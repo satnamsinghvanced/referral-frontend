@@ -77,7 +77,7 @@ const Layout = () => {
       />
       <main
         id="main"
-        className="h-[calc(100vh-58px)] md:h-[calc(100vh-64px)] main !z-10 flex-grow-1 transition-all ease-in-out duration-300 bg-foreground/3 dark:bg-[#0f1214]"
+        className="h-[calc(100vh-58px)] md:h-[calc(100vh-64px)] main !z-10 flex-grow-1 transition-all ease-in-out duration-300 bg-foreground/3 dark:bg-[#0b0e11]"
       >
         <Outlet />
       </main>

@@ -134,7 +134,7 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({ isOpen, onClose }) => {
               <h4 className="text-base font-medium">
                 Create NFC Tag or QR Code
               </h4>
-              <p className="text-xs text-gray-500 font-normal">
+              <p className="text-xs text-gray-500 dark:text-foreground/60 font-normal">
                 Create a new NFC tag or QR code to collect reviews from patients
                 at your practice.
               </p>
@@ -145,39 +145,45 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({ isOpen, onClose }) => {
                 <label className="text-xs">
                   Type <span className="text-[#eb0000]">*</span>
                 </label>
-                <Tabs
-                  aria-label="Tag Type"
-                  selectedKey={formik.values.type}
-                  onSelectionChange={(key) =>
-                    formik.setFieldValue("type", key as "nfc" | "qr")
-                  }
-                  classNames={{
-                    tabList: "flex w-full rounded-full bg-primary/10",
-                    tab: "flex-1 text-xs font-medium transition-all",
-                    cursor: "rounded-full text-xs",
-                    panel: "p-0",
-                  }}
-                  className="w-full text-xs"
-                >
-                  <Tab
-                    key="nfc"
-                    title={
-                      <div className="flex items-center gap-2">
-                        <FiSmartphone className="text-base" />
-                        <span>NFC Tag</span>
-                      </div>
+                <div className="">
+                  <Tabs
+                    aria-label="Tag Type"
+                    selectedKey={formik.values.type}
+                    onSelectionChange={(key) =>
+                      formik.setFieldValue("type", key as "nfc" | "qr")
                     }
-                  />
-                  <Tab
-                    key="qr"
-                    title={
-                      <div className="flex items-center gap-2">
-                        <LuQrCode className="text-base" />
-                        <span>QR Code</span>
-                      </div>
-                    }
-                  />
-                </Tabs>
+                    variant="light"
+                    radius="full"
+                    classNames={{
+                      base: "bg-primary/15 dark:bg-background rounded-full p-1 w-full",
+                      tabList: "flex w-full rounded-full p-0 gap-0",
+                      tab: "flex-1 h-9 text-sm font-medium transition-all",
+                      cursor: "rounded-full bg-white dark:bg-primary",
+                      tabContent:
+                        "dark:group-data-[selected=true]:text-primary-foreground text-default-500 dark:text-foreground/60 transition-colors",
+                    }}
+                    className="w-full"
+                  >
+                    <Tab
+                      key="nfc"
+                      title={
+                        <div className="flex items-center gap-2">
+                          <FiSmartphone className="text-base" />
+                          <span>NFC Tag</span>
+                        </div>
+                      }
+                    />
+                    <Tab
+                      key="qr"
+                      title={
+                        <div className="flex items-center gap-2">
+                          <LuQrCode className="text-base" />
+                          <span>QR Code</span>
+                        </div>
+                      }
+                    />
+                  </Tabs>
+                </div>
               </div>
 
               {/* Tag Name */}
@@ -193,7 +199,10 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({ isOpen, onClose }) => {
                 size="sm"
                 radius="sm"
                 variant="flat"
-                classNames={{ description: "mt-1 text-xs text-gray-500" }}
+                classNames={{
+                  description:
+                    "mt-1 text-xs text-gray-500 dark:text-foreground/60",
+                }}
                 isRequired
                 isInvalid={!!(formik.touched.name && formik.errors.name)}
                 errorMessage={formik.touched.name && formik.errors.name}
@@ -211,7 +220,7 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({ isOpen, onClose }) => {
                       : "border-default-200"
                   } rounded-lg divide-y divide-default-100 max-h-56 overflow-y-auto`}
                 >
-                  <div className="p-3 pt-2 hover:bg-default-50 transition-colors">
+                  <div className="p-3 pt-2 hover:bg-default-50 dark:hover:bg-content2 transition-colors">
                     <Checkbox
                       isSelected={
                         formik.values.locations.length === locations.length &&
@@ -220,7 +229,8 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({ isOpen, onClose }) => {
                       onValueChange={handleSelectAllLocations}
                       classNames={{
                         base: "max-w-full w-full p-0 m-0",
-                        label: "text-sm font-medium text-gray-900 w-full",
+                        label:
+                          "text-sm font-medium text-gray-900 dark:text-foreground w-full",
                       }}
                       size="sm"
                       radius="sm"
@@ -231,7 +241,7 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({ isOpen, onClose }) => {
                   {locations.map((loc) => (
                     <div
                       key={loc._id}
-                      className="relative px-3 pt-1.5 pb-2.5 hover:bg-default-50 transition-colors"
+                      className="relative px-3 pt-1.5 pb-2.5 hover:bg-default-50 dark:hover:bg-content2 transition-colors"
                     >
                       <Checkbox
                         isSelected={
@@ -242,7 +252,8 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({ isOpen, onClose }) => {
                         }
                         classNames={{
                           base: "max-w-full w-full p-0 m-0",
-                          label: "text-sm text-gray-600 w-full",
+                          label:
+                            "text-sm text-gray-600 dark:text-foreground/80 w-full",
                         }}
                         size="sm"
                         radius="sm"
@@ -296,7 +307,7 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({ isOpen, onClose }) => {
                     </SelectItem>
                   ))}
                 </Select>
-                <p className="text-xs text-gray-500 mt-1.5">
+                <p className="text-xs text-gray-500 dark:text-foreground/60 mt-1.5">
                   The team member who will be credited for reviews
                 </p>
               </div>
@@ -331,13 +342,13 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({ isOpen, onClose }) => {
                     </SelectItem>
                   ))}
                 </Select>
-                <p className="text-xs text-gray-500 mt-1.5">
+                <p className="text-xs text-gray-500 dark:text-foreground/60 mt-1.5">
                   Where patients will be directed to leave a review
                 </p>
               </div>
 
               {/* Info Box */}
-              <div className="px-2 py-2.5 rounded-lg bg-sky-50 border border-sky-100 flex gap-2 items-center">
+              <div className="px-2 py-2.5 rounded-lg bg-sky-50 border border-sky-100 dark:bg-sky-500/10 dark:border-sky-500/20 flex gap-2 items-center">
                 <div className="mt-0.5 shrink-0">
                   {formik.values.type === "nfc" ? (
                     <FiSmartphone className="text-sky-500 text-lg" />
@@ -345,7 +356,7 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({ isOpen, onClose }) => {
                     <LuQrCode className="text-sky-500 text-lg" />
                   )}
                 </div>
-                <p className="text-xs text-sky-900 leading-[1.5]">
+                <p className="text-xs text-sky-900 dark:text-sky-300 leading-[1.5]">
                   {formik.values.type === "nfc" ? (
                     <>
                       <span className="font-semibold">NFC Tag:</span> After

@@ -32,10 +32,32 @@ const TrafficTrendsChart: React.FC<{ data: any[] }> = ({ data }) => {
     <div className="-ml-4 text-sm">
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-          <XAxis dataKey="name" />
-          <YAxis />
-          <Tooltip />
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke="currentColor"
+            className="opacity-10"
+          />
+          <XAxis
+            dataKey="name"
+            stroke="currentColor"
+            fontSize={12}
+            tickLine={false}
+            axisLine={false}
+          />
+          <YAxis
+            stroke="currentColor"
+            fontSize={12}
+            tickLine={false}
+            axisLine={false}
+          />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: "hsl(var(--heroui-background))",
+              border: "1px solid hsl(var(--heroui-default-200))",
+              borderRadius: "8px",
+            }}
+            itemStyle={{ fontSize: "12px" }}
+          />
           <Legend />
           <Line
             type="monotone"
@@ -99,7 +121,8 @@ const DeviceDonutChart: React.FC<{ data: any[] }> = ({ data: deviceData }) => {
       <text
         x={x}
         y={y}
-        fill="#555"
+        fill="currentColor"
+        className="text-foreground"
         fontSize={13}
         textAnchor={x > cx ? "start" : "end"}
       >
@@ -168,18 +191,22 @@ const TrafficSourceItem: React.FC<TrafficSourceItemProps> = ({
   users,
   percentage,
 }) => (
-  <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg border border-gray-100">
+  <div className="flex items-center justify-between p-3 bg-foreground/5 rounded-lg border border-foreground/10">
     <div className="flex-1 flex items-center gap-3">
       <div className="space-y-0.5">
-        <h5 className="font-medium text-sm !font-sans">{source}</h5>
-        <p className="text-xs text-gray-500">
+        <h5 className="font-medium text-sm !font-sans text-foreground">
+          {source}
+        </h5>
+        <p className="text-xs text-foreground/50">
           {sessions.toLocaleString()} sessions
         </p>
       </div>
     </div>
     <div className="text-right space-y-0.5">
-      <div className="font-semibold text-sm">{users.toLocaleString()}</div>
-      <div className="text-xs text-gray-500">{percentage.toFixed(1)}%</div>
+      <div className="font-semibold text-sm text-foreground">
+        {users.toLocaleString()}
+      </div>
+      <div className="text-xs text-foreground/50">{percentage.toFixed(1)}%</div>
     </div>
   </div>
 );
@@ -195,17 +222,23 @@ const ConversionGoalsItem: React.FC<ConversationItemProps> = ({
   const safePrice = typeof price === "number" ? price : 0;
 
   return (
-    <div className="flex items-center justify-between bg-gray-50 border border-gray-100 rounded-lg p-3">
+    <div className="flex items-center justify-between bg-foreground/5 border border-foreground/10 rounded-lg p-3">
       <div className="space-y-0.5">
-        <h5 className="text-sm font-medium !font-sans">{source}</h5>
-        <p className="text-xs text-gray-600">
+        <h5 className="text-sm font-medium !font-sans text-foreground">
+          {source}
+        </h5>
+        <p className="text-xs text-foreground/60">
           {safePercentage.toFixed(1)}% conversion rate
         </p>
       </div>
       <div className="text-right space-y-0.5">
-        <p className="text-sm font-semibold">{safeSessions.toLocaleString()}</p>
-        <p className="text-xs text-gray-500">
-          <span className="text-green-700">${safePrice.toLocaleString()}</span>
+        <p className="text-sm font-semibold text-foreground">
+          {safeSessions.toLocaleString()}
+        </p>
+        <p className="text-xs text-foreground/50">
+          <span className="text-green-700 dark:text-green-400">
+            ${safePrice.toLocaleString()}
+          </span>
         </p>
       </div>
     </div>
@@ -227,11 +260,11 @@ const DeviceMetric: React.FC<DeviceMetricProps> = ({
         style: { color },
       })}
     </div>
-    <div className="text-xs font-medium">{device}</div>
+    <div className="text-xs font-medium text-foreground">{device}</div>
     <div className="text-sm font-bold" style={{ color }}>
       {users.toLocaleString()}
     </div>
-    <div className="text-xs text-gray-500">{percentage.toFixed(1)}%</div>
+    <div className="text-xs text-foreground/50">{percentage.toFixed(1)}%</div>
   </div>
 );
 
@@ -255,30 +288,29 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
 
   const STAT_CARD_DATA = [
     {
-      icon: <LuUsers className="text-blue-500" />,
+      icon: <LuUsers className="text-blue-500 dark:text-blue-400" />,
       heading: "Total Users",
       value: isLoading
         ? "..."
         : data?.donutData?.users?.totalUsers?.toLocaleString() || "0",
       subheading: (
-        <span className="text-green-600 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1 text-green-600" />
+        <span className="text-green-600 dark:text-green-400 flex items-center">
+          <LuTrendingUp className="h-4 w-4 mr-1" />
           {isLoading
             ? "..."
             : `${data?.donutData?.users?.growthPercent || 0} vs last month`}
         </span>
       ),
-      subValueClass: "text-green-600",
     },
     {
-      icon: <LuEye className="text-blue-500" />,
+      icon: <LuEye className="text-blue-500 dark:text-blue-400" />,
       heading: "Page Views",
       value: isLoading
         ? "..."
         : data?.donutData?.pageViews?.totalPageViews?.toLocaleString() || "0",
       subheading: (
-        <span className="text-green-600 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1 text-green-600" />
+        <span className="text-green-600 dark:text-green-400 flex items-center">
+          <LuTrendingUp className="h-4 w-4 mr-1" />
           {isLoading
             ? "..."
             : `${data?.donutData?.pageViews?.growthPercent || 0} vs last month`}
@@ -286,14 +318,14 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
       ),
     },
     {
-      icon: <LuClock className="text-orange-500" />,
+      icon: <LuClock className="text-orange-500 dark:text-orange-400" />,
       heading: "Total Sessions",
       value: isLoading
         ? "..."
         : data?.donutData?.sessions?.totalSessions?.toLocaleString() || "0",
       subheading: (
-        <span className="text-green-600 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1 text-green-600" />
+        <span className="text-green-600 dark:text-green-400 flex items-center">
+          <LuTrendingUp className="h-4 w-4 mr-1" />
           {isLoading
             ? "..."
             : `${data?.donutData?.sessions?.growthPercent || 0} vs last month`}
@@ -301,14 +333,14 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
       ),
     },
     {
-      icon: <LuMousePointer className="text-purple-600" />,
+      icon: <LuMousePointer className="text-purple-600 dark:text-purple-400" />,
       heading: "Bounce Rate",
       value: isLoading
         ? "..."
         : data?.donutData?.bounceRate?.totalBounceRate?.toLocaleString() || "0",
       subheading: (
-        <span className="text-green-700 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1 text-green-600" />
+        <span className="text-green-600 dark:text-green-400 flex items-center">
+          <LuTrendingUp className="h-4 w-4 mr-1" />
           {isLoading
             ? "..."
             : `${
@@ -333,10 +365,10 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
           aria-hidden="true"
         />
         <div>
-          <h2 className="text-xl font-medium text-gray-700">
+          <h2 className="text-xl font-medium text-foreground">
             Google Analytics - Website Statistics
           </h2>
-          <p className="text-gray-600 text-[14px]">
+          <p className="text-foreground/60 text-[14px]">
             Comprehensive website performance and user behavior insights
           </p>
         </div>
@@ -349,7 +381,10 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        <Card shadow="none" className="border border-primary/15 p-5">
+        <Card
+          shadow="none"
+          className="border border-foreground/10 bg-white dark:bg-background p-5"
+        >
           <CardHeader className="p-0 pb-8">
             <h4 className="text-sm font-medium flex items-center gap-2">
               <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
@@ -361,7 +396,10 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
           </CardBody>
         </Card>
 
-        <Card shadow="none" className="border border-primary/15 p-5">
+        <Card
+          shadow="none"
+          className="border border-foreground/10 bg-white dark:bg-background p-5"
+        >
           <CardHeader className="p-0 pb-8">
             <h4 className="text-sm font-medium flex items-center gap-2">
               <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
@@ -380,7 +418,10 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        <Card shadow="none" className="border border-primary/15 p-5">
+        <Card
+          shadow="none"
+          className="border border-foreground/10 bg-white dark:bg-background p-5"
+        >
           <CardHeader className="p-0 pb-4">
             <h4 className="text-sm font-medium flex items-center gap-2">
               <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
@@ -398,7 +439,10 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
           </CardBody>
         </Card>
 
-        <Card shadow="none" className="border border-primary/15 p-5">
+        <Card
+          shadow="none"
+          className="border border-foreground/10 bg-white dark:bg-background p-5"
+        >
           <CardHeader className="p-0 pb-4">
             <h4 className="text-sm font-medium flex items-center gap-2">
               <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
@@ -420,7 +464,10 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
       </div>
 
       {/* Top Pages Here */}
-      <Card shadow="none" className="border border-primary/15 p-5">
+      <Card
+        shadow="none"
+        className="border border-foreground/10 bg-white dark:bg-background p-5"
+      >
         <CardHeader className="p-0 pb-4">
           <h4 className="text-sm font-medium flex items-center gap-2">
             <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
@@ -431,20 +478,20 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
         <CardBody className="p-0 overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200">
-                <th className="text-left text-xs py-3 px-2 font-medium text-gray-700">
+              <tr className="border-b border-foreground/10">
+                <th className="text-left text-xs py-3 px-2 font-medium text-foreground/70">
                   Page
                 </th>
-                <th className="text-right text-xs py-3 px-2 font-medium text-gray-700">
+                <th className="text-right text-xs py-3 px-2 font-medium text-foreground/70">
                   Page Views
                 </th>
-                <th className="text-right text-xs py-3 px-2 font-medium text-gray-700">
+                <th className="text-right text-xs py-3 px-2 font-medium text-foreground/70">
                   Unique Views
                 </th>
-                <th className="text-right text-xs py-3 px-2 font-medium text-gray-700">
+                <th className="text-right text-xs py-3 px-2 font-medium text-foreground/70">
                   Avg. Time
                 </th>
-                <th className="text-right text-xs not-odd:py-3 px-2 font-medium text-gray-700">
+                <th className="text-right text-xs not-odd:py-3 px-2 font-medium text-foreground/70">
                   Bounce Rate
                 </th>
               </tr>
@@ -454,18 +501,18 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
               {TOP_PAGES.map((p: any, index) => (
                 <tr
                   key={index}
-                  className="border-b border-gray-100 hover:bg-gray-50"
+                  className="border-b border-foreground/5 hover:bg-foreground/5 transition-colors"
                 >
-                  <td className="py-3 text-xs not-last:px-2 font-medium text-gray-900">
+                  <td className="py-3 text-xs not-last:px-2 font-medium text-foreground">
                     {p.path}
                   </td>
-                  <td className="py-3 text-xs px-2 text-right text-gray-700">
+                  <td className="py-3 text-xs px-2 text-right text-foreground/80">
                     {p.views}
                   </td>
-                  <td className="py-3 text-xs px-2 text-right text-gray-700">
+                  <td className="py-3 text-xs px-2 text-right text-foreground/80">
                     {p.users}
                   </td>
-                  <td className="py-3 text-xs not-only-of-type:px-2 text-right text-gray-700">
+                  <td className="py-3 text-xs not-only-of-type:px-2 text-right text-foreground/80">
                     {Math.floor(p.avgSessionDuration / 60)}:
                     {String(p.avgSessionDuration % 60).padStart(2, "0")}
                   </td>
@@ -473,8 +520,8 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
                     <span
                       className={`font-medium ${
                         p.bounceRate < 30
-                          ? "text-emerald-600"
-                          : "text-orange-600"
+                          ? "text-emerald-600 dark:text-emerald-400"
+                          : "text-orange-600 dark:text-orange-400"
                       }`}
                     >
                       {p.bounceRate}%

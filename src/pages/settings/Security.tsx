@@ -53,7 +53,7 @@ const Security: React.FC = () => {
   };
 
   return (
-    <Card className="rounded-xl shadow-none border border-foreground/10">
+    <Card className="rounded-xl shadow-none border border-foreground/10 bg-background">
       <CardHeader className="flex items-center gap-2 px-4 pt-4 pb-1">
         <FiShield className="size-5" />
         <h4 className="text-base">Security & Privacy</h4>
@@ -134,7 +134,7 @@ const Security: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => togglePasswordVisibility(field)}
-                            className="text-gray-400 hover:text-gray-600 cursor-pointer"
+                            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 cursor-pointer"
                           >
                             {showPassword[field] ? <FiEyeOff /> : <FiEye />}
                           </button>
@@ -170,15 +170,15 @@ const Security: React.FC = () => {
           <div className="flex items-center justify-between p-3 border border-foreground/10 rounded-lg">
             <div className="space-y-1">
               <p className="font-medium text-sm">SMS Authentication</p>
-              <p className="text-xs text-gray-600">
+              <p className="text-xs text-gray-600 dark:text-gray-400">
                 Receive codes via SMS to +1 (918) ***-0100
               </p>
             </div>
             <span
               className={`inline-flex items-center justify-center rounded-md px-2 py-1 text-[11px] font-medium w-fit whitespace-nowrap shrink-0 ${
                 twoFAEnabled
-                  ? "bg-sky-100 text-sky-800"
-                  : "bg-orange-100 text-orange-800"
+                  ? "bg-sky-100 dark:bg-sky-900/30 text-sky-800 dark:text-sky-300"
+                  : "bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300"
               }`}
             >
               {twoFAEnabled ? "Enabled" : "Disabled"}

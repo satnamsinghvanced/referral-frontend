@@ -185,13 +185,13 @@ const TrackingPanel = () => {
   return (
     <div className="flex flex-col gap-4 md:gap-5">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 items-start">
-        <div className="border w-full border-primary/20 p-4 md:p-5 rounded-xl bg-background flex flex-col gap-4 md:gap-5 h-full tour-step-qr-area">
+        <div className="border w-full border-foreground/10 p-4 md:p-5 rounded-xl bg-background flex flex-col gap-4 md:gap-5 h-full tour-step-qr-area">
           <div>
-            <h6 className="text-sm flex items-center gap-2">
-              <LuQrCode className="text-blue-600 text-lg" /> QR & NFC Code
-              Generator
+            <h6 className="text-sm flex items-center gap-2 dark:text-white">
+              <LuQrCode className="text-blue-600 dark:text-blue-500 text-lg" />{" "}
+              QR & NFC Code Generator
             </h6>
-            <p className="text-xs mt-1.5 text-gray-600">
+            <p className="text-xs mt-1.5 text-gray-600 dark:text-foreground/60">
               Generate personalized QR codes and NFC tags for General Practice
             </p>
           </div>
@@ -204,8 +204,8 @@ const TrackingPanel = () => {
               <>
                 <div>
                   <div className="flex flex-col items-center gap-4 mt-4 mb-8">
-                    <LuQrCode className="text-gray-300 text-5xl" />
-                    <p className="text-gray-600 text-center text-xs">
+                    <LuQrCode className="text-gray-300 dark:text-foreground/20 text-5xl" />
+                    <p className="text-gray-600 dark:text-foreground/60 text-center text-xs">
                       Generate a personalized QR code and NFC tag for your
                       practice
                     </p>
@@ -221,7 +221,7 @@ const TrackingPanel = () => {
                         Use Custom Landing Page URL
                       </Checkbox>
                     </div>
-                    <p className="text-[11px] text-gray-500">
+                    <p className="text-[11px] text-gray-500 dark:text-foreground/40">
                       {!isCustomLandingPage
                         ? "Default: https://practicemarketer.ai/referral"
                         : "Enter your custom referral landing page URL"}
@@ -266,14 +266,14 @@ const TrackingPanel = () => {
             ) : (
               <div className="space-y-4 md:space-y-5 mt-2">
                 <div className="flex flex-col items-center justify-center">
-                  <div className="bg-background rounded-lg border-2 border-gray-200 inline-block overflow-hidden">
+                  <div className="bg-white rounded-lg border-2 border-foreground/10 dark:border-divider inline-block overflow-hidden">
                     <img
                       src={latestQr.qrCode}
                       alt="QR Code"
                       className="w-48 h-48 mx-auto"
                     />
                   </div>
-                  <p className="text-gray-600 mt-3 text-xs">
+                  <p className="text-gray-600 dark:text-foreground/60 mt-3 text-xs">
                     Scan to access referral form
                   </p>
                 </div>
@@ -321,18 +321,24 @@ const TrackingPanel = () => {
                   />
                 </div>
 
-                <div className="grid grid-cols-3 gap-4 p-4 bg-gray-50 rounded-lg">
+                <div className="grid grid-cols-3 gap-4 p-4 bg-gray-50 dark:bg-content1 rounded-lg">
                   <div className="flex flex-col gap-0.5 items-center justify-center text-center">
-                    <GoGraph className="text-blue-600 text-lg mb-1.5" />
-                    <p className="text-xs font-medium">{latestQr.totalScan}</p>
-                    <p className="text-[11px] text-gray-600">Total Scans</p>
+                    <GoGraph className="text-blue-600 dark:text-blue-500 text-lg mb-1.5" />
+                    <p className="text-xs font-medium dark:text-white">
+                      {latestQr.totalScan}
+                    </p>
+                    <p className="text-[11px] text-gray-600 dark:text-foreground/60">
+                      Total Scans
+                    </p>
                   </div>
                   <div className="flex flex-col gap-0.5 items-center justify-center text-center">
-                    <FiCalendar className="text-green-600 text-lg mb-1.5" />
-                    <p className="text-xs font-medium">
+                    <FiCalendar className="text-green-600 dark:text-green-500 text-lg mb-1.5" />
+                    <p className="text-xs font-medium dark:text-white">
                       {formatDateToMMDDYYYY(latestQr.createdAt || "")}
                     </p>
-                    <p className="text-[11px] text-gray-600">Created</p>
+                    <p className="text-[11px] text-gray-600 dark:text-foreground/60">
+                      Created
+                    </p>
                   </div>
                   <div className="text-center">
                     <Chip
@@ -416,8 +422,8 @@ const TrackingPanel = () => {
             )}
           </div>
         </div>
-        <div className="border w-full border-primary/20 p-4 md:p-5 rounded-xl bg-background h-full">
-          <h6 className="text-sm flex items-center gap-2">
+        <div className="border w-full border-foreground/10 p-4 md:p-5 rounded-xl bg-background h-full">
+          <h6 className="text-sm flex items-center gap-2 dark:text-white">
             Tracking Analytics
           </h6>
           <div className="flex flex-col gap-2 md:gap-3 mt-4 rounded-md">
@@ -425,42 +431,50 @@ const TrackingPanel = () => {
               {
                 label: "Total Active QR Codes",
                 value: trackings?.activeQR ?? 0,
-                className: "bg-[#e0f2fe] text-[#0c4a6e]",
+                className:
+                  "bg-sky-100 text-sky-800 dark:bg-sky-500/20 dark:text-sky-400",
               },
               {
                 label: "Total Scans",
                 value: trackings?.totalScans ?? 0,
-                className: "bg-green-100 text-green-800",
+                className:
+                  "bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-400",
               },
               {
                 label: "QR Scans",
                 value: trackings?.qrScans ?? 0,
-                className: "bg-green-100 text-green-800",
+                className:
+                  "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-400",
               },
               {
                 label: "NFC Taps",
                 value: trackings?.nfcTaps ?? 0,
-                className: "bg-blue-100 text-blue-800",
+                className:
+                  "bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-400",
               },
               {
                 label: "Total Referrals",
                 value: trackings?.totalReferrals ?? 0,
-                className: "bg-blue-100 text-blue-800",
+                className:
+                  "bg-cyan-100 text-cyan-800 dark:bg-cyan-500/20 dark:text-cyan-400",
               },
               {
                 label: "Conversion Rate",
                 value: `${trackings?.conversionRate ?? 0}%`,
-                className: "bg-purple-100 text-purple-800",
+                className:
+                  "bg-purple-100 text-purple-800 dark:bg-purple-500/20 dark:text-purple-400",
               },
             ].map((item, index) => (
               <div
-                key={index}
-                className="flex justify-between text-xs p-3 md:p-4 rounded-lg bg-gray-50"
+                key={item.label}
+                className="flex justify-between text-xs p-3 md:p-4 rounded-lg bg-gray-50 dark:bg-content1"
               >
-                <p className="font-medium">{item.label}</p>
+                <p className="font-medium dark:text-foreground/80">
+                  {item.label}
+                </p>
                 <div>
                   <span
-                    className={`px-1.5 py-0.5 rounded-sm ${item.className}`}
+                    className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-colors ${item.className}`}
                   >
                     {item.value}
                   </span>
@@ -472,45 +486,45 @@ const TrackingPanel = () => {
       </div>
 
       {trackings?.personalizedQR && trackings.personalizedQR.length > 0 && (
-        <div className="border w-full border-primary/15 p-4 md:p-5 rounded-xl bg-background">
-          <h4 className="text-sm font-medium flex items-center gap-2 pb-3">
-            <LuQrCode className="text-blue-600 text-lg" />
+        <div className="border w-full border-foreground/10 p-4 md:p-5 rounded-xl bg-background">
+          <h4 className="text-sm font-medium flex items-center gap-2 pb-3 dark:text-white">
+            <LuQrCode className="text-blue-600 dark:text-blue-500 text-lg" />
             Generated QR Codes
           </h4>
           <div className="overflow-x-auto">
             <table className="w-full text-left text-sm">
               <thead>
-                <tr className="border-b border-gray-200">
-                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700 max-w-fit">
+                <tr className="border-b border-foreground/10">
+                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700 dark:text-foreground/60 max-w-fit">
                     QR Code
                   </th>
-                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700">
+                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700 dark:text-foreground/60">
                     Path / URL
                   </th>
-                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700">
+                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700 dark:text-foreground/60">
                     Total Scans
                   </th>
-                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700">
+                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700 dark:text-foreground/60">
                     QR Scans
                   </th>
-                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700">
+                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700 dark:text-foreground/60">
                     NFC Taps
                   </th>
-                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700">
+                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700 dark:text-foreground/60">
                     Referrals
                   </th>
-                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700">
+                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700 dark:text-foreground/60">
                     Conversion Rate
                   </th>
-                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700">
+                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700 dark:text-foreground/60">
                     Created
                   </th>
-                  <th className="text-right text-xs py-3 px-2 font-medium text-gray-700">
+                  <th className="text-right text-xs py-3 px-2 font-medium text-gray-700 dark:text-foreground/60">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-gray-100">
+              <tbody className="divide-y divide-gray-100 dark:divide-white/5">
                 {trackings.personalizedQR.map((qr) => (
                   <tr
                     key={qr._id}
@@ -521,12 +535,12 @@ const TrackingPanel = () => {
                     }}
                     className={`cursor-pointer transition-colors border-l-2 ${
                       qr._id === latestQr?._id
-                        ? "bg-blue-50/80 border-l-blue-600"
-                        : "border-transparent hover:bg-gray-50/50"
+                        ? "bg-blue-50/80 border-l-blue-600 dark:bg-blue-900/20"
+                        : "border-transparent hover:bg-gray-50/50 dark:hover:bg-white/[0.02]"
                     }`}
                   >
                     <td className="text-left text-xs py-3 px-2 max-w-fit">
-                      <div className="bg-white border border-gray-200 rounded p-0.5 w-12 h-12 flex items-center justify-center">
+                      <div className="bg-white border border-foreground/10 dark:bg-white dark:border-divider rounded p-0.5 w-12 h-12 flex items-center justify-center">
                         <img
                           src={qr.qrCode}
                           alt="QR"
@@ -536,7 +550,7 @@ const TrackingPanel = () => {
                     </td>
                     <td className="text-left text-xs py-3 px-2">
                       <div className="flex flex-col max-w-[200px] md:max-w-full space-y-0.5">
-                        <span className="font-medium text-gray-900 truncate">
+                        <span className="font-medium text-gray-900 dark:text-white truncate">
                           {qr.customPath || "Default"}
                         </span>
                         <a
@@ -550,22 +564,22 @@ const TrackingPanel = () => {
                         </a>
                       </div>
                     </td>
-                    <td className="text-left text-xs py-3 px-2 font-medium min-w-[80px]">
+                    <td className="text-left text-xs py-3 px-2 font-medium dark:text-foreground/80 min-w-[80px]">
                       {qr.totalScan}
                     </td>
-                    <td className="text-left text-xs py-3 px-2 font-medium min-w-[80px]">
+                    <td className="text-left text-xs py-3 px-2 font-medium dark:text-foreground/80 min-w-[80px]">
                       {qr.qrScan}
                     </td>
-                    <td className="text-left text-xs py-3 px-2 font-medium min-w-[80px]">
+                    <td className="text-left text-xs py-3 px-2 font-medium dark:text-foreground/80 min-w-[80px]">
                       {qr.nfcTaps}
                     </td>
-                    <td className="text-left text-xs py-3 px-2 font-medium min-w-[80px]">
+                    <td className="text-left text-xs py-3 px-2 font-medium dark:text-foreground/80 min-w-[80px]">
                       {qr.totalReferrals}
                     </td>
-                    <td className="text-left text-xs py-3 px-2 font-medium min-w-[80px]">
+                    <td className="text-left text-xs py-3 px-2 font-medium dark:text-foreground/80 min-w-[80px]">
                       {qr.conversionRate}%
                     </td>
-                    <td className="text-left text-xs py-3 px-2 whitespace-nowrap">
+                    <td className="text-left text-xs py-3 px-2 whitespace-nowrap dark:text-foreground/60">
                       {formatDateToMMDDYYYY(qr.createdAt)}
                     </td>
                     <td className="text-left text-xs py-3 px-2">

@@ -172,13 +172,24 @@ const Notifications: React.FC = () => {
   };
 
   // When global is turned off, disable all rules & channels
+  // When global setting changes
   useEffect(() => {
     if (!globalEnabled) {
+      // Turn everything OFF
       setRules((prev) =>
         prev.map((r) => ({
           ...r,
           enabled: false,
           channels: { push: false, email: false, sms: false, inApp: false },
+        }))
+      );
+    } else {
+      // Turn everything ON
+      setRules((prev) =>
+        prev.map((r) => ({
+          ...r,
+          enabled: true,
+          channels: { push: true, email: true, sms: true, inApp: true },
         }))
       );
     }
@@ -212,7 +223,7 @@ const Notifications: React.FC = () => {
         {/* Tabs removed, direct content */}
         <div className="space-y-4">
           {/* Global */}
-          <Card className="shadow-none">
+          <Card className="shadow-none bg-background">
             <CardBody className="p-4">
               <div className="flex items-center justify-between">
                 <div>
@@ -239,7 +250,7 @@ const Notifications: React.FC = () => {
           </Card>
 
           {/* Browser Permission Status */}
-          <Card className="shadow-none">
+          <Card className="shadow-none bg-background">
             <CardBody className="p-4">
               <div className="flex flex-col gap-4">
                 {/* Visual Header */}
@@ -248,7 +259,7 @@ const Notifications: React.FC = () => {
                     <FiBell className="h-5 w-5" />
                     Browser Permission Status
                   </h4>
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-gray-200 bg-gray-50 text-[10px] font-medium text-gray-600">
+                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-foreground/10 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-[10px] font-medium text-gray-600 dark:text-gray-300">
                     <FiWifi className="size-3" />
                     <span>Connected</span>
                   </div>
@@ -258,30 +269,30 @@ const Notifications: React.FC = () => {
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-4 justify-between">
                   <div className="flex items-center gap-3">
                     {permissionStatus === "denied" ? (
-                      <div className="size-8 rounded-full border border-red-200 bg-red-50 flex items-center justify-center text-red-500 shrink-0">
+                      <div className="size-8 rounded-full border border-red-200 dark:border-red-900/50 bg-red-50 dark:bg-red-900/20 flex items-center justify-center text-red-500 dark:text-red-400 shrink-0">
                         <FiXCircle className="size-5" />
                       </div>
                     ) : permissionStatus === "granted" ? (
-                      <div className="size-8 rounded-full border border-green-200 bg-green-50 flex items-center justify-center text-green-500 shrink-0">
+                      <div className="size-8 rounded-full border border-green-200 dark:border-green-900/50 bg-green-50 dark:bg-green-900/20 flex items-center justify-center text-green-500 dark:text-green-400 shrink-0">
                         <FiCheckCircle className="size-5" />
                       </div>
                     ) : (
-                      <div className="size-8 rounded-full border border-orange-200 bg-orange-50 flex items-center justify-center text-orange-500 shrink-0">
+                      <div className="size-8 rounded-full border border-orange-200 dark:border-orange-900/50 bg-orange-50 dark:bg-orange-900/20 flex items-center justify-center text-orange-500 dark:text-orange-400 shrink-0">
                         <FiAlertCircle className="size-5" />
                       </div>
                     )}
 
                     <div>
                       <p className="font-medium text-sm">Browser Permission</p>
-                      <p className="text-xs text-gray-500 mt-0.5">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
                         Current status:{" "}
                         <span
                           className={`font-medium ${
                             permissionStatus === "denied"
-                              ? "text-red-500"
+                              ? "text-red-500 dark:text-red-400"
                               : permissionStatus === "granted"
-                              ? "text-green-500"
-                              : "text-orange-500"
+                              ? "text-green-500 dark:text-green-400"
+                              : "text-orange-500 dark:text-orange-400"
                           }`}
                         >
                           {permissionStatus === "granted"
@@ -295,8 +306,8 @@ const Notifications: React.FC = () => {
                   </div>
 
                   {permissionStatus !== "granted" && (
-                    <div className="flex items-center gap-3 p-3 bg-cyan-50/50 border border-cyan-100 rounded-lg text-xs text-gray-600 w-full md:max-w-md">
-                      <div className="size-auto shrink-0 text-cyan-600">
+                    <div className="flex items-center gap-3 p-3 bg-cyan-50/50 dark:bg-cyan-900/10 border border-cyan-100 dark:border-cyan-800 rounded-lg text-xs text-gray-600 dark:text-gray-400 w-full md:max-w-md">
+                      <div className="size-auto shrink-0 text-cyan-600 dark:text-cyan-400">
                         <FiInfo className="size-4" />
                       </div>
                       <p className="leading-relaxed">
@@ -315,7 +326,7 @@ const Notifications: React.FC = () => {
             return (
               <Card
                 key={`${rule.id}__${rule.enabled}`}
-                className={`shadow-none ${
+                className={`shadow-none bg-background ${
                   !globalEnabled && rule.enabled
                     ? "opacity-50 pointer-events-none"
                     : ""
@@ -325,7 +336,7 @@ const Notifications: React.FC = () => {
                   <div className="space-y-4 md:space-y-5">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
-                        <div className="p-2 bg-foreground/10 /15 rounded-lg">
+                        <div className="p-2 bg-foreground/10 dark:bg-foreground/20 rounded-lg">
                           <FiUsers className="h-4 w-4" />
                         </div>
                         <div>
@@ -506,7 +517,7 @@ const Notifications: React.FC = () => {
           })}
 
           {/* Security & Privacy */}
-          <Card className="shadow-none">
+          <Card className="shadow-none bg-background">
             <CardBody className="p-4">
               <div className="space-y-4">
                 <h4 className="leading-none flex items-center gap-2 text-sm">
@@ -514,16 +525,16 @@ const Notifications: React.FC = () => {
                   Security & Privacy
                 </h4>
 
-                <div className="p-3 bg-cyan-50/50 border border-cyan-100 rounded-lg">
+                <div className="p-3 bg-cyan-50/50 dark:bg-cyan-900/10 border border-cyan-100 dark:border-cyan-800 rounded-lg">
                   <div className="flex gap-2">
-                    <div className="shrink-0 text-cyan-600 mt-0.5">
+                    <div className="shrink-0 text-cyan-600 dark:text-cyan-400 mt-0.5">
                       <FiInfo className="size-4" />
                     </div>
                     <div className="space-y-0.5">
-                      <p className="text-xs font-semibold text-gray-700">
+                      <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">
                         Privacy Note:
                       </p>
-                      <p className="text-xs text-gray-600 leading-relaxed">
+                      <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
                         Push notifications are sent directly from our secure
                         servers to your browser. We never store personal
                         information in notification payloads and all
@@ -538,7 +549,7 @@ const Notifications: React.FC = () => {
                     <p className="text-xs font-semibold mb-2">
                       What we collect:
                     </p>
-                    <ul className="text-xs text-gray-600 space-y-1.5 list-disc pl-4 marker:text-gray-400">
+                    <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1.5 list-disc pl-4 marker:text-gray-400">
                       <li>Device registration tokens</li>
                       <li>Notification preferences</li>
                       <li>Delivery status</li>
@@ -548,7 +559,7 @@ const Notifications: React.FC = () => {
                     <p className="text-xs font-semibold mb-2">
                       What we don't collect:
                     </p>
-                    <ul className="text-xs text-gray-600 space-y-1.5 list-disc pl-4 marker:text-gray-400">
+                    <ul className="text-xs text-gray-600 dark:text-gray-400 space-y-1.5 list-disc pl-4 marker:text-gray-400">
                       <li>Personal browsing data</li>
                       <li>Device location</li>
                       <li>Third-party app data</li>

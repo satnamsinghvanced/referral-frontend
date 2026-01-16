@@ -133,10 +133,10 @@ export default function EmailMarketingConfigModal({
       <ModalContent>
         <form onSubmit={formik.handleSubmit}>
           <ModalHeader className="p-4 pb-0 flex-col">
-            <h2 className="leading-none font-medium text-base">
+            <h2 className="leading-none font-medium text-base text-foreground">
               Email Marketing Integration
             </h2>
-            <p className="text-xs text-gray-600 mt-2 font-normal">
+            <p className="text-xs text-gray-600 dark:text-foreground/60 mt-2 font-normal">
               Configure your SMTP settings to enable automated email marketing
               and notifications.
             </p>
@@ -184,7 +184,9 @@ export default function EmailMarketingConfigModal({
                   onBlur={formik.handleBlur}
                   isInvalid={!!(formik.touched.host && formik.errors.host)}
                   errorMessage={formik.errors.host}
-                  startContent={<FiServer className="text-gray-400" />}
+                  startContent={
+                    <FiServer className="text-gray-400 dark:text-foreground/40" />
+                  }
                 />
                 <Input
                   className="flex-1"
@@ -224,7 +226,9 @@ export default function EmailMarketingConfigModal({
                     !!(formik.touched.username && formik.errors.username)
                   }
                   errorMessage={formik.errors.username}
-                  startContent={<FiMail className="text-gray-400" />}
+                  startContent={
+                    <FiMail className="text-gray-400 dark:text-foreground/40" />
+                  }
                 />
               </div>
 
@@ -286,19 +290,19 @@ export default function EmailMarketingConfigModal({
 
               {/* Status Message */}
               {isUpdateMode && existingConfig?.status === "Connected" && (
-                <div className="p-3 bg-green-50 text-green-700 text-xs rounded-lg border border-green-200">
+                <div className="p-3 bg-green-50 dark:bg-green-900/10 text-green-700 dark:text-green-400 text-xs rounded-lg border border-green-200 dark:border-green-500/30">
                   ✅ SMTP configuration is active. Last tested:{" "}
                   {formatDateToReadable(existingConfig.lastTestedAt, true)}
                 </div>
               )}
               {isUpdateMode && existingConfig?.status === "Disconnected" && (
-                <div className="p-3 bg-blue-50 text-blue-700 text-xs rounded-lg border border-blue-200">
+                <div className="p-3 bg-blue-50 dark:bg-blue-900/10 text-blue-700 dark:text-blue-400 text-xs rounded-lg border border-blue-200 dark:border-blue-500/30">
                   ℹ️ Email Marketing is disconnected. Please reconnect it by
                   using switch.
                 </div>
               )}
               {isUpdateMode && existingConfig?.status === "Error" && (
-                <div className="p-3 bg-red-50 text-red-700 text-xs rounded-lg border border-red-200">
+                <div className="p-3 bg-red-50 dark:bg-red-900/10 text-red-700 dark:text-red-400 text-xs rounded-lg border border-red-200 dark:border-red-500/30">
                   ⚠️ Connection failed. Please check your credentials and try
                   again.
                 </div>
@@ -311,7 +315,7 @@ export default function EmailMarketingConfigModal({
               size="sm"
               variant="ghost"
               onPress={onClose}
-              className="border border-gray-300 text-gray-700 hover:bg-gray-50"
+              className="border border-gray-300 dark:border-default-200 text-gray-700 dark:text-foreground/70 hover:bg-gray-50 dark:hover:bg-default-100"
               isDisabled={isSubmitting}
             >
               Cancel

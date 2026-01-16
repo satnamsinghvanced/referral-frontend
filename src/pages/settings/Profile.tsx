@@ -212,7 +212,9 @@ const Profile = () => {
               </Button>
 
               {values.image instanceof File && (
-                <p className="text-xs mt-1">{values.image.name}</p>
+                <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                  {values.image.name}
+                </p>
               )}
 
               {touched.image && errors.image && (
@@ -221,7 +223,9 @@ const Profile = () => {
                 </p>
               )}
 
-              <p className="text-xs mt-1">JPG, JPEG or PNG. 1MB max.</p>
+              <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                JPG, JPEG or PNG. 1MB max.
+              </p>
             </div>
           </div>
 

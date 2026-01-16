@@ -7,15 +7,8 @@ import { LuPause, LuPlay, LuTarget, LuTrash2, LuUsers } from "react-icons/lu";
 import FlowStatusChip from "../../../components/chips/FlowStatusChip";
 
 const FlowCard = ({ flow }: any) => {
-  const {
-    title,
-    description,
-    status,
-    emails,
-    trigger,
-    metrics,
-    actions,
-  } = flow;
+  const { title, description, status, emails, trigger, metrics, actions } =
+    flow;
 
   const getIconForAction = (action: string) => {
     switch (action) {
@@ -31,7 +24,7 @@ const FlowCard = ({ flow }: any) => {
   };
 
   return (
-    <div className="bg-background border border-primary/15 rounded-xl p-5">
+    <div className="bg-background border border-foreground/10 rounded-xl p-5">
       <div className="flex justify-between items-start gap-2">
         <div className="flex items-start gap-2.5 w-full">
           <span className="inline-block mt-0.5">

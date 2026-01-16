@@ -25,7 +25,7 @@ import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 
 const PlaybackTab = ({ data }: { data: CallRecord }) => (
   <div className="flex-1 outline-none space-y-4">
-    <Card className="bg-card text-card-foreground flex flex-col rounded-xl border border-primary/15 shadow-none">
+    <Card className="bg-card text-card-foreground flex flex-col rounded-xl border border-foreground/10 shadow-none">
       <CardBody className="p-4">
         {/* Header Info */}
         <div className="flex items-center justify-between">
@@ -33,7 +33,7 @@ const PlaybackTab = ({ data }: { data: CallRecord }) => (
             <h4 className="font-medium text-sm mb-0.5">
               {data.contact.name || data.contact.phone || "Unknown"}
             </h4>
-            <p className="text-xs text-gray-600">
+            <p className="text-xs text-gray-600 dark:text-foreground/60">
               {data.contact.phone || data.from} &bull;{" "}
               {formatDateToReadable(data.date, true)}
             </p>
@@ -44,7 +44,7 @@ const PlaybackTab = ({ data }: { data: CallRecord }) => (
               size="sm"
               radius="sm"
               variant="bordered"
-              className="capitalize text-blue-600 border-blue-200 text-[11px] h-5 bg-blue-50/50 border-small"
+              className="capitalize text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-500/30 text-[11px] h-5 bg-blue-50/50 dark:bg-blue-900/10 border-small"
             >
               Twilio
             </Chip>
@@ -63,7 +63,7 @@ const PlaybackTab = ({ data }: { data: CallRecord }) => (
               Your browser does not support the audio element.
             </audio>
           ) : (
-            <div className="text-center text-sm text-gray-500 py-4">
+            <div className="text-center text-sm text-gray-500 dark:text-foreground/40 py-4">
               No recording available.
             </div>
           )}
@@ -75,13 +75,13 @@ const PlaybackTab = ({ data }: { data: CallRecord }) => (
 
 const TranscriptionTab = ({ data }: { data: CallRecord }) => (
   <div className="flex-1 outline-none space-y-4">
-    <Card className="bg-card text-card-foreground flex flex-col rounded-xl border border-primary/15 shadow-none">
+    <Card className="bg-card text-card-foreground flex flex-col rounded-xl border border-foreground/10 shadow-none">
       <CardBody className="p-4 space-y-4">
         <div className="flex items-center space-x-2 text-sm font-medium">
           <MdChatBubbleOutline className="h-5 w-5" />
           <span>Call Transcription</span>
         </div>
-        <div className="p-3 bg-gray-50 rounded-lg text-gray-800 leading-relaxed text-xs max-h-60 overflow-y-auto">
+        <div className="p-3 bg-gray-50 dark:bg-foreground/5 rounded-lg text-gray-800 dark:text-foreground/80 leading-relaxed text-xs max-h-60 overflow-y-auto font-medium italic">
           {data.transcriptionText || "No transcription available."}
         </div>
       </CardBody>
@@ -145,55 +145,59 @@ const DetailsTab = ({
       <div>
         <div className="grid grid-cols-2 gap-3">
           {/* Call Information */}
-          <Card className="shadow-none border border-primary/15">
+          <Card className="shadow-none border border-foreground/10">
             <CardBody className="space-y-3">
               <h4 className="text-sm font-medium">Call Information</h4>
               <div className="space-y-3 text-sm">
                 <p className="flex items-center justify-between text-xs">
-                  <span className="w-24 inline-block text-gray-600">
+                  <span className="w-24 inline-block text-gray-600 dark:text-foreground/60">
                     Duration:
                   </span>{" "}
                   {data.duration}s
                 </p>
                 <p className="flex items-center justify-between text-xs transition-colors">
-                  <span className="w-24 inline-block text-gray-600">Type:</span>{" "}
+                  <span className="w-24 inline-block text-gray-600 dark:text-foreground/60">
+                    Type:
+                  </span>{" "}
                   <span className="inline-flex items-center gap-1.5">
                     {data.direction === "Incoming" ? (
-                      <LuPhoneIncoming className="size-3.5 text-green-600" />
+                      <LuPhoneIncoming className="size-3.5 text-blue-600 dark:text-blue-400" />
                     ) : (
-                      <LuPhoneOutgoing className="size-3.5 text-blue-600" />
+                      <LuPhoneOutgoing className="size-3.5 text-purple-600 dark:text-purple-400" />
                     )}{" "}
                     {data.direction}
                   </span>
                 </p>
                 <p className="flex items-center justify-between text-xs">
-                  <span className="w-24 inline-block text-gray-600">
+                  <span className="w-24 inline-block text-gray-600 dark:text-foreground/60">
                     Status:
                   </span>{" "}
-                  <span className="inline-flex items-center gap-1.5 capitalize">
+                  <span className="inline-flex items-center gap-1.5 capitalize font-semibold">
                     {data.status === "completed" ? (
-                      <FiCheckCircle className="size-3.5 text-green-600" />
+                      <FiCheckCircle className="size-3.5 text-green-600 dark:text-green-400" />
                     ) : (
-                      <FiXCircle className="size-3.5 text-red-600" />
+                      <FiXCircle className="size-3.5 text-danger-500 dark:text-danger-400" />
                     )}
                     {data.status}
                   </span>
                 </p>
                 <p className="flex items-center justify-between text-xs">
-                  <span className="w-24 inline-block text-gray-600">
+                  <span className="w-24 inline-block text-gray-600 dark:text-foreground/60">
                     Call SID:
                   </span>{" "}
-                  <span className="font-mono text-[11px] text-gray-500">
+                  <span className="font-mono text-[11px] text-gray-500 dark:text-foreground/40">
                     {data.callSid}
                   </span>
                 </p>
-                <p className="flex items-center justify-between text-xs border-t border-primary/15 pt-3 mt-3">
-                  <span className="w-24 inline-block text-gray-600">
+                <p className="flex items-center justify-between text-xs border-t border-foreground/10 pt-3 mt-3">
+                  <span className="w-24 inline-block text-gray-600 dark:text-foreground/60">
                     Recording:
                   </span>{" "}
                   <span
                     className={
-                      data.recordingUrl ? "text-green-600" : "text-gray-400"
+                      data.recordingUrl
+                        ? "text-green-600 dark:text-green-400"
+                        : "text-gray-400 dark:text-foreground/30"
                     }
                   >
                     {data.recordingUrl ? "Available" : "Unavailable"}
@@ -204,7 +208,7 @@ const DetailsTab = ({
           </Card>
 
           {/* Notes & Actions */}
-          <Card className="shadow-none border border-primary/15">
+          <Card className="shadow-none border border-foreground/10">
             <CardBody className="space-y-3">
               <div className="flex items-center justify-between">
                 <h4 className="text-sm font-medium">Notes & Actions</h4>
@@ -289,7 +293,7 @@ const DetailsTab = ({
                 </div>
 
                 {/* Schedule Follow-up Button */}
-                <div className="border-t border-primary/15 pt-2 mt-4">
+                <div className="border-t border-foreground/10 pt-2 mt-4">
                   <Button
                     color="primary"
                     size="sm"
@@ -363,7 +367,7 @@ export default function CallRecordingModal({
           </h2>
           <p
             data-slot="dialog-description"
-            className="text-xs text-gray-600 mt-2 font-normal"
+            className="text-xs text-gray-600 dark:text-foreground/60 mt-2 font-normal"
           >
             Listen to the call recording, view transcription, and manage call
             details for{" "}
@@ -371,23 +375,29 @@ export default function CallRecordingModal({
           </p>
         </ModalHeader>
         <ModalBody className="px-5 py-5">
-          <Tabs
-            aria-label="Dynamic tabs"
-            items={tabs}
-            classNames={{
-              tabList: "flex w-full rounded-full bg-primary/10",
-              tab: "flex-1 px-4 py-1 text-sm font-medium transition-all",
-              cursor: "rounded-full",
-              panel: "p-0",
-            }}
-            className="text-background w-full"
-          >
-            {(item) => (
-              <Tab key={item.key} title={item.label}>
-                <div>{item.content}</div>
-              </Tab>
-            )}
-          </Tabs>
+          <div className="">
+            <Tabs
+              aria-label="Dynamic tabs"
+              items={tabs}
+              variant="light"
+              radius="full"
+              classNames={{
+                base: "bg-primary/15 dark:bg-background rounded-full p-1 w-full",
+                tabList: "flex w-full rounded-full p-0 gap-0",
+                tab: "flex-1 h-9 text-sm font-medium transition-all",
+                cursor: "rounded-full bg-white dark:bg-primary",
+                tabContent:
+                  "dark:group-data-[selected=true]:text-primary-foreground text-default-500 dark:text-foreground/60 transition-colors",
+              }}
+              className="w-full"
+            >
+              {(item) => (
+                <Tab key={item.key} title={item.label}>
+                  <div>{item.content}</div>
+                </Tab>
+              )}
+            </Tabs>
+          </div>
         </ModalBody>
       </ModalContent>
     </Modal>

@@ -9,7 +9,7 @@ const FlowStepCard = ({ step, index, totalSteps }: any) => {
   const isWaitStep = step.type === "wait";
 
   return (
-    <div className="flex items-start gap-3 p-4 border border-primary/15 rounded-lg">
+    <div className="flex items-start gap-3 p-4 border border-foreground/10 rounded-lg">
       {/* Step Number */}
       <div className="flex flex-col items-center">
         <span className="font-medium text-gray-600">{index}</span>

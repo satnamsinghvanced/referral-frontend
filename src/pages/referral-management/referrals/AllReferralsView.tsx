@@ -96,48 +96,62 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
   const renderReferralCard = (referral: Referral) => (
     <div
       key={referral._id}
-      className="p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition-colors"
+      className="p-4 border border-foreground/10 rounded-lg hover:bg-gray-50 dark:hover:bg-background/10 transition-colors dark:bg-content1"
     >
       <div className="grid grid-cols-1 md:grid-cols-[1fr_1.5fr_1fr] gap-4 md:gap-6">
         <div className="space-y-3">
           <div className="flex items-center space-x-3">
             <div>
-              <h3 className="text-sm font-medium">{referral.name}</h3>
+              <h3 className="text-sm font-medium dark:text-white">
+                {referral.name}
+              </h3>
               {referral.age && (
-                <span className="text-xs">Age: {referral.age}</span>
+                <span className="text-xs dark:text-foreground/60">
+                  Age: {referral.age}
+                </span>
               )}
             </div>
           </div>
           <div className="space-y-1.5">
             {referral.phone && (
               <div className="flex items-center space-x-1.5 text-sm">
-                <BiPhone className="h-4 w-4 text-gray-400" aria-hidden="true" />
-                <span className="text-xs">
+                <BiPhone
+                  className="h-4 w-4 text-gray-400 dark:text-foreground/40"
+                  aria-hidden="true"
+                />
+                <span className="text-xs dark:text-foreground/60">
                   {formatPhoneNumber(referral.phone)}
                 </span>
               </div>
             )}
             <div className="flex items-center space-x-1.5 text-sm">
-              <CgMail className="h-4 w-4 text-gray-400" aria-hidden="true" />
-              <span className="text-xs">{referral.email}</span>
+              <CgMail
+                className="h-4 w-4 text-gray-400 dark:text-foreground/40"
+                aria-hidden="true"
+              />
+              <span className="text-xs dark:text-foreground/60">
+                {referral.email}
+              </span>
             </div>
           </div>
         </div>
 
         <div className="space-y-3">
           <div>
-            <p className="text-sm font-medium">{referral?.referredBy?.name}</p>
-            <p className="text-xs text-gray-600 mt-0.5">
+            <p className="text-sm font-medium dark:text-white">
+              {referral?.referredBy?.name}
+            </p>
+            <p className="text-xs text-gray-600 dark:text-foreground/60 mt-0.5">
               {referral?.referredBy?.practiceName}
             </p>
           </div>
           <div className="space-y-2">
             <div className="flex items-center space-x-1.5">
               <LuCalendar
-                className="h-4 w-4 text-gray-400"
+                className="h-4 w-4 text-gray-400 dark:text-foreground/40"
                 aria-hidden="true"
               />
-              <span className="text-xs">
+              <span className="text-xs dark:text-foreground/60">
                 Referred:{" "}
                 {formatDateToReadable(referral.createdAt as string, true)}
               </span>
@@ -148,7 +162,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                   className="h-4 w-4 text-primary-600"
                   aria-hidden="true"
                 />
-                <span className="text-xs">
+                <span className="text-xs dark:text-foreground/60">
                   Scheduled:{" "}
                   {formatDateToReadable(referral.scheduledDate as string, true)}
                 </span>
@@ -158,19 +172,27 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
           <div className="space-y-2">
             {referral.treatment && (
               <p className="text-xs">
-                <span className="font-medium">Treatment:</span>{" "}
-                {
-                  TREATMENT_OPTIONS.find(
-                    (treatmentOption: any) =>
-                      treatmentOption.key === referral.treatment
-                  )?.label
-                }
+                <span className="font-medium dark:text-foreground/60">
+                  Treatment:
+                </span>{" "}
+                <span className="dark:text-white">
+                  {
+                    TREATMENT_OPTIONS.find(
+                      (treatmentOption: any) =>
+                        treatmentOption.key === referral.treatment
+                    )?.label
+                  }
+                </span>
               </p>
             )}
 
             <p className="text-xs">
-              <span className="font-medium">Source:</span>{" "}
-              {referral.addedVia ? referral.addedVia : "Direct"}
+              <span className="font-medium dark:text-foreground/60">
+                Source:
+              </span>{" "}
+              <span className="dark:text-white">
+                {referral.addedVia ? referral.addedVia : "Direct"}
+              </span>
             </p>
           </div>
         </div>
@@ -186,12 +208,16 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
             <PriorityLevelChip level={referral.priority as string} />
           </div>
           {referral.notes && (
-            <p className="text-xs text-gray-600">{referral.notes}</p>
+            <p className="text-xs text-gray-600 dark:text-foreground/60">
+              {referral.notes}
+            </p>
           )}
           {referral.estValue ? (
             <p className="text-xs">
-              <span className="font-medium">Estimated Value:</span> $
-              {referral.estValue}
+              <span className="font-medium dark:text-foreground/60">
+                Estimated Value:
+              </span>{" "}
+              <span className="dark:text-white">${referral.estValue}</span>
             </p>
           ) : (
             ""
@@ -237,27 +263,31 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
     >
       <div
         data-slot="card"
-        className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-primary/15 bg-background"
+        className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-foreground/10 bg-background"
       >
         <div data-slot="card-content" className="p-4">
           <div className="md:flex md:items-center md:justify-between max-md:space-y-3.5">
             <div className="flex items-center space-x-4">
               <div className="flex flex-col gap-1">
                 <div className="flex items-center space-x-2">
-                  <h4 className="text-base font-medium">All Referrals</h4>
+                  <h4 className="text-base font-medium dark:text-white">
+                    All Referrals
+                  </h4>
                   {isFiltered && (
                     <Chip
                       size="sm"
                       variant="solid"
                       color="primary"
-                      className="h-5 text-[11px] font-medium bg-[#e0f2fe] text-[#0c4a6e]"
+                      className="h-5 text-[11px] font-medium bg-[#e0f2fe] text-[#0c4a6e] dark:bg-blue-900/20 dark:text-blue-300"
                       radius="sm"
                     >
                       Filtered
                     </Chip>
                   )}
                 </div>
-                <p className="text-xs text-gray-600">Manage all referrals</p>
+                <p className="text-xs text-gray-600 dark:text-foreground/60">
+                  Manage all referrals
+                </p>
               </div>
             </div>
             <div className="flex items-center space-x-2">
@@ -287,40 +317,48 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
       {isFiltered && (
         <div
           data-slot="card"
-          className="text-card-foreground flex flex-col gap-6 rounded-xl border bg-blue-50 border-blue-200"
+          className="text-card-foreground flex flex-col gap-6 rounded-xl border bg-blue-50 dark:bg-blue-900/10 border-blue-200 dark:border-blue-500/30"
         >
           <div data-slot="card-content" className="p-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               <div className="flex flex-col items-center gap-0.5">
-                <div className="font-semibold text-blue-900">
+                <div className="font-semibold text-blue-900 dark:text-blue-300">
                   {filterStats?.totalReferrals}
                 </div>
-                <div className="text-xs text-blue-700">Total Filtered</div>
+                <div className="text-xs text-blue-700 dark:text-blue-400">
+                  Total Filtered
+                </div>
               </div>
               <div className="flex flex-col items-center gap-0.5">
-                <div className="font-semibold text-green-900">
+                <div className="font-semibold text-green-900 dark:text-green-300">
                   ${filterStats?.totalValue}
                 </div>
-                <div className="text-xs text-green-700">Total Value</div>
+                <div className="text-xs text-green-700 dark:text-green-400">
+                  Total Value
+                </div>
               </div>
               <div className="flex flex-col items-center gap-0.5">
-                <div className="font-semibold text-orange-900">
+                <div className="font-semibold text-orange-900 dark:text-orange-300">
                   {filterStats?.activeCount}
                 </div>
-                <div className="text-xs text-orange-700">Active</div>
+                <div className="text-xs text-orange-700 dark:text-orange-400">
+                  Active
+                </div>
               </div>
               <div className="flex flex-col items-center gap-0.5">
-                <div className="font-semibold text-purple-900">
+                <div className="font-semibold text-purple-900 dark:text-purple-300">
                   {filterStats?.highPriorityCount}
                 </div>
-                <div className="text-xs text-purple-700">High Priority</div>
+                <div className="text-xs text-purple-700 dark:text-purple-400">
+                  High Priority
+                </div>
               </div>
             </div>
           </div>
         </div>
       )}
 
-      <div className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-primary/15 bg-background">
+      <div className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-foreground/10 bg-background">
         <div data-slot="card-content" className="p-4">
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3">
             <div className="relative">
@@ -329,7 +367,9 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                 size="sm"
                 value={currentFilters.search as string}
                 onValueChange={(value) => onSearchChange(value)}
-                startContent={<FiSearch className="text-gray-600" />}
+                startContent={
+                  <FiSearch className="text-gray-600 dark:text-foreground/60" />
+                }
               />
             </div>
             <Select
@@ -423,10 +463,13 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
 
       <div
         data-slot="card"
-        className="bg-card text-card-foreground flex flex-col gap-4 rounded-xl border border-primary/15 bg-background"
+        className="bg-card text-card-foreground flex flex-col gap-4 rounded-xl border border-foreground/10 bg-background"
       >
         <div data-slot="card-header" className="px-4 pt-4">
-          <h4 data-slot="card-title" className="font-medium text-sm">
+          <h4
+            data-slot="card-title"
+            className="font-medium text-sm dark:text-white"
+          >
             Referrals Details
           </h4>
         </div>
@@ -441,7 +484,6 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
               {totalPages > 1 && (
                 <Pagination
                   identifier="referrals"
-                  items={referrals}
                   totalItems={totalReferrals}
                   currentPage={currentFilters.page || 1}
                   totalPages={totalPages}

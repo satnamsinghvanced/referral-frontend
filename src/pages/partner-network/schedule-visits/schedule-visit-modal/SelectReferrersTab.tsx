@@ -55,9 +55,12 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
           value={filters.search}
           onChange={(e) => setFilters({ ...filters, search: e.target.value })}
           classNames={{
-            inputWrapper: "border-none shadow-none bg-gray-100",
+            inputWrapper:
+              "border-none shadow-none bg-gray-100 dark:bg-white/[0.05]",
           }}
-          startContent={<IoSearch className="text-gray-400 text-base" />}
+          startContent={
+            <IoSearch className="text-gray-400 dark:text-foreground/40 text-base" />
+          }
         />
         <Select
           key="Categories"
@@ -88,7 +91,7 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
           <Button
             variant="ghost"
             size="sm"
-            className="border-small"
+            className="border-small dark:text-foreground/80"
             onPress={handleSelectAll}
           >
             Select All ({filteredReferrers.length})
@@ -96,22 +99,24 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
           <Button
             variant="ghost"
             size="sm"
-            className="border-small"
+            className="border-small dark:text-foreground/80"
             onPress={handleClearAll}
           >
             Clear All
           </Button>
         </div>
-        <p>
-          <span>{selectedReferrersState?.length}</span> of {practices.length}{" "}
-          referrers selected
+        <p className="dark:text-foreground/60">
+          <span className="dark:text-white">
+            {selectedReferrersState?.length}
+          </span>{" "}
+          of {practices.length} referrers selected
         </p>
       </div>
 
       {selectedReferrerObjects.length > 0 && (
-        <Card className="shadow-none border border-primary/15 bg-blue-50/50">
+        <Card className="shadow-none border border-foreground/10 bg-blue-50/50 dark:bg-blue-900/10 dark:border-blue-500/30">
           <CardHeader className="flex items-center justify-between pt-4 px-4 pb-0">
-            <p className="font-medium text-sm">
+            <p className="font-medium text-sm dark:text-white">
               Selected Referrers ({selectedReferrerObjects.length})
             </p>
             {/* Removed commented-out Button */}
@@ -122,15 +127,15 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
                 {selectedReferrerObjects.map((r, index) => (
                   <div
                     key={r._id}
-                    className="bg-background border border-primary/15 rounded-md p-2 flex items-center justify-between gap-2"
+                    className="bg-background border border-foreground/10 rounded-md p-2 flex items-center justify-between gap-2"
                   >
                     <div className="flex items-center gap-1.5">
                       <span className="min-h-[18px] min-w-[18px] size-[18px] rounded-full bg-primary text-white inline-flex items-center justify-center text-xs">
                         {index + 1}
                       </span>
                       <div className="text-xs space-y-0.5">
-                        <p className="font-medium">{r.name}</p>
-                        <p className="text-gray-600">
+                        <p className="font-medium dark:text-white">{r.name}</p>
+                        <p className="text-gray-600 dark:text-foreground/60">
                           {r.address.addressLine1} {r.address.city}
                           {r.address.state && `, ${r.address.state}`}
                           {r.address.zip && ` ${r.address.zip}`}
@@ -142,7 +147,7 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
                       size="sm"
                       radius="sm"
                       isIconOnly
-                      className="min-w-5 min-h-5 size-5 border-none"
+                      className="min-w-5 min-h-5 size-5 border-none dark:text-foreground/60 dark:hover:text-white"
                       onPress={() => handleReferrerToggle(r._id)}
                     >
                       <IoClose />
@@ -162,10 +167,10 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
           return (
             <Card
               key={r._id}
-              className={`border border-primary/15 shadow-none cursor-pointer w-full ${
+              className={`border border-foreground/10 shadow-none cursor-pointer w-full ${
                 selectedReferrersState?.includes(r._id)
-                  ? "outline-2 outline-primary bg-primary/5"
-                  : "outline-none hover:bg-gray-50"
+                  ? "outline-2 outline-primary bg-primary/5 dark:bg-primary/10"
+                  : "outline-none hover:bg-gray-50 dark:hover:bg-white/[0.02]"
               }`}
               isPressable
               onPress={() => handleReferrerToggle(r._id)}
@@ -181,16 +186,18 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
                     className="pointer-events-none"
                   />
                   <div>
-                    <p className="text-sm">{r.name}</p>
-                    <p className="text-xs text-gray-600 mt-0.5">
+                    <p className="text-sm dark:text-white">{r.name}</p>
+                    <p className="text-xs text-gray-600 dark:text-foreground/60 mt-0.5">
                       {r.address.addressLine1} {r.address.city}
                       {r.address.state && `, ${r.address.state}`}
                       {r.address.zip && ` ${r.address.zip}`}
                     </p>
                     <div className="flex items-center sapce-x-2 mt-0.5">
-                      <p className="text-xs text-gray-600">{r.phone}</p>
+                      <p className="text-xs text-gray-600 dark:text-foreground/60">
+                        {r.phone}
+                      </p>
                       {r.totalReferrals > 0 && (
-                        <p className="text-xs text-gray-600 ml-2">
+                        <p className="text-xs text-gray-600 dark:text-foreground/60 ml-2">
                           • {r.totalReferrals} Referrals
                         </p>
                       )}
@@ -203,7 +210,7 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
           );
         })}
         {filteredReferrers.length === 0 && (
-          <p className="text-center text-gray-600 text-sm py-5">
+          <p className="text-center text-gray-600 dark:text-foreground/60 text-sm py-5">
             No referrers match the current filters.
           </p>
         )}

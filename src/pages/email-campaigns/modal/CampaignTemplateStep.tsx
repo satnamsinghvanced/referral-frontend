@@ -97,7 +97,7 @@ const CampaignTemplateStep: React.FC<CampaignStepProps> = ({
                 "bg-background rounded-lg border-2 p-2.5 cursor-pointer transition-all",
                 isSelected
                   ? "border-blue-500 ring-1 ring-blue-500"
-                  : "border-gray-200"
+                  : "border-foreground/10"
               )}
               onClick={() => handleSelect(template)}
             >

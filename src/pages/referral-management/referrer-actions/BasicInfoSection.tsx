@@ -35,8 +35,10 @@ export default function BasicInfoSection({
   ];
 
   return (
-    <div className="border border-gray-200 rounded-xl p-4">
-      <h5 className="text-sm font-medium mb-3">Basic Information</h5>
+    <div className="border border-foreground/10 rounded-xl p-4">
+      <h5 className="text-sm font-medium mb-3 dark:text-white">
+        Basic Information
+      </h5>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-2.5">
         {basicFields.map(renderField)}
       </div>

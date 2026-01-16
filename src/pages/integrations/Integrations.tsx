@@ -129,8 +129,8 @@ function Integrations() {
         id: googleBusinessConfig?._id || "",
         name: "Google My Business",
         icon: <FaGoogle className="w-4 h-4" />,
-        iconBg: "bg-red-100",
-        iconColor: "text-red-600",
+        iconBg: "bg-red-100 dark:bg-red-900/20",
+        iconColor: "text-red-600 dark:text-red-400",
         status: googleBusinessConfig?.status || "Disconnected",
         description:
           "Automatically sync reviews and manage your practice listing",
@@ -177,8 +177,8 @@ function Integrations() {
         id: emailConfig?._id || "",
         name: "Email Marketing Platform",
         icon: <FaRegEnvelope className="w-4 h-4" />,
-        iconBg: "bg-green-100",
-        iconColor: "text-green-600",
+        iconBg: "bg-green-100 dark:bg-green-900/20",
+        iconColor: "text-green-600 dark:text-green-400",
         status: emailConfig?.status,
         description:
           "Configure SMTP settings to send automated referral notifications",
@@ -212,8 +212,8 @@ function Integrations() {
         id: googleCalendarExistingConfig?._id || "",
         name: "Google Calendar Integration",
         icon: <LuCalendar className="w-4 h-4" />,
-        iconBg: "bg-purple-100",
-        iconColor: "text-purple-600",
+        iconBg: "bg-purple-100 dark:bg-purple-900/20",
+        iconColor: "text-purple-600 dark:text-purple-400",
         status: googleCalendarExistingConfig?.status || "Disconnected",
         description:
           "Sync marketing activities and referral events with Google Calendar",
@@ -240,8 +240,8 @@ function Integrations() {
         id: googleAdsConfig?._id || "",
         name: "Google Ads",
         icon: <SiGoogleads className="w-4 h-4" />,
-        iconBg: "bg-blue-100",
-        iconColor: "text-blue-600",
+        iconBg: "bg-blue-100 dark:bg-blue-900/20",
+        iconColor: "text-blue-600 dark:text-blue-400",
         status: googleAdsConfig?.status || "Disconnected",
         description:
           "Sync ad performance and optimize referral-based campaigns",
@@ -269,8 +269,8 @@ function Integrations() {
         id: metaAdsConfig?._id || "",
         name: "Meta Ads",
         icon: <FaMeta className="w-4 h-4" />,
-        iconBg: "bg-indigo-100",
-        iconColor: "text-indigo-600",
+        iconBg: "bg-indigo-100 dark:bg-indigo-900/20",
+        iconColor: "text-indigo-600 dark:text-indigo-400",
         status: metaAdsConfig?.status || "Disconnected",
         description: "Connect Facebook & Instagram Ads for referral targeting",
         badges: [
@@ -307,8 +307,8 @@ function Integrations() {
         id: twilioConfig?._id || "",
         name: "Twilio Calling Integration",
         icon: <TbBrandTwilio className="w-4 h-4" />,
-        iconBg: "bg-red-100",
-        iconColor: "text-red-600",
+        iconBg: "bg-red-100 dark:bg-red-900/20",
+        iconColor: "text-red-600 dark:text-red-400",
         status: twilioConfig?.status || "Disconnected",
         description:
           "Track patient calls and monitor referral communications with recordings",
@@ -358,11 +358,13 @@ function Integrations() {
     <>
       <ComponentContainer headingData={HEADING_DATA}>
         <div className="flex flex-col gap-4 md:gap-5">
-          <Card className="shadow-none border border-primary/15 rounded-xl p-5">
+          <Card className="shadow-none border border-foreground/10 rounded-xl p-5 bg-background">
             <CardHeader className="p-0 pb-6">
-              <h4 className="font-medium text-sm">Available Integrations</h4>
+              <h4 className="font-medium text-sm text-foreground">
+                Available Integrations
+              </h4>
             </CardHeader>
-            <CardBody className="divide-y divide-gray-100 p-0">
+            <CardBody className="divide-y divide-gray-100 dark:divide-default-100/50 p-0">
               {AVAILABLE_INTEGRATIONS.map((item, index) => (
                 <IntegrationItem key={index} {...item} />
               ))}

@@ -419,35 +419,41 @@ export function ScheduleVisitsModal({
         </ModalHeader>
 
         <ModalBody className="px-4 py-0 gap-0">
-          <Tabs
-            aria-label="Schedule Steps"
-            selectedKey={activeStep}
-            onSelectionChange={(key) => {
-              setActiveStep(key as string);
-            }}
-            items={tabs}
-            classNames={{
-              tabList: "flex w-full rounded-full bg-primary/10",
-              tab: "flex-1 px-4 py-1 text-sm font-medium transition-all",
-              cursor: "rounded-full",
-              panel: "p-0",
-            }}
-            className="w-full"
-          >
-            {(item) => {
-              // const itemIndex = tabs.findIndex((t) => t.key === item.key);
-              // const isAhead = itemIndex < currentTabIndex;
-              // const isNotCleared = !clearedSteps.has(item.key);
-              // const isDisabled = isAhead && isNotCleared;
-              return (
-                <Tab
-                  key={item.key}
-                  title={item.label}
-                  // isDisabled={isDisabled}
-                />
-              );
-            }}
-          </Tabs>
+          <div className="">
+            <Tabs
+              aria-label="Schedule Steps"
+              selectedKey={activeStep}
+              onSelectionChange={(key) => {
+                setActiveStep(key as string);
+              }}
+              items={tabs}
+              variant="light"
+              radius="full"
+              classNames={{
+                base: "bg-primary/15 dark:bg-background rounded-full p-1 w-full",
+                tabList: "flex w-full rounded-full p-0 gap-0",
+                tab: "flex-1 h-9 text-sm font-medium transition-all",
+                cursor: "rounded-full bg-white dark:bg-primary",
+                tabContent:
+                  "dark:group-data-[selected=true]:text-primary-foreground text-default-500 dark:text-foreground/60 transition-colors",
+              }}
+              className="w-full"
+            >
+              {(item) => {
+                // const itemIndex = tabs.findIndex((t) => t.key === item.key);
+                // const isAhead = itemIndex < currentTabIndex;
+                // const isNotCleared = !clearedSteps.has(item.key);
+                // const isDisabled = isAhead && isNotCleared;
+                return (
+                  <Tab
+                    key={item.key}
+                    title={item.label}
+                    // isDisabled={isDisabled}
+                  />
+                );
+              }}
+            </Tabs>
+          </div>
 
           <div className="pt-4 pb-4 relative overflow-hidden">
             <div
@@ -517,14 +523,14 @@ export function ScheduleVisitsModal({
           </div>
         </ModalBody>
 
-        <ModalFooter className="flex justify-between gap-3 max-sm:gap-1.5 px-4 py-3.5 border-t border-gray-200">
+        <ModalFooter className="flex justify-between gap-3 max-sm:gap-1.5 px-4 py-3.5 border-t border-foreground/10">
           {currentTabIndex > 0 ? (
             <Button
               variant="ghost"
               size="sm"
               onPress={handleBack}
               isDisabled={currentTabIndex === 0 || isSubmitting}
-              className="border-small"
+              className="border-small dark:text-foreground/80"
               startContent={<IoChevronBack className="text-sm max-sm:hidden" />}
             >
               Back to {tabs[currentTabIndex - 1]?.label || ""}
@@ -552,7 +558,7 @@ export function ScheduleVisitsModal({
                   isDisabled={
                     isSubmitting || Object.keys(validationErrors).length > 0
                   }
-                  className="border-small"
+                  className="border-small dark:text-foreground/80"
                   startContent={<FiSave className="text-sm max-sm:hidden" />}
                 >
                   {draftButtonText}

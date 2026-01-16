@@ -181,16 +181,20 @@ const TrackReferralModal = ({
         {(onClose) => (
           <>
             <ModalHeader className="flex flex-col gap-1 px-5">
-              <h4 className="text-base font-medium">Track Single Referral</h4>
-              <p className="text-xs text-gray-500 font-normal">
+              <h4 className="text-base font-medium dark:text-white">
+                Track Single Referral
+              </h4>
+              <p className="text-xs text-gray-500 font-normal dark:text-foreground/60">
                 Add a new patient referral to your tracking system.
               </p>
             </ModalHeader>
 
             <ModalBody className="py-0 px-5 gap-3">
               {/* Patient Information Section */}
-              <div className="border border-gray-200 rounded-xl p-4 space-y-3">
-                <h4 className="font-medium text-sm">Patient Information</h4>
+              <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
+                <h4 className="font-medium text-sm dark:text-white">
+                  Patient Information
+                </h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-2.5 gap-y-4">
                   <Input
                     label="Patient Name"
@@ -279,12 +283,14 @@ const TrackReferralModal = ({
               </div>
 
               {/* Referrer Information Section */}
-              <div className="border border-gray-200 rounded-xl p-4 space-y-3">
-                <h4 className="font-medium text-sm">Referrer Information</h4>
+              <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
+                <h4 className="font-medium text-sm dark:text-white">
+                  Referrer Information
+                </h4>
 
                 <div className="space-y-3">
                   <div className="space-y-2">
-                    <label className="block text-xs">
+                    <label className="block text-xs dark:text-foreground/60">
                       How would you like to track this referrer?
                     </label>
                     <div className="grid grid-cols-2 gap-2">
@@ -361,15 +367,15 @@ const TrackReferralModal = ({
                       </Autocomplete>
                     </div>
                   ) : (
-                    <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-4 flex flex-col items-center gap-3 text-center">
-                      <div className="p-3 bg-blue-100 rounded-full text-blue-600">
+                    <div className="bg-blue-50/50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-500/30 rounded-lg p-4 flex flex-col items-center gap-3 text-center">
+                      <div className="p-3 bg-blue-100 dark:bg-blue-900/20 rounded-full text-blue-600 dark:text-blue-500">
                         <LuBuilding className="size-5" />
                       </div>
                       <div className="space-y-1.5">
-                        <p className="text-sm font-medium">
+                        <p className="text-sm font-medium dark:text-white">
                           Create a New Referrer
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-500 dark:text-foreground/40">
                           Add a new referrer to your system with complete
                           information
                         </p>
@@ -391,8 +397,10 @@ const TrackReferralModal = ({
               </div>
 
               {/* Referral Details Section */}
-              <div className="border border-gray-200 rounded-xl p-4 space-y-3">
-                <h4 className="font-medium text-sm">Referral Details</h4>
+              <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
+                <h4 className="font-medium text-sm dark:text-white">
+                  Referral Details
+                </h4>
 
                 <div className="flex flex-col gap-y-4">
                   <div className="flex">
@@ -576,7 +584,9 @@ const TrackReferralModal = ({
                       placeholder="0.00"
                       type="number"
                       startContent={
-                        <span className="text-gray-500 text-sm">$</span>
+                        <span className="text-gray-500 dark:text-foreground/60 text-sm">
+                          $
+                        </span>
                       }
                       variant="flat"
                       radius="sm"

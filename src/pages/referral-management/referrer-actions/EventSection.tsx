@@ -52,8 +52,10 @@ export default function EventSection({
   ];
 
   return (
-    <div className="border border-gray-200 rounded-xl p-4">
-      <h5 className="text-sm font-medium mb-3">Event Information</h5>
+    <div className="border border-foreground/10 rounded-xl p-4">
+      <h5 className="text-sm font-medium mb-3 dark:text-white">
+        Event Information
+      </h5>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-2.5">
         {eventFields.map((f) => (
           <div key={f.id} className={f.isFullWidth ? "md:col-span-2" : ""}>

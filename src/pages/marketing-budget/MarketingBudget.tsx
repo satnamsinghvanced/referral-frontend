@@ -1,11 +1,4 @@
-import {
-  Button,
-  Card,
-  CardBody,
-  CardHeader,
-  DatePicker,
-  Pagination,
-} from "@heroui/react";
+import { Button, Card, CardBody, CardHeader, DatePicker } from "@heroui/react";
 import { parseDate } from "@internationalized/date";
 import { motion } from "framer-motion";
 import { useMemo, useState } from "react";
@@ -48,6 +41,7 @@ import BudgetItemCard from "./BudgetItemCard";
 import BudgetActionModal from "./modal/BudgetActionModal";
 import ExportBudgetModal from "./modal/ExportBudgetModal";
 import ImportBudgetModal from "./modal/ImportBudgetModal";
+import Pagination from "../../components/common/Pagination";
 
 const MarketingBudget = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -142,6 +136,33 @@ const MarketingBudget = () => {
       .filter((item) => item.value > 0);
   }, [data?.graphs?.budgetByCategory]);
 
+  const CustomTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white dark:bg-content1 p-3 border border-gray-200 dark:border-gray-700 shadow-lg rounded-lg outline-none">
+          {label && (
+            <p className="text-sm font-semibold mb-2 text-foreground">
+              {label}
+            </p>
+          )}
+          {payload.map((entry: any, index: number) => (
+            <p
+              key={index}
+              className="text-xs font-medium"
+              style={{ color: entry.color || entry.fill }}
+            >
+              {entry.name}:{" "}
+              {typeof entry.value === "number"
+                ? `$${Number(entry.value).toLocaleString()}`
+                : entry.value}
+            </p>
+          ))}
+        </div>
+      );
+    }
+    return null;
+  };
+
   const stats = data?.stats || {
     totalBudget: "0",
     totalSpent: "0",
@@ -157,22 +178,22 @@ const MarketingBudget = () => {
 
   const STAT_CARD_DATA = [
     {
-      icon: <LuTarget className="text-blue-600" />,
+      icon: <LuTarget className="text-blue-600 dark:text-blue-400" />,
       heading: "Total Budget",
       value: isLoading ? "..." : `$${totalBudget.toLocaleString()}`,
     },
     {
-      icon: <LuDollarSign className="text-green-600" />,
+      icon: <LuDollarSign className="text-green-600 dark:text-green-400" />,
       heading: "Total Spent",
       value: isLoading ? "..." : `$${totalSpent.toLocaleString()}`,
     },
     {
-      icon: <LuCalculator className="text-yellow-600" />,
+      icon: <LuCalculator className="text-yellow-600 dark:text-yellow-400" />,
       heading: "Remaining Budget",
       value: isLoading ? "..." : `$${remainingBudget.toLocaleString()}`,
     },
     {
-      icon: <IoMdTrendingUp className="text-purple-600" />,
+      icon: <IoMdTrendingUp className="text-purple-600 dark:text-purple-400" />,
       heading: "Average ROI",
       value: isLoading ? "..." : `${avgROI.toFixed(2)}%`,
     },
@@ -196,15 +217,19 @@ const MarketingBudget = () => {
     <>
       <ComponentContainer headingData={HEADING_DATA}>
         <div className="flex flex-col gap-4 md:gap-5">
-          <div className="relative p-1 h-fit gap-2 items-center flex-nowrap overflow-x-scroll scrollbar-hide flex w-full rounded-full bg-primary/10 text-xs">
+          <div className="relative p-1 h-fit gap-2 items-center flex-nowrap overflow-x-scroll scrollbar-hide flex w-full rounded-full bg-primary/15 dark:bg-background text-xs">
             {BUDGET_DURATIONS.map((duration: any) => {
               return (
-                <div key={duration.value} className="relative flex-1">
+                <div key={duration.value} className="relative flex-1 min-h-9">
                   <Button
                     size="sm"
                     radius="full"
                     color="default"
-                    className="relative z-1 font-medium text-sm bg-transparent"
+                    className={`relative z-1 font-medium text-sm bg-transparent h-9 text-default-500 ${
+                      currentFilters.period === duration.value
+                        ? "dark:text-background text-foreground"
+                        : ""
+                    }`}
                     onPress={() => {
                       setDateRange({ start: "", end: "" });
                       setCurrentFilters((prev) => ({
@@ -223,7 +248,7 @@ const MarketingBudget = () => {
                     <motion.div
                       layoutId="underline"
                       transition={{ duration: 0.3 }}
-                      className="absolute top-0 left-0 w-full h-full bg-background shadow-small rounded-full -z-0"
+                      className="absolute top-0 left-0 w-full h-full bg-background dark:bg-primary shadow-small rounded-full -z-0"
                     />
                   ) : null}
                 </div>
@@ -232,13 +257,15 @@ const MarketingBudget = () => {
           </div>
 
           <div className="flex flex-col gap-3">
-            <div className="flex flex-wrap justify-between items-center gap-3 bg-background p-4 rounded-xl border border-primary/15">
+            <div className="flex flex-wrap justify-between items-center gap-3 bg-background p-4 rounded-xl border border-foreground/10">
               <div className="flex items-center gap-2">
                 <Button
                   variant={showDateRange ? "solid" : "ghost"}
                   color={showDateRange ? "primary" : "default"}
                   className={`border ${
-                    !showDateRange ? "bg-background" : "border-primary"
+                    !showDateRange
+                      ? "bg-background dark:bg-default-50 border-gray-300 dark:border-default-200"
+                      : "border-primary"
                   }`}
                   size="sm"
                   startContent={<LuCalendar fontSize={15} />}
@@ -250,7 +277,7 @@ const MarketingBudget = () => {
               <div className="flex items-center gap-2">
                 <Button
                   variant="ghost"
-                  className="border-small"
+                  className="border-small border-gray-300 dark:border-default-200"
                   size="sm"
                   startContent={<LuUpload fontSize={15} />}
                   onPress={() => setIsImportModalOpen(true)}
@@ -259,7 +286,7 @@ const MarketingBudget = () => {
                 </Button>
                 <Button
                   variant="ghost"
-                  className="border-small"
+                  className="border-small border-gray-300 dark:border-default-200"
                   size="sm"
                   startContent={<LuDownload fontSize={15} />}
                   onPress={() => setIsExportModalOpen(true)}
@@ -273,7 +300,7 @@ const MarketingBudget = () => {
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className="bg-background p-4 rounded-xl border border-primary/15 flex flex-col md:flex-row gap-4 items-end"
+                className="bg-background p-4 rounded-xl border border-foreground/10 flex flex-col md:flex-row gap-4 items-end"
               >
                 <DatePicker
                   label="Start Date"
@@ -308,7 +335,7 @@ const MarketingBudget = () => {
                     size="sm"
                     onPress={handleClearDateRange}
                     startContent={<LuX fontSize={15} />}
-                    className="border-small"
+                    className="border-small border-gray-300 dark:border-default-200"
                   >
                     Clear
                   </Button>
@@ -337,10 +364,10 @@ const MarketingBudget = () => {
               <Card
                 shadow="none"
                 radius="lg"
-                className="p-0 border border-primary/15"
+                className="p-0 border border-foreground/10 bg-background"
               >
                 <CardHeader className="p-5">
-                  <h4 className="flex  items-center gap-2 text-sm">
+                  <h4 className="flex  items-center gap-2 text-sm text-foreground">
                     <LuChartColumn fontSize={16} /> Spending vs Budget Trend
                   </h4>
                 </CardHeader>
@@ -359,10 +386,28 @@ const MarketingBudget = () => {
                       data={data?.graphs?.monthlyBudgetGraph}
                       margin={{ top: 5, right: 0, left: 0, bottom: 5 }}
                     >
-                      <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="month" tickMargin={8} />
-                      <YAxis width={60} tickMargin={8} />
-                      <Tooltip isAnimationActive />
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        stroke="currentColor"
+                        className="text-gray-200 dark:text-default-100"
+                        opacity={0.5}
+                      />
+                      <XAxis
+                        dataKey="month"
+                        tickMargin={8}
+                        stroke="currentColor"
+                        className="text-gray-400 dark:text-foreground/40"
+                      />
+                      <YAxis
+                        width={60}
+                        tickMargin={8}
+                        stroke="currentColor"
+                        className="text-gray-400 dark:text-foreground/40"
+                      />
+                      <Tooltip
+                        content={<CustomTooltip />}
+                        cursor={{ fill: "rgba(128, 128, 128, 0.1)" }}
+                      />
                       <Legend
                         wrapperStyle={{
                           bottom: "-2px",
@@ -391,10 +436,10 @@ const MarketingBudget = () => {
               <Card
                 shadow="none"
                 radius="lg"
-                className="p-0 border border-primary/15"
+                className="p-0 border border-foreground/10 bg-background"
               >
                 <CardHeader className="p-5">
-                  <h4 className="flex items-center gap-2 text-sm">
+                  <h4 className="flex items-center gap-2 text-sm text-foreground">
                     <FiPieChart fontSize={16} /> Budget by Category
                   </h4>
                 </CardHeader>
@@ -422,16 +467,16 @@ const MarketingBudget = () => {
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip />
+                    <Tooltip content={<CustomTooltip />} />
                   </PieChart>
                 </CardBody>
               </Card>
             </div>
           )}
 
-          <div className="bg-background flex flex-col rounded-xl border border-primary/15 p-4">
+          <div className="bg-background flex flex-col rounded-xl border border-foreground/10 p-4">
             <div className="pb-4">
-              <h4 className="text-sm font-medium w-full truncate whitespace-nowrap">
+              <h4 className="text-sm font-medium w-full truncate whitespace-nowrap text-foreground">
                 <span className="capitalize">{currentFilters.period}</span>{" "}
                 Budget Items
               </h4>
@@ -454,24 +499,17 @@ const MarketingBudget = () => {
                       />
                     ))}
                   </div>
-                  {pagination?.totalPages && pagination.totalPages > 1 ? (
+                  {pagination && pagination.totalPages > 1 && (
                     <Pagination
-                      showControls
-                      size="sm"
-                      radius="sm"
-                      initialPage={1}
-                      page={currentFilters.page as number}
-                      onChange={(page) => {
+                      identifier="items"
+                      limit={currentFilters.limit}
+                      totalItems={pagination.totalData}
+                      currentPage={pagination.currentPage}
+                      totalPages={pagination.totalPages}
+                      handlePageChange={(page: number) => {
                         setCurrentFilters((prev: any) => ({ ...prev, page }));
                       }}
-                      total={pagination?.totalPages as number}
-                      classNames={{
-                        base: "flex justify-end py-3",
-                        wrapper: "gap-1.5",
-                      }}
                     />
-                  ) : (
-                    ""
                   )}
                 </>
               )}

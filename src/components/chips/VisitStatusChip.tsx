@@ -37,22 +37,23 @@ export default function VisitStatusChip({ status }: { status: string }) {
 
   switch (status) {
     case "inProgress":
-      classNames = "bg-yellow-100 text-yellow-800";
+      classNames =
+        "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300";
       break;
 
     case "cancel":
-      classNames = "bg-[#e0f2fe] text-[#0c4a6e]";
+      classNames =
+        "bg-[#e0f2fe] dark:bg-sky-900/30 text-[#0c4a6e] dark:text-sky-300";
       break;
 
     case "completed":
-
-    case "completed":
-      classNames = "bg-green-100 text-green-600";
-      break;
+      classNames =
+        "bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400";
       break;
 
     case "draft":
-      classNames = "bg-red-100 text-red-600";
+      classNames =
+        "bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400";
       break;
 
     default:

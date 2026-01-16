@@ -248,7 +248,7 @@ function MediaManagement() {
     <>
       <ComponentContainer headingData={HEADING_DATA}>
         <div className="flex flex-col gap-4 md:gap-5">
-          <div className="flex items-center justify-between gap-4 border border-gray-200 rounded-xl p-4 bg-background">
+          <div className="flex items-center justify-between gap-4 border border-foreground/10 rounded-xl p-4 bg-background">
             <FolderBreadcrumb
               path={breadcrumbPath}
               onNavigate={(id: string) => onNavigateFolder(id)}
@@ -318,7 +318,7 @@ function MediaManagement() {
             </div>
           </div>
 
-          <div className="border border-gray-200 rounded-xl p-4 bg-background">
+          <div className="border border-foreground/10 rounded-xl p-4 bg-background">
             <div className="flex items-center gap-3">
               <div className="relative flex-1">
                 <Input
@@ -328,7 +328,9 @@ function MediaManagement() {
                   onValueChange={(value) =>
                     onFilterChange("search", value as string)
                   }
-                  startContent={<FiSearch className="text-gray-400 h-4 w-4" />}
+                  startContent={
+                    <FiSearch className="text-gray-400 dark:text-foreground/40 h-4 w-4" />
+                  }
                 />
               </div>
 
@@ -357,7 +359,8 @@ function MediaManagement() {
                     const base =
                       "inline-flex items-center rounded-full text-[11px] font-medium px-3 py-0.5 cursor-pointer transition-colors";
                     const active = "bg-primary text-white";
-                    const inactive = "bg-gray-100 hover:bg-gray-200";
+                    const inactive =
+                      "bg-gray-100 dark:bg-default-100/50 text-gray-700 dark:text-foreground/60 hover:bg-gray-200 dark:hover:bg-default-100 transition-colors";
 
                     return (
                       <span
@@ -377,7 +380,7 @@ function MediaManagement() {
                       size="sm"
                       radius="full"
                       onPress={clearAllTags}
-                      className="border-small p-0 px-1.5 h-auto font-medium border-none bg-transparent underline underline-offset-2 text-gray-600"
+                      className="border-small p-0 px-1.5 h-auto font-medium border-none bg-transparent underline underline-offset-2 text-gray-600 dark:text-foreground/60 hover:text-gray-900 dark:hover:text-foreground"
                     >
                       Clear filters
                     </Button>
@@ -388,9 +391,9 @@ function MediaManagement() {
           </div>
 
           <div className="space-y-4 md:space-y-5">
-            <Card className="border border-gray-200 p-4 shadow-none">
+            <Card className="border border-foreground/10 p-4 shadow-none bg-background">
               <CardHeader className="p-0 pb-4 flex justify-between items-center">
-                <h4 className="flex items-center gap-2 text-sm font-medium">
+                <h4 className="flex items-center gap-2 text-sm font-medium text-foreground">
                   <FaRegFolder className="size-4" />
                   Folders
                 </h4>
@@ -437,17 +440,17 @@ function MediaManagement() {
                     {subfolders?.map((folder: any) => (
                       <div
                         key={folder._id}
-                        className="relative p-4 border border-gray-200 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors"
+                        className="relative p-4 border border-foreground/10 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-default-100 transition-colors"
                         onClick={() =>
                           onNavigateFolder(folder._id, folder.name)
                         }
                       >
                         <div className="text-center">
                           <LuFolderOpen className="size-6 mx-auto mb-2 text-blue-500" />
-                          <p className="text-sm truncate font-medium mb-1">
+                          <p className="text-sm truncate font-medium mb-1 text-foreground">
                             {folder.name}
                           </p>
-                          <p className="text-xs text-gray-500">
+                          <p className="text-xs text-gray-500 dark:text-foreground/40">
                             {folder.totalItems} items
                           </p>
                         </div>
@@ -458,10 +461,10 @@ function MediaManagement() {
               </CardBody>
             </Card>
 
-            <Card className="border border-gray-200 p-4 shadow-none">
+            <Card className="border border-foreground/10 p-4 shadow-none bg-background">
               <CardHeader className="p-0 pb-4">
                 <div className="flex justify-between items-center">
-                  <h4 className="flex items-center gap-2 text-sm font-medium">
+                  <h4 className="flex items-center gap-2 text-sm font-medium text-foreground">
                     <FiImage className="size-4" /> Media ({mediaCount})
                   </h4>
                 </div>
@@ -470,8 +473,8 @@ function MediaManagement() {
                 {isFoldersLoading || isLoadingMedia ? (
                   <LoadingState />
                 ) : mediaCount === 0 ? (
-                  <div className="text-center text-gray-500 py-12 border border-dashed border-gray-300 rounded-lg bg-gray-50">
-                    <FiImage className="size-10 mx-auto mb-4 opacity-50 text-gray-400" />
+                  <div className="text-center text-gray-500 dark:text-foreground/40 py-12 border border-dashed border-gray-300 dark:border-default-200 rounded-lg bg-gray-50 dark:bg-default-100/20">
+                    <FiImage className="size-10 mx-auto mb-4 opacity-50 text-gray-400 dark:text-foreground/20" />
                     <p className="mb-4 text-sm">
                       No media found in {currentFolderName}.
                     </p>

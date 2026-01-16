@@ -94,7 +94,7 @@ const NfcTagModal = ({ isOpen, onClose, referrer }: NfcTagModalProps) => {
       onClose={onClose}
       size="md"
       classNames={{
-        base: "bg-white rounded-2xl",
+        base: "bg-white dark:bg-background rounded-2xl",
         closeButton: "cursor-pointer",
       }}
     >
@@ -103,10 +103,10 @@ const NfcTagModal = ({ isOpen, onClose, referrer }: NfcTagModalProps) => {
           <>
             <div className="flex flex-col items-center p-5 pb-1">
               <ModalHeader className="flex flex-col items-start gap-1 p-0 w-full">
-                <h4 className="text-base font-medium">
+                <h4 className="text-base font-medium dark:text-white">
                   NFC Tag for {referrer.name}
                 </h4>
-                <p className="text-xs text-gray-500 font-normal">
+                <p className="text-xs text-gray-500 font-normal dark:text-foreground/60">
                   Write this referral link to an NFC tag for easy tap-to-refer
                   functionality
                 </p>
@@ -122,15 +122,15 @@ const NfcTagModal = ({ isOpen, onClose, referrer }: NfcTagModalProps) => {
               </div>
 
               {/* Profile Card */}
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-blue-50 border border-blue-200">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-500/30">
                 <div className="size-8 rounded-md bg-primary text-white flex items-center justify-center shrink-0">
                   <FiUsers className="size-4" />
                 </div>
                 <div className="flex flex-col text-left">
-                  <span className="text-sm font-medium line-clamp-1">
+                  <span className="text-sm font-medium line-clamp-1 dark:text-white">
                     {referrer.name}
                   </span>
-                  <span className="text-xs text-gray-500 line-clamp-1">
+                  <span className="text-xs text-gray-500 line-clamp-1 dark:text-foreground/60">
                     {referrer.practice?.name || "No Practice Assigned"}
                   </span>
                 </div>
@@ -138,7 +138,7 @@ const NfcTagModal = ({ isOpen, onClose, referrer }: NfcTagModalProps) => {
 
               {/* Referral Link */}
               <div className="space-y-2">
-                <label className="text-xs font-medium block">
+                <label className="text-xs font-medium block dark:text-foreground/60">
                   Referral Link
                 </label>
                 <div className="flex gap-2">
@@ -149,7 +149,7 @@ const NfcTagModal = ({ isOpen, onClose, referrer }: NfcTagModalProps) => {
                     className={`min-w-fit px-4 border font-medium ${
                       isCopied
                         ? "bg-green-100 text-green-700 border-green-200"
-                        : "bg-white border-gray-200 hover:bg-gray-50 text-gray-700"
+                        : "bg-white dark:bg-content2 border-foreground/10 hover:bg-gray-50 dark:hover:bg-content3 text-gray-700 dark:text-foreground"
                     }`}
                     onPress={handleCopyLink}
                   >
@@ -159,12 +159,12 @@ const NfcTagModal = ({ isOpen, onClose, referrer }: NfcTagModalProps) => {
               </div>
 
               {/* Instructions Box */}
-              <div className="bg-[#FFFBF0] border border-[#FFEeba] rounded-xl p-3">
-                <div className="flex items-center gap-2 mb-3 text-yellow-900 font-medium text-sm">
+              <div className="bg-[#FFFBF0] dark:bg-yellow-900/10 border border-[#FFEeba] dark:border-yellow-500/30 rounded-xl p-3">
+                <div className="flex items-center gap-2 mb-3 text-yellow-900 dark:text-yellow-400 font-medium text-sm">
                   <LuNfc className="size-4" />
                   <span>How to use NFC</span>
                 </div>
-                <ol className="text-xs text-yellow-800 space-y-1 list-decimal list-inside leading-relaxed">
+                <ol className="text-xs text-yellow-800 dark:text-yellow-500/80 space-y-1 list-decimal list-inside leading-relaxed">
                   <li>Get a blank NFC tag (sticker, bracelet or card, etc)</li>
                   <li>Tap "Write to NFC Tag" below</li>
                   <li>Hold your device near the NFC tag</li>
@@ -197,19 +197,19 @@ const NfcTagModal = ({ isOpen, onClose, referrer }: NfcTagModalProps) => {
 
               {/* Stats */}
               <div className="grid grid-cols-2 gap-2">
-                <div className="bg-gray-50 p-3 rounded-lg border border-gray-100 space-y-0.5">
-                  <span className="text-xs text-gray-500 block">
+                <div className="bg-gray-50 dark:bg-background/50 p-3 rounded-lg border border-foreground/10 space-y-0.5">
+                  <span className="text-xs text-gray-500 dark:text-foreground/40 block">
                     Total Taps
                   </span>
-                  <span className="text-sm font-medium">
+                  <span className="text-sm font-medium dark:text-white">
                     {referrer.referrals?.length || 0}
                   </span>
                 </div>
-                <div className="bg-gray-50 p-3 rounded-lg border border-gray-100 space-y-0.5">
-                  <span className="text-xs text-gray-500 block">
+                <div className="bg-gray-50 dark:bg-background/50 p-3 rounded-lg border border-foreground/10 space-y-0.5">
+                  <span className="text-xs text-gray-500 dark:text-foreground/40 block">
                     This Month
                   </span>
-                  <span className="text-sm font-medium">
+                  <span className="text-sm font-medium dark:text-white">
                     {referrer.thisMonthReferralCount || 0}
                   </span>
                 </div>

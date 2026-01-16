@@ -29,8 +29,8 @@ function TaskCard({
     <Card
       className={`rounded-xl p-3.5 border shadow-none ${
         task.isOverDue
-          ? "border-red-200 bg-red-50"
-          : "bg-background border-primary/15"
+          ? "border-red-200 bg-red-50 dark:bg-red-500/10 dark:border-red-500/30"
+          : "bg-background dark:bg-content1 border-foreground/10"
       }`}
     >
       <CardHeader className="flex items-center justify-between gap-2 mb-2 p-0">
@@ -40,12 +40,14 @@ function TaskCard({
       <CardBody className="p-0 overflow-hidden">
         <div className="flex flex-row justify-between">
           <div className="space-y-2">
-            <p className="text-gray-600 text-xs flex items-center gap-1.5">
+            <p className="text-gray-600 dark:text-foreground/60 text-xs flex items-center gap-1.5">
               <LuBuilding2 fontSize={14} /> {task.practiceId?.name}
             </p>
             <p
               className={`text-xs flex items-center gap-1.5 ${
-                task.isOverDue ? "text-red-600" : "text-gray-600"
+                task.isOverDue
+                  ? "text-red-600 dark:text-red-400"
+                  : "text-gray-600 dark:text-foreground/60"
               }`}
             >
               <LuCalendar fontSize={14} /> Due:{" "}
@@ -63,7 +65,7 @@ function TaskCard({
                 color="primary"
                 onPress={() => onEdit(task)}
               >
-                <FiEdit className="size-3.5 text-gray-500" />
+                <FiEdit className="size-3.5 text-gray-500 dark:text-foreground/60" />
               </Button>
               <Button
                 isIconOnly

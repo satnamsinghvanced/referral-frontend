@@ -104,7 +104,7 @@ const Overview = () => {
   return (
     <div className="space-y-4 md:space-y-5">
       <div className="grid grid-cols-2 gap-5">
-        <Card shadow="none" className="border border-primary/15 p-5">
+        <Card shadow="none" className="border border-foreground/10 p-5">
           <CardHeader className="p-0 pb-8">
             <h4 className="text-sm font-medium flex items-center gap-2">
               <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
@@ -152,7 +152,7 @@ const Overview = () => {
             </div>
           </CardBody>
         </Card>
-        <Card shadow="none" className="border border-primary/15 p-5">
+        <Card shadow="none" className="border border-foreground/10 p-5">
           <CardHeader className="p-0 pb-4">
             <h4 className="text-sm font-medium flex items-center gap-2">
               <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
@@ -190,7 +190,7 @@ const Overview = () => {
           </CardBody>
         </Card>
       </div>
-      <Card shadow="none" className="border border-primary/15 p-5">
+      <Card shadow="none" className="border border-foreground/10 p-5">
         <CardHeader className="p-0 pb-4">
           <h4 className="text-sm font-medium flex items-center gap-2">
             <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
@@ -203,7 +203,7 @@ const Overview = () => {
               return (
                 <div
                   key={campaign.id}
-                  className="bg-background rounded-lg border border-primary/15 p-3 flex items-center justify-between"
+                  className="bg-background rounded-lg border border-foreground/10 p-3 flex items-center justify-between"
                 >
                   <div className="flex items-center space-x-2.5 flex-grow">
                     <div className="bg-sky-100 w-7 h-7 flex items-center justify-center rounded-full text-xs text-sky-600">

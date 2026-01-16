@@ -257,20 +257,20 @@ export default function SocialMediaConfigModal({
               </div>
 
               {/* Helper Information Box */}
-              <div className="text-sm text-gray-700 bg-blue-50 p-3 rounded-lg border border-blue-200 mt-4">
+              <div className="text-sm text-gray-700 dark:text-foreground/80 bg-blue-50 dark:bg-blue-500/10 p-3 rounded-lg border border-blue-200 dark:border-blue-500/20 mt-4">
                 <div className="flex items-start gap-3">
                   <div>
-                    <p className="font-semibold mb-1.5 text-gray-900">
+                    <p className="font-semibold mb-1.5 text-gray-900 dark:text-foreground">
                       Setup Instructions:
                     </p>
-                    <ul className="text-xs space-y-1 ml-1 text-gray-700 list-disc list-inside">
+                    <ul className="text-xs space-y-1 ml-1 text-gray-700 dark:text-foreground/80 list-disc list-inside">
                       <li>
                         Go to the{" "}
                         <a
                           href={config.infoLink}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline font-medium inline-flex items-center"
+                          className="text-blue-600 dark:text-blue-400 hover:underline font-medium inline-flex items-center"
                         >
                           {config.linkText}{" "}
                           <FiExternalLink className="ml-1 h-3 w-3" />
@@ -292,13 +292,13 @@ export default function SocialMediaConfigModal({
 
               {/* Status Message */}
               {isConfigured && isAuthorized && (
-                <div className="p-3 bg-green-50 text-green-700 text-xs rounded-lg border border-green-200">
+                <div className="p-3 bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-300 text-xs rounded-lg border border-green-200 dark:border-green-500/20">
                   ✅ Integration is currently <strong>Connected</strong> and
                   configured.
                 </div>
               )}
               {isConfigured && !isAuthorized && (
-                <div className="p-3 bg-yellow-50 text-yellow-700 text-xs rounded-lg border border-yellow-200">
+                <div className="p-3 bg-yellow-50 dark:bg-yellow-500/10 text-yellow-700 dark:text-yellow-300 text-xs rounded-lg border border-yellow-200 dark:border-yellow-500/20">
                   ⚠️ Credentials saved, but{" "}
                   <strong>Authorization is required</strong>. Click 'Save and
                   Authorize' to complete the OAuth flow.

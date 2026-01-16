@@ -20,18 +20,26 @@ import { LoadingState } from "../../../components/common/LoadingState";
 import Pagination from "../../../components/common/Pagination";
 
 const roleColors: Record<string, string> = {
-  admin: "bg-red-100 text-red-600",
-  officeManager: "bg-blue-100 text-blue-600",
-  doctor: "bg-green-100 text-green-600",
-  treatmentCoordinator: "bg-purple-100 text-purple-600",
-  frontDesk: "bg-yellow-100 text-yellow-600",
+  admin: "bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400",
+  officeManager:
+    "bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400",
+  doctor:
+    "bg-green-100 dark:bg-green-900/20 text-green-600 dark:text-green-400",
+  treatmentCoordinator:
+    "bg-purple-100 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400",
+  frontDesk:
+    "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400",
 };
 
 const invitationStatusColors: Record<string, string> = {
-  active: "bg-green-100 text-green-700 border-green-200",
-  pending: "bg-yellow-100 text-yellow-700 border-yellow-200",
-  revoked: "bg-red-100 text-red-700 border-red-200",
-  expired: "bg-gray-100 text-gray-600 border-gray-200",
+  active:
+    "bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800",
+  pending:
+    "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800",
+  revoked:
+    "bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800",
+  expired:
+    "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-foreground/10 dark:border-gray-700",
 };
 
 const Team: React.FC = () => {
@@ -120,8 +128,8 @@ const Team: React.FC = () => {
     <div className="space-y-4 md:space-y-5">
       {/* Email Integration Warning */}
       {!isEmailConfigLoading && emailConfig?.status !== "Connected" && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-center justify-between">
-          <p className="text-sm text-yellow-800">
+        <div className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 flex items-center justify-between">
+          <p className="text-sm text-yellow-800 dark:text-yellow-400">
             Email Marketing Platform is not connected. You can't invite team
             members until you connect your Email Marketing Platform.
           </p>
@@ -131,7 +139,7 @@ const Team: React.FC = () => {
             size="sm"
             color="warning"
             variant="flat"
-            className="bg-yellow-200 text-yellow-800"
+            className="bg-yellow-200 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400"
           >
             Connect Email
           </Button>
@@ -141,7 +149,7 @@ const Team: React.FC = () => {
       {/* Active Members */}
       <Card
         shadow="none"
-        className="rounded-xl border border-foreground/10 tour-step-team-members"
+        className="rounded-xl border border-foreground/10 bg-background tour-step-team-members"
       >
         <CardHeader className="flex items-center gap-2 px-4 pt-4 pb-0">
           <LuUsers className="size-5" />
@@ -166,7 +174,7 @@ const Team: React.FC = () => {
                       className="size-9 rounded-full"
                     />
                   ) : (
-                    <div className="size-9 rounded-full bg-gray-200 flex items-center justify-center text-sm font-medium text-gray-600">
+                    <div className="size-9 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-sm font-medium text-gray-600 dark:text-gray-300">
                       {member.firstName.charAt(0)}
                       {member.lastName.charAt(0)}
                     </div>
@@ -175,13 +183,15 @@ const Team: React.FC = () => {
                     <p className="font-medium text-sm">
                       {member.firstName} {member.lastName}
                     </p>
-                    <p className="text-xs text-gray-600">{member.email}</p>
+                    <p className="text-xs text-gray-600 dark:text-gray-400">
+                      {member.email}
+                    </p>
                     {member.locations && member.locations.length > 0 && (
                       <div className="flex flex-wrap gap-1 mt-2">
                         {member.locations.map((loc: any, idx) => (
                           <span
                             key={typeof loc === "object" ? loc._id : idx}
-                            className="bg-blue-50 text-blue-600 text-[10px] px-2 py-0.5 rounded-full border border-blue-100 font-medium"
+                            className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-[10px] px-2 py-0.5 rounded-full border border-blue-100 dark:border-blue-800 font-medium"
                           >
                             {typeof loc === "object" ? loc.name : "Location"}
                           </span>
@@ -200,7 +210,7 @@ const Team: React.FC = () => {
                       roleColors[
                         member.role?.role as keyof typeof roleColors
                       ] ||
-                      "bg-gray-100 text-gray-600"
+                      "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
                     } inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[11px] font-medium`}
                   >
                     {member.role?.title || member.role?.role || "No Role"}
@@ -209,7 +219,7 @@ const Team: React.FC = () => {
                   <span
                     className={`capitalize px-2 py-0.5 text-[11px] font-medium inline-flex items-center gap-1 rounded-md border ${
                       invitationStatusColors[member.status] ||
-                      "bg-gray-100 text-gray-600 border-gray-200"
+                      "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-foreground/10 dark:border-gray-700"
                     }`}
                   >
                     <MdCheck /> {member.status}
@@ -250,7 +260,6 @@ const Team: React.FC = () => {
           {membersData && membersData.totalPages > 1 && (
             <Pagination
               identifier="team members"
-              items={membersData.data}
               totalItems={membersData.totalData}
               currentPage={filters.page}
               totalPages={membersData.totalPages}

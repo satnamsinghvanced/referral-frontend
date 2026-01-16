@@ -45,6 +45,40 @@ const LOCATIONS = [
   },
 ];
 
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white dark:bg-zinc-900 p-3 rounded-lg border border-gray-200 dark:border-zinc-800 shadow-xl">
+        <p className="font-medium text-gray-900 dark:text-gray-100 mb-2 text-xs">
+          {label}
+        </p>
+        <div className="flex flex-col gap-1">
+          {payload.map((entry: any, index: number) => (
+            <div
+              key={index}
+              className="flex items-center justify-between gap-4 text-xs"
+            >
+              <div className="flex items-center gap-2">
+                <span
+                  className="w-2 h-2 rounded-full"
+                  style={{ backgroundColor: entry.color || entry.fill }}
+                />
+                <span className="text-gray-600 dark:text-gray-400">
+                  {entry.name}:
+                </span>
+              </div>
+              <span className="font-medium text-gray-900 dark:text-gray-100">
+                {entry.value}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
 const LOCATIONS_GRAPH_DATA = [
   {
     name: "Downtown Office",
@@ -74,7 +108,7 @@ const LOCATIONS_GRAPH_DATA = [
 
 const Locations = () => {
   return (
-    <div className="flex flex-col gap-4 border border-primary/15 rounded-xl p-4 bg-background w-full">
+    <div className="flex flex-col gap-4 border border-foreground/10 rounded-xl p-4 bg-background w-full">
       <h4 className="flex items-center">
         <GrLocation className="text-primary size-[18px] mr-2" />
         Review Performance by Location
@@ -83,7 +117,7 @@ const Locations = () => {
         {LOCATIONS.map((location, index) => (
           <Card
             key={index}
-            className="border border-primary/15 bg-primary/2 p-4 rounded-lg"
+            className="border border-foreground/10 bg-primary/2 dark:bg-content1 p-4 rounded-lg"
             shadow="none"
           >
             <div className="flex justify-between">
@@ -101,17 +135,19 @@ const Locations = () => {
                   <p className="text-xl font-bold text-primary-600">
                     {location.totalReviews}
                   </p>
-                  <p className="text-xs">Total Reviews</p>
+                  <p className="text-xs text-foreground/60">Total Reviews</p>
                 </div>
                 <div className="text-sm flex flex-col gap-0 items-center w-full">
                   <p className="text-xl font-bold text-orange-700">
                     {location.totalReviews}
                   </p>
-                  <p className="text-xs">Digital Interactions</p>
+                  <p className="text-xs text-foreground/60">
+                    Digital Interactions
+                  </p>
                 </div>
               </div>
 
-              <ul className="flex flex-col gap-2 text-xs font-extralight mt-3">
+              <ul className="flex flex-col gap-2 text-xs font-extralight mt-3 text-foreground/80">
                 <li className="flex justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <FiWifi className="text-sm text-primary-600" /> NFC Taps
@@ -150,7 +186,11 @@ const Locations = () => {
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="name" tickMargin={8} />
           <YAxis width="auto" tickMargin={8} />
-          <Tooltip isAnimationActive />
+          <Tooltip
+            content={<CustomTooltip />}
+            cursor={{ fill: "rgba(128, 128, 128, 0.1)" }}
+            isAnimationActive
+          />
           <Legend wrapperStyle={{ bottom: "-2px" }} />
           <Bar
             dataKey="reviews"

@@ -104,22 +104,22 @@ function Tasks() {
 
   const STAT_CARD_DATA = [
     {
-      icon: <GoTasklist className="text-sky-600" />,
+      icon: <GoTasklist className="text-sky-600 dark:text-sky-400" />,
       heading: "Total Tasks",
       value: stats?.allTasksCount || 0,
     },
     {
-      icon: <MdOutlineTaskAlt className="text-green-600" />,
+      icon: <MdOutlineTaskAlt className="text-green-600 dark:text-green-400" />,
       heading: "Completed Tasks",
       value: stats?.completedCount || 0,
     },
     {
-      icon: <FaRegClock className="text-yellow-600" />,
+      icon: <FaRegClock className="text-yellow-600 dark:text-yellow-400" />,
       heading: "In Progress Tasks",
       value: stats?.inProgressCount || 0,
     },
     {
-      icon: <LuInfo className="text-red-600" />,
+      icon: <LuInfo className="text-red-600 dark:text-red-400" />,
       heading: "Overdue Tasks",
       value: stats?.overDueCount || 0,
     },
@@ -141,7 +141,7 @@ function Tasks() {
             <MiniStatsCard key={i} cardData={data} />
           ))}
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 border border-primary/15 rounded-xl p-4 bg-background shadow-none">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 border border-foreground/10 rounded-xl p-4 bg-background shadow-none">
           <div className="relative flex-1">
             <Input
               placeholder="Search tasks..."
@@ -198,7 +198,7 @@ function Tasks() {
             </Select>
           </div>
         </div>
-        <div className="flex flex-col gap-4 border border-primary/15 bg-background rounded-xl p-4 min-h-unit-96">
+        <div className="flex flex-col gap-4 border border-foreground/10 bg-background rounded-xl p-4 min-h-unit-96">
           <p className="font-medium text-sm">Task List</p>
 
           {isLoading || isFetching ? (

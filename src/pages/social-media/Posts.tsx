@@ -28,13 +28,13 @@ const Posts = () => {
 
   return (
     <div className="space-y-4 w-full">
-      <Card className="bg-background rounded-xl shadow-none p-5 border border-primary/15 w-full">
+      <Card className="bg-background rounded-xl shadow-none p-5 border border-foreground/10 w-full">
         <CardHeader className="flex justify-between items-center mb-5 p-0">
           <h2 className="text-sm">Recent Posts</h2>
           <Chip
             size="sm"
             radius="sm"
-            className="text-[11px] text-sky-900 bg-sky-100"
+            className="text-[11px] text-sky-900 bg-sky-100 dark:bg-sky-500/10 dark:text-sky-300"
           >
             {pagination?.total || 0} total posts
           </Chip>
@@ -42,7 +42,7 @@ const Posts = () => {
 
         <CardBody className="p-0 space-y-3">
           {posts.length === 0 ? (
-            <div className="text-center py-10 text-gray-500 text-sm">
+            <div className="text-center py-10 text-gray-500 dark:text-foreground/60 text-sm">
               No posts found.
             </div>
           ) : (
@@ -50,23 +50,32 @@ const Posts = () => {
               <div className="space-y-3">
                 {posts.map((post) => {
                   const statusColors = {
-                    Published: { text: "text-green-900", bg: "bg-green-100" },
-                    Scheduled: { text: "text-blue-600", bg: "bg-blue-100" },
-                    Failed: { text: "text-red-600", bg: "bg-red-100" },
+                    Published: {
+                      text: "text-green-900 dark:text-green-300",
+                      bg: "bg-green-100 dark:bg-green-500/20",
+                    },
+                    Scheduled: {
+                      text: "text-blue-600 dark:text-blue-300",
+                      bg: "bg-blue-100 dark:bg-blue-500/20",
+                    },
+                    Failed: {
+                      text: "text-red-600 dark:text-red-300",
+                      bg: "bg-red-100 dark:bg-red-500/20",
+                    },
                   }[post.status] || {
-                    text: "text-gray-600",
-                    bg: "bg-gray-100",
+                    text: "text-gray-600 dark:text-foreground/60",
+                    bg: "bg-gray-100 dark:bg-gray-500/20",
                   };
 
                   return (
                     <Card
                       key={post._id}
-                      className="border border-primary/15 p-4 rounded-xl shadow-none"
+                      className="border border-foreground/10 p-4 rounded-xl shadow-none"
                     >
                       <div className="flex justify-between items-start mb-1.5">
                         <h4 className="text-sm font-medium">{post.title}</h4>
                       </div>
-                      <p className="text-xs mb-2.5 whitespace-pre-wrap text-gray-700">
+                      <p className="text-xs mb-2.5 whitespace-pre-wrap text-gray-700 dark:text-foreground/80">
                         {post.description}
                       </p>
 
@@ -83,7 +92,7 @@ const Posts = () => {
                           )}{" "}
                           {post.status}
                         </span>
-                        <span className="text-gray-500 font-extralight text-[11px] whitespace-nowrap">
+                        <span className="text-gray-500 dark:text-foreground/60 font-extralight text-[11px] whitespace-nowrap">
                           {post.status === "Published"
                             ? "Published"
                             : "Modified"}
@@ -100,14 +109,14 @@ const Posts = () => {
                           {post.platforms.map((platform, index) => (
                             <span
                               key={index}
-                              className={`border border-primary/15 px-2 py-0.5 rounded-xl capitalize`}
+                              className={`border border-foreground/10 px-2 py-0.5 rounded-xl capitalize`}
                             >
                               {platform}
                             </span>
                           ))}
                         </div>
 
-                        <div className="flex flex-wrap gap-3 text-gray-500 text-xs mt-2">
+                        <div className="flex flex-wrap gap-3 text-gray-500 dark:text-foreground/60 text-xs mt-2">
                           <span title={`${post.summary?.likes || 0} Likes`}>
                             <BiHeart className="inline w-3.5 h-3.5 max-sm:w-3 max-sm:h-3 relative -top-px" />{" "}
                             {post.summary?.likes || 0}
@@ -130,7 +139,7 @@ const Posts = () => {
                       </div>
 
                       {post.status === "Failed" && post.failureReason && (
-                        <div className="mt-3 p-2 bg-red-50 rounded-lg text-[11px] text-red-700 border border-red-100">
+                        <div className="mt-3 p-2 bg-red-50 dark:bg-red-500/10 rounded-lg text-[11px] text-red-700 dark:text-red-300 border border-red-100 dark:border-red-500/20">
                           <strong>Failure Reason:</strong> {post.failureReason}
                         </div>
                       )}

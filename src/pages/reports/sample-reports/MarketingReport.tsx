@@ -253,32 +253,32 @@ const PROJECTIONS_DATA: ProjectionData[] = [
 const MetricBlock: React.FC<{ metric: MetricData }> = ({ metric }) => {
   const colorMap = {
     sky: {
-      from: "from-sky-50",
-      to: "to-sky-100",
-      border: "border-sky-200",
-      text: "text-sky-700",
-      textChange: "text-emerald-600",
+      from: "from-sky-50 dark:from-sky-500/20",
+      to: "to-sky-100 dark:to-sky-500/30",
+      border: "border-sky-200 dark:border-sky-500/40",
+      text: "text-sky-700 dark:text-sky-300",
+      textChange: "text-emerald-400",
     },
     orange: {
-      from: "from-orange-50",
-      to: "to-orange-100",
-      border: "border-orange-200",
-      text: "text-orange-700",
-      textChange: "text-red-600",
+      from: "from-orange-50 dark:from-orange-500/20",
+      to: "to-orange-100 dark:to-orange-500/30",
+      border: "border-orange-200 dark:border-orange-500/40",
+      text: "text-orange-700 dark:text-orange-300",
+      textChange: "text-red-400",
     },
     blue: {
-      from: "from-blue-50",
-      to: "to-blue-100",
-      border: "border-blue-200",
-      text: "text-blue-700",
-      textChange: "text-emerald-600",
+      from: "from-blue-50 dark:from-blue-500/20",
+      to: "to-blue-100 dark:to-blue-500/30",
+      border: "border-blue-200 dark:border-blue-500/40",
+      text: "text-blue-700 dark:text-blue-300",
+      textChange: "text-emerald-400",
     },
     amber: {
-      from: "from-amber-50",
-      to: "to-amber-100",
-      border: "border-amber-200",
-      text: "text-amber-700",
-      textChange: "text-emerald-600",
+      from: "from-amber-50 dark:from-amber-500/20",
+      to: "to-amber-100 dark:to-amber-500/30",
+      border: "border-amber-200 dark:border-amber-500/40",
+      text: "text-amber-700 dark:text-amber-300",
+      textChange: "text-emerald-400",
     },
   };
   const colors = colorMap[metric.color];
@@ -297,7 +297,9 @@ const MetricBlock: React.FC<{ metric: MetricData }> = ({ metric }) => {
       <div className={clsx("text-xl font-bold", colors.text)}>
         {metric.value}
       </div>
-      <div className="text-xs text-gray-700 font-medium">{metric.label}</div>
+      <div className="text-xs text-gray-700 dark:text-foreground/60 font-medium">
+        {metric.label}
+      </div>
       {/* <div className="flex items-center justify-center gap-1 mt-2">
         <Icon className={clsx("h-3 w-3", changeColor)} aria-hidden="true" />
         <span className={clsx("text-xs font-medium", changeColor)}>
@@ -311,14 +313,17 @@ const MetricBlock: React.FC<{ metric: MetricData }> = ({ metric }) => {
 const ChannelRow: React.FC<{ channel: ChannelData }> = ({ channel }) => {
   const roiBg =
     channel.roiColor === "emerald"
-      ? "bg-emerald-100 text-emerald-800 border-emerald-200"
-      : "bg-amber-100 text-amber-800 border-amber-200";
+      ? "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20"
+      : "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20";
   const trendText =
     channel.trend === "up" ? "text-emerald-600" : "text-red-600";
   const TrendIcon = channel.trend === "up" ? LuTrendingUp : LuTrendingDown;
 
   return (
-    <Card shadow="none" className="border border-primary/15 rounded-xl p-4">
+    <Card
+      shadow="none"
+      className="border border-foreground/10 dark:bg-background/50 rounded-xl p-4"
+    >
       <CardHeader className="p-0 pb-4 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <h4 className="font-medium text-sm">{channel.name}</h4>
@@ -337,27 +342,37 @@ const ChannelRow: React.FC<{ channel: ChannelData }> = ({ channel }) => {
           />
         </div>
         <div className="text-right">
-          <div className="font-bold text-base text-sky-700">
+          <div className="font-bold text-base text-sky-700 dark:text-sky-400">
             {channel.revenue}
           </div>
-          <div className="text-xs text-gray-600">Revenue</div>
+          <div className="text-xs text-gray-600 dark:text-foreground/60">
+            Revenue
+          </div>
         </div>
       </CardHeader>
       <CardBody className="p-0 grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="p-3 rounded-lg border border-gray-100 space-y-0.5 flex flex-col justify-center">
-          <div className="text-xs text-gray-600">Spend</div>
+        <div className="p-3 rounded-lg border border-foreground/10 space-y-0.5 flex flex-col justify-center">
+          <div className="text-xs text-gray-600 dark:text-foreground/60">
+            Spend
+          </div>
           <div className="font-semibold text-sm">{channel.spend}</div>
         </div>
-        <div className="p-3 rounded-lg border border-gray-100 space-y-0.5 flex flex-col justify-center">
-          <div className="text-xs text-gray-600">Conversions</div>
+        <div className="p-3 rounded-lg border border-foreground/10 space-y-0.5 flex flex-col justify-center">
+          <div className="text-xs text-gray-600 dark:text-foreground/60">
+            Conversions
+          </div>
           <div className="font-semibold text-sm">{channel.conversions}</div>
         </div>
-        <div className="p-3 rounded-lg border border-gray-100 space-y-0.5 flex flex-col justify-center">
-          <div className="text-xs text-gray-600">Cost per Acquisition</div>
+        <div className="p-3 rounded-lg border border-foreground/10 space-y-0.5 flex flex-col justify-center">
+          <div className="text-xs text-gray-600 dark:text-foreground/60">
+            Cost per Acquisition
+          </div>
           <div className="font-semibold text-sm">{channel.cpa}</div>
         </div>
-        <div className="p-3 rounded-lg border border-gray-100 space-y-0.5 flex flex-col justify-center">
-          <div className="text-xs text-gray-600">Efficiency</div>
+        <div className="p-3 rounded-lg border border-foreground/10 space-y-0.5 flex flex-col justify-center">
+          <div className="text-xs text-gray-600 dark:text-foreground/60">
+            Efficiency
+          </div>
           <div className="flex items-center gap-2">
             <Progress
               aria-label="Efficiency"
@@ -366,7 +381,7 @@ const ChannelRow: React.FC<{ channel: ChannelData }> = ({ channel }) => {
               className="h-2"
               radius="full"
             />
-            <span className="text-xs font-semibold text-sky-700">
+            <span className="text-xs font-semibold text-sky-700 dark:text-sky-400">
               {channel.efficiency}
             </span>
           </div>
@@ -374,6 +389,68 @@ const ChannelRow: React.FC<{ channel: ChannelData }> = ({ channel }) => {
       </CardBody>
     </Card>
   );
+};
+
+const THEME_STYLES = {
+  emerald: {
+    insight:
+      "bg-emerald-50 border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/20",
+    recommendation:
+      "border-l-4 border-l-emerald-500 bg-emerald-50 dark:bg-emerald-500/10",
+    projection:
+      "bg-gradient-to-br from-emerald-50 to-emerald-100 border-emerald-200 dark:from-emerald-500/10 dark:to-emerald-500/20 dark:border-emerald-500/30",
+    textTitle: "text-emerald-800 dark:text-emerald-300",
+    textDesc: "text-emerald-700 dark:text-emerald-300/80",
+    projValue: "text-emerald-700 dark:text-emerald-400",
+    projLabel: "text-emerald-800 dark:text-emerald-300",
+  },
+  sky: {
+    insight:
+      "bg-sky-50 border-sky-200 dark:bg-sky-500/10 dark:border-sky-500/20",
+    recommendation: "border-l-4 border-l-sky-500 bg-sky-50 dark:bg-sky-500/10",
+    projection:
+      "bg-gradient-to-br from-sky-50 to-sky-100 border-sky-200 dark:from-sky-500/10 dark:to-sky-500/20 dark:border-sky-500/30",
+    textTitle: "text-sky-800 dark:text-sky-300",
+    textDesc: "text-sky-700 dark:text-sky-300/80",
+    projValue: "text-sky-700 dark:text-sky-400",
+    projLabel: "text-sky-800 dark:text-sky-300",
+  },
+  amber: {
+    insight:
+      "bg-amber-50 border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/20",
+    recommendation:
+      "border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-500/10",
+    projection:
+      "bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200 dark:from-amber-500/10 dark:to-amber-500/20 dark:border-amber-500/30",
+    textTitle: "text-amber-800 dark:text-amber-300",
+    textDesc: "text-amber-700 dark:text-amber-300/80",
+    projValue: "text-amber-700 dark:text-amber-400",
+    projLabel: "text-amber-800 dark:text-amber-300",
+  },
+  orange: {
+    insight:
+      "bg-orange-50 border-orange-200 dark:bg-orange-500/10 dark:border-orange-500/20",
+    recommendation:
+      "border-l-4 border-l-orange-500 bg-orange-50 dark:bg-orange-500/10",
+    projection:
+      "bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 dark:from-orange-500/10 dark:to-orange-500/20 dark:border-orange-500/30",
+    textTitle: "text-orange-800 dark:text-orange-300",
+    textDesc: "text-orange-700 dark:text-orange-300/80",
+    projValue: "text-orange-700 dark:text-orange-400",
+    projLabel: "text-orange-800 dark:text-orange-300",
+  },
+  yellow: {
+    insight:
+      "bg-yellow-50 border-yellow-200 dark:bg-yellow-500/10 dark:border-yellow-500/20",
+    recommendation:
+      "border-l-4 border-l-yellow-500 bg-yellow-50 dark:bg-yellow-500/10",
+    projection:
+      "bg-gradient-to-br from-yellow-50 to-yellow-100 border-yellow-200 dark:from-yellow-500/10 dark:to-yellow-500/20 dark:border-yellow-500/30",
+    textTitle: "text-yellow-800 dark:text-yellow-300",
+    textDesc: "text-yellow-700 dark:text-yellow-300/80",
+    projValue: "text-yellow-700 dark:text-yellow-400",
+    projLabel: "text-yellow-800 dark:text-yellow-300",
+  },
 };
 
 const MarketingReport = () => {
@@ -398,7 +475,10 @@ const MarketingReport = () => {
     <ComponentContainer headingData={HEADING_DATA}>
       <div className="flex flex-col gap-4 md:gap-5">
         <div className="space-y-4 md:space-y-5">
-          <Card shadow="none" className="border border-primary/15 p-5">
+          <Card
+            shadow="none"
+            className="border border-foreground/10 dark:bg-background/50 p-5"
+          >
             <CardHeader className="p-0 pb-4 flex items-center gap-2">
               <LuTrendingUp
                 className="size-[18px] text-sky-600"
@@ -417,7 +497,10 @@ const MarketingReport = () => {
             </CardBody>
           </Card>
 
-          <Card shadow="none" className="border border-primary/15 p-5">
+          <Card
+            shadow="none"
+            className="border border-foreground/10 dark:bg-background/50 p-5"
+          >
             <CardHeader className="p-0 pb-4 flex items-center gap-2">
               <LuChartColumn
                 className="size-[18px] text-sky-600"
@@ -435,7 +518,10 @@ const MarketingReport = () => {
           </Card>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-            <Card shadow="none" className="border border-primary/15 p-5">
+            <Card
+              shadow="none"
+              className="border border-foreground/10 dark:bg-background/50 p-5"
+            >
               <CardHeader className="p-0 pb-4 flex items-center gap-2">
                 <LuTarget
                   className="size-[18px] text-sky-600"
@@ -446,39 +532,30 @@ const MarketingReport = () => {
               <CardBody className="p-0">
                 <div className="space-y-3">
                   {INSIGHTS_DATA.map((insight, index) => {
-                    let color;
+                    let colorKey = "emerald";
+                    if (index === 1) colorKey = "sky";
+                    if (index === 2) colorKey = "yellow";
 
-                    switch (index) {
-                      case 1:
-                        color = "sky";
-                        break;
-
-                      case 2:
-                        color = "yellow";
-                        break;
-
-                      default:
-                        color = "emerald";
-                        break;
-                    }
+                    const styles =
+                      THEME_STYLES[colorKey as keyof typeof THEME_STYLES];
 
                     return (
                       <div
                         key={index}
                         className={clsx(
                           "p-3 rounded-lg border space-y-1",
-                          `bg-${color}-50 border-${color}-200`
+                          styles.insight
                         )}
                       >
                         <h4
                           className={clsx(
                             "text-sm font-medium",
-                            `text-${color}-800`
+                            styles.textTitle
                           )}
                         >
                           {insight.title}
                         </h4>
-                        <p className={clsx("text-xs", `text-${color}-700`)}>
+                        <p className={clsx("text-xs", styles.textDesc)}>
                           {insight.description}
                         </p>
                       </div>
@@ -488,7 +565,10 @@ const MarketingReport = () => {
               </CardBody>
             </Card>
 
-            <Card shadow="none" className="border border-primary/15 p-5">
+            <Card
+              shadow="none"
+              className="border border-foreground/10 dark:bg-background/50 p-5"
+            >
               <CardHeader className="p-0 pb-4 flex items-center gap-2">
                 <LuUsers
                   className="size-[18px] text-orange-600"
@@ -499,41 +579,30 @@ const MarketingReport = () => {
               <CardBody className="p-0">
                 <div className="space-y-3">
                   {RECOMMENDATIONS_DATA.map((rec, index) => {
-                    let color;
+                    let colorKey = "emerald";
+                    if (index === 1) colorKey = "sky";
+                    if (index === 2) colorKey = "yellow";
 
-                    switch (index) {
-                      case 1:
-                        color = "sky";
-                        break;
-
-                      case 2:
-                        color = "yellow";
-                        break;
-
-                      default:
-                        color = "emerald";
-                        break;
-                    }
+                    const styles =
+                      THEME_STYLES[colorKey as keyof typeof THEME_STYLES];
 
                     return (
                       <div
                         key={index}
                         className={clsx(
                           "pl-4 p-3 rounded-r-lg space-y-1",
-                          `border-l-4 border-l-${color}-500 bg-${color}-50`,
-                          index === 0 && "border-l-emerald-500",
-                          index === 1 && "border-l-sky-500"
+                          styles.recommendation
                         )}
                       >
                         <h4
                           className={clsx(
                             "text-sm font-medium",
-                            `text-${color}-800`
+                            styles.textTitle
                           )}
                         >
                           {rec.title}
                         </h4>
-                        <p className={clsx("text-xs", `text-${color}-700`)}>
+                        <p className={clsx("text-xs", styles.textDesc)}>
                           {rec.description}
                         </p>
                       </div>
@@ -544,7 +613,10 @@ const MarketingReport = () => {
             </Card>
           </div>
 
-          <Card shadow="none" className="border border-primary/15 p-5">
+          <Card
+            shadow="none"
+            className="border border-foreground/10 dark:bg-background/50 p-5"
+          >
             <CardHeader className="p-0 pb-4 flex items-center gap-1.5">
               <LuDollarSign
                 className="size-[18px] text-sky-600"
@@ -556,40 +628,34 @@ const MarketingReport = () => {
             </CardHeader>
             <CardBody className="p-0">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {PROJECTIONS_DATA.map((proj, index) => (
-                  <div
-                    key={index}
-                    className={clsx(
-                      "text-center p-4 rounded-xl border hover:shadow-md transition-all duration-300 space-y-1",
-                      `bg-gradient-to-br from-${proj.color}-50 to-${proj.color}-100 border-${proj.color}-200`
-                    )}
-                  >
+                {PROJECTIONS_DATA.map((proj, index) => {
+                  const styles =
+                    THEME_STYLES[proj.color as keyof typeof THEME_STYLES];
+
+                  return (
                     <div
+                      key={index}
                       className={clsx(
-                        "text-xl font-bold",
-                        `text-${proj.color}-700`
+                        "text-center p-4 rounded-xl border hover:shadow-md transition-all duration-300 space-y-1",
+                        styles.projection
                       )}
                     >
-                      {proj.value}
+                      <div
+                        className={clsx("text-xl font-bold", styles.projValue)}
+                      >
+                        {proj.value}
+                      </div>
+                      <div
+                        className={clsx(
+                          "text-xs font-medium",
+                          styles.projLabel
+                        )}
+                      >
+                        {proj.label}
+                      </div>
                     </div>
-                    <div
-                      className={clsx(
-                        "text-xs font-medium",
-                        `text-${proj.color}-800`
-                      )}
-                    >
-                      {proj.label}
-                    </div>
-                    {/* <div
-                      className={clsx(
-                        "text-xs mt-2 font-medium",
-                        `text-${proj.color}-600`
-                      )}
-                    >
-                      {proj.subtext}
-                    </div> */}
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </CardBody>
           </Card>

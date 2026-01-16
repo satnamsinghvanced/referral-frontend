@@ -41,11 +41,11 @@ export default function SampleReports() {
   const navigate = useNavigate();
 
   return (
-    <div className="p-5 rounded-xl border-1 border-[#bedbff] bg-gradient-to-r from-[#eff6ff] to-[#faf5ff]">
-      <h4 className="text-sm text-[#364153] flex items-center gap-2 font-regular mb-2.5">
+    <div className="p-5 rounded-xl border-1 border-foreground/10 bg-gradient-to-r from-[#eff6ff] to-[#faf5ff] dark:from-background/50 dark:to-background">
+      <h4 className="text-sm text-[#364153] dark:text-white flex items-center gap-2 font-regular mb-2.5">
         <LuEye className="size-[18px] text-blue-600" /> Sample Reports Available
       </h4>
-      <p className="mb-6 text-gray-600 text-xs">
+      <p className="mb-6 text-gray-600 dark:text-foreground/60 text-xs">
         Explore our comprehensive sample reports to see the detailed insights
         and analytics available in Referral Retriever.
       </p>
@@ -55,14 +55,14 @@ export default function SampleReports() {
           <Card
             key={report.title}
             shadow="none"
-            className="flex flex-col gap-6"
+            className="flex flex-col gap-6 bg-content1 border border-transparent"
           >
             <CardBody className="p-4">
               <div className="flex items-center gap-2 mb-2.5">
                 <span className={`${report.color}`}>{report.icon}</span>
                 <h3 className="font-medium text-sm">{report.title}</h3>
               </div>
-              <p className="mb-3.5 text-gray-500 text-xs">
+              <p className="mb-3.5 text-gray-500 dark:text-foreground/40 text-xs">
                 {report.description}
               </p>
               <Button

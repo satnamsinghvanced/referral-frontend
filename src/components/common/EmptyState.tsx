@@ -12,7 +12,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
   message,
 }) => {
   return (
-    <div className="flex flex-col items-center justify-center text-center py-10 text-gray-500">
+    <div className="flex flex-col items-center justify-center text-center py-10 text-gray-500 dark:text-gray-400">
       {icon && <div className="mb-3">{icon}</div>}
       <p className="text-sm font-medium">{title}</p>
       {message && <p className="text-xs mt-1.5">{message}</p>}

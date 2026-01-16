@@ -246,8 +246,10 @@ export function UploadMediaModal({
     >
       <ModalContent className="p-4">
         <ModalHeader className="flex flex-col gap-1 font-normal p-0">
-          <h4 className="text-base font-medium">Upload Media</h4>
-          <p className="text-xs text-gray-500">
+          <h4 className="text-base font-medium text-foreground">
+            Upload Media
+          </h4>
+          <p className="text-xs text-gray-500 dark:text-foreground/40">
             Uploading to: {folderId === null ? "Root" : folderName}
           </p>
           <p className="text-xs text-blue-600 mt-1">
@@ -275,21 +277,21 @@ export function UploadMediaModal({
           <div
             className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${
               isDragOver
-                ? "border-blue-500 bg-blue-50"
-                : "border-gray-300 hover:border-gray-400 hover:bg-gray-50"
+                ? "border-blue-500 bg-blue-50 dark:bg-blue-900/10"
+                : "border-gray-300/50 hover:border-gray-400 dark:hover:border-default-200 hover:bg-gray-50 dark:hover:bg-default-100/50"
             }`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             onClick={() => fileInputRef.current?.click()}
           >
-            <FiUpload className="size-6 mx-auto mb-2 text-gray-400" />
-            <p className="text-sm mb-1">
+            <FiUpload className="size-6 mx-auto mb-2 text-gray-400 dark:text-foreground/20" />
+            <p className="text-sm mb-1 text-foreground">
               {filesToUpload.length > 0
                 ? `${filesToUpload.length} file(s) selected`
                 : "Drag files here or click to browse"}
             </p>
-            <p className="text-xs text-gray-500 mb-1">
+            <p className="text-xs text-gray-500 dark:text-foreground/40 mb-1">
               Supports:{" "}
               {allowedImageFormats
                 .map((f) => f.split("/")[1]?.toUpperCase())
@@ -317,9 +319,9 @@ export function UploadMediaModal({
           </div>
 
           {filesToUpload.length > 0 && (
-            <div className="max-h-48 overflow-auto border border-gray-200 rounded-lg p-3 bg-gray-50">
+            <div className="max-h-48 overflow-auto border border-foreground/10 rounded-lg p-3 bg-gray-50 dark:bg-default-100/20">
               <div className="flex justify-between items-center mb-2">
-                <p className="font-medium text-xs">
+                <p className="font-medium text-xs text-foreground">
                   Selected Files ({filesToUpload.length})
                 </p>
                 {invalidFilesCount > 0 && (
@@ -335,15 +337,15 @@ export function UploadMediaModal({
                     key={index}
                     className={`flex items-start justify-between gap-2 p-2 rounded text-xs ${
                       fileWithError.error
-                        ? "bg-red-50 border border-red-200"
-                        : "bg-white border border-gray-200"
+                        ? "bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-500/30"
+                        : "bg-white dark:bg-default-50 border border-foreground/10"
                     }`}
                   >
                     <div className="flex-1 min-w-0">
-                      <p className="truncate font-medium">
+                      <p className="truncate font-medium text-foreground">
                         {fileWithError.file.name}
                       </p>
-                      <p className="text-gray-500 text-[11px]">
+                      <p className="text-gray-500 dark:text-foreground/40 text-[11px]">
                         {formatFileSize(fileWithError.file.size)} •{" "}
                         {fileWithError.file.type.startsWith("image/")
                           ? "Image"
@@ -374,9 +376,9 @@ export function UploadMediaModal({
 
           {/* Upload Progress Bar */}
           {isUploading && (
-            <div className="border-1 border-gray-200 rounded-lg p-3 bg-gray-50">
+            <div className="border-1 border-foreground/10 rounded-lg p-3 bg-gray-50 dark:bg-default-100/20">
               <div className="flex justify-between items-center mb-3">
-                <span className="text-xs font-medium flex items-center gap-2">
+                <span className="text-xs font-medium flex items-center gap-2 text-foreground">
                   <svg
                     className="animate-spin h-4 w-4 text-primary"
                     xmlns="http://www.w3.org/2000/svg"
@@ -399,7 +401,9 @@ export function UploadMediaModal({
                   </svg>
                   Uploading {validFilesCount} file(s)...
                 </span>
-                <span className="text-xs font-medium">{uploadProgress}%</span>
+                <span className="text-xs font-medium text-foreground">
+                  {uploadProgress}%
+                </span>
               </div>
               <Progress
                 size="md"
@@ -413,7 +417,7 @@ export function UploadMediaModal({
                   indicator: "bg-primary",
                 }}
               />
-              <p className="text-xs text-gray-600 mt-2">
+              <p className="text-xs text-gray-600 dark:text-foreground/60 mt-2">
                 {uploadProgress === 100
                   ? "Upload complete! Closing..."
                   : "Please wait while your files are being uploaded. Do not close this window."}
@@ -423,7 +427,7 @@ export function UploadMediaModal({
         </ModalBody>
 
         <ModalFooter className="flex justify-between items-center p-0">
-          <div className="text-xs text-gray-600">
+          <div className="text-xs text-gray-600 dark:text-foreground/40">
             {validFilesCount > 0 && (
               <span className="text-green-600 font-medium">
                 {validFilesCount} valid file(s)
@@ -435,7 +439,7 @@ export function UploadMediaModal({
               size="sm"
               radius="sm"
               variant="ghost"
-              className="border-small"
+              className="border-small border-gray-300 dark:border-default-200 text-gray-700 dark:text-foreground/70 hover:bg-gray-50 dark:hover:bg-default-100"
               onPress={handleCancel}
               isDisabled={isUploading}
             >

@@ -38,7 +38,7 @@ export function ActivityCard({ activity, onView }: ActivityCardProps) {
   return (
     <Card
       radius="none"
-      className={`relative overflow-visible shadow-none bg-background !rounded-r-xl p-4 h-full flex flex-col justify-between border border-l-0 border-gray-100`}
+      className={`relative overflow-visible shadow-none bg-content1 !rounded-r-xl p-4 h-full flex flex-col justify-between border border-l-0 border-foreground/10`}
       onPress={() => onView(activity)}
       isPressable
       disableRipple
@@ -50,14 +50,14 @@ export function ActivityCard({ activity, onView }: ActivityCardProps) {
         }}
       ></div>
       <CardHeader className="flex justify-between items-start mb-2 p-0">
-        <h3 className="text-sm font-medium">{title}</h3>
+        <h3 className="text-sm font-medium text-foreground">{title}</h3>
         <ActivityStatusChip
           status={status === "confirmed" ? "scheduled" : status}
         />
       </CardHeader>
 
       {(startDate || activityType || description) && (
-        <CardBody className="text-sm text-gray-600 space-y-2 mb-3 p-0">
+        <CardBody className="text-sm text-gray-600 dark:text-foreground/60 space-y-2 mb-3 p-0">
           {startDate && (
             <div className="flex items-center gap-1.5">
               <LuCalendar fontSize={14} />
@@ -73,13 +73,21 @@ export function ActivityCard({ activity, onView }: ActivityCardProps) {
           </p>
 
           {description && (
-            <p className="text-xs text-gray-600 line-clamp-2">{description}</p>
+            <p className="text-xs text-gray-600 dark:text-foreground/60 line-clamp-2">
+              {description}
+            </p>
           )}
         </CardBody>
       )}
 
-      <CardFooter className="flex justify-between items-center text-gray-600 text-xs p-0">
-        {budget ? <div className="text-emerald-600">${budget} budget</div> : ""}
+      <CardFooter className="flex justify-between items-center text-gray-600 dark:text-foreground/40 text-xs p-0">
+        {budget ? (
+          <div className="text-emerald-600 dark:text-emerald-400">
+            ${budget} budget
+          </div>
+        ) : (
+          ""
+        )}
         <div>{reach && reach != "0" ? `${reach} reach` : "No reach yet"}</div>
       </CardFooter>
     </Card>

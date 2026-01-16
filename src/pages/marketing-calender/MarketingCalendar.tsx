@@ -1,4 +1,4 @@
-import { Button, Input, Pagination, Select, SelectItem } from "@heroui/react";
+import { Button, Input, Select, SelectItem } from "@heroui/react";
 import { useCallback, useEffect, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { FiClock, FiGlobe, FiSearch, FiShare2 } from "react-icons/fi";
@@ -23,9 +23,11 @@ import { ActivityCard } from "./ActivityCard";
 import CustomCalendar from "./CustomCalender";
 import ActivityActionsModal from "./modal/ActivityActionsModal";
 import { ActivityDetailModal } from "./modal/ActivityDetailModal";
-import { Link } from "react-router-dom";
+import { data, Link } from "react-router-dom";
 import { useFetchGoogleCalendarIntegration } from "../../hooks/integrations/useGoogleCalendar";
 import { formatNumberWithCommas } from "../../utils/formatNumberWithCommas";
+import Pagination from "../../components/common/Pagination";
+import { ODD_PAGINATION_LIMIT } from "../../consts/consts";
 
 const MarketingCalendar = () => {
   const { data: googleCalendarConfig, isLoading: isGoogleCalendarLoading } =
@@ -36,7 +38,7 @@ const MarketingCalendar = () => {
 
   const [currentFilters, setCurrentFilters] = useState<any>({
     page: 1,
-    limit: 9,
+    limit: ODD_PAGINATION_LIMIT,
     search: "",
     type: "all",
   });
@@ -129,7 +131,7 @@ const MarketingCalendar = () => {
       heading: "Active Campaigns",
       value: stats?.activeCampaigns || 0,
       subheading: (
-        <p className="text-emerald-600 flex items-center gap-1.5">
+        <p className="text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5">
           <MdTrendingUp fontSize={15} />
           Currently running
         </p>
@@ -140,7 +142,7 @@ const MarketingCalendar = () => {
       heading: "Scheduled Posts",
       value: stats?.scheduledPosts || 0,
       subheading: (
-        <p className="text-blue-600 flex items-center gap-1.5">
+        <p className="text-blue-600 dark:text-blue-400 flex items-center gap-1.5">
           <FiClock fontSize={15} />
           Ready to post
         </p>
@@ -151,7 +153,7 @@ const MarketingCalendar = () => {
       heading: "Referral Activities",
       value: stats?.referralActivities || 0,
       subheading: (
-        <p className="text-purple-600 flex items-center gap-1.5">
+        <p className="text-purple-600 dark:text-purple-400 flex items-center gap-1.5">
           <LuCalendar fontSize={15} />
           Scheduled
         </p>
@@ -162,7 +164,7 @@ const MarketingCalendar = () => {
       heading: "Total Reach",
       value: formatNumberWithCommas(stats?.totalReach as number),
       subheading: (
-        <p className="text-orange-600 flex items-center gap-1.5">
+        <p className="text-orange-600 dark:text-orange-400 flex items-center gap-1.5">
           <LuUsers fontSize={15} />
           Combined reach
         </p>
@@ -198,8 +200,10 @@ const MarketingCalendar = () => {
     if (filteredActivities.length === 0) {
       return (
         <div className="flex flex-col gap-3 items-center justify-center min-h-[100px]">
-          <LuCalendar className="text-4xl text-gray-300" />
-          <p className="text-xs text-gray-600">No activities scheduled</p>
+          <LuCalendar className="text-4xl text-gray-300 dark:text-default-200" />
+          <p className="text-xs text-gray-600 dark:text-foreground/60">
+            No activities scheduled
+          </p>
           <Button
             size="sm"
             radius="sm"
@@ -232,7 +236,7 @@ const MarketingCalendar = () => {
             return (
               <div
                 key={activity._id}
-                className={`relative overflow-visible shadow-none bg-background !rounded-r-xl p-3 h-full flex flex-col justify-between border border-gray-100 cursor-pointer`}
+                className={`relative overflow-visible shadow-none bg-background !rounded-r-xl p-3 h-full flex flex-col justify-between border border-foreground/10 cursor-pointer`}
                 style={{ borderLeftColor: activityColor }}
                 onClick={() => handleViewActivity(activity)}
               >
@@ -243,7 +247,9 @@ const MarketingCalendar = () => {
                   }}
                 ></div>
                 <div className="flex justify-between items-start mb-2 p-0">
-                  <h3 className="text-sm font-medium">{activity.title}</h3>
+                  <h3 className="text-sm font-medium text-foreground">
+                    {activity.title}
+                  </h3>
                   <ActivityStatusChip
                     status={
                       activity.status === "confirmed"
@@ -253,7 +259,7 @@ const MarketingCalendar = () => {
                   />
                 </div>
 
-                <div className="text-sm text-gray-600 space-y-2 p-0">
+                <div className="text-sm text-gray-600 dark:text-foreground/60 space-y-2 p-0">
                   <div className="flex items-center gap-1.5">
                     <LuCalendar fontSize={14} />
                     <p className="flex items-center space-x-1 text-xs">
@@ -290,62 +296,13 @@ const MarketingCalendar = () => {
     );
   };
 
-  const UpcomingActivitiesSection = () => {
-    if (isLoading) {
-      return <LoadingState />;
-    }
-
-    if (activities.length === 0) {
-      return (
-        <EmptyState
-          title={
-            isFiltered
-              ? "No activities found matching your filters."
-              : "No upcoming marketing activities scheduled."
-          }
-          // icon={FiFilter}
-        />
-      );
-    }
-
-    return (
-      <>
-        <div className="grid grid-cols-3 gap-3">
-          {activities.map((activity: any) => (
-            <ActivityCard
-              key={activity._id}
-              activity={activity}
-              onView={handleViewActivity}
-            />
-          ))}
-        </div>
-
-        {pagination && pagination?.totalPages > 1 && (
-          <Pagination
-            showControls
-            size="sm"
-            radius="sm"
-            initialPage={1}
-            page={currentFilters.page as number}
-            onChange={(page) => handleFilterChange("page", page)}
-            total={pagination.totalPages as number}
-            classNames={{
-              base: "flex justify-end py-3",
-              wrapper: "gap-1.5",
-            }}
-          />
-        )}
-      </>
-    );
-  };
-
   return (
     <>
       <ComponentContainer headingData={HEADING_DATA}>
         <div className="flex flex-col gap-4 md:gap-5">
           {!isGoogleCalendarConnected && !isGoogleCalendarLoading && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-center justify-between">
-              <p className="text-sm text-yellow-800">
+            <div className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-500/30 rounded-lg p-3 flex items-center justify-between">
+              <p className="text-sm text-yellow-800 dark:text-yellow-200/80">
                 Google Calendar is not connected. Connect your Google Calendar
                 to sync activities.
               </p>
@@ -355,7 +312,7 @@ const MarketingCalendar = () => {
                 size="sm"
                 color="warning"
                 variant="flat"
-                className="bg-yellow-200 text-yellow-800"
+                className="bg-yellow-200 dark:bg-yellow-500/20 text-yellow-800 dark:text-yellow-200"
               >
                 Connect Calendar
               </Button>
@@ -370,7 +327,7 @@ const MarketingCalendar = () => {
           </div>
           <div className="grid grid-cols-4 gap-4">
             <div className="col-start-1 col-end-4">
-              <div className="w-full shadow-none bg-background border border-primary/15 rounded-xl">
+              <div className="w-full shadow-none bg-background border border-foreground/10 rounded-xl">
                 <CustomCalendar
                   weekendDisabled={false}
                   onRangeSelect={(start, end) => {
@@ -389,8 +346,8 @@ const MarketingCalendar = () => {
               </div>
             </div>
             <div className="space-y-4">
-              <div className="bg-background p-4 border border-primary/15 rounded-xl">
-                <h4 className="text-base font-medium flex items-center gap-2">
+              <div className="bg-background p-4 border border-foreground/10 rounded-xl">
+                <h4 className="text-base font-medium flex items-center gap-2 text-foreground">
                   <TbWaveSawTool className="text-primary text-xl" />
                   {selectedDate
                     ? `Activities for ${formatDateToReadable(selectedDate)}`
@@ -400,8 +357,8 @@ const MarketingCalendar = () => {
                   <ActivityListForSelectedDate />
                 </div>
               </div>
-              <div className="bg-background p-4 border border-primary/15 rounded-xl">
-                <h4 className="text-base font-medium flex items-center gap-2 mb-4">
+              <div className="bg-background p-4 border border-foreground/10 rounded-xl">
+                <h4 className="text-base font-medium flex items-center gap-2 mb-4 text-foreground">
                   Activity Types
                 </h4>
                 <ul className="space-y-3">
@@ -410,7 +367,7 @@ const MarketingCalendar = () => {
 
                     return (
                       <li
-                        className="text-xs flex items-center gap-2"
+                        className="text-xs flex items-center gap-2 text-foreground/80"
                         key={activity.label}
                       >
                         <span
@@ -430,7 +387,7 @@ const MarketingCalendar = () => {
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-3 border border-primary/15 rounded-xl p-4 bg-background shadow-none">
+          <div className="flex items-center gap-3 border border-foreground/10 rounded-xl p-4 bg-background shadow-none">
             <Input
               size="sm"
               variant="flat"
@@ -469,9 +426,43 @@ const MarketingCalendar = () => {
               </>
             </Select>
           </div>
-          <div className="flex flex-col gap-4 border border-primary/15 bg-background rounded-xl p-4">
-            <p className="font-medium text-sm">Upcoming Marketing Activities</p>
-            <UpcomingActivitiesSection />
+          <div className="flex flex-col gap-4 border border-foreground/10 bg-background rounded-xl p-4">
+            <p className="font-medium text-sm text-foreground">
+              Upcoming Marketing Activities
+            </p>
+            {isLoading ? (
+              <LoadingState />
+            ) : activities.length === 0 ? (
+              <EmptyState
+                title="No upcoming marketing activities scheduled."
+                // icon={FiFilter}
+              />
+            ) : (
+              <>
+                <div className="grid grid-cols-3 gap-3">
+                  {activities.map((activity: any) => (
+                    <ActivityCard
+                      key={activity._id}
+                      activity={activity}
+                      onView={handleViewActivity}
+                    />
+                  ))}
+                </div>
+
+                {pagination && pagination?.totalPages > 1 && (
+                  <Pagination
+                    identifier="activities"
+                    limit={currentFilters.limit}
+                    totalItems={pagination.totalData}
+                    currentPage={pagination.currentPage}
+                    totalPages={pagination.totalPages}
+                    handlePageChange={(page: number) => {
+                      setCurrentFilters((prev: any) => ({ ...prev, page }));
+                    }}
+                  />
+                )}
+              </>
+            )}
           </div>
         </div>
       </ComponentContainer>

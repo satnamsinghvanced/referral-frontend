@@ -144,11 +144,11 @@ const ScheduleTaskModal = ({
     >
       <ModalContent className="p-5 flex flex-col gap-4 !my-2">
         <ModalHeader className="flex flex-col gap-2 text-center sm:text-left flex-shrink-0 p-0">
-          <h4 className="text-base leading-none font-medium flex items-center space-x-2">
+          <h4 className="text-base leading-none font-medium flex items-center space-x-2 text-foreground">
             <LuCalendar className="size-5" />
             <span>Schedule Task - {practice?.name}</span>
           </h4>
-          <p className="text-gray-600 text-xs font-normal text-left">
+          <p className="text-gray-600 dark:text-foreground/60 text-xs font-normal text-left">
             Create a calendar event for this task and integrate it with your
             practice schedule.
           </p>
@@ -156,9 +156,9 @@ const ScheduleTaskModal = ({
 
         <div className="flex-1 overflow-y-auto">
           <div className="space-y-4">
-            <Card className="rounded-xl border border-primary/15 shadow-none">
+            <Card className="rounded-xl border border-foreground/10 shadow-none dark:bg-default-100/20">
               <CardHeader className="px-4 pt-4">
-                <h4 className="text-sm">Event Details</h4>
+                <h4 className="text-sm text-foreground">Event Details</h4>
               </CardHeader>
               <CardBody className="px-4 pb-4 pt-0 space-y-4">
                 <div>
@@ -316,7 +316,7 @@ const ScheduleTaskModal = ({
             radius="sm"
             variant="bordered"
             onPress={onClose}
-            className="border-small flex-1"
+            className="border-small dark:border-default-200 flex-1 dark:text-foreground/70"
           >
             Cancel
           </Button>

@@ -18,7 +18,7 @@ const Pagination = ({
 }) => {
   return (
     <div className="flex items-center justify-between gap-2">
-      <p className="text-xs text-gray-600">
+      <p className="text-xs text-gray-600 dark:text-gray-400">
         Showing {limit * (currentPage - 1) + 1} -{" "}
         {limit * currentPage > totalItems ? totalItems : limit * currentPage} of{" "}
         {totalItems} {identifier}

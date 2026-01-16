@@ -97,8 +97,12 @@ const ReferralStatusModal = ({
     >
       <ModalContent>
         <ModalHeader className="flex-col px-5 font-normal space-y-1">
-          <h2 className="text-base font-medium">{modalTitle}</h2>
-          <p className="text-xs text-gray-600">{modalDescription}</p>
+          <h2 className="text-base font-medium dark:text-white">
+            {modalTitle}
+          </h2>
+          <p className="text-xs text-gray-600 dark:text-foreground/60">
+            {modalDescription}
+          </p>
         </ModalHeader>
 
         {/* Dialog Body */}
@@ -110,41 +114,43 @@ const ReferralStatusModal = ({
         ) : (
           <ModalBody className="space-y-4 py-4 pt-1 px-5 gap-0">
             {/* Patient Info Card */}
-            <div className="bg-gray-50 p-4 rounded-lg space-y-2">
+            <div className="bg-gray-50 dark:bg-background/50 p-4 rounded-lg space-y-2">
               <div className="flex items-center gap-2">
-                <FiUser className="size-4 text-gray-600" />
-                <span className="text-sm font-medium">{referral?.name}</span>
+                <FiUser className="size-4 text-gray-600 dark:text-foreground/60" />
+                <span className="text-sm font-medium dark:text-white">
+                  {referral?.name}
+                </span>
               </div>
               {referral?.phone && (
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-600">
+                  <span className="text-xs text-gray-600 dark:text-foreground/60">
                     Phone: {referral?.phone}
                   </span>
                 </div>
               )}
               <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-600">
+                <span className="text-xs text-gray-600 dark:text-foreground/60">
                   Email: {referral?.email}
                 </span>
               </div>
 
               {referral?.createdAt && (
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-600">
+                  <span className="text-xs text-gray-600 dark:text-foreground/60">
                     Referred on: {formatDateToReadable(referral.createdAt)}
                   </span>
                 </div>
               )}
               {referral?.scheduledDate && (
                 <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-600">
+                  <span className="text-xs text-gray-600 dark:text-foreground/60">
                     Scheduled:{" "}
                     {formatDateToReadable(referral.scheduledDate, true)}
                   </span>
                 </div>
               )}
               {referral?.referredBy?.name && (
-                <div className="text-xs text-gray-600">
+                <div className="text-xs text-gray-600 dark:text-foreground/60">
                   <span>Referred by: </span>
                   <span>{referral?.referredBy?.name}</span>
                   {referral?.referredBy?.practice?.name && (
@@ -153,7 +159,7 @@ const ReferralStatusModal = ({
                 </div>
               )}
               {referral?.treatment && (
-                <div className="text-xs text-gray-600">
+                <div className="text-xs text-gray-600 dark:text-foreground/60">
                   Treatment:{" "}
                   {
                     TREATMENT_OPTIONS.find(
@@ -164,12 +170,12 @@ const ReferralStatusModal = ({
                 </div>
               )}
               {referral?.addedVia && (
-                <div className="text-xs text-gray-600">
+                <div className="text-xs text-gray-600 dark:text-foreground/60">
                   Source: {referral?.addedVia}
                 </div>
               )}
               {isViewMode && referral.estValue ? (
-                <div className="text-xs text-gray-600">
+                <div className="text-xs text-gray-600 dark:text-foreground/60">
                   Estimated Value: ${referral?.estValue}
                 </div>
               ) : (
@@ -179,19 +185,25 @@ const ReferralStatusModal = ({
 
             {/* Current Status Badge */}
             <div className="space-y-0.5">
-              <label className="text-xs block">Current Status</label>
+              <label className="text-xs block dark:text-foreground/60">
+                Current Status
+              </label>
               <ReferralStatusChip status={referral?.status} />
             </div>
 
             <div className="space-y-0.5">
-              <label className="text-xs block">Priority Level</label>
+              <label className="text-xs block dark:text-foreground/60">
+                Priority Level
+              </label>
               <PriorityLevelChip level={referral?.priority as string} />
             </div>
 
             {referral?.additionalNotes && (
               <div className="space-y-0.5">
-                <label className="text-xs block">Additional Notes</label>
-                <p className="text-xs text-gray-600">
+                <label className="text-xs block dark:text-foreground/60">
+                  Additional Notes
+                </label>
+                <p className="text-xs text-gray-600 dark:text-foreground/60">
                   {referral?.additionalNotes}
                 </p>
               </div>
@@ -263,10 +275,10 @@ const ReferralStatusModal = ({
                 {/* Original Notes Read-only */}
                 {referral?.additionalNotes && (
                   <div>
-                    <label className="inline-block text-xs mb-2">
+                    <label className="inline-block text-xs mb-2 dark:text-foreground/60">
                       Original Notes
                     </label>
-                    <div className="text-xs text-gray-600 bg-gray-50 p-3 rounded-md border border-primary/15">
+                    <div className="text-xs text-gray-600 dark:text-foreground/60 bg-gray-50 dark:bg-background/50 p-3 rounded-md border border-foreground/10">
                       {referral?.additionalNotes}
                     </div>
                   </div>

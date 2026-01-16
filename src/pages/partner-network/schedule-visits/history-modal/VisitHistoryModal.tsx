@@ -86,41 +86,49 @@ export function VisitHistoryModal({
 
         <ModalHeader className="flex flex-col gap-0 text-center sm:text-left flex-shrink-0 p-5 pb-0 font-normal">
           <div className="flex flex-col gap-2">
-            <h2 className="text-base leading-none font-medium flex items-center gap-2">
-              <TbArchive className="h-5 w-5 text-blue-600" />
+            <h2 className="text-base leading-none font-medium flex items-center gap-2 dark:text-white">
+              <TbArchive className="h-5 w-5 text-blue-600 dark:text-blue-500" />
               <span>Visit History & Routes</span>
             </h2>
-            <p className="text-gray-600 text-xs font-normal">
+            <p className="text-gray-600 dark:text-foreground/60 text-xs font-normal">
               View past visits, routes, and performance analytics
             </p>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-4 border-b border-primary/15 flex-shrink-0">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 py-4 border-b border-foreground/10 flex-shrink-0">
             <div className="text-center">
-              <div className="text-lg font-semibold text-blue-600">
+              <div className="text-lg font-semibold text-blue-600 dark:text-blue-400">
                 {displayStats.totalVisits}
               </div>
-              <div className="text-xs text-gray-600">Total Visits</div>
+              <div className="text-xs text-gray-600 dark:text-foreground/60">
+                Total Visits
+              </div>
             </div>
             <div className="text-center">
-              <div className="text-lg font-semibold text-green-600">
+              <div className="text-lg font-semibold text-green-600 dark:text-green-400">
                 {displayStats.completedVisits}
               </div>
-              <div className="text-xs text-gray-600">Completed</div>
+              <div className="text-xs text-gray-600 dark:text-foreground/60">
+                Completed
+              </div>
             </div>
             <div className="text-center">
-              <div className="text-lg font-semibold text-purple-600">
+              <div className="text-lg font-semibold text-purple-600 dark:text-purple-400">
                 {displayStats.officeVisits}
               </div>
-              <div className="text-xs text-gray-600">Offices Visited</div>
+              <div className="text-xs text-gray-600 dark:text-foreground/60">
+                Offices Visited
+              </div>
             </div>
             <div className="text-center">
-              <div className="text-lg font-semibold text-orange-600">
+              <div className="text-lg font-semibold text-orange-600 dark:text-orange-400">
                 {displayStats.totalTime}
               </div>
-              <div className="text-xs text-gray-600">Total Time</div>
+              <div className="text-xs text-gray-600 dark:text-foreground/60">
+                Total Time
+              </div>
             </div>
           </div>
-          <div className="flex items-center gap-2 py-4 border-b border-primary/15 flex-shrink-0">
+          <div className="flex items-center gap-2 py-4 border-b border-foreground/10 flex-shrink-0">
             <div className="flex-1 relative">
               <Input
                 data-slot="input"
@@ -156,7 +164,7 @@ export function VisitHistoryModal({
           <div>
             {visits?.map((monthGroup: any, index: number) => (
               <div key={index} className="space-y-3">
-                <h3 className="text-sm font-medium sticky top-0 bg-background py-2.5 border-b border-primary/15 z-10">
+                <h3 className="text-sm font-medium sticky top-0 bg-background py-2.5 border-b border-foreground/10 z-10 dark:text-foreground/80">
                   {monthGroup.month} ({monthGroup.visits.length} visits)
                 </h3>
                 <div className="space-y-2.5">

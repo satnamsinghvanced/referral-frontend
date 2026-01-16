@@ -242,8 +242,10 @@ export default function BudgetActionModal({
       <ModalContent>
         <form onSubmit={formik.handleSubmit}>
           <ModalHeader className="p-4 pb-0 flex-col">
-            <h2 className="leading-none font-medium text-base">{modalTitle}</h2>
-            <p className="text-xs text-gray-600 mt-2 font-normal">
+            <h2 className="leading-none font-medium text-base text-foreground">
+              {modalTitle}
+            </h2>
+            <p className="text-xs text-gray-600 dark:text-foreground/60 mt-2 font-normal">
               {isEdit
                 ? `Update the details for ${
                     typeof editedData.category === "string"
@@ -331,7 +333,11 @@ export default function BudgetActionModal({
                 labelPlacement="outside-top"
                 name="budgetAmount"
                 type="number"
-                startContent={<span className="text-gray-500">$</span>}
+                startContent={
+                  <span className="text-gray-500 dark:text-foreground/40">
+                    $
+                  </span>
+                }
                 placeholder="0"
                 isRequired
                 value={formik.values.budgetAmount.toString()}
@@ -360,7 +366,11 @@ export default function BudgetActionModal({
                   labelPlacement="outside-top"
                   name="actualSpent"
                   type="number"
-                  startContent={<span className="text-gray-500">$</span>}
+                  startContent={
+                    <span className="text-gray-500 dark:text-foreground/40">
+                      $
+                    </span>
+                  }
                   placeholder="0"
                   max={formik.values.budgetAmount}
                   value={formik.values.actualSpent?.toString() ?? ""}
@@ -540,10 +550,12 @@ export default function BudgetActionModal({
 
           <ModalFooter className="flex flex-col justify-end gap-2 px-4 pb-4 pt-0">
             {isEdit && (
-              <div className="col-span-2 rounded-md bg-gray-100 px-4 py-3">
+              <div className="col-span-2 rounded-md bg-gray-100 dark:bg-default-100 px-4 py-3 border border-transparent dark:border-default-200/50">
                 <div className="flex justify-between text-xs mb-2">
-                  <span className="text-gray-600">Remaining Budget:</span>
-                  <span className="font-medium">
+                  <span className="text-gray-600 dark:text-foreground/60">
+                    Remaining Budget:
+                  </span>
+                  <span className="font-medium text-foreground">
                     $
                     {formik.values.budgetAmount && formik.values.actualSpent
                       ? (
@@ -555,8 +567,12 @@ export default function BudgetActionModal({
                 </div>
 
                 <div className="flex justify-between text-xs mb-2">
-                  <span className="text-gray-600">Budget Utilization:</span>
-                  <span className="font-medium">{utilization.toFixed(1)}%</span>
+                  <span className="text-gray-600 dark:text-foreground/60">
+                    Budget Utilization:
+                  </span>
+                  <span className="font-medium text-foreground">
+                    {utilization.toFixed(1)}%
+                  </span>
                 </div>
 
                 {/* Progress Bar */}
@@ -575,7 +591,7 @@ export default function BudgetActionModal({
                 size="sm"
                 variant="ghost"
                 onPress={onClose}
-                className="border border-gray-300 text-gray-700 hover:bg-gray-50"
+                className="border border-gray-300 dark:border-default-200 text-gray-700 dark:text-foreground/70 hover:bg-gray-50 dark:hover:bg-default-100"
                 isDisabled={isLoading}
               >
                 Cancel
@@ -611,11 +627,11 @@ export default function BudgetActionModal({
         }}
       >
         <ModalContent className="p-0">
-          <ModalHeader className="p-4 pb-3 leading-none font-medium text-base">
+          <ModalHeader className="p-4 pb-3 leading-none font-medium text-base text-foreground">
             Confirmation
           </ModalHeader>
           <ModalBody className="px-4 py-0">
-            <p className="text-sm">{confirmationMessage}</p>
+            <p className="text-sm text-foreground/80">{confirmationMessage}</p>
           </ModalBody>
           <ModalFooter className="p-4">
             <Button
@@ -627,7 +643,7 @@ export default function BudgetActionModal({
                 setShowConfirmation(false);
                 setPendingValues(null);
               }}
-              className="border-small"
+              className="border-small border-gray-300 dark:border-default-200 text-gray-700 dark:text-foreground/70 hover:bg-gray-50 dark:hover:bg-default-100"
             >
               Cancel
             </Button>

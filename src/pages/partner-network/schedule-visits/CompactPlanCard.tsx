@@ -16,8 +16,10 @@ const CompactPlanCard: React.FC<{
 }> = ({ plan, onView, onEdit, onDelete, onStatusClick }) => {
   const statClass =
     "flex flex-col items-center justify-center text-center w-18";
-  const statValueClass = "font-medium text-xs whitespace-nowrap";
-  const statLabelClass = "text-xs text-gray-600 whitespace-nowrap";
+  const statValueClass =
+    "font-medium text-xs whitespace-nowrap text-foreground";
+  const statLabelClass =
+    "text-xs text-gray-600 dark:text-foreground/60 whitespace-nowrap";
 
   let completePercentage;
 
@@ -53,10 +55,10 @@ const CompactPlanCard: React.FC<{
   };
 
   return (
-    <Card className="p-4 rounded-lg border border-primary/15 bg-background shadow-none flex items-start justify-between gap-4">
+    <Card className="p-4 rounded-lg border border-foreground/10 bg-background dark:bg-default-100/20 shadow-none flex items-start justify-between gap-4">
       <div className="w-full">
         <div className="flex items-center gap-2 mb-1 justify-between">
-          <h4 className="text-sm font-medium truncate">
+          <h4 className="text-sm font-medium truncate text-foreground">
             {plan.planDetails.name}
           </h4>
           <div className="flex items-center gap-1.5">
@@ -68,7 +70,7 @@ const CompactPlanCard: React.FC<{
             </span>
           </div>
         </div>
-        <p className="text-xs text-gray-600">
+        <p className="text-xs text-gray-600 dark:text-foreground/60">
           {formatDateToReadable(fullRouteDateTime as string, true)}
         </p>
         {/* {plan.planDetails.description && (
@@ -111,6 +113,7 @@ const CompactPlanCard: React.FC<{
             title="View Details"
             isIconOnly
             onPress={() => onView(plan)}
+            className="dark:text-foreground/70"
           >
             <FiEye className="size-3.5" />
           </Button>
@@ -120,6 +123,7 @@ const CompactPlanCard: React.FC<{
             title="Edit Plan"
             isIconOnly
             onPress={() => onEdit(plan)}
+            className="dark:text-foreground/70"
           >
             <FiEdit className="size-3.5" />
           </Button>
@@ -131,6 +135,7 @@ const CompactPlanCard: React.FC<{
             onPress={() => {
               copySchedulePlan(plan._id);
             }}
+            className="dark:text-foreground/70"
           >
             <FiCopy className="size-3.5" />
           </Button>
@@ -140,6 +145,7 @@ const CompactPlanCard: React.FC<{
             title="Export Plan"
             isIconOnly
             onPress={handleExport}
+            className="dark:text-foreground/70"
           >
             <LuDownload className="size-3.5" />
           </Button>

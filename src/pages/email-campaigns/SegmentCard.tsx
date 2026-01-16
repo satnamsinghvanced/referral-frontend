@@ -3,7 +3,15 @@ import React from "react";
 import { FaRegEnvelope } from "react-icons/fa";
 import { FiCopy, FiEdit } from "react-icons/fi";
 import { IoTrendingUp } from "react-icons/io5";
-import { LuCalendar, LuDownload, LuPause, LuPlay, LuTarget, LuTrash2, LuUsers } from "react-icons/lu";
+import {
+  LuCalendar,
+  LuDownload,
+  LuPause,
+  LuPlay,
+  LuTarget,
+  LuTrash2,
+  LuUsers,
+} from "react-icons/lu";
 import AudienceSegmentTypeChip from "../../components/chips/AudienceSegmentTypeChip";
 import AudienceSegmentStatusChip from "../../components/chips/AudienceSegmentStatusChip";
 
@@ -36,7 +44,7 @@ const SegmentCard = ({ segment }: any) => {
   };
 
   return (
-    <div className="bg-background border border-primary/15 rounded-xl p-5">
+    <div className="bg-background border border-foreground/10 rounded-xl p-5">
       <div className="flex justify-between items-start gap-2">
         <div className="flex items-start gap-2.5 w-full">
           <div className="flex flex-col gap-1">
@@ -64,7 +72,7 @@ const SegmentCard = ({ segment }: any) => {
                 {tags.slice(0, 3).map((tag: string) => (
                   <span
                     key={tag}
-                    className="border border-primary/15 text-[11px] rounded-md px-1.5 py-0.5"
+                    className="border border-foreground/10 text-[11px] rounded-md px-1.5 py-0.5"
                   >
                     {tag.charAt(0).toUpperCase() + tag.slice(1)}
                   </span>

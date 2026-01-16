@@ -149,13 +149,13 @@ export default function GoogleApiConfigurationModal({
           <ModalHeader className="p-4 pb-0 flex-col">
             <h2
               data-slot="dialog-title"
-              className="leading-none font-medium text-base"
+              className="leading-none font-medium text-base text-foreground"
             >
               Google API Integration
             </h2>
             <p
               data-slot="dialog-description"
-              className="text-xs text-gray-600 mt-2 font-normal"
+              className="text-xs text-gray-600 dark:text-foreground/60 mt-2 font-normal"
             >
               Configure your Google API Key to enable features like mapping,
               routing, and geo-coding.
@@ -188,20 +188,20 @@ export default function GoogleApiConfigurationModal({
               />
 
               {/* Information Box */}
-              <div className="text-sm text-gray-700 bg-blue-50 p-3.5 rounded-lg border border-blue-200 mt-4">
+              <div className="text-sm text-gray-700 dark:text-foreground/80 bg-blue-50 dark:bg-blue-900/10 p-3.5 rounded-lg border border-blue-200 dark:border-blue-500/30 mt-4">
                 <div className="flex items-start gap-3">
                   <div>
-                    <p className="font-semibold mb-1.5 text-gray-900">
+                    <p className="font-semibold mb-1.5 text-gray-900 dark:text-foreground">
                       Where to find your API Key:
                     </p>
-                    <ul className="text-xs space-y-1 ml-1 text-gray-700">
+                    <ul className="text-xs space-y-1 ml-1 text-gray-700 dark:text-foreground/70">
                       <li className="flex items-center gap-1">
                         • Create a project and key in the
                         <a
                           href="https://console.cloud.google.com/apis/credentials"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline font-medium ml-1"
+                          className="text-blue-600 dark:text-blue-400 hover:underline font-medium ml-1"
                         >
                           Google Cloud Console
                           <FiExternalLink className="inline-block h-3 w-3 ml-1" />
@@ -220,7 +220,7 @@ export default function GoogleApiConfigurationModal({
               size="sm"
               variant="ghost"
               onPress={onClose}
-              className="border border-gray-300 text-gray-700 hover:bg-gray-50"
+              className="border border-gray-300 dark:border-default-200 text-gray-700 dark:text-foreground/70 hover:bg-gray-50 dark:hover:bg-default-100"
               isDisabled={isSubmitting}
             >
               Cancel

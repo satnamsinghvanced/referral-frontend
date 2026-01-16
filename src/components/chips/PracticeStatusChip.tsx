@@ -6,20 +6,25 @@ export default function PracticeStatusChip({ status }: { status: string }) {
 
   switch (status) {
     case "active":
-      classNames = "bg-emerald-100 text-emerald-800";
+      classNames =
+        "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-800 dark:text-emerald-300";
       break;
     case "inActive":
-      classNames = "bg-yellow-100 text-yellow-800";
+      classNames =
+        "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300";
       break;
     case "prospect":
-      classNames = "bg-blue-100 text-blue-800";
+      classNames =
+        "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300";
       break;
     case "followUp":
-      classNames = "bg-violet-100 text-violet-800";
+      classNames =
+        "bg-violet-100 dark:bg-violet-900/30 text-violet-800 dark:text-violet-300";
       break;
 
     default:
-      classNames = "bg-sky-100 text-sky-800";
+      classNames =
+        "bg-sky-100 dark:bg-sky-900/30 text-sky-800 dark:text-sky-300";
       break;
   }
 

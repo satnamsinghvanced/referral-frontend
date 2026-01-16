@@ -53,7 +53,7 @@ const BudgetItemCard: React.FC<{
   return (
     <Card
       shadow="none"
-      className="flex items-center justify-between border border-foreground/10 p-4 bg-background rounded-lg"
+      className="flex items-center justify-between border border-foreground/10 p-4 bg-content1 rounded-lg"
     >
       <CardHeader className="flex flex-col sm:flex-row justify-between items-start p-0 gap-2">
         <div className="flex items-center gap-2.5">
@@ -67,10 +67,10 @@ const BudgetItemCard: React.FC<{
           ></span>
 
           <div className="space-y-0.5">
-            <h4 className="text-sm font-medium">
+            <h4 className="text-sm font-medium text-foreground">
               {isSynced ? getPlatformName(item.type) : subCategoryTitle}
             </h4>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-500 dark:text-foreground/40">
               {isSynced
                 ? `Synced with ${getPlatformName(item.type)}`
                 : categoryTitle}
@@ -89,7 +89,7 @@ const BudgetItemCard: React.FC<{
                   isIconOnly
                   size="sm"
                   variant="light"
-                  className="text-gray-500 hover:bg-gray-100"
+                  className="text-gray-500 dark:text-foreground/40 hover:bg-gray-100 dark:hover:bg-default-100"
                   onPress={() => onEdit(item)}
                 >
                   <FiEdit className="size-3.5" />
@@ -112,11 +112,13 @@ const BudgetItemCard: React.FC<{
 
       <CardBody className="space-y-3 p-0 pt-4">
         {item.description && (
-          <p className="text-xs text-gray-600">{item.description}</p>
+          <p className="text-xs text-gray-600 dark:text-foreground/60">
+            {item.description}
+          </p>
         )}
 
         {!isSynced && (
-          <div className="flex items-center gap-1.5 text-xs text-gray-500">
+          <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-foreground/40">
             <FiCalendar className="size-3.5" />
             <span>
               {item.startDate ? formatDateToReadable(item.startDate) : "N/A"}
@@ -129,25 +131,29 @@ const BudgetItemCard: React.FC<{
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm pt-1">
           <div className="text-xs space-y-0.5">
-            <p className="text-gray-500">Budget</p>
-            <p className="font-medium">${budgetAmount.toLocaleString()}</p>
+            <p className="text-gray-500 dark:text-foreground/40">Budget</p>
+            <p className="font-medium text-foreground">
+              ${budgetAmount.toLocaleString()}
+            </p>
           </div>
 
           <div className="text-xs space-y-0.5">
-            <p className="text-gray-500">Spent</p>
-            <p className="font-medium">${spentAmount.toLocaleString()}</p>
+            <p className="text-gray-500 dark:text-foreground/40">Spent</p>
+            <p className="font-medium text-foreground">
+              ${spentAmount.toLocaleString()}
+            </p>
           </div>
 
           <div className="text-xs space-y-0.5">
-            <p className="text-gray-500">Remaining</p>
-            <p className="font-medium">
+            <p className="text-gray-500 dark:text-foreground/40">Remaining</p>
+            <p className="font-medium text-foreground">
               ${(budgetAmount - spentAmount).toLocaleString()}
             </p>
           </div>
 
           <div className="text-xs space-y-0.5">
-            <p className="text-gray-500">ROI</p>
-            <p className="font-medium text-yellow-600">
+            <p className="text-gray-500 dark:text-foreground/40">ROI</p>
+            <p className="font-medium text-yellow-600 dark:text-yellow-400">
               {Number(item.roi).toFixed(2)}%
             </p>
           </div>
@@ -155,8 +161,12 @@ const BudgetItemCard: React.FC<{
 
         <div className="pt-1 space-y-2">
           <div className="flex justify-between text-xs">
-            <span className="text-gray-500">Budget utilization</span>
-            <span className="font-medium">{utilization.toFixed(1)}%</span>
+            <span className="text-gray-500 dark:text-foreground/40">
+              Budget utilization
+            </span>
+            <span className="font-medium text-foreground">
+              {utilization.toFixed(1)}%
+            </span>
           </div>
 
           <Progress

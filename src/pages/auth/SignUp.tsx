@@ -134,16 +134,20 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl">
-        <CardBody className="p-6 sm:p-8">
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-foreground/90 mb-2">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-950 dark:to-background flex items-center justify-center p-4">
+      <Card className="w-full max-w-2xl shadow-2xl dark:shadow-primary/5 border border-foreground/5/50 bg-white/80 bg-content1 backdrop-blur-xl">
+        <CardBody className="p-8 sm:p-12">
+          <div className="text-center mb-10">
+            <h2 className="text-3xl font-bold text-foreground mb-2">
               Create Your Account
             </h2>
+            <p className="text-foreground/60 text-sm">
+              Join our network of healthcare professionals
+            </p>
           </div>
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-4 text-sm">
+            <div className="bg-danger-50 dark:bg-danger-900/20 border border-danger-200 dark:border-danger-500/30 text-danger-700 dark:text-danger-400 px-4 py-3 rounded-xl mb-6 text-sm flex items-center gap-3">
+              <div className="w-1.5 h-1.5 rounded-full bg-danger animate-pulse" />
               {error}
             </div>
           )}
@@ -322,11 +326,11 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
             <Divider className="my-6" />
 
             <div className="text-center">
-              <span className="text-foreground/60">
+              <span className="text-foreground/50">
                 Already have an account?{" "}
               </span>
               <Link
-                className="font-semibold cursor-pointer text-primary-600 hover:text-primary-700"
+                className="font-bold cursor-pointer text-primary hover:text-primary/80 transition-colors"
                 onPress={onNavigateToSignIn || onNavigateToSignInLocal}
               >
                 Sign in
@@ -334,16 +338,21 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
             </div>
           </form>
 
-          <div className="mt-3 text-center text-xs text-foreground/50 w-full">
-            By signing in, you agree to our
-            <Link href="/referral-retrieve/terms" className="text-xs">
+          <div className="mt-8 text-center text-xs text-foreground/40 leading-relaxed">
+            By creating an account, you agree to our <br />
+            <Link
+              href="/terms"
+              className="text-xs text-foreground/60 hover:text-primary transition-colors"
+            >
               Terms of Service
             </Link>{" "}
             and{" "}
-            <Link href="/referral-retrieve/privacy" className="text-xs">
+            <Link
+              href="/privacy"
+              className="text-xs text-foreground/60 hover:text-primary transition-colors"
+            >
               Privacy Policy
             </Link>
-            .
           </div>
         </CardBody>
       </Card>

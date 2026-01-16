@@ -239,7 +239,7 @@ const TourOverlay = ({
         style={tooltipStyle}
         className="pointer-events-auto transition-all duration-300"
       >
-        <div className="bg-white p-3 rounded-xl shadow-xl w-[350px] border border-gray-100 flex flex-col gap-2 animate-fade-in relative">
+        <div className="bg-white p-3 rounded-xl shadow-xl w-[350px] border border-foreground/10 flex flex-col gap-2 animate-fade-in relative">
           <button
             onClick={onClose}
             className="absolute top-3 right-3 text-gray-400 hover:text-gray-600 cursor-pointer"

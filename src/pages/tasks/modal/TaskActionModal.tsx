@@ -344,7 +344,7 @@ const TaskActionModal = ({
                   ))}
                 </Select>
               ) : (
-                <div className="text-xs text-gray-500 italic">
+                <div className="text-xs text-gray-500 dark:text-foreground/60 italic">
                   No active team members found. Task will be assigned to you.
                   Add active team members in settings to assign tasks to others.
                 </div>

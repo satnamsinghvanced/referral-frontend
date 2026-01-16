@@ -11,10 +11,12 @@ const TrackReferralBar = ({
   onImport,
 }: TrackReferralBarProps) => {
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-xl border bg-gradient-to-r from-blue-50 to-sky-50 border-blue-200">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-xl border bg-gradient-to-r from-blue-50 to-sky-50 dark:from-blue-900/10 dark:to-sky-900/10 border-blue-200 dark:border-blue-500/30">
       <div className="flex flex-col gap-1.5 text-center sm:text-left">
-        <h4 className="font-medium text-sm">Track Your Referrals</h4>
-        <p className="text-xs text-gray-500">
+        <h4 className="font-medium text-sm dark:text-white">
+          Track Your Referrals
+        </h4>
+        <p className="text-xs text-gray-500 dark:text-foreground/60">
           Add referrals individually or import them in bulk from a spreadsheet
         </p>
       </div>
@@ -34,7 +36,7 @@ const TrackReferralBar = ({
           onPress={onImport}
           size="sm"
           radius="sm"
-          className="bg-white border border-gray-200 text-gray-700"
+          className="bg-white dark:bg-content2 border border-foreground/10 text-gray-700 dark:text-foreground"
         >
           Import from Spreadsheet
         </Button>

@@ -39,7 +39,7 @@ const mockDeviceMetrics: DeviceMetric[] = [
 
 const Devices: React.FC = () => {
   return (
-    <Card shadow="none" className="border border-primary/15 p-5">
+    <Card shadow="none" className="border border-foreground/10 p-5">
       <CardHeader className="p-0 pb-5 flex items-center gap-2">
         <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
         <h4 className="text-sm font-medium">Device Performance</h4>
@@ -51,7 +51,7 @@ const Devices: React.FC = () => {
 
           return (
             <div
-              className="bg-background border border-primary/15 p-3 flex items-center gap-2 rounded-lg"
+              className="bg-background border border-foreground/10 p-3 flex items-center gap-2 rounded-lg"
               key={metric.name}
             >
               <div className="flex items-center space-x-2.5 flex-grow">

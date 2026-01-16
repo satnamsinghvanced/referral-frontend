@@ -564,13 +564,13 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
   if (selectedReferrerObjects.length <= 0) {
     return (
       <div className="flex justify-center items-center w-full">
-        <Card className="w-full shadow-none border border-yellow-200 bg-yellow-50 text-center">
+        <Card className="w-full shadow-none border border-yellow-200 bg-yellow-50 dark:bg-yellow-900/10 dark:border-yellow-500/30 text-center">
           <CardBody className="p-6 space-y-2 text-center">
-            <RiErrorWarningLine className="size-10 text-yellow-600 mx-auto mb-2.5" />
-            <p className="font-medium text-sm text-yellow-900">
+            <RiErrorWarningLine className="size-10 text-yellow-600 dark:text-yellow-500 mx-auto mb-2.5" />
+            <p className="font-medium text-sm text-yellow-900 dark:text-yellow-100">
               No Practices Selected
             </p>
-            <p className="text-xs text-yellow-700">
+            <p className="text-xs text-yellow-700 dark:text-yellow-300">
               Please select at least one practice from the "Select Referrers"
               tab to optimize your route.
             </p>
@@ -582,12 +582,14 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
 
   return (
     <div className="space-y-3 md:space-y-4 max-h-[600px] overflow-auto">
-      <Card className="shadow-none border border-primary/15">
+      <Card className="shadow-none border border-foreground/10 dark:bg-background/50">
         <CardHeader className="pt-4 px-4 pb-0">
-          <h4 className="text-sm font-medium">Route Configuration</h4>
+          <h4 className="text-sm font-medium dark:text-white">
+            Route Configuration
+          </h4>
         </CardHeader>
         <CardBody className="px-4 pb-4">
-          <div className="md:flex md:items-center md:justify-between gap-3 p-4 bg-gray-50 rounded-lg max-md:space-y-3">
+          <div className="md:flex md:items-center md:justify-between gap-3 p-4 bg-gray-50 dark:bg-content1 rounded-lg max-md:space-y-3">
             <div className="flex items-center gap-3 flex-wrap md:w-[70%] max-w-[500px]">
               <div className="flex-1">
                 <DatePicker
@@ -613,7 +615,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                   isInvalid={!!errors.routeDate}
                   classNames={{
                     inputWrapper:
-                      "border border-primary/15 bg-background shadow-none",
+                      "border border-foreground/10 bg-background shadow-none dark:bg-background",
                   }}
                 />
               </div>
@@ -645,7 +647,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                   classNames={{
                     base: "!pb-0",
                     inputWrapper:
-                      "border border-primary/15 bg-background px-2 py-1 shadow-none",
+                      "border border-foreground/10 bg-background px-2 py-1 shadow-none dark:bg-background",
                     helperWrapper: "pl-0 pt-0.5",
                   }}
                 />
@@ -672,9 +674,9 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                   isInvalid={!!errors.durationPerVisit}
                   classNames={{
                     base: "!mt-0 gap-2",
-                    label: "!translate-0 !static",
+                    label: "!translate-0 !static dark:text-foreground/60",
                     trigger:
-                      "border border-primary/15 bg-background shadow-none",
+                      "border border-foreground/10 bg-background shadow-none dark:bg-background",
                   }}
                 >
                   {PER_VISIT_DURATION_OPTIONS.map((duration: string) => (
@@ -713,57 +715,67 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
       {routeOptimizationResults && (
         <>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <Card className="shadow-none border border-primary/15">
+            <Card className="shadow-none border border-foreground/10 dark:bg-background/50">
               <CardHeader className="pt-4 px-4 pb-0">
-                <h4 className="text-sm font-medium">Original Route</h4>
+                <h4 className="text-sm font-medium dark:text-white">
+                  Original Route
+                </h4>
               </CardHeader>
               <CardBody className="px-4 pb-4">
                 <div className="grid grid-cols-2 gap-4 max-md:gap-3 text-sm">
-                  <div className="text-center p-3 bg-gray-50 rounded">
-                    <div className="font-medium">
+                  <div className="text-center p-3 bg-gray-50 dark:bg-content1 rounded">
+                    <div className="font-medium dark:text-white">
                       {routeOptimizationResults.original.travelDistance}
                     </div>
-                    <div className="text-xs text-gray-600">Travel Distance</div>
+                    <div className="text-xs text-gray-600 dark:text-foreground/60">
+                      Travel Distance
+                    </div>
                   </div>
-                  <div className="text-center p-3 bg-gray-50 rounded">
-                    <div className="font-medium">
+                  <div className="text-center p-3 bg-gray-50 dark:bg-content1 rounded">
+                    <div className="font-medium dark:text-white">
                       {routeOptimizationResults.original.travelTime}
                     </div>
-                    <div className="text-xs text-gray-600">Travel Time</div>
+                    <div className="text-xs text-gray-600 dark:text-foreground/60">
+                      Travel Time
+                    </div>
                   </div>
                 </div>
               </CardBody>
             </Card>
 
-            <Card className="shadow-none border border-green-200">
+            <Card className="shadow-none border border-green-200 dark:bg-green-900/10 dark:border-green-500/30">
               <CardHeader className="pt-4 px-4 pb-0">
-                <h4 className="text-sm font-medium text-green-600">
+                <h4 className="text-sm font-medium text-green-600 dark:text-green-400">
                   Optimized Route
                 </h4>
               </CardHeader>
               <CardBody className="px-4 pb-4">
                 <div className="grid grid-cols-2 gap-4 max-md:gap-3 text-sm">
-                  <div className="text-center p-3 bg-green-50 rounded">
-                    <div className="font-semibold text-green-600">
+                  <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded">
+                    <div className="font-semibold text-green-600 dark:text-green-400">
                       {routeOptimizationResults?.optimized.travelDistance}
                     </div>
-                    <div className="text-xs text-gray-600">Travel Distance</div>
+                    <div className="text-xs text-gray-600 dark:text-green-300/60">
+                      Travel Distance
+                    </div>
                   </div>
-                  <div className="text-center p-3 bg-green-50 rounded">
-                    <div className="font-semibold text-green-600">
+                  <div className="text-center p-3 bg-green-50 dark:bg-green-900/20 rounded">
+                    <div className="font-semibold text-green-600 dark:text-green-400">
                       {routeOptimizationResults?.optimized.travelTime}
                     </div>
-                    <div className="text-xs text-gray-600">Travel Time</div>
+                    <div className="text-xs text-gray-600 dark:text-green-300/60">
+                      Travel Time
+                    </div>
                   </div>
                 </div>
               </CardBody>
             </Card>
           </div>
 
-          <Card className="shadow-none border border-primary/15">
+          <Card className="shadow-none border border-foreground/10 dark:bg-background/50">
             <CardHeader className="pt-4 px-4 pb-0">
               <div className="flex items-center justify-between w-full">
-                <h4 className="text-sm font-medium">
+                <h4 className="text-sm font-medium dark:text-white">
                   Route Details ({routeType})
                 </h4>
                 <div className="flex items-center gap-2">
@@ -796,7 +808,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                 {routeDetailsList?.map((stop: any, index: number) => (
                   <div
                     key={index}
-                    className="flex items-center gap-3 max-md:gap-2 p-3 bg-gray-50 rounded-md"
+                    className="flex items-center gap-3 max-md:gap-2 p-3 bg-gray-50 dark:bg-content1 rounded-md"
                   >
                     <div className="flex items-center gap-2">
                       <div className="w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-medium">
@@ -807,13 +819,15 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                       )}
                     </div>
                     <div className="flex-1">
-                      <h4 className="font-medium text-sm">{stop.name}</h4>
-                      <p className="text-xs text-gray-600 mt-1">
+                      <h4 className="font-medium text-sm dark:text-white">
+                        {stop.name}
+                      </h4>
+                      <p className="text-xs text-gray-600 dark:text-foreground/60 mt-1">
                         {stop.address.addressLine1} {stop.address.addressLine2}{" "}
                         {stop.address.city}, {stop.address.state}{" "}
                         {stop.address.zipCode}
                       </p>
-                      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2 text-xs text-gray-600">
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 mt-2 text-xs text-gray-600 dark:text-foreground/60">
                         <span className="flex items-center gap-1 whitespace-nowrap">
                           <FiClock className="h-3 w-3" />
                           {stop.arrivalTime} - {stop.departureTime}
@@ -837,34 +851,42 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                 ))}
               </div>
 
-              <div className="mt-4 p-4 bg-blue-50 rounded-md">
-                <h4 className="text-sm font-medium text-blue-900 mb-3">
+              <div className="mt-4 p-4 bg-blue-50 dark:bg-blue-900/10 rounded-md">
+                <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100 mb-3">
                   Route Summary
                 </h4>
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                   <div className="text-center">
-                    <div className="font-semibold text-blue-600">
+                    <div className="font-semibold text-blue-600 dark:text-blue-400">
                       {summary?.totalStops}
                     </div>
-                    <div className="text-xs text-gray-600">Stops</div>
+                    <div className="text-xs text-gray-600 dark:text-foreground/60">
+                      Stops
+                    </div>
                   </div>
                   <div className="text-center">
-                    <div className="font-semibold text-blue-600">
+                    <div className="font-semibold text-blue-600 dark:text-blue-400">
                       {summary?.estimatedDistance}
                     </div>
-                    <div className="text-xs text-gray-600">Total Distance</div>
+                    <div className="text-xs text-gray-600 dark:text-foreground/60">
+                      Total Distance
+                    </div>
                   </div>
                   <div className="text-center">
-                    <div className="font-semibold text-blue-600">
+                    <div className="font-semibold text-blue-600 dark:text-blue-400">
                       {summary?.estimatedTotalTime}
                     </div>
-                    <div className="text-xs text-gray-600">Total Time</div>
+                    <div className="text-xs text-gray-600 dark:text-foreground/60">
+                      Total Time
+                    </div>
                   </div>
                   <div className="text-center">
-                    <div className="font-semibold text-blue-600">
+                    <div className="font-semibold text-blue-600 dark:text-blue-400">
                       {summary?.mileageCost}
                     </div>
-                    <div className="text-xs text-gray-600">Mileage Cost</div>
+                    <div className="text-xs text-gray-600 dark:text-foreground/60">
+                      Mileage Cost
+                    </div>
                   </div>
                 </div>
               </div>

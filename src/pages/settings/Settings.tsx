@@ -45,11 +45,10 @@ const Settings = () => {
                     end // ensures exact match for root routes like "/settings"
                     className={({ isActive }) =>
                       clsx(
-                        "rounded-md transition-all group flex items-center py-2 px-3 hover:bg-gray-50 dark:hover:bg-[#0f1214] h-9 cursor-pointer border border-transparent",
-                        "hover:bg-gray-50",
+                        "rounded-md transition-all group flex items-center py-2 px-3 h-9 cursor-pointer border border-transparent",
                         isActive
-                          ? "!bg-sky-50 !text-sky-700 dark:!bg-background shadow-sm !border-sky-200"
-                          : "hover:bg-gray-100",
+                          ? "!bg-sky-50 dark:!bg-sky-900/20 !text-sky-700 dark:!text-sky-400 shadow-sm !border-sky-200 dark:!border-sky-800"
+                          : "hover:bg-gray-100 dark:hover:bg-foreground/5",
                         item.name === "Profile" && "tour-step-profile",
                         item.name === "Locations" && "tour-step-locations",
                         item.name === "Team" && "tour-step-team"
@@ -60,13 +59,15 @@ const Settings = () => {
                       <>
                         <span
                           className={`flex items-center justify-center ${
-                            isActive ? "text-white " : "text-gray-500"
+                            isActive
+                              ? "text-sky-700 dark:text-sky-400"
+                              : "text-gray-500 dark:text-gray-400"
                           }`}
                         >
                           <Icon
                             className={clsx(
                               "text-[16px]",
-                              isActive && "text-sky-700"
+                              isActive && "text-current"
                             )}
                           />
                         </span>

@@ -15,7 +15,7 @@ export default function ReferrerTypeSelector({
   if (isPracticeEdit) return null;
 
   return (
-    <div className="border border-gray-200 rounded-xl p-4">
+    <div className="border border-foreground/10 rounded-xl p-4">
       <Select
         size="sm"
         label="Referrer Type"
@@ -27,7 +27,7 @@ export default function ReferrerTypeSelector({
         onSelectionChange={(keys) =>
           formik.setFieldValue("type", Array.from(keys)[0] as string)
         }
-        classNames={{ label: "text-sm font-medium" }}
+        classNames={{ label: "text-sm font-medium dark:text-foreground/60" }}
         isDisabled={!!editedData?.type}
       >
         <SelectItem key="doctor">Doctor Referrer</SelectItem>

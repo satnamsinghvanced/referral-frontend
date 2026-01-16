@@ -32,34 +32,41 @@ function NewFolderModal({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/5 z-40"></div>
+      <div className="fixed inset-0 bg-black/5 dark:bg-black/40 z-40"></div>
 
       <div className="fixed inset-0 flex justify-center items-center z-50">
-        <div className="bg-white p-6 rounded-lg shadow-lg w-[400px] h-[200px] relative">
+        <div className="bg-white dark:bg-default-50 p-6 rounded-lg shadow-lg w-[400px] h-[200px] relative border border-transparent">
           <button
             onClick={onClose}
-            className="absolute top-2 right-2 text-gray-600 hover:text-gray-900 text-xl"
+            className="absolute top-2 right-2 text-gray-600 dark:text-foreground/40 hover:text-gray-900 dark:hover:text-foreground text-xl"
           >
             &times;
           </button>
 
-          <h4 className="text-sm font-medium mb-1">Create New Folder</h4>
-          <p className="text-xs text-gray-400 mb-4">
+          <h4 className="text-sm font-medium mb-1 text-foreground">
+            Create New Folder
+          </h4>
+          <p className="text-xs text-gray-400 dark:text-foreground/40 mb-4">
             Create a new folder in the root directory
           </p>
 
-          <h4 className="text-xs mb-1">Folder Name</h4>
+          <h4 className="text-xs mb-1 text-foreground/70">Folder Name</h4>
 
           <Input
             placeholder="Enter Folder name"
             size="sm"
             value={newFolderName}
             onChange={(e) => setNewFolderName(e.target.value)}
-            className="mb-4 bg-gray-100 rounded-md"
+            className="mb-4 bg-gray-100 dark:bg-default-100 rounded-md"
           />
 
           <div className="flex justify-end  gap-3">
-            <Button size="sm" onClick={onClose}>
+            <Button
+              size="sm"
+              onClick={onClose}
+              variant="bordered"
+              className="border-small border-gray-300 dark:border-default-200 text-gray-700 dark:text-foreground/70"
+            >
               Cancel
             </Button>
             <Button size="sm" color="primary" onClick={onCreateFolder}>
@@ -88,30 +95,39 @@ function UploadMediaModal({
 
   return (
     <>
-      <div className="fixed inset-0 bg-black/5 z-40"></div>
+      <div className="fixed inset-0 bg-black/5 dark:bg-black/40 z-40"></div>
 
       <div className="fixed inset-0 flex justify-center items-center z-50">
-        <div className="bg-white p-6 rounded-lg shadow-lg w-[400px] h-[300px] relative">
+        <div className="bg-white dark:bg-default-50 p-6 rounded-lg shadow-lg w-[400px] h-[300px] relative border border-transparent">
           <button
             onClick={onClose}
-            className="absolute top-2 right-2 text-gray-700 hover:text-gray-900 text-xl"
+            className="absolute top-2 right-2 text-gray-700 dark:text-foreground/40 hover:text-gray-900 dark:hover:text-foreground text-xl"
           >
             &times;
           </button>
 
-          <h4 className="text-sm font-medium mb-1">Upload Media</h4>
-          <p className="text-xs text-gray-400 mb-4">
+          <h4 className="text-sm font-medium mb-1 text-foreground">
+            Upload Media
+          </h4>
+          <p className="text-xs text-gray-400 dark:text-foreground/40 mb-4">
             Upload images and videos to the root folder
           </p>
-          <h4 className="text-xs mb-1">Tags(comma-Separated,optinonal)</h4>
+          <h4 className="text-xs mb-1 text-foreground/70">
+            Tags(comma-Separated,optinonal)
+          </h4>
           <input
             placeholder="e.g , marketing,Product,Campaign"
             type="text"
-            className="mb-4 bg-gray-100 rounded-md p-2 w-full text-xs text-gray-700 border border-gray-200"
+            className="mb-4 bg-gray-100 dark:bg-default-100 rounded-md p-2 w-full text-xs text-gray-700 dark:text-foreground/70 border border-foreground/10 dark:border-default-200"
           />
 
           <div className="flex justify-end gap-3">
-            <Button size="sm" onClick={onClose}>
+            <Button
+              size="sm"
+              onClick={onClose}
+              variant="bordered"
+              className="border-small border-gray-300 dark:border-default-200 text-gray-700 dark:text-foreground/70"
+            >
               Cancel
             </Button>
           </div>
@@ -131,11 +147,15 @@ interface BrowseMediaProps {
 }
 
 const FolderItem = ({ name, items }: { name: string; items: number }) => (
-  <div className="p-4 border border-primary/15 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+  <div className="p-4 border border-foreground/10 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-default-100 transition-colors bg-content1">
     <div className="text-center">
       <LuFolderOpen className="size-6 mx-auto mb-2 text-blue-500" />
-      <p className="text-sm truncate font-medium mb-1">{name}</p>
-      <p className="text-xs text-gray-500">{items} items</p>
+      <p className="text-sm truncate font-medium mb-1 text-foreground">
+        {name}
+      </p>
+      <p className="text-xs text-gray-500 dark:text-foreground/40">
+        {items} items
+      </p>
     </div>
   </div>
 );
@@ -165,8 +185,8 @@ function BrowseMedia({ currentFilters, onFilterChange }: BrowseMediaProps) {
   return (
     <div className="flex flex-col gap-5">
       {/* ---------------- Top Buttons --------------- */}
-      <div className="flex items-center justify-between gap-4 border border-primary/15 rounded-xl p-4 bg-white shadow-none">
-        <p className="text-sm">Root</p>
+      <div className="flex items-center justify-between gap-4 border border-foreground/10 rounded-xl p-4 bg-content1 shadow-none">
+        <p className="text-sm text-foreground">Root</p>
         <div className="space-x-2">
           <Button
             size="sm"
@@ -193,14 +213,16 @@ function BrowseMedia({ currentFilters, onFilterChange }: BrowseMediaProps) {
       </div>
 
       {/* ---------------- Search & Filters --------------- */}
-      <div className="flex items-center gap-4 border border-primary/15 rounded-xl p-4 bg-white shadow-none">
+      <div className="flex items-center gap-4 border border-foreground/10 rounded-xl p-4 bg-content1 shadow-none">
         <div className="relative flex-1">
           <Input
             placeholder="Search media by name or tags..."
             size="sm"
             value={currentFilters.search}
             onValueChange={(value) => onFilterChange("search", value as string)}
-            startContent={<FiSearch className="text-gray-400 h-4 w-4" />}
+            startContent={
+              <FiSearch className="text-gray-400 dark:text-foreground/40 h-4 w-4" />
+            }
           />
         </div>
 
@@ -223,9 +245,9 @@ function BrowseMedia({ currentFilters, onFilterChange }: BrowseMediaProps) {
 
       {/* ---------------- Folders & Media --------------- */}
       <div className="space-y-5">
-        <Card className="shadow-none border border-primary/15 p-5">
+        <Card className="shadow-none border border-foreground/10 p-5 bg-content1">
           <CardHeader className="p-0 pb-5">
-            <h4 className="leading-none flex items-center gap-2 text-sm font-medium">
+            <h4 className="leading-none flex items-center gap-2 text-sm font-medium text-foreground">
               <FaRegFolder className="size-4" />
               Folders
             </h4>
@@ -239,18 +261,18 @@ function BrowseMedia({ currentFilters, onFilterChange }: BrowseMediaProps) {
           </CardBody>
         </Card>
 
-        <Card className="shadow-none border border-primary/15 p-5">
+        <Card className="shadow-none border border-foreground/10 p-5 bg-content1">
           <CardHeader className="p-0 pb-5">
             <div className="flex justify-between items-center">
-              <h4 className="leading-none flex items-center gap-2 text-sm font-medium">
+              <h4 className="leading-none flex items-center gap-2 text-sm font-medium text-foreground">
                 <FiImage className="size-4" />
                 Media (0)
               </h4>
             </div>
           </CardHeader>
           <CardBody className="p-0">
-            <div className="text-center text-gray-500 dark:text-gray-400 py-12">
-              <FiImage className="size-10 mx-auto mb-4 opacity-50 text-gray-400" />
+            <div className="text-center text-gray-500 dark:text-foreground/40 py-12">
+              <FiImage className="size-10 mx-auto mb-4 opacity-50 text-gray-400 dark:text-foreground/20" />
               <p className="mb-4">No media found in this folder</p>
               <Button
                 size="sm"

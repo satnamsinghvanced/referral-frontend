@@ -39,16 +39,22 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
   let StatusIcon = null;
   switch (status) {
     case "Connected":
-      statusClasses = "bg-green-100 text-green-700";
-      StatusIcon = <BiCheckCircle className="h-4 w-4 text-green-600" />;
+      statusClasses =
+        "bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400";
+      StatusIcon = (
+        <BiCheckCircle className="h-4 w-4 text-green-600 dark:text-green-400" />
+      );
       break;
     case "Disconnected":
-      statusClasses = "bg-secondary text-secondary-foreground";
+      statusClasses =
+        "bg-secondary dark:bg-default-100 text-secondary-foreground dark:text-foreground/60";
       break;
     case "Error":
       statusClasses =
-        "bg-red text-white focus-visible:ring-red/20 dark:bg-red/60";
-      StatusIcon = <FiAlertCircle className="h-4 w-4 text-red-600" />;
+        "bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400";
+      StatusIcon = (
+        <FiAlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
+      );
       break;
   }
 
@@ -61,7 +67,7 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
           variant="ghost"
           onPress={onConfigure}
           startContent={<FiSettings className="size-3.5" />}
-          className="border-small"
+          className="border-small border-gray-300 dark:border-default-200"
         >
           Configure
         </Button>
@@ -96,31 +102,35 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
-            <h3 className="text-sm font-normal">{name}</h3>
+            <h3 className="text-sm font-normal text-foreground">{name}</h3>
             {StatusIcon}
             <Chip
               size="sm"
               radius="sm"
-              className={`text-[11px] capitalize h-5 ${statusClasses}`}
+              className={`text-[11px] capitalize h-5 border-none ${statusClasses}`}
             >
               {status}
             </Chip>
           </div>
-          <p className="text-xs text-gray-600 mb-3">{description}</p>
+          <p className="text-xs text-gray-600 dark:text-foreground/50 mb-3">
+            {description}
+          </p>
           <div className="flex flex-wrap gap-2">
             {badges.map((badge: string) => (
               <Chip
                 key={badge}
                 size="sm"
                 variant="bordered"
-                className="text-[11px] border-small h-5"
+                className="text-[11px] border-small h-5 dark:border-default-200 dark:text-foreground/70"
               >
                 {badge}
               </Chip>
             ))}
           </div>
           {isCredentialsSaved && lastSync && (
-            <p className="text-xs text-gray-600 mt-2">Last sync: {lastSync}</p>
+            <p className="text-xs text-gray-600 dark:text-foreground/40 mt-2">
+              Last sync: {lastSync}
+            </p>
           )}
         </div>
       </div>

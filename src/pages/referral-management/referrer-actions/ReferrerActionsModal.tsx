@@ -574,7 +574,7 @@ export default function ReferrerActionsModal({
       case "group":
         return (
           <div key={field.id as Key} className="space-y-2">
-            <p className="text-xs">
+            <p className="text-xs dark:text-foreground/60">
               {label} <span className="text-red-500">*</span>
             </p>
             <div className="space-y-2">
@@ -626,7 +626,7 @@ export default function ReferrerActionsModal({
                   />
                 );
               })}
-              <p className="text-xs text-gray-500 italic">
+              <p className="text-xs text-gray-500 dark:text-foreground/40 italic">
                 Note: Please ensure the address is accurate as it will be
                 verified with Google Maps.
               </p>
@@ -884,8 +884,10 @@ export default function ReferrerActionsModal({
     >
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1 px-4 py-4">
-          <h4 className="text-base font-medium">{modalTitle}</h4>
-          <p className="text-xs text-gray-500 font-normal">
+          <h4 className="text-base font-medium dark:text-white">
+            {modalTitle}
+          </h4>
+          <p className="text-xs text-gray-500 font-normal dark:text-foreground/60">
             {modalDescription}
           </p>
         </ModalHeader>
@@ -947,7 +949,7 @@ export default function ReferrerActionsModal({
             color="default"
             variant="bordered"
             size="sm"
-            className="border-foreground/10 border text-foreground hover:bg-background"
+            className="border-foreground/10 border text-foreground dark:text-foreground/80 hover:bg-background dark:hover:bg-background"
           >
             Cancel
           </Button>

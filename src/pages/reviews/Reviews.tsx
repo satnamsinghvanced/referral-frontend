@@ -52,40 +52,39 @@ const Reviews = () => {
               <MiniStatsCard key={index} cardData={card} />
             ))}
           </div>
-          <Tabs
-            aria-label="Options"
-            classNames={{
-              tabList: "flex w-full rounded-full bg-primary/10",
-              tab: "flex-1 text-sm font-medium transition-all",
-              cursor: "rounded-full",
-              panel: "p-0",
-            }}
-            className="text-background w-full text-sm"
-          >
-            <Tab key="overview" title="Overview" className="text-sm">
-              <Overview />
-            </Tab>
-
-            <Tab key="manage-tags" title="Manage Tags/QR" className="text-sm">
-              <ManageTags />
-            </Tab>
-
-            <Tab key="locations" title="Locations" className="text-sm">
-              <Locations />
-            </Tab>
-
-            {/* <Tab key="nfc-cards" title="NFC Analytics" className="text-sm">
-              <NfcAnalytics />
-            </Tab> */}
-
-            <Tab
-              key="recent-reviews"
-              title="Recent Reviews"
-              className="text-sm"
+          <div className="space-y-5">
+            <Tabs
+              aria-label="Options"
+              variant="light"
+              radius="full"
+              classNames={{
+                base: "bg-primary/15 dark:bg-background rounded-full p-1 w-full",
+                tabList: "flex w-full rounded-full p-0 gap-0",
+                tab: "flex-1 h-9 text-sm font-medium transition-all",
+                cursor: "rounded-full bg-white dark:bg-primary",
+                tabContent:
+                  "dark:group-data-[selected=true]:text-primary-foreground text-default-500 dark:text-foreground/60 transition-colors",
+                panel: "p-0",
+              }}
+              className="w-full"
             >
-              <LatestReviews />
-            </Tab>
-          </Tabs>
+              <Tab key="overview" title="Overview">
+                <Overview />
+              </Tab>
+
+              <Tab key="manage-tags" title="Manage Tags/QR">
+                <ManageTags />
+              </Tab>
+
+              <Tab key="locations" title="Locations">
+                <Locations />
+              </Tab>
+
+              <Tab key="recent-reviews" title="Recent Reviews">
+                <LatestReviews />
+              </Tab>
+            </Tabs>
+          </div>
         </div>
       </ComponentContainer>
     </>

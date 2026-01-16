@@ -20,7 +20,9 @@ const ComponentHeader: React.FC<ComponentHeaderProps> = ({
         <div className="space-y-1">
           <h3 className="text-base md:text-lg">{heading}</h3>
           {subHeading && (
-            <p className="text-xs md:text-sm text-gray-600">{subHeading}</p>
+            <p className="text-xs md:text-sm text-gray-600 dark:text-gray-400">
+              {subHeading}
+            </p>
           )}
         </div>
 

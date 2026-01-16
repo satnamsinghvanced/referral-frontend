@@ -43,7 +43,7 @@ const TEMPLATES_DATA = [
 const Templates = () => {
   return (
     <div className="space-y-4 md:space-y-5">
-      <div className="flex flex-col gap-4 border border-primary/15 rounded-xl p-4">
+      <div className="flex flex-col gap-4 border border-foreground/10 rounded-xl p-4">
         <h4 className="font-medium text-sm">Automation Templates</h4>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
@@ -59,7 +59,7 @@ const Templates = () => {
 
             return (
               <div
-                className="border border-primary/15 rounded-xl p-4"
+                className="border border-foreground/10 rounded-xl p-4"
                 key={index}
               >
                 <div className="flex flex-col">
@@ -74,7 +74,7 @@ const Templates = () => {
                   </div>
                 </div>
 
-                <div className="flex justify-between items-center pt-3 border-t border-gray-100">
+                <div className="flex justify-between items-center pt-3 border-t border-foreground/10">
                   <div className="flex items-center gap-3">
                     <p className="text-xs text-gray-500">{emails} emails</p>
                     <Chip

@@ -30,23 +30,23 @@ interface ReferralCardProps {
 
 const ReferralCard = ({ referral, actions = () => [] }: ReferralCardProps) => {
   return (
-    <div className="md:flex md:justify-between border border-foreground/10 rounded-lg p-3.5 bg-background max-md:space-y-2">
-      <div className="font-medium text-sm w-full h-full capitalize flex flex-col gap-1">
+    <div className="md:flex md:justify-between border border-foreground/10 rounded-lg p-3.5 bg-background dark:bg-content1 max-md:space-y-2">
+      <div className="font-medium text-sm w-full h-full capitalize flex flex-col gap-1 dark:text-white">
         <p>{referral.name}</p>
         {(referral?.referredBy?.name || referral?.referredBy?.practiceName) && (
-          <div className="flex gap-2 items-center text-xs font-light">
+          <div className="flex gap-2 items-center text-xs font-light dark:text-foreground/60">
             <p className="flex gap-1 items-center">
               {referral?.referredBy?.name}
             </p>
             {referral?.referredBy?.practiceName && (
               <>
-                <p className="p-0.5 bg-foreground/50 rounded-full aspect-square h-fit w-fit"></p>
+                <p className="p-0.5 bg-foreground/50 dark:bg-default-400 rounded-full aspect-square h-fit w-fit"></p>
                 <p>{referral?.referredBy?.practiceName}</p>
               </>
             )}
           </div>
         )}
-        <div className="flex gap-2 items-center text-xs font-light mt-0.5">
+        <div className="flex gap-2 items-center text-xs font-light mt-0.5 dark:text-foreground/60">
           {referral.treatment && (
             <p className="flex gap-1 items-center">
               {
@@ -58,14 +58,14 @@ const ReferralCard = ({ referral, actions = () => [] }: ReferralCardProps) => {
             </p>
           )}
           {referral.treatment && referral.createdAt && (
-            <p className="p-0.5 bg-foreground/50 rounded-full aspect-square h-fit w-fit"></p>
+            <p className="p-0.5 bg-foreground/50 dark:bg-default-400 rounded-full aspect-square h-fit w-fit"></p>
           )}
           {referral.createdAt && (
             <p>{formatDateToReadable(referral.createdAt)}</p>
           )}
           {referral?.addedVia && (
             <>
-              <p className="p-0.5 bg-foreground/50 rounded-full aspect-square h-fit w-fit"></p>
+              <p className="p-0.5 bg-foreground/50 dark:bg-default-400 rounded-full aspect-square h-fit w-fit"></p>
               <p>via {referral?.addedVia}</p>
             </>
           )}

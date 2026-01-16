@@ -60,7 +60,7 @@ const Locations: React.FC = () => {
 
   return (
     <>
-      <Card className="rounded-xl shadow-none border border-foreground/10">
+      <Card className="rounded-xl shadow-none border border-foreground/10 bg-background">
         <CardHeader className="flex items-center justify-between px-4 pt-4 pb-1">
           <div className="flex items-center gap-2">
             <GrLocation className="size-5" />
@@ -109,7 +109,7 @@ const Locations: React.FC = () => {
                     <div className="flex items-center gap-2 mb-2">
                       <h4 className="font-medium text-sm">{loc.name}</h4>
                       {loc.isPrimary && (
-                        <span className="inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[11px] font-medium w-fit whitespace-nowrap shrink-0 bg-blue-100 text-blue-800">
+                        <span className="inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[11px] font-medium w-fit whitespace-nowrap shrink-0 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300">
                           Primary
                         </span>
                       )}
@@ -151,7 +151,6 @@ const Locations: React.FC = () => {
           {totalPages > 1 && (
             <Pagination
               identifier="locations"
-              items={locations}
               totalItems={totalLocations}
               currentPage={page}
               totalPages={totalPages}

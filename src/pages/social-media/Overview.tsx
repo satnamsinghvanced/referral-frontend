@@ -82,10 +82,10 @@ const Overview: React.FC<OverviewProps> = ({
         {platforms.map((platform, i) => (
           <Card
             key={platform.id}
-            className="bg-background rounded-xl shadow-none p-4 border border-primary/15"
+            className="bg-background rounded-xl shadow-none p-4 border border-foreground/10"
           >
             <CardHeader className="p-0 pb-4">
-              <h3 className="text-sm font-extralight text-gray-800 flex items-center gap-2">
+              <h3 className="text-sm font-extralight text-gray-800 dark:text-foreground flex items-center gap-2">
                 <span
                   className={`inline-block size-4 rounded-sm ${
                     {
@@ -108,7 +108,9 @@ const Overview: React.FC<OverviewProps> = ({
                       className="text-xs flex items-center justify-between"
                       key={i}
                     >
-                      <p className="text-gray-600">{stat.label}</p>
+                      <p className="text-gray-600 dark:text-foreground/60">
+                        {stat.label}
+                      </p>
                       <p className="font-medium">{stat.value}</p>
                     </div>
                   )
@@ -120,44 +122,56 @@ const Overview: React.FC<OverviewProps> = ({
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4">
-        <Card className="bg-background rounded-xl shadow-none p-4 border border-primary/15">
+        <Card className="bg-background rounded-xl shadow-none p-4 border border-foreground/10">
           <h4 className="text-sm mb-4 flex items-center gap-2">
             <LuChartColumnIncreasing className="text-base text-primary" />{" "}
             Recent Performance
           </h4>
           <div className="space-y-3">
             <div className="text-xs flex items-center justify-between">
-              <p className="text-gray-600">Total Reach</p>
+              <p className="text-gray-600 dark:text-foreground/60">
+                Total Reach
+              </p>
               <p className="font-medium">{recentPerformance.totalReach}</p>
             </div>
             <div className="text-xs flex items-center justify-between">
-              <p className="text-gray-600">Total Impressions</p>
+              <p className="text-gray-600 dark:text-foreground/60">
+                Total Impressions
+              </p>
               <p className="font-medium">
                 {recentPerformance.totalImpressions}
               </p>
             </div>
             <div className="text-xs flex items-center justify-between">
-              <p className="text-gray-600">Avg. Click Rate</p>
+              <p className="text-gray-600 dark:text-foreground/60">
+                Avg. Click Rate
+              </p>
               <p className="font-medium">{recentPerformance.avgClickRate}</p>
             </div>
           </div>
         </Card>
 
-        <Card className="bg-background rounded-xl shadow-none p-4 border border-primary/15">
+        <Card className="bg-background rounded-xl shadow-none p-4 border border-foreground/10">
           <h4 className="text-sm mb-4 flex items-center gap-2">
             <FiClock className="text-base text-primary" /> Content Calendar
           </h4>
           <div className="space-y-3">
             <div className="text-xs flex items-center justify-between">
-              <p className="text-gray-600">Scheduled posts</p>
+              <p className="text-gray-600 dark:text-foreground/60">
+                Scheduled posts
+              </p>
               <p className="font-medium">{contentCalendar.scheduledPosts}</p>
             </div>
             <div className="text-xs flex items-center justify-between">
-              <p className="text-gray-600">Draft posts</p>
+              <p className="text-gray-600 dark:text-foreground/60">
+                Draft posts
+              </p>
               <p className="font-medium">{contentCalendar.draftPosts}</p>
             </div>
             <div className="text-xs flex items-center justify-between">
-              <p className="text-gray-600">Published this month</p>
+              <p className="text-gray-600 dark:text-foreground/60">
+                Published this month
+              </p>
               <p className="font-medium">
                 {contentCalendar.publishedThisMonth}
               </p>

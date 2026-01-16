@@ -121,10 +121,10 @@ export default function GoogleAdsConfigModal({
       <ModalContent>
         <form onSubmit={formik.handleSubmit}>
           <ModalHeader className="p-4 pb-0 flex-col">
-            <h2 className="leading-none font-medium text-base">
+            <h2 className="leading-none font-medium text-base text-foreground">
               Google Ads Integration
             </h2>
-            <p className="text-xs text-gray-600 mt-2 font-normal">
+            <p className="text-xs text-gray-600 dark:text-foreground/60 mt-2 font-normal">
               Connect your Google Ads account to sync performance and manage
               campaigns.
             </p>
@@ -228,26 +228,26 @@ export default function GoogleAdsConfigModal({
                     (formik.errors.redirectUri as React.ReactNode)
                   }
                 />
-                <p className="text-[11px] text-gray-500 mt-1">
+                <p className="text-[11px] text-gray-500 dark:text-foreground/40 mt-1">
                   Must match the authorized redirect URI in your Google Cloud
                   Console.
                 </p>
               </div>
 
-              <div className="text-sm text-gray-700 bg-blue-50 p-3 rounded-lg border border-blue-200 mt-4">
+              <div className="text-sm text-gray-700 dark:text-foreground/80 bg-blue-50 dark:bg-blue-900/10 p-3 rounded-lg border border-blue-200 dark:border-blue-500/30 mt-4">
                 <div className="flex items-start gap-3">
                   <div>
-                    <p className="font-semibold mb-1.5 text-gray-900">
+                    <p className="font-semibold mb-1.5 text-gray-900 dark:text-foreground">
                       Setup Instructions:
                     </p>
-                    <ul className="text-xs space-y-1 ml-1 text-gray-700 list-disc list-inside">
+                    <ul className="text-xs space-y-1 ml-1 text-gray-700 dark:text-foreground/70 list-disc list-inside">
                       <li>
                         Go to the{" "}
                         <a
                           href="https://console.cloud.google.com/apis/credentials"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline font-medium inline-flex items-center"
+                          className="text-blue-600 dark:text-blue-400 hover:underline font-medium inline-flex items-center"
                         >
                           Google Cloud Console{" "}
                           <FiExternalLink className="ml-1 h-3 w-3" />
@@ -267,7 +267,7 @@ export default function GoogleAdsConfigModal({
               </div>
 
               {isUpdateMode && existingConfig?.status === "Connected" && (
-                <div className="p-3 bg-green-50 text-green-700 text-xs rounded-lg border border-green-200">
+                <div className="p-3 bg-green-50 dark:bg-green-900/10 text-green-700 dark:text-green-400 text-xs rounded-lg border border-green-200 dark:border-green-500/30">
                   ✅ Google Ads is active and synchronized.
                 </div>
               )}
@@ -279,7 +279,7 @@ export default function GoogleAdsConfigModal({
               size="sm"
               variant="ghost"
               onPress={onClose}
-              className="border border-gray-300 text-gray-700 hover:bg-gray-50"
+              className="border border-gray-300 dark:border-default-200 text-gray-700 dark:text-foreground/70 hover:bg-gray-50 dark:hover:bg-default-100"
               isDisabled={isSubmitting}
             >
               Cancel

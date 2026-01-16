@@ -20,8 +20,10 @@ export default function AdditionalNotesSection({
   ];
 
   return (
-    <div className="border border-gray-200 rounded-xl p-4">
-      <h5 className="text-sm font-medium mb-3">Additional Information</h5>
+    <div className="border border-foreground/10 rounded-xl p-4">
+      <h5 className="text-sm font-medium mb-3 dark:text-white">
+        Additional Information
+      </h5>
       <div className="grid grid-cols-1 gap-4">
         {notesField.map(renderField)}
       </div>

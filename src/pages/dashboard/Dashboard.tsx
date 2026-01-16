@@ -3,17 +3,15 @@ import { useEffect, useMemo } from "react";
 import { FaRegStar } from "react-icons/fa";
 import { HiOutlineChartBar, HiOutlineStar } from "react-icons/hi";
 import { LuCalendar, LuTarget, LuUsers } from "react-icons/lu";
-import { MdTrendingUp } from "react-icons/md";
 import { TbSpeakerphone } from "react-icons/tb";
 import { Link, useNavigate } from "react-router";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import { TREATMENT_OPTIONS } from "../../consts/referral";
 import { useDashboard } from "../../hooks/useDashboard";
-import { useTypedSelector } from "../../hooks/useTypedSelector";
-import { timeAgo } from "../../utils/timeAgo";
 import { useTour } from "../../providers/TourProvider";
 import { formatNumberWithCommas } from "../../utils/formatNumberWithCommas";
+import { timeAgo } from "../../utils/timeAgo";
 
 type Color = "sky" | "orange" | "emerald" | "purple";
 
@@ -62,28 +60,28 @@ const QUICK_ACTIONS_COLOR_CLASSES: Record<
   { bg: string; text: string; border: string; hover: string }
 > = {
   sky: {
-    bg: "bg-sky-50",
-    text: "text-sky-700",
-    border: "border-sky-200",
-    hover: "hover:bg-sky-100",
+    bg: "bg-sky-50 dark:bg-sky-900/10",
+    text: "text-sky-700 dark:text-sky-300",
+    border: "border-sky-200 dark:border-sky-800",
+    hover: "hover:bg-sky-100 dark:hover:bg-sky-900/20",
   },
   orange: {
-    bg: "bg-orange-50",
-    text: "text-orange-700",
-    border: "border-orange-200",
-    hover: "hover:bg-orange-100",
+    bg: "bg-orange-50 dark:bg-orange-900/10",
+    text: "text-orange-700 dark:text-orange-300",
+    border: "border-orange-200 dark:border-orange-800",
+    hover: "hover:bg-orange-100 dark:hover:bg-orange-900/20",
   },
   emerald: {
-    bg: "bg-emerald-50",
-    text: "text-emerald-700",
-    border: "border-emerald-200",
-    hover: "hover:bg-emerald-100",
+    bg: "bg-emerald-50 dark:bg-emerald-900/10",
+    text: "text-emerald-700 dark:text-emerald-300",
+    border: "border-emerald-200 dark:border-emerald-800",
+    hover: "hover:bg-emerald-100 dark:hover:bg-emerald-900/20",
   },
   purple: {
-    bg: "bg-purple-50",
-    text: "text-purple-700",
-    border: "border-purple-200",
-    hover: "hover:bg-purple-100",
+    bg: "bg-purple-50 dark:bg-purple-900/10",
+    text: "text-purple-700 dark:text-purple-300",
+    border: "border-purple-200 dark:border-purple-800",
+    hover: "hover:bg-purple-100 dark:hover:bg-purple-900/20",
   },
 };
 
@@ -103,51 +101,27 @@ const Dashboard = () => {
   const STAT_CARD_DATA = useMemo<StatCard[]>(
     () => [
       {
-        icon: <LuUsers className="text-purple-600" />,
+        icon: <LuUsers className="text-purple-600 dark:text-purple-400" />,
         heading: "Total Referrals",
         value: dashboard?.totalReferrals as number,
-        // subheading: (
-        //   <p className="text-emerald-600 flex items-center gap-1.5">
-        //     <MdTrendingUp fontSize={15} />
-        //     {dashboard?.totalLastMonth ? dashboard.totalLastMonth : "0"}% from
-        //     last month
-        //   </p>
-        // ),
         onClick: () => navigate("/referrals"),
       },
       {
-        icon: <TbSpeakerphone className="text-green-600" />,
+        icon: <TbSpeakerphone className="text-green-600 dark:text-green-400" />,
         heading: "Active Campaigns",
         value: "0",
-        // subheading: (
-        //   <p className="text-emerald-600 flex items-center gap-1.5">
-        //     <MdTrendingUp fontSize={15} />
-        //     +0 this month
-        //   </p>
-        // ),
         onClick: () => navigate("/email-campaigns"),
       },
       {
-        icon: <FaRegStar className="text-yellow-600" />,
+        icon: <FaRegStar className="text-yellow-600 dark:text-yellow-400" />,
         heading: "Reviews",
         value: "0",
-        // subheading: (
-        //   <p className="text-emerald-600 flex items-center gap-1.5">
-        //     <MdTrendingUp fontSize={15} />0 avg rating
-        //   </p>
-        // ),
         onClick: () => navigate("/reviews"),
       },
       {
-        icon: <LuTarget className="text-rose-600" />,
+        icon: <LuTarget className="text-rose-600 dark:text-rose-400" />,
         heading: "Total Value",
         value: `$${formatNumberWithCommas(dashboard?.totalValue as number)}`,
-        // subheading: (
-        //   <p className="text-emerald-600 flex items-center gap-1.5">
-        //     <MdTrendingUp fontSize={15} />
-        //     +0 vs last month
-        //   </p>
-        // ),
         onClick: () => navigate("/reports"),
       },
     ],
@@ -158,7 +132,7 @@ const Dashboard = () => {
     dashboard?.recentActivity
       ? {
           icon: "👥",
-          iconBg: "bg-sky-50",
+          iconBg: "bg-sky-50 dark:bg-sky-900/20",
           title: `New referral from ${dashboard?.recentActivity.referrer?.name}`,
           description: `Patient: ${dashboard?.recentActivity.name}${
             dashboard?.recentActivity.treatment
@@ -177,7 +151,7 @@ const Dashboard = () => {
       : null,
     {
       icon: "⭐",
-      iconBg: "bg-yellow-50",
+      iconBg: "bg-yellow-50 dark:bg-yellow-900/20",
       title: "5-star review received",
       description: 'Sarah Johnson - "Excellent service and care!"',
       time: "4 hours ago",
@@ -185,7 +159,7 @@ const Dashboard = () => {
     },
     {
       icon: "📢",
-      iconBg: "bg-orange-50",
+      iconBg: "bg-orange-50 dark:bg-orange-900/20",
       title: "Marketing campaign launched",
       description: "Back-to-School Smile Campaign - Social Media",
       time: "6 hours ago",
@@ -200,29 +174,31 @@ const Dashboard = () => {
         ? "✓ Connected"
         : "Disconnected",
       bg: dashboard?.systemStatus?.googleCalendar
-        ? "bg-green-100"
-        : "bg-red-100",
+        ? "bg-green-100 dark:bg-green-900/20"
+        : "bg-red-100 dark:bg-red-900/20",
       text: dashboard?.systemStatus?.googleCalendar
-        ? "text-green-800"
-        : "text-red-800",
+        ? "text-green-800 dark:text-green-300"
+        : "text-red-800 dark:text-red-300",
     },
     {
       name: "Review Tracking",
       status: dashboard?.systemStatus?.reviewTracking ? "✓ Active" : "Inactive",
       bg: dashboard?.systemStatus?.reviewTracking
-        ? "bg-green-100"
-        : "bg-red-100",
+        ? "bg-green-100 dark:bg-green-900/20"
+        : "bg-red-100 dark:bg-red-900/20",
       text: dashboard?.systemStatus?.reviewTracking
-        ? "text-green-800"
-        : "text-red-800",
+        ? "text-green-800 dark:text-green-300"
+        : "text-red-800 dark:text-red-300",
     },
     {
       name: "NFC System",
       status: dashboard?.systemStatus?.nfcSetup ? "✓ Active" : "Inactive",
-      bg: dashboard?.systemStatus?.nfcSetup ? "bg-green-100" : "bg-red-100",
+      bg: dashboard?.systemStatus?.nfcSetup
+        ? "bg-green-100 dark:bg-green-900/20"
+        : "bg-red-100 dark:bg-red-900/20",
       text: dashboard?.systemStatus?.nfcSetup
-        ? "text-green-800"
-        : "text-red-800",
+        ? "text-green-800 dark:text-green-300"
+        : "text-red-800 dark:text-red-300",
     },
   ];
 
@@ -276,7 +252,7 @@ const Dashboard = () => {
                 activity ? (
                   <div
                     key={index}
-                    className="flex items-start space-x-3 md:p-3 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+                    className="flex items-start space-x-3 md:p-3 hover:bg-gray-100 dark:hover:bg-foreground/5 rounded-lg transition-colors cursor-pointer"
                     onClick={activity.onClick && activity.onClick}
                   >
                     <div
@@ -288,10 +264,12 @@ const Dashboard = () => {
                       <p className="text-xs md:text-sm font-medium">
                         {activity.title}
                       </p>
-                      <p className="text-xs text-gray-600">
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
                         {activity.description}
                       </p>
-                      <p className="text-xs text-gray-600">{activity.time}</p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        {activity.time}
+                      </p>
                     </div>
                   </div>
                 ) : null
@@ -306,20 +284,26 @@ const Dashboard = () => {
               </h3>
               <div className="space-y-3">
                 <div className="flex justify-between items-center">
-                  <span className="text-xs text-gray-600">Active Codes</span>
-                  <span className="bg-sky-100 text-sky-800 h-6 p-0 px-2 flex items-center justify-center rounded text-xs font-medium">
+                  <span className="text-xs text-gray-600 dark:text-gray-400">
+                    Active Codes
+                  </span>
+                  <span className="bg-sky-100 dark:bg-sky-900/20 text-sky-800 dark:text-sky-300 h-6 p-0 px-2 flex items-center justify-center rounded text-xs font-medium">
                     {dashboard?.nfcQrData?.activeQRCodes || 0}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-xs text-gray-600">Total Scans</span>
-                  <span className="bg-orange-100 text-orange-800 h-6 p-0 px-2 flex items-center justify-center rounded text-xs font-medium">
+                  <span className="text-xs text-gray-600 dark:text-gray-400">
+                    Total Scans
+                  </span>
+                  <span className="bg-orange-100 dark:bg-orange-900/20 text-orange-800 dark:text-orange-300 h-6 p-0 px-2 flex items-center justify-center rounded text-xs font-medium">
                     {dashboard?.nfcQrData?.totalScansToday || 0}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-xs text-gray-600">Conversion Rate</span>
-                  <span className="bg-emerald-100 text-emerald-800 h-6 p-0 px-2 flex items-center justify-center rounded text-xs font-medium">
+                  <span className="text-xs text-gray-600 dark:text-gray-400">
+                    Conversion Rate
+                  </span>
+                  <span className="bg-emerald-100 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300 h-6 p-0 px-2 flex items-center justify-center rounded text-xs font-medium">
                     {dashboard?.nfcQrData?.conversionRate > 0
                       ? `${dashboard.nfcQrData.conversionRate}%`
                       : "0%"}
@@ -353,7 +337,9 @@ const Dashboard = () => {
                     key={index}
                     className="flex items-center justify-between"
                   >
-                    <span className="text-xs text-gray-600">{system.name}</span>
+                    <span className="text-xs text-gray-600 dark:text-gray-400">
+                      {system.name}
+                    </span>
                     <span
                       className={`${system.bg} ${system.text} px-2 py-1 rounded text-xs`}
                     >

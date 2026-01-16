@@ -3,18 +3,19 @@ import { useMemo, useState } from "react";
 import { FiPhone, FiPhoneCall, FiSearch } from "react-icons/fi";
 import { LuClock, LuFileAudio, LuRefreshCw } from "react-icons/lu";
 import { MdTrendingUp } from "react-icons/md";
-import { data, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import EmptyState from "../../components/common/EmptyState";
 import { LoadingState } from "../../components/common/LoadingState";
+import Pagination from "../../components/common/Pagination";
 import { CALL_STATUSES, CALL_TYPES } from "../../consts/call";
+import { EVEN_PAGINATION_LIMIT } from "../../consts/consts";
 import { useFetchTwilioConfig } from "../../hooks/integrations/useTwilio";
 import { useFetchCallRecords } from "../../hooks/useCall";
 import { CallRecord } from "../../types/call";
 import CallRecordCard from "./CallRecordCard";
 import CallRecordingModal from "./modal/CallRecordingModal";
-import Pagination from "../../components/common/Pagination";
 
 const CallTracking = () => {
   const { data: twilioConfig, isPending: isTwilioConfigLoading } =
@@ -36,7 +37,7 @@ const CallTracking = () => {
     type: "",
     status: "",
     page: 1,
-    limit: 10,
+    limit: EVEN_PAGINATION_LIMIT,
   });
 
   const { data, isLoading, refetch, isRefetching } =
@@ -121,8 +122,8 @@ const CallTracking = () => {
       <ComponentContainer headingData={HEADING_DATA}>
         <div className="flex flex-col gap-4 md:gap-5">
           {!isTwilioConnected && !isTwilioConfigLoading && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-center justify-between">
-              <p className="text-sm text-yellow-800">
+            <div className="bg-yellow-50 dark:bg-amber-950/30 border border-yellow-200 dark:border-amber-500/30 rounded-lg p-3 flex items-center justify-between">
+              <p className="text-sm text-yellow-800 dark:text-amber-400">
                 Twilio is not connected. Connect your Twilio account to enable
                 call tracking features.
               </p>
@@ -132,14 +133,14 @@ const CallTracking = () => {
                 size="sm"
                 color="warning"
                 variant="flat"
-                className="bg-yellow-200 text-yellow-800"
+                className="bg-yellow-200 dark:bg-amber-500/20 text-yellow-800 dark:text-amber-400"
               >
                 Connect Twilio
               </Button>
             </div>
           )}
           {isTwilioConfigLoading && (
-            <div className="flex items-center justify-center min-h-[200px] bg-background border border-primary/15 rounded-xl p-4">
+            <div className="flex items-center justify-center min-h-[200px] bg-background border border-foreground/10 rounded-xl p-4">
               <LoadingState />
             </div>
           )}
@@ -151,7 +152,7 @@ const CallTracking = () => {
                 ))}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 border border-primary/15 rounded-xl p-4 bg-background shadow-none">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 border border-foreground/10 rounded-xl p-4 bg-background shadow-none">
                 <div className="relative flex-1">
                   <Input
                     placeholder="Search calls by name, phone..."
@@ -159,7 +160,7 @@ const CallTracking = () => {
                     value={filters.search}
                     onValueChange={onSearchChange}
                     startContent={
-                      <FiSearch className="text-gray-400 h-4 w-4" />
+                      <FiSearch className="text-gray-400 dark:text-foreground/40 h-4 w-4" />
                     }
                   />
                 </div>
@@ -217,7 +218,7 @@ const CallTracking = () => {
                 </div>
               </div>
 
-              <div className="flex flex-col gap-4 border border-primary/15 bg-background rounded-xl p-4">
+              <div className="flex flex-col gap-4 border border-foreground/10 bg-background rounded-xl p-4">
                 <div className="flex items-center justify-between">
                   <p className="font-medium text-sm">Call History</p>
                 </div>
@@ -253,7 +254,7 @@ const CallTracking = () => {
                   data.paginatedCalls.totalPages > 1 && (
                     <Pagination
                       identifier="calls"
-                      items={data.paginatedCalls.data}
+                      limit={filters.limit}
                       totalItems={data.paginatedCalls.totalData}
                       currentPage={filters.page}
                       totalPages={data.paginatedCalls.totalPages}

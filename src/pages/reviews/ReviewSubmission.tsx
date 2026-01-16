@@ -76,7 +76,7 @@ const ReviewSubmission = () => {
 
   if (isTagLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-900/10 dark:to-green-900/10 flex items-center justify-center p-4">
         <FiLoader className="size-8 animate-spin text-primary" />
       </div>
     );
@@ -84,10 +84,12 @@ const ReviewSubmission = () => {
 
   if (!tag) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-900/10 dark:to-green-900/10 flex items-center justify-center p-4">
         <div className="text-center">
-          <h2 className="text-xl font-semibold text-gray-800">Tag not found</h2>
-          <p className="text-gray-500 mt-2">
+          <h2 className="text-xl font-semibold text-gray-800 dark:text-foreground">
+            Tag not found
+          </h2>
+          <p className="text-gray-500 dark:text-foreground/60 mt-2">
             The link you followed seems to be invalid or expired.
           </p>
         </div>
@@ -96,9 +98,9 @@ const ReviewSubmission = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-900/10 dark:to-green-900/10 flex items-center justify-center p-4">
       <div className="max-w-xl w-full">
-        <Card className="shadow-sm border-none overflow-hidden">
+        <Card className="shadow-sm border-none overflow-hidden dark:bg-content1">
           <div className="bg-gradient-to-l from-green-600 to-blue-600 px-5 py-4 text-white">
             <h1 className="text-lg font-medium flex items-center justify-start gap-2">
               <FiMessageCircle /> Leave a Review

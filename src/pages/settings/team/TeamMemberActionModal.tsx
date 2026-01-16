@@ -163,7 +163,7 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
           <h4 className="text-base font-medium">
             {editMemberId ? "Edit Team Member" : "Invite Team Member"}
           </h4>
-          <p className="text-xs text-gray-500 font-normal">
+          <p className="text-xs text-gray-500 dark:text-gray-400 font-normal">
             Send an invitation to join your orthodontic practice team. They'll
             receive an email with setup instructions.
           </p>
@@ -298,7 +298,7 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
                         {role?.title || role?.role}
                       </span>
                       {role?.description && (
-                        <span className="text-tiny text-default-500">
+                        <span className="text-tiny text-default-500 dark:text-gray-400">
                           {role.description}
                         </span>
                       )}
@@ -314,7 +314,7 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
                     <div className="flex flex-col">
                       <span className="text-sm font-medium">{role.title}</span>
                       {role.description && (
-                        <span className="text-tiny text-gray-500">
+                        <span className="text-tiny text-gray-500 dark:text-gray-400">
                           {role.description}
                         </span>
                       )}

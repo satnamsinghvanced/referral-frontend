@@ -41,41 +41,40 @@ const Analytics: React.FC = () => {
 
   const STAT_CARD_DATA = [
     {
-      icon: <LuUsers className="text-blue-500" />,
+      icon: <LuUsers className="text-blue-500 dark:text-blue-400" />,
       heading: "Monthly Referrals",
       value: isLoading
         ? "..."
         : data?.monthlyReferrals?.totalReferrals?.toString() || "0",
       subheading: (
-        <span className="text-green-600 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1 text-green-600" />
+        <span className="text-green-600 dark:text-green-400 flex items-center">
+          <LuTrendingUp className="h-4 w-4 mr-1" />
           {isLoading
             ? "..."
             : `${data?.monthlyReferrals?.growthPercent || 0}% from last month`}
         </span>
       ),
-      subValueClass: "text-green-600",
     },
     {
-      icon: <LuTarget className="text-orange-500" />,
+      icon: <LuTarget className="text-orange-500 dark:text-orange-400" />,
       heading: "Conversion Rate",
       value: isLoading ? "..." : `${data?.conversionRate || "0"}%`,
       subheading: (
-        <span className="text-green-600 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1 text-green-600" />
+        <span className="text-green-600 dark:text-green-400 flex items-center">
+          <LuTrendingUp className="h-4 w-4 mr-1" />
           Conversion performance
         </span>
       ),
     },
     {
-      icon: <LuCalendar className="text-blue-500" />,
+      icon: <LuCalendar className="text-blue-500 dark:text-blue-400" />,
       heading: "Appointments",
       value: isLoading
         ? "..."
         : data?.appointments?.totalAppointments?.toString() || "0",
       subheading: (
-        <span className="text-green-600 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1 text-green-600" />
+        <span className="text-green-600 dark:text-green-400 flex items-center">
+          <LuTrendingUp className="h-4 w-4 mr-1" />
           {isLoading
             ? "..."
             : `${data?.appointments?.growthPercent || 0}% from last month`}
@@ -83,12 +82,12 @@ const Analytics: React.FC = () => {
       ),
     },
     {
-      icon: <LuChartColumn className="text-green-500" />,
+      icon: <LuChartColumn className="text-green-500 dark:text-green-400" />,
       heading: "Revenue Growth",
       value: isLoading ? "..." : `${data?.revenue?.growthPercent || 0}%`,
       subheading: (
-        <span className="text-green-700 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1 text-green-600" />
+        <span className="text-green-600 dark:text-green-400 flex items-center">
+          <LuTrendingUp className="h-4 w-4 mr-1" />
           {isLoading ? "..." : `$${data?.revenue?.totalRevenue || 0} revenue`}
         </span>
       ),
@@ -118,7 +117,10 @@ const Analytics: React.FC = () => {
           ))}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <Card shadow="none" className="border border-primary/15 p-5">
+          <Card
+            shadow="none"
+            className="border border-foreground/10 bg-white dark:bg-background p-5"
+          >
             <CardHeader className="p-0 pb-4">
               <h4 className="text-sm font-medium flex items-center gap-2">
                 <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
@@ -161,7 +163,10 @@ const Analytics: React.FC = () => {
             </CardBody>
           </Card>
 
-          <Card shadow="none" className="border border-primary/15 p-5">
+          <Card
+            shadow="none"
+            className="border border-foreground/10 bg-white dark:bg-background p-5"
+          >
             <CardHeader className="p-0 pb-8">
               <h4 className="text-sm font-medium flex items-center gap-2">
                 <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
@@ -172,10 +177,32 @@ const Analytics: React.FC = () => {
               <div className="-ml-10 text-sm">
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={performanceData}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="month" />
-                    <YAxis />
-                    <Tooltip />
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="currentColor"
+                      className="opacity-10"
+                    />
+                    <XAxis
+                      dataKey="month"
+                      stroke="currentColor"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <YAxis
+                      stroke="currentColor"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--heroui-background))",
+                        border: "1px solid hsl(var(--heroui-default-200))",
+                        borderRadius: "8px",
+                      }}
+                      itemStyle={{ fontSize: "12px" }}
+                    />
                     <Legend />
 
                     <Line
@@ -203,7 +230,7 @@ const Analytics: React.FC = () => {
 
           <Card
             shadow="none"
-            className="border border-primary/15 p-5 col-span-2"
+            className="border border-foreground/10 bg-white dark:bg-background p-5 col-span-2"
           >
             <CardHeader className="p-0 pb-8">
               <h4 className="text-sm font-medium flex items-center gap-2">
@@ -215,10 +242,32 @@ const Analytics: React.FC = () => {
               <div className="-ml-10 text-sm">
                 <ResponsiveContainer width="100%" height={350}>
                   <AreaChart data={WeeklyActivity}>
-                    <CartesianGrid strokeDasharray="3 3" />
-                    <XAxis dataKey="day" />
-                    <YAxis />
-                    <Tooltip />
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke="currentColor"
+                      className="opacity-10"
+                    />
+                    <XAxis
+                      dataKey="day"
+                      stroke="currentColor"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <YAxis
+                      stroke="currentColor"
+                      fontSize={12}
+                      tickLine={false}
+                      axisLine={false}
+                    />
+                    <Tooltip
+                      contentStyle={{
+                        backgroundColor: "hsl(var(--heroui-background))",
+                        border: "1px solid hsl(var(--heroui-default-200))",
+                        borderRadius: "8px",
+                      }}
+                      itemStyle={{ fontSize: "12px" }}
+                    />
                     <Legend />
 
                     <Area

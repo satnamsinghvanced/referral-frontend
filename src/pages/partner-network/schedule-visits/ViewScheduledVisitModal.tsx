@@ -62,8 +62,8 @@ export default function ViewScheduledVisitModal({
       <ModalContent className="max-h-[95vh] overflow-hidden w-full">
         {/* Modal Header */}
         <ModalHeader className="flex gap-1 text-center sm:text-left p-4">
-          <h4 className="text-base font-medium flex items-center gap-2">
-            <TbCalendarStats className="h-6 w-6 text-blue-600" />
+          <h4 className="text-base font-medium flex items-center gap-2 text-foreground">
+            <TbCalendarStats className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             <span>{plan?.planDetails?.name}</span>
           </h4>
           <div className="flex items-center gap-2 ml-2">
@@ -73,7 +73,7 @@ export default function ViewScheduledVisitModal({
 
         <ModalBody className="px-4 pt-0 pb-4 overflow-y-auto space-y-3 md:space-y-4 gap-0">
           {/* --- Summary Stats (Reference: Review & Save Tab) --- */}
-          <div className="grid grid-cols-4 gap-4 py-3 bg-gray-50 rounded-lg border border-gray-100">
+          <div className="grid grid-cols-4 gap-4 py-3 bg-gray-50 dark:bg-default-100/20 rounded-lg border border-foreground/10">
             <StatPill
               title="Referrers"
               value={plan.practices.length}
@@ -96,15 +96,15 @@ export default function ViewScheduledVisitModal({
             />
           </div>
 
-          <div className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+          <div className="p-3 bg-gray-50 dark:bg-default-100/20 rounded-lg border border-foreground/10">
             <div className="space-y-2">
-              <div className="flex justify-between text-xs">
+              <div className="flex justify-between text-xs text-foreground/60">
                 <span>Progress</span>
                 <span>{progress}%</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
+              <div className="w-full bg-gray-200 dark:bg-default-200 rounded-full h-2">
                 <div
-                  className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                  className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all duration-300"
                   style={{ width: `${progress}%` }}
                 ></div>
               </div>
@@ -112,8 +112,8 @@ export default function ViewScheduledVisitModal({
           </div>
 
           {/* --- Plan Configuration --- */}
-          <div className="space-y-4 border border-primary/15 p-4 rounded-xl">
-            <h3 className="text-sm font-medium flex items-center gap-2">
+          <div className="space-y-4 border border-foreground/10 p-4 rounded-xl">
+            <h3 className="text-sm font-medium flex items-center gap-2 text-foreground">
               <TbNotes className="h-4 w-4" /> Plan Details
             </h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
@@ -143,10 +143,10 @@ export default function ViewScheduledVisitModal({
               />
               {plan?.planDetails?.description && (
                 <div className="col-span-2">
-                  <div className="text-xs font-medium text-gray-500">
+                  <div className="text-xs font-medium text-gray-500 dark:text-foreground/40">
                     Description
                   </div>
-                  <div className="text-xs font-medium text-gray-800 capitalize mt-0.5">
+                  <div className="text-xs font-medium text-gray-800 dark:text-foreground/80 capitalize mt-0.5">
                     {plan?.planDetails?.description}
                   </div>
                 </div>
@@ -154,9 +154,9 @@ export default function ViewScheduledVisitModal({
             </div>
           </div>
 
-          <div className="space-y-4 border border-primary/15 p-4 rounded-xl">
+          <div className="space-y-4 border border-foreground/10 p-4 rounded-xl">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium flex items-center gap-2">
+              <h3 className="text-sm font-medium flex items-center gap-2 text-foreground">
                 <TbRoute className="h-4 w-4" /> Route Stops (
                 {plan.route.routeDetails?.length})
               </h3>
@@ -164,7 +164,7 @@ export default function ViewScheduledVisitModal({
                 size="sm"
                 variant="bordered"
                 radius="sm"
-                className="border-small h-8"
+                className="border-small h-8 dark:border-default-200 dark:text-foreground/70"
                 onPress={handleOpenInMaps}
               >
                 <FiMapPin className="size-3.5" />
@@ -180,8 +180,8 @@ export default function ViewScheduledVisitModal({
 
           {plan?.visitNotes && (
             <div className="space-y-1.5">
-              <div className="text-xs">Visit Notes</div>
-              <div className="text-xs text-gray-700 capitalize bg-gray-50 p-2 rounded-lg">
+              <div className="text-xs text-foreground/60">Visit Notes</div>
+              <div className="text-xs text-gray-700 dark:text-foreground/70 capitalize bg-gray-50 dark:bg-default-100/20 p-2 rounded-lg">
                 {plan?.visitNotes}
               </div>
             </div>
@@ -189,16 +189,18 @@ export default function ViewScheduledVisitModal({
 
           {plan?.visitOutcome && (
             <div className="space-y-1.5">
-              <div className="text-xs">Visit Outcome/Result</div>
-              <div className="text-xs text-gray-700 p-2 bg-green-50 border border-green-200 rounded-lg">
+              <div className="text-xs text-foreground/60">
+                Visit Outcome/Result
+              </div>
+              <div className="text-xs text-gray-700 dark:text-green-300 p-2 bg-green-50 dark:bg-green-900/10 border border-green-200 dark:border-green-500/30 rounded-lg">
                 {plan?.visitOutcome}
               </div>
             </div>
           )}
 
           {plan?.followUp && (
-            <div className="p-2 bg-yellow-50 border border-yellow-200 rounded-lg">
-              <div className="flex items-center gap-2 text-yellow-800">
+            <div className="p-2 bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-500/30 rounded-lg">
+              <div className="flex items-center gap-2 text-yellow-800 dark:text-yellow-300">
                 <FiCheckCircle fontSize={14} />
                 <span className="text-xs ">Follow-up Action Required</span>
               </div>
@@ -222,8 +224,12 @@ const StatPill = ({
   color: "blue" | "green" | "orange" | "purple";
 }) => (
   <div className="text-center">
-    <div className={`text-sm font-semibold text-${color}-600`}>{value}</div>
-    <div className="text-xs text-gray-500">{title}</div>
+    <div
+      className={`text-sm font-semibold text-${color}-600 dark:text-${color}-400`}
+    >
+      {value}
+    </div>
+    <div className="text-xs text-gray-500 dark:text-foreground/40">{title}</div>
   </div>
 );
 
@@ -237,8 +243,10 @@ const DetailItem = ({
   fullWidth?: boolean;
 }) => (
   <div className={fullWidth ? "col-span-2" : "col-span-1"}>
-    <div className="text-xs font-medium text-gray-500">{label}</div>
-    <div className="text-xs font-medium text-gray-800 capitalize mt-0.5">
+    <div className="text-xs font-medium text-gray-500 dark:text-foreground/40">
+      {label}
+    </div>
+    <div className="text-xs font-medium text-gray-800 dark:text-foreground/80 capitalize mt-0.5">
       {value}
     </div>
   </div>
@@ -251,20 +259,20 @@ const RouteStopCard = ({
   route: RouteDetailStop;
   index: number;
 }) => (
-  <div className="p-3 border border-primary/15 rounded-xl flex items-start gap-2">
+  <div className="p-3 border border-foreground/10 rounded-xl flex items-start gap-2">
     {/* Stop Number Icon */}
-    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-semibold mt-1">
+    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-600 dark:bg-blue-500 text-white flex items-center justify-center text-xs font-semibold mt-1">
       {index + 1}
     </div>
 
     {/* Details */}
     <div className="flex-grow space-y-1">
-      <div className="font-medium text-sm">{route.name}</div>
-      <div className="text-xs text-gray-600">
+      <div className="font-medium text-sm text-foreground">{route.name}</div>
+      <div className="text-xs text-gray-600 dark:text-foreground/60">
         {route.address.addressLine1} {route.address.addressLine2}{" "}
         {route.address.city}, {route.address.state} {route.address.zip}
       </div>
-      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-gray-600 pt-1">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 text-xs text-gray-600 dark:text-foreground/40 pt-1">
         <span className="flex items-center gap-1.5 whitespace-nowrap">
           <LuTimer className="min-h-4 min-w-4 size-4" /> {route.arrivalTime} -{" "}
           {route.departureTime}

@@ -159,7 +159,7 @@ const LocationActionModal = ({
               ? "Edit Practice Location"
               : "Add New Practice Location"}
           </h4>
-          <p className="text-xs text-gray-500 font-normal">
+          <p className="text-xs text-gray-500 dark:text-gray-400 font-normal">
             Complete all required fields to add or edit a practice location.
           </p>
         </ModalHeader>
@@ -226,7 +226,7 @@ const LocationActionModal = ({
             >
               Primary Location
             </Switch>
-            <p className="text-xs text-gray-500 italic">
+            <p className="text-xs text-gray-500 dark:text-gray-400 italic">
               Note: Please ensure the address is accurate as it will be verified
               with Google Maps.
             </p>

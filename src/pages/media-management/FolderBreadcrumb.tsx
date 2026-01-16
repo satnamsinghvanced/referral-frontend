@@ -11,8 +11,8 @@ const FolderBreadcrumb = ({ path, onNavigate }: any) => {
         list: "gap-1",
       }}
       itemClasses={{
-        item: "text-sm text-gray-700 hover:text-primary transition-colors cursor-pointer data-[current=true]:text-gray-900 data-[current=true]:font-medium data-[current=true]:cursor-default",
-        separator: "text-gray-600 mx-0.5",
+        item: "text-sm text-gray-700 dark:text-foreground/70 hover:text-primary dark:hover:text-primary transition-colors cursor-pointer data-[current=true]:text-gray-900 dark:data-[current=true]:text-foreground data-[current=true]:font-medium data-[current=true]:cursor-default",
+        separator: "text-gray-600 dark:text-foreground/40 mx-0.5",
       }}
     >
       <BreadcrumbItem

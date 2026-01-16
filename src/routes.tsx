@@ -63,15 +63,6 @@ const Locations = React.lazy(
 );
 const Team = React.lazy(() => import("./pages/settings/team/Team"));
 const General = React.lazy(() => import("./pages/settings/General"));
-const IntegrationTests = React.lazy(
-  () => import("./pages/settings/IntegrationTests")
-);
-const PushNotifications = React.lazy(
-  () => import("./pages/settings/PushNotifications")
-);
-const NotificationAnalytics = React.lazy(
-  () => import("./pages/settings/NotificationAnalytics")
-);
 const Profile = React.lazy(() => import("./pages/settings/Profile"));
 const SignIn = React.lazy(() => import("./pages/auth/SignIn"));
 const Support = React.lazy(() => import("./pages/support/SupportPage"));
@@ -148,12 +139,6 @@ function AppRoutes() {
             { path: "locations", element: <Locations /> },
             { path: "team", element: <Team /> },
             { path: "general", element: <General /> },
-            { path: "integration-tests", element: <IntegrationTests /> },
-            { path: "push-notifications", element: <PushNotifications /> },
-            {
-              path: "notification-analytics",
-              element: <NotificationAnalytics />,
-            },
           ],
         },
       ],

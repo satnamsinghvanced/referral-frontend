@@ -38,7 +38,9 @@ const StarRating: React.FC<{ rating: number; maxStars?: number }> = ({
       <FaStar
         key={i}
         className={`size-3.5 ${
-          isFull ? "fill-yellow-500 text-yellow-500" : "text-gray-300"
+          isFull
+            ? "fill-yellow-500 text-yellow-500"
+            : "text-gray-300 dark:text-foreground/20"
         }`}
       />
     );
@@ -133,35 +135,101 @@ const reportData = {
   ],
 };
 
-const colorMap: {
-  [key: string]: { text: string; bg: string; border: string };
-} = {
+const THEME_STYLES = {
+  emerald: {
+    insight:
+      "bg-emerald-50 border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-500/20",
+    recommendation:
+      "border-l-4 border-l-emerald-500 bg-emerald-50 dark:bg-emerald-500/10",
+    textTitle: "text-emerald-800 dark:text-emerald-300",
+    textDesc: "text-emerald-700 dark:text-emerald-300/80",
+    badge:
+      "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300",
+  },
   green: {
-    text: "text-green-600",
-    bg: "bg-green-100",
-    border: "border-green-600",
+    insight:
+      "bg-green-50 border-green-200 dark:bg-green-500/10 dark:border-green-500/20",
+    recommendation:
+      "border-l-4 border-l-green-500 bg-green-50 dark:bg-green-500/10",
+    textTitle: "text-green-800 dark:text-green-300",
+    textDesc: "text-green-700 dark:text-green-300/80",
+    badge:
+      "bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-300",
   },
-  yellow: {
-    text: "text-yellow-600",
-    bg: "bg-yellow-100",
-    border: "border-yellow-600",
+  sky: {
+    insight:
+      "bg-sky-50 border-sky-200 dark:bg-sky-500/10 dark:border-sky-500/20",
+    recommendation: "border-l-4 border-l-sky-500 bg-sky-50 dark:bg-sky-500/10",
+    textTitle: "text-sky-800 dark:text-sky-300",
+    textDesc: "text-sky-700 dark:text-sky-300/80",
+    badge: "bg-sky-100 text-sky-800 dark:bg-sky-500/20 dark:text-sky-300",
   },
-  red: { text: "text-red-600", bg: "bg-red-100", border: "border-red-600" },
-  blue: { text: "text-blue-600", bg: "bg-blue-100", border: "border-blue-600" },
-  purple: {
-    text: "text-purple-600",
-    bg: "bg-purple-100",
-    border: "border-purple-600",
+  amber: {
+    insight:
+      "bg-amber-50 border-amber-200 dark:bg-amber-500/10 dark:border-amber-500/20",
+    recommendation:
+      "border-l-4 border-l-amber-500 bg-amber-50 dark:bg-amber-500/10",
+    textTitle: "text-amber-800 dark:text-amber-300",
+    textDesc: "text-amber-700 dark:text-amber-300/80",
+    badge:
+      "bg-amber-100 text-amber-800 dark:bg-amber-500/20 dark:text-amber-300",
   },
   orange: {
-    text: "text-orange-600",
-    bg: "bg-orange-100",
-    border: "border-orange-600",
+    insight:
+      "bg-orange-50 border-orange-200 dark:bg-orange-500/10 dark:border-orange-500/20",
+    recommendation:
+      "border-l-4 border-l-orange-500 bg-orange-50 dark:bg-orange-500/10",
+    textTitle: "text-orange-800 dark:text-orange-300",
+    textDesc: "text-orange-700 dark:text-orange-300/80",
+    badge:
+      "bg-orange-100 text-orange-800 dark:bg-orange-500/20 dark:text-orange-300",
+  },
+  yellow: {
+    insight:
+      "bg-yellow-50 border-yellow-200 dark:bg-yellow-500/10 dark:border-yellow-500/20",
+    recommendation:
+      "border-l-4 border-l-yellow-500 bg-yellow-50 dark:bg-yellow-500/10",
+    textTitle: "text-yellow-800 dark:text-yellow-300",
+    textDesc: "text-yellow-700 dark:text-yellow-300/80",
+    badge:
+      "bg-yellow-100 text-yellow-800 dark:bg-yellow-500/20 dark:text-yellow-300",
+  },
+  blue: {
+    insight:
+      "bg-blue-50 border-blue-200 dark:bg-blue-500/10 dark:border-blue-500/20",
+    recommendation:
+      "border-l-4 border-l-blue-500 bg-blue-50 dark:bg-blue-500/10",
+    textTitle: "text-blue-800 dark:text-blue-300",
+    textDesc: "text-blue-700 dark:text-blue-300/80",
+    badge: "bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-300",
+  },
+  red: {
+    insight:
+      "bg-red-50 border-red-200 dark:bg-red-500/10 dark:border-red-500/20",
+    recommendation: "border-l-4 border-l-red-500 bg-red-50 dark:bg-red-500/10",
+    textTitle: "text-red-800 dark:text-red-300",
+    textDesc: "text-red-700 dark:text-red-300/80",
+    badge: "bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-300",
+  },
+  purple: {
+    insight:
+      "bg-purple-50 border-purple-200 dark:bg-purple-500/10 dark:border-purple-500/20",
+    recommendation:
+      "border-l-4 border-l-purple-500 bg-purple-50 dark:bg-purple-500/10",
+    textTitle: "text-purple-800 dark:text-purple-300",
+    textDesc: "text-purple-700 dark:text-purple-300/80",
+    badge:
+      "bg-purple-100 text-purple-800 dark:bg-purple-500/20 dark:text-purple-300",
   },
   default: {
-    text: "text-gray-700",
-    bg: "bg-gray-100",
-    border: "border-gray-300",
+    insight:
+      "bg-gray-50 border-gray-200 dark:bg-gray-500/10 dark:border-gray-500/20",
+    recommendation:
+      "border-l-4 border-l-gray-500 bg-gray-50 dark:bg-gray-500/10",
+    textTitle: "text-gray-800 dark:text-gray-300",
+    textDesc: "text-gray-700 dark:text-gray-300/80",
+    badge:
+      "bg-gray-100 text-gray-800 dark:bg-foreground/10 dark:text-foreground/60",
   },
 };
 
@@ -221,7 +289,7 @@ const CustomCard: React.FC<
 > = ({ title, children, className = "" }) => (
   <Card
     shadow="none"
-    className={`bg-background text-card-foreground flex flex-col rounded-xl p-5 border border-primary/15 ${className}`}
+    className={`bg-background text-card-foreground flex flex-col rounded-xl p-5 border border-foreground/10 ${className}`}
   >
     {title && (
       <CardHeader className="p-0 pb-4">
@@ -264,13 +332,13 @@ const ReviewSentimentAnalysisReport = () => {
     switch (sentiment) {
       case "Very Positive":
       case "Positive":
-        return "bg-green-100 text-green-800";
+        return THEME_STYLES.green.badge;
       case "Neutral":
-        return "bg-yellow-100 text-yellow-800";
+        return THEME_STYLES.yellow.badge;
       case "Negative":
-        return "bg-red-100 text-red-800";
+        return THEME_STYLES.red.badge;
       default:
-        return "bg-gray-100 text-gray-800";
+        return THEME_STYLES.default.badge;
     }
   };
 
@@ -284,31 +352,41 @@ const ReviewSentimentAnalysisReport = () => {
                 <IoStar className="size-5 fill-yellow-600" />
                 {overall.averageRating}
               </div>
-              <div className="text-xs text-gray-600">Average Rating</div>
+              <div className="text-xs text-gray-600 dark:text-foreground/60">
+                Average Rating
+              </div>
             </div>
             <div className="text-center space-y-0.5">
               <div className="text-xl font-bold text-blue-600">
                 {overall.totalReviews}
               </div>
-              <div className="text-xs text-gray-600">Total Reviews</div>
+              <div className="text-xs text-gray-600 dark:text-foreground/60">
+                Total Reviews
+              </div>
             </div>
             <div className="text-center space-y-0.5">
               <div className="text-xl font-bold text-green-600">
                 {overall.positiveSentiment}%
               </div>
-              <div className="text-xs text-gray-600">Positive Sentiment</div>
+              <div className="text-xs text-gray-600 dark:text-foreground/60">
+                Positive Sentiment
+              </div>
             </div>
             <div className="text-center space-y-0.5">
               <div className="text-xl font-bold text-purple-600">
                 {overall.responseRate}%
               </div>
-              <div className="text-xs text-gray-600">Response Rate</div>
+              <div className="text-xs text-gray-600 dark:text-foreground/60">
+                Response Rate
+              </div>
             </div>
             <div className="text-center space-y-0.5">
               <div className="text-xl font-bold text-orange-600">
                 {overall.avgResponseTime}
               </div>
-              <div className="text-xs text-gray-600">Avg Response Time</div>
+              <div className="text-xs text-gray-600 dark:text-foreground/60">
+                Avg Response Time
+              </div>
             </div>
           </div>
         </CustomCard>
@@ -317,7 +395,9 @@ const ReviewSentimentAnalysisReport = () => {
           <CustomCard title="Sentiment Distribution">
             <div className="space-y-4 md:space-y-5">
               {sentimentDistribution.map((sentiment, index) => {
-                const colors = colorMap[sentiment.color];
+                const styles =
+                  THEME_STYLES[sentiment.color as keyof typeof THEME_STYLES] ||
+                  THEME_STYLES.default;
                 const IconComponent = sentiment.icon;
                 return (
                   <div key={index}>
@@ -325,17 +405,25 @@ const ReviewSentimentAnalysisReport = () => {
                       <span
                         className={`text-xs font-medium flex items-center gap-1.5`}
                       >
-                        <IconComponent className={`h-4 w-4 ${colors?.text}`} />
+                        <IconComponent
+                          className={clsx("h-4 w-4", styles.textTitle)}
+                        />
                         {sentiment.label} ({sentiment.value}%)
                       </span>
-                      <span className="text-xs text-gray-600">
+                      <span className="text-xs text-gray-600 dark:text-foreground/60">
                         {sentiment.value}%
                       </span>
                     </div>
                     <Progress
                       aria-label="Budget utilization"
                       value={sentiment.value}
-                      color="primary"
+                      color={
+                        sentiment.color === "green"
+                          ? "success"
+                          : sentiment.color === "yellow"
+                          ? "warning"
+                          : "danger"
+                      }
                       className="h-2.5"
                       radius="full"
                     />
@@ -350,7 +438,7 @@ const ReviewSentimentAnalysisReport = () => {
               {platformPerformance.map((platformData, index) => (
                 <div
                   key={index}
-                  className="flex items-center justify-between p-3 rounded-lg border border-primary/15"
+                  className="flex items-center justify-between p-3 rounded-lg border border-foreground/10 dark:bg-background/50"
                 >
                   <div>
                     <h4 className="text-sm font-medium">
@@ -359,10 +447,12 @@ const ReviewSentimentAnalysisReport = () => {
                     <div className="flex items-center gap-2 mt-1">
                       <div className="flex items-center gap-1">
                         <StarRating rating={platformData.rating} />
-                        <span className="text-xs">{platformData.rating}</span>
+                        <span className="text-xs dark:text-foreground/80">
+                          {platformData.rating}
+                        </span>
                       </div>
                       <span className="text-xs text-gray-500">•</span>
-                      <span className="text-xs text-gray-600">
+                      <span className="text-xs text-gray-600 dark:text-foreground/60">
                         {platformData.reviews} reviews
                       </span>
                     </div>
@@ -370,9 +460,12 @@ const ReviewSentimentAnalysisReport = () => {
                   <Chip
                     size="sm"
                     radius="sm"
-                    className={`text-[11px] h-5 ${
-                      colorMap[platformData.color]?.bg
-                    } ${colorMap[platformData.color]?.text}`}
+                    className={clsx(
+                      "text-[11px] h-5",
+                      THEME_STYLES[
+                        platformData.color as keyof typeof THEME_STYLES
+                      ]?.badge || THEME_STYLES.default.badge
+                    )}
                   >
                     {platformData.positive}% positive
                   </Chip>
@@ -388,7 +481,7 @@ const ReviewSentimentAnalysisReport = () => {
               <Card
                 key={index}
                 shadow="none"
-                className="border border-primary/15 p-4 rounded-lg"
+                className="border border-foreground/10 dark:bg-background/50 p-4 rounded-lg"
               >
                 <CardHeader className="flex items-start justify-between p-0 pb-3">
                   <div className="flex items-center gap-3">
@@ -399,7 +492,7 @@ const ReviewSentimentAnalysisReport = () => {
                       <Chip
                         size="sm"
                         radius="sm"
-                        className="text-[11px] h-5 bg-[#e0f2fe] text-[#0c4a6e]"
+                        className="text-[11px] h-5 bg-[#e0f2fe] text-[#0c4a6e] dark:bg-sky-500/10 dark:text-sky-400"
                       >
                         {review.platform}
                       </Chip>
@@ -418,7 +511,7 @@ const ReviewSentimentAnalysisReport = () => {
                     {review.response.status === "Responded" ? (
                       <div className="flex items-center gap-1 text-green-600">
                         <LuCircleCheckBig className="size-3.5" />
-                        <span className="text-xs">
+                        <span className="text-xs text-gray-600 dark:text-foreground/60">
                           Responded ({review.response.time})
                         </span>
                       </div>
@@ -431,10 +524,10 @@ const ReviewSentimentAnalysisReport = () => {
                   </div>
                 </CardHeader>
                 <CardBody className="p-0">
-                  <p className="text-sm text-gray-600 mb-2">
+                  <p className="text-sm text-gray-600 dark:text-foreground/80 mb-2">
                     "{review.content}"
                   </p>
-                  <div className="flex items-center justify-between text-xs text-gray-500">
+                  <div className="flex items-center justify-between text-xs text-gray-500 dark:text-foreground/40">
                     <span>{review.author}</span>
                     <span>{review.date}</span>
                   </div>
@@ -445,7 +538,10 @@ const ReviewSentimentAnalysisReport = () => {
         </CustomCard>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-          <Card shadow="none" className="border border-primary/15 p-5">
+          <Card
+            shadow="none"
+            className="border border-foreground/10 p-5 bg-background"
+          >
             <CardHeader className="p-0 pb-4 flex items-center gap-2">
               <IoMdTrendingUp
                 className="size-[18px] text-blue-600"
@@ -456,36 +552,26 @@ const ReviewSentimentAnalysisReport = () => {
             <CardBody className="p-0">
               <div className="space-y-3">
                 {INSIGHTS_DATA.map((insight, index) => {
-                  let color;
-
-                  switch (index) {
-                    case 0:
-                    case 1:
-                      color = "emerald";
-                      break;
-
-                    default:
-                      color = "yellow";
-                      break;
-                  }
-
+                  const styles =
+                    THEME_STYLES[insight.color as keyof typeof THEME_STYLES] ||
+                    THEME_STYLES.default;
                   return (
                     <div
                       key={index}
                       className={clsx(
                         "p-3 rounded-lg border space-y-1",
-                        `bg-${color}-50 border-${color}-200`
+                        styles.insight
                       )}
                     >
                       <h4
                         className={clsx(
                           "text-sm font-medium",
-                          `text-${color}-800`
+                          styles.textTitle
                         )}
                       >
                         {insight.title}
                       </h4>
-                      <p className={clsx("text-xs", `text-${color}-700`)}>
+                      <p className={clsx("text-xs", styles.textDesc)}>
                         {insight.description}
                       </p>
                     </div>
@@ -495,7 +581,10 @@ const ReviewSentimentAnalysisReport = () => {
             </CardBody>
           </Card>
 
-          <Card shadow="none" className="border border-primary/15 p-5">
+          <Card
+            shadow="none"
+            className="border border-foreground/10 p-5 bg-background"
+          >
             <CardHeader className="p-0 pb-4 flex items-center gap-2">
               <LuUsers
                 className="size-[18px] text-purple-600"
@@ -506,40 +595,26 @@ const ReviewSentimentAnalysisReport = () => {
             <CardBody className="p-0">
               <div className="space-y-3">
                 {RECOMMENDATIONS_DATA.map((rec, index) => {
-                  let color;
-
-                  switch (index) {
-                    case 1:
-                      color = "blue";
-                      break;
-
-                    case 2:
-                      color = "yellow";
-                      break;
-
-                    default:
-                      color = "emerald";
-                      break;
-                  }
-
+                  const styles =
+                    THEME_STYLES[rec.color as keyof typeof THEME_STYLES] ||
+                    THEME_STYLES.default;
                   return (
                     <div
                       key={index}
                       className={clsx(
                         "pl-4 p-3 rounded-r-lg space-y-1",
-                        `border-l-4 border-l-${color}-500 bg-${color}-50`,
-                        index === 0 && "border-l-emerald-500"
+                        styles.recommendation
                       )}
                     >
                       <h4
                         className={clsx(
                           "text-sm font-medium",
-                          `text-${color}-800`
+                          styles.textTitle
                         )}
                       >
                         {rec.title}
                       </h4>
-                      <p className={clsx("text-xs", `text-${color}-700`)}>
+                      <p className={clsx("text-xs", styles.textDesc)}>
                         {rec.description}
                       </p>
                     </div>

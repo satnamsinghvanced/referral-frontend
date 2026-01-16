@@ -101,7 +101,7 @@ const EditTaskModal = ({ isOpen, onClose, task }: EditTaskModalProps) => {
     >
       <ModalContent className="p-4 flex flex-col gap-4 !my-2">
         <ModalHeader className="flex flex-col gap-2 text-center sm:text-left p-0">
-          <h4 className="text-base leading-none font-medium">
+          <h4 className="text-base leading-none font-medium text-foreground">
             Edit Task - {task?.title}
           </h4>
         </ModalHeader>
@@ -262,7 +262,7 @@ const EditTaskModal = ({ isOpen, onClose, task }: EditTaskModalProps) => {
                   ))}
                 </Select>
               ) : (
-                <div className="text-xs text-gray-500 italic">
+                <div className="text-xs text-gray-500 dark:text-foreground/40 italic">
                   No active team members found. Task will be assigned to you.
                   Add active team members to assign tasks to them.
                 </div>
@@ -276,7 +276,7 @@ const EditTaskModal = ({ isOpen, onClose, task }: EditTaskModalProps) => {
                 radius="sm"
                 variant="ghost"
                 onPress={onClose}
-                className="border-small"
+                className="border-small dark:border-default-200 dark:text-foreground/70"
               >
                 Cancel
               </Button>

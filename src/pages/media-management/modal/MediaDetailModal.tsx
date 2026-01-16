@@ -106,8 +106,10 @@ export function MediaDetailModal({
         <ModalHeader className="flex flex-col gap-2 text-center sm:text-left p-0 font-normal">
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <h4 className="text-base font-medium">{media.name}</h4>
-              <p className="text-gray-500 text-xs p-0">
+              <h4 className="text-base font-medium text-foreground">
+                {media.name}
+              </h4>
+              <p className="text-gray-500 dark:text-foreground/40 text-xs p-0">
                 Preview and manage media file details, tags, and metadata
               </p>
             </div>
@@ -116,42 +118,50 @@ export function MediaDetailModal({
 
         <ModalBody className="max-h-[70vh] overflow-auto px-0 py-4">
           <div className="space-y-4">
-            <div className="w-full aspect-video bg-muted rounded-lg overflow-hidden flex items-center justify-center bg-primary/5 py-4">
+            <div className="w-full aspect-video bg-muted rounded-lg overflow-hidden flex items-center justify-center bg-primary/5 dark:bg-default-100/50 py-4">
               <MediaPreview media={media} />
             </div>
 
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div className="text-xs font-medium space-y-0.5">
-                <p className="text-gray-600">File Size</p>
-                <p>{formatFileSize(media.size)}</p>
+                <p className="text-gray-600 dark:text-foreground/40">
+                  File Size
+                </p>
+                <p className="text-foreground">{formatFileSize(media.size)}</p>
               </div>
               <div className="text-xs font-medium space-y-0.5">
-                <p className="text-gray-600">Type</p>
-                <p>{media.type}</p>
+                <p className="text-gray-600 dark:text-foreground/40">Type</p>
+                <p className="text-foreground">{media.type}</p>
               </div>
               <div className="text-xs font-medium space-y-0.5">
-                <p className="text-gray-600">Uploaded</p>
-                <p>{formatDateToReadable(media.createdAt, true)}</p>
+                <p className="text-gray-600 dark:text-foreground/40">
+                  Uploaded
+                </p>
+                <p className="text-foreground">
+                  {formatDateToReadable(media.createdAt, true)}
+                </p>
               </div>
               <div className="text-xs font-medium space-y-0.5">
-                <p className="text-gray-600">Folder</p>
-                <p>{media.folderName}</p>
+                <p className="text-gray-600 dark:text-foreground/40">Folder</p>
+                <p className="text-foreground">{media.folderName}</p>
               </div>
             </div>
 
             <div className="text-xs space-y-0.5">
-              <p className="font-medium text-gray-600">Tags</p>
+              <p className="font-medium text-gray-600 dark:text-foreground/60">
+                Tags
+              </p>
               <div className="flex flex-wrap gap-1 mt-1">
                 {media.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center rounded-full text-[11px] font-medium px-2 py-0.5 border border-primary/15"
+                    className="inline-flex items-center rounded-full text-[11px] font-medium px-2 py-0.5 border border-foreground/10 text-foreground/70"
                   >
                     {tag}
                   </span>
                 ))}
                 {media.tags.length === 0 && (
-                  <p className="text-xs text-gray-500 italic">
+                  <p className="text-xs text-gray-500 dark:text-foreground/30 italic">
                     No tags applied.
                   </p>
                 )}
@@ -172,7 +182,7 @@ export function MediaDetailModal({
                 radius="sm"
                 variant="ghost"
                 startContent={<FiPlus className="h-3.5 w-3.5" />}
-                className="border-small"
+                className="border-small border-gray-300 dark:border-default-200 text-gray-700 dark:text-foreground/70"
               >
                 Add Tag
               </Button>
@@ -211,7 +221,7 @@ export function MediaDetailModal({
             variant="ghost"
             startContent={<FiDownload className="size-3.5" />}
             onPress={() => onDownload(media.path, media.name)}
-            className="border-small"
+            className="border-small border-gray-300 dark:border-default-200 text-gray-700 dark:text-foreground/70"
           >
             Download
           </Button>

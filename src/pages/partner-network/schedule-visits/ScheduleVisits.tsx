@@ -213,11 +213,13 @@ export default function ScheduleVisits({
 
   return (
     <>
-      <div className="bg-background flex flex-col gap-4 border border-primary/15 rounded-xl p-4">
+      <div className="bg-background flex flex-col gap-4 border border-foreground/10 rounded-xl p-4 shadow-none">
         <div className="md:flex md:items-center md:justify-between max-md:space-y-3.5 max-md:mt-2">
           <div className="space-y-1">
-            <h3 className="text-sm">Schedule Referrer Visits</h3>
-            <p className="text-xs text-gray-600">
+            <h3 className="text-sm text-foreground">
+              Schedule Referrer Visits
+            </h3>
+            <p className="text-xs text-gray-600 dark:text-foreground/60">
               Plan your visits to multiple referrers with route optimization
             </p>
           </div>
@@ -232,7 +234,7 @@ export default function ScheduleVisits({
                   setIsHistoryModalOpen(true);
                   setEditPlan(null);
                 }}
-                className="border-small"
+                className="border-small dark:border-default-200 dark:text-foreground/70"
               >
                 Visit History
               </Button>
@@ -258,7 +260,7 @@ export default function ScheduleVisits({
         <div className="space-y-4 md:space-y-5">
           {/* <Card
           data-slot="card"
-          className="rounded-xl border border-primary/15 shadow-none"
+          className="rounded-xl border border-foreground/10 shadow-none"
         >
           <CardHeader data-slot="card-header" className="px-5 pt-5 pb-5">
             <div className="flex items-center justify-between w-full">
@@ -278,7 +280,7 @@ export default function ScheduleVisits({
                   size="sm"
                   variant="ghost"
                   onPress={() => setIsCompactMode(!isCompactMode)}
-                  className="border-small min-w-auto border-primary/15 size-8 p-0"
+                  className="border-small min-w-auto border-foreground/10 size-8 p-0"
                   title={isCompactMode ? "Show Grid View" : "Show Compact View"}
                 >
                   <LuCalendar className="h-4 w-4" />
@@ -304,7 +306,9 @@ export default function ScheduleVisits({
                   setFilters({ ...filters, search: value })
                 }
                 className="text-xs min-w-fit"
-                startContent={<FiSearch className="text-gray-400 h-4 w-4" />}
+                startContent={
+                  <FiSearch className="text-gray-400 dark:text-foreground/40 h-4 w-4" />
+                }
                 fullWidth
               />
               <Select
@@ -328,7 +332,7 @@ export default function ScheduleVisits({
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-2 col-span-4 md:col-span-auto">
-                  <span className="text-xs text-gray-600 whitespace-nowrap max-md:hidden">
+                  <span className="text-xs text-gray-600 dark:text-foreground/60 whitespace-nowrap max-md:hidden">
                     Sort by:
                   </span>
                   <Select
@@ -356,7 +360,7 @@ export default function ScheduleVisits({
                   size="sm"
                   variant="ghost"
                   onPress={handleOrderToggle}
-                  className="border-small col-span-2 md:min-w-auto"
+                  className="border-small col-span-2 md:min-w-auto dark:border-default-200 dark:text-foreground/80"
                   title={
                     filters.order === "asc"
                       ? "Sort Ascending"
@@ -370,7 +374,7 @@ export default function ScheduleVisits({
                   size="sm"
                   variant="ghost"
                   onPress={() => setIsCompactMode(!isCompactMode)}
-                  className="border-small size-8 min-w-8 p-0 max-md:w-full"
+                  className="border-small size-8 min-w-8 p-0 max-md:w-full dark:border-default-200 dark:text-foreground/70"
                   title={isCompactMode ? "Show Grid View" : "Show List View"}
                   startContent={
                     isCompactMode ? (
@@ -383,7 +387,7 @@ export default function ScheduleVisits({
                 />
               </div>
               {pagination && pagination.totalPages > 1 && (
-                <p className="text-xs text-gray-600">
+                <p className="text-xs text-gray-600 dark:text-foreground/60">
                   Showing {filters.limit * (filters.page - 1) + 1} -{" "}
                   {filters.limit * filters.page > pagination?.totalData
                     ? pagination?.totalData

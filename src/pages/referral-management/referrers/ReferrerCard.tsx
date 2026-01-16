@@ -52,57 +52,57 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
       case "doctor":
         return {
           icon: <LuUsers />,
-          bgColor: "bg-blue-100",
-          textColor: "text-blue-600",
+          bgColor: "bg-blue-100 dark:bg-blue-900/20",
+          textColor: "text-blue-600 dark:text-blue-500",
           label: referrer?.practice?.name || "Doctor Referrer",
         };
       case "patient":
         return {
           icon: <FaRegStar />,
-          bgColor: "bg-emerald-100",
-          textColor: "text-emerald-600",
+          bgColor: "bg-emerald-100 dark:bg-emerald-900/20",
+          textColor: "text-emerald-600 dark:text-emerald-500",
           label: "Patient Referrer",
         };
       case "communityReferrer":
         return {
           icon: <RiUserCommunityLine />,
-          bgColor: "bg-orange-100",
-          textColor: "text-orange-600",
+          bgColor: "bg-orange-100 dark:bg-orange-900/20",
+          textColor: "text-orange-600 dark:text-orange-500",
           label: "Community Referrer",
         };
       case "googleReferrer":
         return {
           icon: <SiGoogle />,
-          bgColor: "bg-indigo-100",
-          textColor: "text-indigo-600",
+          bgColor: "bg-indigo-100 dark:bg-indigo-900/20",
+          textColor: "text-indigo-600 dark:text-indigo-500",
           label: "Online/Google Referrer",
         };
       case "socialMediaReferrer":
         return {
           icon: <LuShare2 />,
-          bgColor: "bg-purple-100",
-          textColor: "text-purple-600",
+          bgColor: "bg-purple-100 dark:bg-purple-900/20",
+          textColor: "text-purple-600 dark:text-purple-500",
           label: "Social Media Referrer",
         };
       case "eventReferrer":
         return {
           icon: <LuTrophy />,
-          bgColor: "bg-amber-100",
-          textColor: "text-amber-600",
+          bgColor: "bg-amber-100 dark:bg-amber-900/20",
+          textColor: "text-amber-600 dark:text-amber-500",
           label: "Event Referrer",
         };
       default:
         return {
           icon: <LuUsers />,
-          bgColor: "bg-gray-100",
-          textColor: "text-gray-600",
+          bgColor: "bg-gray-100 dark:bg-background",
+          textColor: "text-gray-600 dark:text-foreground/40",
           label: "Referrer",
         };
     }
   }, [referrer]);
 
   return (
-    <div className="md:flex md:justify-between md:items-center border border-foreground/10 rounded-lg p-3.5 bg-background max-md:space-y-3.5">
+    <div className="md:flex md:justify-between md:items-center border border-foreground/10 rounded-lg p-3.5 bg-background dark:bg-content1 max-md:space-y-3.5">
       {/* Left Section */}
       <div className="flex items-center gap-2.5 md:gap-3">
         <div
@@ -111,13 +111,15 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
           {config.icon}
         </div>
         <div className="flex flex-col gap-1 w-full text-left">
-          <p className="text-sm font-medium">{referrer.name}</p>
-          <p className="text-xs text-gray-600 line-clamp-1">{config.label}</p>
+          <p className="text-sm font-medium dark:text-white">{referrer.name}</p>
+          <p className="text-xs text-gray-600 dark:text-foreground/60 line-clamp-1">
+            {config.label}
+          </p>
 
-          <div className="flex items-center gap-3.5 text-xs text-gray-600">
+          <div className="flex items-center gap-3.5 text-xs text-gray-600 dark:text-foreground/60">
             <div className="flex items-center gap-1.5">
               <span>{referrer.referrals.length} total</span>
-              <span className="p-0.5 bg-gray-600/60 rounded-full aspect-square h-fit w-fit"></span>
+              <span className="p-0.5 bg-gray-600/60 dark:bg-default-400 rounded-full aspect-square h-fit w-fit"></span>
               <span>
                 {referrer.thisMonthReferralCount || 0}
                 <span> this month</span>

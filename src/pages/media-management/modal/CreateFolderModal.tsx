@@ -79,10 +79,10 @@ export function CreateFolderModal({
     >
       <ModalContent className="p-4">
         <ModalHeader className="flex flex-col gap-1 font-normal p-0">
-          <h4 className="text-base font-medium">
+          <h4 className="text-base font-medium text-foreground">
             {isEditMode ? "Rename Folder" : "Create New Folder"}
           </h4>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-500 dark:text-foreground/60">
             {isEditMode
               ? `Rename the current folder "${folderToEdit?.name}"`
               : "Create a new folder in the current directory"}
@@ -112,7 +112,7 @@ export function CreateFolderModal({
             size="sm"
             radius="sm"
             variant="ghost"
-            className="border-small"
+            className="border-small border-gray-300 dark:border-default-200 text-gray-700 dark:text-foreground/70 hover:bg-gray-50 dark:hover:bg-default-100"
             onPress={onClose}
           >
             Cancel

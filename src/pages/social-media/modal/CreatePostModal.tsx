@@ -116,8 +116,8 @@ const ALL_SUGGESTED_HASHTAGS = [
 
 const PlatformButton = ({ platform, isSelected, onClick }: any) => {
   const selectedClasses = isSelected
-    ? "border-none !bg-blue-50 text-primary-600 ring-2 ring-primary-600/50"
-    : "border-gray-200 hover:bg-gray-50";
+    ? "border-none !bg-blue-50 dark:!bg-blue-500/10 text-primary-600 dark:text-blue-400 ring-2 ring-primary-600/50 dark:ring-blue-500/50"
+    : "border-foreground/10 hover:bg-gray-50 dark:hover:bg-content2";
 
   return (
     <Button
@@ -368,8 +368,8 @@ export function CreatePostModal({
 
   const uploadWrapperClasses =
     selectedMedia.length > 0
-      ? "border-green-400 bg-green-50/50 hover:border-green-500"
-      : "border-gray-200 hover:border-gray-300 hover:bg-gray-50";
+      ? "border-green-400 bg-green-50/50 dark:bg-green-500/10 dark:border-green-500/50 hover:border-green-500"
+      : "border-foreground/10 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-content2";
 
   const hasError = (field: keyof typeof formik.initialValues) =>
     !!(formik.touched[field] && formik.errors[field]);
@@ -442,7 +442,7 @@ export function CreatePostModal({
             <div className="flex justify-between items-start">
               <ErrorText field="postContent" />
               <div className="text-right">
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-gray-500 dark:text-foreground/60">
                   {formik.values.postContent.length}/{maxCharacters} characters
                 </span>
               </div>
@@ -592,7 +592,7 @@ export function CreatePostModal({
                       Click to select media from gallery or upload
                     </p>
                   )}
-                  <p className="text-xs text-gray-500 mt-1.5 leading-relaxed">
+                  <p className="text-xs text-gray-500 dark:text-foreground/60 mt-1.5 leading-relaxed">
                     {safeMediaConstraints.allowedImageFormats.length > 0 &&
                       `Images: ${safeMediaConstraints.allowedImageFormats
                         .map((f) => f.split("/")[1]?.toUpperCase() || "FILE")
@@ -685,7 +685,7 @@ export function CreatePostModal({
           {/* Preview */}
           <div className="space-y-1">
             <p className="text-xs block">Preview</p>
-            <div className="border border-gray-200 rounded-lg p-3 text-xs text-blue-700 bg-gray-50">
+            <div className="border border-foreground/10 rounded-lg p-3 text-xs text-blue-700 dark:text-blue-300 bg-gray-50 dark:bg-content2">
               {previewHashtags || "No hashtags added yet"}
             </div>
           </div>

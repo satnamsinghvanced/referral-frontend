@@ -22,7 +22,7 @@ const Billing: React.FC = () => {
   };
 
   return (
-    <Card className="rounded-xl shadow-none border border-foreground/10">
+    <Card className="rounded-xl shadow-none border border-foreground/10 bg-background">
       <CardHeader className="flex items-center gap-2 px-4 pt-4 pb-1">
         <FiCreditCard className="size-5" />
         <h4 className="text-base">Billing & Subscription</h4>
@@ -30,23 +30,23 @@ const Billing: React.FC = () => {
 
       <CardBody className="p-4 space-y-5">
         {/* Current Plan */}
-        <div className="space-y-1 bg-green-50 border border-green-200 dark:bg-green-200 p-3 rounded-lg">
+        <div className="space-y-1 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 p-3 rounded-lg">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm dark:text-background">
+            <p className="text-sm dark:text-green-400">
               Current Plan: {paymentDetails.currentPlan}
             </p>
             <span
               className={`inline-flex items-center justify-center rounded-md px-2 py-1 text-[11px] font-medium w-fit whitespace-nowrap shrink-0 ${
                 isActive
-                  ? "bg-green-100 text-green-800"
-                  : "bg-red-100 text-red-800"
+                  ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400"
+                  : "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400"
               }`}
             >
               {isActive ? "Active" : "Inactive"}
             </span>
           </div>
-          <p className="text-xs text-gray-600 dark:text-gray-700">{`$99/month • Up to 10 locations • Advanced analytics`}</p>
-          <p className="text-xs text-gray-600 dark:text-gray-700">{`Next billing date: ${paymentDetails.nextBillingDate}`}</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400">{`$99/month • Up to 10 locations • Advanced analytics`}</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400">{`Next billing date: ${paymentDetails.nextBillingDate}`}</p>
         </div>
 
         {/* Payment Method */}

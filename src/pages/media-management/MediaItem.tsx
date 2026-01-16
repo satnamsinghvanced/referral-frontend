@@ -23,9 +23,9 @@ const MediaItem = ({
   return (
     <div
       key={media._id}
-      className="relative border border-gray-200 rounded-lg overflow-hidden group bg-background"
+      className="relative border border-foreground/10 rounded-lg overflow-hidden group bg-content1"
     >
-      <div className="w-full h-32 flex items-center justify-center bg-gray-100 overflow-hidden">
+      <div className="w-full h-32 flex items-center justify-center bg-gray-100 dark:bg-default-100/50 overflow-hidden">
         {isVideo ? (
           <video
             src={`${import.meta.env.VITE_IMAGE_URL}${media.path}`}
@@ -44,12 +44,14 @@ const MediaItem = ({
       </div>
 
       <div className="p-2">
-        <p className="text-xs font-medium truncate mb-0.5">{media.name}</p>
+        <p className="text-xs font-medium truncate mb-0.5 text-foreground">
+          {media.name}
+        </p>
         <div className="space-x-1">
           {media?.tags?.map((tag: string) => (
             <span
               key={tag}
-              className="inline-flex items-center rounded-full text-[10px] font-medium px-2 py-0.5 border border-primary/15"
+              className="inline-flex items-center rounded-full text-[10px] font-medium px-2 py-0.5 border border-foreground/10 text-foreground/60"
             >
               {tag}
             </span>

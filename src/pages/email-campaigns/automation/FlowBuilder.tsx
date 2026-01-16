@@ -72,11 +72,11 @@ const FlowBuilder = () => {
   const [isActivated, setIsActivated] = useState(false);
 
   return (
-    <div className="bg-background rounded-xl border border-primary/15 p-5">
+    <div className="bg-background rounded-xl border border-foreground/10 p-5">
       <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-5">
         <div className="space-y-4 md:space-y-5">
           {/* Flow Settings Card */}
-          <div className="border border-primary/15 p-4 rounded-xl">
+          <div className="border border-foreground/10 p-4 rounded-xl">
             <h4 className="text-sm font-medium mb-4">Flow Settings</h4>
 
             <div className="space-y-4">
@@ -128,7 +128,7 @@ const FlowBuilder = () => {
           </div>
 
           {/* Flow Steps List */}
-          <div className="border border-primary/15 p-4 rounded-xl space-y-4">
+          <div className="border border-foreground/10 p-4 rounded-xl space-y-4">
             <div className="flex justify-between items-center">
               <h4 className="text-sm font-medium">Flow Steps</h4>
               <Button
@@ -189,9 +189,9 @@ const FlowBuilder = () => {
         </div>
 
         <div className="space-y-3">
-          <div className="border border-primary/15 p-4 rounded-xl space-y-4">
+          <div className="border border-foreground/10 p-4 rounded-xl space-y-4">
             <h4 className="text-sm font-medium">Flow Preview</h4>
-            <div className="border border-gray-100 rounded-lg p-4 bg-gray-50">
+            <div className="border border-foreground/10 rounded-lg p-4 bg-gray-50">
               <div className="flex flex-col items-center gap-3">
                 <div className="text-gray-600 text-4xl">
                   <FiGitBranch />

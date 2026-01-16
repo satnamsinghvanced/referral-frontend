@@ -92,9 +92,11 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
             <ModalHeader className="flex flex-col gap-1 px-4">
               <div className="flex items-center gap-2">
                 <FiFileText className="text-primary text-xl" />
-                <h4 className="text-base font-medium">Bulk Import Referrals</h4>
+                <h4 className="text-base font-medium dark:text-white">
+                  Bulk Import Referrals
+                </h4>
               </div>
-              <p className="text-xs text-gray-500 font-normal">
+              <p className="text-xs text-gray-500 font-normal dark:text-foreground/60">
                 Import multiple referrals at once from a CSV spreadsheet.
                 Download our template to get started.
               </p>
@@ -102,14 +104,14 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
 
             <ModalBody className="py-0 px-4 gap-3">
               {/* Instructions Section */}
-              <div className="border border-blue-200 bg-blue-50/50 rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-2.5 text-gray-900">
+              <div className="border border-blue-200 bg-blue-50/50 dark:bg-blue-900/10 dark:border-blue-500/30 rounded-xl p-4">
+                <div className="flex items-center gap-2 mb-2.5 text-gray-900 dark:text-white">
                   <FiFileText className="size-4" />
-                  <h4 className="font-medium text-sm">
+                  <h4 className="font-medium text-sm dark:text-white">
                     How to import referrals:
                   </h4>
                 </div>
-                <ol className="text-xs text-gray-600 space-y-1.5 list-decimal list-inside pl-1">
+                <ol className="text-xs text-gray-600 dark:text-foreground/60 space-y-1.5 list-decimal list-inside pl-1">
                   <li>Download the CSV template below</li>
                   <li>
                     Fill in your referral data following the example format
@@ -120,16 +122,16 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
               </div>
 
               {/* Download Template Section */}
-              <div className="border border-gray-200 rounded-xl p-4 flex items-center justify-between">
+              <div className="border border-foreground/10 rounded-xl p-4 flex items-center justify-between">
                 <div className="flex items-center gap-2.5">
-                  <div className="size-10 rounded-lg bg-blue-50 text-primary flex items-center justify-center">
+                  <div className="size-10 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-primary dark:text-blue-500 flex items-center justify-center">
                     <FiDownload className="size-5" />
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-sm font-medium text-gray-900 dark:text-white">
                       Download Template
                     </p>
-                    <p className="text-xs text-gray-500 max-w-[150px]">
+                    <p className="text-xs text-gray-500 dark:text-foreground/40 max-w-[150px]">
                       Get our pre-formatted CSV template with example data
                     </p>
                   </div>
@@ -146,10 +148,12 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
               </div>
 
               {/* Upload Section */}
-              <div className="border border-gray-200 rounded-xl p-4 space-y-3">
+              <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
                 <div className="space-y-1">
-                  <h4 className="font-medium text-sm">Upload Your File</h4>
-                  <p className="text-xs text-gray-500">
+                  <h4 className="font-medium text-sm dark:text-white">
+                    Upload Your File
+                  </h4>
+                  <p className="text-xs text-gray-500 dark:text-foreground/40">
                     Accepted formats: CSV, XLS, XLSX
                   </p>
                 </div>
@@ -166,8 +170,8 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
                   onClick={() => fileInputRef.current?.click()}
                   className={`border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center text-center gap-3 transition-all cursor-pointer group ${
                     selectedFile
-                      ? "border-primary bg-primary/5"
-                      : "border-gray-200 bg-gray-50/50 hover:bg-gray-50"
+                      ? "border-primary bg-primary/5 dark:bg-primary/10"
+                      : "border-foreground/10 bg-gray-50/50 dark:bg-white/[0.02] hover:bg-gray-50 dark:hover:bg-white/[0.05]"
                   }`}
                 >
                   {selectedFile ? (
@@ -187,10 +191,10 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
                         </button>
                       </div>
                       <div className="space-y-1">
-                        <p className="text-sm font-medium text-gray-900 truncate max-w-[250px]">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white truncate max-w-[250px]">
                           {selectedFile.name}
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-500 dark:text-foreground/40">
                           {(selectedFile.size / 1024).toFixed(2)} KB
                         </p>
                       </div>
@@ -199,10 +203,10 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
                     <>
                       <FiUploadCloud className="size-8 text-gray-400 group-hover:text-primary transition-colors" />
                       <div className="space-y-1">
-                        <p className="text-sm font-medium text-gray-900">
+                        <p className="text-sm font-medium text-gray-900 dark:text-white">
                           Click to upload or drag and drop
                         </p>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-500 dark:text-foreground/40">
                           CSV, XLS, or XLSX file
                         </p>
                       </div>
@@ -212,8 +216,8 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
               </div>
 
               {/* Requirements Note */}
-              <div className="border border-gray-200 rounded-xl p-4">
-                <h4 className="font-medium text-sm mb-3">
+              <div className="border border-foreground/10 rounded-xl p-4">
+                <h4 className="font-medium text-sm dark:text-white mb-3">
                   Required Fields Reference
                 </h4>
                 <div className="grid grid-cols-2 gap-y-2 gap-x-3">
@@ -226,7 +230,7 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
                   ].map((req, i) => (
                     <div
                       key={i}
-                      className="flex items-center gap-1.5 text-xs text-gray-600"
+                      className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-foreground/60"
                     >
                       <FiCheckCircle className="text-green-500 shrink-0 size-3.5" />
                       <span>{req}</span>

@@ -225,15 +225,17 @@ function GalleryMediaUploadModal({
     >
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1 font-normal px-5 pb-4">
-          <h4 className="text-base font-medium">Select Media</h4>
-          <p className="text-xs text-default-500">
+          <h4 className="text-base font-medium text-foreground">
+            Select Media
+          </h4>
+          <p className="text-xs text-default-500 dark:text-foreground/40">
             Select images or videos from your library or upload new ones.
           </p>
         </ModalHeader>
         <ModalBody className="px-4 md:px-5 py-0">
           <div className="flex flex-col gap-3.5">
             {/* Top Bar: Breadcrumbs & Actions */}
-            <div className="flex flex-wrap items-center justify-between gap-4 border border-default-200 rounded-xl p-3 bg-background">
+            <div className="flex flex-wrap items-center justify-between gap-4 border border-default-200/50 rounded-xl p-3 bg-background">
               <FolderBreadcrumb
                 path={breadcrumbPath}
                 onNavigate={(id: string) => onNavigateFolder(id)}
@@ -245,7 +247,7 @@ function GalleryMediaUploadModal({
                   variant="ghost"
                   startContent={<LuFolderPlus fontSize={15} />}
                   onPress={() => setIsCreateFolderModalOpen(true)}
-                  className="border-small"
+                  className="border-small border-gray-300 dark:border-default-200 text-gray-700 dark:text-foreground/70"
                 >
                   New Folder
                 </Button>
@@ -263,7 +265,7 @@ function GalleryMediaUploadModal({
             </div>
 
             {/* Filters */}
-            <div className="border border-default-200 rounded-xl p-3 bg-background flex flex-col gap-3">
+            <div className="border border-default-200/50 rounded-xl p-3 bg-background flex flex-col gap-3">
               <div className="flex items-center gap-3">
                 <div className="relative flex-1">
                   <Input
@@ -298,7 +300,7 @@ function GalleryMediaUploadModal({
 
               {availableTags && availableTags.length > 0 && (
                 <div className="flex flex-wrap gap-2 items-center">
-                  <span className="text-xs font-medium text-default-500">
+                  <span className="text-xs font-medium text-default-500 dark:text-foreground/60">
                     Tags:
                   </span>
                   {availableTags?.map((tag) => (
@@ -307,7 +309,7 @@ function GalleryMediaUploadModal({
                       className={`text-[11px] px-2 py-0.5 rounded-full cursor-pointer transition-colors border ${
                         currentFilters.tags.includes(tag)
                           ? "bg-primary text-white border-primary"
-                          : "bg-default-100 text-default-600 border-default-200 hover:bg-default-200"
+                          : "bg-default-100 dark:bg-default-100/50 text-default-600 dark:text-foreground/60 border-default-200 hover:bg-default-200 dark:hover:bg-default-100"
                       }`}
                       onClick={() => handleToggleTag(tag)}
                     >
@@ -330,9 +332,9 @@ function GalleryMediaUploadModal({
             <div className="space-y-3.5">
               {/* Folders Section */}
               {subfolders && subfolders.length > 0 && (
-                <Card className="shadow-none border border-default-200">
+                <Card className="shadow-none border border-default-200/50 bg-content1">
                   <CardHeader className="p-3 pb-0">
-                    <h5 className="text-small font-medium flex items-center gap-2">
+                    <h5 className="text-small font-medium flex items-center gap-2 text-foreground">
                       <FaRegFolder /> Folders
                     </h5>
                   </CardHeader>
@@ -341,16 +343,16 @@ function GalleryMediaUploadModal({
                       {subfolders.map((folder: any) => (
                         <div
                           key={folder._id}
-                          className="flex flex-col items-center justify-center p-3 border border-default-200 rounded-lg cursor-pointer hover:bg-default-100 transition-colors"
+                          className="flex flex-col items-center justify-center p-3 border border-default-200 rounded-lg cursor-pointer hover:bg-default-100 dark:hover:bg-default-100/50 transition-colors"
                           onClick={() =>
                             onNavigateFolder(folder._id, folder.name)
                           }
                         >
                           <LuFolderOpen className="text-blue-500 text-2xl mb-1" />
-                          <span className="text-xs font-medium truncate w-full text-center">
+                          <span className="text-xs font-medium truncate w-full text-center text-foreground">
                             {folder.name}
                           </span>
-                          <span className="text-[10px] text-default-400">
+                          <span className="text-[10px] text-default-400 dark:text-foreground/40">
                             {folder.totalItems} items
                           </span>
                         </div>
@@ -361,9 +363,9 @@ function GalleryMediaUploadModal({
               )}
 
               {/* Media Section */}
-              <Card className="shadow-none border border-default-200 min-h-[200px]">
+              <Card className="shadow-none border border-default-200/50 min-h-[200px] bg-content1">
                 <CardHeader className="p-3 pb-0 flex justify-between items-center">
-                  <h5 className="text-small font-medium flex items-center gap-2">
+                  <h5 className="text-small font-medium flex items-center gap-2 text-foreground">
                     <FiImage /> Media ({currentFolderMedia.length})
                   </h5>
                 </CardHeader>
@@ -371,9 +373,9 @@ function GalleryMediaUploadModal({
                   {isFoldersLoading || isLoadingMedia ? (
                     <LoadingState />
                   ) : currentFolderMedia.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-40 text-default-400">
-                      <FiImage className="text-4xl mb-2 opacity-30" />
-                      <p className="text-small">
+                    <div className="flex flex-col items-center justify-center h-40 text-default-400 dark:text-foreground/20">
+                      <FiImage className="text-4xl mb-2 opacity-30 text-gray-400 dark:text-foreground/30" />
+                      <p className="text-small text-gray-500 dark:text-foreground/40">
                         No media found in {currentFolderName}.
                       </p>
                     </div>
@@ -407,7 +409,7 @@ function GalleryMediaUploadModal({
             variant="ghost"
             color="default"
             onPress={onClose}
-            className="border-small"
+            className="border-small border-gray-300 dark:border-default-200 text-gray-700 dark:text-foreground/70"
           >
             Cancel
           </Button>

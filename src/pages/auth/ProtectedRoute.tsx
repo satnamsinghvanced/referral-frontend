@@ -14,16 +14,17 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 
   if (isLoading) {
     return (
-      <div className="bg-background flex items-center justify-center p-4">
-        <FiLoader className="animate-spin h-6 w-6 text-primary" />
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 gap-4">
+        <FiLoader className="animate-spin h-8 w-8 text-primary" />
+        <p className="text-sm text-foreground/60 animate-pulse">
+          Loading your session...
+        </p>
       </div>
     );
   }
 
   if (!isAuthenticated) {
-    return (
-      <Navigate to="/signin" replace />
-    );
+    return <Navigate to="/signin" replace />;
   }
 
   return <>{children}</>;

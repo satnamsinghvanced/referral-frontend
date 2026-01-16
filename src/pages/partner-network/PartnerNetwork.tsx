@@ -211,17 +211,17 @@ const PartnerNetwork = () => {
           <div className="space-y-5">
             {/* --- STOPPED REFERRALS ALERT BOX --- */}
             {stoppedReferring.length > 0 && (
-              <div className="bg-red-50 border border-red-100 rounded-xl p-4 space-y-3.5">
+              <div className="bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-500/30 rounded-xl p-4 space-y-3.5">
                 <div className="flex items-start gap-2.5">
-                  <div className="p-2 bg-red-100 rounded-full">
-                    <FiAlertTriangle className="text-red-500 size-5" />
+                  <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-full">
+                    <FiAlertTriangle className="text-red-500 dark:text-red-400 size-5" />
                   </div>
                   <div className="space-y-0.5">
-                    <h4 className="text-red-900 font-medium text-sm">
+                    <h4 className="text-red-900 dark:text-red-200 font-medium text-sm">
                       Referrer Alert: {stoppedReferring.length} Partners Stopped
                       Referring
                     </h4>
-                    <p className="text-red-700 text-xs">
+                    <p className="text-red-700 dark:text-red-300/80 text-xs">
                       Your top-tier partners have not sent any referrals in over
                       2 months. Immediate action recommended.
                     </p>
@@ -232,13 +232,13 @@ const PartnerNetwork = () => {
                   {stoppedReferring.map((partner, index) => (
                     <div
                       key={index}
-                      className="bg-white border border-red-200 rounded-lg p-2.5 flex items-center justify-between"
+                      className="bg-white dark:bg-default-100/20 border border-red-200 dark:border-red-500/30 rounded-lg p-2.5 flex items-center justify-between"
                     >
                       <div className="space-y-0.5">
-                        <p className="font-medium text-sm text-red-900">
+                        <p className="font-medium text-sm text-red-900 dark:text-red-200">
                           {partner.name}
                         </p>
-                        <p className="text-xs text-red-700">
+                        <p className="text-xs text-red-700 dark:text-red-300/80">
                           Last referral:{" "}
                           {new Date(
                             partner.lastReferralDate
@@ -251,7 +251,7 @@ const PartnerNetwork = () => {
                         radius="sm"
                         variant="bordered"
                         color="danger"
-                        className="bg-white border-small"
+                        className="bg-white dark:bg-default-100/20 border-small dark:border-red-500/30 text-red-600 dark:text-red-400"
                         startContent={<FiBell className="size-3.5" />}
                         onPress={() => handleAlertAction(partner.name)}
                       >
@@ -264,7 +264,7 @@ const PartnerNetwork = () => {
             )}
 
             {/* --- PARTNER PRACTICES LIST --- */}
-            <div className="bg-background flex flex-col gap-4 border border-primary/15 rounded-xl p-4">
+            <div className="bg-background flex flex-col gap-4 border border-foreground/10 rounded-xl p-4 shadow-none">
               <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">
                   <h4 className="font-medium text-sm">Partner Practices</h4>
@@ -282,7 +282,7 @@ const PartnerNetwork = () => {
                       }
                       className="text-xs min-w-fit"
                       startContent={
-                        <FiSearch className="text-gray-400 h-4 w-4" />
+                        <FiSearch className="text-gray-400 dark:text-foreground/40 h-4 w-4" />
                       }
                       fullWidth
                     />
@@ -310,7 +310,7 @@ const PartnerNetwork = () => {
                   <div className="flex items-center justify-between gap-3">
                     <div className="flex items-center gap-3">
                       <div className="flex items-center gap-2 col-span-4 md:col-span-auto">
-                        <span className="text-xs text-gray-600 whitespace-nowrap max-md:hidden">
+                        <span className="text-xs text-gray-600 dark:text-foreground/60 whitespace-nowrap max-md:hidden">
                           Sort by:
                         </span>
                         <Select
@@ -352,13 +352,13 @@ const PartnerNetwork = () => {
                             ? "Sort Ascending"
                             : "Sort Descending"
                         }
-                        className="border-small col-span-2 md:min-w-auto"
+                        className="border-small dark:border-default-200 col-span-2 md:min-w-auto dark:text-foreground/80"
                       >
                         {sortOrder === "asc" ? <GrAscend /> : <GrDescend />}
                       </Button>
                     </div>
                     {stats?.totalPages && stats.totalPages > 1 && (
-                      <p className="text-xs text-gray-600">
+                      <p className="text-xs text-gray-600 dark:text-foreground/60">
                         {`Showing ${params.limit * (params.page - 1) + 1} - ${
                           params.limit * params.page > totalPractices
                             ? totalPractices

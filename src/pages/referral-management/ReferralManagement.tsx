@@ -303,7 +303,7 @@ const ReferralManagement = () => {
     <>
       <ComponentContainer headingData={HEADING_DATA as any}>
         <div className="flex flex-col gap-4 md:gap-5">
-          <div className="bg-primary/10 rounded-full w-full">
+          <div className="">
             <Tabs
               selectedKey={selectedReferralType}
               onSelectionChange={handleReferralTypeChange}
@@ -311,11 +311,14 @@ const ReferralManagement = () => {
               variant="light"
               radius="full"
               classNames={{
-                tabList: "flex w-full rounded-full",
-                tab: "flex-1 px-4 py-1 text-sm font-medium transition-all",
-                cursor: "rounded-full",
+                base: "bg-primary/15 dark:bg-background rounded-full p-1 w-full",
+                tabList: "flex w-full rounded-full p-0 gap-0",
+                tab: "flex-1 h-9 text-sm font-medium transition-all",
+                cursor: "rounded-full bg-white dark:bg-primary",
+                tabContent:
+                  "dark:group-data-[selected=true]:text-primary-foreground text-default-500 dark:text-foreground/60 transition-colors",
               }}
-              className="text-background w-full"
+              className="w-full"
             >
               {[
                 { title: "Referrals", className: "tour-step-referrals-tab" },
@@ -328,7 +331,7 @@ const ReferralManagement = () => {
                 <Tab
                   key={role.title}
                   title={role.title}
-                  className={`rounded-full data-[selected=true]:bg-background data-[selected=true]:text-black data-[selected=false]:text-white w-full border-0 ${role.className}`}
+                  className={role.className}
                 />
               ))}
             </Tabs>
@@ -375,7 +378,7 @@ const ReferralManagement = () => {
                     ))}
                   </div>
 
-                  <Card className="shadow-none border border-primary/15">
+                  <Card className="shadow-none border border-foreground/10 bg-background">
                     <CardHeader className="p-4 pb-0">
                       <p className="font-medium text-sm">Status Breakdown</p>
                     </CardHeader>
@@ -387,7 +390,7 @@ const ReferralManagement = () => {
                           {STATUS_BREAKDOWN.map((statusItem) => (
                             <div
                               key={statusItem.status}
-                              className="flex items-center justify-between bg-gray-50 hover:bg-gray-100 p-2.5 rounded-lg cursor-pointer"
+                              className="flex items-center justify-between bg-gray-50 hover:bg-gray-100 dark:bg-content1 dark:hover:bg-white/[0.05] p-2.5 rounded-lg cursor-pointer"
                               onClick={() => {
                                 setIsFilterViewActive(true);
                                 setCurrentFilters((prev) => ({
@@ -398,7 +401,7 @@ const ReferralManagement = () => {
                               }}
                             >
                               <ReferralStatusChip status={statusItem.status} />
-                              <span className="text-sm">
+                              <span className="text-sm dark:text-foreground">
                                 {statusItem.count}
                               </span>
                             </div>
@@ -408,7 +411,7 @@ const ReferralManagement = () => {
                     </CardBody>
                   </Card>
 
-                  <div className="px-4 border-primary/15 border rounded-xl bg-background">
+                  <div className="px-4 border-foreground/10 border rounded-xl bg-background">
                     <div className="flex flex-wrap items-center gap-3 w-full rounded-md py-4">
                       <Input
                         size="sm"
@@ -436,7 +439,7 @@ const ReferralManagement = () => {
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-4 border border-primary/15 rounded-xl p-4 bg-background">
+                  <div className="flex flex-col gap-4 border border-foreground/10 rounded-xl p-4 bg-background">
                     <p className="font-medium text-sm">Recent Referrals</p>
                     {isLoadingReferrals || isFetchingReferrals ? (
                       <LoadingState />
@@ -489,7 +492,7 @@ const ReferralManagement = () => {
 
           {/* --- REFERRERS TAB --- */}
           {selectedReferralType === "Referrers" && (
-            <div className="flex flex-col gap-4 border border-primary/15 rounded-xl p-4 bg-background w-full">
+            <div className="flex flex-col gap-4 border border-foreground/10 rounded-xl p-4 bg-background w-full">
               <div className="flex flex-col gap-4">
                 <p className="font-medium text-sm">Referrer Management</p>
                 <div className="flex-1">
@@ -507,7 +510,10 @@ const ReferralManagement = () => {
                     }
                     className="text-xs"
                     startContent={
-                      <IoSearch size={18} className="text-gray-400" />
+                      <IoSearch
+                        size={18}
+                        className="text-gray-400 dark:text-foreground/40"
+                      />
                     }
                   />
                 </div>

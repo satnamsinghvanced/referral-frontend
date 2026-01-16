@@ -30,7 +30,7 @@ const CampaignSidebar: React.FC<CampaignSidebarProps> = ({
   onStepChange,
 }) => {
   return (
-    <nav className="w-64 flex-shrink-0 bg-gray-50 p-4 border-r border-gray-200">
+    <nav className="w-64 flex-shrink-0 bg-gray-50 p-4 border-r border-foreground/10">
       <ul role="list" className="space-y-2  ">
         {steps.map((step) => {
           const isCurrent = step.id === currentStep;
@@ -76,11 +76,7 @@ const CampaignSidebar: React.FC<CampaignSidebarProps> = ({
                   )}
                 </div>
 
-                <span
-                  className={clsx(
-                    isCompleted ? "text-green-700" : ""
-                  )}
-                >
+                <span className={clsx(isCompleted ? "text-green-700" : "")}>
                   {step.name}
                 </span>
               </button>

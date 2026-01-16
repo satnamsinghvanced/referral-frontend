@@ -17,11 +17,13 @@ const DetailItem: React.FC<{ label: string; value: React.ReactNode }> = ({
   value,
 }) => (
   <div className="flex flex-col items-start">
-    <label className="text-xs font-medium mb-1 block text-gray-700">
+    <label className="text-xs font-medium mb-1 block text-gray-700 dark:text-foreground/70">
       {label}
     </label>
     {typeof value === "string" ? (
-      <p className="text-xs text-gray-600">{value || "N/A"}</p>
+      <p className="text-xs text-gray-600 dark:text-foreground/50">
+        {value || "N/A"}
+      </p>
     ) : (
       value
     )}
@@ -68,7 +70,7 @@ export function ActivityDetailModal({
         <ModalHeader className="flex flex-col gap-2 text-center sm:text-left flex-shrink-0 p-0 font-normal">
           <h4
             data-slot="dialog-title"
-            className="text-base leading-none font-medium flex items-center gap-2"
+            className="text-base leading-none font-medium flex items-center gap-2 text-foreground"
           >
             {activity.title}
             {activity.status && (
@@ -81,7 +83,7 @@ export function ActivityDetailModal({
               />
             )}
           </h4>
-          <p className="text-gray-600 text-xs">
+          <p className="text-gray-600 dark:text-foreground/60 text-xs">
             View and manage details for this marketing activity including
             scheduling, budget, performance metrics, and engagement data.
           </p>
@@ -152,7 +154,7 @@ export function ActivityDetailModal({
               size="sm"
               radius="sm"
               onPress={onClose}
-              className="border-small"
+              className="border-small border-gray-300 text-gray-700 dark:text-foreground/70 hover:bg-gray-50 dark:hover:bg-default-100"
             >
               Close
             </Button>

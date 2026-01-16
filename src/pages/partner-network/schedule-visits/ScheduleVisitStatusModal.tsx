@@ -95,8 +95,12 @@ const ScheduleVisitStatusModal = ({
     >
       <ModalContent>
         <ModalHeader className="flex-col px-5 font-normal space-y-1">
-          <h2 className="text-base font-medium">{modalTitle}</h2>
-          <p className="text-xs text-gray-600">{modalDescription}</p>
+          <h2 className="text-base font-medium text-foreground">
+            {modalTitle}
+          </h2>
+          <p className="text-xs text-gray-600 dark:text-foreground/60">
+            {modalDescription}
+          </p>
         </ModalHeader>
 
         {/* Dialog Body */}
@@ -221,7 +225,7 @@ const ScheduleVisitStatusModal = ({
                   type="button"
                   variant="ghost"
                   onPress={onClose}
-                  className="border-small"
+                  className="border-small dark:border-default-200 dark:text-foreground/70"
                 >
                   Cancel
                 </Button>

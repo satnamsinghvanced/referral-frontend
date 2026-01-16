@@ -145,11 +145,11 @@ export default function SocialMedia() {
   }, [data]);
 
   const renderConnectionWarning = () => (
-    <div className="flex flex-col items-center justify-center p-10 bg-background border border-primary/15 rounded-xl space-y-4">
+    <div className="flex flex-col items-center justify-center p-10 bg-background border border-foreground/10 rounded-xl space-y-4">
       <div className="text-4xl text-warning">⚠️</div>
       <div className="text-center">
         <h3 className="text-lg font-semibold">No Platforms Integrated</h3>
-        <p className="text-sm text-gray-600">
+        <p className="text-sm text-gray-600 dark:text-foreground/60">
           Please integrate at least one social media platform to view statistics
           and start posting.
         </p>
@@ -160,55 +160,62 @@ export default function SocialMedia() {
   return (
     <ComponentContainer headingData={HEADING_DATA}>
       <div className="flex flex-col gap-4 md:gap-5">
-        <Tabs
-          aria-label="Options"
-          classNames={{
-            tabList: "flex w-full rounded-full bg-primary/10 text-xs",
-            tab: "flex-1 text-sm font-medium transition-all",
-            cursor: "rounded-full text-sm",
-            panel: "p-0",
-          }}
-          className="text-background w-full"
-          selectedKey={activeTab}
-          onSelectionChange={(key) => setActiveTab(key as string)}
-        >
-          <Tab key="overview" title="Overview">
-            {isLoading ? (
-              <div className="min-h-[250px] flex items-center justify-center">
-                <LoadingState />
-              </div>
-            ) : !isAnyPlatformConnected ? (
-              renderConnectionWarning()
-            ) : (
-              <Overview
-                platforms={platformsData}
-                recentPerformance={recentPerformance}
-                contentCalendar={contentCalendar}
-                stats={overviewStats}
-              />
-            )}
-          </Tab>
+        <div className="space-y-5">
+          <Tabs
+            aria-label="Options"
+            variant="light"
+            radius="full"
+            classNames={{
+              base: "bg-primary/15 dark:bg-background rounded-full p-1 w-full",
+              tabList: "flex w-full rounded-full p-0 gap-0",
+              tab: "flex-1 h-9 text-sm font-medium transition-all",
+              cursor: "rounded-full bg-white dark:bg-primary",
+              tabContent:
+                "dark:group-data-[selected=true]:text-primary-foreground text-default-500 dark:text-foreground/60 transition-colors",
+              panel: "p-0",
+            }}
+            className="w-full"
+            selectedKey={activeTab}
+            onSelectionChange={(key) => setActiveTab(key as string)}
+          >
+            <Tab key="overview" title="Overview">
+              {isLoading ? (
+                <div className="min-h-[250px] flex items-center justify-center">
+                  <LoadingState />
+                </div>
+              ) : !isAnyPlatformConnected ? (
+                renderConnectionWarning()
+              ) : (
+                <Overview
+                  platforms={platformsData}
+                  recentPerformance={recentPerformance}
+                  contentCalendar={contentCalendar}
+                  stats={overviewStats}
+                />
+              )}
+            </Tab>
 
-          <Tab key="posts" title="Posts">
-            {!isLoading && !isAnyPlatformConnected ? (
-              renderConnectionWarning()
-            ) : (
-              <Posts />
-            )}
-          </Tab>
+            <Tab key="posts" title="Posts">
+              {!isLoading && !isAnyPlatformConnected ? (
+                renderConnectionWarning()
+              ) : (
+                <Posts />
+              )}
+            </Tab>
 
-          <Tab key="analytics" title="Analytics">
-            {!isLoading && !isAnyPlatformConnected ? (
-              renderConnectionWarning()
-            ) : (
-              <Analytics />
-            )}
-          </Tab>
+            <Tab key="analytics" title="Analytics">
+              {!isLoading && !isAnyPlatformConnected ? (
+                renderConnectionWarning()
+              ) : (
+                <Analytics />
+              )}
+            </Tab>
 
-          <Tab key="platform" title="Platform">
-            <Platforms />
-          </Tab>
-        </Tabs>
+            <Tab key="platform" title="Platform">
+              <Platforms />
+            </Tab>
+          </Tabs>
+        </div>
       </div>
 
       <CreatePostModal

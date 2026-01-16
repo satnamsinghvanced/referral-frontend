@@ -81,43 +81,50 @@ const EmailCampaigns = () => {
               <MiniStatsCard key={i} cardData={data} />
             ))}
           </div>
-          <Tabs
-            aria-label="Options"
-            selectedKey={activeTab}
-            onSelectionChange={(key) => setActiveTab(key as string)}
-            classNames={{
-              tabList: "flex w-full rounded-full bg-primary/10 text-xs",
-              tab: "flex-1 text-sm font-medium transition-all",
-              cursor: "rounded-full text-xs",
-              panel: "p-0",
-            }}
-            className="text-background w-full text-xs"
-          >
-            <Tab key="overview" title="Overview">
-              <Overview
-                setIsActionModalOpen={setIsActionModalOpen}
-                setActiveTab={setActiveTab}
-              />
-            </Tab>
+          <div className="space-y-5">
+            <Tabs
+              aria-label="Options"
+              selectedKey={activeTab}
+              onSelectionChange={(key) => setActiveTab(key as string)}
+              variant="light"
+              radius="full"
+              classNames={{
+                base: "bg-primary/15 dark:bg-background rounded-full p-1 w-full",
+                tabList: "flex w-full rounded-full p-0 gap-0",
+                tab: "flex-1 h-9 text-sm font-medium transition-all",
+                cursor: "rounded-full bg-white dark:bg-primary",
+                tabContent:
+                  "dark:group-data-[selected=true]:text-primary-foreground text-default-500 dark:text-foreground/60 transition-colors",
+                panel: "p-0",
+              }}
+              className="w-full"
+            >
+              <Tab key="overview" title="Overview">
+                <Overview
+                  setIsActionModalOpen={setIsActionModalOpen}
+                  setActiveTab={setActiveTab}
+                />
+              </Tab>
 
-            <Tab key="campaigns" title="Campaigns">
-              <Campaigns />
-            </Tab>
+              <Tab key="campaigns" title="Campaigns">
+                <Campaigns />
+              </Tab>
 
-            <Tab key="automation" title="Automation">
-              <Automation />
-            </Tab>
+              <Tab key="automation" title="Automation">
+                <Automation />
+              </Tab>
 
-            <Tab key="templates" title="Templates">
-              <Templates />
-            </Tab>
-            <Tab key="audiences" title="Audiences">
-              <Audiences />
-            </Tab>
-            <Tab key="analytics" title="Analytics">
-              <Analytics />
-            </Tab>
-          </Tabs>
+              <Tab key="templates" title="Templates">
+                <Templates />
+              </Tab>
+              <Tab key="audiences" title="Audiences">
+                <Audiences />
+              </Tab>
+              <Tab key="analytics" title="Analytics">
+                <Analytics />
+              </Tab>
+            </Tabs>
+          </div>
         </div>
       </ComponentContainer>
 

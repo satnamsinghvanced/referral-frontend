@@ -36,7 +36,7 @@ const General: React.FC = () => {
   };
 
   return (
-    <Card className="rounded-xl shadow-none border border-foreground/10">
+    <Card className="rounded-xl shadow-none border border-foreground/10 bg-background">
       <CardHeader className="flex items-center gap-2 px-4 pt-4 pb-1">
         <FiSettings className="size-5" />
         <h4 className="text-base">General Settings</h4>
@@ -131,8 +131,9 @@ const General: React.FC = () => {
             </Button>
             <Button
               size="sm"
-              variant="bordered"
-              className="border-small border-red-700 bg-red-700 text-white"
+              variant="solid"
+              color="danger"
+              className="font-medium"
             >
               Delete Account
             </Button>

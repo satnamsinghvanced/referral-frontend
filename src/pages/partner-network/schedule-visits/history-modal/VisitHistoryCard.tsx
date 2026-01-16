@@ -16,7 +16,7 @@ const VisitHistoryCard = ({ visit, onView }: any) => {
   return (
     <Card
       data-slot="card"
-      className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-primary/15 shadow-none"
+      className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-foreground/10 dark:bg-background/50 shadow-none"
     >
       <CardBody data-slot="card-content" className="p-4">
         <div className="flex items-start justify-between">
@@ -30,14 +30,14 @@ const VisitHistoryCard = ({ visit, onView }: any) => {
                     <Chip
                       size="sm"
                       radius="sm"
-                      className="bg-green-50 text-green-700 border border-green-100 h-5 text-[11px] !px-1.5"
+                      className="bg-green-50 text-green-700 border border-green-100 dark:bg-green-900/20 dark:text-green-400 dark:border-green-500/30 h-5 text-[11px] !px-1.5"
                       startContent={<LuRoute className="h-3 w-3" />}
                     >
                       Optimized
                     </Chip>
                   )}
                 </div>
-                <h4 className="text-sm font-medium text-gray-900 mb-2">
+                <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-2">
                   {visit.planDetails.name}
                 </h4>
               </div>
@@ -51,7 +51,7 @@ const VisitHistoryCard = ({ visit, onView }: any) => {
                 <FiEye className="size-3.5" />
               </Button>
             </div>
-            <div className="grid grid-cols-2 gap-2 text-xs text-gray-600">
+            <div className="grid grid-cols-2 gap-2 text-xs text-gray-600 dark:text-foreground/60">
               <div className="flex items-center gap-1">
                 <LuCalendar className="min-h-3.5 min-w-3.5 size-3.5" />
                 {formatDateToReadable(visit.route.date)}
@@ -70,14 +70,14 @@ const VisitHistoryCard = ({ visit, onView }: any) => {
               </div>
             </div>
             <div className="mt-3">
-              <p className="text-xs text-gray-700">
+              <p className="text-xs text-gray-700 dark:text-foreground/80">
                 <span className="font-medium">Visited: </span>
                 {visit.route.routeDetails
                   .map((route: any) => route.name)
                   .join(", ")}
               </p>
             </div>
-            <div className="mt-2 text-xs text-gray-600">
+            <div className="mt-2 text-xs text-gray-600 dark:text-foreground/60">
               <LuCar className="min-h-4 min-w-4 size-4 inline mr-1" />
               {visit.route.estimatedDistance} traveled
             </div>

@@ -61,6 +61,9 @@ export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
               isInvalid={!!errors.planName}
               errorMessage={errors.planName}
               isRequired
+              classNames={{
+                label: "dark:text-foreground/60",
+              }}
             />
           </div>
 
@@ -77,13 +80,15 @@ export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
               onSelectionChange={(keys: any) =>
                 handleSelectChange("defaultVisitPurpose", keys)
               }
-              startContent={<RxTarget className="size-4 text-gray-500" />}
+              startContent={
+                <RxTarget className="size-4 text-gray-500 dark:text-foreground/60" />
+              }
               isInvalid={!!errors.defaultVisitPurpose}
               errorMessage={errors.defaultVisitPurpose}
               isRequired
               classNames={{
                 base: "!mt-0 gap-2",
-                label: "!translate-0 !static",
+                label: "!translate-0 !static dark:text-foreground/60",
               }}
             >
               {PURPOSE_OPTIONS.map((opt: any) => (
@@ -109,6 +114,9 @@ export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
                 }
                 isInvalid={!!errors.customVisitPurpose}
                 errorMessage={errors.customVisitPurpose}
+                classNames={{
+                  label: "dark:text-foreground/60",
+                }}
               />
             </div>
           )}
@@ -127,14 +135,14 @@ export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
                 handleSelectChange("defaultPriority", keys)
               }
               startContent={
-                <RiErrorWarningLine className="size-4 text-gray-500" />
+                <RiErrorWarningLine className="size-4 text-gray-500 dark:text-foreground/60" />
               }
               isInvalid={!!errors.defaultPriority}
               errorMessage={errors.defaultPriority}
               isRequired
               classNames={{
                 base: "!mt-0 gap-2",
-                label: "!translate-0 !static",
+                label: "!translate-0 !static dark:text-foreground/60",
               }}
             >
               {PRIORITY_LEVELS.map((level) => {
@@ -150,6 +158,9 @@ export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
               onStateChange("enableAutoRoute", checked)
             }
             size="sm"
+            classNames={{
+              label: "dark:text-foreground/60",
+            }}
           >
             Enable automatic route optimization
           </Checkbox>
@@ -166,36 +177,43 @@ export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
             minRows={3}
             value={planState.description}
             onChange={(e) => onStateChange("description", e.target.value)}
+            classNames={{
+              label: "dark:text-foreground/60",
+            }}
           />
 
           {data && (
-            <Card className="shadow-none border border-primary/15 bg-blue-50/20">
+            <Card className="shadow-none border border-foreground/10 bg-blue-50/20 dark:bg-blue-900/10 dark:border-blue-500/30">
               <CardBody className="p-4 space-y-2">
-                <p className="font-medium text-sm mb-2">Plan Summary</p>
+                <p className="font-medium text-sm mb-2 dark:text-white">
+                  Plan Summary
+                </p>
                 <div className="text-xs space-y-2">
-                  <p className="flex justify-between">
+                  <p className="flex justify-between dark:text-foreground/60">
                     <span>Selected Referrers:</span>{" "}
-                    <span className="font-medium">
+                    <span className="font-medium dark:text-white">
                       {selectedReferrerObjects.length}
                     </span>
                   </p>
-                  <p className="flex justify-between">
+                  <p className="flex justify-between dark:text-foreground/60">
                     <span>Estimated Total Time:</span>{" "}
-                    <span className="font-medium">
+                    <span className="font-medium dark:text-white">
                       {data?.estimatedTotalTime}
                     </span>
                   </p>
-                  <p className="flex justify-between">
+                  <p className="flex justify-between dark:text-foreground/60">
                     <span>Estimated Distance:</span>{" "}
-                    <span className="font-medium">
+                    <span className="font-medium dark:text-white">
                       {data?.estimatedDistance}
                     </span>
                   </p>
-                  <p className="flex justify-between">
+                  <p className="flex justify-between dark:text-foreground/60">
                     <span>Mileage Cost (IRS Rate):</span>{" "}
-                    <span className="font-medium">{data?.mileageCost}</span>
+                    <span className="font-medium dark:text-white">
+                      {data?.mileageCost}
+                    </span>
                   </p>
-                  <p className="pt-3 mt-3 border-t border-primary/15 text-gray-500">
+                  <p className="pt-3 mt-3 border-t border-foreground/10 text-gray-500 dark:text-foreground/40">
                     * Estimates based on {planState.durationPerVisit} per visit
                     and route optimization
                   </p>

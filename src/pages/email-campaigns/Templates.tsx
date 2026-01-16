@@ -111,7 +111,7 @@ const Templates: React.FC = () => {
 
   return (
     <div className="space-y-4 md:space-y-5">
-      <div className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-primary/15 bg-background">
+      <div className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-foreground/10 bg-background">
         <div data-slot="card-content" className="p-4">
           <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-5 gap-3">
             <div className="relative">
@@ -208,7 +208,7 @@ const Templates: React.FC = () => {
         {TEMPLATES.map((template) => (
           <div
             key={template.id}
-            className="bg-background border border-primary/15 rounded-xl overflow-hidden"
+            className="bg-background border border-foreground/10 rounded-xl overflow-hidden"
           >
             <div className="relative h-48 bg-gray-200 overflow-hidden">
               <div className="absolute inset-0 flex items-center justify-center text-gray-500 font-medium">
@@ -244,7 +244,7 @@ const Templates: React.FC = () => {
                 {template.tags.slice(0, 3).map((tag) => (
                   <span
                     key={tag}
-                    className="border border-primary/15 text-[11px] rounded-md px-1.5 py-0.5"
+                    className="border border-foreground/10 text-[11px] rounded-md px-1.5 py-0.5"
                   >
                     {tag.charAt(0).toUpperCase() + tag.slice(1)}
                   </span>

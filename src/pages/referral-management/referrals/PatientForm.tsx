@@ -245,7 +245,7 @@ const PatientForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 dark:from-background dark:to-background flex items-center justify-center">
       {isUserLoading ? (
         <div className="flex items-center justify-center p-4">
           <FiLoader className="animate-spin size-8 text-primary" />
@@ -254,12 +254,12 @@ const PatientForm = () => {
         <NotFoundPage />
       ) : (
         <div className="max-w-3xl w-full mx-auto max-lg:py-5 max-lg:px-4">
-          <Card className="shadow-sm mb-5 border-0">
+          <Card className="shadow-sm mb-5 border-0 dark:bg-background">
             <CardBody className="p-0">
-              <div className="flex justify-between items-center text-sm bg-gradient-to-l from-green-600 to-blue-600 m-0 px-5 py-4 text-background">
+              <div className="flex justify-between items-center text-sm bg-gradient-to-l from-green-600 to-blue-600 dark:from-green-900 dark:to-blue-900 m-0 px-5 py-4 text-background dark:text-white">
                 <div>
                   {fetchedUser?.practiceName && (
-                    <h1 className="text-base font-medium mb-1">
+                    <h1 className="text-base font-medium mb-1 dark:text-white">
                       {fetchedUser?.practiceName}
                     </h1>
                   )}
@@ -273,7 +273,7 @@ const PatientForm = () => {
                   {fetchedUser?.phone && (
                     <Link
                       to={`tel:${fetchedUser?.phone}`}
-                      className="flex items-center justify-center gap-1.5"
+                      className="flex items-center justify-center gap-1.5 dark:hover:text-blue-400"
                     >
                       <RiPhoneFill className="text-lg" />
                       {fetchedUser?.phone}
@@ -284,7 +284,7 @@ const PatientForm = () => {
 
               {fetchedUser?.practiceName && (
                 <div className="px-5 py-4">
-                  <p className="text-sm font-medium">
+                  <p className="text-sm font-medium dark:text-white">
                     {`Referred by ${fetchedUser?.firstName} ${
                       fetchedUser?.lastName
                     } ${
@@ -293,7 +293,7 @@ const PatientForm = () => {
                     }`}
                   </p>
                   {fetchedUser?.medicalSpecialty && (
-                    <p className="text-xs text-gray-600 mt-1">
+                    <p className="text-xs text-gray-600 dark:text-foreground/60 mt-1">
                       Specialty in {fetchedUser?.medicalSpecialty?.title}
                     </p>
                   )}
@@ -302,14 +302,14 @@ const PatientForm = () => {
             </CardBody>
           </Card>
 
-          <Card className="shadow-sm border-0">
+          <Card className="shadow-sm border-0 dark:bg-background">
             <CardBody className="p-5">
               <div className="mb-5">
-                <h2 className="text-base font-medium mb-1.5 flex items-center gap-1.5">
+                <h2 className="text-base font-medium mb-1.5 flex items-center gap-1.5 dark:text-white">
                   <FaRegStar className="text-yellow-500 text-lg" /> Schedule
                   Your Orthodontic Consultation
                 </h2>
-                <p className="text-left text-gray-600 text-xs">
+                <p className="text-left text-gray-600 dark:text-foreground/60 text-xs">
                   Please fill out the form below and we'll contact you to
                   schedule your appointment.
                 </p>
@@ -576,10 +576,15 @@ const PatientForm = () => {
           </Card>
 
           <div>
-            <p className="text-center mt-5 text-xs leading-relaxed">
+            <p className="text-center mt-5 text-xs leading-relaxed dark:text-foreground/40">
               Questions? Call us directly at{" "}
-              <span className="font-medium">+1 (555) 123-4567</span> or visit{" "}
-              <span className="font-medium">www.orthodontics.com</span>
+              <span className="font-medium dark:text-foreground/60">
+                +1 (555) 123-4567
+              </span>{" "}
+              or visit{" "}
+              <span className="font-medium dark:text-foreground/60">
+                www.orthodontics.com
+              </span>
             </p>
           </div>
         </div>

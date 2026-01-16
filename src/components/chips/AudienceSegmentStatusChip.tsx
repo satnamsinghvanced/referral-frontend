@@ -10,11 +10,13 @@ export default function AudienceSegmentStatusChip({
 
   switch (status) {
     case "inactive":
-      classNames = "bg-yellow-100 text-yellow-800 border-yellow-200";
+      classNames =
+        "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800";
       break;
 
     default:
-      classNames = "bg-green-100 text-green-800 border-green-200";
+      classNames =
+        "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-200 dark:border-green-800";
       break;
   }
 

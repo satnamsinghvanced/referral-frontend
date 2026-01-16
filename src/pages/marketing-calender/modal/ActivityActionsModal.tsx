@@ -167,9 +167,11 @@ export default function ActivityActionsModal({
       <ModalContent className="p-5">
         <ModalHeader className="flex flex-col gap-2 text-center sm:text-left flex-shrink-0 p-0">
           <div className="flex items-center space-x-2">
-            <h4 className="text-base leading-none font-medium">{modalTitle}</h4>
+            <h4 className="text-base leading-none font-medium text-foreground">
+              {modalTitle}
+            </h4>
           </div>
-          <p className="text-gray-600 text-xs font-normal">
+          <p className="text-gray-600 dark:text-foreground/60 text-xs font-normal">
             Schedule a new marketing activity such as social media posts, email
             campaigns, referral activities, or promotional events.
           </p>
@@ -328,7 +330,7 @@ export default function ActivityActionsModal({
                 isInvalid={!!hasError("endDate")}
               />
 
-              <div className="text-[11px] text-gray-500 mt-1">
+              <div className="text-[11px] text-gray-500 dark:text-foreground/40 mt-1">
                 Leave empty for single-day activity
               </div>
               <ErrorText field="endDate" />
@@ -349,7 +351,7 @@ export default function ActivityActionsModal({
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 isInvalid={!!hasError("time")}
-                startContent={<LuClock className="text-gray-400 size-4" />}
+                startContent={<LuClock className="text-gray-400 dark:text-foreground/40 size-4" />}
               />
               <ErrorText field="time" />
             </div> */}
@@ -393,7 +395,11 @@ export default function ActivityActionsModal({
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 isInvalid={!!hasError("budget")}
-                startContent={<span className="text-gray-500">$</span>}
+                startContent={
+                  <span className="text-gray-500 dark:text-foreground/40">
+                    $
+                  </span>
+                }
               />
               <ErrorText field="budget" />
             </div>
@@ -450,7 +456,7 @@ export default function ActivityActionsModal({
               variant="bordered"
               size="sm"
               radius="sm"
-              className="border-small"
+              className="border-small border-gray-300 dark:border-default-200 text-gray-700 dark:text-foreground/70"
               onPress={onClose}
               type="button"
             >

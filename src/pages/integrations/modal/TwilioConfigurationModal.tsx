@@ -181,13 +181,13 @@ export default function TwilioConfigurationModal({
           <ModalHeader className="p-4 pb-0 flex-col">
             <h2
               data-slot="dialog-title"
-              className="leading-none font-medium text-base"
+              className="leading-none font-medium text-base text-foreground"
             >
               Twilio Configuration
             </h2>
             <p
               data-slot="dialog-description"
-              className="text-xs text-gray-600 mt-2 font-normal"
+              className="text-xs text-gray-600 dark:text-foreground/60 mt-2 font-normal"
             >
               Configure your Twilio account credentials to enable call tracking
               and recording features.
@@ -281,20 +281,20 @@ export default function TwilioConfigurationModal({
               />
 
               {/* Information Box */}
-              <div className="text-sm text-gray-700 bg-blue-50 p-3.5 rounded-lg border border-blue-200 mt-4">
+              <div className="text-sm text-gray-700 dark:text-foreground/80 bg-blue-50 dark:bg-blue-900/10 p-3.5 rounded-lg border border-blue-200 dark:border-blue-500/30 mt-4">
                 <div className="flex items-start gap-3">
                   <div>
-                    <p className="font-semibold mb-1.5 text-gray-900">
+                    <p className="font-semibold mb-1.5 text-gray-900 dark:text-foreground">
                       Where to find these credentials:
                     </p>
-                    <ul className="text-xs space-y-1 ml-1 text-gray-700">
+                    <ul className="text-xs space-y-1 ml-1 text-gray-700 dark:text-foreground/70">
                       <li className="flex items-center gap-1">
                         • Account SID & Auth Token:
                         <a
                           href="https://console.twilio.com/"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-blue-600 hover:underline font-medium"
+                          className="text-blue-600 dark:text-blue-400 hover:underline font-medium"
                         >
                           Twilio Console
                           <FiExternalLink className="inline-block h-3 w-3 ml-1" />
@@ -310,18 +310,18 @@ export default function TwilioConfigurationModal({
               </div>
               {/* Status Message */}
               {isUpdateMode && existingConfig?.status === "Connected" && (
-                <div className="p-3 bg-green-50 text-green-700 text-xs rounded-lg border border-green-200">
+                <div className="p-3 bg-green-50 dark:bg-green-900/10 text-green-700 dark:text-green-400 text-xs rounded-lg border border-green-200 dark:border-green-500/30">
                   ✅ Twilio integration is active and connected.
                 </div>
               )}
               {isUpdateMode && existingConfig?.status === "Disconnected" && (
-                <div className="p-3 bg-blue-50 text-blue-700 text-xs rounded-lg border border-blue-200">
+                <div className="p-3 bg-blue-50 dark:bg-blue-900/10 text-blue-700 dark:text-blue-400 text-xs rounded-lg border border-blue-200 dark:border-blue-500/30">
                   ℹ️ Twilio is disconnected. Please reconnect it by using
                   switch.
                 </div>
               )}
               {isUpdateMode && existingConfig?.status === "Error" && (
-                <div className="p-3 bg-red-50 text-red-700 text-xs rounded-lg border border-red-200">
+                <div className="p-3 bg-red-50 dark:bg-red-900/10 text-red-700 dark:text-red-400 text-xs rounded-lg border border-red-200 dark:border-red-500/30">
                   ⚠️ Connection failed. Please check your credentials and try
                   again.
                 </div>
@@ -335,7 +335,7 @@ export default function TwilioConfigurationModal({
               size="sm"
               variant="ghost"
               onPress={onClose}
-              className="border border-gray-300 text-gray-700 hover:bg-gray-50"
+              className="border border-gray-300 dark:border-default-200 text-gray-700 dark:text-foreground/70 hover:bg-gray-50 dark:hover:bg-default-100"
               isDisabled={isSubmitting}
             >
               Cancel

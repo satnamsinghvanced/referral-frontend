@@ -57,8 +57,8 @@ export function MoveMediaModal({
     >
       <ModalContent className="p-4">
         <ModalHeader className="flex flex-col gap-1 font-normal p-0">
-          <h4 className="text-base font-medium">Move Media</h4>
-          <p className="text-xs text-gray-500">
+          <h4 className="text-base font-medium text-foreground">Move Media</h4>
+          <p className="text-xs text-gray-500 dark:text-foreground/60">
             Move your media to selected folder
           </p>
         </ModalHeader>
@@ -87,7 +87,7 @@ export function MoveMediaModal({
             size="sm"
             radius="sm"
             variant="ghost"
-            className="border-small"
+            className="border-small border-gray-300 dark:border-default-200 text-gray-700 dark:text-foreground/70 hover:bg-gray-50 dark:hover:bg-default-100"
             onPress={onClose}
           >
             Cancel

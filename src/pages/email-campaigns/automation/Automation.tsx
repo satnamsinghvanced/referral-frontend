@@ -1,32 +1,39 @@
 import { Tab, Tabs } from "@heroui/react";
-import ActiveFlows from "./ActiveFlows";
 import Templates from "../Templates";
+import ActiveFlows from "./ActiveFlows";
 import FlowBuilder from "./FlowBuilder";
 
 const Automation = () => {
   return (
-    <Tabs
-      aria-label="Options"
-      classNames={{
-        tabList: "flex w-full rounded-full bg-primary/10 text-xs",
-        tab: "flex-1 text-sm font-medium transition-all",
-        cursor: "rounded-full text-xs",
-        panel: "p-0 mt-5",
-      }}
-      className="text-background w-full text-xs"
-    >
-      <Tab key="active-flows" title="Active Flows">
-        <ActiveFlows />
-      </Tab>
+    <div className="space-y-5">
+      <Tabs
+        aria-label="Options"
+        variant="light"
+        radius="full"
+        classNames={{
+          base: "bg-primary/15 dark:bg-background rounded-full p-1 w-full",
+          tabList: "flex w-full rounded-full p-0 gap-0",
+          tab: "flex-1 h-9 text-sm font-medium transition-all",
+          cursor: "rounded-full bg-white dark:bg-primary",
+          tabContent:
+            "dark:group-data-[selected=true]:text-primary-foreground text-default-500 dark:text-foreground/60 transition-colors",
+          panel: "p-0",
+        }}
+        className="w-full"
+      >
+        <Tab key="active-flows" title="Active Flows">
+          <ActiveFlows />
+        </Tab>
 
-      <Tab key="templates" title="Templates">
-        <Templates />
-      </Tab>
+        <Tab key="templates" title="Templates">
+          <Templates />
+        </Tab>
 
-      <Tab key="flow-builder" title="Flow Builder">
-        <FlowBuilder />
-      </Tab>
-    </Tabs>
+        <Tab key="flow-builder" title="Flow Builder">
+          <FlowBuilder />
+        </Tab>
+      </Tabs>
+    </div>
   );
 };
 

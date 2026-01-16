@@ -110,12 +110,12 @@ const ManageTags = () => {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="border border-primary/15 bg-background p-4 rounded-xl space-y-5">
+      <div className="border border-foreground/10 bg-background p-4 rounded-xl space-y-5">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="space-y-1">
             <h3 className="text-base">NFC Tags & QR Codes</h3>
-            <p className="text-xs text-gray-600">
+            <p className="text-xs text-gray-600 dark:text-foreground/60">
               Create and manage review collection tags for your practice
               locations
             </p>
@@ -136,8 +136,8 @@ const ManageTags = () => {
 
         {/* Warning Banners */}
         {!isLoading && !hasLocations && (
-          <div className="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-center justify-between">
-            <p className="text-sm text-yellow-800">
+          <div className="mt-4 bg-yellow-50 border border-yellow-200 dark:bg-amber-950/30 dark:border-amber-500/30 rounded-lg p-3 flex items-center justify-between">
+            <p className="text-sm text-yellow-800 dark:text-amber-400">
               Locations are not added. Please add at least one location to
               create NFC tags.
             </p>
@@ -147,7 +147,7 @@ const ManageTags = () => {
               size="sm"
               color="warning"
               variant="flat"
-              className="bg-yellow-200 text-yellow-800"
+              className="bg-yellow-200 text-yellow-800 dark:bg-amber-500/20 dark:text-amber-400"
             >
               Add Location
             </Button>
@@ -155,8 +155,8 @@ const ManageTags = () => {
         )}
 
         {!isLoading && hasLocations && !hasTeamMembers && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 flex items-center justify-between">
-            <p className="text-sm text-yellow-800">
+          <div className="bg-yellow-50 border border-yellow-200 dark:bg-amber-950/30 dark:border-amber-500/30 rounded-lg p-3 flex items-center justify-between">
+            <p className="text-sm text-yellow-800 dark:text-amber-400">
               No team members found in your locations. Please add team members
               to create NFC tags.
             </p>
@@ -166,7 +166,7 @@ const ManageTags = () => {
               size="sm"
               color="warning"
               variant="flat"
-              className="bg-yellow-200 text-yellow-800"
+              className="bg-yellow-200 text-yellow-800 dark:bg-amber-500/20 dark:text-amber-400"
             >
               Add Team Member
             </Button>
@@ -189,7 +189,7 @@ const ManageTags = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
               {tags?.map((tag: NFCDeskCard) => (
                 <div
-                  className="bg-white rounded-xl border border-primary/15 p-4 flex flex-col gap-5"
+                  className="bg-white dark:bg-content1 rounded-xl border border-foreground/10 p-4 flex flex-col gap-5"
                   key={tag._id}
                 >
                   {/* Header */}
@@ -205,7 +205,7 @@ const ManageTags = () => {
 
                       <div className="space-y-0.5">
                         <h4 className="font-medium">{tag.name}</h4>
-                        <p className="text-xs text-gray-500">
+                        <p className="text-xs text-gray-500 dark:text-foreground/60">
                           {getLocationNames(tag.locations)}
                         </p>
                       </div>
@@ -217,8 +217,8 @@ const ManageTags = () => {
                       color={tag.status === "active" ? "success" : "danger"}
                       className={`${
                         tag.status === "active"
-                          ? "bg-emerald-100 text-emerald-800"
-                          : "bg-red-100 text-red-800"
+                          ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                          : "bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-300"
                       } text-[11px] h-5`}
                     >
                       {tag.status === "active" ? "Active" : "Inactive"}
@@ -227,19 +227,19 @@ const ManageTags = () => {
 
                   {/* Stats */}
                   <div className="grid grid-cols-2 gap-3">
-                    <div className="bg-sky-50 rounded-lg p-3 text-center space-y-0.5">
+                    <div className="bg-sky-50 dark:bg-sky-500/10 rounded-lg p-3 text-center space-y-0.5">
                       <div className="text-xl font-bold text-sky-600">
                         {tag.totalTap}
                       </div>
-                      <div className="text-xs text-gray-500 font-medium">
+                      <div className="text-xs text-gray-500 dark:text-foreground/60 font-medium">
                         Taps
                       </div>
                     </div>
-                    <div className="bg-emerald-50 rounded-lg p-3 text-center space-y-0.5">
+                    <div className="bg-emerald-50 dark:bg-emerald-500/10 rounded-lg p-3 text-center space-y-0.5">
                       <div className="text-xl font-bold text-emerald-600">
                         {tag.totalReview}
                       </div>
-                      <div className="text-xs text-gray-500 font-medium">
+                      <div className="text-xs text-gray-500 dark:text-foreground/60 font-medium">
                         Reviews
                       </div>
                     </div>
@@ -247,9 +247,9 @@ const ManageTags = () => {
 
                   {/* Conversion Rate */}
                   <div className="space-y-1.5">
-                    <div className="flex justify-between text-xs font-medium text-gray-500">
+                    <div className="flex justify-between text-xs font-medium text-gray-500 dark:text-foreground/60">
                       <span>Conversion Rate</span>
-                      <span className="text-gray-900">
+                      <span className="text-gray-900 dark:text-foreground">
                         {tag.conversionRate}%
                       </span>
                     </div>
@@ -263,12 +263,12 @@ const ManageTags = () => {
                   </div>
 
                   {/* URL */}
-                  <div className="bg-gray-50 rounded-lg border border-gray-200 p-2.5 flex items-end justify-between">
+                  <div className="bg-gray-50 dark:bg-content2/50 rounded-lg border border-foreground/10 p-2.5 flex items-end justify-between">
                     <div className="flex-1 min-w-0 space-y-0.5">
-                      <div className="text-[11px] text-gray-500">
+                      <div className="text-[11px] text-gray-500 dark:text-foreground/60">
                         Review URL
                       </div>
-                      <div className="text-xs text-gray-700 font-medium truncate">
+                      <div className="text-xs text-gray-700 dark:text-foreground/80 font-medium truncate">
                         {tag.url}
                       </div>
                     </div>
@@ -291,21 +291,21 @@ const ManageTags = () => {
 
                   {/* Metadata */}
                   <div className="space-y-1.5">
-                    <div className="flex items-center gap-1 text-xs text-gray-500">
+                    <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-foreground/60">
                       <span>Created:</span>
                       <span>
                         {new Date(tag.createdAt).toLocaleDateString()}
                       </span>
                     </div>
                     {tag.lastScan && (
-                      <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-foreground/60">
                         <span>Last used:</span>
                         <span>
                           {new Date(tag.lastScan).toLocaleDateString()}
                         </span>
                       </div>
                     )}
-                    <div className="flex items-center gap-1 text-xs text-gray-500">
+                    <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-foreground/60">
                       <span>ID:</span>
                       <span className="uppercase">{tag.Id}</span>
                     </div>
@@ -366,7 +366,6 @@ const ManageTags = () => {
             {pagination && pagination.totalPages > 1 && (
               <Pagination
                 identifier="nfc/qr tags"
-                items={tags}
                 totalItems={pagination.totalDocs}
                 currentPage={currentPage}
                 totalPages={pagination.totalPages}
@@ -377,7 +376,7 @@ const ManageTags = () => {
         )}
       </div>
       {/* Overall Performance */}
-      <div className="border border-primary/15 bg-background p-4 rounded-xl space-y-4">
+      <div className="border border-foreground/10 bg-background p-4 rounded-xl space-y-4">
         <h4 className="flex items-center gap-2 text-sm">
           <FiSmartphone size={16} />
           Overall Performance
@@ -386,26 +385,26 @@ const ManageTags = () => {
           <StatsBox
             label="Total Tags"
             value={tagsStats?.totalTags || 0}
-            bg="bg-sky-50"
-            text="text-sky-600"
+            bg="bg-sky-50 dark:bg-sky-500/10"
+            text="text-sky-600 dark:text-sky-400"
           />
           <StatsBox
             label="Total Interactions"
             value={tagsStats?.totalInteractions || 0}
-            bg="bg-emerald-50"
-            text="text-emerald-600"
+            bg="bg-emerald-50 dark:bg-emerald-500/10"
+            text="text-emerald-600 dark:text-emerald-400"
           />
           <StatsBox
             label="Total Reviews"
             value={tagsStats?.totalReview || 0}
-            bg="bg-orange-50"
-            text="text-orange-600"
+            bg="bg-orange-50 dark:bg-orange-500/10"
+            text="text-orange-600 dark:text-orange-400"
           />
           <StatsBox
             label="Avg. Conversion"
             value={`${tagsStats?.conversionRate}%`}
-            bg="bg-purple-50"
-            text="text-purple-600"
+            bg="bg-purple-50 dark:bg-purple-500/10"
+            text="text-purple-600 dark:text-purple-400"
           />
         </div>
       </div>
@@ -445,7 +444,7 @@ const StatsBox = ({
     className={`${bg} rounded-xl p-4 flex flex-col items-center justify-center gap-0.5`}
   >
     <div className={`text-xl font-bold ${text}`}>{value}</div>
-    <div className="text-xs text-gray-500">{label}</div>
+    <div className="text-xs text-gray-500 dark:text-foreground/60">{label}</div>
   </div>
 );
 

@@ -57,7 +57,7 @@ const Analytics = () => {
           <MiniStatsCard key={i} cardData={data} />
         ))}
       </div>
-      <div className="flex items-center gap-3 border-primary/15 border rounded-xl bg-background p-4">
+      <div className="flex items-center gap-3 border-foreground/10 border rounded-xl bg-background p-4">
         <div className="flex items-center gap-3">
           <Select
             aria-label="Filter"
@@ -99,32 +99,46 @@ const Analytics = () => {
         </Button>
       </div>
       <div className="space-y-4 md:space-y-5">
-        <Tabs
-          aria-label="Options"
-          classNames={{
-            tabList: "flex w-full rounded-full bg-primary/10 text-xs",
-            tab: "flex-1 text-sm font-medium transition-all",
-            cursor: "rounded-full text-xs",
-            panel: "p-0",
-          }}
-          className="text-background w-full text-xs"
-        >
-          <Tab key="overview" title="Overview">
-            <Overview />
-          </Tab>
+        <div className="">
+          <Tabs
+            aria-label="Options"
+            variant="light"
+            radius="full"
+            classNames={{
+              base: "bg-primary/15 dark:bg-background rounded-full p-1 w-full",
+              tabList: "flex w-full rounded-full p-0 gap-0",
+              tab: "flex-1 h-9 text-sm font-medium transition-all",
+              cursor: "rounded-full bg-white dark:bg-primary",
+              tabContent:
+                "dark:group-data-[selected=true]:text-primary-foreground text-default-500 dark:text-foreground/60 transition-colors",
+            }}
+            className="w-full"
+          >
+            <Tab key="overview" title="Overview">
+              <div className="mt-5">
+                <Overview />
+              </div>
+            </Tab>
 
-          <Tab key="performance" title="Performance">
-            <Performance />
-          </Tab>
+            <Tab key="performance" title="Performance">
+              <div className="mt-5">
+                <Performance />
+              </div>
+            </Tab>
 
-          <Tab key="audience" title="Audience">
-            <Audience />
-          </Tab>
+            <Tab key="audience" title="Audience">
+              <div className="mt-5">
+                <Audience />
+              </div>
+            </Tab>
 
-          <Tab key="devices" title="Devices">
-            <Devices />
-          </Tab>
-        </Tabs>
+            <Tab key="devices" title="Devices">
+              <div className="mt-5">
+                <Devices />
+              </div>
+            </Tab>
+          </Tabs>
+        </div>
       </div>
     </div>
   );

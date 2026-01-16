@@ -35,6 +35,15 @@ interface SidebarProps {
   onCloseSidebar: () => void;
 }
 
+interface NavigationRoute {
+  name: string;
+  icon: any;
+  href: string;
+  stats?: number | undefined;
+  color?: string | ((stats?: number) => string) | undefined;
+  label?: string;
+}
+
 const Sidebar = ({
   isMiniSidebarOpen,
   toggleSidebar,
@@ -44,6 +53,15 @@ const Sidebar = ({
   const { pathname } = useLocation();
   const { data: dashboardStats } = useDashboardStats();
 
+  // const dashboardStats = {
+  //   referrals: 0,
+  //   partners: 0,
+  //   activities: 0,
+  //   totalCalls: 0,
+  //   integrations: 0,
+  //   tasks: 0,
+  // };
+
   // local state for submenu open states (keyed by index)
   // const [openMenus, setOpenMenus] = useState({});
 
@@ -52,98 +70,105 @@ const Sidebar = ({
   // };
 
   // Example static navigation - we'll replace with role-driven later
-  const navigationRoutes = [
+  const NAVIGATION_ROUTES: NavigationRoute[] = [
     {
       name: "Dashboard",
       icon: FiHome,
       href: "/",
+      stats: undefined,
+      color: undefined,
     },
     {
       name: "Referrals",
       icon: LuUsers,
       href: "/referrals",
-      stats: dashboardStats?.referrals,
-      color: (stats: number) => "bg-sky-100",
+      stats: dashboardStats?.referrals || 0,
+      color: "bg-sky-100 dark:bg-sky-900/40",
     },
     {
       name: "Partner Network",
       icon: LuBuilding2,
       href: "/partner-network",
-      stats: dashboardStats?.partners,
-      color: "bg-sky-200",
+      stats: dashboardStats?.partners || 0,
+      color: "bg-sky-200 dark:bg-sky-900/30",
     },
     {
       name: "Reviews",
       icon: HiOutlineStar,
       href: "/reviews",
       stats: 0,
-      color: "bg-yellow-200",
+      color: "bg-yellow-200 dark:bg-yellow-900/30",
       label: "1.2k",
     },
     {
       name: "Marketing Calendar",
       icon: LuCalendar,
       href: "/marketing-calendar",
-      stats: dashboardStats?.activities,
-      color: "bg-orange-300",
+      stats: dashboardStats?.activities || 0,
+      color: "bg-orange-300 dark:bg-orange-900/30",
     },
     {
       name: "Social Media",
       icon: MdOutlineModeComment,
       href: "/social-media",
       stats: 0, // Special case for NEW label
-      color: "bg-purple-300",
+      color: "bg-purple-300 dark:bg-purple-900/30",
     },
     {
       name: "Call Tracking",
       icon: HiOutlinePhone,
       href: "/call-tracking",
-      stats: dashboardStats?.totalCalls,
-      color: "bg-sky-100",
+      stats: dashboardStats?.totalCalls || 0,
+      color: "bg-sky-100 dark:bg-sky-900/40",
     },
     {
       name: "Email Campaigns",
       icon: HiOutlineMail,
       href: "/email-campaigns",
       stats: 0,
-      color: "bg-green-300",
+      color: "bg-green-300 dark:bg-green-900/30",
     },
     {
       name: "Analytics",
       icon: HiOutlineChartBar,
       href: "/analytics",
-      color: "bg-red-300",
+      stats: undefined,
+      color: "bg-red-300 dark:bg-red-900/30",
     },
     {
       name: "Reports",
       icon: FiFileText,
       href: "/reports",
-      color: "bg-gray-300",
+      stats: undefined,
+      color: "bg-gray-300 dark:bg-gray-800",
     },
     {
       name: "Task List",
       icon: TbCheckbox,
       href: "/tasks",
-      stats: dashboardStats?.tasks,
-      color: "bg-red-300",
+      stats: dashboardStats?.tasks || 0,
+      color: "bg-red-300 dark:bg-red-900/30",
     },
     {
       name: "QR Generator",
       icon: LuQrCode,
       href: "/qr-generator",
-      color: "bg-red-300",
+      stats: undefined,
+      color: "bg-red-300 dark:bg-red-900/30",
     },
     {
       name: "Marketing Budget",
       icon: LuDollarSign,
       href: "/marketing-budget",
-      color: "bg-red-300",
+      stats: undefined,
+      color: "bg-red-300 dark:bg-red-900/30",
     },
     {
       name: "Media Management",
       icon: LuVideo,
       href: "/media-management",
-      color: "bg-red-300",
+      stats: undefined,
+      color: "bg-red-300 dark:bg-red-900/30",
     },
     // {
     //   name: "Image Library",
@@ -155,10 +180,16 @@ const Sidebar = ({
       name: "Integrations",
       icon: HiOutlineLightningBolt,
       href: "/integrations",
-      stats: dashboardStats?.integrations,
-      color: "bg-blue-400",
+      stats: dashboardStats?.integrations || 0,
+      color: "bg-blue-400 dark:bg-blue-900/40",
     },
-    { name: "Settings", icon: HiOutlineCog, href: "/settings" },
+    {
+      name: "Settings",
+      icon: HiOutlineCog,
+      href: "/settings",
+      stats: undefined,
+      color: undefined,
+    },
   ];
 
   // const bottomRoutes = [];
@@ -208,13 +239,13 @@ const Sidebar = ({
           <div className="p-2">
             <button
               onClick={onCloseSidebar}
-              className="cursor-pointer lg:hidden p-2 rounded-md hover:bg-gray-100 dark:hover:bg-[#0f1214]"
+              className="cursor-pointer lg:hidden p-2 rounded-md hover:bg-gray-100 dark:hover:bg-foreground/5"
             >
               <HiOutlineChevronLeft className="size-4" />
             </button>
             <button
               onClick={toggleSidebar}
-              className="cursor-pointer hidden lg:flex p-2 rounded-md hover:bg-gray-100 dark:hover:bg-[#0f1214]"
+              className="cursor-pointer hidden lg:flex p-2 rounded-md hover:bg-gray-100 dark:hover:bg-foreground/5"
             >
               <IoIosArrowRoundForward
                 className={`${
@@ -232,7 +263,7 @@ const Sidebar = ({
           } flex flex-col justify-between h-[calc(100vh_-_60px)] px-0`}
         >
           <ul className="flex flex-col p-3">
-            {navigationRoutes.map((item, index) => {
+            {NAVIGATION_ROUTES.map((item, index) => {
               const Icon = item.icon;
               const isActive =
                 item.href === "/"
@@ -245,13 +276,13 @@ const Sidebar = ({
                     to={item.href}
                     className={() => {
                       return clsx(
-                        "group border my-0.5 cursor-pointer rounded-md transition-all group flex items-center py-2 px-3 hover:bg-gray-50 dark:hover:bg-[#0f1214] h-9",
+                        "group border my-0.5 cursor-pointer rounded-md transition-all group flex items-center py-2 px-3 h-9",
                         isMiniSidebarOpen
                           ? "px-0 justify-start"
                           : "px-4 justify-center",
                         isActive
-                          ? "!bg-sky-50 !text-sky-700 !border-sky-200 dark:!border-sky-50 shadow-sm"
-                          : "hover:bg-gray-100 border-transparent",
+                          ? "!bg-sky-50 dark:!bg-sky-900/20 !text-sky-700 dark:!text-sky-400 !border-sky-200 dark:!border-sky-800 shadow-sm"
+                          : "hover:bg-gray-100 dark:hover:bg-foreground/5 border-transparent",
                         item.name === "Settings" && "tour-step-settings",
                         `tour-step-${item.name
                           .toLowerCase()
@@ -280,8 +311,8 @@ const Sidebar = ({
                           <Icon
                             className={` ${
                               isActive
-                                ? "bg-sky-50 text-sky-700"
-                                : "hover:bg-gray-100 dark:bg-transparent"
+                                ? "bg-sky-50 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400"
+                                : "hover:bg-gray-100 dark:hover:bg-foreground/5 dark:bg-transparent"
                             }`}
                           />
                         </Tooltip>
@@ -293,9 +324,9 @@ const Sidebar = ({
                         <p>{item.name}</p>
                         {item.stats ? (
                           <p
-                            className={`rounded-full px-2 text-[10px] py-0.5 capitalize !text-foreground dark:!text-background ${
+                            className={`rounded-full px-2 text-[10px] py-0.5 capitalize !text-foreground dark:!text-foreground ${
                               typeof item.color === "function"
-                                ? item.color(item.stats)
+                                ? item.color(item?.stats)
                                 : item.color
                             }`}
                           >

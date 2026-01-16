@@ -114,7 +114,7 @@ const TagQrModal = ({ isOpen, onClose, tag }: TagQrModalProps) => {
                 <h4 className="text-base font-medium">
                   QR Code for {tag.name}
                 </h4>
-                <p className="text-xs text-gray-500 font-normal">
+                <p className="text-xs text-gray-500 dark:text-foreground/60 font-normal">
                   Share this QR code with patients to collect reviews.
                 </p>
               </ModalHeader>
@@ -123,7 +123,7 @@ const TagQrModal = ({ isOpen, onClose, tag }: TagQrModalProps) => {
             <ModalBody className="flex flex-col gap-5 p-4 overflow-visible">
               {/* QR Code Container Box */}
               <div className="flex justify-center">
-                <div className="w-36 h-36 relative bg-white border border-gray-200 rounded-xl flex items-center justify-center overflow-hidden p-2">
+                <div className="w-36 h-36 relative bg-white dark:bg-content1 border border-foreground/10 rounded-xl flex items-center justify-center overflow-hidden p-2">
                   <Image
                     src={qrCodeUrl}
                     alt={`${tag.name} QR Code`}
@@ -135,7 +135,7 @@ const TagQrModal = ({ isOpen, onClose, tag }: TagQrModalProps) => {
               </div>
 
               {/* Tag Info Card */}
-              <div className="flex items-center gap-3 p-3 rounded-lg bg-sky-50 border border-sky-100">
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-sky-50 border border-sky-100 dark:bg-sky-500/10 dark:border-sky-500/20">
                 <div className="size-8 rounded-md bg-primary text-white flex items-center justify-center shrink-0">
                   <LuQrCode className="size-4" />
                 </div>
@@ -143,7 +143,7 @@ const TagQrModal = ({ isOpen, onClose, tag }: TagQrModalProps) => {
                   <span className="text-sm font-medium line-clamp-1">
                     {tag.name}
                   </span>
-                  <span className="text-xs text-gray-500 line-clamp-1 truncate">
+                  <span className="text-xs text-gray-500 dark:text-foreground/60 line-clamp-1 truncate">
                     {tag.locations.map((l) => l.name).join(", ")}
                   </span>
                 </div>
@@ -159,8 +159,8 @@ const TagQrModal = ({ isOpen, onClose, tag }: TagQrModalProps) => {
                     radius="sm"
                     className={`min-w-fit px-4 border font-medium ${
                       isCopied
-                        ? "bg-green-100 text-green-700 border-green-200"
-                        : "bg-white border-gray-200 hover:bg-gray-50 text-gray-700"
+                        ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-500/20 dark:text-green-300 dark:border-green-500/30"
+                        : "bg-white border-foreground/10 hover:bg-gray-50 text-gray-700 dark:bg-content1 dark:text-foreground dark:hover:bg-content2"
                     }`}
                     onPress={handleCopyLink}
                   >
@@ -194,14 +194,14 @@ const TagQrModal = ({ isOpen, onClose, tag }: TagQrModalProps) => {
 
               {/* Stats */}
               <div className="grid grid-cols-2 gap-2">
-                <div className="bg-gray-50 p-3 rounded-lg border border-gray-100 space-y-0.5">
-                  <span className="text-xs text-gray-500 block">
+                <div className="bg-gray-50 dark:bg-content1 p-3 rounded-lg border border-foreground/10 space-y-0.5">
+                  <span className="text-xs text-gray-500 dark:text-foreground/60 block">
                     Total Interactions
                   </span>
                   <span className="text-sm font-medium">{tag.totalTap}</span>
                 </div>
-                <div className="bg-gray-50 p-3 rounded-lg border border-gray-100 space-y-0.5">
-                  <span className="text-xs text-gray-500 block">
+                <div className="bg-gray-50 dark:bg-content1 p-3 rounded-lg border border-foreground/10 space-y-0.5">
+                  <span className="text-xs text-gray-500 dark:text-foreground/60 block">
                     Conversion Rate
                   </span>
                   <span className="text-sm font-medium">

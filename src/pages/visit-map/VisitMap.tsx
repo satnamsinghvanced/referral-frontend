@@ -353,10 +353,10 @@ export default function VisitMap() {
    * UI Layout
    * ---------------------------------------------------- */
   return (
-    <div className="flex h-screen bg-gray-50">
+    <div className="flex h-screen bg-gray-50 dark:bg-background">
       {/* Left Summary Card */}
       {routeSummary && (
-        <Card className="absolute top-8 left-8 z-20 w-64">
+        <Card className="absolute top-8 left-8 z-20 w-64" shadow="none">
           <CardHeader className="p-4 pb-0">
             <h2 className="text-base font-semibold">
               {isOptimized && coordinates.length > 2
@@ -370,15 +370,21 @@ export default function VisitMap() {
             ) : (
               <div className="text-sm space-y-1.5">
                 <p>
-                  <span className="text-gray-600">Distance:</span>{" "}
+                  <span className="text-gray-600 dark:text-foreground/60">
+                    Distance:
+                  </span>{" "}
                   <b>{formatDistance(routeSummary.distance)} mi</b>
                 </p>
                 <p>
-                  <span className="text-gray-600">Estimated Duration:</span>{" "}
+                  <span className="text-gray-600 dark:text-foreground/60">
+                    Estimated Duration:
+                  </span>{" "}
                   <b>{formatDuration(routeSummary.duration)}</b>
                 </p>
                 <p>
-                  <span className="text-gray-600">Starting Point:</span>{" "}
+                  <span className="text-gray-600 dark:text-foreground/60">
+                    Starting Point:
+                  </span>{" "}
                   <b>{startLabel}</b>
                 </p>
               </div>
@@ -389,11 +395,11 @@ export default function VisitMap() {
 
       {/* Right Details */}
       <div className="absolute top-8 right-8 z-20 w-80 space-y-4">
-        <Card>
+        <Card shadow="none">
           <CardHeader className="p-4 pb-3">
             <h3 className="font-semibold">Route Segments</h3>
           </CardHeader>
-          <CardBody className="px-4 pt-0 pb-4 divide-y-1 divide-gray-300">
+          <CardBody className="px-4 pt-0 pb-4 divide-y-1 divide-gray-300 dark:divide-foreground/10">
             {routeLegs.map((leg, i) => (
               <div key={i} className="text-sm py-2 first:pt-0 last:pb-0">
                 <b>
@@ -406,7 +412,7 @@ export default function VisitMap() {
           </CardBody>
         </Card>
 
-        <Card>
+        <Card shadow="none">
           <CardHeader className="p-4 pb-3">
             <h3 className="font-semibold">Detailed Steps</h3>
           </CardHeader>
@@ -416,7 +422,7 @@ export default function VisitMap() {
                 <p className="text-sm font-medium">
                   {step.maneuver.instruction}
                 </p>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 dark:text-foreground/60">
                   {(step.distance * 0.000621371).toFixed(2)} mi
                 </p>
               </div>
@@ -426,7 +432,7 @@ export default function VisitMap() {
       </div>
 
       {/* Map */}
-      <div className="flex-grow m-4 rounded-xl shadow-xl overflow-hidden">
+      <div className="flex-grow m-4 rounded-xl overflow-hidden">
         <div ref={mapContainerRef} className="w-full h-full" />
       </div>
     </div>

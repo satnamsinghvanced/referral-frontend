@@ -23,21 +23,27 @@ const ExportBudgetModal = ({ isOpen, onClose }: ExportBudgetModalProps) => {
       key: "csv",
       title: "Export as CSV",
       description: "Compatible with Excel and Google Sheets",
-      icon: <BsFiletypeCsv className="text-green-600 w-6 h-6" />,
+      icon: (
+        <BsFiletypeCsv className="text-green-600 dark:text-green-500 w-6 h-6" />
+      ),
       action: () => handleExport("csv"),
     },
     {
       key: "excel",
       title: "Export as Excel",
       description: "Optimized for Microsoft Excel",
-      icon: <BsFiletypeXlsx className="text-blue-600 w-6 h-6" />,
+      icon: (
+        <BsFiletypeXlsx className="text-blue-600 dark:text-blue-500 w-6 h-6" />
+      ),
       action: () => handleExport("excel"),
     },
     {
       key: "pdf",
       title: "Export as PDF",
       description: "Professional report format",
-      icon: <BsFiletypePdf className="text-red-600 w-6 h-6" />,
+      icon: (
+        <BsFiletypePdf className="text-red-600 dark:text-red-500 w-6 h-6" />
+      ),
       action: () => handleExport("pdf"),
     },
   ];
@@ -56,10 +62,10 @@ const ExportBudgetModal = ({ isOpen, onClose }: ExportBudgetModalProps) => {
         {(onClose) => (
           <>
             <ModalHeader className="flex flex-col gap-2 p-0 pb-4">
-              <h2 className="leading-none font-medium text-base">
+              <h2 className="leading-none font-medium text-base text-foreground">
                 Export Budget Data
               </h2>
-              <p className="text-xs text-gray-600 font-normal">
+              <p className="text-xs text-gray-600 dark:text-foreground/60 font-normal">
                 Download your marketing budget data in your preferred format.
               </p>
             </ModalHeader>

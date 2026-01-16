@@ -56,11 +56,50 @@ const REVIEWS_PLATFORM_DISTRUBUTION = [
   { name: "Yelp", value: 298, fill: "#f97316" },
 ];
 
+const CustomTooltip = ({ active, payload, label }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-white dark:bg-zinc-900 p-3 rounded-lg border border-gray-200 dark:border-zinc-800 shadow-xl">
+        {label && (
+          <p className="font-medium text-gray-900 dark:text-gray-100 mb-2 text-xs">
+            {label}
+          </p>
+        )}
+        <div className="flex flex-col gap-1">
+          {payload.map((entry: any, index: number) => (
+            <div
+              key={index}
+              className="flex items-center justify-between gap-4 text-xs"
+            >
+              <div className="flex items-center gap-2">
+                {/* <span
+                  className="w-2 h-2 rounded-full"
+                  style={{ backgroundColor: entry.color || entry.fill }}
+                /> */}
+                <span className="text-gray-600 dark:text-gray-400 capitalize">
+                  {entry.name}:
+                </span>
+              </div>
+              <span className="font-medium text-gray-900 dark:text-gray-100">
+                {entry.value}
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
+
 const Overview = () => {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col sm:flex-row gap-4 w-full">
-        <Card className="border border-primary/15  w-full p-4" shadow="none">
+        <Card
+          className="border border-foreground/10 bg-background w-full p-4"
+          shadow="none"
+        >
           <h6 className="text-sm">Monthly Review Trends</h6>
           <CardBody className="text-xs px-3 pb-0 overflow-hidden">
             <AreaChart
@@ -82,7 +121,7 @@ const Overview = () => {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis width="auto" />
-              <Tooltip />
+              <Tooltip content={<CustomTooltip />} cursor={false} />
               <Legend />
               <Area
                 type="monotone"
@@ -111,7 +150,10 @@ const Overview = () => {
             </AreaChart>
           </CardBody>
         </Card>
-        <Card className="border border-primary/15 w-full p-4 " shadow="none">
+        <Card
+          className="border border-foreground/10 bg-background w-full p-4 "
+          shadow="none"
+        >
           <h6 className="text-sm">Review Platform Distribution</h6>
           <CardBody className="text-xs px-3 pb-0 items-center">
             <PieChart
@@ -134,7 +176,7 @@ const Overview = () => {
                 label
                 isAnimationActive
               />
-              <Tooltip />
+              <Tooltip content={<CustomTooltip />} />
               <Legend />
             </PieChart>
           </CardBody>

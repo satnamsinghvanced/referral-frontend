@@ -64,7 +64,7 @@ const AcceptInvitation = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-950/40 dark:to-green-950/40 flex items-center justify-center p-4">
       <div className="max-w-md w-full mx-auto">
         <Card shadow="none" className="border-0">
           <CardBody className="p-6">
@@ -72,7 +72,7 @@ const AcceptInvitation = () => {
               <h1 className="text-xl font-semibold mb-2">
                 Activate Your Account
               </h1>
-              <p className="text-gray-600 text-sm">
+              <p className="text-gray-600 dark:text-gray-400 text-sm">
                 Create a password to complete your registration and access the
                 dashboard.
               </p>
@@ -123,9 +123,9 @@ const AcceptInvitation = () => {
                       onClick={toggleVisibility}
                     >
                       {isVisible ? (
-                        <FaEyeSlash className="text-xl text-default-400" />
+                        <FaEyeSlash className="text-xl text-default-400 dark:text-default-500" />
                       ) : (
-                        <FaEye className="text-xl text-default-400" />
+                        <FaEye className="text-xl text-default-400 dark:text-default-500" />
                       )}
                     </button>
                   }
@@ -168,9 +168,9 @@ const AcceptInvitation = () => {
                       onClick={toggleConfirmVisibility}
                     >
                       {isConfirmVisible ? (
-                        <FaEyeSlash className="text-xl text-default-400" />
+                        <FaEyeSlash className="text-xl text-default-400 dark:text-default-500" />
                       ) : (
-                        <FaEye className="text-xl text-default-400" />
+                        <FaEye className="text-xl text-default-400 dark:text-default-500" />
                       )}
                     </button>
                   }
@@ -195,7 +195,7 @@ const AcceptInvitation = () => {
             </form>
 
             <div className="mt-4 text-center">
-              <p className="text-tiny text-gray-500">
+              <p className="text-tiny text-gray-500 dark:text-gray-400">
                 Already have an account?{" "}
                 <Link
                   to="/signin"

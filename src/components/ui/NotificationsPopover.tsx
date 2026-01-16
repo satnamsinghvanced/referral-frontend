@@ -63,12 +63,12 @@ export default function NotificationPopover() {
       </PopoverTrigger>
 
       {/* 2. Popover Content Block */}
-      <PopoverContent className="w-80 p-0 shadow-xl rounded-xl border border-gray-200 overflow-hidden">
+      <PopoverContent className="w-80 p-0 shadow-xl rounded-xl border border-foreground/10 overflow-hidden">
         <div className="flex flex-col">
           {/* Header */}
-          <div className="flex items-center justify-between p-3 border-b border-gray-100">
+          <div className="flex items-center justify-between p-3 border-b border-foreground/10">
             <h4 className="text-sm font-medium">Notifications</h4>
-            <span className="text-xs text-primary underline underline-offset-2 cursor-pointer">
+            <span className="text-xs text-primary dark:text-sky-400 underline underline-offset-2 cursor-pointer">
               Mark All as Read
             </span>
           </div>
@@ -79,10 +79,10 @@ export default function NotificationPopover() {
               <div
                 key={notification.id}
                 // Tailwind class to highlight unread items
-                className={`p-3 border-b border-gray-100 last:border-b-0 cursor-pointer transition-colors ${
+                className={`p-3 border-b border-foreground/10 last:border-b-0 cursor-pointer transition-colors ${
                   notification.read
-                    ? "bg-background hover:bg-gray-50"
-                    : "bg-blue-50 hover:bg-blue-100"
+                    ? "bg-background hover:bg-gray-50 dark:hover:bg-default-100/30"
+                    : "bg-blue-50/50 dark:bg-sky-950/20 hover:bg-blue-100 dark:hover:bg-sky-900/30"
                 }`}
                 onClick={() => {
                   // Handle navigation or mark as read logic here
@@ -95,7 +95,7 @@ export default function NotificationPopover() {
                     <p className="text-xs font-medium text-foreground truncate">
                       {notification.title}
                     </p>
-                    <p className="text-[11px] leading-[1.5] text-gray-600 mt-1 line-clamp-2">
+                    <p className="text-[11px] leading-[1.5] text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
                       {notification.message}
                     </p>
                   </div>
@@ -104,7 +104,9 @@ export default function NotificationPopover() {
                 <div className="flex justify-between items-center mt-1">
                   <span
                     className={`h-4 text-[11px] font-medium ${
-                      notification.read ? "text-gray-500" : "text-primary"
+                      notification.read
+                        ? "text-gray-500 dark:text-gray-400"
+                        : "text-primary dark:text-sky-400"
                     }`}
                   >
                     {notification.time}
@@ -118,7 +120,7 @@ export default function NotificationPopover() {
           </div>
 
           {/* Footer */}
-          {/* <div className="p-3 border-t border-gray-100">
+          {/* <div className="p-3 border-t border-foreground/10">
             <Button variant="solid" color="primary" size="sm" fullWidth>
               View All Notifications
             </Button>

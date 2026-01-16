@@ -264,7 +264,7 @@ const CustomCalendar: React.FC<CalendarProps> = ({
       cells.push(
         <div
           key={`empty-${i}`}
-          className="min-h-[100px] border-b border-r border-gray-200 bg-gray-50/30"
+          className="min-h-[100px] border-b border-r border-foreground/10 bg-gray-50/30 dark:bg-default-100/10"
         />
       );
     }
@@ -305,13 +305,14 @@ const CustomCalendar: React.FC<CalendarProps> = ({
           }}
           onMouseEnter={() => handleDragEnter(currentDate)}
           className={clsx(
-            "relative min-h-[100px] border-b border-r border-gray-200 flex flex-col items-start justify-start cursor-pointer transition-all group",
+            "relative min-h-[100px] border-b border-r border-foreground/10 flex flex-col items-start justify-start cursor-pointer transition-all group",
             // Remove gap/rounded styling, use seamless grid
-            "hover:bg-gray-50",
-            isDisabled && "bg-gray-100 cursor-not-allowed",
-            isTodayDate && "bg-blue-50",
-            isSelected && "!bg-orange-50",
-            inDrag && "!bg-blue-50"
+            "hover:bg-gray-50 dark:hover:bg-default-100/20",
+            isDisabled &&
+              "bg-gray-100 dark:bg-default-100/40 cursor-not-allowed",
+            isTodayDate && "bg-blue-50 dark:bg-blue-900/10",
+            isSelected && "!bg-orange-50 dark:!bg-orange-900/10",
+            inDrag && "!bg-blue-50 dark:!bg-blue-900/10"
           )}
           style={isDisabled ? { pointerEvents: "none" } : {}}
         >
@@ -319,8 +320,12 @@ const CustomCalendar: React.FC<CalendarProps> = ({
             <span
               className={clsx(
                 "text-sm font-medium w-7 h-7 flex items-center justify-center rounded-full",
-                isTodayDate ? "bg-primary text-white" : "text-gray-700",
-                !isTodayDate && isDisabled && "text-gray-400"
+                isTodayDate
+                  ? "bg-primary text-white"
+                  : "text-gray-700 dark:text-foreground/80",
+                !isTodayDate &&
+                  isDisabled &&
+                  "text-gray-400 dark:text-foreground/30"
               )}
             >
               {day}
@@ -405,7 +410,7 @@ const CustomCalendar: React.FC<CalendarProps> = ({
               })}
             {daySlots.length > 3 && (
               <div
-                className="pl-2 text-[10px] text-gray-500 font-medium"
+                className="pl-2 text-[10px] text-gray-500 dark:text-foreground/40 font-medium"
                 onMouseDown={(e) => e.stopPropagation()}
               >
                 +{daySlots.length - 3} more
@@ -420,8 +425,8 @@ const CustomCalendar: React.FC<CalendarProps> = ({
   };
 
   return (
-    <div className="w-full rounded-xl overflow-hidden bg-white">
-      <div className="flex items-center justify-between p-4 border-b border-gray-200">
+    <div className="w-full rounded-xl overflow-hidden bg-background">
+      <div className="flex items-center justify-between p-4 border-b border-foreground/10">
         <Button
           size="sm"
           radius="sm"
@@ -433,11 +438,14 @@ const CustomCalendar: React.FC<CalendarProps> = ({
             currentMonth === today.getMonth() &&
             currentYear === today.getFullYear()
           }
-          className="border-small"
+          className="border-small border-gray-300 dark:border-default-200"
         >
-          <FiChevronLeft className="text-gray-700" size={18} />
+          <FiChevronLeft
+            className="text-gray-700 dark:text-foreground/80"
+            size={18}
+          />
         </Button>
-        <p className="text-base font-semibold text-gray-800">
+        <p className="text-base font-semibold text-gray-800 dark:text-white">
           {monthNames[currentMonth]} {currentYear}
         </p>
         <Button
@@ -446,9 +454,12 @@ const CustomCalendar: React.FC<CalendarProps> = ({
           variant="ghost"
           isIconOnly
           onPress={() => handleMonthChange("next")}
-          className="border-small"
+          className="border-small border-gray-300 dark:border-default-200"
         >
-          <FiChevronRight className="text-gray-700" size={18} />
+          <FiChevronRight
+            className="text-gray-700 dark:text-foreground/80"
+            size={18}
+          />
         </Button>
       </div>
 
@@ -457,17 +468,17 @@ const CustomCalendar: React.FC<CalendarProps> = ({
         <div className="min-w-[800px]">
           {" "}
           {/* Force min-width for mobile scroll */}
-          <div className="grid grid-cols-7 border-b border-gray-200 bg-gray-50">
+          <div className="grid grid-cols-7 border-b border-foreground/10 bg-gray-50 dark:bg-default-100/20">
             {daysOfWeek.map((d) => (
               <div
                 key={d}
-                className="py-2 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider border-r border-gray-200 first:border-l"
+                className="py-2 text-center text-xs font-semibold text-gray-500 dark:text-foreground/40 uppercase tracking-wider border-r border-foreground/10 first:border-l"
               >
                 {d}
               </div>
             ))}
           </div>
-          <div className="grid grid-cols-7 border-l border-gray-200">
+          <div className="grid grid-cols-7 border-l border-foreground/10">
             {renderDays()}
           </div>
         </div>

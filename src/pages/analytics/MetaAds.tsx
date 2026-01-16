@@ -23,10 +23,32 @@ const TrafficTrendsChart: React.FC<{ data: any[] }> = ({ data }) => {
     <div className="-ml-5 text-sm">
       <ResponsiveContainer width="100%" height={300}>
         <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" stroke="#E5E7EB" />
-          <XAxis dataKey="name" tick={{ fontSize: 12 }} />
-          <YAxis tick={{ fontSize: 12 }} />
-          <Tooltip />
+          <CartesianGrid
+            strokeDasharray="3 3"
+            stroke="currentColor"
+            className="opacity-10"
+          />
+          <XAxis
+            dataKey="name"
+            stroke="currentColor"
+            tick={{ fontSize: 12 }}
+            tickLine={false}
+            axisLine={false}
+          />
+          <YAxis
+            stroke="currentColor"
+            tick={{ fontSize: 12 }}
+            tickLine={false}
+            axisLine={false}
+          />
+          <Tooltip
+            contentStyle={{
+              backgroundColor: "hsl(var(--heroui-background))",
+              border: "1px solid hsl(var(--heroui-default-200))",
+              borderRadius: "8px",
+            }}
+            itemStyle={{ fontSize: "12px" }}
+          />
           <Legend />
           <Line
             type="monotone"
@@ -53,14 +75,14 @@ export const MetaAds: React.FC = () => {
 
   const STAT_CARD_DATA = [
     {
-      icon: <LuMousePointer className="text-blue-500" />,
+      icon: <LuMousePointer className="text-blue-500 dark:text-blue-400" />,
       heading: "Total Clicks",
       value: isLoading
         ? "..."
         : data?.stats?.totalClicks?.value?.toLocaleString() || "0",
       subheading: (
-        <span className="text-green-600 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1 text-green-700" />
+        <span className="text-green-600 dark:text-green-400 flex items-center">
+          <LuTrendingUp className="h-4 w-4 mr-1" />
           {isLoading
             ? "..."
             : `${
@@ -70,14 +92,14 @@ export const MetaAds: React.FC = () => {
       ),
     },
     {
-      icon: <LuUsers className="text-green-500" />,
+      icon: <LuUsers className="text-green-500 dark:text-green-400" />,
       heading: "Conversions",
       value: isLoading
         ? "..."
         : data?.stats?.conversions?.value?.toString() || "0",
       subheading: (
-        <span className="text-green-600 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1 text-green-700" />
+        <span className="text-green-600 dark:text-green-400 flex items-center">
+          <LuTrendingUp className="h-4 w-4 mr-1" />
           {isLoading
             ? "..."
             : `${
@@ -87,12 +109,12 @@ export const MetaAds: React.FC = () => {
       ),
     },
     {
-      icon: <LuTrendingUp className="text-orange-500" />,
+      icon: <LuTrendingUp className="text-orange-500 dark:text-orange-400" />,
       heading: "Cost Per Click",
       value: isLoading ? "..." : `$${data?.stats?.costPerClick?.value || "0"}`,
       subheading: (
-        <span className="text-green-600 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1 text-green-700" />
+        <span className="text-green-600 dark:text-green-400 flex items-center">
+          <LuTrendingUp className="h-4 w-4 mr-1" />
           {isLoading
             ? "..."
             : `${
@@ -102,14 +124,14 @@ export const MetaAds: React.FC = () => {
       ),
     },
     {
-      icon: <LuEye className="text-purple-600" />,
+      icon: <LuEye className="text-purple-600 dark:text-purple-400" />,
       heading: "Click-Through Rate",
       value: isLoading
         ? "..."
         : `${data?.stats?.clickThroughRate?.value || "0"}%`,
       subheading: (
-        <span className="text-green-600 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1 text-green-700" />
+        <span className="text-green-600 dark:text-green-400 flex items-center">
+          <LuTrendingUp className="h-4 w-4 mr-1" />
           {isLoading
             ? "..."
             : `${
@@ -132,10 +154,10 @@ export const MetaAds: React.FC = () => {
       <div className="flex items-center gap-3 mb-6">
         <BsMeta className="size-7 text-sky-600" aria-hidden="true" />
         <div>
-          <h2 className="text-xl font-medium text-gray-700">
+          <h2 className="text-xl font-medium text-foreground">
             Meta Ads Performance (Facebook & Instagram)
           </h2>
-          <p className="text-gray-600 text-[14px]">
+          <p className="text-foreground/60 text-[14px]">
             Track your Meta advertising campaigns across Facebook and Instagram
           </p>
         </div>
@@ -148,7 +170,10 @@ export const MetaAds: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        <Card shadow="none" className="border border-primary/15 p-5">
+        <Card
+          shadow="none"
+          className="border border-foreground/10 bg-white dark:bg-background p-5"
+        >
           <CardHeader className="p-0 pb-8">
             <h4 className="text-sm font-medium flex items-center gap-2">
               <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
@@ -160,7 +185,10 @@ export const MetaAds: React.FC = () => {
           </CardBody>
         </Card>
 
-        <Card shadow="none" className="border border-primary/15 p-5">
+        <Card
+          shadow="none"
+          className="border border-foreground/10 bg-white dark:bg-background p-5"
+        >
           <CardHeader className="p-0 pb-8">
             <h4 className="text-sm font-medium flex items-center gap-2">
               <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
@@ -171,10 +199,32 @@ export const MetaAds: React.FC = () => {
             <div className="-ml-5 text-sm">
               <ResponsiveContainer width="100%" height={300}>
                 <AreaChart data={AD_SPENDING_GRAPH}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="currentColor"
+                    className="opacity-10"
+                  />
+                  <XAxis
+                    dataKey="month"
+                    stroke="currentColor"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <YAxis
+                    stroke="currentColor"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "hsl(var(--heroui-background))",
+                      border: "1px solid hsl(var(--heroui-default-200))",
+                      borderRadius: "8px",
+                    }}
+                    itemStyle={{ fontSize: "12px" }}
+                  />
                   <Legend />
 
                   <Area
@@ -192,7 +242,10 @@ export const MetaAds: React.FC = () => {
         </Card>
       </div>
 
-      <Card shadow="none" className="border border-primary/15 p-5">
+      <Card
+        shadow="none"
+        className="border border-foreground/10 bg-white dark:bg-background p-5"
+      >
         <CardHeader className="p-0 pb-4">
           <h4 className="text-sm font-medium flex items-center gap-2">
             <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
@@ -203,26 +256,26 @@ export const MetaAds: React.FC = () => {
         <CardBody className="p-0 overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-gray-200">
-                <th className="text-left text-xs py-3 px-2 font-medium text-gray-700">
+              <tr className="border-b border-foreground/10">
+                <th className="text-left text-xs py-3 px-2 font-medium text-foreground/70">
                   Campaign
                 </th>
-                <th className="text-right text-xs py-3 px-2 font-medium text-gray-700">
+                <th className="text-right text-xs py-3 px-2 font-medium text-foreground/70">
                   Impressions
                 </th>
-                <th className="text-right text-xs py-3 px-2 font-medium text-gray-700">
+                <th className="text-right text-xs py-3 px-2 font-medium text-foreground/70">
                   Clicks
                 </th>
-                <th className="text-right text-xs py-3 px-2 font-medium text-gray-700">
+                <th className="text-right text-xs py-3 px-2 font-medium text-foreground/70">
                   CTR
                 </th>
-                <th className="text-right text-xs py-3 px-2 font-medium text-gray-700">
+                <th className="text-right text-xs py-3 px-2 font-medium text-foreground/70">
                   Conversions
                 </th>
-                <th className="text-right text-xs py-3 px-2 font-medium text-gray-700">
+                <th className="text-right text-xs py-3 px-2 font-medium text-foreground/70">
                   Conv. Rate
                 </th>
-                <th className="text-right text-xs not-odd:py-3 px-2 font-medium text-gray-700">
+                <th className="text-right text-xs not-odd:py-3 px-2 font-medium text-foreground/70">
                   Spend
                 </th>
               </tr>
@@ -233,27 +286,27 @@ export const MetaAds: React.FC = () => {
                 CAMPAIGN_PERFORMANCE.map((campaign, index) => (
                   <tr
                     key={index}
-                    className="border-b border-gray-100 hover:bg-gray-50"
+                    className="border-b border-foreground/5 hover:bg-foreground/5 transition-colors"
                   >
-                    <td className="py-3 text-xs not-last:px-2 font-medium text-gray-900">
+                    <td className="py-3 text-xs not-last:px-2 font-medium text-foreground">
                       {campaign.campaign ? campaign.campaign : "N/A"}
                     </td>
-                    <td className="py-3 text-xs px-2 text-right text-gray-700">
+                    <td className="py-3 text-xs px-2 text-right text-foreground/80">
                       {campaign.impressions}
                     </td>
-                    <td className="py-3 text-xs px-2 text-right text-gray-700">
+                    <td className="py-3 text-xs px-2 text-right text-foreground/80">
                       {campaign.clicks}
                     </td>
-                    <td className="py-3 text-xs not-only-of-type:px-2 text-right text-gray-700">
+                    <td className="py-3 text-xs not-only-of-type:px-2 text-right text-foreground/80">
                       {campaign.ctr}
                     </td>
-                    <td className="py-3 text-xs px-2 text-right">
+                    <td className="py-3 text-xs px-2 text-right text-foreground/80">
                       {campaign.conversions}
                     </td>
-                    <td className="py-3 text-xs px-2 text-right font-medium text-emerald-600">
+                    <td className="py-3 text-xs px-2 text-right font-medium text-emerald-600 dark:text-emerald-400">
                       {campaign.convRate}
                     </td>
-                    <td className="py-3 text-xs px-2 text-right font-medium">
+                    <td className="py-3 text-xs px-2 text-right font-medium text-foreground">
                       {campaign.spend}
                     </td>
                   </tr>

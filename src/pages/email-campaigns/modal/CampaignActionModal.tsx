@@ -147,7 +147,7 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
       }}
     >
       <ModalContent>
-        <ModalHeader className="flex justify-between items-center py-4 px-5 border-b border-gray-200 font-normal">
+        <ModalHeader className="flex justify-between items-center py-4 px-5 border-b border-foreground/10 font-normal">
           <div className="flex flex-col items-start gap-1">
             <div className="flex items-center justify-start gap-2">
               <FaRegEnvelope className="text-blue-600" />
@@ -178,7 +178,7 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
           </div>
         </ModalBody>
 
-        <ModalFooter className="flex justify-between items-center py-4 px-5 border-t border-gray-200">
+        <ModalFooter className="flex justify-between items-center py-4 px-5 border-t border-foreground/10">
           <Button
             size="sm"
             radius="sm"

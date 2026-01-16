@@ -13,10 +13,14 @@ import { LoadingState } from "../../../components/common/LoadingState";
 import Pagination from "../../../components/common/Pagination";
 
 const invitationStatusColors: Record<string, string> = {
-  active: "bg-green-100 text-green-700 border-green-200",
-  pending: "bg-yellow-100 text-yellow-700 border-yellow-200",
-  revoked: "bg-red-100 text-red-700 border-red-200",
-  expired: "bg-gray-100 text-gray-600 border-gray-200",
+  active:
+    "bg-green-100 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800",
+  pending:
+    "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400 border-yellow-200 dark:border-yellow-800",
+  revoked:
+    "bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800",
+  expired:
+    "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-foreground/10 dark:border-gray-700",
 };
 
 const PendingTeamMembers = () => {
@@ -45,7 +49,10 @@ const PendingTeamMembers = () => {
   };
 
   return (
-    <Card shadow="none" className="rounded-xl border border-foreground/10">
+    <Card
+      shadow="none"
+      className="rounded-xl border border-foreground/10 bg-background"
+    >
       <CardHeader className="flex items-center gap-2 px-4 pt-4 pb-0">
         <FiMail className="w-5 h-5" />
         <h4>Pending Invitations ({pendingMembersData?.totalData || 0})</h4>
@@ -59,15 +66,15 @@ const PendingTeamMembers = () => {
           pendingMembers.map((member: TeamMember) => (
             <div
               key={member._id}
-              className="flex items-center justify-between p-3 border border-yellow-200 rounded-lg bg-yellow-50"
+              className="flex items-center justify-between p-3 border border-yellow-200 dark:border-yellow-900/50 rounded-lg bg-yellow-50 dark:bg-yellow-900/10"
             >
               <div className="flex items-center gap-2.5">
-                <span className="size-9 bg-yellow-100 inline-flex items-center justify-center rounded-full">
-                  <FiMail className="size-5 text-yellow-600" />
+                <span className="size-9 bg-yellow-100 dark:bg-yellow-900/30 inline-flex items-center justify-center rounded-full">
+                  <FiMail className="size-5 text-yellow-600 dark:text-yellow-400" />
                 </span>
                 <div className="space-y-0.5">
                   <p className="font-medium text-sm">{member.email}</p>
-                  <div className="text-xs text-gray-600">
+                  <div className="text-xs text-gray-600 dark:text-gray-400">
                     Invited as{" "}
                     {member.role?.title || member.role?.role || "No Role"}
                     {member.locations && member.locations.length > 0 && (
@@ -93,7 +100,7 @@ const PendingTeamMembers = () => {
                 <span
                   className={`capitalize px-2 py-0.5 text-[11px] font-medium inline-flex items-center gap-1 rounded-md border ${
                     invitationStatusColors[member.status] ||
-                    "bg-gray-100 text-gray-600 border-gray-200"
+                    "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-foreground/10 dark:border-gray-700"
                   }`}
                 >
                   {member.status}
@@ -114,7 +121,9 @@ const PendingTeamMembers = () => {
           ))
         ) : (
           <EmptyState
-            icon={<FiMail className="w-6 h-6 text-yellow-600" />}
+            icon={
+              <FiMail className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
+            }
             title="No pending invitations"
             message="All invitations have been accepted or none have been sent yet."
           />
@@ -123,7 +132,6 @@ const PendingTeamMembers = () => {
         {pendingMembersData && pendingMembersData.totalPages > 1 && (
           <Pagination
             identifier="pending team members"
-            items={pendingMembersData.data}
             totalItems={pendingMembersData.totalData}
             currentPage={filters.page}
             totalPages={pendingMembersData.totalPages}
