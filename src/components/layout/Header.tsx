@@ -18,6 +18,7 @@ import { queryClient } from "../../providers/QueryProvider";
 import { AppDispatch } from "../../store";
 import { logout } from "../../store/authSlice";
 import NotificationPopover from "../ui/NotificationsPopover";
+import { disconnectSocket } from "../../services/socket";
 
 export default function Header({
   hamburgerMenuClick,
@@ -30,6 +31,7 @@ export default function Header({
   const { user } = useTypedSelector((state) => state.auth);
 
   const handleLogout = () => {
+    disconnectSocket();
     dispatch(logout());
     queryClient.clear();
     navigate("/signin");

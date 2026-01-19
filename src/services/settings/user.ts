@@ -21,6 +21,7 @@ export interface User {
   specialty?: string;
   medicalSpecialty?: { title: string; _id: string };
   image?: string;
+  isTwoFactorEnabled?: boolean;
 }
 
 // ✅ Get user detail
@@ -34,7 +35,7 @@ export const fetchUser = async (id: string): Promise<User> => {
 // ✅ Update user detail
 export const updateUser = async (
   id: string,
-  userData: Partial<User>
+  userData: Partial<User>,
 ): Promise<User> => {
   const response = (await axios.put(`/users/${id}`, userData, {
     headers: {

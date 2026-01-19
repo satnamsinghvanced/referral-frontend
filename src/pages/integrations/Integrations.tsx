@@ -40,6 +40,7 @@ import {
 import GoogleAdsConfigModal from "./modal/GoogleAdsConfigModal";
 import MetaAdsConfigModal from "./modal/MetaAdsConfigModal";
 import GoogleBusinessConfigModal from "./modal/GoogleBusinessConfigModal";
+import Webhooks from "./webhooks/Webhooks";
 
 function Integrations() {
   const { user } = useTypedSelector((state) => state.auth);
@@ -219,7 +220,7 @@ function Integrations() {
           "Sync marketing activities and referral events with Google Calendar",
         badges: ["Activity Sync", "Event Management", "Calendar Integration"],
         lastSync: timeAgo(
-          googleCalendarExistingConfig?.lastSyncAt || new Date().toISOString()
+          googleCalendarExistingConfig?.lastSyncAt || new Date().toISOString(),
         ),
         onConnect: () => setIsGoogleCalendarIntegrationModalOpen(true),
         onConfigure: () => setIsGoogleCalendarIntegrationModalOpen(true),
@@ -370,6 +371,7 @@ function Integrations() {
               ))}
             </CardBody>
           </Card>
+          <Webhooks />
         </div>
       </ComponentContainer>
 

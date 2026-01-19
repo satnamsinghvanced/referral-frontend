@@ -120,19 +120,17 @@ const QrCodeDownloadModal = ({
       <ModalContent>
         {(onClose) => (
           <>
-            <div className="flex flex-col items-center p-5 pb-1">
-              <ModalHeader className="flex flex-col items-start gap-1 p-0 w-full">
-                <h4 className="text-base font-medium dark:text-white">
-                  QR Code for {referrer.name}
-                </h4>
-                <p className="text-xs text-gray-500 font-normal dark:text-foreground/60">
-                  Share this QR code with patients for easy referrals from{" "}
-                  {referrer.name}
-                </p>
-              </ModalHeader>
-            </div>
+            <ModalHeader className="flex flex-col items-start gap-1 p-4 pb-1 w-full">
+              <h4 className="text-base font-medium dark:text-white">
+                QR Code for {referrer.name}
+              </h4>
+              <p className="text-xs text-gray-500 font-normal dark:text-foreground/60">
+                Share this QR code with patients for easy referrals from{" "}
+                {referrer.name}
+              </p>
+            </ModalHeader>
 
-            <ModalBody className="flex flex-col gap-5 p-5 overflow-visible">
+            <ModalBody className="flex flex-col gap-5 p-4 overflow-visible">
               {/* QR Code Container Box */}
               <div className="flex justify-center">
                 <div className="w-36 h-36 relative bg-white dark:bg-background border border-foreground/10 rounded-xl flex items-center justify-center overflow-hidden">

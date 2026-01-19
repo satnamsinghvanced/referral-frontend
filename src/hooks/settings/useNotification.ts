@@ -3,7 +3,7 @@ import {
   fetchNotificationSettings,
   updateNotificationSettings,
   fetchInAppNotifications,
-  markNotificationAsRead,
+  markNotificationsAsRead,
 } from "../../services/settings/notification";
 import { UpdateNotificationPayload } from "../../types/notification";
 
@@ -21,10 +21,11 @@ export const useInAppNotifications = () => {
   });
 };
 
-export const useMarkNotificationRead = () => {
+export const useMarkNotificationsRead = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: markNotificationAsRead,
+    mutationFn: (notificationIds: string[]) =>
+      markNotificationsAsRead(notificationIds),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["notifications", "in-app"] });
     },

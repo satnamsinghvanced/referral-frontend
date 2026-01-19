@@ -27,6 +27,7 @@ import clsx from "clsx";
 import { MdOutlineModeComment } from "react-icons/md";
 import { TbCheckbox } from "react-icons/tb";
 import { useDashboardStats } from "../../hooks/useDashboard";
+import { useRolePermissions } from "../../hooks/useRolePermissions";
 import Logo from "../ui/Logo";
 
 interface SidebarProps {
@@ -69,14 +70,16 @@ const Sidebar = ({
   //   setOpenMenus((prev) => ({ ...prev, [idx]: !prev[idx] }));
   // };
 
-  // Example static navigation - we'll replace with role-driven later
-  const NAVIGATION_ROUTES: NavigationRoute[] = [
+  const { hasPermission, hasAnyPermission, isAdmin, isLoading } =
+    useRolePermissions();
+
+  const NAVIGATION_ROUTES: (NavigationRoute & {
+    requiredPermission?: string | string[];
+  })[] = [
     {
       name: "Dashboard",
       icon: FiHome,
       href: "/",
-      stats: undefined,
-      color: undefined,
     },
     {
       name: "Referrals",
@@ -84,6 +87,7 @@ const Sidebar = ({
       href: "/referrals",
       stats: dashboardStats?.referrals || 0,
       color: "bg-sky-100 dark:bg-sky-900/40",
+      requiredPermission: "Manage Referrals",
     },
     {
       name: "Partner Network",
@@ -91,6 +95,7 @@ const Sidebar = ({
       href: "/partner-network",
       stats: dashboardStats?.partners || 0,
       color: "bg-sky-200 dark:bg-sky-900/30",
+      requiredPermission: "Manage Referrals",
     },
     {
       name: "Reviews",
@@ -99,6 +104,7 @@ const Sidebar = ({
       stats: 0,
       color: "bg-yellow-200 dark:bg-yellow-900/30",
       label: "1.2k",
+      requiredPermission: "Manage Reviews",
     },
     {
       name: "Marketing Calendar",
@@ -106,13 +112,15 @@ const Sidebar = ({
       href: "/marketing-calendar",
       stats: dashboardStats?.activities || 0,
       color: "bg-orange-300 dark:bg-orange-900/30",
+      requiredPermission: "Manage Settings",
     },
     {
       name: "Social Media",
       icon: MdOutlineModeComment,
       href: "/social-media",
-      stats: 0, // Special case for NEW label
+      stats: 0,
       color: "bg-purple-300 dark:bg-purple-900/30",
+      requiredPermission: "Manage Settings",
     },
     {
       name: "Call Tracking",
@@ -120,6 +128,7 @@ const Sidebar = ({
       href: "/call-tracking",
       stats: dashboardStats?.totalCalls || 0,
       color: "bg-sky-100 dark:bg-sky-900/40",
+      requiredPermission: "Manage Settings",
     },
     {
       name: "Email Campaigns",
@@ -127,6 +136,7 @@ const Sidebar = ({
       href: "/email-campaigns",
       stats: 0,
       color: "bg-green-300 dark:bg-green-900/30",
+      requiredPermission: "Manage Settings",
     },
     {
       name: "Analytics",
@@ -134,6 +144,7 @@ const Sidebar = ({
       href: "/analytics",
       stats: undefined,
       color: "bg-red-300 dark:bg-red-900/30",
+      requiredPermission: "View Analytics",
     },
     {
       name: "Reports",
@@ -141,6 +152,7 @@ const Sidebar = ({
       href: "/reports",
       stats: undefined,
       color: "bg-gray-300 dark:bg-gray-800",
+      requiredPermission: "View Analytics",
     },
     {
       name: "Task List",
@@ -155,6 +167,7 @@ const Sidebar = ({
       href: "/qr-generator",
       stats: undefined,
       color: "bg-red-300 dark:bg-red-900/30",
+      requiredPermission: "Manage Referrals",
     },
     {
       name: "Marketing Budget",
@@ -162,6 +175,7 @@ const Sidebar = ({
       href: "/marketing-budget",
       stats: undefined,
       color: "bg-red-300 dark:bg-red-900/30",
+      requiredPermission: "Manage Settings",
     },
     {
       name: "Media Management",
@@ -169,19 +183,15 @@ const Sidebar = ({
       href: "/media-management",
       stats: undefined,
       color: "bg-red-300 dark:bg-red-900/30",
+      requiredPermission: "Manage Settings",
     },
-    // {
-    //   name: "Image Library",
-    //   icon: FiImage,
-    //   href: "/image-library",
-    //   color: "bg-red-300",
-    // },
     {
       name: "Integrations",
       icon: HiOutlineLightningBolt,
       href: "/integrations",
       stats: dashboardStats?.integrations || 0,
       color: "bg-blue-400 dark:bg-blue-900/40",
+      requiredPermission: "Manage Settings",
     },
     {
       name: "Settings",
@@ -192,7 +202,15 @@ const Sidebar = ({
     },
   ];
 
-  // const bottomRoutes = [];
+  const filteredRoutes = NAVIGATION_ROUTES.filter((route) => {
+    if (isAdmin) return true;
+    if (isLoading) return !route.requiredPermission;
+    if (!route.requiredPermission) return true;
+    if (Array.isArray(route.requiredPermission)) {
+      return hasAnyPermission(route.requiredPermission);
+    }
+    return hasPermission(route.requiredPermission);
+  });
 
   const handleNavigate = (href: string) => {
     navigate(href);
@@ -265,7 +283,7 @@ const Sidebar = ({
           } flex flex-col justify-between h-[calc(100vh_-_60px)] px-0`}
         >
           <ul className="flex flex-col p-3">
-            {NAVIGATION_ROUTES.map((item, index) => {
+            {filteredRoutes.map((item, index) => {
               const Icon = item.icon;
               const isActive =
                 item.href === "/"
@@ -288,7 +306,7 @@ const Sidebar = ({
                         item.name === "Settings" && "tour-step-settings",
                         `tour-step-${item.name
                           .toLowerCase()
-                          .replace(/\s+/g, "-")}`
+                          .replace(/\s+/g, "-")}`,
                       );
                     }}
                     onClick={onCloseSidebar}

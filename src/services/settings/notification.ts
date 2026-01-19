@@ -26,8 +26,12 @@ export const fetchInAppNotifications =
 /**
  * Mark a notification as read
  */
-export const markNotificationAsRead = async (id: string): Promise<any> => {
-  const response = await axios.put(`/notifications/in-app/${id}/read`);
+export const markNotificationsAsRead = async (
+  notificationIds: string[],
+): Promise<any> => {
+  const response = await axios.put("/notifications/mark-as-read", {
+    notificationIds,
+  });
   return response.data;
 };
 
@@ -36,7 +40,7 @@ export const markNotificationAsRead = async (id: string): Promise<any> => {
  */
 export const updateNotificationSettings = async (
   id: string,
-  payload: UpdateNotificationPayload
+  payload: UpdateNotificationPayload,
 ): Promise<NotificationSettingsResponse> => {
   const response = await axios.put(`/notifications/${id}`, payload);
   return response.data;

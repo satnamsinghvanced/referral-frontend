@@ -1,11 +1,14 @@
 export interface InAppNotification {
   _id: string;
   userId: string;
-  type: "success" | "info" | "warning" | "error" | "neutral";
   title: string;
   message: string;
   isRead: boolean;
-  link?: string;
+  metadata?: {
+    link?: string;
+    type?: "success" | "info" | "warning" | "error" | "neutral";
+    [key: string]: any;
+  };
   createdAt: string;
   updatedAt: string;
 }
@@ -51,4 +54,5 @@ export interface NotificationSettingsResponse {
 export interface UpdateNotificationPayload {
   globalEnabled: boolean;
   notifications: Omit<NotificationItem, "_id">[];
+  browser?: Partial<BrowserSettings>;
 }

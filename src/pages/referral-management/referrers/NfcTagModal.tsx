@@ -101,19 +101,17 @@ const NfcTagModal = ({ isOpen, onClose, referrer }: NfcTagModalProps) => {
       <ModalContent>
         {(onClose) => (
           <>
-            <div className="flex flex-col items-center p-5 pb-1">
-              <ModalHeader className="flex flex-col items-start gap-1 p-0 w-full">
-                <h4 className="text-base font-medium dark:text-white">
-                  NFC Tag for {referrer.name}
-                </h4>
-                <p className="text-xs text-gray-500 font-normal dark:text-foreground/60">
-                  Write this referral link to an NFC tag for easy tap-to-refer
-                  functionality
-                </p>
-              </ModalHeader>
-            </div>
+            <ModalHeader className="flex flex-col items-start gap-1 p-4 pb-1 w-full">
+              <h4 className="text-base font-medium dark:text-white">
+                NFC Tag for {referrer.name}
+              </h4>
+              <p className="text-xs text-gray-500 font-normal dark:text-foreground/60">
+                Write this referral link to an NFC tag for easy tap-to-refer
+                functionality
+              </p>
+            </ModalHeader>
 
-            <ModalBody className="flex flex-col gap-5 p-5 overflow-visible">
+            <ModalBody className="flex flex-col gap-5 p-4 overflow-visible">
               {/* NFC Icon Container - The big blue card */}
               <div className="flex justify-center">
                 <div className="w-36 h-36 relative bg-[#007AFF] rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/30">

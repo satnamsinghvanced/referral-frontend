@@ -92,40 +92,85 @@ const RULE_CONFIG: Record<
   },
 };
 
+// Helper to convert VAPID key
+const urlBase64ToUint8Array = (base64String: string) => {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) {
+    outputArray[i] = rawData.charCodeAt(i);
+  }
+  return outputArray;
+};
+
 const Notifications: React.FC = () => {
   const [globalEnabled, setGlobalEnabled] = useState<boolean>(true);
-  const [counter, setCounter] = useState<number>(0);
   const [permissionStatus, setPermissionStatus] = useState<
     NotificationPermission | "unknown"
   >("unknown");
 
-  useEffect(() => {
-    // Check initial permission
-    if ("Notification" in window) {
-      const status = Notification.permission;
-      setPermissionStatus(status);
-      if (status === "denied") {
-        // User requested not to disable push notifications automatically
-      }
-    }
-
-    // Monitor permission changes if supported
-    if (navigator.permissions && navigator.permissions.query) {
-      navigator.permissions
-        .query({ name: "notifications" })
-        .then((permissionStatus) => {
-          permissionStatus.onchange = () => {
-            setPermissionStatus(Notification.permission);
-          };
-        });
-    }
-  }, []);
-
-  const { data: settings, isLoading } = useNotifications();
+  const { data: settings, isLoading, refetch } = useNotifications();
   const updateMutation = useUpdateNotifications();
 
   // Initialize rules with default config
   const [rules, setRules] = useState<Rule[]>([]);
+
+  useEffect(() => {
+    if ("Notification" in window) {
+      setPermissionStatus(Notification.permission);
+    }
+  }, []);
+
+  const subscribeToPush = async () => {
+    try {
+      if (!("serviceWorker" in navigator)) return null;
+      if (!settings?.vapidPublicKey) {
+        console.error("No VAPID public key found");
+        return null;
+      }
+
+      let registration = await navigator.serviceWorker.getRegistration(
+        "/referral-retrieve/",
+      );
+      if (!registration) {
+        registration = await navigator.serviceWorker.register(
+          "/referral-retrieve/sw.js",
+          {
+            scope: "/referral-retrieve/",
+          },
+        );
+      }
+
+      // Wait for the service worker to be ready
+      await navigator.serviceWorker.ready;
+
+      // Ensure the registration is active
+      if (!registration.active) {
+        // Wait for it to become active if it's installing/waiting
+        await new Promise<void>((resolve) => {
+          const worker = registration.installing || registration.waiting;
+          if (worker) {
+            worker.addEventListener("statechange", (e: any) => {
+              if (e.target.state === "activated") resolve();
+            });
+          } else {
+            resolve();
+          }
+        });
+      }
+
+      const subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(settings.vapidPublicKey),
+      });
+
+      return JSON.parse(JSON.stringify(subscription));
+    } catch (error) {
+      console.error("Failed to subscribe to push notifications:", error);
+      return null;
+    }
+  };
 
   useEffect(() => {
     if (settings) {
@@ -134,7 +179,7 @@ const Notifications: React.FC = () => {
       const newRules: Rule[] = Object.entries(RULE_CONFIG).map(
         ([key, config]) => {
           const backendRule = settings.notifications.find(
-            (n) => n.label === key
+            (n) => n.label === key,
           );
 
           // Default values if not found in backend response
@@ -169,15 +214,15 @@ const Notifications: React.FC = () => {
             startTime: parseTime(
               backendRule
                 ? backendRule.activeHours.startTime
-                : defaultActiveHours.startTime
+                : defaultActiveHours.startTime,
             ),
             endTime: parseTime(
               backendRule
                 ? backendRule.activeHours.endTime
-                : defaultActiveHours.endTime
+                : defaultActiveHours.endTime,
             ),
           };
-        }
+        },
       );
 
       setRules(newRules);
@@ -192,19 +237,28 @@ const Notifications: React.FC = () => {
       prev.map((r) =>
         r.id === id
           ? { ...r, channels: { ...r.channels, [channel]: value } }
-          : r
-      )
+          : r,
+      ),
     );
 
   const handleChannelChange = async (
     id: string,
     channel: keyof Channels,
-    value: boolean
+    value: boolean,
   ) => {
     if (channel === "push" && value === true) {
       if ("Notification" in window && Notification.permission !== "granted") {
         const permission = await Notification.requestPermission();
         setPermissionStatus(permission);
+        if (permission !== "granted") {
+          addToast({
+            title: "Permission Denied",
+            description:
+              "Please allow notifications in your browser settings to enable push notifications.",
+            color: "danger",
+          });
+          return;
+        }
       }
     }
     updateChannel(id, channel, value);
@@ -213,13 +267,20 @@ const Notifications: React.FC = () => {
   const handleTimeChange = (
     id: string,
     which: "startTime" | "endTime",
-    val: any
+    val: any,
   ) => {
     updateRule(id, { [which]: val } as Partial<Rule>);
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!settings?._id) return;
+
+    let browserSubscription = null;
+    const isPushEnabled = rules.some((r) => r.channels.push);
+
+    if (isPushEnabled && Notification.permission === "granted") {
+      browserSubscription = await subscribeToPush();
+    }
 
     const payload: UpdateNotificationPayload = {
       globalEnabled,
@@ -236,6 +297,14 @@ const Notifications: React.FC = () => {
           endTime: formatTime(r.endTime),
         },
       })),
+      ...(browserSubscription && {
+        browser: {
+          endpoint: browserSubscription.endpoint,
+          p256dh: browserSubscription.keys?.p256dh,
+          auth: browserSubscription.keys?.auth,
+          status: "Connected",
+        },
+      }),
     };
 
     updateMutation.mutate(
@@ -247,8 +316,9 @@ const Notifications: React.FC = () => {
             description: "Your notification preferences have been updated.",
             color: "success",
           });
+          refetch();
         },
-      }
+      },
     );
   };
 
@@ -262,7 +332,7 @@ const Notifications: React.FC = () => {
           ...r,
           enabled: false,
           channels: { push: false, email: false, sms: false, inApp: false },
-        }))
+        })),
       );
     } else {
       // Turn everything ON
@@ -271,7 +341,7 @@ const Notifications: React.FC = () => {
           ...r,
           enabled: true,
           channels: { push: true, email: true, sms: true, inApp: true },
-        }))
+        })),
       );
     }
   }, [globalEnabled]);
@@ -326,7 +396,6 @@ const Notifications: React.FC = () => {
                   size="sm"
                   isSelected={globalEnabled}
                   onValueChange={(value) => {
-                    setCounter(counter + 1);
                     setGlobalEnabled(value);
                   }}
                   aria-label="Global Notification"
@@ -377,15 +446,15 @@ const Notifications: React.FC = () => {
                             permissionStatus === "denied"
                               ? "text-red-500 dark:text-red-400"
                               : permissionStatus === "granted"
-                              ? "text-green-500 dark:text-green-400"
-                              : "text-orange-500 dark:text-orange-400"
+                                ? "text-green-500 dark:text-green-400"
+                                : "text-orange-500 dark:text-orange-400"
                           }`}
                         >
                           {permissionStatus === "granted"
                             ? "Allowed"
                             : permissionStatus === "denied"
-                            ? "Denied"
-                            : "Default"}
+                              ? "Denied"
+                              : "Default"}
                         </span>
                       </p>
                     </div>
@@ -557,7 +626,7 @@ const Notifications: React.FC = () => {
                                       handleTimeChange(
                                         rule.id,
                                         "startTime",
-                                        val
+                                        val,
                                       )
                                     }
                                     radius="sm"

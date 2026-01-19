@@ -55,7 +55,7 @@ const PatientForm = () => {
   const { data: fetchedUser, isLoading: isUserLoading } =
     useFetchUserForTrackings(id || "");
   const { data: trackings, isLoading: isTrackingsLoading } = useFetchTrackings(
-    id || ""
+    id || "",
   );
   const { mutate: trackScan } = useTrackScan();
 
@@ -72,7 +72,7 @@ const PatientForm = () => {
     if (isTrackingsLoading || !trackings) return true; // specific logic: assume valid while loading
     // Check if any QR config matches the current customPath from the URL
     return trackings.personalizedQR.some(
-      (qr: any) => qr.customPath === customPath
+      (qr: any) => qr.customPath === customPath,
     );
   }, [trackings, customPath, isTrackingsLoading]);
 
@@ -97,7 +97,7 @@ const PatientForm = () => {
       .required("Full name is required")
       .matches(
         NAME_REGEX,
-        "Full name can only contain letters, spaces, hyphens, apostrophes, and full stops"
+        "Full name can only contain letters, spaces, hyphens, apostrophes, and full stops",
       )
       .min(2, "Full name must be at least 2 characters")
       .max(100, "Full name must be less than 100 characters"),
@@ -117,7 +117,7 @@ const PatientForm = () => {
       .max(100, "Insurance provider must be less than 100 characters")
       .nullable(),
     preferredTreatment: Yup.string().required(
-      "Preferred treatment is required"
+      "Preferred treatment is required",
     ),
     urgencyLevel: Yup.string().required("Urgency level is required"),
     preferredTime: Yup.string().nullable(),
@@ -226,7 +226,7 @@ const PatientForm = () => {
     event: React.ChangeEvent<HTMLInputElement>,
     fieldName: keyof PatientFormValues,
     type: string,
-    maxLength?: number
+    maxLength?: number,
   ) => {
     let value: string | number | undefined = event.target.value;
 
@@ -254,7 +254,7 @@ const PatientForm = () => {
         <NotFoundPage />
       ) : (
         <div className="max-w-3xl w-full mx-auto max-lg:py-5 max-lg:px-4">
-          <Card className="shadow-sm mb-5 border-0 dark:bg-background">
+          <Card className="shadow-sm mb-5 border-0 dark:bg-content1">
             <CardBody className="p-0">
               <div className="flex justify-between items-center text-sm bg-gradient-to-l from-green-600 to-blue-600 dark:from-green-900 dark:to-blue-900 m-0 px-5 py-4 text-background dark:text-white">
                 <div>
@@ -302,7 +302,7 @@ const PatientForm = () => {
             </CardBody>
           </Card>
 
-          <Card className="shadow-sm border-0 dark:bg-background">
+          <Card className="shadow-sm border-0 dark:bg-content1">
             <CardBody className="p-5">
               <div className="mb-5">
                 <h2 className="text-base font-medium mb-1.5 flex items-center gap-1.5 dark:text-white">
@@ -342,7 +342,7 @@ const PatientForm = () => {
                             e as React.ChangeEvent<HTMLInputElement>,
                             fieldName,
                             field.type,
-                            field.maxLength
+                            field.maxLength,
                           )
                         }
                         onBlur={formik.handleBlur}
@@ -372,29 +372,29 @@ const PatientForm = () => {
                             const year = dateObject.year;
                             const month = String(dateObject.month).padStart(
                               2,
-                              "0"
+                              "0",
                             );
                             const day = String(dateObject.day).padStart(2, "0");
                             const hour = String(dateObject.hour).padStart(
                               2,
-                              "0"
+                              "0",
                             );
                             const minute = String(dateObject.minute).padStart(
                               2,
-                              "0"
+                              "0",
                             );
                             const second = String(dateObject.second).padStart(
                               2,
-                              "0"
+                              "0",
                             );
                             const millisecond = String(
-                              dateObject.millisecond
+                              dateObject.millisecond,
                             ).padStart(3, "0");
 
                             const localDateTimeString = `${year}-${month}-${day}T${hour}:${minute}:${second}.${millisecond}`;
                             formik.setFieldValue(
                               fieldName as string,
-                              localDateTimeString
+                              localDateTimeString,
                             );
                           } else {
                             formik.setFieldValue(fieldName as string, null);

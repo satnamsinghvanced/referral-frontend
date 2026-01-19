@@ -7,15 +7,25 @@ const URL =
   "http://localhost:9090";
 
 interface NotificationPayload {
+  id: string;
+  title: string;
   message: string;
+  metadata?: any;
+  createdAt: string;
 }
 
 export const initSocket = () => {
   const token = store.getState().auth.token;
 
-  if (!token) return null;
+  if (!token) {
+    console.warn("Socket initialization skipped: No token found");
+    return null;
+  }
+
+  if (socket && socket.connected) return socket;
 
   if (!socket) {
+    console.log("Initializing socket connection to:", URL);
     socket = io(URL, {
       auth: {
         token: token,
@@ -27,13 +37,15 @@ export const initSocket = () => {
       console.log("Socket connected:", socket?.id);
     });
 
-    socket.on("disconnect", () => {
-      console.log("Socket disconnected");
+    socket.on("disconnect", (reason) => {
+      console.log("Socket disconnected:", reason);
     });
 
     socket.on("connect_error", (err) => {
-      console.error("Socket error:", err.message);
+      console.error("Socket connection error:", err.message);
     });
+  } else if (!socket.connected) {
+    socket.connect();
   }
 
   return socket;
@@ -47,11 +59,11 @@ export const getSocket = () => {
 };
 
 export const subscribeToNotifications = (
-  callback: (data: NotificationPayload) => void
+  callback: (data: NotificationPayload) => void,
 ) => {
   const socketInstance = getSocket();
   if (socketInstance) {
-    socketInstance.on("notification", callback);
+    socketInstance.on("new_notification", callback);
   }
 };
 

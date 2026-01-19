@@ -8,24 +8,62 @@ import { GrLocation } from "react-icons/gr";
 import { HiOutlineCog } from "react-icons/hi";
 import { LuShield } from "react-icons/lu";
 import { NavLink } from "react-router-dom";
+import { BiDevices } from "react-icons/bi";
+
+import { useRolePermissions } from "../../hooks/useRolePermissions";
 
 type NavigationItem = {
   name: string;
   icon: React.ComponentType<{ className?: string }>;
   href: string;
+  requiredPermission?: string | string[];
 };
 
 const NAVIGATION_ROUTES: NavigationItem[] = [
   { name: "Profile", icon: FiUser, href: "/settings" },
-  { name: "General", icon: HiOutlineCog, href: "/settings/general" },
+  {
+    name: "General",
+    icon: HiOutlineCog,
+    href: "/settings/general",
+    requiredPermission: "Manage Settings",
+  },
   { name: "Security", icon: LuShield, href: "/settings/security" },
-  { name: "Billing", icon: FiCreditCard, href: "/settings/billing" },
-  { name: "Locations", icon: GrLocation, href: "/settings/locations" },
-  { name: "Team", icon: FiUsers, href: "/settings/team" },
+  { name: "Devices", icon: BiDevices, href: "/settings/devices" },
+  {
+    name: "Billing",
+    icon: FiCreditCard,
+    href: "/settings/billing",
+    requiredPermission: "Manage Billing",
+  },
+  {
+    name: "Locations",
+    icon: GrLocation,
+    href: "/settings/locations",
+    requiredPermission: "Manage Settings",
+  },
+  {
+    name: "Team",
+    icon: FiUsers,
+    href: "/settings/team",
+    requiredPermission: "Manage Team",
+  },
   { name: "Notifications", icon: FaRegBell, href: "/settings/notifications" },
 ];
 
 const Settings = () => {
+  const { hasPermission, hasAnyPermission, isAdmin, isLoading } =
+    useRolePermissions();
+
+  const filteredRoutes = NAVIGATION_ROUTES.filter((route) => {
+    if (isAdmin) return true;
+    if (isLoading) return !route.requiredPermission;
+    if (!route.requiredPermission) return true;
+    if (Array.isArray(route.requiredPermission)) {
+      return hasAnyPermission(route.requiredPermission);
+    }
+    return hasPermission(route.requiredPermission as string);
+  });
+
   const HEADING_DATA = {
     heading: "Settings",
     subHeading: "Manage your account preferences and configurations.",
@@ -36,7 +74,7 @@ const Settings = () => {
       <div className="flex items-start gap-5">
         <div className="max-w-1/5 w-full border border-foreground/10  rounded-xl bg-background sticky top-0">
           <ul className="flex flex-col text-foreground p-2.5 space-y-1">
-            {NAVIGATION_ROUTES.map((item, index) => {
+            {filteredRoutes.map((item, index) => {
               const Icon = item.icon;
               return (
                 <li key={index}>
@@ -51,7 +89,7 @@ const Settings = () => {
                           : "hover:bg-gray-100 dark:hover:bg-foreground/5",
                         item.name === "Profile" && "tour-step-profile",
                         item.name === "Locations" && "tour-step-locations",
-                        item.name === "Team" && "tour-step-team"
+                        item.name === "Team" && "tour-step-team",
                       )
                     }
                   >
@@ -67,7 +105,7 @@ const Settings = () => {
                           <Icon
                             className={clsx(
                               "text-[16px]",
-                              isActive && "text-current"
+                              isActive && "text-current",
                             )}
                           />
                         </span>

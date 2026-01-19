@@ -14,7 +14,7 @@ import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
 import * as Yup from "yup";
 import { AppDispatch } from "../../store";
-import { useLogin } from "../../hooks/useAuth";
+import { useLogin, useVerify2FA } from "../../hooks/useAuth";
 import { EMAIL_REGEX, PASSWORD_REGEX } from "../../consts/consts";
 import { setCredentials } from "../../store/authSlice";
 
@@ -30,7 +30,12 @@ const SignIn = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
 
-  const { mutate: loginUser, isPending } = useLogin();
+  const { mutate: loginUser, isPending: isLoginPending } = useLogin();
+  const { mutate: verifyOtp, isPending: isVerifyPending } = useVerify2FA();
+
+  const [showOtp, setShowOtp] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [otp, setOtp] = useState("");
 
   const formik = useFormik<FormData>({
     initialValues: {
@@ -46,34 +51,44 @@ const SignIn = () => {
         .required("Password is required")
         .matches(
           PASSWORD_REGEX,
-          "Password must be at least 8 characters, include one uppercase letter, one lowercase letter, one number and one special character"
+          "Password must be at least 8 characters, include one uppercase letter, one lowercase letter, one number and one special character",
         ),
       rememberMe: Yup.boolean(),
     }),
     onSubmit: async (values) => {
-      try {
-        loginUser(
-          {
-            email: values.email,
-            password: values.password,
-            rememberMe: values.rememberMe,
-          },
-          {
-            onSuccess: (response) => {
+      loginUser(
+        {
+          email: values.email,
+          password: values.password,
+          rememberMe: values.rememberMe,
+        },
+        {
+          onSuccess: (response) => {
+            if (response?.twoFactorRequired) {
+              setShowOtp(true);
+              setUserId(response.userId || null);
+            } else {
               dispatch(
                 setCredentials({
-                  token: response?.accessToken,
-                })
+                  token: response?.accessToken || "",
+                }),
               );
               navigate("/");
-            },
-          }
-        );
-      } catch (error: any) {
-        console.error("Login error:", error);
-      }
+            }
+          },
+        },
+      );
     },
   });
+
+  const handleVerifyOtp = () => {
+    if (!userId || !otp) return;
+    verifyOtp({
+      userId,
+      otp,
+      rememberMe: formik.values.rememberMe,
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-950 dark:to-background flex items-center justify-center p-4">
@@ -81,100 +96,147 @@ const SignIn = () => {
         <CardBody className="p-6 sm:p-8">
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold mb-2 text-foreground">
-              Welcome Back
+              {showOtp ? "Verify OTP" : "Welcome Back"}
             </h1>
             <p className="text-sm text-foreground/60">
-              Sign in to your account to continue
+              {showOtp
+                ? "Enter the verification code sent to your phone"
+                : "Sign in to your account to continue"}
             </p>
           </div>
 
-          <form onSubmit={formik.handleSubmit} className="space-y-5">
-            <div className="flex">
-              <Input
-                label="Email Address"
-                labelPlacement="inside"
-                name="email"
-                placeholder="Enter your email"
-                type="email"
-                // size="sm"
-                radius="sm"
-                variant="flat"
-                value={formik.values.email}
-                onValueChange={(value) => formik.setFieldValue("email", value)}
-                onBlur={formik.handleBlur}
-                errorMessage={formik.touched.email && formik.errors.email}
-                isInvalid={!!(formik.touched.email && formik.errors.email)}
-                isRequired
-              />
-            </div>
+          {!showOtp ? (
+            <form onSubmit={formik.handleSubmit} className="space-y-5">
+              <div className="flex">
+                <Input
+                  label="Email Address"
+                  labelPlacement="inside"
+                  name="email"
+                  placeholder="Enter your email"
+                  type="email"
+                  radius="sm"
+                  variant="flat"
+                  value={formik.values.email}
+                  onValueChange={(value) =>
+                    formik.setFieldValue("email", value)
+                  }
+                  onBlur={formik.handleBlur}
+                  errorMessage={
+                    formik.touched.email && (formik.errors.email as string)
+                  }
+                  isInvalid={!!(formik.touched.email && formik.errors.email)}
+                  isRequired
+                />
+              </div>
 
-            <div className="flex">
-              <Input
-                label="Password"
-                labelPlacement="inside"
-                placeholder="Enter your password"
-                type={isVisible ? "text" : "password"}
-                name="password"
-                // size="sm"
-                radius="sm"
-                variant="flat"
-                value={formik.values.password}
-                onValueChange={(value) =>
-                  formik.setFieldValue("password", value)
-                }
-                onBlur={formik.handleBlur}
-                errorMessage={formik.touched.password && formik.errors.password}
-                isInvalid={
-                  !!(formik.touched.password && formik.errors.password)
-                }
-                isRequired
-                endContent={
-                  <button
-                    className="focus:outline-none cursor-pointer"
-                    type="button"
-                    onClick={toggleVisibility}
-                  >
-                    {isVisible ? (
-                      <FaEyeSlash className="text-xl text-default-400 pointer-events-none" />
-                    ) : (
-                      <FaEye className="text-xl text-default-400 pointer-events-none" />
-                    )}
-                  </button>
-                }
-              />
-            </div>
+              <div className="flex">
+                <Input
+                  label="Password"
+                  labelPlacement="inside"
+                  placeholder="Enter your password"
+                  type={isVisible ? "text" : "password"}
+                  name="password"
+                  radius="sm"
+                  variant="flat"
+                  value={formik.values.password}
+                  onValueChange={(value) =>
+                    formik.setFieldValue("password", value)
+                  }
+                  onBlur={formik.handleBlur}
+                  errorMessage={
+                    formik.touched.password &&
+                    (formik.errors.password as string)
+                  }
+                  isInvalid={
+                    !!(formik.touched.password && formik.errors.password)
+                  }
+                  isRequired
+                  endContent={
+                    <button
+                      className="focus:outline-none cursor-pointer"
+                      type="button"
+                      onClick={toggleVisibility}
+                    >
+                      {isVisible ? (
+                        <FaEyeSlash className="text-xl text-default-400 pointer-events-none" />
+                      ) : (
+                        <FaEye className="text-xl text-default-400 pointer-events-none" />
+                      )}
+                    </button>
+                  }
+                />
+              </div>
 
-            <div className="flex justify-between items-center">
-              <Checkbox
-                size="sm"
-                name="rememberMe"
-                isSelected={formik.values.rememberMe}
-                onValueChange={(value: boolean) =>
-                  formik.setFieldValue("rememberMe", value)
-                }
-                classNames={{
-                  label: "text-small",
-                }}
+              <div className="flex justify-between items-center">
+                <Checkbox
+                  size="sm"
+                  name="rememberMe"
+                  isSelected={formik.values.rememberMe}
+                  onValueChange={(value: boolean) =>
+                    formik.setFieldValue("rememberMe", value)
+                  }
+                  classNames={{
+                    label: "text-small",
+                  }}
+                >
+                  Remember me
+                </Checkbox>
+              </div>
+
+              <Button
+                size="lg"
+                radius="md"
+                type="submit"
+                color="primary"
+                variant="solid"
+                isLoading={isLoginPending}
+                spinner={<Spinner color="white" size="sm" />}
+                isDisabled={isLoginPending || !formik.isValid}
+                className="mt-2 font-semibold"
+                fullWidth
               >
-                Remember me
-              </Checkbox>
+                {isLoginPending ? "Signing In..." : "Sign In"}
+              </Button>
+            </form>
+          ) : (
+            <div className="space-y-5">
+              <Input
+                label="Verification Code"
+                placeholder="Enter 6-digit OTP"
+                value={otp}
+                onValueChange={(val) => {
+                  if (/^\d*$/.test(val)) {
+                    setOtp(val);
+                  }
+                }}
+                radius="sm"
+                variant="flat"
+                maxLength={6}
+                isRequired
+              />
+              <div className="flex flex-col gap-2">
+                <Button
+                  size="lg"
+                  radius="md"
+                  color="primary"
+                  variant="solid"
+                  isLoading={isVerifyPending}
+                  isDisabled={otp.length !== 6 || isVerifyPending}
+                  onPress={handleVerifyOtp}
+                  fullWidth
+                >
+                  Verify & Sign In
+                </Button>
+                <Button
+                  variant="light"
+                  onPress={() => setShowOtp(false)}
+                  className="text-foreground/60"
+                >
+                  Back to Login
+                </Button>
+              </div>
             </div>
-
-            <Button
-              size="lg"
-              radius="md"
-              type="submit"
-              color="primary"
-              variant="shadow"
-              isLoading={isPending}
-              spinner={<Spinner color="white" size="sm" />}
-              isDisabled={isPending || !formik.isValid}
-              className="mt-2 font-semibold"
-              fullWidth
-            >
-              {isPending ? "Signing In..." : "Sign In"}
-            </Button>
-          </form>
+          )}
 
           <div className="mt-8 text-center text-xs text-foreground/40 leading-relaxed">
             By signing in, you agree to our <br />

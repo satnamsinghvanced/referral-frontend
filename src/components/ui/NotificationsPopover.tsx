@@ -8,9 +8,9 @@ import { RiExternalLinkLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import {
   useInAppNotifications,
-  useMarkNotificationRead,
+  useMarkNotificationsRead,
 } from "../../hooks/settings/useNotification";
-import { subscribeToNotifications } from "../../services/socket";
+import { subscribeToNotifications, getSocket } from "../../services/socket";
 
 dayjs.extend(relativeTime);
 
@@ -19,37 +19,45 @@ export default function NotificationPopover() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const { data: notifications = [], isLoading } = useInAppNotifications();
-  const markReadMutation = useMarkNotificationRead();
+  const markReadMutation = useMarkNotificationsRead();
 
   useEffect(() => {
     // Subscribe to socket notifications
-    subscribeToNotifications((data) => {
-      // Refresh notifications when a new one arrives
-      console.log("New notification received:", data);
+    console.log("Subscribing to notifications...");
+    const handleNewNotification = (data: any) => {
+      console.log("New notification received via socket:", data);
       queryClient.invalidateQueries({ queryKey: ["notifications", "in-app"] });
-    });
+    };
+
+    subscribeToNotifications(handleNewNotification);
 
     return () => {
-      // Optional: disconnect or just leave it open as it's a global service
-      // disconnectSocket();
+      const socketInstance = getSocket();
+      if (socketInstance) {
+        console.log("Unsubscribing from notifications...");
+        socketInstance.off("new_notification", handleNewNotification);
+      }
     };
   }, [queryClient]);
 
   const handleNotificationClick = (notification: any) => {
     if (!notification.isRead) {
-      markReadMutation.mutate(notification._id);
+      markReadMutation.mutate([notification._id]);
     }
-    if (notification.link) {
-      navigate(notification.link);
+    const link = notification.metadata?.link || notification.link;
+    if (link) {
+      navigate(link);
       setOpen(false);
     }
   };
 
   const handleMarkAllRead = () => {
-    // Optimistically mark all as read or call API for each
-    notifications.forEach((n: any) => {
-      if (!n.isRead) markReadMutation.mutate(n._id);
-    });
+    const unreadIds = notifications
+      .filter((n: any) => !n.isRead)
+      .map((n: any) => n._id);
+    if (unreadIds.length > 0) {
+      markReadMutation.mutate(unreadIds);
+    }
   };
 
   const unreadCount = notifications.filter((n: any) => !n.isRead).length;
@@ -114,13 +122,15 @@ export default function NotificationPopover() {
                   <div className="flex justify-between items-start">
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-medium text-foreground truncate">
-                        {notification.title || "Notification"}
+                        {notification.title ||
+                          notification.metadata?.title ||
+                          "Notification"}
                       </p>
                       <p className="text-[11px] leading-[1.5] text-gray-600 dark:text-gray-400 mt-1 line-clamp-2">
-                        {notification.message}
+                        {notification.message || notification.metadata?.message}
                       </p>
                     </div>
-                    {notification.link && (
+                    {(notification.link || notification.metadata?.link) && (
                       <RiExternalLinkLine className="w-3.5 h-3.5 ml-3 text-gray-400 flex-shrink-0" />
                     )}
                   </div>
@@ -134,9 +144,6 @@ export default function NotificationPopover() {
                     >
                       {dayjs(notification.createdAt).fromNow()}
                     </span>
-                    {/* {!notification.read && (
-                    <div className="w-2 h-2 bg-danger-500 rounded-full flex-shrink-0"></div>
-                  )} */}
                   </div>
                 </div>
               ))

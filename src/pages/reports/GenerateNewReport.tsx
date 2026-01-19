@@ -9,6 +9,7 @@ import {
   ModalHeader,
   Select,
   SelectItem,
+  DatePicker,
 } from "@heroui/react";
 import { useState } from "react";
 import {
@@ -22,66 +23,45 @@ import {
   LuTrendingUp,
   LuUsers,
 } from "react-icons/lu";
-import { TIME_RANGES } from "../../consts/reports";
+import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
+import {
+  CATEGORIES,
+  FORMATS,
+  TIME_RANGES,
+  FREQUENCIES,
+} from "../../consts/reports";
+import { useGenerateReport } from "../../hooks/useReports";
+import {
+  ReportCategory,
+  ReportFormat,
+  ReportTimeRange,
+  ReportFrequency,
+} from "../../types/reports";
+import { formatCalendarDate } from "../../utils/formatCalendarDate";
 
-const REPORT_CATEGORIES = [
-  {
-    key: "referral",
-    label: "Referral Analytics",
-    icon: <LuUsers className="h-4 w-4 text-blue-600" />,
-  },
-  {
-    key: "marketing",
-    label: "Marketing Performance",
-    icon: <LuTrendingUp className="h-4 w-4 text-green-600" />,
-  },
-  {
-    key: "analytics",
-    label: "Social Media Analytics",
-    icon: <LuMessageSquare className="h-4 w-4 text-purple-600" />,
-  },
-  {
-    key: "review",
-    label: "Review  Analytics",
-    icon: <LuStar className="h-4 w-4 text-orange-600" />,
-  },
-  {
-    key: "communication",
-    label: "Communication  Analytics",
-    icon: <LuPhone className="h-4 w-4 text-red-600" />,
-  },
-];
+const CATEGORY_ICONS: Record<string, React.ReactNode> = {
+  referralAnalytics: <LuUsers className="h-4 w-4 text-blue-600" />,
+  marketingBudget: <LuTrendingUp className="h-4 w-4 text-green-600" />,
+  socialMediaAnalytics: <LuMessageSquare className="h-4 w-4 text-purple-600" />,
+  reviewAnalytics: <LuStar className="h-4 w-4 text-orange-600" />,
+  communicationAnalytics: <LuPhone className="h-4 w-4 text-red-600" />,
+};
 
-const EXPORT_FORMATS = [
-  {
-    key: "pdf",
-    label: "PDF Document",
-    icon: <LuFileText className="h-4 w-4" />,
-  },
-  {
-    key: "xlsx",
-    label: "Excel Spreadsheet",
-    icon: <LuChartColumn className="h-4 w-4" />,
-  },
-  {
-    key: "csv",
-    label: "CSV File",
-    icon: <LuFileText className="h-4 w-4" />,
-  },
-  // {
-  //   key: "interactive-dashboard",
-  //   label: "Interactive Dashboard",
-  //   icon: <LuActivity className="h-4 w-4" />,
-  // },
-];
+const FORMAT_ICONS: Record<string, React.ReactNode> = {
+  pdf: <LuFileText className="h-4 w-4" />,
+  excel: <LuChartColumn className="h-4 w-4" />,
+  csv: <LuFileText className="h-4 w-4" />,
+};
 
 interface ReportFormState {
-  reportName: string;
-  category: string;
-  reportType: string;
-  timeRange: string;
-  exportFormat: string;
-  scheduleRecurring: boolean;
+  name: string;
+  category: ReportCategory;
+  timeRange: ReportTimeRange;
+  startDate?: string;
+  endDate?: string;
+  format: ReportFormat;
+  schedule: boolean;
+  frequency: ReportFrequency;
 }
 
 interface ReportModalProps {
@@ -95,33 +75,49 @@ const GenerateNewReportModal = ({
   onClose,
   practice,
 }: ReportModalProps) => {
+  const localTimeZone = getLocalTimeZone();
   const [formData, setFormData] = useState<ReportFormState>({
-    reportName: "",
-    category: REPORT_CATEGORIES[0]?.key as string,
-    reportType: "",
-    timeRange: TIME_RANGES[0]?.key as any,
-    exportFormat: EXPORT_FORMATS[0]?.key as any,
-    scheduleRecurring: false,
+    name: "",
+    category: "referralAnalytics",
+    timeRange: "30days",
+    format: "pdf",
+    schedule: false,
+    frequency: "monthly",
   });
 
+  const { mutate: generateReport, isPending } = useGenerateReport();
+
   const isFormValid =
-    formData.reportName &&
+    formData.name &&
     formData.category &&
-    formData.reportType &&
     formData.timeRange &&
-    formData.exportFormat;
+    formData.format &&
+    (formData.timeRange !== "custom" ||
+      (formData.startDate && formData.endDate));
 
   const handleChange = (
     name: keyof ReportFormState,
-    value: string | boolean
+    value: string | boolean | undefined,
   ) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleGenerateReport = async () => {
     if (!isFormValid) return;
-    const reportPayload = { ...formData };
-    onClose();
+
+    generateReport(formData, {
+      onSuccess: () => {
+        onClose();
+        setFormData({
+          name: "",
+          category: "referralAnalytics",
+          timeRange: "30days",
+          format: "pdf",
+          schedule: false,
+          frequency: "monthly",
+        });
+      },
+    });
   };
 
   return (
@@ -135,7 +131,7 @@ const GenerateNewReportModal = ({
       }}
     >
       <ModalContent>
-        <ModalHeader className="flex flex-col gap-1 p-5">
+        <ModalHeader className="flex flex-col gap-1 p-4">
           <h2 className="text-base font-medium">
             Generate New Marketing Report
           </h2>
@@ -145,17 +141,18 @@ const GenerateNewReportModal = ({
           </p>
         </ModalHeader>
 
-        <ModalBody className="gap-5 py-0 px-5">
+        <ModalBody className="gap-5 py-0 px-4 overflow-visible">
           <div>
             <Input
               size="sm"
               radius="sm"
               label="Report Name"
-              labelPlacement="outside-top"
+              labelPlacement="outside"
               placeholder="e.g., Q1 2024 Marketing ROI Analysis"
-              value={formData.reportName}
-              onChange={(e) => handleChange("reportName", e.target.value)}
+              value={formData.name}
+              onChange={(e) => handleChange("name", e.target.value)}
               isRequired
+              className="mt-2"
             />
           </div>
 
@@ -174,24 +171,26 @@ const GenerateNewReportModal = ({
               renderValue={(items) => {
                 const item = items[0];
                 if (!item) return null;
-                const cat = REPORT_CATEGORIES.find((c) => c.key === item.key);
                 return (
                   <div className="flex items-center gap-2">
-                    {cat?.icon}
+                    {CATEGORY_ICONS[item.key as string]}
                     {item.rendered}
                   </div>
                 );
               }}
             >
-              {REPORT_CATEGORIES.map((cat) => (
-                <SelectItem key={cat.key} startContent={cat.icon}>
+              {CATEGORIES.map((cat) => (
+                <SelectItem
+                  key={cat.key}
+                  startContent={CATEGORY_ICONS[cat.key]}
+                >
                   {cat.label}
                 </SelectItem>
               ))}
             </Select>
           </div>
 
-          <div>
+          <div className="space-y-5">
             <Select
               size="sm"
               radius="sm"
@@ -208,6 +207,56 @@ const GenerateNewReportModal = ({
                 <SelectItem key={range.key}>{range.label}</SelectItem>
               ))}
             </Select>
+
+            {formData.timeRange === "custom" && (
+              <div className="flex gap-4">
+                <div className="flex-1">
+                  <DatePicker
+                    label="Start Date"
+                    size="sm"
+                    radius="sm"
+                    labelPlacement="outside"
+                    maxValue={
+                      formData.endDate
+                        ? parseDate(formData.endDate)
+                        : today(localTimeZone)
+                    }
+                    value={
+                      formData.startDate ? parseDate(formData.startDate) : null
+                    }
+                    onChange={(date) =>
+                      handleChange(
+                        "startDate",
+                        date ? formatCalendarDate(date) : undefined,
+                      )
+                    }
+                    isRequired
+                  />
+                </div>
+                <div className="flex-1">
+                  <DatePicker
+                    label="End Date"
+                    size="sm"
+                    radius="sm"
+                    labelPlacement="outside"
+                    minValue={
+                      formData.startDate ? parseDate(formData.startDate) : null
+                    }
+                    maxValue={today(localTimeZone)}
+                    value={
+                      formData.endDate ? parseDate(formData.endDate) : null
+                    }
+                    onChange={(date) =>
+                      handleChange(
+                        "endDate",
+                        date ? formatCalendarDate(date) : undefined,
+                      )
+                    }
+                    isRequired
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <div>
@@ -216,51 +265,68 @@ const GenerateNewReportModal = ({
               radius="sm"
               label="Export Format"
               labelPlacement="outside"
-              selectedKeys={[formData.exportFormat]}
-              disabledKeys={[formData.exportFormat]}
+              selectedKeys={[formData.format]}
+              disabledKeys={[formData.format]}
               onSelectionChange={(keys) =>
-                handleChange("exportFormat", keys.currentKey as string)
+                handleChange("format", keys.currentKey as string)
               }
               isRequired
               renderValue={(items) => {
                 const item = items[0];
                 if (!item) return null;
-                const fmt = EXPORT_FORMATS.find((f) => f.key === item.key);
-
                 return (
-                  <div className="flex items-center gap-2">{item.rendered}</div>
+                  <div className="flex items-center gap-2">
+                    {FORMAT_ICONS[item.key as string]}
+                    {item.rendered}
+                  </div>
                 );
               }}
             >
-              {EXPORT_FORMATS.map((format) => (
-                <SelectItem key={format.key} textValue={format.label}>
-                  <div className="flex items-center gap-2">
-                    {format.icon}
-                    {format.label}
-                  </div>
+              {FORMATS.map((format) => (
+                <SelectItem
+                  key={format.key}
+                  startContent={FORMAT_ICONS[format.key]}
+                >
+                  {format.label}
                 </SelectItem>
               ))}
             </Select>
           </div>
 
-          <div className="space-y-2">
-            {/* <label className="block text-xs">Report Options</label> */}
-            <div className="flex flex-col gap-1">
-              <Checkbox
-                size="sm"
-                radius="sm"
-                isSelected={formData.scheduleRecurring}
-                onChange={(e) =>
-                  handleChange("scheduleRecurring", e.target.checked)
-                }
-              >
-                <span className="text-sm">Schedule Recurring Report</span>
-              </Checkbox>
-            </div>
+          <div className="space-y-4">
+            <Checkbox
+              size="sm"
+              radius="sm"
+              isSelected={formData.schedule}
+              onChange={(e) => handleChange("schedule", e.target.checked)}
+            >
+              <span className="text-sm">Schedule Recurring Report</span>
+            </Checkbox>
+
+            {formData.schedule && (
+              <div className="flex mt-4">
+                <Select
+                  size="sm"
+                  radius="sm"
+                  label="Frequency"
+                  labelPlacement="outside"
+                  selectedKeys={[formData.frequency]}
+                  disabledKeys={[formData.frequency]}
+                  onSelectionChange={(keys) =>
+                    handleChange("frequency", keys.currentKey as string)
+                  }
+                  isRequired
+                >
+                  {FREQUENCIES.map((freq) => (
+                    <SelectItem key={freq.key}>{freq.label}</SelectItem>
+                  ))}
+                </Select>
+              </div>
+            )}
           </div>
         </ModalBody>
 
-        <ModalFooter className="flex justify-end gap-2 p-5">
+        <ModalFooter className="flex justify-end gap-2 p-4">
           <Button
             size="sm"
             radius="sm"
@@ -277,8 +343,9 @@ const GenerateNewReportModal = ({
             radius="sm"
             color="primary"
             isDisabled={!isFormValid}
+            isLoading={isPending}
             onPress={handleGenerateReport}
-            startContent={<LuDownload className="size-3.5" />}
+            startContent={!isPending && <LuDownload className="size-3.5" />}
           >
             Generate Report
           </Button>

@@ -11,29 +11,42 @@ import {
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
 import ReportStatusChip from "../../components/chips/ReportStatusChip";
 import ComponentContainer from "../../components/common/ComponentContainer";
-import { ReportItem } from "../../types/reports";
 import GenerateNewReport from "./GenerateNewReport";
 import SampleReports from "./SampleReports";
+import { useReports } from "../../hooks/useReports";
+import { LoadingState } from "../../components/common/LoadingState";
+import EmptyState from "../../components/common/EmptyState";
+import Pagination from "../../components/common/Pagination";
+import { CATEGORIES } from "../../consts/reports";
+import { Report } from "../../types/reports";
 
 const Reports = () => {
   const [isNewReportModalOpen, setIsNewReportModalOpen] = useState(false);
-  const [reportData, setReportData] = useState({
-    id: "report-001",
-    name: "Generate New Report",
-  });
+  const [currentPage, setCurrentPage] = useState(1);
+  const limit = 10;
+
+  const { data, isLoading } = useReports(currentPage, limit);
+
+  const reports = data?.reports || [];
+  const stats = data?.stats;
+  const pagination = data?.pagination;
 
   const STAT_CARD_DATA = [
     {
       icon: <LuFileText className="text-blue-500" />,
       heading: "Reports Generated",
-      value: "45",
-      subheading: <span className="text-green-600">+8 this month</span>,
+      value: stats?.reportsGenerated.total.toString() || "0",
+      subheading: (
+        <span className="text-green-600">
+          +{stats?.reportsGenerated.growth || 0} this month
+        </span>
+      ),
       subValueClass: "text-green-600",
     },
     {
       icon: <LuActivity className="text-green-500" />,
       heading: "Data Sources",
-      value: "12",
+      value: "12", // This might need a real API eventually
       subheading: (
         <span className="text-gray-600 dark:text-foreground/40">Connected</span>
       ),
@@ -41,16 +54,16 @@ const Reports = () => {
     {
       icon: <LuClock className="text-purple-500" />,
       heading: "Scheduled Reports",
-      value: "8",
+      value: stats?.scheduledReports.total.toString() || "0",
       subheading: <span className="text-blue-500">Auto-generated</span>,
     },
     {
       icon: <LuDownload className="text-orange-500" />,
       heading: "Export Formats",
-      value: "4",
+      value: stats?.exportFormats.count.toString() || "3",
       subheading: (
         <span className="text-gray-600 dark:text-foreground/40">
-          PDF, Excel, CSV, Dashboard
+          {stats?.exportFormats.types.join(", ") || "PDF, Excel, CSV"}
         </span>
       ),
     },
@@ -64,10 +77,6 @@ const Reports = () => {
       {
         label: "Generate New Report",
         onClick: () => {
-          setReportData({
-            id: "report-001",
-            name: "Generate New Report",
-          });
           setIsNewReportModalOpen(true);
         },
         icon: <AiOutlinePlus fontSize={15} />,
@@ -77,59 +86,55 @@ const Reports = () => {
     ],
   };
 
-  const MOCK_REPORTS: ReportItem[] = [
-    {
-      id: 1,
-      title: " 2024 Marketing ROI Analysis",
-      description:
-        "Comprehensive analysis of marketing return on investment for Q1",
-      status: "ready",
-      fileType: "PDF",
-      fileSize: "3.2 MB",
-      onClickDownload: () => console.log("Download Q1 ROI"),
-      onClickShare: () => console.log("Share Q1 ROI"),
-    },
-    {
-      id: 2,
-      title: "January Referral Performance Report",
-      description: "Monthly referral summary with doctor performance metrics",
-      status: "ready",
-      fileType: "Excel",
-      fileSize: "2.8 MB",
-      onClickDownload: () => console.log("Download Jan Referral"),
-      onClickShare: () => console.log("Share Jan Referral"),
-    },
-    {
-      id: 3,
-      title: "Social Media Engagement Report",
-      description: "Social media engagement and reach analysis",
-      status: "processing",
-      fileType: "PDF",
-      fileSize: "",
-      onClickDownload: () => console.log("Download Social Media (disabled)"),
-      onClickShare: () => console.log("Share Social Media"),
-    },
-    {
-      id: 4,
-      title: "Communication Analytics Dashboard",
-      description: "Call volume and conversion tracking analysis",
-      status: "ready",
-      fileType: "CSV",
-      fileSize: "1.9 MB",
-      onClickDownload: () => console.log("Download Analytics Dashboard"),
-      onClickShare: () => console.log("Share Analytics Dashboard"),
-    },
-    {
-      id: 5,
-      title: "Review Sentiment Analysis",
-      description: "Customer review sentiment and rating trends",
-      status: "ready",
-      fileType: "PDF",
-      fileSize: "1.5 MB",
-      onClickDownload: () => console.log("Download Review Sentiment"),
-      onClickShare: () => console.log("Share Review Sentiment"),
-    },
-  ];
+  const handleDownload = async (report: Report) => {
+    if (!report.fileUrl) return;
+
+    try {
+      const response = await fetch(report.fileUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute(
+        "download",
+        report.fileName || `report-${report._id}.${report.format}`,
+      );
+      document.body.appendChild(link);
+      link.click();
+      link.parentNode?.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error("Download failed:", error);
+      // Fallback to opening in new tab if blob fetch fails (e.g. CORS)
+      window.open(report.fileUrl, "_blank");
+    }
+  };
+
+  const handleShare = async (report: Report) => {
+    if (!report.fileUrl) return;
+
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: report.name,
+          text: `Check out this marketing report: ${report.name}`,
+          url: report.fileUrl,
+        });
+      } catch (error) {
+        if ((error as Error).name !== "AbortError") {
+          console.error("Error sharing:", error);
+        }
+      }
+    } else {
+      // Fallback for browsers that don't support Web Share API
+      try {
+        await navigator.clipboard.writeText(report.fileUrl);
+        alert("Report link copied to clipboard!");
+      } catch (err) {
+        console.error("Failed to copy:", err);
+      }
+    }
+  };
 
   return (
     <>
@@ -147,65 +152,92 @@ const Reports = () => {
             <div className="pb-4">
               <h4 className="text-sm font-medium">Recent Reports</h4>
             </div>
-            <div className="space-y-3">
-              {MOCK_REPORTS.map((report: ReportItem) => (
-                <div
-                  key={report.id}
-                  className="flex items-center justify-between border border-foreground/10 p-4 bg-content1 rounded-lg"
-                >
-                  <div className="flex items-center gap-3">
-                    <LuFileText className="size-5 text-gray-500 dark:text-foreground/40" />
-                    <div className="space-y-1">
-                      <h4 className="font-medium text-sm">{report.title}</h4>
-                      <p className="text-xs text-gray-600 dark:text-foreground/60">
-                        {report.description}
-                      </p>
-                      <div className="flex items-center gap-2 mt-1.5 text-xs">
-                        <ReportStatusChip status={report.status} />
-                        <span className="text-gray-500 dark:text-foreground/40">
-                          {`${report.fileType}${
-                            report.fileSize ? ` • ${report.fileSize}` : ""
-                          }`}
-                        </span>
+
+            {isLoading ? (
+              <div className="py-20 flex justify-center items-center">
+                <LoadingState />
+              </div>
+            ) : reports.length > 0 ? (
+              <div className="space-y-3">
+                {reports.map((report: Report) => (
+                  <div
+                    key={report._id}
+                    className="flex items-center justify-between border border-foreground/10 p-4 bg-content1 rounded-lg"
+                  >
+                    <div className="flex items-center gap-3">
+                      <LuFileText className="size-5 text-gray-500 dark:text-foreground/40" />
+                      <div className="space-y-1">
+                        <h4 className="font-medium text-sm">{report.name}</h4>
+                        <p className="text-xs text-gray-600 dark:text-foreground/60">
+                          {CATEGORIES.find((c) => c.key === report.category)
+                            ?.label || "Report"}
+                        </p>
+                        <div className="flex items-center gap-2 mt-1.5 text-xs">
+                          <ReportStatusChip status={report.status} />
+                          <span className="text-gray-500 dark:text-foreground/40">
+                            {`${report.format.toUpperCase()}${
+                              report.fileSize ? ` • ${report.fileSize}` : ""
+                            }`}
+                          </span>
+                        </div>
                       </div>
                     </div>
+                    {report.status === "ready" && (
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          radius="sm"
+                          variant="ghost"
+                          color="default"
+                          onPress={() => handleDownload(report)}
+                          className="border-small"
+                          startContent={<LuDownload className="size-3.5" />}
+                        >
+                          Download
+                        </Button>
+                        <Button
+                          size="sm"
+                          radius="sm"
+                          variant="ghost"
+                          color="default"
+                          onPress={() => handleShare(report)}
+                          className="border-small"
+                          startContent={<LuShare className="size-3.5" />}
+                        >
+                          Share
+                        </Button>
+                      </div>
+                    )}
                   </div>
-                  {report.status === "ready" && (
-                    <div className="flex gap-2">
-                      <Button
-                        size="sm"
-                        radius="sm"
-                        variant="ghost"
-                        color="default"
-                        onPress={report.onClickDownload}
-                        className="border-small"
-                        startContent={<LuDownload className="size-3.5" />}
-                      >
-                        Download
-                      </Button>
-                      <Button
-                        size="sm"
-                        radius="sm"
-                        variant="ghost"
-                        color="default"
-                        onPress={report.onClickShare}
-                        className="border-small"
-                        startContent={<LuShare className="size-3.5" />}
-                      >
-                        Share
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+                ))}
+
+                {pagination && pagination.totalPages > 1 && (
+                  <div className="pt-4">
+                    <Pagination
+                      identifier="reports"
+                      currentPage={currentPage}
+                      totalPages={pagination.totalPages}
+                      totalItems={pagination.totalData}
+                      handlePageChange={setCurrentPage}
+                    />
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="py-10">
+                <EmptyState
+                  title="No reports found"
+                  message="Generate your first marketing report to see it here."
+                />
+              </div>
+            )}
           </div>
         </div>
       </ComponentContainer>
       <GenerateNewReport
         isOpen={isNewReportModalOpen}
         onClose={() => setIsNewReportModalOpen(false)}
-        practice={reportData}
+        practice={null}
       />
     </>
   );
