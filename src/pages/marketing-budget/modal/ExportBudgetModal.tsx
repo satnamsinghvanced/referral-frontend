@@ -1,4 +1,5 @@
 import { Modal, ModalBody, ModalContent, ModalHeader } from "@heroui/react";
+import { useState } from "react";
 import { BsFiletypeCsv, BsFiletypePdf, BsFiletypeXlsx } from "react-icons/bs";
 import { useExportBudgetItems } from "../../../hooks/useBudget";
 
@@ -18,8 +19,10 @@ const ExportBudgetModal = ({
   filters,
 }: ExportBudgetModalProps) => {
   const { mutate: exportBudget, isPending } = useExportBudgetItems();
+  const [activeExport, setActiveExport] = useState<string | null>(null);
 
   const handleExport = (type: "csv" | "excel" | "pdf") => {
+    setActiveExport(type);
     exportBudget(
       {
         type,
@@ -28,8 +31,12 @@ const ExportBudgetModal = ({
       {
         onSuccess: () => {
           onClose();
+          setActiveExport(null);
         },
-      }
+        onError: () => {
+          setActiveExport(null);
+        },
+      },
     );
   };
 
@@ -87,20 +94,18 @@ const ExportBudgetModal = ({
             <ModalBody className="p-0">
               <div className="flex flex-col gap-2">
                 {exportOptions.map((option) => (
-                  <div
+                  <button
                     key={option.key}
-                    className={`flex cursor-pointer items-center gap-3 rounded-lg border border-default-200 p-3 transition-all hover:bg-default-50 hover:border-default-300 ${isPending ? "opacity-50 pointer-events-none" : ""
-                      }`}
-                    onClick={() => {
-                      if (!isPending) {
-                        option.action();
-                      }
-                    }}
+                    disabled={isPending}
+                    className={`flex cursor-pointer items-center w-full text-left gap-3 rounded-lg border border-default-200 p-3 transition-all hover:bg-default-50 hover:border-default-300 ${
+                      isPending ? "opacity-70 cursor-not-allowed" : ""
+                    }`}
+                    onClick={option.action}
                   >
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-default-50 border border-default-100">
                       {option.icon}
                     </div>
-                    <div className="flex flex-col gap-0.5">
+                    <div className="flex flex-col flex-1 gap-0.5">
                       <span className="text-sm font-medium text-default-900">
                         {option.title}
                       </span>
@@ -108,7 +113,13 @@ const ExportBudgetModal = ({
                         {option.description}
                       </span>
                     </div>
-                  </div>
+                    {isPending && activeExport === option.key && (
+                      <div className="flex items-center gap-2 text-xs font-medium text-primary">
+                        <div className="w-3 h-3 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                        <span>Exporting...</span>
+                      </div>
+                    )}
+                  </button>
                 ))}
               </div>
             </ModalBody>

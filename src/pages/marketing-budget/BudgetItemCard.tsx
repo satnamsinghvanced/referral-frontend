@@ -3,6 +3,7 @@ import React from "react";
 import { FiCalendar, FiEdit, FiTrash2 } from "react-icons/fi";
 import BudgetStatusChip from "../../components/chips/BudgetStatusChip";
 import PriorityLevelChip from "../../components/chips/PriorityLevelChip";
+import { getCategoryColor } from "../../consts/budget";
 import { BudgetItem } from "../../types/budget";
 import { formatDateToReadable } from "../../utils/formatDateToReadable";
 
@@ -28,15 +29,6 @@ const BudgetItemCard: React.FC<{
       ? item.subCategory
       : item.subCategory?.subCategory || "Unknown Subcategory";
 
-  // Assign colors based on platforms if possible, or default
-  const getCategoryColor = (cat: string) => {
-    const lower = cat.toLowerCase();
-    // if (lower.includes("google")) return "#DB4437";
-    // if (lower.includes("meta") || lower.includes("facebook")) return "#4267B2";
-    // if (lower.includes("tiktok")) return "#000000";
-    return "#3b82f6"; // Default blue
-  };
-
   const getPlatformName = (type?: string) => {
     switch (type) {
       case "google":
@@ -61,7 +53,7 @@ const BudgetItemCard: React.FC<{
             className={`size-4 rounded-sm`}
             style={{
               backgroundColor: getCategoryColor(
-                isSynced ? getPlatformName(item.type) : categoryTitle
+                isSynced ? getPlatformName(item.type) : categoryTitle,
               ),
             }}
           ></span>

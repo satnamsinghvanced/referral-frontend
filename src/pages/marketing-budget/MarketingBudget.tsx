@@ -12,7 +12,6 @@ import {
   LuCheck,
   LuDollarSign,
   LuDownload,
-  LuRefreshCw,
   LuTarget,
   LuTrendingDown,
   LuTrendingUp,
@@ -36,14 +35,14 @@ import ComponentContainer from "../../components/common/ComponentContainer";
 import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
 import EmptyState from "../../components/common/EmptyState";
 import { LoadingState } from "../../components/common/LoadingState";
-import { BUDGET_DURATIONS } from "../../consts/budget";
+import Pagination from "../../components/common/Pagination";
+import { BUDGET_DURATIONS, getCategoryColor } from "../../consts/budget";
 import { useBudgetItems, useDeleteBudgetItem } from "../../hooks/useBudget";
 import { BudgetItem } from "../../types/budget";
 import BudgetItemCard from "./BudgetItemCard";
 import BudgetActionModal from "./modal/BudgetActionModal";
 import ExportBudgetModal from "./modal/ExportBudgetModal";
 import ImportBudgetModal from "./modal/ImportBudgetModal";
-import Pagination from "../../components/common/Pagination";
 
 const MarketingBudget = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -52,7 +51,7 @@ const MarketingBudget = () => {
   const [currentFilters, setCurrentFilters] = useState<any>({
     period: "monthly",
     page: 1,
-    limit: 5,
+    limit: 10,
   });
   const [showDateRange, setShowDateRange] = useState(false);
   const [dateRange, setDateRange] = useState({
@@ -115,15 +114,6 @@ const MarketingBudget = () => {
     return `${name}: $${value.toLocaleString()}`;
   };
 
-  // Assign colors based on platforms if possible, or default
-  const getCategoryColor = (cat: string) => {
-    // const lower = cat.toLowerCase();
-    // if (lower.includes("google")) return "#DB4437";
-    // if (lower.includes("meta") || lower.includes("facebook")) return "#4267B2";
-    // if (lower.includes("tiktok")) return "#000000";
-    return "#3b82f6"; // Default blue
-  };
-
   const pagination = data?.pagination;
 
   // Transform pie chart data to ensure numbers
@@ -181,7 +171,7 @@ const MarketingBudget = () => {
   const renderTrend = (
     status: string | undefined,
     percentage: string | number,
-    label: string
+    label: string,
   ) => {
     const isIncrement = status === "increment";
     const isDecrement = status === "decrement";
@@ -220,7 +210,7 @@ const MarketingBudget = () => {
       subheading: renderTrend(
         stats.totalSpent.status,
         stats.totalSpent.percentage,
-        "of budget"
+        "of budget",
       ),
     },
     {
@@ -230,13 +220,13 @@ const MarketingBudget = () => {
       subheading: renderTrend(
         stats.remainingBudget.status,
         stats.remainingBudget.percentage,
-        "remaining"
+        "remaining",
       ),
     },
     {
       icon: <IoMdTrendingUp className="text-purple-600 dark:text-purple-400" />,
       heading: "Average ROI",
-      value: isLoading ? "..." : `${avgROI.toFixed(2)}%`,
+      value: isLoading ? "..." : `${avgROI}%`,
     },
   ];
 
@@ -266,10 +256,11 @@ const MarketingBudget = () => {
                     size="sm"
                     radius="full"
                     color="default"
-                    className={`relative z-1 font-medium text-sm bg-transparent h-9 text-default-500 ${currentFilters.period === duration.value
-                      ? "dark:text-background text-foreground"
-                      : ""
-                      }`}
+                    className={`relative z-1 font-medium text-sm bg-transparent h-9 text-default-500 ${
+                      currentFilters.period === duration.value
+                        ? "dark:text-background text-foreground"
+                        : ""
+                    }`}
                     onPress={() => {
                       setDateRange({ start: "", end: "" });
                       setCurrentFilters((prev: any) => ({
@@ -302,10 +293,11 @@ const MarketingBudget = () => {
                 <Button
                   variant={showDateRange ? "solid" : "ghost"}
                   color={showDateRange ? "primary" : "default"}
-                  className={`border ${!showDateRange
-                    ? "bg-background dark:bg-default-50 border-gray-300 dark:border-default-200"
-                    : "border-primary"
-                    }`}
+                  className={`border ${
+                    !showDateRange
+                      ? "bg-background dark:bg-default-50 border-gray-300 dark:border-default-200"
+                      : "border-primary"
+                  }`}
                   size="sm"
                   startContent={<LuCalendar fontSize={15} />}
                   onPress={() => setShowDateRange(!showDateRange)}
@@ -406,12 +398,12 @@ const MarketingBudget = () => {
                 className="p-0 border border-foreground/10 bg-background"
               >
                 <CardHeader className="p-5">
-                  <h4 className="flex  items-center gap-2 text-sm text-foreground">
+                  <h4 className="flex items-center gap-2 text-sm text-foreground">
                     <LuChartColumn fontSize={16} /> Spending vs Budget Trend
                   </h4>
                 </CardHeader>
                 <CardBody className="p-5 pt-0">
-                  <div className="my-1 -ml-3">
+                  <div className="my-1">
                     <BarChart
                       style={{
                         width: "100%",
@@ -423,7 +415,7 @@ const MarketingBudget = () => {
                       }}
                       responsive
                       data={data?.graphs?.monthlyBudgetGraph}
-                      margin={{ top: 5, right: 0, left: 0, bottom: 5 }}
+                      margin={{ top: 5, right: 0, left: 8, bottom: 5 }}
                     >
                       <CartesianGrid
                         strokeDasharray="3 3"
