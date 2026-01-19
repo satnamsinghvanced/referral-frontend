@@ -5,17 +5,32 @@ import { useExportBudgetItems } from "../../../hooks/useBudget";
 interface ExportBudgetModalProps {
   isOpen: boolean;
   onClose: () => void;
+  filters: {
+    period: string;
+    startDate?: string;
+    endDate?: string;
+  };
 }
 
-const ExportBudgetModal = ({ isOpen, onClose }: ExportBudgetModalProps) => {
+const ExportBudgetModal = ({
+  isOpen,
+  onClose,
+  filters,
+}: ExportBudgetModalProps) => {
   const { mutate: exportBudget, isPending } = useExportBudgetItems();
 
   const handleExport = (type: "csv" | "excel" | "pdf") => {
-    exportBudget(type, {
-      onSuccess: () => {
-        onClose();
+    exportBudget(
+      {
+        type,
+        ...filters,
       },
-    });
+      {
+        onSuccess: () => {
+          onClose();
+        },
+      }
+    );
   };
 
   const exportOptions = [
@@ -74,9 +89,8 @@ const ExportBudgetModal = ({ isOpen, onClose }: ExportBudgetModalProps) => {
                 {exportOptions.map((option) => (
                   <div
                     key={option.key}
-                    className={`flex cursor-pointer items-center gap-3 rounded-lg border border-default-200 p-3 transition-all hover:bg-default-50 hover:border-default-300 ${
-                      isPending ? "opacity-50 pointer-events-none" : ""
-                    }`}
+                    className={`flex cursor-pointer items-center gap-3 rounded-lg border border-default-200 p-3 transition-all hover:bg-default-50 hover:border-default-300 ${isPending ? "opacity-50 pointer-events-none" : ""
+                      }`}
                     onClick={() => {
                       if (!isPending) {
                         option.action();

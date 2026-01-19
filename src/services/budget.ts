@@ -58,21 +58,24 @@ export const importBudgetItemsCSV = async (
   return response.data;
 };
 
-export const exportBudgetItems = async (
-  type: "csv" | "excel" | "pdf"
-): Promise<Blob> => {
+export const exportBudgetItems = async ({
+  type,
+  period,
+  startDate,
+  endDate,
+}: {
+  type: "csv" | "excel" | "pdf";
+  period?: string;
+  startDate?: string;
+  endDate?: string;
+}): Promise<Blob> => {
   const response = await axios.post(
     "/marketing-budget/export",
-    { type },
+    { type, period, startDate, endDate },
     {
       responseType: "blob",
     }
   );
 
-  // Ensure we have a valid blob
-  if (!(response.data instanceof Blob)) {
-    throw new Error("Invalid response format from server");
-  }
-
-  return response.data;
+  return response as any;
 };

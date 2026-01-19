@@ -175,10 +175,16 @@ export const useImportBudgetItemsCSV = () => {
 
 export const useExportBudgetItems = () => {
   return useMutation({
-    mutationFn: (type: "csv" | "excel" | "pdf") => exportBudgetItems(type),
-    onSuccess: (blob, type) => {
+    mutationFn: (params: {
+      type: "csv" | "excel" | "pdf";
+      period?: string;
+      startDate?: string;
+      endDate?: string;
+    }) => exportBudgetItems(params),
+    onSuccess: (blob, variables) => {
+      const { type } = variables;
       // Validate that we received a proper Blob
-      if (!(blob instanceof Blob)) {
+      if (!blob || !(blob as Blob).size || (blob as Blob).type === "application/json") {
         addToast({
           title: "Error",
           description: "Invalid file format received from server.",
@@ -194,9 +200,8 @@ export const useExportBudgetItems = () => {
 
       // Set filename based on type
       const fileExtension = type === "excel" ? "xlsx" : type;
-      a.download = `budget_export_${
-        new Date().toISOString().split("T")[0]
-      }.${fileExtension}`;
+      a.download = `budget_export_${new Date().toISOString().split("T")[0]
+        }.${fileExtension}`;
 
       document.body.appendChild(a);
       a.click();
@@ -209,11 +214,23 @@ export const useExportBudgetItems = () => {
         color: "success",
       });
     },
-    onError: (error: AxiosError) => {
-      const errorMessage =
-        (error.response?.data as { message?: string })?.message ||
-        error.message ||
-        "Failed to export budget items";
+    onError: async (error: AxiosError) => {
+      let errorMessage = "Failed to export budget items";
+
+      if (error.response?.data instanceof Blob) {
+        try {
+          const text = await error.response.data.text();
+          const data = JSON.parse(text);
+          errorMessage = data.message || errorMessage;
+        } catch (e) {
+          console.error("Error parsing blob error response", e);
+        }
+      } else {
+        errorMessage =
+          (error.response?.data as { message?: string })?.message ||
+          error.message ||
+          errorMessage;
+      }
 
       addToast({
         title: "Error",

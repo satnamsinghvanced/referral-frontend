@@ -49,7 +49,7 @@ const MarketingBudget = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editBudgetItem, setEditBudgetItem] = useState<BudgetItem | null>(null);
   const [deleteBudgetItemId, setDeleteBudgetItemId] = useState("");
-  const [currentFilters, setCurrentFilters] = useState({
+  const [currentFilters, setCurrentFilters] = useState<any>({
     period: "monthly",
     page: 1,
     limit: 5,
@@ -190,14 +190,14 @@ const MarketingBudget = () => {
     const colorClass = isIncrement
       ? "text-green-600 dark:text-green-400"
       : isDecrement
-      ? "text-red-600 dark:text-red-400"
-      : "text-gray-500";
+        ? "text-red-600 dark:text-red-400"
+        : "text-gray-500";
 
     const Icon = isIncrement
       ? LuTrendingUp
       : isDecrement
-      ? LuTrendingDown
-      : null;
+        ? LuTrendingDown
+        : null;
 
     return (
       <span className={`${colorClass} flex items-center`}>
@@ -266,14 +266,13 @@ const MarketingBudget = () => {
                     size="sm"
                     radius="full"
                     color="default"
-                    className={`relative z-1 font-medium text-sm bg-transparent h-9 text-default-500 ${
-                      currentFilters.period === duration.value
-                        ? "dark:text-background text-foreground"
-                        : ""
-                    }`}
+                    className={`relative z-1 font-medium text-sm bg-transparent h-9 text-default-500 ${currentFilters.period === duration.value
+                      ? "dark:text-background text-foreground"
+                      : ""
+                      }`}
                     onPress={() => {
                       setDateRange({ start: "", end: "" });
-                      setCurrentFilters((prev) => ({
+                      setCurrentFilters((prev: any) => ({
                         ...prev,
                         period: duration.value,
                         startDate: undefined,
@@ -303,11 +302,10 @@ const MarketingBudget = () => {
                 <Button
                   variant={showDateRange ? "solid" : "ghost"}
                   color={showDateRange ? "primary" : "default"}
-                  className={`border ${
-                    !showDateRange
-                      ? "bg-background dark:bg-default-50 border-gray-300 dark:border-default-200"
-                      : "border-primary"
-                  }`}
+                  className={`border ${!showDateRange
+                    ? "bg-background dark:bg-default-50 border-gray-300 dark:border-default-200"
+                    : "border-primary"
+                    }`}
                   size="sm"
                   startContent={<LuCalendar fontSize={15} />}
                   onPress={() => setShowDateRange(!showDateRange)}
@@ -573,6 +571,11 @@ const MarketingBudget = () => {
       <ExportBudgetModal
         isOpen={isExportModalOpen}
         onClose={() => setIsExportModalOpen(false)}
+        filters={{
+          period: currentFilters.period,
+          startDate: currentFilters.startDate,
+          endDate: currentFilters.endDate,
+        }}
       />
 
       <ImportBudgetModal
