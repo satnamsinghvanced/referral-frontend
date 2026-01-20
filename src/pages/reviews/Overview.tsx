@@ -4,57 +4,11 @@ import {
   AreaChart,
   CartesianGrid,
   Legend,
-  Pie,
-  PieChart,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
-
-const MONTHLY_REVIEW_TRENDS = [
-  {
-    name: "Aug",
-    reviews: 89,
-    nfc: 23,
-    qr: 12,
-  },
-  {
-    name: "Sep",
-    reviews: 95,
-    nfc: 31,
-    qr: 18,
-  },
-  {
-    name: "Oct",
-    reviews: 103,
-    nfc: 42,
-    qr: 25,
-  },
-  {
-    name: "Nov",
-    reviews: 118,
-    nfc: 38,
-    qr: 21,
-  },
-  {
-    name: "Dec",
-    reviews: 134,
-    nfc: 45,
-    qr: 29,
-  },
-  {
-    name: "Jan",
-    reviews: 142,
-    nfc: 52,
-    qr: 31,
-  },
-];
-
-const REVIEWS_PLATFORM_DISTRUBUTION = [
-  { name: "Google", value: 542, fill: "#0ea5e9" },
-  { name: "Healthgrades", value: 174, fill: "#0284c7" },
-  { name: "Yelp", value: 298, fill: "#f97316" },
-];
+import { useGBPOverview } from "../../hooks/useReviews";
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -93,6 +47,14 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 };
 
 const Overview = () => {
+  const { data, isLoading } = useGBPOverview();
+
+  const monthlyStats = data?.monthlyStats || [];
+
+  if (isLoading) {
+    return <div className="text-sm text-gray-500">Loading chart data...</div>;
+  }
+
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-col sm:flex-row gap-4 w-full">
@@ -110,7 +72,7 @@ const Overview = () => {
                 aspectRatio: 1.618,
               }}
               responsive
-              data={MONTHLY_REVIEW_TRENDS}
+              data={monthlyStats}
               margin={{
                 top: 20,
                 right: 0,
@@ -148,37 +110,6 @@ const Overview = () => {
                 name="QR"
               />
             </AreaChart>
-          </CardBody>
-        </Card>
-        <Card
-          className="border border-foreground/10 bg-background w-full p-4 "
-          shadow="none"
-        >
-          <h6 className="text-sm">Review Platform Distribution</h6>
-          <CardBody className="text-xs px-3 pb-0 items-center">
-            <PieChart
-              style={{
-                width: "100%",
-                height: "100%",
-                maxWidth: "320px",
-                aspectRatio: 1,
-              }}
-              responsive
-            >
-              <Pie
-                data={REVIEWS_PLATFORM_DISTRUBUTION}
-                dataKey="value"
-                cx="50%"
-                cy="50%"
-                innerRadius="45%"
-                outerRadius="80%"
-                paddingAngle={3}
-                label
-                isAnimationActive
-              />
-              <Tooltip content={<CustomTooltip />} />
-              <Legend />
-            </PieChart>
           </CardBody>
         </Card>
       </div>

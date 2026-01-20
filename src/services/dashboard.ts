@@ -1,3 +1,4 @@
+import { DashboardData } from "../types/dashboard";
 import axios from "./axios";
 
 export const fetchDashboardStats = async () => {
@@ -5,7 +6,7 @@ export const fetchDashboardStats = async () => {
   return response.data;
 };
 
-export const fetchDashboardData = async () => {
+export const fetchDashboardData = async (): Promise<DashboardData> => {
   const response = await axios.get(`/dashboard`);
   return response.data;
 };

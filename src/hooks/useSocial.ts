@@ -2,9 +2,9 @@ import {
   useMutation,
   UseMutationResult,
   useQuery,
-  useQueryClient,
   UseQueryResult,
 } from "@tanstack/react-query";
+import { queryClient } from "../providers/QueryProvider";
 import {
   createSocialPost,
   fetchPostsAnalytics,
@@ -12,6 +12,7 @@ import {
   fetchSocialOverview,
   getSocialMediaCredentials,
   initiateAuthIntegration,
+  fetchGoogleBusinessPlatformOverview,
 } from "../services/social";
 import {
   AuthIntegrationResponse,
@@ -36,8 +37,6 @@ export const useInitiateAuthIntegration = (): UseMutationResult<
   any,
   PlatformAuthParams
 > => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: initiateAuthIntegration,
     onSuccess: (data, variables) => {
@@ -71,8 +70,6 @@ export const useRecentPosts = (page: number, limit: number) => {
 };
 
 export const useCreateSocialPost = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (formData: FormData) => createSocialPost(formData),
     onSuccess: () => {
@@ -80,5 +77,12 @@ export const useCreateSocialPost = () => {
       queryClient.invalidateQueries({ queryKey: ["social-overview"] });
       queryClient.invalidateQueries({ queryKey: ["recent-posts"] });
     },
+  });
+};
+
+export const useGoogleBusinessPlatformOverview = () => {
+  return useQuery({
+    queryKey: ["google-business-platform-overview"],
+    queryFn: fetchGoogleBusinessPlatformOverview,
   });
 };

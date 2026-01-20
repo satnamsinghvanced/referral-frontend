@@ -1,8 +1,16 @@
 import { Button } from "@heroui/react";
 import { FaArrowRightLong } from "react-icons/fa6";
-import { Link } from "react-router";
+import { Link, Navigate } from "react-router";
+import { useSelector } from "react-redux";
+import { RootState } from "../store";
 
 const NotFoundPage = () => {
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+
+  if (!isAuthenticated) {
+    return <Navigate to="/signin" replace />;
+  }
+
   return (
     <div className="flex flex-col gap-4 md:gap-5 items-center justify-center h-screen">
       <h1 className="text-7xl md:text-8xl text-primary font-bold">404</h1>

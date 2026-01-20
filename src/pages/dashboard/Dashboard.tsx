@@ -107,7 +107,7 @@ const Dashboard = () => {
   const renderTrend = (
     status: string,
     percentage: number,
-    label: string = "from last month"
+    label: string = "from last month",
   ) => {
     const isIncrement = status === "increment" || percentage > 0;
     const isDecrement = status === "decrement" || percentage < 0; // Assuming 'decrement' is the status for down
@@ -115,14 +115,14 @@ const Dashboard = () => {
     const colorClass = isIncrement
       ? "text-emerald-600 dark:text-emerald-400"
       : isDecrement
-      ? "text-red-600 dark:text-red-400"
-      : "text-gray-500";
+        ? "text-red-600 dark:text-red-400"
+        : "text-gray-500";
 
     const Icon = isIncrement
       ? LuTrendingUp
       : isDecrement
-      ? LuTrendingDown
-      : null;
+        ? LuTrendingDown
+        : null;
 
     return (
       <div className={`flex items-center gap-1 text-xs ${colorClass}`}>
@@ -141,15 +141,15 @@ const Dashboard = () => {
     const colorClass = isIncrement
       ? "text-emerald-600 dark:text-emerald-400"
       : status === "decrement"
-      ? "text-red-600 dark:text-red-400"
-      : "text-yellow-600 dark:text-yellow-400"; // Neutral/steady
+        ? "text-red-600 dark:text-red-400"
+        : "text-yellow-600 dark:text-yellow-400"; // Neutral/steady
 
     const Icon =
       status === "increment"
         ? LuTrendingUp
         : status === "decrement"
-        ? LuTrendingDown
-        : null;
+          ? LuTrendingDown
+          : null;
 
     return (
       <div className={`flex items-center gap-1 text-xs ${colorClass}`}>
@@ -167,7 +167,7 @@ const Dashboard = () => {
         value: dashboard?.totalReferrals?.total || 0,
         subheading: renderTrend(
           dashboard?.totalReferrals?.status || "",
-          dashboard?.totalReferrals?.percentage || 0
+          dashboard?.totalReferrals?.percentage || 0,
         ),
         onClick: () => navigate("/referrals"),
       },
@@ -178,7 +178,7 @@ const Dashboard = () => {
         subheading: renderTrend(
           dashboard?.activeCampaigns?.status || "",
           dashboard?.activeCampaigns?.percentage || 0,
-          "this month"
+          "this month",
         ), // Custom label based on image
         onClick: () => navigate("/email-campaigns"),
       },
@@ -190,7 +190,7 @@ const Dashboard = () => {
           : "0",
         subheading: renderReviewTrend(
           dashboard?.reviews?.status || "",
-          dashboard?.reviews?.avgRating || 0
+          dashboard?.reviews?.avgRating || 0,
         ),
         onClick: () => navigate("/reviews"),
       },
@@ -201,51 +201,66 @@ const Dashboard = () => {
         subheading: renderTrend(
           dashboard?.totalValue?.status || "",
           dashboard?.totalValue?.percentage || 0,
-          "vs last month"
+          "vs last month",
         ),
         onClick: () => navigate("/reports"),
       },
     ],
-    [dashboard, navigate]
+    [dashboard, navigate],
   );
 
   const recentActivities = [
-    dashboard?.recentActivity
+    dashboard?.recentActivity?.referral
       ? {
           icon: "👥",
           iconBg: "bg-sky-50 dark:bg-sky-900/20",
-          title: `New referral from ${dashboard?.recentActivity.referrer?.name}`,
-          description: `Patient: ${dashboard?.recentActivity.name}${
-            dashboard?.recentActivity.treatment
+          title: `New referral from ${
+            dashboard.recentActivity.referral.referrer?.name || "N/A"
+          }`,
+          description: `Patient: ${dashboard.recentActivity.referral.name}${
+            dashboard.recentActivity.referral.treatment
               ? ` - ${
                   TREATMENT_OPTIONS.find(
                     (treatmentOption: any) =>
                       treatmentOption.key ===
-                      dashboard?.recentActivity.treatment
-                  )?.label
+                      dashboard.recentActivity.referral!.treatment,
+                  )?.label || dashboard.recentActivity.referral.treatment
                 }`
               : ""
           }`,
-          time: `${timeAgo(dashboard?.recentActivity.createdAt)}`,
+          time: `${timeAgo(dashboard.recentActivity.referral.createdAt || "")}`,
           onClick: () => navigate("/referrals"),
         }
       : null,
-    {
-      icon: "⭐",
-      iconBg: "bg-yellow-50 dark:bg-yellow-900/20",
-      title: "5-star review received",
-      description: 'Sarah Johnson - "Excellent service and care!"',
-      time: "4 hours ago",
-      onClick: () => navigate("/reviews"),
-    },
-    {
-      icon: "📢",
-      iconBg: "bg-orange-50 dark:bg-orange-900/20",
-      title: "Marketing campaign launched",
-      description: "Back-to-School Smile Campaign - Social Media",
-      time: "6 hours ago",
-      onClick: () => navigate("/marketing-calendar"),
-    },
+    dashboard?.recentActivity?.reviews
+      ? {
+          icon: "⭐",
+          iconBg: "bg-yellow-50 dark:bg-yellow-900/20",
+          title: "New review received",
+          description: `${
+            dashboard.recentActivity.reviews.reviewer?.displayName || "Someone"
+          } left a ${
+            dashboard.recentActivity.reviews.starRating || "0"
+          } review`,
+          time: `${timeAgo(dashboard.recentActivity.reviews.createTime || "")}`,
+          onClick: () => navigate("/reviews"),
+        }
+      : {
+          icon: "⭐",
+          iconBg: "bg-yellow-50 dark:bg-yellow-900/20",
+          title: "No new reviews",
+          description: "Check back later for patient feedback",
+          time: "Recently",
+          onClick: () => navigate("/reviews"),
+        },
+    // {
+    //   icon: "📢",
+    //   iconBg: "bg-orange-50 dark:bg-orange-900/20",
+    //   title: "Marketing campaign active",
+    //   description: `${dashboard?.activeCampaigns?.totalActiveCampaigns || 0} active campaigns currently running`,
+    //   time: "Active now",
+    //   onClick: () => navigate("/marketing-calendar"),
+    // },
   ];
 
   const SYSTEM_STATUSES = [
@@ -353,7 +368,7 @@ const Dashboard = () => {
                       </p>
                     </div>
                   </div>
-                ) : null
+                ) : null,
               )}
             </div>
           </div>
@@ -385,7 +400,8 @@ const Dashboard = () => {
                     Conversion Rate
                   </span>
                   <span className="bg-emerald-100 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300 h-6 p-0 px-2 flex items-center justify-center rounded text-xs font-medium">
-                    {dashboard?.nfcQrData?.conversionRate > 0
+                    {dashboard?.nfcQrData?.conversionRate &&
+                    dashboard.nfcQrData.conversionRate > 0
                       ? `${dashboard.nfcQrData.conversionRate}%`
                       : "0%"}
                   </span>

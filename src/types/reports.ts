@@ -54,6 +54,10 @@ export interface ReportStats {
     count: number;
     types: string[];
   };
+  dataSources: {
+    count: number;
+    status: string;
+  };
 }
 
 export interface ReportsResponse {

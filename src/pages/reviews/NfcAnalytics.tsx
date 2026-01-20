@@ -1,81 +1,13 @@
-import { Card, Chip } from "@heroui/react"; // Assuming 'Card' and 'Chip' are available
-import { useState } from "react";
-import { FiUsers, FiWifi } from "react-icons/fi";
+import { Card } from "@heroui/react";
+import { FiWifi } from "react-icons/fi";
 import { GrLocation } from "react-icons/gr";
-import { MdOutlineLocationOn } from "react-icons/md";
+import { useFetchNFCDesks } from "../../hooks/useNFCDesk";
+import { NFCDeskCard } from "../../types/nfcDesk";
+import { LoadingState } from "../../components/common/LoadingState";
+import EmptyState from "../../components/common/EmptyState";
+import { LuNfc } from "react-icons/lu";
 
-// Mock Data (as defined above)
-const dashboardCards = [
-  {
-    id: "1",
-    title: "Front Desk Card",
-    location: "Downtown Office",
-    totalTaps: 142,
-    conversions: 89,
-    conversionRate: 62.7,
-    lastUsed: "1/20/2024",
-    users: [
-      {
-        initials: "MB",
-        name: "Michael Brown",
-        taps: 2,
-        last: "1/19/2024",
-        status: "Reviewed",
-      },
-      {
-        initials: "ED",
-        name: "Emily Davis",
-        taps: 1,
-        last: "1/18/2024",
-        status: "Pending",
-      },
-      {
-        initials: "AS",
-        name: "Adam Smith",
-        taps: 0,
-        last: "N/A",
-        status: "New",
-      },
-    ],
-  },
-  {
-    id: "2",
-    title: "Waiting Room Card",
-    location: "Downtown Office",
-    totalTaps: 87,
-    conversions: 52,
-    conversionRate: 59.8,
-    lastUsed: "1/19/2024",
-    users: [
-      {
-        initials: "JS",
-        name: "Jessica Stone",
-        taps: 5,
-        last: "1/19/2024",
-        status: "Reviewed",
-      },
-      {
-        initials: "PK",
-        name: "Peter King",
-        taps: 3,
-        last: "1/17/2024",
-        status: "Pending",
-      },
-    ],
-  },
-  {
-    id: "3",
-    title: "Checkout Counter",
-    location: "Westside Clinic",
-    totalTaps: 98,
-    conversions: 71,
-    conversionRate: 72.4,
-    lastUsed: "1/20/2024",
-    users: [],
-  },
-];
-
-// Helper to get status color
+// Helper to get status color (kept for future use if needed, or remove if unused)
 const getStatusColor = (status: string) => {
   switch (status) {
     case "Reviewed":
@@ -91,40 +23,36 @@ const getStatusColor = (status: string) => {
  * Renders a single dashboard card.
  * @param {object} props - Card data and state handlers.
  */
-const NfcCard = ({ data, isOpen, toggleUsers }: any) => {
-  const {
-    title,
-    location,
-    totalTaps,
-    conversions,
-    conversionRate,
-    lastUsed,
-    users,
-  } = data;
+const NfcCard = ({ data }: { data: NFCDeskCard }) => {
+  const { name, locations, totalTap, totalReview, conversionRate, lastScan } =
+    data;
   const progressBarWidth = `${conversionRate}%`;
+
+  const locationName =
+    locations.length > 0
+      ? locations.map((l) => l.name).join(", ")
+      : "No Location";
 
   return (
     // Card component from @heroui/react
     <Card
-      className="p-4 border border-foreground/10 shadow-none transition-shadow hover:shadow-lg cursor-pointer flex flex-col"
-      isPressable
+      className="p-4 border border-foreground/10 shadow-none transition-shadow hover:shadow-lg cursor-default flex flex-col"
       disableAnimation
-      onPress={() => toggleUsers(data.id)}
     >
       <div className="flex items-center font-medium mb-2">
         <FiWifi className="text-xl text-blue-600" />
-        <span className="ml-1.5 text-base">{title}</span>
+        <span className="ml-1.5 text-base">{name}</span>
       </div>
       <div className="flex items-center text-xs text-gray-600 dark:text-foreground/60 mb-4">
         <GrLocation className="text-base" />
-        <span className="ml-1">{location}</span>
+        <span className="ml-1">{locationName}</span>
       </div>
 
       {/* Taps & Conversions Stats */}
       <div className="flex justify-between items-center mb-4">
         <div className="flex-1 mr-2 text-center p-3 bg-gradient-to-br from-sky-50 to-sky-100 dark:from-sky-500/10 dark:to-sky-500/20 rounded-lg">
           <p className="text-xl font-bold text-sky-700 dark:text-sky-300">
-            {totalTaps}
+            {totalTap}
           </p>
           <p className="text-xs text-gray-600 dark:text-sky-200/70">
             Total Taps
@@ -132,10 +60,10 @@ const NfcCard = ({ data, isOpen, toggleUsers }: any) => {
         </div>
         <div className="flex-1 ml-2 text-center p-3 bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-500/10 dark:to-emerald-500/20 rounded-lg">
           <p className="text-xl font-bold text-green-700 dark:text-emerald-300">
-            {conversions}
+            {totalReview}
           </p>
           <p className="text-xs text-gray-600 dark:text-emerald-200/70">
-            Conversions
+            Reviews
           </p>
         </div>
       </div>
@@ -157,87 +85,42 @@ const NfcCard = ({ data, isOpen, toggleUsers }: any) => {
           ></div>
         </div>
         <span className="text-xs text-gray-600 dark:text-foreground/60 mt-3 text-left">
-          Last used: {lastUsed}
+          Last used:{" "}
+          {lastScan ? new Date(lastScan).toLocaleDateString() : "N/A"}
         </span>
       </div>
-
-      {/* Associated Users Section (Initially hidden) */}
-      {isOpen && (
-        <div
-          className={`mt-4 border-t border-foreground/10 pt-4 transition-all duration-300 ${
-            isOpen
-              ? "h-auto opacity-100 visible"
-              : "max-h-0 opacity-0 overflow-hidden"
-          }`}
-        >
-          <div className="flex items-center text-sm text-gray-700 dark:text-foreground/80 font-medium mb-3">
-            <FiUsers className="mr-2" />
-            Associated Users ({users.length})
-          </div>
-
-          <div className="space-y-2 max-h-[110px] overflow-auto">
-            {users.map((user: any, index: number) => (
-              <div
-                key={index}
-                className="flex items-center justify-between bg-gray-50 dark:bg-content1 p-2 rounded-md"
-              >
-                <div className="flex items-center justify-start">
-                  {/* User Initials Badge */}
-                  <div className="w-8 h-8 rounded-full bg-blue-100 text-foreground dark:bg-blue-900/30 flex items-center justify-center text-xs font-medium mr-2">
-                    {user.initials}
-                  </div>
-                  <div className="text-left">
-                    <p className="text-xs font-medium text-gray-900 dark:text-foreground">
-                      {user.name}
-                    </p>
-                    <p className="text-xs text-gray-600 dark:text-foreground/60">
-                      {user.taps} taps • Last: {user.last}
-                    </p>
-                  </div>
-                </div>
-                <Chip
-                  size="sm"
-                  radius="sm"
-                  className={`text-[11px] font-medium h-5 border ${getStatusColor(
-                    user.status
-                  )}`}
-                >
-                  {user.status}
-                </Chip>
-              </div>
-            ))}
-            {users.length === 0 && (
-              <p className="text-xs text-gray-600 dark:text-foreground/60 text-center py-2">
-                No associated users to display.
-              </p>
-            )}
-          </div>
-        </div>
-      )}
     </Card>
   );
 };
 
 // Main component
 export default function NfcAnalytics() {
-  // State to track which card's user list is open (null or the card ID)
-  const [openCardId, setOpenCardId] = useState<string | null>(null);
+  const { data, isLoading } = useFetchNFCDesks(1, 100); // Fetch mostly all for analytics view
+  const tags = data?.data || [];
 
-  // Toggle function for click interaction
-  const toggleUsers = (id: string) => {
-    setOpenCardId(openCardId === id ? null : id);
-  };
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[300px]">
+        <LoadingState />
+      </div>
+    );
+  }
+
+  if (tags.length === 0) {
+    return (
+      <EmptyState
+        title="No NFC/QR Tags Found"
+        message="Create your first review collection tag to see analytics."
+        icon={<LuNfc size={32} className="text-primary-500" />}
+      />
+    );
+  }
 
   return (
     <div className="">
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-        {dashboardCards.map((card) => (
-          <NfcCard
-            key={card.id}
-            data={card}
-            isOpen={openCardId === card.id}
-            toggleUsers={toggleUsers}
-          />
+        {tags.map((tag: NFCDeskCard) => (
+          <NfcCard key={tag._id} data={tag} />
         ))}
       </div>
     </div>

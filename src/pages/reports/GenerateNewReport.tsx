@@ -135,7 +135,7 @@ const GenerateNewReportModal = ({
           <h2 className="text-base font-medium">
             Generate New Marketing Report
           </h2>
-          <p className="text-gray-500 dark:text-foreground/40 font-normal text-xs">
+          <p className="text-gray-500 dark:text-foreground/60 font-normal text-xs">
             Create a custom report with specific metrics, time ranges, and
             export formats
           </p>

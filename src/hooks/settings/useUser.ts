@@ -1,6 +1,7 @@
 import { addToast } from "@heroui/react";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
+import { queryClient } from "../../providers/QueryProvider";
 import { fetchUserForTrackings } from "../../services/referralBypassFunction";
 import { fetchUser, updateUser, User } from "../../services/settings/user";
 import { store } from "../../store";
@@ -28,8 +29,6 @@ export function useFetchUserForTrackings(id: string) {
 }
 
 export function useUpdateUser(id: string) {
-  const queryClient = useQueryClient();
-
   return useMutation<User, AxiosError, Partial<User>>({
     mutationFn: (userData) => updateUser(id, userData),
     onSuccess: () => {

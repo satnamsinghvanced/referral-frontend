@@ -30,6 +30,7 @@ export const initSocket = () => {
       auth: {
         token: token,
       },
+      path: "/referral-retrieve/Referral-Node-Api/socket.io/",
       transports: ["websocket", "polling"],
     });
 

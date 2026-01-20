@@ -159,7 +159,6 @@ const Notifications: React.FC = () => {
           }
         });
       }
-
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(settings.vapidPublicKey),
@@ -169,6 +168,24 @@ const Notifications: React.FC = () => {
     } catch (error) {
       console.error("Failed to subscribe to push notifications:", error);
       return null;
+    }
+  };
+
+  const unsubscribeFromPush = async () => {
+    try {
+      const registration = await navigator.serviceWorker.getRegistration(
+        "/referral-retrieve/",
+      );
+      if (registration) {
+        const subscription = await registration.pushManager.getSubscription();
+        if (subscription) {
+          await subscription.unsubscribe();
+        }
+      }
+      return true;
+    } catch (error) {
+      console.error("Failed to unsubscribe from push notifications:", error);
+      return false;
     }
   };
 
@@ -272,6 +289,128 @@ const Notifications: React.FC = () => {
     updateRule(id, { [which]: val } as Partial<Rule>);
   };
 
+  const getBrowserId = () => {
+    const ua = window.navigator.userAgent;
+    if (ua.includes("Chrome")) return `chrome_${Date.now()}`;
+    if (ua.includes("Firefox")) return `firefox_${Date.now()}`;
+    if (ua.includes("Safari")) return `safari_${Date.now()}`;
+    if (ua.includes("Edge")) return `edge_${Date.now()}`;
+    return `browser_${Date.now()}`;
+  };
+
+  const handleBrowserToggle = async (enabled: boolean) => {
+    if (!settings?._id) return;
+
+    if (!("Notification" in window)) {
+      addToast({
+        title: "Not Supported",
+        description: "This browser does not support desktop notifications.",
+        color: "danger",
+      });
+      return;
+    }
+
+    if (enabled) {
+      // Check if already denied
+      if (Notification.permission === "denied") {
+        addToast({
+          title: "Permission Blocked",
+          description:
+            "Notifications are blocked. Please enable them in your browser settings (click the lock icon in the address bar).",
+          color: "danger",
+        });
+        setPermissionStatus("denied");
+        return;
+      }
+
+      // Prompt for permission immediately
+      const permission = await Notification.requestPermission();
+      setPermissionStatus(permission);
+
+      if (permission === "granted") {
+        const browserSubscription = await subscribeToPush();
+        if (browserSubscription) {
+          const payload: UpdateNotificationPayload = {
+            globalEnabled,
+            notifications: rules.map((r) => ({
+              label: r.id,
+              enabled: r.enabled,
+              push: r.channels.push,
+              email: r.channels.email,
+              sms: r.channels.sms,
+              inApp: r.channels.inApp,
+              activeHours: {
+                enabled: r.activeHoursEnabled,
+                startTime: formatTime(r.startTime),
+                endTime: formatTime(r.endTime),
+              },
+            })),
+            browser: {
+              browserId: getBrowserId(),
+              endpoint: browserSubscription.endpoint,
+              p256dh: browserSubscription.keys?.p256dh,
+              auth: browserSubscription.keys?.auth,
+            },
+          };
+
+          updateMutation.mutate(
+            { id: settings._id, payload },
+            {
+              onSuccess: () => {
+                addToast({
+                  title: "Connected",
+                  description: "Browser notifications enabled successfully.",
+                  color: "success",
+                });
+                refetch();
+              },
+            },
+          );
+        }
+      }
+    } else {
+      // Unsubscribe and clear backend data
+      await unsubscribeFromPush();
+      const payload: UpdateNotificationPayload = {
+        globalEnabled,
+        notifications: rules.map((r) => ({
+          label: r.id,
+          enabled: r.enabled,
+          push: r.channels.push,
+          email: r.channels.email,
+          sms: r.channels.sms,
+          inApp: r.channels.inApp,
+          activeHours: {
+            enabled: r.activeHoursEnabled,
+            startTime: formatTime(r.startTime),
+            endTime: formatTime(r.endTime),
+          },
+        })),
+        browser: {
+          browserId: "",
+          endpoint: "",
+          p256dh: "",
+          auth: "",
+        },
+      };
+
+      updateMutation.mutate(
+        { id: settings._id, payload },
+        {
+          onSuccess: () => {
+            addToast({
+              title: "Disconnected",
+              description: "Browser notifications disabled.",
+              color: "primary",
+            });
+            refetch();
+          },
+        },
+      );
+      setPermissionStatus("default");
+    }
+  };
+
   const handleSave = async () => {
     if (!settings?._id) return;
 
@@ -299,10 +438,10 @@ const Notifications: React.FC = () => {
       })),
       ...(browserSubscription && {
         browser: {
+          browserId: getBrowserId(),
           endpoint: browserSubscription.endpoint,
           p256dh: browserSubscription.keys?.p256dh,
           auth: browserSubscription.keys?.auth,
-          status: "Connected",
         },
       }),
     };
@@ -414,10 +553,15 @@ const Notifications: React.FC = () => {
                     <FiBell className="h-5 w-5" />
                     Browser Permission Status
                   </h4>
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-foreground/10 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-[10px] font-medium text-gray-600 dark:text-gray-300">
-                    <FiWifi className="size-3" />
-                    <span>Connected</span>
-                  </div>
+                  <Switch
+                    size="sm"
+                    isSelected={
+                      permissionStatus === "granted" &&
+                      !!settings?.browser?.endpoint
+                    }
+                    onValueChange={handleBrowserToggle}
+                    aria-label="Toggle Browser Notifications"
+                  />
                 </div>
 
                 {/* Content */}

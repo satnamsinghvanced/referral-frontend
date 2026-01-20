@@ -96,7 +96,7 @@ const PartnerNetworkCard = ({ partner, actions }: PartnerNetworkCardProps) => {
                 >
                   {action.icon}
                   {action.label === "Notes" && partner.tasksCount > 0 && (
-                    <span className="size-3.5 text-[8px] bg-orange-500 text-white rounded-full absolute -top-1 -right-1 flex items-center justify-center">
+                    <span className="size-3.5 text-[8px] bg-orange-500 dark:bg-orange-600 text-white dark:text-white rounded-full absolute -top-1 -right-1 flex items-center justify-center border-1 border-white dark:border-default-100">
                       {partner.tasksCount}
                     </span>
                   )}

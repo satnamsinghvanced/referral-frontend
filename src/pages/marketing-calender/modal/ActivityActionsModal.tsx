@@ -48,7 +48,7 @@ export const ActivityValidationSchema = Yup.object().shape({
         const { startDate } = this.parent;
         if (!value || !startDate) return true;
         return new Date(value) >= new Date(startDate);
-      }
+      },
     )
     .optional()
     .nullable(),
@@ -117,7 +117,7 @@ export default function ActivityActionsModal({
           // values,
           {
             onSuccess: onClose,
-          }
+          },
         );
       } else {
         // @ts-ignore
@@ -126,7 +126,7 @@ export default function ActivityActionsModal({
             ...values,
             colorId:
               ACTIVITY_TYPES.find(
-                (activity) => activity.value === values.type
+                (activity) => activity.value === values.type,
               )?.color.id.toString() || "1",
           },
           {
@@ -134,7 +134,7 @@ export default function ActivityActionsModal({
               onClose();
               formik.resetForm();
             },
-          }
+          },
         );
       }
     },
@@ -164,7 +164,7 @@ export default function ActivityActionsModal({
       }}
       size="2xl"
     >
-      <ModalContent className="p-5">
+      <ModalContent className="p-4">
         <ModalHeader className="flex flex-col gap-2 text-center sm:text-left flex-shrink-0 p-0">
           <div className="flex items-center space-x-2">
             <h4 className="text-base leading-none font-medium text-foreground">
@@ -269,7 +269,7 @@ export default function ActivityActionsModal({
                     const second = String(dateObject.second).padStart(2, "0");
                     const millisecond = String(dateObject.millisecond).padStart(
                       3,
-                      "0"
+                      "0",
                     );
 
                     const localDateTimeString = `${year}-${month}-${day}T${hour}:${minute}:${second}.${millisecond}Z`;
@@ -315,7 +315,7 @@ export default function ActivityActionsModal({
                     const second = String(dateObject.second).padStart(2, "0");
                     const millisecond = String(dateObject.millisecond).padStart(
                       3,
-                      "0"
+                      "0",
                     );
 
                     const localDateTimeString = `${year}-${month}-${day}T${hour}:${minute}:${second}.${millisecond}Z`;
@@ -368,7 +368,7 @@ export default function ActivityActionsModal({
                 onSelectionChange={(keys) =>
                   formik.setFieldValue(
                     "priority",
-                    Array.from(keys)[0] as string
+                    Array.from(keys)[0] as string,
                   )
                 }
                 onBlur={() => formik.setFieldTouched("priority", true)}

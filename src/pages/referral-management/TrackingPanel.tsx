@@ -166,7 +166,7 @@ const TrackingPanel = () => {
           setCustomPath("");
           setSelectedQrId(null);
         },
-      }
+      },
     );
   };
 
@@ -266,7 +266,7 @@ const TrackingPanel = () => {
             ) : (
               <div className="space-y-4 md:space-y-5 mt-2">
                 <div className="flex flex-col items-center justify-center">
-                  <div className="bg-white rounded-lg border-2 border-foreground/10 dark:border-divider inline-block overflow-hidden">
+                  <div className="bg-white dark:bg-background rounded-lg border-2 border-foreground/10 dark:border-divider inline-block overflow-hidden">
                     <img
                       src={latestQr.qrCode}
                       alt="QR Code"
@@ -540,7 +540,7 @@ const TrackingPanel = () => {
                     }`}
                   >
                     <td className="text-left text-xs py-3 px-2 max-w-fit">
-                      <div className="bg-white border border-foreground/10 dark:bg-white dark:border-divider rounded p-0.5 w-12 h-12 flex items-center justify-center">
+                      <div className="bg-white dark:bg-background border border-foreground/10 dark:border-divider rounded p-0.5 w-12 h-12 flex items-center justify-center">
                         <img
                           src={qr.qrCode}
                           alt="QR"

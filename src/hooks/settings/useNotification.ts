@@ -1,9 +1,10 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { queryClient } from "../../providers/QueryProvider";
 import {
-  fetchNotificationSettings,
-  updateNotificationSettings,
   fetchInAppNotifications,
+  fetchNotificationSettings,
   markNotificationsAsRead,
+  updateNotificationSettings,
 } from "../../services/settings/notification";
 import { UpdateNotificationPayload } from "../../types/notification";
 
@@ -22,7 +23,6 @@ export const useInAppNotifications = () => {
 };
 
 export const useMarkNotificationsRead = () => {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (notificationIds: string[]) =>
       markNotificationsAsRead(notificationIds),
@@ -33,8 +33,6 @@ export const useMarkNotificationsRead = () => {
 };
 
 export const useUpdateNotifications = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: ({
       id,

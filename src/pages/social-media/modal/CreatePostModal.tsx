@@ -173,7 +173,7 @@ export function CreatePostModal({
   const availablePlatforms = useMemo(() => {
     if (!overviewData?.platformPerformance) return [];
     return PLATFORMS.filter(
-      (p) => (overviewData.platformPerformance as any)[p.name]?.connected
+      (p) => (overviewData.platformPerformance as any)[p.name]?.connected,
     );
   }, [overviewData]);
 
@@ -264,7 +264,7 @@ export function CreatePostModal({
         imageFormats = [...spec.images.formats];
       } else {
         imageFormats = imageFormats.filter((f) =>
-          spec.images.formats.includes(f)
+          spec.images.formats.includes(f),
         );
       }
       maxImageSize = Math.min(maxImageSize, spec.images.maxSize);
@@ -273,7 +273,7 @@ export function CreatePostModal({
         videoFormats = [...spec.videos.formats];
       } else {
         videoFormats = videoFormats.filter((f) =>
-          spec.videos.formats.includes(f)
+          spec.videos.formats.includes(f),
         );
       }
       maxVideoSize = Math.min(maxVideoSize, spec.videos.maxSize);
@@ -345,7 +345,7 @@ export function CreatePostModal({
 
   const handleRemoveHashtag = (tagToRemove: string) => {
     setActiveHashtags((prevTags) =>
-      prevTags.filter((tag) => tag !== tagToRemove)
+      prevTags.filter((tag) => tag !== tagToRemove),
     );
   };
 
@@ -356,7 +356,7 @@ export function CreatePostModal({
   const suggestedHashtagsToDisplay = useMemo(() => {
     const activeSet = new Set(activeHashtags.map((tag) => tag.toLowerCase()));
     return ALL_SUGGESTED_HASHTAGS.filter(
-      (tag) => !activeSet.has(tag.toLowerCase())
+      (tag) => !activeSet.has(tag.toLowerCase()),
     );
   }, [activeHashtags]);
 
@@ -374,7 +374,11 @@ export function CreatePostModal({
   const hasError = (field: keyof typeof formik.initialValues) =>
     !!(formik.touched[field] && formik.errors[field]);
 
-  const ErrorText = ({ field }: { field: keyof typeof formik.initialValues }) =>
+  const ErrorText = ({
+    field,
+  }: {
+    field: keyof typeof formik.initialValues;
+  }) =>
     hasError(field) ? (
       <p className="text-[11px] text-danger mt-1">
         {formik.errors[field] as string}
@@ -392,16 +396,16 @@ export function CreatePostModal({
       }}
     >
       <ModalContent className="p-0">
-        <ModalHeader className="flex flex-col gap-2 p-5 font-normal">
+        <ModalHeader className="flex flex-col gap-2 p-4 font-normal">
           <h4 className="text-base leading-none font-medium">
             Create New Post
           </h4>
-          <p className="text-xs text-gray-600">
+          <p className="text-gray-600 dark:text-foreground/60 text-xs font-normal">
             Create and schedule posts across your social media platforms
           </p>
         </ModalHeader>
 
-        <ModalBody className="space-y-4 md:space-y-5 px-5 py-0 gap-0 max-h-[75vh] overflow-auto">
+        <ModalBody className="space-y-4 md:space-y-5 px-4 py-0 gap-0 max-h-[75vh] overflow-auto">
           {/* Post Title */}
           <div className="space-y-0.5">
             <Input
@@ -460,7 +464,7 @@ export function CreatePostModal({
                   key={platform.name}
                   platform={platform}
                   isSelected={formik.values.selectedPlatforms.includes(
-                    platform.name
+                    platform.name,
                   )}
                   onClick={handlePlatformToggle}
                 />
@@ -487,7 +491,7 @@ export function CreatePostModal({
               onSelectionChange={(keys: any) =>
                 formik.setFieldValue(
                   "publishSchedule",
-                  Array.from(keys)[0] as string
+                  Array.from(keys)[0] as string,
                 )
               }
             >
@@ -520,7 +524,7 @@ export function CreatePostModal({
                       if (value) {
                         formik.setFieldValue(
                           "scheduledDate",
-                          formatCalendarDate(value)
+                          formatCalendarDate(value),
                         );
                       }
                     }}
@@ -542,7 +546,7 @@ export function CreatePostModal({
                     onChange={(timeValue) => {
                       const timeString = `${String(timeValue?.hour).padStart(
                         2,
-                        "0"
+                        "0",
                       )}:${String(timeValue?.minute).padStart(2, "0")}`;
                       formik.setFieldValue("scheduledTime", timeString);
                     }}
@@ -597,7 +601,7 @@ export function CreatePostModal({
                       `Images: ${safeMediaConstraints.allowedImageFormats
                         .map((f) => f.split("/")[1]?.toUpperCase() || "FILE")
                         .join(", ")} (max ${Math.round(
-                        safeMediaConstraints.maxImageSize / (1024 * 1024)
+                        safeMediaConstraints.maxImageSize / (1024 * 1024),
                       )}MB)`}
                     {safeMediaConstraints.allowedImageFormats.length > 0 &&
                       safeMediaConstraints.allowedVideoFormats.length > 0 &&
@@ -606,7 +610,7 @@ export function CreatePostModal({
                       `Videos: ${safeMediaConstraints.allowedVideoFormats
                         .map((f) => f.split("/")[1]?.toUpperCase() || "FILE")
                         .join(", ")} (max ${Math.round(
-                        safeMediaConstraints.maxVideoSize / (1024 * 1024)
+                        safeMediaConstraints.maxVideoSize / (1024 * 1024),
                       )}MB)`}
                     {safeMediaConstraints.allowedImageFormats.length === 0 &&
                       safeMediaConstraints.allowedVideoFormats.length === 0 &&
@@ -691,7 +695,7 @@ export function CreatePostModal({
           </div>
         </ModalBody>
 
-        <ModalFooter className="flex justify-end space-x-0 p-5">
+        <ModalFooter className="flex justify-end space-x-0 p-4">
           <Button
             variant="ghost"
             size="sm"

@@ -5,6 +5,7 @@ import {
   PostAnalyticsResponse,
   RecentPostsResponse,
   SocialOverviewResponse,
+  GBPPlatformOverviewResponse,
 } from "../types/social";
 import axios from "./axios";
 
@@ -55,7 +56,7 @@ export const fetchPostsAnalytics = async (): Promise<PostAnalyticsResponse> => {
 
 export const fetchRecentPosts = async (
   page: number = 1,
-  limit: number = 10
+  limit: number = 10,
 ): Promise<RecentPostsResponse> => {
   const response = await axios.get("/social-media-post/recent-posts", {
     params: { page, limit },
@@ -71,3 +72,11 @@ export const createSocialPost = async (payload: FormData): Promise<any> => {
   });
   return response.data;
 };
+
+export const fetchGoogleBusinessPlatformOverview =
+  async (): Promise<GBPPlatformOverviewResponse> => {
+    const response = await axios.get(
+      "/social-media/google_business_platform_overview",
+    );
+    return response.data;
+  };

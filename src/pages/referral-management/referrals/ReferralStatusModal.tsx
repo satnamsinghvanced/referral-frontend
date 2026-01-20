@@ -72,7 +72,7 @@ const ReferralStatusModal = ({
             onClose();
             // formik.resetForm();
           },
-        }
+        },
       );
     },
   });
@@ -96,7 +96,7 @@ const ReferralStatusModal = ({
       }}
     >
       <ModalContent>
-        <ModalHeader className="flex-col px-5 font-normal space-y-1">
+        <ModalHeader className="flex-col px-4 font-normal space-y-1">
           <h2 className="text-base font-medium dark:text-white">
             {modalTitle}
           </h2>
@@ -108,11 +108,11 @@ const ReferralStatusModal = ({
         {/* Dialog Body */}
 
         {!referral ? (
-          <ModalBody className="py-4 pt-1 px-5 gap-0 min-h-[400px] flex items-center justify-center">
+          <ModalBody className="py-4 pt-1 px-4 gap-0 min-h-[400px] flex items-center justify-center">
             <LoadingState />
           </ModalBody>
         ) : (
-          <ModalBody className="space-y-4 py-4 pt-1 px-5 gap-0">
+          <ModalBody className="space-y-4 py-4 pt-1 px-4 gap-0">
             {/* Patient Info Card */}
             <div className="bg-gray-50 dark:bg-background/50 p-4 rounded-lg space-y-2">
               <div className="flex items-center gap-2">
@@ -164,7 +164,7 @@ const ReferralStatusModal = ({
                   {
                     TREATMENT_OPTIONS.find(
                       (treatmentOption: any) =>
-                        treatmentOption.key === referral.treatment
+                        treatmentOption.key === referral.treatment,
                     )?.label
                   }
                 </div>

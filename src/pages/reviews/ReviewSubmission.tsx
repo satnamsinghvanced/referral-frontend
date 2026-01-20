@@ -2,26 +2,26 @@ import {
   Button,
   Card,
   CardBody,
+  Input,
   Select,
   SelectItem,
-  Textarea,
 } from "@heroui/react";
 import { useFormik } from "formik";
 import { useEffect } from "react";
 import { FiLoader, FiMessageCircle } from "react-icons/fi";
 import { useParams } from "react-router-dom";
 import * as Yup from "yup";
-import {
-  useFetchNFCDeskById,
-  useScanNFCDesk,
-  useSubmitNFCReview,
-} from "../../hooks/useNFCDesk";
+import { useFetchNFCDeskById, useScanNFCDesk } from "../../hooks/useNFCDesk";
+import { useCreateGBPReview } from "../../hooks/useReviews";
 
 const ReviewSchema = Yup.object().shape({
   locationId: Yup.string().required("Please select a location"),
-  review: Yup.string()
-    .required("Please enter your review")
-    .min(10, "Review must be at least 10 characters"),
+  reviewerName: Yup.string()
+    .required("Name is required")
+    .min(2, "Name too short"),
+  reviewerEmail: Yup.string()
+    .email("Invalid email")
+    .required("Email is required"),
 });
 
 const ReviewSubmission = () => {
@@ -32,11 +32,11 @@ const ReviewSubmission = () => {
   }>();
 
   const { data: tagResponse, isLoading: isTagLoading } = useFetchNFCDeskById(
-    tagId || ""
+    tagId || "",
   );
   const { mutate: scanTag } = useScanNFCDesk();
-  const { mutateAsync: submitReview, isPending: isSubmitting } =
-    useSubmitNFCReview();
+  const { mutateAsync: createReviewRequest, isPending: isSubmitting } =
+    useCreateGBPReview();
 
   const tag = tagResponse?.data || tagResponse;
   const locations = tag?.locations || [];
@@ -54,22 +54,25 @@ const ReviewSubmission = () => {
   const formik = useFormik({
     initialValues: {
       locationId: "",
-      review: "",
+      reviewerName: "",
+      reviewerEmail: "",
     },
     validationSchema: ReviewSchema,
     onSubmit: async (values) => {
       if (!tagId) return;
       try {
-        await submitReview({
-          tagId,
-          payload: {
-            locationId: values.locationId,
-            review: values.review,
-          },
+        const response = await createReviewRequest({
+          locationId: values.locationId,
+          reviewerName: values.reviewerName,
+          reviewerEmail: values.reviewerEmail,
+          deskId: tagId,
         });
-        formik.resetForm();
+
+        if (response?.data?.googleReviewUrl) {
+          window.location.href = response.data.googleReviewUrl;
+        }
       } catch (error) {
-        console.error("Error submitting review:", error);
+        console.error("Error submitting review request:", error);
       }
     },
   });
@@ -149,20 +152,55 @@ const ReviewSubmission = () => {
               </div>
 
               <div className="space-y-2">
-                <Textarea
-                  label="Your Review"
-                  labelPlacement="outside-top"
+                <Input
+                  label="Your Name"
+                  labelPlacement="outside"
                   size="sm"
-                  placeholder="Share your experience with us..."
-                  rows={5}
-                  value={formik.values.review}
-                  onValueChange={(val) => formik.setFieldValue("review", val)}
+                  placeholder="Enter your name"
+                  value={formik.values.reviewerName}
+                  onValueChange={(val) =>
+                    formik.setFieldValue("reviewerName", val)
+                  }
                   onBlur={formik.handleBlur}
-                  name="review"
-                  isInvalid={!!(formik.touched.review && formik.errors.review)}
-                  errorMessage={formik.touched.review && formik.errors.review}
+                  name="reviewerName"
+                  isInvalid={
+                    !!(
+                      formik.touched.reviewerName && formik.errors.reviewerName
+                    )
+                  }
+                  errorMessage={
+                    formik.touched.reviewerName && formik.errors.reviewerName
+                  }
                   radius="sm"
-                  classNames={{ label: "font-medium", inputWrapper: "py-2" }}
+                  classNames={{ label: "font-medium" }}
+                  isRequired
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Input
+                  label="Email Address"
+                  labelPlacement="outside"
+                  size="sm"
+                  placeholder="Enter your email"
+                  type="email"
+                  value={formik.values.reviewerEmail}
+                  onValueChange={(val) =>
+                    formik.setFieldValue("reviewerEmail", val)
+                  }
+                  onBlur={formik.handleBlur}
+                  name="reviewerEmail"
+                  isInvalid={
+                    !!(
+                      formik.touched.reviewerEmail &&
+                      formik.errors.reviewerEmail
+                    )
+                  }
+                  errorMessage={
+                    formik.touched.reviewerEmail && formik.errors.reviewerEmail
+                  }
+                  radius="sm"
+                  classNames={{ label: "font-medium" }}
                   isRequired
                 />
               </div>
@@ -175,7 +213,7 @@ const ReviewSubmission = () => {
                 isLoading={isSubmitting}
                 isDisabled={!formik.isValid || !formik.dirty}
               >
-                Submit Review
+                Continue to Google Review
               </Button>
             </form>
           </CardBody>

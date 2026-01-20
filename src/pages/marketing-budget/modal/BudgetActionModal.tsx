@@ -36,7 +36,7 @@ const validationSchema = Yup.object().shape({
   status: Yup.string().required("Status is required."),
   description: Yup.string().max(
     200,
-    "Description must be at most 200 characters."
+    "Description must be at most 200 characters.",
   ),
   startDate: Yup.string().required("Start Date is required."),
   endDate: Yup.string().required("End Date is required."),
@@ -77,7 +77,7 @@ export default function BudgetActionModal({
   const isEdit = !!editedData;
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [pendingValues, setPendingValues] = useState<BudgetFormValues | null>(
-    null
+    null,
   );
   const [confirmationMessage, setConfirmationMessage] = useState("");
 
@@ -169,7 +169,7 @@ export default function BudgetActionModal({
         let selectedSubCategoryTitle = "";
         for (const cat of categories) {
           const found = cat.subCategory.find(
-            (sub) => sub._id === values.subCategory
+            (sub) => sub._id === values.subCategory,
           );
           if (found) {
             selectedSubCategoryTitle = found.subCategory;
@@ -201,7 +201,7 @@ export default function BudgetActionModal({
 
         if (conflictProvider) {
           setConfirmationMessage(
-            `${conflictProvider} is already synced. Do you want to add another item of ${conflictProvider}?`
+            `${conflictProvider} is already synced. Do you want to add another item of ${conflictProvider}?`,
           );
           setPendingValues(values);
           setShowConfirmation(true);
@@ -317,7 +317,7 @@ export default function BudgetActionModal({
               >
                 {(
                   (categories || [])?.find(
-                    (category: any) => category._id === formik.values.category
+                    (category: any) => category._id === formik.values.category,
                   )?.subCategory || []
                 ).map((cat: any) => (
                   <SelectItem key={cat._id}>{cat.subCategory}</SelectItem>
@@ -505,7 +505,7 @@ export default function BudgetActionModal({
                 onChange={(date) => {
                   formik.setFieldValue(
                     "startDate",
-                    date ? date.toString() : ""
+                    date ? date.toString() : "",
                   );
                 }}
                 onBlur={() => formik.setFieldTouched("startDate", true)}
@@ -537,7 +537,7 @@ export default function BudgetActionModal({
                 onChange={(date) => {
                   formik.setFieldValue(
                     "endDate",
-                    date ? date.toString() : null
+                    date ? date.toString() : null,
                   );
                 }}
                 isRequired
@@ -586,7 +586,7 @@ export default function BudgetActionModal({
               </div>
             )}
 
-            <div className="flex items-center justify-end gap-2 mt-2">
+            <div className="flex items-center justify-end gap-2">
               <Button
                 size="sm"
                 variant="ghost"

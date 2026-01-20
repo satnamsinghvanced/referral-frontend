@@ -101,7 +101,7 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({ isOpen, onClose }) => {
     } else {
       formik.setFieldValue(
         "locations",
-        currentLocations.filter((id) => id !== locId)
+        currentLocations.filter((id) => id !== locId),
       );
     }
   };
@@ -110,7 +110,7 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({ isOpen, onClose }) => {
     if (checked) {
       formik.setFieldValue(
         "locations",
-        locations.map((l) => l._id).filter((id): id is string => !!id)
+        locations.map((l) => l._id).filter((id): id is string => !!id),
       );
     } else {
       formik.setFieldValue("locations", []);
@@ -313,7 +313,7 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({ isOpen, onClose }) => {
               </div>
 
               {/* Review Platform */}
-              <div>
+              {/* <div>
                 <Select
                   label="Review Platform"
                   labelPlacement="outside"
@@ -345,7 +345,7 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({ isOpen, onClose }) => {
                 <p className="text-xs text-gray-500 dark:text-foreground/60 mt-1.5">
                   Where patients will be directed to leave a review
                 </p>
-              </div>
+              </div> */}
 
               {/* Info Box */}
               <div className="px-2 py-2.5 rounded-lg bg-sky-50 border border-sky-100 dark:bg-sky-500/10 dark:border-sky-500/20 flex gap-2 items-center">

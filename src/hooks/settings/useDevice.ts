@@ -1,9 +1,10 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import {
   fetchDevices,
   toggleDevice,
   removeDevice,
 } from "../../services/settings/device";
+import { queryClient } from "../../providers/QueryProvider";
 
 export const useDevices = () => {
   return useQuery({
@@ -13,7 +14,6 @@ export const useDevices = () => {
 };
 
 export const useToggleDevice = () => {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, toggle }: { id: string; toggle: boolean }) =>
       toggleDevice(id, toggle),
@@ -24,7 +24,6 @@ export const useToggleDevice = () => {
 };
 
 export const useRemoveDevice = () => {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => removeDevice(id),
     onSuccess: () => {
