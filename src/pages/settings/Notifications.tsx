@@ -16,9 +16,7 @@ import {
   FiInfo,
   FiShield,
   FiUsers,
-  FiWifi,
   FiXCircle,
-  FiZap,
 } from "react-icons/fi";
 import {
   useNotifications,
@@ -29,6 +27,8 @@ import {
   NotificationItem,
 } from "../../types/notification";
 import { LoadingState } from "../../components/common/LoadingState";
+import { useNotificationSubscription } from "../../hooks/useNotificationSubscription";
+import { getBrowserId } from "../../utils/notifications";
 
 type Channels = {
   push: boolean;
@@ -92,101 +92,38 @@ const RULE_CONFIG: Record<
   },
 };
 
-// Helper to convert VAPID key
-const urlBase64ToUint8Array = (base64String: string) => {
-  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
-  const rawData = window.atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-  for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i);
-  }
-  return outputArray;
-};
-
 const Notifications: React.FC = () => {
   const [globalEnabled, setGlobalEnabled] = useState<boolean>(true);
-  const [permissionStatus, setPermissionStatus] = useState<
-    NotificationPermission | "unknown"
-  >("unknown");
+  const {
+    permissionStatus,
+    requestPermission: commonRequestPermission,
+    subscribeToPush,
+    settings,
+    isUpdating,
+  } = useNotificationSubscription();
 
-  const { data: settings, isLoading, refetch } = useNotifications();
+  const { isLoading, refetch } = useNotifications();
   const updateMutation = useUpdateNotifications();
 
   // Initialize rules with default config
   const [rules, setRules] = useState<Rule[]>([]);
 
-  useEffect(() => {
-    if ("Notification" in window) {
-      setPermissionStatus(Notification.permission);
-    }
-  }, []);
-
-  const subscribeToPush = async () => {
-    try {
-      if (!("serviceWorker" in navigator)) return null;
-      if (!settings?.vapidPublicKey) {
-        console.error("No VAPID public key found");
-        return null;
-      }
-
-      let registration = await navigator.serviceWorker.getRegistration(
-        "/referral-retrieve/",
-      );
-      if (!registration) {
-        registration = await navigator.serviceWorker.register(
-          "/referral-retrieve/sw.js",
-          {
-            scope: "/referral-retrieve/",
-          },
-        );
-      }
-
-      // Wait for the service worker to be ready
-      await navigator.serviceWorker.ready;
-
-      // Ensure the registration is active
-      if (!registration.active) {
-        // Wait for it to become active if it's installing/waiting
-        await new Promise<void>((resolve) => {
-          const worker = registration.installing || registration.waiting;
-          if (worker) {
-            worker.addEventListener("statechange", (e: any) => {
-              if (e.target.state === "activated") resolve();
-            });
-          } else {
-            resolve();
-          }
-        });
-      }
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(settings.vapidPublicKey),
-      });
-
-      return JSON.parse(JSON.stringify(subscription));
-    } catch (error) {
-      console.error("Failed to subscribe to push notifications:", error);
-      return null;
-    }
-  };
-
-  const unsubscribeFromPush = async () => {
-    try {
-      const registration = await navigator.serviceWorker.getRegistration(
-        "/referral-retrieve/",
-      );
-      if (registration) {
-        const subscription = await registration.pushManager.getSubscription();
-        if (subscription) {
-          await subscription.unsubscribe();
-        }
-      }
-      return true;
-    } catch (error) {
-      console.error("Failed to unsubscribe from push notifications:", error);
-      return false;
-    }
+  const handleRequestPermission = async () => {
+    // Pass current rules and global state to ensure they persist after subscription
+    const currentRules = rules.map((r) => ({
+      label: r.id,
+      enabled: r.enabled,
+      push: r.channels.push,
+      email: r.channels.email,
+      sms: r.channels.sms,
+      inApp: r.channels.inApp,
+      activeHours: {
+        enabled: r.activeHoursEnabled,
+        startTime: formatTime(r.startTime),
+        endTime: formatTime(r.endTime),
+      },
+    }));
+    await commonRequestPermission(currentRules, globalEnabled);
   };
 
   useEffect(() => {
@@ -265,8 +202,23 @@ const Notifications: React.FC = () => {
   ) => {
     if (channel === "push" && value === true) {
       if ("Notification" in window && Notification.permission !== "granted") {
-        const permission = await Notification.requestPermission();
-        setPermissionStatus(permission);
+        const permission = await commonRequestPermission(
+          rules.map((r) => ({
+            label: r.id,
+            enabled: r.enabled,
+            push: r.channels.push,
+            email: r.channels.email,
+            sms: r.channels.sms,
+            inApp: r.channels.inApp,
+            activeHours: {
+              enabled: r.activeHoursEnabled,
+              startTime: formatTime(r.startTime),
+              endTime: formatTime(r.endTime),
+            },
+          })),
+          globalEnabled,
+        );
+
         if (permission !== "granted") {
           addToast({
             title: "Permission Denied",
@@ -287,128 +239,6 @@ const Notifications: React.FC = () => {
     val: any,
   ) => {
     updateRule(id, { [which]: val } as Partial<Rule>);
-  };
-
-  const getBrowserId = () => {
-    const ua = window.navigator.userAgent;
-    if (ua.includes("Chrome")) return `chrome_${Date.now()}`;
-    if (ua.includes("Firefox")) return `firefox_${Date.now()}`;
-    if (ua.includes("Safari")) return `safari_${Date.now()}`;
-    if (ua.includes("Edge")) return `edge_${Date.now()}`;
-    return `browser_${Date.now()}`;
-  };
-
-  const handleBrowserToggle = async (enabled: boolean) => {
-    if (!settings?._id) return;
-
-    if (!("Notification" in window)) {
-      addToast({
-        title: "Not Supported",
-        description: "This browser does not support desktop notifications.",
-        color: "danger",
-      });
-      return;
-    }
-
-    if (enabled) {
-      // Check if already denied
-      if (Notification.permission === "denied") {
-        addToast({
-          title: "Permission Blocked",
-          description:
-            "Notifications are blocked. Please enable them in your browser settings (click the lock icon in the address bar).",
-          color: "danger",
-        });
-        setPermissionStatus("denied");
-        return;
-      }
-
-      // Prompt for permission immediately
-      const permission = await Notification.requestPermission();
-      setPermissionStatus(permission);
-
-      if (permission === "granted") {
-        const browserSubscription = await subscribeToPush();
-        if (browserSubscription) {
-          const payload: UpdateNotificationPayload = {
-            globalEnabled,
-            notifications: rules.map((r) => ({
-              label: r.id,
-              enabled: r.enabled,
-              push: r.channels.push,
-              email: r.channels.email,
-              sms: r.channels.sms,
-              inApp: r.channels.inApp,
-              activeHours: {
-                enabled: r.activeHoursEnabled,
-                startTime: formatTime(r.startTime),
-                endTime: formatTime(r.endTime),
-              },
-            })),
-            browser: {
-              browserId: getBrowserId(),
-              endpoint: browserSubscription.endpoint,
-              p256dh: browserSubscription.keys?.p256dh,
-              auth: browserSubscription.keys?.auth,
-            },
-          };
-
-          updateMutation.mutate(
-            { id: settings._id, payload },
-            {
-              onSuccess: () => {
-                addToast({
-                  title: "Connected",
-                  description: "Browser notifications enabled successfully.",
-                  color: "success",
-                });
-                refetch();
-              },
-            },
-          );
-        }
-      }
-    } else {
-      // Unsubscribe and clear backend data
-      await unsubscribeFromPush();
-      const payload: UpdateNotificationPayload = {
-        globalEnabled,
-        notifications: rules.map((r) => ({
-          label: r.id,
-          enabled: r.enabled,
-          push: r.channels.push,
-          email: r.channels.email,
-          sms: r.channels.sms,
-          inApp: r.channels.inApp,
-          activeHours: {
-            enabled: r.activeHoursEnabled,
-            startTime: formatTime(r.startTime),
-            endTime: formatTime(r.endTime),
-          },
-        })),
-        browser: {
-          browserId: "",
-          endpoint: "",
-          p256dh: "",
-          auth: "",
-        },
-      };
-
-      updateMutation.mutate(
-        { id: settings._id, payload },
-        {
-          onSuccess: () => {
-            addToast({
-              title: "Disconnected",
-              description: "Browser notifications disabled.",
-              color: "primary",
-            });
-            refetch();
-          },
-        },
-      );
-      setPermissionStatus("default");
-    }
   };
 
   const handleSave = async () => {
@@ -553,15 +383,6 @@ const Notifications: React.FC = () => {
                     <FiBell className="h-5 w-5" />
                     Browser Permission Status
                   </h4>
-                  <Switch
-                    size="sm"
-                    isSelected={
-                      permissionStatus === "granted" &&
-                      !!settings?.browser?.endpoint
-                    }
-                    onValueChange={handleBrowserToggle}
-                    aria-label="Toggle Browser Notifications"
-                  />
                 </div>
 
                 {/* Content */}
@@ -605,15 +426,28 @@ const Notifications: React.FC = () => {
                   </div>
 
                   {permissionStatus !== "granted" && (
-                    <div className="flex items-center gap-3 p-3 bg-cyan-50/50 dark:bg-cyan-900/10 border border-cyan-100 dark:border-cyan-800 rounded-lg text-xs text-gray-600 dark:text-gray-400 w-full md:max-w-md">
-                      <div className="size-auto shrink-0 text-cyan-600 dark:text-cyan-400">
-                        <FiInfo className="size-4" />
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 bg-cyan-50/50 dark:bg-cyan-900/10 border border-cyan-100 dark:border-cyan-800 rounded-lg text-xs text-gray-600 dark:text-gray-400 w-full md:max-w-md">
+                      <div className="flex items-center gap-2 flex-1">
+                        <div className="size-auto shrink-0 text-cyan-600 dark:text-cyan-400">
+                          <FiInfo className="size-4" />
+                        </div>
+                        <p className="">
+                          {permissionStatus === "denied"
+                            ? "Notifications are blocked. Click the lock icon in your address bar to enable them."
+                            : "Notifications are not yet enabled. Enable them to stay updated with real-time alerts."}
+                        </p>
                       </div>
-                      <p className="leading-relaxed">
-                        {permissionStatus === "denied"
-                          ? "Notifications are blocked. Click the lock icon in your address bar to enable them."
-                          : "Notifications are not yet enabled. We will ask for permission when you enable a rule."}
-                      </p>
+                      {permissionStatus === "default" && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          color="primary"
+                          className="border-small h-7 text-[10px] px-3 font-medium border-primary/20 hover:border-primary/40"
+                          onPress={handleRequestPermission}
+                        >
+                          Allow Notifications
+                        </Button>
+                      )}
                     </div>
                   )}
                 </div>

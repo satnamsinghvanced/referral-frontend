@@ -1,5 +1,5 @@
 import { Button } from "@heroui/react";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FaRegStar } from "react-icons/fa";
 import { HiOutlineChartBar, HiOutlineStar } from "react-icons/hi";
 import {
@@ -8,6 +8,8 @@ import {
   LuTrendingDown,
   LuTrendingUp,
   LuUsers,
+  LuBell,
+  LuX,
 } from "react-icons/lu";
 import { TbSpeakerphone } from "react-icons/tb";
 import { Link, useNavigate } from "react-router";
@@ -18,6 +20,7 @@ import { useDashboard } from "../../hooks/useDashboard";
 import { useTour } from "../../providers/TourProvider";
 import { formatNumberWithCommas } from "../../utils/formatNumberWithCommas";
 import { timeAgo } from "../../utils/timeAgo";
+import { useNotificationSubscription } from "../../hooks/useNotificationSubscription";
 
 type Color = "sky" | "orange" | "emerald" | "purple";
 
@@ -94,11 +97,8 @@ const QUICK_ACTIONS_COLOR_CLASSES: Record<
 const Dashboard = () => {
   const { startTour } = useTour();
 
-  useEffect(() => {
-    if ("Notification" in window && Notification.permission === "default") {
-      Notification.requestPermission();
-    }
-  }, []);
+  const { requestPermission, permissionStatus } = useNotificationSubscription();
+  const [showNotificationBanner, setShowNotificationBanner] = useState(true);
 
   const navigate = useNavigate();
 
@@ -245,14 +245,7 @@ const Dashboard = () => {
           time: `${timeAgo(dashboard.recentActivity.reviews.createTime || "")}`,
           onClick: () => navigate("/reviews"),
         }
-      : {
-          icon: "⭐",
-          iconBg: "bg-yellow-50 dark:bg-yellow-900/20",
-          title: "No new reviews",
-          description: "Check back later for patient feedback",
-          time: "Recently",
-          onClick: () => navigate("/reviews"),
-        },
+      : null,
     // {
     //   icon: "📢",
     //   iconBg: "bg-orange-50 dark:bg-orange-900/20",
@@ -261,7 +254,7 @@ const Dashboard = () => {
     //   time: "Active now",
     //   onClick: () => navigate("/marketing-calendar"),
     // },
-  ];
+  ].filter((activity) => activity !== null);
 
   const SYSTEM_STATUSES = [
     {
@@ -309,6 +302,62 @@ const Dashboard = () => {
           </p>
         </div> */}
 
+        {permissionStatus === "default" && showNotificationBanner && (
+          <div className="relative group overflow-hidden bg-background border border-divider dark:border-white/5 rounded-2xl p-3 md:p-4 mb-5 mt-2 transition-all duration-300">
+            <div className="relative z-10 flex flex-col md:flex-row items-center gap-5 md:gap-4">
+              <div className="relative shrink-0">
+                <div className="size-10 md:size-11 rounded-xl bg-primary/10 flex items-center justify-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-transparent animate-pulse" />
+                  <LuBell className="text-primary text-2xl relative z-10" />
+                </div>
+                <div className="absolute -top-1 -right-1 size-3 bg-red-500 rounded-full border-2 border-background animate-bounce" />
+              </div>
+
+              <div className="flex-1 text-center md:text-left space-y-1">
+                <h3 className="text-base font-medium tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
+                  Stay in the Loop
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 max-w-xl leading-relaxed">
+                  Enable real-time notifications to receive instant updates on{" "}
+                  <span className="text-primary font-medium">
+                    new referrals
+                  </span>
+                  ,
+                  <span className="text-primary font-medium">
+                    {" "}
+                    urgent cases
+                  </span>
+                  , and patient feedback.
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center gap-2 shrink-0 w-full md:w-auto">
+                <Button
+                  size="sm"
+                  color="primary"
+                  radius="sm"
+                  className="font-medium"
+                  onPress={() => {
+                    requestPermission();
+                    setShowNotificationBanner(false);
+                  }}
+                >
+                  Enable Now
+                </Button>
+                <Button
+                  size="sm"
+                  variant="light"
+                  radius="sm"
+                  className="font-medium text-gray-500 dark:text-gray-400 hover:bg-black/5 dark:hover:bg-white/5"
+                  onPress={() => setShowNotificationBanner(false)}
+                >
+                  Maybe Later
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
           {STAT_CARD_DATA.map((data, i) => (
             <MiniStatsCard key={i} cardData={data} />
@@ -344,31 +393,43 @@ const Dashboard = () => {
           <div className="md:col-span-2 bg-background rounded-xl p-4 md:p-5">
             <h3 className="text-sm md:text-base mb-4">Recent Activity</h3>
             <div className="space-y-4 md:space-y-2">
-              {recentActivities.map((activity, index) =>
-                activity ? (
+              {recentActivities.length > 0 ? (
+                recentActivities.map((activity, index) => (
                   <div
                     key={index}
                     className="flex items-start space-x-3 md:p-3 hover:bg-gray-100 dark:hover:bg-foreground/5 rounded-lg transition-colors cursor-pointer"
-                    onClick={activity.onClick && activity.onClick}
+                    onClick={activity?.onClick}
                   >
                     <div
-                      className={`p-0 rounded-lg flex items-center justify-center size-8 md:size-9 ${activity.iconBg}`}
+                      className={`p-0 rounded-lg flex items-center justify-center size-8 md:size-9 ${activity?.iconBg}`}
                     >
-                      <span className="text-md">{activity.icon}</span>
+                      <span className="text-md">{activity?.icon}</span>
                     </div>
                     <div className="flex-1 space-y-1">
                       <p className="text-xs md:text-sm font-medium">
-                        {activity.title}
+                        {activity?.title}
                       </p>
                       <p className="text-xs text-gray-600 dark:text-gray-400">
-                        {activity.description}
+                        {activity?.description}
                       </p>
                       <p className="text-xs text-gray-600 dark:text-gray-400">
-                        {activity.time}
+                        {activity?.time}
                       </p>
                     </div>
                   </div>
-                ) : null,
+                ))
+              ) : (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <div className="size-12 rounded-full bg-gray-50 dark:bg-foreground/5 flex items-center justify-center mb-3">
+                    <LuTrendingUp className="text-gray-400 text-xl" />
+                  </div>
+                  <p className="text-sm font-medium text-gray-900 dark:text-foreground">
+                    No recent activity
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Activity will appear here as it happens
+                  </p>
+                </div>
               )}
             </div>
           </div>
