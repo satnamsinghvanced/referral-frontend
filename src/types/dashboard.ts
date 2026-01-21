@@ -67,3 +67,48 @@ export interface DashboardData {
     nfcSetup: boolean;
   };
 }
+
+export type ResultType = "referral" | "referrer";
+
+export interface BaseSearchResult {
+  _id: string;
+  name: string;
+  phone: string;
+  email: string;
+  type: string;
+  createdAt: string;
+  updatedAt: string;
+  resultType: ResultType;
+}
+
+export interface ReferralResult extends BaseSearchResult {
+  resultType: "referral";
+  referredBy: string;
+  sourceId: string | null;
+  addedVia: string;
+  age: number;
+  priority: "low" | "medium" | "high";
+  estValue: number;
+  treatment: string;
+  scheduledDate: string;
+  notes: string;
+  status: string;
+}
+
+export interface ReferrerResult extends BaseSearchResult {
+  resultType: "referrer";
+  createdBy: string;
+  additionalNotes: string;
+  staffMembers: string[];
+  isActive: boolean;
+  referrals: any[];
+  nfcUrl: string;
+  qrCode: string;
+  qrUrl: string;
+}
+
+export type SearchResult = ReferralResult | ReferrerResult;
+
+export interface SearchParams {
+  q: string;
+}

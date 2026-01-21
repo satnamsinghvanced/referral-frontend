@@ -135,6 +135,12 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
   });
 
   useEffect(() => {
+    if (!isOpen) {
+      formik.resetForm();
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
     if (
       (!formik.values.locations || formik.values.locations.length === 0) &&
       locations &&

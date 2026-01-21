@@ -40,7 +40,7 @@ const MediaPreview = ({ media }: { media: Media }) => {
   return (
     <div className="w-full h-full flex items-center justify-center">
       <img
-        src={`${import.meta.env.VITE_IMAGE_URL}${media.path}`}
+        src={media.path}
         alt={media.name}
         className="max-w-full max-h-full object-contain"
       />

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import {
   Button,
   Input,
@@ -124,7 +124,7 @@ const LocationActionModal = ({
               onClose();
               formik.resetForm();
             },
-          }
+          },
         );
       } else {
         createLocation(payload, {
@@ -136,6 +136,12 @@ const LocationActionModal = ({
       }
     },
   });
+
+  useEffect(() => {
+    if (!isOpen) {
+      formik.resetForm();
+    }
+  }, [isOpen]);
 
   const handleClose = () => {
     onClose();

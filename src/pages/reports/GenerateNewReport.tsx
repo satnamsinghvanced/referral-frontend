@@ -11,7 +11,7 @@ import {
   SelectItem,
   DatePicker,
 } from "@heroui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   LuActivity,
   LuChartColumn,
@@ -84,6 +84,19 @@ const GenerateNewReportModal = ({
     schedule: false,
     frequency: "monthly",
   });
+
+  useEffect(() => {
+    if (!isOpen) {
+      setFormData({
+        name: "",
+        category: "referralAnalytics",
+        timeRange: "30days",
+        format: "pdf",
+        schedule: false,
+        frequency: "monthly",
+      });
+    }
+  }, [isOpen]);
 
   const { mutate: generateReport, isPending } = useGenerateReport();
 

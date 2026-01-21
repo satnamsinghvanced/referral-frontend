@@ -10,6 +10,7 @@ import {
   Textarea,
 } from "@heroui/react";
 import { useFormik } from "formik";
+import { useEffect } from "react";
 import * as Yup from "yup";
 import { LoadingState } from "../../../components/common/LoadingState";
 import { VISIT_STATUSES } from "../../../consts/practice";
@@ -78,6 +79,12 @@ const ScheduleVisitStatusModal = ({
       );
     },
   });
+
+  useEffect(() => {
+    if (!isOpen) {
+      formik.resetForm();
+    }
+  }, [isOpen]);
 
   let modalTitle = "Update Schedule Visit Status";
   let modalDescription =

@@ -93,7 +93,7 @@ export function ScheduleVisitsModal({
       // Ensure we extract IDs if practices are objects
       const practiceIds =
         editedData?.practices?.map((p: any) =>
-          typeof p === "object" ? p._id : p
+          typeof p === "object" ? p._id : p,
         ) || [];
       setSelectedReferrersState(practiceIds);
 
@@ -104,14 +104,14 @@ export function ScheduleVisitsModal({
         planName: editedData?.planDetails.name || "",
         defaultPriority: editedData?.planDetails.priority || "",
         defaultVisitPurpose: PURPOSE_OPTIONS.some(
-          (p) => p.title === editedData.planDetails.visitPurpose.title
+          (p) => p.title === editedData.planDetails.visitPurpose.title,
         )
           ? editedData?.planDetails.visitPurpose.title
           : PURPOSE_OPTIONS[PURPOSE_OPTIONS.length - 1]?.title || "",
         customVisitPurpose:
           (editedData?.planDetails.visitPurpose.title &&
             !PURPOSE_OPTIONS.some(
-              (p) => p.title === editedData.planDetails.visitPurpose.title
+              (p) => p.title === editedData.planDetails.visitPurpose.title,
             ) &&
             editedData.planDetails.visitPurpose.title) ||
           "",
@@ -135,7 +135,7 @@ export function ScheduleVisitsModal({
       setPlanState((prev) => ({ ...prev, [key]: value }));
       setValidationErrors((prev: any) => ({ ...prev, [key]: null }));
     },
-    []
+    [],
   );
 
   const handleReferrerToggle = (id: string) => {
@@ -159,7 +159,7 @@ export function ScheduleVisitsModal({
       .filter(
         (r) =>
           r.name.toLowerCase().includes(filters.search.toLowerCase()) &&
-          (filters.category === "" || r.level === filters.category)
+          (filters.category === "" || r.level === filters.category),
       )
       .map((r) => r._id);
     setSelectedReferrersState(allIds);
@@ -173,7 +173,7 @@ export function ScheduleVisitsModal({
 
   const selectedReferrerObjects = useMemo(
     () => practices.filter((r) => selectedReferrersState?.includes(r._id)),
-    [practices, selectedReferrersState]
+    [practices, selectedReferrersState],
   );
 
   const validateStep = useCallback(
@@ -235,14 +235,14 @@ export function ScheduleVisitsModal({
             field === "routeDate"
               ? "Route date"
               : field === "startTime"
-              ? "Start time"
-              : field === "planName"
-              ? "Plan name"
-              : field === "defaultVisitPurpose"
-              ? "Visit purpose"
-              : field === "defaultPriority"
-              ? "Priority"
-              : field;
+                ? "Start time"
+                : field === "planName"
+                  ? "Plan name"
+                  : field === "defaultVisitPurpose"
+                    ? "Visit purpose"
+                    : field === "defaultPriority"
+                      ? "Priority"
+                      : field;
 
           const errorMsg = `${fieldLabel} is required.`;
           errors[field] = errorMsg;
@@ -252,7 +252,7 @@ export function ScheduleVisitsModal({
       setValidationErrors(errors);
       return Object.keys(errors).length === 0;
     },
-    [planState, selectedReferrersState, routeOptimizationResults]
+    [planState, selectedReferrersState, routeOptimizationResults],
   );
 
   const handleNext = async () => {
@@ -298,7 +298,7 @@ export function ScheduleVisitsModal({
             duration: planState.durationPerVisit,
           }
         : PURPOSE_OPTIONS.find(
-            (p) => p.title === planState.defaultVisitPurpose
+            (p) => p.title === planState.defaultVisitPurpose,
           ) || {
             title: planState.defaultVisitPurpose,
             duration: planState.durationPerVisit,
@@ -363,7 +363,7 @@ export function ScheduleVisitsModal({
     } else {
       createPlanMutation.mutate(
         { id: userId || "", data: basePayload },
-        { onSuccess, onError }
+        { onSuccess, onError },
       );
     }
   };

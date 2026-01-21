@@ -1,6 +1,7 @@
 export const formatDateToReadable = (
   date: string | null | undefined,
-  showTime: boolean = false // Added optional parameter with default value true
+  showTime: boolean = false, // Added optional parameter with default value true
+  useUTC: boolean = false,
 ): string => {
   if (!date) {
     return "N/A";
@@ -17,10 +18,11 @@ export const formatDateToReadable = (
       month: "short",
       day: "numeric",
       year: "numeric",
+      ...(useUTC && { timeZone: "UTC" }),
     };
 
     const dateStr = new Intl.DateTimeFormat(undefined, baseOptions).format(
-      JSdate
+      JSdate,
     );
 
     if (showTime) {
@@ -28,9 +30,10 @@ export const formatDateToReadable = (
         hour: "2-digit",
         minute: "2-digit",
         hour12: true,
+        ...(useUTC && { timeZone: "UTC" }),
       };
       const timeStr = new Intl.DateTimeFormat(undefined, timeOptions).format(
-        JSdate
+        JSdate,
       );
       return `${dateStr} at ${timeStr}`;
     }

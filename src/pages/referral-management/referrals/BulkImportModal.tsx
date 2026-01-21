@@ -6,7 +6,7 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@heroui/react";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import {
   FiCheckCircle,
   FiDownload,
@@ -25,6 +25,15 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { mutate: importCSV, isPending } = useImportReferralsCSV();
+
+  useEffect(() => {
+    if (!isOpen) {
+      setSelectedFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  }, [isOpen]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {

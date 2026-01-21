@@ -220,6 +220,12 @@ export default function BudgetActionModal({
     }
   }, [createMutation.isSuccess, updateMutation.isSuccess]);
 
+  useEffect(() => {
+    if (!isOpen) {
+      formik.resetForm();
+    }
+  }, [isOpen]);
+
   const utilization =
     formik.values.actualSpent && formik.values.budgetAmount
       ? (formik.values.actualSpent / formik.values.budgetAmount) * 100

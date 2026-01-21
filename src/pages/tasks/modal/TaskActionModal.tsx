@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import {
   Button,
   DatePicker,
@@ -117,6 +117,12 @@ const TaskActionModal = ({
       }
     },
   });
+
+  useEffect(() => {
+    if (!isOpen) {
+      formik.resetForm();
+    }
+  }, [isOpen]);
 
   const isLoading = isCreating || isUpdating;
 

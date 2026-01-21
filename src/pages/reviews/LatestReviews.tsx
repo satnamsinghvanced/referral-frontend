@@ -18,6 +18,7 @@ import { useGBPRecentReviews } from "../../hooks/useReviews";
 import { GBPReview } from "../../types/reviews";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
+import EmptyState from "../../components/common/EmptyState";
 
 dayjs.extend(relativeTime);
 
@@ -192,9 +193,7 @@ export default function LatestReviews() {
               <LatestReviewItem key={review.reviewId} review={review} />
             ))
           ) : (
-            <p className="text-center text-gray-500 dark:text-foreground/60 py-6">
-              No recent reviews found.
-            </p>
+            <EmptyState title="No recent reviews found." />
           )}
         </div>
       </CardBody>

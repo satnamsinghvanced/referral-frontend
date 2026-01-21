@@ -205,7 +205,7 @@ export const GoogleAds: React.FC = () => {
             </h4>
           </CardHeader>
           <CardBody className="p-0 space-y-4">
-            <div className="-ml-5 text-sm">
+            <div className="-ml-5 text-sm overflow-hidden">
               <ResponsiveContainer width="100%" height={300}>
                 <AreaChart data={AD_SPENDING_GRAPH}>
                   <CartesianGrid

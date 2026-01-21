@@ -60,7 +60,7 @@ export interface TrafficTrend {
 }
 
 export interface DeviceAnalytic {
-  device: "desktop" | "mobile";
+  device: string;
   users: number;
 }
 
@@ -73,18 +73,29 @@ export interface TopPage {
 }
 
 export interface GoogleAnalyticsResponse {
-  donutData: {
+  stats: {
     users: { totalUsers: number; growthPercent: string };
     pageViews: { totalPageViews: number; growthPercent: string };
     sessions: { totalSessions: number; growthPercent: string };
+    avgSessionDuration: {
+      totalAvgSessionDuration: number;
+      growthPercent: string;
+    };
     bounceRate: { totalBounceRate: number; growthPercent: string };
   };
   trafficTrends: TrafficTrend[];
   deviceAnalytics: DeviceAnalytic[];
   topPages: TopPage[];
   trafficSources: {
-    data: { source: string; sessions: number; percentage: number | string }[];
-    pagination: any;
+    data: { source: string; sessions: number; percentage: number }[];
+    pagination: {
+      page: number;
+      limit: number;
+      totalItems: number;
+      totalPages: number;
+      hasNext: boolean;
+      hasPrev: boolean;
+    };
   };
   conversions: { event: string; count: number }[];
 }

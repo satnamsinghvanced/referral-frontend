@@ -9,7 +9,7 @@ import {
   Spinner,
 } from "@heroui/react";
 import { useFormik } from "formik";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { FiExternalLink, FiEye, FiEyeOff } from "react-icons/fi";
 import * as Yup from "yup";
 import { useSelector } from "react-redux";
@@ -132,6 +132,12 @@ export default function SocialMediaConfigModal({
     },
     enableReinitialize: true,
   });
+
+  useEffect(() => {
+    if (!isOpen) {
+      formik.resetForm();
+    }
+  }, [isOpen]);
 
   // Handle loading state
   if (isGlobalLoading) {

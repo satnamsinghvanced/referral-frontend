@@ -21,7 +21,7 @@ import {
   today,
 } from "@internationalized/date";
 import { useFormik } from "formik";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FiCheckCircle, FiPlus } from "react-icons/fi";
 import { LuBuilding } from "react-icons/lu";
 import * as Yup from "yup";
@@ -146,6 +146,12 @@ const TrackReferralModal = ({
       });
     },
   });
+
+  useEffect(() => {
+    if (!isOpen) {
+      formik.resetForm();
+    }
+  }, [isOpen]);
   const handleInputChange = (
     event: React.ChangeEvent<HTMLInputElement>,
     fieldName: string,
@@ -581,7 +587,7 @@ const TrackReferralModal = ({
                     <Input
                       label="Estimated Value"
                       labelPlacement="outside"
-                      placeholder="0.00"
+                      placeholder="0"
                       type="number"
                       startContent={
                         <span className="text-gray-500 dark:text-foreground/60 text-sm">

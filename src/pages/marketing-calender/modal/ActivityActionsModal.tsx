@@ -9,8 +9,9 @@ import {
   SelectItem,
   Textarea,
 } from "@heroui/react";
-import { now } from "@internationalized/date";
+import { getLocalTimeZone, now } from "@internationalized/date";
 import { useFormik } from "formik";
+import { useEffect } from "react";
 import * as Yup from "yup";
 import { ActivityItem, ActivityStatus } from "../../../types/marketing";
 import {
@@ -90,12 +91,7 @@ export default function ActivityActionsModal({
     priority: initialData?.priority || "medium",
     platform: initialData?.platform || "",
     budget: initialData?.budget || 0,
-    // status:
-    //   (initialData?.status &&
-    //     (initialData?.status === "confirmed"
-    //       ? "scheduled"
-    //       : initialData?.status)) ||
-    //   "scheduled",
+    status: initialData?.status || "scheduled",
   };
 
   const { mutate: createActivity, isPending: isCreating } = useCreateActivity();
@@ -139,6 +135,14 @@ export default function ActivityActionsModal({
       }
     },
   });
+
+  useEffect(() => {
+    if (!isOpen) {
+      formik.resetForm();
+      formik.setFieldValue("startDate", "");
+      formik.setFieldValue("endDate", "");
+    }
+  }, [isOpen]);
 
   const hasError = (field: keyof typeof initialValues) =>
     formik.touched[field] && formik.errors[field];
@@ -258,26 +262,12 @@ export default function ActivityActionsModal({
                     ? keepUTCWallClock(formik.values.startDate)
                     : null
                 }
-                minValue={now("America/New_York")}
+                minValue={now(getLocalTimeZone())}
                 onChange={(dateObject) => {
-                  if (dateObject) {
-                    const year = dateObject.year;
-                    const month = String(dateObject.month).padStart(2, "0");
-                    const day = String(dateObject.day).padStart(2, "0");
-                    const hour = String(dateObject.hour).padStart(2, "0");
-                    const minute = String(dateObject.minute).padStart(2, "0");
-                    const second = String(dateObject.second).padStart(2, "0");
-                    const millisecond = String(dateObject.millisecond).padStart(
-                      3,
-                      "0",
-                    );
-
-                    const localDateTimeString = `${year}-${month}-${day}T${hour}:${minute}:${second}.${millisecond}Z`;
-
-                    formik.setFieldValue("startDate", localDateTimeString);
-                  } else {
-                    formik.setFieldValue("startDate", null);
-                  }
+                  formik.setFieldValue(
+                    "startDate",
+                    dateObject ? dateObject.toString() + "Z" : null,
+                  );
                 }}
                 granularity="minute"
                 onBlur={() => formik.setFieldTouched("startDate", true)}
@@ -303,27 +293,13 @@ export default function ActivityActionsModal({
                 minValue={
                   formik.values.startDate
                     ? keepUTCWallClock(formik.values.startDate)
-                    : now("America/New_York")
+                    : now(getLocalTimeZone())
                 }
                 onChange={(dateObject) => {
-                  if (dateObject) {
-                    const year = dateObject.year;
-                    const month = String(dateObject.month).padStart(2, "0");
-                    const day = String(dateObject.day).padStart(2, "0");
-                    const hour = String(dateObject.hour).padStart(2, "0");
-                    const minute = String(dateObject.minute).padStart(2, "0");
-                    const second = String(dateObject.second).padStart(2, "0");
-                    const millisecond = String(dateObject.millisecond).padStart(
-                      3,
-                      "0",
-                    );
-
-                    const localDateTimeString = `${year}-${month}-${day}T${hour}:${minute}:${second}.${millisecond}Z`;
-
-                    formik.setFieldValue("endDate", localDateTimeString);
-                  } else {
-                    formik.setFieldValue("endDate", null);
-                  }
+                  formik.setFieldValue(
+                    "endDate",
+                    dateObject ? dateObject.toString() + "Z" : null,
+                  );
                 }}
                 granularity="minute"
                 onBlur={() => formik.setFieldTouched("endDate", true)}
@@ -405,7 +381,7 @@ export default function ActivityActionsModal({
             </div>
           </div>
 
-          <div className="grid grid-cols-1 gap-4">
+          <div className="grid grid-cols-2 gap-4">
             <div className={`${isEditing ? "col-span-1" : "col-span-2"}`}>
               <Input
                 id="platform"
@@ -422,7 +398,7 @@ export default function ActivityActionsModal({
               />
               <ErrorText field="platform" />
             </div>
-            {/* {isEditing && (
+            {isEditing && (
               <div>
                 <Select
                   name="status"
@@ -431,12 +407,12 @@ export default function ActivityActionsModal({
                   placeholder="Select status"
                   size="sm"
                   radius="sm"
-                  selectedKeys={[formik.values.status]}
-                  disabledKeys={[formik.values.status]}
+                  selectedKeys={[formik.values.status as any]}
+                  disabledKeys={[formik.values.status as any]}
                   onSelectionChange={(keys) =>
                     formik.setFieldValue(
                       "status",
-                      Array.from(keys)[0] as string
+                      Array.from(keys)[0] as string,
                     )
                   }
                   onBlur={() => formik.setFieldTouched("status", true)}
@@ -448,7 +424,7 @@ export default function ActivityActionsModal({
                 </Select>
                 <ErrorText field="status" />
               </div>
-            )} */}
+            )}
           </div>
 
           <div className="flex justify-end space-x-2 pt-1">

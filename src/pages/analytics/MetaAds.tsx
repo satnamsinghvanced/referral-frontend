@@ -111,7 +111,7 @@ export const MetaAds: React.FC = () => {
     {
       icon: <LuTrendingUp className="text-orange-500 dark:text-orange-400" />,
       heading: "Cost Per Click",
-      value: isLoading ? "..." : `$${data?.stats?.costPerClick?.value || "0"}`,
+      value: isLoading ? "..." : `${data?.stats?.costPerClick?.value || "0"}`,
       subheading: (
         <span className="text-green-600 dark:text-green-400 flex items-center">
           <LuTrendingUp className="h-4 w-4 mr-1" />
@@ -128,7 +128,7 @@ export const MetaAds: React.FC = () => {
       heading: "Click-Through Rate",
       value: isLoading
         ? "..."
-        : `${data?.stats?.clickThroughRate?.value || "0"}%`,
+        : `${data?.stats?.clickThroughRate?.value || "0"}`,
       subheading: (
         <span className="text-green-600 dark:text-green-400 flex items-center">
           <LuTrendingUp className="h-4 w-4 mr-1" />
@@ -196,7 +196,7 @@ export const MetaAds: React.FC = () => {
             </h4>
           </CardHeader>
           <CardBody className="p-0 space-y-4">
-            <div className="-ml-5 text-sm">
+            <div className="-ml-5 text-sm overflow-hidden">
               <ResponsiveContainer width="100%" height={300}>
                 <AreaChart data={AD_SPENDING_GRAPH}>
                   <CartesianGrid

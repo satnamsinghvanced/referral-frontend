@@ -21,6 +21,7 @@ import { useTour } from "../../providers/TourProvider";
 import { formatNumberWithCommas } from "../../utils/formatNumberWithCommas";
 import { timeAgo } from "../../utils/timeAgo";
 import { useNotificationSubscription } from "../../hooks/useNotificationSubscription";
+import { LoadingState } from "../../components/common/LoadingState";
 
 type Color = "sky" | "orange" | "emerald" | "purple";
 
@@ -102,7 +103,7 @@ const Dashboard = () => {
 
   const navigate = useNavigate();
 
-  const { data: dashboard } = useDashboard();
+  const { data: dashboard, isLoading } = useDashboard();
 
   const renderTrend = (
     status: string,
@@ -393,7 +394,11 @@ const Dashboard = () => {
           <div className="md:col-span-2 bg-background rounded-xl p-4 md:p-5">
             <h3 className="text-sm md:text-base mb-4">Recent Activity</h3>
             <div className="space-y-4 md:space-y-2">
-              {recentActivities.length > 0 ? (
+              {isLoading ? (
+                <div className="py-8 flex items-center justify-center">
+                  <LoadingState />
+                </div>
+              ) : recentActivities.length > 0 ? (
                 recentActivities.map((activity, index) => (
                   <div
                     key={index}

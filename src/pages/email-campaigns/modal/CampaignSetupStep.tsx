@@ -13,10 +13,10 @@ const SetupSchema = Yup.object().shape({
   name: Yup.string().required("Campaign Name is required"),
   subject: Yup.string().required("Email Subject Line is required"),
   type: Yup.string<CampaignData["type"]>().required(
-    "Campaign Type is required"
+    "Campaign Type is required",
   ),
   category: Yup.string<CampaignData["category"]>().required(
-    "Category is required"
+    "Category is required",
   ),
 });
 
@@ -31,6 +31,7 @@ const CampaignSetupStep: React.ForwardRefRenderFunction<
       onNext(values);
     },
     validateOnMount: true,
+    enableReinitialize: true,
   });
 
   useImperativeHandle(ref, () => ({

@@ -51,7 +51,7 @@ const EditTaskModal = ({ isOpen, onClose, task }: EditTaskModalProps) => {
 
   const activeTeamMembers = useMemo(
     () => teamMembers?.filter((member) => member.status === "active"),
-    [teamMembers]
+    [teamMembers],
   );
 
   const { mutate: updateTask } = useUpdateTask();
@@ -77,7 +77,7 @@ const EditTaskModal = ({ isOpen, onClose, task }: EditTaskModalProps) => {
           onSuccess: () => {
             onClose();
           },
-        }
+        },
       );
     },
   });
@@ -89,6 +89,12 @@ const EditTaskModal = ({ isOpen, onClose, task }: EditTaskModalProps) => {
       }
     }
   }, [activeTeamMembers, user, formik.values.assignTo, formik]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      formik.resetForm();
+    }
+  }, [isOpen]);
 
   return (
     <Modal
