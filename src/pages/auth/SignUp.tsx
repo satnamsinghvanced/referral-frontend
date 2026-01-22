@@ -50,14 +50,14 @@ const validationSchema = Yup.object({
   firstName: Yup.string()
     .matches(
       NAME_REGEX,
-      "First name can only contain letters, spaces, hyphens, apostrophes, and full stops"
+      "First name can only contain letters, spaces, hyphens, apostrophes, and full stops",
     )
     .min(2, "First name must be at least 2 characters")
     .max(50, "First name must be less than 50 characters"),
   lastName: Yup.string()
     .matches(
       NAME_REGEX,
-      "Last name can only contain letters, spaces, hyphens, apostrophes, and full stops"
+      "Last name can only contain letters, spaces, hyphens, apostrophes, and full stops",
     )
     .min(2, "Last name must be at least 2 characters")
     .max(50, "Last name must be less than 50 characters"),
@@ -71,7 +71,7 @@ const validationSchema = Yup.object({
     .required("Password is required")
     .matches(
       PASSWORD_REGEX,
-      "Password must be at least 8 characters, include one uppercase letter, one lowercase letter, one number and one special character"
+      "Password must be at least 8 characters, include one uppercase letter, one lowercase letter, one number and one special character",
     ),
   confirmPassword: Yup.string()
     .oneOf([Yup.ref("password")], "Passwords must match")
@@ -135,7 +135,7 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-950 dark:to-background flex items-center justify-center p-4">
-      <Card className="w-full max-w-2xl shadow-2xl dark:shadow-primary/5 border border-foreground/5/50 bg-white/80 bg-content1 backdrop-blur-xl">
+      <Card className="w-full max-w-2xl shadow-2xl dark:shadow-primary/5 border border-foreground/5/50 bg-content1 backdrop-blur-xl">
         <CardBody className="p-8 sm:p-12">
           <div className="text-center mb-10">
             <h2 className="text-3xl font-bold text-foreground mb-2">

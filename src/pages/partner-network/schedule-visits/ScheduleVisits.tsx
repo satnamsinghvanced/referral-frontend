@@ -140,7 +140,7 @@ export default function ScheduleVisits({
     (key: keyof GetSchedulePlansQuery, value: string) => {
       setFilters((prev) => ({ ...prev, [key]: value }));
     },
-    []
+    [],
   );
 
   const handleOrderToggle = () => {
@@ -207,14 +207,14 @@ export default function ScheduleVisits({
             setEditPlan(p);
           }}
         />
-      )
+      ),
     );
   };
 
   return (
     <>
       <div className="bg-background flex flex-col gap-4 border border-foreground/10 rounded-xl p-4 shadow-none">
-        <div className="md:flex md:items-center md:justify-between max-md:space-y-3.5 max-md:mt-2">
+        <div className="md:flex md:items-center md:justify-between max-md:space-y-3.5">
           <div className="space-y-1">
             <h3 className="text-sm text-foreground">
               Schedule Referrer Visits
@@ -296,7 +296,7 @@ export default function ScheduleVisits({
         </Card> */}
 
           <div className="space-y-3">
-            <div className="flex items-center gap-3">
+            <div className="md:flex md:items-center md:gap-3 max-md:space-y-3">
               <Input
                 size="sm"
                 variant="flat"
@@ -321,7 +321,7 @@ export default function ScheduleVisits({
                 onSelectionChange={(keys) =>
                   handleFilterChange("status", Array.from(keys)[0] as string)
                 }
-                className="min-w-[160px] max-w-[160px]"
+                className="min-w-[160px] md:max-w-[160px]"
               >
                 <SelectItem key="all">All Plans</SelectItem>
                 <SelectItem key="active">Active</SelectItem>
@@ -330,8 +330,8 @@ export default function ScheduleVisits({
               </Select>
             </div>
             <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2 col-span-4 md:col-span-auto">
+              <div className="flex items-center gap-3 max-md:w-full">
+                <div className="flex items-center gap-2 max-md:w-full">
                   <span className="text-xs text-gray-600 dark:text-foreground/60 whitespace-nowrap max-md:hidden">
                     Sort by:
                   </span>
@@ -345,7 +345,7 @@ export default function ScheduleVisits({
                     onSelectionChange={(keys) => {
                       handleFilterChange(
                         "sortBy",
-                        Array.from(keys)[0] as string
+                        Array.from(keys)[0] as string,
                       );
                     }}
                     className="md:min-w-[160px] col-span-3"
@@ -374,7 +374,7 @@ export default function ScheduleVisits({
                   size="sm"
                   variant="ghost"
                   onPress={() => setIsCompactMode(!isCompactMode)}
-                  className="border-small size-8 min-w-8 p-0 max-md:w-full dark:border-default-200 dark:text-foreground/70"
+                  className="border-small size-8 min-w-8 p-0 dark:border-default-200 dark:text-foreground/70"
                   title={isCompactMode ? "Show Grid View" : "Show List View"}
                   startContent={
                     isCompactMode ? (

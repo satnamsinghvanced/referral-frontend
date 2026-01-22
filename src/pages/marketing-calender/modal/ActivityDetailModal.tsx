@@ -65,9 +65,10 @@ export function ActivityDetailModal({
         closeButton: "cursor-pointer",
       }}
       size="xl"
+      placement="center"
     >
-      <ModalContent className="p-5">
-        <ModalHeader className="flex flex-col gap-2 text-center sm:text-left flex-shrink-0 p-0 font-normal">
+      <ModalContent className="p-4">
+        <ModalHeader className="flex flex-col gap-2 flex-shrink-0 p-0 font-normal">
           <h4
             data-slot="dialog-title"
             className="text-base leading-none font-medium flex items-center gap-2 text-foreground"

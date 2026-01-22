@@ -100,17 +100,15 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
     >
       <div className="grid grid-cols-1 md:grid-cols-[1fr_1.5fr_1fr] gap-4 md:gap-6">
         <div className="space-y-3">
-          <div className="flex items-center space-x-3">
-            <div>
-              <h3 className="text-sm font-medium dark:text-white">
-                {referral.name}
-              </h3>
-              {referral.age && (
-                <span className="text-xs dark:text-foreground/60">
-                  Age: {referral.age}
-                </span>
-              )}
-            </div>
+          <div className="flex flex-col items-start space-y-1">
+            <h3 className="text-sm font-medium dark:text-white">
+              {referral.name}
+            </h3>
+            {referral.age && (
+              <span className="text-xs dark:text-foreground/60">
+                Age: {referral.age}
+              </span>
+            )}
           </div>
           <div className="space-y-1.5">
             {referral.phone && (
@@ -137,11 +135,11 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
         </div>
 
         <div className="space-y-3">
-          <div>
+          <div className="space-y-1">
             <p className="text-sm font-medium dark:text-white">
               {referral?.referredBy?.name}
             </p>
-            <p className="text-xs text-gray-600 dark:text-foreground/60 mt-0.5">
+            <p className="text-xs text-gray-600 dark:text-foreground/60">
               {referral?.referredBy?.practiceName}
             </p>
           </div>
@@ -179,7 +177,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                   {
                     TREATMENT_OPTIONS.find(
                       (treatmentOption: any) =>
-                        treatmentOption.key === referral.treatment
+                        treatmentOption.key === referral.treatment,
                     )?.label
                   }
                 </span>

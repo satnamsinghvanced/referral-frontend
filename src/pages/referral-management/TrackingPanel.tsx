@@ -270,7 +270,7 @@ const TrackingPanel = () => {
                     <img
                       src={latestQr.qrCode}
                       alt="QR Code"
-                      className="w-48 h-48 mx-auto"
+                      className="size-38 md:size-48 mx-auto"
                     />
                   </div>
                   <p className="text-gray-600 dark:text-foreground/60 mt-3 text-xs">
@@ -495,31 +495,31 @@ const TrackingPanel = () => {
             <table className="w-full text-left text-sm">
               <thead>
                 <tr className="border-b border-foreground/10">
-                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700 dark:text-foreground/60 max-w-fit">
+                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700 dark:text-foreground/60 max-w-fit whitespace-nowrap">
                     QR Code
                   </th>
-                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700 dark:text-foreground/60">
+                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700 dark:text-foreground/60 whitespace-nowrap">
                     Path / URL
                   </th>
-                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700 dark:text-foreground/60">
+                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700 dark:text-foreground/60 whitespace-nowrap">
                     Total Scans
                   </th>
-                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700 dark:text-foreground/60">
+                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700 dark:text-foreground/60 whitespace-nowrap">
                     QR Scans
                   </th>
-                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700 dark:text-foreground/60">
+                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700 dark:text-foreground/60 whitespace-nowrap">
                     NFC Taps
                   </th>
-                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700 dark:text-foreground/60">
+                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700 dark:text-foreground/60 whitespace-nowrap">
                     Referrals
                   </th>
-                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700 dark:text-foreground/60">
+                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700 dark:text-foreground/60 whitespace-nowrap">
                     Conversion Rate
                   </th>
-                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700 dark:text-foreground/60">
+                  <th className="text-left text-xs py-3 px-2 font-medium text-gray-700 dark:text-foreground/60 whitespace-nowrap">
                     Created
                   </th>
-                  <th className="text-right text-xs py-3 px-2 font-medium text-gray-700 dark:text-foreground/60">
+                  <th className="text-right text-xs py-3 px-2 font-medium text-gray-700 dark:text-foreground/60 whitespace-nowrap">
                     Actions
                   </th>
                 </tr>
@@ -558,7 +558,7 @@ const TrackingPanel = () => {
                           target="_blank"
                           rel="noreferrer"
                           onClick={(e) => e.stopPropagation()}
-                          className="text-[11px] text-blue-500 hover:underline truncate w-fit"
+                          className="text-[11px] text-blue-500 hover:underline truncate w-fit max-md:max-w-[200px]"
                         >
                           {qr.referralUrl}
                         </a>

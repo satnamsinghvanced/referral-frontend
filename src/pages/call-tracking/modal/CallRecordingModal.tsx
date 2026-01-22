@@ -136,14 +136,14 @@ const DetailsTab = ({
             color: "danger",
           });
         },
-      }
+      },
     );
   };
 
   return (
     <div className="flex-1 outline-none space-y-4">
       <div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="md:grid md:grid-cols-2 md:gap-3 max-md:space-y-3">
           {/* Call Information */}
           <Card className="shadow-none border border-foreground/10">
             <CardBody className="space-y-3">
@@ -266,20 +266,20 @@ const DetailsTab = ({
                           const year = dateObject.year;
                           const month = String(dateObject.month).padStart(
                             2,
-                            "0"
+                            "0",
                           );
                           const day = String(dateObject.day).padStart(2, "0");
                           const hour = String(dateObject.hour).padStart(2, "0");
                           const minute = String(dateObject.minute).padStart(
                             2,
-                            "0"
+                            "0",
                           );
                           const second = String(dateObject.second).padStart(
                             2,
-                            "0"
+                            "0",
                           );
                           const millisecond = String(
-                            dateObject.millisecond
+                            dateObject.millisecond,
                           ).padStart(3, "0");
 
                           const localDateTimeString = `${year}-${month}-${day}T${hour}:${minute}:${second}.${millisecond}`;
@@ -350,6 +350,7 @@ export default function CallRecordingModal({
     <Modal
       isOpen={isOpen}
       onOpenChange={onClose}
+      placement="center"
       classNames={{
         base: `max-sm:!m-3 !m-0`,
         closeButton: "cursor-pointer",
@@ -357,7 +358,7 @@ export default function CallRecordingModal({
       size="2xl"
     >
       <ModalContent>
-        <ModalHeader className="p-5 pb-0 flex-col">
+        <ModalHeader className="p-4 pb-0 flex-col">
           <h2
             data-slot="dialog-title"
             className="leading-none font-medium text-base"
@@ -374,7 +375,7 @@ export default function CallRecordingModal({
             {data.contact.name || data.contact.phone || "this contact"}.
           </p>
         </ModalHeader>
-        <ModalBody className="px-5 py-5">
+        <ModalBody className="px-4 py-4">
           <div className="">
             <Tabs
               aria-label="Dynamic tabs"
@@ -388,6 +389,7 @@ export default function CallRecordingModal({
                 cursor: "rounded-full bg-white dark:bg-primary",
                 tabContent:
                   "dark:group-data-[selected=true]:text-primary-foreground text-default-500 dark:text-foreground/60 transition-colors",
+                panel: "p-0 pt-3",
               }}
               className="w-full"
             >

@@ -67,7 +67,7 @@ const haversineDistance = (p1: number[], p2: number[]): number => {
 };
 
 const getOptimizedCoordinates = (
-  initialCoords: number[][]
+  initialCoords: number[][],
 ): { optimizedOrder: number[][]; orderMap: number[] } => {
   if (initialCoords.length < 2) {
     return {
@@ -135,7 +135,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
   const [isTimeInPastError, setIsTimeInPastError] = useState(false);
 
   const [userStartLocation, setUserStartLocation] = useState<number[] | null>(
-    null
+    null,
   );
   const [isGeolocationLoading, setIsGeolocationLoading] = useState(false);
 
@@ -144,12 +144,12 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
 
   const currentZonedDateTime = useMemo(
     () => now(localTimeZone),
-    [localTimeZone]
+    [localTimeZone],
   );
 
   const currentTimeObject = new Time(
     currentZonedDateTime.hour,
-    currentZonedDateTime.minute
+    currentZonedDateTime.minute,
   );
 
   const isToday = planState.routeDate?.split("T")[0] === todayDateString;
@@ -201,7 +201,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
       (referrer: Partner) => {
         const coords = referrer?.address?.coordinates;
         return coords ? [coords.long, coords.lat] : [0, 0];
-      }
+      },
     );
 
     setInitialCoordinates(initialCoords);
@@ -217,7 +217,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
         .map((index) => referrers[index])
         .filter((p): p is Partner => !!p);
     },
-    []
+    [],
   );
 
   const handleGenerateRoute = () => {
@@ -260,7 +260,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
           planState.startTime,
           { distance: 0, duration: 0 } as MapboxRoute,
           selectedReferrerObjects,
-          planState?.durationPerVisit
+          planState?.durationPerVisit,
         );
 
         // The only time spent is the visit duration. Travel time/distance is 0.
@@ -324,7 +324,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                   planState.startTime,
                   route as MapboxRoute,
                   selectedReferrerObjects,
-                  planState?.durationPerVisit
+                  planState?.durationPerVisit,
                 );
 
                 // Calculate totals for the single stop with travel time
@@ -338,16 +338,16 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                   ...routeMetrics,
                   // These are the *travel-only* metrics for the top cards
                   travelTime: formatRouteData.formatDuration(
-                    totalTravelDurationSeconds
+                    totalTravelDurationSeconds,
                   ),
                   travelDistance: formatRouteData.formatDistance(
-                    totalTravelDistanceMeters
+                    totalTravelDistanceMeters,
                   ),
                   // These are the *total* metrics for the bottom summary
                   estimatedTotalTime:
                     formatRouteData.formatDuration(totalDuration),
                   estimatedDistance: formatRouteData.formatDistance(
-                    totalTravelDistanceMeters
+                    totalTravelDistanceMeters,
                   ),
                 };
 
@@ -388,7 +388,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
             enableHighAccuracy: true,
             maximumAge: 0,
             timeout: 15000,
-          }
+          },
         );
       } else {
         fallbackToStaticDestination();
@@ -432,7 +432,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
           planState.startTime,
           originalRoute as MapboxRoute,
           selectedReferrerObjects,
-          planState?.durationPerVisit
+          planState?.durationPerVisit,
         );
 
         generateRouteMutate(optimizedCoordString, {
@@ -451,14 +451,14 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
             optimizedRoute = optimizedData.routes.reduce(
               (best: MapboxRoute, current: MapboxRoute) =>
                 current.duration < best.duration ? current : best,
-              optimizedRoute as MapboxRoute
+              optimizedRoute as MapboxRoute,
             );
 
             const optimizedReferrerOrder =
               hasCustomOptimization && optimizedOrderMap
                 ? optimizedOrderObjects(
                     selectedReferrerObjects,
-                    optimizedOrderMap
+                    optimizedOrderMap,
                   )
                 : selectedReferrerObjects;
 
@@ -467,26 +467,26 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
               planState.startTime,
               optimizedRoute as MapboxRoute,
               optimizedReferrerOrder,
-              planState?.durationPerVisit
+              planState?.durationPerVisit,
             );
 
             const finalResults: RouteOptimizationResults = {
               original: {
                 ...originalRouteMetrics,
                 travelTime: formatRouteData.formatDuration(
-                  originalRoute?.duration || 0
+                  originalRoute?.duration || 0,
                 ),
                 travelDistance: formatRouteData.formatDistance(
-                  originalRoute?.distance || 0
+                  originalRoute?.distance || 0,
                 ),
               },
               optimized: {
                 ...optimizedRouteMetrics,
                 travelTime: formatRouteData.formatDuration(
-                  optimizedRoute?.duration || 0
+                  optimizedRoute?.duration || 0,
                 ),
                 travelDistance: formatRouteData.formatDistance(
-                  optimizedRoute?.distance || 0
+                  optimizedRoute?.distance || 0,
                 ),
               },
             };
@@ -525,7 +525,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
     let activeCoordinateString = routeDetailsList
       .map(
         (stop: any) =>
-          `${stop.address.coordinates.long},${stop.address.coordinates.lat}`
+          `${stop.address.coordinates.long},${stop.address.coordinates.lat}`,
       )
       .join(";");
 
@@ -543,7 +543,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
 
     // Updated URL to include referrerNames
     const url = `${baseUrl}?coordinates=${encodeURIComponent(
-      activeCoordinateString
+      activeCoordinateString,
     )}&optimized=${planState.enableAutoRoute}`;
 
     window.open(url, "_blank");
@@ -581,7 +581,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
   }
 
   return (
-    <div className="space-y-3 md:space-y-4 max-h-[600px] overflow-auto">
+    <div className="space-y-3 md:space-y-4 pr-1">
       <Card className="shadow-none border border-foreground/10 dark:bg-background/50">
         <CardHeader className="pt-4 px-4 pb-0">
           <h4 className="text-sm font-medium dark:text-white">
@@ -634,7 +634,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                   onChange={(timeValue) => {
                     const timeString = `${String(timeValue?.hour).padStart(
                       2,
-                      "0"
+                      "0",
                     )}:${String(timeValue?.minute).padStart(2, "0")}`;
                     onStateChange("startTime", timeString);
                   }}
@@ -664,8 +664,8 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                     planState.durationPerVisit
                       ? ([planState.durationPerVisit] as any)
                       : PER_VISIT_DURATION_OPTIONS.length > 0
-                      ? [PER_VISIT_DURATION_OPTIONS[0]]
-                      : []
+                        ? [PER_VISIT_DURATION_OPTIONS[0]]
+                        : []
                   }
                   onSelectionChange={(keys: any) =>
                     onStateChange("durationPerVisit", Array.from(keys).join(""))
@@ -714,7 +714,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
 
       {routeOptimizationResults && (
         <>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4">
             <Card className="shadow-none border border-foreground/10 dark:bg-background/50">
               <CardHeader className="pt-4 px-4 pb-0">
                 <h4 className="text-sm font-medium dark:text-white">
@@ -774,7 +774,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
 
           <Card className="shadow-none border border-foreground/10 dark:bg-background/50">
             <CardHeader className="pt-4 px-4 pb-0">
-              <div className="flex items-center justify-between w-full">
+              <div className="flex items-center justify-between w-full gap-3 max-md:mb-1 flex-wrap">
                 <h4 className="text-sm font-medium dark:text-white">
                   Route Details ({routeType})
                 </h4>

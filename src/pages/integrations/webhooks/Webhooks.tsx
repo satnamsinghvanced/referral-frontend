@@ -21,7 +21,7 @@ function Webhooks() {
   return (
     <div className="space-y-6">
       <Card className="shadow-none border border-foreground/10 dark:border-default-100 rounded-xl bg-background">
-        <CardHeader className="flex-col gap-1.5 items-start p-5 pb-3">
+        <CardHeader className="flex-col gap-1.5 items-start p-4 pb-1">
           <div className="flex items-center justify-between w-full">
             <div>
               <h4 className="font-medium text-sm">
@@ -33,7 +33,7 @@ function Webhooks() {
             </div>
           </div>
         </CardHeader>
-        <CardBody className="space-y-5 p-5 pt-3">
+        <CardBody className="space-y-5 p-4 pt-3">
           {/* Webhook URL */}
           <div className="space-y-2">
             <label className="text-xs font-medium block dark:text-foreground/60">

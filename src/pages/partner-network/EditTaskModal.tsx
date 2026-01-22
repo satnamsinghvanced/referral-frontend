@@ -100,13 +100,14 @@ const EditTaskModal = ({ isOpen, onClose, task }: EditTaskModalProps) => {
     <Modal
       isOpen={isOpen}
       onOpenChange={onClose}
+      placement="center"
       classNames={{
         base: `max-sm:!m-3 !m-0`,
         closeButton: "cursor-pointer",
       }}
     >
       <ModalContent className="p-4 flex flex-col gap-4 !my-2">
-        <ModalHeader className="flex flex-col gap-2 text-center sm:text-left p-0">
+        <ModalHeader className="flex flex-col gap-2 p-0">
           <h4 className="text-base leading-none font-medium text-foreground">
             Edit Task - {task?.title}
           </h4>
@@ -174,7 +175,7 @@ const EditTaskModal = ({ isOpen, onClose, task }: EditTaskModalProps) => {
             </div>
 
             {/* Priority / Type / Status */}
-            <div className="grid grid-cols-3 gap-2.5">
+            <div className="grid grid-cols-3 gap-2.5 max-md:grid-cols-1">
               <Select
                 label="Priority"
                 labelPlacement="outside"

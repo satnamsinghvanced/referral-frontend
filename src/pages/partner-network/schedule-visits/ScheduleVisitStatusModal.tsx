@@ -93,14 +93,15 @@ const ScheduleVisitStatusModal = ({
   return (
     <Modal
       isOpen={isOpen}
-      onOpenChange={onClose}
+      onClose={onClose}
       size="md"
+      placement="center"
       classNames={{
         base: `max-sm:!m-3 !m-0`,
         closeButton: "cursor-pointer",
       }}
     >
-      <ModalContent>
+      <ModalContent className="max-h-[90vh] overflow-hidden p-0 w-full relative">
         <ModalHeader className="flex-col px-4 font-normal space-y-1">
           <h2 className="text-base font-medium text-foreground">
             {modalTitle}
@@ -225,7 +226,7 @@ const ScheduleVisitStatusModal = ({
                 </Checkbox>
               </div>
 
-              <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end mt-4">
+              <div className="flex gap-2 justify-end mt-4">
                 <Button
                   size="sm"
                   radius="sm"

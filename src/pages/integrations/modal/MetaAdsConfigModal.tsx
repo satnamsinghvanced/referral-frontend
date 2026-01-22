@@ -99,6 +99,7 @@ export default function MetaAdsConfigModal({
         onOpenChange={onClose}
         size="md"
         classNames={{ base: `max-sm:!m-3 !m-0`, closeButton: "cursor-pointer" }}
+        placement="center"
       >
         <ModalContent className="py-10">
           <div className="flex flex-col items-center justify-center space-y-3">
@@ -119,6 +120,7 @@ export default function MetaAdsConfigModal({
         closeButton: "cursor-pointer",
       }}
       size="md"
+      placement="center"
     >
       <ModalContent>
         <form onSubmit={formik.handleSubmit}>

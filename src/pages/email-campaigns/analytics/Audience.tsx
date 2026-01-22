@@ -27,7 +27,7 @@ const Audience: React.FC = () => {
   return (
     <div className="grid grid-cols-2 gap-5">
       <Card shadow="none" className="border border-foreground/10 p-5">
-        <CardHeader className="p-0 pb-8">
+        <CardHeader className="p-0 pb-5 md:pb-8">
           <h4 className="text-sm font-medium flex items-center gap-2">
             <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
             Audience Engagement
@@ -56,7 +56,7 @@ const Audience: React.FC = () => {
         </CardBody>
       </Card>
       <Card shadow="none" className="border border-foreground/10 p-5">
-        <CardHeader className="p-0 pb-8 flex items-center gap-2">
+        <CardHeader className="p-0 pb-5 md:pb-8 flex items-center gap-2">
           <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
           <h4 className="text-sm font-medium">Engagement by Segment</h4>
         </CardHeader>

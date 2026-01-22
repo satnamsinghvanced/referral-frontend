@@ -72,11 +72,11 @@ function GalleryMediaUploadModal({
     {
       page: 1,
       limit: 10,
-    }
+    },
   );
 
   const { data: folderData, isLoading: isLoadingFolder } = useGetFolderDetails(
-    currentFolderId as string
+    currentFolderId as string,
   );
 
   const { data: availableTagsData } = useTagsQuery();
@@ -140,7 +140,7 @@ function GalleryMediaUploadModal({
   const currentFolderMediaGroup = mediaData?.find(
     (group: any) =>
       group.folderName ===
-      (currentFolderName === "Root" ? "Root" : currentFolderName)
+      (currentFolderName === "Root" ? "Root" : currentFolderName),
   );
   const currentFolderMedia = currentFolderMediaGroup?.images || [];
 
@@ -202,7 +202,7 @@ function GalleryMediaUploadModal({
     } else {
       setSelectedMediaIds((prev) => prev.filter((id) => id !== media._id));
       setSelectedMediaItems((prev) =>
-        prev.filter((item) => item._id !== media._id)
+        prev.filter((item) => item._id !== media._id),
       );
     }
   };
@@ -216,6 +216,7 @@ function GalleryMediaUploadModal({
     <Modal
       isOpen={isOpen}
       onOpenChange={onClose}
+      placement="center"
       size="2xl"
       scrollBehavior="inside"
       classNames={{
@@ -224,7 +225,7 @@ function GalleryMediaUploadModal({
       }}
     >
       <ModalContent>
-        <ModalHeader className="flex flex-col gap-1 font-normal px-5 pb-4">
+        <ModalHeader className="flex flex-col gap-1 font-normal px-4 pb-4">
           <h4 className="text-base font-medium text-foreground">
             Select Media
           </h4>
@@ -232,7 +233,7 @@ function GalleryMediaUploadModal({
             Select images or videos from your library or upload new ones.
           </p>
         </ModalHeader>
-        <ModalBody className="px-4 md:px-5 py-0">
+        <ModalBody className="px-4 py-0">
           <div className="flex flex-col gap-3.5">
             {/* Top Bar: Breadcrumbs & Actions */}
             <div className="flex flex-wrap items-center justify-between gap-4 border border-default-200/50 rounded-xl p-3 bg-background">
@@ -402,7 +403,7 @@ function GalleryMediaUploadModal({
             </div>
           </div>
         </ModalBody>
-        <ModalFooter>
+        <ModalFooter className="p-4">
           <Button
             size="sm"
             radius="sm"

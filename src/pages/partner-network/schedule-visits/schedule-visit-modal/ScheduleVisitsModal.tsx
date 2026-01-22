@@ -399,26 +399,27 @@ export function ScheduleVisitsModal({
       isOpen={isOpen}
       onOpenChange={closeModal}
       size="4xl"
+      placement="center"
       classNames={{
         base: `max-sm:!m-3 !m-0`,
         closeButton: "cursor-pointer",
       }}
-      className="!my-4 !mx-2"
+      scrollBehavior="inside"
     >
-      <ModalContent>
+      <ModalContent className="max-h-[90vh] overflow-hidden p-0 w-full relative">
         <ModalHeader className="p-4 pb-3 flex-col">
           <h2 className="leading-none font-medium text-base">
             {isEditing
               ? "Edit Referrer Visit Schedule"
               : "Schedule Referrer Visit"}
           </h2>
-          <p className="text-xs text-gray-600 mt-1.5 font-normal">
+          <p className="text-xs text-gray-600 dark:text-foreground/60 mt-1.5 font-normal">
             Create and manage visit schedules with optimized routes for maximum
             efficiency.
           </p>
         </ModalHeader>
 
-        <ModalBody className="px-4 py-0 gap-0">
+        <ModalBody className="px-4 py-0 gap-3">
           <div className="">
             <Tabs
               aria-label="Schedule Steps"
@@ -454,8 +455,7 @@ export function ScheduleVisitsModal({
               }}
             </Tabs>
           </div>
-
-          <div className="pt-4 pb-4 relative overflow-hidden">
+          <div className="relative overflow-auto pb-4">
             <div
               className="transition-opacity duration-300"
               style={{
@@ -474,7 +474,7 @@ export function ScheduleVisitsModal({
             </div>
 
             <div
-              className="transition-opacity duration-300"
+              className="transition-opacity duration-300 flex-1"
               style={{
                 display: activeStep === "route_planning" ? "block" : "none",
               }}
@@ -523,7 +523,7 @@ export function ScheduleVisitsModal({
           </div>
         </ModalBody>
 
-        <ModalFooter className="flex justify-between gap-3 max-sm:gap-1.5 px-4 py-3.5 border-t border-foreground/10">
+        <ModalFooter className="flex justify-between gap-3 px-4 py-3.5 border-t border-foreground/10 max-sm:flex-col max-sm:gap-2.5">
           {currentTabIndex > 0 ? (
             <Button
               variant="ghost"
@@ -536,16 +536,17 @@ export function ScheduleVisitsModal({
               Back to {tabs[currentTabIndex - 1]?.label || ""}
             </Button>
           ) : (
-            <p></p>
+            ""
           )}
 
-          <div className="flex space-x-3 max-sm:space-x-1.5">
+          <div className="flex space-x-3 max-sm:space-x-2">
             {currentTabIndex < tabs.length - 1 ? (
               <Button
                 color="primary"
                 size="sm"
                 onPress={handleNext}
                 isDisabled={isSubmitting}
+                className="max-sm:w-full"
               >
                 Next: {tabs[currentTabIndex + 1]?.label}
               </Button>
@@ -558,7 +559,7 @@ export function ScheduleVisitsModal({
                   isDisabled={
                     isSubmitting || Object.keys(validationErrors).length > 0
                   }
-                  className="border-small dark:text-foreground/80"
+                  className="border-small dark:text-foreground/80 max-sm:w-full"
                   startContent={<FiSave className="text-sm max-sm:hidden" />}
                 >
                   {draftButtonText}
@@ -571,6 +572,7 @@ export function ScheduleVisitsModal({
                     isSubmitting || Object.keys(validationErrors).length > 0
                   }
                   isLoading={isSubmitting}
+                  className="max-sm:w-full"
                 >
                   {submitButtonText}
                 </Button>

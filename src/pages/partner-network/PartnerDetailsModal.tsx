@@ -71,6 +71,7 @@ const PartnerDetailsModal = ({
     <Modal
       isOpen={isOpen}
       onOpenChange={onClose}
+      placement="center"
       classNames={{
         base: `max-sm:!m-3 !m-0`,
         closeButton: "cursor-pointer",
@@ -78,7 +79,7 @@ const PartnerDetailsModal = ({
       size="md"
     >
       <ModalContent className="max-h-[92vh] flex flex-col">
-        <ModalHeader className="flex flex-col gap-2 text-center sm:text-left flex-shrink-0 p-4">
+        <ModalHeader className="flex flex-col gap-2 flex-shrink-0 p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-3">
               <h4 className="text-base font-medium leading-snug flex items-center space-x-2 text-foreground">
@@ -246,7 +247,7 @@ const PartnerDetailsModal = ({
                         <div className="text-xs text-gray-600 dark:text-foreground/60">
                           {formatDateToReadable(
                             (displayData as any).updatedAt,
-                            true
+                            true,
                           )}
                         </div>
                       </div>
@@ -313,7 +314,7 @@ const PartnerDetailsModal = ({
                                       >
                                         {specialty}
                                       </Chip>
-                                    )
+                                    ),
                                   )}
                               </div>
                             )}

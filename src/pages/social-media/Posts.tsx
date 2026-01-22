@@ -28,8 +28,8 @@ const Posts = () => {
 
   return (
     <div className="space-y-4 w-full">
-      <Card className="bg-background rounded-xl shadow-none p-5 border border-foreground/10 w-full">
-        <CardHeader className="flex justify-between items-center mb-5 p-0">
+      <Card className="bg-background rounded-xl shadow-none p-4 border border-foreground/10 w-full">
+        <CardHeader className="flex justify-between items-center mb-4 p-0">
           <h2 className="text-sm">Recent Posts</h2>
           <Chip
             size="sm"
@@ -70,7 +70,7 @@ const Posts = () => {
                   return (
                     <Card
                       key={post._id}
-                      className="border border-foreground/10 p-4 rounded-xl shadow-none"
+                      className="border border-foreground/10 p-3 md:p-4 rounded-xl shadow-none"
                     >
                       <div className="flex justify-between items-start mb-1.5">
                         <h4 className="text-sm font-medium">{post.title}</h4>
@@ -99,7 +99,7 @@ const Posts = () => {
                           :{" "}
                           {formatDateToReadable(
                             post.publishedTime || post.updatedAt,
-                            true
+                            true,
                           )}
                         </span>
                       </div>

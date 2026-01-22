@@ -116,7 +116,7 @@ const CallTracking = () => {
         },
       ],
     }),
-    [refetch, isRefetching]
+    [refetch, isRefetching],
   );
 
   return (
@@ -139,11 +139,6 @@ const CallTracking = () => {
               >
                 Connect Twilio
               </Button>
-            </div>
-          )}
-          {isTwilioConfigLoading && (
-            <div className="flex items-center justify-center min-h-[200px] bg-background border border-foreground/10 rounded-xl p-4">
-              <LoadingState />
             </div>
           )}
           {isTwilioConnected && !isTwilioConfigLoading && (
@@ -177,7 +172,7 @@ const CallTracking = () => {
                     onSelectionChange={(keys) =>
                       onFilterChange(
                         "type",
-                        (Array.from(keys)[0] as string) || ""
+                        (Array.from(keys)[0] as string) || "",
                       )
                     }
                   >
@@ -202,7 +197,7 @@ const CallTracking = () => {
                     onSelectionChange={(keys) =>
                       onFilterChange(
                         "status",
-                        (Array.from(keys)[0] as string) || ""
+                        (Array.from(keys)[0] as string) || "",
                       )
                     }
                   >

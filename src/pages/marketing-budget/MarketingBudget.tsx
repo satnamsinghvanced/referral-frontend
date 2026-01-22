@@ -337,7 +337,7 @@ const MarketingBudget = () => {
                   label="Start Date"
                   labelPlacement="outside"
                   size="sm"
-                  className="max-w-[200px]"
+                  className="md:max-w-[200px]"
                   value={dateRange.start ? parseDate(dateRange.start) : null}
                   onChange={(date) =>
                     setDateRange((prev) => ({
@@ -350,7 +350,7 @@ const MarketingBudget = () => {
                   label="End Date"
                   labelPlacement="outside"
                   size="sm"
-                  className="max-w-[200px]"
+                  className="md:max-w-[200px]"
                   value={dateRange.end ? parseDate(dateRange.end) : null}
                   onChange={(date) =>
                     setDateRange((prev) => ({

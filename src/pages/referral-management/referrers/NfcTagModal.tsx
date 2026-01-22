@@ -93,8 +93,9 @@ const NfcTagModal = ({ isOpen, onClose, referrer }: NfcTagModalProps) => {
       isOpen={isOpen}
       onClose={onClose}
       size="md"
+      placement="center"
       classNames={{
-        base: "bg-white dark:bg-background rounded-2xl",
+        base: "bg-white dark:bg-background max-sm:!m-3 !m-0",
         closeButton: "cursor-pointer",
       }}
     >

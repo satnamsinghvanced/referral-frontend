@@ -8,34 +8,22 @@ import {
   Navbar,
   NavbarContent,
 } from "@heroui/react";
+import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import { FiUser } from "react-icons/fi";
 import { HiOutlineMenuAlt1 } from "react-icons/hi";
 import { IoSearch } from "react-icons/io5";
+import { LuArrowRight, LuClock, LuUser, LuUsers } from "react-icons/lu";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router";
-import { useTypedSelector } from "../../hooks/useTypedSelector";
-import { queryClient } from "../../providers/QueryProvider";
-import { AppDispatch } from "../../store";
-import { logout } from "../../store/authSlice";
-import NotificationPopover from "../ui/NotificationsPopover";
-import { disconnectSocket } from "../../services/socket";
-import { useState, useMemo, useRef, useEffect } from "react";
-import { useDebounce } from "../../hooks/useDebounce";
 import { useGlobalSearch } from "../../hooks/useDashboard";
-import { Spinner } from "@heroui/react";
-import { AnimatePresence, motion } from "framer-motion";
-import {
-  LuBell,
-  LuCalendar,
-  LuTarget,
-  LuUsers,
-  LuUser,
-  LuClock,
-  LuArrowRight,
-} from "react-icons/lu";
-import { SearchResult } from "../../types/dashboard";
+import { useDebounce } from "../../hooks/useDebounce";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
+import { AppDispatch } from "../../store";
+import { handleLogoutThunk } from "../../store/authSlice";
 import { timeAgo } from "../../utils/timeAgo";
 import { LoadingState } from "../common/LoadingState";
+import NotificationPopover from "../ui/NotificationsPopover";
 
 export default function Header({
   hamburgerMenuClick,
@@ -77,10 +65,7 @@ export default function Header({
   }, [isOpen]);
 
   const handleLogout = () => {
-    disconnectSocket();
-    dispatch(logout());
-    queryClient.clear();
-    navigate("/signin");
+    dispatch(handleLogoutThunk());
   };
   return (
     <Navbar
@@ -111,6 +96,11 @@ export default function Header({
               onFocus={() => {
                 if (query.length >= 2) setIsOpen(true);
               }}
+              isClearable
+              onClear={() => {
+                setQuery("");
+                setIsOpen(false);
+              }}
               classNames={{
                 base: "w-full",
                 mainWrapper: "h-full",
@@ -137,11 +127,11 @@ export default function Header({
                 >
                   <div className="max-h-[450px] overflow-y-auto scrollbar-hide">
                     <div className="px-4 py-3 border-b border-divider flex items-center justify-between sticky top-0 bg-background/80 backdrop-blur-md z-20">
-                      <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                      <h4 className="text-sm font-medium dark:text-gray-400">
                         Search Results
-                      </span>
+                      </h4>
                       {results && results.length > 0 && (
-                        <span className="text-[10px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-bold">
+                        <span className="text-[11px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
                           {results.length} Found
                         </span>
                       )}
@@ -161,10 +151,11 @@ export default function Header({
                             key={result._id}
                             onClick={() => {
                               setIsOpen(false);
+                              setQuery("");
                               navigate(
                                 result.resultType === "referral"
-                                  ? "/referrals"
-                                  : "/referrals?tab=referrers",
+                                  ? `/referrals?tab=Referrals&referralId=${result._id}`
+                                  : `/referrals?tab=Referrers&referrerId=${result._id}`,
                               );
                             }}
                             className="flex items-center gap-3 px-4 py-3 hover:bg-foreground/[0.03] dark:hover:bg-foreground/[0.05] transition-all cursor-pointer text-left border-b border-divider last:border-none group"
@@ -185,11 +176,11 @@ export default function Header({
 
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between gap-2">
-                                <span className="text-sm font-bold text-foreground truncate">
+                                <span className="text-sm font-medium text-foreground truncate">
                                   {result.name}
                                 </span>
                                 <span
-                                  className={`text-[10px] px-2 py-0.5 rounded-md font-bold uppercase tracking-tighter ${
+                                  className={`text-[10px] px-2 py-0.5 rounded-md font-medium uppercase tracking-tighter ${
                                     result.resultType === "referral"
                                       ? "bg-sky-100 dark:bg-sky-500/20 text-sky-700 dark:text-sky-300"
                                       : "bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300"
@@ -199,7 +190,9 @@ export default function Header({
                                 </span>
                               </div>
                               <div className="flex items-center gap-2 mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                <span className="truncate">{result.email}</span>
+                                <span className="truncate max-w-[150px]">
+                                  {result.email}
+                                </span>
                                 <span className="size-1 bg-divider rounded-full shrink-0 dark:bg-gray-600" />
                                 <span className="flex items-center gap-1">
                                   <LuClock size={12} className="opacity-60" />

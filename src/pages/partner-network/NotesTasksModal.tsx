@@ -157,16 +157,18 @@ NotesTasksModalProps) => {
     <>
       <Modal
         isOpen={isOpen}
-        onOpenChange={onClose}
+        onClose={onClose}
         size="md"
+        placement="center"
+        scrollBehavior="inside"
         classNames={{
           base: `max-sm:!m-3 !m-0`,
           closeButton: "cursor-pointer",
         }}
       >
         <ModalContent className="p-4 flex flex-col gap-4">
-          <ModalHeader className="flex flex-col gap-2 text-center sm:text-left flex-shrink-0 p-0">
-            <h4 className="text-base leading-none font-medium flex items-center space-x-2">
+          <ModalHeader className="flex flex-col gap-2 flex-shrink-0 p-0">
+            <h4 className="text-base font-medium flex items-center space-x-2">
               <LuStickyNote className="size-5" />
               <span>Notes &amp; Tasks - {practice?.name}</span>
             </h4>
@@ -196,7 +198,7 @@ NotesTasksModalProps) => {
               >
                 {/* Notes Tab Content */}
                 <Tab
-                  title={`Notes${notes && ` (${notes?.length})`}`}
+                  title={`Notes${notes ? ` (${notes?.length})` : " 0"}`}
                   key="notes"
                   className="outline-none flex-1 overflow-y-auto space-y-3 py-0"
                 >
@@ -213,7 +215,7 @@ NotesTasksModalProps) => {
                           className="min-h-[80px] resize-none"
                           radius="sm"
                         />
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-3">
                           <Select
                             aria-label="Note Category"
                             selectedKeys={[newNoteCategory as string]}
@@ -319,7 +321,7 @@ NotesTasksModalProps) => {
 
                 {/* Tasks Tab Content */}
                 <Tab
-                  title={`Tasks${tasks && ` (${tasks?.length})`}`}
+                  title={`Tasks${tasks ? ` (${tasks?.length})` : " 0"}`}
                   key="tasks"
                   className="outline-none flex-1 overflow-y-auto space-y-3 py-0"
                 >
@@ -329,7 +331,7 @@ NotesTasksModalProps) => {
                         <h4 className="text-sm">Add New Task</h4>
                       </CardHeader>
                       <CardBody className="px-4 pb-4 pt-0 space-y-3">
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-2 gap-3 max-md:grid-cols-1">
                           <Input
                             type="text"
                             placeholder="Task Title"
@@ -339,7 +341,7 @@ NotesTasksModalProps) => {
                             onChange={(e) => setNewTaskTitle(e.target.value)}
                           />
                           <DatePicker
-                            className="max-w-[284px]"
+                            className="md:max-w-[284px]"
                             aria-label="Due Date"
                             size="sm"
                             radius="sm"
@@ -361,7 +363,7 @@ NotesTasksModalProps) => {
                           }
                           className="min-h-[60px] resize-none"
                         />
-                        <div className="flex items-center space-x-2">
+                        <div className="md:flex md:items-center space-x-3 max-md:space-y-3">
                           <Select
                             aria-label="Task Priority"
                             size="sm"
@@ -392,7 +394,7 @@ NotesTasksModalProps) => {
                           </Select>
                         </div>
                         <div
-                          className={`flex items-center space-x-2 ${
+                          className={`flex items-center space-x-3 ${
                             activeTeamMembers && activeTeamMembers.length > 0
                               ? ""
                               : "flex-col-reverse gap-2 items-stretch"

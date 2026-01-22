@@ -24,7 +24,7 @@ const TagQrModal = ({ isOpen, onClose, tag }: TagQrModalProps) => {
   if (!tag) return null;
 
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(
-    tag.url
+    tag.url,
   )}`;
 
   const handleDownload = async () => {
@@ -101,6 +101,7 @@ const TagQrModal = ({ isOpen, onClose, tag }: TagQrModalProps) => {
       isOpen={isOpen}
       onClose={onClose}
       size="md"
+      placement="center"
       classNames={{
         base: `max-sm:!m-3 !m-0`,
         closeButton: "cursor-pointer",

@@ -1,9 +1,8 @@
-import { addToast } from "@heroui/react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import { store } from "../store";
-import { logout } from "../store/authSlice";
 import { queryClient } from "../providers/QueryProvider";
+import { store } from "../store";
+import { handleLogoutThunk } from "../store/authSlice";
 
 const isTokenValid = (token: string) => {
   try {
@@ -29,7 +28,7 @@ axiosInstance.interceptors.request.use(
     const token = store.getState().auth.token;
     if (token) {
       if (!isTokenValid(token)) {
-        store.dispatch(logout());
+        store.dispatch(handleLogoutThunk());
         queryClient.clear();
         window.location.href = `${import.meta.env.VITE_URL_PREFIX}/signin`; // redirect if expired
         return Promise.reject(new Error("Token expired"));
@@ -64,7 +63,7 @@ axiosInstance.interceptors.response.use(
     }
 
     if (error.response?.status === 401 || error.response?.status === 403) {
-      store.dispatch(logout());
+      store.dispatch(handleLogoutThunk());
       queryClient.clear();
       window.location.href = `${import.meta.env.VITE_URL_PREFIX}/signin`;
     }

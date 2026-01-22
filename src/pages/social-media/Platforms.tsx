@@ -88,7 +88,7 @@ const Platforms = () => {
 
             return (
               <Card
-                className="bg-background p-5 border border-foreground/10 rouned-xl shadow-none"
+                className="bg-background p-4 border border-foreground/10 rouned-xl shadow-none"
                 key={platform.id}
               >
                 {/* Header: Platform Name and Status */}

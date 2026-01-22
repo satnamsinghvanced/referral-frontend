@@ -243,12 +243,13 @@ export function UploadMediaModal({
   return (
     <Modal
       isOpen={isOpen}
-      onClose={handleCancel}
-      size="lg"
+      onOpenChange={onClose}
+      placement="center"
       classNames={{
         base: `max-sm:!m-3 !m-0`,
         closeButton: "cursor-pointer",
       }}
+      size="2xl"
     >
       <ModalContent className="p-4">
         <ModalHeader className="flex flex-col gap-1 font-normal p-0">

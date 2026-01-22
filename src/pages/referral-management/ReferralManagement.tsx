@@ -12,8 +12,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { FiEdit, FiEye, FiUsers, FiWifi } from "react-icons/fi";
 import { GrLocation } from "react-icons/gr";
-import { LuFilter, LuNfc, LuPhone, LuQrCode } from "react-icons/lu";
+import { IoSearch } from "react-icons/io5";
+import { LuFilter, LuNfc, LuQrCode } from "react-icons/lu";
 import { MdTrendingUp } from "react-icons/md";
+import { useSearchParams } from "react-router-dom";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
 import ReferralStatusChip from "../../components/chips/ReferralStatusChip";
 import ComponentContainer from "../../components/common/ComponentContainer";
@@ -29,20 +31,19 @@ import {
 } from "../../hooks/useReferral";
 import { Referrer } from "../../types/partner";
 import { FilterStats, Referral } from "../../types/referral";
+import { formatNumberWithCommas } from "../../utils/formatNumberWithCommas";
 import { downloadJson } from "../../utils/jsonDownloader";
 import AllReferralsView from "./referrals/AllReferralsView";
 import BulkImportModal from "./referrals/BulkImportModal";
-import ReferrerActionsModal from "./referrer-actions/ReferrerActionsModal";
+import ReferralCard from "./referrals/ReferralCard";
 import ReferralStatusModal from "./referrals/ReferralStatusModal";
-import ReferrerCard from "./referrers/ReferrerCard";
-import TrackingPanel from "./TrackingPanel";
 import TrackReferralBar from "./referrals/TrackReferralBar";
 import TrackReferralModal from "./referrals/TrackReferralModal";
-import ReferralCard from "./referrals/ReferralCard";
-import QrCodeDownloadModal from "./referrers/QrCodeDownloadModal";
+import ReferrerActionsModal from "./referrer-actions/ReferrerActionsModal";
 import NfcTagModal from "./referrers/NfcTagModal";
-import { IoSearch } from "react-icons/io5";
-import { formatNumberWithCommas } from "../../utils/formatNumberWithCommas";
+import QrCodeDownloadModal from "./referrers/QrCodeDownloadModal";
+import ReferrerCard from "./referrers/ReferrerCard";
+import TrackingPanel from "./TrackingPanel";
 
 type ReferralType = "Referrals" | "Referrers" | "NFC & QR Tracking";
 
@@ -64,7 +65,7 @@ const ReferralManagement = () => {
     useState<ReferralType>("Referrals");
   const [isFilterViewActive, setIsFilterViewActive] = useState(false);
   const [currentFilters, setCurrentFilters] = useState(
-    REFERRAL_INITIAL_FILTERS
+    REFERRAL_INITIAL_FILTERS,
   );
   const [referralEditId, setReferralEditId] = useState<string>("");
   const [referrerEditId, setReferrerEditId] = useState("");
@@ -82,6 +83,28 @@ const ReferralManagement = () => {
     limit: 10,
     search: "",
   });
+
+  const [searchParams, setSearchParams] = useSearchParams();
+  const referralIdParam = searchParams.get("referralId");
+  const referrerIdParam = searchParams.get("referrerId");
+  const tabParam = searchParams.get("tab");
+
+  useEffect(() => {
+    if (tabParam) {
+      setSelectedReferralType(tabParam as ReferralType);
+    }
+    if (referralIdParam) {
+      setReferralEditId(referralIdParam);
+      setIsReferralStatusModalViewMode(true);
+      setIsReferralStatusModalOpen(true);
+      // Optional: Clear search params after opening to avoid re-opening on manual refresh?
+      // For now, let's keep it for deep linking support.
+    }
+    if (referrerIdParam) {
+      setReferrerEditId(referrerIdParam);
+      setIsModalOpen(true);
+    }
+  }, [referralIdParam, referrerIdParam, tabParam]);
 
   const debouncedSearch = useDebouncedValue(currentFilters.search, 500);
   const debouncedReferrerSearch = useDebouncedValue(referrerParams.search, 500);
@@ -189,13 +212,13 @@ const ReferralManagement = () => {
         icon: <MdTrendingUp className="text-green-500" />,
         heading: "Total Value",
         value: `$${formatNumberWithCommas(
-          referralData?.stats?.totalValue as number
+          referralData?.stats?.totalValue as number,
         )}`,
         subheading: "Click to view value details",
         onClick: handleViewAllAndFilter,
       },
     ],
-    [referralData, handleViewAllAndFilter]
+    [referralData, handleViewAllAndFilter],
   );
 
   const HEADING_DATA = useMemo(
@@ -225,7 +248,7 @@ const ReferralManagement = () => {
         },
       ],
     }),
-    []
+    [],
   );
 
   const REFERRER_CARD_BUTTONS = useCallback(
@@ -262,7 +285,7 @@ const ReferralManagement = () => {
         isHide: referrer.type !== "doctor",
       },
     ],
-    []
+    [],
   );
 
   const STATUS_BREAKDOWN = useMemo(
@@ -293,7 +316,7 @@ const ReferralManagement = () => {
         count: referralData?.statusStats?.declined ?? 0,
       },
     ],
-    [referralData?.statusStats]
+    [referralData?.statusStats],
   );
 
   // ----------------------
@@ -412,7 +435,7 @@ const ReferralManagement = () => {
                   </Card>
 
                   <div className="px-4 border-foreground/10 border rounded-xl bg-background">
-                    <div className="flex flex-wrap items-center gap-3 w-full rounded-md py-4">
+                    <div className="flex flex-wrap items-center gap-3 w-full rounded-md py-4 max-sm:items-stretch">
                       <Input
                         size="sm"
                         variant="flat"
@@ -431,7 +454,7 @@ const ReferralManagement = () => {
                         size="sm"
                         variant="ghost"
                         onPress={handleViewAllAndFilter}
-                        className="border-small"
+                        className="border-small max-sm:w-full"
                       >
                         <LuFilter className="size-3.5" />
                         View All & Filter

@@ -881,6 +881,7 @@ export default function ReferrerActionsModal({
     <Modal
       isOpen={isModalOpen}
       onOpenChange={handleCloseModal}
+      placement="center"
       classNames={{
         base: `max-sm:!m-3 !m-0`,
         closeButton: "cursor-pointer",

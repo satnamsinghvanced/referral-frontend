@@ -112,6 +112,7 @@ const QrCodeDownloadModal = ({
       isOpen={isOpen}
       onClose={onClose}
       size="md"
+      placement="center"
       classNames={{
         base: `max-sm:!m-3 !m-0`,
         closeButton: "cursor-pointer",

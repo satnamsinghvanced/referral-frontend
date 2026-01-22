@@ -71,8 +71,8 @@ const Settings = () => {
 
   return (
     <ComponentContainer headingData={HEADING_DATA}>
-      <div className="flex items-start gap-5">
-        <div className="max-w-1/5 w-full border border-foreground/10  rounded-xl bg-background sticky top-0">
+      <div className="md:flex md:items-start md:gap-5 max-md:space-y-4">
+        <div className="md:max-w-1/5 w-full border border-foreground/10  rounded-xl bg-background md:sticky md:top-0">
           <ul className="flex flex-col text-foreground p-2.5 space-y-1">
             {filteredRoutes.map((item, index) => {
               const Icon = item.icon;

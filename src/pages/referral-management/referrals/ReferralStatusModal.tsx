@@ -14,15 +14,14 @@ import { useEffect } from "react";
 import {
   LuArrowRight,
   LuCalendar,
+  LuClock,
   LuDollarSign,
   LuMail,
   LuMessageSquare,
   LuPhone,
   LuStethoscope,
-  LuTag,
   LuUser,
   LuUsers,
-  LuClock,
 } from "react-icons/lu";
 import * as Yup from "yup";
 import PriorityLevelChip from "../../../components/chips/PriorityLevelChip";
@@ -103,6 +102,7 @@ const ReferralStatusModal = ({
       isOpen={isOpen}
       onOpenChange={onClose}
       size="md"
+      placement="center"
       scrollBehavior="inside"
       classNames={{
         base: `max-sm:!m-3 !m-0`,
@@ -194,17 +194,40 @@ const ReferralStatusModal = ({
             </div>
 
             {/* Communication Section */}
-            {(referral?.additionalNotes || referral?.statusNotes) && (
+            {(referral?.additionalNotes ||
+              referral?.statusNotes ||
+              referral?.notes ||
+              referral?.reason) && (
               <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
-                <h4 className="font-medium text-xs dark:text-foreground/80 flex items-center gap-2">
+                <h4 className="font-medium text-sm flex items-center gap-2">
                   <LuMessageSquare size={14} className="text-primary" />
                   Notes & History
                 </h4>
                 <div className="space-y-2">
+                  {referral?.reason && (
+                    <div className="bg-foreground/[0.02] dark:bg-foreground/[0.04] p-3 rounded-lg border border-divider">
+                      <p className="text-[11px] uppercase font-bold text-default-400 mb-1">
+                        Reason for Referral
+                      </p>
+                      <p className="text-xs text-foreground/80 leading-relaxed">
+                        {referral.reason}
+                      </p>
+                    </div>
+                  )}
+                  {referral?.notes && (
+                    <div className="bg-foreground/[0.02] dark:bg-foreground/[0.04] p-3 rounded-lg border border-divider">
+                      <p className="text-[11px] uppercase font-bold text-default-400 mb-1">
+                        Patient Notes
+                      </p>
+                      <p className="text-xs text-foreground/80 leading-relaxed italic">
+                        "{referral.notes}"
+                      </p>
+                    </div>
+                  )}
                   {referral?.additionalNotes && (
                     <div className="bg-foreground/[0.02] dark:bg-foreground/[0.04] p-3 rounded-lg border border-divider">
-                      <p className="text-[10px] uppercase font-bold text-default-400 mb-1">
-                        Original Notes
+                      <p className="text-[11px] uppercase font-bold text-default-400 mb-1">
+                        Additional Information
                       </p>
                       <p className="text-xs text-foreground/80 leading-relaxed italic">
                         "{referral.additionalNotes}"
@@ -215,7 +238,7 @@ const ReferralStatusModal = ({
                     <div className="bg-primary/5 p-3 rounded-lg border border-primary/10">
                       <div className="flex items-center gap-1.5 mb-1">
                         <LuClock size={10} className="text-primary" />
-                        <p className="text-[10px] uppercase font-bold text-primary">
+                        <p className="text-[11px] uppercase font-bold text-primary">
                           Status Update Note
                         </p>
                       </div>

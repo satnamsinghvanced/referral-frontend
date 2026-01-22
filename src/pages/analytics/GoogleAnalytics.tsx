@@ -375,11 +375,11 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
           className="size-7 text-yellow-500"
           aria-hidden="true"
         />
-        <div>
-          <h2 className="text-xl font-medium text-foreground">
+        <div className="max-md:space-y-1">
+          <h2 className="text-md md:text-xl font-medium text-foreground">
             Google Analytics - Website Statistics
           </h2>
-          <p className="text-foreground/60 text-[14px]">
+          <p className="text-foreground/60 text-xs md:text-sm">
             Comprehensive website performance and user behavior insights
           </p>
         </div>
@@ -394,9 +394,9 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         <Card
           shadow="none"
-          className="border border-foreground/10 bg-white dark:bg-background p-5"
+          className="border border-foreground/10 bg-white dark:bg-background p-4 md:p-5"
         >
-          <CardHeader className="p-0 pb-8">
+          <CardHeader className="p-0 pb-5 md:pb-8">
             <h4 className="text-sm font-medium flex items-center gap-2">
               <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
               Website Traffic Trends
@@ -409,9 +409,9 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
 
         <Card
           shadow="none"
-          className="border border-foreground/10 bg-white dark:bg-background p-5"
+          className="border border-foreground/10 bg-white dark:bg-background p-4 md:p-5"
         >
-          <CardHeader className="p-0 pb-8">
+          <CardHeader className="p-0 pb-5 md:pb-8">
             <h4 className="text-sm font-medium flex items-center gap-2">
               <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
               Device Analytics
@@ -431,7 +431,7 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         <Card
           shadow="none"
-          className="border border-foreground/10 bg-white dark:bg-background p-5"
+          className="border border-foreground/10 bg-white dark:bg-background p-4 md:p-5"
         >
           <CardHeader className="p-0 pb-4">
             <h4 className="text-sm font-medium flex items-center gap-2">
@@ -448,7 +448,7 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
 
         <Card
           shadow="none"
-          className="border border-foreground/10 bg-white dark:bg-background p-5"
+          className="border border-foreground/10 bg-white dark:bg-background p-4 md:p-5"
         >
           <CardHeader className="p-0 pb-4">
             <h4 className="text-sm font-medium flex items-center gap-2">
@@ -473,7 +473,7 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
       {/* Top Pages Here */}
       <Card
         shadow="none"
-        className="border border-foreground/10 bg-white dark:bg-background p-5"
+        className="border border-foreground/10 bg-white dark:bg-background p-4 md:p-5"
       >
         <CardHeader className="p-0 pb-4">
           <h4 className="text-sm font-medium flex items-center gap-2">
@@ -489,16 +489,16 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
                 <th className="text-left text-xs py-3 px-2 font-medium text-foreground/70">
                   Page
                 </th>
-                <th className="text-right text-xs py-3 px-2 font-medium text-foreground/70">
+                <th className="text-right text-xs py-3 px-2 font-medium text-foreground/70 whitespace-nowrap">
                   Page Views
                 </th>
-                <th className="text-right text-xs py-3 px-2 font-medium text-foreground/70">
+                <th className="text-right text-xs py-3 px-2 font-medium text-foreground/70 whitespace-nowrap">
                   Unique Views
                 </th>
-                <th className="text-right text-xs py-3 px-2 font-medium text-foreground/70">
+                <th className="text-right text-xs py-3 px-2 font-medium text-foreground/70 whitespace-nowrap">
                   Avg. Time
                 </th>
-                <th className="text-right text-xs not-odd:py-3 px-2 font-medium text-foreground/70">
+                <th className="text-right text-xs not-odd:py-3 px-2 font-medium text-foreground/70 whitespace-nowrap">
                   Bounce Rate
                 </th>
               </tr>

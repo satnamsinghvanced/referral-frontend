@@ -130,13 +130,14 @@ const TaskActionModal = ({
     <Modal
       isOpen={isOpen}
       onOpenChange={handleClose}
+      placement="center"
       classNames={{
         base: `max-sm:!m-3 !m-0`,
         closeButton: "cursor-pointer",
       }}
     >
       <ModalContent className="p-4 flex flex-col gap-4 !my-2">
-        <ModalHeader className="flex flex-col gap-2 text-center sm:text-left p-0 pb-1">
+        <ModalHeader className="flex flex-col gap-2 p-0 pb-1">
           <h4 className="text-base leading-none font-medium">
             {isEditMode ? `Edit Task - ${task?.title}` : "Add New Task"}
           </h4>
@@ -211,7 +212,7 @@ const TaskActionModal = ({
 
             {/* Priority / Type / Status (Status only in Edit) */}
             <div
-              className={`grid ${
+              className={`grid max-md:grid-cols-1 max-md:gap-4 ${
                 isEditMode ? "grid-cols-3" : "grid-cols-2"
               } gap-2.5`}
             >

@@ -66,10 +66,10 @@ const PendingTeamMembers = () => {
           pendingMembers.map((member: TeamMember) => (
             <div
               key={member._id}
-              className="flex items-center justify-between p-3 border border-yellow-200 dark:border-yellow-900/50 rounded-lg bg-yellow-50 dark:bg-yellow-900/10"
+              className="md:flex md:items-center md:justify-between max-md:space-y-3 p-3 border border-yellow-200 dark:border-yellow-900/50 rounded-lg bg-yellow-50 dark:bg-yellow-900/10"
             >
               <div className="flex items-center gap-2.5">
-                <span className="size-9 bg-yellow-100 dark:bg-yellow-900/30 inline-flex items-center justify-center rounded-full">
+                <span className="size-9 min-w-9 min-h-9 bg-yellow-100 dark:bg-yellow-900/30 inline-flex items-center justify-center rounded-full">
                   <FiMail className="size-5 text-yellow-600 dark:text-yellow-400" />
                 </span>
                 <div className="space-y-0.5">
@@ -83,7 +83,7 @@ const PendingTeamMembers = () => {
                         at{" "}
                         {member.locations
                           .map((loc: any) =>
-                            typeof loc === "object" ? loc.name : "Location"
+                            typeof loc === "object" ? loc.name : "Location",
                           )
                           .join(", ")}
                       </>

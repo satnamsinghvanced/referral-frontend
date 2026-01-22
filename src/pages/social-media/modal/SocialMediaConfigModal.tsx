@@ -146,6 +146,7 @@ export default function SocialMediaConfigModal({
         isOpen={isOpen}
         onOpenChange={onClose}
         size="md"
+        placement="center"
         classNames={{ base: `max-sm:!m-3 !m-0`, closeButton: "cursor-pointer" }}
       >
         <ModalContent className="py-10">
@@ -167,6 +168,7 @@ export default function SocialMediaConfigModal({
         closeButton: "cursor-pointer",
       }}
       size="md"
+      placement="center"
     >
       <ModalContent>
         <form onSubmit={formik.handleSubmit}>

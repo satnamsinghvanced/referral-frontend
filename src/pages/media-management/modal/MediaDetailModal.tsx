@@ -96,24 +96,21 @@ export function MediaDetailModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      size="lg"
+      placement="center"
       classNames={{
         base: `max-sm:!m-3 !m-0`,
         closeButton: "cursor-pointer",
       }}
+      size="md"
     >
       <ModalContent className="max-h-[90vh] p-4">
-        <ModalHeader className="flex flex-col gap-2 text-center sm:text-left p-0 font-normal">
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <h4 className="text-base font-medium text-foreground">
-                {media.name}
-              </h4>
-              <p className="text-gray-500 dark:text-foreground/40 text-xs p-0">
-                Preview and manage media file details, tags, and metadata
-              </p>
-            </div>
-          </div>
+        <ModalHeader className="flex flex-col items-start gap-1 p-0 font-normal">
+          <h4 className="text-base font-medium text-foreground">
+            {media.name}
+          </h4>
+          <p className="text-gray-500 dark:text-foreground/40 text-xs p-0">
+            Preview and manage media file details, tags, and metadata
+          </p>
         </ModalHeader>
 
         <ModalBody className="max-h-[70vh] overflow-auto px-0 py-4">

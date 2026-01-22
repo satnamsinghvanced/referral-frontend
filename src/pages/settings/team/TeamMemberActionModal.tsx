@@ -158,6 +158,7 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
     <Modal
       isOpen={isOpen}
       onOpenChange={onClose}
+      placement="center"
       classNames={{
         base: `max-sm:!m-3 !m-0`,
         closeButton: "cursor-pointer",
@@ -180,7 +181,7 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
             onSubmit={formik.handleSubmit}
             className="flex flex-col gap-4 text-sm"
           >
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 gap-3 max-md:grid-cols-1 max-md:gap-4">
               <Input
                 size="sm"
                 radius="sm"
@@ -332,7 +333,7 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
 
             <div className="flex flex-col">
               <p className="text-xs mb-3">Permissions</p>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 gap-2 max-md:grid-cols-1 max-md:gap-3">
                 {permissions?.map((perm: any) => (
                   <Checkbox
                     size="sm"

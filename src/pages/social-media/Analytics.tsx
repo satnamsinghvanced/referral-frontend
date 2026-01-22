@@ -76,15 +76,15 @@ const Analytics = () => {
       </div>
 
       {/* Platform Breakdown */}
-      <Card className="bg-background rounded-xl shadow-none p-5 w-full border border-foreground/10">
-        <CardHeader className="p-0 pb-5">
+      <Card className="bg-background rounded-xl shadow-none p-4 w-full border border-foreground/10">
+        <CardHeader className="p-0 pb-4">
           <h3 className="text-sm">Platform Performance Breakdown</h3>
         </CardHeader>
         <CardBody className="p-0 space-y-3">
           {platformBreakdown.map((platform, i) => (
             <Card
               key={platform.name}
-              className="bg-background dark:bg-content1 rounded-xl shadow-none p-4 w-full border border-foreground/10"
+              className="bg-background dark:bg-content1 rounded-xl shadow-none p-3 w-full border border-foreground/10"
             >
               <div className="">
                 <div className="flex items-center justify-between">
@@ -104,7 +104,7 @@ const Analytics = () => {
                   </Chip>
                 </div>
 
-                <div className="text-sm text-gray-600 dark:text-foreground/60 flex flex-wrap justify-around gap-x-5 mt-2">
+                <div className="text-sm text-gray-600 dark:text-foreground/60 flex flex-wrap justify-around gap-x-5 mt-5 md:mt-3 xl:mt-2">
                   <div className="flex flex-col items-center">
                     <span className="text-sm font-medium text-sky-400">
                       {platform.metrics.likes.toLocaleString()}

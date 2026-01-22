@@ -372,8 +372,8 @@ const ReferralPerformanceReport = () => {
     <Card
       shadow="none"
       className={clsx(
-        "border border-foreground/10 dark:bg-background/50 p-5",
-        className
+        "border border-foreground/10 dark:bg-background/50 p-4",
+        className,
       )}
     >
       <CardHeader className="p-0 pb-4">
@@ -396,7 +396,7 @@ const ReferralPerformanceReport = () => {
           icon: LuUsers,
           iconColor: "text-sky-600",
           children: (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 max-md:gap-3">
               {summaryData.map((data, index) => {
                 const styles = THEME_STYLES[data.color];
                 return (
@@ -404,13 +404,13 @@ const ReferralPerformanceReport = () => {
                     key={index}
                     className={clsx(
                       "text-center p-4 rounded-xl border space-y-1",
-                      styles.summary
+                      styles.summary,
                     )}
                   >
                     <h4
                       className={clsx(
                         "!font-sans text-xl font-bold",
-                        styles.summaryText
+                        styles.summaryText,
                       )}
                     >
                       {data.value}
@@ -443,7 +443,7 @@ const ReferralPerformanceReport = () => {
                     shadow="none"
                     className="border border-foreground/10 dark:bg-background/50 p-4"
                   >
-                    <CardHeader className="flex items-start justify-between p-0 pb-4">
+                    <CardHeader className="flex items-start justify-between p-0 pb-4 max-md:flex-col max-md:gap-5">
                       <div className="flex items-center gap-4">
                         <div className="relative">
                           <span
@@ -499,8 +499,8 @@ const ReferralPerformanceReport = () => {
                           </div>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="flex items-center gap-2 mb-2">
+                      <div className="md:text-right">
+                        <div className="flex items-center gap-2 mb-2 max-md:flex-row-reverse">
                           {isTrendingUp ? (
                             <TrendingUp
                               className="h-4 w-4 text-green-600"
@@ -524,8 +524,8 @@ const ReferralPerformanceReport = () => {
                               referrer.conversion.includes("green")
                                 ? "bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400"
                                 : referrer.conversion.includes("yellow")
-                                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-500/10 dark:text-yellow-400"
-                                : "bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400"
+                                  ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-500/10 dark:text-yellow-400"
+                                  : "bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400"
                             }`}
                           >
                             {referrer.conversion}
@@ -599,7 +599,7 @@ const ReferralPerformanceReport = () => {
                 {topPatientReferrers.map((referrer, index) => (
                   <div
                     key={index}
-                    className="border border-foreground/10 p-4 dark:bg-background/50 flex items-center justify-between rounded-xl"
+                    className="border border-foreground/10 p-4 dark:bg-background/50 md:flex md:items-center md:justify-between max-md:space-y-4 rounded-xl"
                   >
                     <div className="flex items-center gap-2.5 p-0">
                       <span
@@ -638,7 +638,7 @@ const ReferralPerformanceReport = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="text-right">
+                    <div className="md:text-right">
                       <div className="text-sm font-semibold">
                         {referrer.revenue}
                       </div>
@@ -660,22 +660,23 @@ const ReferralPerformanceReport = () => {
                 {monthlyTrends.map((trend, index) => (
                   <div
                     key={index}
-                    className="flex items-center justify-between p-3 bg-gray-50 dark:bg-content1 rounded-lg"
+                    className="md:flex md:items-center md:justify-between p-3 bg-gray-50 dark:bg-content1 rounded-lg max-md:space-y-3"
                   >
                     <div>
                       <h4 className="!font-sans text-sm font-medium">
                         {trend.month}
                       </h4>
-                      <div className="flex items-center gap-4 mt-1">
+                      <div className="flex items-center gap-2 mt-1">
                         <span className="text-xs text-blue-600">
                           {trend.referrals} referrals
                         </span>
+                        <span className="text-xs text-gray-500">•</span>
                         <span className="text-xs text-green-600">
                           {trend.conversions} conversions
                         </span>
                       </div>
                     </div>
-                    <div className="text-right">
+                    <div className="md:text-right">
                       <div className="text-sm font-semibold">
                         {trend.revenue}
                       </div>
@@ -708,7 +709,7 @@ const ReferralPerformanceReport = () => {
                           key={index}
                           className={clsx(
                             "space-y-1 p-3 rounded-r-lg",
-                            styles.recommendation
+                            styles.recommendation,
                           )}
                         >
                           <h5 className="text-sm font-medium dark:text-gray-200">
@@ -737,7 +738,7 @@ const ReferralPerformanceReport = () => {
                           key={index}
                           className={clsx(
                             "space-y-1 p-3 rounded-r-lg",
-                            styles.recommendation
+                            styles.recommendation,
                           )}
                         >
                           <h5 className="text-sm font-medium dark:text-gray-200">

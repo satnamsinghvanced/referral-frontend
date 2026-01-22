@@ -92,7 +92,7 @@ const Reviews = () => {
     <>
       <ComponentContainer headingData={HEADING_DATA}>
         <div className="flex flex-col gap-4 md:gap-5">
-          <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4 justify-between">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4 justify-between">
             {STATS_CARD_DATA.map((card, index) => (
               <MiniStatsCard key={index} cardData={card} />
             ))}
