@@ -166,7 +166,7 @@ const Profile = () => {
     handleChange,
     setFieldTouched,
   } = formik;
-
+  console.log("values >>", values)
   return (
     <>
       <div className="p-4 bg-background border border-foreground/10 rounded-xl">

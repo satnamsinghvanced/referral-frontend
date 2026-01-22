@@ -30,6 +30,7 @@ export const initSocket = () => {
       auth: {
         token: token,
       },
+      path: "/referral-retrieve/Referral-Node-Api/socket.io",
       transports: ["websocket", "polling"],
     });
 
@@ -42,7 +43,7 @@ export const initSocket = () => {
     });
 
     socket.on("connect_error", (err) => {
-      console.error("Socket connection error:", err.message);
+      console.error("Socket connection error:", err);
     });
   } else if (!socket.connected) {
     socket.connect();

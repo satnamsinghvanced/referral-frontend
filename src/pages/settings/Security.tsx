@@ -64,7 +64,7 @@ const Security: React.FC = () => {
   const { mutate: verifyEnable2FA, isPending: isVerifying2FA } =
     useVerifyEnable2FA();
   const { mutate: disable2FA, isPending: isDisabling2FA } = useDisable2FA();
-
+  console.log("userData >>>",userData)
   const [otpMode, setOtpMode] = useState<
     "password_update" | "enable_2fa" | null
   >(null);

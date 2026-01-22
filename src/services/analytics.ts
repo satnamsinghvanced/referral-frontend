@@ -19,12 +19,12 @@ export const fetchGoogleAnalytics =
 
 export const fetchGoogleAdsIntegration =
   async (): Promise<AdsIntegrationResponse> => {
-    const response = await axios.get("/analytics/google_ads_integration");
+    const response = await axios.get("/analytics/google_analytics");
     return response.data;
   };
 
 export const fetchMetaAdsIntegration =
   async (): Promise<AdsIntegrationResponse> => {
-    const response = await axios.get("/analytics/meta_ads_integration");
+    const response = await axios.get("/analytics/meta_analytics");
     return response.data;
   };
