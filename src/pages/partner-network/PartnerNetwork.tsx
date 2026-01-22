@@ -40,7 +40,7 @@ const PartnerNetwork = () => {
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [partnerEditId, setPartnerEditId] = useState("");
   const [selectedPartnerId, setSelectedPartnerId] = useState<string | null>(
-    null
+    null,
   );
 
   const [isNotesTasksModalOpen, setIsNotesTasksModalOpen] = useState(false);
@@ -92,7 +92,7 @@ const PartnerNetwork = () => {
 
   const handleOpenNotesTasksModal = (
     partnerId: string,
-    partnerName: string
+    partnerName: string,
   ) => {
     setNotesTasksPartner({ id: partnerId, name: partnerName });
     setIsNotesTasksModalOpen(true);
@@ -129,7 +129,7 @@ const PartnerNetwork = () => {
         className: "bg-primary text-white",
       },
     ],
-    []
+    [],
   );
 
   const STATS_CARD_DATA: StatCard[] = useMemo(
@@ -143,17 +143,17 @@ const PartnerNetwork = () => {
       {
         icon: <FiUsers className="text-foreground/60" />,
         heading: "Total Referrals",
-        value: isLoading ? "..." : stats?.totalReferrals ?? 0,
+        value: isLoading ? "..." : (stats?.totalReferrals ?? 0),
         subheading: `${stats?.monthlyReferrals ?? 0} this month`,
       },
       {
         icon: <FiStar className="text-foreground/60" />,
         heading: "A-Level Practices",
-        value: isLoading ? "..." : stats?.totalALevelPractices ?? 0,
+        value: isLoading ? "..." : (stats?.totalALevelPractices ?? 0),
         subheading: `${stats?.aLevelPercentage ?? 0}% of total`,
       },
     ],
-    [isLoading, totalPractices, stats]
+    [isLoading, totalPractices, stats],
   );
 
   const PARTNER_NETWORK_ACTIONS = useMemo(
@@ -166,7 +166,8 @@ const PartnerNetwork = () => {
         icon: <IoDocumentOutline className="size-3.5" />,
         variant: "light" as const,
         color: "secondary" as const,
-        className: "text-orange-600 hover:!bg-orange-50",
+        className:
+          "text-orange-600 hover:!bg-orange-50 dark:hover:!bg-orange-500/20",
       },
       {
         label: "View",
@@ -190,7 +191,7 @@ const PartnerNetwork = () => {
         color: "success" as const,
       },
     ],
-    []
+    [],
   );
 
   return (
@@ -241,7 +242,7 @@ const PartnerNetwork = () => {
                         <p className="text-xs text-red-700 dark:text-red-300/80">
                           Last referral:{" "}
                           {new Date(
-                            partner.lastReferralDate
+                            partner.lastReferralDate,
                           ).toLocaleDateString()}{" "}
                           ({partner.totalDays} days ago)
                         </p>
@@ -296,7 +297,7 @@ const PartnerNetwork = () => {
                       onSelectionChange={(keys) =>
                         handleFieldChange(
                           "filter",
-                          Array.from(keys)[0] as string
+                          Array.from(keys)[0] as string,
                         )
                       }
                       className="md:min-w-[200px] flex-1"
@@ -323,7 +324,7 @@ const PartnerNetwork = () => {
                           onSelectionChange={(keys) =>
                             handleFieldChange(
                               "sortBy",
-                              Array.from(keys)[0] as string
+                              Array.from(keys)[0] as string,
                             )
                           }
                           className="md:min-w-[140px] flex-1"
@@ -340,11 +341,11 @@ const PartnerNetwork = () => {
                         isIconOnly
                         onPress={() => {
                           setSortOrder((prev) =>
-                            prev === "asc" ? "desc" : "asc"
+                            prev === "asc" ? "desc" : "asc",
                           );
                           handleFieldChange(
                             "order",
-                            sortOrder === "asc" ? "desc" : "asc"
+                            sortOrder === "asc" ? "desc" : "asc",
                           );
                         }}
                         title={

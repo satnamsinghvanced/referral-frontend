@@ -36,7 +36,10 @@ const TrackReferralBar = ({
           onPress={onImport}
           size="sm"
           radius="sm"
-          className="bg-white dark:bg-content2 border border-foreground/10 text-gray-700 dark:text-foreground"
+          color="default"
+          variant="ghost"
+          className="border-small bg-white dark:bg-transparent"
+          // className="bg-white dark:bg-content2 border border-foreground/10 text-gray-700 dark:text-foreground"
         >
           Import from Spreadsheet
         </Button>

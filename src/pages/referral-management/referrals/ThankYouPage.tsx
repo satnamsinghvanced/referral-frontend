@@ -11,7 +11,7 @@ const ThankYouPage = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 dark:from-background dark:to-background flex items-center justify-center p-4">
       <div className="max-w-2xl mx-auto flex justify-center items-center flex-col min-h-screen -mt-16">
-        <Card className="max-w-md w-full shadow-sm border-0 dark:bg-background">
+        <Card className="max-w-md w-full shadow-sm border-0 dark:bg-content1">
           <CardBody className="p-5">
             <div className="text-center">
               <div className="w-14 h-14 bg-green-100 dark:bg-green-900/20 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -20,7 +20,7 @@ const ThankYouPage = () => {
               <h1 className="text-green-800 dark:text-green-400 text-lg font-medium mb-4">
                 Thank You!
               </h1>
-              <p className="text-xs text-gray-600 dark:text-foreground/60 mb-6">
+              <p className="text-xs text-gray-600 dark:text-foreground/60 mb-6 leading-relaxed">
                 Your referral has been submitted successfully. We'll contact you
                 shortly to schedule your consultation.
               </p>
@@ -48,7 +48,7 @@ const ThankYouPage = () => {
                 <p className="font-medium text-blue-900 dark:text-blue-300 text-sm">
                   What's Next?
                 </p>
-                <p className="text-blue-800 dark:text-blue-400 text-xs">
+                <p className="text-blue-800 dark:text-blue-400 text-xs leading-relaxed">
                   Our team will review your information and contact you within
                   24 hours to schedule your consultation. In the meantime, feel
                   free to call us directly at +1 (555) 123-4567.

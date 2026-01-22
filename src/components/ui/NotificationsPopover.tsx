@@ -1,9 +1,8 @@
 import { Button, Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
-import { useQueryClient } from "@tanstack/react-query";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useEffect, useState } from "react";
-import { FiBell } from "react-icons/fi";
+import { FiBell, FiCheck } from "react-icons/fi";
 import { RiExternalLinkLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import {
@@ -11,13 +10,13 @@ import {
   useMarkNotificationsRead,
 } from "../../hooks/settings/useNotification";
 import { subscribeToNotifications, getSocket } from "../../services/socket";
+import { queryClient } from "../../providers/QueryProvider";
 
 dayjs.extend(relativeTime);
 
 export default function NotificationPopover() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
   const { data: notifications = [], isLoading } = useInAppNotifications();
   const markReadMutation = useMarkNotificationsRead();
 
@@ -44,7 +43,27 @@ export default function NotificationPopover() {
     if (!notification.isRead) {
       markReadMutation.mutate([notification._id]);
     }
-    const link = notification.metadata?.link || notification.link;
+    let link = notification.metadata?.link || notification.link;
+
+    if (!link) {
+      const title = (
+        notification.title ||
+        notification.metadata?.title ||
+        ""
+      ).toLowerCase();
+      const message = (
+        notification.message ||
+        notification.metadata?.message ||
+        ""
+      ).toLowerCase();
+
+      if (title.includes("referral") || message.includes("referral")) {
+        link = "/referrals";
+      } else if (title.includes("review") || message.includes("review")) {
+        link = "/reviews";
+      }
+    }
+
     if (link) {
       navigate(link);
       setOpen(false);
@@ -83,7 +102,7 @@ export default function NotificationPopover() {
 
       {/* 2. Popover Content Block */}
       <PopoverContent className="w-80 p-0 shadow-xl rounded-xl border border-foreground/10 overflow-hidden">
-        <div className="flex flex-col">
+        <div className="flex flex-col items-stretch w-full">
           {/* Header */}
           <div className="flex items-center justify-between p-3 border-b border-foreground/10">
             <h4 className="text-sm font-medium">Notifications</h4>
@@ -100,11 +119,11 @@ export default function NotificationPopover() {
           {/* List of Notifications */}
           <div className="max-h-96 overflow-y-auto">
             {isLoading ? (
-              <div className="p-4 text-center text-xs text-gray-500">
+              <div className="p-4 text-center text-xs text-gray-600 dark:text-gray-400">
                 Loading...
               </div>
             ) : notifications.length === 0 ? (
-              <div className="p-4 text-center text-xs text-gray-500">
+              <div className="p-4 text-center text-xs text-gray-600 dark:text-gray-400">
                 No notifications
               </div>
             ) : (
@@ -130,9 +149,24 @@ export default function NotificationPopover() {
                         {notification.message || notification.metadata?.message}
                       </p>
                     </div>
-                    {(notification.link || notification.metadata?.link) && (
-                      <RiExternalLinkLine className="w-3.5 h-3.5 ml-3 text-gray-400 flex-shrink-0" />
-                    )}
+                    <div className="flex items-center gap-1 ml-3 flex-shrink-0">
+                      {!notification.isRead && (
+                        <button
+                          type="button"
+                          className="p-1 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-400 hover:text-green-500 transition-colors outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            markReadMutation.mutate([notification._id]);
+                          }}
+                          title="Mark as read"
+                        >
+                          <FiCheck className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+                      {(notification.link || notification.metadata?.link) && (
+                        <RiExternalLinkLine className="w-3.5 h-3.5 text-gray-400" />
+                      )}
+                    </div>
                   </div>
                   <div className="flex justify-between items-center mt-1">
                     <span

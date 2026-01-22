@@ -28,7 +28,7 @@ const MediaItem = ({
       <div className="w-full h-32 flex items-center justify-center bg-gray-100 dark:bg-default-100/50 overflow-hidden">
         {isVideo ? (
           <video
-            src={`${import.meta.env.VITE_IMAGE_URL}${media.path}`}
+            src={media.path}
             controls={false}
             muted
             className="w-full h-full object-cover"
@@ -36,7 +36,7 @@ const MediaItem = ({
           />
         ) : (
           <img
-            src={`${import.meta.env.VITE_IMAGE_URL}${media.path}`}
+            src={media.path}
             alt={media.name}
             className="w-full h-full object-cover"
           />

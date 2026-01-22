@@ -4,6 +4,8 @@ import MiniStatsCard from "../../components/cards/MiniStatsCard";
 import { LoadingState } from "../../components/common/LoadingState";
 import { usePostsAnalytics } from "../../hooks/useSocial";
 
+import GoogleBusinessAnalytics from "./GoogleBusinessAnalytics";
+
 const Analytics = () => {
   const { data, isLoading } = usePostsAnalytics();
 
@@ -30,7 +32,7 @@ const Analytics = () => {
         subheading: "All interactions",
       },
     ],
-    [data]
+    [data],
   );
 
   const platformBreakdown = useMemo(() => {
@@ -65,6 +67,8 @@ const Analytics = () => {
 
   return (
     <div className="flex flex-col items-center gap-5">
+      <GoogleBusinessAnalytics />
+
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 w-full">
         {statCardData.map((data, i) => (
           <MiniStatsCard key={i} cardData={data} />

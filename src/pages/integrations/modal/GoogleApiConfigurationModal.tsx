@@ -83,6 +83,12 @@ export default function GoogleApiConfigurationModal({
     }
   }, [existingConfig]);
 
+  useEffect(() => {
+    if (!isOpen) {
+      formik.resetForm();
+    }
+  }, [isOpen]);
+
   // Handle loading and error states
   if (isLoading) {
     return (

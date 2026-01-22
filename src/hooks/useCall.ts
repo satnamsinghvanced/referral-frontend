@@ -1,6 +1,7 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { getCallRecords, updateCallRecord } from "../services/call";
 import { GetCallRecordsParams, UpdateCallRecordPayload } from "../types/call";
+import { queryClient } from "../providers/QueryProvider";
 
 export const CALL_RECORDS_QUERY_KEY = "callRecords";
 
@@ -12,8 +13,6 @@ export const useFetchCallRecords = (params: GetCallRecordsParams) => {
 };
 
 export const useUpdateCallRecord = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: ({
       id,

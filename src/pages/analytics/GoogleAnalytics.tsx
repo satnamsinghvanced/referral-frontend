@@ -26,8 +26,14 @@ import {
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
 import { LoadingState } from "../../components/common/LoadingState";
 import { useGoogleAnalytics } from "../../hooks/useAnalytics";
+import {
+  GoogleAnalyticsResponse,
+  TrafficTrend,
+  TopPage,
+  DeviceAnalytic,
+} from "../../types/analytics";
 
-const TrafficTrendsChart: React.FC<{ data: any[] }> = ({ data }) => {
+const TrafficTrendsChart: React.FC<{ data: TrafficTrend[] }> = ({ data }) => {
   return (
     <div className="-ml-4 text-sm">
       <ResponsiveContainer width="100%" height={300}>
@@ -38,11 +44,16 @@ const TrafficTrendsChart: React.FC<{ data: any[] }> = ({ data }) => {
             className="opacity-10"
           />
           <XAxis
-            dataKey="name"
+            dataKey="month"
             stroke="currentColor"
             fontSize={12}
             tickLine={false}
             axisLine={false}
+            tickFormatter={(value) => {
+              const [year, month] = value.split("-");
+              const date = new Date(parseInt(year), parseInt(month) - 1);
+              return date.toLocaleString("default", { month: "short" });
+            }}
           />
           <YAxis
             stroke="currentColor"
@@ -78,7 +89,7 @@ const TrafficTrendsChart: React.FC<{ data: any[] }> = ({ data }) => {
           />
           <Line
             type="monotone"
-            dataKey="pageviews"
+            dataKey="pageViews"
             stroke="#0284C7"
             strokeWidth={3}
             dot={{ r: 4 }}
@@ -90,21 +101,23 @@ const TrafficTrendsChart: React.FC<{ data: any[] }> = ({ data }) => {
   );
 };
 
-const DeviceDonutChart: React.FC<{ data: any[] }> = ({ data: deviceData }) => {
-  const data = deviceData.map((d: any) => ({
+const DeviceDonutChart: React.FC<{ data: DeviceAnalytic[] }> = ({
+  data: deviceData,
+}) => {
+  const data = deviceData.map((d) => ({
     name:
       d.device === "desktop"
         ? "Desktop"
         : d.device === "mobile"
-        ? "Mobile"
-        : "Tablet",
+          ? "Mobile"
+          : "Tablet",
     value: d.users,
     color:
       d.device === "desktop"
         ? "#0EA5E9"
         : d.device === "mobile"
-        ? "#F97316"
-        : "#1E40AF",
+          ? "#F97316"
+          : "#1E40AF",
   }));
 
   const renderLabel = (props: any) => {
@@ -167,7 +180,6 @@ interface LabelProps {
 interface TrafficSourceItemProps {
   source: string;
   sessions: number;
-  users: number;
   percentage: number;
 }
 
@@ -188,7 +200,6 @@ interface DeviceMetricProps {
 const TrafficSourceItem: React.FC<TrafficSourceItemProps> = ({
   source,
   sessions,
-  users,
   percentage,
 }) => (
   <div className="flex items-center justify-between p-3 bg-foreground/5 rounded-lg border border-foreground/10">
@@ -204,7 +215,7 @@ const TrafficSourceItem: React.FC<TrafficSourceItemProps> = ({
     </div>
     <div className="text-right space-y-0.5">
       <div className="font-semibold text-sm text-foreground">
-        {users.toLocaleString()}
+        {sessions.toLocaleString()}
       </div>
       <div className="text-xs text-foreground/50">{percentage.toFixed(1)}%</div>
     </div>
@@ -273,10 +284,11 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
 
   const trafficSources = data?.trafficSources?.data || [];
   const conversionGoals = data?.conversions || [];
-  const deviceMetrics = (data?.deviceAnalytics || []).map((d: any) => ({
+  const totalUsers = data?.stats?.users?.totalUsers || 1;
+  const deviceMetrics = (data?.deviceAnalytics || []).map((d) => ({
     device: d.device === "desktop" ? "Desktop" : "Mobile",
     users: d.users,
-    percentage: 0,
+    percentage: (d.users / totalUsers) * 100,
     icon:
       d.device === "desktop" ? (
         <LuMonitor className="w-[21px] h-[21px]" />
@@ -292,13 +304,13 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
       heading: "Total Users",
       value: isLoading
         ? "..."
-        : data?.donutData?.users?.totalUsers?.toLocaleString() || "0",
+        : data?.stats?.users?.totalUsers?.toLocaleString() || "0",
       subheading: (
         <span className="text-green-600 dark:text-green-400 flex items-center">
           <LuTrendingUp className="h-4 w-4 mr-1" />
           {isLoading
             ? "..."
-            : `${data?.donutData?.users?.growthPercent || 0} vs last month`}
+            : `${data?.stats?.users?.growthPercent || 0}% vs last month`}
         </span>
       ),
     },
@@ -307,13 +319,13 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
       heading: "Page Views",
       value: isLoading
         ? "..."
-        : data?.donutData?.pageViews?.totalPageViews?.toLocaleString() || "0",
+        : data?.stats?.pageViews?.totalPageViews?.toLocaleString() || "0",
       subheading: (
         <span className="text-green-600 dark:text-green-400 flex items-center">
           <LuTrendingUp className="h-4 w-4 mr-1" />
           {isLoading
             ? "..."
-            : `${data?.donutData?.pageViews?.growthPercent || 0} vs last month`}
+            : `${data?.stats?.pageViews?.growthPercent || 0}% vs last month`}
         </span>
       ),
     },
@@ -322,13 +334,13 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
       heading: "Total Sessions",
       value: isLoading
         ? "..."
-        : data?.donutData?.sessions?.totalSessions?.toLocaleString() || "0",
+        : data?.stats?.sessions?.totalSessions?.toLocaleString() || "0",
       subheading: (
         <span className="text-green-600 dark:text-green-400 flex items-center">
           <LuTrendingUp className="h-4 w-4 mr-1" />
           {isLoading
             ? "..."
-            : `${data?.donutData?.sessions?.growthPercent || 0} vs last month`}
+            : `${data?.stats?.sessions?.growthPercent || 0}% vs last month`}
         </span>
       ),
     },
@@ -337,15 +349,14 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
       heading: "Bounce Rate",
       value: isLoading
         ? "..."
-        : data?.donutData?.bounceRate?.totalBounceRate?.toLocaleString() || "0",
+        : (data?.stats?.bounceRate?.totalBounceRate?.toLocaleString() || "0") +
+          "%",
       subheading: (
         <span className="text-green-600 dark:text-green-400 flex items-center">
           <LuTrendingUp className="h-4 w-4 mr-1" />
           {isLoading
             ? "..."
-            : `${
-                data?.donutData?.bounceRate?.growthPercent || 0
-              } vs last month`}
+            : `${data?.stats?.bounceRate?.growthPercent || 0}% vs last month`}
         </span>
       ),
     },
@@ -429,12 +440,8 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
             </h4>
           </CardHeader>
           <CardBody className="p-0 space-y-3">
-            {trafficSources.map((source: any) => (
-              <TrafficSourceItem
-                key={source.source}
-                {...source}
-                users={source.sessions}
-              />
+            {trafficSources.map((source) => (
+              <TrafficSourceItem key={source.source} {...source} />
             ))}
           </CardBody>
         </Card>

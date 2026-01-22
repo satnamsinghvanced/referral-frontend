@@ -9,7 +9,7 @@ import {
   ModalHeader,
   Progress,
 } from "@heroui/react";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import { FiAlertCircle, FiUpload, FiX } from "react-icons/fi";
 import { useUploadMedia } from "../../../hooks/useMedia";
 import { UploadMediaRequest } from "../../../types/media";
@@ -54,7 +54,7 @@ export function UploadMediaModal({
   const uploadMutation = useUploadMedia((progressEvent) => {
     if (progressEvent.total) {
       const percentCompleted = Math.round(
-        (progressEvent.loaded * 100) / progressEvent.total
+        (progressEvent.loaded * 100) / progressEvent.total,
       );
       // Cap at 90% during upload, will show 100% only on success
       setUploadProgress(Math.min(percentCompleted, 90));
@@ -71,6 +71,12 @@ export function UploadMediaModal({
       fileInputRef.current.value = "";
     }
   };
+
+  useEffect(() => {
+    if (!isOpen) {
+      resetModalState();
+    }
+  }, [isOpen]);
 
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return "0 Bytes";
@@ -310,7 +316,7 @@ export function UploadMediaModal({
               type="file"
               multiple
               accept={[...allowedImageFormats, ...allowedVideoFormats].join(
-                ","
+                ",",
               )}
               ref={fileInputRef}
               onChange={(e) => handleFileSelect(e.target.files)}

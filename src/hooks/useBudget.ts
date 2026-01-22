@@ -1,20 +1,16 @@
 import { addToast } from "@heroui/react";
-import {
-  QueryKey,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { QueryKey, useMutation, useQuery } from "@tanstack/react-query";
 import { AxiosError } from "axios";
+import { queryClient } from "../providers/QueryProvider";
 import {
   createBudgetItem,
   deleteBudgetItem,
+  exportBudgetItems,
   getBudgetCategories,
   getBudgetItemById,
   getBudgetItems,
-  updateBudgetItem,
   importBudgetItemsCSV,
-  exportBudgetItems,
+  updateBudgetItem,
 } from "../services/budget";
 import {
   CreateBudgetItemRequest,
@@ -52,7 +48,6 @@ export const useBudgetItem = (id: string) => {
 };
 
 export const useCreateBudgetItem = () => {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (data: CreateBudgetItemRequest) => createBudgetItem(data),
     onSuccess: () => {
@@ -81,7 +76,6 @@ export const useCreateBudgetItem = () => {
 };
 
 export const useUpdateBudgetItem = (itemId: string) => {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: UpdateBudgetItemRequest }) =>
       updateBudgetItem({ id, data }),
@@ -114,9 +108,8 @@ export const useUpdateBudgetItem = (itemId: string) => {
 };
 
 export const useDeleteBudgetItem = (
-  listQueryParams: FetchBudgetItemsParams
+  listQueryParams: FetchBudgetItemsParams,
 ) => {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => deleteBudgetItem(id),
     onSuccess: () => {
@@ -145,7 +138,6 @@ export const useDeleteBudgetItem = (
 };
 
 export const useImportBudgetItemsCSV = () => {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (formData: FormData) => importBudgetItemsCSV(formData),
     onSuccess: () => {
@@ -184,7 +176,11 @@ export const useExportBudgetItems = () => {
     onSuccess: (blob, variables) => {
       const { type } = variables;
       // Validate that we received a proper Blob
-      if (!blob || !(blob as Blob).size || (blob as Blob).type === "application/json") {
+      if (
+        !blob ||
+        !(blob as Blob).size ||
+        (blob as Blob).type === "application/json"
+      ) {
         addToast({
           title: "Error",
           description: "Invalid file format received from server.",
@@ -200,8 +196,9 @@ export const useExportBudgetItems = () => {
 
       // Set filename based on type
       const fileExtension = type === "excel" ? "xlsx" : type;
-      a.download = `budget_export_${new Date().toISOString().split("T")[0]
-        }.${fileExtension}`;
+      a.download = `budget_export_${
+        new Date().toISOString().split("T")[0]
+      }.${fileExtension}`;
 
       document.body.appendChild(a);
       a.click();

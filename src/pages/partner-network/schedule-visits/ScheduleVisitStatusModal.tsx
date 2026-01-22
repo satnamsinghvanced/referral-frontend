@@ -10,6 +10,7 @@ import {
   Textarea,
 } from "@heroui/react";
 import { useFormik } from "formik";
+import { useEffect } from "react";
 import * as Yup from "yup";
 import { LoadingState } from "../../../components/common/LoadingState";
 import { VISIT_STATUSES } from "../../../consts/practice";
@@ -74,10 +75,16 @@ const ScheduleVisitStatusModal = ({
             // Optional: Invalidate queries related to visits
             // queryClient.invalidateQueries({ queryKey: ['visits'] });
           },
-        }
+        },
       );
     },
   });
+
+  useEffect(() => {
+    if (!isOpen) {
+      formik.resetForm();
+    }
+  }, [isOpen]);
 
   let modalTitle = "Update Schedule Visit Status";
   let modalDescription =
@@ -94,7 +101,7 @@ const ScheduleVisitStatusModal = ({
       }}
     >
       <ModalContent>
-        <ModalHeader className="flex-col px-5 font-normal space-y-1">
+        <ModalHeader className="flex-col px-4 font-normal space-y-1">
           <h2 className="text-base font-medium text-foreground">
             {modalTitle}
           </h2>
@@ -105,11 +112,11 @@ const ScheduleVisitStatusModal = ({
 
         {/* Dialog Body */}
         {!visit ? (
-          <ModalBody className="py-4 pt-1 px-5 gap-0 min-h-[400px] flex items-center justify-center">
+          <ModalBody className="py-4 pt-1 px-4 gap-0 min-h-[400px] flex items-center justify-center">
             <LoadingState />
           </ModalBody>
         ) : (
-          <ModalBody className="space-y-4 py-4 pt-1 px-5 gap-0">
+          <ModalBody className="space-y-4 py-4 pt-1 px-4 gap-0">
             <form onSubmit={formik.handleSubmit} className="space-y-4">
               {/* 1. New Status Select */}
               <div className="space-y-2">

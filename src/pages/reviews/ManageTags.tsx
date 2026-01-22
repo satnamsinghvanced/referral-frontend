@@ -30,7 +30,7 @@ const ManageTags = () => {
 
   const { data: nfcProps, isLoading: isDesksLoading } = useFetchNFCDesks(
     currentPage,
-    9
+    9,
   );
   const { data: locationsProps, isLoading: isLocationsLoading } =
     useFetchLocations();
@@ -258,7 +258,9 @@ const ManageTags = () => {
                       value={tag.conversionRate}
                       size="sm"
                       color="primary"
-                      classNames={{ track: "bg-gray-100 h-2" }}
+                      classNames={{
+                        track: "bg-gray-100 dark:bg-gray-500/15 h-2",
+                      }}
                     />
                   </div>
 

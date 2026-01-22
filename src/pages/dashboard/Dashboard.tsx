@@ -1,5 +1,5 @@
 import { Button } from "@heroui/react";
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FaRegStar } from "react-icons/fa";
 import { HiOutlineChartBar, HiOutlineStar } from "react-icons/hi";
 import {
@@ -8,6 +8,8 @@ import {
   LuTrendingDown,
   LuTrendingUp,
   LuUsers,
+  LuBell,
+  LuX,
 } from "react-icons/lu";
 import { TbSpeakerphone } from "react-icons/tb";
 import { Link, useNavigate } from "react-router";
@@ -18,6 +20,8 @@ import { useDashboard } from "../../hooks/useDashboard";
 import { useTour } from "../../providers/TourProvider";
 import { formatNumberWithCommas } from "../../utils/formatNumberWithCommas";
 import { timeAgo } from "../../utils/timeAgo";
+import { useNotificationSubscription } from "../../hooks/useNotificationSubscription";
+import { LoadingState } from "../../components/common/LoadingState";
 
 type Color = "sky" | "orange" | "emerald" | "purple";
 
@@ -94,20 +98,17 @@ const QUICK_ACTIONS_COLOR_CLASSES: Record<
 const Dashboard = () => {
   const { startTour } = useTour();
 
-  useEffect(() => {
-    if ("Notification" in window && Notification.permission === "default") {
-      Notification.requestPermission();
-    }
-  }, []);
+  const { requestPermission, permissionStatus } = useNotificationSubscription();
+  const [showNotificationBanner, setShowNotificationBanner] = useState(true);
 
   const navigate = useNavigate();
 
-  const { data: dashboard } = useDashboard();
+  const { data: dashboard, isLoading } = useDashboard();
 
   const renderTrend = (
     status: string,
     percentage: number,
-    label: string = "from last month"
+    label: string = "from last month",
   ) => {
     const isIncrement = status === "increment" || percentage > 0;
     const isDecrement = status === "decrement" || percentage < 0; // Assuming 'decrement' is the status for down
@@ -115,14 +116,14 @@ const Dashboard = () => {
     const colorClass = isIncrement
       ? "text-emerald-600 dark:text-emerald-400"
       : isDecrement
-      ? "text-red-600 dark:text-red-400"
-      : "text-gray-500";
+        ? "text-red-600 dark:text-red-400"
+        : "text-gray-500";
 
     const Icon = isIncrement
       ? LuTrendingUp
       : isDecrement
-      ? LuTrendingDown
-      : null;
+        ? LuTrendingDown
+        : null;
 
     return (
       <div className={`flex items-center gap-1 text-xs ${colorClass}`}>
@@ -141,15 +142,15 @@ const Dashboard = () => {
     const colorClass = isIncrement
       ? "text-emerald-600 dark:text-emerald-400"
       : status === "decrement"
-      ? "text-red-600 dark:text-red-400"
-      : "text-yellow-600 dark:text-yellow-400"; // Neutral/steady
+        ? "text-red-600 dark:text-red-400"
+        : "text-yellow-600 dark:text-yellow-400"; // Neutral/steady
 
     const Icon =
       status === "increment"
         ? LuTrendingUp
         : status === "decrement"
-        ? LuTrendingDown
-        : null;
+          ? LuTrendingDown
+          : null;
 
     return (
       <div className={`flex items-center gap-1 text-xs ${colorClass}`}>
@@ -167,7 +168,7 @@ const Dashboard = () => {
         value: dashboard?.totalReferrals?.total || 0,
         subheading: renderTrend(
           dashboard?.totalReferrals?.status || "",
-          dashboard?.totalReferrals?.percentage || 0
+          dashboard?.totalReferrals?.percentage || 0,
         ),
         onClick: () => navigate("/referrals"),
       },
@@ -178,7 +179,7 @@ const Dashboard = () => {
         subheading: renderTrend(
           dashboard?.activeCampaigns?.status || "",
           dashboard?.activeCampaigns?.percentage || 0,
-          "this month"
+          "this month",
         ), // Custom label based on image
         onClick: () => navigate("/email-campaigns"),
       },
@@ -190,7 +191,7 @@ const Dashboard = () => {
           : "0",
         subheading: renderReviewTrend(
           dashboard?.reviews?.status || "",
-          dashboard?.reviews?.avgRating || 0
+          dashboard?.reviews?.avgRating || 0,
         ),
         onClick: () => navigate("/reviews"),
       },
@@ -201,52 +202,60 @@ const Dashboard = () => {
         subheading: renderTrend(
           dashboard?.totalValue?.status || "",
           dashboard?.totalValue?.percentage || 0,
-          "vs last month"
+          "vs last month",
         ),
         onClick: () => navigate("/reports"),
       },
     ],
-    [dashboard, navigate]
+    [dashboard, navigate],
   );
 
   const recentActivities = [
-    dashboard?.recentActivity
+    dashboard?.recentActivity?.referral
       ? {
           icon: "👥",
           iconBg: "bg-sky-50 dark:bg-sky-900/20",
-          title: `New referral from ${dashboard?.recentActivity.referrer?.name}`,
-          description: `Patient: ${dashboard?.recentActivity.name}${
-            dashboard?.recentActivity.treatment
+          title: `New referral from ${
+            dashboard.recentActivity.referral.referrer?.name || "N/A"
+          }`,
+          description: `Patient: ${dashboard.recentActivity.referral.name}${
+            dashboard.recentActivity.referral.treatment
               ? ` - ${
                   TREATMENT_OPTIONS.find(
                     (treatmentOption: any) =>
                       treatmentOption.key ===
-                      dashboard?.recentActivity.treatment
-                  )?.label
+                      dashboard.recentActivity.referral!.treatment,
+                  )?.label || dashboard.recentActivity.referral.treatment
                 }`
               : ""
           }`,
-          time: `${timeAgo(dashboard?.recentActivity.createdAt)}`,
+          time: `${timeAgo(dashboard.recentActivity.referral.createdAt || "")}`,
           onClick: () => navigate("/referrals"),
         }
       : null,
-    {
-      icon: "⭐",
-      iconBg: "bg-yellow-50 dark:bg-yellow-900/20",
-      title: "5-star review received",
-      description: 'Sarah Johnson - "Excellent service and care!"',
-      time: "4 hours ago",
-      onClick: () => navigate("/reviews"),
-    },
-    {
-      icon: "📢",
-      iconBg: "bg-orange-50 dark:bg-orange-900/20",
-      title: "Marketing campaign launched",
-      description: "Back-to-School Smile Campaign - Social Media",
-      time: "6 hours ago",
-      onClick: () => navigate("/marketing-calendar"),
-    },
-  ];
+    dashboard?.recentActivity?.reviews
+      ? {
+          icon: "⭐",
+          iconBg: "bg-yellow-50 dark:bg-yellow-900/20",
+          title: "New review received",
+          description: `${
+            dashboard.recentActivity.reviews.reviewer?.displayName || "Someone"
+          } left a ${
+            dashboard.recentActivity.reviews.starRating || "0"
+          } review`,
+          time: `${timeAgo(dashboard.recentActivity.reviews.createTime || "")}`,
+          onClick: () => navigate("/reviews"),
+        }
+      : null,
+    // {
+    //   icon: "📢",
+    //   iconBg: "bg-orange-50 dark:bg-orange-900/20",
+    //   title: "Marketing campaign active",
+    //   description: `${dashboard?.activeCampaigns?.totalActiveCampaigns || 0} active campaigns currently running`,
+    //   time: "Active now",
+    //   onClick: () => navigate("/marketing-calendar"),
+    // },
+  ].filter((activity) => activity !== null);
 
   const SYSTEM_STATUSES = [
     {
@@ -294,6 +303,62 @@ const Dashboard = () => {
           </p>
         </div> */}
 
+        {permissionStatus === "default" && showNotificationBanner && (
+          <div className="relative group overflow-hidden bg-background border border-divider dark:border-white/5 rounded-2xl p-3 md:p-4 mb-5 mt-2 transition-all duration-300">
+            <div className="relative z-10 flex flex-col md:flex-row items-center gap-5 md:gap-4">
+              <div className="relative shrink-0">
+                <div className="size-10 md:size-11 rounded-xl bg-primary/10 flex items-center justify-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-transparent animate-pulse" />
+                  <LuBell className="text-primary text-2xl relative z-10" />
+                </div>
+                <div className="absolute -top-1 -right-1 size-3 bg-red-500 rounded-full border-2 border-background animate-bounce" />
+              </div>
+
+              <div className="flex-1 text-center md:text-left space-y-1">
+                <h3 className="text-base font-medium tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
+                  Stay in the Loop
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400 max-w-xl leading-relaxed">
+                  Enable real-time notifications to receive instant updates on{" "}
+                  <span className="text-primary font-medium">
+                    new referrals
+                  </span>
+                  ,
+                  <span className="text-primary font-medium">
+                    {" "}
+                    urgent cases
+                  </span>
+                  , and patient feedback.
+                </p>
+              </div>
+
+              <div className="flex flex-col sm:flex-row items-center gap-2 shrink-0 w-full md:w-auto">
+                <Button
+                  size="sm"
+                  color="primary"
+                  radius="sm"
+                  className="font-medium"
+                  onPress={() => {
+                    requestPermission();
+                    setShowNotificationBanner(false);
+                  }}
+                >
+                  Enable Now
+                </Button>
+                <Button
+                  size="sm"
+                  variant="light"
+                  radius="sm"
+                  className="font-medium text-gray-500 dark:text-gray-400 hover:bg-black/5 dark:hover:bg-white/5"
+                  onPress={() => setShowNotificationBanner(false)}
+                >
+                  Maybe Later
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
           {STAT_CARD_DATA.map((data, i) => (
             <MiniStatsCard key={i} cardData={data} />
@@ -329,31 +394,47 @@ const Dashboard = () => {
           <div className="md:col-span-2 bg-background rounded-xl p-4 md:p-5">
             <h3 className="text-sm md:text-base mb-4">Recent Activity</h3>
             <div className="space-y-4 md:space-y-2">
-              {recentActivities.map((activity, index) =>
-                activity ? (
+              {isLoading ? (
+                <div className="py-8 flex items-center justify-center">
+                  <LoadingState />
+                </div>
+              ) : recentActivities.length > 0 ? (
+                recentActivities.map((activity, index) => (
                   <div
                     key={index}
                     className="flex items-start space-x-3 md:p-3 hover:bg-gray-100 dark:hover:bg-foreground/5 rounded-lg transition-colors cursor-pointer"
-                    onClick={activity.onClick && activity.onClick}
+                    onClick={activity?.onClick}
                   >
                     <div
-                      className={`p-0 rounded-lg flex items-center justify-center size-8 md:size-9 ${activity.iconBg}`}
+                      className={`p-0 rounded-lg flex items-center justify-center size-8 md:size-9 ${activity?.iconBg}`}
                     >
-                      <span className="text-md">{activity.icon}</span>
+                      <span className="text-md">{activity?.icon}</span>
                     </div>
                     <div className="flex-1 space-y-1">
                       <p className="text-xs md:text-sm font-medium">
-                        {activity.title}
+                        {activity?.title}
                       </p>
                       <p className="text-xs text-gray-600 dark:text-gray-400">
-                        {activity.description}
+                        {activity?.description}
                       </p>
                       <p className="text-xs text-gray-600 dark:text-gray-400">
-                        {activity.time}
+                        {activity?.time}
                       </p>
                     </div>
                   </div>
-                ) : null
+                ))
+              ) : (
+                <div className="flex flex-col items-center justify-center py-8 text-center">
+                  <div className="size-12 rounded-full bg-gray-50 dark:bg-foreground/5 flex items-center justify-center mb-3">
+                    <LuTrendingUp className="text-gray-400 text-xl" />
+                  </div>
+                  <p className="text-sm font-medium text-gray-900 dark:text-foreground">
+                    No recent activity
+                  </p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    Activity will appear here as it happens
+                  </p>
+                </div>
               )}
             </div>
           </div>
@@ -385,7 +466,8 @@ const Dashboard = () => {
                     Conversion Rate
                   </span>
                   <span className="bg-emerald-100 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300 h-6 p-0 px-2 flex items-center justify-center rounded text-xs font-medium">
-                    {dashboard?.nfcQrData?.conversionRate > 0
+                    {dashboard?.nfcQrData?.conversionRate &&
+                    dashboard.nfcQrData.conversionRate > 0
                       ? `${dashboard.nfcQrData.conversionRate}%`
                       : "0%"}
                   </span>

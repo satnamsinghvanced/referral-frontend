@@ -10,7 +10,20 @@ import {
   Textarea,
 } from "@heroui/react";
 import { useFormik } from "formik";
-import { FiUser } from "react-icons/fi";
+import { useEffect } from "react";
+import {
+  LuArrowRight,
+  LuCalendar,
+  LuDollarSign,
+  LuMail,
+  LuMessageSquare,
+  LuPhone,
+  LuStethoscope,
+  LuTag,
+  LuUser,
+  LuUsers,
+  LuClock,
+} from "react-icons/lu";
 import * as Yup from "yup";
 import PriorityLevelChip from "../../../components/chips/PriorityLevelChip";
 import ReferralStatusChip from "../../../components/chips/ReferralStatusChip";
@@ -36,10 +49,8 @@ const ReferralStatusModal = ({
   isViewMode = false,
   setReferralEditId,
 }: ReferralStatusModalProps) => {
-  // Use the mock hook
   const { mutate: updateReferral, isPending } = useUpdateReferral();
 
-  // 1. Validation Schema
   const validationSchema = Yup.object<StatusUpdateFormValues>().shape({
     estValue: Yup.number(),
     status: Yup.string().required("New Status is required"),
@@ -48,18 +59,17 @@ const ReferralStatusModal = ({
       .nullable(),
   });
 
-  // 2. Formik Setup
   const formik = useFormik<StatusUpdateFormValues>({
     enableReinitialize: true,
     initialValues: {
       estValue: referral?.estValue || 0,
-      status: referral?.status, // Initialize with current status
+      status: referral?.status,
       statusNotes: referral?.statusNotes || "",
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
       const payload = {
-        estValue: values.estValue,
+        estValue: Number(values.estValue),
         status: values.status,
         statusNotes: values.statusNotes || "",
       };
@@ -69,191 +79,214 @@ const ReferralStatusModal = ({
         {
           onSuccess: () => {
             setReferralEditId("");
+            formik.resetForm();
             onClose();
-            // formik.resetForm();
           },
-        }
+        },
       );
     },
   });
 
-  let modalTitle = "Update Referral Status";
-  let modalDescription = "Update the status and add notes for this referral.";
+  useEffect(() => {
+    if (!isOpen) {
+      formik.resetForm();
+    }
+  }, [isOpen]);
 
-  if (isViewMode) {
-    modalTitle = "Referral Details and Status";
-    modalDescription = "View the patient's information, status and notes.";
-  }
+  const modalTitle = isViewMode ? "Referral Details" : "Update Referral Status";
+  const modalDescription = isViewMode
+    ? "View patient information and current progress."
+    : "Update the status and add internal notes for this referral.";
 
   return (
     <Modal
       isOpen={isOpen}
       onOpenChange={onClose}
       size="md"
+      scrollBehavior="inside"
       classNames={{
         base: `max-sm:!m-3 !m-0`,
         closeButton: "cursor-pointer",
       }}
     >
       <ModalContent>
-        <ModalHeader className="flex-col px-5 font-normal space-y-1">
-          <h2 className="text-base font-medium dark:text-white">
+        <ModalHeader className="flex flex-col gap-1 px-4">
+          <h4 className="text-base font-medium dark:text-white">
             {modalTitle}
-          </h2>
-          <p className="text-xs text-gray-600 dark:text-foreground/60">
+          </h4>
+          <p className="text-xs text-gray-500 font-normal dark:text-foreground/60">
             {modalDescription}
           </p>
         </ModalHeader>
 
-        {/* Dialog Body */}
-
         {!referral ? (
-          <ModalBody className="py-4 pt-1 px-5 gap-0 min-h-[400px] flex items-center justify-center">
+          <ModalBody className="py-8 flex items-center justify-center">
             <LoadingState />
           </ModalBody>
         ) : (
-          <ModalBody className="space-y-4 py-4 pt-1 px-5 gap-0">
-            {/* Patient Info Card */}
-            <div className="bg-gray-50 dark:bg-background/50 p-4 rounded-lg space-y-2">
-              <div className="flex items-center gap-2">
-                <FiUser className="size-4 text-gray-600 dark:text-foreground/60" />
-                <span className="text-sm font-medium dark:text-white">
-                  {referral?.name}
-                </span>
-              </div>
-              {referral?.phone && (
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-600 dark:text-foreground/60">
-                    Phone: {referral?.phone}
-                  </span>
+          <ModalBody className="py-0 px-4 gap-3">
+            {/* Patient Header Section */}
+            <div className="border border-foreground/10 rounded-xl p-4 space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="size-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shrink-0">
+                  <LuUser size={24} />
                 </div>
-              )}
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-gray-600 dark:text-foreground/60">
-                  Email: {referral?.email}
-                </span>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-sm font-medium dark:text-white truncate">
+                    {referral?.name}
+                  </h3>
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <ReferralStatusChip status={referral?.status} />
+                    <PriorityLevelChip level={referral?.priority as string} />
+                  </div>
+                </div>
+                {referral?.estValue && referral?.estValue > 0 ? (
+                  <div className="text-right">
+                    <p className="text-[10px] uppercase font-bold text-default-400 tracking-wider">
+                      Est. Value
+                    </p>
+                    <p className="text-sm font-bold text-success flex items-center justify-end">
+                      <LuDollarSign size={12} />
+                      {referral?.estValue.toLocaleString()}
+                    </p>
+                  </div>
+                ) : (
+                  ""
+                )}
               </div>
 
-              {referral?.createdAt && (
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-600 dark:text-foreground/60">
-                    Referred on: {formatDateToReadable(referral.createdAt)}
-                  </span>
-                </div>
-              )}
-              {referral?.scheduledDate && (
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-gray-600 dark:text-foreground/60">
-                    Scheduled:{" "}
-                    {formatDateToReadable(referral.scheduledDate, true)}
-                  </span>
-                </div>
-              )}
-              {referral?.referredBy?.name && (
-                <div className="text-xs text-gray-600 dark:text-foreground/60">
-                  <span>Referred by: </span>
-                  <span>{referral?.referredBy?.name}</span>
-                  {referral?.referredBy?.practice?.name && (
-                    <span> • {referral?.referredBy?.practice?.name}</span>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-4 pt-3 border-t border-foreground/5">
+                <InfoItem
+                  icon={<LuPhone size={16} />}
+                  label="Phone"
+                  value={referral?.phone || "N/A"}
+                />
+                <InfoItem
+                  icon={<LuMail size={16} />}
+                  label="Email"
+                  value={referral?.email || "N/A"}
+                />
+                <InfoItem
+                  icon={<LuCalendar size={16} />}
+                  label="Referred On"
+                  value={formatDateToReadable(referral.createdAt)}
+                />
+                <InfoItem
+                  icon={<LuUsers size={16} />}
+                  label="Referred By"
+                  value={referral?.referredBy?.name || "Self"}
+                />
+                <InfoItem
+                  icon={<LuStethoscope size={16} />}
+                  label="Treatment"
+                  value={
+                    TREATMENT_OPTIONS.find(
+                      (opt: any) => opt.key === referral.treatment,
+                    )?.label || "Not specified"
+                  }
+                />
+                <InfoItem
+                  icon={<LuArrowRight size={16} />}
+                  label="Source"
+                  value={referral?.addedVia || "Manually Added"}
+                />
+              </div>
+            </div>
+
+            {/* Communication Section */}
+            {(referral?.additionalNotes || referral?.statusNotes) && (
+              <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
+                <h4 className="font-medium text-xs dark:text-foreground/80 flex items-center gap-2">
+                  <LuMessageSquare size={14} className="text-primary" />
+                  Notes & History
+                </h4>
+                <div className="space-y-2">
+                  {referral?.additionalNotes && (
+                    <div className="bg-foreground/[0.02] dark:bg-foreground/[0.04] p-3 rounded-lg border border-divider">
+                      <p className="text-[10px] uppercase font-bold text-default-400 mb-1">
+                        Original Notes
+                      </p>
+                      <p className="text-xs text-foreground/80 leading-relaxed italic">
+                        "{referral.additionalNotes}"
+                      </p>
+                    </div>
+                  )}
+                  {referral?.statusNotes && (
+                    <div className="bg-primary/5 p-3 rounded-lg border border-primary/10">
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <LuClock size={10} className="text-primary" />
+                        <p className="text-[10px] uppercase font-bold text-primary">
+                          Status Update Note
+                        </p>
+                      </div>
+                      <p className="text-xs text-foreground/90 font-medium">
+                        {referral.statusNotes}
+                      </p>
+                    </div>
                   )}
                 </div>
-              )}
-              {referral?.treatment && (
-                <div className="text-xs text-gray-600 dark:text-foreground/60">
-                  Treatment:{" "}
-                  {
-                    TREATMENT_OPTIONS.find(
-                      (treatmentOption: any) =>
-                        treatmentOption.key === referral.treatment
-                    )?.label
-                  }
-                </div>
-              )}
-              {referral?.addedVia && (
-                <div className="text-xs text-gray-600 dark:text-foreground/60">
-                  Source: {referral?.addedVia}
-                </div>
-              )}
-              {isViewMode && referral.estValue ? (
-                <div className="text-xs text-gray-600 dark:text-foreground/60">
-                  Estimated Value: ${referral?.estValue}
-                </div>
-              ) : (
-                ""
-              )}
-            </div>
-
-            {/* Current Status Badge */}
-            <div className="space-y-0.5">
-              <label className="text-xs block dark:text-foreground/60">
-                Current Status
-              </label>
-              <ReferralStatusChip status={referral?.status} />
-            </div>
-
-            <div className="space-y-0.5">
-              <label className="text-xs block dark:text-foreground/60">
-                Priority Level
-              </label>
-              <PriorityLevelChip level={referral?.priority as string} />
-            </div>
-
-            {referral?.additionalNotes && (
-              <div className="space-y-0.5">
-                <label className="text-xs block dark:text-foreground/60">
-                  Additional Notes
-                </label>
-                <p className="text-xs text-gray-600 dark:text-foreground/60">
-                  {referral?.additionalNotes}
-                </p>
               </div>
             )}
 
+            {/* Update Form Section */}
             {!isViewMode && (
-              <form onSubmit={formik.handleSubmit} className="space-y-4">
-                {/* New Status Select */}
-                <div className="space-y-2">
-                  <Select
-                    name="status"
-                    id="status"
-                    label="New Status"
-                    labelPlacement="outside"
-                    placeholder="Select new status"
-                    size="sm"
-                    selectedKeys={[formik.values.status]}
-                    disabledKeys={[formik.values.status]}
-                    onSelectionChange={(keys) => {
-                      const value = Array.from(keys)[0] as string;
-                      formik.setFieldValue("status", value);
-                    }}
-                    onBlur={() => formik.setFieldTouched("status", true)}
-                    isInvalid={
-                      !!(formik.touched.status && formik.errors.status)
-                    }
-                    errorMessage={
-                      formik.touched.status && (formik.errors.status as string)
-                    }
-                    isRequired
-                  >
-                    {STATUS_OPTIONS.map((status) => (
-                      <SelectItem key={status.value} textValue={status.label}>
-                        {status.label}
-                      </SelectItem>
-                    ))}
-                  </Select>
-                </div>
+              <div className="border border-foreground/10 rounded-xl p-4 space-y-4 mb-4">
+                <h4 className="font-medium text-sm dark:text-white">
+                  Update Progress
+                </h4>
+                <form onSubmit={formik.handleSubmit} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-3">
+                    <Select
+                      name="status"
+                      label="New Status"
+                      labelPlacement="outside"
+                      placeholder="Select status"
+                      size="sm"
+                      radius="sm"
+                      variant="flat"
+                      selectedKeys={[formik.values.status]}
+                      onSelectionChange={(keys) => {
+                        const value = Array.from(keys)[0] as string;
+                        formik.setFieldValue("status", value);
+                      }}
+                      onBlur={() => formik.setFieldTouched("status", true)}
+                      isInvalid={
+                        !!(formik.touched.status && formik.errors.status)
+                      }
+                    >
+                      {STATUS_OPTIONS.map((status) => (
+                        <SelectItem key={status.value} textValue={status.label}>
+                          {status.label}
+                        </SelectItem>
+                      ))}
+                    </Select>
 
-                {/* Status Notes Textarea */}
-                <div className="space-y-2">
+                    <Input
+                      label="Estimated Value"
+                      labelPlacement="outside"
+                      placeholder="0.00"
+                      size="sm"
+                      radius="sm"
+                      variant="flat"
+                      type="number"
+                      value={formik.values.estValue.toString()}
+                      onValueChange={(value) =>
+                        formik.setFieldValue("estValue", value)
+                      }
+                      startContent={
+                        <span className="text-default-400 text-xs">$</span>
+                      }
+                    />
+                  </div>
+
                   <Textarea
-                    id="statusNotes"
-                    name="statusNotes"
-                    label="Status Notes (Optional)"
-                    labelPlacement="outside-top"
-                    placeholder="Add any notes about this status change..."
-                    rows={3}
+                    label="Status Notes"
+                    labelPlacement="outside"
+                    placeholder="Add specific context about this status change..."
                     size="sm"
                     radius="sm"
+                    variant="flat"
+                    minRows={3}
                     value={formik.values.statusNotes}
                     onValueChange={(val: string) =>
                       formik.setFieldValue("statusNotes", val)
@@ -264,75 +297,46 @@ const ReferralStatusModal = ({
                         formik.touched.statusNotes && formik.errors.statusNotes
                       )
                     }
-                    errorMessage={
-                      formik.touched.statusNotes &&
-                      (formik.errors.statusNotes as string)
-                    }
-                    classNames={{ inputWrapper: "py-2" }}
                   />
-                </div>
 
-                {/* Original Notes Read-only */}
-                {referral?.additionalNotes && (
-                  <div>
-                    <label className="inline-block text-xs mb-2 dark:text-foreground/60">
-                      Original Notes
-                    </label>
-                    <div className="text-xs text-gray-600 dark:text-foreground/60 bg-gray-50 dark:bg-background/50 p-3 rounded-md border border-foreground/10">
-                      {referral?.additionalNotes}
-                    </div>
-                  </div>
-                )}
-
-                {!isViewMode && (
-                  <div>
-                    <Input
+                  <div className="flex items-center justify-end gap-2">
+                    <Button
                       size="sm"
                       radius="sm"
-                      label="Estimated Value"
-                      labelPlacement="outside-top"
-                      placeholder="100"
-                      type="number"
-                      value={formik.values.estValue.toString()}
-                      onValueChange={(value) =>
-                        formik.setFieldValue("estValue", value)
-                      }
-                      startContent={
-                        <div className="pointer-events-none flex items-center">
-                          <span className="text-default-400 text-small">$</span>
-                        </div>
-                      }
-                    />
+                      variant="ghost"
+                      onPress={onClose}
+                      className="border-small"
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      type="submit"
+                      color="primary"
+                      size="sm"
+                      radius="sm"
+                      isLoading={isPending}
+                      isDisabled={!formik.isValid || isPending || !formik.dirty}
+                    >
+                      Save Progress
+                    </Button>
                   </div>
-                )}
+                </form>
+              </div>
+            )}
 
-                {/* Dialog Footer with Buttons */}
-                <div
-                  data-slot="dialog-footer"
-                  className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end"
+            {isViewMode && (
+              <div className="flex justify-end gap-2 pb-4 pt-1">
+                <Button
+                  size="sm"
+                  radius="sm"
+                  variant="ghost"
+                  color="default"
+                  onPress={onClose}
+                  className="border-small"
                 >
-                  <Button
-                    size="sm"
-                    radius="sm"
-                    type="button"
-                    variant="ghost"
-                    onPress={onClose}
-                    className="border-small"
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    type="submit"
-                    color="primary"
-                    size="sm"
-                    radius="sm"
-                    isLoading={isPending}
-                    isDisabled={!formik.isValid || isPending || !formik.dirty}
-                  >
-                    Update Status
-                  </Button>
-                </div>
-              </form>
+                  Close
+                </Button>
+              </div>
             )}
           </ModalBody>
         )}
@@ -340,5 +344,27 @@ const ReferralStatusModal = ({
     </Modal>
   );
 };
+
+const InfoItem = ({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) => (
+  <div className="flex items-start gap-2.5 group min-w-0">
+    <div className="p-1.5 rounded-md bg-default-100 text-default-400 group-hover:bg-default-200 transition-colors shrink-0">
+      {icon}
+    </div>
+    <div className="min-w-0 flex-1">
+      <p className="text-[10px] uppercase font-semibold text-default-400 tracking-wider">
+        {label}
+      </p>
+      <p className="text-xs font-medium dark:text-white truncate">{value}</p>
+    </div>
+  </div>
+);
 
 export default ReferralStatusModal;

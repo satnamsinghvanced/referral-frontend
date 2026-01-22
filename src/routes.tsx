@@ -1,6 +1,7 @@
 import React, { ReactNode, useEffect, useState } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./pages/auth/ProtectedRoute";
+import PublicRoute from "./pages/auth/PublicRoute";
 import QrGenerator from "./pages/qr-generator/QrGenerator";
 import { useFetchTrackings } from "./hooks/useReferral";
 
@@ -293,7 +294,14 @@ function AppRoutes() {
       ],
     },
     // Public Routes (not wrapped)
-    { path: "signin", element: <SignIn /> },
+    {
+      path: "signin",
+      element: (
+        <PublicRoute>
+          <SignIn />
+        </PublicRoute>
+      ),
+    },
     { path: "thank-you", element: <ThankYou /> },
     { path: "support", element: <Support /> },
     { path: "terms", element: <Terms /> },

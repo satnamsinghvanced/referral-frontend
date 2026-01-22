@@ -40,7 +40,7 @@ axiosInstance.interceptors.request.use(
 
     return config;
   },
-  (error) => Promise.reject(error)
+  (error) => Promise.reject(error),
 );
 
 let isToastShowing = false;
@@ -50,12 +50,12 @@ axiosInstance.interceptors.response.use(
   (error) => {
     if (!error.response && !isToastShowing) {
       isToastShowing = true;
-      addToast({
-        title: "Network Error",
-        description:
-          "Unable to connect to the server. This may be a CORS issue or network failure.",
-        color: "danger",
-      });
+      // addToast({
+      //   title: "Network Error",
+      //   description:
+      //     "Unable to connect to the server. This may be a CORS issue or network failure.",
+      //   color: "danger",
+      // });
 
       // Reset the flag after some time to allow future toasts
       setTimeout(() => {
@@ -69,7 +69,7 @@ axiosInstance.interceptors.response.use(
       window.location.href = `${import.meta.env.VITE_URL_PREFIX}/signin`;
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default axiosInstance;

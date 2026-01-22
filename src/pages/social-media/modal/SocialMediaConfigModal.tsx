@@ -9,7 +9,7 @@ import {
   Spinner,
 } from "@heroui/react";
 import { useFormik } from "formik";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { FiExternalLink, FiEye, FiEyeOff } from "react-icons/fi";
 import * as Yup from "yup";
 import { useSelector } from "react-redux";
@@ -87,7 +87,7 @@ export default function SocialMediaConfigModal({
 
   const existingConfig = useMemo(
     () => allCredentials?.[platformName] as SocialMediaCredential | undefined,
-    [allCredentials, platformName]
+    [allCredentials, platformName],
   );
 
   const initiateAuthMutation = useInitiateAuthIntegration();
@@ -133,6 +133,12 @@ export default function SocialMediaConfigModal({
     enableReinitialize: true,
   });
 
+  useEffect(() => {
+    if (!isOpen) {
+      formik.resetForm();
+    }
+  }, [isOpen]);
+
   // Handle loading state
   if (isGlobalLoading) {
     return (
@@ -169,7 +175,7 @@ export default function SocialMediaConfigModal({
             <h2 className="leading-none font-medium text-base">
               {config.title}
             </h2>
-            <p className="text-xs text-gray-600 mt-2 font-normal">
+            <p className="text-xs text-gray-600 dark:text-foreground/60 mt-2 font-normal">
               {config.description}
             </p>
           </ModalHeader>
@@ -313,7 +319,7 @@ export default function SocialMediaConfigModal({
               size="sm"
               variant="ghost"
               onPress={onClose}
-              className="border border-gray-300 text-gray-700 hover:bg-gray-50"
+              className="border border-gray-300 dark:border-default-200 text-gray-700 dark:text-foreground/70 hover:bg-gray-50 dark:hover:bg-default-100"
               isDisabled={isSubmitting}
             >
               Cancel

@@ -105,6 +105,12 @@ export default function EmailMarketingConfigModal({
     }
   }, [existingConfig]);
 
+  useEffect(() => {
+    if (!isOpen) {
+      formik.resetForm();
+    }
+  }, [isOpen]);
+
   const onClose = () => onOpenChange(false);
 
   if (isLoading) {

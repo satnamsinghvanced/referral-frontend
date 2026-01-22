@@ -37,7 +37,7 @@ export default function SocialMedia() {
           ]
         : [],
     }),
-    [isAnyPlatformConnected]
+    [isAnyPlatformConnected],
   );
 
   const platformsData = useMemo(() => {
@@ -147,8 +147,8 @@ export default function SocialMedia() {
   const renderConnectionWarning = () => (
     <div className="flex flex-col items-center justify-center p-10 bg-background border border-foreground/10 rounded-xl space-y-4">
       <div className="text-4xl text-warning">⚠️</div>
-      <div className="text-center">
-        <h3 className="text-lg font-semibold">No Platforms Integrated</h3>
+      <div className="text-center space-y-2">
+        <h3 className="text-md font-medium">No Platforms Integrated</h3>
         <p className="text-sm text-gray-600 dark:text-foreground/60">
           Please integrate at least one social media platform to view statistics
           and start posting.

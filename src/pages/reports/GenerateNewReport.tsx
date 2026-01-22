@@ -11,7 +11,7 @@ import {
   SelectItem,
   DatePicker,
 } from "@heroui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   LuActivity,
   LuChartColumn,
@@ -85,6 +85,19 @@ const GenerateNewReportModal = ({
     frequency: "monthly",
   });
 
+  useEffect(() => {
+    if (!isOpen) {
+      setFormData({
+        name: "",
+        category: "referralAnalytics",
+        timeRange: "30days",
+        format: "pdf",
+        schedule: false,
+        frequency: "monthly",
+      });
+    }
+  }, [isOpen]);
+
   const { mutate: generateReport, isPending } = useGenerateReport();
 
   const isFormValid =
@@ -135,7 +148,7 @@ const GenerateNewReportModal = ({
           <h2 className="text-base font-medium">
             Generate New Marketing Report
           </h2>
-          <p className="text-gray-500 dark:text-foreground/40 font-normal text-xs">
+          <p className="text-gray-500 dark:text-foreground/60 font-normal text-xs">
             Create a custom report with specific metrics, time ranges, and
             export formats
           </p>

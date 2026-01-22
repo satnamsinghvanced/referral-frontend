@@ -28,11 +28,11 @@ export function ActivityCard({ activity, onView }: ActivityCardProps) {
   } = activity;
 
   const activityType = ACTIVITY_TYPES.find(
-    (activityType: any) => activityType.value == type
+    (activityType: any) => activityType.value == type,
   )?.label;
 
   const activityColor = ACTIVITY_TYPES.find(
-    (activityType: any) => activityType.value == type
+    (activityType: any) => activityType.value == type,
   )?.color.value;
 
   return (
@@ -62,7 +62,7 @@ export function ActivityCard({ activity, onView }: ActivityCardProps) {
             <div className="flex items-center gap-1.5">
               <LuCalendar fontSize={14} />
               <p className="flex items-center space-x-1 text-xs">
-                <span>{formatDateToReadable(startDate, true)}</span>
+                <span>{formatDateToReadable(startDate, true, true)}</span>
               </p>
             </div>
           )}

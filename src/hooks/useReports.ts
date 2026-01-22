@@ -1,7 +1,8 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { fetchReports, createReport } from "../services/reports";
 import { GenerateReportPayload } from "../types/reports";
 import { addToast } from "@heroui/react";
+import { queryClient } from "../providers/QueryProvider";
 
 export const useReports = (page = 1, limit = 10) => {
   return useQuery({
@@ -11,8 +12,6 @@ export const useReports = (page = 1, limit = 10) => {
 };
 
 export const useGenerateReport = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: (payload: GenerateReportPayload) => createReport(payload),
     onSuccess: () => {

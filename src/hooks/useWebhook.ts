@@ -1,5 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { addToast } from "@heroui/react";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { queryClient } from "../providers/QueryProvider";
 import {
   fetchWebhookConfig,
   generateWebhookSecret,
@@ -14,8 +15,6 @@ export const useWebhookConfig = () => {
 };
 
 export const useGenerateWebhookSecret = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: generateWebhookSecret,
     onSuccess: () => {

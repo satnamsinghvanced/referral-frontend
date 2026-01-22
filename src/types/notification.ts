@@ -34,7 +34,7 @@ export interface NotificationItem {
 
 export interface BrowserSettings {
   browserId: string;
-  status: string;
+  status?: string;
   endpoint: string;
   p256dh: string;
   auth: string;

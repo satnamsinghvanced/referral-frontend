@@ -16,9 +16,7 @@ import {
   FiInfo,
   FiShield,
   FiUsers,
-  FiWifi,
   FiXCircle,
-  FiZap,
 } from "react-icons/fi";
 import {
   useNotifications,
@@ -29,6 +27,8 @@ import {
   NotificationItem,
 } from "../../types/notification";
 import { LoadingState } from "../../components/common/LoadingState";
+import { useNotificationSubscription } from "../../hooks/useNotificationSubscription";
+import { getBrowserId } from "../../utils/notifications";
 
 type Channels = {
   push: boolean;
@@ -92,84 +92,38 @@ const RULE_CONFIG: Record<
   },
 };
 
-// Helper to convert VAPID key
-const urlBase64ToUint8Array = (base64String: string) => {
-  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
-  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
-  const rawData = window.atob(base64);
-  const outputArray = new Uint8Array(rawData.length);
-  for (let i = 0; i < rawData.length; ++i) {
-    outputArray[i] = rawData.charCodeAt(i);
-  }
-  return outputArray;
-};
-
 const Notifications: React.FC = () => {
   const [globalEnabled, setGlobalEnabled] = useState<boolean>(true);
-  const [permissionStatus, setPermissionStatus] = useState<
-    NotificationPermission | "unknown"
-  >("unknown");
+  const {
+    permissionStatus,
+    requestPermission: commonRequestPermission,
+    subscribeToPush,
+    settings,
+    isUpdating,
+  } = useNotificationSubscription();
 
-  const { data: settings, isLoading, refetch } = useNotifications();
+  const { isLoading, refetch } = useNotifications();
   const updateMutation = useUpdateNotifications();
 
   // Initialize rules with default config
   const [rules, setRules] = useState<Rule[]>([]);
 
-  useEffect(() => {
-    if ("Notification" in window) {
-      setPermissionStatus(Notification.permission);
-    }
-  }, []);
-
-  const subscribeToPush = async () => {
-    try {
-      if (!("serviceWorker" in navigator)) return null;
-      if (!settings?.vapidPublicKey) {
-        console.error("No VAPID public key found");
-        return null;
-      }
-
-      let registration = await navigator.serviceWorker.getRegistration(
-        "/referral-retrieve/",
-      );
-      if (!registration) {
-        registration = await navigator.serviceWorker.register(
-          "/referral-retrieve/sw.js",
-          {
-            scope: "/referral-retrieve/",
-          },
-        );
-      }
-
-      // Wait for the service worker to be ready
-      await navigator.serviceWorker.ready;
-
-      // Ensure the registration is active
-      if (!registration.active) {
-        // Wait for it to become active if it's installing/waiting
-        await new Promise<void>((resolve) => {
-          const worker = registration.installing || registration.waiting;
-          if (worker) {
-            worker.addEventListener("statechange", (e: any) => {
-              if (e.target.state === "activated") resolve();
-            });
-          } else {
-            resolve();
-          }
-        });
-      }
-
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: urlBase64ToUint8Array(settings.vapidPublicKey),
-      });
-
-      return JSON.parse(JSON.stringify(subscription));
-    } catch (error) {
-      console.error("Failed to subscribe to push notifications:", error);
-      return null;
-    }
+  const handleRequestPermission = async () => {
+    // Pass current rules and global state to ensure they persist after subscription
+    const currentRules = rules.map((r) => ({
+      label: r.id,
+      enabled: r.enabled,
+      push: r.channels.push,
+      email: r.channels.email,
+      sms: r.channels.sms,
+      inApp: r.channels.inApp,
+      activeHours: {
+        enabled: r.activeHoursEnabled,
+        startTime: formatTime(r.startTime),
+        endTime: formatTime(r.endTime),
+      },
+    }));
+    await commonRequestPermission(currentRules, globalEnabled);
   };
 
   useEffect(() => {
@@ -248,8 +202,23 @@ const Notifications: React.FC = () => {
   ) => {
     if (channel === "push" && value === true) {
       if ("Notification" in window && Notification.permission !== "granted") {
-        const permission = await Notification.requestPermission();
-        setPermissionStatus(permission);
+        const permission = await commonRequestPermission(
+          rules.map((r) => ({
+            label: r.id,
+            enabled: r.enabled,
+            push: r.channels.push,
+            email: r.channels.email,
+            sms: r.channels.sms,
+            inApp: r.channels.inApp,
+            activeHours: {
+              enabled: r.activeHoursEnabled,
+              startTime: formatTime(r.startTime),
+              endTime: formatTime(r.endTime),
+            },
+          })),
+          globalEnabled,
+        );
+
         if (permission !== "granted") {
           addToast({
             title: "Permission Denied",
@@ -299,10 +268,10 @@ const Notifications: React.FC = () => {
       })),
       ...(browserSubscription && {
         browser: {
+          browserId: getBrowserId(),
           endpoint: browserSubscription.endpoint,
           p256dh: browserSubscription.keys?.p256dh,
           auth: browserSubscription.keys?.auth,
-          status: "Connected",
         },
       }),
     };
@@ -414,10 +383,6 @@ const Notifications: React.FC = () => {
                     <FiBell className="h-5 w-5" />
                     Browser Permission Status
                   </h4>
-                  <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-foreground/10 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-[10px] font-medium text-gray-600 dark:text-gray-300">
-                    <FiWifi className="size-3" />
-                    <span>Connected</span>
-                  </div>
                 </div>
 
                 {/* Content */}
@@ -461,15 +426,28 @@ const Notifications: React.FC = () => {
                   </div>
 
                   {permissionStatus !== "granted" && (
-                    <div className="flex items-center gap-3 p-3 bg-cyan-50/50 dark:bg-cyan-900/10 border border-cyan-100 dark:border-cyan-800 rounded-lg text-xs text-gray-600 dark:text-gray-400 w-full md:max-w-md">
-                      <div className="size-auto shrink-0 text-cyan-600 dark:text-cyan-400">
-                        <FiInfo className="size-4" />
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 p-3 bg-cyan-50/50 dark:bg-cyan-900/10 border border-cyan-100 dark:border-cyan-800 rounded-lg text-xs text-gray-600 dark:text-gray-400 w-full md:max-w-md">
+                      <div className="flex items-center gap-2 flex-1">
+                        <div className="size-auto shrink-0 text-cyan-600 dark:text-cyan-400">
+                          <FiInfo className="size-4" />
+                        </div>
+                        <p className="">
+                          {permissionStatus === "denied"
+                            ? "Notifications are blocked. Click the lock icon in your address bar to enable them."
+                            : "Notifications are not yet enabled. Enable them to stay updated with real-time alerts."}
+                        </p>
                       </div>
-                      <p className="leading-relaxed">
-                        {permissionStatus === "denied"
-                          ? "Notifications are blocked. Click the lock icon in your address bar to enable them."
-                          : "Notifications are not yet enabled. We will ask for permission when you enable a rule."}
-                      </p>
+                      {permissionStatus === "default" && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          color="primary"
+                          className="border-small h-7 text-[10px] px-3 font-medium border-primary/20 hover:border-primary/40"
+                          onPress={handleRequestPermission}
+                        >
+                          Allow Notifications
+                        </Button>
+                      )}
                     </div>
                   )}
                 </div>

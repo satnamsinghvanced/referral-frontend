@@ -68,7 +68,7 @@ NotesTasksModalProps) => {
   const [activeTab, setActiveTab] = useState("notes");
   const [newNoteContent, setNewNoteContent] = useState("");
   const [newNoteCategory, setNewNoteCategory] = useState(
-    NOTE_CATEGORIES[0]?.value
+    NOTE_CATEGORIES[0]?.value,
   );
 
   // State for new task
@@ -76,7 +76,7 @@ NotesTasksModalProps) => {
   const [newTaskDueDate, setNewTaskDueDate] = useState("");
   const [newTaskDescription, setNewTaskDescription] = useState("");
   const [newTaskPriority, setNewTaskPriority] = useState(
-    TASK_PRIORITIES[0]?.value
+    TASK_PRIORITIES[0]?.value,
   );
   const [newTaskType, setNewTaskType] = useState(TASK_TYPES[0]?.key);
   const [newTaskAssignTo, setNewTaskAssignTo] = useState<string[]>([""]);
@@ -101,7 +101,7 @@ NotesTasksModalProps) => {
   const teamMembers = teamMembersData?.data;
   const activeTeamMembers = useMemo(
     () => teamMembers?.filter((member) => member.status === "active"),
-    [teamMembers]
+    [teamMembers],
   );
 
   useEffect(() => {
@@ -111,6 +111,24 @@ NotesTasksModalProps) => {
       setNewTaskAssignTo([user.userId]);
     }
   }, [activeTeamMembers, user]);
+
+  useEffect(() => {
+    if (!isOpen) {
+      setNewNoteContent("");
+      setNewNoteCategory(NOTE_CATEGORIES[0]?.value);
+      setNewTaskTitle("");
+      setNewTaskDueDate("");
+      setNewTaskDescription("");
+      setNewTaskPriority(TASK_PRIORITIES[0]?.value);
+      setNewTaskType(TASK_TYPES[0]?.key);
+      if (activeTeamMembers && activeTeamMembers.length > 0) {
+        setNewTaskAssignTo([activeTeamMembers[0]?._id as string]);
+      } else if (user?.userId) {
+        setNewTaskAssignTo([user.userId]);
+      }
+      setActiveTab("notes");
+    }
+  }, [isOpen]); // We want to reset when isOpen becomes false
 
   const { data } = useGetAllNotesAndTasks(practice?.id);
   const { mutate: createNote } = useCreateNote();
@@ -228,10 +246,10 @@ NotesTasksModalProps) => {
                                   onSuccess: () => {
                                     setNewNoteContent("");
                                     setNewNoteCategory(
-                                      NOTE_CATEGORIES[0]?.value
+                                      NOTE_CATEGORIES[0]?.value,
                                     );
                                   },
-                                }
+                                },
                               );
                             }}
                           >
@@ -401,7 +419,7 @@ NotesTasksModalProps) => {
                                   >
                                     {teamMember.firstName} {teamMember.lastName}
                                   </SelectItem>
-                                )
+                                ),
                               )}
                             </Select>
                           ) : (
@@ -436,11 +454,11 @@ NotesTasksModalProps) => {
                                     setNewTaskDescription("");
                                     setNewTaskDueDate("");
                                     setNewTaskPriority(
-                                      TASK_PRIORITIES[0]?.value
+                                      TASK_PRIORITIES[0]?.value,
                                     );
                                     setNewTaskType(TASK_TYPES[0]?.key);
                                   },
-                                }
+                                },
                               );
                             }}
                             className="min-w-[100px]"
@@ -619,7 +637,7 @@ NotesTasksModalProps) => {
               {
                 onSuccess: () =>
                   setDeleteConfig({ isOpen: false, type: null, id: null }),
-              }
+              },
             );
           } else if (deleteConfig.type === "task" && deleteConfig.id) {
             deleteTask(deleteConfig.id, {

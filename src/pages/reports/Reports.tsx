@@ -11,14 +11,14 @@ import {
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
 import ReportStatusChip from "../../components/chips/ReportStatusChip";
 import ComponentContainer from "../../components/common/ComponentContainer";
-import GenerateNewReport from "./GenerateNewReport";
-import SampleReports from "./SampleReports";
-import { useReports } from "../../hooks/useReports";
-import { LoadingState } from "../../components/common/LoadingState";
 import EmptyState from "../../components/common/EmptyState";
+import { LoadingState } from "../../components/common/LoadingState";
 import Pagination from "../../components/common/Pagination";
 import { CATEGORIES } from "../../consts/reports";
+import { useReports } from "../../hooks/useReports";
 import { Report } from "../../types/reports";
+import GenerateNewReport from "./GenerateNewReport";
+import SampleReports from "./SampleReports";
 
 const Reports = () => {
   const [isNewReportModalOpen, setIsNewReportModalOpen] = useState(false);
@@ -46,7 +46,7 @@ const Reports = () => {
     {
       icon: <LuActivity className="text-green-500" />,
       heading: "Data Sources",
-      value: "12", // This might need a real API eventually
+      value: stats?.dataSources.count.toString() || "5", // This might need a real API eventually
       subheading: (
         <span className="text-gray-600 dark:text-foreground/40">Connected</span>
       ),
@@ -158,59 +158,60 @@ const Reports = () => {
                 <LoadingState />
               </div>
             ) : reports.length > 0 ? (
-              <div className="space-y-3">
-                {reports.map((report: Report) => (
-                  <div
-                    key={report._id}
-                    className="flex items-center justify-between border border-foreground/10 p-4 bg-content1 rounded-lg"
-                  >
-                    <div className="flex items-center gap-3">
-                      <LuFileText className="size-5 text-gray-500 dark:text-foreground/40" />
-                      <div className="space-y-1">
-                        <h4 className="font-medium text-sm">{report.name}</h4>
-                        <p className="text-xs text-gray-600 dark:text-foreground/60">
-                          {CATEGORIES.find((c) => c.key === report.category)
-                            ?.label || "Report"}
-                        </p>
-                        <div className="flex items-center gap-2 mt-1.5 text-xs">
-                          <ReportStatusChip status={report.status} />
-                          <span className="text-gray-500 dark:text-foreground/40">
-                            {`${report.format.toUpperCase()}${
-                              report.fileSize ? ` • ${report.fileSize}` : ""
-                            }`}
-                          </span>
+              <>
+                <div className="space-y-3">
+                  {reports.map((report: Report) => (
+                    <div
+                      key={report._id}
+                      className="flex items-center justify-between border border-foreground/10 p-4 bg-content1 rounded-lg"
+                    >
+                      <div className="flex items-center gap-3">
+                        <LuFileText className="size-5 text-gray-500 dark:text-foreground/40" />
+                        <div className="space-y-1.5">
+                          <h4 className="font-medium text-sm">{report.name}</h4>
+                          <p className="text-xs text-gray-600 dark:text-foreground/60">
+                            {CATEGORIES.find((c) => c.key === report.category)
+                              ?.label || "Report"}
+                          </p>
+                          <div className="flex items-center gap-2 mt-2 text-xs">
+                            <ReportStatusChip status={report.status} />
+                            <span className="text-gray-500 dark:text-foreground/40">
+                              {`${report.format.toUpperCase()}${
+                                report.fileSize ? ` • ${report.fileSize}` : ""
+                              }`}
+                            </span>
+                          </div>
                         </div>
                       </div>
+                      {report.status === "ready" && (
+                        <div className="flex gap-2">
+                          <Button
+                            size="sm"
+                            radius="sm"
+                            variant="ghost"
+                            color="default"
+                            onPress={() => handleDownload(report)}
+                            className="border-small"
+                            startContent={<LuDownload className="size-3.5" />}
+                          >
+                            Download
+                          </Button>
+                          <Button
+                            size="sm"
+                            radius="sm"
+                            variant="ghost"
+                            color="default"
+                            onPress={() => handleShare(report)}
+                            className="border-small"
+                            startContent={<LuShare className="size-3.5" />}
+                          >
+                            Share
+                          </Button>
+                        </div>
+                      )}
                     </div>
-                    {report.status === "ready" && (
-                      <div className="flex gap-2">
-                        <Button
-                          size="sm"
-                          radius="sm"
-                          variant="ghost"
-                          color="default"
-                          onPress={() => handleDownload(report)}
-                          className="border-small"
-                          startContent={<LuDownload className="size-3.5" />}
-                        >
-                          Download
-                        </Button>
-                        <Button
-                          size="sm"
-                          radius="sm"
-                          variant="ghost"
-                          color="default"
-                          onPress={() => handleShare(report)}
-                          className="border-small"
-                          startContent={<LuShare className="size-3.5" />}
-                        >
-                          Share
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                ))}
-
+                  ))}
+                </div>
                 {pagination && pagination.totalPages > 1 && (
                   <div className="pt-4">
                     <Pagination
@@ -222,7 +223,7 @@ const Reports = () => {
                     />
                   </div>
                 )}
-              </div>
+              </>
             ) : (
               <div className="py-10">
                 <EmptyState

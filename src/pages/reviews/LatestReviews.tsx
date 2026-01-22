@@ -14,104 +14,15 @@ import { FaStar } from "react-icons/fa";
 import { FiExternalLink, FiMapPin, FiMessageSquare } from "react-icons/fi";
 import { IoIosWifi } from "react-icons/io";
 import { LuQrCode } from "react-icons/lu";
+import { useGBPRecentReviews } from "../../hooks/useReviews";
+import { GBPReview } from "../../types/reviews";
+import dayjs from "dayjs";
+import relativeTime from "dayjs/plugin/relativeTime";
+import EmptyState from "../../components/common/EmptyState";
+
+dayjs.extend(relativeTime);
 
 // --- Mock Data & Helpers (defined above) ---
-const REVIEWS = [
-  // ... (data from section 1)
-  {
-    id: 1,
-    name: "Sarah Johnson",
-    initials: "SJ",
-    isVerified: true,
-    platform: "Google",
-    platformColor:
-      "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/30",
-    location: "Downtown Office",
-    interaction: "NFC",
-    interactionIcon: "IoIosWifi",
-    rating: 5,
-    date: "1/20/2024",
-    text: "Excellent service! Dr. Smith and the team were professional and caring throughout my treatment. The NFC tap made leaving a review so convenient!",
-    responseStatus: "Responded",
-    reviewTag: "NFC-001",
-  },
-  {
-    id: 2,
-    name: "Michael Brown",
-    avatarUrl:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=40&h=40&fit=crop&crop=face",
-    isVerified: true,
-    platform: "Yelp",
-    platformColor:
-      "bg-red-100 text-red-800 border-red-200 dark:bg-red-500/20 dark:text-red-300 dark:border-red-500/30",
-    location: "Westside Clinic",
-    interaction: "QR Code",
-    interactionIcon: "FiQrCode",
-    rating: 4,
-    date: "1/19/2024",
-    text: "Amazing results with my Invisalign treatment. The QR code system made it easy to share my experience. Highly recommend this practice!",
-    responseStatus: "Responded",
-    reviewTag: null,
-  },
-  {
-    id: 3,
-    name: "Emily Davis",
-    avatarUrl:
-      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face",
-    isVerified: true,
-    platform: "Google",
-    platformColor:
-      "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/30",
-    location: "Downtown Office",
-    interaction: "NFC",
-    interactionIcon: "IoIosWifi",
-    rating: 4,
-    date: "1/18/2024",
-    text: "Great experience overall. The staff was friendly and the office was clean and modern. Easy review process via NFC.",
-    responseStatus: "Unresponded",
-    reviewTag: "NFC-001",
-  },
-  {
-    id: 4,
-    name: "Robert Wilson",
-    avatarUrl:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face",
-    isVerified: false,
-    platform: "Facebook",
-    platformColor:
-      "bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-500/30",
-    location: "Medical Center",
-    interaction: "Direct",
-    interactionIcon: "FiMessageSquare",
-    rating: 5,
-    date: "1/17/2024",
-    text: "The consultation was very informative and the follow-up process was excellent. A truly professional team.",
-    responseStatus: "Responded",
-    reviewTag: null,
-  },
-];
-
-const locationOptions = [
-  "All Locations",
-  "Downtown Office",
-  "Westside Clinic",
-  "Medical Center",
-  "Northgate Branch",
-];
-
-// Helper to map icon name string to the actual component
-const InteractionIcon = ({ iconName, className }: any) => {
-  switch (iconName) {
-    case "IoIosWifi":
-      return <IoIosWifi className={`text-sky-600 ${className}`} />;
-    case "FiQrCode":
-      return <LuQrCode className={`text-orange-600 ${className}`} />;
-    case "FiMessageSquare":
-      return <FiMessageSquare className={`text-gray-600 ${className}`} />;
-    default:
-      return null;
-  }
-};
 
 const StarRating = ({ rating }: any) => {
   const totalStars = 5;
@@ -128,30 +39,37 @@ const StarRating = ({ rating }: any) => {
     </div>
   );
 };
-// --- End Mock Data & Helpers ---
+
+const mapStarRating = (rating: string) => {
+  switch (rating) {
+    case "FIVE":
+      return 5;
+    case "FOUR":
+      return 4;
+    case "THREE":
+      return 3;
+    case "TWO":
+      return 2;
+    case "ONE":
+      return 1;
+    default:
+      return 0;
+  }
+};
 
 /**
  * Component for rendering a single review item.
  */
-const LatestReviewItem = ({ review }: any) => {
-  const {
-    name,
-    initials,
-    avatarUrl,
-    isVerified,
-    platform,
-    platformColor,
-    location,
-    interaction,
-    interactionIcon,
-    rating,
-    date,
-    text,
-    responseStatus,
-    reviewTag,
-  } = review;
+const LatestReviewItem = ({ review }: { review: GBPReview }) => {
+  const { reviewer, starRating, createTime, comment, reviewReply } = review;
 
-  const isResponded = responseStatus === "Responded";
+  const rating = mapStarRating(starRating);
+  // Default to Google since this is GBP API
+  const platform = "Google";
+  const platformColor =
+    "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/30";
+
+  const isResponded = !!reviewReply;
   const statusColor = isResponded
     ? "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30"
     : "bg-red-100 text-red-800 border-red-200 dark:bg-red-500/20 dark:text-red-300 dark:border-red-500/30";
@@ -162,8 +80,8 @@ const LatestReviewItem = ({ review }: any) => {
         <div className="flex items-center gap-3">
           <div className="flex-shrink-0 rounded-full overflow-hidden h-10 w-10 aspect-square flex items-center justify-center -mt-15 sm:-mt-0">
             <Avatar
-              src={avatarUrl}
-              name={initials || name}
+              src={reviewer.profilePhotoUrl}
+              name={reviewer.displayName}
               radius="none"
               classNames={{
                 base: "w-full h-full !rounded-none",
@@ -175,21 +93,9 @@ const LatestReviewItem = ({ review }: any) => {
 
           <div>
             <div className="flex justify-start gap-2">
-              {/* Name on top */}
-              <h3 className="text-sm">{name}</h3>
-
-              {isVerified && (
-                <Chip
-                  size="sm"
-                  radius="sm"
-                  className="text-[11px] font-medium h-5 bg-emerald-100 text-emerald-800 border border-emerald-200 dark:bg-emerald-500/20 dark:text-emerald-300 dark:border-emerald-500/30"
-                >
-                  Verified
-                </Chip>
-              )}
+              <h3 className="text-sm">{reviewer.displayName}</h3>
             </div>
 
-            {/* Platform, Location, Interaction */}
             <div className="flex flex-wrap items-center gap-2 mt-1.5 text-sm text-gray-500 dark:text-foreground/60">
               <Chip
                 size="sm"
@@ -198,56 +104,32 @@ const LatestReviewItem = ({ review }: any) => {
               >
                 {platform}
               </Chip>
-              <div className="flex items-center gap-1 text-xs">
-                <FiMapPin className="size-3.5" />
-                {location}
-              </div>
-              <div className="flex items-center gap-1 text-xs">
-                <InteractionIcon
-                  iconName={interactionIcon}
-                  className="size-3.5"
-                />
-                {interaction}
-              </div>
             </div>
             <div className="sm:hidden mt-1">
               <StarRating rating={rating} />
             </div>
             <div className="sm:hidden mt-2 text-xs text-gray-600 dark:text-foreground/60">
-              {date}
+              {dayjs(createTime).fromNow()}
             </div>
           </div>
         </div>
 
-        {/* Rating and Date */}
         <div className="flex flex-col items-end gap-1">
           <div className="hidden sm:block">
             <StarRating rating={rating} />
           </div>
           <div className="hidden sm:block text-xs text-gray-600 dark:text-foreground/60">
-            {date}
+            {dayjs(createTime).fromNow()}
           </div>
         </div>
       </div>
 
-      {/* Review Text */}
       <p className="text-gray-700 dark:text-foreground/80 mb-1.5 text-sm leading-relaxed">
-        {text}
+        {comment}
       </p>
 
-      {/* Actions and Tags */}
       <div className="flex flex-wrap items-center justify-between gap-1">
-        <div className="flex items-center gap-1">
-          {reviewTag && (
-            <Chip
-              size="sm"
-              radius="sm"
-              className="text-[11px] font-medium h-5 border bg-sky-100 text-sky-800 border-sky-200 dark:bg-sky-500/20 dark:text-sky-300 dark:border-sky-500/30 px-1"
-            >
-              {reviewTag}
-            </Chip>
-          )}
-        </div>
+        <div className="flex items-center gap-1"></div>
 
         <div className="flex items-center gap-2 mt-1 sm:mt-0">
           <Chip
@@ -255,7 +137,7 @@ const LatestReviewItem = ({ review }: any) => {
             radius="sm"
             className={`text-[11px] font-medium h-5 border ${statusColor} px-1`}
           >
-            {responseStatus}
+            {isResponded ? "Responded" : "Pending"}
           </Chip>
           <Button
             variant="ghost"
@@ -276,18 +158,8 @@ const LatestReviewItem = ({ review }: any) => {
  * Main component for the Reviews and Interactions section.
  */
 export default function LatestReviews() {
-  const [selectedLocation, setSelectedLocation] = useState("All Locations");
-
-  const filteredReviews = useMemo(() => {
-    if (selectedLocation === "All Locations") {
-      return REVIEWS;
-    }
-    return REVIEWS.filter((review) => review.location === selectedLocation);
-  }, [selectedLocation]);
-
-  const handleLocationChange = (event: any) => {
-    setSelectedLocation(event.target.value);
-  };
+  const { data, isLoading } = useGBPRecentReviews();
+  const reviews = data?.reviews || [];
 
   return (
     <Card
@@ -303,35 +175,25 @@ export default function LatestReviews() {
             radius="sm"
             className="text-[11px] font-medium h-5 border bg-sky-100 text-sky-800 border-sky-200 dark:bg-sky-500/20 dark:text-sky-300 dark:border-sky-500/30"
           >
-            {filteredReviews.length} review
-            {filteredReviews.length !== 1 ? "s" : ""}
+            {reviews.length} review
+            {reviews.length !== 1 ? "s" : ""}
           </Chip>
-          <Select
-            size="sm"
-            radius="sm"
-            selectedKeys={[selectedLocation]}
-            disabledKeys={[selectedLocation]}
-            onChange={handleLocationChange}
-            className="w-48 text-sm"
-          >
-            {locationOptions.map((option) => (
-              <SelectItem key={option}>{option}</SelectItem>
-            ))}
-          </Select>
         </div>
       </CardHeader>
 
       {/* Card Content (Reviews List) */}
       <CardBody className="p-0">
-        <div className="space-y-3 max-h-96 overflow-y-auto pr-2">
-          {filteredReviews.length > 0 ? (
-            filteredReviews.map((review) => (
-              <LatestReviewItem key={review.id} review={review} />
+        <div className="space-y-3 pr-2">
+          {isLoading ? (
+            <div className="text-center py-6 text-sm text-gray-500">
+              Loading reviews...
+            </div>
+          ) : reviews.length > 0 ? (
+            reviews.map((review) => (
+              <LatestReviewItem key={review.reviewId} review={review} />
             ))
           ) : (
-            <p className="text-center text-gray-500 dark:text-foreground/60 py-6">
-              No reviews found for {selectedLocation}.
-            </p>
+            <EmptyState title="No recent reviews found." />
           )}
         </div>
       </CardBody>

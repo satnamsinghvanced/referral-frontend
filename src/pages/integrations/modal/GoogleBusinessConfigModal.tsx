@@ -9,7 +9,7 @@ import {
   Spinner,
 } from "@heroui/react";
 import { useFormik } from "formik";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FiExternalLink, FiEye, FiEyeOff } from "react-icons/fi";
 import * as Yup from "yup";
 import { useGenerateGoogleBusinessAuthUrl } from "../../../hooks/integrations/useGoogleBusiness";
@@ -85,6 +85,12 @@ export default function GoogleBusinessConfigModal({
     },
     enableReinitialize: true,
   });
+
+  useEffect(() => {
+    if (!isOpen) {
+      formik.resetForm();
+    }
+  }, [isOpen]);
 
   if (isGlobalLoading) {
     return (

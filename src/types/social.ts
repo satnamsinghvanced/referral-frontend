@@ -157,3 +157,29 @@ export interface CreatePostPayload {
   scheduledDate: string;
   media: string; // "id1,id2"
 }
+
+export interface GBPPlatformOverviewResponse {
+  views: {
+    search: number;
+    maps: number;
+    total: number;
+  };
+  actions: {
+    calls: number;
+    directions: number;
+    websiteClicks: number;
+    messages: number;
+    total: number;
+  };
+  photos: {
+    customer: number;
+    business: number;
+    total: number;
+  };
+  reviews: {
+    averageRating: number;
+    newThisMonth: number;
+    total: number;
+  };
+  topSearchQueries: any[];
+}

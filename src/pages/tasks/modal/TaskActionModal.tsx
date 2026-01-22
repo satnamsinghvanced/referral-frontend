@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useEffect } from "react";
 import {
   Button,
   DatePicker,
@@ -60,7 +60,7 @@ const TaskActionModal = ({
   const teamMembers = teamMembersData?.data;
   const activeTeamMembers = useMemo(
     () => teamMembers?.filter((member) => member.status === "active"),
-    [teamMembers]
+    [teamMembers],
   );
 
   // @ts-ignore
@@ -102,7 +102,7 @@ const TaskActionModal = ({
               if (refetch) refetch();
               handleClose();
             },
-          }
+          },
         );
       } else {
         createTask(
@@ -112,11 +112,17 @@ const TaskActionModal = ({
               if (refetch) refetch();
               handleClose();
             },
-          }
+          },
         );
       }
     },
   });
+
+  useEffect(() => {
+    if (!isOpen) {
+      formik.resetForm();
+    }
+  }, [isOpen]);
 
   const isLoading = isCreating || isUpdating;
 
@@ -134,6 +140,11 @@ const TaskActionModal = ({
           <h4 className="text-base leading-none font-medium">
             {isEditMode ? `Edit Task - ${task?.title}` : "Add New Task"}
           </h4>
+          <p className="text-gray-500 dark:text-foreground/60 font-normal text-xs">
+            {isEditMode
+              ? "Update the task details and save changes"
+              : "Create a new task with specific details"}
+          </p>
         </ModalHeader>
 
         <ModalBody className="p-0">

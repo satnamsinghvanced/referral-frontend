@@ -21,7 +21,7 @@ import {
   today,
 } from "@internationalized/date";
 import { useFormik } from "formik";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FiCheckCircle, FiPlus } from "react-icons/fi";
 import { LuBuilding } from "react-icons/lu";
 import * as Yup from "yup";
@@ -57,7 +57,7 @@ const TrackReferralModal = ({
   const { mutate: createReferral, isPending: isLoading } = useCreateReferral();
   // Mode: 'existing' | 'new'
   const [referrerMode, setReferrerMode] = useState<"existing" | "new">(
-    "existing"
+    "existing",
   );
 
   const validationSchema = Yup.object().shape({
@@ -65,7 +65,7 @@ const TrackReferralModal = ({
       .required("Patient name is required")
       .matches(
         NAME_REGEX,
-        "Name can only contain letters, spaces, hyphens, apostrophes, and full stops"
+        "Name can only contain letters, spaces, hyphens, apostrophes, and full stops",
       )
       .min(2, "Name must be at least 2 characters")
       .max(100, "Name must be less than 100 characters"),
@@ -146,11 +146,17 @@ const TrackReferralModal = ({
       });
     },
   });
+
+  useEffect(() => {
+    if (!isOpen) {
+      formik.resetForm();
+    }
+  }, [isOpen]);
   const handleInputChange = (
     event: React.ChangeEvent<HTMLInputElement>,
     fieldName: string,
     type: string,
-    maxLength?: number
+    maxLength?: number,
   ) => {
     let value: string | number | undefined = event.target.value;
 
@@ -180,7 +186,7 @@ const TrackReferralModal = ({
       <ModalContent>
         {(onClose) => (
           <>
-            <ModalHeader className="flex flex-col gap-1 px-5">
+            <ModalHeader className="flex flex-col gap-1 px-4">
               <h4 className="text-base font-medium dark:text-white">
                 Track Single Referral
               </h4>
@@ -189,7 +195,7 @@ const TrackReferralModal = ({
               </p>
             </ModalHeader>
 
-            <ModalBody className="py-0 px-5 gap-3">
+            <ModalBody className="py-0 px-4 gap-3">
               {/* Patient Information Section */}
               <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
                 <h4 className="font-medium text-sm dark:text-white">
@@ -232,7 +238,7 @@ const TrackReferralModal = ({
                         e as React.ChangeEvent<HTMLInputElement>,
                         "patientAge",
                         "number",
-                        3
+                        3,
                       )
                     }
                     onBlur={formik.handleBlur}
@@ -256,7 +262,7 @@ const TrackReferralModal = ({
                       handleInputChange(
                         e as React.ChangeEvent<HTMLInputElement>,
                         "phone",
-                        "tel"
+                        "tel",
                       )
                     }
                     onBlur={formik.handleBlur}
@@ -448,10 +454,10 @@ const TrackReferralModal = ({
                         formik.values.scheduledDate
                           ? formik.values.scheduledDate.includes("T")
                             ? parseDateTime(
-                                formik.values.scheduledDate.slice(0, 19)
+                                formik.values.scheduledDate.slice(0, 19),
                               )
                             : parseDateTime(
-                                `${formik.values.scheduledDate}T00:00:00`
+                                `${formik.values.scheduledDate}T00:00:00`,
                               )
                           : null
                       }
@@ -460,26 +466,26 @@ const TrackReferralModal = ({
                           const year = dateObject.year;
                           const month = String(dateObject.month).padStart(
                             2,
-                            "0"
+                            "0",
                           );
                           const day = String(dateObject.day).padStart(2, "0");
                           const hour = String(dateObject.hour).padStart(2, "0");
                           const minute = String(dateObject.minute).padStart(
                             2,
-                            "0"
+                            "0",
                           );
                           const second = String(dateObject.second).padStart(
                             2,
-                            "0"
+                            "0",
                           );
                           const millisecond = String(
-                            dateObject.millisecond
+                            dateObject.millisecond,
                           ).padStart(3, "0");
 
                           const localDateTimeString = `${year}-${month}-${day}T${hour}:${minute}:${second}.${millisecond}`;
                           formik.setFieldValue(
                             "scheduledDate",
-                            localDateTimeString
+                            localDateTimeString,
                           );
                         } else {
                           formik.setFieldValue("scheduledDate", "");
@@ -581,7 +587,7 @@ const TrackReferralModal = ({
                     <Input
                       label="Estimated Value"
                       labelPlacement="outside"
-                      placeholder="0.00"
+                      placeholder="0"
                       type="number"
                       startContent={
                         <span className="text-gray-500 dark:text-foreground/60 text-sm">
@@ -623,7 +629,7 @@ const TrackReferralModal = ({
                 </div>
               </div>
             </ModalBody>
-            <ModalFooter className="px-5">
+            <ModalFooter className="px-4">
               <Button
                 size="sm"
                 radius="sm"

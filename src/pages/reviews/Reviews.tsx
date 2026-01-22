@@ -3,10 +3,10 @@ import { FiMessageSquare, FiStar, FiWifi } from "react-icons/fi";
 import { LuQrCode } from "react-icons/lu";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
 import ComponentContainer from "../../components/common/ComponentContainer";
+import { useGBPOverview } from "../../hooks/useReviews";
 import LatestReviews from "./LatestReviews";
 import Locations from "./Locations";
 import ManageTags from "./ManageTags";
-import NfcAnalytics from "./NfcAnalytics";
 import Overview from "./Overview";
 
 const Reviews = () => {
@@ -16,30 +16,75 @@ const Reviews = () => {
       "Monitor reviews, track NFC/QR analytics, and manage your online reputation across all locations.",
   };
 
+  const { data, isLoading } = useGBPOverview();
+  const stats = data?.stats;
+
   const STATS_CARD_DATA = [
     {
       icon: <FiMessageSquare className="h-full w-full text-sky-500" />,
       heading: "Total Reviews",
-      value: "1,248",
-      subheading: <p className="text-emerald-600">+18 from last month</p>,
+      value: isLoading ? "..." : stats?.reviews?.totalReviews || 0,
+      subheading: (
+        <p
+          className={
+            (stats?.reviews?.totalReviewsGrowth || "").includes("-")
+              ? "text-red-600"
+              : "text-emerald-600"
+          }
+        >
+          {stats?.reviews?.totalReviewsGrowth || "0%"}
+        </p>
+      ),
     },
     {
       icon: <FiStar className="h-full w-full text-yellow-500" />,
       heading: "Average Rating",
-      value: "4.8",
-      subheading: <p className="text-emerald-600">+0.2 from last month</p>,
+      value: isLoading
+        ? "..."
+        : stats?.rating?.averageRating?.toFixed(1) || "0.0",
+      subheading: (
+        <p
+          className={
+            (stats?.rating?.averageRatingGrowth || "").includes("-")
+              ? "text-red-600"
+              : "text-emerald-600"
+          }
+        >
+          {stats?.rating?.averageRatingGrowth || "0%"}
+        </p>
+      ),
     },
     {
       icon: <FiWifi className="h-full w-full text-orange-500" />,
       heading: "NFC Interactions",
-      value: "342",
-      subheading: <p className="text-emerald-600">+23% conversion rate</p>,
+      value: isLoading ? "..." : stats?.nfc?.nfcInteractions || 0,
+      subheading: (
+        <p
+          className={
+            (stats?.nfc?.nfcInteractionsGrowth || "").includes("-")
+              ? "text-red-600"
+              : "text-emerald-600"
+          }
+        >
+          {stats?.nfc?.nfcInteractionsGrowth || "0%"}
+        </p>
+      ),
     },
     {
       icon: <LuQrCode className="h-full w-full text-blue-500" />,
       heading: "QR Code Scans",
-      value: "189",
-      subheading: <p className="text-emerald-600">+15% from last month</p>,
+      value: isLoading ? "..." : stats?.qr?.qrScans || 0,
+      subheading: (
+        <p
+          className={
+            (stats?.qr?.qrScansGrowth || "").includes("-")
+              ? "text-red-600"
+              : "text-emerald-600"
+          }
+        >
+          {stats?.qr?.qrScansGrowth || "0%"}
+        </p>
+      ),
     },
   ];
 

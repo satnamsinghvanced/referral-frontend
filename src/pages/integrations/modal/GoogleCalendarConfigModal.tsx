@@ -9,7 +9,7 @@ import {
   Spinner,
 } from "@heroui/react";
 import { useFormik } from "formik";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FiExternalLink, FiEye, FiEyeOff } from "react-icons/fi";
 import * as Yup from "yup";
 import {
@@ -28,7 +28,7 @@ const validationSchema = Yup.object().shape({
     .required("Client ID is required.")
     .matches(
       /.apps.googleusercontent.com$/,
-      "Invalid Client ID format. Usually ends with '.apps.googleusercontent.com'"
+      "Invalid Client ID format. Usually ends with '.apps.googleusercontent.com'",
     ),
   clientSecret: Yup.string().required("Client Secret is required."),
   // redirectUri: Yup.string()
@@ -108,6 +108,12 @@ export default function GoogleCalendarConfigModal({
     // Reinitialize form values when existingConfig changes (i.e., when data loads)
     enableReinitialize: true,
   });
+
+  useEffect(() => {
+    if (!isOpen) {
+      formik.resetForm();
+    }
+  }, [isOpen]);
 
   // Handle loading state
   if (isGlobalLoading) {

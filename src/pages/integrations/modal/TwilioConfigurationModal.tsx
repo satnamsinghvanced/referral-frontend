@@ -26,7 +26,7 @@ const validationSchema = Yup.object().shape({
   accountId: Yup.string()
     .matches(
       /^AC[0-9a-fA-F]{32}$/,
-      'Invalid Account SID format. Must start with "AC" followed by 32 hex characters.'
+      'Invalid Account SID format. Must start with "AC" followed by 32 hex characters.',
     )
     .required("Account SID is required."),
   authToken: Yup.string()
@@ -35,7 +35,7 @@ const validationSchema = Yup.object().shape({
   phone: Yup.string()
     .matches(
       /^\+[1-9]\d{1,14}$/,
-      "Invalid phone number format. Must include country code (e.g., +15551234567)."
+      "Invalid phone number format. Must include country code (e.g., +15551234567).",
     )
     .required("Twilio Phone Number is required."),
 });
@@ -115,6 +115,12 @@ export default function TwilioConfigurationModal({
       });
     }
   }, [existingConfig]); // Only run when existingConfig changes
+
+  useEffect(() => {
+    if (!isOpen) {
+      formik.resetForm();
+    }
+  }, [isOpen]);
 
   // Handle loading and error states
   if (isLoading) {

@@ -1,28 +1,16 @@
-import {
-  Button,
-  Card,
-  CardBody,
-  CardHeader,
-  Switch,
-  Tooltip,
-} from "@heroui/react";
+import { Card, CardBody, CardHeader, Switch } from "@heroui/react";
 import clsx from "clsx";
 import dayjs from "dayjs";
 import React from "react";
 import { BiDevices } from "react-icons/bi";
-import { FiMonitor, FiSmartphone, FiTrash2 } from "react-icons/fi";
-import { LoadingState } from "../../components/common/LoadingState";
-import {
-  useDevices,
-  useRemoveDevice,
-  useToggleDevice,
-} from "../../hooks/settings/useDevice";
+import { FiMonitor, FiSmartphone } from "react-icons/fi";
 import EmptyState from "../../components/common/EmptyState";
+import { LoadingState } from "../../components/common/LoadingState";
+import { useDevices, useToggleDevice } from "../../hooks/settings/useDevice";
 
 const Devices: React.FC = () => {
   const { data: devices, isLoading } = useDevices();
   const { mutate: toggleDevice, isPending: isToggling } = useToggleDevice();
-  const { mutate: removeDevice, isPending: isRemoving } = useRemoveDevice();
 
   const getDeviceIcon = (os?: string) => {
     const mobileKeywords = ["ios", "android", "iphone", "mobile"];
@@ -32,6 +20,8 @@ const Devices: React.FC = () => {
     }
     return <FiMonitor className="size-5" />;
   };
+
+  console.log(devices);
 
   if (isLoading) {
     return (
@@ -59,8 +49,8 @@ const Devices: React.FC = () => {
                 <div className="p-2.5 bg-foreground/5 rounded-lg text-foreground/60 leading-none">
                   {getDeviceIcon(device.os)}
                 </div>
-                <div className="space-y-0.5">
-                  <p className="font-semibold text-sm leading-tight">
+                <div className="space-y-1">
+                  <p className="font-semibold text-sm leading-tight mb-1.5">
                     {device.deviceName ||
                       `${device.browser} on ${device.os || "Unknown OS"}`}
                   </p>
@@ -95,20 +85,6 @@ const Devices: React.FC = () => {
                     disabled={isToggling}
                   />
                 </div>
-
-                <Tooltip content="Remove Device" color="danger">
-                  <Button
-                    isIconOnly
-                    size="sm"
-                    variant="light"
-                    color="danger"
-                    onPress={() => removeDevice(device._id)}
-                    isLoading={isRemoving}
-                    className="cursor-pointer"
-                  >
-                    <FiTrash2 className="size-4" />
-                  </Button>
-                </Tooltip>
               </div>
             </div>
           ))

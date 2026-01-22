@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   Bar,
   BarChart,
@@ -13,37 +14,7 @@ import { FiWifi } from "react-icons/fi";
 import { GrLocation } from "react-icons/gr";
 import { LuQrCode } from "react-icons/lu";
 import { PiStarFill } from "react-icons/pi";
-
-const LOCATIONS = [
-  {
-    location: "Tulsa",
-    totalReviews: 287,
-    averageRating: 4.8,
-    nfcTaps: 142,
-    qrScans: 78,
-  },
-  {
-    location: "Oklahoma City",
-    totalReviews: 150,
-    averageRating: 4.5,
-    nfcTaps: 110,
-    qrScans: 65,
-  },
-  {
-    location: "Norman",
-    totalReviews: 120,
-    averageRating: 3.9,
-    nfcTaps: 80,
-    qrScans: 45,
-  },
-  {
-    location: "Edmond",
-    totalReviews: 98,
-    averageRating: 4.2,
-    nfcTaps: 67,
-    qrScans: 52,
-  },
-];
+import { useGBPLocationPerformance } from "../../hooks/useReviews";
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -79,42 +50,31 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-const LOCATIONS_GRAPH_DATA = [
-  {
-    name: "Downtown Office",
-    reviews: 456,
-    nfcTaps: 142,
-    qrScans: 78,
-  },
-  {
-    name: "Westside Clinic",
-    reviews: 338,
-    nfcTaps: 98,
-    qrScans: 56,
-  },
-  {
-    name: "Medical Center",
-    reviews: 289,
-    nfcTaps: 67,
-    qrScans: 34,
-  },
-  {
-    name: "Northgate Branch",
-    reviews: 165,
-    nfcTaps: 35,
-    qrScans: 21,
-  },
-];
-
 const Locations = () => {
+  const { data, isLoading } = useGBPLocationPerformance();
+  const locations = data?.performanceByLocation || [];
+  const graphData = data?.stats || [];
+
+  const gridClassName = useMemo(() => {
+    const count = locations.length;
+    if (count <= 1) return "grid-cols-1";
+    if (count === 2) return "grid-cols-1 md:grid-cols-2";
+    if (count === 3) return "grid-cols-1 md:grid-cols-2 lg:grid-cols-3";
+    return "grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
+  }, [locations.length]);
+
+  if (isLoading) {
+    return <div>Loading locations...</div>;
+  }
+
   return (
     <div className="flex flex-col gap-4 border border-foreground/10 rounded-xl p-4 bg-background w-full">
       <h4 className="flex items-center">
         <GrLocation className="text-primary size-[18px] mr-2" />
         Review Performance by Location
       </h4>
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-4 gap-4">
-        {LOCATIONS.map((location, index) => (
+      <div className={`grid gap-4 ${gridClassName}`}>
+        {locations.map((location, index) => (
           <Card
             key={index}
             className="border border-foreground/10 bg-primary/2 dark:bg-content1 p-4 rounded-lg"
@@ -122,11 +82,11 @@ const Locations = () => {
           >
             <div className="flex justify-between">
               <h6 className="text-sm flex gap-2 items-center">
-                {location.location}
+                {location.name}
               </h6>
               <div className="flex items-center gap-1">
                 <PiStarFill className="inline h-4 w-4 text-yellow-400" />
-                <div>{location.averageRating}</div>
+                <div>{location.rating.toFixed(1)}</div>
               </div>
             </div>
             <CardBody className="text-xs flex flex-col gap-3 px-0 pt-5 pb-0">
@@ -165,7 +125,7 @@ const Locations = () => {
           </Card>
         ))}
       </div>
-      <div className="my-1">
+      <div className="my-1 text-sm">
         <BarChart
           style={{
             width: "100%",
@@ -175,7 +135,7 @@ const Locations = () => {
             outline: "none",
           }}
           responsive
-          data={LOCATIONS_GRAPH_DATA}
+          data={graphData}
           margin={{
             top: 5,
             right: 0,
@@ -184,7 +144,7 @@ const Locations = () => {
           }}
         >
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" tickMargin={8} />
+          <XAxis dataKey="label" tickMargin={8} />
           <YAxis width="auto" tickMargin={8} />
           <Tooltip
             content={<CustomTooltip />}

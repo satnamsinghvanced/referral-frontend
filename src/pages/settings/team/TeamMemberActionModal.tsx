@@ -53,7 +53,7 @@ const TeamSchema = Yup.object().shape({
     .required("First name is required")
     .matches(
       NAME_REGEX,
-      "First name can only contain letters, spaces, hyphens, apostrophes, and full stops"
+      "First name can only contain letters, spaces, hyphens, apostrophes, and full stops",
     )
     .min(2, "First name must be at least 2 characters")
     .max(50, "First name must be less than 50 characters"),
@@ -61,7 +61,7 @@ const TeamSchema = Yup.object().shape({
     .required("Last name is required")
     .matches(
       NAME_REGEX,
-      "Last name can only contain letters, spaces, hyphens, apostrophes, and full stops"
+      "Last name can only contain letters, spaces, hyphens, apostrophes, and full stops",
     )
     .min(2, "Last name must be at least 2 characters")
     .max(50, "Last name must be less than 50 characters"),
@@ -120,7 +120,7 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
             onSuccess: () => {
               onClose();
             },
-          }
+          },
         );
       } else {
         payload = { ...payload, email: values.email };
@@ -133,6 +133,12 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
       }
     },
   });
+
+  useEffect(() => {
+    if (!isOpen) {
+      formik.resetForm();
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (
@@ -159,7 +165,7 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
       size="md"
     >
       <ModalContent>
-        <ModalHeader className="flex flex-col gap-1 px-5 py-4">
+        <ModalHeader className="flex flex-col gap-1 px-4 py-4">
           <h4 className="text-base font-medium">
             {editMemberId ? "Edit Team Member" : "Invite Team Member"}
           </h4>
@@ -168,7 +174,7 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
             receive an email with setup instructions.
           </p>
         </ModalHeader>
-        <ModalBody className="px-5 py-0">
+        <ModalBody className="px-4 py-0">
           <form
             id="team-invite-form"
             onSubmit={formik.handleSubmit}
@@ -279,11 +285,11 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
 
                 // Update permissions to defaults for this role
                 const selectedRole = roles?.find(
-                  (r: Role) => r._id === selectedRoleId
+                  (r: Role) => r._id === selectedRoleId,
                 );
                 if (selectedRole && selectedRole.permissions) {
                   const defaultPermIds = selectedRole.permissions.map(
-                    (p: Permission) => p._id
+                    (p: Permission) => p._id,
                   );
                   formik.setFieldValue("permissions", defaultPermIds);
                 }
@@ -337,7 +343,7 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
                       const updated = checked
                         ? [...formik.values.permissions, perm._id]
                         : formik.values.permissions.filter(
-                            (p) => p !== perm._id
+                            (p) => p !== perm._id,
                           );
                       formik.setFieldValue("permissions", updated);
                     }}
@@ -354,7 +360,7 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
             </div>
           </form>
         </ModalBody>
-        <ModalFooter className="px-5 py-4">
+        <ModalFooter className="p-4">
           <Button
             onPress={onClose}
             variant="ghost"

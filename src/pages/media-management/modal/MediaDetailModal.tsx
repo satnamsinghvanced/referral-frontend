@@ -30,7 +30,7 @@ const MediaPreview = ({ media }: { media: Media }) => {
     return (
       <div className="w-full relative flex items-center justify-center bg-black">
         <video
-          src={`${import.meta.env.VITE_IMAGE_URL}${media.path}`}
+          src={media.path}
           controls
           className="max-w-full max-h-full object-contain"
         />
@@ -40,7 +40,7 @@ const MediaPreview = ({ media }: { media: Media }) => {
   return (
     <div className="w-full h-full flex items-center justify-center">
       <img
-        src={`${import.meta.env.VITE_IMAGE_URL}${media.path}`}
+        src={media.path}
         alt={media.name}
         className="max-w-full max-h-full object-contain"
       />
@@ -65,7 +65,7 @@ export function MediaDetailModal({
     setTagError(null);
     const trimmedTag = newTag.trim();
     const tagExists = media.tags.some(
-      (tag) => tag.toLowerCase() === trimmedTag.toLowerCase()
+      (tag) => tag.toLowerCase() === trimmedTag.toLowerCase(),
     );
     if (!trimmedTag) {
       setTagError("Tag cannot be empty.");
@@ -102,7 +102,7 @@ export function MediaDetailModal({
         closeButton: "cursor-pointer",
       }}
     >
-      <ModalContent className="max-h-[90vh] p-5">
+      <ModalContent className="max-h-[90vh] p-4">
         <ModalHeader className="flex flex-col gap-2 text-center sm:text-left p-0 font-normal">
           <div className="flex items-center justify-between">
             <div className="space-y-1">

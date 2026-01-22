@@ -12,7 +12,7 @@ import {
   Input,
 } from "@heroui/react";
 import { useFormik } from "formik";
-import { Key, useMemo } from "react";
+import { Key, useMemo, useEffect } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { BiSave } from "react-icons/bi";
 import * as Yup from "yup";
@@ -224,7 +224,7 @@ export default function ReferrerActionsModal({
               setReferrerEditId("");
             },
             onError: (error) => reject(error),
-          }
+          },
         );
       } else {
         createReferrer(
@@ -240,7 +240,7 @@ export default function ReferrerActionsModal({
               setSelectedTab?.("Referrers");
             },
             onError: (error) => reject(error),
-          }
+          },
         );
       }
     });
@@ -261,7 +261,7 @@ export default function ReferrerActionsModal({
         .required("Full name is required")
         .matches(
           NAME_REGEX,
-          "Full name can only contain letters, spaces, hyphens, apostrophes, and full stops"
+          "Full name can only contain letters, spaces, hyphens, apostrophes, and full stops",
         )
         .min(2, "Full name must be at least 2 characters")
         .max(100, "Full name must be less than 100 characters"),
@@ -278,7 +278,7 @@ export default function ReferrerActionsModal({
             .required("Practice name is required")
             .matches(
               NAME_REGEX,
-              "Practice name can only contain letters, spaces, hyphens, apostrophes, and full stops"
+              "Practice name can only contain letters, spaces, hyphens, apostrophes, and full stops",
             )
             .min(2, "Practice name must be at least 2 characters")
             .max(100, "Practice name must be less than 100 characters"),
@@ -298,7 +298,7 @@ export default function ReferrerActionsModal({
       }),
       website: Yup.string().matches(
         /^(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/[a-zA-Z0-9]+\.[^\s]{2,}|[a-zA-Z0-9]+\.[^\s]{2,})$/i,
-        "Website must be a valid URL.(https://example.com or www.example.com"
+        "Website must be a valid URL.(https://example.com or www.example.com",
       ),
       practiceAddress: Yup.object().shape({
         addressLine1: Yup.string().when(["$type"], {
@@ -331,7 +331,7 @@ export default function ReferrerActionsModal({
             .required("Name is required")
             .matches(
               NAME_REGEX,
-              "Name can only contain letters, spaces, hyphens, apostrophes, and full stops"
+              "Name can only contain letters, spaces, hyphens, apostrophes, and full stops",
             )
             .min(2, "Name must be at least 2 characters")
             .max(100, "Name must be less than 100 characters"),
@@ -339,7 +339,7 @@ export default function ReferrerActionsModal({
           email: Yup.string().matches(EMAIL_REGEX, "Invalid email format"),
           phone: Yup.string().nullable(),
           isDentist: Yup.boolean().nullable(),
-        })
+        }),
       ),
       communityReferrer: Yup.object().when("type", {
         is: "communityReferrer",
@@ -380,6 +380,12 @@ export default function ReferrerActionsModal({
     }),
     onSubmit: handleFormSubmission,
   });
+
+  useEffect(() => {
+    if (!isModalOpen) {
+      formik.resetForm();
+    }
+  }, [isModalOpen]);
 
   const getNestedValue = (path: string) => {
     return path
@@ -435,7 +441,7 @@ export default function ReferrerActionsModal({
         isFullWidth: true,
       },
     ],
-    []
+    [],
   );
 
   const renderField = (field: {
@@ -493,8 +499,8 @@ export default function ReferrerActionsModal({
                     ? value
                     : []
                   : value
-                  ? [value]
-                  : []
+                    ? [value]
+                    : []
               }
               disabledKeys={
                 multiple
@@ -502,8 +508,8 @@ export default function ReferrerActionsModal({
                     ? value
                     : []
                   : value
-                  ? [value]
-                  : []
+                    ? [value]
+                    : []
               }
               onSelectionChange={(keys) => {
                 const selectedKeysArray = Array.from(keys);
@@ -654,7 +660,7 @@ export default function ReferrerActionsModal({
               onValueChange={(val) =>
                 formik.setFieldValue(
                   id as string,
-                  type === "tel" ? formatPhoneNumber(val) : val
+                  type === "tel" ? formatPhoneNumber(val) : val,
                 )
               }
               onBlur={formik.handleBlur}
@@ -702,8 +708,8 @@ export default function ReferrerActionsModal({
                     ? valuePath
                     : []
                   : valuePath
-                  ? [valuePath]
-                  : []
+                    ? [valuePath]
+                    : []
               }
               disabledKeys={
                 field.multiple
@@ -711,8 +717,8 @@ export default function ReferrerActionsModal({
                     ? valuePath
                     : []
                   : valuePath
-                  ? [valuePath]
-                  : []
+                    ? [valuePath]
+                    : []
               }
               onSelectionChange={(keys) => {
                 const selectedKeysArray = Array.from(keys);
@@ -816,12 +822,12 @@ export default function ReferrerActionsModal({
         formik.setFieldTouched(
           `staff[${staffArray.length - 1}].name`,
           true,
-          true
+          true,
         );
         formik.setFieldTouched(
           `staff[${staffArray.length - 1}].role`,
           true,
-          true
+          true,
         );
       }
       return;
@@ -841,7 +847,7 @@ export default function ReferrerActionsModal({
 
   const handleRemoveStaff = (index: number) => {
     const newStaff = formik.values.staff.filter(
-      (_: any, i: number) => i !== index
+      (_: any, i: number) => i !== index,
     );
     formik.setFieldValue("staff", newStaff);
   };

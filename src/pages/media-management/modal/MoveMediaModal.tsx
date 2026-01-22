@@ -8,7 +8,7 @@ import {
   Select,
   SelectItem,
 } from "@heroui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   useGetAllFoldersWithChildFolders,
   useMoveImages,
@@ -29,6 +29,12 @@ export function MoveMediaModal({
 }: MoveMediaModalProps) {
   const [selectedFolder, setSelectedFolder] = useState("");
 
+  useEffect(() => {
+    if (!isOpen) {
+      setSelectedFolder("");
+    }
+  }, [isOpen]);
+
   const { data: folders } = useGetAllFoldersWithChildFolders();
 
   const { mutate, isPending } = useMoveImages();
@@ -42,7 +48,7 @@ export function MoveMediaModal({
           setSelectedMedia([]);
           onClose();
         },
-      }
+      },
     );
   };
 
