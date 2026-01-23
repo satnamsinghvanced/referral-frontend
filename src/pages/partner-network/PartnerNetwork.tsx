@@ -202,13 +202,13 @@ const PartnerNetwork = () => {
           subHeading: "Manage relationships with referring practices",
         }}
       >
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 justify-between">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 justify-between">
           {STATS_CARD_DATA.map((data) => (
             <MiniStatsCard key={data.heading} cardData={data} />
           ))}
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 items-start gap-4">
+        <div className="grid grid-cols-1 xl:grid-cols-2 items-start gap-4">
           <div className="space-y-5">
             {/* --- STOPPED REFERRALS ALERT BOX --- */}
             {stoppedReferring.length > 0 && (
@@ -272,7 +272,7 @@ const PartnerNetwork = () => {
                 </div>
 
                 <div className="space-y-3">
-                  <div className="flex items-center gap-3">
+                  <div className="md:flex md:items-center md:gap-3 max-md:space-y-3">
                     <Input
                       size="sm"
                       variant="flat"
@@ -309,8 +309,8 @@ const PartnerNetwork = () => {
                   </div>
 
                   <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-2 col-span-4 md:col-span-auto">
+                    <div className="flex items-center gap-3 max-md:w-full">
+                      <div className="flex items-center gap-2 max-md:w-full">
                         <span className="text-xs text-gray-600 dark:text-foreground/60 whitespace-nowrap max-md:hidden">
                           Sort by:
                         </span>

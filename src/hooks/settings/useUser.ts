@@ -5,7 +5,7 @@ import { queryClient } from "../../providers/QueryProvider";
 import { fetchUserForTrackings } from "../../services/referralBypassFunction";
 import { fetchUser, updateUser, User } from "../../services/settings/user";
 import { store } from "../../store";
-import { logout } from "../../store/authSlice";
+import { handleLogoutThunk } from "../../store/authSlice";
 
 export function useFetchUser(id: string) {
   return useQuery<User, AxiosError>({
@@ -14,7 +14,7 @@ export function useFetchUser(id: string) {
     enabled: !!id,
     // @ts-ignore - onError is deprecated in v5 but keeping for backward compatibility if needed, or it might be v4
     onError: () => {
-      store.dispatch(logout());
+      store.dispatch(handleLogoutThunk());
       window.location.href = `${import.meta.env.VITE_URL_PREFIX}/signin`;
     },
   });

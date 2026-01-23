@@ -51,7 +51,7 @@ export function CreateFolderModal({
           onSuccess: () => {
             onClose();
           },
-        }
+        },
       );
     } else {
       createFolder(
@@ -61,7 +61,7 @@ export function CreateFolderModal({
             setFolderName("");
             onClose();
           },
-        }
+        },
       );
     }
   };
@@ -72,6 +72,7 @@ export function CreateFolderModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
+      placement="center"
       classNames={{
         base: `max-sm:!m-3 !m-0`,
         closeButton: "cursor-pointer",

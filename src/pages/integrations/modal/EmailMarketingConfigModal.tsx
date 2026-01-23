@@ -115,7 +115,12 @@ export default function EmailMarketingConfigModal({
 
   if (isLoading) {
     return (
-      <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="md">
+      <Modal
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
+        size="md"
+        placement="center"
+      >
         <ModalContent className="py-10">
           <div className="flex flex-col items-center justify-center space-y-3">
             <Spinner size="md" />
@@ -135,6 +140,7 @@ export default function EmailMarketingConfigModal({
         base: "max-sm:!m-3 !m-0",
         closeButton: "cursor-pointer",
       }}
+      placement="center"
     >
       <ModalContent>
         <form onSubmit={formik.handleSubmit}>

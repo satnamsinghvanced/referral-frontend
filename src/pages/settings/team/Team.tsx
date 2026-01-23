@@ -82,7 +82,7 @@ const Team: React.FC = () => {
     // Extract location IDs
     const locationIds = member.locations
       ? member.locations.map((loc: any) =>
-          typeof loc === "object" ? loc._id : loc
+          typeof loc === "object" ? loc._id : loc,
         )
       : [];
 
@@ -164,7 +164,7 @@ const Team: React.FC = () => {
             members.map((member: TeamMember) => (
               <div
                 key={member._id}
-                className="flex items-center justify-between p-3 border border-foreground/10 rounded-lg"
+                className="md:flex md:items-center md:justify-between max-md:space-y-4 p-3 border border-foreground/10 rounded-lg"
               >
                 <div className="flex items-center gap-2.5">
                   {member.avatar ? (
@@ -201,7 +201,7 @@ const Team: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap max-md:gap-y-3">
                   <span
                     className={`${
                       roleColors[

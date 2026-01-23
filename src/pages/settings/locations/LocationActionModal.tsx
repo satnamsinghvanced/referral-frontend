@@ -151,12 +151,14 @@ const LocationActionModal = ({
   return (
     <Modal
       isOpen={isOpen}
-      onOpenChange={handleClose}
+      onOpenChange={onClose}
+      placement="center"
       classNames={{
         base: `max-sm:!m-3 !m-0`,
         closeButton: "cursor-pointer",
       }}
       size="md"
+      scrollBehavior="inside"
     >
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1 p-4">

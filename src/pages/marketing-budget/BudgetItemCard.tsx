@@ -70,8 +70,8 @@ const BudgetItemCard: React.FC<{
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
-          {!isSynced && (
+        {!isSynced && (
+          <div className="flex items-center gap-2">
             <>
               {item.status && <BudgetStatusChip status={item.status} />}
               {item.priority && <PriorityLevelChip level={item.priority} />}
@@ -98,8 +98,8 @@ const BudgetItemCard: React.FC<{
                 </Button>
               </div>
             </>
-          )}
-        </div>
+          </div>
+        )}
       </CardHeader>
 
       <CardBody className="space-y-3 p-0 pt-4">

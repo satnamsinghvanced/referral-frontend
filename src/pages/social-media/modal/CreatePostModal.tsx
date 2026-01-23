@@ -398,10 +398,12 @@ export function CreatePostModal({
   return (
     <Modal
       isOpen={isOpen}
-      onOpenChange={onClose}
-      size="2xl"
+      onClose={onClose}
+      size="lg"
+      placement="center"
+      scrollBehavior="inside"
       classNames={{
-        base: `!m-0`,
+        base: `max-sm:!m-3 !m-0`,
         closeButton: "cursor-pointer",
       }}
     >
@@ -579,7 +581,7 @@ export function CreatePostModal({
           </div>
 
           {/* Media Upload */}
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <label className="text-xs block">Media (Max 5)</label>
             <div
               className={`border-2 border-dashed rounded-lg p-6 text-center transition-all duration-200 cursor-pointer mb-0 ${uploadWrapperClasses}`}

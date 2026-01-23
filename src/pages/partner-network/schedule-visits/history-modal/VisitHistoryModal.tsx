@@ -38,7 +38,7 @@ export function VisitHistoryModal({
       filter: statusFilter,
       search: debouncedSearch,
     }),
-    [statusFilter, debouncedSearch]
+    [statusFilter, debouncedSearch],
   );
 
   // @ts-ignore
@@ -59,7 +59,7 @@ export function VisitHistoryModal({
     (event: React.ChangeEvent<HTMLSelectElement>) => {
       setStatusFilter(event.target.value);
     },
-    []
+    [],
   );
 
   // Handler for Input change, using useCallback for stability
@@ -76,6 +76,8 @@ export function VisitHistoryModal({
         closeButton: "cursor-pointer",
       }}
       size="md"
+      placement="center"
+      scrollBehavior="inside"
     >
       <ModalContent className="max-h-[90vh] overflow-hidden p-0 w-full relative">
         {isFetching && (
@@ -84,8 +86,8 @@ export function VisitHistoryModal({
           </div>
         )}
 
-        <ModalHeader className="flex flex-col gap-0 text-center sm:text-left flex-shrink-0 p-5 pb-0 font-normal">
-          <div className="flex flex-col gap-2">
+        <ModalHeader className="flex flex-col gap-0 flex-shrink-0 p-4 pb-0 font-normal">
+          <div className="flex flex-col items-start gap-2">
             <h2 className="text-base leading-none font-medium flex items-center gap-2 dark:text-white">
               <TbArchive className="h-5 w-5 text-blue-600 dark:text-blue-500" />
               <span>Visit History & Routes</span>
@@ -128,7 +130,7 @@ export function VisitHistoryModal({
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-2 py-4 border-b border-foreground/10 flex-shrink-0">
+          <div className="md:flex md:items-center md:gap-2 max-md:space-y-2 py-4 border-b border-foreground/10 flex-shrink-0">
             <div className="flex-1 relative">
               <Input
                 data-slot="input"
@@ -150,7 +152,7 @@ export function VisitHistoryModal({
               radius="sm"
               selectedKeys={[statusFilter]}
               disabledKeys={[statusFilter]}
-              className="max-w-[150px]"
+              className="md:max-w-[150px]"
               onChange={handleStatusChange}
             >
               <SelectItem key="all">All Visits</SelectItem>
@@ -160,11 +162,11 @@ export function VisitHistoryModal({
           </div>
         </ModalHeader>
 
-        <ModalBody className="p-5 pt-0 overflow-y-auto flex-1">
+        <ModalBody className="p-4 pt-0 overflow-y-auto flex-1">
           <div>
             {visits?.map((monthGroup: any, index: number) => (
               <div key={index} className="space-y-3">
-                <h3 className="text-sm font-medium sticky top-0 bg-background py-2.5 border-b border-foreground/10 z-10 dark:text-foreground/80">
+                <h3 className="text-sm font-medium sticky top-0 bg-background dark:bg-transparent py-2.5 border-b border-foreground/10 z-10 dark:text-foreground/80">
                   {monthGroup.month} ({monthGroup.visits.length} visits)
                 </h3>
                 <div className="space-y-2.5">

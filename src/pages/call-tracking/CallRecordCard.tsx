@@ -29,7 +29,7 @@ export default function CallRecordCard({
   const timeAgo = record.createdAt ? formatTimeAgo(record.createdAt) : "";
 
   return (
-    <div className="flex items-center justify-between p-3.5 border border-foreground/10 rounded-lg bg-background">
+    <div className="flex items-center justify-between p-3.5 border border-foreground/10 rounded-lg bg-background max-sm:flex-col max-sm:gap-4 max-sm:items-start">
       <div className="flex items-center space-x-3.5">
         <div className={`p-2 rounded-lg bg-gray-100/70 dark:bg-default-100`}>
           {isIncoming ? (
@@ -76,7 +76,7 @@ export default function CallRecordCard({
       </div>
 
       {/* RIGHT SECTION */}
-      <div className="flex items-center space-x-4">
+      <div className="flex items-center space-x-4 max-sm:justify-between max-sm:w-full">
         <div className="text-right text-sm text-gray-600 dark:text-foreground/60 space-y-1.5">
           <div className="flex items-center justify-end space-x-1">
             <FiClock className="h-3 w-3" aria-hidden="true" />

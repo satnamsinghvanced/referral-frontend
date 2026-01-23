@@ -75,18 +75,18 @@ function MediaManagement() {
     {
       page: 1,
       limit: 10,
-    }
+    },
   );
 
   const { data: folderData, isLoading: isLoadingFolder } = useGetFolderDetails(
-    currentFolderId as string
+    currentFolderId as string,
   );
 
   const { data: availableTagsData, isLoading: isTagsLoading } = useTagsQuery();
   const availableTags = availableTagsData?.tags;
 
   const { mutate: updateImageTags } = useUpdateImageTags(
-    viewMedia?._id as string
+    viewMedia?._id as string,
   );
 
   const subfolders = folderData?.subfolders || allFolders?.folders;
@@ -115,8 +115,8 @@ function MediaManagement() {
         prev.map((item) =>
           item.id === currentFolderId
             ? { ...item, name: folderData.folder.name }
-            : item
-        )
+            : item,
+        ),
       );
     }
   }, [folderData?.folder?.name, currentFolderId]);
@@ -185,7 +185,7 @@ function MediaManagement() {
           setDeleteMediaId("");
           setIsDeleteModalOpen(false);
         },
-      }
+      },
     );
   };
 
@@ -219,7 +219,7 @@ function MediaManagement() {
       });
 
       setViewMedia((prev) =>
-        prev ? { ...prev, tags: [...prev.tags, tag] } : null
+        prev ? { ...prev, tags: [...prev.tags, tag] } : null,
       );
     }
   };
@@ -239,7 +239,7 @@ function MediaManagement() {
   const currentFolderMediaGroup = mediaData?.find(
     (group: any) =>
       group.folderName ===
-      (currentFolderName === "Root" ? "Root" : currentFolderName)
+      (currentFolderName === "Root" ? "Root" : currentFolderName),
   );
   const currentFolderMedia = currentFolderMediaGroup?.images || [];
   const mediaCount = currentFolderMedia.length;
@@ -248,12 +248,12 @@ function MediaManagement() {
     <>
       <ComponentContainer headingData={HEADING_DATA}>
         <div className="flex flex-col gap-4 md:gap-5">
-          <div className="flex items-center justify-between gap-4 border border-foreground/10 rounded-xl p-4 bg-background">
+          <div className="md:flex md:items-center md:justify-between md:gap-4 max-md:space-y-4 border border-foreground/10 rounded-xl p-4 bg-background">
             <FolderBreadcrumb
               path={breadcrumbPath}
               onNavigate={(id: string) => onNavigateFolder(id)}
             />
-            <div className="space-x-2">
+            <div className="space-x-2 space-y-2">
               {selectedMedia.length > 0 && (
                 <>
                   <Button
@@ -319,7 +319,7 @@ function MediaManagement() {
           </div>
 
           <div className="border border-foreground/10 rounded-xl p-4 bg-background">
-            <div className="flex items-center gap-3">
+            <div className="md:flex md:items-center md:gap-3 max-md:space-y-3">
               <div className="relative flex-1">
                 <Input
                   placeholder="Search media by name or tags..."
@@ -392,7 +392,7 @@ function MediaManagement() {
 
           <div className="space-y-4 md:space-y-5">
             <Card className="border border-foreground/10 p-4 shadow-none bg-background">
-              <CardHeader className="p-0 pb-4 flex justify-between items-center">
+              <CardHeader className="p-0 pb-4 flex justify-between items-center max-md:flex-col max-md:gap-3 max-md:items-start">
                 <h4 className="flex items-center gap-2 text-sm font-medium text-foreground">
                   <FaRegFolder className="size-4" />
                   Folders
@@ -506,7 +506,7 @@ function MediaManagement() {
                             setSelectedMedia((prev: any) => [...prev, mediaId]);
                           } else {
                             setSelectedMedia((prev: any) =>
-                              prev?.filter((item: string) => item != mediaId)
+                              prev?.filter((item: string) => item != mediaId),
                             );
                           }
                         }}

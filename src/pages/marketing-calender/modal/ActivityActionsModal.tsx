@@ -3,6 +3,7 @@ import {
   DatePicker,
   Input,
   Modal,
+  ModalBody,
   ModalContent,
   ModalHeader,
   Select,
@@ -167,9 +168,11 @@ export default function ActivityActionsModal({
         closeButton: "cursor-pointer",
       }}
       size="2xl"
+      placement="center"
+      scrollBehavior="inside"
     >
-      <ModalContent className="p-4">
-        <ModalHeader className="flex flex-col gap-2 text-center sm:text-left flex-shrink-0 p-0">
+      <ModalContent>
+        <ModalHeader className="flex flex-col gap-2 flex-shrink-0 p-4">
           <div className="flex items-center space-x-2">
             <h4 className="text-base leading-none font-medium text-foreground">
               {modalTitle}
@@ -181,140 +184,138 @@ export default function ActivityActionsModal({
           </p>
         </ModalHeader>
 
-        <form
-          onSubmit={formik.handleSubmit}
-          className="space-y-4 pt-4 flex-1 overflow-y-auto"
-        >
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Input
-                id="title"
-                name="title"
-                label="Activity Title"
+        <ModalBody className="p-4 pt-0">
+          <form onSubmit={formik.handleSubmit} className="space-y-4 flex-1">
+            <div className="md:grid md:grid-cols-2 md:gap-4 max-md:space-y-4">
+              <div className="flex flex-col items-start">
+                <Input
+                  id="title"
+                  name="title"
+                  label="Activity Title"
+                  labelPlacement="outside-top"
+                  placeholder="Enter activity name"
+                  size="sm"
+                  radius="sm"
+                  value={formik.values.title}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  isInvalid={!!hasError("title")}
+                  isRequired
+                />
+                <ErrorText field="title" />
+              </div>
+              <div className="flex flex-col items-start">
+                <Select
+                  name="type"
+                  label="Activity Type"
+                  labelPlacement="outside"
+                  placeholder="Select type"
+                  size="sm"
+                  radius="sm"
+                  selectedKeys={formik.values.type ? [formik.values.type] : []}
+                  disabledKeys={formik.values.type ? [formik.values.type] : []}
+                  onSelectionChange={(keys) =>
+                    formik.setFieldValue("type", Array.from(keys)[0] as string)
+                  }
+                  onBlur={() => formik.setFieldTouched("type", true)}
+                  isInvalid={!!hasError("type")}
+                  isRequired
+                >
+                  {ACTIVITY_TYPES?.map((type) => (
+                    <SelectItem key={type.value}>{type.label}</SelectItem>
+                  ))}
+                </Select>
+                <ErrorText field="type" />
+              </div>
+            </div>
+
+            <div className="flex flex-col items-start">
+              <Textarea
+                id="description"
+                name="description"
+                label="Description"
                 labelPlacement="outside-top"
-                placeholder="Enter activity name"
+                placeholder="Describe the marketing activity and objectives"
                 size="sm"
                 radius="sm"
-                value={formik.values.title}
+                rows={3}
+                value={formik.values.description}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                isInvalid={!!hasError("title")}
-                isRequired
+                className="resize-none min-h-16"
+                isInvalid={!!hasError("description")}
+                classNames={{ inputWrapper: "py-2" }}
               />
-              <ErrorText field="title" />
+              <ErrorText field="description" />
             </div>
-            <div>
-              <Select
-                name="type"
-                label="Activity Type"
-                labelPlacement="outside"
-                placeholder="Select type"
-                size="sm"
-                radius="sm"
-                selectedKeys={formik.values.type ? [formik.values.type] : []}
-                disabledKeys={formik.values.type ? [formik.values.type] : []}
-                onSelectionChange={(keys) =>
-                  formik.setFieldValue("type", Array.from(keys)[0] as string)
-                }
-                onBlur={() => formik.setFieldTouched("type", true)}
-                isInvalid={!!hasError("type")}
-                isRequired
-              >
-                {ACTIVITY_TYPES?.map((type) => (
-                  <SelectItem key={type.value}>{type.label}</SelectItem>
-                ))}
-              </Select>
-              <ErrorText field="type" />
-            </div>
-          </div>
 
-          <div>
-            <Textarea
-              id="description"
-              name="description"
-              label="Description"
-              labelPlacement="outside-top"
-              placeholder="Describe the marketing activity and objectives"
-              size="sm"
-              radius="sm"
-              rows={3}
-              value={formik.values.description}
-              onChange={formik.handleChange}
-              onBlur={formik.handleBlur}
-              className="resize-none min-h-16"
-              isInvalid={!!hasError("description")}
-              classNames={{ inputWrapper: "py-2" }}
-            />
-            <ErrorText field="description" />
-          </div>
+            <div className="md:grid md:grid-cols-2 md:gap-4 max-md:space-y-4">
+              <div className="flex flex-col items-start">
+                <DatePicker
+                  id="startDate"
+                  name="startDate"
+                  label="Start Date"
+                  labelPlacement="outside"
+                  size="sm"
+                  radius="sm"
+                  value={
+                    formik.values.startDate
+                      ? keepUTCWallClock(formik.values.startDate)
+                      : null
+                  }
+                  minValue={now(getLocalTimeZone())}
+                  onChange={(dateObject) => {
+                    formik.setFieldValue(
+                      "startDate",
+                      dateObject ? dateObject.toString() + "Z" : null,
+                    );
+                  }}
+                  granularity="minute"
+                  onBlur={() => formik.setFieldTouched("startDate", true)}
+                  isInvalid={!!hasError("startDate")}
+                  isRequired
+                />
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <DatePicker
-                id="startDate"
-                name="startDate"
-                label="Start Date"
-                labelPlacement="outside"
-                size="sm"
-                radius="sm"
-                value={
-                  formik.values.startDate
-                    ? keepUTCWallClock(formik.values.startDate)
-                    : null
-                }
-                minValue={now(getLocalTimeZone())}
-                onChange={(dateObject) => {
-                  formik.setFieldValue(
-                    "startDate",
-                    dateObject ? dateObject.toString() + "Z" : null,
-                  );
-                }}
-                granularity="minute"
-                onBlur={() => formik.setFieldTouched("startDate", true)}
-                isInvalid={!!hasError("startDate")}
-                isRequired
-              />
-
-              <ErrorText field="startDate" />
-            </div>
-            <div>
-              <DatePicker
-                id="endDate"
-                name="endDate"
-                label="End Date"
-                labelPlacement="outside"
-                size="sm"
-                radius="sm"
-                value={
-                  formik.values.endDate
-                    ? keepUTCWallClock(formik.values.endDate)
-                    : null
-                }
-                minValue={
-                  formik.values.startDate
-                    ? keepUTCWallClock(formik.values.startDate)
-                    : now(getLocalTimeZone())
-                }
-                onChange={(dateObject) => {
-                  formik.setFieldValue(
-                    "endDate",
-                    dateObject ? dateObject.toString() + "Z" : null,
-                  );
-                }}
-                granularity="minute"
-                onBlur={() => formik.setFieldTouched("endDate", true)}
-                isInvalid={!!hasError("endDate")}
-              />
-
-              <div className="text-[11px] text-gray-500 dark:text-foreground/40 mt-1">
-                Leave empty for single-day activity
+                <ErrorText field="startDate" />
               </div>
-              <ErrorText field="endDate" />
-            </div>
-          </div>
+              <div className="flex flex-col items-start">
+                <DatePicker
+                  id="endDate"
+                  name="endDate"
+                  label="End Date"
+                  labelPlacement="outside"
+                  size="sm"
+                  radius="sm"
+                  value={
+                    formik.values.endDate
+                      ? keepUTCWallClock(formik.values.endDate)
+                      : null
+                  }
+                  minValue={
+                    formik.values.startDate
+                      ? keepUTCWallClock(formik.values.startDate)
+                      : now(getLocalTimeZone())
+                  }
+                  onChange={(dateObject) => {
+                    formik.setFieldValue(
+                      "endDate",
+                      dateObject ? dateObject.toString() + "Z" : null,
+                    );
+                  }}
+                  granularity="minute"
+                  onBlur={() => formik.setFieldTouched("endDate", true)}
+                  isInvalid={!!hasError("endDate")}
+                />
 
-          <div className="grid grid-cols-2 gap-4">
-            {/* <div>
+                <div className="text-[11px] text-gray-500 dark:text-foreground/40 mt-1">
+                  Leave empty for single-day activity
+                </div>
+                <ErrorText field="endDate" />
+              </div>
+            </div>
+
+            <div className="md:grid md:grid-cols-2 md:gap-4 max-md:space-y-4">
+              {/* <div>
               <Input
                 id="time"
                 name="time"
@@ -331,126 +332,131 @@ export default function ActivityActionsModal({
               />
               <ErrorText field="time" />
             </div> */}
-            <div>
-              <Select
-                name="priority"
-                label="Priority"
-                labelPlacement="outside"
-                placeholder="Select priority"
-                size="sm"
-                radius="sm"
-                selectedKeys={[formik.values.priority]}
-                disabledKeys={[formik.values.priority]}
-                onSelectionChange={(keys) =>
-                  formik.setFieldValue(
-                    "priority",
-                    Array.from(keys)[0] as string,
-                  )
-                }
-                onBlur={() => formik.setFieldTouched("priority", true)}
-                isInvalid={!!hasError("priority")}
-                isRequired
-              >
-                {PRIORITY_LEVELS.map((priority) => (
-                  <SelectItem key={priority.value}>{priority.label}</SelectItem>
-                ))}
-              </Select>
-              <ErrorText field="priority" />
-            </div>
-            <div>
-              <Input
-                id="budget"
-                name="budget"
-                type="number"
-                label="Budget"
-                labelPlacement="outside-top"
-                placeholder="0"
-                size="sm"
-                radius="sm"
-                value={String(formik.values.budget) as string}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                isInvalid={!!hasError("budget")}
-                startContent={
-                  <span className="text-gray-500 dark:text-foreground/40">
-                    $
-                  </span>
-                }
-              />
-              <ErrorText field="budget" />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className={`${isEditing ? "col-span-1" : "col-span-2"}`}>
-              <Input
-                id="platform"
-                name="platform"
-                label="Platform/Location"
-                labelPlacement="outside-top"
-                placeholder="Facebook, Instagram, Email, etc."
-                size="sm"
-                radius="sm"
-                value={formik.values.platform}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                isInvalid={!!hasError("platform")}
-              />
-              <ErrorText field="platform" />
-            </div>
-            {isEditing && (
-              <div>
+              <div className="flex flex-col items-start">
                 <Select
-                  name="status"
-                  label="Status"
+                  name="priority"
+                  label="Priority"
                   labelPlacement="outside"
-                  placeholder="Select status"
+                  placeholder="Select priority"
                   size="sm"
                   radius="sm"
-                  selectedKeys={[formik.values.status as any]}
-                  disabledKeys={[formik.values.status as any]}
+                  selectedKeys={[formik.values.priority]}
+                  disabledKeys={[formik.values.priority]}
                   onSelectionChange={(keys) =>
                     formik.setFieldValue(
-                      "status",
+                      "priority",
                       Array.from(keys)[0] as string,
                     )
                   }
-                  onBlur={() => formik.setFieldTouched("status", true)}
-                  isInvalid={!!hasError("status")}
+                  onBlur={() => formik.setFieldTouched("priority", true)}
+                  isInvalid={!!hasError("priority")}
+                  isRequired
                 >
-                  {ACTIVITY_STATUSES.map((status) => (
-                    <SelectItem key={status.value}>{status.label}</SelectItem>
+                  {PRIORITY_LEVELS.map((priority) => (
+                    <SelectItem key={priority.value}>
+                      {priority.label}
+                    </SelectItem>
                   ))}
                 </Select>
-                <ErrorText field="status" />
+                <ErrorText field="priority" />
               </div>
-            )}
-          </div>
+              <div className="flex flex-col items-start">
+                <Input
+                  id="budget"
+                  name="budget"
+                  type="number"
+                  label="Budget"
+                  labelPlacement="outside-top"
+                  placeholder="0"
+                  size="sm"
+                  radius="sm"
+                  value={String(formik.values.budget) as string}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  isInvalid={!!hasError("budget")}
+                  startContent={
+                    <span className="text-gray-500 dark:text-foreground/40">
+                      $
+                    </span>
+                  }
+                />
+                <ErrorText field="budget" />
+              </div>
+            </div>
 
-          <div className="flex justify-end space-x-2 pt-1">
-            <Button
-              variant="bordered"
-              size="sm"
-              radius="sm"
-              className="border-small border-gray-300 dark:border-default-200 text-gray-700 dark:text-foreground/70"
-              onPress={onClose}
-              type="button"
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="solid"
-              color="primary"
-              size="sm"
-              radius="sm"
-              type="submit"
-              isLoading={isSubmitting}
-              isDisabled={!formik.isValid || !formik.dirty || isSubmitting}
-            >
-              {buttonText}
-            </Button>
-          </div>
-        </form>
+            <div className="md:grid md:grid-cols-2 md:gap-4 max-md:space-y-4">
+              <div
+                className={`${isEditing ? "col-span-1" : "col-span-2"} flex flex-col items-start`}
+              >
+                <Input
+                  id="platform"
+                  name="platform"
+                  label="Platform/Location"
+                  labelPlacement="outside-top"
+                  placeholder="Facebook, Instagram, Email, etc."
+                  size="sm"
+                  radius="sm"
+                  value={formik.values.platform}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  isInvalid={!!hasError("platform")}
+                />
+                <ErrorText field="platform" />
+              </div>
+              {isEditing && (
+                <div className="flex flex-col items-start">
+                  <Select
+                    name="status"
+                    label="Status"
+                    labelPlacement="outside"
+                    placeholder="Select status"
+                    size="sm"
+                    radius="sm"
+                    selectedKeys={[formik.values.status as any]}
+                    disabledKeys={[formik.values.status as any]}
+                    onSelectionChange={(keys) =>
+                      formik.setFieldValue(
+                        "status",
+                        Array.from(keys)[0] as string,
+                      )
+                    }
+                    onBlur={() => formik.setFieldTouched("status", true)}
+                    isInvalid={!!hasError("status")}
+                  >
+                    {ACTIVITY_STATUSES.map((status) => (
+                      <SelectItem key={status.value}>{status.label}</SelectItem>
+                    ))}
+                  </Select>
+                  <ErrorText field="status" />
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end space-x-2 pt-1">
+              <Button
+                variant="bordered"
+                size="sm"
+                radius="sm"
+                className="border-small border-gray-300 dark:border-default-200 text-gray-700 dark:text-foreground/70"
+                onPress={onClose}
+                type="button"
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="solid"
+                color="primary"
+                size="sm"
+                radius="sm"
+                type="submit"
+                isLoading={isSubmitting}
+                isDisabled={!formik.isValid || !formik.dirty || isSubmitting}
+              >
+                {buttonText}
+              </Button>
+            </div>
+          </form>
+        </ModalBody>
       </ModalContent>
     </Modal>
   );

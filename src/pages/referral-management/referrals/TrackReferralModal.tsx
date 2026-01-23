@@ -177,6 +177,7 @@ const TrackReferralModal = ({
       isOpen={isOpen}
       onClose={onClose}
       size="md"
+      placement="center"
       scrollBehavior="inside"
       classNames={{
         base: `max-sm:!m-3 !m-0`,

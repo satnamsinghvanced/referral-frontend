@@ -122,6 +122,8 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({ isOpen, onClose }) => {
       isOpen={isOpen}
       onClose={onClose}
       size="lg"
+      placement="center"
+      scrollBehavior="inside"
       classNames={{
         base: `max-sm:!m-3 !m-0`,
         closeButton: "cursor-pointer",

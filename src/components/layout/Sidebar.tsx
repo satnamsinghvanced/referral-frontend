@@ -231,7 +231,7 @@ const Sidebar = ({
       />
 
       <aside
-        className={`no-print fixed top-0 left-0 z-50 h-screen border-r border-foreground/10  bg-background   transition-all duration-300
+        className={`sidebar fixed top-0 left-0 z-50 h-screen border-r border-foreground/10 bg-background transition-all duration-300
           ${isMiniSidebarOpen ? "md:w-[250px] w-[300px]" : "w-18"}
         `}
         aria-label="Primary sidebar"

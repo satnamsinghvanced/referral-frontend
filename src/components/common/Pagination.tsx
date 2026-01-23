@@ -17,7 +17,7 @@ const Pagination = ({
   handlePageChange: (page: number) => void;
 }) => {
   return (
-    <div className="flex items-center justify-between gap-2">
+    <div className="flex items-center justify-between gap-2 max-sm:flex-col-reverse max-sm:mt-1 max-sm:gap-3">
       <p className="text-xs text-gray-600 dark:text-gray-400">
         Showing {limit * (currentPage - 1) + 1} -{" "}
         {limit * currentPage > totalItems ? totalItems : limit * currentPage} of{" "}

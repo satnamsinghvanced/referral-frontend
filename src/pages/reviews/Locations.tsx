@@ -151,7 +151,7 @@ const Locations = () => {
             cursor={{ fill: "rgba(128, 128, 128, 0.1)" }}
             isAnimationActive
           />
-          <Legend wrapperStyle={{ bottom: "-2px" }} />
+          <Legend wrapperStyle={{ bottom: "-4px" }} />
           <Bar
             dataKey="reviews"
             name="Reviews"

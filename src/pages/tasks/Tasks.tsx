@@ -99,7 +99,7 @@ function Tasks() {
         "Manage and prioritize tasks for efficient practice operations.",
       buttons: TASKS_BUTONS,
     }),
-    [TASKS_BUTONS]
+    [TASKS_BUTONS],
   );
 
   const STAT_CARD_DATA = [
@@ -152,7 +152,7 @@ function Tasks() {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 max-md:grid-cols-1">
             <Select
               aria-label="Task Status"
               placeholder="All Statuses"

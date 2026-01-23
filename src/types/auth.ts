@@ -94,3 +94,8 @@ export interface ReviewsExportResponse {
   }[];
   recentReviews: any[];
 }
+
+export interface LogoutResponse {
+  success: boolean;
+  message: string;
+}

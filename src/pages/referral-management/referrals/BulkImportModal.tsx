@@ -89,6 +89,7 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
       isOpen={isOpen}
       onClose={onClose}
       size="md"
+      placement="center"
       scrollBehavior="inside"
       classNames={{
         base: `max-sm:!m-3 !m-0`,
@@ -131,16 +132,16 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
               </div>
 
               {/* Download Template Section */}
-              <div className="border border-foreground/10 rounded-xl p-4 flex items-center justify-between">
+              <div className="border border-foreground/10 rounded-xl p-4 md:flex md:items-center md:justify-between max-md:space-y-4">
                 <div className="flex items-center gap-2.5">
-                  <div className="size-10 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-primary dark:text-blue-500 flex items-center justify-center">
+                  <div className="size-10 min-w-10 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-primary dark:text-blue-500 flex items-center justify-center">
                     <FiDownload className="size-5" />
                   </div>
-                  <div>
+                  <div className="space-y-1">
                     <p className="text-sm font-medium text-gray-900 dark:text-white">
                       Download Template
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-foreground/40 max-w-[150px]">
+                    <p className="text-xs text-gray-500 dark:text-foreground/40 md:max-w-[150px]">
                       Get our pre-formatted CSV template with example data
                     </p>
                   </div>

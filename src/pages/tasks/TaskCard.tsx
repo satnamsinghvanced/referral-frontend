@@ -38,7 +38,7 @@ function TaskCard({
         <TaskPriorityChip priority={task.priority} />
       </CardHeader>
       <CardBody className="p-0 overflow-hidden">
-        <div className="flex flex-row justify-between">
+        <div className="md:flex md:justify-between max-md:space-y-3">
           <div className="space-y-2">
             <p className="text-gray-600 dark:text-foreground/60 text-xs flex items-center gap-1.5">
               <LuBuilding2 fontSize={14} /> {task.practiceId?.name}
@@ -55,7 +55,7 @@ function TaskCard({
               {task.isOverDue && <LuInfo fontSize={12} />}
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 max-md:flex-row-reverse max-md:justify-between">
             <div className="flex items-center gap-1">
               <Button
                 isIconOnly

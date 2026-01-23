@@ -20,7 +20,7 @@ const TrackReferralBar = ({
           Add referrals individually or import them in bulk from a spreadsheet
         </p>
       </div>
-      <div className="flex items-center gap-2.5 w-full sm:w-auto">
+      <div className="flex items-center gap-2.5 w-full sm:w-auto max-sm:justify-center">
         <Button
           size="sm"
           radius="sm"

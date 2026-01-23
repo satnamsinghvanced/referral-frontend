@@ -163,7 +163,7 @@ const Reports = () => {
                   {reports.map((report: Report) => (
                     <div
                       key={report._id}
-                      className="flex items-center justify-between border border-foreground/10 p-4 bg-content1 rounded-lg"
+                      className="md:flex md:items-center md:justify-between max-md:space-y-4 border border-foreground/10 p-4 bg-content1 rounded-lg"
                     >
                       <div className="flex items-center gap-3">
                         <LuFileText className="size-5 text-gray-500 dark:text-foreground/40" />

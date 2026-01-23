@@ -162,11 +162,11 @@ export const GoogleAds: React.FC = () => {
     <div className="space-y-4 md:space-y-5">
       <div className="flex items-center gap-3 mb-6">
         <SiGoogleads className="size-7 text-sky-600" aria-hidden="true" />
-        <div>
-          <h2 className="text-xl font-medium text-foreground">
+        <div className="max-md:space-y-1">
+          <h2 className="text-md md:text-xl font-medium text-foreground">
             Google Ads Performance
           </h2>
-          <p className="text-foreground/60 text-[14px]">
+          <p className="text-foreground/60 text-xs md:text-sm">
             Track your Google Ads campaigns, spending, and conversions
           </p>
         </div>
@@ -181,9 +181,9 @@ export const GoogleAds: React.FC = () => {
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         <Card
           shadow="none"
-          className="border border-foreground/10 bg-white dark:bg-background p-5"
+          className="border border-foreground/10 bg-white dark:bg-background p-4 md:p-5"
         >
-          <CardHeader className="p-0 pb-8">
+          <CardHeader className="p-0 pb-5 md:pb-8">
             <h4 className="text-sm font-medium flex items-center gap-2">
               <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
               Google Ads Performance Trends
@@ -196,9 +196,9 @@ export const GoogleAds: React.FC = () => {
 
         <Card
           shadow="none"
-          className="border border-foreground/10 bg-white dark:bg-background p-5"
+          className="border border-foreground/10 bg-white dark:bg-background p-4 md:p-5"
         >
-          <CardHeader className="p-0 pb-8">
+          <CardHeader className="p-0 pb-5 md:pb-8">
             <h4 className="text-sm font-medium flex items-center gap-2">
               <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
               Ad Spending & CPC Trends
@@ -253,7 +253,7 @@ export const GoogleAds: React.FC = () => {
 
       <Card
         shadow="none"
-        className="border border-foreground/10 bg-white dark:bg-background p-5"
+        className="border border-foreground/10 bg-white dark:bg-background p-4 md:p-5"
       >
         <CardHeader className="p-0 pb-4">
           <h4 className="text-sm font-medium flex items-center gap-2">
@@ -269,22 +269,22 @@ export const GoogleAds: React.FC = () => {
                 <th className="text-left text-xs py-3 px-2 font-medium text-foreground/70">
                   Campaign
                 </th>
-                <th className="text-right text-xs py-3 px-2 font-medium text-foreground/70">
+                <th className="text-right text-xs py-3 px-2 font-medium text-foreground/70 whitespace-nowrap">
                   Impressions
                 </th>
-                <th className="text-right text-xs py-3 px-2 font-medium text-foreground/70">
+                <th className="text-right text-xs py-3 px-2 font-medium text-foreground/70 whitespace-nowrap">
                   Clicks
                 </th>
-                <th className="text-right text-xs py-3 px-2 font-medium text-foreground/70">
+                <th className="text-right text-xs py-3 px-2 font-medium text-foreground/70 whitespace-nowrap">
                   CTR
                 </th>
-                <th className="text-right text-xs py-3 px-2 font-medium text-foreground/70">
+                <th className="text-right text-xs py-3 px-2 font-medium text-foreground/70 whitespace-nowrap">
                   Conversions
                 </th>
-                <th className="text-right text-xs py-3 px-2 font-medium text-foreground/70">
+                <th className="text-right text-xs py-3 px-2 font-medium text-foreground/70 whitespace-nowrap">
                   Conv. Rate
                 </th>
-                <th className="text-right text-xs not-odd:py-3 px-2 font-medium text-foreground/70">
+                <th className="text-right text-xs not-odd:py-3 px-2 font-medium text-foreground/70 whitespace-nowrap">
                   Spend
                 </th>
               </tr>

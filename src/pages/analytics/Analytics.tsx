@@ -43,7 +43,7 @@ const Analytics: React.FC = () => {
   const renderTrend = (
     status: string,
     percentage: number,
-    label: string = "from last month"
+    label: string = "from last month",
   ) => {
     const isIncrement = status === "increment" || percentage > 0;
     const isDecrement = status === "decrement" || percentage < 0;
@@ -51,14 +51,14 @@ const Analytics: React.FC = () => {
     const colorClass = isIncrement
       ? "text-green-600 dark:text-emerald-400"
       : isDecrement
-      ? "text-red-600 dark:text-red-400"
-      : "text-gray-500";
+        ? "text-red-600 dark:text-red-400"
+        : "text-gray-500";
 
     const Icon = isIncrement
       ? LuTrendingUp
       : isDecrement
-      ? LuTrendingDown
-      : null;
+        ? LuTrendingDown
+        : null;
 
     return (
       <span className={`${colorClass} flex items-center`}>
@@ -77,7 +77,7 @@ const Analytics: React.FC = () => {
         : data?.stats?.monthlyReferrals?.totalReferrals?.toString() || "0",
       subheading: renderTrend(
         data?.stats?.monthlyReferrals?.status || "",
-        data?.stats?.monthlyReferrals?.percentage || 0
+        data?.stats?.monthlyReferrals?.percentage || 0,
       ),
     },
     {
@@ -89,7 +89,7 @@ const Analytics: React.FC = () => {
       subheading: renderTrend(
         data?.stats?.conversionRate?.status || "",
         data?.stats?.conversionRate?.percentage || 0,
-        "conversion performance"
+        "conversion performance",
       ),
     },
     {
@@ -100,7 +100,7 @@ const Analytics: React.FC = () => {
         : data?.stats?.appointments?.totalAppointments?.toString() || "0",
       subheading: renderTrend(
         data?.stats?.appointments?.status || "",
-        data?.stats?.appointments?.percentage || 0
+        data?.stats?.appointments?.percentage || 0,
       ),
     },
     {
@@ -112,7 +112,7 @@ const Analytics: React.FC = () => {
       subheading: renderTrend(
         data?.stats?.revenue?.status || "",
         data?.stats?.revenue?.percentage || 0,
-        "revenue growth"
+        "revenue growth",
       ),
     },
   ];
@@ -142,7 +142,7 @@ const Analytics: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card
             shadow="none"
-            className="border border-foreground/10 bg-white dark:bg-background p-5"
+            className="border border-foreground/10 bg-white dark:bg-background p-4 md:p-5"
           >
             <CardHeader className="p-0 pb-4">
               <h4 className="text-sm font-medium flex items-center gap-2">
@@ -188,9 +188,9 @@ const Analytics: React.FC = () => {
 
           <Card
             shadow="none"
-            className="border border-foreground/10 bg-white dark:bg-background p-5"
+            className="border border-foreground/10 bg-white dark:bg-background p-4 md:p-5"
           >
-            <CardHeader className="p-0 pb-8">
+            <CardHeader className="p-0 pb-5 md:pb-8">
               <h4 className="text-sm font-medium flex items-center gap-2">
                 <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
                 Performance Trends
@@ -253,9 +253,9 @@ const Analytics: React.FC = () => {
 
           <Card
             shadow="none"
-            className="border border-foreground/10 bg-white dark:bg-background p-5 col-span-2"
+            className="border border-foreground/10 bg-white dark:bg-background p-4 md:p-5 md:col-span-2"
           >
-            <CardHeader className="p-0 pb-8">
+            <CardHeader className="p-0 pb-5 md:pb-8">
               <h4 className="text-sm font-medium flex items-center gap-2">
                 <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
                 Weekly Activity Overview

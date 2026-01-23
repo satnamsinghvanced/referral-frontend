@@ -130,7 +130,7 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
       </div>
 
       {/* Right Section (Buttons) */}
-      <div className="flex md:justify-end items-center gap-2 md:ml-3">
+      <div className="flex md:justify-end items-center gap-2 md:ml-3 flex-wrap">
         {buttons(referrer).map((btn, index) => {
           const buttonElement = (
             <Button

@@ -123,6 +123,7 @@ export default function GoogleAdsConfigModal({
         closeButton: "cursor-pointer",
       }}
       size="md"
+      placement="center"
     >
       <ModalContent>
         <form onSubmit={formik.handleSubmit}>

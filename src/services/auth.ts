@@ -1,7 +1,7 @@
-import { AxiosResponse } from "axios";
 import {
   ActionResponse,
   AnalyticsExportResponse,
+  LogoutResponse,
   ReferralExportItem,
   ReviewsExportResponse,
 } from "../types/auth";
@@ -65,5 +65,10 @@ export const exportAnalytics = async (): Promise<AnalyticsExportResponse> => {
 // 5. Export Reviews
 export const exportReviews = async (): Promise<ReviewsExportResponse> => {
   const response = await axios.get("/users/export-reviews");
+  return response.data;
+};
+
+export const logoutUser = async (): Promise<LogoutResponse> => {
+  const response = await axios.post("/users/logout");
   return response.data;
 };

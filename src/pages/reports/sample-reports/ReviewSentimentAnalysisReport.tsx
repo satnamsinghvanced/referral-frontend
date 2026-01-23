@@ -42,7 +42,7 @@ const StarRating: React.FC<{ rating: number; maxStars?: number }> = ({
             ? "fill-yellow-500 text-yellow-500"
             : "text-gray-300 dark:text-foreground/20"
         }`}
-      />
+      />,
     );
   }
   return <div className="flex items-center gap-1">{stars}</div>;
@@ -289,7 +289,7 @@ const CustomCard: React.FC<
 > = ({ title, children, className = "" }) => (
   <Card
     shadow="none"
-    className={`bg-background text-card-foreground flex flex-col rounded-xl p-5 border border-foreground/10 ${className}`}
+    className={`bg-background text-card-foreground flex flex-col rounded-xl p-4 border border-foreground/10 ${className}`}
   >
     {title && (
       <CardHeader className="p-0 pb-4">
@@ -421,8 +421,8 @@ const ReviewSentimentAnalysisReport = () => {
                         sentiment.color === "green"
                           ? "success"
                           : sentiment.color === "yellow"
-                          ? "warning"
-                          : "danger"
+                            ? "warning"
+                            : "danger"
                       }
                       className="h-2.5"
                       radius="full"
@@ -464,7 +464,7 @@ const ReviewSentimentAnalysisReport = () => {
                       "text-[11px] h-5",
                       THEME_STYLES[
                         platformData.color as keyof typeof THEME_STYLES
-                      ]?.badge || THEME_STYLES.default.badge
+                      ]?.badge || THEME_STYLES.default.badge,
                     )}
                   >
                     {platformData.positive}% positive
@@ -483,7 +483,7 @@ const ReviewSentimentAnalysisReport = () => {
                 shadow="none"
                 className="border border-foreground/10 dark:bg-background/50 p-4 rounded-lg"
               >
-                <CardHeader className="flex items-start justify-between p-0 pb-3">
+                <CardHeader className="flex items-start justify-between p-0 pb-3 max-md:flex-col max-md:gap-3">
                   <div className="flex items-center gap-3">
                     <div className="flex items-center gap-1">
                       <StarRating rating={review.stars} />
@@ -500,7 +500,7 @@ const ReviewSentimentAnalysisReport = () => {
                         size="sm"
                         radius="sm"
                         className={`text-[11px] h-5 ${getSentimentBadge(
-                          review.sentiment
+                          review.sentiment,
                         )}`}
                       >
                         {review.sentiment}
@@ -540,7 +540,7 @@ const ReviewSentimentAnalysisReport = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
           <Card
             shadow="none"
-            className="border border-foreground/10 p-5 bg-background"
+            className="border border-foreground/10 p-4 bg-background"
           >
             <CardHeader className="p-0 pb-4 flex items-center gap-2">
               <IoMdTrendingUp
@@ -560,13 +560,13 @@ const ReviewSentimentAnalysisReport = () => {
                       key={index}
                       className={clsx(
                         "p-3 rounded-lg border space-y-1",
-                        styles.insight
+                        styles.insight,
                       )}
                     >
                       <h4
                         className={clsx(
                           "text-sm font-medium",
-                          styles.textTitle
+                          styles.textTitle,
                         )}
                       >
                         {insight.title}
@@ -583,7 +583,7 @@ const ReviewSentimentAnalysisReport = () => {
 
           <Card
             shadow="none"
-            className="border border-foreground/10 p-5 bg-background"
+            className="border border-foreground/10 p-4 bg-background"
           >
             <CardHeader className="p-0 pb-4 flex items-center gap-2">
               <LuUsers
@@ -603,13 +603,13 @@ const ReviewSentimentAnalysisReport = () => {
                       key={index}
                       className={clsx(
                         "pl-4 p-3 rounded-r-lg space-y-1",
-                        styles.recommendation
+                        styles.recommendation,
                       )}
                     >
                       <h4
                         className={clsx(
                           "text-sm font-medium",
-                          styles.textTitle
+                          styles.textTitle,
                         )}
                       >
                         {rec.title}

@@ -103,7 +103,7 @@ const MarketingCalendar = () => {
           setSelectedActivity(null);
           marketingActivitiesRefetch();
         },
-      }
+      },
     );
   };
 
@@ -226,11 +226,11 @@ const MarketingCalendar = () => {
         <div className="flex flex-col gap-3 max-h-[315px] overflow-y-auto">
           {filteredActivities.map((activity: any) => {
             const activityType = ACTIVITY_TYPES.find(
-              (activityType: any) => activityType.value == activity.type
+              (activityType: any) => activityType.value == activity.type,
             )?.label;
 
             const activityColor = ACTIVITY_TYPES.find(
-              (activityType: any) => activityType.value === activity.type
+              (activityType: any) => activityType.value === activity.type,
             )?.color.value;
 
             return (
@@ -301,7 +301,7 @@ const MarketingCalendar = () => {
       <ComponentContainer headingData={HEADING_DATA}>
         <div className="flex flex-col gap-4 md:gap-5">
           {!isGoogleCalendarConnected && !isGoogleCalendarLoading && (
-            <div className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-500/30 rounded-lg p-3 flex items-center justify-between">
+            <div className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-500/30 rounded-lg p-3 flex items-center justify-between flex-wrap gap-3">
               <p className="text-sm text-yellow-800 dark:text-yellow-200/80">
                 Google Calendar is not connected. Connect your Google Calendar
                 to sync activities.
@@ -325,7 +325,7 @@ const MarketingCalendar = () => {
               ))}
             </div>
           </div>
-          <div className="grid grid-cols-4 gap-4">
+          <div className="lg:grid lg:grid-cols-4 lg:gap-4 max-lg:space-y-4">
             <div className="col-start-1 col-end-4">
               <div className="w-full shadow-none bg-background border border-foreground/10 rounded-xl">
                 <CustomCalendar
@@ -335,7 +335,7 @@ const MarketingCalendar = () => {
                     setSelectedEndDate(
                       start.getTime() !== end.getTime()
                         ? end.toISOString()
-                        : null
+                        : null,
                     );
                     setSelectedActivity(null);
                     setIsModalOpen(true);
@@ -387,7 +387,7 @@ const MarketingCalendar = () => {
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-3 border border-foreground/10 rounded-xl p-4 bg-background shadow-none">
+          <div className="md:flex md:items-center md:gap-3 max-md:space-y-3 border border-foreground/10 rounded-xl p-4 bg-background shadow-none">
             <Input
               size="sm"
               variant="flat"
@@ -409,7 +409,7 @@ const MarketingCalendar = () => {
               onSelectionChange={(keys) =>
                 handleFilterChange("type", Array.from(keys)[0] as string)
               }
-              className="max-w-60"
+              className="md:max-w-60"
             >
               <>
                 <SelectItem key="all" className="capitalize">
@@ -439,7 +439,7 @@ const MarketingCalendar = () => {
               />
             ) : (
               <>
-                <div className="grid grid-cols-3 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {activities.map((activity: any) => (
                     <ActivityCard
                       key={activity._id}

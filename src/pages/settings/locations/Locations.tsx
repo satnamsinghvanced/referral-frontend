@@ -61,7 +61,7 @@ const Locations: React.FC = () => {
   return (
     <>
       <Card className="rounded-xl shadow-none border border-foreground/10 bg-background">
-        <CardHeader className="flex items-center justify-between px-4 pt-4 pb-1">
+        <CardHeader className="flex items-center justify-between gap-3 flex-wrap px-4 pt-4 pb-1">
           <div className="flex items-center gap-2">
             <GrLocation className="size-5" />
             <h4 className="text-base">Practice Locations</h4>

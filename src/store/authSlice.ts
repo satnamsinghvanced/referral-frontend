@@ -1,5 +1,8 @@
-import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { jwtDecode } from "jwt-decode";
+import { disconnectSocket } from "../services/socket";
+import { logoutUser } from "../services/auth";
+import { queryClient } from "../providers/QueryProvider";
 
 interface User {
   firstName: string;
@@ -50,6 +53,26 @@ const initialState: AuthState = {
   error: null,
 };
 
+export const handleLogoutThunk = createAsyncThunk(
+  "auth/handleLogout",
+  async (_, { dispatch }) => {
+    try {
+      // 1. Disconnect Socket
+      disconnectSocket();
+
+      // 2. Notify Server
+      await logoutUser();
+    } catch (error) {
+      console.error("Server logout failed", error);
+    } finally {
+      // 3. Clear Local State (Always happens even if API fails)
+      dispatch(authSlice.actions.logout());
+      queryClient.clear();
+      window.location.href = `${import.meta.env.VITE_URL_PREFIX}/signin`;
+    }
+  },
+);
+
 const authSlice = createSlice({
   name: "auth",
   initialState,
@@ -82,7 +105,10 @@ const authSlice = createSlice({
       localStorage.setItem("user", JSON.stringify(user));
     },
 
-    updateUserFirstName: (state, action: PayloadAction<{ firstName: string }>) => {
+    updateUserFirstName: (
+      state,
+      action: PayloadAction<{ firstName: string }>,
+    ) => {
       if (state.user) {
         state.user.firstName = action.payload.firstName;
         localStorage.setItem("user", JSON.stringify(state.user));
@@ -103,7 +129,7 @@ const authSlice = createSlice({
 
     loginSuccess: (
       state,
-      action: PayloadAction<{ user: User; token: string }>
+      action: PayloadAction<{ user: User; token: string }>,
     ) => {
       // state.user = action.payload.user;
       // state.token = action.payload.token;
@@ -114,6 +140,11 @@ const authSlice = createSlice({
   },
 });
 
-export const { setCredentials, updateUserFirstName, logout, clearError, loginSuccess } =
-  authSlice.actions;
+export const {
+  setCredentials,
+  updateUserFirstName,
+  logout,
+  clearError,
+  loginSuccess,
+} = authSlice.actions;
 export default authSlice.reducer;

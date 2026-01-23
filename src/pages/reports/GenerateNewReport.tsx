@@ -137,6 +137,7 @@ const GenerateNewReportModal = ({
     <Modal
       isOpen={isOpen}
       onOpenChange={onClose}
+      placement="center"
       size="md"
       classNames={{
         base: `max-sm:!m-3 !m-0`,
@@ -222,7 +223,7 @@ const GenerateNewReportModal = ({
             </Select>
 
             {formData.timeRange === "custom" && (
-              <div className="flex gap-4">
+              <div className="md:flex md:gap-4 space-y-5">
                 <div className="flex-1">
                   <DatePicker
                     label="Start Date"

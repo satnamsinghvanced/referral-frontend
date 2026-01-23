@@ -1,4 +1,4 @@
-import { Button, Checkbox } from "@heroui/react";
+import { Button } from "@heroui/react";
 import { FormikProps } from "formik";
 import { BiUserPlus } from "react-icons/bi";
 import { FaStethoscope } from "react-icons/fa";
@@ -58,55 +58,57 @@ export default function StaffSection({
           </Button>
         </div>
       ) : (
-        formik.values.staff.map((member: any, index: number) => (
-          <div
-            key={index}
-            className="bg-gray-50 dark:bg-content1 p-4 rounded-lg mb-4 border border-foreground/10"
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center justify-between gap-2">
-                {member.isDentist ? (
-                  <FaStethoscope className="text-blue-600 dark:text-blue-500 text-[15px] w-4" />
-                ) : (
-                  <LuUserRound className="dark:text-foreground/60" />
-                )}
-                <span className="text-sm font-medium dark:text-white">
-                  Staff Member {index + 1}
-                </span>
+        <div className="space-y-4">
+          {formik.values.staff.map((member: any, index: number) => (
+            <div
+              key={index}
+              className="bg-gray-50 dark:bg-content1 p-4 rounded-lg border border-foreground/10"
+            >
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center justify-between gap-2">
+                  {member.isDentist ? (
+                    <FaStethoscope className="text-blue-600 dark:text-blue-500 text-[15px] w-4" />
+                  ) : (
+                    <LuUserRound className="dark:text-foreground/60" />
+                  )}
+                  <span className="text-sm font-medium dark:text-white">
+                    Staff Member {index + 1}
+                  </span>
+                </div>
+                <Button
+                  size="sm"
+                  variant="light"
+                  color="danger"
+                  isIconOnly
+                  onPress={() => handleRemoveStaff(index)}
+                  type="button"
+                >
+                  <FiTrash2 className="text-base" />
+                </Button>
               </div>
-              <Button
-                size="sm"
-                variant="light"
-                color="danger"
-                isIconOnly
-                onPress={() => handleRemoveStaff(index)}
-                type="button"
-              >
-                <FiTrash2 className="text-base" />
-              </Button>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-2.5">
+                {staffMemberFields.map((f) => {
+                  const isExperienceField = f.id === "experience";
+                  const isDoctor = member.isDentist;
+
+                  if (isExperienceField && !isDoctor) {
+                    return null;
+                  }
+
+                  return (
+                    <div
+                      key={`${f.id}-${index}`}
+                      className={f.isFullWidth ? "md:col-span-2" : ""}
+                    >
+                      {renderArrayField(f, index)}
+                    </div>
+                  );
+                })}
+              </div>
             </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-2.5">
-              {staffMemberFields.map((f) => {
-                const isExperienceField = f.id === "experience";
-                const isDoctor = member.isDentist;
-
-                if (isExperienceField && !isDoctor) {
-                  return null;
-                }
-
-                return (
-                  <div
-                    key={`${f.id}-${index}`}
-                    className={f.isFullWidth ? "md:col-span-2" : ""}
-                  >
-                    {renderArrayField(f, index)}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        ))
+          ))}
+        </div>
       )}
     </div>
   );

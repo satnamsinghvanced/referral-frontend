@@ -35,7 +35,7 @@ export default function ViewScheduledVisitModal({
     const activeCoordinateString = plan.route.routeDetails
       .map(
         (stop: any) =>
-          `${stop.address.coordinates.long},${stop.address.coordinates.lat}`
+          `${stop.address.coordinates.long},${stop.address.coordinates.lat}`,
       )
       .join(";");
 
@@ -43,7 +43,7 @@ export default function ViewScheduledVisitModal({
 
     // Passing optimized as true since this is a saved route that was presumably optimized if intended
     const url = `${baseUrl}?coordinates=${encodeURIComponent(
-      activeCoordinateString
+      activeCoordinateString,
     )}&optimized=true`;
 
     window.open(url, "_blank");
@@ -54,6 +54,8 @@ export default function ViewScheduledVisitModal({
       isOpen={isOpen}
       onOpenChange={onClose}
       size="md"
+      placement="center"
+      scrollBehavior="inside"
       classNames={{
         base: `max-sm:!m-3 !m-0`,
         closeButton: "cursor-pointer",
@@ -61,7 +63,7 @@ export default function ViewScheduledVisitModal({
     >
       <ModalContent className="max-h-[95vh] overflow-hidden w-full">
         {/* Modal Header */}
-        <ModalHeader className="flex gap-1 text-center sm:text-left p-4">
+        <ModalHeader className="flex gap-1 p-4">
           <h4 className="text-base font-medium flex items-center gap-2 text-foreground">
             <TbCalendarStats className="h-6 w-6 text-blue-600 dark:text-blue-400" />
             <span>{plan?.planDetails?.name}</span>

@@ -30,6 +30,7 @@ const DeleteConfirmationModal = ({
       isOpen={isOpen}
       onClose={onClose}
       size="lg"
+      placement="center"
       isDismissable={!isLoading}
       classNames={{
         base: `max-sm:!m-3 !m-0`,

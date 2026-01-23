@@ -75,8 +75,9 @@ const ExportBudgetModal = ({
       isOpen={isOpen}
       onOpenChange={onClose}
       size="md"
+      placement="center"
       classNames={{
-        base: "max-sm:m-1 m-0",
+        base: `max-sm:!m-3 !m-0`,
         closeButton: "cursor-pointer",
       }}
     >

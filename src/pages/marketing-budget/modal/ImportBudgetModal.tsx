@@ -6,7 +6,7 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@heroui/react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   FiCheckCircle,
   FiDownload,
@@ -45,6 +45,15 @@ const ImportBudgetModal = ({ isOpen, onClose }: ImportBudgetModalProps) => {
       },
     });
   };
+
+  useEffect(() => {
+    if (!isOpen) {
+      setSelectedFile(null);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = "";
+      }
+    }
+  }, [isOpen]);
 
   const handleDownloadTemplate = () => {
     // Generate CSV template with required fields
@@ -86,13 +95,14 @@ const ImportBudgetModal = ({ isOpen, onClose }: ImportBudgetModalProps) => {
       isOpen={isOpen}
       onClose={onClose}
       size="md"
-      scrollBehavior="inside"
+      placement="center"
       classNames={{
-        base: `max-sm:!m-3 !m-0`,
+        base: `max-sm:!m-3 !m-0 max-h-[90vh]`,
         closeButton: "cursor-pointer",
       }}
+      scrollBehavior="inside"
     >
-      <ModalContent>
+      <ModalContent className="max-h-[90vh]">
         {(onClose) => (
           <>
             <ModalHeader className="flex flex-col gap-1 px-4">

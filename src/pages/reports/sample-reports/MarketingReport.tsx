@@ -37,7 +37,7 @@ const LocalCardHeader: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
     data-slot="card-header"
     className={clsx(
       "@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 pt-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6",
-      className
+      className,
     )}
     {...props}
   >
@@ -291,7 +291,7 @@ const MetricBlock: React.FC<{ metric: MetricData }> = ({ metric }) => {
       className={clsx(
         "space-y-1 text-center p-4 rounded-xl border",
         `bg-gradient-to-br ${colors.from} ${colors.to}`,
-        colors.border
+        colors.border,
       )}
     >
       <div className={clsx("text-xl font-bold", colors.text)}>
@@ -331,7 +331,7 @@ const ChannelRow: React.FC<{ channel: ChannelData }> = ({ channel }) => {
             data-slot="badge"
             className={clsx(
               "inline-flex items-center justify-center rounded-md border px-1.5 py-0.5 text-[11px] h-5",
-              roiBg
+              roiBg,
             )}
           >
             {channel.roi} ROI
@@ -350,7 +350,7 @@ const ChannelRow: React.FC<{ channel: ChannelData }> = ({ channel }) => {
           </div>
         </div>
       </CardHeader>
-      <CardBody className="p-0 grid grid-cols-1 md:grid-cols-4 gap-4">
+      <CardBody className="p-0 grid grid-cols-1 md:grid-cols-4 gap-4 max-md:gap-3">
         <div className="p-3 rounded-lg border border-foreground/10 space-y-0.5 flex flex-col justify-center">
           <div className="text-xs text-gray-600 dark:text-foreground/60">
             Spend
@@ -477,7 +477,7 @@ const MarketingReport = () => {
         <div className="space-y-4 md:space-y-5">
           <Card
             shadow="none"
-            className="border border-foreground/10 dark:bg-background/50 p-5"
+            className="border border-foreground/10 dark:bg-background/50 p-4"
           >
             <CardHeader className="p-0 pb-4 flex items-center gap-2">
               <LuTrendingUp
@@ -489,7 +489,7 @@ const MarketingReport = () => {
               </h4>
             </CardHeader>
             <CardBody className="p-0">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 max-md:gap-3">
                 {METRICS_DATA.map((metric, index) => (
                   <MetricBlock key={index} metric={metric} />
                 ))}
@@ -499,7 +499,7 @@ const MarketingReport = () => {
 
           <Card
             shadow="none"
-            className="border border-foreground/10 dark:bg-background/50 p-5"
+            className="border border-foreground/10 dark:bg-background/50 p-4"
           >
             <CardHeader className="p-0 pb-4 flex items-center gap-2">
               <LuChartColumn
@@ -520,7 +520,7 @@ const MarketingReport = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
             <Card
               shadow="none"
-              className="border border-foreground/10 dark:bg-background/50 p-5"
+              className="border border-foreground/10 dark:bg-background/50 p-4"
             >
               <CardHeader className="p-0 pb-4 flex items-center gap-2">
                 <LuTarget
@@ -544,13 +544,13 @@ const MarketingReport = () => {
                         key={index}
                         className={clsx(
                           "p-3 rounded-lg border space-y-1",
-                          styles.insight
+                          styles.insight,
                         )}
                       >
                         <h4
                           className={clsx(
                             "text-sm font-medium",
-                            styles.textTitle
+                            styles.textTitle,
                           )}
                         >
                           {insight.title}
@@ -567,7 +567,7 @@ const MarketingReport = () => {
 
             <Card
               shadow="none"
-              className="border border-foreground/10 dark:bg-background/50 p-5"
+              className="border border-foreground/10 dark:bg-background/50 p-4"
             >
               <CardHeader className="p-0 pb-4 flex items-center gap-2">
                 <LuUsers
@@ -591,13 +591,13 @@ const MarketingReport = () => {
                         key={index}
                         className={clsx(
                           "pl-4 p-3 rounded-r-lg space-y-1",
-                          styles.recommendation
+                          styles.recommendation,
                         )}
                       >
                         <h4
                           className={clsx(
                             "text-sm font-medium",
-                            styles.textTitle
+                            styles.textTitle,
                           )}
                         >
                           {rec.title}
@@ -615,7 +615,7 @@ const MarketingReport = () => {
 
           <Card
             shadow="none"
-            className="border border-foreground/10 dark:bg-background/50 p-5"
+            className="border border-foreground/10 dark:bg-background/50 p-4"
           >
             <CardHeader className="p-0 pb-4 flex items-center gap-1.5">
               <LuDollarSign
@@ -627,7 +627,7 @@ const MarketingReport = () => {
               </h4>
             </CardHeader>
             <CardBody className="p-0">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-md:gap-3">
                 {PROJECTIONS_DATA.map((proj, index) => {
                   const styles =
                     THEME_STYLES[proj.color as keyof typeof THEME_STYLES];
@@ -637,7 +637,7 @@ const MarketingReport = () => {
                       key={index}
                       className={clsx(
                         "text-center p-4 rounded-xl border hover:shadow-md transition-all duration-300 space-y-1",
-                        styles.projection
+                        styles.projection,
                       )}
                     >
                       <div
@@ -648,7 +648,7 @@ const MarketingReport = () => {
                       <div
                         className={clsx(
                           "text-xs font-medium",
-                          styles.projLabel
+                          styles.projLabel,
                         )}
                       >
                         {proj.label}

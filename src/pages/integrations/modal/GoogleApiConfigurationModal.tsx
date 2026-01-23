@@ -96,6 +96,7 @@ export default function GoogleApiConfigurationModal({
         isOpen={isOpen}
         onOpenChange={onClose}
         size="md"
+        placement="center"
         classNames={{
           base: `max-sm:!m-3 !m-0`,
           closeButton: "cursor-pointer",
@@ -117,6 +118,7 @@ export default function GoogleApiConfigurationModal({
         isOpen={isOpen}
         onOpenChange={onClose}
         size="md"
+        placement="center"
         classNames={{
           base: `max-sm:!m-3 !m-0`,
           closeButton: "cursor-pointer",
@@ -143,6 +145,7 @@ export default function GoogleApiConfigurationModal({
     <Modal
       isOpen={isOpen}
       onOpenChange={onClose}
+      placement="center"
       classNames={{
         base: `max-sm:!m-3 !m-0`,
         closeButton: "cursor-pointer",
