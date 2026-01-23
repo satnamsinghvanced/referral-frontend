@@ -12,7 +12,6 @@ interface StaffSectionProps {
   renderArrayField: (field: any, index: number) => any;
   staffMemberFields: any[];
 }
-
 export default function StaffSection({
   formik,
   handleAddStaff,
@@ -38,7 +37,6 @@ export default function StaffSection({
           Add Staff
         </Button>
       </div>
-
       {formik.values.staff.length === 0 ? (
         <div className="flex flex-col items-center justify-center border-2 border-dashed border-foreground/20 rounded-lg py-6 gap-3">
           <FiUsers className="inline mr-2 text-4xl text-default-400 dark:text-foreground/40" />

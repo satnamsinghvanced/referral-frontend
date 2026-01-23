@@ -12,7 +12,6 @@ interface ExportBudgetModalProps {
     endDate?: string;
   };
 }
-
 const ExportBudgetModal = ({
   isOpen,
   onClose,
@@ -20,7 +19,6 @@ const ExportBudgetModal = ({
 }: ExportBudgetModalProps) => {
   const { mutate: exportBudget, isPending } = useExportBudgetItems();
   const [activeExport, setActiveExport] = useState<string | null>(null);
-
   const handleExport = (type: "csv" | "excel" | "pdf") => {
     setActiveExport(type);
     exportBudget(
@@ -39,7 +37,6 @@ const ExportBudgetModal = ({
       },
     );
   };
-
   const exportOptions = [
     {
       key: "csv",
@@ -69,7 +66,6 @@ const ExportBudgetModal = ({
       action: () => handleExport("pdf"),
     },
   ];
-
   return (
     <Modal
       isOpen={isOpen}
@@ -98,9 +94,8 @@ const ExportBudgetModal = ({
                   <button
                     key={option.key}
                     disabled={isPending}
-                    className={`flex cursor-pointer items-center w-full text-left gap-3 rounded-lg border border-default-200 p-3 transition-all hover:bg-default-50 hover:border-default-300 ${
-                      isPending ? "opacity-70 cursor-not-allowed" : ""
-                    }`}
+                    className={`flex cursor-pointer items-center w-full text-left gap-3 rounded-lg border border-default-200 p-3 transition-all hover:bg-default-50 hover:border-default-300 ${isPending ? "opacity-70 cursor-not-allowed" : ""
+                      }`}
                     onClick={option.action}
                   >
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-default-50 border border-default-100">

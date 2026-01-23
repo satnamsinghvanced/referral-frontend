@@ -128,7 +128,11 @@ export default function ReferrerActionsModal({
       zip: editedData?.practiceAddress?.zip || "",
     },
     website: editedData?.website || "",
-    staff: editedData?.staff || [],
+    staff:
+      editedData?.staff?.map((s: any) => ({
+        ...s,
+        role: Array.isArray(s.role) ? s.role[0] || "" : s.role || "",
+      })) || [],
     additionalNotes: editedData?.additionalNotes || "",
     communityReferrer: {
       orgName: editedData?.communityReferrer?.orgName || "",
@@ -608,7 +612,7 @@ export default function ReferrerActionsModal({
                     placeholder={sub.placeholder || ""}
                     value={
                       formik.values.practiceAddress[
-                        sub.id as keyof typeof formik.values.practiceAddress
+                      sub.id as keyof typeof formik.values.practiceAddress
                       ] as string
                     }
                     onValueChange={(val) => {
@@ -680,10 +684,8 @@ export default function ReferrerActionsModal({
   const renderArrayField = (field: any, index: number) => {
     const fieldName = `staff[${index}].${field.id}`;
     const valuePath = formik.values.staff[index]?.[field.id];
-
     const staffErrors = formik.errors.staff as any[] | undefined;
     const staffTouched = formik.touched.staff as any[] | undefined;
-
     const isTouched = staffTouched?.[index]?.[field.id];
     let errorText = staffErrors?.[index]?.[field.id];
 

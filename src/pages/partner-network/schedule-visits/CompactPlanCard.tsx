@@ -20,40 +20,30 @@ const CompactPlanCard: React.FC<{
     "font-medium text-xs whitespace-nowrap text-foreground";
   const statLabelClass =
     "text-xs text-gray-600 dark:text-foreground/60 whitespace-nowrap";
-
   let completePercentage;
-
   switch (plan.status) {
     case "completed":
       completePercentage = 100;
       break;
-
     case "inProgress":
       completePercentage = 50;
       break;
-
     default:
       completePercentage = 0;
       break;
   }
 
-  const fullRouteDateTime = `${plan.route.date.split("T")[0]}T${
-    plan.route.startTime
-  }`;
-
+  const fullRouteDateTime = `${plan.route.date.split("T")[0]}T${plan.route.startTime
+    }`;
   const { mutate: copySchedulePlan } = useCopySchedulePlan();
-
   const handleExport = () => {
     const exportData = {
       timestamp: new Date().toISOString(),
       reportTitle: plan.planDetails.name,
       details: plan,
     };
-
-    // Trigger the download
     downloadJson(exportData, plan.planDetails.name);
   };
-
   return (
     <Card className="p-4 rounded-lg border border-foreground/10 bg-background dark:bg-default-100/20 shadow-none flex items-start justify-between gap-4">
       <div className="w-full">
@@ -105,7 +95,6 @@ const CompactPlanCard: React.FC<{
             <div className={statLabelClass}>Complete</div>
           </div>
         </div>
-
         <div className="flex items-center gap-1">
           <Button
             size="sm"
@@ -164,5 +153,4 @@ const CompactPlanCard: React.FC<{
     </Card>
   );
 };
-
 export default CompactPlanCard;

@@ -25,12 +25,10 @@ export const initSocket = () => {
   if (socket && socket.connected) return socket;
 
   if (!socket) {
-    console.log("Initializing socket connection to:", URL);
     socket = io(URL, {
       auth: {
         token: token,
       },
-      path: "/referral-retrieve/Referral-Node-Api/socket.io/",
       transports: ["websocket", "polling"],
     });
 

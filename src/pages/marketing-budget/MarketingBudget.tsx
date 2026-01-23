@@ -154,7 +154,6 @@ const MarketingBudget = () => {
     }
     return null;
   };
-
   const stats = data?.stats || {
     totalBudget: "0",
     totalSpent: { value: "0", percentage: "0", status: "" },
@@ -162,12 +161,10 @@ const MarketingBudget = () => {
     budgetUtilization: "0",
     avgROI: "0",
   };
-
   const totalBudget = Number(stats.totalBudget);
   const totalSpent = Number(stats.totalSpent.value);
   const remainingBudget = Number(stats.remainingBudget.value);
   const avgROI = Number(stats.avgROI);
-
   const renderTrend = (
     status: string | undefined,
     percentage: string | number,
@@ -176,19 +173,16 @@ const MarketingBudget = () => {
     const isIncrement = status === "increment";
     const isDecrement = status === "decrement";
     const numPercentage = Number(percentage);
-
     const colorClass = isIncrement
       ? "text-green-600 dark:text-green-400"
       : isDecrement
         ? "text-red-600 dark:text-red-400"
         : "text-gray-500";
-
     const Icon = isIncrement
       ? LuTrendingUp
       : isDecrement
         ? LuTrendingDown
         : null;
-
     return (
       <span className={`${colorClass} flex items-center`}>
         {Icon && <Icon className="h-4 w-4 mr-1" />}
@@ -256,11 +250,10 @@ const MarketingBudget = () => {
                     size="sm"
                     radius="full"
                     color="default"
-                    className={`relative z-1 font-medium text-sm bg-transparent h-9 text-default-500 ${
-                      currentFilters.period === duration.value
-                        ? "dark:text-background text-foreground"
-                        : ""
-                    }`}
+                    className={`relative z-1 font-medium text-sm bg-transparent h-9 text-default-500 ${currentFilters.period === duration.value
+                      ? "dark:text-background text-foreground"
+                      : ""
+                      }`}
                     onPress={() => {
                       setDateRange({ start: "", end: "" });
                       setCurrentFilters((prev: any) => ({
@@ -293,11 +286,10 @@ const MarketingBudget = () => {
                 <Button
                   variant={showDateRange ? "solid" : "ghost"}
                   color={showDateRange ? "primary" : "default"}
-                  className={`border ${
-                    !showDateRange
-                      ? "bg-background dark:bg-default-50 border-gray-300 dark:border-default-200"
-                      : "border-primary"
-                  }`}
+                  className={`border ${!showDateRange
+                    ? "bg-background dark:bg-default-50 border-gray-300 dark:border-default-200"
+                    : "border-primary"
+                    }`}
                   size="sm"
                   startContent={<LuCalendar fontSize={15} />}
                   onPress={() => setShowDateRange(!showDateRange)}

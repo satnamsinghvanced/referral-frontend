@@ -175,7 +175,6 @@ export const useExportBudgetItems = () => {
     }) => exportBudgetItems(params),
     onSuccess: (blob, variables) => {
       const { type } = variables;
-      // Validate that we received a proper Blob
       if (
         !blob ||
         !(blob as Blob).size ||
@@ -189,16 +188,14 @@ export const useExportBudgetItems = () => {
         return;
       }
 
-      // Create download link
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
 
       // Set filename based on type
       const fileExtension = type === "excel" ? "xlsx" : type;
-      a.download = `budget_export_${
-        new Date().toISOString().split("T")[0]
-      }.${fileExtension}`;
+      a.download = `budget_export_${new Date().toISOString().split("T")[0]
+        }.${fileExtension}`;
 
       document.body.appendChild(a);
       a.click();
