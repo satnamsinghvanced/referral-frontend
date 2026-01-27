@@ -9,8 +9,11 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import ChartTooltip from "../../../components/common/ChartTooltip";
+import { useTypedSelector } from "../../../hooks/useTypedSelector";
 
 const Performance = () => {
+  const { theme } = useTypedSelector((state) => state.ui);
   const PERFORMANCE_METRICS = [
     { month: "Jan", sent: 2400, opens: 1800, clicks: 600, conversions: 120 },
     { month: "Feb", sent: 2800, opens: 2200, clicks: 750, conversions: 150 },
@@ -21,7 +24,7 @@ const Performance = () => {
   ];
 
   return (
-    <Card shadow="none" className="border border-foreground/10 p-5 col-span-2">
+    <Card shadow="none" className="bg-background border border-foreground/10 p-5 col-span-2">
       <CardHeader className="p-0 pb-5 md:pb-8">
         <h4 className="text-sm font-medium flex items-center gap-2">
           <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
@@ -32,10 +35,31 @@ const Performance = () => {
         <div className="-ml-5 text-sm">
           <ResponsiveContainer width="100%" aspect={1.85} maxHeight={380}>
             <AreaChart data={PERFORMANCE_METRICS}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="month" />
-              <YAxis />
-              <Tooltip />
+              <CartesianGrid
+                strokeDasharray="3 3"
+                stroke={
+                  theme === "dark" ? "rgba(255, 255, 255, 0.1)" : "#e0e0e0"
+                }
+              />
+              <XAxis
+                dataKey="month"
+                tick={{
+                  fill: theme === "dark" ? "rgba(255, 255, 255, 0.5)" : "#666",
+                }}
+              />
+              <YAxis
+                tick={{
+                  fill: theme === "dark" ? "rgba(255, 255, 255, 0.5)" : "#666",
+                }}
+              />
+              <Tooltip
+                content={<ChartTooltip />}
+                cursor={{
+                  stroke:
+                    theme === "dark" ? "rgba(255, 255, 255, 0.1)" : "#ccc",
+                  strokeWidth: 2,
+                }}
+              />
               <Legend />
               <Area
                 type="monotone"

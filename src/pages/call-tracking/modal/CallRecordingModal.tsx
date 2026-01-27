@@ -81,7 +81,7 @@ const TranscriptionTab = ({ data }: { data: CallRecord }) => (
           <MdChatBubbleOutline className="h-5 w-5" />
           <span>Call Transcription</span>
         </div>
-        <div className="p-3 bg-gray-50 dark:bg-foreground/5 rounded-lg text-gray-800 dark:text-foreground/80 leading-relaxed text-xs max-h-60 overflow-y-auto font-medium italic">
+        <div className="p-3 bg-gray-50 dark:bg-content1 rounded-lg text-gray-800 dark:text-foreground/80 leading-relaxed text-xs max-h-60 overflow-y-auto font-medium italic">
           {data.transcriptionText || "No transcription available."}
         </div>
       </CardBody>

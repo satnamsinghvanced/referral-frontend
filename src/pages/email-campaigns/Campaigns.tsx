@@ -89,7 +89,9 @@ const Campaigns = () => {
                 onValueChange={(value) =>
                   setCurrentFilters((prev) => ({ ...prev, search: value }))
                 }
-                startContent={<FiSearch className="text-gray-600" />}
+                startContent={
+                  <FiSearch className="text-gray-600 dark:text-foreground/60" />
+                }
               />
             </div>
             <Select
@@ -148,7 +150,7 @@ const Campaigns = () => {
         ))}
 
         {CAMPAIGNS.length === 0 && (
-          <div className="text-center py-12 text-gray-500">
+          <div className="text-center py-12 text-gray-500 dark:text-foreground/50">
             No campaigns found matching your criteria.
           </div>
         )}

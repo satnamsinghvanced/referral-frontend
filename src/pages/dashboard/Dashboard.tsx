@@ -425,7 +425,7 @@ const Dashboard = () => {
                 ))
               ) : (
                 <div className="flex flex-col items-center justify-center py-8 text-center">
-                  <div className="size-12 rounded-full bg-gray-50 dark:bg-foreground/5 flex items-center justify-center mb-3">
+                  <div className="size-12 rounded-full bg-gray-50 dark:bg-content1 flex items-center justify-center mb-3">
                     <LuTrendingUp className="text-gray-400 text-xl" />
                   </div>
                   <p className="text-sm font-medium text-gray-900 dark:text-foreground">

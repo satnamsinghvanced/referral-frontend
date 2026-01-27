@@ -27,10 +27,12 @@ const SummaryItem: React.FC<SummaryItemProps> = ({
   isTag = false,
 }) => (
   <div className="py-1.5">
-    <p className="text-xs font-medium text-gray-500">{label}</p>
-    <div className="text-gray-900">
+    <p className="text-xs font-medium text-gray-500 dark:text-foreground/50">
+      {label}
+    </p>
+    <div className="text-blue-900 dark:text-foreground">
       {isTag ? (
-        <CampaignCategoryChip category={value} />
+        <CampaignCategoryChip category={value as any} />
       ) : (
         <span className="text-xs">{value}</span>
       )}
@@ -98,7 +100,7 @@ const CampaignReviewStep: React.ForwardRefRenderFunction<
             value={
               <>
                 <span>{data.selectedAudience?.name || "N/A"}</span>
-                <span className="block text-xs font-normal text-gray-500">
+                <span className="block text-xs font-normal text-gray-500 dark:text-foreground/50">
                   {totalRecipients} recipients
                 </span>
               </>
@@ -107,14 +109,17 @@ const CampaignReviewStep: React.ForwardRefRenderFunction<
           <SummaryItem label="Schedule" value={data.schedule} />
 
           <div className="py-2">
-            <p className="text-xs font-medium text-gray-500 mb-1.5">Tracking</p>
+            <p className="text-xs font-medium text-gray-500 dark:text-foreground/50 mb-1.5">
+              Tracking
+            </p>
             <div className="flex space-x-2">
               {getTrackingSummary().map((item) => (
                 <Chip
                   key={item}
                   size="sm"
                   radius="sm"
-                  className="text-[#0c4a6e] bg-[#e0f2fe] text-[11px] h-5"
+                  variant="flat"
+                  className="text-blue-700 bg-blue-50 dark:bg-blue-500/10 dark:text-blue-400 text-[11px] h-5 border-none"
                 >
                   {item}
                 </Chip>
@@ -132,26 +137,30 @@ const CampaignReviewStep: React.ForwardRefRenderFunction<
         className={clsx(
           "p-4 rounded-lg flex items-start space-x-3",
           isReady
-            ? "bg-yellow-50 border border-yellow-200"
-            : "bg-red-50 border border-red-200"
+            ? "bg-yellow-50 border border-yellow-200 dark:bg-yellow-500/10 dark:border-yellow-500/20"
+            : "bg-red-50 border border-red-200 dark:bg-red-500/10 dark:border-red-500/20",
         )}
       >
         <FiAlertTriangle
           className={clsx(
             "size-5 shrink-0 mt-0.5",
-            isReady ? "text-yellow-700" : "text-red-700"
+            isReady
+              ? "text-yellow-700 dark:text-yellow-400"
+              : "text-red-700 dark:text-red-400",
           )}
         />
         <div>
           <h4
             className={clsx(
               "text-sm font-medium mb-1",
-              isReady ? "text-yellow-700" : "text-red-700"
+              isReady
+                ? "text-yellow-700 dark:text-yellow-400"
+                : "text-red-700 dark:text-red-400",
             )}
           >
             {isReady ? "Ready to Send" : "Attention Required"}
           </h4>
-          <p className="text-xs text-gray-600">
+          <p className="text-xs text-gray-600 dark:text-foreground/60">
             {isReady
               ? `Your campaign is fully configured and ready to be sent to ${totalRecipients} recipients.`
               : "Please ensure all previous steps (Setup, Template, Audience, Content) are complete before sending."}

@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader } from "@heroui/react";
+import { Button, Card, CardBody, CardHeader } from "@heroui/react";
 import React from "react";
 import { FaTiktok } from "react-icons/fa";
 import { LuEye, LuMousePointer, LuTrendingUp, LuUsers } from "react-icons/lu";
@@ -15,8 +15,11 @@ import {
   YAxis,
 } from "recharts";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
+import ChartTooltip from "../../components/common/ChartTooltip";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
 
 const TrafficTrendsChart: React.FC = () => {
+  const { theme } = useTypedSelector((state) => state.ui);
   const data = [
     { name: "Jan", clicks: 2400, conversions: 45 },
     { name: "Feb", clicks: 2800, conversions: 55 },
@@ -49,12 +52,11 @@ const TrafficTrendsChart: React.FC = () => {
             axisLine={false}
           />
           <Tooltip
-            contentStyle={{
-              backgroundColor: "hsl(var(--heroui-background))",
-              border: "1px solid hsl(var(--heroui-default-200))",
-              borderRadius: "8px",
+            content={<ChartTooltip />}
+            cursor={{
+              stroke: theme === "dark" ? "rgba(255, 255, 255, 0.1)" : "#ccc",
+              strokeWidth: 2,
             }}
-            itemStyle={{ fontSize: "12px" }}
           />
           <Legend />
           <Line
@@ -78,6 +80,7 @@ const TrafficTrendsChart: React.FC = () => {
 };
 
 export const TiktokAds: React.FC = () => {
+  const { theme } = useTypedSelector((state) => state.ui);
   const STAT_CARD_DATA = [
     {
       icon: <LuMousePointer className="text-blue-500 dark:text-blue-400" />,
@@ -192,7 +195,7 @@ export const TiktokAds: React.FC = () => {
           <CardHeader className="p-0 pb-5 md:pb-8">
             <h4 className="text-sm font-medium flex items-center gap-2">
               <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
-              Meta Ads Performance Trends
+              TikTok Ads Performance Trends
             </h4>
           </CardHeader>
           <CardBody className="p-0 overflow-visible">
@@ -233,15 +236,14 @@ export const TiktokAds: React.FC = () => {
                     axisLine={false}
                   />
                   <Tooltip
-                    contentStyle={{
-                      backgroundColor: "hsl(var(--heroui-background))",
-                      border: "1px solid hsl(var(--heroui-default-200))",
-                      borderRadius: "8px",
+                    content={<ChartTooltip />}
+                    cursor={{
+                      stroke:
+                        theme === "dark" ? "rgba(255, 255, 255, 0.1)" : "#ccc",
+                      strokeWidth: 2,
                     }}
-                    itemStyle={{ fontSize: "12px" }}
                   />
                   <Legend />
-
                   <Area
                     type="monotone"
                     dataKey="spend"

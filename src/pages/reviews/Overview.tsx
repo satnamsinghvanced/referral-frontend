@@ -9,44 +9,11 @@ import {
   YAxis,
 } from "recharts";
 import { useGBPOverview } from "../../hooks/useReviews";
-
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-white dark:bg-zinc-900 p-3 rounded-lg border border-gray-200 dark:border-zinc-800 shadow-xl">
-        {label && (
-          <p className="font-medium text-gray-900 dark:text-gray-100 mb-2 text-xs">
-            {label}
-          </p>
-        )}
-        <div className="flex flex-col gap-1">
-          {payload.map((entry: any, index: number) => (
-            <div
-              key={index}
-              className="flex items-center justify-between gap-4 text-xs"
-            >
-              <div className="flex items-center gap-2">
-                {/* <span
-                  className="w-2 h-2 rounded-full"
-                  style={{ backgroundColor: entry.color || entry.fill }}
-                /> */}
-                <span className="text-gray-600 dark:text-gray-400 capitalize">
-                  {entry.name}:
-                </span>
-              </div>
-              <span className="font-medium text-gray-900 dark:text-gray-100">
-                {entry.value}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-  return null;
-};
+import ChartTooltip from "../../components/common/ChartTooltip";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
 
 const Overview = () => {
+  const { theme } = useTypedSelector((state) => state.ui);
   const { data, isLoading } = useGBPOverview();
 
   const monthlyStats = data?.monthlyStats || [];
@@ -83,7 +50,14 @@ const Overview = () => {
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" />
               <YAxis width="auto" />
-              <Tooltip content={<CustomTooltip />} cursor={false} />
+              <Tooltip
+                content={<ChartTooltip />}
+                cursor={{
+                  stroke:
+                    theme === "dark" ? "rgba(255, 255, 255, 0.1)" : "#ccc",
+                  strokeWidth: 2,
+                }}
+              />
               <Legend />
               <Area
                 type="monotone"

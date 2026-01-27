@@ -191,12 +191,12 @@ const FlowBuilder = () => {
         <div className="space-y-3">
           <div className="border border-foreground/10 p-4 rounded-xl space-y-4">
             <h4 className="text-sm font-medium">Flow Preview</h4>
-            <div className="border border-foreground/10 rounded-lg p-4 bg-gray-50">
+            <div className="border border-foreground/10 rounded-lg p-4 bg-gray-50 dark:bg-content1">
               <div className="flex flex-col items-center gap-3">
-                <div className="text-gray-600 text-4xl">
+                <div className="text-gray-600 dark:text-foreground/60 text-4xl">
                   <FiGitBranch />
                 </div>
-                <p className="text-xs text-gray-500">
+                <p className="text-xs text-gray-500 dark:text-foreground/50">
                   Flow steps will appear here as you build
                 </p>
               </div>

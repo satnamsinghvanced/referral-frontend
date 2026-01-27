@@ -105,7 +105,9 @@ const Audiences: React.FC = () => {
                   onValueChange={(value) =>
                     setCurrentFilters((prev) => ({ ...prev, search: value }))
                   }
-                  startContent={<FiSearch className="text-gray-600" />}
+                  startContent={
+                    <FiSearch className="text-gray-600 dark:text-foreground/60" />
+                  }
                 />
               </div>
               <Select

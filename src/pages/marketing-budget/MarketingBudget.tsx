@@ -1,7 +1,7 @@
 import { Button, Card, CardBody, CardHeader, DatePicker } from "@heroui/react";
 import { parseDate } from "@internationalized/date";
 import { motion } from "framer-motion";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { FiPieChart } from "react-icons/fi";
 import { IoMdTrendingUp } from "react-icons/io";
@@ -26,6 +26,7 @@ import {
   Legend,
   Pie,
   PieChart,
+  ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
@@ -36,6 +37,8 @@ import DeleteConfirmationModal from "../../components/common/DeleteConfirmationM
 import EmptyState from "../../components/common/EmptyState";
 import { LoadingState } from "../../components/common/LoadingState";
 import Pagination from "../../components/common/Pagination";
+import ChartTooltip from "../../components/common/ChartTooltip";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { BUDGET_DURATIONS, getCategoryColor } from "../../consts/budget";
 import { useBudgetItems, useDeleteBudgetItem } from "../../hooks/useBudget";
 import { BudgetItem } from "../../types/budget";
@@ -45,6 +48,7 @@ import ExportBudgetModal from "./modal/ExportBudgetModal";
 import ImportBudgetModal from "./modal/ImportBudgetModal";
 
 const MarketingBudget = () => {
+  const { theme } = useTypedSelector((state) => state.ui);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editBudgetItem, setEditBudgetItem] = useState<BudgetItem | null>(null);
   const [deleteBudgetItemId, setDeleteBudgetItemId] = useState("");
@@ -60,6 +64,17 @@ const MarketingBudget = () => {
   });
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(
+    typeof window !== "undefined" ? window.innerWidth : 1200,
+  );
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const isMobile = windowWidth < 768;
 
   const handleApplyDateRange = () => {
     setCurrentFilters((prev: any) => ({
@@ -127,33 +142,6 @@ const MarketingBudget = () => {
       }))
       .filter((item) => item.value > 0);
   }, [data?.graphs?.budgetByCategory]);
-
-  const CustomTooltip = ({ active, payload, label }: any) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-white dark:bg-content1 p-3 border border-gray-200 dark:border-gray-700 shadow-lg rounded-lg outline-none">
-          {label && (
-            <p className="text-sm font-semibold mb-2 text-foreground">
-              {label}
-            </p>
-          )}
-          {payload.map((entry: any, index: number) => (
-            <p
-              key={index}
-              className="text-xs font-medium"
-              style={{ color: entry.color || entry.fill }}
-            >
-              {entry.name}:{" "}
-              {typeof entry.value === "number"
-                ? `$${Number(entry.value).toLocaleString()}`
-                : entry.value}
-            </p>
-          ))}
-        </div>
-      );
-    }
-    return null;
-  };
   const stats = data?.stats || {
     totalBudget: "0",
     totalSpent: { value: "0", percentage: "0", status: "" },
@@ -250,10 +238,11 @@ const MarketingBudget = () => {
                     size="sm"
                     radius="full"
                     color="default"
-                    className={`relative z-1 font-medium text-sm bg-transparent h-9 text-default-500 ${currentFilters.period === duration.value
-                      ? "dark:text-background text-foreground"
-                      : ""
-                      }`}
+                    className={`relative z-1 font-medium text-sm bg-transparent h-9 text-default-500 ${
+                      currentFilters.period === duration.value
+                        ? "dark:text-background text-foreground"
+                        : ""
+                    }`}
                     onPress={() => {
                       setDateRange({ start: "", end: "" });
                       setCurrentFilters((prev: any) => ({
@@ -286,10 +275,11 @@ const MarketingBudget = () => {
                 <Button
                   variant={showDateRange ? "solid" : "ghost"}
                   color={showDateRange ? "primary" : "default"}
-                  className={`border ${!showDateRange
-                    ? "bg-background dark:bg-default-50 border-gray-300 dark:border-default-200"
-                    : "border-primary"
-                    }`}
+                  className={`border ${
+                    !showDateRange
+                      ? "bg-background dark:bg-default-50 border-gray-300 dark:border-default-200"
+                      : "border-primary"
+                  }`}
                   size="sm"
                   startContent={<LuCalendar fontSize={15} />}
                   onPress={() => setShowDateRange(!showDateRange)}
@@ -395,63 +385,62 @@ const MarketingBudget = () => {
                   </h4>
                 </CardHeader>
                 <CardBody className="p-5 pt-0">
-                  <div className="my-1">
-                    <BarChart
-                      style={{
-                        width: "100%",
-                        maxHeight: "400px",
-                        aspectRatio: 1.618,
-                        outline: "none",
-                        overflow: "hidden",
-                        fontSize: "14px",
-                      }}
-                      responsive
-                      data={data?.graphs?.monthlyBudgetGraph}
-                      margin={{ top: 5, right: 0, left: 8, bottom: 5 }}
-                    >
-                      <CartesianGrid
-                        strokeDasharray="3 3"
-                        stroke="currentColor"
-                        className="text-gray-200 dark:text-default-100"
-                        opacity={0.5}
-                      />
-                      <XAxis
-                        dataKey="month"
-                        tickMargin={8}
-                        stroke="currentColor"
-                        className="text-gray-400 dark:text-foreground/40"
-                      />
-                      <YAxis
-                        width={60}
-                        tickMargin={8}
-                        stroke="currentColor"
-                        className="text-gray-400 dark:text-foreground/40"
-                      />
-                      <Tooltip
-                        content={<CustomTooltip />}
-                        cursor={{ fill: "rgba(128, 128, 128, 0.1)" }}
-                      />
-                      <Legend
-                        wrapperStyle={{
-                          bottom: "-2px",
-                          textTransform: "capitalize",
-                        }}
-                      />
-                      <Bar
-                        dataKey="budget"
-                        name="Budget"
-                        barSize={40}
-                        fill="#3b82f6"
-                        isAnimationActive
-                      />
-                      <Bar
-                        dataKey="spend"
-                        name="Spend"
-                        barSize={40}
-                        fill="#10b981"
-                        isAnimationActive
-                      />
-                    </BarChart>
+                  <div className="w-full h-[300px] md:h-[400px]">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart
+                        data={data?.graphs?.monthlyBudgetGraph}
+                        margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+                        style={{ outline: "none", fontSize: "12px" }}
+                      >
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          stroke="currentColor"
+                          className="text-gray-200 dark:text-default-100"
+                          opacity={0.5}
+                        />
+                        <XAxis
+                          dataKey="month"
+                          tickMargin={8}
+                          stroke="currentColor"
+                          className="text-gray-400 dark:text-foreground/40"
+                        />
+                        <YAxis
+                          width={60}
+                          tickMargin={8}
+                          stroke="currentColor"
+                          className="text-gray-400 dark:text-foreground/40"
+                        />
+                        <Tooltip
+                          content={<ChartTooltip />}
+                          cursor={{
+                            fill:
+                              theme === "dark"
+                                ? "rgba(255, 255, 255, 0.05)"
+                                : "rgba(128, 128, 128, 0.1)",
+                          }}
+                        />
+                        <Legend
+                          wrapperStyle={{
+                            paddingTop: "20px",
+                            textTransform: "capitalize",
+                          }}
+                        />
+                        <Bar
+                          dataKey="budget"
+                          name="Budget"
+                          barSize={32}
+                          fill="#3b82f6"
+                          isAnimationActive
+                        />
+                        <Bar
+                          dataKey="spend"
+                          name="Spend"
+                          barSize={32}
+                          fill="#10b981"
+                          isAnimationActive
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
                   </div>
                 </CardBody>
               </Card>
@@ -466,32 +455,37 @@ const MarketingBudget = () => {
                     <FiPieChart fontSize={16} /> Budget by Category
                   </h4>
                 </CardHeader>
-                <CardBody className="text-xs px-3 pb-0 items-center">
-                  <PieChart
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      maxHeight: "400px",
-                      padding: "40px",
-                    }}
-                    responsive
-                  >
-                    <Pie
-                      data={pieData}
-                      dataKey="value"
-                      cx="50%"
-                      cy="50%"
-                      outerRadius="100%"
-                      isAnimationActive
-                      label={PieChartCustomLabel}
-                      className="w-1/2"
-                    >
-                      {pieData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip content={<CustomTooltip />} />
-                  </PieChart>
+                <CardBody className="text-xs px-3 pb-5 h-[350px] md:h-[450px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={pieData}
+                        dataKey="value"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={isMobile ? "80%" : "70%"}
+                        isAnimationActive
+                        label={isMobile ? false : PieChartCustomLabel}
+                        labelLine={!isMobile}
+                      >
+                        {pieData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip content={<ChartTooltip />} />
+                      {isMobile && (
+                        <Legend
+                          verticalAlign="bottom"
+                          align="center"
+                          wrapperStyle={{
+                            paddingTop: "20px",
+                            fontSize: "12px",
+                            textTransform: "capitalize",
+                          }}
+                        />
+                      )}
+                    </PieChart>
+                  </ResponsiveContainer>
                 </CardBody>
               </Card>
             </div>

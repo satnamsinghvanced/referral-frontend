@@ -11,11 +11,11 @@ export const BUDGET_DURATIONS = [
 
 export const CATEGORY_COLORS: Record<string, string> = {
   "Digital Advertising": "#3B82F6",
-  "Google Ads": "#DB4437",
+  // "Google Ads": "#DB4437",
   "Social Media Marketing": "#A855F7",
-  "Meta Ads": "#4267B2",
-  "Facebook Ads": "#4267B2",
-  "TikTok Ads": "#000000",
+  // "Meta Ads": "#4267B2",
+  // "Facebook Ads": "#4267B2",
+  // "TikTok Ads": "#000000",
   "Content Marketing": "#10B981",
   "Email Marketing": "#F59E0B",
   "SEO & Website": "#EF4444",

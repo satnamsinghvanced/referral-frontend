@@ -39,7 +39,10 @@ const mockDeviceMetrics: DeviceMetric[] = [
 
 const Devices: React.FC = () => {
   return (
-    <Card shadow="none" className="border border-foreground/10 p-5">
+    <Card
+      shadow="none"
+      className="bg-background border border-foreground/10 p-5"
+    >
       <CardHeader className="p-0 pb-5 flex items-center gap-2">
         <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
         <h4 className="text-sm font-medium">Device Performance</h4>
@@ -51,19 +54,21 @@ const Devices: React.FC = () => {
 
           return (
             <div
-              className="bg-background border border-foreground/10 p-3 flex items-center gap-2 rounded-lg"
+              className="bg-content1 border border-foreground/10 p-3 flex items-center gap-2 rounded-lg"
               key={metric.name}
             >
               <div className="flex items-center space-x-2.5 flex-grow">
-                <div className="p-2 bg-blue-50 rounded-lg shrink-0">
-                  <Icon className="w-5 h-5 text-blue-600" />
+                <div className="p-2 bg-blue-50 dark:bg-blue-500/10 rounded-lg shrink-0">
+                  <Icon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 </div>
 
                 <div className="flex-grow space-y-0.5">
                   <h5 className="text-sm font-medium">{metric.name}</h5>
-                  <p className="text-xs text-gray-500 flex items-center gap-2">
-                    <span className="text-green-600">{metric.opens} opens</span>
-                    <span className="text-blue-600">
+                  <p className="text-xs text-gray-500 dark:text-foreground/60 flex items-center gap-2">
+                    <span className="text-green-600 dark:text-green-400">
+                      {metric.opens} opens
+                    </span>
+                    <span className="text-blue-600 dark:text-blue-400">
                       {metric.clicks} clicks
                     </span>
                   </p>
@@ -71,7 +76,7 @@ const Devices: React.FC = () => {
               </div>
 
               <div className="flex flex-col items-end space-y-1 min-w-[100px]">
-                <span className="font-medium text-gray-600 text-xs">
+                <span className="font-medium text-gray-600 dark:text-foreground/50 text-xs">
                   {metric.percentage}%
                 </span>
                 <Progress

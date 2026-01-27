@@ -202,7 +202,7 @@ const PartnerNetwork = () => {
           subHeading: "Manage relationships with referring practices",
         }}
       >
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 justify-between">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 justify-between">
           {STATS_CARD_DATA.map((data) => (
             <MiniStatsCard key={data.heading} cardData={data} />
           ))}

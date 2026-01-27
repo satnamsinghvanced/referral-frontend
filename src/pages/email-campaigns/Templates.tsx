@@ -122,7 +122,9 @@ const Templates: React.FC = () => {
                 onValueChange={(value) =>
                   setCurrentFilters((prev) => ({ ...prev, search: value }))
                 }
-                startContent={<FiSearch className="text-gray-600" />}
+                startContent={
+                  <FiSearch className="text-gray-600 dark:text-foreground/60" />
+                }
               />
             </div>
             <div className="relative">
@@ -210,8 +212,8 @@ const Templates: React.FC = () => {
             key={template.id}
             className="bg-background border border-foreground/10 rounded-xl overflow-hidden"
           >
-            <div className="relative h-48 bg-gray-200 overflow-hidden">
-              <div className="absolute inset-0 flex items-center justify-center text-gray-500 font-medium">
+            <div className="relative h-48 bg-gray-200 dark:bg-content1 overflow-hidden">
+              <div className="absolute inset-0 flex items-center justify-center text-gray-500 dark:text-foreground/50 font-medium">
                 <img src={template.image} />
               </div>
               {template.isPopular && (
@@ -231,11 +233,13 @@ const Templates: React.FC = () => {
                 </div>
               </div>
 
-              <p className="text-xs text-gray-500">{template.description}</p>
+              <p className="text-xs text-gray-500 dark:text-foreground/50">
+                {template.description}
+              </p>
 
               <div className="flex items-center justify-between gap-1.5 mt-3">
                 <CampaignCategoryChip category={template.category} />
-                <span className="text-xs text-gray-500">
+                <span className="text-xs text-gray-500 dark:text-foreground/50">
                   {template.usages} uses
                 </span>
               </div>

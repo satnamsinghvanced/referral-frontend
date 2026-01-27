@@ -69,7 +69,7 @@ const MediaItem = ({
           className="p-0 m-0"
         />
       </div>
-      <div className="absolute inset-0 bg-black/30 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+      <div className="absolute inset-0 md:bg-black/30 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity">
         <div className="flex space-x-1.5">
           <Button
             size="sm"

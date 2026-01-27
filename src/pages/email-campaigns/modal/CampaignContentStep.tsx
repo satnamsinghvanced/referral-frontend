@@ -147,14 +147,16 @@ const CampaignContentStep: React.ForwardRefRenderFunction<
           <div
             className={clsx(
               "bg-background border border-foreground/10 p-4 rounded-lg",
-              view === "mobile" ? "w-full max-w-sm h-[80%]" : "w-full h-[80%]"
+              view === "mobile" ? "w-full max-w-sm h-[80%]" : "w-full h-[80%]",
             )}
           >
             <p className="font-medium text-xs mb-1">
               Subject: {data.subject || "Your Subject Line"}
             </p>
-            <p className="text-xs text-gray-500">From: Your Practice Name</p>
-            <div className="text-xs text-gray-700 whitespace-pre-wrap border-t border-foreground/10 pt-2.5 mt-2.5">
+            <p className="text-xs text-gray-500 dark:text-foreground/50">
+              From: Your Practice Name
+            </p>
+            <div className="text-xs text-gray-700 dark:text-foreground/70 whitespace-pre-wrap border-t border-foreground/10 pt-2.5 mt-2.5">
               {emailContent
                 ? emailContent
                 : "Your email content will appear here..."}

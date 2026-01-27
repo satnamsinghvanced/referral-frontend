@@ -104,7 +104,7 @@ export default function NotificationPopover() {
       <PopoverContent className="w-80 p-0 shadow-xl rounded-xl border border-foreground/10 overflow-hidden">
         <div className="flex flex-col items-stretch w-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-3 border-b border-foreground/10">
+          <div className="flex items-center justify-between px-3 py-2.5 border-b border-foreground/10">
             <h4 className="text-sm font-medium">Notifications</h4>
             {unreadCount > 0 && (
               <span

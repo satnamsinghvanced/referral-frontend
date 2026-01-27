@@ -12,9 +12,11 @@ const FlowStepCard = ({ step, index, totalSteps }: any) => {
     <div className="flex items-start gap-3 p-4 border border-foreground/10 rounded-lg">
       {/* Step Number */}
       <div className="flex flex-col items-center">
-        <span className="font-medium text-gray-600">{index}</span>
+        <span className="font-medium text-gray-600 dark:text-foreground/60">
+          {index}
+        </span>
         {index < totalSteps && (
-          <div className="h-8 w-px bg-gray-300 my-1"></div>
+          <div className="h-8 w-px bg-gray-200 dark:bg-foreground/10 my-1"></div>
         )}
       </div>
 
@@ -24,7 +26,9 @@ const FlowStepCard = ({ step, index, totalSteps }: any) => {
           <Icon className={`mt-1 size-4 ${iconColor}`} />
           <div className="flex flex-col gap-0.5">
             <p className="text-sm font-medium">{title}</p>
-            <p className="text-xs text-gray-600">{description}</p>
+            <p className="text-xs text-gray-600 dark:text-foreground/50">
+              {description}
+            </p>
             {isWaitStep && details && (
               <p className="text-xs text-orange-600 mt-1 flex items-center">
                 <LuClock className="w-3 h-3 mr-1" />
@@ -62,8 +66,8 @@ const FlowStepCard = ({ step, index, totalSteps }: any) => {
             className={clsx(
               "rounded-sm transition !bg-transparent",
               index === 1
-                ? "text-gray-200 cursor-not-allowed"
-                : "hover:bg-gray-100 hover:text-gray-600 cursor-pointer"
+                ? "text-gray-200 dark:text-foreground/20 cursor-not-allowed"
+                : "hover:bg-gray-100 dark:hover:bg-foreground/5 hover:text-gray-600 dark:hover:text-foreground cursor-pointer",
             )}
             onClick={() => console.log(`Move Up Step ${index}`)}
           >
@@ -73,8 +77,8 @@ const FlowStepCard = ({ step, index, totalSteps }: any) => {
             className={clsx(
               "rounded-sm transition !bg-transparent",
               index === totalSteps
-                ? "text-gray-200 cursor-not-allowed"
-                : "hover:bg-gray-100 hover:text-gray-600 cursor-pointer"
+                ? "text-gray-200 dark:text-foreground/20 cursor-not-allowed"
+                : "hover:bg-gray-100 dark:hover:bg-foreground/5 hover:text-gray-600 dark:hover:text-foreground cursor-pointer",
             )}
             onClick={() => console.log(`Move Down Step ${index}`)}
           >

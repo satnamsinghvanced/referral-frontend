@@ -80,7 +80,7 @@ const Overview = ({ setIsActionModalOpen, setActiveTab }: OverviewProps) => {
             return (
               <div
                 key={campaign.title}
-                className="flex justify-between items-center p-3.5 border border-foreground/10 rounded-lg"
+                className="flex justify-between items-center p-3.5 border border-foreground/10 rounded-lg dark:bg-content1"
               >
                 <div className="flex items-center gap-2">
                   <span className="inline-block">
@@ -96,8 +96,10 @@ const Overview = ({ setIsActionModalOpen, setActiveTab }: OverviewProps) => {
                   </span>
                   <div className="flex flex-col gap-1">
                     <p className="text-sm font-medium">{title}</p>
-                    <p className="text-xs text-gray-600">{subtitle}</p>
-                    <div className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-600 dark:text-foreground/60">
+                      {subtitle}
+                    </p>
+                    <div className="text-xs text-gray-500 dark:text-foreground/50">
                       <span>{recipients} recipients</span>
                       <span className="mx-1.5">•</span>
                       <span>Created {createdDate}</span>
@@ -112,8 +114,12 @@ const Overview = ({ setIsActionModalOpen, setActiveTab }: OverviewProps) => {
                     <div className="flex flex-col items-end gap-2 text-xs">
                       <CampaignStatusChip status={status} />
                       <div className="flex items-center gap-2">
-                        <p className="text-green-600">{opens} opens</p>
-                        <p className="text-blue-600">{clicks} clicks</p>
+                        <p className="text-green-600 dark:text-green-400">
+                          {opens} opens
+                        </p>
+                        <p className="text-blue-600 dark:text-blue-400">
+                          {clicks} clicks
+                        </p>
                       </div>
                     </div>
                   )}
@@ -145,7 +151,9 @@ const Overview = ({ setIsActionModalOpen, setActiveTab }: OverviewProps) => {
             >
               <Icon className={`size-8 ${iconClasses}`} />
               <h4 className="text-sm mt-3 mb-2">{title}</h4>
-              <p className="text-xs text-gray-500 max-w-xs">{description}</p>
+              <p className="text-xs text-gray-500 dark:text-foreground/50 max-w-xs">
+                {description}
+              </p>
             </div>
           );
         })}

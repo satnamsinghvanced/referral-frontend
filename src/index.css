@@ -39,6 +39,7 @@ html {
 
   --color-foreground: #101828;
   --color-background: #ffffff;
+  background-color: #ffffff;
 
   /* Primary Colors (Blue palette from screenshot) */
   --heroui-primary-50: 194 96% 91%; /* #CEFBFD */
@@ -187,6 +188,7 @@ html {
 
   --color-foreground: #f0f0f0;
   --color-background: #12161a;
+  background-color: #12161a;
 
   /* Primary Colors (Blue palette - shifted for dark) */
   --heroui-primary-50: 202 94% 20%; /* #15394B */

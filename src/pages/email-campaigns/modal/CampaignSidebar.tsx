@@ -30,7 +30,7 @@ const CampaignSidebar: React.FC<CampaignSidebarProps> = ({
   onStepChange,
 }) => {
   return (
-    <nav className="w-64 flex-shrink-0 bg-gray-50 p-4 border-r border-foreground/10">
+    <nav className="w-64 flex-shrink-0 bg-gray-50 dark:bg-content1 p-4 border-r border-foreground/10">
       <ul role="list" className="space-y-2  ">
         {steps.map((step) => {
           const isCurrent = step.id === currentStep;
@@ -43,13 +43,11 @@ const CampaignSidebar: React.FC<CampaignSidebarProps> = ({
                 className={clsx(
                   "w-full group flex items-center px-3 py-2 text-sm font-medium rounded-md transition-colors",
                   isCurrent
-                    ? "!bg-blue-50 !text-blue-600"
+                    ? "!bg-blue-50 !text-blue-600 dark:!bg-blue-500/10 dark:!text-blue-400"
                     : isCompleted
-                    ? "bg-green-50 text-green-700"
-                    : "text-gray-600 hover:bg-gray-100",
-                  isClickable
-                    ? "cursor-pointer hover:bg-gray-100"
-                    : "cursor-default"
+                      ? "bg-green-50 text-green-700 dark:bg-green-500/10 dark:text-green-400"
+                      : "text-gray-600 dark:text-foreground/60 hover:bg-gray-100 dark:hover:bg-foreground/5",
+                  isClickable ? "cursor-pointer" : "cursor-default",
                 )}
                 onClick={(e) => {
                   e.preventDefault();
@@ -63,10 +61,10 @@ const CampaignSidebar: React.FC<CampaignSidebarProps> = ({
                   className={clsx(
                     "w-6 h-6 mr-2.5 flex items-center justify-center rounded-full border",
                     isCurrent
-                      ? "border-blue-600 bg-blue-50 text-blue-600"
+                      ? "border-blue-600 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400"
                       : isCompleted
-                      ? "border-green-500 bg-green-500 text-white"
-                      : "border-gray-300 text-gray-400 bg-background"
+                        ? "border-green-500 bg-green-500 text-white"
+                        : "border-gray-300 dark:border-foreground/20 text-gray-400 dark:text-foreground/40 bg-background",
                   )}
                 >
                   {isCompleted ? (
@@ -76,7 +74,11 @@ const CampaignSidebar: React.FC<CampaignSidebarProps> = ({
                   )}
                 </div>
 
-                <span className={clsx(isCompleted ? "text-green-700" : "")}>
+                <span
+                  className={clsx(
+                    isCompleted ? "text-green-700 dark:text-green-400" : "",
+                  )}
+                >
                   {step.name}
                 </span>
               </button>

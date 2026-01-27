@@ -41,8 +41,10 @@ const FlowCard = ({ flow }: any) => {
             <div className="flex items-center gap-2">
               <h4 className="text-sm font-medium">{title}</h4>
             </div>
-            <p className="text-xs text-gray-600">{description}</p>
-            <div className="text-xs text-gray-500 mt-1 flex gap-2.5">
+            <p className="text-xs text-gray-600 dark:text-foreground/60">
+              {description}
+            </p>
+            <div className="text-xs text-gray-500 dark:text-foreground/50 mt-1 flex gap-2.5">
               <p className="inline-flex items-center gap-1.5">
                 <FaRegEnvelope />
                 <span>{emails} emails</span>
@@ -63,30 +65,38 @@ const FlowCard = ({ flow }: any) => {
 
       {status === "active" && metrics && (
         <div className="grid grid-cols-4 gap-4 pt-4">
-          <div className="flex flex-col items-center p-3 bg-gray-50 rounded-lg space-y-0.5">
-            <p className="text-xs text-gray-500">Subscribers</p>
+          <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-content1 rounded-lg space-y-0.5">
+            <p className="text-xs text-gray-500 dark:text-foreground/50">
+              Subscribers
+            </p>
             <p className="text-sm font-semibold">{metrics.subscribers}</p>
           </div>
-          <div className="flex flex-col items-center p-3 bg-gray-50 rounded-lg space-y-0.5">
-            <p className="text-xs text-gray-500">Open Rate</p>
-            <p className="text-sm font-semibold text-green-600">
+          <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-content1 rounded-lg space-y-0.5">
+            <p className="text-xs text-gray-500 dark:text-foreground/50">
+              Open Rate
+            </p>
+            <p className="text-sm font-semibold text-green-600 dark:text-green-400">
               {metrics.openRate}
             </p>
           </div>
-          <div className="flex flex-col items-center p-3 bg-gray-50 rounded-lg space-y-0.5">
-            <p className="text-xs text-gray-500">Click Rate</p>
-            <p className="text-sm font-semibold text-blue-600">
+          <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-content1 rounded-lg space-y-0.5">
+            <p className="text-xs text-gray-500 dark:text-foreground/50">
+              Click Rate
+            </p>
+            <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">
               {metrics.clickRate}
             </p>
           </div>
-          <div className="flex flex-col items-center p-3 bg-gray-50 rounded-lg space-y-0.5">
-            <p className="text-xs text-gray-500">Conversions</p>
+          <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-content1 rounded-lg space-y-0.5">
+            <p className="text-xs text-gray-500 dark:text-foreground/50">
+              Conversions
+            </p>
             <p className="text-sm font-semibold">{metrics.conversions}</p>
           </div>
         </div>
       )}
 
-      <div className="flex justify-between items-center pt-4 mt-4 border-t border-primary/10">
+      <div className="flex justify-between items-center pt-4 mt-4 border-t border-foreground/10">
         <div className="flex gap-2">
           {actions
             .filter((a: any) => ["Edit Flow", "Duplicate", "Pause"].includes(a))
@@ -120,7 +130,7 @@ const FlowCard = ({ flow }: any) => {
             </Button>
           )}
         </div>
-        <div className="flex gap-2 text-sm font-medium text-gray-600">
+        <div className="flex gap-2 text-sm font-medium text-gray-600 dark:text-foreground/60">
           <Button
             size="sm"
             radius="sm"

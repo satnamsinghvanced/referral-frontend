@@ -16,9 +16,12 @@ import {
 } from "recharts";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
 import { LoadingState } from "../../components/common/LoadingState";
+import ChartTooltip from "../../components/common/ChartTooltip";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { useMetaAds } from "../../hooks/useAnalytics";
 
 const TrafficTrendsChart: React.FC<{ data: any[] }> = ({ data }) => {
+  const { theme } = useTypedSelector((state) => state.ui);
   return (
     <div className="-ml-5 text-sm">
       <ResponsiveContainer width="100%" height={300}>
@@ -42,12 +45,11 @@ const TrafficTrendsChart: React.FC<{ data: any[] }> = ({ data }) => {
             axisLine={false}
           />
           <Tooltip
-            contentStyle={{
-              backgroundColor: "hsl(var(--heroui-background))",
-              border: "1px solid hsl(var(--heroui-default-200))",
-              borderRadius: "8px",
+            content={<ChartTooltip />}
+            cursor={{
+              stroke: theme === "dark" ? "rgba(255, 255, 255, 0.1)" : "#ccc",
+              strokeWidth: 2,
             }}
-            itemStyle={{ fontSize: "12px" }}
           />
           <Legend />
           <Line
@@ -71,6 +73,7 @@ const TrafficTrendsChart: React.FC<{ data: any[] }> = ({ data }) => {
 };
 
 export const MetaAds: React.FC = () => {
+  const { theme } = useTypedSelector((state) => state.ui);
   const { data, isLoading } = useMetaAds();
 
   const STAT_CARD_DATA = [
@@ -218,12 +221,12 @@ export const MetaAds: React.FC = () => {
                     axisLine={false}
                   />
                   <Tooltip
-                    contentStyle={{
-                      backgroundColor: "hsl(var(--heroui-background))",
-                      border: "1px solid hsl(var(--heroui-default-200))",
-                      borderRadius: "8px",
+                    content={<ChartTooltip />}
+                    cursor={{
+                      stroke:
+                        theme === "dark" ? "rgba(255, 255, 255, 0.1)" : "#ccc",
+                      strokeWidth: 2,
                     }}
-                    itemStyle={{ fontSize: "12px" }}
                   />
                   <Legend />
 
@@ -283,7 +286,7 @@ export const MetaAds: React.FC = () => {
 
             <tbody>
               {CAMPAIGN_PERFORMANCE.length > 0 ? (
-                CAMPAIGN_PERFORMANCE.map((campaign, index) => (
+                CAMPAIGN_PERFORMANCE.map((campaign: any, index: number) => (
                   <tr
                     key={index}
                     className="border-b border-foreground/5 hover:bg-foreground/5 transition-colors"

@@ -153,7 +153,7 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
               <FaRegEnvelope className="text-blue-600" />
               <h4 className="text-base font-medium">Create New Campaign</h4>
             </div>
-            <p className="text-xs text-gray-600">
+            <p className="text-xs text-gray-600 dark:text-foreground/60">
               Build and configure your email campaign with our step-by-step
               builder
             </p>

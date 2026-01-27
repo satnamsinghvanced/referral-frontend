@@ -8,6 +8,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import ChartTooltip from "../../components/common/ChartTooltip";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
 
 import { Card, CardBody } from "@heroui/react";
 import { FiWifi } from "react-icons/fi";
@@ -16,41 +18,8 @@ import { LuQrCode } from "react-icons/lu";
 import { PiStarFill } from "react-icons/pi";
 import { useGBPLocationPerformance } from "../../hooks/useReviews";
 
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-white dark:bg-zinc-900 p-3 rounded-lg border border-gray-200 dark:border-zinc-800 shadow-xl">
-        <p className="font-medium text-gray-900 dark:text-gray-100 mb-2 text-xs">
-          {label}
-        </p>
-        <div className="flex flex-col gap-1">
-          {payload.map((entry: any, index: number) => (
-            <div
-              key={index}
-              className="flex items-center justify-between gap-4 text-xs"
-            >
-              <div className="flex items-center gap-2">
-                <span
-                  className="w-2 h-2 rounded-full"
-                  style={{ backgroundColor: entry.color || entry.fill }}
-                />
-                <span className="text-gray-600 dark:text-gray-400">
-                  {entry.name}:
-                </span>
-              </div>
-              <span className="font-medium text-gray-900 dark:text-gray-100">
-                {entry.value}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-    );
-  }
-  return null;
-};
-
 const Locations = () => {
+  const { theme } = useTypedSelector((state) => state.ui);
   const { data, isLoading } = useGBPLocationPerformance();
   const locations = data?.performanceByLocation || [];
   const graphData = data?.stats || [];
@@ -147,8 +116,13 @@ const Locations = () => {
           <XAxis dataKey="label" tickMargin={8} />
           <YAxis width="auto" tickMargin={8} />
           <Tooltip
-            content={<CustomTooltip />}
-            cursor={{ fill: "rgba(128, 128, 128, 0.1)" }}
+            content={<ChartTooltip />}
+            cursor={{
+              fill:
+                theme === "dark"
+                  ? "rgba(255, 255, 255, 0.05)"
+                  : "rgba(128, 128, 128, 0.1)",
+            }}
             isAnimationActive
           />
           <Legend wrapperStyle={{ bottom: "-4px" }} />

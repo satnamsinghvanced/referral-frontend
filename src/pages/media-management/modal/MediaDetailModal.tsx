@@ -105,7 +105,7 @@ export function MediaDetailModal({
     >
       <ModalContent className="max-h-[90vh] p-4">
         <ModalHeader className="flex flex-col items-start gap-1 p-0 font-normal">
-          <h4 className="text-base font-medium text-foreground">
+          <h4 className="text-base font-medium text-foreground w-[90%] break-words">
             {media.name}
           </h4>
           <p className="text-gray-500 dark:text-foreground/40 text-xs p-0">

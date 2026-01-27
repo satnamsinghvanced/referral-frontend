@@ -10,6 +10,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import ChartTooltip from "../../../components/common/ChartTooltip";
+import { useTypedSelector } from "../../../hooks/useTypedSelector";
 
 interface EngagementData {
   segment: string;
@@ -24,9 +26,13 @@ const ENGAGEMENT_GRAPH: EngagementData[] = [
 ];
 
 const Audience: React.FC = () => {
+  const { theme } = useTypedSelector((state) => state.ui);
   return (
     <div className="grid grid-cols-2 gap-5">
-      <Card shadow="none" className="border border-foreground/10 p-5">
+      <Card
+        shadow="none"
+        className="bg-background border border-foreground/10 p-5"
+      >
         <CardHeader className="p-0 pb-5 md:pb-8">
           <h4 className="text-sm font-medium flex items-center gap-2">
             <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
@@ -39,7 +45,7 @@ const Audience: React.FC = () => {
               <div className="space-y-1.5" key={item.segment}>
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">{item.segment}</span>
-                  <span className="text-xs text-gray-600">
+                  <span className="text-xs text-gray-600 dark:text-foreground/60">
                     {item.percentage}%
                   </span>
                 </div>
@@ -55,7 +61,7 @@ const Audience: React.FC = () => {
           </div>
         </CardBody>
       </Card>
-      <Card shadow="none" className="border border-foreground/10 p-5">
+      <Card shadow="none" className="bg-background border border-foreground/10 p-5">
         <CardHeader className="p-0 pb-5 md:pb-8 flex items-center gap-2">
           <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
           <h4 className="text-sm font-medium">Engagement by Segment</h4>
@@ -67,20 +73,38 @@ const Audience: React.FC = () => {
                 <CartesianGrid
                   strokeDasharray="3 3"
                   vertical={false}
-                  stroke="#e0e0e0"
+                  stroke={
+                    theme === "dark" ? "rgba(255, 255, 255, 0.1)" : "#e0e0e0"
+                  }
                 />
                 <XAxis
                   dataKey="segment"
                   tickLine={false}
                   axisLine={false}
-                  style={{ fill: "#6b7280" }}
+                  tick={{
+                    fill:
+                      theme === "dark" ? "rgba(255, 255, 255, 0.5)" : "#666",
+                  }}
+                  style={{ fontSize: "12px" }}
                 />
                 <YAxis
                   tickLine={false}
                   axisLine={false}
-                  style={{ fill: "#6b7280" }}
+                  tick={{
+                    fill:
+                      theme === "dark" ? "rgba(255, 255, 255, 0.5)" : "#666",
+                  }}
+                  style={{ fontSize: "12px" }}
                 />
-                <Tooltip />
+                <Tooltip
+                  content={<ChartTooltip />}
+                  cursor={{
+                    fill:
+                      theme === "dark"
+                        ? "rgba(255, 255, 255, 0.05)"
+                        : "rgba(128, 128, 128, 0.1)",
+                  }}
+                />
                 <Bar
                   dataKey="value"
                   fill="#0ea5e9"

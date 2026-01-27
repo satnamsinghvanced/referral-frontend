@@ -53,7 +53,7 @@ const CampaignTemplateStep: React.FC<CampaignStepProps> = ({
   validationErrors,
 }) => {
   const [selectedTemplate, setSelectedTemplate] = useState(
-    data.selectedTemplate || mockTemplates[0]
+    data.selectedTemplate || mockTemplates[0],
   );
   const [error, setError] = useState("");
 
@@ -97,15 +97,15 @@ const CampaignTemplateStep: React.FC<CampaignStepProps> = ({
                 "bg-background rounded-lg border-2 p-2.5 cursor-pointer transition-all",
                 isSelected
                   ? "border-blue-500 ring-1 ring-blue-500"
-                  : "border-foreground/10"
+                  : "border-foreground/10",
               )}
               onClick={() => handleSelect(template)}
             >
-              <div className="h-28 bg-gray-200 rounded-md mb-3 flex items-center justify-center overflow-hidden">
+              <div className="h-28 bg-gray-200 dark:bg-content1 rounded-md mb-3 flex items-center justify-center overflow-hidden">
                 <img src={template.image} className="size-full object-cover" />
               </div>
               <p className="text-sm font-medium mb-1">{template.title}</p>
-              <p className="text-xs text-gray-500 mb-1.5">
+              <p className="text-xs text-gray-500 dark:text-foreground/50 mb-1.5">
                 {template.description}
               </p>
               <CampaignCategoryChip category={template.category} />
@@ -129,7 +129,7 @@ const CampaignTemplateStep: React.FC<CampaignStepProps> = ({
 (CampaignTemplateStep as any).validateAndNext = (
   data: CampaignData,
   onNext: (data: Partial<CampaignData>) => void,
-  setValidationErrors: (errors: Record<string, string>) => void
+  setValidationErrors: (errors: Record<string, string>) => void,
 ) => {
   const component = document.getElementById("submitTemplate");
   if (component) {

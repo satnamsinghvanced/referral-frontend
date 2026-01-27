@@ -114,8 +114,8 @@ const CampaignAudienceStep: React.ForwardRefRenderFunction<
               className={clsx(
                 "p-3 h-full flex flex-col items-start justify-between text-left gap-1",
                 isSelected
-                  ? "bg-blue-50 border-2 border-blue-500 text-blue-800 shadow-md"
-                  : "border-foreground/10 bg-background"
+                  ? "bg-blue-50 border-2 border-blue-500 text-blue-800 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500 shadow-md"
+                  : "border-foreground/10 bg-background",
               )}
               variant="bordered"
               radius="md"
@@ -126,11 +126,13 @@ const CampaignAudienceStep: React.ForwardRefRenderFunction<
                 <FiUsers
                   className={clsx(
                     "size-4 shrink-0",
-                    isSelected ? "text-blue-600" : "text-gray-400"
+                    isSelected
+                      ? "text-blue-600 dark:text-blue-400"
+                      : "text-gray-400 dark:text-foreground/40",
                   )}
                 />
               </div>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-500 dark:text-foreground/50">
                 {audience.contacts} contacts
               </p>
             </Button>
@@ -139,18 +141,18 @@ const CampaignAudienceStep: React.ForwardRefRenderFunction<
       </div>
 
       <Card
-        className="p-4 bg-blue-50 border-blue-200"
+        className="p-4 bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/20"
         radius="md"
         shadow="none"
       >
-        <div className="flex items-center gap-1.5 mb-1.5 text-blue-900">
+        <div className="flex items-center gap-1.5 mb-1.5 text-blue-900 dark:text-blue-200">
           <LuTarget />
           <p className="text-xs font-medium">Selected Audience</p>
         </div>
-        <p className="text-sm font-medium text-blue-700">
+        <p className="text-sm font-medium text-blue-700 dark:text-blue-400">
           {selectedAudience?.name || "No Audience Selected"}
         </p>
-        <p className="text-xs text-blue-600 mt-1">
+        <p className="text-xs text-blue-600 dark:text-blue-500/80 mt-1">
           {selectedAudience?.contacts || 0} recipients will receive this
           campaign
         </p>

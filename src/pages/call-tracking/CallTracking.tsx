@@ -124,7 +124,7 @@ const CallTracking = () => {
       <ComponentContainer headingData={HEADING_DATA}>
         <div className="flex flex-col gap-4 md:gap-5">
           {!isTwilioConnected && !isTwilioConfigLoading && (
-            <div className="bg-yellow-50 dark:bg-amber-950/30 border border-yellow-200 dark:border-amber-500/30 rounded-lg p-3 flex items-center justify-between">
+            <div className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-500/30 rounded-lg p-3 flex items-center justify-between flex-wrap gap-3">
               <p className="text-sm text-yellow-800 dark:text-amber-400">
                 Twilio is not connected. Connect your Twilio account to enable
                 call tracking features.
@@ -143,7 +143,7 @@ const CallTracking = () => {
           )}
           {isTwilioConnected && !isTwilioConfigLoading && (
             <>
-              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-5 gap-4 justify-between">
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-5 gap-3 md:gap-4 justify-between">
                 {STATS_CARD_DATA.map((data) => (
                   <MiniStatsCard key={data.heading} cardData={data} />
                 ))}

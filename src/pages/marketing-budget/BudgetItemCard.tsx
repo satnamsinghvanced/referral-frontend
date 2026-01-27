@@ -52,9 +52,7 @@ const BudgetItemCard: React.FC<{
           <span
             className={`size-4 rounded-sm`}
             style={{
-              backgroundColor: getCategoryColor(
-                isSynced ? getPlatformName(item.type) : categoryTitle,
-              ),
+              backgroundColor: getCategoryColor(categoryTitle),
             }}
           ></span>
 

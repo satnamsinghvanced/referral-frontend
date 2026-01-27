@@ -33,8 +33,9 @@ const CompactPlanCard: React.FC<{
       break;
   }
 
-  const fullRouteDateTime = `${plan.route.date.split("T")[0]}T${plan.route.startTime
-    }`;
+  const fullRouteDateTime = `${plan.route.date.split("T")[0]}T${
+    plan.route.startTime
+  }`;
   const { mutate: copySchedulePlan } = useCopySchedulePlan();
   const handleExport = () => {
     const exportData = {
@@ -70,8 +71,8 @@ const CompactPlanCard: React.FC<{
         )} */}
       </div>
 
-      <div className="flex items-start gap-4 justify-between w-full">
-        <div className="flex gap-4 max-xl:gap-2 max-md:justify-between max-md:w-full max-sm:flex-wrap max-sm:justify-start max-sm:gap-4">
+      <div className="md:flex md:items-start md:gap-4 md:justify-between w-full max-md:space-y-3">
+        <div className="sm:flex gap-4 grid grid-cols-3 justify-items-center">
           <div className={statClass}>
             <div className={statValueClass}>{plan.summary.totalPractices}</div>
             <div className={statLabelClass}>Practices</div>

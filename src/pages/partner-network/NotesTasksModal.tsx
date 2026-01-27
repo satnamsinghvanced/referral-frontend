@@ -275,7 +275,7 @@ NotesTasksModalProps) => {
                                 <p className="text-gray-900 dark:text-foreground mb-2 text-sm">
                                   {note.description}
                                 </p>
-                                <div className="flex items-center space-x-1 text-sm text-gray-600 dark:text-foreground/60">
+                                <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-foreground/60">
                                   <span className="flex items-center gap-1">
                                     <LuUser className="size-3.5" />
                                     <span className="text-xs">

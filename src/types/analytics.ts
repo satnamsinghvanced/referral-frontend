@@ -62,6 +62,7 @@ export interface TrafficTrend {
 export interface DeviceAnalytic {
   device: string;
   users: number;
+  percentage: number;
 }
 
 export interface TopPage {

@@ -11,6 +11,8 @@ import {
   ModalHeader,
   Select,
   SelectItem,
+  Tab,
+  Tabs,
   Textarea,
   addToast,
 } from "@heroui/react";
@@ -300,31 +302,44 @@ const TrackReferralModal = ({
                     <label className="block text-xs dark:text-foreground/60">
                       How would you like to track this referrer?
                     </label>
-                    <div className="grid grid-cols-2 gap-2">
-                      <Button
-                        type="button"
-                        size="sm"
-                        radius="sm"
-                        onPress={() => setReferrerMode("existing")}
-                        variant={referrerMode === "existing" ? "solid" : "flat"}
-                        color={
-                          referrerMode === "existing" ? "primary" : "default"
+                    <div className="">
+                      <Tabs
+                        aria-label="Referrer Tracking Mode"
+                        selectedKey={referrerMode}
+                        onSelectionChange={(key) =>
+                          setReferrerMode(key as "existing" | "new")
                         }
-                        startContent={<FiCheckCircle className="text-[13px]" />}
+                        variant="light"
+                        radius="full"
+                        classNames={{
+                          base: "bg-primary/15 dark:bg-background rounded-full p-1 w-full",
+                          tabList: "flex w-full rounded-full p-0 gap-0",
+                          tab: "flex-1 h-8 text-sm font-medium transition-all",
+                          cursor: "rounded-full bg-white dark:bg-primary",
+                          tabContent:
+                            "dark:group-data-[selected=true]:text-primary-foreground text-default-500 dark:text-foreground/60 transition-colors",
+                        }}
+                        className="w-full"
                       >
-                        Select Existing
-                      </Button>
-                      <Button
-                        type="button"
-                        size="sm"
-                        radius="sm"
-                        onPress={() => setReferrerMode("new")}
-                        variant={referrerMode === "new" ? "solid" : "flat"}
-                        color={referrerMode === "new" ? "primary" : "default"}
-                        startContent={<FiPlus className="text-[13px]" />}
-                      >
-                        Create New
-                      </Button>
+                        <Tab
+                          key="existing"
+                          title={
+                            <div className="flex items-center gap-2">
+                              <FiCheckCircle className="text-[15px]" />
+                              <span>Select Existing</span>
+                            </div>
+                          }
+                        />
+                        <Tab
+                          key="new"
+                          title={
+                            <div className="flex items-center gap-2">
+                              <FiPlus className="text-[16px]" />
+                              <span>Create New</span>
+                            </div>
+                          }
+                        />
+                      </Tabs>
                     </div>
                   </div>
 

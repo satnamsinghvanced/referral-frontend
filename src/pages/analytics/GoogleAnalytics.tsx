@@ -1,5 +1,6 @@
-import { Card, CardBody, CardHeader } from "@heroui/react";
+import { Button, Card, CardBody, CardHeader } from "@heroui/react";
 import React from "react";
+import { Link } from "react-router-dom";
 import {
   LuClock,
   LuEye,
@@ -25,6 +26,8 @@ import {
 } from "recharts";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
 import { LoadingState } from "../../components/common/LoadingState";
+import ChartTooltip from "../../components/common/ChartTooltip";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { useGoogleAnalytics } from "../../hooks/useAnalytics";
 import {
   GoogleAnalyticsResponse,
@@ -34,6 +37,7 @@ import {
 } from "../../types/analytics";
 
 const TrafficTrendsChart: React.FC<{ data: TrafficTrend[] }> = ({ data }) => {
+  const { theme } = useTypedSelector((state) => state.ui);
   return (
     <div className="-ml-4 text-sm">
       <ResponsiveContainer width="100%" height={300}>
@@ -62,12 +66,11 @@ const TrafficTrendsChart: React.FC<{ data: TrafficTrend[] }> = ({ data }) => {
             axisLine={false}
           />
           <Tooltip
-            contentStyle={{
-              backgroundColor: "hsl(var(--heroui-background))",
-              border: "1px solid hsl(var(--heroui-default-200))",
-              borderRadius: "8px",
+            content={<ChartTooltip />}
+            cursor={{
+              stroke: theme === "dark" ? "rgba(255, 255, 255, 0.1)" : "#ccc",
+              strokeWidth: 2,
             }}
-            itemStyle={{ fontSize: "12px" }}
           />
           <Legend />
           <Line
@@ -135,7 +138,7 @@ const DeviceDonutChart: React.FC<{ data: DeviceAnalytic[] }> = ({
         x={x}
         y={y}
         fill="currentColor"
-        className="text-foreground"
+        className="text-foreground max-sm:invisible"
         fontSize={13}
         textAnchor={x > cx ? "start" : "end"}
       >
@@ -161,7 +164,7 @@ const DeviceDonutChart: React.FC<{ data: DeviceAnalytic[] }> = ({
               <Cell key={index} fill={entry.color} />
             ))}
           </Pie>
-          <Tooltip />
+          <Tooltip content={<ChartTooltip />} />
         </PieChart>
       </ResponsiveContainer>
     </div>
@@ -279,7 +282,7 @@ const DeviceMetric: React.FC<DeviceMetricProps> = ({
   </div>
 );
 
-export const GoogleAnalyticsDashboard: React.FC = () => {
+export const GoogleAnalytics: React.FC = () => {
   const { data, isLoading } = useGoogleAnalytics();
 
   const trafficSources = data?.trafficSources?.data || [];
@@ -288,7 +291,7 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
   const deviceMetrics = (data?.deviceAnalytics || []).map((d) => ({
     device: d.device === "desktop" ? "Desktop" : "Mobile",
     users: d.users,
-    percentage: (d.users / totalUsers) * 100,
+    percentage: d.percentage,
     icon:
       d.device === "desktop" ? (
         <LuMonitor className="w-[21px] h-[21px]" />
@@ -544,4 +547,4 @@ export const GoogleAnalyticsDashboard: React.FC = () => {
   );
 };
 
-export default GoogleAnalyticsDashboard;
+export default GoogleAnalytics;

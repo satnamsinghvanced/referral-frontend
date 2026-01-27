@@ -12,7 +12,8 @@ const TEMPLATES_DATA = [
     emails: 3,
     tag: "referral-outreach",
     icon: MdOutlineWavingHand,
-    iconBgClass: "bg-yellow-100 text-yellow-600",
+    iconBgClass:
+      "bg-yellow-100 text-yellow-600 dark:bg-yellow-500/10 dark:text-yellow-400",
   },
   {
     title: "Partner Nurture",
@@ -20,7 +21,8 @@ const TEMPLATES_DATA = [
     emails: 5,
     tag: "referral-outreach",
     icon: LuHandshake,
-    iconBgClass: "bg-orange-100 text-orange-600",
+    iconBgClass:
+      "bg-orange-100 text-orange-600 dark:bg-orange-500/10 dark:text-orange-400",
   },
   {
     title: "Patient Follow-up",
@@ -28,7 +30,8 @@ const TEMPLATES_DATA = [
     emails: 4,
     tag: "patient-follow-up",
     icon: BiHeart,
-    iconBgClass: "bg-blue-100 text-blue-600",
+    iconBgClass:
+      "bg-blue-100 text-blue-600 dark:bg-blue-500/10 dark:text-blue-400",
   },
   {
     title: "Review Request",
@@ -36,7 +39,8 @@ const TEMPLATES_DATA = [
     emails: 2,
     tag: "patient-follow-up",
     icon: FaRegStar,
-    iconBgClass: "bg-yellow-100 text-yellow-600",
+    iconBgClass:
+      "bg-yellow-100 text-yellow-600 dark:bg-yellow-500/10 dark:text-yellow-400",
   },
 ];
 
@@ -69,18 +73,22 @@ const Templates = () => {
                     </div>
                     <div className="space-y-0.5">
                       <h4 className="text-sm font-medium">{title}</h4>
-                      <p className="text-xs text-gray-600">{description}</p>
+                      <p className="text-xs text-gray-600 dark:text-foreground/60">
+                        {description}
+                      </p>
                     </div>
                   </div>
                 </div>
 
                 <div className="flex justify-between items-center pt-3 border-t border-foreground/10">
                   <div className="flex items-center gap-3">
-                    <p className="text-xs text-gray-500">{emails} emails</p>
+                    <p className="text-xs text-gray-500 dark:text-foreground/50">
+                      {emails} emails
+                    </p>
                     <Chip
                       size="sm"
                       radius="sm"
-                      className="h-5 text-[11px] text-[#0c4a6e] bg-[#e0f2fe]"
+                      className="h-5 text-[11px] text-[#0c4a6e] bg-[#e0f2fe] dark:bg-sky-500/10 dark:text-sky-400 border-none"
                     >
                       {tag}
                     </Chip>

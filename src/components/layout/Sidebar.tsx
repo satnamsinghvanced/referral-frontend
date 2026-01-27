@@ -329,10 +329,8 @@ const Sidebar = ({
                           radius="sm"
                         >
                           <Icon
-                            className={` ${
-                              isActive
-                                ? "bg-sky-50 dark:bg-sky-900/30 text-sky-700 dark:text-sky-400"
-                                : "hover:bg-gray-100 dark:hover:bg-foreground/5 dark:bg-transparent"
+                            className={`bg-transparent ${
+                              isActive ? "text-sky-700" : ""
                             }`}
                           />
                         </Tooltip>

@@ -13,6 +13,8 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import ChartTooltip from "../../../components/common/ChartTooltip";
+import { useTypedSelector } from "../../../hooks/useTypedSelector";
 import { CampaignMetric } from "../../../types/campaign";
 
 interface LabelProps {
@@ -26,6 +28,7 @@ interface LabelProps {
 }
 
 const Overview = () => {
+  const { theme } = useTypedSelector((state) => state.ui);
   const PERFORMANCE_TRENDS_GRAPH = [
     { month: "Jan", sent: 2400, opens: 1800, clicks: 600 },
     { month: "Feb", sent: 2800, opens: 2200, clicks: 750 },
@@ -104,7 +107,10 @@ const Overview = () => {
   return (
     <div className="space-y-4 md:space-y-5">
       <div className="grid grid-cols-2 gap-5">
-        <Card shadow="none" className="border border-foreground/10 p-5">
+        <Card
+          shadow="none"
+          className="bg-background border border-foreground/10 p-5"
+        >
           <CardHeader className="p-0 pb-5 md:pb-8">
             <h4 className="text-sm font-medium flex items-center gap-2">
               <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
@@ -115,10 +121,41 @@ const Overview = () => {
             <div className="-ml-5 text-sm">
               <ResponsiveContainer width="100%" aspect={1.85} maxHeight={320}>
                 <LineChart data={PERFORMANCE_TRENDS_GRAPH}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    vertical={false}
+                    stroke={
+                      theme === "dark" ? "rgba(255, 255, 255, 0.1)" : "#f0f0f0"
+                    }
+                  />
+                  <XAxis
+                    dataKey="month"
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{
+                      fill:
+                        theme === "dark" ? "rgba(255, 255, 255, 0.5)" : "#666",
+                      fontSize: "12px",
+                    }}
+                    dy={10}
+                  />
+                  <YAxis
+                    axisLine={false}
+                    tickLine={false}
+                    tick={{
+                      fill:
+                        theme === "dark" ? "rgba(255, 255, 255, 0.5)" : "#666",
+                      fontSize: "12px",
+                    }}
+                  />
+                  <Tooltip
+                    content={<ChartTooltip />}
+                    cursor={{
+                      stroke:
+                        theme === "dark" ? "rgba(255, 255, 255, 0.1)" : "#ccc",
+                      strokeWidth: 2,
+                    }}
+                  />
                   <Legend />
 
                   <Line
@@ -152,7 +189,10 @@ const Overview = () => {
             </div>
           </CardBody>
         </Card>
-        <Card shadow="none" className="border border-foreground/10 p-5">
+        <Card
+          shadow="none"
+          className="bg-background border border-foreground/10 p-5"
+        >
           <CardHeader className="p-0 pb-4">
             <h4 className="text-sm font-medium flex items-center gap-2">
               <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
@@ -184,13 +224,16 @@ const Overview = () => {
                     />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip content={<ChartTooltip />} />
               </PieChart>
             </ResponsiveContainer>
           </CardBody>
         </Card>
       </div>
-      <Card shadow="none" className="border border-foreground/10 p-5">
+      <Card
+        shadow="none"
+        className="bg-background border border-foreground/10 p-5"
+      >
         <CardHeader className="p-0 pb-4">
           <h4 className="text-sm font-medium flex items-center gap-2">
             <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
@@ -203,22 +246,22 @@ const Overview = () => {
               return (
                 <div
                   key={campaign.id}
-                  className="bg-background rounded-lg border border-foreground/10 p-3 flex items-center justify-between"
+                  className="bg-content1 rounded-lg border border-foreground/10 p-3 flex items-center justify-between"
                 >
                   <div className="flex items-center space-x-2.5 flex-grow">
-                    <div className="bg-sky-100 w-7 h-7 flex items-center justify-center rounded-full text-xs text-sky-600">
+                    <div className="bg-sky-100 dark:bg-sky-500/10 w-7 h-7 flex items-center justify-center rounded-full text-xs text-sky-600 dark:text-sky-400">
                       #{campaign.rank}
                     </div>
                     <div className="space-y-0.5">
                       <h4 className="text-sm font-medium">{campaign.name}</h4>
-                      <div className="text-xs text-gray-500 space-x-3">
-                        <span className="text-green-600">
+                      <div className="text-xs text-gray-500 dark:text-foreground/60 space-x-3">
+                        <span className="text-green-600 dark:text-green-400">
                           {campaign.openRate} opens
                         </span>
-                        <span className="text-blue-600">
+                        <span className="text-blue-600 dark:text-blue-400">
                           {campaign.clickRate} clicks
                         </span>
-                        <span className="text-gray-600">
+                        <span className="text-gray-600 dark:text-foreground/60">
                           {campaign.conversions} conversions
                         </span>
                       </div>

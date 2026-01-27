@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader } from "@heroui/react";
+import { Button, Card, CardBody, CardHeader } from "@heroui/react";
 import React from "react";
 import { FiActivity } from "react-icons/fi";
 import {
@@ -8,6 +8,7 @@ import {
   LuTrendingUp,
 } from "react-icons/lu";
 import { SiGoogleads } from "react-icons/si";
+import { Link } from "react-router-dom";
 import {
   Area,
   AreaChart,
@@ -21,10 +22,13 @@ import {
   YAxis,
 } from "recharts";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
+import ChartTooltip from "../../components/common/ChartTooltip";
 import { LoadingState } from "../../components/common/LoadingState";
 import { useGoogleAds } from "../../hooks/useAnalytics";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
 
 const TrafficTrendsChart: React.FC<{ data: any[] }> = ({ data }) => {
+  const { theme } = useTypedSelector((state) => state.ui);
   return (
     <div className="-ml-9 text-sm">
       <ResponsiveContainer width="100%" height={300}>
@@ -48,12 +52,11 @@ const TrafficTrendsChart: React.FC<{ data: any[] }> = ({ data }) => {
             axisLine={false}
           />
           <Tooltip
-            contentStyle={{
-              backgroundColor: "hsl(var(--heroui-background))",
-              border: "1px solid hsl(var(--heroui-default-200))",
-              borderRadius: "8px",
+            content={<ChartTooltip />}
+            cursor={{
+              stroke: theme === "dark" ? "rgba(255, 255, 255, 0.1)" : "#ccc",
+              strokeWidth: 2,
             }}
-            itemStyle={{ fontSize: "12px" }}
           />
           <Legend />
           <Line
@@ -80,6 +83,7 @@ const TrafficTrendsChart: React.FC<{ data: any[] }> = ({ data }) => {
 };
 
 export const GoogleAds: React.FC = () => {
+  const { theme } = useTypedSelector((state) => state.ui);
   const { data, isLoading } = useGoogleAds();
 
   const STAT_CARD_DATA = [
@@ -227,12 +231,12 @@ export const GoogleAds: React.FC = () => {
                     axisLine={false}
                   />
                   <Tooltip
-                    contentStyle={{
-                      backgroundColor: "hsl(var(--heroui-background))",
-                      border: "1px solid hsl(var(--heroui-default-200))",
-                      borderRadius: "8px",
+                    content={<ChartTooltip />}
+                    cursor={{
+                      stroke:
+                        theme === "dark" ? "rgba(255, 255, 255, 0.1)" : "#ccc",
+                      strokeWidth: 2,
                     }}
-                    itemStyle={{ fontSize: "12px" }}
                   />
                   <Legend />
 
@@ -292,7 +296,7 @@ export const GoogleAds: React.FC = () => {
 
             <tbody>
               {CAMPAIGN_PERFORMANCE.length > 0 ? (
-                CAMPAIGN_PERFORMANCE.map((campaign, index) => (
+                CAMPAIGN_PERFORMANCE.map((campaign: any, index: number) => (
                   <tr
                     key={index}
                     className="border-b border-foreground/5 hover:bg-foreground/5 transition-colors"

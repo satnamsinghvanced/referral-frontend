@@ -128,7 +128,7 @@ const Team: React.FC = () => {
     <div className="space-y-4 md:space-y-5">
       {/* Email Integration Warning */}
       {!isEmailConfigLoading && emailConfig?.status !== "Connected" && (
-        <div className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-800 rounded-lg p-3 flex items-center justify-between">
+        <div className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-500/30 rounded-lg p-3 flex items-center justify-between flex-wrap gap-3">
           <p className="text-sm text-yellow-800 dark:text-yellow-400">
             Email Marketing Platform is not connected. You can't invite team
             members until you connect your Email Marketing Platform.

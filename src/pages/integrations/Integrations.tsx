@@ -40,7 +40,12 @@ import {
 import GoogleAdsConfigModal from "./modal/GoogleAdsConfigModal";
 import MetaAdsConfigModal from "./modal/MetaAdsConfigModal";
 import GoogleBusinessConfigModal from "./modal/GoogleBusinessConfigModal";
+import GoogleAnalyticsConfigModal from "./modal/GoogleAnalyticsConfigModal";
 import Webhooks from "./webhooks/Webhooks";
+import {
+  useFetchGoogleAnalyticsIntegration,
+  useUpdateGoogleAnalyticsIntegration,
+} from "../../hooks/integrations/useGoogleAnalytics";
 
 function Integrations() {
   const { user } = useTypedSelector((state) => state.auth);
@@ -62,6 +67,8 @@ function Integrations() {
   const [isGoogleAdsModalOpen, setIsGoogleAdsModalOpen] = useState(false);
   const [isMetaAdsModalOpen, setIsMetaAdsModalOpen] = useState(false);
   const [isGoogleBusinessModalOpen, setIsGoogleBusinessModalOpen] =
+    useState(false);
+  const [isGoogleAnalyticsModalOpen, setIsGoogleAnalyticsModalOpen] =
     useState(false);
 
   const {
@@ -104,6 +111,14 @@ function Integrations() {
 
   const { mutate: updateGoogleBusinessIntegration } =
     useUpdateGoogleBusinessIntegration();
+
+  const {
+    data: googleAnalyticsConfig,
+    isLoading: isGoogleAnalyticsConfigLoading,
+  } = useFetchGoogleAnalyticsIntegration();
+
+  const { mutate: updateGoogleAnalyticsIntegration } =
+    useUpdateGoogleAnalyticsIntegration();
 
   // Normalize email config to handle both single object and array responses
   const emailConfig = Array.isArray(emailExistingConfig)
@@ -329,16 +344,33 @@ function Integrations() {
           });
         },
       },
-      // {
-      //   id: "",
-      //   name: "Google Analytics",
-      //   icon: <BsLightningCharge className="w-4 h-4" />,
-      //   iconBg: "bg-yellow-100",
-      //   iconColor: "text-yellow-600",
-      //   status: "Disconnected" as const,
-      //   description: "Advanced reporting and data visualization tools",
-      //   badges: ["Custom dashboards", "Advanced analytics", "Data export"],
-      // },
+      {
+        id: googleAnalyticsConfig?.id || "",
+        name: "Google Analytics",
+        icon: <BsLightningCharge className="w-4 h-4" />,
+        iconBg: "bg-yellow-100 dark:bg-yellow-900/20",
+        iconColor: "text-yellow-600 dark:text-yellow-400",
+        status: googleAnalyticsConfig?.status || "Disconnected",
+        description: "Advanced reporting and GA4 property data visualization",
+        badges: ["GA4 Reporting", "Activity Visualization", "Data Insights"],
+        lastSync: googleAnalyticsConfig?.lastSyncAt
+          ? timeAgo(googleAnalyticsConfig.lastSyncAt)
+          : undefined,
+        onConnect: () => setIsGoogleAnalyticsModalOpen(true),
+        onConfigure: () => setIsGoogleAnalyticsModalOpen(true),
+        isSwitchChecked: googleAnalyticsConfig?.status === "Connected",
+        onSwitchChange: () => {
+          updateGoogleAnalyticsIntegration({
+            id: googleAnalyticsConfig?.id as string,
+            data: {
+              status:
+                googleAnalyticsConfig?.status === "Connected"
+                  ? "Disconnected"
+                  : "Connected",
+            },
+          });
+        },
+      },
     ];
   }, [
     emailConfig,
@@ -353,6 +385,8 @@ function Integrations() {
     updateMetaAdsIntegration,
     googleBusinessConfig,
     updateGoogleBusinessIntegration,
+    googleAnalyticsConfig,
+    updateGoogleAnalyticsIntegration,
   ]);
 
   return (
@@ -424,6 +458,14 @@ function Integrations() {
         onClose={() => setIsGoogleBusinessModalOpen(false)}
         existingConfig={googleBusinessConfig}
         isLoading={isGoogleBusinessConfigLoading}
+      />
+
+      <GoogleAnalyticsConfigModal
+        userId={userId as string}
+        isOpen={isGoogleAnalyticsModalOpen}
+        onClose={() => setIsGoogleAnalyticsModalOpen(false)}
+        existingConfig={googleAnalyticsConfig}
+        isLoading={isGoogleAnalyticsConfigLoading}
       />
     </>
   );

@@ -58,6 +58,9 @@ const CampaignScheduleStep: React.ForwardRefRenderFunction<
           size="sm"
           isSelected={schedule}
           onValueChange={handleToggleScheduleLater}
+          classNames={{
+            label: "text-sm text-gray-700 dark:text-foreground/70",
+          }}
         >
           Schedule for later
         </Switch>
@@ -82,7 +85,7 @@ const CampaignScheduleStep: React.ForwardRefRenderFunction<
                   const second = String(dateObject.second).padStart(2, "0");
                   const millisecond = String(dateObject.millisecond).padStart(
                     3,
-                    "0"
+                    "0",
                   );
 
                   const localDateTimeString = `${year}-${month}-${day}T${hour}:${minute}:${second}.${millisecond}Z`;
@@ -112,6 +115,9 @@ const CampaignScheduleStep: React.ForwardRefRenderFunction<
           size="sm"
           isSelected={trackingOpens}
           onValueChange={setTrackingOpens}
+          classNames={{
+            label: "text-sm text-gray-700 dark:text-foreground/70",
+          }}
         >
           Track email opens
         </Switch>
@@ -121,8 +127,11 @@ const CampaignScheduleStep: React.ForwardRefRenderFunction<
           size="sm"
           isSelected={trackingClicks}
           onValueChange={setTrackingClicks}
+          classNames={{
+            label: "text-sm text-gray-700 dark:text-foreground/70",
+          }}
         >
-          Track email opens
+          Track email clicks
         </Switch>
       </div>
     </div>
