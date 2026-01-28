@@ -107,19 +107,19 @@ const Sidebar = ({
       requiredPermission: "Manage Reviews",
     },
     {
-      name: "Marketing Calendar",
-      icon: LuCalendar,
-      href: "/marketing-calendar",
-      stats: dashboardStats?.activities || 0,
-      color: "bg-orange-300 dark:bg-orange-900/30",
-      requiredPermission: "Manage Settings",
-    },
-    {
       name: "Social Media",
       icon: MdOutlineModeComment,
       href: "/social-media",
       stats: 0,
       color: "bg-purple-300 dark:bg-purple-900/30",
+      requiredPermission: "Manage Settings",
+    },
+    {
+      name: "Marketing Calendar",
+      icon: LuCalendar,
+      href: "/marketing-calendar",
+      stats: dashboardStats?.activities || 0,
+      color: "bg-orange-300 dark:bg-orange-900/30",
       requiredPermission: "Manage Settings",
     },
     {

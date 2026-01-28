@@ -1,7 +1,7 @@
 import { Tab, Tabs } from "@heroui/react";
-import Templates from "../Templates";
+import Templates from "./Templates";
 import ActiveFlows from "./ActiveFlows";
-import FlowBuilder from "./FlowBuilder";
+import FlowBuilder from "./flow-builder/FlowBuilder";
 
 const Automation = () => {
   return (

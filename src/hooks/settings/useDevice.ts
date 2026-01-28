@@ -6,10 +6,10 @@ import {
 } from "../../services/settings/device";
 import { queryClient } from "../../providers/QueryProvider";
 
-export const useDevices = () => {
+export const useDevices = (params: { page: number; limit: number }) => {
   return useQuery({
-    queryKey: ["devices"],
-    queryFn: fetchDevices,
+    queryKey: ["devices", params],
+    queryFn: () => fetchDevices(params),
   });
 };
 

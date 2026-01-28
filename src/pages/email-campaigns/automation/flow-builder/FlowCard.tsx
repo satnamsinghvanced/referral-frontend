@@ -4,7 +4,7 @@ import { FaRegEnvelope } from "react-icons/fa";
 import { FiCopy, FiEdit } from "react-icons/fi";
 import { IoTrendingUp } from "react-icons/io5";
 import { LuPause, LuPlay, LuTarget, LuTrash2, LuUsers } from "react-icons/lu";
-import FlowStatusChip from "../../../components/chips/FlowStatusChip";
+import FlowStatusChip from "../../../../components/chips/FlowStatusChip";
 
 const FlowCard = ({ flow }: any) => {
   const { title, description, status, emails, trigger, metrics, actions } =

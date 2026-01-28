@@ -1,16 +1,26 @@
 import { Card, CardBody, CardHeader, Switch } from "@heroui/react";
 import clsx from "clsx";
 import dayjs from "dayjs";
-import React from "react";
+import React, { useState } from "react";
 import { BiDevices } from "react-icons/bi";
 import { FiMonitor, FiSmartphone } from "react-icons/fi";
 import EmptyState from "../../components/common/EmptyState";
 import { LoadingState } from "../../components/common/LoadingState";
+import Pagination from "../../components/common/Pagination";
+import { EVEN_PAGINATION_LIMIT } from "../../consts/consts";
 import { useDevices, useToggleDevice } from "../../hooks/settings/useDevice";
+import { Device } from "../../types/device";
 
 const Devices: React.FC = () => {
-  const { data: devices, isLoading } = useDevices();
+  const [page, setPage] = useState(1);
+  const limit = EVEN_PAGINATION_LIMIT;
+
+  const { data: devices, isLoading } = useDevices({ page, limit });
   const { mutate: toggleDevice, isPending: isToggling } = useToggleDevice();
+
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+  };
 
   const getDeviceIcon = (deviceType?: string) => {
     if (deviceType === "mobile" || deviceType === "tablet") {
@@ -37,8 +47,8 @@ const Devices: React.FC = () => {
       </CardHeader>
 
       <CardBody className="p-4 space-y-3">
-        {devices && devices.length > 0 ? (
-          devices.map((device) => (
+        {devices?.data && devices.data.length > 0 ? (
+          devices.data.map((device: Device) => (
             <div
               key={device._id}
               className={`md:flex md:items-center md:justify-between p-3 md:p-3.5 border border-foreground/10 rounded-xl max-md:space-y-3.5 ${device.isCurrentDevice ? "order-first" : ""}`}
@@ -95,6 +105,19 @@ const Devices: React.FC = () => {
           ))
         ) : (
           <EmptyState title="No connected devices found." />
+        )}
+
+        {devices && devices.totalPages > 1 && (
+          <div className="pt-2">
+            <Pagination
+              identifier="devices"
+              limit={limit}
+              totalItems={devices.totalData}
+              currentPage={page}
+              totalPages={devices.totalPages}
+              handlePageChange={handlePageChange}
+            />
+          </div>
         )}
       </CardBody>
     </Card>

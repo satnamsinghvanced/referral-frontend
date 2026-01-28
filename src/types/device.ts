@@ -14,3 +14,13 @@ export interface Device {
   updatedAt: string;
   isCurrentDevice: boolean;
 }
+
+export interface DeviceResponse {
+  data: Device[];
+  totalData: number;
+  totalPages: number;
+  currentPage: number;
+  pageSize: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}

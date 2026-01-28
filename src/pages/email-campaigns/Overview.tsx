@@ -1,8 +1,8 @@
+import { Dispatch, SetStateAction } from "react";
 import { FaRegEnvelope } from "react-icons/fa";
 import { FiClock, FiEdit, FiZap } from "react-icons/fi";
 import { LuChartColumn, LuPause, LuPlay } from "react-icons/lu";
 import CampaignStatusChip from "../../components/chips/CampaignStatusChip";
-import { Dispatch, SetStateAction } from "react";
 
 const RECENT_CAMPAIGNS = [
   {

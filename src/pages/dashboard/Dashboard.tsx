@@ -365,7 +365,7 @@ const Dashboard = () => {
           ))}
         </div>
 
-        <div className="bg-background rounded-xl p-4 md:p-5">
+        <div className="bg-background rounded-xl p-4">
           <h4 className="text-sm md:text-base mb-4">Quick Actions</h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
             {QUICK_ACTIONS.map((action, i) => {
@@ -391,7 +391,7 @@ const Dashboard = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
-          <div className="md:col-span-2 bg-background rounded-xl p-4 md:p-5">
+          <div className="md:col-span-2 bg-background rounded-xl p-4">
             <h3 className="text-sm md:text-base mb-4">Recent Activity</h3>
             <div className="space-y-4 md:space-y-2">
               {isLoading ? (
@@ -440,7 +440,7 @@ const Dashboard = () => {
           </div>
 
           <div className="space-y-4 md:space-y-5">
-            <div className="bg-background rounded-xl p-4 md:p-5">
+            <div className="bg-background rounded-xl p-4">
               <h3 className="text-sm md:text-base mb-4">
                 <span className="mr-1">📱</span>NFC & QR Tracking
               </h3>
@@ -487,7 +487,7 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <div className="bg-background rounded-xl p-4 md:p-5">
+            <div className="bg-background rounded-xl p-4">
               <h3
                 className="text-sm md:text-base mb-4"
                 onClick={() => startTour()}

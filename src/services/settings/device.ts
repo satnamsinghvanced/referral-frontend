@@ -1,8 +1,11 @@
-import { Device } from "../../types/device";
+import { Device, DeviceResponse } from "../../types/device";
 import axios from "../axios";
 
-export const fetchDevices = async (): Promise<Device[]> => {
-  const response = await axios.get("/devices-tracking");
+export const fetchDevices = async (params: {
+  page: number;
+  limit: number;
+}): Promise<DeviceResponse> => {
+  const response = await axios.get("/devices-tracking", { params });
   return response.data;
 };
 

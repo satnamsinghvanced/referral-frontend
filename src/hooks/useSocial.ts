@@ -76,6 +76,7 @@ export const useCreateSocialPost = () => {
       // Refresh lists after a new post is created
       queryClient.invalidateQueries({ queryKey: ["social-overview"] });
       queryClient.invalidateQueries({ queryKey: ["recent-posts"] });
+      queryClient.invalidateQueries({ queryKey: ["posts-analytics"] });
     },
   });
 };

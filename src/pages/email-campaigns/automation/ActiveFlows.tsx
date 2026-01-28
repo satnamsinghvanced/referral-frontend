@@ -2,7 +2,7 @@ import { Button, Input, Select, SelectItem } from "@heroui/react";
 import { useState } from "react";
 import { FiSearch, FiZap } from "react-icons/fi";
 import { FLOW_STATUSES } from "../../../consts/campaign";
-import FlowCard from "./FlowCard";
+import FlowCard from "./flow-builder/FlowCard";
 import { PiFunnelX } from "react-icons/pi";
 
 const ACTIVE_FLOWS_DATA = [
