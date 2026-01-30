@@ -1,23 +1,14 @@
-import clsx from "clsx";
-import React, { useState } from "react";
-import {
-  FiCheckCircle,
-  FiEye,
-  FiHeart,
-  FiPlus,
-  FiSearch,
-  FiStar,
-  FiZap,
-} from "react-icons/fi";
-import { HiOutlineSparkles } from "react-icons/hi";
-import { Template } from "../../types/campaign";
 import { Button, Input, Select, SelectItem } from "@heroui/react";
-import { CAMPAIGN_CATEGORIES } from "../../consts/campaign";
-import { PiFunnelX } from "react-icons/pi";
-import { FaPlus, FaRegStar } from "react-icons/fa";
-import { LuCopy, LuPlus } from "react-icons/lu";
+import React, { useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
-import CampaignCategoryChip from "../../components/chips/CampaignCategoryChip";
+import { FaRegStar } from "react-icons/fa";
+import { FiEye, FiHeart, FiSearch, FiStar } from "react-icons/fi";
+import { LuCopy } from "react-icons/lu";
+import { PiFunnelX } from "react-icons/pi";
+import CampaignCategoryChip from "../../../components/chips/CampaignCategoryChip";
+import { CAMPAIGN_CATEGORIES } from "../../../consts/campaign";
+import { Template } from "../../../types/campaign";
+import CreateTemplateModal from "./modal/CreateTemplateModal";
 
 const TEMPLATES: Template[] = [
   {
@@ -100,6 +91,7 @@ const INITIAL_FILTERS = {
 
 const Templates: React.FC = () => {
   const [currentFilters, setCurrentFilters] = useState(INITIAL_FILTERS);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleFilterChange = (key: string, value: string) => {
     setCurrentFilters((prev) => ({
@@ -198,6 +190,7 @@ const Templates: React.FC = () => {
                 color="primary"
                 className="flex-1"
                 startContent={<AiOutlinePlus className="size-[15px]" />}
+                onPress={() => setIsModalOpen(true)}
               >
                 Create Template
               </Button>
@@ -205,6 +198,15 @@ const Templates: React.FC = () => {
           </div>
         </div>
       </div>
+
+      <CreateTemplateModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSubmit={(values) => {
+          console.log("Template values:", values);
+          // Here you would typically call a mutation to save the template
+        }}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {TEMPLATES.map((template) => (

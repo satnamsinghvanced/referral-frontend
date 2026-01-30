@@ -10,6 +10,8 @@ const MediaItem = ({
   onDownload,
   onSelect,
   selectedMedia,
+  showOverlay = true,
+  disabled = false,
 }: {
   media: Media;
   onDelete: (id: string) => void;
@@ -17,13 +19,17 @@ const MediaItem = ({
   onDownload: (path: string, name: string) => void;
   onSelect: (isSelected: boolean, mediaId: string) => void;
   selectedMedia: string[];
+  showOverlay?: boolean;
+  disabled?: boolean;
 }) => {
   const isVideo = media.type.startsWith("video/");
 
   return (
     <div
       key={media._id}
-      className="relative border border-foreground/10 rounded-lg overflow-hidden group bg-content1"
+      className={`relative border border-foreground/10 rounded-lg overflow-hidden group bg-content1 ${
+        disabled ? "opacity-50 cursor-not-allowed" : ""
+      }`}
     >
       <div className="w-full h-32 flex items-center justify-center bg-gray-100 dark:bg-default-100/50 overflow-hidden">
         {isVideo ? (
@@ -67,50 +73,53 @@ const MediaItem = ({
           onValueChange={(isSelected) => onSelect(isSelected, media._id)}
           classNames={{ icon: "m-0", wrapper: "m-0 hover:bg-transparent" }}
           className="p-0 m-0"
+          isDisabled={disabled}
         />
       </div>
-      <div className="absolute inset-0 md:bg-black/30 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity">
-        <div className="flex space-x-1.5">
-          <Button
-            size="sm"
-            radius="sm"
-            variant="solid"
-            color="primary"
-            isIconOnly
-            onPress={() => onView(media)}
-            className="p-0 size-7 min-w-0"
-            title="View Media"
-          >
-            <MdOutlineRemoveRedEye fontSize={14} />
-          </Button>
+      {showOverlay && (
+        <div className="absolute inset-0 md:bg-black/30 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+          <div className="flex space-x-1.5">
+            <Button
+              size="sm"
+              radius="sm"
+              variant="solid"
+              color="primary"
+              isIconOnly
+              onPress={() => onView(media)}
+              className="p-0 size-7 min-w-0"
+              title="View Media"
+            >
+              <MdOutlineRemoveRedEye fontSize={14} />
+            </Button>
 
-          <Button
-            size="sm"
-            radius="sm"
-            variant="solid"
-            color="primary"
-            isIconOnly
-            onPress={() => onDownload(media.path, media.name)}
-            className="p-0 size-7 min-w-0"
-            title="Download Media"
-          >
-            <LuDownload fontSize={14} />
-          </Button>
+            <Button
+              size="sm"
+              radius="sm"
+              variant="solid"
+              color="primary"
+              isIconOnly
+              onPress={() => onDownload(media.path, media.name)}
+              className="p-0 size-7 min-w-0"
+              title="Download Media"
+            >
+              <LuDownload fontSize={14} />
+            </Button>
 
-          <Button
-            size="sm"
-            radius="sm"
-            variant="solid"
-            color="danger"
-            isIconOnly
-            onPress={() => onDelete(media._id)}
-            className="p-0 size-7 min-w-0"
-            title="Delete Media"
-          >
-            <LuTrash2 fontSize={14} />
-          </Button>
+            <Button
+              size="sm"
+              radius="sm"
+              variant="solid"
+              color="danger"
+              isIconOnly
+              onPress={() => onDelete(media._id)}
+              className="p-0 size-7 min-w-0"
+              title="Delete Media"
+            >
+              <LuTrash2 fontSize={14} />
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

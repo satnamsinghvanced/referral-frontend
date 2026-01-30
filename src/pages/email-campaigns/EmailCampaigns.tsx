@@ -11,7 +11,7 @@ import Audiences from "./Audiences";
 import Automation from "./automation/Automation";
 import Campaigns from "./Campaigns";
 import Overview from "./Overview";
-import Templates from "./Templates";
+import Templates from "./templates/Templates";
 import { useState } from "react";
 import CampaignActionModal from "./modal/CampaignActionModal";
 

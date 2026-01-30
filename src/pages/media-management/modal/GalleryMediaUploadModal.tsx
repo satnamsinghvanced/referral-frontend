@@ -40,6 +40,7 @@ interface GalleryMediaUploadModalProps {
   maxImageSize?: number;
   allowedVideoFormats?: string[];
   maxVideoSize?: number;
+  maxSelection?: number;
 }
 
 function GalleryMediaUploadModal({
@@ -51,6 +52,7 @@ function GalleryMediaUploadModal({
   maxImageSize,
   allowedVideoFormats,
   maxVideoSize,
+  maxSelection,
 }: GalleryMediaUploadModalProps) {
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [breadcrumbPath, setBreadcrumbPath] = useState<
@@ -142,7 +144,26 @@ function GalleryMediaUploadModal({
       group.folderName ===
       (currentFolderName === "Root" ? "Root" : currentFolderName),
   );
-  const currentFolderMedia = currentFolderMediaGroup?.images || [];
+  const rawFolderMedia = currentFolderMediaGroup?.images || [];
+
+  const filteredMedia = rawFolderMedia.filter((media: Media) => {
+    const isImage = media.type.startsWith("image/");
+    const isVideo = media.type.startsWith("video/");
+
+    if (isImage && allowedImageFormats) {
+      // If formats are restricted, only show allowed ones
+      if (!allowedImageFormats.includes(media.type)) return false;
+    }
+
+    if (isVideo && allowedVideoFormats) {
+      // If formats are restricted (or empty array), only show allowed ones
+      if (!allowedVideoFormats.includes(media.type)) return false;
+    }
+
+    return true;
+  });
+
+  const displayMedia = filteredMedia;
 
   // Initialize selection from preselected media when modal opens
   useEffect(() => {
@@ -367,35 +388,45 @@ function GalleryMediaUploadModal({
               <Card className="shadow-none border border-default-200/50 min-h-[200px] bg-content1">
                 <CardHeader className="p-3 pb-0 flex justify-between items-center">
                   <h5 className="text-small font-medium flex items-center gap-2 text-foreground">
-                    <FiImage /> Media ({currentFolderMedia.length})
+                    <FiImage /> Media ({displayMedia.length})
                   </h5>
                 </CardHeader>
                 <CardBody className="p-3">
                   {isFoldersLoading || isLoadingMedia ? (
                     <LoadingState />
-                  ) : currentFolderMedia.length === 0 ? (
+                  ) : displayMedia.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-40 text-default-400 dark:text-foreground/20">
                       <FiImage className="text-4xl mb-2 opacity-30 text-gray-400 dark:text-foreground/30" />
                       <p className="text-small text-gray-500 dark:text-foreground/40">
-                        No media found in {currentFolderName}.
+                        No supported media found in {currentFolderName}.
                       </p>
                     </div>
                   ) : (
                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                      {currentFolderMedia.map((media: Media) => (
-                        <MediaItem
-                          key={media._id}
-                          media={media}
-                          // Disable unrelated actions
-                          onDelete={() => {}}
-                          onView={() => {}}
-                          onDownload={() => {}}
-                          onSelect={(isSelected) =>
-                            handleMediaSelect(isSelected, media)
-                          }
-                          selectedMedia={selectedMediaIds}
-                        />
-                      ))}
+                      {displayMedia.map((media: Media) => {
+                        const isSelected = selectedMediaIds.includes(media._id);
+                        const isSelectionFull =
+                          maxSelection !== undefined &&
+                          selectedMediaIds.length >= maxSelection;
+                        const isDisabled = isSelectionFull && !isSelected;
+
+                        return (
+                          <MediaItem
+                            key={media._id}
+                            media={media}
+                            // Disable unrelated actions
+                            onDelete={() => {}}
+                            onView={() => {}}
+                            onDownload={() => {}}
+                            onSelect={(isSelected) =>
+                              handleMediaSelect(isSelected, media)
+                            }
+                            selectedMedia={selectedMediaIds}
+                            showOverlay={false}
+                            disabled={isDisabled}
+                          />
+                        );
+                      })}
                     </div>
                   )}
                 </CardBody>
