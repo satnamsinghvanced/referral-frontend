@@ -247,14 +247,15 @@ const Dashboard = () => {
           onClick: () => navigate("/reviews"),
         }
       : null,
-    // {
-    //   icon: "📢",
-    //   iconBg: "bg-orange-50 dark:bg-orange-900/20",
-    //   title: "Marketing campaign active",
-    //   description: `${dashboard?.activeCampaigns?.totalActiveCampaigns || 0} active campaigns currently running`,
-    //   time: "Active now",
-    //   onClick: () => navigate("/marketing-calendar"),
-    // },
+      dashboard?.recentActivity?.campaigns ?
+    {
+      icon: "📢",
+      iconBg: "bg-orange-50 dark:bg-orange-900/20",
+      title: `${dashboard?.recentActivity?.campaigns?.name || ""}`,
+      description: `${dashboard?.recentActivity?.campaigns?.description || ""}`,
+      time: `${timeAgo(dashboard?.recentActivity?.campaigns?.createdAt || "")}`,
+      onClick: () => navigate("/email-campaigns"),
+    } : null,
   ].filter((activity) => activity !== null);
 
   const SYSTEM_STATUSES = [
