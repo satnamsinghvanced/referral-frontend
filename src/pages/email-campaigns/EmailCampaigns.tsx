@@ -1,19 +1,19 @@
 import { Tab, Tabs } from "@heroui/react";
+import { useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { FaRegEnvelope } from "react-icons/fa";
-import { FiPlay, FiSettings } from "react-icons/fi";
+import { FiPlay } from "react-icons/fi";
 import { IoMdTrendingUp } from "react-icons/io";
 import { LuEye, LuMousePointer, LuSend } from "react-icons/lu";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import Analytics from "./analytics/Analytics";
-import Audiences from "./Audiences";
+import Audiences from "./audiences/Audiences";
 import Automation from "./automation/Automation";
 import Campaigns from "./Campaigns";
+import CampaignActionModal from "./modal/CampaignActionModal";
 import Overview from "./Overview";
 import Templates from "./templates/Templates";
-import { useState } from "react";
-import CampaignActionModal from "./modal/CampaignActionModal";
 
 const EmailCampaigns = () => {
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);

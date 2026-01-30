@@ -2,21 +2,27 @@ import { Button } from "@heroui/react";
 import React from "react";
 import { FaRegEnvelope } from "react-icons/fa";
 import { FiCopy, FiEdit } from "react-icons/fi";
-import { IoTrendingUp } from "react-icons/io5";
 import {
   LuCalendar,
   LuDownload,
-  LuPause,
   LuPlay,
-  LuTarget,
   LuTrash2,
   LuUsers,
 } from "react-icons/lu";
-import AudienceSegmentTypeChip from "../../components/chips/AudienceSegmentTypeChip";
-import AudienceSegmentStatusChip from "../../components/chips/AudienceSegmentStatusChip";
+import AudienceSegmentStatusChip from "../../../components/chips/AudienceSegmentStatusChip";
+import AudienceSegmentTypeChip from "../../../components/chips/AudienceSegmentTypeChip";
 
-const SegmentCard = ({ segment }: any) => {
+const SegmentCard = ({
+  segment,
+  onEdit,
+  onDelete,
+}: {
+  segment: any;
+  onEdit?: (segment: any) => void;
+  onDelete?: (id: string) => void;
+}) => {
   const {
+    id,
     name,
     description,
     type,
@@ -40,6 +46,14 @@ const SegmentCard = ({ segment }: any) => {
         return FaRegEnvelope;
       default:
         return null;
+    }
+  };
+
+  const handleAction = (action: string) => {
+    if (action === "Edit" && onEdit) {
+      onEdit(segment);
+    } else {
+      console.log(`${action} button clicked`);
     }
   };
 
@@ -115,14 +129,14 @@ const SegmentCard = ({ segment }: any) => {
 
       <div className="flex justify-between items-center pt-4 mt-4 border-t border-foreground/10">
         <div className="flex gap-2">
-          {["Edit", "Duplicate", "Create Campaign"].map((action: any) => (
+          {["Edit", "Create Campaign"].map((action: any) => (
             <Button
               key={action}
               size="sm"
               radius="sm"
               variant="ghost"
               color="default"
-              onPress={() => console.log(`${action} button clicked`)}
+              onPress={() => handleAction(action)}
               // @ts-ignore
               startContent={React.createElement(getIconForAction(action), {
                 className: "size-3.5",
@@ -162,7 +176,7 @@ const SegmentCard = ({ segment }: any) => {
             radius="sm"
             variant="ghost"
             color="default"
-            onPress={() => console.log("Archive clicked")}
+            onPress={() => onDelete && onDelete(id)}
             startContent={<LuTrash2 className="size-3.5" />}
             className="border-small"
             isIconOnly

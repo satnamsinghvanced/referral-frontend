@@ -15,10 +15,10 @@ import { useEffect, useState } from "react";
 import { FiCheckCircle, FiImage, FiUpload } from "react-icons/fi";
 import { LuSave } from "react-icons/lu";
 import * as Yup from "yup";
-import { CAMPAIGN_CATEGORIES } from "../../../../consts/campaign";
 import QuillEditor from "../../../../components/editor/QuillEditor";
-import GalleryMediaUploadModal from "../../../media-management/modal/GalleryMediaUploadModal";
+import { CAMPAIGN_CATEGORIES } from "../../../../consts/campaign";
 import { Media } from "../../../../types/media";
+import GalleryMediaUploadModal from "../../../media-management/modal/GalleryMediaUploadModal";
 
 interface CreateTemplateModalProps {
   isOpen: boolean;
@@ -27,7 +27,7 @@ interface CreateTemplateModalProps {
   initialData?: any;
 }
 
-interface TemplateFormValues {
+export interface TemplateFormValues {
   name: string;
   description: string;
   category: string;
@@ -57,18 +57,33 @@ export default function CreateTemplateModal({
   initialData,
 }: CreateTemplateModalProps) {
   const initialValues: TemplateFormValues = {
-    name: initialData?.title || "",
+    name: initialData?.name || initialData?.title || "",
     description: initialData?.description || "",
     category: initialData?.category || "referralOutreach",
     subjectLine: initialData?.subjectLine || "",
-    body: initialData?.body || "",
+    body: initialData?.bodyContent || initialData?.body || "",
     tags: initialData?.tags?.join(", ") || "",
-    headerColor: initialData?.headerColor || "#0ea5e9",
-    accentColor: initialData?.accentColor || "#f97316",
-    organizationName: initialData?.organizationName || "Your Practice Name",
-    primaryButtonText: initialData?.primaryButtonText || "Call to Action",
-    secondaryButtonText: initialData?.secondaryButtonText || "Secondary Action",
-    coverImage: initialData?.image || "",
+    headerColor:
+      initialData?.designOptions?.headerColor ||
+      initialData?.headerColor ||
+      "#0ea5e9",
+    accentColor:
+      initialData?.designOptions?.accentColor ||
+      initialData?.accentColor ||
+      "#f97316",
+    organizationName:
+      initialData?.designOptions?.organizationName ||
+      initialData?.organizationName ||
+      "",
+    primaryButtonText:
+      initialData?.designOptions?.buttonText ||
+      initialData?.primaryButtonText ||
+      "Call to Action",
+    secondaryButtonText:
+      initialData?.designOptions?.secondaryButtonText ||
+      initialData?.secondaryButtonText ||
+      "Secondary Action",
+    coverImage: initialData?.mainImage || initialData?.image || "",
   };
 
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
@@ -116,7 +131,7 @@ export default function CreateTemplateModal({
       scrollBehavior="inside"
     >
       <ModalContent>
-        <ModalHeader className="flex flex-col gap-2 flex-shrink-0 p-4">
+        <ModalHeader className="flex flex-col gap-1.5 flex-shrink-0 p-4">
           <h4 className="text-base leading-none font-medium text-foreground">
             Create New Email Template
           </h4>
@@ -126,40 +141,44 @@ export default function CreateTemplateModal({
         </ModalHeader>
         <ModalBody className="p-4 py-0">
           <form onSubmit={formik.handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-2 gap-y-4">
-              <Input
-                size="sm"
-                radius="sm"
-                label="Template Name"
-                placeholder="e.g., Professional Partnership Invitation"
-                labelPlacement="outside"
-                name="name"
-                isRequired
-                value={formik.values.name}
-                onChange={formik.handleChange}
-                isInvalid={!!(formik.touched.name && formik.errors.name)}
-                errorMessage={formik.errors.name as string}
-              />
-
-              <Select
-                size="sm"
-                radius="sm"
-                label="Category"
-                placeholder="Select a category"
-                labelPlacement="outside"
-                name="category"
-                isRequired
-                selectedKeys={[formik.values.category]}
-                onSelectionChange={(keys) =>
-                  formik.setFieldValue("category", Array.from(keys)[0])
-                }
-              >
-                {CAMPAIGN_CATEGORIES.map(
-                  (cat: { label: string; value: string }) => (
-                    <SelectItem key={cat.value}>{cat.label}</SelectItem>
-                  ),
-                )}
-              </Select>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-2 gap-y-5">
+              <div>
+                <Input
+                  size="sm"
+                  radius="sm"
+                  label="Template Name"
+                  placeholder="e.g., Professional Partnership Invitation"
+                  labelPlacement="outside"
+                  name="name"
+                  isRequired
+                  value={formik.values.name}
+                  onChange={formik.handleChange}
+                  isInvalid={!!(formik.touched.name && formik.errors.name)}
+                  errorMessage={formik.errors.name as string}
+                />
+              </div>
+              <div className="relative flex items-start">
+                <Select
+                  size="sm"
+                  radius="sm"
+                  label="Category"
+                  placeholder="Select a category"
+                  labelPlacement="outside"
+                  name="category"
+                  isRequired
+                  selectedKeys={[formik.values.category]}
+                  disabledKeys={[formik.values.category]}
+                  onSelectionChange={(keys) =>
+                    formik.setFieldValue("category", Array.from(keys)[0])
+                  }
+                >
+                  {CAMPAIGN_CATEGORIES.map(
+                    (cat: { label: string; value: string }) => (
+                      <SelectItem key={cat.value}>{cat.label}</SelectItem>
+                    ),
+                  )}
+                </Select>
+              </div>
 
               <div className="md:col-span-2">
                 <Textarea
@@ -177,7 +196,7 @@ export default function CreateTemplateModal({
               <div className="md:col-span-2">
                 <label className="text-xs mb-1.5 block">Cover Image</label>
                 <div
-                  className={`border-2 border-dashed rounded-lg p-4 text-center transition-all duration-200 cursor-pointer ${
+                  className={`border-2 border-dashed rounded-lg px-4 py-6 text-center transition-all duration-200 cursor-pointer ${
                     selectedCoverImage
                       ? "border-green-400 bg-green-50/50 dark:bg-green-500/10 dark:border-green-500/50 hover:border-green-500"
                       : "border-foreground/10 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-content2"
@@ -293,12 +312,10 @@ export default function CreateTemplateModal({
                 <h5 className="text-sm font-medium">Design Options</h5>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-medium">
-                      Header Color
-                    </label>
+                    <label className="block text-xs">Header Color</label>
                     <div className="flex items-center gap-2">
                       <div
-                        className="size-8 rounded border cursor-pointer relative"
+                        className="size-8 rounded border border-foreground/50 cursor-pointer relative"
                         style={{ backgroundColor: formik.values.headerColor }}
                       >
                         <input
@@ -322,12 +339,10 @@ export default function CreateTemplateModal({
                     </div>
                   </div>
                   <div className="space-y-1.5">
-                    <label className="block text-xs font-medium">
-                      Accent Color
-                    </label>
+                    <label className="block text-xs">Accent Color</label>
                     <div className="flex items-center gap-2">
                       <div
-                        className="size-8 rounded border cursor-pointer relative"
+                        className="size-8 rounded border border-foreground/50 cursor-pointer relative"
                         style={{ backgroundColor: formik.values.accentColor }}
                       >
                         <input
@@ -380,7 +395,7 @@ export default function CreateTemplateModal({
               <div className="flex items-center justify-between border-b border-foreground/10 pb-2.5">
                 <h3 className="text-sm font-medium">Live Template Preview</h3>
               </div>
-              <div className="border border-foreground/10 rounded-xl overflow-hidden bg-white dark:bg-zinc-900 shadow-sm max-w-4xl mx-auto">
+              <div className="border border-foreground/10 rounded-xl overflow-hidden bg-white dark:bg-zinc-900 max-w-4xl mx-auto">
                 {/* Email Header */}
                 <div
                   className="p-3.5 text-center text-white"
