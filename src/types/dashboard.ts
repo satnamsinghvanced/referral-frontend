@@ -45,6 +45,14 @@ export interface DashboardData {
       comment?: string;
       createTime?: string;
     } | null;
+    campaigns: {
+      _id: string;
+      title: string;
+      name: string;
+      description: string;
+      createdAt: string;
+      updatedAt: string;
+    } | null;
   };
   reviews: {
     avgRating: number;
