@@ -20,25 +20,19 @@ const CampaignContentStep: React.ForwardRefRenderFunction<
   CampaignStepRef,
   CampaignStepProps
 > = ({ data, onNext, validationErrors }, ref) => {
-  const [emailContent, setEmailContent] = useState(data.emailContent);
+  const [content, setContent] = useState(data.content);
   const [view, setView] = useState<"desktop" | "mobile">("desktop");
   const [localError, setLocalError] = useState<string | undefined>(undefined);
 
-  const error = localError || validationErrors.emailContent;
+  const error = localError || validationErrors.content;
 
   const handleValidationAndNext = () => {
-    if (
-      !emailContent ||
-      emailContent.trim() === "" ||
-      emailContent.trim().length === 0
-    ) {
+    if (!content || content.trim() === "" || content.trim().length === 0) {
       setLocalError("Email content cannot be empty.");
-      // In a real application, you might also update parent state here
-      // setValidationErrors({ emailContent: "Email content cannot be empty." });
       return false;
     }
     setLocalError(undefined);
-    onNext({ emailContent });
+    onNext({ content });
     return true;
   };
 
@@ -82,18 +76,15 @@ const CampaignContentStep: React.ForwardRefRenderFunction<
 
       <div className="flex flex-grow gap-4 overflow-hidden">
         <div className="flex flex-col w-1/2 min-h-full">
-          <label
-            htmlFor="emailContent"
-            className="block text-xs font-medium mb-2"
-          >
+          <label htmlFor="content" className="block text-xs font-medium mb-2">
             Email Content
           </label>
           <Textarea
-            id="emailContent"
+            id="content"
             placeholder="Your email content will appear here..."
             minRows={15}
-            value={emailContent}
-            onChange={(e) => setEmailContent(e.target.value)}
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
             className="flex-grow resize-none"
             isInvalid={!!error}
           />
@@ -151,15 +142,13 @@ const CampaignContentStep: React.ForwardRefRenderFunction<
             )}
           >
             <p className="font-medium text-xs mb-1">
-              Subject: {data.subject || "Your Subject Line"}
+              Subject: {data.subjectLine || "Your Subject Line"}
             </p>
             <p className="text-xs text-gray-500 dark:text-foreground/50">
               From: Your Practice Name
             </p>
             <div className="text-xs text-gray-700 dark:text-foreground/70 whitespace-pre-wrap border-t border-foreground/10 pt-2.5 mt-2.5">
-              {emailContent
-                ? emailContent
-                : "Your email content will appear here..."}
+              {content ? content : "Your email content will appear here..."}
             </div>
           </div>
         </div>

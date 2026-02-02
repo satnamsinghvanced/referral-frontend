@@ -16,10 +16,12 @@ const SegmentCard = ({
   segment,
   onEdit,
   onDelete,
+  onExport,
 }: {
   segment: any;
   onEdit?: (segment: any) => void;
   onDelete?: (id: string) => void;
+  onExport?: (id: string) => void;
 }) => {
   const {
     id,
@@ -58,7 +60,7 @@ const SegmentCard = ({
   };
 
   return (
-    <div className="bg-background border border-foreground/10 rounded-xl p-5">
+    <div className="bg-background border border-foreground/10 rounded-xl p-4">
       <div className="flex justify-between items-start gap-2">
         <div className="flex items-start gap-2.5 w-full">
           <div className="flex flex-col gap-1">
@@ -165,7 +167,7 @@ const SegmentCard = ({
             radius="sm"
             variant="ghost"
             color="default"
-            onPress={() => console.log("View Report clicked")}
+            onPress={() => onExport && onExport(id)}
             startContent={<LuDownload className="size-3.5" />}
             className="border-small"
           >

@@ -15,73 +15,36 @@ interface CampaignStepProps {
   validationErrors: Record<string, string>;
 }
 
-interface AudienceSegment {
-  name: string;
-  contacts: number;
-  description: string;
-}
-
-const mockAudiences: AudienceSegment[] = [
-  {
-    name: "All Dental Practices",
-    contacts: 1247,
-    description: "All active dental practices in your referral network.",
-  },
-  {
-    name: "A-Level Partners",
-    contacts: 45,
-    description: "Top-tier referral partners with consistent referrals.",
-  },
-  {
-    name: "Recent Referrers",
-    contacts: 89,
-    description: "Partners who have referred a patient in the last 30 days.",
-  },
-  {
-    name: "Inactive Practices",
-    contacts: 156,
-    description: "Practices that haven't referred in 6+ months.",
-  },
-  {
-    name: "Tulsa Area Practices",
-    contacts: 234,
-    description: "All practices located in the Tulsa metropolitan area.",
-  },
-  {
-    name: "New Practices",
-    contacts: 67,
-    description: "Practices added to the network in the last 90 days.",
-  },
-];
+import { getAllAudiences } from "../../../../services/campaign";
+import { useQuery } from "@tanstack/react-query";
+import { LoadingState } from "../../../../components/common/LoadingState";
 
 const CampaignAudienceStep: React.ForwardRefRenderFunction<
   CampaignStepRef,
   CampaignStepProps
 > = ({ data, onNext }, ref) => {
-  // Initialize state using the full AudienceSegment structure for ease of use
-  const initialAudience =
-    mockAudiences.find((a) => a.name === data.selectedAudience?.name) ||
-    mockAudiences[0];
-  const [selectedAudience, setSelectedAudience] =
-    //   @ts-ignore
-    useState<AudienceSegment | null>(initialAudience);
+  const { data: audiencesRaw, isLoading } = useQuery({
+    queryKey: ["audiences"],
+    queryFn: () => getAllAudiences({ page: 1, limit: 100 }),
+  });
+
+  const [selectedAudienceId, setSelectedAudienceId] = useState<string | null>(
+    data.audienceId,
+  );
   const [localError, setLocalError] = useState<string | undefined>(undefined);
 
-  const error = localError;
+  const audiences = audiencesRaw?.audiences || [];
+  const selectedAudience = audiences.find((a) => a._id === selectedAudienceId);
 
-  const handleSelect = (audience: AudienceSegment) => {
-    setSelectedAudience(audience);
+  const handleSelect = (id: string) => {
+    setSelectedAudienceId(id);
     setLocalError(undefined);
   };
 
   const handleValidationAndNext = () => {
-    if (selectedAudience) {
-      // Only pass the required structure back to CampaignData
+    if (selectedAudienceId) {
       onNext({
-        selectedAudience: {
-          name: selectedAudience.name,
-          contacts: selectedAudience.contacts,
-        },
+        audienceId: selectedAudienceId,
       });
       return true;
     } else {
@@ -94,23 +57,31 @@ const CampaignAudienceStep: React.ForwardRefRenderFunction<
     triggerValidationAndProceed: handleValidationAndNext,
   }));
 
+  if (isLoading) {
+    return (
+      <div className="flex justify-center py-12">
+        <LoadingState />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <h4 className="font-medium">Select Audience</h4>
 
-      {error && (
+      {localError && (
         <div className="p-3 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
-          {error}
+          {localError}
         </div>
       )}
 
       <div className="grid grid-cols-3 gap-3">
-        {mockAudiences.map((audience) => {
-          const isSelected = selectedAudience?.name === audience.name;
+        {audiences.map((audience) => {
+          const isSelected = selectedAudienceId === audience._id;
           return (
             <Button
-              key={audience.name}
-              onPress={() => handleSelect(audience)}
+              key={audience._id}
+              onPress={() => handleSelect(audience._id)}
               className={clsx(
                 "p-3 h-full flex flex-col items-start justify-between text-left gap-1",
                 isSelected
@@ -133,7 +104,7 @@ const CampaignAudienceStep: React.ForwardRefRenderFunction<
                 />
               </div>
               <p className="text-xs text-gray-500 dark:text-foreground/50">
-                {audience.contacts} contacts
+                {audience.type}
               </p>
             </Button>
           );
@@ -153,8 +124,7 @@ const CampaignAudienceStep: React.ForwardRefRenderFunction<
           {selectedAudience?.name || "No Audience Selected"}
         </p>
         <p className="text-xs text-blue-600 dark:text-blue-500/80 mt-1">
-          {selectedAudience?.contacts || 0} recipients will receive this
-          campaign
+          {selectedAudience?.description}
         </p>
       </Card>
     </div>

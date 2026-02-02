@@ -5,6 +5,10 @@ import {
   CampaignFilters,
   CampaignTemplate,
   CampaignTemplatesResponse,
+  ICampaign,
+  ICampaignFilters,
+  ICampaignPayload,
+  IDashboardStats,
 } from "../types/campaign";
 import axios from "./axios";
 
@@ -83,4 +87,53 @@ export const importAudienceCsv = async (file: File): Promise<void> => {
   await axios.post(`/audience_segment/import-csv`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
+};
+
+export const getAllCampaigns = async (params: ICampaignFilters) => {
+  const { data } = await axios.get<{ campaigns: ICampaign[]; pagination: any }>(
+    "/campaigns",
+    { params },
+  );
+  return data;
+};
+
+export const getCampaignById = async (id: string) => {
+  const { data } = await axios.get<ICampaign>(`/campaigns/${id}`);
+  return data;
+};
+
+export const createCampaign = async (payload: ICampaignPayload) => {
+  const { data } = await axios.post<ICampaign>("/campaigns", payload);
+  return data;
+};
+
+export const updateCampaign = async (id: string, payload: ICampaignPayload) => {
+  const { data } = await axios.put<ICampaign>(`/campaigns/${id}`, payload);
+  return data;
+};
+
+export const duplicateCampaign = async (id: string) => {
+  const { data } = await axios.post<ICampaign>(`/campaigns/${id}/duplicate`);
+  return data;
+};
+
+export const archiveCampaign = async (id: string) => {
+  const { data } = await axios.patch<ICampaign>(`/campaigns/${id}/archive`);
+  return data;
+};
+
+export const pauseCampaign = async (id: string) => {
+  const { data } = await axios.patch<ICampaign>(`/campaigns/${id}/pause`);
+  return data;
+};
+
+export const deleteCampaign = async (id: string) => {
+  await axios.delete(`/campaigns/${id}`);
+};
+
+export const getDashboardStats = async () => {
+  const { data } = await axios.get<IDashboardStats>(
+    "/campaigns/dashboard/stats",
+  );
+  return data;
 };

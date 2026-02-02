@@ -5,12 +5,12 @@ export default function AudienceSegmentTypeChip({ type }: { type: string }) {
   let classNames;
 
   switch (type) {
-    case "Patients":
+    case "patients":
       classNames =
         "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-200 dark:border-green-800";
       break;
 
-    case "Referral Partners":
+    case "referralPartners":
       classNames =
         "bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 border-purple-200 dark:border-purple-800";
       break;

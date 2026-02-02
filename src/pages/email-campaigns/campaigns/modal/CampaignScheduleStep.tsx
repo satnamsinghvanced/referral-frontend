@@ -2,7 +2,11 @@ import { DatePicker, Input, Switch } from "@heroui/react";
 import clsx from "clsx";
 import React, { forwardRef, useImperativeHandle, useState } from "react";
 import { CampaignData } from "./CampaignActionModal";
-import { getLocalTimeZone, now } from "@internationalized/date";
+import {
+  getLocalTimeZone,
+  now,
+  parseAbsoluteToLocal,
+} from "@internationalized/date";
 
 export interface CampaignStepRef {
   triggerValidationAndProceed: () => void;
@@ -18,25 +22,34 @@ const CampaignScheduleStep: React.ForwardRefRenderFunction<
   CampaignStepRef,
   CampaignStepProps
 > = ({ data, onNext, validationErrors }, ref) => {
-  const [schedule, setSchedule] = useState<boolean>(false);
-  const [trackingOpens, setTrackingOpens] = useState(data.trackingOpens);
-  const [trackingClicks, setTrackingClicks] = useState(data.trackingClicks);
-  const [sendDate, setSendDate] = useState<string | null>(null);
+  const [sendImmediately, setSendImmediately] = useState<boolean>(
+    data.schedule.sendImmediately,
+  );
+  const [trackOpens, setTrackOpens] = useState(data.tracking.trackOpens);
+  const [trackClicks, setTrackClicks] = useState(data.tracking.trackClicks);
+  const [sendDate, setSendDate] = useState<string | undefined>(
+    data.schedule.date,
+  );
   const [localError, setLocalError] = useState<boolean>(false);
 
-  const error = localError || validationErrors.sendDate;
+  const error = localError || (validationErrors.schedule as any)?.date;
 
   const handleValidationAndNext = () => {
-    if (schedule && !sendDate) {
+    if (!sendImmediately && !sendDate) {
       setLocalError(true);
       return false;
     }
     setLocalError(false);
 
     onNext({
-      schedule,
-      trackingOpens,
-      trackingClicks,
+      schedule: {
+        sendImmediately,
+        date: sendDate || undefined,
+      },
+      tracking: {
+        trackOpens,
+        trackClicks,
+      },
     });
     return true;
   };
@@ -46,7 +59,7 @@ const CampaignScheduleStep: React.ForwardRefRenderFunction<
   }));
 
   const handleToggleScheduleLater = (val: boolean) => {
-    setSchedule(val);
+    setSendImmediately(!val);
   };
 
   return (
@@ -56,7 +69,7 @@ const CampaignScheduleStep: React.ForwardRefRenderFunction<
       <div className="pt-2">
         <Switch
           size="sm"
-          isSelected={schedule}
+          isSelected={!sendImmediately}
           onValueChange={handleToggleScheduleLater}
           classNames={{
             label: "text-sm text-gray-700 dark:text-foreground/70",
@@ -65,7 +78,7 @@ const CampaignScheduleStep: React.ForwardRefRenderFunction<
           Schedule for later
         </Switch>
 
-        {schedule && (
+        {!sendImmediately && (
           <div className="mt-4">
             <DatePicker
               id="scheduleDate"
@@ -75,25 +88,18 @@ const CampaignScheduleStep: React.ForwardRefRenderFunction<
               size="sm"
               radius="sm"
               minValue={now(getLocalTimeZone())}
+              defaultValue={
+                sendDate && sendDate !== ""
+                  ? parseAbsoluteToLocal(new Date(sendDate).toISOString())
+                  : null
+              }
               onChange={(dateObject: any) => {
                 if (dateObject) {
-                  const year = dateObject.year;
-                  const month = String(dateObject.month).padStart(2, "0");
-                  const day = String(dateObject.day).padStart(2, "0");
-                  const hour = String(dateObject.hour).padStart(2, "0");
-                  const minute = String(dateObject.minute).padStart(2, "0");
-                  const second = String(dateObject.second).padStart(2, "0");
-                  const millisecond = String(dateObject.millisecond).padStart(
-                    3,
-                    "0",
-                  );
-
-                  const localDateTimeString = `${year}-${month}-${day}T${hour}:${minute}:${second}.${millisecond}Z`;
-
-                  setSendDate(localDateTimeString);
-                  if (localDateTimeString) setLocalError(false);
+                  const date = dateObject.toDate(getLocalTimeZone());
+                  setSendDate(date.toISOString());
+                  setLocalError(false);
                 } else {
-                  setSendDate(null);
+                  setSendDate(undefined);
                 }
               }}
               granularity="minute"
@@ -113,8 +119,8 @@ const CampaignScheduleStep: React.ForwardRefRenderFunction<
       <div>
         <Switch
           size="sm"
-          isSelected={trackingOpens}
-          onValueChange={setTrackingOpens}
+          isSelected={trackOpens}
+          onValueChange={setTrackOpens}
           classNames={{
             label: "text-sm text-gray-700 dark:text-foreground/70",
           }}
@@ -125,8 +131,8 @@ const CampaignScheduleStep: React.ForwardRefRenderFunction<
       <div>
         <Switch
           size="sm"
-          isSelected={trackingClicks}
-          onValueChange={setTrackingClicks}
+          isSelected={trackClicks}
+          onValueChange={setTrackClicks}
           classNames={{
             label: "text-sm text-gray-700 dark:text-foreground/70",
           }}

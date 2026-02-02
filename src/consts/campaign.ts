@@ -75,14 +75,33 @@ export const AUDIENCE_SEGMENT_STATUSES = [
 export const AUDIENCE_TYPES = [
   {
     label: "Dental Practices",
-    value: "Dental Practices",
+    value: "dentalPractices",
   },
   {
     label: "Patients",
-    value: "Patients",
+    value: "patients",
   },
   {
     label: "Referral Partners",
-    value: "Referral Partners",
+    value: "referralPartners",
   },
+];
+
+export const PRACTICE_SIZES = [
+  { label: "Solo Practice (1 doctor)", value: "soloPractice (1 doctor)" },
+  { label: "Small Group (2-4 doctors)", value: "smallGroup (2-4 doctors)" },
+  { label: "Large Group (5+ doctors)", value: "largeGroup (5+ doctors)" },
+];
+
+export const PARTNER_LEVELS = [
+  { label: "A-Level", value: "aLevel (10+ referrals/month)" },
+  { label: "B-Level", value: "bLevel (5-9 referrals/month)" },
+  { label: "C-Level", value: "cLevel (1-4 referrals/month)" },
+];
+
+export const ACTIVITY_TIMEFRAMES = [
+  { label: "Last 7 days", value: "last7Days" },
+  { label: "Last 30 days", value: "last30Days" },
+  { label: "Last 90 days", value: "last90Days" },
+  { label: "60+ days ago", value: "60+DaysAgo" },
 ];

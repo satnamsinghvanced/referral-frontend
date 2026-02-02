@@ -10,8 +10,8 @@ import ComponentContainer from "../../components/common/ComponentContainer";
 import Analytics from "./analytics/Analytics";
 import Audiences from "./audiences/Audiences";
 import Automation from "./automation/Automation";
-import Campaigns from "./Campaigns";
-import CampaignActionModal from "./modal/CampaignActionModal";
+import Campaigns from "./campaigns/Campaigns";
+import CampaignActionModal from "./campaigns/modal/CampaignActionModal";
 import Overview from "./Overview";
 import Templates from "./templates/Templates";
 
@@ -131,7 +131,7 @@ const EmailCampaigns = () => {
       <CampaignActionModal
         isOpen={isActionModalOpen}
         onClose={() => setIsActionModalOpen(false)}
-        onSubmit={() => {}}
+        // onSubmit={() => {}}
       />
     </>
   );

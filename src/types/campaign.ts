@@ -171,3 +171,88 @@ export interface CampaignMetric {
   clickRate: string;
   conversions: number;
 }
+
+// ------------------------
+
+export type CampaignStatus =
+  | "draft"
+  | "scheduled"
+  | "paused"
+  | "archived"
+  | "sent"
+  | "active";
+export type CampaignType = "oneTimeEmail" | "newsletter";
+export type CampaignCategory = "referralOutreach" | "newsletters";
+
+export interface ICampaignStats {
+  sentCount: number;
+  openCount: number;
+  clickCount: number;
+  conversionCount: number;
+  bounceCount: number;
+  unsubscribeCount: number;
+  openRate: number | string;
+  clickRate: number | string;
+  conversionRate: number | string;
+}
+
+export interface ICampaignSchedule {
+  sendImmediately: boolean;
+  date?: string;
+}
+
+export interface ICampaignTracking {
+  trackOpens: boolean;
+  trackClicks: boolean;
+}
+
+// Used for GET responses where IDs are often populated
+export interface ICampaign {
+  _id: string;
+  userId: string | { _id: string; email: string };
+  name: string;
+  subjectLine: string;
+  type: CampaignType;
+  category: CampaignCategory;
+  isABTesting: boolean;
+  templateId:
+    | string
+    | { _id: string; name: string; subjectLine: string }
+    | null;
+  audienceId: string | { _id: string; name: string } | null;
+  content: string;
+  schedule: ICampaignSchedule;
+  tracking: ICampaignTracking;
+  status: CampaignStatus;
+  stats: ICampaignStats;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Used for POST/PUT requests
+export interface ICampaignPayload extends Partial<
+  Omit<ICampaign, "_id" | "stats" | "createdAt" | "updatedAt">
+> {
+  templateId?: string;
+  audienceId?: string;
+}
+
+export interface ICampaignFilters {
+  page?: number;
+  limit?: number;
+  status?: CampaignStatus | "";
+  category?: CampaignCategory | "";
+  search?: string;
+}
+
+export interface IDashboardStats {
+  stats: {
+    total: number;
+    active: number;
+    sent: number;
+    openRate: string;
+    clickRate: string;
+    conversions: number;
+  };
+  recentCampaigns: ICampaign[];
+}

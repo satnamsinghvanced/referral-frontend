@@ -11,13 +11,9 @@ export interface CampaignStepRef {
 
 const SetupSchema = Yup.object().shape({
   name: Yup.string().required("Campaign Name is required"),
-  subject: Yup.string().required("Email Subject Line is required"),
-  type: Yup.string<CampaignData["type"]>().required(
-    "Campaign Type is required",
-  ),
-  category: Yup.string<CampaignData["category"]>().required(
-    "Category is required",
-  ),
+  subjectLine: Yup.string().required("Email Subject Line is required"),
+  type: Yup.string().required("Campaign Type is required"),
+  category: Yup.string().required("Category is required"),
 });
 
 const CampaignSetupStep: React.ForwardRefRenderFunction<
@@ -40,20 +36,19 @@ const CampaignSetupStep: React.ForwardRefRenderFunction<
     },
   }));
 
-  const types: CampaignData["type"][] = [
-    "One-time Email",
-    "Automated Sequence",
+  const types = [
+    { value: "oneTimeEmail", label: "One-time Email" },
+    { value: "newsletter", label: "Newsletter" },
   ];
-  const categories: CampaignData["category"][] = [
-    "Referral Outreach",
-    "Patient Follow-up",
-    "Practice Updates",
+  const categories = [
+    { value: "referralOutreach", label: "Referral Outreach" },
+    { value: "newsletters", label: "Newsletters" },
   ];
 
   const isError = (field: keyof CampaignData) =>
     !!(formik.touched[field] && formik.errors[field]);
   const getErrorMessage = (field: keyof CampaignData) =>
-    formik.touched[field] ? formik.errors[field] : undefined;
+    formik.touched[field] ? (formik.errors[field] as string) : undefined;
 
   return (
     <form onSubmit={formik.handleSubmit} className="space-y-4 md:space-y-5">
@@ -79,12 +74,12 @@ const CampaignSetupStep: React.ForwardRefRenderFunction<
         label="Email Subject Line"
         labelPlacement="outside-top"
         placeholder="Enter email subject..."
-        name="subject"
-        value={formik.values.subject}
+        name="subjectLine"
+        value={formik.values.subjectLine}
         onChange={formik.handleChange}
         onBlur={formik.handleBlur}
-        isInvalid={isError("subject")}
-        errorMessage={getErrorMessage("subject")}
+        isInvalid={isError("subjectLine")}
+        errorMessage={getErrorMessage("subjectLine")}
       />
 
       <div className="grid grid-cols-2 gap-3">
@@ -106,7 +101,7 @@ const CampaignSetupStep: React.ForwardRefRenderFunction<
           className="w-full"
         >
           {types.map((type) => (
-            <SelectItem key={type}>{type}</SelectItem>
+            <SelectItem key={type.value}>{type.label}</SelectItem>
           ))}
         </Select>
 
@@ -128,7 +123,7 @@ const CampaignSetupStep: React.ForwardRefRenderFunction<
           className="w-full"
         >
           {categories.map((category) => (
-            <SelectItem key={category}>{category}</SelectItem>
+            <SelectItem key={category.value}>{category.label}</SelectItem>
           ))}
         </Select>
       </div>
@@ -136,9 +131,9 @@ const CampaignSetupStep: React.ForwardRefRenderFunction<
       <div>
         <Switch
           size="sm"
-          isSelected={formik.values.abTesting}
+          isSelected={formik.values.isABTesting}
           onValueChange={(isSelected: boolean) => {
-            formik.setFieldValue("abTesting", isSelected);
+            formik.setFieldValue("isABTesting", isSelected);
           }}
         >
           Enable A/B Testing

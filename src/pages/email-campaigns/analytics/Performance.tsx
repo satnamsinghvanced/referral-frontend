@@ -24,7 +24,10 @@ const Performance = () => {
   ];
 
   return (
-    <Card shadow="none" className="bg-background border border-foreground/10 p-5 col-span-2">
+    <Card
+      shadow="none"
+      className="bg-background border border-foreground/10 p-5 col-span-2"
+    >
       <CardHeader className="p-0 pb-5 md:pb-8">
         <h4 className="text-sm font-medium flex items-center gap-2">
           <div className="w-1 h-6 bg-blue-500 rounded-full"></div>

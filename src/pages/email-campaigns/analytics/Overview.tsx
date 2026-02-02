@@ -232,7 +232,7 @@ const Overview = () => {
       </div>
       <Card
         shadow="none"
-        className="bg-background border border-foreground/10 p-5"
+        className="bg-background border border-foreground/10 p-4"
       >
         <CardHeader className="p-0 pb-4">
           <h4 className="text-sm font-medium flex items-center gap-2">

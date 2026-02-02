@@ -7,10 +7,8 @@ import { PiFunnelX } from "react-icons/pi";
 import EmptyState from "../../../components/common/EmptyState";
 import { LoadingState } from "../../../components/common/LoadingState";
 import Pagination from "../../../components/common/Pagination";
-import {
-  AUDIENCE_SEGMENT_STATUSES,
-  AUDIENCE_TYPES,
-} from "../../../consts/campaign";
+import DeleteConfirmationModal from "../../../components/common/DeleteConfirmationModal";
+import { AUDIENCE_SEGMENT_STATUSES } from "../../../consts/campaign";
 import { useDebouncedValue } from "../../../hooks/common/useDebouncedValue";
 import {
   useAudiences,
@@ -21,17 +19,20 @@ import {
 import {
   AudienceFilters,
   AudienceSegment,
+  AudienceStatus,
   Segment,
 } from "../../../types/campaign";
 import SegmentCard from "./SegmentCard";
 import CreateSegmentModal, {
   SegmentFormValues,
 } from "./modal/CreateSegmentModal";
+import BulkImportSegmentsModal from "./modal/BulkImportSegmentsModal";
 
 const INITIAL_FILTERS: AudienceFilters = {
   page: 1,
-  limit: 10,
+  limit: 5,
   search: "",
+  filter: "" as AudienceStatus,
 };
 
 const Audiences: React.FC = () => {
@@ -41,6 +42,11 @@ const Audiences: React.FC = () => {
   const [editingSegment, setEditingSegment] = useState<
     SegmentFormValues | undefined
   >(undefined);
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [segmentToDeleteId, setSegmentToDeleteId] = useState<string | null>(
+    null,
+  );
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   // Debounce search
   const debouncedSearch = useDebouncedValue(currentFilters.search, 500);
@@ -106,15 +112,43 @@ const Audiences: React.FC = () => {
   };
 
   const handleDelete = (id: string) => {
-    if (window.confirm("Are you sure you want to delete this segment?")) {
-      deleteMutation.mutate(id);
+    setSegmentToDeleteId(id);
+    setDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (segmentToDeleteId) {
+      deleteMutation.mutate(segmentToDeleteId, {
+        onSuccess: () => {
+          setDeleteModalOpen(false);
+          setSegmentToDeleteId(null);
+        },
+      });
+    }
+  };
+
+  const handleExport = (id: string) => {
+    const audience = audiences.find((a) => a._id === id);
+    if (audience) {
+      const dataStr = JSON.stringify(audience, null, 2);
+      const dataUri =
+        "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
+
+      const exportFileDefaultName = `${audience.name
+        .replace(/\s+/g, "_")
+        .toLowerCase()}_segment.json`;
+
+      const linkElement = document.createElement("a");
+      linkElement.setAttribute("href", dataUri);
+      linkElement.setAttribute("download", exportFileDefaultName);
+      linkElement.click();
     }
   };
 
   const handleFilterChange = (key: keyof AudienceFilters, value: any) => {
     setCurrentFilters((prev) => ({
       ...prev,
-      [key]: value === "all" ? undefined : value,
+      [key]: value,
       page: 1,
     }));
   };
@@ -149,7 +183,7 @@ const Audiences: React.FC = () => {
         <div data-slot="card-content" className="p-4">
           <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] gap-3">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-              <div className="relative">
+              <div className="relative col-span-2">
                 <Input
                   placeholder="Search segments..."
                   size="sm"
@@ -166,31 +200,16 @@ const Audiences: React.FC = () => {
                 aria-label="Statuses"
                 placeholder="All Statuses"
                 size="sm"
-                selectedKeys={
-                  currentFilters.filter ? [currentFilters.filter] : ["all"]
-                }
+                selectedKeys={[currentFilters.filter as string]}
+                disabledKeys={[currentFilters.filter as string]}
                 onSelectionChange={(keys) =>
                   handleFilterChange("filter", Array.from(keys)[0] as string)
                 }
               >
                 <>
-                  <SelectItem key="all">All Statuses</SelectItem>
+                  <SelectItem key="">All Statuses</SelectItem>
                   {AUDIENCE_SEGMENT_STATUSES.map((status) => (
                     <SelectItem key={status.value}>{status.label}</SelectItem>
-                  ))}
-                </>
-              </Select>
-
-              <Select
-                aria-label="Types"
-                placeholder="All types"
-                size="sm"
-                isDisabled
-              >
-                <>
-                  <SelectItem key="all">All Types</SelectItem>
-                  {AUDIENCE_TYPES.map((type) => (
-                    <SelectItem key={type.value}>{type.label}</SelectItem>
                   ))}
                 </>
               </Select>
@@ -209,17 +228,17 @@ const Audiences: React.FC = () => {
                 Clear Filters
               </Button>
 
-              <Button
+              {/* <Button
                 size="sm"
                 radius="sm"
                 variant="ghost"
                 color="default"
                 className="border-small flex-1"
                 startContent={<LuUpload className="size-3.5" />}
-                onPress={() => setCurrentFilters(INITIAL_FILTERS)}
+                onPress={() => setIsImportModalOpen(true)}
               >
                 Import
-              </Button>
+              </Button> */}
 
               <Button
                 size="sm"
@@ -248,6 +267,24 @@ const Audiences: React.FC = () => {
         }}
         onSubmit={handleCreateSegment}
         initialValues={editingSegment}
+        isLoading={createMutation.isPending || updateMutation.isPending}
+      />
+
+      <BulkImportSegmentsModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+      />
+
+      <DeleteConfirmationModal
+        isOpen={deleteModalOpen}
+        onClose={() => {
+          setDeleteModalOpen(false);
+          setSegmentToDeleteId(null);
+        }}
+        onConfirm={handleConfirmDelete}
+        isLoading={deleteMutation.isPending}
+        title="Delete Audience Segment"
+        description="Are you sure you want to delete this audience segment? This action cannot be undone."
       />
 
       {isLoading ? (
@@ -267,6 +304,7 @@ const Audiences: React.FC = () => {
               segment={mapToSegment(audience)}
               onEdit={handleEdit}
               onDelete={handleDelete}
+              onExport={handleExport}
             />
           ))}
         </div>

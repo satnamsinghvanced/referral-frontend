@@ -24,7 +24,7 @@ const FlowCard = ({ flow }: any) => {
   };
 
   return (
-    <div className="bg-background border border-foreground/10 rounded-xl p-5">
+    <div className="bg-background border border-foreground/10 rounded-xl p-4">
       <div className="flex justify-between items-start gap-2">
         <div className="flex items-start gap-2.5 w-full">
           <span className="inline-block mt-0.5">

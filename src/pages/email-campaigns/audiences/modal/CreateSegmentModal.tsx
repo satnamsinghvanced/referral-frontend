@@ -12,13 +12,20 @@ import {
 import { useFormik } from "formik";
 import React, { useEffect } from "react";
 import * as Yup from "yup";
-import { AUDIENCE_TYPES } from "../../../../consts/campaign";
+import {
+  ACTIVITY_TIMEFRAMES,
+  AUDIENCE_SEGMENT_STATUSES,
+  AUDIENCE_TYPES,
+  PARTNER_LEVELS,
+  PRACTICE_SIZES,
+} from "../../../../consts/campaign";
 
 interface CreateSegmentModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSubmit: (values: SegmentFormValues) => void;
   initialValues?: SegmentFormValues | undefined;
+  isLoading?: boolean;
 }
 
 export interface SegmentFormValues {
@@ -33,30 +40,6 @@ export interface SegmentFormValues {
   _id?: string | undefined;
 }
 
-const PRACTICE_SIZES = [
-  { label: "Solo Practice (1 doctor)", value: "Solo Practice (1 doctor)" },
-  { label: "Small Group (2-4 doctors)", value: "Small Group (2-4 doctors)" },
-  { label: "Large Group (5+ doctors)", value: "Large Group (5+ doctors)" },
-];
-
-const PARTNER_LEVELS = [
-  { label: "A-Level", value: "A-Level (10+ referrals/month)" },
-  { label: "B-Level", value: "B-Level (5-9 referrals/month)" },
-  { label: "C-Level", value: "C-Level (1-4 referrals/month)" },
-];
-
-const ACTIVITY_TIMEFRAMES = [
-  { label: "Last 7 days", value: "Last 7 days" },
-  { label: "Last 30 days", value: "Last 30 days" },
-  { label: "Last 90 days", value: "Last 90 days" },
-  { label: "60+ days ago", value: "60+ days ago" },
-];
-
-const STATUS_OPTIONS = [
-  { label: "Active", value: "Active" },
-  { label: "Inactive", value: "Inactive" },
-];
-
 const ValidationSchema = Yup.object().shape({
   name: Yup.string().required("Segment name is required"),
   description: Yup.string().required("Description is required"),
@@ -69,6 +52,7 @@ const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({
   onClose,
   onSubmit,
   initialValues,
+  isLoading,
 }) => {
   const formik = useFormik<SegmentFormValues>({
     initialValues: {
@@ -79,16 +63,22 @@ const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({
       partnerLevel: "",
       lastActivity: "",
       location: "",
-      status: "Active",
+      status: "active",
       ...initialValues,
     },
     enableReinitialize: true,
     validationSchema: ValidationSchema,
     onSubmit: (values) => {
       onSubmit(values);
-      formik.resetForm();
     },
   });
+
+  // Reset form when modal closes
+  useEffect(() => {
+    if (!isOpen) {
+      formik.resetForm();
+    }
+  }, [isOpen]);
 
   // Reset conditional fields when audience type changes
   useEffect(() => {
@@ -99,13 +89,12 @@ const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({
   }, [formik.values.audienceType]);
 
   const handleClose = () => {
-    formik.resetForm();
     onClose();
   };
 
   const renderConditionalField = () => {
     switch (formik.values.audienceType) {
-      case "Dental Practices":
+      case "dentalPractices":
         return (
           <div className="w-full relative">
             <Select
@@ -140,7 +129,7 @@ const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({
             </Select>
           </div>
         );
-      case "Referral Partners":
+      case "referralPartners":
         return (
           <div className="w-full relative">
             <Select
@@ -346,7 +335,7 @@ const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({
                     )
                   }
                 >
-                  {STATUS_OPTIONS.map((status) => (
+                  {AUDIENCE_SEGMENT_STATUSES.map((status) => (
                     <SelectItem key={status.value}>{status.label}</SelectItem>
                   ))}
                 </Select>
@@ -373,6 +362,7 @@ const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({
             size="sm"
             radius="sm"
             onPress={() => formik.handleSubmit()}
+            isLoading={!!isLoading}
           >
             {initialValues ? "Update Segment" : "Create Segment"}
           </Button>

@@ -18,21 +18,32 @@ import CampaignAudienceStep from "./CampaignAudienceStep";
 import CampaignScheduleStep from "./CampaignScheduleStep";
 import CampaignReviewStep from "./CampaignReviewStep";
 import { FaRegEnvelope } from "react-icons/fa";
+import { ICampaign, ICampaignPayload } from "../../../../types/campaign";
+import {
+  useCreateCampaign,
+  useUpdateCampaign,
+} from "../../../../hooks/useCampaign";
+import { useEffect } from "react";
 
 // --- Interface Definitions ---
 
 export interface CampaignData {
   name: string;
-  subject: string;
-  type: "One-time Email" | "Automated Sequence";
-  category: "Referral Outreach" | "Patient Follow-up" | "Practice Updates";
-  abTesting: boolean;
-  selectedTemplate: { id: number; title: string; category: string } | null;
-  emailContent: string;
-  selectedAudience: { name: string; contacts: number } | null;
-  schedule: boolean;
-  trackingOpens: boolean;
-  trackingClicks: boolean;
+  subjectLine: string;
+  type: string;
+  category: string;
+  isABTesting: boolean;
+  templateId: string | null;
+  content: string;
+  audienceId: string | null;
+  schedule: {
+    sendImmediately: boolean;
+    date?: string | undefined;
+  };
+  tracking: {
+    trackOpens: boolean;
+    trackClicks: boolean;
+  };
 }
 
 export interface CampaignStepProps {
@@ -44,27 +55,31 @@ export interface CampaignStepProps {
 interface CampaignActionModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: CampaignData) => void;
+  editingCampaign?: ICampaign | null;
 }
 
 const initialCampaignData: CampaignData = {
-  name: "New Campaign Draft",
-  subject: "Check out our new offer!",
-  type: "One-time Email",
-  category: "Referral Outreach",
-  abTesting: false,
-  selectedTemplate: null,
-  emailContent: "Your email content will appear here...",
-  selectedAudience: null,
-  schedule: true,
-  trackingOpens: true,
-  trackingClicks: true,
+  name: "",
+  subjectLine: "",
+  type: "oneTimeEmail",
+  category: "referralOutreach",
+  isABTesting: false,
+  templateId: null,
+  content: "",
+  audienceId: null,
+  schedule: {
+    sendImmediately: true,
+  },
+  tracking: {
+    trackOpens: true,
+    trackClicks: true,
+  },
 };
 
 const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
   isOpen,
   onClose,
-  onSubmit,
+  editingCampaign,
 }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [campaignData, setCampaignData] =
@@ -72,6 +87,34 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
   >({});
+
+  const createMutation = useCreateCampaign();
+  const updateMutation = useUpdateCampaign();
+
+  useEffect(() => {
+    if (editingCampaign) {
+      setCampaignData({
+        name: editingCampaign.name,
+        subjectLine: editingCampaign.subjectLine,
+        type: editingCampaign.type,
+        category: editingCampaign.category,
+        isABTesting: editingCampaign.isABTesting,
+        templateId:
+          typeof editingCampaign.templateId === "string"
+            ? editingCampaign.templateId
+            : editingCampaign.templateId?._id || null,
+        content: editingCampaign.content,
+        audienceId:
+          typeof editingCampaign.audienceId === "string"
+            ? editingCampaign.audienceId
+            : editingCampaign.audienceId?._id || null,
+        schedule: editingCampaign.schedule,
+        tracking: editingCampaign.tracking,
+      });
+    } else {
+      setCampaignData(initialCampaignData);
+    }
+  }, [editingCampaign]);
 
   // Ref to hold the current step component's exposed methods
   const stepRef = useRef<CampaignStepRef>(null);
@@ -132,8 +175,39 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
   };
 
   const handleSubmitCampaign = () => {
-    onSubmit(campaignData);
-    handleClose();
+    const payload: ICampaignPayload = {
+      ...campaignData,
+      status: campaignData.schedule.sendImmediately ? "sent" : "scheduled",
+      templateId: campaignData.templateId || undefined,
+      audienceId: campaignData.audienceId || undefined,
+    } as ICampaignPayload;
+
+    if (editingCampaign) {
+      updateMutation.mutate(
+        { id: editingCampaign._id, payload },
+        { onSuccess: handleClose },
+      );
+    } else {
+      createMutation.mutate(payload, { onSuccess: handleClose });
+    }
+  };
+
+  const handleSaveDraft = () => {
+    const payload: ICampaignPayload = {
+      ...campaignData,
+      status: "draft",
+      templateId: campaignData.templateId || undefined,
+      audienceId: campaignData.audienceId || undefined,
+    } as ICampaignPayload;
+
+    if (editingCampaign) {
+      updateMutation.mutate(
+        { id: editingCampaign._id, payload },
+        { onSuccess: handleClose },
+      );
+    } else {
+      createMutation.mutate(payload, { onSuccess: handleClose });
+    }
   };
 
   return (
@@ -145,6 +219,7 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
         base: `w-full max-sm:!m-3 !m-0`,
         closeButton: "cursor-pointer",
       }}
+      scrollBehavior="inside"
     >
       <ModalContent>
         <ModalHeader className="flex justify-between items-center py-4 px-5 border-b border-foreground/10 font-normal">
@@ -210,7 +285,8 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
                 radius="sm"
                 variant="ghost"
                 color="default"
-                onPress={() => alert("Draft Saved!")}
+                onPress={handleSaveDraft}
+                isLoading={createMutation.isPending || updateMutation.isPending}
                 startContent={<LuSave className="w-4 h-4" />}
                 className="border-small"
               >
@@ -222,6 +298,7 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
                 variant="solid"
                 color="primary"
                 onPress={handleSubmitCampaign}
+                isLoading={createMutation.isPending || updateMutation.isPending}
                 startContent={<LuSend className="w-4 h-4" />}
                 className="border-small"
               >
