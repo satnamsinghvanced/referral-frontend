@@ -110,7 +110,7 @@ const ReferralStatusModal = ({
       }}
     >
       <ModalContent>
-        <ModalHeader className="flex flex-col gap-1 px-4">
+        <ModalHeader className="flex flex-col gap-1 p-4">
           <h4 className="text-base font-medium dark:text-white">
             {modalTitle}
           </h4>
@@ -142,9 +142,7 @@ const ReferralStatusModal = ({
                 </div>
                 {referral?.estValue && referral?.estValue > 0 ? (
                   <div className="text-right">
-                    <p className="text-[10px] uppercase font-bold text-default-400 tracking-wider">
-                      Est. Value
-                    </p>
+                    <p className="text-xs text-default-400">Est. Value</p>
                     <p className="text-sm font-bold text-success flex items-center justify-end">
                       <LuDollarSign size={12} />
                       {referral?.estValue.toLocaleString()}
@@ -216,7 +214,7 @@ const ReferralStatusModal = ({
                   )}
                   {referral?.notes && (
                     <div className="bg-foreground/[0.02] dark:bg-foreground/[0.04] p-3 rounded-lg border border-divider">
-                      <p className="text-[11px] uppercase font-bold text-default-400 mb-1">
+                      <p className="text-xs text-default-400 mb-1">
                         Patient Notes
                       </p>
                       <p className="text-xs text-foreground/80 leading-relaxed italic">
@@ -226,7 +224,7 @@ const ReferralStatusModal = ({
                   )}
                   {referral?.additionalNotes && (
                     <div className="bg-foreground/[0.02] dark:bg-foreground/[0.04] p-3 rounded-lg border border-divider">
-                      <p className="text-[11px] uppercase font-bold text-default-400 mb-1">
+                      <p className="text-xs text-default-400 mb-1">
                         Additional Information
                       </p>
                       <p className="text-xs text-foreground/80 leading-relaxed italic">
@@ -237,12 +235,12 @@ const ReferralStatusModal = ({
                   {referral?.statusNotes && (
                     <div className="bg-primary/5 p-3 rounded-lg border border-primary/10">
                       <div className="flex items-center gap-1.5 mb-1">
-                        <LuClock size={10} className="text-primary" />
-                        <p className="text-[11px] uppercase font-bold text-primary">
+                        <LuClock size={12} className="text-primary" />
+                        <p className="text-xs text-primary">
                           Status Update Note
                         </p>
                       </div>
-                      <p className="text-xs text-foreground/90 font-medium">
+                      <p className="text-xs text-foreground/90">
                         {referral.statusNotes}
                       </p>
                     </div>
@@ -382,9 +380,7 @@ const InfoItem = ({
       {icon}
     </div>
     <div className="min-w-0 flex-1">
-      <p className="text-[10px] uppercase font-semibold text-default-400 tracking-wider">
-        {label}
-      </p>
+      <p className="text-xs text-default-400">{label}</p>
       <p className="text-xs font-medium dark:text-white truncate">{value}</p>
     </div>
   </div>

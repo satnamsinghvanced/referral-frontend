@@ -1,14 +1,17 @@
-import { Card, CardBody, CardHeader, Switch } from "@heroui/react";
-import clsx from "clsx";
+import { Button, Card, CardBody, CardHeader } from "@heroui/react";
 import dayjs from "dayjs";
 import React, { useState } from "react";
 import { BiDevices } from "react-icons/bi";
-import { FiMonitor, FiSmartphone } from "react-icons/fi";
+import { FiMonitor, FiSmartphone, FiTrash2 } from "react-icons/fi";
 import EmptyState from "../../components/common/EmptyState";
 import { LoadingState } from "../../components/common/LoadingState";
 import Pagination from "../../components/common/Pagination";
 import { EVEN_PAGINATION_LIMIT } from "../../consts/consts";
-import { useDevices, useToggleDevice } from "../../hooks/settings/useDevice";
+import {
+  useDevices,
+  useRemoveDevice,
+  useToggleDevice,
+} from "../../hooks/settings/useDevice";
 import { Device } from "../../types/device";
 
 const Devices: React.FC = () => {
@@ -16,10 +19,19 @@ const Devices: React.FC = () => {
   const limit = EVEN_PAGINATION_LIMIT;
 
   const { data: devices, isLoading } = useDevices({ page, limit });
-  const { mutate: toggleDevice, isPending: isToggling } = useToggleDevice();
+  const { mutate: removeDevice } = useRemoveDevice();
+  const [deletingDeviceId, setDeletingDeviceId] = useState<string | null>(null);
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);
+  };
+
+  const handleRemove = (id: string) => {
+    if (deletingDeviceId) return;
+    setDeletingDeviceId(id);
+    removeDevice(id, {
+      onSettled: () => setDeletingDeviceId(null),
+    });
   };
 
   const getDeviceIcon = (deviceType?: string) => {
@@ -80,26 +92,21 @@ const Devices: React.FC = () => {
               </div>
 
               <div className="flex items-center gap-4 max-md:gap-3">
-                <div className="flex items-center gap-2 max-md:w-full max-md:justify-between">
-                  <span
-                    className={clsx(
-                      "inline-flex items-center justify-center rounded-md px-2 py-1 text-[11px] font-medium w-fit whitespace-nowrap shrink-0",
-                      device.isActive
-                        ? "bg-sky-100 dark:bg-sky-900/30 text-sky-800 dark:text-sky-300"
-                        : "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400",
-                    )}
-                  >
-                    {device.isActive ? "Enabled" : "Disabled"}
-                  </span>
-                  <Switch
+                {!device.isCurrentDevice && (
+                  <Button
+                    isIconOnly
                     size="sm"
-                    isSelected={device.isActive}
-                    onValueChange={(isSelected) =>
-                      toggleDevice({ id: device._id, toggle: isSelected })
-                    }
-                    disabled={isToggling}
-                  />
-                </div>
+                    variant="light"
+                    color="danger"
+                    radius="sm"
+                    onPress={() => handleRemove(device._id)}
+                    isLoading={deletingDeviceId === device._id}
+                    title="Terminate Session"
+                    className="hover:bg-danger/10"
+                  >
+                    <FiTrash2 className="size-4" />
+                  </Button>
+                )}
               </div>
             </div>
           ))

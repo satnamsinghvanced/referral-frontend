@@ -1,6 +1,3 @@
-import React, { useState, useRef, RefObject } from "react";
-import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
-import CampaignSidebar, { steps } from "./CampaignSidebar";
 import {
   Button,
   Modal,
@@ -9,21 +6,26 @@ import {
   ModalFooter,
   ModalHeader,
 } from "@heroui/react";
+import React, { useRef, useState } from "react";
+import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { LuSave, LuSend } from "react-icons/lu";
+import CampaignSidebar, { steps } from "./CampaignSidebar";
 // Import all step components
-import CampaignSetupStep, { CampaignStepRef } from "./CampaignSetupStep";
-import CampaignTemplateStep from "./CampaignTemplateStep";
-import CampaignContentStep from "./CampaignContentStep";
-import CampaignAudienceStep from "./CampaignAudienceStep";
-import CampaignScheduleStep from "./CampaignScheduleStep";
-import CampaignReviewStep from "./CampaignReviewStep";
+import { useEffect } from "react";
 import { FaRegEnvelope } from "react-icons/fa";
-import { ICampaign, ICampaignPayload } from "../../../../types/campaign";
 import {
   useCreateCampaign,
   useUpdateCampaign,
-} from "../../../../hooks/useCampaign";
-import { useEffect } from "react";
+} from "../../../../../hooks/useCampaign";
+import { ICampaign, ICampaignPayload } from "../../../../../types/campaign";
+import CampaignAudienceStep from "./CampaignAudienceStep";
+import CampaignContentStep from "./CampaignContentStep";
+import CampaignReviewStep from "./CampaignReviewStep";
+import CampaignScheduleStep from "./CampaignScheduleStep";
+import CampaignSetupStep, { CampaignStepRef } from "./CampaignSetupStep";
+import CampaignTemplateStep from "./CampaignTemplateStep";
+import { CAMPAIGN_CATEGORIES } from "../../../../../consts/campaign";
+import { CampaignTemplate } from "../../../../../types/campaign";
 
 // --- Interface Definitions ---
 
@@ -49,13 +51,16 @@ export interface CampaignData {
 export interface CampaignStepProps {
   data: CampaignData;
   onNext: (data: Partial<CampaignData>) => void;
+  updateData: (data: Partial<CampaignData>) => void;
   validationErrors: Record<string, string>;
+  setIsStepValid: (isValid: boolean) => void;
 }
 
 interface CampaignActionModalProps {
   isOpen: boolean;
   onClose: () => void;
   editingCampaign?: ICampaign | null;
+  prefillTemplate?: CampaignTemplate | null;
 }
 
 const initialCampaignData: CampaignData = {
@@ -80,6 +85,7 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
   isOpen,
   onClose,
   editingCampaign,
+  prefillTemplate,
 }) => {
   const [currentStep, setCurrentStep] = useState(0);
   const [campaignData, setCampaignData] =
@@ -87,6 +93,8 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
   const [validationErrors, setValidationErrors] = useState<
     Record<string, string>
   >({});
+  const [isStepValid, setIsStepValid] = useState(false);
+  const [actionType, setActionType] = useState<"draft" | "submit" | null>(null);
 
   const createMutation = useCreateCampaign();
   const updateMutation = useUpdateCampaign();
@@ -111,10 +119,23 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
         schedule: editingCampaign.schedule,
         tracking: editingCampaign.tracking,
       });
+    } else if (prefillTemplate) {
+      const categoryValue =
+        CAMPAIGN_CATEGORIES.find((c) => c.label === prefillTemplate.category)
+          ?.value || prefillTemplate.category;
+
+      setCampaignData({
+        ...initialCampaignData,
+        name: `${prefillTemplate.name}`,
+        subjectLine: prefillTemplate.subjectLine,
+        category: categoryValue,
+        templateId: prefillTemplate._id,
+        content: prefillTemplate.bodyContent,
+      });
     } else {
       setCampaignData(initialCampaignData);
     }
-  }, [editingCampaign]);
+  }, [editingCampaign, prefillTemplate]);
 
   // Ref to hold the current step component's exposed methods
   const stepRef = useRef<CampaignStepRef>(null);
@@ -133,6 +154,10 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
   const CurrentComponent = stepComponents[currentStep];
 
   // --- Handlers ---
+
+  const updateData = (data: Partial<CampaignData>) => {
+    setCampaignData((prev) => ({ ...prev, ...data }));
+  };
 
   const handleNext = (data: Partial<CampaignData>) => {
     setCampaignData((prev) => ({ ...prev, ...data }));
@@ -161,6 +186,8 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
     setCampaignData(initialCampaignData);
     setCurrentStep(0);
     setValidationErrors({});
+    setIsStepValid(false);
+    setActionType(null);
     onClose();
   };
 
@@ -177,18 +204,25 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
   const handleSubmitCampaign = () => {
     const payload: ICampaignPayload = {
       ...campaignData,
-      status: campaignData.schedule.sendImmediately ? "sent" : "scheduled",
+      status: campaignData.schedule.sendImmediately ? "active" : "scheduled",
       templateId: campaignData.templateId || undefined,
       audienceId: campaignData.audienceId || undefined,
     } as ICampaignPayload;
 
+    setActionType("submit");
     if (editingCampaign) {
       updateMutation.mutate(
         { id: editingCampaign._id, payload },
-        { onSuccess: handleClose },
+        {
+          onSuccess: handleClose,
+          onError: () => setActionType(null),
+        },
       );
     } else {
-      createMutation.mutate(payload, { onSuccess: handleClose });
+      createMutation.mutate(payload, {
+        onSuccess: handleClose,
+        onError: () => setActionType(null),
+      });
     }
   };
 
@@ -200,13 +234,20 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
       audienceId: campaignData.audienceId || undefined,
     } as ICampaignPayload;
 
+    setActionType("draft");
     if (editingCampaign) {
       updateMutation.mutate(
         { id: editingCampaign._id, payload },
-        { onSuccess: handleClose },
+        {
+          onSuccess: handleClose,
+          onError: () => setActionType(null),
+        },
       );
     } else {
-      createMutation.mutate(payload, { onSuccess: handleClose });
+      createMutation.mutate(payload, {
+        onSuccess: handleClose,
+        onError: () => setActionType(null),
+      });
     }
   };
 
@@ -216,13 +257,14 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
       onOpenChange={handleClose}
       size="5xl"
       classNames={{
-        base: `w-full max-sm:!m-3 !m-0`,
+        base: `max-sm:!m-3 !m-0`,
         closeButton: "cursor-pointer",
       }}
+      placement="center"
       scrollBehavior="inside"
     >
       <ModalContent>
-        <ModalHeader className="flex justify-between items-center py-4 px-5 border-b border-foreground/10 font-normal">
+        <ModalHeader className="flex justify-between items-center p-4 border-b border-foreground/10 font-normal">
           <div className="flex flex-col items-start gap-1">
             <div className="flex items-center justify-start gap-2">
               <FaRegEnvelope className="text-blue-600" />
@@ -245,15 +287,17 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
           <div className="flex-grow p-4 overflow-y-auto">
             {/* @ts-ignore */}
             <CurrentComponent
-              ref={currentStep === 0 ? stepRef : undefined}
+              ref={stepRef}
               data={campaignData}
               onNext={handleNext}
+              updateData={updateData}
               validationErrors={validationErrors}
+              setIsStepValid={setIsStepValid}
             />
           </div>
         </ModalBody>
 
-        <ModalFooter className="flex justify-between items-center py-4 px-5 border-t border-foreground/10">
+        <ModalFooter className="flex justify-between items-center p-4 border-t border-foreground/10">
           <Button
             size="sm"
             radius="sm"
@@ -274,6 +318,7 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
               variant="solid"
               color="primary"
               onPress={validateAndProceed}
+              isDisabled={!isStepValid}
               endContent={<FiChevronRight className="w-4 h-4" />}
             >
               Next
@@ -286,8 +331,10 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
                 variant="ghost"
                 color="default"
                 onPress={handleSaveDraft}
-                isLoading={createMutation.isPending || updateMutation.isPending}
-                startContent={<LuSave className="w-4 h-4" />}
+                isLoading={actionType === "draft"}
+                startContent={
+                  actionType !== "draft" && <LuSave className="w-4 h-4" />
+                }
                 className="border-small"
               >
                 Save as Draft
@@ -298,11 +345,14 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
                 variant="solid"
                 color="primary"
                 onPress={handleSubmitCampaign}
-                isLoading={createMutation.isPending || updateMutation.isPending}
-                startContent={<LuSend className="w-4 h-4" />}
+                isDisabled={!isStepValid}
+                isLoading={actionType === "submit"}
+                startContent={
+                  actionType !== "submit" && <LuSend className="w-4 h-4" />
+                }
                 className="border-small"
               >
-                Send Campaign
+                {editingCampaign ? "Update Campaign" : "Send Campaign"}
               </Button>
             </div>
           )}

@@ -14,6 +14,7 @@ import {
   useToggleFavoriteTemplate,
 } from "../../../../hooks/useCampaign";
 import { CampaignTemplate } from "../../../../types/campaign";
+import { LoadingState } from "../../../../components/common/LoadingState";
 
 interface ViewTemplateModalProps {
   isOpen: boolean;
@@ -35,7 +36,7 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
     isOpen && template?._id ? template._id : "",
   );
 
-  const displayTemplate = campaignResponse?.data || template;
+  const displayTemplate = campaignResponse || template;
 
   if (!displayTemplate && !isLoading) return null;
 
@@ -69,7 +70,7 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
       <ModalContent className="p-0 overflow-hidden">
         {isLoading && !displayTemplate ? (
           <div className="flex justify-center items-center h-64">
-            <Spinner />
+            <LoadingState />
           </div>
         ) : (
           <>
@@ -114,7 +115,7 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <Button
+                    {/* <Button
                       variant={
                         displayTemplate!.isFavorite ? "solid" : "bordered"
                       }
@@ -128,7 +129,7 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
                       }
                       className={`font-medium border-small ${
                         !displayTemplate!.isFavorite
-                          ? "border-default-200 text-gray-600 dark:text-foreground bg-white"
+                          ? "border-default-200 text-gray-600 dark:text-foreground bg-background"
                           : "border-danger bg-danger-50 text-danger dark:bg-danger/20"
                       }`}
                       onPress={handleToggleFavorite}
@@ -139,7 +140,7 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
                       }
                     >
                       {displayTemplate!.isFavorite ? "Favorited" : "Favorite"}
-                    </Button>
+                    </Button> */}
                     <Button
                       color="primary"
                       variant="solid"
@@ -160,14 +161,16 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
                       Tags:
                     </span>
                     <div className="flex flex-wrap gap-1.5">
-                      {displayTemplate!.tags.map((tag, index) => (
-                        <span
-                          key={index}
-                          className="px-2 py-0.5 rounded-md bg-transparent border border-foreground/10 text-[11px] font-medium text-foreground/70"
-                        >
-                          {tag}
-                        </span>
-                      ))}
+                      {displayTemplate!.tags.map(
+                        (tag: string, index: number) => (
+                          <span
+                            key={index}
+                            className="px-2 py-0.5 rounded-md bg-transparent border border-foreground/10 text-[11px] font-medium text-foreground/70"
+                          >
+                            {tag}
+                          </span>
+                        ),
+                      )}
                     </div>
                   </div>
                 )}

@@ -4,6 +4,10 @@ import * as Yup from "yup";
 import { CampaignStepProps, CampaignData } from "./CampaignActionModal";
 import clsx from "clsx";
 import { Checkbox, Input, Select, SelectItem, Switch } from "@heroui/react";
+import {
+  CAMPAIGN_CATEGORIES,
+  CAMPAIGN_TYPES,
+} from "../../../../../consts/campaign";
 
 export interface CampaignStepRef {
   triggerValidationAndProceed: () => void;
@@ -19,7 +23,7 @@ const SetupSchema = Yup.object().shape({
 const CampaignSetupStep: React.ForwardRefRenderFunction<
   CampaignStepRef,
   CampaignStepProps
-> = ({ data, onNext }, ref) => {
+> = ({ data, onNext, setIsStepValid }, ref) => {
   const formik = useFormik<CampaignData>({
     initialValues: data,
     validationSchema: SetupSchema,
@@ -30,20 +34,15 @@ const CampaignSetupStep: React.ForwardRefRenderFunction<
     enableReinitialize: true,
   });
 
+  React.useEffect(() => {
+    setIsStepValid(formik.isValid);
+  }, [formik.isValid, setIsStepValid]);
+
   useImperativeHandle(ref, () => ({
     triggerValidationAndProceed: () => {
       formik.handleSubmit();
     },
   }));
-
-  const types = [
-    { value: "oneTimeEmail", label: "One-time Email" },
-    { value: "newsletter", label: "Newsletter" },
-  ];
-  const categories = [
-    { value: "referralOutreach", label: "Referral Outreach" },
-    { value: "newsletters", label: "Newsletters" },
-  ];
 
   const isError = (field: keyof CampaignData) =>
     !!(formik.touched[field] && formik.errors[field]);
@@ -66,6 +65,7 @@ const CampaignSetupStep: React.ForwardRefRenderFunction<
         onBlur={formik.handleBlur}
         isInvalid={isError("name")}
         errorMessage={getErrorMessage("name")}
+        isRequired
       />
 
       <Input
@@ -80,6 +80,7 @@ const CampaignSetupStep: React.ForwardRefRenderFunction<
         onBlur={formik.handleBlur}
         isInvalid={isError("subjectLine")}
         errorMessage={getErrorMessage("subjectLine")}
+        isRequired
       />
 
       <div className="grid grid-cols-2 gap-3">
@@ -99,8 +100,9 @@ const CampaignSetupStep: React.ForwardRefRenderFunction<
           isInvalid={isError("type")}
           errorMessage={getErrorMessage("type")}
           className="w-full"
+          isRequired
         >
-          {types.map((type) => (
+          {CAMPAIGN_TYPES.map((type) => (
             <SelectItem key={type.value}>{type.label}</SelectItem>
           ))}
         </Select>
@@ -121,14 +123,15 @@ const CampaignSetupStep: React.ForwardRefRenderFunction<
           isInvalid={isError("category")}
           errorMessage={getErrorMessage("category")}
           className="w-full"
+          isRequired
         >
-          {categories.map((category) => (
+          {CAMPAIGN_CATEGORIES.map((category) => (
             <SelectItem key={category.value}>{category.label}</SelectItem>
           ))}
         </Select>
       </div>
 
-      <div>
+      {/* <div>
         <Switch
           size="sm"
           isSelected={formik.values.isABTesting}
@@ -138,7 +141,7 @@ const CampaignSetupStep: React.ForwardRefRenderFunction<
         >
           Enable A/B Testing
         </Switch>
-      </div>
+      </div> */}
     </form>
   );
 };

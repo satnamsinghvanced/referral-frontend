@@ -1,45 +1,48 @@
 import { Button, Select, SelectItem, Tab, Tabs } from "@heroui/react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { FaRegEnvelope } from "react-icons/fa";
-import { HiOutlineRefresh } from "react-icons/hi";
 import { LuDownload, LuEye, LuMousePointer, LuTarget } from "react-icons/lu";
 import MiniStatsCard from "../../../components/cards/MiniStatsCard";
-import Overview from "./Overview";
-import Performance from "./Performance";
+import { LoadingState } from "../../../components/common/LoadingState";
+import { useAnalyticsOverview } from "../../../hooks/useCampaign";
 import Audience from "./Audience";
 import Devices from "./Devices";
+import Overview from "./Overview";
+import Performance from "./Performance";
 
 const INITIAL_FILTERS = {
   filter: "30days",
 };
 
 const Analytics = () => {
-  const STAT_CARD_DATA = [
-    {
-      icon: <FaRegEnvelope className="text-blue-500" />,
-      heading: "Total Sent",
-      value: "1.1K",
-      subheading: "+245 from last period",
-    },
-    {
-      icon: <LuEye className="text-green-500" />,
-      heading: "Avg Open Rate",
-      value: "75.3%",
-      subheading: "Industry avg: 22%",
-    },
-    {
-      icon: <LuMousePointer className="text-orange-500" />,
-      heading: "Avg Click Rate",
-      value: "28.0%",
-      subheading: "Industry avg: 3.5%",
-    },
-    {
-      icon: <LuTarget className="text-purple-500" />,
-      heading: "Conversions",
-      value: "57",
-      subheading: "+34 from last period",
-    },
-  ];
+  const { data: overview, isLoading } = useAnalyticsOverview();
+
+  const STAT_CARD_DATA = useMemo(() => {
+    if (!overview?.stats) return [];
+    return overview.stats.map((stat) => ({
+      icon: stat.title.includes("Sent") ? (
+        <FaRegEnvelope className="text-blue-500" />
+      ) : stat.title.includes("Open") ? (
+        <LuEye className="text-green-500" />
+      ) : stat.title.includes("Click") ? (
+        <LuMousePointer className="text-orange-500" />
+      ) : (
+        <LuTarget className="text-purple-500" />
+      ),
+      heading: stat.title,
+      value: stat.totalValue,
+      subheading: (
+        <span
+          className={
+            stat.lastPeriod.trend === "up" ? "text-green-500" : "text-red-500"
+          }
+        >
+          {stat.lastPeriod.trend === "up" ? "+" : ""}
+          {stat.lastPeriod.percentage}% from last period
+        </span>
+      ),
+    }));
+  }, [overview]);
 
   const [currentFilters, setCurrentFilters] = useState(INITIAL_FILTERS);
 
@@ -53,9 +56,15 @@ const Analytics = () => {
   return (
     <div className="flex flex-col gap-4 md:gap-5">
       <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
-        {STAT_CARD_DATA.map((data, i) => (
-          <MiniStatsCard key={i} cardData={data} />
-        ))}
+        {isLoading ? (
+          <div className="col-span-4 flex justify-center py-10">
+            <LoadingState />
+          </div>
+        ) : (
+          STAT_CARD_DATA.map((data, i) => (
+            <MiniStatsCard key={i} cardData={data} />
+          ))
+        )}
       </div>
       <div className="flex items-center gap-3 border-foreground/10 border rounded-xl bg-background p-4">
         <div className="flex items-center gap-3">
@@ -77,7 +86,7 @@ const Analytics = () => {
             <SelectItem key="lastYear">Last year</SelectItem>
           </Select>
         </div>
-        <Button
+        {/* <Button
           onPress={() => setCurrentFilters(INITIAL_FILTERS)}
           size="sm"
           variant="ghost"
@@ -86,7 +95,7 @@ const Analytics = () => {
           startContent={<HiOutlineRefresh className="size-3.5" />}
         >
           Refresh
-        </Button>
+        </Button> */}
         <Button
           onPress={() => setCurrentFilters(INITIAL_FILTERS)}
           size="sm"
@@ -99,7 +108,7 @@ const Analytics = () => {
         </Button>
       </div>
       <div className="space-y-4 md:space-y-5">
-        <div className="">
+        <div className="space-y-2">
           <Tabs
             aria-label="Options"
             variant="light"
@@ -115,27 +124,19 @@ const Analytics = () => {
             className="w-full"
           >
             <Tab key="overview" title="Overview">
-              <div className="mt-5">
-                <Overview />
-              </div>
+              <Overview />
             </Tab>
 
             <Tab key="performance" title="Performance">
-              <div className="mt-5">
-                <Performance />
-              </div>
+              <Performance />
             </Tab>
 
             <Tab key="audience" title="Audience">
-              <div className="mt-5">
-                <Audience />
-              </div>
+              <Audience />
             </Tab>
 
             <Tab key="devices" title="Devices">
-              <div className="mt-5">
-                <Devices />
-              </div>
+              <Devices />
             </Tab>
           </Tabs>
         </div>

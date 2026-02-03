@@ -11,17 +11,20 @@ import {
 } from "recharts";
 import ChartTooltip from "../../../components/common/ChartTooltip";
 import { useTypedSelector } from "../../../hooks/useTypedSelector";
+import { useAnalyticsPerformance } from "../../../hooks/useCampaign";
+import { LoadingState } from "../../../components/common/LoadingState";
 
 const Performance = () => {
   const { theme } = useTypedSelector((state) => state.ui);
-  const PERFORMANCE_METRICS = [
-    { month: "Jan", sent: 2400, opens: 1800, clicks: 600, conversions: 120 },
-    { month: "Feb", sent: 2800, opens: 2200, clicks: 750, conversions: 150 },
-    { month: "Mar", sent: 3200, opens: 2400, clicks: 900, conversions: 180 },
-    { month: "Apr", sent: 2900, opens: 2100, clicks: 700, conversions: 140 },
-    { month: "May", sent: 3500, opens: 2800, clicks: 1100, conversions: 220 },
-    { month: "Jun", sent: 3800, opens: 3000, clicks: 1200, conversions: 240 },
-  ];
+  const { data: performanceData, isLoading } = useAnalyticsPerformance();
+
+  if (isLoading) {
+    return (
+      <div className="py-20 flex justify-center">
+        <LoadingState />
+      </div>
+    );
+  }
 
   return (
     <Card
@@ -37,7 +40,11 @@ const Performance = () => {
       <CardBody className="p-0 overflow-visible">
         <div className="-ml-5 text-sm">
           <ResponsiveContainer width="100%" aspect={1.85} maxHeight={380}>
-            <AreaChart data={PERFORMANCE_METRICS}>
+            <AreaChart
+              data={
+                (performanceData?.detailedPerformanceMetrics || []) as any[]
+              }
+            >
               <CartesianGrid
                 strokeDasharray="3 3"
                 stroke={

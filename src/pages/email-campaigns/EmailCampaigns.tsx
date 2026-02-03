@@ -7,17 +7,26 @@ import { IoMdTrendingUp } from "react-icons/io";
 import { LuEye, LuMousePointer, LuSend } from "react-icons/lu";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
 import ComponentContainer from "../../components/common/ComponentContainer";
+import { useCampaignDashboard } from "../../hooks/useCampaign";
 import Analytics from "./analytics/Analytics";
 import Audiences from "./audiences/Audiences";
 import Automation from "./automation/Automation";
 import Campaigns from "./campaigns/Campaigns";
-import CampaignActionModal from "./campaigns/modal/CampaignActionModal";
+import CampaignActionModal from "./campaigns/modal/create/CampaignActionModal";
 import Overview from "./Overview";
 import Templates from "./templates/Templates";
+import { CampaignTemplate } from "../../types/campaign";
 
 const EmailCampaigns = () => {
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
+  const [prefillTemplate, setPrefillTemplate] =
+    useState<CampaignTemplate | null>(null);
+
+  const handleUseTemplate = (template: CampaignTemplate) => {
+    setPrefillTemplate(template);
+    setIsActionModalOpen(true);
+  };
 
   const HEADING_DATA = {
     heading: "Email Campaigns",
@@ -33,42 +42,44 @@ const EmailCampaigns = () => {
     ],
   };
 
+  const { data: dashboard, isLoading } = useCampaignDashboard();
+
   const STAT_CARD_DATA = [
     {
       icon: <FaRegEnvelope className="text-blue-500" />,
       heading: "Total Campaigns",
-      value: 4,
-      subheading: "All time",
+      value: dashboard?.stats.total || 0,
+      // subheading: "All time",
     },
     {
       icon: <FiPlay className="text-green-500" />,
       heading: "Active",
-      value: 2,
-      subheading: "Running now",
+      value: dashboard?.stats.active || 0,
+      // subheading: "Running now",
     },
     {
       icon: <LuSend className="text-purple-500" />,
       heading: "Total Sent",
-      value: "1,137",
-      subheading: "Emails delivered",
+      value: dashboard?.stats.sent || 0,
+      // subheading: "Emails delivered",
     },
     {
       icon: <LuEye className="text-yellow-500" />,
       heading: "Avg Open Rate",
-      value: "75.3%",
-      subheading: "Industry avg: 22%",
+      value: dashboard?.stats.openRate || 0,
+      // subheading: "Industry avg: 22%",
     },
     {
       icon: <LuMousePointer className="text-orange-500" />,
       heading: "Avg Click Rate",
-      value: "28.0%",
-      subheading: "Industry avg: 3.5%",
+      value: dashboard?.stats.clickRate || 0,
+      // subheading: "Industry avg: 3.5%",
     },
     {
       icon: <IoMdTrendingUp className="text-emerald-500" />,
       heading: "Conversions",
-      value: 57,
-      subheading: "Total referrals",
+      value: dashboard?.stats.conversions || 0,
+      // subheading: "Total referrals",
     },
   ];
 
@@ -103,6 +114,8 @@ const EmailCampaigns = () => {
                 <Overview
                   setIsActionModalOpen={setIsActionModalOpen}
                   setActiveTab={setActiveTab}
+                  recentCampaigns={dashboard?.recentCampaigns || []}
+                  isLoading={isLoading}
                 />
               </Tab>
 
@@ -115,7 +128,7 @@ const EmailCampaigns = () => {
               </Tab>
 
               <Tab key="templates" title="Templates">
-                <Templates />
+                <Templates onUseTemplate={handleUseTemplate} />
               </Tab>
               <Tab key="audiences" title="Audiences">
                 <Audiences />
@@ -130,8 +143,11 @@ const EmailCampaigns = () => {
 
       <CampaignActionModal
         isOpen={isActionModalOpen}
-        onClose={() => setIsActionModalOpen(false)}
-        // onSubmit={() => {}}
+        onClose={() => {
+          setIsActionModalOpen(false);
+          setPrefillTemplate(null);
+        }}
+        prefillTemplate={prefillTemplate}
       />
     </>
   );

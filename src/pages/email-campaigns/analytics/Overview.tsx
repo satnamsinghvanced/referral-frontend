@@ -15,7 +15,8 @@ import {
 } from "recharts";
 import ChartTooltip from "../../../components/common/ChartTooltip";
 import { useTypedSelector } from "../../../hooks/useTypedSelector";
-import { CampaignMetric } from "../../../types/campaign";
+import { useAnalyticsOverview } from "../../../hooks/useCampaign";
+import { LoadingState } from "../../../components/common/LoadingState";
 
 interface LabelProps {
   cx: number;
@@ -29,57 +30,9 @@ interface LabelProps {
 
 const Overview = () => {
   const { theme } = useTypedSelector((state) => state.ui);
-  const PERFORMANCE_TRENDS_GRAPH = [
-    { month: "Jan", sent: 2400, opens: 1800, clicks: 600 },
-    { month: "Feb", sent: 2800, opens: 2200, clicks: 750 },
-    { month: "Mar", sent: 3200, opens: 2400, clicks: 900 },
-    { month: "Apr", sent: 2900, opens: 2100, clicks: 700 },
-    { month: "May", sent: 3500, opens: 2800, clicks: 1100 },
-    { month: "Jun", sent: 3800, opens: 3000, clicks: 1200 },
-  ];
+  const { data: overview, isLoading } = useAnalyticsOverview();
 
-  const AUDIENCE_BREAKDOWN = [
-    { name: "Dental Practices", value: 45 },
-    { name: "Patients", value: 35 },
-    { name: "Referral Partners", value: 20 },
-  ];
-
-  const TOP_CAMPAIGNS: CampaignMetric[] = [
-    {
-      id: 1,
-      rank: 1,
-      name: "Patient Welcome Series",
-      openRate: "89.2%",
-      clickRate: "34.5%",
-      conversions: 156,
-    },
-    {
-      id: 2,
-      rank: 2,
-      name: "Partner Outreach Q2",
-      openRate: "76.8%",
-      clickRate: "28.3%",
-      conversions: 89,
-    },
-    {
-      id: 3,
-      rank: 3,
-      name: "Monthly Newsletter",
-      openRate: "68.5%",
-      clickRate: "24.3%",
-      conversions: 67,
-    },
-    {
-      id: 4,
-      rank: 4,
-      name: "Referral Thank You",
-      openRate: "82.1%",
-      clickRate: "31.7%",
-      conversions: 45,
-    },
-  ];
-
-  const COLORS = ["#0ea5e9", "#f97316", "#1e40af"];
+  const COLORS = ["#0ea5e9", "#f97316", "#1e40af", "#8b5cf6", "#ec4899"];
 
   const renderLabel = (props: any) => {
     const { cx, cy, midAngle, outerRadius, percent, name, fill } =
@@ -104,6 +57,14 @@ const Overview = () => {
     );
   };
 
+  if (isLoading) {
+    return (
+      <div className="py-20 flex justify-center">
+        <LoadingState />
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4 md:space-y-5">
       <div className="grid grid-cols-2 gap-5">
@@ -111,16 +72,19 @@ const Overview = () => {
           shadow="none"
           className="bg-background border border-foreground/10 p-5"
         >
-          <CardHeader className="p-0 pb-5 md:pb-8">
+          <CardHeader className="p-0 pb-5">
             <h4 className="text-sm font-medium flex items-center gap-2">
               <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
               Performance Trends
             </h4>
           </CardHeader>
           <CardBody className="p-0 overflow-visible">
-            <div className="-ml-5 text-sm">
+            <div className="text-sm">
               <ResponsiveContainer width="100%" aspect={1.85} maxHeight={320}>
-                <LineChart data={PERFORMANCE_TRENDS_GRAPH}>
+                <LineChart
+                  data={(overview?.performanceTrend || []) as any[]}
+                  margin={{ top: 10, right: 10, left: -40, bottom: 0 }}
+                >
                   <CartesianGrid
                     strokeDasharray="3 3"
                     vertical={false}
@@ -156,7 +120,7 @@ const Overview = () => {
                       strokeWidth: 2,
                     }}
                   />
-                  <Legend />
+                  <Legend wrapperStyle={{ bottom: "-10px" }} />
 
                   <Line
                     type="monotone"
@@ -208,16 +172,17 @@ const Overview = () => {
                 }}
               >
                 <Pie
-                  data={AUDIENCE_BREAKDOWN}
+                  data={(overview?.audienceBreakdown || []) as any[]}
                   outerRadius={100}
                   innerRadius={0}
                   dataKey="value"
+                  nameKey="label"
                   cx="50%"
                   cy="50%"
                   width={400}
                   label={renderLabel}
                 >
-                  {AUDIENCE_BREAKDOWN.map((_, index) => (
+                  {overview?.audienceBreakdown.map((_, index) => (
                     <Cell
                       key={`cell-${index}`}
                       fill={COLORS[index % COLORS.length]}
@@ -242,15 +207,15 @@ const Overview = () => {
         </CardHeader>
         <CardBody className="p-0 overflow-visible">
           <div className="space-y-3">
-            {TOP_CAMPAIGNS.map((campaign) => {
+            {overview?.topPerformingCampaigns.map((campaign, index) => {
               return (
                 <div
-                  key={campaign.id}
+                  key={campaign._id}
                   className="bg-content1 rounded-lg border border-foreground/10 p-3 flex items-center justify-between"
                 >
                   <div className="flex items-center space-x-2.5 flex-grow">
                     <div className="bg-sky-100 dark:bg-sky-500/10 w-7 h-7 flex items-center justify-center rounded-full text-xs text-sky-600 dark:text-sky-400">
-                      #{campaign.rank}
+                      #{index + 1}
                     </div>
                     <div className="space-y-0.5">
                       <h4 className="text-sm font-medium">{campaign.name}</h4>

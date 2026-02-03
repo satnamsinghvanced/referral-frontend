@@ -1,18 +1,18 @@
 import { Chip } from "@heroui/react";
 import clsx from "clsx";
-import React, { forwardRef, useImperativeHandle } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle } from "react";
 import { FiAlertTriangle } from "react-icons/fi";
-import { CampaignData } from "./CampaignActionModal";
-import CampaignCategoryChip from "../../../../components/chips/CampaignCategoryChip";
+import CampaignCategoryChip from "../../../../../components/chips/CampaignCategoryChip";
+import { CampaignStepProps } from "./CampaignActionModal";
+
+import {
+  useAudienceById,
+  useCampaignTemplate,
+} from "../../../../../hooks/useCampaign";
+import { formatDateToReadable } from "../../../../../utils/formatDateToReadable";
 
 export interface CampaignStepRef {
   triggerValidationAndProceed: () => void;
-}
-
-interface CampaignStepProps {
-  data: CampaignData;
-  onNext: (data: Partial<CampaignData>) => void;
-  validationErrors: Record<string, string>;
 }
 
 const SummaryItem = ({
@@ -24,7 +24,7 @@ const SummaryItem = ({
   value: React.ReactNode;
   isTag?: boolean;
 }) => (
-  <div className="py-2 border-b border-foreground/5 last:border-0">
+  <div className="py-3 border-b border-foreground/5 last:border-0">
     <p className="text-xs font-medium text-gray-500 dark:text-foreground/50 mb-1">
       {label}
     </p>
@@ -46,7 +46,13 @@ const SummaryItem = ({
 const CampaignReviewStep: React.ForwardRefRenderFunction<
   CampaignStepRef,
   CampaignStepProps
-> = ({ data, onNext }, ref) => {
+> = ({ data, onNext, setIsStepValid }, ref) => {
+  const { data: templateResponse } = useCampaignTemplate(data.templateId || "");
+  const { data: audienceResponse } = useAudienceById(data.audienceId || "");
+
+  const templateName = (templateResponse as any)?.name || "N/A";
+  const audienceName = (audienceResponse as any)?.name || "N/A";
+
   // Define required fields for a successful send
   const isReady =
     !!data.audienceId &&
@@ -54,6 +60,10 @@ const CampaignReviewStep: React.ForwardRefRenderFunction<
     !!data.templateId &&
     data.content.trim() !== "" &&
     data.content.trim() !== "Your email content will appear here..."; // Check content
+
+  useEffect(() => {
+    setIsStepValid(isReady);
+  }, [isReady, setIsStepValid]);
 
   const getTrackingSummary = () => {
     const tracking = [];
@@ -80,41 +90,31 @@ const CampaignReviewStep: React.ForwardRefRenderFunction<
         {/* Campaign Details */}
         <div className="space-y-2">
           <h5 className="text-sm font-medium">Campaign Details</h5>
-          <SummaryItem label="Campaign Name" value={data.name || "N/A"} />
-          <SummaryItem label="Subject Line" value={data.subjectLine || "N/A"} />
-          <SummaryItem label="Template ID" value={data.templateId || "N/A"} />
-
-          <div className="py-2">
-            <p className="text-xs font-medium text-gray-500 dark:text-foreground/50 mb-1.5">
-              Category
-            </p>
-            <div className="flex space-x-2">
-              <CampaignCategoryChip category={data.category as any} />
-            </div>
+          <div>
+            <SummaryItem label="Campaign Name" value={data.name || "N/A"} />
+            <SummaryItem
+              label="Subject Line"
+              value={data.subjectLine || "N/A"}
+            />
+            <SummaryItem label="Template" value={templateName} />
           </div>
         </div>
 
         {/* Delivery Details */}
         <div className="space-y-2">
           <h5 className="text-sm font-medium">Delivery Details</h5>
-          <SummaryItem
-            label="Audience"
-            value={
-              <>
-                <span>{data.audienceId || "N/A"}</span>
-              </>
-            }
-          />
-          <SummaryItem
-            label="Schedule"
-            value={
-              data.schedule.sendImmediately
-                ? "Send Immediately"
-                : `Scheduled: ${data.schedule.date || "N/A"}`
-            }
-          />
+          <div>
+            <SummaryItem label="Audience" value={audienceName} />
+            <SummaryItem
+              label="Schedule"
+              value={
+                data.schedule.sendImmediately
+                  ? "Send Immediately"
+                  : `${formatDateToReadable(data.schedule.date, true) || "N/A"}`
+              }
+            />
 
-          <div className="py-2">
+            {/* <div className="py-2">
             <p className="text-xs font-medium text-gray-500 dark:text-foreground/50 mb-1.5">
               Tracking
             </p>
@@ -131,10 +131,20 @@ const CampaignReviewStep: React.ForwardRefRenderFunction<
                 </Chip>
               ))}
             </div>
+          </div> */}
+
+            <div className="py-2">
+              <p className="text-xs font-medium text-gray-500 dark:text-foreground/50 mb-1.5">
+                Category
+              </p>
+              <div className="flex space-x-2">
+                <CampaignCategoryChip category={data.category as any} />
+              </div>
+            </div>
+            {data.isABTesting && (
+              <SummaryItem label="A/B Testing" value="Enabled" isTag={true} />
+            )}
           </div>
-          {data.isABTesting && (
-            <SummaryItem label="A/B Testing" value="Enabled" isTag={true} />
-          )}
         </div>
       </div>
 

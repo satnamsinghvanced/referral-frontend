@@ -257,7 +257,7 @@ function GalleryMediaUploadModal({
         <ModalBody className="px-4 py-0">
           <div className="flex flex-col gap-3.5">
             {/* Top Bar: Breadcrumbs & Actions */}
-            <div className="flex flex-wrap items-center justify-between gap-4 border border-default-200/50 rounded-xl p-3 bg-background">
+            <div className="flex flex-wrap items-center justify-between gap-4 border border-default-200/50 rounded-xl p-3">
               <FolderBreadcrumb
                 path={breadcrumbPath}
                 onNavigate={(id: string) => onNavigateFolder(id)}
@@ -287,7 +287,7 @@ function GalleryMediaUploadModal({
             </div>
 
             {/* Filters */}
-            <div className="border border-default-200/50 rounded-xl p-3 bg-background flex flex-col gap-3">
+            <div className="border border-default-200/50 rounded-xl p-3 flex flex-col gap-3">
               <div className="flex items-center gap-3">
                 <div className="relative flex-1">
                   <Input

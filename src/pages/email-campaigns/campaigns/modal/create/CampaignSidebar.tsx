@@ -59,9 +59,9 @@ const CampaignSidebar: React.FC<CampaignSidebarProps> = ({
               >
                 <div
                   className={clsx(
-                    "w-6 h-6 mr-2.5 flex items-center justify-center rounded-full border",
+                    "size-6 mr-2.5 flex items-center justify-center rounded-full border",
                     isCurrent
-                      ? "border-blue-600 bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400"
+                      ? "border-blue-600 bg-blue-50 dark:bg-background text-blue-600 dark:text-blue-400"
                       : isCompleted
                         ? "border-green-500 bg-green-500 text-white"
                         : "border-gray-300 dark:border-foreground/20 text-gray-400 dark:text-foreground/40 bg-background",
@@ -70,7 +70,7 @@ const CampaignSidebar: React.FC<CampaignSidebarProps> = ({
                   {isCompleted ? (
                     <LuCircleCheckBig />
                   ) : (
-                    <step.icon className="w-4 h-4" />
+                    <step.icon className="size-3.5" />
                   )}
                 </div>
 

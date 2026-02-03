@@ -5,12 +5,12 @@ export default function CampaignStatusChip({ status }: { status: string }) {
   let classNames;
 
   switch (status) {
-    case "scheduled":
+    case "schedule":
       classNames =
         "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-800";
       break;
 
-    case "paused":
+    case "pause":
       classNames =
         "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800";
       break;

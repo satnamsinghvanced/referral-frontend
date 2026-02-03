@@ -256,3 +256,71 @@ export interface IDashboardStats {
   };
   recentCampaigns: ICampaign[];
 }
+
+export type TrendDirection = "up" | "down";
+
+export interface ILastPeriod {
+  value: string | number;
+  percentage: string | number;
+  trend: TrendDirection;
+}
+
+export interface IAnalyticsStat {
+  title: string;
+  totalValue: string | number;
+  lastPeriod: ILastPeriod;
+}
+
+export interface IPerformanceMetric {
+  month: string;
+  sent: number;
+  opens: number;
+  clicks: number;
+  conversions?: number; // Optional as not all endpoints return this
+}
+
+export interface ILabelValue {
+  label: string;
+  value?: number;
+  percentage?: number;
+}
+
+export interface IDeviceMetric {
+  device: string;
+  opens?: number;
+  clicks?: number;
+  percentage: number;
+}
+
+// Response Types
+export interface IAnalyticsOverview {
+  stats: IAnalyticsStat[];
+  performanceTrend: IPerformanceMetric[];
+  audienceBreakdown: ILabelValue[];
+  topPerformingCampaigns: any[]; // Adjust based on campaign object if needed
+}
+
+export interface IDetailedPerformance {
+  detailedPerformanceMetrics: IPerformanceMetric[];
+}
+
+export interface IAudienceAnalytics {
+  audienceEngagement: ILabelValue[];
+}
+
+export interface IDeviceAnalytics {
+  devicePerformance: IDeviceMetric[];
+}
+
+export interface ICampaignAnalytics {
+  name: string;
+  stats: {
+    sent: number;
+    openRate: string;
+    clickRate: string;
+    conversions: number;
+  };
+  performanceOverTime: IPerformanceMetric[];
+  topLinks: { link: string; clicks: number }[];
+  devicesUsed: IDeviceMetric[];
+}

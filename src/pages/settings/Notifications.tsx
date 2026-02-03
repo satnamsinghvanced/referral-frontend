@@ -29,6 +29,8 @@ import {
 import { LoadingState } from "../../components/common/LoadingState";
 import { useNotificationSubscription } from "../../hooks/useNotificationSubscription";
 import { getBrowserId } from "../../utils/notifications";
+import { useFetchEmailIntegration } from "../../hooks/integrations/useEmailMarketing";
+import { Link } from "react-router-dom";
 
 type Channels = {
   push: boolean;
@@ -104,6 +106,16 @@ const Notifications: React.FC = () => {
 
   const { isLoading, refetch } = useNotifications();
   const updateMutation = useUpdateNotifications();
+
+  const { data: emailExistingConfig, isLoading: isEmailConfigLoading } =
+    useFetchEmailIntegration();
+
+  // Normalize email config to handle both single object and array responses
+  const emailConfig = (
+    Array.isArray(emailExistingConfig)
+      ? emailExistingConfig[0]
+      : emailExistingConfig
+  ) as any;
 
   // Initialize rules with default config
   const [rules, setRules] = useState<Rule[]>([]);
@@ -321,6 +333,25 @@ const Notifications: React.FC = () => {
 
   return (
     <div className="">
+      {/* Email Integration Warning */}
+      {!isEmailConfigLoading && emailConfig?.status !== "Connected" && (
+        <div className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-500/30 rounded-lg p-3 flex items-center justify-between flex-wrap gap-3 mb-6">
+          <p className="text-sm text-yellow-800 dark:text-yellow-400">
+            Email Marketing Platform is not connected. Email notifications
+            can&apos;t be sent until you connect your Email Marketing Platform.
+          </p>
+          <Button
+            as={Link}
+            to="/integrations"
+            size="sm"
+            color="warning"
+            variant="flat"
+            className="bg-yellow-200 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400"
+          >
+            Connect Email
+          </Button>
+        </div>
+      )}
       <div className="mb-6 space-y-4 md:space-y-5">
         {/* Header */}
         <div className="flex items-center justify-between">

@@ -17,6 +17,11 @@ import {
   getCampaignTemplateById,
   getCampaignTemplates,
   getDashboardStats,
+  getEmailAnalyticsAudience,
+  getEmailAnalyticsCampaign,
+  getEmailAnalyticsDevices,
+  getEmailAnalyticsOverview,
+  getEmailAnalyticsPerformance,
   importAudienceCsv,
   pauseCampaign,
   toggleFavoriteTemplate,
@@ -139,6 +144,20 @@ export const useCreateAudience = () => {
       createAudience(newAudience),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["audiences"] });
+
+      addToast({
+        title: "Success",
+        description: "Audience created successfully",
+        color: "success",
+      });
+    },
+    onError: (error: any) => {
+      addToast({
+        title: "Error",
+        description:
+          error.response?.data?.message || "Failed to create audience",
+        color: "danger",
+      });
     },
   });
 };
@@ -155,6 +174,20 @@ export const useUpdateAudience = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["audiences"] });
       queryClient.invalidateQueries({ queryKey: ["audience", data._id] });
+
+      addToast({
+        title: "Success",
+        description: "Audience updated successfully",
+        color: "success",
+      });
+    },
+    onError: (error: any) => {
+      addToast({
+        title: "Error",
+        description:
+          error.response?.data?.message || "Failed to update audience",
+        color: "danger",
+      });
     },
   });
 };
@@ -164,6 +197,20 @@ export const useDeleteAudience = () => {
     mutationFn: (id: string) => deleteAudience(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["audiences"] });
+
+      addToast({
+        title: "Success",
+        description: "Audience deleted successfully",
+        color: "success",
+      });
+    },
+    onError: (error: any) => {
+      addToast({
+        title: "Error",
+        description:
+          error.response?.data?.message || "Failed to delete audience",
+        color: "danger",
+      });
     },
   });
 };
@@ -173,11 +220,25 @@ export const useImportAudienceCsv = () => {
     mutationFn: (file: File) => importAudienceCsv(file),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["audiences"] });
+
+      addToast({
+        title: "Success",
+        description: "Audience imported successfully",
+        color: "success",
+      });
+    },
+    onError: (error: any) => {
+      addToast({
+        title: "Error",
+        description:
+          error.response?.data?.message || "Failed to import audience",
+        color: "danger",
+      });
     },
   });
 };
 
-// Queries
+// CAMPAIGNS
 export const useCampaigns = (filters: ICampaignFilters) => {
   return useQuery({
     queryKey: CAMPAIGN_KEYS.list(filters),
@@ -205,6 +266,20 @@ export const useCreateCampaign = () => {
     mutationFn: createCampaign,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CAMPAIGN_KEYS.all });
+
+      addToast({
+        title: "Success",
+        description: "Campaign created successfully",
+        color: "success",
+      });
+    },
+    onError: (error: any) => {
+      addToast({
+        title: "Error",
+        description:
+          error.response?.data?.message || "Failed to create campaign",
+        color: "danger",
+      });
     },
   });
 };
@@ -215,6 +290,20 @@ export const useUpdateCampaign = () => {
       updateCampaign(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CAMPAIGN_KEYS.all });
+
+      addToast({
+        title: "Success",
+        description: "Campaign updated successfully",
+        color: "success",
+      });
+    },
+    onError: (error: any) => {
+      addToast({
+        title: "Error",
+        description:
+          error.response?.data?.message || "Failed to update campaign",
+        color: "danger",
+      });
     },
   });
 };
@@ -224,6 +313,20 @@ export const useDuplicateCampaign = () => {
     mutationFn: ({ id }: { id: string }) => duplicateCampaign(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CAMPAIGN_KEYS.all });
+
+      addToast({
+        title: "Success",
+        description: "Campaign duplicated successfully",
+        color: "success",
+      });
+    },
+    onError: (error: any) => {
+      addToast({
+        title: "Error",
+        description:
+          error.response?.data?.message || "Failed to duplicate campaign",
+        color: "danger",
+      });
     },
   });
 };
@@ -233,6 +336,20 @@ export const useArchiveCampaign = () => {
     mutationFn: ({ id }: { id: string }) => archiveCampaign(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CAMPAIGN_KEYS.all });
+
+      addToast({
+        title: "Success",
+        description: "Campaign archived successfully",
+        color: "success",
+      });
+    },
+    onError: (error: any) => {
+      addToast({
+        title: "Error",
+        description:
+          error.response?.data?.message || "Failed to archive campaign",
+        color: "danger",
+      });
     },
   });
 };
@@ -242,6 +359,20 @@ export const usePauseCampaign = () => {
     mutationFn: ({ id }: { id: string }) => pauseCampaign(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CAMPAIGN_KEYS.all });
+
+      addToast({
+        title: "Success",
+        description: "Campaign paused successfully",
+        color: "success",
+      });
+    },
+    onError: (error: any) => {
+      addToast({
+        title: "Error",
+        description:
+          error.response?.data?.message || "Failed to pause campaign",
+        color: "danger",
+      });
     },
   });
 };
@@ -251,6 +382,65 @@ export const useDeleteCampaign = () => {
     mutationFn: ({ id }: { id: string }) => deleteCampaign(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CAMPAIGN_KEYS.all });
+
+      addToast({
+        title: "Success",
+        description: "Campaign deleted successfully",
+        color: "success",
+      });
     },
+    onError: (error: any) => {
+      addToast({
+        title: "Error",
+        description:
+          error.response?.data?.message || "Failed to delete campaign",
+        color: "danger",
+      });
+    },
+  });
+};
+
+export const ANALYTICS_KEYS = {
+  all: ["analytics"] as const,
+  overview: () => [...ANALYTICS_KEYS.all, "overview"] as const,
+  performance: () => [...ANALYTICS_KEYS.all, "performance"] as const,
+  audience: () => [...ANALYTICS_KEYS.all, "audience"] as const,
+  devices: () => [...ANALYTICS_KEYS.all, "devices"] as const,
+  campaign: (id: string) => [...ANALYTICS_KEYS.all, "campaign", id] as const,
+};
+
+export const useAnalyticsOverview = () => {
+  return useQuery({
+    queryKey: ANALYTICS_KEYS.overview(),
+    queryFn: getEmailAnalyticsOverview,
+  });
+};
+
+export const useAnalyticsPerformance = () => {
+  return useQuery({
+    queryKey: ANALYTICS_KEYS.performance(),
+    queryFn: getEmailAnalyticsPerformance,
+  });
+};
+
+export const useAnalyticsAudience = () => {
+  return useQuery({
+    queryKey: ANALYTICS_KEYS.audience(),
+    queryFn: getEmailAnalyticsAudience,
+  });
+};
+
+export const useAnalyticsDevices = () => {
+  return useQuery({
+    queryKey: ANALYTICS_KEYS.devices(),
+    queryFn: getEmailAnalyticsDevices,
+  });
+};
+
+export const useCampaignAnalytics = (id: string) => {
+  return useQuery({
+    queryKey: ANALYTICS_KEYS.campaign(id),
+    queryFn: () => getEmailAnalyticsCampaign(id),
+    enabled: !!id, // Only run if ID is provided
   });
 };

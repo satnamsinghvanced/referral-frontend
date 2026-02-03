@@ -1,37 +1,39 @@
-import React, { useState, useImperativeHandle, forwardRef } from "react";
-import { CampaignData } from "./CampaignActionModal";
+import { Button, Card } from "@heroui/react";
 import clsx from "clsx";
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useState,
+} from "react";
 import { FiUsers } from "react-icons/fi";
-import { Card, Button } from "@heroui/react";
 import { LuTarget } from "react-icons/lu";
+import { CampaignStepProps } from "./CampaignActionModal";
 
 export interface CampaignStepRef {
   triggerValidationAndProceed: () => void;
 }
 
-interface CampaignStepProps {
-  data: CampaignData;
-  onNext: (data: Partial<CampaignData>) => void;
-  validationErrors: Record<string, string>;
-}
-
-import { getAllAudiences } from "../../../../services/campaign";
-import { useQuery } from "@tanstack/react-query";
-import { LoadingState } from "../../../../components/common/LoadingState";
+import { LoadingState } from "../../../../../components/common/LoadingState";
+import { useAudiences } from "../../../../../hooks/useCampaign";
 
 const CampaignAudienceStep: React.ForwardRefRenderFunction<
   CampaignStepRef,
   CampaignStepProps
-> = ({ data, onNext }, ref) => {
-  const { data: audiencesRaw, isLoading } = useQuery({
-    queryKey: ["audiences"],
-    queryFn: () => getAllAudiences({ page: 1, limit: 100 }),
+> = ({ data, onNext, setIsStepValid }, ref) => {
+  const { data: audiencesRaw, isLoading } = useAudiences({
+    page: 1,
+    limit: 100,
   });
 
   const [selectedAudienceId, setSelectedAudienceId] = useState<string | null>(
     data.audienceId,
   );
   const [localError, setLocalError] = useState<string | undefined>(undefined);
+
+  useEffect(() => {
+    setIsStepValid(!!selectedAudienceId);
+  }, [selectedAudienceId, setIsStepValid]);
 
   const audiences = audiencesRaw?.audiences || [];
   const selectedAudience = audiences.find((a) => a._id === selectedAudienceId);
@@ -104,7 +106,10 @@ const CampaignAudienceStep: React.ForwardRefRenderFunction<
                 />
               </div>
               <p className="text-xs text-gray-500 dark:text-foreground/50">
-                {audience.type}
+                {(audience.referrers?.length || 0) +
+                  (audience.practices?.length || 0) +
+                  (audience.referrals?.length || 0)}{" "}
+                contacts
               </p>
             </Button>
           );

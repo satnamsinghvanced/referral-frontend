@@ -5,10 +5,15 @@ import {
   CampaignFilters,
   CampaignTemplate,
   CampaignTemplatesResponse,
+  IAnalyticsOverview,
+  IAudienceAnalytics,
   ICampaign,
+  ICampaignAnalytics,
   ICampaignFilters,
   ICampaignPayload,
   IDashboardStats,
+  IDetailedPerformance,
+  IDeviceAnalytics,
 } from "../types/campaign";
 import axios from "./axios";
 
@@ -23,14 +28,14 @@ export const getCampaignTemplates = async (
 
 export const getCampaignTemplateById = async (
   id: string,
-): Promise<{ data: CampaignTemplate }> => {
+): Promise<CampaignTemplate> => {
   const response = await axios.get(`${"/campaigns_templates"}/${id}`);
   return response.data;
 };
 
 export const createCampaignTemplate = async (
   formData: FormData,
-): Promise<{ data: CampaignTemplate }> => {
+): Promise<CampaignTemplate> => {
   const response = await axios.post("/campaigns_templates", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
@@ -133,7 +138,42 @@ export const deleteCampaign = async (id: string) => {
 
 export const getDashboardStats = async () => {
   const { data } = await axios.get<IDashboardStats>(
-    "/campaigns/dashboard/stats",
+    "/campaigns/dashboard-stats",
+  );
+  return data;
+};
+
+export const getEmailAnalyticsOverview = async () => {
+  const { data } = await axios.get<IAnalyticsOverview>(
+    "/email_analytics/overview",
+  );
+  return data;
+};
+
+export const getEmailAnalyticsPerformance = async () => {
+  const { data } = await axios.get<IDetailedPerformance>(
+    "/email_analytics/performance",
+  );
+  return data;
+};
+
+export const getEmailAnalyticsAudience = async () => {
+  const { data } = await axios.get<IAudienceAnalytics>(
+    "/email_analytics/audience",
+  );
+  return data;
+};
+
+export const getEmailAnalyticsDevices = async () => {
+  const { data } = await axios.get<IDeviceAnalytics>(
+    "/email_analytics/devices",
+  );
+  return data;
+};
+
+export const getEmailAnalyticsCampaign = async (id: string) => {
+  const { data } = await axios.get<ICampaignAnalytics>(
+    `/email_analytics/campaign/${id}`,
   );
   return data;
 };

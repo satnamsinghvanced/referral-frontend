@@ -399,7 +399,7 @@ export function CreatePostModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      size="lg"
+      size="xl"
       placement="center"
       scrollBehavior="inside"
       classNames={{

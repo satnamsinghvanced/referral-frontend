@@ -2,7 +2,7 @@ import { Button, Input, Select, SelectItem } from "@heroui/react";
 import { useState } from "react";
 import { FiSearch } from "react-icons/fi";
 import { PiFunnelX } from "react-icons/pi";
-import { useNavigate } from "react-router-dom";
+import DeleteConfirmationModal from "../../../components/common/DeleteConfirmationModal";
 import { LoadingState } from "../../../components/common/LoadingState";
 import Pagination from "../../../components/common/Pagination";
 import {
@@ -14,63 +14,14 @@ import {
   useCampaigns,
   useDeleteCampaign,
   useDuplicateCampaign,
+  useUpdateCampaign,
 } from "../../../hooks/useCampaign";
 import { ICampaign, ICampaignFilters } from "../../../types/campaign";
 import CampaignCard from "./CampaignCard";
-import CampaignActionModal from "./modal/CampaignActionModal";
-import DeleteConfirmationModal from "../../../components/common/DeleteConfirmationModal";
-
-const CAMPAIGNS = [
-  {
-    id: 1,
-    title: "New Referral Partner Outreach",
-    subtitle: "Partnership Opportunity - Referral Retriever",
-    recipients: 245,
-    createdDate: "1/15/2024",
-    status: "active",
-    metrics: {
-      sent: 245,
-      openRate: "68.5%",
-      clickRate: "24.3%",
-      conversions: 12,
-    },
-    actions: ["Edit", "Duplicate", "Pause", "View Report", "Archive"],
-  },
-  {
-    id: 2,
-    title: "Patient Thank You Series",
-    subtitle: "Thank you for choosing our practice!",
-    recipients: 892,
-    createdDate: "1/10/2024",
-    status: "active",
-    metrics: {
-      sent: 892,
-      openRate: "82.1%",
-      clickRate: "31.7%",
-      conversions: 45,
-    },
-    actions: ["Edit", "Duplicate", "Pause", "View Report", "Archive"],
-  },
-  {
-    id: 3,
-    title: "Monthly Practice Newsletter",
-    subtitle: "January Updates & New Services",
-    recipients: 1247,
-    createdDate: "1/20/2024",
-    scheduledDate: "2/1/2024",
-    status: "scheduled",
-    actions: ["Edit", "Duplicate", "View Report", "Archive"],
-  },
-  {
-    id: 4,
-    title: "Referral Partner Check-in",
-    subtitle: "How can we better serve your patients?",
-    recipients: 58,
-    createdDate: "1/22/2024",
-    status: "draft",
-    actions: ["Edit", "Duplicate", "Send Now", "View Report", "Archive"],
-  },
-];
+import CampaignActionModal from "./modal/create/CampaignActionModal";
+import EmptyState from "../../../components/common/EmptyState";
+import CampaignReportModal from "./modal/CampaignReportModal";
+import { AiOutlinePlus } from "react-icons/ai";
 
 const INITIAL_FILTERS: ICampaignFilters = {
   page: 1,
@@ -89,11 +40,21 @@ const Campaigns = () => {
   );
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [campaignToDelete, setCampaignToDelete] = useState<string | null>(null);
+  const [reportCampaignId, setReportCampaignId] = useState<string | null>(null);
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   const { data, isLoading } = useCampaigns(currentFilters);
   const deleteMutation = useDeleteCampaign();
   const archiveMutation = useArchiveCampaign();
   const duplicateMutation = useDuplicateCampaign();
+  const updateMutation = useUpdateCampaign();
+
+  const handleStatusUpdate = (id: string, status: string) => {
+    updateMutation.mutate({
+      id,
+      payload: { status } as any,
+    });
+  };
 
   const handleFilterChange = (key: keyof ICampaignFilters, value: any) => {
     setCurrentFilters((prev) => ({
@@ -135,6 +96,11 @@ const Campaigns = () => {
     setIsActionModalOpen(true);
   };
 
+  const handleViewReport = (id: string) => {
+    setReportCampaignId(id);
+    setIsReportModalOpen(true);
+  };
+
   const campaigns = data?.campaigns || [];
   const pagination = data?.pagination;
 
@@ -167,7 +133,7 @@ const Campaigns = () => {
               }
             >
               <>
-                <SelectItem key="all">All Statuses</SelectItem>
+                <SelectItem key="">All Statuses</SelectItem>
                 {CAMPAIGN_STATUSES.map((status) => (
                   <SelectItem key={status.value}>{status.label}</SelectItem>
                 ))}
@@ -185,7 +151,7 @@ const Campaigns = () => {
               }
             >
               <>
-                <SelectItem key="all">All Categories</SelectItem>
+                <SelectItem key="">All Categories</SelectItem>
                 {CAMPAIGN_CATEGORIES.map((source) => (
                   <SelectItem key={source.value}>{source.label}</SelectItem>
                 ))}
@@ -212,6 +178,7 @@ const Campaigns = () => {
                 variant="solid"
                 color="primary"
                 className="flex-1"
+                startContent={<AiOutlinePlus className="size-[15px]" />}
               >
                 Create Campaign
               </Button>
@@ -234,12 +201,15 @@ const Campaigns = () => {
               onArchive={handleArchive}
               onDuplicate={handleDuplicate}
               onDelete={handleDelete}
+              onStatusUpdate={handleStatusUpdate}
+              onViewReport={handleViewReport}
             />
           ))
         ) : (
-          <div className="text-center py-12 text-gray-500 dark:text-foreground/50">
-            No campaigns found matching your criteria.
-          </div>
+          <EmptyState
+            title="No campaigns found"
+            message="Create a new campaign to get started."
+          />
         )}
       </div>
 
@@ -272,6 +242,15 @@ const Campaigns = () => {
         isLoading={deleteMutation.isPending}
         title="Delete Campaign"
         description="Are you sure you want to delete this campaign? This action cannot be undone."
+      />
+
+      <CampaignReportModal
+        isOpen={isReportModalOpen}
+        onClose={() => {
+          setIsReportModalOpen(false);
+          setReportCampaignId(null);
+        }}
+        campaignId={reportCampaignId}
       />
     </div>
   );

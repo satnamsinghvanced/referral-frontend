@@ -18,9 +18,9 @@ export default function QuillEditor({
   const editorRef = useRef<HTMLDivElement>(null);
   const quillRef = useRef<Quill | null>(null);
 
+  // Initialize Quill
   useEffect(() => {
     if (editorRef.current && !quillRef.current) {
-      // Build toolbar configuration
       const toolbar = [
         [{ header: [1, 2, false] }],
         ["bold", "italic", "underline", "strike"],
@@ -30,7 +30,7 @@ export default function QuillEditor({
         ["clean"],
       ];
 
-      quillRef.current = new Quill(editorRef.current, {
+      const quill = new Quill(editorRef.current, {
         theme: "snow",
         placeholder,
         modules: {
@@ -38,20 +38,43 @@ export default function QuillEditor({
         },
       });
 
-      // Handle text change
-      quillRef.current.on("text-change", () => {
-        const html = quillRef.current?.root.innerHTML || "";
-        onChange(html);
+      quillRef.current = quill;
+
+      quill.on("text-change", (delta, oldDelta, source) => {
+        if (source === "user") {
+          const html = quill.root.innerHTML || "";
+          onChange(html);
+        }
       });
     }
-  }, []);
 
-  // Update editor content when value prop changes
+    return () => {
+      // Optional: Cleanup if needed, though Quill doesn't provide a direct destroy
+    };
+  }, [placeholder, enableImage]); // Re-init only if these core props change
+
+  // Sync value from props
   useEffect(() => {
-    if (quillRef.current) {
-      const currentContent = quillRef.current.root.innerHTML;
-      if (value !== currentContent) {
-        quillRef.current.root.innerHTML = value;
+    const quill = quillRef.current;
+    if (!quill) return;
+
+    const currentContent = quill.root.innerHTML;
+
+    // Only update if prop value is different from editor's internal state
+    // and handle the case where Quill adds a trailing newline or default P tag
+    if (value !== currentContent) {
+      if (!value || value === "") {
+        if (currentContent !== "<p><br></p>") {
+          quill.root.innerHTML = "";
+        }
+      } else {
+        // Use clipboard to safely paste HTML
+        const selection = quill.getSelection();
+        quill.clipboard.dangerouslyPasteHTML(value);
+        if (selection) {
+          // Restore selection to prevent cursor jumping
+          quill.setSelection(selection);
+        }
       }
     }
   }, [value]);

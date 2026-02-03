@@ -29,6 +29,8 @@ import { useFetchUser } from "../../hooks/settings/useUser";
 import { User } from "../../services/settings/user";
 import { PASSWORD_REGEX } from "../../consts/consts";
 import { RootState } from "../../store";
+import { useFetchTwilioConfig } from "../../hooks/integrations/useTwilio";
+import { Link } from "react-router-dom";
 
 const SecuritySchema = Yup.object().shape({
   currentPassword: Yup.string()
@@ -64,7 +66,10 @@ const Security: React.FC = () => {
   const { mutate: verifyEnable2FA, isPending: isVerifying2FA } =
     useVerifyEnable2FA();
   const { mutate: disable2FA, isPending: isDisabling2FA } = useDisable2FA();
-  console.log("userData >>>",userData)
+
+  const { data: twilioConfig, isLoading: isTwilioLoading } =
+    useFetchTwilioConfig();
+  console.log("userData >>>", userData);
   const [otpMode, setOtpMode] = useState<
     "password_update" | "enable_2fa" | null
   >(null);
@@ -129,6 +134,25 @@ const Security: React.FC = () => {
 
   return (
     <>
+      {/* Twilio Integration Warning */}
+      {!isTwilioLoading && twilioConfig?.status !== "Connected" && (
+        <div className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-500/30 rounded-lg p-3 flex items-center justify-between flex-wrap gap-3 mb-4">
+          <p className="text-sm text-yellow-800 dark:text-yellow-400">
+            Twilio is not connected. You can&apos;t enable Two-Factor
+            Authentication until you connect your Twilio account.
+          </p>
+          <Button
+            as={Link}
+            to="/integrations"
+            size="sm"
+            color="warning"
+            variant="flat"
+            className="bg-yellow-200 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400"
+          >
+            Connect Twilio
+          </Button>
+        </div>
+      )}
       <Card className="rounded-xl shadow-none border border-foreground/10 bg-background">
         <CardHeader className="flex items-center gap-2 px-4 pt-4 pb-1">
           <FiShield className="size-5" />
@@ -276,7 +300,11 @@ const Security: React.FC = () => {
               className="font-medium border-small"
               onPress={handle2FAAction}
               isLoading={isEnabling2FA || isDisabling2FA}
-              isDisabled={!userData?.phone && !userData?.isTwoFactorEnabled}
+              isDisabled={
+                (!userData?.phone && !userData?.isTwoFactorEnabled) ||
+                (twilioConfig?.status !== "Connected" &&
+                  !userData?.isTwoFactorEnabled)
+              }
               radius="sm"
             >
               {userData?.isTwoFactorEnabled ? "Disable 2FA" : "Enable 2FA"}

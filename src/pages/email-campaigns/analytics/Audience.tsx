@@ -4,7 +4,6 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
-  Legend,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -12,21 +11,23 @@ import {
 } from "recharts";
 import ChartTooltip from "../../../components/common/ChartTooltip";
 import { useTypedSelector } from "../../../hooks/useTypedSelector";
-
-interface EngagementData {
-  segment: string;
-  percentage: number;
-  value: number; // Value used for the bar chart
-}
-
-const ENGAGEMENT_GRAPH: EngagementData[] = [
-  { segment: "Dental Practices", percentage: 45, value: 45 },
-  { segment: "Patients", percentage: 35, value: 35 },
-  { segment: "Referral Partners", percentage: 20, value: 20 },
-];
+import { useAnalyticsAudience } from "../../../hooks/useCampaign";
+import { LoadingState } from "../../../components/common/LoadingState";
 
 const Audience: React.FC = () => {
   const { theme } = useTypedSelector((state) => state.ui);
+  const { data: audienceData, isLoading } = useAnalyticsAudience();
+
+  if (isLoading) {
+    return (
+      <div className="py-20 flex justify-center">
+        <LoadingState />
+      </div>
+    );
+  }
+
+  const engagementData = audienceData?.audienceEngagement || [];
+
   return (
     <div className="grid grid-cols-2 gap-5">
       <Card
@@ -41,10 +42,10 @@ const Audience: React.FC = () => {
         </CardHeader>
         <CardBody className="p-0 overflow-visible">
           <div className="space-y-4 text-sm">
-            {ENGAGEMENT_GRAPH.map((item) => (
-              <div className="space-y-1.5" key={item.segment}>
+            {engagementData.map((item) => (
+              <div className="space-y-1.5" key={item.label}>
                 <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium">{item.segment}</span>
+                  <span className="text-sm font-medium">{item.label}</span>
                   <span className="text-xs text-gray-600 dark:text-foreground/60">
                     {item.percentage}%
                   </span>
@@ -52,8 +53,8 @@ const Audience: React.FC = () => {
                 <Progress
                   size="sm"
                   radius="sm"
-                  arai-label={item.segment}
-                  value={item.percentage}
+                  aria-label={item.label}
+                  value={item.percentage || 0}
                   classNames={{ track: "h-2" }}
                 />
               </div>
@@ -61,7 +62,10 @@ const Audience: React.FC = () => {
           </div>
         </CardBody>
       </Card>
-      <Card shadow="none" className="bg-background border border-foreground/10 p-5">
+      <Card
+        shadow="none"
+        className="bg-background border border-foreground/10 p-5"
+      >
         <CardHeader className="p-0 pb-5 md:pb-8 flex items-center gap-2">
           <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
           <h4 className="text-sm font-medium">Engagement by Segment</h4>
@@ -69,7 +73,7 @@ const Audience: React.FC = () => {
         <CardBody className="p-0 overflow-visible">
           <div className="-ml-10 text-sm">
             <ResponsiveContainer width="100%" aspect={1.85} maxHeight={380}>
-              <BarChart data={ENGAGEMENT_GRAPH} barCategoryGap="20%">
+              <BarChart data={engagementData as any[]} barCategoryGap="20%">
                 <CartesianGrid
                   strokeDasharray="3 3"
                   vertical={false}
@@ -78,7 +82,7 @@ const Audience: React.FC = () => {
                   }
                 />
                 <XAxis
-                  dataKey="segment"
+                  dataKey="label"
                   tickLine={false}
                   axisLine={false}
                   tick={{
@@ -106,10 +110,10 @@ const Audience: React.FC = () => {
                   }}
                 />
                 <Bar
-                  dataKey="value"
+                  dataKey="percentage"
                   fill="#0ea5e9"
                   radius={[4, 4, 0, 0]}
-                  name="Engagement %"
+                  name="Engagement"
                 />
               </BarChart>
             </ResponsiveContainer>

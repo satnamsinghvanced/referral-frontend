@@ -1,43 +1,35 @@
 import React from "react";
 import { FiMonitor, FiSmartphone, FiTablet, FiBarChart2 } from "react-icons/fi";
-import clsx from "clsx";
 import { Card, CardBody, CardHeader, Progress } from "@heroui/react";
-
-// --- 1. TypeScript Interfaces ---
-interface DeviceMetric {
-  name: string;
-  opens: number;
-  clicks: number;
-  percentage: number;
-  icon: React.ElementType;
-}
-
-// --- 2. Dummy Data (Mock API Response) ---
-const mockDeviceMetrics: DeviceMetric[] = [
-  {
-    name: "Desktop",
-    opens: 1200,
-    clicks: 380,
-    percentage: 45,
-    icon: FiMonitor,
-  },
-  {
-    name: "Mobile",
-    opens: 1100,
-    clicks: 290,
-    percentage: 40,
-    icon: FiSmartphone,
-  },
-  {
-    name: "Tablet",
-    opens: 400,
-    clicks: 85,
-    percentage: 15,
-    icon: FiTablet,
-  },
-];
+import { useAnalyticsDevices } from "../../../hooks/useCampaign";
+import { LoadingState } from "../../../components/common/LoadingState";
 
 const Devices: React.FC = () => {
+  const { data: deviceData, isLoading } = useAnalyticsDevices();
+
+  const getDeviceIcon = (deviceName: string) => {
+    switch (deviceName.toLowerCase()) {
+      case "desktop":
+        return FiMonitor;
+      case "mobile":
+        return FiSmartphone;
+      case "tablet":
+        return FiTablet;
+      default:
+        return FiBarChart2;
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="py-20 flex justify-center">
+        <LoadingState />
+      </div>
+    );
+  }
+
+  const metrics = deviceData?.devicePerformance || [];
+
   return (
     <Card
       shadow="none"
@@ -49,13 +41,13 @@ const Devices: React.FC = () => {
       </CardHeader>
 
       <CardBody className="p-0 space-y-3">
-        {mockDeviceMetrics.map((metric) => {
-          const Icon = metric.icon;
+        {metrics.map((metric) => {
+          const Icon = getDeviceIcon(metric.device);
 
           return (
             <div
               className="bg-content1 border border-foreground/10 p-3 flex items-center gap-2 rounded-lg"
-              key={metric.name}
+              key={metric.device}
             >
               <div className="flex items-center space-x-2.5 flex-grow">
                 <div className="p-2 bg-blue-50 dark:bg-blue-500/10 rounded-lg shrink-0">
@@ -63,13 +55,13 @@ const Devices: React.FC = () => {
                 </div>
 
                 <div className="flex-grow space-y-0.5">
-                  <h5 className="text-sm font-medium">{metric.name}</h5>
+                  <h5 className="text-sm font-medium">{metric.device}</h5>
                   <p className="text-xs text-gray-500 dark:text-foreground/60 flex items-center gap-2">
                     <span className="text-green-600 dark:text-green-400">
-                      {metric.opens} opens
+                      {metric.opens || 0} opens
                     </span>
                     <span className="text-blue-600 dark:text-blue-400">
-                      {metric.clicks} clicks
+                      {metric.clicks || 0} clicks
                     </span>
                   </p>
                 </div>
@@ -82,6 +74,7 @@ const Devices: React.FC = () => {
                 <Progress
                   size="sm"
                   radius="sm"
+                  aria-label={metric.device}
                   value={metric.percentage}
                   classNames={{ track: "h-2" }}
                 />

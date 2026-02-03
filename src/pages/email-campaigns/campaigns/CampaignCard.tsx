@@ -1,9 +1,10 @@
 import { Button } from "@heroui/react";
 import React from "react";
-import { FiArchive, FiClock, FiCopy, FiEdit, FiTrash2 } from "react-icons/fi";
+import { FiClock, FiCopy, FiEdit, FiTrash2 } from "react-icons/fi";
 import { LuFileText, LuPause, LuPlay, LuSend } from "react-icons/lu";
 import CampaignStatusChip from "../../../components/chips/CampaignStatusChip";
 import { ICampaign } from "../../../types/campaign";
+import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 
 interface CampaignCardProps {
   campaign: ICampaign;
@@ -11,6 +12,8 @@ interface CampaignCardProps {
   onArchive: (id: string) => void;
   onDuplicate: (id: string) => void;
   onDelete: (id: string) => void;
+  onStatusUpdate: (id: string, status: string) => void;
+  onViewReport: (id: string) => void;
 }
 
 const CampaignCard = ({
@@ -19,6 +22,8 @@ const CampaignCard = ({
   onArchive,
   onDuplicate,
   onDelete,
+  onStatusUpdate,
+  onViewReport,
 }: CampaignCardProps) => {
   const {
     _id,
@@ -60,7 +65,7 @@ const CampaignCard = ({
             ) : status === "paused" ? (
               <LuPause className="text-yellow-500 text-lg" />
             ) : status === "draft" ? (
-              <FiEdit className="text-gray-500 text-lg" />
+              <FiEdit className="text-gray-500 text-md" />
             ) : (
               <LuPlay className="text-green-500 text-lg" />
             )}
@@ -81,7 +86,7 @@ const CampaignCard = ({
                 <>
                   <span className="mx-1.5">•</span>
                   <span>
-                    Scheduled {new Date(schedule.date).toLocaleString()}
+                    Scheduled: {formatDateToReadable(schedule.date, true)}
                   </span>
                 </>
               )}
@@ -91,7 +96,7 @@ const CampaignCard = ({
         <CampaignStatusChip status={status as any} />
       </div>
 
-      {isLive && stats && (
+      {stats && (
         <div className="grid grid-cols-4 gap-4 pt-4">
           <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-content1 rounded-lg space-y-0.5">
             <p className="text-xs text-gray-500 dark:text-foreground/50">
@@ -125,7 +130,7 @@ const CampaignCard = ({
       )}
 
       {/* Action Buttons Row */}
-      <div className="flex justify-between items-center pt-4 mt-4 border-t border-foreground/10">
+      <div className="flex justify-between items-center pt-3.5 mt-3.5 border-t border-foreground/10">
         <div className="flex gap-2">
           {["Edit", "Duplicate"].map((action) => (
             <Button
@@ -150,10 +155,11 @@ const CampaignCard = ({
             <Button
               size="sm"
               radius="sm"
-              variant="solid"
+              variant="ghost"
               color="primary"
-              onPress={() => console.log("Resume button clicked")}
+              onPress={() => onStatusUpdate(_id, "active")}
               startContent={<LuPlay className="size-3.5" />}
+              className="border-small"
             >
               Resume
             </Button>
@@ -162,12 +168,26 @@ const CampaignCard = ({
             <Button
               size="sm"
               radius="sm"
-              variant="solid"
-              color="warning"
-              onPress={() => console.log("Pause button clicked")}
+              variant="ghost"
+              color="default"
+              onPress={() => onStatusUpdate(_id, "paused")}
               startContent={<LuPause className="size-3.5" />}
+              className="border-small"
             >
               Pause
+            </Button>
+          )}
+          {status === "draft" && (
+            <Button
+              size="sm"
+              radius="sm"
+              variant="solid"
+              color="primary"
+              onPress={() => onStatusUpdate(_id, "active")}
+              startContent={<LuSend className="size-3.5" />}
+              className="border-small"
+            >
+              Send Now
             </Button>
           )}
         </div>
@@ -177,13 +197,13 @@ const CampaignCard = ({
             radius="sm"
             variant="ghost"
             color="default"
-            onPress={() => console.log("View Report clicked")}
+            onPress={() => onViewReport(_id)}
             startContent={<LuFileText className="size-3.5" />}
             className="border-small"
           >
             View Report
           </Button>
-          <Button
+          {/* <Button
             size="sm"
             radius="sm"
             variant="ghost"
@@ -193,7 +213,7 @@ const CampaignCard = ({
             className="border-small"
           >
             Archive
-          </Button>
+          </Button> */}
           <Button
             size="sm"
             radius="sm"

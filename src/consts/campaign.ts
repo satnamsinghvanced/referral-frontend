@@ -40,6 +40,11 @@ export const CAMPAIGN_CATEGORIES = [
   },
 ];
 
+export const CAMPAIGN_TYPES = [
+  { value: "oneTimeEmail", label: "One-time Email" },
+  { value: "newsletter", label: "Newsletter" },
+];
+
 export const FLOW_STATUSES = [
   {
     label: "Active",

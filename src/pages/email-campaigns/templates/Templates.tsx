@@ -30,7 +30,11 @@ const INITIAL_FILTERS: CampaignFilters = {
   search: "",
 };
 
-const Templates: React.FC = () => {
+interface TemplatesProps {
+  onUseTemplate?: (template: CampaignTemplate) => void;
+}
+
+const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
   const [currentFilters, setCurrentFilters] =
     useState<CampaignFilters>(INITIAL_FILTERS);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -62,6 +66,12 @@ const Templates: React.FC = () => {
   const handleViewTemplate = (template: CampaignTemplate) => {
     setSelectedTemplate(template);
     setIsViewModalOpen(true);
+  };
+
+  const handleUseTemplate = (template: CampaignTemplate) => {
+    if (onUseTemplate) {
+      onUseTemplate(template);
+    }
   };
 
   const handleCreateTemplate = async (values: TemplateFormValues) => {
@@ -216,8 +226,7 @@ const Templates: React.FC = () => {
         onClose={() => setIsViewModalOpen(false)}
         template={selectedTemplate}
         onUseTemplate={(template) => {
-          console.log("Use template from modal", template._id);
-          // Implement use tempalte logic
+          handleUseTemplate(template);
           setIsViewModalOpen(false);
         }}
       />
@@ -303,10 +312,7 @@ const Templates: React.FC = () => {
                         color="primary"
                         className="flex-1"
                         startContent={<LuCopy className="size-3.5" />}
-                        onPress={() => {
-                          // Handle use template
-                          console.log("Use template", template._id);
-                        }}
+                        onPress={() => handleUseTemplate(template)}
                       >
                         Use Template
                       </Button>

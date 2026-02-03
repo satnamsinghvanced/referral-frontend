@@ -1,7 +1,7 @@
 import { Button, Input, Select, SelectItem, Skeleton } from "@heroui/react";
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
-import { FiUser } from "react-icons/fi";
+import { FiUser, FiX } from "react-icons/fi";
 import { useDispatch } from "react-redux";
 import * as Yup from "yup";
 import { EMAIL_REGEX, NAME_REGEX, PHONE_REGEX } from "../../consts/consts";
@@ -39,7 +39,7 @@ const ProfileSchema = Yup.object().shape({
     .required("First name is required")
     .matches(
       NAME_REGEX,
-      "First name can only contain letters, spaces, hyphens, apostrophes, and full stops"
+      "First name can only contain letters, spaces, hyphens, apostrophes, and full stops",
     )
     .min(2, "First name must be at least 2 characters")
     .max(50, "First name must be less than 50 characters"),
@@ -47,7 +47,7 @@ const ProfileSchema = Yup.object().shape({
     .required("Last name is required")
     .matches(
       NAME_REGEX,
-      "Last name can only contain letters, spaces, hyphens, apostrophes, and full stops"
+      "Last name can only contain letters, spaces, hyphens, apostrophes, and full stops",
     )
     .min(2, "Last name must be at least 2 characters")
     .max(50, "Last name must be less than 50 characters"),
@@ -69,7 +69,7 @@ const ProfileSchema = Yup.object().shape({
         if (typeof value === "string") return true;
         const supportedFormats = ["image/jpeg", "image/png"];
         return supportedFormats.includes(value.type);
-      }
+      },
     )
     .test("fileSize", "Image file is too large (max 1MB).", (value) => {
       if (!value || typeof value === "string") return true;
@@ -82,7 +82,7 @@ const Profile = () => {
   const { user } = useTypedSelector((state) => state.auth);
   const userId = user?.userId || "";
 
-  const { data: fetchedUser, isLoading } = useFetchUser(userId);
+  const { data: fetchedUser, isLoading } = useFetchUser(userId) as any;
   const { data: specialties } = useSpecialties();
   const { mutate: updateUser, isPending } = useUpdateUser(userId);
 
@@ -96,8 +96,10 @@ const Profile = () => {
           fetchedUser.image.includes("http")
             ? ""
             : `${import.meta.env.VITE_IMAGE_URL}`
-        }${fetchedUser.image}`
+        }${fetchedUser.image}`,
       );
+    } else if (fetchedUser) {
+      setPreviewUrl("");
     }
   }, [fetchedUser]);
 
@@ -113,8 +115,8 @@ const Profile = () => {
       email: fetchedUser?.email || "",
       phone: fetchedUser?.phone ? formatPhoneNumber(fetchedUser.phone) : "",
       practiceName: fetchedUser?.practiceName || "",
-      medicalSpecialty: fetchedUser?.medicalSpecialty || "",
-      image: fetchedUser?.image,
+      medicalSpecialty: (fetchedUser as any)?.medicalSpecialty || "",
+      image: (fetchedUser as any)?.image,
     },
     validationSchema: ProfileSchema,
     onSubmit: (values) => {
@@ -124,8 +126,8 @@ const Profile = () => {
         email: values.email,
         phone: values.phone,
         practiceName: values.practiceName,
-        medicalSpecialty: values.medicalSpecialty,
-        image: (values.image as string) || "",
+        medicalSpecialty: values.medicalSpecialty as any,
+        image: values.image as any,
       };
       updateUser(data, {
         onSuccess(data) {
@@ -144,9 +146,15 @@ const Profile = () => {
       setPreviewUrl(URL.createObjectURL(file));
     } else {
       setPreviewUrl(
-        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face"
+        "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face",
       );
     }
+  };
+
+  const handleRemoveImage = () => {
+    formik.setFieldValue("image", "");
+    setPreviewUrl("");
+    formik.setFieldTouched("image", true, true);
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -166,7 +174,7 @@ const Profile = () => {
     handleChange,
     setFieldTouched,
   } = formik;
-  console.log("values >>", values)
+  console.log("values >>", values);
   return (
     <>
       <div className="p-4 bg-background border border-foreground/10 rounded-xl">
@@ -177,19 +185,41 @@ const Profile = () => {
           </h4>
 
           <div className="flex items-center gap-4 mb-6">
-            <div className="relative size-20 overflow-hidden rounded-full">
+            <div className="relative size-20">
+              <div className="size-full overflow-hidden rounded-full border border-divider bg-default-50 flex items-center justify-center relative">
+                {isLoading ? (
+                  <Skeleton className="absolute inset-0 size-full" />
+                ) : previewUrl ? (
+                  <>
+                    <img
+                      src={previewUrl}
+                      alt="Profile"
+                      className={`size-full object-cover transition-opacity duration-300 ${
+                        imageLoaded ? "opacity-100" : "opacity-0"
+                      }`}
+                      onLoad={() => setImageLoaded(true)}
+                    />
+                    {!imageLoaded && (
+                      <Skeleton className="absolute inset-0 size-full" />
+                    )}
+                  </>
+                ) : (
+                  <FiUser className="size-8 text-default-400" />
+                )}
+              </div>
               {previewUrl && !isLoading && (
-                <img
-                  src={previewUrl}
-                  alt="Profile"
-                  className={`size-full object-cover transition-opacity duration-300 ${
-                    imageLoaded ? "opacity-100" : "opacity-0"
-                  }`}
-                  onLoad={() => setImageLoaded(true)}
-                />
-              )}
-              {(isLoading || !previewUrl || !imageLoaded) && (
-                <Skeleton className="absolute inset-0 size-full" />
+                <Button
+                  isIconOnly
+                  size="sm"
+                  variant="solid"
+                  color="danger"
+                  radius="full"
+                  className="absolute -top-1 -right-1 size-5 min-w-0 h-5 z-10 p-0 shadow-sm border border-white dark:border-default-100"
+                  onPress={handleRemoveImage}
+                  title="Remove photo"
+                >
+                  <FiX className="size-3" />
+                </Button>
               )}
             </div>
             <div>
@@ -263,15 +293,18 @@ const Profile = () => {
                 label="Medical Specialty"
                 labelPlacement="outside"
                 placeholder="Select a Medical Specialty"
-                selectedKeys={new Set([values.medicalSpecialty])}
-                disabledKeys={new Set([values.medicalSpecialty])}
+                selectedKeys={[values.medicalSpecialty]}
+                disabledKeys={[values.medicalSpecialty]}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 isRequired={true}
                 isInvalid={
                   !!(touched.medicalSpecialty && errors.medicalSpecialty)
                 }
-                errorMessage={errors.medicalSpecialty as string}
+                errorMessage={
+                  touched.medicalSpecialty &&
+                  (errors.medicalSpecialty as string)
+                }
               >
                 {(specialties ?? []).map((item: any) => (
                   <SelectItem key={item._id} textValue={item.title}>
@@ -282,7 +315,7 @@ const Profile = () => {
             </div>
           </div>
 
-          <div className="mt-5">
+          <div className="mt-4">
             <Button
               size="sm"
               type="submit"

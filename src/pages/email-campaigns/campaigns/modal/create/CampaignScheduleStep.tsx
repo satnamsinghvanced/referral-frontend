@@ -1,7 +1,7 @@
 import { DatePicker, Input, Switch } from "@heroui/react";
 import clsx from "clsx";
 import React, { forwardRef, useImperativeHandle, useState } from "react";
-import { CampaignData } from "./CampaignActionModal";
+import { CampaignData, CampaignStepProps } from "./CampaignActionModal";
 import {
   getLocalTimeZone,
   now,
@@ -12,16 +12,10 @@ export interface CampaignStepRef {
   triggerValidationAndProceed: () => void;
 }
 
-interface CampaignStepProps {
-  data: CampaignData;
-  onNext: (data: Partial<CampaignData>) => void;
-  validationErrors: Record<string, string>;
-}
-
 const CampaignScheduleStep: React.ForwardRefRenderFunction<
   CampaignStepRef,
   CampaignStepProps
-> = ({ data, onNext, validationErrors }, ref) => {
+> = ({ data, onNext, validationErrors, setIsStepValid }, ref) => {
   const [sendImmediately, setSendImmediately] = useState<boolean>(
     data.schedule.sendImmediately,
   );
@@ -33,6 +27,14 @@ const CampaignScheduleStep: React.ForwardRefRenderFunction<
   const [localError, setLocalError] = useState<boolean>(false);
 
   const error = localError || (validationErrors.schedule as any)?.date;
+
+  React.useEffect(() => {
+    if (sendImmediately) {
+      setIsStepValid(true);
+    } else {
+      setIsStepValid(!!sendDate);
+    }
+  }, [sendImmediately, sendDate, setIsStepValid]);
 
   const handleValidationAndNext = () => {
     if (!sendImmediately && !sendDate) {
@@ -116,7 +118,7 @@ const CampaignScheduleStep: React.ForwardRefRenderFunction<
         )}
       </div>
 
-      <div>
+      {/* <div>
         <Switch
           size="sm"
           isSelected={trackOpens}
@@ -139,7 +141,7 @@ const CampaignScheduleStep: React.ForwardRefRenderFunction<
         >
           Track email clicks
         </Switch>
-      </div>
+      </div> */}
     </div>
   );
 };
