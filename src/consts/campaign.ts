@@ -52,7 +52,7 @@ export const FLOW_STATUSES = [
   },
   {
     label: "Paused",
-    value: "paused",
+    value: "inActive",
   },
   {
     label: "Draft",
@@ -109,4 +109,11 @@ export const ACTIVITY_TIMEFRAMES = [
   { label: "Last 30 days", value: "last30Days" },
   { label: "Last 90 days", value: "last90Days" },
   { label: "60+ days ago", value: "60+DaysAgo" },
+];
+
+export const ANALYTICS_FILTER_OPTIONS = [
+  { label: "Last 7 days", value: "last7days" },
+  { label: "Last 30 days", value: "last30days" },
+  { label: "Last 90 days", value: "last90days" },
+  { label: "Last year", value: "lastyear" },
 ];

@@ -8,30 +8,28 @@ import EmailModal from "./modal/EmailModal";
 import TagModal from "./modal/TagModal";
 import TriggerModal from "./modal/TriggerModal";
 import WaitModal from "./modal/WaitModal";
+import {
+  useAutomationDetail,
+  useCreateAutomation,
+  useUpdateAutomation,
+} from "../../../../hooks/useCampaign";
+import { useEffect } from "react";
+import {
+  mapAPIFlowToUI,
+  mapUIFlowToAPI,
+} from "../../../../utils/automationMapper";
+import { LoadingState } from "../../../../components/common/LoadingState";
+import { FlowStep, UIStepType } from "../../../../types/campaign";
 
 // --- Types ---
-export type StepType =
-  | "trigger"
-  | "email"
-  | "wait"
-  | "condition"
-  | "action"
-  | "tag";
+export type StepType = UIStepType;
 
-export interface FlowStep {
-  id: string;
-  type: StepType;
-  title: string;
-  description: string;
-  config?: any;
-  children?: FlowStep[]; // Standard sequential steps
-  branches?: {
-    yes: FlowStep[];
-    no: FlowStep[];
-  };
+interface FlowBuilderProps {
+  id?: string | null;
+  onSaved?: () => void;
 }
 
-const FlowBuilder = () => {
+const FlowBuilder = ({ id, onSaved }: FlowBuilderProps) => {
   const [flowName, setFlowName] = useState("New Automation Flow");
   const [description, setDescription] = useState("");
   const [isActive, setIsActive] = useState(false);
@@ -44,8 +42,55 @@ const FlowBuilder = () => {
       description: "When should this flow start?",
       config: {},
       children: [],
+      branches: { yes: [], no: [] },
     },
   ]);
+
+  const { data: existingFlow, isLoading } = useAutomationDetail(id || "");
+  const createMutation = useCreateAutomation();
+  const updateMutation = useUpdateAutomation(id || "");
+
+  useEffect(() => {
+    if (existingFlow) {
+      setFlowName(existingFlow.name);
+      setDescription(existingFlow.description);
+      setIsActive(existingFlow.status === "active");
+      setSteps(mapAPIFlowToUI(existingFlow));
+    } else {
+      setFlowName("New Automation Flow");
+      setDescription("");
+      setIsActive(false);
+      setSteps([
+        {
+          id: "trigger-step",
+          type: "trigger",
+          title: "Select Trigger",
+          description: "When should this flow start?",
+          config: {},
+          children: [],
+          branches: { yes: [], no: [] },
+        },
+      ]);
+    }
+  }, [existingFlow, id]);
+
+  const handleSave = () => {
+    const payload = mapUIFlowToAPI(steps, flowName, description);
+    const automationData = {
+      ...payload,
+      status: isActive ? "active" : "inactive",
+    };
+
+    if (id) {
+      updateMutation.mutate(automationData, {
+        onSuccess: () => onSaved?.(),
+      });
+    } else {
+      createMutation.mutate(automationData, {
+        onSuccess: () => onSaved?.(),
+      });
+    }
+  };
 
   // Modal Control States
   const [currentStep, setCurrentStep] = useState<FlowStep | null>(null);
@@ -130,7 +175,7 @@ const FlowBuilder = () => {
       case "wait":
         return `Wait for ${config.duration} ${config.unit}`;
       case "email":
-        return `Send template: ${config.template}`;
+        return `Send template: ${config.templateName || config.template}`;
       case "condition":
         return `Condition: ${config.conditionType}`;
       case "action":
@@ -272,6 +317,14 @@ const FlowBuilder = () => {
     }
   };
 
+  if (id && isLoading) {
+    return (
+      <div className="py-20 flex justify-center">
+        <LoadingState />
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-5">
       <div className="bg-background rounded-xl border border-foreground/10 p-4 space-y-4">
@@ -309,8 +362,8 @@ const FlowBuilder = () => {
               <Button
                 size="sm"
                 radius="sm"
-                variant="ghost"
-                className="border-small"
+                onPress={handleSave}
+                isLoading={updateMutation.isPending || createMutation.isPending}
                 startContent={<LuSave className="size-[14px]" />}
               >
                 Save
@@ -320,6 +373,11 @@ const FlowBuilder = () => {
                 size="sm"
                 radius="sm"
                 variant="solid"
+                onPress={() => {
+                  setIsActive(true);
+                  handleSave();
+                }}
+                isLoading={updateMutation.isPending || createMutation.isPending}
                 startContent={<LuPlay className="size-[14px]" />}
               >
                 Activate

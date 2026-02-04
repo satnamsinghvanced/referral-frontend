@@ -324,3 +324,112 @@ export interface ICampaignAnalytics {
   topLinks: { link: string; clicks: number }[];
   devicesUsed: IDeviceMetric[];
 }
+
+export type AnalyticsFilter =
+  | "last7days"
+  | "last30days"
+  | "last90days"
+  | "lastyear"
+  | string;
+
+export type APIStepType =
+  | "send-email"
+  | "wait"
+  | "condition"
+  | "tag-management";
+export type UIStepType =
+  | "trigger"
+  | "email"
+  | "wait"
+  | "condition"
+  | "action"
+  | "tag";
+
+export interface FlowStep {
+  id: string;
+  type: UIStepType;
+  title: string;
+  description: string;
+  config?: any;
+  children?: FlowStep[]; // Standard sequential steps
+  branches?: {
+    yes: FlowStep[];
+    no: FlowStep[];
+  };
+}
+
+export type AutomationStatus = "active" | "inActive" | "draft";
+
+export type TriggerType = "New Referrer Added"; // Expand as needed
+
+export interface IStepConfig {
+  subject?: string;
+  templateId?: string;
+  duration?: number;
+  unit?: "Days" | "Hours" | "Weeks";
+  conditionType?: "Email Opened" | "Link Clicked";
+  tagIds?: string[];
+  action?: "add" | "remove";
+}
+
+export interface IStepStats {
+  sentCount: number;
+  openCount: number;
+  clickCount: number;
+}
+
+export interface IStep {
+  _id?: string;
+  type: APIStepType;
+  config: IStepConfig;
+  stats?: IStepStats;
+  steps?: IStep[]; // For linear nesting
+  yesSteps?: IStep[]; // For branching
+  noSteps?: IStep[]; // For branching
+  step?: any[]; // Catch-all for API compatibility
+}
+
+export interface IAutomation {
+  _id: string;
+  userId: string;
+  name: string;
+  description: string;
+  type: "system" | "user";
+  trigger: {
+    type: TriggerType;
+    config?: Record<string, any>;
+  };
+  steps: IStep[];
+  status: AutomationStatus;
+  stats: {
+    subscriberCount: number;
+    openCount: number;
+    clickCount: number;
+    conversionCount: number;
+    openRate: number;
+    clickRate: number;
+    conversionRate: number;
+  };
+  isSystemTemplate: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IAutomationTemplate {
+  _id: string;
+  name: string;
+  description: string;
+  totalUses: number;
+}
+
+export interface IAutomationPagination {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+}
+
+export interface IAutomationListResponse {
+  automations: IAutomation[];
+  pagination: IAutomationPagination;
+}

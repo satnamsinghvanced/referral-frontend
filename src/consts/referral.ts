@@ -20,3 +20,11 @@ export const SOURCE_OPTIONS = [
   { key: "Email", label: "Email" },
   { key: "Other", label: "Other" },
 ];
+export const REFERRER_TYPE_LABELS: Record<string, string> = {
+  doctor: "Doctor Referrer",
+  patient: "Patient Referrer",
+  communityReferrer: "Community Referrer",
+  googleReferrer: "Google Referrer",
+  socialMediaReferrer: "Social Media Referrer",
+  eventReferrer: "Event Referrer",
+};

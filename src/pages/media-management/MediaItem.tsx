@@ -31,7 +31,7 @@ const MediaItem = ({
         disabled ? "opacity-50 cursor-not-allowed" : ""
       }`}
     >
-      <div className="w-full h-40 flex items-center justify-center bg-gray-100 dark:bg-default-100/50 overflow-hidden">
+      <div className="w-full h-32 md:h-40 flex items-center justify-center bg-gray-100 dark:bg-default-100/50 overflow-hidden">
         {isVideo ? (
           <video
             src={media.path}

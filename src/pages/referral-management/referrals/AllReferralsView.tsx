@@ -19,7 +19,11 @@ import ReferralStatusChip from "../../../components/chips/ReferralStatusChip";
 import EmptyState from "../../../components/common/EmptyState";
 import { LoadingState } from "../../../components/common/LoadingState";
 import { STATUS_OPTIONS } from "../../../consts/filters";
-import { SOURCE_OPTIONS, TREATMENT_OPTIONS } from "../../../consts/referral";
+import {
+  REFERRER_TYPE_LABELS,
+  SOURCE_OPTIONS,
+  TREATMENT_OPTIONS,
+} from "../../../consts/referral";
 import {
   FetchReferralsParams,
   FilterStats,
@@ -140,7 +144,11 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
               {referral?.referredBy?.name}
             </p>
             <p className="text-xs text-gray-600 dark:text-foreground/60">
-              {referral?.referredBy?.practiceName}
+              {referral?.referredBy?.practiceName &&
+              referral?.referredBy?.practiceName !== "Unknown"
+                ? referral?.referredBy?.practiceName
+                : REFERRER_TYPE_LABELS[referral?.referredBy?.type] ||
+                  referral?.referredBy?.type}
             </p>
           </div>
           <div className="space-y-2">

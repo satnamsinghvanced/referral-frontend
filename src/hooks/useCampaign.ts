@@ -4,15 +4,20 @@ import { queryClient } from "../providers/QueryProvider";
 import {
   archiveCampaign,
   createAudience,
+  createAutomation,
   createCampaign,
   createCampaignTemplate,
   deleteAudience,
+  deleteAutomation,
   deleteCampaign,
   deleteCampaignTemplate,
+  duplicateAutomation,
   duplicateCampaign,
   getAllAudiences,
   getAllCampaigns,
   getAudienceById,
+  getAutomationById,
+  getAutomations,
   getCampaignById,
   getCampaignTemplateById,
   getCampaignTemplates,
@@ -20,15 +25,19 @@ import {
   getEmailAnalyticsAudience,
   getEmailAnalyticsCampaign,
   getEmailAnalyticsDevices,
+  getEmailAnalyticsExport,
   getEmailAnalyticsOverview,
   getEmailAnalyticsPerformance,
+  getTemplates,
   importAudienceCsv,
   pauseCampaign,
   toggleFavoriteTemplate,
   updateAudience,
+  updateAutomation,
   updateCampaign,
 } from "../services/campaign";
 import {
+  AnalyticsFilter,
   AudienceFilters,
   AudienceSegment,
   CampaignFilters,
@@ -402,38 +411,42 @@ export const useDeleteCampaign = () => {
 
 export const ANALYTICS_KEYS = {
   all: ["analytics"] as const,
-  overview: () => [...ANALYTICS_KEYS.all, "overview"] as const,
-  performance: () => [...ANALYTICS_KEYS.all, "performance"] as const,
-  audience: () => [...ANALYTICS_KEYS.all, "audience"] as const,
-  devices: () => [...ANALYTICS_KEYS.all, "devices"] as const,
+  overview: (filter: string) =>
+    [...ANALYTICS_KEYS.all, "overview", filter] as const,
+  performance: (filter: string) =>
+    [...ANALYTICS_KEYS.all, "performance", filter] as const,
+  audience: (filter: string) =>
+    [...ANALYTICS_KEYS.all, "audience", filter] as const,
+  devices: (filter: string) =>
+    [...ANALYTICS_KEYS.all, "devices", filter] as const,
   campaign: (id: string) => [...ANALYTICS_KEYS.all, "campaign", id] as const,
 };
 
-export const useAnalyticsOverview = () => {
+export const useAnalyticsOverview = (filter: AnalyticsFilter) => {
   return useQuery({
-    queryKey: ANALYTICS_KEYS.overview(),
-    queryFn: getEmailAnalyticsOverview,
+    queryKey: ANALYTICS_KEYS.overview(filter),
+    queryFn: () => getEmailAnalyticsOverview(filter),
   });
 };
 
-export const useAnalyticsPerformance = () => {
+export const useAnalyticsPerformance = (filter: AnalyticsFilter) => {
   return useQuery({
-    queryKey: ANALYTICS_KEYS.performance(),
-    queryFn: getEmailAnalyticsPerformance,
+    queryKey: ANALYTICS_KEYS.performance(filter),
+    queryFn: () => getEmailAnalyticsPerformance(filter),
   });
 };
 
-export const useAnalyticsAudience = () => {
+export const useAnalyticsAudience = (filter: AnalyticsFilter) => {
   return useQuery({
-    queryKey: ANALYTICS_KEYS.audience(),
-    queryFn: getEmailAnalyticsAudience,
+    queryKey: ANALYTICS_KEYS.audience(filter),
+    queryFn: () => getEmailAnalyticsAudience(filter),
   });
 };
 
-export const useAnalyticsDevices = () => {
+export const useAnalyticsDevices = (filter: AnalyticsFilter) => {
   return useQuery({
-    queryKey: ANALYTICS_KEYS.devices(),
-    queryFn: getEmailAnalyticsDevices,
+    queryKey: ANALYTICS_KEYS.devices(filter),
+    queryFn: () => getEmailAnalyticsDevices(filter),
   });
 };
 
@@ -442,5 +455,105 @@ export const useCampaignAnalytics = (id: string) => {
     queryKey: ANALYTICS_KEYS.campaign(id),
     queryFn: () => getEmailAnalyticsCampaign(id),
     enabled: !!id, // Only run if ID is provided
+  });
+};
+
+export const useEmailAnalyticsExport = () => {
+  return useMutation({
+    mutationFn: (filter: string) => getEmailAnalyticsExport(filter),
+    onSuccess: (data, filter) => {
+      const blob = new Blob([data as any], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `analytics_report_${filter}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    },
+    onError: (error: any) => {
+      addToast({
+        title: "Export Failed",
+        description: error.response?.data?.message || "Failed to export report",
+        color: "danger",
+      });
+    },
+  });
+};
+
+export const AUTO_KEYS = {
+  all: ["automations"] as const,
+  lists: () => [...AUTO_KEYS.all, "list"] as const,
+  list: (page: number, filters?: any) =>
+    [...AUTO_KEYS.lists(), { page, ...filters }] as const,
+  details: () => [...AUTO_KEYS.all, "detail"] as const,
+  detail: (id: string) => [...AUTO_KEYS.details(), id] as const,
+  templates: () => [...AUTO_KEYS.all, "templates"] as const,
+};
+
+// Queries
+export const useAutomations = (
+  page: number,
+  limit?: number,
+  search?: string,
+  status?: string,
+) => {
+  return useQuery({
+    queryKey: AUTO_KEYS.list(page, { limit, search, status }),
+    queryFn: () => getAutomations(page, limit, search, status),
+  });
+};
+
+export const useAutomationDetail = (id: string) => {
+  return useQuery({
+    queryKey: AUTO_KEYS.detail(id),
+    queryFn: () => getAutomationById(id),
+    enabled: !!id,
+  });
+};
+
+export const useAutomationTemplates = () => {
+  return useQuery({
+    queryKey: AUTO_KEYS.templates(),
+    queryFn: getTemplates,
+  });
+};
+
+// Mutations
+export const useCreateAutomation = () => {
+  return useMutation({
+    mutationFn: createAutomation,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: AUTO_KEYS.lists() });
+    },
+  });
+};
+
+export const useUpdateAutomation = (id: string) => {
+  return useMutation({
+    mutationFn: (payload: any) => updateAutomation(id, payload),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: AUTO_KEYS.list(1) });
+      queryClient.setQueryData(AUTO_KEYS.detail(id), data);
+    },
+  });
+};
+
+export const useDeleteAutomation = () => {
+  return useMutation({
+    mutationFn: deleteAutomation,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: AUTO_KEYS.lists() });
+    },
+  });
+};
+
+export const useDuplicateAutomation = () => {
+  return useMutation({
+    mutationFn: duplicateAutomation,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: AUTO_KEYS.lists() });
+    },
   });
 };

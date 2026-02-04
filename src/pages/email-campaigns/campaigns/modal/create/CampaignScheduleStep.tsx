@@ -68,7 +68,7 @@ const CampaignScheduleStep: React.ForwardRefRenderFunction<
     <div className="space-y-4">
       <h4 className="font-medium">Schedule & Tracking</h4>
 
-      <div className="pt-2">
+      <div className="">
         <Switch
           size="sm"
           isSelected={!sendImmediately}
@@ -81,7 +81,7 @@ const CampaignScheduleStep: React.ForwardRefRenderFunction<
         </Switch>
 
         {!sendImmediately && (
-          <div className="mt-4">
+          <div className="mt-3">
             <DatePicker
               id="scheduleDate"
               name="scheduleDate"
@@ -118,7 +118,7 @@ const CampaignScheduleStep: React.ForwardRefRenderFunction<
         )}
       </div>
 
-      {/* <div>
+      <div>
         <Switch
           size="sm"
           isSelected={trackOpens}
@@ -141,7 +141,7 @@ const CampaignScheduleStep: React.ForwardRefRenderFunction<
         >
           Track email clicks
         </Switch>
-      </div> */}
+      </div>
     </div>
   );
 };

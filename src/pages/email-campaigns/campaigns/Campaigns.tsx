@@ -20,8 +20,8 @@ import { ICampaign, ICampaignFilters } from "../../../types/campaign";
 import CampaignCard from "./CampaignCard";
 import CampaignActionModal from "./modal/create/CampaignActionModal";
 import EmptyState from "../../../components/common/EmptyState";
-import CampaignReportModal from "./modal/CampaignReportModal";
 import { AiOutlinePlus } from "react-icons/ai";
+import CampaignReportModal from "./modal/CampaignReportModal";
 
 const INITIAL_FILTERS: ICampaignFilters = {
   page: 1,

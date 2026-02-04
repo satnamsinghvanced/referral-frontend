@@ -1,29 +1,24 @@
 import { Card, Chip } from "@heroui/react";
 import {
-  FiCheck,
   FiGlobe,
   FiImage,
-  FiMessageSquare,
-  FiNavigation,
   FiPhone,
   FiSearch,
   FiStar,
   FiTrendingUp,
 } from "react-icons/fi";
-import { TbClick } from "react-icons/tb";
-import { LoadingState } from "../../components/common/LoadingState";
 import { useGoogleBusinessPlatformOverview } from "../../hooks/useSocial";
 
 const GoogleBusinessAnalytics = () => {
   const { data, isLoading } = useGoogleBusinessPlatformOverview();
 
-  if (isLoading) {
-    return (
-      <div className="w-full h-40 flex items-center justify-center">
-        <LoadingState />
-      </div>
-    );
-  }
+  // if (isLoading) {
+  //   return (
+  //     <div className="w-full h-40 flex items-center justify-center">
+  //       <LoadingState />
+  //     </div>
+  //   );
+  // }
 
   if (!data) return null;
 

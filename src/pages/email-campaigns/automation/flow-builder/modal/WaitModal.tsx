@@ -9,7 +9,9 @@ import {
   Select,
   SelectItem,
 } from "@heroui/react";
-import React from "react";
+import { useFormik } from "formik";
+import React, { useEffect } from "react";
+import * as Yup from "yup";
 
 interface WaitModalProps {
   isOpen: boolean;
@@ -31,13 +33,38 @@ const WaitModal: React.FC<WaitModalProps> = ({
   onSave,
   initialData,
 }) => {
-  const [duration, setDuration] = React.useState(initialData?.duration || "1");
-  const [unit, setUnit] = React.useState(initialData?.unit || "days");
+  const validationSchema = Yup.object().shape({
+    duration: Yup.number()
+      .typeError("Duration must be a number")
+      .required("Duration is required")
+      .positive("Duration must be positive")
+      .integer("Duration must be an integer"),
+    unit: Yup.string().required("Unit is required"),
+  });
 
-  const handleSave = () => {
-    onSave({ duration, unit });
-    onOpenChange();
-  };
+  const formik = useFormik({
+    initialValues: {
+      duration: initialData?.duration || "1",
+      unit: initialData?.unit || "days",
+    },
+    validationSchema,
+    onSubmit: (values) => {
+      onSave(values);
+      onOpenChange();
+    },
+    enableReinitialize: true,
+  });
+
+  useEffect(() => {
+    if (isOpen && initialData) {
+      formik.setValues({
+        duration: initialData.duration || "1",
+        unit: initialData.unit || "days",
+      });
+    } else if (isOpen && !initialData) {
+      formik.resetForm();
+    }
+  }, [isOpen, initialData]);
 
   return (
     <Modal
@@ -71,19 +98,28 @@ const WaitModal: React.FC<WaitModalProps> = ({
                     label="Wait Duration"
                     labelPlacement="outside"
                     placeholder="1"
-                    value={duration}
-                    onValueChange={setDuration}
+                    value={formik.values.duration}
+                    onValueChange={(val) =>
+                      formik.setFieldValue("duration", val)
+                    }
                     variant="flat"
                     size="sm"
                     radius="sm"
+                    isInvalid={
+                      !!(formik.touched.duration && formik.errors.duration)
+                    }
+                    errorMessage={formik.errors.duration as string}
                   />
                 </div>
                 <div className="w-[120px]">
                   <Select
                     placeholder="Unit"
-                    selectedKeys={[unit]}
+                    selectedKeys={[formik.values.unit]}
                     onSelectionChange={(keys) =>
-                      setUnit(Array.from(keys)[0] as string)
+                      formik.setFieldValue(
+                        "unit",
+                        Array.from(keys)[0] as string,
+                      )
                     }
                     variant="flat"
                     size="sm"
@@ -113,7 +149,7 @@ const WaitModal: React.FC<WaitModalProps> = ({
                 size="sm"
                 variant="solid"
                 color="primary"
-                onPress={handleSave}
+                onPress={() => formik.handleSubmit()}
               >
                 Save Configuration
               </Button>

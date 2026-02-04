@@ -9,7 +9,9 @@ import {
   Select,
   SelectItem,
 } from "@heroui/react";
-import React from "react";
+import { useFormik } from "formik";
+import React, { useEffect } from "react";
+import * as Yup from "yup";
 
 interface TagModalProps {
   isOpen: boolean;
@@ -29,13 +31,34 @@ const TagModal: React.FC<TagModalProps> = ({
   onSave,
   initialData,
 }) => {
-  const [action, setAction] = React.useState(initialData?.action || "add");
-  const [tagName, setTagName] = React.useState(initialData?.tagName || "");
+  const validationSchema = Yup.object().shape({
+    action: Yup.string().required("Action is required"),
+    tagName: Yup.string().required("Tag name is required"),
+  });
 
-  const handleSave = () => {
-    onSave({ action, tagName });
-    onOpenChange();
-  };
+  const formik = useFormik({
+    initialValues: {
+      action: initialData?.action || "add",
+      tagName: initialData?.tagName || "",
+    },
+    validationSchema,
+    onSubmit: (values) => {
+      onSave(values);
+      onOpenChange();
+    },
+    enableReinitialize: true,
+  });
+
+  useEffect(() => {
+    if (isOpen && initialData) {
+      formik.setValues({
+        action: initialData.action || "add",
+        tagName: initialData.tagName || "",
+      });
+    } else if (isOpen && !initialData) {
+      formik.resetForm();
+    }
+  }, [isOpen, initialData]);
 
   return (
     <Modal
@@ -65,9 +88,9 @@ const TagModal: React.FC<TagModalProps> = ({
               <Select
                 label="Action"
                 labelPlacement="outside"
-                selectedKeys={[action]}
+                selectedKeys={[formik.values.action]}
                 onSelectionChange={(keys) =>
-                  setAction(Array.from(keys)[0] as string)
+                  formik.setFieldValue("action", Array.from(keys)[0] as string)
                 }
                 variant="flat"
                 size="sm"
@@ -84,11 +107,13 @@ const TagModal: React.FC<TagModalProps> = ({
                 label="Tag Name"
                 labelPlacement="outside"
                 placeholder="Enter tag name..."
-                value={tagName}
-                onValueChange={setTagName}
+                value={formik.values.tagName}
+                onValueChange={(val) => formik.setFieldValue("tagName", val)}
                 variant="flat"
                 size="sm"
                 radius="sm"
+                isInvalid={!!(formik.touched.tagName && formik.errors.tagName)}
+                errorMessage={formik.errors.tagName as string}
               />
             </ModalBody>
             <ModalFooter className="gap-2 p-4 pt-0">
@@ -106,7 +131,7 @@ const TagModal: React.FC<TagModalProps> = ({
                 size="sm"
                 variant="solid"
                 color="primary"
-                onPress={handleSave}
+                onPress={() => formik.handleSubmit()}
               >
                 Save Configuration
               </Button>

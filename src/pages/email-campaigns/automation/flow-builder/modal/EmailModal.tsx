@@ -9,7 +9,10 @@ import {
   Select,
   SelectItem,
 } from "@heroui/react";
-import React from "react";
+import { useFormik } from "formik";
+import React, { useEffect } from "react";
+import * as Yup from "yup";
+import { useCampaignTemplates } from "../../../../../hooks/useCampaign";
 
 interface EmailModalProps {
   isOpen: boolean;
@@ -18,25 +21,52 @@ interface EmailModalProps {
   initialData?: any;
 }
 
-const TEMPLATES = [
-  { label: "Welcome Template", value: "welcome" },
-  { label: "Follow-up Template", value: "follow_up" },
-  { label: "Special Offer", value: "special_offer" },
-];
-
 const EmailModal: React.FC<EmailModalProps> = ({
   isOpen,
   onOpenChange,
   onSave,
   initialData,
 }) => {
-  const [template, setTemplate] = React.useState(initialData?.template || "");
-  const [subject, setSubject] = React.useState(initialData?.subject || "");
+  const { data: campaignTemplates } = useCampaignTemplates({
+    page: 1,
+    limit: 100,
+  });
+  const templates = campaignTemplates?.templates || [];
 
-  const handleSave = () => {
-    onSave({ template, subject });
-    onOpenChange();
-  };
+  const validationSchema = Yup.object().shape({
+    template: Yup.string().required("Email template is required"),
+    subject: Yup.string().required("Subject line is required"),
+  });
+
+  const formik = useFormik({
+    initialValues: {
+      template: initialData?.template || "",
+      subject: initialData?.subject || "",
+    },
+    validationSchema,
+    onSubmit: (values) => {
+      const selectedTemplate = templates.find(
+        (t: any) => t._id === values.template,
+      );
+      onSave({
+        ...values,
+        templateName: selectedTemplate?.name || "Unknown Template",
+      });
+      onOpenChange();
+    },
+    enableReinitialize: true,
+  });
+
+  useEffect(() => {
+    if (isOpen && initialData) {
+      formik.setValues({
+        template: initialData.template || "",
+        subject: initialData.subject || "",
+      });
+    } else if (isOpen && !initialData) {
+      formik.resetForm();
+    }
+  }, [isOpen, initialData]);
 
   return (
     <Modal
@@ -67,17 +97,26 @@ const EmailModal: React.FC<EmailModalProps> = ({
                 label="Email Template"
                 labelPlacement="outside"
                 placeholder="Select template..."
-                selectedKeys={template ? [template] : []}
+                selectedKeys={
+                  formik.values.template ? [formik.values.template] : []
+                }
                 onSelectionChange={(keys) =>
-                  setTemplate(Array.from(keys)[0] as string)
+                  formik.setFieldValue(
+                    "template",
+                    Array.from(keys)[0] as string,
+                  )
                 }
                 variant="flat"
                 size="sm"
                 radius="sm"
+                isInvalid={
+                  !!(formik.touched.template && formik.errors.template)
+                }
+                errorMessage={formik.errors.template as string}
               >
-                {TEMPLATES.map((t) => (
-                  <SelectItem key={t.value} textValue={t.label}>
-                    {t.label}
+                {templates.map((t: any) => (
+                  <SelectItem key={t._id} textValue={t.name}>
+                    {t.name}
                   </SelectItem>
                 ))}
               </Select>
@@ -86,11 +125,13 @@ const EmailModal: React.FC<EmailModalProps> = ({
                 label="Email Subject"
                 labelPlacement="outside"
                 placeholder="Email subject line..."
-                value={subject}
-                onValueChange={setSubject}
+                value={formik.values.subject}
+                onValueChange={(val) => formik.setFieldValue("subject", val)}
                 variant="flat"
                 size="sm"
                 radius="sm"
+                isInvalid={!!(formik.touched.subject && formik.errors.subject)}
+                errorMessage={formik.errors.subject as string}
               />
             </ModalBody>
             <ModalFooter className="gap-2 p-4 pt-0">
@@ -108,7 +149,7 @@ const EmailModal: React.FC<EmailModalProps> = ({
                 size="sm"
                 variant="solid"
                 color="primary"
-                onPress={handleSave}
+                onPress={() => formik.handleSubmit()}
               >
                 Save Configuration
               </Button>

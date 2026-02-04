@@ -8,7 +8,9 @@ import {
   Select,
   SelectItem,
 } from "@heroui/react";
-import React from "react";
+import { useFormik } from "formik";
+import React, { useEffect } from "react";
+import * as Yup from "yup";
 
 interface ConditionModalProps {
   isOpen: boolean;
@@ -29,17 +31,34 @@ const ConditionModal: React.FC<ConditionModalProps> = ({
   onSave,
   initialData,
 }) => {
-  const [conditionType, setConditionType] = React.useState(
-    initialData?.conditionType || "",
-  );
-  const [whichEmail, setWhichEmail] = React.useState(
-    initialData?.whichEmail || "previous",
-  );
+  const validationSchema = Yup.object().shape({
+    conditionType: Yup.string().required("Condition type is required"),
+    whichEmail: Yup.string().required("Please select which email to check"),
+  });
 
-  const handleSave = () => {
-    onSave({ conditionType, whichEmail });
-    onOpenChange();
-  };
+  const formik = useFormik({
+    initialValues: {
+      conditionType: initialData?.conditionType || "",
+      whichEmail: initialData?.whichEmail || "previous",
+    },
+    validationSchema,
+    onSubmit: (values) => {
+      onSave(values);
+      onOpenChange();
+    },
+    enableReinitialize: true,
+  });
+
+  useEffect(() => {
+    if (isOpen && initialData) {
+      formik.setValues({
+        conditionType: initialData.conditionType || "",
+        whichEmail: initialData.whichEmail || "previous",
+      });
+    } else if (isOpen && !initialData) {
+      formik.resetForm();
+    }
+  }, [isOpen, initialData]);
 
   return (
     <Modal
@@ -70,13 +89,24 @@ const ConditionModal: React.FC<ConditionModalProps> = ({
                 label="Condition Type"
                 labelPlacement="outside"
                 placeholder="Select condition..."
-                selectedKeys={conditionType ? [conditionType] : []}
+                selectedKeys={
+                  formik.values.conditionType
+                    ? [formik.values.conditionType]
+                    : []
+                }
                 onSelectionChange={(keys) =>
-                  setConditionType(Array.from(keys)[0] as string)
+                  formik.setFieldValue(
+                    "conditionType",
+                    Array.from(keys)[0] as string,
+                  )
                 }
                 variant="flat"
                 size="sm"
                 radius="sm"
+                isInvalid={
+                  formik.touched.conditionType && !!formik.errors.conditionType
+                }
+                errorMessage={formik.errors.conditionType as string}
               >
                 {CONDITION_TYPES.map((type) => (
                   <SelectItem key={type.value} textValue={type.label}>
@@ -89,13 +119,22 @@ const ConditionModal: React.FC<ConditionModalProps> = ({
                 label="Which Email?"
                 labelPlacement="outside"
                 placeholder="Select email..."
-                selectedKeys={[whichEmail]}
+                selectedKeys={
+                  formik.values.whichEmail ? [formik.values.whichEmail] : []
+                }
                 onSelectionChange={(keys) =>
-                  setWhichEmail(Array.from(keys)[0] as string)
+                  formik.setFieldValue(
+                    "whichEmail",
+                    Array.from(keys)[0] as string,
+                  )
                 }
                 variant="flat"
                 size="sm"
                 radius="sm"
+                isInvalid={
+                  formik.touched.whichEmail && !!formik.errors.whichEmail
+                }
+                errorMessage={formik.errors.whichEmail as string}
               >
                 <SelectItem
                   key="previous"
@@ -120,7 +159,7 @@ const ConditionModal: React.FC<ConditionModalProps> = ({
                 size="sm"
                 variant="solid"
                 color="primary"
-                onPress={handleSave}
+                onPress={() => formik.handleSubmit()}
               >
                 Save Configuration
               </Button>

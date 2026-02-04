@@ -3,19 +3,27 @@ import { useMemo, useState } from "react";
 import { FaRegEnvelope } from "react-icons/fa";
 import { LuDownload, LuEye, LuMousePointer, LuTarget } from "react-icons/lu";
 import MiniStatsCard from "../../../components/cards/MiniStatsCard";
-import { LoadingState } from "../../../components/common/LoadingState";
-import { useAnalyticsOverview } from "../../../hooks/useCampaign";
 import Audience from "./Audience";
 import Devices from "./Devices";
 import Overview from "./Overview";
 import Performance from "./Performance";
+import { ANALYTICS_FILTER_OPTIONS } from "../../../consts/campaign";
+import {
+  useAnalyticsOverview,
+  useEmailAnalyticsExport,
+} from "../../../hooks/useCampaign";
+import { AnalyticsFilter } from "../../../types/campaign";
 
-const INITIAL_FILTERS = {
-  filter: "30days",
+const INITIAL_FILTERS: { filter: AnalyticsFilter } = {
+  filter: "last30days",
 };
 
 const Analytics = () => {
-  const { data: overview, isLoading } = useAnalyticsOverview();
+  const [currentFilters, setCurrentFilters] = useState(INITIAL_FILTERS);
+  const { data: overview, isLoading } = useAnalyticsOverview(
+    currentFilters.filter,
+  );
+  const exportMutation = useEmailAnalyticsExport();
 
   const STAT_CARD_DATA = useMemo(() => {
     if (!overview?.stats) return [];
@@ -44,27 +52,20 @@ const Analytics = () => {
     }));
   }, [overview]);
 
-  const [currentFilters, setCurrentFilters] = useState(INITIAL_FILTERS);
+  const handleFilterChange = (value: AnalyticsFilter) => {
+    setCurrentFilters({ filter: value });
+  };
 
-  const handleFilterChange = (key: string, value: string) => {
-    setCurrentFilters((prev) => ({
-      ...prev,
-      [key]: value,
-    }));
+  const handleExport = () => {
+    exportMutation.mutate(currentFilters.filter);
   };
 
   return (
     <div className="flex flex-col gap-4 md:gap-5">
       <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
-        {isLoading ? (
-          <div className="col-span-4 flex justify-center py-10">
-            <LoadingState />
-          </div>
-        ) : (
-          STAT_CARD_DATA.map((data, i) => (
-            <MiniStatsCard key={i} cardData={data} />
-          ))
-        )}
+        {STAT_CARD_DATA.map((data, i) => (
+          <MiniStatsCard key={i} cardData={data} />
+        ))}
       </div>
       <div className="flex items-center gap-3 border-foreground/10 border rounded-xl bg-background p-4">
         <div className="flex items-center gap-3">
@@ -73,17 +74,16 @@ const Analytics = () => {
             placeholder="All filters"
             size="sm"
             radius="sm"
-            selectedKeys={[currentFilters.filter] as string[]}
-            disabledKeys={[currentFilters.filter] as string[]}
+            selectedKeys={[currentFilters.filter]}
+            disabledKeys={[currentFilters.filter]}
             onSelectionChange={(keys) =>
-              handleFilterChange("filter", Array.from(keys)[0] as string)
+              handleFilterChange(Array.from(keys)[0] as AnalyticsFilter)
             }
             className="min-w-[160px]"
           >
-            <SelectItem key="7days">Last 7 days</SelectItem>
-            <SelectItem key="30days">Last 30 days</SelectItem>
-            <SelectItem key="90days">Last 90 days</SelectItem>
-            <SelectItem key="lastYear">Last year</SelectItem>
+            {ANALYTICS_FILTER_OPTIONS.map((option) => (
+              <SelectItem key={option.value}>{option.label}</SelectItem>
+            ))}
           </Select>
         </div>
         {/* <Button
@@ -97,12 +97,15 @@ const Analytics = () => {
           Refresh
         </Button> */}
         <Button
-          onPress={() => setCurrentFilters(INITIAL_FILTERS)}
+          onPress={handleExport}
+          isLoading={exportMutation.isPending}
           size="sm"
           variant="ghost"
           color="default"
           className="border-small"
-          startContent={<LuDownload className="size-3.5" />}
+          startContent={
+            !exportMutation.isPending && <LuDownload className="size-3.5" />
+          }
         >
           Export
         </Button>
@@ -124,19 +127,19 @@ const Analytics = () => {
             className="w-full"
           >
             <Tab key="overview" title="Overview">
-              <Overview />
+              <Overview filter={currentFilters.filter} />
             </Tab>
 
             <Tab key="performance" title="Performance">
-              <Performance />
+              <Performance filter={currentFilters.filter} />
             </Tab>
 
             <Tab key="audience" title="Audience">
-              <Audience />
+              <Audience filter={currentFilters.filter} />
             </Tab>
 
             <Tab key="devices" title="Devices">
-              <Devices />
+              <Devices filter={currentFilters.filter} />
             </Tab>
           </Tabs>
         </div>

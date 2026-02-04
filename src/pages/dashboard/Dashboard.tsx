@@ -247,15 +247,16 @@ const Dashboard = () => {
           onClick: () => navigate("/reviews"),
         }
       : null,
-      dashboard?.recentActivity?.campaigns ?
-    {
-      icon: "📢",
-      iconBg: "bg-orange-50 dark:bg-orange-900/20",
-      title: `${dashboard?.recentActivity?.campaigns?.name || ""}`,
-      description: `${dashboard?.recentActivity?.campaigns?.description || ""}`,
-      time: `${timeAgo(dashboard?.recentActivity?.campaigns?.createdAt || "")}`,
-      onClick: () => navigate("/email-campaigns"),
-    } : null,
+    dashboard?.recentActivity?.campaigns
+      ? {
+          icon: "📢",
+          iconBg: "bg-orange-50 dark:bg-orange-900/20",
+          title: `New email campaign: ${dashboard?.recentActivity?.campaigns?.name || ""}`,
+          description: `${dashboard?.recentActivity?.campaigns?.description || ""}`,
+          time: `${timeAgo(dashboard?.recentActivity?.campaigns?.createdAt || "")}`,
+          onClick: () => navigate("/email-campaigns"),
+        }
+      : null,
   ].filter((activity) => activity !== null);
 
   const SYSTEM_STATUSES = [

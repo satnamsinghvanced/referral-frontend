@@ -7,8 +7,12 @@ import {
   ModalHeader,
   Select,
   SelectItem,
+  DatePicker,
 } from "@heroui/react";
-import React from "react";
+import { useFormik } from "formik";
+import React, { useEffect } from "react";
+import * as Yup from "yup";
+import { parseDate } from "@internationalized/date";
 
 interface TriggerModalProps {
   isOpen: boolean;
@@ -18,9 +22,9 @@ interface TriggerModalProps {
 }
 
 const TRIGGER_TYPES = [
-  { label: "New Partner Added", value: "new_partner" },
-  { label: "Treatment Completed", value: "treatment_completed" },
-  { label: "No Referral in 30 Days", value: "no_referral" },
+  { label: "New Referrer Added", value: "New Referrer Added" },
+  { label: "Referral Received", value: "Referral Received" },
+  { label: "Specific Date", value: "Specific Date" },
 ];
 
 const TriggerModal: React.FC<TriggerModalProps> = ({
@@ -29,14 +33,41 @@ const TriggerModal: React.FC<TriggerModalProps> = ({
   onSave,
   initialData,
 }) => {
-  const [triggerType, setTriggerType] = React.useState(
-    initialData?.triggerType || "",
-  );
+  const validationSchema = Yup.object().shape({
+    triggerType: Yup.string().required("Trigger type is required"),
+    date: Yup.mixed().when("triggerType", {
+      is: "Specific Date",
+      then: (schema) => schema.required("Date is required"),
+      otherwise: (schema) => schema.nullable(),
+    }),
+  });
 
-  const handleSave = () => {
-    onSave({ triggerType });
-    onOpenChange();
-  };
+  const formik = useFormik({
+    initialValues: {
+      triggerType: initialData?.triggerType || "",
+      date: initialData?.date ? parseDate(initialData.date) : null,
+    },
+    validationSchema,
+    onSubmit: (values) => {
+      onSave({
+        ...values,
+        date: values.date ? values.date.toString() : null,
+      });
+      onOpenChange();
+    },
+    enableReinitialize: true,
+  });
+
+  useEffect(() => {
+    if (isOpen && initialData) {
+      formik.setValues({
+        triggerType: initialData.triggerType || "",
+        date: initialData.date ? parseDate(initialData.date) : null,
+      });
+    } else if (isOpen && !initialData) {
+      formik.resetForm();
+    }
+  }, [isOpen, initialData]);
 
   return (
     <Modal
@@ -68,13 +99,25 @@ const TriggerModal: React.FC<TriggerModalProps> = ({
                   label="Trigger Type"
                   labelPlacement="outside"
                   placeholder="Select trigger..."
-                  selectedKeys={triggerType ? [triggerType] : []}
+                  selectedKeys={
+                    formik.values.triggerType ? [formik.values.triggerType] : []
+                  }
+                  disabledKeys={
+                    formik.values.triggerType ? [formik.values.triggerType] : []
+                  }
                   onSelectionChange={(keys) =>
-                    setTriggerType(Array.from(keys)[0] as string)
+                    formik.setFieldValue(
+                      "triggerType",
+                      Array.from(keys)[0] as string,
+                    )
                   }
                   variant="flat"
                   size="sm"
                   radius="sm"
+                  isInvalid={
+                    !!(formik.touched.triggerType && formik.errors.triggerType)
+                  }
+                  errorMessage={formik.errors.triggerType as string}
                 >
                   {TRIGGER_TYPES.map((type) => (
                     <SelectItem key={type.value} textValue={type.label}>
@@ -82,6 +125,20 @@ const TriggerModal: React.FC<TriggerModalProps> = ({
                     </SelectItem>
                   ))}
                 </Select>
+
+                {formik.values.triggerType === "Specific Date" && (
+                  <DatePicker
+                    label="Select Date"
+                    labelPlacement="outside"
+                    value={formik.values.date}
+                    onChange={(val) => formik.setFieldValue("date", val)}
+                    variant="flat"
+                    size="sm"
+                    radius="sm"
+                    isInvalid={!!(formik.touched.date && formik.errors.date)}
+                    errorMessage={formik.errors.date as string}
+                  />
+                )}
               </div>
             </ModalBody>
             <ModalFooter className="gap-2 p-4 pt-0">
@@ -99,7 +156,7 @@ const TriggerModal: React.FC<TriggerModalProps> = ({
                 size="sm"
                 variant="solid"
                 color="primary"
-                onPress={handleSave}
+                onPress={() => formik.handleSubmit()}
               >
                 Save Configuration
               </Button>

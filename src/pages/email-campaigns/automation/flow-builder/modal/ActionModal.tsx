@@ -8,7 +8,9 @@ import {
   Select,
   SelectItem,
 } from "@heroui/react";
-import React from "react";
+import { useFormik } from "formik";
+import React, { useEffect } from "react";
+import * as Yup from "yup";
 
 interface ActionModalProps {
   isOpen: boolean;
@@ -29,14 +31,32 @@ const ActionModal: React.FC<ActionModalProps> = ({
   onSave,
   initialData,
 }) => {
-  const [actionType, setActionType] = React.useState(
-    initialData?.actionType || "update_field",
-  );
+  const validationSchema = Yup.object().shape({
+    actionType: Yup.string().required("Action type is required"),
+  });
 
-  const handleSave = () => {
-    onSave({ actionType });
-    onOpenChange();
-  };
+  const formik = useFormik({
+    initialValues: {
+      actionType: initialData?.actionType || "update_field",
+    },
+    validationSchema,
+    onSubmit: (values) => {
+      onSave(values);
+      onOpenChange();
+    },
+    enableReinitialize: true,
+  });
+
+  // Reset form when modal opens/closes
+  useEffect(() => {
+    if (isOpen && initialData) {
+      formik.setValues({
+        actionType: initialData.actionType || "update_field",
+      });
+    } else if (isOpen && !initialData) {
+      formik.resetForm();
+    }
+  }, [isOpen, initialData]);
 
   return (
     <Modal
@@ -67,13 +87,28 @@ const ActionModal: React.FC<ActionModalProps> = ({
                 label="Action Type"
                 labelPlacement="outside"
                 placeholder="Select action type..."
-                selectedKeys={[actionType]}
+                selectedKeys={
+                  formik.values.actionType ? [formik.values.actionType] : []
+                }
+                disabledKeys={
+                  formik.values.actionType ? [formik.values.actionType] : []
+                }
                 onSelectionChange={(keys) =>
-                  setActionType(Array.from(keys)[0] as string)
+                  formik.setFieldValue(
+                    "actionType",
+                    Array.from(keys)[0] as string,
+                  )
                 }
                 variant="flat"
                 size="sm"
                 radius="sm"
+                isInvalid={
+                  formik.touched.actionType && !!formik.errors.actionType
+                }
+                errorMessage={
+                  formik.touched.actionType &&
+                  (formik.errors.actionType as string)
+                }
               >
                 {ACTION_TYPES.map((type) => (
                   <SelectItem key={type.value} textValue={type.label}>
@@ -97,7 +132,7 @@ const ActionModal: React.FC<ActionModalProps> = ({
                 size="sm"
                 variant="solid"
                 color="primary"
-                onPress={handleSave}
+                onPress={() => formik.handleSubmit()}
               >
                 Save Configuration
               </Button>

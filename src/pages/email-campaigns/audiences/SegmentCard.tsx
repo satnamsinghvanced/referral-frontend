@@ -177,7 +177,7 @@ const SegmentCard = ({
             size="sm"
             radius="sm"
             variant="ghost"
-            color="default"
+            color="danger"
             onPress={() => onDelete && onDelete(id)}
             startContent={<LuTrash2 className="size-3.5" />}
             className="border-small"

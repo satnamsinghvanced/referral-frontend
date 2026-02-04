@@ -114,7 +114,7 @@ const Overview = ({
                     {isScheduled || status === "draft" ? (
                       <CampaignStatusChip status={status} />
                     ) : (
-                      <div className="flex flex-col items-end gap-1 text-[11px]">
+                      <div className="flex flex-col items-end gap-2 text-xs">
                         <CampaignStatusChip status={status} />
                         <div className="flex items-center gap-2 font-medium">
                           <p className="text-green-600 dark:text-green-400">

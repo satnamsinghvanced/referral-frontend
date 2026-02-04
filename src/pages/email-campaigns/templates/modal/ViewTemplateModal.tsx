@@ -115,7 +115,7 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
                   </div>
 
                   <div className="flex items-center gap-2">
-                    {/* <Button
+                    <Button
                       variant={
                         displayTemplate!.isFavorite ? "solid" : "bordered"
                       }
@@ -140,7 +140,7 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
                       }
                     >
                       {displayTemplate!.isFavorite ? "Favorited" : "Favorite"}
-                    </Button> */}
+                    </Button>
                     <Button
                       color="primary"
                       variant="solid"

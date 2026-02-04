@@ -7,6 +7,9 @@ import {
   CampaignTemplatesResponse,
   IAnalyticsOverview,
   IAudienceAnalytics,
+  IAutomation,
+  IAutomationListResponse,
+  IAutomationTemplate,
   ICampaign,
   ICampaignAnalytics,
   ICampaignFilters,
@@ -143,30 +146,34 @@ export const getDashboardStats = async () => {
   return data;
 };
 
-export const getEmailAnalyticsOverview = async () => {
+export const getEmailAnalyticsOverview = async (filter?: string) => {
   const { data } = await axios.get<IAnalyticsOverview>(
     "/email_analytics/overview",
+    { params: { filter } },
   );
   return data;
 };
 
-export const getEmailAnalyticsPerformance = async () => {
+export const getEmailAnalyticsPerformance = async (filter?: string) => {
   const { data } = await axios.get<IDetailedPerformance>(
     "/email_analytics/performance",
+    { params: { filter } },
   );
   return data;
 };
 
-export const getEmailAnalyticsAudience = async () => {
+export const getEmailAnalyticsAudience = async (filter?: string) => {
   const { data } = await axios.get<IAudienceAnalytics>(
     "/email_analytics/audience",
+    { params: { filter } },
   );
   return data;
 };
 
-export const getEmailAnalyticsDevices = async () => {
+export const getEmailAnalyticsDevices = async (filter?: string) => {
   const { data } = await axios.get<IDeviceAnalytics>(
     "/email_analytics/devices",
+    { params: { filter } },
   );
   return data;
 };
@@ -175,5 +182,67 @@ export const getEmailAnalyticsCampaign = async (id: string) => {
   const { data } = await axios.get<ICampaignAnalytics>(
     `/email_analytics/campaign/${id}`,
   );
+  return data;
+};
+
+export const getEmailAnalyticsExport = async (filter: string) => {
+  const response = await axios.get(`/email_analytics/export`, {
+    params: { filter },
+    responseType: "blob",
+  });
+  return response;
+};
+
+// GET List
+export const getAutomations = async (
+  page = 1,
+  limit = 12,
+  search?: string,
+  status?: string,
+) => {
+  const { data } = await axios.get<IAutomationListResponse>("/automation", {
+    params: { page, limit, search, status },
+  });
+  return data;
+};
+
+// GET Single
+export const getAutomationById = async (id: string) => {
+  const { data } = await axios.get<IAutomation>(`/automation/${id}`);
+  return data;
+};
+
+// GET Templates
+export const getTemplates = async () => {
+  const { data } = await axios.get<IAutomationTemplate[]>(
+    "/automation/templates",
+  );
+  return data;
+};
+
+// POST Create
+export const createAutomation = async (payload: Partial<IAutomation>) => {
+  const { data } = await axios.post<IAutomation>("/automation", payload);
+  return data;
+};
+
+// PUT Update
+export const updateAutomation = async (
+  id: string,
+  payload: Partial<IAutomation>,
+) => {
+  const { data } = await axios.put<IAutomation>(`/automation/${id}`, payload);
+  return data;
+};
+
+// DELETE
+export const deleteAutomation = async (id: string) => {
+  await axios.delete(`/automation/${id}`);
+  return id;
+};
+
+// POST Duplicate
+export const duplicateAutomation = async (id: string) => {
+  const { data } = await axios.post<IAutomation>(`/automation/${id}/duplicate`);
   return data;
 };

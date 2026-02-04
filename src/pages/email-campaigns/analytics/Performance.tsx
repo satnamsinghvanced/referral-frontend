@@ -13,10 +13,15 @@ import ChartTooltip from "../../../components/common/ChartTooltip";
 import { useTypedSelector } from "../../../hooks/useTypedSelector";
 import { useAnalyticsPerformance } from "../../../hooks/useCampaign";
 import { LoadingState } from "../../../components/common/LoadingState";
+import { AnalyticsFilter } from "../../../types/campaign";
 
-const Performance = () => {
+interface PerformanceProps {
+  filter: AnalyticsFilter;
+}
+
+const Performance = ({ filter }: PerformanceProps) => {
   const { theme } = useTypedSelector((state) => state.ui);
-  const { data: performanceData, isLoading } = useAnalyticsPerformance();
+  const { data: performanceData, isLoading } = useAnalyticsPerformance(filter);
 
   if (isLoading) {
     return (

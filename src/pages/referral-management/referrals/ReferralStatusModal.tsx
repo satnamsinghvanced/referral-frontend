@@ -28,7 +28,10 @@ import PriorityLevelChip from "../../../components/chips/PriorityLevelChip";
 import ReferralStatusChip from "../../../components/chips/ReferralStatusChip";
 import { LoadingState } from "../../../components/common/LoadingState";
 import { STATUS_OPTIONS } from "../../../consts/filters";
-import { TREATMENT_OPTIONS } from "../../../consts/referral";
+import {
+  REFERRER_TYPE_LABELS,
+  TREATMENT_OPTIONS,
+} from "../../../consts/referral";
 import { useUpdateReferral } from "../../../hooks/useReferral";
 import { Referral, StatusUpdateFormValues } from "../../../types/referral";
 import { formatDateToReadable } from "../../../utils/formatDateToReadable";
@@ -172,7 +175,19 @@ const ReferralStatusModal = ({
                 <InfoItem
                   icon={<LuUsers size={16} />}
                   label="Referred By"
-                  value={referral?.referredBy?.name || "Self"}
+                  value={`${referral?.referredBy?.name || "Self"}${
+                    referral?.referredBy?.practiceName ||
+                    referral?.referredBy?.type
+                      ? ` - ${
+                          referral?.referredBy?.practiceName &&
+                          referral?.referredBy?.practiceName !== "Unknown"
+                            ? referral?.referredBy?.practiceName
+                            : REFERRER_TYPE_LABELS[
+                                referral?.referredBy?.type
+                              ] || referral?.referredBy?.type
+                        }`
+                      : ""
+                  }`}
                 />
                 <InfoItem
                   icon={<LuStethoscope size={16} />}

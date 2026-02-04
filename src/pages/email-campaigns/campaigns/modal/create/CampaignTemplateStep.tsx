@@ -1,12 +1,12 @@
-import React, { useImperativeHandle, useState, useEffect } from "react";
-import { CampaignData, CampaignStepProps } from "./CampaignActionModal";
 import clsx from "clsx";
+import React, { useEffect, useImperativeHandle, useState } from "react";
 import CampaignCategoryChip from "../../../../../components/chips/CampaignCategoryChip";
-import {
-  useCampaignTemplates,
-  useCampaignTemplate,
-} from "../../../../../hooks/useCampaign";
 import { LoadingState } from "../../../../../components/common/LoadingState";
+import {
+  useCampaignTemplate,
+  useCampaignTemplates,
+} from "../../../../../hooks/useCampaign";
+import { CampaignData, CampaignStepProps } from "./CampaignActionModal";
 
 import Pagination from "../../../../../components/common/Pagination";
 
@@ -21,14 +21,20 @@ const CampaignTemplateStep: React.ForwardRefRenderFunction<
   const [page, setPage] = useState(1);
   const limitCount = 6;
 
+  // Initialize from props
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(
+    data.templateId || null,
+  );
+
   const { data: templatesRaw, isLoading } = useCampaignTemplates({
     page,
     limit: limitCount,
   });
 
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(
-    data.templateId,
-  );
+  // Sync prop changes to local state (for re-opening modals)
+  useEffect(() => {
+    setSelectedTemplateId(data.templateId || null);
+  }, [data.templateId]);
 
   // Fetch full template details to get bodyContent (which might be missing in list view)
   const { data: fullTemplate } = useCampaignTemplate(selectedTemplateId || "");
@@ -41,7 +47,7 @@ const CampaignTemplateStep: React.ForwardRefRenderFunction<
       if (fullTemplate) {
         updateData({
           templateId: selectedTemplateId,
-          subjectLine: fullTemplate.subjectLine,
+          subjectLine: data.subjectLine || fullTemplate.subjectLine,
           content: fullTemplate.bodyContent,
         });
       } else {
@@ -83,13 +89,13 @@ const CampaignTemplateStep: React.ForwardRefRenderFunction<
 
       if (templateChanged) {
         updateDataPayload.subjectLine =
-          fullTemplate?.subjectLine ||
-          listTemplate?.subjectLine ||
-          data.subjectLine;
+          (data.subjectLine as string) ||
+          (fullTemplate?.subjectLine as string) ||
+          (listTemplate?.subjectLine as string);
         updateDataPayload.content =
-          fullTemplate?.bodyContent ||
-          listTemplate?.bodyContent ||
-          data.content;
+          (fullTemplate?.bodyContent as string) ||
+          (listTemplate?.bodyContent as string) ||
+          (data.content as string);
       }
 
       onNext(updateDataPayload);

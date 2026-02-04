@@ -69,7 +69,7 @@ const ImportBudgetModal = ({ isOpen, onClose }: ImportBudgetModalProps) => {
       "Description",
     ];
     const dummyRow = [
-      "Digital Marketing",
+      "Digital Advertising",
       "Google Ads",
       "5000",
       "monthly",

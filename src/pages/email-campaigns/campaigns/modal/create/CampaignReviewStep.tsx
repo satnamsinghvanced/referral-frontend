@@ -97,6 +97,14 @@ const CampaignReviewStep: React.ForwardRefRenderFunction<
               value={data.subjectLine || "N/A"}
             />
             <SummaryItem label="Template" value={templateName} />
+            <div className="py-2">
+              <p className="text-xs font-medium text-gray-500 dark:text-foreground/50 mb-1.5">
+                Category
+              </p>
+              <div className="flex space-x-2">
+                <CampaignCategoryChip category={data.category as any} />
+              </div>
+            </div>
           </div>
         </div>
 
@@ -114,33 +122,25 @@ const CampaignReviewStep: React.ForwardRefRenderFunction<
               }
             />
 
-            {/* <div className="py-2">
-            <p className="text-xs font-medium text-gray-500 dark:text-foreground/50 mb-1.5">
-              Tracking
-            </p>
-            <div className="flex space-x-2">
-              {getTrackingSummary().map((item) => (
-                <Chip
-                  key={item}
-                  size="sm"
-                  radius="sm"
-                  variant="flat"
-                  className="text-blue-700 bg-blue-50 dark:bg-blue-500/10 dark:text-blue-400 text-[11px] h-5 border-none"
-                >
-                  {item}
-                </Chip>
-              ))}
-            </div>
-          </div> */}
-
-            <div className="py-2">
+            <div className="py-3 border-b border-foreground/5 last:border-0">
               <p className="text-xs font-medium text-gray-500 dark:text-foreground/50 mb-1.5">
-                Category
+                Tracking
               </p>
               <div className="flex space-x-2">
-                <CampaignCategoryChip category={data.category as any} />
+                {getTrackingSummary().map((item) => (
+                  <Chip
+                    key={item}
+                    size="sm"
+                    radius="sm"
+                    variant="flat"
+                    className="text-blue-700 bg-blue-50 dark:bg-blue-500/10 dark:text-blue-400 text-[11px] h-5 border-none"
+                  >
+                    {item}
+                  </Chip>
+                ))}
               </div>
             </div>
+
             {data.isABTesting && (
               <SummaryItem label="A/B Testing" value="Enabled" isTag={true} />
             )}
@@ -151,7 +151,7 @@ const CampaignReviewStep: React.ForwardRefRenderFunction<
       {/* --- Alert Box --- */}
       <div
         className={clsx(
-          "p-4 rounded-lg flex items-start space-x-3",
+          "p-4 rounded-lg flex items-start space-x-3 mb-0",
           isReady
             ? "bg-yellow-50 border border-yellow-200 dark:bg-yellow-500/10 dark:border-yellow-500/20"
             : "bg-red-50 border border-red-200 dark:bg-red-500/10 dark:border-red-500/20",

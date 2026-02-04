@@ -1,7 +1,10 @@
 import { Button } from "@heroui/react";
 import { Link } from "react-router";
 import ReferralStatusChip from "../../../components/chips/ReferralStatusChip";
-import { TREATMENT_OPTIONS } from "../../../consts/referral";
+import {
+  REFERRER_TYPE_LABELS,
+  TREATMENT_OPTIONS,
+} from "../../../consts/referral";
 import { Referral } from "../../../types/referral";
 import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 
@@ -38,10 +41,18 @@ const ReferralCard = ({ referral, actions = () => [] }: ReferralCardProps) => {
             <p className="flex gap-1 items-center">
               {referral?.referredBy?.name}
             </p>
-            {referral?.referredBy?.practiceName && (
+            {(referral?.referredBy?.practiceName ||
+              referral?.referredBy?.type) && (
               <>
                 <p className="p-0.5 bg-foreground/50 dark:bg-default-400 rounded-full aspect-square h-fit w-fit"></p>
-                <p>{referral?.referredBy?.practiceName}</p>
+                <p>
+                  {referral?.referredBy?.practiceName &&
+                  referral?.referredBy?.practiceName !== "Unknown"
+                    ? referral?.referredBy?.practiceName
+                    : REFERRER_TYPE_LABELS[referral?.referredBy?.type] ||
+                      referral?.referredBy?.type ||
+                      ""}
+                </p>
               </>
             )}
           </div>
@@ -52,7 +63,7 @@ const ReferralCard = ({ referral, actions = () => [] }: ReferralCardProps) => {
               {
                 TREATMENT_OPTIONS.find(
                   (treatmentOption: any) =>
-                    treatmentOption.key === referral.treatment
+                    treatmentOption.key === referral.treatment,
                 )?.label
               }
             </p>

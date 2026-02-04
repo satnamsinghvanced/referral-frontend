@@ -1,13 +1,12 @@
-import React, { useImperativeHandle, forwardRef } from "react";
+import { Input, Select, SelectItem } from "@heroui/react";
 import { useFormik } from "formik";
+import React, { forwardRef, useImperativeHandle } from "react";
 import * as Yup from "yup";
-import { CampaignStepProps, CampaignData } from "./CampaignActionModal";
-import clsx from "clsx";
-import { Checkbox, Input, Select, SelectItem, Switch } from "@heroui/react";
 import {
   CAMPAIGN_CATEGORIES,
   CAMPAIGN_TYPES,
 } from "../../../../../consts/campaign";
+import { CampaignData, CampaignStepProps } from "./CampaignActionModal";
 
 export interface CampaignStepRef {
   triggerValidationAndProceed: () => void;
@@ -15,7 +14,11 @@ export interface CampaignStepRef {
 
 const SetupSchema = Yup.object().shape({
   name: Yup.string().required("Campaign Name is required"),
-  subjectLine: Yup.string().required("Email Subject Line is required"),
+  subjectLine: Yup.string().test(
+    "min-length",
+    "Subject line should be at least 3 characters",
+    (val) => !val || val.length >= 3,
+  ),
   type: Yup.string().required("Campaign Type is required"),
   category: Yup.string().required("Category is required"),
 });
@@ -80,7 +83,6 @@ const CampaignSetupStep: React.ForwardRefRenderFunction<
         onBlur={formik.handleBlur}
         isInvalid={isError("subjectLine")}
         errorMessage={getErrorMessage("subjectLine")}
-        isRequired
       />
 
       <div className="grid grid-cols-2 gap-3">

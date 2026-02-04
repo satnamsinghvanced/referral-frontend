@@ -1,4 +1,10 @@
-import { Button, Card, CardBody, CardHeader } from "@heroui/react";
+import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  useDisclosure,
+} from "@heroui/react";
 import { LuChartColumn } from "react-icons/lu";
 import {
   CartesianGrid,
@@ -17,6 +23,13 @@ import ChartTooltip from "../../../components/common/ChartTooltip";
 import { useTypedSelector } from "../../../hooks/useTypedSelector";
 import { useAnalyticsOverview } from "../../../hooks/useCampaign";
 import { LoadingState } from "../../../components/common/LoadingState";
+import { AnalyticsFilter } from "../../../types/campaign";
+import { useState } from "react";
+import CampaignReportModal from "../campaigns/modal/CampaignReportModal";
+
+interface OverviewProps {
+  filter: AnalyticsFilter;
+}
 
 interface LabelProps {
   cx: number;
@@ -28,9 +41,18 @@ interface LabelProps {
   fill: string;
 }
 
-const Overview = () => {
+const Overview = ({ filter }: OverviewProps) => {
   const { theme } = useTypedSelector((state) => state.ui);
-  const { data: overview, isLoading } = useAnalyticsOverview();
+  const { data: overview, isLoading } = useAnalyticsOverview(filter);
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(
+    null,
+  );
+
+  const handleViewDetails = (id: string) => {
+    setSelectedCampaignId(id);
+    onOpen();
+  };
 
   const COLORS = ["#0ea5e9", "#f97316", "#1e40af", "#8b5cf6", "#ec4899"];
 
@@ -240,6 +262,9 @@ const Overview = () => {
                     color="default"
                     startContent={<LuChartColumn className="size-3.5" />}
                     className="border-small"
+                    onPress={() =>
+                      handleViewDetails(campaign._id || campaign.id)
+                    }
                   >
                     View Details
                   </Button>
@@ -249,6 +274,12 @@ const Overview = () => {
           </div>
         </CardBody>
       </Card>
+
+      <CampaignReportModal
+        isOpen={isOpen}
+        onClose={onClose}
+        campaignId={selectedCampaignId}
+      />
     </div>
   );
 };

@@ -3,9 +3,14 @@ import { FiMonitor, FiSmartphone, FiTablet, FiBarChart2 } from "react-icons/fi";
 import { Card, CardBody, CardHeader, Progress } from "@heroui/react";
 import { useAnalyticsDevices } from "../../../hooks/useCampaign";
 import { LoadingState } from "../../../components/common/LoadingState";
+import { AnalyticsFilter } from "../../../types/campaign";
 
-const Devices: React.FC = () => {
-  const { data: deviceData, isLoading } = useAnalyticsDevices();
+interface DevicesProps {
+  filter: AnalyticsFilter;
+}
+
+const Devices: React.FC<DevicesProps> = ({ filter }) => {
+  const { data: deviceData, isLoading } = useAnalyticsDevices(filter);
 
   const getDeviceIcon = (deviceName: string) => {
     switch (deviceName.toLowerCase()) {

@@ -241,7 +241,7 @@ function GalleryMediaUploadModal({
       size="2xl"
       scrollBehavior="inside"
       classNames={{
-        base: `!m-0 max-h-[90vh]`,
+        base: `max-sm:!m-3 !m-0 max-h-[90vh]`,
         closeButton: "cursor-pointer",
       }}
     >
@@ -308,6 +308,7 @@ function GalleryMediaUploadModal({
                     aria-label="Filter Type"
                     size="sm"
                     selectedKeys={new Set([currentFilters.type])}
+                    disabledKeys={new Set([currentFilters.type])}
                     onSelectionChange={(keys) =>
                       onFilterChange("type", Array.from(keys)[0] as string)
                     }

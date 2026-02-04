@@ -186,7 +186,7 @@ const Profile = () => {
 
           <div className="flex items-center gap-4 mb-6">
             <div className="relative size-20">
-              <div className="size-full overflow-hidden rounded-full border border-divider bg-default-50 flex items-center justify-center relative">
+              <div className="size-full overflow-hidden rounded-full border border-foreground/10 bg-default-50 flex items-center justify-center relative">
                 {isLoading ? (
                   <Skeleton className="absolute inset-0 size-full" />
                 ) : previewUrl ? (

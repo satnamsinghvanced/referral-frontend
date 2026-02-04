@@ -13,10 +13,15 @@ import ChartTooltip from "../../../components/common/ChartTooltip";
 import { useTypedSelector } from "../../../hooks/useTypedSelector";
 import { useAnalyticsAudience } from "../../../hooks/useCampaign";
 import { LoadingState } from "../../../components/common/LoadingState";
+import { AnalyticsFilter } from "../../../types/campaign";
 
-const Audience: React.FC = () => {
+interface AudienceProps {
+  filter: AnalyticsFilter;
+}
+
+const Audience: React.FC<AudienceProps> = ({ filter }) => {
   const { theme } = useTypedSelector((state) => state.ui);
-  const { data: audienceData, isLoading } = useAnalyticsAudience();
+  const { data: audienceData, isLoading } = useAnalyticsAudience(filter);
 
   if (isLoading) {
     return (
