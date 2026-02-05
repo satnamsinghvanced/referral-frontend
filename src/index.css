@@ -374,3 +374,19 @@ input[type="number"] {
 .text-xs {
   line-height: 1.5 !important;
 }
+
+.mapboxgl-popup.mapboxgl-popup,
+.mapboxgl-popup .mapboxgl-popup-content {
+  border-radius: 10px !important;
+}
+
+.mapboxgl-popup .mapboxgl-popup-content {
+  background-color: hsl(var(--heroui-content1) / 1);
+  color: var(--color-foreground);
+}
+
+.mapboxgl-popup.mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip {
+  position: absolute;
+  border-top-color: hsl(var(--heroui-content1) / 1);
+  bottom: -10px;
+}

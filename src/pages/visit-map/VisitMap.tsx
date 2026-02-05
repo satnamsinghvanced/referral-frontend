@@ -1,7 +1,17 @@
-import { Card, CardBody, CardHeader } from "@heroui/react";
+import {
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+} from "@heroui/react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
-import { useEffect, useRef, useState, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { FiInfo, FiList } from "react-icons/fi";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_API_KEY;
 
@@ -36,12 +46,15 @@ export const formatDuration = (seconds: number): string => {
 
 const getCoordinatesFromUrl = () => {
   if (typeof window === "undefined")
-    return { coordinates: [], optimized: true };
+    return { coordinates: [], optimized: true, names: [] };
 
   const params = new URLSearchParams(window.location.search);
   const coordsString = params.get("coordinates");
   const optimizedString = params.get("optimized");
+  const namesString = params.get("names");
   const optimized = optimizedString !== "false";
+
+  const names = namesString ? namesString.split(";") : [];
 
   if (!coordsString) {
     return {
@@ -52,24 +65,34 @@ const getCoordinatesFromUrl = () => {
         [76.7, 30.7],
       ],
       optimized,
+      names: [],
     };
   }
 
   const coordinates = coordsString
     .split(";")
     .map((pair) => pair.split(",").map(Number))
-    .filter((c) => c.length === 2 && !isNaN(c[0]) && !isNaN(c[1]));
+    .filter(
+      (c): c is [number, number] =>
+        c.length === 2 &&
+        typeof c[0] === "number" &&
+        typeof c[1] === "number" &&
+        !isNaN(c[0]) &&
+        !isNaN(c[1]),
+    );
 
-  return { coordinates, optimized };
+  return { coordinates, optimized, names };
 };
 
 /* -----------------------------------------------------
  * Nearest Neighbor Optimization
  * ---------------------------------------------------- */
-const haversineDistance = (
-  [lng1, lat1]: number[],
-  [lng2, lat2]: number[]
-): number => {
+const haversineDistance = (p1: number[], p2: number[]): number => {
+  const lng1 = p1?.[0] || 0;
+  const lat1 = p1?.[1] || 0;
+  const lng2 = p2?.[0] || 0;
+  const lat2 = p2?.[1] || 0;
+
   const R = 6371e3;
   const φ1 = (lat1 * Math.PI) / 180;
   const φ2 = (lat2 * Math.PI) / 180;
@@ -82,12 +105,30 @@ const haversineDistance = (
   return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)));
 };
 
-const getOptimizedCoordinates = (initialCoords: number[][]): number[][] => {
-  if (initialCoords.length < 2) return initialCoords;
+const getOptimizedCoordinates = (
+  initialCoords: number[][],
+): { optimizedOrder: number[][]; orderMap: number[] } => {
+  if (initialCoords.length < 2) {
+    return {
+      optimizedOrder: initialCoords,
+      orderMap: initialCoords.map((_, i) => i),
+    };
+  }
 
   const startPoint = initialCoords[0];
-  let stops = initialCoords.slice(1);
+  if (!startPoint)
+    return {
+      optimizedOrder: initialCoords,
+      orderMap: initialCoords.map((_, i) => i),
+    };
+
+  // Store stops with their original index (offset by 1 because 0 is start)
+  let stops = initialCoords
+    .slice(1)
+    .map((coord, i) => ({ coord, originalIndex: i + 1 }));
+
   const optimizedOrder = [startPoint];
+  const orderMap = [0]; // Start point is always original index 0
   let currentPoint = startPoint;
 
   while (stops.length > 0) {
@@ -95,19 +136,27 @@ const getOptimizedCoordinates = (initialCoords: number[][]): number[][] => {
     let minDistance = Infinity;
 
     for (let i = 0; i < stops.length; i++) {
-      const distance = haversineDistance(currentPoint, stops[i]);
+      const stop = stops[i];
+      if (!stop) continue;
+      const distance = haversineDistance(currentPoint, stop.coord);
       if (distance < minDistance) {
         minDistance = distance;
         nearestIndex = i;
       }
     }
 
-    currentPoint = stops[nearestIndex];
-    optimizedOrder.push(currentPoint);
-    stops.splice(nearestIndex, 1);
+    const nearestStop = stops[nearestIndex];
+    if (nearestStop) {
+      currentPoint = nearestStop.coord;
+      optimizedOrder.push(currentPoint);
+      orderMap.push(nearestStop.originalIndex);
+      stops.splice(nearestIndex, 1);
+    } else {
+      stops.splice(nearestIndex, 1);
+    }
   }
 
-  return optimizedOrder;
+  return { optimizedOrder, orderMap };
 };
 
 /* -----------------------------------------------------
@@ -121,9 +170,14 @@ export default function VisitMap() {
   const [directionsList, setDirectionsList] = useState<any[]>([]);
   const [routeLegs, setRouteLegs] = useState<any[]>([]);
   const [coordinates, setCoordinates] = useState<number[][]>([]);
+  const [names, setNames] = useState<string[]>([]);
   const [startLabel, setStartLabel] = useState("Start Point");
   const [isLoading, setIsLoading] = useState(true);
   const [isOptimized, setIsOptimized] = useState(true);
+
+  // Mobile drawer states
+  const [isSummaryOpen, setSummaryOpen] = useState(false);
+  const [isDetailsOpen, setDetailsOpen] = useState(false);
 
   const markerRefs = useRef<mapboxgl.Marker[]>([]);
 
@@ -133,7 +187,7 @@ export default function VisitMap() {
   };
 
   const getRoute = useCallback(
-    async (map: mapboxgl.Map, coords: number[][], optimized: boolean) => {
+    async (map: mapboxgl.Map, coords: number[][]) => {
       if (coords.length < 2) {
         setRouteSummary({
           distance: 0,
@@ -143,12 +197,7 @@ export default function VisitMap() {
         return;
       }
 
-      const routeCoords =
-        optimized && coords.length > 2
-          ? getOptimizedCoordinates(coords)
-          : coords;
-
-      const urlCoords = routeCoords.map((c) => c.join(",")).join(";");
+      const urlCoords = coords.map((c) => c.join(",")).join(";");
       const url = `https://api.mapbox.com/directions/v5/mapbox/driving/${urlCoords}?steps=true&geometries=geojson&alternatives=true&overview=full&access_token=${mapboxgl.accessToken}`;
 
       try {
@@ -165,7 +214,7 @@ export default function VisitMap() {
         }
 
         const route = json.routes.reduce((best: any, current: any) =>
-          current.duration < best.duration ? current : best
+          current.duration < best.duration ? current : best,
         );
 
         setDirectionsList(route.legs.flatMap((leg: any) => leg.steps));
@@ -174,7 +223,7 @@ export default function VisitMap() {
             index: i + 1,
             distance: leg.distance,
             duration: leg.duration,
-          }))
+          })),
         );
 
         setRouteSummary({
@@ -184,7 +233,11 @@ export default function VisitMap() {
         });
 
         const id = "route-primary";
-        const geojson = { type: "Feature", geometry: route.geometry };
+        const geojson = {
+          type: "Feature",
+          properties: {},
+          geometry: route.geometry,
+        } as GeoJSON.Feature<GeoJSON.Geometry>;
 
         if (map.getSource(id)) {
           (map.getSource(id) as any).setData(geojson);
@@ -209,13 +262,13 @@ export default function VisitMap() {
               [route.bbox[0], route.bbox[1]],
               [route.bbox[2], route.bbox[3]],
             ],
-            { padding: 50 }
+            { padding: 50 },
           );
       } catch (e) {
         console.error(e);
       }
     },
-    []
+    [],
   );
 
   const fetchAndAddMarker = async (
@@ -223,39 +276,45 @@ export default function VisitMap() {
     lng: number,
     lat: number,
     idx: number,
-    total: number
+    total: number,
+    customLabel?: string,
   ) => {
     const isStart = idx === 0;
     const isDest = idx === total - 1;
 
-    let label = isStart ? "Start" : isDest ? "Destination" : `Stop ${idx}`;
+    let label =
+      customLabel ||
+      (isStart ? "Start" : isDest ? "Destination" : `Stop ${idx}`);
 
-    try {
-      const url = `https://api.mapbox.com/search/geocode/v6/reverse?longitude=${lng}&latitude=${lat}&access_token=${mapboxgl.accessToken}`;
-      const res = await fetch(url);
-      const json = await res.json();
-      label = json?.features?.[0]?.properties?.name ?? label;
-    } catch {}
+    if (!customLabel) {
+      try {
+        const url = `https://api.mapbox.com/search/geocode/v6/reverse?longitude=${lng}&latitude=${lat}&access_token=${mapboxgl.accessToken}`;
+        const res = await fetch(url);
+        const json = await res.json();
+        label = json?.features?.[0]?.properties?.name ?? label;
+      } catch {}
+    }
 
     const el = document.createElement("div");
     const color = isStart
       ? "bg-green-600"
       : isDest
-      ? "bg-red-600"
-      : "bg-primary";
+        ? "bg-red-600"
+        : "bg-primary";
     el.innerHTML = `
-      <div class="w-7 h-7 ${color} text-white rounded-full flex items-center justify-center text-sm font-bold border-2 border-white shadow-md">
+      <div class="w-7 h-7 ${color} text-background rounded-full flex items-center justify-center text-sm font-bold border-2 border-background shadow-md">
         ${idx + 1}
       </div>
     `;
 
-    const popup = new mapboxgl.Popup({ offset: 30 }).setHTML(
-      `<h3 class="font-medium text-sm">${label}</h3>`
-    );
+    const popup = new mapboxgl.Popup({
+      offset: 30,
+      className: "bg-background",
+    }).setHTML(`<h3 class="font-medium text-sm text-foreground">${label}</h3>`);
 
     const marker = new mapboxgl.Marker({ element: el })
-      .setLngLat([lng, lat])
-      // .setPopup(popup)
+      .setLngLat([lng, lat] as [number, number])
+      .setPopup(popup)
       .addTo(map);
 
     markerRefs.current.push(marker);
@@ -266,12 +325,17 @@ export default function VisitMap() {
    * Init Data from URL
    * ---------------------------------------------------- */
   useEffect(() => {
-    const { coordinates: coords, optimized } = getCoordinatesFromUrl();
+    const {
+      coordinates: coords,
+      optimized,
+      names: loadedNames,
+    } = getCoordinatesFromUrl();
 
     if (!coords.length) coords.push([76.69715, 30.69134], [76.69399, 30.71158]);
     if (coords.length === 1) coords.push(coords[0]);
 
     setCoordinates(coords);
+    setNames(loadedNames || []);
     setIsOptimized(optimized);
     setIsLoading(false);
   }, []);
@@ -291,7 +355,7 @@ export default function VisitMap() {
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
       style: "mapbox://styles/mapbox/streets-v11",
-      center: coordinates[0],
+      center: coordinates[0] as [number, number],
       zoom: 14,
       pitch: 45,
     });
@@ -315,23 +379,38 @@ export default function VisitMap() {
 
       geolocateControl.trigger();
 
-      let finalCoords = isOptimized
-        ? getOptimizedCoordinates(coordinates)
-        : coordinates;
+      let finalCoords = coordinates;
+      let finalNames = names;
+
+      if (isOptimized && coordinates.length > 2) {
+        const { optimizedOrder, orderMap } =
+          getOptimizedCoordinates(coordinates);
+        finalCoords = optimizedOrder;
+
+        if (finalNames.length > 0) {
+          const mappedNames: string[] = [];
+          orderMap.forEach((idx) => {
+            if (finalNames[idx] !== undefined) {
+              mappedNames.push(finalNames[idx]);
+            }
+          });
+          finalNames = mappedNames;
+        }
+      }
 
       clearMarkers();
       finalCoords.forEach(([lng, lat], i) =>
-        fetchAndAddMarker(map, lng, lat, i, finalCoords.length)
+        fetchAndAddMarker(map, lng, lat, i, finalCoords.length, finalNames[i]),
       );
 
-      getRoute(map, finalCoords, isOptimized);
+      getRoute(map, finalCoords);
     });
 
     return () => {
       map.remove();
       mapRef.current = null;
     };
-  }, [coordinates, isOptimized, getRoute]);
+  }, [coordinates, isOptimized, getRoute, names]);
 
   if (isLoading) {
     return (
@@ -350,65 +429,104 @@ export default function VisitMap() {
   }
 
   /* -----------------------------------------------------
+   * Content Renderers
+   * ---------------------------------------------------- */
+  const renderRouteSummaryContent = () => {
+    if (!routeSummary) return null;
+
+    return (
+      <div className="text-sm space-y-1.5">
+        {routeSummary.error ? (
+          <p className="text-red-500">{routeSummary.error}</p>
+        ) : (
+          <>
+            <p>
+              <span className="text-gray-600 dark:text-foreground/60">
+                Distance:
+              </span>{" "}
+              <b>{formatDistance(routeSummary.distance)} mi</b>
+            </p>
+            <p>
+              <span className="text-gray-600 dark:text-foreground/60">
+                Estimated Duration:
+              </span>{" "}
+              <b>{formatDuration(routeSummary.duration)}</b>
+            </p>
+            <p>
+              <span className="text-gray-600 dark:text-foreground/60">
+                Starting Point:
+              </span>{" "}
+              <b>{startLabel}</b>
+            </p>
+          </>
+        )}
+      </div>
+    );
+  };
+
+  const renderRouteSegmentsContent = () => (
+    <div className="divide-y-1 divide-gray-300 dark:divide-foreground/10">
+      {routeLegs.map((leg, i) => (
+        <div key={i} className="text-sm py-2 first:pt-0 last:pb-0">
+          <b>
+            Stretch {leg.index} → {leg.index + 1}
+          </b>
+          <p>Distance: {formatDistance(leg.distance)} mi</p>
+          <p>ETA: {formatDuration(leg.duration)}</p>
+        </div>
+      ))}
+    </div>
+  );
+
+  const renderDetailedStepsContent = () => (
+    <div className="space-y-3">
+      {directionsList.map((step, i) => (
+        <div key={i}>
+          <p className="text-sm font-medium">{step.maneuver.instruction}</p>
+          <p className="text-xs text-gray-500 dark:text-foreground/60">
+            {(step.distance * 0.000621371).toFixed(2)} mi
+          </p>
+        </div>
+      ))}
+    </div>
+  );
+
+  /* -----------------------------------------------------
    * UI Layout
    * ---------------------------------------------------- */
   return (
-    <div className="flex h-screen bg-gray-50 dark:bg-background">
-      {/* Left Summary Card */}
+    <div className="flex h-screen bg-gray-50 dark:bg-background relative overflow-hidden">
+      {/* 
+         --- DESKTOP LAYOUT --- 
+         Hidden on mobile (lg:block)
+      */}
+
+      {/* Left Summary Card (Desktop) */}
       {routeSummary && (
-        <Card className="absolute top-8 left-8 z-20 w-64" shadow="none">
-          <CardHeader className="p-4 pb-0">
-            <h2 className="text-base font-semibold">
-              {isOptimized && coordinates.length > 2
-                ? "Optimized Route"
-                : "Original Route"}
-            </h2>
-          </CardHeader>
-          <CardBody className="p-4 pt-3">
-            {routeSummary.error ? (
-              <p className="text-red-500">{routeSummary.error}</p>
-            ) : (
-              <div className="text-sm space-y-1.5">
-                <p>
-                  <span className="text-gray-600 dark:text-foreground/60">
-                    Distance:
-                  </span>{" "}
-                  <b>{formatDistance(routeSummary.distance)} mi</b>
-                </p>
-                <p>
-                  <span className="text-gray-600 dark:text-foreground/60">
-                    Estimated Duration:
-                  </span>{" "}
-                  <b>{formatDuration(routeSummary.duration)}</b>
-                </p>
-                <p>
-                  <span className="text-gray-600 dark:text-foreground/60">
-                    Starting Point:
-                  </span>{" "}
-                  <b>{startLabel}</b>
-                </p>
-              </div>
-            )}
-          </CardBody>
-        </Card>
+        <div className="hidden lg:block absolute top-8 left-8 z-20 w-64">
+          <Card shadow="none">
+            <CardHeader className="p-4 pb-0">
+              <h2 className="text-base font-semibold">
+                {isOptimized && coordinates.length > 2
+                  ? "Optimized Route"
+                  : "Original Route"}
+              </h2>
+            </CardHeader>
+            <CardBody className="p-4 pt-3">
+              {renderRouteSummaryContent()}
+            </CardBody>
+          </Card>
+        </div>
       )}
 
-      {/* Right Details */}
-      <div className="absolute top-8 right-8 z-20 w-80 space-y-4">
+      {/* Right Details Cards (Desktop) */}
+      <div className="hidden lg:block absolute top-8 right-8 z-20 w-80 space-y-4">
         <Card shadow="none">
           <CardHeader className="p-4 pb-3">
             <h3 className="font-semibold">Route Segments</h3>
           </CardHeader>
-          <CardBody className="px-4 pt-0 pb-4 divide-y-1 divide-gray-300 dark:divide-foreground/10">
-            {routeLegs.map((leg, i) => (
-              <div key={i} className="text-sm py-2 first:pt-0 last:pb-0">
-                <b>
-                  Stretch {leg.index} → {leg.index + 1}
-                </b>
-                <p>Distance: {formatDistance(leg.distance)} mi</p>
-                <p>ETA: {formatDuration(leg.duration)}</p>
-              </div>
-            ))}
+          <CardBody className="px-4 pt-0 pb-4">
+            {renderRouteSegmentsContent()}
           </CardBody>
         </Card>
 
@@ -416,23 +534,97 @@ export default function VisitMap() {
           <CardHeader className="p-4 pb-3">
             <h3 className="font-semibold">Detailed Steps</h3>
           </CardHeader>
-          <CardBody className="px-4 pt-0 pb-4 max-h-[40vh] overflow-y-auto space-y-3">
-            {directionsList.map((step, i) => (
-              <div key={i}>
-                <p className="text-sm font-medium">
-                  {step.maneuver.instruction}
-                </p>
-                <p className="text-xs text-gray-500 dark:text-foreground/60">
-                  {(step.distance * 0.000621371).toFixed(2)} mi
-                </p>
-              </div>
-            ))}
+          <CardBody className="px-4 pt-0 pb-4 max-h-[40vh] overflow-y-auto">
+            {renderDetailedStepsContent()}
           </CardBody>
         </Card>
       </div>
 
+      {/* 
+         --- MOBILE LAYOUT --- 
+         Visible on mobile (lg:hidden)
+      */}
+
+      {/* Toggle Buttons */}
+      <div className="lg:hidden absolute top-12 right-2.5 z-20">
+        <Button
+          isIconOnly
+          radius="sm"
+          className="size-[30px] min-w-auto bg-background shadow-md border border-foreground/10"
+          onPress={() => setSummaryOpen(true)}
+        >
+          <FiInfo className="size-[18px]" />
+        </Button>
+      </div>
+
+      <div className="lg:hidden absolute top-[86px] right-2.5 z-20">
+        <Button
+          isIconOnly
+          radius="sm"
+          className="size-[30px] min-w-auto bg-background shadow-md border border-foreground/10"
+          onPress={() => setDetailsOpen(true)}
+        >
+          <FiList className="size-[18px]" />
+        </Button>
+      </div>
+
+      {/* Drawers (Modals) */}
+      <Modal
+        isOpen={isSummaryOpen}
+        onOpenChange={setSummaryOpen}
+        placement="bottom"
+        className="lg:hidden"
+        classNames={{
+          base: `max-sm:!m-3 !m-0`,
+          closeButton: "cursor-pointer",
+        }}
+      >
+        <ModalContent>
+          <ModalHeader className="p-4 pb-3.5">
+            <h4 className="font-medium text-base">
+              {isOptimized && coordinates.length > 2
+                ? "Optimized Route"
+                : "Original Route"}
+            </h4>
+          </ModalHeader>
+          <ModalBody className="pb-4 pt-0 px-4">
+            {renderRouteSummaryContent()}
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+
+      <Modal
+        isOpen={isDetailsOpen}
+        onOpenChange={setDetailsOpen}
+        placement="bottom"
+        scrollBehavior="inside"
+        className="lg:hidden h-[80vh]"
+        classNames={{
+          base: `max-sm:!m-3 !m-0`,
+          closeButton: "cursor-pointer",
+        }}
+      >
+        <ModalContent>
+          <ModalHeader className="p-4 pb-3.5">
+            <h4 className="font-medium text-base">Route Details</h4>
+          </ModalHeader>
+          <ModalBody className="pb-4 pt-0 px-4">
+            <div className="space-y-6">
+              <div>
+                <h4 className="font-medium mb-2">Route Segments</h4>
+                {renderRouteSegmentsContent()}
+              </div>
+              <div>
+                <h4 className="font-medium mb-2">Detailed Steps</h4>
+                {renderDetailedStepsContent()}
+              </div>
+            </div>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+
       {/* Map */}
-      <div className="flex-grow m-4 rounded-xl overflow-hidden">
+      <div className="flex-grow m-0 md:m-4 md:rounded-xl overflow-hidden relative w-full h-full">
         <div ref={mapContainerRef} className="w-full h-full" />
       </div>
     </div>

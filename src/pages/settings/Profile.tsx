@@ -214,7 +214,7 @@ const Profile = () => {
                   variant="solid"
                   color="danger"
                   radius="full"
-                  className="absolute -top-1 -right-1 size-5 min-w-0 h-5 z-10 p-0 shadow-sm border border-white dark:border-default-100"
+                  className="absolute top-1 right-0 size-5 min-w-0 h-5 z-10 p-0 shadow-sm border border-white dark:border-default-100"
                   onPress={handleRemoveImage}
                   title="Remove photo"
                 >

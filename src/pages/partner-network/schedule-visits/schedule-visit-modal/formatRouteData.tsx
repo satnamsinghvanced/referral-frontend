@@ -49,10 +49,10 @@ const parseVisitDurationToSeconds = (durationString: string): number => {
 
 const formatTimeWithDayOffset = (
   time: Date,
-  startDate: Date
+  startDate: Date,
 ): { timeString: string; dayOffset: number } => {
   const dayOffset = Math.floor(
-    (time.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24)
+    (time.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
   );
 
   const timeString = time.toLocaleTimeString([], {
@@ -93,7 +93,8 @@ export const formatRouteData = (
   startTime: string,
   mapboxRoute: MapboxRoute,
   selectedReferrers: Partner[],
-  visitDurationString: string
+  visitDurationString: string,
+  hasUserStartLocation: boolean = false,
 ) => {
   const visitDurationSeconds = parseVisitDurationToSeconds(visitDurationString);
   const startDateTime = new Date(routeDate.split("T")[0] + "T" + startTime);
@@ -102,10 +103,18 @@ export const formatRouteData = (
   let totalStops = selectedReferrers.length;
 
   const routeDetails = selectedReferrers.map((referrer, index) => {
-    const travelToStopSeconds =
-      index === 0 ? 0 : mapboxRoute?.legs[index - 1]?.duration || 0;
-    const travelToStopDistance =
-      index === 0 ? 0 : mapboxRoute?.legs[index - 1]?.distance || 0;
+    let travelToStopSeconds = 0;
+    let travelToStopDistance = 0;
+
+    if (hasUserStartLocation) {
+      travelToStopSeconds = mapboxRoute?.legs[index]?.duration || 0;
+      travelToStopDistance = mapboxRoute?.legs[index]?.distance || 0;
+    } else {
+      travelToStopSeconds =
+        index === 0 ? 0 : mapboxRoute?.legs[index - 1]?.duration || 0;
+      travelToStopDistance =
+        index === 0 ? 0 : mapboxRoute?.legs[index - 1]?.distance || 0;
+    }
 
     totalTravelTimeSeconds += travelToStopSeconds;
 
@@ -140,7 +149,7 @@ export const formatRouteData = (
     totalTravelTimeSeconds + totalStops * visitDurationSeconds;
 
   const convertedTotalTime = convertTimeToDaysHoursMinutes(
-    formatDuration(estimatedTotalTimeSeconds)
+    formatDuration(estimatedTotalTimeSeconds),
   );
 
   return {

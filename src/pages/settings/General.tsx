@@ -174,7 +174,7 @@ const General: React.FC = () => {
         onConfirm={handleDeleteAccount}
         isLoading={isDeletingAccount}
         title="Delete Account"
-        description="Are you sure you want to delete your account? This action is permanent and all your data will be lost forever."
+        description="Are you sure you want to delete your account? If you want to recover your account, you will need to contact support or an admin."
       />
     </>
   );

@@ -479,7 +479,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
             Referrals Details
           </h4>
         </div>
-        <div data-slot="card-content" className="px-4 pb-4">
+        <div data-slot="card-content" className="px-4 pb-4 space-y-4">
           {isLoading ? (
             <LoadingState />
           ) : referrals?.length > 0 ? (

@@ -536,7 +536,7 @@ export function ScheduleVisitsModal({
               Back to {tabs[currentTabIndex - 1]?.label || ""}
             </Button>
           ) : (
-            ""
+            <div></div>
           )}
 
           <div className="flex space-x-3 max-sm:space-x-2">

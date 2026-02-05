@@ -46,7 +46,7 @@ export const exportAccountData = async (): Promise<any> => {
 
 // 2. Delete Account
 export const deleteAccount = async (): Promise<ActionResponse> => {
-  const response = await axios.post("/users/delete-account");
+  const response = await axios.delete("/users/delete-account");
   return response.data;
 };
 

@@ -248,268 +248,189 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
       return;
     }
 
-    // --- SINGLE REFERRER LOGIC ---
-    if (selectedReferrerObjects.length === 1) {
-      const visitDurationSeconds = parseFloat(planState.durationPerVisit) * 60;
+    const processRouteGeneration = (userLocation: number[] | null) => {
+      setUserStartLocation(userLocation);
 
-      const fallbackToStaticDestination = () => {
-        setUserStartLocation(null);
+      const hasUserStart = !!userLocation;
+      const referrerCoords = selectedReferrerObjects.map((r) => [
+        r.address.coordinates.long,
+        r.address.coordinates.lat,
+      ]);
 
-        const originalRouteMetrics: any = formatRouteData(
-          planState.routeDate,
-          planState.startTime,
-          { distance: 0, duration: 0 } as MapboxRoute,
-          selectedReferrerObjects,
-          planState?.durationPerVisit,
-        );
+      const allCoords = hasUserStart
+        ? [userLocation!, ...referrerCoords]
+        : referrerCoords;
 
-        // The only time spent is the visit duration. Travel time/distance is 0.
-        const formattedResult = {
-          ...originalRouteMetrics,
-          travelTime: "0 min",
-          travelDistance: "0 km",
-          // FIX: Ensure estimatedTotalTime is the visit duration when no travel is calculated.
-          estimatedTotalTime:
-            formatRouteData.formatDuration(visitDurationSeconds),
-          estimatedDistance: "0 km",
-          mileageCost:
-            routeOptimizationResults?.original?.mileageCost || "0.00",
-        };
+      let optimizedOrderMap: number[] | null = null;
+      let optimizedCoordString = "";
+      let hasCustomOptimization = false;
 
-        setRouteOptimizationResults({
-          original: formattedResult,
-          optimized: formattedResult,
-        });
-      };
-
-      if ("geolocation" in navigator) {
-        setIsGeolocationLoading(true);
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            setUserStartLocation([
-              position.coords.longitude,
-              position.coords.latitude,
-            ]);
-
-            const userCoords = `${position.coords.longitude},${position.coords.latitude}`;
-            const referrer = selectedReferrerObjects[0];
-
-            if (!referrer) {
-              addToast({
-                title: "Error",
-                description: "Reviewer data missing.",
-                color: "danger",
-              });
-              return;
-            }
-
-            const destinationCoords = `${referrer.address.coordinates.long},${referrer.address.coordinates.lat}`;
-
-            const singleStopCoordString = `${userCoords};${destinationCoords}`;
-
-            generateRouteMutate(singleStopCoordString, {
-              onSuccess: (data) => {
-                const route = data?.routes?.[0];
-                if (!route) {
-                  addToast({
-                    title: "Error",
-                    description: "Could not generate route.",
-                    color: "danger",
-                  });
-                  return;
-                }
-
-                const routeMetrics: any = formatRouteData(
-                  planState.routeDate,
-                  planState.startTime,
-                  route as MapboxRoute,
-                  selectedReferrerObjects,
-                  planState?.durationPerVisit,
-                );
-
-                // Calculate totals for the single stop with travel time
-                const totalTravelDurationSeconds = route?.duration || 0;
-                const totalTravelDistanceMeters = route?.distance || 0;
-                const totalDuration =
-                  totalTravelDurationSeconds + visitDurationSeconds;
-
-                // FIX: Ensure estimatedTotalTime is the sum of travel time and visit time.
-                const formattedResult = {
-                  ...routeMetrics,
-                  // These are the *travel-only* metrics for the top cards
-                  travelTime: formatRouteData.formatDuration(
-                    totalTravelDurationSeconds,
-                  ),
-                  travelDistance: formatRouteData.formatDistance(
-                    totalTravelDistanceMeters,
-                  ),
-                  // These are the *total* metrics for the bottom summary
-                  estimatedTotalTime:
-                    formatRouteData.formatDuration(totalDuration),
-                  estimatedDistance: formatRouteData.formatDistance(
-                    totalTravelDistanceMeters,
-                  ),
-                };
-
-                setRouteOptimizationResults({
-                  original: formattedResult,
-                  optimized: formattedResult,
-                });
-                setIsGeolocationLoading(false);
-              },
-              onError: (e) => {
-                setIsGeolocationLoading(false);
-                // addToast({
-                //   title: "API Error",
-                //   description: `Error calculating route from your location: ${e.message}`,
-                //   color: "danger",
-                // });
-              },
-            });
-          },
-          (error) => {
-            setIsGeolocationLoading(false);
-            console.warn("Geolocation denied or error:", error);
-            fallbackToStaticDestination();
-
-            if (error.code === error.PERMISSION_DENIED) {
-              addToast({
-                title: "Location Access Denied",
-                description: "Showing destination only.",
-                color: "warning",
-                classNames: {
-                  title: "text-warning-800",
-                  description: "text-warning-700",
-                },
-              });
-            }
-          },
-          {
-            enableHighAccuracy: true,
-            maximumAge: 0,
-            timeout: 15000,
-          },
-        );
+      // Determine if we should perform our own optimization
+      // If we have > 2 points, optimization makes sense.
+      // (User + 2 Referrers = 3 points) or (3 Referrers = 3 points)
+      if (allCoords.length > 2) {
+        const { optimizedOrder, orderMap } = getOptimizedCoordinates(allCoords);
+        optimizedCoordString = optimizedOrder.map((c) => c.join(",")).join(";");
+        optimizedOrderMap = orderMap;
+        hasCustomOptimization = true;
       } else {
-        fallbackToStaticDestination();
-        setIsGeolocationLoading(false);
+        optimizedCoordString = allCoords.map((c) => c.join(",")).join(";");
       }
-      return;
-    }
 
-    // --- MULTI REFERRER LOGIC (>1 stops) ---
-    setUserStartLocation(null);
+      // Original sequence (User -> Ref1 -> Ref2 ...)
+      const originalCoordString = allCoords.map((c) => c.join(",")).join(";");
 
-    let originalCoordString = coordinateString;
-    let optimizedCoordString = coordinateString;
-    let optimizedOrderMap: number[] | null = null;
-    let hasCustomOptimization = false;
+      generateRouteMutate(originalCoordString, {
+        onSuccess: (originalData) => {
+          const originalRoute = originalData?.routes?.[0];
 
-    if (initialCoordinates.length > 2) {
-      const { optimizedOrder, orderMap } =
-        getOptimizedCoordinates(initialCoordinates);
-
-      optimizedCoordString = optimizedOrder.map((c) => c.join(",")).join(";");
-      optimizedOrderMap = orderMap;
-      hasCustomOptimization = true;
-    }
-
-    generateRouteMutate(originalCoordString, {
-      onSuccess: (originalData) => {
-        const originalRoute = originalData?.routes?.[0];
-
-        if (!originalRoute) {
-          addToast({
-            title: "Error",
-            description: "Could not generate original route.",
-            color: "danger",
-          });
-          return;
-        }
-
-        const originalRouteMetrics: any = formatRouteData(
-          planState.routeDate,
-          planState.startTime,
-          originalRoute as MapboxRoute,
-          selectedReferrerObjects,
-          planState?.durationPerVisit,
-        );
-
-        generateRouteMutate(optimizedCoordString, {
-          onSuccess: (optimizedData) => {
-            let optimizedRoute = optimizedData?.routes?.[0];
-
-            if (!optimizedRoute) {
-              addToast({
-                title: "Error",
-                description: "Could not generate optimized route.",
-                color: "danger",
-              });
-              return;
-            }
-
-            optimizedRoute = optimizedData.routes.reduce(
-              (best: MapboxRoute, current: MapboxRoute) =>
-                current.duration < best.duration ? current : best,
-              optimizedRoute as MapboxRoute,
-            );
-
-            const optimizedReferrerOrder =
-              hasCustomOptimization && optimizedOrderMap
-                ? optimizedOrderObjects(
-                    selectedReferrerObjects,
-                    optimizedOrderMap,
-                  )
-                : selectedReferrerObjects;
-
-            const optimizedRouteMetrics: any = formatRouteData(
-              planState.routeDate,
-              planState.startTime,
-              optimizedRoute as MapboxRoute,
-              optimizedReferrerOrder,
-              planState?.durationPerVisit,
-            );
-
-            const finalResults: RouteOptimizationResults = {
-              original: {
-                ...originalRouteMetrics,
-                travelTime: formatRouteData.formatDuration(
-                  originalRoute?.duration || 0,
-                ),
-                travelDistance: formatRouteData.formatDistance(
-                  originalRoute?.distance || 0,
-                ),
-              },
-              optimized: {
-                ...optimizedRouteMetrics,
-                travelTime: formatRouteData.formatDuration(
-                  optimizedRoute?.duration || 0,
-                ),
-                travelDistance: formatRouteData.formatDistance(
-                  optimizedRoute?.distance || 0,
-                ),
-              },
-            };
-
-            setRouteOptimizationResults(finalResults);
-          },
-          onError: (e) => {
+          if (!originalRoute) {
             addToast({
-              title: "API Error",
-              description: `Error fetching optimized route: ${e.message}`,
+              title: "Error",
+              description: "Could not generate original route.",
               color: "danger",
             });
-          },
-        });
-      },
-      // onError: (e) => {
-      //   addToast({
-      //     title: "API Error",
-      //     description: `Error fetching original route: ${e.message}`,
-      //     color: "danger",
-      //   });
-      // },
-    });
+            return;
+          }
+
+          const originalRouteMetrics: any = formatRouteData(
+            planState.routeDate,
+            planState.startTime,
+            originalRoute as MapboxRoute,
+            selectedReferrerObjects,
+            planState?.durationPerVisit,
+            hasUserStart,
+          );
+
+          generateRouteMutate(optimizedCoordString, {
+            onSuccess: (optimizedData) => {
+              let optimizedRoute = optimizedData?.routes?.[0];
+
+              if (!optimizedRoute) {
+                addToast({
+                  title: "Error",
+                  description: "Could not generate optimized route.",
+                  color: "danger",
+                });
+                return;
+              }
+
+              // Pick best route logic (though with fixed waypoints Mapbox usually returns one best)
+              optimizedRoute = optimizedData.routes.reduce(
+                (best: MapboxRoute, current: MapboxRoute) =>
+                  current.duration < best.duration ? current : best,
+                optimizedRoute as MapboxRoute,
+              );
+
+              // Reconstruct referrer order
+              let optimizedReferrerOrder = selectedReferrerObjects;
+
+              if (hasCustomOptimization && optimizedOrderMap) {
+                // If hasUserStart, index 0 is User. The referrers are at indices 1, 2...
+                // So optimizedOrderMap value 'k' corresponds to:
+                // If hasUserStart: k=0 is User. k>0 -> selectedReferrers[k-1]
+                // If !hasUserStart: k is index in selectedReferrers
+                if (hasUserStart) {
+                  optimizedReferrerOrder = optimizedOrderMap
+                    .filter((idx) => idx !== 0) // Remove user start point
+                    .map((idx) => selectedReferrerObjects[idx - 1])
+                    .filter((item): item is Partner => !!item);
+                } else {
+                  optimizedReferrerOrder = optimizedOrderObjects(
+                    selectedReferrerObjects,
+                    optimizedOrderMap,
+                  );
+                }
+              }
+
+              const optimizedRouteMetrics: any = formatRouteData(
+                planState.routeDate,
+                planState.startTime,
+                optimizedRoute as MapboxRoute,
+                optimizedReferrerOrder,
+                planState?.durationPerVisit,
+                hasUserStart,
+              );
+
+              const finalResults: RouteOptimizationResults = {
+                original: {
+                  ...originalRouteMetrics,
+                  travelTime: formatRouteData.formatDuration(
+                    originalRoute?.duration || 0,
+                  ),
+                  travelDistance: formatRouteData.formatDistance(
+                    originalRoute?.distance || 0,
+                  ),
+                },
+                optimized: {
+                  ...optimizedRouteMetrics,
+                  travelTime: formatRouteData.formatDuration(
+                    optimizedRoute?.duration || 0,
+                  ),
+                  travelDistance: formatRouteData.formatDistance(
+                    optimizedRoute?.distance || 0,
+                  ),
+                },
+              };
+
+              setRouteOptimizationResults(finalResults);
+              setIsGeolocationLoading(false);
+            },
+            onError: (e) => {
+              setIsGeolocationLoading(false);
+              // addToast({
+              //   title: "API Error",
+              //   description: `Error fetching optimized route: ${e.message}`,
+              //   color: "danger",
+              // });
+            },
+          });
+        },
+        onError: (e) => {
+          setIsGeolocationLoading(false);
+          // addToast({
+          //   title: "API Error",
+          //   description: `Error fetching original route: ${e.message}`,
+          //   color: "danger",
+          // });
+        },
+      });
+    };
+
+    if ("geolocation" in navigator) {
+      setIsGeolocationLoading(true);
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          processRouteGeneration([
+            position.coords.longitude,
+            position.coords.latitude,
+          ]);
+        },
+        (error) => {
+          console.warn("Geolocation denied or error:", error);
+          if (error.code === error.PERMISSION_DENIED) {
+            addToast({
+              title: "Location Access Denied",
+              description: "Generating route from first practice.",
+              color: "warning",
+              classNames: {
+                title: "text-warning-800",
+                description: "text-warning-700",
+              },
+            });
+          }
+          // Fallback to no user location
+          processRouteGeneration(null);
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 0,
+          timeout: 15000,
+        },
+      );
+    } else {
+      processRouteGeneration(null);
+    }
   };
 
   const handleOpenInMaps = () => {
@@ -522,6 +443,10 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
       return;
     }
 
+    // Determine the ordered list of coordinates for the active route
+    // If optimized, use the optimized order from result. If not, simple list.
+    // However, routeDetailsList contains the *ordered* referrers already.
+
     let activeCoordinateString = routeDetailsList
       .map(
         (stop: any) =>
@@ -530,13 +455,14 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
       .join(";");
 
     // Extract names from routeDetailsList, replacing semicolons for safe URL encoding
-    const referrerNames = routeDetailsList
+    let activeNameString = routeDetailsList
       .map((stop: any) => stop.name.replace(/;/g, ",")) // Replace ';' with ',' or another safe character
       .join(";");
 
-    if (selectedReferrerObjects.length === 1 && userStartLocation) {
+    if (userStartLocation) {
       const userCoordsStr = `${userStartLocation[0]},${userStartLocation[1]}`;
       activeCoordinateString = `${userCoordsStr};${activeCoordinateString}`;
+      activeNameString = `Current Location;${activeNameString}`;
     }
 
     const baseUrl = `${import.meta.env.VITE_URL_PREFIX}/visit-map`;
@@ -544,7 +470,9 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
     // Updated URL to include referrerNames
     const url = `${baseUrl}?coordinates=${encodeURIComponent(
       activeCoordinateString,
-    )}&optimized=${planState.enableAutoRoute}`;
+    )}&names=${encodeURIComponent(activeNameString)}&optimized=${
+      planState.enableAutoRoute
+    }`;
 
     window.open(url, "_blank");
   };
