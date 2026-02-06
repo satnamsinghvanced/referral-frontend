@@ -61,7 +61,7 @@ export default function ViewScheduledVisitModal({
         closeButton: "cursor-pointer",
       }}
     >
-      <ModalContent className="max-h-[95vh] overflow-hidden w-full">
+      <ModalContent className="max-h-[90vh] overflow-hidden w-full">
         {/* Modal Header */}
         <ModalHeader className="flex gap-1 p-4">
           <h4 className="text-base font-medium flex items-center gap-2 text-foreground">

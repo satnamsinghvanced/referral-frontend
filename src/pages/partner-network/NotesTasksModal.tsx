@@ -166,7 +166,7 @@ NotesTasksModalProps) => {
           closeButton: "cursor-pointer",
         }}
       >
-        <ModalContent className="p-4 flex flex-col gap-4">
+        <ModalContent className="p-4 flex flex-col gap-4 max-h-[90vh]">
           <ModalHeader className="flex flex-col gap-2 flex-shrink-0 p-0">
             <h4 className="text-base font-medium flex items-center space-x-2">
               <LuStickyNote className="size-5" />
@@ -200,7 +200,7 @@ NotesTasksModalProps) => {
                 <Tab
                   title={`Notes${notes ? ` (${notes?.length})` : " 0"}`}
                   key="notes"
-                  className="outline-none flex-1 overflow-y-auto space-y-3 py-0"
+                  className="outline-none flex-1 overflow-y-auto space-y-3 p-0"
                 >
                   <div className="mt-4 space-y-3">
                     <Card className="rounded-xl border border-foreground/10 shadow-none dark:bg-default-100/20">
@@ -275,14 +275,14 @@ NotesTasksModalProps) => {
                                 <p className="text-gray-900 dark:text-foreground mb-2 text-sm">
                                   {note.description}
                                 </p>
-                                <div className="flex items-center space-x-2 text-sm text-gray-600 dark:text-foreground/60">
-                                  <span className="flex items-center gap-1">
+                                <div className="flex items-center gap-2 flex-wrap text-sm text-gray-600 dark:text-foreground/60">
+                                  <span className="flex items-center gap-1 whitespace-nowrap">
                                     <LuUser className="size-3.5" />
                                     <span className="text-xs">
                                       Current User
                                     </span>
                                   </span>
-                                  <span className="flex items-center gap-1">
+                                  <span className="flex items-center gap-1 whitespace-nowrap">
                                     <LuClock className="size-3.5 ml-1" />
                                     <span className="text-xs">
                                       {formatDateToReadable(note.createdAt)}
@@ -323,7 +323,7 @@ NotesTasksModalProps) => {
                 <Tab
                   title={`Tasks${tasks ? ` (${tasks?.length})` : " 0"}`}
                   key="tasks"
-                  className="outline-none flex-1 overflow-y-auto space-y-3 py-0"
+                  className="outline-none flex-1 overflow-y-auto space-y-3 p-0"
                 >
                   <div className="mt-4 space-y-3">
                     <Card className="rounded-xl border border-foreground/10 shadow-none dark:bg-default-100/20">
@@ -475,7 +475,7 @@ NotesTasksModalProps) => {
                     </Card>
 
                     {/* List of Existing Tasks */}
-                    <div className="space-y-3 max-h-[340px] overflow-auto">
+                    <div className="space-y-3 max-h-[340px] max-md:max-h-[224px] overflow-auto">
                       {tasks?.map((task) => (
                         <Card
                           key={task._id}

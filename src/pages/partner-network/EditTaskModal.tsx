@@ -282,14 +282,16 @@ const EditTaskModal = ({ isOpen, onClose, task }: EditTaskModalProps) => {
                 size="sm"
                 radius="sm"
                 variant="ghost"
+                color="default"
                 onPress={onClose}
-                className="border-small dark:border-default-200 dark:text-foreground/70"
+                className="border-small"
               >
                 Cancel
               </Button>
               <Button
                 size="sm"
                 radius="sm"
+                variant="solid"
                 color="primary"
                 type="submit"
                 isDisabled={!formik.isValid || !formik.dirty}

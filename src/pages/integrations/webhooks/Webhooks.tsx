@@ -110,7 +110,7 @@ function Webhooks() {
 
           {/* Embed Code */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between gap-2.5 flex-wrap">
               <label className="text-xs font-medium block dark:text-foreground/60">
                 Embed Code (Copy & Paste on Your Website)
               </label>

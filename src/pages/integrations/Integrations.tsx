@@ -8,14 +8,14 @@ import { SiGoogleads } from "react-icons/si";
 import { TbBrandTwilio, TbDatabase } from "react-icons/tb";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import {
-  useFetchGoogleCalendarIntegration,
-  useUpdateGoogleCalendarIntegration,
+  useCalendarIntegration,
+  useUpdateCalendar,
+  useConnectCalendar,
 } from "../../hooks/integrations/useGoogleCalendar";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
-import { GoogleCalendarIntegrationResponse } from "../../types/integrations/googleCalendar";
+import { ICalendarIntegration } from "../../types/integrations/googleCalendar";
 import { timeAgo } from "../../utils/timeAgo";
 import IntegrationItem from "./IntegrationItem";
-import GoogleCalendarConfigModal from "./modal/GoogleCalendarConfigModal";
 import TwilioConfigurationModal from "./modal/TwilioConfigurationModal";
 import EmailMarketingConfigModal from "./modal/EmailMarketingConfigModal";
 import {
@@ -51,11 +51,6 @@ function Integrations() {
   const { user } = useTypedSelector((state) => state.auth);
   const userId = user?.userId;
 
-  const [
-    isGoogleCalendarIntegrationModalOpen,
-    setIsGoogleCalendarIntegrationModalOpen,
-  ] = useState(false);
-
   const [isTwilioIntegrationModalOpen, setIsTwilioIntegrationModalOpen] =
     useState(false);
 
@@ -75,10 +70,11 @@ function Integrations() {
     data: googleCalendarExistingConfig,
     isLoading: isGoogleCalendarConfigLoading,
     isError: isGoogleCalendarConfigError,
-  } = useFetchGoogleCalendarIntegration();
+  } = useCalendarIntegration();
 
-  const { mutate: updateGoogleCalendarIntegration } =
-    useUpdateGoogleCalendarIntegration();
+  const { mutate: updateGoogleCalendarIntegration } = useUpdateCalendar();
+
+  const { mutate: connectCalendar } = useConnectCalendar();
 
   const { data: emailExistingConfig, isLoading: isEmailConfigLoading } =
     useFetchEmailIntegration();
@@ -234,16 +230,15 @@ function Integrations() {
         description:
           "Sync marketing activities and referral events with Google Calendar",
         badges: ["Activity Sync", "Event Management", "Calendar Integration"],
-        lastSync: timeAgo(
-          googleCalendarExistingConfig?.lastSyncAt || new Date().toISOString(),
-        ),
-        onConnect: () => setIsGoogleCalendarIntegrationModalOpen(true),
-        onConfigure: () => setIsGoogleCalendarIntegrationModalOpen(true),
+        lastSync: googleCalendarExistingConfig?.lastSyncAt
+          ? timeAgo(googleCalendarExistingConfig.lastSyncAt)
+          : undefined,
+        onConnect: () => connectCalendar(),
         isSwitchChecked: googleCalendarExistingConfig?.status === "Connected",
         onSwitchChange: () => {
           updateGoogleCalendarIntegration({
             id: googleCalendarExistingConfig?._id as string,
-            data: {
+            payload: {
               status:
                 googleCalendarExistingConfig?.status === "Connected"
                   ? "Disconnected"
@@ -377,6 +372,7 @@ function Integrations() {
     googleCalendarExistingConfig,
     updateEmailIntegration,
     updateGoogleCalendarIntegration,
+    connectCalendar,
     twilioConfig,
     isTwilioConnected,
     googleAdsConfig,
@@ -408,17 +404,6 @@ function Integrations() {
           <Webhooks />
         </div>
       </ComponentContainer>
-
-      <GoogleCalendarConfigModal
-        isOpen={isGoogleCalendarIntegrationModalOpen}
-        onClose={() => setIsGoogleCalendarIntegrationModalOpen(false)}
-        userId={userId as string}
-        existingConfig={
-          googleCalendarExistingConfig as GoogleCalendarIntegrationResponse
-        }
-        isLoading={isGoogleCalendarConfigLoading}
-        isError={isGoogleCalendarConfigError}
-      />
 
       <TwilioConfigurationModal
         userId={userId as string}

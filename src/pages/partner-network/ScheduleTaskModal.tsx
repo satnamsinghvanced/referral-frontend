@@ -306,6 +306,17 @@ const ScheduleTaskModal = ({
           <Button
             size="sm"
             radius="sm"
+            variant="ghost"
+            color="default"
+            onPress={onClose}
+            className="border-small"
+          >
+            Cancel
+          </Button>
+          <Button
+            size="sm"
+            radius="sm"
+            variant="solid"
             color="primary"
             className="flex-1"
             onPress={handleSubmit}
@@ -313,15 +324,6 @@ const ScheduleTaskModal = ({
           >
             <LuCalendar className="size-4" />
             Schedule Event
-          </Button>
-          <Button
-            size="sm"
-            radius="sm"
-            variant="bordered"
-            onPress={onClose}
-            className="border-small dark:border-default-200 flex-1 dark:text-foreground/70"
-          >
-            Cancel
           </Button>
         </div>
       </ModalContent>

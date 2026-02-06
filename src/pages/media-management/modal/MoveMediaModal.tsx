@@ -94,7 +94,8 @@ export function MoveMediaModal({
             size="sm"
             radius="sm"
             variant="ghost"
-            className="border-small border-gray-300 dark:border-default-200 text-gray-700 dark:text-foreground/70 hover:bg-gray-50 dark:hover:bg-default-100"
+            color="default"
+            className="border-small"
             onPress={onClose}
           >
             Cancel
@@ -104,7 +105,6 @@ export function MoveMediaModal({
             radius="sm"
             variant="solid"
             color="primary"
-            className="border-small"
             onPress={handleMove}
             isDisabled={isPending}
             isLoading={isPending}

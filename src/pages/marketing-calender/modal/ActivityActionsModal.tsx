@@ -164,7 +164,7 @@ export default function ActivityActionsModal({
       isOpen={isOpen}
       onOpenChange={onClose}
       classNames={{
-        base: `max-sm:!m-3 !m-0`,
+        base: `max-lg:!m-3 !m-0`,
         closeButton: "cursor-pointer",
       }}
       size="2xl"
@@ -434,10 +434,11 @@ export default function ActivityActionsModal({
 
             <div className="flex justify-end space-x-2 pt-1">
               <Button
-                variant="bordered"
+                variant="ghost"
+                color="default"
                 size="sm"
                 radius="sm"
-                className="border-small border-gray-300 dark:border-default-200 text-gray-700 dark:text-foreground/70"
+                className="border-small"
                 onPress={onClose}
                 type="button"
               >

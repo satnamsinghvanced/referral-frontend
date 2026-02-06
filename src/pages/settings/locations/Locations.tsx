@@ -106,7 +106,7 @@ const Locations: React.FC = () => {
                   className="p-3 border border-foreground/10 rounded-lg flex items-start justify-between"
                 >
                   <div>
-                    <div className="flex items-center gap-2 mb-2">
+                    <div className="flex items-center gap-2 mb-2 max-sm:flex-col-reverse max-sm:items-start">
                       <h4 className="font-medium text-sm">{loc.name}</h4>
                       {loc.isPrimary && (
                         <span className="inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[11px] font-medium w-fit whitespace-nowrap shrink-0 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300">

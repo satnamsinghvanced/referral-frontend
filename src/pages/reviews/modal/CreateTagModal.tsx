@@ -386,6 +386,7 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({ isOpen, onClose }) => {
                 Cancel
               </Button>
               <Button
+                variant="solid"
                 color="primary"
                 onPress={() => formik.handleSubmit()}
                 size="sm"

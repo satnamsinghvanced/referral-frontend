@@ -174,7 +174,7 @@ const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({
       isOpen={isOpen}
       onOpenChange={handleClose}
       classNames={{
-        base: `max-sm:!m-3 !m-0`,
+        base: `max-lg:!m-3 !m-0`,
         closeButton: "cursor-pointer",
       }}
       size="xl"

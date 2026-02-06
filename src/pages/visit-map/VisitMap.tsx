@@ -6,6 +6,7 @@ import {
   Modal,
   ModalBody,
   ModalContent,
+  ModalFooter,
   ModalHeader,
 } from "@heroui/react";
 import mapboxgl from "mapbox-gl";
@@ -178,8 +179,89 @@ export default function VisitMap() {
   // Mobile drawer states
   const [isSummaryOpen, setSummaryOpen] = useState(false);
   const [isDetailsOpen, setDetailsOpen] = useState(false);
+  const [isMapsModalOpen, setMapsModalOpen] = useState(false);
 
   const markerRefs = useRef<mapboxgl.Marker[]>([]);
+
+  // Simple check for Apple device (iPhone, iPad, Mac)
+  const isAppleDevice = /Mac|iPhone|iPad|iPod/.test(navigator.userAgent);
+
+  // Trigger "Open in Maps" modal on mobile/tablet when coordinates are ready
+  useEffect(() => {
+    if (!isLoading && coordinates.length >= 2) {
+      const isMobileOrTablet = window.innerWidth < 1024; // Align with lg:hidden
+      if (isMobileOrTablet) {
+        // Small delay to ensure UI is ready and user sees the context
+        const timer = setTimeout(() => {
+          setMapsModalOpen(true);
+        }, 1000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [isLoading, coordinates]);
+
+  const handleOpenGoogleMaps = () => {
+    if (coordinates.length < 2) return;
+
+    // For mobile devices, use the Google Maps app URL scheme
+    // This will open the app directly with navigation ready
+
+    // Build waypoints string for all stops
+    const waypoints = coordinates
+      .map((coord) => `${coord[1]},${coord[0]}`) // Google Maps takes lat,lng
+      .join("/");
+
+    // Use comgooglemaps:// scheme for native app, falls back to https:// if app not installed
+    const appUrl = `comgooglemaps://?daddr=${waypoints}&directionsmode=driving`;
+
+    // Fallback web URL
+    const origin = `${coordinates[0]![1]},${coordinates[0]![0]}`;
+    const destinationIndex = coordinates.length - 1;
+    const destination = `${coordinates[destinationIndex]![1]},${coordinates[destinationIndex]![0]}`;
+
+    let waypointsParam = "";
+    if (coordinates.length > 2) {
+      const intermediatePoints = coordinates.slice(1, destinationIndex);
+      waypointsParam = intermediatePoints
+        .map((coord) => `${coord[1]},${coord[0]}`)
+        .join("|");
+    }
+
+    const webUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}${
+      waypointsParam ? `&waypoints=${waypointsParam}` : ""
+    }&travelmode=driving`;
+
+    // Try to open native app first
+    window.location.href = appUrl;
+
+    // Fallback to web after a short delay if app doesn't open
+    setTimeout(() => {
+      window.open(webUrl, "_blank");
+    }, 1500);
+
+    setMapsModalOpen(false);
+  };
+
+  const handleOpenAppleMaps = () => {
+    if (coordinates.length < 2) return;
+
+    // Apple Maps URL scheme for navigation
+    // maps:// opens the native Maps app on iOS/macOS
+
+    // Start address
+    const saddr = `${coordinates[0]![1]},${coordinates[0]![0]}`;
+
+    // Destination addresses (chained with +to:)
+    const stops = coordinates.slice(1);
+    const daddr = stops.map((coord) => `${coord[1]},${coord[0]}`).join("+to:");
+
+    // Use maps:// scheme for native app with dirflg=d for driving directions
+    const url = `maps://?saddr=${saddr}&daddr=${daddr}&dirflg=d`;
+
+    // This will open Apple Maps app directly with navigation ready
+    window.location.href = url;
+    setMapsModalOpen(false);
+  };
 
   const clearMarkers = () => {
     markerRefs.current.forEach((marker) => marker.remove());
@@ -322,22 +404,93 @@ export default function VisitMap() {
   };
 
   /* -----------------------------------------------------
-   * Init Data from URL
+   * Init Data from URL & User Location
    * ---------------------------------------------------- */
   useEffect(() => {
-    const {
-      coordinates: coords,
-      optimized,
-      names: loadedNames,
-    } = getCoordinatesFromUrl();
+    const initData = async () => {
+      // 1. Get initial data from URL
+      let {
+        coordinates: loadedCoords,
+        optimized,
+        names: loadedNames,
+      } = getCoordinatesFromUrl();
 
-    if (!coords.length) coords.push([76.69715, 30.69134], [76.69399, 30.71158]);
-    if (coords.length === 1) coords.push(coords[0]);
+      // Ensure mutable copies with correct types
+      let coords: number[][] = [...loadedCoords];
+      let namesList: string[] = loadedNames ? [...loadedNames] : [];
 
-    setCoordinates(coords);
-    setNames(loadedNames || []);
-    setIsOptimized(optimized);
-    setIsLoading(false);
+      // Default fallback if no coords
+      if (!coords.length) {
+        coords.push([76.69715, 30.69134], [76.69399, 30.71158]);
+        if (coords.length === 1 && coords[0]) coords.push(coords[0]);
+      }
+
+      // 2. Attempt to fetch user's live location
+      try {
+        const position = await new Promise<GeolocationPosition>(
+          (resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              timeout: 5000,
+              enableHighAccuracy: true,
+            });
+          },
+        );
+
+        const userLoc = [
+          position.coords.longitude,
+          position.coords.latitude,
+        ] as number[];
+
+        // 3. Integrate User Location
+        // If the URL already designated the first point as "Current Location", update it.
+        // Otherwise, prepend the live location.
+        if (namesList.length > 0 && namesList[0] === "Current Location") {
+          // Verify coords[0] exists before setting
+          if (coords.length > 0) {
+            coords[0] = userLoc;
+          } else {
+            coords.unshift(userLoc);
+          }
+        } else {
+          // Prepend as new start point
+          coords.unshift(userLoc);
+          namesList.unshift("Current Location");
+        }
+
+        // Force optimization to true because we've altered the route start point
+        // and implied intent is "Guide me from here to closest..."
+        optimized = true;
+      } catch (e) {
+        console.warn("Could not retrieve user location:", e);
+        // Fallback: proceed with URL data as-is
+      }
+
+      // 4. Perform Optimization Immediately
+      // This ensures that 'coordinates' state is correct for Google Maps open,
+      // and that the visual map draws the correct sequence.
+      if (optimized && coords.length > 2) {
+        const { optimizedOrder, orderMap } = getOptimizedCoordinates(coords);
+        coords = optimizedOrder;
+
+        if (namesList.length > 0) {
+          const mappedNames: string[] = [];
+          orderMap.forEach((idx) => {
+            if (namesList[idx] !== undefined) {
+              mappedNames.push(namesList[idx] as string);
+            }
+          });
+          namesList = mappedNames;
+        }
+      }
+
+      // 5. Update State
+      setCoordinates(coords);
+      setNames(namesList);
+      setIsOptimized(optimized);
+      setIsLoading(false);
+    };
+
+    initData();
   }, []);
 
   /* -----------------------------------------------------
@@ -379,28 +532,21 @@ export default function VisitMap() {
 
       geolocateControl.trigger();
 
-      let finalCoords = coordinates;
-      let finalNames = names;
-
-      if (isOptimized && coordinates.length > 2) {
-        const { optimizedOrder, orderMap } =
-          getOptimizedCoordinates(coordinates);
-        finalCoords = optimizedOrder;
-
-        if (finalNames.length > 0) {
-          const mappedNames: string[] = [];
-          orderMap.forEach((idx) => {
-            if (finalNames[idx] !== undefined) {
-              mappedNames.push(finalNames[idx]);
-            }
-          });
-          finalNames = mappedNames;
-        }
-      }
+      // Coordinates and names are already optimized in InitData useEffect
+      // So we can use them directly.
+      const finalCoords = coordinates;
+      const finalNames = names;
 
       clearMarkers();
       finalCoords.forEach(([lng, lat], i) =>
-        fetchAndAddMarker(map, lng, lat, i, finalCoords.length, finalNames[i]),
+        fetchAndAddMarker(
+          map,
+          lng || 0,
+          lat || 0,
+          i,
+          finalCoords.length,
+          finalNames[i],
+        ),
       );
 
       getRoute(map, finalCoords);
@@ -503,8 +649,8 @@ export default function VisitMap() {
 
       {/* Left Summary Card (Desktop) */}
       {routeSummary && (
-        <div className="hidden lg:block absolute top-8 left-8 z-20 w-64">
-          <Card shadow="none">
+        <div className="hidden lg:block absolute top-2 left-2 z-20 w-64">
+          <Card shadow="none" radius="md">
             <CardHeader className="p-4 pb-0">
               <h2 className="text-base font-semibold">
                 {isOptimized && coordinates.length > 2
@@ -520,8 +666,8 @@ export default function VisitMap() {
       )}
 
       {/* Right Details Cards (Desktop) */}
-      <div className="hidden lg:block absolute top-8 right-8 z-20 w-80 space-y-4">
-        <Card shadow="none">
+      <div className="hidden lg:block absolute top-2 right-2 z-20 w-80 space-y-2">
+        <Card shadow="none" radius="md">
           <CardHeader className="p-4 pb-3">
             <h3 className="font-semibold">Route Segments</h3>
           </CardHeader>
@@ -530,7 +676,7 @@ export default function VisitMap() {
           </CardBody>
         </Card>
 
-        <Card shadow="none">
+        <Card shadow="none" radius="md">
           <CardHeader className="p-4 pb-3">
             <h3 className="font-semibold">Detailed Steps</h3>
           </CardHeader>
@@ -624,9 +770,72 @@ export default function VisitMap() {
       </Modal>
 
       {/* Map */}
-      <div className="flex-grow m-0 md:m-4 md:rounded-xl overflow-hidden relative w-full h-full">
+      <div className="flex-grow overflow-hidden relative w-full h-full">
         <div ref={mapContainerRef} className="w-full h-full" />
       </div>
+
+      {/* Mobile/Tablet: Open in Maps App Modal */}
+      <Modal
+        isOpen={isMapsModalOpen}
+        onOpenChange={setMapsModalOpen}
+        placement="center"
+        scrollBehavior="inside"
+        classNames={{
+          base: `max-sm:!m-3 !m-0`,
+          closeButton: "cursor-pointer",
+        }}
+        isDismissable={false}
+      >
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1 p-4 pb-3">
+                <h4 className="font-medium text-base">Open in Maps App?</h4>
+              </ModalHeader>
+              <ModalBody className="px-4 py-0">
+                <p className="text-sm text-gray-600 dark:text-foreground/60">
+                  Would you like to open this optimized route in your preferred
+                  navigation app for turn-by-turn directions?
+                </p>
+              </ModalBody>
+              <ModalFooter className="flex flex-col items-stretch gap-3 p-4">
+                <Button
+                  size="sm"
+                  radius="sm"
+                  color="primary"
+                  onPress={handleOpenGoogleMaps}
+                  variant="solid"
+                  className="w-full"
+                >
+                  Open in Google Maps
+                </Button>
+                {isAppleDevice && (
+                  <Button
+                    size="sm"
+                    radius="sm"
+                    onPress={handleOpenAppleMaps}
+                    variant="ghost"
+                    color="default"
+                    className="w-full"
+                  >
+                    Open in Maps
+                  </Button>
+                )}
+                <Button
+                  size="sm"
+                  radius="sm"
+                  onPress={() => setMapsModalOpen(false)}
+                  variant="light"
+                  color="default"
+                  className="w-full"
+                >
+                  Stay Here
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </div>
   );
 }

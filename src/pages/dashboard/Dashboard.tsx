@@ -306,7 +306,7 @@ const Dashboard = () => {
         </div> */}
 
         {permissionStatus === "default" && showNotificationBanner && (
-          <div className="relative group overflow-hidden bg-background border border-divider dark:border-white/5 rounded-2xl p-3 md:p-4 mb-5 mt-2 transition-all duration-300">
+          <div className="relative group overflow-hidden bg-background border border-divider dark:border-white/5 rounded-2xl p-4 md:p-4 mb-5 transition-all duration-300">
             <div className="relative z-10 flex flex-col md:flex-row items-center gap-5 md:gap-4">
               <div className="relative shrink-0">
                 <div className="size-10 md:size-11 rounded-xl bg-primary/10 flex items-center justify-center relative overflow-hidden">
@@ -334,7 +334,7 @@ const Dashboard = () => {
                 </p>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center gap-2 shrink-0 w-full md:w-auto">
+              <div className="flex flex-col sm:flex-row items-center max-md:justify-center gap-2 shrink-0 w-full md:w-auto">
                 <Button
                   size="sm"
                   color="primary"

@@ -16,9 +16,9 @@ const ComponentContainer: React.FC<ComponentContainerProps> = ({
   children,
 }) => {
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full overflow-hidden">
       {/* Sticky Header */}
-      <div className="sticky top-[58px] md:top-0 bg-background text-foreground">
+      <div className="bg-background text-foreground">
         <ComponentHeader
           heading={headingData.heading}
           subHeading={headingData.subHeading}

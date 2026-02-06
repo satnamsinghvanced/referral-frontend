@@ -123,7 +123,7 @@ export default function CreateTemplateModal({
       isOpen={isOpen}
       onOpenChange={onClose}
       classNames={{
-        base: `max-sm:!m-3 !m-0`,
+        base: `max-lg:!m-3 !m-0`,
         closeButton: "cursor-pointer",
       }}
       size="4xl"
@@ -474,6 +474,7 @@ export default function CreateTemplateModal({
             size="sm"
             radius="sm"
             variant="ghost"
+            color="default"
             onPress={onClose}
             className="border-small"
           >

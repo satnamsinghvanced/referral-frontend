@@ -584,7 +584,7 @@ export default function ReferrerActionsModal({
       case "group":
         return (
           <div key={field.id as Key} className="space-y-2">
-            <p className="text-xs dark:text-foreground/60">
+            <p className="text-xs">
               {label} <span className="text-red-500">*</span>
             </p>
             <div className="space-y-2">
@@ -612,7 +612,7 @@ export default function ReferrerActionsModal({
                     placeholder={sub.placeholder || ""}
                     value={
                       formik.values.practiceAddress[
-                      sub.id as keyof typeof formik.values.practiceAddress
+                        sub.id as keyof typeof formik.values.practiceAddress
                       ] as string
                     }
                     onValueChange={(val) => {
@@ -620,11 +620,11 @@ export default function ReferrerActionsModal({
                       if (sub.type === "tel") {
                         newValue = formatPhoneNumber(val);
                       } else if (sub.id === "zip") {
-                        newValue = val.replace(/\D/g, "").slice(0, 5);
+                        newValue = val.replace(/\D/g, "").slice(0, 6);
                       }
                       formik.setFieldValue(fieldPath, newValue);
                     }}
-                    {...(sub.id === "zip" ? { maxLength: 5 } : {})}
+                    {...(sub.id === "zip" ? { maxLength: 6 } : {})}
                     onBlur={() => formik.setFieldTouched(fieldPath)}
                     isRequired={!!sub.isRequired}
                     isInvalid={!!(isSubTouched && errorText)}
@@ -956,9 +956,10 @@ export default function ReferrerActionsModal({
           <Button
             onPress={handleCloseModal}
             color="default"
-            variant="bordered"
+            variant="ghost"
             size="sm"
-            className="border-foreground/10 border text-foreground dark:text-foreground/80 hover:bg-background dark:hover:bg-background"
+            radius="sm"
+            className="border-small"
           >
             Cancel
           </Button>
@@ -968,6 +969,7 @@ export default function ReferrerActionsModal({
             color="primary"
             variant="solid"
             size="sm"
+            radius="sm"
             startContent={saveButtonIcon}
             isLoading={referrerCreationPending || referrerUpdationPending}
             isDisabled={!formik.isValid || !formik.dirty}

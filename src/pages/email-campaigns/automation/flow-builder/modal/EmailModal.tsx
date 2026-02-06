@@ -139,6 +139,7 @@ const EmailModal: React.FC<EmailModalProps> = ({
                 size="sm"
                 radius="sm"
                 variant="ghost"
+                color="default"
                 onPress={onClose}
                 className="border-small"
               >

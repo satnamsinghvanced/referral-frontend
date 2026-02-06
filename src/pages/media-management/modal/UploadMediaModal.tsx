@@ -246,7 +246,7 @@ export function UploadMediaModal({
       onOpenChange={onClose}
       placement="center"
       classNames={{
-        base: `max-sm:!m-3 !m-0`,
+        base: `max-lg:!m-3 !m-0`,
         closeButton: "cursor-pointer",
       }}
       size="2xl"
@@ -446,7 +446,8 @@ export function UploadMediaModal({
               size="sm"
               radius="sm"
               variant="ghost"
-              className="border-small border-gray-300 dark:border-default-200 text-gray-700 dark:text-foreground/70 hover:bg-gray-50 dark:hover:bg-default-100"
+              color="default"
+              className="border-small"
               onPress={handleCancel}
               isDisabled={isUploading}
             >
@@ -457,7 +458,6 @@ export function UploadMediaModal({
               radius="sm"
               variant="solid"
               color="primary"
-              className="border-small"
               isDisabled={isUploadDisabled}
               isLoading={isUploading}
               onPress={handleUploadClick}

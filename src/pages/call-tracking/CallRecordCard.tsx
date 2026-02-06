@@ -30,7 +30,7 @@ export default function CallRecordCard({
 
   return (
     <div className="flex items-center justify-between p-3.5 border border-foreground/10 rounded-lg bg-background max-sm:flex-col max-sm:gap-4 max-sm:items-start">
-      <div className="flex items-center space-x-3.5">
+      <div className="flex items-center gap-3.5 max-sm:flex-col max-sm:items-start">
         <div className={`p-2 rounded-lg bg-gray-100/70 dark:bg-default-100`}>
           {isIncoming ? (
             <FiPhoneIncoming className="h-4 w-4 text-gray-600 dark:text-foreground/60" />

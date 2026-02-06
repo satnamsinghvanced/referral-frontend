@@ -369,6 +369,7 @@ const TaskActionModal = ({
                 size="sm"
                 radius="sm"
                 variant="ghost"
+                color="default"
                 onPress={handleClose}
                 className="border-small"
                 isDisabled={isLoading}
@@ -378,6 +379,7 @@ const TaskActionModal = ({
               <Button
                 size="sm"
                 radius="sm"
+                variant="solid"
                 color="primary"
                 type="submit"
                 isDisabled={isLoading || !formik.isValid || !formik.dirty}

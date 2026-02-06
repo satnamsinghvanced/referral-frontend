@@ -1,92 +1,58 @@
-import { addToast } from "@heroui/react";
-import { useMutation, useQuery } from "@tanstack/react-query";
-import { queryClient } from "../../providers/QueryProvider";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  fetchGoogleCalendarIntegration,
-  generateGoogleCalendarAuthUrl,
+  deleteGoogleCalendarIntegration,
+  getGoogleCalendarAuthUrl,
+  getGoogleCalendarIntegration,
   updateGoogleCalendarIntegration,
 } from "../../services/integrations/googleCalendar";
-import {
-  GenerateAuthUrlRequest,
-  GenerateAuthUrlResponse,
-  GoogleCalendarIntegrationResponse,
-  UpdateGoogleCalendarRequest,
-} from "../../types/integrations/googleCalendar";
 
-export const GOOGLE_CALENDAR_KEYS = {
-  all: ["googleCalendar"] as const,
-  integration: () => [...GOOGLE_CALENDAR_KEYS.all, "integration"] as const,
+export const CALENDAR_KEYS = {
+  all: ["calendar-integration"] as const,
+  details: () => [...CALENDAR_KEYS.all, "current"] as const,
 };
 
-export const useGenerateGoogleCalendarAuthUrl = () => {
-  return useMutation<GenerateAuthUrlResponse, any, GenerateAuthUrlRequest>({
-    mutationFn: (data) => generateGoogleCalendarAuthUrl(data),
+// --- Queries ---
 
-    onSuccess: () => {
-      addToast({
-        title: "Success",
-        description: "Google calendar connected successfully",
-        color: "success",
-      });
+export const useCalendarIntegration = () => {
+  return useQuery({
+    queryKey: CALENDAR_KEYS.details(),
+    queryFn: getGoogleCalendarIntegration,
+  });
+};
 
-      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
-    },
+// --- Mutations ---
 
-    onError: (error) => {
-      const errorMessage =
-        (error?.response?.data as { message?: string })?.message ||
-        error.message ||
-        "Failed to connect Google calender";
-
-      addToast({
-        title: "Error",
-        description: errorMessage,
-        color: "danger",
-      });
+export const useConnectCalendar = () => {
+  return useMutation({
+    mutationFn: getGoogleCalendarAuthUrl,
+    onSuccess: (data) => {
+      if (data.authUrl) {
+        window.location.href = data.authUrl;
+      }
     },
   });
 };
 
-export const useFetchGoogleCalendarIntegration = () => {
-  return useQuery<GoogleCalendarIntegrationResponse, Error>({
-    queryKey: GOOGLE_CALENDAR_KEYS.integration(),
-    queryFn: fetchGoogleCalendarIntegration,
+export const useUpdateCalendar = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: any }) =>
+      updateGoogleCalendarIntegration(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: CALENDAR_KEYS.all });
+    },
   });
 };
 
-export const useUpdateGoogleCalendarIntegration = () => {
-  return useMutation<
-    GoogleCalendarIntegrationResponse,
-    any,
-    { id: string; data: UpdateGoogleCalendarRequest }
-  >({
-    mutationFn: ({ id, data }) => updateGoogleCalendarIntegration(id, data),
+export const useDisconnectCalendar = () => {
+  const queryClient = useQueryClient();
 
+  return useMutation({
+    mutationFn: deleteGoogleCalendarIntegration,
     onSuccess: () => {
-      addToast({
-        title: "Success",
-        description: "Google Calendar integration updated successfully",
-        color: "success",
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: GOOGLE_CALENDAR_KEYS.integration(),
-      });
-
-      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
-    },
-
-    onError: (error) => {
-      const errorMessage =
-        (error?.response?.data as { message?: string })?.message ||
-        error.message ||
-        "Failed to update Google Calendar integration";
-
-      addToast({
-        title: "Error",
-        description: errorMessage,
-        color: "danger",
-      });
+      queryClient.setQueryData(CALENDAR_KEYS.details(), null);
+      queryClient.invalidateQueries({ queryKey: CALENDAR_KEYS.all });
     },
   });
 };

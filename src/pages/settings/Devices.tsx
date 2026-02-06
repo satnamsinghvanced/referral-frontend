@@ -63,7 +63,7 @@ const Devices: React.FC = () => {
           devices.data.map((device: Device) => (
             <div
               key={device._id}
-              className={`md:flex md:items-center md:justify-between p-3 md:p-3.5 border border-foreground/10 rounded-xl max-md:space-y-3.5 ${device.isCurrentDevice ? "order-first" : ""}`}
+              className={`flex items-center justify-between gap-2 p-3 md:p-3.5 border border-foreground/10 rounded-xl ${device.isCurrentDevice ? "order-first" : ""}`}
             >
               <div className="flex items-center gap-3">
                 <div className="p-2.5 bg-foreground/5 rounded-lg text-foreground/60 leading-none">

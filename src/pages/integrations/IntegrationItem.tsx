@@ -94,7 +94,7 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
 
   return (
     <div className="md:flex md:items-start md:justify-between py-5 first:pt-0 last:pb-4 max-md:space-y-4">
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-3 max-sm:flex-col">
         <div
           className={`w-8 h-8 rounded-lg flex items-center justify-center ${iconBg} ${iconColor}`}
         >

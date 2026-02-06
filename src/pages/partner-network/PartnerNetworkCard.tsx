@@ -21,12 +21,12 @@ interface PartnerNetworkCardProps {
 const PartnerNetworkCard = ({ partner, actions }: PartnerNetworkCardProps) => {
   return (
     <div className="border border-foreground/10 rounded-lg p-4 bg-content1 space-y-5 md:space-y-3.5 shadow-none">
-      <div className="flex items-center gap-2.5">
+      <div className="flex items-center gap-2.5 max-sm:flex-col max-sm:items-start max-sm:gap-4">
         <div className="min-size-8 md:min-size-10 size-8 md:size-10 aspect-square bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 p-0.5 rounded-lg flex justify-center items-center">
           <LuBuilding2 className="text-lg md:text-[22px]" />
         </div>
         <div className="font-medium text-sm w-full h-full flex flex-col justify-center gap-1.5">
-          <div className="flex items-center justify-between gap-2 max-sm:flex-col-reverse max-sm:gap-1.5 max-sm:items-start max-sm:mb-0.5">
+          <div className="flex items-center justify-between gap-2 max-sm:flex-col-reverse max-sm:gap-2 max-sm:items-start max-sm:mb-0.5">
             <p className="text-foreground">{partner.name}</p>
             <LevelChip level={partner.level} />
           </div>
@@ -49,7 +49,7 @@ const PartnerNetworkCard = ({ partner, actions }: PartnerNetworkCardProps) => {
           </div>
         </div>
       </div>
-      <div className="flex items-center justify-between h-full w-full gap-5 text-sm max-md:flex-col max-md:items-start max-md:gap-5">
+      <div className="flex items-center justify-between h-full w-full gap-5 text-sm max-md:flex-col max-md:items-start max-md:gap-4">
         <div className="flex items-center gap-3 md:gap-5">
           <div className="flex flex-col items-center text-center justify-center">
             <p className="text-sm font-semibold text-foreground">

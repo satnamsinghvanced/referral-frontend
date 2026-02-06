@@ -250,8 +250,9 @@ export default function GoogleBusinessConfigModal({
               size="sm"
               radius="sm"
               variant="ghost"
+              color="default"
               onPress={onClose}
-              className="border border-gray-300 dark:border-default-200 text-gray-700 dark:text-foreground/70 hover:bg-gray-50 dark:hover:bg-default-100"
+              className="border-small"
               isDisabled={isSubmitting}
             >
               Cancel

@@ -61,7 +61,7 @@ export function ActivityDetailModal({
       isOpen={isOpen}
       onOpenChange={onClose}
       classNames={{
-        base: `max-sm:!m-3 !m-0`,
+        base: `max-lg:!m-3 !m-0`,
         closeButton: "cursor-pointer",
       }}
       size="xl"
@@ -94,12 +94,12 @@ export function ActivityDetailModal({
           <div className="grid grid-cols-2 gap-4">
             <DetailItem
               label="Start Date"
-              value={formatDateToReadable(activity.startDate, true)}
+              value={formatDateToReadable(activity.startDate, true, true)}
             />
             {activity.endDate ? (
               <DetailItem
                 label="End Date"
-                value={formatDateToReadable(activity.endDate, true)}
+                value={formatDateToReadable(activity.endDate, true, true)}
               />
             ) : (
               <DetailItem label="End Date" value="Same Day" />
@@ -152,10 +152,11 @@ export function ActivityDetailModal({
           <div className="flex gap-2">
             <Button
               variant="ghost"
+              color="default"
               size="sm"
               radius="sm"
               onPress={onClose}
-              className="border-small border-gray-300 text-gray-700 dark:text-foreground/70 hover:bg-gray-50 dark:hover:bg-default-100"
+              className="border-small"
             >
               Close
             </Button>

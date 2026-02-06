@@ -241,7 +241,7 @@ function GalleryMediaUploadModal({
       size="2xl"
       scrollBehavior="inside"
       classNames={{
-        base: `max-sm:!m-3 !m-0 max-h-[90vh]`,
+        base: `max-lg:!m-3 !m-0 max-h-[90vh]`,
         closeButton: "cursor-pointer",
       }}
     >
@@ -442,7 +442,7 @@ function GalleryMediaUploadModal({
             variant="ghost"
             color="default"
             onPress={onClose}
-            className="border-small border-gray-300 dark:border-default-200 text-gray-700 dark:text-foreground/70"
+            className="border-small"
           >
             Cancel
           </Button>

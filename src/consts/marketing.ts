@@ -1,4 +1,4 @@
-import { FaRegStar } from "react-icons/fa";
+import { FaGoogle, FaRegStar } from "react-icons/fa";
 import { FiFileText, FiPhone, FiShare2 } from "react-icons/fi";
 import { GrLocation } from "react-icons/gr";
 import { LuGift, LuUserPlus } from "react-icons/lu";
@@ -96,6 +96,15 @@ export const ACTIVITY_TYPES = [
     },
     label: "Call Campaign",
     value: "callCampaign",
+  },
+  {
+    icon: FaGoogle,
+    color: {
+      id: "12",
+      value: "#4285F4",
+    },
+    label: "Google Calendar",
+    value: "googleCalendar",
   },
 ];
 

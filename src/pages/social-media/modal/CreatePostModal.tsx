@@ -403,7 +403,7 @@ export function CreatePostModal({
       placement="center"
       scrollBehavior="inside"
       classNames={{
-        base: `max-sm:!m-3 !m-0`,
+        base: `max-lg:!m-3 !m-0`,
         closeButton: "cursor-pointer",
       }}
     >
@@ -712,6 +712,7 @@ export function CreatePostModal({
         <ModalFooter className="flex justify-end space-x-0 p-4">
           <Button
             variant="ghost"
+            color="default"
             size="sm"
             radius="sm"
             onPress={onClose}

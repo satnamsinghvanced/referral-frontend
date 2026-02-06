@@ -367,6 +367,7 @@ const Security: React.FC = () => {
               Cancel
             </Button>
             <Button
+              variant="solid"
               color="primary"
               size="sm"
               radius="sm"

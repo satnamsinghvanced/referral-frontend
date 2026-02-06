@@ -24,14 +24,14 @@ import CustomCalendar from "./CustomCalender";
 import ActivityActionsModal from "./modal/ActivityActionsModal";
 import { ActivityDetailModal } from "./modal/ActivityDetailModal";
 import { data, Link } from "react-router-dom";
-import { useFetchGoogleCalendarIntegration } from "../../hooks/integrations/useGoogleCalendar";
+import { useCalendarIntegration } from "../../hooks/integrations/useGoogleCalendar";
 import { formatNumberWithCommas } from "../../utils/formatNumberWithCommas";
 import Pagination from "../../components/common/Pagination";
 import { ODD_PAGINATION_LIMIT } from "../../consts/consts";
 
 const MarketingCalendar = () => {
   const { data: googleCalendarConfig, isLoading: isGoogleCalendarLoading } =
-    useFetchGoogleCalendarIntegration();
+    useCalendarIntegration();
 
   const isGoogleCalendarConnected =
     googleCalendarConfig?.status === "Connected";

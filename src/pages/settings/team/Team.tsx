@@ -164,7 +164,7 @@ const Team: React.FC = () => {
             members.map((member: TeamMember) => (
               <div
                 key={member._id}
-                className="md:flex md:items-center md:justify-between max-md:space-y-4 p-3 border border-foreground/10 rounded-lg"
+                className="md:flex md:items-center md:justify-between max-md:space-y-4 p-3 border border-foreground/10 rounded-lg gap-2"
               >
                 <div className="flex items-center gap-2.5">
                   {member.avatar ? (

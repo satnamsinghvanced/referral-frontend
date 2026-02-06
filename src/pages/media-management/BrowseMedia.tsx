@@ -63,13 +63,21 @@ function NewFolderModal({
           <div className="flex justify-end  gap-3">
             <Button
               size="sm"
-              onClick={onClose}
-              variant="bordered"
-              className="border-small border-gray-300 dark:border-default-200 text-gray-700 dark:text-foreground/70"
+              radius="sm"
+              onPress={onClose}
+              variant="ghost"
+              color="default"
+              className="border-small"
             >
               Cancel
             </Button>
-            <Button size="sm" color="primary" onClick={onCreateFolder}>
+            <Button
+              size="sm"
+              radius="sm"
+              variant="solid"
+              color="primary"
+              onPress={onCreateFolder}
+            >
               Create Folder
             </Button>
           </div>
@@ -124,9 +132,11 @@ function UploadMediaModal({
           <div className="flex justify-end gap-3">
             <Button
               size="sm"
-              onClick={onClose}
-              variant="bordered"
-              className="border-small border-gray-300 dark:border-default-200 text-gray-700 dark:text-foreground/70"
+              radius="sm"
+              onPress={onClose}
+              variant="ghost"
+              color="default"
+              className="border-small"
             >
               Cancel
             </Button>

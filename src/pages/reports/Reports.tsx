@@ -165,7 +165,7 @@ const Reports = () => {
                       key={report._id}
                       className="md:flex md:items-center md:justify-between max-md:space-y-4 border border-foreground/10 p-4 bg-content1 rounded-lg"
                     >
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 max-sm:flex-col max-sm:items-start">
                         <LuFileText className="size-5 text-gray-500 dark:text-foreground/40" />
                         <div className="space-y-1.5">
                           <h4 className="font-medium text-sm">{report.name}</h4>

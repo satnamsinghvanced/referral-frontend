@@ -104,7 +104,7 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
   return (
     <div className="md:flex md:justify-between md:items-center border border-foreground/10 rounded-lg p-3.5 bg-background dark:bg-content1 max-md:space-y-3.5">
       {/* Left Section */}
-      <div className="flex items-center gap-2.5 md:gap-3">
+      <div className="flex items-center gap-2.5 md:gap-3 max-sm:flex-col max-sm:items-start">
         <div
           className={`text-lg md:text-xl min-w-8 md:min-w-10 aspect-square h-full p-0.5 rounded-lg flex justify-center items-center ${config.bgColor} ${config.textColor}`}
         >

@@ -166,7 +166,7 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
             return (
               <Card
                 key={r._id}
-                className={`border border-foreground/10 shadow-none cursor-pointer w-full ${
+                className={`border border-foreground/10 shadow-none cursor-pointer w-full touch-pan-y ${
                   selectedReferrersState?.includes(r._id)
                     ? "outline-2 outline-primary bg-primary/5 dark:bg-primary/10"
                     : "outline-none hover:bg-gray-50 dark:hover:bg-white/[0.02]"

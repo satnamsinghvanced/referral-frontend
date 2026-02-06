@@ -375,6 +375,7 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
           <Button
             type="submit"
             form="team-invite-form"
+            variant="solid"
             color="primary"
             size="sm"
             radius="sm"

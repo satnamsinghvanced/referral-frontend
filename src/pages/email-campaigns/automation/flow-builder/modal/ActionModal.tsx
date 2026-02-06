@@ -122,6 +122,7 @@ const ActionModal: React.FC<ActionModalProps> = ({
                 size="sm"
                 radius="sm"
                 variant="ghost"
+                color="default"
                 onPress={onClose}
                 className="border-small"
               >

@@ -232,13 +232,15 @@ const ScheduleVisitStatusModal = ({
                   radius="sm"
                   type="button"
                   variant="ghost"
+                  color="default"
                   onPress={onClose}
-                  className="border-small dark:border-default-200 dark:text-foreground/70"
+                  className="border-small"
                 >
                   Cancel
                 </Button>
                 <Button
                   type="submit"
+                  variant="solid"
                   color="primary"
                   size="sm"
                   radius="sm"

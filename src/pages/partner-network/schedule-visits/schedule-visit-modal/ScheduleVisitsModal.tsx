@@ -401,7 +401,7 @@ export function ScheduleVisitsModal({
       size="4xl"
       placement="center"
       classNames={{
-        base: `max-sm:!m-3 !m-0`,
+        base: `max-lg:!m-3 !m-0`,
         closeButton: "cursor-pointer",
       }}
       scrollBehavior="inside"
@@ -536,7 +536,7 @@ export function ScheduleVisitsModal({
               Back to {tabs[currentTabIndex - 1]?.label || ""}
             </Button>
           ) : (
-            <div></div>
+            <div className="max-sm:hidden"></div>
           )}
 
           <div className="flex space-x-3 max-sm:space-x-2">

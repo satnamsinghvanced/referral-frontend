@@ -352,7 +352,7 @@ export default function CallRecordingModal({
       onOpenChange={onClose}
       placement="center"
       classNames={{
-        base: `max-sm:!m-3 !m-0`,
+        base: `max-lg:!m-3 !m-0`,
         closeButton: "cursor-pointer",
       }}
       size="2xl"

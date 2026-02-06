@@ -352,9 +352,9 @@ const Notifications: React.FC = () => {
           </Button>
         </div>
       )}
-      <div className="mb-6 space-y-4 md:space-y-5">
+      <div className="space-y-4 md:space-y-5">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between gap-2 flex-wrap max-sm:gap-3">
           <div>
             <h4 className="text-base">Notification Settings</h4>
             <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">

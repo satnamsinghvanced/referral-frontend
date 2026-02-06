@@ -383,10 +383,17 @@ input[type="number"] {
 .mapboxgl-popup .mapboxgl-popup-content {
   background-color: hsl(var(--heroui-content1) / 1);
   color: var(--color-foreground);
+  padding-bottom: 10px;
 }
 
 .mapboxgl-popup.mapboxgl-popup-anchor-bottom .mapboxgl-popup-tip {
   position: absolute;
   border-top-color: hsl(var(--heroui-content1) / 1);
   bottom: -10px;
+}
+
+.mapboxgl-popup.mapboxgl-popup-anchor-top .mapboxgl-popup-tip {
+  position: absolute;
+  border-bottom-color: hsl(var(--heroui-content1) / 1);
+  top: -10px;
 }

@@ -149,6 +149,7 @@ const ConditionModal: React.FC<ConditionModalProps> = ({
                 size="sm"
                 radius="sm"
                 variant="ghost"
+                color="default"
                 onPress={onClose}
                 className="border-small"
               >

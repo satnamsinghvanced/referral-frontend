@@ -340,6 +340,7 @@ const ReferralStatusModal = ({
                       size="sm"
                       radius="sm"
                       variant="ghost"
+                      color="default"
                       onPress={onClose}
                       className="border-small"
                     >
@@ -347,6 +348,7 @@ const ReferralStatusModal = ({
                     </Button>
                     <Button
                       type="submit"
+                      variant="solid"
                       color="primary"
                       size="sm"
                       radius="sm"
