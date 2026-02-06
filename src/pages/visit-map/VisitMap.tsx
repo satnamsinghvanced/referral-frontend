@@ -203,22 +203,12 @@ export default function VisitMap() {
   const handleOpenGoogleMaps = () => {
     if (coordinates.length < 2) return;
 
-    // For mobile devices, use the Google Maps app URL scheme
-    // This will open the app directly with navigation ready
-
-    // Build waypoints string for all stops
-    const waypoints = coordinates
-      .map((coord) => `${coord[1]},${coord[0]}`) // Google Maps takes lat,lng
-      .join("/");
-
-    // Use comgooglemaps:// scheme for native app, falls back to https:// if app not installed
-    const appUrl = `comgooglemaps://?daddr=${waypoints}&directionsmode=driving`;
-
-    // Fallback web URL
-    const origin = `${coordinates[0]![1]},${coordinates[0]![0]}`;
+    // Extract origin and destination
+    const origin = `${coordinates[0]![1]},${coordinates[0]![0]}`; // lat,lng
     const destinationIndex = coordinates.length - 1;
     const destination = `${coordinates[destinationIndex]![1]},${coordinates[destinationIndex]![0]}`;
 
+    // Build waypoints string for intermediate stops
     let waypointsParam = "";
     if (coordinates.length > 2) {
       const intermediatePoints = coordinates.slice(1, destinationIndex);
@@ -227,9 +217,20 @@ export default function VisitMap() {
         .join("|");
     }
 
-    const webUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}${
-      waypointsParam ? `&waypoints=${waypointsParam}` : ""
-    }&travelmode=driving`;
+    // Google Maps app URL scheme
+    // Format: comgooglemaps://?saddr=origin&daddr=destination&waypoints=wp1|wp2&directionsmode=driving
+    let appUrl = `comgooglemaps://?saddr=${origin}&daddr=${destination}`;
+    if (waypointsParam) {
+      appUrl += `&waypoints=${waypointsParam}`;
+    }
+    appUrl += "&directionsmode=driving";
+
+    // Web URL for fallback
+    let webUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}`;
+    if (waypointsParam) {
+      webUrl += `&waypoints=${waypointsParam}`;
+    }
+    webUrl += "&travelmode=driving";
 
     // Try to open native app first
     window.location.href = appUrl;
