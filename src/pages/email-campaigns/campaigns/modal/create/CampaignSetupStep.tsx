@@ -13,12 +13,17 @@ export interface CampaignStepRef {
 }
 
 const SetupSchema = Yup.object().shape({
-  name: Yup.string().required("Campaign Name is required"),
-  subjectLine: Yup.string().test(
-    "min-length",
-    "Subject line should be at least 3 characters",
-    (val) => !val || val.length >= 3,
-  ),
+  name: Yup.string()
+    .trim()
+    .min(3, "Campaign name should be at least 3 characters")
+    .required("Campaign Name is required"),
+  subjectLine: Yup.string()
+    .trim()
+    .test(
+      "min-length",
+      "Subject line should be at least 3 characters",
+      (val) => !val || val.length >= 3,
+    ),
   type: Yup.string().required("Campaign Type is required"),
   category: Yup.string().required("Category is required"),
 });

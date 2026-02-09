@@ -1,94 +1,51 @@
-import { addToast } from "@heroui/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryClient } from "../../providers/QueryProvider";
 import {
-  createGoogleAnalyticsIntegration,
-  fetchGoogleAnalyticsIntegration,
+  deleteGoogleAnalyticsIntegration,
+  getGoogleAnalyticsAuthUrl,
+  getGoogleAnalyticsIntegration,
   updateGoogleAnalyticsIntegration,
 } from "../../services/integrations/googleAnalytics";
-import {
-  GoogleAnalyticsIntegration,
-  UpdateGoogleAnalyticsRequest,
-} from "../../types/integrations/googleAnalytics";
 
-export const GOOGLE_ANALYTICS_KEYS = {
-  all: ["googleAnalytics"] as const,
-  integration: () => [...GOOGLE_ANALYTICS_KEYS.all, "integration"] as const,
+export const ANALYTICS_KEYS = {
+  all: ["analytics-integration"] as const,
+  details: () => [...ANALYTICS_KEYS.all, "current"] as const,
 };
 
-export const useFetchGoogleAnalyticsIntegration = () => {
-  return useQuery<GoogleAnalyticsIntegration, Error>({
-    queryKey: GOOGLE_ANALYTICS_KEYS.integration(),
-    queryFn: fetchGoogleAnalyticsIntegration,
+export const useAnalyticsIntegration = () => {
+  return useQuery({
+    queryKey: ANALYTICS_KEYS.details(),
+    queryFn: getGoogleAnalyticsIntegration,
   });
 };
 
-export const useUpdateGoogleAnalyticsIntegration = () => {
-  return useMutation<
-    GoogleAnalyticsIntegration,
-    any,
-    { id: string; data: UpdateGoogleAnalyticsRequest }
-  >({
-    mutationFn: ({ id, data }) => updateGoogleAnalyticsIntegration(id, data),
-
-    onSuccess: () => {
-      addToast({
-        title: "Success",
-        description: "Google Analytics integration updated successfully",
-        color: "success",
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: GOOGLE_ANALYTICS_KEYS.all,
-      });
-    },
-
-    onError: (error) => {
-      const errorMessage =
-        (error?.response?.data as { message?: string })?.message ||
-        error.message ||
-        "Failed to update Google Analytics integration";
-
-      addToast({
-        title: "Error",
-        description: errorMessage,
-        color: "danger",
-      });
+export const useConnectAnalytics = () => {
+  return useMutation({
+    mutationFn: getGoogleAnalyticsAuthUrl,
+    onSuccess: (data) => {
+      if (data.authUrl) {
+        window.open(data.authUrl, "_blank");
+      }
     },
   });
 };
 
-export const useCreateGoogleAnalyticsIntegration = () => {
-  return useMutation<
-    GoogleAnalyticsIntegration,
-    any,
-    Partial<GoogleAnalyticsIntegration>
-  >({
-    mutationFn: (data) => createGoogleAnalyticsIntegration(data),
-
+export const useUpdateAnalytics = () => {
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: any }) =>
+      updateGoogleAnalyticsIntegration(id, payload),
     onSuccess: () => {
-      addToast({
-        title: "Success",
-        description: "Google Analytics integration created successfully",
-        color: "success",
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: GOOGLE_ANALYTICS_KEYS.all,
-      });
+      queryClient.invalidateQueries({ queryKey: ANALYTICS_KEYS.all });
     },
+  });
+};
 
-    onError: (error) => {
-      const errorMessage =
-        (error?.response?.data as { message?: string })?.message ||
-        error.message ||
-        "Failed to create Google Analytics integration";
-
-      addToast({
-        title: "Error",
-        description: errorMessage,
-        color: "danger",
-      });
+export const useDisconnectAnalytics = () => {
+  return useMutation({
+    mutationFn: deleteGoogleAnalyticsIntegration,
+    onSuccess: () => {
+      queryClient.setQueryData(ANALYTICS_KEYS.details(), null);
+      queryClient.invalidateQueries({ queryKey: ANALYTICS_KEYS.all });
     },
   });
 };

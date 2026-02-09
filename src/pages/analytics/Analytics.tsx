@@ -29,10 +29,10 @@ import ChartTooltip from "../../components/common/ChartTooltip";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import { LoadingState } from "../../components/common/LoadingState";
 import {
-  useFetchGoogleAdsIntegration,
-  useFetchMetaAdsIntegration,
+  useGoogleAdsIntegration,
+  useMetaAdsIntegration,
 } from "../../hooks/integrations/useAds";
-import { useFetchGoogleAnalyticsIntegration } from "../../hooks/integrations/useGoogleAnalytics";
+import { useAnalyticsIntegration } from "../../hooks/integrations/useGoogleAnalytics";
 import { useGeneralAnalytics } from "../../hooks/useAnalytics";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { GoogleAds } from "./GoogleAds";
@@ -45,11 +45,11 @@ const Analytics: React.FC = () => {
   const { data, isLoading } = useGeneralAnalytics();
 
   const { data: gaConfig, isLoading: isGaConfigLoading } =
-    useFetchGoogleAnalyticsIntegration();
+    useAnalyticsIntegration();
   const { data: googleAdsConfig, isLoading: isGoogleAdsConfigLoading } =
-    useFetchGoogleAdsIntegration();
+    useGoogleAdsIntegration();
   const { data: metaAdsConfig, isLoading: isMetaAdsConfigLoading } =
-    useFetchMetaAdsIntegration();
+    useMetaAdsIntegration();
 
   const isGaConnected = gaConfig?.status === "Connected";
   const isGoogleAdsConnected = googleAdsConfig?.status === "Connected";

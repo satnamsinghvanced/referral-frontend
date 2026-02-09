@@ -165,7 +165,10 @@ export const GoogleAds: React.FC = () => {
   return (
     <div className="space-y-4 md:space-y-5">
       <div className="flex items-center gap-3 mb-6">
-        <SiGoogleads className="size-7 text-sky-600" aria-hidden="true" />
+        <SiGoogleads
+          className="size-7 text-orange-500 dark:text-orange-400"
+          aria-hidden="true"
+        />
         <div className="max-md:space-y-1">
           <h2 className="text-md md:text-xl font-medium text-foreground">
             Google Ads Performance

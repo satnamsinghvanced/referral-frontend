@@ -1,51 +1,49 @@
 import { Card, CardBody, CardHeader } from "@heroui/react";
 import { useMemo, useState } from "react";
 import { BsLightningCharge } from "react-icons/bs";
-import { FaGoogle, FaTiktok } from "react-icons/fa";
+import { FaGoogle } from "react-icons/fa";
 import { FaMeta, FaRegEnvelope } from "react-icons/fa6";
 import { LuCalendar } from "react-icons/lu";
 import { SiGoogleads } from "react-icons/si";
-import { TbBrandTwilio, TbDatabase } from "react-icons/tb";
+import { TbBrandTwilio } from "react-icons/tb";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import {
-  useCalendarIntegration,
-  useUpdateCalendar,
-  useConnectCalendar,
-} from "../../hooks/integrations/useGoogleCalendar";
-import { useTypedSelector } from "../../hooks/useTypedSelector";
-import { ICalendarIntegration } from "../../types/integrations/googleCalendar";
-import { timeAgo } from "../../utils/timeAgo";
-import IntegrationItem from "./IntegrationItem";
-import TwilioConfigurationModal from "./modal/TwilioConfigurationModal";
-import EmailMarketingConfigModal from "./modal/EmailMarketingConfigModal";
+  useConnectGoogleAds,
+  useConnectMetaAds,
+  useGoogleAdsIntegration,
+  useMetaAdsIntegration,
+  useUpdateGoogleAds,
+  useUpdateMetaAds,
+} from "../../hooks/integrations/useAds";
 import {
   useFetchEmailIntegration,
   useUpdateEmailIntegration,
 } from "../../hooks/integrations/useEmailMarketing";
 import {
+  useAnalyticsIntegration,
+  useConnectAnalytics,
+  useUpdateAnalytics,
+} from "../../hooks/integrations/useGoogleAnalytics";
+import {
+  useBusinessIntegration,
+  useConnectBusiness,
+  useUpdateBusiness,
+} from "../../hooks/integrations/useGoogleBusiness";
+import {
+  useCalendarIntegration,
+  useConnectCalendar,
+  useUpdateCalendar,
+} from "../../hooks/integrations/useGoogleCalendar";
+import {
   useFetchTwilioConfig,
   useUpdateTwilioConfig,
 } from "../../hooks/integrations/useTwilio";
-import { updateTwilioConfig } from "../../services/integrations/twilio";
-import {
-  useFetchGoogleAdsIntegration,
-  useUpdateGoogleAdsIntegration,
-  useFetchMetaAdsIntegration,
-  useUpdateMetaAdsIntegration,
-} from "../../hooks/integrations/useAds";
-import {
-  useFetchGoogleBusinessIntegration,
-  useUpdateGoogleBusinessIntegration,
-} from "../../hooks/integrations/useGoogleBusiness";
-import GoogleAdsConfigModal from "./modal/GoogleAdsConfigModal";
-import MetaAdsConfigModal from "./modal/MetaAdsConfigModal";
-import GoogleBusinessConfigModal from "./modal/GoogleBusinessConfigModal";
-import GoogleAnalyticsConfigModal from "./modal/GoogleAnalyticsConfigModal";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
+import { timeAgo } from "../../utils/timeAgo";
+import IntegrationItem from "./IntegrationItem";
+import EmailMarketingConfigModal from "./modal/EmailMarketingConfigModal";
+import TwilioConfigurationModal from "./modal/TwilioConfigurationModal";
 import Webhooks from "./webhooks/Webhooks";
-import {
-  useFetchGoogleAnalyticsIntegration,
-  useUpdateGoogleAnalyticsIntegration,
-} from "../../hooks/integrations/useGoogleAnalytics";
 
 function Integrations() {
   const { user } = useTypedSelector((state) => state.auth);
@@ -58,13 +56,6 @@ function Integrations() {
     isEmailMarketingIntegrationModalOpen,
     setIsEmailMarketingIntegrationModalOpen,
   ] = useState(false);
-
-  const [isGoogleAdsModalOpen, setIsGoogleAdsModalOpen] = useState(false);
-  const [isMetaAdsModalOpen, setIsMetaAdsModalOpen] = useState(false);
-  const [isGoogleBusinessModalOpen, setIsGoogleBusinessModalOpen] =
-    useState(false);
-  const [isGoogleAnalyticsModalOpen, setIsGoogleAnalyticsModalOpen] =
-    useState(false);
 
   const {
     data: googleCalendarExistingConfig,
@@ -90,31 +81,32 @@ function Integrations() {
   const { mutate: updateTwilioConfig } = useUpdateTwilioConfig();
 
   const { data: googleAdsConfig, isLoading: isGoogleAdsConfigLoading } =
-    useFetchGoogleAdsIntegration();
+    useGoogleAdsIntegration();
 
-  const { mutate: updateGoogleAdsIntegration } =
-    useUpdateGoogleAdsIntegration();
+  const { mutate: updateGoogleAdsIntegration } = useUpdateGoogleAds();
+  const { mutate: connectGoogleAds } = useConnectGoogleAds();
 
   const { data: metaAdsConfig, isLoading: isMetaAdsConfigLoading } =
-    useFetchMetaAdsIntegration();
+    useMetaAdsIntegration();
 
-  const { mutate: updateMetaAdsIntegration } = useUpdateMetaAdsIntegration();
+  const { mutate: updateMetaAdsIntegration } = useUpdateMetaAds();
+  const { mutate: connectMetaAds } = useConnectMetaAds();
 
   const {
     data: googleBusinessConfig,
     isLoading: isGoogleBusinessConfigLoading,
-  } = useFetchGoogleBusinessIntegration();
+  } = useBusinessIntegration();
 
-  const { mutate: updateGoogleBusinessIntegration } =
-    useUpdateGoogleBusinessIntegration();
+  const { mutate: updateGoogleBusinessIntegration } = useUpdateBusiness();
+  const { mutate: connectGoogleBusiness } = useConnectBusiness();
 
   const {
     data: googleAnalyticsConfig,
     isLoading: isGoogleAnalyticsConfigLoading,
-  } = useFetchGoogleAnalyticsIntegration();
+  } = useAnalyticsIntegration();
 
-  const { mutate: updateGoogleAnalyticsIntegration } =
-    useUpdateGoogleAnalyticsIntegration();
+  const { mutate: updateGoogleAnalyticsIntegration } = useUpdateAnalytics();
+  const { mutate: connectGoogleAnalytics } = useConnectAnalytics();
 
   // Normalize email config to handle both single object and array responses
   const emailConfig = Array.isArray(emailExistingConfig)
@@ -154,13 +146,13 @@ function Integrations() {
         lastSync: googleBusinessConfig?.lastSyncAt
           ? timeAgo(googleBusinessConfig.lastSyncAt)
           : undefined,
-        onConnect: () => setIsGoogleBusinessModalOpen(true),
-        onConfigure: () => setIsGoogleBusinessModalOpen(true),
+        onConnect: () => connectGoogleBusiness(),
+        onReconnect: () => connectGoogleBusiness(),
         isSwitchChecked: googleBusinessConfig?.status === "Connected",
         onSwitchChange: () => {
           updateGoogleBusinessIntegration({
             id: googleBusinessConfig?._id as string,
-            data: {
+            payload: {
               status:
                 googleBusinessConfig?.status === "Connected"
                   ? "Disconnected"
@@ -185,6 +177,91 @@ function Integrations() {
       //   ],
       //   lastSync: "15 minutes ago",
       // },
+
+      {
+        id: googleCalendarExistingConfig?._id || "",
+        name: "Google Calendar Integration",
+        icon: <LuCalendar className="w-4 h-4" />,
+        iconBg: "bg-purple-100 dark:bg-purple-900/20",
+        iconColor: "text-purple-600 dark:text-purple-400",
+        status: googleCalendarExistingConfig?.status || "Disconnected",
+        description:
+          "Sync marketing activities and referral events with Google Calendar",
+        badges: ["Activity Sync", "Event Management", "Calendar Integration"],
+        lastSync: googleCalendarExistingConfig?.lastSyncAt
+          ? timeAgo(googleCalendarExistingConfig.lastSyncAt)
+          : undefined,
+        onConnect: () => connectCalendar(),
+        onReconnect: () => connectCalendar(),
+        isSwitchChecked: googleCalendarExistingConfig?.status === "Connected",
+        onSwitchChange: () => {
+          updateGoogleCalendarIntegration({
+            id: googleCalendarExistingConfig?._id as string,
+            payload: {
+              status:
+                googleCalendarExistingConfig?.status === "Connected"
+                  ? "Disconnected"
+                  : "Connected",
+            },
+          });
+        },
+      },
+      {
+        id: googleAdsConfig?._id || "",
+        name: "Google Ads",
+        icon: <SiGoogleads className="w-4 h-4" />,
+        iconBg: "bg-blue-100 dark:bg-blue-900/20",
+        iconColor: "text-blue-600 dark:text-blue-400",
+        status: googleAdsConfig?.status || "Disconnected",
+        description:
+          "Sync ad performance and optimize referral-based campaigns",
+        badges: [
+          "Campaign tracking",
+          "Conversion attribution",
+          "Ad spend analytics",
+        ],
+        onConnect: () => connectGoogleAds(),
+        onReconnect: () => connectGoogleAds(),
+        isSwitchChecked: googleAdsConfig?.status === "Connected",
+        onSwitchChange: () => {
+          updateGoogleAdsIntegration({
+            id: googleAdsConfig?._id as string,
+            payload: {
+              status:
+                googleAdsConfig?.status === "Connected"
+                  ? "Disconnected"
+                  : "Connected",
+            },
+          });
+        },
+      },
+      {
+        id: googleAnalyticsConfig?._id || "",
+        name: "Google Analytics",
+        icon: <BsLightningCharge className="w-4 h-4" />,
+        iconBg: "bg-yellow-100 dark:bg-yellow-900/20",
+        iconColor: "text-yellow-600 dark:text-yellow-400",
+        status: googleAnalyticsConfig?.status || "Disconnected",
+        description: "Advanced reporting and GA4 property data visualization",
+        badges: ["GA4 Reporting", "Activity Visualization", "Data Insights"],
+        lastSync: googleAnalyticsConfig?.lastSyncAt
+          ? timeAgo(googleAnalyticsConfig.lastSyncAt)
+          : undefined,
+        onConnect: () => connectGoogleAnalytics(),
+        onReconnect: () => connectGoogleAnalytics(),
+        isSwitchChecked: googleAnalyticsConfig?.status === "Connected",
+        onSwitchChange: () => {
+          updateGoogleAnalyticsIntegration({
+            id: googleAnalyticsConfig?._id as string,
+            payload: {
+              status:
+                googleAnalyticsConfig?.status === "Connected"
+                  ? "Disconnected"
+                  : "Connected",
+            },
+          });
+        },
+      },
       {
         id: emailConfig?._id || "",
         name: "Email Marketing Platform",
@@ -220,62 +297,7 @@ function Integrations() {
           }
         },
       },
-      {
-        id: googleCalendarExistingConfig?._id || "",
-        name: "Google Calendar Integration",
-        icon: <LuCalendar className="w-4 h-4" />,
-        iconBg: "bg-purple-100 dark:bg-purple-900/20",
-        iconColor: "text-purple-600 dark:text-purple-400",
-        status: googleCalendarExistingConfig?.status || "Disconnected",
-        description:
-          "Sync marketing activities and referral events with Google Calendar",
-        badges: ["Activity Sync", "Event Management", "Calendar Integration"],
-        lastSync: googleCalendarExistingConfig?.lastSyncAt
-          ? timeAgo(googleCalendarExistingConfig.lastSyncAt)
-          : undefined,
-        onConnect: () => connectCalendar(),
-        isSwitchChecked: googleCalendarExistingConfig?.status === "Connected",
-        onSwitchChange: () => {
-          updateGoogleCalendarIntegration({
-            id: googleCalendarExistingConfig?._id as string,
-            payload: {
-              status:
-                googleCalendarExistingConfig?.status === "Connected"
-                  ? "Disconnected"
-                  : "Connected",
-            },
-          });
-        },
-      },
-      {
-        id: googleAdsConfig?._id || "",
-        name: "Google Ads",
-        icon: <SiGoogleads className="w-4 h-4" />,
-        iconBg: "bg-blue-100 dark:bg-blue-900/20",
-        iconColor: "text-blue-600 dark:text-blue-400",
-        status: googleAdsConfig?.status || "Disconnected",
-        description:
-          "Sync ad performance and optimize referral-based campaigns",
-        badges: [
-          "Campaign tracking",
-          "Conversion attribution",
-          "Ad spend analytics",
-        ],
-        onConnect: () => setIsGoogleAdsModalOpen(true),
-        onConfigure: () => setIsGoogleAdsModalOpen(true),
-        isSwitchChecked: googleAdsConfig?.status === "Connected",
-        onSwitchChange: () => {
-          updateGoogleAdsIntegration({
-            id: googleAdsConfig?._id as string,
-            data: {
-              status:
-                googleAdsConfig?.status === "Connected"
-                  ? "Disconnected"
-                  : "Connected",
-            },
-          });
-        },
-      },
+
       {
         id: metaAdsConfig?._id || "",
         name: "Meta Ads",
@@ -289,13 +311,13 @@ function Integrations() {
           "Lead tracking",
           "Campaign performance insights",
         ],
-        onConnect: () => setIsMetaAdsModalOpen(true),
-        onConfigure: () => setIsMetaAdsModalOpen(true),
+        onConnect: () => connectMetaAds(),
+        onReconnect: () => connectMetaAds(),
         isSwitchChecked: metaAdsConfig?.status === "Connected",
         onSwitchChange: () => {
           updateMetaAdsIntegration({
             id: metaAdsConfig?._id as string,
-            data: {
+            payload: {
               status:
                 metaAdsConfig?.status === "Connected"
                   ? "Disconnected"
@@ -339,33 +361,6 @@ function Integrations() {
           });
         },
       },
-      {
-        id: googleAnalyticsConfig?.id || "",
-        name: "Google Analytics",
-        icon: <BsLightningCharge className="w-4 h-4" />,
-        iconBg: "bg-yellow-100 dark:bg-yellow-900/20",
-        iconColor: "text-yellow-600 dark:text-yellow-400",
-        status: googleAnalyticsConfig?.status || "Disconnected",
-        description: "Advanced reporting and GA4 property data visualization",
-        badges: ["GA4 Reporting", "Activity Visualization", "Data Insights"],
-        lastSync: googleAnalyticsConfig?.lastSyncAt
-          ? timeAgo(googleAnalyticsConfig.lastSyncAt)
-          : undefined,
-        onConnect: () => setIsGoogleAnalyticsModalOpen(true),
-        onConfigure: () => setIsGoogleAnalyticsModalOpen(true),
-        isSwitchChecked: googleAnalyticsConfig?.status === "Connected",
-        onSwitchChange: () => {
-          updateGoogleAnalyticsIntegration({
-            id: googleAnalyticsConfig?.id as string,
-            data: {
-              status:
-                googleAnalyticsConfig?.status === "Connected"
-                  ? "Disconnected"
-                  : "Connected",
-            },
-          });
-        },
-      },
     ];
   }, [
     emailConfig,
@@ -377,12 +372,16 @@ function Integrations() {
     isTwilioConnected,
     googleAdsConfig,
     updateGoogleAdsIntegration,
+    connectGoogleAds,
     metaAdsConfig,
     updateMetaAdsIntegration,
+    connectMetaAds,
     googleBusinessConfig,
     updateGoogleBusinessIntegration,
+    connectGoogleBusiness,
     googleAnalyticsConfig,
     updateGoogleAnalyticsIntegration,
+    connectGoogleAnalytics,
   ]);
 
   return (
@@ -419,38 +418,6 @@ function Integrations() {
         onOpenChange={setIsEmailMarketingIntegrationModalOpen}
         existingConfig={emailConfig}
         isLoading={isEmailConfigLoading}
-      />
-
-      <GoogleAdsConfigModal
-        userId={userId as string}
-        isOpen={isGoogleAdsModalOpen}
-        onClose={() => setIsGoogleAdsModalOpen(false)}
-        existingConfig={googleAdsConfig}
-        isLoading={isGoogleAdsConfigLoading}
-      />
-
-      <MetaAdsConfigModal
-        userId={userId as string}
-        isOpen={isMetaAdsModalOpen}
-        onClose={() => setIsMetaAdsModalOpen(false)}
-        existingConfig={metaAdsConfig}
-        isLoading={isMetaAdsConfigLoading}
-      />
-
-      <GoogleBusinessConfigModal
-        userId={userId as string}
-        isOpen={isGoogleBusinessModalOpen}
-        onClose={() => setIsGoogleBusinessModalOpen(false)}
-        existingConfig={googleBusinessConfig}
-        isLoading={isGoogleBusinessConfigLoading}
-      />
-
-      <GoogleAnalyticsConfigModal
-        userId={userId as string}
-        isOpen={isGoogleAnalyticsModalOpen}
-        onClose={() => setIsGoogleAnalyticsModalOpen(false)}
-        existingConfig={googleAnalyticsConfig}
-        isLoading={isGoogleAnalyticsConfigLoading}
       />
     </>
   );

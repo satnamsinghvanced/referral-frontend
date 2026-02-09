@@ -41,8 +41,8 @@ export interface SegmentFormValues {
 }
 
 const ValidationSchema = Yup.object().shape({
-  name: Yup.string().required("Segment name is required"),
-  description: Yup.string().required("Description is required"),
+  name: Yup.string().trim().required("Segment name is required"),
+  description: Yup.string().trim().required("Description is required"),
   audienceType: Yup.string().required("Audience type is required"),
   lastActivity: Yup.string().required("Last activity is required"),
 });

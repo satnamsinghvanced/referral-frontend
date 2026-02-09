@@ -1,35 +1,38 @@
 import {
-  GoogleAnalyticsIntegration,
-  UpdateGoogleAnalyticsRequest,
+  IAuthUrlResponse,
+  IGoogleAnalyticsIntegration,
+  IUpdateAnalyticsPayload,
 } from "../../types/integrations/googleAnalytics";
 import axios from "../axios";
 
-const ANALYTICS_BASE = "/analytics-integration";
-
-export const fetchGoogleAnalyticsIntegration =
-  async (): Promise<GoogleAnalyticsIntegration> => {
-    const response =
-      await axios.get<GoogleAnalyticsIntegration>(ANALYTICS_BASE);
-    return response.data;
-  };
-
-export const updateGoogleAnalyticsIntegration = async (
-  integrationId: string,
-  data: UpdateGoogleAnalyticsRequest,
-): Promise<GoogleAnalyticsIntegration> => {
-  const response = await axios.put<GoogleAnalyticsIntegration>(
-    `${ANALYTICS_BASE}/${integrationId}`,
-    data,
-  );
-  return response.data;
+// Get the OAuth URL to initiate connection
+export const getGoogleAnalyticsAuthUrl = async () => {
+  const { data } = await axios.post<IAuthUrlResponse>("/analytics-integration");
+  return data;
 };
 
-export const createGoogleAnalyticsIntegration = async (
-  data: Partial<GoogleAnalyticsIntegration>,
-): Promise<GoogleAnalyticsIntegration> => {
-  const response = await axios.post<GoogleAnalyticsIntegration>(
-    ANALYTICS_BASE,
-    data,
+// Get current integration status
+export const getGoogleAnalyticsIntegration = async () => {
+  const { data } = await axios.get<IGoogleAnalyticsIntegration>(
+    "/analytics-integration",
   );
-  return response.data;
+  return data;
+};
+
+// Update integration (e.g., toggle isActive)
+export const updateGoogleAnalyticsIntegration = async (
+  id: string,
+  payload: IUpdateAnalyticsPayload,
+) => {
+  const { data } = await axios.put<IGoogleAnalyticsIntegration>(
+    `/analytics-integration/${id}`,
+    payload,
+  );
+  return data;
+};
+
+// Disconnect analytics
+export const deleteGoogleAnalyticsIntegration = async (id: string) => {
+  await axios.delete(`/analytics-integration/${id}`);
+  return id;
 };

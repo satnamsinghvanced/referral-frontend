@@ -1,58 +1,105 @@
-import {
-  GenerateAuthUrlRequest,
-  GenerateAuthUrlResponse,
-} from "../../types/integrations/googleCalendar";
+import { IAuthUrlResponse } from "../../types/integrations/googleCalendar";
 import axios from "../axios";
 
-export const generateGoogleAdsAuthUrl = async (
-  data: GenerateAuthUrlRequest
-): Promise<GenerateAuthUrlResponse> => {
-  const response = await axios.post<GenerateAuthUrlResponse>(
-    `/google_ads_integration`,
-    data
+export interface IGoogleAdsIntegration {
+  _id: string;
+  userId: string;
+  accessToken: string;
+  refreshToken: string;
+  customerId: string;
+  platform: "google_ads";
+  status: "Connected" | "Disconnected" | "Error";
+  isActive: boolean;
+  lastSyncAt: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IMetaAdsIntegration {
+  _id: string;
+  userId: string;
+  accessToken: string;
+  refreshToken: string;
+  adAccountId: string;
+  platform: "meta_ads";
+  status: "Connected" | "Disconnected" | "Error";
+  isActive: boolean;
+  lastSyncAt: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface IUpdateAdsPayload {
+  isActive?: boolean;
+  status?: string;
+}
+
+// ===== Google Ads =====
+
+// Get the OAuth URL to initiate connection
+export const getGoogleAdsAuthUrl = async () => {
+  const { data } = await axios.post<IAuthUrlResponse>(
+    "/google_ads_integration",
   );
-  return response.data;
+  return data;
 };
 
-export const fetchGoogleAdsIntegration = async (): Promise<any> => {
-  const response = await axios.get<any>("/google_ads_integration");
-  return response.data;
+// Get current integration status
+export const getGoogleAdsIntegration = async () => {
+  const { data } = await axios.get<IGoogleAdsIntegration>(
+    "/google_ads_integration",
+  );
+  return data;
 };
 
+// Update integration (e.g., toggle isActive)
 export const updateGoogleAdsIntegration = async (
-  integrationId: string,
-  data: any
-): Promise<any> => {
-  const response = await axios.put<any>(
-    `/google_ads_integration/${integrationId}`,
-    data
+  id: string,
+  payload: IUpdateAdsPayload,
+) => {
+  const { data } = await axios.put<IGoogleAdsIntegration>(
+    `/google_ads_integration/${id}`,
+    payload,
   );
-  return response.data;
+  return data;
 };
 
-// Meta
-export const generateMetaAdsAuthUrl = async (
-  data: GenerateAuthUrlRequest
-): Promise<GenerateAuthUrlResponse> => {
-  const response = await axios.post<GenerateAuthUrlResponse>(
-    `/meta_ads_integration`,
-    data
+// Disconnect Google Ads
+export const deleteGoogleAdsIntegration = async (id: string) => {
+  await axios.delete(`/google_ads_integration/${id}`);
+  return id;
+};
+
+// ===== Meta Ads =====
+
+// Get the OAuth URL to initiate connection
+export const getMetaAdsAuthUrl = async () => {
+  const { data } = await axios.post<IAuthUrlResponse>("/meta_ads_integration");
+  return data;
+};
+
+// Get current integration status
+export const getMetaAdsIntegration = async () => {
+  const { data } = await axios.get<IMetaAdsIntegration>(
+    "/meta_ads_integration",
   );
-  return response.data;
+  return data;
 };
 
-export const fetchMetaAdsIntegration = async (): Promise<any> => {
-  const response = await axios.get<any>("/meta_ads_integration");
-  return response.data;
-};
-
+// Update integration (e.g., toggle isActive)
 export const updateMetaAdsIntegration = async (
-  integrationId: string,
-  data: any
-): Promise<any> => {
-  const response = await axios.put<any>(
-    `/meta_ads_integration/${integrationId}`,
-    data
+  id: string,
+  payload: IUpdateAdsPayload,
+) => {
+  const { data } = await axios.put<IMetaAdsIntegration>(
+    `/meta_ads_integration/${id}`,
+    payload,
   );
-  return response.data;
+  return data;
+};
+
+// Disconnect Meta Ads
+export const deleteMetaAdsIntegration = async (id: string) => {
+  await axios.delete(`/meta_ads_integration/${id}`);
+  return id;
 };

@@ -1,164 +1,106 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { queryClient } from "../../providers/QueryProvider";
 import {
-  GenerateAuthUrlRequest,
-  GenerateAuthUrlResponse,
-} from "../../types/integrations/googleCalendar";
-import {
-  fetchGoogleAdsIntegration,
-  fetchMetaAdsIntegration,
-  generateGoogleAdsAuthUrl,
-  generateMetaAdsAuthUrl,
+  deleteGoogleAdsIntegration,
+  deleteMetaAdsIntegration,
+  getGoogleAdsAuthUrl,
+  getGoogleAdsIntegration,
+  getMetaAdsAuthUrl,
+  getMetaAdsIntegration,
   updateGoogleAdsIntegration,
   updateMetaAdsIntegration,
 } from "../../services/integrations/ads";
-import { addToast } from "@heroui/react";
-import { queryClient } from "../../providers/QueryProvider";
 
 export const GOOGLE_ADS_KEYS = {
-  all: ["googleAds"] as const,
-  integration: () => [...GOOGLE_ADS_KEYS.all, "integration"] as const,
+  all: ["google-ads-integration"] as const,
+  details: () => [...GOOGLE_ADS_KEYS.all, "current"] as const,
 };
 
-export const useGenerateGoogleAdsAuthUrl = () => {
-  return useMutation<GenerateAuthUrlResponse, any, GenerateAuthUrlRequest>({
-    mutationFn: (data) => generateGoogleAdsAuthUrl(data),
-
-    onSuccess: () => {
-      addToast({
-        title: "Success",
-        description: "Google ads connected successfully",
-        color: "success",
-      });
-
-      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
-    },
-
-    onError: (error) => {
-      const errorMessage =
-        (error?.response?.data as { message?: string })?.message ||
-        error.message ||
-        "Failed to connect Google ads";
-
-      addToast({
-        title: "Error",
-        description: errorMessage,
-        color: "danger",
-      });
-    },
-  });
-};
-
-export const useFetchGoogleAdsIntegration = () => {
-  return useQuery<any, Error>({
-    queryKey: GOOGLE_ADS_KEYS.integration(),
-    queryFn: fetchGoogleAdsIntegration,
-  });
-};
-
-export const useUpdateGoogleAdsIntegration = () => {
-  return useMutation<any, any, { id: string; data: any }>({
-    mutationFn: ({ id, data }) => updateGoogleAdsIntegration(id, data),
-
-    onSuccess: () => {
-      addToast({
-        title: "Success",
-        description: "Google Ads integration updated successfully",
-        color: "success",
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: GOOGLE_ADS_KEYS.integration(),
-      });
-
-      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
-    },
-
-    onError: (error) => {
-      const errorMessage =
-        (error?.response?.data as { message?: string })?.message ||
-        error.message ||
-        "Failed to update Google Ads integration";
-
-      addToast({
-        title: "Error",
-        description: errorMessage,
-        color: "danger",
-      });
-    },
-  });
-};
-
-// META
 export const META_ADS_KEYS = {
-  all: ["metaAds"] as const,
-  integration: () => [...META_ADS_KEYS.all, "integration"] as const,
+  all: ["meta-ads-integration"] as const,
+  details: () => [...META_ADS_KEYS.all, "current"] as const,
 };
 
-export const useGenerateMetaAdsAuthUrl = () => {
-  return useMutation<GenerateAuthUrlResponse, any, GenerateAuthUrlRequest>({
-    mutationFn: (data) => generateMetaAdsAuthUrl(data),
+// --- Google Ads ---
 
-    onSuccess: () => {
-      addToast({
-        title: "Success",
-        description: "Meta ads connected successfully",
-        color: "success",
-      });
+export const useGoogleAdsIntegration = () => {
+  return useQuery({
+    queryKey: GOOGLE_ADS_KEYS.details(),
+    queryFn: getGoogleAdsIntegration,
+  });
+};
 
-      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
-    },
-
-    onError: (error) => {
-      const errorMessage =
-        (error?.response?.data as { message?: string })?.message ||
-        error.message ||
-        "Failed to connect Meta ads";
-
-      addToast({
-        title: "Error",
-        description: errorMessage,
-        color: "danger",
-      });
+export const useConnectGoogleAds = () => {
+  return useMutation({
+    mutationFn: getGoogleAdsAuthUrl,
+    onSuccess: (data) => {
+      if (data.authUrl) {
+        window.open(data.authUrl, "_blank");
+      }
     },
   });
 };
 
-export const useFetchMetaAdsIntegration = () => {
-  return useQuery<any, Error>({
-    queryKey: META_ADS_KEYS.integration(),
-    queryFn: fetchMetaAdsIntegration,
+export const useUpdateGoogleAds = () => {
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: any }) =>
+      updateGoogleAdsIntegration(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: GOOGLE_ADS_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+    },
   });
 };
 
-export const useUpdateMetaAdsIntegration = () => {
-  return useMutation<any, any, { id: string; data: any }>({
-    mutationFn: ({ id, data }) => updateMetaAdsIntegration(id, data),
-
+export const useDisconnectGoogleAds = () => {
+  return useMutation({
+    mutationFn: deleteGoogleAdsIntegration,
     onSuccess: () => {
-      addToast({
-        title: "Success",
-        description: "Meta ads integration updated successfully",
-        color: "success",
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: META_ADS_KEYS.integration(),
-      });
-
+      queryClient.setQueryData(GOOGLE_ADS_KEYS.details(), null);
+      queryClient.invalidateQueries({ queryKey: GOOGLE_ADS_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     },
+  });
+};
 
-    onError: (error) => {
-      const errorMessage =
-        (error?.response?.data as { message?: string })?.message ||
-        error.message ||
-        "Failed to update Meta ads integration";
+// --- Meta Ads ---
 
-      addToast({
-        title: "Error",
-        description: errorMessage,
-        color: "danger",
-      });
+export const useMetaAdsIntegration = () => {
+  return useQuery({
+    queryKey: META_ADS_KEYS.details(),
+    queryFn: getMetaAdsIntegration,
+  });
+};
+
+export const useConnectMetaAds = () => {
+  return useMutation({
+    mutationFn: getMetaAdsAuthUrl,
+    onSuccess: (data) => {
+      if (data.authUrl) {
+        window.open(data.authUrl, "_blank");
+      }
+    },
+  });
+};
+
+export const useUpdateMetaAds = () => {
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: any }) =>
+      updateMetaAdsIntegration(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: META_ADS_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+    },
+  });
+};
+
+export const useDisconnectMetaAds = () => {
+  return useMutation({
+    mutationFn: deleteMetaAdsIntegration,
+    onSuccess: () => {
+      queryClient.setQueryData(META_ADS_KEYS.details(), null);
+      queryClient.invalidateQueries({ queryKey: META_ADS_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     },
   });
 };

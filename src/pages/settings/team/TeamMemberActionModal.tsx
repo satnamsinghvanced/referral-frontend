@@ -50,6 +50,7 @@ type AddPayload = UpdatePayload & { email: string };
 
 const TeamSchema = Yup.object().shape({
   firstName: Yup.string()
+    .trim()
     .required("First name is required")
     .matches(
       NAME_REGEX,
@@ -58,6 +59,7 @@ const TeamSchema = Yup.object().shape({
     .min(2, "First name must be at least 2 characters")
     .max(50, "First name must be less than 50 characters"),
   lastName: Yup.string()
+    .trim()
     .required("Last name is required")
     .matches(
       NAME_REGEX,

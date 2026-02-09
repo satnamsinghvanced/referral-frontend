@@ -35,9 +35,13 @@ export interface AuthIntegrationRequest {
   redirectUri: string;
 }
 
-export interface AuthIntegrationResponse {
-  integrationId: string;
+export interface IAuthUrlResponse {
   authUrl: string;
+}
+
+export interface IUpdateSocialPayload {
+  status?: "Connected" | "Disconnected" | "Error";
+  isActive?: boolean;
 }
 
 export interface PlatformAuthParams extends AuthIntegrationRequest {

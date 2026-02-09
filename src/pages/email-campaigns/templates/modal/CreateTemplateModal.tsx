@@ -43,11 +43,13 @@ export interface TemplateFormValues {
 }
 
 const TemplateValidationSchema = Yup.object().shape({
-  name: Yup.string().required("Template Name is required"),
+  name: Yup.string().trim().required("Template Name is required"),
   category: Yup.string().required("Category is required"),
-  subjectLine: Yup.string().required("Subject Line is required"),
+  subjectLine: Yup.string().trim().required("Subject Line is required"),
   body: Yup.string().required("Email Body is required"),
-  organizationName: Yup.string().required("Organization Name is required"),
+  organizationName: Yup.string()
+    .trim()
+    .required("Organization Name is required"),
 });
 
 export default function CreateTemplateModal({

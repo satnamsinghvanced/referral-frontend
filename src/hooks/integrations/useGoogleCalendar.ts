@@ -1,4 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { queryClient } from "../../providers/QueryProvider";
 import {
   deleteGoogleCalendarIntegration,
   getGoogleCalendarAuthUrl,
@@ -11,8 +12,6 @@ export const CALENDAR_KEYS = {
   details: () => [...CALENDAR_KEYS.all, "current"] as const,
 };
 
-// --- Queries ---
-
 export const useCalendarIntegration = () => {
   return useQuery({
     queryKey: CALENDAR_KEYS.details(),
@@ -20,22 +19,18 @@ export const useCalendarIntegration = () => {
   });
 };
 
-// --- Mutations ---
-
 export const useConnectCalendar = () => {
   return useMutation({
     mutationFn: getGoogleCalendarAuthUrl,
     onSuccess: (data) => {
       if (data.authUrl) {
-        window.location.href = data.authUrl;
+        window.open(data.authUrl, "_blank");
       }
     },
   });
 };
 
 export const useUpdateCalendar = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: ({ id, payload }: { id: string; payload: any }) =>
       updateGoogleCalendarIntegration(id, payload),
@@ -46,8 +41,6 @@ export const useUpdateCalendar = () => {
 };
 
 export const useDisconnectCalendar = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: deleteGoogleCalendarIntegration,
     onSuccess: () => {

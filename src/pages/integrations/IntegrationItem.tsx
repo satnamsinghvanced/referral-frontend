@@ -14,6 +14,7 @@ interface IntegrationItemProps {
   lastSync?: string | undefined;
   onConfigure?: (() => void) | undefined;
   onConnect?: (() => void) | undefined;
+  onReconnect?: (() => void) | undefined;
   isSwitchChecked?: boolean | undefined;
   onSwitchChange?: ((checked: boolean) => void) | undefined;
 }
@@ -30,10 +31,12 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
   lastSync,
   onConfigure,
   onConnect,
+  onReconnect,
   isSwitchChecked = status === "Connected",
   onSwitchChange,
 }) => {
   const isCredentialsSaved = !!id;
+  const isError = status === "Error";
 
   let statusClasses = "";
   let StatusIcon = null;
@@ -60,23 +63,38 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
 
   const actionButton = isCredentialsSaved ? (
     <>
-      {onConfigure && (
+      {isError && onReconnect ? (
         <Button
           size="sm"
           radius="sm"
-          variant="ghost"
-          onPress={onConfigure}
-          startContent={<FiSettings className="size-3.5" />}
-          className="border-small border-gray-300 dark:border-default-200"
+          variant="solid"
+          color="primary"
+          onPress={onReconnect}
+          endContent={<FiExternalLink className="size-3.5" />}
         >
-          Configure
+          Reconnect
         </Button>
+      ) : (
+        <>
+          {onConfigure && (
+            <Button
+              size="sm"
+              radius="sm"
+              variant="ghost"
+              onPress={onConfigure}
+              startContent={<FiSettings className="size-3.5" />}
+              className="border-small border-gray-300 dark:border-default-200"
+            >
+              Configure
+            </Button>
+          )}
+          <Switch
+            size="sm"
+            isSelected={isSwitchChecked}
+            onValueChange={onSwitchChange}
+          />
+        </>
       )}
-      <Switch
-        size="sm"
-        isSelected={isSwitchChecked}
-        onValueChange={onSwitchChange}
-      />
     </>
   ) : (
     // @ts-ignore

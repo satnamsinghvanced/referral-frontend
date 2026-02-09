@@ -1,47 +1,54 @@
 import {
-  AuthIntegrationResponse,
+  IAuthUrlResponse,
   GetCredentialsResponse,
-  PlatformAuthParams,
   PostAnalyticsResponse,
   RecentPostsResponse,
   SocialOverviewResponse,
   GBPPlatformOverviewResponse,
+  IUpdateSocialPayload,
+  SocialMediaCredential,
 } from "../types/social";
 import axios from "./axios";
 
+// Get social media credentials (status, stats, etc.)
 export const getSocialMediaCredentials =
   async (): Promise<GetCredentialsResponse> => {
     const response = await axios.get("/social-media/get-credentials");
     return response.data;
   };
 
-export const initiateAuthIntegration = async ({
-  platform,
-  userId,
-  clientId,
-  clientSecret,
-  redirectUri,
-}: PlatformAuthParams): Promise<AuthIntegrationResponse> => {
-  const endpointMap: Record<PlatformAuthParams["platform"], string> = {
-    linkedin: "/social-media/linkedinAuthIntegration",
-    youTube: "/social-media/youtubeAuthIntegration",
-    twitter: "/social-media/twitterAuthIntegration",
-    tikTok: "/social-media/tiktokAuthIntegration",
-    meta: "/social-media/metaAuthIntegration",
-    googleBusiness: "/social-media/googleBusinessAuthIntegration",
-  };
-
-  const endpoint = endpointMap[platform];
-
-  const response = await axios.post(endpoint, {
-    userId,
-    clientId,
-    clientSecret,
-    redirectUri,
-  });
-
+// Generate Auth URL - Send platform in payload
+export const getSocialAuthUrl = async (
+  platform: string,
+  platformKey: string,
+): Promise<IAuthUrlResponse> => {
+  const response = await axios.post<IAuthUrlResponse>(
+    `/social-media/${platformKey}`,
+    {
+      platform,
+    },
+  );
   return response.data;
 };
+
+// Update social integration (toggle status)
+export const updateSocialIntegration = async (
+  id: string,
+  payload: IUpdateSocialPayload,
+): Promise<SocialMediaCredential> => {
+  const response = await axios.put<SocialMediaCredential>(
+    `/social-media/update-credential/${id}`,
+    payload,
+  );
+  return response.data;
+};
+
+// Disconnect social integration
+export const deleteSocialIntegration = async (id: string): Promise<void> => {
+  await axios.delete(`/social-media/delete-credential/${id}`);
+};
+
+// --- Other Social Post Services ---
 
 export const fetchSocialOverview =
   async (): Promise<SocialOverviewResponse> => {

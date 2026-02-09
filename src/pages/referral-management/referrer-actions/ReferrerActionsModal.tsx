@@ -262,6 +262,7 @@ export default function ReferrerActionsModal({
     validationSchema: Yup.object({
       type: Yup.string().required("Referrer type is required"),
       name: Yup.string()
+        .trim()
         .required("Full name is required")
         .matches(
           NAME_REGEX,
@@ -279,6 +280,7 @@ export default function ReferrerActionsModal({
         is: "doctor",
         then: (schema) =>
           schema
+            .trim()
             .required("Practice name is required")
             .matches(
               NAME_REGEX,

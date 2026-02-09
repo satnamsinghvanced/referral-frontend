@@ -36,19 +36,23 @@ const fields = [
 
 const ProfileSchema = Yup.object().shape({
   firstName: Yup.string()
+    .trim()
     .required("First name is required")
     .matches(
       NAME_REGEX,
       "First name can only contain letters, spaces, hyphens, apostrophes, and full stops",
     )
+    .matches(/^[^\s]+(\s[^\s]+)*$/, "Multiple spaces are not allowed")
     .min(2, "First name must be at least 2 characters")
     .max(50, "First name must be less than 50 characters"),
   lastName: Yup.string()
+    .trim()
     .required("Last name is required")
     .matches(
       NAME_REGEX,
       "Last name can only contain letters, spaces, hyphens, apostrophes, and full stops",
     )
+    .matches(/^[^\s]+(\s[^\s]+)*$/, "Multiple spaces are not allowed")
     .min(2, "Last name must be at least 2 characters")
     .max(50, "Last name must be less than 50 characters"),
   email: Yup.string()
@@ -57,7 +61,10 @@ const ProfileSchema = Yup.object().shape({
   phone: Yup.string()
     .required("Phone number is required")
     .matches(PHONE_REGEX, "Phone must be in format (XXX) XXX-XXXX"),
-  practiceName: Yup.string().required("Practice name is required"),
+  practiceName: Yup.string()
+    .trim()
+    .required("Practice name is required")
+    .matches(/^[^\s]+(\s[^\s]+)*$/, "Multiple spaces are not allowed"),
   medicalSpecialty: Yup.string().required("Specialty is required"),
   image: Yup.mixed<File | string>()
     .nullable()
@@ -121,11 +128,11 @@ const Profile = () => {
     validationSchema: ProfileSchema,
     onSubmit: (values) => {
       const data = {
-        firstName: values.firstName,
-        lastName: values.lastName,
+        firstName: values.firstName.trim().replace(/\s+/g, " "),
+        lastName: values.lastName.trim().replace(/\s+/g, " "),
         email: values.email,
         phone: values.phone,
-        practiceName: values.practiceName,
+        practiceName: values.practiceName.trim().replace(/\s+/g, " "),
         medicalSpecialty: values.medicalSpecialty as any,
         image: values.image as any,
       };

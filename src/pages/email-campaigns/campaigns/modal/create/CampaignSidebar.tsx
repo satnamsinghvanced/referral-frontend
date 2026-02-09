@@ -25,17 +25,17 @@ interface CampaignSidebarProps {
   onStepChange: (stepId: number) => void;
 }
 
-const CampaignSidebar: React.FC<CampaignSidebarProps> = ({
-  currentStep,
-  onStepChange,
-}) => {
+const CampaignSidebar: React.FC<
+  CampaignSidebarProps & { isStepValid?: boolean }
+> = ({ currentStep, onStepChange, isStepValid = false }) => {
   return (
     <nav className="w-64 flex-shrink-0 bg-gray-50 dark:bg-content1 p-4 border-r border-foreground/10">
       <ul role="list" className="space-y-2  ">
         {steps.map((step) => {
           const isCurrent = step.id === currentStep;
           const isCompleted = step.id < currentStep;
-          const isClickable = isCompleted || isCurrent;
+          const isForwardEnabled = step.id > currentStep && isStepValid;
+          const isClickable = isCompleted || isCurrent || isForwardEnabled;
 
           return (
             <li key={step.name}>

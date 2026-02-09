@@ -1,18 +1,22 @@
-export interface GoogleAnalyticsIntegration {
-  id?: string;
+export interface IGoogleAnalyticsIntegration {
+  _id: string;
   userId: string;
+  accessToken: string;
+  refreshToken: string;
   propertyId: string;
-  email: string;
-  privateKey: string;
+  platform: "google_analytics";
   status: "Connected" | "Disconnected" | "Error";
-  lastSyncAt?: string;
-  createdAt?: string;
-  updatedAt?: string;
+  isActive: boolean;
+  lastSyncAt: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface UpdateGoogleAnalyticsRequest {
-  propertyId?: string;
-  email?: string;
-  privateKey?: string;
-  status?: "Connected" | "Disconnected" | "Error";
+export interface IAuthUrlResponse {
+  authUrl: string;
+}
+
+export interface IUpdateAnalyticsPayload {
+  isActive?: boolean;
+  status?: string;
 }

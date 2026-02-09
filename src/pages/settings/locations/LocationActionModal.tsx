@@ -31,10 +31,10 @@ interface LocationFormValues {
 }
 
 const LocationSchema = Yup.object().shape({
-  name: Yup.string().required("Location name is required"),
-  street: Yup.string().required("Street is required"),
-  city: Yup.string().required("City is required"),
-  state: Yup.string().required("State is required"),
+  name: Yup.string().trim().required("Location name is required"),
+  street: Yup.string().trim().required("Street is required"),
+  city: Yup.string().trim().required("City is required"),
+  state: Yup.string().trim().required("State is required"),
   zipcode: Yup.string()
     .matches(ZIP_CODE_REGEX, "ZIP code must be exactly 5 digits")
     .required("ZIP code is required"),

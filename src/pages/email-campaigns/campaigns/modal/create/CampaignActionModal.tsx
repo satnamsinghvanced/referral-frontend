@@ -175,10 +175,18 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
   };
 
   const handleStepChange = (stepId: number) => {
-    // Only allow navigation to previously completed steps or the current step
-    if (stepId <= currentStep) {
+    // Only allow navigation if:
+    // 1. Moving to a previous step
+    // 2. Moving to the current step
+    // 3. Moving to NO MORE than the next step, IF current step is valid
+    if (stepId < currentStep) {
       setCurrentStep(stepId);
       setValidationErrors({});
+    } else if (stepId === currentStep) {
+      // Stay here
+    } else if (isStepValid) {
+      // If valid, treat any forward click as "Next"
+      validateAndProceed();
     }
   };
 
@@ -282,6 +290,7 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
             currentStep={currentStep}
             totalSteps={totalSteps}
             onStepChange={handleStepChange}
+            isStepValid={isStepValid}
           />
 
           <div className="flex-grow p-4 overflow-y-auto">

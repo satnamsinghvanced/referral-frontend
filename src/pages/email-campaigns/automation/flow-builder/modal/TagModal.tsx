@@ -33,7 +33,7 @@ const TagModal: React.FC<TagModalProps> = ({
 }) => {
   const validationSchema = Yup.object().shape({
     action: Yup.string().required("Action is required"),
-    tagName: Yup.string().required("Tag name is required"),
+    tagName: Yup.string().trim().required("Tag name is required"),
   });
 
   const formik = useFormik({

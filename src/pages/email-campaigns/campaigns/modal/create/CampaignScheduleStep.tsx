@@ -24,7 +24,7 @@ const CampaignScheduleStep: React.ForwardRefRenderFunction<
   const [sendDate, setSendDate] = useState<string | undefined>(
     data.schedule.date,
   );
-  const [localError, setLocalError] = useState<boolean>(false);
+  const [localError, setLocalError] = useState<string | null>(null);
 
   const error = localError || (validationErrors.schedule as any)?.date;
 
@@ -32,16 +32,25 @@ const CampaignScheduleStep: React.ForwardRefRenderFunction<
     if (sendImmediately) {
       setIsStepValid(true);
     } else {
-      setIsStepValid(!!sendDate);
+      const isPast = sendDate ? new Date(sendDate) < new Date() : false;
+      setIsStepValid(!!sendDate && !isPast);
     }
   }, [sendImmediately, sendDate, setIsStepValid]);
 
   const handleValidationAndNext = () => {
-    if (!sendImmediately && !sendDate) {
-      setLocalError(true);
-      return false;
+    if (!sendImmediately) {
+      if (!sendDate) {
+        setLocalError(
+          "Please select a date and time to schedule the campaign.",
+        );
+        return false;
+      }
+      if (new Date(sendDate) < new Date()) {
+        setLocalError("Scheduled date cannot be in the past.");
+        return false;
+      }
     }
-    setLocalError(false);
+    setLocalError(null);
 
     onNext({
       schedule: {
@@ -62,6 +71,9 @@ const CampaignScheduleStep: React.ForwardRefRenderFunction<
 
   const handleToggleScheduleLater = (val: boolean) => {
     setSendImmediately(!val);
+    if (!val) {
+      setLocalError(null);
+    }
   };
 
   return (
@@ -91,24 +103,33 @@ const CampaignScheduleStep: React.ForwardRefRenderFunction<
               radius="sm"
               minValue={now(getLocalTimeZone())}
               defaultValue={
-                sendDate && sendDate !== ""
+                sendDate &&
+                sendDate !== "" &&
+                !isNaN(new Date(sendDate).getTime())
                   ? parseAbsoluteToLocal(new Date(sendDate).toISOString())
                   : null
               }
               onChange={(dateObject: any) => {
                 if (dateObject) {
                   const date = dateObject.toDate(getLocalTimeZone());
+                  if (date < new Date()) {
+                    setLocalError("Scheduled date cannot be in the past.");
+                  } else {
+                    setLocalError(null);
+                  }
                   setSendDate(date.toISOString());
-                  setLocalError(false);
                 } else {
                   setSendDate(undefined);
+                  setLocalError(null);
                 }
               }}
               granularity="minute"
               isInvalid={!!error}
               errorMessage={
                 error
-                  ? "Please select a date and time to schedule the campaign."
+                  ? typeof error === "string"
+                    ? error
+                    : "Please select a date and time to schedule the campaign."
                   : null
               }
               isRequired

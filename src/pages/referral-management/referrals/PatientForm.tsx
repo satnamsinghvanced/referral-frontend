@@ -94,6 +94,7 @@ const PatientForm = () => {
 
   const validationSchema = Yup.object().shape({
     fullName: Yup.string()
+      .trim()
       .required("Full name is required")
       .matches(
         NAME_REGEX,

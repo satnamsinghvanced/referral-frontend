@@ -616,10 +616,10 @@ const Notifications: React.FC = () => {
                               }
                               isDisabled={!globalEnabled || !rule.enabled}
                               aria-label="Active Hours"
-                            />
-                            <label className="text-xs font-medium">
+                              classNames={{ label: "text-xs" }}
+                            >
                               Limit to specific hours
-                            </label>
+                            </Switch>
                           </div>
 
                           {rule.activeHoursEnabled && (

@@ -1,86 +1,53 @@
-import { addToast } from "@heroui/react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryClient } from "../../providers/QueryProvider";
 import {
-  fetchGoogleBusinessIntegration,
-  generateGoogleBusinessAuthUrl,
+  deleteGoogleBusinessIntegration,
+  getGoogleBusinessAuthUrl,
+  getGoogleBusinessIntegration,
   updateGoogleBusinessIntegration,
 } from "../../services/integrations/googleBusiness";
-import {
-  GenerateAuthUrlRequest,
-  GenerateAuthUrlResponse,
-} from "../../types/integrations/googleCalendar";
 
-export const GOOGLE_BUSINESS_KEYS = {
-  all: ["googleBusiness"] as const,
-  integration: () => [...GOOGLE_BUSINESS_KEYS.all, "integration"] as const,
+export const BUSINESS_KEYS = {
+  all: ["business-integration"] as const,
+  details: () => [...BUSINESS_KEYS.all, "current"] as const,
 };
 
-export const useGenerateGoogleBusinessAuthUrl = () => {
-  return useMutation<GenerateAuthUrlResponse, any, GenerateAuthUrlRequest>({
-    mutationFn: (data) => generateGoogleBusinessAuthUrl(data),
+export const useBusinessIntegration = () => {
+  return useQuery({
+    queryKey: BUSINESS_KEYS.details(),
+    queryFn: getGoogleBusinessIntegration,
+  });
+};
 
-    onSuccess: () => {
-      addToast({
-        title: "Success",
-        description: "Google Business connected successfully",
-        color: "success",
-      });
-
-      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
-    },
-
-    onError: (error) => {
-      const errorMessage =
-        (error?.response?.data as { message?: string })?.message ||
-        error.message ||
-        "Failed to connect Google Business";
-
-      addToast({
-        title: "Error",
-        description: errorMessage,
-        color: "danger",
-      });
+export const useConnectBusiness = () => {
+  return useMutation({
+    mutationFn: getGoogleBusinessAuthUrl,
+    onSuccess: (data) => {
+      if (data.authUrl) {
+        window.open(data.authUrl, "_blank");
+      }
     },
   });
 };
 
-export const useFetchGoogleBusinessIntegration = () => {
-  return useQuery<any, Error>({
-    queryKey: GOOGLE_BUSINESS_KEYS.integration(),
-    queryFn: fetchGoogleBusinessIntegration,
+export const useUpdateBusiness = () => {
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: any }) =>
+      updateGoogleBusinessIntegration(id, payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: BUSINESS_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+    },
   });
 };
 
-export const useUpdateGoogleBusinessIntegration = () => {
-  return useMutation<any, any, { id: string; data: any }>({
-    mutationFn: ({ id, data }) => updateGoogleBusinessIntegration(id, data),
-
+export const useDisconnectBusiness = () => {
+  return useMutation({
+    mutationFn: deleteGoogleBusinessIntegration,
     onSuccess: () => {
-      addToast({
-        title: "Success",
-        description: "Google Business integration updated successfully",
-        color: "success",
-      });
-
-      queryClient.invalidateQueries({
-        queryKey: GOOGLE_BUSINESS_KEYS.integration(),
-      });
-
+      queryClient.setQueryData(BUSINESS_KEYS.details(), null);
+      queryClient.invalidateQueries({ queryKey: BUSINESS_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
-    },
-
-    onError: (error) => {
-      const errorMessage =
-        (error?.response?.data as { message?: string })?.message ||
-        error.message ||
-        "Failed to update Google Business integration";
-
-      addToast({
-        title: "Error",
-        description: errorMessage,
-        color: "danger",
-      });
     },
   });
 };

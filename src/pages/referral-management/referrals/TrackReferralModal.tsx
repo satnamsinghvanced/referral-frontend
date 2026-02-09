@@ -64,6 +64,7 @@ const TrackReferralModal = ({
 
   const validationSchema = Yup.object().shape({
     patientName: Yup.string()
+      .trim()
       .required("Patient name is required")
       .matches(
         NAME_REGEX,
