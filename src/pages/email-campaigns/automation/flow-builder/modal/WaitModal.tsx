@@ -21,7 +21,6 @@ interface WaitModalProps {
 }
 
 const TIME_UNITS = [
-  { label: "Minutes", value: "minutes" },
   { label: "Hours", value: "hours" },
   { label: "Days", value: "days" },
   { label: "Weeks", value: "weeks" },
@@ -56,13 +55,13 @@ const WaitModal: React.FC<WaitModalProps> = ({
   });
 
   useEffect(() => {
-    if (isOpen && initialData) {
-      formik.setValues({
-        duration: initialData.duration || "1",
-        unit: initialData.unit || "days",
+    if (isOpen) {
+      formik.resetForm({
+        values: {
+          duration: initialData?.duration || "1",
+          unit: initialData?.unit || "days",
+        },
       });
-    } else if (isOpen && !initialData) {
-      formik.resetForm();
     }
   }, [isOpen, initialData]);
 
@@ -105,16 +104,22 @@ const WaitModal: React.FC<WaitModalProps> = ({
                     variant="flat"
                     size="sm"
                     radius="sm"
+                    isRequired
                     isInvalid={
                       !!(formik.touched.duration && formik.errors.duration)
                     }
-                    errorMessage={formik.errors.duration as string}
+                    errorMessage={
+                      formik.touched.duration &&
+                      (formik.errors.duration as string)
+                    }
                   />
                 </div>
                 <div className="w-[120px]">
                   <Select
                     placeholder="Unit"
+                    isRequired
                     selectedKeys={[formik.values.unit]}
+                    disabledKeys={[formik.values.unit]}
                     onSelectionChange={(keys) =>
                       formik.setFieldValue(
                         "unit",
@@ -124,6 +129,10 @@ const WaitModal: React.FC<WaitModalProps> = ({
                     variant="flat"
                     size="sm"
                     radius="sm"
+                    isInvalid={!!(formik.touched.unit && formik.errors.unit)}
+                    errorMessage={
+                      formik.touched.unit && (formik.errors.unit as string)
+                    }
                   >
                     {TIME_UNITS.map((u) => (
                       <SelectItem key={u.value} textValue={u.label}>

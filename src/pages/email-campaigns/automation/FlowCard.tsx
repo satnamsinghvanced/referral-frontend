@@ -193,7 +193,7 @@ const FlowCard = ({
           )}
         </div>
         <div className="flex gap-2 text-sm font-medium text-gray-600 dark:text-foreground/60">
-          <Button
+          {/* <Button
             size="sm"
             radius="sm"
             variant="ghost"
@@ -203,7 +203,7 @@ const FlowCard = ({
             className="border-small"
           >
             Analytics
-          </Button>
+          </Button> */}
           <Button
             size="sm"
             radius="sm"

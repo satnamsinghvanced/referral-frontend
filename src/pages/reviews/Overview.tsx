@@ -10,6 +10,7 @@ import {
 } from "recharts";
 import { useGBPOverview } from "../../hooks/useReviews";
 import ChartTooltip from "../../components/common/ChartTooltip";
+import { LoadingState } from "../../components/common/LoadingState";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 
 const Overview = () => {
@@ -19,7 +20,11 @@ const Overview = () => {
   const monthlyStats = data?.monthlyStats || [];
 
   if (isLoading) {
-    return <div className="text-sm text-gray-500">Loading chart data...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-[300px]">
+        <LoadingState />
+      </div>
+    );
   }
 
   return (

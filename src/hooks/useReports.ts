@@ -1,13 +1,13 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { fetchReports, createReport } from "../services/reports";
+import { fetchReports, createReport, updateReport } from "../services/reports";
 import { GenerateReportPayload } from "../types/reports";
 import { addToast } from "@heroui/react";
 import { queryClient } from "../providers/QueryProvider";
 
-export const useReports = (page = 1, limit = 10) => {
+export const useReports = (params: any) => {
   return useQuery({
-    queryKey: ["reports", page, limit],
-    queryFn: () => fetchReports(page, limit),
+    queryKey: ["reports", params],
+    queryFn: () => fetchReports(params),
   });
 };
 
@@ -27,6 +27,29 @@ export const useGenerateReport = () => {
         title: "Error",
         description:
           error.response?.data?.message || "Failed to generate report.",
+        color: "danger",
+      });
+    },
+  });
+};
+
+export const useUpdateReport = () => {
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: any }) =>
+      updateReport(id, payload),
+    onSuccess: () => {
+      addToast({
+        title: "Success",
+        description: "Report updated successfully.",
+        color: "success",
+      });
+      queryClient.invalidateQueries({ queryKey: ["reports"] });
+    },
+    onError: (error: any) => {
+      addToast({
+        title: "Error",
+        description:
+          error.response?.data?.message || "Failed to update report.",
         color: "danger",
       });
     },

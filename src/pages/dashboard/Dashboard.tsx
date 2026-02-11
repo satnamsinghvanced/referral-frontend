@@ -11,6 +11,7 @@ import {
   LuBell,
   LuX,
 } from "react-icons/lu";
+import { TrendIndicator } from "../../components/common/TrendIndicator";
 import { TbSpeakerphone } from "react-icons/tb";
 import { Link, useNavigate } from "react-router";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
@@ -105,104 +106,58 @@ const Dashboard = () => {
 
   const { data: dashboard, isLoading } = useDashboard();
 
-  const renderTrend = (
-    status: string,
-    percentage: number,
-    label: string = "from last month",
-  ) => {
-    const isIncrement = status === "increment" || percentage > 0;
-    const isDecrement = status === "decrement" || percentage < 0; // Assuming 'decrement' is the status for down
-
-    const colorClass = isIncrement
-      ? "text-emerald-600 dark:text-emerald-400"
-      : isDecrement
-        ? "text-red-600 dark:text-red-400"
-        : "text-gray-500";
-
-    const Icon = isIncrement
-      ? LuTrendingUp
-      : isDecrement
-        ? LuTrendingDown
-        : null;
-
-    return (
-      <div className={`flex items-center gap-1 text-xs ${colorClass}`}>
-        {Icon && <Icon className="text-sm" />}
-        <span className="font-medium">
-          {percentage > 0 ? "+" : ""}
-          {percentage}%
-        </span>
-        <span className="text-gray-500 dark:text-foreground/60">{label}</span>
-      </div>
-    );
-  };
-
-  const renderReviewTrend = (status: string, avgRating: number) => {
-    const isIncrement = status === "increment";
-    const colorClass = isIncrement
-      ? "text-emerald-600 dark:text-emerald-400"
-      : status === "decrement"
-        ? "text-red-600 dark:text-red-400"
-        : "text-yellow-600 dark:text-yellow-400"; // Neutral/steady
-
-    const Icon =
-      status === "increment"
-        ? LuTrendingUp
-        : status === "decrement"
-          ? LuTrendingDown
-          : null;
-
-    return (
-      <div className={`flex items-center gap-1 text-xs ${colorClass}`}>
-        {Icon && <Icon className="text-sm" />}
-        <span className="font-medium">{avgRating} avg rating</span>
-      </div>
-    );
-  };
-
   const STAT_CARD_DATA = useMemo<StatCard[]>(
     () => [
       {
         icon: <LuUsers className="text-purple-600 dark:text-purple-400" />,
         heading: "Total Referrals",
-        value: dashboard?.totalReferrals?.total || 0,
-        subheading: renderTrend(
-          dashboard?.totalReferrals?.status || "",
-          dashboard?.totalReferrals?.percentage || 0,
+        value: dashboard?.stats?.totalReferrals?.total || 0,
+        subheading: (
+          <TrendIndicator
+            status={dashboard?.stats?.totalReferrals?.status}
+            percentage={dashboard?.stats?.totalReferrals?.percentage}
+          />
         ),
         onClick: () => navigate("/referrals"),
       },
       {
         icon: <TbSpeakerphone className="text-green-600 dark:text-green-400" />,
         heading: "Active Campaigns",
-        value: dashboard?.activeCampaigns?.totalActiveCampaigns || 0,
-        subheading: renderTrend(
-          dashboard?.activeCampaigns?.status || "",
-          dashboard?.activeCampaigns?.percentage || 0,
-          "this month",
-        ), // Custom label based on image
+        value: dashboard?.stats?.activeCampaigns?.totalActiveCampaigns || 0,
+        subheading: (
+          <TrendIndicator
+            status={dashboard?.stats?.activeCampaigns?.status}
+            percentage={dashboard?.stats?.activeCampaigns?.percentage}
+            label="this month"
+          />
+        ),
         onClick: () => navigate("/email-campaigns"),
       },
       {
         icon: <FaRegStar className="text-yellow-600 dark:text-yellow-400" />,
         heading: "Reviews",
-        value: dashboard?.reviews?.totalReviews
-          ? formatNumberWithCommas(dashboard.reviews.totalReviews)
+        value: dashboard?.stats?.reviews?.totalReviews
+          ? formatNumberWithCommas(dashboard.stats.reviews.totalReviews)
           : "0",
-        subheading: renderReviewTrend(
-          dashboard?.reviews?.status || "",
-          dashboard?.reviews?.avgRating || 0,
+        subheading: (
+          <TrendIndicator
+            status={dashboard?.stats?.reviews?.status}
+            valueOverride={`${dashboard?.stats?.reviews?.avgRating || 0} avg rating`}
+            label=""
+          />
         ),
         onClick: () => navigate("/reviews"),
       },
       {
         icon: <LuTarget className="text-rose-600 dark:text-rose-400" />,
         heading: "Total Value",
-        value: `$${formatNumberWithCommas(dashboard?.totalValue?.total || 0)}`,
-        subheading: renderTrend(
-          dashboard?.totalValue?.status || "",
-          dashboard?.totalValue?.percentage || 0,
-          "vs last month",
+        value: `$${formatNumberWithCommas(dashboard?.stats?.totalValue?.total || 0)}`,
+        subheading: (
+          <TrendIndicator
+            status={dashboard?.stats?.totalValue?.status}
+            percentage={dashboard?.stats?.totalValue?.percentage}
+            label="vs last month"
+          />
         ),
         onClick: () => navigate("/reports"),
       },

@@ -7,8 +7,8 @@ import {
   LuTarget,
   LuUsers,
   LuDollarSign,
-  LuTrendingDown,
 } from "react-icons/lu";
+import { TrendIndicator } from "../../../components/common/TrendIndicator";
 import React from "react";
 import { BsArrowDownRight, BsArrowUpRight } from "react-icons/bs";
 import ComponentContainer from "../../../components/common/ComponentContainer";
@@ -315,9 +315,6 @@ const ChannelRow: React.FC<{ channel: ChannelData }> = ({ channel }) => {
     channel.roiColor === "emerald"
       ? "bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20"
       : "bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-500/10 dark:text-amber-400 dark:border-amber-500/20";
-  const trendText =
-    channel.trend === "up" ? "text-emerald-600" : "text-red-600";
-  const TrendIcon = channel.trend === "up" ? LuTrendingUp : LuTrendingDown;
 
   return (
     <Card
@@ -336,9 +333,11 @@ const ChannelRow: React.FC<{ channel: ChannelData }> = ({ channel }) => {
           >
             {channel.roi} ROI
           </span>
-          <TrendIcon
-            className={clsx("size-3.5", trendText)}
-            aria-hidden="true"
+          <TrendIndicator
+            status={channel.trend === "up" ? "increment" : "decrement"}
+            percentage={0}
+            useFormattedValue={false}
+            label=""
           />
         </div>
         <div className="text-right">

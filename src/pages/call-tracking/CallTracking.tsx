@@ -1,5 +1,5 @@
 import { Button, Input, Select, SelectItem } from "@heroui/react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FiPhone, FiPhoneCall, FiSearch } from "react-icons/fi";
 import { LuClock, LuFileAudio, LuRefreshCw } from "react-icons/lu";
 import { MdTrendingUp } from "react-icons/md";
@@ -11,6 +11,7 @@ import { LoadingState } from "../../components/common/LoadingState";
 import Pagination from "../../components/common/Pagination";
 import { CALL_STATUSES, CALL_TYPES } from "../../consts/call";
 import { EVEN_PAGINATION_LIMIT } from "../../consts/consts";
+import { useDebouncedValue } from "../../hooks/common/useDebouncedValue";
 import { useFetchTwilioConfig } from "../../hooks/integrations/useTwilio";
 import { useFetchCallRecords } from "../../hooks/useCall";
 import { CallRecord } from "../../types/call";
@@ -21,12 +22,7 @@ const CallTracking = () => {
   const { data: twilioConfig, isPending: isTwilioConfigLoading } =
     useFetchTwilioConfig();
 
-  const isTwilioConnected = !!(
-    twilioConfig &&
-    twilioConfig.authToken &&
-    twilioConfig.accountId &&
-    twilioConfig.phone
-  );
+  const isTwilioConnected = twilioConfig && twilioConfig.status === "Connected";
 
   const [selectedRecord, setSelectedRecord] = useState<CallRecord | null>(null);
   const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
@@ -40,8 +36,16 @@ const CallTracking = () => {
     limit: EVEN_PAGINATION_LIMIT,
   });
 
-  const { data, isLoading, refetch, isRefetching } =
-    useFetchCallRecords(filters);
+  const debouncedSearch = useDebouncedValue(filters.search, 500);
+
+  useEffect(() => {
+    setFilters((prev) => ({ ...prev, search: debouncedSearch }));
+  }, [debouncedSearch]);
+
+  const { data, isLoading, refetch, isRefetching } = useFetchCallRecords({
+    ...filters,
+    search: debouncedSearch,
+  });
 
   const onFilterChange = (key: string, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value, page: 1 }));

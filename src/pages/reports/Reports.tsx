@@ -1,31 +1,68 @@
-import { Button } from "@heroui/react";
-import { useState } from "react";
+import { Button, Chip, Input, Select, SelectItem } from "@heroui/react";
+import { useEffect, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
+import { FiSearch } from "react-icons/fi";
 import {
   LuActivity,
   LuClock,
   LuDownload,
   LuFileText,
+  LuPause,
+  LuPlay,
   LuShare,
 } from "react-icons/lu";
+import { TrendIndicator } from "../../components/common/TrendIndicator";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
 import ReportStatusChip from "../../components/chips/ReportStatusChip";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import EmptyState from "../../components/common/EmptyState";
 import { LoadingState } from "../../components/common/LoadingState";
 import Pagination from "../../components/common/Pagination";
-import { CATEGORIES } from "../../consts/reports";
-import { useReports } from "../../hooks/useReports";
+import { EVEN_PAGINATION_LIMIT } from "../../consts/consts";
+import { CATEGORIES, FREQUENCIES } from "../../consts/reports";
+import { useDebouncedValue } from "../../hooks/common/useDebouncedValue";
+import { useReports, useUpdateReport } from "../../hooks/useReports";
 import { Report } from "../../types/reports";
 import GenerateNewReport from "./GenerateNewReport";
 import SampleReports from "./SampleReports";
 
 const Reports = () => {
   const [isNewReportModalOpen, setIsNewReportModalOpen] = useState(false);
-  const [currentPage, setCurrentPage] = useState(1);
-  const limit = 10;
+  const [updatingId, setUpdatingId] = useState<string | null>(null);
 
-  const { data, isLoading } = useReports(currentPage, limit);
+  const [filters, setFilters] = useState({
+    search: "",
+    category: "",
+    frequency: "",
+    page: 1,
+    limit: EVEN_PAGINATION_LIMIT,
+  });
+
+  const onFilterChange = (key: string, value: string) => {
+    setFilters((prev) => ({ ...prev, [key]: value, page: 1 }));
+  };
+
+  const onSearchChange = (value: string) => {
+    setFilters((prev) => ({ ...prev, search: value, page: 1 }));
+  };
+
+  const handlePageChange = (page: number) => {
+    setFilters((prev) => ({ ...prev, page }));
+  };
+
+  const debouncedSearch = useDebouncedValue(filters.search, 500);
+
+  useEffect(() => {
+    setFilters((prev) => ({ ...prev, search: debouncedSearch }));
+  }, [debouncedSearch]);
+
+  const { data, isLoading } = useReports({
+    ...filters,
+    search: debouncedSearch,
+  });
+
+  const { mutate: updateReport, isPending: isUpdatingReport } =
+    useUpdateReport();
 
   const reports = data?.reports || [];
   const stats = data?.stats;
@@ -37,9 +74,11 @@ const Reports = () => {
       heading: "Reports Generated",
       value: stats?.reportsGenerated.total.toString() || "0",
       subheading: (
-        <span className="text-green-600">
-          +{stats?.reportsGenerated.growth || 0} this month
-        </span>
+        <TrendIndicator
+          status="increment"
+          valueOverride={`+${stats?.reportsGenerated.growth || 0}`}
+          label="this month"
+        />
       ),
       subValueClass: "text-green-600",
     },
@@ -136,6 +175,19 @@ const Reports = () => {
     }
   };
 
+  const handleToggleSchedule = (report: Report) => {
+    setUpdatingId(report._id);
+    updateReport(
+      {
+        id: report._id,
+        payload: { isPaused: !report.isPaused },
+      },
+      {
+        onSettled: () => setUpdatingId(null),
+      },
+    );
+  };
+
   return (
     <>
       <ComponentContainer headingData={HEADING_DATA}>
@@ -148,6 +200,73 @@ const Reports = () => {
               ))}
             </div>
           </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 border border-foreground/10 rounded-xl p-4 bg-background shadow-none">
+            <div className="relative flex-1">
+              <Input
+                placeholder="Search reports by name"
+                size="sm"
+                value={filters.search}
+                onValueChange={onSearchChange}
+                startContent={
+                  <FiSearch className="text-gray-400 dark:text-foreground/40 h-4 w-4" />
+                }
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              <Select
+                aria-label="Categories"
+                placeholder="All Categories"
+                size="sm"
+                selectedKeys={[filters.category]}
+                disabledKeys={[filters.category]}
+                onSelectionChange={(keys) =>
+                  onFilterChange(
+                    "category",
+                    (Array.from(keys)[0] as string) || "",
+                  )
+                }
+              >
+                <>
+                  <SelectItem key="" className="capitalize">
+                    All Categories
+                  </SelectItem>
+                  {CATEGORIES.map((category) => (
+                    <SelectItem key={category.key} className="capitalize">
+                      {category.label}
+                    </SelectItem>
+                  ))}
+                </>
+              </Select>
+
+              <Select
+                aria-label="Frequencies"
+                placeholder="All Frequencies"
+                size="sm"
+                selectedKeys={[filters.frequency]}
+                disabledKeys={[filters.frequency]}
+                onSelectionChange={(keys) =>
+                  onFilterChange(
+                    "frequency",
+                    (Array.from(keys)[0] as string) || "",
+                  )
+                }
+              >
+                <>
+                  <SelectItem key="" className="capitalize">
+                    All Frequencies
+                  </SelectItem>
+                  {FREQUENCIES.map((frequency) => (
+                    <SelectItem key={frequency.key} className="capitalize">
+                      {frequency.label}
+                    </SelectItem>
+                  ))}
+                </>
+              </Select>
+            </div>
+          </div>
+
           <div className="bg-background flex flex-col rounded-xl border border-foreground/10 p-4">
             <div className="pb-4">
               <h4 className="text-sm font-medium">Recent Reports</h4>
@@ -175,6 +294,20 @@ const Reports = () => {
                           </p>
                           <div className="flex items-center gap-2 mt-2 text-xs">
                             <ReportStatusChip status={report.status} />
+                            {report.schedule && (
+                              <Chip
+                                size="sm"
+                                radius="sm"
+                                variant="flat"
+                                className={`capitalize text-[11px] h-5 border ${
+                                  report.isPaused
+                                    ? "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800"
+                                    : "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800"
+                                }`}
+                              >
+                                {report.isPaused ? "Paused" : "Scheduled"}
+                              </Chip>
+                            )}
                             <span className="text-gray-500 dark:text-foreground/40">
                               {`${report.format.toUpperCase()}${
                                 report.fileSize ? ` • ${report.fileSize}` : ""
@@ -183,32 +316,56 @@ const Reports = () => {
                           </div>
                         </div>
                       </div>
-                      {report.status === "ready" && (
-                        <div className="flex gap-2">
+                      <div className="flex gap-2">
+                        {report.schedule && (
                           <Button
                             size="sm"
                             radius="sm"
                             variant="ghost"
                             color="default"
-                            onPress={() => handleDownload(report)}
+                            onPress={() => handleToggleSchedule(report)}
                             className="border-small"
-                            startContent={<LuDownload className="size-3.5" />}
+                            isLoading={
+                              isUpdatingReport && updatingId === report._id
+                            }
+                            startContent={
+                              report.isPaused ? (
+                                <LuPlay className="size-3.5" />
+                              ) : (
+                                <LuPause className="size-3.5" />
+                              )
+                            }
                           >
-                            Download
+                            {report.isPaused ? "Resume" : "Pause"}
                           </Button>
-                          <Button
-                            size="sm"
-                            radius="sm"
-                            variant="ghost"
-                            color="default"
-                            onPress={() => handleShare(report)}
-                            className="border-small"
-                            startContent={<LuShare className="size-3.5" />}
-                          >
-                            Share
-                          </Button>
-                        </div>
-                      )}
+                        )}
+                        {report.status === "ready" && (
+                          <>
+                            <Button
+                              size="sm"
+                              radius="sm"
+                              variant="ghost"
+                              color="default"
+                              onPress={() => handleDownload(report)}
+                              className="border-small"
+                              startContent={<LuDownload className="size-3.5" />}
+                            >
+                              Download
+                            </Button>
+                            <Button
+                              size="sm"
+                              radius="sm"
+                              variant="ghost"
+                              color="default"
+                              onPress={() => handleShare(report)}
+                              className="border-small"
+                              startContent={<LuShare className="size-3.5" />}
+                            >
+                              Share
+                            </Button>
+                          </>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -216,10 +373,10 @@ const Reports = () => {
                   <div className="pt-4">
                     <Pagination
                       identifier="reports"
-                      currentPage={currentPage}
+                      currentPage={filters.page}
                       totalPages={pagination.totalPages}
                       totalItems={pagination.totalData}
-                      handlePageChange={setCurrentPage}
+                      handlePageChange={(page) => handlePageChange(page)}
                     />
                   </div>
                 )}

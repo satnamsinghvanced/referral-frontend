@@ -2,6 +2,7 @@ import { Button, Card, CardBody, CardHeader } from "@heroui/react";
 import React from "react";
 import { FaTiktok } from "react-icons/fa";
 import { LuEye, LuMousePointer, LuTrendingUp, LuUsers } from "react-icons/lu";
+import { TrendIndicator } from "../../components/common/TrendIndicator";
 import {
   Area,
   AreaChart,
@@ -86,45 +87,25 @@ export const TiktokAds: React.FC = () => {
       icon: <LuMousePointer className="text-blue-500 dark:text-blue-400" />,
       heading: "Total Clicks",
       value: "4,980",
-      subheading: (
-        <span className="text-green-600 dark:text-green-400 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1" />
-          +16.1% vs last month
-        </span>
-      ),
+      subheading: <TrendIndicator percentage="+16.1%" label="vs last month" />,
     },
     {
       icon: <LuUsers className="text-green-500 dark:text-green-400" />,
       heading: "Conversions",
       value: "105",
-      subheading: (
-        <span className="text-green-600 dark:text-green-400 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1" />
-          +18.0% vs last month
-        </span>
-      ),
+      subheading: <TrendIndicator percentage="+18.0%" label="vs last month" />,
     },
     {
       icon: <LuTrendingUp className="text-orange-500 dark:text-orange-400" />,
       heading: "Cost Per Click",
       value: "$0.75",
-      subheading: (
-        <span className="text-green-600 dark:text-green-400 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1" />
-          -1.3% vs last month
-        </span>
-      ),
+      subheading: <TrendIndicator percentage="-1.3%" label="vs last month" />,
     },
     {
       icon: <LuEye className="text-purple-600 dark:text-purple-400" />,
       heading: "Click-Through Rate",
       value: "3.4%",
-      subheading: (
-        <span className="text-green-600 dark:text-green-400 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1" />
-          +0.1% vs last month
-        </span>
-      ),
+      subheading: <TrendIndicator percentage="+0.1%" label="vs last month" />,
     },
   ];
 

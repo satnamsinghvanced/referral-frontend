@@ -12,7 +12,7 @@ import {
 import { useFormik } from "formik";
 import React, { useEffect } from "react";
 import * as Yup from "yup";
-import { parseDate } from "@internationalized/date";
+import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
 
 interface TriggerModalProps {
   isOpen: boolean;
@@ -59,13 +59,13 @@ const TriggerModal: React.FC<TriggerModalProps> = ({
   });
 
   useEffect(() => {
-    if (isOpen && initialData) {
-      formik.setValues({
-        triggerType: initialData.triggerType || "",
-        date: initialData.date ? parseDate(initialData.date) : null,
+    if (isOpen) {
+      formik.resetForm({
+        values: {
+          triggerType: initialData?.triggerType || "",
+          date: initialData?.date ? parseDate(initialData.date) : null,
+        },
       });
-    } else if (isOpen && !initialData) {
-      formik.resetForm();
     }
   }, [isOpen, initialData]);
 
@@ -114,10 +114,14 @@ const TriggerModal: React.FC<TriggerModalProps> = ({
                   variant="flat"
                   size="sm"
                   radius="sm"
+                  isRequired
                   isInvalid={
                     !!(formik.touched.triggerType && formik.errors.triggerType)
                   }
-                  errorMessage={formik.errors.triggerType as string}
+                  errorMessage={
+                    formik.touched.triggerType &&
+                    (formik.errors.triggerType as string)
+                  }
                 >
                   {TRIGGER_TYPES.map((type) => (
                     <SelectItem key={type.value} textValue={type.label}>
@@ -130,13 +134,17 @@ const TriggerModal: React.FC<TriggerModalProps> = ({
                   <DatePicker
                     label="Select Date"
                     labelPlacement="outside"
+                    minValue={today(getLocalTimeZone())}
                     value={formik.values.date}
                     onChange={(val) => formik.setFieldValue("date", val)}
                     variant="flat"
                     size="sm"
                     radius="sm"
+                    isRequired
                     isInvalid={!!(formik.touched.date && formik.errors.date)}
-                    errorMessage={formik.errors.date as string}
+                    errorMessage={
+                      formik.touched.date && (formik.errors.date as string)
+                    }
                   />
                 )}
               </div>
@@ -158,6 +166,7 @@ const TriggerModal: React.FC<TriggerModalProps> = ({
                 variant="solid"
                 color="primary"
                 onPress={() => formik.handleSubmit()}
+                isDisabled={formik.values.triggerType === ""}
               >
                 Save Configuration
               </Button>

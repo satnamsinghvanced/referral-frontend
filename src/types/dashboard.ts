@@ -1,15 +1,26 @@
 export interface DashboardData {
-  totalReferrals: {
-    total: number;
-    percentage: number;
-    status: string;
+  stats: {
+    totalReferrals: {
+      total: number;
+      percentage: number;
+      status: string;
+    };
+    totalValue: {
+      total: number;
+      percentage: number;
+      status: string;
+    };
+    reviews: {
+      avgRating: number;
+      totalReviews: number;
+      status: string;
+    };
+    activeCampaigns: {
+      percentage: number;
+      totalActiveCampaigns: number;
+      status: string;
+    };
   };
-  totalValue: {
-    total: number;
-    percentage: number;
-    status?: string;
-  };
-  totalLastMonth: number;
   recentActivity: {
     referral: {
       _id: string;
@@ -53,16 +64,6 @@ export interface DashboardData {
       createdAt: string;
       updatedAt: string;
     } | null;
-  };
-  reviews: {
-    avgRating: number;
-    totalReviews: number;
-    status: string;
-  };
-  activeCampaigns: {
-    percentage: number;
-    totalActiveCampaigns: number;
-    status: string;
   };
   nfcQrData: {
     totalScans: number;

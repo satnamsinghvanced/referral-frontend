@@ -5,15 +5,14 @@ const typeMapUItoAPI: Record<string, APIStepType> = {
   email: "send-email",
   wait: "wait",
   condition: "condition",
-  action: "tag-management",
-  tag: "tag-management",
+  action: "action",
 };
 
 const typeMapAPItoUI: Record<string, UIStepType> = {
   "send-email": "email",
   wait: "wait",
   condition: "condition",
-  "tag-management": "tag",
+  action: "action",
 };
 
 export const mapUIFlowToAPI = (
@@ -26,9 +25,10 @@ export const mapUIFlowToAPI = (
 
   const mapSteps = (uiSteps: FlowStep[]): any[] => {
     return uiSteps.map((step) => {
+      const { templateName, ...cleanConfig } = step.config || {};
       const apiStep: any = {
         type: typeMapUItoAPI[step.type] || "send-email",
-        config: step.config,
+        config: cleanConfig,
         steps: step.children ? mapSteps(step.children) : [],
         yesSteps: step.branches?.yes ? mapSteps(step.branches.yes) : [],
         noSteps: step.branches?.no ? mapSteps(step.branches.no) : [],

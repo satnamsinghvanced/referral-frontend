@@ -622,11 +622,11 @@ export default function ReferrerActionsModal({
                       if (sub.type === "tel") {
                         newValue = formatPhoneNumber(val);
                       } else if (sub.id === "zip") {
-                        newValue = val.replace(/\D/g, "").slice(0, 6);
+                        newValue = val.replace(/\D/g, "").slice(0, 5);
                       }
                       formik.setFieldValue(fieldPath, newValue);
                     }}
-                    {...(sub.id === "zip" ? { maxLength: 6 } : {})}
+                    {...(sub.id === "zip" ? { maxLength: 5 } : {})}
                     onBlur={() => formik.setFieldTouched(fieldPath)}
                     isRequired={!!sub.isRequired}
                     isInvalid={!!(isSubTouched && errorText)}

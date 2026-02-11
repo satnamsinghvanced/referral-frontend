@@ -19,6 +19,7 @@ import { GBPReview } from "../../types/reviews";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import EmptyState from "../../components/common/EmptyState";
+import { LoadingState } from "../../components/common/LoadingState";
 
 dayjs.extend(relativeTime);
 
@@ -185,8 +186,8 @@ export default function LatestReviews() {
       <CardBody className="p-0">
         <div className="space-y-3 pr-2">
           {isLoading ? (
-            <div className="text-center py-6 text-sm text-gray-500">
-              Loading reviews...
+            <div className="py-10">
+              <LoadingState />
             </div>
           ) : reviews.length > 0 ? (
             reviews.map((review) => (

@@ -46,7 +46,7 @@ export interface Stats {
   scheduledPosts: number;
   referralActivities: number;
   monthlyROI: string; // e.g., "0%"
-  totalReach: number;
+  totalBudget: number;
   conversions: number;
 }
 

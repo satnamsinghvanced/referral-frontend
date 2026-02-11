@@ -50,13 +50,13 @@ const TagModal: React.FC<TagModalProps> = ({
   });
 
   useEffect(() => {
-    if (isOpen && initialData) {
-      formik.setValues({
-        action: initialData.action || "add",
-        tagName: initialData.tagName || "",
+    if (isOpen) {
+      formik.resetForm({
+        values: {
+          action: initialData?.action || "add",
+          tagName: initialData?.tagName || "",
+        },
       });
-    } else if (isOpen && !initialData) {
-      formik.resetForm();
     }
   }, [isOpen, initialData]);
 
@@ -95,6 +95,11 @@ const TagModal: React.FC<TagModalProps> = ({
                 variant="flat"
                 size="sm"
                 radius="sm"
+                isRequired
+                isInvalid={!!(formik.touched.action && formik.errors.action)}
+                errorMessage={
+                  formik.touched.action && (formik.errors.action as string)
+                }
               >
                 {TAG_ACTIONS.map((a) => (
                   <SelectItem key={a.value} textValue={a.label}>
@@ -112,8 +117,11 @@ const TagModal: React.FC<TagModalProps> = ({
                 variant="flat"
                 size="sm"
                 radius="sm"
+                isRequired
                 isInvalid={!!(formik.touched.tagName && formik.errors.tagName)}
-                errorMessage={formik.errors.tagName as string}
+                errorMessage={
+                  formik.touched.tagName && (formik.errors.tagName as string)
+                }
               />
             </ModalBody>
             <ModalFooter className="gap-2 p-4 pt-0">

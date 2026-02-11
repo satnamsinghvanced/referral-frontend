@@ -7,6 +7,7 @@ import {
   LuTarget,
   LuTrendingUp,
 } from "react-icons/lu";
+import { TrendIndicator } from "../../components/common/TrendIndicator";
 import { SiGoogleads } from "react-icons/si";
 import { Link } from "react-router-dom";
 import {
@@ -94,14 +95,11 @@ export const GoogleAds: React.FC = () => {
         ? "..."
         : data?.stats?.totalClicks?.value?.toLocaleString() || "0",
       subheading: (
-        <span className="text-green-600 dark:text-green-400 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1" />
-          {isLoading
-            ? "..."
-            : `${
-                data?.stats?.totalClicks?.lastMonthChange || 0
-              }% vs last month`}
-        </span>
+        <TrendIndicator
+          percentage={data?.stats?.totalClicks?.lastMonthChange}
+          label="vs last month"
+          isLoading={isLoading}
+        />
       ),
     },
     {
@@ -111,14 +109,11 @@ export const GoogleAds: React.FC = () => {
         ? "..."
         : data?.stats?.conversions?.value?.toString() || "0",
       subheading: (
-        <span className="text-green-600 dark:text-green-400 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1" />
-          {isLoading
-            ? "..."
-            : `${
-                data?.stats?.conversions?.lastMonthChange || 0
-              }% vs last month`}
-        </span>
+        <TrendIndicator
+          percentage={data?.stats?.conversions?.lastMonthChange}
+          label="vs last month"
+          isLoading={isLoading}
+        />
       ),
     },
     {
@@ -126,14 +121,11 @@ export const GoogleAds: React.FC = () => {
       heading: "Cost Per Click",
       value: isLoading ? "..." : `${data?.stats?.costPerClick?.value || "0"}`,
       subheading: (
-        <span className="text-green-600 dark:text-green-400 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1" />
-          {isLoading
-            ? "..."
-            : `${
-                data?.stats?.costPerClick?.lastMonthChange || 0
-              }% vs last month`}
-        </span>
+        <TrendIndicator
+          percentage={data?.stats?.costPerClick?.lastMonthChange}
+          label="vs last month"
+          isLoading={isLoading}
+        />
       ),
     },
     {
@@ -143,14 +135,11 @@ export const GoogleAds: React.FC = () => {
         ? "..."
         : `${data?.stats?.clickThroughRate?.value || "0"}`,
       subheading: (
-        <span className="text-green-600 dark:text-green-400 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1" />
-          {isLoading
-            ? "..."
-            : `${
-                data?.stats?.clickThroughRate?.lastMonthChange || 0
-              }% vs last month`}
-        </span>
+        <TrendIndicator
+          percentage={data?.stats?.clickThroughRate?.lastMonthChange}
+          label="vs last month"
+          isLoading={isLoading}
+        />
       ),
     },
   ];

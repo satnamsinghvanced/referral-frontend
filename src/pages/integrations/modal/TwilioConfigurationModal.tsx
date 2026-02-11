@@ -34,8 +34,8 @@ const validationSchema = Yup.object().shape({
     .required("Auth Token is required."),
   phone: Yup.string()
     .matches(
-      /^\+[1-9]\d{1,14}$/,
-      "Invalid phone number format. Must include country code (e.g., +15551234567).",
+      /^\+?[1-9]\d{1,14}$/,
+      "Invalid phone number format. Use E.164 format (e.g., +15551234567).",
     )
     .required("Twilio Phone Number is required."),
 });
@@ -272,14 +272,7 @@ export default function TwilioConfigurationModal({
                 maxLength={16}
                 // Formik Props
                 value={formik.values.phone as string}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  // Allow only '+' at the beginning and digits thereafter
-                  const filteredVal = val.startsWith("+")
-                    ? "+" + val.slice(1).replace(/\D/g, "")
-                    : val.replace(/\D/g, "");
-                  formik.setFieldValue("phone", filteredVal);
-                }}
+                onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 isInvalid={
                   (formik.touched.phone as boolean) &&
@@ -355,7 +348,7 @@ export default function TwilioConfigurationModal({
               color="primary"
               type="submit" // Important: Trigger Formik submission
               isLoading={isSubmitting}
-              isDisabled={isSubmitting || !formik.isValid}
+              isDisabled={isSubmitting || !formik.isValid || !formik.dirty}
             >
               {isUpdateMode ? "Update Configuration" : "Save Configuration"}
             </Button>

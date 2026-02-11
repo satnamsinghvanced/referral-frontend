@@ -8,6 +8,7 @@ import {
   LuTrendingUp,
   LuUsers,
 } from "react-icons/lu";
+import { TrendIndicator } from "../../components/common/TrendIndicator";
 import { Link } from "react-router-dom";
 import {
   Area,
@@ -62,34 +63,6 @@ const Analytics: React.FC = () => {
       "Track your practice performance and referral trends with detailed insights.",
   };
 
-  const renderTrend = (
-    status: string,
-    percentage: number,
-    label: string = "from last month",
-  ) => {
-    const isIncrement = status === "increment" || percentage > 0;
-    const isDecrement = status === "decrement" || percentage < 0;
-
-    const colorClass = isIncrement
-      ? "text-green-600 dark:text-emerald-400"
-      : isDecrement
-        ? "text-red-600 dark:text-red-400"
-        : "text-gray-500";
-
-    const Icon = isIncrement
-      ? LuTrendingUp
-      : isDecrement
-        ? LuTrendingDown
-        : null;
-
-    return (
-      <span className={`${colorClass} flex items-center`}>
-        {Icon && <Icon className="h-4 w-4 mr-1" />}
-        {isLoading ? "..." : `${percentage}% ${label}`}
-      </span>
-    );
-  };
-
   const STAT_CARD_DATA = [
     {
       icon: <LuUsers className="text-blue-500 dark:text-blue-400" />,
@@ -97,9 +70,12 @@ const Analytics: React.FC = () => {
       value: isLoading
         ? "..."
         : data?.stats?.monthlyReferrals?.totalReferrals?.toString() || "0",
-      subheading: renderTrend(
-        data?.stats?.monthlyReferrals?.status || "",
-        data?.stats?.monthlyReferrals?.percentage || 0,
+      subheading: (
+        <TrendIndicator
+          status={data?.stats?.monthlyReferrals?.status}
+          percentage={data?.stats?.monthlyReferrals?.percentage}
+          isLoading={isLoading}
+        />
       ),
     },
     {
@@ -108,10 +84,13 @@ const Analytics: React.FC = () => {
       value: isLoading
         ? "..."
         : `${data?.stats?.conversionRate?.conversionRate || "0"}%`,
-      subheading: renderTrend(
-        data?.stats?.conversionRate?.status || "",
-        data?.stats?.conversionRate?.percentage || 0,
-        "conversion performance",
+      subheading: (
+        <TrendIndicator
+          status={data?.stats?.conversionRate?.status}
+          percentage={data?.stats?.conversionRate?.percentage}
+          label="conversion performance"
+          isLoading={isLoading}
+        />
       ),
     },
     {
@@ -120,9 +99,12 @@ const Analytics: React.FC = () => {
       value: isLoading
         ? "..."
         : data?.stats?.appointments?.totalAppointments?.toString() || "0",
-      subheading: renderTrend(
-        data?.stats?.appointments?.status || "",
-        data?.stats?.appointments?.percentage || 0,
+      subheading: (
+        <TrendIndicator
+          status={data?.stats?.appointments?.status}
+          percentage={data?.stats?.appointments?.percentage}
+          isLoading={isLoading}
+        />
       ),
     },
     {
@@ -131,10 +113,13 @@ const Analytics: React.FC = () => {
       value: isLoading
         ? "..."
         : `$${data?.stats?.revenue?.totalRevenue?.toLocaleString() || "0"}`,
-      subheading: renderTrend(
-        data?.stats?.revenue?.status || "",
-        data?.stats?.revenue?.percentage || 0,
-        "revenue growth",
+      subheading: (
+        <TrendIndicator
+          status={data?.stats?.revenue?.status}
+          percentage={data?.stats?.revenue?.percentage}
+          label="revenue growth"
+          isLoading={isLoading}
+        />
       ),
     },
   ];

@@ -155,8 +155,9 @@ const PartnerDetailsModal = ({
                       </div>
                       <div className="text-xs text-gray-600 dark:text-foreground/60">
                         {displayData?.practiceAddress?.addressLine1},{" "}
-                        {displayData?.practiceAddress?.addressLine2 ||
-                          displayData?.practiceAddress?.city}
+                        {displayData?.practiceAddress?.city},{" "}
+                        {displayData?.practiceAddress?.state},{" "}
+                        {displayData?.practiceAddress?.zip}
                       </div>
                     </div>
                   </div>

@@ -8,7 +8,11 @@ import { MdOutlineWavingHand } from "react-icons/md";
 import { LoadingState } from "../../../components/common/LoadingState";
 import { useAutomationTemplates } from "../../../hooks/useCampaign";
 
-const Templates = () => {
+interface TemplatesProps {
+  onUseTemplate: (template: any) => void;
+}
+
+const Templates = ({ onUseTemplate }: TemplatesProps) => {
   const { data, isLoading } = useAutomationTemplates();
   const templates = data || [];
 
@@ -53,7 +57,7 @@ const Templates = () => {
                         size="sm"
                         radius="sm"
                         variant="ghost"
-                        onPress={() => {}}
+                        onPress={() => onUseTemplate(template)}
                         className="border-small"
                         startContent={<FiEdit size={14} />}
                       >
@@ -64,7 +68,7 @@ const Templates = () => {
                         radius="sm"
                         variant="solid"
                         color="primary"
-                        onPress={() => console.log(`Using template: ${name}`)}
+                        onPress={() => onUseTemplate(template)}
                       >
                         Use Template
                       </Button>

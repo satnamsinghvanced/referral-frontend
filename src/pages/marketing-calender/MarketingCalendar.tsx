@@ -161,12 +161,12 @@ const MarketingCalendar = () => {
     },
     {
       icon: <MdOutlineRemoveRedEye className="text-orange-600" />,
-      heading: "Total Reach",
-      value: formatNumberWithCommas(stats?.totalReach as number),
+      heading: "Total Budget",
+      value: formatNumberWithCommas(stats?.totalBudget as number),
       subheading: (
         <p className="text-orange-600 dark:text-orange-400 flex items-center gap-1.5">
           <LuUsers fontSize={15} />
-          Combined reach
+          Combined budget
         </p>
       ),
     },
@@ -302,7 +302,7 @@ const MarketingCalendar = () => {
         <div className="flex flex-col gap-4 md:gap-5">
           {!isGoogleCalendarConnected && !isGoogleCalendarLoading && (
             <div className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-500/30 rounded-lg p-3 flex items-center justify-between flex-wrap gap-3">
-              <p className="text-sm text-yellow-800 dark:text-yellow-200/80">
+              <p className="text-sm text-yellow-800 dark:text-amber-400">
                 Google Calendar is not connected. Connect your Google Calendar
                 to sync activities.
               </p>
@@ -312,7 +312,7 @@ const MarketingCalendar = () => {
                 size="sm"
                 color="warning"
                 variant="flat"
-                className="bg-yellow-200 dark:bg-yellow-500/20 text-yellow-800 dark:text-yellow-200"
+                className="bg-yellow-200 dark:bg-amber-500/20 text-yellow-800 dark:text-amber-400"
               >
                 Connect Calendar
               </Button>

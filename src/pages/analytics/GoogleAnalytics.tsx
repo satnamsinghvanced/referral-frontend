@@ -10,6 +10,7 @@ import {
   LuTrendingUp,
   LuUsers,
 } from "react-icons/lu";
+import { TrendIndicator } from "../../components/common/TrendIndicator";
 import { SiGoogleanalytics } from "react-icons/si";
 import {
   CartesianGrid,
@@ -309,12 +310,11 @@ export const GoogleAnalytics: React.FC = () => {
         ? "..."
         : data?.stats?.users?.totalUsers?.toLocaleString() || "0",
       subheading: (
-        <span className="text-green-600 dark:text-green-400 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1" />
-          {isLoading
-            ? "..."
-            : `${data?.stats?.users?.growthPercent || 0}% vs last month`}
-        </span>
+        <TrendIndicator
+          percentage={data?.stats?.users?.growthPercent}
+          label="vs last month"
+          isLoading={isLoading}
+        />
       ),
     },
     {
@@ -324,12 +324,11 @@ export const GoogleAnalytics: React.FC = () => {
         ? "..."
         : data?.stats?.pageViews?.totalPageViews?.toLocaleString() || "0",
       subheading: (
-        <span className="text-green-600 dark:text-green-400 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1" />
-          {isLoading
-            ? "..."
-            : `${data?.stats?.pageViews?.growthPercent || 0}% vs last month`}
-        </span>
+        <TrendIndicator
+          percentage={data?.stats?.pageViews?.growthPercent}
+          label="vs last month"
+          isLoading={isLoading}
+        />
       ),
     },
     {
@@ -339,12 +338,11 @@ export const GoogleAnalytics: React.FC = () => {
         ? "..."
         : data?.stats?.sessions?.totalSessions?.toLocaleString() || "0",
       subheading: (
-        <span className="text-green-600 dark:text-green-400 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1" />
-          {isLoading
-            ? "..."
-            : `${data?.stats?.sessions?.growthPercent || 0}% vs last month`}
-        </span>
+        <TrendIndicator
+          percentage={data?.stats?.sessions?.growthPercent}
+          label="vs last month"
+          isLoading={isLoading}
+        />
       ),
     },
     {
@@ -355,12 +353,11 @@ export const GoogleAnalytics: React.FC = () => {
         : (data?.stats?.bounceRate?.totalBounceRate?.toLocaleString() || "0") +
           "%",
       subheading: (
-        <span className="text-green-600 dark:text-green-400 flex items-center">
-          <LuTrendingUp className="h-4 w-4 mr-1" />
-          {isLoading
-            ? "..."
-            : `${data?.stats?.bounceRate?.growthPercent || 0}% vs last month`}
-        </span>
+        <TrendIndicator
+          percentage={data?.stats?.bounceRate?.growthPercent}
+          label="vs last month"
+          isLoading={isLoading}
+        />
       ),
     },
   ];

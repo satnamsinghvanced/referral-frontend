@@ -3,14 +3,12 @@ import {
   GenerateReportPayload,
   ReportsResponse,
   Report,
+  UpdateReportPayload,
 } from "../types/reports";
 
-export const fetchReports = async (
-  page = 1,
-  limit = 10,
-): Promise<ReportsResponse> => {
+export const fetchReports = async (params: any): Promise<ReportsResponse> => {
   const response = await axios.get("/reports", {
-    params: { page, limit },
+    params,
   });
   return response.data;
 };
@@ -19,5 +17,13 @@ export const createReport = async (
   payload: GenerateReportPayload,
 ): Promise<{ report: Report }> => {
   const response = (await axios.post("/reports", payload)) as any;
+  return response.data;
+};
+
+export const updateReport = async (
+  id: string,
+  payload: UpdateReportPayload,
+): Promise<{ report: Report }> => {
+  const response = await axios.patch(`/reports/${id}`, payload);
   return response.data;
 };

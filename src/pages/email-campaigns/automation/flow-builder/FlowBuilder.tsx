@@ -20,16 +20,18 @@ import {
 } from "../../../../utils/automationMapper";
 import { LoadingState } from "../../../../components/common/LoadingState";
 import { FlowStep, UIStepType } from "../../../../types/campaign";
+import { formatDateToReadable } from "../../../../utils/formatDateToReadable";
 
 // --- Types ---
 export type StepType = UIStepType;
 
 interface FlowBuilderProps {
   id?: string | null;
+  initialData?: any | null;
   onSaved?: () => void;
 }
 
-const FlowBuilder = ({ id, onSaved }: FlowBuilderProps) => {
+const FlowBuilder = ({ id, initialData, onSaved }: FlowBuilderProps) => {
   const [flowName, setFlowName] = useState("New Automation Flow");
   const [description, setDescription] = useState("");
   const [isActive, setIsActive] = useState(false);
@@ -54,8 +56,15 @@ const FlowBuilder = ({ id, onSaved }: FlowBuilderProps) => {
     if (existingFlow) {
       setFlowName(existingFlow.name);
       setDescription(existingFlow.description);
-      setIsActive(existingFlow.status === "active");
+      // If we are coming from a template customization, force inactive.
+      // Otherwise keep existing status.
+      setIsActive(initialData ? false : existingFlow.status === "active");
       setSteps(mapAPIFlowToUI(existingFlow));
+    } else if (initialData) {
+      setFlowName(initialData.name || "New Automation Flow");
+      setDescription(initialData.description || "");
+      setIsActive(false);
+      setSteps(mapAPIFlowToUI(initialData));
     } else {
       setFlowName("New Automation Flow");
       setDescription("");
@@ -72,28 +81,47 @@ const FlowBuilder = ({ id, onSaved }: FlowBuilderProps) => {
         },
       ]);
     }
-  }, [existingFlow, id]);
+  }, [existingFlow, id, initialData]);
 
-  const handleSave = () => {
+  const handleSave = (forcedStatus?: "active" | "inActive") => {
+    if (!flowName.trim()) {
+      setShowErrors(true);
+      setSavingLoadingState(false);
+      return;
+    }
+
     const payload = mapUIFlowToAPI(steps, flowName, description);
     const automationData = {
       ...payload,
-      status: isActive ? "active" : "inactive",
+      status: forcedStatus || (isActive ? "active" : "inActive"),
     };
 
     if (id) {
       updateMutation.mutate(automationData, {
         onSuccess: () => onSaved?.(),
+        onSettled: () => setSavingLoadingState(false),
       });
     } else {
       createMutation.mutate(automationData, {
         onSuccess: () => onSaved?.(),
+        onSettled: () => setSavingLoadingState(false),
       });
+    }
+  };
+
+  const setSavingLoadingState = (loading: boolean) => {
+    if (!loading) {
+      setIsSaving(false);
+      setIsActivating(false);
     }
   };
 
   // Modal Control States
   const [currentStep, setCurrentStep] = useState<FlowStep | null>(null);
+  const [showErrors, setShowErrors] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isActivating, setIsActivating] = useState(false);
+
   const triggerModal = useDisclosure();
   const emailModal = useDisclosure();
   const waitModal = useDisclosure();
@@ -152,7 +180,9 @@ const FlowBuilder = ({ id, onSaved }: FlowBuilderProps) => {
         return {
           ...step,
           config: newConfig,
+          title: generateTitle(step.type, newConfig, step.title),
           description: generateDescription(step.type, newConfig),
+          pills: generatePills(step.type, newConfig),
         };
       }
       return {
@@ -170,20 +200,87 @@ const FlowBuilder = ({ id, onSaved }: FlowBuilderProps) => {
     });
   };
 
+  const generateTitle = (type: StepType, config: any, defaultTitle: string) => {
+    switch (type) {
+      case "condition":
+        return config.conditionType || defaultTitle;
+      case "action":
+        if (config.actionType === "update_field") return "Update Field";
+        if (config.actionType === "send_notification")
+          return "Send Notification";
+        if (config.actionType === "create_task") return "Create Task";
+        return config.actionType || defaultTitle;
+      default:
+        return defaultTitle;
+    }
+  };
+
+  const generatePills = (type: StepType, config: any) => {
+    switch (type) {
+      case "condition":
+        if (config.conditionType === "Referral Count") {
+          return ["referrals", config.referralCount];
+        }
+        if (config.conditionType === "Rating Level") {
+          return ["rating", config.ratingValue.split(" ")[0]];
+        }
+        return [];
+      default:
+        return [];
+    }
+  };
+
   const generateDescription = (type: StepType, config: any) => {
     switch (type) {
       case "wait":
         return `Wait for ${config.duration} ${config.unit}`;
       case "email":
-        return `Send template: ${config.templateName || config.template}`;
+        return `Send template: ${config.templateName || config.templateId || config.template || "Unknown"}`;
       case "condition":
+        const getOp = (op: string) => {
+          switch (op) {
+            case "Greater than":
+              return ">";
+            case "Less than":
+              return "<";
+            case "Equal to":
+              return "=";
+            case "Greater than or equal to":
+              return ">=";
+            case "Less than or equal to":
+              return "<=";
+            default:
+              return op;
+          }
+        };
+        if (config.conditionType === "Referral Count") {
+          return `Referrals ${getOp(config.comparison)} ${config.referralCount} (${config.timePeriod})`;
+        }
+        if (config.conditionType === "Rating Level") {
+          return `Rating ${getOp(config.comparison)} ${config.ratingValue}`;
+        }
+        if (config.conditionType === "Link Clicked") {
+          return `Clicked: ${config.linkUrl || "Any link"}`;
+        }
+        if (config.conditionType === "Email Opened") {
+          return `Opened previous email`;
+        }
         return `Condition: ${config.conditionType}`;
       case "action":
+        if (config.actionType === "update_field") {
+          return `Update ${config.fieldToUpdate}: ${config.newValue}`;
+        }
+        if (config.actionType === "send_notification") {
+          return `Notify: ${config.notificationMessage}`;
+        }
+        if (config.actionType === "create_task") {
+          return `Task: ${config.taskTitle} (${config.priority})`;
+        }
         return `Action: ${config.actionType}`;
       case "tag":
-        return `Tag: ${config.tagName}`;
+        return `${config.action === "add" ? "Add" : "Remove"} tag: ${config.tagName}`;
       default:
-        return "Configured successfully";
+        return `${config.triggerType === "Specific Date" ? `Specific Date: ${formatDateToReadable(config.date)}` : config.triggerType}`;
     }
   };
 
@@ -334,9 +431,17 @@ const FlowBuilder = ({ id, onSaved }: FlowBuilderProps) => {
             labelPlacement="outside-top"
             placeholder="e.g., New Referrer Welcome Sequence"
             value={flowName}
-            onValueChange={setFlowName}
+            onValueChange={(val) => {
+              setFlowName(val);
+              if (val.trim()) setShowErrors(false);
+            }}
             size="sm"
             variant="flat"
+            isRequired
+            isInvalid={showErrors && !flowName.trim()}
+            errorMessage={
+              showErrors && !flowName.trim() ? "Flow name is required" : ""
+            }
           />
           <Input
             label="Description"
@@ -362,9 +467,15 @@ const FlowBuilder = ({ id, onSaved }: FlowBuilderProps) => {
               <Button
                 size="sm"
                 radius="sm"
-                onPress={handleSave}
-                isLoading={updateMutation.isPending || createMutation.isPending}
-                startContent={<LuSave className="size-[14px]" />}
+                variant="ghost"
+                color="default"
+                onPress={() => {
+                  setIsSaving(true);
+                  handleSave();
+                }}
+                isLoading={isSaving}
+                startContent={!isSaving && <LuSave className="size-[14px]" />}
+                className="border-small"
               >
                 Save
               </Button>
@@ -374,11 +485,13 @@ const FlowBuilder = ({ id, onSaved }: FlowBuilderProps) => {
                 radius="sm"
                 variant="solid"
                 onPress={() => {
-                  setIsActive(true);
-                  handleSave();
+                  setIsActivating(true);
+                  handleSave("active");
                 }}
-                isLoading={updateMutation.isPending || createMutation.isPending}
-                startContent={<LuPlay className="size-[14px]" />}
+                isLoading={isActivating}
+                startContent={
+                  !isActivating && <LuPlay className="size-[14px]" />
+                }
               >
                 Activate
               </Button>

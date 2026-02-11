@@ -66,13 +66,15 @@ const FlowCanvas: React.FC<FlowCanvasProps> = ({
                     }}
                   />
 
-                  <div className="relative z-10">
-                    <AddStepBar
-                      onAdd={(type) =>
-                        onAddStep(type, `${currentPath}.children.last`)
-                      }
-                    />
-                  </div>
+                  {step.type !== "condition" && (
+                    <div className="relative z-10">
+                      <AddStepBar
+                        onAdd={(type) =>
+                          onAddStep(type, `${currentPath}.children.last`)
+                        }
+                      />
+                    </div>
+                  )}
 
                   {step.children && step.children.length > 0 && (
                     <div className="mt-2 text-wrap">

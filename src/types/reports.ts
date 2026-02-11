@@ -38,6 +38,7 @@ export interface Report {
   mimeType?: string;
   status: ReportStatus;
   exportCount: number;
+  isPaused?: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -82,4 +83,10 @@ export interface GenerateReportPayload {
   format: ReportFormat;
   schedule: boolean;
   frequency?: ReportFrequency;
+}
+
+export interface UpdateReportPayload {
+  schedule?: boolean;
+  isPaused?: boolean;
+  name?: string;
 }

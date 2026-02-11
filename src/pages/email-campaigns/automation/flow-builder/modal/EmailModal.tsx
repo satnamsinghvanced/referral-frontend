@@ -34,19 +34,26 @@ const EmailModal: React.FC<EmailModalProps> = ({
   const templates = campaignTemplates?.templates || [];
 
   const validationSchema = Yup.object().shape({
-    template: Yup.string().required("Email template is required"),
-    subject: Yup.string().required("Subject line is required"),
+    templateId: Yup.string().required("Email template is required"),
+    subject: Yup.string()
+      .trim()
+      .test(
+        "min-length",
+        "Subject should be at least 3 characters",
+        (val) => !val || val.length >= 3,
+      )
+      .required("Subject is required"),
   });
 
   const formik = useFormik({
     initialValues: {
-      template: initialData?.template || "",
+      templateId: initialData?.templateId || initialData?.template || "",
       subject: initialData?.subject || "",
     },
     validationSchema,
     onSubmit: (values) => {
       const selectedTemplate = templates.find(
-        (t: any) => t._id === values.template,
+        (t: any) => t._id === values.templateId,
       );
       onSave({
         ...values,
@@ -58,13 +65,13 @@ const EmailModal: React.FC<EmailModalProps> = ({
   });
 
   useEffect(() => {
-    if (isOpen && initialData) {
-      formik.setValues({
-        template: initialData.template || "",
-        subject: initialData.subject || "",
+    if (isOpen) {
+      formik.resetForm({
+        values: {
+          templateId: initialData?.templateId || "",
+          subject: initialData?.subject || "",
+        },
       });
-    } else if (isOpen && !initialData) {
-      formik.resetForm();
     }
   }, [isOpen, initialData]);
 
@@ -98,21 +105,28 @@ const EmailModal: React.FC<EmailModalProps> = ({
                 labelPlacement="outside"
                 placeholder="Select template..."
                 selectedKeys={
-                  formik.values.template ? [formik.values.template] : []
+                  formik.values.templateId ? [formik.values.templateId] : []
+                }
+                disabledKeys={
+                  formik.values.templateId ? [formik.values.templateId] : []
                 }
                 onSelectionChange={(keys) =>
                   formik.setFieldValue(
-                    "template",
+                    "templateId",
                     Array.from(keys)[0] as string,
                   )
                 }
                 variant="flat"
                 size="sm"
                 radius="sm"
+                isRequired
                 isInvalid={
-                  !!(formik.touched.template && formik.errors.template)
+                  !!(formik.touched.templateId && formik.errors.templateId)
                 }
-                errorMessage={formik.errors.template as string}
+                errorMessage={
+                  formik.touched.templateId &&
+                  (formik.errors.templateId as string)
+                }
               >
                 {templates.map((t: any) => (
                   <SelectItem key={t._id} textValue={t.name}>
@@ -130,8 +144,11 @@ const EmailModal: React.FC<EmailModalProps> = ({
                 variant="flat"
                 size="sm"
                 radius="sm"
+                isRequired
                 isInvalid={!!(formik.touched.subject && formik.errors.subject)}
-                errorMessage={formik.errors.subject as string}
+                errorMessage={
+                  formik.touched.subject && (formik.errors.subject as string)
+                }
               />
             </ModalBody>
             <ModalFooter className="gap-2 p-4 pt-0">
@@ -151,6 +168,7 @@ const EmailModal: React.FC<EmailModalProps> = ({
                 variant="solid"
                 color="primary"
                 onPress={() => formik.handleSubmit()}
+                isDisabled={formik.values.templateId === ""}
               >
                 Save Configuration
               </Button>

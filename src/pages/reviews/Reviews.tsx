@@ -3,6 +3,7 @@ import { FiMessageSquare, FiStar, FiWifi } from "react-icons/fi";
 import { LuQrCode } from "react-icons/lu";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
 import ComponentContainer from "../../components/common/ComponentContainer";
+import { TrendIndicator } from "../../components/common/TrendIndicator";
 import { useGBPOverview } from "../../hooks/useReviews";
 import LatestReviews from "./LatestReviews";
 import Locations from "./Locations";
@@ -25,15 +26,10 @@ const Reviews = () => {
       heading: "Total Reviews",
       value: isLoading ? "..." : stats?.reviews?.totalReviews || 0,
       subheading: (
-        <p
-          className={
-            (stats?.reviews?.totalReviewsGrowth || "").includes("-")
-              ? "text-red-600"
-              : "text-emerald-600"
-          }
-        >
-          {stats?.reviews?.totalReviewsGrowth || "0%"}
-        </p>
+        <TrendIndicator
+          percentage={stats?.reviews?.totalReviewsGrowth}
+          isLoading={isLoading}
+        />
       ),
     },
     {
@@ -43,15 +39,10 @@ const Reviews = () => {
         ? "..."
         : stats?.rating?.averageRating?.toFixed(1) || "0.0",
       subheading: (
-        <p
-          className={
-            (stats?.rating?.averageRatingGrowth || "").includes("-")
-              ? "text-red-600"
-              : "text-emerald-600"
-          }
-        >
-          {stats?.rating?.averageRatingGrowth || "0%"}
-        </p>
+        <TrendIndicator
+          percentage={stats?.rating?.averageRatingGrowth}
+          isLoading={isLoading}
+        />
       ),
     },
     {
@@ -59,15 +50,10 @@ const Reviews = () => {
       heading: "NFC Interactions",
       value: isLoading ? "..." : stats?.nfc?.nfcInteractions || 0,
       subheading: (
-        <p
-          className={
-            (stats?.nfc?.nfcInteractionsGrowth || "").includes("-")
-              ? "text-red-600"
-              : "text-emerald-600"
-          }
-        >
-          {stats?.nfc?.nfcInteractionsGrowth || "0%"}
-        </p>
+        <TrendIndicator
+          percentage={stats?.nfc?.nfcInteractionsGrowth}
+          isLoading={isLoading}
+        />
       ),
     },
     {
@@ -75,15 +61,10 @@ const Reviews = () => {
       heading: "QR Code Scans",
       value: isLoading ? "..." : stats?.qr?.qrScans || 0,
       subheading: (
-        <p
-          className={
-            (stats?.qr?.qrScansGrowth || "").includes("-")
-              ? "text-red-600"
-              : "text-emerald-600"
-          }
-        >
-          {stats?.qr?.qrScansGrowth || "0%"}
-        </p>
+        <TrendIndicator
+          percentage={stats?.qr?.qrScansGrowth}
+          isLoading={isLoading}
+        />
       ),
     },
   ];

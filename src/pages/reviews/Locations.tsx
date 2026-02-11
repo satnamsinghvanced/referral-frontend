@@ -9,6 +9,7 @@ import {
   YAxis,
 } from "recharts";
 import ChartTooltip from "../../components/common/ChartTooltip";
+import { LoadingState } from "../../components/common/LoadingState";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 
 import { Card, CardBody } from "@heroui/react";
@@ -33,7 +34,11 @@ const Locations = () => {
   }, [locations.length]);
 
   if (isLoading) {
-    return <div>Loading locations...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-[300px]">
+        <LoadingState />
+      </div>
+    );
   }
 
   return (

@@ -336,7 +336,7 @@ export type APIStepType =
   | "send-email"
   | "wait"
   | "condition"
-  | "tag-management";
+  | "action";
 export type UIStepType =
   | "trigger"
   | "email"
@@ -356,6 +356,7 @@ export interface FlowStep {
     yes: FlowStep[];
     no: FlowStep[];
   };
+  pills?: string[];
 }
 
 export type AutomationStatus = "active" | "inActive" | "draft";

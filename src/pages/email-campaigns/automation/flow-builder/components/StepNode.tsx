@@ -78,6 +78,18 @@ const StepNode: React.FC<StepNodeProps> = ({ step, onEdit, onDelete }) => {
         <p className="text-xs text-default-500 truncate mt-0.5">
           {step.description}
         </p>
+        {/* {step.pills && step.pills.length > 0 && (
+          <div className="flex flex-wrap gap-2 mt-2">
+            {step.pills.map((pill: string, idx: number) => (
+              <div
+                key={idx}
+                className="bg-default-100 dark:bg-default-100/10 text-[10px] px-1.5 py-0.5 rounded border border-default-200 dark:border-default-700 text-default-600 dark:text-default-400 font-medium"
+              >
+                {pill}
+              </div>
+            ))}
+          </div>
+        )} */}
       </div>
 
       <div className="flex items-center gap-1">

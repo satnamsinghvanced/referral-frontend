@@ -7,14 +7,23 @@ import FlowBuilder from "./flow-builder/FlowBuilder";
 const Automation = () => {
   const [activeTab, setActiveTab] = useState("active-flows");
   const [selectedFlowId, setSelectedFlowId] = useState<string | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<any>(null);
 
   const handleEditFlow = (id: string) => {
     setSelectedFlowId(id);
+    setSelectedTemplate(null);
     setActiveTab("flow-builder");
   };
 
   const handleCreateNew = () => {
     setSelectedFlowId(null);
+    setSelectedTemplate(null);
+    setActiveTab("flow-builder");
+  };
+
+  const handleUseTemplate = (template: any) => {
+    setSelectedTemplate(template);
+    setSelectedFlowId(template._id);
     setActiveTab("flow-builder");
   };
   return (
@@ -41,14 +50,16 @@ const Automation = () => {
         </Tab>
 
         <Tab key="templates" title="Templates">
-          <Templates />
+          <Templates onUseTemplate={handleUseTemplate} />
         </Tab>
 
         <Tab key="flow-builder" title="Flow Builder">
           <FlowBuilder
             id={selectedFlowId}
+            initialData={selectedTemplate}
             onSaved={() => {
               setSelectedFlowId(null);
+              setSelectedTemplate(null);
               setActiveTab("active-flows");
             }}
           />
