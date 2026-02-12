@@ -27,7 +27,7 @@ const Platforms = () => {
 
     return [
       {
-        id: allCredentials?.meta?._id || "",
+        id: allCredentials?.meta?.id || "",
         platformId: "meta",
         platformKey: "metaAuthIntegration",
         name: "Meta (Facebook & Instagram)",
@@ -42,7 +42,7 @@ const Platforms = () => {
         engagementRate: allCredentials?.meta?.engagementRate || 0,
       },
       {
-        id: allCredentials?.linkedin?._id || "",
+        id: allCredentials?.linkedin?.id || "",
         platformId: "linkedin",
         platformKey: "linkedinAuthIntegration",
         name: "LinkedIn",
@@ -57,7 +57,7 @@ const Platforms = () => {
         engagementRate: allCredentials?.linkedin?.engagementRate || 0,
       },
       {
-        id: allCredentials?.youTube?._id || "",
+        id: allCredentials?.youTube?.id || "",
         platformId: "youTube",
         platformKey: "youtubeAuthIntegration",
         name: "YouTube",
