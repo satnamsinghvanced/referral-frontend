@@ -20,7 +20,11 @@ import PlanCard from "./PlanCard";
 import { ScheduleVisitsModal } from "./schedule-visit-modal/ScheduleVisitsModal";
 import ScheduleVisitStatusModal from "./ScheduleVisitStatusModal";
 import ViewScheduledVisitModal from "./ViewScheduledVisitModal";
-import { ODD_PAGINATION_LIMIT } from "../../../consts/consts";
+import {
+  EVEN_PAGINATION_LIMIT,
+  ODD_PAGINATION_LIMIT,
+} from "../../../consts/consts";
+import { usePaginationAdjustment } from "../../../hooks/common/usePaginationAdjustment";
 
 // const StatsGrid = ({ stats }: any) => {
 //   const statData = [
@@ -73,7 +77,7 @@ import { ODD_PAGINATION_LIMIT } from "../../../consts/consts";
 //       text: "text-pink-600",
 //     },
 //   ];
-
+//
 //   return (
 //     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 text-sm">
 //       {statData.map((stat) => (
@@ -107,7 +111,7 @@ export default function ScheduleVisits({
 
   const [filters, setFilters] = useState<GetSchedulePlansQuery>({
     page: 1,
-    limit: ODD_PAGINATION_LIMIT,
+    limit: EVEN_PAGINATION_LIMIT,
     search: "",
     status: "all",
     order: "asc",
@@ -133,6 +137,13 @@ export default function ScheduleVisits({
   const dashboardStats = data?.dashboardStats;
   const pagination = data?.pagination;
   const visitHistoryCount = data?.visitHistoryCount || 0;
+
+  usePaginationAdjustment({
+    totalPages: pagination?.totalPages || 0,
+    currentPage: filters.page as number,
+    onPageChange: (page) => setFilters((prev) => ({ ...prev, page })),
+    isLoading,
+  });
 
   const { mutate: deleteSchedulePlan, isPending } = useDeleteSchedulePlan();
 
@@ -420,7 +431,7 @@ export default function ScheduleVisits({
                 }}
                 total={pagination?.totalPages as number}
                 classNames={{
-                  base: "flex justify-center py-3 mt-2",
+                  base: "pagination flex justify-center py-3 mt-2",
                   wrapper: "gap-1.5",
                 }}
               />

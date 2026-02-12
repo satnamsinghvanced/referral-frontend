@@ -14,6 +14,7 @@ import { Location } from "../../../types/common";
 import LocationActionModal from "./LocationActionModal";
 import { LoadingState } from "../../../components/common/LoadingState";
 import Pagination from "../../../components/common/Pagination";
+import { usePaginationAdjustment } from "../../../hooks/common/usePaginationAdjustment";
 
 const Locations: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,6 +31,13 @@ const Locations: React.FC = () => {
   const locations = locationsData?.data;
   const totalPages = locationsData?.totalPages || 1;
   const totalLocations = locationsData?.totalData || 0;
+
+  usePaginationAdjustment({
+    totalPages: totalPages,
+    currentPage: page,
+    onPageChange: (newPage) => setPage(newPage),
+    isLoading: locationsIsLoading,
+  });
 
   const { mutate: deleteLocation, isPending: deleteLocationIsPending } =
     useDeleteLocation();

@@ -10,6 +10,8 @@ import { CampaignData, CampaignStepProps } from "./CampaignActionModal";
 
 import Pagination from "../../../../../components/common/Pagination";
 
+import { usePaginationAdjustment } from "../../../../../hooks/common/usePaginationAdjustment";
+
 export interface CampaignStepRef {
   triggerValidationAndProceed: () => void;
 }
@@ -29,6 +31,13 @@ const CampaignTemplateStep: React.ForwardRefRenderFunction<
   const { data: templatesRaw, isLoading } = useCampaignTemplates({
     page,
     limit: limitCount,
+  });
+
+  usePaginationAdjustment({
+    totalPages: templatesRaw?.pagination?.totalPages || 0,
+    currentPage: page,
+    onPageChange: (newPage) => setPage(newPage),
+    isLoading,
   });
 
   // Sync prop changes to local state (for re-opening modals)

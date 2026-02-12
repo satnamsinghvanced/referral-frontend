@@ -18,6 +18,7 @@ import { useFetchEmailIntegration } from "../../../hooks/integrations/useEmailMa
 import { Link } from "react-router-dom";
 import { LoadingState } from "../../../components/common/LoadingState";
 import Pagination from "../../../components/common/Pagination";
+import { usePaginationAdjustment } from "../../../hooks/common/usePaginationAdjustment";
 
 const roleColors: Record<string, string> = {
   admin: "bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400",
@@ -52,6 +53,13 @@ const Team: React.FC = () => {
     useFetchTeamMembers(filters);
 
   const members = membersData?.data;
+
+  usePaginationAdjustment({
+    totalPages: membersData?.totalPages || 0,
+    currentPage: filters.page,
+    onPageChange: (page) => setFilters((prev) => ({ ...prev, page })),
+    isLoading: membersIsLoading,
+  });
 
   const handlePageChange = (page: number) => {
     setFilters((prev) => ({ ...prev, page }));

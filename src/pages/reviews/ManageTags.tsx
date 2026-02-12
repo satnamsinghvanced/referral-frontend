@@ -19,6 +19,7 @@ import {
 import { NFCDeskCard } from "../../types/nfcDesk";
 import CreateTagModal from "./modal/CreateTagModal";
 import TagQrModal from "./modal/TagQrModal";
+import { usePaginationAdjustment } from "../../hooks/common/usePaginationAdjustment";
 
 const ManageTags = () => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -54,6 +55,13 @@ const ManageTags = () => {
         limit: nfcProps.limit,
       }
     : null;
+
+  usePaginationAdjustment({
+    totalPages: pagination?.totalPages || 0,
+    currentPage: currentPage,
+    onPageChange: (page) => setCurrentPage(page),
+    isLoading: isDesksLoading,
+  });
 
   const isLoading = isDesksLoading || isLocationsLoading || isTeamLoading;
 

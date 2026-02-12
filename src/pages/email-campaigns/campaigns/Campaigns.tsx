@@ -22,6 +22,7 @@ import CampaignActionModal from "./modal/create/CampaignActionModal";
 import EmptyState from "../../../components/common/EmptyState";
 import { AiOutlinePlus } from "react-icons/ai";
 import CampaignReportModal from "./modal/CampaignReportModal";
+import { usePaginationAdjustment } from "../../../hooks/common/usePaginationAdjustment";
 
 const INITIAL_FILTERS: ICampaignFilters = {
   page: 1,
@@ -44,6 +45,14 @@ const Campaigns = () => {
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
   const { data, isLoading } = useCampaigns(currentFilters);
+
+  usePaginationAdjustment({
+    totalPages: data?.pagination?.totalPages || 0,
+    currentPage: currentFilters.page || 1,
+    onPageChange: (page) => setCurrentFilters((prev) => ({ ...prev, page })),
+    isLoading,
+  });
+
   const deleteMutation = useDeleteCampaign();
   const archiveMutation = useArchiveCampaign();
   const duplicateMutation = useDuplicateCampaign();
@@ -217,8 +226,8 @@ const Campaigns = () => {
         <Pagination
           identifier="campaigns"
           limit={currentFilters.limit as number}
-          totalItems={pagination.totalCount || 0}
-          currentPage={pagination.currentPage}
+          totalItems={pagination.totalCampaigns || 0}
+          currentPage={pagination.page}
           totalPages={pagination.totalPages}
           handlePageChange={(page) =>
             setCurrentFilters((prev) => ({ ...prev, page }))

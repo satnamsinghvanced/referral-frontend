@@ -47,6 +47,7 @@ import BudgetItemCard from "./BudgetItemCard";
 import BudgetActionModal from "./modal/BudgetActionModal";
 import ExportBudgetModal from "./modal/ExportBudgetModal";
 import ImportBudgetModal from "./modal/ImportBudgetModal";
+import { usePaginationAdjustment } from "../../hooks/common/usePaginationAdjustment";
 
 const MarketingBudget = () => {
   const { theme } = useTypedSelector((state) => state.ui);
@@ -99,6 +100,15 @@ const MarketingBudget = () => {
   };
 
   const { data, isLoading } = useBudgetItems(currentFilters);
+
+  usePaginationAdjustment({
+    totalPages: data?.pagination?.totalPages || 0,
+    currentPage: currentFilters.page,
+    onPageChange: (page) =>
+      setCurrentFilters((prev: any) => ({ ...prev, page })),
+    isLoading,
+  });
+
   const deleteMutation = useDeleteBudgetItem(currentFilters);
 
   const syncedProviders = useMemo(() => {

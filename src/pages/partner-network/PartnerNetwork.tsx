@@ -31,6 +31,7 @@ import PartnerDetailsModal from "./PartnerDetailsModal";
 import PartnerNetworkCard from "./PartnerNetworkCard";
 import ScheduleVisits from "./schedule-visits/ScheduleVisits";
 import { EVEN_PAGINATION_LIMIT } from "../../consts/consts";
+import { usePaginationAdjustment } from "../../hooks/common/usePaginationAdjustment";
 
 const PartnerNetwork = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -67,6 +68,13 @@ const PartnerNetwork = () => {
   const { data, isLoading } = useFetchPartners({
     ...params,
     search: debouncedSearch as string,
+  });
+
+  usePaginationAdjustment({
+    totalPages: data?.totalPages || 0,
+    currentPage: params.page,
+    onPageChange: (page) => setParams((prev) => ({ ...prev, page })),
+    isLoading,
   });
 
   const { data: singlePartnerData } = useFetchPartnerDetail(partnerEditId);

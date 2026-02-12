@@ -28,6 +28,7 @@ import { useCalendarIntegration } from "../../hooks/integrations/useGoogleCalend
 import { formatNumberWithCommas } from "../../utils/formatNumberWithCommas";
 import Pagination from "../../components/common/Pagination";
 import { ODD_PAGINATION_LIMIT } from "../../consts/consts";
+import { usePaginationAdjustment } from "../../hooks/common/usePaginationAdjustment";
 
 const MarketingCalendar = () => {
   const { data: googleCalendarConfig, isLoading: isGoogleCalendarLoading } =
@@ -61,6 +62,14 @@ const MarketingCalendar = () => {
     isFetching: isLoading,
     refetch: marketingActivitiesRefetch,
   } = useMarketingActivities({ ...currentFilters, search: debouncedSearch });
+
+  usePaginationAdjustment({
+    totalPages: marketingActivitiesData?.pagination?.totalPages || 0,
+    currentPage: currentFilters.page,
+    onPageChange: (page) =>
+      setCurrentFilters((prev: any) => ({ ...prev, page })),
+    isLoading,
+  });
 
   const { mutate: deleteActivity, isPending: isDeletePending } =
     useDeleteActivity();
@@ -116,6 +125,8 @@ const MarketingCalendar = () => {
         label: "Add Activity",
         onClick: () => {
           setSelectedActivity(null);
+          setSelectedDate(null);
+          setSelectedEndDate(null);
           setIsModalOpen(true);
         },
         icon: <AiOutlinePlus fontSize={15} />,
@@ -223,7 +234,7 @@ const MarketingCalendar = () => {
 
     return (
       <>
-        <div className="flex flex-col gap-3 max-h-[315px] overflow-y-auto">
+        <div className="flex flex-col gap-3 max-h-[318px] overflow-y-auto">
           {filteredActivities.map((activity: any) => {
             const activityType = ACTIVITY_TYPES.find(
               (activityType: any) => activityType.value == activity.type,

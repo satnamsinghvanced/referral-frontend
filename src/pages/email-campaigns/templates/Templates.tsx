@@ -22,6 +22,8 @@ import CreateTemplateModal, {
 } from "./modal/CreateTemplateModal";
 import ViewTemplateModal from "./modal/ViewTemplateModal";
 
+import { usePaginationAdjustment } from "../../../hooks/common/usePaginationAdjustment";
+
 const INITIAL_FILTERS: CampaignFilters = {
   page: 1,
   limit: 6,
@@ -50,6 +52,13 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
   const { data, isLoading } = useCampaignTemplates({
     ...currentFilters,
     search: debouncedSearch,
+  });
+
+  usePaginationAdjustment({
+    totalPages: data?.pagination?.totalPages || 0,
+    currentPage: currentFilters.page || 1,
+    onPageChange: (page) => handleFilterChange("page", page),
+    isLoading,
   });
 
   const createMutation = useCreateCampaignTemplate();

@@ -10,6 +10,7 @@ import Pagination from "../../components/common/Pagination";
 import { EVEN_PAGINATION_LIMIT } from "../../consts/consts";
 import { useRecentPosts } from "../../hooks/useSocial";
 import { formatDateToReadable } from "../../utils/formatDateToReadable";
+import { usePaginationAdjustment } from "../../hooks/common/usePaginationAdjustment";
 
 const Posts = () => {
   const [page, setPage] = useState(1);
@@ -18,6 +19,13 @@ const Posts = () => {
 
   const posts = data?.posts || [];
   const pagination = data?.pagination;
+
+  usePaginationAdjustment({
+    totalPages: pagination?.totalPages || 0,
+    currentPage: page,
+    onPageChange: (newPage) => setPage(newPage),
+    isLoading,
+  });
 
   if (isLoading)
     return (

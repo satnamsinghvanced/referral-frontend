@@ -10,6 +10,7 @@ import EmptyState from "../../../components/common/EmptyState";
 import { LoadingState } from "../../../components/common/LoadingState";
 import { useAutomations } from "../../../hooks/useCampaign";
 import { useDebouncedValue } from "../../../hooks/common/useDebouncedValue";
+import { usePaginationAdjustment } from "../../../hooks/common/usePaginationAdjustment";
 
 const INITIAL_FILTERS = {
   page: 1,
@@ -35,6 +36,17 @@ const ActiveFlows = ({ onEdit, onCreateNew }: ActiveFlowsProps) => {
     currentFilters.status,
   );
 
+  const automations = data?.automations || [];
+  const pagination = data?.pagination;
+
+  usePaginationAdjustment({
+    totalPages: pagination?.totalPages || 0,
+    currentPage: currentFilters.page,
+    onPageChange: (page: number) =>
+      setCurrentFilters((prev) => ({ ...prev, page })),
+    isLoading,
+  });
+
   const handleFilterChange = (key: string, value: any) => {
     setCurrentFilters((prev) => ({
       ...prev,
@@ -42,9 +54,6 @@ const ActiveFlows = ({ onEdit, onCreateNew }: ActiveFlowsProps) => {
       page: 1,
     }));
   };
-
-  const automations = data?.automations || [];
-  const pagination = data?.pagination;
 
   return (
     <div className="space-y-4 md:space-y-5">

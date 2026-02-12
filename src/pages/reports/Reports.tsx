@@ -25,6 +25,7 @@ import { useReports, useUpdateReport } from "../../hooks/useReports";
 import { Report } from "../../types/reports";
 import GenerateNewReport from "./GenerateNewReport";
 import SampleReports from "./SampleReports";
+import { usePaginationAdjustment } from "../../hooks/common/usePaginationAdjustment";
 
 const Reports = () => {
   const [isNewReportModalOpen, setIsNewReportModalOpen] = useState(false);
@@ -67,6 +68,13 @@ const Reports = () => {
   const reports = data?.reports || [];
   const stats = data?.stats;
   const pagination = data?.pagination;
+
+  usePaginationAdjustment({
+    totalPages: pagination?.totalPages || 0,
+    currentPage: filters.page,
+    onPageChange: (page) => handlePageChange(page),
+    isLoading,
+  });
 
   const STAT_CARD_DATA = [
     {

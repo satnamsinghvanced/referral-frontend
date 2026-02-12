@@ -27,6 +27,7 @@ import CreateSegmentModal, {
   SegmentFormValues,
 } from "./modal/CreateSegmentModal";
 import BulkImportSegmentsModal from "./modal/BulkImportSegmentsModal";
+import { usePaginationAdjustment } from "../../../hooks/common/usePaginationAdjustment";
 
 const INITIAL_FILTERS: AudienceFilters = {
   page: 1,
@@ -55,6 +56,13 @@ const Audiences: React.FC = () => {
   const { data, isLoading } = useAudiences({
     ...currentFilters,
     search: debouncedSearch as string,
+  });
+
+  usePaginationAdjustment({
+    totalPages: data?.pagination?.totalPages || 0,
+    currentPage: currentFilters.page || 1,
+    onPageChange: (page) => setCurrentFilters((prev) => ({ ...prev, page })),
+    isLoading,
   });
 
   const createMutation = useCreateAudience();
