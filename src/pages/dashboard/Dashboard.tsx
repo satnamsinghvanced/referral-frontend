@@ -44,7 +44,7 @@ const QUICK_ACTIONS: QuickAction[] = [
     label: "Add Referral",
     icon: <LuUsers />,
     color: "sky",
-    link: "/referrals",
+    link: "/referrals?action=track",
   },
   {
     label: "Marketing Calendar",

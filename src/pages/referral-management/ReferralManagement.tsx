@@ -88,6 +88,7 @@ const ReferralManagement = () => {
   const referralIdParam = searchParams.get("referralId");
   const referrerIdParam = searchParams.get("referrerId");
   const tabParam = searchParams.get("tab");
+  const actionParam = searchParams.get("action");
 
   useEffect(() => {
     if (tabParam) {
@@ -97,14 +98,15 @@ const ReferralManagement = () => {
       setReferralEditId(referralIdParam);
       setIsReferralStatusModalViewMode(true);
       setIsReferralStatusModalOpen(true);
-      // Optional: Clear search params after opening to avoid re-opening on manual refresh?
-      // For now, let's keep it for deep linking support.
     }
     if (referrerIdParam) {
       setReferrerEditId(referrerIdParam);
       setIsModalOpen(true);
     }
-  }, [referralIdParam, referrerIdParam, tabParam]);
+    if (actionParam === "track") {
+      setIsTrackReferralModalOpen(true);
+    }
+  }, [referralIdParam, referrerIdParam, tabParam, actionParam]);
 
   const debouncedSearch = useDebouncedValue(currentFilters.search, 500);
   const debouncedReferrerSearch = useDebouncedValue(referrerParams.search, 500);
