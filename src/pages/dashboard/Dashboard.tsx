@@ -159,7 +159,7 @@ const Dashboard = () => {
             label="vs last month"
           />
         ),
-        onClick: () => navigate("/reports"),
+        onClick: () => navigate("/referrals"),
       },
     ],
     [dashboard, navigate],
