@@ -75,7 +75,6 @@ const Analytics = () => {
         ))}
       </div>
 
-      {/* Platform Breakdown */}
       <Card className="bg-background rounded-xl shadow-none p-4 w-full border border-foreground/10">
         <CardHeader className="p-0 pb-4">
           <h3 className="text-sm">Platform Performance Breakdown</h3>
@@ -103,7 +102,6 @@ const Analytics = () => {
                     {platform.posts} posts
                   </Chip>
                 </div>
-
                 <div className="text-sm text-gray-600 dark:text-foreground/60 flex flex-wrap justify-around gap-x-5 mt-5 md:mt-3 xl:mt-2">
                   <div className="flex flex-col items-center">
                     <span className="text-sm font-medium text-sky-400">

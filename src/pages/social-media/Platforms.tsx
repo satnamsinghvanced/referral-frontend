@@ -14,7 +14,6 @@ const Platforms = () => {
     useSocialCredentials();
   const { mutate: connectSocial } = useConnectSocial();
   const { mutate: updateSocial } = useUpdateSocial();
-
   const SOCIAL_MEDIA_PLATFORMS = useMemo(() => {
     const normalizeStatus = (
       status: string | undefined,
@@ -24,7 +23,6 @@ const Platforms = () => {
       if (status === "notConnected") return "Disconnected";
       return (status.charAt(0).toUpperCase() + status.slice(1)) as any;
     };
-
     return [
       {
         id: allCredentials?.meta?._id || "",

@@ -37,7 +37,6 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
 }) => {
   const isCredentialsSaved = !!id;
   const isError = status === "Error";
-
   let statusClasses = "";
   let StatusIcon = null;
   switch (status) {
