@@ -17,6 +17,7 @@ import { useFetchCallRecords } from "../../hooks/useCall";
 import { CallRecord } from "../../types/call";
 import CallRecordCard from "./CallRecordCard";
 import CallRecordingModal from "./modal/CallRecordingModal";
+import { usePaginationAdjustment } from "../../hooks/common/usePaginationAdjustment";
 
 const CallTracking = () => {
   const { data: twilioConfig, isPending: isTwilioConfigLoading } =
@@ -45,6 +46,13 @@ const CallTracking = () => {
   const { data, isLoading, refetch, isRefetching } = useFetchCallRecords({
     ...filters,
     search: debouncedSearch,
+  });
+
+  usePaginationAdjustment({
+    totalPages: data?.paginatedCalls?.totalPages || 0,
+    currentPage: filters.page,
+    onPageChange: (page) => setFilters((prev) => ({ ...prev, page })),
+    isLoading: isLoading || isRefetching,
   });
 
   const onFilterChange = (key: string, value: string) => {

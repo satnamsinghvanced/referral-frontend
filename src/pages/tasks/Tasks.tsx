@@ -20,6 +20,7 @@ import TaskCard from "./TaskCard";
 import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
 import { AiOutlinePlus } from "react-icons/ai";
 import TaskActionModal from "./modal/TaskActionModal";
+import { usePaginationAdjustment } from "../../hooks/common/usePaginationAdjustment";
 
 function Tasks() {
   const [openTaskModal, setOpenTaskModal] = useState(false);
@@ -77,6 +78,14 @@ function Tasks() {
   const tasks = tasksData?.tasks;
   const stats = tasksData?.stats;
   const pagination = tasksData?.pagination;
+
+  usePaginationAdjustment({
+    totalPages: pagination?.totalPages || 0,
+    currentPage: currentFilters.page,
+    onPageChange: (page) =>
+      setCurrentFilters((prev: any) => ({ ...prev, page })),
+    isLoading: isLoading || isFetching,
+  });
 
   let TASKS_BUTONS: any[] = [
     {

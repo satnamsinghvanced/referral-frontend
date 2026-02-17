@@ -203,12 +203,12 @@ export default function VisitMap() {
   const handleOpenGoogleMaps = () => {
     if (coordinates.length < 2) return;
 
-    // Extract origin and destination
-    const origin = `${coordinates[0]![1]},${coordinates[0]![0]}`; // lat,lng
+    // Last point is the destination
     const destinationIndex = coordinates.length - 1;
-    const destination = `${coordinates[destinationIndex]![1]},${coordinates[destinationIndex]![0]}`;
+    const destCoord = coordinates[destinationIndex]!;
+    const destination = `${destCoord[1]},${destCoord[0]}`;
 
-    // Build waypoints string for intermediate stops
+    // Intermediate points are waypoints
     let waypointsParam = "";
     if (coordinates.length > 2) {
       const intermediatePoints = coordinates.slice(1, destinationIndex);
@@ -217,25 +217,22 @@ export default function VisitMap() {
         .join("|");
     }
 
+    // Using Google Maps Directions API URL structure for better compatibility and "Start" button support
+    // Setting origin to empty forces Google Maps to use the device's current location as the starting point
+    const webUrl = `https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${destination}${
+      waypointsParam ? `&waypoints=${encodeURIComponent(waypointsParam)}` : ""
+    }&travelmode=driving`;
+
     // Google Maps app URL scheme
-    // Format: comgooglemaps://?saddr=origin&daddr=destination&waypoints=wp1|wp2&directionsmode=driving
-    let appUrl = `comgooglemaps://?saddr=${origin}&daddr=${destination}`;
-    if (waypointsParam) {
-      appUrl += `&waypoints=${waypointsParam}`;
-    }
-    appUrl += "&directionsmode=driving";
+    // We leave saddr empty to use "Current Location" which better triggers the navigation UI
+    const appUrl = `comgooglemaps://?saddr=&daddr=${destination}${
+      waypointsParam ? `&waypoints=${waypointsParam}` : ""
+    }&directionsmode=driving`;
 
-    // Web URL for fallback
-    let webUrl = `https://www.google.com/maps/dir/?api=1&origin=${origin}&destination=${destination}`;
-    if (waypointsParam) {
-      webUrl += `&waypoints=${waypointsParam}`;
-    }
-    webUrl += "&travelmode=driving";
-
-    // Try to open native app first
+    // Priority: Try to open the app directly
     window.location.href = appUrl;
 
-    // Fallback to web after a short delay if app doesn't open
+    // Fallback to the universal web URL after a delay
     setTimeout(() => {
       window.open(webUrl, "_blank");
     }, 1500);
@@ -247,19 +244,18 @@ export default function VisitMap() {
     if (coordinates.length < 2) return;
 
     // Apple Maps URL scheme for navigation
-    // maps:// opens the native Maps app on iOS/macOS
+    // Use saddr=Current+Location to trigger the navigation "Start" button
+    const saddr = "Current+Location";
 
-    // Start address
-    const saddr = `${coordinates[0]![1]},${coordinates[0]![0]}`;
-
-    // Destination addresses (chained with +to:)
+    // For Apple Maps, we try to chain destinations.
+    // While official multi-stop URL support is limited, chaining with +to: or using multiple daddr can work on some OS versions.
+    // The most robust way to ensure all destinations are visible is to join them.
     const stops = coordinates.slice(1);
     const daddr = stops.map((coord) => `${coord[1]},${coord[0]}`).join("+to:");
 
-    // Use maps:// scheme for native app with dirflg=d for driving directions
+    // Construct the Apple Maps URL with dirflg=d for driving
     const url = `maps://?saddr=${saddr}&daddr=${daddr}&dirflg=d`;
 
-    // This will open Apple Maps app directly with navigation ready
     window.location.href = url;
     setMapsModalOpen(false);
   };
@@ -605,6 +601,16 @@ export default function VisitMap() {
               </span>{" "}
               <b>{startLabel}</b>
             </p>
+            <div className="pt-2">
+              <Button
+                size="sm"
+                color="primary"
+                onPress={() => setMapsModalOpen(true)}
+                className="w-full font-semibold shadow-sm"
+              >
+                Start Navigation
+              </Button>
+            </div>
           </>
         )}
       </div>
@@ -817,7 +823,7 @@ export default function VisitMap() {
                     onPress={handleOpenAppleMaps}
                     variant="ghost"
                     color="default"
-                    className="w-full"
+                    className="w-full border-small"
                   >
                     Open in Maps
                   </Button>

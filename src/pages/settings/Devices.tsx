@@ -13,6 +13,7 @@ import {
   useToggleDevice,
 } from "../../hooks/settings/useDevice";
 import { Device } from "../../types/device";
+import { usePaginationAdjustment } from "../../hooks/common/usePaginationAdjustment";
 
 const Devices: React.FC = () => {
   const [page, setPage] = useState(1);
@@ -21,6 +22,13 @@ const Devices: React.FC = () => {
   const { data: devices, isLoading } = useDevices({ page, limit });
   const { mutate: removeDevice } = useRemoveDevice();
   const [deletingDeviceId, setDeletingDeviceId] = useState<string | null>(null);
+
+  usePaginationAdjustment({
+    totalPages: devices?.totalPages || 0,
+    currentPage: page,
+    onPageChange: (newPage) => setPage(newPage),
+    isLoading,
+  });
 
   const handlePageChange = (newPage: number) => {
     setPage(newPage);

@@ -44,6 +44,7 @@ import NfcTagModal from "./referrers/NfcTagModal";
 import QrCodeDownloadModal from "./referrers/QrCodeDownloadModal";
 import ReferrerCard from "./referrers/ReferrerCard";
 import TrackingPanel from "./TrackingPanel";
+import { usePaginationAdjustment } from "../../hooks/common/usePaginationAdjustment";
 
 type ReferralType = "Referrals" | "Referrers" | "NFC & QR Tracking";
 
@@ -88,6 +89,7 @@ const ReferralManagement = () => {
   const referralIdParam = searchParams.get("referralId");
   const referrerIdParam = searchParams.get("referrerId");
   const tabParam = searchParams.get("tab");
+  const actionParam = searchParams.get("action");
 
   useEffect(() => {
     if (tabParam) {
@@ -97,14 +99,15 @@ const ReferralManagement = () => {
       setReferralEditId(referralIdParam);
       setIsReferralStatusModalViewMode(true);
       setIsReferralStatusModalOpen(true);
-      // Optional: Clear search params after opening to avoid re-opening on manual refresh?
-      // For now, let's keep it for deep linking support.
     }
     if (referrerIdParam) {
       setReferrerEditId(referrerIdParam);
       setIsModalOpen(true);
     }
-  }, [referralIdParam, referrerIdParam, tabParam]);
+    if (actionParam === "track") {
+      setIsTrackReferralModalOpen(true);
+    }
+  }, [referralIdParam, referrerIdParam, tabParam, actionParam]);
 
   const debouncedSearch = useDebouncedValue(currentFilters.search, 500);
   const debouncedReferrerSearch = useDebouncedValue(referrerParams.search, 500);
@@ -124,6 +127,21 @@ const ReferralManagement = () => {
   const { data: referrerData, isLoading: isLoadingReferrers } =
     useFetchReferrers({ ...referrerParams, search: debouncedReferrerSearch });
   const referrers = referrerData?.data;
+
+  // Pagination adjustments
+  usePaginationAdjustment({
+    totalPages: referralData?.totalPages || 0,
+    currentPage: currentFilters.page,
+    onPageChange: (page) => setCurrentFilters((prev) => ({ ...prev, page })),
+    isLoading: isLoadingReferrals || isFetchingReferrals,
+  });
+
+  usePaginationAdjustment({
+    totalPages: referrerData?.totalPages || 0,
+    currentPage: referrerParams.page,
+    onPageChange: (page) => setReferrerParams((prev) => ({ ...prev, page })),
+    isLoading: isLoadingReferrers,
+  });
 
   const { data: singleReferralData } = useGetReferralById(referralEditId);
   const { data: singleReferrerData } = useGetReferrerById(referrerEditId);

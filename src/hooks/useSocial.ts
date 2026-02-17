@@ -1,9 +1,5 @@
-import {
-  useMutation,
-  useQuery,
-  useQueryClient,
-  UseQueryResult,
-} from "@tanstack/react-query";
+import { useMutation, useQuery, UseQueryResult } from "@tanstack/react-query";
+import { queryClient } from "../providers/QueryProvider";
 import {
   createSocialPost,
   deleteSocialIntegration,
@@ -44,13 +40,16 @@ export const useConnectSocial = () => {
       if (data.authUrl) {
         window.open(data.authUrl, "_blank");
       }
+
+      queryClient.invalidateQueries({ queryKey: ["social-overview"] });
+      queryClient.invalidateQueries({ queryKey: ["recent-posts"] });
+      queryClient.invalidateQueries({ queryKey: ["posts-analytics"] });
     },
   });
 };
 
 // Update social integration
 export const useUpdateSocial = () => {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: ({
       id,
@@ -61,17 +60,22 @@ export const useUpdateSocial = () => {
     }) => updateSocialIntegration(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: SOCIAL_MEDIA_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ["social-overview"] });
+      queryClient.invalidateQueries({ queryKey: ["recent-posts"] });
+      queryClient.invalidateQueries({ queryKey: ["posts-analytics"] });
     },
   });
 };
 
 // Disconnect social integration
 export const useDisconnectSocial = () => {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: deleteSocialIntegration,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: SOCIAL_MEDIA_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ["social-overview"] });
+      queryClient.invalidateQueries({ queryKey: ["recent-posts"] });
+      queryClient.invalidateQueries({ queryKey: ["posts-analytics"] });
     },
   });
 };
@@ -100,7 +104,6 @@ export const useRecentPosts = (page: number, limit: number) => {
 };
 
 export const useCreateSocialPost = () => {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (formData: FormData) => createSocialPost(formData),
     onSuccess: () => {
@@ -116,18 +119,4 @@ export const useGoogleBusinessPlatformOverview = () => {
     queryKey: ["google-business-platform-overview"],
     queryFn: fetchGoogleBusinessPlatformOverview,
   });
-};
-
-// Legacy exports for backward compatibility
-export const useGetSocialMediaCredentials = useSocialCredentials;
-export const useInitiateAuthIntegration = () => {
-  const connect = useConnectSocial();
-  return {
-    ...connect,
-    mutate: (params: { platform: string; platformKey?: string }) =>
-      connect.mutate({
-        platform: params.platform,
-        platformKey: params.platformKey || `${params.platform}AuthIntegration`,
-      }),
-  } as any;
 };

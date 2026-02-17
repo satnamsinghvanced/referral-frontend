@@ -14,14 +14,14 @@ import { getLocalTimeZone, now } from "@internationalized/date";
 import { useFormik } from "formik";
 import { useEffect } from "react";
 import * as Yup from "yup";
-import { ActivityItem, ActivityStatus } from "../../../types/marketing";
+import { ACTIVITY_STATUSES, ACTIVITY_TYPES } from "../../../consts/marketing";
+import { PRIORITY_LEVELS } from "../../../consts/practice";
 import {
   useCreateActivity,
   useUpdateActivity,
 } from "../../../hooks/useMarketing";
-import { ACTIVITY_STATUSES, ACTIVITY_TYPES } from "../../../consts/marketing";
+import { ActivityItem, ActivityStatus } from "../../../types/marketing";
 import { keepUTCWallClock } from "../../../utils/keepUTCWallClock";
-import { PRIORITY_LEVELS } from "../../../consts/practice";
 
 interface ActivityFormValues {
   title: string;
@@ -32,7 +32,7 @@ interface ActivityFormValues {
   time?: string;
   priority: string;
   platform: string;
-  budget: number;
+  budget: number | "";
   colorId: string;
   status?: ActivityStatus;
 }
@@ -60,7 +60,13 @@ export const ActivityValidationSchema = Yup.object().shape({
     .required("Priority is required."),
   status: Yup.string().optional(),
   platform: Yup.string().optional(),
-  budget: Yup.number().min(0, "Budget cannot be negative.").optional(),
+  budget: Yup.number()
+    .transform((value, originalValue) =>
+      String(originalValue).trim() === "" ? null : value,
+    )
+    .nullable()
+    .min(0, "Budget cannot be negative.")
+    .optional(),
 });
 
 interface ActivityActionsModalProps {
@@ -83,7 +89,11 @@ export default function ActivityActionsModal({
   const initialValues: ActivityFormValues = {
     title: initialData?.title || "",
     // @ts-ignore
-    type: initialData?.type || "googleCalendar",
+    type: isEditing
+      ? initialData?.type
+        ? initialData?.type
+        : "googleCalendar"
+      : ACTIVITY_TYPES?.[0]?.value,
     colorId: initialData?.colorId || "7",
     description: initialData?.description || "",
     startDate: initialData?.startDate || defaultStartDate || "",
@@ -91,7 +101,7 @@ export default function ActivityActionsModal({
     // time: initialData?.time || "09:00",
     priority: initialData?.priority || "medium",
     platform: initialData?.platform || "",
-    budget: initialData?.budget || 0,
+    budget: initialData?.budget || "",
     status: initialData?.status || "scheduled",
   };
 
@@ -103,10 +113,15 @@ export default function ActivityActionsModal({
     validationSchema: ActivityValidationSchema,
     enableReinitialize: true,
     onSubmit: (values) => {
+      const submitValues = {
+        ...values,
+        budget: values.budget === "" ? 0 : values.budget,
+      };
+
       if (isEditing) {
         updateActivity(
           {
-            ...values,
+            ...submitValues,
             id: initialData?._id,
             googleId: initialData?.googleId,
           },
@@ -120,7 +135,7 @@ export default function ActivityActionsModal({
         // @ts-ignore
         createActivity(
           {
-            ...values,
+            ...submitValues,
             colorId:
               ACTIVITY_TYPES.find(
                 (activity) => activity.value === values.type,
@@ -138,12 +153,17 @@ export default function ActivityActionsModal({
   });
 
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen) {
+      if (!isEditing) {
+        formik.setFieldValue("startDate", defaultStartDate || "");
+        formik.setFieldValue("endDate", defaultEndDate || "");
+      }
+    } else {
       formik.resetForm();
       formik.setFieldValue("startDate", "");
       formik.setFieldValue("endDate", "");
     }
-  }, [isOpen]);
+  }, [isOpen, defaultStartDate, defaultEndDate, isEditing]);
 
   const hasError = (field: keyof typeof initialValues) =>
     formik.touched[field] && formik.errors[field];

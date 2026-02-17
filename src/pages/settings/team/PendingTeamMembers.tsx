@@ -11,6 +11,7 @@ import { TeamMember } from "../../../services/settings/team";
 import { formatDateToYYYYMMDD } from "../../../utils/formatDateToYYYYMMDD";
 import { LoadingState } from "../../../components/common/LoadingState";
 import Pagination from "../../../components/common/Pagination";
+import { usePaginationAdjustment } from "../../../hooks/common/usePaginationAdjustment";
 
 const invitationStatusColors: Record<string, string> = {
   active:
@@ -33,6 +34,13 @@ const PendingTeamMembers = () => {
     useFetchPendingTeamMembers(filters);
 
   const pendingMembers = pendingMembersData?.data;
+
+  usePaginationAdjustment({
+    totalPages: pendingMembersData?.totalPages || 0,
+    currentPage: filters.page,
+    onPageChange: (page) => setFilters((prev) => ({ ...prev, page })),
+    isLoading: membersIsLoading,
+  });
 
   const handlePageChange = (page: number) => {
     setFilters((prev) => ({ ...prev, page }));

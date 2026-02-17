@@ -1,5 +1,5 @@
 export interface SocialMediaCredential {
-  _id: string;
+  id: string;
   userId: string;
   platform:
     | "linkedin"
