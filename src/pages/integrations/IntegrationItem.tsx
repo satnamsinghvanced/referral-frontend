@@ -50,6 +50,9 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
     case "Disconnected":
       statusClasses =
         "bg-secondary dark:bg-default-100 text-secondary-foreground dark:text-foreground/60";
+      StatusIcon = (
+        <div className="h-2 w-2 rounded-full bg-gray-400 dark:bg-gray-600" />
+      );
       break;
     case "Error":
       statusClasses =
@@ -60,54 +63,39 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
       break;
   }
 
-  const actionButton = isCredentialsSaved ? (
-    <>
-      {isError && onReconnect ? (
-        <Button
-          size="sm"
-          radius="sm"
-          variant="solid"
-          color="primary"
-          onPress={onReconnect}
-          endContent={<FiExternalLink className="size-3.5" />}
-        >
-          Reconnect
-        </Button>
-      ) : (
-        <>
-          {onConfigure && (
-            <Button
-              size="sm"
-              radius="sm"
-              variant="ghost"
-              onPress={onConfigure}
-              startContent={<FiSettings className="size-3.5" />}
-              className="border-small border-gray-300 dark:border-default-200"
-            >
-              Configure
-            </Button>
-          )}
-          <Switch
+  const actionButton =
+    status === "Connected" ? (
+      <>
+        {(onConfigure || onReconnect || onConnect) && (
+          <Button
             size="sm"
-            isSelected={isSwitchChecked}
-            onValueChange={onSwitchChange}
-          />
-        </>
-      )}
-    </>
-  ) : (
-    // @ts-ignore
-    <Button
-      size="sm"
-      radius="sm"
-      variant="solid"
-      color="primary"
-      onPress={onConnect}
-      endContent={<FiExternalLink className="size-3.5" />}
-    >
-      Connect
-    </Button>
-  );
+            radius="sm"
+            variant="ghost"
+            onPress={() => (onConfigure || onReconnect || onConnect)?.()}
+            startContent={<FiSettings className="size-3.5" />}
+            className="border-small border-gray-300 dark:border-default-200"
+          >
+            Configure
+          </Button>
+        )}
+        <Switch
+          size="sm"
+          isSelected={isSwitchChecked}
+          onValueChange={onSwitchChange}
+        />
+      </>
+    ) : (
+      <Button
+        size="sm"
+        radius="sm"
+        variant="solid"
+        color="primary"
+        onPress={() => (status === "Error" ? onReconnect || onConnect : onConnect)?.()}
+        endContent={<FiExternalLink className="size-3.5" />}
+      >
+        Connect
+      </Button>
+    );
 
   return (
     <div className="md:flex md:items-start md:justify-between py-5 first:pt-0 last:pb-4 max-md:space-y-4">

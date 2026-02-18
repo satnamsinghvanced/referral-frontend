@@ -28,7 +28,7 @@ const NAVIGATION_ROUTES: NavigationItem[] = [
     requiredPermission: "Manage Settings",
   },
   { name: "Security", icon: LuShield, href: "/settings/security" },
-  { name: "Devices", icon: BiDevices, href: "/settings/devices" },
+  // { name: "Devices", icon: BiDevices, href: "/settings/devices" },
   {
     name: "Billing",
     icon: FiCreditCard,
@@ -96,11 +96,10 @@ const Settings = () => {
                     {({ isActive }) => (
                       <>
                         <span
-                          className={`flex items-center justify-center ${
-                            isActive
-                              ? "text-sky-700 dark:text-sky-400"
-                              : "text-gray-500 dark:text-gray-400"
-                          }`}
+                          className={`flex items-center justify-center ${isActive
+                            ? "text-sky-700 dark:text-sky-400"
+                            : "text-gray-500 dark:text-gray-400"
+                            }`}
                         >
                           <Icon
                             className={clsx(
