@@ -286,12 +286,10 @@ const PatientForm = () => {
               {fetchedUser?.practiceName && (
                 <div className="px-5 py-4">
                   <p className="text-sm font-medium dark:text-white">
-                    {`Referred by ${fetchedUser?.firstName} ${
-                      fetchedUser?.lastName
-                    } ${
-                      fetchedUser?.practiceName &&
+                    {`Referred by ${fetchedUser?.firstName} ${fetchedUser?.lastName
+                      } ${fetchedUser?.practiceName &&
                       `from ${fetchedUser?.practiceName}`
-                    }`}
+                      }`}
                   </p>
                   {fetchedUser?.medicalSpecialty && (
                     <p className="text-xs text-gray-600 dark:text-foreground/60 mt-1">
@@ -579,12 +577,15 @@ const PatientForm = () => {
           <div>
             <p className="text-center mt-5 text-xs leading-relaxed dark:text-foreground/40">
               Questions? Call us directly at{" "}
-              <span className="font-medium dark:text-foreground/60">
-                +1 (555) 123-4567
+              <span className="font-bold dark:text-foreground/60">
+                +{fetchedUser?.phone}
               </span>{" "}
               or visit{" "}
-              <span className="font-medium dark:text-foreground/60">
-                www.orthodontics.com
+              <span className="font-bold dark:text-foreground/60">
+                {fetchedUser?.practiceName ? (
+                  fetchedUser?.practiceName
+                ) : " www.orthodontics.com"}
+
               </span>
             </p>
           </div>

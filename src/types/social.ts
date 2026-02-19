@@ -2,12 +2,12 @@ export interface SocialMediaCredential {
   id: string;
   userId: string;
   platform:
-    | "linkedin"
-    | "youTube"
-    | "twitter"
-    | "tikTok"
-    | "meta"
-    | "googleBusiness";
+  | "linkedin"
+  | "youTube"
+  | "twitter"
+  | "tikTok"
+  | "meta"
+  | "googleBusiness";
   clientId: string;
   clientSecret: string;
   redirectUri: string;
@@ -46,12 +46,12 @@ export interface IUpdateSocialPayload {
 
 export interface PlatformAuthParams extends AuthIntegrationRequest {
   platform:
-    | "linkedin"
-    | "youTube"
-    | "twitter"
-    | "tikTok"
-    | "meta"
-    | "googleBusiness";
+  | "linkedin"
+  | "youTube"
+  | "twitter"
+  | "tikTok"
+  | "meta"
+  | "googleBusiness";
 }
 
 export interface SocialPlatformStats {
