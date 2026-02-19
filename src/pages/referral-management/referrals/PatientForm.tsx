@@ -103,8 +103,8 @@ const PatientForm = () => {
       .min(2, "Full name must be at least 2 characters")
       .max(100, "Full name must be less than 100 characters"),
     email: Yup.string()
-      .required("Email is required")
-      .matches(EMAIL_REGEX, "Invalid email format"),
+      .matches(EMAIL_REGEX, "Invalid email format")
+      .nullable(),
     phone: Yup.string()
       .matches(PHONE_REGEX, "Phone must be in format (XXX) XXX-XXXX")
       .required("Phone is required"),
@@ -153,7 +153,7 @@ const PatientForm = () => {
       name: "email",
       label: "Email Address",
       placeholder: "your.email@example.com",
-      required: true,
+      required: false,
       maxLength: 255,
     },
     {
