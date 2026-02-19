@@ -98,7 +98,7 @@ export default function ActivityActionsModal({
     description: initialData?.description || "",
     startDate: initialData?.startDate || defaultStartDate || "",
     endDate: initialData?.endDate || defaultEndDate || "",
-    // time: initialData?.time || "09:00",
+    time: initialData?.time || "",
     priority: initialData?.priority || "medium",
     platform: initialData?.platform || "",
     budget: initialData?.budget || "",
@@ -154,16 +154,17 @@ export default function ActivityActionsModal({
 
   useEffect(() => {
     if (isOpen) {
-      if (!isEditing) {
+      if (isEditing) {
+        formik.setFieldValue("startDate", initialData?.startDate || "");
+        formik.setFieldValue("endDate", initialData?.endDate || "");
+      } else {
         formik.setFieldValue("startDate", defaultStartDate || "");
         formik.setFieldValue("endDate", defaultEndDate || "");
       }
     } else {
       formik.resetForm();
-      formik.setFieldValue("startDate", "");
-      formik.setFieldValue("endDate", "");
     }
-  }, [isOpen, defaultStartDate, defaultEndDate, isEditing]);
+  }, [isOpen, initialData, defaultStartDate, defaultEndDate, isEditing]);
 
   const hasError = (field: keyof typeof initialValues) =>
     formik.touched[field] && formik.errors[field];
@@ -283,7 +284,7 @@ export default function ActivityActionsModal({
                       ? keepUTCWallClock(formik.values.startDate)
                       : null
                   }
-                  minValue={now(getLocalTimeZone())}
+                  minValue={isEditing ? null : now(getLocalTimeZone())}
                   onChange={(dateObject) => {
                     formik.setFieldValue(
                       "startDate",

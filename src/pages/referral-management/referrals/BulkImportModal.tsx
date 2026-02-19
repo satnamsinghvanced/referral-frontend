@@ -61,9 +61,10 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
       "Patient Name*",
       "Patient Age*",
       "Phone Number*",
-      "Email Address*",
+      "Email Address",
       "Treatment/Reason*",
       "Referral Source",
+      "Priority",
     ];
     const dummyRow = [
       "John Doe",
@@ -71,7 +72,8 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
       "555-0123-485",
       "john@example.com",
       "Invisalign",
-      "Direct Referral",
+      "Direct",
+      "Medium",
     ];
 
     const csvContent = [headers.join(","), dummyRow.join(",")].join("\n");
@@ -233,10 +235,12 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
                 <div className="grid grid-cols-2 gap-y-2 gap-x-3">
                   {[
                     "Patient Name (required)",
-                    "Patient Email (required)",
                     "Patient Age (required)",
-                    "Referral Source (required)",
+                    "Phone Number (required)",
                     "Treatment/Reason (required)",
+                    "Referral Source (optional)",
+                    "Patient Email (optional)",
+                    "Priority (optional)",
                   ].map((req, i) => (
                     <div
                       key={i}

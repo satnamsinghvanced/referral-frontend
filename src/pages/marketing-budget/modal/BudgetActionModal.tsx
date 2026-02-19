@@ -520,7 +520,7 @@ export default function BudgetActionModal({
                   label="Start Date"
                   labelPlacement="outside"
                   isRequired
-                  minValue={today(getLocalTimeZone())}
+                  minValue={isEdit ? null : today(getLocalTimeZone())}
                   value={
                     formik.values.startDate
                       ? parseDate(formik.values.startDate)

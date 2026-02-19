@@ -82,8 +82,8 @@ const TrackReferralModal = ({
       .required("Phone number is required")
       .matches(PHONE_REGEX, "Phone must be in format (XXX) XXX-XXXX"),
     email: Yup.string()
-      .required("Email is required")
-      .matches(EMAIL_REGEX, "Invalid email format"),
+      .matches(EMAIL_REGEX, "Invalid email format")
+      .nullable(),
     referrerId: Yup.string().when([], {
       is: () => referrerMode === "existing",
       then: (schema) => schema.required("Please select a referrer"),
@@ -287,7 +287,6 @@ const TrackReferralModal = ({
                     onBlur={formik.handleBlur}
                     isInvalid={!!(formik.errors.email && formik.touched.email)}
                     errorMessage={formik.errors.email}
-                    isRequired
                   />
                 </div>
               </div>

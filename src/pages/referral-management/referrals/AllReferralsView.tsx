@@ -126,15 +126,17 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                 </span>
               </div>
             )}
-            <div className="flex items-center space-x-1.5 text-sm">
-              <CgMail
-                className="h-4 w-4 text-gray-400 dark:text-foreground/40"
-                aria-hidden="true"
-              />
-              <span className="text-xs dark:text-foreground/60">
-                {referral.email}
-              </span>
-            </div>
+            {referral.email && (
+              <div className="flex items-center space-x-1.5 text-sm">
+                <CgMail
+                  className="h-4 w-4 text-gray-400 dark:text-foreground/40"
+                  aria-hidden="true"
+                />
+                <span className="text-xs dark:text-foreground/60">
+                  {referral.email}
+                </span>
+              </div>
+            )}
           </div>
         </div>
 

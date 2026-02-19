@@ -457,7 +457,7 @@ const ReferralManagement = () => {
                       <Input
                         size="sm"
                         variant="flat"
-                        placeholder="Search referrals by patient name, doctor, or practice..."
+                        placeholder="Search by name, practice, email, or phone..."
                         value={currentFilters.search}
                         onValueChange={(value) =>
                           setCurrentFilters((prev) => ({
