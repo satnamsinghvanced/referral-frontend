@@ -8,7 +8,7 @@ interface ComponentContainerProps {
     subHeading?: string | undefined;
     buttons?: ButtonConfig[] | undefined;
   };
-  children: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 const ComponentContainer: React.FC<ComponentContainerProps> = ({

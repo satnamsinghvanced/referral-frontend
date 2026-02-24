@@ -82,6 +82,13 @@ const Sidebar = ({
       href: "/",
     },
     {
+      name: "Lead Tracking",
+      icon: HiOutlineLightningBolt,
+      href: "/lead-tracking",
+      stats: "NEW",
+      color: "bg-sky-500 !text-white",
+    },
+    {
       name: "Referrals",
       icon: LuUsers,
       href: "/referrals",

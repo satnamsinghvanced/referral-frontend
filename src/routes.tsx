@@ -14,6 +14,9 @@ const HelpCenter = React.lazy(() => import("./pages/HelpCenter"));
 const EmailCampaign = React.lazy(
   () => import("./pages/email-campaigns/EmailCampaigns"),
 );
+const LeadTracking = React.lazy(
+  () => import("./pages/lead-tracking/LeadTracking"),
+);
 const MarketingBudget = React.lazy(
   () => import("./pages/marketing-budget/MarketingBudget"),
 );
@@ -113,6 +116,7 @@ function AppRoutes() {
       ),
       children: [
         { index: true, element: <Dashboard /> },
+        { path: "lead-tracking", element: <LeadTracking /> },
         {
           path: "referrals",
           element: (

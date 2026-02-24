@@ -168,49 +168,44 @@ const Dashboard = () => {
   const recentActivities = [
     dashboard?.recentActivity?.referral
       ? {
-          icon: "👥",
-          iconBg: "bg-sky-50 dark:bg-sky-900/20",
-          title: `New referral from ${
-            dashboard.recentActivity.referral.referrer?.name || "N/A"
+        icon: "👥",
+        iconBg: "bg-sky-50 dark:bg-sky-900/20",
+        title: `New referral from ${dashboard.recentActivity.referral.referrer?.name || "N/A"
           }`,
-          description: `Patient: ${dashboard.recentActivity.referral.name}${
-            dashboard.recentActivity.referral.treatment
-              ? ` - ${
-                  TREATMENT_OPTIONS.find(
-                    (treatmentOption: any) =>
-                      treatmentOption.key ===
-                      dashboard.recentActivity.referral!.treatment,
-                  )?.label || dashboard.recentActivity.referral.treatment
-                }`
-              : ""
+        description: `Patient: ${dashboard.recentActivity.referral.name}${dashboard.recentActivity.referral.treatment
+            ? ` - ${TREATMENT_OPTIONS.find(
+              (treatmentOption: any) =>
+                treatmentOption.key ===
+                dashboard.recentActivity.referral!.treatment,
+            )?.label || dashboard.recentActivity.referral.treatment
+            }`
+            : ""
           }`,
-          time: `${timeAgo(dashboard.recentActivity.referral.createdAt || "")}`,
-          onClick: () => navigate("/referrals"),
-        }
+        time: `${timeAgo(dashboard.recentActivity.referral.createdAt || "")}`,
+        onClick: () => navigate("/referrals"),
+      }
       : null,
     dashboard?.recentActivity?.reviews
       ? {
-          icon: "⭐",
-          iconBg: "bg-yellow-50 dark:bg-yellow-900/20",
-          title: "New review received",
-          description: `${
-            dashboard.recentActivity.reviews.reviewer?.displayName || "Someone"
-          } left a ${
-            dashboard.recentActivity.reviews.starRating || "0"
+        icon: "⭐",
+        iconBg: "bg-yellow-50 dark:bg-yellow-900/20",
+        title: "New review received",
+        description: `${dashboard.recentActivity.reviews.reviewer?.displayName || "Someone"
+          } left a ${dashboard.recentActivity.reviews.starRating || "0"
           } review`,
-          time: `${timeAgo(dashboard.recentActivity.reviews.createTime || "")}`,
-          onClick: () => navigate("/reviews"),
-        }
+        time: `${timeAgo(dashboard.recentActivity.reviews.createTime || "")}`,
+        onClick: () => navigate("/reviews"),
+      }
       : null,
     dashboard?.recentActivity?.campaigns
       ? {
-          icon: "📢",
-          iconBg: "bg-orange-50 dark:bg-orange-900/20",
-          title: `New email campaign: ${dashboard?.recentActivity?.campaigns?.name || ""}`,
-          description: `${dashboard?.recentActivity?.campaigns?.description || ""}`,
-          time: `${timeAgo(dashboard?.recentActivity?.campaigns?.createdAt || "")}`,
-          onClick: () => navigate("/email-campaigns"),
-        }
+        icon: "📢",
+        iconBg: "bg-orange-50 dark:bg-orange-900/20",
+        title: `New email campaign: ${dashboard?.recentActivity?.campaigns?.name || ""}`,
+        description: `${dashboard?.recentActivity?.campaigns?.description || ""}`,
+        time: `${timeAgo(dashboard?.recentActivity?.campaigns?.createdAt || "")}`,
+        onClick: () => navigate("/email-campaigns"),
+      }
       : null,
   ].filter((activity) => activity !== null);
 
@@ -424,7 +419,7 @@ const Dashboard = () => {
                   </span>
                   <span className="bg-emerald-100 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300 h-6 p-0 px-2 flex items-center justify-center rounded text-xs font-medium">
                     {dashboard?.nfcQrData?.conversionRate &&
-                    dashboard.nfcQrData.conversionRate > 0
+                      dashboard.nfcQrData.conversionRate > 0
                       ? `${dashboard.nfcQrData.conversionRate}%`
                       : "0%"}
                   </span>
