@@ -6,15 +6,10 @@ import {
     Input,
     Select,
     SelectItem,
-    Badge,
-    Avatar,
     Chip,
-    Tabs,
-    Tab,
     useDisclosure,
 } from "@heroui/react";
 import {
-    HiOutlineLightningBolt,
     HiOutlineChartBar,
     HiOutlineUsers,
     HiOutlineClock,
@@ -25,7 +20,6 @@ import {
     HiOutlineCheckCircle,
     HiOutlineCurrencyDollar,
     HiOutlineTrendingUp,
-    HiOutlineMail,
     HiOutlinePhone,
     HiOutlineCalendar,
     HiOutlineLogout,
@@ -33,110 +27,184 @@ import {
     HiOutlineEye,
     HiStar
 } from "react-icons/hi";
-import { LuTarget, LuMousePointer2, LuUser, LuMapPin, LuTag } from "react-icons/lu";
+import { LuTarget, LuUsers } from "react-icons/lu";
 import AddLeadModal from "./modal/AddLeadModal";
 import LeadCard from "./LeadCard";
-import { LeadStatusData } from "../../types/leadTracking";
-import { useLeadStatus } from "../../hooks/useLeadTracking";
+import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
+import TrendIndicator from "../../components/common/TrendIndicator";
+import LeadDetailsModal from "./modal/LeadDetailsModal";
+
+import { useLeadStatus, useLeadStats } from "../../hooks/useLeadTracking";
+import { LEAD_SOURCE, LEAD_PRIORITY, LEAD_TREATMENTS, LEAD_STATUS, STAGE_STYLES, STATUS_COLORS } from "../../consts/LeadTrackingConstants";
+import { useDebounce } from "../../hooks/useDebounce";
+import Pagination from "../../components/common/Pagination";
+import { EVEN_PAGINATION_LIMIT } from "../../consts/consts";
+
+const orangeItemClasses = {
+    base: [
+        "data-[hover=true]:!bg-orange-100",
+        "data-[hover=true]:!text-orange-600",
+        "data-[selected=true]:!bg-orange-100",
+        "data-[selected=true]:!text-orange-600",
+        "data-[focus=true]:!bg-orange-100",
+        "data-[focus=true]:!text-orange-600",
+    ],
+};
+
+const formatTreatment = (t: string) => {
+    return LEAD_TREATMENTS[t as keyof typeof LEAD_TREATMENTS] || t.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+};
+
+const formatCurrency = (val: number) => {
+    return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+        maximumFractionDigits: 0
+    }).format(val || 0);
+};
+
+const statusMap: Record<string, { id: string; name: string; icon: any }> = {
+    newLead: { ...LEAD_STATUS.newLead, icon: HiOutlineClock },
+    contacted: { ...LEAD_STATUS.contacted, icon: HiOutlinePhone },
+    appointmentScheduled: { ...LEAD_STATUS.appointmentScheduled, icon: HiOutlineCalendar },
+    noShow: { ...LEAD_STATUS.noShow, icon: HiOutlineLogout },
+    patientWon: { ...LEAD_STATUS.patientWon, icon: HiOutlineCheckCircle },
+    lost: { ...LEAD_STATUS.lost, icon: HiOutlineXCircle },
+};
+
+const formatSource = (source: string) => {
+    if (!source) return "Unknown";
+    return LEAD_SOURCE[source as keyof typeof LEAD_SOURCE] || source;
+};
+
+const getPriorityColor = (priorityLabel: string) => {
+    const p = priorityLabel.toLowerCase();
+    if (p === "high") return "danger";
+    if (p === "medium") return "primary";
+    return "default";
+};
+
+const getStageStyles = (stageId: string) => STAGE_STYLES[stageId] || {
+    bg: "bg-gray-50",
+    headerText: "text-gray-700",
+    iconColor: "text-gray-500",
+    bubbleBg: "bg-gray-100",
+    border: "border-gray-100"
+};
+
+const getStatusColor = (status: string) => {
+    const s = status.toLowerCase();
+    const entry = Object.entries(STATUS_COLORS).find(([key]) => s.includes(key));
+    return entry ? entry[1] : "text-gray-600 bg-gray-50 border-gray-100";
+};
+
 
 const LeadTracking = () => {
     const [view, setView] = useState("pipeline");
+    const [page, setPage] = useState(1);
+    const [limit] = useState(EVEN_PAGINATION_LIMIT);
+    const [search, setSearch] = useState("");
+    const [source, setSource] = useState("allSources");
+    const [treatment, setTreatment] = useState("allTreatments");
+    const [priority, setPriority] = useState("allPriorities");
+
+    const debouncedSearch = useDebounce(search, 500);
+
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
+    const { isOpen: isDetailsOpen, onOpen: onDetailsOpen, onOpenChange: onDetailsOpenChange } = useDisclosure();
+    const [selectedLead, setSelectedLead] = useState<any>(null);
 
-    const summaryStats = [
-        {
-            title: "Total Leads",
-            value: "1,284",
-            trend: "up",
-            subtext: "+12.5% from last month",
-            icon: HiOutlineUsers,
-            iconBg: "bg-blue-50 text-blue-600",
-        },
-        {
-            title: "Conversion Rate",
-            value: "24.2%",
-            trend: "up",
-            subtext: "+2.4% from last month",
-            icon: HiOutlineChartBar,
-            iconBg: "bg-green-50 text-green-600",
-        },
-        {
-            title: "Cost Per Lead",
-            value: "$42.50",
-            trend: "down",
-            subtext: "-8.1% from last month",
-            icon: HiOutlineCurrencyDollar,
-            iconBg: "bg-purple-50 text-purple-600",
-        },
-        {
-            title: "Show Rate",
-            value: "68.5%",
-            trend: "up",
-            subtext: "+4.2% from last month",
-            icon: LuTarget,
-            iconBg: "bg-orange-50 text-orange-600",
-        },
-    ];
-
-    const secondaryStats = [
-        {
-            title: "Avg Response Time",
-            value: "7.7 min",
-            icon: HiOutlineClock,
-            iconColor: "text-blue-500",
-        },
-        {
-            title: "Pipeline Value",
-            value: "$31,700",
-            icon: HiOutlineChartBar,
-            iconColor: "text-purple-500",
-        },
-        {
-            title: "Top Source",
-            value: "Google Ads",
-            icon: HiOutlineTrendingUp,
-            iconColor: "text-pink-500",
-        },
-    ];
-
-    const formatTreatment = (t: string) => {
-        return t.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+    const handleLeadClick = (lead: any) => {
+        setSelectedLead(lead);
+        onDetailsOpen();
     };
+    const { data: apiResponse, isLoading, isError } = useLeadStatus({
+        page,
+        limit,
+        search: debouncedSearch,
+        source: source === "allSources" ? "" : source,
+        treatments: treatment === "allTreatments" ? "" : treatment,
+        priority: priority === "allPriorities" ? "" : priority
+    });
+    const { data: statsData } = useLeadStats();
 
-    const formatCurrency = (val: number) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-            maximumFractionDigits: 0
-        }).format(val);
-    };
+    const summaryStats = useMemo<StatCard[]>(() => {
+        const stats = statsData;
+        return [
+            {
+                heading: "Total Leads",
+                value: stats?.totalLeads?.value?.toLocaleString() || "0",
+                icon: <LuUsers className="text-blue-600 dark:text-blue-400" />,
+                subheading: (
+                    <TrendIndicator
+                        status={stats?.totalLeads?.converted > 0 ? "increment" : "decrement"}
+                        valueOverride={`${stats?.totalLeads?.converted || 0} converted`}
+                    />
+                ),
+            },
+            {
+                heading: "Conversion Rate",
+                value: `${stats?.conversionRate?.value || 0}%`,
+                icon: <HiOutlineChartBar className="text-green-600 dark:text-green-400" />,
+                subheading: (
+                    <TrendIndicator
+                        status={stats?.conversionRate?.growth?.status}
+                        percentage={stats?.conversionRate?.growth?.label}
+                    />
+                ),
+            },
+            {
+                heading: "Cost Per Lead",
+                value: formatCurrency(stats?.costPerLead?.value || 0),
+                icon: <HiOutlineCurrencyDollar className="text-orange-600 dark:text-orange-400" />,
+                subheading: (
+                    <TrendIndicator
+                        status={stats?.costPerLead?.growth?.status}
+                        percentage={stats?.costPerLead?.growth?.label}
+                    />
+                ),
+            },
+            {
+                heading: "Show Rate",
+                value: `${stats?.showRate?.value || 0}%`,
+                icon: <LuTarget className="text-purple-600 dark:text-purple-400" />,
+                subheading: (
+                    <TrendIndicator
+                        status={stats?.showRate?.growth?.status}
+                        percentage={stats?.showRate?.growth?.label}
+                    />
+                ),
+            },
+        ];
+    }, [statsData]);
 
-    const statusMap: Record<string, { id: string; name: string; icon: any }> = {
-        newLead: { id: 'new', name: 'New Lead', icon: HiOutlineClock },
-        contacted: { id: 'contacted', name: 'Contacted', icon: HiOutlinePhone },
-        appointmentScheduled: { id: 'scheduled', name: 'Appointment Scheduled', icon: HiOutlineCalendar },
-        noShow: { id: 'no-show', name: 'No Show', icon: HiOutlineLogout },
-        patientWon: { id: 'won', name: 'Patient Won', icon: HiOutlineCheckCircle },
-        lost: { id: 'lost', name: 'Patient Lost', icon: HiOutlineXCircle },
-    };
-
-    const formatSource = (source: string) => {
-        if (!source) return "Unknown";
-        const formatted = source.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
-        if (formatted === "Facebook Ads") return "Facebook Ads";
-        if (formatted === "Google Ads") return "Google Ads";
-        return formatted;
-    };
-
-    const { data: apiResponse, isLoading, isError } = useLeadStatus();
-    if (apiResponse) console.log("Lead Data:", apiResponse);
+    const secondaryStats = useMemo<StatCard[]>(() => {
+        const stats = statsData;
+        return [
+            {
+                heading: "Avg Response Time",
+                value: stats?.avgResponseTime?.value || "0.0 min",
+                icon: <HiOutlineClock className="text-blue-600 dark:text-blue-400" />,
+            },
+            {
+                heading: "Pipeline Value",
+                value: formatCurrency(stats?.pipelineValue?.value || 0),
+                icon: <HiOutlineChartBar className="text-purple-600 dark:text-purple-400" />,
+            },
+            {
+                heading: "Top Source",
+                value: formatSource(stats?.topSource) || "Unknown",
+                icon: <HiOutlineTrendingUp className="text-pink-600 dark:text-pink-400" />,
+            },
+        ];
+    }, [statsData]);
 
     const leads = useMemo(() => {
-        if (!apiResponse) return [];
-        const data = apiResponse;
+        if (!apiResponse || !apiResponse.groupedLeads) return [];
+        const data = apiResponse.groupedLeads;
         const allLeads: any[] = [];
         Object.keys(data).forEach(statusKey => {
-            const leadsList = data[statusKey as keyof LeadStatusData];
+            const leadsList = data[statusKey];
             if (Array.isArray(leadsList)) {
                 const leadsInStatus = leadsList.map((l: any) => ({
                     id: l._id,
@@ -150,7 +218,8 @@ const LeadTracking = () => {
                     score: 85,
                     responseTime: '5 min',
                     priority: l.priority ? l.priority.charAt(0).toUpperCase() + l.priority.slice(1) : "Medium",
-                    stage: statusMap[statusKey]?.id || "new"
+                    stage: statusMap[statusKey]?.id || "new",
+                    assignedTo: l.assignedTo || "Unassigned"
                 }));
                 allLeads.push(...leadsInStatus);
             }
@@ -158,138 +227,28 @@ const LeadTracking = () => {
         return allLeads;
     }, [apiResponse]);
 
-    const stages = Object.keys(statusMap).map(key => {
-        const stageInfo = statusMap[key];
-        if (!stageInfo) return null;
+    const stages = useMemo(() => {
+        return Object.keys(statusMap).map(key => {
+            const stageInfo = statusMap[key];
+            if (!stageInfo) return null;
 
-        const stageLeads = leads.filter(l => l.stage === stageInfo.id);
-        const totalValue = stageLeads.reduce((acc, curr) => {
-            const val = curr.value || "$0";
-            const num = parseInt(val.replace(/[^0-9]/g, ''));
-            return acc + (isNaN(num) ? 0 : num);
-        }, 0);
+            const stageLeads = leads.filter(l => l.stage === stageInfo.id);
+            const totalValue = stageLeads.reduce((acc: number, curr: any) => {
+                const val = curr.value || "$0";
+                const num = parseInt(val.replace(/[^0-9]/g, ''));
+                return acc + (isNaN(num) ? 0 : num);
+            }, 0);
 
-        return {
-            ...stageInfo,
-            count: stageLeads.length,
-            value: formatCurrency(totalValue)
-        };
-    }).filter(Boolean) as any[];
-
-    const getPriorityColor = (priority: string) => {
-        switch (priority) {
-            case "High":
-                return "danger";
-            case "Medium":
-                return "primary";
-            case "Low":
-                return "default";
-            default:
-                return "default";
-        }
-    };
-
-    const getStageStyles = (stageId: string) => {
-        switch (stageId) {
-            case "new":
-                return {
-                    bg: "bg-[#f0f9ff]",
-                    headerText: "text-sky-700",
-                    iconColor: "text-sky-500",
-                    bubbleBg: "bg-sky-100/50",
-                    border: "border-sky-100/50"
-                };
-            case "contacted":
-                return {
-                    bg: "bg-[#eff6ff]",
-                    headerText: "text-blue-700",
-                    iconColor: "text-blue-500",
-                    bubbleBg: "bg-blue-100/50",
-                    border: "border-blue-100/50"
-                };
-            case "scheduled":
-                return {
-                    bg: "bg-[#f5f3ff]",
-                    headerText: "text-purple-700",
-                    iconColor: "text-purple-500",
-                    bubbleBg: "bg-purple-100/50",
-                    border: "border-purple-100/50"
-                };
-            case "no-show":
-                return {
-                    bg: "bg-[#fffaf0]",
-                    headerText: "text-orange-700",
-                    iconColor: "text-orange-500",
-                    bubbleBg: "bg-orange-100/50",
-                    border: "border-orange-100/50"
-                };
-            case "won":
-                return {
-                    bg: "bg-[#f0fdf4]",
-                    headerText: "text-green-700",
-                    iconColor: "text-green-500",
-                    bubbleBg: "bg-green-100/50",
-                    border: "border-green-100/50"
-                };
-            case "lost":
-                return {
-                    bg: "bg-[#f8fafc]",
-                    headerText: "text-slate-700",
-                    iconColor: "text-slate-500",
-                    bubbleBg: "bg-slate-100/50",
-                    border: "border-slate-100/50"
-                };
-            default:
-                return {
-                    bg: "bg-gray-50",
-                    headerText: "text-gray-700",
-                    iconColor: "text-gray-500",
-                    bubbleBg: "bg-gray-100",
-                    border: "border-gray-100"
-                };
-        }
-    };
-
-    const getStageHeaderColor = (stage: string) => {
-        switch (stage) {
-            case "new":
-                return "text-sky-500";
-            case "contacted":
-                return "text-blue-500";
-            case "scheduled":
-                return "text-purple-500";
-            case "no-show":
-                return "text-orange-500";
-            case "won":
-                return "text-green-500";
-            case "lost":
-                return "text-gray-500";
-            default:
-                return "text-gray-500";
-        }
-    };
-
-    const getStatusColor = (status: string) => {
-        switch (status) {
-            case "New Lead":
-                return "text-sky-600 bg-sky-50 border-sky-100";
-            case "Contacted":
-                return "text-blue-600 bg-blue-50 border-blue-100";
-            case "Appointment Scheduled":
-                return "text-purple-600 bg-purple-50 border-purple-100";
-            case "No Show":
-                return "text-orange-600 bg-orange-50 border-orange-100";
-            case "Patient Won":
-                return "text-green-600 bg-green-50 border-green-100";
-            case "Lost":
-                return "text-gray-600 bg-gray-50 border-gray-100";
-            default:
-                return "text-gray-600 bg-gray-50 border-gray-100";
-        }
-    };
+            return {
+                ...stageInfo,
+                count: stageLeads.length,
+                value: formatCurrency(totalValue)
+            };
+        }).filter(Boolean) as any[];
+    }, [leads]);
 
     return (
-        <div className="p-6 max-w-[1600px] mx-auto space-y-6 bg-slate-50/50 min-h-screen h-full overflow-auto">
+        <div className="p-6 max-w-[1600px] mx-auto space-y-6 bg-slate-50/50 overflow-auto">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
@@ -331,91 +290,68 @@ const LeadTracking = () => {
             </div>
 
             <AddLeadModal isOpen={isOpen} onOpenChange={onOpenChange} />
+            <LeadDetailsModal
+                isOpen={isDetailsOpen}
+                onOpenChange={onDetailsOpenChange}
+                lead={selectedLead}
+            />
 
             {/* Summary Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {summaryStats.map((stat, index) => (
-                    <Card
-                        key={index}
-                        shadow="none"
-                        className="border border-foreground/10 bg-white dark:bg-background transition-all cursor-pointer hover:border-primary/30 dark:hover:border-primary/50 hover:shadow-lg dark:hover:shadow-primary/10 hover:-translate-y-1"
-                    >
-                        <CardBody className="flex flex-row items-center justify-between p-4">
-                            <div>
-                                <p className="text-gray-500 text-xs font-medium mb-1">{stat.title}</p>
-                                <h3 className="text-xl font-bold mb-1">{stat.value}</h3>
-                                <p className={`text-[10px] flex items-center gap-1 ${stat.trend === 'up' ? 'text-green-500' :
-                                    stat.trend === 'down' ? 'text-red-500' : 'text-blue-500'
-                                    }`}>
-                                    {stat.trend === 'up' && '▲'}
-                                    {stat.trend === 'down' && '▼'}
-                                    {stat.subtext}
-                                </p>
-                            </div>
-                            <div className={`${stat.iconBg} p-2.5 rounded-xl`}>
-                                <stat.icon className="size-5" />
-                            </div>
-                        </CardBody>
-                    </Card>
+            <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
+                {summaryStats.map((data, i) => (
+                    <MiniStatsCard key={i} cardData={data} />
                 ))}
             </div>
 
             {/* Secondary Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {secondaryStats.map((stat, index) => (
-                    <Card key={index} shadow="none" className="border border-foreground/10 bg-white">
-                        <CardBody className="flex flex-row items-center justify-between p-4">
-                            <div>
-                                <p className="text-gray-500 text-xs font-medium mb-1">{stat.title}</p>
-                                <h3 className="text-xl font-bold">{stat.value}</h3>
-                            </div>
-                            <stat.icon className={`size-6 ${stat.iconColor} opacity-80`} />
-                        </CardBody>
-                    </Card>
+            <div className="grid md:grid-cols-3 gap-3 md:gap-4">
+                {secondaryStats.map((data, i) => (
+                    <MiniStatsCard key={i} cardData={data} />
                 ))}
             </div>
 
             {/* Filters */}
             <div className="flex flex-col xl:flex-row gap-4 xl:items-center xl:justify-between bg-white p-4 rounded-xl shadow-sm">
 
-                <div className="w-full xl:flex-grow xl:max-w-lg">
+                <div className="w-full xl:flex-grow">
                     <Input
                         placeholder="Search leads by name, email, or phone..."
                         startContent={<HiOutlineSearch className="text-gray-400" />}
                         variant="flat"
                         size="sm"
+                        value={search}
+                        onValueChange={(val) => {
+                            setSearch(val);
+                            setPage(1);
+                        }}
                     />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 w-full xl:w-auto items-stretch sm:items-center">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 w-full items-stretch sm:items-center">
 
                     <Select
                         placeholder="All Sources"
                         size="sm"
                         className="w-full"
                         variant="flat"
-                        defaultSelectedKeys={["All Sources"]}
+                        selectedKeys={new Set([source])}
+                        onSelectionChange={(keys) => {
+                            setSource(Array.from(keys)[0] as string);
+                            setPage(1);
+                        }}
                         listboxProps={{
                             itemClasses: {
-                                base: [
-                                    "data-[hover=true]:!bg-orange-100",
-                                    "data-[hover=true]:!text-orange-600",
-                                    "data-[selected=true]:!bg-orange-100",
-                                    "data-[selected=true]:!text-orange-600",
-                                    "data-[focus=true]:!bg-orange-100",
-                                    "data-[focus=true]:!text-orange-600",
-                                ],
-                            },
+                                base: orangeItemClasses.base
+                            }
                         }}
+                        items={[
+                            { key: "allSources", label: "All Sources" },
+                            ...Object.entries(LEAD_SOURCE).map(([key, label]) => ({ key, label }))
+                        ]}
                     >
-                        <SelectItem key="All Sources">All Sources</SelectItem>
-                        <SelectItem key="Google Ads">Google Ads</SelectItem>
-                        <SelectItem key="Facebook Ads">Facebook Ads</SelectItem>
-                        <SelectItem key="Instagram">Instagram</SelectItem>
-                        <SelectItem key="Referral">Referral</SelectItem>
-                        <SelectItem key="Website">Website</SelectItem>
-                        <SelectItem key="Walk-in">Walk-in</SelectItem>
-                        <SelectItem key="Direct Mail">Direct Mail</SelectItem>
+                        {(item) => (
+                            <SelectItem key={item.key}>{item.label}</SelectItem>
+                        )}
                     </Select>
 
                     <Select
@@ -423,26 +359,24 @@ const LeadTracking = () => {
                         size="sm"
                         className="w-full"
                         variant="flat"
-                        defaultSelectedKeys={["All Treatments"]}
+                        selectedKeys={new Set([treatment])}
+                        onSelectionChange={(keys) => {
+                            setTreatment(Array.from(keys)[0] as string);
+                            setPage(1);
+                        }}
                         listboxProps={{
                             itemClasses: {
-                                base: [
-                                    "data-[hover=true]:!bg-orange-100",
-                                    "data-[hover=true]:!text-orange-600",
-                                    "data-[selected=true]:!bg-orange-100",
-                                    "data-[selected=true]:!text-orange-600",
-                                    "data-[focus=true]:!bg-orange-100",
-                                    "data-[focus=true]:!text-orange-600",
-                                ],
-                            },
+                                base: orangeItemClasses.base
+                            }
                         }}
+                        items={[
+                            { key: "allTreatments", label: "All Treatments" },
+                            ...Object.entries(LEAD_TREATMENTS).map(([key, label]) => ({ key, label }))
+                        ]}
                     >
-                        <SelectItem key="All Treatments">All Treatments</SelectItem>
-                        <SelectItem key="Invisalign">Invisalign</SelectItem>
-                        <SelectItem key="Traditional Braces">Traditional Braces</SelectItem>
-                        <SelectItem key="Surgical Orthodontics">Surgical Orthodontics</SelectItem>
-                        <SelectItem key="TMJ Treatment">TMJ Treatment</SelectItem>
-                        <SelectItem key="Cosmetic">Cosmetic</SelectItem>
+                        {(item) => (
+                            <SelectItem key={item.key}>{item.label}</SelectItem>
+                        )}
                     </Select>
 
                     <Select
@@ -450,24 +384,24 @@ const LeadTracking = () => {
                         size="sm"
                         className="w-full"
                         variant="flat"
-                        defaultSelectedKeys={["All Priorities"]}
+                        selectedKeys={new Set([priority])}
+                        onSelectionChange={(keys) => {
+                            setPriority(Array.from(keys)[0] as string);
+                            setPage(1);
+                        }}
                         listboxProps={{
                             itemClasses: {
-                                base: [
-                                    "data-[hover=true]:!bg-orange-100",
-                                    "data-[hover=true]:!text-orange-600",
-                                    "data-[selected=true]:!bg-orange-100",
-                                    "data-[selected=true]:!text-orange-600",
-                                    "data-[focus=true]:!bg-orange-100",
-                                    "data-[focus=true]:!text-orange-600",
-                                ],
-                            },
+                                base: orangeItemClasses.base
+                            }
                         }}
+                        items={[
+                            { key: "allPriorities", label: "All Priorities" },
+                            ...Object.entries(LEAD_PRIORITY).map(([key, label]) => ({ key, label }))
+                        ]}
                     >
-                        <SelectItem key="All Priorities">All Priorities</SelectItem>
-                        <SelectItem key="High">High</SelectItem>
-                        <SelectItem key="Medium">Medium</SelectItem>
-                        <SelectItem key="Low">Low</SelectItem>
+                        {(item) => (
+                            <SelectItem key={item.key}>{item.label}</SelectItem>
+                        )}
                     </Select>
 
                     <div className="flex bg-gray-100 p-1 rounded-lg w-full">
@@ -500,15 +434,15 @@ const LeadTracking = () => {
             ) : view === 'pipeline' ? (
                 <div className="w-full overflow-x-auto h-full min-h-[600px]">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4  lg:min-w-0 h-fit">
-                        {stages.map((stage) => {
+                        {stages.map((stage: any) => {
                             const styles = getStageStyles(stage.id);
                             return (
                                 <div
                                     key={stage.id}
-                                    className="flex flex-col rounded-xl overflow-hidden border border-foreground/5 bg-white"
+                                    className="flex flex-col rounded-xl overflow-hidden border border-foreground/5 bg-white h-fit"
                                 >
                                     {/* Stage Header */}
-                                    <div className={`p-3 space-y-1 ${styles.bg} border-b ${styles.border}`}>
+                                    <div className={`p-3 space-y-1 ${styles.bg} border-b ${styles.border} flex-shrink-0`}>
                                         <div className="flex items-center justify-between">
                                             <div className="flex items-center gap-2">
                                                 <stage.icon className={`size-3.5 ${styles.iconColor}`} />
@@ -525,20 +459,28 @@ const LeadTracking = () => {
                                         </div>
                                     </div>
 
-                                    {/* Lead Cards */}
-                                    {leads &&
-                                        <div className="p-2  space-y-3 flex-1 bg-gray-100/40">
-                                            {leads
-                                                .filter((lead) => lead.stage === stage.id)
-                                                .map((lead) => (
-                                                    <LeadCard
-                                                        key={lead.id}
-                                                        lead={lead}
-                                                        getPriorityColor={getPriorityColor}
-                                                    />
-                                                ))}
+                                    {/* Lead Cards Scrollable Area */}
+                                    <div className="flex-1 overflow-y-auto custom-scrollbar bg-gray-100/40 max-h-[720px]">
+                                        <div className="p-2 space-y-3 min-h-[200px] flex flex-col">
+                                            {leads.filter((lead: any) => lead.stage === stage.id).length > 0 ? (
+                                                leads
+                                                    .filter((lead: any) => lead.stage === stage.id)
+                                                    .map((lead: any) => (
+                                                        <LeadCard
+                                                            key={lead.id}
+                                                            lead={lead}
+                                                            getPriorityColor={getPriorityColor}
+                                                            onPress={handleLeadClick}
+                                                        />
+                                                    ))
+                                            ) : (
+                                                <div className="flex-1 flex flex-col items-center justify-center py-12 text-center opacity-40">
+                                                    <HiOutlineUsers className="size-8 text-gray-400 mb-1" />
+                                                    <span className="text-[11px] font-medium text-gray-500">No leads</span>
+                                                </div>
+                                            )}
                                         </div>
-                                    }
+                                    </div>
                                 </div>
                             );
                         })}
@@ -561,7 +503,7 @@ const LeadTracking = () => {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-foreground/5">
-                                {leads.map((lead) => (
+                                {leads.map((lead: any) => (
                                     <tr key={lead.id} className="hover:bg-gray-50/50 transition-colors">
                                         <td className="py-4 px-6">
                                             <div className="space-y-1">
@@ -614,6 +556,7 @@ const LeadTracking = () => {
                                                 variant="light"
                                                 size="sm"
                                                 className="text-gray-400 hover:text-primary"
+                                                onPress={() => handleLeadClick(lead)}
                                             >
                                                 <HiOutlineEye className="size-5" />
                                             </Button>
@@ -622,6 +565,18 @@ const LeadTracking = () => {
                                 ))}
                             </tbody>
                         </table>
+                        {apiResponse?.pagination && (
+                            <div className="p-4 border-t border-foreground/5">
+                                <Pagination
+                                    identifier="Leads"
+                                    totalItems={apiResponse.pagination.totalLeads}
+                                    totalPages={apiResponse.pagination.totalPages}
+                                    currentPage={page}
+                                    handlePageChange={setPage}
+                                    limit={limit}
+                                />
+                            </div>
+                        )}
                     </CardBody>
                 </Card>
             )}

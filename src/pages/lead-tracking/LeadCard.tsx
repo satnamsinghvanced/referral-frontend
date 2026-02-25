@@ -19,13 +19,16 @@ interface LeadCardProps {
         stage: string;
     };
     getPriorityColor: (priority: string) => string;
+    onPress?: (lead: any) => void;
 }
 
-const LeadCard = ({ lead, getPriorityColor }: LeadCardProps) => {
+const LeadCard = ({ lead, getPriorityColor, onPress }: LeadCardProps) => {
     return (
         <Card
             key={lead.id}
             shadow="none"
+            onPress={() => onPress?.(lead)}
+            isPressable
             className="group border border-foreground/10 bg-white dark:bg-background transition-all cursor-pointer hover:border-primary/30 dark:hover:border-primary/50 hover:shadow-lg dark:hover:shadow-primary/10 hover:-translate-y-0.5"
         >
             <CardBody className="p-3 space-y-2.5">

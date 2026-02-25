@@ -11,13 +11,36 @@ import {
     SelectItem,
     Textarea,
     Chip,
+    Skeleton,
 } from "@heroui/react";
 import {
     HiOutlineMail,
     HiOutlinePhone,
-    HiOutlineCurrencyDollar,
 } from "react-icons/hi";
-import { LuUser, LuMapPin, LuTag, LuBriefcase } from "react-icons/lu";
+import { LuBriefcase } from "react-icons/lu";
+import { FiPlus } from "react-icons/fi";
+import { useAddLead } from "../../../hooks/useLeadTracking";
+import { LEAD_SOURCE, LEAD_PRIORITY, LEAD_TREATMENTS } from "../../../consts/LeadTrackingConstants";
+import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { EMAIL_REGEX, PHONE_REGEX } from "../../../consts/consts";
+import { useFetchTeamMembers } from "../../../hooks/settings/useTeam";
+
+const orangeItemClasses = {
+    base: [
+        "data-[hover=true]:!bg-orange-100",
+        "data-[hover=true]:!text-orange-600",
+        "data-[selected=true]:!bg-orange-100",
+        "data-[selected=true]:!text-orange-600",
+        "data-[focus=true]:!bg-orange-100",
+        "data-[focus=true]:!text-orange-600",
+    ],
+};
+
+const formatTreatmentLabel = (key: string) => {
+    return key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+};
 
 interface AddLeadModalProps {
     isOpen: boolean;
@@ -25,20 +48,61 @@ interface AddLeadModalProps {
 }
 
 const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
-    const [selectedTreatments, setSelectedTreatments] = useState<Set<string>>(new Set(["Retainers", "Teeth Whitening", "Emergency Orthodontics"]));
+    const { mutateAsync: addLead, isPending: submitting } = useAddLead();
+    const { data: teamMembers, isLoading: loadingTeam } = useFetchTeamMembers();
+
+    const [selectedTreatments, setSelectedTreatments] = useState<Set<string>>(new Set());
     const [tags, setTags] = useState<string[]>([]);
     const [tagInput, setTagInput] = useState("");
 
-    const orangeItemClasses = {
-        base: [
-            "data-[hover=true]:!bg-orange-100",
-            "data-[hover=true]:!text-orange-600",
-            "data-[selected=true]:!bg-orange-100",
-            "data-[selected=true]:!text-orange-600",
-            "data-[focus=true]:!bg-orange-100",
-            "data-[focus=true]:!text-orange-600",
-        ],
-    };
+    const validationSchema = Yup.object().shape({
+        firstName: Yup.string().required("First name is required"),
+        lastName: Yup.string().required("Last name is required"),
+        email: Yup.string()
+            .required("Email is required")
+            .matches(EMAIL_REGEX, "Invalid email format"),
+        phone: Yup.string()
+            .required("Phone is required")
+            .matches(PHONE_REGEX, "Phone must be in format (XXX) XXX-XXXX"),
+        source: Yup.string().required("Source is required"),
+        priority: Yup.string().required("Priority is required"),
+        estimatedValue: Yup.number().typeError("Value must be a number").nullable(),
+    });
+
+    const formik = useFormik({
+        initialValues: {
+            firstName: "",
+            lastName: "",
+            email: "",
+            phone: "",
+            source: "website",
+            priority: "medium",
+            assignedTo: "Unassigned",
+            estimatedValue: "",
+            notes: "",
+        },
+        validationSchema,
+        onSubmit: async (values, { resetForm }) => {
+            try {
+                const payload = {
+                    ...values,
+                    estimatedValue: Number(values.estimatedValue) || 0,
+                    assignedTo: (values.assignedTo === "Unassigned" || !/^[0-9a-fA-F]{24}$/.test(values.assignedTo)) ? null : values.assignedTo,
+                    treatments: Array.from(selectedTreatments),
+                    tags: tags,
+                    status: "newLead"
+                };
+
+                await addLead(payload);
+                onOpenChange(false);
+                resetForm();
+                setSelectedTreatments(new Set());
+                setTags([]);
+            } catch (error: any) {
+                // Error is handled by the hook
+            }
+        }
+    });
 
     const handleAddTag = () => {
         if (tagInput.trim() && !tags.includes(tagInput.trim())) {
@@ -61,242 +125,252 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
         <Modal
             isOpen={isOpen}
             onOpenChange={onOpenChange}
-            size="2xl"
+            size="md"
+            placement="center"
             scrollBehavior="inside"
-            className="max-h-[90vh]"
-            backdrop="opaque"
             classNames={{
-                base: "rounded-xl",
-                header: "border-b-0 pb-0",
-                footer: "border-t gap-3",
+                base: "max-sm:!m-3 !m-0",
+                closeButton: "cursor-pointer",
             }}
         >
-            <ModalContent className="w-[500px]">
+            <ModalContent>
                 {(onClose) => (
                     <>
-                        <ModalHeader className="flex flex-col gap-1 px-8 pt-8">
-                            <h2 className="text-lg font-bold tracking-tight">Add New Lead</h2>
-                            <p className="text-sm font-normal text-gray-500">
-                                Manually add a new patient lead to your pipeline
+                        <ModalHeader className="flex flex-col gap-1 px-4">
+                            <h4 className="text-base font-medium dark:text-white">Add New Lead</h4>
+                            <p className="text-xs text-gray-500 font-normal dark:text-foreground/60">
+                                Enter the patient lead information into your pipeline
                             </p>
                         </ModalHeader>
-                        <ModalBody className="px-8 py-6 space-y-8">
+                        <ModalBody className="py-0 px-4 gap-3">
                             {/* Contact Information */}
-                            <div className="space-y-5">
-                                <div className="flex items-center gap-2 font-bold text-sm text-foreground/80">
-                                    <LuUser className="size-4 text-gray-500" />
-                                    <h3 className="uppercase tracking-wider text-[11px]">Contact Information</h3>
-                                </div>
-                                <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-                                    <div className="space-y-2">
-                                        <label className="text-[11px] font-bold text-gray-600 ml-0.5">First Name *</label>
-                                        <Input
-                                            placeholder="John"
-                                            variant="flat"
-                                            size="sm"
-                                            classNames={{
-                                                inputWrapper: "bg-gray-50/80 hover:bg-gray-100/80 transition-background",
-                                                input: "text-sm",
-                                            }}
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[11px] font-bold text-gray-600 ml-0.5">Last Name *</label>
-                                        <Input
-                                            placeholder="Doe"
-                                            variant="flat"
-                                            size="sm"
-                                            classNames={{
-                                                inputWrapper: "bg-gray-50/80 hover:bg-gray-100/80 transition-background",
-                                                input: "text-sm",
-                                            }}
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[11px] font-bold text-gray-600 ml-0.5">Email *</label>
-                                        <Input
-                                            placeholder="john.doe@email.com"
-                                            variant="flat"
-                                            size="sm"
-                                            startContent={<HiOutlineMail className="text-gray-400 size-4" />}
-                                            classNames={{
-                                                inputWrapper: "bg-gray-50/80 hover:bg-gray-100/80 transition-background",
-                                                input: "text-sm",
-                                            }}
-                                        />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[11px] font-bold text-gray-600 ml-0.5">Phone *</label>
-                                        <Input
-                                            placeholder="(555) 123-4567"
-                                            variant="flat"
-                                            size="sm"
-                                            startContent={<HiOutlinePhone className="text-gray-400 size-4" />}
-                                            classNames={{
-                                                inputWrapper: "bg-gray-50/80 hover:bg-gray-100/80 transition-background",
-                                                input: "text-sm",
-                                            }}
-                                        />
-                                    </div>
+                            <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
+                                <h4 className="font-medium text-sm dark:text-white">
+                                    Contact Information
+                                </h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-2.5 gap-y-4">
+                                    <Input
+                                        label="First Name"
+                                        labelPlacement="outside"
+                                        placeholder="Enter first name"
+                                        variant="flat"
+                                        size="sm"
+                                        radius="sm"
+                                        name="firstName"
+                                        value={formik.values.firstName}
+                                        onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
+                                        isInvalid={!!(formik.touched.firstName && formik.errors.firstName)}
+                                        errorMessage={formik.touched.firstName && (formik.errors.firstName as string)}
+                                        isRequired
+                                    />
+                                    <Input
+                                        label="Last Name"
+                                        labelPlacement="outside"
+                                        placeholder="Enter last name"
+                                        variant="flat"
+                                        size="sm"
+                                        radius="sm"
+                                        name="lastName"
+                                        value={formik.values.lastName}
+                                        onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
+                                        isInvalid={!!(formik.touched.lastName && formik.errors.lastName)}
+                                        errorMessage={formik.touched.lastName && (formik.errors.lastName as string)}
+                                        isRequired
+                                    />
+                                    <Input
+                                        label="Email Address"
+                                        labelPlacement="outside"
+                                        placeholder="example@email.com"
+                                        variant="flat"
+                                        size="sm"
+                                        radius="sm"
+                                        name="email"
+                                        value={formik.values.email}
+                                        onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
+                                        isInvalid={!!(formik.touched.email && formik.errors.email)}
+                                        errorMessage={formik.touched.email && (formik.errors.email as string)}
+                                        startContent={<HiOutlineMail className="text-default-400 size-4" />}
+                                        isRequired
+                                    />
+                                    <Input
+                                        label="Phone Number"
+                                        labelPlacement="outside"
+                                        placeholder="(XXX) XXX-XXXX"
+                                        variant="flat"
+                                        size="sm"
+                                        radius="sm"
+                                        name="phone"
+                                        value={formik.values.phone}
+                                        onValueChange={(val) => formik.setFieldValue("phone", formatPhoneNumber(val))}
+                                        onBlur={formik.handleBlur}
+                                        isInvalid={!!(formik.touched.phone && formik.errors.phone)}
+                                        errorMessage={formik.touched.phone && (formik.errors.phone as string)}
+                                        startContent={<HiOutlinePhone className="text-default-400 size-4" />}
+                                        isRequired
+                                    />
                                 </div>
                             </div>
 
                             {/* Lead Details */}
-                            <div className="space-y-5">
-                                <div className="flex items-center gap-2 font-bold text-sm text-foreground/80">
-                                    <LuMapPin className="size-4 text-gray-500" />
-                                    <h3 className="uppercase tracking-wider text-[11px]">Lead Details</h3>
-                                </div>
-                                <div className="grid grid-cols-2 gap-x-6 gap-y-4">
-                                    <div className="space-y-2">
-                                        <label className="text-[11px] font-bold text-gray-600 ml-0.5">Lead Source *</label>
-                                        <Select
-                                            placeholder="Instagram"
-                                            variant="flat"
-                                            size="sm"
-                                            defaultSelectedKeys={["Instagram"]}
-                                            classNames={{
-                                                trigger: "bg-gray-50/80 hover:bg-gray-100/80",
-                                                value: "text-sm",
-                                            }}
-                                            listboxProps={{ itemClasses: orangeItemClasses }}
-                                        >
-                                            <SelectItem key="Google Ads">Google Ads</SelectItem>
-                                            <SelectItem key="Facebook Ads">Facebook Ads</SelectItem>
-                                            <SelectItem key="Instagram">Instagram</SelectItem>
-                                            <SelectItem key="Referral">Referral</SelectItem>
-                                            <SelectItem key="Website">Website</SelectItem>
-                                            <SelectItem key="Walk-in">Walk-in</SelectItem>
-                                            <SelectItem key="Direct Mail">Direct Mail</SelectItem>
-                                        </Select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[11px] font-bold text-gray-600 ml-0.5">Priority *</label>
-                                        <Select
-                                            placeholder="Medium Priority"
-                                            variant="flat"
-                                            size="sm"
-                                            defaultSelectedKeys={["Medium"]}
-                                            classNames={{
-                                                trigger: "bg-gray-50/80 hover:bg-gray-100/80",
-                                                value: "text-sm",
-                                            }}
-                                            listboxProps={{ itemClasses: orangeItemClasses }}
-                                        >
-                                            <SelectItem key="High">High Priority</SelectItem>
-                                            <SelectItem key="Medium">Medium Priority</SelectItem>
-                                            <SelectItem key="Low">Low Priority</SelectItem>
-                                        </Select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[11px] font-bold text-gray-600 ml-0.5">Assign To</label>
-                                        <Select
-                                            placeholder="Unassigned"
-                                            variant="flat"
-                                            size="sm"
-                                            defaultSelectedKeys={["Unassigned"]}
-                                            startContent={<LuBriefcase className="text-gray-400 size-4 mr-1" />}
-                                            classNames={{
-                                                trigger: "bg-gray-50/80 hover:bg-gray-100/80",
-                                                value: "text-sm",
-                                            }}
-                                            listboxProps={{ itemClasses: orangeItemClasses }}
-                                        >
-                                            <SelectItem key="Unassigned">Unassigned</SelectItem>
-                                            <SelectItem key="Dr. Smith">Dr. Smith</SelectItem>
-                                            <SelectItem key="Sarah Wilson">Sarah Wilson</SelectItem>
-                                        </Select>
-                                    </div>
-                                    <div className="space-y-2">
-                                        <label className="text-[11px] font-bold text-gray-600 ml-0.5">Estimated Value</label>
-                                        <Input
-                                            placeholder="0"
-                                            variant="flat"
-                                            size="sm"
-                                            type="number"
-                                            startContent={<span className="text-gray-400 text-sm mr-1">$</span>}
-                                            classNames={{
-                                                inputWrapper: "bg-gray-50/80 hover:bg-gray-100/80 transition-background",
-                                                input: "text-sm",
-                                            }}
-                                        />
-                                    </div>
+                            <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
+                                <h4 className="font-medium text-sm dark:text-white">
+                                    Lead Details
+                                </h4>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-2.5 gap-y-4">
+                                    <Select
+                                        label="Lead Source"
+                                        labelPlacement="outside"
+                                        placeholder="Select source"
+                                        variant="flat"
+                                        size="sm"
+                                        radius="sm"
+                                        selectedKeys={new Set([formik.values.source])}
+                                        onSelectionChange={(keys) => formik.setFieldValue("source", Array.from(keys)[0] as string)}
+                                        onBlur={() => formik.setFieldTouched("source", true)}
+                                        isInvalid={!!(formik.touched.source && formik.errors.source)}
+                                        errorMessage={formik.touched.source && (formik.errors.source as string)}
+                                        isRequired
+                                        listboxProps={{ itemClasses: orangeItemClasses }}
+                                        items={Object.entries(LEAD_SOURCE).map(([id, label]) => ({ id, label }))}
+                                    >
+                                        {(item) => (
+                                            <SelectItem key={item.id} textValue={item.label}>
+                                                {item.label}
+                                            </SelectItem>
+                                        )}
+                                    </Select>
+                                    <Select
+                                        label="Priority Level"
+                                        labelPlacement="outside"
+                                        placeholder="Select priority"
+                                        variant="flat"
+                                        size="sm"
+                                        radius="sm"
+                                        selectedKeys={new Set([formik.values.priority])}
+                                        onSelectionChange={(keys) => formik.setFieldValue("priority", Array.from(keys)[0] as string)}
+                                        onBlur={() => formik.setFieldTouched("priority", true)}
+                                        isInvalid={!!(formik.touched.priority && formik.errors.priority)}
+                                        errorMessage={formik.touched.priority && (formik.errors.priority as string)}
+                                        isRequired
+                                        listboxProps={{ itemClasses: orangeItemClasses }}
+                                        items={Object.entries(LEAD_PRIORITY).map(([id, label]) => ({ id, label }))}
+                                    >
+                                        {(item) => (
+                                            <SelectItem key={item.id} textValue={`${item.label} Priority`}>
+                                                {item.label} Priority
+                                            </SelectItem>
+                                        )}
+                                    </Select>
+                                    <Select
+                                        label="Assign To"
+                                        labelPlacement="outside"
+                                        placeholder="Select staff member"
+                                        variant="flat"
+                                        size="sm"
+                                        radius="sm"
+                                        selectedKeys={new Set([formik.values.assignedTo])}
+                                        onSelectionChange={(keys) => formik.setFieldValue("assignedTo", Array.from(keys)[0] as string)}
+                                        startContent={loadingTeam ? <LuBriefcase className="text-default-400 size-4 animate-pulse mr-1" /> : <LuBriefcase className="text-default-400 size-4 mr-1" />}
+                                        listboxProps={{ itemClasses: orangeItemClasses }}
+                                        items={[
+                                            { _id: "Unassigned", name: "Unassigned" },
+                                            ...(teamMembers?.data || []).map((m) => ({ _id: m._id, name: `${m.firstName} ${m.lastName}` }))
+                                        ]}
+                                    >
+                                        {(item) => (
+                                            <SelectItem key={item._id}>
+                                                {item.name}
+                                            </SelectItem>
+                                        )}
+                                    </Select>
+                                    <Input
+                                        label="Estimated Value"
+                                        labelPlacement="outside"
+                                        placeholder="0"
+                                        variant="flat"
+                                        size="sm"
+                                        radius="sm"
+                                        type="number"
+                                        name="estimatedValue"
+                                        value={formik.values.estimatedValue}
+                                        onChange={formik.handleChange}
+                                        onBlur={formik.handleBlur}
+                                        isInvalid={!!(formik.touched.estimatedValue && formik.errors.estimatedValue)}
+                                        errorMessage={formik.touched.estimatedValue && formik.errors.estimatedValue}
+                                        startContent={<span className="text-default-400 text-sm mr-1">$</span>}
+                                    />
                                 </div>
                             </div>
 
                             {/* Treatment Interest */}
-                            <div className="space-y-5">
-                                <div className="flex items-center gap-2 font-bold text-sm text-foreground/80">
-                                    <h3 className="font-bold text-sm">Treatment Interest</h3>
-                                </div>
+                            <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
+                                <h4 className="font-medium text-sm dark:text-white">
+                                    Treatment Interest
+                                </h4>
                                 <div className="space-y-3">
-                                    <div className="space-y-2">
-                                        <label className="text-[11px] font-bold text-gray-600 ml-0.5">Select Treatments</label>
-                                        <Select
-                                            placeholder="Select treatment options..."
-                                            variant="flat"
-                                            size="sm"
-                                            selectionMode="multiple"
-                                            classNames={{
-                                                trigger: "bg-gray-50/80 hover:bg-gray-100/80",
-                                                value: "text-sm",
-                                            }}
-                                            onSelectionChange={(keys) => setSelectedTreatments(new Set(Array.from(keys) as string[]))}
-                                            selectedKeys={selectedTreatments}
-                                            listboxProps={{ itemClasses: orangeItemClasses }}
-                                        >
-                                            <SelectItem key="Invisalign">Invisalign</SelectItem>
-                                            <SelectItem key="Invisalign Teen">Invisalign Teen</SelectItem>
-                                            <SelectItem key="Traditional Braces">Traditional Braces</SelectItem>
-                                            <SelectItem key="Retainers">Retainers</SelectItem>
-                                            <SelectItem key="Teeth Whitening">Teeth Whitening</SelectItem>
-                                            <SelectItem key="Emergency Orthodontics">Emergency Orthodontics</SelectItem>
-                                        </Select>
-                                    </div>
-                                    <div className="flex flex-wrap gap-2 pt-1">
-                                        {Array.from(selectedTreatments).map((treatment) => (
-                                            <Chip
-                                                key={treatment}
-                                                variant="flat"
-                                                size="sm"
-                                                className="bg-sky-50 text-sky-600 font-bold border-none h-7 px-3"
-                                                onClose={() => removeTreatment(treatment)}
-                                            >
-                                                {treatment}
-                                            </Chip>
+                                    <Select
+                                        label="Select Treatments"
+                                        labelPlacement="outside"
+                                        placeholder="Select options..."
+                                        variant="flat"
+                                        size="sm"
+                                        radius="sm"
+                                        selectionMode="multiple"
+                                        onSelectionChange={(keys) => setSelectedTreatments(new Set(Array.from(keys) as string[]))}
+                                        selectedKeys={selectedTreatments}
+                                        listboxProps={{ itemClasses: orangeItemClasses }}
+                                    >
+                                        {Object.entries(LEAD_TREATMENTS).map(([key, label]) => (
+                                            <SelectItem key={key}>{label}</SelectItem>
                                         ))}
-                                    </div>
+                                    </Select>
+                                    {selectedTreatments.size > 0 && (
+                                        <div className="flex flex-wrap gap-2 pt-1">
+                                            {Array.from(selectedTreatments).map((treatment) => (
+                                                <Chip
+                                                    key={treatment}
+                                                    variant="flat"
+                                                    size="sm"
+                                                    className="bg-sky-50 text-sky-600 font-bold border-none h-7 px-3"
+                                                    onClose={() => removeTreatment(treatment)}
+                                                >
+                                                    {formatTreatmentLabel(treatment)}
+                                                </Chip>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
 
                             {/* Tags */}
-                            <div className="space-y-5">
-                                <div className="flex items-center gap-2 font-bold text-sm text-foreground/80">
-                                    <LuTag className="size-4 text-gray-500" />
-                                    <h3 className="uppercase tracking-wider text-[11px]">Tags</h3>
-                                </div>
+                            <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
+                                <h4 className="font-medium text-sm dark:text-white">
+                                    Tags
+                                </h4>
                                 <div className="space-y-3">
-                                    <div className="flex gap-3">
+                                    <div className="flex gap-2">
                                         <Input
+                                            labelPlacement="outside"
                                             placeholder="Add custom tag..."
                                             variant="flat"
                                             size="sm"
+                                            radius="sm"
                                             className="flex-1"
                                             value={tagInput}
                                             onValueChange={setTagInput}
                                             onKeyDown={(e) => e.key === "Enter" && handleAddTag()}
-                                            classNames={{
-                                                inputWrapper: "bg-gray-50/80 hover:bg-gray-100/80",
-                                                input: "text-sm",
-                                            }}
                                         />
                                         <Button
                                             size="sm"
-                                            variant="bordered"
-                                            className="bg-white border-gray-200 font-bold text-gray-600 px-6 px-4"
+                                            variant="flat"
+                                            radius="sm"
+                                            className="font-bold px-4 h-8"
                                             onPress={handleAddTag}
                                         >
-                                            Add Tag
+                                            Add
                                         </Button>
                                     </div>
                                     {tags.length > 0 && (
@@ -306,7 +380,7 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                                                     key={tag}
                                                     variant="flat"
                                                     size="sm"
-                                                    className="bg-gray-100 text-gray-600 font-bold h-7"
+                                                    className="bg-default-100 text-default-600 font-bold h-7"
                                                     onClose={() => removeTag(tag)}
                                                 >
                                                     {tag}
@@ -318,34 +392,44 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                             </div>
 
                             {/* Notes */}
-                            <div className="space-y-5">
-                                <div className="flex items-center gap-2 font-bold text-sm text-foreground/80">
-                                    <h3 className="font-bold text-sm">Notes</h3>
-                                </div>
+                            <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
+                                <h4 className="font-medium text-sm dark:text-white">
+                                    Additional Notes
+                                </h4>
                                 <Textarea
-                                    placeholder="Add any additional notes about this lead..."
+                                    labelPlacement="outside"
+                                    placeholder="Add any additional details..."
                                     variant="flat"
                                     size="sm"
+                                    radius="sm"
                                     minRows={3}
-                                    classNames={{
-                                        inputWrapper: "bg-gray-50/80 hover:bg-gray-100/80 px-4 py-3",
-                                        input: "text-sm",
-                                    }}
+                                    name="notes"
+                                    value={formik.values.notes}
+                                    onChange={formik.handleChange}
+                                    onBlur={formik.handleBlur}
                                 />
                             </div>
                         </ModalBody>
-                        <ModalFooter className="px-8 py-6">
+                        <ModalFooter className="px-4">
                             <Button
-                                variant="light"
+                                size="sm"
+                                radius="sm"
+                                variant="ghost"
+                                color="default"
                                 onPress={onClose}
-                                className="font-bold text-gray-500 px-6"
+                                className="border-small"
                             >
                                 Cancel
                             </Button>
                             <Button
+                                size="sm"
+                                radius="sm"
+                                variant="solid"
                                 color="primary"
-                                onPress={onClose}
-                                className="font-bold px-10 bg-sky-500"
+                                onPress={() => formik.handleSubmit()}
+                                isLoading={submitting}
+                                startContent={!submitting && <FiPlus className="text-[15px]" />}
+                                isDisabled={submitting || !formik.isValid || !formik.dirty}
                             >
                                 Add Lead
                             </Button>

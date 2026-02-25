@@ -7,7 +7,6 @@ import {
   HiOutlinePhone,
   HiOutlineStar,
 } from "react-icons/hi";
-import { useSelector } from "react-redux";
 import { Link, NavLink, useLocation, useNavigate } from "react-router";
 
 import { Tooltip } from "@heroui/react";
@@ -16,6 +15,7 @@ import {
   LuCalendar,
   LuDollarSign,
   LuQrCode,
+  LuTarget,
   LuUsers,
   LuVideo,
 } from "react-icons/lu";
@@ -76,138 +76,138 @@ const Sidebar = ({
   const NAVIGATION_ROUTES: (NavigationRoute & {
     requiredPermission?: string | string[];
   })[] = [
-    {
-      name: "Dashboard",
-      icon: FiHome,
-      href: "/",
-    },
-    {
-      name: "Lead Tracking",
-      icon: HiOutlineLightningBolt,
-      href: "/lead-tracking",
-      stats: "NEW",
-      color: "bg-sky-500 !text-white",
-    },
-    {
-      name: "Referrals",
-      icon: LuUsers,
-      href: "/referrals",
-      stats: dashboardStats?.referrals || 0,
-      color: "bg-sky-100 dark:bg-sky-900/40",
-      requiredPermission: "Manage Referrals",
-    },
-    {
-      name: "Partner Network",
-      icon: LuBuilding2,
-      href: "/partner-network",
-      stats: dashboardStats?.partners || 0,
-      color: "bg-sky-200 dark:bg-sky-900/30",
-      requiredPermission: "Manage Referrals",
-    },
-    {
-      name: "Reviews",
-      icon: HiOutlineStar,
-      href: "/reviews",
-      stats: 0,
-      color: "bg-yellow-200 dark:bg-yellow-900/30",
-      label: "1.2k",
-      requiredPermission: "Manage Reviews",
-    },
-    {
-      name: "Social Media",
-      icon: MdOutlineModeComment,
-      href: "/social-media",
-      stats: 0,
-      color: "bg-purple-300 dark:bg-purple-900/30",
-      requiredPermission: "Manage Settings",
-    },
-    {
-      name: "Marketing Calendar",
-      icon: LuCalendar,
-      href: "/marketing-calendar",
-      stats: dashboardStats?.activities || 0,
-      color: "bg-orange-300 dark:bg-orange-900/30",
-      requiredPermission: "Manage Settings",
-    },
-    {
-      name: "Call Tracking",
-      icon: HiOutlinePhone,
-      href: "/call-tracking",
-      stats: dashboardStats?.totalCalls || 0,
-      color: "bg-sky-100 dark:bg-sky-900/40",
-      requiredPermission: "Manage Settings",
-    },
-    {
-      name: "Email Campaigns",
-      icon: HiOutlineMail,
-      href: "/email-campaigns",
-      stats: 0,
-      color: "bg-green-300 dark:bg-green-900/30",
-      requiredPermission: "Manage Settings",
-    },
-    {
-      name: "Analytics",
-      icon: HiOutlineChartBar,
-      href: "/analytics",
-      stats: undefined,
-      color: "bg-red-300 dark:bg-red-900/30",
-      requiredPermission: "View Analytics",
-    },
-    {
-      name: "Reports",
-      icon: FiFileText,
-      href: "/reports",
-      stats: undefined,
-      color: "bg-gray-300 dark:bg-gray-800",
-      requiredPermission: "View Analytics",
-    },
-    {
-      name: "Task List",
-      icon: TbCheckbox,
-      href: "/tasks",
-      stats: dashboardStats?.tasks || 0,
-      color: "bg-red-300 dark:bg-red-900/30",
-    },
-    {
-      name: "QR Generator",
-      icon: LuQrCode,
-      href: "/qr-generator",
-      stats: undefined,
-      color: "bg-red-300 dark:bg-red-900/30",
-      requiredPermission: "Manage Referrals",
-    },
-    {
-      name: "Marketing Budget",
-      icon: LuDollarSign,
-      href: "/marketing-budget",
-      stats: undefined,
-      color: "bg-red-300 dark:bg-red-900/30",
-      requiredPermission: "Manage Settings",
-    },
-    {
-      name: "Media Management",
-      icon: LuVideo,
-      href: "/media-management",
-      stats: undefined,
-      color: "bg-red-300 dark:bg-red-900/30",
-      requiredPermission: "Manage Settings",
-    },
-    {
-      name: "Integrations",
-      icon: HiOutlineLightningBolt,
-      href: "/integrations",
-      stats: dashboardStats?.integrations || 0,
-      color: "bg-blue-400 dark:bg-blue-900/40",
-      requiredPermission: "Manage Settings",
-    },
-    {
-      name: "Settings",
-      icon: HiOutlineCog,
-      href: "/settings",
-      stats: undefined,
-      color: undefined,
-    },
-  ];
+      {
+        name: "Dashboard",
+        icon: FiHome,
+        href: "/",
+      },
+      {
+        name: "Lead Tracking",
+        icon: LuTarget,
+        href: "/lead-tracking",
+        stats: "NEW",
+        color: "bg-sky-500 !text-white",
+      },
+      {
+        name: "Referrals",
+        icon: LuUsers,
+        href: "/referrals",
+        stats: dashboardStats?.referrals || 0,
+        color: "bg-sky-100 dark:bg-sky-900/40",
+        requiredPermission: "Manage Referrals",
+      },
+      {
+        name: "Partner Network",
+        icon: LuBuilding2,
+        href: "/partner-network",
+        stats: dashboardStats?.partners || 0,
+        color: "bg-sky-200 dark:bg-sky-900/30",
+        requiredPermission: "Manage Referrals",
+      },
+      {
+        name: "Reviews",
+        icon: HiOutlineStar,
+        href: "/reviews",
+        stats: 0,
+        color: "bg-yellow-200 dark:bg-yellow-900/30",
+        label: "1.2k",
+        requiredPermission: "Manage Reviews",
+      },
+      {
+        name: "Social Media",
+        icon: MdOutlineModeComment,
+        href: "/social-media",
+        stats: 0,
+        color: "bg-purple-300 dark:bg-purple-900/30",
+        requiredPermission: "Manage Settings",
+      },
+      {
+        name: "Marketing Calendar",
+        icon: LuCalendar,
+        href: "/marketing-calendar",
+        stats: dashboardStats?.activities || 0,
+        color: "bg-orange-300 dark:bg-orange-900/30",
+        requiredPermission: "Manage Settings",
+      },
+      {
+        name: "Call Tracking",
+        icon: HiOutlinePhone,
+        href: "/call-tracking",
+        stats: dashboardStats?.totalCalls || 0,
+        color: "bg-sky-100 dark:bg-sky-900/40",
+        requiredPermission: "Manage Settings",
+      },
+      {
+        name: "Email Campaigns",
+        icon: HiOutlineMail,
+        href: "/email-campaigns",
+        stats: 0,
+        color: "bg-green-300 dark:bg-green-900/30",
+        requiredPermission: "Manage Settings",
+      },
+      {
+        name: "Analytics",
+        icon: HiOutlineChartBar,
+        href: "/analytics",
+        stats: undefined,
+        color: "bg-red-300 dark:bg-red-900/30",
+        requiredPermission: "View Analytics",
+      },
+      {
+        name: "Reports",
+        icon: FiFileText,
+        href: "/reports",
+        stats: undefined,
+        color: "bg-gray-300 dark:bg-gray-800",
+        requiredPermission: "View Analytics",
+      },
+      {
+        name: "Task List",
+        icon: TbCheckbox,
+        href: "/tasks",
+        stats: dashboardStats?.tasks || 0,
+        color: "bg-red-300 dark:bg-red-900/30",
+      },
+      {
+        name: "QR Generator",
+        icon: LuQrCode,
+        href: "/qr-generator",
+        stats: undefined,
+        color: "bg-red-300 dark:bg-red-900/30",
+        requiredPermission: "Manage Referrals",
+      },
+      {
+        name: "Marketing Budget",
+        icon: LuDollarSign,
+        href: "/marketing-budget",
+        stats: undefined,
+        color: "bg-red-300 dark:bg-red-900/30",
+        requiredPermission: "Manage Settings",
+      },
+      {
+        name: "Media Management",
+        icon: LuVideo,
+        href: "/media-management",
+        stats: undefined,
+        color: "bg-red-300 dark:bg-red-900/30",
+        requiredPermission: "Manage Settings",
+      },
+      {
+        name: "Integrations",
+        icon: HiOutlineLightningBolt,
+        href: "/integrations",
+        stats: dashboardStats?.integrations || 0,
+        color: "bg-blue-400 dark:bg-blue-900/40",
+        requiredPermission: "Manage Settings",
+      },
+      {
+        name: "Settings",
+        icon: HiOutlineCog,
+        href: "/settings",
+        stats: undefined,
+        color: undefined,
+      },
+    ];
 
   const filteredRoutes = NAVIGATION_ROUTES.filter((route) => {
     if (isAdmin) return true;
@@ -228,11 +228,10 @@ const Sidebar = ({
     <>
       {/* Mobile overlay when sidebar open in mobile/mini mode */}
       <div
-        className={`${
-          isMiniSidebarOpen
-            ? "bg-foreground/30 dark:bg-background/70 fixed inset-0 z-41"
-            : "hidden"
-        } lg:hidden`}
+        className={`${isMiniSidebarOpen
+          ? "bg-foreground/30 dark:bg-background/70 fixed inset-0 z-41"
+          : "hidden"
+          } lg:hidden`}
         onClick={onCloseSidebar}
         aria-hidden
       />
@@ -244,9 +243,8 @@ const Sidebar = ({
         aria-label="Primary sidebar"
       >
         <div
-          className={`flex items-center h-[58px] md:h-[64px] border-b border-foreground/10 ${
-            isMiniSidebarOpen ? "justify-between" : "justify-center"
-          } w-full`}
+          className={`flex items-center h-[58px] md:h-[64px] border-b border-foreground/10 ${isMiniSidebarOpen ? "justify-between" : "justify-center"
+            } w-full`}
         >
           {isMiniSidebarOpen && (
             <Link
@@ -275,9 +273,8 @@ const Sidebar = ({
               className="cursor-pointer hidden lg:flex p-2 rounded-md hover:bg-gray-100 dark:hover:bg-foreground/5"
             >
               <IoIosArrowRoundForward
-                className={`${
-                  isMiniSidebarOpen ? "rotate-180" : ""
-                } transition-transform w-5 h-5`}
+                className={`${isMiniSidebarOpen ? "rotate-180" : ""
+                  } transition-transform w-5 h-5`}
               />
             </button>
           </div>
@@ -285,9 +282,8 @@ const Sidebar = ({
 
         {/* nav container */}
         <div
-          className={`${
-            isMiniSidebarOpen ? "overflow-y-auto" : ""
-          } flex flex-col justify-between h-[calc(100vh_-_60px)] px-0`}
+          className={`${isMiniSidebarOpen ? "overflow-y-auto" : ""
+            } flex flex-col justify-between h-[calc(100vh_-_60px)] px-0`}
         >
           <ul className="flex flex-col p-3">
             {filteredRoutes.map((item, index) => {
@@ -319,9 +315,8 @@ const Sidebar = ({
                     onClick={onCloseSidebar}
                   >
                     <span
-                      className={`flex items-center justify-center ${
-                        isActive ? "text-white " : "text-gray-500"
-                      }`}
+                      className={`flex items-center justify-center ${isActive ? "text-white " : "text-gray-500"
+                        }`}
                     >
                       {isMiniSidebarOpen ? (
                         <Icon
@@ -336,9 +331,8 @@ const Sidebar = ({
                           radius="sm"
                         >
                           <Icon
-                            className={`bg-transparent ${
-                              isActive ? "text-sky-700" : ""
-                            }`}
+                            className={`bg-transparent ${isActive ? "text-sky-700" : ""
+                              }`}
                           />
                         </Tooltip>
                       )}
@@ -349,11 +343,10 @@ const Sidebar = ({
                         <p>{item.name}</p>
                         {item.stats ? (
                           <p
-                            className={`rounded-full px-2 text-[10px] py-0.5 capitalize !text-foreground dark:!text-foreground ${
-                              typeof item.color === "function"
-                                ? item.color(item?.stats)
-                                : item.color
-                            }`}
+                            className={`rounded-full px-2 text-[10px] py-0.5 capitalize !text-foreground dark:!text-foreground ${typeof item.color === "function"
+                              ? item.color(item?.stats)
+                              : item.color
+                              }`}
                           >
                             {typeof item.stats === "number"
                               ? `${item.stats}`
