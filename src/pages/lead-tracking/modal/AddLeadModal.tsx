@@ -334,7 +334,7 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                                                     key={treatment}
                                                     variant="flat"
                                                     size="sm"
-                                                    className="bg-sky-50 text-sky-600 font-bold border-none h-7 px-3"
+                                                    className="bg-sky-50 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400 font-bold border-none h-7 px-3"
                                                     onClose={() => removeTreatment(treatment)}
                                                 >
                                                     {formatTreatmentLabel(treatment)}

@@ -30,7 +30,7 @@ export default function BasicInfoSection({
       type: "email",
       placeholder: "e.g., johndoe@gmail.com",
       isFullWidth: true,
-      isRequired: true,
+      isRequired: false,
     },
   ];
 

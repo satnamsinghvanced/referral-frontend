@@ -115,7 +115,7 @@ const MarketingBudget = () => {
     if (!data?.budgets) return [];
     const types = new Set<string>();
     data.budgets.forEach((b: BudgetItem) => {
-      if (b.type && ["google", "meta", "tiktok"].includes(b.type)) {
+      if (b.type && ["google", "meta", "tiktok", "calendar"].includes(b.type)) {
         types.add(b.type);
       }
     });
@@ -231,11 +231,10 @@ const MarketingBudget = () => {
                     size="sm"
                     radius="full"
                     color="default"
-                    className={`relative z-1 font-medium text-sm bg-transparent h-9 text-default-500 ${
-                      currentFilters.period === duration.value
+                    className={`relative z-1 font-medium text-sm bg-transparent h-9 text-default-500 ${currentFilters.period === duration.value
                         ? "dark:text-background text-foreground"
                         : ""
-                    }`}
+                      }`}
                     onPress={() => {
                       setDateRange({ start: "", end: "" });
                       setCurrentFilters((prev: any) => ({
@@ -268,11 +267,10 @@ const MarketingBudget = () => {
                 <Button
                   variant={showDateRange ? "solid" : "ghost"}
                   color={showDateRange ? "primary" : "default"}
-                  className={`border ${
-                    !showDateRange
+                  className={`border ${!showDateRange
                       ? "bg-background dark:bg-default-50 border-gray-300 dark:border-default-200"
                       : "border-primary"
-                  }`}
+                    }`}
                   size="sm"
                   startContent={<LuCalendar fontSize={15} />}
                   onPress={() => setShowDateRange(!showDateRange)}

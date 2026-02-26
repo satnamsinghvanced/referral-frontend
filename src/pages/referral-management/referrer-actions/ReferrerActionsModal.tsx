@@ -274,8 +274,11 @@ export default function ReferrerActionsModal({
         .required("Phone number is required")
         .matches(PHONE_REGEX, "Phone must be in format (XXX) XXX-XXXX"),
       email: Yup.string()
-        .required("Email is required")
-        .matches(EMAIL_REGEX, "Invalid email format"),
+        .matches(EMAIL_REGEX, {
+          message: "Invalid email format",
+          excludeEmptyString: true,
+        })
+        .nullable(),
       practiceName: Yup.string().when("type", {
         is: "doctor",
         then: (schema) =>
@@ -342,7 +345,10 @@ export default function ReferrerActionsModal({
             .min(2, "Name must be at least 2 characters")
             .max(100, "Name must be less than 100 characters"),
           role: Yup.string().required("Role/Title is required"),
-          email: Yup.string().matches(EMAIL_REGEX, "Invalid email format"),
+          email: Yup.string().matches(EMAIL_REGEX, {
+            message: "Invalid email format",
+            excludeEmptyString: true,
+          }),
           phone: Yup.string().nullable(),
           isDentist: Yup.boolean().nullable(),
         }),
@@ -614,7 +620,7 @@ export default function ReferrerActionsModal({
                     placeholder={sub.placeholder || ""}
                     value={
                       formik.values.practiceAddress[
-                        sub.id as keyof typeof formik.values.practiceAddress
+                      sub.id as keyof typeof formik.values.practiceAddress
                       ] as string
                     }
                     onValueChange={(val) => {

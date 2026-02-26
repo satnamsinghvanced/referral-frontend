@@ -250,14 +250,14 @@ const LeadTracking = () => {
     }, [leads]);
 
     return (
-        <div className="p-6 max-w-[1600px] mx-auto space-y-6 bg-slate-50/50 overflow-auto">
+        <div className="p-6 max-w-[1600px] mx-auto space-y-6 bg-slate-50/50 dark:bg-transparent overflow-auto">
             {/* Header */}
             <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
                 <div>
                     <h1 className="text-xl sm:text-2xl font-bold font-heading bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
                         Lead Tracking
                     </h1>
-                    <p className="text-gray-500 text-xs sm:text-sm">
+                    <p className="text-gray-500 dark:text-foreground/60 text-xs sm:text-sm">
                         Monitor and manage patient leads from inquiry to conversion
                     </p>
                 </div>
@@ -266,14 +266,14 @@ const LeadTracking = () => {
                     <div className="flex gap-2">
                         <Button
                             variant="flat"
-                            className="w-full sm:w-auto bg-white dark:bg-background hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200 transition-all border border-foreground/10"
+                            className="w-full sm:w-auto bg-white dark:bg-background hover:bg-orange-50 dark:hover:bg-orange-900/10 hover:text-orange-600 dark:hover:text-orange-400 hover:border-orange-200 dark:hover:border-orange-800 transition-all border border-foreground/10"
                             startContent={<HiOutlineCog />}
                         >
                             Automation Setup
                         </Button>
                         <Button
                             variant="flat"
-                            className="w-full sm:w-auto bg-white dark:bg-background hover:bg-orange-50 hover:text-orange-600 hover:border-orange-200 transition-all border border-foreground/10"
+                            className="w-full sm:w-auto bg-white dark:bg-background hover:bg-orange-50 dark:hover:bg-orange-900/10 hover:text-orange-600 dark:hover:text-orange-400 hover:border-orange-200 dark:hover:border-orange-800 transition-all border border-foreground/10"
                             startContent={<HiOutlineDownload />}
                         >
                             Export
@@ -313,12 +313,12 @@ const LeadTracking = () => {
             </div>
 
             {/* Filters */}
-            <div className="flex flex-col xl:flex-row gap-4 xl:items-center xl:justify-between bg-white p-4 rounded-xl shadow-sm">
+            <div className="flex flex-col xl:flex-row gap-4 xl:items-center xl:justify-between bg-white dark:bg-content1 p-4 rounded-xl shadow-sm border border-foreground/5 dark:border-foreground/10">
 
                 <div className="w-full xl:flex-grow">
                     <Input
                         placeholder="Search leads by name, email, or phone..."
-                        startContent={<HiOutlineSearch className="text-gray-400" />}
+                        startContent={<HiOutlineSearch className="text-gray-400 dark:text-foreground/40" />}
                         variant="flat"
                         size="sm"
                         value={search}
@@ -406,15 +406,15 @@ const LeadTracking = () => {
                         )}
                     </Select>
 
-                    <div className="flex bg-gray-100 p-1 rounded-lg w-full">
+                    <div className="flex bg-gray-100 dark:bg-default-100 p-1 rounded-lg w-full">
                         <button
-                            className={`flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${view === 'pipeline' ? 'bg-white shadow-sm text-primary' : 'text-gray-500'}`}
+                            className={`flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${view === 'pipeline' ? 'bg-white dark:bg-content2 shadow-sm text-primary' : 'text-gray-500 dark:text-foreground/40'}`}
                             onClick={() => setView('pipeline')}
                         >
                             Pipeline
                         </button>
                         <button
-                            className={`flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${view === 'list' ? 'bg-white shadow-sm text-primary' : 'text-gray-500'}`}
+                            className={`flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${view === 'list' ? 'bg-white dark:bg-content2 shadow-sm text-primary' : 'text-gray-500 dark:text-foreground/40'}`}
                             onClick={() => setView('list')}
                         >
                             List
@@ -441,7 +441,7 @@ const LeadTracking = () => {
                             return (
                                 <div
                                     key={stage.id}
-                                    className="flex flex-col rounded-xl overflow-hidden border border-foreground/5 bg-white h-fit"
+                                    className="flex flex-col rounded-xl overflow-hidden border border-foreground/5 dark:border-foreground/10 bg-white dark:bg-content1 h-fit"
                                 >
                                     {/* Stage Header */}
                                     <div className={`p-3 space-y-1 ${styles.bg} border-b ${styles.border} flex-shrink-0`}>
@@ -456,13 +456,13 @@ const LeadTracking = () => {
                                                 {stage.count}
                                             </span>
                                         </div>
-                                        <div className="text-[10px] font-bold text-gray-500/70">
+                                        <div className="text-[10px] font-bold text-gray-500/70 dark:text-foreground/40">
                                             {stage.value}
                                         </div>
                                     </div>
 
                                     {/* Lead Cards Scrollable Area */}
-                                    <div className="flex-1 overflow-y-auto custom-scrollbar bg-gray-100/40 max-h-[720px]">
+                                    <div className="flex-1 overflow-y-auto custom-scrollbar bg-gray-100/40 dark:bg-black/10 max-h-[720px]">
                                         <div className="p-2 space-y-3 min-h-[200px] flex flex-col">
                                             {leads.filter((lead: any) => lead.stage === stage.id).length > 0 ? (
                                                 leads
@@ -477,7 +477,7 @@ const LeadTracking = () => {
                                                     ))
                                             ) : (
                                                 <div className="flex-1 flex flex-col items-center justify-center py-12 text-center opacity-40">
-                                                    <HiOutlineUsers className="size-8 text-gray-400 mb-1" />
+                                                    <HiOutlineUsers className="size-8 text-gray-400 dark:text-gray-700 mb-1" />
                                                     <span className="text-[11px] font-medium text-gray-500">No leads</span>
                                                 </div>
                                             )}
@@ -489,33 +489,33 @@ const LeadTracking = () => {
                     </div>
                 </div>
             ) : (
-                <Card shadow="none" className="border border-foreground/10 bg-white">
+                <Card shadow="none" className="border border-foreground/10 bg-white dark:bg-content1">
                     <CardBody className="p-0 overflow-x-auto">
                         <table className="w-full min-w-[1000px] text-sm">
                             <thead>
-                                <tr className="border-b border-foreground/5 bg-gray-50/30">
-                                    <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 uppercase tracking-wider">Lead</th>
-                                    <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 uppercase tracking-wider">Source</th>
-                                    <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 uppercase tracking-wider">Status</th>
-                                    <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 uppercase tracking-wider">Treatment</th>
-                                    <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 uppercase tracking-wider">Value</th>
-                                    <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 uppercase tracking-wider">Score</th>
-                                    <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 uppercase tracking-wider">Response</th>
-                                    <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 uppercase tracking-wider">Actions</th>
+                                <tr className="border-b border-foreground/5 bg-gray-50/30 dark:bg-white/5">
+                                    <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 dark:text-foreground/40 uppercase tracking-wider">Lead</th>
+                                    <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 dark:text-foreground/40 uppercase tracking-wider">Source</th>
+                                    <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 dark:text-foreground/40 uppercase tracking-wider">Status</th>
+                                    <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 dark:text-foreground/40 uppercase tracking-wider">Treatment</th>
+                                    <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 dark:text-foreground/40 uppercase tracking-wider">Value</th>
+                                    <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 dark:text-foreground/40 uppercase tracking-wider">Score</th>
+                                    <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 dark:text-foreground/40 uppercase tracking-wider">Response</th>
+                                    <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 dark:text-foreground/40 uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-foreground/5">
                                 {leads.map((lead: any) => (
-                                    <tr key={lead.id} className="hover:bg-gray-50/50 transition-colors">
+                                    <tr key={lead.id} className="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors">
                                         <td className="py-4 px-6">
                                             <div className="space-y-1">
                                                 <div className="font-bold text-foreground">{lead.name}</div>
-                                                <div className="text-xs text-gray-400">{lead.email}</div>
-                                                <div className="text-xs text-gray-400">{lead.phone}</div>
+                                                <div className="text-xs text-gray-400 dark:text-foreground/40">{lead.email}</div>
+                                                <div className="text-xs text-gray-400 dark:text-foreground/40">{lead.phone}</div>
                                             </div>
                                         </td>
                                         <td className="py-4 px-6">
-                                            <div className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-gray-50 border border-gray-100 text-gray-500 uppercase tracking-tighter">
+                                            <div className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 text-gray-500 dark:text-foreground/60 uppercase tracking-tighter">
                                                 {lead.source}
                                             </div>
                                         </td>
@@ -531,7 +531,7 @@ const LeadTracking = () => {
                                                         key={i}
                                                         size="sm"
                                                         variant="flat"
-                                                        className="bg-sky-50 text-sky-600 text-[10px] font-bold h-6"
+                                                        className="bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400 text-[10px] font-bold h-6"
                                                     >
                                                         {t}
                                                     </Chip>
@@ -544,7 +544,7 @@ const LeadTracking = () => {
                                         <td className="py-4 px-6">
                                             <div className="flex items-center gap-1">
                                                 <HiStar className="text-yellow-400 size-4" />
-                                                <span className="font-bold text-gray-600">{lead.score}</span>
+                                                <span className="font-bold text-gray-600 dark:text-foreground/60">{lead.score}</span>
                                             </div>
                                         </td>
                                         <td className="py-4 px-6">
@@ -557,7 +557,7 @@ const LeadTracking = () => {
                                                 isIconOnly
                                                 variant="light"
                                                 size="sm"
-                                                className="text-gray-400 hover:text-primary"
+                                                className="text-gray-400 dark:text-foreground/40 hover:text-primary"
                                                 onPress={() => handleLeadClick(lead)}
                                             >
                                                 <HiOutlineEye className="size-5" />

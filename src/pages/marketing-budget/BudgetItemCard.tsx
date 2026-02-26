@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, CardHeader, Progress } from "@heroui/react";
+import { Button, Card, CardBody, CardHeader, Progress, Chip } from "@heroui/react";
 import React from "react";
 import { FiCalendar, FiEdit, FiTrash2 } from "react-icons/fi";
 import BudgetStatusChip from "../../components/chips/BudgetStatusChip";
@@ -17,7 +17,7 @@ const BudgetItemCard: React.FC<{
   const utilization = budgetAmount > 0 ? (spentAmount / budgetAmount) * 100 : 0;
 
   const isSynced =
-    item.type && ["google", "meta", "tiktok"].includes(item.type);
+    item.type && ["google", "meta", "tiktok", "calendar"].includes(item.type);
 
   const categoryTitle =
     typeof item.category === "string"
@@ -37,6 +37,8 @@ const BudgetItemCard: React.FC<{
         return "Meta Ads";
       case "tiktok":
         return "TikTok Ads";
+      case "calendar":
+        return "Marketing Calendar";
       default:
         return categoryTitle;
     }
@@ -68,8 +70,25 @@ const BudgetItemCard: React.FC<{
           </div>
         </div>
 
-        {!isSynced && (
-          <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
+          {isSynced ? (
+            <Chip
+              size="sm"
+              variant="flat"
+              color={
+                item.type === "google"
+                  ? "primary"
+                  : item.type === "meta"
+                    ? "secondary"
+                    : item.type === "tiktok"
+                      ? "warning"
+                      : "default"
+              }
+              className="text-[10px] font-bold uppercase tracking-wider h-5 px-2"
+            >
+              via {item.type}
+            </Chip>
+          ) : (
             <>
               {item.status && <BudgetStatusChip status={item.status} />}
               {item.priority && <PriorityLevelChip level={item.priority} />}
@@ -96,8 +115,8 @@ const BudgetItemCard: React.FC<{
                 </Button>
               </div>
             </>
-          </div>
-        )}
+          )}
+        </div>
       </CardHeader>
 
       <CardBody className="space-y-3 p-0 pt-4">

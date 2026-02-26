@@ -103,7 +103,10 @@ const PatientForm = () => {
       .min(2, "Full name must be at least 2 characters")
       .max(100, "Full name must be less than 100 characters"),
     email: Yup.string()
-      .matches(EMAIL_REGEX, "Invalid email format")
+      .matches(EMAIL_REGEX, {
+        message: "Invalid email format",
+        excludeEmptyString: true,
+      })
       .nullable(),
     phone: Yup.string()
       .matches(PHONE_REGEX, "Phone must be in format (XXX) XXX-XXXX")
