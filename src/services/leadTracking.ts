@@ -16,4 +16,9 @@ export const getLeadStats = async (): Promise<any> => {
     return response.data;
 };
 
+export const updateLead = async ({ id, data }: { id: string, data: any }): Promise<any> => {
+    const response = await axios.put(`/lead/${id}`, data);
+    return response.data;
+};
+
 

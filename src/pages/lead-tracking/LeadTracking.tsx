@@ -207,12 +207,14 @@ const LeadTracking = () => {
             const leadsList = data[statusKey];
             if (Array.isArray(leadsList)) {
                 const leadsInStatus = leadsList.map((l: any) => ({
+                    ...l,
                     id: l._id,
                     name: `${l.firstName} ${l.lastName}`,
                     email: l.email,
                     phone: l.phone,
                     source: formatSource(l.source),
                     status: statusMap[statusKey]?.name || "Unknown",
+                    l_status: l.status,
                     treatments: Array.isArray(l.treatments) ? l.treatments.map(formatTreatment) : [],
                     value: formatCurrency(l.estimatedValue),
                     score: 85,
