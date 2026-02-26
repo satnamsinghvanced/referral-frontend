@@ -158,33 +158,39 @@ export default function ReferrerActionsModal({
   };
 
   const handleFormSubmission = async (values: any) => {
-    const basePayload = {
+    const payload: any = {
       name: values.name,
       phone: values.phone,
-      email: values.email,
-      additionalNotes: values.additionalNotes,
     };
 
-    let payload: any = { ...basePayload };
+    if (values.email?.trim()) {
+      payload.email = values.email;
+    }
+
+    if (values.additionalNotes?.trim()) {
+      payload.additionalNotes = values.additionalNotes;
+    }
 
     switch (values.type) {
       case "doctor":
-        payload = {
-          ...payload,
-          practiceName: values.practiceName,
-          partnershipLevel: values.partnershipLevel,
-          practiceType: values.practiceType,
-          practiceAddress: values.practiceAddress,
-          website: values.website,
-          staff: values.staff.map((member: any) => ({
+        payload.practiceName = values.practiceName;
+        payload.partnershipLevel = values.partnershipLevel;
+        payload.practiceType = values.practiceType;
+        payload.practiceAddress = values.practiceAddress;
+        payload.website = values.website;
+        payload.staff = values.staff.map((member: any) => {
+          const staffPayload: any = {
             name: member.name,
             phone: member.phone,
-            email: member.email,
             role: member.role,
             isDentist: member.isDentist,
-          })),
-          status: values.status || "active",
-        };
+          };
+          if (member.email?.trim()) {
+            staffPayload.email = member.email;
+          }
+          return staffPayload;
+        });
+        payload.status = values.status || "active";
         break;
       case "communityReferrer":
         payload.communityReferrer = values.communityReferrer;
@@ -679,9 +685,6 @@ export default function ReferrerActionsModal({
               isRequired={!!isRequired}
               isInvalid={!!(touched && error)}
               errorMessage={touched && error ? (error as string) : undefined}
-              isDisabled={
-                id === "email" && (editedData?.type || isPracticeEdit)
-              }
               classNames={{ base: "data-disabled:opacity-60" }}
             />
           </div>

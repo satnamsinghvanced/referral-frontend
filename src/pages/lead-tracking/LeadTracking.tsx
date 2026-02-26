@@ -8,6 +8,7 @@ import {
     SelectItem,
     Chip,
     useDisclosure,
+    addToast,
 } from "@heroui/react";
 import {
     HiOutlineChartBar,
@@ -268,6 +269,11 @@ const LeadTracking = () => {
                             variant="flat"
                             className="w-full sm:w-auto bg-white dark:bg-background hover:bg-orange-50 dark:hover:bg-orange-900/10 hover:text-orange-600 dark:hover:text-orange-400 hover:border-orange-200 dark:hover:border-orange-800 transition-all border border-foreground/10"
                             startContent={<HiOutlineCog />}
+                            onPress={() => addToast({
+                                title: "Coming Soon",
+                                description: "Automation Setup functionality is in progress",
+                                color: "primary"
+                            })}
                         >
                             Automation Setup
                         </Button>
@@ -275,6 +281,11 @@ const LeadTracking = () => {
                             variant="flat"
                             className="w-full sm:w-auto bg-white dark:bg-background hover:bg-orange-50 dark:hover:bg-orange-900/10 hover:text-orange-600 dark:hover:text-orange-400 hover:border-orange-200 dark:hover:border-orange-800 transition-all border border-foreground/10"
                             startContent={<HiOutlineDownload />}
+                            onPress={() => addToast({
+                                title: "Coming Soon",
+                                description: "Export functionality is in progress",
+                                color: "primary"
+                            })}
                         >
                             Export
                         </Button>

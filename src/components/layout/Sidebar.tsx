@@ -85,7 +85,7 @@ const Sidebar = ({
         name: "Lead Tracking",
         icon: LuTarget,
         href: "/lead-tracking",
-        stats: "NEW",
+        // stats: "NEW",
         color: "bg-sky-500 !text-white",
       },
       {
