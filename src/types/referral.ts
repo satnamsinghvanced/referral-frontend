@@ -117,7 +117,7 @@ export interface ScanTrackingResponse {
 
 // Define the shape of the form data
 export interface StatusUpdateFormValues {
-  estValue: number;
+  estValue: number | "";
   status: string;
   statusNotes: string;
 }

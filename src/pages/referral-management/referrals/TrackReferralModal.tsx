@@ -81,9 +81,7 @@ const TrackReferralModal = ({
     phone: Yup.string()
       .required("Phone number is required")
       .matches(PHONE_REGEX, "Phone must be in format (XXX) XXX-XXXX"),
-    email: Yup.string()
-      .matches(EMAIL_REGEX, "Invalid email format")
-      .nullable(),
+    email: Yup.string().matches(EMAIL_REGEX, "Invalid email format").nullable(),
     referrerId: Yup.string().when([], {
       is: () => referrerMode === "existing",
       then: (schema) => schema.required("Please select a referrer"),
@@ -92,6 +90,10 @@ const TrackReferralModal = ({
     source: Yup.string().required("Referral source is required"),
     status: Yup.string().required("Status is required"),
     urgency: Yup.string().required("Urgency is required"),
+    estimatedValue: Yup.number().min(
+      0,
+      "Estimated Value must be non-negative.",
+    ),
   });
 
   const formik = useFormik({
@@ -615,7 +617,12 @@ const TrackReferralModal = ({
                       size="sm"
                       name="estimatedValue"
                       value={formik.values.estimatedValue.toString() || ""}
-                      onChange={formik.handleChange}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value === "" || /^[0-9]*\.?[0-9]*$/.test(value)) {
+                          formik.setFieldValue("estimatedValue", value);
+                        }
+                      }}
                       onBlur={formik.handleBlur}
                       isInvalid={
                         !!(

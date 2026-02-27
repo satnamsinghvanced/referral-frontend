@@ -35,6 +35,7 @@ import {
 import { useUpdateReferral } from "../../../hooks/useReferral";
 import { Referral, StatusUpdateFormValues } from "../../../types/referral";
 import { formatDateToReadable } from "../../../utils/formatDateToReadable";
+import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
 
 interface ReferralStatusModalProps {
   isOpen: boolean;
@@ -54,7 +55,7 @@ const ReferralStatusModal = ({
   const { mutate: updateReferral, isPending } = useUpdateReferral();
 
   const validationSchema = Yup.object<StatusUpdateFormValues>().shape({
-    estValue: Yup.number(),
+    estValue: Yup.number().min(0, "Estimated Value must be non-negative."),
     status: Yup.string().required("New Status is required"),
     statusNotes: Yup.string()
       .max(500, "Notes must be under 500 characters")
@@ -64,7 +65,7 @@ const ReferralStatusModal = ({
   const formik = useFormik<StatusUpdateFormValues>({
     enableReinitialize: true,
     initialValues: {
-      estValue: referral?.estValue || 0,
+      estValue: referral?.estValue || "",
       status: referral?.status,
       statusNotes: referral?.statusNotes || "",
     },
@@ -160,7 +161,7 @@ const ReferralStatusModal = ({
                 <InfoItem
                   icon={<LuPhone size={16} />}
                   label="Phone"
-                  value={referral?.phone || "N/A"}
+                  value={formatPhoneNumber(referral?.phone) || "N/A"}
                 />
                 <InfoItem
                   icon={<LuMail size={16} />}
@@ -281,6 +282,7 @@ const ReferralStatusModal = ({
                       radius="sm"
                       variant="flat"
                       selectedKeys={[formik.values.status]}
+                      disabledKeys={[formik.values.status]}
                       onSelectionChange={(keys) => {
                         const value = Array.from(keys)[0] as string;
                         formik.setFieldValue("status", value);
@@ -289,6 +291,7 @@ const ReferralStatusModal = ({
                       isInvalid={
                         !!(formik.touched.status && formik.errors.status)
                       }
+                      isRequired
                     >
                       {STATUS_OPTIONS.map((status) => (
                         <SelectItem key={status.value} textValue={status.label}>
@@ -300,17 +303,22 @@ const ReferralStatusModal = ({
                     <Input
                       label="Estimated Value"
                       labelPlacement="outside"
-                      placeholder="0.00"
+                      placeholder="0"
                       size="sm"
                       radius="sm"
                       variant="flat"
                       type="number"
                       value={formik.values.estValue.toString()}
-                      onValueChange={(value) =>
-                        formik.setFieldValue("estValue", value)
-                      }
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value === "" || /^[0-9]*\.?[0-9]*$/.test(value)) {
+                          formik.setFieldValue("estValue", value);
+                        }
+                      }}
                       startContent={
-                        <span className="text-default-400 text-xs">$</span>
+                        <span className="text-gray-500 dark:text-foreground/40">
+                          $
+                        </span>
                       }
                     />
                   </div>
