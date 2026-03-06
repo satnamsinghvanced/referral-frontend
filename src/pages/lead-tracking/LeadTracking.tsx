@@ -188,7 +188,7 @@ const LeadTracking = () => {
     return LEAD_STATUSES.map((status) => {
       const leads =
         leadsData.data.groupedLeads[
-          status.key as keyof typeof leadsData.data.groupedLeads
+        status.key as keyof typeof leadsData.data.groupedLeads
         ] || [];
       const totalValue = leads.reduce(
         (sum: number, lead: any) => sum + (Number(lead.estimatedValue) || 0),
@@ -386,7 +386,8 @@ const LeadTracking = () => {
           <div className="flex flex-col items-center justify-center h-96 border border-foreground/10 rounded-xl bg-background shadow-none">
             <EmptyState
               icon={<HiOutlineSearch className="size-8 text-gray-400" />}
-              title="No Leads Found"
+              // title="No Leads Found"
+              title="Leads functionality is in progress"
               message={
                 filters.search
                   ? `No results for "${filters.search}". Try a different term or clear filters.`

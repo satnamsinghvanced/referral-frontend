@@ -1,25 +1,77 @@
-import { Button, Card, CardBody, CardHeader } from "@heroui/react";
-import React, { useState } from "react";
+import { Button, Card, CardBody, CardHeader, Spinner } from "@heroui/react";
+import React, { useEffect, useState } from "react";
 import { FiCreditCard } from "react-icons/fi";
+import { BillingData, getBilling } from "../../services/settings/billing";
 
 const Billing: React.FC = () => {
-  const [paymentDetails, setPaymentDetails] = useState({
-    cardNumber: "**** **** **** 4242",
-    expiration: "12/26",
-    currentPlan: "Professional",
-    nextBillingDate: "March 15, 2024",
-  });
+  const [billingData, setBillingData] = useState<BillingData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const [isActive, setIsActive] = useState(true);
+  useEffect(() => {
+    const fetchBilling = async () => {
+      try {
+        setIsLoading(true);
+        const response = await getBilling();
+        if (response.success && response.data) {
+          setBillingData(response.data);
+        } else {
+          setBillingData(null);
+        }
+      } catch (err: any) {
+        console.error("Error fetching billing:", err);
+        setError(err.message || "Failed to fetch billing details");
+        setBillingData(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchBilling();
+  }, []);
+
+  const handleNavigateToROI = () => {
+    window.open("https://dev.practiceroi.com/", "_blank", "noreferrer");
+  };
 
   const handleUpdatePayment = () => {
-    console.log("Updating payment method...", paymentDetails);
+    handleNavigateToROI();
   };
 
   const handleTogglePlanStatus = () => {
-    setIsActive((prev) => !prev);
-    console.log("Toggled plan status:", isActive ? "Inactive" : "Active");
+    handleNavigateToROI();
   };
+
+  if (isLoading) {
+    return (
+      <Card className="rounded-xl shadow-none border border-foreground/10 bg-background h-[300px] flex items-center justify-center">
+        <Spinner label="Loading billing details..." />
+      </Card>
+    );
+  }
+
+  if (!billingData) {
+    return (
+      <div className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-500/30 rounded-lg p-3 flex items-center justify-between flex-wrap gap-3 mb-6">
+        <p className="text-sm text-yellow-800 dark:text-yellow-400">
+          You have don't active plans.
+        </p>
+        <Button
+          // as={Link}
+          // to="/integrations"
+          size="sm"
+          color="warning"
+          variant="flat"
+          onClick={handleNavigateToROI}
+          className="bg-yellow-200 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400"
+        >
+          Buy Plan
+        </Button>
+      </div>
+    );
+  }
+
+  const isActive = billingData.status === "active";
 
   return (
     <Card className="rounded-xl shadow-none border border-foreground/10 bg-background">
@@ -29,36 +81,40 @@ const Billing: React.FC = () => {
       </CardHeader>
 
       <CardBody className="p-4 space-y-5">
-        {/* Current Plan */}
-        <div className="space-y-1 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 p-3 rounded-lg">
+        <div className={`space-y-1 p-3 rounded-lg border ${isActive
+          ? "bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800"
+          : "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800"
+          }`}>
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm dark:text-green-400">
-              Current Plan: {paymentDetails.currentPlan}
+            <p className={`text-sm ${isActive ? "dark:text-green-400" : "dark:text-red-400"}`}>
+              Current Plan: {billingData.name}
             </p>
             <span
-              className={`inline-flex items-center justify-center rounded-md px-2 py-1 text-[11px] font-medium w-fit whitespace-nowrap shrink-0 ${
-                isActive
-                  ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400"
-                  : "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400"
-              }`}
+              className={`inline-flex items-center justify-center rounded-md px-2 py-1 text-[11px] font-medium w-fit whitespace-nowrap shrink-0 ${isActive
+                ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400"
+                : "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400"
+                }`}
             >
               {isActive ? "Active" : "Inactive"}
             </span>
           </div>
-          <p className="text-xs text-gray-600 dark:text-gray-400">{`$99/month • Up to 10 locations • Advanced analytics`}</p>
-          <p className="text-xs text-gray-600 dark:text-gray-400">{`Next billing date: ${paymentDetails.nextBillingDate}`}</p>
+          <p className="text-xs text-gray-600 dark:text-gray-400">
+            ${billingData.price}/{billingData.billingCycle}
+          </p>
+          <p className="text-xs text-gray-600 dark:text-gray-400">
+            Next billing date: {billingData.nextBillingDate}
+          </p>
         </div>
 
-        {/* Payment Method */}
         <div className="space-y-4">
           <h4 className="text-sm">Payment Method</h4>
           <div className="flex items-center justify-between p-4 border border-foreground/10 rounded-lg">
             <div className="flex items-center gap-3">
               <FiCreditCard className="size-6 text-gray-400" />
               <div>
-                <p className="text-sm">{paymentDetails.cardNumber}</p>
+                <p className="text-sm">**** **** **** {billingData.cardNumber.slice(-4)}</p>
                 <p className="text-xs text-gray-600 dark:text-gray-400">
-                  Expires {paymentDetails.expiration}
+                  Expires {billingData.expire}
                 </p>
               </div>
             </div>
@@ -73,7 +129,6 @@ const Billing: React.FC = () => {
           </div>
         </div>
 
-        {/* Actions */}
         <div className="flex gap-2">
           <Button
             size="sm"
