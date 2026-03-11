@@ -1,24 +1,7 @@
-import axiosInstance from "../axios";
+import { BillingData } from "../../types/billing";
+import axios from "../axios";
 
-export interface BillingData {
-    id: string;
-    name: string;
-    price: number;
-    nextBillingDate: string;
-    billingCycle: string;
-    paymentMethod: string;
-    cardNumber: string;
-    expire: string;
-    status: string;
-}
-
-export interface BillingResponse {
-    status: string;
-    message: string;
-    success: boolean;
-    data: BillingData;
-}
-
-export const getBilling = async (): Promise<BillingResponse> => {
-    return await axiosInstance.get("/billing");
+export const getBilling = async (): Promise<BillingData> => {
+  const response = await axios.get("/billing");
+  return response.data;
 };
