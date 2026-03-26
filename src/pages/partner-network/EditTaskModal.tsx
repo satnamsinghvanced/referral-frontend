@@ -62,6 +62,7 @@ const EditTaskModal = ({ isOpen, onClose, task }: EditTaskModalProps) => {
       _id: task._id,
       title: task.title || "",
       description: task.description || "",
+      notes: task.notes || "",
       dueDate: task.dueDate || "",
       priority: task.priority || "",
       category: task.category || "",
@@ -149,6 +150,20 @@ const EditTaskModal = ({ isOpen, onClose, task }: EditTaskModalProps) => {
               />
             </div>
 
+            {/* Notes */}
+            <div>
+              <Textarea
+                size="sm"
+                radius="sm"
+                label="Notes"
+                labelPlacement="outside-top"
+                name="notes"
+                value={formik.values.notes}
+                onChange={formik.handleChange}
+                placeholder="Task notes (optional)"
+                classNames={{ inputWrapper: "py-2" }}
+              />
+            </div>
             {/* Due Date */}
             <div>
               <DatePicker
@@ -170,8 +185,7 @@ const EditTaskModal = ({ isOpen, onClose, task }: EditTaskModalProps) => {
                   !!formik.errors.dueDate && (formik.touched.dueDate as boolean)
                 }
                 errorMessage={formik.errors.dueDate}
-                isRequired
-              />
+                isRequired />
             </div>
 
             {/* Priority / Type / Status */}

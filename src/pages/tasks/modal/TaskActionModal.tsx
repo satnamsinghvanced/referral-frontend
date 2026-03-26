@@ -27,7 +27,7 @@ import {
 } from "../../../hooks/usePartner";
 import { useTypedSelector } from "../../../hooks/useTypedSelector";
 import { TeamMember } from "../../../services/settings/team";
-import { FetchPartnersResponse, TaskApiData } from "../../../types/partner";
+import { FetchPartnersResponse, TaskApiData, TaskComment } from "../../../types/partner";
 import { formatCalendarDate } from "../../../utils/formatCalendarDate";
 
 interface TaskActionModalProps {
@@ -79,6 +79,7 @@ const TaskActionModal = ({
     initialValues: {
       title: task?.title || "",
       description: task?.description || "",
+      comments: task?.comments || [],
       dueDate: task?.dueDate || "",
       priority: task?.priority || TASK_PRIORITIES[0]?.value || "",
       category: task?.category || TASK_TYPES[0]?.key || "",
@@ -94,9 +95,16 @@ const TaskActionModal = ({
     },
     validationSchema,
     onSubmit: (values) => {
+      const transformedValues = {
+        ...values,
+        comments: values.comments.map((comment: any) => ({
+          content: comment.content,
+        })),
+      };
+
       if (isEditMode && task) {
         updateTask(
-          { taskId: task._id, data: values },
+          { taskId: task._id, data: transformedValues },
           {
             onSuccess: () => {
               if (refetch) refetch();
@@ -105,8 +113,9 @@ const TaskActionModal = ({
           },
         );
       } else {
+        const { comments, ...createValues } = transformedValues;
         createTask(
-          { ...values, assignTo: values.assignTo },
+          { ...createValues, assignTo: values.assignTo },
           {
             onSuccess: () => {
               if (refetch) refetch();
@@ -150,8 +159,6 @@ const TaskActionModal = ({
 
         <ModalBody className="p-0">
           <form className="space-y-4" onSubmit={formik.handleSubmit}>
-            {/* Practice Selection - Only show if creating or if we want to allow changing practice (usually we don't change practice of existing task, but keeping it editable or disabled depending on rqmt) */}
-            {/* Task Title */}
             <div>
               <Input
                 size="sm"
@@ -169,8 +176,6 @@ const TaskActionModal = ({
                 isRequired
               />
             </div>
-
-            {/* Description */}
             <div>
               <Textarea
                 size="sm"
@@ -184,8 +189,6 @@ const TaskActionModal = ({
                 classNames={{ inputWrapper: "py-2" }}
               />
             </div>
-
-            {/* Due Date */}
             <div className="flex">
               <DatePicker
                 label="Due Date"
@@ -207,14 +210,14 @@ const TaskActionModal = ({
                 }
                 errorMessage={formik.errors.dueDate}
                 isRequired
+                isDisabled={isEditMode === true}
               />
             </div>
 
-            {/* Priority / Type / Status (Status only in Edit) */}
+
             <div
-              className={`grid max-md:grid-cols-1 max-md:gap-4 ${
-                isEditMode ? "grid-cols-3" : "grid-cols-2"
-              } gap-2.5`}
+              className={`grid max-md:grid-cols-1 max-md:gap-4 ${isEditMode ? "grid-cols-3" : "grid-cols-2"
+                } gap-2.5`}
             >
               <Select
                 label="Priority"
@@ -362,6 +365,8 @@ const TaskActionModal = ({
                 </div>
               )}
             </div>
+
+
 
             {/* Buttons */}
             <div className="flex items-center justify-end space-x-2 pt-1">

@@ -411,11 +411,10 @@ export default function ScheduleVisits({
 
           <div>
             <div
-              className={`${
-                !isCompactMode
+              className={`${!isCompactMode
                   ? "grid grid-cols-1 md:grid-cols-2 gap-4"
                   : "space-y-3"
-              }`}
+                }`}
             >
               <PlanListContent />
             </div>

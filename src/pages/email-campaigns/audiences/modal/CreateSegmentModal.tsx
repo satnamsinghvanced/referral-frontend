@@ -44,7 +44,6 @@ const ValidationSchema = Yup.object().shape({
   name: Yup.string().trim().required("Segment name is required"),
   description: Yup.string().trim().required("Description is required"),
   audienceType: Yup.string().required("Audience type is required"),
-  lastActivity: Yup.string().required("Last activity is required"),
 });
 
 const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({
@@ -105,13 +104,10 @@ const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({
               selectedKeys={
                 formik.values.practiceSize ? [formik.values.practiceSize] : []
               }
-              disabledKeys={
-                formik.values.practiceSize ? [formik.values.practiceSize] : []
-              }
               onSelectionChange={(keys) =>
                 formik.setFieldValue(
                   "practiceSize",
-                  Array.from(keys)[0] as string,
+                  (Array.from(keys)[0] as string) || "",
                 )
               }
               isInvalid={
@@ -121,7 +117,6 @@ const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({
                 formik.touched.practiceSize &&
                 (formik.errors.practiceSize as string)
               }
-              isRequired
             >
               {PRACTICE_SIZES.map((size) => (
                 <SelectItem key={size.value}>{size.label}</SelectItem>
@@ -266,10 +261,8 @@ const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({
               </Select>
             </div>
 
-            {/* Row 3: Conditional Fields (Practice Size / Partner Level) */}
             {renderConditionalField()}
 
-            {/* Row 4: Last Activity */}
             <div className="w-full relative">
               <Select
                 placeholder="Select activity timeframe"
@@ -279,13 +272,10 @@ const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({
                 selectedKeys={
                   formik.values.lastActivity ? [formik.values.lastActivity] : []
                 }
-                disabledKeys={
-                  formik.values.lastActivity ? [formik.values.lastActivity] : []
-                }
                 onSelectionChange={(keys) =>
                   formik.setFieldValue(
                     "lastActivity",
-                    Array.from(keys)[0] as string,
+                    (Array.from(keys)[0] as string) || "",
                   )
                 }
                 isInvalid={
@@ -295,7 +285,6 @@ const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({
                   formik.touched.lastActivity &&
                   (formik.errors.lastActivity as string)
                 }
-                isRequired
               >
                 {ACTIVITY_TIMEFRAMES.map((tf) => (
                   <SelectItem key={tf.value}>{tf.label}</SelectItem>

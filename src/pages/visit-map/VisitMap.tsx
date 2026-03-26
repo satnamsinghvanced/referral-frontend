@@ -219,15 +219,13 @@ export default function VisitMap() {
 
     // Using Google Maps Directions API URL structure for better compatibility and "Start" button support
     // Setting origin to empty forces Google Maps to use the device's current location as the starting point
-    const webUrl = `https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${destination}${
-      waypointsParam ? `&waypoints=${encodeURIComponent(waypointsParam)}` : ""
-    }&travelmode=driving`;
+    const webUrl = `https://www.google.com/maps/dir/?api=1&origin=My+Location&destination=${destination}${waypointsParam ? `&waypoints=${encodeURIComponent(waypointsParam)}` : ""
+      }&travelmode=driving`;
 
     // Google Maps app URL scheme
     // We leave saddr empty to use "Current Location" which better triggers the navigation UI
-    const appUrl = `comgooglemaps://?saddr=&daddr=${destination}${
-      waypointsParam ? `&waypoints=${waypointsParam}` : ""
-    }&directionsmode=driving`;
+    const appUrl = `comgooglemaps://?saddr=&daddr=${destination}${waypointsParam ? `&waypoints=${waypointsParam}` : ""
+      }&directionsmode=driving`;
 
     // Priority: Try to open the app directly
     window.location.href = appUrl;
@@ -371,7 +369,7 @@ export default function VisitMap() {
         const res = await fetch(url);
         const json = await res.json();
         label = json?.features?.[0]?.properties?.name ?? label;
-      } catch {}
+      } catch { }
     }
 
     const el = document.createElement("div");
@@ -525,7 +523,7 @@ export default function VisitMap() {
 
       map.addControl(geolocateControl, "top-right");
 
-      geolocateControl.on("geolocate", (e) => {});
+      geolocateControl.on("geolocate", (e) => { });
 
       geolocateControl.trigger();
 

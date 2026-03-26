@@ -1,5 +1,5 @@
 import { Button } from "@heroui/react";
-import React from "react";
+import React, { useState } from "react";
 import { FaRegEnvelope } from "react-icons/fa";
 import { FiCopy, FiEdit } from "react-icons/fi";
 import {
@@ -11,6 +11,7 @@ import {
 } from "react-icons/lu";
 import AudienceSegmentStatusChip from "../../../components/chips/AudienceSegmentStatusChip";
 import AudienceSegmentTypeChip from "../../../components/chips/AudienceSegmentTypeChip";
+import CampaignActionModal from "../campaigns/modal/create/CampaignActionModal";
 
 const SegmentCard = ({
   segment,
@@ -38,6 +39,8 @@ const SegmentCard = ({
     size,
   } = segment;
 
+  const [isCampaignModalOpen, setIsCampaignModalOpen] = useState(false);
+
   const getIconForAction = (action: string) => {
     switch (action) {
       case "Edit":
@@ -54,138 +57,146 @@ const SegmentCard = ({
   const handleAction = (action: string) => {
     if (action === "Edit" && onEdit) {
       onEdit(segment);
+    } else if (action === "Create Campaign") {
+      setIsCampaignModalOpen(true);
     } else {
       console.log(`${action} button clicked`);
     }
   };
 
   return (
-    <div className="bg-background border border-foreground/10 rounded-xl p-4">
-      <div className="flex justify-between items-start gap-2">
-        <div className="flex items-start gap-2.5 w-full">
-          <div className="flex flex-col gap-1">
-            <div className="flex items-center gap-2">
-              <h4 className="text-sm font-medium">{name}</h4>
-            </div>
-            <p className="text-xs text-gray-600 dark:text-foreground/60">
-              {description}
-            </p>
-            <div className="text-xs text-gray-500 dark:text-foreground/50 mt-1 flex gap-2.5">
-              <p className="inline-flex items-center gap-1.5">
-                <LuUsers />
-                <span>{contacts} contacts</span>
+    <>
+      <div className="bg-background border border-foreground/10 rounded-xl p-4">
+        <div className="flex justify-between items-start gap-2">
+          <div className="flex items-start gap-2.5 w-full">
+            <div className="flex flex-col gap-1">
+              <div className="flex items-center gap-2">
+                <h4 className="text-sm font-medium">{name}</h4>
+              </div>
+              <p className="text-xs text-gray-600 dark:text-foreground/60">
+                {description}
               </p>
-              <p className="inline-flex items-center gap-1.5">
-                <FaRegEnvelope />
-                <span>{campaigns} campaigns</span>
-              </p>
-              <p className="inline-flex items-center gap-1.5">
-                <LuCalendar />
-                <span>Updated At: {updatedAt}</span>
-              </p>
-            </div>
-            <div className="mt-2 flex items-center flex-wrap gap-1.5">
-              <AudienceSegmentTypeChip type={type} />
-              <div className="flex items-center flex-wrap gap-1.5">
-                {tags.slice(0, 3).map((tag: string) => (
-                  <span
-                    key={tag}
-                    className="border border-foreground/10 text-[11px] rounded-md px-1.5 py-0.5"
-                  >
-                    {tag.charAt(0).toUpperCase() + tag.slice(1)}
-                  </span>
-                ))}
+              <div className="text-xs text-gray-500 dark:text-foreground/50 mt-1 flex gap-2.5">
+                <p className="inline-flex items-center gap-1.5">
+                  <LuUsers />
+                  <span>{contacts} contacts</span>
+                </p>
+                <p className="inline-flex items-center gap-1.5">
+                  <FaRegEnvelope />
+                  <span>{campaigns} campaigns</span>
+                </p>
+                <p className="inline-flex items-center gap-1.5">
+                  <LuCalendar />
+                  <span>Updated At: {updatedAt}</span>
+                </p>
+              </div>
+              <div className="mt-2 flex items-center flex-wrap gap-1.5">
+                <AudienceSegmentTypeChip type={type} />
+                <div className="flex items-center flex-wrap gap-1.5">
+                  {tags.slice(0, 3).map((tag: string) => (
+                    <span
+                      key={tag}
+                      className="border border-foreground/10 text-[11px] rounded-md px-1.5 py-0.5"
+                    >
+                      {tag.charAt(0).toUpperCase() + tag.slice(1)}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
+          <AudienceSegmentStatusChip status={status} />
         </div>
-        <AudienceSegmentStatusChip status={status} />
-      </div>
 
-      {status === "active" && (
-        <div className="grid grid-cols-3 gap-4 pt-4">
-          <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-content1 rounded-lg space-y-0.5">
-            <p className="text-xs text-gray-500 dark:text-foreground/50">
-              Size
-            </p>
-            <p className="text-sm font-semibold">{size}</p>
+        {status === "active" && (
+          <div className="grid grid-cols-3 gap-4 pt-4">
+            <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-content1 rounded-lg space-y-0.5">
+              <p className="text-xs text-gray-500 dark:text-foreground/50">
+                Size
+              </p>
+              <p className="text-sm font-semibold">{size}</p>
+            </div>
+            <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-content1 rounded-lg space-y-0.5">
+              <p className="text-xs text-gray-500 dark:text-foreground/50">
+                Avg Open Rate
+              </p>
+              <p className="text-sm font-semibold text-green-600 dark:text-green-400">
+                {avgOpenRate}
+              </p>
+            </div>
+            <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-content1 rounded-lg space-y-0.5">
+              <p className="text-xs text-gray-500 dark:text-foreground/50">
+                Avg Click Rate
+              </p>
+              <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">
+                {avgClickRate}
+              </p>
+            </div>
           </div>
-          <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-content1 rounded-lg space-y-0.5">
-            <p className="text-xs text-gray-500 dark:text-foreground/50">
-              Avg Open Rate
-            </p>
-            <p className="text-sm font-semibold text-green-600 dark:text-green-400">
-              {avgOpenRate}
-            </p>
-          </div>
-          <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-content1 rounded-lg space-y-0.5">
-            <p className="text-xs text-gray-500 dark:text-foreground/50">
-              Avg Click Rate
-            </p>
-            <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">
-              {avgClickRate}
-            </p>
-          </div>
-        </div>
-      )}
+        )}
 
-      <div className="flex justify-between items-center pt-4 mt-4 border-t border-foreground/10">
-        <div className="flex gap-2">
-          {["Edit", "Create Campaign"].map((action: any) => (
+        <div className="flex justify-between items-center pt-4 mt-4 border-t border-foreground/10">
+          <div className="flex gap-2">
+            {["Edit", "Create Campaign"].map((action: any) => (
+              <Button
+                key={action}
+                size="sm"
+                radius="sm"
+                variant="ghost"
+                color="default"
+                onPress={() => handleAction(action)}
+                // @ts-ignore
+                startContent={React.createElement(getIconForAction(action), {
+                  className: "size-3.5",
+                })}
+                className="border-small"
+              >
+                {action}
+              </Button>
+            ))}
+            {status === "draft" && (
+              <Button
+                size="sm"
+                radius="sm"
+                variant="solid"
+                color="primary"
+                onPress={() => console.log("Send Now button clicked")}
+                startContent={<LuPlay className="size-3.5" />}
+              >
+                Activate
+              </Button>
+            )}
+          </div>
+          <div className="flex gap-2 text-sm font-medium text-gray-600 dark:text-foreground/60">
             <Button
-              key={action}
               size="sm"
               radius="sm"
               variant="ghost"
               color="default"
-              onPress={() => handleAction(action)}
-              // @ts-ignore
-              startContent={React.createElement(getIconForAction(action), {
-                className: "size-3.5",
-              })}
+              onPress={() => onExport && onExport(id)}
+              startContent={<LuDownload className="size-3.5" />}
               className="border-small"
             >
-              {action}
+              Export
             </Button>
-          ))}
-          {status === "draft" && (
             <Button
               size="sm"
               radius="sm"
-              variant="solid"
-              color="primary"
-              onPress={() => console.log("Send Now button clicked")}
-              startContent={<LuPlay className="size-3.5" />}
-            >
-              Activate
-            </Button>
-          )}
-        </div>
-        <div className="flex gap-2 text-sm font-medium text-gray-600 dark:text-foreground/60">
-          <Button
-            size="sm"
-            radius="sm"
-            variant="ghost"
-            color="default"
-            onPress={() => onExport && onExport(id)}
-            startContent={<LuDownload className="size-3.5" />}
-            className="border-small"
-          >
-            Export
-          </Button>
-          <Button
-            size="sm"
-            radius="sm"
-            variant="ghost"
-            color="danger"
-            onPress={() => onDelete && onDelete(id)}
-            startContent={<LuTrash2 className="size-3.5" />}
-            className="border-small"
-            isIconOnly
-          />
+              variant="ghost"
+              color="danger"
+              onPress={() => onDelete && onDelete(id)}
+              startContent={<LuTrash2 className="size-3.5" />}
+              className="border-small"
+              isIconOnly
+            />
+          </div>
         </div>
       </div>
-    </div>
+      <CampaignActionModal
+        isOpen={isCampaignModalOpen}
+        onClose={() => setIsCampaignModalOpen(false)}
+      />
+    </>
   );
 };
 

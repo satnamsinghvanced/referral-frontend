@@ -60,11 +60,10 @@ const Billing: React.FC = () => {
 
       <CardBody className="p-4 space-y-5">
         <div
-          className={`space-y-1 p-3 rounded-lg border ${
-            isActive
-              ? "bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800"
-              : "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800"
-          }`}
+          className={`space-y-1 p-3 rounded-lg border ${isActive
+            ? "bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800"
+            : "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800"
+            }`}
         >
           <div className="flex items-center justify-between mb-2">
             <p
@@ -73,11 +72,10 @@ const Billing: React.FC = () => {
               Current Plan: {billingData.name}
             </p>
             <span
-              className={`inline-flex items-center justify-center rounded-md px-2 py-1 text-[11px] font-medium w-fit whitespace-nowrap shrink-0 ${
-                isActive
-                  ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400"
-                  : "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400"
-              }`}
+              className={`inline-flex items-center justify-center rounded-md px-2 py-1 text-[11px] font-medium w-fit whitespace-nowrap shrink-0 ${isActive
+                ? "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-400"
+                : "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-400"
+                }`}
             >
               {isActive ? "Active" : "Inactive"}
             </span>

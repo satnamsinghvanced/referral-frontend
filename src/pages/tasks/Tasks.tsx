@@ -223,6 +223,7 @@ function Tasks() {
                     task={task}
                     onEdit={handleOpenTaskModal}
                     onDelete={handleOpenDeleteModal}
+                    refetch={refetch}
                   />
                 ))}
               </div>

@@ -226,6 +226,13 @@ export interface FetchTasksParams {
   priority?: string;
 }
 
+export interface TaskComment {
+  _id?: string;
+  content: string;
+  createdBy?: any;
+  createdAt?: string;
+}
+
 export interface TaskApiData {
   _id: string;
   title: string;
@@ -240,6 +247,8 @@ export interface TaskApiData {
   isOverDue?: boolean;
   schedule?: string;
   assignTo?: any;
+  notes?: string;
+  comments?: TaskComment[];
 }
 
 export interface AllNotesTasksResponse {
@@ -265,6 +274,7 @@ export interface CreateTaskPayload {
   priority: string;
   category: string;
   assignTo: string[];
+  notes?: string;
 }
 
 export interface UpdateTaskPayload {

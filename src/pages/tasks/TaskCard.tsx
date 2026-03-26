@@ -13,25 +13,30 @@ import { TASK_STATUSES } from "../../consts/practice";
 import { useUpdateTask } from "../../hooks/usePartner";
 import { TaskApiData } from "../../types/partner";
 import { formatDateToMMDDYYYY } from "../../utils/formatDateToMMDDYYYY";
+import { LuFileText } from "react-icons/lu";
+import { useState } from "react";
+import EditTaskNotesModal from "./modal/EditTaskNotesModal";
 
 function TaskCard({
   task,
   onEdit,
   onDelete,
+  refetch,
 }: {
   task: TaskApiData;
   onEdit: (task: TaskApiData) => void;
   onDelete: (taskId: string) => void;
+  refetch?: () => void;
 }) {
   const { mutate: updateTask } = useUpdateTask();
+  const [isNotesOpen, setIsNotesOpen] = useState(false);
 
   return (
     <Card
-      className={`rounded-xl p-3.5 border shadow-none ${
-        task.isOverDue
-          ? "border-red-200 bg-red-50 dark:bg-red-500/10 dark:border-red-500/30"
-          : "bg-background dark:bg-content1 border-foreground/10"
-      }`}
+      className={`rounded-xl p-3.5 border shadow-none ${task.isOverDue
+        ? "border-red-200 bg-red-50 dark:bg-red-500/10 dark:border-red-500/30"
+        : "bg-background dark:bg-content1 border-foreground/10"
+        }`}
     >
       <CardHeader className="flex items-center justify-between gap-2 mb-2 p-0">
         <p className="text-sm">{task.title}</p>
@@ -44,18 +49,17 @@ function TaskCard({
               <LuBuilding2 fontSize={14} /> {task.practiceId?.name}
             </p>
             <p
-              className={`text-xs flex items-center gap-1.5 ${
-                task.isOverDue
-                  ? "text-red-600 dark:text-red-400"
-                  : "text-gray-600 dark:text-foreground/60"
-              }`}
+              className={`text-xs flex items-center gap-1.5 ${task.isOverDue
+                ? "text-red-600 dark:text-red-400"
+                : "text-gray-600 dark:text-foreground/60"
+                }`}
             >
               <LuCalendar fontSize={14} /> Due:{" "}
               {formatDateToMMDDYYYY(task.dueDate)}
               {task.isOverDue && <LuInfo fontSize={12} />}
             </p>
           </div>
-          <div className="flex items-center gap-2 max-md:flex-row-reverse max-md:justify-between">
+          <div className="flex items-center gap-2 max-md:flex-row-reverse max-md:justify-between max-sm:flex-col-reverse max-sm:items-start">
             <div className="flex items-center gap-1">
               <Button
                 isIconOnly
@@ -77,6 +81,21 @@ function TaskCard({
               >
                 <LuTrash2 className="size-3.5 text-red-500" />
               </Button>
+              <Button
+                size="sm"
+                radius="sm"
+                variant="bordered"
+                onPress={() => setIsNotesOpen(true)}
+                title="Edit Notes"
+                className="border-small text-white h-7.5"
+                startContent={<LuFileText className="size-3.5 text-white" />}
+              >
+                Notes {task.comments && task.comments.length > 0 && (
+                  <span className="ml-1 px-1.5 py-0 bg-sky-400 text-white text-[10px] rounded-full flex items-center justify-center min-w-[16px] h-4">
+                    {task.comments.length}
+                  </span>
+                )}
+              </Button>
             </div>
             <Select
               aria-label="Task Status"
@@ -92,9 +111,8 @@ function TaskCard({
               fullWidth={false}
               className="min-w-[180px] max-w-[200px]"
               classNames={{
-                trigger: `h-[30px] min-h-[30px] text-xs ${
-                  task.isOverDue && "bg-background"
-                }`,
+                trigger: `h-[30px] min-h-[30px] text-xs ${task.isOverDue && "bg-background"
+                  }`,
               }}
             >
               {TASK_STATUSES.map((status: any) => (
@@ -106,6 +124,12 @@ function TaskCard({
           </div>
         </div>
       </CardBody>
+      <EditTaskNotesModal
+        isOpen={isNotesOpen}
+        onClose={() => setIsNotesOpen(false)}
+        task={task}
+        refetch={refetch}
+      />
     </Card>
   );
 }

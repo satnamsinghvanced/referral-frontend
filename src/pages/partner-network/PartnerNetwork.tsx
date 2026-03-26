@@ -368,11 +368,10 @@ const PartnerNetwork = () => {
                     </div>
                     {stats?.totalPages && stats.totalPages > 1 && (
                       <p className="text-xs text-gray-600 dark:text-foreground/60">
-                        {`Showing ${params.limit * (params.page - 1) + 1} - ${
-                          params.limit * params.page > totalPractices
-                            ? totalPractices
-                            : params.limit * params.page
-                        } of ${totalPractices} practices`}
+                        {`Showing ${params.limit * (params.page - 1) + 1} - ${params.limit * params.page > totalPractices
+                          ? totalPractices
+                          : params.limit * params.page
+                          } of ${totalPractices} practices`}
                       </p>
                     )}
                   </div>

@@ -4,8 +4,8 @@ import { LuDownload } from "react-icons/lu";
 import VisitStatusChip from "../../../components/chips/VisitStatusChip";
 import { useCopySchedulePlan } from "../../../hooks/usePartner";
 import { SchedulePlan } from "../../../types/partner";
-import { downloadJson } from "../../../utils/jsonDownloader";
 import { formatDateToReadable } from "../../../utils/formatDateToReadable";
+import { generateRoutePdf } from "../../../utils/pdfRouteGenerator";
 
 const PlanCard: React.FC<{
   plan: SchedulePlan;
@@ -30,22 +30,15 @@ const PlanCard: React.FC<{
       break;
   }
 
-  const fullRouteDateTime = `${plan.route.date.split("T")[0]}T${
-    plan.route.startTime
-  }`;
+  const fullRouteDateTime = `${plan.route.date.split("T")[0]}T${plan.route.startTime
+    }`;
 
   const { mutate: copySchedulePlan } = useCopySchedulePlan();
 
   const handleExport = () => {
-    const exportData = {
-      timestamp: new Date().toISOString(),
-      reportTitle: plan.planDetails.name,
-      details: plan,
-    };
-
-    // Trigger the download
-    downloadJson(exportData, plan.planDetails.name);
+    generateRoutePdf(plan);
   };
+
 
   return (
     <Card

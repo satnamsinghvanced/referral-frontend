@@ -26,6 +26,8 @@
     "dayjs": "^1.11.19",
     "formik": "^2.4.6",
     "framer-motion": "^12.23.26",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.7",
     "jwt-decode": "^4.0.0",
     "localstorage-slim": "^2.7.1",
     "mapbox-gl": "^3.16.0",
