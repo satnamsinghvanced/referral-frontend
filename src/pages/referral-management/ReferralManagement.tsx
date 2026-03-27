@@ -128,6 +128,10 @@ const ReferralManagement = () => {
     useFetchReferrers({ ...referrerParams, search: debouncedReferrerSearch });
   const referrers = referrerData?.data;
 
+  // Fetch all referrers for selection in modals (avoiding pagination limit of 10)
+  const { data: allReferrersData } = useFetchReferrers({ limit: 1000 });
+  const selectionReferrers = allReferrersData?.data || referrers || [];
+
   // Pagination adjustments
   usePaginationAdjustment({
     totalPages: referralData?.totalPages || 0,
@@ -637,7 +641,7 @@ const ReferralManagement = () => {
       <TrackReferralModal
         isOpen={isTrackReferralModalOpen}
         onClose={() => setIsTrackReferralModalOpen(false)}
-        referrers={referrers || []}
+        referrers={selectionReferrers}
         onCreateNewReferrer={() => {
           setIsTrackReferralModalOpen(false);
           setIsModalOpen(true);

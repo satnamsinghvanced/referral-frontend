@@ -7,7 +7,6 @@ export default function AudienceSegmentStatusChip({
   status: string;
 }) {
   let classNames;
-
   switch (status) {
     case "inactive":
       classNames =
@@ -19,7 +18,6 @@ export default function AudienceSegmentStatusChip({
         "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-200 dark:border-green-800";
       break;
   }
-
   return (
     <Chip
       size="sm"

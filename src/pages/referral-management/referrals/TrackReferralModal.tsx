@@ -23,7 +23,7 @@ import {
   today,
 } from "@internationalized/date";
 import { useFormik } from "formik";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { FiCheckCircle, FiPlus } from "react-icons/fi";
 import { LuBuilding } from "react-icons/lu";
 import * as Yup from "yup";
@@ -151,6 +151,48 @@ const TrackReferralModal = ({
       });
     },
   });
+
+  const [referrerFilterValue, setReferrerFilterValue] = useState("");
+
+  const referrerSelectionItems = useMemo(() => {
+    const baseItems = [
+      {
+        _id: userId || "myself-id",
+        name: "Myself",
+        practice: {
+          name: `${user?.firstName || ""} ${user?.lastName || ""}`,
+        },
+        isMyself: true,
+      },
+      ...(referrers || []),
+    ];
+
+    if (!referrerFilterValue) return baseItems;
+
+    const lowerFilter = referrerFilterValue.toLowerCase();
+    return baseItems.filter((item) => {
+      const nameMatch = item.name?.toLowerCase().includes(lowerFilter);
+      const practiceMatch = item.practice?.name
+        ?.toLowerCase()
+        .includes(lowerFilter);
+      return nameMatch || practiceMatch;
+    });
+  }, [referrers, userId, user, referrerFilterValue]);
+
+  useEffect(() => {
+    if (isOpen && formik.values.referrerId) {
+      const selectedId = formik.values.referrerId;
+      // Also check the "Myself" case
+      if (selectedId === userId || selectedId === "myself-id") {
+        setReferrerFilterValue("Myself");
+      } else {
+        const referrer = referrers?.find((r) => r._id === selectedId);
+        if (referrer) {
+          setReferrerFilterValue(referrer.name);
+        }
+      }
+    }
+  }, [isOpen, formik.values.referrerId, referrers, userId]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -355,21 +397,23 @@ const TrackReferralModal = ({
                         variant="flat"
                         size="sm"
                         radius="sm"
-                        items={[
-                          {
-                            _id: userId,
-                            name: "Myself",
-                            practice: {
-                              name: `${user?.firstName} ${user?.lastName}`,
-                            },
-                            isMyself: true,
-                          },
-                          ...referrers,
-                        ]}
+                        items={referrerSelectionItems}
                         selectedKey={formik.values.referrerId}
-                        onSelectionChange={(key) =>
-                          formik.setFieldValue("referrerId", key)
-                        }
+                        onSelectionChange={(key) => {
+                          formik.setFieldValue("referrerId", key);
+                          if (key) {
+                            const selectedItem = referrerSelectionItems.find(
+                              (i) => i._id === key,
+                            );
+                            if (selectedItem) {
+                              setReferrerFilterValue(selectedItem.name);
+                            }
+                          } else {
+                            setReferrerFilterValue("");
+                          }
+                        }}
+                        inputValue={referrerFilterValue}
+                        onInputChange={setReferrerFilterValue}
                         onBlur={formik.handleBlur}
                         isInvalid={
                           !!(
@@ -472,11 +516,11 @@ const TrackReferralModal = ({
                         formik.values.scheduledDate
                           ? formik.values.scheduledDate.includes("T")
                             ? parseDateTime(
-                                formik.values.scheduledDate.slice(0, 19),
-                              )
+                              formik.values.scheduledDate.slice(0, 19),
+                            )
                             : parseDateTime(
-                                `${formik.values.scheduledDate}T00:00:00`,
-                              )
+                              `${formik.values.scheduledDate}T00:00:00`,
+                            )
                           : null
                       }
                       onChange={(dateObject: any) => {
