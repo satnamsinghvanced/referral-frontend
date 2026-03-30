@@ -14,12 +14,12 @@ interface ReferrerButton {
   icon?: React.ReactNode;
   variant?: "solid" | "bordered" | "light" | "flat" | "ghost" | "shadow";
   color?:
-    | "default"
-    | "primary"
-    | "secondary"
-    | "success"
-    | "warning"
-    | "danger";
+  | "default"
+  | "primary"
+  | "secondary"
+  | "success"
+  | "warning"
+  | "danger";
   className?: string;
   link?: string;
   linkInNewTab?: boolean;
@@ -139,7 +139,7 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
               variant={btn.variant ?? "bordered"}
               color={btn.color ?? "default"}
               onPress={() => {
-                if (btn.label.toLowerCase().includes("visit")) {
+                if (btn.label.toLowerCase().includes("location")) {
                   handleVisit();
                 } else {
                   btn.onClick && btn.onClick(referrer._id);

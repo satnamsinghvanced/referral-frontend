@@ -2,13 +2,11 @@ import {
   Button,
   Card,
   CardBody,
-  DatePicker,
   Input,
   Select,
   SelectItem,
   Textarea,
 } from "@heroui/react";
-import { getLocalTimeZone, now } from "@internationalized/date";
 import { useFormik } from "formik";
 import { useEffect, useMemo, useState } from "react";
 import { FaRegStar } from "react-icons/fa";
@@ -17,7 +15,7 @@ import { RiPhoneFill } from "react-icons/ri";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import * as Yup from "yup";
 import { EMAIL_REGEX, NAME_REGEX, PHONE_REGEX } from "../../../consts/consts";
-import { TREATMENT_OPTIONS, URGENCY_OPTIONS } from "../../../consts/referral";
+import { TREATMENT_OPTIONS } from "../../../consts/referral";
 import { useFetchUserForTrackings } from "../../../hooks/settings/useUser";
 import {
   useCreateReferral,
@@ -36,8 +34,6 @@ interface PatientFormValues {
   age: number | "";
   insuranceProvider: string;
   preferredTreatment: string;
-  scheduledDate: string;
-  urgencyLevel: string;
   preferredTime: string;
   referralReason: string;
   notes: string;
@@ -123,7 +119,6 @@ const PatientForm = () => {
     preferredTreatment: Yup.string().required(
       "Preferred treatment is required",
     ),
-    urgencyLevel: Yup.string().required("Urgency level is required"),
     preferredTime: Yup.string().nullable(),
     referralReason: Yup.string()
       .max(500, "Referral reason must be less than 500 characters")
@@ -131,7 +126,6 @@ const PatientForm = () => {
     notes: Yup.string()
       .max(1000, "Additional notes must be less than 1000 characters")
       .nullable(),
-    scheduledDate: Yup.string().nullable(),
   });
 
   const formFields = [
@@ -174,12 +168,6 @@ const PatientForm = () => {
       placeholder: "e.g., Delta Dental, Aetna, Cigna, etc.",
       maxLength: 100,
     },
-    {
-      type: "date",
-      name: "scheduledDate",
-      label: "Scheduled Date",
-      placeholder: "Select scheduled date",
-    },
   ];
 
   const formik = useFormik<PatientFormValues>({
@@ -190,9 +178,7 @@ const PatientForm = () => {
       age: "",
       insuranceProvider: "",
       preferredTreatment: TREATMENT_OPTIONS[0]?.key || "invisalign",
-      urgencyLevel: URGENCY_OPTIONS[0]?.key || "medium",
       preferredTime: "",
-      scheduledDate: "",
       referralReason: "",
       notes: "",
     },
@@ -207,11 +193,9 @@ const PatientForm = () => {
         age: Number(values.age),
         insurance: values.insuranceProvider || "",
         treatment: values.preferredTreatment || "",
-        priority: values.urgencyLevel || "medium",
         appointmentTime: values.preferredTime || "",
         reason: values.referralReason || "",
         notes: values.notes || "",
-        scheduledDate: values.scheduledDate || "",
         status: "new" as ReferralStatus,
         estValue: 0,
         sourceId,
@@ -328,7 +312,7 @@ const PatientForm = () => {
                     const touched = formik.touched[fieldName];
                     const error = formik.errors[fieldName];
 
-                    return field.type !== "date" ? (
+                    return (
                       <Input
                         key={field.name}
                         type={field.type}
@@ -356,59 +340,8 @@ const PatientForm = () => {
                           ? { maxLength: field.maxLength }
                           : {})}
                       />
-                    ) : (
-                      <DatePicker
-                        key={field.name}
-                        id={field.name}
-                        name={field.name}
-                        label={field.label}
-                        labelPlacement="outside"
-                        size="sm"
-                        radius="sm"
-                        hideTimeZone
-                        minValue={now(getLocalTimeZone())}
-                        granularity="minute"
-                        onChange={(dateObject: any) => {
-                          if (dateObject) {
-                            // Extract parts, pad with leading zeros
-                            const year = dateObject.year;
-                            const month = String(dateObject.month).padStart(
-                              2,
-                              "0",
-                            );
-                            const day = String(dateObject.day).padStart(2, "0");
-                            const hour = String(dateObject.hour).padStart(
-                              2,
-                              "0",
-                            );
-                            const minute = String(dateObject.minute).padStart(
-                              2,
-                              "0",
-                            );
-                            const second = String(dateObject.second).padStart(
-                              2,
-                              "0",
-                            );
-                            const millisecond = String(
-                              dateObject.millisecond,
-                            ).padStart(3, "0");
-
-                            const localDateTimeString = `${year}-${month}-${day}T${hour}:${minute}:${second}.${millisecond}`;
-                            formik.setFieldValue(
-                              fieldName as string,
-                              localDateTimeString,
-                            );
-                          } else {
-                            formik.setFieldValue(fieldName as string, null);
-                          }
-                        }}
-                        onBlur={() => formik.setFieldTouched(fieldName, true)}
-                      />
                     );
                   })}
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-x-4 md:gap-y-6">
                   <Select
                     label="Preferred Treatment"
                     labelPlacement="outside"
@@ -452,43 +385,8 @@ const PatientForm = () => {
                       </SelectItem>
                     ))}
                   </Select>
-
-                  <Select
-                    label="Urgency Level"
-                    labelPlacement="outside"
-                    placeholder="Select urgency level"
-                    size="sm"
-                    radius="sm"
-                    name="urgencyLevel"
-                    selectedKeys={
-                      formik.values.urgencyLevel
-                        ? new Set([formik.values.urgencyLevel])
-                        : new Set([])
-                    }
-                    disabledKeys={[formik.values.urgencyLevel]}
-                    onSelectionChange={(keys) => {
-                      const value = Array.from(keys)[0] as string;
-                      formik.setFieldValue("urgencyLevel", value);
-                    }}
-                    onBlur={() => formik.setFieldTouched("urgencyLevel", true)}
-                    isInvalid={
-                      !!(
-                        formik.touched.urgencyLevel &&
-                        formik.errors.urgencyLevel
-                      )
-                    }
-                    errorMessage={
-                      formik.touched.urgencyLevel &&
-                      (formik.errors.urgencyLevel as string)
-                    }
-                    className="w-full"
-                    isRequired
-                  >
-                    {URGENCY_OPTIONS.map((urgency) => (
-                      <SelectItem key={urgency.key}>{urgency.label}</SelectItem>
-                    ))}
-                  </Select>
                 </div>
+
 
                 {/* <div className="grid grid-cols-1 gap-6">
                   <Textarea

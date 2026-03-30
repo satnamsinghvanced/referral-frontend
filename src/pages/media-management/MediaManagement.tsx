@@ -209,7 +209,7 @@ function MediaManagement() {
       document.body.removeChild(link);
 
       window.URL.revokeObjectURL(url);
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const handleUpdateTags = (mediaId: string, tag: string) => {
@@ -365,9 +365,8 @@ function MediaManagement() {
                     return (
                       <span
                         key={tag}
-                        className={`${base} ${
-                          currentFilters.tags.includes(tag) ? active : inactive
-                        }`}
+                        className={`${base} ${currentFilters.tags.includes(tag) ? active : inactive
+                          }`}
                         onClick={() => handleToggleTag(tag)}
                       >
                         {tag}

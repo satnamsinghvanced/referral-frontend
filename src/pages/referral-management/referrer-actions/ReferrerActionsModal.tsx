@@ -312,8 +312,8 @@ export default function ReferrerActionsModal({
         otherwise: (schema) => schema.notRequired(),
       }),
       website: Yup.string().matches(
-        /^(https?:\/\/(?:www\.|(?!www))[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|www\.[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/[a-zA-Z0-9]+\.[^\s]{2,}|[a-zA-Z0-9]+\.[^\s]{2,})$/i,
-        "Website must be a valid URL.(https://example.com or www.example.com",
+        /^(https?:\/\/)?(www\.[a-zA-Z0-9-]+\.[a-zA-Z0-9-]{2,}(\.[a-zA-Z0-9-]{2,})*|(?!(www\.))[a-zA-Z0-9-]+\.[a-zA-Z0-9-]{2,}(\.[a-zA-Z0-9-]{2,})*)(\/.*)?$/i,
+        "Website must be a valid URL (e.g., https://example.com or www.example.com)",
       ),
       practiceAddress: Yup.object().shape({
         addressLine1: Yup.string().when(["$type"], {
@@ -537,8 +537,8 @@ export default function ReferrerActionsModal({
                 formik.setFieldValue(id as string, finalValue);
                 formik.setFieldTouched(id as string, true, false);
               }}
-              isInvalid={!!(touched && error)}
-              errorMessage={touched && error ? (error as string) : undefined}
+              isInvalid={!!(error && (touched || (Array.isArray(value) ? value.length > 0 : value)))}
+              errorMessage={(error && (touched || (Array.isArray(value) ? value.length > 0 : value))) ? (error as string) : undefined}
               classNames={{
                 base: "gap-2 !mt-0",
                 label: "static !translate-y-0",
@@ -566,8 +566,8 @@ export default function ReferrerActionsModal({
               value={value as string}
               onValueChange={(val) => formik.setFieldValue(id as string, val)}
               onBlur={formik.handleBlur}
-              isInvalid={!!(touched && error)}
-              errorMessage={touched && error ? (error as string) : undefined}
+              isInvalid={!!(error && (touched || value))}
+              errorMessage={(error && (touched || value)) ? (error as string) : undefined}
               minRows={minRows || 5}
               className="text-sm"
             />
@@ -641,9 +641,9 @@ export default function ReferrerActionsModal({
                     {...(sub.id === "zip" ? { maxLength: 5 } : {})}
                     onBlur={() => formik.setFieldTouched(fieldPath)}
                     isRequired={!!sub.isRequired}
-                    isInvalid={!!(isSubTouched && errorText)}
+                    isInvalid={!!(errorText && (isSubTouched || formik.values.practiceAddress[sub.id as keyof typeof formik.values.practiceAddress]))}
                     errorMessage={
-                      isSubTouched && errorText
+                      (errorText && (isSubTouched || formik.values.practiceAddress[sub.id as keyof typeof formik.values.practiceAddress]))
                         ? (errorText as string)
                         : undefined
                     }
@@ -683,8 +683,8 @@ export default function ReferrerActionsModal({
               }
               onBlur={formik.handleBlur}
               isRequired={!!isRequired}
-              isInvalid={!!(touched && error)}
-              errorMessage={touched && error ? (error as string) : undefined}
+              isInvalid={!!(error && (touched || value))}
+              errorMessage={(error && (touched || value)) ? (error as string) : undefined}
               classNames={{ base: "data-disabled:opacity-60" }}
             />
           </div>
@@ -741,9 +741,9 @@ export default function ReferrerActionsModal({
                 formik.setFieldValue(fieldName as string, finalValue);
                 formik.setFieldTouched(fieldName as string, true, false);
               }}
-              isInvalid={!!(isTouched && errorText)}
+              isInvalid={!!(errorText && (isTouched || (Array.isArray(valuePath) ? valuePath.length > 0 : valuePath)))}
               errorMessage={
-                isTouched && errorText ? (errorText as string) : undefined
+                (errorText && (isTouched || (Array.isArray(valuePath) ? valuePath.length > 0 : valuePath))) ? (errorText as string) : undefined
               }
               classNames={{
                 base: "gap-2 !mt-0",
@@ -808,9 +808,9 @@ export default function ReferrerActionsModal({
               }}
               onBlur={formik.handleBlur}
               isRequired={!!field.isRequired}
-              isInvalid={!!(isTouched && errorText)}
+              isInvalid={!!(errorText && (isTouched || valuePath))}
               errorMessage={
-                isTouched && errorText ? (errorText as string) : undefined
+                (errorText && (isTouched || valuePath)) ? (errorText as string) : undefined
               }
             />
           </div>

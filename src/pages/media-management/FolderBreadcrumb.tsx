@@ -20,7 +20,7 @@ const FolderBreadcrumb = ({ path, onNavigate }: any) => {
         onClick={() => onNavigate(null)}
         isCurrent={path.length === 0}
       >
-        Root
+        Library
       </BreadcrumbItem>
       {path.map((item: any, index: number) => (
         <BreadcrumbItem

@@ -298,7 +298,7 @@ const ReferralManagement = () => {
         },
       },
       {
-        label: "Visit",
+        label: "Location",
         icon: <GrLocation className="font-bold" />,
         variant: "ghost",
         color: "default",

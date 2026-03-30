@@ -14,12 +14,16 @@ import {
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { formatDateToMMDDYYYY } from "../../utils/formatDateToMMDDYYYY";
 
+const URL_REGEX = /^(https?:\/\/|www\.).+$/i;
+
 const TrackingPanel = () => {
   const [copied, setCopied] = useState("");
   const [customPath, setCustomPath] = useState("");
   const [isCustomLandingPage, setIsCustomLandingPage] = useState(false);
   const [showGenerator, setShowGenerator] = useState(false);
   const [selectedQrId, setSelectedQrId] = useState<string | null>(null);
+  const [isFullCustomUrl, setIsFullCustomUrl] = useState(false);
+  const [customLandingUrl, setCustomLandingUrl] = useState("");
 
   const { user } = useTypedSelector((state) => state.auth);
   const userId = user?.userId;
@@ -158,12 +162,21 @@ const TrackingPanel = () => {
     createTrackingSetup(
       {
         id: userId as string,
-        customPath: (customPath as string) || "referral",
+        customPath: isFullCustomUrl
+          ? "External"
+          : isCustomLandingPage && customPath
+            ? customPath
+            : "referral",
+        customLandingUrl: isFullCustomUrl ? customLandingUrl : undefined,
+        isManually: isFullCustomUrl ? true : false,
       },
       {
         onSuccess: () => {
           setShowGenerator(false);
           setCustomPath("");
+          setCustomLandingUrl("");
+          setIsFullCustomUrl(false);
+          setIsCustomLandingPage(false);
           setSelectedQrId(null);
         },
       },
@@ -211,41 +224,94 @@ const TrackingPanel = () => {
                     </p>
                   </div>
                   <div className="space-y-1">
-                    <div className="flex">
-                      <Checkbox
-                        size="sm"
-                        radius="sm"
-                        isSelected={isCustomLandingPage}
-                        onValueChange={setIsCustomLandingPage}
-                      >
-                        Use Custom Landing Page URL
-                      </Checkbox>
-                    </div>
-                    <p className="text-[11px] text-gray-500 dark:text-foreground/40">
-                      {!isCustomLandingPage
-                        ? "Default: https://practicemarketer.ai/referral"
-                        : "Enter your custom referral landing page URL"}
-                    </p>
-                    {isCustomLandingPage && (
-                      <div className="mt-2.5">
+                    {!isFullCustomUrl && (
+                      <>
+                        <div className="flex justify-between items-center">
+                          <Checkbox
+                            size="sm"
+                            radius="sm"
+                            isSelected={isCustomLandingPage}
+                            onValueChange={setIsCustomLandingPage}
+                          >
+                            Use Custom Landing Page URL
+                          </Checkbox>
+                          <div className="flex items-end ">
+                            <Button
+                              size="sm"
+                              variant="light"
+                              color="primary"
+                              className="text-xs border border-primary border-1"
+                              onPress={() => {
+                                setShowGenerator(true);
+                                setIsFullCustomUrl(true);
+                              }}
+                            >
+                              Add External Page
+                            </Button>
+                          </div>
+                        </div>
+                        <p className="text-[11px] text-gray-500 dark:text-foreground/40">
+                          {!isCustomLandingPage
+                            ? "Default: https://practicemarketer.ai/referral"
+                            : "Enter your custom referral landing page URL"}
+                        </p>
+                        {isCustomLandingPage && (
+                          <div className="mt-2.5">
+                            <Input
+                              size="sm"
+                              radius="sm"
+                              label="Custom Landing Page URL"
+                              labelPlacement="outside-top"
+                              placeholder="referral"
+                              startContent={
+                                <div className="pointer-events-none flex items-center">
+                                  <span className="text-default-400 text-small whitespace-nowrap">
+                                    {import.meta.env.VITE_LIVE_URL}
+                                  </span>
+                                </div>
+                              }
+                              type="text"
+                              value={customPath}
+                              onValueChange={(value) =>
+                                setCustomPath(value.replace(/\s+/g, ""))
+                              }
+                            />
+                          </div>
+                        )}
+                      </>
+                    )}
+                    {isFullCustomUrl && (
+                      <div className="mt-2.5 space-y-2">
+                        <div className="flex justify-between items-center">
+                          <p className="text-xs font-medium dark:text-white">
+                            Adding External Page
+                          </p>
+                          <Button
+                            size="sm"
+                            variant="light"
+                            color="danger"
+                            className="text-xs border-1 border-red-600 h-6 px-2"
+                            onPress={() => {
+                              setIsFullCustomUrl(false);
+                              setCustomLandingUrl("");
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
                         <Input
                           size="sm"
                           radius="sm"
-                          label="Custom Landing Page URL"
+                          label="External Page URL"
                           labelPlacement="outside-top"
-                          placeholder="referral"
-                          startContent={
-                            <div className="pointer-events-none flex items-center">
-                              <span className="text-default-400 text-small whitespace-nowrap">
-                                {import.meta.env.VITE_LIVE_URL}
-                              </span>
-                            </div>
-                          }
+                          placeholder="https:// or www.example.com"
                           type="text"
-                          value={customPath}
+                          value={customLandingUrl}
                           onValueChange={(value) =>
-                            setCustomPath(value.replace(/\s+/g, ""))
+                            setCustomLandingUrl(value.trim())
                           }
+                          isInvalid={!!customLandingUrl && !URL_REGEX.test(customLandingUrl)}
+                          errorMessage={!!customLandingUrl && !URL_REGEX.test(customLandingUrl) ? "Please enter a valid URL (e.g., https://example.com or www.example.com)" : undefined}
                         />
                       </div>
                     )}
@@ -258,6 +324,7 @@ const TrackingPanel = () => {
                     size="sm"
                     onPress={generateTracking}
                     fullWidth
+                    isDisabled={isFullCustomUrl && (!customLandingUrl || !URL_REGEX.test(customLandingUrl))}
                   >
                     Generate QR Code
                   </Button>
@@ -533,11 +600,10 @@ const TrackingPanel = () => {
                       setShowGenerator(false);
                       // Scroll to target if needed, but usually just updating the state is enough
                     }}
-                    className={`cursor-pointer transition-colors border-l-2 ${
-                      qr._id === latestQr?._id
-                        ? "bg-blue-50/80 border-l-blue-600 dark:bg-blue-900/20"
-                        : "border-transparent hover:bg-gray-50/50 dark:hover:bg-white/[0.02]"
-                    }`}
+                    className={`cursor-pointer transition-colors border-l-2 ${qr._id === latestQr?._id
+                      ? "bg-blue-50/80 border-l-blue-600 dark:bg-blue-900/20"
+                      : "border-transparent hover:bg-gray-50/50 dark:hover:bg-white/[0.02]"
+                      }`}
                   >
                     <td className="text-left text-xs py-3 px-2 max-w-fit">
                       <div className="bg-white dark:bg-background border border-foreground/10 dark:border-divider rounded p-0.5 w-12 h-12 flex items-center justify-center">

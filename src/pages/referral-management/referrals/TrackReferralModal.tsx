@@ -2,7 +2,6 @@ import {
   Autocomplete,
   AutocompleteItem,
   Button,
-  DatePicker,
   Input,
   Modal,
   ModalBody,
@@ -16,12 +15,6 @@ import {
   Textarea,
   addToast,
 } from "@heroui/react";
-import {
-  getLocalTimeZone,
-  parseDate,
-  parseDateTime,
-  today,
-} from "@internationalized/date";
 import { useFormik } from "formik";
 import { useEffect, useState, useMemo } from "react";
 import { FiCheckCircle, FiPlus } from "react-icons/fi";
@@ -32,7 +25,6 @@ import { STATUS_OPTIONS } from "../../../consts/filters";
 import {
   SOURCE_OPTIONS,
   TREATMENT_OPTIONS,
-  URGENCY_OPTIONS,
 } from "../../../consts/referral";
 import { useCreateReferral } from "../../../hooks/useReferral";
 import { Referrer } from "../../../types/partner";
@@ -89,7 +81,6 @@ const TrackReferralModal = ({
     treatment: Yup.string().required("Reason for referral is required"),
     source: Yup.string().required("Referral source is required"),
     status: Yup.string().required("Status is required"),
-    urgency: Yup.string().required("Urgency is required"),
     estimatedValue: Yup.number().min(
       0,
       "Estimated Value must be non-negative.",
@@ -105,9 +96,7 @@ const TrackReferralModal = ({
       email: "",
       referrerId: "",
       treatment: TREATMENT_OPTIONS[0]?.key,
-      scheduledDate: "",
       status: "new",
-      urgency: "medium",
       source: "Direct",
       estimatedValue: "",
       notes: "",
@@ -136,11 +125,9 @@ const TrackReferralModal = ({
         referredBy: values.referrerId,
         treatment: values.treatment as string,
         addedVia: values.source,
-        priority: values.urgency,
         estValue: Number(values.estimatedValue) || 0,
         notes: values.notes,
         status: values.status as ReferralStatus,
-        scheduledDate: values.scheduledDate || undefined,
       };
 
       createReferral(payload, {
@@ -469,7 +456,6 @@ const TrackReferralModal = ({
                 <h4 className="font-medium text-sm dark:text-white">
                   Referral Details
                 </h4>
-
                 <div className="flex flex-col gap-y-4">
                   <div className="flex">
                     <Select
@@ -500,63 +486,7 @@ const TrackReferralModal = ({
                       ))}
                     </Select>
                   </div>
-
                   <div className="flex">
-                    <DatePicker
-                      label="Scheduled Date"
-                      labelPlacement="outside"
-                      variant="flat"
-                      radius="sm"
-                      size="sm"
-                      name="scheduledDate"
-                      hideTimeZone
-                      granularity="minute"
-                      minValue={today(getLocalTimeZone())}
-                      value={
-                        formik.values.scheduledDate
-                          ? formik.values.scheduledDate.includes("T")
-                            ? parseDateTime(
-                              formik.values.scheduledDate.slice(0, 19),
-                            )
-                            : parseDateTime(
-                              `${formik.values.scheduledDate}T00:00:00`,
-                            )
-                          : null
-                      }
-                      onChange={(dateObject: any) => {
-                        if (dateObject) {
-                          const year = dateObject.year;
-                          const month = String(dateObject.month).padStart(
-                            2,
-                            "0",
-                          );
-                          const day = String(dateObject.day).padStart(2, "0");
-                          const hour = String(dateObject.hour).padStart(2, "0");
-                          const minute = String(dateObject.minute).padStart(
-                            2,
-                            "0",
-                          );
-                          const second = String(dateObject.second).padStart(
-                            2,
-                            "0",
-                          );
-                          const millisecond = String(
-                            dateObject.millisecond,
-                          ).padStart(3, "0");
-
-                          const localDateTimeString = `${year}-${month}-${day}T${hour}:${minute}:${second}.${millisecond}`;
-                          formik.setFieldValue(
-                            "scheduledDate",
-                            localDateTimeString,
-                          );
-                        } else {
-                          formik.setFieldValue("scheduledDate", "");
-                        }
-                      }}
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-x-2.5 gap-y-4">
                     <Select
                       label="Status"
                       labelPlacement="outside"
@@ -585,37 +515,7 @@ const TrackReferralModal = ({
                         <SelectItem key={s.value}>{s.label}</SelectItem>
                       ))}
                     </Select>
-
-                    <Select
-                      label="Urgency"
-                      labelPlacement="outside"
-                      placeholder="Medium"
-                      defaultSelectedKeys={["medium"]}
-                      variant="flat"
-                      radius="sm"
-                      size="sm"
-                      selectedKeys={
-                        formik.values.urgency ? [formik.values.urgency] : []
-                      }
-                      disabledKeys={
-                        formik.values.urgency ? [formik.values.urgency] : []
-                      }
-                      onChange={(e) =>
-                        formik.setFieldValue("urgency", e.target.value)
-                      }
-                      onBlur={formik.handleBlur}
-                      isInvalid={
-                        !!(formik.errors.urgency && formik.touched.urgency)
-                      }
-                      errorMessage={formik.errors.urgency}
-                      isRequired
-                    >
-                      {URGENCY_OPTIONS.map((u) => (
-                        <SelectItem key={u.key}>{u.label}</SelectItem>
-                      ))}
-                    </Select>
                   </div>
-
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-x-2.5 gap-y-4">
                     <Select
                       label="Source"

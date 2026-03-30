@@ -44,7 +44,7 @@ export interface CreateReferralPayload {
   referredBy: string; // The ID of the referrer
   treatment: string;
   addedVia: ReferralSource;
-  priority: string;
+  priority?: string;
   estValue: number;
   notes: string;
   status: ReferralStatus;
@@ -132,6 +132,8 @@ export interface UpdateStatusPayload {
 export interface TrackingRequestBody {
   customPath: string;
   id: string;
+  customLandingUrl?: string | undefined;
+  isManually?: boolean;
 }
 
 export interface PersonalizedQR {
