@@ -145,6 +145,8 @@ export interface PersonalizedQR {
   todayScan: number;
   active: boolean;
   scanHistory: any[];
+  isManually?: boolean;
+  customLandingUrl?: string;
   _id: string;
   createdAt: string;
   updatedAt: string;

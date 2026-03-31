@@ -1,4 +1,12 @@
-import { Button, Chip, Switch } from "@heroui/react";
+import {
+  Button,
+  Chip,
+  Switch,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  User,
+} from "@heroui/react";
 import { BiCheckCircle } from "react-icons/bi";
 import { FiAlertCircle, FiExternalLink, FiSettings } from "react-icons/fi";
 
@@ -17,6 +25,11 @@ interface IntegrationItemProps {
   onReconnect?: (() => void) | undefined;
   isSwitchChecked?: boolean | undefined;
   onSwitchChange?: ((checked: boolean) => void) | undefined;
+  account?: {
+    accountName?: string | undefined | null;
+    accountEmail?: string | undefined | null;
+    accountAvatar?: string | undefined | null;
+  };
 }
 
 const IntegrationItem: React.FC<IntegrationItemProps> = ({
@@ -34,6 +47,7 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
   onReconnect,
   isSwitchChecked = status === "Connected",
   onSwitchChange,
+  account,
 }) => {
   const isCredentialsSaved = !!id;
   const isError = status === "Error";
@@ -133,11 +147,22 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
               </Chip>
             ))}
           </div>
-          {isCredentialsSaved && lastSync && (
-            <p className="text-xs text-gray-600 dark:text-foreground/40 mt-2">
-              Last sync: {lastSync}
-            </p>
-          )}
+          <div className="flex items-center gap-3 mt-2 h-6">
+            {isCredentialsSaved && lastSync && (
+              <p className="text-xs text-gray-600 dark:text-foreground/40">
+                Last sync: {lastSync}
+              </p>
+            )}
+
+            {isCredentialsSaved && account && (account.accountEmail || account.accountName) && (
+              <p
+                className="h-5 flex items-center gap-2 text-xs dark:text-foreground/40"
+              >
+                <span className="flex relative max-w-fit min-w-min inline-flex items-center justify-between box-border whitespace-nowrap px-1 rounded-small capitalize text-[11px] h-5 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300">Syncing with</span>
+                {account.accountEmail || account.accountName}
+              </p>
+            )}
+          </div>
         </div>
       </div>
       <div className="flex items-center gap-2">{actionButton}</div>

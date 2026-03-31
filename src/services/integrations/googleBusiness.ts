@@ -13,6 +13,9 @@ export interface IGoogleBusinessIntegration {
   lastSyncAt: string;
   createdAt: string;
   updatedAt: string;
+  accountName?: string;
+  accountEmail?: string;
+  accountAvatar?: string;
 }
 
 export interface IUpdateBusinessPayload {

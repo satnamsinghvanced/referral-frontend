@@ -30,7 +30,7 @@ const TrackingPanel = () => {
 
   const { data: trackings, isLoading } = useFetchTrackings(userId as string);
   const { mutate: createTrackingSetup } = useCreateTrackingSetup();
-
+  console.log("trackings >>>>>", trackings)
   const handleCopy = async (identifier: string, value?: string) => {
     if (!value) return;
     try {
@@ -101,7 +101,7 @@ const TrackingPanel = () => {
 
     try {
       const img = new Image();
-      img.crossOrigin = "anonymous"; // IMPORTANT for Canvas usage
+      img.crossOrigin = "anonymous";
       img.src = imageUrl;
 
       img.onload = () => {
@@ -159,13 +159,15 @@ const TrackingPanel = () => {
   };
 
   const generateTracking = () => {
+    const uniqueId = Math.random().toString(36).substring(2, 7);
+
     createTrackingSetup(
       {
         id: userId as string,
         customPath: isFullCustomUrl
-          ? "External"
+          ? (customPath ? customPath.replace(/\s+/g, "_") : `External_${uniqueId}`)
           : isCustomLandingPage && customPath
-            ? customPath
+            ? customPath.replace(/\s+/g, "_")
             : "referral",
         customLandingUrl: isFullCustomUrl ? customLandingUrl : undefined,
         isManually: isFullCustomUrl ? true : false,
@@ -273,7 +275,7 @@ const TrackingPanel = () => {
                               type="text"
                               value={customPath}
                               onValueChange={(value) =>
-                                setCustomPath(value.replace(/\s+/g, ""))
+                                setCustomPath(value)
                               }
                             />
                           </div>
@@ -294,11 +296,24 @@ const TrackingPanel = () => {
                             onPress={() => {
                               setIsFullCustomUrl(false);
                               setCustomLandingUrl("");
+                              setCustomPath("");
                             }}
                           >
                             Cancel
                           </Button>
                         </div>
+                        <Input
+                          size="sm"
+                          radius="sm"
+                          label="Reference Name (e.g. Front Desk)"
+                          labelPlacement="outside-top"
+                          placeholder="e.g. Front Desk QR"
+                          type="text"
+                          value={isFullCustomUrl ? customPath : ""}
+                          onValueChange={(value) =>
+                            setCustomPath(value)
+                          }
+                        />
                         <Input
                           size="sm"
                           radius="sm"
@@ -620,7 +635,8 @@ const TrackingPanel = () => {
                           {qr.customPath || "Default"}
                         </span>
                         <a
-                          href={qr.referralUrl}
+                          href={
+                            qr.isManually ? `${import.meta.env.VITE_BASE_URL}?${qr.referralUrl}` : qr.referralUrl}
                           target="_blank"
                           rel="noreferrer"
                           onClick={(e) => e.stopPropagation()}

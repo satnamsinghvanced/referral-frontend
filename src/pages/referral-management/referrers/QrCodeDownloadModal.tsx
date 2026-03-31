@@ -26,7 +26,7 @@ const QrCodeDownloadModal = ({
 }: QrCodeDownloadModalProps) => {
   const referralLink =
     referrer.qrUrl || `https://practiceroi.com/refer/${referrer._id}`;
-
+  const uniqueTag = referrer.uniqueTagUrl || "";
   const handleDownload = async () => {
     if (!referrer.qrCode) {
       addToast({
@@ -83,12 +83,19 @@ const QrCodeDownloadModal = ({
     }
   };
 
-  const [isCopied, setIsCopied] = useState(false);
+  const [isLinkCopied, setIsLinkCopied] = useState(false);
+  const [isUniqueTagCopied, setIsUniqueTagCopied] = useState(false);
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(referralLink);
-    setIsCopied(true);
-    setTimeout(() => setIsCopied(false), 2000);
+    setIsLinkCopied(true);
+    setTimeout(() => setIsLinkCopied(false), 2000);
+  };
+
+  const handleCopyUniqueTagLink = () => {
+    navigator.clipboard.writeText(uniqueTag);
+    setIsUniqueTagCopied(true);
+    setTimeout(() => setIsUniqueTagCopied(false), 2000);
   };
 
   const handleShare = async () => {
@@ -176,14 +183,34 @@ const QrCodeDownloadModal = ({
                   <Button
                     size="sm"
                     radius="sm"
-                    className={`min-w-fit px-4 border font-medium ${
-                      isCopied
-                        ? "bg-green-100 text-green-700 border-green-200"
-                        : "bg-white dark:bg-content2 border-foreground/10 hover:bg-gray-50 dark:hover:bg-content3 text-gray-700 dark:text-foreground"
-                    }`}
+                    className={`min-w-fit px-4 border font-medium ${isLinkCopied
+                      ? "bg-green-100 text-green-700 border-green-200"
+                      : "bg-white dark:bg-content2 border-foreground/10 hover:bg-gray-50 dark:hover:bg-content3 text-gray-700 dark:text-foreground"
+                      }`}
                     onPress={handleCopyLink}
                   >
-                    {isCopied ? "Copied" : "Copy"}
+                    {isLinkCopied ? "Copied" : "Copy"}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Unique Tag Link */}
+              <div className="space-y-2">
+                <label className="text-xs font-medium block dark:text-foreground/60">
+                  Unique Tag
+                </label>
+                <div className="flex gap-2">
+                  <Input size="sm" radius="sm" value={uniqueTag} readOnly />
+                  <Button
+                    size="sm"
+                    radius="sm"
+                    className={`min-w-fit px-4 border font-medium ${isUniqueTagCopied
+                      ? "bg-green-100 text-green-700 border-green-200"
+                      : "bg-white dark:bg-content2 border-foreground/10 hover:bg-gray-50 dark:hover:bg-content3 text-gray-700 dark:text-foreground"
+                      }`}
+                    onPress={handleCopyUniqueTagLink}
+                  >
+                    {isUniqueTagCopied ? "Copied" : "Copy"}
                   </Button>
                 </div>
               </div>

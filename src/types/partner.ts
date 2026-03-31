@@ -116,6 +116,7 @@ export interface Referrer {
   nfcUrl: string;
   qrCode: string;
   qrUrl: string;
+  uniqueTagUrl: string;
   thisMonthReferralCount: number;
 }
 

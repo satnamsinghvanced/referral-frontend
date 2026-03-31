@@ -85,6 +85,10 @@ const TrackReferralModal = ({
       0,
       "Estimated Value must be non-negative.",
     ),
+    appointmentTime: Yup.string().nullable(),
+    reason: Yup.string()
+      .max(500, "Referral reason must be less than 500 characters")
+      .nullable(),
   });
 
   const formik = useFormik({
@@ -99,6 +103,8 @@ const TrackReferralModal = ({
       status: "new",
       source: "Direct",
       estimatedValue: "",
+      appointmentTime: "",
+      reason: "",
       notes: "",
     },
     validationSchema,
@@ -126,6 +132,8 @@ const TrackReferralModal = ({
         treatment: values.treatment as string,
         addedVia: values.source,
         estValue: Number(values.estimatedValue) || 0,
+        appointmentTime: values.appointmentTime,
+        reason: values.reason,
         notes: values.notes,
         status: values.status as ReferralStatus,
       };
@@ -577,6 +585,42 @@ const TrackReferralModal = ({
                       errorMessage={formik.errors.estimatedValue}
                     />
                   </div>
+                  <div className="flex">
+                    <Input
+                      label="Preferred Appointment Time"
+                      labelPlacement="outside"
+                      placeholder="Morning, evening, 3 pm or weekend"
+                      variant="flat"
+                      radius="sm"
+                      size="sm"
+                      name="appointmentTime"
+                      value={formik.values.appointmentTime || ""}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      isInvalid={
+                        !!(
+                          formik.errors.appointmentTime &&
+                          formik.touched.appointmentTime
+                        )
+                      }
+                      errorMessage={formik.errors.appointmentTime}
+                    />
+                  </div>
+                  <Textarea
+                    label="Reason for Referral"
+                    labelPlacement="outside"
+                    placeholder="Short description of the case..."
+                    minRows={3}
+                    variant="flat"
+                    radius="sm"
+                    size="sm"
+                    name="reason"
+                    value={formik.values.reason || ""}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    isInvalid={!!(formik.errors.reason && formik.touched.reason)}
+                    errorMessage={formik.errors.reason}
+                  />
 
                   <Textarea
                     label="Notes"

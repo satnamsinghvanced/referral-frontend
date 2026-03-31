@@ -14,12 +14,12 @@ interface ReferralButton {
   icon?: React.ReactNode;
   variant?: "solid" | "bordered" | "light" | "flat" | "ghost" | "shadow";
   color?:
-    | "default"
-    | "primary"
-    | "secondary"
-    | "success"
-    | "warning"
-    | "danger";
+  | "default"
+  | "primary"
+  | "secondary"
+  | "success"
+  | "warning"
+  | "danger";
   className?: string;
   link?: string;
   linkInNewTab?: boolean;
@@ -43,18 +43,18 @@ const ReferralCard = ({ referral, actions = () => [] }: ReferralCardProps) => {
             </p>
             {(referral?.referredBy?.practiceName ||
               referral?.referredBy?.type) && (
-              <>
-                <p className="p-0.5 bg-foreground/50 dark:bg-default-400 rounded-full aspect-square h-fit w-fit"></p>
-                <p>
-                  {referral?.referredBy?.practiceName &&
-                  referral?.referredBy?.practiceName !== "Unknown"
-                    ? referral?.referredBy?.practiceName
-                    : REFERRER_TYPE_LABELS[referral?.referredBy?.type] ||
+                <>
+                  <p className="p-0.5 bg-foreground/50 dark:bg-default-400 rounded-full aspect-square h-fit w-fit"></p>
+                  <p>
+                    {referral?.referredBy?.practiceName &&
+                      referral?.referredBy?.practiceName !== "Unknown"
+                      ? referral?.referredBy?.practiceName
+                      : REFERRER_TYPE_LABELS[referral?.referredBy?.type] ||
                       referral?.referredBy?.type ||
                       ""}
-                </p>
-              </>
-            )}
+                  </p>
+                </>
+              )}
           </div>
         )}
         <div className="flex gap-2 items-center text-xs font-light mt-0.5 dark:text-foreground/60">
@@ -78,6 +78,12 @@ const ReferralCard = ({ referral, actions = () => [] }: ReferralCardProps) => {
             <>
               <p className="p-0.5 bg-foreground/50 dark:bg-default-400 rounded-full aspect-square h-fit w-fit"></p>
               <p>via {referral?.addedVia}</p>
+            </>
+          )}
+          {referral?.appointmentTime && (
+            <>
+              <p className="p-0.5 bg-foreground/50 dark:bg-default-400 rounded-full aspect-square h-fit w-fit"></p>
+              <p>{referral?.appointmentTime}</p>
             </>
           )}
         </div>

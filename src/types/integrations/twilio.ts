@@ -14,6 +14,9 @@ export interface TwilioConfigResponse {
   createdAt: string;
   updatedAt: string;
   status?: string;
+  accountName?: string;
+  accountEmail?: string;
+  accountAvatar?: string;
 }
 
 export interface UserIdParam {

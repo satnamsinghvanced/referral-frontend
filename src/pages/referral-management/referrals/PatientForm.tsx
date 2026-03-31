@@ -34,8 +34,8 @@ interface PatientFormValues {
   age: number | "";
   insuranceProvider: string;
   preferredTreatment: string;
-  preferredTime: string;
-  referralReason: string;
+  appointmentTime: string;
+  reason: string;
   notes: string;
 }
 
@@ -63,10 +63,8 @@ const PatientForm = () => {
     setSourceId(sId || "");
   }, [location.search]);
 
-  // Validate if the current URL's custom path exists in the user's personalized QR configurations
   const isValidPath = useMemo(() => {
-    if (isTrackingsLoading || !trackings) return true; // specific logic: assume valid while loading
-    // Check if any QR config matches the current customPath from the URL
+    if (isTrackingsLoading || !trackings) return true;
     return trackings.personalizedQR.some(
       (qr: any) => qr.customPath === customPath,
     );
@@ -119,8 +117,8 @@ const PatientForm = () => {
     preferredTreatment: Yup.string().required(
       "Preferred treatment is required",
     ),
-    preferredTime: Yup.string().nullable(),
-    referralReason: Yup.string()
+    appointmentTime: Yup.string().nullable(),
+    reason: Yup.string()
       .max(500, "Referral reason must be less than 500 characters")
       .nullable(),
     notes: Yup.string()
@@ -168,6 +166,14 @@ const PatientForm = () => {
       placeholder: "e.g., Delta Dental, Aetna, Cigna, etc.",
       maxLength: 100,
     },
+    {
+      type: "text",
+      name: "appointmentTime",
+      label: "Preferred Appointment Time",
+      placeholder: "Morning, evening, 3 pm or weekend",
+      required: false,
+      maxLength: 100,
+    },
   ];
 
   const formik = useFormik<PatientFormValues>({
@@ -178,8 +184,8 @@ const PatientForm = () => {
       age: "",
       insuranceProvider: "",
       preferredTreatment: TREATMENT_OPTIONS[0]?.key || "invisalign",
-      preferredTime: "",
-      referralReason: "",
+      appointmentTime: "",
+      reason: "",
       notes: "",
     },
     validationSchema: validationSchema,
@@ -193,8 +199,8 @@ const PatientForm = () => {
         age: Number(values.age),
         insurance: values.insuranceProvider || "",
         treatment: values.preferredTreatment || "",
-        appointmentTime: values.preferredTime || "",
-        reason: values.referralReason || "",
+        appointmentTime: values.appointmentTime || "",
+        reason: values.reason || "",
         notes: values.notes || "",
         status: "new" as ReferralStatus,
         estValue: 0,
@@ -342,6 +348,9 @@ const PatientForm = () => {
                       />
                     );
                   })}
+                </div>
+
+                <div className="grid grid-cols-1 gap-6">
                   <Select
                     label="Preferred Treatment"
                     labelPlacement="outside"
@@ -388,34 +397,34 @@ const PatientForm = () => {
                 </div>
 
 
-                {/* <div className="grid grid-cols-1 gap-6">
+                <div className="grid grid-cols-1 gap-6">
                   <Textarea
                     label="Reason for Referral"
                     labelPlacement="outside-top"
-                    name="referralReason"
+                    name="reason"
                     placeholder="Please describe what brings you to our practice..."
                     size="sm"
                     radius="sm"
-                    value={formik.values.referralReason}
+                    value={formik.values.reason}
                     onValueChange={(val: string) =>
-                      formik.setFieldValue("referralReason", val)
+                      formik.setFieldValue("reason", val)
                     }
                     onBlur={formik.handleBlur}
                     minRows={3}
                     className="w-full"
                     isInvalid={
                       !!(
-                        formik.touched.referralReason &&
-                        formik.errors.referralReason
+                        formik.touched.reason &&
+                        formik.errors.reason
                       )
                     }
                     errorMessage={
-                      formik.touched.referralReason &&
-                      (formik.errors.referralReason as string)
+                      formik.touched.reason &&
+                      (formik.errors.reason as string)
                     }
                     classNames={{ inputWrapper: "py-2" }}
                   />
-                </div> */}
+                </div>
 
                 <div>
                   <Textarea

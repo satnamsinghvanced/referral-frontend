@@ -99,10 +99,9 @@ const Profile = () => {
   useEffect(() => {
     if (fetchedUser?.image) {
       setPreviewUrl(
-        `${
-          fetchedUser.image.includes("http")
-            ? ""
-            : `${import.meta.env.VITE_IMAGE_URL}`
+        `${fetchedUser.image.includes("http")
+          ? ""
+          : `${import.meta.env.VITE_IMAGE_URL}`
         }${fetchedUser.image}`,
       );
     } else if (fetchedUser) {
@@ -201,9 +200,8 @@ const Profile = () => {
                     <img
                       src={previewUrl}
                       alt="Profile"
-                      className={`size-full object-cover transition-opacity duration-300 ${
-                        imageLoaded ? "opacity-100" : "opacity-0"
-                      }`}
+                      className={`size-full object-cover transition-opacity duration-300 ${imageLoaded ? "opacity-100" : "opacity-0"
+                        }`}
                       onLoad={() => setImageLoaded(true)}
                     />
                     {!imageLoaded && (

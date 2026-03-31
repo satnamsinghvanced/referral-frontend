@@ -204,6 +204,11 @@ const ReferralStatusModal = ({
                   label="Source"
                   value={referral?.addedVia || "Manually Added"}
                 />
+                <InfoItem
+                  icon={<LuClock size={16} />}
+                  label="Preferred Time"
+                  value={referral?.appointmentTime || "Not specified"}
+                />
               </div>
             </div>
 

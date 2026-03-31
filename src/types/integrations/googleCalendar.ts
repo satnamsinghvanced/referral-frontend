@@ -13,6 +13,9 @@ export interface ICalendarIntegration {
   expiration: number;
   createdAt: string;
   updatedAt: string;
+  accountName?: string;
+  accountEmail?: string;
+  accountAvatar?: string;
 }
 
 export interface IAuthUrlResponse {

@@ -87,6 +87,9 @@ const CallTracking = React.lazy(
 const ThankYou = React.lazy(
   () => import("./pages/referral-management/referrals/ThankYouPage"),
 );
+const PatientDetailsRetrieve = React.lazy(
+  () => import("./pages/referral-management/referrals/PatientDetailsRetrieve"),
+);
 const WebhookReferralForm = React.lazy(
   () => import("./pages/integrations/webhooks/WebhookReferralForm"),
 );
@@ -311,6 +314,10 @@ function AppRoutes() {
     { path: "terms", element: <Terms /> },
     { path: "privacy", element: <PrivacyPolicy /> },
     { path: "team-member/:id", element: <AcceptInvitation /> },
+    {
+      path: "patient-details/:id",
+      element: <PatientDetailsRetrieve />,
+    },
     {
       path: ":customPath/:id",
       element: <PatientForm />,

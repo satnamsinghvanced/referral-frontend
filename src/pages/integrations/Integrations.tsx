@@ -160,6 +160,11 @@ function Integrations() {
             },
           });
         },
+        account: {
+          accountName: googleBusinessConfig?.accountName,
+          accountEmail: googleBusinessConfig?.accountEmail,
+          accountAvatar: googleBusinessConfig?.accountAvatar,
+        },
       },
       // {
       //   id: "",
@@ -205,6 +210,11 @@ function Integrations() {
             },
           });
         },
+        account: {
+          accountName: googleCalendarExistingConfig?.accountName,
+          accountEmail: googleCalendarExistingConfig?.accountEmail,
+          accountAvatar: googleCalendarExistingConfig?.accountAvatar,
+        },
       },
       {
         id: googleAdsConfig?._id || "",
@@ -234,6 +244,11 @@ function Integrations() {
             },
           });
         },
+        account: {
+          accountName: googleAdsConfig?.accountName,
+          accountEmail: googleAdsConfig?.accountEmail,
+          accountAvatar: googleAdsConfig?.accountAvatar,
+        },
       },
       {
         id: googleAnalyticsConfig?._id || "",
@@ -260,6 +275,11 @@ function Integrations() {
                   : "Connected",
             },
           });
+        },
+        account: {
+          accountName: googleAnalyticsConfig?.accountName,
+          accountEmail: googleAnalyticsConfig?.accountEmail,
+          accountAvatar: googleAnalyticsConfig?.accountAvatar,
         },
       },
       {
@@ -296,6 +316,11 @@ function Integrations() {
             });
           }
         },
+        account: {
+          accountName: emailConfig?.accountName,
+          accountEmail: emailConfig?.accountEmail,
+          accountAvatar: emailConfig?.accountAvatar,
+        },
       },
 
       {
@@ -324,6 +349,11 @@ function Integrations() {
                   : "Connected",
             },
           });
+        },
+        account: {
+          accountName: metaAdsConfig?.accountName,
+          accountEmail: metaAdsConfig?.accountEmail,
+          accountAvatar: metaAdsConfig?.accountAvatar,
         },
       },
       // {
@@ -359,6 +389,11 @@ function Integrations() {
                   : "Connected",
             },
           });
+        },
+        account: {
+          accountName: twilioConfig?.accountName,
+          accountEmail: twilioConfig?.accountEmail,
+          accountAvatar: twilioConfig?.accountAvatar,
         },
       },
     ];

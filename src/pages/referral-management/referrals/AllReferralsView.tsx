@@ -202,6 +202,14 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                 {referral.addedVia ? referral.addedVia : "Direct"}
               </span>
             </p>
+            {referral.appointmentTime && (
+              <p className="text-xs">
+                <span className="font-medium dark:text-foreground/60">
+                  Preferred Time:
+                </span>{" "}
+                <span className="dark:text-white">{referral.appointmentTime}</span>
+              </p>
+            )}
           </div>
         </div>
 
@@ -215,6 +223,16 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
             </span>
             <PriorityLevelChip level={referral.priority as string} />
           </div>
+          {referral.reason && (
+            <div className="bg-foreground/[0.03] dark:bg-foreground/[0.05] p-2 rounded border border-divider/50">
+              <p className="text-[10px] uppercase font-bold text-default-400 mb-0.5">
+                Reason
+              </p>
+              <p className="text-xs text-foreground/80 leading-relaxed truncate">
+                {referral.reason}
+              </p>
+            </div>
+          )}
           {referral.notes && (
             <p className="text-xs text-gray-600 dark:text-foreground/60">
               {referral.notes}

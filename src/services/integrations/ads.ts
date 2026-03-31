@@ -13,6 +13,9 @@ export interface IGoogleAdsIntegration {
   lastSyncAt: string;
   createdAt: string;
   updatedAt: string;
+  accountName?: string;
+  accountEmail?: string;
+  accountAvatar?: string;
 }
 
 export interface IMetaAdsIntegration {
@@ -27,6 +30,9 @@ export interface IMetaAdsIntegration {
   lastSyncAt: string;
   createdAt: string;
   updatedAt: string;
+  accountName?: string;
+  accountEmail?: string;
+  accountAvatar?: string;
 }
 
 export interface IUpdateAdsPayload {

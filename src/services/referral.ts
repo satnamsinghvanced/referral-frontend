@@ -147,3 +147,9 @@ export const importReferralsCSV = async (formData: FormData) => {
   });
   return data;
 };
+
+// 6. Create Patient Details from Unique Tag Retrival 
+export const createPatientDetails = async (payload: any) => {
+  const { data } = await axios.post("/patient-details", payload);
+  return data;
+};

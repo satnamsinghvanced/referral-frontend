@@ -158,17 +158,17 @@ const TagQrModal = ({ isOpen, onClose, tag }: TagQrModalProps) => {
                   <Button
                     size="sm"
                     radius="sm"
-                    className={`min-w-fit px-4 border font-medium ${
-                      isCopied
-                        ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-500/20 dark:text-green-300 dark:border-green-500/30"
-                        : "bg-white border-foreground/10 hover:bg-gray-50 text-gray-700 dark:bg-content1 dark:text-foreground dark:hover:bg-content2"
-                    }`}
+                    className={`min-w-fit px-4 border font-medium ${isCopied
+                      ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-500/20 dark:text-green-300 dark:border-green-500/30"
+                      : "bg-white border-foreground/10 hover:bg-gray-50 text-gray-700 dark:bg-content1 dark:text-foreground dark:hover:bg-content2"
+                      }`}
                     onPress={handleCopyLink}
                   >
                     {isCopied ? "Copied" : "Copy"}
                   </Button>
                 </div>
               </div>
+
 
               {/* Action Buttons */}
               <div className="grid grid-cols-2 gap-2">

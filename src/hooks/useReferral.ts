@@ -18,6 +18,7 @@ import {
   updateReferral,
   updateReferrer,
   updateTracking,
+  createPatientDetails,
 } from "../services/referral";
 import { trackScan } from "../services/referralBypassFunction";
 import {
@@ -332,5 +333,24 @@ export const useImportReferralsCSV = () =>
       }
 
       addToast({ title: "Error", description: errorMessage, color: "danger" });
+    },
+  });
+
+export const useCreatePatientDetails = () =>
+  useMutation<any, AxiosError, any>({
+    mutationFn: (payload) => createPatientDetails(payload),
+    onSuccess: () => {
+      addToast({
+        title: "Success",
+        description: "Patient details submitted successfully.",
+        color: "success",
+      });
+    },
+    onError: (error: AxiosError) => {
+      const message =
+        (error.response?.data as any)?.message ||
+        error.message ||
+        "Failed to submit patient details";
+      addToast({ title: "Error", description: message, color: "danger" });
     },
   });

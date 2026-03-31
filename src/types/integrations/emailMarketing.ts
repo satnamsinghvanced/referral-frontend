@@ -31,4 +31,7 @@ export interface EmailIntegrationResponse extends EmailIntegrationBody {
   lastTestedAt: string;
   createdAt: string;
   updatedAt: string;
+  accountName?: string;
+  accountEmail?: string;
+  accountAvatar?: string;
 }
