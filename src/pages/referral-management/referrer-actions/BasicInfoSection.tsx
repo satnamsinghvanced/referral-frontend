@@ -3,11 +3,13 @@ import { FormikProps } from "formik";
 interface BasicInfoSectionProps {
   formik: FormikProps<any>;
   renderField: (field: any) => any;
+  isEdit: boolean;
 }
 
 export default function BasicInfoSection({
   formik,
   renderField,
+  isEdit,
 }: BasicInfoSectionProps) {
   const basicFields = [
     {
@@ -31,6 +33,7 @@ export default function BasicInfoSection({
       placeholder: "e.g., johndoe@gmail.com",
       isFullWidth: true,
       isRequired: false,
+      isDisabled: isEdit,
     },
   ];
 

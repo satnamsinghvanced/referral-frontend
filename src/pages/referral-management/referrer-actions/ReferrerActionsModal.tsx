@@ -472,6 +472,7 @@ export default function ReferrerActionsModal({
     isFullWidth?: boolean;
     isRequired?: boolean;
     multiple?: boolean;
+    isDisabled?: boolean;
     subFields?: Array<{
       id: string;
       type?: string;
@@ -489,6 +490,7 @@ export default function ReferrerActionsModal({
       minRows,
       isFullWidth,
       isRequired,
+      isDisabled,
       subFields,
     } = field;
 
@@ -544,6 +546,7 @@ export default function ReferrerActionsModal({
                 label: "static !translate-y-0",
               }}
               isRequired={isRequired as boolean}
+              isDisabled={isDisabled as boolean}
             >
               {(options || []).map((opt: any) => (
                 <SelectItem key={opt?._id} className="capitalize">
@@ -570,6 +573,7 @@ export default function ReferrerActionsModal({
               errorMessage={(error && (touched || value)) ? (error as string) : undefined}
               minRows={minRows || 5}
               className="text-sm"
+              isDisabled={isDisabled as boolean}
             />
           </div>
         );
@@ -587,7 +591,7 @@ export default function ReferrerActionsModal({
             >
               {label}
             </Checkbox>
-            {touched && error && (
+            {touched && error && !isDisabled && (
               <div className="text-xs text-red-500 mt-1 ml-6">
                 {error as string}
               </div>
@@ -686,6 +690,7 @@ export default function ReferrerActionsModal({
               isInvalid={!!(error && (touched || value))}
               errorMessage={(error && (touched || value)) ? (error as string) : undefined}
               classNames={{ base: "data-disabled:opacity-60" }}
+              isDisabled={isDisabled as boolean}
             />
           </div>
         );
@@ -923,7 +928,11 @@ export default function ReferrerActionsModal({
               editedData={editedData}
             />
 
-            <BasicInfoSection formik={formik} renderField={renderField} />
+            <BasicInfoSection
+              formik={formik}
+              renderField={renderField}
+              isEdit={!!(editedData?.type || isPracticeEdit)}
+            />
 
             {formik.values.type === "doctor" && (
               <DoctorSection
