@@ -24,6 +24,8 @@ import {
   useUpdateBudgetItem,
 } from "../../../hooks/useBudget";
 import { BudgetItem } from "../../../types/budget";
+import TrackSpendModal from "./TrackSpendModal";
+import { FiAlertCircle } from "react-icons/fi";
 
 const validationSchema = Yup.object().shape({
   category: Yup.string().required("Category is required."),
@@ -80,6 +82,7 @@ export default function BudgetActionModal({
     null,
   );
   const [confirmationMessage, setConfirmationMessage] = useState("");
+  const [isTrackSpendOpen, setIsTrackSpendOpen] = useState(false);
 
   const { data: categories } = useBudgetCategories();
   const createMutation = useCreateBudgetItem();
@@ -228,8 +231,20 @@ export default function BudgetActionModal({
 
   const utilization =
     formik.values.actualSpent && formik.values.budgetAmount
-      ? (formik.values.actualSpent / formik.values.budgetAmount) * 100
+      ? (Number(formik.values.actualSpent) / Number(formik.values.budgetAmount)) * 100
       : 0;
+
+  const roi = Number(formik.values.roi) || 0;
+  const remaining = (Number(formik.values.budgetAmount) - Number(formik.values.actualSpent)) || 0;
+
+  const showWarning = utilization >= 90 || roi < -50 || remaining < 0;
+
+  const getWarningMessage = () => {
+    if (remaining < 0) return `Budget exceeded by $${Math.abs(remaining).toLocaleString()}. Review spending immediately.`;
+    if (utilization >= 90) return `Budget utilization is at ${utilization.toFixed(1)}%. Consider reviewing spending.`;
+    if (roi < -50) return `Low ROI (${roi}%). Strategy adjustment may be needed.`;
+    return "";
+  };
 
   const modalTitle = isEdit ? "Edit Budget Item" : "Add New Budget Item";
   const buttonLabel = isEdit ? "Save Changes" : "Add Budget Item";
@@ -258,11 +273,10 @@ export default function BudgetActionModal({
               </h2>
               <p className="text-xs text-gray-600 dark:text-foreground/60 mt-2 font-normal">
                 {isEdit
-                  ? `Update the details for ${
-                      typeof editedData.category === "string"
-                        ? "this"
-                        : editedData.category?.category
-                    } budget item.`
+                  ? `Update the details for ${typeof editedData.category === "string"
+                    ? "this"
+                    : editedData.category?.category
+                  } budget item.`
                   : "Create a new budget item to track your marketing spend across different categories and periods."}
               </p>
             </ModalHeader>
@@ -374,31 +388,47 @@ export default function BudgetActionModal({
                   }
                 />
               </div>
-
               {isEdit && (
                 <div className="col-span-2 sm:col-span-1">
-                  <Input
-                    size="sm"
-                    radius="sm"
-                    label="Actual Spent"
-                    labelPlacement="outside-top"
-                    name="actualSpent"
-                    type="number"
-                    startContent={
-                      <span className="text-gray-500 dark:text-foreground/40">
-                        $
-                      </span>
-                    }
-                    placeholder="0"
-                    max={formik.values.budgetAmount}
-                    value={formik.values.actualSpent?.toString() ?? ""}
-                    onChange={(e) =>
-                      formik.setFieldValue("actualSpent", e.target.value)
-                    }
-                  />
+                  <div className="flex items-end gap-2">
+                    <div className="flex-grow">
+                      <Input
+                        size="sm"
+                        radius="sm"
+                        label="Actual Spent"
+                        labelPlacement="outside-top"
+                        name="actualSpent"
+                        type="number"
+                        variant="faded"
+                        isDisabled
+                        startContent={
+                          <span className="text-gray-500 dark:text-foreground/40">
+                            $
+                          </span>
+                        }
+                        placeholder="0"
+                        value={formik.values.actualSpent?.toString() ?? ""}
+                        onChange={(e) =>
+                          formik.setFieldValue("actualSpent", e.target.value)
+                        }
+                      />
+                    </div>
+
+                    <Button
+                      size="sm"
+                      color="primary"
+                      className="py-1 px-2 text-xs w-full hover:bg-primary/80 hover:text-white border-1 border-primary bg-white text-primary"
+                      onPress={() => setIsTrackSpendOpen(true)}
+                    >
+                      Track Spend
+                    </Button>
+                  </div>
+
+                  <p className="text-[10px] text-gray-500 mt-1">
+                    Click "Track Spend" to add spend records with dates and revenue
+                  </p>
                 </div>
               )}
-
               {isEdit && (
                 <div className="col-span-2 sm:col-span-1">
                   <Input
@@ -520,7 +550,6 @@ export default function BudgetActionModal({
                   label="Start Date"
                   labelPlacement="outside"
                   isRequired
-                  minValue={isEdit ? null : today(getLocalTimeZone())}
                   value={
                     formik.values.startDate
                       ? parseDate(formik.values.startDate)
@@ -585,9 +614,9 @@ export default function BudgetActionModal({
                       $
                       {formik.values.budgetAmount && formik.values.actualSpent
                         ? (
-                            (formik.values.budgetAmount as number) -
-                            (formik.values.actualSpent as number)
-                          ).toLocaleString()
+                          (formik.values.budgetAmount as number) -
+                          (formik.values.actualSpent as number)
+                        ).toLocaleString()
                         : 0}
                     </span>
                   </div>
@@ -609,6 +638,15 @@ export default function BudgetActionModal({
                     className="h-2"
                     radius="full"
                   />
+
+                  {showWarning && (
+                    <div className="flex items-start gap-2 p-2 bg-warning/10 border border-warning/20 rounded-lg text-warning-700 mt-2">
+                      <FiAlertCircle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                      <p className="text-[10px] leading-tight font-medium">
+                        {getWarningMessage()}
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -693,6 +731,14 @@ export default function BudgetActionModal({
           </ModalFooter>
         </ModalContent>
       </Modal>
+
+      {isEdit && (
+        <TrackSpendModal
+          isOpen={isTrackSpendOpen}
+          onClose={() => setIsTrackSpendOpen(false)}
+          budgetId={editedData?._id || ""}
+        />
+      )}
     </>
   );
 }

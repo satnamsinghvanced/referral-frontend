@@ -5,6 +5,8 @@ import { queryClient } from "../providers/QueryProvider";
 import {
   createBudgetItem,
   deleteBudgetItem,
+  addSpendRecord,
+  deleteSpendRecord,
   exportBudgetItems,
   getBudgetCategories,
   getBudgetItemById,
@@ -225,6 +227,75 @@ export const useExportBudgetItems = () => {
           error.message ||
           errorMessage;
       }
+
+      addToast({
+        title: "Error",
+        description: errorMessage,
+        color: "danger",
+      });
+    },
+  });
+};
+
+export const useAddSpendRecord = (budgetId: string) => {
+  return useMutation({
+    mutationFn: (data: {
+      budgetId: string;
+      startDate: string;
+      endDate: string;
+      spent: number;
+      revenue: number;
+      notes?: string;
+    }) => addSpendRecord(data),
+    onSuccess: () => {
+      addToast({
+        title: "Success",
+        description: "Spend record added successfully.",
+        color: "success",
+      });
+      queryClient.invalidateQueries({
+        queryKey: BUDGET_ITEM_QUERY_KEY(budgetId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["budget-items"],
+      });
+    },
+    onError: (error: AxiosError) => {
+      const errorMessage =
+        (error.response?.data as { message?: string })?.message ||
+        error.message ||
+        "Failed to add spend record";
+
+      addToast({
+        title: "Error",
+        description: errorMessage,
+        color: "danger",
+      });
+    },
+  });
+};
+
+export const useDeleteSpendRecord = (budgetId: string) => {
+  return useMutation({
+    mutationFn: (id: string) => deleteSpendRecord(id),
+    onSuccess: () => {
+      addToast({
+        title: "Success",
+        description: "Spend record deleted successfully.",
+        color: "success",
+      });
+      queryClient.invalidateQueries({
+        queryKey: BUDGET_ITEM_QUERY_KEY(budgetId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: ["budget-items"],
+      });
+    },
+    onError: (error: AxiosError) => {
+      const errorMessage =
+        (error.response?.data as { message?: string })?.message ||
+        error.message ||
+        "Failed to delete spend record";
 
       addToast({
         title: "Error",

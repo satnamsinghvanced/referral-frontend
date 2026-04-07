@@ -183,8 +183,8 @@ const ImportBudgetModal = ({ isOpen, onClose }: ImportBudgetModalProps) => {
                 <div
                   onClick={() => fileInputRef.current?.click()}
                   className={`border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center text-center gap-3 transition-all cursor-pointer group ${selectedFile
-                      ? "border-primary bg-primary/5"
-                      : "border-foreground/10 dark:border-default-200 bg-gray-50/50 dark:bg-default-100/50 hover:bg-gray-50 dark:hover:bg-default-100"
+                    ? "border-primary bg-primary/5"
+                    : "border-foreground/10 dark:border-default-200 bg-gray-50/50 dark:bg-default-100/50 hover:bg-gray-50 dark:hover:bg-default-100"
                     }`}
                 >
                   {selectedFile ? (

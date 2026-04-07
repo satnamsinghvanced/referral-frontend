@@ -493,11 +493,9 @@ export default function ReferrerActionsModal({
       isDisabled,
       subFields,
     } = field;
-
     const value = getNestedValue(id);
     const error = getNestedError(id);
     const touched = getNestedTouched(id);
-
     switch (type) {
       case "select":
         return (

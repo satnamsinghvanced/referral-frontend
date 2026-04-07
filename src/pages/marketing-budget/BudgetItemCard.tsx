@@ -1,6 +1,6 @@
 import { Button, Card, CardBody, CardHeader, Progress, Chip } from "@heroui/react";
 import React from "react";
-import { FiCalendar, FiEdit, FiTrash2 } from "react-icons/fi";
+import { FiAlertCircle, FiCalendar, FiEdit, FiTrash2 } from "react-icons/fi";
 import BudgetStatusChip from "../../components/chips/BudgetStatusChip";
 import PriorityLevelChip from "../../components/chips/PriorityLevelChip";
 import { getCategoryColor } from "../../consts/budget";
@@ -162,7 +162,9 @@ const BudgetItemCard: React.FC<{
 
           <div className="text-xs space-y-0.5">
             <p className="text-gray-500 dark:text-foreground/40">ROI</p>
-            <p className="font-medium text-yellow-600 dark:text-yellow-400">
+            <p
+              className={`font-medium ${Number(item.roi) < 0 ? "text-danger" : "text-success"}`}
+            >
               {Number(item.roi).toFixed(2)}%
             </p>
           </div>
@@ -185,6 +187,15 @@ const BudgetItemCard: React.FC<{
             className="h-2"
             radius="full"
           />
+
+          {utilization >= 90 && (
+            <div className="flex items-center gap-2 p-2.5 bg-warning/5 border border-warning/10 rounded-lg text-warning-600 mt-2 animate-pulse">
+              <FiAlertCircle className="size-3.5 flex-shrink-0" />
+              <p className="text-[10px] font-medium leading-tight">
+                Budget utilization is above 90%. Consider reviewing spending for this item.
+              </p>
+            </div>
+          )}
         </div>
       </CardBody>
     </Card>

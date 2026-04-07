@@ -23,6 +23,23 @@ export interface SubCategoryRef {
   subCategory: string;
 }
 
+export interface SpendHistory {
+  _id: string;
+  startDate: string;
+  endDate: string;
+  spent: number;
+  revenue: number;
+  roi: number;
+  notes?: string;
+}
+
+export interface SpendStats {
+  totalSpent: number;
+  totalRevenue: number;
+  overallROI: number;
+  remainingBudget: number;
+}
+
 export interface BudgetItem {
   _id: string;
   userId: string;
@@ -30,9 +47,12 @@ export interface BudgetItem {
   subCategory: string | SubCategoryRef;
   amount: number;
   spent: string | number;
+  revenue?: number;
   remainingBudget: string | number;
   budgetUtilization: string | number;
   roi: string | number;
+  spendHistory?: SpendHistory[];
+  stats?: SpendStats;
   conversions: number;
   conversionsValue?: string;
   currency?: string;

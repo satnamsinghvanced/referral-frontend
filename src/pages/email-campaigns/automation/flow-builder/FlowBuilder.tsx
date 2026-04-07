@@ -22,7 +22,6 @@ import { LoadingState } from "../../../../components/common/LoadingState";
 import { FlowStep, UIStepType } from "../../../../types/campaign";
 import { formatDateToReadable } from "../../../../utils/formatDateToReadable";
 
-// --- Types ---
 export type StepType = UIStepType;
 
 interface FlowBuilderProps {
@@ -35,7 +34,6 @@ const FlowBuilder = ({ id, initialData, onSaved }: FlowBuilderProps) => {
   const [flowName, setFlowName] = useState("New Automation Flow");
   const [description, setDescription] = useState("");
   const [isActive, setIsActive] = useState(false);
-
   const [steps, setSteps] = useState<FlowStep[]>([
     {
       id: "trigger-step",
@@ -56,8 +54,6 @@ const FlowBuilder = ({ id, initialData, onSaved }: FlowBuilderProps) => {
     if (existingFlow) {
       setFlowName(existingFlow.name);
       setDescription(existingFlow.description);
-      // If we are coming from a template customization, force inactive.
-      // Otherwise keep existing status.
       setIsActive(initialData ? false : existingFlow.status === "active");
       setSteps(mapAPIFlowToUI(existingFlow));
     } else if (initialData) {
@@ -89,13 +85,11 @@ const FlowBuilder = ({ id, initialData, onSaved }: FlowBuilderProps) => {
       setSavingLoadingState(false);
       return;
     }
-
     const payload = mapUIFlowToAPI(steps, flowName, description);
     const automationData = {
       ...payload,
       status: forcedStatus || (isActive ? "active" : "inActive"),
     };
-
     if (id) {
       updateMutation.mutate(automationData, {
         onSuccess: () => onSaved?.(),
@@ -116,12 +110,10 @@ const FlowBuilder = ({ id, initialData, onSaved }: FlowBuilderProps) => {
     }
   };
 
-  // Modal Control States
   const [currentStep, setCurrentStep] = useState<FlowStep | null>(null);
   const [showErrors, setShowErrors] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isActivating, setIsActivating] = useState(false);
-
   const triggerModal = useDisclosure();
   const emailModal = useDisclosure();
   const waitModal = useDisclosure();
@@ -192,9 +184,9 @@ const FlowBuilder = ({ id, initialData, onSaved }: FlowBuilderProps) => {
           : [],
         branches: step.branches
           ? {
-              yes: updateStepAtId(id, step.branches.yes, newConfig),
-              no: updateStepAtId(id, step.branches.no, newConfig),
-            }
+            yes: updateStepAtId(id, step.branches.yes, newConfig),
+            no: updateStepAtId(id, step.branches.no, newConfig),
+          }
           : undefined,
       } as FlowStep;
     });
@@ -390,9 +382,9 @@ const FlowBuilder = ({ id, initialData, onSaved }: FlowBuilderProps) => {
               children: remove(item.children || []),
               branches: item.branches
                 ? {
-                    yes: remove(item.branches.yes),
-                    no: remove(item.branches.no),
-                  }
+                  yes: remove(item.branches.yes),
+                  no: remove(item.branches.no),
+                }
                 : undefined,
             }) as FlowStep,
         );

@@ -71,3 +71,18 @@ export const exportBudgetItems = async ({
   );
   return response as any;
 };
+export const addSpendRecord = async (data: {
+  budgetId: string;
+  startDate: string;
+  endDate: string;
+  spent: number;
+  revenue: number;
+  notes?: string;
+}): Promise<any> => {
+  const response = await axios.post("/marketing-budget/spend", data);
+  return response.data;
+};
+
+export const deleteSpendRecord = async (id: string): Promise<void> => {
+  await axios.delete(`/marketing-budget/spend/${id}`);
+};
