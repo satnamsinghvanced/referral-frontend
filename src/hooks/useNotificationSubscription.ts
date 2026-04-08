@@ -32,13 +32,13 @@ export const useNotificationSubscription = () => {
       }
 
       let registration = await navigator.serviceWorker.getRegistration(
-        "/referral-retrieve/",
+        "/",
       );
       if (!registration) {
         registration = await navigator.serviceWorker.register(
-          "/referral-retrieve/sw.js",
+          "/sw.js",
           {
-            scope: "/referral-retrieve/",
+            scope: "/",
           },
         );
       }
