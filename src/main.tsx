@@ -35,7 +35,7 @@ createRoot(rootElement).render(
               },
             }}
           />
-          <BrowserRouter basename="/referral-retrieve/">
+          <BrowserRouter basename="/">
             <TourProvider>
               <main className="text-foreground bg-background">
                 <App />
