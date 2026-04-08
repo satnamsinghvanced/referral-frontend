@@ -8,8 +8,8 @@ self.addEventListener("push", (event) => {
     const options = {
       body: data.notification.body,
       icon:
-        data.notification.icon || "/referral-retrieve/practiceroi-favicon.ico",
-      badge: "/referral-retrieve/practiceroi-favicon.ico",
+        data.notification.icon || "/practiceroi-favicon.ico",
+      badge: "/practiceroi-favicon.ico",
       data: data.notification.data,
     };
 
@@ -26,7 +26,7 @@ self.addEventListener("notificationclick", (event) => {
       if (clientList.length > 0) {
         return clientList[0].focus();
       }
-      return clients.openWindow("/referral-retrieve/");
+      return clients.openWindow("/");
     }),
   );
 });
