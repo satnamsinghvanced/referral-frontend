@@ -11,7 +11,7 @@ import { useFormik } from "formik";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useDispatch } from "react-redux";
-import { useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 import * as Yup from "yup";
 import { AppDispatch } from "../../store";
 import { useLogin, useVerify2FA } from "../../hooks/useAuth";
@@ -241,11 +241,23 @@ const SignIn = () => {
           <div className="mt-8 text-center text-xs text-foreground/40 leading-relaxed">
             By signing in, you agree to our <br />
             <span className="hover:text-primary transition-colors cursor-pointer">
-              Terms of Service
+              <Link
+                to="https://practiceroi.com/terms-of-service/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Terms of Service
+              </Link>
             </span>{" "}
             and{" "}
             <span className="hover:text-primary transition-colors cursor-pointer">
-              Privacy Policy
+              <Link
+                to="https://practiceroi.com/privacy-policy/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Privacy Policy
+              </Link>
             </span>
           </div>
         </CardBody>
