@@ -89,69 +89,72 @@ const TrackingPanel = () => {
     }
   };
 
-  // const handleDownloadQR = async (imageUrl: string) => {
-  //   if (!imageUrl) {
-  //     addToast({
-  //       title: "Error",
-  //       description: "QR Code URL is missing.",
-  //       color: "danger",
-  //     });
-  //     return;
-  //   }
-
-  //   try {
-  //     const img = new Image();
-  //     img.crossOrigin = "anonymous";
-  //     img.src = imageUrl;
-
-  //     img.onload = () => {
-  //       const canvas = document.createElement("canvas");
-  //       canvas.width = img.width;
-  //       canvas.height = img.height;
-  //       const ctx = canvas.getContext("2d");
-  //       ctx?.drawImage(img, 0, 0);
-
-  //       canvas.toBlob((blob) => {
-  //         if (!blob) return;
-
-  //         const url = URL.createObjectURL(blob);
-  //         const link = document.createElement("a");
-  //         link.href = url;
-  //         link.download = `referral_qr_${user?.userId}.png`;
-  //         document.body.appendChild(link);
-  //         link.click();
-  //         document.body.removeChild(link);
-  //         URL.revokeObjectURL(url);
-  //       });
-  //     };
-
-  //     img.onerror = () => {
-  //       addToast({
-  //         title: "Error",
-  //         description:
-  //           "Failed to load image. Enable CORS on server for QR image endpoint.",
-  //         color: "danger",
-  //       });
-  //     };
-  //   } catch (e) {
-  //     console.error("QR Download failed", e);
-  //     addToast({
-  //       title: "Error",
-  //       description: "Unable to download QR Code.",
-  //       color: "danger",
-  //     });
-  //   }
-  // };
-
   const handleDownloadQR = async (imageUrl: string) => {
     if (!imageUrl) return;
 
-    const link = document.createElement("a");
-    link.href = imageUrl;
-    link.download = `referral_qr_${user?.userId}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const fileName = `referral_qr_${user?.userId || "code"}.png`;
+
+    try {
+      const response = await fetch(`${imageUrl}?t=${new Date().getTime()}`, {
+        mode: "cors",
+        cache: "no-cache",
+      });
+
+      if (!response.ok)
+        throw new Error(`HTTP error! status: ${response.status}`);
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error("QR Download via fetch failed, trying canvas fallback", e);
+
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.src = imageUrl;
+      img.onload = () => {
+        try {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(img, 0, 0);
+            const dataURL = canvas.toDataURL("image/png");
+            const link = document.createElement("a");
+            link.href = dataURL;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }
+        } catch (err) {
+          console.error("Canvas fallback failed", err);
+          const link = document.createElement("a");
+          link.href = imageUrl;
+          link.download = fileName;
+          link.target = "_blank";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+      };
+      img.onerror = () => {
+        const link = document.createElement("a");
+        link.href = imageUrl;
+        link.download = fileName;
+        link.target = "_blank";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      };
+    }
   };
 
   const openSharingModal = async (referralUrl: string) => {

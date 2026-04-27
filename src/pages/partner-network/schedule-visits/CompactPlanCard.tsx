@@ -46,7 +46,7 @@ const CompactPlanCard: React.FC<{
     downloadJson(exportData, plan.planDetails.name);
   };
   return (
-    <Card className="p-4 rounded-lg border border-foreground/10 bg-background dark:bg-default-100/20 shadow-none flex items-start justify-between gap-4">
+    <Card className="p-4 rounded-lg border border-foreground/10 bg-content1 shadow-none flex items-start justify-between gap-4">
       <div className="w-full">
         <div className="flex items-center gap-2 mb-1 justify-between">
           <h4 className="text-sm font-medium truncate text-foreground">
