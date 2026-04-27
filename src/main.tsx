@@ -12,7 +12,7 @@ const rootElement = document.getElementById("root");
 
 if (!rootElement) {
   throw new Error(
-    "Root element not found. Did you forget to add <div id='root'></div> in index.html?"
+    "Root element not found. Did you forget to add <div id='root'></div> in index.html?",
   );
 }
 
@@ -35,7 +35,7 @@ createRoot(rootElement).render(
               },
             }}
           />
-          <BrowserRouter basename="/">
+          <BrowserRouter>
             <TourProvider>
               <main className="text-foreground bg-background">
                 <App />
@@ -45,5 +45,5 @@ createRoot(rootElement).render(
         </QueryProvider>
       </ReduxProvider>
     </HeroUIProvider>
-  </StrictMode>
+  </StrictMode>,
 );
