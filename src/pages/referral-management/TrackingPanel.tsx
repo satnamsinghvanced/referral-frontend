@@ -89,61 +89,72 @@ const TrackingPanel = () => {
     }
   };
 
+  // const handleDownloadQR = async (imageUrl: string) => {
+  //   if (!imageUrl) {
+  //     addToast({
+  //       title: "Error",
+  //       description: "QR Code URL is missing.",
+  //       color: "danger",
+  //     });
+  //     return;
+  //   }
+
+  //   try {
+  //     const img = new Image();
+  //     img.crossOrigin = "anonymous";
+
+  //     // Use the backend proxy to avoid CORS and caching issues
+  //     const proxyUrl = `${import.meta.env.VITE_API_BASE_URL}/proxy-image?url=${encodeURIComponent(imageUrl)}`;
+  //     img.src = proxyUrl;
+
+  //     img.onload = () => {
+  //       const canvas = document.createElement("canvas");
+  //       canvas.width = img.width;
+  //       canvas.height = img.height;
+  //       const ctx = canvas.getContext("2d");
+  //       ctx?.drawImage(img, 0, 0);
+
+  //       canvas.toBlob((blob) => {
+  //         if (!blob) return;
+
+  //         const url = URL.createObjectURL(blob);
+  //         const link = document.createElement("a");
+  //         link.href = url;
+  //         link.download = `referral_qr_${user?.userId}.png`;
+  //         document.body.appendChild(link);
+  //         link.click();
+  //         document.body.removeChild(link);
+  //         URL.revokeObjectURL(url);
+  //       });
+  //     };
+
+  //     img.onerror = () => {
+  //       addToast({
+  //         title: "Error",
+  //         description:
+  //           "Failed to load image. Enable CORS on server for QR image endpoint.",
+  //         color: "danger",
+  //       });
+  //     };
+  //   } catch (e) {
+  //     console.error("QR Download failed", e);
+  //     addToast({
+  //       title: "Error",
+  //       description: "Unable to download QR Code.",
+  //       color: "danger",
+  //     });
+  //   }
+  // };
+
   const handleDownloadQR = async (imageUrl: string) => {
-    if (!imageUrl) {
-      addToast({
-        title: "Error",
-        description: "QR Code URL is missing.",
-        color: "danger",
-      });
-      return;
-    }
+    if (!imageUrl) return;
 
-    try {
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      
-      // Use the backend proxy to avoid CORS and caching issues
-      const proxyUrl = `${import.meta.env.VITE_API_BASE_URL}/proxy-image?url=${encodeURIComponent(imageUrl)}`;
-      img.src = proxyUrl;
-
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext("2d");
-        ctx?.drawImage(img, 0, 0);
-
-        canvas.toBlob((blob) => {
-          if (!blob) return;
-
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement("a");
-          link.href = url;
-          link.download = `referral_qr_${user?.userId}.png`;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(url);
-        });
-      };
-
-      img.onerror = () => {
-        addToast({
-          title: "Error",
-          description:
-            "Failed to load image. Enable CORS on server for QR image endpoint.",
-          color: "danger",
-        });
-      };
-    } catch (e) {
-      console.error("QR Download failed", e);
-      addToast({
-        title: "Error",
-        description: "Unable to download QR Code.",
-        color: "danger",
-      });
-    }
+    const link = document.createElement("a");
+    link.href = imageUrl;
+    link.download = `referral_qr_${user?.userId}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const openSharingModal = async (referralUrl: string) => {
