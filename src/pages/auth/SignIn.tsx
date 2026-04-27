@@ -3,19 +3,18 @@ import {
   Card,
   CardBody,
   Checkbox,
-  Divider,
-  Spinner,
   Input,
+  Spinner,
 } from "@heroui/react";
 import { useFormik } from "formik";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useDispatch } from "react-redux";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import * as Yup from "yup";
-import { AppDispatch } from "../../store";
-import { useLogin, useVerify2FA } from "../../hooks/useAuth";
 import { EMAIL_REGEX, PASSWORD_REGEX } from "../../consts/consts";
+import { useLogin, useVerify2FA } from "../../hooks/useAuth";
+import { AppDispatch } from "../../store";
 import { setCredentials } from "../../store/authSlice";
 
 interface FormData {
@@ -241,25 +240,24 @@ const SignIn = () => {
           <div className="mt-8 text-center text-xs text-foreground/40 leading-relaxed">
             By signing in, you agree to our <br />
             <span className="hover:text-primary transition-colors cursor-pointer">
-              <Link
-                to="https://practiceroi.com/terms-of-service/"
+              <a
+                href="https://practiceroi.com/terms-of-service/"
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 Terms of Service
-              </Link>
+              </a>
             </span>{" "}
             and{" "}
             <span className="hover:text-primary transition-colors cursor-pointer">
-              <Link
-                to="https://practiceroi.com/privacy-policy/"
+              <a
+                href="https://practiceroi.com/privacy-policy/"
                 target="_blank"
                 rel="noopener noreferrer"
               >
                 Privacy Policy
-              </Link>
+              </a>
             </span>
-
           </div>
         </CardBody>
       </Card>

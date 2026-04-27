@@ -153,7 +153,7 @@ export function useDeleteAccount() {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
       queryClient.clear();
-      window.location.href = "/signin";
+      window.location.href = `${import.meta.env.VITE_URL_PREFIX}/signin`;
     },
     onError: (error: AxiosError) => {
       addToast({
