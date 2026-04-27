@@ -102,7 +102,10 @@ const TrackingPanel = () => {
     try {
       const img = new Image();
       img.crossOrigin = "anonymous";
-      img.src = imageUrl;
+      
+      // Use the backend proxy to avoid CORS and caching issues
+      const proxyUrl = `${import.meta.env.VITE_API_BASE_URL}/proxy-image?url=${encodeURIComponent(imageUrl)}`;
+      img.src = proxyUrl;
 
       img.onload = () => {
         const canvas = document.createElement("canvas");
