@@ -30,7 +30,7 @@ const TrackingPanel = () => {
 
   const { data: trackings, isLoading } = useFetchTrackings(userId as string);
   const { mutate: createTrackingSetup } = useCreateTrackingSetup();
-  console.log("trackings >>>>>", trackings)
+  console.log("trackings >>>>>", trackings);
   const handleCopy = async (identifier: string, value?: string) => {
     if (!value) return;
     try {
@@ -89,61 +89,69 @@ const TrackingPanel = () => {
     }
   };
 
+  // const handleDownloadQR = async (imageUrl: string) => {
+  //   if (!imageUrl) {
+  //     addToast({
+  //       title: "Error",
+  //       description: "QR Code URL is missing.",
+  //       color: "danger",
+  //     });
+  //     return;
+  //   }
+
+  //   try {
+  //     const img = new Image();
+  //     img.crossOrigin = "anonymous";
+  //     img.src = imageUrl;
+
+  //     img.onload = () => {
+  //       const canvas = document.createElement("canvas");
+  //       canvas.width = img.width;
+  //       canvas.height = img.height;
+  //       const ctx = canvas.getContext("2d");
+  //       ctx?.drawImage(img, 0, 0);
+
+  //       canvas.toBlob((blob) => {
+  //         if (!blob) return;
+
+  //         const url = URL.createObjectURL(blob);
+  //         const link = document.createElement("a");
+  //         link.href = url;
+  //         link.download = `referral_qr_${user?.userId}.png`;
+  //         document.body.appendChild(link);
+  //         link.click();
+  //         document.body.removeChild(link);
+  //         URL.revokeObjectURL(url);
+  //       });
+  //     };
+
+  //     img.onerror = () => {
+  //       addToast({
+  //         title: "Error",
+  //         description:
+  //           "Failed to load image. Enable CORS on server for QR image endpoint.",
+  //         color: "danger",
+  //       });
+  //     };
+  //   } catch (e) {
+  //     console.error("QR Download failed", e);
+  //     addToast({
+  //       title: "Error",
+  //       description: "Unable to download QR Code.",
+  //       color: "danger",
+  //     });
+  //   }
+  // };
+
   const handleDownloadQR = async (imageUrl: string) => {
-    if (!imageUrl) {
-      addToast({
-        title: "Error",
-        description: "QR Code URL is missing.",
-        color: "danger",
-      });
-      return;
-    }
+    if (!imageUrl) return;
 
-    try {
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      
-      // Use the backend proxy to avoid CORS and caching issues
-      const proxyUrl = `${import.meta.env.VITE_API_BASE_URL}/proxy-image?url=${encodeURIComponent(imageUrl)}`;
-      img.src = proxyUrl;
-
-      img.onload = () => {
-        const canvas = document.createElement("canvas");
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext("2d");
-        ctx?.drawImage(img, 0, 0);
-
-        canvas.toBlob((blob) => {
-          if (!blob) return;
-
-          const url = URL.createObjectURL(blob);
-          const link = document.createElement("a");
-          link.href = url;
-          link.download = `referral_qr_${user?.userId}.png`;
-          document.body.appendChild(link);
-          link.click();
-          document.body.removeChild(link);
-          URL.revokeObjectURL(url);
-        });
-      };
-
-      img.onerror = () => {
-        addToast({
-          title: "Error",
-          description:
-            "Failed to load image. Enable CORS on server for QR image endpoint.",
-          color: "danger",
-        });
-      };
-    } catch (e) {
-      console.error("QR Download failed", e);
-      addToast({
-        title: "Error",
-        description: "Unable to download QR Code.",
-        color: "danger",
-      });
-    }
+    const link = document.createElement("a");
+    link.href = imageUrl;
+    link.download = `referral_qr_${user?.userId}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   const openSharingModal = async (referralUrl: string) => {
@@ -168,7 +176,9 @@ const TrackingPanel = () => {
       {
         id: userId as string,
         customPath: isFullCustomUrl
-          ? (customPath ? customPath.replace(/\s+/g, "_") : `External_${uniqueId}`)
+          ? customPath
+            ? customPath.replace(/\s+/g, "_")
+            : `External_${uniqueId}`
           : isCustomLandingPage && customPath
             ? customPath.replace(/\s+/g, "_")
             : "referral",
@@ -277,9 +287,7 @@ const TrackingPanel = () => {
                               }
                               type="text"
                               value={customPath}
-                              onValueChange={(value) =>
-                                setCustomPath(value)
-                              }
+                              onValueChange={(value) => setCustomPath(value)}
                             />
                           </div>
                         )}
@@ -313,9 +321,7 @@ const TrackingPanel = () => {
                           placeholder="e.g. Front Desk QR"
                           type="text"
                           value={isFullCustomUrl ? customPath : ""}
-                          onValueChange={(value) =>
-                            setCustomPath(value)
-                          }
+                          onValueChange={(value) => setCustomPath(value)}
                         />
                         <Input
                           size="sm"
@@ -328,8 +334,16 @@ const TrackingPanel = () => {
                           onValueChange={(value) =>
                             setCustomLandingUrl(value.trim())
                           }
-                          isInvalid={!!customLandingUrl && !URL_REGEX.test(customLandingUrl)}
-                          errorMessage={!!customLandingUrl && !URL_REGEX.test(customLandingUrl) ? "Please enter a valid URL (e.g., https://example.com or www.example.com)" : undefined}
+                          isInvalid={
+                            !!customLandingUrl &&
+                            !URL_REGEX.test(customLandingUrl)
+                          }
+                          errorMessage={
+                            !!customLandingUrl &&
+                            !URL_REGEX.test(customLandingUrl)
+                              ? "Please enter a valid URL (e.g., https://example.com or www.example.com)"
+                              : undefined
+                          }
                         />
                       </div>
                     )}
@@ -342,7 +356,10 @@ const TrackingPanel = () => {
                     size="sm"
                     onPress={generateTracking}
                     fullWidth
-                    isDisabled={isFullCustomUrl && (!customLandingUrl || !URL_REGEX.test(customLandingUrl))}
+                    isDisabled={
+                      isFullCustomUrl &&
+                      (!customLandingUrl || !URL_REGEX.test(customLandingUrl))
+                    }
                   >
                     Generate QR Code
                   </Button>
@@ -618,10 +635,11 @@ const TrackingPanel = () => {
                       setShowGenerator(false);
                       // Scroll to target if needed, but usually just updating the state is enough
                     }}
-                    className={`cursor-pointer transition-colors border-l-2 ${qr._id === latestQr?._id
-                      ? "bg-blue-50/80 border-l-blue-600 dark:bg-blue-900/20"
-                      : "border-transparent hover:bg-gray-50/50 dark:hover:bg-white/[0.02]"
-                      }`}
+                    className={`cursor-pointer transition-colors border-l-2 ${
+                      qr._id === latestQr?._id
+                        ? "bg-blue-50/80 border-l-blue-600 dark:bg-blue-900/20"
+                        : "border-transparent hover:bg-gray-50/50 dark:hover:bg-white/[0.02]"
+                    }`}
                   >
                     <td className="text-left text-xs py-3 px-2 max-w-fit">
                       <div className="bg-white dark:bg-background border border-foreground/10 dark:border-divider rounded p-0.5 w-12 h-12 flex items-center justify-center">
@@ -639,7 +657,10 @@ const TrackingPanel = () => {
                         </span>
                         <a
                           href={
-                            qr.isManually ? `${import.meta.env.VITE_BASE_URL}?${qr.referralUrl}` : qr.referralUrl}
+                            qr.isManually
+                              ? `${import.meta.env.VITE_BASE_URL}?${qr.referralUrl}`
+                              : qr.referralUrl
+                          }
                           target="_blank"
                           rel="noreferrer"
                           onClick={(e) => e.stopPropagation()}
