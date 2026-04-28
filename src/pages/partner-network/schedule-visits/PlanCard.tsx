@@ -30,8 +30,9 @@ const PlanCard: React.FC<{
       break;
   }
 
-  const fullRouteDateTime = `${plan.route.date.split("T")[0]}T${plan.route.startTime
-    }`;
+  const fullRouteDateTime = `${plan.route.date.split("T")[0]}T${
+    plan.route.startTime
+  }`;
 
   const { mutate: copySchedulePlan } = useCopySchedulePlan();
 
@@ -39,11 +40,10 @@ const PlanCard: React.FC<{
     generateRoutePdf(plan);
   };
 
-
   return (
     <Card
       data-slot="card"
-      className="bg-background dark:bg-default-100/20 flex flex-col gap-1 rounded-xl border border-foreground/10 shadow-none"
+      className="bg-content1 flex flex-col gap-1 rounded-xl border border-foreground/10 shadow-none"
     >
       <CardHeader data-slot="card-header" className="px-4 pt-4 pb-1">
         <div className="w-full">
