@@ -1,7 +1,7 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { queryClient } from "../../providers/QueryProvider";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
+import { queryClient } from "../../providers/QueryProvider";
 import {
   connectGoogleBusinessLocation,
   deleteGoogleBusinessIntegration,

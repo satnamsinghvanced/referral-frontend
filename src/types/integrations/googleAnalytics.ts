@@ -14,10 +14,9 @@ export interface IGoogleAnalyticsIntegration {
   accountEmail?: string;
   accountAvatar?: string;
   properties?: {
-    accountId: string;
-    accountName: string;
     propertyId: string;
     displayName: string;
+    accountId: string;
     isConnected: boolean;
   }[];
 }

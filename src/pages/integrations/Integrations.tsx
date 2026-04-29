@@ -55,6 +55,8 @@ function Integrations() {
 
   const [isGoogleBusinessLocationModalOpen, setIsGoogleBusinessLocationModalOpen] =
     useState(false);
+  const [isGoogleAdsAccountModalOpen, setIsGoogleAdsAccountModalOpen] =
+    useState(false);
 
   const [
     isGoogleAnalyticsPropertyModalOpen,
@@ -171,13 +173,10 @@ function Integrations() {
           });
         },
         account: {
-          accountName: googleBusinessConfig?.accountName,
+          accountName: googleBusinessConfig?.locations?.find((l: any) => l.isConnected)?.name || googleBusinessConfig?.accountName,
           accountEmail: googleBusinessConfig?.accountEmail,
           accountAvatar: googleBusinessConfig?.accountAvatar,
         },
-        connectedLocation: googleBusinessConfig?.locations?.find(
-          (l: any) => l.isConnected,
-        )?.name,
       },
       // {
       //   id: "",
@@ -245,6 +244,10 @@ function Integrations() {
         ],
         onConnect: () => connectGoogleAds(),
         onReconnect: () => connectGoogleAds(),
+        onConfigure: () => setIsGoogleAdsAccountModalOpen(true),
+        connectedLocation: googleAdsConfig?.customerAccounts?.find(
+          (acc: any) => acc.isConnected,
+        )?.descriptiveName,
         isSwitchChecked: googleAdsConfig?.status === "Connected",
         onSwitchChange: () => {
           updateGoogleAdsIntegration({
@@ -317,7 +320,6 @@ function Integrations() {
           ? timeAgo(emailConfig.lastTestedAt)
           : undefined,
         onConnect: () => setIsEmailMarketingIntegrationModalOpen(true),
-        onConfigure: () => setIsEmailMarketingIntegrationModalOpen(true),
         isSwitchChecked: emailConfig?.status === "Connected",
         onSwitchChange: () => {
           if (emailConfig?._id) {
@@ -394,7 +396,6 @@ function Integrations() {
           "Track patient calls and monitor referral communications with recordings",
         badges: ["Call Analytics", "Call Tracking", "Call Recordings"],
         onConnect: () => setIsTwilioIntegrationModalOpen(true),
-        onConfigure: () => setIsTwilioIntegrationModalOpen(true),
         isSwitchChecked: twilioConfig?.status === "Connected",
         onSwitchChange: () => {
           updateTwilioConfig({
@@ -482,6 +483,12 @@ function Integrations() {
         type="analytics"
         isOpen={isGoogleAnalyticsPropertyModalOpen}
         onClose={() => setIsGoogleAnalyticsPropertyModalOpen(false)}
+      />
+
+      <GoogleIntegrationSelectorModal
+        type="ads"
+        isOpen={isGoogleAdsAccountModalOpen}
+        onClose={() => setIsGoogleAdsAccountModalOpen(false)}
       />
     </>
   );

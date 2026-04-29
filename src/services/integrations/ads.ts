@@ -16,6 +16,13 @@ export interface IGoogleAdsIntegration {
   accountName?: string;
   accountEmail?: string;
   accountAvatar?: string;
+  customerAccounts?: {
+    customerId: string;
+    descriptiveName: string;
+    currencyCode: string;
+    timeZone: string;
+    isConnected: boolean;
+  }[];
 }
 
 export interface IMetaAdsIntegration {
@@ -108,4 +115,32 @@ export const updateMetaAdsIntegration = async (
 export const deleteMetaAdsIntegration = async (id: string) => {
   await axios.delete(`/meta_ads_integration/${id}`);
   return id;
+};
+// Sync Google Ads Accounts
+export const syncGoogleAdsAccounts = async (token: string) => {
+  const { data } = await axios.get<{ customerAccounts: any[] }>(
+    "/google_ads_integration/sync-profiles",
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+  return data;
+};
+
+// Get available accounts
+export const getGoogleAdsAccounts = async () => {
+  const { data } = await axios.get<{ customerAccounts: any[] }>(
+    "/google_ads_integration/locations",
+  );
+  return data;
+};
+
+// Connect a specific account
+export const connectGoogleAdsAccount = async (customerId: string) => {
+  const { data } = await axios.post("/google_ads_integration/connect-location", {
+    customerId,
+  });
+  return data;
 };

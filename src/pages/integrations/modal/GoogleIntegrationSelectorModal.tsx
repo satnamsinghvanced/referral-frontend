@@ -24,8 +24,13 @@ import {
   useConnectAnalyticsProperty,
   useSyncAnalyticsProperties,
 } from "../../../hooks/integrations/useGoogleAnalytics";
+import {
+  useGoogleAdsAccounts,
+  useSyncGoogleAdsAccounts,
+  useConnectGoogleAdsAccount,
+} from "../../../hooks/integrations/useAds";
 
-type IntegrationType = "business" | "analytics";
+type IntegrationType = "business" | "analytics" | "ads";
 
 interface SelectorItem {
   id: string;
@@ -54,6 +59,11 @@ export default function GoogleIntegrationSelectorModal({
   const analyticsSync = useSyncAnalyticsProperties();
   const analyticsConnect = useConnectAnalyticsProperty();
 
+  // Hooks for Ads
+  const adsData = useGoogleAdsAccounts();
+  const adsSync = useSyncGoogleAdsAccounts();
+  const adsConnect = useConnectGoogleAdsAccount();
+
   // Resolve active hooks based on type
   const { data, isLoading, isError, sync, isSyncing, connect, isConnecting } = useMemo(() => {
     if (type === "business") {
@@ -66,7 +76,7 @@ export default function GoogleIntegrationSelectorModal({
         connect: businessConnect.mutateAsync,
         isConnecting: businessConnect.isPending,
       };
-    } else {
+    } else if (type === "analytics") {
       return {
         data: analyticsData.data,
         isLoading: analyticsData.isLoading,
@@ -76,8 +86,18 @@ export default function GoogleIntegrationSelectorModal({
         connect: analyticsConnect.mutateAsync,
         isConnecting: analyticsConnect.isPending,
       };
+    } else {
+      return {
+        data: adsData.data,
+        isLoading: adsData.isLoading,
+        isError: adsData.isError,
+        sync: adsSync.mutateAsync,
+        isSyncing: adsSync.isPending,
+        connect: adsConnect.mutateAsync,
+        isConnecting: adsConnect.isPending,
+      };
     }
-  }, [type, businessData, businessSync, businessConnect, analyticsData, analyticsSync, analyticsConnect]);
+  }, [type, businessData, businessSync, businessConnect, analyticsData, analyticsSync, analyticsConnect, adsData, adsSync, adsConnect]);
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -91,13 +111,21 @@ export default function GoogleIntegrationSelectorModal({
         category: loc.primaryCategory,
         isConnected: loc.isConnected,
       }));
-    } else {
+    } else if (type === "analytics") {
       return (data?.properties || []).map((prop: any) => ({
         id: prop.propertyId,
         title: prop.displayName,
         subtitle: `ID: ${prop.propertyId}`,
         category: `Account: ${prop.accountId}`,
         isConnected: prop.isConnected,
+      }));
+    } else {
+      return (data?.customerAccounts || []).map((acc: any) => ({
+        id: acc.customerId,
+        title: acc.descriptiveName || `Customer ID: ${acc.customerId}`,
+        subtitle: `ID: ${acc.customerId}`,
+        category: acc.timeZone ? `${acc.timeZone} (${acc.currencyCode})` : undefined,
+        isConnected: acc.isConnected,
       }));
     }
   }, [type, data]);
@@ -161,6 +189,13 @@ export default function GoogleIntegrationSelectorModal({
       icon: <SiGoogleanalytics className="w-5 h-5" />,
       emptyMsg: "No GA4 properties found in your Google account.",
       loadingMsg: "Fetching your analytics properties...",
+    },
+    ads: {
+      title: "Select Google Ads Account",
+      description: "Choose the specific customer account you want to connect.",
+      icon: <HiOutlineOfficeBuilding className="w-5 h-5" />,
+      emptyMsg: "No Google Ads accounts found in your Google account.",
+      loadingMsg: "Fetching your Ads accounts...",
     },
   }[type];
 

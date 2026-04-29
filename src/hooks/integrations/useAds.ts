@@ -1,12 +1,17 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
 import { queryClient } from "../../providers/QueryProvider";
 import {
+  connectGoogleAdsAccount,
   deleteGoogleAdsIntegration,
   deleteMetaAdsIntegration,
+  getGoogleAdsAccounts,
   getGoogleAdsAuthUrl,
   getGoogleAdsIntegration,
   getMetaAdsAuthUrl,
   getMetaAdsIntegration,
+  syncGoogleAdsAccounts,
   updateGoogleAdsIntegration,
   updateMetaAdsIntegration,
 } from "../../services/integrations/ads";
@@ -100,6 +105,33 @@ export const useDisconnectMetaAds = () => {
     onSuccess: () => {
       queryClient.setQueryData(META_ADS_KEYS.details(), null);
       queryClient.invalidateQueries({ queryKey: META_ADS_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+    },
+  });
+};
+
+export const useGoogleAdsAccounts = () => {
+  return useQuery({
+    queryKey: [...GOOGLE_ADS_KEYS.all, "accounts"],
+    queryFn: getGoogleAdsAccounts,
+  });
+};
+
+export const useSyncGoogleAdsAccounts = () => {
+  const token = useSelector((state: RootState) => state.auth.token);
+  return useMutation({
+    mutationFn: () => syncGoogleAdsAccounts(token || ""),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: GOOGLE_ADS_KEYS.all });
+    },
+  });
+};
+
+export const useConnectGoogleAdsAccount = () => {
+  return useMutation({
+    mutationFn: connectGoogleAdsAccount,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: GOOGLE_ADS_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     },
   });

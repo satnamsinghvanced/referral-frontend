@@ -40,7 +40,7 @@ const TrafficTrendsChart: React.FC<{ data: any[] }> = ({ data }) => {
             className="opacity-10"
           />
           <XAxis
-            dataKey="name"
+            dataKey="month"
             stroke="currentColor"
             tick={{ fontSize: 12 }}
             tickLine={false}
@@ -239,6 +239,14 @@ export const GoogleAds: React.FC = () => {
                     stroke="#1aa9ea"
                     fill="#6ec9f2"
                     name="Spend ($)"
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="avgCpc"
+                    stroke="#f59e0b"
+                    strokeWidth={2}
+                    dot={{ r: 4 }}
+                    name="Avg. CPC ($)"
                   />
                 </AreaChart>
               </ResponsiveContainer>
