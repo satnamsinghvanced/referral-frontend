@@ -40,9 +40,9 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
       (filters.category === "" || r.level === filters.category),
   );
 
-  const selectedReferrerObjects: Partner[] = practices.filter((r: Partner) =>
-    selectedReferrersState?.includes(r._id),
-  );
+  const selectedReferrerObjects: Partner[] = (selectedReferrersState || [])
+    .map((id) => practices.find((p) => p._id === id))
+    .filter((p): p is Partner => !!p);
 
   return (
     <div className="space-y-3 h-full">

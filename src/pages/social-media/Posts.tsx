@@ -155,14 +155,18 @@ const Posts = () => {
                   );
                 })}
               </div>
-              <Pagination
-                identifier="posts"
-                limit={limit}
-                totalItems={pagination?.total || 0}
-                currentPage={page}
-                totalPages={pagination?.totalPages || 0}
-                handlePageChange={setPage}
-              />
+              {pagination && pagination.totalPages > 1 ? (
+                <Pagination
+                  identifier="posts"
+                  limit={limit}
+                  totalItems={pagination?.total || 0}
+                  currentPage={page}
+                  totalPages={pagination?.totalPages || 0}
+                  handlePageChange={setPage}
+                />
+              ) : (
+                ""
+              )}
             </>
           )}
         </CardBody>

@@ -239,7 +239,7 @@ const PatientForm = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 dark:from-background dark:to-background flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 dark:from-background dark:to-background flex items-center justify-center px-4 py-5">
       {isUserLoading ? (
         <div className="flex items-center justify-center p-4">
           <FiLoader className="animate-spin size-8 text-primary" />
@@ -247,7 +247,7 @@ const PatientForm = () => {
       ) : showInvalidLink ? (
         <NotFoundPage />
       ) : (
-        <div className="max-w-3xl w-full mx-auto max-lg:py-5 max-lg:px-4">
+        <div className="max-w-3xl w-full mx-auto">
           <Card className="shadow-sm mb-5 border-0 dark:bg-content1">
             <CardBody className="p-0">
               <div className="flex justify-between items-center text-sm bg-gradient-to-l from-green-600 to-blue-600 dark:from-green-900 dark:to-blue-900 m-0 px-5 py-4 text-background dark:text-white">
@@ -279,10 +279,12 @@ const PatientForm = () => {
               {fetchedUser?.practiceName && (
                 <div className="px-5 py-4">
                   <p className="text-sm font-medium dark:text-white">
-                    {`Referred by ${fetchedUser?.firstName} ${fetchedUser?.lastName
-                      } ${fetchedUser?.practiceName &&
+                    {`Referred by ${fetchedUser?.firstName} ${
+                      fetchedUser?.lastName
+                    } ${
+                      fetchedUser?.practiceName &&
                       `from ${fetchedUser?.practiceName}`
-                      }`}
+                    }`}
                   </p>
                   {fetchedUser?.medicalSpecialty && (
                     <p className="text-xs text-gray-600 dark:text-foreground/60 mt-1">
@@ -396,7 +398,6 @@ const PatientForm = () => {
                   </Select>
                 </div>
 
-
                 <div className="grid grid-cols-1 gap-6">
                   <Textarea
                     label="Reason for Referral"
@@ -413,14 +414,10 @@ const PatientForm = () => {
                     minRows={3}
                     className="w-full"
                     isInvalid={
-                      !!(
-                        formik.touched.reason &&
-                        formik.errors.reason
-                      )
+                      !!(formik.touched.reason && formik.errors.reason)
                     }
                     errorMessage={
-                      formik.touched.reason &&
-                      (formik.errors.reason as string)
+                      formik.touched.reason && (formik.errors.reason as string)
                     }
                     classNames={{ inputWrapper: "py-2" }}
                   />
@@ -492,10 +489,9 @@ const PatientForm = () => {
               </span>{" "}
               or visit{" "}
               <span className="font-bold dark:text-foreground/60">
-                {fetchedUser?.practiceName ? (
-                  fetchedUser?.practiceName
-                ) : " www.orthodontics.com"}
-
+                {fetchedUser?.practiceName
+                  ? fetchedUser?.practiceName
+                  : " www.orthodontics.com"}
               </span>
             </p>
           </div>
