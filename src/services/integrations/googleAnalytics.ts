@@ -36,3 +36,27 @@ export const deleteGoogleAnalyticsIntegration = async (id: string) => {
   await axios.delete(`/analytics-integration/${id}`);
   return id;
 };
+
+// Get properties from DB
+export const getGoogleAnalyticsProperties = async () => {
+  const { data } = await axios.get<{ properties: any[] }>(
+    "/analytics-integration/locations",
+  );
+  return data;
+};
+
+// Sync properties live from Google
+export const syncGoogleAnalyticsProperties = async () => {
+  const { data } = await axios.get<{ properties: any[] }>(
+    "/analytics-integration/sync-profiles",
+  );
+  return data;
+};
+
+// Connect a specific property
+export const connectGoogleAnalyticsProperty = async (propertyId: string) => {
+  const { data } = await axios.post("/analytics-integration/connect-location", {
+    propertyId,
+  });
+  return data;
+};

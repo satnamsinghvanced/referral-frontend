@@ -30,6 +30,7 @@ interface IntegrationItemProps {
     accountEmail?: string | undefined | null;
     accountAvatar?: string | undefined | null;
   };
+  connectedLocation?: string | undefined;
 }
 
 const IntegrationItem: React.FC<IntegrationItemProps> = ({
@@ -48,6 +49,7 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
   isSwitchChecked = status === "Connected",
   onSwitchChange,
   account,
+  connectedLocation,
 }) => {
   const isCredentialsSaved = !!id;
   const isError = status === "Error";
@@ -79,16 +81,29 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
 
   const actionButton = isCredentialsSaved ? (
     <>
-      {(onConfigure || onReconnect || onConnect) && (
+      {onConfigure && (
         <Button
           size="sm"
           radius="sm"
           variant="ghost"
-          onPress={() => (onConfigure || onReconnect || onConnect)?.()}
+          onPress={onConfigure}
           startContent={<FiSettings className="size-3.5" />}
           className="border-small border-gray-300 dark:border-default-200"
         >
           Configure
+        </Button>
+      )}
+      {(onReconnect || onConnect) && (
+        <Button
+          size="sm"
+          radius="sm"
+          variant="light"
+          color="primary"
+          onPress={() => (onReconnect || onConnect)?.()}
+          startContent={<FiExternalLink className="size-3.5" />}
+          className="text-[10px] h-8"
+        >
+          Change Account
         </Button>
       )}
       <Switch
@@ -159,7 +174,12 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
                 className="h-5 flex items-center gap-2 text-xs dark:text-foreground/40"
               >
                 <span className="flex relative max-w-fit min-w-min inline-flex items-center justify-between box-border whitespace-nowrap px-1 rounded-small capitalize text-[11px] h-5 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300">Syncing with</span>
-                {account.accountEmail || account.accountName}
+                <div className="flex items-center gap-1">
+                  <span>{account.accountEmail || account.accountName}</span>
+                  {connectedLocation && (
+                    <span className="text-primary font-medium">({connectedLocation})</span>
+                  )}
+                </div>
               </p>
             )}
           </div>

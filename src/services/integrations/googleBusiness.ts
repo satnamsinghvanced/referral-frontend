@@ -16,6 +16,14 @@ export interface IGoogleBusinessIntegration {
   accountName?: string;
   accountEmail?: string;
   accountAvatar?: string;
+  locations?: {
+    accountId: string;
+    locationId: string;
+    name: string;
+    address: string;
+    primaryCategory: string;
+    isConnected: boolean;
+  }[];
 }
 
 export interface IUpdateBusinessPayload {
@@ -55,4 +63,34 @@ export const updateGoogleBusinessIntegration = async (
 export const deleteGoogleBusinessIntegration = async (id: string) => {
   await axios.delete(`/google_business_integration/${id}`);
   return id;
+};
+
+// Get all locations from DB
+export const getGoogleBusinessLocations = async () => {
+  const { data } = await axios.get<{ locations: any[] }>(
+    "/google_business_integration/locations",
+  );
+  return data;
+};
+
+// Sync profiles live from Google
+export const syncGoogleBusinessProfiles = async (token: string) => {
+  const { data } = await axios.get<{ locations: any[] }>(
+    "/google_business_integration/sync-profiles",
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+  return data;
+};
+
+// Connect a specific location
+export const connectGoogleBusinessLocation = async (locationId: string) => {
+  const { data } = await axios.post(
+    "/google_business_integration/connect-location",
+    { locationId },
+  );
+  return data;
 };

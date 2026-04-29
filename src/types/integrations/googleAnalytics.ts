@@ -13,6 +13,13 @@ export interface IGoogleAnalyticsIntegration {
   accountName?: string;
   accountEmail?: string;
   accountAvatar?: string;
+  properties?: {
+    accountId: string;
+    accountName: string;
+    propertyId: string;
+    displayName: string;
+    isConnected: boolean;
+  }[];
 }
 
 export interface IAuthUrlResponse {

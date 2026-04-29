@@ -1,9 +1,14 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { queryClient } from "../../providers/QueryProvider";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
 import {
+  connectGoogleBusinessLocation,
   deleteGoogleBusinessIntegration,
   getGoogleBusinessAuthUrl,
   getGoogleBusinessIntegration,
+  getGoogleBusinessLocations,
+  syncGoogleBusinessProfiles,
   updateGoogleBusinessIntegration,
 } from "../../services/integrations/googleBusiness";
 
@@ -46,6 +51,34 @@ export const useDisconnectBusiness = () => {
     mutationFn: deleteGoogleBusinessIntegration,
     onSuccess: () => {
       queryClient.setQueryData(BUSINESS_KEYS.details(), null);
+      queryClient.invalidateQueries({ queryKey: BUSINESS_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+    },
+  });
+};
+
+export const useBusinessLocations = () => {
+  return useQuery({
+    queryKey: [...BUSINESS_KEYS.all, "locations"],
+    queryFn: getGoogleBusinessLocations,
+    enabled: true,
+  });
+};
+
+export const useSyncBusinessProfiles = () => {
+  const token = useSelector((state: RootState) => state.auth.token);
+  return useMutation({
+    mutationFn: () => syncGoogleBusinessProfiles(token || ""),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: BUSINESS_KEYS.all });
+    },
+  });
+};
+
+export const useConnectBusinessLocation = () => {
+  return useMutation({
+    mutationFn: connectGoogleBusinessLocation,
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: BUSINESS_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     },

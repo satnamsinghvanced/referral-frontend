@@ -1,5 +1,5 @@
 import { Card, CardBody, CardHeader } from "@heroui/react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BsLightningCharge } from "react-icons/bs";
 import { FaGoogle } from "react-icons/fa";
 import { FaMeta, FaRegEnvelope } from "react-icons/fa6";
@@ -43,6 +43,7 @@ import { timeAgo } from "../../utils/timeAgo";
 import IntegrationItem from "./IntegrationItem";
 import EmailMarketingConfigModal from "./modal/EmailMarketingConfigModal";
 import TwilioConfigurationModal from "./modal/TwilioConfigurationModal";
+import GoogleIntegrationSelectorModal from "./modal/GoogleIntegrationSelectorModal";
 import Webhooks from "./webhooks/Webhooks";
 
 function Integrations() {
@@ -51,6 +52,14 @@ function Integrations() {
 
   const [isTwilioIntegrationModalOpen, setIsTwilioIntegrationModalOpen] =
     useState(false);
+
+  const [isGoogleBusinessLocationModalOpen, setIsGoogleBusinessLocationModalOpen] =
+    useState(false);
+
+  const [
+    isGoogleAnalyticsPropertyModalOpen,
+    setIsGoogleAnalyticsPropertyModalOpen,
+  ] = useState(false);
 
   const [
     isEmailMarketingIntegrationModalOpen,
@@ -148,6 +157,7 @@ function Integrations() {
           : undefined,
         onConnect: () => connectGoogleBusiness(),
         onReconnect: () => connectGoogleBusiness(),
+        onConfigure: () => setIsGoogleBusinessLocationModalOpen(true),
         isSwitchChecked: googleBusinessConfig?.status === "Connected",
         onSwitchChange: () => {
           updateGoogleBusinessIntegration({
@@ -165,6 +175,9 @@ function Integrations() {
           accountEmail: googleBusinessConfig?.accountEmail,
           accountAvatar: googleBusinessConfig?.accountAvatar,
         },
+        connectedLocation: googleBusinessConfig?.locations?.find(
+          (l: any) => l.isConnected,
+        )?.name,
       },
       // {
       //   id: "",
@@ -264,6 +277,10 @@ function Integrations() {
           : undefined,
         onConnect: () => connectGoogleAnalytics(),
         onReconnect: () => connectGoogleAnalytics(),
+        onConfigure: () => setIsGoogleAnalyticsPropertyModalOpen(true),
+        connectedLocation: googleAnalyticsConfig?.properties?.find(
+          (p: any) => p.isConnected,
+        )?.displayName,
         isSwitchChecked: googleAnalyticsConfig?.status === "Connected",
         onSwitchChange: () => {
           updateGoogleAnalyticsIntegration({
@@ -453,6 +470,18 @@ function Integrations() {
         onOpenChange={setIsEmailMarketingIntegrationModalOpen}
         existingConfig={emailConfig}
         isLoading={isEmailConfigLoading}
+      />
+
+      <GoogleIntegrationSelectorModal
+        type="business"
+        isOpen={isGoogleBusinessLocationModalOpen}
+        onClose={() => setIsGoogleBusinessLocationModalOpen(false)}
+      />
+
+      <GoogleIntegrationSelectorModal
+        type="analytics"
+        isOpen={isGoogleAnalyticsPropertyModalOpen}
+        onClose={() => setIsGoogleAnalyticsPropertyModalOpen(false)}
       />
     </>
   );
