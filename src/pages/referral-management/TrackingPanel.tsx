@@ -535,12 +535,16 @@ const TrackingPanel = () => {
                     className="border-small"
                     size="sm"
                     radius="sm"
-                    onPress={() => openSharingModal(latestQr.referralUrl)}
+                    onPress={() =>
+                      openSharingModal(
+                        latestQr.referralUrl?.split("&source")[0] || "",
+                      )
+                    }
                   >
                     Share
                   </Button>
                   <Link
-                    to={latestQr.referralUrl.split("?")[0] || ""}
+                    to={latestQr.referralUrl.split("&source")[0] || ""}
                     target="_blank"
                   >
                     <Button
