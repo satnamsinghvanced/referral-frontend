@@ -149,12 +149,69 @@ const TrackingPanel = () => {
   const handleDownloadQR = async (imageUrl: string) => {
     if (!imageUrl) return;
 
-    const link = document.createElement("a");
-    link.href = imageUrl;
-    link.download = `referral_qr_${user?.userId}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const fileName = `referral_qr_${user?.userId || "code"}.png`;
+
+    try {
+      const response = await fetch(`${imageUrl}?t=${new Date().getTime()}`, {
+        mode: "cors",
+        cache: "no-cache",
+      });
+
+      if (!response.ok)
+        throw new Error(`HTTP error! status: ${response.status}`);
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error("QR Download via fetch failed, trying canvas fallback", e);
+
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.src = imageUrl;
+      img.onload = () => {
+        try {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(img, 0, 0);
+            const dataURL = canvas.toDataURL("image/png");
+            const link = document.createElement("a");
+            link.href = dataURL;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }
+        } catch (err) {
+          console.error("Canvas fallback failed", err);
+          const link = document.createElement("a");
+          link.href = imageUrl;
+          link.download = fileName;
+          link.target = "_blank";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+      };
+      img.onerror = () => {
+        const link = document.createElement("a");
+        link.href = imageUrl;
+        link.download = fileName;
+        link.target = "_blank";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      };
+    }
   };
 
   const openSharingModal = async (referralUrl: string) => {
@@ -469,12 +526,16 @@ const TrackingPanel = () => {
                     className="border-small"
                     size="sm"
                     radius="sm"
-                    onPress={() => openSharingModal(latestQr.referralUrl)}
+                    onPress={() =>
+                      openSharingModal(
+                        latestQr.referralUrl?.split("&source")[0] || "",
+                      )
+                    }
                   >
                     Share
                   </Button>
                   <Link
-                    to={latestQr.referralUrl.split("?")[0] || ""}
+                    to={latestQr.referralUrl.split("&source")[0] || ""}
                     target="_blank"
                   >
                     <Button
