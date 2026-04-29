@@ -172,7 +172,10 @@ export function ScheduleVisitsModal({
   };
 
   const selectedReferrerObjects = useMemo(
-    () => practices.filter((r) => selectedReferrersState?.includes(r._id)),
+    () =>
+      (selectedReferrersState || [])
+        .map((id) => practices.find((p) => p._id === id))
+        .filter((p): p is Partner => !!p),
     [practices, selectedReferrersState],
   );
 

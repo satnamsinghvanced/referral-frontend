@@ -16,7 +16,7 @@ function Webhooks() {
     setTimeout(() => setIsCopied(null), 2000);
   };
 
-  const webhookUrl = `${import.meta.env.VITE_LIVE_URL}webhook/referral/${user?.userId}`;
+  const webhookUrl = `${import.meta.env.VITE_LIVE_URL}/webhook/referral/${user?.userId}`;
 
   return (
     <div className="space-y-6">

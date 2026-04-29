@@ -339,7 +339,7 @@ const TrackingPanel = () => {
                               startContent={
                                 <div className="pointer-events-none flex items-center">
                                   <span className="text-default-400 text-small whitespace-nowrap">
-                                    {import.meta.env.VITE_LIVE_URL}
+                                    {import.meta.env.VITE_LIVE_URL}/
                                   </span>
                                 </div>
                               }

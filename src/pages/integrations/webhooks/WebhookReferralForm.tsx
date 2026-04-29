@@ -249,7 +249,7 @@ function WebhookReferralForm() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 dark:from-background dark:to-background flex items-center justify-center">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 dark:from-background dark:to-background flex items-center justify-center py-5">
       <div className="max-w-2xl w-full mx-auto max-lg:py-5 max-lg:px-4">
         <Card className="shadow-sm border-0 dark:bg-content1">
           <CardBody className="p-5">

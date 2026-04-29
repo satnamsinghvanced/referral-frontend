@@ -761,7 +761,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                           {stop.arrivalTime} - {stop.departureTime}
                         </span>
 
-                        {!stop.isFirstStop && (
+                        {(stop.travelTime !== "0s" || !stop.isFirstStop) && (
                           <>
                             <span className="flex items-center gap-1 whitespace-nowrap">
                               <BiCar className="h-3 w-3" />
