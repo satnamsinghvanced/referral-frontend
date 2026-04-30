@@ -38,6 +38,13 @@ const Platforms = () => {
         badges: ["Facebook", "Instagram", "Ads Sync"],
         followers: allCredentials?.meta?.followers || 0,
         engagementRate: allCredentials?.meta?.engagementRate || 0,
+        account: {
+          accountName:
+            allCredentials?.meta?.accountName ||
+            allCredentials?.meta?.metaPages?.[0]?.name,
+          accountEmail: allCredentials?.meta?.accountEmail,
+          accountAvatar: allCredentials?.meta?.accountAvatar,
+        },
       },
       // {
       //   id: allCredentials?.linkedin?.id || "",
@@ -67,6 +74,11 @@ const Platforms = () => {
         badges: ["Video Sync", "Channel Stats", "Views Tracking"],
         followers: allCredentials?.youTube?.followers || 0,
         engagementRate: allCredentials?.youTube?.engagementRate || 0,
+        account: {
+          accountName: allCredentials?.youTube?.accountName,
+          accountEmail: allCredentials?.youTube?.accountEmail,
+          accountAvatar: allCredentials?.youTube?.accountAvatar,
+        },
       },
       // {
       //   id: allCredentials?.twitter?._id || "",

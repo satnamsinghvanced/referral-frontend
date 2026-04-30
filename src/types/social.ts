@@ -18,6 +18,20 @@ export interface SocialMediaCredential {
   updatedAt: string;
   followers: number;
   engagementRate: number;
+  accountEmail?: string;
+  accountName?: string;
+  accountAvatar?: string;
+  metaPages?: Array<{
+    pageId: string;
+    name: string;
+    accessToken: string;
+    tasks: string[];
+    category: string;
+    instagramBusinessAccount?: {
+      id: string;
+      username: string;
+    };
+  }>;
 }
 
 export interface GetCredentialsResponse {
