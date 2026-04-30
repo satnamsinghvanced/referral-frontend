@@ -10,13 +10,14 @@ import {
 } from "react-router-dom";
 import * as Yup from "yup";
 import { PASSWORD_REGEX } from "../../../consts/consts";
-import { useSetTeamMemberPassword } from "../../../hooks/settings/useTeam";
+import { useFetchTeamMemberById, useSetTeamMemberPassword } from "../../../hooks/settings/useTeam";
 import NotFoundPage from "../../NotFoundPage";
 
 const AcceptInvitation = () => {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
-  const email = searchParams.get("email");
+  const { data: member, isLoading: isMemberLoading } = useFetchTeamMemberById(id || "");
+  const email = searchParams.get("email") || member?.email;
   const [isVisible, setIsVisible] = useState(false);
   const [isConfirmVisible, setIsConfirmVisible] = useState(false);
   const navigate = useNavigate();
@@ -58,6 +59,14 @@ const AcceptInvitation = () => {
       );
     },
   });
+
+  if (isMemberLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Spinner size="lg" label="Loading invitation details..." />
+      </div>
+    );
+  }
 
   if (!id || !email) {
     return <NotFoundPage />;

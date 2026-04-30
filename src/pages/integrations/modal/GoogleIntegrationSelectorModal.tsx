@@ -28,9 +28,12 @@ import {
   useGoogleAdsAccounts,
   useSyncGoogleAdsAccounts,
   useConnectGoogleAdsAccount,
+  useMetaAdsAccounts,
+  useSyncMetaAdsAccounts,
+  useConnectMetaAdsAccount,
 } from "../../../hooks/integrations/useAds";
 
-type IntegrationType = "business" | "analytics" | "ads";
+type IntegrationType = "business" | "analytics" | "ads" | "meta_ads";
 
 interface SelectorItem {
   id: string;
@@ -50,19 +53,24 @@ export default function GoogleIntegrationSelectorModal({
   onClose: () => void;
 }) {
   // Hooks for Business
-  const businessData = useBusinessLocations();
+  const businessData = useBusinessLocations(isOpen && type === "business");
   const businessSync = useSyncBusinessProfiles();
   const businessConnect = useConnectBusinessLocation();
 
   // Hooks for Analytics
-  const analyticsData = useAnalyticsProperties();
+  const analyticsData = useAnalyticsProperties(isOpen && type === "analytics");
   const analyticsSync = useSyncAnalyticsProperties();
   const analyticsConnect = useConnectAnalyticsProperty();
 
   // Hooks for Ads
-  const adsData = useGoogleAdsAccounts();
+  const adsData = useGoogleAdsAccounts(isOpen && type === "ads");
   const adsSync = useSyncGoogleAdsAccounts();
   const adsConnect = useConnectGoogleAdsAccount();
+
+  // Hooks for Meta Ads
+  const metaAdsData = useMetaAdsAccounts(isOpen && type === "meta_ads");
+  const metaAdsSync = useSyncMetaAdsAccounts();
+  const metaAdsConnect = useConnectMetaAdsAccount();
 
   // Resolve active hooks based on type
   const { data, isLoading, isError, sync, isSyncing, connect, isConnecting } = useMemo(() => {
@@ -86,7 +94,7 @@ export default function GoogleIntegrationSelectorModal({
         connect: analyticsConnect.mutateAsync,
         isConnecting: analyticsConnect.isPending,
       };
-    } else {
+    } else if (type === "ads") {
       return {
         data: adsData.data,
         isLoading: adsData.isLoading,
@@ -96,15 +104,25 @@ export default function GoogleIntegrationSelectorModal({
         connect: adsConnect.mutateAsync,
         isConnecting: adsConnect.isPending,
       };
+    } else {
+      return {
+        data: metaAdsData.data,
+        isLoading: metaAdsData.isLoading,
+        isError: metaAdsData.isError,
+        sync: metaAdsSync.mutateAsync,
+        isSyncing: metaAdsSync.isPending,
+        connect: metaAdsConnect.mutateAsync,
+        isConnecting: metaAdsConnect.isPending,
+      };
     }
-  }, [type, businessData, businessSync, businessConnect, analyticsData, analyticsSync, analyticsConnect, adsData, adsSync, adsConnect]);
+  }, [type, businessData, businessSync, businessConnect, analyticsData, analyticsSync, analyticsConnect, adsData, adsSync, adsConnect, metaAdsData, metaAdsSync, metaAdsConnect]);
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
   // Map raw data to common item format
   const items: SelectorItem[] = useMemo(() => {
     if (type === "business") {
-      return (data?.locations || []).map((loc: any) => ({
+      return ((data as any)?.locations || []).map((loc: any) => ({
         id: loc.locationId,
         title: loc.name,
         subtitle: loc.address,
@@ -112,19 +130,27 @@ export default function GoogleIntegrationSelectorModal({
         isConnected: loc.isConnected,
       }));
     } else if (type === "analytics") {
-      return (data?.properties || []).map((prop: any) => ({
+      return ((data as any)?.properties || []).map((prop: any) => ({
         id: prop.propertyId,
         title: prop.displayName,
         subtitle: `ID: ${prop.propertyId}`,
         category: `Account: ${prop.accountId}`,
         isConnected: prop.isConnected,
       }));
-    } else {
-      return (data?.customerAccounts || []).map((acc: any) => ({
+    } else if (type === "ads") {
+      return ((data as any)?.customerAccounts || []).map((acc: any) => ({
         id: acc.customerId,
         title: acc.descriptiveName || `Customer ID: ${acc.customerId}`,
         subtitle: `ID: ${acc.customerId}`,
         category: acc.timeZone ? `${acc.timeZone} (${acc.currencyCode})` : undefined,
+        isConnected: acc.isConnected,
+      }));
+    } else {
+      return ((data as any)?.adAccounts || []).map((acc: any) => ({
+        id: acc.adAccountId,
+        title: acc.name || `Account ID: ${acc.adAccountId}`,
+        subtitle: `ID: ${acc.adAccountId}`,
+        category: acc.timezone ? `${acc.timezone} (${acc.currency})` : undefined,
         isConnected: acc.isConnected,
       }));
     }
@@ -196,6 +222,13 @@ export default function GoogleIntegrationSelectorModal({
       icon: <HiOutlineOfficeBuilding className="w-5 h-5" />,
       emptyMsg: "No Google Ads accounts found in your Google account.",
       loadingMsg: "Fetching your Ads accounts...",
+    },
+    meta_ads: {
+      title: "Select Meta Ads Account",
+      description: "Choose the specific ad account you want to connect.",
+      icon: <HiOutlineOfficeBuilding className="w-5 h-5" />,
+      emptyMsg: "No Meta Ads accounts found in your Meta account.",
+      loadingMsg: "Fetching your Meta accounts...",
     },
   }[type];
 

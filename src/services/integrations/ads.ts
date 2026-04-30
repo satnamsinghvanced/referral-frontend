@@ -40,6 +40,14 @@ export interface IMetaAdsIntegration {
   accountName?: string;
   accountEmail?: string;
   accountAvatar?: string;
+  adAccounts?: {
+    adAccountId: string;
+    name: string;
+    accountStatus: number;
+    currency: string;
+    timezone: string;
+    isConnected: boolean;
+  }[];
 }
 
 export interface IUpdateAdsPayload {
@@ -141,6 +149,37 @@ export const getGoogleAdsAccounts = async () => {
 export const connectGoogleAdsAccount = async (customerId: string) => {
   const { data } = await axios.post("/google_ads_integration/connect-location", {
     customerId,
+  });
+  return data;
+};
+
+// ===== Meta Ads Account Selection =====
+
+// Sync Meta Ads Accounts
+export const syncMetaAdsAccounts = async (token: string) => {
+  const { data } = await axios.get<{ adAccounts: any[] }>(
+    "/meta_ads_integration/sync-profiles",
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+  return data;
+};
+
+// Get available Meta accounts
+export const getMetaAdsAccounts = async () => {
+  const { data } = await axios.get<{ adAccounts: any[] }>(
+    "/meta_ads_integration/locations",
+  );
+  return data;
+};
+
+// Connect a specific Meta ad account
+export const connectMetaAdsAccount = async (adAccountId: string) => {
+  const { data } = await axios.post("/meta_ads_integration/connect-location", {
+    adAccountId,
   });
   return data;
 };

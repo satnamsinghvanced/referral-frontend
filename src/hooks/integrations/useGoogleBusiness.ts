@@ -57,11 +57,11 @@ export const useDisconnectBusiness = () => {
   });
 };
 
-export const useBusinessLocations = () => {
+export const useBusinessLocations = (enabled: boolean = true) => {
   return useQuery({
     queryKey: [...BUSINESS_KEYS.all, "locations"],
     queryFn: getGoogleBusinessLocations,
-    enabled: true,
+    enabled,
   });
 };
 

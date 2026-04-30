@@ -54,10 +54,11 @@ export const useDisconnectAnalytics = () => {
   });
 };
 
-export const useAnalyticsProperties = () => {
+export const useAnalyticsProperties = (enabled: boolean = true) => {
   return useQuery({
     queryKey: ANALYTICS_KEYS.properties(),
     queryFn: getGoogleAnalyticsProperties,
+    enabled,
   });
 };
 

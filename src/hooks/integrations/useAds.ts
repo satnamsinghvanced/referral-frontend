@@ -4,14 +4,17 @@ import { RootState } from "../../store";
 import { queryClient } from "../../providers/QueryProvider";
 import {
   connectGoogleAdsAccount,
+  connectMetaAdsAccount,
   deleteGoogleAdsIntegration,
   deleteMetaAdsIntegration,
   getGoogleAdsAccounts,
+  getMetaAdsAccounts,
   getGoogleAdsAuthUrl,
   getGoogleAdsIntegration,
   getMetaAdsAuthUrl,
   getMetaAdsIntegration,
   syncGoogleAdsAccounts,
+  syncMetaAdsAccounts,
   updateGoogleAdsIntegration,
   updateMetaAdsIntegration,
 } from "../../services/integrations/ads";
@@ -110,10 +113,11 @@ export const useDisconnectMetaAds = () => {
   });
 };
 
-export const useGoogleAdsAccounts = () => {
+export const useGoogleAdsAccounts = (enabled: boolean = true) => {
   return useQuery({
     queryKey: [...GOOGLE_ADS_KEYS.all, "accounts"],
     queryFn: getGoogleAdsAccounts,
+    enabled,
   });
 };
 
@@ -132,6 +136,36 @@ export const useConnectGoogleAdsAccount = () => {
     mutationFn: connectGoogleAdsAccount,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: GOOGLE_ADS_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+    },
+  });
+};
+
+// --- Meta Ads Account Management ---
+
+export const useMetaAdsAccounts = (enabled: boolean = true) => {
+  return useQuery({
+    queryKey: [...META_ADS_KEYS.all, "accounts"],
+    queryFn: getMetaAdsAccounts,
+    enabled,
+  });
+};
+
+export const useSyncMetaAdsAccounts = () => {
+  const token = useSelector((state: RootState) => state.auth.token);
+  return useMutation({
+    mutationFn: () => syncMetaAdsAccounts(token || ""),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: META_ADS_KEYS.all });
+    },
+  });
+};
+
+export const useConnectMetaAdsAccount = () => {
+  return useMutation({
+    mutationFn: connectMetaAdsAccount,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: META_ADS_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     },
   });

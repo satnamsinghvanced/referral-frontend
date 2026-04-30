@@ -57,6 +57,8 @@ function Integrations() {
     useState(false);
   const [isGoogleAdsAccountModalOpen, setIsGoogleAdsAccountModalOpen] =
     useState(false);
+  const [isMetaAdsAccountModalOpen, setIsMetaAdsAccountModalOpen] =
+    useState(false);
 
   const [
     isGoogleAnalyticsPropertyModalOpen,
@@ -357,6 +359,10 @@ function Integrations() {
         ],
         onConnect: () => connectMetaAds(),
         onReconnect: () => connectMetaAds(),
+        onConfigure: () => setIsMetaAdsAccountModalOpen(true),
+        connectedLocation: metaAdsConfig?.adAccounts?.find(
+          (acc: any) => acc.isConnected,
+        )?.name,
         isSwitchChecked: metaAdsConfig?.status === "Connected",
         onSwitchChange: () => {
           updateMetaAdsIntegration({
@@ -489,6 +495,12 @@ function Integrations() {
         type="ads"
         isOpen={isGoogleAdsAccountModalOpen}
         onClose={() => setIsGoogleAdsAccountModalOpen(false)}
+      />
+
+      <GoogleIntegrationSelectorModal
+        type="meta_ads"
+        isOpen={isMetaAdsAccountModalOpen}
+        onClose={() => setIsMetaAdsAccountModalOpen(false)}
       />
     </>
   );
