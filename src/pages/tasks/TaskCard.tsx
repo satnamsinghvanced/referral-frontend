@@ -87,8 +87,8 @@ function TaskCard({
                 variant="bordered"
                 onPress={() => setIsNotesOpen(true)}
                 title="Edit Notes"
-                className="border-small text-white h-7.5"
-                startContent={<LuFileText className="size-3.5 text-white" />}
+                className="border-small h-7.5"
+                startContent={<LuFileText className="size-3.5" />}
               >
                 Notes {task.comments && task.comments.length > 0 && (
                   <span className="ml-1 px-1.5 py-0 bg-sky-400 text-white text-[10px] rounded-full flex items-center justify-center min-w-[16px] h-4">

@@ -81,27 +81,27 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
 
   const actionButton = isCredentialsSaved ? (
     <>
-      {(onReconnect || onConnect) && (
+      {onConfigure && (
         <Button
           size="sm"
           radius="sm"
           variant="ghost"
-          onPress={() => (onReconnect || onConnect)?.()}
+          onPress={() => onConfigure?.()}
           startContent={<FiSettings className="size-3.5" />}
           className="border-small border-gray-300 dark:border-default-200"
         >
           Configure
         </Button>
       )}
-      {onConfigure && (
+      {(onReconnect || onConnect) && (
         <Button
           size="sm"
           radius="sm"
-          variant="light"
+          variant="ghost"
           color="primary"
-          onPress={() => onConfigure?.()}
+          onPress={() => (onReconnect || onConnect)?.()}
           startContent={<FiExternalLink className="size-3.5" />}
-          className="text-[10px] h-8"
+          className="border-small"
         >
           Change Account
         </Button>
@@ -119,11 +119,17 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
       variant="solid"
       color="primary"
       onPress={() =>
-        (status === "Error" ? onReconnect || onConnect : onConnect)?.()
+        (status === "Error" ? onReconnect || onConnect : onConnect || onConfigure)?.()
       }
-      endContent={<FiExternalLink className="size-3.5" />}
+      endContent={
+        onConfigure && !onConnect ? (
+          <FiSettings className="size-3.5" />
+        ) : (
+          <FiExternalLink className="size-3.5" />
+        )
+      }
     >
-      Connect
+      {onConfigure && !onConnect ? "Configure" : "Connect"}
     </Button>
   );
 

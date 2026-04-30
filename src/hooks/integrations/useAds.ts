@@ -56,6 +56,8 @@ export const useUpdateGoogleAds = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: GOOGLE_ADS_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+
+      queryClient.invalidateQueries({ queryKey: ["analytics", "google-ads"] });
     },
   });
 };
@@ -67,6 +69,8 @@ export const useDisconnectGoogleAds = () => {
       queryClient.setQueryData(GOOGLE_ADS_KEYS.details(), null);
       queryClient.invalidateQueries({ queryKey: GOOGLE_ADS_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+
+      queryClient.invalidateQueries({ queryKey: ["analytics", "google-ads"] });
     },
   });
 };
@@ -98,6 +102,7 @@ export const useUpdateMetaAds = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: META_ADS_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+      queryClient.invalidateQueries({ queryKey: ["analytics", "meta-ads"] });
     },
   });
 };
@@ -109,6 +114,7 @@ export const useDisconnectMetaAds = () => {
       queryClient.setQueryData(META_ADS_KEYS.details(), null);
       queryClient.invalidateQueries({ queryKey: META_ADS_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+      queryClient.invalidateQueries({ queryKey: ["analytics", "meta-ads"] });
     },
   });
 };
@@ -127,6 +133,7 @@ export const useSyncGoogleAdsAccounts = () => {
     mutationFn: () => syncGoogleAdsAccounts(token || ""),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: GOOGLE_ADS_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["analytics", "google-ads"] });
     },
   });
 };
@@ -137,6 +144,8 @@ export const useConnectGoogleAdsAccount = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: GOOGLE_ADS_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+
+      queryClient.invalidateQueries({ queryKey: ["analytics", "google-ads"] });
     },
   });
 };
@@ -157,6 +166,8 @@ export const useSyncMetaAdsAccounts = () => {
     mutationFn: () => syncMetaAdsAccounts(token || ""),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: META_ADS_KEYS.all });
+
+      queryClient.invalidateQueries({ queryKey: ["analytics", "meta-ads"] });
     },
   });
 };
@@ -167,6 +178,8 @@ export const useConnectMetaAdsAccount = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: META_ADS_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+
+      queryClient.invalidateQueries({ queryKey: ["analytics", "meta-ads"] });
     },
   });
 };

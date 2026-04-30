@@ -40,6 +40,8 @@ export const useUpdateAnalytics = () => {
       updateGoogleAnalyticsIntegration(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ANALYTICS_KEYS.all });
+
+      queryClient.invalidateQueries({ queryKey: ["analytics", "google-ads"] });
     },
   });
 };
@@ -50,6 +52,8 @@ export const useDisconnectAnalytics = () => {
     onSuccess: () => {
       queryClient.setQueryData(ANALYTICS_KEYS.details(), null);
       queryClient.invalidateQueries({ queryKey: ANALYTICS_KEYS.all });
+
+      queryClient.invalidateQueries({ queryKey: ["analytics", "google-ads"] });
     },
   });
 };
@@ -68,6 +72,8 @@ export const useSyncAnalyticsProperties = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ANALYTICS_KEYS.properties() });
       queryClient.invalidateQueries({ queryKey: ANALYTICS_KEYS.details() });
+
+      queryClient.invalidateQueries({ queryKey: ["analytics", "google-ads"] });
     },
   });
 };
@@ -77,6 +83,8 @@ export const useConnectAnalyticsProperty = () => {
     mutationFn: connectGoogleAnalyticsProperty,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ANALYTICS_KEYS.all });
+
+      queryClient.invalidateQueries({ queryKey: ["analytics", "google-ads"] });
     },
   });
 };

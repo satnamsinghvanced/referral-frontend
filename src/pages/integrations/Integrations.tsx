@@ -321,7 +321,7 @@ function Integrations() {
         lastSync: emailConfig?.lastTestedAt
           ? timeAgo(emailConfig.lastTestedAt)
           : undefined,
-        onConnect: () => setIsEmailMarketingIntegrationModalOpen(true),
+        onConfigure: () => setIsEmailMarketingIntegrationModalOpen(true),
         isSwitchChecked: emailConfig?.status === "Connected",
         onSwitchChange: () => {
           if (emailConfig?._id) {
@@ -401,7 +401,7 @@ function Integrations() {
         description:
           "Track patient calls and monitor referral communications with recordings",
         badges: ["Call Analytics", "Call Tracking", "Call Recordings"],
-        onConnect: () => setIsTwilioIntegrationModalOpen(true),
+        onConfigure: () => setIsTwilioIntegrationModalOpen(true),
         isSwitchChecked: twilioConfig?.status === "Connected",
         onSwitchChange: () => {
           updateTwilioConfig({
