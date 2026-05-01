@@ -177,6 +177,7 @@ export function CreatePostModal({
     );
   }, [overviewData]);
 
+
   const formik = useFormik({
     initialValues: {
       title: "",
@@ -189,6 +190,15 @@ export function CreatePostModal({
     validationSchema: PostValidationSchema,
     enableReinitialize: true,
     onSubmit: (values) => {
+      if (instagramViolation) {
+        addToast({
+          title: "Validation Error",
+          description:
+            "Cannot post on Instagram: Please select either only images or only one video.",
+          color: "danger",
+        });
+        return;
+      }
       const formData = new FormData();
       formData.append("title", values.title);
       formData.append("description", values.postContent);
@@ -235,6 +245,31 @@ export function CreatePostModal({
       });
     },
   });
+
+  const instagramViolation = useMemo(() => {
+    const isInstagramSelected =
+      formik.values.selectedPlatforms.includes("instagram");
+    if (!isInstagramSelected) return false;
+
+    const hasImage = selectedMedia.some((m) => m.type.startsWith("image/"));
+    const hasVideo = selectedMedia.some((m) => m.type.startsWith("video/"));
+    const videoCount = selectedMedia.filter((m) =>
+      m.type.startsWith("video/"),
+    ).length;
+
+    return (hasImage && hasVideo) || videoCount > 1;
+  }, [formik.values.selectedPlatforms, selectedMedia]);
+
+  useEffect(() => {
+    if (instagramViolation) {
+      addToast({
+        title: "Instagram Restriction",
+        description:
+          "You cannot post image and video together, or more than one video on Instagram.",
+        color: "danger",
+      });
+    }
+  }, [instagramViolation]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -485,6 +520,12 @@ export function CreatePostModal({
             {formik.values.selectedPlatforms.includes("youtube") && (
               <p className="text-[11px] text-warning-600 mt-2 font-medium bg-warning-50 px-2 py-1 rounded-md">
                 ⚠️ YouTube requires at least one video to be selected.
+              </p>
+            )}
+            {instagramViolation && (
+              <p className="text-[11px] text-danger-600 mt-2 font-medium bg-danger-50 px-2 py-1 rounded-md">
+                ⚠️ Instagram does not support image and video together, or more
+                than 1 video.
               </p>
             )}
             <ErrorText field="selectedPlatforms" />
