@@ -105,6 +105,7 @@ export interface GoogleAnalyticsResponse {
 export interface AdStatMetric {
   value: string | number;
   lastMonthChange: number;
+  status: "increment" | "decrement" | "neutral";
 }
 
 export interface AdPerformanceTrend {
