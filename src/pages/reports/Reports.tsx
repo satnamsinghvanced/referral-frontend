@@ -10,6 +10,7 @@ import {
   LuPause,
   LuPlay,
   LuShare,
+  LuTrash,
 } from "react-icons/lu";
 import { TrendIndicator } from "../../components/common/TrendIndicator";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
@@ -18,10 +19,11 @@ import ComponentContainer from "../../components/common/ComponentContainer";
 import EmptyState from "../../components/common/EmptyState";
 import { LoadingState } from "../../components/common/LoadingState";
 import Pagination from "../../components/common/Pagination";
+import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
 import { EVEN_PAGINATION_LIMIT } from "../../consts/consts";
 import { CATEGORIES, FREQUENCIES } from "../../consts/reports";
 import { useDebouncedValue } from "../../hooks/common/useDebouncedValue";
-import { useReports, useUpdateReport } from "../../hooks/useReports";
+import { useReports, useUpdateReport, useDeleteReport } from "../../hooks/useReports";
 import { Report } from "../../types/reports";
 import GenerateNewReport from "./GenerateNewReport";
 import SampleReports from "./SampleReports";
@@ -30,6 +32,9 @@ import { usePaginationAdjustment } from "../../hooks/common/usePaginationAdjustm
 const Reports = () => {
   const [isNewReportModalOpen, setIsNewReportModalOpen] = useState(false);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [reportToDelete, setReportToDelete] = useState<Report | null>(null);
 
   const [filters, setFilters] = useState({
     search: "",
@@ -64,6 +69,9 @@ const Reports = () => {
 
   const { mutate: updateReport, isPending: isUpdatingReport } =
     useUpdateReport();
+
+  const { mutate: deleteReport, isPending: isDeletingReport } =
+    useDeleteReport();
 
   const reports = data?.reports || [];
   const stats = data?.stats;
@@ -196,6 +204,24 @@ const Reports = () => {
     );
   };
 
+  const handleDelete = (report: Report) => {
+    setReportToDelete(report);
+    setIsDeleteModalOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (reportToDelete) {
+      setDeletingId(reportToDelete._id);
+      deleteReport(reportToDelete._id, {
+        onSuccess: () => {
+          setIsDeleteModalOpen(false);
+          setReportToDelete(null);
+        },
+        onSettled: () => setDeletingId(null),
+      });
+    }
+  };
+
   return (
     <>
       <ComponentContainer headingData={HEADING_DATA}>
@@ -307,19 +333,17 @@ const Reports = () => {
                                 size="sm"
                                 radius="sm"
                                 variant="flat"
-                                className={`capitalize text-[11px] h-5 border ${
-                                  report.isPaused
-                                    ? "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800"
-                                    : "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800"
-                                }`}
+                                className={`capitalize text-[11px] h-5 border ${report.isPaused
+                                  ? "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800"
+                                  : "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border-blue-200 dark:border-blue-800"
+                                  }`}
                               >
                                 {report.isPaused ? "Paused" : "Scheduled"}
                               </Chip>
                             )}
                             <span className="text-gray-500 dark:text-foreground/40">
-                              {`${report.format.toUpperCase()}${
-                                report.fileSize ? ` • ${report.fileSize}` : ""
-                              }`}
+                              {`${report.format.toUpperCase()}${report.fileSize ? ` • ${report.fileSize}` : ""
+                                }`}
                             </span>
                           </div>
                         </div>
@@ -371,6 +395,20 @@ const Reports = () => {
                             >
                               Share
                             </Button>
+                            <Button
+                              size="sm"
+                              radius="sm"
+                              variant="ghost"
+                              color="danger"
+                              onPress={() => handleDelete(report)}
+                              className="border-small"
+                              isLoading={
+                                isDeletingReport && deletingId === report._id
+                              }
+                              startContent={<LuTrash className="size-3.5" />}
+                            >
+                              Delete
+                            </Button>
                           </>
                         )}
                       </div>
@@ -404,6 +442,15 @@ const Reports = () => {
         isOpen={isNewReportModalOpen}
         onClose={() => setIsNewReportModalOpen(false)}
         practice={null}
+      />
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setReportToDelete(null);
+        }}
+        onConfirm={confirmDelete}
+        isLoading={isDeletingReport}
       />
     </>
   );

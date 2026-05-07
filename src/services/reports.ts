@@ -27,3 +27,7 @@ export const updateReport = async (
   const response = await axios.patch(`/reports/${id}`, payload);
   return response.data;
 };
+
+export const deleteReport = async (id: string): Promise<void> => {
+  await axios.delete(`/reports/${id}`);
+};
