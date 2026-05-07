@@ -55,7 +55,8 @@ const IMAGES_API_BASE = "/images";
 
 export const uploadMedia = (
   data: UploadMediaRequest,
-  onUploadProgress?: (progressEvent: any) => void
+  onUploadProgress?: (progressEvent: any) => void,
+  signal?: AbortSignal
 ) => {
   const formData = new FormData();
   formData.append("folderId", data.folderId || "");
@@ -67,6 +68,7 @@ export const uploadMedia = (
     headers: {
       "Content-Type": "multipart/form-data",
     },
+    ...(signal && { signal }),
     ...(onUploadProgress && { onUploadProgress }),
   });
 };

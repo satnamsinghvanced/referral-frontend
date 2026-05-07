@@ -11,7 +11,7 @@ import {
 } from "@heroui/react";
 import React, { useRef, useState, useEffect } from "react";
 import { FiAlertCircle, FiUpload, FiX } from "react-icons/fi";
-import { useUploadMedia } from "../../../hooks/useMedia";
+import { useUpload } from "../../../providers/UploadProvider";
 import { UploadMediaRequest } from "../../../types/media";
 
 interface UploadMediaModalProps {
@@ -48,24 +48,13 @@ export function UploadMediaModal({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [filesToUpload, setFilesToUpload] = useState<FileWithError[]>([]);
-  const [uploadProgress, setUploadProgress] = useState(0);
+  const { startUpload } = useUpload();
   const [isUploading, setIsUploading] = useState(false);
-
-  const uploadMutation = useUploadMedia((progressEvent) => {
-    if (progressEvent.total) {
-      const percentCompleted = Math.round(
-        (progressEvent.loaded * 100) / progressEvent.total,
-      );
-      // Cap at 90% during upload, will show 100% only on success
-      setUploadProgress(Math.min(percentCompleted, 90));
-    }
-  });
 
   const resetModalState = () => {
     setFilesToUpload([]);
     setTags("");
     setIsDragOver(false);
-    setUploadProgress(0);
     setIsUploading(false);
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -214,21 +203,21 @@ export function UploadMediaModal({
         .filter((t) => t.length > 0),
     };
 
-    setIsUploading(true);
-    try {
-      await uploadMutation.mutateAsync(requestData);
-      // Set to 100% on successful completion
-      setUploadProgress(100);
-      // Small delay to show 100% before closing
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      resetModalState();
-      onClose();
-    } catch (error) {
-      console.error("Media upload failed:", error);
-      // Error toast is handled by the hook
-    } finally {
-      setIsUploading(false);
+    onClose();
+    const fileName = (validFiles.length === 1
+      ? validFiles[0]?.file.name
+      : `${validFiles.length} files`) || "Media Files";
+
+    // Determine primary type for toast
+    let type: "image" | "video" | "media" = "media";
+    if (validFiles.length > 0) {
+      const allImages = validFiles.every(f => f.file.type.startsWith("image/"));
+      const allVideos = validFiles.every(f => f.file.type.startsWith("video/"));
+      if (allImages) type = "image";
+      else if (allVideos) type = "video";
     }
+
+    startUpload(requestData, fileName, type);
   };
 
   const handleCancel = () => {
@@ -282,11 +271,10 @@ export function UploadMediaModal({
           </div>
 
           <div
-            className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${
-              isDragOver
-                ? "border-blue-500 bg-blue-50 dark:bg-blue-900/10"
-                : "border-gray-300/50 hover:border-gray-400 dark:hover:border-default-200 hover:bg-gray-50 dark:hover:bg-default-100/50"
-            }`}
+            className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${isDragOver
+              ? "border-blue-500 bg-blue-50 dark:bg-blue-900/10"
+              : "border-gray-300/50 hover:border-gray-400 dark:hover:border-default-200 hover:bg-gray-50 dark:hover:bg-default-100/50"
+              }`}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
@@ -342,11 +330,10 @@ export function UploadMediaModal({
                 {filesToUpload.map((fileWithError, index) => (
                   <div
                     key={index}
-                    className={`flex items-start justify-between gap-2 p-2 rounded text-xs ${
-                      fileWithError.error
-                        ? "bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-500/30"
-                        : "bg-white dark:bg-default-50 border border-foreground/10"
-                    }`}
+                    className={`flex items-start justify-between gap-2 p-2 rounded text-xs ${fileWithError.error
+                      ? "bg-red-50 dark:bg-red-900/10 border border-red-200 dark:border-red-500/30"
+                      : "bg-white dark:bg-default-50 border border-foreground/10"
+                      }`}
                   >
                     <div className="flex-1 min-w-0">
                       <p className="truncate font-medium text-foreground">
@@ -378,57 +365,6 @@ export function UploadMediaModal({
                   </div>
                 ))}
               </div>
-            </div>
-          )}
-
-          {/* Upload Progress Bar */}
-          {isUploading && (
-            <div className="border-1 border-foreground/10 rounded-lg p-3 bg-gray-50 dark:bg-default-100/20">
-              <div className="flex justify-between items-center mb-3">
-                <span className="text-xs font-medium flex items-center gap-2 text-foreground">
-                  <svg
-                    className="animate-spin h-4 w-4 text-primary"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                  >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    ></circle>
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                    ></path>
-                  </svg>
-                  Uploading {validFilesCount} file(s)...
-                </span>
-                <span className="text-xs font-medium text-foreground">
-                  {uploadProgress}%
-                </span>
-              </div>
-              <Progress
-                size="md"
-                radius="sm"
-                color="primary"
-                value={uploadProgress}
-                className="w-full"
-                classNames={{
-                  base: "max-w-full h-2",
-                  track: "bg-primary/20",
-                  indicator: "bg-primary",
-                }}
-              />
-              <p className="text-xs text-gray-600 dark:text-foreground/60 mt-2">
-                {uploadProgress === 100
-                  ? "Upload complete! Closing..."
-                  : "Please wait while your files are being uploaded. Do not close this window."}
-              </p>
             </div>
           )}
         </ModalBody>

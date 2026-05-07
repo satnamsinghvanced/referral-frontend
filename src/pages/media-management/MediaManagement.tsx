@@ -31,6 +31,7 @@ import {
   useTagsQuery,
   useUpdateImageTags,
 } from "../../hooks/useMedia";
+import { useUpload } from "../../providers/UploadProvider";
 import { Media } from "../../types/media";
 import FolderBreadcrumb from "./FolderBreadcrumb";
 import MediaItem from "./MediaItem";
@@ -40,6 +41,7 @@ import { MoveMediaModal } from "./modal/MoveMediaModal";
 import { UploadMediaModal } from "./modal/UploadMediaModal";
 
 function MediaManagement() {
+  const { activeUploads } = useUpload();
   const HEADING_DATA = {
     heading: "Media Management",
     subHeading:
@@ -490,6 +492,36 @@ function MediaManagement() {
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                    {/* Render Active Uploads (Processing) */}
+                    {activeUploads.map((upload) => (
+                      <div
+                        key={upload.id}
+                        className="relative border border-primary/20 rounded-lg overflow-hidden bg-content2/50 animate-pulse"
+                      >
+                        <div className="w-full h-32 md:h-40 flex flex-col items-center justify-center bg-primary/5">
+                          <div className="relative">
+                            <svg className="animate-spin h-8 w-8 text-primary" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" fill="none" />
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                            </svg>
+                            <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[10px] font-bold text-primary">
+                              {upload.progress}%
+                            </span>
+                          </div>
+                          <p className="mt-2 text-[10px] font-medium text-primary uppercase tracking-wider">Processing</p>
+                        </div>
+                        <div className="p-2 bg-background/80 backdrop-blur-sm border-t border-foreground/5">
+                          <p className="text-xs font-medium truncate text-foreground/70">
+                            {upload.fileName}
+                          </p>
+                        </div>
+                        <div className="absolute top-1 right-1">
+                          <div className="w-2 h-2 rounded-full bg-primary animate-ping" />
+                        </div>
+                      </div>
+                    ))}
+
+                    {/* Render Existing Media */}
                     {currentFolderMedia.map((media: Media) => (
                       <MediaItem
                         key={media._id}

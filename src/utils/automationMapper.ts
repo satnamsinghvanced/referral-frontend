@@ -6,6 +6,7 @@ const typeMapUItoAPI: Record<string, APIStepType> = {
   wait: "wait",
   condition: "condition",
   action: "action",
+  tag: "tag-management",
 };
 
 const typeMapAPItoUI: Record<string, UIStepType> = {
@@ -13,6 +14,7 @@ const typeMapAPItoUI: Record<string, UIStepType> = {
   wait: "wait",
   condition: "condition",
   action: "action",
+  "tag-management": "tag",
 };
 
 export const mapUIFlowToAPI = (
@@ -44,7 +46,7 @@ export const mapUIFlowToAPI = (
     name: flowName,
     description,
     trigger: {
-      type: "New Referrer Added",
+      type: triggerConfig.triggerType || "New Referrer Added",
       config: triggerConfig,
     },
     steps: rootTrigger?.children ? mapSteps(rootTrigger.children) : [],

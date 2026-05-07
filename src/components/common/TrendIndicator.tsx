@@ -21,7 +21,6 @@ export const TrendIndicator: React.FC<TrendIndicatorProps> = ({
   if (isLoading) {
     return <span className="text-gray-500 text-xs items-center">...</span>;
   }
-
   const numPercentage =
     typeof percentage === "string" ? parseFloat(percentage) : percentage || 0;
 
@@ -35,7 +34,6 @@ export const TrendIndicator: React.FC<TrendIndicatorProps> = ({
     : isDecrement
       ? "text-red-600 dark:text-red-400"
       : "text-gray-500";
-
   const Icon = isIncrement ? LuTrendingUp : isDecrement ? LuTrendingDown : null;
 
   return (
