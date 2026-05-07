@@ -1,5 +1,5 @@
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { fetchReports, createReport, updateReport } from "../services/reports";
+import { fetchReports, createReport, updateReport, deleteReport } from "../services/reports";
 import { GenerateReportPayload } from "../types/reports";
 import { addToast } from "@heroui/react";
 import { queryClient } from "../providers/QueryProvider";
@@ -50,6 +50,28 @@ export const useUpdateReport = () => {
         title: "Error",
         description:
           error.response?.data?.message || "Failed to update report.",
+        color: "danger",
+      });
+    },
+  });
+};
+
+export const useDeleteReport = () => {
+  return useMutation({
+    mutationFn: (id: string) => deleteReport(id),
+    onSuccess: () => {
+      addToast({
+        title: "Success",
+        description: "Report deleted successfully.",
+        color: "success",
+      });
+      queryClient.invalidateQueries({ queryKey: ["reports"] });
+    },
+    onError: (error: any) => {
+      addToast({
+        title: "Error",
+        description:
+          error.response?.data?.message || "Failed to delete report.",
         color: "danger",
       });
     },
