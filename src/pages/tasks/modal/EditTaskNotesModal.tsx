@@ -40,21 +40,12 @@ const EditTaskNotesModal = ({
       comment: "",
     },
     validationSchema,
-    onSubmit: (values) => {
-      const newComment: TaskComment = {
-        content: values.comment,
-        createdAt: new Date().toISOString(),
-      };
-
-      const updatedComments = [...(task.comments || []), newComment];
-
+    onSubmit: (values) => { 
       updateTask(
         {
           taskId: task._id,
           data: {
-            ...task,
-            comments: updatedComments.map((c: any) => ({ content: c.content })),
-            practiceId: task.practiceId?._id,
+            content: values.comment,
           },
         },
         {
