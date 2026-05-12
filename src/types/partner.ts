@@ -230,6 +230,11 @@ export interface FetchTasksParams {
 export interface TaskComment {
   _id?: string;
   content: string;
+  user?: {
+    _id: string;
+    firstName: string;
+    lastName: string;
+  } | undefined;
   createdBy?: any;
   createdAt?: string;
 }

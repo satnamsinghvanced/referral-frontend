@@ -42,10 +42,8 @@ const EditTaskNotesModal = ({
     validationSchema,
     onSubmit: (values) => {
       const newComment: TaskComment = {
-        _id: Date.now().toString(), // Temporary ID if backend doesn't provide
         content: values.comment,
         createdAt: new Date().toISOString(),
-        createdBy: "Current User", // In a real app, this would be the current user's object
       };
 
       const updatedComments = [...(task.comments || []), newComment];
@@ -129,12 +127,12 @@ const EditTaskNotesModal = ({
                   <div className="flex items-center gap-2">
                     <Avatar
                       size="sm"
-                      name={typeof comment.createdBy === 'string' ? comment.createdBy : "User"}
+                      name={comment.user?.firstName || (typeof comment.createdBy === 'object' ? comment.createdBy?.firstName : comment.createdBy) || "User"}
                       className="size-7 text-[10px] bg-sky-100 text-sky-600"
                     />
                     <div className="flex flex-col -space-y-0.5">
                       <p className="text-xs font-semibold text-gray-900 dark:text-foreground">
-                        {typeof comment.createdBy === 'string' ? comment.createdBy : "Current User"}
+                        {comment.user?.firstName || (typeof comment.createdBy === 'object' ? comment.createdBy?.firstName : comment.createdBy) || "User"}
                       </p>
                       <p className="text-[10px] text-gray-500 dark:text-foreground/40">
                         {comment.createdAt ? formatDateToReadable(comment.createdAt, true) : "Just now"}
