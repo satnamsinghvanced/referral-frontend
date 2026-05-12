@@ -86,7 +86,6 @@ const TrafficTrendsChart: React.FC<{ data: any[] }> = ({ data }) => {
 export const GoogleAds: React.FC = () => {
   const { theme } = useTypedSelector((state) => state.ui);
   const { data, isLoading } = useGoogleAds();
-
   const STAT_CARD_DATA = [
     {
       icon: <LuMousePointer className="text-blue-500 dark:text-blue-400" />,
@@ -96,6 +95,7 @@ export const GoogleAds: React.FC = () => {
         : data?.stats?.totalClicks?.value?.toLocaleString() || "0",
       subheading: (
         <TrendIndicator
+          status={data?.stats?.totalClicks?.status}
           percentage={data?.stats?.totalClicks?.lastMonthChange}
           label="vs last month"
           isLoading={isLoading}
@@ -110,6 +110,7 @@ export const GoogleAds: React.FC = () => {
         : data?.stats?.conversions?.value?.toString() || "0",
       subheading: (
         <TrendIndicator
+          status={data?.stats?.conversions?.status}
           percentage={data?.stats?.conversions?.lastMonthChange}
           label="vs last month"
           isLoading={isLoading}
@@ -122,6 +123,7 @@ export const GoogleAds: React.FC = () => {
       value: isLoading ? "..." : `${data?.stats?.costPerClick?.value || "0"}`,
       subheading: (
         <TrendIndicator
+          status={data?.stats?.costPerClick?.status}
           percentage={data?.stats?.costPerClick?.lastMonthChange}
           label="vs last month"
           isLoading={isLoading}
@@ -136,6 +138,7 @@ export const GoogleAds: React.FC = () => {
         : `${data?.stats?.clickThroughRate?.value || "0"}`,
       subheading: (
         <TrendIndicator
+          status={data?.stats?.clickThroughRate?.status}
           percentage={data?.stats?.clickThroughRate?.lastMonthChange}
           label="vs last month"
           isLoading={isLoading}

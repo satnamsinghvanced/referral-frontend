@@ -7,6 +7,7 @@ import {
   LuMonitor,
   LuMousePointer,
   LuSmartphone,
+  LuTablet,
   LuTrendingUp,
   LuUsers,
 } from "react-icons/lu";
@@ -290,18 +291,29 @@ export const GoogleAnalytics: React.FC = () => {
   const conversionGoals = data?.conversions || [];
   const totalUsers = data?.stats?.users?.totalUsers || 1;
   const deviceMetrics = (data?.deviceAnalytics || []).map((d) => ({
-    device: d.device === "desktop" ? "Desktop" : "Mobile",
+    device:
+      d.device === "desktop"
+        ? "Desktop"
+        : d.device === "mobile"
+          ? "Mobile"
+          : "Tablet",
     users: d.users,
     percentage: d.percentage,
     icon:
       d.device === "desktop" ? (
         <LuMonitor className="w-[21px] h-[21px]" />
-      ) : (
+      ) : d.device === "mobile" ? (
         <LuSmartphone />
+      ) : (
+        <LuTablet />
       ),
-    color: d.device === "desktop" ? "rgb(14, 165, 233)" : "rgb(249, 115, 22)",
+    color:
+      d.device === "desktop"
+        ? "rgb(14, 165, 233)"
+        : d.device === "mobile"
+          ? "rgb(249, 115, 22)"
+          : "rgb(30, 64, 175)",
   }));
-
   const STAT_CARD_DATA = [
     {
       icon: <LuUsers className="text-blue-500 dark:text-blue-400" />,
@@ -311,6 +323,7 @@ export const GoogleAnalytics: React.FC = () => {
         : data?.stats?.users?.totalUsers?.toLocaleString() || "0",
       subheading: (
         <TrendIndicator
+          status={data?.stats?.users?.status}
           percentage={data?.stats?.users?.growthPercent}
           label="vs last month"
           isLoading={isLoading}
@@ -325,6 +338,7 @@ export const GoogleAnalytics: React.FC = () => {
         : data?.stats?.pageViews?.totalPageViews?.toLocaleString() || "0",
       subheading: (
         <TrendIndicator
+          status={data?.stats?.pageViews?.status}
           percentage={data?.stats?.pageViews?.growthPercent}
           label="vs last month"
           isLoading={isLoading}
@@ -339,6 +353,7 @@ export const GoogleAnalytics: React.FC = () => {
         : data?.stats?.sessions?.totalSessions?.toLocaleString() || "0",
       subheading: (
         <TrendIndicator
+          status={data?.stats?.sessions?.status}
           percentage={data?.stats?.sessions?.growthPercent}
           label="vs last month"
           isLoading={isLoading}
@@ -351,9 +366,10 @@ export const GoogleAnalytics: React.FC = () => {
       value: isLoading
         ? "..."
         : (data?.stats?.bounceRate?.totalBounceRate?.toLocaleString() || "0") +
-          "%",
+        "%",
       subheading: (
         <TrendIndicator
+          status={data?.stats?.bounceRate?.status}
           percentage={data?.stats?.bounceRate?.growthPercent}
           label="vs last month"
           isLoading={isLoading}
@@ -525,11 +541,10 @@ export const GoogleAnalytics: React.FC = () => {
                   </td>
                   <td className="py-3 text-xs px-2 text-right">
                     <span
-                      className={`font-medium ${
-                        p.bounceRate < 30
-                          ? "text-emerald-600 dark:text-emerald-400"
-                          : "text-orange-600 dark:text-orange-400"
-                      }`}
+                      className={`font-medium ${p.bounceRate < 30
+                        ? "text-emerald-600 dark:text-emerald-400"
+                        : "text-orange-600 dark:text-orange-400"
+                        }`}
                     >
                       {p.bounceRate}%
                     </span>

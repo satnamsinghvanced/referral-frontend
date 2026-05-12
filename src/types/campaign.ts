@@ -62,10 +62,10 @@ export type AudienceStatus = "Active" | "Inactive";
 export interface AudienceReferrer {
   _id: string;
   type:
-    | "doctor"
-    | "communityReferrer"
-    | "socialMediaReferrer"
-    | "eventReferrer";
+  | "doctor"
+  | "communityReferrer"
+  | "socialMediaReferrer"
+  | "eventReferrer";
   name: string;
   phone: string;
   email: string;
@@ -216,9 +216,9 @@ export interface ICampaign {
   category: CampaignCategory;
   isABTesting: boolean;
   templateId:
-    | string
-    | { _id: string; name: string; subjectLine: string }
-    | null;
+  | string
+  | { _id: string; name: string; subjectLine: string }
+  | null;
   audienceId: string | { _id: string; name: string } | null;
   content: string;
   schedule: ICampaignSchedule;
@@ -336,7 +336,9 @@ export type APIStepType =
   | "send-email"
   | "wait"
   | "condition"
-  | "action";
+  | "action"
+  | "tag-management";
+
 export type UIStepType =
   | "trigger"
   | "email"

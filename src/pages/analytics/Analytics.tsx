@@ -55,14 +55,12 @@ const Analytics: React.FC = () => {
   const isGaConnected = gaConfig?.status === "Connected";
   const isGoogleAdsConnected = googleAdsConfig?.status === "Connected";
   const isMetaAdsConnected = metaAdsConfig?.status === "Connected";
-  const isTiktokConnected = false; // TikTok integration not yet implemented
 
   const HEADING_DATA = {
     heading: "Analytics Dashboard",
     subHeading:
       "Track your practice performance and referral trends with detailed insights.",
   };
-
   const STAT_CARD_DATA = [
     {
       icon: <LuUsers className="text-blue-500 dark:text-blue-400" />,

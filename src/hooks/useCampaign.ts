@@ -98,7 +98,6 @@ export function useToggleFavoriteTemplate() {
   return useMutation({
     mutationFn: toggleFavoriteTemplate,
     onSuccess: (data) => {
-      // Invalidate both the list and the specific detail to keep UI in sync
       queryClient.invalidateQueries({ queryKey: CAMPAIGN_KEYS.all });
       addToast({
         title: "Success",
@@ -524,8 +523,21 @@ export const useAutomationTemplates = () => {
 export const useCreateAutomation = () => {
   return useMutation({
     mutationFn: createAutomation,
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: AUTO_KEYS.lists() });
+      addToast({
+        title: "Success",
+        description: data.message || "Automation created successfully",
+        color: "success",
+      });
+    },
+    onError: (error: any) => {
+      addToast({
+        title: "Error",
+        description:
+          error.response?.data?.message || "Failed to create automation",
+        color: "danger",
+      });
     },
   });
 };
@@ -533,9 +545,22 @@ export const useCreateAutomation = () => {
 export const useUpdateAutomation = (id: string) => {
   return useMutation({
     mutationFn: (payload: any) => updateAutomation(id, payload),
-    onSuccess: (data) => {
+    onSuccess: (data: any) => {
       queryClient.invalidateQueries({ queryKey: AUTO_KEYS.list(1) });
       queryClient.setQueryData(AUTO_KEYS.detail(id), data);
+      addToast({
+        title: "Success",
+        description: data.message || "Automation updated successfully",
+        color: "success",
+      });
+    },
+    onError: (error: any) => {
+      addToast({
+        title: "Error",
+        description:
+          error.response?.data?.message || "Failed to update automation",
+        color: "danger",
+      });
     },
   });
 };

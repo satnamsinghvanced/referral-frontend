@@ -75,14 +75,15 @@ export interface TopPage {
 
 export interface GoogleAnalyticsResponse {
   stats: {
-    users: { totalUsers: number; growthPercent: string };
-    pageViews: { totalPageViews: number; growthPercent: string };
-    sessions: { totalSessions: number; growthPercent: string };
+    users: { totalUsers: number; growthPercent: string; status: "increment" | "decrement" | "neutral" };
+    pageViews: { totalPageViews: number; growthPercent: string; status: "increment" | "decrement" | "neutral" };
+    sessions: { totalSessions: number; growthPercent: string; status: "increment" | "decrement" | "neutral" };
     avgSessionDuration: {
       totalAvgSessionDuration: number;
       growthPercent: string;
+      status: "increment" | "decrement" | "neutral";
     };
-    bounceRate: { totalBounceRate: number; growthPercent: string };
+    bounceRate: { totalBounceRate: number; growthPercent: string; status: "increment" | "decrement" | "neutral" };
   };
   trafficTrends: TrafficTrend[];
   deviceAnalytics: DeviceAnalytic[];
@@ -105,6 +106,7 @@ export interface GoogleAnalyticsResponse {
 export interface AdStatMetric {
   value: string | number;
   lastMonthChange: number;
+  status: "increment" | "decrement" | "neutral";
 }
 
 export interface AdPerformanceTrend {
