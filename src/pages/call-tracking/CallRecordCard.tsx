@@ -42,13 +42,13 @@ export default function CallRecordCard({
         <div className="space-y-2">
           <div className="flex items-center space-x-2">
             <h3 className="font-medium text-foreground text-sm">
-              {record.contact.name || record.contact.phone || "Unknown"}
+              {record.contact?.name || record.contact?.phone || "Unknown"}
             </h3>
             <CallStatusChip status={record.status} />
           </div>
 
           <p className="text-xs text-gray-600 dark:text-foreground/60">
-            {record.contact.phone || record.from}{" "}
+            {record.contact?.phone || record.from}{" "}
             <span className="mx-0.5 text-gray-500 dark:text-foreground/40">
               &bull;
             </span>{" "}

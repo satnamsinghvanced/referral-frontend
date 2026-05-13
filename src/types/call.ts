@@ -40,7 +40,7 @@ export interface CallRecord {
   createdAt: string;
   updatedAt: string;
   notes?: string;
-  contact: TwilioContact;
+  contact?: TwilioContact;
 }
 
 export interface PaginatedCalls {
