@@ -1,4 +1,4 @@
-import {
+  import {
   Button,
   Card,
   CardBody,
@@ -31,10 +31,10 @@ const PlaybackTab = ({ data }: { data: CallRecord }) => (
         <div className="flex items-center justify-between">
           <div>
             <h4 className="font-medium text-sm mb-0.5">
-              {data.contact.name || data.contact.phone || "Unknown"}
+              {data.contact?.name || data.contact?.phone || "Unknown"}
             </h4>
             <p className="text-xs text-gray-600 dark:text-foreground/60">
-              {data.contact.phone || data.from} &bull;{" "}
+              {data.contact?.phone || data.from} &bull;{" "}
               {formatDateToReadable(data.date, true)}
             </p>
           </div>
@@ -364,7 +364,7 @@ export default function CallRecordingModal({
             className="leading-none font-medium text-base"
           >
             Call Recording -{" "}
-            {data.contact.name || data.contact.phone || "Unknown"}
+            {data.contact?.name || data.contact?.phone || "Unknown"}
           </h2>
           <p
             data-slot="dialog-description"
@@ -372,7 +372,7 @@ export default function CallRecordingModal({
           >
             Listen to the call recording, view transcription, and manage call
             details for{" "}
-            {data.contact.name || data.contact.phone || "this contact"}.
+            {data.contact?.name || data.contact?.phone || "this contact"}.
           </p>
         </ModalHeader>
         <ModalBody className="px-4 py-4">
