@@ -45,7 +45,7 @@ export interface Stats {
   activeCampaigns: number;
   scheduledPosts: number;
   referralActivities: number;
-  monthlyROI: string; // e.g., "0%"
+  monthlyROI: string;
   totalBudget: number;
   conversions: number;
 }
@@ -86,5 +86,5 @@ export interface DeleteActivityParams {
 }
 
 export interface DeleteActivityResponse {
-  message: string; // e.g., "Activity deleted successfully."
+  message: string;
 }

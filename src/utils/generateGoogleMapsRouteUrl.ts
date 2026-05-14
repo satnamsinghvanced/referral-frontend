@@ -9,27 +9,19 @@ export const generateGoogleMapsRouteUrl = (routeData: any) => {
       addressObj.city,
       addressObj.state,
       addressObj.zip,
-    ].filter((part) => part); // Filter out any undefined or empty parts
-
+    ].filter((part) => part);
     return parts.join(", ");
   };
-
   const originAddress = getFullAddress(routeData[0].address);
   const destinationAddress = getFullAddress(
     routeData[routeData.length - 1].address
   );
-
   const waypoints = routeData
-    .slice(1, -1) // Exclude the first (origin) and last (destination)
+    .slice(1, -1)
     .map((stop: any) => getFullAddress(stop.address));
-
   const encodedOrigin = encodeURIComponent(originAddress);
   const encodedDestination = encodeURIComponent(destinationAddress);
-
-  const encodedWaypoints = encodeURIComponent(waypoints.join("|"));
-
   let url = `https://www.google.com/maps/dir/${encodedOrigin}/${encodedDestination}`;
-
   if (waypoints.length > 0) {
     const allStops = routeData.map((stop: any) => getFullAddress(stop.address));
     const encodedAllStops = allStops
@@ -37,6 +29,5 @@ export const generateGoogleMapsRouteUrl = (routeData: any) => {
       .join("/");
     url = `https://www.google.com/maps/dir/${encodedAllStops}`;
   }
-
   return url;
 };

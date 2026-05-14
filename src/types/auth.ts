@@ -1,4 +1,3 @@
-// --- Common & Base Types ---
 export interface ActionResponse {
   status: string;
   message: string;
@@ -12,7 +11,6 @@ export interface UserMinimal {
   email: string;
 }
 
-// --- Referral Export Types ---
 export interface ReferralExportItem {
   _id: string;
   referredBy: UserMinimal;
@@ -35,7 +33,6 @@ export interface ReferralExportItem {
   reason?: string;
 }
 
-// --- Analytics Export Types ---
 export interface AnalyticsExportResponse {
   exportedAt: string;
   user: UserMinimal;
@@ -78,7 +75,6 @@ export interface AnalyticsExportResponse {
   metaAdsAnalytics: { success: boolean; data: any };
 }
 
-// --- Reviews Export Types ---
 export interface ReviewsExportResponse {
   overview: {
     reviews: { totalReviews: number; totalReviewsGrowth: string };

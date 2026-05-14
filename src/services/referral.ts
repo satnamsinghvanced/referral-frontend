@@ -1,9 +1,4 @@
-import {
-  CreateReferrerPayload,
-  FetchReferrersParams,
-  Referrer,
-  ReferrersResponse,
-} from "../types/partner";
+import { CreateReferrerPayload, FetchReferrersParams, Referrer, ReferrersResponse } from "../types/partner";
 import {
   CreateReferralPayload,
   FetchReferralsParams,
@@ -19,13 +14,11 @@ export const createReferral = async (payload: CreateReferralPayload) => {
   return data;
 };
 
-// Get referral by ID
 export const getReferralById = async (id: string) => {
   const { data } = await axios.get(`/referral/${id}`);
   return data;
 };
 
-// Get list of referrals with pagination
 export const fetchReferrals = async (
   params: FetchReferralsParams
 ): Promise<ReferralsResponse> => {
@@ -35,7 +28,6 @@ export const fetchReferrals = async (
   return data;
 };
 
-// Update referral by ID
 export const updateReferral = async (
   id: string,
   payload: Partial<Referral>
@@ -44,17 +36,11 @@ export const updateReferral = async (
   return data;
 };
 
-// Delete referral by ID
 export const deleteReferral = async (id: string) => {
   const { data } = await axios.delete(`/referral/${id}`);
   return data;
 };
 
-// ---------------------------
-// Referrer APIs
-// ---------------------------
-
-// Add a new referrer (doctor/patient/community/google/social/event)
 export const createReferrer = async (
   type: string,
   payload: CreateReferrerPayload
@@ -65,7 +51,6 @@ export const createReferrer = async (
   return data;
 };
 
-// Fetch referrers list with filter & pagination
 export const fetchReferrers = async (
   params: FetchReferrersParams
 ): Promise<ReferrersResponse> => {
@@ -77,13 +62,11 @@ export const fetchReferrers = async (
   return data;
 };
 
-// Get referrer by ID
 export const getReferrerById = async (id: string): Promise<Referrer> => {
   const { data } = await axios.get(`/referrers/${id}`);
   return data;
 };
 
-// Update referrer by ID
 export const updateReferrer = async (
   id: string,
   type: string,
@@ -95,17 +78,11 @@ export const updateReferrer = async (
   return data;
 };
 
-// Delete referrer by ID
 export const deleteReferrer = async (id: string) => {
   const { data } = await axios.delete(`/api/referrers/${id}`);
   return data;
 };
 
-// ---------------------------
-// Tracking APIs
-// ---------------------------
-
-// 1. Create a new tracking entry with FormData
 export const createTrackingSetup = async (
   data: TrackingRequestBody
 ): Promise<TrackingResponseData> => {
@@ -113,22 +90,19 @@ export const createTrackingSetup = async (
   return response.data;
 };
 
-// 2. Update an existing tracking entry
 export const updateTracking = async (
   trackingId: string,
-  payload: any // same structure as create or partial update
+  payload: any
 ) => {
   const { data } = await axios.put(`/tracking/${trackingId}`, payload);
   return data;
 };
 
-// 3. Fetch tracking entries with pagination
 export const fetchTrackings = async (id: any) => {
   const { data } = await axios.get(`/tracking/${id}`);
   return data;
 };
 
-// 4. Log a scan event (QR/NFC) for a tracking entry
 export const logTrackingScan = async (
   trackingId: string,
   source: "QR" | "NFC"
@@ -138,7 +112,7 @@ export const logTrackingScan = async (
   });
   return data;
 };
-// 5. Import referrals from CSV
+
 export const importReferralsCSV = async (formData: FormData) => {
   const { data } = await axios.post("/referral/import-csv/", formData, {
     headers: {
@@ -148,7 +122,6 @@ export const importReferralsCSV = async (formData: FormData) => {
   return data;
 };
 
-// 6. Create Patient Details from Unique Tag Retrival 
 export const createPatientDetails = async (payload: any) => {
   const { data } = await axios.post("/patient-details", payload);
   return data;

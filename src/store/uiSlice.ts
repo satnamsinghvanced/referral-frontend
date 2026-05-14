@@ -1,25 +1,17 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-// Initial state types
-export interface UIState {
-  theme: "light" | "dark";
-  sidebarOpen: boolean;
-}
+export interface UIState { theme: "light" | "dark"; sidebarOpen: boolean; }
 
-// Read initial state from localStorage or defaults
 const getInitialTheme = (): UIState["theme"] => {
   const stored = localStorage.getItem("theme");
   if (stored === "light" || stored === "dark") return stored;
-  return window.matchMedia("(prefers-color-scheme: light)").matches
-    ? "light"
-    : "dark";
+  return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
 };
 
 const getInitialSidebarOpen = (): boolean => {
   return localStorage.getItem("sidebarOpen") === "true";
 };
 
-// Initial state
 const initialState: UIState = {
   theme: getInitialTheme(),
   sidebarOpen: getInitialSidebarOpen(),

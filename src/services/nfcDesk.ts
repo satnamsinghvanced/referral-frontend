@@ -1,8 +1,4 @@
-import {
-  CreateNFCDeskPayload,
-  NFCDeskResponse,
-  UpdateNFCDeskPayload,
-} from "../types/nfcDesk";
+import { CreateNFCDeskPayload, NFCDeskResponse, UpdateNFCDeskPayload } from "../types/nfcDesk";
 import axios from "./axios";
 
 export const createNFCDesk = async (

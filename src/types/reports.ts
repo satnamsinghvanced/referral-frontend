@@ -4,7 +4,6 @@ export type ReportCategory =
   | "socialMediaAnalytics"
   | "reviewAnalytics"
   | "communicationAnalytics";
-
 export type ReportTimeRange =
   | "1day"
   | "7days"
@@ -14,13 +13,9 @@ export type ReportTimeRange =
   | "lastYear"
   | "yearToDate"
   | "custom";
-
 export type ReportFormat = "pdf" | "excel" | "csv" | "interactive";
-
 export type ReportFrequency = "daily" | "weekly" | "monthly" | "quarterly";
-
 export type ReportStatus = "processing" | "generating" | "ready" | "failed";
-
 export interface Report {
   _id: string;
   userId: string;
@@ -42,7 +37,6 @@ export interface Report {
   createdAt: string;
   updatedAt: string;
 }
-
 export interface ReportStats {
   reportsGenerated: {
     total: number;
@@ -60,7 +54,6 @@ export interface ReportStats {
     status: string;
   };
 }
-
 export interface ReportsResponse {
   reports: Report[];
   pagination: {
@@ -73,7 +66,6 @@ export interface ReportsResponse {
   };
   stats: ReportStats;
 }
-
 export interface GenerateReportPayload {
   name: string;
   category: ReportCategory;
@@ -84,7 +76,6 @@ export interface GenerateReportPayload {
   schedule: boolean;
   frequency?: ReportFrequency;
 }
-
 export interface UpdateReportPayload {
   schedule?: boolean;
   isPaused?: boolean;

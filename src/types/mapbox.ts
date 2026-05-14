@@ -1,12 +1,12 @@
 type Coordinate = [number, number];
 
 export interface MapboxAnnotation {
-  distance: number[]; // Array of distances for each path segment
+  distance: number[];
 }
 
 export interface MapboxAdmin {
-  iso_3166_1_alpha3: string; // e.g., "USA"
-  iso_3166_1: string; // e.g., "US"
+  iso_3166_1_alpha3: string;
+  iso_3166_1: string;
 }
 
 export interface MapboxLeg {
@@ -14,17 +14,17 @@ export interface MapboxLeg {
   annotation: MapboxAnnotation;
   admins: MapboxAdmin[];
   weight: number;
-  duration: number; // Duration in seconds
-  distance: number; // Distance in meters
-  steps: any[]; // Since steps=false, this will be empty
+  duration: number;
+  distance: number;
+  steps: any[];
   summary: string;
 }
 
 export interface MapboxRoute {
   weight_name: string;
   weight: number;
-  duration: number; // Total duration in seconds for the route
-  distance: number; // Total distance in meters for the route
+  duration: number;
+  distance: number;
   legs: MapboxLeg[];
   geometry: {
     coordinates: Coordinate[];

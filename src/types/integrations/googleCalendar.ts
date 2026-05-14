@@ -27,7 +27,6 @@ export interface IUpdateCalendarPayload {
   status?: string;
 }
 
-// Legacy types for backward compatibility with other integrations
 export interface GenerateAuthUrlRequest {
   userId: string;
   clientId: string;

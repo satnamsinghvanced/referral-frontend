@@ -20,7 +20,6 @@ import {
 import axios from "./axios";
 
 const FOLDER_API_BASE = "/folder";
-
 export const createFolder = (data: CreateFolderRequest) => {
   return axios.post<CreateFolderResponse>(`${FOLDER_API_BASE}`, data);
 };

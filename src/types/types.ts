@@ -1,8 +1,5 @@
 import { ButtonProps } from "@heroui/react";
-
-// button types
 export type ButtonSize = "sm" | "md" | "lg";
-
 export type ButtonVariant =
   | "solid"
   | "bordered"
@@ -11,7 +8,6 @@ export type ButtonVariant =
   | "faded"
   | "shadow"
   | "ghost";
-
 export type ButtonColor =
   | "default"
   | "primary"
@@ -19,11 +15,8 @@ export type ButtonColor =
   | "success"
   | "warning"
   | "danger";
-
 export type ButtonRadius = "none" | "sm" | "md" | "lg" | "full";
-
 export type SpinnerPlacement = "start" | "end";
-
 export type ButtonType =
   | "custom"
   | "primary"
@@ -32,15 +25,12 @@ export type ButtonType =
   | "warning"
   | "danger"
   | "info";
-
 export type LabelPlacement = "inside" | "outside" | "outside-left";
-
 export type SafeButtonProps = Partial<ButtonProps> & {
   size?: ButtonSize;
   variant?: ButtonVariant;
   color?: ButtonColor;
 };
-
 export type ButtonConfig = {
   label: string;
   onClick: () => void;

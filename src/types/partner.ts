@@ -27,7 +27,7 @@ export interface Practice {
   name: string;
   address: PracticeAddress;
   website: string;
-  level: string; // e.g., "B-Level"
+  level: string;
   practiceType: PracticeType;
   coordinates: {
     lat: number;
@@ -38,7 +38,7 @@ export interface Practice {
 export interface StaffMember {
   _id: string;
   name: string;
-  role: string[]; // e.g., ["Dental Assistant"]
+  role: string[];
   email: string;
   phone: string;
   isDentist: boolean;
@@ -102,7 +102,7 @@ export interface CreateReferrerPayload {
 export interface Referrer {
   _id: string;
   createdBy: CreatedBy;
-  type: string; // e.g., "doctor"
+  type: string; 
   name: string;
   phone: string;
   email: string;
@@ -110,7 +110,7 @@ export interface Referrer {
   notes: string;
   staffMembers: StaffMember[];
   isActive: boolean;
-  referrals: any[]; // Assuming an array of referral IDs or objects (can be refined if data is available)
+  referrals: any[]; 
   createdAt: string;
   updatedAt: string;
   nfcUrl: string;
@@ -212,11 +212,11 @@ export interface NoteApiData {
   practice: {
     _id: string;
     name: string;
-  }; // partnerId
+  };
   category: string;
-  createdBy: string; // userId
-  createdAt: string; // ISO date string
-  updatedAt: string; // ISO date string
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface FetchTasksParams {
@@ -238,7 +238,7 @@ export interface TaskApiData {
   _id: string;
   title: string;
   description: string;
-  dueDate: string; // YYYY-MM-DD
+  dueDate: string;
   priority: "low" | "medium" | "high" | string;
   category: "follow-up" | "meeting" | "other" | string;
   practiceId?: any;
@@ -258,8 +258,6 @@ export interface AllNotesTasksResponse {
   notes: NoteApiData[];
   tasks: TaskApiData[];
 }
-
-// --- Payloads for Creation/Update ---
 
 export interface CreateNotePayload {
   description: string;
@@ -287,8 +285,8 @@ export interface Note {
   _id: string;
   description: string;
   category: string;
-  createdAt: string; // ISO date string
-  updatedAt?: string; // ISO date string
+  createdAt: string;
+  updatedAt?: string;
 }
 
 export interface Task {
@@ -297,7 +295,7 @@ export interface Task {
   description?: string;
   priority: "low" | "medium" | "high";
   type: "follow-up" | "meeting" | "other";
-  dueDate: string; // ISO date string
+  dueDate: string;
   user: string;
   status: string;
 }
@@ -306,9 +304,9 @@ export interface ScheduleEventPayload {
   taskId: string;
   title: string;
   description: string;
-  date: string; // ISO date string (e.g., "2025-10-25T00:00:00.000Z")
-  time: string; // Time string (e.g., "14:00")
-  duration: string; // Duration string (e.g., "60" or "1hr")
+  date: string;
+  time: string;
+  duration: string;
   eventType: string;
   location: string;
   notes: string;
@@ -328,26 +326,25 @@ export interface EventDetails {
 }
 
 export interface RouteDetailStop {
-  id: string; // Practice ID
+  id: string;
   name: string;
   address: PracticeAddress;
   isFirstStop: boolean;
-  arrivalTime: string; // e.g., "12:50 PM"
-  departureTime: string; // e.g., "01:20 PM"
-  travelTime: string; // e.g., "0m" or "21h 3m"
-  travelDistance: string; // e.g., "0.0mi" or "1370.9mi"
+  arrivalTime: string;
+  departureTime: string;
+  travelTime: string;
+  travelDistance: string;
 }
 
-// --- Shared Interfaces (Reused from POST) ---
 export interface VisitPurpose {
   title: string;
   duration: string;
 }
 
 export interface RouteDataPayload {
-  date: string; // e.g., "2025-11-06"
-  startTime: string; // e.g., "12:50"
-  durationPerVisit: string; // e.g., "30 minutes"
+  date: string;
+  startTime: string;
+  durationPerVisit: string;
   routeDetails: RouteDetailStop[];
   totalStops: number;
   estimatedTotalTime: string;
@@ -359,14 +356,14 @@ export interface RouteDataPayload {
 export interface PlanDetails {
   planName: string;
   defaultPriority: string;
-  durationPerVisit: string; // NOTE: This is likely redundant now that it's in RouteDataPayload
+  durationPerVisit: string;
   defaultVisitPurpose: VisitPurpose;
   description: string;
 }
 
 export interface PlanDetailsPayload {
-  name: string; // e.g., "November Monthly Visit"
-  priority: string; // e.g., "High Priority"
+  name: string;
+  priority: string;
   visitPurpose: VisitPurpose;
   description: string;
 }
@@ -377,23 +374,16 @@ export interface SaveSchedulePlanPayload {
   planDetails: PlanDetailsPayload;
 }
 
-// --- 1. Shared Base Interfaces ---
-
 export interface ScheduledVisitBase {
-  scheduleVisitDate: string; // e.g., "2025-10-29T09:00:00Z"
-  startTime: string; // e.g., "9:00 AM"
+  scheduleVisitDate: string;
+  startTime: string;
   visitPurpose: string;
   priority: string;
   notes: string;
 }
 
-// --- 2. Request Interfaces (POST & PUT) ---
-
-/**
- * Interface for the COMPLETE POST Request Payload (POST /schedule-visit)
- */
 export interface SchedulePlanRequest {
-  practices: string[]; // Array of practice/referrer IDs
+  practices: string[];
   planDetails: PlanDetails;
   scheduleVisits: ScheduledVisitBase[];
   review: {
@@ -403,38 +393,30 @@ export interface SchedulePlanRequest {
   };
 }
 
-/**
- * Interface for the COMPLETE PUT Request Payload (PUT /schedule-visit)
- */
 export interface SchedulePlanPutRequest {
-  id: string; // Plan ID for update
+  id: string;
   data: any;
 }
 
-// --- 3. GET Response Interfaces ---
-
 export interface PlanDetailsGet extends PlanDetails {
-  month: string; // Added field for GET response
+  month: string;
 }
 
 export interface ReviewSummaryGet {
   visitDays: string[];
   totalTime: string;
   distance: string;
-  totalReferrers: number; // Added field for GET response
+  totalReferrers: number;
 }
 
 export interface ScheduledVisitGet extends ScheduledVisitBase {
-  _id: string; // ID returned from the database
+  _id: string;
 }
 
-/**
- * Interface for the COMPLETE GET Response Payload (/schedule-visit/{id})
- */
 export interface SchedulePlanGetResponse {
   planDetails: PlanDetailsGet;
   review: ReviewSummaryGet;
-  _id: string; // Plan ID
+  _id: string;
   createdBy: string;
   practices: string[];
   scheduleVisits: ScheduledVisitGet[];
@@ -497,8 +479,6 @@ export interface RouteOptimizationResults {
   optimized: RouteMetrics;
 }
 
-// HEHEHHEHEHE
-// --- 1. Query Parameters Type ---
 export interface GetSchedulePlansQuery {
   page: number;
   limit: number;
@@ -508,8 +488,6 @@ export interface GetSchedulePlansQuery {
   sortBy?: "name" | "createdAt" | string;
 }
 
-// --- 2. Plan Sub-Types ---
-
 interface PlanSummary {
   totalPractices: number;
   visitDays: number;
@@ -517,7 +495,6 @@ interface PlanSummary {
   estimatedDistance: string;
 }
 
-// --- 3. Full Schedule Plan Data Type ---
 export interface SchedulePlan {
   planDetails: any;
   _id: string;
@@ -545,7 +522,6 @@ export interface SchedulePlanDashboardStats {
   totalMiles: string;
 }
 
-// --- 5. Full API Response Type ---
 export interface SchedulePlansResponse {
   success: boolean;
   message: string;
@@ -568,19 +544,17 @@ interface VisitHistoryItem {
   _id: string;
   createdBy: string;
   practices: Practice[];
-  status: "pending" | "completed" | "cancelled"; // Assuming statuses based on context
+  status: "pending" | "completed" | "cancelled";
   createdAt: string;
   updatedAt: string;
 }
 
-// --- 5. Monthly Grouping Type ---
 interface MonthlyVisitGroup {
-  month: string; // e.g., "November 2025"
+  month: string;
   totalPlansThisMonth: number;
   visits: VisitHistoryItem[];
 }
 
-// --- 6. Response Metadata Types ---
 interface Stats {
   totalVisits: number;
   completedVisits: number;
@@ -597,7 +571,6 @@ interface Pagination {
   hasPrevPage: boolean;
 }
 
-// --- 7. Final API Response Type ---
 export interface VisitHistoryResponse {
   data: MonthlyVisitGroup[];
   stats: Stats;

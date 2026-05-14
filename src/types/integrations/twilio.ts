@@ -1,7 +1,7 @@
 export interface TwilioConfigRequest {
   accountId?: string;
   authToken?: string;
-  phone?: string; // E.g., "+12185516174"
+  phone?: string;
   status?: string;
 }
 

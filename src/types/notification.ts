@@ -17,8 +17,8 @@ export type NotificationsListResponse = InAppNotification[];
 
 export interface ActiveHours {
   enabled: boolean;
-  startTime: string; // HH:mm format
-  endTime: string; // HH:mm format
+  startTime: string;
+  endTime: string;
 }
 
 export interface NotificationItem {

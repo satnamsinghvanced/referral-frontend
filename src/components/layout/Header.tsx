@@ -32,17 +32,12 @@ export default function Header({
 }) {
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
-
   const { user } = useTypedSelector((state) => state.auth);
-
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounce(query, 500);
   const [isOpen, setIsOpen] = useState(false);
-
   const { data: results, isLoading } = useGlobalSearch({ q: debouncedQuery });
-
   const searchContainerRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -52,13 +47,11 @@ export default function Header({
         setIsOpen(false);
       }
     };
-
     if (isOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     } else {
       document.removeEventListener("mousedown", handleClickOutside);
     }
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
@@ -161,11 +154,10 @@ export default function Header({
                             className="flex items-center gap-3 px-4 py-3 hover:bg-foreground/[0.03] dark:hover:bg-foreground/[0.05] transition-all cursor-pointer text-left border-b border-divider last:border-none group"
                           >
                             <div
-                              className={`p-2.5 rounded-lg shrink-0 transition-transform ${
-                                result.resultType === "referral"
-                                  ? "bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400"
-                                  : "bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400"
-                              }`}
+                              className={`p-2.5 rounded-lg shrink-0 transition-transform ${result.resultType === "referral"
+                                ? "bg-sky-50 dark:bg-sky-500/10 text-sky-600 dark:text-sky-400"
+                                : "bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400"
+                                }`}
                             >
                               {result.resultType === "referral" ? (
                                 <LuUsers size={18} />
@@ -180,11 +172,10 @@ export default function Header({
                                   {result.name}
                                 </span>
                                 <span
-                                  className={`text-[10px] px-2 py-0.5 rounded-md font-medium uppercase tracking-tighter ${
-                                    result.resultType === "referral"
-                                      ? "bg-sky-100 dark:bg-sky-500/20 text-sky-700 dark:text-sky-300"
-                                      : "bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300"
-                                  }`}
+                                  className={`text-[10px] px-2 py-0.5 rounded-md font-medium uppercase tracking-tighter ${result.resultType === "referral"
+                                    ? "bg-sky-100 dark:bg-sky-500/20 text-sky-700 dark:text-sky-300"
+                                    : "bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300"
+                                    }`}
                                 >
                                   {result.resultType}
                                 </span>

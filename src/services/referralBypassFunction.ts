@@ -1,8 +1,4 @@
-import {
-  Referral,
-  ScanTrackingParams,
-  ScanTrackingResponse,
-} from "../types/referral";
+import { Referral, ScanTrackingParams, ScanTrackingResponse } from "../types/referral";
 import axiosInstance from "./referralByPass";
 import { TeamMember } from "./settings/team";
 
@@ -11,16 +7,10 @@ export const createReferral = async (payload: Partial<Referral>) => {
   return data;
 };
 
-export const trackScan = async (
-  params: ScanTrackingParams
-): Promise<ScanTrackingResponse> => {
+export const trackScan = async (params: ScanTrackingParams): Promise<ScanTrackingResponse> => {
   const { userId, source } = params;
-
   const url = `/tracking/scan/${userId}`;
-
-  const { data } = await axiosInstance.post<ScanTrackingResponse>(
-    url,
-    {},
+  const { data } = await axiosInstance.post<ScanTrackingResponse>(url, {},
     {
       params: {
         source: source,
@@ -28,7 +18,6 @@ export const trackScan = async (
       },
     }
   );
-
   return data;
 };
 

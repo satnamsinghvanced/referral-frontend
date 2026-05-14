@@ -1,4 +1,3 @@
-// --- Overview Types ---
 export interface GBPStatItem {
   totalReviews?: number;
   totalReviewsGrowth?: string;
@@ -26,8 +25,6 @@ export interface GBPOverviewResponse {
   };
   monthlyStats: GBPMonthlyStat[];
 }
-
-// --- Location Performance Types ---
 export interface LocationPerformance {
   name: string;
   rating: number;
@@ -36,31 +33,25 @@ export interface LocationPerformance {
   nfcTaps: number;
   qrScans: number;
 }
-
 export interface LocationStat {
   label: string;
   reviews: number;
   nfcTaps: number;
   qrScans: number;
 }
-
 export interface GBPLocationPerformanceResponse {
   performanceByLocation: LocationPerformance[];
   stats: LocationStat[];
 }
-
-// --- Recent Reviews Types ---
 export interface Reviewer {
   displayName: string;
   profilePhotoUrl: string;
   isAnonymous: boolean;
 }
-
 export interface ReviewReply {
   comment: string;
   updateTime: string;
 }
-
 export interface GBPReview {
   name: string;
   reviewId: string;
@@ -71,7 +62,6 @@ export interface GBPReview {
   updateTime: string;
   reviewReply?: ReviewReply;
 }
-
 export interface GBPRecentReviewsResponse {
   reviews: GBPReview[];
   stats: {
@@ -80,15 +70,12 @@ export interface GBPRecentReviewsResponse {
     nextPageToken: string;
   };
 }
-
-// --- Mutation Payload & Response ---
 export interface CreateGBPReviewPayload {
   locationId: string;
   reviewerName: string;
   reviewerEmail: string;
   deskId: string;
 }
-
 export interface CreateGBPReviewResponse {
   status: string;
   message: string;

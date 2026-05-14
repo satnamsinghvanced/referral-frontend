@@ -12,11 +12,13 @@ interface UploadState {
   status: "uploading" | "completed" | "error" | "cancelled";
   controller: AbortController;
   type: "image" | "video" | "media";
+  isHidden?: boolean;
 }
 
 interface UploadContextType {
   startUpload: (data: UploadMediaRequest, fileName: string, type: "image" | "video" | "media") => Promise<void>;
   cancelUpload: (id: string) => void;
+  removeUpload: (id: string) => void;
   activeUploads: UploadState[];
 }
 
@@ -110,11 +112,17 @@ export const UploadProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     }
   };
 
+  const removeUpload = (id: string) => {
+    setActiveUploads((prev) =>
+      prev.map((u) => (u.id === id ? { ...u, isHidden: true } : u))
+    );
+  };
+
   return (
-    <UploadContext.Provider value={{ startUpload, cancelUpload, activeUploads }}>
+    <UploadContext.Provider value={{ startUpload, cancelUpload, removeUpload, activeUploads }}>
       {children}
       <div className="fixed bottom-4 right-4 z-[9999] flex flex-col gap-2 w-80 max-md:w-[calc(100%-2rem)]">
-        {activeUploads.map((upload) => (
+        {activeUploads.filter(u => !u.isHidden).map((upload) => (
           <Card key={upload.id} className="shadow-lg border border-foreground/10" radius="sm">
             <CardBody className="p-3">
               <div className="flex items-center justify-between mb-2">
@@ -125,18 +133,16 @@ export const UploadProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                   {upload.status === "cancelled" && <FiX className="text-gray-400 shrink-0" />}
                   <span className="text-xs font-medium truncate">{upload.fileName}</span>
                 </div>
-                {upload.status === "uploading" && (
-                  <Button
-                    isIconOnly
-                    size="sm"
-                    variant="light"
-                    radius="full"
-                    onPress={() => cancelUpload(upload.id)}
-                    className="h-6 w-6 min-w-0"
-                  >
-                    <FiX />
-                  </Button>
-                )}
+                <Button
+                  isIconOnly
+                  size="sm"
+                  variant="light"
+                  radius="full"
+                  onPress={() => removeUpload(upload.id)}
+                  className="h-6 w-6 min-w-0"
+                >
+                  <FiX />
+                </Button>
               </div>
 
               <Progress

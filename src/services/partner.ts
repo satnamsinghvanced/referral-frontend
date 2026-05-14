@@ -6,7 +6,6 @@ import {
   FetchPartnersParams,
   FetchPartnersResponse,
   FetchTasksParams,
-  GetSchedulePlansQuery,
   NoteApiData,
   PartnerPractice,
   SaveSchedulePlanPayload,
@@ -20,9 +19,7 @@ import {
 } from "../types/partner";
 import axios from "./axios";
 
-export const fetchPartners = async (
-  params: FetchPartnersParams = {}
-): Promise<FetchPartnersResponse> => {
+export const fetchPartners = async (params: FetchPartnersParams = {}): Promise<FetchPartnersResponse> => {
   const response = await axios.get<FetchPartnersResponse>("/partner-network", {
     params: {
       page: params.page,
@@ -36,27 +33,17 @@ export const fetchPartners = async (
   return response.data;
 };
 
-export const fetchPartnerDetail = async (
-  id: string
-): Promise<PartnerPractice> => {
+export const fetchPartnerDetail = async (id: string): Promise<PartnerPractice> => {
   const response = await axios.get<PartnerPractice>(`/partner-network/${id}`);
   return response.data;
 };
 
-// NOTES & TASKS
-
-export const getAllNotesAndTasks = async (
-  partnerId: string
-): Promise<AllNotesTasksResponse> => {
-  const response = await axios.get<AllNotesTasksResponse>(
-    `/partner-network/all/${partnerId}`
-  );
+export const getAllNotesAndTasks = async (partnerId: string): Promise<AllNotesTasksResponse> => {
+  const response = await axios.get<AllNotesTasksResponse>(`/partner-network/all/${partnerId}`);
   return response.data;
 };
 
-export const createNote = async (
-  payload: CreateNotePayload
-): Promise<NoteApiData> => {
+export const createNote = async (payload: CreateNotePayload): Promise<NoteApiData> => {
   const response = await axios.post<NoteApiData>("/notes", payload);
   return response.data;
 };
@@ -65,9 +52,7 @@ export const deleteNote = async (noteId: string): Promise<void> => {
   await axios.delete(`/notes/${noteId}`);
 };
 
-export const fetchAllTasks = async (
-  params: FetchTasksParams = {}
-): Promise<any> => {
+export const fetchAllTasks = async (params: FetchTasksParams = {}): Promise<any> => {
   const response = await axios.get<any>("/tasks/practice-tasks", {
     params: {
       page: params.page,
@@ -80,17 +65,12 @@ export const fetchAllTasks = async (
   return response.data;
 };
 
-export const createTask = async (
-  payload: CreateTaskPayload
-): Promise<TaskApiData> => {
+export const createTask = async (payload: CreateTaskPayload): Promise<TaskApiData> => {
   const response = await axios.post<TaskApiData>("/tasks", payload);
   return response.data;
 };
 
-export const updateTask = async ({
-  taskId,
-  data,
-}: UpdateTaskPayload): Promise<void> => {
+export const updateTask = async ({ taskId, data }: UpdateTaskPayload): Promise<void> => {
   const url = `/tasks/${taskId}`;
   await axios.put(url, data);
 };
@@ -99,48 +79,29 @@ export const deleteTask = async (taskId: string): Promise<void> => {
   await axios.delete(`/tasks/${taskId}`);
 };
 
-export const scheduleTaskEvent = async (
-  payload: ScheduleEventPayload
-): Promise<EventDetails> => {
+export const scheduleTaskEvent = async (payload: ScheduleEventPayload): Promise<EventDetails> => {
   const response = await axios.post("/tasks/schedule", payload);
   return response.data;
 };
 
-export const getScheduleTaskEvent = async (
-  taskId: string
-): Promise<EventDetails> => {
+export const getScheduleTaskEvent = async (taskId: string): Promise<EventDetails> => {
   const response = await axios.get(`/tasks/schedule/${taskId}`);
   return response.data;
 };
 
-// SCHEDULE PLANS
-
-export const getSchedulePlans = async (
-  query: any
-): Promise<SchedulePlansResponse> => {
+export const getSchedulePlans = async (query: any): Promise<SchedulePlansResponse> => {
   const params = new URLSearchParams(query).toString();
-
   const url = `/schedule-visit${params ? `?${params}` : ""}`;
-
   const response = await axios.get<SchedulePlansResponse>(url);
   return response.data;
 };
 
-export const createSchedulePlan = async ({
-  id,
-  data,
-}: {
-  id: string;
-  data: SaveSchedulePlanPayload;
-}) => {
+export const createSchedulePlan = async ({ id, data }: { id: string; data: SaveSchedulePlanPayload; }) => {
   const response = await axios.post(`/schedule-visit/${id}`, data);
   return response.data;
 };
 
-export const updateSchedulePlan = async ({
-  id,
-  data,
-}: SchedulePlanPutRequest): Promise<void> => {
+export const updateSchedulePlan = async ({ id, data }: SchedulePlanPutRequest): Promise<void> => {
   if (!id) {
     throw new Error("Plan ID (id) is required for updating the schedule plan.");
   }
@@ -156,11 +117,7 @@ export const deleteSchedulePlan = async (id: string): Promise<void> => {
   await axios.delete(`/schedule-visit/${id}`);
 };
 
-// VISIT HISTORY
-
-export const fetchVisitHistory = async (
-  params: VisitHistoryQueryParams
-): Promise<VisitHistoryResponse> => {
+export const fetchVisitHistory = async (params: VisitHistoryQueryParams): Promise<VisitHistoryResponse> => {
   const url = `/schedule-visit/history`;
   const response = await axios.get<VisitHistoryResponse>(url, { params });
   return response.data;

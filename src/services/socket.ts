@@ -16,14 +16,11 @@ interface NotificationPayload {
 
 export const initSocket = () => {
   const token = store.getState().auth.token;
-
   if (!token) {
     console.warn("Socket initialization skipped: No token found");
     return null;
   }
-
   if (socket && socket.connected) return socket;
-
   if (!socket) {
     socket = io(URL, {
       auth: {
@@ -31,29 +28,23 @@ export const initSocket = () => {
       },
       transports: ["websocket", "polling"],
     });
-
     socket.on("connect", () => {
       console.log("Socket connected:", socket?.id);
     });
-
     socket.on("disconnect", (reason) => {
       console.log("Socket disconnected:", reason);
     });
-
     socket.on("connect_error", (err) => {
       console.error("Socket connection error:", err);
     });
   } else if (!socket.connected) {
     socket.connect();
   }
-
   return socket;
 };
 
 export const getSocket = () => {
-  if (!socket) {
-    return initSocket();
-  }
+  if (!socket) return initSocket();
   return socket;
 };
 

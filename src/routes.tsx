@@ -1,11 +1,8 @@
-import React, { ReactNode, useEffect, useState } from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import React, { ReactNode } from "react";
+import { Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./pages/auth/ProtectedRoute";
 import PublicRoute from "./pages/auth/PublicRoute";
 import QrGenerator from "./pages/qr-generator/QrGenerator";
-import { useFetchTrackings } from "./hooks/useReferral";
-
-import { FiLoader } from "react-icons/fi";
 
 const Layout = React.lazy(() => import("./components/layout/Layout"));
 const Dashboard = React.lazy(() => import("./pages/dashboard/Dashboard"));
@@ -47,7 +44,6 @@ const ReferralPerformanceReport = React.lazy(
 const ReviewSentimentAnalysisReport = React.lazy(
   () => import("./pages/reports/sample-reports/ReviewSentimentAnalysisReport"),
 );
-
 const Tasks = React.lazy(() => import("./pages/tasks/Tasks"));
 const MediaManagement = React.lazy(
   () => import("./pages/media-management/MediaManagement"),
@@ -59,7 +55,6 @@ const Settings = React.lazy(() => import("./pages/settings/Settings"));
 const Notifications = React.lazy(
   () => import("./pages/settings/Notifications"),
 );
-
 const Security = React.lazy(() => import("./pages/settings/Security"));
 const Devices = React.lazy(() => import("./pages/settings/Devices"));
 const Billing = React.lazy(() => import("./pages/settings/Billing"));
@@ -94,19 +89,15 @@ const WebhookReferralForm = React.lazy(
   () => import("./pages/integrations/webhooks/WebhookReferralForm"),
 );
 const NotFoundPage = React.lazy(() => import("./pages/NotFoundPage"));
-
-// Route type
 interface AppRoute {
   path?: string;
   element: ReactNode;
   index?: boolean;
   children?: AppRoute[];
 }
-
 const PermissionGuard = React.lazy(
   () => import("./components/guards/PermissionGuard"),
 );
-
 function AppRoutes() {
   const routesList: AppRoute[] = [
     { path: "visit-map", element: <VisitMap /> },
@@ -258,7 +249,7 @@ function AppRoutes() {
         },
         {
           path: "settings",
-          element: <Settings />, // Note: Settings itself is protected by its parent Layout
+          element: <Settings />,
           children: [
             { index: true, element: <Profile /> },
             { path: "notifications", element: <Notifications /> },
@@ -300,7 +291,6 @@ function AppRoutes() {
         },
       ],
     },
-    // Public Routes (not wrapped)
     {
       path: "signin",
       element: (
@@ -332,7 +322,6 @@ function AppRoutes() {
     },
     { path: "*", element: <NotFoundPage /> },
   ];
-
   const renderRoutes = (routes: AppRoute[]): ReactNode =>
     routes.map((route, index) => {
       if ("index" in route && route.index) {
@@ -344,7 +333,6 @@ function AppRoutes() {
         </Route>
       );
     });
-
   return (
     // <Suspense
     //   fallback={
@@ -357,5 +345,4 @@ function AppRoutes() {
     // </Suspense>
   );
 }
-
 export default AppRoutes;

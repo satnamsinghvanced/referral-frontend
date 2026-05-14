@@ -10,13 +10,11 @@ import { UploadProvider } from "./providers/UploadProvider";
 import "./index.css";
 
 const rootElement = document.getElementById("root");
-
 if (!rootElement) {
   throw new Error(
     "Root element not found. Did you forget to add <div id='root'></div> in index.html?",
   );
 }
-
 createRoot(rootElement).render(
   <StrictMode>
     <HeroUIProvider>

@@ -1,6 +1,6 @@
 export const formatDateToReadable = (
   date: string | null | undefined,
-  showTime: boolean = false, // Added optional parameter with default value true
+  showTime: boolean = false,
   useUTC: boolean = false,
 ): string => {
   if (!date) {
@@ -9,22 +9,18 @@ export const formatDateToReadable = (
 
   try {
     const JSdate = new Date(date);
-
     if (isNaN(JSdate.getTime())) {
       return "Invalid Date";
     }
-
     const baseOptions: Intl.DateTimeFormatOptions = {
       month: "short",
       day: "numeric",
       year: "numeric",
       ...(useUTC && { timeZone: "UTC" }),
     };
-
     const dateStr = new Intl.DateTimeFormat(undefined, baseOptions).format(
       JSdate,
     );
-
     if (showTime) {
       const timeOptions: Intl.DateTimeFormatOptions = {
         hour: "2-digit",
@@ -37,7 +33,6 @@ export const formatDateToReadable = (
       );
       return `${dateStr} at ${timeStr}`;
     }
-
     return dateStr;
   } catch (error) {
     return "Error";

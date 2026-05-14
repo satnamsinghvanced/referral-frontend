@@ -353,7 +353,7 @@ export interface FlowStep {
   title: string;
   description: string;
   config?: any;
-  children?: FlowStep[]; // Standard sequential steps
+  children?: FlowStep[];
   branches?: {
     yes: FlowStep[];
     no: FlowStep[];
@@ -363,7 +363,7 @@ export interface FlowStep {
 
 export type AutomationStatus = "active" | "inActive" | "draft";
 
-export type TriggerType = "New Referrer Added"; // Expand as needed
+export type TriggerType = "New Referrer Added";
 
 export interface IStepConfig {
   subject?: string;
@@ -386,10 +386,10 @@ export interface IStep {
   type: APIStepType;
   config: IStepConfig;
   stats?: IStepStats;
-  steps?: IStep[]; // For linear nesting
-  yesSteps?: IStep[]; // For branching
-  noSteps?: IStep[]; // For branching
-  step?: any[]; // Catch-all for API compatibility
+  steps?: IStep[];
+  yesSteps?: IStep[];
+  noSteps?: IStep[];
+  step?: any[];
 }
 
 export interface IAutomation {

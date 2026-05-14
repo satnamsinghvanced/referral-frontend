@@ -35,16 +35,13 @@ const isTokenValid = (token: string): boolean => {
   try {
     const { exp } = jwtDecode<JwtPayload>(token);
     if (!exp) return false;
-    return Date.now() < exp * 1000; // exp is in seconds → convert to ms
+    return Date.now() < exp * 1000;
   } catch {
     return false;
   }
 };
-
-// Load saved credentials from localStorage
 const savedUser = localStorage.getItem("user");
 const savedToken = localStorage.getItem("token");
-
 const initialState: AuthState = {
   user: savedUser ? JSON.parse(savedUser) : null,
   token: savedToken && isTokenValid(savedToken) ? savedToken : null,
@@ -57,15 +54,11 @@ export const handleLogoutThunk = createAsyncThunk(
   "auth/handleLogout",
   async (_, { dispatch }) => {
     try {
-      // 1. Disconnect Socket
       disconnectSocket();
-
-      // 2. Notify Server
       await logoutUser();
     } catch (error) {
       console.error("Server logout failed", error);
     } finally {
-      // 3. Clear Local State (Always happens even if API fails)
       dispatch(authSlice.actions.logout());
       queryClient.clear();
       window.location.href = `${import.meta.env.VITE_URL_PREFIX}/signin`;
@@ -83,13 +76,9 @@ const authSlice = createSlice({
         console.warn("Token is expired, not saving to state");
         return;
       }
-
       state.token = token;
       state.isAuthenticated = true;
-
-      const userData = jwtDecode<JwtPayload>(token); // ✅ typed decode
-
-      // You can also construct your `User` type from here if needed
+      const userData = jwtDecode<JwtPayload>(token);
       const user: User = {
         userId: userData.userId,
         firstName: userData.firstName,
@@ -98,23 +87,16 @@ const authSlice = createSlice({
         email: userData.email,
         role: userData.role,
       };
-
       state.user = user;
-
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
     },
-
-    updateUserFirstName: (
-      state,
-      action: PayloadAction<{ firstName: string }>,
-    ) => {
+    updateUserFirstName: (state, action: PayloadAction<{ firstName: string }>) => {
       if (state.user) {
         state.user.firstName = action.payload.firstName;
         localStorage.setItem("user", JSON.stringify(state.user));
       }
     },
-
     logout: (state) => {
       state.user = null;
       state.token = null;
@@ -122,11 +104,9 @@ const authSlice = createSlice({
       localStorage.removeItem("user");
       localStorage.removeItem("token");
     },
-
     clearError: (state) => {
       state.error = null;
     },
-
     loginSuccess: (
       state,
       action: PayloadAction<{ user: User; token: string }>,

@@ -41,7 +41,7 @@ export interface CreateReferralPayload {
   age: number;
   phone: string;
   email?: string | undefined;
-  referredBy: string; // The ID of the referrer
+  referredBy: string;
   treatment: string;
   addedVia: ReferralSource;
   priority?: string;
@@ -83,7 +83,6 @@ export interface StatusStats {
   noShow: number;
 }
 
-// 3. Type for the overall API response structure
 export interface ReferralsResponse {
   data: Referral[];
   filterStats: FilterStats;
@@ -94,8 +93,6 @@ export interface ReferralsResponse {
   page: number;
   limit: number;
 }
-
-// 4. Type for the query parameters (TanStack/Axios Request)
 export interface FetchReferralsParams {
   page?: number;
   limit?: number;
@@ -105,8 +102,8 @@ export interface FetchReferralsParams {
 }
 
 export interface ScanTrackingParams {
-  userId: string; // From URL path
-  source: "NFC" | "QR" | string; // From URL query
+  userId: string; 
+  source: "NFC" | "QR" | string; 
   sourceId?: string;
 }
 
@@ -115,14 +112,12 @@ export interface ScanTrackingResponse {
   success: boolean;
 }
 
-// Define the shape of the form data
 export interface StatusUpdateFormValues {
   estValue: number | "";
   status: string;
   statusNotes: string;
 }
 
-// Define the shape of the data being sent to the API
 export interface UpdateStatusPayload {
   referralId: string;
   newStatus: string;

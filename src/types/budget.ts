@@ -115,15 +115,15 @@ export interface BudgetListResponse {
 }
 
 export interface CreateBudgetItemRequest {
-  category: string; // ID
-  subCategory: string; // ID
+  category: string;
+  subCategory: string;
   amount: number;
   period: string;
   priority: string;
   status: string;
   description: string;
-  startDate: string; // YYYY-MM-DD
-  endDate: string; // YYYY-MM-DD
+  startDate: string;
+  endDate: string;
   spent?: number;
   roi?: number;
 }

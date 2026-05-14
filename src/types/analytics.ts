@@ -102,7 +102,6 @@ export interface GoogleAnalyticsResponse {
   conversions: { event: string; count: number }[];
 }
 
-// --- Ads Integration (Google & Meta) ---
 export interface AdStatMetric {
   value: string | number;
   lastMonthChange: number;

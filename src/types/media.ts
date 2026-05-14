@@ -51,11 +51,11 @@ export interface Media {
   _id: string;
   name: string;
   path: string;
-  type: string; // e.g., 'image/png', 'video/mp4'
-  size: number; // e.g., "0.00 MB"
-  createdAt: string; // e.g., "11/18/2025, 4:00:24 PM"
-  folderName: string; // e.g., "Root"
-  tags: string[]; // e.g., ["abc", "referral"]
+  type: string;
+  size: number;
+  createdAt: string;
+  folderName: string;
+  tags: string[];
 }
 
 export interface Image {
@@ -121,7 +121,6 @@ export interface DeleteImagesRequest {
 
 export type Tag = string;
 
-// Define the structure of the API response data
 export interface GetTagsResponse {
   tags: Tag[];
   totalTags: number;

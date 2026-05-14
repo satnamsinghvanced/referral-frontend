@@ -81,13 +81,13 @@ const Sidebar = ({
         icon: FiHome,
         href: "/",
       },
-      {
-        name: "Lead Tracking",
-        icon: LuTarget,
-        href: "/lead-tracking",
-        // stats: "NEW",
-        color: "bg-sky-500 !text-white",
-      },
+      // {
+      //   name: "Lead Tracking",
+      //   icon: LuTarget,
+      //   href: "/lead-tracking",
+      //   // stats: "NEW",
+      //   color: "bg-sky-500 !text-white",
+      // },
       {
         name: "Referrals",
         icon: LuUsers,

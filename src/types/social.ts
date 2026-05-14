@@ -165,15 +165,14 @@ export interface RecentPostsResponse {
   };
 }
 
-// POST Request Payload (using FormData for file/fields)
 export interface CreatePostPayload {
   title: string;
-  hashtags: string; // "coding,js"
-  platforms: string; // "instagram,facebook"
+  hashtags: string;
+  platforms: string;
   description: string;
   scheduledTime: string;
   scheduledDate: string;
-  media: string; // "id1,id2"
+  media: string;
 }
 
 export interface GBPPlatformOverviewResponse {
