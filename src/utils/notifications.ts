@@ -8,7 +8,6 @@ export const urlBase64ToUint8Array = (base64String: string) => {
   }
   return outputArray;
 };
-
 export const getBrowserId = () => {
   const ua = window.navigator.userAgent;
   if (ua.includes("Chrome")) return `chrome_${Date.now()}`;

@@ -11,4 +11,4 @@ export const formatFileSize = (bytes: number): string => {
     const kbs = bytes / KB_CONVERSION_FACTOR;
     return `${kbs.toFixed(2)} KB`;
   }
-};
+}; 

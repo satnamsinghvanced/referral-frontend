@@ -8,7 +8,6 @@ import ReduxProvider from "./providers/ReduxProvider";
 import { TourProvider } from "./providers/TourProvider";
 import { UploadProvider } from "./providers/UploadProvider";
 import "./index.css";
-
 const rootElement = document.getElementById("root");
 if (!rootElement) {
   throw new Error(

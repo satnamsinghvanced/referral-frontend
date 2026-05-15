@@ -3,7 +3,6 @@ import { Route, Routes } from "react-router-dom";
 import ProtectedRoute from "./pages/auth/ProtectedRoute";
 import PublicRoute from "./pages/auth/PublicRoute";
 import QrGenerator from "./pages/qr-generator/QrGenerator";
-
 const Layout = React.lazy(() => import("./components/layout/Layout"));
 const Dashboard = React.lazy(() => import("./pages/dashboard/Dashboard"));
 const Analytics = React.lazy(() => import("./pages/analytics/Analytics"));

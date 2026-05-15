@@ -24,7 +24,6 @@ export const mapUIFlowToAPI = (
 ): any => {
   const rootTrigger = steps[0];
   const triggerConfig = rootTrigger?.config || {};
-
   const mapSteps = (uiSteps: FlowStep[]): any[] => {
     return uiSteps.map((step) => {
       const { templateName, ...cleanConfig } = step.config || {};
@@ -41,7 +40,6 @@ export const mapUIFlowToAPI = (
       return apiStep;
     });
   };
-
   return {
     name: flowName,
     description,
@@ -52,7 +50,6 @@ export const mapUIFlowToAPI = (
     steps: rootTrigger?.children ? mapSteps(rootTrigger.children) : [],
   };
 };
-
 export const mapAPIFlowToUI = (automation: any): FlowStep[] => {
   const mapSteps = (apiSteps: any[]): FlowStep[] => {
     return apiSteps.map((step) => ({
@@ -68,7 +65,6 @@ export const mapAPIFlowToUI = (automation: any): FlowStep[] => {
       },
     }));
   };
-
   const triggerStep: FlowStep = {
     id: "trigger-step",
     type: "trigger",
@@ -77,6 +73,5 @@ export const mapAPIFlowToUI = (automation: any): FlowStep[] => {
     config: automation.trigger?.config || {},
     children: automation.steps ? mapSteps(automation.steps) : [],
   };
-
   return [triggerStep];
 };

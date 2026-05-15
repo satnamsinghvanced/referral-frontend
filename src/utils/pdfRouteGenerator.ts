@@ -2,7 +2,6 @@ import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import { SchedulePlan } from "../types/partner";
 import { formatDateToReadable } from "./formatDateToReadable";
-import { getDirections } from "../services/mapbox";
 
 export const generateRoutePdf = async (plan: SchedulePlan) => {
   const doc = new jsPDF();
@@ -18,7 +17,6 @@ export const generateRoutePdf = async (plan: SchedulePlan) => {
       doc.text(new Date().toLocaleDateString(), 180, 285);
     }
   };
-
   const activeCoordinateString = (plan.route.routeDetails || [])
     .map((stop: any) => `${stop.address.coordinates.long},${stop.address.coordinates.lat}`)
     .join(";");

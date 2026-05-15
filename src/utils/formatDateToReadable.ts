@@ -6,7 +6,6 @@ export const formatDateToReadable = (
   if (!date) {
     return "N/A";
   }
-
   try {
     const JSdate = new Date(date);
     if (isNaN(JSdate.getTime())) {

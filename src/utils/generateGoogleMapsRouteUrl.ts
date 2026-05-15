@@ -2,7 +2,6 @@ export const generateGoogleMapsRouteUrl = (routeData: any) => {
   if (routeData.length < 2) {
     return "Route requires at least two stops.";
   }
-
   const getFullAddress = (addressObj: any) => {
     const parts = [
       addressObj.addressLine1,
