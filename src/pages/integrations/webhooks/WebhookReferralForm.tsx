@@ -10,7 +10,7 @@ import {
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import { FaRegStar } from "react-icons/fa";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams } from "react-router-dom";
 import * as Yup from "yup";
 import axios from "axios";
 import { EMAIL_REGEX, NAME_REGEX, PHONE_REGEX } from "../../../consts/consts";
@@ -30,7 +30,9 @@ interface WebhookFormValues {
 }
 
 function WebhookReferralForm() {
-  const { userId } = useParams<{ userId: string }>();
+  const { userId: routeUserId } = useParams<{ userId: string }>();
+  const [searchParams] = useSearchParams();
+  const userId = routeUserId || searchParams.get("id") || searchParams.get("referredBy") || "";
   const navigate = useNavigate();
   const [isSuccess, setIsSuccess] = useState(false);
   const [webhookSecret, setWebhookSecret] = useState<string>("");
@@ -163,11 +165,12 @@ function WebhookReferralForm() {
     validationSchema: validationSchema,
     onSubmit: async (values) => {
       try {
-        const webhookUrl = `${import.meta.env.VITE_API_BASE_URL?.replace("/api", "")}/webhook/referral/${userId}`;
-
+        const baseUrl = import.meta.env.VITE_API_BASE_URL || "";
+        const webhookUrl = `${baseUrl}/webhook/referral/${userId}`;
         await axios.post(
           webhookUrl,
           {
+            referredBy: userId,
             name: values.fullName,
             email: values.email,
             age: Number(values.age),
@@ -192,9 +195,10 @@ function WebhookReferralForm() {
           formik.resetForm();
         }, 3000);
       } catch (err: any) {
+        console.log("Error in webhook submission:", err);
         formik.setStatus(
           err?.response?.data?.message ||
-            "Failed to submit referral. Please try again.",
+          "Failed to submit referral. Please try again.",
         );
       }
     },
@@ -279,7 +283,6 @@ function WebhookReferralForm() {
                   const value = formik.values[fieldName];
                   const touched = formik.touched[fieldName];
                   const error = formik.errors[fieldName];
-
                   return (
                     <Input
                       key={field.name}
