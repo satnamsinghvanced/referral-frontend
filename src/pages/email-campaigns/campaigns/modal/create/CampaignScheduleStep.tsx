@@ -1,4 +1,4 @@
-import { DatePicker, Input, Switch } from "@heroui/react";
+import { Input, Switch } from "@heroui/react";
 import clsx from "clsx";
 import React, { forwardRef, useImperativeHandle, useState } from "react";
 import { CampaignData, CampaignStepProps } from "./CampaignActionModal";
@@ -7,6 +7,7 @@ import {
   now,
   parseAbsoluteToLocal,
 } from "@internationalized/date";
+import DatePickerWithTimeInput from "../../../../../components/common/DatePickerWithTimeInput";
 
 export interface CampaignStepRef {
   triggerValidationAndProceed: () => void;
@@ -94,36 +95,26 @@ const CampaignScheduleStep: React.ForwardRefRenderFunction<
 
         {!sendImmediately && (
           <div className="mt-3">
-            <DatePicker
+            <DatePickerWithTimeInput
               id="scheduleDate"
               name="scheduleDate"
               label="Date and Time"
-              labelPlacement="outside"
-              size="sm"
-              radius="sm"
               minValue={now(getLocalTimeZone())}
-              defaultValue={
-                sendDate &&
-                sendDate !== "" &&
-                !isNaN(new Date(sendDate).getTime())
-                  ? parseAbsoluteToLocal(new Date(sendDate).toISOString())
-                  : null
-              }
-              onChange={(dateObject: any) => {
-                if (dateObject) {
-                  const date = dateObject.toDate(getLocalTimeZone());
+              value={sendDate}
+              onChange={(val) => {
+                if (val) {
+                  const date = new Date(val);
                   if (date < new Date()) {
                     setLocalError("Scheduled date cannot be in the past.");
                   } else {
                     setLocalError(null);
                   }
-                  setSendDate(date.toISOString());
+                  setSendDate(val);
                 } else {
                   setSendDate(undefined);
                   setLocalError(null);
                 }
               }}
-              granularity="minute"
               isInvalid={!!error}
               errorMessage={
                 error
@@ -133,7 +124,6 @@ const CampaignScheduleStep: React.ForwardRefRenderFunction<
                   : null
               }
               isRequired
-              hideTimeZone
             />
           </div>
         )}

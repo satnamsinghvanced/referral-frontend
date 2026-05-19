@@ -86,7 +86,7 @@ const CampaignCard = ({
                 <>
                   <span className="mx-1.5">•</span>
                   <span>
-                    Scheduled: {formatDateToReadable(schedule.date, true)}
+                    Scheduled: {formatDateToReadable(schedule.date, true, true)}
                   </span>
                 </>
               )}

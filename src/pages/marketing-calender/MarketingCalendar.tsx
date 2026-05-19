@@ -275,7 +275,7 @@ const MarketingCalendar = () => {
                     <LuCalendar fontSize={14} />
                     <p className="flex items-center space-x-1 text-xs">
                       <span>
-                        {formatDateToReadable(activity.startDate, true)}
+                        {formatDateToReadable(activity.startDate, true, true)}
                       </span>
                     </p>
                   </div>
