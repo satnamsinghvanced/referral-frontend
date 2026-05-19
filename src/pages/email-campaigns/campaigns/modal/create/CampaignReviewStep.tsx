@@ -118,7 +118,7 @@ const CampaignReviewStep: React.ForwardRefRenderFunction<
               value={
                 data.schedule.sendImmediately
                   ? "Send Immediately"
-                  : `${formatDateToReadable(data.schedule.date, true) || "N/A"}`
+                  : `${formatDateToReadable(data.schedule.date, true, true) || "N/A"}`
               }
             />
 

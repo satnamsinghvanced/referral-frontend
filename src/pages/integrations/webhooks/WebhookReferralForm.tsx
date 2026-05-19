@@ -2,13 +2,11 @@ import {
   Button,
   Card,
   CardBody,
-  DatePicker,
   Input,
   Select,
   SelectItem,
   Textarea,
 } from "@heroui/react";
-import { getLocalTimeZone, now } from "@internationalized/date";
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import { FaRegStar } from "react-icons/fa";
@@ -16,7 +14,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import * as Yup from "yup";
 import axios from "axios";
 import { EMAIL_REGEX, NAME_REGEX, PHONE_REGEX } from "../../../consts/consts";
-import { TREATMENT_OPTIONS, URGENCY_OPTIONS } from "../../../consts/referral";
+import { TREATMENT_OPTIONS } from "../../../consts/referral";
 import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
 
 interface WebhookFormValues {
@@ -26,8 +24,8 @@ interface WebhookFormValues {
   age: number | "";
   insuranceProvider: string;
   preferredTreatment: string;
-  scheduledDate: string;
-  urgencyLevel: string;
+  appointmentTime: string;
+  reason: string;
   notes: string;
 }
 
@@ -71,7 +69,10 @@ function WebhookReferralForm() {
       .min(2, "Full name must be at least 2 characters")
       .max(100, "Full name must be less than 100 characters"),
     email: Yup.string()
-      .matches(EMAIL_REGEX, "Invalid email format")
+      .matches(EMAIL_REGEX, {
+        message: "Invalid email format",
+        excludeEmptyString: true,
+      })
       .nullable(),
     phone: Yup.string()
       .matches(PHONE_REGEX, "Phone must be in format (XXX) XXX-XXXX")
@@ -88,11 +89,13 @@ function WebhookReferralForm() {
     preferredTreatment: Yup.string().required(
       "Preferred treatment is required",
     ),
-    urgencyLevel: Yup.string().required("Urgency level is required"),
+    appointmentTime: Yup.string().nullable(),
+    reason: Yup.string()
+      .max(500, "Referral reason must be less than 500 characters")
+      .nullable(),
     notes: Yup.string()
       .max(1000, "Additional notes must be less than 1000 characters")
       .nullable(),
-    scheduledDate: Yup.string().nullable(),
   });
 
   const formFields = [
@@ -116,7 +119,7 @@ function WebhookReferralForm() {
       type: "email",
       name: "email",
       label: "Email Address",
-      placeholder: "e.g., your.email@example.com",
+      placeholder: "your.email@example.com",
       required: false,
       maxLength: 255,
     },
@@ -125,7 +128,7 @@ function WebhookReferralForm() {
       name: "phone",
       label: "Phone Number",
       placeholder: "(555) 123-4567",
-      maxLength: 14,
+      maxLength: 14, // (XXX) XXX-XXXX
       required: true,
     },
     {
@@ -136,10 +139,12 @@ function WebhookReferralForm() {
       maxLength: 100,
     },
     {
-      type: "date",
-      name: "scheduledDate",
-      label: "Scheduled Date",
-      placeholder: "Select scheduled date",
+      type: "text",
+      name: "appointmentTime",
+      label: "Preferred Appointment Time",
+      placeholder: "Morning, evening, 3 pm or weekend",
+      required: false,
+      maxLength: 100,
     },
   ];
 
@@ -151,8 +156,8 @@ function WebhookReferralForm() {
       age: "",
       insuranceProvider: "",
       preferredTreatment: TREATMENT_OPTIONS[0]?.key || "invisalign",
-      urgencyLevel: URGENCY_OPTIONS[0]?.key || "medium",
-      scheduledDate: "",
+      appointmentTime: "",
+      reason: "",
       notes: "",
     },
     validationSchema: validationSchema,
@@ -168,9 +173,9 @@ function WebhookReferralForm() {
             age: Number(values.age),
             phone: values.phone,
             insurance: values.insuranceProvider || undefined,
-            scheduledDate: values.scheduledDate || undefined,
+            appointmentTime: values.appointmentTime || undefined,
             treatment: values.preferredTreatment,
-            priority: values.urgencyLevel,
+            reason: values.reason || undefined,
             notes: values.notes || undefined,
           },
           {
@@ -275,7 +280,7 @@ function WebhookReferralForm() {
                   const touched = formik.touched[fieldName];
                   const error = formik.errors[fieldName];
 
-                  return field.type !== "date" ? (
+                  return (
                     <Input
                       key={field.name}
                       type={field.type}
@@ -303,55 +308,11 @@ function WebhookReferralForm() {
                         ? { maxLength: field.maxLength }
                         : {})}
                     />
-                  ) : (
-                    <DatePicker
-                      key={field.name}
-                      id={field.name}
-                      name={field.name}
-                      label={field.label}
-                      labelPlacement="outside"
-                      size="sm"
-                      radius="sm"
-                      hideTimeZone
-                      minValue={now(getLocalTimeZone())}
-                      granularity="minute"
-                      onChange={(dateObject: any) => {
-                        if (dateObject) {
-                          const year = dateObject.year;
-                          const month = String(dateObject.month).padStart(
-                            2,
-                            "0",
-                          );
-                          const day = String(dateObject.day).padStart(2, "0");
-                          const hour = String(dateObject.hour).padStart(2, "0");
-                          const minute = String(dateObject.minute).padStart(
-                            2,
-                            "0",
-                          );
-                          const second = String(dateObject.second).padStart(
-                            2,
-                            "0",
-                          );
-                          const millisecond = String(
-                            dateObject.millisecond,
-                          ).padStart(3, "0");
-
-                          const localDateTimeString = `${year}-${month}-${day}T${hour}:${minute}:${second}.${millisecond}`;
-                          formik.setFieldValue(
-                            fieldName as string,
-                            localDateTimeString,
-                          );
-                        } else {
-                          formik.setFieldValue(fieldName as string, null);
-                        }
-                      }}
-                      onBlur={() => formik.setFieldTouched(fieldName, true)}
-                    />
                   );
                 })}
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-x-4 md:gap-y-6">
+              <div className="grid grid-cols-1 gap-6">
                 <Select
                   label="Preferred Treatment"
                   labelPlacement="outside"
@@ -395,41 +356,29 @@ function WebhookReferralForm() {
                     </SelectItem>
                   ))}
                 </Select>
+              </div>
 
-                <Select
-                  label="Urgency Level"
-                  labelPlacement="outside"
-                  placeholder="Select urgency level"
+              <div className="grid grid-cols-1 gap-6">
+                <Textarea
+                  label="Reason for Referral"
+                  labelPlacement="outside-top"
+                  name="reason"
+                  placeholder="Please describe what brings you to our practice..."
                   size="sm"
                   radius="sm"
-                  name="urgencyLevel"
-                  selectedKeys={
-                    formik.values.urgencyLevel
-                      ? new Set([formik.values.urgencyLevel])
-                      : new Set([])
+                  value={formik.values.reason}
+                  onValueChange={(val: string) =>
+                    formik.setFieldValue("reason", val)
                   }
-                  disabledKeys={[formik.values.urgencyLevel]}
-                  onSelectionChange={(keys) => {
-                    const value = Array.from(keys)[0] as string;
-                    formik.setFieldValue("urgencyLevel", value);
-                  }}
-                  onBlur={() => formik.setFieldTouched("urgencyLevel", true)}
-                  isInvalid={
-                    !!(
-                      formik.touched.urgencyLevel && formik.errors.urgencyLevel
-                    )
-                  }
-                  errorMessage={
-                    formik.touched.urgencyLevel &&
-                    (formik.errors.urgencyLevel as string)
-                  }
+                  onBlur={formik.handleBlur}
+                  minRows={3}
                   className="w-full"
-                  isRequired
-                >
-                  {URGENCY_OPTIONS.map((urgency) => (
-                    <SelectItem key={urgency.key}>{urgency.label}</SelectItem>
-                  ))}
-                </Select>
+                  isInvalid={!!(formik.touched.reason && formik.errors.reason)}
+                  errorMessage={
+                    formik.touched.reason && (formik.errors.reason as string)
+                  }
+                  classNames={{ inputWrapper: "py-2" }}
+                />
               </div>
 
               <div>

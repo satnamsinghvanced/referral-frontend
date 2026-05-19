@@ -1,10 +1,9 @@
-  import {
+import {
   Button,
   Card,
   CardBody,
   Checkbox,
   Chip,
-  DatePicker,
   Modal,
   ModalBody,
   ModalContent,
@@ -22,6 +21,7 @@ import { MdChatBubbleOutline } from "react-icons/md";
 import { useUpdateCallRecord } from "../../../hooks/useCall";
 import { CallRecord } from "../../../types/call";
 import { formatDateToReadable } from "../../../utils/formatDateToReadable";
+import DatePickerWithTimeInput from "../../../components/common/DatePickerWithTimeInput";
 
 const PlaybackTab = ({ data }: { data: CallRecord }) => (
   <div className="flex-1 outline-none space-y-4">
@@ -250,44 +250,12 @@ const DetailsTab = ({
                     </Checkbox>
                   </div>
                   {appointment && (
-                    <DatePicker
-                      key="date"
+                    <DatePickerWithTimeInput
                       id="appointmentDate"
                       name="date"
-                      aria-label="Appointment Date"
-                      size="sm"
-                      radius="sm"
-                      hideTimeZone
+                      value={appointmentDate}
                       minValue={now(getLocalTimeZone())}
-                      granularity="minute"
-                      onChange={(dateObject: any) => {
-                        if (dateObject) {
-                          // Extract parts, pad with leading zeros
-                          const year = dateObject.year;
-                          const month = String(dateObject.month).padStart(
-                            2,
-                            "0",
-                          );
-                          const day = String(dateObject.day).padStart(2, "0");
-                          const hour = String(dateObject.hour).padStart(2, "0");
-                          const minute = String(dateObject.minute).padStart(
-                            2,
-                            "0",
-                          );
-                          const second = String(dateObject.second).padStart(
-                            2,
-                            "0",
-                          );
-                          const millisecond = String(
-                            dateObject.millisecond,
-                          ).padStart(3, "0");
-
-                          const localDateTimeString = `${year}-${month}-${day}T${hour}:${minute}:${second}.${millisecond}`;
-                          setAppointmentDate(localDateTimeString);
-                        } else {
-                          setAppointmentDate("");
-                        }
-                      }}
+                      onChange={(val) => setAppointmentDate(val || "")}
                     />
                   )}
                 </div>

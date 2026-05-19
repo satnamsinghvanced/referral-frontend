@@ -1,4 +1,14 @@
-import { Button, DatePicker, Input, Modal, ModalBody, ModalContent, ModalHeader, Select, SelectItem, Textarea } from "@heroui/react";
+import {
+  Button,
+  Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+  Select,
+  SelectItem,
+  Textarea,
+} from "@heroui/react";
 import { getLocalTimeZone, now } from "@internationalized/date";
 import { useFormik } from "formik";
 import { useEffect } from "react";
@@ -7,7 +17,7 @@ import { ACTIVITY_STATUSES, ACTIVITY_TYPES } from "../../../consts/marketing";
 import { PRIORITY_LEVELS } from "../../../consts/practice";
 import { useCreateActivity, useUpdateActivity } from "../../../hooks/useMarketing";
 import { ActivityItem, ActivityStatus } from "../../../types/marketing";
-import { keepUTCWallClock } from "../../../utils/keepUTCWallClock";
+import DatePickerWithTimeInput from "../../../components/common/DatePickerWithTimeInput";
 
 interface ActivityFormValues {
   title: string;
@@ -247,65 +257,39 @@ export default function ActivityActionsModal({
               <ErrorText field="description" />
             </div>
             <div className="md:grid md:grid-cols-2 md:gap-4 max-md:space-y-4">
-              <div className="flex flex-col items-start">
-                <DatePicker
+              <div className="flex flex-col items-start w-full">
+                <DatePickerWithTimeInput
                   id="startDate"
                   name="startDate"
                   label="Start Date"
-                  labelPlacement="outside"
-                  size="sm"
-                  radius="sm"
-                  value={
-                    formik.values.startDate
-                      ? keepUTCWallClock(formik.values.startDate)
-                      : null
-                  }
+                  value={formik.values.startDate}
                   minValue={isEditing ? null : now(getLocalTimeZone())}
-                  onChange={(dateObject) => {
-                    formik.setFieldValue(
-                      "startDate",
-                      dateObject ? dateObject.toString() + "Z" : null,
-                    );
+                  onChange={(val) => {
+                    formik.setFieldValue("startDate", val);
                   }}
-                  granularity="minute"
                   onBlur={() => formik.setFieldTouched("startDate", true)}
                   isInvalid={!!hasError("startDate")}
+                  errorMessage={formik.errors.startDate}
                   isRequired
                 />
-                <ErrorText field="startDate" />
               </div>
-              <div className="flex flex-col items-start">
-                <DatePicker
+              <div className="flex flex-col items-start w-full">
+                <DatePickerWithTimeInput
                   id="endDate"
                   name="endDate"
                   label="End Date"
-                  labelPlacement="outside"
-                  size="sm"
-                  radius="sm"
-                  value={
-                    formik.values.endDate
-                      ? keepUTCWallClock(formik.values.endDate)
-                      : null
-                  }
-                  minValue={
-                    formik.values.startDate
-                      ? keepUTCWallClock(formik.values.startDate)
-                      : now(getLocalTimeZone())
-                  }
-                  onChange={(dateObject) => {
-                    formik.setFieldValue(
-                      "endDate",
-                      dateObject ? dateObject.toString() + "Z" : null,
-                    );
+                  value={formik.values.endDate}
+                  minValue={formik.values.startDate}
+                  onChange={(val) => {
+                    formik.setFieldValue("endDate", val);
                   }}
-                  granularity="minute"
                   onBlur={() => formik.setFieldTouched("endDate", true)}
                   isInvalid={!!hasError("endDate")}
+                  errorMessage={formik.errors.endDate}
                 />
                 <div className="text-[11px] text-gray-500 dark:text-foreground/40 mt-1">
                   Leave empty for single-day activity
                 </div>
-                <ErrorText field="endDate" />
               </div>
             </div>
             <div className="md:grid md:grid-cols-2 md:gap-4 max-md:space-y-4">
