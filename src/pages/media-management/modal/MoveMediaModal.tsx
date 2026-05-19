@@ -1,18 +1,6 @@
-import {
-  Button,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Select,
-  SelectItem,
-} from "@heroui/react";
+import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Select, SelectItem } from "@heroui/react";
 import { useEffect, useState } from "react";
-import {
-  useGetAllFoldersWithChildFolders,
-  useMoveImages,
-} from "../../../hooks/useMedia";
+import { useGetAllFoldersWithChildFolders, useMoveImages } from "../../../hooks/useMedia";
 
 interface MoveMediaModalProps {
   isOpen: boolean;
@@ -21,24 +9,15 @@ interface MoveMediaModalProps {
   setSelectedMedia: any;
 }
 
-export function MoveMediaModal({
-  isOpen,
-  onClose,
-  selectedMedia,
-  setSelectedMedia,
-}: MoveMediaModalProps) {
+export function MoveMediaModal({ isOpen, onClose, selectedMedia, setSelectedMedia }: MoveMediaModalProps) {
   const [selectedFolder, setSelectedFolder] = useState("");
-
   useEffect(() => {
     if (!isOpen) {
       setSelectedFolder("");
     }
   }, [isOpen]);
-
   const { data: folders } = useGetAllFoldersWithChildFolders();
-
   const { mutate, isPending } = useMoveImages();
-
   const handleMove = () => {
     mutate(
       { folderId: selectedFolder, imageIds: selectedMedia },
@@ -51,7 +30,6 @@ export function MoveMediaModal({
       },
     );
   };
-
   return (
     <Modal
       isOpen={isOpen}
@@ -69,7 +47,6 @@ export function MoveMediaModal({
             Move your media to selected folder
           </p>
         </ModalHeader>
-
         <ModalBody className="px-0 py-4">
           <Select
             size="sm"
@@ -88,7 +65,6 @@ export function MoveMediaModal({
             ))}
           </Select>
         </ModalBody>
-
         <ModalFooter className="flex justify-end gap-1.5 p-0">
           <Button
             size="sm"

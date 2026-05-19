@@ -1,27 +1,10 @@
-import {
-  Button,
-  Input,
-  Select,
-  SelectItem,
-  Card,
-  CardHeader,
-  CardBody,
-} from "@heroui/react";
+import { Button, Input, Select, SelectItem, Card, CardHeader, CardBody } from "@heroui/react";
 import { FaRegFolder } from "react-icons/fa";
 import { FiImage, FiSearch, FiUpload } from "react-icons/fi";
 import { LuFolderOpen, LuFolderPlus } from "react-icons/lu";
 import { useState } from "react";
 
-/* ------------------------------------------------------------
-   New Folder Modal
-------------------------------------------------------------- */
-function NewFolderModal({
-  isOpen,
-  onClose,
-  newFolderName,
-  setNewFolderName,
-  onCreateFolder,
-}: {
+function NewFolderModal({ isOpen, onClose, newFolderName, setNewFolderName, onCreateFolder }: {
   isOpen: boolean;
   onClose: () => void;
   newFolderName: string;
@@ -29,11 +12,9 @@ function NewFolderModal({
   onCreateFolder: () => void;
 }) {
   if (!isOpen) return null;
-
   return (
     <>
       <div className="fixed inset-0 bg-black/5 dark:bg-black/40 z-40"></div>
-
       <div className="fixed inset-0 flex justify-center items-center z-50">
         <div className="bg-white dark:bg-default-50 p-6 rounded-lg shadow-lg w-[400px] h-[200px] relative border border-transparent">
           <button
@@ -42,16 +23,13 @@ function NewFolderModal({
           >
             &times;
           </button>
-
           <h4 className="text-sm font-medium mb-1 text-foreground">
             Create New Folder
           </h4>
           <p className="text-xs text-gray-400 dark:text-foreground/40 mb-4">
             Create a new folder in the root directory
           </p>
-
           <h4 className="text-xs mb-1 text-foreground/70">Folder Name</h4>
-
           <Input
             placeholder="Enter Folder name"
             size="sm"
@@ -59,7 +37,6 @@ function NewFolderModal({
             onChange={(e) => setNewFolderName(e.target.value)}
             className="mb-4 bg-gray-100 dark:bg-default-100 rounded-md"
           />
-
           <div className="flex justify-end  gap-3">
             <Button
               size="sm"
@@ -87,24 +64,11 @@ function NewFolderModal({
   );
 }
 
-/* ------------------------------------------------------------
-   Upload Media Modal
-------------------------------------------------------------- */
-function UploadMediaModal({
-  isOpen,
-  onClose,
-  onUpload,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-  onUpload: () => void;
-}) {
+function UploadMediaModal({ isOpen, onClose, onUpload }: { isOpen: boolean; onClose: () => void; onUpload: () => void; }) {
   if (!isOpen) return null;
-
   return (
     <>
       <div className="fixed inset-0 bg-black/5 dark:bg-black/40 z-40"></div>
-
       <div className="fixed inset-0 flex justify-center items-center z-50">
         <div className="bg-white dark:bg-default-50 p-6 rounded-lg shadow-lg w-[400px] h-[300px] relative border border-transparent">
           <button
@@ -113,7 +77,6 @@ function UploadMediaModal({
           >
             &times;
           </button>
-
           <h4 className="text-sm font-medium mb-1 text-foreground">
             Upload Media
           </h4>
@@ -128,7 +91,6 @@ function UploadMediaModal({
             type="text"
             className="mb-4 bg-gray-100 dark:bg-default-100 rounded-md p-2 w-full text-xs text-gray-700 dark:text-foreground/70 border border-foreground/10 dark:border-default-200"
           />
-
           <div className="flex justify-end gap-3">
             <Button
               size="sm"
@@ -146,10 +108,6 @@ function UploadMediaModal({
     </>
   );
 }
-
-/* ------------------------------------------------------------
-   Original BrowseMedia Code (unchanged UI)
-------------------------------------------------------------- */
 
 interface BrowseMediaProps {
   currentFilters: any;
@@ -169,32 +127,25 @@ const FolderItem = ({ name, items }: { name: string; items: number }) => (
     </div>
   </div>
 );
-
 const mockFolders = [
   { name: "dgdfg", items: 0 },
   { name: "hawaii pics", items: 0 },
   { name: "1", items: 0 },
   { name: "sdasd", items: 0 },
 ];
-
 function BrowseMedia({ currentFilters, onFilterChange }: BrowseMediaProps) {
-  /* ---- Added states for Modals ---- */
   const [isFolderModalOpen, setIsFolderModalOpen] = useState(false);
   const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
-
   const handleCreateFolder = () => {
     setNewFolderName("");
     setIsFolderModalOpen(false);
   };
-
   const handleUpload = () => {
     setIsUploadModalOpen(false);
   };
-
   return (
     <div className="flex flex-col gap-5">
-      {/* ---------------- Top Buttons --------------- */}
       <div className="flex items-center justify-between gap-4 border border-foreground/10 rounded-xl p-4 bg-content1 shadow-none">
         <p className="text-sm text-foreground">Root</p>
         <div className="space-x-2">
@@ -208,7 +159,6 @@ function BrowseMedia({ currentFilters, onFilterChange }: BrowseMediaProps) {
           >
             New Folder
           </Button>
-
           <Button
             size="sm"
             radius="sm"
@@ -221,8 +171,6 @@ function BrowseMedia({ currentFilters, onFilterChange }: BrowseMediaProps) {
           </Button>
         </div>
       </div>
-
-      {/* ---------------- Search & Filters --------------- */}
       <div className="flex items-center gap-4 border border-foreground/10 rounded-xl p-4 bg-content1 shadow-none">
         <div className="relative flex-1">
           <Input
@@ -235,7 +183,6 @@ function BrowseMedia({ currentFilters, onFilterChange }: BrowseMediaProps) {
             }
           />
         </div>
-
         <div className="min-w-[200px]">
           <Select
             aria-label="Call Types"
@@ -252,8 +199,6 @@ function BrowseMedia({ currentFilters, onFilterChange }: BrowseMediaProps) {
           </Select>
         </div>
       </div>
-
-      {/* ---------------- Folders & Media --------------- */}
       <div className="space-y-5">
         <Card className="shadow-none border border-foreground/10 p-5 bg-content1">
           <CardHeader className="p-0 pb-5">
@@ -270,7 +215,6 @@ function BrowseMedia({ currentFilters, onFilterChange }: BrowseMediaProps) {
             </div>
           </CardBody>
         </Card>
-
         <Card className="shadow-none border border-foreground/10 p-5 bg-content1">
           <CardHeader className="p-0 pb-5">
             <div className="flex justify-between items-center">
@@ -298,8 +242,6 @@ function BrowseMedia({ currentFilters, onFilterChange }: BrowseMediaProps) {
           </CardBody>
         </Card>
       </div>
-
-      {/* ---------------- Modals Here --------------- */}
       <NewFolderModal
         isOpen={isFolderModalOpen}
         onClose={() => setIsFolderModalOpen(false)}
@@ -307,7 +249,6 @@ function BrowseMedia({ currentFilters, onFilterChange }: BrowseMediaProps) {
         setNewFolderName={setNewFolderName}
         onCreateFolder={handleCreateFolder}
       />
-
       <UploadMediaModal
         isOpen={isUploadModalOpen}
         onClose={() => setIsUploadModalOpen(false)}

@@ -5,12 +5,10 @@ import ActivityStatusChip from "../../components/chips/ActivityStatusChip";
 import { ACTIVITY_TYPES } from "../../consts/marketing";
 import { ActivityItem } from "../../types/marketing";
 import { formatDateToReadable } from "../../utils/formatDateToReadable";
-
 interface ActivityCardProps {
   activity: ActivityItem;
   onView: any;
 }
-
 export function ActivityCard({ activity, onView }: ActivityCardProps) {
   const {
     _id,
@@ -26,15 +24,12 @@ export function ActivityCard({ activity, onView }: ActivityCardProps) {
     budget,
     reach,
   } = activity;
-
   const activityType = ACTIVITY_TYPES.find(
     (activityType: any) => activityType.value == type,
   )?.label;
-
   const activityColor = ACTIVITY_TYPES.find(
     (activityType: any) => activityType.value == type,
   )?.color.value;
-
   return (
     <Card
       radius="none"
@@ -55,7 +50,6 @@ export function ActivityCard({ activity, onView }: ActivityCardProps) {
           status={status === "confirmed" ? "scheduled" : status}
         />
       </CardHeader>
-
       {(startDate || activityType || description) && (
         <CardBody className="text-sm text-gray-600 dark:text-foreground/60 space-y-2 mb-3 p-0">
           {startDate && (
@@ -66,12 +60,10 @@ export function ActivityCard({ activity, onView }: ActivityCardProps) {
               </p>
             </div>
           )}
-
           <p className="text-xs flex items-center gap-1.5 capitalize">
             <FiGlobe fontSize={14} />{" "}
             {activityType ? activityType : "Google Calendar"}
           </p>
-
           {description && (
             <p className="text-xs text-gray-600 dark:text-foreground/60 line-clamp-2">
               {description}
@@ -79,7 +71,6 @@ export function ActivityCard({ activity, onView }: ActivityCardProps) {
           )}
         </CardBody>
       )}
-
       <CardFooter className="flex justify-between items-center text-gray-600 dark:text-foreground/40 text-xs p-0">
         {budget ? (
           <div className="text-emerald-600 dark:text-emerald-400">

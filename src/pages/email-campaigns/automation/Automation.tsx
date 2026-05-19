@@ -48,9 +48,9 @@ const Automation = () => {
         <Tab key="active-flows" title="Active Flows">
           <ActiveFlows onEdit={handleEditFlow} onCreateNew={handleCreateNew} />
         </Tab>
-        <Tab key="templates" title="Templates">
+        {/* <Tab key="templates" title="Templates">
           <Templates onUseTemplate={handleUseTemplate} />
-        </Tab>
+        </Tab> */}
         <Tab key="flow-builder" title="Flow Builder">
           <FlowBuilder
             id={selectedFlowId}

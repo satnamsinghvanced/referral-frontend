@@ -1,25 +1,11 @@
-import {
-  Button,
-  DatePicker,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalHeader,
-  Select,
-  SelectItem,
-  Textarea,
-} from "@heroui/react";
+import { Button, DatePicker, Input, Modal, ModalBody, ModalContent, ModalHeader, Select, SelectItem, Textarea } from "@heroui/react";
 import { getLocalTimeZone, now } from "@internationalized/date";
 import { useFormik } from "formik";
 import { useEffect } from "react";
 import * as Yup from "yup";
 import { ACTIVITY_STATUSES, ACTIVITY_TYPES } from "../../../consts/marketing";
 import { PRIORITY_LEVELS } from "../../../consts/practice";
-import {
-  useCreateActivity,
-  useUpdateActivity,
-} from "../../../hooks/useMarketing";
+import { useCreateActivity, useUpdateActivity } from "../../../hooks/useMarketing";
 import { ActivityItem, ActivityStatus } from "../../../types/marketing";
 import { keepUTCWallClock } from "../../../utils/keepUTCWallClock";
 
@@ -85,7 +71,6 @@ export default function ActivityActionsModal({
   initialData,
 }: ActivityActionsModalProps) {
   const isEditing = !!initialData?._id || !!initialData?.googleId;
-
   const initialValues: ActivityFormValues = {
     title: initialData?.title || "",
     // @ts-ignore
@@ -104,10 +89,8 @@ export default function ActivityActionsModal({
     budget: initialData?.budget || "",
     status: initialData?.status || "scheduled",
   };
-
   const { mutate: createActivity, isPending: isCreating } = useCreateActivity();
   const { mutate: updateActivity, isPending: isUpdating } = useUpdateActivity();
-
   const formik = useFormik({
     initialValues: initialValues,
     validationSchema: ActivityValidationSchema,
@@ -117,7 +100,6 @@ export default function ActivityActionsModal({
         ...values,
         budget: values.budget === "" ? 0 : values.budget,
       };
-
       if (isEditing) {
         updateActivity(
           {
@@ -151,7 +133,6 @@ export default function ActivityActionsModal({
       }
     },
   });
-
   useEffect(() => {
     if (isOpen) {
       if (isEditing) {
@@ -165,10 +146,8 @@ export default function ActivityActionsModal({
       formik.resetForm();
     }
   }, [isOpen, initialData, defaultStartDate, defaultEndDate, isEditing]);
-
   const hasError = (field: keyof typeof initialValues) =>
     formik.touched[field] && formik.errors[field];
-
   const ErrorText = ({ field }: { field: keyof typeof initialValues }) =>
     hasError(field) ? (
       <div className="text-xs text-red-500 mt-1">{formik.errors[field]}</div>
@@ -204,7 +183,6 @@ export default function ActivityActionsModal({
             campaigns, referral activities, or promotional events.
           </p>
         </ModalHeader>
-
         <ModalBody className="p-4 pt-0">
           <form onSubmit={formik.handleSubmit} className="space-y-4 flex-1">
             <div className="md:grid md:grid-cols-2 md:gap-4 max-md:space-y-4">
@@ -249,7 +227,6 @@ export default function ActivityActionsModal({
                 <ErrorText field="type" />
               </div>
             </div>
-
             <div className="flex flex-col items-start">
               <Textarea
                 id="description"
@@ -269,7 +246,6 @@ export default function ActivityActionsModal({
               />
               <ErrorText field="description" />
             </div>
-
             <div className="md:grid md:grid-cols-2 md:gap-4 max-md:space-y-4">
               <div className="flex flex-col items-start">
                 <DatePicker
@@ -296,7 +272,6 @@ export default function ActivityActionsModal({
                   isInvalid={!!hasError("startDate")}
                   isRequired
                 />
-
                 <ErrorText field="startDate" />
               </div>
               <div className="flex flex-col items-start">
@@ -327,14 +302,12 @@ export default function ActivityActionsModal({
                   onBlur={() => formik.setFieldTouched("endDate", true)}
                   isInvalid={!!hasError("endDate")}
                 />
-
                 <div className="text-[11px] text-gray-500 dark:text-foreground/40 mt-1">
                   Leave empty for single-day activity
                 </div>
                 <ErrorText field="endDate" />
               </div>
             </div>
-
             <div className="md:grid md:grid-cols-2 md:gap-4 max-md:space-y-4">
               {/* <div>
               <Input
@@ -404,7 +377,6 @@ export default function ActivityActionsModal({
                 <ErrorText field="budget" />
               </div>
             </div>
-
             <div className="md:grid md:grid-cols-2 md:gap-4 max-md:space-y-4">
               <div
                 className={`${isEditing ? "col-span-1" : "col-span-2"} flex flex-col items-start`}
@@ -452,7 +424,6 @@ export default function ActivityActionsModal({
                 </div>
               )}
             </div>
-
             <div className="flex justify-end space-x-2 pt-1">
               <Button
                 variant="ghost"

@@ -6,27 +6,21 @@ export const formatDuration = (seconds: number): string => {
   const remainingSecondsAfterHours = seconds % 3600;
   const minutes = Math.floor(remainingSecondsAfterHours / 60);
   const remainingSeconds = Math.round(remainingSecondsAfterHours % 60);
-
   const parts = [];
-
   if (hours > 0) {
     parts.push(`${hours}h`);
   }
-
   if (minutes > 0) {
     parts.push(`${minutes}m`);
   }
-
   if (hours === 0 && minutes === 0) {
     parts.push(`${remainingSeconds}s`);
   } else if (remainingSeconds > 0) {
     parts.push(`${remainingSeconds}s`);
   }
-
   if (parts.length === 0) {
     return "0s";
   }
-
   return parts.join(" ");
 };
 

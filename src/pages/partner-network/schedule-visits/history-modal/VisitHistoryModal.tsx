@@ -1,12 +1,4 @@
-import {
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalHeader,
-  Select,
-  SelectItem,
-} from "@heroui/react";
+import { Input, Modal, ModalBody, ModalContent, ModalHeader, Select, SelectItem } from "@heroui/react";
 import { FiSearch, FiLoader } from "react-icons/fi";
 import { TbArchive } from "react-icons/tb";
 import VisitHistoryCard from "./VisitHistoryCard";
@@ -21,52 +13,30 @@ interface VisitHistoryModalProps {
   onItemView: any;
 }
 
-export function VisitHistoryModal({
-  isOpen,
-  onClose,
-  onItemView,
-}: VisitHistoryModalProps) {
+export function VisitHistoryModal({ isOpen, onClose, onItemView }: VisitHistoryModalProps) {
   const [searchInput, setSearchInput] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
-
-  // Debounce the search input value
   const debouncedSearch = useDebouncedValue(searchInput, 500);
-
-  // Memoize filters object to prevent unnecessary re-fetches
-  const filters = useMemo(
-    () => ({
-      filter: statusFilter,
-      search: debouncedSearch,
-    }),
-    [statusFilter, debouncedSearch],
-  );
-
+  const filters = useMemo(() => ({ filter: statusFilter, search: debouncedSearch, }), [statusFilter, debouncedSearch]);
   // @ts-ignore
   const { data: visitHistoryData, isFetching } = useVisitHistory(filters);
-
   const visits = visitHistoryData?.data;
   const stats = visitHistoryData?.stats;
-
   const displayStats = stats || {
     totalVisits: "0",
     completedVisits: "0",
     officeVisits: "0",
     totalTime: "0",
   };
-
-  // Handler for Select change, using useCallback for stability
   const handleStatusChange = useCallback(
     (event: React.ChangeEvent<HTMLSelectElement>) => {
       setStatusFilter(event.target.value);
     },
     [],
   );
-
-  // Handler for Input change, using useCallback for stability
   const handleSearchChange = useCallback((value: string) => {
     setSearchInput(value);
   }, []);
-
   return (
     <Modal
       isOpen={isOpen}
@@ -85,7 +55,6 @@ export function VisitHistoryModal({
             <FiLoader className="animate-spin h-6 w-6 text-primary" />
           </div>
         )}
-
         <ModalHeader className="flex flex-col gap-0 flex-shrink-0 p-4 pb-0 font-normal">
           <div className="flex flex-col items-start gap-2">
             <h2 className="text-base leading-none font-medium flex items-center gap-2 dark:text-white">
@@ -161,7 +130,6 @@ export function VisitHistoryModal({
             </Select>
           </div>
         </ModalHeader>
-
         <ModalBody className="p-4 pt-0 overflow-y-auto flex-1">
           <div>
             {visits?.map((monthGroup: any, index: number) => (
@@ -180,7 +148,6 @@ export function VisitHistoryModal({
                 </div>
               </div>
             ))}
-            {/* Display if no visits are found */}
             {(!visits || visits.length === 0) && !isFetching && (
               <EmptyState title="No visits found matching the current filters. Try adjusting your search or filters." />
             )}

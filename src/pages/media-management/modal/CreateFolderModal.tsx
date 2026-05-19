@@ -1,12 +1,4 @@
-import {
-  Button,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-} from "@heroui/react";
+import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@heroui/react";
 import { useEffect, useState } from "react";
 import { useCreateFolder, useUpdateFolderName } from "../../../hooks/useMedia";
 
@@ -17,14 +9,8 @@ interface CreateFolderModalProps {
   folderToEdit?: { id: string; name: string } | null;
 }
 
-export function CreateFolderModal({
-  isOpen,
-  onClose,
-  parentFolderId,
-  folderToEdit,
-}: CreateFolderModalProps) {
+export function CreateFolderModal({ isOpen, onClose, parentFolderId, folderToEdit }: CreateFolderModalProps) {
   const [folderName, setFolderName] = useState("");
-
   useEffect(() => {
     if (folderToEdit) {
       setFolderName(folderToEdit.name);
@@ -32,18 +18,14 @@ export function CreateFolderModal({
       setFolderName("");
     }
   }, [folderToEdit, isOpen]);
-
   const { mutate: createFolder, isPending: isCreatePending } =
     useCreateFolder();
   const { mutate: updateFolder, isPending: isUpdatePending } =
     useUpdateFolderName(folderToEdit?.id || "");
-
   const isPending = isCreatePending || isUpdatePending;
   const isEditMode = !!folderToEdit;
-
   const handleSubmit = () => {
     if (!folderName.trim()) return;
-
     if (isEditMode) {
       updateFolder(
         { name: folderName },
@@ -65,9 +47,7 @@ export function CreateFolderModal({
       );
     }
   };
-
   const isNameValid = folderName.trim().length > 0;
-
   return (
     <Modal
       isOpen={isOpen}
@@ -89,7 +69,6 @@ export function CreateFolderModal({
               : "Create a new folder in the current directory"}
           </p>
         </ModalHeader>
-
         <ModalBody className="px-0 pt-4 pb-5">
           <Input
             id="folderName"
@@ -107,7 +86,6 @@ export function CreateFolderModal({
             }}
           />
         </ModalBody>
-
         <ModalFooter className="flex justify-end gap-1.5 p-0">
           <Button
             size="sm"

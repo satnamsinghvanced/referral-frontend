@@ -1,14 +1,4 @@
-import {
-  addToast,
-  Button,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Progress,
-} from "@heroui/react";
+import { addToast, Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Progress } from "@heroui/react";
 import React, { useRef, useState, useEffect } from "react";
 import { FiAlertCircle, FiUpload, FiX } from "react-icons/fi";
 import { useUpload } from "../../../providers/UploadProvider";
@@ -25,8 +15,7 @@ interface UploadMediaModalProps {
   maxVideoSize?: number | undefined;
 }
 
-// Constants for validation
-const DEFAULT_MAX_FILE_SIZE = 1024 * 1024 * 1024; // 1GB in bytes
+const DEFAULT_MAX_FILE_SIZE = 1024 * 1024 * 1024;
 const MAX_FILES_COUNT = 10;
 
 interface FileWithError {
@@ -34,12 +23,7 @@ interface FileWithError {
   error?: string;
 }
 
-export function UploadMediaModal({
-  isOpen,
-  onClose,
-  folderId,
-  folderName,
-  allowedImageFormats = ["image/jpeg", "image/png", "image/gif", "image/webp"],
+export function UploadMediaModal({ isOpen, onClose, folderId, folderName, allowedImageFormats = ["image/jpeg", "image/png", "image/gif", "image/webp"],
   maxImageSize = DEFAULT_MAX_FILE_SIZE,
   allowedVideoFormats = ["video/mp4", "video/webm", "video/quicktime"],
   maxVideoSize = DEFAULT_MAX_FILE_SIZE,
@@ -50,7 +34,6 @@ export function UploadMediaModal({
   const [filesToUpload, setFilesToUpload] = useState<FileWithError[]>([]);
   const { startUpload } = useUpload();
   const [isUploading, setIsUploading] = useState(false);
-
   const resetModalState = () => {
     setFilesToUpload([]);
     setTags("");
@@ -60,13 +43,11 @@ export function UploadMediaModal({
       fileInputRef.current.value = "";
     }
   };
-
   useEffect(() => {
     if (!isOpen) {
       resetModalState();
     }
   }, [isOpen]);
-
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
@@ -74,11 +55,9 @@ export function UploadMediaModal({
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + " " + sizes[i];
   };
-
   const validateFile = (file: File): string | undefined => {
     const isImage = file.type.startsWith("image/");
     const isVideo = file.type.startsWith("video/");
-
     if (isImage) {
       if (!allowedImageFormats.includes(file.type)) {
         const format = file.type.split("/")[1]?.toUpperCase() || "UNKNOWN";
@@ -98,17 +77,12 @@ export function UploadMediaModal({
     } else {
       return "Only image and video files are allowed.";
     }
-
     return undefined;
   };
-
   const handleFileSelect = (newFiles: FileList | null) => {
     if (!newFiles || newFiles.length === 0) return;
-
     const currentCount = filesToUpload.length;
     const newFilesArray = Array.from(newFiles);
-
-    // Check if adding these files would exceed the limit
     if (currentCount + newFilesArray.length > MAX_FILES_COUNT) {
       addToast({
         title: "Too Many Files",
@@ -121,14 +95,10 @@ export function UploadMediaModal({
       });
       return;
     }
-
-    // Validate each file
     const filesWithErrors: FileWithError[] = newFilesArray.map((file) => {
       const error = validateFile(file);
       return error ? { file, error } : { file };
     });
-
-    // Show warnings for invalid files
     const invalidFiles = filesWithErrors.filter((f) => f.error);
     if (invalidFiles.length > 0) {
       addToast({
@@ -141,33 +111,25 @@ export function UploadMediaModal({
         },
       });
     }
-
     setFilesToUpload((prevFiles) => [...prevFiles, ...filesWithErrors]);
   };
-
   const handleRemoveFile = (index: number) => {
     setFilesToUpload((prev) => prev.filter((_, i) => i !== index));
   };
-
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragOver(true);
   };
-
   const handleDragLeave = () => {
     setIsDragOver(false);
   };
-
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragOver(false);
     handleFileSelect(e.dataTransfer.files);
   };
-
   const handleUploadClick = async () => {
-    // Filter out files with errors
     const validFiles = filesToUpload.filter((f) => !f.error);
-
     if (validFiles.length === 0) {
       addToast({
         title: "No Valid Files",
@@ -180,10 +142,8 @@ export function UploadMediaModal({
       });
       return;
     }
-
     const images: File[] = [];
     const files: File[] = [];
-
     validFiles.forEach(({ file }) => {
       if (file.type.startsWith("image/")) {
         images.push(file);
@@ -191,7 +151,6 @@ export function UploadMediaModal({
         files.push(file);
       }
     });
-
     const requestData: UploadMediaRequest = {
       folderId,
       images,
@@ -202,13 +161,10 @@ export function UploadMediaModal({
         .map((t) => t.trim())
         .filter((t) => t.length > 0),
     };
-
     onClose();
     const fileName = (validFiles.length === 1
       ? validFiles[0]?.file.name
       : `${validFiles.length} files`) || "Media Files";
-
-    // Determine primary type for toast
     let type: "image" | "video" | "media" = "media";
     if (validFiles.length > 0) {
       const allImages = validFiles.every(f => f.file.type.startsWith("image/"));
@@ -216,19 +172,15 @@ export function UploadMediaModal({
       if (allImages) type = "image";
       else if (allVideos) type = "video";
     }
-
     startUpload(requestData, fileName, type);
   };
-
   const handleCancel = () => {
     resetModalState();
     onClose();
   };
-
   const validFilesCount = filesToUpload.filter((f) => !f.error).length;
   const invalidFilesCount = filesToUpload.filter((f) => f.error).length;
   const isUploadDisabled = validFilesCount === 0 || isUploading;
-
   return (
     <Modal
       isOpen={isOpen}
@@ -254,7 +206,6 @@ export function UploadMediaModal({
             {formatFileSize(maxVideoSize)}
           </p>
         </ModalHeader>
-
         <ModalBody className="gap-0 space-y-4 px-0 py-4">
           <div>
             <Input
@@ -269,7 +220,6 @@ export function UploadMediaModal({
               onChange={(e) => setTags(e.target.value)}
             />
           </div>
-
           <div
             className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer ${isDragOver
               ? "border-blue-500 bg-blue-50 dark:bg-blue-900/10"
@@ -312,7 +262,6 @@ export function UploadMediaModal({
               className="hidden"
             />
           </div>
-
           {filesToUpload.length > 0 && (
             <div className="max-h-48 overflow-auto border border-foreground/10 rounded-lg p-3 bg-gray-50 dark:bg-default-100/20">
               <div className="flex justify-between items-center mb-2">
@@ -368,7 +317,6 @@ export function UploadMediaModal({
             </div>
           )}
         </ModalBody>
-
         <ModalFooter className="flex justify-between items-center p-0">
           <div className="text-xs text-gray-600 dark:text-foreground/40">
             {validFilesCount > 0 && (

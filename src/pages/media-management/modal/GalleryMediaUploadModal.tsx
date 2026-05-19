@@ -1,30 +1,11 @@
-import {
-  addToast,
-  Button,
-  Card,
-  CardBody,
-  CardHeader,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Select,
-  SelectItem,
-} from "@heroui/react";
+import { addToast, Button, Card, CardBody, CardHeader, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Select, SelectItem } from "@heroui/react";
 import { useEffect, useState } from "react";
 import { FaRegFolder } from "react-icons/fa";
 import { FiImage, FiSearch, FiUpload } from "react-icons/fi";
 import { LuFolderOpen, LuFolderPlus } from "react-icons/lu";
 import { LoadingState } from "../../../components/common/LoadingState";
 import { useDebouncedValue } from "../../../hooks/common/useDebouncedValue";
-import {
-  useGetAllFolders,
-  useGetFolderDetails,
-  useSearchImages,
-  useTagsQuery,
-} from "../../../hooks/useMedia";
+import { useGetAllFolders, useGetFolderDetails, useSearchImages, useTagsQuery } from "../../../hooks/useMedia";
 import { Media } from "../../../types/media";
 import FolderBreadcrumb from "../FolderBreadcrumb";
 import MediaItem from "../MediaItem";
@@ -55,77 +36,40 @@ function GalleryMediaUploadModal({
   maxSelection,
 }: GalleryMediaUploadModalProps) {
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
-  const [breadcrumbPath, setBreadcrumbPath] = useState<
-    { id: string; name: string }[]
-  >([]);
-
+  const [breadcrumbPath, setBreadcrumbPath] = useState<{ id: string; name: string }[]>([]);
   const [isCreateFolderModalOpen, setIsCreateFolderModalOpen] = useState(false);
   const [isUploadMediaModalOpen, setIsUploadMediaModalOpen] = useState(false);
   const [selectedMediaIds, setSelectedMediaIds] = useState<string[]>([]);
   const [selectedMediaItems, setSelectedMediaItems] = useState<Media[]>([]);
-
-  const [currentFilters, setCurrentFilters] = useState<any>({
-    search: "",
-    type: "all",
-    tags: [],
-  });
-
-  const { data: allFolders, isLoading: isAllFoldersLoading } = useGetAllFolders(
-    {
-      page: 1,
-      limit: 10,
-    },
-  );
-
-  const { data: folderData, isLoading: isLoadingFolder } = useGetFolderDetails(
-    currentFolderId as string,
-  );
-
+  const [currentFilters, setCurrentFilters] = useState<any>({ search: "", type: "all", tags: [] });
+  const { data: allFolders, isLoading: isAllFoldersLoading } = useGetAllFolders({ page: 1, limit: 10 });
+  const { data: folderData, isLoading: isLoadingFolder } = useGetFolderDetails(currentFolderId as string);
   const { data: availableTagsData } = useTagsQuery();
   const availableTags = availableTagsData?.tags;
-
   const subfolders = folderData?.subfolders || allFolders?.folders;
-  const currentFolderName =
-    currentFolderId && folderData?.folder?.name
-      ? folderData.folder.name
-      : "Root";
-
+  const currentFolderName = currentFolderId && folderData?.folder?.name ? folderData.folder.name : "Root";
   const debouncedSearch = useDebouncedValue(currentFilters.search, 500);
-
-  const searchQueryParams = {
-    filter: currentFilters.type,
-    search: debouncedSearch,
-    tags: currentFilters.tags,
-  };
-
-  const { data: mediaData, isLoading: isLoadingMedia } =
-    useSearchImages(searchQueryParams);
-
+  const searchQueryParams = { filter: currentFilters.type, search: debouncedSearch, tags: currentFilters.tags };
+  const { data: mediaData, isLoading: isLoadingMedia } = useSearchImages(searchQueryParams);
   const isFoldersLoading = isAllFoldersLoading || isLoadingFolder;
-
   const onNavigateFolder = (folderId: string | null, folderName?: string) => {
     setCurrentFolderId(folderId);
-
     if (folderId === null) {
       setBreadcrumbPath([]);
     } else {
       let newPath = [...breadcrumbPath];
       const existingIndex = newPath.findIndex((item) => item.id === folderId);
-
       if (existingIndex !== -1) {
         newPath = newPath.slice(0, existingIndex + 1);
       } else if (folderName) {
         newPath.push({ id: folderId, name: folderName });
       }
-
       setBreadcrumbPath(newPath);
     }
   };
-
   const onFilterChange = (key: string, value: string) => {
     setCurrentFilters((prev: any) => ({ ...prev, [key]: value }));
   };
-
   const handleToggleTag = (tagName: string) => {
     setCurrentFilters((prev: any) => {
       const newTags = prev.tags.includes(tagName)
@@ -134,50 +78,37 @@ function GalleryMediaUploadModal({
       return { ...prev, tags: newTags };
     });
   };
-
   const clearAllTags = () => {
     setCurrentFilters((prev: any) => ({ ...prev, tags: [] }));
   };
-
   const currentFolderMediaGroup = mediaData?.find(
     (group: any) =>
       group.folderName ===
       (currentFolderName === "Root" ? "Root" : currentFolderName),
   );
   const rawFolderMedia = currentFolderMediaGroup?.images || [];
-
   const filteredMedia = rawFolderMedia.filter((media: Media) => {
     const isImage = media.type.startsWith("image/");
     const isVideo = media.type.startsWith("video/");
-
     if (isImage && allowedImageFormats) {
-      // If formats are restricted, only show allowed ones
       if (!allowedImageFormats.includes(media.type)) return false;
     }
-
     if (isVideo && allowedVideoFormats) {
-      // If formats are restricted (or empty array), only show allowed ones
       if (!allowedVideoFormats.includes(media.type)) return false;
     }
-
     return true;
   });
-
   const displayMedia = filteredMedia;
-
-  // Initialize selection from preselected media when modal opens
   useEffect(() => {
     if (isOpen) {
       setSelectedMediaItems(preselectedMedia);
       setSelectedMediaIds(preselectedMedia.map((m) => m._id));
     }
   }, [isOpen, preselectedMedia]);
-
   const handleMediaSelect = (isSelected: boolean, media: Media) => {
     if (isSelected) {
       const isImage = media.type.startsWith("image/");
       const isVideo = media.type.startsWith("video/");
-
       if (isImage) {
         if (allowedImageFormats && !allowedImageFormats.includes(media.type)) {
           addToast({
@@ -217,7 +148,6 @@ function GalleryMediaUploadModal({
           return;
         }
       }
-
       setSelectedMediaIds((prev) => [...prev, media._id]);
       setSelectedMediaItems((prev) => [...prev, media]);
     } else {
@@ -227,12 +157,10 @@ function GalleryMediaUploadModal({
       );
     }
   };
-
   const handleConfirmSelect = () => {
     onSelect(selectedMediaItems);
     onClose();
   };
-
   return (
     <Modal
       isOpen={isOpen}
@@ -256,7 +184,6 @@ function GalleryMediaUploadModal({
         </ModalHeader>
         <ModalBody className="px-4 py-0">
           <div className="flex flex-col gap-3.5">
-            {/* Top Bar: Breadcrumbs & Actions */}
             <div className="flex flex-wrap items-center justify-between gap-4 border border-default-200/50 rounded-xl p-3">
               <FolderBreadcrumb
                 path={breadcrumbPath}
@@ -285,8 +212,6 @@ function GalleryMediaUploadModal({
                 </Button>
               </div>
             </div>
-
-            {/* Filters */}
             <div className="border border-default-200/50 rounded-xl p-3 flex flex-col gap-3">
               <div className="flex items-center gap-3">
                 <div className="relative flex-1">
@@ -320,7 +245,6 @@ function GalleryMediaUploadModal({
                   </Select>
                 </div>
               </div>
-
               {availableTags && availableTags.length > 0 && (
                 <div className="flex flex-wrap gap-2 items-center">
                   <span className="text-xs font-medium text-default-500 dark:text-foreground/60">
@@ -329,11 +253,10 @@ function GalleryMediaUploadModal({
                   {availableTags?.map((tag) => (
                     <div
                       key={tag}
-                      className={`text-[11px] px-2 py-0.5 rounded-full cursor-pointer transition-colors border ${
-                        currentFilters.tags.includes(tag)
-                          ? "bg-primary text-white border-primary"
-                          : "bg-default-100 dark:bg-default-100/50 text-default-600 dark:text-foreground/60 border-default-200 hover:bg-default-200 dark:hover:bg-default-100"
-                      }`}
+                      className={`text-[11px] px-2 py-0.5 rounded-full cursor-pointer transition-colors border ${currentFilters.tags.includes(tag)
+                        ? "bg-primary text-white border-primary"
+                        : "bg-default-100 dark:bg-default-100/50 text-default-600 dark:text-foreground/60 border-default-200 hover:bg-default-200 dark:hover:bg-default-100"
+                        }`}
                       onClick={() => handleToggleTag(tag)}
                     >
                       {tag}
@@ -350,10 +273,7 @@ function GalleryMediaUploadModal({
                 </div>
               )}
             </div>
-
-            {/* Folders */}
             <div className="space-y-3.5">
-              {/* Folders Section */}
               {subfolders && subfolders.length > 0 && (
                 <Card className="shadow-none border border-default-200/50 bg-content1">
                   <CardHeader className="p-3 pb-0">
@@ -384,8 +304,6 @@ function GalleryMediaUploadModal({
                   </CardBody>
                 </Card>
               )}
-
-              {/* Media Section */}
               <Card className="shadow-none border border-default-200/50 min-h-[200px] bg-content1">
                 <CardHeader className="p-3 pb-0 flex justify-between items-center">
                   <h5 className="text-small font-medium flex items-center gap-2 text-foreground">
@@ -410,15 +328,13 @@ function GalleryMediaUploadModal({
                           maxSelection !== undefined &&
                           selectedMediaIds.length >= maxSelection;
                         const isDisabled = isSelectionFull && !isSelected;
-
                         return (
                           <MediaItem
                             key={media._id}
                             media={media}
-                            // Disable unrelated actions
-                            onDelete={() => {}}
-                            onView={() => {}}
-                            onDownload={() => {}}
+                            onDelete={() => { }}
+                            onView={() => { }}
+                            onDownload={() => { }}
                             onSelect={(isSelected) =>
                               handleMediaSelect(isSelected, media)
                             }
@@ -459,14 +375,11 @@ function GalleryMediaUploadModal({
           </Button>
         </ModalFooter>
       </ModalContent>
-
-      {/* Sub-modals */}
       <CreateFolderModal
         isOpen={isCreateFolderModalOpen}
         onClose={() => setIsCreateFolderModalOpen(false)}
         parentFolderId={currentFolderId || ""}
       />
-
       <UploadMediaModal
         isOpen={isUploadMediaModalOpen}
         onClose={() => setIsUploadMediaModalOpen(false)}

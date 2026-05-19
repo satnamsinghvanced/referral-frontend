@@ -1,18 +1,6 @@
-import {
-  Button,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-} from "@heroui/react";
+import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@heroui/react";
 import { useEffect, useRef, useState } from "react";
-import {
-  FiCheckCircle,
-  FiDownload,
-  FiFileText,
-  FiUploadCloud,
-} from "react-icons/fi";
+import { FiCheckCircle, FiDownload, FiFileText, FiUploadCloud } from "react-icons/fi";
 import { IoClose } from "react-icons/io5";
 import { useImportBudgetItemsCSV } from "../../../hooks/useBudget";
 
@@ -25,19 +13,15 @@ const ImportBudgetModal = ({ isOpen, onClose }: ImportBudgetModalProps) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { mutate: importCSV, isPending } = useImportBudgetItemsCSV();
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setSelectedFile(e.target.files[0]);
     }
   };
-
   const handleImport = () => {
     if (!selectedFile) return;
-
     const formData = new FormData();
     formData.append("file", selectedFile);
-
     importCSV(formData, {
       onSuccess: () => {
         setSelectedFile(null);
@@ -45,7 +29,6 @@ const ImportBudgetModal = ({ isOpen, onClose }: ImportBudgetModalProps) => {
       },
     });
   };
-
   useEffect(() => {
     if (!isOpen) {
       setSelectedFile(null);
@@ -54,9 +37,7 @@ const ImportBudgetModal = ({ isOpen, onClose }: ImportBudgetModalProps) => {
       }
     }
   }, [isOpen]);
-
   const handleDownloadTemplate = () => {
-    // Generate CSV template with required fields
     const headers = [
       "Category*",
       "Subcategory*",
@@ -79,7 +60,6 @@ const ImportBudgetModal = ({ isOpen, onClose }: ImportBudgetModalProps) => {
       "01/31/2026",
       "Q1 Google Ads campaign budget",
     ];
-
     const csvContent = [headers.join(","), dummyRow.join(",")].join("\n");
     const blob = new Blob([csvContent], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
@@ -89,7 +69,6 @@ const ImportBudgetModal = ({ isOpen, onClose }: ImportBudgetModalProps) => {
     a.click();
     window.URL.revokeObjectURL(url);
   };
-
   return (
     <Modal
       isOpen={isOpen}
@@ -117,9 +96,7 @@ const ImportBudgetModal = ({ isOpen, onClose }: ImportBudgetModalProps) => {
                 Download our template to get started.
               </p>
             </ModalHeader>
-
             <ModalBody className="py-0 px-4 gap-3">
-              {/* Instructions Section */}
               <div className="border border-blue-200 dark:border-blue-500/30 bg-blue-50/50 dark:bg-blue-900/10 rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2.5 text-gray-900 dark:text-foreground">
                   <FiFileText className="size-4" />
@@ -134,8 +111,6 @@ const ImportBudgetModal = ({ isOpen, onClose }: ImportBudgetModalProps) => {
                   <li>Review the imported items and confirm</li>
                 </ol>
               </div>
-
-              {/* Download Template Section */}
               <div className="border border-foreground/10 rounded-xl p-4 flex items-center justify-between bg-content1">
                 <div className="flex items-center gap-2.5">
                   <div className="size-10 rounded-lg bg-blue-50 dark:bg-blue-900/10 text-primary flex items-center justify-center">
@@ -160,8 +135,6 @@ const ImportBudgetModal = ({ isOpen, onClose }: ImportBudgetModalProps) => {
                   Download CSV
                 </Button>
               </div>
-
-              {/* Upload Section */}
               <div className="border border-foreground/10 rounded-xl p-4 space-y-3 bg-content1">
                 <div className="space-y-1">
                   <h4 className="font-medium text-sm text-foreground">
@@ -171,7 +144,6 @@ const ImportBudgetModal = ({ isOpen, onClose }: ImportBudgetModalProps) => {
                     Accepted format: CSV only
                   </p>
                 </div>
-
                 <input
                   type="file"
                   accept=".csv"
@@ -179,7 +151,6 @@ const ImportBudgetModal = ({ isOpen, onClose }: ImportBudgetModalProps) => {
                   onChange={handleFileChange}
                   className="hidden"
                 />
-
                 <div
                   onClick={() => fileInputRef.current?.click()}
                   className={`border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center text-center gap-3 transition-all cursor-pointer group ${selectedFile
@@ -227,8 +198,6 @@ const ImportBudgetModal = ({ isOpen, onClose }: ImportBudgetModalProps) => {
                   )}
                 </div>
               </div>
-
-              {/* Requirements Note */}
               <div className="border border-foreground/10 rounded-xl p-4 bg-content1">
                 <h4 className="font-medium text-sm mb-3 text-foreground">
                   Required Fields Reference
@@ -256,7 +225,6 @@ const ImportBudgetModal = ({ isOpen, onClose }: ImportBudgetModalProps) => {
                 </div>
               </div>
             </ModalBody>
-
             <ModalFooter className="px-4">
               <Button
                 size="sm"

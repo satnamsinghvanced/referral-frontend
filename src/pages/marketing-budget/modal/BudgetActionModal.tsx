@@ -20,6 +20,7 @@ import { BUDGET_DURATIONS, BUDGET_STATUSES } from "../../../consts/budget";
 import { PRIORITY_LEVELS } from "../../../consts/practice";
 import {
   useBudgetCategories,
+  useBudgetItem,
   useCreateBudgetItem,
   useUpdateBudgetItem,
 } from "../../../hooks/useBudget";
@@ -83,7 +84,7 @@ export default function BudgetActionModal({
   );
   const [confirmationMessage, setConfirmationMessage] = useState("");
   const [isTrackSpendOpen, setIsTrackSpendOpen] = useState(false);
-
+  const { data: latestData } = useBudgetItem(editedData?._id || "");
   const { data: categories } = useBudgetCategories();
   const createMutation = useCreateBudgetItem();
   const updateMutation = useUpdateBudgetItem(editedData?._id || "");
@@ -100,7 +101,6 @@ export default function BudgetActionModal({
         typeof editedData.subCategory === "string"
           ? editedData.subCategory
           : editedData.subCategory?._id || "";
-
       return {
         category: categoryId,
         subCategory: subCategoryId,
@@ -166,9 +166,7 @@ export default function BudgetActionModal({
     validationSchema: validationSchema,
     enableReinitialize: true,
     onSubmit: (values) => {
-      // Logic to check for synced conflicts only for NEW items
       if (!isEdit && categories) {
-        // Find the selected subcategory title
         let selectedSubCategoryTitle = "";
         for (const cat of categories) {
           const found = cat.subCategory.find(
@@ -228,6 +226,19 @@ export default function BudgetActionModal({
       formik.resetForm();
     }
   }, [isOpen]);
+
+  // Sync latest spent and ROI data from the server into the form
+  useEffect(() => {
+    if (latestData && isEdit) {
+      if (Number(latestData.spent) !== Number(formik.values.actualSpent)) {
+        formik.setFieldValue("actualSpent", Number(latestData.spent) || 0);
+      }
+      if (Number(latestData.roi) !== Number(formik.values.roi)) {
+        formik.setFieldValue("roi", Number(latestData.roi) || 0);
+      }
+    }
+  }, [latestData, isEdit]);
+
 
   const utilization =
     formik.values.actualSpent && formik.values.budgetAmount

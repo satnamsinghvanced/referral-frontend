@@ -3,16 +3,7 @@ import { LuDownload, LuTrash2 } from "react-icons/lu";
 import { MdOutlineRemoveRedEye } from "react-icons/md";
 import { Media } from "../../types/media";
 
-const MediaItem = ({
-  media,
-  onDelete,
-  onView,
-  onDownload,
-  onSelect,
-  selectedMedia,
-  showOverlay = true,
-  disabled = false,
-}: {
+const MediaItem = ({ media, onDelete, onView, onDownload, onSelect, selectedMedia, showOverlay = true, disabled = false }: {
   media: Media;
   onDelete: (id: string) => void;
   onView: (media: Media) => void;
@@ -23,13 +14,11 @@ const MediaItem = ({
   disabled?: boolean;
 }) => {
   const isVideo = media.type.startsWith("video/");
-
   return (
     <div
       key={media._id}
-      className={`relative border border-foreground/10 rounded-lg overflow-hidden group bg-content1 ${
-        disabled ? "opacity-50 cursor-not-allowed" : ""
-      }`}
+      className={`relative border border-foreground/10 rounded-lg overflow-hidden group bg-content1 ${disabled ? "opacity-50 cursor-not-allowed" : ""
+        }`}
     >
       <div className="w-full h-32 md:h-40 flex items-center justify-center bg-gray-100 dark:bg-default-100/50 overflow-hidden">
         {isVideo ? (
@@ -48,7 +37,6 @@ const MediaItem = ({
           />
         )}
       </div>
-
       <div className="p-2">
         <p className="text-xs font-medium truncate mb-0.5 text-foreground">
           {media.name}
@@ -64,7 +52,6 @@ const MediaItem = ({
           ))}
         </div>
       </div>
-
       <div className="absolute top-2 left-2 z-10">
         <Checkbox
           size="md"
@@ -91,7 +78,6 @@ const MediaItem = ({
             >
               <MdOutlineRemoveRedEye fontSize={14} />
             </Button>
-
             <Button
               size="sm"
               radius="sm"
@@ -104,7 +90,6 @@ const MediaItem = ({
             >
               <LuDownload fontSize={14} />
             </Button>
-
             <Button
               size="sm"
               radius="sm"

@@ -12,9 +12,7 @@ export const getBudgetCategories = async (): Promise<BudgetCategory[]> => {
   const response = await axios.get("/budget-category/");
   return response.data;
 };
-export const getBudgetItems = async (
-  params: FetchBudgetItemsParams
-): Promise<BudgetListResponse> => {
+export const getBudgetItems = async (params: FetchBudgetItemsParams): Promise<BudgetListResponse> => {
   const response = await axios.get("/marketing-budget", { params });
   return response.data;
 };
@@ -22,28 +20,18 @@ export const getBudgetItemById = async (id: string): Promise<BudgetItem> => {
   const response = await axios.get(`/marketing-budget/${id}`);
   return response.data;
 };
-export const createBudgetItem = async (
-  data: CreateBudgetItemRequest
-): Promise<BudgetItem> => {
+export const createBudgetItem = async (data: CreateBudgetItemRequest): Promise<BudgetItem> => {
   const response = await axios.post("/marketing-budget/", data);
   return response.data;
 };
-export const updateBudgetItem = async ({
-  id,
-  data,
-}: {
-  id: string;
-  data: UpdateBudgetItemRequest;
-}): Promise<BudgetItem> => {
+export const updateBudgetItem = async ({ id, data }: { id: string; data: UpdateBudgetItemRequest }): Promise<BudgetItem> => {
   const response = await axios.put(`/marketing-budget/${id}`, data);
   return response.data;
 };
 export const deleteBudgetItem = async (id: string): Promise<void> => {
   await axios.delete(`/marketing-budget/${id}`);
 };
-export const importBudgetItemsCSV = async (
-  formData: FormData
-): Promise<any> => {
+export const importBudgetItemsCSV = async (formData: FormData): Promise<any> => {
   const response = await axios.post("/marketing-budget/import", formData, {
     headers: {
       "Content-Type": "multipart/form-data",
@@ -51,12 +39,7 @@ export const importBudgetItemsCSV = async (
   });
   return response.data;
 };
-export const exportBudgetItems = async ({
-  type,
-  period,
-  startDate,
-  endDate,
-}: {
+export const exportBudgetItems = async ({ type, period, startDate, endDate }: {
   type: "csv" | "excel" | "pdf";
   period?: string;
   startDate?: string;

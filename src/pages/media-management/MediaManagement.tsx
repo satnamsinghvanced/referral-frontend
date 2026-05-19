@@ -1,36 +1,14 @@
-import {
-  Button,
-  Card,
-  CardBody,
-  CardHeader,
-  Input,
-  Select,
-  SelectItem,
-} from "@heroui/react";
+import { Button, Card, CardBody, CardHeader, Input, Select, SelectItem } from "@heroui/react";
 import { useEffect, useState } from "react";
 import { FaRegFolder } from "react-icons/fa";
-import {
-  FiCheckSquare,
-  FiEdit,
-  FiImage,
-  FiSearch,
-  FiUpload,
-} from "react-icons/fi";
+import { FiCheckSquare, FiEdit, FiImage, FiSearch, FiUpload } from "react-icons/fi";
 import { LuFolderOpen, LuFolderPlus, LuMove, LuTrash2 } from "react-icons/lu";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
 import EmptyState from "../../components/common/EmptyState";
 import { LoadingState } from "../../components/common/LoadingState";
 import { useDebouncedValue } from "../../hooks/common/useDebouncedValue";
-import {
-  useDeleteFolder,
-  useDeleteImages,
-  useGetAllFolders,
-  useGetFolderDetails,
-  useSearchImages,
-  useTagsQuery,
-  useUpdateImageTags,
-} from "../../hooks/useMedia";
+import { useDeleteFolder, useDeleteImages, useGetAllFolders, useGetFolderDetails, useSearchImages, useTagsQuery, useUpdateImageTags } from "../../hooks/useMedia";
 import { useUpload } from "../../providers/UploadProvider";
 import { Media } from "../../types/media";
 import FolderBreadcrumb from "./FolderBreadcrumb";
@@ -44,21 +22,14 @@ function MediaManagement() {
   const { activeUploads } = useUpload();
   const HEADING_DATA = {
     heading: "Media Management",
-    subHeading:
-      "Organize and manage your images and videos with tags and folders.",
+    subHeading: "Organize and manage your images and videos with tags and folders.",
     buttons: [],
   };
 
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
-  const [breadcrumbPath, setBreadcrumbPath] = useState<
-    { id: string; name: string }[]
-  >([]);
-
+  const [breadcrumbPath, setBreadcrumbPath] = useState<{ id: string; name: string }[]>([]);
   const [isCreateFolderModalOpen, setIsCreateFolderModalOpen] = useState(false);
-  const [folderToEdit, setFolderToEdit] = useState<{
-    id: string;
-    name: string;
-  } | null>(null);
+  const [folderToEdit, setFolderToEdit] = useState<{ id: string; name: string; } | null>(null);
   const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
   const [isUploadMediaModalOpen, setIsUploadMediaModalOpen] = useState(false);
   const [deleteFolderId, setDeleteFolderId] = useState<string | null>(null);
@@ -66,51 +37,18 @@ function MediaManagement() {
   const [deleteMediaId, setDeleteMediaId] = useState<string>("");
   const [viewMedia, setViewMedia] = useState<Media | null>(null);
   const [selectedMedia, setSelectedMedia] = useState<any>([]);
-
-  const [currentFilters, setCurrentFilters] = useState<any>({
-    search: "",
-    type: "all",
-    tags: [],
-  });
-
-  const { data: allFolders, isLoading: isAllFoldersLoading } = useGetAllFolders(
-    {
-      page: 1,
-      limit: 10,
-    },
-  );
-
-  const { data: folderData, isLoading: isLoadingFolder } = useGetFolderDetails(
-    currentFolderId as string,
-  );
-
+  const [currentFilters, setCurrentFilters] = useState<any>({ search: "", type: "all", tags: [] });
+  const { data: allFolders, isLoading: isAllFoldersLoading } = useGetAllFolders({ page: 1, limit: 10 });
+  const { data: folderData, isLoading: isLoadingFolder } = useGetFolderDetails(currentFolderId as string);
   const { data: availableTagsData, isLoading: isTagsLoading } = useTagsQuery();
   const availableTags = availableTagsData?.tags;
-
-  const { mutate: updateImageTags } = useUpdateImageTags(
-    viewMedia?._id as string,
-  );
-
+  const { mutate: updateImageTags } = useUpdateImageTags(viewMedia?._id as string);
   const subfolders = folderData?.subfolders || allFolders?.folders;
-  const currentFolderName =
-    currentFolderId && folderData?.folder?.name
-      ? folderData.folder.name
-      : "Root";
-
+  const currentFolderName = currentFolderId && folderData?.folder?.name ? folderData.folder.name : "Root";
   const debouncedSearch = useDebouncedValue(currentFilters.search, 500);
-
-  const searchQueryParams = {
-    filter: currentFilters.type,
-    search: debouncedSearch,
-    tags: currentFilters.tags,
-  };
-
-  const { data: mediaData, isLoading: isLoadingMedia } =
-    useSearchImages(searchQueryParams);
-
+  const searchQueryParams = { filter: currentFilters.type, search: debouncedSearch, tags: currentFilters.tags };
+  const { data: mediaData, isLoading: isLoadingMedia } = useSearchImages(searchQueryParams);
   const isFoldersLoading = isAllFoldersLoading || isLoadingFolder;
-
-  // Sync breadcrumb path with updated folder name
   useEffect(() => {
     if (currentFolderId && folderData?.folder?.name) {
       setBreadcrumbPath((prev) =>
@@ -122,33 +60,26 @@ function MediaManagement() {
       );
     }
   }, [folderData?.folder?.name, currentFolderId]);
-
   const deleteFolderMutation = useDeleteFolder(deleteFolderId || "");
   const deleteImagesMutation = useDeleteImages();
-
   const onNavigateFolder = (folderId: string | null, folderName?: string) => {
     setCurrentFolderId(folderId);
-
     if (folderId === null) {
       setBreadcrumbPath([]);
     } else {
       let newPath = [...breadcrumbPath];
       const existingIndex = newPath.findIndex((item) => item.id === folderId);
-
       if (existingIndex !== -1) {
         newPath = newPath.slice(0, existingIndex + 1);
       } else if (folderName) {
         newPath.push({ id: folderId, name: folderName });
       }
-
       setBreadcrumbPath(newPath);
     }
   };
-
   const onFilterChange = (key: string, value: string) => {
     setCurrentFilters((prev: any) => ({ ...prev, [key]: value }));
   };
-
   const handleToggleTag = (tagName: string) => {
     setCurrentFilters((prev: any) => {
       const newTags = prev.tags.includes(tagName)
@@ -157,30 +88,22 @@ function MediaManagement() {
       return { ...prev, tags: newTags };
     });
   };
-
   const clearAllTags = () => {
     setCurrentFilters((prev: any) => ({ ...prev, tags: [] }));
   };
-
   const handleConfirmFolderDelete = async () => {
     if (deleteFolderId) {
       const parentId =
         breadcrumbPath.length > 1
           ? breadcrumbPath[breadcrumbPath.length - 2]?.id
           : null;
-
       await deleteFolderMutation.mutateAsync();
-
       setDeleteFolderId(null);
       onNavigateFolder(parentId as string);
     }
   };
-
   const handleConfirmImagesDelete = async () => {
-    await deleteImagesMutation.mutateAsync(
-      {
-        ids: deleteMediaId ? [deleteMediaId] : selectedMedia,
-      },
+    await deleteImagesMutation.mutateAsync({ ids: deleteMediaId ? [deleteMediaId] : selectedMedia },
       {
         onSuccess: () => {
           setSelectedMedia([]);
@@ -190,46 +113,37 @@ function MediaManagement() {
       },
     );
   };
-
   const handleMediaDownload = async (path: string, name: string) => {
     try {
       const response = await fetch(path);
       if (!response.ok) {
         return;
       }
-
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
-
       const link = document.createElement("a");
       link.href = url;
       link.download = name;
       link.style.display = "none";
-
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
-
       window.URL.revokeObjectURL(url);
     } catch (error) { }
   };
-
   const handleUpdateTags = (mediaId: string, tag: string) => {
     if (viewMedia && viewMedia._id === mediaId) {
       updateImageTags({
         tags: [...viewMedia.tags, tag],
       });
-
       setViewMedia((prev) =>
         prev ? { ...prev, tags: [...prev.tags, tag] } : null,
       );
     }
   };
-
   const handleMediaView = (media: Media) => {
     setViewMedia(media);
   };
-
   const handleSelectAll = (currentFolderMedia: Media[]) => {
     if (selectedMedia.length === currentFolderMedia.length) {
       setSelectedMedia([]);
@@ -237,15 +151,9 @@ function MediaManagement() {
       setSelectedMedia(currentFolderMedia.map((m: Media) => m._id));
     }
   };
-
-  const currentFolderMediaGroup = mediaData?.find(
-    (group: any) =>
-      group.folderName ===
-      (currentFolderName === "Root" ? "Root" : currentFolderName),
-  );
+  const currentFolderMediaGroup = mediaData?.find((group: any) => group.folderName === (currentFolderName === "Root" ? "Root" : currentFolderName));
   const currentFolderMedia = currentFolderMediaGroup?.images || [];
   const mediaCount = currentFolderMedia.length;
-
   return (
     <>
       <ComponentContainer headingData={HEADING_DATA}>
@@ -335,7 +243,6 @@ function MediaManagement() {
                   }
                 />
               </div>
-
               <div className="min-w-[200px]">
                 <Select
                   aria-label="Media Types"
@@ -352,7 +259,6 @@ function MediaManagement() {
                 </Select>
               </div>
             </div>
-
             {availableTags && availableTags.length > 0 && (
               <div className="pt-4">
                 <h5 className="text-xs font-medium mb-2">Filter by tags:</h5>
@@ -363,7 +269,6 @@ function MediaManagement() {
                     const active = "bg-primary text-white";
                     const inactive =
                       "bg-gray-100 dark:bg-default-100/50 text-gray-700 dark:text-foreground/60 hover:bg-gray-200 dark:hover:bg-default-100 transition-colors";
-
                     return (
                       <span
                         key={tag}
@@ -375,7 +280,6 @@ function MediaManagement() {
                       </span>
                     );
                   })}
-
                   {currentFilters.tags.length > 0 && (
                     <Button
                       size="sm"
@@ -390,7 +294,6 @@ function MediaManagement() {
               </div>
             )}
           </div>
-
           <div className="space-y-4 md:space-y-5">
             <Card className="border border-foreground/10 p-4 shadow-none bg-background">
               <CardHeader className="p-0 pb-4 flex justify-between items-center max-md:flex-col max-md:gap-3 max-md:items-start">
@@ -461,7 +364,6 @@ function MediaManagement() {
                 )}
               </CardBody>
             </Card>
-
             <Card className="border border-foreground/10 p-4 shadow-none bg-background">
               <CardHeader className="p-0 pb-4">
                 <div className="flex justify-between items-center">
@@ -492,7 +394,6 @@ function MediaManagement() {
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                    {/* Render Active Uploads (Processing) */}
                     {activeUploads.map((upload) => (
                       <div
                         key={upload.id}
@@ -520,8 +421,6 @@ function MediaManagement() {
                         </div>
                       </div>
                     ))}
-
-                    {/* Render Existing Media */}
                     {currentFolderMedia.map((media: Media) => (
                       <MediaItem
                         key={media._id}
@@ -551,7 +450,6 @@ function MediaManagement() {
           </div>
         </div>
       </ComponentContainer>
-
       <CreateFolderModal
         isOpen={isCreateFolderModalOpen}
         onClose={() => {
@@ -561,35 +459,30 @@ function MediaManagement() {
         parentFolderId={currentFolderId || ""}
         folderToEdit={folderToEdit}
       />
-
       <MoveMediaModal
         isOpen={isMoveModalOpen}
         onClose={() => setIsMoveModalOpen(false)}
         selectedMedia={selectedMedia}
         setSelectedMedia={setSelectedMedia}
       />
-
       <UploadMediaModal
         isOpen={isUploadMediaModalOpen}
         onClose={() => setIsUploadMediaModalOpen(false)}
         folderId={currentFolderId}
         folderName={currentFolderName}
       />
-
       <DeleteConfirmationModal
         isOpen={!!deleteFolderId}
         onClose={() => setDeleteFolderId(null)}
         onConfirm={handleConfirmFolderDelete}
         isLoading={deleteFolderMutation.isPending}
       />
-
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleConfirmImagesDelete}
         isLoading={deleteImagesMutation.isPending}
       />
-
       <MediaDetailModal
         isOpen={!!viewMedia}
         onClose={() => setViewMedia(null)}

@@ -1,14 +1,7 @@
 import { Button, Card, CardBody, Chip } from "@heroui/react";
 import VisitStatusChip from "../../../../components/chips/VisitStatusChip";
 import PriorityLevelChip from "../../../../components/chips/PriorityLevelChip";
-import {
-  LuBuilding2,
-  LuCalendar,
-  LuCar,
-  LuClock,
-  LuRoute,
-  LuTimer,
-} from "react-icons/lu";
+import { LuBuilding2, LuCalendar, LuCar, LuClock, LuRoute, LuTimer } from "react-icons/lu";
 import { FiEye } from "react-icons/fi";
 import { formatDateToReadable } from "../../../../utils/formatDateToReadable";
 

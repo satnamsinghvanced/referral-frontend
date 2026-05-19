@@ -1,21 +1,11 @@
-import {
-  Button,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-} from "@heroui/react";
+import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@heroui/react";
 import { LuSquarePen, LuTrash2 } from "react-icons/lu";
 import ActivityStatusChip from "../../../components/chips/ActivityStatusChip";
 import TaskPriorityChip from "../../../components/chips/TaskPriorityChip";
 import { ActivityItem } from "../../../types/marketing";
 import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 
-const DetailItem: React.FC<{ label: string; value: React.ReactNode }> = ({
-  label,
-  value,
-}) => (
+const DetailItem: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => (
   <div className="flex flex-col items-start">
     <label className="text-xs font-medium mb-1 block text-gray-700 dark:text-foreground/70">
       {label}
@@ -29,7 +19,6 @@ const DetailItem: React.FC<{ label: string; value: React.ReactNode }> = ({
     )}
   </div>
 );
-
 interface ActivityDetailModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -37,25 +26,15 @@ interface ActivityDetailModalProps {
   onEdit: () => void;
   onDelete: () => void;
 }
-
-export function ActivityDetailModal({
-  isOpen,
-  onClose,
-  activity,
-  onEdit,
-  onDelete,
-}: ActivityDetailModalProps) {
+export function ActivityDetailModal({ isOpen, onClose, activity, onEdit, onDelete }: ActivityDetailModalProps) {
   if (!activity) return;
-
   const formattedBudget = `$${activity?.budget?.toLocaleString(undefined, {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   })}`;
-
   const formattedReach = activity.reach
     ? activity.reach.toLocaleString()
     : "N/A";
-
   return (
     <Modal
       isOpen={isOpen}
@@ -89,7 +68,6 @@ export function ActivityDetailModal({
             scheduling, budget, performance metrics, and engagement data.
           </p>
         </ModalHeader>
-
         <ModalBody className="gap-0 px-0 py-5 space-y-3">
           <div className="grid grid-cols-2 gap-4">
             <DetailItem
@@ -105,7 +83,6 @@ export function ActivityDetailModal({
               <DetailItem label="End Date" value="Same Day" />
             )}
           </div>
-
           <div className="grid grid-cols-2 gap-4">
             <DetailItem label="Platform" value={activity.platform || "N/A"} />
             {activity.priority && (
@@ -115,7 +92,6 @@ export function ActivityDetailModal({
               />
             )}
           </div>
-
           {(activity.budget || activity.reach) && (
             <div
               className={`grid grid-cols-${activity.reach ? "3" : "2"} gap-4`}
@@ -130,7 +106,6 @@ export function ActivityDetailModal({
               )}
             </div>
           )}
-
           <div>
             <DetailItem
               label="Description"
@@ -138,7 +113,6 @@ export function ActivityDetailModal({
             />
           </div>
         </ModalBody>
-
         <ModalFooter className="flex items-center justify-between p-0">
           <Button
             color="danger"

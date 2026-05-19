@@ -21,11 +21,7 @@ const ExportBudgetModal = ({
   const [activeExport, setActiveExport] = useState<string | null>(null);
   const handleExport = (type: "csv" | "excel" | "pdf") => {
     setActiveExport(type);
-    exportBudget(
-      {
-        type,
-        ...filters,
-      },
+    exportBudget({ type, ...filters },
       {
         onSuccess: () => {
           onClose();

@@ -41,7 +41,7 @@ import Pagination from "../../components/common/Pagination";
 import ChartTooltip from "../../components/common/ChartTooltip";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { BUDGET_DURATIONS, getCategoryColor } from "../../consts/budget";
-import { useBudgetItems, useDeleteBudgetItem } from "../../hooks/useBudget";
+import { useBudgetItem, useBudgetItems, useDeleteBudgetItem } from "../../hooks/useBudget";
 import { BudgetItem } from "../../types/budget";
 import BudgetItemCard from "./BudgetItemCard";
 import BudgetActionModal from "./modal/BudgetActionModal";
@@ -100,7 +100,6 @@ const MarketingBudget = () => {
   };
 
   const { data, isLoading } = useBudgetItems(currentFilters);
-
   usePaginationAdjustment({
     totalPages: data?.pagination?.totalPages || 0,
     currentPage: currentFilters.page,
@@ -232,8 +231,8 @@ const MarketingBudget = () => {
                     radius="full"
                     color="default"
                     className={`relative z-1 font-medium text-sm bg-transparent h-9 text-default-500 ${currentFilters.period === duration.value
-                        ? "dark:text-background text-foreground"
-                        : ""
+                      ? "dark:text-background text-foreground"
+                      : ""
                       }`}
                     onPress={() => {
                       setDateRange({ start: "", end: "" });
@@ -268,8 +267,8 @@ const MarketingBudget = () => {
                   variant={showDateRange ? "solid" : "ghost"}
                   color={showDateRange ? "primary" : "default"}
                   className={`border ${!showDateRange
-                      ? "bg-background dark:bg-default-50 border-gray-300 dark:border-default-200"
-                      : "border-primary"
+                    ? "bg-background dark:bg-default-50 border-gray-300 dark:border-default-200"
+                    : "border-primary"
                     }`}
                   size="sm"
                   startContent={<LuCalendar fontSize={15} />}

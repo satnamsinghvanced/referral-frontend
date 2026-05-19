@@ -22,18 +22,12 @@ interface TrackSpendModalProps {
   budgetId: string;
 }
 
-export default function TrackSpendModal({
-  isOpen,
-  onClose,
-  budgetId,
-}: TrackSpendModalProps) {
+export default function TrackSpendModal({ isOpen, onClose, budgetId }: TrackSpendModalProps) {
   const { data: budgetData, isLoading: isBudgetLoading } = useBudgetItem(budgetId);
   const addSpendMutation = useAddSpendRecord(budgetId);
   const deleteSpendMutation = useDeleteSpendRecord(budgetId);
-
   const budgetStartDate = budgetData?.startDate ? budgetData.startDate.split("T")[0] : "";
   const budgetEndDate = budgetData?.endDate ? budgetData.endDate.split("T")[0] : "";
-
   const validationSchema = Yup.object().shape({
     startDate: Yup.string()
       .required("Start Date is required.")
@@ -56,7 +50,6 @@ export default function TrackSpendModal({
     revenue: Yup.number().min(0, "Revenue must be non-negative.").required("Revenue is required."),
     notes: Yup.string().max(200, "Notes must be at most 200 characters."),
   });
-
   const formik = useFormik({
     initialValues: {
       startDate: budgetStartDate,
@@ -85,9 +78,7 @@ export default function TrackSpendModal({
     },
   });
 
-
   if (isBudgetLoading) return null;
-
   return (
     <Modal
       isOpen={isOpen}
@@ -116,9 +107,7 @@ export default function TrackSpendModal({
             </span>
           </p>
         </ModalHeader>
-
         <ModalBody className="p-6 pt-2 gap-6">
-          {/* Spend History */}
           <div className="flex flex-col gap-3">
             <h3 className="text-sm font-semibold">Spend History</h3>
             <div className="max-h-[200px] overflow-y-auto flex flex-col gap-3 pr-2 scrollbar-none">
@@ -128,7 +117,6 @@ export default function TrackSpendModal({
                     key={record._id}
                     className="p-3 border border-divider rounded-xl items-center flex justify-between bg-content1 shadow-sm"
                   >
-
                     <div className="flex flex-col gap-1">
                       <div className="flex justify-between items-center gap-2 text-xs font-medium text-muted-foreground">
                         <div className="flex items-center gap-2">
@@ -161,7 +149,6 @@ export default function TrackSpendModal({
                             </span>
                           </Tooltip>
                         </div>
-
                         <div className="text-[10px] flex items-center gap-1 w-[120px] shrink-0 border-l border-divider pl-2 min-w-0">
                           <span className="shrink-0 text-muted-foreground">Revenue:</span>
                           <Tooltip content={`$${record.revenue.toLocaleString()}`}>
@@ -170,7 +157,6 @@ export default function TrackSpendModal({
                             </span>
                           </Tooltip>
                         </div>
-
                         <div className="text-[10px] flex items-center gap-1 w-[100px] shrink-0 border-l border-divider pl-2 min-w-0">
                           <span className="shrink-0 text-muted-foreground">ROI:</span>
                           <span
@@ -182,7 +168,6 @@ export default function TrackSpendModal({
                         </div>
                       </div>
                     </div>
-
                   </div>
                 ))
               ) : (
@@ -192,8 +177,6 @@ export default function TrackSpendModal({
               )}
             </div>
           </div>
-
-          {/* Stats */}
           <div className="grid grid-cols-3 gap-0 p-3 bg-primary/5 rounded-xl border border-primary/10 items-center">
             <div className="flex flex-col items-center px-1 min-w-0">
               <span className="text-[9px] text-muted-foreground uppercase font-semibold text-center truncate w-full">
@@ -233,10 +216,8 @@ export default function TrackSpendModal({
               </span>
             </div>
           </div>
-
           <form onSubmit={formik.handleSubmit} className="flex flex-col gap-4 pt-2">
             <h3 className="text-sm font-semibold">Add New Spend Record</h3>
-
             <div className="grid grid-cols-2 gap-4">
               <DatePicker
                 size="sm"
@@ -259,7 +240,6 @@ export default function TrackSpendModal({
                 errorMessage={formik.errors.endDate}
               />
             </div>
-
             <div className="grid grid-cols-2 gap-4">
               <Input
                 size="sm"
@@ -294,7 +274,6 @@ export default function TrackSpendModal({
                 }}
               />
             </div>
-
             <Textarea
               size="sm"
               radius="md"
@@ -307,10 +286,8 @@ export default function TrackSpendModal({
               isInvalid={!!formik.errors.notes && !!formik.touched.notes}
               errorMessage={formik.errors.notes}
             />
-
           </form>
         </ModalBody>
-
         <ModalFooter className="p-6 pt-2">
           <Button
             className="flex-1 font-semibold"

@@ -14,10 +14,7 @@ import EmptyState from "../../components/common/EmptyState";
 import { LoadingState } from "../../components/common/LoadingState";
 import { ACTIVITY_TYPES } from "../../consts/marketing";
 import { useDebouncedValue } from "../../hooks/common/useDebouncedValue";
-import {
-  useDeleteActivity,
-  useMarketingActivities,
-} from "../../hooks/useMarketing";
+import { useDeleteActivity, useMarketingActivities } from "../../hooks/useMarketing";
 import { formatDateToReadable } from "../../utils/formatDateToReadable";
 import { ActivityCard } from "./ActivityCard";
 import CustomCalendar from "./CustomCalender";
@@ -33,36 +30,29 @@ import { usePaginationAdjustment } from "../../hooks/common/usePaginationAdjustm
 const MarketingCalendar = () => {
   const { data: googleCalendarConfig, isLoading: isGoogleCalendarLoading } =
     useCalendarIntegration();
-
   const isGoogleCalendarConnected =
     googleCalendarConfig?.status === "Connected";
-
   const [currentFilters, setCurrentFilters] = useState<any>({
     page: 1,
     limit: ODD_PAGINATION_LIMIT,
     search: "",
     type: "all",
   });
-
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [selectedEndDate, setSelectedEndDate] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedActivity, setSelectedActivity] = useState<any>();
-
   const debouncedSearch = useDebouncedValue(currentFilters.search, 500);
-
   useEffect(() => {
     setCurrentFilters((prev: any) => ({ ...prev, search: debouncedSearch }));
   }, [debouncedSearch]);
-
   const {
     data: marketingActivitiesData,
     isFetching: isLoading,
     refetch: marketingActivitiesRefetch,
   } = useMarketingActivities({ ...currentFilters, search: debouncedSearch });
-
   usePaginationAdjustment({
     totalPages: marketingActivitiesData?.pagination?.totalPages || 0,
     currentPage: currentFilters.page,
@@ -70,34 +60,23 @@ const MarketingCalendar = () => {
       setCurrentFilters((prev: any) => ({ ...prev, page })),
     isLoading,
   });
-
   const { mutate: deleteActivity, isPending: isDeletePending } =
     useDeleteActivity();
-
   const activities = marketingActivitiesData?.data || [];
   const pagination = marketingActivitiesData?.pagination;
   const stats = marketingActivitiesData?.stats;
   const isFiltered = currentFilters.search || currentFilters.type !== "all";
-
   const handleFilterChange = useCallback((key: string, value: any) => {
-    setCurrentFilters((prev: any) => ({
-      ...prev,
-      page: 1,
-      [key]: value,
-    }));
+    setCurrentFilters((prev: any) => ({ ...prev, page: 1, [key]: value }));
   }, []);
-
   const handleViewActivity = useCallback((activity: any) => {
     setIsDetailOpen(true);
     setSelectedActivity(activity);
   }, []);
-
   const handleEditActivity = useCallback(() => {
     setIsDetailOpen(false);
-    // refetchActivityDetail();
     setIsModalOpen(true);
   }, []);
-
   const handleDeleteActivity = () => {
     deleteActivity(
       // @ts-ignore
@@ -115,7 +94,6 @@ const MarketingCalendar = () => {
       },
     );
   };
-
   const HEADING_DATA = {
     heading: "Marketing Calendar",
     subHeading:
@@ -135,7 +113,6 @@ const MarketingCalendar = () => {
       },
     ],
   };
-
   const STAT_CARD_DATA = [
     {
       icon: <RiMegaphoneLine className="text-sky-600" />,
@@ -182,32 +159,24 @@ const MarketingCalendar = () => {
       ),
     },
   ];
-
   const filteredActivities = activities.filter((activity: any) => {
     if (!selectedDate) return true;
-
     const selected = new Date(selectedDate);
     selected.setHours(0, 0, 0, 0);
-
     if (!activity.startDate) return false;
-
     const start = new Date(activity.startDate);
     start.setHours(0, 0, 0, 0);
-
     const end = activity.endDate ? new Date(activity.endDate) : new Date(start);
     end.setHours(0, 0, 0, 0);
-
     return (
       selected.getTime() >= start.getTime() &&
       selected.getTime() <= end.getTime()
     );
   });
-
   const ActivityListForSelectedDate = () => {
     if (!selectedDate) {
       return <EmptyState title="Click on a date to view or add activities" />;
     }
-
     if (filteredActivities.length === 0) {
       return (
         <div className="flex flex-col gap-3 items-center justify-center min-h-[100px]">
@@ -231,7 +200,6 @@ const MarketingCalendar = () => {
         </div>
       );
     }
-
     return (
       <>
         <div className="flex flex-col gap-3 max-h-[318px] overflow-y-auto">
@@ -239,11 +207,9 @@ const MarketingCalendar = () => {
             const activityType = ACTIVITY_TYPES.find(
               (activityType: any) => activityType.value == activity.type,
             )?.label;
-
             const activityColor = ACTIVITY_TYPES.find(
               (activityType: any) => activityType.value === activity.type,
             )?.color.value;
-
             return (
               <div
                 key={activity._id}
@@ -269,7 +235,6 @@ const MarketingCalendar = () => {
                     }
                   />
                 </div>
-
                 <div className="text-sm text-gray-600 dark:text-foreground/60 space-y-2 p-0">
                   <div className="flex items-center gap-1.5">
                     <LuCalendar fontSize={14} />
@@ -279,7 +244,6 @@ const MarketingCalendar = () => {
                       </span>
                     </p>
                   </div>
-
                   {activityType && (
                     <p className="text-xs flex items-center gap-1.5 capitalize">
                       <FiGlobe fontSize={14} /> {activityType}
@@ -306,7 +270,6 @@ const MarketingCalendar = () => {
       </>
     );
   };
-
   return (
     <>
       <ComponentContainer headingData={HEADING_DATA}>
@@ -375,7 +338,6 @@ const MarketingCalendar = () => {
                 <ul className="space-y-3">
                   {ACTIVITY_TYPES?.map((activity: any) => {
                     const ActivityIcon = activity?.icon;
-
                     return (
                       <li
                         className="text-xs flex items-center gap-2 text-foreground/80"
@@ -410,7 +372,6 @@ const MarketingCalendar = () => {
               className="text-xs min-w-fit"
               startContent={<FiSearch className="text-gray-400 h-4 w-4" />}
             />
-
             <Select
               aria-label="Activity Types"
               placeholder="All Activities"
@@ -446,7 +407,7 @@ const MarketingCalendar = () => {
             ) : activities.length === 0 ? (
               <EmptyState
                 title="No upcoming marketing activities scheduled."
-                // icon={FiFilter}
+              // icon={FiFilter}
               />
             ) : (
               <>
@@ -459,7 +420,6 @@ const MarketingCalendar = () => {
                     />
                   ))}
                 </div>
-
                 {pagination && pagination?.totalPages > 1 && (
                   <Pagination
                     identifier="activities"
@@ -477,7 +437,6 @@ const MarketingCalendar = () => {
           </div>
         </div>
       </ComponentContainer>
-
       <ActivityActionsModal
         isOpen={isModalOpen}
         onClose={() => {
@@ -489,7 +448,6 @@ const MarketingCalendar = () => {
         defaultEndDate={selectedEndDate}
         initialData={selectedActivity || null}
       />
-
       <ActivityDetailModal
         isOpen={isDetailOpen}
         onClose={() => {
@@ -500,7 +458,6 @@ const MarketingCalendar = () => {
         onEdit={handleEditActivity}
         onDelete={() => setIsDeleteModalOpen(true)}
       />
-
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}

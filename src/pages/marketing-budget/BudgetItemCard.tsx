@@ -15,20 +15,15 @@ const BudgetItemCard: React.FC<{
   const budgetAmount = item.amount || 0;
   const spentAmount = Number(item.spent) || 0;
   const utilization = budgetAmount > 0 ? (spentAmount / budgetAmount) * 100 : 0;
-
-  const isSynced =
-    item.type && ["google", "meta", "tiktok", "calendar"].includes(item.type);
-
+  const isSynced = item.type && ["google", "meta", "tiktok", "calendar"].includes(item.type);
   const categoryTitle =
     typeof item.category === "string"
       ? item.category
       : item.category?.category || "Unknown Category";
-
   const subCategoryTitle =
     typeof item.subCategory === "string"
       ? item.subCategory
       : item.subCategory?.subCategory || "Unknown Subcategory";
-
   const getPlatformName = (type?: string) => {
     switch (type) {
       case "google":
@@ -43,7 +38,6 @@ const BudgetItemCard: React.FC<{
         return categoryTitle;
     }
   };
-
   return (
     <Card
       shadow="none"
@@ -57,7 +51,6 @@ const BudgetItemCard: React.FC<{
               backgroundColor: getCategoryColor(categoryTitle),
             }}
           ></span>
-
           <div className="space-y-0.5">
             <h4 className="text-sm font-medium text-foreground">
               {isSynced ? getPlatformName(item.type) : subCategoryTitle}
@@ -69,7 +62,6 @@ const BudgetItemCard: React.FC<{
             </p>
           </div>
         </div>
-
         <div className="flex items-center gap-2">
           {isSynced ? (
             <Chip
@@ -84,15 +76,13 @@ const BudgetItemCard: React.FC<{
                       ? "warning"
                       : "default"
               }
-              className="text-[10px] font-bold uppercase tracking-wider h-5 px-2"
-            >
+              className="text-[10px] font-bold uppercase tracking-wider h-5 px-2">
               via {item.type}
             </Chip>
           ) : (
             <>
               {item.status && <BudgetStatusChip status={item.status} />}
               {item.priority && <PriorityLevelChip level={item.priority} />}
-
               <div className="flex items-center gap-0.5">
                 <Button
                   isIconOnly
@@ -103,7 +93,6 @@ const BudgetItemCard: React.FC<{
                 >
                   <FiEdit className="size-3.5" />
                 </Button>
-
                 <Button
                   isIconOnly
                   size="sm"
@@ -118,14 +107,12 @@ const BudgetItemCard: React.FC<{
           )}
         </div>
       </CardHeader>
-
       <CardBody className="space-y-3 p-0 pt-4">
         {item.description && (
           <p className="text-xs text-gray-600 dark:text-foreground/60">
             {item.description}
           </p>
         )}
-
         {!isSynced && (
           <div className="flex items-center gap-1.5 text-xs text-gray-500 dark:text-foreground/40">
             <FiCalendar className="size-3.5" />
@@ -137,7 +124,6 @@ const BudgetItemCard: React.FC<{
             </span>
           </div>
         )}
-
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm pt-1">
           <div className="text-xs space-y-0.5">
             <p className="text-gray-500 dark:text-foreground/40">Budget</p>
@@ -145,21 +131,18 @@ const BudgetItemCard: React.FC<{
               ${budgetAmount.toLocaleString()}
             </p>
           </div>
-
           <div className="text-xs space-y-0.5">
             <p className="text-gray-500 dark:text-foreground/40">Spent</p>
             <p className="font-medium text-foreground">
               ${spentAmount.toLocaleString()}
             </p>
           </div>
-
           <div className="text-xs space-y-0.5">
             <p className="text-gray-500 dark:text-foreground/40">Remaining</p>
             <p className="font-medium text-foreground">
               ${(budgetAmount - spentAmount).toLocaleString()}
             </p>
           </div>
-
           <div className="text-xs space-y-0.5">
             <p className="text-gray-500 dark:text-foreground/40">ROI</p>
             <p
@@ -169,7 +152,6 @@ const BudgetItemCard: React.FC<{
             </p>
           </div>
         </div>
-
         <div className="pt-1 space-y-2">
           <div className="flex justify-between text-xs">
             <span className="text-gray-500 dark:text-foreground/40">
@@ -179,7 +161,6 @@ const BudgetItemCard: React.FC<{
               {utilization.toFixed(1)}%
             </span>
           </div>
-
           <Progress
             aria-label="Budget utilization"
             value={utilization}
@@ -187,7 +168,6 @@ const BudgetItemCard: React.FC<{
             className="h-2"
             radius="full"
           />
-
           {utilization >= 90 && (
             <div className="flex items-center gap-2 p-2.5 bg-warning/5 border border-warning/10 rounded-lg text-warning-600 mt-2 animate-pulse">
               <FiAlertCircle className="size-3.5 flex-shrink-0" />

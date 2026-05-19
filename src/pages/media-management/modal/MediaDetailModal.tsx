@@ -1,15 +1,4 @@
-import {
-  Button,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@heroui/react";
+import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
 import { useState } from "react";
 import { FiDownload, FiPlus } from "react-icons/fi";
 import { Media } from "../../../types/media";
@@ -47,7 +36,6 @@ const MediaPreview = ({ media }: { media: Media }) => {
     </div>
   );
 };
-
 export function MediaDetailModal({
   isOpen,
   onClose,
@@ -58,9 +46,7 @@ export function MediaDetailModal({
   const [newTag, setNewTag] = useState("");
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [tagError, setTagError] = useState<string | null>(null);
-
   if (!media) return null;
-
   const handleAddTag = () => {
     setTagError(null);
     const trimmedTag = newTag.trim();
@@ -91,7 +77,6 @@ export function MediaDetailModal({
       setTagError(null);
     }
   };
-
   return (
     <Modal
       isOpen={isOpen}
@@ -112,13 +97,11 @@ export function MediaDetailModal({
             Preview and manage media file details, tags, and metadata
           </p>
         </ModalHeader>
-
         <ModalBody className="max-h-[70vh] overflow-auto px-0 py-4">
           <div className="space-y-4">
             <div className="w-full aspect-video bg-muted rounded-lg overflow-hidden flex items-center justify-center bg-primary/5 dark:bg-default-100/50 py-4">
               <MediaPreview media={media} />
             </div>
-
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div className="text-xs font-medium space-y-0.5">
                 <p className="text-gray-600 dark:text-foreground/40">
@@ -143,7 +126,6 @@ export function MediaDetailModal({
                 <p className="text-foreground">{media.folderName}</p>
               </div>
             </div>
-
             <div className="text-xs space-y-0.5">
               <p className="font-medium text-gray-600 dark:text-foreground/60">
                 Tags
@@ -166,7 +148,6 @@ export function MediaDetailModal({
             </div>
           </div>
         </ModalBody>
-
         <ModalFooter className="p-0">
           <Popover
             isOpen={isPopoverOpen}
@@ -211,7 +192,6 @@ export function MediaDetailModal({
               )}
             </PopoverContent>
           </Popover>
-
           <Button
             size="sm"
             radius="sm"
