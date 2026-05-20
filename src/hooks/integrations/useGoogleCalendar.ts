@@ -4,12 +4,15 @@ import {
   deleteGoogleCalendarIntegration,
   getGoogleCalendarAuthUrl,
   getGoogleCalendarIntegration,
+  listUserCalendars,
+  selectCalendarForSync,
   updateGoogleCalendarIntegration,
 } from "../../services/integrations/googleCalendar";
 
 export const CALENDAR_KEYS = {
   all: ["calendar-integration"] as const,
   details: () => [...CALENDAR_KEYS.all, "current"] as const,
+  calendars: () => [...CALENDAR_KEYS.all, "calendars"] as const,
 };
 
 export const useCalendarIntegration = () => {
@@ -45,6 +48,24 @@ export const useDisconnectCalendar = () => {
     mutationFn: deleteGoogleCalendarIntegration,
     onSuccess: () => {
       queryClient.setQueryData(CALENDAR_KEYS.details(), null);
+      queryClient.invalidateQueries({ queryKey: CALENDAR_KEYS.all });
+    },
+  });
+};
+
+export const useUserCalendars = (enabled = true) => {
+  return useQuery({
+    queryKey: CALENDAR_KEYS.calendars(),
+    queryFn: () => listUserCalendars(),
+    enabled,
+  });
+};
+
+export const useSelectCalendarForSync = () => {
+  return useMutation({
+    mutationFn: selectCalendarForSync,
+    onSuccess: () => {
+      // selected calendar affects integration config + what gets synced
       queryClient.invalidateQueries({ queryKey: CALENDAR_KEYS.all });
     },
   });

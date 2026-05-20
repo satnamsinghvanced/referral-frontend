@@ -1,5 +1,5 @@
 import { Button, Input, Select, SelectItem } from "@heroui/react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { FiClock, FiGlobe, FiSearch, FiShare2 } from "react-icons/fi";
 import { LuCalendar, LuUserPlus, LuUsers } from "react-icons/lu";
@@ -30,8 +30,22 @@ import { usePaginationAdjustment } from "../../hooks/common/usePaginationAdjustm
 const MarketingCalendar = () => {
   const { data: googleCalendarConfig, isLoading: isGoogleCalendarLoading } =
     useCalendarIntegration();
-  const isGoogleCalendarConnected =
-    googleCalendarConfig?.status === "Connected";
+  const isGoogleCalendarConnected = useMemo(() => {
+    if (!googleCalendarConfig) return false;
+    const configs = Array.isArray(googleCalendarConfig)
+      ? googleCalendarConfig
+      : [googleCalendarConfig];
+    return configs.some((cfg: any) => cfg?.status === "Connected");
+  }, [googleCalendarConfig]);
+
+  const combinedCalendarIds = useMemo(() => {
+    if (!googleCalendarConfig) return "";
+    const configs = Array.isArray(googleCalendarConfig)
+      ? googleCalendarConfig
+      : [googleCalendarConfig];
+    return configs.map((cfg: any) => cfg?.calendarId).filter(Boolean).join(",");
+  }, [googleCalendarConfig]);
+
   const [currentFilters, setCurrentFilters] = useState<any>({
     page: 1,
     limit: ODD_PAGINATION_LIMIT,
@@ -62,7 +76,59 @@ const MarketingCalendar = () => {
   });
   const { mutate: deleteActivity, isPending: isDeletePending } =
     useDeleteActivity();
-  const activities = marketingActivitiesData?.data || [];
+  const rawActivities = marketingActivitiesData?.data || [];
+  const activities = useMemo(() => {
+    // If the calendar isn't connected, hide Google Calendar-sourced events
+    // (prevents showing stale events from a previously connected account).
+    if (!isGoogleCalendarConnected) {
+      return rawActivities.filter((a: any) => a?.type !== "googleCalendar");
+    }
+    return rawActivities;
+  }, [rawActivities, isGoogleCalendarConnected]);
+
+  const sortedActivities = useMemo(() => {
+    const parseTimeToMinutes = (time?: string) => {
+      if (!time) return null;
+      // Accepts "HH:mm" (24h) or "h:mm AM/PM"
+      const ampm = time.match(/^\s*(\d{1,2})\s*:\s*(\d{2})\s*(AM|PM)\s*$/i);
+      if (ampm) {
+        let h = Number(ampm[1]);
+        const m = Number(ampm[2]);
+        const mer = (ampm[3] || "").toUpperCase();
+        if (mer === "PM" && h < 12) h += 12;
+        if (mer === "AM" && h === 12) h = 0;
+        return h * 60 + m;
+      }
+      const hhmm = time.match(/^\s*(\d{1,2})\s*:\s*(\d{2})\s*$/);
+      if (hhmm) return Number(hhmm[1]) * 60 + Number(hhmm[2]);
+      return null;
+    };
+
+    return [...activities].sort((a: any, b: any) => {
+      const aDate = a?.startDate
+        ? new Date(a.startDate).getTime()
+        : Number.POSITIVE_INFINITY;
+      const bDate = b?.startDate
+        ? new Date(b.startDate).getTime()
+        : Number.POSITIVE_INFINITY;
+      if (aDate !== bDate) return aDate - bDate;
+
+      const aMin = parseTimeToMinutes(a?.time) ?? Number.POSITIVE_INFINITY;
+      const bMin = parseTimeToMinutes(b?.time) ?? Number.POSITIVE_INFINITY;
+      if (aMin !== bMin) return aMin - bMin;
+
+      const aCreated = a?.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bCreated = b?.createdAt ? new Date(b.createdAt).getTime() : 0;
+      return aCreated - bCreated;
+    });
+  }, [activities]);
+
+  // When the connected account / selected calendar changes, refresh activities.
+  useEffect(() => {
+    if (!isGoogleCalendarConnected) return;
+    marketingActivitiesRefetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isGoogleCalendarConnected, combinedCalendarIds]);
   const pagination = marketingActivitiesData?.pagination;
   const stats = marketingActivitiesData?.stats;
   const isFiltered = currentFilters.search || currentFilters.type !== "all";
@@ -159,7 +225,7 @@ const MarketingCalendar = () => {
       ),
     },
   ];
-  const filteredActivities = activities.filter((activity: any) => {
+  const filteredActivities = sortedActivities.filter((activity: any) => {
     if (!selectedDate) return true;
     const selected = new Date(selectedDate);
     selected.setHours(0, 0, 0, 0);
@@ -314,7 +380,7 @@ const MarketingCalendar = () => {
                     setSelectedActivity(null);
                     setIsModalOpen(true);
                   }}
-                  activities={activities}
+                  activities={sortedActivities}
                   onActivityClick={handleViewActivity}
                 />
               </div>
@@ -404,7 +470,7 @@ const MarketingCalendar = () => {
             </p>
             {isLoading ? (
               <LoadingState />
-            ) : activities.length === 0 ? (
+            ) : sortedActivities.length === 0 ? (
               <EmptyState
                 title="No upcoming marketing activities scheduled."
               // icon={FiFilter}
@@ -412,7 +478,7 @@ const MarketingCalendar = () => {
             ) : (
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                  {activities.map((activity: any) => (
+                  {sortedActivities.map((activity: any) => (
                     <ActivityCard
                       key={activity._id}
                       activity={activity}

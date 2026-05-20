@@ -27,6 +27,27 @@ export interface IUpdateCalendarPayload {
   status?: string;
 }
 
+export interface IUserCalendarItem {
+  id: string;
+  name: string;
+  isPrimary: boolean;
+  accessRole: string | null;
+}
+
+export interface IListUserCalendarsResponse {
+  selectedCalendarId: string | null;
+  calendars: IUserCalendarItem[];
+}
+
+export interface ISelectCalendarForSyncPayload {
+  calendarId: string | string[];
+}
+
+export interface ISelectCalendarForSyncResponse {
+  calendarId: string;
+  name: string | null;
+}
+
 export interface GenerateAuthUrlRequest {
   userId: string;
   clientId: string;

@@ -44,6 +44,7 @@ import IntegrationItem from "./IntegrationItem";
 import EmailMarketingConfigModal from "./modal/EmailMarketingConfigModal";
 import TwilioConfigurationModal from "./modal/TwilioConfigurationModal";
 import GoogleIntegrationSelectorModal from "./modal/GoogleIntegrationSelectorModal";
+import GoogleCalendarConfigModal from "./modal/GoogleCalendarConfigModal";
 import Webhooks from "./webhooks/Webhooks";
 
 function Integrations() {
@@ -69,6 +70,10 @@ function Integrations() {
     isEmailMarketingIntegrationModalOpen,
     setIsEmailMarketingIntegrationModalOpen,
   ] = useState(false);
+
+  const [isGoogleCalendarConfigModalOpen, setIsGoogleCalendarConfigModalOpen] =
+    useState(false);
+  const [selectedCalendarConfig, setSelectedCalendarConfig] = useState<any>(undefined);
 
   const {
     data: googleCalendarExistingConfig,
@@ -126,6 +131,12 @@ function Integrations() {
     ? emailExistingConfig[0]
     : emailExistingConfig;
 
+  // Normalize google calendar config to handle both single object and array responses
+  const googleCalendarConfig = Array.isArray(googleCalendarExistingConfig)
+    ? googleCalendarExistingConfig[0]
+    : googleCalendarExistingConfig;
+
+
   const HEADING_DATA = {
     heading: "Integrations",
     subHeading:
@@ -141,289 +152,234 @@ function Integrations() {
   );
 
   const AVAILABLE_INTEGRATIONS = useMemo(() => {
-    return [
-      {
-        id: googleBusinessConfig?._id || "",
-        name: "Google My Business",
-        icon: <FaGoogle className="w-4 h-4" />,
-        iconBg: "bg-red-100 dark:bg-red-900/20",
-        iconColor: "text-red-600 dark:text-red-400",
-        status: googleBusinessConfig?.status || "Disconnected",
-        description:
-          "Automatically sync reviews and manage your practice listing",
-        badges: [
-          "Review sync",
-          "Business listing management",
-          "Analytics integration",
-        ],
-        lastSync: googleBusinessConfig?.lastSyncAt
-          ? timeAgo(googleBusinessConfig.lastSyncAt)
-          : undefined,
-        onConnect: () => connectGoogleBusiness(),
-        onReconnect: () => connectGoogleBusiness(),
-        onConfigure: () => setIsGoogleBusinessLocationModalOpen(true),
-        isSwitchChecked: googleBusinessConfig?.status === "Connected",
-        onSwitchChange: () => {
-          updateGoogleBusinessIntegration({
-            id: googleBusinessConfig?._id as string,
-            payload: {
-              status:
-                googleBusinessConfig?.status === "Connected"
-                  ? "Disconnected"
-                  : "Connected",
-            },
-          });
-        },
-        account: {
-          accountName: googleBusinessConfig?.locations?.find((l: any) => l.isConnected)?.name || googleBusinessConfig?.accountName,
-          accountEmail: googleBusinessConfig?.accountEmail,
-          accountAvatar: googleBusinessConfig?.accountAvatar,
-        },
-      },
-      // {
-      //   id: "",
-      //   name: "Practice Management System",
-      //   icon: <TbDatabase className="w-4 h-4" />,
-      //   iconBg: "bg-blue-100",
-      //   iconColor: "text-blue-600",
-      //   status: "Disconnected" as const,
-      //   description:
-      //     "Connect your PMS to automatically track patient referrals",
-      //   badges: [
-      //     "Patient data sync",
-      //     "Appointment tracking",
-      //     "Referral automation",
-      //   ],
-      //   lastSync: "15 minutes ago",
-      // },
+    const list: any[] = [];
 
-      {
-        id: googleCalendarExistingConfig?._id || "",
-        name: "Google Calendar Integration",
-        icon: <LuCalendar className="w-4 h-4" />,
-        iconBg: "bg-purple-100 dark:bg-purple-900/20",
-        iconColor: "text-purple-600 dark:text-purple-400",
-        status: googleCalendarExistingConfig?.status || "Disconnected",
-        description:
-          "Sync marketing activities and referral events with Google Calendar",
-        badges: ["Activity Sync", "Event Management", "Calendar Integration"],
-        lastSync: googleCalendarExistingConfig?.lastSyncAt
-          ? timeAgo(googleCalendarExistingConfig.lastSyncAt)
-          : undefined,
-        onConnect: () => connectCalendar(),
-        onReconnect: () => connectCalendar(),
-        isSwitchChecked: googleCalendarExistingConfig?.status === "Connected",
-        onSwitchChange: () => {
-          updateGoogleCalendarIntegration({
-            id: googleCalendarExistingConfig?._id as string,
-            payload: {
-              status:
-                googleCalendarExistingConfig?.status === "Connected"
-                  ? "Disconnected"
-                  : "Connected",
-            },
-          });
-        },
-        account: {
-          accountName: googleCalendarExistingConfig?.accountName,
-          accountEmail: googleCalendarExistingConfig?.accountEmail,
-          accountAvatar: googleCalendarExistingConfig?.accountAvatar,
-        },
+    // Google My Business
+    list.push({
+      id: googleBusinessConfig?._id || "",
+      name: "Google My Business",
+      icon: <FaGoogle className="w-4 h-4" />,
+      iconBg: "bg-red-100 dark:bg-red-900/20",
+      iconColor: "text-red-600 dark:text-red-400",
+      status: googleBusinessConfig?.status || "Disconnected",
+      description:
+        "Automatically sync reviews and manage your practice listing",
+      badges: [
+        "Review sync",
+        "Business listing management",
+        "Analytics integration",
+      ],
+      lastSync: googleBusinessConfig?.lastSyncAt
+        ? timeAgo(googleBusinessConfig.lastSyncAt)
+        : undefined,
+      onConnect: () => connectGoogleBusiness(),
+      onReconnect: () => connectGoogleBusiness(),
+      onConfigure: () => setIsGoogleBusinessLocationModalOpen(true),
+      isSwitchChecked: googleBusinessConfig?.status === "Connected",
+      onSwitchChange: () => {
+        updateGoogleBusinessIntegration({
+          id: googleBusinessConfig?._id as string,
+          payload: {
+            status:
+              googleBusinessConfig?.status === "Connected"
+                ? "Disconnected"
+                : "Connected",
+          },
+        });
       },
-      {
-        id: googleAdsConfig?._id || "",
-        name: "Google Ads",
-        icon: <SiGoogleads className="w-4 h-4" />,
-        iconBg: "bg-blue-100 dark:bg-blue-900/20",
-        iconColor: "text-blue-600 dark:text-blue-400",
-        status: googleAdsConfig?.status || "Disconnected",
-        description:
-          "Sync ad performance and optimize referral-based campaigns",
-        badges: [
-          "Campaign tracking",
-          "Conversion attribution",
-          "Ad spend analytics",
-        ],
-        onConnect: () => connectGoogleAds(),
-        onReconnect: () => connectGoogleAds(),
-        onConfigure: () => setIsGoogleAdsAccountModalOpen(true),
-        connectedLocation: googleAdsConfig?.customerAccounts?.find(
-          (acc: any) => acc.isConnected,
-        )?.descriptiveName,
-        isSwitchChecked: googleAdsConfig?.status === "Connected",
-        onSwitchChange: () => {
-          updateGoogleAdsIntegration({
-            id: googleAdsConfig?._id as string,
-            payload: {
-              status:
-                googleAdsConfig?.status === "Connected"
-                  ? "Disconnected"
-                  : "Connected",
-            },
-          });
-        },
-        account: {
-          accountName: googleAdsConfig?.accountName,
-          accountEmail: googleAdsConfig?.accountEmail,
-          accountAvatar: googleAdsConfig?.accountAvatar,
-        },
+      account: {
+        accountName: googleBusinessConfig?.locations?.find((l: any) => l.isConnected)?.name || googleBusinessConfig?.accountName,
+        accountEmail: googleBusinessConfig?.accountEmail,
+        accountAvatar: googleBusinessConfig?.accountAvatar,
       },
-      {
-        id: googleAnalyticsConfig?._id || "",
-        name: "Google Analytics",
-        icon: <BsLightningCharge className="w-4 h-4" />,
-        iconBg: "bg-yellow-100 dark:bg-yellow-900/20",
-        iconColor: "text-yellow-600 dark:text-yellow-400",
-        status: googleAnalyticsConfig?.status || "Disconnected",
-        description: "Advanced reporting and GA4 property data visualization",
-        badges: ["GA4 Reporting", "Activity Visualization", "Data Insights"],
-        lastSync: googleAnalyticsConfig?.lastSyncAt
-          ? timeAgo(googleAnalyticsConfig.lastSyncAt)
-          : undefined,
-        onConnect: () => connectGoogleAnalytics(),
-        onReconnect: () => connectGoogleAnalytics(),
-        onConfigure: () => setIsGoogleAnalyticsPropertyModalOpen(true),
-        connectedLocation: googleAnalyticsConfig?.properties?.find(
-          (p: any) => p.isConnected,
-        )?.displayName,
-        isSwitchChecked: googleAnalyticsConfig?.status === "Connected",
-        onSwitchChange: () => {
-          updateGoogleAnalyticsIntegration({
-            id: googleAnalyticsConfig?._id as string,
-            payload: {
-              status:
-                googleAnalyticsConfig?.status === "Connected"
-                  ? "Disconnected"
-                  : "Connected",
-            },
-          });
-        },
-        account: {
-          accountName: googleAnalyticsConfig?.accountName,
-          accountEmail: googleAnalyticsConfig?.accountEmail,
-          accountAvatar: googleAnalyticsConfig?.accountAvatar,
-        },
+    });
+
+    // Google Calendar Integration
+    // Google Calendar Integration
+    list.push({
+      id: googleCalendarConfig?._id || "",
+      name: "Google Calendar Integration",
+      icon: <LuCalendar className="w-4 h-4" />,
+      iconBg: "bg-purple-100 dark:bg-purple-900/20",
+      iconColor: "text-purple-600 dark:text-purple-400",
+      status: googleCalendarConfig?.status || "Disconnected",
+      description:
+        "Sync marketing activities and referral events with Google Calendar",
+      badges: ["Activity Sync", "Event Management", "Calendar Integration"],
+      lastSync: googleCalendarConfig?.lastSyncAt
+        ? timeAgo(googleCalendarConfig.lastSyncAt)
+        : undefined,
+      onConnect: () => connectCalendar(),
+      onReconnect: () => connectCalendar(),
+      onConfigure: () => {
+        setSelectedCalendarConfig(googleCalendarConfig);
+        setIsGoogleCalendarConfigModalOpen(true);
       },
-      {
-        id: emailConfig?._id || "",
-        name: "Email Marketing Platform",
-        icon: <FaRegEnvelope className="w-4 h-4" />,
-        iconBg: "bg-green-100 dark:bg-green-900/20",
-        iconColor: "text-green-600 dark:text-green-400",
-        status: emailConfig?.status,
-        description:
-          "Configure SMTP settings to send automated referral notifications",
-        badges: [
-          "Automated Campaigns",
-          "Referral Notifications",
-          "Email Analytics",
-        ],
-        lastSync: emailConfig?.lastTestedAt
-          ? timeAgo(emailConfig.lastTestedAt)
-          : undefined,
-        onConfigure: () => setIsEmailMarketingIntegrationModalOpen(true),
-        isSwitchChecked: emailConfig?.status === "Connected",
-        onSwitchChange: () => {
-          if (emailConfig?._id) {
-            updateEmailIntegration({
-              id: emailConfig._id,
-              // @ts-ignore
-              data: {
-                status:
-                  emailConfig.status === "Connected"
-                    ? "Disconnected"
-                    : "Connected",
-              },
-            });
+      isSwitchChecked: googleCalendarConfig?.status === "Connected",
+      onSwitchChange: () => {
+        updateGoogleCalendarIntegration({
+          id: googleCalendarConfig?._id as string,
+          payload: {
+            status: googleCalendarConfig?.status === "Connected" ? "Disconnected" : "Connected",
+          },
+        });
+      },
+      account: googleCalendarConfig
+        ? {
+            accountName: googleCalendarConfig.accountName,
+            accountEmail: googleCalendarConfig.accountEmail,
+            accountAvatar: googleCalendarConfig.accountAvatar,
           }
-        },
-        account: {
-          accountName: emailConfig?.accountName,
-          accountEmail: emailConfig?.accountEmail,
-          accountAvatar: emailConfig?.accountAvatar,
-        },
-      },
+        : undefined,
+    });
 
-      {
-        id: metaAdsConfig?._id || "",
-        name: "Meta Ads",
-        icon: <FaMeta className="w-4 h-4" />,
-        iconBg: "bg-indigo-100 dark:bg-indigo-900/20",
-        iconColor: "text-indigo-600 dark:text-indigo-400",
-        status: metaAdsConfig?.status || "Disconnected",
-        description: "Connect Facebook & Instagram Ads for referral targeting",
-        badges: [
-          "Audience sync",
-          "Lead tracking",
-          "Campaign performance insights",
-        ],
-        onConnect: () => connectMetaAds(),
-        onReconnect: () => connectMetaAds(),
-        onConfigure: () => setIsMetaAdsAccountModalOpen(true),
-        connectedLocation: metaAdsConfig?.adAccounts?.find(
-          (acc: any) => acc.isConnected,
-        )?.name,
-        isSwitchChecked: metaAdsConfig?.status === "Connected",
-        onSwitchChange: () => {
-          updateMetaAdsIntegration({
-            id: metaAdsConfig?._id as string,
-            payload: {
-              status:
-                metaAdsConfig?.status === "Connected"
-                  ? "Disconnected"
-                  : "Connected",
-            },
-          });
-        },
-        account: {
-          accountName: metaAdsConfig?.accountName,
-          accountEmail: metaAdsConfig?.accountEmail,
-          accountAvatar: metaAdsConfig?.accountAvatar,
-        },
+    // Google Ads
+    list.push({
+      id: googleAdsConfig?._id || "",
+      name: "Google Ads",
+      icon: <SiGoogleads className="w-4 h-4" />,
+      iconBg: "bg-blue-100 dark:bg-blue-900/20",
+      iconColor: "text-blue-600 dark:text-blue-400",
+      status: googleAdsConfig?.status || "Disconnected",
+      description:
+        "Sync ad performance and optimize referral-based campaigns",
+      badges: [
+        "Campaign tracking",
+        "Conversion attribution",
+        "Ad spend analytics",
+      ],
+      onConnect: () => connectGoogleAds(),
+      onReconnect: () => connectGoogleAds(),
+      onConfigure: () => setIsGoogleAdsAccountModalOpen(true),
+      connectedLocation: googleAdsConfig?.customerAccounts?.find(
+        (acc: any) => acc.isConnected,
+      )?.descriptiveName,
+      isSwitchChecked: googleAdsConfig?.status === "Connected",
+      onSwitchChange: () => {
+        updateGoogleAdsIntegration({
+          id: googleAdsConfig?._id as string,
+          payload: {
+            status:
+              googleAdsConfig?.status === "Connected"
+                ? "Disconnected"
+                : "Connected",
+          },
+        });
       },
-      // {
-      //   id: "",
-      //   name: "TikTok Ads",
-      //   icon: <FaTiktok className="w-4 h-4" />,
-      //   iconBg: "bg-gray-100",
-      //   iconColor: "text-gray-700",
-      //   status: "Disconnected" as const,
-      //   description: "Track TikTok ad campaigns and boost referral engagement",
-      //   badges: ["Pixel tracking", "Campaign reporting", "Audience insights"],
-      // },
-      {
-        id: twilioConfig?._id || "",
-        name: "Twilio Calling Integration",
-        icon: <TbBrandTwilio className="w-4 h-4" />,
-        iconBg: "bg-red-100 dark:bg-red-900/20",
-        iconColor: "text-red-600 dark:text-red-400",
-        status: twilioConfig?.status || "Disconnected",
-        description:
-          "Track patient calls and monitor referral communications with recordings",
-        badges: ["Call Analytics", "Call Tracking", "Call Recordings"],
-        onConfigure: () => setIsTwilioIntegrationModalOpen(true),
-        isSwitchChecked: twilioConfig?.status === "Connected",
-        onSwitchChange: () => {
-          updateTwilioConfig({
-            id: twilioConfig?._id as string,
+      account: {
+        accountName: googleAdsConfig?.accountName,
+        accountEmail: googleAdsConfig?.accountEmail,
+        accountAvatar: googleAdsConfig?.accountAvatar,
+      },
+    });
+
+    // Google Analytics
+    list.push({
+      id: googleAnalyticsConfig?._id || "",
+      name: "Google Analytics",
+      icon: <BsLightningCharge className="w-4 h-4" />,
+      iconBg: "bg-yellow-100 dark:bg-yellow-900/20",
+      iconColor: "text-yellow-600 dark:text-yellow-400",
+      status: googleAnalyticsConfig?.status || "Disconnected",
+      description: "Advanced reporting and GA4 property data visualization",
+      badges: ["GA4 Reporting", "Activity Visualization", "Data Insights"],
+      lastSync: googleAnalyticsConfig?.lastSyncAt
+        ? timeAgo(googleAnalyticsConfig.lastSyncAt)
+        : undefined,
+      onConnect: () => connectGoogleAnalytics(),
+      onReconnect: () => connectGoogleAnalytics(),
+      onConfigure: () => setIsGoogleAnalyticsPropertyModalOpen(true),
+      connectedLocation: googleAnalyticsConfig?.properties?.find(
+        (p: any) => p.isConnected,
+      )?.displayName,
+      isSwitchChecked: googleAnalyticsConfig?.status === "Connected",
+      onSwitchChange: () => {
+        updateGoogleAnalyticsIntegration({
+          id: googleAnalyticsConfig?._id as string,
+          payload: {
+            status:
+              googleAnalyticsConfig?.status === "Connected"
+                ? "Disconnected"
+                : "Connected",
+          },
+        });
+      },
+      account: {
+        accountName: googleAnalyticsConfig?.accountName,
+        accountEmail: googleAnalyticsConfig?.accountEmail,
+        accountAvatar: googleAnalyticsConfig?.accountAvatar,
+      },
+    });
+
+    // Email Marketing SMTP
+    list.push({
+      id: emailConfig?._id || "",
+      name: "Email Marketing Platform",
+      icon: <FaRegEnvelope className="w-4 h-4" />,
+      iconBg: "bg-green-100 dark:bg-green-900/20",
+      iconColor: "text-green-600 dark:text-green-400",
+      status: emailConfig?.status,
+      description:
+        "Configure SMTP settings to send automated referral notifications",
+      badges: ["SMTP Configuration", "Custom Templates", "Spam Protection"],
+      onConfigure: () => setIsEmailMarketingIntegrationModalOpen(true),
+      isSwitchChecked: emailConfig?.status === "Connected",
+      onSwitchChange: () => {
+        if (emailConfig?._id) {
+          updateEmailIntegration({
+            id: emailConfig._id,
+            // @ts-ignore
             data: {
               status:
-                twilioConfig?.status === "Connected"
+                emailConfig.status === "Connected"
                   ? "Disconnected"
                   : "Connected",
             },
           });
-        },
-        account: {
-          accountName: twilioConfig?.accountName,
-          accountEmail: twilioConfig?.accountEmail,
-          accountAvatar: twilioConfig?.accountAvatar,
-        },
+        }
       },
-    ];
+      account: {
+        accountName: emailConfig?.accountName,
+        accountEmail: emailConfig?.accountEmail,
+        accountAvatar: emailConfig?.accountAvatar,
+      },
+    });
+
+    // Twilio Integration
+    list.push({
+      id: twilioConfig?._id || "",
+      name: "Twilio Calling Integration",
+      icon: <TbBrandTwilio className="w-4 h-4" />,
+      iconBg: "bg-red-100 dark:bg-red-900/20",
+      iconColor: "text-red-600 dark:text-red-400",
+      status: twilioConfig?.status || "Disconnected",
+      description:
+        "Track patient calls and monitor referral communications with recordings",
+      badges: ["Call Analytics", "Call Tracking", "Call Recordings"],
+      onConfigure: () => setIsTwilioIntegrationModalOpen(true),
+      isSwitchChecked: twilioConfig?.status === "Connected",
+      onSwitchChange: () => {
+        updateTwilioConfig({
+          id: twilioConfig?._id as string,
+          data: {
+            status:
+              twilioConfig?.status === "Connected"
+                ? "Disconnected"
+                : "Connected",
+          },
+        });
+      },
+      account: {
+        accountName: twilioConfig?.accountName,
+        accountEmail: twilioConfig?.accountEmail,
+        accountAvatar: twilioConfig?.accountAvatar,
+      },
+    });
+
+    return list;
   }, [
     emailConfig,
-    googleCalendarExistingConfig,
+    googleCalendarConfig,
     updateEmailIntegration,
     updateGoogleCalendarIntegration,
     connectCalendar,
@@ -501,6 +457,15 @@ function Integrations() {
         type="meta_ads"
         isOpen={isMetaAdsAccountModalOpen}
         onClose={() => setIsMetaAdsAccountModalOpen(false)}
+      />
+
+      <GoogleCalendarConfigModal
+        userId={userId as string}
+        isOpen={isGoogleCalendarConfigModalOpen}
+        onClose={() => setIsGoogleCalendarConfigModalOpen(false)}
+        existingConfig={selectedCalendarConfig}
+        isLoading={isGoogleCalendarConfigLoading}
+        isError={isGoogleCalendarConfigError}
       />
     </>
   );

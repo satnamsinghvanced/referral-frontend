@@ -170,12 +170,6 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
             ))}
           </div>
           <div className="flex items-center gap-3 mt-2 h-6">
-            {isCredentialsSaved && lastSync && (
-              <p className="text-xs text-gray-600 dark:text-foreground/40">
-                Last sync: {lastSync}
-              </p>
-            )}
-
             {isCredentialsSaved && account && (account.accountEmail || account.accountName) && (
               <p
                 className="h-5 flex items-center gap-2 text-xs dark:text-foreground/40"

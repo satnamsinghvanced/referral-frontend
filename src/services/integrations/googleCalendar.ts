@@ -1,6 +1,9 @@
 import {
   IAuthUrlResponse,
   ICalendarIntegration,
+  IListUserCalendarsResponse,
+  ISelectCalendarForSyncPayload,
+  ISelectCalendarForSyncResponse,
   IUpdateCalendarPayload,
 } from "../../types/integrations/googleCalendar";
 import axios from "../axios";
@@ -37,4 +40,23 @@ export const updateGoogleCalendarIntegration = async (
 export const deleteGoogleCalendarIntegration = async (id: string) => {
   await axios.delete(`/google-calendar-integration/${id}`);
   return id;
+};
+
+// List user's available calendars (requires connected account)
+export const listUserCalendars = async () => {
+  const { data } = await axios.get<IListUserCalendarsResponse>(
+    "/google-calendar-integration/calendars",
+  );
+  return data;
+};
+
+// Select which calendar to sync (e.g., primary)
+export const selectCalendarForSync = async (
+  payload: ISelectCalendarForSyncPayload,
+) => {
+  const { data } = await axios.post<ISelectCalendarForSyncResponse>(
+    "/google-calendar-integration/select-calendar",
+    payload,
+  );
+  return data;
 };
