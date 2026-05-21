@@ -19,6 +19,8 @@ import { useCreateActivity, useUpdateActivity } from "../../../hooks/useMarketin
 import { ActivityItem, ActivityStatus } from "../../../types/marketing";
 import DatePickerWithTimeInput from "../../../components/common/DatePickerWithTimeInput";
 
+import { useCalendarIntegration } from "../../../hooks/integrations/useGoogleCalendar";
+
 interface ActivityFormValues {
   title: string;
   type: string;
@@ -80,6 +82,13 @@ export default function ActivityActionsModal({
   defaultEndDate,
   initialData,
 }: ActivityActionsModalProps) {
+  const { data: googleCalendarConfig } = useCalendarIntegration();
+  const configs = Array.isArray(googleCalendarConfig)
+    ? googleCalendarConfig
+    : googleCalendarConfig
+    ? [googleCalendarConfig]
+    : [];
+
   const isEditing = !!initialData?._id || !!initialData?.googleId;
   const initialValues: ActivityFormValues = {
     title: initialData?.title || "",
@@ -116,7 +125,9 @@ export default function ActivityActionsModal({
             ...submitValues,
             id: initialData?._id,
             googleId: initialData?.googleId,
-          },
+            calendarId: configs[0]?._id,
+            googleCalendarId: configs[0]?.calendarId,
+          } as any,
           // @ts-ignore
           // values,
           {
@@ -132,7 +143,9 @@ export default function ActivityActionsModal({
               ACTIVITY_TYPES.find(
                 (activity) => activity.value === values.type,
               )?.color.id.toString() || "1",
-          },
+            calendarId: configs[0]?._id,
+            googleCalendarId: configs[0]?.calendarId,
+          } as any,
           {
             onSuccess: () => {
               onClose();
