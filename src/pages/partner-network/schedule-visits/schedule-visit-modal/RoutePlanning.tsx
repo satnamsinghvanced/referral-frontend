@@ -29,6 +29,7 @@ import { formatCalendarDate } from "../../../../utils/formatCalendarDate";
 import { formatRouteData } from "./formatRouteData";
 import { parseStringTime } from "../../../../utils/parseStringTime";
 import { downloadJson } from "../../../../utils/jsonDownloader";
+import { generateRoutePdf } from "../../../../utils/pdfRouteGenerator";
 
 interface RoutePlanningTabProps {
   planState: {
@@ -261,6 +262,11 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
         ? [userLocation!, ...referrerCoords]
         : referrerCoords;
 
+      if (allCoords.length < 2) {
+        setIsGeolocationLoading(false);
+        return;
+      }
+
       let optimizedOrderMap: number[] | null = null;
       let optimizedCoordString = "";
       let hasCustomOptimization = false;
@@ -470,21 +476,28 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
     // Updated URL to include referrerNames
     const url = `${baseUrl}?coordinates=${encodeURIComponent(
       activeCoordinateString,
-    )}&names=${encodeURIComponent(activeNameString)}&optimized=${
-      planState.enableAutoRoute
-    }`;
+    )}&names=${encodeURIComponent(activeNameString)}&optimized=${planState.enableAutoRoute
+      }`;
 
     window.open(url, "_blank");
   };
 
   const exportRoute = () => {
-    const exportData = {
-      timestamp: new Date().toISOString(),
-      reportTitle: `${routeType.toLowerCase()}_route`,
-      details: routeDetailsList,
+    const dummyPlan: any = {
+      planDetails: {
+        name: "Draft Route Plan",
+      },
+      route: {
+        date: planState.routeDate,
+        routeDetails: routeDetailsList,
+      },
+      summary: {
+        estimatedDistance: summary?.travelDistance || summary?.estimatedDistance || "0 mi",
+        estimatedTime: summary?.travelTime || summary?.estimatedTotalTime || "0h 0m",
+      }
     };
 
-    downloadJson(exportData, `${routeType.toLowerCase()}_route`);
+    generateRoutePdf(dummyPlan);
   };
 
   const routeType = planState.enableAutoRoute ? "Optimized" : "Original";

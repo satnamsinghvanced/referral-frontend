@@ -39,6 +39,8 @@ export const useUpdateCalendar = () => {
       updateGoogleCalendarIntegration(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CALENDAR_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     },
   });
 };
@@ -49,6 +51,8 @@ export const useDisconnectCalendar = () => {
     onSuccess: () => {
       queryClient.setQueryData(CALENDAR_KEYS.details(), null);
       queryClient.invalidateQueries({ queryKey: CALENDAR_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     },
   });
 };
@@ -67,6 +71,8 @@ export const useSelectCalendarForSync = () => {
     onSuccess: () => {
       // selected calendar affects integration config + what gets synced
       queryClient.invalidateQueries({ queryKey: CALENDAR_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     },
   });
 };
