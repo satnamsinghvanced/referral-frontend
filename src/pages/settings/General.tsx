@@ -14,9 +14,9 @@ import { toggleTheme } from "../../store/uiSlice";
 import {
   useDeleteAccount,
   useExportAccountData,
-  useExportAnalyticsMutation,
+  useExportAnalyticsPDFMutation,
   useExportReferralsMutation,
-  useExportReviewsMutation,
+  useExportReviewsPDFMutation,
 } from "../../hooks/useAuth";
 import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
 
@@ -30,10 +30,10 @@ const General: React.FC = () => {
     useExportAccountData();
   const { mutate: exportReferrals, isPending: isExportingReferrals } =
     useExportReferralsMutation();
-  const { mutate: exportReviews, isPending: isExportingReviews } =
-    useExportReviewsMutation();
-  const { mutate: exportAnalytics, isPending: isExportingAnalytics } =
-    useExportAnalyticsMutation();
+  const { mutate: exportReviewsPDF, isPending: isExportingReviews } =
+    useExportReviewsPDFMutation();
+  const { mutate: exportAnalyticsPDF, isPending: isExportingAnalytics } =
+    useExportAnalyticsPDFMutation();
   const { mutate: deleteAccount, isPending: isDeletingAccount } =
     useDeleteAccount();
 
@@ -51,6 +51,17 @@ const General: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
+  const downloadBlob = (blob: Blob, filename: string) => {
+    const url = URL.createObjectURL(new Blob([blob], { type: "application/pdf" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `${filename}_${new Date().toISOString().split("T")[0]}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   const handleExportReferrals = () => {
     exportReferrals(undefined, {
       onSuccess: (data) => downloadJson(data, "referrals_export"),
@@ -58,14 +69,14 @@ const General: React.FC = () => {
   };
 
   const handleExportReviews = () => {
-    exportReviews(undefined, {
-      onSuccess: (data) => downloadJson(data, "reviews_export"),
+    exportReviewsPDF(undefined, {
+      onSuccess: (blob) => downloadBlob(blob, "reviews_export"),
     });
   };
 
   const handleExportAnalytics = () => {
-    exportAnalytics(undefined, {
-      onSuccess: (data) => downloadJson(data, "analytics_export"),
+    exportAnalyticsPDF(undefined, {
+      onSuccess: (blob) => downloadBlob(blob, "analytics_export"),
     });
   };
 
