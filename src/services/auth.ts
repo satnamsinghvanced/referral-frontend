@@ -59,16 +59,30 @@ export const exportReferrals = async (): Promise<ReferralExportItem[]> => {
 // 4. Export Analytics
 export const exportAnalytics = async (): Promise<AnalyticsExportResponse> => {
   const response = await axios.get("/users/export-analytics");
-  return response.data;
+  return response.data as any;
+};
+
+export const exportAnalyticsPDF = async (): Promise<Blob> => {
+  const response = await axios.get("/users/export-analytics?format=pdf", {
+    responseType: "blob",
+  });
+  return response as unknown as Blob;
 };
 
 // 5. Export Reviews
 export const exportReviews = async (): Promise<ReviewsExportResponse> => {
   const response = await axios.get("/users/export-reviews");
-  return response.data;
+  return response.data as any;
+};
+
+export const exportReviewsPDF = async (): Promise<Blob> => {
+  const response = await axios.get("/users/export-reviews?format=pdf", {
+    responseType: "blob",
+  });
+  return response as unknown as Blob;
 };
 
 export const logoutUser = async (): Promise<LogoutResponse> => {
   const response = await axios.post("/users/logout");
-  return response.data;
+  return response.data as any;
 };

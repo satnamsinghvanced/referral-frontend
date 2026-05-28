@@ -17,12 +17,7 @@ export const generateRoutePdf = async (plan: SchedulePlan) => {
       doc.text(new Date().toLocaleDateString(), 180, 285);
     }
   };
-  const activeCoordinateString = (plan.route.routeDetails || [])
-    .map((stop: any) => `${stop.address.coordinates.long},${stop.address.coordinates.lat}`)
-    .join(";");
-  const origin = typeof window !== "undefined" ? window.location.origin : "";
-  const prefix = import.meta.env.VITE_URL_PREFIX || "";
-  const navUrl = `${origin}${prefix}/visit-map?coordinates=${encodeURIComponent(activeCoordinateString)}&optimized=true`;
+
   doc.setFillColor(15, 23, 42);
   doc.rect(0, 0, 210, 50, 'F');
   doc.setFontSize(22);
@@ -34,6 +29,7 @@ export const generateRoutePdf = async (plan: SchedulePlan) => {
   doc.setFontSize(9);
   doc.setTextColor(148, 163, 184);
   doc.text(`Scheduled Date: ${formatDateToReadable(plan.route.date, false)}`, 14, 40);
+
   const statsX = 140;
   doc.setFontSize(9);
   doc.text("Total Distance", statsX, 18);
@@ -46,14 +42,7 @@ export const generateRoutePdf = async (plan: SchedulePlan) => {
   doc.setFontSize(11);
   doc.setTextColor(255, 255, 255);
   doc.text(plan.summary.estimatedTime || "0h 0m", statsX + 35, 24);
-  const navY = 40;
-  doc.setFontSize(11);
-  doc.setTextColor(59, 130, 246);
-  doc.text("Open Live Navigation", statsX, navY);
-  doc.link(statsX, navY - 5, 45, 7, { url: navUrl });
-  doc.setDrawColor(59, 130, 246);
-  doc.setLineWidth(0.3);
-  doc.line(statsX, navY + 1.5, statsX + 41, navY + 1.5);
+
   let yOffset = 60;
   const stops = plan.route.routeDetails || [];
   let validStops = stops.filter((s: any) =>
@@ -62,11 +51,12 @@ export const generateRoutePdf = async (plan: SchedulePlan) => {
     Math.abs(s.address.coordinates.lat) > 0.1 &&
     Math.abs(s.address.coordinates.long) > 0.1
   );
+
   try {
     const position = await new Promise<GeolocationPosition>((resolve, reject) => {
       navigator.geolocation.getCurrentPosition(resolve, reject, {
         timeout: 4000,
-        enableHighAccuracy: true,
+        enableHighAccuracy: false,
       });
     });
     validStops.unshift({
@@ -89,6 +79,26 @@ export const generateRoutePdf = async (plan: SchedulePlan) => {
   } catch (e) {
     console.warn("Could not retrieve user location for PDF map:", e);
   }
+
+  // Generate the navigation URL strings
+  let activeCoordinateString = validStops
+    .map((stop: any) => `${stop.address.coordinates.long},${stop.address.coordinates.lat}`)
+    .join(";");
+
+  const origin = typeof window !== "undefined" ? window.location.origin : "";
+  const prefix = import.meta.env.VITE_URL_PREFIX || "";
+  const navUrl = `${origin}${prefix}/visit-map?coordinates=${encodeURIComponent(activeCoordinateString)}&optimized=true`;
+
+  // Draw Live Navigation Link
+  const navY = 40;
+  doc.setFontSize(11);
+  doc.setTextColor(59, 130, 246);
+  doc.text("Open Live Navigation", statsX, navY);
+  doc.link(statsX, navY - 5, 45, 7, { url: navUrl });
+  doc.setDrawColor(59, 130, 246);
+  doc.setLineWidth(0.3);
+  doc.line(statsX, navY + 1.5, statsX + 41, navY + 1.5);
+
   if (accessToken) {
     if (validStops.length > 1) {
       try {
@@ -156,19 +166,18 @@ export const generateRoutePdf = async (plan: SchedulePlan) => {
   doc.setFontSize(14);
   doc.setTextColor(15, 23, 42);
   doc.text("Route Schedule & Stops", 14, yOffset - 5);
-  const tableData = plan.route.routeDetails.map((stop: any, index, arr) => {
-    const nextStop = arr[index + 1];
+  const tableData = validStops.map((stop: any, index: number) => {
     return [
       index + 1,
       `${stop.name}\n${stop.address.addressLine1}, ${stop.address.city}, ${stop.address.state} ${stop.address.zip}`,
       stop.arrivalTime || "N/A",
-      nextStop ? nextStop.travelTime : "End",
-      nextStop ? nextStop.travelDistance : "0 mi",
+      stop.travelTime || "N/A",
+      stop.travelDistance || "0 mi",
     ];
   });
   autoTable(doc, {
     startY: yOffset,
-    head: [["#", "Name & Address", "Arrival", "Travel to Next", "Distance"]],
+    head: [["#", "Name & Address", "Arrival", "Travel Time", "Distance"]],
     body: tableData,
     theme: "grid",
     headStyles: {

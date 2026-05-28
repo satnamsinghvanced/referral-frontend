@@ -140,9 +140,27 @@ export function useExportAnalyticsMutation() {
   });
 }
 
+export function useExportAnalyticsPDFMutation() {
+  return useMutation({
+    mutationFn: async () => {
+      const { exportAnalyticsPDF } = await import("../services/auth");
+      return exportAnalyticsPDF();
+    },
+  });
+}
+
 export function useExportReviewsMutation() {
   return useMutation({
     mutationFn: exportReviews,
+  });
+}
+
+export function useExportReviewsPDFMutation() {
+  return useMutation({
+    mutationFn: async () => {
+      const { exportReviewsPDF } = await import("../services/auth");
+      return exportReviewsPDF();
+    },
   });
 }
 
