@@ -109,7 +109,6 @@ const ReferralCard = ({ referral, actions = () => [] }: ReferralCardProps) => {
                   startContent={btn.icon}
                   isIconOnly
                 >
-                  {/* {btn.icon && <span className="text-sm">{btn.icon}</span>} */}
                   {btn.label}
                 </Button>
               );
@@ -117,7 +116,6 @@ const ReferralCard = ({ referral, actions = () => [] }: ReferralCardProps) => {
               if (btn.hideButton) {
                 return;
               }
-
               return btn.link ? (
                 <Link
                   key={index}

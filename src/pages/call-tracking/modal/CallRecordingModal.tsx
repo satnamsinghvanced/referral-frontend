@@ -15,7 +15,7 @@ import {
 } from "@heroui/react";
 import { getLocalTimeZone, now } from "@internationalized/date";
 import { useEffect, useState } from "react";
-import { FiCalendar, FiCheckCircle, FiXCircle } from "react-icons/fi";
+import { FiCalendar, FiCheckCircle, FiXCircle  } from "react-icons/fi";
 import { LuPhoneIncoming, LuPhoneOutgoing } from "react-icons/lu";
 import { MdChatBubbleOutline } from "react-icons/md";
 import { useUpdateCallRecord } from "../../../hooks/useCall";
@@ -27,7 +27,6 @@ const PlaybackTab = ({ data }: { data: CallRecord }) => (
   <div className="flex-1 outline-none space-y-4">
     <Card className="bg-card text-card-foreground flex flex-col rounded-xl border border-foreground/10 shadow-none">
       <CardBody className="p-4">
-        {/* Header Info */}
         <div className="flex items-center justify-between">
           <div>
             <h4 className="font-medium text-sm mb-0.5">
@@ -39,7 +38,6 @@ const PlaybackTab = ({ data }: { data: CallRecord }) => (
             </p>
           </div>
           <div className="flex items-center space-x-2">
-            {/* Source Chip - Hardcoded to Twilio for now as it's not in API */}
             <Chip
               size="sm"
               radius="sm"
@@ -51,7 +49,6 @@ const PlaybackTab = ({ data }: { data: CallRecord }) => (
           </div>
         </div>
 
-        {/* Playback Controls */}
         <div className="space-y-4 mt-4">
           {data.recordingUrl ? (
             <audio
@@ -101,7 +98,6 @@ const DetailsTab = ({
   const [followUp, setFollowUp] = useState(data.followUp || false);
   const [appointment, setAppointment] = useState(data.appointment || false);
   const [appointmentDate, setAppointmentDate] = useState(data.date || "");
-
   useEffect(() => {
     setNotes(data.notes || "");
     setFollowUp(data.followUp || false);
@@ -144,7 +140,6 @@ const DetailsTab = ({
     <div className="flex-1 outline-none space-y-4">
       <div>
         <div className="md:grid md:grid-cols-2 md:gap-3 max-md:space-y-3">
-          {/* Call Information */}
           <Card className="shadow-none border border-foreground/10">
             <CardBody className="space-y-3">
               <h4 className="text-sm font-medium">Call Information</h4>
@@ -207,7 +202,6 @@ const DetailsTab = ({
             </CardBody>
           </Card>
 
-          {/* Notes & Actions */}
           <Card className="shadow-none border border-foreground/10">
             <CardBody className="space-y-3">
               <div className="flex items-center justify-between">
@@ -227,7 +221,6 @@ const DetailsTab = ({
                   variant="flat"
                 />
 
-                {/* Checkboxes */}
                 <div className="flex flex-col space-y-2 text-xs">
                   <div>
                     <Checkbox
@@ -260,7 +253,6 @@ const DetailsTab = ({
                   )}
                 </div>
 
-                {/* Schedule Follow-up Button */}
                 <div className="border-t border-foreground/10 pt-2 mt-4">
                   <Button
                     color="primary"
@@ -295,7 +287,6 @@ export default function CallRecordingModal({
   data,
 }: CallRecordingModalProps) {
   if (!data) return null;
-
   const tabs = [
     {
       key: "playback",
@@ -313,7 +304,6 @@ export default function CallRecordingModal({
       content: <DetailsTab data={data} onClose={onClose} />,
     },
   ];
-
   return (
     <Modal
       isOpen={isOpen}

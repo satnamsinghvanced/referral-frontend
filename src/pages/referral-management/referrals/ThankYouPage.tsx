@@ -7,7 +7,6 @@ import { downloadVcf } from "../../../utils/vcfGenerator";
 const ThankYouPage = () => {
   const location = useLocation();
   const { user } = location.state || {};
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-green-50 dark:from-background dark:to-background flex items-center justify-center p-4">
       <div className="max-w-2xl mx-auto flex justify-center items-center flex-col min-h-screen -mt-16">

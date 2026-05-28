@@ -1,4 +1,5 @@
 export interface SocialMediaCredential {
+  _id: string;
   id: string;
   userId: string;
   platform:
@@ -27,11 +28,31 @@ export interface SocialMediaCredential {
     accessToken: string;
     tasks: string[];
     category: string;
+    isConnected?: boolean;
     instagramBusinessAccount?: {
       id: string;
       username: string;
     };
   }>;
+  linkedinPages?: Array<{
+    id: string;
+    name: string;
+    vanityName?: string;
+    type?: "personal" | "organization";
+    isConnected?: boolean;
+  }>;
+  youtubeChannels?: Array<{
+    channelId: string;
+    title: string;
+    thumbnail?: string;
+    isConnected?: boolean;
+  }>;
+  tiktokAccounts?: Array<{
+    id: string;
+    name: string;
+    isConnected?: boolean;
+  }>;
+  connectedSubAccountName?: string;
 }
 
 export interface GetCredentialsResponse {

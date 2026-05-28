@@ -74,21 +74,18 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
 
   const filteredCountText = useMemo(() => {
     if (!isFiltered) return null;
-
     const filterStatus = currentFilters.filter
       ? `  •  ${
           STATUS_OPTIONS.find((item) => item.value === currentFilters.filter)
             ?.label
         } status`
       : "";
-
     const filterSource = currentFilters.source
       ? `  •  ${
           SOURCE_OPTIONS.find((item) => item.key === currentFilters.source)
             ?.label
         } only`
       : "";
-
     return (
       <span className="text-green-600 capitalize">
         {filterStatus}

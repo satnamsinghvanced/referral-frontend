@@ -24,7 +24,6 @@ const Analytics = () => {
     currentFilters.filter,
   );
   const exportMutation = useEmailAnalyticsExport();
-
   const STAT_CARD_DATA = useMemo(() => {
     if (!overview?.stats) return [];
     return overview.stats.map((stat) => ({
@@ -55,11 +54,9 @@ const Analytics = () => {
   const handleFilterChange = (value: AnalyticsFilter) => {
     setCurrentFilters({ filter: value });
   };
-
   const handleExport = () => {
     exportMutation.mutate(currentFilters.filter);
   };
-
   return (
     <div className="flex flex-col gap-4 md:gap-5">
       <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
@@ -86,16 +83,6 @@ const Analytics = () => {
             ))}
           </Select>
         </div>
-        {/* <Button
-          onPress={() => setCurrentFilters(INITIAL_FILTERS)}
-          size="sm"
-          variant="ghost"
-          color="default"
-          className="border-small"
-          startContent={<HiOutlineRefresh className="size-3.5" />}
-        >
-          Refresh
-        </Button> */}
         <Button
           onPress={handleExport}
           isLoading={exportMutation.isPending}

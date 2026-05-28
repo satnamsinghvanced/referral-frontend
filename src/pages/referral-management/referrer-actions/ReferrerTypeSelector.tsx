@@ -13,7 +13,6 @@ export default function ReferrerTypeSelector({
   editedData,
 }: ReferrerTypeSelectorProps) {
   if (isPracticeEdit) return null;
-
   return (
     <div className="border border-foreground/10 rounded-xl p-4">
       <Select

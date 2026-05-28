@@ -25,13 +25,11 @@ import {
   FaUser,
   FaWhatsapp,
 } from "react-icons/fa";
-
 const SupportPage = () => {
   const [activeTab, setActiveTab] = useState<"contact" | "faq" | "resources">(
     "contact"
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
-
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -41,7 +39,6 @@ const SupportPage = () => {
     urgency: "medium",
     message: "",
   });
-
   const supportCategories = [
     { key: "billing", label: "Billing & Payments" },
     { key: "technical", label: "Technical Support" },
@@ -50,14 +47,12 @@ const SupportPage = () => {
     { key: "bug", label: "Report a Bug" },
     { key: "general", label: "General Inquiry" },
   ];
-
   const urgencyLevels = [
     { key: "low", label: "Low - General question" },
     { key: "medium", label: "Medium - Need help soon" },
     { key: "high", label: "High - System down/critical" },
     { key: "urgent", label: "Urgent - Immediate assistance" },
   ];
-
   const faqItems = [
     {
       key: "billing",
@@ -118,7 +113,6 @@ const SupportPage = () => {
       ],
     },
   ];
-
   const resources = [
     {
       icon: FaFileAlt,
@@ -149,29 +143,17 @@ const SupportPage = () => {
       type: "Live",
     },
   ];
-
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
     }));
   };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-
     try {
-      // Simulate API call
       await new Promise((resolve) => setTimeout(resolve, 2000));
-
-      // showAlert(alertService.success(
-      //   'Message Sent!',
-      //   'We\'ve received your support request and will respond within 24 hours.',
-      //   5000
-      // ));
-
-      // Reset form
       setFormData({
         name: "",
         email: "",
@@ -230,7 +212,6 @@ const SupportPage = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Header */}
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             How can we help you?
@@ -239,8 +220,6 @@ const SupportPage = () => {
             Get support for your dental practice management needs. Our team is
             here to help you succeed.
           </p>
-
-          {/* Search Bar */}
           <div className="max-w-2xl mx-auto mt-8">
             <div className="relative">
               <Input
@@ -254,8 +233,6 @@ const SupportPage = () => {
             </div>
           </div>
         </div>
-
-        {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
           <Card className="bg-blue-50 border-0">
             <CardBody className="text-center p-6">
@@ -279,8 +256,6 @@ const SupportPage = () => {
             </CardBody>
           </Card>
         </div>
-
-        {/* Navigation Tabs */}
         <div className="flex border-b border-foreground/10 mb-8">
           {[
             { key: "contact", label: "Contact Support" },
@@ -289,22 +264,18 @@ const SupportPage = () => {
           ].map((tab) => (
             <button
               key={tab.key}
-              className={`px-6 py-3 font-medium text-lg border-b-2 transition-colors ${
-                activeTab === tab.key
+              className={`px-6 py-3 font-medium text-lg border-b-2 transition-colors ${activeTab === tab.key
                   ? "border-primary-500 text-primary-600"
                   : "border-transparent text-gray-500 hover:text-gray-700"
-              }`}
+                }`}
               onClick={() => setActiveTab(tab.key as any)}
             >
               {tab.label}
             </button>
           ))}
         </div>
-
-        {/* Contact Tab */}
         {activeTab === "contact" && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Contact Form */}
             <Card className="shadow-lg">
               <CardBody className="p-6">
                 <h2 className="text-2xl font-bold mb-6">Send us a message</h2>
@@ -332,7 +303,6 @@ const SupportPage = () => {
                       required
                     />
                   </div>
-
                   <Input
                     label="Company/Practice Name"
                     placeholder="Enter your practice name"
@@ -342,7 +312,6 @@ const SupportPage = () => {
                     }
                     startContent={<FaBuilding className="text-gray-400" />}
                   />
-
                   <Select
                     label="Category"
                     placeholder="Select issue category"
@@ -361,7 +330,6 @@ const SupportPage = () => {
                       </SelectItem>
                     ))}
                   </Select>
-
                   <Select
                     label="Urgency Level"
                     placeholder="How urgent is your issue?"
@@ -377,7 +345,6 @@ const SupportPage = () => {
                       <SelectItem key={level.key}>{level.label}</SelectItem>
                     ))}
                   </Select>
-
                   <Input
                     label="Subject"
                     placeholder="Brief description of your issue"
@@ -387,7 +354,6 @@ const SupportPage = () => {
                     }
                     required
                   />
-
                   <Textarea
                     label="Message"
                     placeholder="Please describe your issue in detail..."
@@ -398,7 +364,6 @@ const SupportPage = () => {
                     minRows={4}
                     required
                   />
-
                   <Button
                     type="submit"
                     color="primary"
@@ -411,8 +376,6 @@ const SupportPage = () => {
                 </form>
               </CardBody>
             </Card>
-
-            {/* Contact Methods */}
             <div className="space-y-6">
               <h3 className="text-2xl font-bold mb-6">
                 Other ways to reach us
@@ -452,8 +415,6 @@ const SupportPage = () => {
             </div>
           </div>
         )}
-
-        {/* FAQ Tab */}
         {activeTab === "faq" && (
           <div>
             <div className="text-center mb-8">
@@ -464,7 +425,6 @@ const SupportPage = () => {
                 Find quick answers to common questions
               </p>
             </div>
-
             <Accordion variant="splitted">
               {faqItems.map((category) => (
                 <AccordionItem
@@ -494,8 +454,6 @@ const SupportPage = () => {
             </Accordion>
           </div>
         )}
-
-        {/* Resources Tab */}
         {activeTab === "resources" && (
           <div>
             <div className="text-center mb-8">
@@ -505,7 +463,6 @@ const SupportPage = () => {
                 platform
               </p>
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {resources.map((resource, index) => (
                 <Card
@@ -540,8 +497,6 @@ const SupportPage = () => {
             </div>
           </div>
         )}
-
-        {/* Emergency Support Banner */}
         <Card className="bg-red-50 border-red-200 mt-12">
           <CardBody className="p-6">
             <div className="flex items-center justify-between">

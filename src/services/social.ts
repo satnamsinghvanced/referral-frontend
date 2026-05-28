@@ -56,3 +56,34 @@ export const fetchGoogleBusinessPlatformOverview = async (): Promise<GBPPlatform
   const response = await axios.get("/social-media/google_business_platform_overview");
   return response.data;
 };
+
+export interface SocialSubAccountsResponse {
+  accounts: any[];
+  connectedAccount?: {
+    id: string;
+    name: string;
+    email?: string;
+    isParentAccount?: boolean;
+  } | null;
+}
+
+export const getSocialSubAccounts = async (
+  platform: string,
+): Promise<SocialSubAccountsResponse> => {
+  const response = await axios.get(`/social-media/${platform}/sub-accounts`);
+  return (response as { data?: SocialSubAccountsResponse })?.data ?? response;
+};
+
+export const syncSocialProfiles = async (
+  platform: string,
+): Promise<SocialSubAccountsResponse> => {
+  const response = await axios.get(`/social-media/${platform}/sync-profiles`);
+  return (response as { data?: SocialSubAccountsResponse })?.data ?? response;
+};
+
+export const connectSocialSubAccount = async (platform: string, accountId: string) => {
+  const response = await axios.post(`/social-media/${platform}/connect-sub-account`, {
+    accountId,
+  });
+  return response.data;
+};

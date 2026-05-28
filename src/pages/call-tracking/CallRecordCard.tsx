@@ -1,11 +1,5 @@
 import { Button, Chip } from "@heroui/react";
-import {
-  FiClock,
-  FiExternalLink,
-  FiPhoneIncoming,
-  FiPhoneOutgoing,
-  FiPlay,
-} from "react-icons/fi";
+import {  FiClock,  FiExternalLink,  FiPhoneIncoming,  FiPhoneOutgoing,  FiPlay} from "react-icons/fi";
 import { CallRecord } from "../../types/call";
 import { timeAgo as formatTimeAgo } from "../../utils/timeAgo";
 import CallStatusChip from "../../components/chips/CallStatusChip";
@@ -19,15 +13,12 @@ export default function CallRecordCard({
   onPlayClick: () => void;
 }) {
   const isIncoming = record.direction === "Incoming";
-
   const displayTags = [
     { label: record.direction, type: "category" },
     ...(record.followUp ? [{ label: "Follow-up", type: "action" }] : []),
     ...(record.appointment ? [{ label: "Appointment", type: "action" }] : []),
   ];
-
   const timeAgo = record.createdAt ? formatTimeAgo(record.createdAt) : "";
-
   return (
     <div className="flex items-center justify-between p-3.5 border border-foreground/10 rounded-lg bg-background max-sm:flex-col max-sm:gap-4 max-sm:items-start">
       <div className="flex items-center gap-3.5 max-sm:flex-col max-sm:items-start">
@@ -38,7 +29,6 @@ export default function CallRecordCard({
             <FiPhoneOutgoing className="h-4 w-4 text-gray-600 dark:text-foreground/60" />
           )}
         </div>
-
         <div className="space-y-2">
           <div className="flex items-center space-x-2">
             <h3 className="font-medium text-foreground text-sm">
@@ -46,7 +36,6 @@ export default function CallRecordCard({
             </h3>
             <CallStatusChip status={record.status} />
           </div>
-
           <p className="text-xs text-gray-600 dark:text-foreground/60">
             {record.contact?.phone || record.from}{" "}
             <span className="mx-0.5 text-gray-500 dark:text-foreground/40">
@@ -54,7 +43,6 @@ export default function CallRecordCard({
             </span>{" "}
             {timeAgo}
           </p>
-
           <div className="flex space-x-2 mt-2">
             {displayTags.map((tag) => (
               <Chip
@@ -74,8 +62,6 @@ export default function CallRecordCard({
           </div>
         </div>
       </div>
-
-      {/* RIGHT SECTION */}
       <div className="flex items-center space-x-4 max-sm:justify-between max-sm:w-full">
         <div className="text-right text-sm text-gray-600 dark:text-foreground/60 space-y-1.5">
           <div className="flex items-center justify-end space-x-1">
@@ -83,7 +69,6 @@ export default function CallRecordCard({
             <span className="text-xs">{record.duration}s</span>
           </div>
         </div>
-
         <div className="flex space-x-2">
           <Button
             size="sm"
@@ -94,7 +79,6 @@ export default function CallRecordCard({
           >
             <FiPlay className="size-3.5" />
           </Button>
-
           <Link to="https://www.twilio.com/login" target="_blank">
             <Button
               size="sm"

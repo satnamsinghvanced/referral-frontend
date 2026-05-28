@@ -34,6 +34,7 @@ import {
 import * as Yup from "yup";
 import {
   useCreateSocialPost,
+  useSocialCredentials,
   useSocialOverview,
 } from "../../../hooks/useSocial";
 import { Media } from "../../../types/media";
@@ -162,6 +163,7 @@ export function CreatePostModal({
   onSuccess,
 }: CreatePostModalProps) {
   const { data: overviewData } = useSocialOverview();
+  const { data: credentials } = useSocialCredentials();
   const localTimeZone = getLocalTimeZone();
   const [hashtagInput, setHashtagInput] = useState("");
   const [activeHashtags, setActiveHashtags] = useState<string[]>([]);
@@ -195,6 +197,19 @@ export function CreatePostModal({
       formData.append("platforms", values.selectedPlatforms.join(","));
       formData.append("hashtags", activeHashtags.join(",").replace(/#/g, ""));
       formData.append("media", selectedMedia.map((m) => m._id).join(","));
+
+      const selectedPlatforms = values.selectedPlatforms;
+      const needsMeta = selectedPlatforms.some((p) =>
+        ["facebook", "instagram"].includes(p),
+      );
+      if (needsMeta) {
+        const connectedPage = credentials?.meta?.metaPages?.find(
+          (p) => p.isConnected,
+        );
+        if (connectedPage?.pageId) {
+          formData.append("targetPageId", connectedPage.pageId);
+        }
+      }
 
       if (values.publishSchedule === "schedule") {
         formData.append("scheduledDate", values.scheduledDate);

@@ -24,11 +24,8 @@ const CallTracking = () => {
     useFetchTwilioConfig();
 
   const isTwilioConnected = twilioConfig && twilioConfig.status === "Connected";
-
   const [selectedRecord, setSelectedRecord] = useState<CallRecord | null>(null);
   const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
-
-  // Filters state matches API params
   const [filters, setFilters] = useState({
     search: "",
     type: "",
@@ -36,18 +33,14 @@ const CallTracking = () => {
     page: 1,
     limit: EVEN_PAGINATION_LIMIT,
   });
-
   const debouncedSearch = useDebouncedValue(filters.search, 500);
-
   useEffect(() => {
     setFilters((prev) => ({ ...prev, search: debouncedSearch }));
   }, [debouncedSearch]);
-
   const { data, isLoading, refetch, isRefetching } = useFetchCallRecords({
     ...filters,
     search: debouncedSearch,
   });
-
   usePaginationAdjustment({
     totalPages: data?.paginatedCalls?.totalPages || 0,
     currentPage: filters.page,
@@ -58,20 +51,16 @@ const CallTracking = () => {
   const onFilterChange = (key: string, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value, page: 1 }));
   };
-
   const onSearchChange = (value: string) => {
     setFilters((prev) => ({ ...prev, search: value, page: 1 }));
   };
-
   const handlePageChange = (page: number) => {
     setFilters((prev) => ({ ...prev, page }));
   };
-
   const handlePlayClick = (record: CallRecord) => {
     setSelectedRecord(record);
     setIsRecordingModalOpen(true);
   };
-
   const STATS_CARD_DATA: StatCard[] = [
     {
       icon: <FiPhone className="text-foreground/60" />,
@@ -160,7 +149,6 @@ const CallTracking = () => {
                   <MiniStatsCard key={data.heading} cardData={data} />
                 ))}
               </div>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 border border-foreground/10 rounded-xl p-4 bg-background shadow-none">
                 <div className="relative flex-1">
                   <Input
@@ -173,7 +161,6 @@ const CallTracking = () => {
                     }
                   />
                 </div>
-
                 <div className="grid grid-cols-2 gap-3">
                   <Select
                     aria-label="Call Types"
@@ -199,7 +186,6 @@ const CallTracking = () => {
                       ))}
                     </>
                   </Select>
-
                   <Select
                     aria-label="Call Status"
                     placeholder="All Status"
@@ -226,18 +212,15 @@ const CallTracking = () => {
                   </Select>
                 </div>
               </div>
-
               <div className="flex flex-col gap-4 border border-foreground/10 bg-background rounded-xl p-4">
                 <div className="flex items-center justify-between">
                   <p className="font-medium text-sm">Call History</p>
                 </div>
-
                 {isLoading && (
                   <div className="min-h-[200px] flex items-center justify-center">
                     <LoadingState />
                   </div>
                 )}
-
                 {!isLoading &&
                   data?.paginatedCalls.data &&
                   data.paginatedCalls.data.length > 0 && (
@@ -251,13 +234,11 @@ const CallTracking = () => {
                       ))}
                     </div>
                   )}
-
                 {!isLoading &&
                   (!data?.paginatedCalls.data ||
                     data.paginatedCalls.data.length === 0) && (
                     <EmptyState title="No call records found with current filters. Try adjusting your search or filters." />
                   )}
-
                 {!isLoading &&
                   data?.paginatedCalls &&
                   data.paginatedCalls.totalPages > 1 && (
@@ -275,7 +256,6 @@ const CallTracking = () => {
           )}
         </div>
       </ComponentContainer>
-
       <CallRecordingModal
         isOpen={isRecordingModalOpen}
         onClose={() => setIsRecordingModalOpen(false)}

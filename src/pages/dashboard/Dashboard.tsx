@@ -98,14 +98,10 @@ const QUICK_ACTIONS_COLOR_CLASSES: Record<
 
 const Dashboard = () => {
   const { startTour } = useTour();
-
   const { requestPermission, permissionStatus } = useNotificationSubscription();
   const [showNotificationBanner, setShowNotificationBanner] = useState(true);
-
   const navigate = useNavigate();
-
   const { data: dashboard, isLoading } = useDashboard();
-
   const STAT_CARD_DATA = useMemo<StatCard[]>(
     () => [
       {
@@ -164,7 +160,6 @@ const Dashboard = () => {
     ],
     [dashboard, navigate],
   );
-
   const recentActivities = [
     dashboard?.recentActivity?.referral
       ? {
@@ -208,7 +203,6 @@ const Dashboard = () => {
       }
       : null,
   ].filter((activity) => activity !== null);
-
   const SYSTEM_STATUSES = [
     {
       name: "Google Calendar",
@@ -243,19 +237,10 @@ const Dashboard = () => {
         : "text-red-800 dark:text-red-300",
     },
   ];
-
   return (
     <ComponentContainer headingData={HEADING_DATA}>
       <div className="space-y-4 md:space-y-5">
-        {/* <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg">
-          <p className="text-sm text-blue-800">
-            <span className="font-medium">Navigation is now active!</span> Click
-            on any metric card, quick action button, or activity item to
-            navigate to different sections.
-          </p>
-        </div> */}
-
-        {permissionStatus === "default" && showNotificationBanner && (
+       {permissionStatus === "default" && showNotificationBanner && (
           <div className="relative group overflow-hidden bg-background border border-divider dark:border-white/5 rounded-2xl p-4 md:p-4 mb-5 transition-all duration-300">
             <div className="relative z-10 flex flex-col md:flex-row items-center gap-5 md:gap-4">
               <div className="relative shrink-0">
@@ -265,7 +250,6 @@ const Dashboard = () => {
                 </div>
                 <div className="absolute -top-1 -right-1 size-3 bg-red-500 rounded-full border-2 border-background animate-bounce" />
               </div>
-
               <div className="flex-1 text-center md:text-left space-y-1">
                 <h3 className="text-base font-medium tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground to-foreground/70">
                   Stay in the Loop

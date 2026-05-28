@@ -50,7 +50,6 @@ export default function EventSection({
       isFullWidth: true,
     },
   ];
-
   return (
     <div className="border border-foreground/10 rounded-xl p-4">
       <h5 className="text-sm font-medium mb-3 dark:text-white">

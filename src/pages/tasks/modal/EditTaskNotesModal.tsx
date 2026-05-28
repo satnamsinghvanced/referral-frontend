@@ -21,11 +21,9 @@ interface EditTaskNotesModalProps {
   task: TaskApiData;
   refetch?: any;
 }
-
 const validationSchema = Yup.object({
   comment: Yup.string().required("Comment content is required"),
 });
-
 const EditTaskNotesModal = ({
   isOpen,
   onClose,
@@ -34,7 +32,6 @@ const EditTaskNotesModal = ({
 }: EditTaskNotesModalProps) => {
   const { mutate: updateTask, isPending: isUpdating } = useUpdateTask();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-
   const formik = useFormik({
     initialValues: {
       comment: "",
@@ -62,13 +59,11 @@ const EditTaskNotesModal = ({
       );
     },
   });
-
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.ctrlKey && e.key === "Enter") {
       formik.handleSubmit();
     }
   };
-
   useEffect(() => {
     if (isOpen) {
       setTimeout(() => {
@@ -80,7 +75,6 @@ const EditTaskNotesModal = ({
       formik.resetForm();
     }
   }, [isOpen]);
-
   return (
     <Modal
       isOpen={isOpen}
@@ -105,9 +99,7 @@ const EditTaskNotesModal = ({
             </p>
           </div>
         </ModalHeader>
-
         <ModalBody className="p-0 flex flex-col pt-3">
-          {/* Comments List */}
           <div
             ref={scrollContainerRef}
             className="flex-1 overflow-y-auto min-h-[250px] max-h-[400px] space-y-4 pr-1 mb-4 scrollbar-hide"
@@ -142,8 +134,6 @@ const EditTaskNotesModal = ({
               </div>
             )}
           </div>
-
-          {/* Add a Comment Section */}
           <div className="pt-4 border-t border-foreground/5 space-y-3">
             <h5 className="text-xs font-semibold text-gray-900 dark:text-foreground">Add a Comment</h5>
             <form onSubmit={formik.handleSubmit} className="space-y-3">

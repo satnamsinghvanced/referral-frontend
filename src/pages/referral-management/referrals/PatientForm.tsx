@@ -206,7 +206,6 @@ const PatientForm = () => {
         estValue: 0,
         sourceId,
       };
-
       await createReferral(payload, {
         onSuccess() {
           formik.resetForm();
@@ -223,18 +222,14 @@ const PatientForm = () => {
     maxLength?: number,
   ) => {
     let value: string | number | undefined = event.target.value;
-
     if (type === "tel") {
       value = formatPhoneNumber(value);
     } else if (type === "number") {
       if (maxLength && value.length > maxLength) {
-        // Enforce max length for age by not updating the value
         return;
       }
-      // Convert to number or empty string if input is empty
       value = value === "" ? "" : Number(value);
     }
-
     formik.setFieldValue(fieldName as string, value);
   };
 

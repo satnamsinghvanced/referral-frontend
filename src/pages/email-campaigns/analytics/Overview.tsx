@@ -1,10 +1,4 @@
-import {
-  Button,
-  Card,
-  CardBody,
-  CardHeader,
-  useDisclosure,
-} from "@heroui/react";
+import { Button, Card, CardBody, CardHeader, useDisclosure } from "@heroui/react";
 import { LuChartColumn } from "react-icons/lu";
 import {
   CartesianGrid,
@@ -48,24 +42,18 @@ const Overview = ({ filter }: OverviewProps) => {
   const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(
     null,
   );
-
   const handleViewDetails = (id: string) => {
     setSelectedCampaignId(id);
     onOpen();
   };
-
   const COLORS = ["#0ea5e9", "#f97316", "#1e40af", "#8b5cf6", "#ec4899"];
-
   const renderLabel = (props: any) => {
     const { cx, cy, midAngle, outerRadius, percent, name, fill } =
       props as LabelProps;
-
     const RADIAN = Math.PI / 180;
     const radius = outerRadius + 25;
-
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
     return (
       <text
         x={x}
@@ -78,7 +66,6 @@ const Overview = ({ filter }: OverviewProps) => {
       </text>
     );
   };
-
   if (isLoading) {
     return (
       <div className="py-20 flex justify-center">
@@ -86,7 +73,6 @@ const Overview = ({ filter }: OverviewProps) => {
       </div>
     );
   }
-
   return (
     <div className="space-y-4 md:space-y-5">
       <div className="grid grid-cols-2 gap-5">
@@ -143,7 +129,6 @@ const Overview = ({ filter }: OverviewProps) => {
                     }}
                   />
                   <Legend wrapperStyle={{ bottom: "-10px" }} />
-
                   <Line
                     type="monotone"
                     dataKey="sent"
@@ -152,7 +137,6 @@ const Overview = ({ filter }: OverviewProps) => {
                     dot={{ r: 4 }}
                     name="Sent"
                   />
-
                   <Line
                     type="monotone"
                     dataKey="opens"
@@ -161,7 +145,6 @@ const Overview = ({ filter }: OverviewProps) => {
                     dot={{ r: 4 }}
                     name="Opens"
                   />
-
                   <Line
                     type="monotone"
                     dataKey="clicks"
@@ -254,7 +237,6 @@ const Overview = ({ filter }: OverviewProps) => {
                       </div>
                     </div>
                   </div>
-
                   <Button
                     size="sm"
                     radius="sm"
@@ -274,7 +256,6 @@ const Overview = ({ filter }: OverviewProps) => {
           </div>
         </CardBody>
       </Card>
-
       <CampaignReportModal
         isOpen={isOpen}
         onClose={onClose}

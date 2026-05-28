@@ -5,7 +5,6 @@ interface BasicInfoSectionProps {
   renderField: (field: any) => any;
   isEdit: boolean;
 }
-
 export default function BasicInfoSection({
   formik,
   renderField,
@@ -36,7 +35,6 @@ export default function BasicInfoSection({
       isDisabled: isEdit,
     },
   ];
-
   return (
     <div className="border border-foreground/10 rounded-xl p-4">
       <h5 className="text-sm font-medium mb-3 dark:text-white">

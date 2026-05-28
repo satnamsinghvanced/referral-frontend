@@ -63,7 +63,10 @@ const Locations = React.lazy(
 const Team = React.lazy(() => import("./pages/settings/team/Team"));
 const General = React.lazy(() => import("./pages/settings/General"));
 const Profile = React.lazy(() => import("./pages/settings/Profile"));
+const AdminList = React.lazy(() => import("./pages/superadmin/AdminList"));
+const AdminDetails = React.lazy(() => import("./pages/superadmin/AdminDetails"));
 const SignIn = React.lazy(() => import("./pages/auth/SignIn"));
+const SuperAdminSignIn = React.lazy(() => import("./pages/auth/SuperAdminSignIn"));
 const Support = React.lazy(() => import("./pages/support/SupportPage"));
 const Terms = React.lazy(() => import("./pages/terms/TermsPage"));
 const PrivacyPolicy = React.lazy(
@@ -288,6 +291,14 @@ function AppRoutes() {
             },
           ],
         },
+        {
+          path: "platform-admins",
+          element: <AdminList />
+        },
+        {
+          path: "platform-admins/:id",
+          element: <AdminDetails />
+        }
       ],
     },
     {
@@ -295,6 +306,14 @@ function AppRoutes() {
       element: (
         <PublicRoute>
           <SignIn />
+        </PublicRoute>
+      ),
+    },
+    {
+      path: "admin/login",
+      element: (
+        <PublicRoute>
+          <SuperAdminSignIn />
         </PublicRoute>
       ),
     },

@@ -1,10 +1,8 @@
 import { FormikProps } from "formik";
-
 interface AdditionalNotesSectionProps {
   formik: FormikProps<any>;
   renderField: (field: any) => any;
 }
-
 export default function AdditionalNotesSection({
   formik,
   renderField,
@@ -18,7 +16,6 @@ export default function AdditionalNotesSection({
       minRows: 2,
     },
   ];
-
   return (
     <div className="border border-foreground/10 rounded-xl p-4">
       <h5 className="text-sm font-medium mb-3 dark:text-white">

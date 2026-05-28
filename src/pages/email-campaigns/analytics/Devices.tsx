@@ -11,7 +11,6 @@ interface DevicesProps {
 
 const Devices: React.FC<DevicesProps> = ({ filter }) => {
   const { data: deviceData, isLoading } = useAnalyticsDevices(filter);
-
   const getDeviceIcon = (deviceName: string) => {
     switch (deviceName.toLowerCase()) {
       case "desktop":
@@ -24,7 +23,6 @@ const Devices: React.FC<DevicesProps> = ({ filter }) => {
         return FiBarChart2;
     }
   };
-
   if (isLoading) {
     return (
       <div className="py-20 flex justify-center">
@@ -32,23 +30,16 @@ const Devices: React.FC<DevicesProps> = ({ filter }) => {
       </div>
     );
   }
-
   const metrics = deviceData?.devicePerformance || [];
-
   return (
-    <Card
-      shadow="none"
-      className="bg-background border border-foreground/10 p-5"
-    >
+    <Card shadow="none" className="bg-background border border-foreground/10 p-5"    >
       <CardHeader className="p-0 pb-5 flex items-center gap-2">
         <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
         <h4 className="text-sm font-medium">Device Performance</h4>
       </CardHeader>
-
       <CardBody className="p-0 space-y-3">
         {metrics.map((metric) => {
           const Icon = getDeviceIcon(metric.device);
-
           return (
             <div
               className="bg-content1 border border-foreground/10 p-3 flex items-center gap-2 rounded-lg"
@@ -58,7 +49,6 @@ const Devices: React.FC<DevicesProps> = ({ filter }) => {
                 <div className="p-2 bg-blue-50 dark:bg-blue-500/10 rounded-lg shrink-0">
                   <Icon className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                 </div>
-
                 <div className="flex-grow space-y-0.5">
                   <h5 className="text-sm font-medium">{metric.device}</h5>
                   <p className="text-xs text-gray-500 dark:text-foreground/60 flex items-center gap-2">
@@ -71,7 +61,6 @@ const Devices: React.FC<DevicesProps> = ({ filter }) => {
                   </p>
                 </div>
               </div>
-
               <div className="flex flex-col items-end space-y-1 min-w-[100px]">
                 <span className="font-medium text-gray-600 dark:text-foreground/50 text-xs">
                   {metric.percentage}%

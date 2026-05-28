@@ -17,7 +17,7 @@ export const PERMISSIONS = {
 export const useRolePermissions = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const { data: userData, isLoading: isUserLoading } = useFetchUser(
-    user?.userId || "",
+    user?.role === "SuperAdmin" ? "" : user?.userId || "",
   );
   const { data: allPermissions, isLoading: isPermissionsLoading } =
     usePermissions();
@@ -31,6 +31,7 @@ export const useRolePermissions = () => {
     // If user is admin, they have all permissions
     if (
       user?.role === "admin" ||
+      user?.role === "SuperAdmin" ||
       typedUser.role === "admin" ||
       typedUser.role?.role === "admin"
     ) {
@@ -70,12 +71,12 @@ export const useRolePermissions = () => {
   }, [userData, allPermissions, allRoles, user?.role]);
 
   const hasPermission = (permissionTitle: string) => {
-    if (user?.role === "admin") return true;
+    if (user?.role === "admin" || user?.role === "SuperAdmin") return true;
     return userPermissions.includes(permissionTitle);
   };
 
   const hasAnyPermission = (permissionTitles: string[]) => {
-    if (user?.role === "admin") return true;
+    if (user?.role === "admin" || user?.role === "SuperAdmin") return true;
     return permissionTitles.some((title) => userPermissions.includes(title));
   };
 
@@ -84,6 +85,6 @@ export const useRolePermissions = () => {
     hasPermission,
     hasAnyPermission,
     isLoading: isUserLoading || isPermissionsLoading || isRolesLoading,
-    isAdmin: user?.role === "admin",
+    isAdmin: user?.role === "admin" || user?.role === "SuperAdmin",
   };
 };

@@ -1,5 +1,5 @@
 import { Tab, Tabs } from "@heroui/react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import { LoadingState } from "../../components/common/LoadingState";
@@ -9,10 +9,43 @@ import { CreatePostModal } from "./modal/CreatePostModal";
 import Overview from "./Overview";
 import Platforms from "./Platforms";
 import Posts from "./Posts";
+import SocialSubAccountSelectorModal, {
+  SocialPlatformType,
+} from "./modal/SocialSubAccountSelectorModal";
+
+const OAUTH_PLATFORM_MAP: Record<string, SocialPlatformType> = {
+  meta: "meta",
+  linkedin: "linkedin",
+  youtube: "youtube",
+  tiktok: "tiktok",
+};
 
 export default function SocialMedia() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
+  const [selectorPlatform, setSelectorPlatform] =
+    useState<SocialPlatformType | null>(null);
+  const [isSelectorOpen, setIsSelectorOpen] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (
+      params.get("socialMediaRedirect") === "true" &&
+      params.get("status") === "success"
+    ) {
+      const platform = params.get("platform");
+      if (platform && OAUTH_PLATFORM_MAP[platform.toLowerCase()]) {
+        setActiveTab("platform");
+        setSelectorPlatform(OAUTH_PLATFORM_MAP[platform.toLowerCase()]);
+        setIsSelectorOpen(true);
+      }
+      const url = new URL(window.location.href);
+      url.searchParams.delete("socialMediaRedirect");
+      url.searchParams.delete("status");
+      url.searchParams.delete("platform");
+      window.history.replaceState({}, "", url.pathname + url.search);
+    }
+  }, []);
 
   const { data, isLoading } = useSocialOverview();
 
@@ -212,7 +245,12 @@ export default function SocialMedia() {
             </Tab>
 
             <Tab key="platform" title="Platform">
-              <Platforms />
+              <Platforms
+                onOpenSelector={(platform) => {
+                  setSelectorPlatform(platform);
+                  setIsSelectorOpen(true);
+                }}
+              />
             </Tab>
           </Tabs>
         </div>
@@ -223,6 +261,17 @@ export default function SocialMedia() {
         onClose={() => setIsModalOpen(false)}
         onSuccess={() => setActiveTab("posts")}
       />
+
+      {selectorPlatform && (
+        <SocialSubAccountSelectorModal
+          platform={selectorPlatform}
+          isOpen={isSelectorOpen}
+          onClose={() => {
+            setIsSelectorOpen(false);
+            setSelectorPlatform(null);
+          }}
+        />
+      )}
     </ComponentContainer>
   );
 }

@@ -22,10 +22,7 @@ import { LuBuilding } from "react-icons/lu";
 import * as Yup from "yup";
 import { EMAIL_REGEX, PHONE_REGEX, NAME_REGEX } from "../../../consts/consts";
 import { STATUS_OPTIONS } from "../../../consts/filters";
-import {
-  SOURCE_OPTIONS,
-  TREATMENT_OPTIONS,
-} from "../../../consts/referral";
+import { SOURCE_OPTIONS, TREATMENT_OPTIONS } from "../../../consts/referral";
 import { useCreateReferral } from "../../../hooks/useReferral";
 import { Referrer } from "../../../types/partner";
 import { CreateReferralPayload, ReferralStatus } from "../../../types/referral";
@@ -47,13 +44,8 @@ const TrackReferralModal = ({
 }: TrackReferralModalProps) => {
   const { user } = useTypedSelector((state) => state.auth);
   const userId = user?.userId;
-
   const { mutate: createReferral, isPending: isLoading } = useCreateReferral();
-  // Mode: 'existing' | 'new'
-  const [referrerMode, setReferrerMode] = useState<"existing" | "new">(
-    "existing",
-  );
-
+  const [referrerMode, setReferrerMode] = useState<"existing" | "new">("existing");
   const validationSchema = Yup.object().shape({
     patientName: Yup.string()
       .trim()
@@ -122,7 +114,6 @@ const TrackReferralModal = ({
         });
         return;
       }
-
       const payload: CreateReferralPayload = {
         name: values.patientName,
         age: Number(values.patientAge),
@@ -137,7 +128,6 @@ const TrackReferralModal = ({
         notes: values.notes,
         status: values.status as ReferralStatus,
       };
-
       createReferral(payload, {
         onSuccess: () => {
           onClose();
@@ -148,7 +138,6 @@ const TrackReferralModal = ({
   });
 
   const [referrerFilterValue, setReferrerFilterValue] = useState("");
-
   const referrerSelectionItems = useMemo(() => {
     const baseItems = [
       {
@@ -161,9 +150,7 @@ const TrackReferralModal = ({
       },
       ...(referrers || []),
     ];
-
     if (!referrerFilterValue) return baseItems;
-
     const lowerFilter = referrerFilterValue.toLowerCase();
     return baseItems.filter((item) => {
       const nameMatch = item.name?.toLowerCase().includes(lowerFilter);
@@ -177,7 +164,6 @@ const TrackReferralModal = ({
   useEffect(() => {
     if (isOpen && formik.values.referrerId) {
       const selectedId = formik.values.referrerId;
-      // Also check the "Myself" case
       if (selectedId === userId || selectedId === "myself-id") {
         setReferrerFilterValue("Myself");
       } else {
@@ -188,7 +174,6 @@ const TrackReferralModal = ({
       }
     }
   }, [isOpen, formik.values.referrerId, referrers, userId]);
-
   useEffect(() => {
     if (!isOpen) {
       formik.resetForm();
@@ -201,7 +186,6 @@ const TrackReferralModal = ({
     maxLength?: number,
   ) => {
     let value: string | number | undefined = event.target.value;
-
     if (type === "tel") {
       value = formatPhoneNumber(value);
     } else if (type === "number") {
@@ -210,7 +194,6 @@ const TrackReferralModal = ({
       }
       value = value === "" ? "" : value.replace(/\D/g, "");
     }
-
     formik.setFieldValue(fieldName, value);
   };
 
@@ -237,9 +220,7 @@ const TrackReferralModal = ({
                 Add a new patient referral to your tracking system.
               </p>
             </ModalHeader>
-
             <ModalBody className="py-0 px-4 gap-3">
-              {/* Patient Information Section */}
               <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
                 <h4 className="font-medium text-sm dark:text-white">
                   Patient Information
@@ -329,13 +310,10 @@ const TrackReferralModal = ({
                   />
                 </div>
               </div>
-
-              {/* Referrer Information Section */}
               <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
                 <h4 className="font-medium text-sm dark:text-white">
                   Referrer Information
                 </h4>
-
                 <div className="space-y-3">
                   <div className="space-y-2">
                     <label className="block text-xs dark:text-foreground/60">
@@ -381,7 +359,6 @@ const TrackReferralModal = ({
                       </Tabs>
                     </div>
                   </div>
-
                   {referrerMode === "existing" ? (
                     <div className="flex">
                       <Autocomplete
@@ -458,8 +435,6 @@ const TrackReferralModal = ({
                   )}
                 </div>
               </div>
-
-              {/* Referral Details Section */}
               <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
                 <h4 className="font-medium text-sm dark:text-white">
                   Referral Details
@@ -553,7 +528,6 @@ const TrackReferralModal = ({
                         <SelectItem key={s.key}>{s.label}</SelectItem>
                       ))}
                     </Select>
-
                     <Input
                       label="Estimated Value"
                       labelPlacement="outside"
@@ -621,7 +595,6 @@ const TrackReferralModal = ({
                     isInvalid={!!(formik.errors.reason && formik.touched.reason)}
                     errorMessage={formik.errors.reason}
                   />
-
                   <Textarea
                     label="Notes"
                     labelPlacement="outside"

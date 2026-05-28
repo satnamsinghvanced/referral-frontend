@@ -1,14 +1,9 @@
 import { FormikProps } from "formik";
-
 interface GoogleSectionProps {
   formik: FormikProps<any>;
   renderField: (field: any) => any;
 }
-
-export default function GoogleSection({
-  formik,
-  renderField,
-}: GoogleSectionProps) {
+export default function GoogleSection({  formik,  renderField}: GoogleSectionProps) {
   const googleFields = [
     {
       id: "googleReferrer.glSource",
@@ -41,7 +36,6 @@ export default function GoogleSection({
       isFullWidth: true,
     },
   ];
-
   return (
     <div className="border border-foreground/10 rounded-xl p-4">
       <h5 className="text-sm font-medium mb-3 dark:text-white">

@@ -53,7 +53,6 @@ const ReferralStatusModal = ({
   setReferralEditId,
 }: ReferralStatusModalProps) => {
   const { mutate: updateReferral, isPending } = useUpdateReferral();
-
   const validationSchema = Yup.object<StatusUpdateFormValues>().shape({
     estValue: Yup.number().min(0, "Estimated Value must be non-negative."),
     status: Yup.string().required("New Status is required"),
@@ -61,7 +60,6 @@ const ReferralStatusModal = ({
       .max(500, "Notes must be under 500 characters")
       .nullable(),
   });
-
   const formik = useFormik<StatusUpdateFormValues>({
     enableReinitialize: true,
     initialValues: {
@@ -76,7 +74,6 @@ const ReferralStatusModal = ({
         status: values.status,
         statusNotes: values.statusNotes || "",
       };
-
       updateReferral(
         { id: referral?._id, payload },
         {
@@ -89,18 +86,15 @@ const ReferralStatusModal = ({
       );
     },
   });
-
   useEffect(() => {
     if (!isOpen) {
       formik.resetForm();
     }
   }, [isOpen]);
-
   const modalTitle = isViewMode ? "Referral Details" : "Update Referral Status";
   const modalDescription = isViewMode
     ? "View patient information and current progress."
     : "Update the status and add internal notes for this referral.";
-
   return (
     <Modal
       isOpen={isOpen}
@@ -122,14 +116,12 @@ const ReferralStatusModal = ({
             {modalDescription}
           </p>
         </ModalHeader>
-
         {!referral ? (
           <ModalBody className="py-8 flex items-center justify-center">
             <LoadingState />
           </ModalBody>
         ) : (
           <ModalBody className="py-0 px-4 gap-3">
-            {/* Patient Header Section */}
             <div className="border border-foreground/10 rounded-xl p-4 space-y-4">
               <div className="flex items-center gap-3">
                 <div className="size-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary border border-primary/20 shrink-0">
@@ -156,7 +148,6 @@ const ReferralStatusModal = ({
                   ""
                 )}
               </div>
-
               <div className="grid grid-cols-2 gap-x-4 gap-y-4 pt-3 border-t border-foreground/5">
                 <InfoItem
                   icon={<LuPhone size={16} />}
@@ -176,19 +167,17 @@ const ReferralStatusModal = ({
                 <InfoItem
                   icon={<LuUsers size={16} />}
                   label="Referred By"
-                  value={`${referral?.referredBy?.name || "Self"}${
-                    referral?.referredBy?.practiceName ||
-                    referral?.referredBy?.type
-                      ? ` - ${
-                          referral?.referredBy?.practiceName &&
-                          referral?.referredBy?.practiceName !== "Unknown"
-                            ? referral?.referredBy?.practiceName
-                            : REFERRER_TYPE_LABELS[
-                                referral?.referredBy?.type
-                              ] || referral?.referredBy?.type
-                        }`
+                  value={`${referral?.referredBy?.name || "Self"}${referral?.referredBy?.practiceName ||
+                      referral?.referredBy?.type
+                      ? ` - ${referral?.referredBy?.practiceName &&
+                        referral?.referredBy?.practiceName !== "Unknown"
+                        ? referral?.referredBy?.practiceName
+                        : REFERRER_TYPE_LABELS[
+                        referral?.referredBy?.type
+                        ] || referral?.referredBy?.type
+                      }`
                       : ""
-                  }`}
+                    }`}
                 />
                 <InfoItem
                   icon={<LuStethoscope size={16} />}
@@ -212,65 +201,63 @@ const ReferralStatusModal = ({
               </div>
             </div>
 
-            {/* Communication Section */}
             {(referral?.additionalNotes ||
               referral?.statusNotes ||
               referral?.notes ||
               referral?.reason) && (
-              <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
-                <h4 className="font-medium text-sm flex items-center gap-2">
-                  <LuMessageSquare size={14} className="text-primary" />
-                  Notes & History
-                </h4>
-                <div className="space-y-2">
-                  {referral?.reason && (
-                    <div className="bg-foreground/[0.02] dark:bg-foreground/[0.04] p-3 rounded-lg border border-divider">
-                      <p className="text-[11px] uppercase font-bold text-default-400 mb-1">
-                        Reason for Referral
-                      </p>
-                      <p className="text-xs text-foreground/80 leading-relaxed">
-                        {referral.reason}
-                      </p>
-                    </div>
-                  )}
-                  {referral?.notes && (
-                    <div className="bg-foreground/[0.02] dark:bg-foreground/[0.04] p-3 rounded-lg border border-divider">
-                      <p className="text-xs text-default-400 mb-1">
-                        Patient Notes
-                      </p>
-                      <p className="text-xs text-foreground/80 leading-relaxed italic">
-                        "{referral.notes}"
-                      </p>
-                    </div>
-                  )}
-                  {referral?.additionalNotes && (
-                    <div className="bg-foreground/[0.02] dark:bg-foreground/[0.04] p-3 rounded-lg border border-divider">
-                      <p className="text-xs text-default-400 mb-1">
-                        Additional Information
-                      </p>
-                      <p className="text-xs text-foreground/80 leading-relaxed italic">
-                        "{referral.additionalNotes}"
-                      </p>
-                    </div>
-                  )}
-                  {referral?.statusNotes && (
-                    <div className="bg-primary/5 p-3 rounded-lg border border-primary/10">
-                      <div className="flex items-center gap-1.5 mb-1">
-                        <LuClock size={12} className="text-primary" />
-                        <p className="text-xs text-primary">
-                          Status Update Note
+                <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
+                  <h4 className="font-medium text-sm flex items-center gap-2">
+                    <LuMessageSquare size={14} className="text-primary" />
+                    Notes & History
+                  </h4>
+                  <div className="space-y-2">
+                    {referral?.reason && (
+                      <div className="bg-foreground/[0.02] dark:bg-foreground/[0.04] p-3 rounded-lg border border-divider">
+                        <p className="text-[11px] uppercase font-bold text-default-400 mb-1">
+                          Reason for Referral
+                        </p>
+                        <p className="text-xs text-foreground/80 leading-relaxed">
+                          {referral.reason}
                         </p>
                       </div>
-                      <p className="text-xs text-foreground/90">
-                        {referral.statusNotes}
-                      </p>
-                    </div>
-                  )}
+                    )}
+                    {referral?.notes && (
+                      <div className="bg-foreground/[0.02] dark:bg-foreground/[0.04] p-3 rounded-lg border border-divider">
+                        <p className="text-xs text-default-400 mb-1">
+                          Patient Notes
+                        </p>
+                        <p className="text-xs text-foreground/80 leading-relaxed italic">
+                          "{referral.notes}"
+                        </p>
+                      </div>
+                    )}
+                    {referral?.additionalNotes && (
+                      <div className="bg-foreground/[0.02] dark:bg-foreground/[0.04] p-3 rounded-lg border border-divider">
+                        <p className="text-xs text-default-400 mb-1">
+                          Additional Information
+                        </p>
+                        <p className="text-xs text-foreground/80 leading-relaxed italic">
+                          "{referral.additionalNotes}"
+                        </p>
+                      </div>
+                    )}
+                    {referral?.statusNotes && (
+                      <div className="bg-primary/5 p-3 rounded-lg border border-primary/10">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <LuClock size={12} className="text-primary" />
+                          <p className="text-xs text-primary">
+                            Status Update Note
+                          </p>
+                        </div>
+                        <p className="text-xs text-foreground/90">
+                          {referral.statusNotes}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
 
-            {/* Update Form Section */}
             {!isViewMode && (
               <div className="border border-foreground/10 rounded-xl p-4 space-y-4 mb-4">
                 <h4 className="font-medium text-sm dark:text-white">
@@ -304,7 +291,6 @@ const ReferralStatusModal = ({
                         </SelectItem>
                       ))}
                     </Select>
-
                     <Input
                       label="Estimated Value"
                       labelPlacement="outside"
@@ -327,7 +313,6 @@ const ReferralStatusModal = ({
                       }
                     />
                   </div>
-
                   <Textarea
                     label="Status Notes"
                     labelPlacement="outside"
@@ -347,7 +332,6 @@ const ReferralStatusModal = ({
                       )
                     }
                   />
-
                   <div className="flex items-center justify-end gap-2">
                     <Button
                       size="sm"
@@ -374,7 +358,6 @@ const ReferralStatusModal = ({
                 </form>
               </div>
             )}
-
             {isViewMode && (
               <div className="flex justify-end gap-2 pb-4 pt-1">
                 <Button
@@ -395,16 +378,7 @@ const ReferralStatusModal = ({
     </Modal>
   );
 };
-
-const InfoItem = ({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-}) => (
+const InfoItem = ({ icon, label, value }: { icon: React.ReactNode; label: string; value: string; }) => (
   <div className="flex items-start gap-2.5 group min-w-0">
     <div className="p-1.5 rounded-md bg-default-100 text-default-400 group-hover:bg-default-200 transition-colors shrink-0">
       {icon}

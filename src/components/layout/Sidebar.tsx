@@ -28,6 +28,8 @@ import { MdOutlineModeComment } from "react-icons/md";
 import { TbCheckbox } from "react-icons/tb";
 import { useDashboardStats } from "../../hooks/useDashboard";
 import { useRolePermissions } from "../../hooks/useRolePermissions";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
 import Logo from "../ui/Logo";
 
 interface SidebarProps {
@@ -72,6 +74,8 @@ const Sidebar = ({
 
   const { hasPermission, hasAnyPermission, isAdmin, isLoading } =
     useRolePermissions();
+  const user = useSelector((state: RootState) => state.auth.user);
+  const isSuperAdmin = user?.role === "SuperAdmin";
 
   const NAVIGATION_ROUTES: (NavigationRoute & {
     requiredPermission?: string | string[];
@@ -207,6 +211,17 @@ const Sidebar = ({
         stats: undefined,
         color: undefined,
       },
+      ...(isSuperAdmin
+        ? [
+            {
+              name: "Platform Admins",
+              icon: LuUsers,
+              href: "/platform-admins",
+              stats: undefined,
+              color: undefined,
+            },
+          ]
+        : []),
     ];
 
   const filteredRoutes = NAVIGATION_ROUTES.filter((route) => {

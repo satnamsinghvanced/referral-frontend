@@ -22,7 +22,6 @@ interface AudienceProps {
 const Audience: React.FC<AudienceProps> = ({ filter }) => {
   const { theme } = useTypedSelector((state) => state.ui);
   const { data: audienceData, isLoading } = useAnalyticsAudience(filter);
-
   if (isLoading) {
     return (
       <div className="py-20 flex justify-center">
@@ -30,9 +29,7 @@ const Audience: React.FC<AudienceProps> = ({ filter }) => {
       </div>
     );
   }
-
   const engagementData = audienceData?.audienceEngagement || [];
-
   return (
     <div className="grid grid-cols-2 gap-5">
       <Card

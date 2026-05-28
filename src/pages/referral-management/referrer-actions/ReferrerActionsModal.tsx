@@ -16,22 +16,13 @@ import { Key, useMemo, useEffect } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { BiSave } from "react-icons/bi";
 import * as Yup from "yup";
-import {
-  EMAIL_REGEX,
-  NAME_REGEX,
-  PHONE_REGEX,
-  ZIP_CODE_REGEX,
-} from "../../../consts/consts";
+import { EMAIL_REGEX, NAME_REGEX, PHONE_REGEX, ZIP_CODE_REGEX } from "../../../consts/consts";
 import { STAFF_ROLES } from "../../../consts/practice";
 import { useSpecialties } from "../../../hooks/useCommon";
-import {
-  useCreateReferrer,
-  useUpdateReferrer,
-} from "../../../hooks/useReferral";
+import { useCreateReferrer, useUpdateReferrer } from "../../../hooks/useReferral";
 import { useTypedSelector } from "../../../hooks/useTypedSelector";
 import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
 
-// Sub-components
 import AdditionalNotesSection from "./AdditionalNotesSection";
 import BasicInfoSection from "./BasicInfoSection";
 import CommunitySection from "./CommunitySection";
@@ -105,13 +96,10 @@ export default function ReferrerActionsModal({
 }: ReferrerActionsModalProps) {
   const { user } = useTypedSelector((state) => state.auth);
   const { data: specialties } = useSpecialties();
-
   const { mutate: createReferrer, isPending: referrerCreationPending } =
     useCreateReferrer();
-
   const { mutate: updateReferrer, isPending: referrerUpdationPending } =
     useUpdateReferrer();
-
   const defaultInitialValues: any = {
     type: editedData?.type || "doctor",
     name: editedData?.name || "",
@@ -156,21 +144,17 @@ export default function ReferrerActionsModal({
     },
     status: editedData?.status || "",
   };
-
   const handleFormSubmission = async (values: any) => {
     const payload: any = {
       name: values.name,
       phone: values.phone,
     };
-
     if (values.email?.trim()) {
       payload.email = values.email;
     }
-
     if (values.additionalNotes?.trim()) {
       payload.additionalNotes = values.additionalNotes;
     }
-
     switch (values.type) {
       case "doctor":
         payload.practiceName = values.practiceName;
@@ -208,17 +192,13 @@ export default function ReferrerActionsModal({
       default:
         break;
     }
-
     let referrerId = user?.userId;
-
     if (editedData?.type) {
       referrerId = editedData?._id;
     }
-
     if (isPracticeEdit) {
       referrerId = editedData?.referrer_id;
     }
-
     const mutationPromise = new Promise((resolve, reject) => {
       if (editedData?.type || isPracticeEdit) {
         updateReferrer(
@@ -254,14 +234,12 @@ export default function ReferrerActionsModal({
         );
       }
     });
-
     try {
       await mutationPromise;
     } catch (error) {
       console.error("Referrer creation failed:", error);
     }
   };
-
   const formik = useFormik({
     initialValues: defaultInitialValues,
     enableReinitialize: true,
@@ -398,31 +376,26 @@ export default function ReferrerActionsModal({
     }),
     onSubmit: handleFormSubmission,
   });
-
   useEffect(() => {
     if (!isModalOpen) {
       formik.resetForm();
     }
   }, [isModalOpen]);
-
   const getNestedValue = (path: string) => {
     return path
       .split(".")
       .reduce((obj: any, key: string) => obj?.[key], formik.values);
   };
-
   const getNestedError = (path: string) => {
     return path
       .split(".")
       .reduce((obj: any, key: string) => obj?.[key], formik.errors);
   };
-
   const getNestedTouched = (path: string) => {
     return path
       .split(".")
       .reduce((obj: any, key: string) => obj?.[key], formik.touched);
   };
-
   const staffMemberFields = useMemo(
     () => [
       {
@@ -461,7 +434,6 @@ export default function ReferrerActionsModal({
     ],
     [],
   );
-
   const renderField = (field: {
     id: string;
     label: string;
@@ -554,7 +526,6 @@ export default function ReferrerActionsModal({
             </Select>
           </div>
         );
-
       case "textarea":
         return (
           <div key={id as Key} className="w-full">
@@ -575,7 +546,6 @@ export default function ReferrerActionsModal({
             />
           </div>
         );
-
       case "checkbox":
         return (
           <div key={id as Key} className="w-full">
@@ -610,11 +580,9 @@ export default function ReferrerActionsModal({
                   .practiceAddress as PracticeAddressErrors;
                 const addressTouched = formik.touched
                   .practiceAddress as PracticeAddressTouched;
-
                 const subIdKey = sub.id as string;
                 const isSubTouched = addressTouched?.[subIdKey];
                 const errorText = addressErrors?.[subIdKey];
-
                 return (
                   <Input
                     key={sub.id}
