@@ -9,10 +9,13 @@ import {
   Select,
   SelectItem,
   Spinner,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
 } from "@heroui/react";
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
-import { FiEye, FiEyeOff, FiMail, FiServer } from "react-icons/fi";
+import { FiEye, FiEyeOff, FiMail, FiServer, FiInfo } from "react-icons/fi";
 import * as Yup from "yup";
 import {
   useCreateEmailIntegration,
@@ -322,27 +325,56 @@ export default function EmailMarketingConfigModal({
             </div>
           </ModalBody>
 
-          <ModalFooter className="flex justify-end gap-2 px-4 pb-4 pt-0">
-            <Button
-              size="sm"
-              variant="ghost"
-              color="default"
-              onPress={onClose}
-              className="border-small"
-              isDisabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button
-              size="sm"
-              variant="solid"
-              color="primary"
-              type="submit"
-              isLoading={isSubmitting}
-              isDisabled={isSubmitting || !formik.isValid || !formik.dirty}
-            >
-              {isUpdateMode ? "Update Configuration" : "Save Integration"}
-            </Button>
+          <ModalFooter className="flex justify-between items-center px-4 pb-4 pt-0">
+            <Popover placement="top-start" showArrow>
+              <PopoverTrigger>
+                <Button variant="light" size="sm" className="text-gray-500 flex items-center gap-1">
+                  <FiInfo size={16} /> 
+                  <span>Info</span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80">
+                <div className="px-1 py-2 text-xs">
+                  <div className="text-sm font-semibold mb-2 flex items-center gap-2 text-foreground">
+                    <FiMail className="text-primary" /> Gmail Setup Guide
+                  </div>
+                  <ol className="list-decimal pl-4 space-y-1 text-gray-600 dark:text-foreground/70 mb-3">
+                    <li>Open a new tab and go directly to: <a href="https://myaccount.google.com/apppasswords" target="_blank" rel="noreferrer" className="text-primary hover:underline">https://myaccount.google.com/apppasswords</a></li>
+                    <li>Ensure 2 step verification is enabled.</li>
+                    <li>Type a name (like Referral App) into the box and click Create.</li>
+                    <li>Copy the 16-letter code that appears on your screen.</li>
+                  </ol>
+                  <div className="bg-gray-50 dark:bg-default-100/50 p-2 rounded border border-foreground/10 space-y-1">
+                    <p><span className="font-semibold">SMTP Host:</span> smtp.gmail.com</p>
+                    <p><span className="font-semibold">Port:</span> 587</p>
+                    <p><span className="font-semibold">Username:</span> Your full Gmail address</p>
+                    <p><span className="font-semibold">Password:</span> Paste the 16-letter code here</p>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="ghost"
+                color="default"
+                onPress={onClose}
+                className="border-small"
+                isDisabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                variant="solid"
+                color="primary"
+                type="submit"
+                isLoading={isSubmitting}
+                isDisabled={isSubmitting || !formik.isValid || !formik.dirty}
+              >
+                {isUpdateMode ? "Update Configuration" : "Save Integration"}
+              </Button>
+            </div>
           </ModalFooter>
         </form>
       </ModalContent>

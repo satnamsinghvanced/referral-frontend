@@ -47,7 +47,7 @@ const MarketingCalendar = () => {
 
   const [currentFilters, setCurrentFilters] = useState<any>({
     page: 1,
-    limit: 21,
+    limit: 19,
     search: "",
     type: "all",
   });
@@ -86,39 +86,14 @@ const MarketingCalendar = () => {
   }, [rawActivities, isGoogleCalendarConnected]);
 
   const sortedActivities = useMemo(() => {
-    const parseTimeToMinutes = (time?: string) => {
-      if (!time) return null;
-      // Accepts "HH:mm" (24h) or "h:mm AM/PM"
-      const ampm = time.match(/^\s*(\d{1,2})\s*:\s*(\d{2})\s*(AM|PM)\s*$/i);
-      if (ampm) {
-        let h = Number(ampm[1]);
-        const m = Number(ampm[2]);
-        const mer = (ampm[3] || "").toUpperCase();
-        if (mer === "PM" && h < 12) h += 12;
-        if (mer === "AM" && h === 12) h = 0;
-        return h * 60 + m;
-      }
-      const hhmm = time.match(/^\s*(\d{1,2})\s*:\s*(\d{2})\s*$/);
-      if (hhmm) return Number(hhmm[1]) * 60 + Number(hhmm[2]);
-      return null;
-    };
-
     return [...activities].sort((a: any, b: any) => {
-      const aDate = a?.startDate
-        ? new Date(a.startDate).getTime()
-        : Number.POSITIVE_INFINITY;
-      const bDate = b?.startDate
-        ? new Date(b.startDate).getTime()
-        : Number.POSITIVE_INFINITY;
-      if (aDate !== bDate) return aDate - bDate;
-
-      const aMin = parseTimeToMinutes(a?.time) ?? Number.POSITIVE_INFINITY;
-      const bMin = parseTimeToMinutes(b?.time) ?? Number.POSITIVE_INFINITY;
-      if (aMin !== bMin) return aMin - bMin;
-
       const aCreated = a?.createdAt ? new Date(a.createdAt).getTime() : 0;
       const bCreated = b?.createdAt ? new Date(b.createdAt).getTime() : 0;
-      return aCreated - bCreated;
+      if (aCreated !== bCreated) return bCreated - aCreated;
+      
+      const aDate = a?.startDate ? new Date(a.startDate).getTime() : 0;
+      const bDate = b?.startDate ? new Date(b.startDate).getTime() : 0;
+      return bDate - aDate;
     });
   }, [activities]);
 
@@ -369,6 +344,7 @@ const MarketingCalendar = () => {
               <div className="w-full shadow-none bg-background border border-foreground/10 rounded-xl">
                 <CustomCalendar
                   weekendDisabled={false}
+                  disablePastDates={false}
                   onRangeSelect={(start, end) => {
                     setSelectedDate(start.toISOString());
                     setSelectedEndDate(

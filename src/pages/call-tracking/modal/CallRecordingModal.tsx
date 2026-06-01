@@ -14,14 +14,119 @@ import {
   addToast,
 } from "@heroui/react";
 import { getLocalTimeZone, now } from "@internationalized/date";
-import { useEffect, useState } from "react";
-import { FiCalendar, FiCheckCircle, FiXCircle  } from "react-icons/fi";
+import { useEffect, useState, useRef } from "react";
+import { FiCalendar, FiCheckCircle, FiXCircle, FiPlay, FiPause } from "react-icons/fi";
 import { LuPhoneIncoming, LuPhoneOutgoing } from "react-icons/lu";
 import { MdChatBubbleOutline } from "react-icons/md";
 import { useUpdateCallRecord } from "../../../hooks/useCall";
 import { CallRecord } from "../../../types/call";
 import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 import DatePickerWithTimeInput from "../../../components/common/DatePickerWithTimeInput";
+
+import { store } from "../../../store";
+
+const AudioPlayer = ({ url, callDuration }: { url: string; callDuration: string }) => {
+  const token = store.getState().auth.token;
+  const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:9090/api";
+  
+  let absoluteUrl = url;
+  if (url.startsWith("/")) {
+    if (baseUrl.endsWith("/api")) {
+      absoluteUrl = `${baseUrl}${url}`;
+    } else {
+      absoluteUrl = `${baseUrl}/api${url}`;
+    }
+  }
+
+  const streamUrl = `${absoluteUrl}?token=${token}`;
+  
+  const audioRef = useRef<HTMLAudioElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  
+  useEffect(() => {
+    let parsedDuration = 0;
+    if (callDuration) {
+      const minMatch = callDuration.match(/(\d+)\s*min/);
+      const secMatch = callDuration.match(/(\d+)\s*sec/);
+      if (minMatch) parsedDuration += parseInt(minMatch[1]) * 60;
+      if (secMatch) parsedDuration += parseInt(secMatch[1]);
+    }
+    setDuration(parsedDuration);
+  }, [callDuration]);
+
+  const togglePlay = () => {
+    if (audioRef.current) {
+      if (isPlaying) {
+        audioRef.current.pause();
+      } else {
+        audioRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const handleTimeUpdate = () => {
+    if (audioRef.current) {
+      setCurrentTime(audioRef.current.currentTime);
+      if (audioRef.current.duration && audioRef.current.duration !== Infinity && !isNaN(audioRef.current.duration)) {
+        setDuration(audioRef.current.duration);
+      }
+    }
+  };
+
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const time = Number(e.target.value);
+    if (audioRef.current) {
+      audioRef.current.currentTime = time;
+      setCurrentTime(time);
+    }
+  };
+  
+  const formatTime = (time: number) => {
+    if (isNaN(time)) return "0:00";
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+  };
+
+  return (
+    <div className="flex items-center gap-4 bg-gray-100/70 dark:bg-default-100 p-2 px-4 rounded-xl w-full h-12 shadow-sm border border-foreground/5">
+      <audio
+        ref={audioRef}
+        src={streamUrl}
+        onTimeUpdate={handleTimeUpdate}
+        onEnded={() => setIsPlaying(false)}
+        className="hidden"
+      />
+      <button 
+        onClick={togglePlay} 
+        className="flex-shrink-0 text-foreground hover:opacity-70 transition-opacity flex items-center justify-center w-6 h-6"
+      >
+        {isPlaying ? <FiPause className="size-4" /> : <FiPlay className="size-4 translate-x-[1px]" />}
+      </button>
+      
+      <div className="text-[11px] font-medium text-foreground w-8 text-right font-mono">
+        {formatTime(currentTime)}
+      </div>
+      
+      <input
+        type="range"
+        min={0}
+        max={duration || 100}
+        value={currentTime}
+        onChange={handleSeek}
+        className="flex-1 h-1.5 bg-gray-300 dark:bg-default-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
+        style={{ accentColor: "#3b82f6" }}
+      />
+      
+      <div className="text-[11px] font-medium text-gray-500 dark:text-foreground/50 w-8 font-mono">
+        {formatTime(duration)}
+      </div>
+    </div>
+  );
+};
 
 const PlaybackTab = ({ data }: { data: CallRecord }) => (
   <div className="flex-1 outline-none space-y-4">
@@ -51,17 +156,10 @@ const PlaybackTab = ({ data }: { data: CallRecord }) => (
 
         <div className="space-y-4 mt-4">
           {data.recordingUrl ? (
-            <audio
-              controls
-              src={data.recordingUrl}
-              className="w-full h-10"
-              style={{ borderRadius: "8px" }}
-            >
-              Your browser does not support the audio element.
-            </audio>
+            <AudioPlayer url={data.recordingUrl} callDuration={data.duration} />
           ) : (
             <div className="text-center text-sm text-gray-500 dark:text-foreground/40 py-4">
-              No recording available.
+              No recording available on twilio.
             </div>
           )}
         </div>

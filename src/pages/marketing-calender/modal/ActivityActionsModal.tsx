@@ -276,7 +276,6 @@ export default function ActivityActionsModal({
                   name="startDate"
                   label="Start Date"
                   value={formik.values.startDate}
-                  minValue={isEditing ? null : now(getLocalTimeZone())}
                   onChange={(val) => {
                     formik.setFieldValue("startDate", val);
                   }}

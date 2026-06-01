@@ -145,16 +145,20 @@ const CustomCalendar: React.FC<CalendarProps> = ({
   const lastDay = new Date(currentYear, currentMonth + 1, 0);
   const daysInMonth = lastDay.getDate();
   const startingDay = firstDay.getDay();
+  const hasEarlierActivities = useMemo(() => {
+    const viewFirstDay = new Date(currentYear, currentMonth, 1).getTime();
+    return activities.some((a) => {
+      if (!a.startDate) return false;
+      return new Date(a.startDate).getTime() < viewFirstDay;
+    });
+  }, [activities, currentYear, currentMonth]);
+
   const handleMonthChange = (direction: "prev" | "next") => {
-    if (disablePastDates && direction === "prev") {
-      const isCurrentMonth =
-        currentMonth === today.getMonth() &&
-        currentYear === today.getFullYear();
-      if (isCurrentMonth) {
+    if (direction === "prev") {
+      const isPastOrCurrentMonth = currentYear < today.getFullYear() || (currentYear === today.getFullYear() && currentMonth <= today.getMonth());
+      if (disablePastDates && isPastOrCurrentMonth && !hasEarlierActivities) {
         return;
       }
-    }
-    if (direction === "prev") {
       if (currentMonth === 0) {
         setCurrentMonth(11);
         setCurrentYear((prev) => prev - 1);
@@ -360,8 +364,10 @@ const CustomCalendar: React.FC<CalendarProps> = ({
           onPress={() => handleMonthChange("prev")}
           isDisabled={
             disablePastDates &&
-            currentMonth === today.getMonth() &&
-            currentYear === today.getFullYear()
+            !hasEarlierActivities &&
+            (currentYear < today.getFullYear() ||
+              (currentYear === today.getFullYear() &&
+                currentMonth <= today.getMonth()))
           }
           className="border-small border-gray-300 dark:border-default-200"
         >
