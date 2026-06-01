@@ -24,7 +24,6 @@ import { data, Link } from "react-router-dom";
 import { useCalendarIntegration } from "../../hooks/integrations/useGoogleCalendar";
 import { formatNumberWithCommas } from "../../utils/formatNumberWithCommas";
 import Pagination from "../../components/common/Pagination";
-import { ODD_PAGINATION_LIMIT } from "../../consts/consts";
 import { usePaginationAdjustment } from "../../hooks/common/usePaginationAdjustment";
 
 const MarketingCalendar = () => {
@@ -48,7 +47,7 @@ const MarketingCalendar = () => {
 
   const [currentFilters, setCurrentFilters] = useState<any>({
     page: 1,
-    limit: ODD_PAGINATION_LIMIT,
+    limit: 21,
     search: "",
     type: "all",
   });
