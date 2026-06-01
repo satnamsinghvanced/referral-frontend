@@ -7,10 +7,13 @@ import {
   ModalFooter,
   ModalHeader,
   Spinner,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
 } from "@heroui/react";
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
-import { FiExternalLink, FiEye, FiEyeOff } from "react-icons/fi";
+import { FiExternalLink, FiEye, FiEyeOff, FiInfo } from "react-icons/fi";
 import * as Yup from "yup";
 import {
   useSaveTwilioConfig,
@@ -331,27 +334,50 @@ export default function TwilioConfigurationModal({
           </ModalBody>
 
           {/* Modal Footer (Action Buttons) */}
-          <ModalFooter className="flex justify-end gap-2 px-4 pb-4 pt-0">
-            <Button
-              size="sm"
-              variant="ghost"
-              color="default"
-              onPress={onClose}
-              className="border-small"
-              isDisabled={isSubmitting}
-            >
-              Cancel
-            </Button>
-            <Button
-              size="sm"
-              variant="solid"
-              color="primary"
-              type="submit" // Important: Trigger Formik submission
-              isLoading={isSubmitting}
-              isDisabled={isSubmitting || !formik.isValid || !formik.dirty}
-            >
-              {isUpdateMode ? "Update Configuration" : "Save Configuration"}
-            </Button>
+          <ModalFooter className="flex justify-between items-center px-4 pb-4 pt-0">
+            <Popover placement="top-start" showArrow>
+              <PopoverTrigger>
+                <Button variant="light" size="sm" className="text-gray-500 flex items-center gap-1">
+                  <FiInfo size={16} />
+                  <span>Info</span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80">
+                <div className="px-1 py-2 text-xs">
+                  <div className="text-sm font-semibold mb-2 flex items-center gap-2 text-foreground">
+                    <FiInfo className="text-primary" /> Twilio Setup Guide
+                  </div>
+                  <ul className="list-disc pl-4 space-y-2 text-gray-600 dark:text-foreground/70 mb-2">
+                    <li><span className="font-semibold text-foreground">Log In:</span> Access your account at the <a href="https://console.twilio.com/" target="_blank" rel="noreferrer" className="text-primary hover:underline">Twilio Console</a>.</li>
+                    <li><span className="font-semibold text-foreground">Copy API Credentials:</span> On the dashboard, locate the Account SID and Auth Token under the "Account Info" section.</li>
+                    <li><span className="font-semibold text-foreground">Buy or Select a Number:</span> If you do not have a number, navigate to Phone Numbers {'>'} Buy a Number; otherwise, go to Active Numbers to see your current list.</li>
+                    <li><span className="font-semibold text-foreground">Enter Details:</span> Paste the SID, Token, and Phone Number (in +1... format) into the fields shown and click Update Configuration.</li>
+                  </ul>
+                </div>
+              </PopoverContent>
+            </Popover>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="ghost"
+                color="default"
+                onPress={onClose}
+                className="border-small"
+                isDisabled={isSubmitting}
+              >
+                Cancel
+              </Button>
+              <Button
+                size="sm"
+                variant="solid"
+                color="primary"
+                type="submit" // Important: Trigger Formik submission
+                isLoading={isSubmitting}
+                isDisabled={isSubmitting || !formik.isValid || !formik.dirty}
+              >
+                {isUpdateMode ? "Update Configuration" : "Save Configuration"}
+              </Button>
+            </div>
           </ModalFooter>
         </form>
       </ModalContent>

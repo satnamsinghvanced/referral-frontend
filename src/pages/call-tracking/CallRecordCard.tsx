@@ -18,7 +18,7 @@ export default function CallRecordCard({
     ...(record.followUp ? [{ label: "Follow-up", type: "action" }] : []),
     ...(record.appointment ? [{ label: "Appointment", type: "action" }] : []),
   ];
-  const timeAgo = record.createdAt ? formatTimeAgo(record.createdAt) : "";
+  const timeAgo = record.date ? formatTimeAgo(record.date) : "";
   return (
     <div className="flex items-center justify-between p-3.5 border border-foreground/10 rounded-lg bg-background max-sm:flex-col max-sm:gap-4 max-sm:items-start">
       <div className="flex items-center gap-3.5 max-sm:flex-col max-sm:items-start">
@@ -32,7 +32,7 @@ export default function CallRecordCard({
         <div className="space-y-2">
           <div className="flex items-center space-x-2">
             <h3 className="font-medium text-foreground text-sm">
-              {record.contact?.name || record.contact?.phone || "Unknown"}
+              {record.contact?.name || record.contact?.phone || "Twilio"}
             </h3>
             <CallStatusChip status={record.status} />
           </div>
