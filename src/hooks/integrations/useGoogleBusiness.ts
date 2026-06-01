@@ -8,6 +8,8 @@ import {
   getGoogleBusinessAuthUrl,
   getGoogleBusinessIntegration,
   getGoogleBusinessLocations,
+  saveWindsorCredentials,
+  SaveWindsorCredentialsPayload,
   syncGoogleBusinessProfiles,
   updateGoogleBusinessIntegration,
 } from "../../services/integrations/googleBusiness";
@@ -31,6 +33,18 @@ export const useConnectBusiness = () => {
       if (data.authUrl) {
         window.open(data.authUrl, "_blank");
       }
+    },
+  });
+};
+
+export const useSaveWindsorBusiness = () => {
+  return useMutation({
+    mutationFn: (payload: SaveWindsorCredentialsPayload) =>
+      saveWindsorCredentials(payload),
+    onSuccess: (response: any) => {
+      queryClient.invalidateQueries({ queryKey: BUSINESS_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+      return response;
     },
   });
 };

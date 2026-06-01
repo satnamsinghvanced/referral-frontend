@@ -20,3 +20,10 @@ export const updateCallRecord = async (
   const { data } = await axios.put(`/twilio-record/${id}`, payload);
   return data;
 };
+
+export const fetchCallRecordingBlob = async (id: string): Promise<Blob> => {
+  const { data } = await axios.get(`/twilio-record/${id}/recording`, {
+    responseType: "blob",
+  });
+  return data;
+};

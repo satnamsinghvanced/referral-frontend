@@ -64,6 +64,8 @@ export interface GetCallRecordsParams {
   search?: string;
   type?: string;
   status?: string;
+  /** When true, re-fetch calls from Twilio and upsert into DB */
+  sync?: boolean;
 }
 
 export interface UpdateCallRecordPayload {

@@ -127,6 +127,7 @@ export interface SocialOverviewResponse {
     instagram: SocialPlatformStats;
     linkedin: SocialPlatformStats;
     youtube: SocialPlatformStats;
+    tiktok?: SocialPlatformStats;
   };
 }
 

@@ -23,6 +23,8 @@ interface IntegrationItemProps {
   onConfigure?: (() => void) | undefined;
   onConnect?: (() => void) | undefined;
   onReconnect?: (() => void) | undefined;
+  /** When true: Configure + Re-connect. When false: Connect only. Defaults to status === "Connected". */
+  isFullyConnected?: boolean;
   isSwitchChecked?: boolean | undefined;
   onSwitchChange?: ((checked: boolean) => void) | undefined;
   account?: {
@@ -46,12 +48,15 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
   onConfigure,
   onConnect,
   onReconnect,
+  isFullyConnected,
   isSwitchChecked = status === "Connected",
   onSwitchChange,
   account,
   connectedLocation,
 }) => {
   const isCredentialsSaved = !!id;
+  const showConnectedActions =
+    isFullyConnected ?? (isCredentialsSaved && status === "Connected");
   const isError = status === "Error";
   let statusClasses = "";
   let StatusIcon = null;
@@ -77,9 +82,16 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
         <FiAlertCircle className="h-4 w-4 text-red-600 dark:text-red-400" />
       );
       break;
+    case "Pending":
+      statusClasses =
+        "bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300";
+      StatusIcon = (
+        <FiAlertCircle className="h-4 w-4 text-amber-600 dark:text-amber-400" />
+      );
+      break;
   }
 
-  const actionButton = isCredentialsSaved ? (
+  const actionButton = showConnectedActions ? (
     <>
       {onConfigure && (
         <Button
@@ -93,25 +105,26 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
           Configure
         </Button>
       )}
-      {(onReconnect || onConnect) && (
+      {onReconnect && (
         <Button
           size="sm"
           radius="sm"
           variant="ghost"
           color="primary"
-
-          onPress={() => (onReconnect || onConnect)?.()}
+          onPress={() => onReconnect()}
           startContent={<FiExternalLink className="size-3.5" />}
           className="border-small"
         >
-          Change Account
+          Re-connect
         </Button>
       )}
-      <Switch
-        size="sm"
-        isSelected={isSwitchChecked}
-        onValueChange={onSwitchChange}
-      />
+      {onSwitchChange && (
+        <Switch
+          size="sm"
+          isSelected={isSwitchChecked}
+          onValueChange={onSwitchChange}
+        />
+      )}
     </>
   ) : (
     <Button
@@ -120,17 +133,11 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
       variant="solid"
       color="primary"
       onPress={() =>
-        (status === "Error" ? onReconnect || onConnect : onConnect || onConfigure)?.()
+        (status === "Error" ? onReconnect || onConnect : onConnect)?.()
       }
-      endContent={
-        onConfigure && !onConnect ? (
-          <FiSettings className="size-3.5" />
-        ) : (
-          <FiExternalLink className="size-3.5" />
-        )
-      }
+      endContent={<FiExternalLink className="size-3.5" />}
     >
-      {onConfigure && !onConnect ? "Configure" : "Connect"}
+      Connect
     </Button>
   );
 
@@ -170,7 +177,7 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
             ))}
           </div>
           <div className="flex items-center gap-3 mt-2 h-6">
-            {isCredentialsSaved && account && (account.accountEmail || account.accountName) && (
+            {showConnectedActions && account && (account.accountEmail || account.accountName) && (
               <p
                 className="h-5 flex items-center gap-2 text-xs dark:text-foreground/40"
               >

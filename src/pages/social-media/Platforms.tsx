@@ -1,5 +1,5 @@
 import { Card, CardBody, CardHeader } from "@heroui/react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { FaLinkedin, FaMeta, FaTiktok, FaYoutube } from "react-icons/fa6";
 import { LoadingState } from "../../components/common/LoadingState";
 import {
@@ -9,6 +9,9 @@ import {
 } from "../../hooks/useSocial";
 import IntegrationItem from "../integrations/IntegrationItem";
 import type { SocialPlatformType } from "./modal/SocialSubAccountSelectorModal";
+import SocialConnectConfirmModal, {
+  PendingSocialConnect,
+} from "./modal/SocialConnectConfirmModal";
 
 const Platforms = ({
   onOpenSelector,
@@ -17,8 +20,37 @@ const Platforms = ({
 }) => {
   const { data: allCredentials, isLoading: isGlobalLoading } =
     useSocialCredentials();
-  const { mutate: connectSocial } = useConnectSocial();
+  const { mutate: connectSocial, isPending: isConnecting } = useConnectSocial();
   const { mutate: updateSocial } = useUpdateSocial();
+  const [pendingConnect, setPendingConnect] =
+    useState<PendingSocialConnect | null>(null);
+
+  const openConnectModal = (platform: {
+    platformId: string;
+    platformKey: string;
+    name: string;
+    selectorPlatform: SocialPlatformType;
+  }) => {
+    setPendingConnect({
+      platformId: platform.platformId,
+      platformKey: platform.platformKey,
+      name: platform.name,
+      selectorPlatform: platform.selectorPlatform,
+    });
+  };
+
+  const handleConfirmConnect = () => {
+    if (!pendingConnect) return;
+    connectSocial(
+      {
+        platform: pendingConnect.platformId,
+        platformKey: pendingConnect.platformKey,
+      },
+      {
+        onSettled: () => setPendingConnect(null),
+      },
+    );
+  };
 
   const SOCIAL_MEDIA_PLATFORMS = useMemo(() => {
     const normalizeStatus = (
@@ -136,6 +168,8 @@ const Platforms = ({
               ?.name ||
             allCredentials?.tikTok?.connectedSubAccountName ||
             allCredentials?.tikTok?.accountName,
+          accountEmail: allCredentials?.tikTok?.accountEmail,
+          accountAvatar: allCredentials?.tikTok?.accountAvatar,
         },
       },
     ];
@@ -148,7 +182,6 @@ const Platforms = ({
       </div>
     );
   }
-
   return (
     <>
       <div className="flex flex-col gap-4 md:gap-5">
@@ -163,18 +196,8 @@ const Platforms = ({
               <IntegrationItem
                 key={platform.platformId}
                 {...platform}
-                onConnect={() =>
-                  connectSocial({
-                    platform: platform.platformId,
-                    platformKey: platform.platformKey,
-                  })
-                }
-                onReconnect={() =>
-                  connectSocial({
-                    platform: platform.platformId,
-                    platformKey: platform.platformKey,
-                  })
-                }
+                onConnect={() => openConnectModal(platform)}
+                onReconnect={() => openConnectModal(platform)}
                 onConfigure={() => onOpenSelector(platform.selectorPlatform)}
                 isSwitchChecked={platform.status === "Connected"}
                 onSwitchChange={() => {
@@ -194,6 +217,13 @@ const Platforms = ({
         </Card>
       </div>
 
+      <SocialConnectConfirmModal
+        pending={pendingConnect}
+        isOpen={!!pendingConnect}
+        onClose={() => setPendingConnect(null)}
+        onConfirm={handleConfirmConnect}
+        isConnecting={isConnecting}
+      />
     </>
   );
 };

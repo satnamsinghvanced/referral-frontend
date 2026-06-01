@@ -1,5 +1,5 @@
-import { Card, CardBody, CardHeader } from "@heroui/react";
-import { useEffect, useMemo, useState } from "react";
+import { Card, CardBody, CardHeader, addToast } from "@heroui/react";
+import { useCallback, useMemo, useState } from "react";
 import { BsLightningCharge } from "react-icons/bs";
 import { FaGoogle } from "react-icons/fa";
 import { FaMeta, FaRegEnvelope } from "react-icons/fa6";
@@ -29,6 +29,7 @@ import {
   useConnectBusiness,
   useUpdateBusiness,
 } from "../../hooks/integrations/useGoogleBusiness";
+import GoogleBusinessConnectModal from "./modal/GoogleBusinessConnectModal";
 import {
   useCalendarIntegration,
   useConnectCalendar,
@@ -50,6 +51,8 @@ import Webhooks from "./webhooks/Webhooks";
 function Integrations() {
   const { user } = useTypedSelector((state) => state.auth);
   const userId = user?.userId;
+  const [isGoogleBusinessConnectModalOpen, setIsGoogleBusinessConnectModalOpen] =
+    useState(false);
 
   const [isTwilioIntegrationModalOpen, setIsTwilioIntegrationModalOpen] =
     useState(false);
@@ -118,6 +121,10 @@ function Integrations() {
   const { mutate: updateGoogleBusinessIntegration } = useUpdateBusiness();
   const { mutate: connectGoogleBusiness } = useConnectBusiness();
 
+  const openWindsorConnectModal = useCallback(() => {
+    setIsGoogleBusinessConnectModalOpen(true);
+  }, []);
+
   const {
     data: googleAnalyticsConfig,
     isLoading: isGoogleAnalyticsConfigLoading,
@@ -154,6 +161,9 @@ function Integrations() {
   const AVAILABLE_INTEGRATIONS = useMemo(() => {
     const list: any[] = [];
 
+    const isGoogleBusinessConnected =
+      googleBusinessConfig?.status === "Connected";
+
     // Google My Business
     list.push({
       id: googleBusinessConfig?._id || "",
@@ -161,7 +171,12 @@ function Integrations() {
       icon: <FaGoogle className="w-4 h-4" />,
       iconBg: "bg-red-100 dark:bg-red-900/20",
       iconColor: "text-red-600 dark:text-red-400",
-      status: googleBusinessConfig?.status || "Disconnected",
+      status: isGoogleBusinessConnected
+        ? "Connected"
+        : googleBusinessConfig?.status === "Error"
+          ? "Error"
+          : "Disconnected",
+      isFullyConnected: isGoogleBusinessConnected,
       description:
         "Automatically sync reviews and manage your practice listing",
       badges: [
@@ -172,10 +187,12 @@ function Integrations() {
       lastSync: googleBusinessConfig?.lastSyncAt
         ? timeAgo(googleBusinessConfig.lastSyncAt)
         : undefined,
-      onConnect: () => connectGoogleBusiness(),
-      onReconnect: () => connectGoogleBusiness(),
-      onConfigure: () => setIsGoogleBusinessLocationModalOpen(true),
-      isSwitchChecked: googleBusinessConfig?.status === "Connected",
+      onConnect: openWindsorConnectModal,
+      onReconnect: openWindsorConnectModal,
+      onConfigure: isGoogleBusinessConnected
+        ? () => setIsGoogleBusinessLocationModalOpen(true)
+        : undefined,
+      isSwitchChecked: isGoogleBusinessConnected,
       onSwitchChange: () => {
         updateGoogleBusinessIntegration({
           id: googleBusinessConfig?._id as string,
@@ -394,6 +411,7 @@ function Integrations() {
     googleBusinessConfig,
     updateGoogleBusinessIntegration,
     connectGoogleBusiness,
+    openWindsorConnectModal,
     googleAnalyticsConfig,
     updateGoogleAnalyticsIntegration,
     connectGoogleAnalytics,
@@ -435,11 +453,17 @@ function Integrations() {
         isLoading={isEmailConfigLoading}
       />
 
+      <GoogleBusinessConnectModal
+        isOpen={isGoogleBusinessConnectModalOpen}
+        onClose={() => setIsGoogleBusinessConnectModalOpen(false)}
+      />
+
       <GoogleIntegrationSelectorModal
         type="business"
         isOpen={isGoogleBusinessLocationModalOpen}
         onClose={() => setIsGoogleBusinessLocationModalOpen(false)}
       />
+
 
       <GoogleIntegrationSelectorModal
         type="analytics"

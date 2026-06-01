@@ -146,6 +146,23 @@ export default function SocialMedia() {
       });
     }
 
+    if (pp.tiktok?.connected) {
+      items.push({
+        id: "TikTok",
+        stats: [
+          {
+            label: "Followers",
+            value: pp.tiktok.followers?.toString() || "0",
+          },
+          {
+            label: "Engagement",
+            value: pp.tiktok.engagement?.toString() + "%" || "0%",
+          },
+          { label: "Videos", value: pp.tiktok.posts?.toString() || "0" },
+        ],
+      });
+    }
+
     return items;
   }, [data]);
 

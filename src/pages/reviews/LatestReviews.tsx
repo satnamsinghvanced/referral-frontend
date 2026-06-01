@@ -1,5 +1,3 @@
-import { useMemo, useState } from "react";
-// Assuming these components are available in your Hero UI library
 import {
   Avatar,
   Button,
@@ -23,7 +21,6 @@ import { LoadingState } from "../../components/common/LoadingState";
 
 dayjs.extend(relativeTime);
 
-// --- Mock Data & Helpers (defined above) ---
 
 const StarRating = ({ rating }: any) => {
   const totalStars = 5;
@@ -61,8 +58,21 @@ const mapStarRating = (rating: string) => {
 /**
  * Component for rendering a single review item.
  */
-const LatestReviewItem = ({ review }: { review: GBPReview }) => {
-  const { reviewer, starRating, createTime, comment, reviewReply } = review;
+const GOOGLE_BUSINESS_REVIEWS_URL = "https://business.google.com/reviews";
+
+const LatestReviewItem = ({
+  review,
+  fallbackViewUrl,
+}: {
+  review: GBPReview;
+  fallbackViewUrl?: string | undefined;
+}) => {
+  const { reviewer, starRating, createTime, comment, reviewReply, isRatingOnly } = review;
+
+  const handleViewReview = () => {
+    const url = review.viewUrl || fallbackViewUrl || GOOGLE_BUSINESS_REVIEWS_URL;
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
 
   const rating = mapStarRating(starRating);
   // Default to Google since this is GBP API
@@ -80,9 +90,9 @@ const LatestReviewItem = ({ review }: { review: GBPReview }) => {
       <div className="flex items-start justify-between mb-3 flex-wrap">
         <div className="flex items-center gap-3">
           <div className="flex-shrink-0 rounded-full overflow-hidden h-10 w-10 aspect-square flex items-center justify-center -mt-15 sm:-mt-0">
-            <Avatar
-              src={reviewer.profilePhotoUrl}
-              name={reviewer.displayName}
+            <img
+              {...(reviewer.profilePhotoUrl ? { src: reviewer.profilePhotoUrl } : {})}
+              name={reviewer.displayName || ""}
               radius="none"
               classNames={{
                 base: "w-full h-full !rounded-none",
@@ -125,9 +135,17 @@ const LatestReviewItem = ({ review }: { review: GBPReview }) => {
         </div>
       </div>
 
-      <p className="text-gray-700 dark:text-foreground/80 mb-1.5 text-sm leading-relaxed">
-        {comment}
-      </p>
+      {comment ? (
+        <p
+          className={`mb-1.5 text-sm leading-relaxed ${
+            isRatingOnly
+              ? "italic text-gray-500 dark:text-foreground/50"
+              : "text-gray-700 dark:text-foreground/80"
+          }`}
+        >
+          {comment}
+        </p>
+      ) : null}
 
       <div className="flex flex-wrap items-center justify-between gap-1">
         <div className="flex items-center gap-1"></div>
@@ -145,6 +163,8 @@ const LatestReviewItem = ({ review }: { review: GBPReview }) => {
             size="sm"
             radius="sm"
             className="flex items-center gap-1.5 border border-gray-300 dark:border-foreground/20 px-2"
+            onPress={handleViewReview}
+            aria-label="View review on Google Business"
           >
             <FiExternalLink className="size-3.5" />
             View
@@ -191,7 +211,13 @@ export default function LatestReviews() {
             </div>
           ) : reviews.length > 0 ? (
             reviews.map((review) => (
-              <LatestReviewItem key={review.reviewId} review={review} />
+              <LatestReviewItem
+                key={review.reviewId}
+                review={review}
+                {...(data?.googleReviewsUrl
+                  ? { fallbackViewUrl: data.googleReviewsUrl }
+                  : {})}
+              />
             ))
           ) : (
             <EmptyState title="No recent reviews found." />

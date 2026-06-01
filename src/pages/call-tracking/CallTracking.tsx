@@ -1,5 +1,5 @@
 import { Button, Input, Select, SelectItem } from "@heroui/react";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { FiPhone, FiPhoneCall, FiSearch } from "react-icons/fi";
 import { LuClock, LuFileAudio, LuRefreshCw } from "react-icons/lu";
 import { MdTrendingUp } from "react-icons/md";
@@ -13,7 +13,9 @@ import { CALL_STATUSES, CALL_TYPES } from "../../consts/call";
 import { EVEN_PAGINATION_LIMIT } from "../../consts/consts";
 import { useDebouncedValue } from "../../hooks/common/useDebouncedValue";
 import { useFetchTwilioConfig } from "../../hooks/integrations/useTwilio";
-import { useFetchCallRecords } from "../../hooks/useCall";
+import { useFetchCallRecords, CALL_RECORDS_QUERY_KEY } from "../../hooks/useCall";
+import { getCallRecords } from "../../services/call";
+import { queryClient } from "../../providers/QueryProvider";
 import { CallRecord } from "../../types/call";
 import CallRecordCard from "./CallRecordCard";
 import CallRecordingModal from "./modal/CallRecordingModal";
@@ -37,10 +39,12 @@ const CallTracking = () => {
   useEffect(() => {
     setFilters((prev) => ({ ...prev, search: debouncedSearch }));
   }, [debouncedSearch]);
-  const { data, isLoading, refetch, isRefetching } = useFetchCallRecords({
+  const queryParams = {
     ...filters,
     search: debouncedSearch,
-  });
+  };
+  const { data, isLoading, isRefetching } = useFetchCallRecords(queryParams);
+  const [isSyncing, setIsSyncing] = useState(false);
   usePaginationAdjustment({
     totalPages: data?.paginatedCalls?.totalPages || 0,
     currentPage: filters.page,
@@ -96,6 +100,16 @@ const CallTracking = () => {
     },
   ];
 
+  const handleRefresh = useCallback(async () => {
+    setIsSyncing(true);
+    try {
+      const freshData = await getCallRecords({ ...queryParams, sync: true });
+      queryClient.setQueryData([CALL_RECORDS_QUERY_KEY, queryParams], freshData);
+    } finally {
+      setIsSyncing(false);
+    }
+  }, [queryParams]);
+
   const HEADING_DATA = useMemo(
     () => ({
       heading: "Call Tracking",
@@ -104,11 +118,11 @@ const CallTracking = () => {
       buttons: [
         {
           label: "Refresh",
-          onClick: () => refetch(),
+          onClick: () => void handleRefresh(),
           icon: (
             <LuRefreshCw
               fontSize={15}
-              className={isRefetching ? "animate-spin" : ""}
+              className={isRefetching || isSyncing ? "animate-spin" : ""}
             />
           ),
           variant: "bordered" as const,
@@ -117,7 +131,7 @@ const CallTracking = () => {
         },
       ],
     }),
-    [refetch, isRefetching],
+    [handleRefresh, isRefetching, isSyncing],
   );
 
   return (

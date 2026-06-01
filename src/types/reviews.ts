@@ -55,6 +55,10 @@ export interface ReviewReply {
 export interface GBPReview {
   name: string;
   reviewId: string;
+  /** URL to open Google Business / Maps reviews for this location */
+  viewUrl?: string;
+  /** True when the customer left stars only (no written review text) */
+  isRatingOnly?: boolean;
   reviewer: Reviewer;
   starRating: "ZERO" | "ONE" | "TWO" | "THREE" | "FOUR" | "FIVE";
   comment: string;
@@ -64,6 +68,8 @@ export interface GBPReview {
 }
 export interface GBPRecentReviewsResponse {
   reviews: GBPReview[];
+  /** Google Business Profile reviews management tab */
+  googleReviewsUrl?: string;
   stats: {
     totalReviewCount: number;
     averageRating: number;

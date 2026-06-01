@@ -10,10 +10,13 @@ import {
 } from "../types/social";
 import axios from "./axios";
 
+const unwrapApiData = <T>(response: any): T =>
+  (response?.data !== undefined ? response.data : response) as T;
+
 export const getSocialMediaCredentials =
   async (): Promise<GetCredentialsResponse> => {
     const response = await axios.get("/social-media/get-credentials");
-    return response.data;
+    return unwrapApiData<GetCredentialsResponse>(response);
   };
 
 export const getSocialAuthUrl = async (platform: string, platformKey: string): Promise<IAuthUrlResponse> => {
@@ -34,17 +37,17 @@ export const deleteSocialIntegration = async (id: string): Promise<void> => {
 export const fetchSocialOverview =
   async (): Promise<SocialOverviewResponse> => {
     const response = await axios.get("/social-media-post/");
-    return response.data;
+    return unwrapApiData<SocialOverviewResponse>(response);
   };
 
 export const fetchPostsAnalytics = async (): Promise<PostAnalyticsResponse> => {
   const response = await axios.get("/social-media-post/posts-analytics");
-  return response.data;
+  return unwrapApiData<PostAnalyticsResponse>(response);
 };
 
 export const fetchRecentPosts = async (page: number = 1, limit: number = 10): Promise<RecentPostsResponse> => {
   const response = await axios.get("/social-media-post/recent-posts", { params: { page, limit } });
-  return response.data;
+  return unwrapApiData<RecentPostsResponse>(response);
 };
 
 export const createSocialPost = async (payload: FormData): Promise<any> => {

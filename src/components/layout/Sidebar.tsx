@@ -112,9 +112,8 @@ const Sidebar = ({
         name: "Reviews",
         icon: HiOutlineStar,
         href: "/reviews",
-        stats: 0,
+        stats: dashboardStats?.reviews ?? dashboardStats?.totalReviews ?? 0,
         color: "bg-yellow-200 dark:bg-yellow-900/30",
-        label: "1.2k",
         requiredPermission: "Manage Reviews",
       },
       {

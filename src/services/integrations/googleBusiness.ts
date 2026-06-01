@@ -31,7 +31,11 @@ export interface IUpdateBusinessPayload {
   status?: string;
 }
 
-// Get the OAuth URL to initiate connection
+export interface SaveWindsorCredentialsPayload {
+  windsorApiKey: string;
+  windsorLocationId: string;
+}
+
 export const getGoogleBusinessAuthUrl = async () => {
   const { data } = await axios.post<IAuthUrlResponse>(
     "/google_business_integration",
@@ -39,7 +43,16 @@ export const getGoogleBusinessAuthUrl = async () => {
   return data;
 };
 
-// Get current integration status
+export const saveWindsorCredentials = async (
+  payload: SaveWindsorCredentialsPayload
+) => {
+  const { data } = await axios.post(
+    "/v1/integrations/windsor/save",
+    payload
+  );
+  return data;
+};
+
 export const getGoogleBusinessIntegration = async () => {
   const { data } = await axios.get<IGoogleBusinessIntegration>(
     "/google_business_integration",
@@ -47,7 +60,6 @@ export const getGoogleBusinessIntegration = async () => {
   return data;
 };
 
-// Update integration (e.g., toggle isActive)
 export const updateGoogleBusinessIntegration = async (
   id: string,
   payload: IUpdateBusinessPayload,
@@ -59,13 +71,11 @@ export const updateGoogleBusinessIntegration = async (
   return data;
 };
 
-// Disconnect business
 export const deleteGoogleBusinessIntegration = async (id: string) => {
   await axios.delete(`/google_business_integration/${id}`);
   return id;
 };
 
-// Get all locations from DB
 export const getGoogleBusinessLocations = async () => {
   const { data } = await axios.get<{ locations: any[] }>(
     "/google_business_integration/locations",
@@ -73,7 +83,6 @@ export const getGoogleBusinessLocations = async () => {
   return data;
 };
 
-// Sync profiles live from Google
 export const syncGoogleBusinessProfiles = async (token: string) => {
   const { data } = await axios.get<{ locations: any[] }>(
     "/google_business_integration/sync-profiles",
@@ -86,7 +95,6 @@ export const syncGoogleBusinessProfiles = async (token: string) => {
   return data;
 };
 
-// Connect a specific location
 export const connectGoogleBusinessLocation = async (locationId: string) => {
   const { data } = await axios.post(
     "/google_business_integration/connect-location",

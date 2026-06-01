@@ -49,12 +49,21 @@ export interface DashboardData {
       };
     } | null;
     reviews: {
+      _id?: string;
       reviewer?: {
         displayName: string;
+        profilePhotoUrl?: string | null;
       };
       starRating?: string;
+      rating?: number;
       comment?: string;
+      description?: string;
       createTime?: string;
+      createdAt?: string;
+      platform?: string;
+      locationId?: string;
+      status?: string;
+      viewUrl?: string;
     } | null;
     campaigns: {
       _id: string;

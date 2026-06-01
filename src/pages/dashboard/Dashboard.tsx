@@ -185,9 +185,15 @@ const Dashboard = () => {
         icon: "⭐",
         iconBg: "bg-yellow-50 dark:bg-yellow-900/20",
         title: "New review received",
-        description: `${dashboard.recentActivity.reviews.reviewer?.displayName || "Someone"
-          } left a ${dashboard.recentActivity.reviews.starRating || "0"
-          } review`,
+        description: (() => {
+          const review = dashboard.recentActivity.reviews!;
+          const name = review.reviewer?.displayName || "Someone";
+          const stars = review.starRating || review.rating || "0";
+          const comment = review.comment || review.description;
+          return comment
+            ? `${name} left a ${stars}-star review: "${comment.length > 80 ? `${comment.slice(0, 80)}…` : comment}"`
+            : `${name} left a ${stars}-star review`;
+        })(),
         time: `${timeAgo(dashboard.recentActivity.reviews.createTime || "")}`,
         onClick: () => navigate("/reviews"),
       }

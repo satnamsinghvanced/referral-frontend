@@ -22,8 +22,43 @@ import { useUpdateCallRecord } from "../../../hooks/useCall";
 import { CallRecord } from "../../../types/call";
 import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 import DatePickerWithTimeInput from "../../../components/common/DatePickerWithTimeInput";
+import { fetchCallRecordingBlob } from "../../../services/call";
 
-const PlaybackTab = ({ data }: { data: CallRecord }) => (
+const isTranscriptionPlaceholder = (text?: string) =>
+  !text ||
+  text === "Processing..." ||
+  text.includes("/Transcriptions") ||
+  text.includes("Transcriptions.json");
+
+const PlaybackTab = ({ data }: { data: CallRecord }) => {
+  const [audioUrl, setAudioUrl] = useState<string | null>(null);
+  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
+  const [audioError, setAudioError] = useState(false);
+
+  useEffect(() => {
+    if (!data.recordingUrl || !data._id) {
+      setAudioUrl(null);
+      return;
+    }
+    let objectUrl: string | null = null;
+    setIsLoadingAudio(true);
+    setAudioError(false);
+    fetchCallRecordingBlob(data._id)
+      .then((blob) => {
+        objectUrl = URL.createObjectURL(blob);
+        setAudioUrl(objectUrl);
+      })
+      .catch(() => {
+        setAudioError(true);
+        setAudioUrl(null);
+      })
+      .finally(() => setIsLoadingAudio(false));
+    return () => {
+      if (objectUrl) URL.revokeObjectURL(objectUrl);
+    };
+  }, [data._id, data.recordingUrl]);
+
+  return (
   <div className="flex-1 outline-none space-y-4">
     <Card className="bg-card text-card-foreground flex flex-col rounded-xl border border-foreground/10 shadow-none">
       <CardBody className="p-4">
@@ -50,10 +85,14 @@ const PlaybackTab = ({ data }: { data: CallRecord }) => (
         </div>
 
         <div className="space-y-4 mt-4">
-          {data.recordingUrl ? (
+          {isLoadingAudio ? (
+            <div className="text-center text-sm text-gray-500 dark:text-foreground/40 py-4">
+              Loading recording...
+            </div>
+          ) : audioUrl ? (
             <audio
               controls
-              src={data.recordingUrl}
+              src={audioUrl}
               className="w-full h-10"
               style={{ borderRadius: "8px" }}
             >
@@ -61,14 +100,17 @@ const PlaybackTab = ({ data }: { data: CallRecord }) => (
             </audio>
           ) : (
             <div className="text-center text-sm text-gray-500 dark:text-foreground/40 py-4">
-              No recording available.
+              {data.recordingUrl && audioError
+                ? "Unable to load recording. Try syncing calls again."
+                : "No recording available."}
             </div>
           )}
         </div>
       </CardBody>
     </Card>
   </div>
-);
+  );
+};
 
 const TranscriptionTab = ({ data }: { data: CallRecord }) => (
   <div className="flex-1 outline-none space-y-4">
@@ -79,7 +121,9 @@ const TranscriptionTab = ({ data }: { data: CallRecord }) => (
           <span>Call Transcription</span>
         </div>
         <div className="p-3 bg-gray-50 dark:bg-content1 rounded-lg text-gray-800 dark:text-foreground/80 leading-relaxed text-xs max-h-60 overflow-y-auto font-medium italic">
-          {data.transcriptionText || "No transcription available."}
+          {isTranscriptionPlaceholder(data.transcriptionText)
+            ? "No transcription available."
+            : data.transcriptionText}
         </div>
       </CardBody>
     </Card>
