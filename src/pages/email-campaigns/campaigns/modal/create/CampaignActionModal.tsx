@@ -121,8 +121,9 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
       });
     } else if (prefillTemplate) {
       const categoryValue =
-        CAMPAIGN_CATEGORIES.find((c) => c.label === prefillTemplate.category)
-          ?.value || prefillTemplate.category;
+        CAMPAIGN_CATEGORIES.find((c) => c.label === prefillTemplate.category)?.value ||
+        CAMPAIGN_CATEGORIES.find((c) => c.value === prefillTemplate.category)?.value ||
+        prefillTemplate.category;
 
       setCampaignData({
         ...initialCampaignData,

@@ -18,7 +18,7 @@ const INITIAL_FILTERS: { filter: AnalyticsFilter } = {
   filter: "last30days",
 };
 
-const Analytics = () => {
+const CampaignInsights = () => {
   const [currentFilters, setCurrentFilters] = useState(INITIAL_FILTERS);
   const { data: overview, isLoading } = useAnalyticsOverview(
     currentFilters.filter,
@@ -135,4 +135,4 @@ const Analytics = () => {
   );
 };
 
-export default Analytics;
+export default CampaignInsights;
