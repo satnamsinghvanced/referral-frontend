@@ -22,51 +22,13 @@ import { useUpdateCallRecord } from "../../../hooks/useCall";
 import { CallRecord } from "../../../types/call";
 import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 import DatePickerWithTimeInput from "../../../components/common/DatePickerWithTimeInput";
-import { fetchCallRecordingBlob } from "../../../services/call";
 
-<<<<<<< HEAD
-const isTranscriptionPlaceholder = (text?: string) =>
-  !text ||
-  text === "Processing..." ||
-  text.includes("/Transcriptions") ||
-  text.includes("Transcriptions.json");
-
-const PlaybackTab = ({ data }: { data: CallRecord }) => {
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
-  const [audioError, setAudioError] = useState(false);
-
-  useEffect(() => {
-    if (!data.recordingUrl || !data._id) {
-      setAudioUrl(null);
-      return;
-    }
-    let objectUrl: string | null = null;
-    setIsLoadingAudio(true);
-    setAudioError(false);
-    fetchCallRecordingBlob(data._id)
-      .then((blob) => {
-        objectUrl = URL.createObjectURL(blob);
-        setAudioUrl(objectUrl);
-      })
-      .catch(() => {
-        setAudioError(true);
-        setAudioUrl(null);
-      })
-      .finally(() => setIsLoadingAudio(false));
-    return () => {
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
-    };
-  }, [data._id, data.recordingUrl]);
-
-  return (
-=======
 import { store } from "../../../store";
 
 const AudioPlayer = ({ url, callDuration }: { url: string; callDuration: string }) => {
   const token = store.getState().auth.token;
   const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:9090/api";
-  
+
   let absoluteUrl = url;
   if (url.startsWith("/")) {
     if (baseUrl.endsWith("/api")) {
@@ -77,19 +39,29 @@ const AudioPlayer = ({ url, callDuration }: { url: string; callDuration: string 
   }
 
   const streamUrl = `${absoluteUrl}?token=${token}`;
-  
+
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  
+
   useEffect(() => {
     let parsedDuration = 0;
     if (callDuration) {
       const minMatch = callDuration.match(/(\d+)\s*min/);
       const secMatch = callDuration.match(/(\d+)\s*sec/);
-      if (minMatch) parsedDuration += parseInt(minMatch[1]) * 60;
-      if (secMatch) parsedDuration += parseInt(secMatch[1]);
+
+      if (minMatch && minMatch[1]) {
+        parsedDuration += parseInt(minMatch[1], 10) * 60;
+      }
+      if (secMatch && secMatch[1]) {
+        parsedDuration += parseInt(secMatch[1], 10);
+      }
+
+      // Fallback: if it doesn't match min/sec, check if it's a raw number string
+      if (!minMatch && !secMatch && /^\d+$/.test(callDuration.trim())) {
+        parsedDuration = parseInt(callDuration.trim(), 10);
+      }
     }
     setDuration(parsedDuration);
   }, [callDuration]);
@@ -121,7 +93,7 @@ const AudioPlayer = ({ url, callDuration }: { url: string; callDuration: string 
       setCurrentTime(time);
     }
   };
-  
+
   const formatTime = (time: number) => {
     if (isNaN(time)) return "0:00";
     const minutes = Math.floor(time / 60);
@@ -138,17 +110,17 @@ const AudioPlayer = ({ url, callDuration }: { url: string; callDuration: string 
         onEnded={() => setIsPlaying(false)}
         className="hidden"
       />
-      <button 
-        onClick={togglePlay} 
+      <button
+        onClick={togglePlay}
         className="flex-shrink-0 text-foreground hover:opacity-70 transition-opacity flex items-center justify-center w-6 h-6"
       >
         {isPlaying ? <FiPause className="size-4" /> : <FiPlay className="size-4 translate-x-[1px]" />}
       </button>
-      
+
       <div className="text-[11px] font-medium text-foreground w-8 text-right font-mono">
         {formatTime(currentTime)}
       </div>
-      
+
       <input
         type="range"
         min={0}
@@ -158,7 +130,7 @@ const AudioPlayer = ({ url, callDuration }: { url: string; callDuration: string 
         className="flex-1 h-1.5 bg-gray-300 dark:bg-default-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
         style={{ accentColor: "#3b82f6" }}
       />
-      
+
       <div className="text-[11px] font-medium text-gray-500 dark:text-foreground/50 w-8 font-mono">
         {formatTime(duration)}
       </div>
@@ -167,7 +139,6 @@ const AudioPlayer = ({ url, callDuration }: { url: string; callDuration: string 
 };
 
 const PlaybackTab = ({ data }: { data: CallRecord }) => (
->>>>>>> b85cbe038c2b6ba7b7edf2d1851395aa0a701860
   <div className="flex-1 outline-none space-y-4">
     <Card className="bg-card text-card-foreground flex flex-col rounded-xl border border-foreground/10 shadow-none">
       <CardBody className="p-4">
@@ -194,40 +165,18 @@ const PlaybackTab = ({ data }: { data: CallRecord }) => (
         </div>
 
         <div className="space-y-4 mt-4">
-<<<<<<< HEAD
-          {isLoadingAudio ? (
-            <div className="text-center text-sm text-gray-500 dark:text-foreground/40 py-4">
-              Loading recording...
-            </div>
-          ) : audioUrl ? (
-            <audio
-              controls
-              src={audioUrl}
-              className="w-full h-10"
-              style={{ borderRadius: "8px" }}
-            >
-              Your browser does not support the audio element.
-            </audio>
-          ) : (
-            <div className="text-center text-sm text-gray-500 dark:text-foreground/40 py-4">
-              {data.recordingUrl && audioError
-                ? "Unable to load recording. Try syncing calls again."
-                : "No recording available."}
-=======
           {data.recordingUrl ? (
             <AudioPlayer url={data.recordingUrl} callDuration={data.duration} />
           ) : (
             <div className="text-center text-sm text-gray-500 dark:text-foreground/40 py-4">
               No recording available on twilio.
->>>>>>> b85cbe038c2b6ba7b7edf2d1851395aa0a701860
             </div>
           )}
         </div>
       </CardBody>
     </Card>
   </div>
-  );
-};
+);
 
 const TranscriptionTab = ({ data }: { data: CallRecord }) => (
   <div className="flex-1 outline-none space-y-4">
@@ -238,9 +187,7 @@ const TranscriptionTab = ({ data }: { data: CallRecord }) => (
           <span>Call Transcription</span>
         </div>
         <div className="p-3 bg-gray-50 dark:bg-content1 rounded-lg text-gray-800 dark:text-foreground/80 leading-relaxed text-xs max-h-60 overflow-y-auto font-medium italic">
-          {isTranscriptionPlaceholder(data.transcriptionText)
-            ? "No transcription available."
-            : data.transcriptionText}
+          {data.transcriptionText || "No transcription available."}
         </div>
       </CardBody>
     </Card>
