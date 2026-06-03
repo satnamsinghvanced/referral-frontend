@@ -21,14 +21,11 @@ export const BUSINESS_KEYS = {
   details: () => [...BUSINESS_KEYS.all, "current"] as const,
 };
 
-export const useBusinessIntegration = () => {
+export const useBusinessIntegration = (options?: any) => {
   return useQuery({
     queryKey: BUSINESS_KEYS.details(),
     queryFn: getGoogleBusinessIntegration,
-    refetchInterval: (query) => {
-      const data = query.state.data as any;
-      return data?.status === "Pending" ? 3000 : false;
-    },
+    ...options,
   });
 };
 
@@ -55,12 +52,15 @@ export const useSaveWindsorBusiness = () => {
   });
 };
 
-export const useWindsorAuth = () => {
+export const useWindsorAuth = (onWindowOpened?: (win: Window | null) => void) => {
   return useMutation({
     mutationFn: getWindsorAuthUrl,
     onSuccess: (data) => {
       if (data?.authUrl) {
-        window.open(data.authUrl, "_blank");
+        const win = window.open(data.authUrl, "_blank");
+        if (onWindowOpened) {
+          onWindowOpened(win);
+        }
       }
     },
   });
@@ -112,6 +112,7 @@ export const useSyncBusinessProfiles = () => {
     mutationFn: () => syncGoogleBusinessProfiles(token || ""),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: BUSINESS_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     },
   });
 };

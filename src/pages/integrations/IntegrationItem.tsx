@@ -23,6 +23,9 @@ interface IntegrationItemProps {
   onConfigure?: (() => void) | undefined;
   onConnect?: (() => void) | undefined;
   onReconnect?: (() => void) | undefined;
+  onSync?: (() => void) | undefined;
+  isSyncing?: boolean | undefined;
+  syncButtonText?: string | undefined;
   /** When true: Configure + Re-connect. When false: Connect only. Defaults to status === "Connected". */
   isFullyConnected?: boolean;
   isSwitchChecked?: boolean | undefined;
@@ -48,6 +51,9 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
   onConfigure,
   onConnect,
   onReconnect,
+  onSync,
+  isSyncing,
+  syncButtonText,
   isFullyConnected,
   isSwitchChecked = status === "Connected",
   onSwitchChange,
@@ -132,14 +138,14 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
       radius="sm"
       variant="solid"
       color="primary"
-      isLoading={status === "Pending"}
-      isDisabled={status === "Pending"}
+      isLoading={status === "Pending" ? (isSyncing ?? false) : false}
+      isDisabled={status === "Pending" && !onSync}
       onPress={() =>
-        (status === "Error" ? onReconnect || onConnect : onConnect)?.()
+        (status === "Pending" && onSync ? onSync : (status === "Error" ? onReconnect || onConnect : onConnect))?.()
       }
-      endContent={status !== "Pending" && <FiExternalLink className="size-3.5" />}
+      endContent={status !== "Pending" ? <FiExternalLink className="size-3.5" /> : undefined}
     >
-      {status === "Pending" ? "Connecting..." : "Connect"}
+      {status === "Pending" ? (syncButtonText || "Connecting...") : "Connect"}
     </Button>
   );
 

@@ -1,11 +1,13 @@
-import { Card, CardBody, CardHeader, addToast } from "@heroui/react";
-import { useCallback, useMemo, useState } from "react";
+import { Card, CardBody, CardHeader, addToast, Modal, ModalContent, ModalHeader, ModalBody, Spinner } from "@heroui/react";
+import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { BsLightningCharge } from "react-icons/bs";
 import { FaGoogle } from "react-icons/fa";
 import { FaMeta, FaRegEnvelope } from "react-icons/fa6";
 import { LuCalendar } from "react-icons/lu";
 import { SiGoogleads } from "react-icons/si";
 import { TbBrandTwilio } from "react-icons/tb";
+import axios from "../../services/axios";
+import { useQueryClient } from "@tanstack/react-query";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import {
   useConnectGoogleAds,
@@ -30,6 +32,8 @@ import {
   useConnectBusiness,
   useUpdateBusiness,
   useWindsorAuth,
+  useSyncBusinessProfiles,
+  BUSINESS_KEYS,
 } from "../../hooks/integrations/useGoogleBusiness";
 import {
   useCalendarIntegration,
@@ -50,7 +54,8 @@ import GoogleCalendarConfigModal from "./modal/GoogleCalendarConfigModal";
 import Webhooks from "./webhooks/Webhooks";
 
 function Integrations() {
-  const { user } = useTypedSelector((state) => state.auth);
+  const queryClient = useQueryClient();
+  const { user, token } = useTypedSelector((state) => state.auth);
   const userId = user?.userId;
 
   const [isTwilioIntegrationModalOpen, setIsTwilioIntegrationModalOpen] =
@@ -110,14 +115,81 @@ function Integrations() {
   const { mutate: updateMetaAdsIntegration } = useUpdateMetaAds();
   const { mutate: connectMetaAds } = useConnectMetaAds();
 
+  const [isGoogleBusinessConnecting, setIsGoogleBusinessConnecting] = useState(false);
+  const [onboardingWindow, setOnboardingWindow] = useState<Window | null>(null);
+  const [countdown, setCountdown] = useState<number | null>(null);
+
   const {
     data: googleBusinessConfig,
     isLoading: isGoogleBusinessConfigLoading,
-  } = useBusinessIntegration();
+  } = useBusinessIntegration() as any;
+
+  const { mutate: syncBusinessProfiles, isPending: isSyncingBusiness } = useSyncBusinessProfiles();
 
   const { mutate: updateGoogleBusinessIntegration } = useUpdateBusiness();
   const { mutate: connectGoogleBusiness } = useConnectBusiness();
-  const { mutate: connectWindsor } = useWindsorAuth();
+  const { mutate: connectWindsor } = useWindsorAuth((win: Window | null) => {
+    setOnboardingWindow(win);
+    setIsGoogleBusinessConnecting(true);
+  });
+
+  useEffect(() => {
+    if (!onboardingWindow) return;
+
+    let isPolling = true;
+    let pollTimer: any;
+    let countdownTimer: any;
+
+    const currentLocIds = new Set(
+      (googleBusinessConfig?.locations || []).map((l: any) => l.locationId)
+    );
+
+    const checkStatus = async () => {
+      if (!isPolling) return;
+      try {
+        const res = (await axios.get("/google_business_integration/sync-profiles")) as any;
+        
+        if (res && res.success) {
+          isPolling = false;
+          let secondsLeft = 3;
+          setCountdown(3);
+          countdownTimer = setInterval(() => {
+            secondsLeft -= 1;
+            if (secondsLeft <= 0) {
+              clearInterval(countdownTimer);
+              setOnboardingWindow(null);
+              setCountdown(null);
+              window.location.reload();
+            } else {
+              setCountdown(secondsLeft);
+            }
+          }, 1000);
+          return;
+        }
+      } catch (err) {
+        console.error("Polling error:", err);
+      }
+
+      if (onboardingWindow.closed) {
+        isPolling = false;
+        setOnboardingWindow(null);
+        syncBusinessProfiles();
+        return;
+      }
+
+      if (isPolling) {
+        pollTimer = setTimeout(checkStatus, 3000);
+      }
+    };
+
+    pollTimer = setTimeout(checkStatus, 3000);
+
+    return () => {
+      isPolling = false;
+      clearTimeout(pollTimer);
+      if (countdownTimer) clearInterval(countdownTimer);
+    };
+  }, [onboardingWindow, googleBusinessConfig, token, syncBusinessProfiles]);
 
   const {
     data: googleAnalyticsConfig,
@@ -163,7 +235,9 @@ function Integrations() {
         ? "Connected"
         : googleBusinessConfig?.status === "Error"
           ? "Error"
-          : "Disconnected",
+          : googleBusinessConfig?.status === "Pending" || isGoogleBusinessConnecting
+            ? "Pending"
+            : "Disconnected",
       isFullyConnected: isGoogleBusinessConnected,
       description:
         "Automatically sync reviews and manage your practice listing",
@@ -175,8 +249,27 @@ function Integrations() {
       lastSync: googleBusinessConfig?.lastSyncAt
         ? timeAgo(googleBusinessConfig.lastSyncAt)
         : undefined,
-      onConnect: () => connectWindsor(),
-      onReconnect: () => connectWindsor(),
+      onConnect: () => {
+        setIsGoogleBusinessConnecting(true);
+        connectWindsor();
+      },
+      onReconnect: () => {
+        setIsGoogleBusinessConnecting(true);
+        connectWindsor();
+      },
+      onSync: () => {
+        syncBusinessProfiles(undefined, {
+          onSuccess: () => {
+            addToast({ title: "Success", description: "Google Business connected and synced successfully!", color: "success" });
+            setIsGoogleBusinessConnecting(false);
+          },
+          onError: (err: any) => {
+            addToast({ title: "Error", description: err.response?.data?.message || err.message || "Failed to sync profiles", color: "danger" });
+          },
+        });
+      },
+      isSyncing: isSyncingBusiness,
+      syncButtonText: "Sync & Complete Setup",
       onConfigure: isGoogleBusinessConnected
         ? () => setIsGoogleBusinessLocationModalOpen(true)
         : undefined,
@@ -469,6 +562,26 @@ function Integrations() {
         isLoading={isGoogleCalendarConfigLoading}
         isError={isGoogleCalendarConfigError}
       />
+
+      {countdown !== null && (
+        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 backdrop-blur-xl bg-background/80 text-foreground px-6 py-4 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] flex items-center gap-4 border border-foreground/10 animate-in fade-in slide-in-from-bottom-5 duration-300">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-success/15 text-success animate-bounce">
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <div className="flex flex-col">
+            <span className="font-semibold text-sm">Connection Successful</span>
+            <span className="text-xs text-foreground-500">
+              Refreshing dashboard in{" "}
+              <span className="font-bold text-primary dark:text-primary-400 text-sm inline-block min-w-[12px] text-center">
+                {countdown}
+              </span>{" "}
+              seconds...
+            </span>
+          </div>
+        </div>
+      )}
     </>
   );
 }

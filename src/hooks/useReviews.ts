@@ -35,7 +35,11 @@ export const useGBPLocationPerformance = () => {
 export const useGBPRecentReviews = (pageToken?: string) => {
   return useQuery({
     queryKey: ["gbp", "reviews", pageToken],
-    queryFn: () => fetchGBPRecentReviews(pageToken),
+    queryFn: async () => {
+      const data = await fetchGBPRecentReviews(pageToken);
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+      return data;
+    },
   });
 };
 
