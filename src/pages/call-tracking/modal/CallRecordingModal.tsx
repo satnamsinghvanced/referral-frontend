@@ -28,7 +28,7 @@ import { store } from "../../../store";
 const AudioPlayer = ({ url, callDuration }: { url: string; callDuration: string }) => {
   const token = store.getState().auth.token;
   const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:9090/api";
-  
+
   let absoluteUrl = url;
   if (url.startsWith("/")) {
     if (baseUrl.endsWith("/api")) {
@@ -39,19 +39,29 @@ const AudioPlayer = ({ url, callDuration }: { url: string; callDuration: string 
   }
 
   const streamUrl = `${absoluteUrl}?token=${token}`;
-  
+
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
-  
+
   useEffect(() => {
     let parsedDuration = 0;
     if (callDuration) {
       const minMatch = callDuration.match(/(\d+)\s*min/);
       const secMatch = callDuration.match(/(\d+)\s*sec/);
-      if (minMatch) parsedDuration += parseInt(minMatch[1]) * 60;
-      if (secMatch) parsedDuration += parseInt(secMatch[1]);
+
+      if (minMatch && minMatch[1]) {
+        parsedDuration += parseInt(minMatch[1], 10) * 60;
+      }
+      if (secMatch && secMatch[1]) {
+        parsedDuration += parseInt(secMatch[1], 10);
+      }
+
+      // Fallback: if it doesn't match min/sec, check if it's a raw number string
+      if (!minMatch && !secMatch && /^\d+$/.test(callDuration.trim())) {
+        parsedDuration = parseInt(callDuration.trim(), 10);
+      }
     }
     setDuration(parsedDuration);
   }, [callDuration]);
@@ -83,7 +93,7 @@ const AudioPlayer = ({ url, callDuration }: { url: string; callDuration: string 
       setCurrentTime(time);
     }
   };
-  
+
   const formatTime = (time: number) => {
     if (isNaN(time)) return "0:00";
     const minutes = Math.floor(time / 60);
@@ -100,17 +110,17 @@ const AudioPlayer = ({ url, callDuration }: { url: string; callDuration: string 
         onEnded={() => setIsPlaying(false)}
         className="hidden"
       />
-      <button 
-        onClick={togglePlay} 
+      <button
+        onClick={togglePlay}
         className="flex-shrink-0 text-foreground hover:opacity-70 transition-opacity flex items-center justify-center w-6 h-6"
       >
         {isPlaying ? <FiPause className="size-4" /> : <FiPlay className="size-4 translate-x-[1px]" />}
       </button>
-      
+
       <div className="text-[11px] font-medium text-foreground w-8 text-right font-mono">
         {formatTime(currentTime)}
       </div>
-      
+
       <input
         type="range"
         min={0}
@@ -120,7 +130,7 @@ const AudioPlayer = ({ url, callDuration }: { url: string; callDuration: string 
         className="flex-1 h-1.5 bg-gray-300 dark:bg-default-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
         style={{ accentColor: "#3b82f6" }}
       />
-      
+
       <div className="text-[11px] font-medium text-gray-500 dark:text-foreground/50 w-8 font-mono">
         {formatTime(duration)}
       </div>

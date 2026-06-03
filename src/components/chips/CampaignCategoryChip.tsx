@@ -6,9 +6,15 @@ export default function CampaignCategoryChip({
 }: {
   category: string;
 }) {
+  const resolvedCategory = CAMPAIGN_CATEGORIES.find(
+    (option: any) => option.value === category || option.label === category
+  );
+  const value = resolvedCategory?.value || category;
+  const label = resolvedCategory?.label || category;
+
   let classNames;
 
-  switch (category) {
+  switch (value) {
     case "patientFollowUp":
       classNames =
         "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border-green-200 dark:border-green-800";
@@ -41,10 +47,7 @@ export default function CampaignCategoryChip({
       radius="sm"
       className={`capitalize text-[11px] h-5 ${classNames}`}
     >
-      {
-        CAMPAIGN_CATEGORIES.find((option: any) => option.value === category)
-          ?.label
-      }
+      {label}
     </Chip>
   );
 }
