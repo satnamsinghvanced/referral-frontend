@@ -18,6 +18,7 @@ import {
 import {
   useFetchEmailIntegration,
   useUpdateEmailIntegration,
+  useConnectEmail,
 } from "../../hooks/integrations/useEmailMarketing";
 import {
   useAnalyticsIntegration,
@@ -28,8 +29,8 @@ import {
   useBusinessIntegration,
   useConnectBusiness,
   useUpdateBusiness,
+  useWindsorAuth,
 } from "../../hooks/integrations/useGoogleBusiness";
-import GoogleBusinessConnectModal from "./modal/GoogleBusinessConnectModal";
 import {
   useCalendarIntegration,
   useConnectCalendar,
@@ -51,8 +52,6 @@ import Webhooks from "./webhooks/Webhooks";
 function Integrations() {
   const { user } = useTypedSelector((state) => state.auth);
   const userId = user?.userId;
-  const [isGoogleBusinessConnectModalOpen, setIsGoogleBusinessConnectModalOpen] =
-    useState(false);
 
   const [isTwilioIntegrationModalOpen, setIsTwilioIntegrationModalOpen] =
     useState(false);
@@ -69,10 +68,7 @@ function Integrations() {
     setIsGoogleAnalyticsPropertyModalOpen,
   ] = useState(false);
 
-  const [
-    isEmailMarketingIntegrationModalOpen,
-    setIsEmailMarketingIntegrationModalOpen,
-  ] = useState(false);
+
 
   const [isGoogleCalendarConfigModalOpen, setIsGoogleCalendarConfigModalOpen] =
     useState(false);
@@ -92,6 +88,7 @@ function Integrations() {
     useFetchEmailIntegration();
 
   const { mutate: updateEmailIntegration } = useUpdateEmailIntegration();
+  const { mutate: connectEmail } = useConnectEmail();
 
   const {
     data: twilioConfig,
@@ -120,10 +117,7 @@ function Integrations() {
 
   const { mutate: updateGoogleBusinessIntegration } = useUpdateBusiness();
   const { mutate: connectGoogleBusiness } = useConnectBusiness();
-
-  const openWindsorConnectModal = useCallback(() => {
-    setIsGoogleBusinessConnectModalOpen(true);
-  }, []);
+  const { mutate: connectWindsor } = useWindsorAuth();
 
   const {
     data: googleAnalyticsConfig,
@@ -132,18 +126,12 @@ function Integrations() {
 
   const { mutate: updateGoogleAnalyticsIntegration } = useUpdateAnalytics();
   const { mutate: connectGoogleAnalytics } = useConnectAnalytics();
-
-  // Normalize email config to handle both single object and array responses
   const emailConfig = Array.isArray(emailExistingConfig)
     ? emailExistingConfig[0]
     : emailExistingConfig;
-
-  // Normalize google calendar config to handle both single object and array responses
   const googleCalendarConfig = Array.isArray(googleCalendarExistingConfig)
     ? googleCalendarExistingConfig[0]
     : googleCalendarExistingConfig;
-
-
   const HEADING_DATA = {
     heading: "Integrations",
     subHeading:
@@ -187,8 +175,8 @@ function Integrations() {
       lastSync: googleBusinessConfig?.lastSyncAt
         ? timeAgo(googleBusinessConfig.lastSyncAt)
         : undefined,
-      onConnect: openWindsorConnectModal,
-      onReconnect: openWindsorConnectModal,
+      onConnect: () => connectWindsor(),
+      onReconnect: () => connectWindsor(),
       onConfigure: isGoogleBusinessConnected
         ? () => setIsGoogleBusinessLocationModalOpen(true)
         : undefined,
@@ -243,10 +231,10 @@ function Integrations() {
       },
       account: googleCalendarConfig
         ? {
-            accountName: googleCalendarConfig.accountName,
-            accountEmail: googleCalendarConfig.accountEmail,
-            accountAvatar: googleCalendarConfig.accountAvatar,
-          }
+          accountName: googleCalendarConfig.accountName,
+          accountEmail: googleCalendarConfig.accountEmail,
+          accountAvatar: googleCalendarConfig.accountAvatar,
+        }
         : undefined,
     });
 
@@ -335,11 +323,12 @@ function Integrations() {
       icon: <FaRegEnvelope className="w-4 h-4" />,
       iconBg: "bg-green-100 dark:bg-green-900/20",
       iconColor: "text-green-600 dark:text-green-400",
-      status: emailConfig?.status,
+      status: emailConfig?.status || "Disconnected",
       description:
-        "Configure SMTP settings to send automated referral notifications",
-      badges: ["SMTP Configuration", "Custom Templates", "Spam Protection"],
-      onConfigure: () => setIsEmailMarketingIntegrationModalOpen(true),
+        "Connect your Google account to send automated referral notifications",
+      badges: ["OAuth Authentication", "Automated Emails", "Gmail Integration"],
+      onConnect: () => connectEmail(),
+      onReconnect: () => connectEmail(),
       isSwitchChecked: emailConfig?.status === "Connected",
       onSwitchChange: () => {
         if (emailConfig?._id) {
@@ -400,6 +389,7 @@ function Integrations() {
     updateEmailIntegration,
     updateGoogleCalendarIntegration,
     connectCalendar,
+    connectEmail,
     twilioConfig,
     isTwilioConnected,
     googleAdsConfig,
@@ -411,7 +401,7 @@ function Integrations() {
     googleBusinessConfig,
     updateGoogleBusinessIntegration,
     connectGoogleBusiness,
-    openWindsorConnectModal,
+    connectWindsor,
     googleAnalyticsConfig,
     updateGoogleAnalyticsIntegration,
     connectGoogleAnalytics,
@@ -444,18 +434,6 @@ function Integrations() {
         existingConfig={twilioConfig}
         isLoading={isTwilioConfigLoading}
         isError={isTwilioConfigError}
-      />
-
-      <EmailMarketingConfigModal
-        isOpen={isEmailMarketingIntegrationModalOpen}
-        onOpenChange={setIsEmailMarketingIntegrationModalOpen}
-        existingConfig={emailConfig}
-        isLoading={isEmailConfigLoading}
-      />
-
-      <GoogleBusinessConnectModal
-        isOpen={isGoogleBusinessConnectModalOpen}
-        onClose={() => setIsGoogleBusinessConnectModalOpen(false)}
       />
 
       <GoogleIntegrationSelectorModal

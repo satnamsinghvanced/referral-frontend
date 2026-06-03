@@ -12,6 +12,8 @@ import {
   SaveWindsorCredentialsPayload,
   syncGoogleBusinessProfiles,
   updateGoogleBusinessIntegration,
+  getWindsorAuthUrl,
+  selectWindsorLocation
 } from "../../services/integrations/googleBusiness";
 
 export const BUSINESS_KEYS = {
@@ -23,6 +25,10 @@ export const useBusinessIntegration = () => {
   return useQuery({
     queryKey: BUSINESS_KEYS.details(),
     queryFn: getGoogleBusinessIntegration,
+    refetchInterval: (query) => {
+      const data = query.state.data as any;
+      return data?.status === "Pending" ? 3000 : false;
+    },
   });
 };
 
@@ -45,6 +51,27 @@ export const useSaveWindsorBusiness = () => {
       queryClient.invalidateQueries({ queryKey: BUSINESS_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
       return response;
+    },
+  });
+};
+
+export const useWindsorAuth = () => {
+  return useMutation({
+    mutationFn: getWindsorAuthUrl,
+    onSuccess: (data) => {
+      if (data?.authUrl) {
+        window.open(data.authUrl, "_blank");
+      }
+    },
+  });
+};
+
+export const useSelectWindsorLocation = () => {
+  return useMutation({
+    mutationFn: selectWindsorLocation,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: BUSINESS_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     },
   });
 };

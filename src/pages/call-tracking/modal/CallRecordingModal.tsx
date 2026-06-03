@@ -22,45 +22,7 @@ import { useUpdateCallRecord } from "../../../hooks/useCall";
 import { CallRecord } from "../../../types/call";
 import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 import DatePickerWithTimeInput from "../../../components/common/DatePickerWithTimeInput";
-import { fetchCallRecordingBlob } from "../../../services/call";
 
-<<<<<<< HEAD
-const isTranscriptionPlaceholder = (text?: string) =>
-  !text ||
-  text === "Processing..." ||
-  text.includes("/Transcriptions") ||
-  text.includes("Transcriptions.json");
-
-const PlaybackTab = ({ data }: { data: CallRecord }) => {
-  const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
-  const [audioError, setAudioError] = useState(false);
-
-  useEffect(() => {
-    if (!data.recordingUrl || !data._id) {
-      setAudioUrl(null);
-      return;
-    }
-    let objectUrl: string | null = null;
-    setIsLoadingAudio(true);
-    setAudioError(false);
-    fetchCallRecordingBlob(data._id)
-      .then((blob) => {
-        objectUrl = URL.createObjectURL(blob);
-        setAudioUrl(objectUrl);
-      })
-      .catch(() => {
-        setAudioError(true);
-        setAudioUrl(null);
-      })
-      .finally(() => setIsLoadingAudio(false));
-    return () => {
-      if (objectUrl) URL.revokeObjectURL(objectUrl);
-    };
-  }, [data._id, data.recordingUrl]);
-
-  return (
-=======
 import { store } from "../../../store";
 
 const AudioPlayer = ({ url, callDuration }: { url: string; callDuration: string }) => {
@@ -167,7 +129,6 @@ const AudioPlayer = ({ url, callDuration }: { url: string; callDuration: string 
 };
 
 const PlaybackTab = ({ data }: { data: CallRecord }) => (
->>>>>>> b85cbe038c2b6ba7b7edf2d1851395aa0a701860
   <div className="flex-1 outline-none space-y-4">
     <Card className="bg-card text-card-foreground flex flex-col rounded-xl border border-foreground/10 shadow-none">
       <CardBody className="p-4">
@@ -194,40 +155,18 @@ const PlaybackTab = ({ data }: { data: CallRecord }) => (
         </div>
 
         <div className="space-y-4 mt-4">
-<<<<<<< HEAD
-          {isLoadingAudio ? (
-            <div className="text-center text-sm text-gray-500 dark:text-foreground/40 py-4">
-              Loading recording...
-            </div>
-          ) : audioUrl ? (
-            <audio
-              controls
-              src={audioUrl}
-              className="w-full h-10"
-              style={{ borderRadius: "8px" }}
-            >
-              Your browser does not support the audio element.
-            </audio>
-          ) : (
-            <div className="text-center text-sm text-gray-500 dark:text-foreground/40 py-4">
-              {data.recordingUrl && audioError
-                ? "Unable to load recording. Try syncing calls again."
-                : "No recording available."}
-=======
           {data.recordingUrl ? (
             <AudioPlayer url={data.recordingUrl} callDuration={data.duration} />
           ) : (
             <div className="text-center text-sm text-gray-500 dark:text-foreground/40 py-4">
               No recording available on twilio.
->>>>>>> b85cbe038c2b6ba7b7edf2d1851395aa0a701860
             </div>
           )}
         </div>
       </CardBody>
     </Card>
   </div>
-  );
-};
+);
 
 const TranscriptionTab = ({ data }: { data: CallRecord }) => (
   <div className="flex-1 outline-none space-y-4">
@@ -238,9 +177,7 @@ const TranscriptionTab = ({ data }: { data: CallRecord }) => (
           <span>Call Transcription</span>
         </div>
         <div className="p-3 bg-gray-50 dark:bg-content1 rounded-lg text-gray-800 dark:text-foreground/80 leading-relaxed text-xs max-h-60 overflow-y-auto font-medium italic">
-          {isTranscriptionPlaceholder(data.transcriptionText)
-            ? "No transcription available."
-            : data.transcriptionText}
+          {data.transcriptionText || "No transcription available."}
         </div>
       </CardBody>
     </Card>

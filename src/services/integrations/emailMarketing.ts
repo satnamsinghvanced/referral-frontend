@@ -38,3 +38,10 @@ export const updateEmailIntegration = async (
   );
   return response.data;
 };
+
+export const getEmailAuthUrl = async () => {
+  const { data } = await axios.post<{ data: { authUrl: string } }>(
+    `${EMAIL_BASE}/auth-url`
+  );
+  return data;
+};

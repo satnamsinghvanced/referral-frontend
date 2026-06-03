@@ -5,13 +5,12 @@ import {
   fetchEmailIntegration,
   fetchEmailIntegrationById,
   updateEmailIntegration,
+  getEmailAuthUrl,
 } from "../../services/integrations/emailMarketing";
 import { EmailIntegrationBody } from "../../types/integrations/emailMarketing";
 import { addToast } from "@heroui/react";
 import { AxiosError } from "axios";
-
 const EMAIL_KEY = "email-integration";
-
 export const useFetchEmailIntegration = (id?: string) => {
   return useQuery({
     queryKey: id ? [EMAIL_KEY, id] : [EMAIL_KEY],
@@ -19,7 +18,6 @@ export const useFetchEmailIntegration = (id?: string) => {
       id ? fetchEmailIntegrationById(id) : fetchEmailIntegration(),
   });
 };
-
 export const useCreateEmailIntegration = () => {
   return useMutation({
     mutationFn: (data: EmailIntegrationBody) => createEmailIntegration(data),
@@ -36,7 +34,6 @@ export const useCreateEmailIntegration = () => {
     },
   });
 };
-
 export const useUpdateEmailIntegration = () => {
   return useMutation({
     mutationFn: ({ id, data }: { id: string; data: EmailIntegrationBody }) =>
@@ -50,6 +47,32 @@ export const useUpdateEmailIntegration = () => {
       addToast({
         title: "Error",
         description: error.response?.data?.message,
+        color: "danger",
+      });
+    },
+  });
+};
+export const useConnectEmail = () => {
+  return useMutation({
+    mutationFn: getEmailAuthUrl,
+    onMutate: () => {
+      const newTab = window.open("about:blank", "_blank");
+      return { newTab };
+    },
+    onSuccess: (data: any, variables, context) => {
+      if (data?.authUrl && context?.newTab) {
+        context.newTab.location.href = data.authUrl;
+      } else if (context?.newTab) {
+        context.newTab.close();
+      }
+    },
+    onError: (error: AxiosError<{ message: string }>, variables, context) => {
+      if (context?.newTab) {
+        context.newTab.close();
+      }
+      addToast({
+        title: "Error",
+        description: error.response?.data?.message || "Failed to connect",
         color: "danger",
       });
     },

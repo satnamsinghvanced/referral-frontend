@@ -53,6 +53,21 @@ export const saveWindsorCredentials = async (
   return data;
 };
 
+export const getWindsorAuthUrl = async () => {
+  const { data } = await axios.get<IAuthUrlResponse>(
+    "/v1/integrations/windsor/auth"
+  );
+  return data;
+};
+
+export const selectWindsorLocation = async (locationId: string) => {
+  const { data } = await axios.post(
+    "/v1/integrations/windsor/select-location",
+    { locationId }
+  );
+  return data;
+};
+
 export const getGoogleBusinessIntegration = async () => {
   const { data } = await axios.get<IGoogleBusinessIntegration>(
     "/google_business_integration",
