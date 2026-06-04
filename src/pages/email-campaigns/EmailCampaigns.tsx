@@ -8,7 +8,7 @@ import { LuEye, LuMousePointer, LuSend } from "react-icons/lu";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import { useCampaignDashboard } from "../../hooks/useCampaign";
-import CampaignInsights from "./campaign-insights/CampaignInsights";
+import Stats from "./stats/Stats";
 import Audiences from "./audiences/Audiences";
 import Automation from "./automation/Automation";
 import Campaigns from "./campaigns/Campaigns";
@@ -134,7 +134,7 @@ const EmailCampaigns = () => {
                 <Audiences />
               </Tab>
               <Tab key="analytics" title="Analytics">
-                <CampaignInsights />
+                <Stats />
               </Tab>
             </Tabs>
           </div>

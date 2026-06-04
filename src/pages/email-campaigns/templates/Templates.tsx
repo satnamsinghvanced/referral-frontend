@@ -1,8 +1,18 @@
-import { Button, Input, Select, SelectItem } from "@heroui/react";
+import {
+  Button,
+  Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  Select,
+  SelectItem,
+} from "@heroui/react";
 import React, { useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { FaRegStar } from "react-icons/fa";
-import { FiEye, FiHeart, FiSearch } from "react-icons/fi";
+import { FiEye, FiHeart, FiSearch, FiTrash2 } from "react-icons/fi";
 import { LuCopy } from "react-icons/lu";
 import { PiFunnelX } from "react-icons/pi";
 import CampaignCategoryChip from "../../../components/chips/CampaignCategoryChip";
@@ -14,6 +24,7 @@ import {
   useCampaignTemplates,
   useCreateCampaignTemplate,
   useToggleFavoriteTemplate,
+  useDeleteCampaignTemplate,
 } from "../../../hooks/useCampaign";
 import { useDebouncedValue } from "../../../hooks/common/useDebouncedValue";
 import { CampaignFilters, CampaignTemplate } from "../../../types/campaign";
@@ -41,9 +52,33 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
     useState<CampaignFilters>(INITIAL_FILTERS);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] =
     useState<CampaignTemplate | null>(null);
+  const [templateToDelete, setTemplateToDelete] =
+    useState<CampaignTemplate | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const handleDeleteClick = (template: CampaignTemplate) => {
+    setTemplateToDelete(template);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleDeleteCancel = () => {
+    setIsDeleteModalOpen(false);
+    setTemplateToDelete(null);
+  };
+
+  const handleConfirmDelete = () => {
+    if (templateToDelete) {
+      deleteMutation.mutate(templateToDelete._id, {
+        onSuccess: () => {
+          setIsDeleteModalOpen(false);
+          setTemplateToDelete(null);
+        },
+      });
+    }
+  };
 
   // Debounce search
   const debouncedSearch = useDebouncedValue(searchQuery, 500);
@@ -63,6 +98,7 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
 
   const createMutation = useCreateCampaignTemplate();
   const toggleFavoriteMutation = useToggleFavoriteTemplate();
+  const deleteMutation = useDeleteCampaignTemplate();
 
   const handleFilterChange = (key: keyof CampaignFilters, value: any) => {
     setCurrentFilters((prev) => ({
@@ -87,6 +123,10 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
     const formData = new FormData();
     formData.append("name", values.name);
     formData.append("description", values.description);
+<<<<<<< HEAD
+=======
+
+>>>>>>> 0a2f6016755ac51a38a834f451c337b9d63eeb74
     formData.append("category", values.category);
 
     formData.append("subjectLine", values.subjectLine);
@@ -235,6 +275,46 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
         }}
       />
 
+      <Modal
+        isOpen={isDeleteModalOpen}
+        onOpenChange={handleDeleteCancel}
+        size="md"
+        placement="center"
+        classNames={{
+          closeButton: "cursor-pointer",
+        }}
+      >
+        <ModalContent>
+          <ModalHeader className="flex flex-col gap-1">Delete Template</ModalHeader>
+          <ModalBody>
+            <p className="text-sm text-default-500">
+              Are you sure you want to delete the template{" "}
+              <strong className="text-foreground">"{templateToDelete?.name}"</strong>?
+              This action cannot be undone and this template will no longer be available in automations or campaigns.
+            </p>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              size="sm"
+              radius="sm"
+              variant="bordered"
+              onPress={handleDeleteCancel}
+            >
+              Cancel
+            </Button>
+            <Button
+              size="sm"
+              radius="sm"
+              color="danger"
+              isLoading={deleteMutation.isPending}
+              onPress={handleConfirmDelete}
+            >
+              Delete
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
+
       {isLoading ? (
         <div className="flex justify-center py-20">
           <LoadingState />
@@ -346,6 +426,18 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
                           toggleFavoriteMutation.mutate(template._id)
                         }
                       />
+                      {!template.isSystemTemplate && (
+                        <Button
+                          size="sm"
+                          radius="sm"
+                          variant="ghost"
+                          color="danger"
+                          className="border-small"
+                          startContent={<FiTrash2 className="size-3.5" />}
+                          isIconOnly
+                          onPress={() => handleDeleteClick(template)}
+                        />
+                      )}
                     </div>
                   </div>
                 </div>

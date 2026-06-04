@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, forwardRef, useImperativeHandle } from "react";
 import Quill from "quill";
 import "quill/dist/quill.snow.css";
 
@@ -9,14 +9,33 @@ interface QuillEditorProps {
   enableImage?: boolean;
 }
 
-export default function QuillEditor({
+export interface QuillEditorRef {
+  insertText: (text: string) => void;
+}
+
+const QuillEditor = forwardRef<QuillEditorRef, QuillEditorProps>(function QuillEditor({
   value,
   onChange,
   placeholder = "Start typing...",
   enableImage = true,
-}: QuillEditorProps) {
+}, ref) {
   const editorRef = useRef<HTMLDivElement>(null);
   const quillRef = useRef<Quill | null>(null);
+
+  useImperativeHandle(ref, () => ({
+    insertText(text: string) {
+      const quill = quillRef.current;
+      if (quill) {
+        quill.focus();
+        const range = quill.getSelection(true);
+        if (range) {
+          quill.insertText(range.index, text);
+          quill.setSelection(range.index + text.length);
+          onChange(quill.root.innerHTML || "");
+        }
+      }
+    }
+  }));
 
   // Initialize Quill
   useEffect(() => {
@@ -210,4 +229,6 @@ export default function QuillEditor({
       <div ref={editorRef} />
     </div>
   );
-}
+});
+
+export default QuillEditor;

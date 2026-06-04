@@ -5,7 +5,7 @@ import PublicRoute from "./pages/auth/PublicRoute";
 import QrGenerator from "./pages/qr-generator/QrGenerator";
 const Layout = React.lazy(() => import("./components/layout/Layout"));
 const Dashboard = React.lazy(() => import("./pages/dashboard/Dashboard"));
-const Analytics = React.lazy(() => import("./pages/analytics/Analytics"));
+const PracticeStats = React.lazy(() => import("./pages/practice-stats/PracticeStats"));
 const HelpCenter = React.lazy(() => import("./pages/HelpCenter"));
 const EmailCampaign = React.lazy(
   () => import("./pages/email-campaigns/EmailCampaigns"),
@@ -125,7 +125,7 @@ function AppRoutes() {
           path: "analytics",
           element: (
             <PermissionGuard permissions={["View Analytics"]}>
-              <Analytics />
+              <PracticeStats />
             </PermissionGuard>
           ),
         },
