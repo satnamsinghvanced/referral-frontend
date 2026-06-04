@@ -197,6 +197,17 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
                     </h3>
                   </div>
 
+                  {/* Cover Image in Preview */}
+                  {displayTemplate!.mainImage && (
+                    <div className="w-full h-48 md:h-64 overflow-hidden border-b border-foreground/5">
+                      <img
+                        src={displayTemplate!.mainImage}
+                        alt="Template Cover"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                  )}
+
                   {/* Preview Content */}
                   <div className="p-4 space-y-4 min-h-[300px]">
                     {/* Subject Line */}

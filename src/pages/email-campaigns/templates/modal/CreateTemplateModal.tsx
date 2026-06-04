@@ -434,7 +434,7 @@ export default function CreateTemplateModal({
                 </div>
 
                 {/* Cover Image in Preview */}
-                {/* {formik.values.coverImage && (
+                {formik.values.coverImage && (
                   <div className="w-full h-48 md:h-64 overflow-hidden border-b border-foreground/5">
                     <img
                       src={formik.values.coverImage}
@@ -442,7 +442,7 @@ export default function CreateTemplateModal({
                       className="w-full h-full object-cover"
                     />
                   </div>
-                )} */}
+                )}
 
                 {/* Email Content */}
                 <div className="px-4 py-5 space-y-4 text-foreground min-h-[200px]">

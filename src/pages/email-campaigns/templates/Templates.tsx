@@ -124,11 +124,7 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
     formData.append("name", values.name);
     formData.append("description", values.description);
 
-    // Backend expects the Label, not the camelCase value
-    const categoryLabel =
-      CAMPAIGN_CATEGORIES.find((c) => c.value === values.category)?.label ||
-      values.category;
-    formData.append("category", categoryLabel);
+    formData.append("category", values.category);
 
     formData.append("subjectLine", values.subjectLine);
     formData.append("bodyContent", values.body);
