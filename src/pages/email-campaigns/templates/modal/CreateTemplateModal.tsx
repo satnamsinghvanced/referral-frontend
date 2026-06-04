@@ -11,11 +11,11 @@ import {
   Textarea,
 } from "@heroui/react";
 import { useFormik } from "formik";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { FiCheckCircle, FiImage, FiUpload } from "react-icons/fi";
 import { LuSave } from "react-icons/lu";
 import * as Yup from "yup";
-import QuillEditor from "../../../../components/editor/QuillEditor";
+import QuillEditor, { QuillEditorRef } from "../../../../components/editor/QuillEditor";
 import { CAMPAIGN_CATEGORIES } from "../../../../consts/campaign";
 import { Media } from "../../../../types/media";
 import GalleryMediaUploadModal from "../../../media-management/modal/GalleryMediaUploadModal";
@@ -92,6 +92,7 @@ export default function CreateTemplateModal({
   const [selectedCoverImage, setSelectedCoverImage] = useState<Media | null>(
     null,
   );
+  const editorRef = useRef<QuillEditorRef>(null);
 
   const formik = useFormik({
     initialValues,
@@ -258,6 +259,7 @@ export default function CreateTemplateModal({
                 </label>
                 <div className="">
                   <QuillEditor
+                    ref={editorRef}
                     value={formik.values.body}
                     onChange={(value) => formik.setFieldValue("body", value)}
                     placeholder="Enter your email content here.. Use [Recipient Name], [Practice Name], etc. for personalization"
@@ -269,9 +271,32 @@ export default function CreateTemplateModal({
                     {formik.errors.body as string}
                   </div>
                 )}
-                <div className="text-xs text-gray-500">
-                  Available variables: [Recipient Name], [Practice Name], [Your
-                  Name], [City], [Phone], [Email]
+                <div className="flex flex-wrap gap-2 items-center bg-default-50 dark:bg-content2 p-2.5 rounded-lg border border-foreground/10 mt-1">
+                  <span className="text-xs text-gray-500 dark:text-foreground/60 font-medium mr-1">Click to insert:</span>
+                  {[
+                    { label: "Recipient Name", value: "[Recipient Name]" },
+                    { label: "Practice Name", value: "[Practice Name]" },
+                    { label: "Your Name", value: "[Your Name]" },
+                    { label: "City", value: "[City]" },
+                    { label: "Phone", value: "[Phone]" },
+                    { label: "Email", value: "[Email]" },
+                  ].map((variable) => (
+                    <Button
+                      key={variable.value}
+                      type="button"
+                      size="sm"
+                      variant="flat"
+                      radius="sm"
+                      className="h-7 px-2.5 text-xs bg-default-100 dark:bg-default/50 hover:bg-primary-100 hover:text-primary dark:hover:bg-primary/20 dark:hover:text-primary-400 transition-colors border border-foreground/5 font-medium cursor-pointer"
+                      onPress={() => {
+                        if (editorRef.current) {
+                          editorRef.current.insertText(variable.value);
+                        }
+                      }}
+                    >
+                      {variable.label}
+                    </Button>
+                  ))}
                 </div>
               </div>
 

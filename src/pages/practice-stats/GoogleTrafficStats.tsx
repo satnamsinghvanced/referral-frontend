@@ -284,7 +284,7 @@ const DeviceMetric: React.FC<DeviceMetricProps> = ({
   </div>
 );
 
-export const GoogleAnalytics: React.FC = () => {
+export const GoogleTrafficStats: React.FC = () => {
   const { data, isLoading } = useGoogleAnalytics();
 
   const trafficSources = data?.trafficSources?.data || [];
@@ -559,4 +559,4 @@ export const GoogleAnalytics: React.FC = () => {
   );
 };
 
-export default GoogleAnalytics;
+export default GoogleTrafficStats;

@@ -37,11 +37,11 @@ import { useAnalyticsIntegration } from "../../hooks/integrations/useGoogleAnaly
 import { useGeneralAnalytics } from "../../hooks/useAnalytics";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { GoogleAds } from "./GoogleAds";
-import { GoogleAnalytics } from "./GoogleAnalytics";
+import { GoogleTrafficStats } from "./GoogleTrafficStats";
 import { MetaAds } from "./MetaAds";
 // import { TiktokAds } from "./TiktokAds";
 
-const Analytics: React.FC = () => {
+const PracticeStats: React.FC = () => {
   const { theme } = useTypedSelector((state) => state.ui);
   const { data, isLoading } = useGeneralAnalytics();
 
@@ -389,7 +389,7 @@ const Analytics: React.FC = () => {
 
           {(isGaConnected || isGoogleAdsConnected || isMetaAdsConnected) && (
             <div className="space-y-6 md:space-y-10 mt-6">
-              {isGaConnected && <GoogleAnalytics />}
+              {isGaConnected && <GoogleTrafficStats />}
               {isGoogleAdsConnected && <GoogleAds />}
               {isMetaAdsConnected && <MetaAds />}
             </div>
@@ -400,4 +400,4 @@ const Analytics: React.FC = () => {
   );
 };
 
-export default Analytics;
+export default PracticeStats;
