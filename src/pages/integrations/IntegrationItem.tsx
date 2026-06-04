@@ -138,14 +138,18 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
       radius="sm"
       variant="solid"
       color="primary"
-      isLoading={status === "Pending" ? (isSyncing ?? false) : false}
-      isDisabled={status === "Pending" && !onSync}
+      isLoading={isSyncing}
+      isDisabled={isSyncing}
       onPress={() =>
         (status === "Pending" && onSync ? onSync : (status === "Error" ? onReconnect || onConnect : onConnect))?.()
       }
-      endContent={status !== "Pending" ? <FiExternalLink className="size-3.5" /> : undefined}
+      endContent={!isSyncing && status !== "Pending" ? <FiExternalLink className="size-3.5" /> : undefined}
     >
-      {status === "Pending" ? (syncButtonText || "Connecting...") : "Connect"}
+      {status === "Pending"
+        ? (syncButtonText || "Connecting...")
+        : status === "Error"
+          ? "Reconnect"
+          : "Connect"}
     </Button>
   );
 

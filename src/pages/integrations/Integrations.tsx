@@ -128,7 +128,7 @@ function Integrations() {
 
   const { mutate: updateGoogleBusinessIntegration } = useUpdateBusiness();
   const { mutate: connectGoogleBusiness } = useConnectBusiness();
-  const { mutate: connectWindsor } = useWindsorAuth((win: Window | null) => {
+  const { mutate: connectWindsor, isPending: isConnectingWindsor } = useWindsorAuth((win: Window | null) => {
     setOnboardingWindow(win);
     setIsGoogleBusinessConnecting(true);
   });
@@ -147,10 +147,13 @@ function Integrations() {
     const checkStatus = async () => {
       if (!isPolling) return;
       try {
-        const res = (await axios.get("/google_business_integration/sync-profiles")) as any;
-        
-        if (res && res.success) {
+        const res = (await axios.get(`/auth/status?userId=${userId}`)) as any;
+
+        if (res && res.success && res.data?.isSynced) {
           isPolling = false;
+          if (onboardingWindow && !onboardingWindow.closed) {
+            onboardingWindow.close();
+          }
           let secondsLeft = 3;
           setCountdown(3);
           countdownTimer = setInterval(() => {
@@ -159,6 +162,7 @@ function Integrations() {
               clearInterval(countdownTimer);
               setOnboardingWindow(null);
               setCountdown(null);
+              setIsGoogleBusinessConnecting(false);
               window.location.reload();
             } else {
               setCountdown(secondsLeft);
@@ -173,7 +177,16 @@ function Integrations() {
       if (onboardingWindow.closed) {
         isPolling = false;
         setOnboardingWindow(null);
-        syncBusinessProfiles();
+        syncBusinessProfiles(undefined, {
+          onSuccess: () => {
+            addToast({ title: "Success", description: "Google Business connected and synced successfully!", color: "success" });
+            setIsGoogleBusinessConnecting(false);
+          },
+          onError: (err: any) => {
+            addToast({ title: "Error", description: err.response?.data?.message || err.message || "Failed to sync profiles", color: "danger" });
+            setIsGoogleBusinessConnecting(false);
+          },
+        });
         return;
       }
 
@@ -189,7 +202,7 @@ function Integrations() {
       clearTimeout(pollTimer);
       if (countdownTimer) clearInterval(countdownTimer);
     };
-  }, [onboardingWindow, googleBusinessConfig, token, syncBusinessProfiles]);
+  }, [onboardingWindow, googleBusinessConfig, token, syncBusinessProfiles, userId]);
 
   const {
     data: googleAnalyticsConfig,
@@ -222,9 +235,7 @@ function Integrations() {
     const list: any[] = [];
 
     const isGoogleBusinessConnected =
-      googleBusinessConfig?.status === "Connected";
-
-    // Google My Business
+      googleBusinessConfig?.status === "Connected"
     list.push({
       id: googleBusinessConfig?._id || "",
       name: "Google My Business",
@@ -258,6 +269,7 @@ function Integrations() {
         connectWindsor();
       },
       onSync: () => {
+        setIsGoogleBusinessConnecting(true);
         syncBusinessProfiles(undefined, {
           onSuccess: () => {
             addToast({ title: "Success", description: "Google Business connected and synced successfully!", color: "success" });
@@ -265,10 +277,11 @@ function Integrations() {
           },
           onError: (err: any) => {
             addToast({ title: "Error", description: err.response?.data?.message || err.message || "Failed to sync profiles", color: "danger" });
+            setIsGoogleBusinessConnecting(false);
           },
         });
       },
-      isSyncing: isSyncingBusiness,
+      isSyncing: isConnectingWindsor || isSyncingBusiness || isGoogleBusinessConnecting,
       syncButtonText: "Sync & Complete Setup",
       onConfigure: isGoogleBusinessConnected
         ? () => setIsGoogleBusinessLocationModalOpen(true)
@@ -292,8 +305,6 @@ function Integrations() {
       },
     });
 
-    // Google Calendar Integration
-    // Google Calendar Integration
     list.push({
       id: googleCalendarConfig?._id || "",
       name: "Google Calendar Integration",
