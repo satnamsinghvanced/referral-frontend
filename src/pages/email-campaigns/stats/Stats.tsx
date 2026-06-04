@@ -18,11 +18,7 @@ const INITIAL_FILTERS: { filter: AnalyticsFilter } = {
   filter: "last30days",
 };
 
-<<<<<<<< HEAD:src/pages/email-campaigns/campaign-insights/CampaignInsights.tsx
-const CampaignInsights = () => {
-========
 const Stats = () => {
->>>>>>>> 0a2f6016755ac51a38a834f451c337b9d63eeb74:src/pages/email-campaigns/stats/Stats.tsx
   const [currentFilters, setCurrentFilters] = useState(INITIAL_FILTERS);
   const { data: overview, isLoading } = useAnalyticsOverview(
     currentFilters.filter,
@@ -139,8 +135,4 @@ const Stats = () => {
   );
 };
 
-<<<<<<<< HEAD:src/pages/email-campaigns/campaign-insights/CampaignInsights.tsx
-export default CampaignInsights;
-========
 export default Stats;
->>>>>>>> 0a2f6016755ac51a38a834f451c337b9d63eeb74:src/pages/email-campaigns/stats/Stats.tsx

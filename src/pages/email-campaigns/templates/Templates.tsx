@@ -123,10 +123,6 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
     const formData = new FormData();
     formData.append("name", values.name);
     formData.append("description", values.description);
-<<<<<<< HEAD
-=======
-
->>>>>>> 0a2f6016755ac51a38a834f451c337b9d63eeb74
     formData.append("category", values.category);
 
     formData.append("subjectLine", values.subjectLine);
