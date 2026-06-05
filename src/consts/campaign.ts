@@ -15,6 +15,18 @@ export const CAMPAIGN_STATUSES = [
     label: "Active",
     value: "active",
   },
+  {
+    label: "Sent",
+    value: "sent",
+  },
+  {
+    label: "Completed",
+    value: "completed",
+  },
+  {
+    label: "Archived",
+    value: "archived",
+  },
 ];
 
 export const CAMPAIGN_CATEGORIES = [

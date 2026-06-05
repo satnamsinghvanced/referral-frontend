@@ -8,7 +8,7 @@ import {
   Progress,
 } from "@heroui/react";
 import React from "react";
-import { FiDownload, FiEye, FiTarget } from "react-icons/fi";
+import { FiEye, FiTarget } from "react-icons/fi";
 import {
   LuMail,
   LuMousePointer2,
@@ -45,38 +45,118 @@ export default function CampaignReportModal({
   onClose,
   campaignId,
 }: CampaignReportModalProps) {
-  const { data: campaign, isLoading } = useCampaignAnalytics(campaignId || "");
-  // const { data: campaignDetails } = useCampaignDetails(campaignId || "");
+  const { data: campaign, isLoading: isAnalyticsLoading } = useCampaignAnalytics(campaignId || "");
+  const { data: campaignDetails, isLoading: isDetailsLoading } = useCampaignDetails(campaignId || "");
+
+  const isLoading = isAnalyticsLoading || isDetailsLoading;
 
   if (!isOpen) return null;
+
+  // Extract rates and values for dynamic insight calculations
+  const openRateNum = parseFloat(String(campaign?.stats?.openRate || "0").replace("%", "")) || 0;
+  const clickRateNum = parseFloat(String(campaign?.stats?.clickRate || "0").replace("%", "")) || 0;
+  const sentCount = campaign?.stats?.sent || 0;
+  const conversionsCount = campaign?.stats?.conversions || 0;
+
+  const insights = [];
+  if (sentCount > 0) {
+    if (openRateNum >= 50) {
+      insights.push({
+        title: "High Open Rate",
+        description: `Your campaign achieved an exceptional open rate of ${openRateNum}%, showing high audience engagement with the subject line.`,
+        color: "text-emerald-500 dark:text-emerald-400",
+        bgColor: "bg-emerald-500/5",
+        borderColor: "border-emerald-500/10",
+        icon: <LuTrendingUp className="text-emerald-500 h-4 w-4" />
+      });
+    } else if (openRateNum > 0) {
+      insights.push({
+        title: "Steady Open Rate",
+        description: `This campaign has a steady open rate of ${openRateNum}%. Test other subject lines to boost this metric further.`,
+        color: "text-blue-500 dark:text-blue-400",
+        bgColor: "bg-blue-500/5",
+        borderColor: "border-blue-500/10",
+        icon: <LuMail className="text-blue-500 h-4 w-4" />
+      });
+    }
+
+    if (clickRateNum >= 10) {
+      insights.push({
+        title: "Strong CTA Response",
+        description: `Click rate is outstanding at ${clickRateNum}%, showing your call-to-actions are highly effective.`,
+        color: "text-purple-500 dark:text-purple-400",
+        bgColor: "bg-purple-500/5",
+        borderColor: "border-purple-500/10",
+        icon: <LuZap className="text-purple-500 h-4 w-4" />
+      });
+    } else if (clickRateNum > 0) {
+      insights.push({
+        title: "CTA Engagement",
+        description: `Click rate is at ${clickRateNum}%. Make your action links more prominent to drive more clicks.`,
+        color: "text-amber-500 dark:text-amber-400",
+        bgColor: "bg-amber-500/5",
+        borderColor: "border-amber-500/10",
+        icon: <LuMousePointer2 className="text-amber-500 h-4 w-4" />
+      });
+    }
+
+    if (conversionsCount > 0) {
+      insights.push({
+        title: "Conversions Generated",
+        description: `Great job! This campaign directly generated ${conversionsCount} referral conversions.`,
+        color: "text-pink-500 dark:text-pink-400",
+        bgColor: "bg-pink-500/5",
+        borderColor: "border-pink-500/10",
+        icon: <FiTarget className="text-pink-500 h-4 w-4" />
+      });
+    }
+  }
+
+  if (insights.length === 0) {
+    insights.push({
+      title: "No Data Tracked Yet",
+      description: "Send emails and wait for recipients to open or click to see performance insights here.",
+      color: "text-foreground/50",
+      bgColor: "bg-default-500/5",
+      borderColor: "border-default-500/10",
+      icon: <LuClock className="text-foreground/40 h-4 w-4" />
+    });
+  }
 
   return (
     <Modal
       isOpen={isOpen}
       onOpenChange={onClose}
-      size="md"
+      size="2xl"
       placement="center"
       scrollBehavior="inside"
       classNames={{
-        base: `max-sm:!m-3 !m-0 bg-background dark:bg-content1`,
-        closeButton: "cursor-pointer",
+        base: "max-sm:!m-3 !m-0 bg-background dark:bg-content1 border border-foreground/10 shadow-2xl rounded-2xl",
+        closeButton: "cursor-pointer top-5 right-5 hover:bg-default-100/70 active:bg-default-100 p-1.5 rounded-lg transition-colors duration-200",
       }}
     >
-      <ModalContent className="max-h-[95vh] overflow-hidden w-full">
+      <ModalContent className="max-h-[90vh] overflow-hidden w-full">
         {/* Modal Header */}
-        <ModalHeader className="flex gap-1 p-4 pr-10">
-          <h4 className="text-base font-medium flex items-center gap-2 text-foreground">
-            {/* <TbChartHistogram className="h-6 w-6 text-blue-600 dark:text-blue-400" /> */}
-            <span>Campaign Details: {campaign?.name || "Campaign Report"}</span>
-          </h4>
-          {/* <div className="flex items-center gap-2 ml-2">
-            {campaignDetails?.status && (
-              <CampaignStatusChip status={campaignDetails.status} />
-            )}
-          </div> */}
+        <ModalHeader className="flex flex-col gap-1 p-6 border-b border-foreground/10 bg-default-50/50 dark:bg-default-100/5">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20">
+              <TbChartHistogram className="h-5 w-5" />
+            </div>
+            <div className="flex flex-col gap-0.5 flex-1 min-w-0">
+              <span className="text-xs font-semibold uppercase tracking-wider text-foreground/40">Campaign Performance</span>
+              <div className="flex items-center gap-2.5">
+                <h4 className="text-base font-bold text-foreground truncate max-w-[280px]">
+                  {campaign?.name || "Campaign Report"}
+                </h4>
+                {campaignDetails?.status && (
+                  <CampaignStatusChip status={campaignDetails.status} />
+                )}
+              </div>
+            </div>
+          </div>
         </ModalHeader>
 
-        <ModalBody className="px-4 py-0 overflow-y-auto space-y-3 gap-0">
+        <ModalBody className="p-6 overflow-y-auto space-y-6">
           {isLoading ? (
             <div className="py-20 flex justify-center">
               <LoadingState />
@@ -84,39 +164,54 @@ export default function CampaignReportModal({
           ) : (
             <>
               {/* --- Summary Stats --- */}
-              <div className="grid grid-cols-4 gap-4 py-3 bg-gray-50 dark:bg-default-100/20 rounded-lg border border-foreground/10">
-                <StatPill
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+                <StatCard
                   title="Sent"
                   value={campaign?.stats?.sent?.toLocaleString() || "0"}
-                  color="blue"
+                  icon={<LuMail className="h-5 w-5 text-blue-500 dark:text-blue-400" />}
+                  color="text-blue-500 dark:text-blue-400"
+                  bgColor="bg-blue-500/5"
+                  borderColor="border-blue-500/10"
                 />
-                <StatPill
+                <StatCard
                   title="Open Rate"
                   value={String(campaign?.stats?.openRate || "0%")}
-                  color="green"
+                  icon={<FiEye className="h-5 w-5 text-emerald-500 dark:text-emerald-400" />}
+                  color="text-emerald-500 dark:text-emerald-400"
+                  bgColor="bg-emerald-500/5"
+                  borderColor="border-emerald-500/10"
                 />
-                <StatPill
+                <StatCard
                   title="Click Rate"
                   value={String(campaign?.stats?.clickRate || "0%")}
-                  color="orange"
+                  icon={<LuMousePointer2 className="h-5 w-5 text-amber-500 dark:text-amber-400" />}
+                  color="text-amber-500 dark:text-amber-400"
+                  bgColor="bg-amber-500/5"
+                  borderColor="border-amber-500/10"
                 />
-                <StatPill
+                <StatCard
                   title="Conversions"
                   value={campaign?.stats?.conversions?.toLocaleString() || "0"}
-                  color="purple"
+                  icon={<LuZap className="h-5 w-5 text-purple-500 dark:text-purple-400" />}
+                  color="text-purple-500 dark:text-purple-400"
+                  bgColor="bg-purple-500/5"
+                  borderColor="border-purple-500/10"
                 />
               </div>
 
               {/* --- Performance Over Time --- */}
-              <div className="space-y-4 border border-foreground/10 p-4 rounded-xl">
-                <h3 className="text-sm font-medium flex items-center gap-2 text-foreground">
-                  <LuTrendingUp className="h-4 w-4" /> Performance Over Time
-                </h3>
-                <div className="h-[180px] w-full mt-2 text-xs">
+              <div className="p-5 border border-foreground/10 rounded-2xl bg-default-50/50 dark:bg-default-100/5 space-y-4">
+                <div className="flex justify-between items-center">
+                  <h3 className="text-sm font-semibold flex items-center gap-2 text-foreground">
+                    <LuTrendingUp className="h-4 w-4 text-primary" /> Performance Trend
+                  </h3>
+                  <span className="text-xs text-foreground/45 font-medium bg-default-100 dark:bg-default-200/50 px-2 py-0.5 rounded-full">Last 6 Months</span>
+                </div>
+                <div className="h-[180px] w-full text-xs">
                   <ResponsiveContainer width="100%" height="100%">
                     <AreaChart
                       data={campaign?.performanceOverTime || []}
-                      margin={{ top: 10, right: 10, left: -35, bottom: 0 }}
+                      margin={{ top: 10, right: 10, left: -25, bottom: 0 }}
                     >
                       <defs>
                         <linearGradient
@@ -129,7 +224,7 @@ export default function CampaignReportModal({
                           <stop
                             offset="5%"
                             stopColor="#f97316"
-                            stopOpacity={0.1}
+                            stopOpacity={0.2}
                           />
                           <stop
                             offset="95%"
@@ -147,7 +242,7 @@ export default function CampaignReportModal({
                           <stop
                             offset="5%"
                             stopColor="#2563eb"
-                            stopOpacity={0.1}
+                            stopOpacity={0.2}
                           />
                           <stop
                             offset="95%"
@@ -159,20 +254,21 @@ export default function CampaignReportModal({
                       <CartesianGrid
                         strokeDasharray="3 3"
                         vertical={false}
-                        stroke="rgba(0,0,0,0.05)"
+                        stroke="currentColor"
+                        strokeOpacity={0.05}
                       />
 
                       <XAxis
                         dataKey="month"
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fill: "#9ca3af" }}
-                        dy={5}
+                        tick={{ fill: "currentColor", opacity: 0.5, fontSize: 10 }}
+                        dy={6}
                       />
                       <YAxis
                         axisLine={false}
                         tickLine={false}
-                        tick={{ fill: "#9ca3af" }}
+                        tick={{ fill: "currentColor", opacity: 0.5, fontSize: 10 }}
                       />
                       <Tooltip content={<ChartTooltip />} />
                       <Area
@@ -180,7 +276,7 @@ export default function CampaignReportModal({
                         dataKey="opens"
                         name="Opens"
                         stroke="#f97316"
-                        strokeWidth={2}
+                        strokeWidth={2.5}
                         fill="url(#colorOpens)"
                       />
                       <Area
@@ -188,7 +284,7 @@ export default function CampaignReportModal({
                         dataKey="clicks"
                         name="Clicks"
                         stroke="#2563eb"
-                        strokeWidth={2}
+                        strokeWidth={2.5}
                         fill="url(#colorClicks)"
                       />
                     </AreaChart>
@@ -197,49 +293,60 @@ export default function CampaignReportModal({
               </div>
 
               {/* --- Links & Devices --- */}
-              <div className="space-y-3">
-                <div className="space-y-3 border border-foreground/10 p-4 rounded-xl">
-                  <h3 className="text-sm font-medium flex items-center gap-2 text-foreground">
-                    <LuMousePointer2 className="h-4 w-4" /> Top Links
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Top Links Card */}
+                <div className="p-5 border border-foreground/10 rounded-2xl bg-default-50/50 dark:bg-default-100/5 space-y-4">
+                  <h3 className="text-sm font-semibold flex items-center gap-2 text-foreground">
+                    <LuMousePointer2 className="h-4 w-4 text-blue-500" /> Top Links
                   </h3>
-                  <div className="space-y-3">
-                    {campaign?.topLinks?.map((link: any, index: number) => (
-                      <div key={index} className="space-y-1">
-                        <div className="flex justify-between text-xs">
-                          <span className="text-foreground/70 font-medium">
-                            {link.link}
-                          </span>
-                          <span className="font-medium text-foreground">
-                            {link.clicks} clicks
-                          </span>
+                  <div className="space-y-4">
+                    {campaign?.topLinks && campaign.topLinks.length > 0 ? (
+                      campaign.topLinks.map((link: any, index: number) => (
+                        <div key={index} className="space-y-1.5">
+                          <div className="flex justify-between text-xs">
+                            <span className="text-foreground/75 font-medium truncate max-w-[70%]">
+                              {link.link}
+                            </span>
+                            <span className="font-semibold text-foreground">
+                              {link.clicks} clicks
+                            </span>
+                          </div>
+                          <Progress
+                            aria-label={link.link}
+                            value={Math.min(
+                              100,
+                              (link.clicks / (campaign.stats.sent || 1)) * 100,
+                            )}
+                            size="sm"
+                            classNames={{
+                              indicator: "bg-blue-500",
+                              track: "bg-default-100 dark:bg-default-200/30"
+                            }}
+                          />
                         </div>
-                        <Progress
-                          aria-label={link.link}
-                          value={Math.min(
-                            100,
-                            (link.clicks / (campaign.stats.sent || 1)) * 100,
-                          )}
-                          size="sm"
-                          classNames={{ indicator: "bg-blue-500" }}
-                        />
+                      ))
+                    ) : (
+                      <div className="text-center py-6 text-xs text-foreground/45 font-medium">
+                        No links tracked in this campaign
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
 
-                <div className="space-y-3 border border-foreground/10 p-4 rounded-xl">
-                  <h3 className="text-sm font-medium flex items-center gap-2 text-foreground">
-                    <FiEye className="h-4 w-4" /> Devices Used
+                {/* Devices Used Card */}
+                <div className="p-5 border border-foreground/10 rounded-2xl bg-default-50/50 dark:bg-default-100/5 space-y-4">
+                  <h3 className="text-sm font-semibold flex items-center gap-2 text-foreground">
+                    <FiEye className="h-4 w-4 text-emerald-500" /> Devices Used
                   </h3>
-                  <div className="space-y-3">
-                    {campaign?.devicesUsed?.map(
-                      (device: any, index: number) => (
-                        <div key={index} className="space-y-1">
+                  <div className="space-y-4">
+                    {campaign?.devicesUsed && campaign.devicesUsed.length > 0 ? (
+                      campaign.devicesUsed.map((device: any, index: number) => (
+                        <div key={index} className="space-y-1.5">
                           <div className="flex justify-between text-xs">
-                            <span className="text-foreground/70 font-medium">
+                            <span className="text-foreground/75 font-medium capitalize">
                               {device.device}
                             </span>
-                            <span className="font-medium text-foreground">
+                            <span className="font-semibold text-foreground">
                               {device.percentage}%
                             </span>
                           </div>
@@ -247,66 +354,53 @@ export default function CampaignReportModal({
                             aria-label={device.device}
                             value={device.percentage}
                             size="sm"
-                            classNames={{ indicator: "bg-blue-500" }}
+                            classNames={{
+                              indicator: "bg-emerald-500",
+                              track: "bg-default-100 dark:bg-default-200/30"
+                            }}
                           />
                         </div>
-                      ),
+                      ))
+                    ) : (
+                      <div className="text-center py-6 text-xs text-foreground/45 font-medium">
+                        No device data available
+                      </div>
                     )}
                   </div>
                 </div>
               </div>
 
               {/* --- Insights --- */}
-              {/* <div className="space-y-3 border border-foreground/10 p-4 rounded-xl">
-                <h3 className="text-sm font-medium flex items-center gap-2 text-foreground">
-                  <TbNotes className="h-4 w-4" /> Key Insights
+              <div className="p-5 border border-foreground/10 rounded-2xl bg-default-50/50 dark:bg-default-100/5 space-y-3">
+                <h3 className="text-sm font-semibold flex items-center gap-2 text-foreground">
+                  <TbNotes className="h-4 w-4 text-purple-500" /> Performance Insights
                 </h3>
-                <div className="space-y-2.5">
-                  <InsightItem
-                    icon={<LuTrendingUp className="text-green-600 size-3.5" />}
-                    title="High Engagement"
-                    description="Open rate is 23% above industry average"
-                    bgColor="bg-green-50 dark:bg-green-500/10"
-                    textColor="text-green-700 dark:text-green-400"
-                  />
-                  <InsightItem
-                    icon={<LuClock className="text-blue-600 size-3.5" />}
-                    title="Best Send Time"
-                    description="Most opens occurred between 9-11 AM on Tuesday"
-                    bgColor="bg-blue-50 dark:bg-blue-500/10"
-                    textColor="text-blue-700 dark:text-blue-400"
-                  />
-                  <InsightItem
-                    icon={<LuZap className="text-purple-600 size-3.5" />}
-                    title="Strong Conversion"
-                    description="Conversion rate is 2.5x higher than average"
-                    bgColor="bg-purple-50 dark:bg-purple-500/10"
-                    textColor="text-purple-700 dark:text-purple-400"
-                  />
+                <div className="grid grid-cols-1 gap-2.5">
+                  {insights.map((insight, idx) => (
+                    <div key={idx} className={`p-3.5 rounded-xl border ${insight.borderColor} ${insight.bgColor} flex gap-3 items-start`}>
+                      <div className="p-1.5 rounded-lg bg-background border border-foreground/5 shadow-sm mt-0.5">
+                        {insight.icon}
+                      </div>
+                      <div className="space-y-0.5">
+                        <h4 className={`text-xs font-semibold ${insight.color}`}>{insight.title}</h4>
+                        <p className="text-xs text-foreground/70 leading-relaxed">{insight.description}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
-              </div> */}
+              </div>
             </>
           )}
         </ModalBody>
 
-        <ModalFooter className="p-4 flex justify-end gap-2">
-          {/* <Button
-            size="sm"
-            variant="ghost"
-            radius="sm"
-            className="border-small h-8 dark:border-default-200"
-            onPress={() => console.log("Exporting...")}
-          >
-            <FiDownload className="size-3.5" />
-            Export Report
-          </Button> */}
+        <ModalFooter className="p-6 border-t border-foreground/10 bg-default-50/50 dark:bg-default-100/5 flex justify-end gap-2.5">
           <Button
             size="sm"
-            variant="ghost"
+            variant="solid"
             color="default"
-            radius="sm"
+            radius="lg"
             onPress={onClose}
-            className="border-small"
+            className="font-medium px-4"
           >
             Close
           </Button>
@@ -318,47 +412,29 @@ export default function CampaignReportModal({
 
 // --- Reusable Sub-Components ---
 
-const StatPill = ({
+const StatCard = ({
   title,
   value,
+  icon,
   color,
+  bgColor,
+  borderColor,
 }: {
   title: string;
   value: string | number;
-  color: "blue" | "green" | "orange" | "purple";
+  icon: React.ReactNode;
+  color: string;
+  bgColor: string;
+  borderColor: string;
 }) => (
-  <div className="text-center">
-    <div
-      className={`text-sm font-semibold text-${color}-600 dark:text-${color}-400`}
-    >
-      {value}
+  <div className={`p-4 rounded-2xl border ${borderColor} ${bgColor} flex items-center justify-between transition-all duration-300 hover:shadow-sm`}>
+    <div className="space-y-1 min-w-0">
+      <span className="text-xs text-foreground/50 font-semibold block">{title}</span>
+      <span className={`text-lg font-bold tracking-tight truncate block ${color}`}>{value}</span>
     </div>
-    <div className="text-xs text-gray-500 dark:text-foreground/40">{title}</div>
+    <div className="p-2 rounded-xl bg-background border border-foreground/5 shadow-sm flex-shrink-0">
+      {icon}
+    </div>
   </div>
 );
 
-const InsightItem = ({
-  icon,
-  title,
-  description,
-  bgColor,
-  textColor,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  description: string;
-  bgColor: string;
-  textColor: string;
-}) => (
-  <div className={`p-2 rounded-lg ${bgColor} flex items-center gap-2`}>
-    <div className="p-1.5 rounded-full bg-white dark:bg-background/40">
-      {icon}
-    </div>
-    <div className="flex flex-col">
-      <span className={`text-xs font-medium ${textColor}`}>{title}</span>
-      <span className="text-xs text-foreground/60 leading-tight">
-        {description}
-      </span>
-    </div>
-  </div>
-);

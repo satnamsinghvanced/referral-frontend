@@ -109,7 +109,7 @@ const CampaignCard = ({
               Open Rate
             </p>
             <p className="text-sm font-semibold text-green-600 dark:text-green-400">
-              {stats.openRate}
+              {stats.openRate}%
             </p>
           </div>
           <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-content1 rounded-lg space-y-0.5">
@@ -117,14 +117,16 @@ const CampaignCard = ({
               Click Rate
             </p>
             <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">
-              {stats.clickRate}
+              {stats.clickRate}%
             </p>
           </div>
           <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-content1 rounded-lg space-y-0.5">
             <p className="text-xs text-gray-500 dark:text-foreground/50">
               Conversions
             </p>
-            <p className="text-sm font-semibold">{stats.conversionCount}</p>
+            <p className="text-sm font-semibold text-purple-600 dark:text-purple-400">
+              {stats.conversionCount} ({stats.conversionRate ?? 0}%)
+            </p>
           </div>
         </div>
       )}

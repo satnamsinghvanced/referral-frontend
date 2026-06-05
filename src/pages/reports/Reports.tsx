@@ -144,8 +144,26 @@ const Reports = () => {
   const handleDownload = async (report: Report) => {
     if (!report.fileUrl) return;
 
+    // Resolve download URL to use the active API base URL instead of database-saved host
+    let downloadUrl = report.fileUrl;
+    if (downloadUrl.startsWith("http")) {
+      try {
+        // Fix missing slash if present (e.g. .appuploads/ -> .app/uploads/)
+        const formattedUrl = downloadUrl.replace(/(\.app)uploads/, "$1/uploads");
+        const urlObj = new URL(formattedUrl);
+        const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || "http://localhost:9090/api").replace(/\/api$/, "");
+        downloadUrl = `${apiBaseUrl}${urlObj.pathname}`;
+      } catch (e) {
+        console.error("Failed to parse report download URL:", e);
+      }
+    }
+
     try {
-      const response = await fetch(report.fileUrl);
+      const response = await fetch(downloadUrl, {
+        headers: {
+          "ngrok-skip-browser-warning": "true",
+        },
+      });
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const link = document.createElement("a");
@@ -161,7 +179,7 @@ const Reports = () => {
     } catch (error) {
       console.error("Download failed:", error);
       // Fallback to opening in new tab if blob fetch fails (e.g. CORS)
-      window.open(report.fileUrl, "_blank");
+      window.open(downloadUrl, "_blank");
     }
   };
 

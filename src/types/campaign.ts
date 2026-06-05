@@ -253,6 +253,7 @@ export interface IDashboardStats {
     openRate: string;
     clickRate: string;
     conversions: number;
+    conversionRate?: string;
   };
   recentCampaigns: ICampaign[];
 }
@@ -319,6 +320,7 @@ export interface ICampaignAnalytics {
     openRate: string;
     clickRate: string;
     conversions: number;
+    conversionRate?: string;
   };
   performanceOverTime: IPerformanceMetric[];
   topLinks: { link: string; clicks: number }[];
