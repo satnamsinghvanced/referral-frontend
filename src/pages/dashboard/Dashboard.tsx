@@ -168,13 +168,13 @@ const Dashboard = () => {
         title: `New referral from ${dashboard.recentActivity.referral.referrer?.name || "N/A"
           }`,
         description: `Patient: ${dashboard.recentActivity.referral.name}${dashboard.recentActivity.referral.treatment
-            ? ` - ${TREATMENT_OPTIONS.find(
-              (treatmentOption: any) =>
-                treatmentOption.key ===
-                dashboard.recentActivity.referral!.treatment,
-            )?.label || dashboard.recentActivity.referral.treatment
-            }`
-            : ""
+          ? ` - ${TREATMENT_OPTIONS.find(
+            (treatmentOption: any) =>
+              treatmentOption.key ===
+              dashboard.recentActivity.referral!.treatment,
+          )?.label || dashboard.recentActivity.referral.treatment
+          }`
+          : ""
           }`,
         time: `${timeAgo(dashboard.recentActivity.referral.createdAt || "")}`,
         onClick: () => navigate("/referrals"),
@@ -246,7 +246,7 @@ const Dashboard = () => {
   return (
     <ComponentContainer headingData={HEADING_DATA}>
       <div className="space-y-4 md:space-y-5">
-       {permissionStatus === "default" && showNotificationBanner && (
+        {permissionStatus === "default" && showNotificationBanner && (
           <div className="relative group overflow-hidden bg-background border border-divider dark:border-white/5 rounded-2xl p-4 md:p-4 mb-5 transition-all duration-300">
             <div className="relative z-10 flex flex-col md:flex-row items-center gap-5 md:gap-4">
               <div className="relative shrink-0">
@@ -432,7 +432,6 @@ const Dashboard = () => {
             <div className="bg-background rounded-xl p-4">
               <h3
                 className="text-sm md:text-base mb-4"
-                onClick={() => startTour()}
               >
                 System Status
               </h3>
