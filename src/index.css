@@ -545,3 +545,30 @@ input[type="number"] {
   border-bottom-color: hsl(var(--heroui-content1) / 1);
   top: -10px;
 }
+
+/* Custom Dark Mode Text Color overrides for Quill Editor and HTML Previews */
+.dark .quill-editor-wrapper .ql-editor,
+.dark .quill-editor-wrapper .ql-editor * {
+  color: #ffffff !important;
+}
+
+/* Ensure link colors are preserved inside the editor in dark mode */
+.dark .quill-editor-wrapper .ql-editor a,
+.dark .quill-editor-wrapper .ql-editor a * {
+  color: #60a5fa !important;
+}
+
+.dark .prose-invert div,
+.dark .prose-invert p,
+.dark .prose-invert li,
+.dark .prose div,
+.dark .prose p,
+.dark .prose li {
+  color: #ffffff !important;
+}
+
+/* Ensure placeholder text is readable in dark mode */
+.dark .quill-editor-wrapper .ql-editor.ql-blank::before {
+  color: #9ca3af !important;
+}
+

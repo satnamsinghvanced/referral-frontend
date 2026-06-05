@@ -118,10 +118,13 @@ const Overview = ({
                         <CampaignStatusChip status={status} />
                         <div className="flex items-center gap-2 font-medium">
                           <p className="text-green-600 dark:text-green-400">
-                            {stats?.openRate || "0%"} opens
+                            {stats?.openRate ?? 0}% opens
                           </p>
                           <p className="text-blue-600 dark:text-blue-400">
-                            {stats?.clickRate || "0%"} clicks
+                            {stats?.clickRate ?? 0}% clicks
+                          </p>
+                          <p className="text-purple-600 dark:text-purple-400">
+                            {stats?.conversionCount ?? 0} ({stats?.conversionRate ?? 0}%) conversions
                           </p>
                         </div>
                       </div>

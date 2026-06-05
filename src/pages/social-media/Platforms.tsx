@@ -23,88 +23,96 @@ const Platforms = () => {
       if (status === "notConnected") return "Disconnected";
       return (status.charAt(0).toUpperCase() + status.slice(1)) as any;
     };
+
+    const credentials = (allCredentials && typeof allCredentials === "object" && "data" in allCredentials && allCredentials.data)
+      ? (allCredentials.data as any)
+      : allCredentials;
+
+    const metaCreds = credentials?.meta;
+    const youtubeCreds = credentials?.youTube;
+
     return [
       {
-        id: allCredentials?.meta?.id || "",
+        id: metaCreds?.id || "",
         platformId: "meta",
         platformKey: "metaAuthIntegration",
         name: "Meta (Facebook & Instagram)",
         icon: <FaMeta className="w-4 h-4" />,
         iconBg: "bg-blue-100 dark:bg-blue-900/20",
         iconColor: "text-blue-600 dark:text-blue-400",
-        status: normalizeStatus(allCredentials?.meta?.status),
+        status: normalizeStatus(metaCreds?.status),
         description:
           "Connect Facebook and Instagram to sync posts and track engagement.",
         badges: ["Facebook", "Instagram", "Ads Sync"],
-        followers: allCredentials?.meta?.followers || 0,
-        engagementRate: allCredentials?.meta?.engagementRate || 0,
+        followers: metaCreds?.followers || 0,
+        engagementRate: metaCreds?.engagementRate || 0,
         account: {
           accountName:
-            allCredentials?.meta?.accountName ||
-            allCredentials?.meta?.metaPages?.[0]?.name,
-          accountEmail: allCredentials?.meta?.accountEmail,
-          accountAvatar: allCredentials?.meta?.accountAvatar,
+            metaCreds?.accountName ||
+            metaCreds?.metaPages?.[0]?.name,
+          accountEmail: metaCreds?.accountEmail,
+          accountAvatar: metaCreds?.accountAvatar,
         },
       },
       // {
-      //   id: allCredentials?.linkedin?.id || "",
+      //   id: credentials?.linkedin?.id || "",
       //   platformId: "linkedin",
       //   platformKey: "linkedinAuthIntegration",
       //   name: "LinkedIn",
       //   icon: <FaLinkedin className="w-4 h-4" />,
       //   iconBg: "bg-cyan-100 dark:bg-cyan-900/20",
       //   iconColor: "text-cyan-600 dark:text-cyan-400",
-      //   status: normalizeStatus(allCredentials?.linkedin?.status),
+      //   status: normalizeStatus(credentials?.linkedin?.status),
       //   description:
       //     "Share professional updates and track your network growth on LinkedIn.",
       //   badges: ["Professional Network", "Post Sync", "Analytics"],
-      //   followers: allCredentials?.linkedin?.followers || 0,
-      //   engagementRate: allCredentials?.linkedin?.engagementRate || 0,
+      //   followers: credentials?.linkedin?.followers || 0,
+      //   engagementRate: credentials?.linkedin?.engagementRate || 0,
       // },
       {
-        id: allCredentials?.youTube?.id || "",
+        id: youtubeCreds?.id || "",
         platformId: "youTube",
         platformKey: "youtubeAuthIntegration",
         name: "YouTube",
         icon: <FaYoutube className="w-4 h-4" />,
         iconBg: "bg-red-100 dark:bg-red-900/20",
         iconColor: "text-red-600 dark:text-red-400",
-        status: normalizeStatus(allCredentials?.youTube?.status),
+        status: normalizeStatus(youtubeCreds?.status),
         description: "Sync your video content and monitor channel performance.",
         badges: ["Video Sync", "Channel Stats", "Views Tracking"],
-        followers: allCredentials?.youTube?.followers || 0,
-        engagementRate: allCredentials?.youTube?.engagementRate || 0,
+        followers: youtubeCreds?.followers || 0,
+        engagementRate: youtubeCreds?.engagementRate || 0,
         account: {
-          accountName: allCredentials?.youTube?.accountName,
-          accountEmail: allCredentials?.youTube?.accountEmail,
-          accountAvatar: allCredentials?.youTube?.accountAvatar,
+          accountName: youtubeCreds?.accountName,
+          accountEmail: youtubeCreds?.accountEmail,
+          accountAvatar: youtubeCreds?.accountAvatar,
         },
       },
       // {
-      //   id: allCredentials?.twitter?._id || "",
+      //   id: credentials?.twitter?._id || "",
       //   platformId: "twitter",
       //   name: "Twitter (X)",
       //   icon: <FaTwitter className="w-4 h-4" />,
       //   iconBg: "bg-gray-100 dark:bg-gray-800",
       //   iconColor: "text-gray-900 dark:text-white",
-      //   status: normalizeStatus(allCredentials?.twitter?.status),
+      //   status: normalizeStatus(credentials?.twitter?.status),
       //   description: "Connect your X account to manage tweets and track reach.",
       //   badges: ["Tweets", "Reach", "Real-time Sync"],
-      //   followers: allCredentials?.twitter?.followers || 0,
-      //   engagementRate: allCredentials?.twitter?.engagementRate || 0,
+      //   followers: credentials?.twitter?.followers || 0,
+      //   engagementRate: credentials?.twitter?.engagementRate || 0,
       // },
       // {
-      //   id: allCredentials?.tikTok?._id || "",
+      //   id: credentials?.tikTok?._id || "",
       //   platformId: "tikTok",
       //   name: "TikTok",
       //   icon: <FaTiktok className="w-4 h-4" />,
       //   iconBg: "bg-pink-100 dark:bg-pink-900/20",
       //   iconColor: "text-pink-600 dark:text-pink-400",
-      //   status: normalizeStatus(allCredentials?.tikTok?.status),
+      //   status: normalizeStatus(credentials?.tikTok?.status),
       //   description: "Sync short-form video content and monitor viral trends.",
       //   badges: ["Short-form Video", "Trends", "Viral Analytics"],
-      //   followers: allCredentials?.tikTok?.followers || 0,
-      //   engagementRate: allCredentials?.tikTok?.engagementRate || 0,
+      //   followers: credentials?.tikTok?.followers || 0,
+      //   engagementRate: credentials?.tikTok?.engagementRate || 0,
       // },
     ];
   }, [allCredentials]);

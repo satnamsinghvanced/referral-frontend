@@ -128,9 +128,23 @@ const CampaignAudienceStep: React.ForwardRefRenderFunction<
         <p className="text-sm font-medium text-blue-700 dark:text-blue-400">
           {selectedAudience?.name || "No Audience Selected"}
         </p>
-        <p className="text-xs text-blue-600 dark:text-blue-500/80 mt-1">
-          {selectedAudience?.description}
-        </p>
+        {selectedAudience && selectedAudience.description && (
+          <p className="text-xs text-blue-600 dark:text-blue-500/80 mt-0.5">
+            {selectedAudience.description}
+          </p>
+        )}
+        {selectedAudience ? (
+          <p className="text-xs text-blue-600 dark:text-blue-500/80 mt-1">
+            {((selectedAudience.referrers?.length || 0) +
+              (selectedAudience.practices?.length || 0) +
+              (selectedAudience.referrals?.length || 0))}{" "}
+            recipients will receive this campaign
+          </p>
+        ) : (
+          <p className="text-xs text-blue-600 dark:text-blue-500/80 mt-1">
+            Please select an audience segment for this campaign.
+          </p>
+        )}
       </Card>
     </div>
   );
