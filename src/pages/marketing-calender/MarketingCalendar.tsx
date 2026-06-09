@@ -47,7 +47,7 @@ const MarketingCalendar = () => {
 
   const [currentFilters, setCurrentFilters] = useState<any>({
     page: 1,
-    limit: 19,
+    limit: 21,
     search: "",
     type: "all",
   });
@@ -90,7 +90,7 @@ const MarketingCalendar = () => {
       const aCreated = a?.createdAt ? new Date(a.createdAt).getTime() : 0;
       const bCreated = b?.createdAt ? new Date(b.createdAt).getTime() : 0;
       if (aCreated !== bCreated) return bCreated - aCreated;
-      
+
       const aDate = a?.startDate ? new Date(a.startDate).getTime() : 0;
       const bDate = b?.startDate ? new Date(b.startDate).getTime() : 0;
       return bDate - aDate;
