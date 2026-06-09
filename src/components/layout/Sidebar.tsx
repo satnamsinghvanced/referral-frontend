@@ -1,25 +1,7 @@
-import {
-  HiOutlineChartBar,
-  HiOutlineChevronLeft,
-  HiOutlineCog,
-  HiOutlineLightningBolt,
-  HiOutlineMail,
-  HiOutlinePhone,
-  HiOutlineStar,
-} from "react-icons/hi";
+import { HiOutlineChartBar, HiOutlineChevronLeft, HiOutlineCog, HiOutlineLightningBolt, HiOutlineMail, HiOutlinePhone, HiOutlineStar } from "react-icons/hi";
 import { Link, NavLink, useLocation, useNavigate } from "react-router";
-
 import { Tooltip } from "@heroui/react";
-import {
-  LuBuilding2,
-  LuCalendar,
-  LuDollarSign,
-  LuQrCode,
-  LuTarget,
-  LuUsers,
-  LuVideo,
-} from "react-icons/lu";
-
+import { LuBuilding2, LuCalendar, LuDollarSign, LuQrCode, LuTarget, LuUsers, LuVideo } from "react-icons/lu";
 import { FiFileText, FiHome } from "react-icons/fi";
 import { IoIosArrowRoundForward } from "react-icons/io";
 // import logoWhite from "../../assets/logo-white.svg";
@@ -212,14 +194,14 @@ const Sidebar = ({
       },
       ...(isSuperAdmin
         ? [
-            {
-              name: "Platform Admins",
-              icon: LuUsers,
-              href: "/platform-admins",
-              stats: undefined,
-              color: undefined,
-            },
-          ]
+          {
+            name: "Platform Admins",
+            icon: LuUsers,
+            href: "/platform-admins",
+            stats: undefined,
+            color: undefined,
+          },
+        ]
         : []),
     ];
 
@@ -240,7 +222,6 @@ const Sidebar = ({
 
   return (
     <>
-      {/* Mobile overlay when sidebar open in mobile/mini mode */}
       <div
         className={`${isMiniSidebarOpen
           ? "bg-foreground/30 dark:bg-background/70 fixed inset-0 z-41"
@@ -249,7 +230,6 @@ const Sidebar = ({
         onClick={onCloseSidebar}
         aria-hidden
       />
-
       <aside
         className={`sidebar fixed top-0 left-0 z-50 h-screen border-r border-foreground/10 bg-background transition-all duration-300
           ${isMiniSidebarOpen ? "md:w-[250px] w-[300px]" : "w-18"}
@@ -267,14 +247,8 @@ const Sidebar = ({
               onClick={onCloseSidebar}
             >
               <Logo style={{ height: "100%" }} />
-              {/* <img src={logo} alt="" className="w-8 h-8" />
-              <span className="flex flex-col text-[#055fa4]">
-                <span className="font-bold">PRACTICE ROI</span>
-                <span className="text-[11px]">Intelligent Marketing</span>
-              </span> */}
             </Link>
           )}
-
           <div className="p-2">
             <button
               onClick={onCloseSidebar}
@@ -293,8 +267,6 @@ const Sidebar = ({
             </button>
           </div>
         </div>
-
-        {/* nav container */}
         <div
           className={`${isMiniSidebarOpen ? "overflow-y-auto" : ""
             } flex flex-col justify-between h-[calc(100vh_-_60px)] px-0`}
@@ -306,7 +278,6 @@ const Sidebar = ({
                 item.href === "/"
                   ? pathname === "/"
                   : pathname.startsWith(item.href);
-
               return (
                 <li key={index}>
                   <NavLink
@@ -351,7 +322,6 @@ const Sidebar = ({
                         </Tooltip>
                       )}
                     </span>
-
                     {isMiniSidebarOpen && (
                       <div className="ml-2 truncate text-xs w-full flex justify-between items-center">
                         <p>{item.name}</p>
@@ -376,7 +346,6 @@ const Sidebar = ({
               );
             })}
           </ul>
-
           {/* bottom items */}
           {/* <ul className="space-y-1 p-3">
             {bottomRoutes.map((item, idx) => {

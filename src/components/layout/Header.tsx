@@ -1,13 +1,4 @@
-import {
-  Button,
-  Dropdown,
-  DropdownItem,
-  DropdownMenu,
-  DropdownTrigger,
-  Input,
-  Navbar,
-  NavbarContent,
-} from "@heroui/react";
+import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input, Navbar, NavbarContent } from "@heroui/react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { FiUser } from "react-icons/fi";
@@ -56,7 +47,6 @@ export default function Header({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen]);
-
   const handleLogout = () => {
     dispatch(handleLogoutThunk());
   };
@@ -222,7 +212,6 @@ export default function Header({
           </div>
         </NavbarContent>
       </NavbarContent>
-
       <NavbarContent as="div" className="items-center gap-4" justify="end">
         <div className="flex gap-1 justify-center items-center">
           <NotificationPopover />
