@@ -52,33 +52,27 @@ import TwilioConfigurationModal from "./modal/TwilioConfigurationModal";
 import GoogleIntegrationSelectorModal from "./modal/GoogleIntegrationSelectorModal";
 import GoogleCalendarConfigModal from "./modal/GoogleCalendarConfigModal";
 import Webhooks from "./webhooks/Webhooks";
+import TwilioDashboard from "./components/TwilioDashboard";
 
 function Integrations() {
   const queryClient = useQueryClient();
   const { user, token } = useTypedSelector((state) => state.auth);
   const userId = user?.userId;
-
   const [isTwilioIntegrationModalOpen, setIsTwilioIntegrationModalOpen] =
     useState(false);
-
   const [isGoogleBusinessLocationModalOpen, setIsGoogleBusinessLocationModalOpen] =
     useState(false);
   const [isGoogleAdsAccountModalOpen, setIsGoogleAdsAccountModalOpen] =
     useState(false);
   const [isMetaAdsAccountModalOpen, setIsMetaAdsAccountModalOpen] =
     useState(false);
-
   const [
     isGoogleAnalyticsPropertyModalOpen,
     setIsGoogleAnalyticsPropertyModalOpen,
   ] = useState(false);
-
-
-
   const [isGoogleCalendarConfigModalOpen, setIsGoogleCalendarConfigModalOpen] =
     useState(false);
   const [selectedCalendarConfig, setSelectedCalendarConfig] = useState<any>(undefined);
-
   const {
     data: googleCalendarExistingConfig,
     isLoading: isGoogleCalendarConfigLoading,
@@ -515,6 +509,7 @@ function Integrations() {
     <>
       <ComponentContainer headingData={HEADING_DATA}>
         <div className="flex flex-col gap-4 md:gap-5">
+          <TwilioDashboard />
           <Card className="shadow-none border border-foreground/10 rounded-xl p-4 bg-background">
             <CardHeader className="p-0 pb-5">
               <h4 className="font-medium text-sm text-foreground">

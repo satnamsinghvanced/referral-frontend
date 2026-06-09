@@ -20,17 +20,14 @@ const Layout = () => {
     getInitialMini()
   );
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
   const toggleSidebar = () => {
     setIsMiniSidebarOpen((prev) => !prev);
   };
-
   const onCloseSidebar = () => {
     if (window.innerWidth < 1023) {
       setIsSidebarOpen(false);
     }
   };
-
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 1024) {
@@ -40,27 +37,22 @@ const Layout = () => {
         setIsSidebarOpen(true);
       }
     };
-
     window.addEventListener("resize", handleResize);
-    handleResize(); // run on mount
-
+    handleResize();
     return () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
-
   useEffect(() => {
     localStorage.setItem(
       "isMiniSidebarOpen",
       JSON.stringify(isMiniSidebarOpen)
     );
   }, [isMiniSidebarOpen]);
-
   return (
     <div
-      className={`${
-        !isMiniSidebarOpen ? "lg:pl-18" : "lg:pl-[250px]"
-      } transition-all`}
+      className={`${!isMiniSidebarOpen ? "lg:pl-18" : "lg:pl-[250px]"
+        } transition-all`}
     >
       {isSidebarOpen && (
         <Sidebar
@@ -69,7 +61,6 @@ const Layout = () => {
           onCloseSidebar={onCloseSidebar}
         />
       )}
-
       <Header
         hamburgerMenuClick={() => {
           setIsSidebarOpen(!isSidebarOpen);
