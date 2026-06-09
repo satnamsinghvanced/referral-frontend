@@ -26,12 +26,9 @@ interface PhoneNumber {
 }
 
 export default function TwilioDashboard() {
-  // Balance and minutes state
   const [balance, setBalance] = useState<number>(234.5);
   const [minutesUsed, setMinutesUsed] = useState<number>(1653);
   const [minutesLimit, setMinutesLimit] = useState<number>(2500);
-
-  // Phone numbers state
   const [phoneNumbers, setPhoneNumbers] = useState<PhoneNumber[]>([
     {
       id: "1",
@@ -49,12 +46,10 @@ export default function TwilioDashboard() {
     },
   ]);
 
-  // Modal open states
   const [isAddCreditsOpen, setIsAddCreditsOpen] = useState(false);
   const [isPurchaseNumberOpen, setIsPurchaseNumberOpen] = useState(false);
   const [numberToRelease, setNumberToRelease] = useState<PhoneNumber | null>(null);
 
-  // Handle adding credits
   const handleAddCredits = (amount: number, minutes: number) => {
     setBalance((prev) => prev + amount);
     if (minutes > 0) {
@@ -62,7 +57,6 @@ export default function TwilioDashboard() {
     }
   };
 
-  // Handle purchasing new number
   const handlePurchaseNumber = (number: string, label: string) => {
     const newNum: PhoneNumber = {
       id: Math.random().toString(),
@@ -72,11 +66,9 @@ export default function TwilioDashboard() {
       capabilities: { voice: true, sms: true, mms: true },
     };
     setPhoneNumbers((prev) => [...prev, newNum]);
-    // Deduct purchase price ($15 setup) from balance
     setBalance((prev) => prev - 15);
   };
 
-  // Handle releasing number
   const handleConfirmRelease = () => {
     if (numberToRelease) {
       setPhoneNumbers((prev) => prev.filter((n) => n.id !== numberToRelease.id));
@@ -99,7 +91,6 @@ export default function TwilioDashboard() {
 
   return (
     <div className="flex flex-col gap-4 w-full">
-      {/* Practice ROI Phone Service Main Dashboard Header */}
       <Card className="shadow-none border border-foreground/10 rounded-2xl bg-background p-5">
         <CardBody className="p-0 flex flex-col gap-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -145,9 +136,7 @@ export default function TwilioDashboard() {
             </div>
           </div>
 
-          {/* Cards row: grid with 4 stats cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-            {/* Active Numbers Card */}
             <Card className="shadow-none border border-foreground/10 bg-foreground/5 dark:bg-default-50/50 rounded-xl p-4">
               <div className="flex justify-between items-start">
                 <span className="text-xs font-semibold text-foreground-500">Active Numbers</span>
@@ -158,7 +147,6 @@ export default function TwilioDashboard() {
               </div>
             </Card>
 
-            {/* Account Balance Card */}
             <Card className="shadow-none border border-foreground/10 bg-foreground/5 dark:bg-default-50/50 rounded-xl p-4">
               <div className="flex justify-between items-start">
                 <span className="text-xs font-semibold text-foreground-500">Account Balance</span>
@@ -171,7 +159,6 @@ export default function TwilioDashboard() {
               </div>
             </Card>
 
-            {/* Monthly Minutes Card */}
             <Card className="shadow-none border border-foreground/10 bg-foreground/5 dark:bg-default-50/50 rounded-xl p-4">
               <div className="flex justify-between items-start">
                 <span className="text-xs font-semibold text-foreground-500">Monthly Minutes</span>
@@ -185,11 +172,10 @@ export default function TwilioDashboard() {
               </div>
             </Card>
 
-            {/* Features Card */}
             <Card className="shadow-none border border-foreground/10 bg-foreground/5 dark:bg-default-50/50 rounded-xl p-4">
               <div className="flex justify-between items-start">
                 <span className="text-xs font-semibold text-foreground-500">Features</span>
-                <FiMessageSquare className="w-4 h-4 text-orange-500" />
+                <FiMessageSquare className="w-4 h-4 text-red-500" />
               </div>
               <div className="mt-2.5">
                 <span className="text-sm font-bold text-foreground">Voice • SMS • MMS</span>
@@ -199,7 +185,6 @@ export default function TwilioDashboard() {
         </CardBody>
       </Card>
 
-      {/* Demo Mode Active Banner */}
       <Card className="shadow-none border border-blue-200 dark:border-blue-500/20 bg-blue-50/50 dark:bg-blue-950/10 rounded-2xl p-4">
         <CardBody className="p-0 flex flex-row gap-3 items-start">
           <FiInfo className="w-5 h-5 text-blue-500 dark:text-blue-400 mt-0.5 flex-shrink-0" />
@@ -212,7 +197,6 @@ export default function TwilioDashboard() {
         </CardBody>
       </Card>
 
-      {/* SMS Messaging Registration (A2P) */}
       <Card className="shadow-none border border-foreground/10 bg-background rounded-2xl p-5">
         <CardBody className="p-0 flex flex-col gap-4">
           <div className="flex items-center justify-between gap-4 flex-wrap">
@@ -227,10 +211,10 @@ export default function TwilioDashboard() {
             </Button>
           </div>
 
-          <div className="border border-orange-200 dark:border-orange-900/10 bg-orange-50/40 dark:bg-orange-950/10 rounded-xl p-4 flex flex-row gap-3 items-start">
-            <FiInfo className="w-5 h-5 text-orange-500 mt-0.5 flex-shrink-0" />
+          <div className="border border-red-200 dark:border-orange-900/10 bg-orange-50/40 dark:bg-orange-950/10 rounded-xl p-4 flex flex-row gap-3 items-start">
+            <FiInfo className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
             <div className="flex flex-col gap-1.5">
-              <h4 className="text-xs font-bold text-orange-700 dark:text-orange-500">
+              <h4 className="text-xs font-bold text-red-600 dark:text-red-500">
                 SMS Registration Required
               </h4>
               <p className="text-xs text-red-600/80 dark:text-red-400/80 leading-relaxed">
