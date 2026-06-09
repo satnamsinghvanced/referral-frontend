@@ -136,7 +136,7 @@ export default function Checkout() {
       if (!value) {
         error = "Security code is required";
       } else {
-        const expectedLength = currentBrand === "amex" ? 4 : 3;
+        const expectedLength = 3;
         if (value.length !== expectedLength) {
           error = `Security code must be ${expectedLength} digits`;
         }
@@ -174,7 +174,7 @@ export default function Checkout() {
 
   // CVC input change handler
   const handleCvcChange = (val: string) => {
-    const clean = val.replace(/\D/g, "").substring(0, 4);
+    const clean = val.replace(/\D/g, "").substring(0, 3);
     setCvc(clean);
 
     if (touched.cvc || errors.cvc) {
