@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardBody, Button, Chip, addToast, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/react";
 import {
   FiPhone,
@@ -16,6 +18,7 @@ import { BsLightningCharge } from "react-icons/bs";
 import { TbBrandTwilio } from "react-icons/tb";
 import TwilioAddCreditsModal from "../modal/TwilioAddCreditsModal";
 import TwilioPurchaseNumberModal from "../modal/TwilioPurchaseNumberModal";
+import { TwilioConfigResponse } from "../../../types/integrations/twilio";
 
 interface PhoneNumber {
   id: string;
@@ -25,11 +28,25 @@ interface PhoneNumber {
   capabilities: { voice: boolean; sms: boolean; mms: boolean };
 }
 
-export default function TwilioDashboard() {
-  // Balance and minutes state
-  const [balance, setBalance] = useState<number>(234.5);
-  const [minutesUsed, setMinutesUsed] = useState<number>(1653);
-  const [minutesLimit, setMinutesLimit] = useState<number>(2500);
+interface TwilioDashboardProps {
+  twilioConfig?: TwilioConfigResponse;
+}
+
+export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) {
+  const [searchParams, setSearchParams] = useSearchParams();
+  const queryClient = useQueryClient();
+
+  const [balance, setBalance] = useState<number>(twilioConfig?.balance ?? 234.5);
+  const [minutesUsed, setMinutesUsed] = useState<number>(twilioConfig?.minutesUsed ?? 1653);
+  const [minutesLimit, setMinutesLimit] = useState<number>(twilioConfig?.minutesLimit ?? 2500);
+
+  useEffect(() => {
+    if (twilioConfig) {
+      if (twilioConfig.balance !== undefined) setBalance(twilioConfig.balance);
+      if (twilioConfig.minutesUsed !== undefined) setMinutesUsed(twilioConfig.minutesUsed);
+      if (twilioConfig.minutesLimit !== undefined) setMinutesLimit(twilioConfig.minutesLimit);
+    }
+  }, [twilioConfig]);
 
   // Phone numbers state
   const [phoneNumbers, setPhoneNumbers] = useState<PhoneNumber[]>([
@@ -54,12 +71,77 @@ export default function TwilioDashboard() {
   const [isPurchaseNumberOpen, setIsPurchaseNumberOpen] = useState(false);
   const [numberToRelease, setNumberToRelease] = useState<PhoneNumber | null>(null);
 
+  const successParam = searchParams.get("success");
+  const typeParam = searchParams.get("type");
+
+  useEffect(() => {
+    // 1. If running inside the popup window: post message and close window
+    if (window.opener && typeParam === "twilio_credits") {
+      if (successParam === "true") {
+        window.opener.postMessage({ type: "STRIPE_SUCCESS" }, "*");
+      } else if (successParam === "false") {
+        window.opener.postMessage({ type: "STRIPE_CANCEL" }, "*");
+      }
+      window.close();
+      return;
+    }
+
+    // 2. If running in the main parent window (directly navigated)
+    if (successParam === "true" && typeParam === "twilio_credits") {
+      addToast({
+        title: "Credits Added",
+        description: "Payment successful!",
+        color: "success",
+      });
+      queryClient.invalidateQueries({ queryKey: ["twilio"] });
+
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete("success");
+      newParams.delete("session_id");
+      newParams.delete("type");
+      setSearchParams(newParams);
+    } else if (successParam === "false" && typeParam === "twilio_credits") {
+      addToast({
+        title: "Checkout Canceled",
+        description: "Your credits purchase was canceled.",
+        color: "warning",
+      });
+
+      const newParams = new URLSearchParams(searchParams);
+      newParams.delete("success");
+      newParams.delete("type");
+      setSearchParams(newParams);
+    }
+  }, [successParam, typeParam, queryClient, searchParams, setSearchParams]);
+
+  // 3. Listen for postMessages from the popup window
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === "STRIPE_SUCCESS") {
+        addToast({
+          title: "Credits Added",
+          description: "Payment successful! Your credits and minutes have been updated.",
+          color: "success",
+        });
+        queryClient.invalidateQueries({ queryKey: ["twilio"] });
+      } else if (event.data?.type === "STRIPE_CANCEL") {
+        addToast({
+          title: "Checkout Canceled",
+          description: "Your credits purchase was canceled.",
+          color: "warning",
+        });
+      }
+    };
+
+    window.addEventListener("message", handleMessage);
+    return () => {
+      window.removeEventListener("message", handleMessage);
+    };
+  }, [queryClient]);
+
   // Handle adding credits
   const handleAddCredits = (amount: number, minutes: number) => {
-    setBalance((prev) => prev + amount);
-    if (minutes > 0) {
-      setMinutesLimit((prev) => prev + minutes);
-    }
+    // This is handled in the Stripe webhook, but we keep this as a no-op fallback
   };
 
   // Handle purchasing new number

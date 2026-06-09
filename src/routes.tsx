@@ -91,6 +91,7 @@ const WebhookReferralForm = React.lazy(
   () => import("./pages/integrations/webhooks/WebhookReferralForm"),
 );
 const NotFoundPage = React.lazy(() => import("./pages/NotFoundPage"));
+const Checkout = React.lazy(() => import("./pages/checkout/Checkout"));
 interface AppRoute {
   path?: string;
   element: ReactNode;
@@ -307,6 +308,14 @@ function AppRoutes() {
         <PublicRoute>
           <SignIn />
         </PublicRoute>
+      ),
+    },
+    {
+      path: "checkout",
+      element: (
+        <ProtectedRoute>
+          <Checkout />
+        </ProtectedRoute>
       ),
     },
     {

@@ -87,7 +87,7 @@ export default function SocialConnectConfirmModal({
           <Button variant="light" onPress={onClose} isDisabled={isConnecting}>
             Cancel
           </Button>
-          <Button color="primary" onPress={onConfirm} isLoading={isConnecting}>
+          <Button color="primary" onPress={onConfirm} isLoading={isConnecting ?? false}>
             Connect
           </Button>
         </ModalFooter>
