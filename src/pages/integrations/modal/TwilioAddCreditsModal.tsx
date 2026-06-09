@@ -13,6 +13,7 @@ import {
 import { useState, useEffect } from "react";
 import { BsLightningCharge } from "react-icons/bs";
 import { FiCreditCard } from "react-icons/fi";
+import { createCreditsCheckoutSession } from "../../../services/integrations/twilio";
 
 interface TwilioAddCreditsModalProps {
   isOpen: boolean;
@@ -33,12 +34,14 @@ export default function TwilioAddCreditsModal({
   const [selectedPreset, setSelectedPreset] = useState<number | null>(50);
   const [customAmount, setCustomAmount] = useState<string>("50");
   const [selectedPackage, setSelectedPackage] = useState<string>("500");
+  const [isConnecting, setIsConnecting] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setSelectedPreset(50);
       setCustomAmount("50");
       setSelectedPackage("500");
+      setIsConnecting(false);
     }
   }, [isOpen]);
 
@@ -68,17 +71,9 @@ export default function TwilioAddCreditsModal({
       return;
     }
 
-    let addedMinutes = 0;
-    if (selectedPackage === "500") addedMinutes = 500;
-    else if (selectedPackage === "1000") addedMinutes = 1000;
-    else if (selectedPackage === "2500") addedMinutes = 2500;
+    const url = `${window.location.origin}/checkout?type=twilio_credits&amount=${credits}&package=${selectedPackage}`;
 
-    onAddCredits(credits, addedMinutes);
-    addToast({
-      title: "Credits Added",
-      description: `Successfully added $${credits.toFixed(2)} and ${addedMinutes} minutes.`,
-      color: "success",
-    });
+    window.open(url, "_blank");
     onClose();
   };
 
@@ -86,10 +81,10 @@ export default function TwilioAddCreditsModal({
     selectedPackage === "500"
       ? 15
       : selectedPackage === "1000"
-      ? 25
-      : selectedPackage === "2500"
-      ? 50
-      : 0;
+        ? 25
+        : selectedPackage === "2500"
+          ? 50
+          : 0;
 
   const totalCost = (parseFloat(customAmount) || 0) + packageCost;
 
@@ -145,11 +140,10 @@ export default function TwilioAddCreditsModal({
                     variant={isSelected ? "solid" : "bordered"}
                     color={isSelected ? "primary" : "default"}
                     onPress={() => handlePresetClick(amount)}
-                    className={`h-11 font-bold rounded-lg border-small ${
-                      isSelected
+                    className={`h-11 font-bold rounded-lg border-small ${isSelected
                         ? "bg-primary text-white border-primary"
                         : "border-foreground/10 bg-transparent text-foreground hover:bg-foreground/5"
-                    }`}
+                      }`}
                   >
                     ${amount}
                   </Button>
@@ -245,6 +239,7 @@ export default function TwilioAddCreditsModal({
             <Button
               color="primary"
               onPress={handleAdd}
+              isLoading={isConnecting}
               startContent={<FiCreditCard className="w-4 h-4" />}
               className="bg-primary text-white rounded-lg text-sm font-semibold h-10 px-4"
             >

@@ -138,8 +138,8 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
       radius="sm"
       variant="solid"
       color="primary"
-      isLoading={isSyncing}
-      isDisabled={isSyncing}
+      isLoading={isSyncing ?? false}
+      isDisabled={isSyncing ?? false}
       onPress={() =>
         (status === "Pending" && onSync ? onSync : (status === "Error" ? onReconnect || onConnect : onConnect))?.()
       }

@@ -1,23 +1,27 @@
 import { Button, Card, CardBody, CardHeader, Spinner } from "@heroui/react";
 import React from "react";
 import { FiCreditCard } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 import { useBilling } from "../../hooks/settings/useBilling";
 import { formatDateToReadable } from "../../utils/formatDateToReadable";
 import { LoadingState } from "../../components/common/LoadingState";
 
 const Billing: React.FC = () => {
   const { data: billingData, isLoading, error } = useBilling();
+  const navigate = useNavigate();
 
   const handleNavigateToROI = () => {
-    window.open("https://practiceroi.com/account", "_blank", "noreferrer");
+    navigate("/checkout?plan=professional");
   };
 
   const handleUpdatePayment = () => {
-    handleNavigateToROI();
+    const planName = (billingData?.name || "professional").toLowerCase();
+    navigate(`/checkout?plan=${planName}`);
   };
 
   const handleTogglePlanStatus = () => {
-    handleNavigateToROI();
+    const planName = (billingData?.name || "professional").toLowerCase();
+    navigate(`/checkout?plan=${planName}`);
   };
 
   if (isLoading) {
