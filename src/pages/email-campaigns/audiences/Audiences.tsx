@@ -183,6 +183,7 @@ const Audiences: React.FC = () => {
       (audience.referrers?.length || 0) +
       (audience.practices?.length || 0) +
       (audience.referrals?.length || 0),
+    activity: audience.activity,
   });
 
   return (

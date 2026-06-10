@@ -92,16 +92,24 @@ export const AUDIENCE_SEGMENT_STATUSES = [
 
 export const AUDIENCE_TYPES = [
   {
-    label: "Dental Practices",
-    value: "dentalPractices",
+    label: "New Practices",
+    value: "newPractices",
   },
   {
-    label: "Patients",
-    value: "patients",
+    label: "Inactive Practices",
+    value: "inactivePractices",
   },
   {
-    label: "Referral Partners",
-    value: "referralPartners",
+    label: "Recent Referrers",
+    value: "recentReferrers",
+  },
+  {
+    label: "A-Level Partners",
+    value: "aLevelPartners",
+  },
+  {
+    label: "All Dental Practices",
+    value: "allDentalPractices",
   },
 ];
 

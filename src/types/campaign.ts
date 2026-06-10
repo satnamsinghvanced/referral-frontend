@@ -161,6 +161,7 @@ export interface Segment {
   avgOpenRate: string;
   avgClickRate: string;
   size: number;
+  activity?: string | undefined;
 }
 
 export interface CampaignMetric {

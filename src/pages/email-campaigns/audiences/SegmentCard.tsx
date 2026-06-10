@@ -37,7 +37,23 @@ const SegmentCard = ({
     avgOpenRate,
     avgClickRate,
     size,
+    activity,
   } = segment;
+
+  const getActivityLabel = (activityVal: string) => {
+    switch (activityVal) {
+      case "last7Days":
+        return "last 7 days";
+      case "last30Days":
+        return "last 30 days";
+      case "last90Days":
+        return "last 90 days";
+      case "60+DaysAgo":
+        return "60+ days ago";
+      default:
+        return activityVal;
+    }
+  };
 
   const [isCampaignModalOpen, setIsCampaignModalOpen] = useState(false);
 
@@ -75,6 +91,7 @@ const SegmentCard = ({
               </div>
               <p className="text-xs text-gray-600 dark:text-foreground/60">
                 {description}
+                {activity && ` (${getActivityLabel(activity).toLowerCase()})`}
               </p>
               <div className="text-xs text-gray-500 dark:text-foreground/50 mt-1 flex gap-2.5">
                 <p className="inline-flex items-center gap-1.5">

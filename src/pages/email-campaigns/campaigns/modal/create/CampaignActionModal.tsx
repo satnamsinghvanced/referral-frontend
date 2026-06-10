@@ -98,7 +98,6 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
 
   const createMutation = useCreateCampaign();
   const updateMutation = useUpdateCampaign();
-
   useEffect(() => {
     if (editingCampaign) {
       setCampaignData({

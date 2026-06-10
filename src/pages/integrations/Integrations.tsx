@@ -21,6 +21,7 @@ import {
   useFetchEmailIntegration,
   useUpdateEmailIntegration,
   useConnectEmail,
+  useConnectSendGrid,
 } from "../../hooks/integrations/useEmailMarketing";
 import {
   useAnalyticsIntegration,
@@ -88,6 +89,7 @@ function Integrations() {
 
   const { mutate: updateEmailIntegration } = useUpdateEmailIntegration();
   const { mutate: connectEmail } = useConnectEmail();
+  const { mutate: connectSendGrid } = useConnectSendGrid();
 
   const {
     data: twilioConfig,
@@ -197,6 +199,41 @@ function Integrations() {
       if (countdownTimer) clearInterval(countdownTimer);
     };
   }, [onboardingWindow, googleBusinessConfig, token, syncBusinessProfiles, userId]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("socialMediaRedirect") === "true") {
+      const status = params.get("status");
+      const platform = params.get("platform");
+      const message = params.get("message");
+
+      if (status === "success") {
+        addToast({
+          title: "Connection Successful",
+          description: `${platform ? platform.charAt(0).toUpperCase() + platform.slice(1) : "Integration"} connected successfully!`,
+          color: "success",
+        });
+      } else if (status === "error") {
+        addToast({
+          title: "Connection Failed",
+          description: message || "Failed to connect integration.",
+          color: "danger",
+        });
+      }
+
+      const url = new URL(window.location.href);
+      url.searchParams.delete("socialMediaRedirect");
+      url.searchParams.delete("status");
+      url.searchParams.delete("platform");
+      url.searchParams.delete("message");
+      window.history.replaceState({}, "", url.toString());
+
+      queryClient.invalidateQueries({ queryKey: ["email-integration"] });
+      queryClient.invalidateQueries({ queryKey: ["googleCalendar"] });
+      queryClient.invalidateQueries({ queryKey: ["googleAds"] });
+      queryClient.invalidateQueries({ queryKey: ["googleAnalytics"] });
+    }
+  }, [queryClient]);
 
   const {
     data: googleAnalyticsConfig,
@@ -449,6 +486,46 @@ function Integrations() {
       },
     });
 
+    // SendGrid Integration
+    const isSendGridConnected = emailConfig?.provider === "SendGrid" && emailConfig?.status === "Connected";
+    list.push({
+      id: emailConfig?.provider === "SendGrid" ? emailConfig?._id : "",
+      name: "SendGrid Integration",
+      icon: <FaRegEnvelope className="w-4 h-4" />,
+      iconBg: "bg-blue-100 dark:bg-blue-900/20",
+      iconColor: "text-blue-600 dark:text-blue-400",
+      status: isSendGridConnected
+        ? "Connected"
+        : emailConfig?.provider === "SendGrid" && emailConfig?.status === "Error"
+          ? "Error"
+          : "Disconnected",
+      description:
+        "Connect your SendGrid account seamlessly to send high-deliverability campaigns",
+      badges: ["Direct Integration", "Automated Campaigns", "High Deliverability"],
+      onConnect: () => connectSendGrid(),
+      onReconnect: () => connectSendGrid(),
+      isSwitchChecked: isSendGridConnected,
+      onSwitchChange: () => {
+        if (emailConfig?._id && emailConfig.provider === "SendGrid") {
+          updateEmailIntegration({
+            id: emailConfig._id,
+            // @ts-ignore
+            data: {
+              status:
+                emailConfig.status === "Connected"
+                  ? "Disconnected"
+                  : "Connected",
+            },
+          });
+        }
+      },
+      account: isSendGridConnected ? {
+        accountName: emailConfig?.accountName || "SendGrid Admin",
+        accountEmail: emailConfig?.accountEmail || emailConfig?.username,
+        accountAvatar: emailConfig?.accountAvatar,
+      } : undefined,
+    });
+
     // Twilio Integration
     list.push({
       id: twilioConfig?._id || "",
@@ -488,6 +565,7 @@ function Integrations() {
     updateGoogleCalendarIntegration,
     connectCalendar,
     connectEmail,
+    connectSendGrid,
     twilioConfig,
     isTwilioConnected,
     googleAdsConfig,

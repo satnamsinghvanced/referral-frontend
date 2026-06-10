@@ -135,9 +135,6 @@ const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({
               selectedKeys={
                 formik.values.partnerLevel ? [formik.values.partnerLevel] : []
               }
-              disabledKeys={
-                formik.values.partnerLevel ? [formik.values.partnerLevel] : []
-              }
               onSelectionChange={(keys) =>
                 formik.setFieldValue(
                   "partnerLevel",
@@ -234,9 +231,6 @@ const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({
                 label="Audience Type"
                 labelPlacement="outside"
                 selectedKeys={
-                  formik.values.audienceType ? [formik.values.audienceType] : []
-                }
-                disabledKeys={
                   formik.values.audienceType ? [formik.values.audienceType] : []
                 }
                 onSelectionChange={(keys) =>
@@ -341,6 +335,7 @@ const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({
             size="sm"
             radius="sm"
             className="border-small"
+            isDisabled={isLoading || formik.isSubmitting}
           >
             Cancel
           </Button>
@@ -351,7 +346,8 @@ const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({
             size="sm"
             radius="sm"
             onPress={() => formik.handleSubmit()}
-            isLoading={!!isLoading}
+            isLoading={isLoading || formik.isSubmitting}
+            isDisabled={isLoading || formik.isSubmitting}
           >
             {initialValues ? "Update Segment" : "Create Segment"}
           </Button>
