@@ -104,7 +104,7 @@ const EmailCampaigns = () => {
     <>
       <ComponentContainer headingData={HEADING_DATA}>
         <div className="flex flex-col gap-4 md:gap-5">
-          {!isSendGridConnected && !isEmailConfigLoading && (
+          {/* {!isSendGridConnected && !isEmailConfigLoading && (
             <div className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-500/30 rounded-lg p-3 flex items-center justify-between flex-wrap gap-3">
               <p className="text-sm text-yellow-800 dark:text-amber-400">
                 SendGrid is not connected. Connect your SendGrid account to enable email campaign features.
@@ -120,7 +120,7 @@ const EmailCampaigns = () => {
                 Connect SendGrid
               </Button>
             </div>
-          )}
+          )} */}
           <div className="grid md:grid-cols-2 xl:grid-cols-6 gap-3 md:gap-4">
             {STAT_CARD_DATA.map((data, i) => (
               <MiniStatsCard key={i} cardData={data} />
