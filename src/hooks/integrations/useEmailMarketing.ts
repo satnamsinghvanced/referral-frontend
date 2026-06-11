@@ -6,6 +6,7 @@ import {
   fetchEmailIntegrationById,
   updateEmailIntegration,
   getEmailAuthUrl,
+  getSendGridAuthUrl,
 } from "../../services/integrations/emailMarketing";
 import { EmailIntegrationBody } from "../../types/integrations/emailMarketing";
 import { addToast } from "@heroui/react";
@@ -78,3 +79,31 @@ export const useConnectEmail = () => {
     },
   });
 };
+
+export const useConnectSendGrid = () => {
+  return useMutation({
+    mutationFn: getSendGridAuthUrl,
+    onMutate: () => {
+      const newTab = window.open("about:blank", "_blank");
+      return { newTab };
+    },
+    onSuccess: (data: any, variables, context) => {
+      if (data?.authUrl && context?.newTab) {
+        context.newTab.location.href = data.authUrl;
+      } else if (context?.newTab) {
+        context.newTab.close();
+      }
+    },
+    onError: (error: AxiosError<{ message: string }>, variables, context) => {
+      if (context?.newTab) {
+        context.newTab.close();
+      }
+      addToast({
+        title: "Error",
+        description: error.response?.data?.message || "Failed to connect SendGrid",
+        color: "danger",
+      });
+    },
+  });
+};
+

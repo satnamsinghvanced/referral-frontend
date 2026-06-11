@@ -45,3 +45,11 @@ export const getEmailAuthUrl = async () => {
   );
   return data;
 };
+
+export const getSendGridAuthUrl = async () => {
+  const { data } = await axios.post<{ data: { authUrl: string } }>(
+    `${EMAIL_BASE}/sendgrid/auth-url`
+  );
+  return data;
+};
+

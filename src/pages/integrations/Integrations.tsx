@@ -21,6 +21,7 @@ import {
   useFetchEmailIntegration,
   useUpdateEmailIntegration,
   useConnectEmail,
+  useConnectSendGrid,
 } from "../../hooks/integrations/useEmailMarketing";
 import {
   useAnalyticsIntegration,
@@ -48,6 +49,7 @@ import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { timeAgo } from "../../utils/timeAgo";
 import IntegrationItem from "./IntegrationItem";
 import EmailMarketingConfigModal from "./modal/EmailMarketingConfigModal";
+import SendGridConfigModal from "./modal/SendGridConfigModal";
 import TwilioConfigurationModal from "./modal/TwilioConfigurationModal";
 import GoogleIntegrationSelectorModal from "./modal/GoogleIntegrationSelectorModal";
 import GoogleCalendarConfigModal from "./modal/GoogleCalendarConfigModal";
@@ -59,6 +61,8 @@ function Integrations() {
   const { user, token } = useTypedSelector((state) => state.auth);
   const userId = user?.userId;
   const [isTwilioIntegrationModalOpen, setIsTwilioIntegrationModalOpen] =
+    useState(false);
+  const [isSendGridConfigModalOpen, setIsSendGridConfigModalOpen] =
     useState(false);
   const [isGoogleBusinessLocationModalOpen, setIsGoogleBusinessLocationModalOpen] =
     useState(false);
@@ -88,6 +92,7 @@ function Integrations() {
 
   const { mutate: updateEmailIntegration } = useUpdateEmailIntegration();
   const { mutate: connectEmail } = useConnectEmail();
+  const { mutate: connectSendGrid } = useConnectSendGrid();
 
   const {
     data: twilioConfig,
@@ -198,6 +203,41 @@ function Integrations() {
     };
   }, [onboardingWindow, googleBusinessConfig, token, syncBusinessProfiles, userId]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("socialMediaRedirect") === "true") {
+      const status = params.get("status");
+      const platform = params.get("platform");
+      const message = params.get("message");
+
+      if (status === "success") {
+        addToast({
+          title: "Connection Successful",
+          description: `${platform ? platform.charAt(0).toUpperCase() + platform.slice(1) : "Integration"} connected successfully!`,
+          color: "success",
+        });
+      } else if (status === "error") {
+        addToast({
+          title: "Connection Failed",
+          description: message || "Failed to connect integration.",
+          color: "danger",
+        });
+      }
+
+      const url = new URL(window.location.href);
+      url.searchParams.delete("socialMediaRedirect");
+      url.searchParams.delete("status");
+      url.searchParams.delete("platform");
+      url.searchParams.delete("message");
+      window.history.replaceState({}, "", url.toString());
+
+      queryClient.invalidateQueries({ queryKey: ["email-integration"] });
+      queryClient.invalidateQueries({ queryKey: ["googleCalendar"] });
+      queryClient.invalidateQueries({ queryKey: ["googleAds"] });
+      queryClient.invalidateQueries({ queryKey: ["googleAnalytics"] });
+    }
+  }, [queryClient]);
+
   const {
     data: googleAnalyticsConfig,
     isLoading: isGoogleAnalyticsConfigLoading,
@@ -205,9 +245,18 @@ function Integrations() {
 
   const { mutate: updateGoogleAnalyticsIntegration } = useUpdateAnalytics();
   const { mutate: connectGoogleAnalytics } = useConnectAnalytics();
-  const emailConfig = Array.isArray(emailExistingConfig)
-    ? emailExistingConfig[0]
-    : emailExistingConfig;
+  const emailConfigsList = Array.isArray(emailExistingConfig)
+    ? emailExistingConfig
+    : emailExistingConfig
+      ? [emailExistingConfig]
+      : [];
+
+  const smtpConfig = emailConfigsList.find(
+    (cfg: any) => cfg.provider !== "SendGrid"
+  );
+  const sendGridConfig = emailConfigsList.find(
+    (cfg: any) => cfg.provider === "SendGrid"
+  );
   const googleCalendarConfig = Array.isArray(googleCalendarExistingConfig)
     ? googleCalendarExistingConfig[0]
     : googleCalendarExistingConfig;
@@ -416,26 +465,26 @@ function Integrations() {
 
     // Email Marketing SMTP
     list.push({
-      id: emailConfig?._id || "",
+      id: smtpConfig?._id || "",
       name: "Email Marketing Platform",
       icon: <FaRegEnvelope className="w-4 h-4" />,
       iconBg: "bg-green-100 dark:bg-green-900/20",
       iconColor: "text-green-600 dark:text-green-400",
-      status: emailConfig?.status || "Disconnected",
+      status: smtpConfig?.status || "Disconnected",
       description:
         "Connect your Google account to send automated referral notifications",
       badges: ["OAuth Authentication", "Automated Emails", "Gmail Integration"],
       onConnect: () => connectEmail(),
       onReconnect: () => connectEmail(),
-      isSwitchChecked: emailConfig?.status === "Connected",
+      isSwitchChecked: smtpConfig?.status === "Connected",
       onSwitchChange: () => {
-        if (emailConfig?._id) {
+        if (smtpConfig?._id) {
           updateEmailIntegration({
-            id: emailConfig._id,
+            id: smtpConfig._id,
             // @ts-ignore
             data: {
               status:
-                emailConfig.status === "Connected"
+                smtpConfig.status === "Connected"
                   ? "Disconnected"
                   : "Connected",
             },
@@ -443,10 +492,50 @@ function Integrations() {
         }
       },
       account: {
-        accountName: emailConfig?.accountName,
-        accountEmail: emailConfig?.accountEmail,
-        accountAvatar: emailConfig?.accountAvatar,
+        accountName: smtpConfig?.accountName,
+        accountEmail: smtpConfig?.accountEmail,
+        accountAvatar: smtpConfig?.accountAvatar,
       },
+    });
+
+    // SendGrid Integration
+    const isSendGridConnected = sendGridConfig?.status === "Connected";
+    list.push({
+      id: sendGridConfig?._id || "",
+      name: "SendGrid Integration",
+      icon: <FaRegEnvelope className="w-4 h-4" />,
+      iconBg: "bg-blue-100 dark:bg-blue-900/20",
+      iconColor: "text-blue-600 dark:text-blue-400",
+      status: isSendGridConnected
+        ? "Connected"
+        : sendGridConfig?.status === "Error"
+          ? "Error"
+          : "Disconnected",
+      description:
+        "Connect your SendGrid account seamlessly to send high-deliverability campaigns",
+      badges: ["Direct Integration", "Automated Campaigns", "High Deliverability"],
+      onConnect: () => setIsSendGridConfigModalOpen(true),
+      onConfigure: () => setIsSendGridConfigModalOpen(true),
+      isSwitchChecked: isSendGridConnected,
+      onSwitchChange: () => {
+        if (sendGridConfig?._id) {
+          updateEmailIntegration({
+            id: sendGridConfig._id,
+            // @ts-ignore
+            data: {
+              status:
+                sendGridConfig.status === "Connected"
+                  ? "Disconnected"
+                  : "Connected",
+            },
+          });
+        }
+      },
+      account: isSendGridConnected ? {
+        accountName: sendGridConfig?.accountName || "SendGrid Admin",
+        accountEmail: sendGridConfig?.accountEmail || sendGridConfig?.username,
+        accountAvatar: sendGridConfig?.accountAvatar,
+      } : undefined,
     });
 
     // Twilio Integration
@@ -482,12 +571,14 @@ function Integrations() {
 
     return list;
   }, [
-    emailConfig,
+    smtpConfig,
+    sendGridConfig,
     googleCalendarConfig,
     updateEmailIntegration,
     updateGoogleCalendarIntegration,
     connectCalendar,
     connectEmail,
+    connectSendGrid,
     twilioConfig,
     isTwilioConnected,
     googleAdsConfig,
@@ -567,6 +658,13 @@ function Integrations() {
         existingConfig={selectedCalendarConfig}
         isLoading={isGoogleCalendarConfigLoading}
         isError={isGoogleCalendarConfigError}
+      />
+
+      <SendGridConfigModal
+        isOpen={isSendGridConfigModalOpen}
+        onOpenChange={setIsSendGridConfigModalOpen}
+        existingConfig={sendGridConfig}
+        isLoading={isEmailConfigLoading}
       />
 
       {countdown !== null && (

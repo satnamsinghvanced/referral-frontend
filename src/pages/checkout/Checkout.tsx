@@ -84,8 +84,32 @@ export default function Checkout() {
   const [agreeToTerms, setAgreeToTerms] = useState(false);
 
   // Saved cards states
-  const [savedCards, setSavedCards] = useState<SavedCard[]>([]);
-  const [selectedSavedCard, setSelectedSavedCard] = useState<string>("");
+  const [savedCards, setSavedCards] = useState<SavedCard[]>(() => {
+    try {
+      const saved = localStorage.getItem("practice_roi_saved_cards");
+      return saved ? JSON.parse(saved) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+  const [selectedSavedCard, setSelectedSavedCard] = useState<string>(() => {
+    try {
+      const saved = localStorage.getItem("practice_roi_saved_cards");
+      const list = saved ? JSON.parse(saved) : [];
+      const defaultCard = list.find((c: any) => c.isDefault);
+      return defaultCard ? defaultCard.id : (list.length > 0 ? list[0].id : "");
+    } catch (e) {
+      return "";
+    }
+  });
+
+  useEffect(() => {
+    try {
+      localStorage.setItem("practice_roi_saved_cards", JSON.stringify(savedCards));
+    } catch (e) {
+      console.error("Failed to save cards", e);
+    }
+  }, [savedCards]);
 
   // Form errors & touched states
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -304,14 +328,22 @@ export default function Checkout() {
         });
         if (!isSaved && savePaymentDetails) {
           const last4Digits = finalCardNumber.slice(-4);
-          const newSavedCard: SavedCard = {
-            id: Math.random().toString(),
-            brand: cardBrand || "visa",
-            last4: last4Digits,
-            expiry: expiry,
-            isDefault: false,
-          };
-          setSavedCards((prev) => [...prev, newSavedCard]);
+          const brandName = cardBrand || "visa";
+          const exists = savedCards.some(
+            (c) => c.last4 === last4Digits && c.expiry === expiry && c.brand === brandName
+          );
+          if (!exists) {
+            const newSavedCard: SavedCard = {
+              id: Math.random().toString(),
+              brand: brandName,
+              last4: last4Digits,
+              expiry: expiry,
+              isDefault: savedCards.length === 0,
+            };
+            const updatedCards = [...savedCards, newSavedCard];
+            localStorage.setItem("practice_roi_saved_cards", JSON.stringify(updatedCards));
+            setSavedCards(updatedCards);
+          }
         }
         addToast({
           title: "Credits Added",
