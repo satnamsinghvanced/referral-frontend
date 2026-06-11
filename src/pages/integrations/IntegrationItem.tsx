@@ -62,7 +62,7 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
 }) => {
   const isCredentialsSaved = !!id;
   const showConnectedActions =
-    isFullyConnected ?? (isCredentialsSaved && status === "Connected");
+    isFullyConnected ?? isCredentialsSaved;
   const isError = status === "Error";
   let statusClasses = "";
   let StatusIcon = null;
@@ -189,7 +189,7 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
             ))}
           </div>
           <div className="flex items-center gap-3 mt-2 h-6">
-            {showConnectedActions && account && (account.accountEmail || account.accountName) && (
+            {status === "Connected" && account && (account.accountEmail || account.accountName) && (
               <p
                 className="h-5 flex items-center gap-2 text-xs dark:text-foreground/40"
               >
