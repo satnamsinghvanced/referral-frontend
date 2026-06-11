@@ -53,8 +53,6 @@ export const CAMPAIGN_KEYS = {
   stats: ["campaigns", "stats"] as const,
 };
 
-// --- Queries ---
-
 export function useCampaignTemplates(filters: CampaignFilters) {
   return useQuery({
     queryKey: CAMPAIGN_KEYS.list(filters),
@@ -69,8 +67,6 @@ export function useCampaignTemplate(id: string) {
     enabled: !!id,
   });
 }
-
-// --- Mutations ---
 
 export function useCreateCampaignTemplate() {
   return useMutation({
@@ -129,7 +125,6 @@ export function useDeleteCampaignTemplate() {
   });
 }
 
-// AUDIENCE SEGMENT
 
 export const useAudiences = (filters: AudienceFilters) => {
   return useQuery({
@@ -205,7 +200,6 @@ export const useDeleteAudience = () => {
     mutationFn: (id: string) => deleteAudience(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["audiences"] });
-
       addToast({
         title: "Success",
         description: "Audience deleted successfully",
@@ -228,7 +222,6 @@ export const useImportAudienceCsv = () => {
     mutationFn: (file: File) => importAudienceCsv(file),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["audiences"] });
-
       addToast({
         title: "Success",
         description: "Audience imported successfully",
@@ -246,7 +239,6 @@ export const useImportAudienceCsv = () => {
   });
 };
 
-// CAMPAIGNS
 export const useCampaigns = (filters: ICampaignFilters) => {
   return useQuery({
     queryKey: CAMPAIGN_KEYS.list(filters),
@@ -298,7 +290,6 @@ export const useUpdateCampaign = () => {
       updateCampaign(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CAMPAIGN_KEYS.all });
-
       addToast({
         title: "Success",
         description: "Campaign updated successfully",
@@ -321,7 +312,6 @@ export const useDuplicateCampaign = () => {
     mutationFn: ({ id }: { id: string }) => duplicateCampaign(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CAMPAIGN_KEYS.all });
-
       addToast({
         title: "Success",
         description: "Campaign duplicated successfully",
@@ -344,7 +334,6 @@ export const useArchiveCampaign = () => {
     mutationFn: ({ id }: { id: string }) => archiveCampaign(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CAMPAIGN_KEYS.all });
-
       addToast({
         title: "Success",
         description: "Campaign archived successfully",
@@ -367,7 +356,6 @@ export const usePauseCampaign = () => {
     mutationFn: ({ id }: { id: string }) => pauseCampaign(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CAMPAIGN_KEYS.all });
-
       addToast({
         title: "Success",
         description: "Campaign paused successfully",
@@ -390,7 +378,6 @@ export const useDeleteCampaign = () => {
     mutationFn: ({ id }: { id: string }) => deleteCampaign(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CAMPAIGN_KEYS.all });
-
       addToast({
         title: "Success",
         description: "Campaign deleted successfully",
@@ -453,7 +440,7 @@ export const useCampaignAnalytics = (id: string) => {
   return useQuery({
     queryKey: ANALYTICS_KEYS.campaign(id),
     queryFn: () => getEmailAnalyticsCampaign(id),
-    enabled: !!id, // Only run if ID is provided
+    enabled: !!id,
   });
 };
 
@@ -491,7 +478,6 @@ export const AUTO_KEYS = {
   templates: () => [...AUTO_KEYS.all, "templates"] as const,
 };
 
-// Queries
 export const useAutomations = (
   page: number,
   limit?: number,
@@ -519,7 +505,6 @@ export const useAutomationTemplates = () => {
   });
 };
 
-// Mutations
 export const useCreateAutomation = () => {
   return useMutation({
     mutationFn: createAutomation,

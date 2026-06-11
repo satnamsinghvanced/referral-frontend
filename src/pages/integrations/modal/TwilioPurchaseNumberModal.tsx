@@ -11,6 +11,7 @@ import {
 } from "@heroui/react";
 import { useState, useEffect } from "react";
 import { FiSearch, FiPhone } from "react-icons/fi";
+import axios from "../../../services/axios";
 
 interface TwilioPurchaseNumberModalProps {
   isOpen: boolean;
@@ -34,7 +35,8 @@ export default function TwilioPurchaseNumberModal({
   const [searching, setSearching] = useState<boolean>(false);
   const [searchResults, setSearchResults] = useState<MockNumber[]>([]);
   const [searched, setSearched] = useState<boolean>(false);
-  const [customLabel, setCustomLabel] = useState<{[key: string]: string}>({});
+  const [customLabel, setCustomLabel] = useState<{ [key: string]: string }>({});
+  const [buyingNumber, setBuyingNumber] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -43,10 +45,11 @@ export default function TwilioPurchaseNumberModal({
       setSearchResults([]);
       setSearched(false);
       setCustomLabel({});
+      setBuyingNumber(null);
     }
   }, [isOpen]);
 
-  const handleSearch = () => {
+  const handleSearch = async () => {
     if (!areaCode || areaCode.trim().length < 3) {
       addToast({
         title: "Invalid Area Code",
@@ -58,45 +61,61 @@ export default function TwilioPurchaseNumberModal({
 
     setSearching(true);
     setSearched(false);
+    setSearchResults([]);
 
-    // Simulate API delay
-    setTimeout(() => {
-      const code = areaCode.trim();
-      const generated: MockNumber[] = [
-        {
-          phoneNumber: `+1 (${code}) 555-${Math.floor(1000 + Math.random() * 9000)}`,
-          setupFee: 15.0,
-          monthlyFee: 5.0,
-          capabilities: { voice: true, sms: true, mms: true },
-        },
-        {
-          phoneNumber: `+1 (${code}) 555-${Math.floor(1000 + Math.random() * 9000)}`,
-          setupFee: 15.0,
-          monthlyFee: 5.0,
-          capabilities: { voice: true, sms: true, mms: false },
-        },
-        {
-          phoneNumber: `+1 (${code}) 555-${Math.floor(1000 + Math.random() * 9000)}`,
-          setupFee: 15.0,
-          monthlyFee: 5.0,
-          capabilities: { voice: true, sms: false, mms: false },
-        },
-      ];
-      setSearchResults(generated);
+    try {
+      const response = await axios.get("/twilio-checkout/search-numbers", {
+        params: { areaCode: areaCode.trim() },
+      });
+      if (response.data?.success) {
+        setSearchResults(response.data.data || []);
+      } else {
+        setSearchResults([]);
+      }
+    } catch (err: any) {
+      console.error(err);
+      addToast({
+        title: "Search Failed",
+        description: err.response?.data?.message || err.message || "Failed to search numbers.",
+        color: "danger",
+      });
+    } finally {
       setSearching(false);
       setSearched(true);
-    }, 800);
+    }
   };
 
-  const handleBuy = (num: MockNumber) => {
+  const handleBuy = async (num: MockNumber) => {
     const labelText = customLabel[num.phoneNumber]?.trim() || "Marketing Line";
-    onPurchaseSuccess(num.phoneNumber, labelText);
-    addToast({
-      title: "Number Purchased",
-      description: `Successfully purchased ${num.phoneNumber} for your account.`,
-      color: "success",
-    });
-    onClose();
+    setBuyingNumber(num.phoneNumber);
+
+    try {
+      const response = await axios.post("/twilio-checkout/buy-number", {
+        phoneNumber: num.phoneNumber,
+        label: labelText,
+      });
+
+      if (response.data?.success) {
+        onPurchaseSuccess(num.phoneNumber, labelText);
+        addToast({
+          title: "Number Purchased",
+          description: `Successfully purchased ${num.phoneNumber} for your account.`,
+          color: "success",
+        });
+        onClose();
+      } else {
+        throw new Error(response.data?.message || "Failed to purchase number.");
+      }
+    } catch (err: any) {
+      console.error(err);
+      addToast({
+        title: "Purchase Failed",
+        description: err.response?.data?.message || err.message || "Failed to purchase number.",
+        color: "danger",
+      });
+    } finally {
+      setBuyingNumber(null);
+    }
   };
 
   return (
@@ -117,9 +136,7 @@ export default function TwilioPurchaseNumberModal({
             Search for available phone numbers by area code • $15 setup + $5/month
           </p>
         </ModalHeader>
-
         <ModalBody className="p-5 pt-2 flex flex-col gap-4">
-          {/* Search box row */}
           <div className="flex gap-2 items-end">
             <Input
               type="text"
@@ -149,8 +166,6 @@ export default function TwilioPurchaseNumberModal({
               Search
             </Button>
           </div>
-
-          {/* Search results list */}
           {searching && (
             <div className="flex flex-col items-center justify-center py-8 gap-2">
               <Spinner size="md" color="primary" />
@@ -178,6 +193,8 @@ export default function TwilioPurchaseNumberModal({
                         size="sm"
                         color="primary"
                         onPress={() => handleBuy(num)}
+                        isLoading={buyingNumber === num.phoneNumber}
+                        isDisabled={buyingNumber !== null}
                         className="bg-primary text-white rounded-lg text-xs font-semibold h-8 px-4"
                       >
                         Buy
@@ -199,7 +216,6 @@ export default function TwilioPurchaseNumberModal({
                         </span>
                       )}
                     </div>
-
                     <Input
                       type="text"
                       placeholder="Label (e.g. Marketing Line, Main Office)"

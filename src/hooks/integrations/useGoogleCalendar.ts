@@ -69,7 +69,6 @@ export const useSelectCalendarForSync = () => {
   return useMutation({
     mutationFn: selectCalendarForSync,
     onSuccess: () => {
-      // selected calendar affects integration config + what gets synced
       queryClient.invalidateQueries({ queryKey: CALENDAR_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });

@@ -33,25 +33,21 @@ export const useSaveGoogleApiKey = () => {
     { userId: UserIdParam["userId"]; data: GoogleApiKeyRequest }
   >({
     mutationFn: ({ userId, data }) => saveGoogleApiKey(userId, data),
-
     onSuccess: (data) => {
       addToast({
         title: "Success",
         description: "Google API key saved successfully.",
         color: "success",
       });
-
       queryClient.invalidateQueries({
         queryKey: googleKeys.details(data.userId),
       });
     },
-
     onError: (error) => {
       const message =
         (error.response?.data as { error?: string })?.error ||
         error.message ||
         "Failed to save Google API key.";
-
       addToast({
         title: "Error",
         description: message,
@@ -68,14 +64,12 @@ export const useUpdateGoogleApiKey = () => {
     { userId: UserIdParam["userId"]; data: GoogleApiKeyRequest }
   >({
     mutationFn: ({ userId, data }) => updateGoogleApiKey(userId, data),
-
     onSuccess: (data) => {
       addToast({
         title: "Success",
         description: "Google API key updated successfully.",
         color: "success",
       });
-
       queryClient.invalidateQueries({
         queryKey: googleKeys.details(data.userId),
       });
@@ -86,7 +80,6 @@ export const useUpdateGoogleApiKey = () => {
         (error.response?.data as { error?: string })?.error ||
         error.message ||
         "Failed to update Google API key.";
-
       addToast({
         title: "Error",
         description: message,

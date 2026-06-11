@@ -191,22 +191,17 @@ export default function Checkout() {
 
   const validate = () => {
     const newErrors: Record<string, string> = {};
-
-    // Validate consent checkbox
     if (!agreeToTerms) {
       newErrors.agree = "You must agree to the Terms of Service and Privacy Policy";
     }
-
     if (activeTab === "card") {
       const brand = getCardBrand(cardNumber);
       const cardErr = validateField("cardNumber", cardNumber, brand);
       const expiryErr = validateField("expiry", expiry, brand);
       const cvcErr = validateField("cvc", cvc, brand);
-
       if (cardErr) newErrors.cardNumber = cardErr;
       if (expiryErr) newErrors.expiry = expiryErr;
       if (cvcErr) newErrors.cvc = cvcErr;
-
       setTouched({ cardNumber: true, expiry: true, cvc: true });
     } else {
       if (savedCards.length === 0) {
@@ -215,12 +210,10 @@ export default function Checkout() {
         newErrors.savedCard = "Please select a saved card.";
       }
     }
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // Calculate discount amount
   let discountAmount = 0;
   if (appliedDiscount) {
     if (appliedDiscount.type === "percent") {
@@ -231,10 +224,8 @@ export default function Checkout() {
   }
 
   const totalCost = Math.max(0, baseCost - discountAmount);
-
   const isFormValid = () => {
     if (!agreeToTerms) return false;
-
     if (activeTab === "card") {
       const brand = getCardBrand(cardNumber);
       const cardErr = validateField("cardNumber", cardNumber, brand);
@@ -244,17 +235,13 @@ export default function Checkout() {
     } else {
       if (savedCards.length === 0 || !selectedSavedCard) return false;
     }
-
     return true;
   };
 
   const isPayDisabled = !isFormValid();
-
-  // Apply promo/discount code
   const handleApplyDiscount = () => {
     const code = discountCode.trim().toUpperCase();
     if (!code) return;
-
     if (code === "PROMO50") {
       setAppliedDiscount({ code: "PROMO50", value: 50, type: "percent" });
       addToast({ title: "Discount Applied", description: "50% off has been applied to your order!", color: "success" });
@@ -271,17 +258,14 @@ export default function Checkout() {
 
   const handleSubmit = async () => {
     const newErrors: Record<string, string> = {};
-
     if (!agreeToTerms) {
       newErrors.agree = "You must agree to the Terms of Service and Privacy Policy";
     }
-
     if (activeTab === "card") {
       const brand = getCardBrand(cardNumber);
       const cardErr = validateField("cardNumber", cardNumber, brand);
       const expiryErr = validateField("expiry", expiry, brand);
       const cvcErr = validateField("cvc", cvc, brand);
-
       if (cardErr) newErrors.cardNumber = cardErr;
       if (expiryErr) newErrors.expiry = expiryErr;
       if (cvcErr) newErrors.cvc = cvcErr;
@@ -292,9 +276,7 @@ export default function Checkout() {
         newErrors.savedCard = "Please select a saved card.";
       }
     }
-
     setErrors(newErrors);
-
     if (Object.keys(newErrors).length > 0) {
       addToast({
         title: "Validation Error",
@@ -303,30 +285,23 @@ export default function Checkout() {
       });
       return;
     }
-
     try {
       setIsSubmitting(true);
-
-      // Determine final checkout details based on active tab
       const isSaved = activeTab === "saved";
       const cardToUse = isSaved
         ? savedCards.find((c) => c.id === selectedSavedCard)
         : null;
-
       const finalCardNumber = isSaved && cardToUse ? `424242424242${cardToUse.last4}` : cardNumber.replace(/\s/g, "");
       const finalExpiry = isSaved && cardToUse ? cardToUse.expiry : expiry;
       const finalCvc = isSaved ? "123" : cvc;
-
       if (typeParam === "twilio_credits") {
         await axios.post("/twilio-checkout/mock-credits-payment", {
-          amount: totalCost, // Apply discounted total cost
+          amount: totalCost,
           packageName: packageParam,
           cardNumber: finalCardNumber,
           expire: finalExpiry,
           cvc: finalCvc,
         });
-
-        // If Checked Save Card, simulate pushing to saved card state
         if (!isSaved && savePaymentDetails) {
           const last4Digits = finalCardNumber.slice(-4);
           const newSavedCard: SavedCard = {
@@ -338,15 +313,12 @@ export default function Checkout() {
           };
           setSavedCards((prev) => [...prev, newSavedCard]);
         }
-
         addToast({
           title: "Credits Added",
           description: `Successfully added $${amountParam} credits to your Twilio account!`,
           color: "success",
         });
-
         queryClient.invalidateQueries({ queryKey: ["twilio"] });
-
         if (window.opener) {
           window.opener.postMessage({ type: "STRIPE_SUCCESS" }, "*");
           window.close();
@@ -360,15 +332,12 @@ export default function Checkout() {
           expire: finalExpiry,
           cvc: finalCvc,
         });
-
         addToast({
           title: "Subscription Activated",
           description: `Successfully signed up for the ${activePlan.name} Plan!`,
           color: "success",
         });
-
         queryClient.invalidateQueries({ queryKey: ["billing"] });
-
         navigate("/settings/billing");
       }
     } catch (err: any) {
@@ -394,12 +363,9 @@ export default function Checkout() {
 
   return (
     <div className="flex flex-col items-center justify-start min-h-screen bg-gray-50 dark:bg-default-50 text-foreground py-10 px-4">
-      {/* logo */}
       <div className="h-10 mb-4 flex items-center justify-center">
         <Logo style={{ height: "40px" }} />
       </div>
-
-      {/* header title */}
       <h1 className="text-3xl sm:text-4xl font-extrabold text-center tracking-tight">
         {typeParam === "twilio_credits" ? (
           <>Add <span className="text-blue-600">Twilio Credits</span></>
@@ -412,8 +378,6 @@ export default function Checkout() {
           ? "Complete your payment details to add credits and minutes immediately."
           : "Choose your plan and get started in minutes. Cancel anytime."}
       </p>
-
-      {/* stepper progress indicator (only show for plans) */}
       {typeParam !== "twilio_credits" && (
         <div className="flex items-center justify-center gap-4 sm:gap-6 mt-6 mb-10 select-none flex-wrap">
           <div className="flex items-center gap-2">
@@ -438,18 +402,13 @@ export default function Checkout() {
           </div>
         </div>
       )}
-
-      {/* main content columns */}
       <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-6 mt-2">
-        {/* left columns (2/3 width) - payment forms */}
         <div className="md:col-span-2 flex flex-col gap-6">
           <Card className="shadow-none border border-foreground/10 bg-background rounded-2xl p-6">
             <h2 className="text-lg font-bold flex items-center gap-2 border-b border-foreground/5 pb-3.5 mb-5">
               <FiCreditCard className="w-5 h-5 text-blue-500" />
               Payment Information
             </h2>
-
-            {/* Tabs Row for Saved vs Card */}
             <div className="grid grid-cols-2 gap-4 mb-5 select-none">
               <div
                 onClick={() => setActiveTab("saved")}
@@ -476,10 +435,8 @@ export default function Checkout() {
                 </div>
               </div>
             </div>
-
             <div className="flex flex-col gap-4">
               {activeTab === "saved" ? (
-                /* Saved Cards View */
                 <div className="flex flex-col gap-3">
                   <label className="text-xs font-semibold text-default-600">Select a Saved Card</label>
                   {savedCards.length === 0 ? (
@@ -517,9 +474,7 @@ export default function Checkout() {
                   )}
                 </div>
               ) : (
-                /* Manual Card Input View */
                 <>
-                  {/* Card number */}
                   <div className="flex flex-col gap-1.5 relative">
                     <label className="text-xs font-semibold text-default-600">Card number</label>
                     <Input
@@ -546,8 +501,6 @@ export default function Checkout() {
                       }}
                     />
                   </div>
-
-                  {/* Exp and CVC row */}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="flex flex-col gap-1.5">
                       <label className="text-xs font-semibold text-default-600">Expiration date</label>
@@ -585,8 +538,6 @@ export default function Checkout() {
                       />
                     </div>
                   </div>
-
-                  {/* Country dropdown */}
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-semibold text-default-600">Country</label>
                     <Select
@@ -609,8 +560,6 @@ export default function Checkout() {
                       <SelectItem key="Australia" textValue="Australia">Australia</SelectItem>
                     </Select>
                   </div>
-
-                  {/* Save details check box */}
                   <div className="mt-1 flex items-center gap-2">
                     <Checkbox
                       isSelected={savePaymentDetails}
@@ -624,15 +573,11 @@ export default function Checkout() {
                   </div>
                 </>
               )}
-
-              {/* Consent text */}
               <p className="text-[11px] text-default-500 leading-relaxed mt-1">
                 By providing your card information, you allow Orthodontic Revolution to charge your card for future payments in accordance with their terms.
               </p>
             </div>
           </Card>
-
-          {/* Secure details card */}
           <Card className="shadow-none border border-blue-200 dark:border-blue-500/20 bg-blue-50/50 dark:bg-blue-950/10 rounded-2xl p-4">
             <CardBody className="p-0 flex flex-row gap-3.5 items-start">
               <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400 flex-shrink-0">
@@ -646,8 +591,6 @@ export default function Checkout() {
               </div>
             </CardBody>
           </Card>
-
-          {/* Discount / Promo Code optional block */}
           <div className="flex flex-col gap-2">
             <label className="text-xs font-bold text-default-600">Discount Code <span className="font-normal text-default-400">(optional)</span></label>
             <div className="flex gap-2">
@@ -671,8 +614,6 @@ export default function Checkout() {
               </Button>
             </div>
           </div>
-
-          {/* Terms Agreement Checkbox */}
           <div className="flex flex-col gap-1 mt-1">
             <Checkbox
               isSelected={agreeToTerms}
@@ -692,12 +633,9 @@ export default function Checkout() {
             {errors.agree && <span className="text-[10px] text-danger font-medium pl-6">{errors.agree}</span>}
           </div>
         </div>
-
-        {/* right column (1/3 width) - order summary */}
         <div className="flex flex-col gap-6">
           <Card className="shadow-none border border-foreground/10 bg-background rounded-2xl p-6">
             <h2 className="text-lg font-bold border-b border-foreground/5 pb-3.5 mb-5">Order Summary</h2>
-
             <div className="flex flex-col gap-4">
               {typeParam === "twilio_credits" ? (
                 <>
@@ -728,21 +666,16 @@ export default function Checkout() {
                   </div>
                 </>
               )}
-
-              {/* Promo Discount line */}
               {appliedDiscount && (
                 <div className="flex justify-between items-center text-sm font-bold text-emerald-600 dark:text-emerald-500">
                   <span>Discount ({appliedDiscount.code})</span>
                   <span>-${discountAmount.toFixed(2)}</span>
                 </div>
               )}
-
               <div className="flex justify-between items-center text-base font-extrabold pt-2">
                 <span>Total</span>
                 <span>${totalCost.toFixed(2)}</span>
               </div>
-
-              {/* Free Trial block / credit instant message */}
               {typeParam === "twilio_credits" ? (
                 <div className="border border-emerald-200 dark:border-emerald-900/30 bg-emerald-50/40 dark:bg-emerald-950/10 rounded-xl p-4 mt-2 flex flex-col gap-1.5">
                   <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-bold text-xs">
@@ -764,8 +697,6 @@ export default function Checkout() {
                   </p>
                 </div>
               )}
-
-              {/* Confidence badges */}
               <div className="flex flex-col gap-2 mt-2">
                 <div className="flex items-center gap-2 text-xs font-semibold text-default-600">
                   <FiCheck className="w-3.5 h-3.5 text-emerald-500" />
@@ -780,8 +711,6 @@ export default function Checkout() {
                   <span>HIPAA compliant</span>
                 </div>
               </div>
-
-              {/* Complete sign up / payment button */}
               <Button
                 color={isPayDisabled ? "default" : "primary"}
                 onPress={handleSubmit}
@@ -794,8 +723,6 @@ export default function Checkout() {
               >
                 {typeParam === "twilio_credits" ? `Pay $${totalCost.toFixed(2)}` : "Complete Sign Up"}
               </Button>
-
-              {/* Cancel button */}
               <Button
                 variant="light"
                 onPress={handleCancel}
@@ -807,8 +734,6 @@ export default function Checkout() {
           </Card>
         </div>
       </div>
-
-      {/* Back button at the bottom right */}
       <div className="w-full max-w-5xl flex justify-end mt-6">
         <Button
           variant="bordered"

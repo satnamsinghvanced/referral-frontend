@@ -37,7 +37,6 @@ const QuillEditor = forwardRef<QuillEditorRef, QuillEditorProps>(function QuillE
     }
   }));
 
-  // Initialize Quill
   useEffect(() => {
     if (editorRef.current && !quillRef.current) {
       const toolbar = [
@@ -48,7 +47,6 @@ const QuillEditor = forwardRef<QuillEditorRef, QuillEditorProps>(function QuillE
         enableImage ? ["link", "image"] : ["link"],
         ["clean"],
       ];
-
       const quill = new Quill(editorRef.current, {
         theme: "snow",
         placeholder,
@@ -56,9 +54,7 @@ const QuillEditor = forwardRef<QuillEditorRef, QuillEditorProps>(function QuillE
           toolbar,
         },
       });
-
       quillRef.current = quill;
-
       quill.on("text-change", (delta, oldDelta, source) => {
         if (source === "user") {
           const html = quill.root.innerHTML || "";
@@ -66,38 +62,26 @@ const QuillEditor = forwardRef<QuillEditorRef, QuillEditorProps>(function QuillE
         }
       });
     }
+  }, [placeholder, enableImage]);
 
-    return () => {
-      // Optional: Cleanup if needed, though Quill doesn't provide a direct destroy
-    };
-  }, [placeholder, enableImage]); // Re-init only if these core props change
-
-  // Sync value from props
   useEffect(() => {
     const quill = quillRef.current;
     if (!quill) return;
-
     const currentContent = quill.root.innerHTML;
-
-    // Only update if prop value is different from editor's internal state
-    // and handle the case where Quill adds a trailing newline or default P tag
     if (value !== currentContent) {
       if (!value || value === "") {
         if (currentContent !== "<p><br></p>") {
           quill.root.innerHTML = "";
         }
       } else {
-        // Use clipboard to safely paste HTML
         const selection = quill.getSelection();
         quill.clipboard.dangerouslyPasteHTML(value);
         if (selection) {
-          // Restore selection to prevent cursor jumping
           quill.setSelection(selection);
         }
       }
     }
   }, [value]);
-
   return (
     <div className="quill-editor-wrapper">
       <style>{`

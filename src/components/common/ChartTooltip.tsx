@@ -24,7 +24,6 @@ const ChartTooltip: React.FC<ChartTooltipProps> = ({
               entry.name?.toLowerCase().includes("spend") ||
               entry.name?.toLowerCase().includes("cost") ||
               entry.name?.toLowerCase().includes("revenue");
-
             return (
               <p
                 key={index}

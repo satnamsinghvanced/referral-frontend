@@ -29,8 +29,6 @@ export const META_ADS_KEYS = {
   details: () => [...META_ADS_KEYS.all, "current"] as const,
 };
 
-// --- Google Ads ---
-
 export const useGoogleAdsIntegration = () => {
   return useQuery({
     queryKey: GOOGLE_ADS_KEYS.details(),
@@ -75,7 +73,6 @@ export const useDisconnectGoogleAds = () => {
   });
 };
 
-// --- Meta Ads ---
 
 export const useMetaAdsIntegration = () => {
   return useQuery({
@@ -149,8 +146,6 @@ export const useConnectGoogleAdsAccount = () => {
     },
   });
 };
-
-// --- Meta Ads Account Management ---
 
 export const useMetaAdsAccounts = (enabled: boolean = true) => {
   return useQuery({

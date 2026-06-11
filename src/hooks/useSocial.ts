@@ -16,10 +16,7 @@ import {
 } from "../services/social";
 import type { SocialPlatformType } from "../pages/social-media/modal/SocialSubAccountSelectorModal";
 import { GetCredentialsResponse, IUpdateSocialPayload } from "../types/social";
-
 export const SOCIAL_MEDIA_QUERY_KEY = ["socialMediaCredentials"] as const;
-
-// Fetch all social credentials
 export const useSocialCredentials = (): UseQueryResult<
   GetCredentialsResponse,
   any
@@ -30,7 +27,6 @@ export const useSocialCredentials = (): UseQueryResult<
   });
 };
 
-// Connect to a social platform
 export const useConnectSocial = () => {
   return useMutation({
     mutationFn: ({
@@ -52,7 +48,6 @@ export const useConnectSocial = () => {
   });
 };
 
-// Update social integration
 export const useUpdateSocial = () => {
   return useMutation({
     mutationFn: ({
@@ -71,7 +66,6 @@ export const useUpdateSocial = () => {
   });
 };
 
-// Disconnect social integration
 export const useDisconnectSocial = () => {
   return useMutation({
     mutationFn: deleteSocialIntegration,
@@ -83,8 +77,6 @@ export const useDisconnectSocial = () => {
     },
   });
 };
-
-// --- Other Social Post Hooks ---
 
 export const useSocialOverview = () => {
   return useQuery({

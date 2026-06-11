@@ -4,7 +4,6 @@ import { Tooltip } from "@heroui/react";
 import { LuBuilding2, LuCalendar, LuDollarSign, LuQrCode, LuTarget, LuUsers, LuVideo } from "react-icons/lu";
 import { FiFileText, FiHome } from "react-icons/fi";
 import { IoIosArrowRoundForward } from "react-icons/io";
-// import logoWhite from "../../assets/logo-white.svg";
 import clsx from "clsx";
 import { MdOutlineModeComment } from "react-icons/md";
 import { TbCheckbox } from "react-icons/tb";

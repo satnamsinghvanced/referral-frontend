@@ -42,7 +42,6 @@ export const useUpdateNotifications = () => {
       payload: UpdateNotificationPayload;
     }) => updateNotificationSettings(id, payload),
     onSuccess: () => {
-      // Invalidate the cache to ensure the UI reflects the updated settings
       queryClient.invalidateQueries({
         queryKey: ["notifications", "settings"],
       });

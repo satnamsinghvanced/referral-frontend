@@ -98,7 +98,6 @@ export default function Header({
               type="text"
               variant="flat"
             />
-
             <AnimatePresence>
               {isOpen && query.length >= 2 && (
                 <motion.div
@@ -119,7 +118,6 @@ export default function Header({
                         </span>
                       )}
                     </div>
-
                     {isLoading ? (
                       <div className="p-8 flex flex-col items-center justify-center gap-3">
                         <LoadingState />
@@ -155,7 +153,6 @@ export default function Header({
                                 <LuUser size={18} />
                               )}
                             </div>
-
                             <div className="flex-1 min-w-0">
                               <div className="flex items-center justify-between gap-2">
                                 <span className="text-sm font-medium text-foreground truncate">
@@ -181,7 +178,6 @@ export default function Header({
                                 </span>
                               </div>
                             </div>
-
                             <LuArrowRight
                               className="text-gray-300 group-hover:text-primary transition-all group-hover:translate-x-1"
                               size={18}

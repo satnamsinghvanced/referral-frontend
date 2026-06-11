@@ -6,14 +6,12 @@ import {
   ModalFooter,
   Button,
   Input,
-  Select,
-  SelectItem,
   addToast,
+  Switch,
 } from "@heroui/react";
 import { useState, useEffect } from "react";
 import { BsLightningCharge } from "react-icons/bs";
-import { FiCreditCard } from "react-icons/fi";
-import { createCreditsCheckoutSession } from "../../../services/integrations/twilio";
+import { FiCreditCard, FiPhone, FiMessageSquare, FiMic, FiDisc, FiInfo } from "react-icons/fi";
 
 interface TwilioAddCreditsModalProps {
   isOpen: boolean;
@@ -30,17 +28,28 @@ export default function TwilioAddCreditsModal({
   currentMinutes,
   onAddCredits,
 }: TwilioAddCreditsModalProps) {
-  const presets = [25, 50, 100, 200, 500, 1000];
+  const tiers = [15, 50, 75];
+  interface TierMeta {
+    label: string;
+    desc: string;
+    popular?: boolean;
+  }
+  const tierMetadata: Record<number, TierMeta> = {
+    15: { label: "Starter Wallet", desc: "Best for Individuals" },
+    50: { label: "Growth Wallet", desc: "Most Popular", popular: true },
+    75: { label: "Scale Wallet", desc: "Growth Scale" },
+  };
+
   const [selectedPreset, setSelectedPreset] = useState<number | null>(50);
   const [customAmount, setCustomAmount] = useState<string>("50");
-  const [selectedPackage, setSelectedPackage] = useState<string>("500");
+  const [autoTopUp, setAutoTopUp] = useState<boolean>(true);
   const [isConnecting, setIsConnecting] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
       setSelectedPreset(50);
       setCustomAmount("50");
-      setSelectedPackage("500");
+      setAutoTopUp(true);
       setIsConnecting(false);
     }
   }, [isOpen]);
@@ -53,7 +62,7 @@ export default function TwilioAddCreditsModal({
   const handleCustomAmountChange = (val: string) => {
     setCustomAmount(val);
     const parsed = parseFloat(val);
-    if (presets.includes(parsed)) {
+    if (tiers.includes(parsed)) {
       setSelectedPreset(parsed);
     } else {
       setSelectedPreset(null);
@@ -65,166 +74,206 @@ export default function TwilioAddCreditsModal({
     if (isNaN(credits) || credits < 10) {
       addToast({
         title: "Invalid Amount",
-        description: "Please enter a credit amount of at least $10.",
+        description: "Please enter a monthly subscription amount of at least $10.",
         color: "danger",
       });
       return;
     }
 
-    const url = `${window.location.origin}/checkout?type=twilio_credits&amount=${credits}&package=${selectedPackage}`;
+    const url = `${window.location.origin}/checkout?type=twilio_credits&amount=${credits}&package=none&auto_topup=${autoTopUp}`;
 
     window.open(url, "_blank");
     onClose();
   };
 
-  const packageCost =
-    selectedPackage === "500"
-      ? 15
-      : selectedPackage === "1000"
-        ? 25
-        : selectedPackage === "2500"
-          ? 50
-          : 0;
-
-  const totalCost = (parseFloat(customAmount) || 0) + packageCost;
+  const walletAmount = parseFloat(customAmount) || 0;
+  const outboundMins = Math.floor(walletAmount / 0.02);
+  const smsCount = Math.floor(walletAmount / 0.01);
+  const inboundMins = Math.floor(walletAmount / 0.01);
 
   return (
     <Modal
       isOpen={isOpen}
       onOpenChange={onClose}
-      size="md"
+      size="3xl"
       classNames={{
-        base: "max-sm:!m-3 !m-0 bg-background border border-foreground/10 text-foreground rounded-2xl",
+        base: "max-sm:!m-3 !m-0 bg-background border border-foreground/10 text-foreground rounded-2xl max-h-[90vh] overflow-y-auto",
         closeButton: "cursor-pointer text-foreground/50 hover:text-foreground",
       }}
       placement="center"
     >
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1 p-5 pb-2">
-          <h2 className="text-xl font-bold text-foreground">Add Credits & Minutes</h2>
+          <h2 className="text-xl font-bold text-foreground">Manage Phone Wallet Subscription</h2>
           <p className="text-xs text-foreground-500 font-normal">
-            Add credits to your Practice ROI account for phone services
+            All plans fund your single USD Wallet Balance. Services are deducted in real-time based on usage.
           </p>
         </ModalHeader>
 
-        <ModalBody className="p-5 pt-2 flex flex-col gap-4">
-          {/* Balance / Minutes overview */}
-          <div className="grid grid-cols-2 gap-4 bg-primary-50/50 dark:bg-primary-900/10 border border-primary-100 dark:border-primary-900/30 rounded-xl p-4">
-            <div>
+        <ModalBody className="p-5 pt-2 flex flex-col md:flex-row gap-6">
+          {/* Left Column: Plan inputs and Toggles */}
+          <div className="flex-1 flex flex-col gap-4">
+            {/* Wallet Balance Indicator */}
+            <div className="bg-primary-50/50 dark:bg-primary-900/10 border border-primary-100 dark:border-primary-900/30 rounded-xl p-4 flex flex-col items-center justify-center text-center">
               <p className="text-[10px] uppercase font-semibold text-foreground-500 tracking-wider">
-                Current Balance
+                Current Wallet Balance
               </p>
-              <p className="text-2xl font-bold text-primary">
+              <p className="text-3xl font-extrabold text-primary mt-1">
                 ${currentBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </p>
             </div>
-            <div>
-              <p className="text-[10px] uppercase font-semibold text-foreground-500 tracking-wider">
-                Available Minutes
-              </p>
-              <p className="text-2xl font-bold text-primary">
-                {currentMinutes.toLocaleString("en-US")}
-              </p>
+
+            {/* Subscription Tiers Grid */}
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-semibold text-foreground">Select Subscription Plan</label>
+              <div className="grid grid-cols-3 gap-2.5">
+                {tiers.map((amount) => {
+                  const isSelected = selectedPreset === amount;
+                  const meta = tierMetadata[amount] || { label: "", desc: "", popular: false };
+                  return (
+                    <button
+                      key={amount}
+                      type="button"
+                      onClick={() => handlePresetClick(amount)}
+                      className={`relative flex flex-col items-center justify-between p-3 rounded-xl border text-center transition-all duration-200 cursor-pointer ${isSelected
+                        ? "border-primary bg-primary-500/10 text-foreground ring-2 ring-primary/45 shadow-md shadow-primary-500/5 font-semibold"
+                        : "border-foreground/10 bg-default-50/50 hover:bg-default-100/50 text-foreground"
+                        }`}
+                    >
+                      {meta.popular && (
+                        <span className="absolute -top-2 px-2 py-0.5 bg-primary text-white text-[8px] font-extrabold rounded-full tracking-wider uppercase">
+                          POPULAR
+                        </span>
+                      )}
+                      <span className="text-[9px] font-semibold text-foreground-500 mt-1">{meta.label}</span>
+                      <span className="text-lg font-extrabold text-foreground mt-1">${amount}</span>
+                      <span className="text-[8px] text-foreground-400 mt-1 leading-tight">{meta.desc}</span>
+                      <span className="text-[8px] text-primary font-bold mt-1.5">/ month</span>
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
 
-          {/* Preset options */}
-          <div className="flex flex-col gap-2">
-            <label className="text-xs font-semibold text-foreground">Select Credit Amount</label>
-            <div className="grid grid-cols-3 gap-2">
-              {presets.map((amount) => {
-                const isSelected = selectedPreset === amount;
-                return (
-                  <Button
-                    key={amount}
-                    variant={isSelected ? "solid" : "bordered"}
-                    color={isSelected ? "primary" : "default"}
-                    onPress={() => handlePresetClick(amount)}
-                    className={`h-11 font-bold rounded-lg border-small ${isSelected
-                        ? "bg-primary text-white border-primary"
-                        : "border-foreground/10 bg-transparent text-foreground hover:bg-foreground/5"
-                      }`}
-                  >
-                    ${amount}
-                  </Button>
-                );
-              })}
-            </div>
-          </div>
-
-          {/* Custom amount */}
-          <Input
-            type="number"
-            label="Custom Amount (Min: $10)"
-            labelPlacement="outside"
-            placeholder="Enter custom amount"
-            value={customAmount}
-            onValueChange={handleCustomAmountChange}
-            min={10}
-            startContent={<span className="text-xs text-foreground-500">$</span>}
-            classNames={{
-              label: "text-xs font-semibold text-foreground mb-1",
-              inputWrapper: "border border-foreground/10 rounded-lg bg-transparent h-10",
-              input: "text-sm",
-            }}
-          />
-
-          {/* Optional minute package */}
-          <div className="flex flex-col gap-1.5">
-            <label className="text-xs font-semibold text-foreground">
-              Add Minute Package (Optional)
-            </label>
-            <Select
-              selectedKeys={[selectedPackage]}
-              onSelectionChange={(keys) => {
-                const val = Array.from(keys)[0] as string;
-                setSelectedPackage(val);
-              }}
-              variant="bordered"
-              aria-label="Select Minute Package"
+            {/* Custom Monthly Amount */}
+            <Input
+              type="number"
+              label="Or Enter Custom Monthly Amount"
+              labelPlacement="outside"
+              placeholder="Enter custom amount"
+              value={customAmount}
+              onValueChange={handleCustomAmountChange}
+              min={10}
+              startContent={<span className="text-xs text-foreground-500">$</span>}
+              endContent={<span className="text-xs text-foreground-400">/ month</span>}
               classNames={{
-                trigger: "border border-foreground/10 rounded-lg bg-transparent h-10 min-h-10",
-                value: "text-sm text-foreground",
+                label: "text-xs font-semibold text-foreground mb-1",
+                inputWrapper: "border border-foreground/10 rounded-lg bg-transparent h-10",
+                input: "text-sm",
               }}
-            >
-              <SelectItem key="none" textValue="None">
-                None
-              </SelectItem>
-              <SelectItem key="500" textValue="500 minutes - $15/month">
-                500 minutes - $15/month
-              </SelectItem>
-              <SelectItem key="1000" textValue="1000 minutes - $25/month">
-                1000 minutes - $25/month
-              </SelectItem>
-              <SelectItem key="2500" textValue="2500 minutes - $50/month">
-                2500 minutes - $50/month
-              </SelectItem>
-            </Select>
+            />
+
+            {/* Auto-Top Up Toggle */}
+            <div className="border border-foreground/10 dark:bg-foreground/5 rounded-xl p-4 flex flex-col gap-2">
+              <div className="flex justify-between items-center gap-4">
+                <div className="flex flex-col">
+                  <span className="text-xs font-bold text-foreground">Auto-Top Up</span>
+                  <span className="text-[10px] text-foreground-500 mt-1 leading-normal max-w-[220px]">
+                    If wallet balance drops below $10, automatically reload $25 to prevent service interruption.
+                  </span>
+                </div>
+                <Switch
+                  isSelected={autoTopUp}
+                  onValueChange={setAutoTopUp}
+                  color="primary"
+                  size="sm"
+                  aria-label="Auto-Top Up"
+                />
+              </div>
+            </div>
           </div>
 
-          {/* Pricing Information box */}
-          <div className="border border-warning-200 dark:border-warning-900/30 bg-warning-50/30 dark:bg-warning-950/10 rounded-xl p-4 flex flex-col gap-2.5">
-            <div className="flex items-center gap-2 text-warning-600 dark:text-warning-500 font-semibold text-sm">
-              <BsLightningCharge className="w-4 h-4" />
-              <span>Pricing Information</span>
+          {/* Right Column: Calculator and Rates */}
+          <div className="flex-1 flex flex-col gap-4">
+            {/* Estimated Monthly Power (Calculator) */}
+            <div className="bg-default-50 dark:bg-default-100/20 border border-foreground/5 rounded-xl p-4 flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-foreground">Estimated Monthly Power</span>
+                <span className="text-[10px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                  Based on ${walletAmount.toFixed(2)}/mo
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 gap-2">
+                {[
+                  { label: "Outbound Calls", value: `${outboundMins.toLocaleString()} mins`, formula: "at $0.02/min", icon: <FiPhone className="w-3.5 h-3.5 text-blue-500" /> },
+                  { label: "SMS Messages", value: `${smsCount.toLocaleString()} SMS`, formula: "at $0.01/msg", icon: <FiMessageSquare className="w-3.5 h-3.5 text-emerald-500" /> },
+                  { label: "Inbound Calls", value: `${inboundMins.toLocaleString()} mins`, formula: "at $0.01/min", icon: <FiPhone className="w-3.5 h-3.5 text-purple-500" /> },
+                ].map((item, idx) => (
+                  <div key={idx} className="flex items-center justify-between bg-background border border-foreground/5 p-2 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      {item.icon}
+                      <div className="flex flex-col">
+                        <span className="text-xs font-bold text-foreground leading-normal">{item.value}</span>
+                        <span className="text-[10px] text-foreground-500">{item.label}</span>
+                      </div>
+                    </div>
+                    <span className="text-[9px] font-medium text-foreground-400 bg-foreground/5 px-2 py-0.5 rounded">
+                      {item.formula}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
-            <ul className="text-xs text-foreground-600 dark:text-foreground-400 space-y-1.5 list-disc pl-4">
-              <li>Phone Number Setup: $15 one-time</li>
-              <li>Phone Number Monthly: $5/month per number</li>
-              <li>Outbound Calls: $0.02/minute</li>
-              <li>Inbound Calls: $0.01/minute</li>
-              <li>SMS Messages: $0.01/message</li>
-              <li>MMS Messages: $0.02/message</li>
-            </ul>
+
+            {/* Usage Rates Compact Grid */}
+            <div className="border border-foreground/10 rounded-xl p-3 flex flex-col gap-2.5 bg-default-50/50">
+              <div className="flex items-center gap-1.5 text-foreground font-bold text-[10px] uppercase tracking-wider text-foreground-500">
+                <BsLightningCharge className="w-3.5 h-3.5 text-primary" />
+                <span>Real-Time Rates (Pay-As-You-Go)</span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { label: "Outbound Calls", rate: "$0.02 / min", icon: <FiPhone className="w-3.5 h-3.5 text-foreground-500" /> },
+                  { label: "Inbound Calls", rate: "$0.01 / min", icon: <FiPhone className="w-3.5 h-3.5 text-foreground-500 rotate-90" /> },
+                  { label: "SMS Messages", rate: "$0.01 / msg", icon: <FiMessageSquare className="w-3.5 h-3.5 text-foreground-500" /> },
+                  { label: "MMS Messages", rate: "$0.02 / msg", icon: <FiMessageSquare className="w-3.5 h-3.5 text-foreground-500" /> },
+                  { label: "Call Transcriptions", rate: "$0.05 / min", icon: <FiMic className="w-3.5 h-3.5 text-foreground-500" /> },
+                  { label: "Call Recordings", rate: "$0.0025 / min", icon: <FiDisc className="w-3.5 h-3.5 text-foreground-500" /> },
+                ].map((item, idx) => (
+                  <div
+                    key={idx}
+                    className="flex items-center gap-2 p-1.5 bg-background/50 border border-foreground/5 rounded-lg text-xs"
+                  >
+                    {item.icon}
+                    <div className="flex flex-col">
+                      <span className="text-[9px] text-foreground-500 leading-none">{item.label}</span>
+                      <span className="text-xs font-bold text-foreground mt-0.5">{item.rate}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Fixed Cost Badge */}
+              <div className="flex items-center justify-between bg-primary-500/10 border border-primary/25 rounded-lg p-2 mt-0.5">
+                <div className="flex items-center gap-1.5">
+                  <FiInfo className="w-3 h-3 text-primary" />
+                  <span className="text-[10px] font-bold text-foreground">Active Phone Number</span>
+                </div>
+                <span className="text-[10px] font-extrabold text-primary bg-primary/10 px-1.5 py-0.5 rounded-md">
+                  $5.00 / month
+                </span>
+              </div>
+            </div>
           </div>
         </ModalBody>
 
         <ModalFooter className="flex flex-col gap-3 p-5 pt-2 border-t border-foreground/5">
           <div className="flex justify-between items-center w-full">
-            <span className="text-sm font-semibold text-foreground">Total to Add:</span>
+            <span className="text-sm font-semibold text-foreground">Total to Pay Today:</span>
             <span className="text-base font-bold text-primary">
-              ${totalCost.toFixed(2)}
-              {selectedPackage !== "none" && ` + ${selectedPackage} minutes`}
+              ${walletAmount.toFixed(2)}/month
             </span>
           </div>
 
@@ -243,7 +292,7 @@ export default function TwilioAddCreditsModal({
               startContent={<FiCreditCard className="w-4 h-4" />}
               className="bg-primary text-white rounded-lg text-sm font-semibold h-10 px-4"
             >
-              Add Credits
+              Confirm Subscription
             </Button>
           </div>
         </ModalFooter>

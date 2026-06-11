@@ -14,13 +14,7 @@ export const useFetchCallRecords = (params: GetCallRecordsParams) => {
 
 export const useUpdateCallRecord = () => {
   return useMutation({
-    mutationFn: ({
-      id,
-      payload,
-    }: {
-      id: string;
-      payload: UpdateCallRecordPayload;
-    }) => updateCallRecord(id, payload),
+    mutationFn: ({ id, payload }: { id: string; payload: UpdateCallRecordPayload; }) => updateCallRecord(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [CALL_RECORDS_QUERY_KEY] });
     },

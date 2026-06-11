@@ -77,7 +77,6 @@ export const useUpdateTeamMember = () => {
         description: "Team member updated successfully.",
         color: "success",
       });
-
       queryClient.invalidateQueries({ queryKey: ["team-members"] });
       queryClient.invalidateQueries({ queryKey: ["pending-invites"] });
       queryClient.invalidateQueries({ queryKey: ["notes-tasks"] });
@@ -87,7 +86,6 @@ export const useUpdateTeamMember = () => {
         (error.response?.data as { message?: string })?.message ||
         error.message ||
         "Failed to update team member";
-
       addToast({
         title: "Error",
         description: errorMessage,
@@ -106,7 +104,6 @@ export const useDeleteTeamMember = () => {
         description: "Team member deleted successfully.",
         color: "success",
       });
-
       queryClient.invalidateQueries({ queryKey: ["team-members"] });
       queryClient.invalidateQueries({ queryKey: ["pending-invites"] });
     },
@@ -115,7 +112,6 @@ export const useDeleteTeamMember = () => {
         (error.response?.data as { message?: string })?.message ||
         error.message ||
         "Failed to delete team member";
-
       addToast({
         title: "Error",
         description: errorMessage,
@@ -130,7 +126,6 @@ export const useResendInvite = () => {
     mutationFn: resendTeamInvite,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["pending-invites"] });
-
       addToast({
         title: "Success",
         description: "Invitation email sent",
@@ -142,7 +137,6 @@ export const useResendInvite = () => {
         (error.response?.data as { message?: string })?.message ||
         error.message ||
         "Failed to resend invitation email";
-
       addToast({
         title: "Error",
         description: errorMessage,
@@ -158,7 +152,6 @@ export const useInviteTeamMember = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["team-members"] });
       queryClient.invalidateQueries({ queryKey: ["pending-invites"] });
-
       addToast({
         title: "Success",
         description: "Invitation email sent",
@@ -170,7 +163,6 @@ export const useInviteTeamMember = () => {
         (error.response?.data as { message?: string })?.message ||
         error.message ||
         "Failed to send invitation email";
-
       addToast({
         title: "Error",
         description: errorMessage,

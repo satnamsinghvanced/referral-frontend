@@ -26,14 +26,10 @@ export const CATEGORY_COLORS: Record<string, string> = {
 
 export const getCategoryColor = (category: string) => {
   if (CATEGORY_COLORS[category]) return CATEGORY_COLORS[category];
-
   const lower = category.toLowerCase();
-
-  // Try to find a match by substring for more robustness
   const match = Object.keys(CATEGORY_COLORS).find(
     (key) =>
       lower.includes(key.toLowerCase()) || key.toLowerCase().includes(lower),
   );
-
   return match ? CATEGORY_COLORS[match] : "#3B82F6";
 };
