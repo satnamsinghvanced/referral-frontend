@@ -11,6 +11,7 @@ export interface EmailIntegrationBody {
   password?: string;
   encryption: EncryptionType;
   status?: IntegrationStatus;
+  accountEmail?: string;
 }
 
 export interface UpdateEmailIntegrationRequest {

@@ -70,7 +70,7 @@ export default function EmailMarketingConfigModal({
       host: existingConfig?.host || "smtp.sendgrid.net",
       port: existingConfig?.port || 587,
       username: existingConfig?.username || "",
-      password: "", // Always start empty for security
+      password: existingConfig?.password || "",
       encryption: existingConfig?.encryption || "TLS",
     },
     validationSchema: validationSchema,
@@ -102,7 +102,7 @@ export default function EmailMarketingConfigModal({
         host: existingConfig.host || "smtp.sendgrid.net",
         port: existingConfig.port || 587,
         username: existingConfig.username || "",
-        password: "", // Keep password empty for security even on update
+        password: existingConfig.password || "",
         encryption: existingConfig.encryption || "TLS",
       });
     }
@@ -370,7 +370,7 @@ export default function EmailMarketingConfigModal({
                 color="primary"
                 type="submit"
                 isLoading={isSubmitting}
-                isDisabled={isSubmitting || !formik.isValid || !formik.dirty}
+                isDisabled={isSubmitting || !formik.isValid}
               >
                 {isUpdateMode ? "Update Configuration" : "Save Integration"}
               </Button>

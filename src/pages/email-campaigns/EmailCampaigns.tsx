@@ -1,5 +1,6 @@
-import { Tab, Tabs } from "@heroui/react";
+import { Tab, Tabs, Button } from "@heroui/react";
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { AiOutlinePlus } from "react-icons/ai";
 import { FaRegEnvelope } from "react-icons/fa";
 import { FiPlay } from "react-icons/fi";
@@ -8,6 +9,7 @@ import { LuEye, LuMousePointer, LuSend } from "react-icons/lu";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import { useCampaignDashboard } from "../../hooks/useCampaign";
+import { useFetchEmailIntegration } from "../../hooks/integrations/useEmailMarketing";
 import Stats from "./stats/Stats";
 import Audiences from "./audiences/Audiences";
 import Automation from "./automation/Automation";
@@ -23,6 +25,19 @@ const EmailCampaigns = () => {
   const [prefillTemplate, setPrefillTemplate] =
     useState<CampaignTemplate | null>(null);
 
+  const { data: emailExistingConfig, isLoading: isEmailConfigLoading } =
+    useFetchEmailIntegration();
+  const emailConfigsList = Array.isArray(emailExistingConfig)
+    ? emailExistingConfig
+    : emailExistingConfig
+      ? [emailExistingConfig]
+      : [];
+
+  const sendGridConfig = emailConfigsList.find(
+    (cfg: any) => cfg.provider === "SendGrid"
+  );
+  const isSendGridConnected = sendGridConfig?.status === "Connected";
+
   const handleUseTemplate = (template: CampaignTemplate) => {
     setPrefillTemplate(template);
     setIsActionModalOpen(true);
@@ -31,15 +46,17 @@ const EmailCampaigns = () => {
   const HEADING_DATA = {
     heading: "Email Campaigns",
     subHeading: "Create and manage email campaigns for your referral network.",
-    buttons: [
-      {
-        label: "New Campaign",
-        onClick: () => setIsActionModalOpen(true),
-        icon: <AiOutlinePlus fontSize={15} />,
-        variant: "solid" as const,
-        color: "primary" as const,
-      },
-    ],
+    buttons: isSendGridConnected
+      ? [
+          {
+            label: "New Campaign",
+            onClick: () => setIsActionModalOpen(true),
+            icon: <AiOutlinePlus fontSize={15} />,
+            variant: "solid" as const,
+            color: "primary" as const,
+          },
+        ]
+      : [],
   };
 
   const { data: dashboard, isLoading } = useCampaignDashboard();
@@ -87,6 +104,23 @@ const EmailCampaigns = () => {
     <>
       <ComponentContainer headingData={HEADING_DATA}>
         <div className="flex flex-col gap-4 md:gap-5">
+          {!isSendGridConnected && !isEmailConfigLoading && (
+            <div className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-500/30 rounded-lg p-3 flex items-center justify-between flex-wrap gap-3">
+              <p className="text-sm text-yellow-800 dark:text-amber-400">
+                SendGrid is not connected. Connect your SendGrid account to enable email campaign features.
+              </p>
+              <Button
+                as={Link}
+                to="/integrations"
+                size="sm"
+                color="warning"
+                variant="flat"
+                className="bg-yellow-200 dark:bg-amber-500/20 text-yellow-800 dark:text-amber-400"
+              >
+                Connect SendGrid
+              </Button>
+            </div>
+          )}
           <div className="grid md:grid-cols-2 xl:grid-cols-6 gap-3 md:gap-4">
             {STAT_CARD_DATA.map((data, i) => (
               <MiniStatsCard key={i} cardData={data} />

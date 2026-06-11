@@ -88,8 +88,8 @@ export const useConnectSendGrid = () => {
       return { newTab };
     },
     onSuccess: (data: any, variables, context) => {
-      if (data?.data?.authUrl && context?.newTab) {
-        context.newTab.location.href = data.data.authUrl;
+      if (data?.authUrl && context?.newTab) {
+        context.newTab.location.href = data.authUrl;
       } else if (context?.newTab) {
         context.newTab.close();
       }

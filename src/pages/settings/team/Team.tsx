@@ -72,9 +72,15 @@ const Team: React.FC = () => {
     useFetchEmailIntegration();
 
   // Normalize email config to handle both single object and array responses
-  const emailConfig = Array.isArray(emailExistingConfig)
-    ? emailExistingConfig[0]
-    : emailExistingConfig;
+  const emailConfigsList = Array.isArray(emailExistingConfig)
+    ? emailExistingConfig
+    : emailExistingConfig
+      ? [emailExistingConfig]
+      : [];
+
+  const emailConfig = emailConfigsList.find(
+    (cfg: any) => cfg.provider !== "SendGrid"
+  );
 
   const [inviteModalOpen, setInviteModalOpen] = useState(false);
   const [editMemberId, setEditMemberId] = useState<string>("");

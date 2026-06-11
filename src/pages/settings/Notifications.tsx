@@ -110,18 +110,19 @@ const Notifications: React.FC = () => {
   const { data: emailExistingConfig, isLoading: isEmailConfigLoading } =
     useFetchEmailIntegration();
 
-  // Normalize email config to handle both single object and array responses
-  const emailConfig = (
-    Array.isArray(emailExistingConfig)
-      ? emailExistingConfig[0]
-      : emailExistingConfig
+  const emailConfigsList = Array.isArray(emailExistingConfig)
+    ? emailExistingConfig
+    : emailExistingConfig
+      ? [emailExistingConfig]
+      : [];
+
+  const emailConfig = emailConfigsList.find(
+    (cfg: any) => cfg.provider !== "SendGrid"
   ) as any;
 
-  // Initialize rules with default config
   const [rules, setRules] = useState<Rule[]>([]);
 
   const handleRequestPermission = async () => {
-    // Pass current rules and global state to ensure they persist after subscription
     const currentRules = rules.map((r) => ({
       label: r.id,
       enabled: r.enabled,
