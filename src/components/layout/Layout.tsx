@@ -15,7 +15,6 @@ const Layout = () => {
     }
     return true;
   };
-
   const [isMiniSidebarOpen, setIsMiniSidebarOpen] = useState<boolean>(
     getInitialMini()
   );

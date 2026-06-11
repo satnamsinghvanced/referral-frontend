@@ -106,7 +106,6 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
     validationSchema,
     onSubmit: async (values) => {
       try {
-        // await dispatch(setCredentials(values)).unwrap();
       } catch (error: any) {
         console.error("Sign up error:", error);
       }
@@ -114,25 +113,20 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
   });
 
   const toggleVisibility = () => setIsVisible(!isVisible);
-
   const handleMultiSelectChange = (keys: Set<string>) => {
     formik.setFieldValue("medicalSpecialty", Array.from(keys));
   };
-
   const onNavigateToSignInLocal = () => {
     navigate("/signin");
   };
-
   const getFieldError = (fieldName: keyof FormData) => {
     return formik.touched[fieldName] && formik.errors[fieldName]
       ? (formik.errors[fieldName] as string)
       : "";
   };
-
   const isFieldInvalid = (fieldName: keyof FormData) => {
     return !!(formik.touched[fieldName] && formik.errors[fieldName]);
   };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-950 dark:to-background flex items-center justify-center p-4">
       <Card className="w-full max-w-2xl shadow-2xl dark:shadow-primary/5 border border-foreground/5/50 bg-content1 backdrop-blur-xl">
@@ -151,7 +145,6 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
               {error}
             </div>
           )}
-
           <form onSubmit={formik.handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
@@ -167,7 +160,6 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
                   className="w-full"
                 />
               </div>
-
               <div>
                 <Input
                   label="Last Name"
@@ -181,7 +173,6 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
                   className="w-full"
                 />
               </div>
-
               <div>
                 <Input
                   label="Mobile Number"
@@ -195,7 +186,6 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
                   className="w-full"
                 />
               </div>
-
               <div>
                 <Input
                   label="Email Address"
@@ -209,7 +199,6 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
                   className="w-full"
                 />
               </div>
-
               <div>
                 <Input
                   label="Password"
@@ -236,7 +225,6 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
                   className="w-full"
                 />
               </div>
-
               <div>
                 <Input
                   label="Confirm Password"
@@ -250,7 +238,6 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
                   className="w-full"
                 />
               </div>
-
               <div className="md:col-span-2">
                 <Input
                   label="Practice Name"
@@ -264,7 +251,6 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
                   className="w-full"
                 />
               </div>
-
               <div className="md:col-span-2">
                 <Select
                   label="Medical Specialty"
@@ -285,7 +271,6 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
                 </Select>
               </div>
             </div>
-
             <div className="pt-2">
               <Checkbox
                 isSelected={formik.values.agreeToTerms}
@@ -312,7 +297,6 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
                 </div>
               )}
             </div>
-
             <Button
               type="submit"
               color="primary"
@@ -322,9 +306,7 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
             >
               {loading ? "Creating Account..." : "Create Account"}
             </Button>
-
             <Divider className="my-6" />
-
             <div className="text-center">
               <span className="text-foreground/50">
                 Already have an account?{" "}
@@ -337,7 +319,6 @@ const SignUp = ({ onNavigateToSignIn }: SignUpProps) => {
               </Link>
             </div>
           </form>
-
           <div className="mt-8 text-center text-xs text-foreground/40 leading-relaxed">
             By creating an account, you agree to our <br />
             <Link

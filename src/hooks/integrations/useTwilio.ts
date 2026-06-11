@@ -9,7 +9,6 @@ import {
 import {
   TwilioConfigRequest,
   TwilioConfigResponse,
-  UserIdParam,
 } from "../../types/integrations/twilio";
 
 export const twilioKeys = {

@@ -12,7 +12,6 @@ import {
 import { Location, LocationsResponse } from "../../types/common";
 
 const LOCATION_KEY = ["locations"];
-
 export function useFetchLocations(params?: { page?: number; limit?: number }) {
   return useQuery<LocationsResponse<Location>>({
     queryKey: [...LOCATION_KEY, params],
@@ -37,7 +36,6 @@ export function useCreateLocation() {
         description: "Practice location added successfully",
         color: "success",
       });
-
       queryClient.invalidateQueries({ queryKey: LOCATION_KEY });
     },
     onError: (error: AxiosError) => {
@@ -45,7 +43,6 @@ export function useCreateLocation() {
         (error.response?.data as { message?: string })?.message ||
         error.message ||
         "Failed to add practice location";
-
       addToast({
         title: "Error",
         description: errorMessage,
@@ -73,7 +70,6 @@ export function useUpdateLocation() {
         (error.response?.data as { message?: string })?.message ||
         error.message ||
         "Failed to update practice location";
-
       addToast({
         title: "Error",
         description: errorMessage,
@@ -92,7 +88,6 @@ export function useDeleteLocation() {
         description: "Practice location deleted successfully.",
         color: "success",
       });
-
       queryClient.invalidateQueries({ queryKey: LOCATION_KEY });
     },
     onError: (error: AxiosError) => {
@@ -100,7 +95,6 @@ export function useDeleteLocation() {
         (error.response?.data as { message?: string })?.message ||
         error.message ||
         "Failed to delete practice location";
-
       addToast({
         title: "Error",
         description: errorMessage,

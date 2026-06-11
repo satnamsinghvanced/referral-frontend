@@ -25,7 +25,6 @@ const ComponentHeader: React.FC<ComponentHeaderProps> = ({
             </p>
           )}
         </div>
-
         {buttons && buttons.length > 0 && (
           <div className="space-x-2 md:space-x-3">
             {buttons.map((btn, index) => (

@@ -30,7 +30,6 @@ export const useNotificationSubscription = () => {
         console.error("No VAPID public key found");
         return null;
       }
-
       let registration = await navigator.serviceWorker.getRegistration(
         "/",
       );
@@ -42,9 +41,7 @@ export const useNotificationSubscription = () => {
           },
         );
       }
-
       await navigator.serviceWorker.ready;
-
       if (!registration.active) {
         await new Promise<void>((resolve) => {
           const worker = registration.installing || registration.waiting;
@@ -57,12 +54,10 @@ export const useNotificationSubscription = () => {
           }
         });
       }
-
       const subscription = await registration.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: urlBase64ToUint8Array(settings.vapidPublicKey),
       });
-
       return JSON.parse(JSON.stringify(subscription));
     } catch (error) {
       console.error("Failed to subscribe to push notifications:", error);
@@ -83,7 +78,6 @@ export const useNotificationSubscription = () => {
         });
         return;
       }
-
       try {
         const permission = await Notification.requestPermission();
         setPermissionStatus(permission);
@@ -91,7 +85,6 @@ export const useNotificationSubscription = () => {
         if (permission === "granted" && settings?._id) {
           const browserSubscription = await subscribeToPush();
           if (browserSubscription) {
-            // Use provided rules/globalEnabled or fall back to fetched settings
             const notifications =
               currentRules ||
               settings.notifications.map((n) => ({
@@ -103,12 +96,10 @@ export const useNotificationSubscription = () => {
                 inApp: n.inApp,
                 activeHours: n.activeHours,
               }));
-
             const globalEnabled =
               currentGlobalEnabled !== undefined
                 ? currentGlobalEnabled
                 : settings.globalEnabled;
-
             const payload: UpdateNotificationPayload = {
               globalEnabled,
               notifications,
@@ -119,7 +110,6 @@ export const useNotificationSubscription = () => {
                 auth: browserSubscription.keys?.auth,
               },
             };
-
             updateMutation.mutate(
               { id: settings._id, payload },
               {
@@ -138,7 +128,6 @@ export const useNotificationSubscription = () => {
     },
     [settings, subscribeToPush, updateMutation, refetch],
   );
-
   return {
     permissionStatus,
     requestPermission,

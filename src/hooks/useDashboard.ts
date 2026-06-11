@@ -29,14 +29,13 @@ export const useGlobalSearch = (params: SearchParams) => {
   return useQuery({
     queryKey: SEARCH_QUERY_KEY(params.q),
     queryFn: () => globalSearch(params),
-    enabled: !!params.q && params.q.length >= 2, // Only search if query has 2+ chars
+    enabled: !!params.q && params.q.length >= 2,
     retry: false,
     meta: {
       onError: (error: AxiosError) => {
         const errorMessage =
           (error.response?.data as { message?: string })?.message ||
           "An error occurred while searching.";
-
         addToast({
           title: "Search Error",
           description: errorMessage,

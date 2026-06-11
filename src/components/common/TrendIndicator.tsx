@@ -23,19 +23,16 @@ export const TrendIndicator: React.FC<TrendIndicatorProps> = ({
   }
   const numPercentage =
     typeof percentage === "string" ? parseFloat(percentage) : percentage || 0;
-
   const isIncrement =
     status === "increment" || (status === "" && numPercentage > 0);
   const isDecrement =
     status === "decrement" || (status === "" && numPercentage < 0);
-
   const colorClass = isIncrement
     ? "text-emerald-600 dark:text-emerald-400"
     : isDecrement
       ? "text-red-600 dark:text-red-400"
       : "text-gray-500";
   const Icon = isIncrement ? LuTrendingUp : isDecrement ? LuTrendingDown : null;
-
   return (
     <div className={`flex items-center gap-1 text-xs ${colorClass}`}>
       {Icon && <Icon className="text-sm" />}

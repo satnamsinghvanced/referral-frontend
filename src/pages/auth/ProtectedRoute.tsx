@@ -27,7 +27,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   if (!isAuthenticated) {
     return <Navigate to="/signin" replace />;
   }
-
   return <>{children}</>;
 };
 

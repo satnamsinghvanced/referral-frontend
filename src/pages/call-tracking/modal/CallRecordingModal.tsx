@@ -50,15 +50,12 @@ const AudioPlayer = ({ url, callDuration }: { url: string; callDuration: string 
     if (callDuration) {
       const minMatch = callDuration.match(/(\d+)\s*min/);
       const secMatch = callDuration.match(/(\d+)\s*sec/);
-
       if (minMatch && minMatch[1]) {
         parsedDuration += parseInt(minMatch[1], 10) * 60;
       }
       if (secMatch && secMatch[1]) {
         parsedDuration += parseInt(secMatch[1], 10);
       }
-
-      // Fallback: if it doesn't match min/sec, check if it's a raw number string
       if (!minMatch && !secMatch && /^\d+$/.test(callDuration.trim())) {
         parsedDuration = parseInt(callDuration.trim(), 10);
       }

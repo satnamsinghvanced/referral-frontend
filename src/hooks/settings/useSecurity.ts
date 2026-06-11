@@ -27,7 +27,6 @@ export function useUpdatePassword() {
         (error.response?.data as { message?: string })?.message ||
         error.message ||
         "Failed to update password";
-
       addToast({
         title: "Error",
         description: errorMessage,
@@ -77,7 +76,6 @@ export function useEnable2FA() {
         (error.response?.data as { message?: string })?.message ||
         error.message ||
         "Failed to initiate 2FA";
-
       addToast({
         title: "Error",
         description: errorMessage,
@@ -102,7 +100,6 @@ export function useVerifyEnable2FA() {
         (error.response?.data as { message?: string })?.message ||
         error.message ||
         "Verification failed";
-
       addToast({
         title: "Error",
         description: errorMessage,
@@ -127,7 +124,6 @@ export function useDisable2FA() {
         (error.response?.data as { message?: string })?.message ||
         error.message ||
         "Failed to disable 2FA";
-
       addToast({
         title: "Error",
         description: errorMessage,

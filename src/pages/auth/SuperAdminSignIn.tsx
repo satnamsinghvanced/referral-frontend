@@ -47,7 +47,7 @@ const SuperAdminSignIn = () => {
           email: values.email,
           password: values.password,
         });
-        if (res.success) {
+        if (res.data.success) {
           dispatch(
             setCredentials({
               token: res.data.accessToken || "",
@@ -55,7 +55,7 @@ const SuperAdminSignIn = () => {
           );
           navigate("/");
         } else {
-          setErrorMsg(res.message || "Failed to login");
+          setErrorMsg(res.data.message || "Failed to login");
         }
       } catch (error: any) {
         setErrorMsg(error.response?.data?.message || "An error occurred");

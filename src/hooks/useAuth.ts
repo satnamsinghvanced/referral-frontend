@@ -40,7 +40,6 @@ export function useLogin() {
         (error.response?.data as { message?: string })?.message ||
         error.message ||
         "Failed to login";
-
       addToast({
         title: "Error",
         description: errorMessage,
@@ -74,7 +73,6 @@ export function useVerify2FA() {
         (error.response?.data as { message?: string })?.message ||
         error.message ||
         "Verification failed";
-
       addToast({
         title: "Error",
         description: errorMessage,
@@ -83,12 +81,11 @@ export function useVerify2FA() {
     },
   });
 }
-// Queries (Data fetching)
 export const useExportReferrals = (enabled = false) =>
   useQuery<ReferralExportItem[]>({
     queryKey: ["export", "referrals"],
     queryFn: exportReferrals,
-    enabled, // Typically triggered on button click, so disabled by default
+    enabled,
   });
 
 export const useExportAnalytics = (enabled = false) =>
@@ -105,7 +102,6 @@ export const useExportReviews = (enabled = false) =>
     enabled,
   });
 
-// Mutations (Data actions)
 export function useExportAccountData() {
   return useMutation({
     mutationFn: exportAccountData,

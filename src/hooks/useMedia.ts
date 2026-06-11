@@ -168,11 +168,8 @@ export const useUploadMedia = (
       console.log(error);
       const status = error.response?.status;
       const data = error.response?.data as { message?: string; code?: string };
-
       let errorMessage =
         data?.message || error.message || "Failed to upload media";
-
-      // Enhanced error messages based on status codes and Multer codes
       if (status === 413) {
         errorMessage =
           "File size is too large. Please upload smaller files or check the server limits.";
@@ -204,7 +201,6 @@ export const useUploadMedia = (
       } else if (status >= 500) {
         errorMessage = "Server error occurred. Please try again later.";
       }
-
       addToast({ title: "Error", description: errorMessage, color: "danger" });
     },
   });

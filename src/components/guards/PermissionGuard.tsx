@@ -8,12 +8,8 @@ interface PermissionGuardProps {
   children: React.ReactNode;
 }
 
-const PermissionGuard: React.FC<PermissionGuardProps> = ({
-  permissions,
-  children,
-}) => {
+const PermissionGuard: React.FC<PermissionGuardProps> = ({ permissions, children }) => {
   const { hasAnyPermission, isLoading, isAdmin } = useRolePermissions();
-
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -21,19 +17,13 @@ const PermissionGuard: React.FC<PermissionGuardProps> = ({
       </div>
     );
   }
-
-  // Admin always has access
   if (isAdmin) {
     return <>{children}</>;
   }
-
   const hasAccess = hasAnyPermission(permissions);
-
   if (!hasAccess) {
-    // Redirect to home or a dedicated "Unauthorized" page
     return <Navigate to="/" replace />;
   }
-
   return <>{children}</>;
 };
 

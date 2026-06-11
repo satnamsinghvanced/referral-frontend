@@ -1,16 +1,9 @@
 import * as React from "react";
-
-// Define the type for the component's props
 interface LogoProps extends React.SVGProps<SVGSVGElement> {
   // You can add custom props here if needed, like 'size' or 'color'
 }
 
-/**
- * A React component representing the logo from the provided SVG.
- * The component accepts standard SVG props for customization.
- */
 const Logo: React.FC<LogoProps> = (props) => {
-  // Define the styles as an object for React
   const styles: { [key: string]: React.CSSProperties } = {
     cls1: {
       fill: "#8acef1",
@@ -29,16 +22,9 @@ const Logo: React.FC<LogoProps> = (props) => {
       id="Layer_1"
       data-name="Layer 1"
       viewBox="0 0 479.91 196.15"
-      {...props} // Spread any incoming SVG props (like className, onClick, width, height, etc.)
+      {...props}
     >
-      {/* The original SVG used <style> tags to define classes. 
-        In React/TSX, it's better to use inline styles or CSS-in-JS.
-        Here, we use inline styles referencing the 'styles' object.
-        NOTE: The original SVG used classes like .cls-1, .cls-2, .cls-3
-        We apply the corresponding styles directly using 'style={styles.cls1}'
-      */}
 
-      {/* Group 1: Bottom Text (Blue) */}
       <g>
         <path
           style={styles.cls2}
@@ -79,11 +65,8 @@ const Logo: React.FC<LogoProps> = (props) => {
         />
         <path style={styles.cls2} d="m472.87,155.41h7.04v40.05h-7.04v-40.05Z" />
       </g>
-
-      {/* Group 2: Top Logo/Graphic */}
       <g>
         <g>
-          {/* Light Blue Shapes (cls-1) */}
           <ellipse
             style={styles.cls1}
             cx="235.96"
@@ -100,8 +83,6 @@ const Logo: React.FC<LogoProps> = (props) => {
             style={styles.cls1}
             d="m247.15,108.48c-.08-4-4.36-7.15-9.57-7.04-5.2.11-9.35,3.43-9.27,7.43s4.37,7.14,9.56,7.03c5.2-.11,9.35-3.43,9.27-7.42Z"
           />
-
-          {/* Dark Blue Shapes (cls-2) */}
           <path
             style={styles.cls2}
             d="m322.83,52.6c4.72-9.57-1.45-17.12-13.77-16.87-12.33.25-26.15,8.22-30.87,17.79-4.72,9.57,1.45,17.12,13.78,16.86s26.15-8.22,30.86-17.79Z"
@@ -114,8 +95,6 @@ const Logo: React.FC<LogoProps> = (props) => {
             style={styles.cls2}
             d="m269.78,120.68c1.49-3.04-.46-5.42-4.36-5.34-3.9.08-8.27,2.6-9.77,5.63-1.49,3.02.46,5.41,4.36,5.33,3.9-.08,8.27-2.6,9.76-5.62Z"
           />
-
-          {/* Orange Shapes (cls-3) */}
           <path
             style={styles.cls3}
             d="m187.12,72.7c12.33-.25,18.17-8.05,13.06-17.42-5.11-9.37-19.24-16.75-31.57-16.5-12.33.25-18.17,8.05-13.07,17.42,5.11,9.36,19.25,16.75,31.58,16.5Z"
@@ -130,7 +109,6 @@ const Logo: React.FC<LogoProps> = (props) => {
           />
         </g>
 
-        {/* Text-like elements within the graphic (Dark Blue) */}
         <g>
           <path
             style={styles.cls2}

@@ -25,10 +25,7 @@ export const useRolePermissions = () => {
 
   const userPermissions = useMemo(() => {
     if (!userData) return [];
-
     const typedUser = userData as any;
-
-    // If user is admin, they have all permissions
     if (
       user?.role === "admin" ||
       user?.role === "SuperAdmin" ||
@@ -37,10 +34,7 @@ export const useRolePermissions = () => {
     ) {
       return Object.values(PERMISSIONS);
     }
-
     const permissions: string[] = [];
-
-    // 1. Get permissions from direct assignments
     if (typedUser.permissions) {
       typedUser.permissions.forEach((p: any) => {
         if (typeof p === "string") {
@@ -51,11 +45,8 @@ export const useRolePermissions = () => {
         }
       });
     }
-
-    // 2. Get permissions from role
     const roleId =
       typeof typedUser.role === "string" ? typedUser.role : typedUser.role?._id;
-
     if (roleId && allRoles) {
       const userRole = allRoles.find((r) => r._id === roleId);
       if (userRole && userRole.permissions) {
@@ -66,20 +57,16 @@ export const useRolePermissions = () => {
         });
       }
     }
-
     return permissions;
   }, [userData, allPermissions, allRoles, user?.role]);
-
   const hasPermission = (permissionTitle: string) => {
     if (user?.role === "admin" || user?.role === "SuperAdmin") return true;
     return userPermissions.includes(permissionTitle);
   };
-
   const hasAnyPermission = (permissionTitles: string[]) => {
     if (user?.role === "admin" || user?.role === "SuperAdmin") return true;
     return permissionTitles.some((title) => userPermissions.includes(title));
   };
-
   return {
     userPermissions,
     hasPermission,

@@ -189,21 +189,16 @@ export const useExportBudgetItems = () => {
         });
         return;
       }
-
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-
-      // Set filename based on type
       const fileExtension = type === "excel" ? "xlsx" : type;
       a.download = `budget_export_${new Date().toISOString().split("T")[0]
         }.${fileExtension}`;
-
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
       window.URL.revokeObjectURL(url);
-
       addToast({
         title: "Success",
         description: `Budget data exported successfully as ${type.toUpperCase()}.`,
@@ -212,7 +207,6 @@ export const useExportBudgetItems = () => {
     },
     onError: async (error: AxiosError) => {
       let errorMessage = "Failed to export budget items";
-
       if (error.response?.data instanceof Blob) {
         try {
           const text = await error.response.data.text();
@@ -227,7 +221,6 @@ export const useExportBudgetItems = () => {
           error.message ||
           errorMessage;
       }
-
       addToast({
         title: "Error",
         description: errorMessage,
@@ -265,7 +258,6 @@ export const useAddSpendRecord = (budgetId: string) => {
         (error.response?.data as { message?: string })?.message ||
         error.message ||
         "Failed to add spend record";
-
       addToast({
         title: "Error",
         description: errorMessage,
@@ -296,7 +288,6 @@ export const useDeleteSpendRecord = (budgetId: string) => {
         (error.response?.data as { message?: string })?.message ||
         error.message ||
         "Failed to delete spend record";
-
       addToast({
         title: "Error",
         description: errorMessage,

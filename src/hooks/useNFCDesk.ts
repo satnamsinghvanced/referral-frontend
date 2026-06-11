@@ -14,7 +14,6 @@ import {
 import { CreateNFCDeskPayload, UpdateNFCDeskPayload } from "../types/nfcDesk";
 
 const NFC_DESK_KEY = ["nfc_desk"];
-
 export const useFetchNFCDesks = (page: number = 1, limit: number = 10) =>
   useQuery({
     queryKey: [...NFC_DESK_KEY, { page, limit }],
@@ -47,13 +46,7 @@ export const useCreateNFCDesk = () => {
 
 export const useUpdateNFCDesk = () => {
   return useMutation({
-    mutationFn: ({
-      id,
-      payload,
-    }: {
-      id: string;
-      payload: UpdateNFCDeskPayload;
-    }) => updateNFCDesk(id, payload),
+    mutationFn: ({ id, payload }: { id: string; payload: UpdateNFCDeskPayload }) => updateNFCDesk(id, payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: NFC_DESK_KEY });
     },
