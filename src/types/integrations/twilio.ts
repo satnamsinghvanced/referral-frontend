@@ -20,6 +20,7 @@ export interface TwilioConfigResponse {
   balance?: number;
   minutesLimit?: number;
   minutesUsed?: number;
+  phoneNumbers?: any[];
 }
 
 export interface UserIdParam {

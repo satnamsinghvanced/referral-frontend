@@ -600,7 +600,7 @@ function Integrations() {
     <>
       <ComponentContainer headingData={HEADING_DATA}>
         <div className="flex flex-col gap-4 md:gap-5">
-          <TwilioDashboard />
+          <TwilioDashboard twilioConfig={twilioConfig} />
           <Card className="shadow-none border border-foreground/10 rounded-xl p-4 bg-background">
             <CardHeader className="p-0 pb-5">
               <h4 className="font-medium text-sm text-foreground">

@@ -28,6 +28,37 @@ export default function TwilioAddCreditsModal({
   currentMinutes,
   onAddCredits,
 }: TwilioAddCreditsModalProps) {
+  const formatCount = (num: number) => {
+    if (!isFinite(num) || isNaN(num) || num <= 0) return "0";
+    if (num < 100000) {
+      return num.toLocaleString("en-US");
+    }
+    return new Intl.NumberFormat("en-US", {
+      notation: "compact",
+      maximumFractionDigits: 2,
+    }).format(num);
+  };
+
+  const formatCurrency = (amount: number) => {
+    if (!isFinite(amount) || isNaN(amount) || amount <= 0) return "$0.00";
+    if (amount > 1000000) {
+      return (
+        "$" +
+        new Intl.NumberFormat("en-US", {
+          notation: "compact",
+          maximumFractionDigits: 2,
+        }).format(amount)
+      );
+    }
+    return (
+      "$" +
+      amount.toLocaleString("en-US", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })
+    );
+  };
+
   const tiers = [15, 50, 75];
   interface TierMeta {
     label: string;
@@ -79,14 +110,16 @@ export default function TwilioAddCreditsModal({
       });
       return;
     }
-
-    const url = `${window.location.origin}/checkout?type=twilio_credits&amount=${credits}&package=none&auto_topup=${autoTopUp}`;
-
+    const phoneFee = 5.00;
+    const totalAmount = credits + phoneFee;
+    const url = `${window.location.origin}/checkout?type=twilio_credits&amount=${totalAmount}&walletAmount=${credits}&package=none&auto_topup=${autoTopUp}`;
     window.open(url, "_blank");
     onClose();
   };
 
   const walletAmount = parseFloat(customAmount) || 0;
+  const phoneFee = 5.00;
+  const totalToday = walletAmount + phoneFee;
   const outboundMins = Math.floor(walletAmount / 0.02);
   const smsCount = Math.floor(walletAmount / 0.01);
   const inboundMins = Math.floor(walletAmount / 0.01);
@@ -111,21 +144,18 @@ export default function TwilioAddCreditsModal({
         </ModalHeader>
 
         <ModalBody className="p-5 pt-2 flex flex-col md:flex-row gap-6">
-          {/* Left Column: Plan inputs and Toggles */}
           <div className="flex-1 flex flex-col gap-4">
-            {/* Wallet Balance Indicator */}
             <div className="bg-primary-50/50 dark:bg-primary-900/10 border border-primary-100 dark:border-primary-900/30 rounded-xl p-4 flex flex-col items-center justify-center text-center">
               <p className="text-[10px] uppercase font-semibold text-foreground-500 tracking-wider">
                 Current Wallet Balance
               </p>
               <p className="text-3xl font-extrabold text-primary mt-1">
-                ${currentBalance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                {formatCurrency(currentBalance)}
               </p>
             </div>
 
-            {/* Subscription Tiers Grid */}
             <div className="flex flex-col gap-2">
-              <label className="text-xs font-semibold text-foreground">Select Subscription Plan</label>
+              <label className="text-xs font-semibold text-foreground">Select Monthly Wallet Funding</label>
               <div className="grid grid-cols-3 gap-2.5">
                 {tiers.map((amount) => {
                   const isSelected = selectedPreset === amount;
@@ -155,7 +185,6 @@ export default function TwilioAddCreditsModal({
               </div>
             </div>
 
-            {/* Custom Monthly Amount */}
             <Input
               type="number"
               label="Or Enter Custom Monthly Amount"
@@ -165,7 +194,7 @@ export default function TwilioAddCreditsModal({
               onValueChange={handleCustomAmountChange}
               min={10}
               startContent={<span className="text-xs text-foreground-500">$</span>}
-              endContent={<span className="text-xs text-foreground-400">/ month</span>}
+              endContent={<span className="w-14 text-xs text-foreground-400">/ month</span>}
               classNames={{
                 label: "text-xs font-semibold text-foreground mb-1",
                 inputWrapper: "border border-foreground/10 rounded-lg bg-transparent h-10",
@@ -173,7 +202,6 @@ export default function TwilioAddCreditsModal({
               }}
             />
 
-            {/* Auto-Top Up Toggle */}
             <div className="border border-foreground/10 dark:bg-foreground/5 rounded-xl p-4 flex flex-col gap-2">
               <div className="flex justify-between items-center gap-4">
                 <div className="flex flex-col">
@@ -193,32 +221,32 @@ export default function TwilioAddCreditsModal({
             </div>
           </div>
 
-          {/* Right Column: Calculator and Rates */}
           <div className="flex-1 flex flex-col gap-4">
-            {/* Estimated Monthly Power (Calculator) */}
             <div className="bg-default-50 dark:bg-default-100/20 border border-foreground/5 rounded-xl p-4 flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-foreground">Estimated Monthly Power</span>
                 <span className="text-[10px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                  Based on ${walletAmount.toFixed(2)}/mo
+                  Based on {formatCurrency(walletAmount)}/mo
                 </span>
               </div>
 
               <div className="grid grid-cols-1 gap-2">
                 {[
-                  { label: "Outbound Calls", value: `${outboundMins.toLocaleString()} mins`, formula: "at $0.02/min", icon: <FiPhone className="w-3.5 h-3.5 text-blue-500" /> },
-                  { label: "SMS Messages", value: `${smsCount.toLocaleString()} SMS`, formula: "at $0.01/msg", icon: <FiMessageSquare className="w-3.5 h-3.5 text-emerald-500" /> },
-                  { label: "Inbound Calls", value: `${inboundMins.toLocaleString()} mins`, formula: "at $0.01/min", icon: <FiPhone className="w-3.5 h-3.5 text-purple-500" /> },
+                  { label: "Outbound Calls", value: `${formatCount(outboundMins)} mins`, formula: "at $0.02/min", icon: <FiPhone className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" /> },
+                  { label: "SMS Messages", value: `${formatCount(smsCount)} SMS`, formula: "at $0.01/msg", icon: <FiMessageSquare className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" /> },
+                  { label: "Inbound Calls", value: `${formatCount(inboundMins)} mins`, formula: "at $0.01/min", icon: <FiPhone className="w-3.5 h-3.5 text-purple-500 flex-shrink-0" /> },
                 ].map((item, idx) => (
-                  <div key={idx} className="flex items-center justify-between bg-background border border-foreground/5 p-2 rounded-lg">
-                    <div className="flex items-center gap-2">
+                  <div key={idx} className="flex items-center justify-between bg-background border border-foreground/5 p-2.5 rounded-lg min-w-0 gap-3">
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
                       {item.icon}
-                      <div className="flex flex-col">
-                        <span className="text-xs font-bold text-foreground leading-normal">{item.value}</span>
-                        <span className="text-[10px] text-foreground-500">{item.label}</span>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-xs font-bold text-foreground leading-normal truncate" title={item.value}>
+                          {item.value}
+                        </span>
+                        <span className="text-[10px] text-foreground-500 truncate">{item.label}</span>
                       </div>
                     </div>
-                    <span className="text-[9px] font-medium text-foreground-400 bg-foreground/5 px-2 py-0.5 rounded">
+                    <span className="text-[9px] font-medium text-foreground-400 bg-foreground/5 px-2 py-0.5 rounded flex-shrink-0">
                       {item.formula}
                     </span>
                   </div>
@@ -226,13 +254,11 @@ export default function TwilioAddCreditsModal({
               </div>
             </div>
 
-            {/* Usage Rates Compact Grid */}
             <div className="border border-foreground/10 rounded-xl p-3 flex flex-col gap-2.5 bg-default-50/50">
               <div className="flex items-center gap-1.5 text-foreground font-bold text-[10px] uppercase tracking-wider text-foreground-500">
                 <BsLightningCharge className="w-3.5 h-3.5 text-primary" />
                 <span>Real-Time Rates (Pay-As-You-Go)</span>
               </div>
-
               <div className="grid grid-cols-2 gap-2">
                 {[
                   { label: "Outbound Calls", rate: "$0.02 / min", icon: <FiPhone className="w-3.5 h-3.5 text-foreground-500" /> },
@@ -255,7 +281,6 @@ export default function TwilioAddCreditsModal({
                 ))}
               </div>
 
-              {/* Fixed Cost Badge */}
               <div className="flex items-center justify-between bg-primary-500/10 border border-primary/25 rounded-lg p-2 mt-0.5">
                 <div className="flex items-center gap-1.5">
                   <FiInfo className="w-3 h-3 text-primary" />
@@ -271,9 +296,9 @@ export default function TwilioAddCreditsModal({
 
         <ModalFooter className="flex flex-col gap-3 p-5 pt-2 border-t border-foreground/5">
           <div className="flex justify-between items-center w-full">
-            <span className="text-sm font-semibold text-foreground">Total to Pay Today:</span>
+            <span className="text-sm font-semibold text-foreground">Total to Pay:</span>
             <span className="text-base font-bold text-primary">
-              ${walletAmount.toFixed(2)}/month
+              ${totalToday.toFixed(2)}/month
             </span>
           </div>
 

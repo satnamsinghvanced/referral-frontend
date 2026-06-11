@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
-import { Card, CardBody, Button, Chip, addToast, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/react";
+import { Card, CardBody, Button, Chip, addToast, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Spinner } from "@heroui/react";
 import {
   FiPhone,
   FiDollarSign,
@@ -14,67 +14,69 @@ import {
   FiCheckCircle,
   FiCreditCard,
 } from "react-icons/fi";
-import { BsLightningCharge } from "react-icons/bs";
-import { TbBrandTwilio } from "react-icons/tb";
 import TwilioAddCreditsModal from "../modal/TwilioAddCreditsModal";
 import TwilioPurchaseNumberModal from "../modal/TwilioPurchaseNumberModal";
+import TwilioA2PRegistrationModal from "../modal/TwilioA2PRegistrationModal";
 import { TwilioConfigResponse } from "../../../types/integrations/twilio";
+import axios from "../../../services/axios";
+import { useFetchA2PRegistration } from "../../../hooks/integrations/useTwilio";
 
 interface PhoneNumber {
   id: string;
   phoneNumber: string;
   label: string;
   status: "Active" | "Pending" | string;
-  capabilities: { voice: boolean; sms: boolean; mms: boolean };
+  capabilities: { voice: boolean; SMS: boolean; MMS: boolean };
 }
 
 interface TwilioDashboardProps {
-  twilioConfig?: TwilioConfigResponse;
+  twilioConfig?: TwilioConfigResponse | undefined;
 }
 
 export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
 
-  const [balance, setBalance] = useState<number>(twilioConfig?.balance ?? 234.5);
-  const [minutesUsed, setMinutesUsed] = useState<number>(twilioConfig?.minutesUsed ?? 1653);
-  const [minutesLimit, setMinutesLimit] = useState<number>(twilioConfig?.minutesLimit ?? 2500);
+  const [balance, setBalance] = useState<number>(twilioConfig?.balance ?? 0);
+  const [minutesUsed, setMinutesUsed] = useState<number>(twilioConfig?.minutesUsed ?? 0);
+  const [minutesLimit, setMinutesLimit] = useState<number>(twilioConfig?.minutesLimit ?? 0);
 
   useEffect(() => {
     if (twilioConfig) {
       if (twilioConfig.balance !== undefined) setBalance(twilioConfig.balance);
       if (twilioConfig.minutesUsed !== undefined) setMinutesUsed(twilioConfig.minutesUsed);
       if (twilioConfig.minutesLimit !== undefined) setMinutesLimit(twilioConfig.minutesLimit);
+      if (twilioConfig.phoneNumbers !== undefined) {
+        const formatted = twilioConfig.phoneNumbers.map((num: any) => ({
+          id: num._id || num.id || num.phoneNumber,
+          phoneNumber: num.phoneNumber,
+          label: num.label || num.friendlyName || "Marketing Line",
+          status: num.status || "Active",
+          capabilities: {
+            voice: num.capabilities?.voice !== false,
+            SMS: num.capabilities?.sms !== false || num.capabilities?.SMS !== false,
+            MMS: num.capabilities?.mms !== false || num.capabilities?.MMS !== false,
+          }
+        }));
+        setPhoneNumbers(formatted);
+      }
     }
   }, [twilioConfig]);
 
-  // Phone numbers state
-  const [phoneNumbers, setPhoneNumbers] = useState<PhoneNumber[]>([
-    {
-      id: "1",
-      phoneNumber: "+1 (415) 555-1234",
-      label: "Main Office Line",
-      status: "Active",
-      capabilities: { voice: true, sms: true, mms: true },
-    },
-    {
-      id: "2",
-      phoneNumber: "+1 (415) 555-5678",
-      label: "Marketing Campaign Line",
-      status: "Active",
-      capabilities: { voice: true, sms: true, mms: false },
-    },
-  ]);
-
+  const [phoneNumbers, setPhoneNumbers] = useState<PhoneNumber[]>([]);
   const [isAddCreditsOpen, setIsAddCreditsOpen] = useState(false);
   const [isPurchaseNumberOpen, setIsPurchaseNumberOpen] = useState(false);
+  
+  const { data: registrationRes, isLoading: isA2PConfigLoading } = useFetchA2PRegistration();
+  const registration = registrationRes?.data;
+
+  const [isA2PRegistrationOpen, setIsA2PRegistrationOpen] = useState(false);
   const [numberToRelease, setNumberToRelease] = useState<PhoneNumber | null>(null);
 
   const successParam = searchParams.get("success");
   const typeParam = searchParams.get("type");
 
   useEffect(() => {
-    // 1. If running inside the popup window: post message and close window
     if (window.opener && typeParam === "twilio_credits") {
       if (successParam === "true") {
         window.opener.postMessage({ type: "STRIPE_SUCCESS" }, "*");
@@ -84,8 +86,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
       window.close();
       return;
     }
-
-    // 2. If running in the main parent window (directly navigated)
     if (successParam === "true" && typeParam === "twilio_credits") {
       addToast({
         title: "Credits Added",
@@ -93,7 +93,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
         color: "success",
       });
       queryClient.invalidateQueries({ queryKey: ["twilio"] });
-
       const newParams = new URLSearchParams(searchParams);
       newParams.delete("success");
       newParams.delete("session_id");
@@ -105,15 +104,12 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
         description: "Your credits purchase was canceled.",
         color: "warning",
       });
-
       const newParams = new URLSearchParams(searchParams);
       newParams.delete("success");
       newParams.delete("type");
       setSearchParams(newParams);
     }
   }, [successParam, typeParam, queryClient, searchParams, setSearchParams]);
-
-  // 3. Listen for postMessages from the popup window
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data?.type === "STRIPE_SUCCESS") {
@@ -138,32 +134,39 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
     };
   }, [queryClient]);
 
-  // Handle adding credits
   const handleAddCredits = (amount: number, minutes: number) => {
-    // This is handled in the Stripe webhook, but we keep this as a no-op fallback
   };
 
   const handlePurchaseNumber = (number: string, label: string) => {
-    const newNum: PhoneNumber = {
-      id: Math.random().toString(),
-      phoneNumber: number,
-      label: label,
-      status: "Active",
-      capabilities: { voice: true, sms: true, mms: true },
-    };
-    setPhoneNumbers((prev) => [...prev, newNum]);
-    setBalance((prev) => prev - 15);
+    queryClient.invalidateQueries({ queryKey: ["twilio"] });
   };
 
-  const handleConfirmRelease = () => {
+  const handleConfirmRelease = async () => {
     if (numberToRelease) {
-      setPhoneNumbers((prev) => prev.filter((n) => n.id !== numberToRelease.id));
-      addToast({
-        title: "Number Released",
-        description: `Successfully released phone number ${numberToRelease.phoneNumber}`,
-        color: "success",
-      });
-      setNumberToRelease(null);
+      try {
+        const response = await axios.post("/twilio-checkout/release-number", {
+          phoneNumber: numberToRelease.phoneNumber,
+        }) as any;
+        if (response?.success) {
+          addToast({
+            title: "Number Released",
+            description: `Successfully released phone number ${numberToRelease.phoneNumber}`,
+            color: "success",
+          });
+          queryClient.invalidateQueries({ queryKey: ["twilio"] });
+        } else {
+          throw new Error(response?.message || "Failed to release number.");
+        }
+      } catch (err: any) {
+        console.error(err);
+        addToast({
+          title: "Release Failed",
+          description: err.response?.data?.message || err.message || "Failed to release phone number.",
+          color: "danger",
+        });
+      } finally {
+        setNumberToRelease(null);
+      }
     }
   };
 
@@ -286,38 +289,142 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
       <Card className="shadow-none border border-foreground/10 bg-background rounded-2xl p-5">
         <CardBody className="p-0 flex flex-col gap-4">
           <div className="flex items-center justify-between gap-4 flex-wrap">
-            <h3 className="text-sm font-bold text-foreground">SMS Messaging Registration (A2P)</h3>
-            <Button
-              color="primary"
-              size="sm"
-              startContent={<FiCheckCircle className="w-3.5 h-3.5" />}
-              className="bg-primary text-white rounded-lg text-xs font-semibold h-8 px-4"
-            >
-              Register for SMS
-            </Button>
+            <div className="flex items-center gap-2 flex-wrap">
+              <h3 className="text-sm font-bold text-foreground">SMS Messaging Registration (A2P)</h3>
+              {registration?.status === "approved" && (
+                <span className="flex items-center gap-1 text-[10px] font-bold bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 px-2.5 py-0.5 rounded-full border border-green-200 dark:border-green-900/30">
+                  <FiCheckCircle className="w-3 h-3 text-green-600 dark:text-green-400" />
+                  Approved
+                </span>
+              )}
+              {registration?.status === "pending" && (
+                <span className="flex items-center gap-1 text-[10px] font-bold bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 px-2.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-900/30">
+                  <FiClock className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+                  Pending Review
+                </span>
+              )}
+              {registration?.status === "failed" && (
+                <span className="flex items-center gap-1 text-[10px] font-bold bg-red-500/10 text-red-600 dark:text-red-400 px-2 py-0.5 rounded-full border border-red-500/20 dark:border-red-500/10">
+                  <FiInfo className="w-3 h-3 text-red-500" />
+                  Rejected
+                </span>
+              )}
+            </div>
+
+            {(!registration || registration?.status === "failed") && (
+              <Button
+                color={registration?.status === "failed" ? "danger" : "primary"}
+                size="sm"
+                onPress={() => setIsA2PRegistrationOpen(true)}
+                startContent={<FiCheckCircle className="w-3.5 h-3.5" />}
+                className="rounded-lg text-xs font-semibold h-8 px-4 text-white"
+              >
+                {registration?.status === "failed" ? "Edit & Re-submit" : "Register for SMS"}
+              </Button>
+            )}
+
+            {registration && (registration.status === "pending" || registration.status === "approved") && (
+              <Button
+                variant="light"
+                size="sm"
+                onPress={() => setIsA2PRegistrationOpen(true)}
+                className="text-xs font-semibold text-foreground-500 hover:text-foreground hover:bg-foreground/5 rounded-lg px-3 h-8"
+              >
+                {registration.status === "approved" ? "View Details" : "Edit Registration"}
+              </Button>
+            )}
           </div>
 
-          <div className="border border-red-200 dark:border-orange-900/10 bg-orange-50/40 dark:bg-orange-950/10 rounded-xl p-4 flex flex-row gap-3 items-start">
-            <FiInfo className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
-            <div className="flex flex-col gap-1.5">
-              <h4 className="text-xs font-bold text-red-600 dark:text-red-500">
-                SMS Registration Required
-              </h4>
-              <p className="text-xs text-red-600/80 dark:text-red-400/80 leading-relaxed">
-                To send SMS messages with your phone numbers, you need to complete A2P (Application-to-Person) registration. This is required by mobile carriers for compliance and helps prevent spam.
-              </p>
-              <ul className="text-xs text-red-600/80 dark:text-red-400/80 list-disc pl-4 space-y-1 mt-1 font-medium">
-                <li>Registration takes 5-10 minutes</li>
-                <li>Approval typically within 1-2 business days</li>
-                <li>Required for all business SMS messaging</li>
-                <li>One-time registration per brand/campaign</li>
-              </ul>
+          {isA2PConfigLoading ? (
+            <div className="flex justify-center items-center py-6">
+              <Spinner size="sm" label="Fetching A2P status..." />
             </div>
-          </div>
+          ) : !registration ? (
+            <div className="border border-red-200 dark:border-red-900/30 bg-red-50/40 dark:bg-red-950/10 rounded-xl p-4 flex flex-row gap-3 items-start">
+              <FiInfo className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+              <div className="flex flex-col gap-1.5">
+                <h4 className="text-xs font-bold text-red-600 dark:text-red-500">
+                  SMS Registration Required
+                </h4>
+                <p className="text-xs text-red-600/80 dark:text-red-400/80 leading-relaxed">
+                  To send SMS messages with your phone numbers, you need to complete A2P (Application-to-Person) registration. This is required by mobile carriers for compliance and helps prevent spam.
+                </p>
+                <ul className="text-xs text-red-600/80 dark:text-red-400/80 list-disc pl-4 space-y-1 mt-1 font-medium">
+                  <li>Registration takes 5-10 minutes</li>
+                  <li>Approval typically within 1-2 business days</li>
+                  <li>Required for all business SMS messaging</li>
+                  <li>One-time registration per brand/campaign</li>
+                </ul>
+              </div>
+            </div>
+          ) : registration.status === "pending" ? (
+            <div className="border border-amber-200 dark:border-amber-900/30 bg-amber-50/50 dark:bg-amber-950/10 rounded-2xl p-5 flex gap-3 items-start">
+              <FiClock className="w-5 h-5 text-amber-500 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+              <div className="flex flex-col gap-2">
+                <h4 className="text-sm font-bold text-amber-800 dark:text-amber-300">
+                  Registration Under Review
+                </h4>
+                <div className="flex flex-col gap-1.5 text-xs text-amber-700 dark:text-amber-400/90 leading-relaxed">
+                  <p>
+                    Your A2P registration for <span className="font-bold text-amber-900 dark:text-amber-200">"{registration.campaignName || "Patient Communication & Appointment Reminders"}"</span> is currently being reviewed by mobile carriers.
+                  </p>
+                  <p>
+                    This typically takes 1-2 business days. You'll receive an email notification when your registration is approved.
+                  </p>
+                </div>
+              </div>
+            </div>
+          ) : registration.status === "approved" ? (
+            <div className="border border-green-200 dark:border-green-900/30 bg-green-50/50 dark:bg-green-950/10 rounded-2xl p-5 flex flex-col gap-4">
+              <div className="flex gap-3 items-start">
+                <FiCheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
+                <div className="flex flex-col gap-1">
+                  <h4 className="text-sm font-bold text-green-800 dark:text-green-300">
+                    SMS Messaging Enabled
+                  </h4>
+                  <p className="text-xs text-green-700 dark:text-green-400/90 leading-relaxed">
+                    Your campaign <span className="font-bold text-green-800 dark:text-green-200">"{registration.campaignName || "Patient Communication & Appointment Reminders"}"</span> is approved and ready for SMS messaging.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className="bg-white dark:bg-zinc-900 border border-green-200/60 dark:border-green-900/30 p-3.5 rounded-xl flex flex-col gap-1.5">
+                  <span className="text-[10px] text-foreground-500 font-semibold leading-none">Campaign Status</span>
+                  <span className="text-xs font-bold text-green-600 dark:text-green-400 leading-none">Active</span>
+                </div>
+                <div className="bg-white dark:bg-zinc-900 border border-green-200/60 dark:border-green-900/30 p-3.5 rounded-xl flex flex-col gap-1.5">
+                  <span className="text-[10px] text-foreground-500 font-semibold leading-none">Registered Numbers</span>
+                  <span className="text-xs font-bold text-foreground leading-none">{registration.selectedNumbers?.length || 0}</span>
+                </div>
+                <div className="bg-white dark:bg-zinc-900 border border-green-200/60 dark:border-green-900/30 p-3.5 rounded-xl flex flex-col gap-1.5">
+                  <span className="text-[10px] text-foreground-500 font-semibold leading-none">Daily Limit</span>
+                  <span className="text-xs font-bold text-green-600 dark:text-green-400 leading-none">Unlimited</span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="border border-red-200 dark:border-red-900/30 bg-red-50/40 dark:bg-red-950/10 rounded-xl p-4 flex flex-row gap-3 items-start">
+              <FiInfo className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
+              <div className="flex flex-col gap-1.5">
+                <h4 className="text-xs font-bold text-red-600 dark:text-red-500">
+                  A2P SMS Registration Rejected
+                </h4>
+                <p className="text-xs text-red-600/80 dark:text-red-400/80 leading-relaxed">
+                  Carrier review has rejected this brand/campaign registration for the following reason:
+                </p>
+                <div className="bg-red-500/10 dark:bg-red-950/20 p-2.5 rounded-lg border border-red-200/50 dark:border-red-900/30 text-xs text-red-700 dark:text-red-400 font-bold my-1">
+                  {registration.rejectionReason || "Rejection reason unspecified by carrier."}
+                </div>
+                <p className="text-[10px] text-red-500/80">
+                  Please review the details, correct any compliance issues, and re-submit your registration.
+                </p>
+              </div>
+            </div>
+          )}
         </CardBody>
       </Card>
 
-      {/* Connected Phone Numbers */}
       <Card className="shadow-none border border-foreground/10 bg-background rounded-2xl p-5">
         <CardBody className="p-0 flex flex-col gap-4">
           <div className="flex items-center justify-between border-b border-foreground/5 pb-3">
@@ -376,12 +483,12 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
                             Voice
                           </span>
                         )}
-                        {num.capabilities.sms && (
+                        {num.capabilities.SMS && (
                           <span className="text-[10px] border border-foreground/10 text-foreground-500 px-2 py-0.5 rounded-full font-medium">
                             SMS
                           </span>
                         )}
-                        {num.capabilities.mms && (
+                        {num.capabilities.MMS && (
                           <span className="text-[10px] border border-foreground/10 text-foreground-500 px-2 py-0.5 rounded-full font-medium">
                             MMS
                           </span>
@@ -421,6 +528,13 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
         isOpen={isPurchaseNumberOpen}
         onClose={() => setIsPurchaseNumberOpen(false)}
         onPurchaseSuccess={handlePurchaseNumber}
+      />
+
+      {/* A2P SMS Registration Modal */}
+      <TwilioA2PRegistrationModal
+        isOpen={isA2PRegistrationOpen}
+        onClose={() => setIsA2PRegistrationOpen(false)}
+        phoneNumbers={phoneNumbers}
       />
 
       {/* Release Confirmation Modal */}

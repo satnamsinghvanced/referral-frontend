@@ -54,6 +54,7 @@ export default function Checkout() {
 
   const typeParam = searchParams.get("type");
   const amountParam = parseFloat(searchParams.get("amount") || "0");
+  const walletAmountParam = parseFloat(searchParams.get("walletAmount") || "0");
   const packageParam = searchParams.get("package") || "none";
 
   const packageCost =
@@ -65,7 +66,9 @@ export default function Checkout() {
           ? 50
           : 0;
 
-  const baseCost = typeParam === "twilio_credits" ? amountParam + packageCost : activePlan.price;
+  const creditsCost = typeParam === "twilio_credits" && walletAmountParam > 0 ? walletAmountParam : amountParam;
+  const phoneFee = typeParam === "twilio_credits" && walletAmountParam > 0 ? Math.max(0, amountParam - walletAmountParam) : 0;
+  const baseCost = typeParam === "twilio_credits" ? creditsCost + packageCost + phoneFee : activePlan.price;
 
   // Form states
   const [activeTab, setActiveTab] = useState<"saved" | "card">("card");
@@ -321,6 +324,7 @@ export default function Checkout() {
       if (typeParam === "twilio_credits") {
         await axios.post("/twilio-checkout/mock-credits-payment", {
           amount: totalCost,
+          walletAmount: creditsCost,
           packageName: packageParam,
           cardNumber: finalCardNumber,
           expire: finalExpiry,
@@ -672,9 +676,15 @@ export default function Checkout() {
               {typeParam === "twilio_credits" ? (
                 <>
                   <div className="flex justify-between items-center text-sm font-semibold">
-                    <span className="text-default-500">Credits</span>
-                    <span>${amountParam.toFixed(2)}</span>
+                    <span className="text-default-500">Wallet Deposit</span>
+                    <span>${creditsCost.toFixed(2)}</span>
                   </div>
+                  {phoneFee > 0 && (
+                    <div className="flex justify-between items-center text-sm font-semibold">
+                      <span className="text-default-500">Active Phone Number Fee</span>
+                      <span>${phoneFee.toFixed(2)}</span>
+                    </div>
+                  )}
                   {packageParam !== "none" && (
                     <div className="flex justify-between items-center text-sm font-semibold">
                       <span className="text-default-500">{packageParam} Min Package</span>

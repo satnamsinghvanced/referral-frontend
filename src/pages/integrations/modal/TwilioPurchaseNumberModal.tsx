@@ -64,11 +64,11 @@ export default function TwilioPurchaseNumberModal({
     setSearchResults([]);
 
     try {
-      const response = await axios.get("/twilio-checkout/search-numbers", {
+      const response = (await axios.get("/twilio-checkout/search-numbers", {
         params: { areaCode: areaCode.trim() },
-      });
-      if (response.data?.success) {
-        setSearchResults(response.data.data || []);
+      })) as any;
+      if (response?.success) {
+        setSearchResults(response.data || []);
       } else {
         setSearchResults([]);
       }
@@ -90,12 +90,12 @@ export default function TwilioPurchaseNumberModal({
     setBuyingNumber(num.phoneNumber);
 
     try {
-      const response = await axios.post("/twilio-checkout/buy-number", {
+      const response = (await axios.post("/twilio-checkout/buy-number", {
         phoneNumber: num.phoneNumber,
         label: labelText,
-      });
+      })) as any;
 
-      if (response.data?.success) {
+      if (response?.success) {
         onPurchaseSuccess(num.phoneNumber, labelText);
         addToast({
           title: "Number Purchased",
@@ -104,7 +104,7 @@ export default function TwilioPurchaseNumberModal({
         });
         onClose();
       } else {
-        throw new Error(response.data?.message || "Failed to purchase number.");
+        throw new Error(response?.message || "Failed to purchase number.");
       }
     } catch (err: any) {
       console.error(err);

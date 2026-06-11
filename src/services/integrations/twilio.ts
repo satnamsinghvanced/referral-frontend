@@ -35,3 +35,24 @@ export const createCreditsCheckoutSession = async (
   });
   return response.data;
 };
+
+export const fetchA2PRegistration = async (): Promise<any> => {
+  const response = await axios.get<any>(`/twilio-checkout/a2p-registration`);
+  return response.data;
+};
+
+export const createA2PRegistration = async (data: any): Promise<any> => {
+  const response = await axios.post<any>(`/twilio-checkout/a2p-registration`, data);
+  return response.data;
+};
+
+export const updateA2PRegistration = async (data: any): Promise<any> => {
+  const response = await axios.put<any>(`/twilio-checkout/a2p-registration`, data);
+  return response.data;
+};
+
+export const deleteA2PRegistration = async (): Promise<any> => {
+  const response = await axios.delete<any>(`/twilio-checkout/a2p-registration`);
+  return response.data;
+};
+
