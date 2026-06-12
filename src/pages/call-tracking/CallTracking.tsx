@@ -32,6 +32,7 @@ const CallTracking = () => {
     search: "",
     type: "",
     status: "",
+    phone: "",
     page: 1,
     limit: EVEN_PAGINATION_LIMIT,
   });
@@ -163,7 +164,8 @@ const CallTracking = () => {
                   <MiniStatsCard key={data.heading} cardData={data} />
                 ))}
               </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 border border-foreground/10 rounded-xl p-4 bg-background shadow-none">
+
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 border border-foreground/10 rounded-xl p-4 bg-background shadow-none">
                 <div className="relative flex-1">
                   <Input
                     placeholder="Search calls by name, phone..."
@@ -175,7 +177,31 @@ const CallTracking = () => {
                     }
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  <Select
+                    aria-label="Phone Number"
+                    placeholder="All Numbers"
+                    size="sm"
+                    selectedKeys={[filters.phone]}
+                    disabledKeys={[filters.phone]}
+                    onSelectionChange={(keys) =>
+                      onFilterChange(
+                        "phone",
+                        (Array.from(keys)[0] as string) || "",
+                      )
+                    }
+                  >
+                    <>
+                      <SelectItem key="" className="capitalize">
+                        All Numbers
+                      </SelectItem>
+                      {(twilioConfig?.phoneNumbers || []).map((num: any) => (
+                        <SelectItem key={num.phoneNumber}>
+                          {`${num.phoneNumber} (${num.label})`}
+                        </SelectItem>
+                      ))}
+                    </>
+                  </Select>
                   <Select
                     aria-label="Call Types"
                     placeholder="All Types"
@@ -226,6 +252,7 @@ const CallTracking = () => {
                   </Select>
                 </div>
               </div>
+
               <div className="flex flex-col gap-4 border border-foreground/10 bg-background rounded-xl p-4">
                 <div className="flex items-center justify-between">
                   <p className="font-medium text-sm">Call History</p>

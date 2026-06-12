@@ -50,7 +50,7 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
         const formatted = twilioConfig.phoneNumbers.map((num: any) => ({
           id: num._id || num.id || num.phoneNumber,
           phoneNumber: num.phoneNumber,
-          label: num.label || num.friendlyName || "Marketing Line",
+          label: num.label || num.friendlyName ,
           status: num.status || "Active",
           capabilities: {
             voice: num.capabilities?.voice !== false,
