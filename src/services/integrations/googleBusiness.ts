@@ -117,3 +117,11 @@ export const connectGoogleBusinessLocation = async (locationId: string) => {
   );
   return data;
 };
+
+export const connectGooglePlaces = async (placeId: string) => {
+  const { data } = await axios.post(
+    "/google_business_integration/connect-places",
+    { placeId },
+  );
+  return data;
+};

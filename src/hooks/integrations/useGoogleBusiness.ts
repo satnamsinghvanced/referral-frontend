@@ -13,7 +13,8 @@ import {
   syncGoogleBusinessProfiles,
   updateGoogleBusinessIntegration,
   getWindsorAuthUrl,
-  selectWindsorLocation
+  selectWindsorLocation,
+  connectGooglePlaces
 } from "../../services/integrations/googleBusiness";
 
 export const BUSINESS_KEYS = {
@@ -120,6 +121,16 @@ export const useSyncBusinessProfiles = () => {
 export const useConnectBusinessLocation = () => {
   return useMutation({
     mutationFn: connectGoogleBusinessLocation,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: BUSINESS_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+    },
+  });
+};
+
+export const useConnectGooglePlaces = () => {
+  return useMutation({
+    mutationFn: connectGooglePlaces,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: BUSINESS_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });

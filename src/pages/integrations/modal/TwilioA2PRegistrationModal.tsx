@@ -558,7 +558,7 @@ export default function TwilioA2PRegistrationModal({
       onOpenChange={onClose}
       size="xl"
       classNames={{
-        base: "max-sm:!m-3 !m-0 bg-background border border-foreground/10 text-foreground rounded-2xl max-h-[90vh] overflow-y-auto",
+        base: "max-sm:!m-3 !m-0 bg-background border border-foreground/10 text-foreground rounded-2xl max-h-[90vh] flex flex-col overflow-hidden",
         closeButton: "cursor-pointer text-foreground/50 hover:text-foreground",
       }}
       placement="center"
@@ -574,55 +574,59 @@ export default function TwilioA2PRegistrationModal({
           </p>
         </ModalHeader>
 
-        <ModalBody className="p-5 pt-2 flex flex-col gap-6">
+        {!isFetchingData && (
+          <div className="px-5 pb-3 border-b border-foreground/5 select-none">
+            {/* Steps Progress Indicator */}
+            <div className="flex items-center justify-between w-full px-1 overflow-x-auto pb-2 scrollbar-none">
+              {stepsList.map((s, idx) => {
+                const isCompleted = step > s.num;
+                const isActive = step === s.num;
+
+                return (
+                  <div key={s.num} className="flex items-center flex-1 last:flex-initial">
+                    <div className="flex flex-col items-center gap-1.5 min-w-[64px]">
+                      <div
+                        className={`w-9 h-9 rounded-full flex items-center justify-center border transition-all duration-200 ${isCompleted
+                          ? "bg-green-500 border-green-500 text-white"
+                          : isActive
+                            ? "bg-primary border-primary text-white"
+                            : "bg-default-50 border-foreground/10 text-foreground-400 dark:bg-default-100/50"
+                          }`}
+                      >
+                        {isCompleted ? <FiCheck className="w-4 h-4" /> : s.icon}
+                      </div>
+                      <span
+                        className={`text-[9px] font-bold text-center leading-tight max-w-[80px] ${isActive
+                          ? "text-primary font-extrabold"
+                          : isCompleted
+                            ? "text-green-500 font-semibold"
+                            : "text-foreground-400"
+                          }`}
+                      >
+                        {s.label}
+                      </span>
+                    </div>
+
+                    {idx < stepsList.length - 1 && (
+                      <div
+                        className={`h-[2px] flex-1 mx-2 border-t border-dashed ${isCompleted ? "border-green-500" : "border-foreground/10"
+                          }`}
+                      />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        <ModalBody className="p-5 pt-4 flex flex-col gap-6 overflow-y-auto">
           {isFetchingData ? (
             <div className="flex flex-col items-center justify-center py-20 w-full gap-2">
               <Spinner label="Loading registration details..." size="lg" color="primary" />
             </div>
           ) : (
             <>
-              {/* Steps Progress Indicator */}
-              <div className="flex items-center justify-between w-full select-none px-1 overflow-x-auto pb-2 scrollbar-none">
-                {stepsList.map((s, idx) => {
-                  const isCompleted = step > s.num;
-                  const isActive = step === s.num;
-
-                  return (
-                    <div key={s.num} className="flex items-center flex-1 last:flex-initial">
-                      <div className="flex flex-col items-center gap-1.5 min-w-[64px]">
-                        <div
-                          className={`w-9 h-9 rounded-full flex items-center justify-center border transition-all duration-200 ${isCompleted
-                            ? "bg-green-500 border-green-500 text-white"
-                            : isActive
-                              ? "bg-primary border-primary text-white"
-                              : "bg-default-50 border-foreground/10 text-foreground-400 dark:bg-default-100/50"
-                            }`}
-                        >
-                          {isCompleted ? <FiCheck className="w-4 h-4" /> : s.icon}
-                        </div>
-                        <span
-                          className={`text-[9px] font-bold text-center leading-tight max-w-[80px] ${isActive
-                            ? "text-primary font-extrabold"
-                            : isCompleted
-                              ? "text-green-500 font-semibold"
-                              : "text-foreground-400"
-                            }`}
-                        >
-                          {s.label}
-                        </span>
-                      </div>
-
-                      {idx < stepsList.length - 1 && (
-                        <div
-                          className={`h-[2px] flex-1 mx-2 border-t border-dashed ${isCompleted ? "border-green-500" : "border-foreground/10"
-                            }`}
-                        />
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-
               {/* Step Contents */}
               <div className="flex flex-col gap-4">
                 {/* Step 1, 2, 3 Fields Renderer */}

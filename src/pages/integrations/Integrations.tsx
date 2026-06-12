@@ -1,4 +1,4 @@
-import { Card, CardBody, CardHeader, addToast, Modal, ModalContent, ModalHeader, ModalBody, Spinner } from "@heroui/react";
+import { Card, CardBody, CardHeader, addToast, Modal, ModalContent, ModalHeader, ModalBody, Spinner, Input, Button } from "@heroui/react";
 import { useCallback, useEffect, useMemo, useState, useRef } from "react";
 import { BsLightningCharge } from "react-icons/bs";
 import { FaGoogle } from "react-icons/fa";
@@ -35,6 +35,7 @@ import {
   useWindsorAuth,
   useSyncBusinessProfiles,
   BUSINESS_KEYS,
+  useConnectGooglePlaces,
 } from "../../hooks/integrations/useGoogleBusiness";
 import {
   useCalendarIntegration,
@@ -131,6 +132,32 @@ function Integrations() {
     setOnboardingWindow(win);
     setIsGoogleBusinessConnecting(true);
   });
+
+  const [isPlacesModalOpen, setIsPlacesModalOpen] = useState(false);
+  const [placeIdInput, setPlaceIdInput] = useState("");
+  const { mutate: connectPlaces, isPending: isConnectingPlaces } = useConnectGooglePlaces();
+
+  const handleConnectPlaces = () => {
+    if (!placeIdInput.trim()) return;
+    connectPlaces(placeIdInput.trim(), {
+      onSuccess: () => {
+        addToast({
+          title: "Success",
+          description: "Google Places integration connected successfully!",
+          color: "success",
+        });
+        setIsPlacesModalOpen(false);
+        setPlaceIdInput("");
+      },
+      onError: (err: any) => {
+        addToast({
+          title: "Error",
+          description: err.response?.data?.message || err.message || "Failed to connect Google Places",
+          color: "danger",
+        });
+      },
+    });
+  };
 
   useEffect(() => {
     if (!onboardingWindow) return;
@@ -304,31 +331,15 @@ function Integrations() {
         ? timeAgo(googleBusinessConfig.lastSyncAt)
         : undefined,
       onConnect: () => {
-        setIsGoogleBusinessConnecting(true);
-        connectWindsor();
+        setIsPlacesModalOpen(true);
       },
       onReconnect: () => {
-        setIsGoogleBusinessConnecting(true);
-        connectWindsor();
+        setIsPlacesModalOpen(true);
       },
-      onSync: () => {
-        setIsGoogleBusinessConnecting(true);
-        syncBusinessProfiles(undefined, {
-          onSuccess: () => {
-            addToast({ title: "Success", description: "Google Business connected and synced successfully!", color: "success" });
-            setIsGoogleBusinessConnecting(false);
-          },
-          onError: (err: any) => {
-            addToast({ title: "Error", description: err.response?.data?.message || err.message || "Failed to sync profiles", color: "danger" });
-            setIsGoogleBusinessConnecting(false);
-          },
-        });
-      },
-      isSyncing: isConnectingWindsor || isSyncingBusiness || isGoogleBusinessConnecting,
-      syncButtonText: "Sync & Complete Setup",
-      onConfigure: isGoogleBusinessConnected
-        ? () => setIsGoogleBusinessLocationModalOpen(true)
-        : undefined,
+      onSync: undefined,
+      isSyncing: isConnectingPlaces,
+      syncButtonText: undefined,
+      onConfigure: undefined,
       isSwitchChecked: isGoogleBusinessConnected,
       onSwitchChange: () => {
         updateGoogleBusinessIntegration({
@@ -666,6 +677,40 @@ function Integrations() {
         existingConfig={sendGridConfig}
         isLoading={isEmailConfigLoading}
       />
+
+      <Modal isOpen={isPlacesModalOpen} onOpenChange={setIsPlacesModalOpen} size="md">
+        <ModalContent>
+          <ModalHeader className="flex flex-col gap-1">Connect Google Places</ModalHeader>
+          <ModalBody className="pb-6">
+            <div className="flex flex-col gap-4">
+              <p className="text-sm text-default-500">
+                Enter your Google Maps Place ID to sync reviews and display location details.
+              </p>
+              <Input
+                label="Place ID"
+                placeholder="e.g. ChIJN1t_tDeuEmsRUsoyG83A2zs"
+                variant="bordered"
+                value={placeIdInput}
+                onValueChange={setPlaceIdInput}
+                isRequired
+              />
+              <div className="flex justify-end gap-2 mt-2">
+                <Button variant="light" onPress={() => setIsPlacesModalOpen(false)}>
+                  Cancel
+                </Button>
+                <Button
+                  color="primary"
+                  isLoading={isConnectingPlaces}
+                  onPress={handleConnectPlaces}
+                  isDisabled={!placeIdInput.trim()}
+                >
+                  Connect Location
+                </Button>
+              </div>
+            </div>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
 
       {countdown !== null && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 backdrop-blur-xl bg-background/80 text-foreground px-6 py-4 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] flex items-center gap-4 border border-foreground/10 animate-in fade-in slide-in-from-bottom-5 duration-300">

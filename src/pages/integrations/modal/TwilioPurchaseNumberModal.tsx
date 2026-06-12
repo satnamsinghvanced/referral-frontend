@@ -1,14 +1,4 @@
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
-  Input,
-  addToast,
-  Spinner,
-} from "@heroui/react";
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, addToast, Spinner } from "@heroui/react";
 import { useState, useEffect } from "react";
 import { FiSearch, FiPhone } from "react-icons/fi";
 import axios from "../../../services/axios";
@@ -26,11 +16,7 @@ interface MockNumber {
   capabilities: { voice: boolean; sms: boolean; mms: boolean };
 }
 
-export default function TwilioPurchaseNumberModal({
-  isOpen,
-  onClose,
-  onPurchaseSuccess,
-}: TwilioPurchaseNumberModalProps) {
+export default function TwilioPurchaseNumberModal({ isOpen, onClose, onPurchaseSuccess }: TwilioPurchaseNumberModalProps) {
   const [areaCode, setAreaCode] = useState<string>("");
   const [searching, setSearching] = useState<boolean>(false);
   const [searchResults, setSearchResults] = useState<MockNumber[]>([]);
@@ -58,11 +44,9 @@ export default function TwilioPurchaseNumberModal({
       });
       return;
     }
-
     setSearching(true);
     setSearched(false);
     setSearchResults([]);
-
     try {
       const response = (await axios.get("/twilio-checkout/search-numbers", {
         params: { areaCode: areaCode.trim() },
@@ -88,7 +72,6 @@ export default function TwilioPurchaseNumberModal({
   const handleBuy = async (num: MockNumber) => {
     const labelText = customLabel[num.phoneNumber]?.trim() || "Marketing Line";
     setBuyingNumber(num.phoneNumber);
-
     try {
       const response = (await axios.post("/twilio-checkout/buy-number", {
         phoneNumber: num.phoneNumber,
@@ -172,7 +155,6 @@ export default function TwilioPurchaseNumberModal({
               <p className="text-xs text-foreground-500">Searching available numbers...</p>
             </div>
           )}
-
           {!searching && searched && searchResults.length > 0 && (
             <div className="flex flex-col gap-3">
               <label className="text-xs font-semibold text-foreground">Available Numbers</label>
@@ -200,7 +182,6 @@ export default function TwilioPurchaseNumberModal({
                         Buy
                       </Button>
                     </div>
-
                     <div className="flex gap-2">
                       <span className="text-[10px] bg-foreground/10 px-2 py-0.5 rounded-full text-foreground/75">
                         Voice
@@ -234,14 +215,12 @@ export default function TwilioPurchaseNumberModal({
               </div>
             </div>
           )}
-
           {!searching && searched && searchResults.length === 0 && (
             <p className="text-xs text-danger text-center py-6">
               No numbers found for area code "{areaCode}". Try another area code.
             </p>
           )}
         </ModalBody>
-
         <ModalFooter className="flex justify-end p-5 pt-2 border-t border-foreground/5">
           <Button
             variant="bordered"
