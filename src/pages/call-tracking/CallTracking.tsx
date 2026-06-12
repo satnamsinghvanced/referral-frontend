@@ -197,7 +197,7 @@ const CallTracking = () => {
                       </SelectItem>
                       {(twilioConfig?.phoneNumbers || []).map((num: any) => (
                         <SelectItem key={num.phoneNumber}>
-                          {`${num.phoneNumber} (${num.label})`}
+                          {`${num.phoneNumber}`}
                         </SelectItem>
                       ))}
                     </>
