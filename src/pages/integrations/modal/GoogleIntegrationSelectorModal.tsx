@@ -10,6 +10,7 @@ import {
   RadioGroup,
   Radio,
   cn,
+  Input,
 } from "@heroui/react";
 import { useState, useEffect, useMemo } from "react";
 import { HiOutlineOfficeBuilding } from "react-icons/hi";
@@ -18,6 +19,7 @@ import {
   useBusinessLocations,
   useConnectBusinessLocation,
   useSyncBusinessProfiles,
+  useSearchGooglePlaces,
 } from "../../../hooks/integrations/useGoogleBusiness";
 import {
   useAnalyticsProperties,
@@ -122,7 +124,8 @@ export default function GoogleIntegrationSelectorModal({
   // Map raw data to common item format
   const items: SelectorItem[] = useMemo(() => {
     if (type === "business") {
-      return ((data as any)?.locations || []).map((loc: any) => ({
+      const rawLocations = (data as any)?.locations || [];
+      return rawLocations.map((loc: any) => ({
         id: loc.locationId,
         title: loc.name,
         subtitle: loc.address,

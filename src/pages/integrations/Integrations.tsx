@@ -243,6 +243,10 @@ function Integrations() {
           description: `${platform ? platform.charAt(0).toUpperCase() + platform.slice(1) : "Integration"} connected successfully!`,
           color: "success",
         });
+        const normPlatform = platform?.toLowerCase().replace(/[\s_]/g, "");
+        if (normPlatform === "googlebusiness") {
+          setIsGoogleBusinessLocationModalOpen(true);
+        }
       } else if (status === "error") {
         addToast({
           title: "Connection Failed",
@@ -262,6 +266,8 @@ function Integrations() {
       queryClient.invalidateQueries({ queryKey: ["googleCalendar"] });
       queryClient.invalidateQueries({ queryKey: ["googleAds"] });
       queryClient.invalidateQueries({ queryKey: ["googleAnalytics"] });
+      queryClient.invalidateQueries({ queryKey: BUSINESS_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     }
   }, [queryClient]);
 
@@ -331,15 +337,17 @@ function Integrations() {
         ? timeAgo(googleBusinessConfig.lastSyncAt)
         : undefined,
       onConnect: () => {
-        setIsPlacesModalOpen(true);
+        connectGoogleBusiness();
       },
       onReconnect: () => {
-        setIsPlacesModalOpen(true);
+        connectGoogleBusiness();
       },
       onSync: undefined,
-      isSyncing: isConnectingPlaces,
+      isSyncing: isGoogleBusinessConnecting || isConnectingPlaces,
       syncButtonText: undefined,
-      onConfigure: undefined,
+      onConfigure: () => {
+        setIsGoogleBusinessLocationModalOpen(true);
+      },
       isSwitchChecked: isGoogleBusinessConnected,
       onSwitchChange: () => {
         updateGoogleBusinessIntegration({

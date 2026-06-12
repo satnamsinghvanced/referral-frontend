@@ -14,7 +14,8 @@ import {
   updateGoogleBusinessIntegration,
   getWindsorAuthUrl,
   selectWindsorLocation,
-  connectGooglePlaces
+  connectGooglePlaces,
+  searchGooglePlaces
 } from "../../services/integrations/googleBusiness";
 
 export const BUSINESS_KEYS = {
@@ -135,5 +136,11 @@ export const useConnectGooglePlaces = () => {
       queryClient.invalidateQueries({ queryKey: BUSINESS_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     },
+  });
+};
+
+export const useSearchGooglePlaces = () => {
+  return useMutation({
+    mutationFn: searchGooglePlaces,
   });
 };
