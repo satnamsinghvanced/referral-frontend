@@ -110,16 +110,14 @@ export default function TwilioAddCreditsModal({
       });
       return;
     }
-    const phoneFee = 5.00;
-    const totalAmount = credits + phoneFee;
+    const totalAmount = credits;
     const url = `${window.location.origin}/checkout?type=twilio_credits&amount=${totalAmount}&walletAmount=${credits}&package=none&auto_topup=${autoTopUp}`;
     window.open(url, "_blank");
     onClose();
   };
 
   const walletAmount = parseFloat(customAmount) || 0;
-  const phoneFee = 5.00;
-  const totalToday = walletAmount + phoneFee;
+  const totalToday = walletAmount
   const outboundMins = Math.floor(walletAmount / 0.02);
   const smsCount = Math.floor(walletAmount / 0.01);
   const inboundMins = Math.floor(walletAmount / 0.01);
@@ -281,7 +279,7 @@ export default function TwilioAddCreditsModal({
                 ))}
               </div>
 
-              <div className="flex items-center justify-between bg-primary-500/10 border border-primary/25 rounded-lg p-2 mt-0.5">
+              {/* <div className="flex items-center justify-between bg-primary-500/10 border border-primary/25 rounded-lg p-2 mt-0.5">
                 <div className="flex items-center gap-1.5">
                   <FiInfo className="w-3 h-3 text-primary" />
                   <span className="text-[10px] font-bold text-foreground">Active Phone Number</span>
@@ -289,7 +287,7 @@ export default function TwilioAddCreditsModal({
                 <span className="text-[10px] font-extrabold text-primary bg-primary/10 px-1.5 py-0.5 rounded-md">
                   $5.00 / month
                 </span>
-              </div>
+              </div> */}
             </div>
           </div>
         </ModalBody>
