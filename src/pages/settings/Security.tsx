@@ -135,7 +135,7 @@ const Security: React.FC = () => {
   return (
     <>
       {/* Twilio Integration Warning */}
-      {!isTwilioLoading && twilioConfig?.status !== "Connected" && (
+      {/* {!isTwilioLoading && twilioConfig?.status !== "Connected" && (
         <div className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-500/30 rounded-lg p-3 flex items-center justify-between flex-wrap gap-3 mb-4">
           <p className="text-sm text-yellow-800 dark:text-yellow-400">
             Twilio is not connected. You can&apos;t enable Two-Factor
@@ -152,7 +152,7 @@ const Security: React.FC = () => {
             Connect Twilio
           </Button>
         </div>
-      )}
+      )} */}
       <Card className="rounded-xl shadow-none border border-foreground/10 bg-background">
         <CardHeader className="flex items-center gap-2 px-4 pt-4 pb-1">
           <FiShield className="size-5" />

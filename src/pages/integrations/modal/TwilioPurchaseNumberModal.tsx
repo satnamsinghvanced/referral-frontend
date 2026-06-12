@@ -116,7 +116,7 @@ export default function TwilioPurchaseNumberModal({ isOpen, onClose, onPurchaseS
         <ModalHeader className="flex flex-col gap-1 p-5 pb-2">
           <h2 className="text-xl font-bold text-foreground">Purchase Phone Number</h2>
           <p className="text-xs text-foreground-500 font-normal">
-            Search for available phone numbers by area code • $15 setup + $5/month
+            Search for available phone numbers by area code • $5 setup fee
           </p>
         </ModalHeader>
         <ModalBody className="p-5 pt-2 flex flex-col gap-4">

@@ -557,37 +557,6 @@ function Integrations() {
       } : undefined,
     });
 
-    // Twilio Integration
-    list.push({
-      id: twilioConfig?._id || "",
-      name: "Twilio Calling Integration",
-      icon: <TbBrandTwilio className="w-4 h-4" />,
-      iconBg: "bg-red-100 dark:bg-red-900/20",
-      iconColor: "text-red-600 dark:text-red-400",
-      status: twilioConfig?.status || "Disconnected",
-      description:
-        "Track patient calls and monitor referral communications with recordings",
-      badges: ["Call Analytics", "Call Tracking", "Call Recordings"],
-      onConfigure: () => setIsTwilioIntegrationModalOpen(true),
-      isSwitchChecked: twilioConfig?.status === "Connected",
-      onSwitchChange: () => {
-        updateTwilioConfig({
-          id: twilioConfig?._id as string,
-          data: {
-            status:
-              twilioConfig?.status === "Connected"
-                ? "Disconnected"
-                : "Connected",
-          },
-        });
-      },
-      account: {
-        accountName: twilioConfig?.accountName,
-        accountEmail: twilioConfig?.accountEmail,
-        accountAvatar: twilioConfig?.accountAvatar,
-      },
-    });
-
     return list;
   }, [
     smtpConfig,
