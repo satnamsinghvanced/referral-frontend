@@ -43,46 +43,28 @@ export const getGoogleBusinessAuthUrl = async () => {
   return data;
 };
 
-export const saveWindsorCredentials = async (
-  payload: SaveWindsorCredentialsPayload
-) => {
-  const { data } = await axios.post(
-    "/v1/integrations/windsor/save",
-    payload
-  );
+export const saveWindsorCredentials = async (payload: SaveWindsorCredentialsPayload) => {
+  const { data } = await axios.post("/v1/integrations/windsor/save", payload);
   return data;
 };
 
 export const getWindsorAuthUrl = async () => {
-  const { data } = await axios.get<IAuthUrlResponse>(
-    "/v1/integrations/windsor/auth"
-  );
+  const { data } = await axios.get<IAuthUrlResponse>("/v1/integrations/windsor/auth");
   return data;
 };
 
 export const selectWindsorLocation = async (locationId: string) => {
-  const { data } = await axios.post(
-    "/v1/integrations/windsor/select-location",
-    { locationId }
-  );
+  const { data } = await axios.post("/v1/integrations/windsor/select-location", { locationId });
   return data;
 };
 
 export const getGoogleBusinessIntegration = async () => {
-  const { data } = await axios.get<IGoogleBusinessIntegration>(
-    "/google_business_integration",
-  );
+  const { data } = await axios.get<IGoogleBusinessIntegration>("/google_business_integration",);
   return data;
 };
 
-export const updateGoogleBusinessIntegration = async (
-  id: string,
-  payload: IUpdateBusinessPayload,
-) => {
-  const { data } = await axios.put<IGoogleBusinessIntegration>(
-    `/google_business_integration/${id}`,
-    payload,
-  );
+export const updateGoogleBusinessIntegration = async (id: string, payload: IUpdateBusinessPayload) => {
+  const { data } = await axios.put<IGoogleBusinessIntegration>(`/google_business_integration/${id}`, payload,);
   return data;
 };
 
@@ -92,29 +74,22 @@ export const deleteGoogleBusinessIntegration = async (id: string) => {
 };
 
 export const getGoogleBusinessLocations = async () => {
-  const { data } = await axios.get<{ locations: any[] }>(
-    "/google_business_integration/locations",
-  );
+  const { data } = await axios.get<{ locations: any[] }>("/google_business_integration/locations");
   return data;
 };
 
 export const syncGoogleBusinessProfiles = async (token: string) => {
-  const { data } = await axios.get<{ locations: any[] }>(
-    "/google_business_integration/sync-profiles",
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
+  const { data } = await axios.get<{ locations: any[] }>("/google_business_integration/sync-profiles", {
+    headers: {
+      Authorization: `Bearer ${token}`,
     },
+  },
   );
   return data;
 };
 
 export const connectGoogleBusinessLocation = async (locationId: string) => {
-  const { data } = await axios.post(
-    "/google_business_integration/connect-location",
-    { locationId },
-  );
+  const { data } = await axios.post("/google_business_integration/connect-location", { locationId });
   return data;
 };
 
@@ -122,6 +97,14 @@ export const connectGooglePlaces = async (placeId: string) => {
   const { data } = await axios.post(
     "/google_business_integration/connect-places",
     { placeId },
+  );
+  return data;
+};
+
+export const searchGooglePlaces = async (query: string) => {
+  const { data } = await axios.get<{ locations: any[] }>(
+    "/google_business_integration/search-places",
+    { params: { query } }
   );
   return data;
 };
