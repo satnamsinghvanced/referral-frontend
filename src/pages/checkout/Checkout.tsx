@@ -57,14 +57,7 @@ export default function Checkout() {
   const walletAmountParam = parseFloat(searchParams.get("walletAmount") || "0");
   const packageParam = searchParams.get("package") || "none";
 
-  const packageCost =
-    packageParam === "500"
-      ? 15
-      : packageParam === "1000"
-        ? 25
-        : packageParam === "2500"
-          ? 50
-          : 0;
+  const packageCost = 0; // Package minutes are included in the wallet deposit subscription
 
   const creditsCost = typeParam === "twilio_credits" && walletAmountParam > 0 ? walletAmountParam : amountParam;
   const phoneFee = typeParam === "twilio_credits" && walletAmountParam > 0 ? Math.max(0, amountParam - walletAmountParam) : 0;
@@ -687,8 +680,10 @@ export default function Checkout() {
                   )}
                   {packageParam !== "none" && (
                     <div className="flex justify-between items-center text-sm font-semibold">
-                      <span className="text-default-500">{packageParam} Min Package</span>
-                      <span>${packageCost.toFixed(2)}</span>
+                      <span className="text-default-500">
+                        {!isNaN(parseInt(packageParam, 10)) ? parseInt(packageParam, 10).toLocaleString("en-US") : packageParam} Min Package
+                      </span>
+                      <span className="text-emerald-600 dark:text-emerald-400 font-bold">Included</span>
                     </div>
                   )}
                   <div className="flex justify-between items-center text-sm font-semibold border-b border-foreground/5 pb-4">
