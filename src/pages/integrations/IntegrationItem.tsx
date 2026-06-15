@@ -2,10 +2,6 @@ import {
   Button,
   Chip,
   Switch,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  User,
 } from "@heroui/react";
 import { BiCheckCircle } from "react-icons/bi";
 import { FiAlertCircle, FiExternalLink, FiSettings } from "react-icons/fi";
@@ -26,7 +22,6 @@ interface IntegrationItemProps {
   onSync?: (() => void) | undefined;
   isSyncing?: boolean | undefined;
   syncButtonText?: string | undefined;
-  /** When true: Configure + Re-connect. When false: Connect only. Defaults to status === "Connected". */
   isFullyConnected?: boolean;
   isSwitchChecked?: boolean | undefined;
   onSwitchChange?: ((checked: boolean) => void) | undefined;

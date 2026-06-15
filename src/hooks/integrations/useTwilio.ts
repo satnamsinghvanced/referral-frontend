@@ -79,6 +79,10 @@ export const useFetchA2PRegistration = () =>
   useQuery<any>({
     queryKey: ["twilio", "a2p"],
     queryFn: () => fetchA2PRegistration(),
+    refetchInterval: (query) => {
+      const data = query?.state?.data;
+      return data?.data?.status === "pending" ? 5000 : false;
+    },
   });
 
 export const useSaveA2PRegistration = () =>

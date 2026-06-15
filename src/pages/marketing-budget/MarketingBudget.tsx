@@ -86,19 +86,17 @@ const MarketingBudget = () => {
       endDate: dateRange.end,
       page: 1,
     }));
-    // setShowDateRange(false);
   };
 
   const handleClearDateRange = () => {
     setDateRange({ start: "", end: "" });
     setCurrentFilters((prev: any) => ({
       ...prev,
-      period: "monthly", // Revert to default
+      period: "monthly",
       startDate: undefined,
       endDate: undefined,
     }));
   };
-
   const { data, isLoading } = useBudgetItems(currentFilters);
   usePaginationAdjustment({
     totalPages: data?.pagination?.totalPages || 0,
@@ -107,9 +105,7 @@ const MarketingBudget = () => {
       setCurrentFilters((prev: any) => ({ ...prev, page })),
     isLoading,
   });
-
   const deleteMutation = useDeleteBudgetItem(currentFilters);
-
   const syncedProviders = useMemo(() => {
     if (!data?.budgets) return [];
     const types = new Set<string>();
@@ -122,15 +118,13 @@ const MarketingBudget = () => {
   }, [data]);
 
   const handleOpenCreateModal = () => {
-    setEditBudgetItem(null); // Clear any editing data
+    setEditBudgetItem(null);
     setIsModalOpen(true);
   };
-
   const budgetItemEditHandler = (budget: BudgetItem) => {
     setEditBudgetItem(budget);
     setIsModalOpen(true);
   };
-
   const PieChartCustomLabel = (props: any) => {
     const { value, name } = props;
     if (value === 0) {
@@ -138,10 +132,7 @@ const MarketingBudget = () => {
     }
     return `${name}: $${value.toLocaleString()}`;
   };
-
   const pagination = data?.pagination;
-
-  // Transform pie chart data to ensure numbers
   const pieData = useMemo(() => {
     if (!data?.graphs?.budgetByCategory) return [];
     return data.graphs.budgetByCategory
@@ -203,7 +194,6 @@ const MarketingBudget = () => {
       value: isLoading ? "..." : `${avgROI}%`,
     },
   ];
-
   const HEADING_DATA = {
     heading: "Marketing Budget",
     subHeading: "Manage and track your marketing spend across all channels.",
@@ -217,7 +207,6 @@ const MarketingBudget = () => {
       },
     ],
   };
-
   return (
     <>
       <ComponentContainer headingData={HEADING_DATA}>
@@ -259,7 +248,6 @@ const MarketingBudget = () => {
               );
             })}
           </div>
-
           <div className="flex flex-col gap-3">
             <div className="flex flex-wrap justify-between items-center gap-3 bg-background p-4 rounded-xl border border-foreground/10">
               <div className="flex items-center gap-2">
@@ -298,7 +286,6 @@ const MarketingBudget = () => {
                 </Button>
               </div>
             </div>
-
             {showDateRange && (
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
@@ -435,7 +422,6 @@ const MarketingBudget = () => {
                   </div>
                 </CardBody>
               </Card>
-
               <Card
                 shadow="none"
                 radius="lg"
@@ -481,7 +467,6 @@ const MarketingBudget = () => {
               </Card>
             </div>
           )}
-
           <div className="bg-background flex flex-col rounded-xl border border-foreground/10 p-4">
             <div className="pb-4">
               <h4 className="text-sm font-medium w-full truncate whitespace-nowrap text-foreground">
@@ -489,7 +474,6 @@ const MarketingBudget = () => {
                 Budget Items
               </h4>
             </div>
-
             <div className="space-y-4">
               {isLoading ? (
                 <LoadingState />
@@ -525,18 +509,16 @@ const MarketingBudget = () => {
           </div>
         </div>
       </ComponentContainer>
-
       <BudgetActionModal
         isOpen={isModalOpen}
         onClose={() => {
           setIsModalOpen(false);
           setEditBudgetItem(null);
         }}
-        editedData={editBudgetItem} // Pass data for editing
+        editedData={editBudgetItem}
         setCurrentFilters={setCurrentFilters}
         syncedProviders={syncedProviders}
       />
-
       <ExportBudgetModal
         isOpen={isExportModalOpen}
         onClose={() => setIsExportModalOpen(false)}
@@ -546,12 +528,10 @@ const MarketingBudget = () => {
           endDate: currentFilters.endDate,
         }}
       />
-
       <ImportBudgetModal
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
       />
-
       <DeleteConfirmationModal
         isOpen={!!deleteBudgetItemId}
         onClose={() => setDeleteBudgetItemId("")}

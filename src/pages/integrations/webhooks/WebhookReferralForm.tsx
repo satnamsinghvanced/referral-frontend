@@ -37,7 +37,6 @@ function WebhookReferralForm() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [webhookSecret, setWebhookSecret] = useState<string>("");
 
-  // Fetch webhook secret on component mount
   useEffect(() => {
     const fetchWebhookSecret = async () => {
       try {
@@ -56,7 +55,6 @@ function WebhookReferralForm() {
         console.error("Failed to fetch webhook secret:", err);
       }
     };
-
     fetchWebhookSecret();
   }, []);
 
@@ -130,7 +128,7 @@ function WebhookReferralForm() {
       name: "phone",
       label: "Phone Number",
       placeholder: "(555) 123-4567",
-      maxLength: 14, // (XXX) XXX-XXXX
+      maxLength: 14,
       required: true,
     },
     {
@@ -188,7 +186,6 @@ function WebhookReferralForm() {
             },
           },
         );
-
         setIsSuccess(true);
         setTimeout(() => {
           setIsSuccess(false);
@@ -211,7 +208,6 @@ function WebhookReferralForm() {
     maxLength?: number,
   ) => {
     let value: string | number | undefined = event.target.value;
-
     if (type === "tel") {
       value = formatPhoneNumber(value);
     } else if (type === "number") {
@@ -220,7 +216,6 @@ function WebhookReferralForm() {
       }
       value = value === "" ? "" : Number(value);
     }
-
     formik.setFieldValue(fieldName as string, value);
   };
 
@@ -272,7 +267,6 @@ function WebhookReferralForm() {
                 your appointment.
               </p>
             </div>
-
             <form
               onSubmit={formik.handleSubmit}
               className="md:space-y-6 space-y-5"
@@ -314,7 +308,6 @@ function WebhookReferralForm() {
                   );
                 })}
               </div>
-
               <div className="grid grid-cols-1 gap-6">
                 <Select
                   label="Preferred Treatment"
@@ -414,7 +407,6 @@ function WebhookReferralForm() {
                   </p>
                 </div>
               )}
-
               <div>
                 <Button
                   type="submit"

@@ -87,7 +87,7 @@ const LeadDetailsModal = ({
             estimatedValue: Number(values.estimatedValue),
             assignedTo:
               values.assignedTo === "Unassigned" ||
-              !/^[0-9a-fA-F]{24}$/.test(values.assignedTo)
+                !/^[0-9a-fA-F]{24}$/.test(values.assignedTo)
                 ? null
                 : values.assignedTo,
           },
@@ -100,7 +100,6 @@ const LeadDetailsModal = ({
   });
 
   if (!lead) return null;
-
   return (
     <Modal
       isOpen={isOpen}
@@ -186,7 +185,6 @@ const LeadDetailsModal = ({
               >
                 <Tab key="overview" title="Overview">
                   <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-6">
-                    {/* Contact Information */}
                     <div className="lg:col-span-6 space-y-4">
                       <div className="p-6 border border-divider rounded-2xl space-y-6 bg-content1/50 dark:bg-content1/20">
                         <div className="flex items-center gap-2 mb-2">
@@ -195,7 +193,6 @@ const LeadDetailsModal = ({
                             Contact Information
                           </h3>
                         </div>
-
                         <div className="space-y-4">
                           <div className="flex items-start gap-4">
                             <div className="p-2 bg-gray-50 dark:bg-white/5 rounded-lg">
@@ -210,7 +207,6 @@ const LeadDetailsModal = ({
                               </p>
                             </div>
                           </div>
-
                           <div className="flex items-start gap-4">
                             <div className="p-2 bg-gray-50 dark:bg-white/5 rounded-lg">
                               <HiOutlinePhone className="size-5 text-gray-400 dark:text-foreground/40" />
@@ -225,7 +221,6 @@ const LeadDetailsModal = ({
                             </div>
                           </div>
                         </div>
-
                         <div className="space-y-3 mt-6">
                           <Button
                             fullWidth
@@ -254,8 +249,6 @@ const LeadDetailsModal = ({
                         </div>
                       </div>
                     </div>
-
-                    {/* Lead Details */}
                     <div className="lg:col-span-6 space-y-4">
                       <div className="p-6 border border-divider rounded-2xl space-y-6 bg-content1/50 dark:bg-content1/20">
                         <div className="flex items-center gap-2 mb-2">
@@ -264,7 +257,6 @@ const LeadDetailsModal = ({
                             Lead Details
                           </h3>
                         </div>
-
                         <div className="grid grid-cols-1 gap-6">
                           <Select
                             label="Status"
@@ -286,7 +278,6 @@ const LeadDetailsModal = ({
                               </SelectItem>
                             )}
                           </Select>
-
                           <Select
                             label="Priority"
                             variant="bordered"
@@ -307,7 +298,6 @@ const LeadDetailsModal = ({
                               </SelectItem>
                             )}
                           </Select>
-
                           <Select
                             label="Assigned To"
                             variant="bordered"
@@ -336,7 +326,6 @@ const LeadDetailsModal = ({
                               </SelectItem>
                             )}
                           </Select>
-
                           <Input
                             label="Estimated Value"
                             variant="bordered"
@@ -354,8 +343,6 @@ const LeadDetailsModal = ({
                         </div>
                       </div>
                     </div>
-
-                    {/* Treatment Interest */}
                     <div className="lg:col-span-12">
                       <div className="p-6 border border-divider rounded-2xl bg-content1/50 dark:bg-content1/20">
                         <div className="flex items-center gap-2 mb-4">
@@ -379,7 +366,6 @@ const LeadDetailsModal = ({
                       </div>
                     </div>
 
-                    {/* Stats */}
                     <div className="lg:col-span-12 grid grid-cols-1 md:grid-cols-3 gap-4 pb-4">
                       <div className="p-4 border border-divider rounded-2xl flex items-center gap-4 bg-content1/50 dark:bg-content1/20">
                         <div className="p-3 bg-blue-50 dark:bg-blue-900/40 text-blue-500 dark:text-blue-400 rounded-xl">
@@ -430,7 +416,6 @@ const LeadDetailsModal = ({
                 </Tab>
                 <Tab key="communication" title="Communication">
                   <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 pt-6">
-                    {/* Make a Call */}
                     <div className="p-5 border border-divider rounded-2xl space-y-4">
                       <div className="flex items-center gap-2 text-blue-500">
                         <HiOutlinePhone className="size-5" />
@@ -445,8 +430,6 @@ const LeadDetailsModal = ({
                         Call {lead.phone}
                       </Button>
                     </div>
-
-                    {/* Send Email */}
                     <div className="p-5 border border-divider rounded-2xl space-y-4">
                       <div className="flex items-center gap-2 text-purple-500">
                         <HiOutlineMail className="size-5" />
@@ -466,8 +449,6 @@ const LeadDetailsModal = ({
                         Send Email
                       </Button>
                     </div>
-
-                    {/* Send SMS */}
                     <div className="p-5 border border-divider rounded-2xl space-y-4">
                       <div className="flex items-center gap-2 text-green-500">
                         <HiOutlineChat className="size-5" />
@@ -490,8 +471,6 @@ const LeadDetailsModal = ({
                         </Button>
                       </div>
                     </div>
-
-                    {/* History */}
                     <div className="lg:col-span-3 mt-4">
                       <div className="flex items-center gap-2 mb-4 px-2">
                         <LuHistory className="size-5 text-gray-400 dark:text-foreground/40" />
@@ -555,7 +534,6 @@ const LeadDetailsModal = ({
                           Update Note
                         </Button>
                       )}
-
                       <div className="mt-6 space-y-4">
                         <h4 className="font-bold text-sm px-2 text-foreground">
                           Notes History

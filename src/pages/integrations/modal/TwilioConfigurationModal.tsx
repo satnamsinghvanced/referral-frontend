@@ -24,7 +24,6 @@ import {
   TwilioConfigRequest,
 } from "../../../types/integrations/twilio";
 
-// --- Yup Validation Schema ---
 const validationSchema = Yup.object().shape({
   accountId: Yup.string()
     .matches(
@@ -43,33 +42,26 @@ const validationSchema = Yup.object().shape({
     .required("Twilio Phone Number is required."),
 });
 
-// The main Modal component using the Hero UI structure
-// NOTE: We now require a 'userId' to fetch/save the config.
 export default function TwilioConfigurationModal({
   userId,
   isOpen,
   onClose,
   existingConfig,
   isLoading,
-}: // isError,
-{
-  userId: string;
-  isOpen: boolean;
-  onClose: () => void;
-  existingConfig?: TwilioConfigResponse | undefined;
-  isLoading?: boolean;
-  isError?: boolean;
-}) {
+}:
+  {
+    userId: string;
+    isOpen: boolean;
+    onClose: () => void;
+    existingConfig?: TwilioConfigResponse | undefined;
+    isLoading?: boolean;
+    isError?: boolean;
+  }) {
   const [showPassword, setShowPassword] = useState(false);
-
   const saveMutation = useSaveTwilioConfig();
   const updateMutation = useUpdateTwilioConfig();
-
-  // Determine if we are updating (config exists) or saving (config is null/undefined)
   const isUpdateMode = !!existingConfig?.accountId;
   const mutation = isUpdateMode ? updateMutation : saveMutation;
-
-  // 2. Formik Setup
   const formik = useFormik<TwilioConfigRequest>({
     initialValues: {
       accountId: existingConfig?.accountId || "",
@@ -86,7 +78,6 @@ export default function TwilioConfigurationModal({
           phone: values.phone,
         },
       };
-
       if (isUpdateMode) {
         payload = {
           id: existingConfig._id,
@@ -95,7 +86,6 @@ export default function TwilioConfigurationModal({
           },
         };
       }
-
       try {
         await mutation.mutateAsync(payload);
         onClose();
@@ -105,10 +95,9 @@ export default function TwilioConfigurationModal({
         setSubmitting(false);
       }
     },
-    enableReinitialize: true, // Allows initialValues to update when existingConfig changes
+    enableReinitialize: true,
   });
 
-  // 3. Effect to set initial form values when data is loaded
   useEffect(() => {
     if (existingConfig) {
       formik.setValues({
@@ -117,7 +106,7 @@ export default function TwilioConfigurationModal({
         phone: existingConfig.phone || "",
       });
     }
-  }, [existingConfig]); // Only run when existingConfig changes
+  }, [existingConfig]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -125,7 +114,6 @@ export default function TwilioConfigurationModal({
     }
   }, [isOpen]);
 
-  // Handle loading and error states
   if (isLoading) {
     return (
       <Modal
@@ -148,31 +136,6 @@ export default function TwilioConfigurationModal({
     );
   }
 
-  // if (isError) {
-  //   return (
-  //     <Modal
-  //       isOpen={isOpen}
-  //       onOpenChange={onClose}
-  //       size="md"
-  //       classNames={{
-  //         base: `max-sm:!m-3 !m-0`,
-  //         closeButton: "cursor-pointer",
-  //       }}
-  //     >
-  //       <ModalContent>
-  //         <ModalBody className="p-5 text-center">
-  //           <p className="text-red-600 text-sm px-5">
-  //             Failed to load Twilio configuration. Please try again.
-  //           </p>
-  //           <Button color="danger" variant="flat" onPress={onClose} size="sm">
-  //             Close
-  //           </Button>
-  //         </ModalBody>
-  //       </ModalContent>
-  //     </Modal>
-  //   );
-  // }
-
   const isSubmitting = mutation.isPending;
 
   return (
@@ -188,7 +151,6 @@ export default function TwilioConfigurationModal({
     >
       <ModalContent>
         <form onSubmit={formik.handleSubmit}>
-          {/* Modal Header */}
           <ModalHeader className="p-4 pb-0 flex-col">
             <h2
               data-slot="dialog-title"
@@ -204,8 +166,6 @@ export default function TwilioConfigurationModal({
               and recording features.
             </p>
           </ModalHeader>
-
-          {/* Modal Body (Form Fields) */}
           <ModalBody className="px-4 py-4">
             <div className="space-y-4">
               <Input
@@ -213,12 +173,11 @@ export default function TwilioConfigurationModal({
                 radius="sm"
                 label="Account SID"
                 labelPlacement="outside-top"
-                name="accountId" // Changed from 'accountSid' to 'accountId' to match the TwilioConfigRequest type
+                name="accountId"
                 type="text"
                 placeholder="ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
                 isRequired
                 maxLength={34}
-                // Formik Props
                 value={formik.values.accountId as string}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
@@ -241,7 +200,6 @@ export default function TwilioConfigurationModal({
                 placeholder="••••••••••••••••••••••••••••••••"
                 isRequired
                 maxLength={32}
-                // Formik Props
                 value={formik.values.authToken as string}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
@@ -268,12 +226,11 @@ export default function TwilioConfigurationModal({
                 radius="sm"
                 label="Twilio Phone Number"
                 labelPlacement="outside-top"
-                name="phone" // Changed from 'phoneNumber' to 'phone' to match the TwilioConfigRequest type
+                name="phone"
                 type="tel"
                 placeholder="+15551234567"
                 isRequired
                 maxLength={16}
-                // Formik Props
                 value={formik.values.phone as string}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
@@ -284,7 +241,6 @@ export default function TwilioConfigurationModal({
                 errorMessage={formik.touched.phone && formik.errors.phone}
               />
 
-              {/* Information Box */}
               <div className="text-sm text-gray-700 dark:text-foreground/80 bg-blue-50 dark:bg-blue-900/10 p-3.5 rounded-lg border border-blue-200 dark:border-blue-500/30 mt-4">
                 <div className="flex items-start gap-3">
                   <div>
@@ -312,7 +268,6 @@ export default function TwilioConfigurationModal({
                   </div>
                 </div>
               </div>
-              {/* Status Message */}
               {isUpdateMode && existingConfig?.status === "Connected" && (
                 <div className="p-3 bg-green-50 dark:bg-green-900/10 text-green-700 dark:text-green-400 text-xs rounded-lg border border-green-200 dark:border-green-500/30">
                   ✅ Twilio integration is active and connected.
@@ -333,7 +288,6 @@ export default function TwilioConfigurationModal({
             </div>
           </ModalBody>
 
-          {/* Modal Footer (Action Buttons) */}
           <ModalFooter className="flex justify-between items-center px-4 pb-4 pt-0">
             <Popover placement="top-start" showArrow>
               <PopoverTrigger>
@@ -371,7 +325,7 @@ export default function TwilioConfigurationModal({
                 size="sm"
                 variant="solid"
                 color="primary"
-                type="submit" // Important: Trigger Formik submission
+                type="submit"
                 isLoading={isSubmitting}
                 isDisabled={isSubmitting || !formik.isValid || !formik.dirty}
               >

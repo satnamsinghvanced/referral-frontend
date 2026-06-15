@@ -49,7 +49,6 @@ import {
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { timeAgo } from "../../utils/timeAgo";
 import IntegrationItem from "./IntegrationItem";
-import EmailMarketingConfigModal from "./modal/EmailMarketingConfigModal";
 import SendGridConfigModal from "./modal/SendGridConfigModal";
 import TwilioConfigurationModal from "./modal/TwilioConfigurationModal";
 import GoogleIntegrationSelectorModal from "./modal/GoogleIntegrationSelectorModal";
@@ -85,12 +84,9 @@ function Integrations() {
   } = useCalendarIntegration();
 
   const { mutate: updateGoogleCalendarIntegration } = useUpdateCalendar();
-
   const { mutate: connectCalendar } = useConnectCalendar();
-
   const { data: emailExistingConfig, isLoading: isEmailConfigLoading } =
     useFetchEmailIntegration();
-
   const { mutate: updateEmailIntegration } = useUpdateEmailIntegration();
   const { mutate: connectEmail } = useConnectEmail();
   const { mutate: connectSendGrid } = useConnectSendGrid();
@@ -100,43 +96,31 @@ function Integrations() {
     isLoading: isTwilioConfigLoading,
     isError: isTwilioConfigError,
   } = useFetchTwilioConfig();
-
-  const { mutate: updateTwilioConfig } = useUpdateTwilioConfig();
-
   const { data: googleAdsConfig, isLoading: isGoogleAdsConfigLoading } =
     useGoogleAdsIntegration();
-
   const { mutate: updateGoogleAdsIntegration } = useUpdateGoogleAds();
   const { mutate: connectGoogleAds } = useConnectGoogleAds();
-
   const { data: metaAdsConfig, isLoading: isMetaAdsConfigLoading } =
     useMetaAdsIntegration();
-
   const { mutate: updateMetaAdsIntegration } = useUpdateMetaAds();
   const { mutate: connectMetaAds } = useConnectMetaAds();
-
   const [isGoogleBusinessConnecting, setIsGoogleBusinessConnecting] = useState(false);
   const [onboardingWindow, setOnboardingWindow] = useState<Window | null>(null);
   const [countdown, setCountdown] = useState<number | null>(null);
-
   const {
     data: googleBusinessConfig,
     isLoading: isGoogleBusinessConfigLoading,
   } = useBusinessIntegration() as any;
-
   const { mutate: syncBusinessProfiles, isPending: isSyncingBusiness } = useSyncBusinessProfiles();
-
   const { mutate: updateGoogleBusinessIntegration } = useUpdateBusiness();
   const { mutate: connectGoogleBusiness } = useConnectBusiness();
   const { mutate: connectWindsor, isPending: isConnectingWindsor } = useWindsorAuth((win: Window | null) => {
     setOnboardingWindow(win);
     setIsGoogleBusinessConnecting(true);
   });
-
   const [isPlacesModalOpen, setIsPlacesModalOpen] = useState(false);
   const [placeIdInput, setPlaceIdInput] = useState("");
   const { mutate: connectPlaces, isPending: isConnectingPlaces } = useConnectGooglePlaces();
-
   const handleConnectPlaces = () => {
     if (!placeIdInput.trim()) return;
     connectPlaces(placeIdInput.trim(), {
@@ -161,20 +145,16 @@ function Integrations() {
 
   useEffect(() => {
     if (!onboardingWindow) return;
-
     let isPolling = true;
     let pollTimer: any;
     let countdownTimer: any;
-
     const currentLocIds = new Set(
       (googleBusinessConfig?.locations || []).map((l: any) => l.locationId)
     );
-
     const checkStatus = async () => {
       if (!isPolling) return;
       try {
         const res = (await axios.get(`/auth/status?userId=${userId}`)) as any;
-
         if (res && res.success && res.data?.isSynced) {
           isPolling = false;
           if (onboardingWindow && !onboardingWindow.closed) {
@@ -199,7 +179,6 @@ function Integrations() {
       } catch (err) {
         console.error("Polling error:", err);
       }
-
       if (onboardingWindow.closed) {
         isPolling = false;
         setOnboardingWindow(null);
@@ -215,14 +194,11 @@ function Integrations() {
         });
         return;
       }
-
       if (isPolling) {
         pollTimer = setTimeout(checkStatus, 3000);
       }
     };
-
     pollTimer = setTimeout(checkStatus, 3000);
-
     return () => {
       isPolling = false;
       clearTimeout(pollTimer);
@@ -236,7 +212,6 @@ function Integrations() {
       const status = params.get("status");
       const platform = params.get("platform");
       const message = params.get("message");
-
       if (status === "success") {
         addToast({
           title: "Connection Successful",
@@ -254,14 +229,12 @@ function Integrations() {
           color: "danger",
         });
       }
-
       const url = new URL(window.location.href);
       url.searchParams.delete("socialMediaRedirect");
       url.searchParams.delete("status");
       url.searchParams.delete("platform");
       url.searchParams.delete("message");
       window.history.replaceState({}, "", url.toString());
-
       queryClient.invalidateQueries({ queryKey: ["email-integration"] });
       queryClient.invalidateQueries({ queryKey: ["googleCalendar"] });
       queryClient.invalidateQueries({ queryKey: ["googleAds"] });
@@ -275,7 +248,6 @@ function Integrations() {
     data: googleAnalyticsConfig,
     isLoading: isGoogleAnalyticsConfigLoading,
   } = useAnalyticsIntegration();
-
   const { mutate: updateGoogleAnalyticsIntegration } = useUpdateAnalytics();
   const { mutate: connectGoogleAnalytics } = useConnectAnalytics();
   const emailConfigsList = Array.isArray(emailExistingConfig)
@@ -283,7 +255,6 @@ function Integrations() {
     : emailExistingConfig
       ? [emailExistingConfig]
       : [];
-
   const smtpConfig = emailConfigsList.find(
     (cfg: any) => cfg.provider !== "SendGrid"
   );
@@ -299,17 +270,14 @@ function Integrations() {
       "Connect your favorite tools and services to streamline your referral workflow.",
     buttons: [],
   };
-
   const isTwilioConnected = !!(
     twilioConfig &&
     twilioConfig.authToken &&
     twilioConfig.accountId &&
     twilioConfig.phone
   );
-
   const AVAILABLE_INTEGRATIONS = useMemo(() => {
     const list: any[] = [];
-
     const isGoogleBusinessConnected =
       googleBusinessConfig?.status === "Connected"
     list.push({
@@ -404,7 +372,6 @@ function Integrations() {
         : undefined,
     });
 
-    // Google Ads
     list.push({
       id: googleAdsConfig?._id || "",
       name: "Google Ads",
@@ -444,7 +411,6 @@ function Integrations() {
       },
     });
 
-    // Google Analytics
     list.push({
       id: googleAnalyticsConfig?._id || "",
       name: "Google Analytics",
@@ -482,7 +448,6 @@ function Integrations() {
       },
     });
 
-    // Email Marketing SMTP
     list.push({
       id: smtpConfig?._id || "",
       name: "Email Marketing Platform",
@@ -517,7 +482,6 @@ function Integrations() {
       },
     });
 
-    // SendGrid Integration
     const isSendGridConnected = sendGridConfig?.status === "Connected";
     list.push({
       id: sendGridConfig?._id || "",
@@ -604,7 +568,6 @@ function Integrations() {
           <Webhooks />
         </div>
       </ComponentContainer>
-
       <TwilioConfigurationModal
         userId={userId as string}
         isOpen={isTwilioIntegrationModalOpen}
@@ -613,32 +576,26 @@ function Integrations() {
         isLoading={isTwilioConfigLoading}
         isError={isTwilioConfigError}
       />
-
       <GoogleIntegrationSelectorModal
         type="business"
         isOpen={isGoogleBusinessLocationModalOpen}
         onClose={() => setIsGoogleBusinessLocationModalOpen(false)}
       />
-
-
       <GoogleIntegrationSelectorModal
         type="analytics"
         isOpen={isGoogleAnalyticsPropertyModalOpen}
         onClose={() => setIsGoogleAnalyticsPropertyModalOpen(false)}
       />
-
       <GoogleIntegrationSelectorModal
         type="ads"
         isOpen={isGoogleAdsAccountModalOpen}
         onClose={() => setIsGoogleAdsAccountModalOpen(false)}
       />
-
       <GoogleIntegrationSelectorModal
         type="meta_ads"
         isOpen={isMetaAdsAccountModalOpen}
         onClose={() => setIsMetaAdsAccountModalOpen(false)}
       />
-
       <GoogleCalendarConfigModal
         userId={userId as string}
         isOpen={isGoogleCalendarConfigModalOpen}
@@ -647,14 +604,12 @@ function Integrations() {
         isLoading={isGoogleCalendarConfigLoading}
         isError={isGoogleCalendarConfigError}
       />
-
       <SendGridConfigModal
         isOpen={isSendGridConfigModalOpen}
         onOpenChange={setIsSendGridConfigModalOpen}
         existingConfig={sendGridConfig}
         isLoading={isEmailConfigLoading}
       />
-
       <Modal isOpen={isPlacesModalOpen} onOpenChange={setIsPlacesModalOpen} size="md">
         <ModalContent>
           <ModalHeader className="flex flex-col gap-1">Connect Google Places</ModalHeader>
@@ -688,7 +643,6 @@ function Integrations() {
           </ModalBody>
         </ModalContent>
       </Modal>
-
       {countdown !== null && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 backdrop-blur-xl bg-background/80 text-foreground px-6 py-4 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] flex items-center gap-4 border border-foreground/10 animate-in fade-in slide-in-from-bottom-5 duration-300">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-success/15 text-success animate-bounce">

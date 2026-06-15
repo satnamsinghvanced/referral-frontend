@@ -18,9 +18,7 @@ interface TourContextType {
   currentStep: number;
   isOpen: boolean;
 }
-
 const TourContext = createContext<TourContextType | undefined>(undefined);
-
 export const useTour = () => {
   const context = useContext(TourContext);
   if (!context) {
@@ -37,10 +35,7 @@ export const TourProvider = ({ children }: { children: React.ReactNode }) => {
   const [targetElement, setTargetElement] = useState<Element | null>(null);
   const location = useLocation();
   const requestRef = useRef<number | null>(null);
-
   const currentStep = STEPS[currentStepIndex];
-
-  // Helper to update rect on resize/scroll
   const updateRect = () => {
     if (currentStep) {
       const el = document.querySelector(currentStep.selector);
@@ -58,8 +53,8 @@ export const TourProvider = ({ children }: { children: React.ReactNode }) => {
     if (isOpen) {
       updateRect();
       window.addEventListener("resize", updateRect);
-      window.addEventListener("scroll", updateRect, true); // capture scroll
-      const interval = setInterval(updateRect, 500); // Polling for robust detection
+      window.addEventListener("scroll", updateRect, true);
+      const interval = setInterval(updateRect, 500);
 
       return () => {
         window.removeEventListener("resize", updateRect);
@@ -67,29 +62,22 @@ export const TourProvider = ({ children }: { children: React.ReactNode }) => {
         clearInterval(interval);
       };
     }
-  }, [isOpen, currentStepIndex, location.pathname]); // Update on route change too
+  }, [isOpen, currentStepIndex, location.pathname]);
 
-  // Handle click on target element to advance
   useEffect(() => {
     if (isOpen && targetElement) {
       const handleAdvance = () => {
-        // Optional: slight delay to allow navigation to start?
-        // But usually React state updates are fine.
         nextStep();
       };
 
-      // Use capture to ensure we catch it before navigation might unmount things (though unmount happens later)
-      // Actually bubble is fine usually.
+
       targetElement.addEventListener("click", handleAdvance);
 
       return () => {
         targetElement.removeEventListener("click", handleAdvance);
       };
     }
-  }, [isOpen, targetElement]); // Add nextStep if not stable, but it's defined in component scope.
-  // Ideally wrap nextStep in useCallback or omit from deps if safe.
-  // I'll leave it as is, standard React behavior.
-
+  }, [isOpen, targetElement]);
   const startTour = () => {
     setCurrentStepIndex(0);
     setIsOpen(true);
@@ -101,7 +89,6 @@ export const TourProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const nextStep = () => {
-    // Add a delay so user can process the current step/action
     setIsTransitioning(true);
     setTimeout(() => {
       if (currentStepIndex < STEPS.length - 1) {
@@ -147,7 +134,6 @@ export const TourProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-// Internal components for Overlay and Tooltip
 const TourOverlay = ({
   rect,
   step,
@@ -157,25 +143,21 @@ const TourOverlay = ({
   onPrev,
   onClose,
 }: any) => {
-  // Calculate tooltip position
-  // Default to right, but check viewport
+
   const tooltipStyle: React.CSSProperties = {
     position: "absolute",
     top: rect.top + window.scrollY,
-    left: rect.right + 20 + window.scrollX, // 20px padding
+    left: rect.right + 20 + window.scrollX,
     zIndex: 9999,
   };
 
-  // If going off screen right, move to left
   if (rect.right + 350 > window.innerWidth) {
-    tooltipStyle.left = rect.left - 370 + window.scrollX; // 350 width + 20 padding
+    tooltipStyle.left = rect.left - 370 + window.scrollX;
   }
-  // Adjust top if offscreen bottom (simple logic)
   if (rect.top + 200 > window.innerHeight + window.scrollY) {
     tooltipStyle.top = rect.bottom - 200 + window.scrollY;
   }
 
-  // Mask paths
   const maskPath = `
     M 0 0
     L ${window.innerWidth} 0
@@ -192,7 +174,6 @@ const TourOverlay = ({
 
   return (
     <div className="fixed inset-0 z-[5000] pointer-events-none">
-      {/* SVG Overlay */}
       <svg
         width="100%"
         height="100%"
@@ -204,7 +185,6 @@ const TourOverlay = ({
           fillRule="evenodd"
           className="pointer-events-auto"
         />
-        {/* Highlight Border */}
         <rect
           x={rect.left}
           y={rect.top}
@@ -217,7 +197,6 @@ const TourOverlay = ({
         />
       </svg>
 
-      {/* Block interaction if click is NOT required */}
       {!step.requiredClick && (
         <div
           className="fixed z-[5005] pointer-events-auto cursor-default"
@@ -257,8 +236,6 @@ const TourOverlay = ({
               Step {currentStepIndex + 1} of {totalSteps}
             </span>
             <div className="flex items-center gap-2">
-              {/* Only show Back button if not first step (optional, but keep for nav) */}
-              {/* The user wants 'click item to proceed', so 'Next' is hidden. Back is maybe optional. */}
               {currentStepIndex > 0 && (
                 <Button
                   size="sm"
@@ -270,7 +247,6 @@ const TourOverlay = ({
                 </Button>
               )}
 
-              {/* Next Button or Click Instruction */}
               {step.requiredClick ? (
                 <span className="text-xs text-blue-600 font-medium animate-pulse ml-auto">
                   Click text to proceed

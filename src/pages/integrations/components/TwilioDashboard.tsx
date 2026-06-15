@@ -2,18 +2,7 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardBody, Button, Chip, addToast, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Spinner } from "@heroui/react";
-import {
-  FiPhone,
-  FiDollarSign,
-  FiClock,
-  FiMessageSquare,
-  FiInfo,
-  FiPlus,
-  FiTrash2,
-  FiRefreshCw,
-  FiCheckCircle,
-  FiCreditCard,
-} from "react-icons/fi";
+import { FiPhone, FiDollarSign, FiClock, FiMessageSquare, FiInfo, FiPlus, FiTrash2, FiRefreshCw, FiCheckCircle, FiCreditCard } from "react-icons/fi";
 import TwilioAddCreditsModal from "../modal/TwilioAddCreditsModal";
 import TwilioPurchaseNumberModal from "../modal/TwilioPurchaseNumberModal";
 import TwilioA2PRegistrationModal from "../modal/TwilioA2PRegistrationModal";
@@ -36,7 +25,6 @@ interface TwilioDashboardProps {
 export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) {
   const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
-
   const [balance, setBalance] = useState<number>(twilioConfig?.balance ?? 0);
   const [minutesUsed, setMinutesUsed] = useState<number>(twilioConfig?.minutesUsed ?? 0);
   const [minutesLimit, setMinutesLimit] = useState<number>(twilioConfig?.minutesLimit ?? 0);
@@ -50,7 +38,7 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
         const formatted = twilioConfig.phoneNumbers.map((num: any) => ({
           id: num._id || num.id || num.phoneNumber,
           phoneNumber: num.phoneNumber,
-          label: num.label || num.friendlyName ,
+          label: num.label || num.friendlyName,
           status: num.status || "Active",
           capabilities: {
             voice: num.capabilities?.voice !== false,
@@ -66,12 +54,26 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
   const [phoneNumbers, setPhoneNumbers] = useState<PhoneNumber[]>([]);
   const [isAddCreditsOpen, setIsAddCreditsOpen] = useState(false);
   const [isPurchaseNumberOpen, setIsPurchaseNumberOpen] = useState(false);
-  
   const { data: registrationRes, isLoading: isA2PConfigLoading } = useFetchA2PRegistration();
   const registration = registrationRes?.data;
-
   const [isA2PRegistrationOpen, setIsA2PRegistrationOpen] = useState(false);
   const [numberToRelease, setNumberToRelease] = useState<PhoneNumber | null>(null);
+  const [prevStatus, setPrevStatus] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (registration?.status) {
+      if (prevStatus === "pending" && registration.status === "approved") {
+        addToast({
+          title: "A2P Registration Approved",
+          description: "Your A2P SMS registration has been approved by carriers. SMS messaging is now enabled!",
+          color: "success",
+        });
+      }
+      setPrevStatus(registration.status);
+    } else {
+      setPrevStatus(null);
+    }
+  }, [registration?.status, prevStatus]);
 
   const successParam = searchParams.get("success");
   const typeParam = searchParams.get("type");
@@ -110,6 +112,7 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
       setSearchParams(newParams);
     }
   }, [successParam, typeParam, queryClient, searchParams, setSearchParams]);
+
   useEffect(() => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data?.type === "STRIPE_SUCCESS") {
@@ -127,7 +130,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
         });
       }
     };
-
     window.addEventListener("message", handleMessage);
     return () => {
       window.removeEventListener("message", handleMessage);
@@ -136,11 +138,9 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
 
   const handleAddCredits = (amount: number, minutes: number) => {
   };
-
   const handlePurchaseNumber = (number: string, label: string) => {
     queryClient.invalidateQueries({ queryKey: ["twilio"] });
   };
-
   const handleConfirmRelease = async () => {
     if (numberToRelease) {
       try {
@@ -169,7 +169,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
       }
     }
   };
-
   const handleRefresh = () => {
     addToast({
       title: "Syncing status",
@@ -204,7 +203,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
                 </p>
               </div>
             </div>
-
             <div className="flex items-center gap-2.5">
               <Button
                 variant="bordered"
@@ -224,7 +222,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
               </Button>
             </div>
           </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <Card className="shadow-none border border-foreground/10 bg-foreground/5 dark:bg-default-50/50 rounded-xl p-4">
               <div className="flex justify-between items-start">
@@ -235,7 +232,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
                 <span className="text-2xl font-extrabold text-foreground">{phoneNumbers.length}</span>
               </div>
             </Card>
-
             <Card className="shadow-none border border-foreground/10 bg-foreground/5 dark:bg-default-50/50 rounded-xl p-4">
               <div className="flex justify-between items-start">
                 <span className="text-xs font-semibold text-foreground-500">Account Balance</span>
@@ -247,7 +243,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
                 </span>
               </div>
             </Card>
-
             <Card className="shadow-none border border-foreground/10 bg-foreground/5 dark:bg-default-50/50 rounded-xl p-4">
               <div className="flex justify-between items-start">
                 <span className="text-xs font-semibold text-foreground-500">Monthly Minutes</span>
@@ -260,7 +255,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
                 </span>
               </div>
             </Card>
-
             <Card className="shadow-none border border-foreground/10 bg-foreground/5 dark:bg-default-50/50 rounded-xl p-4">
               <div className="flex justify-between items-start">
                 <span className="text-xs font-semibold text-foreground-500">Features</span>
@@ -273,7 +267,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
           </div>
         </CardBody>
       </Card>
-
       <Card className="shadow-none border border-blue-200 dark:border-blue-500/20 bg-blue-50/50 dark:bg-blue-950/10 rounded-2xl p-4">
         <CardBody className="p-0 flex flex-row gap-3 items-start">
           <FiInfo className="w-5 h-5 text-blue-500 dark:text-blue-400 mt-0.5 flex-shrink-0" />
@@ -285,7 +278,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
           </div>
         </CardBody>
       </Card>
-
       <Card className="shadow-none border border-foreground/10 bg-background rounded-2xl p-5">
         <CardBody className="p-0 flex flex-col gap-4">
           <div className="flex items-center justify-between gap-4 flex-wrap">
@@ -310,7 +302,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
                 </span>
               )}
             </div>
-
             {(!registration || registration?.status === "failed") && (
               <Button
                 color={registration?.status === "failed" ? "danger" : "primary"}
@@ -322,7 +313,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
                 {registration?.status === "failed" ? "Edit & Re-submit" : "Register for SMS"}
               </Button>
             )}
-
             {registration && (registration.status === "pending" || registration.status === "approved") && (
               <Button
                 variant="light"
@@ -334,7 +324,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
               </Button>
             )}
           </div>
-
           {isA2PConfigLoading ? (
             <div className="flex justify-center items-center py-6">
               <Spinner size="sm" label="Fetching A2P status..." />

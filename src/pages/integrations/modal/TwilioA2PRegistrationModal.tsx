@@ -10,7 +10,6 @@ import {
   SelectItem,
   Textarea,
   Checkbox,
-  addToast,
   Spinner,
 } from "@heroui/react";
 import { useState, useEffect, Fragment } from "react";
@@ -65,9 +64,7 @@ export default function TwilioA2PRegistrationModal({
   const [step, setStep] = useState<number>(1);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  // Dynamic field configuration
   const fieldsConfig: FieldConfig[] = [
-    // Step 1: Brand Information
     {
       name: "businessName",
       type: "text",
@@ -85,10 +82,11 @@ export default function TwilioA2PRegistrationModal({
       gridSpan: "col-span-3",
       required: true,
       options: [
-        { key: "private_company", label: "Private Company" },
-        { key: "public_company", label: "Public Company" },
-        { key: "non_profit", label: "Non-Profit" },
-        { key: "sole_proprietorship", label: "Sole Proprietorship" },
+        { key: "co_operative", label: "Co-operative" },
+        { key: "corporation", label: "Corporation" },
+        { key: "limited_liability_company_or_sole_proprietorship", label: "Limited Liability Company Or Sole-Proprietorship" },
+        { key: "non_profit_corporation", label: "Non-profit Corporation" },
+        { key: "partnership", label: "Partnership" }
       ],
     },
     {
@@ -197,8 +195,6 @@ export default function TwilioA2PRegistrationModal({
       gridSpan: "col-span-3",
       required: true,
     },
-
-    // Step 2: Campaign Details
     {
       name: "campaignName",
       type: "text",
@@ -258,8 +254,6 @@ export default function TwilioA2PRegistrationModal({
         { key: "high", label: "High (100,000+ messages/month)" },
       ],
     },
-
-    // Step 3: Sample Messages
     {
       name: "optInMethod",
       type: "select",
@@ -304,10 +298,9 @@ export default function TwilioA2PRegistrationModal({
     },
   ];
 
-  // Unified Form State
   const [formData, setFormData] = useState({
     businessName: "",
-    businessType: "private_company",
+    businessType: "co_operative",
     ein: "",
     address: "",
     city: "",
@@ -331,16 +324,13 @@ export default function TwilioA2PRegistrationModal({
   });
 
   const [selectedNumbers, setSelectedNumbers] = useState<string[]>([]);
-
   const { data: registrationRes, isLoading: isFetchingData } = useFetchA2PRegistration();
   const { mutate: saveRegistration, isPending: isSaving } = useSaveA2PRegistration();
   const { mutate: updateRegistration, isPending: isUpdating } = useUpdateA2PRegistration();
-
   const registrationData = registrationRes?.data;
   const hasExistingRegistration = !!registrationData;
   const isSubmitting = isSaving || isUpdating;
 
-  // Reset/Load modal state when opened or registration data loads
   useEffect(() => {
     if (isOpen) {
       setStep(1);
@@ -348,7 +338,7 @@ export default function TwilioA2PRegistrationModal({
       if (registrationData) {
         setFormData({
           businessName: registrationData.businessName || "",
-          businessType: registrationData.businessType || "private_company",
+          businessType: registrationData.businessType || "co_operative",
           ein: registrationData.ein || "",
           address: registrationData.address || "",
           city: registrationData.city || "",
@@ -374,7 +364,7 @@ export default function TwilioA2PRegistrationModal({
       } else {
         setFormData({
           businessName: "",
-          businessType: "private_company",
+          businessType: "co_operative",
           ein: "",
           address: "",
           city: "",
@@ -404,17 +394,14 @@ export default function TwilioA2PRegistrationModal({
   const validateField = (name: string, value: string) => {
     const field = fieldsConfig.find((f) => f.name === name);
     if (!field) return "";
-
     const val = (value || "").trim();
-
     if (field.required && !val) {
       if (field.type === "select") {
-        return "true"; // flag for isInvalid styling
+        return "true";
       } else {
         return `${field.label.replace(" *", "")} is required`;
       }
     }
-
     if (val) {
       if (field.type === "email") {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -438,7 +425,6 @@ export default function TwilioA2PRegistrationModal({
         }
       }
     }
-
     return "";
   };
 
@@ -476,11 +462,9 @@ export default function TwilioA2PRegistrationModal({
     );
   };
 
-  // Step validation with format assertions
   const validateStep = () => {
     const newErrors: Record<string, string> = {};
     const stepFields = fieldsConfig.filter((f) => f.step === step);
-
     stepFields.forEach((field) => {
       const val = ((formData as any)[field.name] || "");
       const error = validateField(field.name, val);
@@ -488,7 +472,6 @@ export default function TwilioA2PRegistrationModal({
         newErrors[field.name] = error;
       }
     });
-
     setErrors((prev) => {
       const copy = { ...prev };
       stepFields.forEach((field) => {
@@ -501,15 +484,12 @@ export default function TwilioA2PRegistrationModal({
       });
       return copy;
     });
-
     if (Object.keys(newErrors).length > 0) {
       return false;
     }
-
     if (step === 4 && selectedNumbers.length === 0) {
       return false;
     }
-
     return true;
   };
 
@@ -528,7 +508,6 @@ export default function TwilioA2PRegistrationModal({
       ...formData,
       selectedNumbers,
     };
-
     if (hasExistingRegistration) {
       updateRegistration(payload, {
         onSuccess: () => {
@@ -576,12 +555,10 @@ export default function TwilioA2PRegistrationModal({
 
         {!isFetchingData && (
           <div className="px-5 pb-3 border-b border-foreground/5 select-none">
-            {/* Steps Progress Indicator */}
             <div className="flex items-center justify-between w-full px-1 overflow-x-auto pb-2 scrollbar-none">
               {stepsList.map((s, idx) => {
                 const isCompleted = step > s.num;
                 const isActive = step === s.num;
-
                 return (
                   <div key={s.num} className="flex items-center flex-1 last:flex-initial">
                     <div className="flex flex-col items-center gap-1.5 min-w-[64px]">
@@ -606,7 +583,6 @@ export default function TwilioA2PRegistrationModal({
                         {s.label}
                       </span>
                     </div>
-
                     {idx < stepsList.length - 1 && (
                       <div
                         className={`h-[2px] flex-1 mx-2 border-t border-dashed ${isCompleted ? "border-green-500" : "border-foreground/10"
@@ -627,12 +603,9 @@ export default function TwilioA2PRegistrationModal({
             </div>
           ) : (
             <>
-              {/* Step Contents */}
               <div className="flex flex-col gap-4">
-                {/* Step 1, 2, 3 Fields Renderer */}
                 {(step === 1 || step === 2 || step === 3) && (
                   <div className="grid grid-cols-6 gap-4 animate-in fade-in duration-200">
-                    {/* Header Notes */}
                     <div className="col-span-6 bg-primary-50/50 dark:bg-primary-950/20 border border-primary-100 dark:border-primary-900/30 rounded-xl p-4 flex gap-3 items-start">
                       <FiInfo className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
                       <div className="flex flex-col gap-0.5">
@@ -649,13 +622,11 @@ export default function TwilioA2PRegistrationModal({
                       </div>
                     </div>
 
-                    {/* Dynamic Fields mapping */}
                     {fieldsConfig
                       .filter((f) => f.step === step)
                       .map((field) => {
                         const isSelect = field.type === "select";
                         const isTextarea = field.type === "textarea";
-
                         const fieldElement = (
                           <div key={field.name} className={field.gridSpan}>
                             {isSelect ? (
@@ -722,8 +693,6 @@ export default function TwilioA2PRegistrationModal({
                             )}
                           </div>
                         );
-
-                        // Inject Contact Person Heading
                         if (step === 1 && field.name === "firstName") {
                           return (
                             <Fragment key="contact-heading-frag">
@@ -734,11 +703,9 @@ export default function TwilioA2PRegistrationModal({
                             </Fragment>
                           );
                         }
-
                         return fieldElement;
                       })}
 
-                    {/* Sample Compliance Message Visual block under Step 3 */}
                     {step === 3 && (
                       <div className="col-span-6 border border-foreground/10 dark:bg-foreground/5 rounded-xl p-4 flex flex-col gap-2.5 bg-default-50/50 mt-2">
                         <div className="flex items-center gap-1.5 text-foreground font-bold text-[10px] uppercase tracking-wider text-foreground-500">
@@ -764,7 +731,6 @@ export default function TwilioA2PRegistrationModal({
                   </div>
                 )}
 
-                {/* Step 4: Phone Numbers Selection */}
                 {step === 4 && (
                   <div className="flex flex-col gap-4 animate-in fade-in duration-200">
                     <div className="bg-primary-50/50 dark:bg-primary-950/20 border border-primary-100 dark:border-primary-900/30 rounded-xl p-4 flex gap-3 items-start">
@@ -835,7 +801,6 @@ export default function TwilioA2PRegistrationModal({
                   </div>
                 )}
 
-                {/* Step 5: Review & Submit */}
                 {step === 5 && (
                   <div className="flex flex-col gap-4 animate-in fade-in duration-200">
                     <div className="bg-primary-50/50 dark:bg-primary-950/20 border border-primary-100 dark:border-primary-900/30 rounded-xl p-4 flex gap-3 items-start">
@@ -849,7 +814,6 @@ export default function TwilioA2PRegistrationModal({
                     </div>
 
                     <div className="flex flex-col gap-3 max-h-[350px] overflow-y-auto pr-1">
-                      {/* Brand Information Section */}
                       <div className="border border-foreground/10 rounded-xl p-4 bg-background flex flex-col gap-3">
                         <h3 className="text-xs font-bold text-foreground border-b border-foreground/5 pb-2">
                           Brand Information
@@ -878,7 +842,6 @@ export default function TwilioA2PRegistrationModal({
                         </div>
                       </div>
 
-                      {/* Campaign Details Section */}
                       <div className="border border-foreground/10 rounded-xl p-4 bg-background flex flex-col gap-3">
                         <h3 className="text-xs font-bold text-foreground border-b border-foreground/5 pb-2">
                           Campaign Details
@@ -903,7 +866,6 @@ export default function TwilioA2PRegistrationModal({
                         </div>
                       </div>
 
-                      {/* Phone Numbers Section */}
                       <div className="border border-foreground/10 rounded-xl p-4 bg-background flex flex-col gap-2">
                         <h3 className="text-xs font-bold text-foreground border-b border-foreground/5 pb-2">
                           Phone Numbers
@@ -913,7 +875,6 @@ export default function TwilioA2PRegistrationModal({
                         </span>
                       </div>
 
-                      {/* What Happens Next Section */}
                       <div className="border border-amber-200 dark:border-amber-900/30 bg-amber-50/40 dark:bg-amber-950/10 rounded-xl p-4 flex flex-col gap-2">
                         <div className="flex items-center gap-1.5 text-amber-800 dark:text-amber-400 font-bold text-xs">
                           <FiClock className="w-4 h-4 text-amber-500" />

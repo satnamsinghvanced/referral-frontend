@@ -52,13 +52,11 @@ interface AddLeadModalProps {
 const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
   const { mutateAsync: addLead, isPending: submitting } = useAddLead();
   const { data: teamMembers, isLoading: loadingTeam } = useFetchTeamMembers();
-
   const [selectedTreatments, setSelectedTreatments] = useState<Set<string>>(
     new Set(),
   );
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
-
   const validationSchema = Yup.object().shape({
     firstName: Yup.string().required("First name is required"),
     lastName: Yup.string().required("Last name is required"),
@@ -93,21 +91,20 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
           estimatedValue: Number(values.estimatedValue) || 0,
           assignedTo:
             values.assignedTo === "Unassigned" ||
-            !/^[0-9a-fA-F]{24}$/.test(values.assignedTo)
+              !/^[0-9a-fA-F]{24}$/.test(values.assignedTo)
               ? null
               : values.assignedTo,
           treatments: Array.from(selectedTreatments),
           tags: tags,
           status: "newLead",
         };
-
         await addLead(payload);
         onOpenChange(false);
         resetForm();
         setSelectedTreatments(new Set());
         setTags([]);
       } catch (error: any) {
-        // Error is handled by the hook
+
       }
     },
   });
@@ -118,17 +115,14 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
       setTagInput("");
     }
   };
-
   const removeTreatment = (treatment: string) => {
     const newSet = new Set(selectedTreatments);
     newSet.delete(treatment);
     setSelectedTreatments(newSet);
   };
-
   const removeTag = (tagToRemove: string) => {
     setTags(tags.filter((tag) => tag !== tagToRemove));
   };
-
   return (
     <Modal
       isOpen={isOpen}
@@ -153,7 +147,6 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
               </p>
             </ModalHeader>
             <ModalBody className="py-0 px-4 gap-3">
-              {/* Contact Information */}
               <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
                 <h4 className="font-medium text-sm dark:text-white">
                   Contact Information
@@ -244,7 +237,6 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                 </div>
               </div>
 
-              {/* Lead Details */}
               <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
                 <h4 className="font-medium text-sm dark:text-white">
                   Lead Details
@@ -367,7 +359,6 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                 </div>
               </div>
 
-              {/* Treatment Interest */}
               <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
                 <h4 className="font-medium text-sm dark:text-white">
                   Treatment Interest
@@ -413,7 +404,6 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                 </div>
               </div>
 
-              {/* Tags */}
               <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
                 <h4 className="font-medium text-sm dark:text-white">Tags</h4>
                 <div className="space-y-3">
@@ -457,7 +447,6 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                 </div>
               </div>
 
-              {/* Notes */}
               <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
                 <h4 className="font-medium text-sm dark:text-white">
                   Additional Notes
