@@ -99,7 +99,7 @@ export const updateTracking = async (
 };
 
 export const fetchTrackings = async (id: any) => {
-  const { data } = await axios.get(`/tracking/${id}`);
+  const { data } = await axios.get(`/nfc_qr_tracking/${id}`);
   return data;
 };
 

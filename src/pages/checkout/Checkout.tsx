@@ -322,7 +322,7 @@ export default function Checkout() {
       const finalExpiry = isSaved && cardToUse ? cardToUse.expiry : expiry;
       const finalCvc = isSaved ? "123" : cvc;
       if (typeParam === "twilio_credits") {
-        await axios.post("/twilio-checkout/mock-credits-payment", {
+        await axios.post("/twilio-checkout/credits-payment", {
           amount: totalCost,
           walletAmount: creditsCost,
           packageName: packageParam,

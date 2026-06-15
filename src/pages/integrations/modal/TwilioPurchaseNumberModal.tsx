@@ -7,6 +7,8 @@ interface TwilioPurchaseNumberModalProps {
   isOpen: boolean;
   onClose: () => void;
   onPurchaseSuccess: (phoneNumber: string, label: string) => void;
+  balance: number;
+  phoneNumbersCount: number;
 }
 
 interface MockNumber {
@@ -16,13 +18,35 @@ interface MockNumber {
   capabilities: { voice: boolean; sms: boolean; mms: boolean };
 }
 
-export default function TwilioPurchaseNumberModal({ isOpen, onClose, onPurchaseSuccess }: TwilioPurchaseNumberModalProps) {
+export default function TwilioPurchaseNumberModal({
+  isOpen,
+  onClose,
+  onPurchaseSuccess,
+  balance,
+  phoneNumbersCount,
+}: TwilioPurchaseNumberModalProps) {
   const [areaCode, setAreaCode] = useState<string>("");
   const [searching, setSearching] = useState<boolean>(false);
   const [searchResults, setSearchResults] = useState<MockNumber[]>([]);
   const [searched, setSearched] = useState<boolean>(false);
   const [customLabel, setCustomLabel] = useState<{ [key: string]: string }>({});
   const [buyingNumber, setBuyingNumber] = useState<string | null>(null);
+
+  const isFirstTime = phoneNumbersCount === 0;
+  const setupFee = isFirstTime ? 25 : 0;
+  const buyCost = 15;
+  const totalCost = setupFee + buyCost;
+  const isBalanceLow = balance < totalCost;
+
+  useEffect(() => {
+    if (isOpen && isBalanceLow) {
+      addToast({
+        title: "Low Balance",
+        description: `Your balance is low ($${balance.toFixed(2)}). You need at least $${totalCost.toFixed(2)} to purchase a phone number.`,
+        color: "warning",
+      });
+    }
+  }, [isOpen, isBalanceLow, balance, totalCost]);
 
   useEffect(() => {
     if (isOpen) {
@@ -116,10 +140,18 @@ export default function TwilioPurchaseNumberModal({ isOpen, onClose, onPurchaseS
         <ModalHeader className="flex flex-col gap-1 p-5 pb-2">
           <h2 className="text-xl font-bold text-foreground">Purchase Phone Number</h2>
           <p className="text-xs text-foreground-500 font-normal">
-            Search for available phone numbers by area code • $5 setup fee
+            Search for available phone numbers by area code {isFirstTime ? "• $25 setup fee" : ""}
           </p>
         </ModalHeader>
         <ModalBody className="p-5 pt-2 flex flex-col gap-4">
+          {isBalanceLow && (
+            <div className="bg-red-50 dark:bg-red-950/10 border border-red-200 dark:border-red-500/30 rounded-xl p-3 flex flex-col gap-1 text-xs text-red-800 dark:text-red-400">
+              <span className="font-bold flex items-center gap-1">⚠️ Low Balance Alert</span>
+              <p>
+                Your balance of <strong>${balance.toFixed(2)}</strong> is insufficient. Purchasing a number requires <strong>${totalCost.toFixed(2)}</strong> ({isFirstTime ? "$25 setup fee + " : ""}$15 purchase cost). Please add credits to buy a number.
+              </p>
+            </div>
+          )}
           <div className="flex gap-2 items-end">
             <Input
               type="text"
@@ -173,29 +205,35 @@ export default function TwilioPurchaseNumberModal({ isOpen, onClose, onPurchaseS
                       </div>
                       <Button
                         size="sm"
-                        color="primary"
+                        color={isBalanceLow ? "default" : "primary"}
                         onPress={() => handleBuy(num)}
                         isLoading={buyingNumber === num.phoneNumber}
-                        isDisabled={buyingNumber !== null}
-                        className="bg-primary text-white rounded-lg text-xs font-semibold h-8 px-4"
+                        isDisabled={buyingNumber !== null || isBalanceLow}
+                        className={`${isBalanceLow ? "bg-foreground/10 text-foreground-400 cursor-not-allowed" : "bg-primary text-white"} rounded-lg text-xs font-semibold h-8 px-4`}
                       >
                         Buy
                       </Button>
                     </div>
-                    <div className="flex gap-2">
-                      <span className="text-[10px] bg-foreground/10 px-2 py-0.5 rounded-full text-foreground/75">
-                        Voice
-                      </span>
-                      {num.capabilities.sms && (
-                        <span className="text-[10px] bg-foreground/10 px-2 py-0.5 rounded-full text-foreground/75">
-                          SMS
+                    <div className="flex justify-between items-center flex-wrap gap-2 border-b border-foreground/5 pb-1.5">
+                      <div className="flex gap-2">
+                        <span className="text-[10px] bg-foreground/10 px-2 py-0.5 rounded-full text-foreground/75 font-semibold">
+                          Voice
                         </span>
-                      )}
-                      {num.capabilities.mms && (
-                        <span className="text-[10px] bg-foreground/10 px-2 py-0.5 rounded-full text-foreground/75">
-                          MMS
-                        </span>
-                      )}
+                        {num.capabilities.sms && (
+                          <span className="text-[10px] bg-foreground/10 px-2 py-0.5 rounded-full text-foreground/75 font-semibold">
+                            SMS
+                          </span>
+                        )}
+                        {num.capabilities.mms && (
+                          <span className="text-[10px] bg-foreground/10 px-2 py-0.5 rounded-full text-foreground/75 font-semibold">
+                            MMS
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex gap-3 text-[10px] text-foreground-500 font-semibold">
+                        <span>Setup: ${setupFee.toFixed(2)}</span>
+                        <span>Cost: $15.00</span>
+                      </div>
                     </div>
                     <Input
                       type="text"
@@ -203,7 +241,7 @@ export default function TwilioPurchaseNumberModal({ isOpen, onClose, onPurchaseS
                       size="sm"
                       value={customLabel[num.phoneNumber] || ""}
                       onValueChange={(val) =>
-                        setCustomLabel((prev) => ({ ...prev, [num.phoneNumber]: val }))
+                          setCustomLabel((prev) => ({ ...prev, [num.phoneNumber]: val }))
                       }
                       classNames={{
                         inputWrapper: "border border-foreground/10 rounded-lg bg-background h-8 min-h-8 px-2",

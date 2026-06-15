@@ -528,6 +528,8 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
         isOpen={isPurchaseNumberOpen}
         onClose={() => setIsPurchaseNumberOpen(false)}
         onPurchaseSuccess={handlePurchaseNumber}
+        balance={balance}
+        phoneNumbersCount={phoneNumbers.length}
       />
 
       {/* A2P SMS Registration Modal */}
