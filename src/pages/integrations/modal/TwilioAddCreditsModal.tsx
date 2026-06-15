@@ -108,14 +108,39 @@ export default function TwilioAddCreditsModal({
       });
       return;
     }
+    
+    let pkg = "none";
+    if (credits === 15) {
+      pkg = "500";
+    } else if (credits === 25) {
+      pkg = "1000";
+    } else if (credits === 50) {
+      pkg = "2500";
+    } else if (credits > 0) {
+      pkg = Math.floor(credits / 0.02).toString();
+    }
+
     const totalAmount = credits;
-    const url = `${window.location.origin}/checkout?type=twilio_credits&amount=${totalAmount}&walletAmount=${credits}&package=none&auto_topup=${autoTopUp}`;
+    const url = `${window.location.origin}/checkout?type=twilio_credits&amount=${totalAmount}&walletAmount=${credits}&package=${pkg}&auto_topup=${autoTopUp}`;
     window.open(url, "_blank");
     onClose();
   };
 
   const walletAmount = parseFloat(customAmount) || 0;
-  const totalToday = walletAmount
+  
+  let pkgName = "none";
+  let packageCost = 0;
+  if (walletAmount === 15) {
+    pkgName = "500";
+  } else if (walletAmount === 25) {
+    pkgName = "1000";
+  } else if (walletAmount === 50) {
+    pkgName = "2500";
+  } else if (walletAmount > 0) {
+    pkgName = Math.floor(walletAmount / 0.02).toString();
+  }
+
+  const totalToday = walletAmount;
   const outboundMins = Math.floor(walletAmount / 0.02);
   const smsCount = Math.floor(walletAmount / 0.01);
   const inboundMins = Math.floor(walletAmount / 0.01);
@@ -274,10 +299,22 @@ export default function TwilioAddCreditsModal({
           </div>
         </ModalBody>
         <ModalFooter className="flex flex-col gap-3 p-5 pt-2 border-t border-foreground/5">
+          <div className="flex flex-col gap-1.5 w-full border-b border-foreground/5 pb-3">
+            <div className="flex justify-between items-center text-xs text-foreground-500 font-semibold">
+              <span>One-Time Wallet Deposit:</span>
+              <span>{formatCurrency(walletAmount)}</span>
+            </div>
+            {pkgName !== "none" && (
+              <div className="flex justify-between items-center text-xs text-foreground-500 font-semibold">
+                <span>Monthly Minutes Package ({formatCount(parseInt(pkgName))} mins):</span>
+                <span className="text-primary font-bold">Included</span>
+              </div>
+            )}
+          </div>
           <div className="flex justify-between items-center w-full">
-            <span className="text-sm font-semibold text-foreground">Total to Pay:</span>
+            <span className="text-sm font-semibold text-foreground">Total to Pay Today:</span>
             <span className="text-base font-bold text-primary">
-              ${totalToday.toFixed(2)}/month
+              {formatCurrency(totalToday)}
             </span>
           </div>
           <div className="flex gap-3 justify-end w-full">
