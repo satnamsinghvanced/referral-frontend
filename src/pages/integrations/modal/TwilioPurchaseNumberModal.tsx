@@ -39,16 +39,6 @@ export default function TwilioPurchaseNumberModal({
   const isBalanceLow = balance < totalCost;
 
   useEffect(() => {
-    if (isOpen && isBalanceLow) {
-      addToast({
-        title: "Low Balance",
-        description: `Your balance is low ($${balance.toFixed(2)}). You need at least $${totalCost.toFixed(2)} to purchase a phone number.`,
-        color: "warning",
-      });
-    }
-  }, [isOpen, isBalanceLow, balance, totalCost]);
-
-  useEffect(() => {
     if (isOpen) {
       setAreaCode("");
       setSearching(false);
