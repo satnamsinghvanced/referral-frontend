@@ -113,7 +113,7 @@ function AppRoutes() {
       ),
       children: [
         { index: true, element: <Dashboard /> },
-        { path: "lead-pipeline", element: <LeadTracking /> },
+        { path: "lead-tracking", element: <LeadTracking /> },
         {
           path: "referrals",
           element: (

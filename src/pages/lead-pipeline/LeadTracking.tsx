@@ -165,14 +165,18 @@ const LeadTracking = () => {
       },
       {
         heading: "Pipeline Value",
-        value: stats?.pipelineValue?.value,
+        value: "$" + stats?.pipelineValue?.value || "$0",
         icon: (
+
+
+
+          
           <HiOutlineChartBar className="text-purple-600 dark:text-purple-400" />
         ),
       },
       {
         heading: "Top Source",
-        value: stats?.topSource || "Unknown",
+        value: stats?.topSource || "loading...",
         icon: (
           <HiOutlineTrendingUp className="text-pink-600 dark:text-pink-400" />
         ),
@@ -425,7 +429,7 @@ const LeadTracking = () => {
                             />
                           ))
                         ) : (
-                          <div className="flex-1 flex flex-col items-center justify-center py-12 text-center opacity-40">
+                          <div className="flex-1 flex flex-col items-center justify-center py-5 text-center opacity-40">
                             <EmptyState
                               title="No leads"
                               icon={

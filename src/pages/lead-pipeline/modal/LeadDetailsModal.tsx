@@ -59,6 +59,8 @@ import PriorityLevelChip from "../../../components/chips/PriorityLevelChip";
 import ReferralStatusChip from "../../../components/chips/ReferralStatusChip";
 import { LEAD_PRIORITIES, LEAD_STATUSES } from "../../../consts/lead-pipeline";
 import { useUpdateLead } from "../../../hooks/useLeadPipeline";
+import { useFetchCallRecords } from "../../../hooks/useCall";
+import { timeAgo as formatTimeAgo } from "../../../utils/timeAgo";
 
 const parseNotes = (notesStr: string) => {
   if (!notesStr) return [];
@@ -90,6 +92,12 @@ const LeadDetailsModal = ({
   const [newNote, setNewNote] = useState("");
   const [addingNote, setAddingNote] = useState(false);
   const parsedNotes = parseNotes(lead?.notes || "");
+  const { data: callData, isLoading: loadingCalls } = useFetchCallRecords({
+    phone: lead?.phone || "",
+    page: 1,
+    limit: 50,
+  });
+  const callRecords = callData?.paginatedCalls?.data || [];
 
   const formik = useFormik({
     initialValues: {
@@ -513,28 +521,60 @@ const LeadDetailsModal = ({
                           Communication History
                         </h3>
                       </div>
-                      <div className="p-4 border border-foreground/10 rounded-xl space-y-6 bg-content1/50 dark:bg-content1/20">
-                        <div className="flex gap-4">
-                          <div className="p-2 bg-purple-50 dark:bg-purple-900/30 text-purple-500 dark:text-purple-400 rounded-full h-fit">
-                            <HiOutlineMail className="size-6" />
+                      <div className="p-4 border border-foreground/10 rounded-xl bg-content1/50 dark:bg-content1/20">
+                        {loadingCalls ? (
+                          <div className="p-8 text-center text-xs text-gray-400 dark:text-foreground/45 font-medium">
+                            Loading communication history...
                           </div>
-                          <div className="flex-1 space-y-1">
-                            <div className="flex justify-between items-center">
-                              <h5 className="font-bold text-sm text-foreground">
-                                Inbound Email
-                              </h5>
-                              <span className="text-[10px] text-gray-400 dark:text-foreground/40">
-                                742d ago
-                              </span>
-                            </div>
-                            <p className="text-xs text-gray-500 dark:text-foreground/60 font-medium">
-                              Re: Treatment Inquiry
-                            </p>
-                            <p className="text-xs text-gray-400 dark:text-foreground/40 italic">
-                              "Thanks but I decided to go with another provider"
-                            </p>
+                        ) : callRecords.length === 0 ? (
+                          <div className="p-6 text-center border border-dashed border-foreground/10 rounded-xl bg-gray-50/50 dark:bg-white/5">
+                            <p className="text-xs text-gray-400 dark:text-foreground/40 font-medium">No communication history available.</p>
                           </div>
-                        </div>
+                        ) : (
+                          <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
+                            {callRecords.map((record) => {
+                              const isIncoming = record.direction === "Incoming";
+                              const timeAgoStr = record.date ? formatTimeAgo(record.date) : "";
+                              return (
+                                <div
+                                  key={record._id}
+                                  className="p-3 border border-foreground/10 rounded-xl bg-gray-50 dark:bg-white/5 flex gap-4 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                                >
+                                  <div className={`p-2 rounded-full h-fit ${
+                                    isIncoming
+                                      ? "bg-blue-50 dark:bg-blue-900/30 text-blue-500 dark:text-blue-400"
+                                      : "bg-indigo-50 dark:bg-indigo-900/30 text-indigo-500 dark:text-indigo-400"
+                                  }`}>
+                                    <HiOutlinePhone className="size-5" />
+                                  </div>
+                                  <div className="flex-1 space-y-1">
+                                    <div className="flex justify-between items-center">
+                                      <h5 className="font-bold text-sm text-foreground">
+                                        {isIncoming ? "Inbound Call" : "Outbound Call"}
+                                      </h5>
+                                      <span className="text-[10px] text-gray-400 dark:text-foreground/40 font-medium">
+                                        {timeAgoStr}
+                                      </span>
+                                    </div>
+                                    <p className="text-xs text-gray-500 dark:text-foreground/60 font-medium">
+                                      Status: <span className="font-semibold capitalize">{record.status}</span> &bull; Duration: {record.duration}
+                                    </p>
+                                    {record.notes && (
+                                      <p className="text-xs text-gray-400 dark:text-foreground/45 italic mt-1 bg-white/5 p-1.5 rounded-md">
+                                        "{record.notes}"
+                                      </p>
+                                    )}
+                                    {record.transcriptionText && record.transcriptionText !== "No transcription available" && record.transcriptionText !== "Processing..." && (
+                                      <p className="text-[11px] text-gray-400 dark:text-foreground/45 border-l-2 border-foreground/10 pl-2 mt-1.5 italic">
+                                        "{record.transcriptionText}"
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
