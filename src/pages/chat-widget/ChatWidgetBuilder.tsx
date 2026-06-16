@@ -1,0 +1,409 @@
+import React, { useState, useEffect } from "react";
+import { Card, Button, addToast } from "@heroui/react";
+import { FiArrowLeft } from "react-icons/fi";
+import { LuChevronRight } from "react-icons/lu";
+import ComponentContainer from "../../components/common/ComponentContainer";
+
+import ChatWidgetStats from "./components/ChatWidgetStats";
+import SetupStepper from "./components/SetupStepper";
+import BrandingStep from "./components/BrandingStep";
+import MessagesStep from "./components/MessagesStep";
+import SmsSetupStep from "./components/SmsSetupStep";
+import PrivacyComplianceStep from "./components/PrivacyComplianceStep";
+import DeployStep from "./components/DeployStep";
+import LivePreview from "./components/LivePreview";
+
+export default function ChatWidgetBuilder() {
+  const [activeStep, setActiveStep] = useState(0);
+
+  const [businessName, setBusinessName] = useState("");
+  const [bubbleText, setBubbleText] = useState("");
+  const [primaryColor, setPrimaryColor] = useState("#0ea5e9");
+  const [widgetPosition, setWidgetPosition] = useState("bottom-right");
+  const [bubbleIcon, setBubbleIcon] = useState("Support");
+  const [logoUrl, setLogoUrl] = useState("");
+
+  const [welcomeMessage, setWelcomeMessage] = useState("");
+  const [welcomeDelay, setWelcomeDelay] = useState("");
+  const [enableAutoReply, setEnableAutoReply] = useState(true);
+  const [autoReplyMessage, setAutoReplyMessage] = useState("");
+  const [offlineMessage, setOfflineMessage] = useState("");
+  const [workingHours, setWorkingHours] = useState(true);
+
+  const [enableSmsTransition, setEnableSmsTransition] = useState(true);
+  const [smsPromptMessage, setSmsPromptMessage] = useState("");
+  const [smsConsentText, setSmsConsentText] = useState("");
+  const [triggerAfterMessages, setTriggerAfterMessages] = useState(true);
+  const [triggerOnScheduling, setTriggerOnScheduling] = useState(true);
+  const [triggerImmediately, setTriggerImmediately] = useState(false);
+
+  const [hipaaMode, setHipaaMode] = useState(true);
+  const [requirePatientConsent, setRequirePatientConsent] = useState(true);
+  const [privacyPolicyUrl, setPrivacyPolicyUrl] = useState("");
+  const [dataRetentionPeriod, setDataRetentionPeriod] = useState("");
+  const [requireName, setRequireName] = useState(true);
+  const [requireEmail, setRequireEmail] = useState(true);
+  const [requirePhone, setRequirePhone] = useState(true);
+
+  const [selectedPlatform, setSelectedPlatform] = useState("WordPress");
+  const [copiedCode, setCopiedCode] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validateField = (name: string, value: string): string => {
+    let error = "";
+    switch (name) {
+      case "businessName":
+        if (!value.trim()) error = "Business Name is required";
+        break;
+      case "bubbleText":
+        if (!value.trim()) error = "Bubble Text is required";
+        break;
+      case "welcomeMessage":
+        if (!value.trim()) error = "Welcome Message is required";
+        break;
+      case "welcomeDelay":
+        if (!value.trim()) {
+          error = "Welcome Delay is required";
+        } else if (isNaN(Number(value)) || Number(value) < 0) {
+          error = "Delay must be a valid number >= 0";
+        }
+        break;
+      case "autoReplyMessage":
+        if (enableAutoReply && !value.trim()) {
+          error = "Auto-Reply Message is required";
+        }
+        break;
+      case "offlineMessage":
+        if (!value.trim()) error = "Offline Message is required";
+        break;
+      case "smsPromptMessage":
+        if (enableSmsTransition && !value.trim()) {
+          error = "SMS Prompt Message is required";
+        }
+        break;
+      case "smsConsentText":
+        if (enableSmsTransition && !value.trim()) {
+          error = "SMS Consent Text is required";
+        }
+        break;
+      case "privacyPolicyUrl":
+        if (requirePatientConsent) {
+          if (!value.trim()) {
+            error = "Privacy Policy URL is required";
+          } else {
+            try {
+              new URL(value);
+            } catch (e) {
+              error = "Please enter a valid URL (e.g., https://example.com)";
+            }
+          }
+        }
+        break;
+      case "dataRetentionPeriod":
+        if (!value.trim()) {
+          error = "Data Retention Period is required";
+        } else if (isNaN(Number(value)) || Number(value) < 1) {
+          error = "Retention period must be a valid number >= 1";
+        }
+        break;
+      default:
+        break;
+    }
+    setErrors(prev => ({ ...prev, [name]: error }));
+    return error;
+  };
+
+  const handleInputChange = (name: string, value: string, setter: (val: string) => void) => {
+    setter(value);
+    validateField(name, value);
+  };
+
+  const validateStep = (stepIdx: number): boolean => {
+    let isValid = true;
+    if (stepIdx === 0) {
+      const e1 = validateField("businessName", businessName);
+      const e2 = validateField("bubbleText", bubbleText);
+      if (e1 || e2) isValid = false;
+    } else if (stepIdx === 1) {
+      const e1 = validateField("welcomeMessage", welcomeMessage);
+      const e2 = validateField("welcomeDelay", welcomeDelay);
+      const e3 = validateField("offlineMessage", offlineMessage);
+      let e4 = "";
+      if (enableAutoReply) {
+        e4 = validateField("autoReplyMessage", autoReplyMessage);
+      }
+      if (e1 || e2 || e3 || e4) isValid = false;
+    } else if (stepIdx === 2) {
+      if (enableSmsTransition) {
+        const e1 = validateField("smsPromptMessage", smsPromptMessage);
+        const e2 = validateField("smsConsentText", smsConsentText);
+        if (e1 || e2) isValid = false;
+      }
+    } else if (stepIdx === 3) {
+      if (requirePatientConsent) {
+        const e1 = validateField("privacyPolicyUrl", privacyPolicyUrl);
+        if (e1) isValid = false;
+      }
+      const e2 = validateField("dataRetentionPeriod", dataRetentionPeriod);
+      if (e2) isValid = false;
+    }
+    return isValid;
+  };
+
+  const [previewMode, setPreviewMode] = useState<"desktop" | "mobile">("desktop");
+  const [isPreviewChatOpen, setIsPreviewChatOpen] = useState(false);
+
+  useEffect(() => {
+    if (copiedCode) {
+      const timer = setTimeout(() => setCopiedCode(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [copiedCode]);
+
+  const steps = [
+    { name: "Branding", desc: "Customize branding & colors" },
+    { name: "Messages", desc: "Configure greetings" },
+    { name: "SMS Setup", desc: "SMS transition settings" },
+    { name: "Privacy & Compliance", desc: "Security & HIPAA settings" },
+    { name: "Deploy", desc: "Deploy your chat widget" }
+  ];
+
+  const handlePublishWidget = () => {
+    if (!validateStep(activeStep)) {
+      addToast({
+        title: "Validation Error",
+        description: "Please resolve all input errors before publishing.",
+        color: "danger"
+      });
+      return;
+    }
+    addToast({
+      title: "Widget Published!",
+      description: "Your chat widget configurations have been saved and deployed live.",
+      color: "success"
+    });
+  };
+
+  const embedCodeSnippet = `<!-- Practice ROI Chat Widget Configuration -->
+<script>
+  window.practiceRoiChatSettings = {
+    businessName: "${businessName}",
+    primaryColor: "${primaryColor}",
+    position: "${widgetPosition}",
+    bubbleText: "${bubbleText}",
+    bubbleIcon: "${bubbleIcon}",
+    logoUrl: "${logoUrl}",
+    welcomeMessage: "${welcomeMessage}",
+    welcomeDelay: ${welcomeDelay},
+    enableSmsTransition: ${enableSmsTransition},
+    smsPromptMessage: "${smsPromptMessage}",
+    smsConsentText: "${smsConsentText}",
+    requirePatientConsent: ${requirePatientConsent},
+    privacyPolicyUrl: "${privacyPolicyUrl}",
+    requireEmail: ${requireEmail},
+    requirePhone: ${requirePhone},
+    hipaaMode: ${hipaaMode}
+  };
+</script>
+<script src="https://cdn.practiceroi.com/chat-widget.js" async></script>
+<!-- End Practice ROI Chat Widget -->`;
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(embedCodeSnippet);
+    setCopiedCode(true);
+    addToast({
+      title: "Copied!",
+      description: "Code snippet copied to clipboard.",
+      color: "success"
+    });
+  };
+
+  const handleNextStep = () => {
+    if (validateStep(activeStep)) {
+      if (activeStep < steps.length - 1) {
+        setActiveStep(activeStep + 1);
+      } else {
+        handlePublishWidget();
+      }
+    } else {
+      addToast({
+        title: "Validation Error",
+        description: "Please fill in all required fields correctly before proceeding.",
+        color: "danger"
+      });
+    }
+  };
+
+  const handlePrevStep = () => {
+    if (activeStep > 0) {
+      setActiveStep(activeStep - 1);
+    }
+  };
+
+  const headingData = {
+    heading: "Chat Widget Builder",
+    subHeading: "Configure and deploy your HIPAA-compliant patient chat widget",
+    buttons: [
+      {
+        label: "Publish Widget",
+        onClick: handlePublishWidget,
+        variant: "solid" as const,
+        color: "primary" as const
+      }
+    ]
+  };
+
+  return (
+    <ComponentContainer headingData={headingData}>
+      <ChatWidgetStats />
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full mt-2 items-start">
+        <div className="lg:col-span-7 flex flex-col gap-5">
+          <Card className="shadow-none border border-foreground/10 bg-white dark:bg-content1 rounded-xl p-5 md:p-6">
+            <SetupStepper
+              steps={steps}
+              activeStep={activeStep}
+              setActiveStep={setActiveStep}
+            />
+            <div className="min-h-[360px]">
+              {activeStep === 0 && (
+                <BrandingStep
+                  businessName={businessName}
+                  setBusinessName={setBusinessName}
+                  bubbleText={bubbleText}
+                  setBubbleText={setBubbleText}
+                  primaryColor={primaryColor}
+                  setPrimaryColor={setPrimaryColor}
+                  widgetPosition={widgetPosition}
+                  setWidgetPosition={setWidgetPosition}
+                  bubbleIcon={bubbleIcon}
+                  setBubbleIcon={setBubbleIcon}
+                  logoUrl={logoUrl}
+                  setLogoUrl={setLogoUrl}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                />
+              )}
+
+              {activeStep === 1 && (
+                <MessagesStep
+                  welcomeMessage={welcomeMessage}
+                  setWelcomeMessage={setWelcomeMessage}
+                  welcomeDelay={welcomeDelay}
+                  setWelcomeDelay={setWelcomeDelay}
+                  enableAutoReply={enableAutoReply}
+                  setEnableAutoReply={setEnableAutoReply}
+                  autoReplyMessage={autoReplyMessage}
+                  setAutoReplyMessage={setAutoReplyMessage}
+                  offlineMessage={offlineMessage}
+                  setOfflineMessage={setOfflineMessage}
+                  workingHours={workingHours}
+                  setWorkingHours={setWorkingHours}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                />
+              )}
+
+              {activeStep === 2 && (
+                <SmsSetupStep
+                  enableSmsTransition={enableSmsTransition}
+                  setEnableSmsTransition={setEnableSmsTransition}
+                  smsPromptMessage={smsPromptMessage}
+                  setSmsPromptMessage={setSmsPromptMessage}
+                  smsConsentText={smsConsentText}
+                  setSmsConsentText={setSmsConsentText}
+                  triggerAfterMessages={triggerAfterMessages}
+                  setTriggerAfterMessages={setTriggerAfterMessages}
+                  triggerOnScheduling={triggerOnScheduling}
+                  setTriggerOnScheduling={setTriggerOnScheduling}
+                  triggerImmediately={triggerImmediately}
+                  setTriggerImmediately={setTriggerImmediately}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                />
+              )}
+
+              {activeStep === 3 && (
+                <PrivacyComplianceStep
+                  hipaaMode={hipaaMode}
+                  setHipaaMode={setHipaaMode}
+                  requirePatientConsent={requirePatientConsent}
+                  setRequirePatientConsent={setRequirePatientConsent}
+                  privacyPolicyUrl={privacyPolicyUrl}
+                  setPrivacyPolicyUrl={setPrivacyPolicyUrl}
+                  dataRetentionPeriod={dataRetentionPeriod}
+                  setDataRetentionPeriod={setDataRetentionPeriod}
+                  requireName={requireName}
+                  requireEmail={requireEmail}
+                  setRequireEmail={setRequireEmail}
+                  requirePhone={requirePhone}
+                  setRequirePhone={setRequirePhone}
+                  errors={errors}
+                  handleInputChange={handleInputChange}
+                />
+              )}
+
+              {activeStep === 4 && (
+                <DeployStep
+                  selectedPlatform={selectedPlatform}
+                  setSelectedPlatform={setSelectedPlatform}
+                  embedCodeSnippet={embedCodeSnippet}
+                  copiedCode={copiedCode}
+                  copyToClipboard={copyToClipboard}
+                />
+              )}
+            </div>
+
+            <div className="flex justify-between items-center mt-8 pt-4 border-t border-foreground/5">
+              <Button
+                variant="bordered"
+                onClick={handlePrevStep}
+                isDisabled={activeStep === 0}
+                className="border-foreground/10 rounded-lg text-default-700 font-semibold h-10 px-4 text-xs font-sans cursor-pointer"
+                startContent={<FiArrowLeft className="w-3.5 h-3.5" />}
+              >
+                Previous
+              </Button>
+
+              <Button
+                color="primary"
+                onClick={handleNextStep}
+                className="rounded-lg text-white font-bold h-10 px-5 text-xs shadow-sm shadow-primary/20 dark:shadow-none font-sans cursor-pointer"
+              >
+                {activeStep === steps.length - 1 ? "Publish Widget" : "Next Step"}
+                {activeStep < steps.length - 1 && <LuChevronRight className="w-3.5 h-3.5 ml-0.5" />}
+              </Button>
+            </div>
+
+          </Card>
+        </div>
+
+        <div className="lg:col-span-5">
+          <LivePreview
+            previewMode={previewMode}
+            setPreviewMode={setPreviewMode}
+            businessName={businessName}
+            bubbleText={bubbleText}
+            primaryColor={primaryColor}
+            widgetPosition={widgetPosition}
+            bubbleIcon={bubbleIcon}
+            logoUrl={logoUrl}
+            welcomeMessage={welcomeMessage}
+            enableAutoReply={enableAutoReply}
+            autoReplyMessage={autoReplyMessage}
+            enableSmsTransition={enableSmsTransition}
+            smsPromptMessage={smsPromptMessage}
+            smsConsentText={smsConsentText}
+            requirePatientConsent={requirePatientConsent}
+            privacyPolicyUrl={privacyPolicyUrl}
+            requireEmail={requireEmail}
+            requirePhone={requirePhone}
+            hipaaMode={hipaaMode}
+            workingHours={workingHours}
+            isPreviewChatOpen={isPreviewChatOpen}
+            setIsPreviewChatOpen={setIsPreviewChatOpen}
+          />
+        </div>
+      </div>
+    </ComponentContainer>
+  );
+}

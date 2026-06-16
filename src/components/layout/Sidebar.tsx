@@ -1,4 +1,4 @@
-import { HiOutlineChartBar, HiOutlineChevronLeft, HiOutlineCog, HiOutlineLightningBolt, HiOutlineMail, HiOutlinePhone, HiOutlineStar } from "react-icons/hi";
+import { HiOutlineChartBar, HiOutlineChevronLeft, HiOutlineCog, HiOutlineLightningBolt, HiOutlineMail, HiOutlinePhone, HiOutlineStar, HiOutlineChat } from "react-icons/hi";
 import { Link, NavLink, useLocation, useNavigate } from "react-router";
 import { Tooltip } from "@heroui/react";
 import { LuBuilding2, LuCalendar, LuDollarSign, LuQrCode, LuTarget, LuUsers, LuVideo } from "react-icons/lu";
@@ -26,6 +26,8 @@ interface NavigationRoute {
   stats?: number | undefined;
   color?: string | ((stats?: number) => string) | undefined;
   label?: string;
+  badge?: string;
+  requiredPermission?: string | string[] | undefined;
 }
 
 const Sidebar = ({
@@ -130,6 +132,14 @@ const Sidebar = ({
         requiredPermission: "Manage Settings",
       },
       {
+        name: "Chat Widget",
+        icon: HiOutlineLightningBolt,
+        href: "/chat-widget",
+        stats: undefined,
+        color: undefined,
+        requiredPermission: "Manage Settings",
+      },
+      {
         name: "Analytics",
         icon: HiOutlineChartBar,
         href: "/analytics",
@@ -184,6 +194,7 @@ const Sidebar = ({
         color: "bg-blue-400 dark:bg-blue-900/40",
         requiredPermission: "Manage Settings",
       },
+
       {
         name: "Settings",
         icon: HiOutlineCog,
@@ -322,11 +333,18 @@ const Sidebar = ({
                       )}
                     </span>
                     {isMiniSidebarOpen && (
-                      <div className="ml-2 truncate text-xs w-full flex justify-between items-center">
-                        <p>{item.name}</p>
-                        {item.stats ? (
+                      <div className="ml-2 truncate text-xs w-full flex justify-between items-center font-sans">
+                        <p className="font-sans">{item.name}</p>
+                        {item.badge ? (
+                          <span
+                            className="bg-[#a855f7] text-[#0284c7] font-extrabold rounded-full px-2 py-0.5 text-[8.5px] select-none shrink-0"
+                            style={{ fontSize: "10px", lineHeight: "15px" }}
+                          >
+                            {item.badge}
+                          </span>
+                        ) : item.stats ? (
                           <p
-                            className={`rounded-full px-2 text-[10px] py-0.5 capitalize !text-foreground dark:!text-foreground ${typeof item.color === "function"
+                            className={`rounded-full px-2 text-[10px] py-0.5 capitalize !text-foreground dark:!text-foreground font-sans ${typeof item.color === "function"
                               ? item.color(item?.stats)
                               : item.color
                               }`}

@@ -50,6 +50,9 @@ const MediaManagement = React.lazy(
 const Integrations = React.lazy(
   () => import("./pages/integrations/Integrations"),
 );
+const ChatWidgetBuilder = React.lazy(
+  () => import("./pages/chat-widget/ChatWidgetBuilder"),
+);
 const Settings = React.lazy(() => import("./pages/settings/Settings"));
 const Notifications = React.lazy(
   () => import("./pages/settings/Notifications"),
@@ -238,6 +241,14 @@ function AppRoutes() {
           element: (
             <PermissionGuard permissions={["Manage Settings"]}>
               <Integrations />
+            </PermissionGuard>
+          ),
+        },
+        {
+          path: "chat-widget",
+          element: (
+            <PermissionGuard permissions={["Manage Settings"]}>
+              <ChatWidgetBuilder />
             </PermissionGuard>
           ),
         },
