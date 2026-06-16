@@ -41,9 +41,9 @@ import {
   LEAD_STATUSES,
   LEAD_TREATMENTS,
   STAGE_STYLES,
-} from "../../consts/lead-tracking";
+} from "../../consts/lead-pipeline";
 import { useDebounce } from "../../hooks/useDebounce";
-import { useLeadStats, useLeadStatus } from "../../hooks/useLeadTracking";
+import { useLeadStats, useLeadStatus } from "../../hooks/useLeadPipeline";
 import ReferralStatusChip from "../../components/chips/ReferralStatusChip";
 import EmptyState from "../../components/common/EmptyState";
 import { LoadingState } from "../../components/common/LoadingState";
@@ -77,9 +77,9 @@ const LeadTracking = () => {
     onOpen: onDetailsOpen,
     onOpenChange: onDetailsOpenChange,
   } = useDisclosure();
-  const [selectedLead, setSelectedLead] = useState<any>(null);
+  const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
   const handleLeadClick = (lead: any) => {
-    setSelectedLead(lead);
+    setSelectedLeadId(lead.id || lead._id);
     onDetailsOpen();
   };
   const {
@@ -87,6 +87,20 @@ const LeadTracking = () => {
     isLoading,
     isError,
   } = useLeadStatus({ ...filters, search: debouncedSearch });
+
+  const selectedLead = useMemo(() => {
+    if (!selectedLeadId || !leadsData?.groupedLeads) return null;
+    for (const stageLeads of Object.values(leadsData.groupedLeads)) {
+      const found = (stageLeads as any[]).find(
+        (l: any) => (l.id || l._id) === selectedLeadId
+      );
+      if (found) return found;
+    }
+    return null;
+  }, [selectedLeadId, leadsData]);
+
+  console.log("leadsData", leadsData);
+
   const { data: stats } = useLeadStats();
   const SUMMARY_STATS = useMemo<StatCard[]>(() => {
     return [
@@ -151,14 +165,18 @@ const LeadTracking = () => {
       },
       {
         heading: "Pipeline Value",
-        value: stats?.pipelineValue?.value,
+        value: "$" + stats?.pipelineValue?.value || "$0",
         icon: (
+
+
+
+          
           <HiOutlineChartBar className="text-purple-600 dark:text-purple-400" />
         ),
       },
       {
         heading: "Top Source",
-        value: stats?.topSource || "Unknown",
+        value: stats?.topSource || "loading...",
         icon: (
           <HiOutlineTrendingUp className="text-pink-600 dark:text-pink-400" />
         ),
@@ -166,7 +184,7 @@ const LeadTracking = () => {
     ];
   }, [stats]);
   const stages = useMemo(() => {
-    if (!leadsData?.data?.groupedLeads) return [];
+    if (!leadsData?.groupedLeads) return [];
     const statusMap: Record<string, any> = {
       newLead: { icon: HiOutlineUsers, name: "New Lead" },
       contacted: { icon: HiOutlineChat, name: "Contacted" },
@@ -177,8 +195,8 @@ const LeadTracking = () => {
     };
     return LEAD_STATUSES.map((status) => {
       const leads =
-        leadsData.data.groupedLeads[
-        status.key as keyof typeof leadsData.data.groupedLeads
+        leadsData.groupedLeads[
+        status.key as keyof typeof leadsData.groupedLeads
         ] || [];
       const totalValue = leads.reduce(
         (sum: number, lead: any) => sum + (Number(lead.estimatedValue) || 0),
@@ -195,8 +213,8 @@ const LeadTracking = () => {
     });
   }, [leadsData]);
   const allLeads = useMemo(() => {
-    if (!leadsData?.data?.groupedLeads) return [];
-    return Object.values(leadsData.data.groupedLeads).flat();
+    if (!leadsData?.groupedLeads) return [];
+    return Object.values(leadsData.groupedLeads).flat();
   }, [leadsData]);
   const HEADING_DATA = {
     heading: "Lead Tracking",
@@ -359,18 +377,6 @@ const LeadTracking = () => {
               message="We encountered an issue fetching your lead data. Please try again."
             />
           </div>
-        ) : allLeads.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-96 border border-foreground/10 rounded-xl bg-background shadow-none">
-            <EmptyState
-              icon={<HiOutlineSearch className="size-8 text-gray-400" />}
-              title="Leads functionality is in progress"
-              message={
-                filters.search
-                  ? `No results for "${filters.search}". Try a different term or clear filters.`
-                  : "Start adding leads to see them here."
-              }
-            />
-          </div>
         ) : view === "pipeline" ? (
           <div className="w-full overflow-x-auto h-full min-h-[600px]">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4  lg:min-w-0 h-fit">
@@ -423,7 +429,7 @@ const LeadTracking = () => {
                             />
                           ))
                         ) : (
-                          <div className="flex-1 flex flex-col items-center justify-center py-12 text-center opacity-40">
+                          <div className="flex-1 flex flex-col items-center justify-center py-5 text-center opacity-40">
                             <EmptyState
                               title="No leads"
                               icon={
@@ -550,12 +556,12 @@ const LeadTracking = () => {
                   ))}
                 </tbody>
               </table>
-              {leadsData?.data?.pagination && (
+              {leadsData?.pagination && (
                 <div className="p-4 border-t border-foreground/5">
                   <Pagination
                     identifier="Leads"
-                    totalItems={leadsData.data.pagination.totalLeads}
-                    totalPages={leadsData.data.pagination.totalPages}
+                    totalItems={leadsData.pagination.totalLeads}
+                    totalPages={leadsData.pagination.totalPages}
                     currentPage={page}
                     handlePageChange={setPage}
                     limit={limit}

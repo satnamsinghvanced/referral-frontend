@@ -6,7 +6,7 @@ import {
   getLeadStats,
   getLeadStatus,
   updateLead,
-} from "../services/leadTracking";
+} from "../services/leadPipeline";
 
 export const useLeadStatus = (params?: any) => {
   return useQuery({

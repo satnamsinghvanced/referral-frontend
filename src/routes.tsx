@@ -10,9 +10,9 @@ const HelpCenter = React.lazy(() => import("./pages/HelpCenter"));
 const EmailCampaign = React.lazy(
   () => import("./pages/email-campaigns/EmailCampaigns"),
 );
-// const LeadTracking = React.lazy(
-//   () => import("./pages/lead-tracking/LeadTracking"),
-// );
+const LeadTracking = React.lazy(
+  () => import("./pages/lead-pipeline/LeadTracking"),
+);
 const MarketingBudget = React.lazy(
   () => import("./pages/marketing-budget/MarketingBudget"),
 );
@@ -82,7 +82,7 @@ const AcceptInvitation = React.lazy(
   () => import("./pages/settings/team/AcceptInvitation"),
 );
 const CallTracking = React.lazy(
-  () => import("./pages/call-tracking/CallTracking"),
+  () => import("./pages/call-logs/CallTracking"),
 );
 const ThankYou = React.lazy(
   () => import("./pages/referral-management/referrals/ThankYouPage"),
@@ -116,7 +116,7 @@ function AppRoutes() {
       ),
       children: [
         { index: true, element: <Dashboard /> },
-        // { path: "lead-tracking", element: <LeadTracking /> },
+        { path: "lead-tracking", element: <LeadTracking /> },
         {
           path: "referrals",
           element: (
@@ -254,7 +254,7 @@ function AppRoutes() {
         },
         { path: "helpcenter", element: <HelpCenter /> },
         {
-          path: "call-tracking",
+          path: "call-logs",
           element: (
             <PermissionGuard permissions={["Manage Settings"]}>
               <CallTracking />

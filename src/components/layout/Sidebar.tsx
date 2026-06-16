@@ -38,23 +38,6 @@ const Sidebar = ({
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { data: dashboardStats } = useDashboardStats();
-
-  // const dashboardStats = {
-  //   referrals: 0,
-  //   partners: 0,
-  //   activities: 0,
-  //   totalCalls: 0,
-  //   integrations: 0,
-  //   tasks: 0,
-  // };
-
-  // local state for submenu open states (keyed by index)
-  // const [openMenus, setOpenMenus] = useState({});
-
-  // const toggleMenu = (idx) => {
-  //   setOpenMenus((prev) => ({ ...prev, [idx]: !prev[idx] }));
-  // };
-
   const { hasPermission, hasAnyPermission, isAdmin, isLoading } =
     useRolePermissions();
   const user = useSelector((state: RootState) => state.auth.user);
@@ -68,13 +51,13 @@ const Sidebar = ({
         icon: FiHome,
         href: "/",
       },
-      // {
-      //   name: "Lead Tracking",
-      //   icon: LuTarget,
-      //   href: "/lead-tracking",
-      //   // stats: "NEW",
-      //   color: "bg-sky-500 !text-white",
-      // },
+      {
+        name: "Lead Tracking",
+        icon: LuTarget,
+        href: "/lead-tracking",
+        stats: dashboardStats?.leadsCount || 0,
+        color: "bg-sky-100 dark:bg-sky-900/40",
+      },
       {
         name: "Referrals",
         icon: LuUsers,
@@ -118,7 +101,7 @@ const Sidebar = ({
       {
         name: "Call Tracking",
         icon: HiOutlinePhone,
-        href: "/call-tracking",
+        href: "/call-logs",
         stats: dashboardStats?.totalCalls || 0,
         color: "bg-sky-100 dark:bg-sky-900/40",
         requiredPermission: "Manage Settings",
