@@ -55,9 +55,7 @@ export interface IUpdateAdsPayload {
   status?: string;
 }
 
-// ===== Google Ads =====
 
-// Get the OAuth URL to initiate connection
 export const getGoogleAdsAuthUrl = async () => {
   const { data } = await axios.post<IAuthUrlResponse>(
     "/google_ads_integration",
@@ -65,7 +63,7 @@ export const getGoogleAdsAuthUrl = async () => {
   return data;
 };
 
-// Get current integration status
+
 export const getGoogleAdsIntegration = async () => {
   const { data } = await axios.get<IGoogleAdsIntegration>(
     "/google_ads_integration",
@@ -73,7 +71,6 @@ export const getGoogleAdsIntegration = async () => {
   return data;
 };
 
-// Update integration (e.g., toggle isActive)
 export const updateGoogleAdsIntegration = async (
   id: string,
   payload: IUpdateAdsPayload,
@@ -85,21 +82,17 @@ export const updateGoogleAdsIntegration = async (
   return data;
 };
 
-// Disconnect Google Ads
 export const deleteGoogleAdsIntegration = async (id: string) => {
   await axios.delete(`/google_ads_integration/${id}`);
   return id;
 };
 
-// ===== Meta Ads =====
 
-// Get the OAuth URL to initiate connection
 export const getMetaAdsAuthUrl = async () => {
   const { data } = await axios.post<IAuthUrlResponse>("/meta_ads_integration");
   return data;
 };
 
-// Get current integration status
 export const getMetaAdsIntegration = async () => {
   const { data } = await axios.get<IMetaAdsIntegration>(
     "/meta_ads_integration",
@@ -107,7 +100,6 @@ export const getMetaAdsIntegration = async () => {
   return data;
 };
 
-// Update integration (e.g., toggle isActive)
 export const updateMetaAdsIntegration = async (
   id: string,
   payload: IUpdateAdsPayload,
@@ -119,12 +111,10 @@ export const updateMetaAdsIntegration = async (
   return data;
 };
 
-// Disconnect Meta Ads
 export const deleteMetaAdsIntegration = async (id: string) => {
   await axios.delete(`/meta_ads_integration/${id}`);
   return id;
 };
-// Sync Google Ads Accounts
 export const syncGoogleAdsAccounts = async (token: string) => {
   const { data } = await axios.get<{ customerAccounts: any[] }>(
     "/google_ads_integration/sync-profiles",
@@ -137,7 +127,6 @@ export const syncGoogleAdsAccounts = async (token: string) => {
   return data;
 };
 
-// Get available accounts
 export const getGoogleAdsAccounts = async () => {
   const { data } = await axios.get<{ customerAccounts: any[] }>(
     "/google_ads_integration/locations",
@@ -145,7 +134,6 @@ export const getGoogleAdsAccounts = async () => {
   return data;
 };
 
-// Connect a specific account
 export const connectGoogleAdsAccount = async (customerId: string) => {
   const { data } = await axios.post("/google_ads_integration/connect-location", {
     customerId,
@@ -153,9 +141,7 @@ export const connectGoogleAdsAccount = async (customerId: string) => {
   return data;
 };
 
-// ===== Meta Ads Account Selection =====
 
-// Sync Meta Ads Accounts
 export const syncMetaAdsAccounts = async (token: string) => {
   const { data } = await axios.get<{ adAccounts: any[] }>(
     "/meta_ads_integration/sync-profiles",
@@ -168,7 +154,6 @@ export const syncMetaAdsAccounts = async (token: string) => {
   return data;
 };
 
-// Get available Meta accounts
 export const getMetaAdsAccounts = async () => {
   const { data } = await axios.get<{ adAccounts: any[] }>(
     "/meta_ads_integration/locations",
@@ -176,7 +161,6 @@ export const getMetaAdsAccounts = async () => {
   return data;
 };
 
-// Connect a specific Meta ad account
 export const connectMetaAdsAccount = async (adAccountId: string) => {
   const { data } = await axios.post("/meta_ads_integration/connect-location", {
     adAccountId,

@@ -77,7 +77,6 @@ export default function TrackSpendModal({ isOpen, onClose, budgetId }: TrackSpen
       );
     },
   });
-
   if (isBudgetLoading) return null;
   return (
     <Modal

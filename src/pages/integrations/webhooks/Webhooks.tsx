@@ -9,15 +9,12 @@ function Webhooks() {
     null,
   );
   const { user } = useSelector((state: RootState) => state.auth);
-
   const handleCopy = (text: string, type: "url" | "secret" | "embed") => {
     navigator.clipboard.writeText(text);
     setIsCopied(type);
     setTimeout(() => setIsCopied(null), 2000);
   };
-
   const webhookUrl = `${import.meta.env.VITE_LIVE_URL}/webhook/referral/${user?.userId}`;
-
   return (
     <div className="space-y-6">
       <Card className="shadow-none border border-foreground/10 dark:border-default-100 rounded-xl bg-background">
@@ -34,7 +31,6 @@ function Webhooks() {
           </div>
         </CardHeader>
         <CardBody className="space-y-5 p-4 pt-3">
-          {/* Webhook URL */}
           <div className="space-y-2">
             <label className="text-xs font-medium block dark:text-foreground/60">
               Webhook URL
@@ -52,11 +48,10 @@ function Webhooks() {
               <Button
                 size="sm"
                 radius="sm"
-                className={`min-w-fit border font-medium ${
-                  isCopied === "url"
-                    ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
-                    : "bg-white dark:bg-content2 border-foreground/10 hover:bg-gray-50 dark:hover:bg-content3 text-gray-700 dark:text-foreground"
-                }`}
+                className={`min-w-fit border font-medium ${isCopied === "url"
+                  ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
+                  : "bg-white dark:bg-content2 border-foreground/10 hover:bg-gray-50 dark:hover:bg-content3 text-gray-700 dark:text-foreground"
+                  }`}
                 onPress={() => handleCopy(webhookUrl, "url")}
                 startContent={<LuCopy className="size-3.5" />}
               >
@@ -69,7 +64,6 @@ function Webhooks() {
             </p>
           </div>
 
-          {/* Integration Instructions */}
           <div className="p-4 bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-800 rounded-lg">
             <div className="flex items-start gap-2">
               <LuInfo className="size-4 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
@@ -108,7 +102,6 @@ function Webhooks() {
             </div>
           </div>
 
-          {/* Embed Code */}
           <div className="space-y-2">
             <div className="flex items-center justify-between gap-2.5 flex-wrap">
               <label className="text-xs font-medium block dark:text-foreground/60">
@@ -117,11 +110,10 @@ function Webhooks() {
               <Button
                 size="sm"
                 radius="sm"
-                className={`border font-medium ${
-                  isCopied === "embed"
-                    ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
-                    : "bg-white dark:bg-content2 border-foreground/10 hover:bg-gray-50 dark:hover:bg-content3 text-gray-700 dark:text-foreground"
-                }`}
+                className={`border font-medium ${isCopied === "embed"
+                  ? "bg-green-100 text-green-700 border-green-200 dark:bg-green-900/20 dark:text-green-400 dark:border-green-800"
+                  : "bg-white dark:bg-content2 border-foreground/10 hover:bg-gray-50 dark:hover:bg-content3 text-gray-700 dark:text-foreground"
+                  }`}
                 onPress={() =>
                   handleCopy(
                     `<iframe src="${webhookUrl}" width="100%" height="900" frameborder="0" style="border: none; border-radius: 8px;"></iframe>`,
@@ -136,12 +128,13 @@ function Webhooks() {
             <div className="p-3 bg-gray-900 dark:bg-default-100 rounded-lg overflow-x-auto">
               <pre className="text-xs text-gray-100 dark:text-foreground/80 font-mono">
                 <code>{`<iframe 
-  src="${webhookUrl}" 
-  width="100%" 
-  height="900" 
-  frameborder="0" 
-  style="border: none; border-radius: 8px;">
-</iframe>`}</code>
+                src="${webhookUrl}" 
+                width="100%" 
+                height="900" 
+                frameborder="0" 
+                style="border: none; border-radius: 8px;">
+                </iframe>`}
+                </code>
               </pre>
             </div>
             <p className="text-xs text-gray-500 dark:text-foreground/50">

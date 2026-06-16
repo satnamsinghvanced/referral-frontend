@@ -62,7 +62,6 @@ const LeadTracking = () => {
   const [view, setView] = useState("pipeline");
   const [page, setPage] = useState(1);
   const [limit] = useState(EVEN_PAGINATION_LIMIT);
-
   const [filters, setFilters] = useState({
     page: 1,
     limit: EVEN_PAGINATION_LIMIT,
@@ -71,9 +70,7 @@ const LeadTracking = () => {
     treatment: "allTreatments",
     priority: "allPriorities",
   });
-
   const debouncedSearch = useDebounce(filters.search, 500);
-
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const {
     isOpen: isDetailsOpen,
@@ -81,7 +78,6 @@ const LeadTracking = () => {
     onOpenChange: onDetailsOpenChange,
   } = useDisclosure();
   const [selectedLead, setSelectedLead] = useState<any>(null);
-
   const handleLeadClick = (lead: any) => {
     setSelectedLead(lead);
     onDetailsOpen();
@@ -91,9 +87,7 @@ const LeadTracking = () => {
     isLoading,
     isError,
   } = useLeadStatus({ ...filters, search: debouncedSearch });
-
   const { data: stats } = useLeadStats();
-
   const SUMMARY_STATS = useMemo<StatCard[]>(() => {
     return [
       {
@@ -148,7 +142,6 @@ const LeadTracking = () => {
       },
     ];
   }, [stats]);
-
   const SECONDARY_STATS = useMemo<StatCard[]>(() => {
     return [
       {
@@ -172,10 +165,8 @@ const LeadTracking = () => {
       },
     ];
   }, [stats]);
-
   const stages = useMemo(() => {
     if (!leadsData?.data?.groupedLeads) return [];
-
     const statusMap: Record<string, any> = {
       newLead: { icon: HiOutlineUsers, name: "New Lead" },
       contacted: { icon: HiOutlineChat, name: "Contacted" },
@@ -184,7 +175,6 @@ const LeadTracking = () => {
       patientWon: { icon: LuTarget, name: "Won" },
       lost: { icon: HiOutlineUsers, name: "Lost" },
     };
-
     return LEAD_STATUSES.map((status) => {
       const leads =
         leadsData.data.groupedLeads[
@@ -194,7 +184,6 @@ const LeadTracking = () => {
         (sum: number, lead: any) => sum + (Number(lead.estimatedValue) || 0),
         0,
       );
-
       return {
         id: status.key,
         name: status.label,
@@ -205,12 +194,10 @@ const LeadTracking = () => {
       };
     });
   }, [leadsData]);
-
   const allLeads = useMemo(() => {
     if (!leadsData?.data?.groupedLeads) return [];
     return Object.values(leadsData.data.groupedLeads).flat();
   }, [leadsData]);
-
   const HEADING_DATA = {
     heading: "Lead Tracking",
     subHeading: "Monitor and manage patient leads from inquiry to conversion",
@@ -243,7 +230,6 @@ const LeadTracking = () => {
         color: "default" as const,
         className: "border-small",
       },
-
       {
         label: "Add Lead",
         onClick: onOpen,
@@ -253,7 +239,6 @@ const LeadTracking = () => {
       },
     ],
   };
-
   return (
     <ComponentContainer headingData={HEADING_DATA}>
       <div className="flex flex-col gap-4 md:gap-5">
@@ -262,13 +247,11 @@ const LeadTracking = () => {
             <MiniStatsCard key={i} cardData={data} />
           ))}
         </div>
-
         <div className="grid md:grid-cols-3 gap-3 md:gap-4">
           {SECONDARY_STATS.map((data, i) => (
             <MiniStatsCard key={i} cardData={data} />
           ))}
         </div>
-
         <div className="flex flex-col xl:flex-row gap-4 xl:items-center xl:justify-between border border-foreground/10 rounded-xl p-4 bg-background shadow-none">
           <div className="w-full xl:flex-grow">
             <Input
@@ -285,7 +268,6 @@ const LeadTracking = () => {
               }}
             />
           </div>
-
           <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 w-full items-stretch sm:items-center">
             <Select
               placeholder="All Sources"
@@ -307,7 +289,6 @@ const LeadTracking = () => {
             >
               {(item) => <SelectItem key={item.key}>{item.label}</SelectItem>}
             </Select>
-
             <Select
               placeholder="All Treatments"
               size="sm"
@@ -328,7 +309,6 @@ const LeadTracking = () => {
             >
               {(item) => <SelectItem key={item.key}>{item.label}</SelectItem>}
             </Select>
-
             <Select
               placeholder="All Priorities"
               size="sm"
@@ -349,7 +329,6 @@ const LeadTracking = () => {
             >
               {(item) => <SelectItem key={item.key}>{item.label}</SelectItem>}
             </Select>
-
             <div className="flex bg-gray-100 dark:bg-default-100 p-1 rounded-lg w-full">
               <button
                 className={`flex-1 px-3 py-1.5 text-xs font-medium rounded-md transition-all ${view === "pipeline" ? "bg-white dark:bg-content2 shadow-sm text-primary" : "text-gray-500 dark:text-foreground/40"}`}
@@ -366,8 +345,6 @@ const LeadTracking = () => {
             </div>
           </div>
         </div>
-
-        {/* Dashboard Content */}
         {isLoading ? (
           <div className="flex justify-center items-center h-96 border border-foreground/10 rounded-xl bg-background shadow-none">
             <LoadingState />
@@ -386,7 +363,6 @@ const LeadTracking = () => {
           <div className="flex flex-col items-center justify-center h-96 border border-foreground/10 rounded-xl bg-background shadow-none">
             <EmptyState
               icon={<HiOutlineSearch className="size-8 text-gray-400" />}
-              // title="No Leads Found"
               title="Leads functionality is in progress"
               message={
                 filters.search
@@ -405,7 +381,6 @@ const LeadTracking = () => {
                     key={stage.id}
                     className="flex flex-col rounded-xl overflow-hidden border border-foreground/5 dark:border-foreground/10 bg-white dark:bg-content1 h-fit"
                   >
-                    {/* Stage Header */}
                     <div
                       className={`p-3 space-y-1 ${styles.bg} border-b ${styles.border} flex-shrink-0`}
                     >
@@ -430,8 +405,6 @@ const LeadTracking = () => {
                         {stage.value}
                       </div>
                     </div>
-
-                    {/* Lead Cards Scrollable Area */}
                     <div className="flex-1 overflow-y-auto custom-scrollbar bg-gray-100/40 dark:bg-black/10 max-h-[720px]">
                       <div className="p-2 space-y-3 min-h-[200px] flex flex-col">
                         {stage.leads?.length > 0 ? (
@@ -593,7 +566,6 @@ const LeadTracking = () => {
           </Card>
         )}
       </div>
-
       <AddLeadModal isOpen={isOpen} onOpenChange={onOpenChange} />
       <LeadDetailsModal
         isOpen={isDetailsOpen}

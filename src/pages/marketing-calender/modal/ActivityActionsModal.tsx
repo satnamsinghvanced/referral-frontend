@@ -86,9 +86,8 @@ export default function ActivityActionsModal({
   const configs = Array.isArray(googleCalendarConfig)
     ? googleCalendarConfig
     : googleCalendarConfig
-    ? [googleCalendarConfig]
-    : [];
-
+      ? [googleCalendarConfig]
+      : [];
   const isEditing = !!initialData?._id || !!initialData?.googleId;
   const initialValues: ActivityFormValues = {
     title: initialData?.title || "",
@@ -175,13 +174,11 @@ export default function ActivityActionsModal({
     hasError(field) ? (
       <div className="text-xs text-red-500 mt-1">{formik.errors[field]}</div>
     ) : null;
-
   const modalTitle = isEditing
     ? "Edit Marketing Activity"
     : "Create Marketing Activity";
   const buttonText = isEditing ? "Save Changes" : "Create Activity";
   const isSubmitting = isCreating || isUpdating;
-
   return (
     <Modal
       isOpen={isOpen}
@@ -305,23 +302,6 @@ export default function ActivityActionsModal({
               </div>
             </div>
             <div className="md:grid md:grid-cols-2 md:gap-4 max-md:space-y-4">
-              {/* <div>
-              <Input
-                id="time"
-                name="time"
-                type="time"
-                label="Time"
-                labelPlacement="outside-top"
-                size="sm"
-                radius="sm"
-                value={formik.values.time}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                isInvalid={!!hasError("time")}
-                startContent={<LuClock className="text-gray-400 dark:text-foreground/40 size-4" />}
-              />
-              <ErrorText field="time" />
-            </div> */}
               <div className="flex flex-col items-start">
                 <Select
                   name="priority"

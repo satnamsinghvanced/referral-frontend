@@ -23,7 +23,6 @@ interface UploadContextType {
 }
 
 const UploadContext = createContext<UploadContextType | undefined>(undefined);
-
 export const useUpload = () => {
   const context = useContext(UploadContext);
   if (!context) {
@@ -35,11 +34,9 @@ export const useUpload = () => {
 export const UploadProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [activeUploads, setActiveUploads] = useState<UploadState[]>([]);
   const uploadsRef = useRef<Record<string, UploadState>>({});
-
   const startUpload = async (data: UploadMediaRequest, fileName: string, type: "image" | "video" | "media") => {
     const id = Math.random().toString(36).substring(7);
     const controller = new AbortController();
-
     const newUpload: UploadState = {
       id,
       fileName,
@@ -48,10 +45,8 @@ export const UploadProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       controller,
       type,
     };
-
     setActiveUploads((prev) => [...prev, newUpload]);
     uploadsRef.current[id] = newUpload;
-
     try {
       await uploadMedia(
         data,
@@ -65,7 +60,6 @@ export const UploadProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         },
         controller.signal
       );
-
       setActiveUploads((prev) =>
         prev.map((u) => (u.id === id ? { ...u, progress: 100, status: "completed" } : u))
       );
@@ -77,12 +71,11 @@ export const UploadProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       });
       queryClient.invalidateQueries({ queryKey: ["images"] });
       queryClient.invalidateQueries({ queryKey: ["folders"] });
-      queryClient.invalidateQueries({ queryKey: ["tags"] })
+      queryClient.invalidateQueries({ queryKey: ["tags"] });
       setTimeout(() => {
         setActiveUploads((prev) => prev.filter((u) => u.id !== id));
         delete uploadsRef.current[id];
       }, 3000);
-
     } catch (error: any) {
       if (error.name === "CanceledError" || error.name === "AbortError") {
         setActiveUploads((prev) =>
@@ -92,11 +85,7 @@ export const UploadProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         setActiveUploads((prev) =>
           prev.map((u) => (u.id === id ? { ...u, status: "error" } : u))
         );
-        addToast({
-          title: "Error",
-          description: `Failed to upload ${fileName}.`,
-          color: "danger",
-        });
+        addToast({ title: "Error", description: `Failed to upload ${fileName}.`, color: "danger" });
       }
       setTimeout(() => {
         setActiveUploads((prev) => prev.filter((u) => u.id !== id));
@@ -104,20 +93,17 @@ export const UploadProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       }, 5000);
     }
   };
-
   const cancelUpload = (id: string) => {
     const upload = activeUploads.find((u) => u.id === id);
     if (upload && upload.status === "uploading") {
       upload.controller.abort();
     }
   };
-
   const removeUpload = (id: string) => {
     setActiveUploads((prev) =>
       prev.map((u) => (u.id === id ? { ...u, isHidden: true } : u))
     );
   };
-
   return (
     <UploadContext.Provider value={{ startUpload, cancelUpload, removeUpload, activeUploads }}>
       {children}
@@ -144,7 +130,6 @@ export const UploadProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                   <FiX />
                 </Button>
               </div>
-
               <Progress
                 size="sm"
                 radius="sm"
@@ -156,7 +141,6 @@ export const UploadProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 }
                 className="mb-1"
               />
-
               <div className="flex justify-between items-center text-[10px] text-gray-500">
                 <span>
                   {upload.status === "uploading" && `Uploading... ${upload.progress}%`}

@@ -36,7 +36,6 @@ const MarketingCalendar = () => {
       : [googleCalendarConfig];
     return configs.some((cfg: any) => cfg?.status === "Connected");
   }, [googleCalendarConfig]);
-
   const combinedCalendarIds = useMemo(() => {
     if (!googleCalendarConfig) return "";
     const configs = Array.isArray(googleCalendarConfig)
@@ -44,7 +43,6 @@ const MarketingCalendar = () => {
       : [googleCalendarConfig];
     return configs.map((cfg: any) => cfg?.calendarId).filter(Boolean).join(",");
   }, [googleCalendarConfig]);
-
   const [currentFilters, setCurrentFilters] = useState<any>({
     page: 1,
     limit: 21,
@@ -77,31 +75,24 @@ const MarketingCalendar = () => {
     useDeleteActivity();
   const rawActivities = marketingActivitiesData?.data || [];
   const activities = useMemo(() => {
-    // If the calendar isn't connected, hide Google Calendar-sourced events
-    // (prevents showing stale events from a previously connected account).
     if (!isGoogleCalendarConnected) {
       return rawActivities.filter((a: any) => a?.type !== "googleCalendar");
     }
     return rawActivities;
   }, [rawActivities, isGoogleCalendarConnected]);
-
   const sortedActivities = useMemo(() => {
     return [...activities].sort((a: any, b: any) => {
       const aCreated = a?.createdAt ? new Date(a.createdAt).getTime() : 0;
       const bCreated = b?.createdAt ? new Date(b.createdAt).getTime() : 0;
       if (aCreated !== bCreated) return bCreated - aCreated;
-
       const aDate = a?.startDate ? new Date(a.startDate).getTime() : 0;
       const bDate = b?.startDate ? new Date(b.startDate).getTime() : 0;
       return bDate - aDate;
     });
   }, [activities]);
-
-  // When the connected account / selected calendar changes, refresh activities.
   useEffect(() => {
     if (!isGoogleCalendarConnected) return;
     marketingActivitiesRefetch();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isGoogleCalendarConnected, combinedCalendarIds]);
   const pagination = marketingActivitiesData?.pagination;
   const stats = marketingActivitiesData?.stats;
@@ -448,7 +439,6 @@ const MarketingCalendar = () => {
             ) : sortedActivities.length === 0 ? (
               <EmptyState
                 title="No upcoming marketing activities scheduled."
-              // icon={FiFilter}
               />
             ) : (
               <>

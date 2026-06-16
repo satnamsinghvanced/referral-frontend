@@ -12,7 +12,6 @@ interface MediaDetailModalProps {
   onAddTag: (mediaId: string, tag: string) => void;
   onDownload: (mediaPath: string, mediaName: string) => void;
 }
-
 const MediaPreview = ({ media }: { media: Media }) => {
   const isVideo = media.type.startsWith("video/");
   if (isVideo) {
@@ -69,7 +68,6 @@ export function MediaDetailModal({
     setNewTag("");
     setIsPopoverOpen(false);
   };
-
   const handlePopoverChange = (open: boolean) => {
     setIsPopoverOpen(open);
     if (!open) {

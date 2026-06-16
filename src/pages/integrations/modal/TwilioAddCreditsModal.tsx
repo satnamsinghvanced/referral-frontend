@@ -25,8 +25,6 @@ export default function TwilioAddCreditsModal({
   isOpen,
   onClose,
   currentBalance,
-  currentMinutes,
-  onAddCredits,
 }: TwilioAddCreditsModalProps) {
   const formatCount = (num: number) => {
     if (!isFinite(num) || isNaN(num) || num <= 0) return "0";
@@ -176,7 +174,6 @@ export default function TwilioAddCreditsModal({
                 {formatCurrency(currentBalance)}
               </p>
             </div>
-
             <div className="flex flex-col gap-2">
               <label className="text-xs font-semibold text-foreground">Select Monthly Wallet Funding</label>
               <div className="grid grid-cols-3 gap-2.5">
@@ -207,7 +204,6 @@ export default function TwilioAddCreditsModal({
                 })}
               </div>
             </div>
-
             <Input
               type="number"
               label="Or Enter Custom Monthly Amount"
@@ -224,7 +220,6 @@ export default function TwilioAddCreditsModal({
                 input: "text-sm",
               }}
             />
-
             <div className="border border-foreground/10 dark:bg-foreground/5 rounded-xl p-4 flex flex-col gap-2">
               <div className="flex justify-between items-center gap-4">
                 <div className="flex flex-col">
@@ -243,7 +238,6 @@ export default function TwilioAddCreditsModal({
               </div>
             </div>
           </div>
-
           <div className="flex-1 flex flex-col gap-4">
             <div className="bg-default-50 dark:bg-default-100/20 border border-foreground/5 rounded-xl p-4 flex flex-col gap-3">
               <div className="flex items-center justify-between">
@@ -252,7 +246,6 @@ export default function TwilioAddCreditsModal({
                   Based on {formatCurrency(walletAmount)}/mo
                 </span>
               </div>
-
               <div className="grid grid-cols-1 gap-2">
                 {[
                   { label: "Outbound Calls", value: `${formatCount(outboundMins)} mins`, formula: "at $0.02/min", icon: <FiPhone className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" /> },
@@ -276,7 +269,6 @@ export default function TwilioAddCreditsModal({
                 ))}
               </div>
             </div>
-
             <div className="border border-foreground/10 rounded-xl p-3 flex flex-col gap-2.5 bg-default-50/50">
               <div className="flex items-center gap-1.5 text-foreground font-bold text-[10px] uppercase tracking-wider text-foreground-500">
                 <BsLightningCharge className="w-3.5 h-3.5 text-primary" />
@@ -303,20 +295,9 @@ export default function TwilioAddCreditsModal({
                   </div>
                 ))}
               </div>
-
-              {/* <div className="flex items-center justify-between bg-primary-500/10 border border-primary/25 rounded-lg p-2 mt-0.5">
-                <div className="flex items-center gap-1.5">
-                  <FiInfo className="w-3 h-3 text-primary" />
-                  <span className="text-[10px] font-bold text-foreground">Active Phone Number</span>
-                </div>
-                <span className="text-[10px] font-extrabold text-primary bg-primary/10 px-1.5 py-0.5 rounded-md">
-                  $5.00 / month
-                </span>
-              </div> */}
             </div>
           </div>
         </ModalBody>
-
         <ModalFooter className="flex flex-col gap-3 p-5 pt-2 border-t border-foreground/5">
           <div className="flex flex-col gap-1.5 w-full border-b border-foreground/5 pb-3">
             <div className="flex justify-between items-center text-xs text-foreground-500 font-semibold">
@@ -336,7 +317,6 @@ export default function TwilioAddCreditsModal({
               {formatCurrency(totalToday)}
             </span>
           </div>
-
           <div className="flex gap-3 justify-end w-full">
             <Button
               variant="bordered"

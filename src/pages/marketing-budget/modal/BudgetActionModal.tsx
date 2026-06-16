@@ -45,10 +45,7 @@ const validationSchema = Yup.object().shape({
   endDate: Yup.string().required("End Date is required."),
 });
 
-// ... (imports remain)
 import { useState } from "react";
-
-// ... (schema remains)
 
 interface BudgetFormValues {
   category: string;
@@ -104,7 +101,7 @@ export default function BudgetActionModal({
       return {
         category: categoryId,
         subCategory: subCategoryId,
-        budgetAmount: editedData.amount, // Updated from budget to amount
+        budgetAmount: editedData.amount,
         actualSpent: Number(editedData.spent) || "",
         roi: Number(editedData.roi) || "",
         period: editedData.period || "monthly",
@@ -134,7 +131,7 @@ export default function BudgetActionModal({
 
   const proceedWithSubmission = (values: BudgetFormValues) => {
     const payload = {
-      amount: Number(values.budgetAmount), // Updated key
+      amount: Number(values.budgetAmount),
       spent: Number(values.actualSpent),
       roi: Number(values.roi),
       period: values.period,
@@ -143,16 +140,14 @@ export default function BudgetActionModal({
       description: values.description,
       startDate: values.startDate,
       endDate: values.endDate,
-      category: values.category, // Updated key
-      subCategory: values.subCategory, // Updated key
+      category: values.category,
+      subCategory: values.subCategory,
     };
-
     if (isEdit) {
       updateMutation.mutate({ id: editedData._id, data: payload as any });
     } else {
       createMutation.mutate(payload as any);
     }
-
     setCurrentFilters((prev: any) => ({
       ...prev,
       period: values.period,
@@ -160,7 +155,6 @@ export default function BudgetActionModal({
     setShowConfirmation(false);
     setPendingValues(null);
   };
-
   const formik = useFormik<BudgetFormValues>({
     initialValues: initialValues,
     validationSchema: validationSchema,
@@ -177,10 +171,8 @@ export default function BudgetActionModal({
             break;
           }
         }
-
         const lowerTitle = selectedSubCategoryTitle.toLowerCase();
         let conflictProvider = "";
-
         if (
           lowerTitle.includes("google ads") &&
           syncedProviders.includes("google")
@@ -199,7 +191,6 @@ export default function BudgetActionModal({
         ) {
           conflictProvider = "TikTok Ads";
         }
-
         if (conflictProvider) {
           setConfirmationMessage(
             `${conflictProvider} is already synced. Do you want to add another item of ${conflictProvider}?`,
@@ -209,7 +200,6 @@ export default function BudgetActionModal({
           return;
         }
       }
-
       proceedWithSubmission(values);
     },
   });
@@ -227,7 +217,6 @@ export default function BudgetActionModal({
     }
   }, [isOpen]);
 
-  // Sync latest spent and ROI data from the server into the form
   useEffect(() => {
     if (latestData && isEdit) {
       if (Number(latestData.spent) !== Number(formik.values.actualSpent)) {
@@ -239,27 +228,21 @@ export default function BudgetActionModal({
     }
   }, [latestData, isEdit]);
 
-
   const utilization =
     formik.values.actualSpent && formik.values.budgetAmount
       ? (Number(formik.values.actualSpent) / Number(formik.values.budgetAmount)) * 100
       : 0;
-
   const roi = Number(formik.values.roi) || 0;
   const remaining = (Number(formik.values.budgetAmount) - Number(formik.values.actualSpent)) || 0;
-
   const showWarning = utilization >= 90 || roi < -50 || remaining < 0;
-
   const getWarningMessage = () => {
     if (remaining < 0) return `Budget exceeded by $${Math.abs(remaining).toLocaleString()}. Review spending immediately.`;
     if (utilization >= 90) return `Budget utilization is at ${utilization.toFixed(1)}%. Consider reviewing spending.`;
     if (roi < -50) return `Low ROI (${roi}%). Strategy adjustment may be needed.`;
     return "";
   };
-
   const modalTitle = isEdit ? "Edit Budget Item" : "Add New Budget Item";
   const buttonLabel = isEdit ? "Save Changes" : "Add Budget Item";
-
   return (
     <>
       <Modal
@@ -293,7 +276,6 @@ export default function BudgetActionModal({
             </ModalHeader>
 
             <ModalBody className="px-4 py-0 grid grid-cols-2 gap-4 overflow-y-auto">
-              {/* ... form fields ... */}
               <div className="col-span-2">
                 <Select
                   size="sm"
@@ -310,7 +292,7 @@ export default function BudgetActionModal({
                   }
                   onSelectionChange={(keys) => {
                     formik.setFieldValue("category", Array.from(keys)[0] || "");
-                    formik.setFieldValue("subCategory", ""); // Reset subcategory on category change
+                    formik.setFieldValue("subCategory", "");
                   }}
                   onBlur={() => formik.handleBlur("category")}
                   isInvalid={
@@ -326,7 +308,6 @@ export default function BudgetActionModal({
                   ))}
                 </Select>
               </div>
-
               <div className="col-span-2">
                 <Select
                   size="sm"
@@ -366,7 +347,6 @@ export default function BudgetActionModal({
                   ))}
                 </Select>
               </div>
-
               <div className="col-span-2 sm:col-span-1">
                 <Input
                   size="sm"
@@ -424,7 +404,6 @@ export default function BudgetActionModal({
                         }
                       />
                     </div>
-
                     <Button
                       size="sm"
                       color="primary"
@@ -434,7 +413,6 @@ export default function BudgetActionModal({
                       Track Spend
                     </Button>
                   </div>
-
                   <p className="text-[10px] text-gray-500 mt-1">
                     Click "Track Spend" to add spend records with dates and revenue
                   </p>
@@ -457,7 +435,6 @@ export default function BudgetActionModal({
                   />
                 </div>
               )}
-
               <div className="col-span-2 sm:col-span-1">
                 <Select
                   size="sm"
@@ -482,7 +459,6 @@ export default function BudgetActionModal({
                   ))}
                 </Select>
               </div>
-
               <div className="col-span-2 sm:col-span-1">
                 <Select
                   size="sm"
@@ -509,7 +485,6 @@ export default function BudgetActionModal({
                   ))}
                 </Select>
               </div>
-
               <div className="col-span-2 sm:col-span-1">
                 <Select
                   size="sm"
@@ -532,7 +507,6 @@ export default function BudgetActionModal({
                   ))}
                 </Select>
               </div>
-
               <div className="col-span-2">
                 <Textarea
                   size="sm"
@@ -553,7 +527,6 @@ export default function BudgetActionModal({
                   classNames={{ inputWrapper: "py-2" }}
                 />
               </div>
-
               <div className="col-span-2 sm:col-span-1">
                 <DatePicker
                   size="sm"
@@ -581,7 +554,6 @@ export default function BudgetActionModal({
                   }
                 />
               </div>
-
               <div className="col-span-2 sm:col-span-1">
                 <DatePicker
                   size="sm"
@@ -613,7 +585,6 @@ export default function BudgetActionModal({
                 />
               </div>
             </ModalBody>
-
             <ModalFooter className="flex flex-col justify-end gap-2 px-4 pb-4 pt-4 flex-shrink-0">
               {isEdit && (
                 <div className="col-span-2 rounded-md bg-gray-100 dark:bg-default-100 px-4 py-3 border border-transparent dark:border-default-200/50">
@@ -631,7 +602,6 @@ export default function BudgetActionModal({
                         : 0}
                     </span>
                   </div>
-
                   <div className="flex justify-between text-xs mb-2">
                     <span className="text-gray-600 dark:text-foreground/60">
                       Budget Utilization:
@@ -640,8 +610,6 @@ export default function BudgetActionModal({
                       {utilization.toFixed(1)}%
                     </span>
                   </div>
-
-                  {/* Progress Bar */}
                   <Progress
                     aria-label="Budget utilization"
                     value={utilization}
@@ -649,7 +617,6 @@ export default function BudgetActionModal({
                     className="h-2"
                     radius="full"
                   />
-
                   {showWarning && (
                     <div className="flex items-start gap-2 p-2 bg-warning/10 border border-warning/20 rounded-lg text-warning-700 mt-2">
                       <FiAlertCircle className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
@@ -660,7 +627,6 @@ export default function BudgetActionModal({
                   )}
                 </div>
               )}
-
               <div className="flex items-center justify-end gap-2">
                 <Button
                   size="sm"
@@ -687,7 +653,6 @@ export default function BudgetActionModal({
           </form>
         </ModalContent>
       </Modal>
-
       <Modal
         isOpen={showConfirmation}
         onOpenChange={(open) => {
@@ -700,7 +665,6 @@ export default function BudgetActionModal({
         classNames={{
           base: `max-sm:m-1 m-0`,
           closeButton: "cursor-pointer",
-          // content: "!top-10 translate-y-0",
         }}
       >
         <ModalContent className="p-0">
@@ -742,7 +706,6 @@ export default function BudgetActionModal({
           </ModalFooter>
         </ModalContent>
       </Modal>
-
       {isEdit && (
         <TrackSpendModal
           isOpen={isTrackSpendOpen}

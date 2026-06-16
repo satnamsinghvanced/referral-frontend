@@ -42,7 +42,6 @@ const LeadCard = ({ lead, onPress }: LeadCardProps) => {
           </div>
           <PriorityLevelChip level={lead.priority} />
         </div>
-
         <div className="space-y-2">
           <div className="flex items-center gap-1 text-[10px] text-gray-500 dark:text-foreground/60 font-medium">
             <LuMapPin className="size-3 opacity-60" />
@@ -61,7 +60,6 @@ const LeadCard = ({ lead, onPress }: LeadCardProps) => {
             ))}
           </div>
         </div>
-
         <div className="flex justify-between items-center pt-2 border-t border-foreground/5 dark:border-white/5">
           <span className="font-bold text-[10px] text-foreground">
             {lead.value}
