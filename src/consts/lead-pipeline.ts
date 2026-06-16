@@ -40,7 +40,7 @@ export const LEAD_STATUSES = [
 ];
 
 export const STAGE_STYLES: Record<string, any> = {
-  new: {
+  newLead: {
     bg: "bg-sky-50 dark:bg-sky-900/20",
     headerText: "text-sky-700 dark:text-sky-400",
     iconColor: "text-sky-500 dark:text-sky-400",
@@ -54,21 +54,21 @@ export const STAGE_STYLES: Record<string, any> = {
     bubbleBg: "bg-blue-100/50 dark:bg-blue-800/30",
     border: "border-blue-100/50 dark:border-blue-800/20",
   },
-  scheduled: {
+  appointmentScheduled: {
     bg: "bg-purple-50 dark:bg-purple-900/20",
     headerText: "text-purple-700 dark:text-purple-400",
     iconColor: "text-purple-500 dark:text-purple-400",
     bubbleBg: "bg-purple-100/50 dark:bg-purple-800/30",
     border: "border-purple-100/50 dark:border-purple-800/20",
   },
-  "no-show": {
+  noShow: {
     bg: "bg-orange-50 dark:bg-orange-900/20",
     headerText: "text-orange-700 dark:text-orange-400",
     iconColor: "text-orange-500 dark:text-orange-400",
     bubbleBg: "bg-orange-100/50 dark:bg-orange-800/30",
     border: "border-orange-100/50 dark:border-orange-800/20",
   },
-  won: {
+  patientWon: {
     bg: "bg-green-50 dark:bg-green-900/20",
     headerText: "text-green-700 dark:text-green-400",
     iconColor: "text-green-500 dark:text-green-400",

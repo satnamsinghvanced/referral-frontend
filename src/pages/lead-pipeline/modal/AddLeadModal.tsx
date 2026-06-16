@@ -22,9 +22,9 @@ import {
   LEAD_PRIORITIES,
   LEAD_SOURCES,
   LEAD_TREATMENTS,
-} from "../../../consts/lead-tracking";
+} from "../../../consts/lead-pipeline";
 import { useFetchTeamMembers } from "../../../hooks/settings/useTeam";
-import { useAddLead } from "../../../hooks/useLeadTracking";
+import { useAddLead } from "../../../hooks/useLeadPipeline";
 import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
 
 const orangeItemClasses = {

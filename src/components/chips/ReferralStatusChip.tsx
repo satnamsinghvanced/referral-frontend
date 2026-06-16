@@ -1,10 +1,15 @@
 import { Chip } from "@heroui/react";
 import { STATUS_OPTIONS } from "../../consts/filters";
+import { LEAD_STATUSES } from "../../consts/lead-pipeline";
 
 export default function ReferralStatusChip({ status }: { status: string }) {
   let classNames;
 
   switch (status) {
+    case "newLead":
+      classNames =
+        "bg-sky-100 dark:bg-sky-900/30 text-sky-800 dark:text-sky-300";
+      break;
     case "scheduled":
       classNames =
         "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300";
@@ -30,6 +35,7 @@ export default function ReferralStatusChip({ status }: { status: string }) {
         "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300";
       break;
     case "appointed":
+    case "appointmentScheduled":
       classNames =
         "bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300";
       break;
@@ -38,12 +44,17 @@ export default function ReferralStatusChip({ status }: { status: string }) {
         "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300";
       break;
     case "started":
+    case "patientWon":
       classNames =
         "bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300";
       break;
     case "declined":
       classNames =
         "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300";
+      break;
+    case "lost":
+      classNames =
+        "bg-slate-100 dark:bg-slate-900/30 text-slate-800 dark:text-slate-300";
       break;
 
     default:
@@ -58,7 +69,9 @@ export default function ReferralStatusChip({ status }: { status: string }) {
       radius="sm"
       className={`capitalize text-[11px] h-5 ${classNames}`}
     >
-      {STATUS_OPTIONS.find((option: any) => option.value === status)?.label}
+      {STATUS_OPTIONS.find((option: any) => option.value === status)?.label ||
+        LEAD_STATUSES.find((option: any) => option.key === status)?.label ||
+        status}
     </Chip>
   );
 }
