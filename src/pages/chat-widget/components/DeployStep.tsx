@@ -1,10 +1,8 @@
-import React from "react";
-import { Button, Card, CardBody } from "@heroui/react";
+import { Button } from "@heroui/react";
 import { FiCopy, FiCheck, FiDownload, FiMail, FiCode, FiFileText } from "react-icons/fi";
 import { FaWordpress, FaShopify, FaWix } from "react-icons/fa";
 import { LuGlobe } from "react-icons/lu";
 
-// Integration platforms available for deployment
 const PLATFORMS = [
   { id: "WordPress", name: "WordPress", icon: FaWordpress, color: "text-[#21759b]" },
   { id: "Shopify", name: "Shopify", icon: FaShopify, color: "text-[#96bf48]" },
@@ -36,14 +34,12 @@ export default function DeployStep({
         <p className="text-xs text-default-500 mt-1 font-sans">Copy the embed code and add it to any website.</p>
       </div>
 
-      {/* Success notification banner */}
       <div className="border border-success/20 bg-success-50/10 dark:bg-success-950/10 text-success rounded-lg p-3 text-xs flex items-center gap-2 font-sans font-medium">
         <FiCheck className="w-4 h-4 flex-shrink-0" />
         <span>Your widget is ready to deploy! Copy the code below and paste it before the closing &lt;/body&gt; tag on your website.</span>
       </div>
 
-      {/* Code snippet display */}
-      <div className="relative rounded-lg overflow-hidden border border-foreground/10 bg-[#0f172a] text-[#f8fafc] p-4 text-xs font-mono h-48 overflow-y-auto">
+      <div className="relative rounded-lg overflow-hidden border border-foreground/10 bg-[#0f172a] text-[#f8fafc] p-4 text-xs font-mono h-[500px] overflow-y-auto">
         <pre className="whitespace-pre-wrap">{embedCodeSnippet}</pre>
         <Button
           size="sm"
@@ -55,10 +51,9 @@ export default function DeployStep({
         </Button>
       </div>
 
-      {/* Integration platforms grid list */}
       <div className="space-y-3">
         <label className="text-xs font-semibold text-default-600 block font-sans">Integration Platforms</label>
-        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+        <div className="grid grid-cols-3 sm:grid-cols-3 gap-2">
           {PLATFORMS.map((platform) => {
             const Icon = platform.icon;
             const isSelected = selectedPlatform === platform.id;
@@ -66,12 +61,12 @@ export default function DeployStep({
               <div
                 key={platform.id}
                 onClick={() => setSelectedPlatform(platform.id)}
-                className={`border rounded-lg p-2.5 flex flex-col items-center justify-center gap-1 cursor-pointer transition-all text-center active:scale-95
-                  ${isSelected 
-                    ? "border-primary bg-primary-50/5 dark:bg-primary-950/5 font-bold shadow-sm" 
+                className={`border rounded-lg h-32 flex flex-col items-center justify-center gap-1 cursor-pointer transition-all text-center active:scale-95
+                  ${isSelected
+                    ? "border-primary bg-primary-50/5 dark:bg-primary-950/5 font-bold shadow-sm"
                     : "border-foreground/10 text-default-500 hover:bg-foreground/5"}`}
               >
-                <Icon className={`w-6 h-6 ${platform.color}`} />
+                <Icon className={`w-10 h-10 ${platform.color}`} />
                 <span className="text-[10px] truncate max-w-full font-semibold font-sans">{platform.name}</span>
               </div>
             );
@@ -79,7 +74,6 @@ export default function DeployStep({
         </div>
       </div>
 
-      {/* Installation steps checklist */}
       <div className="border border-foreground/5 bg-foreground/3 dark:bg-default-100/10 rounded-xl p-4">
         <h4 className="text-xs font-bold text-foreground mb-3 font-sans">Installation Instructions</h4>
         <div className="space-y-3">
@@ -102,7 +96,6 @@ export default function DeployStep({
         </div>
       </div>
 
-      {/* Secondary buttons */}
       <div className="flex flex-col sm:flex-row gap-2.5 pt-2">
         <Button
           variant="bordered"

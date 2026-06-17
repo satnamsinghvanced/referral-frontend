@@ -20,7 +20,7 @@ export default function ChatWidgetBuilder() {
   const [bubbleText, setBubbleText] = useState("");
   const [primaryColor, setPrimaryColor] = useState("#0ea5e9");
   const [widgetPosition, setWidgetPosition] = useState("bottom-right");
-  const [bubbleIcon, setBubbleIcon] = useState("Support");
+  const [bubbleIcon, setBubbleIcon] = useState("Message");
   const [logoUrl, setLogoUrl] = useState("");
 
   const [welcomeMessage, setWelcomeMessage] = useState("");
@@ -170,11 +170,6 @@ export default function ChatWidgetBuilder() {
 
   const handlePublishWidget = () => {
     if (!validateStep(activeStep)) {
-      addToast({
-        title: "Validation Error",
-        description: "Please resolve all input errors before publishing.",
-        color: "danger"
-      });
       return;
     }
     addToast({
@@ -184,26 +179,47 @@ export default function ChatWidgetBuilder() {
     });
   };
 
-  const embedCodeSnippet = `<!-- Practice ROI Chat Widget Configuration -->
+  const embedCodeSnippet = `<!-- Practice ROI Chat Widget -->
 <script>
-  window.practiceRoiChatSettings = {
-    businessName: "${businessName}",
-    primaryColor: "${primaryColor}",
-    position: "${widgetPosition}",
-    bubbleText: "${bubbleText}",
-    bubbleIcon: "${bubbleIcon}",
-    logoUrl: "${logoUrl}",
-    welcomeMessage: "${welcomeMessage}",
-    welcomeDelay: ${welcomeDelay},
-    enableSmsTransition: ${enableSmsTransition},
-    smsPromptMessage: "${smsPromptMessage}",
-    smsConsentText: "${smsConsentText}",
-    requirePatientConsent: ${requirePatientConsent},
-    privacyPolicyUrl: "${privacyPolicyUrl}",
-    requireEmail: ${requireEmail},
-    requirePhone: ${requirePhone},
-    hipaaMode: ${hipaaMode}
-  };
+window.practiceROIConfig = {
+  "primaryColor": "${primaryColor}",
+  "position": "${widgetPosition}",
+  "bubbleIcon": "${bubbleIcon.toLowerCase()}",
+  "bubbleText": "${bubbleText || "Chat with us"}",
+  "businessName": "${businessName || "Practice ROI"}",
+  "welcomeMessage": "${welcomeMessage || "Hi there! 👋 How can we help you today?"}",
+  "welcomeDelay": ${welcomeDelay ? Number(welcomeDelay) : 2},
+  "enableSMSTransition": ${enableSmsTransition},
+  "smsPromptMessage": "${smsPromptMessage || "Would you like to continue this conversation via text message? It's more convenient and you'll get faster responses!"}",
+  "smsConsentText": "${smsConsentText || "By providing your phone number, you consent to receive text messages from our practice. Message and data rates may apply. Reply STOP to opt out at any time."}",
+  "autoReply": ${enableAutoReply},
+  "autoReplyMessage": "${autoReplyMessage || "Thanks for reaching out! A team member will respond shortly. Our typical response time is under 5 minutes during business hours."}",
+  "offlineMessage": "${offlineMessage || "We're currently offline. Leave us a message and we'll get back to you as soon as possible!"}",
+  "workingHours": {
+    "enabled": ${workingHours},
+    "timezone": "America/Denver",
+    "schedule": {
+      "monday": { "start": "09:00", "end": "17:00", "enabled": true },
+      "tuesday": { "start": "09:00", "end": "17:00", "enabled": true },
+      "wednesday": { "start": "09:00", "end": "17:00", "enabled": true },
+      "thursday": { "start": "09:00", "end": "17:00", "enabled": true },
+      "friday": { "start": "09:00", "end": "17:00", "enabled": true },
+      "saturday": { "start": "09:00", "end": "13:00", "enabled": false },
+      "sunday": { "start": "09:00", "end": "13:00", "enabled": false }
+    }
+  },
+  "hipaaCompliant": ${hipaaMode},
+  "requireConsent": ${requirePatientConsent},
+  "privacyPolicyUrl": "${privacyPolicyUrl || "https://practiceroi.com/privacy"}",
+  "dataRetentionDays": ${dataRetentionPeriod ? Number(dataRetentionPeriod) : 90},
+  "customCSS": "",
+  "allowFileUpload": false,
+  "collectEmail": ${requireEmail},
+  "collectPhone": ${requirePhone},
+  "requiredFields": [
+    "name"
+  ]
+};
 </script>
 <script src="https://cdn.practiceroi.com/chat-widget.js" async></script>
 <!-- End Practice ROI Chat Widget -->`;
@@ -225,12 +241,6 @@ export default function ChatWidgetBuilder() {
       } else {
         handlePublishWidget();
       }
-    } else {
-      addToast({
-        title: "Validation Error",
-        description: "Please fill in all required fields correctly before proceeding.",
-        color: "danger"
-      });
     }
   };
 
@@ -377,7 +387,7 @@ export default function ChatWidgetBuilder() {
           </Card>
         </div>
 
-        <div className="lg:col-span-5">
+        <div className="lg:col-span-5 h-[700px]">
           <LivePreview
             previewMode={previewMode}
             setPreviewMode={setPreviewMode}
