@@ -493,7 +493,7 @@ const TrackingPanel = () => {
                       Created
                     </p>
                   </div>
-                  <div className="text-center">
+                  <div className="flex items-center justify-center">
                     <Chip
                       size="sm"
                       variant="solid"
