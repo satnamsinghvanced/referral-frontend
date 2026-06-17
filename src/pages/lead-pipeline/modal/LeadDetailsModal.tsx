@@ -38,6 +38,7 @@ import {
 } from "react-icons/lu";
 import { useFetchTeamMembers } from "../../../hooks/settings/useTeam";
 import SendEmailModal from "./SendEmailModal";
+import LeadAutomations from "../LeadAutomations";
 
 interface LeadDetailsModalProps {
   isOpen: boolean;
@@ -800,27 +801,8 @@ const LeadDetailsModal = ({
                   </div>
                 </Tab>
                 <Tab key="automation" title="Automation">
-                  <div className="pt-4">
-                    <div className="p-12 border border-foreground/10 border-dashed rounded-xl flex flex-col items-center justify-center text-center space-y-4 bg-content1/50 dark:bg-content1/20">
-                      <div className="p-4 bg-gray-50 dark:bg-white/5 text-gray-400 dark:text-foreground/40 rounded-full">
-                        <LuTarget className="size-10" />
-                      </div>
-                      <div>
-                        <h4 className="font-bold text-lg text-foreground">
-                          Automation Workflow
-                        </h4>
-                        <p className="text-sm text-gray-400 dark:text-foreground/40 max-w-xs">
-                          No active automation workflows for this lead.
-                        </p>
-                      </div>
-                      <Button
-                        color="primary"
-                        variant="flat"
-                        className="font-bold"
-                      >
-                        Setup Automation
-                      </Button>
-                    </div>
+                  <div className="pt-4 space-y-4">
+                    <LeadAutomations />
                   </div>
                 </Tab>
               </Tabs>

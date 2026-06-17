@@ -4,13 +4,27 @@ import { queryClient } from "../providers/QueryProvider";
 import { store } from "../store";
 import { handleLogoutThunk } from "../store/authSlice";
 
+interface JwtPayload {
+  exp?: number;
+  nextBillingDate?: string;
+}
+
 const isTokenValid = (token: string) => {
   try {
-    const { exp } = jwtDecode(token);
+    const { exp, nextBillingDate } = jwtDecode<JwtPayload>(token);
     if (!exp) {
       return false;
     }
-    return Date.now() < exp! * 1000;
+    if (Date.now() >= exp * 1000) {
+      return false;
+    }
+    if (nextBillingDate) {
+      const billingDate = new Date(nextBillingDate);
+      if (!isNaN(billingDate.getTime()) && billingDate < new Date()) {
+        return false;
+      }
+    }
+    return true;
   } catch {
     return false;
   }
@@ -29,8 +43,6 @@ axiosInstance.interceptors.request.use(
     if (token) {
       if (!isTokenValid(token)) {
         store.dispatch(handleLogoutThunk());
-        queryClient.clear();
-        window.location.href = `${import.meta.env.VITE_URL_PREFIX}/signin`; // redirect if expired
         return Promise.reject(new Error("Token expired"));
       }
 
@@ -63,9 +75,9 @@ axiosInstance.interceptors.response.use(
     }
 
     if (error.response?.status === 401 || error.response?.status === 403) {
-      store.dispatch(handleLogoutThunk());
-      queryClient.clear();
-      window.location.href = `${import.meta.env.VITE_URL_PREFIX}/signin`;
+      if (!error.config?.url?.includes("/logout")) {
+        store.dispatch(handleLogoutThunk());
+      }
     }
     return Promise.reject(error);
   },
