@@ -29,23 +29,41 @@ interface JwtPayload {
   role: string;
   userId: string;
   exp?: number;
+  nextBillingDate?: string;
 }
 
 const isTokenValid = (token: string): boolean => {
   try {
-    const { exp } = jwtDecode<JwtPayload>(token);
+    const { exp, nextBillingDate } = jwtDecode<JwtPayload>(token);
     if (!exp) return false;
-    return Date.now() < exp * 1000;
+    if (Date.now() >= exp * 1000) return false;
+
+    if (nextBillingDate) {
+      const billingDate = new Date(nextBillingDate);
+      if (!isNaN(billingDate.getTime()) && billingDate < new Date()) {
+        return false;
+      }
+    }
+    return true;
   } catch {
     return false;
   }
 };
 const savedUser = localStorage.getItem("user");
 const savedToken = localStorage.getItem("token");
+
+if (savedToken && !isTokenValid(savedToken)) {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+}
+
+const tokenToUse = savedToken && isTokenValid(savedToken) ? savedToken : null;
+const userToUse = tokenToUse ? (savedUser ? JSON.parse(savedUser) : null) : null;
+
 const initialState: AuthState = {
-  user: savedUser ? JSON.parse(savedUser) : null,
-  token: savedToken && isTokenValid(savedToken) ? savedToken : null,
-  isAuthenticated: !!(savedToken && isTokenValid(savedToken)),
+  user: userToUse,
+  token: tokenToUse,
+  isAuthenticated: !!tokenToUse,
   loading: false,
   error: null,
 };

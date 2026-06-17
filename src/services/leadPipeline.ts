@@ -26,3 +26,21 @@ export const updateLead = async ({
   const response = await axios.put(`/lead/${id}`, data);
   return response.data;
 };
+
+export const sendLeadEmail = async ({
+  id,
+  subject,
+  body,
+}: {
+  id: string;
+  subject: string;
+  body: string;
+}): Promise<any> => {
+  const response = await axios.post(`/lead/send-email/${id}`, { subject, body });
+  return response.data;
+};
+
+export const getLeadCommunicationHistory = async (id: string): Promise<any> => {
+  const response = await axios.get(`/lead/communication-history/${id}`);
+  return response.data;
+};

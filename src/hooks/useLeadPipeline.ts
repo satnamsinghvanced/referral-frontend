@@ -6,6 +6,8 @@ import {
   getLeadStats,
   getLeadStatus,
   updateLead,
+  sendLeadEmail,
+  getLeadCommunicationHistory,
 } from "../services/leadPipeline";
 
 export const useLeadStatus = (params?: any) => {
@@ -63,5 +65,36 @@ export const useUpdateLead = () => {
         color: "danger",
       });
     },
+  });
+};
+
+export const useSendLeadEmail = () => {
+  return useMutation({
+    mutationFn: sendLeadEmail,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["leadStatus"] });
+      queryClient.invalidateQueries({ queryKey: ["leadStats"] });
+      queryClient.invalidateQueries({ queryKey: ["leadCommunicationHistory"] });
+      addToast({
+        title: "Success",
+        description: "Email sent successfully",
+        color: "success",
+      });
+    },
+    onError: (error: any) => {
+      addToast({
+        title: "Error",
+        description: error?.response?.data?.message || "Failed to send email",
+        color: "danger",
+      });
+    },
+  });
+};
+
+export const useLeadCommunicationHistory = (id: string) => {
+  return useQuery({
+    queryKey: ["leadCommunicationHistory", id],
+    queryFn: () => getLeadCommunicationHistory(id),
+    enabled: !!id,
   });
 };
