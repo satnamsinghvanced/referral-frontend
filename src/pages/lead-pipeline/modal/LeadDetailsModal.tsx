@@ -27,6 +27,7 @@ import {
   HiOutlinePhone,
   HiOutlinePhoneIncoming,
   HiOutlinePlus,
+  HiOutlineTrash,
   HiOutlineUser,
 } from "react-icons/hi";
 import {
@@ -36,6 +37,7 @@ import {
   LuTarget,
 } from "react-icons/lu";
 import { useFetchTeamMembers } from "../../../hooks/settings/useTeam";
+import SendEmailModal from "./SendEmailModal";
 
 interface LeadDetailsModalProps {
   isOpen: boolean;
@@ -58,12 +60,20 @@ import { useFormik } from "formik";
 import PriorityLevelChip from "../../../components/chips/PriorityLevelChip";
 import ReferralStatusChip from "../../../components/chips/ReferralStatusChip";
 import { LEAD_PRIORITIES, LEAD_STATUSES } from "../../../consts/lead-pipeline";
-import { useUpdateLead } from "../../../hooks/useLeadPipeline";
+import { useUpdateLead, useLeadCommunicationHistory } from "../../../hooks/useLeadPipeline";
 import { useFetchCallRecords } from "../../../hooks/useCall";
 import { timeAgo as formatTimeAgo } from "../../../utils/timeAgo";
 
-const parseNotes = (notesStr: string) => {
-  if (!notesStr) return [];
+const parseNotes = (notes: any) => {
+  if (!notes) return [];
+  if (Array.isArray(notes)) {
+    return [...notes].map((note, index) => ({
+      id: note._id || index,
+      timestamp: note.timestamp,
+      content: note.content,
+    })).reverse();
+  }
+  const notesStr = String(notes);
   const lines = notesStr.split("\n").filter((line) => line.trim());
   return lines.map((line, index) => {
     const match = line.match(/^\[(.*?)\]\s*(.*)$/);
@@ -91,6 +101,7 @@ const LeadDetailsModal = ({
   const { mutateAsync: updateLead, isPending: updating } = useUpdateLead();
   const [newNote, setNewNote] = useState("");
   const [addingNote, setAddingNote] = useState(false);
+  const [isSendEmailOpen, setIsSendEmailOpen] = useState(false);
   const parsedNotes = parseNotes(lead?.notes || "");
   const { data: callData, isLoading: loadingCalls } = useFetchCallRecords({
     phone: lead?.phone || "",
@@ -98,6 +109,8 @@ const LeadDetailsModal = ({
     limit: 50,
   });
   const callRecords = callData?.paginatedCalls?.data || [];
+  const { data: communicationData, isLoading: loadingHistory } = useLeadCommunicationHistory(lead?.id || lead?._id);
+  const communicationHistory = communicationData?.data || communicationData || [];
 
   const formik = useFormik({
     initialValues: {
@@ -140,8 +153,10 @@ const LeadDetailsModal = ({
         minute: "2-digit",
         hour12: true,
       });
-      const formattedNote = `[${timestamp}] ${newNote.trim()}`;
-      const updatedNotes = lead.notes ? `${lead.notes}\n${formattedNote}` : formattedNote;
+      
+      const newNoteItem = { content: newNote.trim(), timestamp };
+      const currentNotes = Array.isArray(lead.notes) ? lead.notes : parseNotes(lead.notes).reverse();
+      const updatedNotes = [...currentNotes, newNoteItem];
 
       await updateLead({
         id: lead.id || lead._id,
@@ -151,15 +166,33 @@ const LeadDetailsModal = ({
       });
       setNewNote("");
     } catch (error) {
-      // Error handled by hook
     } finally {
       setAddingNote(false);
     }
   };
 
+  const handleDeleteNote = async (noteId: string | number) => {
+    try {
+      const currentNotes = Array.isArray(lead.notes) ? lead.notes : parseNotes(lead.notes).reverse();
+      const updatedNotes = currentNotes.filter((note: any, index: number) => {
+        const id = note._id || index;
+        return String(id) !== String(noteId);
+      });
+
+      await updateLead({
+        id: lead.id || lead._id,
+        data: {
+          notes: updatedNotes,
+        },
+      });
+    } catch (error) {
+    }
+  };
+
   if (!lead) return null;
   return (
-    <Modal
+    <>
+      <Modal
       isOpen={isOpen}
       onOpenChange={onOpenChange}
       size="3xl"
@@ -249,7 +282,10 @@ const LeadDetailsModal = ({
                               <p className="text-xs text-gray-400 dark:text-foreground/40 font-medium">
                                 Email
                               </p>
-                              <p className="text-sm font-bold text-foreground">
+                              <p 
+                                className="text-sm font-bold text-foreground cursor-pointer hover:text-purple-500 transition-colors"
+                                onClick={() => setIsSendEmailOpen(true)}
+                              >
                                 {lead.email}
                               </p>
                             </div>
@@ -282,6 +318,7 @@ const LeadDetailsModal = ({
                             variant="bordered"
                             startContent={<HiOutlineMail className="size-4" />}
                             className="justify-start font-medium text-gray-700 dark:text-foreground/80 border-foreground/10"
+                            onPress={() => setIsSendEmailOpen(true)}
                           >
                             Send Email
                           </Button>
@@ -307,7 +344,8 @@ const LeadDetailsModal = ({
                         <div className="grid grid-cols-1 gap-6">
                           <Select
                             label="Status"
-                            variant="bordered"
+                            // variant="bordered"
+                              className="bg-default-100 data-[hover=true]:bg-default-200 rounded-small"
                             size="sm"
                             selectedKeys={new Set([formik.values.status])}
                             onSelectionChange={(keys) =>
@@ -326,7 +364,8 @@ const LeadDetailsModal = ({
                           </Select>
                           <Select
                             label="Priority"
-                            variant="bordered"
+                            // variant="bordered"
+                              className="bg-default-100 data-[hover=true]:bg-default-200 rounded-small"
                             size="sm"
                             selectedKeys={new Set([formik.values.priority])}
                             onSelectionChange={(keys) =>
@@ -345,7 +384,8 @@ const LeadDetailsModal = ({
                           </Select>
                           <Select
                             label="Assigned To"
-                            variant="bordered"
+                            // variant=""
+                            className="bg-default-100 data-[hover=true]:bg-default-200 rounded-small"
                             size="sm"
                             listboxProps={{ itemClasses: orangeItemClasses }}
                             startContent={
@@ -372,7 +412,8 @@ const LeadDetailsModal = ({
                           </Select>
                           <Input
                             label="Estimated Value"
-                            variant="bordered"
+                            // variant="bordered"
+                              className="bg-default-100 data-[hover=true]:bg-default-200 rounded-small "
                             value={formik.values.estimatedValue.toString()}
                             onValueChange={(val) =>
                               formik.setFieldValue("estimatedValue", val)
@@ -478,18 +519,14 @@ const LeadDetailsModal = ({
                         <HiOutlineMail className="size-5" />
                         <h4 className="font-bold text-sm">Send Email</h4>
                       </div>
-                      <Textarea
-                        placeholder="Type your email message..."
-                        minRows={2}
-                        variant="flat"
-                      />
                       <Button
                         fullWidth
                         color="secondary"
-                        className="font-bold bg-purple-400"
+                        className="font-bold bg-purple-400 text-white px-1"
                         startContent={<HiOutlineInbox />}
+                        onPress={() => setIsSendEmailOpen(true)}
                       >
-                        Send Email
+                        <span className="truncate">{lead.email ? lead.email : "Email"}</span> 
                       </Button>
                     </div>
                     <div className="p-4 border border-foreground/10 rounded-xl space-y-4 bg-content1/50 dark:bg-content1/20">
@@ -522,17 +559,18 @@ const LeadDetailsModal = ({
                         </h3>
                       </div>
                       <div className="p-4 border border-foreground/10 rounded-xl bg-content1/50 dark:bg-content1/20">
-                        {loadingCalls ? (
+                        {loadingHistory ? (
                           <div className="p-8 text-center text-xs text-gray-400 dark:text-foreground/45 font-medium">
                             Loading communication history...
                           </div>
-                        ) : callRecords.length === 0 ? (
+                        ) : communicationHistory.length === 0 ? (
                           <div className="p-6 text-center border border-dashed border-foreground/10 rounded-xl bg-gray-50/50 dark:bg-white/5">
                             <p className="text-xs text-gray-400 dark:text-foreground/40 font-medium">No communication history available.</p>
                           </div>
                         ) : (
                           <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
-                            {callRecords.map((record) => {
+                            {communicationHistory.map((record: any) => {
+                              const isEmail = record.type === "email";
                               const isIncoming = record.direction === "Incoming";
                               const timeAgoStr = record.date ? formatTimeAgo(record.date) : "";
                               return (
@@ -541,30 +579,42 @@ const LeadDetailsModal = ({
                                   className="p-3 border border-foreground/10 rounded-xl bg-gray-50 dark:bg-white/5 flex gap-4 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
                                 >
                                   <div className={`p-2 rounded-full h-fit ${
-                                    isIncoming
+                                    isEmail
+                                      ? "bg-purple-50 dark:bg-purple-900/30 text-purple-500 dark:text-purple-400"
+                                      : isIncoming
                                       ? "bg-blue-50 dark:bg-blue-900/30 text-blue-500 dark:text-blue-400"
                                       : "bg-indigo-50 dark:bg-indigo-900/30 text-indigo-500 dark:text-indigo-400"
-                                  }`}>
-                                    <HiOutlinePhone className="size-5" />
+                                    }`}>
+                                    {isEmail ? (
+                                      <HiOutlineMail className="size-5" />
+                                    ) : (
+                                      <HiOutlinePhone className="size-5" />
+                                    )}
                                   </div>
                                   <div className="flex-1 space-y-1">
                                     <div className="flex justify-between items-center">
                                       <h5 className="font-bold text-sm text-foreground">
-                                        {isIncoming ? "Inbound Call" : "Outbound Call"}
+                                        {isEmail ? "Sent Email" : isIncoming ? "Inbound Call" : "Outbound Call"}
                                       </h5>
                                       <span className="text-[10px] text-gray-400 dark:text-foreground/40 font-medium">
                                         {timeAgoStr}
                                       </span>
                                     </div>
-                                    <p className="text-xs text-gray-500 dark:text-foreground/60 font-medium">
-                                      Status: <span className="font-semibold capitalize">{record.status}</span> &bull; Duration: {record.duration}
-                                    </p>
-                                    {record.notes && (
-                                      <p className="text-xs text-gray-400 dark:text-foreground/45 italic mt-1 bg-white/5 p-1.5 rounded-md">
-                                        "{record.notes}"
+                                    {isEmail ? (
+                                      <p className="text-xs text-gray-500 dark:text-foreground/60 font-medium">
+                                        To: <span className="font-semibold">{lead.email}</span>
+                                      </p>
+                                    ) : (
+                                      <p className="text-xs text-gray-500 dark:text-foreground/60 font-medium">
+                                        Status: <span className="font-semibold capitalize">{record.status}</span> &bull; Duration: {record.duration}
                                       </p>
                                     )}
-                                    {record.transcriptionText && record.transcriptionText !== "No transcription available" && record.transcriptionText !== "Processing..." && (
+                                    {record.notes && (
+                                      <p className="text-xs text-gray-650 dark:text-foreground/80 whitespace-pre-wrap mt-1 bg-white/5 p-1.5 rounded-md leading-relaxed border border-foreground/5">
+                                        {record.notes}
+                                      </p>
+                                    )}
+                                    {!isEmail && record.transcriptionText && record.transcriptionText !== "No transcription available" && record.transcriptionText !== "Processing..." && (
                                       <p className="text-[11px] text-gray-400 dark:text-foreground/45 border-l-2 border-foreground/10 pl-2 mt-1.5 italic">
                                         "{record.transcriptionText}"
                                       </p>
@@ -631,11 +681,20 @@ const LeadDetailsModal = ({
                                   <span className="text-[10px] text-gray-400 dark:text-foreground/40 font-bold uppercase tracking-wider">
                                     Lead Note
                                   </span>
-                                  {note.timestamp && (
-                                    <span className="text-[10px] text-gray-400 dark:text-foreground/45 font-medium">
-                                      {note.timestamp}
-                                    </span>
-                                  )}
+                                  <div className="flex items-center gap-2">
+                                    {note.timestamp && (
+                                      <span className="text-[10px] text-gray-400 dark:text-foreground/45 font-medium">
+                                        {note.timestamp}
+                                      </span>
+                                    )}
+                                    <button
+                                      onClick={() => handleDeleteNote(note.id)}
+                                      className="text-gray-400 hover:text-red-500 transition-colors cursor-pointer p-0.5 rounded hover:bg-foreground/5"
+                                      title="Delete note"
+                                    >
+                                      <HiOutlineTrash className="size-3.5" />
+                                    </button>
+                                  </div>
                                 </div>
                                 <p className="text-xs text-gray-600 dark:text-foreground/80 whitespace-pre-wrap leading-relaxed">
                                   {note.content}
@@ -770,6 +829,12 @@ const LeadDetailsModal = ({
         )}
       </ModalContent>
     </Modal>
+    <SendEmailModal
+      isOpen={isSendEmailOpen}
+      onOpenChange={setIsSendEmailOpen}
+      lead={lead}
+    />
+    </>
   );
 };
 

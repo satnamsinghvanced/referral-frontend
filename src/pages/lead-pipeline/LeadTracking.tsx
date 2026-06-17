@@ -165,18 +165,14 @@ const LeadTracking = () => {
       },
       {
         heading: "Pipeline Value",
-        value: "$" + stats?.pipelineValue?.value || "$0",
+        value: stats?.pipelineValue?.value ? "$" + stats?.pipelineValue?.value : "$0",
         icon: (
-
-
-
-          
           <HiOutlineChartBar className="text-purple-600 dark:text-purple-400" />
         ),
       },
       {
         heading: "Top Source",
-        value: stats?.topSource || "loading...",
+        value: stats?.topSource ? stats?.topSource : "loading...",
         icon: (
           <HiOutlineTrendingUp className="text-pink-600 dark:text-pink-400" />
         ),

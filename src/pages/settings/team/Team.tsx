@@ -137,7 +137,6 @@ const Team: React.FC = () => {
       onSuccess: () => setIsDeleteModalOpen(false),
     });
   };
-
   return (
     <div className="space-y-4 md:space-y-5">
       {/* Email Integration Warning */}
