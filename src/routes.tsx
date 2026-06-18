@@ -13,6 +13,9 @@ const EmailCampaign = React.lazy(
 const LeadTracking = React.lazy(
   () => import("./pages/lead-pipeline/LeadTracking"),
 );
+const Conversations = React.lazy(
+  () => import("./pages/conversations/Conversations"),
+);
 const MarketingBudget = React.lazy(
   () => import("./pages/marketing-budget/MarketingBudget"),
 );
@@ -117,6 +120,14 @@ function AppRoutes() {
       children: [
         { index: true, element: <Dashboard /> },
         { path: "lead-tracking", element: <LeadTracking /> },
+        {
+          path: "conversations",
+          element: (
+            <PermissionGuard permissions={["Manage Settings"]}>
+              <Conversations />
+            </PermissionGuard>
+          ),
+        },
         {
           path: "referrals",
           element: (

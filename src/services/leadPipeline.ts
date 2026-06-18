@@ -2,7 +2,6 @@ import axios from "./axios";
 
 export const getLeadStatus = async (params?: any): Promise<any> => {
   const response: any = await axios.get<any>("/lead/status", { params });
-  console.log("response", response.data);
   return response.data;
 };
 
