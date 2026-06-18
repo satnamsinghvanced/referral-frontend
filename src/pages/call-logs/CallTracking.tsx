@@ -26,6 +26,7 @@ const CallTracking = () => {
     useFetchTwilioConfig();
 
   const isTwilioConnected = twilioConfig && twilioConfig.status === "Connected";
+  const hasActiveNumber = isTwilioConnected && (twilioConfig?.phoneNumbers?.length ?? 0) > 0;
   const [selectedRecord, setSelectedRecord] = useState<CallRecord | null>(null);
   const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
   const [filters, setFilters] = useState({
@@ -139,6 +140,29 @@ const CallTracking = () => {
     <>
       <ComponentContainer headingData={HEADING_DATA}>
         <div className="flex flex-col gap-4 md:gap-5">
+          {isTwilioConfigLoading && (
+            <div className="flex flex-col gap-4 animate-pulse">
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-5 gap-3 md:gap-4">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="h-20 rounded-xl bg-foreground/5 border border-foreground/10" />
+                ))}
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 border border-foreground/10 rounded-xl p-4">
+                <div className="h-9 rounded-lg bg-foreground/5" />
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="h-9 rounded-lg bg-foreground/5" />
+                  <div className="h-9 rounded-lg bg-foreground/5" />
+                  <div className="h-9 rounded-lg bg-foreground/5" />
+                </div>
+              </div>
+              <div className="flex flex-col gap-3 border border-foreground/10 rounded-xl p-4">
+                <div className="h-4 w-24 rounded bg-foreground/5 mb-1" />
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="h-16 rounded-xl bg-foreground/5" />
+                ))}
+              </div>
+            </div>
+          )}
           {!isTwilioConnected && !isTwilioConfigLoading && (
             <div className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-500/30 rounded-lg p-3 flex items-center justify-between flex-wrap gap-3">
               <p className="text-sm text-yellow-800 dark:text-amber-400">
@@ -157,7 +181,26 @@ const CallTracking = () => {
               </Button>
             </div>
           )}
-          {isTwilioConnected && !isTwilioConfigLoading && (
+          {isTwilioConnected && !hasActiveNumber && !isTwilioConfigLoading && (
+            <div className="flex flex-col items-center justify-center py-16 gap-3 border border-dashed border-foreground/10 rounded-xl">
+              <FiPhone className="w-10 h-10 text-foreground/20" />
+              <p className="text-sm font-medium text-foreground/50">No active phone numbers</p>
+              <p className="text-xs text-foreground/40 text-center max-w-xs">
+                Purchase a phone number from the Integrations page to start tracking calls.
+              </p>
+              <Button
+                as={Link}
+                to="/integrations"
+                size="sm"
+                color="primary"
+                variant="flat"
+                className="mt-1"
+              >
+                Go to Integrations
+              </Button>
+            </div>
+          )}
+          {hasActiveNumber && !isTwilioConfigLoading && (
             <>
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-5 gap-3 md:gap-4 justify-between">
                 {STATS_CARD_DATA.map((data) => (

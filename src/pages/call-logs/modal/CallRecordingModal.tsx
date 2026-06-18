@@ -119,8 +119,11 @@ const AudioPlayer = ({ url, callDuration }: { url: string; callDuration: string 
         max={duration || 100}
         value={currentTime}
         onChange={handleSeek}
-        className="flex-1 h-1.5 bg-gray-300 dark:bg-default-200 rounded-lg appearance-none cursor-pointer accent-blue-500"
-        style={{ accentColor: "#3b82f6" }}
+        className="flex-1 h-1.5 rounded-lg appearance-none cursor-pointer"
+        style={{
+          accentColor: "#3b82f6",
+          background: `linear-gradient(to right, #3b82f6 ${duration > 0 ? (currentTime / duration) * 100 : 0}%, hsl(var(--heroui-default-200, 240 5% 90%)) ${duration > 0 ? (currentTime / duration) * 100 : 0}%)`
+        }}
       />
       <div className="text-[11px] font-medium text-gray-500 dark:text-foreground/50 w-8 font-mono">
         {formatTime(duration)}
