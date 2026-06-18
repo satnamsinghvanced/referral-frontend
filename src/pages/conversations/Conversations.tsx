@@ -120,9 +120,6 @@ const getInitials = (name: string) => {
     .toUpperCase()
     .slice(0, 2);
 };
-
-const POPULAR_EMOJIS = ["😊", "👍", "👋", "❤️", "🙌", "🔥", "✨", "🎉", "💡", "🤔"];
-
 const Conversations = () => {
   const [conversations, setConversations] = useState(MOCK_CONVERSATIONS);
   const [search, setSearch] = useState("");
@@ -336,7 +333,7 @@ const Conversations = () => {
   return (
     <ComponentContainer headingData={HEADING_DATA}>
       <div className="flex flex-col gap-4 md:gap-5">
-        <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
+        <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
           {stats.map((data, i) => (
             <MiniStatsCard key={i} cardData={data} />
           ))}
@@ -351,6 +348,7 @@ const Conversations = () => {
                 <div className="p-3 border-b border-foreground/10">
                   <Input
                     placeholder="Search conversations..."
+                    aria-label="Search conversations"
                     startContent={
                       <HiOutlineSearch className="text-gray-400 dark:text-foreground/40" />
                     }
@@ -364,6 +362,7 @@ const Conversations = () => {
                   <div className="flex items-center gap-2 mb-2">
                     <Select
                       placeholder="All Platforms"
+                      aria-label="Filter by platform"
                       size="sm"
                       className="flex-1"
                       variant="flat"
@@ -378,6 +377,7 @@ const Conversations = () => {
                     </Select>
                     <Select
                       placeholder="All"
+                      aria-label="Filter by status"
                       size="sm"
                       className="flex-1"
                       variant="flat"
@@ -669,7 +669,6 @@ const Conversations = () => {
                     <div ref={messagesEndRef} />
                   </div>
                   <div className="px-4 py-3 border-t border-foreground/10 bg-white dark:bg-content1">
-                    {/* Attachment Preview */}
                     {attachedFile && (
                       <div className="mb-2 p-1.5 bg-gray-50 dark:bg-content2 border border-foreground/5 rounded-lg flex items-center justify-between">
                         <div className="flex items-center gap-2 min-w-0">
@@ -702,48 +701,50 @@ const Conversations = () => {
                       </div>
                     )}
 
-                    <div className="flex items-center gap-1.5 sm:gap-2">
-                      <Button
-                        isIconOnly
-                        variant="light"
-                        size="sm"
-                        className="text-gray-400 dark:text-foreground/40"
-                        onPress={() => fileInputRef.current?.click()}
-                      >
-                        <HiOutlinePaperClip className="size-4" />
-                      </Button>
-                      <Button
-                        isIconOnly
-                        variant="light"
-                        size="sm"
-                        className="text-gray-400 dark:text-foreground/40"
-                        onPress={() => imageInputRef.current?.click()}
-                      >
-                        <HiOutlinePhotograph className="size-4" />
-                      </Button>
-                      
-                      <Popover placement="top-start">
-                        <PopoverTrigger>
-                          <Button
-                            isIconOnly
-                            variant="light"
-                            size="sm"
-                            className="text-gray-400 dark:text-foreground/40"
-                          >
-                            <HiOutlineEmojiHappy className="size-4" />
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent className="p-0 border-none bg-transparent shadow-none">
-                          <EmojiPicker
-                            onEmojiClick={(emojiObject) => {
-                              setMessageInput((prev) => prev + emojiObject.emoji);
-                            }}
-                            theme={document.documentElement.classList.contains("dark") ? Theme.DARK : Theme.LIGHT}
-                            height={350}
-                            width={300}
-                          />
-                        </PopoverContent>
-                      </Popover>
+                    <div className="flex items-center gap-2 w-full">
+                      <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
+                        <Button
+                          isIconOnly
+                          variant="light"
+                          size="sm"
+                          className="text-gray-400 dark:text-foreground/40 min-w-8 w-8"
+                          onPress={() => fileInputRef.current?.click()}
+                        >
+                          <HiOutlinePaperClip className="size-4" />
+                        </Button>
+                        <Button
+                          isIconOnly
+                          variant="light"
+                          size="sm"
+                          className="text-gray-400 dark:text-foreground/40 min-w-8 w-8"
+                          onPress={() => imageInputRef.current?.click()}
+                        >
+                          <HiOutlinePhotograph className="size-4" />
+                        </Button>
+                        
+                        <Popover placement="top-start">
+                          <PopoverTrigger>
+                            <Button
+                              isIconOnly
+                              variant="light"
+                              size="sm"
+                              className="text-gray-400 dark:text-foreground/40 min-w-8 w-8 hidden xs:flex"
+                            >
+                              <HiOutlineEmojiHappy className="size-4" />
+                            </Button>
+                          </PopoverTrigger>
+                          <PopoverContent className="p-0 border-none bg-transparent shadow-none">
+                            <EmojiPicker
+                              onEmojiClick={(emojiObject) => {
+                                setMessageInput((prev) => prev + emojiObject.emoji);
+                              }}
+                              theme={document.documentElement.classList.contains("dark") ? Theme.DARK : Theme.LIGHT}
+                              height={350}
+                              width={300}
+                            />
+                          </PopoverContent>
+                        </Popover>
+                      </div>
 
                       <input
                         type="file"
@@ -760,9 +761,10 @@ const Conversations = () => {
                       />
                       <Input
                         placeholder="Type your message..."
+                        aria-label="Type your message"
                         variant="flat"
                         size="sm"
-                        className="flex-1"
+                        className="flex-1 min-w-0"
                         value={messageInput}
                         onValueChange={setMessageInput}
                         onKeyDown={(e) => {
@@ -775,38 +777,38 @@ const Conversations = () => {
                         size="sm"
                         radius="full"
                         onPress={handleSendMessage}
-                        className="shadow-md shadow-primary/30"
+                        className="shadow-md shadow-primary/30 flex-shrink-0 min-w-8 w-8"
                       >
                         <LuSend className="size-3.5" />
                       </Button>
                     </div>
                   </div>
-                  <div className="px-4 py-2 border-t border-foreground/5 bg-white dark:bg-content1 flex flex-wrap items-center gap-2">
+                  <div className="px-4 py-2 border-t border-foreground/5 bg-white dark:bg-content1 grid grid-cols-2 sm:grid-cols-3 gap-2">
                     <Button
                       size="sm"
                       variant="flat"
-                      className="text-xs h-7 bg-gray-100 dark:bg-default-100 text-gray-600 dark:text-foreground/60 flex-1 sm:flex-initial"
-                      startContent={<HiOutlineCalendar className="size-3" />}
+                      className="text-xs h-8 bg-gray-100 dark:bg-default-100 text-gray-600 dark:text-foreground/60 w-full"
+                      startContent={<HiOutlineCalendar className="size-3 flex-shrink-0" />}
                     >
-                      Schedule Appointment
+                      <span className="truncate">Schedule Appt</span>
                     </Button>
                     <Button
                       size="sm"
                       variant="flat"
-                      className="text-xs h-7 bg-gray-100 dark:bg-default-100 text-gray-600 dark:text-foreground/60 flex-1 sm:flex-initial"
-                      startContent={<HiOutlineMail className="size-3" />}
+                      className="text-xs h-8 bg-gray-100 dark:bg-default-100 text-gray-600 dark:text-foreground/60 w-full"
+                      startContent={<HiOutlineMail className="size-3 flex-shrink-0" />}
                     >
-                      Send Forms
+                      <span className="truncate">Send Forms</span>
                     </Button>
                     <Button
                       size="sm"
                       variant="flat"
-                      className="text-xs h-7 bg-gray-100 dark:bg-default-100 text-gray-600 dark:text-foreground/60 flex-1 sm:flex-initial"
+                      className="text-xs h-8 bg-gray-100 dark:bg-default-100 text-gray-600 dark:text-foreground/60 w-full col-span-2 sm:col-span-1"
                       startContent={
-                        <HiOutlineCurrencyDollar className="size-3" />
+                        <HiOutlineCurrencyDollar className="size-3 flex-shrink-0" />
                       }
                     >
-                      Send Quote
+                      <span className="truncate">Send Quote</span>
                     </Button>
                   </div>
                 </div>
