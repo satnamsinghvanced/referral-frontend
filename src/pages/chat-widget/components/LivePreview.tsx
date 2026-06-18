@@ -360,7 +360,7 @@ export default function LivePreview({
                 className={`absolute z-40 text-white flex items-center justify-between shadow-2xl transition-all duration-300 cursor-pointer rounded-t-xl px-4 py-2 h-10
                   ${previewMode === "desktop"
                     ? `bottom-0 w-[240px] ${widgetPosition === "bottom-right" ? "right-4" : "left-4"}`
-                    : "bottom-0 left-4 right-4 w-full"
+                    : "bottom-0 left-36 right-2 w-[240px]"
                   }`}
                 style={{ backgroundColor: primaryColor }}
                 onClick={handleOpenChat}

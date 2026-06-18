@@ -66,7 +66,6 @@ export default function BrandingStep({
             aria-label="Business Name"
           />
         </div>
-
         <div className="flex flex-col">
           <label className="text-xs font-bold text-default-700 block mb-1.5 font-sans">
             Bubble Text <span className="text-danger">*</span>
@@ -83,7 +82,6 @@ export default function BrandingStep({
           />
         </div>
       </div>
-
       <div className="space-y-2.5">
         <label className="text-xs font-bold text-default-700 block font-sans">Primary Color</label>
         <div className="flex flex-wrap items-center gap-3">
@@ -110,7 +108,6 @@ export default function BrandingStep({
               aria-label="Primary Color Hex"
             />
           </div>
-
           <div className="flex items-center gap-2">
             {COLOR_PRESETS.map((preset, i) => (
               <Tooltip key={i} content={preset.label} shadow="sm">
@@ -125,7 +122,6 @@ export default function BrandingStep({
           </div>
         </div>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="flex flex-col">
           <label className="text-xs font-bold text-default-700 block mb-1.5 font-sans">Widget Position</label>
@@ -140,7 +136,6 @@ export default function BrandingStep({
             <SelectItem key="bottom-left" textValue="Bottom Left">Bottom Left</SelectItem>
           </Select>
         </div>
-
         <div className="flex flex-col">
           <label className="text-xs font-bold text-default-700 block mb-1.5 font-sans">Business Logo URL (Optional)</label>
           <Input
@@ -155,7 +150,6 @@ export default function BrandingStep({
         </div>
       </div>
 
-      {/* Bubble Icon Card List Selector */}
       <div className="space-y-2">
         <label className="text-xs font-bold text-default-700 block font-sans">Bubble Icon</label>
         <div className="grid grid-cols-3 gap-3">

@@ -78,7 +78,6 @@ export default function MessagesStep({
         </div>
       </div>
 
-      {/* Enable Auto-Reply switch and nested text box */}
       <div className={`border rounded-xl p-4 transition-all duration-200 ${enableAutoReply ? "border-sky-200 bg-sky-50/40" : "border-foreground/10 bg-transparent"}`}>
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-0.5">
@@ -87,7 +86,6 @@ export default function MessagesStep({
           </div>
           <Switch isSelected={enableAutoReply} onValueChange={setEnableAutoReply} size="sm" />
         </div>
-
         {enableAutoReply && (
           <div className="mt-4 space-y-1.5 flex flex-col border-t border-sky-100 pt-4 animate-in slide-in-from-top-2 duration-200">
             <label className="text-xs font-bold text-default-700 block mb-1 font-sans">
@@ -123,7 +121,6 @@ export default function MessagesStep({
         )}
       </div>
 
-      {/* Styled card wrapper matching Figma purple borders */}
       <div className="flex items-center justify-between border border-purple-200 bg-purple-50/40 rounded-xl p-4">
         <div className="flex flex-col gap-0.5">
           <span className="text-xs font-bold text-default-700 font-sans">Working Hours</span>

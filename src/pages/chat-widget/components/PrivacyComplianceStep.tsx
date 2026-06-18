@@ -21,8 +21,6 @@ interface PrivacyComplianceStepProps {
 }
 
 export default function PrivacyComplianceStep({
-  hipaaMode,
-  setHipaaMode,
   requirePatientConsent,
   setRequirePatientConsent,
   privacyPolicyUrl,
@@ -44,7 +42,6 @@ export default function PrivacyComplianceStep({
         <p className="text-xs text-default-500 mt-1 font-sans">Ensure your chat widget meets healthcare privacy requirements.</p>
       </div>
 
-      {/* HIPAA Status Banner matching Figma green styles */}
       <div className="flex items-start gap-3 border border-emerald-200 bg-emerald-50/5 rounded-lg p-4">
         <div className="flex-1 flex flex-col gap-0.5">
           <div className="flex items-center gap-2">
@@ -57,7 +54,6 @@ export default function PrivacyComplianceStep({
         </div>
       </div>
 
-      {/* Consent Switch Box with nesting */}
       <div className={`border rounded-xl p-4 transition-all duration-200 ${requirePatientConsent ? "border-sky-200 bg-sky-50/40" : "border-foreground/10 bg-transparent"}`}>
         <div className="flex items-center justify-between pb-4">
           <div className="flex flex-col gap-0.5">
@@ -69,7 +65,6 @@ export default function PrivacyComplianceStep({
 
         {requirePatientConsent && (
           <div className="border-t border-sky-100 pt-4 space-y-4 animate-in slide-in-from-top-2 duration-200">
-            {/* Input Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex flex-col">
                 <label className="text-xs font-bold text-default-700 block mb-1.5 font-sans">
@@ -89,7 +84,7 @@ export default function PrivacyComplianceStep({
                   <span className="text-[10px] text-default-400 font-sans font-light mt-1">Link shown in consent message</span>
                 )}
               </div>
-              
+
               <div className="flex flex-col">
                 <label className="text-xs font-bold text-default-700 block mb-1.5 font-sans">
                   Data Retention Period (Days) <span className="text-danger">*</span>
@@ -114,7 +109,6 @@ export default function PrivacyComplianceStep({
               </div>
             </div>
 
-            {/* Required patient fields */}
             <div className="space-y-2.5">
               <label className="text-xs font-bold text-default-700 block font-sans">Required Patient Information</label>
               <div className="flex flex-col gap-2.5 pl-1">
@@ -130,7 +124,6 @@ export default function PrivacyComplianceStep({
               </div>
             </div>
 
-            {/* PHI Warning Banner matching Figma blue styles */}
             <Card className="shadow-none border border-blue-200 bg-blue-50/50 rounded-xl p-3">
               <CardBody className="p-0 flex flex-row gap-3 items-start">
                 <LuShieldAlert className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5" />

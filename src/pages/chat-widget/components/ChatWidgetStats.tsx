@@ -1,4 +1,3 @@
-import React from "react";
 import { LuGlobe } from "react-icons/lu";
 import { HiOutlineChat, HiOutlineClock } from "react-icons/hi";
 import { FiSmartphone } from "react-icons/fi";
@@ -27,7 +26,6 @@ export default function ChatWidgetStats() {
       icon: <HiOutlineClock className="text-orange-500 text-xl shrink-0" />
     }
   ];
-
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full">
       {statsData.map((data, i) => (

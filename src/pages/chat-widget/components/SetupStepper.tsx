@@ -6,7 +6,6 @@ interface Step {
   name: string;
   desc: string;
 }
-
 interface SetupStepperProps {
   steps: Step[];
   activeStep: number;
