@@ -140,6 +140,29 @@ const CallTracking = () => {
     <>
       <ComponentContainer headingData={HEADING_DATA}>
         <div className="flex flex-col gap-4 md:gap-5">
+          {isTwilioConfigLoading && (
+            <div className="flex flex-col gap-4 animate-pulse">
+              <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-5 gap-3 md:gap-4">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <div key={i} className="h-20 rounded-xl bg-foreground/5 border border-foreground/10" />
+                ))}
+              </div>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 border border-foreground/10 rounded-xl p-4">
+                <div className="h-9 rounded-lg bg-foreground/5" />
+                <div className="grid grid-cols-3 gap-3">
+                  <div className="h-9 rounded-lg bg-foreground/5" />
+                  <div className="h-9 rounded-lg bg-foreground/5" />
+                  <div className="h-9 rounded-lg bg-foreground/5" />
+                </div>
+              </div>
+              <div className="flex flex-col gap-3 border border-foreground/10 rounded-xl p-4">
+                <div className="h-4 w-24 rounded bg-foreground/5 mb-1" />
+                {Array.from({ length: 4 }).map((_, i) => (
+                  <div key={i} className="h-16 rounded-xl bg-foreground/5" />
+                ))}
+              </div>
+            </div>
+          )}
           {!isTwilioConnected && !isTwilioConfigLoading && (
             <div className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-500/30 rounded-lg p-3 flex items-center justify-between flex-wrap gap-3">
               <p className="text-sm text-yellow-800 dark:text-amber-400">
