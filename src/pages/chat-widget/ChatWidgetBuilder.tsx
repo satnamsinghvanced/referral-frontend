@@ -12,6 +12,7 @@ import SmsSetupStep from "./components/SmsSetupStep";
 import PrivacyComplianceStep from "./components/PrivacyComplianceStep";
 import DeployStep from "./components/DeployStep";
 import LivePreview from "./components/LivePreview";
+import { fetchChatWidgetConfig, saveChatWidgetConfig } from "../../services/chatWidget";
 
 export default function ChatWidgetBuilder() {
   const [activeStep, setActiveStep] = useState(0);
@@ -155,6 +156,52 @@ export default function ChatWidgetBuilder() {
     }
   }, [copiedCode]);
 
+  useEffect(() => {
+    const loadConfig = async () => {
+      try {
+        const res = await fetchChatWidgetConfig();
+        if (res && res.data) {
+          const config = res.data;
+          setBusinessName(config.businessName || "");
+          setBubbleText(config.bubbleText || "");
+          setPrimaryColor(config.primaryColor || "#0ea5e9");
+          setWidgetPosition(config.widgetPosition || "bottom-right");
+          setBubbleIcon(config.bubbleIcon || "Message");
+          setLogoUrl(config.logoUrl || "");
+          setWelcomeMessage(config.welcomeMessage || "");
+          setWelcomeDelay(config.welcomeDelay?.toString() || "");
+          setEnableAutoReply(config.enableAutoReply !== false);
+          setAutoReplyMessage(config.autoReplyMessage || "");
+          setOfflineMessage(config.offlineMessage || "");
+          setWorkingHours(config.workingHours !== false);
+          setEnableSmsTransition(config.enableSmsTransition !== false);
+          setSmsPromptMessage(config.smsPromptMessage || "");
+          setSmsConsentText(config.smsConsentText || "");
+          setTriggerAfterMessages(config.triggerAfterMessages !== false);
+          setTriggerOnScheduling(config.triggerOnScheduling !== false);
+          setTriggerImmediately(!!config.triggerImmediately);
+          setHipaaMode(config.hipaaMode !== false);
+          setRequirePatientConsent(config.requirePatientConsent !== false);
+          setPrivacyPolicyUrl(config.privacyPolicyUrl || "");
+          setDataRetentionPeriod(config.dataRetentionPeriod?.toString() || "");
+          setRequireName(config.requireName !== false);
+          setRequireEmail(config.requireEmail !== false);
+          setRequirePhone(config.requirePhone !== false);
+          setSelectedPlatform(config.selectedPlatform || "WordPress");
+        }
+      } catch (err: any) {
+        if (err.response?.status !== 404) {
+          addToast({
+            title: "Error loading config",
+            description: err.response?.data?.message || err.message,
+            color: "danger"
+          });
+        }
+      }
+    };
+    loadConfig();
+  }, []);
+
   const steps = [
     { name: "Branding", desc: "Customize branding & colors" },
     { name: "Messages", desc: "Configure greetings" },
@@ -163,15 +210,52 @@ export default function ChatWidgetBuilder() {
     { name: "Deploy", desc: "Deploy your chat widget" }
   ];
 
-  const handlePublishWidget = () => {
+  const handlePublishWidget = async () => {
     if (!validateStep(activeStep)) {
       return;
     }
-    addToast({
-      title: "Widget Published!",
-      description: "Your chat widget configurations have been saved and deployed live.",
-      color: "success"
-    });
+    try {
+      const payload = {
+        businessName,
+        bubbleText,
+        primaryColor,
+        widgetPosition,
+        bubbleIcon,
+        logoUrl,
+        welcomeMessage,
+        welcomeDelay: Number(welcomeDelay),
+        enableAutoReply,
+        autoReplyMessage,
+        offlineMessage,
+        workingHours,
+        enableSmsTransition,
+        smsPromptMessage,
+        smsConsentText,
+        triggerAfterMessages,
+        triggerOnScheduling,
+        triggerImmediately,
+        hipaaMode,
+        requirePatientConsent,
+        privacyPolicyUrl,
+        dataRetentionPeriod: Number(dataRetentionPeriod),
+        requireName,
+        requireEmail,
+        requirePhone,
+        selectedPlatform,
+      };
+      await saveChatWidgetConfig(payload);
+      addToast({
+        title: "Widget Published!",
+        description: "Your chat widget configurations have been saved and deployed live.",
+        color: "success"
+      });
+    } catch (err: any) {
+      addToast({
+        title: "Failed to publish widget",
+        description: err.response?.data?.message || err.message || "An error occurred",
+        color: "danger"
+      });
+    }
   };
 
   const embedCodeSnippet = `<!-- Practice ROI Chat Widget -->

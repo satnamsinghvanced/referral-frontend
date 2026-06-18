@@ -1,14 +1,11 @@
 import { Button, Chip } from "@heroui/react";
-import {  FiClock,  FiExternalLink,  FiPhoneIncoming,  FiPhoneOutgoing,  FiPlay} from "react-icons/fi";
+import { FiClock, FiExternalLink, FiPhoneIncoming, FiPhoneOutgoing, FiPlay } from "react-icons/fi";
 import { CallRecord } from "../../types/call";
 import { timeAgo as formatTimeAgo } from "../../utils/timeAgo";
 import CallStatusChip from "../../components/chips/CallStatusChip";
 import { Link } from "react-router";
 
-export default function CallRecordCard({
-  record,
-  onPlayClick,
-}: {
+export default function CallRecordCard({ record, onPlayClick }: {
   record: CallRecord;
   onPlayClick: () => void;
 }) {
@@ -50,11 +47,10 @@ export default function CallRecordCard({
                 size="sm"
                 radius="sm"
                 variant="bordered"
-                className={`text-[11px] h-5 capitalize border-small ${
-                  tag.type === "action"
-                    ? "text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-500/30"
-                    : "dark:border-default-200/20 dark:text-foreground/70"
-                }`}
+                className={`text-[11px] h-5 capitalize border-small ${tag.type === "action"
+                  ? "text-orange-600 dark:text-orange-400 border-orange-200 dark:border-orange-500/30"
+                  : "dark:border-default-200/20 dark:text-foreground/70"
+                  }`}
               >
                 {tag.label}
               </Chip>

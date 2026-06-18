@@ -1,4 +1,3 @@
-import React from "react";
 import { Input, Select, SelectItem, Tooltip } from "@heroui/react";
 import { FiMessageSquare, FiMessageCircle } from "react-icons/fi";
 import { HiOutlineChat } from "react-icons/hi";
