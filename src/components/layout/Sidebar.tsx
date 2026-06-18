@@ -1,7 +1,7 @@
 import { HiOutlineChartBar, HiOutlineChevronLeft, HiOutlineCog, HiOutlineLightningBolt, HiOutlineMail, HiOutlinePhone, HiOutlineStar, HiOutlineChat } from "react-icons/hi";
 import { Link, NavLink, useLocation, useNavigate } from "react-router";
 import { Tooltip } from "@heroui/react";
-import { LuBuilding2, LuCalendar, LuDollarSign, LuQrCode, LuTarget, LuUsers, LuVideo } from "react-icons/lu";
+import { LuBuilding2, LuCalendar, LuDollarSign, LuMessageSquare, LuQrCode, LuTarget, LuUsers, LuVideo } from "react-icons/lu";
 import { FiFileText, FiHome } from "react-icons/fi";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import clsx from "clsx";
@@ -57,6 +57,14 @@ const Sidebar = ({
         href: "/lead-tracking",
         stats: dashboardStats?.leadsCount || 0,
         color: "bg-sky-100 dark:bg-sky-900/40",
+      },
+      {
+        name: "Conversations",
+        icon: LuMessageSquare,
+        href: "/conversations",
+        stats: dashboardStats?.conversations || 0,
+        color: "bg-sky-100 dark:bg-sky-900/40",
+        requiredPermission: "Manage Settings",
       },
       {
         name: "Referrals",
