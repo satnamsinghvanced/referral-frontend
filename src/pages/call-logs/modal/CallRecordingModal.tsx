@@ -163,7 +163,7 @@ const PlaybackTab = ({ data }: { data: CallRecord }) => (
 
         <div className="space-y-4 mt-4">
           {data.recordingUrl ? (
-            <AudioPlayer url={data.recordingUrl} callDuration={data.duration} />
+            <AudioPlayer url={data.recordingUrl.startsWith("http") ? `/twilio-record/${data._id}/recording` : data.recordingUrl} callDuration={data.duration} />
           ) : (
             <div className="text-center text-sm text-gray-500 dark:text-foreground/40 py-4">
               No recording available on twilio.

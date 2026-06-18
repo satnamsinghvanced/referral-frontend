@@ -329,6 +329,8 @@ const LeadAutomationModal = ({ isOpen, onOpenChange, automation }: LeadAutomatio
                       {"{{firstName}}"} - Lead's first name<br />
                       {"{{lastName}}"} - Lead's last name<br />
                       {"{{practice_name}}"} - Your practice name<br />
+                      {"{{practice_phone}}"} - Your practice phone number<br />
+                      {"{{practice_email}}"} - Your practice email address<br />
                       {"{{treatment}}"} - Lead's treatment interest<br />
                       {"{{estimated_value}}"} - Lead's estimated value<br />
                       {"{{landing_page_url}}"} - Landing page link

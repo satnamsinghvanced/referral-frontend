@@ -44,3 +44,16 @@ export const getLeadCommunicationHistory = async (id: string): Promise<any> => {
   const response = await axios.get(`/lead/communication-history/${id}`);
   return response.data;
 };
+
+export const reorderLeads = async (data: {
+  status?: string;
+  leadIds?: string[];
+  leadId?: string;
+  targetStatus?: string;
+  targetIds?: string[];
+  sourceStatus?: string;
+  sourceIds?: string[];
+}): Promise<any> => {
+  const response = await axios.put("/lead/reorder", data);
+  return response.data;
+};

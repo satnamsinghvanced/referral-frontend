@@ -397,11 +397,10 @@ const Conversations = () => {
                       <button
                         key={p.key}
                         onClick={() => setSelectedPlatform(p.key)}
-                        className={`flex-1 px-2 py-1 text-[10px] font-semibold rounded-md transition-all ${
-                          selectedPlatform === p.key
-                            ? "bg-primary text-white shadow-sm"
-                            : "bg-gray-100 dark:bg-default-100 text-gray-500 dark:text-foreground/40 hover:bg-gray-200 dark:hover:bg-default-200"
-                        }`}
+                        className={`flex-1 px-2 py-1 text-[10px] font-semibold rounded-md transition-all ${selectedPlatform === p.key
+                          ? "bg-primary text-white shadow-sm"
+                          : "bg-gray-100 dark:bg-default-100 text-gray-500 dark:text-foreground/40 hover:bg-gray-200 dark:hover:bg-default-200"
+                          }`}
                       >
                         {p.label}
                       </button>
@@ -413,11 +412,10 @@ const Conversations = () => {
                     <div
                       key={conv.id}
                       onClick={() => handleConversationClick(conv)}
-                      className={`flex gap-3 p-3 cursor-pointer border-b border-foreground/5 transition-all hover:bg-gray-50 dark:hover:bg-white/5 ${
-                        selectedConversation?.id === conv.id
-                          ? "bg-sky-50/70 dark:bg-sky-900/10 border-l-2 border-l-primary"
-                          : ""
-                      }`}
+                      className={`flex gap-3 p-3 cursor-pointer border-b border-foreground/5 transition-all hover:bg-gray-50 dark:hover:bg-white/5 ${selectedConversation?.id === conv.id
+                        ? "bg-sky-50/70 dark:bg-sky-900/10 border-l-2 border-l-primary"
+                        : ""
+                        }`}
                     >
                       {" "}
                       <div className="relative flex-shrink-0">
@@ -460,10 +458,9 @@ const Conversations = () => {
                               return (
                                 <span
                                   key={tag}
-                                  className={`text-[9px] px-1.5 py-0.5 rounded font-semibold ${
-                                    tagDef?.color ||
+                                  className={`text-[9px] px-1.5 py-0.5 rounded font-semibold ${tagDef?.color ||
                                     "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
-                                  }`}
+                                    }`}
                                 >
                                   {tag}
                                 </span>
@@ -557,9 +554,8 @@ const Conversations = () => {
                         isIconOnly
                         variant="light"
                         size="sm"
-                        className={`text-gray-500 dark:text-foreground/50 hidden sm:inline-flex ${
-                          selectedConversation.isStarred ? "text-yellow-500" : ""
-                        }`}
+                        className={`text-gray-500 dark:text-foreground/50 hidden sm:inline-flex ${selectedConversation.isStarred ? "text-yellow-500" : ""
+                          }`}
                       >
                         {selectedConversation.isStarred ? (
                           <HiStar className="size-4" />
@@ -598,14 +594,12 @@ const Conversations = () => {
                     {selectedConversation.messages.map((msg) => (
                       <div
                         key={msg.id}
-                        className={`flex ${
-                          msg.isFromPatient ? "justify-start" : "justify-end"
-                        }`}
+                        className={`flex ${msg.isFromPatient ? "justify-start" : "justify-end"
+                          }`}
                       >
                         <div
-                          className={`flex items-end gap-2 max-w-[70%] ${
-                            msg.isFromPatient ? "" : "flex-row-reverse"
-                          }`}
+                          className={`flex items-end gap-2 max-w-[70%] ${msg.isFromPatient ? "" : "flex-row-reverse"
+                            }`}
                         >
                           {msg.isFromPatient && (
                             <div
@@ -618,11 +612,10 @@ const Conversations = () => {
                           )}
                           <div>
                             <div
-                              className={`px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed ${
-                                msg.isFromPatient
-                                  ? "bg-white dark:bg-content2 text-foreground border border-foreground/5 rounded-bl-md"
-                                  : "bg-primary text-white rounded-br-md shadow-md shadow-primary/20"
-                              }`}
+                              className={`px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed ${msg.isFromPatient
+                                ? "bg-white dark:bg-content2 text-foreground border border-foreground/5 rounded-bl-md"
+                                : "bg-primary text-white rounded-br-md shadow-md shadow-primary/20"
+                                }`}
                             >
                               {msg.text}
                               {msg.file && (
@@ -648,9 +641,8 @@ const Conversations = () => {
                               )}
                             </div>
                             <p
-                              className={`text-[9px] text-gray-400 dark:text-foreground/30 mt-1 flex items-center gap-1 ${
-                                msg.isFromPatient ? "" : "justify-end"
-                              }`}
+                              className={`text-[9px] text-gray-400 dark:text-foreground/30 mt-1 flex items-center gap-1 ${msg.isFromPatient ? "" : "justify-end"
+                                }`}
                             >
                               {!msg.isFromPatient && (
                                 <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
@@ -721,7 +713,7 @@ const Conversations = () => {
                       >
                         <HiOutlinePhotograph className="size-4" />
                       </Button>
-                      
+
                       <Popover placement="top-start">
                         <PopoverTrigger>
                           <Button
@@ -950,10 +942,9 @@ const Conversations = () => {
                             key={tag}
                             size="sm"
                             variant="flat"
-                            className={`text-[10px] h-5 font-semibold ${
-                              tagDef?.color ||
+                            className={`text-[10px] h-5 font-semibold ${tagDef?.color ||
                               "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
-                            }`}
+                              }`}
                           >
                             {tag}
                           </Chip>
