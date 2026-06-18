@@ -8,6 +8,7 @@ import {
   updateLead,
   sendLeadEmail,
   getLeadCommunicationHistory,
+  reorderLeads,
 } from "../services/leadPipeline";
 
 export const useLeadStatus = (params?: any) => {
@@ -96,5 +97,22 @@ export const useLeadCommunicationHistory = (id: string) => {
     queryKey: ["leadCommunicationHistory", id],
     queryFn: () => getLeadCommunicationHistory(id),
     enabled: !!id,
+  });
+};
+
+export const useReorderLeads = () => {
+  return useMutation({
+    mutationFn: reorderLeads,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["leadStatus"] });
+      queryClient.invalidateQueries({ queryKey: ["leadStats"] });
+    },
+    onError: (error: any) => {
+      addToast({
+        title: "Error",
+        description: error?.response?.data?.message || "Failed to reorder leads",
+        color: "danger",
+      });
+    },
   });
 };

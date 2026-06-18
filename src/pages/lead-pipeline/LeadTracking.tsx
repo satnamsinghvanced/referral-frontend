@@ -9,7 +9,7 @@ import {
   SelectItem,
   useDisclosure,
 } from "@heroui/react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   HiOutlineCalendar,
   HiOutlineChartBar,
@@ -44,7 +44,8 @@ import {
   STAGE_STYLES,
 } from "../../consts/lead-pipeline";
 import { useDebounce } from "../../hooks/useDebounce";
-import { useLeadStats, useLeadStatus } from "../../hooks/useLeadPipeline";
+import { useQueryClient } from "@tanstack/react-query";
+import { useLeadStats, useLeadStatus, useUpdateLead, useReorderLeads } from "../../hooks/useLeadPipeline";
 import ReferralStatusChip from "../../components/chips/ReferralStatusChip";
 import EmptyState from "../../components/common/EmptyState";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
@@ -59,6 +60,7 @@ const getStageStyles = (stageId: string) =>
   };
 
 const LeadTracking = () => {
+  const queryClient = useQueryClient();
   const [view, setView] = useState("pipeline");
   const [page, setPage] = useState(1);
   const [limit] = useState(EVEN_PAGINATION_LIMIT);
@@ -88,16 +90,124 @@ const LeadTracking = () => {
     isError,
   } = useLeadStatus({ ...filters, search: debouncedSearch });
 
+  const { mutateAsync: updateLeadMutate } = useUpdateLead();
+  const { mutateAsync: reorderLeadsMutate } = useReorderLeads();
+  const [localGroupedLeads, setLocalGroupedLeads] = useState<any>(null);
+  const [draggedLead, setDraggedLead] = useState<{ id: string; status: string } | null>(null);
+  const [draggedOverColumnId, setDraggedOverColumnId] = useState<string | null>(null);
+  const [draggedOverLeadId, setDraggedOverLeadId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (leadsData?.groupedLeads) {
+      setLocalGroupedLeads(leadsData.groupedLeads);
+    }
+  }, [leadsData]);
+
+  const handleDragStart = (e: React.DragEvent, id: string, status: string) => {
+    setDraggedLead({ id, status });
+    e.dataTransfer.setData("text/plain", id);
+    e.dataTransfer.effectAllowed = "move";
+  };
+
+  const handleDragEnd = () => {
+    setDraggedLead(null);
+    setDraggedOverColumnId(null);
+    setDraggedOverLeadId(null);
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetStatus: string, targetLeadId?: string) => {
+    e.preventDefault();
+    setDraggedOverColumnId(null);
+    setDraggedOverLeadId(null);
+
+    if (!draggedLead) return;
+    const { id: leadId, status: sourceStatus } = draggedLead;
+
+    const previousGroupedLeads = { ...localGroupedLeads };
+    const newGroupedLeads = { ...localGroupedLeads };
+
+    const sourceArray = newGroupedLeads[sourceStatus] ? [...newGroupedLeads[sourceStatus]] : [];
+    const leadIndex = sourceArray.findIndex((l: any) => (l.id || l._id) === leadId);
+    if (leadIndex === -1) return;
+
+    const [movedLead] = sourceArray.splice(leadIndex, 1);
+    newGroupedLeads[sourceStatus] = sourceArray;
+    
+    const updatedMovedLead = { ...movedLead, status: targetStatus };
+
+    let targetArray = newGroupedLeads[targetStatus] ? [...newGroupedLeads[targetStatus]] : [];
+    
+    if (sourceStatus === targetStatus) {
+      targetArray = sourceArray; 
+    }
+
+    if (targetLeadId) {
+      const insertIndex = targetArray.findIndex((l: any) => (l.id || l._id) === targetLeadId);
+      if (insertIndex !== -1) {
+        targetArray.splice(insertIndex, 0, updatedMovedLead);
+      } else {
+        targetArray.push(updatedMovedLead);
+      }
+    } else {
+      targetArray.push(updatedMovedLead);
+    }
+    
+    newGroupedLeads[targetStatus] = targetArray;
+
+    setLocalGroupedLeads(newGroupedLeads);
+
+    const queryKey = ["leadStatus", { ...filters, search: debouncedSearch }];
+
+    // Optimistically update query cache
+    queryClient.setQueryData(queryKey, (oldData: any) => {
+      if (!oldData) return oldData;
+      return {
+        ...oldData,
+        groupedLeads: newGroupedLeads
+      };
+    });
+
+    try {
+      const targetIds = newGroupedLeads[targetStatus].map((l: any) => l._id || l.id);
+      const sourceIds = sourceStatus !== targetStatus
+        ? newGroupedLeads[sourceStatus].map((l: any) => l._id || l.id)
+        : undefined;
+
+      await reorderLeadsMutate({
+        leadId,
+        targetStatus,
+        targetIds,
+        sourceStatus,
+        sourceIds,
+      });
+    } catch (err) {
+      setLocalGroupedLeads(previousGroupedLeads);
+      queryClient.setQueryData(queryKey, (oldData: any) => {
+        if (!oldData) return oldData;
+        return {
+          ...oldData,
+          groupedLeads: previousGroupedLeads
+        };
+      });
+      addToast({
+        title: "Error",
+        description: "Failed to update lead status. Relocating lead back.",
+        color: "danger"
+      });
+    }
+  };
+
   const selectedLead = useMemo(() => {
-    if (!selectedLeadId || !leadsData?.groupedLeads) return null;
-    for (const stageLeads of Object.values(leadsData.groupedLeads)) {
+    const dataToUse = localGroupedLeads || leadsData?.groupedLeads;
+    if (!selectedLeadId || !dataToUse) return null;
+    for (const stageLeads of Object.values(dataToUse)) {
       const found = (stageLeads as any[]).find(
         (l: any) => (l.id || l._id) === selectedLeadId
       );
       if (found) return found;
     }
     return null;
-  }, [selectedLeadId, leadsData]);
+  }, [selectedLeadId, localGroupedLeads, leadsData]);
 
   const { data: stats } = useLeadStats();
   const SUMMARY_STATS = useMemo<StatCard[]>(() => {
@@ -178,7 +288,8 @@ const LeadTracking = () => {
     ];
   }, [stats]);
   const stages = useMemo(() => {
-    if (!leadsData?.groupedLeads) return [];
+    const dataToUse = localGroupedLeads || leadsData?.groupedLeads;
+    if (!dataToUse) return [];
     const statusMap: Record<string, any> = {
       newLead: { icon: HiOutlineUsers, name: "New Lead" },
       contacted: { icon: HiOutlineChat, name: "Contacted" },
@@ -189,8 +300,8 @@ const LeadTracking = () => {
     };
     return LEAD_STATUSES.map((status) => {
       const leads =
-        leadsData.groupedLeads[
-        status.key as keyof typeof leadsData.groupedLeads
+        dataToUse[
+        status.key as keyof typeof dataToUse
         ] || [];
       const totalValue = leads.reduce(
         (sum: number, lead: any) => sum + (Number(lead.estimatedValue) || 0),
@@ -205,11 +316,12 @@ const LeadTracking = () => {
         leads: leads,
       };
     });
-  }, [leadsData]);
+  }, [localGroupedLeads, leadsData]);
   const allLeads = useMemo(() => {
-    if (!leadsData?.groupedLeads) return [];
-    return Object.values(leadsData.groupedLeads).flat();
-  }, [leadsData]);
+    const dataToUse = localGroupedLeads || leadsData?.groupedLeads;
+    if (!dataToUse) return [];
+    return Object.values(dataToUse).flat();
+  }, [localGroupedLeads, leadsData]);
   const HEADING_DATA = {
     heading: view === "automations" ? "Lead Automations" : "Lead Tracking",
     subHeading: view === "automations"
@@ -383,7 +495,15 @@ const LeadTracking = () => {
                     return (
                       <div
                         key={stage.id}
-                        className="flex flex-col rounded-xl overflow-hidden border border-foreground/5 dark:border-foreground/10 bg-white dark:bg-content1 h-fit"
+                        onDragOver={(e) => e.preventDefault()}
+                        onDragEnter={() => setDraggedOverColumnId(stage.id)}
+                        onDragLeave={() => setDraggedOverColumnId(null)}
+                        onDrop={(e) => handleDrop(e, stage.id)}
+                        className={`flex flex-col rounded-xl overflow-hidden border transition-all duration-200 bg-white dark:bg-content1 h-fit ${
+                          draggedOverColumnId === stage.id
+                            ? "border-primary/50 dark:border-primary/70 shadow-lg scale-[1.01] bg-primary/5 dark:bg-primary/10"
+                            : "border-foreground/5 dark:border-foreground/10"
+                        }`}
                       >
                         <div
                           className={`p-3 space-y-1 ${styles.bg} border-b ${styles.border} flex-shrink-0`}
@@ -424,6 +544,22 @@ const LeadTracking = () => {
                                     value: `$${(lead.estimatedValue || 0).toLocaleString()}`,
                                   }}
                                   onPress={handleLeadClick}
+                                  draggable={true}
+                                  onDragStart={(e) => handleDragStart(e, lead.id || lead._id, stage.id)}
+                                  onDragEnd={handleDragEnd}
+                                  onDragOver={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setDraggedOverLeadId(lead.id || lead._id);
+                                  }}
+                                  onDragLeave={() => {
+                                    setDraggedOverLeadId(null);
+                                  }}
+                                  onDrop={(e) => {
+                                    e.stopPropagation();
+                                    handleDrop(e, stage.id, lead.id || lead._id);
+                                  }}
+                                  isDraggedOver={draggedOverLeadId === (lead.id || lead._id)}
                                 />
                               ))
                             ) : (
