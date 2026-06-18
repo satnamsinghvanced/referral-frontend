@@ -209,8 +209,6 @@ const LeadTracking = () => {
     return null;
   }, [selectedLeadId, localGroupedLeads, leadsData]);
 
-  console.log("leadsData", leadsData);
-
   const { data: stats } = useLeadStats();
   const SUMMARY_STATS = useMemo<StatCard[]>(() => {
     return [
@@ -382,6 +380,7 @@ const LeadTracking = () => {
               <div className="w-full xl:flex-grow">
                 <Input
                   placeholder="Search leads by name, email, or phone..."
+                  aria-label="Search leads"
                   startContent={
                     <HiOutlineSearch className="text-gray-400 dark:text-foreground/40" />
                   }
@@ -397,6 +396,7 @@ const LeadTracking = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 w-full items-stretch sm:items-center">
                 <Select
                   placeholder="All Sources"
+                  aria-label="Filter by source"
                   size="sm"
                   className="w-full"
                   variant="flat"
@@ -417,6 +417,7 @@ const LeadTracking = () => {
                 </Select>
                 <Select
                   placeholder="All Treatments"
+                  aria-label="Filter by treatment"
                   size="sm"
                   className="w-full"
                   variant="flat"
@@ -437,6 +438,7 @@ const LeadTracking = () => {
                 </Select>
                 <Select
                   placeholder="All Priorities"
+                  aria-label="Filter by priority"
                   size="sm"
                   className="w-full"
                   variant="flat"

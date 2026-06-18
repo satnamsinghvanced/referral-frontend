@@ -26,7 +26,7 @@ const ComponentHeader: React.FC<ComponentHeaderProps> = ({
           )}
         </div>
         {buttons && buttons.length > 0 && (
-          <div className="space-x-2 md:space-x-3">
+          <div className="flex items-center flex-wrap gap-2 md:gap-3">
             {buttons.map((btn, index) => (
               <Button
                 key={index}
