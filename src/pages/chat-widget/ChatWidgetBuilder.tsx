@@ -15,28 +15,24 @@ import LivePreview from "./components/LivePreview";
 
 export default function ChatWidgetBuilder() {
   const [activeStep, setActiveStep] = useState(0);
-
   const [businessName, setBusinessName] = useState("");
   const [bubbleText, setBubbleText] = useState("");
   const [primaryColor, setPrimaryColor] = useState("#0ea5e9");
   const [widgetPosition, setWidgetPosition] = useState("bottom-right");
   const [bubbleIcon, setBubbleIcon] = useState("Message");
   const [logoUrl, setLogoUrl] = useState("");
-
   const [welcomeMessage, setWelcomeMessage] = useState("");
   const [welcomeDelay, setWelcomeDelay] = useState("");
   const [enableAutoReply, setEnableAutoReply] = useState(true);
   const [autoReplyMessage, setAutoReplyMessage] = useState("");
   const [offlineMessage, setOfflineMessage] = useState("");
   const [workingHours, setWorkingHours] = useState(true);
-
   const [enableSmsTransition, setEnableSmsTransition] = useState(true);
   const [smsPromptMessage, setSmsPromptMessage] = useState("");
   const [smsConsentText, setSmsConsentText] = useState("");
   const [triggerAfterMessages, setTriggerAfterMessages] = useState(true);
   const [triggerOnScheduling, setTriggerOnScheduling] = useState(true);
   const [triggerImmediately, setTriggerImmediately] = useState(false);
-
   const [hipaaMode, setHipaaMode] = useState(true);
   const [requirePatientConsent, setRequirePatientConsent] = useState(true);
   const [privacyPolicyUrl, setPrivacyPolicyUrl] = useState("");
@@ -44,7 +40,6 @@ export default function ChatWidgetBuilder() {
   const [requireName, setRequireName] = useState(true);
   const [requireEmail, setRequireEmail] = useState(true);
   const [requirePhone, setRequirePhone] = useState(true);
-
   const [selectedPlatform, setSelectedPlatform] = useState("WordPress");
   const [copiedCode, setCopiedCode] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -373,7 +368,6 @@ window.practiceROIConfig = {
               >
                 Previous
               </Button>
-
               <Button
                 color="primary"
                 onClick={handleNextStep}
@@ -383,7 +377,6 @@ window.practiceROIConfig = {
                 {activeStep < steps.length - 1 && <LuChevronRight className="w-3.5 h-3.5 ml-0.5" />}
               </Button>
             </div>
-
           </Card>
         </div>
 

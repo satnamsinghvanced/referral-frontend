@@ -1,125 +1,20 @@
 import { useState, useMemo, useRef, useEffect } from "react";
-import {
-  Card,
-  CardBody,
-  Input,
-  Select,
-  SelectItem,
-  Chip,
-  Button,
-  Dropdown,
-  DropdownTrigger,
-  DropdownMenu,
-  DropdownItem,
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-  addToast,
-} from "@heroui/react";
-import EmojiPicker, { Theme } from "emoji-picker-react";
-import {
-  HiOutlineSearch,
-  HiOutlinePhone,
-  HiOutlineStar,
-  HiStar,
-  HiOutlineFilter,
-  HiOutlineDotsVertical,
-  HiOutlineEye,
-  HiOutlineArchive,
-  HiOutlineCalendar,
-  HiOutlineMail,
-  HiOutlineCurrencyDollar,
-  HiOutlineLocationMarker,
-  HiOutlineChat,
-  HiOutlineClock,
-  HiOutlineTrendingUp,
-  HiOutlinePaperClip,
-  HiOutlinePhotograph,
-  HiOutlineEmojiHappy,
-  HiOutlineArrowLeft,
-} from "react-icons/hi";
-import { LuMessageSquare, LuSend } from "react-icons/lu";
-import { FaFacebookF, FaInstagram, FaGlobe, FaPhoneAlt } from "react-icons/fa";
-import { MdOutlineVideocam } from "react-icons/md";
+import { Card, CardBody, addToast } from "@heroui/react";
+import { HiOutlineFilter } from "react-icons/hi";
+import { LuMessageSquare } from "react-icons/lu";
+import { HiOutlineMail, HiOutlineClock, HiOutlineTrendingUp } from "react-icons/hi";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
 import TrendIndicator from "../../components/common/TrendIndicator";
 import {
-  CONVERSATION_PLATFORMS,
-  CONVERSATION_TAGS,
   MOCK_CONVERSATIONS,
   Conversation,
   ConversationMessage,
 } from "../../consts/conversations";
+import ConversationList from "./components/ConversationList";
+import ChatArea from "./components/ChatArea";
+import LeadSidebar from "./components/LeadSidebar";
 
-const getPlatformIcon = (platform: string) => {
-  switch (platform) {
-    case "web":
-      return <FaGlobe className="size-3" />;
-    case "phone":
-      return <FaPhoneAlt className="size-2.5" />;
-    case "facebook":
-      return <FaFacebookF className="size-2.5" />;
-    case "instagram":
-      return <FaInstagram className="size-3" />;
-    default:
-      return <FaGlobe className="size-3" />;
-  }
-};
-
-const getPlatformLabel = (platform: string) => {
-  switch (platform) {
-    case "web":
-      return "Website Chat";
-    case "phone":
-      return "Phone";
-    case "facebook":
-      return "Facebook";
-    case "instagram":
-      return "Instagram";
-    default:
-      return "Website";
-  }
-};
-
-const getPlatformChipStyle = (platform: string) => {
-  switch (platform) {
-    case "web":
-      return "bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400";
-    case "phone":
-      return "bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400";
-    case "facebook":
-      return "bg-indigo-100 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-400";
-    case "instagram":
-      return "bg-pink-100 dark:bg-pink-900/30 text-pink-700 dark:text-pink-400";
-    default:
-      return "bg-gray-100 dark:bg-gray-900/30 text-gray-700 dark:text-gray-400";
-  }
-};
-
-const getAvatarColor = (name: string) => {
-  const colors = [
-    "bg-sky-500",
-    "bg-emerald-500",
-    "bg-purple-500",
-    "bg-orange-500",
-    "bg-pink-500",
-    "bg-teal-500",
-    "bg-indigo-500",
-    "bg-rose-500",
-  ];
-  const idx = name.charCodeAt(0) % colors.length;
-  return colors[idx];
-};
-
-const getInitials = (name: string) => {
-  return name
-    .split(" ")
-    .map((n) => n[0])
-    .join("")
-    .toUpperCase()
-    .slice(0, 2);
-};
 const Conversations = () => {
   const [conversations, setConversations] = useState(MOCK_CONVERSATIONS);
   const [search, setSearch] = useState("");
@@ -134,6 +29,7 @@ const Conversations = () => {
     url: string;
     type: string;
   } | null>(null);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -176,9 +72,19 @@ const Conversations = () => {
         conv.lastMessage.toLowerCase().includes(search.toLowerCase());
       const matchesPlatform =
         selectedPlatform === "all" || conv.platform === selectedPlatform;
-      return matchesSearch && matchesPlatform;
+
+      let matchesFilter = true;
+      if (filterDropdown === "unread") {
+        matchesFilter = conv.unreadCount > 0;
+      } else if (filterDropdown === "starred") {
+        matchesFilter = conv.isStarred;
+      } else if (filterDropdown === "archived") {
+        matchesFilter = conv.status === "archived";
+      }
+
+      return matchesSearch && matchesPlatform && matchesFilter;
     });
-  }, [search, selectedPlatform, conversations]);
+  }, [search, selectedPlatform, filterDropdown, conversations]);
 
   const selectedConversation = useMemo(() => {
     if (!selectedConversationId) return null;
@@ -196,10 +102,10 @@ const Conversations = () => {
   }, [selectedConversation]);
 
   const stats = useMemo<StatCard[]>(() => {
-    const activeCount = MOCK_CONVERSATIONS.filter(
+    const activeCount = conversations.filter(
       (c) => c.status === "active",
     ).length;
-    const unreadCount = MOCK_CONVERSATIONS.reduce(
+    const unreadCount = conversations.reduce(
       (acc, c) => acc + c.unreadCount,
       0,
     );
@@ -259,7 +165,7 @@ const Conversations = () => {
         ),
       },
     ];
-  }, []);
+  }, [conversations]);
 
   const handleSendMessage = () => {
     if (!messageInput.trim() && !attachedFile) return;
@@ -295,6 +201,62 @@ const Conversations = () => {
 
     setMessageInput("");
     setAttachedFile(null);
+  };
+
+  const handleToggleStar = (convId: string) => {
+    setConversations((prev) =>
+      prev.map((c) => {
+        if (c.id === convId) {
+          const nextStarred = !c.isStarred;
+          addToast({
+            title: nextStarred ? "Starred" : "Unstarred",
+            description: nextStarred ? "Conversation starred" : "Conversation unstarred",
+            color: "success",
+          });
+          return {
+            ...c,
+            isStarred: nextStarred,
+          };
+        }
+        return c;
+      })
+    );
+  };
+
+  const handleDropdownAction = (key: string, conv: Conversation) => {
+    if (key === "archive") {
+      setConversations((prev) =>
+        prev.map((c) => {
+          if (c.id === conv.id) {
+            return {
+              ...c,
+              status: "archived",
+            };
+          }
+          return c;
+        })
+      );
+      addToast({
+        title: "Conversation Archived",
+        description: `${conv.patientName}'s conversation has been archived`,
+        color: "success",
+      });
+      if (selectedConversationId === conv.id) {
+        setSelectedConversationId(null);
+      }
+    } else if (key === "block") {
+      addToast({
+        title: "User Blocked",
+        description: `${conv.patientName} has been blocked`,
+        color: "danger",
+      });
+    } else if (key === "view") {
+      addToast({
+        title: "View Profile",
+        description: `Profile view for ${conv.patientName}`,
+        color: "primary",
+      });
+    }
   };
 
   const HEADING_DATA = {
@@ -344,6 +306,43 @@ const Conversations = () => {
         >
           <CardBody className="p-0">
             <div className="flex h-[calc(100vh-340px)] min-h-[500px]">
+<<<<<<< HEAD
+              <ConversationList
+                conversations={conversations}
+                filteredConversations={filteredConversations}
+                selectedConversationId={selectedConversationId}
+                selectedConversation={selectedConversation}
+                onConversationClick={handleConversationClick}
+                search={search}
+                setSearch={setSearch}
+                selectedPlatform={selectedPlatform}
+                setSelectedPlatform={setSelectedPlatform}
+                filterDropdown={filterDropdown}
+                setFilterDropdown={setFilterDropdown}
+              />
+              <ChatArea
+                selectedConversation={selectedConversation}
+                selectedConversationId={selectedConversationId}
+                setSelectedConversationId={setSelectedConversationId}
+                messageInput={messageInput}
+                setMessageInput={setMessageInput}
+                attachedFile={attachedFile}
+                setAttachedFile={setAttachedFile}
+                handleSendMessage={handleSendMessage}
+                fileInputRef={fileInputRef}
+                imageInputRef={imageInputRef}
+                handleFileChange={handleFileChange}
+                handleImageChange={handleImageChange}
+                messagesEndRef={messagesEndRef}
+                onToggleStar={handleToggleStar}
+                onDropdownAction={handleDropdownAction}
+              />
+              <LeadSidebar
+                selectedConversation={selectedConversation}
+                onArchiveLead={(conv) => handleDropdownAction("archive", conv)}
+                onViewLead={(conv) => handleDropdownAction("view", conv)}
+              />
+=======
               <div className={`w-full md:w-[320px] md:min-w-[280px] border-r border-foreground/10 flex flex-col ${selectedConversationId ? "hidden md:flex" : "flex"}`}>
                 <div className="p-3 border-b border-foreground/10">
                   <Input
@@ -956,6 +955,7 @@ const Conversations = () => {
                   </div>
                 </div>
               )}
+>>>>>>> 9a94da1b21477dc5e0b281e2d0caff53884192a1
             </div>
           </CardBody>
         </Card>

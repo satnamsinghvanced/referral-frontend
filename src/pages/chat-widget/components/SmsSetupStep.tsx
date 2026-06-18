@@ -43,7 +43,6 @@ export default function SmsSetupStep({
       </div>
 
       <div className={`border rounded-xl p-4 transition-all duration-200 ${enableSmsTransition ? "border-sky-200 bg-sky-50/40" : "border-foreground/10 bg-transparent"}`}>
-        {/* Toggle header row */}
         <div className="flex items-center justify-between pb-4">
           <div className="flex flex-col gap-0.5">
             <span className="text-xs font-bold text-default-700 font-sans">Enable SMS Transition</span>
@@ -54,7 +53,6 @@ export default function SmsSetupStep({
 
         {enableSmsTransition && (
           <div className="border-t border-sky-100 pt-4 space-y-4 animate-in slide-in-from-top-2 duration-200">
-            {/* Prompt Message */}
             <div className="space-y-1 flex flex-col">
               <label className="text-xs font-bold text-default-700 block mb-1 font-sans">
                 SMS Prompt Message <span className="text-danger">*</span>
@@ -72,9 +70,7 @@ export default function SmsSetupStep({
               )}
             </div>
 
-            {/* Consent Text with custom Radio Selector Layout */}
             <div className="flex items-start gap-2.5 mt-2">
-              {/* Custom radio indicator circle next to the label */}
               <div className="w-4 h-4 rounded-full border-2 border-primary flex items-center justify-center flex-shrink-0 mt-1.5">
                 <div className="w-1.5 h-1.5 rounded-full bg-primary" />
               </div>
@@ -95,8 +91,6 @@ export default function SmsSetupStep({
                 )}
               </div>
             </div>
-
-            {/* TCPA Compliance Warning Card matching Figma (yellow borders & bg) */}
             <Card className="shadow-none border border-amber-200 bg-amber-50/50 rounded-xl p-3">
               <CardBody className="p-0 flex flex-row gap-3 items-start">
                 <FiInfo className="w-4.5 h-4.5 text-amber-600 flex-shrink-0 mt-0.5" />
@@ -108,8 +102,6 @@ export default function SmsSetupStep({
                 </div>
               </CardBody>
             </Card>
-
-            {/* Transition triggers checklist */}
             <div className="space-y-2.5">
               <label className="text-xs font-bold text-default-700 block font-sans">Trigger SMS Transition</label>
               <div className="flex flex-col gap-2.5 pl-1">
