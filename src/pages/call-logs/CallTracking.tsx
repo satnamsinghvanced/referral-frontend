@@ -26,6 +26,7 @@ const CallTracking = () => {
     useFetchTwilioConfig();
 
   const isTwilioConnected = twilioConfig && twilioConfig.status === "Connected";
+  const hasActiveNumber = isTwilioConnected && (twilioConfig?.phoneNumbers?.length ?? 0) > 0;
   const [selectedRecord, setSelectedRecord] = useState<CallRecord | null>(null);
   const [isRecordingModalOpen, setIsRecordingModalOpen] = useState(false);
   const [filters, setFilters] = useState({
@@ -157,7 +158,26 @@ const CallTracking = () => {
               </Button>
             </div>
           )}
-          {isTwilioConnected && !isTwilioConfigLoading && (
+          {isTwilioConnected && !hasActiveNumber && !isTwilioConfigLoading && (
+            <div className="flex flex-col items-center justify-center py-16 gap-3 border border-dashed border-foreground/10 rounded-xl">
+              <FiPhone className="w-10 h-10 text-foreground/20" />
+              <p className="text-sm font-medium text-foreground/50">No active phone numbers</p>
+              <p className="text-xs text-foreground/40 text-center max-w-xs">
+                Purchase a phone number from the Integrations page to start tracking calls.
+              </p>
+              <Button
+                as={Link}
+                to="/integrations"
+                size="sm"
+                color="primary"
+                variant="flat"
+                className="mt-1"
+              >
+                Go to Integrations
+              </Button>
+            </div>
+          )}
+          {hasActiveNumber && !isTwilioConfigLoading && (
             <>
               <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-5 gap-3 md:gap-4 justify-between">
                 {STATS_CARD_DATA.map((data) => (
