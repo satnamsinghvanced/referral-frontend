@@ -57,16 +57,16 @@ export default function TwilioAddCreditsModal({
     );
   };
 
-  const tiers = [15, 50, 75];
+  const tiers = [50, 75, 100];
   interface TierMeta {
     label: string;
     desc: string;
     popular?: boolean;
   }
   const tierMetadata: Record<number, TierMeta> = {
-    15: { label: "Starter Wallet", desc: "Best for Individuals" },
-    50: { label: "Growth Wallet", desc: "Most Popular", popular: true },
-    75: { label: "Scale Wallet", desc: "Growth Scale" },
+    50: { label: "Starter Wallet", desc: "Best for Individuals" },
+    75: { label: "Growth Wallet", desc: "Most Popular", popular: true },
+    100: { label: "Scale Wallet", desc: "Growth Scale" },
   };
 
   const [selectedPreset, setSelectedPreset] = useState<number | null>(50);
@@ -100,21 +100,21 @@ export default function TwilioAddCreditsModal({
 
   const handleAdd = () => {
     const credits = parseFloat(customAmount);
-    if (isNaN(credits) || credits < 10) {
+    if (isNaN(credits) || credits < 20) {
       addToast({
         title: "Invalid Amount",
-        description: "Please enter a monthly subscription amount of at least $10.",
+        description: "Please enter a monthly subscription amount of at least $20.",
         color: "danger",
       });
       return;
     }
     
     let pkg = "none";
-    if (credits === 15) {
+    if (credits === 50) {
       pkg = "500";
-    } else if (credits === 25) {
+    } else if (credits === 75) {
       pkg = "1000";
-    } else if (credits === 50) {
+    } else if (credits === 100) {
       pkg = "2500";
     } else if (credits > 0) {
       pkg = Math.floor(credits / 0.02).toString();
@@ -129,12 +129,11 @@ export default function TwilioAddCreditsModal({
   const walletAmount = parseFloat(customAmount) || 0;
   
   let pkgName = "none";
-  let packageCost = 0;
-  if (walletAmount === 15) {
+  if (walletAmount === 50) {
     pkgName = "500";
-  } else if (walletAmount === 25) {
+  } else if (walletAmount === 75) {
     pkgName = "1000";
-  } else if (walletAmount === 50) {
+  } else if (walletAmount === 100) {
     pkgName = "2500";
   } else if (walletAmount > 0) {
     pkgName = Math.floor(walletAmount / 0.02).toString();
@@ -211,7 +210,7 @@ export default function TwilioAddCreditsModal({
               placeholder="Enter custom amount"
               value={customAmount}
               onValueChange={handleCustomAmountChange}
-              min={10}
+              min={20}
               startContent={<span className="text-xs text-foreground-500">$</span>}
               endContent={<span className="w-14 text-xs text-foreground-400">/ month</span>}
               classNames={{

@@ -96,6 +96,10 @@ function Integrations() {
     isLoading: isTwilioConfigLoading,
     isError: isTwilioConfigError,
   } = useFetchTwilioConfig();
+
+  useEffect(() => {
+    console.log("[Integrations] twilioConfig state:", { twilioConfig, isTwilioConfigLoading, isTwilioConfigError });
+  }, [twilioConfig, isTwilioConfigLoading, isTwilioConfigError]);
   const { data: googleAdsConfig, isLoading: isGoogleAdsConfigLoading } =
     useGoogleAdsIntegration();
   const { mutate: updateGoogleAdsIntegration } = useUpdateGoogleAds();
