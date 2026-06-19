@@ -22,13 +22,11 @@ import { useUpdateCallRecord } from "../../../hooks/useCall";
 import { CallRecord } from "../../../types/call";
 import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 import DatePickerWithTimeInput from "../../../components/common/DatePickerWithTimeInput";
-
 import { store } from "../../../store";
 
 const AudioPlayer = ({ url, callDuration }: { url: string; callDuration: string }) => {
   const token = store.getState().auth.token;
   const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:9090/api";
-
   let absoluteUrl = url;
   if (url.startsWith("/")) {
     if (baseUrl.endsWith("/api")) {
@@ -39,7 +37,6 @@ const AudioPlayer = ({ url, callDuration }: { url: string; callDuration: string 
   }
 
   const streamUrl = `${absoluteUrl}?token=${token}`;
-
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -113,11 +110,9 @@ const AudioPlayer = ({ url, callDuration }: { url: string; callDuration: string 
       >
         {isPlaying ? <FiPause className="size-4" /> : <FiPlay className="size-4 translate-x-[1px]" />}
       </button>
-
       <div className="text-[11px] font-medium text-foreground w-8 text-right font-mono">
         {formatTime(currentTime)}
       </div>
-
       <input
         type="range"
         min={0}
@@ -130,7 +125,6 @@ const AudioPlayer = ({ url, callDuration }: { url: string; callDuration: string 
           background: `linear-gradient(to right, #3b82f6 ${duration > 0 ? (currentTime / duration) * 100 : 0}%, hsl(var(--heroui-default-200, 240 5% 90%)) ${duration > 0 ? (currentTime / duration) * 100 : 0}%)`
         }}
       />
-
       <div className="text-[11px] font-medium text-gray-500 dark:text-foreground/50 w-8 font-mono">
         {formatTime(duration)}
       </div>
@@ -163,7 +157,6 @@ const PlaybackTab = ({ data }: { data: CallRecord }) => (
             </Chip>
           </div>
         </div>
-
         <div className="space-y-4 mt-4">
           {data.recordingUrl ? (
             <AudioPlayer url={data.recordingUrl.startsWith("http") ? `/twilio-record/${data._id}/recording` : data.recordingUrl} callDuration={data.duration} />
@@ -194,18 +187,13 @@ const TranscriptionTab = ({ data }: { data: CallRecord }) => (
   </div>
 );
 
-const DetailsTab = ({
-  data,
-  onClose,
-}: {
-  data: CallRecord;
-  onClose: () => void;
-}) => {
+const DetailsTab = ({ data, onClose }: { data: CallRecord; onClose: () => void; }) => {
   const { mutate: updateRecord, isPending } = useUpdateCallRecord();
   const [notes, setNotes] = useState(data.notes || "");
   const [followUp, setFollowUp] = useState(data.followUp || false);
   const [appointment, setAppointment] = useState(data.appointment || false);
   const [appointmentDate, setAppointmentDate] = useState(data.date || "");
+
   useEffect(() => {
     setNotes(data.notes || "");
     setFollowUp(data.followUp || false);
@@ -309,7 +297,6 @@ const DetailsTab = ({
               </div>
             </CardBody>
           </Card>
-
           <Card className="shadow-none border border-foreground/10">
             <CardBody className="space-y-3">
               <div className="flex items-center justify-between">
@@ -328,7 +315,6 @@ const DetailsTab = ({
                   }}
                   variant="flat"
                 />
-
                 <div className="flex flex-col space-y-2 text-xs">
                   <div>
                     <Checkbox
@@ -360,7 +346,6 @@ const DetailsTab = ({
                     />
                   )}
                 </div>
-
                 <div className="border-t border-foreground/10 pt-2 mt-4">
                   <Button
                     color="primary"
@@ -389,11 +374,7 @@ interface CallRecordingModalProps {
   data: CallRecord | null;
 }
 
-export default function CallRecordingModal({
-  isOpen,
-  onClose,
-  data,
-}: CallRecordingModalProps) {
+export default function CallRecordingModal({ isOpen, onClose, data }: CallRecordingModalProps) {
   if (!data) return null;
   const tabs = [
     {
