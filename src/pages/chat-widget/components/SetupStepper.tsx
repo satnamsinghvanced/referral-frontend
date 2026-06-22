@@ -10,9 +10,10 @@ interface SetupStepperProps {
   steps: Step[];
   activeStep: number;
   setActiveStep: (step: number) => void;
+  isPublished?: boolean;
 }
 
-export default function SetupStepper({ steps, activeStep, setActiveStep }: SetupStepperProps) {
+export default function SetupStepper({ steps, activeStep, setActiveStep, isPublished }: SetupStepperProps) {
   const getStepIcon = (index: number, colorClass: string) => {
     switch (index) {
       case 0:
@@ -51,9 +52,9 @@ export default function SetupStepper({ steps, activeStep, setActiveStep }: Setup
           return (
             <div
               key={idx}
-              className={`flex flex-col relative z-10 group w-14 ${idx <= activeStep ? "cursor-pointer" : "cursor-default"} ${idx == 0 ? "items-start" : "items-center"} ${idx == steps.length - 1 ? "items-end" : "items-center"}`}
+              className={`flex flex-col relative z-10 group w-14 ${idx <= activeStep || isPublished ? "cursor-pointer" : "cursor-default"} ${idx == 0 ? "items-start" : "items-center"} ${idx == steps.length - 1 ? "items-end" : "items-center"}`}
               onClick={() => {
-                if (idx <= activeStep) {
+                if (idx <= activeStep || isPublished) {
                   setActiveStep(idx);
                 }
               }}

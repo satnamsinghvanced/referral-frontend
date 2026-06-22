@@ -2,6 +2,7 @@ import axios from "./axios";
 
 export interface ChatWidgetConfig {
   _id?: string;
+  userId?: string;
   businessName: string;
   bubbleText: string;
   primaryColor?: string;
@@ -47,5 +48,21 @@ export const saveChatWidgetConfig = async (
   data: ChatWidgetConfig;
 }> => {
   const response: any = await axios.post("/chat-widget", payload);
+  return response;
+};
+
+export interface ChatWidgetStatsData {
+  activeWebsites: number;
+  totalConversations: number;
+  smsOptIns: number;
+  avgResponseTime: string;
+}
+
+export const fetchChatWidgetStats = async (): Promise<{
+  success: boolean;
+  message: string;
+  data: ChatWidgetStatsData;
+}> => {
+  const response: any = await axios.get("/chat-widget/stats");
   return response;
 };

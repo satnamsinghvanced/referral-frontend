@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Card, Button, addToast } from "@heroui/react";
-import { FiArrowLeft } from "react-icons/fi";
+import { FiArrowLeft, FiCheckCircle, FiPlay } from "react-icons/fi";
 import { LuChevronRight } from "react-icons/lu";
 import ComponentContainer from "../../components/common/ComponentContainer";
-
 import ChatWidgetStats from "./components/ChatWidgetStats";
 import SetupStepper from "./components/SetupStepper";
 import BrandingStep from "./components/BrandingStep";
@@ -12,11 +11,39 @@ import SmsSetupStep from "./components/SmsSetupStep";
 import PrivacyComplianceStep from "./components/PrivacyComplianceStep";
 import DeployStep from "./components/DeployStep";
 import LivePreview from "./components/LivePreview";
-import { fetchChatWidgetConfig, saveChatWidgetConfig } from "../../services/chatWidget";
+import { fetchChatWidgetConfig, saveChatWidgetConfig, fetchChatWidgetStats } from "../../services/chatWidget";
 
 export default function ChatWidgetBuilder() {
   const [activeStep, setActiveStep] = useState(0);
+  const [isPublished, setIsPublished] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [initialConfig, setInitialConfig] = useState<any>(null);
+  const [userId, setUserId] = useState("");
+  const [stats, setStats] = useState({
+    activeWebsites: 0,
+    totalConversations: 0,
+    smsOptIns: 0,
+    avgResponseTime: "2.3m"
+  });
   const [businessName, setBusinessName] = useState("");
+
+  const checkHasChanges = (payload: any) => {
+    if (!initialConfig) return true;
+    const keys = Object.keys(payload);
+    for (const key of keys) {
+      let val1 = payload[key];
+      let val2 = initialConfig[key];
+      if (typeof val1 === "number" && typeof val2 === "string") {
+        val2 = Number(val2);
+      } else if (typeof val1 === "string" && typeof val2 === "number") {
+        val1 = Number(val1);
+      }
+      if (val1 !== val2) {
+        return true;
+      }
+    }
+    return false;
+  };
   const [bubbleText, setBubbleText] = useState("");
   const [primaryColor, setPrimaryColor] = useState("#0ea5e9");
   const [widgetPosition, setWidgetPosition] = useState("bottom-right");
@@ -162,6 +189,8 @@ export default function ChatWidgetBuilder() {
         const res = await fetchChatWidgetConfig();
         if (res && res.data) {
           const config = res.data;
+          setIsPublished(true);
+          setUserId(config.userId || "");
           setBusinessName(config.businessName || "");
           setBubbleText(config.bubbleText || "");
           setPrimaryColor(config.primaryColor || "#0ea5e9");
@@ -188,6 +217,37 @@ export default function ChatWidgetBuilder() {
           setRequireEmail(config.requireEmail !== false);
           setRequirePhone(config.requirePhone !== false);
           setSelectedPlatform(config.selectedPlatform || "WordPress");
+
+          setActiveStep(4);
+          setIsEditing(false);
+          setInitialConfig({
+            businessName: config.businessName || "",
+            bubbleText: config.bubbleText || "",
+            primaryColor: config.primaryColor || "#0ea5e9",
+            widgetPosition: config.widgetPosition || "bottom-right",
+            bubbleIcon: config.bubbleIcon || "Message",
+            logoUrl: config.logoUrl || "",
+            welcomeMessage: config.welcomeMessage || "",
+            welcomeDelay: config.welcomeDelay || 0,
+            enableAutoReply: config.enableAutoReply !== false,
+            autoReplyMessage: config.autoReplyMessage || "",
+            offlineMessage: config.offlineMessage || "",
+            workingHours: config.workingHours !== false,
+            enableSmsTransition: config.enableSmsTransition !== false,
+            smsPromptMessage: config.smsPromptMessage || "",
+            smsConsentText: config.smsConsentText || "",
+            triggerAfterMessages: config.triggerAfterMessages !== false,
+            triggerOnScheduling: config.triggerOnScheduling !== false,
+            triggerImmediately: !!config.triggerImmediately,
+            hipaaMode: config.hipaaMode !== false,
+            requirePatientConsent: config.requirePatientConsent !== false,
+            privacyPolicyUrl: config.privacyPolicyUrl || "",
+            dataRetentionPeriod: config.dataRetentionPeriod || 0,
+            requireName: config.requireName !== false,
+            requireEmail: config.requireEmail !== false,
+            requirePhone: config.requirePhone !== false,
+            selectedPlatform: config.selectedPlatform || "WordPress",
+          });
         }
       } catch (err: any) {
         if (err.response?.status !== 404) {
@@ -199,7 +259,18 @@ export default function ChatWidgetBuilder() {
         }
       }
     };
+    const loadStats = async () => {
+      try {
+        const res = await fetchChatWidgetStats();
+        if (res && res.data) {
+          setStats(res.data);
+        }
+      } catch (err) {
+        console.error("Error loading stats:", err);
+      }
+    };
     loadConfig();
+    loadStats();
   }, []);
 
   const steps = [
@@ -214,36 +285,66 @@ export default function ChatWidgetBuilder() {
     if (!validateStep(activeStep)) {
       return;
     }
+    const payload = {
+      businessName,
+      bubbleText,
+      primaryColor,
+      widgetPosition,
+      bubbleIcon,
+      logoUrl,
+      welcomeMessage,
+      welcomeDelay: Number(welcomeDelay),
+      enableAutoReply,
+      autoReplyMessage,
+      offlineMessage,
+      workingHours,
+      enableSmsTransition,
+      smsPromptMessage,
+      smsConsentText,
+      triggerAfterMessages,
+      triggerOnScheduling,
+      triggerImmediately,
+      hipaaMode,
+      requirePatientConsent,
+      privacyPolicyUrl,
+      dataRetentionPeriod: Number(dataRetentionPeriod),
+      requireName,
+      requireEmail,
+      requirePhone,
+      selectedPlatform,
+    };
+
+    if (isPublished) {
+      const hasChanges = checkHasChanges(payload);
+      if (!hasChanges) {
+        addToast({
+          title: "No changes detected",
+          description: "No modifications were found to update.",
+          color: "warning"
+        });
+        setIsEditing(false);
+        setActiveStep(4);
+        return;
+      }
+    }
+
     try {
-      const payload = {
-        businessName,
-        bubbleText,
-        primaryColor,
-        widgetPosition,
-        bubbleIcon,
-        logoUrl,
-        welcomeMessage,
-        welcomeDelay: Number(welcomeDelay),
-        enableAutoReply,
-        autoReplyMessage,
-        offlineMessage,
-        workingHours,
-        enableSmsTransition,
-        smsPromptMessage,
-        smsConsentText,
-        triggerAfterMessages,
-        triggerOnScheduling,
-        triggerImmediately,
-        hipaaMode,
-        requirePatientConsent,
-        privacyPolicyUrl,
-        dataRetentionPeriod: Number(dataRetentionPeriod),
-        requireName,
-        requireEmail,
-        requirePhone,
-        selectedPlatform,
-      };
       await saveChatWidgetConfig(payload);
+      setIsPublished(true);
+      setIsEditing(false);
+      setInitialConfig(payload);
+      setActiveStep(4);
+
+      // Reload config and stats
+      const res = await fetchChatWidgetConfig();
+      if (res && res.data) {
+        setUserId(res.data.userId || "");
+      }
+      const statsRes = await fetchChatWidgetStats();
+      if (statsRes && statsRes.data) {
+        setStats(statsRes.data);
+      }
+
       addToast({
         title: "Widget Published!",
         description: "Your chat widget configurations have been saved and deployed live.",
@@ -261,6 +362,7 @@ export default function ChatWidgetBuilder() {
   const embedCodeSnippet = `<!-- Practice ROI Chat Widget -->
 <script>
 window.practiceROIConfig = {
+  "userId": "${userId}",
   "primaryColor": "${primaryColor}",
   "position": "${widgetPosition}",
   "bubbleIcon": "${bubbleIcon.toLowerCase()}",
@@ -332,19 +434,40 @@ window.practiceROIConfig = {
   const headingData = {
     heading: "Chat Widget Builder",
     subHeading: "Configure and deploy your HIPAA-compliant patient chat widget",
-    buttons: [
-      {
-        label: "Publish Widget",
-        onClick: handlePublishWidget,
-        variant: "solid" as const,
-        color: "primary" as const
-      }
-    ]
+    buttons: isPublished
+      ? [
+        {
+          label: "Published",
+          onClick: undefined,
+          variant: "solid" as const,
+          color: "success" as const,
+          icon: <FiCheckCircle className="w-4 h-4 text-white" />,
+          className: "bg-emerald-500 text-white cursor-default hover:bg-emerald-500 active:bg-emerald-500 pointer-events-none"
+        },
+        {
+          label: "Update Widget",
+          onClick: () => {
+            setActiveStep(0);
+            setIsEditing(true);
+          },
+          variant: "solid" as const,
+          color: "primary" as const,
+          icon: <FiPlay className="w-4 h-4 text-white" />
+        }
+      ]
+      : [
+        {
+          label: "Publish Widget",
+          onClick: handlePublishWidget,
+          variant: "solid" as const,
+          color: "primary" as const
+        }
+      ]
   };
 
   return (
     <ComponentContainer headingData={headingData}>
-      <ChatWidgetStats />
+      <ChatWidgetStats stats={stats} />
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full mt-2 items-start">
         <div className="lg:col-span-7 flex flex-col gap-5">
           <Card className="shadow-none border border-foreground/10 bg-white dark:bg-content1 rounded-xl p-5 md:p-6">
@@ -352,6 +475,7 @@ window.practiceROIConfig = {
               steps={steps}
               activeStep={activeStep}
               setActiveStep={setActiveStep}
+              isPublished={isPublished}
             />
             <div className="min-h-[360px]">
               {activeStep === 0 && (
@@ -452,14 +576,36 @@ window.practiceROIConfig = {
               >
                 Previous
               </Button>
-              <Button
-                color="primary"
-                onClick={handleNextStep}
-                className="rounded-lg text-white font-bold h-10 px-5 text-xs shadow-sm shadow-primary/20 dark:shadow-none font-sans cursor-pointer"
-              >
-                {activeStep === steps.length - 1 ? "Publish Widget" : "Next Step"}
-                {activeStep < steps.length - 1 && <LuChevronRight className="w-3.5 h-3.5 ml-0.5" />}
-              </Button>
+              {activeStep === steps.length - 1 ? (
+                isPublished && !isEditing ? (
+                  <Button
+                    variant="solid"
+                    color="success"
+                    className="bg-emerald-500 text-white cursor-default rounded-lg font-bold h-10 px-5 text-xs font-sans pointer-events-none"
+                    startContent={<FiCheckCircle className="w-3.5 h-3.5 text-white" />}
+                  >
+                    Published
+                  </Button>
+                ) : (
+                  <Button
+                    color="primary"
+                    onClick={handlePublishWidget}
+                    className="rounded-lg text-white font-bold h-10 px-5 text-xs shadow-sm shadow-primary/20 dark:shadow-none font-sans cursor-pointer"
+                    startContent={isPublished ? <FiPlay className="w-3.5 h-3.5 text-white" /> : undefined}
+                  >
+                    {isPublished ? "Update Widget" : "Publish Widget"}
+                  </Button>
+                )
+              ) : (
+                <Button
+                  color="primary"
+                  onClick={handleNextStep}
+                  className="rounded-lg text-white font-bold h-10 px-5 text-xs shadow-sm shadow-primary/20 dark:shadow-none font-sans cursor-pointer"
+                >
+                  Next Step
+                  <LuChevronRight className="w-3.5 h-3.5 ml-0.5" />
+                </Button>
+              )}
             </div>
           </Card>
         </div>

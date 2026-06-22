@@ -7,7 +7,7 @@ interface ComponentContainerProps {
     heading: string;
     subHeading?: string | undefined;
     buttons?: ButtonConfig[] | undefined;
-  };
+  } | any;
   children?: React.ReactNode;
 }
 
@@ -17,7 +17,6 @@ const ComponentContainer: React.FC<ComponentContainerProps> = ({
 }) => {
   return (
     <div className="flex flex-col h-full overflow-hidden">
-      {/* Sticky Header */}
       <div className="bg-background text-foreground">
         <ComponentHeader
           heading={headingData.heading}
