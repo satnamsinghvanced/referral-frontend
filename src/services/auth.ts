@@ -38,25 +38,22 @@ export const verify2FA = async (
   return response.data;
 };
 
-// 1. Export Account Data
 export const exportAccountData = async (): Promise<any> => {
   const response = await axios.get("/users/export-data");
   return response;
 };
 
-// 2. Delete Account
 export const deleteAccount = async (): Promise<ActionResponse> => {
   const response = await axios.delete("/users/delete-account");
   return response.data;
 };
 
-// 3. Export Referrals
 export const exportReferrals = async (): Promise<ReferralExportItem[]> => {
   const response = await axios.get("/users/export-referral");
   return response.data;
 };
 
-// 4. Export Analytics
+
 export const exportAnalytics = async (): Promise<AnalyticsExportResponse> => {
   const response = await axios.get("/users/export-analytics");
   return response.data as any;
@@ -69,7 +66,6 @@ export const exportAnalyticsPDF = async (): Promise<Blob> => {
   return response as unknown as Blob;
 };
 
-// 5. Export Reviews
 export const exportReviews = async (): Promise<ReviewsExportResponse> => {
   const response = await axios.get("/users/export-reviews");
   return response.data as any;
