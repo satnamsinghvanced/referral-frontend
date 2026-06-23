@@ -14,6 +14,8 @@ import {
 import ConversationList from "./components/ConversationList";
 import ChatArea from "./components/ChatArea";
 import LeadSidebar from "./components/LeadSidebar";
+import { getInstagramConversations, sendInstagramMessage } from "../../services/igMessage";
+import { getFacebookConversations, sendFacebookMessage } from "../../services/fbMessage";
 
 const Conversations = () => {
   const [conversations, setConversations] = useState(MOCK_CONVERSATIONS);
@@ -23,6 +25,39 @@ const Conversations = () => {
   const [selectedConversationId, setSelectedConversationId] = useState<
     string | null
   >(null);
+
+  useEffect(() => {
+    const fetchIGConversations = async () => {
+      try {
+        const realIG = await getInstagramConversations();
+        if (realIG && Array.isArray(realIG)) {
+          setConversations((prev) => {
+            const nonIG = prev.filter((c) => c.platform !== "instagram");
+            return [...nonIG, ...realIG];
+          });
+        }
+      } catch (err) {
+        console.error("Failed to load Instagram conversations:", err);
+      }
+    };
+
+    const fetchFBConversations = async () => {
+      try {
+        const realFB = await getFacebookConversations();
+        if (realFB && Array.isArray(realFB)) {
+          setConversations((prev) => {
+            const nonFB = prev.filter((c) => c.platform !== "facebook");
+            return [...nonFB, ...realFB];
+          });
+        }
+      } catch (err) {
+        console.error("Failed to load Facebook conversations:", err);
+      }
+    };
+
+    fetchIGConversations();
+    fetchFBConversations();
+  }, []);
   const [messageInput, setMessageInput] = useState("");
   const [attachedFile, setAttachedFile] = useState<{
     name: string;
@@ -167,8 +202,13 @@ const Conversations = () => {
     ];
   }, [conversations]);
 
-  const handleSendMessage = () => {
+  const handleSendMessage = async () => {
     if (!messageInput.trim() && !attachedFile) return;
+
+    const currentConv = conversations.find((c) => c.id === selectedConversationId);
+    if (!currentConv) return;
+
+    const isInstagram = currentConv.platform === "instagram";
 
     const newMsg: ConversationMessage = {
       id: Date.now().toString(),
@@ -178,6 +218,34 @@ const Conversations = () => {
       isFromPatient: false,
       ...(attachedFile ? { file: { name: attachedFile.name, url: attachedFile.url, type: attachedFile.type } } : {}),
     };
+
+    const isFacebook = currentConv.platform === "facebook";
+
+    if (isInstagram && currentConv.recipientId) {
+      try {
+        await sendInstagramMessage(currentConv.recipientId, messageInput.trim());
+      } catch (err) {
+        console.error("Failed to send Instagram message:", err);
+        addToast({
+          title: "Error Sending Message",
+          description: "Could not deliver message to Instagram.",
+          color: "danger",
+        });
+        return;
+      }
+    } else if (isFacebook && currentConv.recipientId) {
+      try {
+        await sendFacebookMessage(currentConv.recipientId, messageInput.trim());
+      } catch (err) {
+        console.error("Failed to send Facebook message:", err);
+        addToast({
+          title: "Error Sending Message",
+          description: "Could not deliver message to Facebook.",
+          color: "danger",
+        });
+        return;
+      }
+    }
 
     setConversations((prev) =>
       prev.map((c) => {
