@@ -53,6 +53,7 @@ export interface Conversation {
   messages: ConversationMessage[];
   estimatedValue: number;
   treatmentInterest: string[];
+  recipientId?: string;
 }
 
 export const MOCK_CONVERSATIONS: Conversation[] = [

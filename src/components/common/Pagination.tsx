@@ -19,17 +19,18 @@ const Pagination = ({
   return (
     <div className="flex items-center justify-between gap-2 max-sm:flex-col-reverse max-sm:mt-1 max-sm:gap-3">
       <p className="text-xs text-gray-600 dark:text-gray-400">
-        Showing {limit * (currentPage - 1) + 1} -{" "}
+        Showing {totalItems === 0 ? 0 : limit * (currentPage - 1) + 1} -{" "}
         {limit * currentPage > totalItems ? totalItems : limit * currentPage} of{" "}
         {totalItems} {identifier}
       </p>
       <HeroPagination
-        total={totalPages}
+        total={totalPages || 1}
         page={currentPage}
         onChange={handlePageChange}
         size="sm"
         radius="sm"
         showControls
+        isDisabled={totalItems === 0}
         classNames={{
           base: "pagination flex justify-end p-0 m-0",
           wrapper: "gap-1.5",
