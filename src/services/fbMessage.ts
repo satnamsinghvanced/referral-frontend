@@ -15,3 +15,12 @@ export const sendFacebookMessage = async (
   });
   return data;
 };
+
+export const markFacebookSeen = async (
+  recipientId: string
+): Promise<any> => {
+  const { data } = await axios.post("/conversations/facebook/seen", {
+    recipientId,
+  });
+  return data;
+};

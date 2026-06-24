@@ -7,24 +7,63 @@ import ComponentContainer from "../../components/common/ComponentContainer";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
 import TrendIndicator from "../../components/common/TrendIndicator";
 import {
-  MOCK_CONVERSATIONS,
+  // MOCK_CONVERSATIONS,
   Conversation,
   ConversationMessage,
 } from "../../consts/conversations";
 import ConversationList from "./components/ConversationList";
 import ChatArea from "./components/ChatArea";
 import LeadSidebar from "./components/LeadSidebar";
-import { getInstagramConversations, sendInstagramMessage } from "../../services/igMessage";
-import { getFacebookConversations, sendFacebookMessage } from "../../services/fbMessage";
+import { getInstagramConversations, sendInstagramMessage, markInstagramSeen } from "../../services/igMessage";
+import { getFacebookConversations, sendFacebookMessage, markFacebookSeen } from "../../services/fbMessage";
 
 const Conversations = () => {
-  const [conversations, setConversations] = useState(MOCK_CONVERSATIONS);
+  // const [conversations, setConversations] = useState(MOCK_CONVERSATIONS);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
   const [search, setSearch] = useState("");
   const [selectedPlatform, setSelectedPlatform] = useState("all");
   const [filterDropdown, setFilterDropdown] = useState("all");
   const [selectedConversationId, setSelectedConversationId] = useState<
     string | null
   >(null);
+
+  const applySeenOverrides = (convs: Conversation[]): Conversation[] => {
+    return convs.map((conv) => {
+      if (!conv.messages || conv.messages.length === 0) {
+        return { ...conv, unreadCount: 0 };
+      }
+
+      // Find the index of the last message sent by the provider/practice
+      let lastProviderIndex = -1;
+      for (let i = conv.messages.length - 1; i >= 0; i--) {
+        const msg = conv.messages[i];
+        if (msg && (msg.senderId === "provider" || msg.senderId === "practice" || !msg.isFromPatient)) {
+          lastProviderIndex = i;
+          break;
+        }
+      }
+
+      // Count patient messages after the last provider message
+      let computedCount = 0;
+      for (let i = lastProviderIndex + 1; i < conv.messages.length; i++) {
+        const msg = conv.messages[i];
+        if (msg && msg.isFromPatient) {
+          computedCount++;
+        }
+      }
+
+      // Also check localStorage override for the last message
+      const lastMsg = conv.messages[conv.messages.length - 1];
+      if (lastMsg) {
+        const seenMsgId = localStorage.getItem(`seen_msg_${conv.id}`);
+        if (seenMsgId === lastMsg.id) {
+          computedCount = 0;
+        }
+      }
+
+      return { ...conv, unreadCount: computedCount };
+    });
+  };
 
   useEffect(() => {
     const fetchIGConversations = async () => {
@@ -33,7 +72,7 @@ const Conversations = () => {
         if (realIG && Array.isArray(realIG)) {
           setConversations((prev) => {
             const nonIG = prev.filter((c) => c.platform !== "instagram");
-            return [...nonIG, ...realIG];
+            return applySeenOverrides([...nonIG, ...realIG]);
           });
         }
       } catch (err) {
@@ -47,7 +86,7 @@ const Conversations = () => {
         if (realFB && Array.isArray(realFB)) {
           setConversations((prev) => {
             const nonFB = prev.filter((c) => c.platform !== "facebook");
-            return [...nonFB, ...realFB];
+            return applySeenOverrides([...nonFB, ...realFB]);
           });
         }
       } catch (err) {
@@ -134,6 +173,36 @@ const Conversations = () => {
 
   useEffect(() => {
     scrollToBottom();
+  }, [selectedConversation]);
+
+  useEffect(() => {
+    if (selectedConversation) {
+      const lastMsg = selectedConversation.messages && selectedConversation.messages.length > 0 
+        ? selectedConversation.messages[selectedConversation.messages.length - 1] 
+        : null;
+      if (lastMsg) {
+        localStorage.setItem(`seen_msg_${selectedConversation.id}`, lastMsg.id);
+      }
+
+      if (selectedConversation.unreadCount > 0) {
+        setConversations((prev) =>
+          prev.map((c) => (c.id === selectedConversation.id ? { ...c, unreadCount: 0 } : c))
+        );
+
+        const markAsSeenOnPlatform = async () => {
+          try {
+            if (selectedConversation.platform === "instagram" && selectedConversation.recipientId) {
+              await markInstagramSeen(selectedConversation.recipientId);
+            } else if (selectedConversation.platform === "facebook" && selectedConversation.recipientId) {
+              await markFacebookSeen(selectedConversation.recipientId);
+            }
+          } catch (err) {
+            console.error("Failed to mark conversation as seen:", err);
+          }
+        };
+        markAsSeenOnPlatform();
+      }
+    }
   }, [selectedConversation]);
 
   const stats = useMemo<StatCard[]>(() => {
