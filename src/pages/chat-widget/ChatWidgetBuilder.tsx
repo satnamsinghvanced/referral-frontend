@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Card, Button, addToast } from "@heroui/react";
 import { FiArrowLeft, FiCheckCircle, FiPlay } from "react-icons/fi";
 import { LuChevronRight } from "react-icons/lu";
@@ -335,7 +335,6 @@ export default function ChatWidgetBuilder() {
       setInitialConfig(payload);
       setActiveStep(4);
 
-      // Reload config and stats
       const res = await fetchChatWidgetConfig();
       if (res && res.data) {
         setUserId(res.data.userId || "");

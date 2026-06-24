@@ -339,8 +339,8 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
                   To send SMS messages with your phone numbers, you need to complete A2P (Application-to-Person) registration. This is required by mobile carriers for compliance and helps prevent spam.
                 </p>
                 <ul className="text-xs text-red-600/80 dark:text-red-400/80 list-disc pl-4 space-y-1 mt-1 font-medium">
-                  <li>Registration takes 5-10 minutes</li>
-                  <li>Approval typically within 1-2 business days</li>
+                  {/* <li>Registration takes 5-10 minutes</li>
+                  <li>Approval typically within 1-2 business days</li> */}
                   <li>Required for all business SMS messaging</li>
                   <li>One-time registration per brand/campaign</li>
                 </ul>
