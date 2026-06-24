@@ -15,3 +15,12 @@ export const sendInstagramMessage = async (
   });
   return data;
 };
+
+export const markInstagramSeen = async (
+  recipientId: string
+): Promise<any> => {
+  const { data } = await axios.post("/conversations/instagram/seen", {
+    recipientId,
+  });
+  return data;
+};

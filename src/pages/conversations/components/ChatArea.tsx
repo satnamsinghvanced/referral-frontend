@@ -404,7 +404,7 @@ export default function ChatArea({
           className="text-xs h-8 bg-gray-100 dark:bg-default-100 text-gray-600 dark:text-foreground/60 w-full"
           startContent={<HiOutlineCalendar className="size-3 flex-shrink-0" />}
         >
-          <span className="truncate">Schedule Appt</span>
+          <span className="truncate">Schedule Appointment</span>
         </Button>
         <Button
           size="sm"

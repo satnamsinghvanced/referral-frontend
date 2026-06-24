@@ -127,13 +127,14 @@ function Webhooks() {
             </div>
             <div className="p-3 bg-gray-900 dark:bg-default-100 rounded-lg overflow-x-auto">
               <pre className="text-xs text-gray-100 dark:text-foreground/80 font-mono">
-                <code>{`<iframe 
-                src="${webhookUrl}" 
-                width="100%" 
-                height="900" 
-                frameborder="0" 
-                style="border: none; border-radius: 8px;">
-                </iframe>`}
+                <code>{`<iframe
+        src="${webhookUrl}" 
+        width="100%" 
+        height="900" 
+        frameborder="0" 
+        style="border: none; border-radius: 8px;">
+        
+</iframe>`}
                 </code>
               </pre>
             </div>
