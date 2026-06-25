@@ -73,6 +73,9 @@ const Platforms = ({
     const metaCreds = credentials?.meta;
     const youtubeCreds = credentials?.youTube;
 
+    const connectedMetaPage = metaCreds?.metaPages?.find((p: any) => p.isConnected) || metaCreds?.metaPages?.[0];
+    const instagramUsername = connectedMetaPage?.instagramBusinessAccount?.username;
+
     return [
       {
         id: metaCreds?.id || "",
@@ -95,6 +98,7 @@ const Platforms = ({
             metaCreds?.metaPages?.[0]?.name,
           accountEmail: metaCreds?.accountEmail,
           accountAvatar: metaCreds?.accountAvatar,
+          instagramUsername,
         },
       },
       // {

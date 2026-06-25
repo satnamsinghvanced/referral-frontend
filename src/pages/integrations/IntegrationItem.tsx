@@ -5,9 +5,11 @@ import {
 } from "@heroui/react";
 import { BiCheckCircle } from "react-icons/bi";
 import { FiAlertCircle, FiExternalLink, FiSettings } from "react-icons/fi";
+import { FaFacebook, FaInstagram } from "react-icons/fa6";
 
 interface IntegrationItemProps {
   id: string;
+  platformId?: string;
   name: string;
   icon: React.ReactNode;
   iconBg: string;
@@ -29,12 +31,14 @@ interface IntegrationItemProps {
     accountName?: string | undefined | null;
     accountEmail?: string | undefined | null;
     accountAvatar?: string | undefined | null;
+    instagramUsername?: string | undefined | null;
   };
   connectedLocation?: string | undefined;
 }
 
 const IntegrationItem: React.FC<IntegrationItemProps> = ({
   id,
+  platformId,
   name,
   icon,
   iconBg,
@@ -189,10 +193,22 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
                 className="h-5 flex items-center gap-2 text-xs dark:text-foreground/40"
               >
                 <span className="flex relative max-w-fit min-w-min inline-flex items-center justify-between box-border whitespace-nowrap px-1 rounded-small capitalize text-[11px] h-5 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300">Syncing with</span>
-                <div className="flex items-center gap-1">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  {platformId === "meta" && (
+                    <FaFacebook className="w-3.5 h-3.5 text-[#1877F2] dark:text-[#1877F2]/90" />
+                  )}
                   <span>{account.accountEmail || account.accountName}</span>
                   {connectedLocation && (
                     <span className="text-primary font-medium">({connectedLocation})</span>
+                  )}
+                  {account.instagramUsername && (
+                    <>
+                      <span className="text-gray-300 dark:text-foreground/20 font-light">•</span>
+                      <span className="inline-flex items-center gap-1 text-gray-500 dark:text-foreground/50">
+                        <FaInstagram className="w-3.5 h-3.5 text-[#E1306C]" />
+                        <span className="font-medium text-[#E1306C] dark:text-[#f45690]">@{account.instagramUsername}</span>
+                      </span>
+                    </>
                   )}
                 </div>
               </p>

@@ -260,6 +260,16 @@ const SignIn = () => {
               </Link>
             </span>
           </div>
+          <div className="mt-2 text-center text-xs">
+            <Link
+              to="https://practiceroi.com/password-reset/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-primary hover:underline"
+            >
+              Forgot your password?
+            </Link>
+          </div>
         </CardBody>
       </Card>
     </div>
