@@ -55,11 +55,10 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
   const [isAddCreditsOpen, setIsAddCreditsOpen] = useState(false);
   const [isPurchaseNumberOpen, setIsPurchaseNumberOpen] = useState(false);
   const { data: registrationRes, isLoading: isA2PConfigLoading } = useFetchA2PRegistration();
-  const registration = registrationRes?.data;
+  const registration = registrationRes ? (registrationRes.data !== undefined ? registrationRes.data : registrationRes) : null;
   const [isA2PRegistrationOpen, setIsA2PRegistrationOpen] = useState(false);
   const [numberToRelease, setNumberToRelease] = useState<PhoneNumber | null>(null);
   const [prevStatus, setPrevStatus] = useState<string | null>(null);
-
   useEffect(() => {
     if (registration?.status) {
       if (prevStatus === "pending" && registration.status === "approved") {
@@ -313,16 +312,7 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
                 {registration?.status === "failed" ? "Edit & Re-submit" : "Register for SMS"}
               </Button>
             )}
-            {registration && (registration.status === "pending" || registration.status === "approved") && (
-              <Button
-                variant="light"
-                size="sm"
-                onPress={() => setIsA2PRegistrationOpen(true)}
-                className="text-xs font-semibold text-foreground-500 hover:text-foreground hover:bg-foreground/5 rounded-lg px-3 h-8"
-              >
-                {registration.status === "approved" ? "View Details" : "Edit Registration"}
-              </Button>
-            )}
+
           </div>
           {isA2PConfigLoading ? (
             <div className="flex justify-center items-center py-6">

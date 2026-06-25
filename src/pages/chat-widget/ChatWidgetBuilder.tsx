@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import { Card, Button, addToast } from "@heroui/react";
 import { FiArrowLeft, FiCheckCircle, FiPlay } from "react-icons/fi";
 import { LuChevronRight } from "react-icons/lu";
@@ -14,6 +15,7 @@ import LivePreview from "./components/LivePreview";
 import { fetchChatWidgetConfig, saveChatWidgetConfig, fetchChatWidgetStats } from "../../services/chatWidget";
 
 export default function ChatWidgetBuilder() {
+  const currentUserId = useSelector((state: any) => state.auth.user?.userId);
   const [activeStep, setActiveStep] = useState(0);
   const [isPublished, setIsPublished] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -361,7 +363,7 @@ export default function ChatWidgetBuilder() {
   const embedCodeSnippet = `<!-- Practice ROI Chat Widget -->
 <script>
 window.practiceROIConfig = {
-  "userId": "${userId}",
+  "userId": "${userId || currentUserId || ""}",
   "primaryColor": "${primaryColor}",
   "position": "${widgetPosition}",
   "bubbleIcon": "${bubbleIcon.toLowerCase()}",
