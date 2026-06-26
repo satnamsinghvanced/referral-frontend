@@ -39,6 +39,12 @@ export default function NotificationPopover() {
     if (!notification.isRead) {
       markReadMutation.mutate([notification._id]);
     }
+    const leadId = notification.metadata?.leadId || notification.leadId;
+    if (leadId) {
+      navigate("/lead-tracking", { state: { openLeadId: leadId } });
+      setOpen(false);
+      return;
+    }
     let link = notification.metadata?.link || notification.link;
     if (!link) {
       const title = (
@@ -55,6 +61,8 @@ export default function NotificationPopover() {
         link = "/referrals";
       } else if (title.includes("review") || message.includes("review")) {
         link = "/reviews";
+      } else if (title.includes("lead") || message.includes("lead")) {
+        link = "/lead-tracking";
       }
     }
     if (link) {

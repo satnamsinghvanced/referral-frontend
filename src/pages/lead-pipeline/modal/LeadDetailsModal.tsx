@@ -5,6 +5,7 @@ import {
   Modal,
   ModalBody,
   ModalContent,
+  ModalFooter,
   ModalHeader,
   Progress,
   Select,
@@ -44,6 +45,7 @@ interface LeadDetailsModalProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   lead: any;
+  onDelete?: (lead: any) => void;
 }
 
 const orangeItemClasses = {
@@ -97,6 +99,7 @@ const LeadDetailsModal = ({
   isOpen,
   onOpenChange,
   lead,
+  onDelete,
 }: LeadDetailsModalProps) => {
   const { data: teamMembers, isLoading: loadingTeam } = useFetchTeamMembers();
   const { mutateAsync: updateLead, isPending: updating } = useUpdateLead();
@@ -807,6 +810,19 @@ const LeadDetailsModal = ({
                 </Tab>
               </Tabs>
             </ModalBody>
+            {onDelete && (
+              <ModalFooter className="flex justify-end p-4 border-t border-foreground/5 dark:border-white/5 bg-gray-50/10 dark:bg-white/5">
+                <Button
+                  color="danger"
+                  variant="flat"
+                  size="sm"
+                  startContent={<HiOutlineTrash className="size-4" />}
+                  onPress={() => onDelete(lead)}
+                >
+                  Delete Lead
+                </Button>
+              </ModalFooter>
+            )}
           </>
         )}
       </ModalContent>

@@ -1,6 +1,7 @@
-import { Card, CardBody, Chip } from "@heroui/react";
+import { Card, CardBody, Chip, Button } from "@heroui/react";
 import { HiStar } from "react-icons/hi";
 import { LuMapPin } from "react-icons/lu";
+import { FiTrash2 } from "react-icons/fi";
 import PriorityLevelChip from "../../components/chips/PriorityLevelChip";
 
 interface LeadCardProps {
@@ -19,6 +20,7 @@ interface LeadCardProps {
     stage: string;
   };
   onPress?: (lead: any) => void;
+  onDelete?: (lead: any) => void;
   draggable?: boolean;
   onDragStart?: (e: React.DragEvent) => void;
   onDragEnd?: (e: React.DragEvent) => void;
@@ -28,7 +30,7 @@ interface LeadCardProps {
   isDraggedOver?: boolean;
 }
 
-const LeadCard = ({ lead, onPress, draggable, onDragStart, onDragEnd, onDragOver, onDragLeave, onDrop, isDraggedOver }: LeadCardProps) => {
+const LeadCard = ({ lead, onPress, onDelete, draggable, onDragStart, onDragEnd, onDragOver, onDragLeave, onDrop, isDraggedOver }: LeadCardProps) => {
   return (
     <div
       onDragOver={onDragOver}
@@ -47,9 +49,9 @@ const LeadCard = ({ lead, onPress, draggable, onDragStart, onDragEnd, onDragOver
         draggable={draggable}
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
-        className="group border border-foreground/10 bg-white dark:bg-content1 transition-all cursor-pointer hover:border-primary/30 dark:hover:border-primary/50 hover:shadow-lg dark:hover:shadow-primary/10 hover:-translate-y-0.5 w-full h-[142px]"
+        className="group border border-foreground/10 bg-white dark:bg-content1 transition-all cursor-pointer hover:border-primary/30 dark:hover:border-primary/50 hover:shadow-lg dark:hover:shadow-primary/10 hover:-translate-y-0.5 w-full h-[142px] relative"
       >
-        <CardBody className="p-3 h-full flex flex-col justify-between space-y-0">
+        <CardBody className="p-3 h-full flex flex-col justify-between space-y-0 relative">
           <div className="space-y-1.5 min-w-0">
             <div className="flex justify-between items-start">
               <div className="min-w-0 flex-1">
@@ -89,9 +91,28 @@ const LeadCard = ({ lead, onPress, draggable, onDragStart, onDragEnd, onDragOver
             <span className="font-bold text-[10px] text-foreground">
               {lead.value}
             </span>
-            <div className="flex items-center gap-0.5 text-[10px] font-bold text-gray-500 dark:text-foreground/60">
-              <HiStar className="text-yellow-400 size-3" />
-              <span>{lead.score}</span>
+            <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-0.5 text-[10px] font-bold text-gray-500 dark:text-foreground/60">
+                <HiStar className="text-yellow-400 size-3" />
+                <span>{lead.score}</span>
+              </div>
+              {onDelete && (
+                <div className="w-0 group-hover:w-6 overflow-visible transition-all duration-150 flex items-center justify-end">
+                  <Button
+                    isIconOnly
+                    size="sm"
+                    variant="light"
+                    color="danger"
+                    className="min-w-6 w-6 h-6 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(lead);
+                    }}
+                  >
+                    <FiTrash2 className="size-3" />
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </CardBody>

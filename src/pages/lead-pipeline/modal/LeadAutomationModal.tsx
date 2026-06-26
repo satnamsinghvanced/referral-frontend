@@ -34,7 +34,6 @@ const TRIGGER_EVENTS = [
 const ACTIONS = [
   { key: "Send SMS", label: "Send SMS" },
   { key: "Send Email", label: "Send Email" },
-  { key: "Send Notification", label: "Send Notification" },
 ];
 
 const DELAY_UNITS = [
@@ -182,8 +181,11 @@ const LeadAutomationModal = ({ isOpen, onOpenChange, automation }: LeadAutomatio
               </div>
 
               <div className="border border-foreground/10 rounded-xl p-4 space-y-3 bg-gray-50/30 dark:bg-white/5">
-                <h4 className="font-medium text-sm dark:text-white">Trigger & Logic</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="flex items-center justify-between gap-2 ">
+                  <h4 className="font-medium text-sm dark:text-white">Trigger & Logic</h4>
+                  <span className="text-xs text-gray-500 dark:text-foreground/60">(Notification will be always sent to the assigned staff member)</span>
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-2">
                   <Select
                     label="Trigger Event"
                     labelPlacement="outside"
@@ -322,7 +324,7 @@ const LeadAutomationModal = ({ isOpen, onOpenChange, automation }: LeadAutomatio
                     errorMessage={formik.touched.messageTemplate && (formik.errors.messageTemplate as string)}
                     isRequired
                   />
-                  
+
                   <div className="p-2 bg-sky-50 dark:bg-sky-950/20 border border-sky-100 dark:border-sky-900/30 rounded-lg">
                     <p className="text-[10px] text-sky-700 dark:text-sky-400 font-medium leading-normal">
                       <strong>Supported placeholders:</strong><br />

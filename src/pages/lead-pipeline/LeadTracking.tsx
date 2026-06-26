@@ -8,6 +8,11 @@ import {
   Select,
   SelectItem,
   useDisclosure,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
 } from "@heroui/react";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -45,7 +50,8 @@ import {
 } from "../../consts/lead-pipeline";
 import { useDebounce } from "../../hooks/useDebounce";
 import { useQueryClient } from "@tanstack/react-query";
-import { useLeadStats, useLeadStatus, useUpdateLead, useReorderLeads } from "../../hooks/useLeadPipeline";
+import { useLocation } from "react-router-dom";
+import { useLeadStats, useLeadStatus, useUpdateLead, useReorderLeads, useDeleteLead } from "../../hooks/useLeadPipeline";
 import ReferralStatusChip from "../../components/chips/ReferralStatusChip";
 import EmptyState from "../../components/common/EmptyState";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
@@ -77,13 +83,32 @@ const LeadTracking = () => {
   const {
     isOpen: isDetailsOpen,
     onOpen: onDetailsOpen,
+    onClose: onDetailsClose,
     onOpenChange: onDetailsOpenChange,
   } = useDisclosure();
+  const {
+    isOpen: isDeleteOpen,
+    onOpen: onDeleteOpen,
+    onClose: onDeleteClose,
+  } = useDisclosure();
+  const [leadToDelete, setLeadToDelete] = useState<any>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
   const handleLeadClick = (lead: any) => {
     setSelectedLeadId(lead.id || lead._id);
     onDetailsOpen();
   };
+
+  const location = useLocation();
+  useEffect(() => {
+    if (location.state?.openLeadId) {
+      setSelectedLeadId(location.state.openLeadId);
+      onDetailsOpen();
+      // Clear location state from browser history to avoid reopening on reload
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state, onDetailsOpen]);
   const {
     data: leadsData,
     isLoading,
@@ -92,6 +117,27 @@ const LeadTracking = () => {
 
   const { mutateAsync: updateLeadMutate } = useUpdateLead();
   const { mutateAsync: reorderLeadsMutate } = useReorderLeads();
+  const { mutateAsync: deleteLeadMutate } = useDeleteLead();
+
+  const handleDeleteLead = (lead: any) => {
+    setLeadToDelete(lead);
+    onDeleteOpen();
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!leadToDelete) return;
+    setIsDeleting(true);
+    try {
+      await deleteLeadMutate(leadToDelete.id || leadToDelete._id);
+      onDeleteClose();
+      onDetailsClose();
+    } catch (err) {
+      console.error("Failed to delete lead:", err);
+    } finally {
+      setIsDeleting(false);
+      setLeadToDelete(null);
+    }
+  };
   const [localGroupedLeads, setLocalGroupedLeads] = useState<any>(null);
   const [draggedLead, setDraggedLead] = useState<{ id: string; status: string } | null>(null);
   const [draggedOverColumnId, setDraggedOverColumnId] = useState<string | null>(null);
@@ -544,6 +590,7 @@ const LeadTracking = () => {
                                     value: `$${(lead.estimatedValue || 0).toLocaleString()}`,
                                   }}
                                   onPress={handleLeadClick}
+                                  onDelete={handleDeleteLead}
                                   draggable={true}
                                   onDragStart={(e) => handleDragStart(e, lead.id || lead._id, stage.id)}
                                   onDragEnd={handleDragEnd}
@@ -711,7 +758,30 @@ const LeadTracking = () => {
         isOpen={isDetailsOpen}
         onOpenChange={onDetailsOpenChange}
         lead={selectedLead}
+        onDelete={handleDeleteLead}
       />
+      <Modal isOpen={isDeleteOpen} onOpenChange={onDeleteClose} size="sm">
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">Delete Lead</ModalHeader>
+              <ModalBody>
+                <p className="text-sm text-gray-500">
+                  Are you sure you want to delete lead <strong className="text-foreground">{leadToDelete?.name || `${leadToDelete?.firstName || ''} ${leadToDelete?.lastName || ''}`.trim() || "this lead"}</strong>? This action cannot be undone.
+                </p>
+              </ModalBody>
+              <ModalFooter>
+                <Button variant="light" size="sm" onPress={onClose} isDisabled={isDeleting}>
+                  Cancel
+                </Button>
+                <Button color="danger" size="sm" onPress={handleConfirmDelete} isLoading={isDeleting}>
+                  Delete
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </ComponentContainer>
   );
 };
