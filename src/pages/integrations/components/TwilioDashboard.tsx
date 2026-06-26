@@ -266,17 +266,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
           </div>
         </CardBody>
       </Card>
-      <Card className="shadow-none border border-blue-200 dark:border-blue-500/20 bg-blue-50/50 dark:bg-blue-950/10 rounded-2xl p-4">
-        <CardBody className="p-0 flex flex-row gap-3 items-start">
-          <FiInfo className="w-5 h-5 text-blue-500 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-          <div className="flex flex-col">
-            <h4 className="text-sm font-bold text-blue-900 dark:text-blue-400">Demo Mode Active</h4>
-            <p className="text-xs text-blue-700/80 dark:text-blue-400/80 mt-1 leading-relaxed">
-              This is a demonstration of the Practice ROI Phone Service interface. All data shown is for preview purposes only. When activated, clients will purchase phone numbers and credits directly through Practice ROI, with Twilio running in the background.
-            </p>
-          </div>
-        </CardBody>
-      </Card>
       <Card className="shadow-none border border-foreground/10 bg-background rounded-2xl p-5">
         <CardBody className="p-0 flex flex-col gap-4">
           <div className="flex items-center justify-between gap-4 flex-wrap">

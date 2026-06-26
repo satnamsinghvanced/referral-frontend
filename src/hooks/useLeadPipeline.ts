@@ -9,6 +9,7 @@ import {
   sendLeadEmail,
   getLeadCommunicationHistory,
   reorderLeads,
+  deleteLead,
 } from "../services/leadPipeline";
 
 export const useLeadStatus = (params?: any) => {
@@ -111,6 +112,28 @@ export const useReorderLeads = () => {
       addToast({
         title: "Error",
         description: error?.response?.data?.message || "Failed to reorder leads",
+        color: "danger",
+      });
+    },
+  });
+};
+
+export const useDeleteLead = () => {
+  return useMutation({
+    mutationFn: deleteLead,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["leadStatus"] });
+      queryClient.invalidateQueries({ queryKey: ["leadStats"] });
+      addToast({
+        title: "Success",
+        description: "Lead deleted successfully",
+        color: "success",
+      });
+    },
+    onError: (error: any) => {
+      addToast({
+        title: "Error",
+        description: error?.response?.data?.message || "Failed to delete lead",
         color: "danger",
       });
     },

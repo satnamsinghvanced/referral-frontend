@@ -56,3 +56,8 @@ export const reorderLeads = async (data: {
   const response = await axios.put("/lead/reorder", data);
   return response.data;
 };
+
+export const deleteLead = async (id: string): Promise<any> => {
+  const response = await axios.delete(`/lead/${id}`);
+  return response.data;
+};

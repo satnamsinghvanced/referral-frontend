@@ -5,6 +5,7 @@ import { Button, Card, CardBody, Input, Select, SelectItem, addToast, Checkbox, 
 import { FiCreditCard, FiLock, FiCheck, FiArrowLeft } from "react-icons/fi";
 import Logo from "../../components/ui/Logo";
 import axios from "../../services/axios";
+import { useValidateDiscount } from "../../hooks/settings/useBilling";
 
 interface PlanDetails {
   id: string;
@@ -75,6 +76,7 @@ export default function Checkout() {
   // Discount code states
   const [discountCode, setDiscountCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState<{ code: string; value: number; type: "percent" | "fixed" } | null>(null);
+  const validateDiscountMutation = useValidateDiscount();
 
   // Terms and conditions consent
   const [agreeToTerms, setAgreeToTerms] = useState(false);
@@ -262,18 +264,39 @@ export default function Checkout() {
   const handleApplyDiscount = () => {
     const code = discountCode.trim().toUpperCase();
     if (!code) return;
-    if (code === "PROMO50") {
-      setAppliedDiscount({ code: "PROMO50", value: 50, type: "percent" });
-      addToast({ title: "Discount Applied", description: "50% off has been applied to your order!", color: "success" });
-    } else if (code === "DISCOUNT10") {
-      setAppliedDiscount({ code: "DISCOUNT10", value: 10, type: "fixed" });
-      addToast({ title: "Discount Applied", description: "$10.00 discount has been applied to your order!", color: "success" });
-    } else if (code === "FREE") {
-      setAppliedDiscount({ code: "FREE", value: 100, type: "percent" });
-      addToast({ title: "Discount Applied", description: "100% off has been applied to your order!", color: "success" });
-    } else {
-      addToast({ title: "Invalid Code", description: "This discount code is invalid or has expired.", color: "warning" });
-    }
+    validateDiscountMutation.mutate(code, {
+      onSuccess: (response: any) => {
+        const { success, data, message } = response;
+        if (success && data) {
+          setAppliedDiscount({
+            code: data.code,
+            value: data.value,
+            type: data.type,
+          });
+          const discountText = data.type === "percent" ? `${data.value}% off` : `$${data.value.toFixed(2)} discount`;
+          addToast({
+            title: "Discount Applied",
+            description: `${discountText} has been applied to your order!`,
+            color: "success",
+          });
+        } else {
+          addToast({
+            title: "Invalid Code",
+            description: message || "This discount code is invalid or has expired.",
+            color: "warning",
+          });
+        }
+      },
+      onError: (err: any) => {
+        console.error(err);
+        const errMsg = err.response?.data?.message || "This discount code is invalid or has expired.";
+        addToast({
+          title: "Invalid Code",
+          description: errMsg,
+          color: "warning",
+        });
+      },
+    });
   };
 
   const handleSubmit = async () => {
@@ -637,6 +660,7 @@ export default function Checkout() {
               <Button
                 color="primary"
                 onPress={handleApplyDiscount}
+                isLoading={validateDiscountMutation.isPending}
                 className="bg-primary text-white font-semibold rounded-xl h-10 px-5 text-sm"
               >
                 Apply

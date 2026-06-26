@@ -163,137 +163,127 @@ export default function TwilioAddCreditsModal({
           </p>
         </ModalHeader>
 
-        <ModalBody className="p-5 pt-2 flex flex-col md:flex-row gap-6">
-          <div className="flex-1 flex flex-col gap-4">
-            <div className="bg-primary-50/50 dark:bg-primary-900/10 border border-primary-100 dark:border-primary-900/30 rounded-xl p-4 flex flex-col items-center justify-center text-center">
-              <p className="text-[10px] uppercase font-semibold text-foreground-500 tracking-wider">
-                Current Wallet Balance
-              </p>
-              <p className="text-3xl font-extrabold text-primary mt-1">
-                {formatCurrency(currentBalance)}
-              </p>
-            </div>
-            <div className="flex flex-col gap-2">
-              <label className="text-xs font-semibold text-foreground">Select Monthly Wallet Funding</label>
-              <div className="grid grid-cols-3 gap-2.5">
-                {tiers.map((amount) => {
-                  const isSelected = selectedPreset === amount;
-                  const meta = tierMetadata[amount] || { label: "", desc: "", popular: false };
-                  return (
-                    <button
-                      key={amount}
-                      type="button"
-                      onClick={() => handlePresetClick(amount)}
-                      className={`relative flex flex-col items-center justify-between p-3 rounded-xl border text-center transition-all duration-200 cursor-pointer ${isSelected
-                        ? "border-primary bg-primary-500/10 text-foreground ring-2 ring-primary/45 shadow-md shadow-primary-500/5 font-semibold"
-                        : "border-foreground/10 bg-default-50/50 hover:bg-default-100/50 text-foreground"
-                        }`}
-                    >
-                      {meta.popular && (
-                        <span className="absolute -top-2 px-2 py-0.5 bg-primary text-white text-[8px] font-extrabold rounded-full tracking-wider uppercase">
-                          POPULAR
-                        </span>
-                      )}
-                      <span className="text-[9px] font-semibold text-foreground-500 mt-1">{meta.label}</span>
-                      <span className="text-lg font-extrabold text-foreground mt-1">${amount}</span>
-                      <span className="text-[8px] text-foreground-400 mt-1 leading-tight">{meta.desc}</span>
-                      <span className="text-[8px] text-primary font-bold mt-1.5">/ month</span>
-                    </button>
-                  );
-                })}
+        <ModalBody className="p-5 pt-2 flex flex-col gap-6">
+          {/* Current Wallet Balance - Full Width */}
+          <div className="bg-primary-50/50 dark:bg-primary-900/10 border border-primary-100 dark:border-primary-900/30 rounded-xl p-4 flex flex-col items-center justify-center text-center">
+            <p className="text-[10px] uppercase font-semibold text-foreground-500 tracking-wider">
+              Current Wallet Balance
+            </p>
+            <p className="text-3xl font-extrabold text-primary mt-1">
+              {formatCurrency(currentBalance)}
+            </p>
+          </div>
+
+          {/* Selection and Estimated Power columns */}
+          <div className="flex flex-col md:flex-row gap-6">
+            <div className="flex-1 flex flex-col gap-4 justify-between">
+              <div className="flex flex-col gap-2">
+                <label className="text-xs font-semibold text-foreground">Select Monthly Wallet Funding</label>
+                <div className="grid grid-cols-3 gap-2.5">
+                  {tiers.map((amount) => {
+                    const isSelected = selectedPreset === amount;
+                    const meta = tierMetadata[amount] || { label: "", desc: "", popular: false };
+                    return (
+                      <button
+                        key={amount}
+                        type="button"
+                        onClick={() => handlePresetClick(amount)}
+                        className={`relative flex flex-col items-center justify-between p-3 rounded-xl border text-center transition-all duration-200 cursor-pointer ${isSelected
+                          ? "border-primary bg-primary-500/10 text-foreground ring-2 ring-primary/45 shadow-md shadow-primary-500/5 font-semibold"
+                          : "border-foreground/10 bg-default-50/50 hover:bg-default-100/50 text-foreground"
+                          }`}
+                      >
+                        {meta.popular && (
+                          <span className="absolute -top-2 px-2 py-0.5 bg-primary text-white text-[8px] font-extrabold rounded-full tracking-wider uppercase">
+                            POPULAR
+                          </span>
+                        )}
+                        <span className="text-[9px] font-semibold text-foreground-500 mt-1">{meta.label}</span>
+                        <span className="text-lg font-extrabold text-foreground mt-1">${amount}</span>
+                        <span className="text-[8px] text-foreground-400 mt-1 leading-tight">{meta.desc}</span>
+                        <span className="text-[8px] text-primary font-bold mt-1.5">/ month</span>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
+              <Input
+                type="number"
+                label="Or Enter Custom Monthly Amount"
+                labelPlacement="outside"
+                placeholder="Enter custom amount"
+                value={customAmount}
+                onValueChange={handleCustomAmountChange}
+                min={20}
+                startContent={<span className="text-xs text-foreground-500">$</span>}
+                endContent={<span className="w-14 text-xs text-foreground-400">/ month</span>}
+                classNames={{
+                  label: "text-xs font-semibold text-foreground mb-1",
+                  inputWrapper: "border border-foreground/10 rounded-lg bg-transparent h-10",
+                  input: "text-sm",
+                }}
+              />
             </div>
-            <Input
-              type="number"
-              label="Or Enter Custom Monthly Amount"
-              labelPlacement="outside"
-              placeholder="Enter custom amount"
-              value={customAmount}
-              onValueChange={handleCustomAmountChange}
-              min={20}
-              startContent={<span className="text-xs text-foreground-500">$</span>}
-              endContent={<span className="w-14 text-xs text-foreground-400">/ month</span>}
-              classNames={{
-                label: "text-xs font-semibold text-foreground mb-1",
-                inputWrapper: "border border-foreground/10 rounded-lg bg-transparent h-10",
-                input: "text-sm",
-              }}
-            />
-            <div className="border border-foreground/10 dark:bg-foreground/5 rounded-xl p-4 flex flex-col gap-2">
-              <div className="flex justify-between items-center gap-4">
-                <div className="flex flex-col">
-                  <span className="text-xs font-bold text-foreground">Auto-Top Up</span>
-                  <span className="text-[10px] text-foreground-500 mt-1 leading-normal max-w-[220px]">
-                    If wallet balance drops below $10, automatically reload $25 to prevent service interruption.
+
+            <div className="flex-1 flex flex-col gap-4">
+              <div className="bg-default-50 dark:bg-default-100/20 border border-foreground/5 rounded-xl p-4 flex flex-col gap-3 h-full justify-between">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-bold text-foreground">Estimated Monthly Power</span>
+                  <span className="text-[10px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
+                    Based on {formatCurrency(walletAmount)}/mo
                   </span>
                 </div>
-                <Switch
-                  isSelected={autoTopUp}
-                  onValueChange={setAutoTopUp}
-                  color="primary"
-                  size="sm"
-                  aria-label="Auto-Top Up"
-                />
+                <div className="grid grid-cols-1 gap-2 flex-grow justify-center mt-2">
+                  {[
+                    { label: "Outbound Calls", value: `${formatCount(outboundMins)} mins`, formula: "at $0.02/min", icon: <FiPhone className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" /> },
+                    { label: "SMS Messages", value: `${formatCount(smsCount)} SMS`, formula: "at $0.01/msg", icon: <FiMessageSquare className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" /> },
+                    { label: "Inbound Calls", value: `${formatCount(inboundMins)} mins`, formula: "at $0.01/min", icon: <FiPhone className="w-3.5 h-3.5 text-purple-500 flex-shrink-0" /> },
+                  ].map((item, idx) => (
+                    <div key={idx} className="flex items-center justify-between bg-background border border-foreground/5 p-2.5 rounded-lg min-w-0 gap-3">
+                      <div className="flex items-center gap-2 min-w-0 flex-1">
+                        {item.icon}
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-xs font-bold text-foreground leading-normal truncate" title={item.value}>
+                            {item.value}
+                          </span>
+                          <span className="text-[10px] text-foreground-500 truncate">{item.label}</span>
+                        </div>
+                      </div>
+                      <span className="text-[9px] font-medium text-foreground-400 bg-foreground/5 px-2 py-0.5 rounded flex-shrink-0">
+                        {item.formula}
+                      </span>
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
-          <div className="flex-1 flex flex-col gap-4">
-            <div className="bg-default-50 dark:bg-default-100/20 border border-foreground/5 rounded-xl p-4 flex flex-col gap-3">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-foreground">Estimated Monthly Power</span>
-                <span className="text-[10px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                  Based on {formatCurrency(walletAmount)}/mo
-                </span>
-              </div>
-              <div className="grid grid-cols-1 gap-2">
-                {[
-                  { label: "Outbound Calls", value: `${formatCount(outboundMins)} mins`, formula: "at $0.02/min", icon: <FiPhone className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" /> },
-                  { label: "SMS Messages", value: `${formatCount(smsCount)} SMS`, formula: "at $0.01/msg", icon: <FiMessageSquare className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" /> },
-                  { label: "Inbound Calls", value: `${formatCount(inboundMins)} mins`, formula: "at $0.01/min", icon: <FiPhone className="w-3.5 h-3.5 text-purple-500 flex-shrink-0" /> },
-                ].map((item, idx) => (
-                  <div key={idx} className="flex items-center justify-between bg-background border border-foreground/5 p-2.5 rounded-lg min-w-0 gap-3">
-                    <div className="flex items-center gap-2 min-w-0 flex-1">
-                      {item.icon}
-                      <div className="flex flex-col min-w-0">
-                        <span className="text-xs font-bold text-foreground leading-normal truncate" title={item.value}>
-                          {item.value}
-                        </span>
-                        <span className="text-[10px] text-foreground-500 truncate">{item.label}</span>
-                      </div>
-                    </div>
-                    <span className="text-[9px] font-medium text-foreground-400 bg-foreground/5 px-2 py-0.5 rounded flex-shrink-0">
-                      {item.formula}
-                    </span>
-                  </div>
-                ))}
-              </div>
+
+          <div className="border border-foreground/10 rounded-xl p-3 flex flex-col gap-2.5 bg-default-50/50">
+            <div className="flex items-center gap-1.5 text-foreground font-bold text-[10px] uppercase tracking-wider text-foreground-500">
+              <BsLightningCharge className="w-3.5 h-3.5 text-primary" />
+              <span>Real-Time Rates (Pay-As-You-Go)</span>
             </div>
-            <div className="border border-foreground/10 rounded-xl p-3 flex flex-col gap-2.5 bg-default-50/50">
-              <div className="flex items-center gap-1.5 text-foreground font-bold text-[10px] uppercase tracking-wider text-foreground-500">
-                <BsLightningCharge className="w-3.5 h-3.5 text-primary" />
-                <span>Real-Time Rates (Pay-As-You-Go)</span>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  { label: "Outbound Calls", rate: "$0.02 / min", icon: <FiPhone className="w-3.5 h-3.5 text-foreground-500" /> },
-                  { label: "Inbound Calls", rate: "$0.01 / min", icon: <FiPhone className="w-3.5 h-3.5 text-foreground-500 rotate-90" /> },
-                  { label: "SMS Messages", rate: "$0.01 / msg", icon: <FiMessageSquare className="w-3.5 h-3.5 text-foreground-500" /> },
-                  { label: "MMS Messages", rate: "$0.02 / msg", icon: <FiMessageSquare className="w-3.5 h-3.5 text-foreground-500" /> },
-                  { label: "Call Transcriptions", rate: "$0.05 / min", icon: <FiMic className="w-3.5 h-3.5 text-foreground-500" /> },
-                  { label: "Call Recordings", rate: "$0.0025 / min", icon: <FiDisc className="w-3.5 h-3.5 text-foreground-500" /> },
-                ].map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center gap-2 p-1.5 bg-background/50 border border-foreground/5 rounded-lg text-xs"
-                  >
-                    {item.icon}
-                    <div className="flex flex-col">
-                      <span className="text-[9px] text-foreground-500 leading-none">{item.label}</span>
-                      <span className="text-xs font-bold text-foreground mt-0.5">{item.rate}</span>
-                    </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
+              {[
+                { label: "Outbound Calls", rate: "$0.02 / min", icon: <FiPhone className="w-3.5 h-3.5 text-foreground-500" /> },
+                { label: "Inbound Calls", rate: "$0.01 / min", icon: <FiPhone className="w-3.5 h-3.5 text-foreground-500 rotate-90" /> },
+                { label: "SMS Messages", rate: "$0.01 / msg", icon: <FiMessageSquare className="w-3.5 h-3.5 text-foreground-500" /> },
+                { label: "MMS Messages", rate: "$0.02 / msg", icon: <FiMessageSquare className="w-3.5 h-3.5 text-foreground-500" /> },
+                { label: "Call Transcriptions", rate: "$0.05 / min", icon: <FiMic className="w-3.5 h-3.5 text-foreground-500" /> },
+                { label: "Call Recordings", rate: "$0.0025 / min", icon: <FiDisc className="w-3.5 h-3.5 text-foreground-500" /> },
+              ].map((item, idx) => (
+                <div
+                  key={idx}
+                  className="flex items-center gap-2 p-1.5 bg-background/50 border border-foreground/5 rounded-lg text-xs"
+                >
+                  {item.icon}
+                  <div className="flex flex-col">
+                    <span className="text-[9px] text-foreground-500 leading-none">{item.label}</span>
+                    <span className="text-xs font-bold text-foreground mt-0.5">{item.rate}</span>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           </div>
         </ModalBody>
