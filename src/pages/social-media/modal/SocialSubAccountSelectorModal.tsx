@@ -35,8 +35,8 @@ const CREDENTIAL_PLATFORM_KEY: Record<
 interface SelectorItem {
   id: string;
   title: string;
-  subtitle?: string;
-  category?: string;
+  subtitle?: string | undefined;
+  category?: string | undefined;
   isConnected: boolean;
 }
 
@@ -217,7 +217,7 @@ export default function SocialSubAccountSelectorModal({
   useEffect(() => {
     if (items.length > 0) {
       const connected = items.find((item) => item.isConnected);
-      setSelectedId(connected?.id || items[0].id);
+      setSelectedId(connected?.id || items[0]?.id || null);
     }
   }, [items]);
 

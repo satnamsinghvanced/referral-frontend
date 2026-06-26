@@ -14,9 +14,9 @@ import {
 import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import {  TASK_PRIORITIES,  TASK_STATUSES,  TASK_TYPES} from "../../../consts/practice";
+import { TASK_PRIORITIES, TASK_STATUSES, TASK_TYPES } from "../../../consts/practice";
 import { useFetchTeamMembers } from "../../../hooks/settings/useTeam";
-import {  useCreateTask,  useFetchPartners,  useUpdateTask} from "../../../hooks/usePartner";
+import { useCreateTask, useFetchPartners, useUpdateTask } from "../../../hooks/usePartner";
 import { useTypedSelector } from "../../../hooks/useTypedSelector";
 import { TeamMember } from "../../../services/settings/team";
 import { FetchPartnersResponse, TaskApiData, TaskComment } from "../../../types/partner";
@@ -124,9 +124,7 @@ const TaskActionModal = ({
       formik.resetForm();
     }
   }, [isOpen]);
-
   const isLoading = isCreating || isUpdating;
-
   return (
     <Modal
       isOpen={isOpen}
@@ -148,7 +146,6 @@ const TaskActionModal = ({
               : "Create a new task with specific details"}
           </p>
         </ModalHeader>
-
         <ModalBody className="p-0">
           <form className="space-y-4" onSubmit={formik.handleSubmit}>
             <div>
@@ -205,8 +202,6 @@ const TaskActionModal = ({
                 isDisabled={isEditMode === true}
               />
             </div>
-
-
             <div
               className={`grid max-md:grid-cols-1 max-md:gap-4 ${isEditMode ? "grid-cols-3" : "grid-cols-2"
                 } gap-2.5`}
@@ -217,7 +212,7 @@ const TaskActionModal = ({
                 size="sm"
                 radius="sm"
                 selectedKeys={[formik.values.priority]}
-                disabledKeys={[formik.values.priority]} // Why disabled in reference? Assuming copied logic, removing disabledKeys to allow edit
+                disabledKeys={[formik.values.priority]}
                 onSelectionChange={(keys) =>
                   formik.setFieldValue("priority", Array.from(keys)[0])
                 }
@@ -234,7 +229,6 @@ const TaskActionModal = ({
                   </SelectItem>
                 ))}
               </Select>
-
               <Select
                 label="Category"
                 labelPlacement="outside"
@@ -257,7 +251,6 @@ const TaskActionModal = ({
                   </SelectItem>
                 ))}
               </Select>
-
               {isEditMode && (
                 <Select
                   label="Status"
@@ -282,7 +275,6 @@ const TaskActionModal = ({
                 </Select>
               )}
             </div>
-
             <div className="flex">
               <Select
                 label="Related Office/Practice"
@@ -303,7 +295,7 @@ const TaskActionModal = ({
                 onSelectionChange={(keys) =>
                   formik.setFieldValue("practiceId", Array.from(keys)[0])
                 }
-                isDisabled={isEditMode} // Usually better not to move tasks between practices
+                isDisabled={isEditMode}
                 isInvalid={
                   !!formik.errors.practiceId &&
                   (formik.touched.practiceId as boolean)
@@ -319,8 +311,6 @@ const TaskActionModal = ({
                 ))}
               </Select>
             </div>
-
-            {/* Assigned To */}
             <div className="flex flex-col justify-start gap-1">
               {activeTeamMembers && activeTeamMembers.length > 0 ? (
                 <Select
@@ -358,9 +348,6 @@ const TaskActionModal = ({
               )}
             </div>
 
-
-
-            {/* Buttons */}
             <div className="flex items-center justify-end space-x-2 pt-1">
               <Button
                 size="sm"

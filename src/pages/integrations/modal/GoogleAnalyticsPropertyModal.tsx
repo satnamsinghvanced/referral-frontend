@@ -29,11 +29,8 @@ export default function GoogleAnalyticsPropertyModal({
   const { data, isLoading, isError } = useAnalyticsProperties();
   const { mutateAsync: syncProperties, isPending: isSyncing } = useSyncAnalyticsProperties();
   const { mutateAsync: connectProperty, isPending: isConnecting } = useConnectAnalyticsProperty();
-
   const [selectedId, setSelectedId] = useState<string | null>(null);
-
   const properties = data?.properties || [];
-
   useEffect(() => {
     if (properties.length > 0) {
       const connected = properties.find((p: any) => p.isConnected);
@@ -42,7 +39,6 @@ export default function GoogleAnalyticsPropertyModal({
       }
     }
   }, [properties]);
-
   const handleConnect = async () => {
     if (!selectedId) return;
     try {

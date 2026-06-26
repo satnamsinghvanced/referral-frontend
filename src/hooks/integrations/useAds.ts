@@ -38,12 +38,18 @@ export const useGoogleAdsIntegration = () => {
 
 export const useConnectGoogleAds = () => {
   return useMutation({
-    mutationFn: getGoogleAdsAuthUrl,
+    mutationFn: () => getGoogleAdsAuthUrl(),
     onSuccess: (data) => {
       if (data.authUrl) {
         window.open(data.authUrl, "_blank");
       }
     },
+  });
+};
+
+export const useGenerateGoogleAdsAuthUrl = () => {
+  return useMutation({
+    mutationFn: getGoogleAdsAuthUrl,
   });
 };
 
@@ -83,12 +89,18 @@ export const useMetaAdsIntegration = () => {
 
 export const useConnectMetaAds = () => {
   return useMutation({
-    mutationFn: getMetaAdsAuthUrl,
+    mutationFn: () => getMetaAdsAuthUrl(),
     onSuccess: (data) => {
       if (data.authUrl) {
         window.open(data.authUrl, "_blank");
       }
     },
+  });
+};
+
+export const useGenerateMetaAdsAuthUrl = () => {
+  return useMutation({
+    mutationFn: getMetaAdsAuthUrl,
   });
 };
 

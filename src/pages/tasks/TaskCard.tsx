@@ -1,11 +1,4 @@
-import {
-  Button,
-  Card,
-  CardBody,
-  CardHeader,
-  Select,
-  SelectItem,
-} from "@heroui/react";
+import { Button, Card, CardBody, CardHeader, Select, SelectItem } from "@heroui/react";
 import { LuBuilding2, LuCalendar, LuInfo, LuTrash2 } from "react-icons/lu";
 import { FiEdit } from "react-icons/fi";
 import TaskPriorityChip from "../../components/chips/TaskPriorityChip";
@@ -30,7 +23,6 @@ function TaskCard({
 }) {
   const { mutate: updateTask } = useUpdateTask();
   const [isNotesOpen, setIsNotesOpen] = useState(false);
-
   return (
     <Card
       className={`rounded-xl p-3.5 border shadow-none ${task.isOverDue

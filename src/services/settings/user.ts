@@ -24,7 +24,7 @@ export interface User {
   isTwoFactorEnabled?: boolean;
 }
 
-// ✅ Get user detail
+
 export const fetchUser = async (id: string): Promise<User> => {
   const response = (await axios.get(`/users/${id}`)) as unknown as {
     data: User;
@@ -32,7 +32,7 @@ export const fetchUser = async (id: string): Promise<User> => {
   return response.data;
 };
 
-// ✅ Update user detail
+
 export const updateUser = async (
   id: string,
   userData: Partial<User>,

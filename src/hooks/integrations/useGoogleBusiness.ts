@@ -33,12 +33,18 @@ export const useBusinessIntegration = (options?: any) => {
 
 export const useConnectBusiness = () => {
   return useMutation({
-    mutationFn: getGoogleBusinessAuthUrl,
+    mutationFn: () => getGoogleBusinessAuthUrl(),
     onSuccess: (data) => {
       if (data.authUrl) {
         window.open(data.authUrl, "_blank");
       }
     },
+  });
+};
+
+export const useGenerateGoogleBusinessAuthUrl = () => {
+  return useMutation({
+    mutationFn: getGoogleBusinessAuthUrl,
   });
 };
 

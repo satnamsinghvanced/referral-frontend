@@ -51,7 +51,6 @@ export interface GeneralAnalyticsResponse {
   weeklyActivity: WeeklyActivity[];
 }
 
-// --- Google Analytics ---
 export interface TrafficTrend {
   month: string;
   users: number;

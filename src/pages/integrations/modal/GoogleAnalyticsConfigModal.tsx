@@ -45,13 +45,14 @@ export default function GoogleAnalyticsConfigModal({
   const createMutation = useCreateGoogleAnalyticsIntegration();
   const updateMutation = useUpdateGoogleAnalyticsIntegration();
 
-  const isUpdateMode = !!existingConfig?.id;
+  const config = existingConfig as any;
+  const isUpdateMode = !!config?._id;
 
   const formik = useFormik({
     initialValues: {
-      propertyId: existingConfig?.propertyId || "",
-      email: existingConfig?.email || "",
-      privateKey: existingConfig?.privateKey || "",
+      propertyId: config?.propertyId || "",
+      email: config?.email || "",
+      privateKey: config?.privateKey || "",
     },
     validationSchema: validationSchema,
     onSubmit: async (values, { setSubmitting }) => {
@@ -149,7 +150,10 @@ export default function GoogleAnalyticsConfigModal({
                 isInvalid={
                   !!(formik.touched.propertyId && formik.errors.propertyId)
                 }
-                errorMessage={formik.errors.propertyId}
+                errorMessage={
+                  formik.touched.propertyId &&
+                  (formik.errors.propertyId as React.ReactNode)
+                }
               />
 
               <Input
@@ -165,7 +169,10 @@ export default function GoogleAnalyticsConfigModal({
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 isInvalid={!!(formik.touched.email && formik.errors.email)}
-                errorMessage={formik.errors.email}
+                errorMessage={
+                  formik.touched.email &&
+                  (formik.errors.email as React.ReactNode)
+                }
               />
 
               <Textarea
@@ -184,7 +191,10 @@ export default function GoogleAnalyticsConfigModal({
                 isInvalid={
                   !!(formik.touched.privateKey && formik.errors.privateKey)
                 }
-                errorMessage={formik.errors.privateKey}
+                errorMessage={
+                  formik.touched.privateKey &&
+                  (formik.errors.privateKey as React.ReactNode)
+                }
                 classNames={{
                   input:
                     "text-xs font-mono [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden",

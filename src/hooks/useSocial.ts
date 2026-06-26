@@ -153,3 +153,9 @@ export const useConnectSocialSubAccount = (platform: SocialPlatformType) => {
     },
   });
 };
+
+export const useInitiateAuthIntegration = () => {
+  return useMutation({
+    mutationFn: (payload: any) => getSocialAuthUrl(payload.platform, payload.platform),
+  });
+};

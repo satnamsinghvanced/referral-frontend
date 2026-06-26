@@ -11,11 +11,7 @@ import EmptyState from "../../components/common/EmptyState";
 import { LoadingState } from "../../components/common/LoadingState";
 import { TASK_PRIORITIES, TASK_STATUSES } from "../../consts/practice";
 import { useDebouncedValue } from "../../hooks/common/useDebouncedValue";
-import {
-  useDeleteTask,
-  useFetchAllTasks,
-  useFetchPartners,
-} from "../../hooks/usePartner";
+import { useDeleteTask, useFetchAllTasks, useFetchPartners } from "../../hooks/usePartner";
 import TaskCard from "./TaskCard";
 import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
 import { AiOutlinePlus } from "react-icons/ai";
@@ -32,22 +28,18 @@ function Tasks() {
     if (task) setTaskToEdit(task);
     setOpenTaskModal(true);
   };
-
   const handleCloseTaskModal = () => {
     setOpenTaskModal(false);
     setTaskToEdit(null);
   };
-
   const handleOpenDeleteModal = (taskId: string) => {
     setTaskIdToDelete(taskId);
     setIsDeleteModalOpen(true);
   };
-
   const handleCloseDeleteModal = () => {
     setIsDeleteModalOpen(false);
     setTaskIdToDelete(null);
   };
-
   const [currentFilters, setCurrentFilters] = useState<any>({
     page: 1,
     limit: 10,
@@ -55,30 +47,17 @@ function Tasks() {
     status: "all",
     priority: "all",
   });
-
   const debouncedSearch = useDebouncedValue(currentFilters.search, 500);
-
   useEffect(() => {
     setCurrentFilters((prev: any) => ({ ...prev, search: debouncedSearch }));
   }, [debouncedSearch]);
-
-  // Fetch partners for Practice selection
   const { data: partnersData } = useFetchPartners({ limit: 100 });
   const practices = partnersData?.data || [];
-
-  const {
-    data: tasksData,
-    isLoading,
-    isFetching,
-    refetch,
-  } = useFetchAllTasks({ ...currentFilters, search: debouncedSearch });
-
+  const { data: tasksData, isLoading, isFetching, refetch } = useFetchAllTasks({ ...currentFilters, search: debouncedSearch });
   const { mutate: deleteTask, isPending: isDeletePending } = useDeleteTask();
-
   const tasks = tasksData?.tasks;
   const stats = tasksData?.stats;
   const pagination = tasksData?.pagination;
-
   usePaginationAdjustment({
     totalPages: pagination?.totalPages || 0,
     currentPage: currentFilters.page,
@@ -86,7 +65,6 @@ function Tasks() {
       setCurrentFilters((prev: any) => ({ ...prev, page })),
     isLoading: isLoading || isFetching,
   });
-
   let TASKS_BUTONS: any[] = [
     {
       label: "Create Task",
@@ -96,11 +74,9 @@ function Tasks() {
       color: "primary" as const,
     },
   ];
-
   if (practices.length <= 0) {
     TASKS_BUTONS = [];
   }
-
   const HEADING_DATA = useMemo(
     () => ({
       heading: "Tasks",
@@ -110,7 +86,6 @@ function Tasks() {
     }),
     [TASKS_BUTONS],
   );
-
   const STAT_CARD_DATA = [
     {
       icon: <GoTasklist className="text-sky-600 dark:text-sky-400" />,
@@ -183,7 +158,6 @@ function Tasks() {
                 ))}
               </>
             </Select>
-
             <Select
               aria-label="Task Priority"
               placeholder="All Priorities"
@@ -209,7 +183,6 @@ function Tasks() {
         </div>
         <div className="flex flex-col gap-4 border border-foreground/10 bg-background rounded-xl p-4 min-h-unit-96">
           <p className="font-medium text-sm">Task List</p>
-
           {isLoading || isFetching ? (
             <LoadingState />
           ) : !tasks || tasks?.length <= 0 ? (

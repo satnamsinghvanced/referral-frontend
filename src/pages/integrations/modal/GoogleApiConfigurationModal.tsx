@@ -25,7 +25,6 @@ const validationSchema = Yup.object().shape({
     .required("API Key is required."),
 });
 
-// The main Modal component
 export default function GoogleApiConfigurationModal({
   userId,
   isOpen,
@@ -35,7 +34,6 @@ export default function GoogleApiConfigurationModal({
   isOpen: boolean;
   onClose: () => void;
 }) {
-  // 1. TanStack Query Hooks
   const {
     data: existingConfig,
     isLoading,
@@ -44,11 +42,9 @@ export default function GoogleApiConfigurationModal({
   const saveMutation = useSaveGoogleApiKey();
   const updateMutation = useUpdateGoogleApiKey();
 
-  // Determine if we are updating (config exists) or saving
   const isUpdateMode = !!existingConfig?._id;
   const mutation = isUpdateMode ? updateMutation : saveMutation;
 
-  // 2. Formik Setup
   const formik = useFormik<GoogleApiKeyRequest>({
     initialValues: {
       googleKey: existingConfig?.googleKey || "",
@@ -61,7 +57,6 @@ export default function GoogleApiConfigurationModal({
           googleKey: values.googleKey,
         },
       };
-
       try {
         await mutation.mutateAsync(payload);
         onClose();
@@ -74,7 +69,6 @@ export default function GoogleApiConfigurationModal({
     enableReinitialize: true,
   });
 
-  // 3. Effect to set initial form values when data is loaded
   useEffect(() => {
     if (existingConfig) {
       formik.setValues({
@@ -89,7 +83,6 @@ export default function GoogleApiConfigurationModal({
     }
   }, [isOpen]);
 
-  // Handle loading and error states
   if (isLoading) {
     return (
       <Modal
@@ -154,7 +147,6 @@ export default function GoogleApiConfigurationModal({
     >
       <ModalContent>
         <form onSubmit={formik.handleSubmit}>
-          {/* Modal Header */}
           <ModalHeader className="p-4 pb-0 flex-col">
             <h2
               data-slot="dialog-title"
@@ -170,8 +162,6 @@ export default function GoogleApiConfigurationModal({
               routing, and geo-coding.
             </p>
           </ModalHeader>
-
-          {/* Modal Body (Form Fields) */}
           <ModalBody className="px-4 py-4">
             <div className="space-y-4">
               <Input
@@ -183,7 +173,6 @@ export default function GoogleApiConfigurationModal({
                 type="text"
                 placeholder="AIzaSy... (e.g., Maps or Geocoding API)"
                 isRequired
-                // Formik Props
                 value={formik.values.googleKey}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
@@ -196,7 +185,6 @@ export default function GoogleApiConfigurationModal({
                 }
               />
 
-              {/* Information Box */}
               <div className="text-sm text-gray-700 dark:text-foreground/80 bg-blue-50 dark:bg-blue-900/10 p-3.5 rounded-lg border border-blue-200 dark:border-blue-500/30 mt-4">
                 <div className="flex items-start gap-3">
                   <div>
@@ -223,7 +211,6 @@ export default function GoogleApiConfigurationModal({
             </div>
           </ModalBody>
 
-          {/* Modal Footer (Action Buttons) */}
           <ModalFooter className="flex justify-end gap-2 px-4 pb-4 pt-0">
             <Button
               size="sm"

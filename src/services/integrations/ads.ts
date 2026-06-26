@@ -56,9 +56,10 @@ export interface IUpdateAdsPayload {
 }
 
 
-export const getGoogleAdsAuthUrl = async () => {
+export const getGoogleAdsAuthUrl = async (payload?: any) => {
   const { data } = await axios.post<IAuthUrlResponse>(
     "/google_ads_integration",
+    payload,
   );
   return data;
 };
@@ -88,8 +89,8 @@ export const deleteGoogleAdsIntegration = async (id: string) => {
 };
 
 
-export const getMetaAdsAuthUrl = async () => {
-  const { data } = await axios.post<IAuthUrlResponse>("/meta_ads_integration");
+export const getMetaAdsAuthUrl = async (payload?: any) => {
+  const { data } = await axios.post<IAuthUrlResponse>("/meta_ads_integration", payload);
   return data;
 };
 

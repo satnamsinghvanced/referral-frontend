@@ -100,10 +100,6 @@ export const moveImages = (data: MoveImagesRequest) => {
 
 const TAGS_URL = "/images/tags";
 
-/**
- * Fetches the list of all available image tags and their total count.
- * @returns A promise that resolves to the GetTagsResponse data.
- */
 export const getTags = async (): Promise<GetTagsResponse> => {
   const response = await axios.get<GetTagsResponse>(TAGS_URL);
   return response.data;
