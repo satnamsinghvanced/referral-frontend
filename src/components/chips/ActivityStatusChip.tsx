@@ -18,7 +18,6 @@ export default function ActivityStatusChip({ status }: { status: string }) {
       classNames =
         "bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300 border-red-200 dark:border-red-800";
       break;
-
     case "active":
       classNames =
         "bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300 border-orange-200 dark:border-orange-800";

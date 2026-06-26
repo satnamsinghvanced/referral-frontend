@@ -327,7 +327,7 @@ export default function TwilioA2PRegistrationModal({
   const { data: registrationRes, isLoading: isFetchingData } = useFetchA2PRegistration();
   const { mutate: saveRegistration, isPending: isSaving } = useSaveA2PRegistration();
   const { mutate: updateRegistration, isPending: isUpdating } = useUpdateA2PRegistration();
-  const registrationData = registrationRes?.data;
+  const registrationData = registrationRes ? (registrationRes.data !== undefined ? registrationRes.data : registrationRes) : null;
   const hasExistingRegistration = !!registrationData;
   const isSubmitting = isSaving || isUpdating;
 
@@ -396,32 +396,86 @@ export default function TwilioA2PRegistrationModal({
     if (!field) return "";
     const val = (value || "").trim();
     if (field.required && !val) {
-      if (field.type === "select") {
-        return "true";
-      } else {
-        return `${field.label.replace(" *", "")} is required`;
-      }
+      return `${field.label.replace(" *", "")} is required`;
     }
     if (val) {
-      if (field.type === "email") {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(val)) {
-          return "Please enter a valid email address";
+      if (field.name === "businessName") {
+        if (val.length < 3) {
+          return "Business Legal Name must be at least 3 characters";
+        }
+      } else if (field.name === "ein") {
+        const einRegex = /^\d{2}-\d{7}$|^\d{9}$/;
+        if (!einRegex.test(val)) {
+          return "EIN must be a valid 9-digit Tax ID (format: 12-3456789 or 9 digits)";
+        }
+      } else if (field.name === "address") {
+        if (val.length < 5) {
+          return "Address must be at least 5 characters";
+        }
+      } else if (field.name === "city") {
+        const cityRegex = /^[a-zA-Z\s.-]{2,50}$/;
+        if (!cityRegex.test(val)) {
+          return "City must be at least 2 characters and contain only letters";
+        }
+      } else if (field.name === "state") {
+        const stateRegex = /^[a-zA-Z\s]{2,50}$/;
+        if (!stateRegex.test(val)) {
+          return "State must be at least 2 characters and contain only letters";
         }
       } else if (field.name === "zipCode") {
-        const zipRegex = /^[0-9a-zA-Z\s-]{5,10}$/;
+        const zipRegex = /^\d{5}$|^\d{9}$|^\d{5}-\d{4}$/;
         if (!zipRegex.test(val)) {
-          return "Please enter a valid ZIP/Postal code";
+          return "ZIP Code must be exactly 5 or 9 digits";
         }
       } else if (field.type === "url" || field.name === "website") {
         const urlRegex = /^(https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.~#?&//=]*)$/;
         if (!urlRegex.test(val)) {
           return "Please enter a valid URL (e.g. https://example.com)";
         }
+      } else if (field.name === "firstName") {
+        const nameRegex = /^[a-zA-Z\s-]{2,50}$/;
+        if (!nameRegex.test(val)) {
+          return "First Name must be at least 2 characters and contain only letters";
+        }
+      } else if (field.name === "lastName") {
+        const nameRegex = /^[a-zA-Z\s-]{2,50}$/;
+        if (!nameRegex.test(val)) {
+          return "Last Name must be at least 2 characters and contain only letters";
+        }
+      } else if (field.type === "email") {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(val)) {
+          return "Please enter a valid email address";
+        }
       } else if (field.type === "tel" || field.name === "phone") {
-        const phoneRegex = /^\+?(\d{1,3})?[-.\s()]*\d{3}[-.\s()]*\d{3}[-.\s()]*\d{4}$/;
-        if (!phoneRegex.test(val)) {
-          return "Please enter a valid 10-digit phone number";
+        const phoneRegex = /^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/;
+        const digitsOnly = val.replace(/\D/g, "");
+        if (!phoneRegex.test(val) || digitsOnly.length !== 10) {
+          return "Phone number must be exactly 10 digits";
+        }
+      } else if (field.name === "campaignName") {
+        if (val.length < 5) {
+          return "Campaign Name must be at least 5 characters";
+        }
+      } else if (field.name === "campaignDescription") {
+        if (val.length < 20) {
+          return "Campaign Description must be at least 20 characters";
+        }
+      } else if (field.name === "messageFlow") {
+        if (val.length < 20) {
+          return "Message Flow must be at least 20 characters";
+        }
+      } else if (field.name === "optInMessage") {
+        if (val.length < 15) {
+          return "Opt-In Confirmation Message must be at least 15 characters";
+        }
+      } else if (field.name === "optOutMessage") {
+        if (val.length < 4) {
+          return "Opt-Out Message must be at least 4 characters";
+        }
+      } else if (field.name === "helpMessage") {
+        if (val.length < 4) {
+          return "Help Message must be at least 4 characters";
         }
       }
     }
@@ -640,6 +694,7 @@ export default function TwilioA2PRegistrationModal({
                                 onBlur={() => handleFieldBlur(field.name)}
                                 variant="bordered"
                                 isInvalid={!!errors[field.name]}
+                                errorMessage={errors[field.name] || ""}
                                 classNames={{
                                   label: "text-xs font-semibold text-foreground mb-1",
                                   trigger: "border border-foreground/10 rounded-lg bg-transparent h-10 min-h-10",
@@ -900,27 +955,25 @@ export default function TwilioA2PRegistrationModal({
             <Button
               variant="bordered"
               onPress={handleBack}
-              disabled={isSubmitting || isFetchingData}
+              isDisabled={isSubmitting || isFetchingData}
               className="border border-foreground/10 rounded-lg text-xs font-semibold h-9 px-4"
             >
               Back
             </Button>
           )}
-
           <Button
             variant="bordered"
             onPress={onClose}
-            disabled={isSubmitting || isFetchingData}
+            isDisabled={isSubmitting || isFetchingData}
             className="border border-foreground/10 rounded-lg text-xs font-semibold h-9 px-4"
           >
             Cancel
           </Button>
-
           {step < 5 ? (
             <Button
               color="primary"
               onPress={handleNext}
-              disabled={isFetchingData || (step === 4 && selectedNumbers.length === 0)}
+              isDisabled={isFetchingData || (step === 4 && selectedNumbers.length === 0)}
               className="bg-primary text-white rounded-lg text-xs font-semibold h-9 px-4 flex items-center gap-1"
             >
               Next &rarr;
@@ -930,7 +983,7 @@ export default function TwilioA2PRegistrationModal({
               color="success"
               onPress={handleSubmit}
               isLoading={isSubmitting}
-              disabled={isFetchingData}
+              isDisabled={isFetchingData}
               startContent={!isSubmitting && <FiCheckCircle className="w-4 h-4" />}
               className="bg-green-600 text-white rounded-lg text-xs font-semibold h-9 px-4"
             >

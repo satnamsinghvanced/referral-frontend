@@ -55,11 +55,10 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
   const [isAddCreditsOpen, setIsAddCreditsOpen] = useState(false);
   const [isPurchaseNumberOpen, setIsPurchaseNumberOpen] = useState(false);
   const { data: registrationRes, isLoading: isA2PConfigLoading } = useFetchA2PRegistration();
-  const registration = registrationRes?.data;
+  const registration = registrationRes ? (registrationRes.data !== undefined ? registrationRes.data : registrationRes) : null;
   const [isA2PRegistrationOpen, setIsA2PRegistrationOpen] = useState(false);
   const [numberToRelease, setNumberToRelease] = useState<PhoneNumber | null>(null);
   const [prevStatus, setPrevStatus] = useState<string | null>(null);
-
   useEffect(() => {
     if (registration?.status) {
       if (prevStatus === "pending" && registration.status === "approved") {
@@ -302,16 +301,7 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
                 {registration?.status === "failed" ? "Edit & Re-submit" : "Register for SMS"}
               </Button>
             )}
-            {registration && (registration.status === "pending" || registration.status === "approved") && (
-              <Button
-                variant="light"
-                size="sm"
-                onPress={() => setIsA2PRegistrationOpen(true)}
-                className="text-xs font-semibold text-foreground-500 hover:text-foreground hover:bg-foreground/5 rounded-lg px-3 h-8"
-              >
-                {registration.status === "approved" ? "View Details" : "Edit Registration"}
-              </Button>
-            )}
+
           </div>
           {isA2PConfigLoading ? (
             <div className="flex justify-center items-center py-6">
@@ -328,8 +318,8 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
                   To send SMS messages with your phone numbers, you need to complete A2P (Application-to-Person) registration. This is required by mobile carriers for compliance and helps prevent spam.
                 </p>
                 <ul className="text-xs text-red-600/80 dark:text-red-400/80 list-disc pl-4 space-y-1 mt-1 font-medium">
-                  <li>Registration takes 5-10 minutes</li>
-                  <li>Approval typically within 1-2 business days</li>
+                  {/* <li>Registration takes 5-10 minutes</li>
+                  <li>Approval typically within 1-2 business days</li> */}
                   <li>Required for all business SMS messaging</li>
                   <li>One-time registration per brand/campaign</li>
                 </ul>
