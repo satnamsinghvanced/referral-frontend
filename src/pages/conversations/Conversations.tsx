@@ -16,8 +16,19 @@ import ChatArea from "./components/ChatArea";
 import LeadSidebar from "./components/LeadSidebar";
 import { getInstagramConversations, sendInstagramMessage, markInstagramSeen } from "../../services/igMessage";
 import { getFacebookConversations, sendFacebookMessage, markFacebookSeen } from "../../services/fbMessage";
+import { useSocialCredentials } from "../../hooks/useSocial";
 
 const Conversations = () => {
+  const { data: socialCreds, isLoading: isSocialLoading } = useSocialCredentials();
+
+  const isMetaConnected = useMemo(() => {
+    const credentials = (socialCreds && typeof socialCreds === "object" && "data" in socialCreds && socialCreds.data)
+      ? (socialCreds.data as any)
+      : socialCreds;
+    const metaCreds = credentials?.meta;
+    return metaCreds?.status === "Connected" || metaCreds?.status === "connected";
+  }, [socialCreds]);
+
   // const [conversations, setConversations] = useState(MOCK_CONVERSATIONS);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [search, setSearch] = useState("");
@@ -177,8 +188,8 @@ const Conversations = () => {
 
   useEffect(() => {
     if (selectedConversation) {
-      const lastMsg = selectedConversation.messages && selectedConversation.messages.length > 0 
-        ? selectedConversation.messages[selectedConversation.messages.length - 1] 
+      const lastMsg = selectedConversation.messages && selectedConversation.messages.length > 0
+        ? selectedConversation.messages[selectedConversation.messages.length - 1]
         : null;
       if (lastMsg) {
         localStorage.setItem(`seen_msg_${selectedConversation.id}`, lastMsg.id);
@@ -455,6 +466,8 @@ const Conversations = () => {
                 setSelectedPlatform={setSelectedPlatform}
                 filterDropdown={filterDropdown}
                 setFilterDropdown={setFilterDropdown}
+                isMetaConnected={isMetaConnected}
+                isIntegrationsLoading={isSocialLoading}
               />
               <ChatArea
                 selectedConversation={selectedConversation}
@@ -472,6 +485,8 @@ const Conversations = () => {
                 messagesEndRef={messagesEndRef}
                 onToggleStar={handleToggleStar}
                 onDropdownAction={handleDropdownAction}
+                isMetaConnected={isMetaConnected}
+                isIntegrationsLoading={isSocialLoading}
               />
               <LeadSidebar
                 selectedConversation={selectedConversation}

@@ -1,7 +1,6 @@
 export const CONVERSATION_PLATFORMS = [
   { key: "all", label: "All" },
   { key: "web", label: "Web" },
-  { key: "phone", label: "Phone" },
   { key: "facebook", label: "FB" },
   { key: "instagram", label: "IG" },
 ];
