@@ -74,14 +74,14 @@ export const getSocialSubAccounts = async (
   platform: string,
 ): Promise<SocialSubAccountsResponse> => {
   const response = await axios.get(`/social-media/${platform}/sub-accounts`);
-  return (response as { data?: SocialSubAccountsResponse })?.data ?? response;
+  return unwrapApiData<SocialSubAccountsResponse>(response);
 };
 
 export const syncSocialProfiles = async (
   platform: string,
 ): Promise<SocialSubAccountsResponse> => {
   const response = await axios.get(`/social-media/${platform}/sync-profiles`);
-  return (response as { data?: SocialSubAccountsResponse })?.data ?? response;
+  return unwrapApiData<SocialSubAccountsResponse>(response);
 };
 
 export const connectSocialSubAccount = async (platform: string, accountId: string) => {

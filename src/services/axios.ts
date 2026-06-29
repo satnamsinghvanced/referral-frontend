@@ -61,14 +61,6 @@ axiosInstance.interceptors.response.use(
   (error) => {
     if (!error.response && !isToastShowing) {
       isToastShowing = true;
-      // addToast({
-      //   title: "Network Error",
-      //   description:
-      //     "Unable to connect to the server. This may be a CORS issue or network failure.",
-      //   color: "danger",
-      // });
-
-      // Reset the flag after some time to allow future toasts
       setTimeout(() => {
         isToastShowing = false;
       }, 5000);

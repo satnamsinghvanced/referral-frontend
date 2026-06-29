@@ -20,5 +20,3 @@ export const fetchActivityTypes = async (): Promise<ActivityType[]> => {
   const response = await axios.get("/activity-type");
   return response.data;
 };
-
-// You can add more similar requests here

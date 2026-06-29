@@ -26,7 +26,6 @@ export default function SocialMedia() {
   const [selectorPlatform, setSelectorPlatform] =
     useState<SocialPlatformType | null>(null);
   const [isSelectorOpen, setIsSelectorOpen] = useState(false);
-
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     if (
@@ -36,7 +35,7 @@ export default function SocialMedia() {
       const platform = params.get("platform");
       if (platform && OAUTH_PLATFORM_MAP[platform.toLowerCase()]) {
         setActiveTab("platform");
-        setSelectorPlatform(OAUTH_PLATFORM_MAP[platform.toLowerCase()]);
+        setSelectorPlatform(OAUTH_PLATFORM_MAP[platform.toLowerCase()] || null);
         setIsSelectorOpen(true);
       }
       const url = new URL(window.location.href);
@@ -46,9 +45,7 @@ export default function SocialMedia() {
       window.history.replaceState({}, "", url.pathname + url.search);
     }
   }, []);
-
   const { data, isLoading } = useSocialOverview();
-
   const isAnyPlatformConnected = useMemo(() => {
     if (!data?.platformPerformance) return false;
     return Object.values(data.platformPerformance).some((p) => p.connected);
@@ -60,14 +57,14 @@ export default function SocialMedia() {
       subHeading: "Manage your social media presence and engagement.",
       buttons: isAnyPlatformConnected
         ? [
-            {
-              label: "Create Post",
-              onClick: () => setIsModalOpen(true),
-              icon: <AiOutlinePlus fontSize={15} />,
-              variant: "solid" as const,
-              color: "primary" as const,
-            },
-          ]
+          {
+            label: "Create Post",
+            onClick: () => setIsModalOpen(true),
+            icon: <AiOutlinePlus fontSize={15} />,
+            variant: "solid" as const,
+            color: "primary" as const,
+          },
+        ]
         : [],
     }),
     [isAnyPlatformConnected],
@@ -77,7 +74,6 @@ export default function SocialMedia() {
     if (!data?.platformPerformance) return [];
     const pp = data.platformPerformance;
     const items = [];
-
     if (pp.facebook?.connected) {
       items.push({
         id: "Facebook",
@@ -94,7 +90,6 @@ export default function SocialMedia() {
         ],
       });
     }
-
     if (pp.instagram?.connected) {
       items.push({
         id: "Instagram",
@@ -111,7 +106,6 @@ export default function SocialMedia() {
         ],
       });
     }
-
     if (pp.linkedin?.connected) {
       items.push({
         id: "LinkedIn",
@@ -128,7 +122,6 @@ export default function SocialMedia() {
         ],
       });
     }
-
     if (pp.youtube?.connected) {
       items.push({
         id: "YouTube",
@@ -145,7 +138,6 @@ export default function SocialMedia() {
         ],
       });
     }
-
     if (pp.tiktok?.connected) {
       items.push({
         id: "TikTok",
@@ -162,7 +154,6 @@ export default function SocialMedia() {
         ],
       });
     }
-
     return items;
   }, [data]);
 
@@ -178,7 +169,7 @@ export default function SocialMedia() {
   const contentCalendar = useMemo(() => {
     return {
       scheduledPosts: data?.contentCalender?.scheduledPosts || 0,
-      draftPosts: 0, // Not provided by the current API response example
+      draftPosts: 0,
       publishedThisMonth: data?.contentCalender?.publishedPosts || 0,
     };
   }, [data]);
@@ -244,7 +235,6 @@ export default function SocialMedia() {
                 />
               )}
             </Tab>
-
             <Tab key="posts" title="Posts">
               {!isLoading && !isAnyPlatformConnected ? (
                 renderConnectionWarning()
@@ -252,7 +242,6 @@ export default function SocialMedia() {
                 <Posts />
               )}
             </Tab>
-
             <Tab key="analytics" title="Analytics">
               {!isLoading && !isAnyPlatformConnected ? (
                 renderConnectionWarning()
@@ -260,7 +249,6 @@ export default function SocialMedia() {
                 <Analytics />
               )}
             </Tab>
-
             <Tab key="platform" title="Platform">
               <Platforms
                 onOpenSelector={(platform) => {
@@ -272,13 +260,11 @@ export default function SocialMedia() {
           </Tabs>
         </div>
       </div>
-
       <CreatePostModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onSuccess={() => setActiveTab("posts")}
       />
-
       {selectorPlatform && (
         <SocialSubAccountSelectorModal
           platform={selectorPlatform}

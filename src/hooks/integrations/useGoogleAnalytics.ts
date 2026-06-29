@@ -88,3 +88,19 @@ export const useConnectAnalyticsProperty = () => {
     },
   });
 };
+
+export const useCreateGoogleAnalyticsIntegration = () => {
+  return useMutation({
+    mutationFn: async (payload: any) => {
+      return {};
+    },
+  });
+};
+
+export const useUpdateGoogleAnalyticsIntegration = () => {
+  return useMutation({
+    mutationFn: async (payload: any) => {
+      return {};
+    },
+  });
+};

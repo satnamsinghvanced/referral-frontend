@@ -36,9 +36,10 @@ export interface SaveWindsorCredentialsPayload {
   windsorLocationId: string;
 }
 
-export const getGoogleBusinessAuthUrl = async () => {
+export const getGoogleBusinessAuthUrl = async (payload?: any) => {
   const { data } = await axios.post<IAuthUrlResponse>(
     "/google_business_integration",
+    payload,
   );
   return data;
 };

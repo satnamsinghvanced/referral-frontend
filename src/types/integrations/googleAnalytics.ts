@@ -29,3 +29,5 @@ export interface IUpdateAnalyticsPayload {
   isActive?: boolean;
   status?: string;
 }
+
+export type GoogleAnalyticsIntegration = IGoogleAnalyticsIntegration;

@@ -90,7 +90,7 @@ const LatestReviewItem = ({
       <div className="flex items-start justify-between mb-3 flex-wrap">
         <div className="flex items-center gap-3">
           <div className="flex-shrink-0 rounded-full overflow-hidden h-10 w-10 aspect-square flex items-center justify-center -mt-15 sm:-mt-0">
-            <img
+            <Avatar
               {...(reviewer.profilePhotoUrl ? { src: reviewer.profilePhotoUrl } : {})}
               name={reviewer.displayName || ""}
               radius="none"

@@ -1,8 +1,6 @@
 import axios from "../axios";
 import { Location, LocationsResponse } from "../../types/common";
 
-// 🔹 Get all locations
-// 🔹 Get all locations
 export const fetchLocations = async (params?: {
   page?: number;
   limit?: number;
@@ -12,15 +10,13 @@ export const fetchLocations = async (params?: {
 };
 export const fetchLocationDetails = async (id: string): Promise<Location> => {
   const { data } = await axios.get(`/location/${id}`);
-  return data; // backend should return a single location object
+  return data;
 };
 
-// 🔹 Create new location
 export const createLocation = async (location: Location): Promise<Location> => {
   const response = axios.post("/location", location);
   return (await response).data;
 };
-// 🔹 Update location
 export const updateLocation = async (
   id: string,
   location: Location
@@ -29,7 +25,6 @@ export const updateLocation = async (
   return (await response).data;
 };
 
-// 🔹 Delete location
 export const deleteLocation = async (
   id: string
 ): Promise<{ message: string }> => {

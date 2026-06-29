@@ -20,7 +20,6 @@ import {
 } from "../types/campaign";
 import axios from "./axios";
 
-// CAMPAIGN TEMPLATES
 
 export const getCampaignTemplates = async (
   params: CampaignFilters,
@@ -56,7 +55,6 @@ export const deleteCampaignTemplate = async (id: string): Promise<void> => {
   await axios.delete(`/campaigns_templates/${id}`);
 };
 
-// AUDIENCE SEGMENT
 
 export const getAllAudiences = async (
   params: AudienceFilters,
@@ -193,7 +191,6 @@ export const getEmailAnalyticsExport = async (filter: string) => {
   return response;
 };
 
-// GET List
 export const getAutomations = async (
   page = 1,
   limit = 12,
@@ -206,13 +203,11 @@ export const getAutomations = async (
   return data;
 };
 
-// GET Single
 export const getAutomationById = async (id: string) => {
   const { data } = await axios.get<IAutomation>(`/automation/${id}`);
   return data;
 };
 
-// GET Templates
 export const getTemplates = async () => {
   const { data } = await axios.get<IAutomationTemplate[]>(
     "/automation/templates",
@@ -220,13 +215,11 @@ export const getTemplates = async () => {
   return data;
 };
 
-// POST Create
 export const createAutomation = async (payload: Partial<IAutomation>) => {
   const { data } = await axios.post<IAutomation>("/automation", payload);
   return data;
 };
 
-// PUT Update
 export const updateAutomation = async (
   id: string,
   payload: Partial<IAutomation>,
@@ -235,13 +228,11 @@ export const updateAutomation = async (
   return data;
 };
 
-// DELETE
 export const deleteAutomation = async (id: string) => {
   await axios.delete(`/automation/${id}`);
   return id;
 };
 
-// POST Duplicate
 export const duplicateAutomation = async (id: string) => {
   const { data } = await axios.post<IAutomation>(`/automation/${id}/duplicate`);
   return data;

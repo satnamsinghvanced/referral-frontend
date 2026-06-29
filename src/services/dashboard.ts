@@ -14,7 +14,6 @@ export const fetchDashboardData = async (): Promise<DashboardData> => {
 export const globalSearch = async (
   params: SearchParams,
 ): Promise<SearchResult[]> => {
-  // Pass an empty object as the body to prevent axios from sending 'null'
   const response = await axios.post(
     "/dashboard/search",
     {},

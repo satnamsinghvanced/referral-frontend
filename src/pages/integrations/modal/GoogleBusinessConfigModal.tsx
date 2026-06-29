@@ -14,7 +14,6 @@ import { FiExternalLink, FiEye, FiEyeOff } from "react-icons/fi";
 import * as Yup from "yup";
 import { useGenerateGoogleBusinessAuthUrl } from "../../../hooks/integrations/useGoogleBusiness";
 
-// --- Yup Validation Schema ---
 const validationSchema = Yup.object().shape({
   clientId: Yup.string().required("Client ID is required."),
   clientSecret: Yup.string().required("Client Secret is required."),
@@ -38,19 +37,12 @@ export default function GoogleBusinessConfigModal({
 }) {
   const [showSecret, setShowSecret] = useState(false);
 
-  // Save (Generate Auth URL) Mutation
   const generateAuthUrlMutation = useGenerateGoogleBusinessAuthUrl();
-
-  // Determine if we are in update mode
   const isUpdateMode = !!existingConfig?._id;
 
-  // Determine global loading state
   const isGlobalLoading = isLoading;
-
-  // Determine submitting state
   const isSubmitting = generateAuthUrlMutation.isPending;
 
-  // 2. Formik Setup
   const formik = useFormik<any>({
     initialValues: {
       userId: userId || "",

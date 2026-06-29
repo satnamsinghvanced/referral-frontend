@@ -1,7 +1,6 @@
 import {
   TwilioConfigRequest,
   TwilioConfigResponse,
-  UserIdParam,
 } from "../../types/integrations/twilio";
 import axios from "../axios";
 
