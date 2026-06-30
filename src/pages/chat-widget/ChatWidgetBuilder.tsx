@@ -360,6 +360,11 @@ export default function ChatWidgetBuilder() {
     }
   };
 
+  const rawApiUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:9090/api";
+  const backendUrl = rawApiUrl.startsWith("http")
+    ? rawApiUrl.replace(/\/api$/, "")
+    : `${window.location.origin}${rawApiUrl}`.replace(/\/api$/, "");
+
   const embedCodeSnippet = `<!-- Practice ROI Chat Widget -->
 <script>
 window.practiceROIConfig = {
@@ -403,7 +408,7 @@ window.practiceROIConfig = {
   ]
 };
 </script>
-<script src="https://cdn.practiceroi.com/chat-widget.js" async></script>
+<script src="${backendUrl}/chat-widget.js" async></script>
 <!-- End Practice ROI Chat Widget -->`;
 
   const copyToClipboard = () => {
