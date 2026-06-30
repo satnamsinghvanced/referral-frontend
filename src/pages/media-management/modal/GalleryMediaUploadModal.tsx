@@ -104,8 +104,10 @@ function GalleryMediaUploadModal({
       setSelectedMediaItems(preselectedMedia);
       setSelectedMediaIds(preselectedMedia.map((m) => m._id));
     }
-  }, [isOpen, preselectedMedia]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
   const handleMediaSelect = (isSelected: boolean, media: Media) => {
+    console.log("handleMediaSelect in modal called with isSelected:", isSelected, "mediaId:", media._id, "mediaType:", media.type, "allowedImageFormats:", allowedImageFormats);
     if (isSelected) {
       const isImage = media.type.startsWith("image/");
       const isVideo = media.type.startsWith("video/");

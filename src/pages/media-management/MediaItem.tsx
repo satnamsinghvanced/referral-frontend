@@ -17,7 +17,15 @@ const MediaItem = ({ media, onDelete, onView, onDownload, onSelect, selectedMedi
   return (
     <div
       key={media._id}
-      className={`relative border border-foreground/10 rounded-lg overflow-hidden group bg-content1 ${disabled ? "opacity-50 cursor-not-allowed" : ""
+      onClick={() => {
+        console.log("MediaItem clicked:", media._id, "disabled:", disabled);
+        if (!disabled) {
+          const currentSelected = selectedMedia?.includes(media._id);
+          console.log("currentSelected:", currentSelected, "calling onSelect with:", !currentSelected);
+          onSelect(!currentSelected, media._id);
+        }
+      }}
+      className={`relative border border-foreground/10 rounded-lg overflow-hidden group bg-content1 cursor-pointer transition-all hover:shadow-md ${disabled ? "opacity-50 cursor-not-allowed" : ""
         }`}
     >
       <div className="w-full h-32 md:h-40 flex items-center justify-center bg-gray-100 dark:bg-default-100/50 overflow-hidden">
@@ -52,7 +60,10 @@ const MediaItem = ({ media, onDelete, onView, onDownload, onSelect, selectedMedi
           ))}
         </div>
       </div>
-      <div className="absolute top-2 left-2 z-10">
+      <div 
+        className="absolute top-2 left-2 z-10"
+        onClick={(e) => e.stopPropagation()}
+      >
         <Checkbox
           size="md"
           radius="sm"
@@ -64,7 +75,10 @@ const MediaItem = ({ media, onDelete, onView, onDownload, onSelect, selectedMedi
         />
       </div>
       {showOverlay && (
-        <div className="absolute inset-0 md:bg-black/30 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity">
+        <div 
+          className="absolute inset-0 md:bg-black/30 flex items-center justify-center md:opacity-0 md:group-hover:opacity-100 transition-opacity"
+          onClick={(e) => e.stopPropagation()}
+        >
           <div className="flex space-x-1.5">
             <Button
               size="sm"
