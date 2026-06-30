@@ -12,6 +12,7 @@ import {
   PopoverTrigger,
   PopoverContent,
   Input,
+  Spinner,
 } from "@heroui/react";
 import {
   HiOutlineArrowLeft,
@@ -26,9 +27,11 @@ import {
   HiOutlineMail,
   HiOutlineCurrencyDollar,
   HiOutlineChat,
+  HiOutlineLightningBolt,
 } from "react-icons/hi";
 import { LuSend } from "react-icons/lu";
 import { MdOutlineVideocam } from "react-icons/md";
+import { useNavigate } from "react-router";
 import { Conversation } from "../../../consts/conversations";
 import {
   getPlatformIcon,
@@ -55,6 +58,8 @@ interface ChatAreaProps {
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
   onToggleStar?: (convId: string) => void;
   onDropdownAction?: (key: string, conv: Conversation) => void;
+  isMetaConnected?: boolean;
+  isIntegrationsLoading?: boolean;
 }
 
 export default function ChatArea({
@@ -73,8 +78,46 @@ export default function ChatArea({
   messagesEndRef,
   onToggleStar,
   onDropdownAction,
+  isMetaConnected = true,
+  isIntegrationsLoading = false,
 }: ChatAreaProps) {
+  const navigate = useNavigate();
   if (!selectedConversation) {
+    if (isIntegrationsLoading) {
+      return (
+        <div className="flex-1 flex items-center justify-center hidden md:flex bg-gray-50/10 dark:bg-black/5">
+          <Spinner size="lg" label="Checking integrations..." color="primary" />
+        </div>
+      );
+    }
+
+    if (!isMetaConnected) {
+      return (
+        <div className="flex-1 flex flex-col items-center justify-center p-8 bg-gray-50/10 dark:bg-black/5 hidden md:flex text-center">
+          <div className="max-w-md bg-white dark:bg-content1 rounded-2xl p-8 border border-foreground/10 shadow-lg shadow-black/5 flex flex-col items-center gap-5">
+            <div className="w-16 h-16 rounded-2xl bg-primary/10 dark:bg-primary/20 text-primary flex items-center justify-center animate-pulse">
+              <HiOutlineLightningBolt className="size-8" />
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-lg font-bold text-foreground">Connect Meta to Start Texting</h3>
+              <p className="text-xs text-gray-500 dark:text-foreground/60 leading-relaxed">
+                Connect your Meta account to sync Facebook & Instagram conversations and start texting.
+              </p>
+            </div>
+            <div className="flex justify-center w-full mt-2">
+              <Button
+                color="primary"
+                className="font-semibold text-xs py-2.5 px-8 rounded-xl shadow-md shadow-primary/20"
+                onClick={() => navigate("/social-media")}
+              >
+                Connect Meta (FB/IG)
+              </Button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     return (
       <div className="flex-1 items-center justify-center hidden md:flex">
         <div className="text-center text-gray-400 dark:text-foreground/30">
@@ -90,9 +133,8 @@ export default function ChatArea({
 
   return (
     <div
-      className={`flex-1 flex flex-col min-w-0 ${
-        selectedConversationId ? "flex" : "hidden md:flex"
-      }`}
+      className={`flex-1 flex flex-col min-w-0 ${selectedConversationId ? "flex" : "hidden md:flex"
+        }`}
     >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-foreground/10 bg-white dark:bg-content1">
@@ -168,9 +210,8 @@ export default function ChatArea({
             variant="light"
             size="sm"
             onClick={() => onToggleStar?.(selectedConversation.id)}
-            className={`text-gray-500 dark:text-foreground/50 hidden sm:inline-flex ${
-              selectedConversation.isStarred ? "text-yellow-500" : ""
-            }`}
+            className={`text-gray-500 dark:text-foreground/50 hidden sm:inline-flex ${selectedConversation.isStarred ? "text-yellow-500" : ""
+              }`}
           >
             {selectedConversation.isStarred ? (
               <HiStar className="size-4" />
@@ -211,14 +252,12 @@ export default function ChatArea({
         {selectedConversation.messages.map((msg) => (
           <div
             key={msg.id}
-            className={`flex ${
-              msg.isFromPatient ? "justify-start" : "justify-end"
-            }`}
+            className={`flex ${msg.isFromPatient ? "justify-start" : "justify-end"
+              }`}
           >
             <div
-              className={`flex items-end gap-2 max-w-[70%] ${
-                msg.isFromPatient ? "" : "flex-row-reverse"
-              }`}
+              className={`flex items-end gap-2 max-w-[70%] ${msg.isFromPatient ? "" : "flex-row-reverse"
+                }`}
             >
               {msg.isFromPatient && (
                 <div
@@ -231,11 +270,10 @@ export default function ChatArea({
               )}
               <div>
                 <div
-                  className={`px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed ${
-                    msg.isFromPatient
+                  className={`px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed ${msg.isFromPatient
                       ? "bg-white dark:bg-content2 text-foreground border border-foreground/5 rounded-bl-md"
                       : "bg-primary text-white rounded-br-md shadow-md shadow-primary/20"
-                  }`}
+                    }`}
                 >
                   {msg.text}
                   {msg.file && (
@@ -261,9 +299,8 @@ export default function ChatArea({
                   )}
                 </div>
                 <p
-                  className={`text-[9px] text-gray-400 dark:text-foreground/30 mt-1 flex items-center gap-1 ${
-                    msg.isFromPatient ? "" : "justify-end"
-                  }`}
+                  className={`text-[9px] text-gray-400 dark:text-foreground/30 mt-1 flex items-center gap-1 ${msg.isFromPatient ? "" : "justify-end"
+                    }`}
                 >
                   {!msg.isFromPatient && (
                     <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
