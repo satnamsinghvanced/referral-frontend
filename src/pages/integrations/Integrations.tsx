@@ -1,11 +1,21 @@
-import { Card, CardBody, CardHeader, addToast, Modal, ModalContent, ModalHeader, ModalBody, Spinner, Input, Button } from "@heroui/react";
-import { useCallback, useEffect, useMemo, useState, useRef } from "react";
+import { Card, CardBody, CardHeader, addToast, Modal, ModalContent, ModalHeader, ModalBody, Input, Button } from "@heroui/react";
+import { useEffect, useMemo, useState } from "react";
 import { BsLightningCharge } from "react-icons/bs";
 import { FaGoogle } from "react-icons/fa";
-import { FaMeta, FaRegEnvelope } from "react-icons/fa6";
+import { FaMeta, FaRegEnvelope, FaYoutube } from "react-icons/fa6";
+import {
+  useConnectSocial,
+  useSocialCredentials,
+  useUpdateSocial,
+} from "../../hooks/useSocial";
+import SocialSubAccountSelectorModal, {
+  SocialPlatformType,
+} from "../social-media/modal/SocialSubAccountSelectorModal";
+import SocialConnectConfirmModal, {
+  PendingSocialConnect,
+} from "../social-media/modal/SocialConnectConfirmModal";
 import { LuCalendar } from "react-icons/lu";
 import { SiGoogleads } from "react-icons/si";
-import { TbBrandTwilio } from "react-icons/tb";
 import axios from "../../services/axios";
 import { useQueryClient } from "@tanstack/react-query";
 import ComponentContainer from "../../components/common/ComponentContainer";
@@ -43,8 +53,7 @@ import {
   useUpdateCalendar,
 } from "../../hooks/integrations/useGoogleCalendar";
 import {
-  useFetchTwilioConfig,
-  useUpdateTwilioConfig,
+  useFetchTwilioConfig
 } from "../../hooks/integrations/useTwilio";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { timeAgo } from "../../utils/timeAgo";
@@ -60,6 +69,30 @@ function Integrations() {
   const queryClient = useQueryClient();
   const { user, token } = useTypedSelector((state) => state.auth);
   const userId = user?.userId;
+
+  const [selectorPlatform, setSelectorPlatform] =
+    useState<SocialPlatformType | null>(null);
+  const [isSelectorOpen, setIsSelectorOpen] = useState(false);
+  const [pendingConnect, setPendingConnect] =
+    useState<PendingSocialConnect | null>(null);
+
+  const { data: allSocialCredentials } = useSocialCredentials();
+  const { mutate: connectSocial, isPending: isSocialConnecting } = useConnectSocial();
+  const { mutate: updateSocial } = useUpdateSocial();
+
+  const handleConfirmSocialConnect = () => {
+    if (!pendingConnect) return;
+    connectSocial(
+      {
+        platform: pendingConnect.platformId,
+        platformKey: pendingConnect.platformKey,
+      },
+      {
+        onSettled: () => setPendingConnect(null),
+      },
+    );
+  };
+
   const [isTwilioIntegrationModalOpen, setIsTwilioIntegrationModalOpen] =
     useState(false);
   const [isSendGridConfigModalOpen, setIsSendGridConfigModalOpen] =
@@ -225,6 +258,9 @@ function Integrations() {
         const normPlatform = platform?.toLowerCase().replace(/[\s_]/g, "");
         if (normPlatform === "googlebusiness") {
           setIsGoogleBusinessLocationModalOpen(true);
+        } else if (normPlatform === "meta" || normPlatform === "youtube") {
+          setSelectorPlatform(normPlatform as SocialPlatformType);
+          setIsSelectorOpen(true);
         }
       } else if (status === "error") {
         addToast({
@@ -552,6 +588,149 @@ function Integrations() {
     connectGoogleAnalytics,
   ]);
 
+  const SOCIAL_MEDIA_INTEGRATIONS = useMemo(() => {
+    const list: any[] = [];
+    const socialCredentials = (allSocialCredentials && typeof allSocialCredentials === "object" && "data" in allSocialCredentials && allSocialCredentials.data)
+      ? (allSocialCredentials.data as any)
+      : allSocialCredentials;
+
+    const metaCreds = socialCredentials?.meta;
+    const youtubeCreds = socialCredentials?.youTube;
+
+    const connectedMetaPage = metaCreds?.metaPages?.find((p: any) => p.isConnected) || metaCreds?.metaPages?.[0];
+    const instagramUsername = connectedMetaPage?.instagramBusinessAccount?.username;
+
+    const normalizeStatus = (
+      status: string | undefined,
+    ): "Connected" | "Disconnected" | "Error" => {
+      if (!status) return "Disconnected";
+      if (status === "connected" || status === "Connected") return "Connected";
+      if (status === "notConnected" || status === "Disconnected")
+        return "Disconnected";
+      return (status.charAt(0).toUpperCase() + status.slice(1)) as
+        | "Connected"
+        | "Disconnected"
+        | "Error";
+    };
+
+    const metaStatus = normalizeStatus(metaCreds?.status);
+    const youtubeStatus = normalizeStatus(youtubeCreds?.status);
+
+    const openSocialConnectModal = (platform: {
+      platformId: string;
+      platformKey: string;
+      name: string;
+      selectorPlatform: SocialPlatformType;
+    }) => {
+      setPendingConnect({
+        platformId: platform.platformId,
+        platformKey: platform.platformKey,
+        name: platform.name,
+        selectorPlatform: platform.selectorPlatform,
+      });
+    };
+
+    list.push({
+      id: metaCreds?.id || "",
+      platformId: "meta",
+      platformKey: "metaAuthIntegration",
+      selectorPlatform: "meta" as SocialPlatformType,
+      name: "Meta (Facebook & Instagram)",
+      icon: <FaMeta className="w-4 h-4" />,
+      iconBg: "bg-blue-100 dark:bg-blue-900/20",
+      iconColor: "text-blue-600 dark:text-blue-400",
+      status: metaStatus,
+      description:
+        "Connect Facebook and Instagram to sync posts and track engagement.",
+      badges: ["Facebook", "Instagram", "Ads Sync"],
+      onConnect: () => openSocialConnectModal({
+        platformId: "meta",
+        platformKey: "metaAuthIntegration",
+        name: "Meta (Facebook & Instagram)",
+        selectorPlatform: "meta",
+      }),
+      onReconnect: () => openSocialConnectModal({
+        platformId: "meta",
+        platformKey: "metaAuthIntegration",
+        name: "Meta (Facebook & Instagram)",
+        selectorPlatform: "meta",
+      }),
+      onConfigure: () => {
+        setSelectorPlatform("meta");
+        setIsSelectorOpen(true);
+      },
+      isSwitchChecked: metaStatus === "Connected",
+      onSwitchChange: () => {
+        updateSocial({
+          id: metaCreds?.id,
+          payload: {
+            status:
+              metaStatus === "Connected"
+                ? "Disconnected"
+                : "Connected",
+          },
+        });
+      },
+      account: {
+        accountName:
+          metaCreds?.accountName ||
+          metaCreds?.metaPages?.[0]?.name,
+        accountEmail: metaCreds?.accountEmail,
+        accountAvatar: metaCreds?.accountAvatar,
+        instagramUsername,
+      },
+    });
+
+    list.push({
+      id: youtubeCreds?.id || "",
+      platformId: "youTube",
+      platformKey: "youtubeAuthIntegration",
+      selectorPlatform: "youtube" as SocialPlatformType,
+      name: "YouTube",
+      icon: <FaYoutube className="w-4 h-4" />,
+      iconBg: "bg-red-100 dark:bg-red-900/20",
+      iconColor: "text-red-600 dark:text-red-400",
+      status: youtubeStatus,
+      description: "Sync your video content and monitor channel performance.",
+      badges: ["Video Sync", "Channel Stats", "Views Tracking"],
+      onConnect: () => openSocialConnectModal({
+        platformId: "youTube",
+        platformKey: "youtubeAuthIntegration",
+        name: "YouTube",
+        selectorPlatform: "youtube",
+      }),
+      onReconnect: () => openSocialConnectModal({
+        platformId: "youTube",
+        platformKey: "youtubeAuthIntegration",
+        name: "YouTube",
+        selectorPlatform: "youtube",
+      }),
+      onConfigure: () => {
+        setSelectorPlatform("youtube");
+        setIsSelectorOpen(true);
+      },
+      isSwitchChecked: youtubeStatus === "Connected",
+      onSwitchChange: () => {
+        updateSocial({
+          id: youtubeCreds?.id,
+          payload: {
+            status:
+              youtubeStatus === "Connected"
+                ? "Disconnected"
+                : "Connected",
+          },
+        });
+      },
+      account: {
+        accountName: youtubeCreds?.accountName,
+        accountEmail: youtubeCreds?.accountEmail,
+        accountAvatar: youtubeCreds?.accountAvatar,
+      },
+    });
+
+    return list;
+  }, [allSocialCredentials, updateSocial]);
+
   return (
     <>
       <ComponentContainer headingData={HEADING_DATA}>
@@ -565,6 +744,18 @@ function Integrations() {
             </CardHeader>
             <CardBody className="divide-y divide-gray-100 dark:divide-default-100/50 p-0">
               {AVAILABLE_INTEGRATIONS.map((item, index) => (
+                <IntegrationItem key={index} {...item} />
+              ))}
+            </CardBody>
+          </Card>
+          <Card className="shadow-none border border-foreground/10 rounded-xl p-4 bg-background">
+            <CardHeader className="p-0 pb-5">
+              <h4 className="font-medium text-sm text-foreground">
+                Social Media Integrations
+              </h4>
+            </CardHeader>
+            <CardBody className="divide-y divide-gray-100 dark:divide-default-100/50 p-0">
+              {SOCIAL_MEDIA_INTEGRATIONS.map((item, index) => (
                 <IntegrationItem key={index} {...item} />
               ))}
             </CardBody>
@@ -647,6 +838,23 @@ function Integrations() {
           </ModalBody>
         </ModalContent>
       </Modal>
+      {selectorPlatform && (
+        <SocialSubAccountSelectorModal
+          platform={selectorPlatform}
+          isOpen={isSelectorOpen}
+          onClose={() => {
+            setIsSelectorOpen(false);
+            setSelectorPlatform(null);
+          }}
+        />
+      )}
+      <SocialConnectConfirmModal
+        pending={pendingConnect}
+        isOpen={!!pendingConnect}
+        onClose={() => setPendingConnect(null)}
+        onConfirm={handleConfirmSocialConnect}
+        isConnecting={isSocialConnecting}
+      />
       {countdown !== null && (
         <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 backdrop-blur-xl bg-background/80 text-foreground px-6 py-4 rounded-2xl shadow-[0_10px_40px_rgba(0,0,0,0.15)] flex items-center gap-4 border border-foreground/10 animate-in fade-in slide-in-from-bottom-5 duration-300">
           <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-success/15 text-success animate-bounce">
