@@ -1,7 +1,5 @@
 import React from "react";
 import {
-  Card,
-  CardBody,
   Button,
   Chip,
   Dropdown,
@@ -58,6 +56,9 @@ interface ChatAreaProps {
   messagesEndRef: React.RefObject<HTMLDivElement | null>;
   onToggleStar?: (convId: string) => void;
   onDropdownAction?: (key: string, conv: Conversation) => void;
+  onScheduleClick?: () => void;
+  onSendFormsClick?: () => void;
+  onSendQuoteClick?: () => void;
   isMetaConnected?: boolean;
   isIntegrationsLoading?: boolean;
 }
@@ -78,6 +79,9 @@ export default function ChatArea({
   messagesEndRef,
   onToggleStar,
   onDropdownAction,
+  onScheduleClick,
+  onSendFormsClick,
+  onSendQuoteClick,
   isMetaConnected = true,
   isIntegrationsLoading = false,
 }: ChatAreaProps) {
@@ -345,7 +349,7 @@ export default function ChatArea({
               isIconOnly
               variant="light"
               size="sm"
-              onPress={() => setAttachedFile(null)}
+              onClick={() => setAttachedFile(null)}
               className="min-w-6 w-6 h-6 text-gray-500"
             >
               ✕
@@ -359,8 +363,8 @@ export default function ChatArea({
               isIconOnly
               variant="light"
               size="sm"
-              className="text-gray-400 dark:text-foreground/40 min-w-8 w-8"
-              onPress={() => fileInputRef.current?.click()}
+              className="text-gray-400 dark:text-foreground/40 min-w-8 w-8 hover:bg-[#ffe8d6] hover:text-[#e28a4b] transition-colors rounded-lg"
+              onClick={() => fileInputRef.current?.click()}
             >
               <HiOutlinePaperClip className="size-4" />
             </Button>
@@ -368,8 +372,8 @@ export default function ChatArea({
               isIconOnly
               variant="light"
               size="sm"
-              className="text-gray-400 dark:text-foreground/40 min-w-8 w-8"
-              onPress={() => imageInputRef.current?.click()}
+              className="text-gray-400 dark:text-foreground/40 min-w-8 w-8 hover:bg-[#ffe8d6] hover:text-[#e28a4b] transition-colors rounded-lg"
+              onClick={() => imageInputRef.current?.click()}
             >
               <HiOutlinePhotograph className="size-4" />
             </Button>
@@ -380,7 +384,7 @@ export default function ChatArea({
                   isIconOnly
                   variant="light"
                   size="sm"
-                  className="text-gray-400 dark:text-foreground/40 min-w-8 w-8 hidden xs:flex"
+                  className="text-gray-400 dark:text-foreground/40 min-w-8 w-8 hover:bg-[#ffe8d6] hover:text-[#e28a4b] transition-colors rounded-lg"
                 >
                   <HiOutlineEmojiHappy className="size-4" />
                 </Button>
@@ -425,7 +429,7 @@ export default function ChatArea({
             color="primary"
             size="sm"
             radius="full"
-            onPress={handleSendMessage}
+            onClick={handleSendMessage}
             className="shadow-md shadow-primary/30 flex-shrink-0 min-w-8 w-8"
           >
             <LuSend className="size-3.5" />
@@ -433,31 +437,33 @@ export default function ChatArea({
         </div>
       </div>
 
-      {/* Quick Actions Footer */}
-      <div className="px-4 py-2 border-t border-foreground/5 bg-white dark:bg-content1 grid grid-cols-2 sm:grid-cols-3 gap-2">
+      <div className="px-4 py-2 bg-white dark:bg-content1 flex flex-wrap gap-2">
         <Button
           size="sm"
-          variant="flat"
-          className="text-xs h-8 bg-gray-100 dark:bg-default-100 text-gray-600 dark:text-foreground/60 w-full"
-          startContent={<HiOutlineCalendar className="size-3 flex-shrink-0" />}
+          variant="bordered"
+          className="text-xs h-8 border-foreground/10 text-foreground hover:bg-[#ffe8d6] hover:text-[#e28a4b] hover:border-transparent transition-all"
+          startContent={<HiOutlineCalendar className="size-3.5 shrink-0" />}
+          {...(onScheduleClick ? { onClick: onScheduleClick } : {})}
         >
-          <span className="truncate">Schedule Appointment</span>
+          Schedule Appointment
         </Button>
         <Button
           size="sm"
-          variant="flat"
-          className="text-xs h-8 bg-gray-100 dark:bg-default-100 text-gray-600 dark:text-foreground/60 w-full"
-          startContent={<HiOutlineMail className="size-3 flex-shrink-0" />}
+          variant="bordered"
+          className="text-xs h-8 border-foreground/10 text-foreground hover:bg-[#ffe8d6] hover:text-[#e28a4b] hover:border-transparent transition-all"
+          startContent={<HiOutlineMail className="size-3.5 shrink-0" />}
+          {...(onSendFormsClick ? { onClick: onSendFormsClick } : {})}
         >
-          <span className="truncate">Send Forms</span>
+          Send Forms
         </Button>
         <Button
           size="sm"
-          variant="flat"
-          className="text-xs h-8 bg-gray-100 dark:bg-default-100 text-gray-600 dark:text-foreground/60 w-full col-span-2 sm:col-span-1"
-          startContent={<HiOutlineCurrencyDollar className="size-3 flex-shrink-0" />}
+          variant="bordered"
+          className="text-xs h-8 border-foreground/10 text-foreground hover:bg-[#ffe8d6] hover:text-[#e28a4b] hover:border-transparent transition-all"
+          startContent={<HiOutlineCurrencyDollar className="size-3.5 shrink-0" />}
+          {...(onSendQuoteClick ? { onClick: onSendQuoteClick } : {})}
         >
-          <span className="truncate">Send Quote</span>
+          Send Quote
         </Button>
       </div>
     </div>
