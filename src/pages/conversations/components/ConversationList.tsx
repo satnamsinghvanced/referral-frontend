@@ -104,8 +104,8 @@ export default function ConversationList({
               key={p.key}
               onClick={() => setSelectedPlatform(p.key)}
               className={`flex-1 px-2 py-1 text-[10px] font-semibold rounded-md transition-all ${selectedPlatform === p.key
-                  ? "bg-primary text-white shadow-sm"
-                  : "bg-gray-100 dark:bg-default-100 text-gray-500 dark:text-foreground/40 hover:bg-gray-200 dark:hover:bg-default-200"
+                ? "bg-primary text-white shadow-sm"
+                : "bg-gray-100 dark:bg-default-100 text-gray-500 dark:text-foreground/40 hover:bg-gray-200 dark:hover:bg-default-200"
                 }`}
             >
               {p.label}
@@ -152,11 +152,11 @@ export default function ConversationList({
               key={conv.id}
               onClick={() => onConversationClick(conv)}
               className={`flex gap-3 p-3 cursor-pointer border-b border-foreground/5 transition-all hover:bg-gray-50 dark:hover:bg-white/5 ${selectedConversation?.id === conv.id
-                  ? "bg-sky-50/70 dark:bg-sky-900/10 border-l-2 border-l-primary"
-                  : ""
+                ? "bg-sky-50/70 dark:bg-sky-900/10 border-l-2 border-l-primary"
+                : ""
                 }`}
             >
-              <div className="relative flex-shrink-0">
+              <div className="relative flex-shrink-0 w-10 h-10">
                 <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold ${getAvatarColor(
                     conv.patientName,
@@ -164,12 +164,14 @@ export default function ConversationList({
                 >
                   {getInitials(conv.patientName)}
                 </div>
+
                 {conv.isOnline && (
-                  <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white dark:border-content1 rounded-full" />
+                  <div className="absolute top-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white dark:border-content1 rounded-full" />
                 )}
-                <div className="absolute -bottom-0.5 -left-0.5 w-4 h-4 rounded-full bg-white dark:bg-content1 flex items-center justify-center shadow-sm">
+
+                <div className="absolute bottom-0 right-0 translate-y-1/4 translate-x-1/4 w-4 h-4 rounded-full bg-white dark:bg-content1 ring-2 ring-white dark:ring-content1 flex items-center justify-center shadow-md z-10">
                   <span
-                    className={`${getPlatformChipStyle(conv.platform)} rounded-full p-0.5`}
+                    className={`${getPlatformChipStyle(conv.platform)} rounded-full w-full h-full flex items-center justify-center`}
                   >
                     {getPlatformIcon(conv.platform)}
                   </span>

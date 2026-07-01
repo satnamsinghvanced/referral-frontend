@@ -61,8 +61,14 @@ export default function Checkout() {
   const packageCost = 0; // Package minutes are included in the wallet deposit subscription
 
   const creditsCost = typeParam === "twilio_credits" && walletAmountParam > 0 ? walletAmountParam : amountParam;
-  const phoneFee = typeParam === "twilio_credits" && walletAmountParam > 0 ? Math.max(0, amountParam - walletAmountParam) : 0;
-  const baseCost = typeParam === "twilio_credits" ? creditsCost + packageCost + phoneFee : activePlan.price;
+  const baseCost = typeParam === "twilio_credits" ? creditsCost : activePlan.price;
+
+  let twilioPlanName = "Starter";
+  if (packageParam === "1000") {
+    twilioPlanName = "Growth";
+  } else if (packageParam === "2500") {
+    twilioPlanName = "Scale";
+  }
 
   // Form states
   const [activeTab, setActiveTab] = useState<"saved" | "card">("card");
@@ -693,26 +699,12 @@ export default function Checkout() {
               {typeParam === "twilio_credits" ? (
                 <>
                   <div className="flex justify-between items-center text-sm font-semibold">
-                    <span className="text-default-500">Wallet Deposit</span>
+                    <span className="text-default-500">Monthly Plan ({twilioPlanName})</span>
                     <span>${creditsCost.toFixed(2)}</span>
                   </div>
-                  {phoneFee > 0 && (
-                    <div className="flex justify-between items-center text-sm font-semibold">
-                      <span className="text-default-500">Active Phone Number Fee</span>
-                      <span>${phoneFee.toFixed(2)}</span>
-                    </div>
-                  )}
-                  {packageParam !== "none" && (
-                    <div className="flex justify-between items-center text-sm font-semibold">
-                      <span className="text-default-500">
-                        {!isNaN(parseInt(packageParam, 10)) ? parseInt(packageParam, 10).toLocaleString("en-US") : packageParam} Min Package
-                      </span>
-                      <span className="text-emerald-600 dark:text-emerald-400 font-bold">Included</span>
-                    </div>
-                  )}
                   <div className="flex justify-between items-center text-sm font-semibold border-b border-foreground/5 pb-4">
-                    <span className="text-default-500">Billing Type</span>
-                    <span>One-time + Monthly Package</span>
+                    <span className="text-default-500">Overage charges</span>
+                    <span>Billed as you use it</span>
                   </div>
                 </>
               ) : (
@@ -782,7 +774,7 @@ export default function Checkout() {
                   : "bg-blue-600 text-white hover:bg-blue-700"
                   }`}
               >
-                {typeParam === "twilio_credits" ? `Pay $${totalCost.toFixed(2)}` : "Complete Sign Up"}
+                {typeParam === "twilio_credits" ? "Confirm Plan" : "Complete Sign Up"}
               </Button>
               <Button
                 variant="light"

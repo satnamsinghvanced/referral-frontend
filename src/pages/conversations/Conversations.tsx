@@ -14,6 +14,10 @@ import {
 import ConversationList from "./components/ConversationList";
 import ChatArea from "./components/ChatArea";
 import LeadSidebar from "./components/LeadSidebar";
+import ViewLeadModal from "./modal/ViewLeadModal";
+import ScheduleAppointmentModal from "./modal/ScheduleAppointmentModal";
+import SendFormsModal from "./modal/SendFormsModal";
+import SendQuoteModal from "./modal/SendQuoteModal";
 import { getInstagramConversations, sendInstagramMessage, markInstagramSeen } from "../../services/igMessage";
 import { getFacebookConversations, sendFacebookMessage, markFacebookSeen } from "../../services/fbMessage";
 import { useSocialCredentials } from "../../hooks/useSocial";
@@ -37,14 +41,18 @@ const Conversations = () => {
   const [selectedConversationId, setSelectedConversationId] = useState<
     string | null
   >(null);
+  
+  const [isViewLeadModalOpen, setIsViewLeadModalOpen] = useState(false);
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+  const [isSendFormsModalOpen, setIsSendFormsModalOpen] = useState(false);
+  const [isSendQuoteModalOpen, setIsSendQuoteModalOpen] = useState(false);
+  const [modalLead, setModalLead] = useState<Conversation | null>(null);
 
   const applySeenOverrides = (convs: Conversation[]): Conversation[] => {
     return convs.map((conv) => {
       if (!conv.messages || conv.messages.length === 0) {
         return { ...conv, unreadCount: 0 };
       }
-
-      // Find the index of the last message sent by the provider/practice
       let lastProviderIndex = -1;
       for (let i = conv.messages.length - 1; i >= 0; i--) {
         const msg = conv.messages[i];
@@ -54,7 +62,6 @@ const Conversations = () => {
         }
       }
 
-      // Count patient messages after the last provider message
       let computedCount = 0;
       for (let i = lastProviderIndex + 1; i < conv.messages.length; i++) {
         const msg = conv.messages[i];
@@ -399,11 +406,8 @@ const Conversations = () => {
         color: "danger",
       });
     } else if (key === "view") {
-      addToast({
-        title: "View Profile",
-        description: `Profile view for ${conv.patientName}`,
-        color: "primary",
-      });
+      setModalLead(conv);
+      setIsViewLeadModalOpen(true);
     }
   };
 
@@ -485,6 +489,18 @@ const Conversations = () => {
                 messagesEndRef={messagesEndRef}
                 onToggleStar={handleToggleStar}
                 onDropdownAction={handleDropdownAction}
+                onScheduleClick={() => {
+                  setModalLead(selectedConversation);
+                  setIsScheduleModalOpen(true);
+                }}
+                onSendFormsClick={() => {
+                  setModalLead(selectedConversation);
+                  setIsSendFormsModalOpen(true);
+                }}
+                onSendQuoteClick={() => {
+                  setModalLead(selectedConversation);
+                  setIsSendQuoteModalOpen(true);
+                }}
                 isMetaConnected={isMetaConnected}
                 isIntegrationsLoading={isSocialLoading}
               />
@@ -497,6 +513,27 @@ const Conversations = () => {
           </CardBody>
         </Card>
       </div>
+      <ViewLeadModal 
+        isOpen={isViewLeadModalOpen} 
+        onClose={() => setIsViewLeadModalOpen(false)} 
+        lead={modalLead} 
+        onScheduleClick={() => setIsScheduleModalOpen(true)} 
+      />
+      <ScheduleAppointmentModal 
+        isOpen={isScheduleModalOpen} 
+        onClose={() => setIsScheduleModalOpen(false)} 
+        lead={modalLead} 
+      />
+      <SendFormsModal 
+        isOpen={isSendFormsModalOpen} 
+        onClose={() => setIsSendFormsModalOpen(false)} 
+        lead={modalLead} 
+      />
+      <SendQuoteModal 
+        isOpen={isSendQuoteModalOpen} 
+        onClose={() => setIsSendQuoteModalOpen(false)} 
+        lead={modalLead} 
+      />
     </ComponentContainer>
   );
 };

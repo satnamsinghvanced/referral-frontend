@@ -68,3 +68,16 @@ export const getInitials = (name: string) => {
     .toUpperCase()
     .slice(0, 2);
 };
+
+
+export const CHIP_COLORS: string[] = [
+  "bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400",
+  "bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400",
+  "bg-yellow-50 dark:bg-yellow-900/20 text-yellow-700 dark:text-yellow-400",
+  "bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400",
+  "bg-rose-50 dark:bg-rose-900/20 text-rose-600 dark:text-rose-400",
+];
+
+export const getChipColor = (index: number): string => {
+  return CHIP_COLORS[index % CHIP_COLORS.length] ?? CHIP_COLORS[0]!;
+};

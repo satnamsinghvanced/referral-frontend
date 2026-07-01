@@ -571,4 +571,15 @@ input[type="number"] {
 .dark .quill-editor-wrapper .ql-editor.ql-blank::before {
   color: #9ca3af !important;
 }
-
+
+.hide-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE & Edge */
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none; /* Chrome, Safari, Edge */
+}
+

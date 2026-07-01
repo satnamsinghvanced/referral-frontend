@@ -12,7 +12,7 @@ import {
   CONVERSATION_TAGS,
   Conversation,
 } from "../../../consts/conversations";
-import { getAvatarColor, getInitials, getPlatformLabel } from "../utils";
+import { getAvatarColor, getInitials, getPlatformLabel, getChipColor } from "../utils";
 
 interface LeadSidebarProps {
   selectedConversation: Conversation | null;
@@ -125,12 +125,12 @@ export default function LeadSidebar({
               <HiOutlineStar className="size-3" /> Treatment Interest
             </p>
             <div className="flex flex-wrap gap-1">
-              {selectedConversation.treatmentInterest.map((treatment) => (
+              {selectedConversation.treatmentInterest.map((treatment, idx) => (
                 <Chip
                   key={treatment}
                   size="sm"
                   variant="flat"
-                  className="text-[10px] h-5 bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400 font-semibold"
+                  className={`text-[10px] h-5 font-semibold ${getChipColor(idx)}`}
                 >
                   {treatment}
                 </Chip>
@@ -151,10 +151,9 @@ export default function LeadSidebar({
                 key={tag}
                 size="sm"
                 variant="flat"
-                className={`text-[10px] h-5 font-semibold ${
-                  tagDef?.color ||
+                className={`text-[10px] h-5 font-semibold ${tagDef?.color ||
                   "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
-                }`}
+                  }`}
               >
                 {tag}
               </Chip>
