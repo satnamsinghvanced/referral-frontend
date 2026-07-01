@@ -28,12 +28,14 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
   const [balance, setBalance] = useState<number>(twilioConfig?.balance ?? 0);
   const [minutesUsed, setMinutesUsed] = useState<number>(twilioConfig?.minutesUsed ?? 0);
   const [minutesLimit, setMinutesLimit] = useState<number>(twilioConfig?.minutesLimit ?? 0);
+  const [planExpiresAt, setPlanExpiresAt] = useState<string | null | undefined>(twilioConfig?.planExpiresAt);
 
   useEffect(() => {
     if (twilioConfig) {
       if (twilioConfig.balance !== undefined) setBalance(twilioConfig.balance);
       if (twilioConfig.minutesUsed !== undefined) setMinutesUsed(twilioConfig.minutesUsed);
       if (twilioConfig.minutesLimit !== undefined) setMinutesLimit(twilioConfig.minutesLimit);
+      if (twilioConfig.planExpiresAt !== undefined) setPlanExpiresAt(twilioConfig.planExpiresAt);
       if (twilioConfig.phoneNumbers !== undefined) {
         const formatted = twilioConfig.phoneNumbers.map((num: any) => ({
           id: num._id || num.id || num.phoneNumber,
@@ -209,7 +211,7 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
                 startContent={<FiCreditCard className="w-4 h-4" />}
                 className="border border-foreground/10 rounded-xl text-sm font-semibold h-10 px-4 hover:bg-foreground/5"
               >
-                Add Credits
+                Manage plans
               </Button>
               <Button
                 color="primary"
@@ -435,12 +437,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
                         >
                           {num.status}
                         </Chip>
-                        <Chip
-                          size="sm"
-                          className="bg-default-100 dark:bg-default-900/50 text-foreground-500 text-[10px] font-semibold h-4 px-1.5"
-                        >
-                          Voice Only
-                        </Chip>
                       </div>
                       <span className="text-xs text-foreground-500">
                         {num.label}
@@ -487,7 +483,9 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
         isOpen={isAddCreditsOpen}
         onClose={() => setIsAddCreditsOpen(false)}
         currentBalance={balance}
-        currentMinutes={minutesUsed}
+        currentMinutes={minutesLimit}
+        minutesUsed={minutesUsed}
+        planExpiresAt={planExpiresAt}
         onAddCredits={handleAddCredits}
       />
 
@@ -498,6 +496,7 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
         onPurchaseSuccess={handlePurchaseNumber}
         balance={balance}
         phoneNumbersCount={phoneNumbers.length}
+        minutesLimit={minutesLimit}
       />
 
       {/* A2P SMS Registration Modal */}

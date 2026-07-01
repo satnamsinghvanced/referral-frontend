@@ -5,325 +5,294 @@ import {
   ModalBody,
   ModalFooter,
   Button,
-  Input,
   addToast,
-  Switch,
 } from "@heroui/react";
 import { useState, useEffect } from "react";
-import { BsLightningCharge } from "react-icons/bs";
-import { FiCreditCard, FiPhone, FiMessageSquare, FiMic, FiDisc, FiInfo } from "react-icons/fi";
+import { FiPhone, FiCreditCard, FiCheck } from "react-icons/fi";
 
 interface TwilioAddCreditsModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentBalance: number;
   currentMinutes: number;
+  minutesUsed: number;
+  planExpiresAt: string | null | undefined;
   onAddCredits: (amount: number, minutes: number) => void;
 }
+
+interface Plan {
+  id: string;
+  name: string;
+  desc: string;
+  price: number;
+  minutes: number;
+  segments: number;
+  callRate: string;
+  smsRate: string;
+  pkgName: string;
+  popular?: boolean;
+}
+
+const PLANS: Plan[] = [
+  {
+    id: "starter",
+    name: "Starter",
+    desc: "Best for solo or low-volume practices",
+    price: 50,
+    minutes: 500,
+    segments: 1000,
+    callRate: "0.02",
+    smsRate: "0.025",
+    pkgName: "500",
+  },
+  {
+    id: "growth",
+    name: "Growth",
+    desc: "Most popular",
+    price: 75,
+    minutes: 1000,
+    segments: 2500,
+    callRate: "0.015",
+    smsRate: "0.02",
+    pkgName: "1000",
+    popular: true,
+  },
+  {
+    id: "scale",
+    name: "Scale",
+    desc: "For high call volume or multi-location",
+    price: 100,
+    minutes: 2500,
+    segments: 5000,
+    callRate: "0.01",
+    smsRate: "0.015",
+    pkgName: "2500",
+  },
+];
 
 export default function TwilioAddCreditsModal({
   isOpen,
   onClose,
-  currentBalance,
+  currentMinutes,
+  minutesUsed,
+  planExpiresAt,
 }: TwilioAddCreditsModalProps) {
-  const formatCount = (num: number) => {
-    if (!isFinite(num) || isNaN(num) || num <= 0) return "0";
-    if (num < 100000) {
-      return num.toLocaleString("en-US");
-    }
-    return new Intl.NumberFormat("en-US", {
-      notation: "compact",
-      maximumFractionDigits: 2,
-    }).format(num);
-  };
-
-  const formatCurrency = (amount: number) => {
-    if (!isFinite(amount) || isNaN(amount) || amount <= 0) return "$0.00";
-    if (amount > 1000000) {
-      return (
-        "$" +
-        new Intl.NumberFormat("en-US", {
-          notation: "compact",
-          maximumFractionDigits: 2,
-        }).format(amount)
-      );
-    }
-    return (
-      "$" +
-      amount.toLocaleString("en-US", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })
-    );
-  };
-
-  const tiers = [50, 75, 100];
-  interface TierMeta {
-    label: string;
-    desc: string;
-    popular?: boolean;
-  }
-  const tierMetadata: Record<number, TierMeta> = {
-    50: { label: "Starter Wallet", desc: "Best for Individuals" },
-    75: { label: "Growth Wallet", desc: "Most Popular", popular: true },
-    100: { label: "Scale Wallet", desc: "Growth Scale" },
-  };
-
-  const [selectedPreset, setSelectedPreset] = useState<number | null>(50);
-  const [customAmount, setCustomAmount] = useState<string>("50");
-  const [autoTopUp, setAutoTopUp] = useState<boolean>(true);
+  const [selectedPlanId, setSelectedPlanId] = useState<string>("starter");
   const [isConnecting, setIsConnecting] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
-      setSelectedPreset(50);
-      setCustomAmount("50");
-      setAutoTopUp(true);
+      if (currentMinutes >= 2500) {
+        setSelectedPlanId("scale");
+      } else if (currentMinutes >= 1000) {
+        setSelectedPlanId("growth");
+      } else {
+        setSelectedPlanId("starter");
+      }
       setIsConnecting(false);
     }
-  }, [isOpen]);
+  }, [isOpen, currentMinutes]);
 
-  const handlePresetClick = (amount: number) => {
-    setSelectedPreset(amount);
-    setCustomAmount(amount.toString());
-  };
+  const activePlan = PLANS.find((p) => p.id === selectedPlanId) || PLANS[0]!;
 
-  const handleCustomAmountChange = (val: string) => {
-    setCustomAmount(val);
-    const parsed = parseFloat(val);
-    if (tiers.includes(parsed)) {
-      setSelectedPreset(parsed);
-    } else {
-      setSelectedPreset(null);
-    }
-  };
-
-  const handleAdd = () => {
-    const credits = parseFloat(customAmount);
-    if (isNaN(credits) || credits < 20) {
-      addToast({
-        title: "Invalid Amount",
-        description: "Please enter a monthly subscription amount of at least $20.",
-        color: "danger",
-      });
-      return;
-    }
-    
-    let pkg = "none";
-    if (credits === 50) {
-      pkg = "500";
-    } else if (credits === 75) {
-      pkg = "1000";
-    } else if (credits === 100) {
-      pkg = "2500";
-    } else if (credits > 0) {
-      pkg = Math.floor(credits / 0.02).toString();
-    }
-
-    const totalAmount = credits;
-    const url = `${window.location.origin}/checkout?type=twilio_credits&amount=${totalAmount}&walletAmount=${credits}&package=${pkg}&auto_topup=${autoTopUp}`;
+  const handleConfirmPlan = () => {
+    setIsConnecting(true);
+    const url = `${window.location.origin}/checkout?type=twilio_credits&amount=${activePlan.price}&walletAmount=${activePlan.price}&package=${activePlan.pkgName}&auto_topup=true`;
     window.open(url, "_blank");
     onClose();
   };
 
-  const walletAmount = parseFloat(customAmount) || 0;
-  
-  let pkgName = "none";
-  if (walletAmount === 50) {
-    pkgName = "500";
-  } else if (walletAmount === 75) {
-    pkgName = "1000";
-  } else if (walletAmount === 100) {
-    pkgName = "2500";
-  } else if (walletAmount > 0) {
-    pkgName = Math.floor(walletAmount / 0.02).toString();
-  }
+  const hasActivePlan = currentMinutes > 0;
+  const currentPlan = PLANS.find(p => p.minutes === currentMinutes);
 
-  const totalToday = walletAmount;
-  const outboundMins = Math.floor(walletAmount / 0.02);
-  const smsCount = Math.floor(walletAmount / 0.01);
-  const inboundMins = Math.floor(walletAmount / 0.01);
+  const formatDate = (dateStr: string | null | undefined) => {
+    let date = dateStr;
+    if (!date && hasActivePlan) {
+      const fallback = new Date();
+      fallback.setDate(fallback.getDate() + 30);
+      date = fallback.toISOString();
+    }
+    if (!date) return "N/A";
+    try {
+      const d = new Date(date);
+      return d.toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+    } catch (e) {
+      return date;
+    }
+  };
 
   return (
     <Modal
       isOpen={isOpen}
       onOpenChange={onClose}
-      size="3xl"
+      size="lg"
       classNames={{
-        base: "max-sm:!m-3 !m-0 bg-background border border-foreground/10 text-foreground rounded-2xl max-h-[90vh] overflow-y-auto",
+        base: "max-sm:!m-3 !m-0 bg-background border border-foreground/10 text-foreground rounded-2xl max-h-[95vh] overflow-y-auto",
         closeButton: "cursor-pointer text-foreground/50 hover:text-foreground",
       }}
       placement="center"
     >
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1 p-5 pb-2">
-          <h2 className="text-xl font-bold text-foreground">Manage Phone Wallet Subscription</h2>
-          <p className="text-xs text-foreground-500 font-normal">
-            All plans fund your single USD Wallet Balance. Services are deducted in real-time based on usage.
+          <h2 className="text-lg font-bold text-foreground">Manage Your Monthly Plan</h2>
+          <p className="text-xs text-foreground-500 font-normal leading-relaxed">
+            Pick the plan that fits your call and text volume. Each plan includes a set amount of calls and texts every month. If you go over, the extra usage bills automatically at the rates shown below.
           </p>
         </ModalHeader>
 
-        <ModalBody className="p-5 pt-2 flex flex-col gap-6">
-          {/* Current Wallet Balance - Full Width */}
-          <div className="bg-primary-50/50 dark:bg-primary-900/10 border border-primary-100 dark:border-primary-900/30 rounded-xl p-4 flex flex-col items-center justify-center text-center">
-            <p className="text-[10px] uppercase font-semibold text-foreground-500 tracking-wider">
-              Current Wallet Balance
-            </p>
-            <p className="text-3xl font-extrabold text-primary mt-1">
-              {formatCurrency(currentBalance)}
-            </p>
-          </div>
-
-          {/* Selection and Estimated Power columns */}
-          <div className="flex flex-col md:flex-row gap-6">
-            <div className="flex-1 flex flex-col gap-4 justify-between">
-              <div className="flex flex-col gap-2">
-                <label className="text-xs font-semibold text-foreground">Select Monthly Wallet Funding</label>
-                <div className="grid grid-cols-3 gap-2.5">
-                  {tiers.map((amount) => {
-                    const isSelected = selectedPreset === amount;
-                    const meta = tierMetadata[amount] || { label: "", desc: "", popular: false };
-                    return (
-                      <button
-                        key={amount}
-                        type="button"
-                        onClick={() => handlePresetClick(amount)}
-                        className={`relative flex flex-col items-center justify-between p-3 rounded-xl border text-center transition-all duration-200 cursor-pointer ${isSelected
-                          ? "border-primary bg-primary-500/10 text-foreground ring-2 ring-primary/45 shadow-md shadow-primary-500/5 font-semibold"
-                          : "border-foreground/10 bg-default-50/50 hover:bg-default-100/50 text-foreground"
-                          }`}
-                      >
-                        {meta.popular && (
-                          <span className="absolute -top-2 px-2 py-0.5 bg-primary text-white text-[8px] font-extrabold rounded-full tracking-wider uppercase">
-                            POPULAR
-                          </span>
-                        )}
-                        <span className="text-[9px] font-semibold text-foreground-500 mt-1">{meta.label}</span>
-                        <span className="text-lg font-extrabold text-foreground mt-1">${amount}</span>
-                        <span className="text-[8px] text-foreground-400 mt-1 leading-tight">{meta.desc}</span>
-                        <span className="text-[8px] text-primary font-bold mt-1.5">/ month</span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-              <Input
-                type="number"
-                label="Or Enter Custom Monthly Amount"
-                labelPlacement="outside"
-                placeholder="Enter custom amount"
-                value={customAmount}
-                onValueChange={handleCustomAmountChange}
-                min={20}
-                startContent={<span className="text-xs text-foreground-500">$</span>}
-                endContent={<span className="w-14 text-xs text-foreground-400">/ month</span>}
-                classNames={{
-                  label: "text-xs font-semibold text-foreground mb-1",
-                  inputWrapper: "border border-foreground/10 rounded-lg bg-transparent h-10",
-                  input: "text-sm",
-                }}
-              />
+        <ModalBody className="p-5 pt-2 flex flex-col gap-5">
+          {/* Active Plan Status Header Card */}
+          <div className="bg-default-50/50 dark:bg-default-100/5 border border-foreground/10 rounded-xl p-4 flex flex-col items-center justify-center text-center">
+            <div className="w-10 h-10 rounded-full bg-foreground/5 flex items-center justify-center text-foreground-500 mb-2">
+              <FiPhone className="w-5 h-5" />
             </div>
-
-            <div className="flex-1 flex flex-col gap-4">
-              <div className="bg-default-50 dark:bg-default-100/20 border border-foreground/5 rounded-xl p-4 flex flex-col gap-3 h-full justify-between">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-foreground">Estimated Monthly Power</span>
-                  <span className="text-[10px] font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full">
-                    Based on {formatCurrency(walletAmount)}/mo
-                  </span>
-                </div>
-                <div className="grid grid-cols-1 gap-2 flex-grow justify-center mt-2">
-                  {[
-                    { label: "Outbound Calls", value: `${formatCount(outboundMins)} mins`, formula: "at $0.02/min", icon: <FiPhone className="w-3.5 h-3.5 text-blue-500 flex-shrink-0" /> },
-                    { label: "SMS Messages", value: `${formatCount(smsCount)} SMS`, formula: "at $0.01/msg", icon: <FiMessageSquare className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" /> },
-                    { label: "Inbound Calls", value: `${formatCount(inboundMins)} mins`, formula: "at $0.01/min", icon: <FiPhone className="w-3.5 h-3.5 text-purple-500 flex-shrink-0" /> },
-                  ].map((item, idx) => (
-                    <div key={idx} className="flex items-center justify-between bg-background border border-foreground/5 p-2.5 rounded-lg min-w-0 gap-3">
-                      <div className="flex items-center gap-2 min-w-0 flex-1">
-                        {item.icon}
-                        <div className="flex flex-col min-w-0">
-                          <span className="text-xs font-bold text-foreground leading-normal truncate" title={item.value}>
-                            {item.value}
-                          </span>
-                          <span className="text-[10px] text-foreground-500 truncate">{item.label}</span>
-                        </div>
-                      </div>
-                      <span className="text-[9px] font-medium text-foreground-400 bg-foreground/5 px-2 py-0.5 rounded flex-shrink-0">
-                        {item.formula}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="border border-foreground/10 rounded-xl p-3 flex flex-col gap-2.5 bg-default-50/50">
-            <div className="flex items-center gap-1.5 text-foreground font-bold text-[10px] uppercase tracking-wider text-foreground-500">
-              <BsLightningCharge className="w-3.5 h-3.5 text-primary" />
-              <span>Real-Time Rates (Pay-As-You-Go)</span>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5">
-              {[
-                { label: "Outbound Calls", rate: "$0.02 / min", icon: <FiPhone className="w-3.5 h-3.5 text-foreground-500" /> },
-                { label: "Inbound Calls", rate: "$0.01 / min", icon: <FiPhone className="w-3.5 h-3.5 text-foreground-500 rotate-90" /> },
-                { label: "SMS Messages", rate: "$0.01 / msg", icon: <FiMessageSquare className="w-3.5 h-3.5 text-foreground-500" /> },
-                { label: "MMS Messages", rate: "$0.02 / msg", icon: <FiMessageSquare className="w-3.5 h-3.5 text-foreground-500" /> },
-                { label: "Call Transcriptions", rate: "$0.05 / min", icon: <FiMic className="w-3.5 h-3.5 text-foreground-500" /> },
-                { label: "Call Recordings", rate: "$0.0025 / min", icon: <FiDisc className="w-3.5 h-3.5 text-foreground-500" /> },
-              ].map((item, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-center gap-2 p-1.5 bg-background/50 border border-foreground/5 rounded-lg text-xs"
-                >
-                  {item.icon}
-                  <div className="flex flex-col">
-                    <span className="text-[9px] text-foreground-500 leading-none">{item.label}</span>
-                    <span className="text-xs font-bold text-foreground mt-0.5">{item.rate}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </ModalBody>
-        <ModalFooter className="flex flex-col gap-3 p-5 pt-2 border-t border-foreground/5">
-          <div className="flex flex-col gap-1.5 w-full border-b border-foreground/5 pb-3">
-            <div className="flex justify-between items-center text-xs text-foreground-500 font-semibold">
-              <span>One-Time Wallet Deposit:</span>
-              <span>{formatCurrency(walletAmount)}</span>
-            </div>
-            {pkgName !== "none" && (
-              <div className="flex justify-between items-center text-xs text-foreground-500 font-semibold">
-                <span>Monthly Minutes Package ({formatCount(parseInt(pkgName))} mins):</span>
-                <span className="text-primary font-bold">Included</span>
-              </div>
+            {hasActivePlan ? (
+              <>
+                <p className="text-xs sm:text-sm font-bold text-foreground">
+                  Current Plan: {currentPlan?.name || "Active Plan"}
+                </p>
+                <p className="text-[11px] sm:text-xs text-foreground-500 mt-0.5">
+                  Next billing date: {formatDate(planExpiresAt)}
+                </p>
+                <p className="text-[11px] sm:text-xs text-foreground-500 font-medium mt-1">
+                  This month: {minutesUsed} of {currentMinutes.toLocaleString()} call minutes used
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="text-xs sm:text-sm font-bold text-foreground leading-none">No active plan yet</p>
+                <p className="text-[11px] sm:text-xs text-foreground-500 mt-1.5 leading-none">
+                  Choose a plan below to activate call tracking and texting.
+                </p>
+              </>
             )}
           </div>
-          <div className="flex justify-between items-center w-full">
-            <span className="text-sm font-semibold text-foreground">Total to Pay Today:</span>
-            <span className="text-base font-bold text-primary">
-              {formatCurrency(totalToday)}
-            </span>
+
+          {/* Plan Options Selector */}
+          <div className="flex flex-col gap-2.5">
+            <label className="text-xs font-bold text-foreground">Choose Your Plan</label>
+            <div className="flex flex-col gap-2.5">
+              {PLANS.map((plan) => {
+                const isSelected = selectedPlanId === plan.id;
+                return (
+                  <button
+                    key={plan.id}
+                    type="button"
+                    onClick={() => setSelectedPlanId(plan.id)}
+                    className={`relative flex items-center justify-between p-3.5 rounded-xl border text-left transition-all duration-200 cursor-pointer ${isSelected
+                        ? "border-primary bg-primary/5 text-foreground ring-2 ring-primary/30 shadow-md shadow-primary/5 font-semibold"
+                        : "border-foreground/10 bg-default-50/20 hover:bg-default-50 text-foreground"
+                      }`}
+                  >
+                    {plan.popular && (
+                      <span className="absolute top-2.5 right-3 px-2 py-0.5 bg-primary text-white text-[8px] rounded-full tracking-wider uppercase">
+                        Most Popular
+                      </span>
+                    )}
+                    <div className="flex flex-col gap-0.5">
+                      <span className="text-sm font-bold text-foreground">{plan.name}</span>
+                      <span className="text-xs font-normal text-foreground-500">{plan.desc}</span>
+                    </div>
+                    <div className="flex items-baseline gap-0.5 text-right pr-1">
+                      <span className="text-base font-extrabold text-foreground">${plan.price}</span>
+                      <span className="text-[10px] text-foreground-500">/mo</span>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
           </div>
-          <div className="flex gap-3 justify-end w-full">
-            <Button
-              variant="bordered"
-              onPress={onClose}
-              className="border border-foreground/10 rounded-lg text-sm font-medium h-10 px-4"
-            >
-              Cancel
-            </Button>
-            <Button
-              color="primary"
-              onPress={handleAdd}
-              isLoading={isConnecting}
-              startContent={<FiCreditCard className="w-4 h-4" />}
-              className="bg-primary text-white rounded-lg text-sm font-semibold h-10 px-4"
-            >
-              Confirm Subscription
-            </Button>
+
+          {/* What's Included Card Section */}
+          <div className="bg-primary-50/30 dark:bg-primary-950/5 border border-primary-100/50 dark:border-primary-900/10 rounded-xl p-4 flex flex-col gap-2">
+            <h4 className="text-xs font-bold text-foreground">
+              What's Included
+            </h4>
+            <div className="flex flex-col gap-1.5 mt-0.5">
+              <div className="flex items-center gap-2 text-xs text-foreground-700">
+                <FiCheck className="w-4 h-4 text-primary" />
+                <span>{activePlan.minutes.toLocaleString()} outbound call minutes</span>
+              </div>
+              <div className="flex items-center gap-2 text-xs text-foreground-700">
+                <FiCheck className="w-4 h-4 text-primary" />
+                <span>
+                  {activePlan.segments.toLocaleString()} text segments{" "}
+                  <span
+                    className="text-primary hover:underline cursor-pointer font-medium ml-0.5"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      addToast({
+                        title: "What is a segment?",
+                        description: "A segment is 160 characters. Longer texts use more than one.",
+                        color: "primary",
+                      });
+                    }}
+                  >
+                    (what's a segment?)
+                  </span>
+                </span>
+              </div>
+            </div>
           </div>
+
+          {/* If You Go Over Warnings container */}
+          <div className="bg-amber-50/50 dark:bg-amber-950/15 border border-amber-200/60 dark:border-amber-900/30 rounded-xl p-4 flex flex-col gap-2.5">
+            <div className="flex flex-col gap-0.5">
+              <h4 className="text-xs font-bold text-amber-800 dark:text-amber-300 [word-spacing:1px]">
+                If You Go Over
+              </h4>
+              <p className="text-[10px] text-amber-700/90 dark:text-amber-400/95 leading-relaxed font-normal">
+                Used more than your plan includes? Extra usage bills automatically at these rates, deducted from your balance as you use it.
+              </p>
+            </div>
+            <div className="grid grid-cols-2 gap-3.5 mt-1">
+              <div className="bg-background border border-amber-200/50 dark:border-amber-900/20 p-2.5 rounded-lg flex flex-col">
+                <span className="text-[9px] text-foreground-500 font-medium">Outbound Calls</span>
+                <span className="text-xs font-extrabold text-foreground mt-0.5">${activePlan.callRate} <span className="text-[9px] font-normal text-foreground-500">/ min</span></span>
+              </div>
+              <div className="bg-background border border-amber-200/50 dark:border-amber-900/20 p-2.5 rounded-lg flex flex-col">
+                <span className="text-[9px] text-foreground-500 font-medium">Text Messages</span>
+                <span className="text-xs font-extrabold text-foreground mt-0.5">${activePlan.smsRate} <span className="text-[9px] font-normal text-foreground-500">/ segment</span></span>
+              </div>
+            </div>
+          </div>
+
+          {/* Invoice Summary */}
+          <div className="flex flex-col gap-2 border-t border-foreground/5 pt-4">
+            <div className="flex justify-between items-center text-xs text-foreground-500 font-semibold">
+              <span>Monthly Plan ({activePlan.name})</span>
+              <span className="text-foreground font-bold">${activePlan.price.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between items-center text-xs text-foreground-500 font-semibold">
+              <span>Overage charges</span>
+              <span>Billed as you use it</span>
+            </div>
+            <div className="flex justify-between items-center w-full mt-1.5 border-t border-dashed border-foreground/10 pt-3">
+              <span className="text-sm font-bold text-foreground">Total to Pay Today</span>
+              <span className="text-base font-extrabold text-primary">${activePlan.price.toFixed(2)}</span>
+            </div>
+            <p className="text-[9px] text-foreground-500 text-center mt-1">
+              Billed monthly. Cancel or change plans at any time.
+            </p>
+          </div>
+        </ModalBody>
+        <ModalFooter className="p-5 pt-0 flex gap-3 justify-end">
+          <Button
+            variant="light"
+            onPress={onClose}
+            className="rounded-lg text-xs font-semibold h-9 px-4 text-foreground-500 hover:bg-foreground/5"
+          >
+            Cancel
+          </Button>
+          <Button
+            color="primary"
+            onPress={handleConfirmPlan}
+            isLoading={isConnecting}
+            startContent={<FiCreditCard className="w-3.5 h-3.5" />}
+            className="bg-primary text-white rounded-lg text-xs font-semibold h-9 px-5"
+          >
+            Confirm Plan
+          </Button>
         </ModalFooter>
       </ModalContent>
     </Modal>
