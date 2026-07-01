@@ -11,6 +11,7 @@ import {
   PopoverContent,
   Input,
   Spinner,
+  Textarea,
 } from "@heroui/react";
 import {
   HiOutlineArrowLeft,
@@ -160,9 +161,10 @@ export default function ChatArea({
             >
               {getInitials(selectedConversation.patientName)}
             </div>
-            {selectedConversation.isOnline && (
-              <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white dark:border-content1 rounded-full" />
-            )}
+            <div
+              className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-content1 ${selectedConversation.isOnline ? "bg-green-500" : "bg-gray-400"
+                }`}
+            />
           </div>
           <div>
             <div className="flex items-center gap-1 sm:gap-2 flex-wrap sm:flex-nowrap">
@@ -172,7 +174,8 @@ export default function ChatArea({
               <Chip
                 size="sm"
                 variant="flat"
-                startContent={getPlatformIcon(selectedConversation.platform)}
+                // startContent={getPlatformIcon(selectedConversation.platform)}
+                startContent={selectedConversation.platform}
                 className={`text-[9px] sm:text-[10px] h-4 sm:h-5 font-semibold ${getPlatformChipStyle(
                   selectedConversation.platform,
                 )}`}
@@ -181,26 +184,23 @@ export default function ChatArea({
               </Chip>
             </div>
             <p className="text-[10px] sm:text-[11px] text-gray-400 dark:text-foreground/40 flex items-center gap-1">
-              {selectedConversation.isOnline ? (
-                <>
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" />
-                  Active now
-                </>
-              ) : (
-                "Offline"
-              )}
+              <span
+                className={`w-1.5 h-1.5 rounded-full inline-block ${selectedConversation.isOnline ? "bg-green-500" : "bg-gray-400"
+                  }`}
+              />
+              {selectedConversation.isOnline ? "Active now" : "Offline"}
             </p>
           </div>
         </div>
         <div className="flex items-center gap-0.5 sm:gap-1">
-          <Button
+          {/* <Button
             isIconOnly
             variant="light"
             size="sm"
             className="text-gray-500 dark:text-foreground/50 hidden sm:inline-flex"
           >
             <HiOutlinePhone className="size-4" />
-          </Button>
+          </Button> */}
           <Button
             isIconOnly
             variant="light"
@@ -246,37 +246,37 @@ export default function ChatArea({
       </div>
 
       {/* Messages Feed */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50/30 dark:bg-black/10">
+      <div className="flex-1 overflow-y-auto p-4 space-y-1.5 bg-gray-50/30 dark:bg-black/10">
         <div className="flex items-center justify-center">
           <span className="text-[10px] text-gray-400 dark:text-foreground/40 bg-white dark:bg-content2 px-3 py-1 rounded-full shadow-sm border border-foreground/5">
             {selectedConversation.lastMessageTime}
           </span>
         </div>
 
-        {selectedConversation.messages.map((msg) => (
-          <div
-            key={msg.id}
-            className={`flex ${msg.isFromPatient ? "justify-start" : "justify-end"
-              }`}
-          >
+        {selectedConversation.messages.map((msg, idx) => {
+          const prevMsg = selectedConversation.messages[idx - 1];
+          const isNewGroup = !prevMsg || prevMsg.isFromPatient !== msg.isFromPatient;
+
+          return (
             <div
-              className={`flex items-end gap-2 max-w-[70%] ${msg.isFromPatient ? "" : "flex-row-reverse"
+              key={msg.id}
+              className={`flex ${msg.isFromPatient ? "justify-start" : "justify-end"} ${isNewGroup ? "mt-3" : "mt-0.5"
                 }`}
             >
-              {msg.isFromPatient && (
+              <div className="flex items-end gap-2 max-w-[70%]">
+                {msg.isFromPatient && (
+                  <div
+                    className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-white text-[9px] font-bold ${getAvatarColor(
+                      selectedConversation.patientName,
+                    )}`}
+                  >
+                    {getInitials(selectedConversation.patientName)}
+                  </div>
+                )}
                 <div
-                  className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-white text-[9px] font-bold ${getAvatarColor(
-                    selectedConversation.patientName,
-                  )}`}
-                >
-                  {getInitials(selectedConversation.patientName)}
-                </div>
-              )}
-              <div>
-                <div
-                  className={`px-3.5 py-2.5 rounded-2xl text-xs leading-relaxed ${msg.isFromPatient
-                      ? "bg-white dark:bg-content2 text-foreground border border-foreground/5 rounded-bl-md"
-                      : "bg-primary text-white rounded-br-md shadow-md shadow-primary/20"
+                  className={`px-3.5 py-2 rounded-2xl text-xs leading-relaxed ${msg.isFromPatient
+                    ? "bg-white dark:bg-content2 text-foreground border border-foreground/5 rounded-bl-md"
+                    : "bg-primary text-white rounded-br-md shadow-md shadow-primary/20"
                     }`}
                 >
                   {msg.text}
@@ -301,25 +301,27 @@ export default function ChatArea({
                       )}
                     </div>
                   )}
+                  <div
+                    className={`flex items-center justify-end gap-1 mt-1 ${msg.isFromPatient
+                      ? "text-gray-400 dark:text-foreground/40"
+                      : "text-white/70"
+                      }`}
+                  >
+                    <span className="[&>svg]:size-2 flex items-center">
+                      {getPlatformIcon(selectedConversation.platform)}
+                    </span>
+                    <span className="text-[9px]">{msg.timestamp}</span>
+                  </div>
                 </div>
-                <p
-                  className={`text-[9px] text-gray-400 dark:text-foreground/30 mt-1 flex items-center gap-1 ${msg.isFromPatient ? "" : "justify-end"
-                    }`}
-                >
-                  {!msg.isFromPatient && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-green-400 inline-block" />
-                  )}
-                  {msg.timestamp}
-                </p>
+                {!msg.isFromPatient && (
+                  <div className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center bg-gray-800 dark:bg-gray-700 text-white text-[9px] font-bold">
+                    P
+                  </div>
+                )}
               </div>
-              {!msg.isFromPatient && (
-                <div className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center bg-primary text-white text-[9px] font-bold">
-                  P
-                </div>
-              )}
             </div>
-          </div>
-        ))}
+          );
+        })}
         <div ref={messagesEndRef} />
       </div>
 
@@ -357,8 +359,8 @@ export default function ChatArea({
           </div>
         )}
 
-        <div className="flex items-center gap-2 w-full">
-          <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0">
+        <div className="flex items-end gap-2 w-full">
+          <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0 pb-1">
             <Button
               isIconOnly
               variant="light"
@@ -412,27 +414,39 @@ export default function ChatArea({
             onChange={handleImageChange}
             className="hidden"
           />
-          <Input
+          <Textarea
             placeholder="Type your message..."
             aria-label="Type your message"
             variant="flat"
             size="sm"
+            minRows={1}
+            maxRows={5}
             className="flex-1 min-w-0"
+            classNames={{
+              input: "resize-none hide-scrollbar",
+            }}
             value={messageInput}
             onValueChange={setMessageInput}
             onKeyDown={(e) => {
-              if (e.key === "Enter") handleSendMessage();
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                handleSendMessage();
+              }
             }}
           />
           <Button
             isIconOnly
             color="primary"
             size="sm"
-            radius="full"
-            onClick={handleSendMessage}
-            className="shadow-md shadow-primary/30 flex-shrink-0 min-w-8 w-8"
+            // onClick={handleSendMessage}
+            // className="shadow-md shadow-primary/30 flex-shrink-0 min-w-8 w-8"
+            radius="md"
+            onPress={handleSendMessage}
+            className="flex-shrink-0 min-w-8 w-8"
           >
-            <LuSend className="size-3.5" />
+            <span className="flex items-center justify-center w-full h-full">
+              <LuSend className="size-3.5 rotate-45 -translate-x-[1px] translate-y-[0.5px]" />
+            </span>
           </Button>
         </div>
       </div>
@@ -466,6 +480,6 @@ export default function ChatArea({
           Send Quote
         </Button>
       </div>
-    </div>
+    </div >
   );
 }
