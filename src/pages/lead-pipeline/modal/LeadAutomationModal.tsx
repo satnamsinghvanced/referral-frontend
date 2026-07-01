@@ -19,7 +19,7 @@ import { useCreateLeadAutomation, useUpdateLeadAutomation } from "../../../hooks
 interface LeadAutomationModalProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  automation?: any; // If provided, we are editing
+  automation?: any;
 }
 
 const TRIGGER_EVENTS = [
@@ -47,10 +47,8 @@ const DELAY_UNITS = [
 const LeadAutomationModal = ({ isOpen, onOpenChange, automation }: LeadAutomationModalProps) => {
   const { mutateAsync: createAutomation, isPending: creating } = useCreateLeadAutomation();
   const { mutateAsync: updateAutomation, isPending: updating } = useUpdateLeadAutomation();
-
   const isEditMode = !!automation;
   const loading = creating || updating;
-
   const validationSchema = Yup.object().shape({
     name: Yup.string().required("Name is required"),
     description: Yup.string().nullable(),
@@ -100,7 +98,6 @@ const LeadAutomationModal = ({ isOpen, onOpenChange, automation }: LeadAutomatio
     },
   });
 
-  // Reset/populate form when automation changes or modal opens
   useEffect(() => {
     if (isOpen) {
       if (automation) {
@@ -179,7 +176,6 @@ const LeadAutomationModal = ({ isOpen, onOpenChange, automation }: LeadAutomatio
                   />
                 </div>
               </div>
-
               <div className="border border-foreground/10 rounded-xl p-4 space-y-3 bg-gray-50/30 dark:bg-white/5">
                 <div className="flex items-center justify-between gap-2 ">
                   <h4 className="font-medium text-sm dark:text-white">Trigger & Logic</h4>
@@ -218,7 +214,6 @@ const LeadAutomationModal = ({ isOpen, onOpenChange, automation }: LeadAutomatio
                       </SelectItem>
                     )}
                   </Select>
-
                   <Select
                     label="Action To Take"
                     labelPlacement="outside"
@@ -251,7 +246,6 @@ const LeadAutomationModal = ({ isOpen, onOpenChange, automation }: LeadAutomatio
                       </SelectItem>
                     )}
                   </Select>
-
                   <Input
                     label="Delay Amount"
                     labelPlacement="outside"
@@ -268,7 +262,6 @@ const LeadAutomationModal = ({ isOpen, onOpenChange, automation }: LeadAutomatio
                     errorMessage={formik.touched.delayAmount && (formik.errors.delayAmount as string)}
                     isRequired
                   />
-
                   <Select
                     label="Delay Unit"
                     labelPlacement="outside"
@@ -303,11 +296,9 @@ const LeadAutomationModal = ({ isOpen, onOpenChange, automation }: LeadAutomatio
                   </Select>
                 </div>
               </div>
-
               <div className="border border-foreground/10 rounded-xl p-4 space-y-3 bg-gray-50/30 dark:bg-white/5">
                 <h4 className="font-medium text-sm dark:text-white">Content & Rules</h4>
                 <div className="flex flex-col gap-3">
-
                   <Textarea
                     label="Message Template"
                     labelPlacement="outside"
@@ -324,7 +315,6 @@ const LeadAutomationModal = ({ isOpen, onOpenChange, automation }: LeadAutomatio
                     errorMessage={formik.touched.messageTemplate && (formik.errors.messageTemplate as string)}
                     isRequired
                   />
-
                   <div className="p-2 bg-sky-50 dark:bg-sky-950/20 border border-sky-100 dark:border-sky-900/30 rounded-lg">
                     <p className="text-[10px] text-sky-700 dark:text-sky-400 font-medium leading-normal">
                       <strong>Supported placeholders:</strong><br />

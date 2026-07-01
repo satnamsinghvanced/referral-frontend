@@ -60,7 +60,6 @@ export default function GoogleBusinessConnectModal({
             Securely connect your Google Business Profile via Windsor.ai to sync reviews and manage your listings automatically.
           </p>
         </ModalHeader>
-
         <ModalBody className="py-6 flex flex-col gap-4">
           <Button
             size="lg"

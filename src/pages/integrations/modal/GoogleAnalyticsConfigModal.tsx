@@ -18,7 +18,6 @@ import {
 } from "../../../hooks/integrations/useGoogleAnalytics";
 import { GoogleAnalyticsIntegration } from "../../../types/integrations/googleAnalytics";
 
-// --- Yup Validation Schema ---
 const validationSchema = Yup.object().shape({
   propertyId: Yup.string().required("Property ID is required."),
   email: Yup.string()
@@ -41,13 +40,10 @@ export default function GoogleAnalyticsConfigModal({
   isLoading?: boolean;
 }) {
   const [showKey, setShowKey] = useState(false);
-
   const createMutation = useCreateGoogleAnalyticsIntegration();
   const updateMutation = useUpdateGoogleAnalyticsIntegration();
-
   const config = existingConfig as any;
   const isUpdateMode = !!config?._id;
-
   const formik = useFormik({
     initialValues: {
       propertyId: config?.propertyId || "",
@@ -57,18 +53,10 @@ export default function GoogleAnalyticsConfigModal({
     validationSchema: validationSchema,
     onSubmit: async (values, { setSubmitting }) => {
       try {
-        // if (isUpdateMode) {
-        //   await updateMutation.mutateAsync({
-        //     id: existingConfig.id as string,
-        //     data: values as UpdateGoogleAnalyticsRequest,
-        //   });
-        // } else {
         await createMutation.mutateAsync({
           userId,
           ...values,
-          // status: "Connected",
         });
-        // }
         onClose();
       } catch (error) {
         console.error("Google Analytics Configuration Error:", error);
@@ -109,7 +97,6 @@ export default function GoogleAnalyticsConfigModal({
   }
 
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
-
   return (
     <Modal
       isOpen={isOpen}
@@ -132,7 +119,6 @@ export default function GoogleAnalyticsConfigModal({
               to sync performance data and referral insights.
             </p>
           </ModalHeader>
-
           <ModalBody className="px-4 py-4">
             <div className="space-y-4">
               <Input

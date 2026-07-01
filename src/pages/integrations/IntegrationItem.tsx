@@ -1,8 +1,4 @@
-import {
-  Button,
-  Chip,
-  Switch,
-} from "@heroui/react";
+import { Button, Chip, Switch } from "@heroui/react";
 import { BiCheckCircle } from "react-icons/bi";
 import { FiAlertCircle, FiExternalLink, FiSettings } from "react-icons/fi";
 import { FaFacebook, FaInstagram } from "react-icons/fa6";

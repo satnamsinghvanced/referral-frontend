@@ -28,7 +28,6 @@ import {
 import { ENCRYPTION_TYPES, PROVIDERS } from "../../../consts/integrations";
 import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 
-// --- Yup Validation Schema ---
 const validationSchema = Yup.object().shape({
   provider: Yup.string().required("Provider is required."),
   host: Yup.string().required("Host is required."),
@@ -55,15 +54,10 @@ export default function EmailMarketingConfigModal({
   isLoading: boolean;
 }) {
   const [showPassword, setShowPassword] = useState(false);
-
-  // Mutations
   const createMutation = useCreateEmailIntegration();
   const updateMutation = useUpdateEmailIntegration();
-
   const isUpdateMode = !!existingConfig?._id;
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
-
-  // Formik Setup
   const formik = useFormik<EmailIntegrationBody>({
     initialValues: {
       provider: existingConfig?.provider || "SendGrid",
@@ -78,8 +72,6 @@ export default function EmailMarketingConfigModal({
     onSubmit: async (values) => {
       try {
         if (isUpdateMode && existingConfig?._id) {
-          // If password is empty in update mode, we might not want to send it
-          // depending on how the backend handles it. Assuming backend handles optional password.
           await updateMutation.mutateAsync({
             id: existingConfig._id,
             data: values,
@@ -94,7 +86,6 @@ export default function EmailMarketingConfigModal({
     },
   });
 
-  // Manually sync values if existingConfig arrives later
   useEffect(() => {
     if (existingConfig) {
       formik.setValues({
@@ -113,7 +104,6 @@ export default function EmailMarketingConfigModal({
       formik.resetForm();
     }
   }, [isOpen]);
-
   const onClose = () => onOpenChange(false);
 
   if (isLoading) {
@@ -156,7 +146,6 @@ export default function EmailMarketingConfigModal({
               and notifications.
             </p>
           </ModalHeader>
-
           <ModalBody className="px-4 py-4">
             <div className="space-y-4">
               <Select
@@ -183,7 +172,6 @@ export default function EmailMarketingConfigModal({
                   <SelectItem key={provider.value}>{provider.label}</SelectItem>
                 ))}
               </Select>
-
               <div className="flex gap-3">
                 <Input
                   className="flex-[2]"
@@ -224,7 +212,6 @@ export default function EmailMarketingConfigModal({
                   errorMessage={formik.errors.port}
                 />
               </div>
-
               <div className="flex">
                 <Input
                   size="sm"
@@ -246,7 +233,6 @@ export default function EmailMarketingConfigModal({
                   }
                 />
               </div>
-
               <Input
                 size="sm"
                 radius="sm"
@@ -275,7 +261,6 @@ export default function EmailMarketingConfigModal({
                   </button>
                 }
               />
-
               <div className="flex">
                 <Select
                   size="sm"
@@ -303,7 +288,6 @@ export default function EmailMarketingConfigModal({
                 </Select>
               </div>
 
-              {/* Status Message */}
               {isUpdateMode && existingConfig?.status === "Connected" && (
                 <div className="p-3 bg-green-50 dark:bg-green-900/10 text-green-700 dark:text-green-400 text-xs rounded-lg border border-green-200 dark:border-green-500/30">
                   ✅ SMTP configuration is active. Last tested:{" "}
@@ -329,7 +313,7 @@ export default function EmailMarketingConfigModal({
             <Popover placement="top-start" showArrow>
               <PopoverTrigger>
                 <Button variant="light" size="sm" className="text-gray-500 flex items-center gap-1">
-                  <FiInfo size={16} /> 
+                  <FiInfo size={16} />
                   <span>Info</span>
                 </Button>
               </PopoverTrigger>

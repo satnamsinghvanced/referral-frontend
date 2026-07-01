@@ -27,17 +27,6 @@ import { useFetchTeamMembers } from "../../../hooks/settings/useTeam";
 import { useAddLead } from "../../../hooks/useLeadPipeline";
 import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
 
-const orangeItemClasses = {
-  base: [
-    "data-[hover=true]:!bg-orange-100",
-    "data-[hover=true]:!text-orange-600",
-    "data-[selected=true]:!bg-orange-100",
-    "data-[selected=true]:!text-orange-600",
-    "data-[focus=true]:!bg-orange-100",
-    "data-[focus=true]:!text-orange-600",
-  ],
-};
-
 const formatTreatmentLabel = (key: string) => {
   return key
     .replace(/([A-Z])/g, " $1")
@@ -236,7 +225,6 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                   />
                 </div>
               </div>
-
               <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
                 <h4 className="font-medium text-sm dark:text-white">
                   Lead Details
@@ -358,7 +346,6 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                   />
                 </div>
               </div>
-
               <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
                 <h4 className="font-medium text-sm dark:text-white">
                   Treatment Interest
@@ -403,7 +390,6 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                   )}
                 </div>
               </div>
-
               <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
                 <h4 className="font-medium text-sm dark:text-white">Tags</h4>
                 <div className="space-y-3">

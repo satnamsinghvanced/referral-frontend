@@ -1,14 +1,4 @@
-import {
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Button,
-  Input,
-  addToast,
-  Switch,
-} from "@heroui/react";
+import { Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Button, Input, addToast } from "@heroui/react";
 import { useState, useEffect } from "react";
 import { BsLightningCharge } from "react-icons/bs";
 import { FiCreditCard, FiPhone, FiMessageSquare, FiMic, FiDisc, FiInfo } from "react-icons/fi";
@@ -21,11 +11,7 @@ interface TwilioAddCreditsModalProps {
   onAddCredits: (amount: number, minutes: number) => void;
 }
 
-export default function TwilioAddCreditsModal({
-  isOpen,
-  onClose,
-  currentBalance,
-}: TwilioAddCreditsModalProps) {
+export default function TwilioAddCreditsModal({ isOpen, onClose, currentBalance }: TwilioAddCreditsModalProps) {
   const formatCount = (num: number) => {
     if (!isFinite(num) || isNaN(num) || num <= 0) return "0";
     if (num < 100000) {
@@ -108,7 +94,7 @@ export default function TwilioAddCreditsModal({
       });
       return;
     }
-    
+
     let pkg = "none";
     if (credits === 50) {
       pkg = "500";
@@ -119,7 +105,6 @@ export default function TwilioAddCreditsModal({
     } else if (credits > 0) {
       pkg = Math.floor(credits / 0.02).toString();
     }
-
     const totalAmount = credits;
     const url = `${window.location.origin}/checkout?type=twilio_credits&amount=${totalAmount}&walletAmount=${credits}&package=${pkg}&auto_topup=${autoTopUp}`;
     window.open(url, "_blank");
@@ -127,7 +112,7 @@ export default function TwilioAddCreditsModal({
   };
 
   const walletAmount = parseFloat(customAmount) || 0;
-  
+
   let pkgName = "none";
   if (walletAmount === 50) {
     pkgName = "500";
@@ -164,7 +149,6 @@ export default function TwilioAddCreditsModal({
         </ModalHeader>
 
         <ModalBody className="p-5 pt-2 flex flex-col gap-6">
-          {/* Current Wallet Balance - Full Width */}
           <div className="bg-primary-50/50 dark:bg-primary-900/10 border border-primary-100 dark:border-primary-900/30 rounded-xl p-4 flex flex-col items-center justify-center text-center">
             <p className="text-[10px] uppercase font-semibold text-foreground-500 tracking-wider">
               Current Wallet Balance
@@ -174,7 +158,6 @@ export default function TwilioAddCreditsModal({
             </p>
           </div>
 
-          {/* Selection and Estimated Power columns */}
           <div className="flex flex-col md:flex-row gap-6">
             <div className="flex-1 flex flex-col gap-4 justify-between">
               <div className="flex flex-col gap-2">

@@ -13,9 +13,7 @@ import { useState, useEffect } from "react";
 import { FiExternalLink, FiEye, FiEyeOff } from "react-icons/fi";
 import * as Yup from "yup";
 import { useGenerateGoogleAdsAuthUrl } from "../../../hooks/integrations/useAds";
-import { GenerateAuthUrlRequest } from "../../../types/integrations/googleCalendar";
 
-// --- Yup Validation Schema ---
 const validationSchema = Yup.object().shape({
   clientId: Yup.string().required("Client ID is required."),
   clientSecret: Yup.string().required("Client Secret is required."),
@@ -25,13 +23,7 @@ const validationSchema = Yup.object().shape({
   developerToken: Yup.string().required("Developer Token is required."),
 });
 
-export default function GoogleAdsConfigModal({
-  userId,
-  isOpen,
-  onClose,
-  existingConfig,
-  isLoading,
-}: {
+export default function GoogleAdsConfigModal({ userId, isOpen, onClose, existingConfig, isLoading }: {
   userId: string;
   isOpen: boolean;
   onClose: () => void;
@@ -39,20 +31,11 @@ export default function GoogleAdsConfigModal({
   isLoading: boolean;
 }) {
   const [showSecret, setShowSecret] = useState(false);
-
-  // Save (Generate Auth URL) Mutation
   const generateAuthUrlMutation = useGenerateGoogleAdsAuthUrl();
-
-  // Determine if we are in update mode
   const isUpdateMode = !!existingConfig?._id;
-
-  // Determine global loading state
   const isGlobalLoading = isLoading;
-
-  // Determine submitting state
   const isSubmitting = generateAuthUrlMutation.isPending;
 
-  // 2. Formik Setup
   const formik = useFormik<any>({
     initialValues: {
       userId: userId || "",
@@ -72,9 +55,7 @@ export default function GoogleAdsConfigModal({
           redirectUri: values.redirectUri,
           developerToken: values.developerToken,
         };
-
         const response = await generateAuthUrlMutation.mutateAsync(savePayload);
-
         if (response?.authUrl) {
           window.open(response.authUrl, "_blank");
           onClose();
@@ -95,7 +76,6 @@ export default function GoogleAdsConfigModal({
       formik.resetForm();
     }
   }, [isOpen]);
-
   if (isGlobalLoading) {
     return (
       <Modal
@@ -113,7 +93,6 @@ export default function GoogleAdsConfigModal({
       </Modal>
     );
   }
-
   return (
     <Modal
       isOpen={isOpen}
@@ -136,7 +115,6 @@ export default function GoogleAdsConfigModal({
               campaigns.
             </p>
           </ModalHeader>
-
           <ModalBody className="px-4 py-4">
             <div className="space-y-4">
               <Input
@@ -159,7 +137,6 @@ export default function GoogleAdsConfigModal({
                   (formik.errors.clientId as React.ReactNode)
                 }
               />
-
               <Input
                 size="sm"
                 radius="sm"
@@ -189,7 +166,6 @@ export default function GoogleAdsConfigModal({
                   </button>
                 }
               />
-
               <Input
                 size="sm"
                 radius="sm"
@@ -213,7 +189,6 @@ export default function GoogleAdsConfigModal({
                   (formik.errors.developerToken as React.ReactNode)
                 }
               />
-
               <div>
                 <Input
                   size="sm"

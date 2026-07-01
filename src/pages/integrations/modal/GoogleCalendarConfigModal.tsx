@@ -35,17 +35,11 @@ export default function GoogleCalendarConfigModal({
   isLoading: boolean;
   isError: boolean;
 }) {
-  // Connect (Generate Auth URL) Mutation
   const { mutate: connectCalendar, isPending: isConnecting } =
     useConnectCalendar();
-
-  // Disconnect Mutation
   const { mutate: disconnectCalendar, isPending: isDisconnecting } =
     useDisconnectCalendar();
-
-  // Determine if we are in connected mode
   const isConnected = existingConfig?.status === "Connected";
-
   const shouldLoadCalendars = Boolean(isOpen && isConnected);
   const {
     data: calendarsData,
@@ -63,20 +57,14 @@ export default function GoogleCalendarConfigModal({
   );
 
   const [selectedCalendarIds, setSelectedCalendarIds] = useState<string[]>([]);
-
-  // Determine global loading state
   const isGlobalLoading = isLoading;
-
-  // Determine submitting state
   const isSubmitting =
     isConnecting || isDisconnecting || isSelectingCalendar;
-
   useEffect(() => {
     if (!isOpen) {
       setSelectedCalendarIds([]);
     }
   }, [isOpen]);
-
   useEffect(() => {
     if (!isOpen || !isConnected) return;
     const initial =
@@ -129,7 +117,6 @@ export default function GoogleCalendarConfigModal({
     }
   };
 
-  // Handle loading state
   if (isGlobalLoading) {
     return (
       <Modal
@@ -170,7 +157,6 @@ export default function GoogleCalendarConfigModal({
             Choose the calendar you want to sync (Primary is recommended).
           </p>
         </ModalHeader>
-
         <ModalBody>
           {!isConnected ? (
             <div className="space-y-4">
@@ -187,7 +173,6 @@ export default function GoogleCalendarConfigModal({
                   <li>After authorization, your calendars will appear here.</li>
                 </ul>
               </div>
-
               <div className="text-xs text-gray-600 dark:text-foreground/60 bg-gray-50 dark:bg-default-100/20 p-3 rounded-lg border border-gray-200 dark:border-default-200">
                 <p className="mb-2">
                   <span className="font-medium">Note:</span> This integration
@@ -204,7 +189,6 @@ export default function GoogleCalendarConfigModal({
                   <FiExternalLink className="h-3 w-3" />
                 </a>
               </div>
-
               {existingConfig?.status === "Error" && (
                 <div className="p-3 bg-red-50 dark:bg-red-900/10 text-red-700 dark:text-red-400 text-xs rounded-lg border border-red-200 dark:border-red-500/30">
                   ⚠️ Connection failed. Please try reconnecting your calendar.
@@ -258,7 +242,6 @@ export default function GoogleCalendarConfigModal({
                   </Button>
                 </div>
               </div>
-
               <div className="flex flex-col gap-3">
                 {calendars
                   .slice()
@@ -311,7 +294,6 @@ export default function GoogleCalendarConfigModal({
             </div>
           )}
         </ModalBody>
-
         <ModalFooter>
           <Button variant="light" onPress={onClose} isDisabled={isSubmitting}>
             Cancel

@@ -29,9 +29,7 @@ export default function GoogleBusinessLocationModal({
   const { data, isLoading, isError } = useBusinessLocations();
   const { mutateAsync: syncProfiles, isPending: isSyncing } = useSyncBusinessProfiles();
   const { mutateAsync: connectLocation, isPending: isConnecting } = useConnectBusinessLocation();
-
   const [selectedId, setSelectedId] = useState<string | null>(null);
-
   const locations = data?.locations || [];
 
   useEffect(() => {

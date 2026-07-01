@@ -189,7 +189,6 @@ export default function TwilioConfigurationModal({
                   formik.touched.accountId && formik.errors.accountId
                 }
               />
-
               <Input
                 size="sm"
                 radius="sm"
@@ -220,7 +219,6 @@ export default function TwilioConfigurationModal({
                   </button>
                 }
               />
-
               <Input
                 size="sm"
                 radius="sm"
@@ -240,7 +238,6 @@ export default function TwilioConfigurationModal({
                 }
                 errorMessage={formik.touched.phone && formik.errors.phone}
               />
-
               <div className="text-sm text-gray-700 dark:text-foreground/80 bg-blue-50 dark:bg-blue-900/10 p-3.5 rounded-lg border border-blue-200 dark:border-blue-500/30 mt-4">
                 <div className="flex items-start gap-3">
                   <div>

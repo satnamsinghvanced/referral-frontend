@@ -12,14 +12,8 @@ import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import { FiEye, FiEyeOff, FiMail, FiKey } from "react-icons/fi";
 import * as Yup from "yup";
-import {
-  useCreateEmailIntegration,
-  useUpdateEmailIntegration,
-} from "../../../hooks/integrations/useEmailMarketing";
-import {
-  EmailIntegrationBody,
-  EmailIntegrationResponse,
-} from "../../../types/integrations/emailMarketing";
+import { useCreateEmailIntegration, useUpdateEmailIntegration } from "../../../hooks/integrations/useEmailMarketing";
+import { EmailIntegrationBody, EmailIntegrationResponse } from "../../../types/integrations/emailMarketing";
 import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 
 const validationSchema = Yup.object().shape({
@@ -29,25 +23,17 @@ const validationSchema = Yup.object().shape({
   password: Yup.string().required("SendGrid API Key is required."),
 });
 
-export default function SendGridConfigModal({
-  isOpen,
-  onOpenChange,
-  existingConfig,
-  isLoading,
-}: {
+export default function SendGridConfigModal({ isOpen, onOpenChange, existingConfig, isLoading }: {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   existingConfig: EmailIntegrationResponse | undefined;
   isLoading: boolean;
 }) {
   const [showPassword, setShowPassword] = useState(false);
-
   const createMutation = useCreateEmailIntegration();
   const updateMutation = useUpdateEmailIntegration();
-
   const isUpdateMode = !!existingConfig?._id && existingConfig.provider === "SendGrid";
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
-
   const formik = useFormik({
     initialValues: {
       accountEmail: existingConfig?.provider === "SendGrid" ? existingConfig?.accountEmail || "" : "",
@@ -67,7 +53,6 @@ export default function SendGridConfigModal({
           accountEmail: values.accountEmail,
           status: "Connected",
         };
-
         if (isUpdateMode && existingConfig?._id) {
           await updateMutation.mutateAsync({
             id: existingConfig._id,
@@ -88,9 +73,7 @@ export default function SendGridConfigModal({
       formik.resetForm();
     }
   }, [isOpen]);
-
   const onClose = () => onOpenChange(false);
-
   if (isLoading) {
     return (
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="md" placement="center">
@@ -103,7 +86,6 @@ export default function SendGridConfigModal({
       </Modal>
     );
   }
-
   return (
     <Modal
       isOpen={isOpen}
@@ -125,7 +107,6 @@ export default function SendGridConfigModal({
               Enter your Twilio SendGrid API key and verified sender email to send marketing campaigns.
             </p>
           </ModalHeader>
-
           <ModalBody className="px-4 py-4">
             <div className="space-y-4">
               <Input
@@ -175,16 +156,13 @@ export default function SendGridConfigModal({
                 }
               />
             </div>
-
             {isUpdateMode && existingConfig?.status === "Connected" && (
               <div className="p-3 bg-green-50 dark:bg-green-900/10 text-green-700 dark:text-green-400 text-xs rounded-lg border border-green-200 dark:border-green-500/30">
                 ✅ SendGrid integration is active. Last verified:{" "}
                 {formatDateToReadable(existingConfig.lastTestedAt, true)}
               </div>
             )}
-
           </ModalBody>
-
           <ModalFooter className="flex justify-end gap-2 px-4 pb-4 pt-0">
             <Button
               size="sm"

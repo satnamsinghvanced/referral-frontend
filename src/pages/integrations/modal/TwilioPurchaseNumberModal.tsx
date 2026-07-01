@@ -31,7 +31,6 @@ export default function TwilioPurchaseNumberModal({
   const [searched, setSearched] = useState<boolean>(false);
   const [customLabel, setCustomLabel] = useState<{ [key: string]: string }>({});
   const [buyingNumber, setBuyingNumber] = useState<string | null>(null);
-
   const isFirstTime = phoneNumbersCount === 0;
   const setupFee = isFirstTime ? 25 : 0;
   const buyCost = 15;
@@ -231,7 +230,7 @@ export default function TwilioPurchaseNumberModal({
                       size="sm"
                       value={customLabel[num.phoneNumber] || ""}
                       onValueChange={(val) =>
-                          setCustomLabel((prev) => ({ ...prev, [num.phoneNumber]: val }))
+                        setCustomLabel((prev) => ({ ...prev, [num.phoneNumber]: val }))
                       }
                       classNames={{
                         inputWrapper: "border border-foreground/10 rounded-lg bg-background h-8 min-h-8 px-2",

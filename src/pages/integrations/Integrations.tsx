@@ -69,17 +69,14 @@ function Integrations() {
   const queryClient = useQueryClient();
   const { user, token } = useTypedSelector((state) => state.auth);
   const userId = user?.userId;
-
   const [selectorPlatform, setSelectorPlatform] =
     useState<SocialPlatformType | null>(null);
   const [isSelectorOpen, setIsSelectorOpen] = useState(false);
   const [pendingConnect, setPendingConnect] =
     useState<PendingSocialConnect | null>(null);
-
   const { data: allSocialCredentials } = useSocialCredentials();
   const { mutate: connectSocial, isPending: isSocialConnecting } = useConnectSocial();
   const { mutate: updateSocial } = useUpdateSocial();
-
   const handleConfirmSocialConnect = () => {
     if (!pendingConnect) return;
     connectSocial(
@@ -92,7 +89,6 @@ function Integrations() {
       },
     );
   };
-
   const [isTwilioIntegrationModalOpen, setIsTwilioIntegrationModalOpen] =
     useState(false);
   const [isSendGridConfigModalOpen, setIsSendGridConfigModalOpen] =
@@ -115,7 +111,6 @@ function Integrations() {
     isLoading: isGoogleCalendarConfigLoading,
     isError: isGoogleCalendarConfigError,
   } = useCalendarIntegration();
-
   const { mutate: updateGoogleCalendarIntegration } = useUpdateCalendar();
   const { mutate: connectCalendar } = useConnectCalendar();
   const { data: emailExistingConfig, isLoading: isEmailConfigLoading } =
@@ -123,13 +118,11 @@ function Integrations() {
   const { mutate: updateEmailIntegration } = useUpdateEmailIntegration();
   const { mutate: connectEmail } = useConnectEmail();
   const { mutate: connectSendGrid } = useConnectSendGrid();
-
   const {
     data: twilioConfig,
     isLoading: isTwilioConfigLoading,
     isError: isTwilioConfigError,
   } = useFetchTwilioConfig();
-
   useEffect(() => {
     console.log("[Integrations] twilioConfig state:", { twilioConfig, isTwilioConfigLoading, isTwilioConfigError });
   }, [twilioConfig, isTwilioConfigLoading, isTwilioConfigError]);
@@ -593,13 +586,10 @@ function Integrations() {
     const socialCredentials = (allSocialCredentials && typeof allSocialCredentials === "object" && "data" in allSocialCredentials && allSocialCredentials.data)
       ? (allSocialCredentials.data as any)
       : allSocialCredentials;
-
     const metaCreds = socialCredentials?.meta;
     const youtubeCreds = socialCredentials?.youTube;
-
     const connectedMetaPage = metaCreds?.metaPages?.find((p: any) => p.isConnected) || metaCreds?.metaPages?.[0];
     const instagramUsername = connectedMetaPage?.instagramBusinessAccount?.username;
-
     const normalizeStatus = (
       status: string | undefined,
     ): "Connected" | "Disconnected" | "Error" => {
@@ -612,10 +602,8 @@ function Integrations() {
         | "Disconnected"
         | "Error";
     };
-
     const metaStatus = normalizeStatus(metaCreds?.status);
     const youtubeStatus = normalizeStatus(youtubeCreds?.status);
-
     const openSocialConnectModal = (platform: {
       platformId: string;
       platformKey: string;
@@ -629,7 +617,6 @@ function Integrations() {
         selectorPlatform: platform.selectorPlatform,
       });
     };
-
     list.push({
       id: metaCreds?.id || "",
       platformId: "meta",
@@ -680,7 +667,6 @@ function Integrations() {
         instagramUsername,
       },
     });
-
     list.push({
       id: youtubeCreds?.id || "",
       platformId: "youTube",
@@ -727,7 +713,6 @@ function Integrations() {
         accountAvatar: youtubeCreds?.accountAvatar,
       },
     });
-
     return list;
   }, [allSocialCredentials, updateSocial]);
 

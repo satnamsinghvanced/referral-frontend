@@ -19,10 +19,7 @@ import {
   useSyncAnalyticsProperties,
 } from "../../../hooks/integrations/useGoogleAnalytics";
 
-export default function GoogleAnalyticsPropertyModal({
-  isOpen,
-  onClose,
-}: {
+export default function GoogleAnalyticsPropertyModal({ isOpen, onClose }: {
   isOpen: boolean;
   onClose: () => void;
 }) {

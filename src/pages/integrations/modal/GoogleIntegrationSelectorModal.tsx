@@ -36,7 +36,6 @@ import {
 } from "../../../hooks/integrations/useAds";
 
 type IntegrationType = "business" | "analytics" | "ads" | "meta_ads";
-
 interface SelectorItem {
   id: string;
   title: string;
@@ -45,36 +44,23 @@ interface SelectorItem {
   isConnected: boolean;
 }
 
-export default function GoogleIntegrationSelectorModal({
-  type,
-  isOpen,
-  onClose,
-}: {
+export default function GoogleIntegrationSelectorModal({ type, isOpen, onClose }: {
   type: IntegrationType;
   isOpen: boolean;
   onClose: () => void;
 }) {
-  // Hooks for Business
   const businessData = useBusinessLocations(isOpen && type === "business");
   const businessSync = useSyncBusinessProfiles();
   const businessConnect = useConnectBusinessLocation();
-
-  // Hooks for Analytics
   const analyticsData = useAnalyticsProperties(isOpen && type === "analytics");
   const analyticsSync = useSyncAnalyticsProperties();
   const analyticsConnect = useConnectAnalyticsProperty();
-
-  // Hooks for Ads
   const adsData = useGoogleAdsAccounts(isOpen && type === "ads");
   const adsSync = useSyncGoogleAdsAccounts();
   const adsConnect = useConnectGoogleAdsAccount();
-
-  // Hooks for Meta Ads
   const metaAdsData = useMetaAdsAccounts(isOpen && type === "meta_ads");
   const metaAdsSync = useSyncMetaAdsAccounts();
   const metaAdsConnect = useConnectMetaAdsAccount();
-
-  // Resolve active hooks based on type
   const { data, isLoading, isError, sync, isSyncing, connect, isConnecting } = useMemo(() => {
     if (type === "business") {
       return {
@@ -120,8 +106,6 @@ export default function GoogleIntegrationSelectorModal({
   }, [type, businessData, businessSync, businessConnect, analyticsData, analyticsSync, analyticsConnect, adsData, adsSync, adsConnect, metaAdsData, metaAdsSync, metaAdsConnect]);
 
   const [selectedId, setSelectedId] = useState<string | null>(null);
-
-  // Map raw data to common item format
   const items: SelectorItem[] = useMemo(() => {
     if (type === "business") {
       const rawLocations = (data as any)?.locations || [];

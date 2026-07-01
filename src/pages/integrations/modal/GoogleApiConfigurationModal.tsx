@@ -25,26 +25,12 @@ const validationSchema = Yup.object().shape({
     .required("API Key is required."),
 });
 
-export default function GoogleApiConfigurationModal({
-  userId,
-  isOpen,
-  onClose,
-}: {
-  userId: string;
-  isOpen: boolean;
-  onClose: () => void;
-}) {
-  const {
-    data: existingConfig,
-    isLoading,
-    isError,
-  } = useFetchGoogleApiKey(userId);
+export default function GoogleApiConfigurationModal({ userId, isOpen, onClose }: { userId: string; isOpen: boolean; onClose: () => void; }) {
+  const { data: existingConfig, isLoading, isError } = useFetchGoogleApiKey(userId);
   const saveMutation = useSaveGoogleApiKey();
   const updateMutation = useUpdateGoogleApiKey();
-
   const isUpdateMode = !!existingConfig?._id;
   const mutation = isUpdateMode ? updateMutation : saveMutation;
-
   const formik = useFormik<GoogleApiKeyRequest>({
     initialValues: {
       googleKey: existingConfig?.googleKey || "",
