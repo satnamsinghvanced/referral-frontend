@@ -132,8 +132,7 @@ function Webhooks() {
         width="100%" 
         height="900" 
         frameborder="0" 
-        style="border: none; border-radius: 8px;">
-        
+        style="border: none; border-radius: 8px;"> 
 </iframe>`}
                 </code>
               </pre>
