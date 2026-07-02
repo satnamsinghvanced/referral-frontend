@@ -126,7 +126,7 @@ export default function BrandingStep({
           </div>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         <div className="flex flex-col">
           <label className="text-xs font-bold text-default-700 block mb-1.5 font-sans">Widget Position</label>
           <Select
