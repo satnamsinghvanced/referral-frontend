@@ -474,7 +474,7 @@ window.practiceROIConfig = {
   return (
     <ComponentContainer headingData={headingData}>
       <ChatWidgetStats stats={stats} />
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full mt-2 items-start">
+      <div className="grid grid-cols-1 xl:grid-cols-12 gap-6 w-full mt-2 items-start">
         <div className="lg:col-span-7 flex flex-col gap-5">
           <Card className="shadow-none border border-foreground/10 bg-white dark:bg-content1 rounded-xl p-5 md:p-6">
             <SetupStepper
