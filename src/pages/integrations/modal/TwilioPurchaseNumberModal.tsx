@@ -222,7 +222,7 @@ export default function TwilioPurchaseNumberModal({
               <div className="flex justify-between items-center text-xs font-bold text-foreground">
                 <span>Available Numbers</span>
                 <span className="text-foreground-500 font-normal">
-                  Plan: <span className="text-primary font-bold">{planName}</span>
+                  Your Balance: <span className="text-primary font-bold">${balance.toFixed(2)}</span>
                 </span>
               </div>
               <div className="flex flex-col border border-foreground/5 rounded-xl max-h-[300px] overflow-y-auto divide-y divide-foreground/5">
