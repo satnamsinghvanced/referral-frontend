@@ -8,6 +8,7 @@ interface SendQuoteModalProps {
   isOpen: boolean;
   onClose: () => void;
   lead: Conversation | null;
+  onSendQuote?: (text: string) => void;
 }
 
 interface LineItem {
@@ -18,7 +19,7 @@ interface LineItem {
   discount: string;
 }
 
-const SendQuoteModal = ({ isOpen, onClose, lead }: SendQuoteModalProps) => {
+const SendQuoteModal = ({ isOpen, onClose, lead, onSendQuote }: SendQuoteModalProps) => {
   if (!lead) return null;
 
   const validationSchema = Yup.object().shape({
@@ -41,6 +42,13 @@ const SendQuoteModal = ({ isOpen, onClose, lead }: SendQuoteModalProps) => {
     validationSchema,
     onSubmit: (values) => {
       const total = Math.max(0, subtotal - discounts);
+      const itemsText = values.lineItems.map(item => `${item.name || "Treatment"} ($${item.fee})`).join(", ");
+      const msgText = `Here is your treatment quote:\n${itemsText || "No items listed"}\nTotal Quote: $${total.toLocaleString()}${values.personalNote ? `\nNote: ${values.personalNote}` : ""}`;
+      
+      if (onSendQuote) {
+        onSendQuote(msgText);
+      }
+
       addToast({
         title: "Quote Sent",
         description: `Successfully sent a quote of $${total.toLocaleString()} to ${lead.patientName}.`,

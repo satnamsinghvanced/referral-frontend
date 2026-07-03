@@ -113,7 +113,7 @@ export default function ChatArea({
               <Button
                 color="primary"
                 className="font-semibold text-xs py-2.5 px-8 rounded-xl shadow-md shadow-primary/20"
-                onClick={() => navigate("/social-media")}
+                onClick={() => navigate("/integrations")}
               >
                 Connect Meta (FB/IG)
               </Button>
