@@ -8,6 +8,7 @@ interface SendFormsModalProps {
   isOpen: boolean;
   onClose: () => void;
   lead: Conversation | null;
+  onSendForms?: (text: string) => void;
 }
 
 const FORMS = [
@@ -43,7 +44,7 @@ const FORMS = [
   },
 ];
 
-const SendFormsModal = ({ isOpen, onClose, lead }: SendFormsModalProps) => {
+const SendFormsModal = ({ isOpen, onClose, lead, onSendForms }: SendFormsModalProps) => {
   if (!lead) return null;
 
   const validationSchema = Yup.object().shape({
@@ -56,6 +57,16 @@ const SendFormsModal = ({ isOpen, onClose, lead }: SendFormsModalProps) => {
     },
     validationSchema,
     onSubmit: (values) => {
+      const selectedTitles = values.selectedForms.map(id => {
+        const f = FORMS.find(form => form.id === id);
+        return f ? f.title : id;
+      });
+      const msgText = `Please fill out the following forms to continue your treatment:\n${selectedTitles.map(t => `- ${t}`).join('\n')}`;
+      
+      if (onSendForms) {
+        onSendForms(msgText);
+      }
+
       addToast({
         title: "Forms Sent",
         description: `Successfully sent ${values.selectedForms.length} forms to ${lead.patientName}.`,

@@ -12,6 +12,7 @@ interface ScheduleAppointmentModalProps {
   isOpen: boolean;
   onClose: () => void;
   lead: Conversation | null;
+  onSchedule?: (text: string) => void;
 }
 
 const APPOINTMENT_TYPES = [
@@ -28,7 +29,7 @@ const PROVIDERS = [
   { key: "dr-smith", label: "Dr. Michael Smith" },
 ];
 
-const ScheduleAppointmentModal = ({ isOpen, onClose, lead }: ScheduleAppointmentModalProps) => {
+const ScheduleAppointmentModal = ({ isOpen, onClose, lead, onSchedule }: ScheduleAppointmentModalProps) => {
 
   const validationSchema = Yup.object().shape({
     appointmentType: Yup.string().required("Required"),
@@ -50,6 +51,16 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead }: ScheduleAppointment
     },
     validationSchema,
     onSubmit: (values) => {
+      // Format date and time
+      const dateStr = values.date ? new Date(values.date).toLocaleDateString() : 'N/A';
+      const timeStr = values.time ? String(values.time) : 'N/A';
+      const providerLabel = PROVIDERS.find(p => p.key === values.provider)?.label || values.provider;
+      const msgText = `Your appointment has been scheduled!\nType: ${values.appointmentType}\nDate: ${dateStr}\nTime: ${timeStr}\nDoctor: ${providerLabel}`;
+      
+      if (onSchedule) {
+        onSchedule(msgText);
+      }
+
       addToast({
         title: "Appointment Scheduled",
         description: `Appointment for ${lead?.patientName || ""} (${values.appointmentType}) has been confirmed.`,

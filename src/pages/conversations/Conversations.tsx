@@ -20,6 +20,7 @@ import SendFormsModal from "./modal/SendFormsModal";
 import SendQuoteModal from "./modal/SendQuoteModal";
 import { getInstagramConversations, sendInstagramMessage, markInstagramSeen } from "../../services/igMessage";
 import { getFacebookConversations, sendFacebookMessage, markFacebookSeen } from "../../services/fbMessage";
+import { getWebConversations, sendWebMessage } from "../../services/chatWidget";
 import { useSocialCredentials } from "../../hooks/useSocial";
 
 const Conversations = () => {
@@ -112,8 +113,31 @@ const Conversations = () => {
       }
     };
 
+    const fetchWebConversations = async () => {
+      try {
+        const realWeb = await getWebConversations();
+        if (realWeb && Array.isArray(realWeb)) {
+          setConversations((prev) => {
+            const nonWeb = prev.filter((c) => c.platform !== "web");
+            return applySeenOverrides([...nonWeb, ...realWeb]);
+          });
+        }
+      } catch (err) {
+        console.error("Failed to load Web conversations:", err);
+      }
+    };
+
     fetchIGConversations();
     fetchFBConversations();
+    fetchWebConversations();
+
+    const interval = setInterval(() => {
+      fetchIGConversations();
+      fetchFBConversations();
+      fetchWebConversations();
+    }, 5000);
+
+    return () => clearInterval(interval);
   }, []);
   const [messageInput, setMessageInput] = useState("");
   const [attachedFile, setAttachedFile] = useState<{
@@ -289,6 +313,62 @@ const Conversations = () => {
     ];
   }, [conversations]);
 
+  const handleSendAutomatedMessage = async (text: string) => {
+    if (!selectedConversationId) return;
+    const currentConv = conversations.find((c) => c.id === selectedConversationId);
+    if (!currentConv) return;
+
+    const isInstagram = currentConv.platform === "instagram";
+    const isFacebook = currentConv.platform === "facebook";
+    const isWeb = currentConv.platform === "web";
+
+    try {
+      if (isInstagram && currentConv.recipientId) {
+        await sendInstagramMessage(currentConv.recipientId, text);
+      } else if (isFacebook && currentConv.recipientId) {
+        await sendFacebookMessage(currentConv.recipientId, text);
+      } else if (isWeb) {
+        await sendWebMessage(currentConv.id, text);
+      }
+    } catch (err) {
+      console.error("Failed to send automated message:", err);
+      addToast({
+        title: "Error Sending Message",
+        description: "Could not deliver automated message.",
+        color: "danger",
+      });
+      return;
+    }
+
+    const newMsg: ConversationMessage = {
+      id: Date.now().toString(),
+      senderId: "provider",
+      text,
+      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      isFromPatient: false,
+    };
+
+    setConversations((prev) =>
+      prev.map((c) => {
+        if (c.id === selectedConversationId) {
+          return {
+            ...c,
+            lastMessage: newMsg.text,
+            lastMessageTime: "Just now",
+            messages: [...c.messages, newMsg],
+          };
+        }
+        return c;
+      })
+    );
+
+    addToast({
+      title: "Message Sent",
+      description: "Automated template sent successfully",
+      color: "success",
+    });
+  };
+
   const handleSendMessage = async () => {
     if (!messageInput.trim() && !attachedFile) return;
 
@@ -307,6 +387,7 @@ const Conversations = () => {
     };
 
     const isFacebook = currentConv.platform === "facebook";
+    const isWeb = currentConv.platform === "web";
 
     if (isInstagram && currentConv.recipientId) {
       try {
@@ -328,6 +409,18 @@ const Conversations = () => {
         addToast({
           title: "Error Sending Message",
           description: "Could not deliver message to Facebook.",
+          color: "danger",
+        });
+        return;
+      }
+    } else if (isWeb) {
+      try {
+        await sendWebMessage(currentConv.id, messageInput.trim());
+      } catch (err) {
+        console.error("Failed to send Web message:", err);
+        addToast({
+          title: "Error Sending Message",
+          description: "Could not deliver message to Web widget.",
           color: "danger",
         });
         return;
@@ -523,16 +616,19 @@ const Conversations = () => {
         isOpen={isScheduleModalOpen} 
         onClose={() => setIsScheduleModalOpen(false)} 
         lead={modalLead} 
+        onSchedule={handleSendAutomatedMessage}
       />
       <SendFormsModal 
         isOpen={isSendFormsModalOpen} 
         onClose={() => setIsSendFormsModalOpen(false)} 
         lead={modalLead} 
+        onSendForms={handleSendAutomatedMessage}
       />
       <SendQuoteModal 
         isOpen={isSendQuoteModalOpen} 
         onClose={() => setIsSendQuoteModalOpen(false)} 
         lead={modalLead} 
+        onSendQuote={handleSendAutomatedMessage}
       />
     </ComponentContainer>
   );

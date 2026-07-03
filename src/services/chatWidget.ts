@@ -66,3 +66,19 @@ export const fetchChatWidgetStats = async (): Promise<{
   const response: any = await axios.get("/chat-widget/stats");
   return response;
 };
+
+export const getWebConversations = async (): Promise<any> => {
+  const { data } = await axios.get("/chat-widget/conversations");
+  return data;
+};
+
+export const sendWebMessage = async (
+  leadId: string,
+  text: string
+): Promise<any> => {
+  const { data } = await axios.post("/chat-widget/reply", {
+    leadId,
+    text,
+  });
+  return data;
+};
