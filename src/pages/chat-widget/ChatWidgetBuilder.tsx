@@ -365,6 +365,8 @@ export default function ChatWidgetBuilder() {
     ? rawApiUrl.replace(/\/api$/, "")
     : `${window.location.origin}${rawApiUrl}`.replace(/\/api$/, "");
 
+  const escapeStr = (str: string) => JSON.stringify(str).slice(1, -1);
+
   const embedCodeSnippet = `<!-- Practice ROI Chat Widget -->
 <script>
 window.practiceROIConfig = {
@@ -372,16 +374,16 @@ window.practiceROIConfig = {
   "primaryColor": "${primaryColor}",
   "position": "${widgetPosition}",
   "bubbleIcon": "${bubbleIcon.toLowerCase()}",
-  "bubbleText": "${bubbleText || "Chat with us"}",
-  "businessName": "${businessName || "Practice ROI"}",
-  "welcomeMessage": "${welcomeMessage || "Hi there! 👋 How can we help you today?"}",
+  "bubbleText": "${escapeStr(bubbleText || "Chat with us")}",
+  "businessName": "${escapeStr(businessName || "Practice ROI")}",
+  "welcomeMessage": "${escapeStr(welcomeMessage || "Hi there! 👋 How can we help you today?")}",
   "welcomeDelay": ${welcomeDelay ? Number(welcomeDelay) : 2},
   "enableSMSTransition": ${enableSmsTransition},
-  "smsPromptMessage": "${smsPromptMessage || "Would you like to continue this conversation via text message? It's more convenient and you'll get faster responses!"}",
-  "smsConsentText": "${smsConsentText || "By providing your phone number, you consent to receive text messages from our practice. Message and data rates may apply. Reply STOP to opt out at any time."}",
+  "smsPromptMessage": "${escapeStr(smsPromptMessage || "Would you like to continue this conversation via text message? It's more convenient and you'll get faster responses!")}",
+  "smsConsentText": "${escapeStr(smsConsentText || "By providing your phone number, you consent to receive text messages from our practice. Message and data rates may apply. Reply STOP to opt out at any time.")}",
   "autoReply": ${enableAutoReply},
-  "autoReplyMessage": "${autoReplyMessage || "Thanks for reaching out! A team member will respond shortly. Our typical response time is under 5 minutes during business hours."}",
-  "offlineMessage": "${offlineMessage || "We're currently offline. Leave us a message and we'll get back to you as soon as possible!"}",
+  "autoReplyMessage": "${escapeStr(autoReplyMessage || "Thanks for reaching out! A team member will respond shortly. Our typical response time is under 5 minutes during business hours.")}",
+  "offlineMessage": "${escapeStr(offlineMessage || "We're currently offline. Leave us a message and we'll get back to you as soon as possible!")}",
   "workingHours": {
     "enabled": ${workingHours},
     "timezone": "America/Denver",

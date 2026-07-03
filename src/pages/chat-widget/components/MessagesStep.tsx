@@ -78,7 +78,7 @@ export default function MessagesStep({
         </div>
       </div>
 
-      <div className={`border rounded-xl p-4 transition-all duration-200 ${enableAutoReply ? "border-sky-200 bg-sky-50/40" : "border-foreground/10 bg-transparent"}`}>
+      <div className={`border rounded-xl p-4 transition-all duration-200 ${enableAutoReply ? "border-sky-200 bg-sky-50/40 dark:border-sky-500/20 dark:bg-sky-950/20" : "border-foreground/10 bg-transparent"}`}>
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-0.5">
             <span className="text-xs font-bold text-default-700 font-sans">Enable Auto-Reply</span>
@@ -87,7 +87,7 @@ export default function MessagesStep({
           <Switch isSelected={enableAutoReply} onValueChange={setEnableAutoReply} size="sm" />
         </div>
         {enableAutoReply && (
-          <div className="mt-4 space-y-1.5 flex flex-col border-t border-sky-100 pt-4 animate-in slide-in-from-top-2 duration-200">
+          <div className="mt-4 space-y-1.5 flex flex-col border-t border-sky-100 dark:border-sky-500/10 pt-4 animate-in slide-in-from-top-2 duration-200">
             <label className="text-xs font-bold text-default-700 block mb-1 font-sans">
               Auto-Reply Message <span className="text-danger">*</span>
             </label>
@@ -95,7 +95,7 @@ export default function MessagesStep({
               placeholder="e.g. Thanks for reaching out! A team member will respond shortly..."
               value={autoReplyMessage}
               onChange={(e) => handleInputChange("autoReplyMessage", e.target.value, setAutoReplyMessage)}
-              className={`w-full h-20 border-none rounded-lg p-3 text-sm focus:bg-default-100 outline-none bg-white text-foreground font-sans transition-colors ${errors.autoReplyMessage ? "ring-2 ring-danger" : "ring-none"}`}
+              className={`w-full h-20 border-none rounded-lg p-3 text-sm focus:bg-default-100 outline-none bg-default-100/50 hover:bg-default-100 dark:bg-content2/50 dark:focus:bg-content2 text-foreground font-sans transition-colors ${errors.autoReplyMessage ? "ring-2 ring-danger" : "ring-none"}`}
             />
             {errors.autoReplyMessage && (
               <span className="text-xs text-danger font-semibold mt-1 block font-sans">{errors.autoReplyMessage}</span>
@@ -121,7 +121,7 @@ export default function MessagesStep({
         )}
       </div>
 
-      <div className="flex items-center justify-between border border-purple-200 bg-purple-50/40 rounded-xl p-4">
+      <div className="flex items-center justify-between border border-purple-200 bg-purple-50/40 dark:border-purple-500/20 dark:bg-purple-950/20 rounded-xl p-4">
         <div className="flex flex-col gap-0.5">
           <span className="text-xs font-bold text-default-700 font-sans">Working Hours</span>
           <span className="text-[10px] text-default-500 font-sans font-light">Set your availability schedule</span>

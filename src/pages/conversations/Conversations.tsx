@@ -42,7 +42,7 @@ const Conversations = () => {
   const [selectedConversationId, setSelectedConversationId] = useState<
     string | null
   >(null);
-  
+
   const [isViewLeadModalOpen, setIsViewLeadModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [isSendFormsModalOpen, setIsSendFormsModalOpen] = useState(false);
@@ -606,28 +606,28 @@ const Conversations = () => {
           </CardBody>
         </Card>
       </div>
-      <ViewLeadModal 
-        isOpen={isViewLeadModalOpen} 
-        onClose={() => setIsViewLeadModalOpen(false)} 
-        lead={modalLead} 
-        onScheduleClick={() => setIsScheduleModalOpen(true)} 
+      <ViewLeadModal
+        isOpen={isViewLeadModalOpen}
+        onClose={() => setIsViewLeadModalOpen(false)}
+        lead={modalLead}
+        onScheduleClick={() => setIsScheduleModalOpen(true)}
       />
-      <ScheduleAppointmentModal 
-        isOpen={isScheduleModalOpen} 
-        onClose={() => setIsScheduleModalOpen(false)} 
-        lead={modalLead} 
+      <ScheduleAppointmentModal
+        isOpen={isScheduleModalOpen}
+        onClose={() => setIsScheduleModalOpen(false)}
+        lead={modalLead}
         onSchedule={handleSendAutomatedMessage}
       />
-      <SendFormsModal 
-        isOpen={isSendFormsModalOpen} 
-        onClose={() => setIsSendFormsModalOpen(false)} 
-        lead={modalLead} 
+      <SendFormsModal
+        isOpen={isSendFormsModalOpen}
+        onClose={() => setIsSendFormsModalOpen(false)}
+        lead={modalLead}
         onSendForms={handleSendAutomatedMessage}
       />
-      <SendQuoteModal 
-        isOpen={isSendQuoteModalOpen} 
-        onClose={() => setIsSendQuoteModalOpen(false)} 
-        lead={modalLead} 
+      <SendQuoteModal
+        isOpen={isSendQuoteModalOpen}
+        onClose={() => setIsSendQuoteModalOpen(false)}
+        lead={modalLead}
         onSendQuote={handleSendAutomatedMessage}
       />
     </ComponentContainer>

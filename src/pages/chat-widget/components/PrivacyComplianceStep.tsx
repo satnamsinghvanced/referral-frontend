@@ -54,7 +54,7 @@ export default function PrivacyComplianceStep({
         </div>
       </div>
 
-      <div className={`border rounded-xl p-4 transition-all duration-200 ${requirePatientConsent ? "border-sky-200 bg-sky-50/40" : "border-foreground/10 bg-transparent"}`}>
+      <div className={`border rounded-xl p-4 transition-all duration-200 ${requirePatientConsent ? "border-sky-200 bg-sky-50/40 dark:border-sky-500/20 dark:bg-sky-950/20" : "border-foreground/10 bg-transparent"}`}>
         <div className="flex items-center justify-between pb-4">
           <div className="flex flex-col gap-0.5">
             <span className="text-xs font-bold text-default-700 font-sans">Require Patient Consent</span>
@@ -64,7 +64,7 @@ export default function PrivacyComplianceStep({
         </div>
 
         {requirePatientConsent && (
-          <div className="border-t border-sky-100 pt-4 space-y-4 animate-in slide-in-from-top-2 duration-200">
+          <div className="border-t border-sky-100 dark:border-sky-500/10 pt-4 space-y-4 animate-in slide-in-from-top-2 duration-200">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex flex-col">
                 <label className="text-xs font-bold text-default-700 block mb-1.5 font-sans">
@@ -75,7 +75,7 @@ export default function PrivacyComplianceStep({
                   value={privacyPolicyUrl}
                   onValueChange={(val) => handleInputChange("privacyPolicyUrl", val, setPrivacyPolicyUrl)}
                   variant="flat"
-                  classNames={{ inputWrapper: "bg-white border-none shadow-none rounded-lg h-11" }}
+                  classNames={{ inputWrapper: "bg-default-100/70 hover:bg-default-200 dark:bg-content2/50 dark:hover:bg-content2 border-none shadow-none rounded-lg h-11" }}
                   isInvalid={!!errors.privacyPolicyUrl}
                   errorMessage={errors.privacyPolicyUrl}
                   aria-label="Privacy Policy URL"
@@ -95,7 +95,7 @@ export default function PrivacyComplianceStep({
                   value={dataRetentionPeriod}
                   onValueChange={(val) => handleInputChange("dataRetentionPeriod", val, setDataRetentionPeriod)}
                   variant="flat"
-                  classNames={{ inputWrapper: "bg-white border-none shadow-none rounded-lg h-11" }}
+                  classNames={{ inputWrapper: "bg-default-100/70 hover:bg-default-200 dark:bg-content2/50 dark:hover:bg-content2 border-none shadow-none rounded-lg h-11" }}
                   isInvalid={!!errors.dataRetentionPeriod}
                   errorMessage={errors.dataRetentionPeriod}
                   min={1}
