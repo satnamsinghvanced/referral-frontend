@@ -6,11 +6,7 @@ import { HiOutlineMail, HiOutlineClock, HiOutlineTrendingUp } from "react-icons/
 import ComponentContainer from "../../components/common/ComponentContainer";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
 import TrendIndicator from "../../components/common/TrendIndicator";
-import {
-  // MOCK_CONVERSATIONS,
-  Conversation,
-  ConversationMessage,
-} from "../../consts/conversations";
+import { Conversation, ConversationMessage } from "../../consts/conversations";
 import ConversationList from "./components/ConversationList";
 import ChatArea from "./components/ChatArea";
 import LeadSidebar from "./components/LeadSidebar";
@@ -33,15 +29,11 @@ const Conversations = () => {
     return metaCreds?.status === "Connected" || metaCreds?.status === "connected";
   }, [socialCreds]);
 
-  // const [conversations, setConversations] = useState(MOCK_CONVERSATIONS);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [search, setSearch] = useState("");
   const [selectedPlatform, setSelectedPlatform] = useState("all");
   const [filterDropdown, setFilterDropdown] = useState("all");
-  const [selectedConversationId, setSelectedConversationId] = useState<
-    string | null
-  >(null);
-  
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [isViewLeadModalOpen, setIsViewLeadModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [isSendFormsModalOpen, setIsSendFormsModalOpen] = useState(false);
@@ -70,7 +62,6 @@ const Conversations = () => {
         }
       }
 
-      // Also check localStorage override for the last message
       const lastMsg = conv.messages[conv.messages.length - 1];
       if (lastMsg) {
         const seenMsgId = localStorage.getItem(`seen_msg_${conv.id}`);
@@ -78,7 +69,6 @@ const Conversations = () => {
           computedCount = 0;
         }
       }
-
       return { ...conv, unreadCount: computedCount };
     });
   };
@@ -111,17 +101,11 @@ const Conversations = () => {
         console.error("Failed to load Facebook conversations:", err);
       }
     };
-
     fetchIGConversations();
     fetchFBConversations();
   }, []);
   const [messageInput, setMessageInput] = useState("");
-  const [attachedFile, setAttachedFile] = useState<{
-    name: string;
-    url: string;
-    type: string;
-  } | null>(null);
-
+  const [attachedFile, setAttachedFile] = useState<{ name: string; url: string; type: string; } | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -164,7 +148,6 @@ const Conversations = () => {
         conv.lastMessage.toLowerCase().includes(search.toLowerCase());
       const matchesPlatform =
         selectedPlatform === "all" || conv.platform === selectedPlatform;
-
       let matchesFilter = true;
       if (filterDropdown === "unread") {
         matchesFilter = conv.unreadCount > 0;
@@ -173,7 +156,6 @@ const Conversations = () => {
       } else if (filterDropdown === "archived") {
         matchesFilter = conv.status === "archived";
       }
-
       return matchesSearch && matchesPlatform && matchesFilter;
     });
   }, [search, selectedPlatform, filterDropdown, conversations]);
@@ -513,26 +495,26 @@ const Conversations = () => {
           </CardBody>
         </Card>
       </div>
-      <ViewLeadModal 
-        isOpen={isViewLeadModalOpen} 
-        onClose={() => setIsViewLeadModalOpen(false)} 
-        lead={modalLead} 
-        onScheduleClick={() => setIsScheduleModalOpen(true)} 
+      <ViewLeadModal
+        isOpen={isViewLeadModalOpen}
+        onClose={() => setIsViewLeadModalOpen(false)}
+        lead={modalLead}
+        onScheduleClick={() => setIsScheduleModalOpen(true)}
       />
-      <ScheduleAppointmentModal 
-        isOpen={isScheduleModalOpen} 
-        onClose={() => setIsScheduleModalOpen(false)} 
-        lead={modalLead} 
+      <ScheduleAppointmentModal
+        isOpen={isScheduleModalOpen}
+        onClose={() => setIsScheduleModalOpen(false)}
+        lead={modalLead}
       />
-      <SendFormsModal 
-        isOpen={isSendFormsModalOpen} 
-        onClose={() => setIsSendFormsModalOpen(false)} 
-        lead={modalLead} 
+      <SendFormsModal
+        isOpen={isSendFormsModalOpen}
+        onClose={() => setIsSendFormsModalOpen(false)}
+        lead={modalLead}
       />
-      <SendQuoteModal 
-        isOpen={isSendQuoteModalOpen} 
-        onClose={() => setIsSendQuoteModalOpen(false)} 
-        lead={modalLead} 
+      <SendQuoteModal
+        isOpen={isSendQuoteModalOpen}
+        onClose={() => setIsSendQuoteModalOpen(false)}
+        lead={modalLead}
       />
     </ComponentContainer>
   );

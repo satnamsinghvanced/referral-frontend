@@ -90,11 +90,10 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead }: ScheduleAppointment
                     <div
                       key={type}
                       onClick={() => formik.setFieldValue("appointmentType", type)}
-                      className={`cursor-pointer rounded-lg px-2.5 sm:px-3 py-2 text-[11.5px] sm:text-[12.5px] font-medium transition-all text-center ${
-                        formik.values.appointmentType === type
-                          ? "border-[1.5px] border-[#10b981] text-[#10b981] bg-[#e6fcf5]/40"
-                          : "border border-slate-200 dark:border-default-200 text-slate-600 dark:text-slate-300 hover:border-slate-300"
-                      }`}
+                      className={`cursor-pointer rounded-lg px-2.5 sm:px-3 py-2 text-[11.5px] sm:text-[12.5px] font-medium transition-all text-center ${formik.values.appointmentType === type
+                        ? "border-[1.5px] border-[#10b981] text-[#10b981] bg-[#e6fcf5]/40"
+                        : "border border-slate-200 dark:border-default-200 text-slate-600 dark:text-slate-300 hover:border-slate-300"
+                        }`}
                     >
                       {type}
                     </div>
@@ -116,7 +115,6 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead }: ScheduleAppointment
                       className="w-full text-[12px] sm:text-[12.5px] text-slate-600 dark:text-slate-200 outline-none bg-transparent placeholder:text-slate-400 dark:placeholder:text-slate-500"
                       value={formik.values.date}
                       onChange={(e) => {
-                        // Only allow digits, auto-insert dashes for dd-mm-yyyy format
                         const raw = e.target.value.replace(/[^0-9]/g, "");
                         let formatted = "";
                         if (raw.length <= 2) {

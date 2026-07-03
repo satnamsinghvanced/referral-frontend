@@ -17,14 +17,8 @@ import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import { FiEye, FiEyeOff, FiMail, FiServer, FiInfo } from "react-icons/fi";
 import * as Yup from "yup";
-import {
-  useCreateEmailIntegration,
-  useUpdateEmailIntegration,
-} from "../../../hooks/integrations/useEmailMarketing";
-import {
-  EmailIntegrationBody,
-  EmailIntegrationResponse,
-} from "../../../types/integrations/emailMarketing";
+import { useCreateEmailIntegration, useUpdateEmailIntegration } from "../../../hooks/integrations/useEmailMarketing";
+import { EmailIntegrationBody, EmailIntegrationResponse } from "../../../types/integrations/emailMarketing";
 import { ENCRYPTION_TYPES, PROVIDERS } from "../../../consts/integrations";
 import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 

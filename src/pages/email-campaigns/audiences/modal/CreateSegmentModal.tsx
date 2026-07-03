@@ -72,14 +72,12 @@ const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({
     },
   });
 
-  // Reset form when modal closes
   useEffect(() => {
     if (!isOpen) {
       formik.resetForm();
     }
   }, [isOpen]);
 
-  // Reset conditional fields when audience type changes
   useEffect(() => {
     if (!initialValues) {
       formik.setFieldValue("practiceSize", "");
@@ -157,7 +155,7 @@ const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({
           </div>
         );
       default:
-        return null; // No extra field for "Patients" or unselected
+        return null;
     }
   };
 
@@ -189,7 +187,6 @@ const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({
 
         <ModalBody className="p-4 py-0">
           <form onSubmit={formik.handleSubmit} className="flex flex-col gap-5">
-            {/* Row 1: Name and Description */}
             <div className="w-full relative">
               <Input
                 placeholder="Enter segment name..."
@@ -222,8 +219,6 @@ const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({
                 isRequired
               />
             </div>
-
-            {/* Row 2: Audience Type */}
             <div className="w-full relative">
               <Select
                 placeholder="Select audience type"
@@ -286,7 +281,6 @@ const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({
               </Select>
             </div>
 
-            {/* Row 5: Location */}
             <div className="w-full relative">
               <Input
                 placeholder="e.g., Tulsa, OK"
@@ -300,7 +294,6 @@ const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({
               />
             </div>
 
-            {/* Row 6: Status (Only on Edit) */}
             {initialValues && (
               <div className="w-full relative">
                 <Select

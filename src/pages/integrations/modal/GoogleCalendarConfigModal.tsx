@@ -12,12 +12,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { FiExternalLink } from "react-icons/fi";
 import { LuCalendar } from "react-icons/lu";
-import {
-  useConnectCalendar,
-  useDisconnectCalendar,
-  useSelectCalendarForSync,
-  useUserCalendars,
-} from "../../../hooks/integrations/useGoogleCalendar";
+import { useConnectCalendar, useDisconnectCalendar, useSelectCalendarForSync, useUserCalendars } from "../../../hooks/integrations/useGoogleCalendar";
 import { ICalendarIntegration } from "../../../types/integrations/googleCalendar";
 
 export default function GoogleCalendarConfigModal({

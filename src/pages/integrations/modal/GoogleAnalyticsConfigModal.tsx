@@ -12,10 +12,7 @@ import {
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import * as Yup from "yup";
-import {
-  useCreateGoogleAnalyticsIntegration,
-  useUpdateGoogleAnalyticsIntegration,
-} from "../../../hooks/integrations/useGoogleAnalytics";
+import { useCreateGoogleAnalyticsIntegration, useUpdateGoogleAnalyticsIntegration } from "../../../hooks/integrations/useGoogleAnalytics";
 import { GoogleAnalyticsIntegration } from "../../../types/integrations/googleAnalytics";
 
 const validationSchema = Yup.object().shape({
@@ -26,20 +23,13 @@ const validationSchema = Yup.object().shape({
   privateKey: Yup.string().required("Private Key is required."),
 });
 
-export default function GoogleAnalyticsConfigModal({
-  userId,
-  isOpen,
-  onClose,
-  existingConfig,
-  isLoading,
-}: {
+export default function GoogleAnalyticsConfigModal({ userId, isOpen, onClose, existingConfig, isLoading }: {
   userId: string;
   isOpen: boolean;
   onClose: () => void;
   existingConfig?: GoogleAnalyticsIntegration | undefined;
   isLoading?: boolean;
 }) {
-  const [showKey, setShowKey] = useState(false);
   const createMutation = useCreateGoogleAnalyticsIntegration();
   const updateMutation = useUpdateGoogleAnalyticsIntegration();
   const config = existingConfig as any;
@@ -70,7 +60,6 @@ export default function GoogleAnalyticsConfigModal({
   useEffect(() => {
     if (!isOpen) {
       formik.resetForm();
-      setShowKey(false);
     }
   }, [isOpen]);
 
