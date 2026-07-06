@@ -6,7 +6,10 @@ import { HiOutlineMail, HiOutlineClock, HiOutlineTrendingUp } from "react-icons/
 import ComponentContainer from "../../components/common/ComponentContainer";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
 import TrendIndicator from "../../components/common/TrendIndicator";
-import { Conversation, ConversationMessage } from "../../consts/conversations";
+import {
+  Conversation,
+  ConversationMessage,
+} from "../../consts/conversations";
 import ConversationList from "./components/ConversationList";
 import ChatArea from "./components/ChatArea";
 import LeadSidebar from "./components/LeadSidebar";
@@ -147,6 +150,7 @@ const Conversations = () => {
               messages: updatedMessages,
               lastMessage: payload.message.text,
               lastMessageTime: "Just now",
+              lastMessageTimestamp: Date.now(),
               unreadCount: conv.unreadCount + 1,
             };
           }
@@ -164,6 +168,7 @@ const Conversations = () => {
               messages: [...conv.messages, payload.message],
               lastMessage: payload.message.text,
               lastMessageTime: "Just now",
+              lastMessageTimestamp: Date.now(),
               unreadCount: conv.unreadCount + 1,
             };
           }
@@ -242,8 +247,14 @@ const Conversations = () => {
         return matchesSearch && matchesPlatform && matchesFilter;
       })
       .sort((a, b) => {
-        if (b.unreadCount !== a.unreadCount) return b.unreadCount - a.unreadCount;
-        return b.lastMessageTime.localeCompare(a.lastMessageTime);
+        const getTimestamp = (conv: Conversation) => {
+          if (conv.lastMessageTimestamp !== undefined) return conv.lastMessageTimestamp;
+          if (!conv.lastMessageTime) return 0;
+          if (conv.lastMessageTime === "Just now") return Date.now();
+          const parsed = new Date(conv.lastMessageTime).getTime();
+          return isNaN(parsed) ? 0 : parsed;
+        };
+        return getTimestamp(b) - getTimestamp(a);
       });
   }, [search, selectedPlatform, filterDropdown, conversations]);
 
@@ -398,6 +409,7 @@ const Conversations = () => {
             ...c,
             lastMessage: newMsg.text,
             lastMessageTime: "Just now",
+            lastMessageTimestamp: Date.now(),
             messages: [...c.messages, newMsg],
           };
         }
@@ -463,6 +475,7 @@ const Conversations = () => {
             ...c,
             lastMessage: newMsg.text,
             lastMessageTime: "Just now",
+            lastMessageTimestamp: Date.now(),
             messages: [...c.messages, newMsg],
           };
         }
