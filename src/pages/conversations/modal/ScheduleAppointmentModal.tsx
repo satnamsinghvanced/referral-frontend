@@ -1,6 +1,6 @@
 import React from "react";
 import { Modal, ModalContent, ModalBody, Button, Select, SelectItem, Textarea, Switch, addToast, DatePicker, TimeInput } from "@heroui/react";
-import { parseDate, CalendarDate, Time } from "@internationalized/date";
+import { parseDate, CalendarDate, Time, today, getLocalTimeZone } from "@internationalized/date";
 import { Conversation } from "../../../consts/conversations";
 import { HiOutlineCheckCircle } from "react-icons/hi";
 import { HiOutlineClock } from "react-icons/hi";
@@ -53,7 +53,20 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead, onSchedule }: Schedul
     onSubmit: (values) => {
       // Format date and time
       const dateStr = values.date ? new Date(values.date).toLocaleDateString() : 'N/A';
-      const timeStr = values.time ? String(values.time) : 'N/A';
+      
+      // Format 24-hour time string to 12-hour format with AM/PM
+      let timeStr = 'N/A';
+      if (values.time) {
+        const [hourStr, minStr] = values.time.split(':');
+        if (hourStr && minStr) {
+          let hour = parseInt(hourStr, 10);
+          const ampm = hour >= 12 ? 'PM' : 'AM';
+          hour = hour % 12;
+          hour = hour ? hour : 12; // Convert 0 to 12
+          timeStr = `${hour}:${minStr} ${ampm}`;
+        }
+      }
+      
       const providerLabel = PROVIDERS.find(p => p.key === values.provider)?.label || values.provider;
       const msgText = `Your appointment has been scheduled!\nType: ${values.appointmentType}\nDate: ${dateStr}\nTime: ${timeStr}\nDoctor: ${providerLabel}`;
       
@@ -128,6 +141,7 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead, onSchedule }: Schedul
                         inputWrapper:
                           "bg-transparent shadow-none border-none data-[hover=true]:bg-transparent px-0 h-auto",
                       }}
+                      minValue={today(getLocalTimeZone())}
                       value={formik.values.date ? parseDate(formik.values.date) : null}
                       onChange={(date: CalendarDate | null) => {
                         formik.setFieldValue("date", date ? date.toString() : "");
@@ -151,6 +165,14 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead, onSchedule }: Schedul
                     <TimeInput
                       className="flex-1 min-w-0"
                       hourCycle={12}
+                      value={formik.values.time ? parseStringTime(formik.values.time) : null}
+                      onChange={(time: Time | null) => {
+                        formik.setFieldValue(
+                          "time",
+                          time ? `${time.hour.toString().padStart(2, "0")}:${time.minute.toString().padStart(2, "0")}` : ""
+                        );
+                      }}
+                      onBlur={formik.handleBlur}
                       classNames={{
                         base: "flex-1 min-w-0",
                         innerWrapper: "min-w-0",
