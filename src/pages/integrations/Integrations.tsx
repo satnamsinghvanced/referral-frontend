@@ -443,7 +443,43 @@ function Integrations() {
         accountAvatar: googleAdsConfig?.accountAvatar,
       },
     });
-
+    list.push({
+      id: metaAdsConfig?._id || "",
+      name: "Meta Ads",
+      icon: <FaMeta className="w-4 h-4" />,
+      iconBg: "bg-blue-100 dark:bg-blue-900/20",
+      iconColor: "text-blue-600 dark:text-blue-400",
+      status: metaAdsConfig?.status || "Disconnected",
+      description: "Sync Facebook and Instagram ad performance with your dashboard",
+      badges: [
+        "Ad campaign tracking",
+        "Lead attribution",
+        "Ad spend analytics",
+      ],
+      onConnect: () => connectMetaAds(),
+      onReconnect: () => connectMetaAds(),
+      onConfigure: () => setIsMetaAdsAccountModalOpen(true),
+      connectedLocation: metaAdsConfig?.adAccounts?.find(
+        (acc: any) => acc.isConnected,
+      )?.name,
+      isSwitchChecked: metaAdsConfig?.status === "Connected",
+      onSwitchChange: () => {
+        updateMetaAdsIntegration({
+          id: metaAdsConfig?._id as string,
+          payload: {
+            status:
+              metaAdsConfig?.status === "Connected"
+                ? "Disconnected"
+                : "Connected",
+          },
+        });
+      },
+      account: {
+        accountName: metaAdsConfig?.accountName,
+        accountEmail: metaAdsConfig?.accountEmail,
+        accountAvatar: metaAdsConfig?.accountAvatar,
+      },
+    });
     list.push({
       id: googleAnalyticsConfig?._id || "",
       name: "Google Analytics",

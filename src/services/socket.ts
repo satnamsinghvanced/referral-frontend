@@ -14,6 +14,30 @@ interface NotificationPayload {
   createdAt: string;
 }
 
+export interface NewMessagePayload {
+  platform: "instagram" | "facebook";
+  conversationId: string;
+  recipientId: string;
+  message: {
+    id: string;
+    senderId: string;
+    text: string;
+    timestamp: string;
+    isFromPatient: boolean;
+  };
+}
+
+export interface NewWebMessagePayload {
+  conversationId: string;
+  message: {
+    id: string;
+    senderId: string;
+    text: string;
+    timestamp: string;
+    isFromPatient: boolean;
+  };
+}
+
 export const initSocket = () => {
   const token = store.getState().auth.token;
   if (!token) {
@@ -54,6 +78,44 @@ export const subscribeToNotifications = (
   const socketInstance = getSocket();
   if (socketInstance) {
     socketInstance.on("new_notification", callback);
+  }
+};
+
+/** Subscribe to live IG / FB direct messages pushed from the Meta webhook */
+export const subscribeToNewMessage = (
+  callback: (data: NewMessagePayload) => void,
+) => {
+  const socketInstance = getSocket();
+  if (socketInstance) {
+    socketInstance.on("new_message", callback);
+  }
+};
+
+export const unsubscribeFromNewMessage = (
+  callback: (data: NewMessagePayload) => void,
+) => {
+  const socketInstance = getSocket();
+  if (socketInstance) {
+    socketInstance.off("new_message", callback);
+  }
+};
+
+/** Subscribe to live Web chat-widget messages */
+export const subscribeToNewWebMessage = (
+  callback: (data: NewWebMessagePayload) => void,
+) => {
+  const socketInstance = getSocket();
+  if (socketInstance) {
+    socketInstance.on("new_web_message", callback);
+  }
+};
+
+export const unsubscribeFromNewWebMessage = (
+  callback: (data: NewWebMessagePayload) => void,
+) => {
+  const socketInstance = getSocket();
+  if (socketInstance) {
+    socketInstance.off("new_web_message", callback);
   }
 };
 
