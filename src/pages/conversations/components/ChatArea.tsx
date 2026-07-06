@@ -62,6 +62,7 @@ interface ChatAreaProps {
   onSendQuoteClick?: () => void;
   isMetaConnected?: boolean;
   isIntegrationsLoading?: boolean;
+  isSendingMessage?: boolean;
 }
 
 export default function ChatArea({
@@ -85,6 +86,7 @@ export default function ChatArea({
   onSendQuoteClick,
   isMetaConnected = true,
   isIntegrationsLoading = false,
+  isSendingMessage = false,
 }: ChatAreaProps) {
   const navigate = useNavigate();
   if (!selectedConversation) {
@@ -427,8 +429,9 @@ export default function ChatArea({
             }}
             value={messageInput}
             onValueChange={setMessageInput}
+            isDisabled={isSendingMessage}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
+              if (e.key === "Enter" && !e.shiftKey && !isSendingMessage) {
                 e.preventDefault();
                 handleSendMessage();
               }
@@ -438,15 +441,20 @@ export default function ChatArea({
             isIconOnly
             color="primary"
             size="sm"
-            // onClick={handleSendMessage}
-            // className="shadow-md shadow-primary/30 flex-shrink-0 min-w-8 w-8"
             radius="md"
+            isDisabled={isSendingMessage || (!messageInput.trim() && !attachedFile)}
+            isLoading={isSendingMessage}
             onPress={handleSendMessage}
             className="flex-shrink-0 min-w-8 w-8"
+            spinner={
+              <Spinner size="sm" color="white" className="scale-75" />
+            }
           >
-            <span className="flex items-center justify-center w-full h-full">
-              <LuSend className="size-3.5 rotate-45 -translate-x-[1px] translate-y-[0.5px]" />
-            </span>
+            {!isSendingMessage && (
+              <span className="flex items-center justify-center w-full h-full">
+                <LuSend className="size-3.5 rotate-45 -translate-x-[1px] translate-y-[0.5px]" />
+              </span>
+            )}
           </Button>
         </div>
       </div>

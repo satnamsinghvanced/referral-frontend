@@ -42,7 +42,7 @@ export default function SmsSetupStep({
         <p className="text-xs text-default-500 mt-1 font-sans">Configure how the widget transitions from web chat to SMS messaging.</p>
       </div>
 
-      <div className={`border rounded-xl p-4 transition-all duration-200 ${enableSmsTransition ? "border-sky-200 bg-sky-50/40" : "border-foreground/10 bg-transparent"}`}>
+      <div className={`border rounded-xl p-4 transition-all duration-200 ${enableSmsTransition ? "border-sky-200 bg-sky-50/40 dark:border-sky-500/20 dark:bg-sky-950/20" : "border-foreground/10 bg-transparent"}`}>
         <div className="flex items-center justify-between pb-4">
           <div className="flex flex-col gap-0.5">
             <span className="text-xs font-bold text-default-700 font-sans">Enable SMS Transition</span>
@@ -52,7 +52,7 @@ export default function SmsSetupStep({
         </div>
 
         {enableSmsTransition && (
-          <div className="border-t border-sky-100 pt-4 space-y-4 animate-in slide-in-from-top-2 duration-200">
+          <div className="border-t border-sky-100 dark:border-sky-500/10 pt-4 space-y-4 animate-in slide-in-from-top-2 duration-200">
             <div className="space-y-1 flex flex-col">
               <label className="text-xs font-bold text-default-700 block mb-1 font-sans">
                 SMS Prompt Message <span className="text-danger">*</span>
@@ -61,7 +61,7 @@ export default function SmsSetupStep({
                 placeholder="e.g. Would you like to continue this conversation via text message? It's more convenient and you'll get faster responses!"
                 value={smsPromptMessage}
                 onChange={(e) => handleInputChange("smsPromptMessage", e.target.value, setSmsPromptMessage)}
-                className={`w-full h-20 border-none rounded-lg p-3 text-sm focus:bg-default-100 outline-none bg-white text-foreground font-sans transition-colors ${errors.smsPromptMessage ? "ring-2 ring-danger" : "ring-none"}`}
+                className={`w-full h-20 border-none rounded-lg p-3 text-sm focus:bg-default-100 outline-none bg-default-100/50 hover:bg-default-100 dark:bg-content2/50 dark:focus:bg-content2 text-foreground font-sans transition-colors ${errors.smsPromptMessage ? "ring-2 ring-danger" : "ring-none"}`}
               />
               {errors.smsPromptMessage ? (
                 <span className="text-xs text-danger font-semibold mt-1 block font-sans">{errors.smsPromptMessage}</span>
@@ -82,7 +82,7 @@ export default function SmsSetupStep({
                   placeholder="e.g. By providing your phone number, you consent to receive text messages from our practice. Message and data rates may apply. Reply STOP to opt out at any time."
                   value={smsConsentText}
                   onChange={(e) => handleInputChange("smsConsentText", e.target.value, setSmsConsentText)}
-                  className={`w-full h-24 border-none rounded-lg p-3 text-xs focus:bg-default-100 outline-none bg-white text-foreground font-sans resize-none transition-colors ${errors.smsConsentText ? "ring-2 ring-danger" : "ring-none"}`}
+                  className={`w-full h-24 border-none rounded-lg p-3 text-xs focus:bg-default-100 outline-none bg-default-100/50 hover:bg-default-100 dark:bg-content2/50 dark:focus:bg-content2 text-foreground font-sans resize-none transition-colors ${errors.smsConsentText ? "ring-2 ring-danger" : "ring-none"}`}
                 />
                 {errors.smsConsentText ? (
                   <span className="text-xs text-danger font-semibold mt-1 block font-sans">{errors.smsConsentText}</span>
@@ -91,7 +91,7 @@ export default function SmsSetupStep({
                 )}
               </div>
             </div>
-            <Card className="shadow-none border border-amber-200 bg-amber-50/50 rounded-xl p-3">
+            <Card className="shadow-none border border-amber-200 bg-amber-50/50 dark:border-amber-500/20 dark:bg-amber-950/20 rounded-xl p-3">
               <CardBody className="p-0 flex flex-row gap-3 items-start">
                 <FiInfo className="w-4.5 h-4.5 text-amber-600 flex-shrink-0 mt-0.5" />
                 <div className="flex flex-col gap-0.5">

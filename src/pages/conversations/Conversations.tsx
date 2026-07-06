@@ -18,6 +18,14 @@ import { getInstagramConversations, sendInstagramMessage, markInstagramSeen } fr
 import { getFacebookConversations, sendFacebookMessage, markFacebookSeen } from "../../services/fbMessage";
 import { getWebConversations, sendWebMessage } from "../../services/chatWidget";
 import { useSocialCredentials } from "../../hooks/useSocial";
+import {
+  subscribeToNewMessage,
+  unsubscribeFromNewMessage,
+  subscribeToNewWebMessage,
+  unsubscribeFromNewWebMessage,
+  type NewMessagePayload,
+  type NewWebMessagePayload,
+} from "../../services/socket";
 
 const Conversations = () => {
   const { data: socialCreds, isLoading: isSocialLoading } = useSocialCredentials();
@@ -34,7 +42,10 @@ const Conversations = () => {
   const [search, setSearch] = useState("");
   const [selectedPlatform, setSelectedPlatform] = useState("all");
   const [filterDropdown, setFilterDropdown] = useState("all");
-  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
+  const [selectedConversationId, setSelectedConversationId] = useState<
+    string | null
+  >(null);
+
   const [isViewLeadModalOpen, setIsViewLeadModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [isSendFormsModalOpen, setIsSendFormsModalOpen] = useState(false);
@@ -116,21 +127,67 @@ const Conversations = () => {
         console.error("Failed to load Web conversations:", err);
       }
     };
-
     fetchIGConversations();
     fetchFBConversations();
     fetchWebConversations();
-
-    const interval = setInterval(() => {
-      fetchIGConversations();
-      fetchFBConversations();
-      fetchWebConversations();
-    }, 5000);
-
-    return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    const handleNewMessage = (payload: NewMessagePayload) => {
+      setConversations((prev) =>
+        prev.map((conv) => {
+          if (
+            conv.platform === payload.platform &&
+            (conv.recipientId === payload.recipientId ||
+              conv.id === payload.conversationId)
+          ) {
+            const updatedMessages = [...conv.messages, payload.message];
+            return {
+              ...conv,
+              messages: updatedMessages,
+              lastMessage: payload.message.text,
+              lastMessageTime: "Just now",
+              unreadCount: conv.unreadCount + 1,
+            };
+          }
+          return conv;
+        })
+      );
+    };
+
+    const handleNewWebMessage = (payload: NewWebMessagePayload) => {
+      setConversations((prev) =>
+        prev.map((conv) => {
+          if (conv.platform === "web" && conv.id === payload.conversationId) {
+            return {
+              ...conv,
+              messages: [...conv.messages, payload.message],
+              lastMessage: payload.message.text,
+              lastMessageTime: "Just now",
+              unreadCount: conv.unreadCount + 1,
+            };
+          }
+          return conv;
+        })
+      );
+    };
+
+    subscribeToNewMessage(handleNewMessage);
+    subscribeToNewWebMessage(handleNewWebMessage);
+    return () => {
+      unsubscribeFromNewMessage(handleNewMessage);
+      unsubscribeFromNewWebMessage(handleNewWebMessage);
+    };
+  }, []);
+
   const [messageInput, setMessageInput] = useState("");
-  const [attachedFile, setAttachedFile] = useState<{ name: string; url: string; type: string; } | null>(null);
+  const [attachedFile, setAttachedFile] = useState<{
+    name: string;
+    url: string;
+    type: string;
+  } | null>(null);
+  const [isSendingMessage, setIsSendingMessage] = useState(false);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -166,23 +223,28 @@ const Conversations = () => {
   };
 
   const filteredConversations = useMemo(() => {
-    return conversations.filter((conv) => {
-      const matchesSearch =
-        !search ||
-        conv.patientName.toLowerCase().includes(search.toLowerCase()) ||
-        conv.lastMessage.toLowerCase().includes(search.toLowerCase());
-      const matchesPlatform =
-        selectedPlatform === "all" || conv.platform === selectedPlatform;
-      let matchesFilter = true;
-      if (filterDropdown === "unread") {
-        matchesFilter = conv.unreadCount > 0;
-      } else if (filterDropdown === "starred") {
-        matchesFilter = conv.isStarred;
-      } else if (filterDropdown === "archived") {
-        matchesFilter = conv.status === "archived";
-      }
-      return matchesSearch && matchesPlatform && matchesFilter;
-    });
+    return conversations
+      .filter((conv) => {
+        const matchesSearch =
+          !search ||
+          conv.patientName.toLowerCase().includes(search.toLowerCase()) ||
+          conv.lastMessage.toLowerCase().includes(search.toLowerCase());
+        const matchesPlatform =
+          selectedPlatform === "all" || conv.platform === selectedPlatform;
+        let matchesFilter = true;
+        if (filterDropdown === "unread") {
+          matchesFilter = conv.unreadCount > 0;
+        } else if (filterDropdown === "starred") {
+          matchesFilter = conv.isStarred;
+        } else if (filterDropdown === "archived") {
+          matchesFilter = conv.status === "archived";
+        }
+        return matchesSearch && matchesPlatform && matchesFilter;
+      })
+      .sort((a, b) => {
+        if (b.unreadCount !== a.unreadCount) return b.unreadCount - a.unreadCount;
+        return b.lastMessageTime.localeCompare(a.lastMessageTime);
+      });
   }, [search, selectedPlatform, filterDropdown, conversations]);
 
   const selectedConversation = useMemo(() => {
@@ -208,12 +270,10 @@ const Conversations = () => {
       if (lastMsg) {
         localStorage.setItem(`seen_msg_${selectedConversation.id}`, lastMsg.id);
       }
-
       if (selectedConversation.unreadCount > 0) {
         setConversations((prev) =>
           prev.map((c) => (c.id === selectedConversation.id ? { ...c, unreadCount: 0 } : c))
         );
-
         const markAsSeenOnPlatform = async () => {
           try {
             if (selectedConversation.platform === "instagram" && selectedConversation.recipientId) {
@@ -354,6 +414,7 @@ const Conversations = () => {
 
   const handleSendMessage = async () => {
     if (!messageInput.trim() && !attachedFile) return;
+    if (isSendingMessage) return;
 
     const currentConv = conversations.find((c) => c.id === selectedConversationId);
     if (!currentConv) return;
@@ -372,43 +433,28 @@ const Conversations = () => {
     const isFacebook = currentConv.platform === "facebook";
     const isWeb = currentConv.platform === "web";
 
-    if (isInstagram && currentConv.recipientId) {
-      try {
+    setIsSendingMessage(true);
+    try {
+      if (isInstagram && currentConv.recipientId) {
         await sendInstagramMessage(currentConv.recipientId, messageInput.trim());
-      } catch (err) {
-        console.error("Failed to send Instagram message:", err);
-        addToast({
-          title: "Error Sending Message",
-          description: "Could not deliver message to Instagram.",
-          color: "danger",
-        });
-        return;
-      }
-    } else if (isFacebook && currentConv.recipientId) {
-      try {
+      } else if (isFacebook && currentConv.recipientId) {
         await sendFacebookMessage(currentConv.recipientId, messageInput.trim());
-      } catch (err) {
-        console.error("Failed to send Facebook message:", err);
-        addToast({
-          title: "Error Sending Message",
-          description: "Could not deliver message to Facebook.",
-          color: "danger",
-        });
-        return;
-      }
-    } else if (isWeb) {
-      try {
+      } else if (isWeb) {
         await sendWebMessage(currentConv.id, messageInput.trim());
-      } catch (err) {
-        console.error("Failed to send Web message:", err);
-        addToast({
-          title: "Error Sending Message",
-          description: "Could not deliver message to Web widget.",
-          color: "danger",
-        });
-        return;
       }
+    } catch (err) {
+      console.error("Failed to send message:", err);
+      const platformLabel =
+        isInstagram ? "Instagram" : isFacebook ? "Facebook" : "Web widget";
+      addToast({
+        title: "Error Sending Message",
+        description: `Could not deliver message to ${platformLabel}.`,
+        color: "danger",
+      });
+      setIsSendingMessage(false);
+      return;
     }
+    setIsSendingMessage(false);
 
     setConversations((prev) =>
       prev.map((c) => {
@@ -579,6 +625,7 @@ const Conversations = () => {
                 }}
                 isMetaConnected={isMetaConnected}
                 isIntegrationsLoading={isSocialLoading}
+                isSendingMessage={isSendingMessage}
               />
               <LeadSidebar
                 selectedConversation={selectedConversation}
