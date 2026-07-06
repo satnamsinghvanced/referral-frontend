@@ -128,11 +128,9 @@ const ReferralManagement = () => {
     useFetchReferrers({ ...referrerParams, search: debouncedReferrerSearch });
   const referrers = referrerData?.data;
 
-  // Fetch all referrers for selection in modals (avoiding pagination limit of 10)
   const { data: allReferrersData } = useFetchReferrers({ limit: 1000 });
   const selectionReferrers = allReferrersData?.data || referrers || [];
 
-  // Pagination adjustments
   usePaginationAdjustment({
     totalPages: referralData?.totalPages || 0,
     currentPage: currentFilters.page,
@@ -172,7 +170,7 @@ const ReferralManagement = () => {
     setCurrentFilters((prev) => ({
       ...prev,
       [key]: apiValue,
-      page: 1, // Reset page
+      page: 1,
     }));
   };
 
@@ -192,9 +190,6 @@ const ReferralManagement = () => {
     downloadJson(exportData, "referrals");
   };
 
-  // ----------------------
-  // Derived Data (useMemo)
-  // ----------------------
   const STAT_CARD_DATA = useMemo<StatCard[]>(
     () => [
       {

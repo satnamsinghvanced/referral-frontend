@@ -9,7 +9,7 @@ export const createReferral = async (payload: Partial<Referral>) => {
 
 export const trackScan = async (params: ScanTrackingParams): Promise<ScanTrackingResponse> => {
   const { userId, source } = params;
-  const url = `/tracking/scan/${userId}`;
+  const url = `/nfc_qr_tracking/scan/${userId}`;
   const { data } = await axiosInstance.post<ScanTrackingResponse>(url, {},
     {
       params: {

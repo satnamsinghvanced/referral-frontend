@@ -27,3 +27,8 @@ export const fetchCallRecordingBlob = async (id: string): Promise<Blob> => {
   });
   return data;
 };
+
+export const deleteCallRecord = async (id: string): Promise<any> => {
+  const { data } = await axios.delete(`/twilio-record/${id}`);
+  return data;
+};

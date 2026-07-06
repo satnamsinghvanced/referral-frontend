@@ -1,18 +1,21 @@
-import { addToast, Button, Checkbox, Chip, Input } from "@heroui/react";
+import { addToast, Button, Checkbox, Chip, Input, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/react";
 import { useMemo, useState } from "react";
 import { FiCalendar, FiShare2 } from "react-icons/fi";
 import { GoGraph } from "react-icons/go";
 import { HiOutlineDeviceMobile } from "react-icons/hi";
-import { LuCheck, LuCopy, LuDownload, LuQrCode } from "react-icons/lu";
+import { LuCheck, LuCopy, LuDownload, LuQrCode, LuTrash2, LuSquarePen } from "react-icons/lu";
 import { RiExternalLinkLine } from "react-icons/ri";
 import { Link } from "react-router";
 import { LoadingState } from "../../components/common/LoadingState";
 import {
   useCreateTrackingSetup,
   useFetchTrackings,
+  useDeleteTracking,
+  useUpdateTracking,
 } from "../../hooks/useReferral";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { formatDateToMMDDYYYY } from "../../utils/formatDateToMMDDYYYY";
+import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
 
 const URL_REGEX = /^(https?:\/\/|www\.).+$/i;
 
@@ -24,13 +27,52 @@ const TrackingPanel = () => {
   const [selectedQrId, setSelectedQrId] = useState<string | null>(null);
   const [isFullCustomUrl, setIsFullCustomUrl] = useState(false);
   const [customLandingUrl, setCustomLandingUrl] = useState("");
+  const [deleteQrId, setDeleteQrId] = useState<string | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [editQrId, setEditQrId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const { user } = useTypedSelector((state) => state.auth);
   const userId = user?.userId;
 
   const { data: trackings, isLoading } = useFetchTrackings(userId as string);
   const { mutate: createTrackingSetup } = useCreateTrackingSetup();
+  const { mutate: deleteTracking, isPending: isDeleting } = useDeleteTracking();
+  const { mutate: updateTracking, isPending: isUpdating } = useUpdateTracking();
   console.log("trackings >>>>>", trackings)
+
+  const handleDeleteConfirm = () => {
+    if (!deleteQrId) return;
+    deleteTracking(deleteQrId, {
+      onSuccess: () => {
+        setIsDeleteModalOpen(false);
+        setDeleteQrId(null);
+        if (selectedQrId === deleteQrId) {
+          setSelectedQrId(null);
+        }
+      },
+    });
+  };
+
+  const handleEditConfirm = () => {
+    if (!editQrId || !editName.trim()) return;
+    updateTracking(
+      {
+        trackingId: editQrId,
+        payload: {
+          customPath: editName.trim().replace(/\s+/g, "_"),
+        },
+      },
+      {
+        onSuccess: () => {
+          setIsEditModalOpen(false);
+          setEditQrId(null);
+          setEditName("");
+        },
+      }
+    );
+  };
   const handleCopy = async (identifier: string, value?: string) => {
     if (!value) return;
     try {
@@ -775,6 +817,33 @@ const TrackingPanel = () => {
                         >
                           <FiShare2 className="size-3.5" />
                         </Button>
+                        {!(qr.customPath === "referral" && !qr.isManually) && (
+                          <Button
+                            isIconOnly
+                            size="sm"
+                            variant="light"
+                            onPress={() => {
+                              setEditQrId(qr._id);
+                              setEditName(qr.customPath || "");
+                              setIsEditModalOpen(true);
+                            }}
+                            title="Edit Name"
+                          >
+                            <LuSquarePen className="size-3.5 text-blue-600 hover:text-blue-800" />
+                          </Button>
+                        )}
+                        <Button
+                          isIconOnly
+                          size="sm"
+                          variant="light"
+                          onPress={() => {
+                            setDeleteQrId(qr._id);
+                            setIsDeleteModalOpen(true);
+                          }}
+                          title="Delete QR"
+                        >
+                          <LuTrash2 className="size-3.5 text-red-500 hover:text-red-700" />
+                        </Button>
                       </div>
                     </td>
                   </tr>
@@ -784,6 +853,69 @@ const TrackingPanel = () => {
           </div>
         </div>
       )}
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => {
+          setIsDeleteModalOpen(false);
+          setDeleteQrId(null);
+        }}
+        onConfirm={handleDeleteConfirm}
+        isLoading={isDeleting}
+        title="Delete QR Code"
+        description="Are you sure you want to delete this QR code? This action cannot be undone."
+      />
+      <Modal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditQrId(null);
+          setEditName("");
+        }}
+        size="md"
+        placement="center"
+        isDismissable={!isUpdating}
+      >
+        <ModalContent className="p-2">
+          <ModalHeader className="flex flex-col gap-1 pt-4 pb-2 px-4 dark:text-white">
+            <h4 className="text-lg font-semibold tracking-tight">Edit QR Name</h4>
+          </ModalHeader>
+          <ModalBody className="px-4 py-2">
+            <Input
+              label="QR Code Name / Custom Path"
+              placeholder="Enter name"
+              value={editName}
+              onValueChange={setEditName}
+              isDisabled={isUpdating}
+              variant="bordered"
+              size="sm"
+            />
+          </ModalBody>
+          <ModalFooter className="flex justify-end gap-3 pt-4 pb-4 px-4">
+            <Button
+              size="sm"
+              radius="sm"
+              variant="bordered"
+              onPress={() => {
+                setIsEditModalOpen(false);
+                setEditQrId(null);
+                setEditName("");
+              }}
+              isDisabled={isUpdating}
+            >
+              Cancel
+            </Button>
+            <Button
+              size="sm"
+              radius="sm"
+              color="primary"
+              onPress={handleEditConfirm}
+              isLoading={isUpdating}
+            >
+              Save
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
 };

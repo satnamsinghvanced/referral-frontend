@@ -103,7 +103,6 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
 
   return (
     <div className="md:flex md:justify-between md:items-center border border-foreground/10 rounded-lg p-3.5 bg-background dark:bg-content1 max-md:space-y-3.5">
-      {/* Left Section */}
       <div className="flex items-center gap-2.5 md:gap-3 max-sm:flex-col max-sm:items-start">
         <div
           className={`text-lg md:text-xl min-w-8 md:min-w-10 aspect-square h-full p-0.5 rounded-lg flex justify-center items-center ${config.bgColor} ${config.textColor}`}
@@ -129,7 +128,6 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
         </div>
       </div>
 
-      {/* Right Section (Buttons) */}
       <div className="flex md:justify-end items-center gap-2 md:ml-3 flex-wrap">
         {buttons(referrer).map((btn, index) => {
           const buttonElement = (
@@ -165,7 +163,6 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
           );
         })}
 
-        {/* Default Eye Button */}
         <Button
           isIconOnly
           size="sm"
