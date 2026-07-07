@@ -10,7 +10,6 @@ import {
   RadioGroup,
   Radio,
   cn,
-  Input,
 } from "@heroui/react";
 import { useState, useEffect, useMemo } from "react";
 import { HiOutlineOfficeBuilding } from "react-icons/hi";
@@ -19,7 +18,6 @@ import {
   useBusinessLocations,
   useConnectBusinessLocation,
   useSyncBusinessProfiles,
-  useSearchGooglePlaces,
 } from "../../../hooks/integrations/useGoogleBusiness";
 import {
   useAnalyticsProperties,

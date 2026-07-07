@@ -19,6 +19,7 @@ import {
   updateReferrer,
   updateTracking,
   createPatientDetails,
+  deleteTracking,
 } from "../services/referral";
 import { trackScan } from "../services/referralBypassFunction";
 import {
@@ -267,6 +268,26 @@ export const useUpdateTracking = () =>
         (error.response?.data as any)?.message ||
         error.message ||
         "Failed to update tracking";
+      addToast({ title: "Error", description: message, color: "danger" });
+    },
+  });
+
+export const useDeleteTracking = () =>
+  useMutation<any, AxiosError, string>({
+    mutationFn: deleteTracking,
+    onSuccess: () => {
+      addToast({
+        title: "Success",
+        description: "Tracking deleted successfully.",
+        color: "success",
+      });
+      queryClient.invalidateQueries({ queryKey: ["trackings"] });
+    },
+    onError: (error: AxiosError) => {
+      const message =
+        (error.response?.data as any)?.message ||
+        error.message ||
+        "Failed to delete tracking";
       addToast({ title: "Error", description: message, color: "danger" });
     },
   });

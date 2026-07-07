@@ -141,7 +141,6 @@ export default function TwilioAddCreditsModal({
         </ModalHeader>
 
         <ModalBody className="p-5 pt-2 flex flex-col gap-5">
-          {/* Active Plan Status Header Card */}
           <div className="bg-default-50/50 dark:bg-default-100/5 border border-foreground/10 rounded-xl p-4 flex flex-col items-center justify-center text-center">
             <div className="w-10 h-10 rounded-full bg-foreground/5 flex items-center justify-center text-foreground-500 mb-2">
               <FiPhone className="w-5 h-5" />
@@ -168,7 +167,6 @@ export default function TwilioAddCreditsModal({
             )}
           </div>
 
-          {/* Plan Options Selector */}
           <div className="flex flex-col gap-2.5">
             <label className="text-xs font-bold text-foreground">Choose Your Plan</label>
             <div className="flex flex-col gap-2.5">
@@ -203,7 +201,6 @@ export default function TwilioAddCreditsModal({
             </div>
           </div>
 
-          {/* What's Included Card Section */}
           <div className="bg-primary-50/30 dark:bg-primary-950/5 border border-primary-100/50 dark:border-primary-900/10 rounded-xl p-4 flex flex-col gap-2">
             <h4 className="text-xs font-bold text-foreground">
               What's Included
@@ -235,7 +232,6 @@ export default function TwilioAddCreditsModal({
             </div>
           </div>
 
-          {/* If You Go Over Warnings container */}
           <div className="bg-amber-50/50 dark:bg-amber-950/15 border border-amber-200/60 dark:border-amber-900/30 rounded-xl p-4 flex flex-col gap-2.5">
             <div className="flex flex-col gap-0.5">
               <h4 className="text-xs font-bold text-amber-800 dark:text-amber-300 [word-spacing:1px]">
@@ -257,7 +253,6 @@ export default function TwilioAddCreditsModal({
             </div>
           </div>
 
-          {/* Invoice Summary */}
           <div className="flex flex-col gap-2 border-t border-foreground/5 pt-4">
             <div className="flex justify-between items-center text-xs text-foreground-500 font-semibold">
               <span>Monthly Plan ({activePlan.name})</span>

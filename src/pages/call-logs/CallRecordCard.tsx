@@ -1,14 +1,29 @@
 import { Button, Chip } from "@heroui/react";
+import { useState } from "react";
 import { FiClock, FiExternalLink, FiPhoneIncoming, FiPhoneOutgoing, FiPlay } from "react-icons/fi";
+import { LuTrash2 } from "react-icons/lu";
 import { CallRecord } from "../../types/call";
 import { timeAgo as formatTimeAgo } from "../../utils/timeAgo";
 import CallStatusChip from "../../components/chips/CallStatusChip";
 import { Link } from "react-router";
+import { useDeleteCallRecord } from "../../hooks/useCall";
+import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
 
 export default function CallRecordCard({ record, onPlayClick }: {
   record: CallRecord;
   onPlayClick: () => void;
 }) {
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const { mutate: deleteRecord, isPending: isDeleting } = useDeleteCallRecord();
+
+  const handleDelete = () => {
+    deleteRecord(record._id, {
+      onSuccess: () => {
+        setIsDeleteModalOpen(false);
+      },
+    });
+  };
+
   const isIncoming = record.direction === "Incoming";
   const displayTags = [
     { label: record.direction, type: "category" },
@@ -17,7 +32,8 @@ export default function CallRecordCard({ record, onPlayClick }: {
   ];
   const timeAgo = record.date ? formatTimeAgo(record.date) : "";
   return (
-    <div className="flex items-center justify-between p-3.5 border border-foreground/10 rounded-lg bg-background max-sm:flex-col max-sm:gap-4 max-sm:items-start">
+    <>
+      <div className="flex items-center justify-between p-3.5 border border-foreground/10 rounded-lg bg-background max-sm:flex-col max-sm:gap-4 max-sm:items-start">
       <div className="flex items-center gap-3.5 max-sm:flex-col max-sm:items-start">
         <div className={`p-2 rounded-lg bg-gray-100/70 dark:bg-default-100`}>
           {isIncoming ? (
@@ -85,8 +101,28 @@ export default function CallRecordCard({ record, onPlayClick }: {
               <FiExternalLink className="size-3.5" />
             </Button>
           </Link>
+          <Button
+            size="sm"
+            variant="bordered"
+            color="danger"
+            className="border-small px-0 !min-w-8 text-danger hover:bg-danger/10"
+            aria-label="Delete call record"
+            onPress={() => setIsDeleteModalOpen(true)}
+            isLoading={isDeleting}
+          >
+            <LuTrash2 className="size-3.5" />
+          </Button>
         </div>
       </div>
-    </div>
+      </div>
+      <DeleteConfirmationModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleDelete}
+        isLoading={isDeleting}
+        title="Delete Call Record"
+        description="Are you sure you want to delete this call record? This will delete the call details from our system and permanently delete the recording file from Twilio."
+      />
+    </>
   );
 }

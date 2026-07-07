@@ -37,35 +37,69 @@ const QrCodeDownloadModal = ({
       return;
     }
 
+    const safeName = referrer.name
+      .replace(/[^a-z0-9]/gi, "_")
+      .toLowerCase();
+    const fileName = `${safeName}_qr_code.png`;
+
     try {
+      const response = await fetch(`${referrer.qrCode}?t=${new Date().getTime()}`, {
+        mode: "cors",
+        cache: "no-cache",
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error("QR Download via fetch failed, trying canvas fallback", e);
+
       const img = new window.Image();
       img.crossOrigin = "anonymous";
-      img.src = referrer.qrCode;
 
+      const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || "";
+      const proxyUrl = apiBaseUrl
+        ? `${apiBaseUrl}/proxy-image?url=${encodeURIComponent(referrer.qrCode)}`
+        : referrer.qrCode;
+
+      img.src = proxyUrl;
       img.onload = () => {
-        const canvas = document.createElement("canvas");
-        canvas.width = img.width;
-        canvas.height = img.height;
-        const ctx = canvas.getContext("2d");
-        ctx?.drawImage(img, 0, 0);
-
-        canvas.toBlob((blob) => {
-          if (!blob) return;
-
-          const url = window.URL.createObjectURL(blob);
+        try {
+          const canvas = document.createElement("canvas");
+          canvas.width = img.width;
+          canvas.height = img.height;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(img, 0, 0);
+            const dataURL = canvas.toDataURL("image/png");
+            const link = document.createElement("a");
+            link.href = dataURL;
+            link.download = fileName;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+          }
+        } catch (err) {
+          console.error("Canvas fallback failed", err);
           const link = document.createElement("a");
-          link.href = url;
-          const safeName = referrer.name
-            .replace(/[^a-z0-9]/gi, "_")
-            .toLowerCase();
-          link.download = `${safeName}_qr_code.png`;
+          link.href = referrer.qrCode;
+          link.download = fileName;
+          link.target = "_blank";
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
-          window.URL.revokeObjectURL(url);
-        });
+        }
       };
-
       img.onerror = () => {
         addToast({
           title: "Error",
@@ -73,13 +107,6 @@ const QrCodeDownloadModal = ({
           color: "danger",
         });
       };
-    } catch (error) {
-      console.error("Error downloading QR code:", error);
-      addToast({
-        title: "Error",
-        description: "Unable to download QR Code.",
-        color: "danger",
-      });
     }
   };
 
@@ -139,7 +166,6 @@ const QrCodeDownloadModal = ({
             </ModalHeader>
 
             <ModalBody className="flex flex-col gap-5 p-4 overflow-visible">
-              {/* QR Code Container Box */}
               <div className="flex justify-center">
                 <div className="w-36 h-36 relative bg-white dark:bg-background border border-foreground/10 rounded-xl flex items-center justify-center overflow-hidden">
                   {referrer.qrCode ? (

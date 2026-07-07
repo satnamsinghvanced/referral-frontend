@@ -1,31 +1,9 @@
-import {
-  addToast,
-  Button,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Spinner,
-  RadioGroup,
-  Radio,
-  cn,
-} from "@heroui/react";
+import { addToast, Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Spinner, RadioGroup, Radio, cn } from "@heroui/react";
 import { useState, useEffect } from "react";
 import { HiOutlineOfficeBuilding } from "react-icons/hi";
-import {
-  useBusinessLocations,
-  useConnectBusinessLocation,
-  useSyncBusinessProfiles,
-} from "../../../hooks/integrations/useGoogleBusiness";
+import { useBusinessLocations, useConnectBusinessLocation, useSyncBusinessProfiles } from "../../../hooks/integrations/useGoogleBusiness";
 
-export default function GoogleBusinessLocationModal({
-  isOpen,
-  onClose,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-}) {
+export default function GoogleBusinessLocationModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const { data, isLoading, isError } = useBusinessLocations();
   const { mutateAsync: syncProfiles, isPending: isSyncing } = useSyncBusinessProfiles();
   const { mutateAsync: connectLocation, isPending: isConnecting } = useConnectBusinessLocation();

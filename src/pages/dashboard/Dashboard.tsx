@@ -313,7 +313,6 @@ const Dashboard = () => {
             {QUICK_ACTIONS.map((action, i) => {
               const color = QUICK_ACTIONS_COLOR_CLASSES[action.color];
               const Icon = action.icon;
-
               return (
                 <Link
                   key={i}
@@ -337,7 +336,7 @@ const Dashboard = () => {
             <h3 className="text-sm md:text-base mb-4">Recent Activity</h3>
             <div className="space-y-4 md:space-y-2">
               {isLoading ? (
-                <div className="py-8 flex items-center justify-center">
+                <div className="py-8 flex items-center j ustify-center">
                   <LoadingState />
                 </div>
               ) : recentActivities.length > 0 ? (

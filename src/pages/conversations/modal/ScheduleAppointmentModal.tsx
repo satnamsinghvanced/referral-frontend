@@ -69,7 +69,7 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead, onSchedule }: Schedul
       
       const providerLabel = PROVIDERS.find(p => p.key === values.provider)?.label || values.provider;
       const msgText = `Your appointment has been scheduled!\nType: ${values.appointmentType}\nDate: ${dateStr}\nTime: ${timeStr}\nDoctor: ${providerLabel}`;
-      
+
       if (onSchedule) {
         onSchedule(msgText);
       }

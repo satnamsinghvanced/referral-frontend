@@ -81,7 +81,6 @@ const Conversations = () => {
         }
       }
 
-      // Also check localStorage override for the last message
       const lastMsg = conv.messages[conv.messages.length - 1];
       if (lastMsg) {
         const seenMsgId = localStorage.getItem(`seen_msg_${conv.id}`);
@@ -89,7 +88,6 @@ const Conversations = () => {
           computedCount = 0;
         }
       }
-
       return { ...conv, unreadCount: computedCount };
     });
   };
@@ -136,13 +134,11 @@ const Conversations = () => {
         console.error("Failed to load Web conversations:", err);
       }
     };
-
     fetchIGConversations();
     fetchFBConversations();
     fetchWebConversations();
   }, []);
 
-  // ── Live socket subscriptions ─────────────────────────────────────────────
   useEffect(() => {
     const handleNewMessage = (payload: NewMessagePayload) => {
       setConversations((prev) =>
@@ -187,13 +183,12 @@ const Conversations = () => {
 
     subscribeToNewMessage(handleNewMessage);
     subscribeToNewWebMessage(handleNewWebMessage);
-
     return () => {
       unsubscribeFromNewMessage(handleNewMessage);
       unsubscribeFromNewWebMessage(handleNewWebMessage);
     };
   }, []);
-  // ─────────────────────────────────────────────────────────────────────────
+
   const [messageInput, setMessageInput] = useState("");
   const [attachedFile, setAttachedFile] = useState<{
     name: string;
@@ -245,7 +240,6 @@ const Conversations = () => {
           conv.lastMessage.toLowerCase().includes(search.toLowerCase());
         const matchesPlatform =
           selectedPlatform === "all" || conv.platform === selectedPlatform;
-
         let matchesFilter = true;
         if (filterDropdown === "unread") {
           matchesFilter = conv.unreadCount > 0;
@@ -254,7 +248,6 @@ const Conversations = () => {
         } else if (filterDropdown === "archived") {
           matchesFilter = conv.status === "archived";
         }
-
         return matchesSearch && matchesPlatform && matchesFilter;
       })
       .sort((a, b) => {
@@ -292,13 +285,10 @@ const Conversations = () => {
       if (lastMsg) {
         localStorage.setItem(`seen_msg_${selectedConversation.id}`, lastMsg.id);
       }
-
       if (selectedConversation.unreadCount > 0) {
         setConversations((prev) =>
           prev.map((c) => (c.id === selectedConversation.id ? { ...c, unreadCount: 0 } : c))
         );
-        queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
-
         const markAsSeenOnPlatform = async () => {
           try {
             if (selectedConversation.platform === "instagram" && selectedConversation.recipientId) {
@@ -441,7 +431,7 @@ const Conversations = () => {
 
   const handleSendMessage = async () => {
     if (!messageInput.trim() && !attachedFile) return;
-    if (isSendingMessage) return; // guard against double-send
+    if (isSendingMessage) return;
 
     const currentConv = conversations.find((c) => c.id === selectedConversationId);
     if (!currentConv) return;

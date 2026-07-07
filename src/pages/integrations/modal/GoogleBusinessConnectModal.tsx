@@ -15,10 +15,7 @@ interface GoogleBusinessConnectModalProps {
   onClose: () => void;
 }
 
-export default function GoogleBusinessConnectModal({
-  isOpen,
-  onClose,
-}: GoogleBusinessConnectModalProps) {
+export default function GoogleBusinessConnectModal({ isOpen, onClose }: GoogleBusinessConnectModalProps) {
   const { mutate: connectWindsor, isPending } = useWindsorAuth();
 
   const handleConnect = () => {

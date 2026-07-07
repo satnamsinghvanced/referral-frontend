@@ -86,7 +86,7 @@ export const deleteReferrer = async (id: string) => {
 export const createTrackingSetup = async (
   data: TrackingRequestBody
 ): Promise<TrackingResponseData> => {
-  const response = await axios.post<TrackingResponseData>("/tracking/", data);
+  const response = await axios.post<TrackingResponseData>("/nfc_qr_tracking/", data);
   return response.data;
 };
 
@@ -94,7 +94,12 @@ export const updateTracking = async (
   trackingId: string,
   payload: any
 ) => {
-  const { data } = await axios.put(`/tracking/${trackingId}`, payload);
+  const { data } = await axios.put(`/nfc_qr_tracking/${trackingId}`, payload);
+  return data;
+};
+
+export const deleteTracking = async (id: string) => {
+  const { data } = await axios.delete(`/nfc_qr_tracking/${id}`);
   return data;
 };
 
@@ -107,7 +112,7 @@ export const logTrackingScan = async (
   trackingId: string,
   source: "QR" | "NFC"
 ) => {
-  const { data } = await axios.post(`/tracking/scan/${trackingId}`, null, {
+  const { data } = await axios.post(`/nfc_qr_tracking/scan/${trackingId}`, null, {
     params: { source },
   });
   return data;
