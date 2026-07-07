@@ -422,15 +422,6 @@ export function CreatePostModal({
       }}
     >
       <ModalContent className="p-0">
-        {isPending && (
-          <Progress
-            size="sm"
-            isIndeterminate
-            aria-label="Uploading post..."
-            className="absolute top-0 left-0 right-0 rounded-none h-1 z-[60]"
-            color="primary"
-          />
-        )}
         <ModalHeader className="flex flex-col gap-2 p-4 font-normal">
           <h4 className="text-base leading-none font-medium">
             Create New Post
@@ -439,6 +430,15 @@ export function CreatePostModal({
             Create and schedule posts across your social media platforms
           </p>
         </ModalHeader>
+        {isPending && (
+          <Progress
+            size="sm"
+            isIndeterminate
+            aria-label="Uploading post..."
+            className="rounded-none h-1"
+            color="primary"
+          />
+        )}
 
         <ModalBody className="space-y-4 md:space-y-5 px-4 py-0 gap-0 max-h-[75vh] overflow-auto">
           {/* Post Title */}
