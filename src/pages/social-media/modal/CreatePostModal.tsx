@@ -430,16 +430,6 @@ export function CreatePostModal({
             Create and schedule posts across your social media platforms
           </p>
         </ModalHeader>
-        {isPending && (
-          <Progress
-            size="sm"
-            isIndeterminate
-            aria-label="Uploading post..."
-            className="rounded-none h-1"
-            color="primary"
-          />
-        )}
-
         <ModalBody className="space-y-4 md:space-y-5 px-4 py-0 gap-0 max-h-[75vh] overflow-auto">
           {/* Post Title */}
           <div className="space-y-0.5">
