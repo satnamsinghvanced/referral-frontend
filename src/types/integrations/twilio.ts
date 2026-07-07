@@ -21,6 +21,8 @@ export interface TwilioConfigResponse {
   minutesLimit?: number;
   minutesUsed?: number;
   planExpiresAt?: string | null;
+  planId?: string | null;
+  planName?: string | null;
   phoneNumbers?: any[];
 }
 

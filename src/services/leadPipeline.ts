@@ -39,6 +39,20 @@ export const sendLeadEmail = async ({
   return response.data;
 };
 
+export const sendLeadQuote = async ({
+  id,
+  lineItems,
+  personalNote,
+}: {
+  id: string;
+  lineItems: any[];
+  personalNote?: string;
+}): Promise<any> => {
+  const response = await axios.post(`/lead/send-quote/${id}`, { lineItems, personalNote });
+  return response.data;
+};
+
+
 export const getLeadCommunicationHistory = async (id: string): Promise<any> => {
   const response = await axios.get(`/lead/communication-history/${id}`);
   return response.data;

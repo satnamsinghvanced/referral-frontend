@@ -57,6 +57,8 @@ export default function Checkout() {
   const amountParam = parseFloat(searchParams.get("amount") || "0");
   const walletAmountParam = parseFloat(searchParams.get("walletAmount") || "0");
   const packageParam = searchParams.get("package") || "none";
+  const planIdParam = searchParams.get("planId") || "";
+  const planNameParam = searchParams.get("planName") || "";
 
   const packageCost = 0; // Package minutes are included in the wallet deposit subscription
 
@@ -64,7 +66,7 @@ export default function Checkout() {
   const baseCost = typeParam === "twilio_credits" ? creditsCost : activePlan.price;
 
   let twilioPlanName = "Starter";
-  if (packageParam === "1000") {
+  if (packageParam === "1000") {  
     twilioPlanName = "Growth";
   } else if (packageParam === "2500") {
     twilioPlanName = "Scale";
@@ -348,6 +350,8 @@ export default function Checkout() {
           amount: totalCost,
           walletAmount: creditsCost,
           packageName: packageParam,
+          planId: planIdParam,
+          planName: planNameParam,
           cardNumber: finalCardNumber,
           expire: finalExpiry,
           cvc: finalCvc,

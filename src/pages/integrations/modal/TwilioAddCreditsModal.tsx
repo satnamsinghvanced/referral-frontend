@@ -97,7 +97,7 @@ export default function TwilioAddCreditsModal({
 
   const handleConfirmPlan = () => {
     setIsConnecting(true);
-    const url = `${window.location.origin}/checkout?type=twilio_credits&amount=${activePlan.price}&walletAmount=${activePlan.price}&package=${activePlan.pkgName}&auto_topup=true`;
+    const url = `${window.location.origin}/checkout?type=twilio_credits&amount=${activePlan.price}&walletAmount=${activePlan.price}&package=${activePlan.pkgName}&planId=${activePlan.id}&planName=${activePlan.name}&auto_topup=true`;
     window.open(url, "_blank");
     onClose();
   };

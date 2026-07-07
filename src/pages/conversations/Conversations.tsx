@@ -21,7 +21,9 @@ import { getInstagramConversations, sendInstagramMessage, markInstagramSeen } fr
 import { getFacebookConversations, sendFacebookMessage, markFacebookSeen } from "../../services/fbMessage";
 import { getWebConversations, sendWebMessage } from "../../services/chatWidget";
 import { useSocialCredentials } from "../../hooks/useSocial";
+import { useQueryClient } from "@tanstack/react-query";
 import {
+
   subscribeToNewMessage,
   unsubscribeFromNewMessage,
   subscribeToNewWebMessage,
@@ -32,6 +34,8 @@ import {
 
 const Conversations = () => {
   const { data: socialCreds, isLoading: isSocialLoading } = useSocialCredentials();
+  const queryClient = useQueryClient();
+
 
   const isMetaConnected = useMemo(() => {
     const credentials = (socialCreds && typeof socialCreds === "object" && "data" in socialCreds && socialCreds.data)
@@ -136,7 +140,6 @@ const Conversations = () => {
     fetchIGConversations();
     fetchFBConversations();
     fetchWebConversations();
-    // No polling — live updates come via WebSocket (see below)
   }, []);
 
   // ── Live socket subscriptions ─────────────────────────────────────────────
@@ -144,7 +147,6 @@ const Conversations = () => {
     const handleNewMessage = (payload: NewMessagePayload) => {
       setConversations((prev) =>
         prev.map((conv) => {
-          // Match by recipientId (sender's IG/FB ID) or conversationId
           if (
             conv.platform === payload.platform &&
             (conv.recipientId === payload.recipientId ||
@@ -295,6 +297,7 @@ const Conversations = () => {
         setConversations((prev) =>
           prev.map((c) => (c.id === selectedConversation.id ? { ...c, unreadCount: 0 } : c))
         );
+        queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
 
         const markAsSeenOnPlatform = async () => {
           try {
@@ -303,6 +306,7 @@ const Conversations = () => {
             } else if (selectedConversation.platform === "facebook" && selectedConversation.recipientId) {
               await markFacebookSeen(selectedConversation.recipientId);
             }
+            queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
           } catch (err) {
             console.error("Failed to mark conversation as seen:", err);
           }
@@ -310,7 +314,7 @@ const Conversations = () => {
         markAsSeenOnPlatform();
       }
     }
-  }, [selectedConversation]);
+  }, [selectedConversation, queryClient]);
 
   const stats = useMemo<StatCard[]>(() => {
     const activeCount = conversations.filter(
