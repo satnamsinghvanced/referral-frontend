@@ -6,10 +6,7 @@ import { HiOutlineMail, HiOutlineClock, HiOutlineTrendingUp } from "react-icons/
 import ComponentContainer from "../../components/common/ComponentContainer";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
 import TrendIndicator from "../../components/common/TrendIndicator";
-import {
-  Conversation,
-  ConversationMessage,
-} from "../../consts/conversations";
+import { Conversation, ConversationMessage } from "../../consts/conversations";
 import ConversationList from "./components/ConversationList";
 import ChatArea from "./components/ChatArea";
 import LeadSidebar from "./components/LeadSidebar";
@@ -45,10 +42,7 @@ const Conversations = () => {
   const [search, setSearch] = useState("");
   const [selectedPlatform, setSelectedPlatform] = useState("all");
   const [filterDropdown, setFilterDropdown] = useState("all");
-  const [selectedConversationId, setSelectedConversationId] = useState<
-    string | null
-  >(null);
-
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [isViewLeadModalOpen, setIsViewLeadModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [isSendFormsModalOpen, setIsSendFormsModalOpen] = useState(false);
@@ -68,7 +62,6 @@ const Conversations = () => {
           break;
         }
       }
-
       let computedCount = 0;
       for (let i = lastProviderIndex + 1; i < conv.messages.length; i++) {
         const msg = conv.messages[i];
@@ -76,7 +69,6 @@ const Conversations = () => {
           computedCount++;
         }
       }
-
       const lastMsg = conv.messages[conv.messages.length - 1];
       if (lastMsg) {
         const seenMsgId = localStorage.getItem(`seen_msg_${conv.id}`);
@@ -176,7 +168,6 @@ const Conversations = () => {
         })
       );
     };
-
     subscribeToNewMessage(handleNewMessage);
     subscribeToNewWebMessage(handleNewWebMessage);
     return () => {
