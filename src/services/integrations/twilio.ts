@@ -26,11 +26,15 @@ export const updateTwilioConfig = async (
 
 export const createCreditsCheckoutSession = async (
   amount: number,
-  packageName: string
+  packageName: string,
+  planId?: string,
+  planName?: string
 ): Promise<{ url: string }> => {
   const response = await axios.post<any>(`/twilio-checkout/create-credits-checkout-session`, {
     amount,
     packageName,
+    planId,
+    planName,
   });
   return response.data;
 };

@@ -18,7 +18,9 @@ import { getInstagramConversations, sendInstagramMessage, markInstagramSeen } fr
 import { getFacebookConversations, sendFacebookMessage, markFacebookSeen } from "../../services/fbMessage";
 import { getWebConversations, sendWebMessage } from "../../services/chatWidget";
 import { useSocialCredentials } from "../../hooks/useSocial";
+import { useQueryClient } from "@tanstack/react-query";
 import {
+
   subscribeToNewMessage,
   unsubscribeFromNewMessage,
   subscribeToNewWebMessage,
@@ -29,6 +31,8 @@ import {
 
 const Conversations = () => {
   const { data: socialCreds, isLoading: isSocialLoading } = useSocialCredentials();
+  const queryClient = useQueryClient();
+
 
   const isMetaConnected = useMemo(() => {
     const credentials = (socialCreds && typeof socialCreds === "object" && "data" in socialCreds && socialCreds.data)
@@ -283,6 +287,7 @@ const Conversations = () => {
             } else if (selectedConversation.platform === "facebook" && selectedConversation.recipientId) {
               await markFacebookSeen(selectedConversation.recipientId);
             }
+            queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
           } catch (err) {
             console.error("Failed to mark conversation as seen:", err);
           }
@@ -290,7 +295,7 @@ const Conversations = () => {
         markAsSeenOnPlatform();
       }
     }
-  }, [selectedConversation]);
+  }, [selectedConversation, queryClient]);
 
   const stats = useMemo<StatCard[]>(() => {
     const activeCount = conversations.filter(

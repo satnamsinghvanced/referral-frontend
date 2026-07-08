@@ -1,7 +1,11 @@
 import { HiOutlineChartBar, HiOutlineChevronLeft, HiOutlineCog, HiOutlineLightningBolt, HiOutlineMail, HiOutlinePhone, HiOutlineStar, HiOutlineChat } from "react-icons/hi";
+import { useEffect } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { getSocket } from "../../services/socket";
 import { Link, NavLink, useLocation, useNavigate } from "react-router";
 import { Tooltip } from "@heroui/react";
 import { LuBuilding2, LuCalendar, LuDollarSign, LuMessageSquare, LuQrCode, LuTarget, LuUsers, LuVideo } from "react-icons/lu";
+
 import { FiFileText, FiHome } from "react-icons/fi";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import clsx from "clsx";
@@ -42,6 +46,28 @@ const Sidebar = ({
     useRolePermissions();
   const user = useSelector((state: RootState) => state.auth.user);
   const isSuperAdmin = user?.role === "SuperAdmin";
+
+  const queryClient = useQueryClient();
+
+  useEffect(() => {
+    const handleNewMessage = () => {
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+    };
+
+    const socket = getSocket();
+    if (socket) {
+      socket.on("new_message", handleNewMessage);
+      socket.on("new_web_message", handleNewMessage);
+    }
+
+    return () => {
+      if (socket) {
+        socket.off("new_message", handleNewMessage);
+        socket.off("new_web_message", handleNewMessage);
+      }
+    };
+  }, [queryClient]);
+
 
   const NAVIGATION_ROUTES: (NavigationRoute & {
     requiredPermission?: string | string[];

@@ -1,8 +1,12 @@
+import { useState } from "react";
 import { Modal, ModalContent, ModalBody, Button, addToast } from "@heroui/react";
 import { Conversation } from "../../../consts/conversations";
 import { HiOutlinePaperAirplane, HiOutlineCurrencyDollar } from "react-icons/hi";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { sendLeadQuote } from "../../../services/leadPipeline";
+
+
 
 interface SendQuoteModalProps {
   isOpen: boolean;
@@ -22,6 +26,8 @@ interface LineItem {
 const SendQuoteModal = ({ isOpen, onClose, lead, onSendQuote }: SendQuoteModalProps) => {
   if (!lead) return null;
 
+  const [isSending, setIsSending] = useState(false);
+
   const validationSchema = Yup.object().shape({
     lineItems: Yup.array().of(
       Yup.object().shape({
@@ -40,24 +46,51 @@ const SendQuoteModal = ({ isOpen, onClose, lead, onSendQuote }: SendQuoteModalPr
       personalNote: "",
     },
     validationSchema,
-    onSubmit: (values) => {
-      const total = Math.max(0, subtotal - discounts);
-      const itemsText = values.lineItems.map(item => `${item.name || "Treatment"} ($${item.fee})`).join(", ");
-      const msgText = `Here is your treatment quote:\n${itemsText || "No items listed"}\nTotal Quote: $${total.toLocaleString()}${values.personalNote ? `\nNote: ${values.personalNote}` : ""}`;
-      
-      if (onSendQuote) {
-        onSendQuote(msgText);
+    onSubmit: async (values) => {
+      if (!lead.patientEmail) {
+        addToast({
+          title: "Email Error",
+          description: "Patient email address is not configured. Cannot send quote via email.",
+          color: "danger",
+        });
+        return;
       }
 
-      addToast({
-        title: "Quote Sent",
-        description: `Successfully sent a quote of $${total.toLocaleString()} to ${lead.patientName}.`,
-        color: "success",
-      });
-      onClose();
-      formik.resetForm();
+      setIsSending(true);
+      try {
+        await sendLeadQuote({
+          id: lead.id,
+          lineItems: values.lineItems,
+          personalNote: values.personalNote,
+        });
+
+        const itemsText = values.lineItems.map(item => `${item.name || "Treatment"} ($${item.fee})`).join(", ");
+        const msgText = `Here is your treatment quote (sent via Email to ${lead.patientEmail}):\n${itemsText || "No items listed"}\nTotal Quote: $${total.toLocaleString()}${values.personalNote ? `\nNote: ${values.personalNote}` : ""}`;
+        
+        if (onSendQuote) {
+          onSendQuote(msgText);
+        }
+
+        addToast({
+          title: "Quote Sent",
+          description: `Successfully sent a quote of $${total.toLocaleString()} to ${lead.patientName} via email.`,
+          color: "success",
+        });
+        onClose();
+        formik.resetForm();
+      } catch (err: any) {
+        console.error("Failed to send quote email:", err);
+        addToast({
+          title: "Send Error",
+          description: "Could not send the email quote. Please check your email configuration.",
+          color: "danger",
+        });
+      } finally {
+        setIsSending(false);
+      }
     },
   });
+
 
   const addItem = () => {
     const newItem: LineItem = {
@@ -253,7 +286,7 @@ const SendQuoteModal = ({ isOpen, onClose, lead, onSendQuote }: SendQuoteModalPr
 
               <div className="bg-slate-50 dark:bg-default-100/40 px-4 py-3 rounded-xl border border-slate-100 dark:border-default-200/50">
                 <div className="text-[12px] text-slate-600 dark:text-slate-300">
-                  Quote sent via: <span className="font-bold">SMS + Email</span>
+                  Quote sent via: <span className="font-bold">Email</span>
                 </div>
                 <div className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
                   Patient can accept online. Quote valid for 30 days.
@@ -265,9 +298,12 @@ const SendQuoteModal = ({ isOpen, onClose, lead, onSendQuote }: SendQuoteModalPr
                   className="flex-[2] font-bold bg-[#f97316] text-white text-[13px] h-9 rounded-lg"
                   startContent={<HiOutlinePaperAirplane className="text-[15px] shrink-0 rotate-45" />}
                   onPress={() => formik.handleSubmit()}
+                  isLoading={isSending}
+                  isDisabled={isSending}
                 >
-                  Send Quote
+                  {isSending ? "Sending..." : "Send Quote"}
                 </Button>
+
                 <Button
                   variant="bordered"
                   className="flex-1 font-semibold text-slate-600 dark:text-slate-300 border-slate-200 dark:border-default-300 text-[13px] h-9 rounded-lg"

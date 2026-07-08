@@ -23,12 +23,17 @@ interface TwilioDashboardProps {
 }
 
 export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) {
+  console.log("twilioConfig",twilioConfig);
+  
   const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const [balance, setBalance] = useState<number>(twilioConfig?.balance ?? 0);
   const [minutesUsed, setMinutesUsed] = useState<number>(twilioConfig?.minutesUsed ?? 0);
   const [minutesLimit, setMinutesLimit] = useState<number>(twilioConfig?.minutesLimit ?? 0);
   const [planExpiresAt, setPlanExpiresAt] = useState<string | null | undefined>(twilioConfig?.planExpiresAt);
+
+  const planName = twilioConfig?.planName || "No Active Plan";
+
 
   useEffect(() => {
     if (twilioConfig) {
@@ -192,12 +197,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
                   <h2 className="text-lg font-bold text-foreground">
                     Practice ROI Phone Service
                   </h2>
-                  <Chip
-                    size="sm"
-                    className="bg-amber-50 dark:bg-amber-950/20 text-amber-600 dark:text-amber-400 border border-amber-200/50 dark:border-amber-900/30 text-[10px] font-bold h-5 px-1.5"
-                  >
-                    Demo Mode
-                  </Chip>
                 </div>
                 <p className="text-xs text-foreground-500 mt-0.5">
                   Manage phone numbers, call tracking, and SMS communication through Practice ROI
@@ -235,12 +234,12 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
             </Card>
             <Card className="shadow-none border border-foreground/10 bg-foreground/5 dark:bg-default-50/50 rounded-xl p-4">
               <div className="flex justify-between items-start">
-                <span className="text-xs font-semibold text-foreground-500">Account Balance</span>
+                <span className="text-xs font-semibold text-foreground-500">Current Plan</span>
                 <FiDollarSign className="w-4 h-4 text-green-500" />
               </div>
               <div className="mt-2.5">
                 <span className="text-2xl font-extrabold text-foreground">
-                  ${balance.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                  {planName}
                 </span>
               </div>
             </Card>

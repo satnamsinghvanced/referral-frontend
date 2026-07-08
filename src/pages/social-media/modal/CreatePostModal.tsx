@@ -9,6 +9,7 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
+  Progress,
   Select,
   SelectItem,
   Textarea,
@@ -429,7 +430,6 @@ export function CreatePostModal({
             Create and schedule posts across your social media platforms
           </p>
         </ModalHeader>
-
         <ModalBody className="space-y-4 md:space-y-5 px-4 py-0 gap-0 max-h-[75vh] overflow-auto">
           {/* Post Title */}
           <div className="space-y-0.5">
