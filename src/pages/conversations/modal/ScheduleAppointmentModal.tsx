@@ -53,7 +53,7 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead, onSchedule }: Schedul
     onSubmit: (values) => {
       // Format date and time
       const dateStr = values.date ? new Date(values.date).toLocaleDateString() : 'N/A';
-      
+
       // Format 24-hour time string to 12-hour format with AM/PM
       let timeStr = 'N/A';
       if (values.time) {
@@ -66,7 +66,7 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead, onSchedule }: Schedul
           timeStr = `${hour}:${minStr} ${ampm}`;
         }
       }
-      
+
       const providerLabel = PROVIDERS.find(p => p.key === values.provider)?.label || values.provider;
       const msgText = `Your appointment has been scheduled!\nType: ${values.appointmentType}\nDate: ${dateStr}\nTime: ${timeStr}\nDoctor: ${providerLabel}`;
 
@@ -132,14 +132,27 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead, onSchedule }: Schedul
                   <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">
                     Date
                   </label>
-                  <div className="border border-slate-200 dark:border-default-200 rounded-lg px-3 flex items-center h-9 bg-white dark:bg-default-100">
+                  <div className="border border-slate-200 dark:border-default-200 rounded-lg px-3 flex items-center h-9">
                     <DatePicker
                       name="date"
                       className="w-full"
                       classNames={{
                         input: "text-[12px] sm:text-[12.5px] text-slate-600 dark:text-slate-200",
-                        inputWrapper:
-                          "bg-transparent shadow-none border-none data-[hover=true]:bg-transparent px-0 h-auto",
+                        inputWrapper: [
+                          "bg-transparent shadow-none border-none px-0 h-auto",
+                          "!bg-transparent",
+                          "data-[hover=true]:!bg-transparent",
+                          "data-[focus-within=true]:!bg-transparent",
+                          "data-[focus-within=true]:ring-0",
+                          "data-[focus-within=true]:ring-offset-0",
+                          "group-hover:!bg-transparent",
+                        ].join(" "),
+                        segment: [
+                          "rounded",
+                          "data-[hover=true]:!bg-transparent",
+                          "data-[focus=true]:!bg-[#10b981]/20",
+                          "data-[focus=true]:!text-slate-700 dark:data-[focus=true]:!text-white",
+                        ].join(" "),
                       }}
                       minValue={today(getLocalTimeZone())}
                       value={formik.values.date ? parseDate(formik.values.date) : null}
@@ -153,13 +166,13 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead, onSchedule }: Schedul
                     <div className="text-red-500 text-[10px] mt-0.5">{formik.errors.date}</div>
                   )}
                 </div>
+
+
                 <div>
                   <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">
                     Time
                   </label>
-                  <div
-                    className="border border-slate-200 rounded-lg px-2 sm:px-3 min-h-9 flex items-center gap-2 overflow-hidden"
-                  >
+                  <div className="border border-slate-200 dark:border-default-200 rounded-lg px-2 sm:px-3 min-h-9 flex items-center gap-2 overflow-hidden">
                     <HiOutlineClock className="w-4 h-4 flex-none text-slate-400" />
 
                     <TimeInput
@@ -176,10 +189,22 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead, onSchedule }: Schedul
                       classNames={{
                         base: "flex-1 min-w-0",
                         innerWrapper: "min-w-0",
-                        inputWrapper:
+                        inputWrapper: [
                           "bg-transparent shadow-none border-none px-0 min-h-0 h-auto",
-                        segment:
+                          "!bg-transparent",
+                          "data-[hover=true]:!bg-transparent",
+                          "data-[focus-within=true]:!bg-transparent",
+                          "data-[focus-within=true]:ring-0",
+                          "data-[focus-within=true]:ring-offset-0",
+                          "group-hover:!bg-transparent",
+                        ].join(" "),
+                        segment: [
                           "px-0.5 sm:px-1 whitespace-nowrap text-[11px] sm:text-[12px] md:text-[13px]",
+                          "rounded",
+                          "data-[hover=true]:!bg-transparent",
+                          "data-[focus=true]:!bg-[#10b981]/20",
+                          "data-[focus=true]:!text-slate-700 dark:data-[focus=true]:!text-white",
+                        ].join(" "),
                       }}
                     />
                   </div>

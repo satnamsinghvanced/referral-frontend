@@ -47,8 +47,8 @@ interface ChatAreaProps {
   setSelectedConversationId: (id: string | null) => void;
   messageInput: string;
   setMessageInput: (s: string) => void;
-  attachedFile: { name: string; url: string; type: string } | null;
-  setAttachedFile: (file: { name: string; url: string; type: string } | null) => void;
+  attachedFile: { name: string; url: string; type: string }[];
+  setAttachedFile: (files: { name: string; url: string; type: string }[]) => void;
   handleSendMessage: () => void;
   fileInputRef: React.RefObject<HTMLInputElement | null>;
   imageInputRef: React.RefObject<HTMLInputElement | null>;
@@ -329,35 +329,38 @@ export default function ChatArea({
 
       {/* Input bar */}
       <div className="px-4 py-3 border-t border-foreground/10 bg-white dark:bg-content1">
-        {attachedFile && (
-          <div className="mb-2 p-1.5 bg-gray-50 dark:bg-content2 border border-foreground/5 rounded-lg flex items-center justify-between">
-            <div className="flex items-center gap-2 min-w-0">
-              {attachedFile.type.startsWith("image/") ? (
-                <img
-                  src={attachedFile.url}
-                  alt="Attachment preview"
-                  className="w-10 h-10 object-contain rounded border border-foreground/10 bg-white dark:bg-black/20 p-0.5"
-                />
-              ) : (
-                <div className="w-10 h-10 bg-primary/10 text-primary rounded flex items-center justify-center text-[10px] font-bold">
-                  FILE
-                </div>
-              )}
-              <div className="min-w-0">
-                <p className="text-xs font-semibold text-foreground truncate max-w-[200px]">
-                  {attachedFile.name}
+        {attachedFile.length > 0 && (
+          <div className="mb-2 flex flex-wrap gap-2">
+            {attachedFile.map((file, idx) => (
+              <div
+                key={idx}
+                className="p-1.5 bg-gray-50 dark:bg-content2 border border-foreground/5 rounded-lg flex items-center gap-2"
+              >
+                {file.type.startsWith("image/") ? (
+                  <img
+                    src={file.url}
+                    alt="Attachment preview"
+                    className="w-10 h-10 object-contain rounded border border-foreground/10 bg-white dark:bg-black/20 p-0.5"
+                  />
+                ) : (
+                  <div className="w-10 h-10 bg-primary/10 text-primary rounded flex items-center justify-center text-[10px] font-bold">
+                    FILE
+                  </div>
+                )}
+                <p className="text-xs font-semibold text-foreground truncate max-w-[120px]">
+                  {file.name}
                 </p>
+                <Button
+                  isIconOnly
+                  variant="light"
+                  size="sm"
+                  onClick={() => setAttachedFile(attachedFile.filter((_, i) => i !== idx))}
+                  className="min-w-6 w-6 h-6 text-gray-500"
+                >
+                  ✕
+                </Button>
               </div>
-            </div>
-            <Button
-              isIconOnly
-              variant="light"
-              size="sm"
-              onClick={() => setAttachedFile(null)}
-              className="min-w-6 w-6 h-6 text-gray-500"
-            >
-              ✕
-            </Button>
+            ))}
           </div>
         )}
 
@@ -406,6 +409,7 @@ export default function ChatArea({
           <input
             type="file"
             ref={fileInputRef}
+            multiple
             onChange={handleFileChange}
             className="hidden"
           />
@@ -413,6 +417,7 @@ export default function ChatArea({
             type="file"
             accept="image/*"
             ref={imageInputRef}
+            multiple
             onChange={handleImageChange}
             className="hidden"
           />

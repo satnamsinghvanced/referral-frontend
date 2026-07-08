@@ -190,11 +190,9 @@ const Conversations = () => {
   }, []);
 
   const [messageInput, setMessageInput] = useState("");
-  const [attachedFile, setAttachedFile] = useState<{
-    name: string;
-    url: string;
-    type: string;
-  } | null>(null);
+  const MAX_ATTACHMENTS = 5;
+
+  const [attachedFile, setAttachedFile] = useState<{ name: string; url: string; type: string }[]>([]);
   const [isSendingMessage, setIsSendingMessage] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -202,29 +200,65 @@ const Conversations = () => {
   const imageInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setAttachedFile({ name: file.name, url, type: file.type });
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const remainingSlots = MAX_ATTACHMENTS - attachedFile.length;
+    if (remainingSlots <= 0) {
       addToast({
-        title: "File Attached",
-        description: `${file.name} (${(file.size / 1024).toFixed(1)} KB)`,
-        color: "success",
+        title: "Limit reached",
+        description: "You can attach a maximum of 5 files at once.",
+        color: "warning",
       });
+      e.target.value = "";
+      return;
     }
+
+    const selectedFiles = Array.from(files).slice(0, remainingSlots);
+    const newAttachments = selectedFiles.map((file) => ({
+      name: file.name,
+      url: URL.createObjectURL(file),
+      type: file.type,
+    }));
+
+    setAttachedFile((prev) => [...prev, ...newAttachments]);
+    addToast({
+      title: "File(s) Attached",
+      description: `${newAttachments.length} file(s) added`,
+      color: "success",
+    });
+    e.target.value = "";
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const url = URL.createObjectURL(file);
-      setAttachedFile({ name: file.name, url, type: file.type });
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    const remainingSlots = MAX_ATTACHMENTS - attachedFile.length;
+    if (remainingSlots <= 0) {
       addToast({
-        title: "Image Attached",
-        description: `${file.name} (${(file.size / 1024).toFixed(1)} KB)`,
-        color: "success",
+        title: "Limit reached",
+        description: "You can attach a maximum of 5 files at once.",
+        color: "warning",
       });
+      e.target.value = "";
+      return;
     }
+
+    const selectedFiles = Array.from(files).slice(0, remainingSlots);
+    const newAttachments = selectedFiles.map((file) => ({
+      name: file.name,
+      url: URL.createObjectURL(file),
+      type: file.type,
+    }));
+
+    setAttachedFile((prev) => [...prev, ...newAttachments]);
+    addToast({
+      title: "Image(s) Attached",
+      description: `${newAttachments.length} image(s) added`,
+      color: "success",
+    });
+    e.target.value = "";
   };
 
   const handleConversationClick = (conv: Conversation) => {
@@ -430,34 +464,56 @@ const Conversations = () => {
   };
 
   const handleSendMessage = async () => {
-    if (!messageInput.trim() && !attachedFile) return;
+    const trimmedText = messageInput.trim();
+    if (!trimmedText && attachedFile.length === 0) return;
     if (isSendingMessage) return;
 
     const currentConv = conversations.find((c) => c.id === selectedConversationId);
     if (!currentConv) return;
 
     const isInstagram = currentConv.platform === "instagram";
-
-    const newMsg: ConversationMessage = {
-      id: Date.now().toString(),
-      senderId: "provider",
-      text: messageInput.trim() || (attachedFile?.type.startsWith("image/") ? "Sent an image" : "Sent a file"),
-      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      isFromPatient: false,
-      ...(attachedFile ? { file: { name: attachedFile.name, url: attachedFile.url, type: attachedFile.type } } : {}),
-    };
-
     const isFacebook = currentConv.platform === "facebook";
     const isWeb = currentConv.platform === "web";
 
+
+    const messagesToAdd: ConversationMessage[] = [];
+
+    if (attachedFile.length > 0) {
+      attachedFile.forEach((file, idx) => {
+        messagesToAdd.push({
+          id: `${Date.now()}-${idx}`,
+          senderId: "provider",
+          text:
+            idx === 0 && trimmedText
+              ? trimmedText
+              : file.type.startsWith("image/")
+                ? "Sent an image"
+                : "Sent a file",
+          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          isFromPatient: false,
+          file: { name: file.name, url: file.url, type: file.type },
+        });
+      });
+    } else {
+      messagesToAdd.push({
+        id: Date.now().toString(),
+        senderId: "provider",
+        text: trimmedText,
+        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        isFromPatient: false,
+      });
+    }
+
     setIsSendingMessage(true);
     try {
+
+      const textForApi = trimmedText || messagesToAdd[0]?.text || "";
       if (isInstagram && currentConv.recipientId) {
-        await sendInstagramMessage(currentConv.recipientId, messageInput.trim());
+        await sendInstagramMessage(currentConv.recipientId, textForApi);
       } else if (isFacebook && currentConv.recipientId) {
-        await sendFacebookMessage(currentConv.recipientId, messageInput.trim());
+        await sendFacebookMessage(currentConv.recipientId, textForApi);
       } else if (isWeb) {
-        await sendWebMessage(currentConv.id, messageInput.trim());
+        await sendWebMessage(currentConv.id, textForApi);
       }
     } catch (err) {
       console.error("Failed to send message:", err);
@@ -473,15 +529,17 @@ const Conversations = () => {
     }
     setIsSendingMessage(false);
 
+    const lastMsg = messagesToAdd[messagesToAdd.length - 1];
+
     setConversations((prev) =>
       prev.map((c) => {
         if (c.id === selectedConversationId) {
           return {
             ...c,
-            lastMessage: newMsg.text,
+            lastMessage: lastMsg.text,
             lastMessageTime: "Just now",
             lastMessageTimestamp: Date.now(),
-            messages: [...c.messages, newMsg],
+            messages: [...c.messages, ...messagesToAdd],
           };
         }
         return c;
@@ -495,7 +553,7 @@ const Conversations = () => {
     });
 
     setMessageInput("");
-    setAttachedFile(null);
+    setAttachedFile([]);
   };
 
   const handleToggleStar = (convId: string) => {
