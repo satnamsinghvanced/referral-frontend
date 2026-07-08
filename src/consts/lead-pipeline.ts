@@ -2,6 +2,7 @@ export const LEAD_SOURCES = [
   { key: "website", label: "Website" },
   { key: "googleAds", label: "Google Ads" },
   { key: "facebookAds", label: "Facebook Ads" },
+  { key: "facebook", label: "Facebook" },
   { key: "instagram", label: "Instagram" },
   { key: "referral", label: "Referral" },
   { key: "walkIn", label: "Walk-in" },

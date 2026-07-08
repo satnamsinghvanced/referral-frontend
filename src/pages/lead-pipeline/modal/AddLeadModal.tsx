@@ -14,7 +14,7 @@ import {
 import { useFormik } from "formik";
 import { useState } from "react";
 import { FiPlus } from "react-icons/fi";
-import { HiOutlineMail, HiOutlinePhone } from "react-icons/hi";
+import { HiOutlineMail, HiOutlinePhone, HiOutlineLocationMarker } from "react-icons/hi";
 import { LuBriefcase } from "react-icons/lu";
 import * as Yup from "yup";
 import { EMAIL_REGEX, PHONE_REGEX } from "../../../consts/consts";
@@ -48,13 +48,14 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
   const [tagInput, setTagInput] = useState("");
   const validationSchema = Yup.object().shape({
     firstName: Yup.string().required("First name is required"),
-    lastName: Yup.string().required("Last name is required"),
+    lastName: Yup.string().nullable().notRequired(),
     email: Yup.string()
       .required("Email is required")
       .matches(EMAIL_REGEX, "Invalid email format"),
     phone: Yup.string()
       .required("Phone is required")
       .matches(PHONE_REGEX, "Phone must be in format (XXX) XXX-XXXX"),
+    location: Yup.string().nullable().notRequired(),
     source: Yup.string().required("Source is required"),
     priority: Yup.string().required("Priority is required"),
     estimatedValue: Yup.number().typeError("Value must be a number").nullable(),
@@ -66,6 +67,7 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
       lastName: "",
       email: "",
       phone: "",
+      location: "",
       source: "website",
       priority: "medium",
       assignedTo: "Unassigned",
@@ -179,7 +181,6 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                       formik.touched.lastName &&
                       (formik.errors.lastName as string)
                     }
-                    isRequired
                   />
                   <Input
                     label="Email Address"
@@ -222,6 +223,27 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                       <HiOutlinePhone className="text-default-400 size-4" />
                     }
                     isRequired
+                  />
+                </div>
+                <div className="mt-4">
+                  <Input
+                    label="Location"
+                    labelPlacement="outside"
+                    placeholder="Enter location (City, State, etc.)"
+                    variant="flat"
+                    size="sm"
+                    radius="sm"
+                    name="location"
+                    value={formik.values.location}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    isInvalid={!!(formik.touched.location && formik.errors.location)}
+                    errorMessage={
+                      formik.touched.location && (formik.errors.location as string)
+                    }
+                    startContent={
+                      <HiOutlineLocationMarker className="text-default-400 size-4" />
+                    }
                   />
                 </div>
               </div>

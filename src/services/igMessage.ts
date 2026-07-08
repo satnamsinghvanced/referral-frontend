@@ -24,3 +24,4 @@ export const markInstagramSeen = async (
   });
   return data;
 };
+

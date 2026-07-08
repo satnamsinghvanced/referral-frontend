@@ -659,6 +659,40 @@ const Conversations = () => {
         onClose={() => setIsViewLeadModalOpen(false)}
         lead={modalLead}
         onScheduleClick={() => setIsScheduleModalOpen(true)}
+        onSendFormClick={() => {
+          setIsViewLeadModalOpen(false);
+          setIsSendFormsModalOpen(true);
+        }}
+        onLeadSaved={(updatedLead) => {
+          setConversations((prev) =>
+            prev.map((c) => {
+              if (c.id === updatedLead.socialConversationId) {
+                return {
+                  ...c,
+                  leadId: updatedLead._id,
+                  patientName: `${updatedLead.firstName} ${updatedLead.lastName}`,
+                  patientEmail: updatedLead.email,
+                  patientPhone: updatedLead.phone,
+                  patientLocation: updatedLead.location,
+                };
+              }
+              return c;
+            })
+          );
+          setModalLead((prev) => {
+            if (prev && prev.id === updatedLead.socialConversationId) {
+              return {
+                ...prev,
+                leadId: updatedLead._id,
+                patientName: `${updatedLead.firstName} ${updatedLead.lastName}`,
+                patientEmail: updatedLead.email,
+                patientPhone: updatedLead.phone,
+                patientLocation: updatedLead.location,
+              };
+            }
+            return prev;
+          });
+        }}
       />
       <ScheduleAppointmentModal
         isOpen={isScheduleModalOpen}
@@ -670,13 +704,11 @@ const Conversations = () => {
         isOpen={isSendFormsModalOpen}
         onClose={() => setIsSendFormsModalOpen(false)}
         lead={modalLead}
-        onSendForms={handleSendAutomatedMessage}
       />
       <SendQuoteModal
         isOpen={isSendQuoteModalOpen}
         onClose={() => setIsSendQuoteModalOpen(false)}
         lead={modalLead}
-        onSendQuote={handleSendAutomatedMessage}
       />
     </ComponentContainer>
   );

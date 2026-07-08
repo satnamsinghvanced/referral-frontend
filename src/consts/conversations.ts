@@ -54,4 +54,5 @@ export interface Conversation {
   estimatedValue: number;
   treatmentInterest: string[];
   recipientId?: string;
+  leadId?: string;
 }
