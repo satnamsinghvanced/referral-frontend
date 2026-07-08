@@ -47,8 +47,8 @@ interface ChatAreaProps {
   setSelectedConversationId: (id: string | null) => void;
   messageInput: string;
   setMessageInput: (s: string) => void;
-  attachedFile: { name: string; url: string; type: string }[];
-  setAttachedFile: (files: { name: string; url: string; type: string }[]) => void;
+  attachedFile: any[];
+  setAttachedFile: (files: any[]) => void;
   handleSendMessage: () => void;
   fileInputRef: React.RefObject<HTMLInputElement | null>;
   imageInputRef: React.RefObject<HTMLInputElement | null>;
@@ -281,7 +281,9 @@ export default function ChatArea({
                     : "bg-primary text-white rounded-br-md shadow-md shadow-primary/20"
                     }`}
                 >
-                  {msg.text}
+                  {msg.text && msg.text !== "Sent an image" && msg.text !== "Sent a file" && (
+                    <div className="mb-1">{msg.text}</div>
+                  )}
                   {msg.file && (
                     <div className="mt-2 pt-2 border-t border-foreground/10 dark:border-white/10">
                       {msg.file.type?.startsWith("image/") ? (

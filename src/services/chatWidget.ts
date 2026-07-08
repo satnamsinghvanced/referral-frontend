@@ -74,11 +74,20 @@ export const getWebConversations = async (): Promise<any> => {
 
 export const sendWebMessage = async (
   leadId: string,
-  text: string
+  text: string,
+  file?: { name: string; url: string; type: string }
 ): Promise<any> => {
   const { data } = await axios.post("/chat-widget/reply", {
     leadId,
     text,
+    file,
   });
+  return data;
+};
+
+export const markWebConversationRead = async (
+  leadId: string
+): Promise<any> => {
+  const { data } = await axios.post(`/chat-widget/conversations/${leadId}/read`);
   return data;
 };

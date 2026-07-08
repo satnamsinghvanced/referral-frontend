@@ -19,7 +19,8 @@ import SendFormsModal from "./modal/SendFormsModal";
 import SendQuoteModal from "./modal/SendQuoteModal";
 import { getInstagramConversations, sendInstagramMessage, markInstagramSeen } from "../../services/igMessage";
 import { getFacebookConversations, sendFacebookMessage, markFacebookSeen } from "../../services/fbMessage";
-import { getWebConversations, sendWebMessage } from "../../services/chatWidget";
+import { getWebConversations, sendWebMessage, markWebConversationRead } from "../../services/chatWidget";
+import { uploadChatAttachment } from "../../services/conversationAttachment";
 import { useSocialCredentials } from "../../hooks/useSocial";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -192,7 +193,7 @@ const Conversations = () => {
   const [messageInput, setMessageInput] = useState("");
   const MAX_ATTACHMENTS = 5;
 
-  const [attachedFile, setAttachedFile] = useState<{ name: string; url: string; type: string }[]>([]);
+  const [attachedFile, setAttachedFile] = useState<{ file: File; name: string; url: string; type: string }[]>([]);
   const [isSendingMessage, setIsSendingMessage] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -216,6 +217,7 @@ const Conversations = () => {
 
     const selectedFiles = Array.from(files).slice(0, remainingSlots);
     const newAttachments = selectedFiles.map((file) => ({
+      file,
       name: file.name,
       url: URL.createObjectURL(file),
       type: file.type,
@@ -247,6 +249,7 @@ const Conversations = () => {
 
     const selectedFiles = Array.from(files).slice(0, remainingSlots);
     const newAttachments = selectedFiles.map((file) => ({
+      file,
       name: file.name,
       url: URL.createObjectURL(file),
       type: file.type,
@@ -319,23 +322,30 @@ const Conversations = () => {
       if (lastMsg) {
         localStorage.setItem(`seen_msg_${selectedConversation.id}`, lastMsg.id);
       }
+
+      // Always mark as seen on the platform/DB to synchronize backend stats, 
+      // regardless of local state overrides.
+      const markAsSeenOnPlatform = async () => {
+        try {
+          const lastMsgId = lastMsg?.id;
+          if (selectedConversation.platform === "instagram") {
+            await markInstagramSeen(selectedConversation.recipientId || "", selectedConversation.id, lastMsgId);
+          } else if (selectedConversation.platform === "facebook") {
+            await markFacebookSeen(selectedConversation.recipientId || "", selectedConversation.id, lastMsgId);
+          } else if (selectedConversation.platform === "web") {
+            await markWebConversationRead(selectedConversation.id);
+          }
+          queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+        } catch (err) {
+          console.error("Failed to mark conversation as seen:", err);
+        }
+      };
+      markAsSeenOnPlatform();
+
       if (selectedConversation.unreadCount > 0) {
         setConversations((prev) =>
           prev.map((c) => (c.id === selectedConversation.id ? { ...c, unreadCount: 0 } : c))
         );
-        const markAsSeenOnPlatform = async () => {
-          try {
-            if (selectedConversation.platform === "instagram" && selectedConversation.recipientId) {
-              await markInstagramSeen(selectedConversation.recipientId);
-            } else if (selectedConversation.platform === "facebook" && selectedConversation.recipientId) {
-              await markFacebookSeen(selectedConversation.recipientId);
-            }
-            queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
-          } catch (err) {
-            console.error("Failed to mark conversation as seen:", err);
-          }
-        };
-        markAsSeenOnPlatform();
       }
     }
   }, [selectedConversation, queryClient]);
@@ -475,85 +485,108 @@ const Conversations = () => {
     const isFacebook = currentConv.platform === "facebook";
     const isWeb = currentConv.platform === "web";
 
-
-    const messagesToAdd: ConversationMessage[] = [];
-
-    if (attachedFile.length > 0) {
-      attachedFile.forEach((file, idx) => {
-        messagesToAdd.push({
-          id: `${Date.now()}-${idx}`,
-          senderId: "provider",
-          text:
-            idx === 0 && trimmedText
-              ? trimmedText
-              : file.type.startsWith("image/")
-                ? "Sent an image"
-                : "Sent a file",
-          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-          isFromPatient: false,
-          file: { name: file.name, url: file.url, type: file.type },
-        });
-      });
-    } else {
-      messagesToAdd.push({
-        id: Date.now().toString(),
-        senderId: "provider",
-        text: trimmedText,
-        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-        isFromPatient: false,
-      });
-    }
-
     setIsSendingMessage(true);
     try {
+      const messagesToAdd: ConversationMessage[] = [];
 
-      const textForApi = trimmedText || messagesToAdd[0]?.text || "";
-      if (isInstagram && currentConv.recipientId) {
-        await sendInstagramMessage(currentConv.recipientId, textForApi);
-      } else if (isFacebook && currentConv.recipientId) {
-        await sendFacebookMessage(currentConv.recipientId, textForApi);
-      } else if (isWeb) {
-        await sendWebMessage(currentConv.id, textForApi);
+      // 1. Upload files first if any
+      const uploadedAttachments: { name: string; url: string; type: string }[] = [];
+      for (const item of attachedFile) {
+        const uploadRes = await uploadChatAttachment(item.file);
+        // Safe unwrap in case the axios interceptor returned response.data directly
+        const fileData = uploadRes?.data || uploadRes;
+        if (fileData && fileData.url) {
+          uploadedAttachments.push({
+            name: fileData.name,
+            url: fileData.url,
+            type: fileData.type,
+          });
+        } else {
+          throw new Error(`Failed to upload file: ${item.name}`);
+        }
       }
-    } catch (err) {
+
+      // 2. Send messages to the API
+      // If we have text, we send a text message.
+      if (trimmedText) {
+        let sentMsg: any;
+        if (isInstagram && currentConv.recipientId) {
+          sentMsg = await sendInstagramMessage(currentConv.recipientId, trimmedText);
+        } else if (isFacebook && currentConv.recipientId) {
+          sentMsg = await sendFacebookMessage(currentConv.recipientId, trimmedText);
+        } else if (isWeb) {
+          sentMsg = await sendWebMessage(currentConv.id, trimmedText);
+        }
+        messagesToAdd.push({
+          id: sentMsg?.data?.id || sentMsg?.id || Date.now().toString(),
+          senderId: "provider",
+          text: trimmedText,
+          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          isFromPatient: false,
+        });
+      }
+
+      // If we have uploaded files, send each file as a separate message
+      for (const file of uploadedAttachments) {
+        let sentMsg: any;
+        if (isInstagram && currentConv.recipientId) {
+          sentMsg = await sendInstagramMessage(currentConv.recipientId, "", file);
+        } else if (isFacebook && currentConv.recipientId) {
+          sentMsg = await sendFacebookMessage(currentConv.recipientId, "", file);
+        } else if (isWeb) {
+          sentMsg = await sendWebMessage(currentConv.id, "", file);
+        }
+        messagesToAdd.push({
+          id: sentMsg?.data?.id || sentMsg?.id || `${Date.now()}-${Math.random()}`,
+          senderId: "provider",
+          text: file.type.startsWith("image/") ? "Sent an image" : "Sent a file",
+          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          isFromPatient: false,
+          file
+        });
+      }
+
+      // 3. Update conversation state
+      if (messagesToAdd.length > 0) {
+        const lastMsg = messagesToAdd[messagesToAdd.length - 1];
+        const lastMsgText = lastMsg ? lastMsg.text : "";
+        setConversations((prev) =>
+          prev.map((c) => {
+            if (c.id === selectedConversationId) {
+              return {
+                ...c,
+                lastMessage: lastMsgText,
+                lastMessageTime: "Just now",
+                lastMessageTimestamp: Date.now(),
+                messages: [...c.messages, ...messagesToAdd],
+              };
+            }
+            return c;
+          })
+        );
+      }
+
+      addToast({
+        title: "Message Sent",
+        description: "Your message has been sent successfully",
+        color: "success",
+      });
+
+      setMessageInput("");
+      setAttachedFile([]);
+
+    } catch (err: any) {
       console.error("Failed to send message:", err);
       const platformLabel =
         isInstagram ? "Instagram" : isFacebook ? "Facebook" : "Web widget";
       addToast({
         title: "Error Sending Message",
-        description: `Could not deliver message to ${platformLabel}.`,
+        description: err.message || `Could not deliver message to ${platformLabel}.`,
         color: "danger",
       });
+    } finally {
       setIsSendingMessage(false);
-      return;
     }
-    setIsSendingMessage(false);
-
-    const lastMsg = messagesToAdd[messagesToAdd.length - 1];
-
-    setConversations((prev) =>
-      prev.map((c) => {
-        if (c.id === selectedConversationId) {
-          return {
-            ...c,
-            lastMessage: lastMsg.text,
-            lastMessageTime: "Just now",
-            lastMessageTimestamp: Date.now(),
-            messages: [...c.messages, ...messagesToAdd],
-          };
-        }
-        return c;
-      })
-    );
-
-    addToast({
-      title: "Message Sent",
-      description: "Your message has been sent successfully",
-      color: "success",
-    });
-
-    setMessageInput("");
-    setAttachedFile([]);
   };
 
   const handleToggleStar = (convId: string) => {
