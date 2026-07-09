@@ -107,11 +107,6 @@ const LeadDetailsModal = ({
   const [addingNote, setAddingNote] = useState(false);
   const [isSendEmailOpen, setIsSendEmailOpen] = useState(false);
   const parsedNotes = parseNotes(lead?.notes || "");
-  const { data: callData, isLoading: loadingCalls } = useFetchCallRecords({
-    phone: lead?.phone || "",
-    page: 1,
-    limit: 50,
-  });
   const { data: communicationData, isLoading: loadingHistory } = useLeadCommunicationHistory(lead?.id || lead?._id);
   const communicationHistory = communicationData?.data || communicationData || [];
   const formik = useFormik({

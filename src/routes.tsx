@@ -96,6 +96,7 @@ const PatientDetailsRetrieve = React.lazy(
 const WebhookReferralForm = React.lazy(
   () => import("./pages/integrations/webhooks/WebhookReferralForm"),
 );
+const FillForm = React.lazy(() => import("./pages/public/LeadForm"));
 const NotFoundPage = React.lazy(() => import("./pages/NotFoundPage"));
 const Checkout = React.lazy(() => import("./pages/checkout/Checkout"));
 interface AppRoute {
@@ -368,6 +369,22 @@ function AppRoutes() {
     {
       path: "webhook/referral/:userId",
       element: <WebhookReferralForm />,
+    },
+    {
+      path: "lead-forms/:token",
+      element: <FillForm />,
+    },
+    {
+      path: "lead-form/:token",
+      element: <FillForm />,
+    },
+    {
+      path: "lead-froms/:token",
+      element: <FillForm />,
+    },
+    {
+      path: "fill-form/:token",
+      element: <FillForm />,
     },
     { path: "*", element: <NotFoundPage /> },
   ];
