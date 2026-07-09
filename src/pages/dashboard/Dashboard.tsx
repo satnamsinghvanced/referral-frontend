@@ -1,16 +1,8 @@
 import { Button } from "@heroui/react";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { FaRegStar } from "react-icons/fa";
 import { HiOutlineChartBar, HiOutlineStar } from "react-icons/hi";
-import {
-  LuCalendar,
-  LuTarget,
-  LuTrendingDown,
-  LuTrendingUp,
-  LuUsers,
-  LuBell,
-  LuX,
-} from "react-icons/lu";
+import { LuCalendar, LuTarget, LuTrendingUp, LuUsers, LuBell } from "react-icons/lu";
 import { TrendIndicator } from "../../components/common/TrendIndicator";
 import { TbSpeakerphone } from "react-icons/tb";
 import { Link, useNavigate } from "react-router";
@@ -321,7 +313,7 @@ const Dashboard = () => {
                     if (!action.link) e.preventDefault();
                   }}
                   className={`flex items-center justify-center gap-x-1.5 px-3 py-2.5 rounded-lg border transition-colors cursor-pointer text-sm
-					${color.bg} ${color.text} ${color.border} ${color.hover}`}
+					        ${color.bg} ${color.text} ${color.border} ${color.hover}`}
                 >
                   <span className="text-base">{Icon}</span>
                   <span>{action.label}</span>

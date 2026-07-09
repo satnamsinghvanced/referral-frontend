@@ -69,7 +69,6 @@ export const getInitials = (name: string) => {
     .slice(0, 2);
 };
 
-
 export const CHIP_COLORS: string[] = [
   "bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400",
   "bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400",

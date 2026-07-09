@@ -1,44 +1,11 @@
-import {
-  Accordion,
-  AccordionItem,
-  Button,
-  Card,
-  CardBody,
-  Input,
-  Link,
-  Select,
-  SelectItem,
-  Spinner,
-  Textarea,
-} from "@heroui/react";
+import { Accordion, AccordionItem, Button, Card, CardBody, Input, Link, Select, SelectItem, Spinner, Textarea } from "@heroui/react";
 import { useState } from "react";
-import {
-  FaArrowRight,
-  FaBuilding,
-  FaCheckCircle,
-  FaClock,
-  FaEnvelope,
-  FaFileAlt,
-  FaHeadset,
-  FaPhone,
-  FaSearch,
-  FaUser,
-  FaWhatsapp,
-} from "react-icons/fa";
+import { FaArrowRight, FaBuilding, FaCheckCircle, FaClock, FaEnvelope, FaFileAlt, FaHeadset, FaPhone, FaSearch, FaUser, FaWhatsapp } from "react-icons/fa";
+
 const SupportPage = () => {
-  const [activeTab, setActiveTab] = useState<"contact" | "faq" | "resources">(
-    "contact"
-  );
+  const [activeTab, setActiveTab] = useState<"contact" | "faq" | "resources">("contact");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    company: "",
-    subject: "",
-    category: "",
-    urgency: "medium",
-    message: "",
-  });
+  const [formData, setFormData] = useState({ name: "", email: "", company: "", subject: "", category: "", urgency: "medium", message: "" });
   const supportCategories = [
     { key: "billing", label: "Billing & Payments" },
     { key: "technical", label: "Technical Support" },
@@ -265,8 +232,8 @@ const SupportPage = () => {
             <button
               key={tab.key}
               className={`px-6 py-3 font-medium text-lg border-b-2 transition-colors ${activeTab === tab.key
-                  ? "border-primary-500 text-primary-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700"
+                ? "border-primary-500 text-primary-600"
+                : "border-transparent text-gray-500 hover:text-gray-700"
                 }`}
               onClick={() => setActiveTab(tab.key as any)}
             >
