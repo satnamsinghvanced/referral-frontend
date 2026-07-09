@@ -1,8 +1,6 @@
 import React, { useState, useImperativeHandle, useEffect } from "react";
-import { CampaignData, CampaignStepProps } from "./CampaignActionModal";
+import { CampaignStepProps } from "./CampaignActionModal";
 import QuillEditor from "../../../../../components/editor/QuillEditor";
-import clsx from "clsx";
-import { Button } from "@heroui/react";
 
 export interface CampaignStepRef {
   triggerValidationAndProceed: () => void;
@@ -14,21 +12,18 @@ const CampaignContentStep: React.ForwardRefRenderFunction<
 > = ({ data, onNext, updateData, validationErrors, setIsStepValid }, ref) => {
   const [content, setContent] = useState(data.content);
   const [localError, setLocalError] = useState<string | undefined>(undefined);
-
   const error = localError || validationErrors.content;
 
-  // Sync content with data if it changes (e.g. from template selection)
   useEffect(() => {
     setContent(data.content);
   }, [data.content]);
 
-  // Sync back to parent state whenever content changes (to preserve state on navigation)
   useEffect(() => {
     const timer = setTimeout(() => {
       if (content !== data.content) {
         updateData({ content });
       }
-    }, 500); // Debounce to avoid excessive parent state updates
+    }, 500);
     return () => clearTimeout(timer);
   }, [content, data.content, updateData]);
 

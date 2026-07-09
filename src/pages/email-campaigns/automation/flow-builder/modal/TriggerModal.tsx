@@ -24,15 +24,9 @@ interface TriggerModalProps {
 const TRIGGER_TYPES = [
   { label: "New Referrer Added", value: "New Referrer Added" },
   { label: "Referral Received", value: "Referral Received" },
-  // { label: "Specific Date", value: "Specific Date" },
 ];
 
-const TriggerModal: React.FC<TriggerModalProps> = ({
-  isOpen,
-  onOpenChange,
-  onSave,
-  initialData,
-}) => {
+const TriggerModal: React.FC<TriggerModalProps> = ({ isOpen, onOpenChange, onSave, initialData }) => {
   const validationSchema = Yup.object().shape({
     triggerType: Yup.string().required("Trigger type is required"),
     date: Yup.mixed().when("triggerType", {

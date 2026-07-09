@@ -181,11 +181,7 @@ const Conversations = () => {
   }, []);
 
   const [messageInput, setMessageInput] = useState("");
-  const [attachedFile, setAttachedFile] = useState<{
-    name: string;
-    url: string;
-    type: string;
-  } | null>(null);
+  const [attachedFile, setAttachedFile] = useState<{ name: string; url: string; type: string; } | null>(null);
   const [isSendingMessage, setIsSendingMessage] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -367,11 +363,9 @@ const Conversations = () => {
     if (!selectedConversationId) return;
     const currentConv = conversations.find((c) => c.id === selectedConversationId);
     if (!currentConv) return;
-
     const isInstagram = currentConv.platform === "instagram";
     const isFacebook = currentConv.platform === "facebook";
     const isWeb = currentConv.platform === "web";
-
     try {
       if (isInstagram && currentConv.recipientId) {
         await sendInstagramMessage(currentConv.recipientId, text);
@@ -423,12 +417,9 @@ const Conversations = () => {
   const handleSendMessage = async () => {
     if (!messageInput.trim() && !attachedFile) return;
     if (isSendingMessage) return;
-
     const currentConv = conversations.find((c) => c.id === selectedConversationId);
     if (!currentConv) return;
-
     const isInstagram = currentConv.platform === "instagram";
-
     const newMsg: ConversationMessage = {
       id: Date.now().toString(),
       senderId: "provider",
@@ -437,10 +428,8 @@ const Conversations = () => {
       isFromPatient: false,
       ...(attachedFile ? { file: { name: attachedFile.name, url: attachedFile.url, type: attachedFile.type } } : {}),
     };
-
     const isFacebook = currentConv.platform === "facebook";
     const isWeb = currentConv.platform === "web";
-
     setIsSendingMessage(true);
     try {
       if (isInstagram && currentConv.recipientId) {
@@ -463,7 +452,6 @@ const Conversations = () => {
       return;
     }
     setIsSendingMessage(false);
-
     setConversations((prev) =>
       prev.map((c) => {
         if (c.id === selectedConversationId) {
@@ -478,13 +466,11 @@ const Conversations = () => {
         return c;
       })
     );
-
     addToast({
       title: "Message Sent",
       description: "Your message has been sent successfully",
       color: "success",
     });
-
     setMessageInput("");
     setAttachedFile(null);
   };

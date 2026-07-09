@@ -1,11 +1,9 @@
-import { Input, Switch } from "@heroui/react";
-import clsx from "clsx";
+import { Switch } from "@heroui/react";
 import React, { forwardRef, useImperativeHandle, useState } from "react";
 import { CampaignData, CampaignStepProps } from "./CampaignActionModal";
 import {
   getLocalTimeZone,
   now,
-  parseAbsoluteToLocal,
 } from "@internationalized/date";
 import DatePickerWithTimeInput from "../../../../../components/common/DatePickerWithTimeInput";
 
@@ -26,9 +24,7 @@ const CampaignScheduleStep: React.ForwardRefRenderFunction<
     data.schedule.date,
   );
   const [localError, setLocalError] = useState<string | null>(null);
-
   const error = localError || (validationErrors.schedule as any)?.date;
-
   React.useEffect(() => {
     if (sendImmediately) {
       setIsStepValid(true);
@@ -52,7 +48,6 @@ const CampaignScheduleStep: React.ForwardRefRenderFunction<
       }
     }
     setLocalError(null);
-
     onNext({
       schedule: {
         sendImmediately,
@@ -69,7 +64,6 @@ const CampaignScheduleStep: React.ForwardRefRenderFunction<
   useImperativeHandle(ref, () => ({
     triggerValidationAndProceed: handleValidationAndNext,
   }));
-
   const handleToggleScheduleLater = (val: boolean) => {
     setSendImmediately(!val);
     if (!val) {

@@ -1,11 +1,6 @@
 import { Button, Card } from "@heroui/react";
 import clsx from "clsx";
-import React, {
-  forwardRef,
-  useEffect,
-  useImperativeHandle,
-  useState,
-} from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import { FiUsers } from "react-icons/fi";
 import { LuTarget } from "react-icons/lu";
 import { CampaignStepProps } from "./CampaignActionModal";
@@ -17,32 +12,20 @@ export interface CampaignStepRef {
 import { LoadingState } from "../../../../../components/common/LoadingState";
 import { useAudiences } from "../../../../../hooks/useCampaign";
 
-const CampaignAudienceStep: React.ForwardRefRenderFunction<
-  CampaignStepRef,
-  CampaignStepProps
-> = ({ data, onNext, setIsStepValid }, ref) => {
-  const { data: audiencesRaw, isLoading } = useAudiences({
-    page: 1,
-    limit: 100,
-  });
-
-  const [selectedAudienceId, setSelectedAudienceId] = useState<string | null>(
-    data.audienceId,
-  );
+const CampaignAudienceStep: React.ForwardRefRenderFunction<CampaignStepRef, CampaignStepProps> = ({ data, onNext, setIsStepValid }, ref) => {
+  const { data: audiencesRaw, isLoading } = useAudiences({ page: 1, limit: 100 });
+  const [selectedAudienceId, setSelectedAudienceId] = useState<string | null>(data.audienceId);
   const [localError, setLocalError] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     setIsStepValid(!!selectedAudienceId);
   }, [selectedAudienceId, setIsStepValid]);
-
   const audiences = audiencesRaw?.audiences || [];
   const selectedAudience = audiences.find((a) => a._id === selectedAudienceId);
-
   const handleSelect = (id: string) => {
     setSelectedAudienceId(id);
     setLocalError(undefined);
   };
-
   const handleValidationAndNext = () => {
     if (selectedAudienceId) {
       onNext({
@@ -54,11 +37,9 @@ const CampaignAudienceStep: React.ForwardRefRenderFunction<
       return false;
     }
   };
-
   useImperativeHandle(ref, () => ({
     triggerValidationAndProceed: handleValidationAndNext,
   }));
-
   if (isLoading) {
     return (
       <div className="flex justify-center py-12">
@@ -66,17 +47,14 @@ const CampaignAudienceStep: React.ForwardRefRenderFunction<
       </div>
     );
   }
-
   return (
     <div className="space-y-4">
       <h4 className="font-medium">Select Audience</h4>
-
       {localError && (
         <div className="p-3 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
           {localError}
         </div>
       )}
-
       <div className="grid grid-cols-3 gap-3">
         {audiences.map((audience) => {
           const isSelected = selectedAudienceId === audience._id;
@@ -115,7 +93,6 @@ const CampaignAudienceStep: React.ForwardRefRenderFunction<
           );
         })}
       </div>
-
       <Card
         className="p-4 bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/20"
         radius="md"

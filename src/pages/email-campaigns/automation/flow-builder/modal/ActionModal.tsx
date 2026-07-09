@@ -59,7 +59,6 @@ const ActionModal: React.FC<ActionModalProps> = ({
 
   const validationSchema = Yup.object().shape({
     actionType: Yup.string().required("Action type is required"),
-    // Update Field validations
     fieldToUpdate: Yup.string().when("actionType", {
       is: "update_field",
       then: (schema) => schema.required("Field to update is required"),
@@ -70,13 +69,11 @@ const ActionModal: React.FC<ActionModalProps> = ({
       then: (schema) => schema.required("New value is required"),
       otherwise: (schema) => schema.nullable(),
     }),
-    // Notification validations
     notificationMessage: Yup.string().when("actionType", {
       is: "send_notification",
       then: (schema) => schema.required("Notification message is required"),
       otherwise: (schema) => schema.nullable(),
     }),
-    // Task validations
     taskTitle: Yup.string().when("actionType", {
       is: "create_task",
       then: (schema) => schema.required("Task title is required"),
@@ -125,7 +122,6 @@ const ActionModal: React.FC<ActionModalProps> = ({
     enableReinitialize: true,
   });
 
-  // Reset form when modal opens
   useEffect(() => {
     if (isOpen) {
       formik.resetForm({
@@ -363,8 +359,8 @@ const ActionModal: React.FC<ActionModalProps> = ({
                     value={
                       formik.values.dueDate
                         ? parseDate(
-                            formik.values.dueDate.split("T")[0] as string,
-                          )
+                          formik.values.dueDate.split("T")[0] as string,
+                        )
                         : null
                     }
                     onChange={(value) =>

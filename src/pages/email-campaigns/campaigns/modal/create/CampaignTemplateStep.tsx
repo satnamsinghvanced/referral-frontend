@@ -2,14 +2,9 @@ import clsx from "clsx";
 import React, { useEffect, useImperativeHandle, useState } from "react";
 import CampaignCategoryChip from "../../../../../components/chips/CampaignCategoryChip";
 import { LoadingState } from "../../../../../components/common/LoadingState";
-import {
-  useCampaignTemplate,
-  useCampaignTemplates,
-} from "../../../../../hooks/useCampaign";
+import { useCampaignTemplate, useCampaignTemplates } from "../../../../../hooks/useCampaign";
 import { CampaignData, CampaignStepProps } from "./CampaignActionModal";
-
 import Pagination from "../../../../../components/common/Pagination";
-
 import { usePaginationAdjustment } from "../../../../../hooks/common/usePaginationAdjustment";
 
 export interface CampaignStepRef {
@@ -22,16 +17,8 @@ const CampaignTemplateStep: React.ForwardRefRenderFunction<
 > = ({ data, onNext, updateData, setIsStepValid }, ref) => {
   const [page, setPage] = useState(1);
   const limitCount = 6;
-
-  // Initialize from props
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(
-    data.templateId || null,
-  );
-
-  const { data: templatesRaw, isLoading } = useCampaignTemplates({
-    page,
-    limit: limitCount,
-  });
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(data.templateId || null);
+  const { data: templatesRaw, isLoading } = useCampaignTemplates({ page, limit: limitCount });
 
   usePaginationAdjustment({
     totalPages: templatesRaw?.pagination?.totalPages || 0,
@@ -40,39 +27,26 @@ const CampaignTemplateStep: React.ForwardRefRenderFunction<
     isLoading,
   });
 
-  // Sync prop changes to local state (for re-opening modals)
   useEffect(() => {
     setSelectedTemplateId(data.templateId || null);
   }, [data.templateId]);
 
-  // Fetch full template details to get bodyContent (which might be missing in list view)
   const { data: fullTemplate } = useCampaignTemplate(selectedTemplateId || "");
-
-  // Sync to parent immediately when a template selection is ready or changes
   useEffect(() => {
-    // Only update if the selectedTemplateId is different from what's in the parent state
     if (selectedTemplateId && selectedTemplateId !== data.templateId) {
-      // We want to update everything in one go once we have the full content
       if (fullTemplate) {
         updateData({
           templateId: selectedTemplateId,
           subjectLine: data.subjectLine || fullTemplate.subjectLine,
           content: fullTemplate.bodyContent,
         });
-      } else {
-        // Optional: you could sync just the ID here, but if you do,
-        // you must ensure the next run of this effect still catches
-        // the content when fullTemplate arrives.
-        // For now, we wait for fullTemplate to ensure a clean sync.
       }
     }
   }, [selectedTemplateId, fullTemplate, data.templateId, updateData]);
 
   const [error, setError] = useState("");
-
   const templates = templatesRaw?.templates || [];
   const pagination = templatesRaw?.pagination;
-
   React.useEffect(() => {
     setIsStepValid(!!selectedTemplateId);
   }, [selectedTemplateId, setIsStepValid]);
@@ -87,15 +61,10 @@ const CampaignTemplateStep: React.ForwardRefRenderFunction<
       const listTemplate = templates.find(
         (t: any) => t._id === selectedTemplateId,
       );
-
       const templateChanged = selectedTemplateId !== data.templateId;
-
-      // Only pass subjectLine and content if the template has actually changed.
-      // This prevents overwriting user edits in the Content step if they just navigate back and forth.
       const updateDataPayload: Partial<CampaignData> = {
         templateId: selectedTemplateId,
       };
-
       if (templateChanged) {
         updateDataPayload.subjectLine =
           (data.subjectLine as string) ||
@@ -106,7 +75,6 @@ const CampaignTemplateStep: React.ForwardRefRenderFunction<
           (listTemplate?.bodyContent as string) ||
           (data.content as string);
       }
-
       onNext(updateDataPayload);
       return true;
     } else {
@@ -114,11 +82,9 @@ const CampaignTemplateStep: React.ForwardRefRenderFunction<
       return false;
     }
   };
-
   useImperativeHandle(ref, () => ({
     triggerValidationAndProceed: handleNext,
   }));
-
   if (isLoading) {
     return (
       <div className="flex justify-center py-12">
@@ -130,13 +96,11 @@ const CampaignTemplateStep: React.ForwardRefRenderFunction<
   return (
     <div>
       <h4 className="font-medium mb-4">Choose Email Template</h4>
-
       {error && (
         <div className="p-3 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
           {error}
         </div>
       )}
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
         {templates.map((template: any) => {
           const isSelected = selectedTemplateId === template._id;

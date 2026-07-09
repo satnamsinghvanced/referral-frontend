@@ -4,26 +4,14 @@ import React, { forwardRef, useEffect, useImperativeHandle } from "react";
 import { FiAlertTriangle } from "react-icons/fi";
 import CampaignCategoryChip from "../../../../../components/chips/CampaignCategoryChip";
 import { CampaignStepProps } from "./CampaignActionModal";
-
-import {
-  useAudienceById,
-  useCampaignTemplate,
-} from "../../../../../hooks/useCampaign";
+import { useAudienceById, useCampaignTemplate } from "../../../../../hooks/useCampaign";
 import { formatDateToReadable } from "../../../../../utils/formatDateToReadable";
 
 export interface CampaignStepRef {
   triggerValidationAndProceed: () => void;
 }
 
-const SummaryItem = ({
-  label,
-  value,
-  isTag = false,
-}: {
-  label: string;
-  value: React.ReactNode;
-  isTag?: boolean;
-}) => (
+const SummaryItem = ({ label, value, isTag = false }: { label: string; value: React.ReactNode; isTag?: boolean }) => (
   <div className="py-3 border-b border-foreground/5 last:border-0">
     <p className="text-xs font-medium text-gray-500 dark:text-foreground/50 mb-1">
       {label}
@@ -49,31 +37,24 @@ const CampaignReviewStep: React.ForwardRefRenderFunction<
 > = ({ data, onNext, setIsStepValid }, ref) => {
   const { data: templateResponse } = useCampaignTemplate(data.templateId || "");
   const { data: audienceResponse } = useAudienceById(data.audienceId || "");
-
   const templateName = (templateResponse as any)?.name || "N/A";
   const audienceName = (audienceResponse as any)?.name || "N/A";
-
-  // Define required fields for a successful send
   const isReady =
     !!data.audienceId &&
     data.name.trim() !== "" &&
     !!data.templateId &&
     data.content.trim() !== "" &&
-    data.content.trim() !== "Your email content will appear here..."; // Check content
-
+    data.content.trim() !== "Your email content will appear here...";
   useEffect(() => {
     setIsStepValid(isReady);
   }, [isReady, setIsStepValid]);
-
   const getTrackingSummary = () => {
     const tracking = [];
     if (data.tracking.trackOpens) tracking.push("Opens");
     if (data.tracking.trackClicks) tracking.push("Clicks");
     return tracking.length > 0 ? tracking : ["None"];
   };
-
   const handleProceed = () => {
-    // This step is validation-free; it just signals completion.
     onNext({});
   };
 
@@ -84,10 +65,7 @@ const CampaignReviewStep: React.ForwardRefRenderFunction<
   return (
     <div className="space-y-4">
       <h4 className="font-medium">Review & Send</h4>
-
-      {/* --- Summary Grid --- */}
       <div className="grid grid-cols-2 gap-x-8 gap-y-4">
-        {/* Campaign Details */}
         <div className="space-y-2">
           <h5 className="text-sm font-medium">Campaign Details</h5>
           <div>
@@ -108,7 +86,6 @@ const CampaignReviewStep: React.ForwardRefRenderFunction<
           </div>
         </div>
 
-        {/* Delivery Details */}
         <div className="space-y-2">
           <h5 className="text-sm font-medium">Delivery Details</h5>
           <div>
@@ -121,7 +98,6 @@ const CampaignReviewStep: React.ForwardRefRenderFunction<
                   : `${formatDateToReadable(data.schedule.date, true, true) || "N/A"}`
               }
             />
-
             <div className="py-3 border-b border-foreground/5 last:border-0">
               <p className="text-xs font-medium text-gray-500 dark:text-foreground/50 mb-1.5">
                 Tracking
@@ -140,7 +116,6 @@ const CampaignReviewStep: React.ForwardRefRenderFunction<
                 ))}
               </div>
             </div>
-
             {data.isABTesting && (
               <SummaryItem label="A/B Testing" value="Enabled" isTag={true} />
             )}
@@ -148,7 +123,6 @@ const CampaignReviewStep: React.ForwardRefRenderFunction<
         </div>
       </div>
 
-      {/* --- Alert Box --- */}
       <div
         className={clsx(
           "p-4 rounded-lg flex items-start space-x-3 mb-0",
@@ -184,7 +158,6 @@ const CampaignReviewStep: React.ForwardRefRenderFunction<
         </div>
       </div>
 
-      {/* Hidden button for accessibility/testing, calls the ref handler */}
       <button
         type="button"
         id="submitReview"

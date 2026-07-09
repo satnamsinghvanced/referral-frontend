@@ -28,17 +28,14 @@ interface ActiveFlowsProps {
 const ActiveFlows = ({ onEdit, onCreateNew }: ActiveFlowsProps) => {
   const [currentFilters, setCurrentFilters] = useState(INITIAL_FILTERS);
   const debouncedSearch = useDebouncedValue(currentFilters.search, 500);
-
   const { data, isLoading } = useAutomations(
     currentFilters.page,
     currentFilters.limit,
     debouncedSearch,
     currentFilters.status,
   );
-
   const automations = data?.automations || [];
   const pagination = data?.pagination;
-
   usePaginationAdjustment({
     totalPages: pagination?.totalPages || 0,
     currentPage: currentFilters.page,
@@ -46,7 +43,6 @@ const ActiveFlows = ({ onEdit, onCreateNew }: ActiveFlowsProps) => {
       setCurrentFilters((prev) => ({ ...prev, page })),
     isLoading,
   });
-
   const handleFilterChange = (key: string, value: any) => {
     setCurrentFilters((prev) => ({
       ...prev,

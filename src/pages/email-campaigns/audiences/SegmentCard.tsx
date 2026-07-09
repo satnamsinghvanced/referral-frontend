@@ -2,23 +2,12 @@ import { Button } from "@heroui/react";
 import React, { useState } from "react";
 import { FaRegEnvelope } from "react-icons/fa";
 import { FiCopy, FiEdit } from "react-icons/fi";
-import {
-  LuCalendar,
-  LuDownload,
-  LuPlay,
-  LuTrash2,
-  LuUsers,
-} from "react-icons/lu";
+import { LuCalendar, LuDownload, LuPlay, LuTrash2, LuUsers } from "react-icons/lu";
 import AudienceSegmentStatusChip from "../../../components/chips/AudienceSegmentStatusChip";
 import AudienceSegmentTypeChip from "../../../components/chips/AudienceSegmentTypeChip";
 import CampaignActionModal from "../campaigns/modal/create/CampaignActionModal";
 
-const SegmentCard = ({
-  segment,
-  onEdit,
-  onDelete,
-  onExport,
-}: {
+const SegmentCard = ({ segment, onEdit, onDelete, onExport }: {
   segment: any;
   onEdit?: (segment: any) => void;
   onDelete?: (id: string) => void;
@@ -56,7 +45,6 @@ const SegmentCard = ({
   };
 
   const [isCampaignModalOpen, setIsCampaignModalOpen] = useState(false);
-
   const getIconForAction = (action: string) => {
     switch (action) {
       case "Edit":

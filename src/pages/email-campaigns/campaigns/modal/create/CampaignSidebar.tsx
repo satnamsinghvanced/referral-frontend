@@ -36,7 +36,6 @@ const CampaignSidebar: React.FC<
           const isCompleted = step.id < currentStep;
           const isForwardEnabled = step.id > currentStep && isStepValid;
           const isClickable = isCompleted || isCurrent || isForwardEnabled;
-
           return (
             <li key={step.name}>
               <button
@@ -73,7 +72,6 @@ const CampaignSidebar: React.FC<
                     <step.icon className="size-3.5" />
                   )}
                 </div>
-
                 <span
                   className={clsx(
                     isCompleted ? "text-green-700 dark:text-green-400" : "",

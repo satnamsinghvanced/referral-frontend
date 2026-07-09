@@ -7,12 +7,7 @@ import {
   ModalHeader,
 } from "@heroui/react";
 import { useRef, useState, useEffect } from "react";
-import {
-  FiCheckCircle,
-  FiDownload,
-  FiFileText,
-  FiUploadCloud,
-} from "react-icons/fi";
+import { FiCheckCircle, FiDownload, FiFileText, FiUploadCloud } from "react-icons/fi";
 import { IoClose } from "react-icons/io5";
 import { useImportAudienceCsv } from "../../../../hooks/useCampaign";
 
@@ -56,7 +51,6 @@ const BulkImportSegmentsModal = ({
   };
 
   const handleDownloadTemplate = () => {
-    // Generate a simple CSV blob
     const headers = [
       "name",
       "description",
@@ -117,7 +111,6 @@ const BulkImportSegmentsModal = ({
             </ModalHeader>
 
             <ModalBody className="py-0 px-4 gap-3">
-              {/* Instructions Section */}
               <div className="border border-blue-200 bg-blue-50/50 dark:bg-blue-900/10 dark:border-blue-500/30 rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2.5 text-gray-900 dark:text-white">
                   <FiFileText className="size-4" />
@@ -136,7 +129,6 @@ const BulkImportSegmentsModal = ({
                 </ol>
               </div>
 
-              {/* Download Template Section */}
               <div className="border border-foreground/10 rounded-xl p-4 md:flex md:items-center md:justify-between max-md:space-y-4">
                 <div className="flex items-center gap-2.5">
                   <div className="size-10 min-w-10 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-primary dark:text-blue-500 flex items-center justify-center">
@@ -162,7 +154,6 @@ const BulkImportSegmentsModal = ({
                 </Button>
               </div>
 
-              {/* Upload Section */}
               <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
                 <div className="space-y-1">
                   <h4 className="font-medium text-sm dark:text-white">
@@ -183,11 +174,10 @@ const BulkImportSegmentsModal = ({
 
                 <div
                   onClick={() => fileInputRef.current?.click()}
-                  className={`border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center text-center gap-3 transition-all cursor-pointer group ${
-                    selectedFile
-                      ? "border-primary bg-primary/5 dark:bg-primary/10"
-                      : "border-foreground/10 bg-gray-50/50 dark:bg-white/[0.02] hover:bg-gray-50 dark:hover:bg-white/[0.05]"
-                  }`}
+                  className={`border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center text-center gap-3 transition-all cursor-pointer group ${selectedFile
+                    ? "border-primary bg-primary/5 dark:bg-primary/10"
+                    : "border-foreground/10 bg-gray-50/50 dark:bg-white/[0.02] hover:bg-gray-50 dark:hover:bg-white/[0.05]"
+                    }`}
                 >
                   {selectedFile ? (
                     <>
@@ -230,7 +220,6 @@ const BulkImportSegmentsModal = ({
                 </div>
               </div>
 
-              {/* Requirements Note */}
               <div className="border border-foreground/10 rounded-xl p-4">
                 <h4 className="font-medium text-sm dark:text-white mb-3">
                   Required Fields Reference

@@ -8,10 +8,7 @@ import Devices from "./Devices";
 import Overview from "./Overview";
 import Performance from "./Performance";
 import { ANALYTICS_FILTER_OPTIONS } from "../../../consts/campaign";
-import {
-  useAnalyticsOverview,
-  useEmailAnalyticsExport,
-} from "../../../hooks/useCampaign";
+import { useAnalyticsOverview, useEmailAnalyticsExport } from "../../../hooks/useCampaign";
 import { AnalyticsFilter } from "../../../types/campaign";
 
 const INITIAL_FILTERS: { filter: AnalyticsFilter } = {

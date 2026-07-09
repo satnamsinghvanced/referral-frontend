@@ -9,13 +9,11 @@ import {
   Popover,
   PopoverTrigger,
   PopoverContent,
-  Input,
   Spinner,
   Textarea,
 } from "@heroui/react";
 import {
   HiOutlineArrowLeft,
-  HiOutlinePhone,
   HiOutlineStar,
   HiStar,
   HiOutlineDotsVertical,
@@ -143,7 +141,6 @@ export default function ChatArea({
       className={`flex-1 flex flex-col min-w-0 ${selectedConversationId ? "flex" : "hidden md:flex"
         }`}
     >
-      {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-foreground/10 bg-white dark:bg-content1">
         <div className="flex items-center gap-3">
           <Button
@@ -176,7 +173,6 @@ export default function ChatArea({
               <Chip
                 size="sm"
                 variant="flat"
-                // startContent={getPlatformIcon(selectedConversation.platform)}
                 startContent={selectedConversation.platform}
                 className={`text-[9px] sm:text-[10px] h-4 sm:h-5 font-semibold ${getPlatformChipStyle(
                   selectedConversation.platform,
@@ -195,14 +191,7 @@ export default function ChatArea({
           </div>
         </div>
         <div className="flex items-center gap-0.5 sm:gap-1">
-          {/* <Button
-            isIconOnly
-            variant="light"
-            size="sm"
-            className="text-gray-500 dark:text-foreground/50 hidden sm:inline-flex"
-          >
-            <HiOutlinePhone className="size-4" />
-          </Button> */}
+
           <Button
             isIconOnly
             variant="light"
@@ -247,7 +236,6 @@ export default function ChatArea({
         </div>
       </div>
 
-      {/* Messages Feed */}
       <div className="flex-1 overflow-y-auto p-4 space-y-1.5 bg-gray-50/30 dark:bg-black/10">
         <div className="flex items-center justify-center">
           <span className="text-[10px] text-gray-400 dark:text-foreground/40 bg-white dark:bg-content2 px-3 py-1 rounded-full shadow-sm border border-foreground/5">
@@ -327,7 +315,6 @@ export default function ChatArea({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input bar */}
       <div className="px-4 py-3 border-t border-foreground/10 bg-white dark:bg-content1">
         {attachedFile && (
           <div className="mb-2 p-1.5 bg-gray-50 dark:bg-content2 border border-foreground/5 rounded-lg flex items-center justify-between">

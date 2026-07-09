@@ -2,10 +2,7 @@ import { Input, Select, SelectItem } from "@heroui/react";
 import { useFormik } from "formik";
 import React, { forwardRef, useImperativeHandle } from "react";
 import * as Yup from "yup";
-import {
-  CAMPAIGN_CATEGORIES,
-  CAMPAIGN_TYPES,
-} from "../../../../../consts/campaign";
+import { CAMPAIGN_CATEGORIES, CAMPAIGN_TYPES } from "../../../../../consts/campaign";
 import { CampaignData, CampaignStepProps } from "./CampaignActionModal";
 
 export interface CampaignStepRef {
@@ -137,18 +134,6 @@ const CampaignSetupStep: React.ForwardRefRenderFunction<
           ))}
         </Select>
       </div>
-
-      {/* <div>
-        <Switch
-          size="sm"
-          isSelected={formik.values.isABTesting}
-          onValueChange={(isSelected: boolean) => {
-            formik.setFieldValue("isABTesting", isSelected);
-          }}
-        >
-          Enable A/B Testing
-        </Switch>
-      </div> */}
     </form>
   );
 };
