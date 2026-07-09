@@ -165,7 +165,7 @@ export default function ConversationList({
                   {getInitials(conv.patientName)}
                 </div>
 
-                {conv.isOnline && (
+                {conv.platform === "web" && conv.isOnline && (
                   <div className="absolute top-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white dark:border-content1 rounded-full" />
                 )}
 

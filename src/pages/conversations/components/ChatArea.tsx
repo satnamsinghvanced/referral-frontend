@@ -163,10 +163,12 @@ export default function ChatArea({
             >
               {getInitials(selectedConversation.patientName)}
             </div>
-            <div
-              className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-content1 ${selectedConversation.isOnline ? "bg-green-500" : "bg-gray-400"
-                }`}
-            />
+            {selectedConversation.platform === "web" && (
+              <div
+                className={`absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-content1 ${selectedConversation.isOnline ? "bg-green-500" : "bg-gray-400"
+                  }`}
+              />
+            )}
           </div>
           <div>
             <div className="flex items-center gap-1 sm:gap-2 flex-wrap sm:flex-nowrap">
@@ -185,13 +187,15 @@ export default function ChatArea({
                 {getPlatformLabel(selectedConversation.platform)}
               </Chip>
             </div>
-            <p className="text-[10px] sm:text-[11px] text-gray-400 dark:text-foreground/40 flex items-center gap-1">
-              <span
-                className={`w-1.5 h-1.5 rounded-full inline-block ${selectedConversation.isOnline ? "bg-green-500" : "bg-gray-400"
-                  }`}
-              />
-              {selectedConversation.isOnline ? "Active now" : "Offline"}
-            </p>
+            {selectedConversation.platform === "web" && (
+              <p className="text-[10px] sm:text-[11px] text-gray-400 dark:text-foreground/40 flex items-center gap-1">
+                <span
+                  className={`w-1.5 h-1.5 rounded-full inline-block ${selectedConversation.isOnline ? "bg-green-500" : "bg-gray-400"
+                    }`}
+                />
+                {selectedConversation.isOnline ? "Active now" : "Offline"}
+              </p>
+            )}
           </div>
         </div>
         <div className="flex items-center gap-0.5 sm:gap-1">
@@ -238,7 +242,11 @@ export default function ChatArea({
             </DropdownTrigger>
             <DropdownMenu onAction={(key) => onDropdownAction?.(key as string, selectedConversation)}>
               <DropdownItem key="view">View Profile</DropdownItem>
-              <DropdownItem key="archive">Archive</DropdownItem>
+              <DropdownItem
+                key={selectedConversation.status === "archived" ? "unarchive" : "archive"}
+              >
+                {selectedConversation.status === "archived" ? "Unarchive" : "Archive"}
+              </DropdownItem>
               <DropdownItem key="block" className="text-danger">
                 Block
               </DropdownItem>

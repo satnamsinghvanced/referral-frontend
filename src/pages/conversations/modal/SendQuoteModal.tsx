@@ -47,10 +47,10 @@ const SendQuoteModal = ({ isOpen, onClose, lead, onSendQuote }: SendQuoteModalPr
     },
     validationSchema,
     onSubmit: async (values) => {
-      if (!lead.patientEmail) {
+      if (!lead.patientEmail && !lead.patientPhone) {
         addToast({
-          title: "Email Error",
-          description: "Patient email address is not configured. Cannot send quote via email.",
+          title: "Contact Info Error",
+          description: "Patient must have either an email address or a phone number to send a quote.",
           color: "danger",
         });
         return;
@@ -59,13 +59,24 @@ const SendQuoteModal = ({ isOpen, onClose, lead, onSendQuote }: SendQuoteModalPr
       setIsSending(true);
       try {
         await sendLeadQuote({
-          id: lead.id,
+          id: lead.leadId || lead.id, // Support both lead tracking ID and conversation ID
           lineItems: values.lineItems,
           personalNote: values.personalNote,
+          sendType: "both",
         });
 
+        let deliveryMethod = "email";
+        if (lead.patientEmail && lead.patientPhone) {
+          deliveryMethod = "email and SMS";
+        } else if (lead.patientPhone) {
+          deliveryMethod = "SMS";
+        }
+
         const itemsText = values.lineItems.map(item => `${item.name || "Treatment"} ($${item.fee})`).join(", ");
-        const msgText = `Here is your treatment quote (sent via Email to ${lead.patientEmail}):\n${itemsText || "No items listed"}\nTotal Quote: $${total.toLocaleString()}${values.personalNote ? `\nNote: ${values.personalNote}` : ""}`;
+        const destination = lead.patientEmail && lead.patientPhone 
+          ? `${lead.patientEmail} and ${lead.patientPhone}` 
+          : (lead.patientEmail || lead.patientPhone);
+        const msgText = `Here is your treatment quote (sent via ${deliveryMethod} to ${destination}):\n${itemsText || "No items listed"}\nTotal Quote: $${total.toLocaleString()}${values.personalNote ? `\nNote: ${values.personalNote}` : ""}`;
         
         if (onSendQuote) {
           onSendQuote(msgText);
@@ -73,16 +84,16 @@ const SendQuoteModal = ({ isOpen, onClose, lead, onSendQuote }: SendQuoteModalPr
 
         addToast({
           title: "Quote Sent",
-          description: `Successfully sent a quote of $${total.toLocaleString()} to ${lead.patientName} via email.`,
+          description: `Successfully sent a quote of $${total.toLocaleString()} to ${lead.patientName} via ${deliveryMethod}.`,
           color: "success",
         });
         onClose();
         formik.resetForm();
       } catch (err: any) {
-        console.error("Failed to send quote email:", err);
+        console.error("Failed to send quote:", err);
         addToast({
           title: "Send Error",
-          description: "Could not send the email quote. Please check your email configuration.",
+          description: err.response?.data?.message || err.message || "Could not send the treatment quote.",
           color: "danger",
         });
       } finally {
@@ -286,7 +297,7 @@ const SendQuoteModal = ({ isOpen, onClose, lead, onSendQuote }: SendQuoteModalPr
 
               <div className="bg-slate-50 dark:bg-default-100/40 px-4 py-3 rounded-xl border border-slate-100 dark:border-default-200/50">
                 <div className="text-[12px] text-slate-600 dark:text-slate-300">
-                  Quote sent via: <span className="font-bold">Email</span>
+                  Quote sent via: <span className="font-bold">SMS + Email</span>
                 </div>
                 <div className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">
                   Patient can accept online. Quote valid for 30 days.

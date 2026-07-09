@@ -279,11 +279,13 @@ const Conversations = () => {
           selectedPlatform === "all" || conv.platform === selectedPlatform;
         let matchesFilter = true;
         if (filterDropdown === "unread") {
-          matchesFilter = conv.unreadCount > 0;
+          matchesFilter = conv.unreadCount > 0 && conv.status !== "archived";
         } else if (filterDropdown === "starred") {
-          matchesFilter = conv.isStarred;
+          matchesFilter = conv.isStarred && conv.status !== "archived";
         } else if (filterDropdown === "archived") {
           matchesFilter = conv.status === "archived";
+        } else {
+          matchesFilter = conv.status !== "archived";
         }
         return matchesSearch && matchesPlatform && matchesFilter;
       })
@@ -630,6 +632,26 @@ const Conversations = () => {
       if (selectedConversationId === conv.id) {
         setSelectedConversationId(null);
       }
+    } else if (key === "unarchive") {
+      setConversations((prev) =>
+        prev.map((c) => {
+          if (c.id === conv.id) {
+            return {
+              ...c,
+              status: "active",
+            };
+          }
+          return c;
+        })
+      );
+      addToast({
+        title: "Conversation Unarchived",
+        description: `${conv.patientName}'s conversation has been unarchived`,
+        color: "success",
+      });
+      if (selectedConversationId === conv.id) {
+        setSelectedConversationId(null);
+      }
     } else if (key === "block") {
       addToast({
         title: "User Blocked",
@@ -645,34 +667,34 @@ const Conversations = () => {
   const HEADING_DATA = {
     heading: "Conversations",
     subHeading: "Unified inbox for all patient communications",
-    buttons: [
-      {
-        label: "Filters",
-        onClick: () => {
-          addToast({
-            title: "Coming Soon",
-            description: "Advanced filters are in progress",
-            color: "primary",
-          });
-        },
-        icon: <HiOutlineFilter fontSize={15} />,
-        variant: "ghost" as const,
-        color: "default" as const,
-        className: "border-small",
-      },
-      {
-        label: "Quick Actions",
-        onClick: () => {
-          addToast({
-            title: "Coming Soon",
-            description: "Quick actions are in progress",
-            color: "primary",
-          });
-        },
-        variant: "solid" as const,
-        color: "primary" as const,
-      },
-    ],
+    // buttons: [
+    //   {
+    //     label: "Filters",
+    //     onClick: () => {
+    //       addToast({
+    //         title: "Coming Soon",
+    //         description: "Advanced filters are in progress",
+    //         color: "primary",
+    //       });
+    //     },
+    //     icon: <HiOutlineFilter fontSize={15} />,
+    //     variant: "ghost" as const,
+    //     color: "default" as const,
+    //     className: "border-small",
+    //   },
+    //   {
+    //     label: "Quick Actions",
+    //     onClick: () => {
+    //       addToast({
+    //         title: "Coming Soon",
+    //         description: "Quick actions are in progress",
+    //         color: "primary",
+    //       });
+    //     },
+    //     variant: "solid" as const,
+    //     color: "primary" as const,
+    //   },
+    // ],
   };
 
   return (
@@ -738,7 +760,13 @@ const Conversations = () => {
               />
               <LeadSidebar
                 selectedConversation={selectedConversation}
-                onArchiveLead={(conv) => handleDropdownAction("archive", conv)}
+                onArchiveLead={(conv) => {
+                  if (conv.status === "archived") {
+                    handleDropdownAction("unarchive", conv);
+                  } else {
+                    handleDropdownAction("archive", conv);
+                  }
+                }}
                 onViewLead={(conv) => handleDropdownAction("view", conv)}
               />
             </div>
@@ -761,6 +789,7 @@ const Conversations = () => {
                 return {
                   ...c,
                   leadId: updatedLead._id,
+                  leadStatus: updatedLead.status,
                   patientName: `${updatedLead.firstName} ${updatedLead.lastName}`,
                   patientEmail: updatedLead.email,
                   patientPhone: updatedLead.phone,
@@ -775,6 +804,7 @@ const Conversations = () => {
               return {
                 ...prev,
                 leadId: updatedLead._id,
+                leadStatus: updatedLead.status,
                 patientName: `${updatedLead.firstName} ${updatedLead.lastName}`,
                 patientEmail: updatedLead.email,
                 patientPhone: updatedLead.phone,
@@ -789,7 +819,6 @@ const Conversations = () => {
         isOpen={isScheduleModalOpen}
         onClose={() => setIsScheduleModalOpen(false)}
         lead={modalLead}
-        onSchedule={handleSendAutomatedMessage}
       />
       <SendFormsModal
         isOpen={isSendFormsModalOpen}
