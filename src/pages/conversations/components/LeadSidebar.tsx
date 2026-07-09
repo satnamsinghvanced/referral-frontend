@@ -60,7 +60,7 @@ export default function LeadSidebar({
             startContent={<HiOutlineArchive className="size-3" />}
             onClick={() => onArchiveLead?.(selectedConversation)}
           >
-            Archive
+            {selectedConversation.status === "archived" ? "Unarchive" : "Archive"}
           </Button>
         </div>
       </div>

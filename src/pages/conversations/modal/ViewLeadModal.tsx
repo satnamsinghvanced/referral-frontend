@@ -39,7 +39,7 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
       setEmail(lead.patientEmail || "");
       setPhone(lead.patientPhone || "");
       setLocation(lead.patientLocation || "");
-      setIsEditing(!lead.leadId); 
+      setIsEditing(!lead.leadId);
     }
   }, [lead, isOpen]);
 
@@ -112,8 +112,54 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
       setLoading(false);
     }
   };
-  console.log("lead.leadId",lead);
-  
+  const getStatusDetails = () => {
+    if (!lead.leadId) {
+      return {
+        label: "Not Saved",
+        className: "bg-slate-100 dark:bg-slate-800/60 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700/60"
+      };
+    }
+    switch (lead.leadStatus) {
+      case "newLead":
+        return {
+          label: "New Lead",
+          className: "bg-sky-100 dark:bg-sky-900/60 text-sky-500 dark:text-sky-300 border-sky-200 dark:border-sky-700/60"
+        };
+      case "contacted":
+        return {
+          label: "Contacted",
+          className: "bg-blue-100 dark:bg-blue-900/60 text-blue-500 dark:text-blue-300 border-blue-200 dark:border-blue-700/60"
+        };
+      case "appointmentScheduled":
+        return {
+          label: "Appointment Scheduled",
+          className: "bg-purple-100 dark:bg-purple-900/60 text-purple-500 dark:text-purple-300 border-purple-200 dark:border-purple-700/60"
+        };
+      case "noShow":
+        return {
+          label: "No Show",
+          className: "bg-orange-100 dark:bg-orange-900/60 text-orange-500 dark:text-orange-300 border-orange-200 dark:border-orange-700/60"
+        };
+      case "patientWon":
+        return {
+          label: "Patient Won",
+          className: "bg-emerald-100 dark:bg-emerald-900/60 text-emerald-500 dark:text-emerald-300 border-emerald-200 dark:border-emerald-700/60"
+        };
+      case "lost":
+        return {
+          label: "Patient Lost",
+          className: "bg-slate-100 dark:bg-slate-900/60 text-slate-500 dark:text-slate-350 border-slate-200 dark:border-slate-700/60"
+        };
+      default:
+        return {
+          label: "New Lead",
+          className: "bg-sky-100 dark:bg-sky-900/60 text-sky-500 dark:text-sky-300 border-sky-200 dark:border-sky-700/60"
+        };
+    }
+  };
+
+  const statusInfo = getStatusDetails();
+
   return (
     <Modal
       isOpen={isOpen}
@@ -147,14 +193,14 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
               <div className="flex gap-3">
                 <div className="bg-sky-50 dark:bg-sky-950/40 rounded-xl p-3 flex-1 flex flex-col items-center justify-center text-center min-w-0">
                   <span className="text-[11px] font-medium text-slate-400 dark:text-slate-400 mb-2">Status</span>
-                  <span className="px-2.5 py-0.5 bg-sky-100 dark:bg-sky-900/60 text-sky-500 dark:text-sky-300 text-[11px] rounded-full font-semibold border border-sky-200 dark:border-sky-700/60 whitespace-nowrap">
-                    {lead.leadId ? 'New Lead' : ""}
+                  <span className={`px-2.5 py-0.5 text-[11px] rounded-full font-semibold border whitespace-nowrap ${statusInfo.className}`}>
+                    {statusInfo.label}
                   </span>
                 </div>
                 <div className="bg-emerald-50 dark:bg-emerald-950/40 rounded-xl p-3 flex-1 flex flex-col items-center justify-center text-center min-w-0">
-                  <span className="text-[11px] font-medium text-slate-400 dark:text-slate-400 mb-1">Lead Scoree</span>
+                  <span className="text-[11px] font-medium text-slate-400 dark:text-slate-400 mb-1">Lead Score</span>
                   <span className="text-[22px] font-extrabold text-emerald-500 dark:text-emerald-400 leading-none">
-                    74
+                    0
                   </span>
                 </div>
                 <div className="bg-purple-50 dark:bg-purple-950/40 rounded-xl p-3 flex-1 flex flex-col items-center justify-center text-center min-w-0">
@@ -350,7 +396,7 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
                     >
                       Schedule Appointment
                     </Button>
-                     <Button
+                    <Button
                       variant="bordered"
                       className="flex-1 font-semibold text-slate-600 dark:text-slate-300 border-slate-200 dark:border-default-300 text-[12.5px] h-9.5 rounded-lg shadow-none"
                       onPress={onClose}

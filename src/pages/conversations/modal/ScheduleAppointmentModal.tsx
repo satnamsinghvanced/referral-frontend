@@ -1,4 +1,3 @@
-import React from "react";
 import { Modal, ModalContent, ModalBody, Button, Select, SelectItem, Textarea, Switch, addToast, DatePicker, TimeInput } from "@heroui/react";
 import { parseDate, CalendarDate, Time, today, getLocalTimeZone } from "@internationalized/date";
 import { Conversation } from "../../../consts/conversations";
@@ -12,7 +11,6 @@ interface ScheduleAppointmentModalProps {
   isOpen: boolean;
   onClose: () => void;
   lead: Conversation | null;
-  onSchedule?: (text: string) => void;
 }
 
 const APPOINTMENT_TYPES = [
@@ -29,7 +27,7 @@ const PROVIDERS = [
   { key: "dr-smith", label: "Dr. Michael Smith" },
 ];
 
-const ScheduleAppointmentModal = ({ isOpen, onClose, lead, onSchedule }: ScheduleAppointmentModalProps) => {
+const ScheduleAppointmentModal = ({ isOpen, onClose, lead }: ScheduleAppointmentModalProps) => {
 
   const validationSchema = Yup.object().shape({
     appointmentType: Yup.string().required("Required"),
@@ -50,7 +48,9 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead, onSchedule }: Schedul
       sendReminder: true,
     },
     validationSchema,
-    onSubmit: (values) => {
+    onSubmit: async (values) => {
+      if (!lead) return;
+
       // Format date and time
       const dateStr = values.date ? new Date(values.date).toLocaleDateString() : 'N/A';
 
@@ -68,10 +68,21 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead, onSchedule }: Schedul
       }
 
       const providerLabel = PROVIDERS.find(p => p.key === values.provider)?.label || values.provider;
-      const msgText = `Your appointment has been scheduled!\nType: ${values.appointmentType}\nDate: ${dateStr}\nTime: ${timeStr}\nDoctor: ${providerLabel}`;
 
-      if (onSchedule) {
-        onSchedule(msgText);
+      if (values.sendReminder && lead.leadId) {
+        try {
+          const { sendLeadAppointment } = await import("../../../services/leadPipeline");
+          await sendLeadAppointment({
+            id: lead.leadId,
+            appointmentType: values.appointmentType,
+            date: dateStr,
+            time: timeStr,
+            provider: providerLabel,
+            ...(values.notes ? { notes: values.notes } : {})
+          });
+        } catch (err) {
+          console.error("Failed to send scheduled appointment confirmation/reminder:", err);
+        }
       }
 
       addToast({
@@ -280,8 +291,10 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead, onSchedule }: Schedul
               <div className="flex gap-1.5 sm:gap-2.5 pb-1">
                 <Button
                   className="flex-[2] font-bold bg-[#10b981] text-white text-[11px] xs:text-[12.5px] sm:text-[13px] px-2 sm:px-4 h-9 rounded-lg"
-                  startContent={<HiOutlineCheckCircle className="text-[14px] sm:text-[16px] shrink-0" />}
+                  startContent={!formik.isSubmitting && <HiOutlineCheckCircle className="text-[14px] sm:text-[16px] shrink-0" />}
                   onPress={() => formik.handleSubmit()}
+                  isLoading={formik.isSubmitting}
+                  isDisabled={formik.isSubmitting}
                 >
                   <span className="truncate">Confirm Appointment</span>
                 </Button>
@@ -289,6 +302,7 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead, onSchedule }: Schedul
                   variant="bordered"
                   className="flex-1 font-semibold text-slate-600 dark:text-slate-300 border-slate-200 dark:border-default-300 text-[11px] xs:text-[12.5px] sm:text-[13px] px-2 sm:px-4 h-9 rounded-lg"
                   onPress={onClose}
+                  isDisabled={formik.isSubmitting}
                 >
                   Cancel
                 </Button>

@@ -55,4 +55,5 @@ export interface Conversation {
   treatmentInterest: string[];
   recipientId?: string;
   leadId?: string;
+  leadStatus?: string;
 }

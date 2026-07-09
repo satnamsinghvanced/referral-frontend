@@ -39,16 +39,54 @@ export const sendLeadEmail = async ({
   return response.data;
 };
 
+export const sendLeadSms = async ({
+  id,
+  body,
+}: {
+  id: string;
+  body: string;
+}): Promise<any> => {
+  const response = await axios.post(`/lead/send-sms/${id}`, { body });
+  return response.data;
+};
+
+export const sendLeadAppointment = async ({
+  id,
+  appointmentType,
+  date,
+  time,
+  provider,
+  notes,
+}: {
+  id: string;
+  appointmentType: string;
+  date: string;
+  time: string;
+  provider: string;
+  notes?: string;
+}): Promise<any> => {
+  const response = await axios.post(`/lead/send-appointment/${id}`, {
+    appointmentType,
+    date,
+    time,
+    provider,
+    notes,
+  });
+  return response.data;
+};
+
 export const sendLeadQuote = async ({
   id,
   lineItems,
   personalNote,
+  sendType,
 }: {
   id: string;
   lineItems: any[];
   personalNote?: string;
+  sendType?: "email" | "sms" | "both";
 }): Promise<any> => {
-  const response = await axios.post(`/lead/send-quote/${id}`, { lineItems, personalNote });
+  const response = await axios.post(`/lead/send-quote/${id}`, { lineItems, personalNote, sendType });
   return response.data;
 };
 
