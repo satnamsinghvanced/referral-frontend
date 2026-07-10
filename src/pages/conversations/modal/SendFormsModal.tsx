@@ -161,8 +161,8 @@ const SendFormsModal = ({ isOpen, onClose, lead }: SendFormsModalProps) => {
         }
 
         addToast({
-          title: "Intake Link Created",
-          description: `Intake link generated successfully.`,
+          title: "Link Created",
+          description: `link generated successfully.`,
           color: "success",
         });
       } catch (err: any) {
@@ -214,7 +214,7 @@ const SendFormsModal = ({ isOpen, onClose, lead }: SendFormsModalProps) => {
               {generatedLink ? (
                 <div className="space-y-4">
                   <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal">
-                    The dynamic link has been successfully created for the selected form(s).
+                    The Forms link has been successfully created for the selected form(s).
                   </p>
 
                   {deliveryResult && (
@@ -337,15 +337,16 @@ const SendFormsModal = ({ isOpen, onClose, lead }: SendFormsModalProps) => {
 
                   <div className="flex gap-2.5 pb-1">
                     <Button
+                      isLoading={formik.isSubmitting}
                       className={`flex-[2] font-bold text-white text-[12.5px] sm:text-[13px] h-9 rounded-lg ${selectedCount > 0
                           ? "bg-[#8b5cf6]"
                           : "bg-[#c0a9fa] cursor-not-allowed opacity-80"
                         }`}
-                      startContent={<HiOutlinePaperAirplane className="text-[15px] shrink-0 rotate-45" />}
+                      startContent={!formik.isSubmitting && <HiOutlinePaperAirplane className="text-[15px] shrink-0 rotate-45" />}
                       onPress={() => formik.handleSubmit()}
-                      disabled={selectedCount === 0}
+                      disabled={selectedCount === 0 || formik.isSubmitting}
                     >
-                      {selectedCount > 0 ? `Send ${selectedCount} Forms` : "Send Forms"}
+                      {formik.isSubmitting ? "Sending..." : selectedCount > 0 ? `Send ${selectedCount} Forms` : "Send Forms"}
                     </Button>
                     <Button
                       variant="bordered"

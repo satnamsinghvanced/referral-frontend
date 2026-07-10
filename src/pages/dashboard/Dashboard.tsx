@@ -336,7 +336,7 @@ const Dashboard = () => {
             <h3 className="text-sm md:text-base mb-4">Recent Activity</h3>
             <div className="space-y-4 md:space-y-2">
               {isLoading ? (
-                <div className="py-8 flex items-center j ustify-center">
+                <div className="py-8 flex items-center justify-center">
                   <LoadingState />
                 </div>
               ) : recentActivities.length > 0 ? (

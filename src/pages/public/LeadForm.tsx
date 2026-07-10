@@ -15,7 +15,7 @@ export default function LeadForm() {
   const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    document.title = "Patient Intake Form";
+    document.title = "Patient Form";
     const loadForm = async () => {
       if (!token) return;
       try {
@@ -135,7 +135,7 @@ export default function LeadForm() {
       <div style={styles.page}>
         <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 16 }}>
           <Spinner size="lg" color="primary" />
-          <p style={{ color: "#94a3b8", fontSize: 14 }}>Loading intake form...</p>
+          <p style={{ color: "#94a3b8", fontSize: 14 }}>Loading form...</p>
         </div>
       </div>
     );
@@ -198,13 +198,10 @@ export default function LeadForm() {
             </div>
             <div>
               <div style={styles.practiceName}>Practice Marketer</div>
-              <div style={styles.practiceSubtitle}>Patient Intake Portal</div>
+              <div style={styles.practiceSubtitle}>Patient Portal</div>
             </div>
           </div>
           <div style={styles.headerRight}>
-            <svg width="16" height="16" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="2" viewBox="0 0 24 24">
-              <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 .84h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z" />
-            </svg>
             <span style={{ color: "rgba(255,255,255,0.9)", fontSize: 13, fontWeight: 600 }}>Secure Form</span>
           </div>
         </div>
@@ -216,7 +213,7 @@ export default function LeadForm() {
           <div style={styles.formTitleRow}>
             <span style={{ fontSize: 20 }}>⭐</span>
             <div>
-              <h2 style={styles.formTitle}>{formName || "Patient Intake Form"}</h2>
+              <h2 style={styles.formTitle}>{formName || "Patient Form"}</h2>
               <p style={styles.formSubtitle}>Please fill out the form below and we'll contact you shortly.</p>
             </div>
           </div>
