@@ -131,7 +131,6 @@ const CampaignCard = ({
         </div>
       )}
 
-      {/* Action Buttons Row */}
       <div className="flex justify-between items-center pt-3.5 mt-3.5 border-t border-foreground/10">
         <div className="flex gap-2">
           {["Edit", "Duplicate"].map((action) => (
@@ -205,17 +204,6 @@ const CampaignCard = ({
           >
             View Report
           </Button>
-          {/* <Button
-            size="sm"
-            radius="sm"
-            variant="ghost"
-            color="default"
-            onPress={() => onArchive(_id)}
-            startContent={<FiArchive className="size-3.5" />}
-            className="border-small"
-          >
-            Archive
-          </Button> */}
           <Button
             size="sm"
             radius="sm"

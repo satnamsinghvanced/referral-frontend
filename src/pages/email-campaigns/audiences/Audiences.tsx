@@ -37,26 +37,14 @@ const INITIAL_FILTERS: AudienceFilters = {
 };
 
 const Audiences: React.FC = () => {
-  const [currentFilters, setCurrentFilters] =
-    useState<AudienceFilters>(INITIAL_FILTERS);
+  const [currentFilters, setCurrentFilters] = useState<AudienceFilters>(INITIAL_FILTERS);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingSegment, setEditingSegment] = useState<
-    SegmentFormValues | undefined
-  >(undefined);
+  const [editingSegment, setEditingSegment] = useState<SegmentFormValues | undefined>(undefined);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [segmentToDeleteId, setSegmentToDeleteId] = useState<string | null>(
-    null,
-  );
+  const [segmentToDeleteId, setSegmentToDeleteId] = useState<string | null>(null);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
-
-  // Debounce search
   const debouncedSearch = useDebouncedValue(currentFilters.search, 500);
-
-  // Query
-  const { data, isLoading } = useAudiences({
-    ...currentFilters,
-    search: debouncedSearch as string,
-  });
+  const { data, isLoading } = useAudiences({ ...currentFilters, search: debouncedSearch as string });
 
   usePaginationAdjustment({
     totalPages: data?.pagination?.totalPages || 0,
@@ -139,13 +127,8 @@ const Audiences: React.FC = () => {
     const audience = audiences.find((a) => a._id === id);
     if (audience) {
       const dataStr = JSON.stringify(audience, null, 2);
-      const dataUri =
-        "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
-
-      const exportFileDefaultName = `${audience.name
-        .replace(/\s+/g, "_")
-        .toLowerCase()}_segment.json`;
-
+      const dataUri = "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
+      const exportFileDefaultName = `${audience.name.replace(/\s+/g, "_").toLowerCase()}_segment.json`;
       const linkElement = document.createElement("a");
       linkElement.setAttribute("href", dataUri);
       linkElement.setAttribute("download", exportFileDefaultName);
@@ -154,11 +137,7 @@ const Audiences: React.FC = () => {
   };
 
   const handleFilterChange = (key: keyof AudienceFilters, value: any) => {
-    setCurrentFilters((prev) => ({
-      ...prev,
-      [key]: value,
-      page: 1,
-    }));
+    setCurrentFilters((prev) => ({ ...prev, [key]: value, page: 1 }));
   };
 
   const audiences = data?.audiences || [];

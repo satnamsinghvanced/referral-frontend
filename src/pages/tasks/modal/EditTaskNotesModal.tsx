@@ -1,12 +1,4 @@
-import {
-  Avatar,
-  Button,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalHeader,
-  Textarea,
-} from "@heroui/react";
+import { Avatar, Button, Modal, ModalBody, ModalContent, ModalHeader, Textarea } from "@heroui/react";
 import { useEffect, useRef } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -24,12 +16,7 @@ interface EditTaskNotesModalProps {
 const validationSchema = Yup.object({
   comment: Yup.string().required("Comment content is required"),
 });
-const EditTaskNotesModal = ({
-  isOpen,
-  onClose,
-  task,
-  refetch,
-}: EditTaskNotesModalProps) => {
+const EditTaskNotesModal = ({ isOpen, onClose, task, refetch }: EditTaskNotesModalProps) => {
   const { mutate: updateTask, isPending: isUpdating } = useUpdateTask();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const formik = useFormik({
@@ -37,7 +24,7 @@ const EditTaskNotesModal = ({
       comment: "",
     },
     validationSchema,
-    onSubmit: (values) => { 
+    onSubmit: (values) => {
       updateTask(
         {
           taskId: task._id,

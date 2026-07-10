@@ -25,12 +25,7 @@ const TAG_ACTIONS = [
   { label: "Remove Tag", value: "remove" },
 ];
 
-const TagModal: React.FC<TagModalProps> = ({
-  isOpen,
-  onOpenChange,
-  onSave,
-  initialData,
-}) => {
+const TagModal: React.FC<TagModalProps> = ({ isOpen, onOpenChange, onSave, initialData }) => {
   const validationSchema = Yup.object().shape({
     action: Yup.string().required("Action is required"),
     tagName: Yup.string().trim().required("Tag name is required"),

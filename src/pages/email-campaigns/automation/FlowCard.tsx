@@ -13,10 +13,7 @@ import {
   useUpdateAutomation,
 } from "../../../hooks/useCampaign";
 
-const FlowCard = ({
-  flow,
-  onEdit,
-}: {
+const FlowCard = ({ flow, onEdit }: {
   flow: IAutomation;
   onEdit: (id: string) => void;
 }) => {
@@ -25,26 +22,10 @@ const FlowCard = ({
   const duplicateMutation = useDuplicateAutomation();
   const updateMutation = useUpdateAutomation(flow._id);
   const deleteModal = useDisclosure();
-
-  const getIconForAction = (action: string) => {
-    switch (action) {
-      case "Edit Flow":
-        return FiEdit;
-      case "Duplicate":
-        return FiCopy;
-      case "Pause":
-        return LuPause;
-      default:
-        return null;
-    }
-  };
-
   const emailStepsCount = steps.filter((s) => s.type === "send-email").length;
-
   const handleDelete = () => {
     deleteModal.onOpen();
   };
-
   const handleConfirmDelete = () => {
     deleteMutation.mutate(flow._id, {
       onSuccess: () => {
@@ -193,17 +174,6 @@ const FlowCard = ({
           )}
         </div>
         <div className="flex gap-2 text-sm font-medium text-gray-600 dark:text-foreground/60">
-          {/* <Button
-            size="sm"
-            radius="sm"
-            variant="ghost"
-            color="default"
-            onPress={() => console.log("View Report clicked")}
-            startContent={<IoTrendingUp className="size-3.5" />}
-            className="border-small"
-          >
-            Analytics
-          </Button> */}
           <Button
             size="sm"
             radius="sm"

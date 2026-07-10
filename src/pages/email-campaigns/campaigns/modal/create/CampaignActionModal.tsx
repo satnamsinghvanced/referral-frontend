@@ -10,13 +10,9 @@ import React, { useRef, useState } from "react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { LuSave, LuSend } from "react-icons/lu";
 import CampaignSidebar, { steps } from "./CampaignSidebar";
-// Import all step components
 import { useEffect } from "react";
 import { FaRegEnvelope } from "react-icons/fa";
-import {
-  useCreateCampaign,
-  useUpdateCampaign,
-} from "../../../../../hooks/useCampaign";
+import { useCreateCampaign, useUpdateCampaign } from "../../../../../hooks/useCampaign";
 import { ICampaign, ICampaignPayload } from "../../../../../types/campaign";
 import CampaignAudienceStep from "./CampaignAudienceStep";
 import CampaignContentStep from "./CampaignContentStep";
@@ -27,7 +23,6 @@ import CampaignTemplateStep from "./CampaignTemplateStep";
 import { CAMPAIGN_CATEGORIES } from "../../../../../consts/campaign";
 import { CampaignTemplate } from "../../../../../types/campaign";
 
-// --- Interface Definitions ---
 
 export interface CampaignData {
   name: string;
@@ -81,21 +76,12 @@ const initialCampaignData: CampaignData = {
   },
 };
 
-const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
-  isOpen,
-  onClose,
-  editingCampaign,
-  prefillTemplate,
-}) => {
+const CampaignActionModal: React.FC<CampaignActionModalProps> = ({ isOpen, onClose, editingCampaign, prefillTemplate }) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [campaignData, setCampaignData] =
-    useState<CampaignData>(initialCampaignData);
-  const [validationErrors, setValidationErrors] = useState<
-    Record<string, string>
-  >({});
+  const [campaignData, setCampaignData] = useState<CampaignData>(initialCampaignData);
+  const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const [isStepValid, setIsStepValid] = useState(false);
   const [actionType, setActionType] = useState<"draft" | "submit" | null>(null);
-
   const createMutation = useCreateCampaign();
   const updateMutation = useUpdateCampaign();
   useEffect(() => {
@@ -123,7 +109,6 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
         CAMPAIGN_CATEGORIES.find((c) => c.label === prefillTemplate.category)?.value ||
         CAMPAIGN_CATEGORIES.find((c) => c.value === prefillTemplate.category)?.value ||
         prefillTemplate.category;
-
       setCampaignData({
         ...initialCampaignData,
         name: `${prefillTemplate.name}`,
@@ -136,12 +121,8 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
       setCampaignData(initialCampaignData);
     }
   }, [editingCampaign, prefillTemplate]);
-
-  // Ref to hold the current step component's exposed methods
   const stepRef = useRef<CampaignStepRef>(null);
-
   const totalSteps = steps.length;
-
   const stepComponents = [
     CampaignSetupStep,
     CampaignTemplateStep,
@@ -150,15 +131,10 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
     CampaignScheduleStep,
     CampaignReviewStep,
   ];
-
   const CurrentComponent = stepComponents[currentStep];
-
-  // --- Handlers ---
-
   const updateData = (data: Partial<CampaignData>) => {
     setCampaignData((prev) => ({ ...prev, ...data }));
   };
-
   const handleNext = (data: Partial<CampaignData>) => {
     setCampaignData((prev) => ({ ...prev, ...data }));
     setValidationErrors({});
@@ -166,26 +142,18 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
       setCurrentStep(currentStep + 1);
     }
   };
-
   const handlePrevious = () => {
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
       setValidationErrors({});
     }
   };
-
   const handleStepChange = (stepId: number) => {
-    // Only allow navigation if:
-    // 1. Moving to a previous step
-    // 2. Moving to the current step
-    // 3. Moving to NO MORE than the next step, IF current step is valid
     if (stepId < currentStep) {
       setCurrentStep(stepId);
       setValidationErrors({});
     } else if (stepId === currentStep) {
-      // Stay here
     } else if (isStepValid) {
-      // If valid, treat any forward click as "Next"
       validateAndProceed();
     }
   };
@@ -200,11 +168,9 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
   };
 
   const validateAndProceed = () => {
-    // Check if the current component exposes a validation function via ref
     if (stepRef.current && stepRef.current.triggerValidationAndProceed) {
       stepRef.current.triggerValidationAndProceed();
     } else {
-      // If no custom validation is needed for this step, just proceed
       handleNext({});
     }
   };
@@ -216,7 +182,6 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
       templateId: campaignData.templateId || undefined,
       audienceId: campaignData.audienceId || undefined,
     } as ICampaignPayload;
-
     setActionType("submit");
     if (editingCampaign) {
       updateMutation.mutate(
@@ -241,7 +206,6 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
       templateId: campaignData.templateId || undefined,
       audienceId: campaignData.audienceId || undefined,
     } as ICampaignPayload;
-
     setActionType("draft");
     if (editingCampaign) {
       updateMutation.mutate(
@@ -284,7 +248,6 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
             </p>
           </div>
         </ModalHeader>
-
         <ModalBody className="flex flex-row gap-0 overflow-hidden p-0">
           <CampaignSidebar
             currentStep={currentStep}
@@ -292,7 +255,6 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
             onStepChange={handleStepChange}
             isStepValid={isStepValid}
           />
-
           <div className="flex-grow p-4 overflow-y-auto">
             {/* @ts-ignore */}
             <CurrentComponent
@@ -305,7 +267,6 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
             />
           </div>
         </ModalBody>
-
         <ModalFooter className="flex justify-between items-center p-4 border-t border-foreground/10">
           <Button
             size="sm"
@@ -319,7 +280,6 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({
           >
             Previous
           </Button>
-
           {currentStep < totalSteps - 1 ? (
             <Button
               size="sm"

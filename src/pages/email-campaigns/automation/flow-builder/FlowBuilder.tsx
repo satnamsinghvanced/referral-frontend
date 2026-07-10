@@ -8,16 +8,9 @@ import EmailModal from "./modal/EmailModal";
 import TagModal from "./modal/TagModal";
 import TriggerModal from "./modal/TriggerModal";
 import WaitModal from "./modal/WaitModal";
-import {
-  useAutomationDetail,
-  useCreateAutomation,
-  useUpdateAutomation,
-} from "../../../../hooks/useCampaign";
+import { useAutomationDetail, useCreateAutomation, useUpdateAutomation } from "../../../../hooks/useCampaign";
 import { useEffect } from "react";
-import {
-  mapAPIFlowToUI,
-  mapUIFlowToAPI,
-} from "../../../../utils/automationMapper";
+import { mapAPIFlowToUI, mapUIFlowToAPI } from "../../../../utils/automationMapper";
 import { LoadingState } from "../../../../components/common/LoadingState";
 import { FlowStep, UIStepType } from "../../../../types/campaign";
 import { formatDateToReadable } from "../../../../utils/formatDateToReadable";
@@ -301,15 +294,12 @@ const FlowBuilder = ({ id, initialData, onSaved }: FlowBuilderProps) => {
   ): FlowStep[] => {
     const parts = path.split(".");
     const index = parseInt(parts[0] as string);
-
-    // If we're at the target level
     if (parts.length === 1) {
       const newList = [...stepList];
-      newList.splice(index + 1, 0, newStep); // Sibling insertion
+      newList.splice(index + 1, 0, newStep);
       return newList;
     }
 
-    // Special handling for adding to 'last' of a collection
     if (parts[1] === "children" && parts[2] === "last") {
       return stepList.map((step, idx) => {
         if (idx === index) {
@@ -338,8 +328,6 @@ const FlowBuilder = ({ id, initialData, onSaved }: FlowBuilderProps) => {
         return step;
       });
     }
-
-    // Recurse deeper
     return stepList.map((step, idx) => {
       if (idx === index) {
         if (parts[1] === "children") {

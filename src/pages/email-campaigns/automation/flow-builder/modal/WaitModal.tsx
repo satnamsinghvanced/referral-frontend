@@ -26,12 +26,7 @@ const TIME_UNITS = [
   { label: "Weeks", value: "weeks" },
 ];
 
-const WaitModal: React.FC<WaitModalProps> = ({
-  isOpen,
-  onOpenChange,
-  onSave,
-  initialData,
-}) => {
+const WaitModal: React.FC<WaitModalProps> = ({ isOpen, onOpenChange, onSave, initialData }) => {
   const validationSchema = Yup.object().shape({
     duration: Yup.number()
       .typeError("Duration must be a number")

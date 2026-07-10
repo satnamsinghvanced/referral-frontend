@@ -5,10 +5,7 @@ import { PiFunnelX } from "react-icons/pi";
 import DeleteConfirmationModal from "../../../components/common/DeleteConfirmationModal";
 import { LoadingState } from "../../../components/common/LoadingState";
 import Pagination from "../../../components/common/Pagination";
-import {
-  CAMPAIGN_CATEGORIES,
-  CAMPAIGN_STATUSES,
-} from "../../../consts/campaign";
+import { CAMPAIGN_CATEGORIES, CAMPAIGN_STATUSES } from "../../../consts/campaign";
 import {
   useArchiveCampaign,
   useCampaigns,
@@ -36,16 +33,12 @@ const Campaigns = () => {
   const [currentFilters, setCurrentFilters] =
     useState<ICampaignFilters>(INITIAL_FILTERS);
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);
-  const [editingCampaign, setEditingCampaign] = useState<ICampaign | null>(
-    null,
-  );
+  const [editingCampaign, setEditingCampaign] = useState<ICampaign | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [campaignToDelete, setCampaignToDelete] = useState<string | null>(null);
   const [reportCampaignId, setReportCampaignId] = useState<string | null>(null);
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-
   const { data, isLoading } = useCampaigns(currentFilters);
-
   usePaginationAdjustment({
     totalPages: data?.pagination?.totalPages || 0,
     currentPage: currentFilters.page || 1,

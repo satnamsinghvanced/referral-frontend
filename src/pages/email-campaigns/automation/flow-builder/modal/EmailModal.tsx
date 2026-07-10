@@ -21,27 +21,14 @@ interface EmailModalProps {
   initialData?: any;
 }
 
-const EmailModal: React.FC<EmailModalProps> = ({
-  isOpen,
-  onOpenChange,
-  onSave,
-  initialData,
-}) => {
-  const { data: campaignTemplates } = useCampaignTemplates({
-    page: 1,
-    limit: 100,
-  });
+const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onOpenChange, onSave, initialData }) => {
+  const { data: campaignTemplates } = useCampaignTemplates({ page: 1, limit: 100 });
   const templates = campaignTemplates?.templates || [];
-
   const validationSchema = Yup.object().shape({
     templateId: Yup.string().required("Email template is required"),
     subject: Yup.string()
       .trim()
-      .test(
-        "min-length",
-        "Subject should be at least 3 characters",
-        (val) => !val || val.length >= 3,
-      )
+      .test("min-length", "Subject should be at least 3 characters", (val) => !val || val.length >= 3)
       .required("Subject is required"),
   });
 

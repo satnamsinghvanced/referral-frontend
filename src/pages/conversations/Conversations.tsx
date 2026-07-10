@@ -6,10 +6,7 @@ import { HiOutlineMail, HiOutlineClock, HiOutlineTrendingUp } from "react-icons/
 import ComponentContainer from "../../components/common/ComponentContainer";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
 import TrendIndicator from "../../components/common/TrendIndicator";
-import {
-  Conversation,
-  ConversationMessage,
-} from "../../consts/conversations";
+import { Conversation, ConversationMessage } from "../../consts/conversations";
 import ConversationList from "./components/ConversationList";
 import ChatArea from "./components/ChatArea";
 import LeadSidebar from "./components/LeadSidebar";
@@ -24,7 +21,6 @@ import { uploadChatAttachment } from "../../services/conversationAttachment";
 import { useSocialCredentials } from "../../hooks/useSocial";
 import { useQueryClient } from "@tanstack/react-query";
 import {
-
   subscribeToNewMessage,
   unsubscribeFromNewMessage,
   subscribeToNewWebMessage,
@@ -50,10 +46,7 @@ const Conversations = () => {
   const [search, setSearch] = useState("");
   const [selectedPlatform, setSelectedPlatform] = useState("all");
   const [filterDropdown, setFilterDropdown] = useState("all");
-  const [selectedConversationId, setSelectedConversationId] = useState<
-    string | null
-  >(null);
-
+  const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
   const [isViewLeadModalOpen, setIsViewLeadModalOpen] = useState(false);
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [isSendFormsModalOpen, setIsSendFormsModalOpen] = useState(false);
@@ -73,7 +66,6 @@ const Conversations = () => {
           break;
         }
       }
-
       let computedCount = 0;
       for (let i = lastProviderIndex + 1; i < conv.messages.length; i++) {
         const msg = conv.messages[i];
@@ -81,7 +73,6 @@ const Conversations = () => {
           computedCount++;
         }
       }
-
       const lastMsg = conv.messages[conv.messages.length - 1];
       if (lastMsg) {
         const seenMsgId = localStorage.getItem(`seen_msg_${conv.id}`);
@@ -181,7 +172,6 @@ const Conversations = () => {
         })
       );
     };
-
     subscribeToNewMessage(handleNewMessage);
     subscribeToNewWebMessage(handleNewWebMessage);
     return () => {
@@ -192,10 +182,8 @@ const Conversations = () => {
 
   const [messageInput, setMessageInput] = useState("");
   const MAX_ATTACHMENTS = 5;
-
   const [attachedFile, setAttachedFile] = useState<{ file: File; name: string; url: string; type: string }[]>([]);
   const [isSendingMessage, setIsSendingMessage] = useState(false);
-
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -235,7 +223,6 @@ const Conversations = () => {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-
     const remainingSlots = MAX_ATTACHMENTS - attachedFile.length;
     if (remainingSlots <= 0) {
       addToast({
@@ -246,7 +233,6 @@ const Conversations = () => {
       e.target.value = "";
       return;
     }
-
     const selectedFiles = Array.from(files).slice(0, remainingSlots);
     const newAttachments = selectedFiles.map((file) => ({
       file,
@@ -254,7 +240,6 @@ const Conversations = () => {
       url: URL.createObjectURL(file),
       type: file.type,
     }));
-
     setAttachedFile((prev) => [...prev, ...newAttachments]);
     addToast({
       title: "Image(s) Attached",
@@ -325,8 +310,6 @@ const Conversations = () => {
         localStorage.setItem(`seen_msg_${selectedConversation.id}`, lastMsg.id);
       }
 
-      // Always mark as seen on the platform/DB to synchronize backend stats, 
-      // regardless of local state overrides.
       const markAsSeenOnPlatform = async () => {
         try {
           const lastMsgId = lastMsg?.id;
@@ -343,7 +326,6 @@ const Conversations = () => {
         }
       };
       markAsSeenOnPlatform();
-
       if (selectedConversation.unreadCount > 0) {
         setConversations((prev) =>
           prev.map((c) => (c.id === selectedConversation.id ? { ...c, unreadCount: 0 } : c))
@@ -422,11 +404,9 @@ const Conversations = () => {
     if (!selectedConversationId) return;
     const currentConv = conversations.find((c) => c.id === selectedConversationId);
     if (!currentConv) return;
-
     const isInstagram = currentConv.platform === "instagram";
     const isFacebook = currentConv.platform === "facebook";
     const isWeb = currentConv.platform === "web";
-
     try {
       if (isInstagram && currentConv.recipientId) {
         await sendInstagramMessage(currentConv.recipientId, text);
@@ -479,23 +459,18 @@ const Conversations = () => {
     const trimmedText = messageInput.trim();
     if (!trimmedText && attachedFile.length === 0) return;
     if (isSendingMessage) return;
-
     const currentConv = conversations.find((c) => c.id === selectedConversationId);
     if (!currentConv) return;
-
     const isInstagram = currentConv.platform === "instagram";
     const isFacebook = currentConv.platform === "facebook";
     const isWeb = currentConv.platform === "web";
-
     setIsSendingMessage(true);
     try {
       const messagesToAdd: ConversationMessage[] = [];
 
-      // 1. Upload files first if any
       const uploadedAttachments: { name: string; url: string; type: string }[] = [];
       for (const item of attachedFile) {
         const uploadRes = await uploadChatAttachment(item.file);
-        // Safe unwrap in case the axios interceptor returned response.data directly
         const fileData = uploadRes?.data || uploadRes;
         if (fileData && fileData.url) {
           uploadedAttachments.push({
@@ -528,7 +503,6 @@ const Conversations = () => {
         });
       }
 
-      // If we have uploaded files, send each file as a separate message
       for (const file of uploadedAttachments) {
         let sentMsg: any;
         if (isInstagram && currentConv.recipientId) {
@@ -548,7 +522,7 @@ const Conversations = () => {
         });
       }
 
-      // 3. Update conversation state
+
       if (messagesToAdd.length > 0) {
         const lastMsg = messagesToAdd[messagesToAdd.length - 1];
         const lastMsgText = lastMsg ? lastMsg.text : "";

@@ -1,10 +1,6 @@
 import { useMemo, useEffect } from "react";
 import {
-  Button,
-  DatePicker,
-  Input,
-  Modal,
-  ModalBody,
+  Button, DatePicker, Input, Modal, ModalBody,
   ModalContent,
   ModalHeader,
   Select,
@@ -16,10 +12,10 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { TASK_PRIORITIES, TASK_STATUSES, TASK_TYPES } from "../../../consts/practice";
 import { useFetchTeamMembers } from "../../../hooks/settings/useTeam";
-import { useCreateTask, useFetchPartners, useUpdateTask } from "../../../hooks/usePartner";
+import { useCreateTask, useUpdateTask } from "../../../hooks/usePartner";
 import { useTypedSelector } from "../../../hooks/useTypedSelector";
 import { TeamMember } from "../../../services/settings/team";
-import { FetchPartnersResponse, TaskApiData, TaskComment } from "../../../types/partner";
+import { TaskApiData, TaskComment } from "../../../types/partner";
 import { formatCalendarDate } from "../../../utils/formatCalendarDate";
 
 interface TaskActionModalProps {
@@ -29,7 +25,6 @@ interface TaskActionModalProps {
   refetch?: () => void;
   practices?: any;
 }
-
 const validationSchema = Yup.object({
   title: Yup.string().required("Task title is required"),
   dueDate: Yup.string().required("Due date is required"),
@@ -39,15 +34,8 @@ const validationSchema = Yup.object({
   assignTo: Yup.array().min(1, "At least one member must be assigned"),
 });
 
-const TaskActionModal = ({
-  isOpen,
-  onClose,
-  task,
-  refetch,
-  practices,
-}: TaskActionModalProps) => {
+const TaskActionModal = ({ isOpen, onClose, task, refetch, practices }: TaskActionModalProps) => {
   const isEditMode = !!task;
-
   const { data: teamMembersData } = useFetchTeamMembers({ limit: 100 });
   const teamMembers = teamMembersData?.data;
   const activeTeamMembers = useMemo(
@@ -57,7 +45,6 @@ const TaskActionModal = ({
 
   // @ts-ignore
   const { user } = useTypedSelector((state) => state.auth);
-
   const { mutate: createTask, isPending: isCreating } = useCreateTask();
   const { mutate: updateTask, isPending: isUpdating } = useUpdateTask();
 

@@ -15,12 +15,10 @@ interface TemplatesProps {
 const Templates = ({ onUseTemplate }: TemplatesProps) => {
   const { data, isLoading } = useAutomationTemplates();
   const templates = data || [];
-
   return (
     <div className="space-y-4 md:space-y-5">
       <div className="flex flex-col gap-4 bg-background border border-foreground/10 rounded-xl p-4">
         <h4 className="font-medium text-sm">Pre-built Flow Templates</h4>
-
         {isLoading ? (
           <div className="py-20 flex justify-center">
             <LoadingState />
@@ -29,7 +27,6 @@ const Templates = ({ onUseTemplate }: TemplatesProps) => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4">
             {templates.map((template) => {
               const { name, description, totalUses, _id } = template;
-
               return (
                 <div
                   className="bg-content1 border border-foreground/10 rounded-xl p-4"

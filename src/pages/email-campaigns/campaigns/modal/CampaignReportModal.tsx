@@ -1,35 +1,10 @@
-import {
-  Button,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Progress,
-} from "@heroui/react";
+import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Progress } from "@heroui/react";
 import React from "react";
 import { FiEye, FiTarget } from "react-icons/fi";
-import {
-  LuMail,
-  LuMousePointer2,
-  LuTrendingUp,
-  LuClock,
-  LuZap,
-} from "react-icons/lu";
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { LuMail, LuMousePointer2, LuTrendingUp, LuClock, LuZap } from "react-icons/lu";
+import { Area, AreaChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { TbChartHistogram, TbNotes } from "react-icons/tb";
-import {
-  useCampaignAnalytics,
-  useCampaignDetails,
-} from "../../../../hooks/useCampaign";
+import { useCampaignAnalytics, useCampaignDetails } from "../../../../hooks/useCampaign";
 import { LoadingState } from "../../../../components/common/LoadingState";
 import CampaignStatusChip from "../../../../components/chips/CampaignStatusChip";
 import ChartTooltip from "../../../../components/common/ChartTooltip";
@@ -47,17 +22,12 @@ export default function CampaignReportModal({
 }: CampaignReportModalProps) {
   const { data: campaign, isLoading: isAnalyticsLoading } = useCampaignAnalytics(campaignId || "");
   const { data: campaignDetails, isLoading: isDetailsLoading } = useCampaignDetails(campaignId || "");
-
   const isLoading = isAnalyticsLoading || isDetailsLoading;
-
   if (!isOpen) return null;
-
-  // Extract rates and values for dynamic insight calculations
   const openRateNum = parseFloat(String(campaign?.stats?.openRate || "0").replace("%", "")) || 0;
   const clickRateNum = parseFloat(String(campaign?.stats?.clickRate || "0").replace("%", "")) || 0;
   const sentCount = campaign?.stats?.sent || 0;
   const conversionsCount = campaign?.stats?.conversions || 0;
-
   const insights = [];
   if (sentCount > 0) {
     if (openRateNum >= 50) {
@@ -136,7 +106,6 @@ export default function CampaignReportModal({
       }}
     >
       <ModalContent className="max-h-[90vh] overflow-hidden w-full">
-        {/* Modal Header */}
         <ModalHeader className="flex flex-col gap-1 p-6 border-b border-foreground/10 bg-default-50/50 dark:bg-default-100/5">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-primary/10 text-primary border border-primary/20">
@@ -163,7 +132,6 @@ export default function CampaignReportModal({
             </div>
           ) : (
             <>
-              {/* --- Summary Stats --- */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
                 <StatCard
                   title="Sent"
@@ -199,7 +167,6 @@ export default function CampaignReportModal({
                 />
               </div>
 
-              {/* --- Performance Over Time --- */}
               <div className="p-5 border border-foreground/10 rounded-2xl bg-default-50/50 dark:bg-default-100/5 space-y-4">
                 <div className="flex justify-between items-center">
                   <h3 className="text-sm font-semibold flex items-center gap-2 text-foreground">
@@ -292,9 +259,7 @@ export default function CampaignReportModal({
                 </div>
               </div>
 
-              {/* --- Links & Devices --- */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Top Links Card */}
                 <div className="p-5 border border-foreground/10 rounded-2xl bg-default-50/50 dark:bg-default-100/5 space-y-4">
                   <h3 className="text-sm font-semibold flex items-center gap-2 text-foreground">
                     <LuMousePointer2 className="h-4 w-4 text-blue-500" /> Top Links
@@ -333,7 +298,6 @@ export default function CampaignReportModal({
                   </div>
                 </div>
 
-                {/* Devices Used Card */}
                 <div className="p-5 border border-foreground/10 rounded-2xl bg-default-50/50 dark:bg-default-100/5 space-y-4">
                   <h3 className="text-sm font-semibold flex items-center gap-2 text-foreground">
                     <FiEye className="h-4 w-4 text-emerald-500" /> Devices Used
@@ -370,7 +334,6 @@ export default function CampaignReportModal({
                 </div>
               </div>
 
-              {/* --- Insights --- */}
               <div className="p-5 border border-foreground/10 rounded-2xl bg-default-50/50 dark:bg-default-100/5 space-y-3">
                 <h3 className="text-sm font-semibold flex items-center gap-2 text-foreground">
                   <TbNotes className="h-4 w-4 text-purple-500" /> Performance Insights
@@ -410,7 +373,6 @@ export default function CampaignReportModal({
   );
 }
 
-// --- Reusable Sub-Components ---
 
 const StatCard = ({
   title,
