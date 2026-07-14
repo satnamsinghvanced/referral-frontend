@@ -41,6 +41,7 @@ import { AiOutlinePlus } from "react-icons/ai";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import Pagination from "../../components/common/Pagination";
 import { EVEN_PAGINATION_LIMIT } from "../../consts/consts";
+import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
 import {
   LEAD_PRIORITIES,
   LEAD_SOURCES,
@@ -676,7 +677,7 @@ const LeadTracking = () => {
                                 {lead.email}
                               </div>
                               <div className="text-xs text-gray-400 dark:text-foreground/40">
-                                {lead.phone}
+                                {formatPhoneNumber(lead.phone)}
                               </div>
                             </div>
                           </td>

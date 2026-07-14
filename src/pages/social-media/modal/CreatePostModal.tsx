@@ -156,12 +156,14 @@ interface CreatePostModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
+  onUploadStart?: (title: string, uploadPromise: Promise<any>) => void;
 }
 
 export function CreatePostModal({
   isOpen,
   onClose,
   onSuccess,
+  onUploadStart,
 }: CreatePostModalProps) {
   const { data: overviewData } = useSocialOverview();
   const { data: credentials } = useSocialCredentials();
@@ -171,7 +173,7 @@ export function CreatePostModal({
   const [selectedMedia, setSelectedMedia] = useState<Media[]>([]);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
-  const { mutate: createPost, isPending } = useCreateSocialPost();
+  const { mutateAsync: createPost, isPending } = useCreateSocialPost();
 
   const availablePlatforms = useMemo(() => {
     if (!overviewData?.platformPerformance) return [];
@@ -191,7 +193,7 @@ export function CreatePostModal({
     },
     validationSchema: PostValidationSchema,
     enableReinitialize: true,
-    onSubmit: (values) => {
+    onSubmit: async (values) => {
       const formData = new FormData();
       formData.append("title", values.title);
       formData.append("description", values.postContent);
@@ -217,20 +219,24 @@ export function CreatePostModal({
         formData.append("scheduledTime", values.scheduledTime);
       }
 
-      createPost(formData, {
-        onSuccess: () => {
+      // Close the modal and reset states immediately
+      onClose();
+      formik.resetForm();
+      setActiveHashtags([]);
+      setSelectedMedia([]);
+
+      if (onUploadStart) {
+        onUploadStart(values.title, createPost(formData));
+      } else {
+        try {
+          await createPost(formData);
           addToast({
             title: "Success",
             description: "Social media post created successfully.",
             color: "success",
           });
-          formik.resetForm();
-          setActiveHashtags([]);
-          setSelectedMedia([]);
           if (onSuccess) onSuccess();
-          onClose();
-        },
-        onError: (error: any) => {
+        } catch (error: any) {
           const platformErrors = error.response?.data?.error?.errors;
           let description =
             error.response?.data?.message || "Failed to create post.";
@@ -247,8 +253,8 @@ export function CreatePostModal({
             description,
             color: "danger",
           });
-        },
-      });
+        }
+      }
     },
   });
 

@@ -13,6 +13,7 @@ import {
   Conversation,
 } from "../../../consts/conversations";
 import { getAvatarColor, getInitials, getPlatformLabel, getChipColor } from "../utils";
+import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
 
 interface LeadSidebarProps {
   selectedConversation: Conversation | null;
@@ -87,7 +88,7 @@ export default function LeadSidebar({
                 Phone
               </p>
               <p className="text-xs text-foreground font-medium">
-                {selectedConversation.patientPhone}
+                {formatPhoneNumber(selectedConversation.patientPhone)}
               </p>
             </div>
           </div>

@@ -1,4 +1,4 @@
-import { Tab, Tabs } from "@heroui/react";
+import { Tab, Tabs, Progress, addToast } from "@heroui/react";
 import { useMemo, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import ComponentContainer from "../../components/common/ComponentContainer";
@@ -8,11 +8,152 @@ import Analytics from "./Analytics";
 import { CreatePostModal } from "./modal/CreatePostModal";
 import Overview from "./Overview";
 import Posts from "./Posts";
+import { queryClient } from "../../providers/QueryProvider";
+import { fetchPostStatus } from "../../services/social";
 
 export default function SocialMedia() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const { data, isLoading } = useSocialOverview();
+
+  const [uploadTask, setUploadTask] = useState<{
+    id: string;
+    title: string;
+    progress: number;
+    status: "uploading" | "success" | "error";
+    errorMsg?: string;
+  } | null>(null);
+
+  const handleUploadStart = (title: string, uploadPromise: Promise<any>) => {
+    setUploadTask({
+      id: Math.random().toString(),
+      title,
+      progress: 5,
+      status: "uploading"
+    });
+
+    const interval = setInterval(() => {
+      setUploadTask((prev) => {
+        if (!prev || prev.status !== "uploading") {
+          clearInterval(interval);
+          return prev;
+        }
+        if (prev.progress < 30) {
+          return { ...prev, progress: prev.progress + 10 };
+        } else if (prev.progress < 75) {
+          return { ...prev, progress: prev.progress + 5 };
+        } else if (prev.progress < 90) {
+          return { ...prev, progress: prev.progress + 2 };
+        }
+        return prev;
+      });
+    }, 400);
+
+    uploadPromise
+      .then((resData: any) => {
+        clearInterval(interval);
+        
+        const postId = resData?.data?.postId;
+        if (!postId) {
+          // Fallback if no postId was returned
+          setUploadTask((prev) => prev ? { ...prev, progress: 100, status: "success" } : null);
+          queryClient.invalidateQueries({ queryKey: ["recent-posts"] });
+          queryClient.invalidateQueries({ queryKey: ["social-overview"] });
+          queryClient.invalidateQueries({ queryKey: ["posts-analytics"] });
+          addToast({
+            title: "Success",
+            description: "Social media post created successfully.",
+            color: "success",
+          });
+          setActiveTab("posts");
+          setTimeout(() => {
+            setUploadTask(null);
+          }, 3000);
+          return;
+        }
+
+        // Start polling the backend status for this post
+        const pollInterval = setInterval(async () => {
+          try {
+            const statusRes = await fetchPostStatus(postId);
+            const postStatus = statusRes?.data?.status;
+            const failureReason = statusRes?.data?.failureReason;
+
+            if (postStatus === "Published" || postStatus === "Partially Failed") {
+              clearInterval(pollInterval);
+              setUploadTask((prev) => prev ? { ...prev, progress: 100, status: "success" } : null);
+              
+              queryClient.invalidateQueries({ queryKey: ["recent-posts"] });
+              queryClient.invalidateQueries({ queryKey: ["social-overview"] });
+              queryClient.invalidateQueries({ queryKey: ["posts-analytics"] });
+
+              addToast({
+                title: "Success",
+                description: postStatus === "Published" 
+                  ? "Social media post published successfully." 
+                  : "Social media post published with some errors.",
+                color: postStatus === "Published" ? "success" : "warning",
+              });
+
+              setActiveTab("posts");
+
+              setTimeout(() => {
+                setUploadTask(null);
+              }, 3000);
+            } else if (postStatus === "Failed") {
+              clearInterval(pollInterval);
+              const errMsg = failureReason || "Failed to publish post to platforms.";
+              setUploadTask((prev) => prev ? { ...prev, status: "error", errorMsg: errMsg } : null);
+              
+              addToast({
+                title: "Error",
+                description: errMsg,
+                color: "danger",
+              });
+
+              setTimeout(() => {
+                setUploadTask(null);
+              }, 5000);
+            } else {
+              // Still "Processing": slowly increment progress bar towards 98%
+              setUploadTask((prev) => {
+                if (!prev || prev.status !== "uploading") {
+                  clearInterval(pollInterval);
+                  return prev;
+                }
+                const nextProgress = prev.progress < 98 ? prev.progress + 1 : prev.progress;
+                return { ...prev, progress: nextProgress };
+              });
+            }
+          } catch (err: any) {
+            console.error("Error polling post status:", err.message);
+          }
+        }, 3000);
+      })
+      .catch((error: any) => {
+        clearInterval(interval);
+        const platformErrors = error.response?.data?.error?.errors;
+        let description = error.response?.data?.message || "Failed to publish post.";
+        if (platformErrors) {
+          const details = Object.entries(platformErrors)
+            .map(([platform, err]) => `${platform}: ${err}`)
+            .join(", ");
+          description = `${description} Details: ${details}`;
+        }
+        
+        setUploadTask((prev) => prev ? { ...prev, status: "error", errorMsg: description } : null);
+
+        addToast({
+          title: "Error",
+          description,
+          color: "danger",
+        });
+
+        setTimeout(() => {
+          setUploadTask(null);
+        }, 5000);
+      });
+  };
   const isAnyPlatformConnected = useMemo(() => {
     if (!data?.platformPerformance) return false;
     return Object.values(data.platformPerformance).some((p) => p.connected);
@@ -222,8 +363,68 @@ export default function SocialMedia() {
       <CreatePostModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        onSuccess={() => setActiveTab("posts")}
+        onUploadStart={handleUploadStart}
       />
+      {uploadTask && (
+        <div className="fixed bottom-5 right-5 z-[9999] w-80 bg-white dark:bg-content1 border border-foreground/10 rounded-xl shadow-2xl p-4 transition-all duration-300 animate-in fade-in slide-in-from-bottom-5">
+          <div className="flex items-start justify-between mb-3">
+            <div className="space-y-1">
+              <h5 className="font-bold text-[10px] text-gray-400 dark:text-foreground/40 uppercase tracking-wider">
+                {uploadTask.status === "uploading" && "Creating Post"}
+                {uploadTask.status === "success" && "Created Complete"}
+                {uploadTask.status === "error" && "Created Failed"}
+              </h5>
+              <p className="text-sm font-semibold text-foreground truncate max-w-[220px]">
+                {uploadTask.title}
+              </p>
+            </div>
+            {uploadTask.status === "uploading" ? (
+              <span className="flex h-2 w-2 relative mt-1.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+              </span>
+            ) : uploadTask.status === "success" ? (
+              <span className="text-emerald-500 text-lg font-bold">✓</span>
+            ) : (
+              <span className="text-red-500 text-lg font-bold">✕</span>
+            )}
+          </div>
+          
+          <div className="space-y-2">
+            <Progress
+              size="sm"
+              value={uploadTask.progress}
+              color={
+                uploadTask.status === "success"
+                  ? "success"
+                  : uploadTask.status === "error"
+                  ? "danger"
+                  : "primary"
+              }
+              className="w-full"
+            />
+            
+            <div className="flex justify-between items-center text-[11px] text-gray-500 dark:text-foreground/50">
+              {uploadTask.status === "uploading" && (
+                <>
+                  <span>Creating post...</span>
+                  <span className="font-bold">{uploadTask.progress}%</span>
+                </>
+              )}
+              {uploadTask.status === "success" && (
+                <span className="text-emerald-600 dark:text-emerald-400 font-medium">
+                  Creating post successfully!
+                </span>
+              )}
+              {uploadTask.status === "error" && (
+                <span className="text-red-600 dark:text-red-400 font-medium truncate max-w-[240px]" title={uploadTask.errorMsg}>
+                  {uploadTask.errorMsg}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </ComponentContainer>
   );
 }

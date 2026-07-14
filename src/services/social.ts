@@ -55,6 +55,11 @@ export const createSocialPost = async (payload: FormData): Promise<any> => {
   return response.data;
 };
 
+export const fetchPostStatus = async (id: string): Promise<any> => {
+  const response = await axios.get(`/social-media-post/status/${id}`);
+  return response.data;
+};
+
 export const fetchGoogleBusinessPlatformOverview = async (): Promise<GBPPlatformOverviewResponse> => {
   const response = await axios.get("/social-media/google_business_platform_overview");
   return response.data;

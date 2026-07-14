@@ -96,6 +96,12 @@ export const useRecentPosts = (page: number, limit: number) => {
   return useQuery({
     queryKey: ["recent-posts", page, limit],
     queryFn: () => fetchRecentPosts(page, limit),
+    refetchInterval: (query) => {
+      const data = query?.state?.data as any;
+      const posts = data?.posts || [];
+      const hasProcessing = posts.some((post: any) => post.status === "Processing");
+      return hasProcessing ? 5000 : false;
+    },
   });
 };
 

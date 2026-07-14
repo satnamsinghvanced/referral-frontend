@@ -10,6 +10,7 @@ import {
   HiOutlinePencilAlt,
 } from "react-icons/hi";
 import { addLead, updateLead } from "../../../services/leadPipeline";
+import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
 
 interface ViewLeadModalProps {
   isOpen: boolean;
@@ -37,7 +38,7 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
       setFirstName(fName);
       setLastName(lName);
       setEmail(lead.patientEmail || "");
-      setPhone(lead.patientPhone || "");
+      setPhone(formatPhoneNumber(lead.patientPhone || ""));
       setLocation(lead.patientLocation || "");
       setIsEditing(!lead.leadId);
     }
@@ -267,7 +268,7 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
                         size="sm"
                         radius="md"
                         value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
+                        onChange={(e) => setPhone(formatPhoneNumber(e.target.value))}
                         isRequired
                       />
                     </div>
@@ -297,7 +298,7 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
                       <div className="min-w-0">
                         <div className="text-[10px] font-medium text-slate-400 dark:text-slate-500 mb-0.5">Phone</div>
                         <div className="text-[12px] font-semibold text-slate-700 dark:text-slate-200">
-                          {lead.patientPhone || "—"}
+                          {formatPhoneNumber(lead.patientPhone) || "—"}
                         </div>
                       </div>
                     </div>
