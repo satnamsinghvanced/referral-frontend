@@ -50,8 +50,11 @@ export const fetchRecentPosts = async (page: number = 1, limit: number = 10): Pr
   return unwrapApiData<RecentPostsResponse>(response);
 };
 
-export const createSocialPost = async (payload: FormData): Promise<any> => {
-  const response = await axios.post("/social-media-post/", payload, { headers: { "Content-Type": "multipart/form-data", }, });
+export const createSocialPost = async (payload: FormData, onUploadProgress?: (progressEvent: any) => void): Promise<any> => {
+  const response = await axios.post("/social-media-post/", payload, {
+    headers: { "Content-Type": "multipart/form-data", },
+    ...(onUploadProgress ? { onUploadProgress } : {}),
+  });
   return response.data;
 };
 

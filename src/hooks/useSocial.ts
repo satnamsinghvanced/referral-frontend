@@ -107,7 +107,8 @@ export const useRecentPosts = (page: number, limit: number) => {
 
 export const useCreateSocialPost = () => {
   return useMutation({
-    mutationFn: (formData: FormData) => createSocialPost(formData),
+    mutationFn: ({ formData, onUploadProgress }: { formData: FormData; onUploadProgress?: (progressEvent: any) => void }) =>
+      createSocialPost(formData, onUploadProgress),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["social-overview"] });
       queryClient.invalidateQueries({ queryKey: ["recent-posts"] });

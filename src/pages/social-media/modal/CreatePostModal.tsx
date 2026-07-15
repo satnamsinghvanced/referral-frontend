@@ -48,7 +48,7 @@ import { parseStringTime } from "../../../utils/parseStringTime";
 const PLATFORMS = [
   { name: "facebook", emoji: "📘", label: "Facebook" },
   { name: "instagram", emoji: "📷", label: "Instagram" },
-  { name: "linkedin", emoji: "💼", label: "LinkedIn" },
+  // { name: "linkedin", emoji: "💼", label: "LinkedIn" },
   { name: "youtube", emoji: "📺", label: "YouTube" },
 ];
 
@@ -73,16 +73,16 @@ const PLATFORM_MEDIA_SPEC = {
       maxSize: 100 * 1024 * 1024,
     },
   },
-  linkedin: {
-    images: {
-      formats: ["image/jpeg", "image/png", "image/gif"],
-      maxSize: 5 * 1024 * 1024,
-    },
-    videos: {
-      formats: ["video/mp4"],
-      maxSize: 200 * 1024 * 1024,
-    },
-  },
+  // linkedin: {
+  //   images: {
+  //     formats: ["image/jpeg", "image/png", "image/gif"],
+  //     maxSize: 5 * 1024 * 1024,
+  //   },
+  //   videos: {
+  //     formats: ["video/mp4"],
+  //     maxSize: 200 * 1024 * 1024,
+  //   },
+  // },
   youtube: {
     images: {
       formats: [] as string[], // YouTube posts don't support images via this API
@@ -156,7 +156,12 @@ interface CreatePostModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSuccess?: () => void;
-  onUploadStart?: (title: string, uploadPromise: Promise<any>) => void;
+  onUploadStart?: (
+    title: string,
+    platforms: string[],
+    uploadPromise: Promise<any>,
+    registerUploadProgress?: (cb: (percent: number) => void) => void,
+  ) => void;
 }
 
 export function CreatePostModal({
@@ -219,6 +224,20 @@ export function CreatePostModal({
         formData.append("scheduledTime", values.scheduledTime);
       }
 
+      let onUploadProgressCallback: ((percent: number) => void) | undefined;
+
+      const uploadPromise = createPost({
+        formData,
+        onUploadProgress: (progressEvent) => {
+          const percentCompleted = Math.round(
+            (progressEvent.loaded * 100) / progressEvent.total,
+          );
+          if (onUploadProgressCallback) {
+            onUploadProgressCallback(percentCompleted);
+          }
+        },
+      });
+
       // Close the modal and reset states immediately
       onClose();
       formik.resetForm();
@@ -226,10 +245,12 @@ export function CreatePostModal({
       setSelectedMedia([]);
 
       if (onUploadStart) {
-        onUploadStart(values.title, createPost(formData));
+        onUploadStart(values.title, values.selectedPlatforms, uploadPromise, (updateFn) => {
+          onUploadProgressCallback = updateFn;
+        });
       } else {
         try {
-          await createPost(formData);
+          await uploadPromise;
           addToast({
             title: "Success",
             description: "Social media post created successfully.",

@@ -70,6 +70,14 @@ const Posts = () => {
                       text: "text-red-600 dark:text-red-300",
                       bg: "bg-red-100 dark:bg-red-500/20",
                     },
+                    "Partially Failed": {
+                      text: "text-amber-700 dark:text-amber-400",
+                      bg: "bg-amber-100/70 dark:bg-amber-500/10",
+                    },
+                    Processing: {
+                      text: "text-purple-600 dark:text-purple-300",
+                      bg: "bg-purple-100 dark:bg-purple-500/20",
+                    },
                   }[post.status] || {
                     text: "text-gray-600 dark:text-foreground/60",
                     bg: "bg-gray-100 dark:bg-gray-500/20",
@@ -93,8 +101,12 @@ const Posts = () => {
                         >
                           {post.status === "Failed" ? (
                             <BiSolidError />
+                          ) : post.status === "Partially Failed" ? (
+                            <BiSolidError className="text-amber-600 dark:text-amber-400" />
                           ) : post.status === "Published" ? (
                             <FaRegCircleCheck className="w-2.5 h-2.5" />
+                          ) : post.status === "Processing" ? (
+                            <FiClock className="w-2.5 h-2.5 animate-spin" />
                           ) : (
                             <FiClock className="w-2.5 h-2.5" />
                           )}{" "}
@@ -112,45 +124,92 @@ const Posts = () => {
                         </span>
                       </div>
 
-                      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
-                        <div className="flex flex-wrap gap-2 text-[11px]">
-                          {post.platforms.map((platform, index) => (
-                            <span
-                              key={index}
-                              className={`border border-foreground/10 px-2 py-0.5 rounded-xl capitalize`}
-                            >
-                              {platform}
-                            </span>
-                          ))}
-                        </div>
+                      {/* Helpers for platform statuses */}
+                      {(() => {
+                        const getPlatformStatus = (platform: string) => {
+                          if (post.status === "Published") return "Published";
+                          if (post.status === "Scheduled") return "Scheduled";
 
-                        <div className="flex flex-wrap gap-3 text-gray-500 dark:text-foreground/60 text-xs mt-2">
-                          <span title={`${post.summary?.likes || 0} Likes`}>
-                            <BiHeart className="inline w-3.5 h-3.5 max-sm:w-3 max-sm:h-3 relative -top-px" />{" "}
-                            {post.summary?.likes || 0}
-                          </span>
-                          <span
-                            title={`${post.summary?.comments || 0} Comments`}
-                          >
-                            <FiMessageCircle className="inline w-3.5 h-3.5 max-sm:w-3 max-sm:h-3 relative -top-px" />{" "}
-                            {post.summary?.comments || 0}
-                          </span>
-                          <span title={`${post.summary?.views || 0} Views`}>
-                            <LuEye className="inline w-3.5 h-3.5 max-sm:w-3 max-sm:h-3 relative -top-px" />{" "}
-                            {post.summary?.views || 0}
-                          </span>
-                          <span title={`${post.summary?.shares || 0} Shares`}>
-                            <RiLinksFill className="inline w-3.5 h-3.5 max-sm:w-3 max-sm:h-3 relative -top-px" />{" "}
-                            {post.summary?.shares || 0}
-                          </span>
-                        </div>
-                      </div>
+                          const normKey = platform.toLowerCase();
+                          if (post.platformIds && post.platformIds[normKey]) {
+                            const record = post.platformIds[normKey];
+                            if (record && typeof record === "object" && "success" in record) {
+                              return record.success ? "Published" : "Failed";
+                            }
+                            return "Published";
+                          }
 
-                      {post.status === "Failed" && post.failureReason && (
-                        <div className="mt-3 p-2 bg-red-50 dark:bg-red-500/10 rounded-lg text-[11px] text-red-700 dark:text-red-300 border border-red-100 dark:border-red-500/20">
-                          <strong>Failure Reason:</strong> {post.failureReason}
-                        </div>
-                      )}
+                          let parsedErrors: Record<string, string> = {};
+                          try {
+                            if (post.failureReason && post.failureReason.trim().startsWith("{")) {
+                              parsedErrors = JSON.parse(post.failureReason);
+                            }
+                          } catch (e) {}
+
+                          if (parsedErrors[normKey]) {
+                            return "Failed";
+                          }
+
+                          if (post.status === "Failed" || post.status === "Partially Failed") {
+                            return "Failed";
+                          }
+                          return post.status;
+                        };
+
+                        const getPlatformBadgeClasses = (platform: string) => {
+                          const status = getPlatformStatus(platform);
+                          if (status === "Published") {
+                            return "border-green-200 dark:border-green-900/30 text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-500/10";
+                          }
+                          if (status === "Failed") {
+                            return "border-red-200 dark:border-red-900/30 text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-500/10";
+                          }
+                          if (status === "Scheduled") {
+                            return "border-blue-200 dark:border-blue-900/30 text-blue-700 dark:text-blue-400 bg-blue-50 dark:bg-blue-500/10";
+                          }
+                          if (status === "Processing") {
+                            return "border-purple-200 dark:border-purple-900/30 text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-500/10";
+                          }
+                          return "border-foreground/10 text-foreground/60 bg-foreground/5";
+                        };
+
+                        return (
+                          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2">
+                            <div className="flex flex-wrap gap-2 text-[11px]">
+                              {post.platforms.map((platform, index) => (
+                                <span
+                                  key={index}
+                                  className={`border px-2 py-0.5 rounded-xl capitalize ${getPlatformBadgeClasses(platform)}`}
+                                >
+                                  {platform}
+                                </span>
+                              ))}
+                            </div>
+
+                            <div className="flex flex-wrap gap-3 text-gray-500 dark:text-foreground/60 text-xs mt-2">
+                              <span title={`${post.summary?.likes || 0} Likes`}>
+                                <BiHeart className="inline w-3.5 h-3.5 max-sm:w-3 max-sm:h-3 relative -top-px" />{" "}
+                                {post.summary?.likes || 0}
+                              </span>
+                              <span
+                                title={`${post.summary?.comments || 0} Comments`}
+                              >
+                                <FiMessageCircle className="inline w-3.5 h-3.5 max-sm:w-3 max-sm:h-3 relative -top-px" />{" "}
+                                {post.summary?.comments || 0}
+                              </span>
+                              <span title={`${post.summary?.views || 0} Views`}>
+                                <LuEye className="inline w-3.5 h-3.5 max-sm:w-3 max-sm:h-3 relative -top-px" />{" "}
+                                {post.summary?.views || 0}
+                              </span>
+                              <span title={`${post.summary?.shares || 0} Shares`}>
+                                <RiLinksFill className="inline w-3.5 h-3.5 max-sm:w-3 max-sm:h-3 relative -top-px" />{" "}
+                                {post.summary?.shares || 0}
+                              </span>
+                            </div>
+                          </div>
+                        );
+                      })()}
+
                     </Card>
                   );
                 })}

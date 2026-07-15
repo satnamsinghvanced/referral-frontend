@@ -7,6 +7,7 @@ import QueryProvider from "./providers/QueryProvider";
 import ReduxProvider from "./providers/ReduxProvider";
 import { TourProvider } from "./providers/TourProvider";
 import { UploadProvider } from "./providers/UploadProvider";
+import { SocialPostUploadProvider } from "./providers/SocialPostUploadProvider";
 import "./index.css";
 const rootElement = document.getElementById("root");
 if (!rootElement) {
@@ -20,27 +21,29 @@ createRoot(rootElement).render(
       <ReduxProvider>
         <QueryProvider>
           <UploadProvider>
-            <ToastProvider
-              placement="top-right"
-              toastProps={{
-                timeout: 4000,
-                classNames: {
-                  base: "shadow-none top-1.5",
-                  content: "gap-x-2",
-                  closeButton:
-                    "opacity-100 absolute right-2 top-1/2 -translate-y-1/2",
-                  closeIcon: "bg-transparent",
-                  progressIndicator: "opacity-[0.2]",
-                },
-              }}
-            />
-            <BrowserRouter>
-              <TourProvider>
-                <main className="text-foreground bg-background">
-                  <App />
-                </main>
-              </TourProvider>
-            </BrowserRouter>
+            <SocialPostUploadProvider>
+              <ToastProvider
+                placement="top-right"
+                toastProps={{
+                  timeout: 4000,
+                  classNames: {
+                    base: "shadow-none top-1.5",
+                    content: "gap-x-2",
+                    closeButton:
+                      "opacity-100 absolute right-2 top-1/2 -translate-y-1/2",
+                    closeIcon: "bg-transparent",
+                    progressIndicator: "opacity-[0.2]",
+                  },
+                }}
+              />
+              <BrowserRouter>
+                <TourProvider>
+                  <main className="text-foreground bg-background">
+                    <App />
+                  </main>
+                </TourProvider>
+              </BrowserRouter>
+            </SocialPostUploadProvider>
           </UploadProvider>
         </QueryProvider>
       </ReduxProvider>

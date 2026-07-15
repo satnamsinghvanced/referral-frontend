@@ -156,7 +156,7 @@ export interface RecentPost {
   description: string;
   files: PostFile[];
   platforms: string[];
-  status: "Published" | "Scheduled" | "Failed";
+  status: "Published" | "Scheduled" | "Failed" | "Partially Failed" | "Processing";
   publishedTime: string;
   createdAt: string;
   updatedAt: string;

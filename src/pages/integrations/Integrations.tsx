@@ -1,5 +1,6 @@
 import { Card, CardBody, CardHeader, addToast, Modal, ModalContent, ModalHeader, ModalBody, Input, Button } from "@heroui/react";
 import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { BsLightningCharge } from "react-icons/bs";
 import { FaGoogle } from "react-icons/fa";
 import { FaMeta, FaRegEnvelope, FaYoutube } from "react-icons/fa6";
@@ -67,6 +68,7 @@ import TwilioDashboard from "./components/TwilioDashboard";
 
 function Integrations() {
   const queryClient = useQueryClient();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { user, token } = useTypedSelector((state) => state.auth);
   const userId = user?.userId;
   const [selectorPlatform, setSelectorPlatform] =
@@ -237,11 +239,10 @@ function Integrations() {
   }, [onboardingWindow, googleBusinessConfig, token, syncBusinessProfiles, userId]);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("socialMediaRedirect") === "true") {
-      const status = params.get("status");
-      const platform = params.get("platform");
-      const message = params.get("message");
+    if (searchParams.get("socialMediaRedirect") === "true") {
+      const status = searchParams.get("status");
+      const platform = searchParams.get("platform");
+      const message = searchParams.get("message");
       if (status === "success") {
         addToast({
           title: "Connection Successful",
@@ -262,12 +263,17 @@ function Integrations() {
           color: "danger",
         });
       }
-      const url = new URL(window.location.href);
-      url.searchParams.delete("socialMediaRedirect");
-      url.searchParams.delete("status");
-      url.searchParams.delete("platform");
-      url.searchParams.delete("message");
-      window.history.replaceState({}, "", url.toString());
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.delete("socialMediaRedirect");
+          next.delete("status");
+          next.delete("platform");
+          next.delete("message");
+          return next;
+        },
+        { replace: true }
+      );
       queryClient.invalidateQueries({ queryKey: ["email-integration"] });
       queryClient.invalidateQueries({ queryKey: ["googleCalendar"] });
       queryClient.invalidateQueries({ queryKey: ["googleAds"] });
@@ -275,7 +281,7 @@ function Integrations() {
       queryClient.invalidateQueries({ queryKey: BUSINESS_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     }
-  }, [queryClient]);
+  }, [searchParams, setSearchParams, queryClient]);
 
   const {
     data: googleAnalyticsConfig,
