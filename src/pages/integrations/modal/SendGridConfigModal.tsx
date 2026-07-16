@@ -156,12 +156,12 @@ export default function SendGridConfigModal({ isOpen, onOpenChange, existingConf
                 }
               />
             </div>
-            {isUpdateMode && existingConfig?.status === "Connected" && (
+            {/* {isUpdateMode && existingConfig?.status === "Connected" && (
               <div className="p-3 bg-green-50 dark:bg-green-900/10 text-green-700 dark:text-green-400 text-xs rounded-lg border border-green-200 dark:border-green-500/30">
                 ✅ SendGrid integration is active. Last verified:{" "}
                 {formatDateToReadable(existingConfig.lastTestedAt, true)}
               </div>
-            )}
+            )} */}
           </ModalBody>
           <ModalFooter className="flex justify-end gap-2 px-4 pb-4 pt-0">
             <Button

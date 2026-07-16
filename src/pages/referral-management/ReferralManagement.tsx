@@ -7,6 +7,11 @@ import {
   Pagination,
   Tab,
   Tabs,
+  Modal,
+  ModalContent,
+  ModalHeader,
+  ModalBody,
+  ModalFooter,
 } from "@heroui/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
@@ -28,6 +33,8 @@ import {
   useFetchReferrers,
   useGetReferralById,
   useGetReferrerById,
+  useDeleteReferral,
+  useDeleteReferrer,
 } from "../../hooks/useReferral";
 import { Referrer } from "../../types/partner";
 import { FilterStats, Referral } from "../../types/referral";
@@ -77,6 +84,9 @@ const ReferralManagement = () => {
   const [isTrackReferralModalOpen, setIsTrackReferralModalOpen] =
     useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [deleteReferralId, setDeleteReferralId] = useState<string | null>(null);
+  const [deleteReferrerId, setDeleteReferrerId] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const [referrerParams, setReferrerParams] = useState({
     filter: "",
@@ -113,6 +123,34 @@ const ReferralManagement = () => {
   const debouncedReferrerSearch = useDebouncedValue(referrerParams.search, 500);
 
   const createReferralMutation = useCreateReferral();
+  const deleteReferralMutation = useDeleteReferral();
+  const deleteReferrerMutation = useDeleteReferrer();
+
+  const handleConfirmDeleteReferral = async () => {
+    if (!deleteReferralId) return;
+    setIsDeleting(true);
+    try {
+      await deleteReferralMutation.mutateAsync(deleteReferralId);
+      setDeleteReferralId(null);
+    } catch (err) {
+      console.error("Failed to delete referral:", err);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleConfirmDeleteReferrer = async () => {
+    if (!deleteReferrerId) return;
+    setIsDeleting(true);
+    try {
+      await deleteReferrerMutation.mutateAsync(deleteReferrerId);
+      setDeleteReferrerId(null);
+    } catch (err) {
+      console.error("Failed to delete referrer:", err);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   useEffect(() => {
     setCurrentFilters((prev) => ({ ...prev, search: debouncedSearch }));
@@ -396,6 +434,7 @@ const ReferralManagement = () => {
                     setIsReferralStatusModalOpen(true);
                   }}
                   onEditReferral={handleEditReferral}
+                  onDeleteReferral={(id: string) => setDeleteReferralId(id)}
                   referrals={referralData?.data as Referral[]}
                   totalReferrals={referralData?.total ?? 0}
                   totalPages={referralData?.totalPages ?? 1}
@@ -505,6 +544,7 @@ const ReferralManagement = () => {
                                 onClick: handleEditReferral,
                               },
                             ]}
+                            onDelete={(id) => setDeleteReferralId(id)}
                           />
                         ))}
                       </div>
@@ -571,6 +611,7 @@ const ReferralManagement = () => {
                         setReferrerEditId(id);
                         setIsModalOpen(true);
                       }}
+                      onDelete={(id) => setDeleteReferrerId(id)}
                     />
                   ))}
                 </div>
@@ -646,6 +687,50 @@ const ReferralManagement = () => {
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
       />
+      <Modal isOpen={!!deleteReferralId} onOpenChange={(open) => !open && setDeleteReferralId(null)} size="sm">
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">Delete Referral</ModalHeader>
+              <ModalBody>
+                <p className="text-sm text-gray-500">
+                  Are you sure you want to delete this referral? This action cannot be undone.
+                </p>
+              </ModalBody>
+              <ModalFooter>
+                <Button variant="light" size="sm" onPress={onClose} isDisabled={isDeleting}>
+                  Cancel
+                </Button>
+                <Button color="danger" size="sm" onPress={handleConfirmDeleteReferral} isLoading={isDeleting}>
+                  Delete
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+      <Modal isOpen={!!deleteReferrerId} onOpenChange={(open) => !open && setDeleteReferrerId(null)} size="sm">
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">Delete Referrer</ModalHeader>
+              <ModalBody>
+                <p className="text-sm text-gray-500">
+                  Are you sure you want to delete this referrer? This will also remove any associated staff members and practice information. This action cannot be undone.
+                </p>
+              </ModalBody>
+              <ModalFooter>
+                <Button variant="light" size="sm" onPress={onClose} isDisabled={isDeleting}>
+                  Cancel
+                </Button>
+                <Button color="danger" size="sm" onPress={handleConfirmDeleteReferrer} isLoading={isDeleting}>
+                  Delete
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </>
   );
 };

@@ -1,6 +1,6 @@
 import { Tab, Tabs, Button } from "@heroui/react";
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, useLocation } from "react-router-dom";
 import { AiOutlinePlus } from "react-icons/ai";
 import { FaRegEnvelope } from "react-icons/fa";
 import { FiPlay } from "react-icons/fi";
@@ -20,8 +20,18 @@ import Templates from "./templates/Templates";
 import { CampaignTemplate } from "../../types/campaign";
 
 const EmailCampaigns = () => {
+  const location = useLocation();
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState("overview");
+  const [activeTab, setActiveTab] = useState(() => {
+    return location.state?.tab || "overview";
+  });
+
+  useEffect(() => {
+    if (location.state?.tab) {
+      setActiveTab(location.state.tab);
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
   const [prefillTemplate, setPrefillTemplate] =
     useState<CampaignTemplate | null>(null);
 

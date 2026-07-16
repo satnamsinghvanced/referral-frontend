@@ -558,43 +558,43 @@ function Integrations() {
     });
 
     const isSendGridConnected = sendGridConfig?.status === "Connected";
-    list.push({
-      id: sendGridConfig?._id || "",
-      name: "SendGrid Integration",
-      icon: <FaRegEnvelope className="w-4 h-4" />,
-      iconBg: "bg-blue-100 dark:bg-blue-900/20",
-      iconColor: "text-blue-600 dark:text-blue-400",
-      status: isSendGridConnected
-        ? "Connected"
-        : sendGridConfig?.status === "Error"
-          ? "Error"
-          : "Disconnected",
-      description:
-        "Connect your SendGrid account seamlessly to send high-deliverability campaigns",
-      badges: ["Direct Integration", "Automated Campaigns", "High Deliverability"],
-      onConnect: () => setIsSendGridConfigModalOpen(true),
-      onConfigure: () => setIsSendGridConfigModalOpen(true),
-      isSwitchChecked: isSendGridConnected,
-      onSwitchChange: () => {
-        if (sendGridConfig?._id) {
-          updateEmailIntegration({
-            id: sendGridConfig._id,
-            // @ts-ignore
-            data: {
-              status:
-                sendGridConfig.status === "Connected"
-                  ? "Disconnected"
-                  : "Connected",
-            },
-          });
-        }
-      },
-      account: isSendGridConnected ? {
-        accountName: sendGridConfig?.accountName || "SendGrid Admin",
-        accountEmail: sendGridConfig?.accountEmail || sendGridConfig?.username,
-        accountAvatar: sendGridConfig?.accountAvatar,
-      } : undefined,
-    });
+    // list.push({
+    //   id: sendGridConfig?._id || "",
+    //   name: "SendGrid Integration",
+    //   icon: <FaRegEnvelope className="w-4 h-4" />,
+    //   iconBg: "bg-blue-100 dark:bg-blue-900/20",
+    //   iconColor: "text-blue-600 dark:text-blue-400",
+    //   status: isSendGridConnected
+    //     ? "Connected"
+    //     : sendGridConfig?.status === "Error"
+    //       ? "Error"
+    //       : "Disconnected",
+    //   description:
+    //     "Connect your SendGrid account seamlessly to send high-deliverability campaigns",
+    //   badges: ["Direct Integration", "Automated Campaigns", "High Deliverability"],
+    //   onConnect: () => setIsSendGridConfigModalOpen(true),
+    //   onConfigure: () => setIsSendGridConfigModalOpen(true),
+    //   isSwitchChecked: isSendGridConnected,
+    //   onSwitchChange: () => {
+    //     if (sendGridConfig?._id) {
+    //       updateEmailIntegration({
+    //         id: sendGridConfig._id,
+    //         // @ts-ignore
+    //         data: {
+    //           status:
+    //             sendGridConfig.status === "Connected"
+    //               ? "Disconnected"
+    //               : "Connected",
+    //         },
+    //       });
+    //     }
+    //   },
+    //   account: isSendGridConnected ? {
+    //     accountName: sendGridConfig?.accountName || "SendGrid Admin",
+    //     accountEmail: sendGridConfig?.accountEmail || sendGridConfig?.username,
+    //     accountAvatar: sendGridConfig?.accountAvatar,
+    //   } : undefined,
+    // });
 
     return list;
   }, [

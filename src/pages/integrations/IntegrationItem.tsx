@@ -124,6 +124,7 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
           size="sm"
           isSelected={isSwitchChecked}
           onValueChange={onSwitchChange}
+          isDisabled={status !== "Connected"}
         />
       )}
     </>
@@ -215,6 +216,5 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
       <div className="flex items-center gap-2">{actionButton}</div>
     </div>
   );
-};
-
+}
 export default IntegrationItem;

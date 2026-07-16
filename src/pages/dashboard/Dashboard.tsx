@@ -110,7 +110,7 @@ const Dashboard = () => {
       },
       {
         icon: <TbSpeakerphone className="text-green-600 dark:text-green-400" />,
-        heading: "Active Campaigns",
+        heading: "Total Campaigns",
         value: dashboard?.stats?.activeCampaigns?.totalActiveCampaigns || 0,
         subheading: (
           <TrendIndicator
@@ -119,7 +119,7 @@ const Dashboard = () => {
             label="this month"
           />
         ),
-        onClick: () => navigate("/email-campaigns"),
+        onClick: () => navigate("/email-campaigns", { state: { tab: "campaigns" } }),
       },
       {
         icon: <FaRegStar className="text-yellow-600 dark:text-yellow-400" />,
@@ -197,7 +197,7 @@ const Dashboard = () => {
         title: `New email campaign: ${dashboard?.recentActivity?.campaigns?.name || ""}`,
         description: `${dashboard?.recentActivity?.campaigns?.description || ""}`,
         time: `${timeAgo(dashboard?.recentActivity?.campaigns?.createdAt || "")}`,
-        onClick: () => navigate("/email-campaigns"),
+        onClick: () => navigate("/email-campaigns", { state: { tab: "campaigns" } }),
       }
       : null,
   ].filter((activity) => activity !== null);

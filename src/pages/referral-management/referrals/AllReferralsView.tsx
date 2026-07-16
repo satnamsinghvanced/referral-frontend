@@ -8,6 +8,7 @@ import {
   FiEdit,
   FiEye,
   FiSearch,
+  FiTrash2,
 } from "react-icons/fi";
 import { LuCalendar, LuDownload } from "react-icons/lu";
 import { PiFunnelX } from "react-icons/pi";
@@ -42,6 +43,7 @@ interface AllReferralsViewProps {
   onClearFilters: () => void;
   onViewReferral: (id: string) => void;
   onEditReferral: (id: string) => void;
+  onDeleteReferral?: (id: string) => void;
   referrals: Referral[];
   totalReferrals: number;
   totalPages: number;
@@ -59,6 +61,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
   onClearFilters,
   onViewReferral,
   onEditReferral,
+  onDeleteReferral,
   referrals,
   totalReferrals,
   totalPages,
@@ -269,6 +272,18 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
             >
               <FiEdit className="size-3.5" />
             </Button>
+            {onDeleteReferral && (
+              <Button
+                isIconOnly
+                size="sm"
+                variant="light"
+                color="danger"
+                className="text-danger rounded-lg min-w-8 w-8 h-8 flex items-center justify-center p-0"
+                onPress={() => onDeleteReferral(referral._id)}
+              >
+                <FiTrash2 className="size-3.5" />
+              </Button>
+            )}
           </div>
         </div>
       </div>

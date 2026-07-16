@@ -79,7 +79,7 @@ export const updateReferrer = async (
 };
 
 export const deleteReferrer = async (id: string) => {
-  const { data } = await axios.delete(`/api/referrers/${id}`);
+  const { data } = await axios.delete(`/referrers/${id}`);
   return data;
 };
 

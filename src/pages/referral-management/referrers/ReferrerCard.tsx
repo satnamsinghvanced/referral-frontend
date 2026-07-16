@@ -1,7 +1,7 @@
 import { Button } from "@heroui/react";
 import React from "react";
 import { FaGoogle, FaRegStar } from "react-icons/fa";
-import { FiEye } from "react-icons/fi";
+import { FiEye, FiTrash2 } from "react-icons/fi";
 import { LuShare2, LuTrophy, LuUsers } from "react-icons/lu";
 import { RiUserCommunityLine } from "react-icons/ri";
 import { Link } from "react-router";
@@ -30,12 +30,14 @@ interface ReferrerCardProps {
   referrer: Referrer;
   buttons?: (referrer: Referrer) => ReferrerButton[];
   onView?: (id: string) => void;
+  onDelete?: (id: string) => void;
 }
 
 const ReferrerCard: React.FC<ReferrerCardProps> = ({
   referrer,
   buttons = () => [],
   onView,
+  onDelete,
 }) => {
   const lat = referrer?.practice?.address?.coordinates?.lat;
   const long = referrer?.practice?.address?.coordinates?.long;
@@ -172,6 +174,18 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
         >
           <FiEye className="size-4 " />
         </Button>
+        {/* {onDelete && (
+          <Button
+            isIconOnly
+            size="sm"
+            variant="light"
+            color="danger"
+            onPress={() => onDelete(referrer._id)}
+            className="text-danger rounded-lg min-w-8 w-8 h-8 flex items-center justify-center p-0"
+          >
+            <FiTrash2 className="size-4" />
+          </Button>
+        )} */}
       </div>
     </div>
   );

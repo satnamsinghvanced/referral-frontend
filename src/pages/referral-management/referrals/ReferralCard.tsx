@@ -7,6 +7,7 @@ import {
 } from "../../../consts/referral";
 import { Referral } from "../../../types/referral";
 import { formatDateToReadable } from "../../../utils/formatDateToReadable";
+import { FiTrash2 } from "react-icons/fi";
 
 interface ReferralButton {
   label: string;
@@ -29,9 +30,10 @@ interface ReferralButton {
 interface ReferralCardProps {
   referral: Referral;
   actions?: (referral: any) => ReferralButton[];
+  onDelete?: (id: string) => void;
 }
 
-const ReferralCard = ({ referral, actions = () => [] }: ReferralCardProps) => {
+const ReferralCard = ({ referral, actions = () => [], onDelete }: ReferralCardProps) => {
   return (
     <div className="md:flex md:justify-between border border-foreground/10 rounded-lg p-3.5 bg-background dark:bg-content1 max-md:space-y-2">
       <div className="font-medium text-sm w-full h-full capitalize flex flex-col gap-1 dark:text-white">
@@ -95,41 +97,51 @@ const ReferralCard = ({ referral, actions = () => [] }: ReferralCardProps) => {
         >
           <ReferralStatusChip status={referral.status} />
         </div>
-        {actions && (
-          <div className="flex items-center gap-1">
-            {actions(referral).map((btn, index) => {
-              const buttonElement = (
-                <Button
-                  key={index}
-                  size="sm"
-                  variant={btn.variant ?? "light"}
-                  color={btn.color ?? "default"}
-                  onPress={() => btn.onClick(referral._id)}
-                  className={btn.className ?? "text-xs"}
-                  startContent={btn.icon}
-                  isIconOnly
-                >
-                  {btn.label}
-                </Button>
-              );
+        <div className="flex items-center gap-1">
+          {actions(referral).map((btn, index) => {
+            const buttonElement = (
+              <Button
+                key={index}
+                size="sm"
+                variant={btn.variant ?? "light"}
+                color={btn.color ?? "default"}
+                onPress={() => btn.onClick(referral._id)}
+                className={btn.className ?? "text-xs"}
+                startContent={btn.icon}
+                isIconOnly
+              >
+                {btn.label}
+              </Button>
+            );
 
-              if (btn.hideButton) {
-                return;
-              }
-              return btn.link ? (
-                <Link
-                  key={index}
-                  to={btn.link}
-                  target={btn.linkInNewTab ? "_blank" : "_self"}
-                >
-                  {buttonElement}
-                </Link>
-              ) : (
-                buttonElement
-              );
-            })}
-          </div>
-        )}
+            if (btn.hideButton) {
+              return;
+            }
+            return btn.link ? (
+              <Link
+                key={index}
+                to={btn.link}
+                target={btn.linkInNewTab ? "_blank" : "_self"}
+              >
+                {buttonElement}
+              </Link>
+            ) : (
+              buttonElement
+            );
+          })}
+          {onDelete && (
+            <Button
+              isIconOnly
+              size="sm"
+              variant="light"
+              color="danger"
+              className="text-danger rounded-lg min-w-8 w-8 h-8 flex items-center justify-center p-0"
+              onPress={() => onDelete(referral._id)}
+            >
+              <FiTrash2 className="size-4" />
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );
