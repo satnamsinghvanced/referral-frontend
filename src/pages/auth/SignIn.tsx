@@ -96,7 +96,7 @@ const SignIn = () => {
         <CardBody className="p-6 sm:p-8">
           <div className="text-center mb-8">
             <h1 className="text-2xl font-bold mb-2 text-foreground">
-              {showOtp ? "Verify OTP" : "Welcome Back"}
+              {showOtp ? "Verify OTP" : "Welcome to PracticeROI"}
             </h1>
             <p className="text-sm text-foreground/60">
               {showOtp
