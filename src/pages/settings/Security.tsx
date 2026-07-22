@@ -31,19 +31,24 @@ import { PASSWORD_REGEX } from "../../consts/consts";
 import { RootState } from "../../store";
 import { useFetchTwilioConfig } from "../../hooks/integrations/useTwilio";
 import { Link } from "react-router-dom";
+import { OtpVerificationModal } from "../../components/OtpVerificationModal";
 
 const SecuritySchema = Yup.object().shape({
   currentPassword: Yup.string()
     .required("Current password is required")
+    .min(8, "Password must be at least 8 characters")
+    .max(16, "Password must be at most 16 characters")
     .matches(
       PASSWORD_REGEX,
-      "Password must be at least 8 characters, include one uppercase letter, one lowercase letter, one number and one special character",
+      "Password must include one uppercase letter, one lowercase letter, one number and one special character",
     ),
   newPassword: Yup.string()
     .required("New password is required")
+    .min(8, "Password must be at least 8 characters")
+    .max(16, "Password must be at most 16 characters")
     .matches(
       PASSWORD_REGEX,
-      "Password must be at least 8 characters, include one uppercase letter, one lowercase letter, one number and one special character",
+      "Password must include one uppercase letter, one lowercase letter, one number and one special character",
     ),
   confirmNewPassword: Yup.string()
     .oneOf([Yup.ref("newPassword")], "Passwords must match")
@@ -73,8 +78,10 @@ const Security: React.FC = () => {
   const [otpMode, setOtpMode] = useState<
     "password_update" | "enable_2fa" | null
   >(null);
-  const [otp, setOtp] = useState("");
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const [otpError, setOtpError] = useState<string | undefined>(undefined);
+  const [maskedPhone, setMaskedPhone] = useState<string | undefined>(undefined);
+  const [passwordFormValues, setPasswordFormValues] = useState<any>(null);
 
   const [showPassword, setShowPassword] = useState<any>({
     currentPassword: false,
@@ -96,30 +103,69 @@ const Security: React.FC = () => {
       });
     } else {
       enable2FA(undefined, {
-        onSuccess: () => {
+        onSuccess: (data: any) => {
           setOtpMode("enable_2fa");
-          setOtp("");
+          setOtpError(undefined);
+          setMaskedPhone(data?.phone || userData?.phone);
           onOpen();
         },
       });
     }
   };
 
-  const handleVerifyOtp = () => {
+  const handleVerifyOtp = (otpCode: string) => {
+    setOtpError(undefined);
     if (otpMode === "password_update") {
-      verifyPasswordUpdate(otp, {
+      verifyPasswordUpdate(otpCode, {
         onSuccess: () => {
           onClose();
           setOtpMode(null);
         },
+        onError: (error: any) => {
+          const errorMessage =
+            (error.response?.data as { message?: string })?.message ||
+            error.message ||
+            "Verification failed";
+          setOtpError(errorMessage);
+        },
       });
     } else if (otpMode === "enable_2fa") {
-      verifyEnable2FA(otp, {
+      verifyEnable2FA(otpCode, {
         onSuccess: () => {
           onClose();
           setOtpMode(null);
           refetchUser();
         },
+        onError: (error: any) => {
+          const errorMessage =
+            (error.response?.data as { message?: string })?.message ||
+            error.message ||
+            "Verification failed";
+          setOtpError(errorMessage);
+        },
+      });
+    }
+  };
+
+  const handleResendOtp = async () => {
+    setOtpError(undefined);
+    if (otpMode === "password_update") {
+      if (passwordFormValues) {
+        updatePassword({
+          currentPassword: passwordFormValues.currentPassword,
+          newPassword: passwordFormValues.newPassword,
+          confirmNewPassword: passwordFormValues.confirmNewPassword,
+        }, {
+          onSuccess: (data: any) => {
+            setMaskedPhone(data?.phone || userData?.phone);
+          }
+        });
+      }
+    } else if (otpMode === "enable_2fa") {
+      enable2FA(undefined, {
+        onSuccess: (data: any) => {
+          setMaskedPhone(data?.phone || userData?.phone);
+        }
       });
     }
   };
@@ -149,6 +195,7 @@ const Security: React.FC = () => {
             }}
             validationSchema={SecuritySchema}
             onSubmit={(values, { resetForm }) => {
+              setPasswordFormValues(values);
               updatePassword(
                 {
                   currentPassword: values.currentPassword,
@@ -159,7 +206,8 @@ const Security: React.FC = () => {
                   onSuccess: (data: any) => {
                     if (data?.twoFactorRequired) {
                       setOtpMode("password_update");
-                      setOtp("");
+                      setOtpError(undefined);
+                      setMaskedPhone(data?.phone || userData?.phone);
                       onOpen();
                     }
                     resetForm();
@@ -265,104 +313,47 @@ const Security: React.FC = () => {
                 </p>
               </div>
               <span
-                className={`inline-flex items-center justify-center rounded-md px-2 py-1 text-[11px] font-medium w-fit whitespace-nowrap shrink-0 ${
-                  userData?.isTwoFactorEnabled
-                    ? "bg-sky-100 dark:bg-sky-900/30 text-sky-800 dark:text-sky-300"
-                    : "bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300"
-                }`}
+                className={`inline-flex items-center justify-center rounded-md px-2 py-1 text-[11px] font-medium w-fit whitespace-nowrap shrink-0 ${userData?.isTwoFactorEnabled
+                  ? "bg-sky-100 dark:bg-sky-900/30 text-sky-800 dark:text-sky-300"
+                  : "bg-orange-100 dark:bg-orange-900/30 text-orange-800 dark:text-orange-300"
+                  }`}
               >
                 {userData?.isTwoFactorEnabled ? "Enabled" : "Disabled"}
               </span>
             </div>
 
-            <Button
-              size="sm"
-              variant="bordered"
-              className="font-medium border-small"
-              onPress={handle2FAAction}
-              isLoading={isEnabling2FA || isDisabling2FA}
-              isDisabled={
-                (!userData?.phone && !userData?.isTwoFactorEnabled) ||
-                (twilioConfig?.status !== "Connected" &&
-                  !userData?.isTwoFactorEnabled)
-              }
-              radius="sm"
-            >
-              {userData?.isTwoFactorEnabled ? "Disable 2FA" : "Enable 2FA"}
-            </Button>
+            {twilioConfig && (!twilioConfig.phoneNumbers || twilioConfig.phoneNumbers.length === 0) && !userData?.isTwoFactorEnabled ? (
+              <div className="p-3 border border-warning-200 bg-warning-50 dark:bg-warning-950/20 text-warning-800 dark:text-warning-300 rounded-lg text-xs font-medium flex items-center gap-2">
+                <span>⚠️ Two-Factor Authentication requires a Twilio phone number. Please purchase a Twilio phone number under Integrations to enable 2FA.</span>
+              </div>
+            ) : (
+              <Button
+                size="sm"
+                variant="bordered"
+                className="font-medium border-small"
+                onPress={handle2FAAction}
+                isLoading={isEnabling2FA || isDisabling2FA}
+                isDisabled={!userData?.phone && !userData?.isTwoFactorEnabled}
+                radius="sm"
+              >
+                {userData?.isTwoFactorEnabled ? "Disable 2FA" : "Enable 2FA"}
+              </Button>
+            )}
           </div>
         </CardBody>
       </Card>
 
-      <Modal
+      <OtpVerificationModal
         isOpen={isOpen}
-        onOpenChange={onClose}
-        placement="center"
-        classNames={{
-          base: `max-sm:!m-3 !m-0`,
-          closeButton: "cursor-pointer",
-        }}
-        size="md"
-      >
-        <ModalContent>
-          <ModalHeader className="flex flex-col gap-1 px-4 py-4 pb-3">
-            <h4 className="text-base font-medium">
-              {otpMode === "password_update"
-                ? "Verify Password Change"
-                : "Verify Enable 2FA"}
-            </h4>
-            <p className="text-xs text-gray-500 dark:text-gray-400 font-normal">
-              Enter the 6-digit verification code sent to your phone to complete
-              the process.
-            </p>
-          </ModalHeader>
-          <ModalBody className="px-4 py-0">
-            <div className="flex flex-col gap-4 text-sm mt-1">
-              <Input
-                label="Verification Code"
-                labelPlacement="outside"
-                placeholder="Enter 6-digit OTP"
-                value={otp}
-                onValueChange={(val) => {
-                  if (/^\d*$/.test(val)) {
-                    setOtp(val);
-                  }
-                }}
-                radius="sm"
-                variant="flat"
-                size="sm"
-                maxLength={6}
-                isRequired
-              />
-            </div>
-          </ModalBody>
-          <ModalFooter className="p-4">
-            <Button
-              variant="ghost"
-              color="default"
-              size="sm"
-              radius="sm"
-              className="border-small"
-              onPress={onClose}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="solid"
-              color="primary"
-              size="sm"
-              radius="sm"
-              onPress={handleVerifyOtp}
-              isLoading={isVerifyingPassword || isVerifying2FA}
-              isDisabled={
-                otp.length !== 6 || isVerifyingPassword || isVerifying2FA
-              }
-            >
-              Verify Code
-            </Button>
-          </ModalFooter>
-        </ModalContent>
-      </Modal>
+        onClose={onClose}
+        isLoading={isVerifyingPassword || isVerifying2FA}
+        onVerify={handleVerifyOtp}
+        onResend={handleResendOtp}
+        phoneNumber={maskedPhone}
+        error={otpError}
+        onClearError={() => setOtpError(undefined)}
+        title={otpMode === "password_update" ? "Verify Password Change" : "Verify Enable 2FA"}
+      />
     </>
   );
 };

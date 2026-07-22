@@ -87,8 +87,9 @@ const LocationActionModal = ({
   locationsCount,
 }: LocationActionModalProps) => {
   const { data: location } = useFetchLocationDetails(editLocationId);
-  const { mutate: createLocation } = useCreateLocation();
-  const { mutate: updateLocation } = useUpdateLocation();
+  const { mutate: createLocation, isPending: isCreating } = useCreateLocation();
+  const { mutate: updateLocation, isPending: isUpdating } = useUpdateLocation();
+  const isSaving = isCreating || isUpdating;
 
   const formik = useFormik<LocationFormValues>({
     initialValues: {
@@ -191,7 +192,7 @@ const LocationActionModal = ({
                   variant="flat"
                   value={
                     formik.values[
-                      field.name as keyof LocationFormValues
+                    field.name as keyof LocationFormValues
                     ] as string
                   }
                   onValueChange={(val: string) => {
@@ -258,8 +259,9 @@ const LocationActionModal = ({
             color="primary"
             size="sm"
             radius="sm"
-            startContent={<FiPlus className="size-[15px]" />}
-            isDisabled={!formik.isValid || !formik.dirty}
+            isLoading={isSaving}
+            startContent={!isSaving && <FiPlus className="size-[15px]" />}
+            isDisabled={!formik.isValid || !formik.dirty || isSaving}
           >
             Save
           </Button>

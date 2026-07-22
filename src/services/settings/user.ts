@@ -36,11 +36,15 @@ export const fetchUser = async (id: string): Promise<User> => {
 export const updateUser = async (
   id: string,
   userData: Partial<User>,
+  onUploadProgress?: (progressEvent: any) => void,
+  signal?: AbortSignal,
 ): Promise<User> => {
   const response = (await axios.put(`/users/${id}`, userData, {
     headers: {
       "Content-Type": "multipart/form-data",
     },
+    ...(onUploadProgress && { onUploadProgress }),
+    ...(signal && { signal }),
   })) as unknown as { data: User };
   return (response as any).data || response;
 };

@@ -63,8 +63,8 @@ const NotesTasksModal = ({
   onClose,
   practice,
 }: // notes,
-// tasks,
-NotesTasksModalProps) => {
+  // tasks,
+  NotesTasksModalProps) => {
   const [activeTab, setActiveTab] = useState("notes");
   const [newNoteContent, setNewNoteContent] = useState("");
   const [newNoteCategory, setNewNoteCategory] = useState(
@@ -131,10 +131,10 @@ NotesTasksModalProps) => {
   }, [isOpen]); // We want to reset when isOpen becomes false
 
   const { data } = useGetAllNotesAndTasks(practice?.id);
-  const { mutate: createNote } = useCreateNote();
+  const { mutate: createNote, isPending: isCreatingNote } = useCreateNote();
   const { mutate: deleteNote } = useDeleteNote();
 
-  const { mutate: createTask } = useCreateTask();
+  const { mutate: createTask, isPending: isCreatingTask } = useCreateTask();
   const { mutate: updateTask } = useUpdateTask();
   // const { mutate: updateTaskStatus } = useUpdateTaskStatus();
   const { mutate: deleteTask } = useDeleteTask();
@@ -196,7 +196,6 @@ NotesTasksModalProps) => {
                 }}
                 className="w-full"
               >
-                {/* Notes Tab Content */}
                 <Tab
                   title={`Notes${notes ? ` (${notes?.length})` : " 0"}`}
                   key="notes"
@@ -234,7 +233,8 @@ NotesTasksModalProps) => {
                           </Select>
                           <Button
                             color="primary"
-                            isDisabled={!newNoteContent.trim()}
+                            isLoading={isCreatingNote}
+                            isDisabled={!newNoteContent.trim() || isCreatingNote}
                             size="sm"
                             className="min-w-24 gap-1"
                             onPress={() => {
@@ -255,7 +255,7 @@ NotesTasksModalProps) => {
                               );
                             }}
                           >
-                            <LuPlus className="text-[15px]" />
+                            {!isCreatingNote && <LuPlus className="text-[15px]" />}
                             Add Note
                           </Button>
                         </div>
@@ -394,11 +394,10 @@ NotesTasksModalProps) => {
                           </Select>
                         </div>
                         <div
-                          className={`flex items-center space-x-3 ${
-                            activeTeamMembers && activeTeamMembers.length > 0
-                              ? ""
-                              : "flex-col-reverse gap-2 items-stretch"
-                          }`}
+                          className={`flex items-center space-x-3 ${activeTeamMembers && activeTeamMembers.length > 0
+                            ? ""
+                            : "flex-col-reverse gap-2 items-stretch"
+                            }`}
                         >
                           {activeTeamMembers && activeTeamMembers.length > 0 ? (
                             <Select
@@ -433,11 +432,13 @@ NotesTasksModalProps) => {
                           )}
                           <Button
                             color="primary"
+                            isLoading={isCreatingTask}
                             isDisabled={
                               !newTaskTitle.trim() ||
                               !newTaskDueDate ||
                               !Array.isArray(newTaskAssignTo) ||
-                              newTaskAssignTo.length < 1
+                              newTaskAssignTo.length < 1 ||
+                              isCreatingTask
                             }
                             onPress={() => {
                               createTask(
@@ -467,7 +468,7 @@ NotesTasksModalProps) => {
                             radius="sm"
                             size="sm"
                           >
-                            <LuPlus className="size-3.5" />
+                            {!isCreatingTask && <LuPlus className="size-3.5" />}
                             Add Task
                           </Button>
                         </div>
@@ -479,9 +480,8 @@ NotesTasksModalProps) => {
                       {tasks?.map((task) => (
                         <Card
                           key={task._id}
-                          className={`rounded-xl border border-foreground/10 shadow-none dark:bg-default-100/20 ${
-                            task.status === "completed" ? "opacity-60" : ""
-                          }`}
+                          className={`rounded-xl border border-foreground/10 shadow-none dark:bg-default-100/20 ${task.status === "completed" ? "opacity-60" : ""
+                            }`}
                         >
                           <CardBody className="p-4">
                             <div className="flex items-start justify-between gap-0.5">
@@ -516,11 +516,10 @@ NotesTasksModalProps) => {
                                 <div className="flex items-start justify-between gap-2">
                                   <div className="space-y-1.5">
                                     <div
-                                      className={`font-medium text-sm ${
-                                        task.status === "completed"
-                                          ? "line-through"
-                                          : ""
-                                      }`}
+                                      className={`font-medium text-sm ${task.status === "completed"
+                                        ? "line-through"
+                                        : ""
+                                        }`}
                                     >
                                       {task.title}
                                     </div>
@@ -649,9 +648,8 @@ NotesTasksModalProps) => {
           }
         }}
         title={`Delete ${deleteConfig.type === "note" ? "Note" : "Task"}`}
-        description={`Are you sure you want to delete this ${
-          deleteConfig.type === "note" ? "note" : "task"
-        }?`}
+        description={`Are you sure you want to delete this ${deleteConfig.type === "note" ? "note" : "task"
+          }?`}
       />
     </>
   );

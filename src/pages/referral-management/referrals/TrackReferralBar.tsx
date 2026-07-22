@@ -35,7 +35,7 @@ const TrackReferralBar = ({ onTrackReferral, onImport }: TrackReferralBarProps) 
           radius="sm"
           color="default"
           variant="ghost"
-          className="border-small bg-white dark:bg-transparent"
+          className="border-small bg-white dark:bg-transparent "
         >
           Import from Spreadsheet
         </Button>

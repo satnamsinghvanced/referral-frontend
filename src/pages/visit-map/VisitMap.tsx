@@ -402,7 +402,7 @@ export default function VisitMap() {
   useEffect(() => {
     if (
       mapRef.current ||
-      coordinates.length < 2 ||
+      coordinates.length < 1 ||
       !mapboxgl.supported() ||
       !mapContainerRef.current
     )
@@ -441,7 +441,15 @@ export default function VisitMap() {
           finalNames[i],
         ),
       );
-      getRoute(map, finalCoords);
+      if (finalCoords.length >= 2) {
+        getRoute(map, finalCoords);
+      } else {
+        setRouteSummary({
+          distance: 0,
+          duration: 0,
+          error: null,
+        });
+      }
     });
     return () => {
       map.remove();
@@ -455,16 +463,36 @@ export default function VisitMap() {
       </div>
     );
   }
-  if (coordinates.length < 2) {
+  if (coordinates.length < 1) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        Invalid Coordinates
+      <div className="flex items-center justify-center h-screen text-foreground/75 font-medium">
+        No coordinates provided
       </div>
     );
   }
 
   const renderRouteSummaryContent = () => {
     if (!routeSummary) return null;
+    if (coordinates.length < 2) {
+      return (
+        <div className="text-sm space-y-1.5">
+          <p>
+            <span className="text-gray-600 dark:text-foreground/60">Stop Name:</span>{" "}
+            <b>{names[0] || startLabel || "Destination"}</b>
+          </p>
+          <div className="pt-2">
+            <Button
+              size="sm"
+              color="primary"
+              onPress={() => setMapsModalOpen(true)}
+              className="w-full font-semibold shadow-sm"
+            >
+              Start Navigation
+            </Button>
+          </div>
+        </div>
+      );
+    }
     return (
       <div className="text-sm space-y-1.5">
         {routeSummary.error ? (
@@ -551,24 +579,26 @@ export default function VisitMap() {
         </div>
       )}
 
-      <div className="hidden lg:block absolute top-2 right-2 z-20 w-80 space-y-2">
-        <Card shadow="none" radius="md">
-          <CardHeader className="p-4 pb-3">
-            <h3 className="font-semibold">Route Segments</h3>
-          </CardHeader>
-          <CardBody className="px-4 pt-0 pb-4">
-            {renderRouteSegmentsContent()}
-          </CardBody>
-        </Card>
-        <Card shadow="none" radius="md">
-          <CardHeader className="p-4 pb-3">
-            <h3 className="font-semibold">Detailed Steps</h3>
-          </CardHeader>
-          <CardBody className="px-4 pt-0 pb-4 max-h-[40vh] overflow-y-auto">
-            {renderDetailedStepsContent()}
-          </CardBody>
-        </Card>
-      </div>
+      {coordinates.length >= 2 && (
+        <div className="hidden lg:block absolute top-2 right-2 z-20 w-80 space-y-2">
+          <Card shadow="none" radius="md">
+            <CardHeader className="p-4 pb-3">
+              <h3 className="font-semibold">Route Segments</h3>
+            </CardHeader>
+            <CardBody className="px-4 pt-0 pb-4">
+              {renderRouteSegmentsContent()}
+            </CardBody>
+          </Card>
+          <Card shadow="none" radius="md">
+            <CardHeader className="p-4 pb-3">
+              <h3 className="font-semibold">Detailed Steps</h3>
+            </CardHeader>
+            <CardBody className="px-4 pt-0 pb-4 max-h-[40vh] overflow-y-auto">
+              {renderDetailedStepsContent()}
+            </CardBody>
+          </Card>
+        </div>
+      )}
 
       <div className="lg:hidden absolute top-12 right-2.5 z-20">
         <Button
@@ -581,16 +611,18 @@ export default function VisitMap() {
         </Button>
       </div>
 
-      <div className="lg:hidden absolute top-[86px] right-2.5 z-20">
-        <Button
-          isIconOnly
-          radius="sm"
-          className="size-[30px] min-w-auto bg-background shadow-md border border-foreground/10"
-          onPress={() => setDetailsOpen(true)}
-        >
-          <FiList className="size-[18px]" />
-        </Button>
-      </div>
+      {coordinates.length >= 2 && (
+        <div className="lg:hidden absolute top-[86px] right-2.5 z-20">
+          <Button
+            isIconOnly
+            radius="sm"
+            className="size-[30px] min-w-auto bg-background shadow-md border border-foreground/10"
+            onPress={() => setDetailsOpen(true)}
+          >
+            <FiList className="size-[18px]" />
+          </Button>
+        </div>
+      )}
 
       <Modal
         isOpen={isSummaryOpen}

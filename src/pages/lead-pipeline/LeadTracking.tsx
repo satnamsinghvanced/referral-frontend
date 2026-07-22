@@ -36,6 +36,7 @@ import LeadCard from "./LeadCard";
 import AddLeadModal from "./modal/AddLeadModal";
 import LeadDetailsModal from "./modal/LeadDetailsModal";
 import LeadAutomations from "./LeadAutomations";
+import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
 
 import { AiOutlinePlus } from "react-icons/ai";
 import ComponentContainer from "../../components/common/ComponentContainer";
@@ -761,28 +762,14 @@ const LeadTracking = () => {
         lead={selectedLead}
         onDelete={handleDeleteLead}
       />
-      <Modal isOpen={isDeleteOpen} onOpenChange={onDeleteClose} size="sm">
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">Delete Lead</ModalHeader>
-              <ModalBody>
-                <p className="text-sm text-gray-500">
-                  Are you sure you want to delete lead <strong className="text-foreground">{leadToDelete?.name || `${leadToDelete?.firstName || ''} ${leadToDelete?.lastName || ''}`.trim() || "this lead"}</strong>? This action cannot be undone.
-                </p>
-              </ModalBody>
-              <ModalFooter>
-                <Button variant="light" size="sm" onPress={onClose} isDisabled={isDeleting}>
-                  Cancel
-                </Button>
-                <Button color="danger" size="sm" onPress={handleConfirmDelete} isLoading={isDeleting}>
-                  Delete
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
+      <DeleteConfirmationModal
+        isOpen={isDeleteOpen}
+        onClose={onDeleteClose}
+        onConfirm={handleConfirmDelete}
+        isLoading={isDeleting}
+        title="Delete Lead"
+        description={`Are you sure you want to delete lead ${leadToDelete?.name || `${leadToDelete?.firstName || ""}\u00a0${leadToDelete?.lastName || ""}`.trim() || "this lead"}? This action cannot be undone.`}
+      />
     </ComponentContainer>
   );
 };

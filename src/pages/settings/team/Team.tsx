@@ -96,8 +96,8 @@ const Team: React.FC = () => {
     // Extract location IDs
     const locationIds = member.locations
       ? member.locations.map((loc: any) =>
-          typeof loc === "object" ? loc._id : loc,
-        )
+        typeof loc === "object" ? loc._id : loc,
+      )
       : [];
 
     // Extract permission IDs
@@ -216,24 +216,22 @@ const Team: React.FC = () => {
 
                 <div className="flex items-center gap-2 flex-wrap max-md:gap-y-3">
                   <span
-                    className={`${
-                      roleColors[
-                        member.role?.role?.toLowerCase() as keyof typeof roleColors
+                    className={`${roleColors[
+                      member.role?.role?.toLowerCase() as keyof typeof roleColors
                       ] ||
                       roleColors[
-                        member.role?.role as keyof typeof roleColors
+                      member.role?.role as keyof typeof roleColors
                       ] ||
                       "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
-                    } inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[11px] font-medium`}
+                      } inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[11px] font-medium`}
                   >
                     {member.role?.title || member.role?.role || "No Role"}
                   </span>
 
                   <span
-                    className={`capitalize px-2 py-0.5 text-[11px] font-medium inline-flex items-center gap-1 rounded-md border ${
-                      invitationStatusColors[member.status] ||
+                    className={`capitalize px-2 py-0.5 text-[11px] font-medium inline-flex items-center gap-1 rounded-md border ${invitationStatusColors[member.status] ||
                       "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-foreground/10 dark:border-gray-700"
-                    }`}
+                      }`}
                   >
                     <MdCheck /> {member.status}
                   </span>

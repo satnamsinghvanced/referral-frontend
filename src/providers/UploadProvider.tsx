@@ -20,6 +20,9 @@ interface UploadContextType {
   cancelUpload: (id: string) => void;
   removeUpload: (id: string) => void;
   activeUploads: UploadState[];
+  addManualUpload: (id: string, fileName: string, type: "image" | "video" | "media", controller?: AbortController) => void;
+  updateManualUploadProgress: (id: string, progress: number) => void;
+  completeManualUpload: (id: string, status: "completed" | "error" | "cancelled") => void;
 }
 
 const UploadContext = createContext<UploadContextType | undefined>(undefined);
@@ -104,8 +107,46 @@ export const UploadProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       prev.map((u) => (u.id === id ? { ...u, isHidden: true } : u))
     );
   };
+
+  const addManualUpload = useCallback((id: string, fileName: string, type: "image" | "video" | "media", controller?: AbortController) => {
+    const newUpload: UploadState = {
+      id,
+      fileName,
+      progress: 0,
+      status: "uploading",
+      controller: controller || new AbortController(),
+      type,
+    };
+    setActiveUploads((prev) => [...prev, newUpload]);
+  }, []);
+
+  const updateManualUploadProgress = useCallback((id: string, progress: number) => {
+    setActiveUploads((prev) =>
+      prev.map((u) => (u.id === id ? { ...u, progress: Math.min(progress, 99) } : u))
+    );
+  }, []);
+
+  const completeManualUpload = useCallback((id: string, status: "completed" | "error" | "cancelled") => {
+    setActiveUploads((prev) =>
+      prev.map((u) => (u.id === id ? { ...u, progress: status === "completed" ? 100 : u.progress, status } : u))
+    );
+    setTimeout(() => {
+      setActiveUploads((prev) => prev.filter((u) => u.id !== id));
+    }, status === "completed" ? 3000 : 5000);
+  }, []);
+
   return (
-    <UploadContext.Provider value={{ startUpload, cancelUpload, removeUpload, activeUploads }}>
+    <UploadContext.Provider
+      value={{
+        startUpload,
+        cancelUpload,
+        removeUpload,
+        activeUploads,
+        addManualUpload,
+        updateManualUploadProgress,
+        completeManualUpload,
+      }}
+    >
       {children}
       <div className="fixed bottom-4 right-4 z-[9999] flex flex-col gap-2 w-80 max-md:w-[calc(100%-2rem)]">
         {activeUploads.filter(u => !u.isHidden).map((upload) => (

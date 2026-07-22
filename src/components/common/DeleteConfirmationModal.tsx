@@ -33,8 +33,8 @@ const DeleteConfirmationModal = ({
       placement="center"
       isDismissable={!isLoading}
       classNames={{
-        base: "bg-[#18181b] border border-[#27272a] text-white",
-        closeButton: "hover:bg-white/5 active:bg-white/10 transition-colors",
+        base: "bg-white dark:bg-[#18181b] border border-zinc-200 dark:border-[#27272a] text-zinc-900 dark:text-white",
+        closeButton: "hover:bg-black/5 dark:hover:bg-white/5 active:bg-black/10 dark:active:bg-white/10 transition-colors",
       }}
     >
       <ModalContent className="p-2">
@@ -43,7 +43,7 @@ const DeleteConfirmationModal = ({
           <h4 className="text-lg font-semibold tracking-tight">{title}</h4>
         </ModalHeader>
         <ModalBody className="px-4 py-2">
-          <p className="text-[#a1a1aa] text-[15px] leading-relaxed">
+          <p className="text-zinc-500 dark:text-[#a1a1aa] text-[15px] leading-relaxed">
             {description}
           </p>
         </ModalBody>
@@ -54,7 +54,7 @@ const DeleteConfirmationModal = ({
             variant="bordered"
             onPress={onClose}
             isDisabled={isLoading}
-            className="border-[#27272a] text-white hover:bg-white/5 font-medium min-w-[80px]"
+            className="border-zinc-200 dark:border-[#27272a] text-zinc-700 dark:text-white hover:bg-zinc-50 dark:hover:bg-white/5 font-medium min-w-[80px]"
           >
             Cancel
           </Button>
@@ -65,7 +65,7 @@ const DeleteConfirmationModal = ({
             startContent={!isLoading && <LuTrash className="size-4" />}
             onPress={onConfirm}
             isLoading={isLoading}
-            className="bg-[#ef4444] hover:bg-[#dc2626] font-medium min-w-[120px]"
+            className="bg-[#ef4444] hover:bg-[#dc2626] text-white font-medium min-w-[120px]"
           >
             {isLoading ? "Deleting..." : "Yes, Delete"}
           </Button>

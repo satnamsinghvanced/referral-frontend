@@ -40,6 +40,7 @@ import {
 import { useFetchTeamMembers } from "../../../hooks/settings/useTeam";
 import SendEmailModal from "./SendEmailModal";
 import LeadAutomations from "../LeadAutomations";
+import DeleteConfirmationModal from "../../../components/common/DeleteConfirmationModal";
 
 interface LeadDetailsModalProps {
   isOpen: boolean;
@@ -166,12 +167,17 @@ const LeadDetailsModal = ({
     }
   };
 
-  const handleDeleteNote = async (noteId: string | number) => {
+  const [noteIdToDelete, setNoteIdToDelete] = useState<string | number | null>(null);
+  const [isDeletingNote, setIsDeletingNote] = useState(false);
+
+  const handleDeleteNoteConfirm = async () => {
+    if (noteIdToDelete === null) return;
+    setIsDeletingNote(true);
     try {
       const currentNotes = Array.isArray(lead.notes) ? lead.notes : parseNotes(lead.notes).reverse();
       const updatedNotes = currentNotes.filter((note: any, index: number) => {
         const id = note._id || index;
-        return String(id) !== String(noteId);
+        return String(id) !== String(noteIdToDelete);
       });
       await updateLead({
         id: lead.id || lead._id,
@@ -179,7 +185,10 @@ const LeadDetailsModal = ({
           notes: updatedNotes,
         },
       });
+      setNoteIdToDelete(null);
     } catch (error) {
+    } finally {
+      setIsDeletingNote(false);
     }
   };
   if (!lead) return null;
@@ -680,7 +689,7 @@ const LeadDetailsModal = ({
                                         </span>
                                       )}
                                       <button
-                                        onClick={() => handleDeleteNote(note.id)}
+                                        onClick={() => setNoteIdToDelete(note.id)}
                                         className="text-gray-400 hover:text-red-500 transition-colors cursor-pointer p-0.5 rounded hover:bg-foreground/5"
                                         title="Delete note"
                                       >
@@ -819,6 +828,14 @@ const LeadDetailsModal = ({
         isOpen={isSendEmailOpen}
         onOpenChange={setIsSendEmailOpen}
         lead={lead}
+      />
+      <DeleteConfirmationModal
+        isOpen={noteIdToDelete !== null}
+        onClose={() => setNoteIdToDelete(null)}
+        onConfirm={handleDeleteNoteConfirm}
+        isLoading={isDeletingNote}
+        title="Delete Note"
+        description="Are you sure you want to delete this note? This action cannot be undone."
       />
     </>
   );

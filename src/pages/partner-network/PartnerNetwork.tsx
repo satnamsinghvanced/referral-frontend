@@ -106,15 +106,11 @@ const PartnerNetwork = () => {
     setIsNotesTasksModalOpen(true);
   };
 
-  // Helper to trigger action from the Alert Box
-  const handleAlertAction = (partnerName: string) => {
-    // Find the ID from the practices list by name
-    const partner = practices.find((p) => p.name === partnerName);
-    if (partner) {
-      handleOpenNotesTasksModal(partner._id, partner.name);
+  const handleAlertAction = (partnerId: string, partnerName: string) => {
+    if (partnerId) {
+      handleOpenNotesTasksModal(partnerId, partnerName);
     } else {
-      // Fallback if ID isn't in current page: you might need the API to return the ID in stoppedReferring
-      console.warn("Partner ID not found in current list");
+      console.warn("Partner ID is missing");
     }
   };
 
@@ -262,7 +258,7 @@ const PartnerNetwork = () => {
                         color="danger"
                         className="bg-white dark:bg-default-100/20 border-small dark:border-red-500/30 text-red-600 dark:text-red-400"
                         startContent={<FiBell className="size-3.5" />}
-                        onPress={() => handleAlertAction(partner.name)}
+                        onPress={() => handleAlertAction(partner._id, partner.name)}
                       >
                         Take Action
                       </Button>
@@ -289,6 +285,8 @@ const PartnerNetwork = () => {
                       onValueChange={(value: string) =>
                         handleFieldChange("search", value)
                       }
+                      isClearable
+                      onClear={() => handleFieldChange("search", "")}
                       className="text-xs min-w-fit"
                       startContent={
                         <FiSearch className="text-gray-400 dark:text-foreground/40 h-4 w-4" />

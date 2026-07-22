@@ -46,18 +46,6 @@ export function useVerifyUpdatePassword() {
         color: "success",
       });
     },
-    onError: (error) => {
-      const errorMessage =
-        (error.response?.data as { message?: string })?.message ||
-        error.message ||
-        "Verification failed";
-
-      addToast({
-        title: "Error",
-        description: errorMessage,
-        color: "danger",
-      });
-    },
   });
 }
 
@@ -93,17 +81,6 @@ export function useVerifyEnable2FA() {
         title: "Success",
         description: "2FA enabled successfully.",
         color: "success",
-      });
-    },
-    onError: (error) => {
-      const errorMessage =
-        (error.response?.data as { message?: string })?.message ||
-        error.message ||
-        "Verification failed";
-      addToast({
-        title: "Error",
-        description: errorMessage,
-        color: "danger",
       });
     },
   });

@@ -50,11 +50,6 @@ export function VisitHistoryModal({ isOpen, onClose, onItemView }: VisitHistoryM
       scrollBehavior="inside"
     >
       <ModalContent className="max-h-[90vh] overflow-hidden p-0 w-full relative">
-        {isFetching && (
-          <div className="absolute inset-0 bg-background/70 backdrop-blur-sm z-50 flex items-center justify-center transition-opacity duration-300">
-            <FiLoader className="animate-spin h-6 w-6 text-primary" />
-          </div>
-        )}
         <ModalHeader className="flex flex-col gap-0 flex-shrink-0 p-4 pb-0 font-normal">
           <div className="flex flex-col items-start gap-2">
             <h2 className="text-base leading-none font-medium flex items-center gap-2 dark:text-white">
@@ -112,6 +107,8 @@ export function VisitHistoryModal({ isOpen, onClose, onItemView }: VisitHistoryM
                 }
                 value={searchInput}
                 onValueChange={handleSearchChange}
+                isClearable
+                onClear={() => handleSearchChange("")}
               />
             </div>
             <Select
@@ -131,25 +128,33 @@ export function VisitHistoryModal({ isOpen, onClose, onItemView }: VisitHistoryM
           </div>
         </ModalHeader>
         <ModalBody className="p-4 pt-0 overflow-y-auto flex-1">
-          <div>
-            {visits?.map((monthGroup: any, index: number) => (
-              <div key={index} className="space-y-3">
-                <h3 className="text-sm font-medium sticky top-0 bg-background dark:bg-transparent py-2.5 border-b border-foreground/10 z-10 dark:text-foreground/80">
-                  {monthGroup.month} ({monthGroup.visits.length} visits)
-                </h3>
-                <div className="space-y-2.5">
-                  {monthGroup.visits.map((visit: any) => (
-                    <VisitHistoryCard
-                      key={visit._id}
-                      visit={visit}
-                      onView={onItemView}
-                    />
-                  ))}
-                </div>
+          <div className="min-h-[200px] flex flex-col justify-start">
+            {isFetching ? (
+              <div className="flex-grow flex items-center justify-center py-20">
+                <FiLoader className="animate-spin h-8 w-8 text-primary" />
               </div>
-            ))}
-            {(!visits || visits.length === 0) && !isFetching && (
-              <EmptyState title="No visits found matching the current filters. Try adjusting your search or filters." />
+            ) : (
+              <>
+                {visits?.map((monthGroup: any, index: number) => (
+                  <div key={index} className="space-y-3">
+                    <h3 className="text-sm font-medium sticky top-0 bg-background dark:bg-transparent py-2.5 border-b border-foreground/10 z-10 dark:text-foreground/80">
+                      {monthGroup.month} ({monthGroup.visits.length} visits)
+                    </h3>
+                    <div className="space-y-2.5">
+                      {monthGroup.visits.map((visit: any) => (
+                        <VisitHistoryCard
+                          key={visit._id}
+                          visit={visit}
+                          onView={onItemView}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+                {(!visits || visits.length === 0) && (
+                  <EmptyState title="No visits found matching the current filters. Try adjusting your search or filters." />
+                )}
+              </>
             )}
           </div>
         </ModalBody>

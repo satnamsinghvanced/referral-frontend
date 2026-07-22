@@ -161,17 +161,18 @@ const TrackReferralModal = ({
     });
   }, [referrers, userId, user, referrerFilterValue]);
 
+  const getReferrerNameById = (id: string | null | undefined) => {
+    if (!id) return "";
+    if (id === userId || id === "myself-id") {
+      return "Myself";
+    }
+    const referrer = referrers?.find((r) => r._id === id);
+    return referrer ? referrer.name : "";
+  };
+
   useEffect(() => {
     if (isOpen && formik.values.referrerId) {
-      const selectedId = formik.values.referrerId;
-      if (selectedId === userId || selectedId === "myself-id") {
-        setReferrerFilterValue("Myself");
-      } else {
-        const referrer = referrers?.find((r) => r._id === selectedId);
-        if (referrer) {
-          setReferrerFilterValue(referrer.name);
-        }
-      }
+      setReferrerFilterValue(getReferrerNameById(formik.values.referrerId));
     }
   }, [isOpen, formik.values.referrerId, referrers, userId]);
   useEffect(() => {
@@ -374,18 +375,22 @@ const TrackReferralModal = ({
                         onSelectionChange={(key) => {
                           formik.setFieldValue("referrerId", key);
                           if (key) {
-                            const selectedItem = referrerSelectionItems.find(
-                              (i) => i._id === key,
-                            );
-                            if (selectedItem) {
-                              setReferrerFilterValue(selectedItem.name);
-                            }
+                            setReferrerFilterValue(getReferrerNameById(key as string));
                           } else {
                             setReferrerFilterValue("");
                           }
                         }}
                         inputValue={referrerFilterValue}
                         onInputChange={setReferrerFilterValue}
+                        onOpenChange={(open) => {
+                          if (open) {
+                            setReferrerFilterValue("");
+                          } else {
+                            setReferrerFilterValue(
+                              getReferrerNameById(formik.values.referrerId),
+                            );
+                          }
+                        }}
                         onBlur={formik.handleBlur}
                         isInvalid={
                           !!(

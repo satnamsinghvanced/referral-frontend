@@ -78,16 +78,14 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
   const filteredCountText = useMemo(() => {
     if (!isFiltered) return null;
     const filterStatus = currentFilters.filter
-      ? `  •  ${
-          STATUS_OPTIONS.find((item) => item.value === currentFilters.filter)
-            ?.label
-        } status`
+      ? `  •  ${STATUS_OPTIONS.find((item) => item.value === currentFilters.filter)
+        ?.label
+      } status`
       : "";
     const filterSource = currentFilters.source
-      ? `  •  ${
-          SOURCE_OPTIONS.find((item) => item.key === currentFilters.source)
-            ?.label
-        } only`
+      ? `  •  ${SOURCE_OPTIONS.find((item) => item.key === currentFilters.source)
+        ?.label
+      } only`
       : "";
     return (
       <span className="text-green-600 capitalize">
@@ -147,10 +145,10 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
             </p>
             <p className="text-xs text-gray-600 dark:text-foreground/60">
               {referral?.referredBy?.practiceName &&
-              referral?.referredBy?.practiceName !== "Unknown"
+                referral?.referredBy?.practiceName !== "Unknown"
                 ? referral?.referredBy?.practiceName
                 : REFERRER_TYPE_LABELS[referral?.referredBy?.type] ||
-                  referral?.referredBy?.type}
+                referral?.referredBy?.type}
             </p>
           </div>
           <div className="space-y-2">
@@ -333,7 +331,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                 onPress={onBackToOverview}
                 size="sm"
                 variant="bordered"
-                className="border-small"
+                className="border-small data-[hover=true]:!bg-default border-small bg-white dark:bg-transparent"
                 startContent={<FiArrowLeft className="size-3.5" />}
               >
                 Back to Overview
@@ -342,7 +340,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                 onPress={onExport}
                 size="sm"
                 variant="bordered"
-                className="border-small"
+                className="border-small data-[hover=true]:!bg-default border-small bg-white dark:bg-transparent"
                 startContent={<LuDownload className="size-3.5" />}
               >
                 Export
@@ -405,6 +403,8 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                 size="sm"
                 value={currentFilters.search as string}
                 onValueChange={(value) => onSearchChange(value)}
+                isClearable
+                onClear={() => onSearchChange("")}
                 startContent={
                   <FiSearch className="text-gray-600 dark:text-foreground/60" />
                 }
@@ -459,7 +459,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                 onPress={onClearFilters}
                 size="sm"
                 variant="bordered"
-                className="border-small flex-1"
+                className="border-small flex-1 data-[hover=true]:!bg-default border-small bg-white dark:bg-transparent"
                 startContent={<PiFunnelX className="h-4 w-4 max-lg:hidden" />}
               >
                 Clear Filters
@@ -473,7 +473,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                   }))
                 }
                 size="sm"
-                className="border-small flex-1"
+                className="border-small flex-1 data-[hover=true]:!bg-default border-small bg-white dark:bg-transparent"
                 variant="bordered"
                 color="default"
               >
@@ -488,7 +488,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                   }))
                 }
                 size="sm"
-                className="border-small flex-1"
+                className="border-small flex-1 data-[hover=true]:!bg-default border-small bg-white dark:bg-transparent"
                 variant="bordered"
                 color="default"
               >

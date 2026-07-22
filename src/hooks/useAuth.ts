@@ -68,17 +68,6 @@ export function useVerify2FA() {
       });
       navigate("/");
     },
-    onError: (error) => {
-      const errorMessage =
-        (error.response?.data as { message?: string })?.message ||
-        error.message ||
-        "Verification failed";
-      addToast({
-        title: "Error",
-        description: errorMessage,
-        color: "danger",
-      });
-    },
   });
 }
 export const useExportReferrals = (enabled = false) =>
@@ -108,8 +97,7 @@ export function useExportAccountData() {
     onSuccess: (data) => {
       addToast({
         title: "Success",
-        description:
-          data.message || "Data export initiated. Please check your email.",
+        description: data?.message || "Account data has been sent to your email successfully.",
         color: "success",
       });
     },
@@ -117,7 +105,7 @@ export function useExportAccountData() {
       addToast({
         title: "Error",
         description:
-          (error.response?.data as any)?.message || "Failed to export data",
+          (error.response?.data as any)?.message || "Failed to export account data",
         color: "danger",
       });
     },

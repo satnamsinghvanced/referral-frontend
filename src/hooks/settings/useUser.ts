@@ -6,6 +6,7 @@ import { fetchUserForTrackings } from "../../services/referralBypassFunction";
 import { fetchUser, updateUser, User } from "../../services/settings/user";
 import { store } from "../../store";
 import { handleLogoutThunk } from "../../store/authSlice";
+import { useUpload } from "../../providers/UploadProvider";
 
 export function useFetchUser(id: string) {
   return useQuery<User, AxiosError>({
@@ -29,9 +30,24 @@ export function useFetchUserForTrackings(id: string) {
 }
 
 export function useUpdateUser(id: string) {
-  return useMutation<User, AxiosError, Partial<User>>({
-    mutationFn: (userData) => updateUser(id, userData),
-    onSuccess: () => {
+  const { completeManualUpload } = useUpload();
+
+  return useMutation<
+    User,
+    AxiosError,
+    {
+      userData: Partial<User>;
+      onUploadProgress?: (progressEvent: any) => void;
+      signal?: AbortSignal;
+      uploadId?: string;
+    }
+  >({
+    mutationFn: ({ userData, onUploadProgress, signal }) =>
+      updateUser(id, userData, onUploadProgress, signal),
+    onSuccess: (data, variables) => {
+      if (variables.uploadId) {
+        completeManualUpload(variables.uploadId, "completed");
+      }
       addToast({
         title: "Success",
         description: "Profile updated successfully.",
@@ -39,7 +55,10 @@ export function useUpdateUser(id: string) {
       });
       queryClient.invalidateQueries({ queryKey: ["user", id] });
     },
-    onError: (error) => {
+    onError: (error, variables) => {
+      if (variables.uploadId) {
+        completeManualUpload(variables.uploadId, "error");
+      }
       console.log(error);
       const status = error.response?.status;
       const data = error.response?.data as { message?: string; code?: string };
