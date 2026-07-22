@@ -52,13 +52,15 @@ const BudgetItemCard: React.FC<{
             }}
           ></span>
           <div className="space-y-0.5">
-            <h4 className="text-sm font-medium text-foreground">
-              {isSynced ? getPlatformName(item.type) : subCategoryTitle}
+            <h4 className="text-sm font-medium text-foreground line-clamp-1">
+              {isSynced ? getPlatformName(item.type) : (item.description || subCategoryTitle)}
             </h4>
             <p className="text-xs text-gray-500 dark:text-foreground/40">
               {isSynced
                 ? `Synced with ${getPlatformName(item.type)}`
-                : categoryTitle}
+                : (item.description
+                  ? (categoryTitle === subCategoryTitle ? categoryTitle : `${categoryTitle} • ${subCategoryTitle}`)
+                  : categoryTitle)}
             </p>
           </div>
         </div>
@@ -108,7 +110,7 @@ const BudgetItemCard: React.FC<{
         </div>
       </CardHeader>
       <CardBody className="space-y-3 p-0 pt-4">
-        {item.description && (
+        {item.description && (isSynced || item.description.length > 40) && (
           <p className="text-xs text-gray-600 dark:text-foreground/60">
             {item.description}
           </p>

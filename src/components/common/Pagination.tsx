@@ -27,6 +27,8 @@ const Pagination = ({
         total={totalPages || 1}
         page={currentPage}
         onChange={handlePageChange}
+        color="primary"
+        variant="flat"
         size="sm"
         radius="sm"
         showControls

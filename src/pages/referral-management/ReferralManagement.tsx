@@ -621,9 +621,10 @@ const ReferralManagement = () => {
               {referrerData?.totalPages && referrerData.totalPages > 1 ? (
                 <Pagination
                   showControls
+                  color="primary"
+                  variant="flat"
                   size="sm"
                   radius="sm"
-                  initialPage={1}
                   page={referrerParams.page}
                   onChange={(page) => {
                     setReferrerParams((prev) => ({ ...prev, page }));
@@ -646,7 +647,15 @@ const ReferralManagement = () => {
 
         <ReferrerActionsModal
           isModalOpen={isModalOpen}
-          setIsModalOpen={setIsModalOpen}
+          setIsModalOpen={(open) => {
+            setIsModalOpen(open);
+            if (!open) {
+              setSearchParams((prev) => {
+                prev.delete("referrerId");
+                return prev;
+              });
+            }
+          }}
           editedData={singleReferrerData || null}
           setReferrerEditId={setReferrerEditId}
           setSelectedTab={setSelectedReferralType}
@@ -654,7 +663,13 @@ const ReferralManagement = () => {
       </ComponentContainer>
       <ReferralStatusModal
         isOpen={isReferralStatusModalOpen}
-        onClose={() => setIsReferralStatusModalOpen(false)}
+        onClose={() => {
+          setIsReferralStatusModalOpen(false);
+          setSearchParams((prev) => {
+            prev.delete("referralId");
+            return prev;
+          });
+        }}
         // @ts-ignore - Assuming type mismatch is handled by external types
         referral={singleReferralData}
         isViewMode={isReferralStatusModalViewMode}

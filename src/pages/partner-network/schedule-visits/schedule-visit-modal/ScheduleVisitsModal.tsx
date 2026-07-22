@@ -297,15 +297,15 @@ export function ScheduleVisitsModal({
     const finalVisitPurpose =
       planState.defaultVisitPurpose === "Custom Purpose"
         ? {
-            title: planState.customVisitPurpose,
-            duration: planState.durationPerVisit,
-          }
+          title: planState.customVisitPurpose,
+          duration: planState.durationPerVisit,
+        }
         : PURPOSE_OPTIONS.find(
-            (p) => p.title === planState.defaultVisitPurpose,
-          ) || {
-            title: planState.defaultVisitPurpose,
-            duration: planState.durationPerVisit,
-          };
+          (p) => p.title === planState.defaultVisitPurpose,
+        ) || {
+          title: planState.defaultVisitPurpose,
+          duration: planState.durationPerVisit,
+        };
 
     const bestRoute = routeOptimizationResults?.optimized;
     if (!bestRoute) {
@@ -452,7 +452,7 @@ export function ScheduleVisitsModal({
                   <Tab
                     key={item.key}
                     title={item.label}
-                    // isDisabled={isDisabled}
+                  // isDisabled={isDisabled}
                   />
                 );
               }}

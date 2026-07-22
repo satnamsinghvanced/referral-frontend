@@ -1,4 +1,4 @@
-import { Button, Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
+import { Button, Popover, PopoverContent, PopoverTrigger, Spinner } from "@heroui/react";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import { useEffect, useState } from "react";
@@ -16,9 +16,16 @@ dayjs.extend(relativeTime);
 
 export default function NotificationPopover() {
   const [open, setOpen] = useState(false);
+  const [isMarkingAll, setIsMarkingAll] = useState(false);
   const navigate = useNavigate();
   const { data: notifications = [], isLoading } = useInAppNotifications();
   const markReadMutation = useMarkNotificationsRead();
+
+  useEffect(() => {
+    if (!markReadMutation.isPending) {
+      setIsMarkingAll(false);
+    }
+  }, [markReadMutation.isPending]);
 
   useEffect(() => {
     const handleNewNotification = (data: any) => {
@@ -42,6 +49,18 @@ export default function NotificationPopover() {
     const leadId = notification.metadata?.leadId || notification.leadId;
     if (leadId) {
       navigate("/lead-tracking", { state: { openLeadId: leadId } });
+      setOpen(false);
+      return;
+    }
+    const referralId = notification.metadata?.referralId || notification.referralId;
+    if (referralId) {
+      navigate(`/referrals?referralId=${referralId}`);
+      setOpen(false);
+      return;
+    }
+    const referrerId = notification.metadata?.referrerId || notification.referrerId;
+    if (referrerId) {
+      navigate(`/referrals?referrerId=${referrerId}`);
       setOpen(false);
       return;
     }
@@ -75,6 +94,7 @@ export default function NotificationPopover() {
       .filter((n: any) => !n.isRead)
       .map((n: any) => n._id);
     if (unreadIds.length > 0) {
+      setIsMarkingAll(true);
       markReadMutation.mutate(unreadIds);
     }
   };
@@ -102,12 +122,19 @@ export default function NotificationPopover() {
           <div className="flex items-center justify-between px-3 py-2.5 border-b border-foreground/10">
             <h4 className="text-sm font-medium">Notifications</h4>
             {unreadCount > 0 && (
-              <span
-                className="text-xs text-primary dark:text-sky-400 underline underline-offset-2 cursor-pointer"
-                onClick={handleMarkAllRead}
-              >
-                Mark All as Read
-              </span>
+              isMarkingAll && markReadMutation.isPending ? (
+                <div className="flex items-center gap-1.5">
+                  <Spinner size="sm" classNames={{ wrapper: "size-3 h-3" }} color="primary" />
+                  <span className="text-xs text-gray-500">Marking...</span>
+                </div>
+              ) : (
+                <span
+                  className="text-xs text-primary dark:text-sky-400 underline underline-offset-2 cursor-pointer"
+                  onClick={handleMarkAllRead}
+                >
+                  Mark All as Read
+                </span>
+              )
             )}
           </div>
 
@@ -143,17 +170,23 @@ export default function NotificationPopover() {
                     </div>
                     <div className="flex items-center gap-1 ml-3 flex-shrink-0">
                       {!notification.isRead && (
-                        <button
-                          type="button"
-                          className="p-1 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-400 hover:text-green-500 transition-colors outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            markReadMutation.mutate([notification._id]);
-                          }}
-                          title="Mark as read"
-                        >
-                          <FiCheck className="w-3.5 h-3.5" />
-                        </button>
+                        markReadMutation.isPending && markReadMutation.variables?.includes(notification._id) ? (
+                          <div className="p-1 flex items-center justify-center">
+                            <Spinner size="sm" classNames={{ wrapper: "size-3.5 h-3.5" }} color="success" />
+                          </div>
+                        ) : (
+                          <button
+                            type="button"
+                            className="p-1 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-400 hover:text-green-500 transition-colors outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              markReadMutation.mutate([notification._id]);
+                            }}
+                            title="Mark as read"
+                          >
+                            <FiCheck className="w-3.5 h-3.5" />
+                          </button>
+                        )
                       )}
                       {(notification.link || notification.metadata?.link) && (
                         <RiExternalLinkLine className="w-3.5 h-3.5 text-gray-400" />
