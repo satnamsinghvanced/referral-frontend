@@ -130,7 +130,7 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
         </div>
       </div>
 
-      <div className="flex md:justify-end items-center gap-2 md:ml-3 flex-wrap">
+      <div className="flex md:justify-end items-center gap-1.5 md:gap-2 md:ml-3 flex-wrap">
         {buttons(referrer).map((btn, index) => {
           const buttonElement = (
             <Button
@@ -145,7 +145,7 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
                   btn.onClick && btn.onClick(referrer._id);
                 }
               }}
-              className={btn.className ?? "text-xs"}
+              className={`text-xs px-2 md:px-3 min-w-0 ${btn.className ?? ""}`}
             >
               {btn.icon && <span className="text-sm">{btn.icon}</span>}
               {btn.label}

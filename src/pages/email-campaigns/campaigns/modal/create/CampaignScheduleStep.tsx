@@ -28,9 +28,20 @@ const CampaignScheduleStep: React.ForwardRefRenderFunction<
   React.useEffect(() => {
     if (sendImmediately) {
       setIsStepValid(true);
+      setLocalError(null);
     } else {
-      const isPast = sendDate ? new Date(sendDate) < new Date() : false;
-      setIsStepValid(!!sendDate && !isPast);
+      if (!sendDate) {
+        setIsStepValid(false);
+      } else {
+        const isPast = new Date(sendDate) < new Date();
+        if (isPast) {
+          setLocalError("Scheduled date cannot be in the past.");
+          setIsStepValid(false);
+        } else {
+          setLocalError(null);
+          setIsStepValid(true);
+        }
+      }
     }
   }, [sendImmediately, sendDate, setIsStepValid]);
 

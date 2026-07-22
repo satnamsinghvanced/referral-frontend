@@ -207,7 +207,6 @@ const ImportBudgetModal = ({ isOpen, onClose }: ImportBudgetModalProps) => {
                     "Category (required)",
                     "Subcategory (required)",
                     "Budget Amount (required)",
-                    "Actual Spent (required)",
                     "Period (required)",
                     "Priority (required)",
                     "Status (required)",

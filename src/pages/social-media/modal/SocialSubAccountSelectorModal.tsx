@@ -138,8 +138,9 @@ const buildParentItemFromCredentials = (
   platform: SocialPlatformType,
   credential: any,
 ): SelectorItem | null => {
+  if (!credential) return null;
   const status = credential.status?.toLowerCase?.() || credential.status;
-  if (!credential || (status !== "connected" && status !== "Connected")) return null;
+  if (status !== "connected" && status !== "Connected") return null;
   const name = credential.accountName || credential.accountEmail;
   if (!name) return null;
 

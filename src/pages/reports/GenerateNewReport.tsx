@@ -85,6 +85,8 @@ const GenerateNewReportModal = ({
     frequency: "monthly",
   });
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   useEffect(() => {
     if (!isOpen) {
       setFormData({
@@ -95,6 +97,7 @@ const GenerateNewReportModal = ({
         schedule: false,
         frequency: "monthly",
       });
+      setIsSubmitting(false);
     }
   }, [isOpen]);
 
@@ -116,10 +119,12 @@ const GenerateNewReportModal = ({
   };
 
   const handleGenerateReport = async () => {
-    if (!isFormValid) return;
+    if (!isFormValid || isSubmitting) return;
+    setIsSubmitting(true);
 
     generateReport(formData, {
       onSuccess: () => {
+        setIsSubmitting(false);
         onClose();
         setFormData({
           name: "",
@@ -130,6 +135,9 @@ const GenerateNewReportModal = ({
           frequency: "monthly",
         });
       },
+      onError: () => {
+        setIsSubmitting(false);
+      }
     });
   };
 
@@ -356,10 +364,10 @@ const GenerateNewReportModal = ({
             size="sm"
             radius="sm"
             color="primary"
-            isDisabled={!isFormValid}
-            isLoading={isPending}
+            isDisabled={!isFormValid || isSubmitting}
+            isLoading={isPending || isSubmitting}
             onPress={handleGenerateReport}
-            startContent={!isPending && <LuDownload className="size-3.5" />}
+            startContent={!(isPending || isSubmitting) && <LuDownload className="size-3.5" />}
           >
             Generate Report
           </Button>

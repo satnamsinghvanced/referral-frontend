@@ -75,11 +75,15 @@ const DatePickerWithTimeInput: React.FC<DatePickerWithTimeInputProps> = ({
       typeof val === "object" &&
       "year" in val &&
       "month" in val &&
-      "day" in val
+      "day" in val &&
+      !("toDate" in val)
     ) {
       return new CalendarDate(val.year, val.month, val.day);
     }
-    const d = new Date(val);
+    const d =
+      val && typeof val === "object" && typeof val.toDate === "function"
+        ? val.toDate()
+        : new Date(val);
     if (!isNaN(d.getTime())) {
       return new CalendarDate(
         d.getUTCFullYear(),

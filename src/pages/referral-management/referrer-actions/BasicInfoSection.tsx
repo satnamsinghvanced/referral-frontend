@@ -32,7 +32,7 @@ export default function BasicInfoSection({
       placeholder: "e.g., johndoe@gmail.com",
       isFullWidth: true,
       isRequired: false,
-      isDisabled: isEdit,
+      isDisabled: isEdit && !!formik.initialValues?.email?.trim(),
     },
   ];
   return (
