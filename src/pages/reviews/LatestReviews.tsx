@@ -29,9 +29,8 @@ const StarRating = ({ rating }: any) => {
       {[...Array(totalStars)].map((_, i) => (
         <FaStar
           key={i}
-          className={`size-3.5 ${
-            i < rating ? "fill-amber-400 text-amber-400" : "text-gray-300"
-          }`}
+          className={`size-3.5 ${i < rating ? "fill-amber-400 text-amber-400" : "text-gray-300"
+            }`}
         />
       ))}
     </div>
@@ -70,7 +69,13 @@ const LatestReviewItem = ({
   const { reviewer, starRating, createTime, comment, reviewReply, isRatingOnly } = review;
 
   const handleViewReview = () => {
-    const url = review.viewUrl || fallbackViewUrl || GOOGLE_BUSINESS_REVIEWS_URL;
+    let url = review.viewUrl || fallbackViewUrl || GOOGLE_BUSINESS_REVIEWS_URL;
+    if (url.includes("placeid=") && !url.includes("placeid=ChI") && !url.includes("placeid=ChJ")) {
+      const match: any = url.match(/placeid=([^&]+)/);
+      if (match && /^\d+$/.test(match[1])) {
+        url = GOOGLE_BUSINESS_REVIEWS_URL;
+      }
+    }
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
@@ -137,13 +142,16 @@ const LatestReviewItem = ({
 
       {comment ? (
         <p
-          className={`mb-1.5 text-sm leading-relaxed ${
-            isRatingOnly
-              ? "italic text-gray-500 dark:text-foreground/50"
-              : "text-gray-700 dark:text-foreground/80"
-          }`}
+          className={`mb-1.5 text-sm leading-relaxed ${isRatingOnly
+            ? "italic text-gray-500 dark:text-foreground/50"
+            : "text-gray-700 dark:text-foreground/80"
+            }`}
         >
           {comment}
+        </p>
+      ) : isRatingOnly ? (
+        <p className="mb-1.5 text-xs italic text-gray-500 dark:text-foreground/50">
+          The user didn't write a review, and has left just a rating.
         </p>
       ) : null}
 

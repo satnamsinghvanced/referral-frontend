@@ -41,6 +41,18 @@ const Locations = () => {
     );
   }
 
+  if (locations.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center border border-foreground/10 rounded-xl p-8 bg-background w-full text-center min-h-[250px]">
+        <GrLocation className="text-gray-400 size-10 mb-3" />
+        <h4 className="text-base font-semibold mb-1">No Connected Google Business Location</h4>
+        <p className="text-xs text-foreground/60 max-w-sm">
+          Connect your Google Business Profile on the Integrations page to view review performance for your locations.
+        </p>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-col gap-4 border border-foreground/10 rounded-xl p-4 bg-background w-full">
       <h4 className="flex items-center">
