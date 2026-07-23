@@ -1,14 +1,26 @@
-import { Card, CardBody, CardHeader, Chip } from "@heroui/react";
+import {
+  addToast,
+  Button,
+  Card,
+  CardBody,
+  CardHeader,
+  Chip,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+} from "@heroui/react";
 import { useState } from "react";
 import { BiHeart, BiSolidError } from "react-icons/bi";
 import { FaRegCircleCheck } from "react-icons/fa6";
-import { FiClock, FiMessageCircle } from "react-icons/fi";
+import { FiClock, FiMessageCircle, FiTrash2 } from "react-icons/fi";
 import { LuEye } from "react-icons/lu";
 import { RiLinksFill } from "react-icons/ri";
 import { LoadingState } from "../../components/common/LoadingState";
 import Pagination from "../../components/common/Pagination";
 import { EVEN_PAGINATION_LIMIT } from "../../consts/consts";
-import { useRecentPosts } from "../../hooks/useSocial";
+import { useRecentPosts, useDeleteSocialPost } from "../../hooks/useSocial";
 import { formatDateToReadable } from "../../utils/formatDateToReadable";
 import { usePaginationAdjustment } from "../../hooks/common/usePaginationAdjustment";
 
@@ -16,6 +28,10 @@ const Posts = () => {
   const [page, setPage] = useState(1);
   const limit = EVEN_PAGINATION_LIMIT;
   const { data, isLoading } = useRecentPosts(page, limit);
+  const { mutateAsync: deletePost } = useDeleteSocialPost();
+  const [isDeletingId, setIsDeletingId] = useState<string | null>(null);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [postToDeleteId, setPostToDeleteId] = useState<string | null>(null);
 
   const posts = data?.posts || [];
   const pagination = data?.pagination;
@@ -26,6 +42,30 @@ const Posts = () => {
     onPageChange: (newPage) => setPage(newPage),
     isLoading,
   });
+
+  const handleDelete = async () => {
+    if (postToDeleteId) {
+      try {
+        setIsDeletingId(postToDeleteId);
+        await deletePost(postToDeleteId);
+        addToast({
+          title: "Success",
+          description: "Deleted successfully.",
+          color: "success",
+        });
+        setDeleteConfirmOpen(false);
+        setPostToDeleteId(null);
+      } catch (error: any) {
+        addToast({
+          title: "Error",
+          description: error.response?.data?.message || "Failed to delete post.",
+          color: "danger",
+        });
+      } finally {
+        setIsDeletingId(null);
+      }
+    }
+  };
 
   if (isLoading)
     return (
@@ -88,8 +128,22 @@ const Posts = () => {
                       key={post._id}
                       className="border border-foreground/10 p-3 md:p-4 rounded-xl shadow-none"
                     >
-                      <div className="flex justify-between items-start mb-1.5">
+                      <div className="flex justify-between items-center mb-1.5">
                         <h4 className="text-sm font-medium">{post.title}</h4>
+                        <Button
+                          isIconOnly
+                          size="sm"
+                          variant="light"
+                          color="danger"
+                          className="min-w-auto w-8 h-8 cursor-pointer text-gray-400 hover:text-danger hover:bg-danger-50 dark:hover:bg-danger-500/10"
+                          onPress={() => {
+                            setPostToDeleteId(post._id);
+                            setDeleteConfirmOpen(true);
+                          }}
+                          isDisabled={!!isDeletingId}
+                        >
+                          <FiTrash2 className="size-4" />
+                        </Button>
                       </div>
                       <p className="text-xs mb-2.5 whitespace-pre-wrap text-gray-700 dark:text-foreground/80">
                         {post.description}
@@ -230,6 +284,52 @@ const Posts = () => {
           )}
         </CardBody>
       </Card>
+
+      <Modal
+        isOpen={deleteConfirmOpen}
+        onClose={() => {
+          if (!isDeletingId) {
+            setDeleteConfirmOpen(false);
+            setPostToDeleteId(null);
+          }
+        }}
+        size="sm"
+        placement="center"
+        isDismissable={false}
+        isKeyboardDismissDisabled={true}
+      >
+        <ModalContent>
+          <ModalHeader className="flex flex-col gap-1">Delete Post</ModalHeader>
+          <ModalBody>
+            <p className="text-sm text-gray-500">
+              Are you sure you want to delete this post? This action cannot be undone.
+            </p>
+          </ModalBody>
+          <ModalFooter>
+            <Button
+              size="sm"
+              radius="sm"
+              variant="flat"
+              onPress={() => {
+                setDeleteConfirmOpen(false);
+                setPostToDeleteId(null);
+              }}
+              isDisabled={!!isDeletingId}
+            >
+              Cancel
+            </Button>
+            <Button
+              size="sm"
+              radius="sm"
+              color="danger"
+              onPress={handleDelete}
+              isLoading={!!isDeletingId}
+            >
+              Delete
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </div>
   );
 };

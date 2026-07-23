@@ -3,6 +3,7 @@ import { queryClient } from "../providers/QueryProvider";
 import {
   createSocialPost,
   deleteSocialIntegration,
+  deleteSocialPost,
   fetchGoogleBusinessPlatformOverview,
   fetchPostsAnalytics,
   fetchRecentPosts,
@@ -164,5 +165,16 @@ export const useConnectSocialSubAccount = (platform: SocialPlatformType) => {
 export const useInitiateAuthIntegration = () => {
   return useMutation({
     mutationFn: (payload: any) => getSocialAuthUrl(payload.platform, payload.platform),
+  });
+};
+
+export const useDeleteSocialPost = () => {
+  return useMutation({
+    mutationFn: deleteSocialPost,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["social-overview"] });
+      queryClient.invalidateQueries({ queryKey: ["recent-posts"] });
+      queryClient.invalidateQueries({ queryKey: ["posts-analytics"] });
+    },
   });
 };
