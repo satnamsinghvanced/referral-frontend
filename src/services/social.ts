@@ -33,6 +33,10 @@ export const deleteSocialIntegration = async (id: string): Promise<void> => {
   await axios.delete(`/social-media/delete-credential/${id}`);
 };
 
+export const deleteSocialPost = async (id: string): Promise<void> => {
+  await axios.delete(`/social-media-post/${id}`);
+};
+
 
 export const fetchSocialOverview =
   async (): Promise<SocialOverviewResponse> => {

@@ -34,6 +34,7 @@ export interface Report {
   status: ReportStatus;
   exportCount: number;
   isPaused?: boolean;
+  nextRunAt?: string;
   createdAt: string;
   updatedAt: string;
 }

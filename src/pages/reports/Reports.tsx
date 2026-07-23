@@ -362,6 +362,19 @@ const Reports = () => {
                             <span className="text-gray-500 dark:text-foreground/40">
                               {`${report.format.toUpperCase()}${report.fileSize ? ` • ${report.fileSize}` : ""
                                 }`}
+                              {report.schedule && !report.isPaused && report.nextRunAt && (
+                                <>
+                                  {" • Next Report Generated On: "}
+                                  {new Date(report.nextRunAt).toLocaleString(undefined, {
+                                    month: "short",
+                                    day: "numeric",
+                                    year: "numeric",
+                                    hour: "numeric",
+                                    minute: "2-digit",
+                                    hour12: true,
+                                  })}
+                                </>
+                              )}
                             </span>
                           </div>
                         </div>

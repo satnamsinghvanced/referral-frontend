@@ -36,6 +36,7 @@ const ComponentHeader: React.FC<ComponentHeaderProps> = ({
                 variant={btn.variant ?? "solid"}
                 color={btn.color ?? "primary"}
                 className={btn.className ?? ""}
+                isLoading={btn.isLoading ?? false}
               >
                 {btn.label}
               </Button>

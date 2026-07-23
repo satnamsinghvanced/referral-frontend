@@ -64,7 +64,7 @@ import { useFormik } from "formik";
 import PriorityLevelChip from "../../../components/chips/PriorityLevelChip";
 import ReferralStatusChip from "../../../components/chips/ReferralStatusChip";
 import { LEAD_PRIORITIES, LEAD_STATUSES } from "../../../consts/lead-pipeline";
-import { useUpdateLead, useLeadCommunicationHistory } from "../../../hooks/useLeadPipeline";
+import { useUpdateLead, useLeadCommunicationHistory, useSendLeadSms } from "../../../hooks/useLeadPipeline";
 import { useFetchCallRecords } from "../../../hooks/useCall";
 import { timeAgo as formatTimeAgo } from "../../../utils/timeAgo";
 
@@ -107,6 +107,23 @@ const LeadDetailsModal = ({
   const [newNote, setNewNote] = useState("");
   const [addingNote, setAddingNote] = useState(false);
   const [isSendEmailOpen, setIsSendEmailOpen] = useState(false);
+  const [activeTab, setActiveTab] = useState<string>("overview");
+  const [smsBody, setSmsBody] = useState("");
+  const { mutateAsync: sendSms, isPending: sendingSms } = useSendLeadSms();
+
+  const handleSendSms = async () => {
+    if (!smsBody.trim()) return;
+    try {
+      await sendSms({
+        id: lead.id || lead._id,
+        body: smsBody.trim(),
+      });
+      setSmsBody("");
+    } catch (error) {
+      // Handled by query/toast
+    }
+  };
+
   const parsedNotes = parseNotes(lead?.notes || "");
   const { data: communicationData, isLoading: loadingHistory } = useLeadCommunicationHistory(lead?.id || lead?._id);
   const communicationHistory = communicationData?.data || communicationData || [];
@@ -252,6 +269,8 @@ const LeadDetailsModal = ({
               </ModalHeader>
               <ModalBody className="px-4 pt-0 pb-4 h-full overflow-auto">
                 <Tabs
+                  selectedKey={activeTab}
+                  onSelectionChange={(key) => setActiveTab(key as string)}
                   aria-label="Lead Details Tabs"
                   variant="light"
                   radius="full"
@@ -307,14 +326,14 @@ const LeadDetailsModal = ({
                             </div>
                           </div>
                           <div className="space-y-3 mt-6">
-                            <Button
+                            {/* <Button
                               fullWidth
                               variant="bordered"
                               startContent={<HiOutlinePhone className="size-4" />}
                               className="justify-start font-medium text-gray-700 dark:text-foreground/80 border-foreground/10"
                             >
                               Call via Twilio
-                            </Button>
+                            </Button> */}
                             <Button
                               fullWidth
                               variant="bordered"
@@ -329,6 +348,7 @@ const LeadDetailsModal = ({
                               variant="bordered"
                               startContent={<HiOutlineChat className="size-4" />}
                               className="justify-start font-medium text-gray-700 dark:text-foreground/80 border-foreground/10"
+                              onPress={() => setActiveTab("communication")}
                             >
                               Send SMS
                             </Button>
@@ -404,11 +424,14 @@ const LeadDetailsModal = ({
                                   Array.from(keys)[0],
                                 )
                               }
-                              items={teamMembers?.data || []}
+                              items={[
+                                { _id: "Unassigned", firstName: "Unassigned", lastName: "" },
+                                ...(teamMembers?.data || []),
+                              ]}
                             >
                               {(member: any) => (
                                 <SelectItem key={member._id}>
-                                  {member.firstName} {member.lastName}
+                                  {member._id === "Unassigned" ? "Unassigned" : `${member.firstName} ${member.lastName}`}
                                 </SelectItem>
                               )}
                             </Select>
@@ -502,7 +525,7 @@ const LeadDetailsModal = ({
                   </Tab>
                   <Tab key="communication" title="Communication">
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 pt-4">
-                      <div className="p-4 border border-foreground/10 rounded-xl space-y-4 bg-content1/50 dark:bg-content1/20">
+                      {/* <div className="p-4 border border-foreground/10 rounded-xl space-y-4 bg-content1/50 dark:bg-content1/20">
                         <div className="flex items-center gap-2 text-blue-500">
                           <HiOutlinePhone className="size-5" />
                           <h4 className="font-bold text-sm">Make a Call</h4>
@@ -515,7 +538,7 @@ const LeadDetailsModal = ({
                         >
                           Call {lead.phone}
                         </Button>
-                      </div>
+                      </div> */}
                       <div className="p-4 border border-foreground/10 rounded-xl space-y-4 bg-content1/50 dark:bg-content1/20">
                         <div className="flex items-center gap-2 text-purple-500">
                           <HiOutlineMail className="size-5" />
@@ -540,14 +563,20 @@ const LeadDetailsModal = ({
                           placeholder="Type your SMS message..."
                           minRows={2}
                           variant="flat"
+                          value={smsBody}
+                          onChange={(e) => setSmsBody(e.target.value)}
+                          maxLength={160}
                         />
                         <div className="flex justify-between items-center text-[10px] text-gray-400 dark:text-foreground/40">
-                          <span>0/160</span>
+                          <span>{smsBody.length}/160</span>
                           <Button
                             size="sm"
                             color="success"
                             className="font-bold text-white bg-green-400 dark:bg-green-500"
                             startContent={<HiOutlineChat />}
+                            onPress={handleSendSms}
+                            isLoading={sendingSms}
+                            isDisabled={!smsBody.trim() || sendingSms}
                           >
                             Send SMS
                           </Button>
@@ -573,6 +602,7 @@ const LeadDetailsModal = ({
                             <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
                               {communicationHistory.map((record: any) => {
                                 const isEmail = record.type === "email";
+                                const isSms = record.type === "sms";
                                 const isIncoming = record.direction === "Incoming";
                                 const timeAgoStr = record.date ? formatTimeAgo(record.date) : "";
                                 return (
@@ -582,12 +612,16 @@ const LeadDetailsModal = ({
                                   >
                                     <div className={`p-2 rounded-full h-fit ${isEmail
                                       ? "bg-purple-50 dark:bg-purple-900/30 text-purple-500 dark:text-purple-400"
-                                      : isIncoming
-                                        ? "bg-blue-50 dark:bg-blue-900/30 text-blue-500 dark:text-blue-400"
-                                        : "bg-indigo-50 dark:bg-indigo-900/30 text-indigo-500 dark:text-indigo-400"
+                                      : isSms
+                                        ? "bg-green-50 dark:bg-green-900/30 text-green-500 dark:text-green-400"
+                                        : isIncoming
+                                          ? "bg-blue-50 dark:bg-blue-900/30 text-blue-500 dark:text-blue-400"
+                                          : "bg-indigo-50 dark:bg-indigo-900/30 text-indigo-500 dark:text-indigo-400"
                                       }`}>
                                       {isEmail ? (
                                         <HiOutlineMail className="size-5" />
+                                      ) : isSms ? (
+                                        <HiOutlineChat className="size-5" />
                                       ) : (
                                         <HiOutlinePhone className="size-5" />
                                       )}
@@ -595,7 +629,7 @@ const LeadDetailsModal = ({
                                     <div className="flex-1 space-y-1">
                                       <div className="flex justify-between items-center">
                                         <h5 className="font-bold text-sm text-foreground">
-                                          {isEmail ? "Sent Email" : isIncoming ? "Inbound Call" : "Outbound Call"}
+                                          {isEmail ? "Sent Email" : isSms ? (isIncoming ? "Received SMS" : "Sent SMS") : (isIncoming ? "Inbound Call" : "Outbound Call")}
                                         </h5>
                                         <span className="text-[10px] text-gray-400 dark:text-foreground/40 font-medium">
                                           {timeAgoStr}
@@ -605,9 +639,18 @@ const LeadDetailsModal = ({
                                         <p className="text-xs text-gray-500 dark:text-foreground/60 font-medium">
                                           To: <span className="font-semibold">{lead.email}</span>
                                         </p>
+                                      ) : isSms ? (
+                                        <p className="text-xs text-gray-500 dark:text-foreground/60 font-medium">
+                                          Recipient: <span className="font-semibold">{record.recipient || lead.phone}</span>
+                                        </p>
                                       ) : (
                                         <p className="text-xs text-gray-500 dark:text-foreground/60 font-medium">
                                           Status: <span className="font-semibold capitalize">{record.status}</span> &bull; Duration: {record.duration}
+                                        </p>
+                                      )}
+                                      {record.body && (
+                                        <p className="text-xs text-gray-650 dark:text-foreground/80 whitespace-pre-wrap mt-1 bg-white/5 p-1.5 rounded-md leading-relaxed border border-foreground/5 font-normal">
+                                          {record.body}
                                         </p>
                                       )}
                                       {record.notes && (

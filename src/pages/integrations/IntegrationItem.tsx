@@ -124,7 +124,7 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
           size="sm"
           isSelected={isSwitchChecked}
           onValueChange={onSwitchChange}
-          isDisabled={status !== "Connected"}
+          isDisabled={status !== "Connected" && status !== "Disconnected"}
         />
       )}
     </>

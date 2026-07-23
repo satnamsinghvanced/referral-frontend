@@ -17,7 +17,7 @@ import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { formatDateToMMDDYYYY } from "../../utils/formatDateToMMDDYYYY";
 import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
 
-const URL_REGEX = /^(https?:\/\/|www\.).+$/i;
+const URL_REGEX = /^(https:\/\/|www\.)[^\s]+\.[^\s]+$/i;
 
 const TrackingPanel = () => {
   const [copied, setCopied] = useState("");
@@ -432,14 +432,14 @@ const TrackingPanel = () => {
                           radius="sm"
                           label="External Page URL"
                           labelPlacement="outside-top"
-                          placeholder="https:// or www.example.com"
+                          placeholder="https://example.com or www.example.com"
                           type="text"
                           value={customLandingUrl}
                           onValueChange={(value) =>
                             setCustomLandingUrl(value.trim())
                           }
                           isInvalid={!!customLandingUrl && !URL_REGEX.test(customLandingUrl)}
-                          errorMessage={!!customLandingUrl && !URL_REGEX.test(customLandingUrl) ? "Please enter a valid URL (e.g., https://example.com or www.example.com)" : undefined}
+                          errorMessage={!!customLandingUrl && !URL_REGEX.test(customLandingUrl) ? "Please enter a valid URL starting with https:// or www." : undefined}
                         />
                       </div>
                     )}
