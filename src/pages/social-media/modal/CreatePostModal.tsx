@@ -422,8 +422,19 @@ export function CreatePostModal({
       ? "border-green-400 bg-green-50/50 dark:bg-green-500/10 dark:border-green-500/50 hover:border-green-500"
       : "border-foreground/10 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-content2";
 
+  const isRequiredFieldsFilled = useMemo(() => {
+    return !!(
+      formik.values.title.trim() &&
+      formik.values.postContent.trim() &&
+      formik.values.selectedPlatforms.length > 0 &&
+      selectedMedia.length > 0 &&
+      (formik.values.publishSchedule !== "schedule" ||
+        (formik.values.scheduledDate && formik.values.scheduledTime))
+    );
+  }, [formik.values, selectedMedia]);
+
   const hasError = (field: keyof typeof formik.initialValues) =>
-    !!(formik.touched[field] && formik.errors[field]);
+    !!(formik.errors[field] && (formik.touched[field] || formik.submitCount > 0 || formik.dirty));
 
   const ErrorText = ({
     field,
@@ -440,6 +451,8 @@ export function CreatePostModal({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
+      isDismissable={false}
+      isKeyboardDismissDisabled={true}
       size="xl"
       placement="center"
       scrollBehavior="inside"
@@ -622,7 +635,9 @@ export function CreatePostModal({
 
           {/* Media Upload */}
           <div className="space-y-1.5">
-            <label className="text-xs block">Media (Max 5)</label>
+            <label className="text-xs block">
+              Media (Max 5) <span className="text-danger">*</span>
+            </label>
             <div
               className={`border-2 border-dashed rounded-lg p-6 text-center transition-all duration-200 cursor-pointer mb-0 ${uploadWrapperClasses}`}
               onClick={handleWrapperClick}
@@ -673,6 +688,11 @@ export function CreatePostModal({
                 </div>
               </div>
             </div>
+            {formik.dirty && selectedMedia.length === 0 && (
+              <p className="text-[11px] text-danger mt-1">
+                Please select at least one image or video.
+              </p>
+            )}
           </div>
 
           {/* Hashtags */}
@@ -766,7 +786,7 @@ export function CreatePostModal({
             variant="solid"
             color="primary"
             onPress={() => formik.handleSubmit()}
-            isDisabled={isPending}
+            isDisabled={!isRequiredFieldsFilled || isPending}
             isLoading={isPending}
             startContent={!isPending && <FiSend className="h-4 w-4" />}
             className="btn-brand-primary"
