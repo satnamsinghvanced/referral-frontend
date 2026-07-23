@@ -40,4 +40,5 @@ export type ButtonConfig = {
   color?: ButtonColor;
   variant?: ButtonVariant;
   radius?: ButtonRadius;
+  isLoading?: boolean;
 };

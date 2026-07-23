@@ -56,7 +56,30 @@ const LeadAutomationModal = ({ isOpen, onOpenChange, automation }: LeadAutomatio
     action: Yup.string().required("Action is required"),
     delayAmount: Yup.number().typeError("Delay must be a number").min(0, "Cannot be negative").required("Delay amount is required"),
     delayUnit: Yup.string().required("Delay unit is required"),
-    landingPageUrl: Yup.string().nullable(),
+    landingPageUrl: Yup.string()
+      .nullable()
+      .test(
+        "is-https-or-www",
+        "URL must start with https:// or www.",
+        (value) => {
+          if (!value) return true;
+          return value.startsWith("https://") || value.startsWith("www.");
+        }
+      )
+      .test(
+        "is-valid-url",
+        "Please enter a valid URL",
+        (value) => {
+          if (!value) return true;
+          const urlToTest = value.startsWith("www.") ? "https://" + value : value;
+          try {
+            new URL(urlToTest);
+            return true;
+          } catch {
+            return false;
+          }
+        }
+      ),
     messageTemplate: Yup.string().required("Message template is required"),
     condition: Yup.string().nullable(),
   });

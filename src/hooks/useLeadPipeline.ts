@@ -7,9 +7,11 @@ import {
   getLeadStatus,
   updateLead,
   sendLeadEmail,
+  sendLeadSms,
   getLeadCommunicationHistory,
   reorderLeads,
   deleteLead,
+  exportLeadsPDF,
 } from "../services/leadPipeline";
 
 export const useLeadStatus = (params?: any) => {
@@ -139,3 +141,67 @@ export const useDeleteLead = () => {
     },
   });
 };
+
+export const useExportLeadsPDF = () => {
+  return useMutation({
+    mutationFn: (params?: any) => exportLeadsPDF(params),
+    onSuccess: (blob) => {
+      if (
+        !blob ||
+        !(blob as Blob).size ||
+        (blob as Blob).type === "application/json"
+      ) {
+        addToast({
+          title: "Error",
+          description: "Invalid file format received from server.",
+          color: "danger",
+        });
+        return;
+      }
+      const url = window.URL.createObjectURL(blob as Blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `leads_report_${new Date().toISOString().split("T")[0]}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      addToast({
+        title: "Success",
+        description: "PDF report exported successfully",
+        color: "success",
+      });
+    },
+    onError: (error: any) => {
+      addToast({
+        title: "Error",
+        description: error?.response?.data?.message || "Failed to export PDF",
+        color: "danger",
+      });
+    },
+  });
+};
+
+export const useSendLeadSms = () => {
+  return useMutation({
+    mutationFn: sendLeadSms,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["leadStatus"] });
+      queryClient.invalidateQueries({ queryKey: ["leadStats"] });
+      queryClient.invalidateQueries({ queryKey: ["leadCommunicationHistory"] });
+      addToast({
+        title: "Success",
+        description: "SMS sent successfully",
+        color: "success",
+      });
+    },
+    onError: (error: any) => {
+      addToast({
+        title: "Error",
+        description: error?.response?.data?.message || "Failed to send SMS",
+        color: "danger",
+      });
+    },
+  });
+};
+

@@ -52,7 +52,7 @@ import {
 import { useDebounce } from "../../hooks/useDebounce";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "react-router-dom";
-import { useLeadStats, useLeadStatus, useUpdateLead, useReorderLeads, useDeleteLead } from "../../hooks/useLeadPipeline";
+import { useLeadStats, useLeadStatus, useUpdateLead, useReorderLeads, useDeleteLead, useExportLeadsPDF } from "../../hooks/useLeadPipeline";
 import ReferralStatusChip from "../../components/chips/ReferralStatusChip";
 import EmptyState from "../../components/common/EmptyState";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
@@ -119,6 +119,7 @@ const LeadTracking = () => {
   const { mutateAsync: updateLeadMutate } = useUpdateLead();
   const { mutateAsync: reorderLeadsMutate } = useReorderLeads();
   const { mutateAsync: deleteLeadMutate } = useDeleteLead();
+  const { mutate: exportLeadsPDF, isPending: isExporting } = useExportLeadsPDF();
 
   const handleDeleteLead = (lead: any) => {
     setLeadToDelete(lead);
@@ -388,12 +389,14 @@ const LeadTracking = () => {
       {
         label: "Export",
         onClick: () => {
-          addToast({
-            title: "Coming Soon",
-            description: "Export functionality is in progress",
-            color: "primary",
+          exportLeadsPDF({
+            search: debouncedSearch,
+            source: filters.source,
+            treatments: filters.treatment,
+            priority: filters.priority,
           });
         },
+        isLoading: isExporting,
         icon: <HiOutlineDownload fontSize={15} />,
         variant: "ghost" as const,
         color: "default" as const,
@@ -663,79 +666,94 @@ const LeadTracking = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-foreground/5">
-                      {allLeads.map((lead: any) => (
-                        <tr
-                          key={lead.id || lead._id}
-                          className="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors"
-                        >
-                          <td className="py-4 px-6">
-                            <div className="space-y-1">
+                      {allLeads.length > 0 ? (
+                        allLeads.map((lead: any) => (
+                          <tr
+                            key={lead.id || lead._id}
+                            className="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors"
+                          >
+                            <td className="py-4 px-6">
+                              <div className="space-y-1">
+                                <div className="font-bold text-foreground">
+                                  {lead.name || `${lead.firstName} ${lead.lastName}`}
+                                </div>
+                                <div className="text-xs text-gray-400 dark:text-foreground/40">
+                                  {lead.email}
+                                </div>
+                                <div className="text-xs text-gray-400 dark:text-foreground/40">
+                                  {formatPhoneNumber(lead.phone)}
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-4 px-6">
+                              <div className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 text-gray-500 dark:text-foreground/60 uppercase tracking-tighter">
+                                {lead.source}
+                              </div>
+                            </td>
+                            <td className="py-4 px-6">
+                              <ReferralStatusChip status={lead.status} />
+                            </td>
+                            <td className="py-4 px-6">
+                              <div className="flex flex-wrap gap-2">
+                                {lead.treatments.map((t: string, i: number) => (
+                                  <Chip
+                                    key={i}
+                                    size="sm"
+                                    variant="flat"
+                                    className="bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400 text-[10px] font-bold h-6"
+                                  >
+                                    {t}
+                                  </Chip>
+                                ))}
+                              </div>
+                            </td>
+                            <td className="py-4 px-6">
                               <div className="font-bold text-foreground">
-                                {lead.name || `${lead.firstName} ${lead.lastName}`}
+                                ${(lead.estimatedValue || 0).toLocaleString()}
                               </div>
-                              <div className="text-xs text-gray-400 dark:text-foreground/40">
-                                {lead.email}
+                            </td>
+                            <td className="py-4 px-6">
+                              <div className="flex items-center gap-1">
+                                <HiStar className="text-yellow-400 size-4" />
+                                <span className="font-bold text-gray-600 dark:text-foreground/60">
+                                  {lead.score || 0}
+                                </span>
                               </div>
-                              <div className="text-xs text-gray-400 dark:text-foreground/40">
-                                {formatPhoneNumber(lead.phone)}
+                            </td>
+                            <td className="py-4 px-6">
+                              <div
+                                className={`text-xs font-bold ${parseInt(lead.responseTime || "0") < 10 ? "text-green-500" : "text-red-500"}`}
+                              >
+                                {lead.responseTime || "0"}m
                               </div>
+                            </td>
+                            <td className="py-4 px-6 text-center">
+                              <Button
+                                isIconOnly
+                                variant="light"
+                                size="sm"
+                                className="text-gray-400 dark:text-foreground/40 hover:text-primary"
+                                onPress={() => handleLeadClick(lead)}
+                              >
+                                <HiOutlineEye className="size-5" />
+                              </Button>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan={8} className="py-10">
+                            <div className="sticky left-0 w-[calc(100vw-40px)] sm:w-[calc(100vw-60px)] lg:w-[calc(100vw-310px)] xl:w-full max-w-full flex justify-center">
+                              <EmptyState
+                                title="No leads available"
+                                icon={
+                                  <HiOutlineUsers className="size-8 text-gray-400 dark:text-foreground/20" />
+                                }
+                              />
                             </div>
-                          </td>
-                          <td className="py-4 px-6">
-                            <div className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 text-gray-500 dark:text-foreground/60 uppercase tracking-tighter">
-                              {lead.source}
-                            </div>
-                          </td>
-                          <td className="py-4 px-6">
-                            <ReferralStatusChip status={lead.status} />
-                          </td>
-                          <td className="py-4 px-6">
-                            <div className="flex flex-wrap gap-2">
-                              {lead.treatments.map((t: string, i: number) => (
-                                <Chip
-                                  key={i}
-                                  size="sm"
-                                  variant="flat"
-                                  className="bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400 text-[10px] font-bold h-6"
-                                >
-                                  {t}
-                                </Chip>
-                              ))}
-                            </div>
-                          </td>
-                          <td className="py-4 px-6">
-                            <div className="font-bold text-foreground">
-                              ${(lead.estimatedValue || 0).toLocaleString()}
-                            </div>
-                          </td>
-                          <td className="py-4 px-6">
-                            <div className="flex items-center gap-1">
-                              <HiStar className="text-yellow-400 size-4" />
-                              <span className="font-bold text-gray-600 dark:text-foreground/60">
-                                {lead.score || 0}
-                              </span>
-                            </div>
-                          </td>
-                          <td className="py-4 px-6">
-                            <div
-                              className={`text-xs font-bold ${parseInt(lead.responseTime || "0") < 10 ? "text-green-500" : "text-red-500"}`}
-                            >
-                              {lead.responseTime || "0"}m
-                            </div>
-                          </td>
-                          <td className="py-4 px-6 text-center">
-                            <Button
-                              isIconOnly
-                              variant="light"
-                              size="sm"
-                              className="text-gray-400 dark:text-foreground/40 hover:text-primary"
-                              onPress={() => handleLeadClick(lead)}
-                            >
-                              <HiOutlineEye className="size-5" />
-                            </Button>
                           </td>
                         </tr>
-                      ))}
+                      )}
                     </tbody>
                   </table>
                   {leadsData?.pagination && (

@@ -332,11 +332,14 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                         <LuBriefcase className="text-default-400 size-4 mr-1" />
                       )
                     }
-                    items={teamMembers?.data || []}
+                    items={[
+                      { _id: "Unassigned", firstName: "Unassigned", lastName: "" },
+                      ...(teamMembers?.data || []),
+                    ]}
                   >
                     {(member: any) => (
                       <SelectItem key={member._id}>
-                        {member.firstName} {member.lastName}
+                        {member._id === "Unassigned" ? "Unassigned" : `${member.firstName} ${member.lastName}`}
                       </SelectItem>
                     )}
                   </Select>

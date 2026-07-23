@@ -113,3 +113,11 @@ export const deleteLead = async (id: string): Promise<any> => {
   const response = await axios.delete(`/lead/${id}`);
   return response.data;
 };
+
+export const exportLeadsPDF = async (params?: any): Promise<Blob> => {
+  const response = await axios.get("/lead/export/pdf", {
+    params,
+    responseType: "blob",
+  });
+  return response as any;
+};
