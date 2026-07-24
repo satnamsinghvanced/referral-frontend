@@ -121,7 +121,7 @@ export default function CallRecordCard({ record, onPlayClick }: {
         onConfirm={handleDelete}
         isLoading={isDeleting}
         title="Delete Call Record"
-        description="Are you sure you want to delete this call record? This will delete the call details from our system and permanently delete the recording file from Twilio."
+        description="Are you sure you want to delete this call record? This will permanently delete the call recording."
       />
     </>
   );

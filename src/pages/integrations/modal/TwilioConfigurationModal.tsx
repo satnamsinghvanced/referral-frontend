@@ -267,12 +267,12 @@ export default function TwilioConfigurationModal({
               </div>
               {isUpdateMode && existingConfig?.status === "Connected" && (
                 <div className="p-3 bg-green-50 dark:bg-green-900/10 text-green-700 dark:text-green-400 text-xs rounded-lg border border-green-200 dark:border-green-500/30">
-                  ✅ Twilio integration is active and connected.
+                  ✅ Practice ROI Phone Service is active and connected.
                 </div>
               )}
               {isUpdateMode && existingConfig?.status === "Disconnected" && (
                 <div className="p-3 bg-blue-50 dark:bg-blue-900/10 text-blue-700 dark:text-blue-400 text-xs rounded-lg border border-blue-200 dark:border-blue-500/30">
-                  ℹ️ Twilio is disconnected. Please reconnect it by using
+                  ℹ️ Practice ROI Phone Service is disconnected. Please reconnect it by using
                   switch.
                 </div>
               )}

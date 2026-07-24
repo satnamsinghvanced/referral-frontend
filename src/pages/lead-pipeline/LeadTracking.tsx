@@ -13,6 +13,7 @@ import {
   ModalHeader,
   ModalBody,
   ModalFooter,
+  Spinner,
 } from "@heroui/react";
 import { useEffect, useMemo, useState } from "react";
 import {
@@ -525,8 +526,12 @@ const LeadTracking = () => {
             </div>
           </>
         )}
-        { isError ? (
-          <div className="flex justify-center items-center h-96 border border-foreground/10 rounded-xl bg-background shadow-none">
+        { isLoading ? (
+          <div className="flex justify-center items-center h-72 border border-foreground/10 rounded-xl bg-background shadow-none">
+            <Spinner size="sm" label="Loading leads..." color="primary" />
+          </div>
+        ) : isError ? (
+          <div className="flex justify-center items-center h-72 border border-foreground/10 rounded-xl bg-background shadow-none">
             <EmptyState
               icon={
                 <HiOutlineExclamationCircle className="size-10 text-danger" />

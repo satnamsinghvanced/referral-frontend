@@ -21,6 +21,7 @@ export interface CallStats {
   avgDuration: string;
   recordings: number;
   followUps: number;
+  totalCompletedMinutes?: number;
 }
 
 export interface CallRecord {
