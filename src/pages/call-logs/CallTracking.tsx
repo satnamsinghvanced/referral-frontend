@@ -116,7 +116,7 @@ const CallTracking = () => {
     () => ({
       heading: "Call Tracking",
       subHeading:
-        "Monitor and manage your phone communications with Twilio integration.",
+        "Monitor and manage your phone communications with Practice ROI Phone Service.",
       buttons: [
         {
           label: "Refresh",
