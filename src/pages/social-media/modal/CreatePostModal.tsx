@@ -148,7 +148,15 @@ const PostValidationSchema = Yup.object().shape({
   }),
   scheduledTime: Yup.string().when("publishSchedule", {
     is: "schedule",
-    then: (schema) => schema.required("Scheduled Time is required."),
+    then: (schema) =>
+      schema
+        .required("Scheduled Time is required.")
+        .test("is-future", "Scheduled date and time must be in the future.", function (value) {
+          const { scheduledDate } = this.parent;
+          if (!scheduledDate || !value) return true;
+          const scheduledDateTime = new Date(`${scheduledDate}T${value}`);
+          return scheduledDateTime.getTime() > Date.now();
+        }),
   }),
 });
 

@@ -93,10 +93,10 @@ export const usePostsAnalytics = () => {
   });
 };
 
-export const useRecentPosts = (page: number, limit: number) => {
+export const useRecentPosts = (page: number, limit: number, status?: string) => {
   return useQuery({
-    queryKey: ["recent-posts", page, limit],
-    queryFn: () => fetchRecentPosts(page, limit),
+    queryKey: ["recent-posts", page, limit, status],
+    queryFn: () => fetchRecentPosts(page, limit, status),
     refetchInterval: (query) => {
       const data = query?.state?.data as any;
       const posts = data?.posts || [];

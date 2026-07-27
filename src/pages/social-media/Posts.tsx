@@ -8,6 +8,8 @@ import {
   Modal,
   ModalBody,
   ModalContent,
+  Select,
+  SelectItem,
 } from "@heroui/react";
 import { useState } from "react";
 import { BiHeart, BiSolidError } from "react-icons/bi";
@@ -24,8 +26,9 @@ import { usePaginationAdjustment } from "../../hooks/common/usePaginationAdjustm
 
 const Posts = () => {
   const [page, setPage] = useState(1);
+  const [statusFilter, setStatusFilter] = useState("all");
   const limit = EVEN_PAGINATION_LIMIT;
-  const { data, isLoading } = useRecentPosts(page, limit);
+  const { data, isLoading } = useRecentPosts(page, limit, statusFilter);
 
   const posts = data?.posts || [];
   const pagination = data?.pagination;
@@ -47,12 +50,36 @@ const Posts = () => {
   return (
     <div className="space-y-4 w-full">
       <Card className="bg-background rounded-xl shadow-none p-4 border border-foreground/10 w-full">
-        <CardHeader className="flex justify-between items-center mb-4 p-0">
-          <h2 className="text-sm">Recent Posts</h2>
+        <CardHeader className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4 p-0">
+          <div className="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+            <h2 className="text-sm font-medium">Recent Posts</h2>
+            <Select
+              aria-label="Filter by Status"
+              placeholder="All Posts"
+              size="sm"
+              className="w-40"
+              selectedKeys={new Set([statusFilter])}
+              onSelectionChange={(keys) => {
+                const val = Array.from(keys)[0] as string;
+                setStatusFilter(val || "all");
+                setPage(1);
+              }}
+            >
+              <SelectItem key="all" className="capitalize">
+                All Posts
+              </SelectItem>
+              <SelectItem key="Scheduled" className="capitalize">
+                Scheduled
+              </SelectItem>
+              <SelectItem key="Published" className="capitalize">
+                Published
+              </SelectItem>
+            </Select>
+          </div>
           <Chip
             size="sm"
             radius="sm"
-            className="text-[11px] text-sky-900 bg-sky-100 dark:bg-sky-500/10 dark:text-sky-300"
+            className="text-[11px] text-sky-900 bg-sky-100 dark:bg-sky-500/10 dark:text-sky-300 max-sm:self-end"
           >
             {pagination?.total || 0} total posts
           </Chip>

@@ -45,7 +45,7 @@ export default function ConversationList({
 }: ConversationListProps) {
   const navigate = useNavigate();
 
-  const showMetaWarning = !isMetaConnected && (selectedPlatform === "all" || selectedPlatform === "facebook" || selectedPlatform === "instagram");
+  const showMetaWarning = !isMetaConnected && (selectedPlatform === "facebook" || selectedPlatform === "instagram");
   return (
     <div
       className={`w-full md:w-[320px] md:min-w-[280px] border-r border-foreground/10 flex flex-col ${selectedConversationId ? "hidden md:flex" : "flex"
