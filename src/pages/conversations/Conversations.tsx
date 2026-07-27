@@ -25,6 +25,7 @@ import {
   unsubscribeFromNewMessage,
   subscribeToNewWebMessage,
   unsubscribeFromNewWebMessage,
+  getSocket,
   type NewMessagePayload,
   type NewWebMessagePayload,
 } from "../../services/socket";
@@ -43,6 +44,7 @@ const Conversations = () => {
   }, [socialCreds]);
 
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [isConversationsLoading, setIsConversationsLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedPlatform, setSelectedPlatform] = useState("all");
   const [filterDropdown, setFilterDropdown] = useState("all");
@@ -126,9 +128,21 @@ const Conversations = () => {
         console.error("Failed to load Web conversations:", err);
       }
     };
-    fetchIGConversations();
-    fetchFBConversations();
-    fetchWebConversations();
+
+    const loadAllConversations = async () => {
+      setIsConversationsLoading(true);
+      try {
+        await Promise.allSettled([
+          fetchIGConversations(),
+          fetchFBConversations(),
+          fetchWebConversations()
+        ]);
+      } finally {
+        setIsConversationsLoading(false);
+      }
+    };
+
+    loadAllConversations();
   }, []);
 
   useEffect(() => {
@@ -172,11 +186,66 @@ const Conversations = () => {
         })
       );
     };
+
+    const handleMessageReadWatermark = (payload: { platform: string; conversationId: string; watermark: number }) => {
+      setConversations((prev) =>
+        prev.map((conv) => {
+          if (
+            conv.platform === payload.platform &&
+            (conv.id === payload.conversationId || conv.recipientId === payload.conversationId)
+          ) {
+            const updatedMessages = conv.messages.map((m) => {
+              if (!m.isFromPatient && m.createdAt && m.createdAt <= payload.watermark && !m.seenAt) {
+                return { ...m, seenAt: payload.watermark };
+              }
+              return m;
+            });
+            return {
+              ...conv,
+              messages: updatedMessages
+            };
+          }
+          return conv;
+        })
+      );
+    };
+
+    const handleMessagesReadByPatient = (payload: { conversationId: string; platform: string; lastSeenAt: number }) => {
+      setConversations((prev) =>
+        prev.map((conv) => {
+          if (conv.platform === payload.platform && conv.id === payload.conversationId) {
+            const updatedMessages = conv.messages.map((m) => {
+              if (!m.isFromPatient && !m.seenAt) {
+                return { ...m, seenAt: payload.lastSeenAt };
+              }
+              return m;
+            });
+            return {
+              ...conv,
+              messages: updatedMessages
+            };
+          }
+          return conv;
+        })
+      );
+    };
+
     subscribeToNewMessage(handleNewMessage);
     subscribeToNewWebMessage(handleNewWebMessage);
+
+    const socketInstance = getSocket();
+    if (socketInstance) {
+      socketInstance.on("message_read_watermark", handleMessageReadWatermark);
+      socketInstance.on("messages_read_by_patient", handleMessagesReadByPatient);
+    }
+
     return () => {
       unsubscribeFromNewMessage(handleNewMessage);
       unsubscribeFromNewWebMessage(handleNewWebMessage);
+      if (socketInstance) {
+        socketInstance.off("message_read_watermark", handleMessageReadWatermark);
+        socketInstance.off("messages_read_by_patient", handleMessagesReadByPatient);
+      }
     };
   }, []);
 
@@ -457,112 +526,196 @@ const Conversations = () => {
 
   const handleSendMessage = async () => {
     const trimmedText = messageInput.trim();
-    if (!trimmedText && attachedFile.length === 0) return;
-    if (isSendingMessage) return;
+    const filesToSend = [...attachedFile];
+    if (!trimmedText && filesToSend.length === 0) return;
+
     const currentConv = conversations.find((c) => c.id === selectedConversationId);
     if (!currentConv) return;
+
+    // Clear input fields immediately
+    setMessageInput("");
+    setAttachedFile([]);
+
+    // Create optimistic messages
+    const optimisticMessages: ConversationMessage[] = [];
+    const textTempId = `temp-text-${Date.now()}`;
+
+    if (trimmedText) {
+      optimisticMessages.push({
+        id: textTempId,
+        senderId: "provider",
+        text: trimmedText,
+        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        isFromPatient: false,
+        isSending: true,
+        createdAt: Date.now()
+      });
+    }
+
+    const fileTempIds: string[] = [];
+    for (let i = 0; i < filesToSend.length; i++) {
+      const currentFile = filesToSend[i];
+      if (!currentFile) continue;
+      const fileId = `temp-file-${Date.now()}-${i}`;
+      fileTempIds.push(fileId);
+      optimisticMessages.push({
+        id: fileId,
+        senderId: "provider",
+        text: currentFile.type.startsWith("image/") ? "Sent an image" : "Sent a file",
+        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+        isFromPatient: false,
+        isSending: true,
+        createdAt: Date.now(),
+        file: {
+          name: currentFile.name,
+          url: currentFile.url,
+          type: currentFile.type
+        }
+      });
+    }
+
+    // Instantly append optimistic messages to the chat UI
+    setConversations((prev) =>
+      prev.map((c) => {
+        if (c.id === currentConv.id) {
+          const lastMsg = optimisticMessages.length > 0 ? optimisticMessages[optimisticMessages.length - 1] : null;
+          const lastMsgText = lastMsg ? lastMsg.text : "";
+          return {
+            ...c,
+            lastMessage: lastMsgText,
+            lastMessageTime: "Just now",
+            lastMessageTimestamp: Date.now(),
+            messages: [...c.messages, ...optimisticMessages],
+          };
+        }
+        return c;
+      })
+    );
+
     const isInstagram = currentConv.platform === "instagram";
     const isFacebook = currentConv.platform === "facebook";
     const isWeb = currentConv.platform === "web";
-    setIsSendingMessage(true);
-    try {
-      const messagesToAdd: ConversationMessage[] = [];
 
-      const uploadedAttachments: { name: string; url: string; type: string }[] = [];
-      for (const item of attachedFile) {
-        const uploadRes = await uploadChatAttachment(item.file);
-        const fileData = uploadRes?.data || uploadRes;
-        if (fileData && fileData.url) {
-          uploadedAttachments.push({
-            name: fileData.name,
-            url: fileData.url,
-            type: fileData.type,
+    // Run async upload & API call in the background
+    (async () => {
+      try {
+        const uploadedAttachments: { name: string; url: string; type: string }[] = [];
+        for (const item of filesToSend) {
+          const uploadRes = await uploadChatAttachment(item.file);
+          const fileData = uploadRes?.data || uploadRes;
+          if (fileData && fileData.url) {
+            uploadedAttachments.push({
+              name: fileData.name,
+              url: fileData.url,
+              type: fileData.type,
+            });
+          } else {
+            throw new Error(`Failed to upload file: ${item.name}`);
+          }
+        }
+
+        const messagesToAdd: { tempId: string; realMsg: ConversationMessage }[] = [];
+
+        // Send text message
+        if (trimmedText) {
+          let sentMsg: any;
+          if (isInstagram && currentConv.recipientId) {
+            sentMsg = await sendInstagramMessage(currentConv.recipientId, trimmedText);
+          } else if (isFacebook && currentConv.recipientId) {
+            sentMsg = await sendFacebookMessage(currentConv.recipientId, trimmedText);
+          } else if (isWeb) {
+            sentMsg = await sendWebMessage(currentConv.id, trimmedText);
+          }
+
+          messagesToAdd.push({
+            tempId: textTempId,
+            realMsg: {
+              id: sentMsg?.data?.id || sentMsg?.id || Date.now().toString(),
+              senderId: "provider",
+              text: trimmedText,
+              timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+              isFromPatient: false,
+              isSending: false,
+              createdAt: Date.now()
+            }
           });
-        } else {
-          throw new Error(`Failed to upload file: ${item.name}`);
         }
-      }
 
-      // 2. Send messages to the API
-      // If we have text, we send a text message.
-      if (trimmedText) {
-        let sentMsg: any;
-        if (isInstagram && currentConv.recipientId) {
-          sentMsg = await sendInstagramMessage(currentConv.recipientId, trimmedText);
-        } else if (isFacebook && currentConv.recipientId) {
-          sentMsg = await sendFacebookMessage(currentConv.recipientId, trimmedText);
-        } else if (isWeb) {
-          sentMsg = await sendWebMessage(currentConv.id, trimmedText);
+        // Send files
+        for (let i = 0; i < uploadedAttachments.length; i++) {
+          const file = uploadedAttachments[i];
+          const tempId = fileTempIds[i];
+          if (!file || !tempId) continue;
+          let sentMsg: any;
+          if (isInstagram && currentConv.recipientId) {
+            sentMsg = await sendInstagramMessage(currentConv.recipientId, "", file);
+          } else if (isFacebook && currentConv.recipientId) {
+            sentMsg = await sendFacebookMessage(currentConv.recipientId, "", file);
+          } else if (isWeb) {
+            sentMsg = await sendWebMessage(currentConv.id, "", file);
+          }
+
+          messagesToAdd.push({
+            tempId,
+            realMsg: {
+              id: sentMsg?.data?.id || sentMsg?.id || `${Date.now()}-${Math.random()}`,
+              senderId: "provider",
+              text: file.type.startsWith("image/") ? "Sent an image" : "Sent a file",
+              timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+              isFromPatient: false,
+              file,
+              isSending: false,
+              createdAt: Date.now()
+            }
+          });
         }
-        messagesToAdd.push({
-          id: sentMsg?.data?.id || sentMsg?.id || Date.now().toString(),
-          senderId: "provider",
-          text: trimmedText,
-          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-          isFromPatient: false,
-        });
-      }
 
-      for (const file of uploadedAttachments) {
-        let sentMsg: any;
-        if (isInstagram && currentConv.recipientId) {
-          sentMsg = await sendInstagramMessage(currentConv.recipientId, "", file);
-        } else if (isFacebook && currentConv.recipientId) {
-          sentMsg = await sendFacebookMessage(currentConv.recipientId, "", file);
-        } else if (isWeb) {
-          sentMsg = await sendWebMessage(currentConv.id, "", file);
-        }
-        messagesToAdd.push({
-          id: sentMsg?.data?.id || sentMsg?.id || `${Date.now()}-${Math.random()}`,
-          senderId: "provider",
-          text: file.type.startsWith("image/") ? "Sent an image" : "Sent a file",
-          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-          isFromPatient: false,
-          file
-        });
-      }
-
-
-      if (messagesToAdd.length > 0) {
-        const lastMsg = messagesToAdd[messagesToAdd.length - 1];
-        const lastMsgText = lastMsg ? lastMsg.text : "";
+        // Replace optimistic messages with real messages
         setConversations((prev) =>
           prev.map((c) => {
-            if (c.id === selectedConversationId) {
+            if (c.id === currentConv.id) {
+              const updatedMessages = c.messages.map((m) => {
+                const matched = messagesToAdd.find((item) => item.tempId === m.id);
+                return matched ? matched.realMsg : m;
+              });
               return {
                 ...c,
-                lastMessage: lastMsgText,
-                lastMessageTime: "Just now",
-                lastMessageTimestamp: Date.now(),
-                messages: [...c.messages, ...messagesToAdd],
+                messages: updatedMessages,
+              };
+            }
+            return c;
+          })
+        );
+      } catch (err: any) {
+        console.error("Failed to send message:", err);
+        const platformLabel = isInstagram ? "Instagram" : isFacebook ? "Facebook" : "Web widget";
+        addToast({
+          title: "Error Sending Message",
+          description: err.message || `Could not deliver message to ${platformLabel}.`,
+          color: "danger",
+        });
+
+        // Mark optimistic messages as failed
+        setConversations((prev) =>
+          prev.map((c) => {
+            if (c.id === currentConv.id) {
+              const tempIds = [textTempId, ...fileTempIds];
+              const updatedMessages = c.messages.map((m) => {
+                if (tempIds.includes(m.id)) {
+                  return { ...m, isSending: false, isFailed: true };
+                }
+                return m;
+              });
+              return {
+                ...c,
+                messages: updatedMessages,
               };
             }
             return c;
           })
         );
       }
-
-      addToast({
-        title: "Message Sent",
-        description: "Your message has been sent successfully",
-        color: "success",
-      });
-
-      setMessageInput("");
-      setAttachedFile([]);
-
-    } catch (err: any) {
-      console.error("Failed to send message:", err);
-      const platformLabel =
-        isInstagram ? "Instagram" : isFacebook ? "Facebook" : "Web widget";
-      addToast({
-        title: "Error Sending Message",
-        description: err.message || `Could not deliver message to ${platformLabel}.`,
-        color: "danger",
-      });
-    } finally {
-      setIsSendingMessage(false);
-    }
+    })();
   };
 
   const handleToggleStar = (convId: string) => {
@@ -698,7 +851,7 @@ const Conversations = () => {
                 filterDropdown={filterDropdown}
                 setFilterDropdown={setFilterDropdown}
                 isMetaConnected={isMetaConnected}
-                isIntegrationsLoading={isSocialLoading}
+                isIntegrationsLoading={isSocialLoading || isConversationsLoading}
               />
               <ChatArea
                 selectedConversation={selectedConversation}
@@ -729,7 +882,7 @@ const Conversations = () => {
                   setIsSendQuoteModalOpen(true);
                 }}
                 isMetaConnected={isMetaConnected}
-                isIntegrationsLoading={isSocialLoading}
+                isIntegrationsLoading={isSocialLoading || isConversationsLoading}
                 isSendingMessage={isSendingMessage}
               />
               <LeadSidebar

@@ -32,6 +32,10 @@ export interface ConversationMessage {
     url: string;
     type: string;
   };
+  isSending?: boolean;
+  isFailed?: boolean;
+  createdAt?: number;
+  seenAt?: number;
 }
 
 export interface Conversation {

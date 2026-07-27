@@ -39,6 +39,41 @@ import {
 } from "../utils";
 import EmojiPicker from "./EmojiPicker";
 
+const formatSeenTime = (seenAt?: number) => {
+  if (!seenAt) return "Seen now";
+  const diff = Date.now() - seenAt;
+  const diffMins = Math.floor(diff / 60000);
+  const diffHours = Math.floor(diff / 3600000);
+  
+  if (diff < 15000) return "Seen now";
+  if (diffMins < 1) return "Seen just now";
+  if (diffMins < 60) return `Seen ${diffMins} min ago`;
+  if (diffHours < 24) return `Seen ${diffHours} hour${diffHours > 1 ? "s" : ""} ago`;
+  return `Seen ${new Date(seenAt).toLocaleDateString()}`;
+};
+
+const SeenStatus = ({ seenAt }: { seenAt?: number | undefined }) => {
+  const [statusText, setStatusText] = React.useState("");
+
+  React.useEffect(() => {
+    if (!seenAt) {
+      setStatusText("Sent");
+      return;
+    }
+
+    const updateText = () => {
+      setStatusText(formatSeenTime(seenAt));
+    };
+
+    updateText();
+    const interval = setInterval(updateText, 15000);
+
+    return () => clearInterval(interval);
+  }, [seenAt]);
+
+  return <>{statusText}</>;
+};
+
 interface ChatAreaProps {
   selectedConversation: Conversation | null;
   selectedConversationId: string | null;
@@ -88,6 +123,14 @@ export default function ChatArea({
 }: ChatAreaProps) {
   const navigate = useNavigate();
   if (!selectedConversation) {
+    if (selectedConversationId) {
+      return (
+        <div className="flex-1 flex items-center justify-center bg-gray-50/10 dark:bg-black/5">
+          <Spinner size="lg" label="Loading chat..." color="primary" />
+        </div>
+      );
+    }
+
     if (isIntegrationsLoading) {
       return (
         <div className="flex-1 flex items-center justify-center hidden md:flex bg-gray-50/10 dark:bg-black/5">
@@ -96,32 +139,7 @@ export default function ChatArea({
       );
     }
 
-    if (!isMetaConnected) {
-      return (
-        <div className="flex-1 flex flex-col items-center justify-center p-8 bg-gray-50/10 dark:bg-black/5 hidden md:flex text-center">
-          <div className="max-w-md bg-white dark:bg-content1 rounded-2xl p-8 border border-foreground/10 shadow-lg shadow-black/5 flex flex-col items-center gap-5">
-            <div className="w-16 h-16 rounded-2xl bg-primary/10 dark:bg-primary/20 text-primary flex items-center justify-center animate-pulse">
-              <HiOutlineLightningBolt className="size-8" />
-            </div>
-            <div className="space-y-2">
-              <h3 className="text-lg font-bold text-foreground">Connect Meta to Start Texting</h3>
-              <p className="text-xs text-gray-500 dark:text-foreground/60 leading-relaxed">
-                Connect your Meta account to sync Facebook & Instagram conversations and start texting.
-              </p>
-            </div>
-            <div className="flex justify-center w-full mt-2">
-              <Button
-                color="primary"
-                className="font-semibold text-xs py-2.5 px-8 rounded-xl shadow-md shadow-primary/20"
-                onClick={() => navigate("/integrations")}
-              >
-                Connect Meta (FB/IG)
-              </Button>
-            </div>
-          </div>
-        </div>
-      );
-    }
+
 
     return (
       <div className="flex-1 items-center justify-center hidden md:flex">
@@ -196,14 +214,7 @@ export default function ChatArea({
         </div>
         <div className="flex items-center gap-0.5 sm:gap-1">
 
-          <Button
-            isIconOnly
-            variant="light"
-            size="sm"
-            className="text-gray-500 dark:text-foreground/50 hidden sm:inline-flex"
-          >
-            <MdOutlineVideocam className="size-5" />
-          </Button>
+
           <Button
             isIconOnly
             variant="light"
@@ -254,71 +265,90 @@ export default function ChatArea({
         {selectedConversation.messages.map((msg, idx) => {
           const prevMsg = selectedConversation.messages[idx - 1];
           const isNewGroup = !prevMsg || prevMsg.isFromPatient !== msg.isFromPatient;
+          const isLastMessage = idx === selectedConversation.messages.length - 1;
 
           return (
-            <div
-              key={msg.id}
-              className={`flex ${msg.isFromPatient ? "justify-start" : "justify-end"} ${isNewGroup ? "mt-3" : "mt-0.5"
-                }`}
-            >
-              <div className="flex items-end gap-2 max-w-[70%]">
-                {msg.isFromPatient && (
-                  <div
-                    className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-white text-[9px] font-bold ${getAvatarColor(
-                      selectedConversation.patientName,
-                    )}`}
-                  >
-                    {getInitials(selectedConversation.patientName)}
+            <div key={msg.id} className="flex flex-col">
+              <div
+                className={`flex ${msg.isFromPatient ? "justify-start" : "justify-end"} ${isNewGroup ? "mt-3" : "mt-0.5"
+                  }`}
+              >
+                {!msg.isFromPatient && msg.isSending && (
+                  <div className="self-center mr-2 flex items-center">
+                    <Spinner size="sm" color="primary" className="scale-75" />
                   </div>
                 )}
-                <div
-                  className={`px-3.5 py-2 rounded-2xl text-xs leading-relaxed ${msg.isFromPatient
-                    ? "bg-white dark:bg-content2 text-foreground border border-foreground/5 rounded-bl-md"
-                    : "bg-primary text-white rounded-br-md shadow-md shadow-primary/20"
-                    }`}
-                >
-                  {msg.text && msg.text !== "Sent an image" && msg.text !== "Sent a file" && (
-                    <div className="mb-1">{msg.text}</div>
-                  )}
-                  {msg.file && (
-                    <div className="mt-2 pt-2 border-t border-foreground/10 dark:border-white/10">
-                      {msg.file.type?.startsWith("image/") ? (
-                        <img
-                          src={msg.file.url}
-                          alt="Attached upload"
-                          className="max-w-[240px] max-h-[180px] rounded-lg border border-foreground/10 dark:border-white/10 object-contain cursor-pointer hover:opacity-95 transition-opacity mt-1.5 bg-gray-50/50 dark:bg-black/20 p-1"
-                          onClick={() => window.open(msg.file?.url, "_blank")}
-                        />
-                      ) : (
-                        <a
-                          href={msg.file.url}
-                          download={msg.file.name}
-                          className="flex items-center gap-1.5 underline font-medium text-xs break-all hover:opacity-80 transition-opacity"
-                        >
-                          <HiOutlinePaperClip className="size-3.5 flex-shrink-0" />
-                          {msg.file.name}
-                        </a>
-                      )}
+                {!msg.isFromPatient && msg.isFailed && (
+                  <div className="self-center mr-2 flex items-center text-red-500" title="Message failed to send">
+                    ⚠️
+                  </div>
+                )}
+                <div className="flex items-end gap-2 max-w-[70%]">
+                  {msg.isFromPatient && (
+                    <div
+                      className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-white text-[9px] font-bold ${getAvatarColor(
+                        selectedConversation.patientName,
+                      )}`}
+                    >
+                      {getInitials(selectedConversation.patientName)}
                     </div>
                   )}
                   <div
-                    className={`flex items-center justify-end gap-1 mt-1 ${msg.isFromPatient
-                      ? "text-gray-400 dark:text-foreground/40"
-                      : "text-white/70"
+                    className={`px-3.5 py-2 rounded-2xl text-xs leading-relaxed ${msg.isFromPatient
+                      ? "bg-white dark:bg-content2 text-foreground border border-foreground/5 rounded-bl-md"
+                      : "bg-primary text-white rounded-br-md shadow-md shadow-primary/20"
                       }`}
                   >
-                    <span className="[&>svg]:size-2 flex items-center">
-                      {getPlatformIcon(selectedConversation.platform)}
-                    </span>
-                    <span className="text-[9px]">{msg.timestamp}</span>
+                    {msg.text && msg.text !== "Sent an image" && msg.text !== "Sent a file" && (
+                      <div className="mb-1">{msg.text}</div>
+                    )}
+                    {msg.file && (
+                      <div className="mt-2 pt-2 border-t border-foreground/10 dark:border-white/10">
+                        {msg.file.type?.startsWith("image/") ? (
+                          <img
+                            src={msg.file.url}
+                            alt="Attached upload"
+                            className="max-w-[240px] max-h-[180px] rounded-lg border border-foreground/10 dark:border-white/10 object-contain cursor-pointer hover:opacity-95 transition-opacity mt-1.5 bg-gray-50/50 dark:bg-black/20 p-1"
+                            onClick={() => window.open(msg.file?.url, "_blank")}
+                          />
+                        ) : (
+                          <a
+                            href={msg.file.url}
+                            download={msg.file.name}
+                            className="flex items-center gap-1.5 underline font-medium text-xs break-all hover:opacity-80 transition-opacity"
+                          >
+                            <HiOutlinePaperClip className="size-3.5 flex-shrink-0" />
+                            {msg.file.name}
+                          </a>
+                        )}
+                      </div>
+                    )}
+                    <div
+                      className={`flex items-center justify-end gap-1 mt-1 ${msg.isFromPatient
+                        ? "text-gray-400 dark:text-foreground/40"
+                        : "text-white/70"
+                        }`}
+                    >
+                      <span className="[&>svg]:size-2 flex items-center">
+                        {getPlatformIcon(selectedConversation.platform)}
+                      </span>
+                      <span className="text-[9px]">{msg.timestamp}</span>
+                    </div>
                   </div>
+                  {!msg.isFromPatient && (
+                    <div className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center bg-gray-800 dark:bg-gray-700 text-white text-[9px] font-bold">
+                      P
+                    </div>
+                  )}
                 </div>
-                {!msg.isFromPatient && (
-                  <div className="w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center bg-gray-800 dark:bg-gray-700 text-white text-[9px] font-bold">
-                    P
-                  </div>
-                )}
               </div>
+
+              {/* Show the seen status for the last message if it's sent by the provider and not sending/failed */}
+              {isLastMessage && !msg.isFromPatient && !msg.isSending && !msg.isFailed && (
+                <div className="text-[10px] text-gray-400 dark:text-foreground/40 text-right mt-1 mr-9">
+                  <SeenStatus seenAt={msg.seenAt} />
+                </div>
+              )}
             </div>
           );
         })}
@@ -431,9 +461,8 @@ export default function ChatArea({
             }}
             value={messageInput}
             onValueChange={setMessageInput}
-            isDisabled={isSendingMessage}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey && !isSendingMessage) {
+              if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
                 handleSendMessage();
               }
@@ -444,19 +473,13 @@ export default function ChatArea({
             color="primary"
             size="sm"
             radius="md"
-            isDisabled={isSendingMessage || (!messageInput.trim() && !attachedFile)}
-            isLoading={isSendingMessage}
+            isDisabled={!messageInput.trim() && attachedFile.length === 0}
             onPress={handleSendMessage}
             className="flex-shrink-0 min-w-8 w-8"
-            spinner={
-              <Spinner size="sm" color="white" className="scale-75" />
-            }
           >
-            {!isSendingMessage && (
-              <span className="flex items-center justify-center w-full h-full">
-                <LuSend className="size-3.5 rotate-45 -translate-x-[1px] translate-y-[0.5px]" />
-              </span>
-            )}
+            <span className="flex items-center justify-center w-full h-full">
+              <LuSend className="size-3.5 rotate-45 -translate-x-[1px] translate-y-[0.5px]" />
+            </span>
           </Button>
         </div>
       </div>
