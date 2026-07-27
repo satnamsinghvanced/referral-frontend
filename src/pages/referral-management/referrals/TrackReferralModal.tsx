@@ -130,8 +130,10 @@ const TrackReferralModal = ({
       };
       createReferral(payload, {
         onSuccess: () => {
-          onClose();
           formik.resetForm();
+          setReferrerFilterValue("");
+          setReferrerMode("existing");
+          onClose();
         },
       });
     },
@@ -170,14 +172,24 @@ const TrackReferralModal = ({
     return referrer ? referrer.name : "";
   };
 
+  const handleClose = () => {
+    formik.resetForm();
+    setReferrerFilterValue("");
+    setReferrerMode("existing");
+    onClose();
+  };
+
   useEffect(() => {
     if (isOpen && formik.values.referrerId) {
       setReferrerFilterValue(getReferrerNameById(formik.values.referrerId));
     }
   }, [isOpen, formik.values.referrerId, referrers, userId]);
+
   useEffect(() => {
     if (!isOpen) {
       formik.resetForm();
+      setReferrerFilterValue("");
+      setReferrerMode("existing");
     }
   }, [isOpen]);
   const handleInputChange = (
@@ -201,7 +213,7 @@ const TrackReferralModal = ({
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
       size="md"
       placement="center"
       scrollBehavior="inside"
@@ -624,7 +636,7 @@ const TrackReferralModal = ({
                 radius="sm"
                 variant="ghost"
                 color="default"
-                onPress={onClose}
+                onPress={handleClose}
                 className="border-small"
               >
                 Cancel

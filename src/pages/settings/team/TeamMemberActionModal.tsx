@@ -33,7 +33,7 @@ export interface TeamFormValues {
   firstName: string;
   lastName: string;
   email: string;
-  locations: string[]; // Changed from string to string[]
+  locations: string[];
   role: string;
   permissions: string[];
 }
@@ -41,7 +41,7 @@ export interface TeamFormValues {
 type UpdatePayload = {
   firstName: string;
   lastName: string;
-  locations: string[]; // Changed from string to string[]
+  locations: string[];
   role: string;
   permissions: string[];
 };
@@ -244,7 +244,7 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
                 formik.touched.email && (formik.errors.email as string)
               }
               isRequired
-              isDisabled={!!editMemberId} // Disable email on edit as usually identity shouldn't change
+              isDisabled={!!editMemberId}
             />
 
             <Select
@@ -286,7 +286,6 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
                 const selectedRoleId = Array.from(keys)[0] || "";
                 formik.setFieldValue("role", selectedRoleId);
 
-                // Update permissions to defaults for this role
                 const selectedRole = roles?.find(
                   (r: Role) => r._id === selectedRoleId,
                 );
@@ -346,8 +345,8 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
                       const updated = checked
                         ? [...formik.values.permissions, perm._id]
                         : formik.values.permissions.filter(
-                            (p) => p !== perm._id,
-                          );
+                          (p) => p !== perm._id,
+                        );
                       formik.setFieldValue("permissions", updated);
                     }}
                   >

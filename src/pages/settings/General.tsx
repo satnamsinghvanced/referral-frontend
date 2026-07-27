@@ -37,12 +37,13 @@ const General: React.FC = () => {
   const [otpError, setOtpError] = useState<string | undefined>(undefined);
   const [maskedPhone, setMaskedPhone] = useState<string | undefined>(undefined);
   const { data: emailIntegration } = useFetchEmailIntegration();
-  const emailConfigsList = Array.isArray(emailIntegration)
-    ? emailIntegration
-    : emailIntegration
-      ? [emailIntegration]
+  const rawEmailData = (emailIntegration as any)?.data ?? emailIntegration;
+  const emailConfigsList = Array.isArray(rawEmailData)
+    ? rawEmailData
+    : rawEmailData
+      ? [rawEmailData]
       : [];
-  const hasEmailConfig = emailConfigsList.some((cfg: any) => cfg.status === "Connected");
+  const hasEmailConfig = emailConfigsList.some((cfg: any) => cfg && typeof cfg === "object" && cfg.status === "Connected");
   const { mutate: exportAccountData, isPending: isExportingAccount } =
     useExportAccountData();
   const { mutate: exportReferrals, isPending: isExportingReferrals } =

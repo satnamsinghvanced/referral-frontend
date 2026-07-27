@@ -55,6 +55,7 @@ import { useDebounce } from "../../hooks/useDebounce";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "react-router-dom";
 import { useLeadStats, useLeadStatus, useUpdateLead, useReorderLeads, useDeleteLead, useExportLeadsPDF } from "../../hooks/useLeadPipeline";
+import { useBilling } from "../../hooks/settings/useBilling";
 import ReferralStatusChip from "../../components/chips/ReferralStatusChip";
 import EmptyState from "../../components/common/EmptyState";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
@@ -372,22 +373,27 @@ const LeadTracking = () => {
     if (!dataToUse) return [];
     return Object.values(dataToUse).flat();
   }, [localGroupedLeads, leadsData]);
+  const { data: billingData } = useBilling();
+  const planAccess = billingData?.access;
+
   const HEADING_DATA = {
     heading: view === "automations" ? "Lead Automations" : "Lead Tracking",
     subHeading: view === "automations"
       ? "Configure automated SMS, emails, and notifications triggered by lead events."
       : "Monitor and manage patient leads from inquiry to conversion",
     buttons: view === "automations" ? [] : [
-      {
-        label: "Automation Setup",
-        onClick: () => {
-          setView("automations");
+      ...(planAccess?.advanced_automation !== false ? [
+        {
+          label: "Automation Setup",
+          onClick: () => {
+            setView("automations");
+          },
+          icon: <HiOutlineCog fontSize={15} />,
+          variant: "ghost" as const,
+          color: "default" as const,
+          className: "border-small",
         },
-        icon: <HiOutlineCog fontSize={15} />,
-        variant: "ghost" as const,
-        color: "default" as const,
-        className: "border-small",
-      },
+      ] : []),
       {
         label: "Export",
         onClick: () => {

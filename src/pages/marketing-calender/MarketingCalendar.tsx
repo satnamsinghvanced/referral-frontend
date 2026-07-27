@@ -22,6 +22,7 @@ import ActivityActionsModal from "./modal/ActivityActionsModal";
 import { ActivityDetailModal } from "./modal/ActivityDetailModal";
 import { data, Link } from "react-router-dom";
 import { useCalendarIntegration } from "../../hooks/integrations/useGoogleCalendar";
+import IntegrationWarningBanner from "../../components/common/IntegrationWarningBanner";
 import { formatNumberWithCommas } from "../../utils/formatNumberWithCommas";
 import Pagination from "../../components/common/Pagination";
 import { usePaginationAdjustment } from "../../hooks/common/usePaginationAdjustment";
@@ -306,22 +307,11 @@ const MarketingCalendar = () => {
       <ComponentContainer headingData={HEADING_DATA}>
         <div className="flex flex-col gap-4 md:gap-5">
           {!isGoogleCalendarConnected && !isGoogleCalendarLoading && (
-            <div className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-500/30 rounded-lg p-3 flex items-center justify-between flex-wrap gap-3">
-              <p className="text-sm text-yellow-800 dark:text-amber-400">
-                Google Calendar is not connected. Connect your Google Calendar
-                to sync activities.
-              </p>
-              <Button
-                as={Link}
-                to="/integrations"
-                size="sm"
-                color="warning"
-                variant="flat"
-                className="bg-yellow-200 dark:bg-amber-500/20 text-yellow-800 dark:text-amber-400"
-              >
-                Connect Calendar
-              </Button>
-            </div>
+            <IntegrationWarningBanner
+              platformName="Google Calendar"
+              integrationKey="google_calendar"
+              message="Google Calendar is not connected. Connect your Google Calendar to sync activities."
+            />
           )}
           <div className="space-y-4 md:space-y-5">
             <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
@@ -424,9 +414,6 @@ const MarketingCalendar = () => {
                     {type.label}
                   </SelectItem>
                 ))}
-                <SelectItem key="googleCalendar" className="capitalize">
-                  Google Calendar
-                </SelectItem>
               </>
             </Select>
           </div>

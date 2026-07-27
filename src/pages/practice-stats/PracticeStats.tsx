@@ -10,6 +10,7 @@ import {
 } from "react-icons/lu";
 import { TrendIndicator } from "../../components/common/TrendIndicator";
 import { Link } from "react-router-dom";
+import IntegrationWarningBanner from "../../components/common/IntegrationWarningBanner";
 import {
   Area,
   AreaChart,
@@ -141,32 +142,25 @@ const PracticeStats: React.FC = () => {
       isConnected: isGaConnected,
       isLoading: isGaConfigLoading,
       label: "Google Analytics",
+      key: "google_analytics",
       message:
-        "Connect your Google Analytics property to track website traffic.",
-      to: "/integrations",
+        "Google Analytics is not connected. Connect your Google Analytics property to track website traffic.",
     },
     {
       isConnected: isGoogleAdsConnected,
       isLoading: isGoogleAdsConfigLoading,
       label: "Google Ads",
-      message: "Connect your Google Ads account to track your campaigns.",
-      to: "/integrations",
+      key: "google_ads",
+      message: "Google Ads is not connected. Connect your Google Ads account to track your campaigns.",
     },
     {
       isConnected: isMetaAdsConnected,
       isLoading: isMetaAdsConfigLoading,
       label: "Meta Ads",
+      key: "meta_ads",
       message:
-        "Connect your Meta Ads account to track your Facebook and Instagram campaigns.",
-      to: "/integrations",
+        "Meta Ads is not connected. Connect your Meta Ads account to track your Facebook and Instagram campaigns.",
     },
-    // {
-    //   isConnected: isTiktokConnected,
-    //   isLoading: false,
-    //   label: "TikTok Ads",
-    //   message: "Connect your TikTok Ads account to track your campaigns.",
-    //   to: "/integrations",
-    // },
   ];
 
   return (
@@ -178,24 +172,12 @@ const PracticeStats: React.FC = () => {
             (warning, idx) =>
               !warning.isConnected &&
               !warning.isLoading && (
-                <div
+                <IntegrationWarningBanner
                   key={idx}
-                  className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-500/30 rounded-lg p-3 flex items-center justify-between flex-wrap gap-3"
-                >
-                  <p className="text-sm text-yellow-800 dark:text-amber-400">
-                    {warning.label} is not connected. {warning.message}
-                  </p>
-                  <Button
-                    as={Link}
-                    to={warning.to}
-                    size="sm"
-                    color="warning"
-                    variant="flat"
-                    className="bg-yellow-200 dark:bg-amber-500/20 text-yellow-800 dark:text-amber-400"
-                  >
-                    Connect {warning.label}
-                  </Button>
-                </div>
+                  platformName={warning.label}
+                  integrationKey={warning.key}
+                  message={warning.message}
+                />
               ),
           )}
         </div>

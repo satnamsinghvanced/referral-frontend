@@ -12,6 +12,7 @@ import type { SocialPlatformType } from "./modal/SocialSubAccountSelectorModal";
 import SocialConnectConfirmModal, {
   PendingSocialConnect,
 } from "./modal/SocialConnectConfirmModal";
+import { timeAgo } from "../../utils/timeAgo";
 
 const Platforms = ({
   onOpenSelector,
@@ -21,7 +22,7 @@ const Platforms = ({
   const { data: allCredentials, isLoading: isGlobalLoading } =
     useSocialCredentials();
   const { mutate: connectSocial, isPending: isConnecting } = useConnectSocial();
-  const { mutate: updateSocial } = useUpdateSocial();
+  const { mutate: updateSocial, isPending: isUpdatingSocial } = useUpdateSocial();
   const [pendingConnect, setPendingConnect] =
     useState<PendingSocialConnect | null>(null);
 
@@ -43,8 +44,8 @@ const Platforms = ({
     if (!pendingConnect) return;
     connectSocial(
       {
-        platform: pendingConnect.platformId,
-        platformKey: pendingConnect.platformKey,
+        platform: pendingConnect.platformId || "",
+        platformKey: pendingConnect.platformKey || "",
       },
       {
         onSettled: () => setPendingConnect(null),
@@ -90,6 +91,9 @@ const Platforms = ({
         description:
           "Connect Facebook and Instagram to sync posts and track engagement.",
         badges: ["Facebook", "Instagram", "Ads Sync"],
+        lastSync: metaCreds?.lastSyncAt || metaCreds?.updatedAt
+          ? timeAgo(metaCreds.lastSyncAt || metaCreds.updatedAt)
+          : undefined,
         followers: metaCreds?.followers || 0,
         engagementRate: metaCreds?.engagementRate || 0,
         account: {
@@ -128,6 +132,9 @@ const Platforms = ({
         status: normalizeStatus(youtubeCreds?.status),
         description: "Sync your video content and monitor channel performance.",
         badges: ["Video Sync", "Channel Stats", "Views Tracking"],
+        lastSync: youtubeCreds?.lastSyncAt || youtubeCreds?.updatedAt
+          ? timeAgo(youtubeCreds.lastSyncAt || youtubeCreds.updatedAt)
+          : undefined,
         followers: youtubeCreds?.followers || 0,
         engagementRate: youtubeCreds?.engagementRate || 0,
         account: {
@@ -190,6 +197,7 @@ const Platforms = ({
                 onReconnect={() => openConnectModal(platform)}
                 onConfigure={() => onOpenSelector(platform.selectorPlatform)}
                 isSwitchChecked={platform.status === "Connected"}
+                isSwitchLoading={isUpdatingSocial}
                 onSwitchChange={() => {
                   updateSocial({
                     id: platform.id,

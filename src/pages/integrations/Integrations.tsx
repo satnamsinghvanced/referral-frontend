@@ -1,6 +1,6 @@
 import { Card, CardBody, CardHeader, addToast, Modal, ModalContent, ModalHeader, ModalBody, Input, Button } from "@heroui/react";
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import { BsLightningCharge } from "react-icons/bs";
 import { FaGoogle } from "react-icons/fa";
 import { FaMeta, FaRegEnvelope, FaYoutube } from "react-icons/fa6";
@@ -56,6 +56,7 @@ import {
 import {
   useFetchTwilioConfig
 } from "../../hooks/integrations/useTwilio";
+import { useBilling } from "../../hooks/settings/useBilling";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { timeAgo } from "../../utils/timeAgo";
 import IntegrationItem from "./IntegrationItem";
@@ -78,19 +79,29 @@ function Integrations() {
     useState<PendingSocialConnect | null>(null);
   const { data: allSocialCredentials } = useSocialCredentials();
   const { mutate: connectSocial, isPending: isSocialConnecting } = useConnectSocial();
-  const { mutate: updateSocial } = useUpdateSocial();
+  const { mutate: updateSocial, isPending: isUpdatingSocial } = useUpdateSocial();
   const handleConfirmSocialConnect = () => {
     if (!pendingConnect) return;
-    connectSocial(
-      {
-        platform: pendingConnect.platformId,
-        platformKey: pendingConnect.platformKey,
-      },
-      {
-        onSettled: () => setPendingConnect(null),
-      },
-    );
+    if (pendingConnect.onConfirm) {
+      const action = pendingConnect.onConfirm;
+      setPendingConnect(null);
+      action();
+      return;
+    }
+    if (pendingConnect.platformId && pendingConnect.platformKey) {
+      connectSocial(
+        {
+          platform: pendingConnect.platformId,
+          platformKey: pendingConnect.platformKey,
+        },
+        {
+          onSettled: () => setPendingConnect(null),
+        },
+      );
+    }
   };
+  const { data: billingData } = useBilling();
+  const planAccess = billingData?.access;
   const [isTwilioIntegrationModalOpen, setIsTwilioIntegrationModalOpen] =
     useState(false);
   const [isSendGridConfigModalOpen, setIsSendGridConfigModalOpen] =
@@ -113,11 +124,11 @@ function Integrations() {
     isLoading: isGoogleCalendarConfigLoading,
     isError: isGoogleCalendarConfigError,
   } = useCalendarIntegration();
-  const { mutate: updateGoogleCalendarIntegration } = useUpdateCalendar();
+  const { mutate: updateGoogleCalendarIntegration, isPending: isUpdatingGoogleCalendar } = useUpdateCalendar();
   const { mutate: connectCalendar } = useConnectCalendar();
   const { data: emailExistingConfig, isLoading: isEmailConfigLoading } =
     useFetchEmailIntegration();
-  const { mutate: updateEmailIntegration } = useUpdateEmailIntegration();
+  const { mutate: updateEmailIntegration, isPending: isUpdatingEmail } = useUpdateEmailIntegration();
   const { mutate: connectEmail } = useConnectEmail();
   const { mutate: connectSendGrid } = useConnectSendGrid();
   const {
@@ -130,12 +141,65 @@ function Integrations() {
   }, [twilioConfig, isTwilioConfigLoading, isTwilioConfigError]);
   const { data: googleAdsConfig, isLoading: isGoogleAdsConfigLoading } =
     useGoogleAdsIntegration();
-  const { mutate: updateGoogleAdsIntegration } = useUpdateGoogleAds();
+  const { mutate: updateGoogleAdsIntegration, isPending: isUpdatingGoogleAds } = useUpdateGoogleAds();
   const { mutate: connectGoogleAds } = useConnectGoogleAds();
   const { data: metaAdsConfig, isLoading: isMetaAdsConfigLoading } =
     useMetaAdsIntegration();
-  const { mutate: updateMetaAdsIntegration } = useUpdateMetaAds();
+  const { mutate: updateMetaAdsIntegration, isPending: isUpdatingMetaAds } = useUpdateMetaAds();
   const { mutate: connectMetaAds } = useConnectMetaAds();
+  const location = useLocation();
+  const [highlightedKey, setHighlightedKey] = useState<string | null>(null);
+
+  useEffect(() => {
+    const highlightParam = searchParams.get("highlight");
+    const hashParam = location.hash
+      ? location.hash.replace("#integration-", "").replace("#", "")
+      : null;
+    const targetId = highlightParam || hashParam;
+
+    if (targetId) {
+      const normalizedMap: Record<string, string> = {
+        google_review: "google_business",
+        google_reviews: "google_business",
+        googlebusiness: "google_business",
+        google_business: "google_business",
+        google_ads: "google_ads",
+        googleads: "google_ads",
+        google_calendar: "google_calendar",
+        googlecalendar: "google_calendar",
+        meta_ads: "meta_ads",
+        metaads: "meta_ads",
+        google_analytics: "google_analytics",
+        googleanalytics: "google_analytics",
+        sendgrid: "email_marketing",
+        smtp: "email_marketing",
+        email_marketing: "email_marketing",
+        twilio: "twilio",
+        meta: "meta",
+        youtube: "youTube",
+      };
+
+      const finalKey = normalizedMap[targetId.toLowerCase()] || targetId;
+      setHighlightedKey(finalKey);
+
+      const timer = setTimeout(() => {
+        const el = document.getElementById(`integration-${finalKey}`);
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "center" });
+        }
+      }, 250);
+
+      const clearTimer = setTimeout(() => {
+        setHighlightedKey(null);
+      }, 4500);
+
+      return () => {
+        clearTimeout(timer);
+        clearTimeout(clearTimer);
+      };
+    }
+  }, [location.search, location.hash, searchParams]);
+
   const [isGoogleBusinessConnecting, setIsGoogleBusinessConnecting] = useState(false);
   const [onboardingWindow, setOnboardingWindow] = useState<Window | null>(null);
   const [countdown, setCountdown] = useState<number | null>(null);
@@ -144,7 +208,7 @@ function Integrations() {
     isLoading: isGoogleBusinessConfigLoading,
   } = useBusinessIntegration() as any;
   const { mutate: syncBusinessProfiles, isPending: isSyncingBusiness } = useSyncBusinessProfiles();
-  const { mutate: updateGoogleBusinessIntegration } = useUpdateBusiness();
+  const { mutate: updateGoogleBusinessIntegration, isPending: isUpdatingGoogleBusiness } = useUpdateBusiness();
   const { mutate: connectGoogleBusiness } = useConnectBusiness();
   const { mutate: connectWindsor, isPending: isConnectingWindsor } = useWindsorAuth((win: Window | null) => {
     setOnboardingWindow(win);
@@ -287,22 +351,24 @@ function Integrations() {
     data: googleAnalyticsConfig,
     isLoading: isGoogleAnalyticsConfigLoading,
   } = useAnalyticsIntegration();
-  const { mutate: updateGoogleAnalyticsIntegration } = useUpdateAnalytics();
+  const { mutate: updateGoogleAnalyticsIntegration, isPending: isUpdatingGoogleAnalytics } = useUpdateAnalytics();
   const { mutate: connectGoogleAnalytics } = useConnectAnalytics();
-  const emailConfigsList = Array.isArray(emailExistingConfig)
-    ? emailExistingConfig
-    : emailExistingConfig
-      ? [emailExistingConfig]
+  const rawEmailData = (emailExistingConfig as any)?.data ?? emailExistingConfig;
+  const emailConfigsList = Array.isArray(rawEmailData)
+    ? rawEmailData
+    : rawEmailData
+      ? [rawEmailData]
       : [];
   const smtpConfig = emailConfigsList.find(
-    (cfg: any) => cfg.provider !== "SendGrid"
+    (cfg: any) => cfg && typeof cfg === "object" && cfg.provider !== "SendGrid"
   );
   const sendGridConfig = emailConfigsList.find(
-    (cfg: any) => cfg.provider === "SendGrid"
+    (cfg: any) => cfg && typeof cfg === "object" && cfg.provider === "SendGrid"
   );
-  const googleCalendarConfig = Array.isArray(googleCalendarExistingConfig)
-    ? googleCalendarExistingConfig[0]
-    : googleCalendarExistingConfig;
+  const rawCalendarData = (googleCalendarExistingConfig as any)?.data ?? googleCalendarExistingConfig;
+  const googleCalendarConfig = Array.isArray(rawCalendarData)
+    ? rawCalendarData[0]
+    : rawCalendarData;
   const HEADING_DATA = {
     heading: "Integrations",
     subHeading:
@@ -320,6 +386,7 @@ function Integrations() {
     const isGoogleBusinessConnected =
       googleBusinessConfig?.status === "Connected"
     list.push({
+      key: "google_business",
       id: googleBusinessConfig?._id || "",
       name: "Google My Business",
       icon: <FaGoogle className="w-4 h-4" />,
@@ -343,12 +410,18 @@ function Integrations() {
       lastSync: googleBusinessConfig?.lastSyncAt
         ? timeAgo(googleBusinessConfig.lastSyncAt)
         : undefined,
-      onConnect: () => {
-        connectGoogleBusiness();
-      },
-      onReconnect: () => {
-        connectGoogleBusiness();
-      },
+      onConnect: () =>
+        setPendingConnect({
+          key: "google_business",
+          name: "Google Business Profile",
+          onConfirm: () => connectGoogleBusiness(),
+        }),
+      onReconnect: () =>
+        setPendingConnect({
+          key: "google_business",
+          name: "Google Business Profile",
+          onConfirm: () => connectGoogleBusiness(),
+        }),
       onSync: undefined,
       isSyncing: isGoogleBusinessConnecting || isConnectingPlaces,
       syncButtonText: undefined,
@@ -356,6 +429,7 @@ function Integrations() {
         setIsGoogleBusinessLocationModalOpen(true);
       },
       isSwitchChecked: isGoogleBusinessConnected,
+      isSwitchLoading: isUpdatingGoogleBusiness,
       onSwitchChange: () => {
         updateGoogleBusinessIntegration({
           id: googleBusinessConfig?._id as string,
@@ -375,6 +449,7 @@ function Integrations() {
     });
 
     list.push({
+      key: "google_calendar",
       id: googleCalendarConfig?._id || "",
       name: "Google Calendar Integration",
       icon: <LuCalendar className="w-4 h-4" />,
@@ -387,13 +462,24 @@ function Integrations() {
       lastSync: googleCalendarConfig?.lastSyncAt
         ? timeAgo(googleCalendarConfig.lastSyncAt)
         : undefined,
-      onConnect: () => connectCalendar(),
-      onReconnect: () => connectCalendar(),
+      onConnect: () =>
+        setPendingConnect({
+          key: "google_calendar",
+          name: "Google Calendar Integration",
+          onConfirm: () => connectCalendar(),
+        }),
+      onReconnect: () =>
+        setPendingConnect({
+          key: "google_calendar",
+          name: "Google Calendar Integration",
+          onConfirm: () => connectCalendar(),
+        }),
       onConfigure: () => {
         setSelectedCalendarConfig(googleCalendarConfig);
         setIsGoogleCalendarConfigModalOpen(true);
       },
       isSwitchChecked: googleCalendarConfig?.status === "Connected",
+      isSwitchLoading: isUpdatingGoogleCalendar,
       onSwitchChange: () => {
         updateGoogleCalendarIntegration({
           id: googleCalendarConfig?._id as string,
@@ -412,6 +498,7 @@ function Integrations() {
     });
 
     list.push({
+      key: "google_ads",
       id: googleAdsConfig?._id || "",
       name: "Google Ads",
       icon: <SiGoogleads className="w-4 h-4" />,
@@ -425,13 +512,27 @@ function Integrations() {
         "Conversion attribution",
         "Ad spend analytics",
       ],
-      onConnect: () => connectGoogleAds(),
-      onReconnect: () => connectGoogleAds(),
+      lastSync: googleAdsConfig?.lastSyncAt || googleAdsConfig?.updatedAt
+        ? timeAgo(googleAdsConfig.lastSyncAt || googleAdsConfig.updatedAt)
+        : undefined,
+      onConnect: () =>
+        setPendingConnect({
+          key: "google_ads",
+          name: "Google Ads",
+          onConfirm: () => connectGoogleAds(),
+        }),
+      onReconnect: () =>
+        setPendingConnect({
+          key: "google_ads",
+          name: "Google Ads",
+          onConfirm: () => connectGoogleAds(),
+        }),
       onConfigure: () => setIsGoogleAdsAccountModalOpen(true),
       connectedLocation: googleAdsConfig?.customerAccounts?.find(
         (acc: any) => acc.isConnected,
       )?.descriptiveName,
       isSwitchChecked: googleAdsConfig?.status === "Connected",
+      isSwitchLoading: isUpdatingGoogleAds,
       onSwitchChange: () => {
         updateGoogleAdsIntegration({
           id: googleAdsConfig?._id as string,
@@ -450,6 +551,7 @@ function Integrations() {
       },
     });
     list.push({
+      key: "meta_ads",
       id: metaAdsConfig?._id || "",
       name: "Meta Ads",
       icon: <FaMeta className="w-4 h-4" />,
@@ -462,13 +564,27 @@ function Integrations() {
         "Lead attribution",
         "Ad spend analytics",
       ],
-      onConnect: () => connectMetaAds(),
-      onReconnect: () => connectMetaAds(),
+      lastSync: metaAdsConfig?.lastSyncAt || metaAdsConfig?.updatedAt
+        ? timeAgo(metaAdsConfig.lastSyncAt || metaAdsConfig.updatedAt)
+        : undefined,
+      onConnect: () =>
+        setPendingConnect({
+          key: "meta_ads",
+          name: "Meta Ads",
+          onConfirm: () => connectMetaAds(),
+        }),
+      onReconnect: () =>
+        setPendingConnect({
+          key: "meta_ads",
+          name: "Meta Ads",
+          onConfirm: () => connectMetaAds(),
+        }),
       onConfigure: () => setIsMetaAdsAccountModalOpen(true),
       connectedLocation: metaAdsConfig?.adAccounts?.find(
         (acc: any) => acc.isConnected,
       )?.name,
       isSwitchChecked: metaAdsConfig?.status === "Connected",
+      isSwitchLoading: isUpdatingMetaAds,
       onSwitchChange: () => {
         updateMetaAdsIntegration({
           id: metaAdsConfig?._id as string,
@@ -487,6 +603,7 @@ function Integrations() {
       },
     });
     list.push({
+      key: "google_analytics",
       id: googleAnalyticsConfig?._id || "",
       name: "Google Analytics",
       icon: <BsLightningCharge className="w-4 h-4" />,
@@ -495,16 +612,27 @@ function Integrations() {
       status: googleAnalyticsConfig?.status || "Disconnected",
       description: "Advanced reporting and GA4 property data visualization",
       badges: ["GA4 Reporting", "Activity Visualization", "Data Insights"],
-      lastSync: googleAnalyticsConfig?.lastSyncAt
-        ? timeAgo(googleAnalyticsConfig.lastSyncAt)
+      lastSync: googleAnalyticsConfig?.lastSyncAt || googleAnalyticsConfig?.updatedAt
+        ? timeAgo(googleAnalyticsConfig.lastSyncAt || googleAnalyticsConfig.updatedAt)
         : undefined,
-      onConnect: () => connectGoogleAnalytics(),
-      onReconnect: () => connectGoogleAnalytics(),
+      onConnect: () =>
+        setPendingConnect({
+          key: "google_analytics",
+          name: "Google Analytics",
+          onConfirm: () => connectGoogleAnalytics(),
+        }),
+      onReconnect: () =>
+        setPendingConnect({
+          key: "google_analytics",
+          name: "Google Analytics",
+          onConfirm: () => connectGoogleAnalytics(),
+        }),
       onConfigure: () => setIsGoogleAnalyticsPropertyModalOpen(true),
       connectedLocation: googleAnalyticsConfig?.properties?.find(
         (p: any) => p.isConnected,
       )?.displayName,
       isSwitchChecked: googleAnalyticsConfig?.status === "Connected",
+      isSwitchLoading: isUpdatingGoogleAnalytics,
       onSwitchChange: () => {
         updateGoogleAnalyticsIntegration({
           id: googleAnalyticsConfig?._id as string,
@@ -524,6 +652,7 @@ function Integrations() {
     });
 
     list.push({
+      key: "email_marketing",
       id: smtpConfig?._id || "",
       name: "Email Marketing Platform",
       icon: <FaRegEnvelope className="w-4 h-4" />,
@@ -533,9 +662,23 @@ function Integrations() {
       description:
         "Connect your Google account to send automated referral notifications",
       badges: ["OAuth Authentication", "Automated Emails", "Gmail Integration"],
-      onConnect: () => connectEmail(),
-      onReconnect: () => connectEmail(),
+      lastSync: smtpConfig?.lastSyncAt || smtpConfig?.updatedAt
+        ? timeAgo(smtpConfig.lastSyncAt || smtpConfig.updatedAt)
+        : undefined,
+      onConnect: () =>
+        setPendingConnect({
+          key: "email_marketing",
+          name: "Email Marketing Platform",
+          onConfirm: () => connectEmail(),
+        }),
+      onReconnect: () =>
+        setPendingConnect({
+          key: "email_marketing",
+          name: "Email Marketing Platform",
+          onConfirm: () => connectEmail(),
+        }),
       isSwitchChecked: smtpConfig?.status === "Connected",
+      isSwitchLoading: isUpdatingEmail,
       onSwitchChange: () => {
         if (smtpConfig?._id) {
           updateEmailIntegration({
@@ -551,8 +694,8 @@ function Integrations() {
         }
       },
       account: {
-        accountName: smtpConfig?.accountName,
-        accountEmail: smtpConfig?.accountEmail,
+        accountName: smtpConfig?.accountName || smtpConfig?.username,
+        accountEmail: smtpConfig?.accountEmail || smtpConfig?.username,
         accountAvatar: smtpConfig?.accountAvatar,
       },
     });
@@ -660,6 +803,7 @@ function Integrations() {
       });
     };
     list.push({
+      key: "meta",
       id: metaCreds?.id || "",
       platformId: "meta",
       platformKey: "metaAuthIntegration",
@@ -672,6 +816,9 @@ function Integrations() {
       description:
         "Connect Facebook and Instagram to sync posts and track engagement.",
       badges: ["Facebook", "Instagram", "Ads Sync"],
+      lastSync: metaCreds?.lastSyncAt || metaCreds?.updatedAt
+        ? timeAgo(metaCreds.lastSyncAt || metaCreds.updatedAt)
+        : undefined,
       onConnect: () => openSocialConnectModal({
         platformId: "meta",
         platformKey: "metaAuthIntegration",
@@ -689,6 +836,7 @@ function Integrations() {
         setIsSelectorOpen(true);
       },
       isSwitchChecked: metaStatus === "Connected",
+      isSwitchLoading: isUpdatingSocial,
       onSwitchChange: () => {
         updateSocial({
           id: metaCreds?.id,
@@ -710,6 +858,7 @@ function Integrations() {
       },
     });
     list.push({
+      key: "youTube",
       id: youtubeCreds?.id || "",
       platformId: "youTube",
       platformKey: "youtubeAuthIntegration",
@@ -721,6 +870,9 @@ function Integrations() {
       status: youtubeStatus,
       description: "Sync your video content and monitor channel performance.",
       badges: ["Video Sync", "Channel Stats", "Views Tracking"],
+      lastSync: youtubeCreds?.lastSyncAt || youtubeCreds?.updatedAt
+        ? timeAgo(youtubeCreds.lastSyncAt || youtubeCreds.updatedAt)
+        : undefined,
       onConnect: () => openSocialConnectModal({
         platformId: "youTube",
         platformKey: "youtubeAuthIntegration",
@@ -738,6 +890,7 @@ function Integrations() {
         setIsSelectorOpen(true);
       },
       isSwitchChecked: youtubeStatus === "Connected",
+      isSwitchLoading: isUpdatingSocial,
       onSwitchChange: () => {
         updateSocial({
           id: youtubeCreds?.id,
@@ -756,13 +909,17 @@ function Integrations() {
       },
     });
     return list;
-  }, [allSocialCredentials, updateSocial]);
+  }, [allSocialCredentials, updateSocial, isUpdatingSocial]);
 
   return (
     <>
       <ComponentContainer headingData={HEADING_DATA}>
         <div className="flex flex-col gap-4 md:gap-5">
-          <TwilioDashboard twilioConfig={twilioConfig} />
+          {planAccess?.sms_marketing !== false && (
+            <div id="integration-twilio">
+              <TwilioDashboard twilioConfig={twilioConfig} />
+            </div>
+          )}
           <Card className="shadow-none border border-foreground/10 rounded-xl p-4 bg-background">
             <CardHeader className="p-0 pb-5">
               <h4 className="font-medium text-sm text-foreground">
@@ -771,22 +928,35 @@ function Integrations() {
             </CardHeader>
             <CardBody className="divide-y divide-gray-100 dark:divide-default-100/50 p-0">
               {AVAILABLE_INTEGRATIONS.map((item, index) => (
-                <IntegrationItem key={index} {...item} />
+                <div key={item.key || index} id={`integration-${item.key}`}>
+                  <IntegrationItem
+                    {...item}
+                    isHighlighted={highlightedKey === item.key}
+                  />
+                </div>
               ))}
             </CardBody>
           </Card>
-          <Card className="shadow-none border border-foreground/10 rounded-xl p-4 bg-background">
-            <CardHeader className="p-0 pb-5">
-              <h4 className="font-medium text-sm text-foreground">
-                Social Media Integrations
-              </h4>
-            </CardHeader>
-            <CardBody className="divide-y divide-gray-100 dark:divide-default-100/50 p-0">
-              {SOCIAL_MEDIA_INTEGRATIONS.map((item, index) => (
-                <IntegrationItem key={index} {...item} />
-              ))}
-            </CardBody>
-          </Card>
+
+          {planAccess?.social_media !== false && (
+            <Card className="shadow-none border border-foreground/10 rounded-xl p-4 bg-background">
+              <CardHeader className="p-0 pb-5">
+                <h4 className="font-medium text-sm text-foreground">
+                  Social Media Integrations
+                </h4>
+              </CardHeader>
+              <CardBody className="divide-y divide-gray-100 dark:divide-default-100/50 p-0">
+                {SOCIAL_MEDIA_INTEGRATIONS.map((item, index) => (
+                  <div key={item.key || index} id={`integration-${item.key}`}>
+                    <IntegrationItem
+                      {...item}
+                      isHighlighted={highlightedKey === item.key}
+                    />
+                  </div>
+                ))}
+              </CardBody>
+            </Card>
+          )}
           <Webhooks />
         </div>
       </ComponentContainer>

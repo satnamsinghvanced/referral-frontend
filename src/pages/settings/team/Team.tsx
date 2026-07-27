@@ -218,7 +218,7 @@ const Team: React.FC = () => {
                   <span
                     className={`${roleColors[
                       member.role?.role?.toLowerCase() as keyof typeof roleColors
-                      ] ||
+                    ] ||
                       roleColors[
                       member.role?.role as keyof typeof roleColors
                       ] ||
