@@ -265,7 +265,13 @@ const FlowBuilder = ({ id, initialData, onSaved }: FlowBuilderProps) => {
       case "tag":
         return `${config.action === "add" ? "Add" : "Remove"} tag: ${config.tagName}`;
       default:
-        return `${config.triggerType === "Specific Date" ? `Specific Date: ${formatDateToReadable(config.date)}` : config.triggerType}`;
+        if (config.triggerType === "Specific Date") {
+          return `Specific Date: ${formatDateToReadable(config.date)}`;
+        }
+        if (config.triggerType === "No Activity (No referral added by referrer in 30 days)") {
+          return "No Activity (No referral added by referrer in 30 days)";
+        }
+        return config.triggerType;
     }
   };
 

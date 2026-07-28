@@ -110,7 +110,9 @@ const FlowCard = ({ flow, onEdit }: {
             <p className="text-xs text-gray-500 dark:text-foreground/50">
               Conversions
             </p>
-            <p className="text-sm font-semibold">{stats.conversionCount}</p>
+            <p className="text-sm font-semibold text-purple-600 dark:text-purple-400">
+              {stats.conversionCount}
+            </p>
           </div>
         </div>
       )}

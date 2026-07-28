@@ -95,11 +95,6 @@ export function useToggleFavoriteTemplate() {
     mutationFn: toggleFavoriteTemplate,
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: CAMPAIGN_KEYS.all });
-      addToast({
-        title: "Success",
-        description: "Favorites updated successfully",
-        color: "success",
-      });
     },
   });
 }

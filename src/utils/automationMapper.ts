@@ -65,11 +65,12 @@ export const mapAPIFlowToUI = (automation: any): FlowStep[] => {
       },
     }));
   };
+  let triggerDesc = automation.trigger?.type || "Select Trigger";
   const triggerStep: FlowStep = {
     id: "trigger-step",
     type: "trigger",
     title: "Trigger",
-    description: automation.trigger?.type || "Select Trigger",
+    description: triggerDesc,
     config: automation.trigger?.config || {},
     children: automation.steps ? mapSteps(automation.steps) : [],
   };

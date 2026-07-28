@@ -366,7 +366,7 @@ export interface FlowStep {
 
 export type AutomationStatus = "active" | "inActive" | "draft";
 
-export type TriggerType = "New Referrer Added";
+export type TriggerType = "New Referrer Added" | "Referral Received" | "No Activity (No referral added by referrer in 30 days)";
 
 export interface IStepConfig {
   subject?: string;

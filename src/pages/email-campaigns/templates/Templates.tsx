@@ -35,6 +35,8 @@ import ViewTemplateModal from "./modal/ViewTemplateModal";
 
 import { usePaginationAdjustment } from "../../../hooks/common/usePaginationAdjustment";
 
+import { useFetchEmailIntegration } from "../../../hooks/integrations/useEmailMarketing";
+
 const INITIAL_FILTERS: CampaignFilters = {
   page: 1,
   limit: 6,
@@ -48,6 +50,16 @@ interface TemplatesProps {
 }
 
 const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
+  const { data: emailExistingConfig } = useFetchEmailIntegration();
+  const emailConfigsList = Array.isArray(emailExistingConfig)
+    ? emailExistingConfig
+    : emailExistingConfig
+      ? [emailExistingConfig]
+      : [];
+  const hasConnectedEmail = emailConfigsList.some(
+    (cfg: any) => cfg.status === "Connected"
+  );
+
   const [currentFilters, setCurrentFilters] =
     useState<CampaignFilters>(INITIAL_FILTERS);
   const [isModalOpen, setIsModalOpen] = useState(false);

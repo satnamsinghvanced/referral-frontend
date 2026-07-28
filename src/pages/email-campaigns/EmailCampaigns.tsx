@@ -46,10 +46,9 @@ const EmailCampaigns = () => {
       ? [emailExistingConfig]
       : [];
 
-  const sendGridConfig = emailConfigsList.find(
-    (cfg: any) => cfg.provider === "SendGrid"
+  const hasConnectedEmail = emailConfigsList.some(
+    (cfg: any) => cfg.status === "Connected"
   );
-  const isSendGridConnected = sendGridConfig?.status === "Connected";
 
   const handleUseTemplate = (template: CampaignTemplate) => {
     setPrefillTemplate(template);
@@ -59,7 +58,7 @@ const EmailCampaigns = () => {
   const HEADING_DATA = {
     heading: "Email Campaigns",
     subHeading: "Create and manage email campaigns for your referral network.",
-    buttons: isSendGridConnected
+    buttons: hasConnectedEmail
       ? [
           {
             label: "New Campaign",
@@ -117,10 +116,10 @@ const EmailCampaigns = () => {
     <>
       <ComponentContainer headingData={HEADING_DATA}>
         <div className="flex flex-col gap-4 md:gap-5">
-          {/* {!isSendGridConnected && !isEmailConfigLoading && (
+          {!hasConnectedEmail && !isEmailConfigLoading && (
             <div className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-500/30 rounded-lg p-3 flex items-center justify-between flex-wrap gap-3">
               <p className="text-sm text-yellow-800 dark:text-amber-400">
-                SendGrid is not connected. Connect your SendGrid account to enable email campaign features.
+                No email account is integrated. Please connect a custom email account to send campaigns and automations.
               </p>
               <Button
                 as={Link}
@@ -130,10 +129,10 @@ const EmailCampaigns = () => {
                 variant="flat"
                 className="bg-yellow-200 dark:bg-amber-500/20 text-yellow-800 dark:text-amber-400"
               >
-                Connect SendGrid
+                Connect Email
               </Button>
             </div>
-          )} */}
+          )}
           <div className="grid md:grid-cols-2 xl:grid-cols-6 gap-3 md:gap-4">
             {STAT_CARD_DATA.map((data, i) => (
               <MiniStatsCard key={i} cardData={data} />

@@ -20,6 +20,7 @@ import EmptyState from "../../../components/common/EmptyState";
 import { AiOutlinePlus } from "react-icons/ai";
 import CampaignReportModal from "./modal/CampaignReportModal";
 import { usePaginationAdjustment } from "../../../hooks/common/usePaginationAdjustment";
+import { useFetchEmailIntegration } from "../../../hooks/integrations/useEmailMarketing";
 
 const INITIAL_FILTERS: ICampaignFilters = {
   page: 1,
@@ -30,6 +31,16 @@ const INITIAL_FILTERS: ICampaignFilters = {
 };
 
 const Campaigns = () => {
+  const { data: emailExistingConfig } = useFetchEmailIntegration();
+  const emailConfigsList = Array.isArray(emailExistingConfig)
+    ? emailExistingConfig
+    : emailExistingConfig
+      ? [emailExistingConfig]
+      : [];
+  const hasConnectedEmail = emailConfigsList.some(
+    (cfg: any) => cfg.status === "Connected"
+  );
+
   const [currentFilters, setCurrentFilters] =
     useState<ICampaignFilters>(INITIAL_FILTERS);
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);
@@ -181,6 +192,7 @@ const Campaigns = () => {
                 color="primary"
                 className="flex-1"
                 startContent={<AiOutlinePlus className="size-[15px]" />}
+                isDisabled={!hasConnectedEmail}
               >
                 Create Campaign
               </Button>

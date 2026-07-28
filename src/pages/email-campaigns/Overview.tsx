@@ -124,7 +124,7 @@ const Overview = ({
                             {stats?.clickRate ?? 0}% clicks
                           </p>
                           <p className="text-purple-600 dark:text-purple-400">
-                            {stats?.conversionCount ?? 0} ({stats?.conversionRate ?? 0}%) conversions
+                            {stats?.conversionCount ?? 0} conversions
                           </p>
                         </div>
                       </div>
