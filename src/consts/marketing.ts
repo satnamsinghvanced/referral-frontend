@@ -130,3 +130,18 @@ export const ACTIVITY_STATUSES = [
     value: "cancelled",
   },
 ];
+
+export const getFilteredActivityTypes = (hasAccess: (key: any) => boolean) => {
+  return ACTIVITY_TYPES.filter((type) => {
+    if (type.value === "socialMediaPost") {
+      return hasAccess("social_media");
+    }
+    if (type.value === "callCampaign") {
+      return hasAccess("call_tracking");
+    }
+    if (type.value === "adCampaign") {
+      return hasAccess("custom_integrations");
+    }
+    return true;
+  });
+};

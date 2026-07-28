@@ -6,7 +6,10 @@ interface TrackReferralBarProps {
   onImport: () => void;
 }
 
-const TrackReferralBar = ({ onTrackReferral, onImport }: TrackReferralBarProps) => {
+const TrackReferralBar = ({
+  onTrackReferral,
+  onImport,
+}: TrackReferralBarProps) => {
   return (
     <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 rounded-xl border bg-gradient-to-r from-blue-50 to-sky-50 dark:from-blue-900/10 dark:to-sky-900/10 border-blue-200 dark:border-blue-500/30">
       <div className="flex flex-col gap-1.5 text-center sm:text-left">

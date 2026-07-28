@@ -2,8 +2,9 @@ import React, { useEffect, useMemo } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
-import { Button, Input, addToast } from "@heroui/react";
+import { Button, Input, Card, CardBody } from "@heroui/react";
 import { useCreatePatientDetails } from "../../../hooks/useReferral";
+import { useFetchUserForTrackings } from "../../../hooks/settings/useUser";
 import { useTypedSelector } from "../../../hooks/useTypedSelector";
 import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
 import { EMAIL_REGEX, NAME_REGEX, PHONE_REGEX } from "../../../consts/consts";
@@ -18,6 +19,7 @@ const PatientDetailsRetrieve = () => {
     document.documentElement.classList.toggle("dark", theme === "dark");
   }, [theme]);
   const createPatientMutation = useCreatePatientDetails();
+  const { data: fetchedUser } = useFetchUserForTrackings(id || "");
   const downloadVCF = (name: string, phone: string = "", email: string = "") => {
     const vcard = `BEGIN:VCARD
 VERSION:3.0
@@ -134,6 +136,9 @@ ${phone ? `TEL;TYPE=WORK,VOICE:${phone}\n` : ""}${email ? `EMAIL;TYPE=WORK,INTER
     formik.setFieldValue(fieldName, value);
     formik.setFieldTouched(fieldName, true, false);
   };
+
+
+
   return (
     <div className="min-h-screen  dark:bg-background flex flex-col justify-center items-center p-4">
       <div className="max-w-md w-full bg-white dark:bg-content1 rounded-2xl shadow-[0_2px_20px_rgb(0,0,0,0.06)] border border-gray-200 dark:border-foreground/5 p-8">

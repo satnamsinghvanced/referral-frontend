@@ -44,7 +44,7 @@ const Sidebar = ({
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { data: dashboardStats } = useDashboardStats();
-  const { data: billingData } = useBilling();
+  const { data: billingData, isLoading: isBillingLoading } = useBilling();
   const planAccess = billingData?.access;
   const { hasPermission, hasAnyPermission, isAdmin, isLoading } =
     useRolePermissions();
@@ -72,7 +72,6 @@ const Sidebar = ({
     };
   }, [queryClient]);
 
-
   const NAVIGATION_ROUTES: (NavigationRoute & {
     requiredPermission?: string | string[];
   })[] = [
@@ -95,6 +94,7 @@ const Sidebar = ({
         stats: dashboardStats?.conversations || 0,
         color: "bg-sky-100 dark:bg-sky-900/40",
         requiredPermission: "Manage Settings",
+        requiredPlanAccess: "advanced_referral_tracking",
       },
       {
         name: "Referrals",
@@ -163,6 +163,7 @@ const Sidebar = ({
         stats: undefined,
         color: undefined,
         requiredPermission: "Manage Settings",
+        requiredPlanAccess: "advanced_referral_tracking",
       },
       {
         name: "Analytics",
@@ -243,8 +244,10 @@ const Sidebar = ({
     ];
 
   const filteredRoutes = NAVIGATION_ROUTES.filter((route: any) => {
-    if (route.requiredPlanAccess && planAccess && planAccess[route.requiredPlanAccess as keyof typeof planAccess] === false) {
-      return false;
+    if (route.requiredPlanAccess) {
+      if (planAccess && planAccess[route.requiredPlanAccess as keyof typeof planAccess] === false) {
+        return false;
+      }
     }
     if (isAdmin) return true;
     if (isLoading) return !route.requiredPermission;

@@ -12,7 +12,7 @@ import ComponentContainer from "../../components/common/ComponentContainer";
 import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
 import EmptyState from "../../components/common/EmptyState";
 import { LoadingState } from "../../components/common/LoadingState";
-import { ACTIVITY_TYPES } from "../../consts/marketing";
+import { ACTIVITY_TYPES, getFilteredActivityTypes } from "../../consts/marketing";
 import { useDebouncedValue } from "../../hooks/common/useDebouncedValue";
 import { useDeleteActivity, useMarketingActivities } from "../../hooks/useMarketing";
 import { formatDateToReadable } from "../../utils/formatDateToReadable";
@@ -26,8 +26,12 @@ import IntegrationWarningBanner from "../../components/common/IntegrationWarning
 import { formatNumberWithCommas } from "../../utils/formatNumberWithCommas";
 import Pagination from "../../components/common/Pagination";
 import { usePaginationAdjustment } from "../../hooks/common/usePaginationAdjustment";
+import { usePlanGuard } from "../../hooks/usePlanGuard";
 
 const MarketingCalendar = () => {
+  const { hasAccess } = usePlanGuard();
+  const canTrackBudget = hasAccess("budget_tracking");
+  const allowedActivityTypes = getFilteredActivityTypes(hasAccess);
   const { data: googleCalendarConfig, isLoading: isGoogleCalendarLoading } =
     useCalendarIntegration();
   const isGoogleCalendarConnected = useMemo(() => {
@@ -179,17 +183,21 @@ const MarketingCalendar = () => {
         </p>
       ),
     },
-    {
-      icon: <MdOutlineRemoveRedEye className="text-orange-600" />,
-      heading: "Total Budget",
-      value: formatNumberWithCommas(stats?.totalBudget as number),
-      subheading: (
-        <p className="text-orange-600 dark:text-orange-400 flex items-center gap-1.5">
-          <LuUsers fontSize={15} />
-          Combined budget
-        </p>
-      ),
-    },
+    ...(canTrackBudget
+      ? [
+          {
+            icon: <MdOutlineRemoveRedEye className="text-orange-600" />,
+            heading: "Total Budget",
+            value: formatNumberWithCommas(stats?.totalBudget as number),
+            subheading: (
+              <p className="text-orange-600 dark:text-orange-400 flex items-center gap-1.5">
+                <LuUsers fontSize={15} />
+                Combined budget
+              </p>
+            ),
+          },
+        ]
+      : []),
   ];
   const filteredActivities = sortedActivities.filter((activity: any) => {
     if (!selectedDate) return true;
@@ -314,7 +322,7 @@ const MarketingCalendar = () => {
             />
           )}
           <div className="space-y-4 md:space-y-5">
-            <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
+            <div className={`grid md:grid-cols-2 ${canTrackBudget ? "xl:grid-cols-4" : "xl:grid-cols-3"} gap-3 md:gap-4`}>
               {STAT_CARD_DATA.map((data, i) => (
                 <MiniStatsCard key={i} cardData={data} />
               ))}
@@ -358,7 +366,7 @@ const MarketingCalendar = () => {
                   Activity Types
                 </h4>
                 <ul className="space-y-3">
-                  {ACTIVITY_TYPES?.map((activity: any) => {
+                  {allowedActivityTypes?.map((activity: any) => {
                     const ActivityIcon = activity?.icon;
                     return (
                       <li
@@ -409,7 +417,7 @@ const MarketingCalendar = () => {
                 <SelectItem key="all" className="capitalize">
                   All Activities
                 </SelectItem>
-                {ACTIVITY_TYPES?.map((type: any) => (
+                {allowedActivityTypes?.map((type: any) => (
                   <SelectItem key={type.value} className="capitalize">
                     {type.label}
                   </SelectItem>

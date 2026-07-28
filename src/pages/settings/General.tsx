@@ -329,22 +329,10 @@ const General: React.FC = () => {
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={() => handleDeleteAccount()}
-        isLoading={isDeletingAccount || isDeleteOtpLoading}
+        onConfirm={handleDeleteAccount}
+        isLoading={isDeletingAccount}
         title="Delete Account"
         description="Are you sure you want to delete your account? If you want to recover your account, you will need to contact support or an admin."
-      />
-
-      <OtpVerificationModal
-        isOpen={isOtpOpen}
-        onClose={() => setIsOtpOpen(false)}
-        isLoading={isDeletingAccount || isDeleteOtpLoading}
-        onVerify={(otp) => handleDeleteAccount(otp)}
-        onResend={() => handleDeleteAccount()}
-        phoneNumber={maskedPhone}
-        error={otpError}
-        onClearError={() => setOtpError(undefined)}
-        title="Verify Account Deletion"
       />
     </>
   );

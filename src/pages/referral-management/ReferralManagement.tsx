@@ -12,7 +12,7 @@ import {
 } from "@heroui/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
-import { FiEdit, FiEye, FiUsers, FiWifi, FiLoader, FiCheck, FiX } from "react-icons/fi";
+import { FiEdit, FiEye, FiUsers, FiWifi, FiLoader, FiCheck, FiX, FiAlertTriangle } from "react-icons/fi";
 import { GrLocation } from "react-icons/gr";
 import { IoSearch } from "react-icons/io5";
 import { LuFilter, LuNfc, LuQrCode } from "react-icons/lu";
@@ -26,6 +26,7 @@ import EmptyState from "../../components/common/EmptyState";
 import { generateReferralsPdf } from "../../utils/pdfReferralsGenerator";
 import { fetchReferrals } from "../../services/referral";
 import { LoadingState } from "../../components/common/LoadingState";
+import { useBilling } from "../../hooks/settings/useBilling";
 import { useDebouncedValue } from "../../hooks/common/useDebouncedValue";
 import {
   useCreateReferral,
@@ -169,15 +170,18 @@ const ReferralManagement = () => {
     setCurrentFilters((prev) => ({ ...prev, search: debouncedSearch }));
   }, [debouncedSearch]);
 
-  const {
-    data: referralData,
-    isLoading: isLoadingReferrals,
-    isFetching: isFetchingReferrals,
-  } = useFetchReferrals({ ...currentFilters, search: debouncedSearch });
+  const { data: referralData, isLoading: isLoadingReferrals, isFetching: isFetchingReferrals } =
+    useFetchReferrals({ ...currentFilters, search: debouncedSearch });
+
+  const { data: billingData } = useBilling();
+  const maxReferralLimit = billingData?.limits?.referral_connections;
 
   const { data: referrerData, isLoading: isLoadingReferrers } =
     useFetchReferrers({ ...referrerParams, search: debouncedReferrerSearch });
   const referrers = referrerData?.data;
+
+  const totalReferrersCount = (referrerData as any)?.total || (referrerData as any)?.pagination?.total || referrers?.length || 0;
+  const isReferrerLimitReached = maxReferralLimit !== undefined && maxReferralLimit !== -1 && totalReferrersCount >= maxReferralLimit;
 
   const { data: allReferrersData } = useFetchReferrers({ limit: 1000 });
   const selectionReferrers = allReferrersData?.data || referrers || [];
@@ -346,20 +350,24 @@ const ReferralManagement = () => {
           color: "default",
           className: "border-small tour-step-generate-qr-btn",
         },
-        {
-          label: "Add Referrer",
-          onClick: () => {
-            setIsModalOpen(true);
-            setReferrerEditId("");
-          },
-          icon: <AiOutlinePlus fontSize={15} />,
-          variant: "solid",
-          color: "primary",
-          className: "tour-step-add-referrer-btn",
-        },
+        ...(!isReferrerLimitReached
+          ? [
+              {
+                label: "Add Referrer",
+                onClick: () => {
+                  setIsModalOpen(true);
+                  setReferrerEditId("");
+                },
+                icon: <AiOutlinePlus fontSize={15} />,
+                variant: "solid",
+                color: "primary",
+                className: "tour-step-add-referrer-btn",
+              },
+            ]
+          : []),
       ],
     }),
-    [],
+    [isReferrerLimitReached],
   );
 
   const REFERRER_CARD_BUTTONS = useCallback(
@@ -636,6 +644,36 @@ const ReferralManagement = () => {
           {/* --- REFERRERS TAB --- */}
           {selectedReferralType === "Referrers" && (
             <div className="flex flex-col gap-4 border border-foreground/10 rounded-xl p-4 bg-background w-full">
+              {isReferrerLimitReached && (
+                <div className="p-4 rounded-xl border border-red-200 bg-red-50 dark:bg-red-950/20 text-red-900 dark:text-red-300 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 shrink-0">
+                      <FiAlertTriangle className="text-xl" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-sm">
+                        Referrer Limit Reached ({totalReferrersCount}/{maxReferralLimit})
+                      </h4>
+                      <p className="text-xs text-red-700 dark:text-red-400 mt-0.5">
+                        You have reached the maximum number of referrers allowed on your current plan. Please upgrade your plan to add more referrers.
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    color="danger"
+                    variant="solid"
+                    className="font-medium shrink-0 shadow-sm"
+                    onPress={() => {
+                      const wordpressUrl = import.meta.env.VITE_WORDPRESS_BASE_URL || "https://practiceroi.com";
+                      const cleanUrl = wordpressUrl.replace(/\/$/, "");
+                      window.open(`${cleanUrl}/pricing`, "_blank");
+                    }}
+                  >
+                    Upgrade Plan
+                  </Button>
+                </div>
+              )}
               <div className="flex flex-col gap-4">
                 <p className="font-medium text-sm">Referrer Management</p>
                 <div className="flex-1">

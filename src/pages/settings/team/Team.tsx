@@ -43,7 +43,10 @@ const invitationStatusColors: Record<string, string> = {
     "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-foreground/10 dark:border-gray-700",
 };
 
+import { usePlanGuard } from "../../../hooks/usePlanGuard";
+
 const Team: React.FC = () => {
+  const { isLimitReached, getLimit, openPricingPage } = usePlanGuard();
   const [filters, setFilters] = useState({
     page: 1,
     limit: 10,
@@ -53,6 +56,9 @@ const Team: React.FC = () => {
     useFetchTeamMembers(filters);
 
   const members = membersData?.data;
+  const currentTeamCount = membersData?.totalData || members?.length || 0;
+  const userAccountsLimit = getLimit("user_accounts");
+  const isUserLimitReached = isLimitReached("user_accounts", currentTeamCount);
 
   usePaginationAdjustment({
     totalPages: membersData?.totalPages || 0,
@@ -283,21 +289,43 @@ const Team: React.FC = () => {
       {/* Pending Members */}
       <PendingTeamMembers />
 
-      {/* Invite Button */}
+      {/* Invite Button & Limit Warning */}
       {emailConfig?.status === "Connected" && (
-        <Button
-          variant="bordered"
-          size="sm"
-          className="w-full flex items-center justify-center gap-2 border-foreground/10 border-small font-medium bg-background"
-          onPress={() => {
-            setInviteModalOpen(true);
-            setEditMemberId("");
-            setModalInitialValues(null);
-          }}
-        >
-          <HiOutlineUserAdd className="h-4 w-4" />
-          Invite Team Member
-        </Button>
+        isUserLimitReached ? (
+          <div className="p-4 rounded-xl border border-red-200 bg-red-50 dark:bg-red-950/20 text-red-900 dark:text-red-300 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
+            <div>
+              <h4 className="font-semibold text-sm">
+                Team Member Limit Reached ({currentTeamCount}/{userAccountsLimit})
+              </h4>
+              <p className="text-xs text-red-700 dark:text-red-400 mt-0.5">
+                You have reached the maximum number of user accounts allowed on your current plan. Please upgrade your plan to invite more team members.
+              </p>
+            </div>
+            <Button
+              size="sm"
+              color="danger"
+              variant="solid"
+              className="font-medium shrink-0 shadow-sm"
+              onPress={openPricingPage}
+            >
+              Upgrade Plan
+            </Button>
+          </div>
+        ) : (
+          <Button
+            variant="bordered"
+            size="sm"
+            className="w-full flex items-center justify-center gap-2 border-foreground/10 border-small font-medium bg-background"
+            onPress={() => {
+              setInviteModalOpen(true);
+              setEditMemberId("");
+              setModalInitialValues(null);
+            }}
+          >
+            <HiOutlineUserAdd className="h-4 w-4" />
+            Invite Team Member
+          </Button>
+        )
       )}
 
       <TeamMemberActionModal

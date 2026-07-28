@@ -22,8 +22,8 @@ export interface User {
   medicalSpecialty?: { title: string; _id: string };
   image?: string;
   isTwoFactorEnabled?: boolean;
+  isReferralLimitReached?: boolean;
 }
-
 
 export const fetchUser = async (id: string): Promise<User> => {
   const response = (await axios.get(`/users/${id}`)) as unknown as {
@@ -31,7 +31,6 @@ export const fetchUser = async (id: string): Promise<User> => {
   };
   return response.data;
 };
-
 
 export const updateUser = async (
   id: string,
