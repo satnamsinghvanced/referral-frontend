@@ -24,6 +24,7 @@ interface TriggerModalProps {
 const TRIGGER_TYPES = [
   { label: "New Referrer Added", value: "New Referrer Added" },
   { label: "Referral Received", value: "Referral Received" },
+  { label: "No Activity (No referral added by referrer in 30 days)", value: "No Activity (No referral added by referrer in 30 days)" },
 ];
 
 const TriggerModal: React.FC<TriggerModalProps> = ({ isOpen, onOpenChange, onSave, initialData }) => {
@@ -43,10 +44,14 @@ const TriggerModal: React.FC<TriggerModalProps> = ({ isOpen, onOpenChange, onSav
     },
     validationSchema,
     onSubmit: (values) => {
-      onSave({
-        ...values,
+      const config: any = {
+        triggerType: values.triggerType,
         date: values.date ? values.date.toString() : null,
-      });
+      };
+      if (values.triggerType === "No Activity (No referral added by referrer in 30 days)") {
+        config.daysOfInactivity = 30;
+      }
+      onSave(config);
       onOpenChange();
     },
     enableReinitialize: true,

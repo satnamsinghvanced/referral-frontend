@@ -96,40 +96,46 @@ const CampaignCard = ({
         <CampaignStatusChip status={status as any} />
       </div>
 
-      {stats && (
-        <div className="grid grid-cols-4 gap-4 pt-4">
-          <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-content1 rounded-lg space-y-0.5">
-            <p className="text-xs text-gray-500 dark:text-foreground/50">
-              Sent
-            </p>
-            <p className="text-sm font-semibold">{stats.sentCount}</p>
+      {stats && (() => {
+        const opens = stats.openCount || 0;
+        const conversions = stats.conversionCount || 0;
+        const rate = opens > 0 ? Math.round((conversions / opens) * 100) : 0;
+
+        return (
+          <div className="grid grid-cols-4 gap-4 pt-4">
+            <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-content1 rounded-lg space-y-0.5">
+              <p className="text-xs text-gray-500 dark:text-foreground/50">
+                Sent
+              </p>
+              <p className="text-sm font-semibold">{stats.sentCount}</p>
+            </div>
+            <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-content1 rounded-lg space-y-0.5">
+              <p className="text-xs text-gray-500 dark:text-foreground/50">
+                Open Rate
+              </p>
+              <p className="text-sm font-semibold text-green-600 dark:text-green-400">
+                {stats.openRate}%
+              </p>
+            </div>
+            <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-content1 rounded-lg space-y-0.5">
+              <p className="text-xs text-gray-500 dark:text-foreground/50">
+                Click Rate
+              </p>
+              <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">
+                {stats.clickRate}%
+              </p>
+            </div>
+            <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-content1 rounded-lg space-y-0.5">
+              <p className="text-xs text-gray-500 dark:text-foreground/50">
+                Conversions
+              </p>
+              <p className="text-sm font-semibold text-purple-600 dark:text-purple-400">
+                {stats.conversionCount}
+              </p>
+            </div>
           </div>
-          <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-content1 rounded-lg space-y-0.5">
-            <p className="text-xs text-gray-500 dark:text-foreground/50">
-              Open Rate
-            </p>
-            <p className="text-sm font-semibold text-green-600 dark:text-green-400">
-              {stats.openRate}%
-            </p>
-          </div>
-          <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-content1 rounded-lg space-y-0.5">
-            <p className="text-xs text-gray-500 dark:text-foreground/50">
-              Click Rate
-            </p>
-            <p className="text-sm font-semibold text-blue-600 dark:text-blue-400">
-              {stats.clickRate}%
-            </p>
-          </div>
-          <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-content1 rounded-lg space-y-0.5">
-            <p className="text-xs text-gray-500 dark:text-foreground/50">
-              Conversions
-            </p>
-            <p className="text-sm font-semibold text-purple-600 dark:text-purple-400">
-              {stats.conversionCount} ({stats.conversionRate ?? 0}%)
-            </p>
-          </div>
-        </div>
-      )}
+        );
+      })()}
 
       <div className="flex justify-between items-center pt-3.5 mt-3.5 border-t border-foreground/10">
         <div className="flex gap-2">

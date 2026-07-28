@@ -12,6 +12,8 @@ import { useAutomations } from "../../../hooks/useCampaign";
 import { useDebouncedValue } from "../../../hooks/common/useDebouncedValue";
 import { usePaginationAdjustment } from "../../../hooks/common/usePaginationAdjustment";
 
+import { useFetchEmailIntegration } from "../../../hooks/integrations/useEmailMarketing";
+
 const INITIAL_FILTERS = {
   page: 1,
   limit: 10,
@@ -26,6 +28,16 @@ interface ActiveFlowsProps {
 }
 
 const ActiveFlows = ({ onEdit, onCreateNew }: ActiveFlowsProps) => {
+  const { data: emailExistingConfig } = useFetchEmailIntegration();
+  const emailConfigsList = Array.isArray(emailExistingConfig)
+    ? emailExistingConfig
+    : emailExistingConfig
+      ? [emailExistingConfig]
+      : [];
+  const hasConnectedEmail = emailConfigsList.some(
+    (cfg: any) => cfg.status === "Connected"
+  );
+
   const [currentFilters, setCurrentFilters] = useState(INITIAL_FILTERS);
   const debouncedSearch = useDebouncedValue(currentFilters.search, 500);
   const { data, isLoading } = useAutomations(
@@ -104,6 +116,7 @@ const ActiveFlows = ({ onEdit, onCreateNew }: ActiveFlowsProps) => {
                 onPress={onCreateNew}
                 startContent={<FiZap className="h-4 w-4" />}
                 className="flex-1"
+                isDisabled={!hasConnectedEmail}
               >
                 New Flow
               </Button>
