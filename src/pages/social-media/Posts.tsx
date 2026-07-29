@@ -150,13 +150,30 @@ const Posts = () => {
                           {post.status}
                         </span>
                         <span className="text-gray-500 dark:text-foreground/60 font-extralight text-[11px] whitespace-nowrap">
-                          {post.status === "Published"
-                            ? "Published"
-                            : "Modified"}
-                          :{" "}
-                          {formatDateToReadable(
-                            post.publishedTime || post.updatedAt,
-                            true,
+                          {post.status === "Published" || post.status === "Partially Failed" ? (
+                            <>
+                              Published:{" "}
+                              {formatDateToReadable(
+                                post.publishedTime || post.updatedAt,
+                                true,
+                              )}
+                            </>
+                          ) : post.status === "Scheduled" ? (
+                            <>
+                              Scheduled:{" "}
+                              {formatDateToReadable(
+                                post.scheduledTime || post.updatedAt,
+                                true,
+                              )}
+                            </>
+                          ) : (
+                            <>
+                              Modified:{" "}
+                              {formatDateToReadable(
+                                post.updatedAt,
+                                true,
+                              )}
+                            </>
                           )}
                         </span>
                       </div>

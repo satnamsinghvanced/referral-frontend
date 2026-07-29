@@ -5,6 +5,7 @@ import {
   fetchGBPLocationPerformance,
   fetchGBPOverview,
   fetchGBPRecentReviews,
+  fetchFacebookReviews,
 } from "../services/reviews";
 import { addToast } from "@heroui/react";
 import { AxiosError } from "axios";
@@ -55,5 +56,12 @@ export const useCreateGBPReview = () => {
         color: "danger",
       });
     },
+  });
+};
+
+export const useFacebookReviews = () => {
+  return useQuery({
+    queryKey: ["facebook", "reviews"],
+    queryFn: fetchFacebookReviews,
   });
 };

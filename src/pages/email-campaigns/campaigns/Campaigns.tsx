@@ -130,6 +130,10 @@ const Campaigns = () => {
                 onValueChange={(value) =>
                   setCurrentFilters((prev) => ({ ...prev, search: value }))
                 }
+                isClearable
+                onClear={() =>
+                  setCurrentFilters((prev) => ({ ...prev, search: "" }))
+                }
                 startContent={
                   <FiSearch className="text-gray-600 dark:text-foreground/60" />
                 }

@@ -28,6 +28,7 @@ import CreateSegmentModal, {
 } from "./modal/CreateSegmentModal";
 import BulkImportSegmentsModal from "./modal/BulkImportSegmentsModal";
 import { usePaginationAdjustment } from "../../../hooks/common/usePaginationAdjustment";
+import { generateAudiencePdf } from "../../../utils/pdfAudienceGenerator";
 
 const INITIAL_FILTERS: AudienceFilters = {
   page: 1,
@@ -126,13 +127,7 @@ const Audiences: React.FC = () => {
   const handleExport = (id: string) => {
     const audience = audiences.find((a) => a._id === id);
     if (audience) {
-      const dataStr = JSON.stringify(audience, null, 2);
-      const dataUri = "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
-      const exportFileDefaultName = `${audience.name.replace(/\s+/g, "_").toLowerCase()}_segment.json`;
-      const linkElement = document.createElement("a");
-      linkElement.setAttribute("href", dataUri);
-      linkElement.setAttribute("download", exportFileDefaultName);
-      linkElement.click();
+      generateAudiencePdf(audience);
     }
   };
 
@@ -178,6 +173,10 @@ const Audiences: React.FC = () => {
                   value={currentFilters.search as string}
                   onValueChange={(value) =>
                     setCurrentFilters((prev) => ({ ...prev, search: value }))
+                  }
+                  isClearable
+                  onClear={() =>
+                    setCurrentFilters((prev) => ({ ...prev, search: "" }))
                   }
                   startContent={
                     <FiSearch className="text-gray-600 dark:text-foreground/60" />

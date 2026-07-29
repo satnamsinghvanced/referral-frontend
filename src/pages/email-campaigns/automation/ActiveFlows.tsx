@@ -74,6 +74,8 @@ const ActiveFlows = ({ onEdit, onCreateNew }: ActiveFlowsProps) => {
                 size="sm"
                 value={currentFilters.search}
                 onValueChange={(value) => handleFilterChange("search", value)}
+                isClearable
+                onClear={() => handleFilterChange("search", "")}
                 startContent={
                   <FiSearch className="text-gray-600 dark:text-foreground/60" />
                 }
