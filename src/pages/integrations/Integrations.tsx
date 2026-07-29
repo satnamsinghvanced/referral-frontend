@@ -102,6 +102,14 @@ function Integrations() {
   };
   const { data: billingData } = useBilling();
   const planAccess = billingData?.access;
+  const planPrice = billingData?.price;
+  const isStarterPlan =
+    planPrice === 199 ||
+    billingData?.planId === "starter_199" ||
+    billingData?.name?.toLowerCase() === "starter";
+  const hasAdsAccess =
+    !isStarterPlan &&
+    (planPrice ? planPrice >= 399 : billingData?.access?.roi_analytics === true);
   const [isTwilioIntegrationModalOpen, setIsTwilioIntegrationModalOpen] =
     useState(false);
   const [isSendGridConfigModalOpen, setIsSendGridConfigModalOpen] =
@@ -384,7 +392,7 @@ function Integrations() {
   const AVAILABLE_INTEGRATIONS = useMemo(() => {
     const list: any[] = [];
     const isGoogleBusinessConnected =
-      googleBusinessConfig?.status === "Connected"
+      googleBusinessConfig?.status === "Connected";
     list.push({
       key: "google_business",
       id: googleBusinessConfig?._id || "",
@@ -497,111 +505,113 @@ function Integrations() {
         : undefined,
     });
 
-    list.push({
-      key: "google_ads",
-      id: googleAdsConfig?._id || "",
-      name: "Google Ads",
-      icon: <SiGoogleads className="w-4 h-4" />,
-      iconBg: "bg-blue-100 dark:bg-blue-900/20",
-      iconColor: "text-blue-600 dark:text-blue-400",
-      status: googleAdsConfig?.status || "Disconnected",
-      description:
-        "Sync ad performance and optimize referral-based campaigns",
-      badges: [
-        "Campaign tracking",
-        "Conversion attribution",
-        "Ad spend analytics",
-      ],
-      lastSync: googleAdsConfig?.lastSyncAt || googleAdsConfig?.updatedAt
-        ? timeAgo(googleAdsConfig.lastSyncAt || googleAdsConfig.updatedAt)
-        : undefined,
-      onConnect: () =>
-        setPendingConnect({
-          key: "google_ads",
-          name: "Google Ads",
-          onConfirm: () => connectGoogleAds(),
-        }),
-      onReconnect: () =>
-        setPendingConnect({
-          key: "google_ads",
-          name: "Google Ads",
-          onConfirm: () => connectGoogleAds(),
-        }),
-      onConfigure: () => setIsGoogleAdsAccountModalOpen(true),
-      connectedLocation: googleAdsConfig?.customerAccounts?.find(
-        (acc: any) => acc.isConnected,
-      )?.descriptiveName,
-      isSwitchChecked: googleAdsConfig?.status === "Connected",
-      isSwitchLoading: isUpdatingGoogleAds,
-      onSwitchChange: () => {
-        updateGoogleAdsIntegration({
-          id: googleAdsConfig?._id as string,
-          payload: {
-            status:
-              googleAdsConfig?.status === "Connected"
-                ? "Disconnected"
-                : "Connected",
-          },
-        });
-      },
-      account: {
-        accountName: googleAdsConfig?.accountName,
-        accountEmail: googleAdsConfig?.accountEmail,
-        accountAvatar: googleAdsConfig?.accountAvatar,
-      },
-    });
-    list.push({
-      key: "meta_ads",
-      id: metaAdsConfig?._id || "",
-      name: "Meta Ads",
-      icon: <FaMeta className="w-4 h-4" />,
-      iconBg: "bg-blue-100 dark:bg-blue-900/20",
-      iconColor: "text-blue-600 dark:text-blue-400",
-      status: metaAdsConfig?.status || "Disconnected",
-      description: "Sync Facebook and Instagram ad performance with your dashboard",
-      badges: [
-        "Ad campaign tracking",
-        "Lead attribution",
-        "Ad spend analytics",
-      ],
-      lastSync: metaAdsConfig?.lastSyncAt || metaAdsConfig?.updatedAt
-        ? timeAgo(metaAdsConfig.lastSyncAt || metaAdsConfig.updatedAt)
-        : undefined,
-      onConnect: () =>
-        setPendingConnect({
-          key: "meta_ads",
-          name: "Meta Ads",
-          onConfirm: () => connectMetaAds(),
-        }),
-      onReconnect: () =>
-        setPendingConnect({
-          key: "meta_ads",
-          name: "Meta Ads",
-          onConfirm: () => connectMetaAds(),
-        }),
-      onConfigure: () => setIsMetaAdsAccountModalOpen(true),
-      connectedLocation: metaAdsConfig?.adAccounts?.find(
-        (acc: any) => acc.isConnected,
-      )?.name,
-      isSwitchChecked: metaAdsConfig?.status === "Connected",
-      isSwitchLoading: isUpdatingMetaAds,
-      onSwitchChange: () => {
-        updateMetaAdsIntegration({
-          id: metaAdsConfig?._id as string,
-          payload: {
-            status:
-              metaAdsConfig?.status === "Connected"
-                ? "Disconnected"
-                : "Connected",
-          },
-        });
-      },
-      account: {
-        accountName: metaAdsConfig?.accountName,
-        accountEmail: metaAdsConfig?.accountEmail,
-        accountAvatar: metaAdsConfig?.accountAvatar,
-      },
-    });
+    if (hasAdsAccess) {
+      list.push({
+        key: "google_ads",
+        id: googleAdsConfig?._id || "",
+        name: "Google Ads",
+        icon: <SiGoogleads className="w-4 h-4" />,
+        iconBg: "bg-blue-100 dark:bg-blue-900/20",
+        iconColor: "text-blue-600 dark:text-blue-400",
+        status: googleAdsConfig?.status || "Disconnected",
+        description:
+          "Sync ad performance and optimize referral-based campaigns",
+        badges: [
+          "Campaign tracking",
+          "Conversion attribution",
+          "Ad spend analytics",
+        ],
+        lastSync: googleAdsConfig?.lastSyncAt || googleAdsConfig?.updatedAt
+          ? timeAgo(googleAdsConfig.lastSyncAt || googleAdsConfig.updatedAt)
+          : undefined,
+        onConnect: () =>
+          setPendingConnect({
+            key: "google_ads",
+            name: "Google Ads",
+            onConfirm: () => connectGoogleAds(),
+          }),
+        onReconnect: () =>
+          setPendingConnect({
+            key: "google_ads",
+            name: "Google Ads",
+            onConfirm: () => connectGoogleAds(),
+          }),
+        onConfigure: () => setIsGoogleAdsAccountModalOpen(true),
+        connectedLocation: googleAdsConfig?.customerAccounts?.find(
+          (acc: any) => acc.isConnected,
+        )?.descriptiveName,
+        isSwitchChecked: googleAdsConfig?.status === "Connected",
+        isSwitchLoading: isUpdatingGoogleAds,
+        onSwitchChange: () => {
+          updateGoogleAdsIntegration({
+            id: googleAdsConfig?._id as string,
+            payload: {
+              status:
+                googleAdsConfig?.status === "Connected"
+                  ? "Disconnected"
+                  : "Connected",
+            },
+          });
+        },
+        account: {
+          accountName: googleAdsConfig?.accountName,
+          accountEmail: googleAdsConfig?.accountEmail,
+          accountAvatar: googleAdsConfig?.accountAvatar,
+        },
+      });
+      list.push({
+        key: "meta_ads",
+        id: metaAdsConfig?._id || "",
+        name: "Meta Ads",
+        icon: <FaMeta className="w-4 h-4" />,
+        iconBg: "bg-blue-100 dark:bg-blue-900/20",
+        iconColor: "text-blue-600 dark:text-blue-400",
+        status: metaAdsConfig?.status || "Disconnected",
+        description: "Sync Facebook and Instagram ad performance with your dashboard",
+        badges: [
+          "Ad campaign tracking",
+          "Lead attribution",
+          "Ad spend analytics",
+        ],
+        lastSync: metaAdsConfig?.lastSyncAt || metaAdsConfig?.updatedAt
+          ? timeAgo(metaAdsConfig.lastSyncAt || metaAdsConfig.updatedAt)
+          : undefined,
+        onConnect: () =>
+          setPendingConnect({
+            key: "meta_ads",
+            name: "Meta Ads",
+            onConfirm: () => connectMetaAds(),
+          }),
+        onReconnect: () =>
+          setPendingConnect({
+            key: "meta_ads",
+            name: "Meta Ads",
+            onConfirm: () => connectMetaAds(),
+          }),
+        onConfigure: () => setIsMetaAdsAccountModalOpen(true),
+        connectedLocation: metaAdsConfig?.adAccounts?.find(
+          (acc: any) => acc.isConnected,
+        )?.name,
+        isSwitchChecked: metaAdsConfig?.status === "Connected",
+        isSwitchLoading: isUpdatingMetaAds,
+        onSwitchChange: () => {
+          updateMetaAdsIntegration({
+            id: metaAdsConfig?._id as string,
+            payload: {
+              status:
+                metaAdsConfig?.status === "Connected"
+                  ? "Disconnected"
+                  : "Connected",
+            },
+          });
+        },
+        account: {
+          accountName: metaAdsConfig?.accountName,
+          accountEmail: metaAdsConfig?.accountEmail,
+          accountAvatar: metaAdsConfig?.accountAvatar,
+        },
+      });
+    }
     list.push({
       key: "google_analytics",
       id: googleAnalyticsConfig?._id || "",
@@ -764,6 +774,7 @@ function Integrations() {
     googleAnalyticsConfig,
     updateGoogleAnalyticsIntegration,
     connectGoogleAnalytics,
+    hasAdsAccess,
   ]);
 
   const SOCIAL_MEDIA_INTEGRATIONS = useMemo(() => {

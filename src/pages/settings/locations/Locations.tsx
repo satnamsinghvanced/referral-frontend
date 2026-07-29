@@ -80,7 +80,7 @@ const Locations: React.FC = () => {
             <GrLocation className="size-5" />
             <h4 className="text-base">Practice Locations</h4>
           </div>
-          {!locationsIsLoading && !isLocationLimitReached && (
+          {!locationsIsLoading && (
             <Button
               size="sm"
               radius="sm"
@@ -98,27 +98,6 @@ const Locations: React.FC = () => {
         </CardHeader>
 
         <CardBody className="p-4 space-y-3">
-          {isLocationLimitReached && (
-            <div className="p-4 rounded-xl border border-red-200 bg-red-50 dark:bg-red-950/20 text-red-900 dark:text-red-300 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm mb-2">
-              <div>
-                <h4 className="font-semibold text-sm">
-                  Location Limit Reached ({totalLocations}/{maxLocations})
-                </h4>
-                <p className="text-xs text-red-700 dark:text-red-400 mt-0.5">
-                  You have reached the maximum number of locations allowed on your current plan. Please upgrade your plan to add more practice locations.
-                </p>
-              </div>
-              <Button
-                size="sm"
-                color="danger"
-                variant="solid"
-                className="font-medium shrink-0 shadow-sm"
-                onPress={openPricingPage}
-              >
-                Upgrade Plan
-              </Button>
-            </div>
-          )}
           {locationsIsLoading && (
             <div className="flex items-center justify-center min-h-[160px]">
               <LoadingState />

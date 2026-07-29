@@ -24,6 +24,7 @@ import { useUpload } from "../../providers/UploadProvider";
 import { useFetchUser } from "../../hooks/settings/useUser";
 import { OtpVerificationModal } from "../../components/OtpVerificationModal";
 import { useFetchEmailIntegration } from "../../hooks/integrations/useEmailMarketing";
+import { usePlanGuard } from "../../hooks/usePlanGuard";
 
 const General: React.FC = () => {
   const theme = useTypedSelector((state) => state.ui.theme);
@@ -37,6 +38,13 @@ const General: React.FC = () => {
   const [otpError, setOtpError] = useState<string | undefined>(undefined);
   const [maskedPhone, setMaskedPhone] = useState<string | undefined>(undefined);
   const { data: emailIntegration } = useFetchEmailIntegration();
+
+  const { billingData } = usePlanGuard();
+  const planPrice = billingData?.price;
+  const isStarterPlan =
+    planPrice === 199 ||
+    billingData?.planId === "starter_199" ||
+    billingData?.name?.toLowerCase() === "starter";
   const rawEmailData = (emailIntegration as any)?.data ?? emailIntegration;
   const emailConfigsList = Array.isArray(rawEmailData)
     ? rawEmailData
@@ -232,7 +240,6 @@ const General: React.FC = () => {
         </CardHeader>
 
         <CardBody className="p-4 space-y-4">
-          {/* Dark Mode Setting */}
           <div className="flex items-center justify-between">
             <div className="space-y-1">
               <h4 className="text-sm">Dark Mode</h4>
@@ -250,7 +257,6 @@ const General: React.FC = () => {
 
           <Divider />
 
-          {/* Data Export Section */}
           <div className="space-y-4">
             <div className="space-y-1">
               <h4 className="text-sm">Data Export</h4>
@@ -277,21 +283,20 @@ const General: React.FC = () => {
               >
                 Export Reviews
               </Button>
-              <Button
-                size="sm"
-                variant="bordered"
-                className="border-small font-medium"
-                onPress={handleExportAnalytics}
-                isLoading={isExportingAnalytics}
-              >
-                Export Analytics
-              </Button>
+              {!isStarterPlan && (
+                <Button
+                  size="sm"
+                  variant="bordered"
+                  className="border-small font-medium"
+                  onPress={handleExportAnalytics}
+                  isLoading={isExportingAnalytics}
+                >
+                  Export Analytics
+                </Button>
+              )}
             </div>
           </div>
-
           <Divider />
-
-          {/* Account Management Section */}
           <div className="space-y-4">
             <h4 className="text-sm">Account Management</h4>
             <div className="flex flex-col gap-2">
@@ -331,9 +336,32 @@ const General: React.FC = () => {
         onClose={() => setIsDeleteModalOpen(false)}
         onConfirm={handleDeleteAccount}
         isLoading={isDeletingAccount}
-        title="Delete Account"
-        description="Are you sure you want to delete your account? If you want to recover your account, you will need to contact support or an admin."
-      />
+        title="Delete Account Permanently"
+      >
+        <div className="space-y-3">
+          <p className="text-zinc-700 dark:text-zinc-300 text-sm font-medium">
+            Are you sure you want to permanently delete your account? This action is <span className="text-red-500 font-semibold">irreversible</span>.
+          </p>
+
+          <div className="p-3 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900/40 rounded-lg space-y-2">
+            <p className="text-xs font-semibold text-red-800 dark:text-red-300 uppercase tracking-wider">
+              The following data will be permanently deleted:
+            </p>
+            <ul className="text-xs text-red-700 dark:text-red-400 space-y-1 list-disc pl-4">
+              <li>All Referrals & Referrer Profiles</li>
+              <li>All Generated QR Codes & NFC Tracking Data</li>
+              <li>All Connected Integrations (Google Business, Twilio, Email, Meta, LinkedIn)</li>
+              <li>All Team Members & Location Settings</li>
+              <li>All Reviews, Analytics & Marketing Reports</li>
+              <li>All Account Data & Subscription Settings</li>
+            </ul>
+          </div>
+
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">
+            If you proceed, you will be immediately logged out and all your data will be permanently erased.
+          </p>
+        </div>
+      </DeleteConfirmationModal>
     </>
   );
 };

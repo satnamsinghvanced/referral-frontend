@@ -245,6 +245,9 @@ const Sidebar = ({
 
   const filteredRoutes = NAVIGATION_ROUTES.filter((route: any) => {
     if (route.requiredPlanAccess) {
+      if (!planAccess) {
+        return false;
+      }
       if (planAccess && planAccess[route.requiredPlanAccess as keyof typeof planAccess] === false) {
         return false;
       }

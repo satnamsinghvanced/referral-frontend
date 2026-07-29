@@ -14,7 +14,8 @@ interface DeleteConfirmationModalProps {
   onConfirm: () => void;
   isLoading?: boolean;
   title?: string;
-  description?: string;
+  description?: React.ReactNode;
+  children?: React.ReactNode;
 }
 
 const DeleteConfirmationModal = ({
@@ -24,6 +25,7 @@ const DeleteConfirmationModal = ({
   isLoading = false,
   title = "Confirm Deletion",
   description = "This action cannot be undone. Are you absolutely sure you want to proceed?",
+  children,
 }: DeleteConfirmationModalProps) => {
   return (
     <Modal
@@ -43,9 +45,15 @@ const DeleteConfirmationModal = ({
           <h4 className="text-lg font-semibold tracking-tight">{title}</h4>
         </ModalHeader>
         <ModalBody className="px-4 py-2">
-          <p className="text-zinc-500 dark:text-[#a1a1aa] text-[15px] leading-relaxed">
-            {description}
-          </p>
+          {children ? (
+            children
+          ) : typeof description === "string" ? (
+            <p className="text-zinc-500 dark:text-[#a1a1aa] text-[15px] leading-relaxed">
+              {description}
+            </p>
+          ) : (
+            description
+          )}
         </ModalBody>
         <ModalFooter className="flex justify-end gap-3 pt-4 pb-4 px-4">
           <Button

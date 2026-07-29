@@ -29,6 +29,7 @@ import {
   FORMATS,
   TIME_RANGES,
   FREQUENCIES,
+  getFilteredCategories,
 } from "../../consts/reports";
 import { useGenerateReport } from "../../hooks/useReports";
 import {
@@ -68,14 +69,17 @@ interface ReportModalProps {
   isOpen: boolean;
   onClose: () => void;
   practice: any | null;
+  isStarterPlan?: boolean;
 }
 
 const GenerateNewReportModal = ({
   isOpen,
   onClose,
   practice,
+  isStarterPlan,
 }: ReportModalProps) => {
   const localTimeZone = getLocalTimeZone();
+  const categoriesList = getFilteredCategories(isStarterPlan);
   const [formData, setFormData] = useState<ReportFormState>({
     name: "",
     category: "referralAnalytics",
@@ -201,7 +205,7 @@ const GenerateNewReportModal = ({
                 );
               }}
             >
-              {CATEGORIES.map((cat) => (
+              {categoriesList.map((cat) => (
                 <SelectItem
                   key={cat.key}
                   startContent={CATEGORY_ICONS[cat.key]}

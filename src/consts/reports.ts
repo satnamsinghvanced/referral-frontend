@@ -24,6 +24,15 @@ export const CATEGORIES = [
   { key: "communicationAnalytics", label: "Communication Analytics" },
 ];
 
+export const getFilteredCategories = (isStarterPlan?: boolean) => {
+  if (isStarterPlan) {
+    return CATEGORIES.filter(
+      (cat) => cat.key === "referralAnalytics" || cat.key === "reviewAnalytics"
+    );
+  }
+  return CATEGORIES;
+};
+
 export const FORMATS = [
   { key: "pdf", label: "PDF" },
   { key: "excel", label: "Excel" },

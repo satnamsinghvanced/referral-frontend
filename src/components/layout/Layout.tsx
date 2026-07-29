@@ -2,8 +2,16 @@ import { useEffect, useState } from "react";
 import { Outlet } from "react-router";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
+import Logo from "../ui/Logo";
+import { useBilling } from "../../hooks/settings/useBilling";
+import { useRolePermissions } from "../../hooks/useRolePermissions";
 
 const Layout = () => {
+  const { data: billingData, isLoading: isBillingLoading } = useBilling();
+  const { isLoading: isPermissionsLoading } = useRolePermissions();
+
+  const isInitialLoading = (isBillingLoading && !billingData) || isPermissionsLoading;
+
   const getInitialMini = () => {
     const storedValue = localStorage.getItem("isMiniSidebarOpen");
     if (storedValue !== null) {
@@ -48,6 +56,21 @@ const Layout = () => {
       JSON.stringify(isMiniSidebarOpen)
     );
   }, [isMiniSidebarOpen]);
+
+  if (isInitialLoading) {
+    return (
+      <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background transition-opacity duration-300">
+        <div className="flex flex-col items-center gap-6">
+          <Logo style={{ height: "48px" }} className="animate-pulse" />
+          <div className="flex items-center gap-2 text-xs font-semibold tracking-wide text-foreground/70 uppercase">
+            <span className="w-2 h-2 rounded-full bg-sky-500 animate-ping" />
+            <span>Loading Workspace...</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
       className={`${!isMiniSidebarOpen ? "lg:pl-18" : "lg:pl-[250px]"

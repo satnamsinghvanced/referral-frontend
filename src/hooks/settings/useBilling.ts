@@ -5,7 +5,7 @@ import { RootState } from "../../store";
 
 export const useBilling = () => {
   const user = useSelector((state: RootState) => state.auth.user);
-  const userId = (user as any)?._id || (user as any)?.id || user?.email || "";
+  const userId = user?.userId || (user as any)?._id || (user as any)?.id || user?.email || "";
 
   return useQuery({
     queryKey: ["billing", userId],
@@ -27,7 +27,7 @@ export const useBilling = () => {
       return undefined;
     },
     enabled: !!userId,
-    staleTime: 1000 * 60 * 5,
+    staleTime: 1000 * 60 * 15,
   });
 };
 

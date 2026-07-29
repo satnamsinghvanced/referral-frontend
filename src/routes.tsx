@@ -278,6 +278,7 @@ function AppRoutes() {
           element: <Settings />,
           children: [
             { index: true, element: <Profile /> },
+            { path: "profile", element: <Profile /> },
             { path: "notifications", element: <Notifications /> },
             { path: "security", element: <Security /> },
             { path: "devices", element: <Devices /> },

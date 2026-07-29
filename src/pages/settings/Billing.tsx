@@ -119,8 +119,8 @@ const Billing: React.FC = () => {
                 <span className="text-sm font-bold text-blue-600 dark:text-blue-400">{formatLimit(limits.locations)}</span>
               </div>
               <div className="p-3 rounded-lg border border-gray-200 dark:border-zinc-800 bg-gray-50/50 dark:bg-zinc-900/50">
-                <span className="text-[11px] text-gray-500 dark:text-zinc-400 block font-medium">SMS Messages/mo</span>
-                <span className="text-sm font-bold text-blue-600 dark:text-blue-400">{formatLimit(limits.sms_messages)}</span>
+                <span className="text-[11px] text-gray-500 dark:text-zinc-400 block font-medium">SMS Marketing</span>
+                <span className="text-sm font-bold text-blue-600 dark:text-blue-400">{formatLimit(limits.sms_messages)} <span className="text-[10px] text-blue-600 dark:text-zinc-400">/messages/mo</span></span>
               </div>
             </div>
           </div>
