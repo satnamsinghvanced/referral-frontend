@@ -157,7 +157,8 @@ export interface RecentPost {
   files: PostFile[];
   platforms: string[];
   status: "Published" | "Scheduled" | "Failed" | "Partially Failed" | "Processing";
-  publishedTime: string;
+  publishedTime?: string;
+  scheduledTime?: string;
   createdAt: string;
   updatedAt: string;
   failureReason?: string; // Stringified JSON from API

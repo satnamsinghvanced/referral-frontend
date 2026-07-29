@@ -401,6 +401,8 @@ const MarketingCalendar = () => {
               onValueChange={(value: string) =>
                 handleFilterChange("search", value)
               }
+              isClearable
+              onClear={() => handleFilterChange("search", "")}
               className="text-xs min-w-fit"
               startContent={<FiSearch className="text-gray-400 h-4 w-4" />}
             />

@@ -12,7 +12,7 @@ import { FaStar } from "react-icons/fa";
 import { FiExternalLink, FiMapPin, FiMessageSquare } from "react-icons/fi";
 import { IoIosWifi } from "react-icons/io";
 import { LuQrCode } from "react-icons/lu";
-import { useGBPRecentReviews } from "../../hooks/useReviews";
+import { useGBPRecentReviews, useFacebookReviews } from "../../hooks/useReviews";
 import { GBPReview } from "../../types/reviews";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -29,9 +29,8 @@ const StarRating = ({ rating }: any) => {
       {[...Array(totalStars)].map((_, i) => (
         <FaStar
           key={i}
-          className={`size-3.5 ${
-            i < rating ? "fill-amber-400 text-amber-400" : "text-gray-300"
-          }`}
+          className={`size-3.5 ${i < rating ? "fill-amber-400 text-amber-400" : "text-gray-300"
+            }`}
         />
       ))}
     </div>
@@ -64,7 +63,7 @@ const LatestReviewItem = ({
   review,
   fallbackViewUrl,
 }: {
-  review: GBPReview;
+  review: any;
   fallbackViewUrl?: string | undefined;
 }) => {
   const { reviewer, starRating, createTime, comment, reviewReply, isRatingOnly } = review;
@@ -75,10 +74,11 @@ const LatestReviewItem = ({
   };
 
   const rating = mapStarRating(starRating);
-  // Default to Google since this is GBP API
-  const platform = "Google";
+  const platform = review.platform || "Google";
   const platformColor =
-    "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/30";
+    platform === "Facebook"
+      ? "bg-indigo-100 text-indigo-800 border-indigo-200 dark:bg-indigo-500/20 dark:text-indigo-300 dark:border-indigo-500/30"
+      : "bg-blue-100 text-blue-800 border-blue-200 dark:bg-blue-500/20 dark:text-blue-300 dark:border-blue-500/30";
 
   const isResponded = !!reviewReply;
   const statusColor = isResponded
@@ -137,11 +137,10 @@ const LatestReviewItem = ({
 
       {comment ? (
         <p
-          className={`mb-1.5 text-sm leading-relaxed ${
-            isRatingOnly
-              ? "italic text-gray-500 dark:text-foreground/50"
-              : "text-gray-700 dark:text-foreground/80"
-          }`}
+          className={`mb-1.5 text-sm leading-relaxed ${isRatingOnly
+            ? "italic text-gray-500 dark:text-foreground/50"
+            : "text-gray-700 dark:text-foreground/80"
+            }`}
         >
           {comment}
         </p>
@@ -179,8 +178,57 @@ const LatestReviewItem = ({
  * Main component for the Reviews and Interactions section.
  */
 export default function LatestReviews() {
-  const { data, isLoading } = useGBPRecentReviews();
-  const reviews = data?.reviews || [];
+  const { data: gbpData, isLoading: isGbpLoading } = useGBPRecentReviews();
+  const { data: fbData, isLoading: isFbLoading, error: fbError } = useFacebookReviews();
+
+  const gbpReviews = (gbpData?.reviews || []).map((r: any) => ({
+    ...r,
+    platform: "Google",
+  }));
+
+  const mapNumberToStarString = (rating: number) => {
+    switch (rating) {
+      case 5: return "FIVE";
+      case 4: return "FOUR";
+      case 3: return "THREE";
+      case 2: return "TWO";
+      case 1: return "ONE";
+      default: return "FIVE";
+    }
+  };
+
+  const fbReviews = fbError ? [] : (fbData?.reviews || []).map((r: any) => {
+    let ratingVal = 5;
+    if (r.rating) {
+      ratingVal = r.rating;
+    } else if (r.recommendation_type === "positive") {
+      ratingVal = 5;
+    } else if (r.recommendation_type === "negative") {
+      ratingVal = 1;
+    }
+
+    return {
+      reviewId: r.open_graph_story?.id || r.reviewer?.id || Math.random().toString(),
+      reviewer: {
+        displayName: r.reviewer?.name || "Facebook User",
+        profilePhotoUrl: r.reviewer?.picture?.data?.url || "",
+      },
+      starRating: mapNumberToStarString(ratingVal),
+      createTime: r.created_time || new Date().toISOString(),
+      comment: r.open_graph_story?.message || "",
+      reviewReply: r.isResponded ? { comment: r.replyText } : null,
+      isRatingOnly: !r.open_graph_story?.message,
+      platform: "Facebook",
+      viewUrl: r.redirectLink,
+    };
+  });
+
+  const allReviews = [...gbpReviews, ...fbReviews].sort(
+    (a, b) => new Date(b.createTime).getTime() - new Date(a.createTime).getTime()
+  );
+
+  const isLoading = isGbpLoading || (isFbLoading && !fbError);
+  const isReauthRequired = fbData?.reauthRequired;
 
   return (
     <Card
@@ -196,11 +244,17 @@ export default function LatestReviews() {
             radius="sm"
             className="text-[11px] font-medium h-5 border bg-sky-100 text-sky-800 border-sky-200 dark:bg-sky-500/20 dark:text-sky-300 dark:border-sky-500/30"
           >
-            {reviews.length} review
-            {reviews.length !== 1 ? "s" : ""}
+            {allReviews.length} review
+            {allReviews.length !== 1 ? "s" : ""}
           </Chip>
         </div>
       </CardHeader>
+
+      {isReauthRequired && (
+        <div className="bg-red-500/10 text-red-500 border border-red-500/20 text-xs px-3 py-2.5 rounded-lg flex items-center justify-between">
+          <span>Facebook connection expired (e.g. password changed). Please reconnect Facebook in Settings to sync reviews.</span>
+        </div>
+      )}
 
       {/* Card Content (Reviews List) */}
       <CardBody className="p-0">
@@ -209,13 +263,13 @@ export default function LatestReviews() {
             <div className="py-10">
               <LoadingState />
             </div>
-          ) : reviews.length > 0 ? (
-            reviews.map((review) => (
+          ) : allReviews.length > 0 ? (
+            allReviews.map((review) => (
               <LatestReviewItem
                 key={review.reviewId}
                 review={review}
-                {...(data?.googleReviewsUrl
-                  ? { fallbackViewUrl: data.googleReviewsUrl }
+                {...(review.platform === "Google" && gbpData?.googleReviewsUrl
+                  ? { fallbackViewUrl: gbpData.googleReviewsUrl }
                   : {})}
               />
             ))

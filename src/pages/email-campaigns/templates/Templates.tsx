@@ -179,6 +179,8 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
                 size="sm"
                 value={searchQuery}
                 onValueChange={setSearchQuery}
+                isClearable
+                onClear={() => setSearchQuery("")}
                 startContent={
                   <FiSearch className="text-gray-600 dark:text-foreground/60" />
                 }
@@ -430,6 +432,10 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
                           />
                         }
                         isIconOnly
+                        isLoading={
+                          toggleFavoriteMutation.isPending &&
+                          toggleFavoriteMutation.variables === template._id
+                        }
                         onPress={() =>
                           toggleFavoriteMutation.mutate(template._id)
                         }

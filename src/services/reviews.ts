@@ -26,3 +26,8 @@ export const createGBPReviewRequest = async (payload: CreateGBPReviewPayload): P
   const response = await axios.post("/google_business_profile/", payload);
   return response.data;
 };
+
+export const fetchFacebookReviews = async (): Promise<any> => {
+  const response = await axios.get("/all-platform-reviews");
+  return response.data;
+};
