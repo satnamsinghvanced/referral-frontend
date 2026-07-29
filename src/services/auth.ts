@@ -43,9 +43,9 @@ export const exportAccountData = async (): Promise<any> => {
   return response;
 };
 
-export const deleteAccount = async (): Promise<ActionResponse> => {
-  const response = await axios.delete("/users/delete-account");
-  return response.data;
+export const deleteAccount = async (payload?: { otp?: string }): Promise<ActionResponse> => {
+  const response = await axios.delete("/users/delete-account", { data: payload });
+  return response as any;
 };
 
 export const exportReferrals = async (): Promise<ReferralExportItem[]> => {

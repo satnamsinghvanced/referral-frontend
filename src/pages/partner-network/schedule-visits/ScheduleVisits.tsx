@@ -316,6 +316,8 @@ export default function ScheduleVisits({
                 onValueChange={(value: string) =>
                   setFilters({ ...filters, search: value })
                 }
+                isClearable
+                onClear={() => setFilters({ ...filters, search: "" })}
                 className="text-xs min-w-fit"
                 startContent={
                   <FiSearch className="text-gray-400 dark:text-foreground/40 h-4 w-4" />
@@ -412,8 +414,8 @@ export default function ScheduleVisits({
           <div>
             <div
               className={`${!isCompactMode
-                  ? "grid grid-cols-1 md:grid-cols-2 gap-4"
-                  : "space-y-3"
+                ? "grid grid-cols-1 md:grid-cols-2 gap-4"
+                : "space-y-3"
                 }`}
             >
               <PlanListContent />

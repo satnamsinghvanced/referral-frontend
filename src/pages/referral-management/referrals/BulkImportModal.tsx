@@ -5,6 +5,7 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
+  addToast,
 } from "@heroui/react";
 import { useRef, useState, useEffect } from "react";
 import {
@@ -14,6 +15,7 @@ import {
   FiUploadCloud,
 } from "react-icons/fi";
 import { IoClose } from "react-icons/io5";
+import * as XLSX from "xlsx";
 import { useImportReferralsCSV } from "../../../hooks/useReferral";
 
 interface BulkImportModalProps {
@@ -23,6 +25,7 @@ interface BulkImportModalProps {
 
 const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [isConverting, setIsConverting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { mutate: importCSV, isPending } = useImportReferralsCSV();
 
@@ -41,11 +44,45 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
     }
   };
 
-  const handleImport = () => {
+  const handleImport = async () => {
     if (!selectedFile) return;
 
+    let fileToUpload = selectedFile;
+    const fileName = selectedFile.name.toLowerCase();
+
+    if (fileName.endsWith(".xlsx") || fileName.endsWith(".xls")) {
+      try {
+        setIsConverting(true);
+        const data = await selectedFile.arrayBuffer();
+        const workbook = XLSX.read(data, { type: "array" });
+        const firstSheetName = workbook.SheetNames[0];
+        if (!firstSheetName) {
+          throw new Error("No sheets found in Excel file");
+        }
+        const worksheet = workbook.Sheets[firstSheetName];
+        if (!worksheet) {
+          throw new Error("Invalid worksheet in Excel file");
+        }
+        const csvText = XLSX.utils.sheet_to_csv(worksheet);
+        const csvBlob = new Blob([csvText], { type: "text/csv" });
+        const csvFileName = selectedFile.name.replace(/\.(xlsx|xls)$/i, ".csv");
+        fileToUpload = new File([csvBlob], csvFileName, { type: "text/csv" });
+      } catch (err) {
+        console.error("Failed to convert Excel to CSV:", err);
+        addToast({
+          title: "Error",
+          description: "Failed to read Excel file. Please try uploading a valid CSV or XLSX file.",
+          color: "danger",
+        });
+        setIsConverting(false);
+        return;
+      } finally {
+        setIsConverting(false);
+      }
+    }
+
     const formData = new FormData();
-    formData.append("file", selectedFile);
+    formData.append("file", fileToUpload);
 
     importCSV(formData, {
       onSuccess: () => {
@@ -180,11 +217,17 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
 
                 <div
                   onClick={() => fileInputRef.current?.click()}
-                  className={`border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center text-center gap-3 transition-all cursor-pointer group ${
-                    selectedFile
-                      ? "border-primary bg-primary/5 dark:bg-primary/10"
-                      : "border-foreground/10 bg-gray-50/50 dark:bg-white/[0.02] hover:bg-gray-50 dark:hover:bg-white/[0.05]"
-                  }`}
+                  onDragOver={(e) => e.preventDefault()}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                      setSelectedFile(e.dataTransfer.files[0]);
+                    }
+                  }}
+                  className={`border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center text-center gap-3 transition-all cursor-pointer group ${selectedFile
+                    ? "border-primary bg-primary/5 dark:bg-primary/10"
+                    : "border-foreground/10 bg-gray-50/50 dark:bg-white/[0.02] hover:bg-gray-50 dark:hover:bg-white/[0.05]"
+                    }`}
                 >
                   {selectedFile ? (
                     <>
@@ -271,8 +314,8 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
                 variant="solid"
                 color="primary"
                 onPress={handleImport}
-                isLoading={isPending}
-                isDisabled={!selectedFile || isPending}
+                isLoading={isPending || isConverting}
+                isDisabled={!selectedFile || isPending || isConverting}
               >
                 Import Referrals
               </Button>

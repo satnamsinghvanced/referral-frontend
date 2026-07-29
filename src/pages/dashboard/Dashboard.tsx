@@ -14,7 +14,11 @@ import { useTour } from "../../providers/TourProvider";
 import { formatNumberWithCommas } from "../../utils/formatNumberWithCommas";
 import { timeAgo } from "../../utils/timeAgo";
 import { useNotificationSubscription } from "../../hooks/useNotificationSubscription";
+import { FiAlertTriangle } from "react-icons/fi";
 import { LoadingState } from "../../components/common/LoadingState";
+import { useBilling } from "../../hooks/settings/useBilling";
+import { usePlanGuard } from "../../hooks/usePlanGuard";
+import { useFetchReferrers } from "../../hooks/useReferral";
 
 type Color = "sky" | "orange" | "emerald" | "purple";
 
@@ -23,6 +27,7 @@ interface QuickAction {
   icon: React.ReactNode;
   color: Color;
   link: string;
+  requiredPlanAccess?: string;
 }
 
 const HEADING_DATA = {
@@ -43,18 +48,21 @@ const QUICK_ACTIONS: QuickAction[] = [
     icon: <LuCalendar />,
     color: "orange",
     link: "/marketing-calendar",
+    requiredPlanAccess: "marketing_calendar",
   },
   {
     label: "View Reviews",
     icon: <HiOutlineStar />,
     color: "emerald",
     link: "/reviews",
+    requiredPlanAccess: "google_business",
   },
   {
     label: "Analytics",
     icon: <HiOutlineChartBar />,
     color: "purple",
     link: "/analytics",
+    requiredPlanAccess: "basic_analytics",
   },
 ];
 
@@ -94,6 +102,20 @@ const Dashboard = () => {
   const [showNotificationBanner, setShowNotificationBanner] = useState(true);
   const navigate = useNavigate();
   const { data: dashboard, isLoading } = useDashboard();
+  const { data: billingData, isLoading: isBillingLoading } = useBilling();
+  const planAccess = billingData?.access;
+  const { isLimitReached, getLimit, openPricingPage } = usePlanGuard();
+  const { data: referrerData } = useFetchReferrers({ limit: 1 });
+  const totalReferrersCount = (referrerData as any)?.total || (referrerData as any)?.pagination?.total || (referrerData as any)?.data?.length || 0;
+  const maxReferralLimit = getLimit("referral_connections");
+  const isReferrerLimitReached = isLimitReached("referral_connections", totalReferrersCount);
+
+  const filteredQuickActions = QUICK_ACTIONS.filter((action) => {
+    if (action.requiredPlanAccess) {
+      if (planAccess && planAccess[action.requiredPlanAccess as keyof typeof planAccess] === false) return false;
+    }
+    return true;
+  });
   const STAT_CARD_DATA = useMemo<StatCard[]>(
     () => [
       {
@@ -293,6 +315,33 @@ const Dashboard = () => {
           </div>
         )}
 
+        {isReferrerLimitReached && (
+          <div className="p-4 rounded-xl border border-red-200 bg-red-50 dark:bg-red-950/20 text-red-900 dark:text-red-300 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm mb-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 shrink-0">
+                <FiAlertTriangle className="text-xl" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-sm">
+                  Referrer Limit Reached ({totalReferrersCount}/{maxReferralLimit})
+                </h4>
+                <p className="text-xs text-red-700 dark:text-red-400 mt-0.5">
+                  You have reached the maximum number of referrers allowed on your current plan. Please upgrade your plan to add or connect with more referrers.
+                </p>
+              </div>
+            </div>
+            <Button
+              size="sm"
+              color="danger"
+              variant="solid"
+              className="font-medium shrink-0 shadow-sm"
+              onPress={openPricingPage}
+            >
+              Upgrade Plan
+            </Button>
+          </div>
+        )}
+
         <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
           {STAT_CARD_DATA.map((data, i) => (
             <MiniStatsCard key={i} cardData={data} />
@@ -302,7 +351,7 @@ const Dashboard = () => {
         <div className="bg-background rounded-xl p-4">
           <h4 className="text-sm md:text-base mb-4">Quick Actions</h4>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
-            {QUICK_ACTIONS.map((action, i) => {
+            {filteredQuickActions.map((action, i) => {
               const color = QUICK_ACTIONS_COLOR_CLASSES[action.color];
               const Icon = action.icon;
               return (

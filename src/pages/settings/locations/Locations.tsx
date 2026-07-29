@@ -16,7 +16,10 @@ import { LoadingState } from "../../../components/common/LoadingState";
 import Pagination from "../../../components/common/Pagination";
 import { usePaginationAdjustment } from "../../../hooks/common/usePaginationAdjustment";
 
+import { usePlanGuard } from "../../../hooks/usePlanGuard";
+
 const Locations: React.FC = () => {
+  const { isLimitReached, getLimit, openPricingPage } = usePlanGuard();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [editLocationId, setEditLocationId] = useState<string>("");
@@ -30,7 +33,9 @@ const Locations: React.FC = () => {
 
   const locations = locationsData?.data;
   const totalPages = locationsData?.totalPages || 1;
-  const totalLocations = locationsData?.totalData || 0;
+  const totalLocations = locationsData?.totalData || locations?.length || 0;
+  const maxLocations = getLimit("locations");
+  const isLocationLimitReached = isLimitReached("locations", totalLocations);
 
   usePaginationAdjustment({
     totalPages: totalPages,
@@ -60,9 +65,10 @@ const Locations: React.FC = () => {
   };
 
   const handleDeleteConfirm = () => {
-    if (!deleteLocationId) return;
     deleteLocation(deleteLocationId, {
-      onSuccess: () => setIsDeleteModalOpen(false),
+      onSuccess: () => {
+        handleCancel();
+      },
     });
   };
 

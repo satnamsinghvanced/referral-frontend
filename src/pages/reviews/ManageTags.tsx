@@ -1,5 +1,5 @@
-import { Button, Chip, Progress, useDisclosure } from "@heroui/react";
-import { useState } from "react";
+import { Button, Chip, Progress, useDisclosure, addToast } from "@heroui/react";
+import { useState, useMemo } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { FiCheck, FiCopy, FiSmartphone } from "react-icons/fi";
 import { LuNfc, LuQrCode, LuTrash2 } from "react-icons/lu";
@@ -49,11 +49,11 @@ const ManageTags = () => {
   const teamMembers = teamProps?.data || [];
   const pagination = nfcProps
     ? {
-        totalDocs: nfcProps.totalDocs,
-        totalPages: nfcProps.totalPages,
-        page: nfcProps.page,
-        limit: nfcProps.limit,
-      }
+      totalDocs: nfcProps.totalDocs,
+      totalPages: nfcProps.totalPages,
+      page: nfcProps.page,
+      limit: nfcProps.limit,
+    }
     : null;
 
   usePaginationAdjustment({
@@ -67,6 +67,43 @@ const ManageTags = () => {
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
+  };
+
+  const handleWriteNFC = async (url: string) => {
+    if (!url) return;
+    if ("NDEFReader" in window) {
+      try {
+        // @ts-ignore
+        const ndef = new window.NDEFReader();
+        addToast({
+          title: "Ready to Write",
+          description: "Tap your NFC tag close to your device to write the URL.",
+          color: "primary",
+        });
+        await ndef.write({
+          records: [{ recordType: "url", data: url }],
+        });
+        addToast({
+          title: "Success",
+          description: "Successfully wrote URL to NFC tag!",
+          color: "success",
+        });
+      } catch (error: any) {
+        console.error("NFC Write Error:", error);
+        addToast({
+          title: "Error",
+          description: error.message || "Failed to write to NFC tag.",
+          color: "danger",
+        });
+      }
+    } else {
+      navigator.clipboard.writeText(url);
+      addToast({
+        title: "URL Copied to Clipboard",
+        description: "Web NFC is supported on Android Chrome. Review URL copied so you can write using an NFC app.",
+        color: "warning",
+      });
+    }
   };
 
   const handleCopy = (id: string, text: string) => {
@@ -223,11 +260,10 @@ const ManageTags = () => {
                       radius="sm"
                       variant="solid"
                       color={tag.status === "active" ? "success" : "danger"}
-                      className={`${
-                        tag.status === "active"
-                          ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
-                          : "bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-300"
-                      } text-[11px] h-5`}
+                      className={`${tag.status === "active"
+                        ? "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-300"
+                        : "bg-red-100 text-red-800 dark:bg-red-500/20 dark:text-red-300"
+                        } text-[11px] h-5`}
                     >
                       {tag.status === "active" ? "Active" : "Inactive"}
                     </Chip>
@@ -331,6 +367,7 @@ const ManageTags = () => {
                         color="default"
                         className="border-small w-full"
                         startContent={<FiSmartphone fontSize={14} />}
+                        onPress={() => handleWriteNFC(tag.url)}
                       >
                         Write to NFC
                       </Button>
@@ -386,38 +423,65 @@ const ManageTags = () => {
         )}
       </div>
       {/* Overall Performance */}
-      <div className="border border-foreground/10 bg-background p-4 rounded-xl space-y-4">
-        <h4 className="flex items-center gap-2 text-sm">
-          <FiSmartphone size={16} />
-          Overall Performance
-        </h4>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatsBox
-            label="Total Tags"
-            value={tagsStats?.totalTags || 0}
-            bg="bg-sky-50 dark:bg-sky-500/10"
-            text="text-sky-600 dark:text-sky-400"
-          />
-          <StatsBox
-            label="Total Interactions"
-            value={tagsStats?.totalInteractions || 0}
-            bg="bg-emerald-50 dark:bg-emerald-500/10"
-            text="text-emerald-600 dark:text-emerald-400"
-          />
-          <StatsBox
-            label="Total Reviews"
-            value={tagsStats?.totalReview || 0}
-            bg="bg-orange-50 dark:bg-orange-500/10"
-            text="text-orange-600 dark:text-orange-400"
-          />
-          <StatsBox
-            label="Avg. Conversion"
-            value={`${tagsStats?.conversionRate}%`}
-            bg="bg-purple-50 dark:bg-purple-500/10"
-            text="text-purple-600 dark:text-purple-400"
-          />
-        </div>
-      </div>
+      {(() => {
+        const overallPerformanceStats = {
+          totalTags: tagsStats?.totalTags || tags.length,
+          totalInteractions: Math.max(
+            tagsStats?.totalInteractions || 0,
+            tags.reduce((acc: number, tag: NFCDeskCard) => acc + (Number(tag.totalTap) || 0), 0)
+          ),
+          totalReviews: Math.max(
+            tagsStats?.totalReview || 0,
+            tags.reduce((acc: number, tag: NFCDeskCard) => acc + (Number(tag.totalReview) || 0), 0)
+          ),
+          conversionRate:
+            tagsStats?.conversionRate ??
+            (tags.reduce((acc: number, tag: NFCDeskCard) => acc + (Number(tag.totalTap) || 0), 0) > 0
+              ? Number(
+                (
+                  (tags.reduce((acc: number, tag: NFCDeskCard) => acc + (Number(tag.totalReview) || 0), 0) /
+                    tags.reduce((acc: number, tag: NFCDeskCard) => acc + (Number(tag.totalTap) || 0), 0)) *
+                  100
+                ).toFixed(1)
+              )
+              : 0),
+        };
+
+        return (
+          <div className="border border-foreground/10 bg-background p-4 rounded-xl space-y-4">
+            <h4 className="flex items-center gap-2 text-sm">
+              <FiSmartphone size={16} />
+              Overall Performance
+            </h4>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <StatsBox
+                label="Total Tags"
+                value={overallPerformanceStats.totalTags}
+                bg="bg-sky-50 dark:bg-sky-500/10"
+                text="text-sky-600 dark:text-sky-400"
+              />
+              <StatsBox
+                label="Total Interactions"
+                value={overallPerformanceStats.totalInteractions}
+                bg="bg-emerald-50 dark:bg-emerald-500/10"
+                text="text-emerald-600 dark:text-emerald-400"
+              />
+              <StatsBox
+                label="Total Reviews"
+                value={overallPerformanceStats.totalReviews}
+                bg="bg-orange-50 dark:bg-orange-500/10"
+                text="text-orange-600 dark:text-orange-400"
+              />
+              <StatsBox
+                label="Avg. Conversion"
+                value={`${overallPerformanceStats.conversionRate}%`}
+                bg="bg-purple-50 dark:bg-purple-500/10"
+                text="text-purple-600 dark:text-purple-400"
+              />
+            </div>
+          </div>
+        );
+      })()}
 
       <CreateTagModal isOpen={isOpen} onClose={onClose} />
 

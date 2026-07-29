@@ -37,6 +37,7 @@ import LeadCard from "./LeadCard";
 import AddLeadModal from "./modal/AddLeadModal";
 import LeadDetailsModal from "./modal/LeadDetailsModal";
 import LeadAutomations from "./LeadAutomations";
+import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
 
 import { AiOutlinePlus } from "react-icons/ai";
 import ComponentContainer from "../../components/common/ComponentContainer";
@@ -54,6 +55,7 @@ import { useDebounce } from "../../hooks/useDebounce";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "react-router-dom";
 import { useLeadStats, useLeadStatus, useUpdateLead, useReorderLeads, useDeleteLead, useExportLeadsPDF } from "../../hooks/useLeadPipeline";
+import { useBilling } from "../../hooks/settings/useBilling";
 import ReferralStatusChip from "../../components/chips/ReferralStatusChip";
 import EmptyState from "../../components/common/EmptyState";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
@@ -371,22 +373,27 @@ const LeadTracking = () => {
     if (!dataToUse) return [];
     return Object.values(dataToUse).flat();
   }, [localGroupedLeads, leadsData]);
+  const { data: billingData } = useBilling();
+  const planAccess = billingData?.access;
+
   const HEADING_DATA = {
     heading: view === "automations" ? "Lead Automations" : "Lead Tracking",
     subHeading: view === "automations"
       ? "Configure automated SMS, emails, and notifications triggered by lead events."
       : "Monitor and manage patient leads from inquiry to conversion",
     buttons: view === "automations" ? [] : [
-      {
-        label: "Automation Setup",
-        onClick: () => {
-          setView("automations");
+      ...(planAccess?.advanced_automation !== false ? [
+        {
+          label: "Automation Setup",
+          onClick: () => {
+            setView("automations");
+          },
+          icon: <HiOutlineCog fontSize={15} />,
+          variant: "ghost" as const,
+          color: "default" as const,
+          className: "border-small",
         },
-        icon: <HiOutlineCog fontSize={15} />,
-        variant: "ghost" as const,
-        color: "default" as const,
-        className: "border-small",
-      },
+      ] : []),
       {
         label: "Export",
         onClick: () => {
@@ -784,28 +791,14 @@ const LeadTracking = () => {
         lead={selectedLead}
         onDelete={handleDeleteLead}
       />
-      <Modal isOpen={isDeleteOpen} onOpenChange={onDeleteClose} size="sm">
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">Delete Lead</ModalHeader>
-              <ModalBody>
-                <p className="text-sm text-gray-500">
-                  Are you sure you want to delete lead <strong className="text-foreground">{leadToDelete?.name || `${leadToDelete?.firstName || ''} ${leadToDelete?.lastName || ''}`.trim() || "this lead"}</strong>? This action cannot be undone.
-                </p>
-              </ModalBody>
-              <ModalFooter>
-                <Button variant="light" size="sm" onPress={onClose} isDisabled={isDeleting}>
-                  Cancel
-                </Button>
-                <Button color="danger" size="sm" onPress={handleConfirmDelete} isLoading={isDeleting}>
-                  Delete
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
+      <DeleteConfirmationModal
+        isOpen={isDeleteOpen}
+        onClose={onDeleteClose}
+        onConfirm={handleConfirmDelete}
+        isLoading={isDeleting}
+        title="Delete Lead"
+        description={`Are you sure you want to delete lead ${leadToDelete?.name || `${leadToDelete?.firstName || ""}\u00a0${leadToDelete?.lastName || ""}`.trim() || "this lead"}? This action cannot be undone.`}
+      />
     </ComponentContainer>
   );
 };

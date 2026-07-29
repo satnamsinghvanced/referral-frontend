@@ -7,15 +7,12 @@ import {
   Pagination,
   Tab,
   Tabs,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
+  Progress,
+  addToast,
 } from "@heroui/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
-import { FiEdit, FiEye, FiUsers, FiWifi } from "react-icons/fi";
+import { FiEdit, FiEye, FiUsers, FiWifi, FiLoader, FiCheck, FiX, FiAlertTriangle } from "react-icons/fi";
 import { GrLocation } from "react-icons/gr";
 import { IoSearch } from "react-icons/io5";
 import { LuFilter, LuNfc, LuQrCode } from "react-icons/lu";
@@ -24,8 +21,12 @@ import { useSearchParams } from "react-router-dom";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
 import ReferralStatusChip from "../../components/chips/ReferralStatusChip";
 import ComponentContainer from "../../components/common/ComponentContainer";
+import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
 import EmptyState from "../../components/common/EmptyState";
+import { generateReferralsPdf } from "../../utils/pdfReferralsGenerator";
+import { fetchReferrals } from "../../services/referral";
 import { LoadingState } from "../../components/common/LoadingState";
+import { useBilling } from "../../hooks/settings/useBilling";
 import { useDebouncedValue } from "../../hooks/common/useDebouncedValue";
 import {
   useCreateReferral,
@@ -87,6 +88,19 @@ const ReferralManagement = () => {
   const [deleteReferralId, setDeleteReferralId] = useState<string | null>(null);
   const [deleteReferrerId, setDeleteReferrerId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [exportState, setExportState] = useState<{
+    isExporting: boolean;
+    progress: number;
+    status: "exporting" | "completed" | "error";
+  } | null>(null);
+
+  const isFiltered = useMemo(() => {
+    return (
+      (currentFilters.search ?? "") !== "" ||
+      (currentFilters.filter ?? "") !== "" ||
+      (currentFilters.source ?? "") !== ""
+    );
+  }, [currentFilters]);
 
   const [referrerParams, setReferrerParams] = useState({
     filter: "",
@@ -156,15 +170,18 @@ const ReferralManagement = () => {
     setCurrentFilters((prev) => ({ ...prev, search: debouncedSearch }));
   }, [debouncedSearch]);
 
-  const {
-    data: referralData,
-    isLoading: isLoadingReferrals,
-    isFetching: isFetchingReferrals,
-  } = useFetchReferrals({ ...currentFilters, search: debouncedSearch });
+  const { data: referralData, isLoading: isLoadingReferrals, isFetching: isFetchingReferrals } =
+    useFetchReferrals({ ...currentFilters, search: debouncedSearch });
+
+  const { data: billingData } = useBilling();
+  const maxReferralLimit = billingData?.limits?.referral_connections;
 
   const { data: referrerData, isLoading: isLoadingReferrers } =
     useFetchReferrers({ ...referrerParams, search: debouncedReferrerSearch });
   const referrers = referrerData?.data;
+
+  const totalReferrersCount = (referrerData as any)?.total || (referrerData as any)?.pagination?.total || referrers?.length || 0;
+  const isReferrerLimitReached = maxReferralLimit !== undefined && maxReferralLimit !== -1 && totalReferrersCount >= maxReferralLimit;
 
   const { data: allReferrersData } = useFetchReferrers({ limit: 1000 });
   const selectionReferrers = allReferrersData?.data || referrers || [];
@@ -218,14 +235,57 @@ const ReferralManagement = () => {
     setIsReferralStatusModalOpen(true);
   };
 
-  const handleExport = () => {
-    const exportData = {
-      timestamp: new Date().toISOString(),
-      reportTitle: "Referrals",
-      records: referralData?.data,
-    };
+  const handleExport = async () => {
+    setExportState({
+      isExporting: true,
+      progress: 0,
+      status: "exporting",
+    });
 
-    downloadJson(exportData, "referrals");
+    let progress = 0;
+    const interval = setInterval(() => {
+      progress += 10;
+      setExportState((prev) =>
+        prev ? { ...prev, progress: Math.min(progress, 90) } : null
+      );
+    }, 250);
+
+    try {
+      const response = await fetchReferrals({
+        ...currentFilters,
+        page: 1,
+        limit: 100000,
+      });
+
+      clearInterval(interval);
+      setExportState((prev) =>
+        prev ? { ...prev, progress: 100, status: "completed" } : null
+      );
+
+      generateReferralsPdf(
+        response.data,
+        response.filterStats,
+        isFiltered
+      );
+
+      setTimeout(() => {
+        setExportState(null);
+      }, 3000);
+    } catch (error) {
+      clearInterval(interval);
+      setExportState((prev) =>
+        prev ? { ...prev, status: "error", progress: 0 } : null
+      );
+      console.error("Export failed:", error);
+      addToast({
+        title: "Export Failed",
+        description: "An error occurred while generating the PDF.",
+        color: "danger",
+      });
+      setTimeout(() => {
+        setExportState(null);
+      }, 5000);
+    }
   };
 
   const STAT_CARD_DATA = useMemo<StatCard[]>(
@@ -290,20 +350,24 @@ const ReferralManagement = () => {
           color: "default",
           className: "border-small tour-step-generate-qr-btn",
         },
-        {
-          label: "Add Referrer",
-          onClick: () => {
-            setIsModalOpen(true);
-            setReferrerEditId("");
-          },
-          icon: <AiOutlinePlus fontSize={15} />,
-          variant: "solid",
-          color: "primary",
-          className: "tour-step-add-referrer-btn",
-        },
+        ...(!isReferrerLimitReached
+          ? [
+              {
+                label: "Add Referrer",
+                onClick: () => {
+                  setIsModalOpen(true);
+                  setReferrerEditId("");
+                },
+                icon: <AiOutlinePlus fontSize={15} />,
+                variant: "solid",
+                color: "primary",
+                className: "tour-step-add-referrer-btn",
+              },
+            ]
+          : []),
       ],
     }),
-    [],
+    [isReferrerLimitReached],
   );
 
   const REFERRER_CARD_BUTTONS = useCallback(
@@ -503,6 +567,13 @@ const ReferralManagement = () => {
                             search: value,
                           }))
                         }
+                        isClearable
+                        onClear={() =>
+                          setCurrentFilters((prev) => ({
+                            ...prev,
+                            search: "",
+                          }))
+                        }
                         className="text-xs flex-1 min-w-fit"
                       />
 
@@ -573,6 +644,36 @@ const ReferralManagement = () => {
           {/* --- REFERRERS TAB --- */}
           {selectedReferralType === "Referrers" && (
             <div className="flex flex-col gap-4 border border-foreground/10 rounded-xl p-4 bg-background w-full">
+              {isReferrerLimitReached && (
+                <div className="p-4 rounded-xl border border-red-200 bg-red-50 dark:bg-red-950/20 text-red-900 dark:text-red-300 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 shrink-0">
+                      <FiAlertTriangle className="text-xl" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold text-sm">
+                        Referrer Limit Reached ({totalReferrersCount}/{maxReferralLimit})
+                      </h4>
+                      <p className="text-xs text-red-700 dark:text-red-400 mt-0.5">
+                        You have reached the maximum number of referrers allowed on your current plan. Please upgrade your plan to add more referrers.
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    size="sm"
+                    color="danger"
+                    variant="solid"
+                    className="font-medium shrink-0 shadow-sm"
+                    onPress={() => {
+                      const wordpressUrl = import.meta.env.VITE_WORDPRESS_BASE_URL || "https://practiceroi.com";
+                      const cleanUrl = wordpressUrl.replace(/\/$/, "");
+                      window.open(`${cleanUrl}/pricing`, "_blank");
+                    }}
+                  >
+                    Upgrade Plan
+                  </Button>
+                </div>
+              )}
               <div className="flex flex-col gap-4">
                 <p className="font-medium text-sm">Referrer Management</p>
                 <div className="flex-1">
@@ -585,6 +686,14 @@ const ReferralManagement = () => {
                       setReferrerParams((prev) => ({
                         ...prev,
                         search: value,
+                        page: 1,
+                      }))
+                    }
+                    isClearable
+                    onClear={() =>
+                      setReferrerParams((prev) => ({
+                        ...prev,
+                        search: "",
                         page: 1,
                       }))
                     }
@@ -702,50 +811,71 @@ const ReferralManagement = () => {
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
       />
-      <Modal isOpen={!!deleteReferralId} onOpenChange={(open) => !open && setDeleteReferralId(null)} size="sm">
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">Delete Referral</ModalHeader>
-              <ModalBody>
-                <p className="text-sm text-gray-500">
-                  Are you sure you want to delete this referral? This action cannot be undone.
-                </p>
-              </ModalBody>
-              <ModalFooter>
-                <Button variant="light" size="sm" onPress={onClose} isDisabled={isDeleting}>
-                  Cancel
-                </Button>
-                <Button color="danger" size="sm" onPress={handleConfirmDeleteReferral} isLoading={isDeleting}>
-                  Delete
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
-      <Modal isOpen={!!deleteReferrerId} onOpenChange={(open) => !open && setDeleteReferrerId(null)} size="sm">
-        <ModalContent>
-          {(onClose) => (
-            <>
-              <ModalHeader className="flex flex-col gap-1">Delete Referrer</ModalHeader>
-              <ModalBody>
-                <p className="text-sm text-gray-500">
-                  Are you sure you want to delete this referrer? This will also remove any associated staff members and practice information. This action cannot be undone.
-                </p>
-              </ModalBody>
-              <ModalFooter>
-                <Button variant="light" size="sm" onPress={onClose} isDisabled={isDeleting}>
-                  Cancel
-                </Button>
-                <Button color="danger" size="sm" onPress={handleConfirmDeleteReferrer} isLoading={isDeleting}>
-                  Delete
-                </Button>
-              </ModalFooter>
-            </>
-          )}
-        </ModalContent>
-      </Modal>
+      <DeleteConfirmationModal
+        isOpen={!!deleteReferralId}
+        onClose={() => setDeleteReferralId(null)}
+        onConfirm={handleConfirmDeleteReferral}
+        isLoading={isDeleting}
+        title="Delete Referral"
+        description="Are you sure you want to delete this referral? This action cannot be undone."
+      />
+      <DeleteConfirmationModal
+        isOpen={!!deleteReferrerId}
+        onClose={() => setDeleteReferrerId(null)}
+        onConfirm={handleConfirmDeleteReferrer}
+        isLoading={isDeleting}
+        title="Delete Referrer"
+        description="Are you sure you want to delete this referrer? This will also remove any associated staff members and practice information. This action cannot be undone."
+      />
+      {exportState && (
+        <div className="fixed bottom-4 right-4 z-[9999] flex flex-col gap-2 w-80 max-md:w-[calc(100%-2rem)]">
+          <Card className="shadow-lg border border-foreground/10" radius="sm">
+            <CardBody className="p-3">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  {exportState.status === "exporting" && (
+                    <FiLoader className="animate-spin text-primary shrink-0" />
+                  )}
+                  {exportState.status === "completed" && (
+                    <FiCheck className="text-green-500 shrink-0" />
+                  )}
+                  <span className="text-xs font-medium truncate">
+                    Exporting Referrals PDF
+                  </span>
+                </div>
+                {exportState.status === "completed" && (
+                  <Button
+                    isIconOnly
+                    size="sm"
+                    variant="light"
+                    radius="full"
+                    onPress={() => setExportState(null)}
+                    className="h-6 w-6 min-w-0"
+                  >
+                    <FiX />
+                  </Button>
+                )}
+              </div>
+              <Progress
+                size="sm"
+                radius="sm"
+                value={exportState.progress}
+                color={
+                  exportState.status === "completed" ? "success" : "primary"
+                }
+                className="mb-1"
+              />
+              <div className="flex justify-between items-center text-[10px] text-gray-500">
+                <span>
+                  {exportState.status === "exporting" &&
+                    `Generating... ${exportState.progress}%`}
+                  {exportState.status === "completed" && "Completed"}
+                </span>
+              </div>
+            </CardBody>
+          </Card>
+        </div>
+      )}
     </>
   );
 };

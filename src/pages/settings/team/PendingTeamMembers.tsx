@@ -106,10 +106,9 @@ const PendingTeamMembers = () => {
 
               <div className="flex items-center gap-2">
                 <span
-                  className={`capitalize px-2 py-0.5 text-[11px] font-medium inline-flex items-center gap-1 rounded-md border ${
-                    invitationStatusColors[member.status] ||
+                  className={`capitalize px-2 py-0.5 text-[11px] font-medium inline-flex items-center gap-1 rounded-md border ${invitationStatusColors[member.status] ||
                     "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-foreground/10 dark:border-gray-700"
-                  }`}
+                    }`}
                 >
                   {member.status}
                 </span>

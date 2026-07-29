@@ -310,6 +310,76 @@ const TrackingPanel = () => {
     return trackings.personalizedQR[trackings.personalizedQR.length - 1];
   }, [trackings?.personalizedQR, selectedQrId]);
 
+  const analyticsSummary = useMemo(() => {
+    const list = trackings?.personalizedQR || [];
+    if (list.length === 0) {
+      return {
+        activeQR: 0,
+        totalScans: 0,
+        qrScans: 0,
+        nfcTaps: 0,
+        totalReferrals: 0,
+        conversionRate: "0%",
+      };
+    }
+
+    const activeQR = list.length;
+    const totalScans = list.reduce(
+      (sum: number, item: any) => sum + (Number(item.totalScan) || 0),
+      0
+    );
+    const qrScans = list.reduce(
+      (sum: number, item: any) => sum + (Number(item.qrScan) || 0),
+      0
+    );
+    const nfcTaps = list.reduce(
+      (sum: number, item: any) => sum + (Number(item.nfcTaps) || 0),
+      0
+    );
+    const totalReferrals = list.reduce(
+      (sum: number, item: any) => sum + (Number(item.totalReferrals) || 0),
+      0
+    );
+
+    const finalTotalScans = totalScans > 0 ? totalScans : (trackings?.totalScans ?? 0);
+    const finalTotalReferrals = totalReferrals > 0 ? totalReferrals : (trackings?.totalReferrals ?? 0);
+
+    let rate = 0;
+    if (finalTotalScans > 0) {
+      rate = Number(((finalTotalReferrals / finalTotalScans) * 100).toFixed(2));
+    } else if (trackings?.conversionRate !== undefined) {
+      rate = trackings.conversionRate;
+    }
+
+    return {
+      activeQR,
+      totalScans: finalTotalScans,
+      qrScans: qrScans > 0 ? qrScans : (trackings?.qrScans ?? 0),
+      nfcTaps: nfcTaps > 0 ? nfcTaps : (trackings?.nfcTaps ?? 0),
+      totalReferrals: finalTotalReferrals,
+      conversionRate: `${rate}%`,
+    };
+  }, [trackings]);
+
+  const hasDefaultReferralQR = useMemo(() => {
+    if (!trackings?.personalizedQR || trackings.personalizedQR.length === 0) return false;
+    return trackings.personalizedQR.some(
+      (q: any) =>
+        q.customPath === "referral" ||
+        (!q.isManually && (!q.customPath || q.customPath === "referral"))
+    );
+  }, [trackings?.personalizedQR]);
+
+  const isGenerateDisabled = useMemo(() => {
+    if (isFullCustomUrl) {
+      return !customLandingUrl || !URL_REGEX.test(customLandingUrl);
+    }
+    if (isCustomLandingPage) {
+      return !customPath.trim();
+    }
+    return hasDefaultReferralQR;
+  }, [isFullCustomUrl, customLandingUrl, isCustomLandingPage, customPath, hasDefaultReferralQR]);
+
   return (
     <div className="flex flex-col gap-4 md:gap-5">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5 items-start">
@@ -367,7 +437,9 @@ const TrackingPanel = () => {
                         </div>
                         <p className="text-[11px] text-gray-500 dark:text-foreground/40">
                           {!isCustomLandingPage
-                            ? "Default: https://practicemarketer.ai/referral"
+                            ? hasDefaultReferralQR
+                              ? "Default referral QR code already generated. Check 'Use Custom Landing Page URL' or click 'Add External Page' to create a new QR code."
+                              : "Default: https://practicemarketer.ai/referral"
                             : "Enter your custom referral landing page URL"}
                         </p>
                         {isCustomLandingPage && (
@@ -452,7 +524,7 @@ const TrackingPanel = () => {
                     size="sm"
                     onPress={generateTracking}
                     fullWidth
-                    isDisabled={isFullCustomUrl && (!customLandingUrl || !URL_REGEX.test(customLandingUrl))}
+                    isDisabled={isGenerateDisabled}
                   >
                     Generate QR Code
                   </Button>
@@ -629,37 +701,37 @@ const TrackingPanel = () => {
             {[
               {
                 label: "Total Active QR Codes",
-                value: trackings?.activeQR ?? 0,
+                value: analyticsSummary.activeQR,
                 className:
                   "bg-sky-100 text-sky-800 dark:bg-sky-500/20 dark:text-sky-400",
               },
               {
                 label: "Total Scans",
-                value: trackings?.totalScans ?? 0,
+                value: analyticsSummary.totalScans,
                 className:
                   "bg-green-100 text-green-800 dark:bg-green-500/20 dark:text-green-400",
               },
               {
                 label: "QR Scans",
-                value: trackings?.qrScans ?? 0,
+                value: analyticsSummary.qrScans,
                 className:
                   "bg-emerald-100 text-emerald-800 dark:bg-emerald-500/20 dark:text-emerald-400",
               },
               {
                 label: "NFC Taps",
-                value: trackings?.nfcTaps ?? 0,
+                value: analyticsSummary.nfcTaps,
                 className:
                   "bg-blue-100 text-blue-800 dark:bg-blue-500/20 dark:text-blue-400",
               },
               {
                 label: "Total Referrals",
-                value: trackings?.totalReferrals ?? 0,
+                value: analyticsSummary.totalReferrals,
                 className:
                   "bg-cyan-100 text-cyan-800 dark:bg-cyan-500/20 dark:text-cyan-400",
               },
               {
                 label: "Conversion Rate",
-                value: `${trackings?.conversionRate ?? 0}%`,
+                value: analyticsSummary.conversionRate,
                 className:
                   "bg-purple-100 text-purple-800 dark:bg-purple-500/20 dark:text-purple-400",
               },

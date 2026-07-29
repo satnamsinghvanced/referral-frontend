@@ -13,6 +13,7 @@ import { CALL_STATUSES, CALL_TYPES } from "../../consts/call";
 import { EVEN_PAGINATION_LIMIT } from "../../consts/consts";
 import { useDebouncedValue } from "../../hooks/common/useDebouncedValue";
 import { useFetchTwilioConfig } from "../../hooks/integrations/useTwilio";
+import IntegrationWarningBanner from "../../components/common/IntegrationWarningBanner";
 import { useFetchCallRecords, CALL_RECORDS_QUERY_KEY } from "../../hooks/useCall";
 import { getCallRecords } from "../../services/call";
 import { queryClient } from "../../providers/QueryProvider";
@@ -164,22 +165,11 @@ const CallTracking = () => {
             </div>
           )}
           {!isTwilioConnected && !isTwilioConfigLoading && (
-            <div className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-500/30 rounded-lg p-3 flex items-center justify-between flex-wrap gap-3">
-              <p className="text-sm text-yellow-800 dark:text-amber-400">
-                Twilio is not connected. Connect your Twilio account to enable
-                call tracking features.
-              </p>
-              <Button
-                as={Link}
-                to="/integrations"
-                size="sm"
-                color="warning"
-                variant="flat"
-                className="bg-yellow-200 dark:bg-amber-500/20 text-yellow-800 dark:text-amber-400"
-              >
-                Connect Twilio
-              </Button>
-            </div>
+            <IntegrationWarningBanner
+              platformName="Twilio"
+              integrationKey="twilio"
+              message="Twilio is not connected. Connect your Twilio account to enable call tracking features."
+            />
           )}
           {isTwilioConnected && !hasActiveNumber && !isTwilioConfigLoading && (
             <div className="flex flex-col items-center justify-center py-16 gap-3 border border-dashed border-foreground/10 rounded-xl">

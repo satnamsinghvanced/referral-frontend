@@ -1,5 +1,5 @@
-import { Button, Card, CardBody } from "@heroui/react";
-import { LuChartColumn, LuEye, LuStar, LuUsers } from "react-icons/lu";
+import { Button, Card, CardBody, Chip } from "@heroui/react";
+import { LuChartColumn, LuEye, LuLock, LuStar, LuUsers } from "react-icons/lu";
 import { useNavigate } from "react-router";
 
 interface ReportCard {
@@ -8,6 +8,12 @@ interface ReportCard {
   icon: React.ReactNode;
   color: string;
   slug: string;
+  requiresPro?: boolean;
+}
+
+interface SampleReportsProps {
+  isStarterPlan?: boolean;
+  openPricingPage?: () => void;
 }
 
 const REPORTS: ReportCard[] = [
@@ -18,6 +24,7 @@ const REPORTS: ReportCard[] = [
     icon: <LuChartColumn />,
     color: "text-green-600",
     slug: "marketing",
+    requiresPro: true,
   },
   {
     title: "Referral Performance",
@@ -37,7 +44,10 @@ const REPORTS: ReportCard[] = [
   },
 ];
 
-export default function SampleReports() {
+export default function SampleReports({
+  isStarterPlan,
+  openPricingPage,
+}: SampleReportsProps) {
   const navigate = useNavigate();
 
   return (
@@ -54,35 +64,73 @@ export default function SampleReports() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {REPORTS.map((report) => (
-          <Card
-            key={report.title}
-            shadow="none"
-            className="flex flex-col gap-6 bg-content1 border border-transparent"
-          >
-            <CardBody className="p-4">
-              <div className="flex items-center gap-2 mb-2.5">
-                <span className={`${report.color}`}>{report.icon}</span>
-                <h3 className="font-medium text-sm">{report.title}</h3>
-              </div>
-              <p className="mb-3.5 text-gray-500 dark:text-foreground/40 text-xs">
-                {report.description}
-              </p>
-              <Button
-                size="sm"
-                radius="sm"
-                variant="ghost"
-                color="default"
-                className="border-small"
-                fullWidth
-                onPress={() => navigate(report.slug)}
-              >
-                <LuEye className="size-4" />
-                View Sample
-              </Button>
-            </CardBody>
-          </Card>
-        ))}
+        {REPORTS.map((report) => {
+          const isLocked = isStarterPlan && report.requiresPro;
+          return (
+            <Card
+              key={report.title}
+              shadow="none"
+              className={`flex flex-col gap-6 bg-content1 border ${
+                isLocked ? "border-amber-200 dark:border-amber-900/30" : "border-transparent"
+              }`}
+            >
+              <CardBody className="p-4 flex flex-col justify-between">
+                <div>
+                  <div className="flex items-center justify-between gap-2 mb-2.5">
+                    <div className="flex items-center gap-2">
+                      <span className={`${report.color}`}>{report.icon}</span>
+                      <h3 className="font-medium text-sm">{report.title}</h3>
+                    </div>
+                    {isLocked && (
+                      <Chip
+                        size="sm"
+                        variant="flat"
+                        color="warning"
+                        className="text-[10px] h-5"
+                        startContent={<LuLock className="size-3" />}
+                      >
+                        Pro Feature
+                      </Chip>
+                    )}
+                  </div>
+                  <p className="mb-3.5 text-gray-500 dark:text-foreground/40 text-xs">
+                    {report.description}
+                  </p>
+                </div>
+
+                {isLocked ? (
+                  <Button
+                    size="sm"
+                    radius="sm"
+                    variant="flat"
+                    color="warning"
+                    className="border-small font-medium mt-auto"
+                    fullWidth
+                    onPress={() =>
+                      openPricingPage ? openPricingPage() : navigate("/settings/billing")
+                    }
+                  >
+                    <LuLock className="size-4" />
+                    Upgrade to Unlock
+                  </Button>
+                ) : (
+                  <Button
+                    size="sm"
+                    radius="sm"
+                    variant="ghost"
+                    color="default"
+                    className="border-small mt-auto"
+                    fullWidth
+                    onPress={() => navigate(report.slug)}
+                  >
+                    <LuEye className="size-4" />
+                    View Sample
+                  </Button>
+                )}
+              </CardBody>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );

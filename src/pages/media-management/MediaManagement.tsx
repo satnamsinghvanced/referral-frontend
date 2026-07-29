@@ -2,7 +2,7 @@ import { Button, Card, CardBody, CardHeader, Input, Select, SelectItem } from "@
 import { useEffect, useState } from "react";
 import { FaRegFolder } from "react-icons/fa";
 import { FiCheckSquare, FiEdit, FiImage, FiSearch, FiUpload } from "react-icons/fi";
-import { LuFolderOpen, LuFolderPlus, LuMove, LuTrash2 } from "react-icons/lu";
+import { LuFolderOpen, LuFolderPlus, LuMove, LuTrash2, LuArrowLeft } from "react-icons/lu";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
 import EmptyState from "../../components/common/EmptyState";
@@ -159,10 +159,12 @@ function MediaManagement() {
       <ComponentContainer headingData={HEADING_DATA}>
         <div className="flex flex-col gap-4 md:gap-5">
           <div className="md:flex md:items-center md:justify-between md:gap-4 max-md:space-y-4 border border-foreground/10 rounded-xl p-4 bg-background">
-            <FolderBreadcrumb
-              path={breadcrumbPath}
-              onNavigate={(id: string) => onNavigateFolder(id)}
-            />
+            <div className="flex items-center gap-2">
+              <FolderBreadcrumb
+                path={breadcrumbPath}
+                onNavigate={(id: string) => onNavigateFolder(id)}
+              />
+            </div>
             <div className="space-x-2 space-y-2">
               {selectedMedia.length > 0 && (
                 <>
@@ -238,6 +240,8 @@ function MediaManagement() {
                   onValueChange={(value) =>
                     onFilterChange("search", value as string)
                   }
+                  isClearable
+                  onClear={() => onFilterChange("search", "")}
                   startContent={
                     <FiSearch className="text-gray-400 dark:text-foreground/40 h-4 w-4" />
                   }
@@ -298,6 +302,24 @@ function MediaManagement() {
             <Card className="border border-foreground/10 p-4 shadow-none bg-background">
               <CardHeader className="p-0 pb-4 flex justify-between items-center max-md:flex-col max-md:gap-3 max-md:items-start">
                 <h4 className="flex items-center gap-2 text-sm font-medium text-foreground">
+                  {currentFolderId && (
+                    <Button
+                      isIconOnly
+                      size="sm"
+                      variant="light"
+                      className="min-w-8 size-8 text-foreground/75 hover:text-foreground"
+                      onPress={() => {
+                        const parentId =
+                          breadcrumbPath.length > 1
+                            ? breadcrumbPath[breadcrumbPath.length - 2]?.id ?? null
+                            : null;
+                        onNavigateFolder(parentId);
+                      }}
+                      title="Go Back"
+                    >
+                      <LuArrowLeft className="size-4" />
+                    </Button>
+                  )}
                   <FaRegFolder className="size-4" />
                   Folders
                 </h4>

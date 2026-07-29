@@ -13,13 +13,14 @@ import { getLocalTimeZone, now } from "@internationalized/date";
 import { useFormik } from "formik";
 import { useEffect } from "react";
 import * as Yup from "yup";
-import { ACTIVITY_STATUSES, ACTIVITY_TYPES } from "../../../consts/marketing";
+import { ACTIVITY_STATUSES, ACTIVITY_TYPES, getFilteredActivityTypes } from "../../../consts/marketing";
 import { PRIORITY_LEVELS } from "../../../consts/practice";
 import { useCreateActivity, useUpdateActivity } from "../../../hooks/useMarketing";
 import { ActivityItem, ActivityStatus } from "../../../types/marketing";
 import DatePickerWithTimeInput from "../../../components/common/DatePickerWithTimeInput";
 
 import { useCalendarIntegration } from "../../../hooks/integrations/useGoogleCalendar";
+import { usePlanGuard } from "../../../hooks/usePlanGuard";
 
 interface ActivityFormValues {
   title: string;
@@ -82,6 +83,9 @@ export default function ActivityActionsModal({
   defaultEndDate,
   initialData,
 }: ActivityActionsModalProps) {
+  const { hasAccess, openPricingPage } = usePlanGuard();
+  const canTrackBudget = hasAccess("budget_tracking");
+  const allowedActivityTypes = getFilteredActivityTypes(hasAccess);
   const { data: googleCalendarConfig } = useCalendarIntegration();
   const configs = Array.isArray(googleCalendarConfig)
     ? googleCalendarConfig
@@ -96,7 +100,7 @@ export default function ActivityActionsModal({
       ? initialData?.type
         ? initialData?.type
         : "googleCalendar"
-      : ACTIVITY_TYPES?.[0]?.value,
+      : allowedActivityTypes?.[0]?.value || "googleCalendar",
     colorId: initialData?.colorId || "7",
     description: initialData?.description || "",
     startDate: initialData?.startDate || defaultStartDate || "",
@@ -240,7 +244,7 @@ export default function ActivityActionsModal({
                   isInvalid={!!hasError("type")}
                   isRequired
                 >
-                  {ACTIVITY_TYPES?.map((type) => (
+                  {allowedActivityTypes?.map((type) => (
                     <SelectItem key={type.value}>{type.label}</SelectItem>
                   ))}
                 </Select>
@@ -301,7 +305,7 @@ export default function ActivityActionsModal({
                 </div>
               </div>
             </div>
-            <div className="md:grid md:grid-cols-2 md:gap-4 max-md:space-y-4">
+            <div className={`md:grid ${canTrackBudget ? "md:grid-cols-2" : "md:grid-cols-1"} md:gap-4 max-md:space-y-4`}>
               <div className="flex flex-col items-start">
                 <Select
                   name="priority"
@@ -330,28 +334,30 @@ export default function ActivityActionsModal({
                 </Select>
                 <ErrorText field="priority" />
               </div>
-              <div className="flex flex-col items-start">
-                <Input
-                  id="budget"
-                  name="budget"
-                  type="number"
-                  label="Budget"
-                  labelPlacement="outside-top"
-                  placeholder="0"
-                  size="sm"
-                  radius="sm"
-                  value={String(formik.values.budget) as string}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  isInvalid={!!hasError("budget")}
-                  startContent={
-                    <span className="text-gray-500 dark:text-foreground/40">
-                      $
-                    </span>
-                  }
-                />
-                <ErrorText field="budget" />
-              </div>
+              {canTrackBudget && (
+                <div className="flex flex-col items-start w-full">
+                  <Input
+                    id="budget"
+                    name="budget"
+                    type="number"
+                    label="Budget"
+                    labelPlacement="outside-top"
+                    placeholder="0"
+                    size="sm"
+                    radius="sm"
+                    value={String(formik.values.budget) as string}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    isInvalid={!!hasError("budget")}
+                    startContent={
+                      <span className="text-gray-500 dark:text-foreground/40">
+                        $
+                      </span>
+                    }
+                  />
+                  <ErrorText field="budget" />
+                </div>
+              )}
             </div>
             <div className="md:grid md:grid-cols-2 md:gap-4 max-md:space-y-4">
               <div

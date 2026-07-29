@@ -87,7 +87,10 @@ export const generateRoutePdf = async (plan: SchedulePlan) => {
 
   const origin = typeof window !== "undefined" ? window.location.origin : "";
   const prefix = import.meta.env.VITE_URL_PREFIX || "";
-  const navUrl = `${origin}${prefix}/visit-map?coordinates=${encodeURIComponent(activeCoordinateString)}&optimized=true`;
+  const baseUrl = prefix.startsWith("http://") || prefix.startsWith("https://")
+    ? prefix
+    : `${origin}${prefix}`;
+  const navUrl = `${baseUrl}/visit-map?coordinates=${encodeURIComponent(activeCoordinateString)}&optimized=true`;
 
   // Draw Live Navigation Link
   const navY = 40;

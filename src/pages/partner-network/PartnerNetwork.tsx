@@ -32,8 +32,13 @@ import PartnerNetworkCard from "./PartnerNetworkCard";
 import ScheduleVisits from "./schedule-visits/ScheduleVisits";
 import { EVEN_PAGINATION_LIMIT } from "../../consts/consts";
 import { usePaginationAdjustment } from "../../hooks/common/usePaginationAdjustment";
+import { usePlanGuard } from "../../hooks/usePlanGuard";
 
 const PartnerNetwork = () => {
+  const { isLimitReached, getLimit, hasAccess, openPricingPage } = usePlanGuard();
+  const maxPartnerLimit = getLimit("referral_connections");
+  const canAccessScheduleVisits = hasAccess("advanced_referral_tracking");
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
@@ -82,7 +87,8 @@ const PartnerNetwork = () => {
   const practices = data?.data || [];
   const stoppedReferring = data?.stoppedReferring || []; // New data from updated types
   const stats = data;
-  const totalPractices = stats?.totalPractices ?? 0;
+  const totalPractices = stats?.totalPractices ?? practices.length ?? 0;
+  const isPartnerLimitReached = isLimitReached("referral_connections", totalPractices);
 
   const handleOpen = () => {
     setPartnerEditId("");
@@ -106,38 +112,42 @@ const PartnerNetwork = () => {
     setIsNotesTasksModalOpen(true);
   };
 
-  // Helper to trigger action from the Alert Box
-  const handleAlertAction = (partnerName: string) => {
-    // Find the ID from the practices list by name
-    const partner = practices.find((p) => p.name === partnerName);
-    if (partner) {
-      handleOpenNotesTasksModal(partner._id, partner.name);
+  const handleAlertAction = (partnerId: string, partnerName: string) => {
+    if (partnerId) {
+      handleOpenNotesTasksModal(partnerId, partnerName);
     } else {
-      // Fallback if ID isn't in current page: you might need the API to return the ID in stoppedReferring
-      console.warn("Partner ID not found in current list");
+      console.warn("Partner ID is missing");
     }
   };
 
   const HEADING_DATA_BUTTONS_LIST = useMemo(
     () => [
-      {
-        label: "Visit History",
-        onClick: () => setIsHistoryModalOpen(true),
-        icon: <TbArchive fontSize={15} />,
-        variant: "ghost" as const,
-        color: "default" as const,
-        className: "border-small",
-      },
-      {
-        label: "Add Practice",
-        onClick: handleOpen,
-        icon: <AiOutlinePlus fontSize={15} />,
-        variant: "solid" as const,
-        color: "primary" as const,
-        className: "bg-primary text-white",
-      },
+      ...(canAccessScheduleVisits
+        ? [
+            {
+              label: "Visit History",
+              onClick: () => setIsHistoryModalOpen(true),
+              icon: <TbArchive fontSize={15} />,
+              variant: "ghost" as const,
+              color: "default" as const,
+              className: "border-small",
+            },
+          ]
+        : []),
+      ...(!isPartnerLimitReached
+        ? [
+            {
+              label: "Add Practice",
+              onClick: handleOpen,
+              icon: <AiOutlinePlus fontSize={15} />,
+              variant: "solid" as const,
+              color: "primary" as const,
+              className: "bg-primary text-white",
+            },
+          ]
+        : []),
     ],
-    [],
+    [canAccessScheduleVisits, isPartnerLimitReached, handleOpen],
   );
 
   const STATS_CARD_DATA: StatCard[] = useMemo(
@@ -208,15 +218,43 @@ const PartnerNetwork = () => {
         headingData={{
           heading: "Partner Network",
           subHeading: "Manage relationships with referring practices",
+          buttons: HEADING_DATA_BUTTONS_LIST,
         }}
       >
+        {isPartnerLimitReached && (
+          <div className="p-4 rounded-xl border border-red-200 bg-red-50 dark:bg-red-950/20 text-red-900 dark:text-red-300 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm mb-4">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-red-100 dark:bg-red-900/40 text-red-600 dark:text-red-400 shrink-0">
+                <FiAlertTriangle className="text-xl" />
+              </div>
+              <div>
+                <h4 className="font-semibold text-sm">
+                  Referrer & Partner Limit Reached ({totalPractices}/{maxPartnerLimit})
+                </h4>
+                <p className="text-xs text-red-700 dark:text-red-400 mt-0.5">
+                  You have reached the maximum number of partner practices allowed on your current plan. Please upgrade your plan to add or connect with more practices.
+                </p>
+              </div>
+            </div>
+            <Button
+              size="sm"
+              color="danger"
+              variant="solid"
+              className="font-medium shrink-0 shadow-sm"
+              onPress={openPricingPage}
+            >
+              Upgrade Plan
+            </Button>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4 justify-between">
           {STATS_CARD_DATA.map((data) => (
             <MiniStatsCard key={data.heading} cardData={data} />
           ))}
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-2 items-start gap-4">
+        <div className={`grid grid-cols-1 ${canAccessScheduleVisits ? "xl:grid-cols-2" : "xl:grid-cols-1"} items-start gap-4`}>
           <div className="space-y-5">
             {/* --- STOPPED REFERRALS ALERT BOX --- */}
             {stoppedReferring.length > 0 && (
@@ -262,7 +300,7 @@ const PartnerNetwork = () => {
                         color="danger"
                         className="bg-white dark:bg-default-100/20 border-small dark:border-red-500/30 text-red-600 dark:text-red-400"
                         startContent={<FiBell className="size-3.5" />}
-                        onPress={() => handleAlertAction(partner.name)}
+                        onPress={() => handleAlertAction(partner._id, partner.name)}
                       >
                         Take Action
                       </Button>
@@ -289,6 +327,8 @@ const PartnerNetwork = () => {
                       onValueChange={(value: string) =>
                         handleFieldChange("search", value)
                       }
+                      isClearable
+                      onClear={() => handleFieldChange("search", "")}
                       className="text-xs min-w-fit"
                       startContent={
                         <FiSearch className="text-gray-400 dark:text-foreground/40 h-4 w-4" />
@@ -417,10 +457,12 @@ const PartnerNetwork = () => {
             </div>
           </div>
 
-          <ScheduleVisits
-            isHistoryModalOpen={isHistoryModalOpen}
-            setIsHistoryModalOpen={setIsHistoryModalOpen}
-          />
+          {canAccessScheduleVisits && (
+            <ScheduleVisits
+              isHistoryModalOpen={isHistoryModalOpen}
+              setIsHistoryModalOpen={setIsHistoryModalOpen}
+            />
+          )}
         </div>
       </ComponentContainer>
 

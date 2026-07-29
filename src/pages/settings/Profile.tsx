@@ -10,6 +10,7 @@ import { useSpecialties } from "../../hooks/useCommon";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { updateUserFirstName } from "../../store/authSlice";
 import { formatPhoneNumber } from "../../utils/formatPhoneNumber";
+import { useUpload } from "../../providers/UploadProvider";
 
 interface ProfileFormValues {
   firstName: string;
@@ -78,9 +79,9 @@ const ProfileSchema = Yup.object().shape({
         return supportedFormats.includes(value.type);
       },
     )
-    .test("fileSize", "Image file is too large (max 1MB).", (value) => {
+    .test("fileSize", "Image file is too large (max 10MB).", (value) => {
       if (!value || typeof value === "string") return true;
-      return value.size <= 1048576;
+      return value.size <= 10485760;
     }) as Yup.Schema<File | string | undefined | null>,
 });
 
@@ -88,6 +89,7 @@ const Profile = () => {
   const dispatch = useDispatch();
   const { user } = useTypedSelector((state) => state.auth);
   const userId = user?.userId || "";
+  const { addManualUpload, updateManualUploadProgress, completeManualUpload } = useUpload();
 
   const { data: fetchedUser, isLoading } = useFetchUser(userId) as any;
   const { data: specialties } = useSpecialties();
@@ -126,6 +128,15 @@ const Profile = () => {
     },
     validationSchema: ProfileSchema,
     onSubmit: (values) => {
+      const imageFile = values.image;
+      const isImageUpload = imageFile instanceof File;
+      const uploadId = Math.random().toString(36).substring(7);
+      const controller = new AbortController();
+
+      if (isImageUpload) {
+        addManualUpload(uploadId, imageFile.name, "image", controller);
+      }
+
       const data = {
         firstName: values.firstName.trim().replace(/\s+/g, " "),
         lastName: values.lastName.trim().replace(/\s+/g, " "),
@@ -135,11 +146,27 @@ const Profile = () => {
         medicalSpecialty: values.medicalSpecialty as any,
         image: values.image as any,
       };
-      updateUser(data, {
-        onSuccess(data) {
-          dispatch(updateUserFirstName({ firstName: data.firstName }));
+
+      updateUser(
+        {
+          userData: data,
+          signal: controller.signal,
+          onUploadProgress: (progressEvent) => {
+            if (isImageUpload && progressEvent.total) {
+              const percentCompleted = Math.round(
+                (progressEvent.loaded * 100) / progressEvent.total,
+              );
+              updateManualUploadProgress(uploadId, percentCompleted);
+            }
+          },
+          ...(isImageUpload && { uploadId }),
         },
-      });
+        {
+          onSuccess(data) {
+            dispatch(updateUserFirstName({ firstName: data.firstName }));
+          },
+        },
+      );
     },
   });
 
@@ -258,7 +285,7 @@ const Profile = () => {
               )}
 
               <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
-                JPG, JPEG or PNG. 1MB max.
+                JPG, JPEG or PNG. 10MB max.
               </p>
             </div>
           </div>

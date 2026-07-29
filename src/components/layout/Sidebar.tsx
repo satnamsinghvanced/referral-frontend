@@ -13,6 +13,7 @@ import { MdOutlineModeComment } from "react-icons/md";
 import { TbCheckbox } from "react-icons/tb";
 import { useDashboardStats } from "../../hooks/useDashboard";
 import { useRolePermissions } from "../../hooks/useRolePermissions";
+import { useBilling } from "../../hooks/settings/useBilling";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 import Logo from "../ui/Logo";
@@ -32,6 +33,7 @@ interface NavigationRoute {
   label?: string;
   badge?: string;
   requiredPermission?: string | string[] | undefined;
+  requiredPlanAccess?: string | undefined;
 }
 
 const Sidebar = ({
@@ -42,6 +44,8 @@ const Sidebar = ({
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { data: dashboardStats } = useDashboardStats();
+  const { data: billingData, isLoading: isBillingLoading } = useBilling();
+  const planAccess = billingData?.access;
   const { hasPermission, hasAnyPermission, isAdmin, isLoading } =
     useRolePermissions();
   const user = useSelector((state: RootState) => state.auth.user);
@@ -68,7 +72,6 @@ const Sidebar = ({
     };
   }, [queryClient]);
 
-
   const NAVIGATION_ROUTES: (NavigationRoute & {
     requiredPermission?: string | string[];
   })[] = [
@@ -91,6 +94,7 @@ const Sidebar = ({
         stats: dashboardStats?.conversations || 0,
         color: "bg-sky-100 dark:bg-sky-900/40",
         requiredPermission: "Manage Settings",
+        requiredPlanAccess: "advanced_referral_tracking",
       },
       {
         name: "Referrals",
@@ -115,6 +119,7 @@ const Sidebar = ({
         stats: dashboardStats?.reviews ?? dashboardStats?.totalReviews ?? 0,
         color: "bg-yellow-200 dark:bg-yellow-900/30",
         requiredPermission: "Manage Reviews",
+        requiredPlanAccess: "google_business",
       },
       {
         name: "Social Media",
@@ -123,6 +128,7 @@ const Sidebar = ({
         stats: 0,
         color: "bg-purple-300 dark:bg-purple-900/30",
         requiredPermission: "Manage Settings",
+        requiredPlanAccess: "social_media",
       },
       {
         name: "Marketing Calendar",
@@ -131,6 +137,7 @@ const Sidebar = ({
         stats: dashboardStats?.activities || 0,
         color: "bg-orange-300 dark:bg-orange-900/30",
         requiredPermission: "Manage Settings",
+        requiredPlanAccess: "marketing_calendar",
       },
       {
         name: "Call Tracking",
@@ -139,6 +146,7 @@ const Sidebar = ({
         stats: dashboardStats?.totalCalls || 0,
         color: "bg-sky-100 dark:bg-sky-900/40",
         requiredPermission: "Manage Settings",
+        requiredPlanAccess: "call_tracking",
       },
       {
         name: "Email Campaigns",
@@ -155,6 +163,7 @@ const Sidebar = ({
         stats: undefined,
         color: undefined,
         requiredPermission: "Manage Settings",
+        requiredPlanAccess: "advanced_referral_tracking",
       },
       {
         name: "Analytics",
@@ -163,6 +172,7 @@ const Sidebar = ({
         stats: undefined,
         color: "bg-red-300 dark:bg-red-900/30",
         requiredPermission: "View Analytics",
+        requiredPlanAccess: "basic_analytics",
       },
       {
         name: "Reports",
@@ -194,6 +204,7 @@ const Sidebar = ({
         stats: undefined,
         color: "bg-red-300 dark:bg-red-900/30",
         requiredPermission: "Manage Settings",
+        requiredPlanAccess: "budget_tracking",
       },
       {
         name: "Media Management",
@@ -232,7 +243,15 @@ const Sidebar = ({
         : []),
     ];
 
-  const filteredRoutes = NAVIGATION_ROUTES.filter((route) => {
+  const filteredRoutes = NAVIGATION_ROUTES.filter((route: any) => {
+    if (route.requiredPlanAccess) {
+      if (!planAccess) {
+        return false;
+      }
+      if (planAccess && planAccess[route.requiredPlanAccess as keyof typeof planAccess] === false) {
+        return false;
+      }
+    }
     if (isAdmin) return true;
     if (isLoading) return !route.requiredPermission;
     if (!route.requiredPermission) return true;

@@ -4,7 +4,7 @@ import { LuDownload } from "react-icons/lu";
 import VisitStatusChip from "../../../components/chips/VisitStatusChip";
 import { useCopySchedulePlan } from "../../../hooks/usePartner";
 import { SchedulePlan } from "../../../types/partner";
-import { downloadJson } from "../../../utils/jsonDownloader";
+import { generateRoutePdf } from "../../../utils/pdfRouteGenerator";
 import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 
 const CompactPlanCard: React.FC<{
@@ -33,17 +33,11 @@ const CompactPlanCard: React.FC<{
       break;
   }
 
-  const fullRouteDateTime = `${plan.route.date.split("T")[0]}T${
-    plan.route.startTime
-  }`;
+  const fullRouteDateTime = `${plan.route.date.split("T")[0]}T${plan.route.startTime
+    }`;
   const { mutate: copySchedulePlan } = useCopySchedulePlan();
   const handleExport = () => {
-    const exportData = {
-      timestamp: new Date().toISOString(),
-      reportTitle: plan.planDetails.name,
-      details: plan,
-    };
-    downloadJson(exportData, plan.planDetails.name);
+    generateRoutePdf(plan);
   };
   return (
     <Card className="p-4 rounded-lg border border-foreground/10 bg-background dark:bg-default-100/20 shadow-none flex items-start justify-between gap-4">
@@ -64,11 +58,6 @@ const CompactPlanCard: React.FC<{
         <p className="text-xs text-gray-600 dark:text-foreground/60">
           {formatDateToReadable(fullRouteDateTime as string, true)}
         </p>
-        {/* {plan.planDetails.description && (
-          <p className="text-xs text-gray-600 mt-1 truncate">
-            {plan.planDetails.description}
-          </p>
-        )} */}
       </div>
 
       <div className="md:flex md:items-start md:gap-4 md:justify-between w-full max-md:space-y-3">

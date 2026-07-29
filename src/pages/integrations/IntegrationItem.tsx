@@ -1,4 +1,5 @@
-import { Button, Chip, Switch } from "@heroui/react";
+import { Button, Chip, Switch, Spinner } from "@heroui/react";
+import { useEffect, useState } from "react";
 import { BiCheckCircle } from "react-icons/bi";
 import { FiAlertCircle, FiExternalLink, FiSettings } from "react-icons/fi";
 import { FaFacebook, FaInstagram } from "react-icons/fa6";
@@ -22,6 +23,7 @@ interface IntegrationItemProps {
   syncButtonText?: string | undefined;
   isFullyConnected?: boolean;
   isSwitchChecked?: boolean | undefined;
+  isSwitchLoading?: boolean | undefined;
   onSwitchChange?: ((checked: boolean) => void) | undefined;
   account?: {
     accountName?: string | undefined | null;
@@ -30,6 +32,7 @@ interface IntegrationItemProps {
     instagramUsername?: string | undefined | null;
   };
   connectedLocation?: string | undefined;
+  isHighlighted?: boolean;
 }
 
 const IntegrationItem: React.FC<IntegrationItemProps> = ({
@@ -51,10 +54,26 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
   syncButtonText,
   isFullyConnected,
   isSwitchChecked = status === "Connected",
+  isSwitchLoading = false,
   onSwitchChange,
   account,
   connectedLocation,
+  isHighlighted,
 }) => {
+  const [isLocalLoading, setIsLocalLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isSwitchLoading) {
+      setIsLocalLoading(false);
+    }
+  }, [isSwitchLoading, isSwitchChecked]);
+
+  const handleSwitchToggle = (checked: boolean) => {
+    setIsLocalLoading(true);
+    onSwitchChange?.(checked);
+  };
+
+  const isLoading = isSwitchLoading || isLocalLoading;
   const isCredentialsSaved = !!id;
   const showConnectedActions =
     isFullyConnected ?? isCredentialsSaved;
@@ -120,12 +139,18 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
         </Button>
       )}
       {onSwitchChange && (
-        <Switch
-          size="sm"
-          isSelected={isSwitchChecked}
-          onValueChange={onSwitchChange}
-          isDisabled={status !== "Connected" && status !== "Disconnected"}
-        />
+        isLoading ? (
+          <div className="w-10 h-6 flex items-center justify-center">
+            <Spinner size="sm" color="primary" />
+          </div>
+        ) : (
+          <Switch
+            size="sm"
+            isSelected={isSwitchChecked}
+            onValueChange={handleSwitchToggle}
+            isDisabled={status !== "Connected" && status !== "Disconnected"}
+          />
+        )
       )}
     </>
   ) : (
@@ -150,7 +175,7 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
   );
 
   return (
-    <div className="md:flex md:items-start md:justify-between py-5 first:pt-0 last:pb-4 max-md:space-y-4">
+    <div className="md:flex md:items-start md:justify-between py-5 max-md:space-y-4">
       <div className="flex items-start gap-3 max-sm:flex-col">
         <div
           className={`w-8 h-8 rounded-lg flex items-center justify-center ${iconBg} ${iconColor}`}
@@ -159,7 +184,14 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
         </div>
         <div className="flex-1">
           <div className="flex items-center gap-3 mb-2">
-            <h3 className="text-sm font-normal text-foreground">{name}</h3>
+            <h3
+              className={`text-sm transition-all duration-300 ${isHighlighted
+                ? "text-black dark:text-white font-extrabold text-base scale-105 origin-left animate-pulse"
+                : "text-foreground font-normal"
+                }`}
+            >
+              {name}
+            </h3>
             {StatusIcon}
             <Chip
               size="sm"
@@ -184,6 +216,7 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
               </Chip>
             ))}
           </div>
+
           <div className="flex items-center gap-3 mt-2 h-6">
             {status === "Connected" && account && (account.accountEmail || account.accountName) && (
               <p
@@ -211,6 +244,11 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
               </p>
             )}
           </div>
+          {lastSync && (
+            <p className="text-xs text-gray-500 dark:text-foreground/50 mt-2">
+              Last sync: {lastSync}
+            </p>
+          )}
         </div>
       </div>
       <div className="flex items-center gap-2">{actionButton}</div>

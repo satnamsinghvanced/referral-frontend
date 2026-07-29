@@ -18,8 +18,11 @@ import CampaignActionModal from "./campaigns/modal/create/CampaignActionModal";
 import Overview from "./Overview";
 import Templates from "./templates/Templates";
 import { CampaignTemplate } from "../../types/campaign";
+import { useBilling } from "../../hooks/settings/useBilling";
 
 const EmailCampaigns = () => {
+  const { data: billingData } = useBilling();
+  const planAccess = billingData?.access;
   const location = useLocation();
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState(() => {
@@ -166,9 +169,11 @@ const EmailCampaigns = () => {
                 <Campaigns />
               </Tab>
 
-              <Tab key="automation" title="Automation">
-                <Automation />
-              </Tab>
+              {planAccess?.advanced_automation !== false && (
+                <Tab key="automation" title="Automation">
+                  <Automation />
+                </Tab>
+              )}
 
               <Tab key="templates" title="Templates">
                 <Templates onUseTemplate={handleUseTemplate} />

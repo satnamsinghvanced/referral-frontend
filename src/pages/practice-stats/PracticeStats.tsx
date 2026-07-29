@@ -10,6 +10,7 @@ import {
 } from "react-icons/lu";
 import { TrendIndicator } from "../../components/common/TrendIndicator";
 import { Link } from "react-router-dom";
+import IntegrationWarningBanner from "../../components/common/IntegrationWarningBanner";
 import {
   Area,
   AreaChart,
@@ -36,14 +37,25 @@ import {
 import { useAnalyticsIntegration } from "../../hooks/integrations/useGoogleAnalytics";
 import { useGeneralAnalytics } from "../../hooks/useAnalytics";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
+import { usePlanGuard } from "../../hooks/usePlanGuard";
 import { GoogleAds } from "./GoogleAds";
 import { GoogleTrafficStats } from "./GoogleTrafficStats";
 import { MetaAds } from "./MetaAds";
-// import { TiktokAds } from "./TiktokAds";
 
 const PracticeStats: React.FC = () => {
   const { theme } = useTypedSelector((state) => state.ui);
   const { data, isLoading } = useGeneralAnalytics();
+  const { hasAccess, billingData } = usePlanGuard();
+
+  const planPrice = billingData?.price;
+  const isStarterPlan =
+    planPrice === 199 ||
+    billingData?.planId === "starter_199" ||
+    billingData?.name?.toLowerCase() === "starter";
+  const hasAdsAccess =
+    !isStarterPlan &&
+    (planPrice ? planPrice >= 399 : hasAccess("roi_analytics"));
+  const canAccessRoiAnalytics = hasAdsAccess;
 
   const { data: gaConfig, isLoading: isGaConfigLoading } =
     useAnalyticsIntegration();
@@ -61,7 +73,8 @@ const PracticeStats: React.FC = () => {
     subHeading:
       "Track your practice performance and referral trends with detailed insights.",
   };
-  const STAT_CARD_DATA = [
+
+  const ALL_STAT_CARD_DATA = [
     {
       icon: <LuUsers className="text-blue-500 dark:text-blue-400" />,
       heading: "Monthly Referrals",
@@ -119,8 +132,11 @@ const PracticeStats: React.FC = () => {
           isLoading={isLoading}
         />
       ),
+      key: "revenue_growth",
     },
   ];
+
+  const STAT_CARD_DATA = ALL_STAT_CARD_DATA;
 
   const donutData = data?.referralSources || [];
   const performanceData = data?.performanceData || [];
@@ -141,32 +157,29 @@ const PracticeStats: React.FC = () => {
       isConnected: isGaConnected,
       isLoading: isGaConfigLoading,
       label: "Google Analytics",
+      key: "google_analytics",
       message:
-        "Connect your Google Analytics property to track website traffic.",
-      to: "/integrations",
+        "Google Analytics is not connected. Connect your Google Analytics property to track website traffic.",
+      show: true,
     },
     {
       isConnected: isGoogleAdsConnected,
       isLoading: isGoogleAdsConfigLoading,
       label: "Google Ads",
-      message: "Connect your Google Ads account to track your campaigns.",
-      to: "/integrations",
+      key: "google_ads",
+      message:
+        "Google Ads is not connected. Connect your Google Ads account to track your campaigns.",
+      show: hasAdsAccess,
     },
     {
       isConnected: isMetaAdsConnected,
       isLoading: isMetaAdsConfigLoading,
       label: "Meta Ads",
+      key: "meta_ads",
       message:
-        "Connect your Meta Ads account to track your Facebook and Instagram campaigns.",
-      to: "/integrations",
+        "Meta Ads is not connected. Connect your Meta Ads account to track your Facebook and Instagram campaigns.",
+      show: hasAdsAccess,
     },
-    // {
-    //   isConnected: isTiktokConnected,
-    //   isLoading: false,
-    //   label: "TikTok Ads",
-    //   message: "Connect your TikTok Ads account to track your campaigns.",
-    //   to: "/integrations",
-    // },
   ];
 
   return (
@@ -176,37 +189,28 @@ const PracticeStats: React.FC = () => {
         <div className="space-y-3">
           {INTEGRATION_WARNINGS.map(
             (warning, idx) =>
+              warning.show &&
               !warning.isConnected &&
               !warning.isLoading && (
-                <div
+                <IntegrationWarningBanner
                   key={idx}
-                  className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-500/30 rounded-lg p-3 flex items-center justify-between flex-wrap gap-3"
-                >
-                  <p className="text-sm text-yellow-800 dark:text-amber-400">
-                    {warning.label} is not connected. {warning.message}
-                  </p>
-                  <Button
-                    as={Link}
-                    to={warning.to}
-                    size="sm"
-                    color="warning"
-                    variant="flat"
-                    className="bg-yellow-200 dark:bg-amber-500/20 text-yellow-800 dark:text-amber-400"
-                  >
-                    Connect {warning.label}
-                  </Button>
-                </div>
+                  platformName={warning.label}
+                  integrationKey={warning.key}
+                  message={warning.message}
+                />
               ),
           )}
         </div>
 
         <div className="space-y-4 md:space-y-5">
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
-            {STAT_CARD_DATA.map((data, i) => (
-              <MiniStatsCard key={i} cardData={data} />
+            {STAT_CARD_DATA.map((card, i) => (
+              <MiniStatsCard key={i} cardData={card} />
             ))}
           </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Referral Sources Distribution */}
             <Card
               shadow="none"
               className="border border-foreground/10 bg-white dark:bg-background p-4 md:p-5"
@@ -253,6 +257,7 @@ const PracticeStats: React.FC = () => {
               </CardBody>
             </Card>
 
+            {/* Performance Trends */}
             <Card
               shadow="none"
               className="border border-foreground/10 bg-white dark:bg-background p-4 md:p-5"
@@ -320,6 +325,7 @@ const PracticeStats: React.FC = () => {
               </CardBody>
             </Card>
 
+            {/* Weekly Activity Overview */}
             <Card
               shadow="none"
               className="border border-foreground/10 bg-white dark:bg-background p-4 md:p-5 md:col-span-2"
@@ -387,11 +393,13 @@ const PracticeStats: React.FC = () => {
             </Card>
           </div>
 
-          {(isGaConnected || isGoogleAdsConnected || isMetaAdsConnected) && (
+          {(isGaConnected ||
+            (isGoogleAdsConnected && hasAdsAccess) ||
+            (isMetaAdsConnected && hasAdsAccess)) && (
             <div className="space-y-6 md:space-y-10 mt-6">
               {isGaConnected && <GoogleTrafficStats />}
-              {isGoogleAdsConnected && <GoogleAds />}
-              {isMetaAdsConnected && <MetaAds />}
+              {isGoogleAdsConnected && hasAdsAccess && <GoogleAds />}
+              {isMetaAdsConnected && hasAdsAccess && <MetaAds />}
             </div>
           )}
         </div>

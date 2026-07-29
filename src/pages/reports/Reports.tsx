@@ -21,9 +21,10 @@ import { LoadingState } from "../../components/common/LoadingState";
 import Pagination from "../../components/common/Pagination";
 import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
 import { EVEN_PAGINATION_LIMIT } from "../../consts/consts";
-import { CATEGORIES, FREQUENCIES } from "../../consts/reports";
+import { CATEGORIES, FREQUENCIES, getFilteredCategories } from "../../consts/reports";
 import { useDebouncedValue } from "../../hooks/common/useDebouncedValue";
 import { useReports, useUpdateReport, useDeleteReport } from "../../hooks/useReports";
+import { usePlanGuard } from "../../hooks/usePlanGuard";
 import { Report } from "../../types/reports";
 import GenerateNewReport from "./GenerateNewReport";
 import SampleReports from "./SampleReports";
@@ -35,6 +36,14 @@ const Reports = () => {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [reportToDelete, setReportToDelete] = useState<Report | null>(null);
+
+  const { hasAccess, billingData, openPricingPage } = usePlanGuard();
+  const planPrice = billingData?.price;
+  const isStarterPlan =
+    planPrice === 199 ||
+    billingData?.planId === "starter_199" ||
+    billingData?.name?.toLowerCase() === "starter";
+  const categoriesList = getFilteredCategories(isStarterPlan);
 
   const [filters, setFilters] = useState({
     search: "",
@@ -245,7 +254,10 @@ const Reports = () => {
       <ComponentContainer headingData={HEADING_DATA}>
         <div className="flex flex-col gap-4 md:gap-5">
           <div className="space-y-4 md:space-y-5">
-            <SampleReports />
+            <SampleReports
+              isStarterPlan={isStarterPlan}
+              openPricingPage={openPricingPage}
+            />
             <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
               {STAT_CARD_DATA.map((data, i) => (
                 <MiniStatsCard key={i} cardData={data} />
@@ -284,7 +296,7 @@ const Reports = () => {
                   <SelectItem key="" className="capitalize">
                     All Categories
                   </SelectItem>
-                  {CATEGORIES.map((category) => (
+                  {categoriesList.map((category) => (
                     <SelectItem key={category.key} className="capitalize">
                       {category.label}
                     </SelectItem>
@@ -473,6 +485,7 @@ const Reports = () => {
         isOpen={isNewReportModalOpen}
         onClose={() => setIsNewReportModalOpen(false)}
         practice={null}
+        isStarterPlan={isStarterPlan}
       />
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}

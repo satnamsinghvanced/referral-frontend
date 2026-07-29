@@ -8,6 +8,7 @@ import {
   getGoogleBusinessAuthUrl,
   getGoogleBusinessIntegration,
   getGoogleBusinessLocations,
+  IGoogleBusinessIntegration,
   saveWindsorCredentials,
   SaveWindsorCredentialsPayload,
   syncGoogleBusinessProfiles,
@@ -24,7 +25,7 @@ export const BUSINESS_KEYS = {
 };
 
 export const useBusinessIntegration = (options?: any) => {
-  return useQuery({
+  return useQuery<IGoogleBusinessIntegration>({
     queryKey: BUSINESS_KEYS.details(),
     queryFn: getGoogleBusinessIntegration,
     ...options,

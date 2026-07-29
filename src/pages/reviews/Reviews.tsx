@@ -1,10 +1,14 @@
+import { useMemo } from "react";
 import { Tab, Tabs } from "@heroui/react";
 import { FiMessageSquare, FiStar, FiWifi } from "react-icons/fi";
 import { LuQrCode } from "react-icons/lu";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import { TrendIndicator } from "../../components/common/TrendIndicator";
+import IntegrationWarningBanner from "../../components/common/IntegrationWarningBanner";
 import { useGBPOverview } from "../../hooks/useReviews";
+import { useBusinessIntegration } from "../../hooks/integrations/useGoogleBusiness";
+import { useFetchNFCDesks } from "../../hooks/useNFCDesk";
 import LatestReviews from "./LatestReviews";
 import Locations from "./Locations";
 import ManageTags from "./ManageTags";
@@ -17,8 +21,42 @@ const Reviews = () => {
       "Monitor reviews, track NFC/QR analytics, and manage your online reputation across all locations.",
   };
 
-  const { data, isLoading } = useGBPOverview();
+  const { data: googleBusinessConfig, isLoading: isGoogleBusinessLoading } =
+    useBusinessIntegration();
+  const isGoogleBusinessConnected = Boolean(
+    googleBusinessConfig && googleBusinessConfig.status === "Connected"
+  );
+
+  const { data, isLoading: isOverviewLoading } = useGBPOverview();
+  const { data: nfcDeskData, isLoading: isNfcLoading } = useFetchNFCDesks(1, 100);
   const stats = data?.stats;
+  const nfcTags = nfcDeskData?.data || [];
+
+  const isLoading = isOverviewLoading || isNfcLoading;
+
+  const computedNfcInteractions = useMemo(() => {
+    const nfcSum = nfcTags
+      .filter((tag: any) => {
+        const type = (tag.type || "").toLowerCase();
+        const url = (tag.url || "").toLowerCase();
+        return type === "nfc" || (!type && url.includes("/nfc/"));
+      })
+      .reduce((acc: number, tag: any) => acc + (Number(tag.totalTap) || 0), 0);
+    const backendVal = stats?.nfc?.nfcInteractions || 0;
+    return Math.max(nfcSum, backendVal);
+  }, [nfcTags, stats?.nfc?.nfcInteractions]);
+
+  const computedQrScans = useMemo(() => {
+    const qrSum = nfcTags
+      .filter((tag: any) => {
+        const type = (tag.type || "").toLowerCase();
+        const url = (tag.url || "").toLowerCase();
+        return type === "qr" || url.includes("/qr/") || (type !== "nfc" && !url.includes("/nfc/"));
+      })
+      .reduce((acc: number, tag: any) => acc + (Number(tag.totalTap) || 0), 0);
+    const backendVal = stats?.qr?.qrScans || 0;
+    return Math.max(qrSum, backendVal);
+  }, [nfcTags, stats?.qr?.qrScans]);
 
   const STATS_CARD_DATA = [
     {
@@ -48,7 +86,7 @@ const Reviews = () => {
     {
       icon: <FiWifi className="h-full w-full text-orange-500" />,
       heading: "NFC Interactions",
-      value: isLoading ? "..." : stats?.nfc?.nfcInteractions || 0,
+      value: isLoading ? "..." : computedNfcInteractions,
       subheading: (
         <TrendIndicator
           percentage={stats?.nfc?.nfcInteractionsGrowth}
@@ -59,7 +97,7 @@ const Reviews = () => {
     {
       icon: <LuQrCode className="h-full w-full text-blue-500" />,
       heading: "QR Code Scans",
-      value: isLoading ? "..." : stats?.qr?.qrScans || 0,
+      value: isLoading ? "..." : computedQrScans,
       subheading: (
         <TrendIndicator
           percentage={stats?.qr?.qrScansGrowth}
@@ -73,6 +111,13 @@ const Reviews = () => {
     <>
       <ComponentContainer headingData={HEADING_DATA}>
         <div className="flex flex-col gap-4 md:gap-5">
+          {!isGoogleBusinessConnected && !isGoogleBusinessLoading && (
+            <IntegrationWarningBanner
+              platformName="Google Review"
+              integrationKey="google_business"
+              message="Google Review is not connected. Connect your Google Business account to manage your reviews."
+            />
+          )}
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4 justify-between">
             {STATS_CARD_DATA.map((card, index) => (
               <MiniStatsCard key={index} cardData={card} />

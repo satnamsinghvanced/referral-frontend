@@ -177,6 +177,7 @@ export interface PartnerPractice {
 }
 
 export interface StoppedReferringPartner {
+  _id: string;
   name: string;
   lastReferralDate: string;
   totalDays: number;

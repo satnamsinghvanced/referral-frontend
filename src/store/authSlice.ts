@@ -121,6 +121,13 @@ const authSlice = createSlice({
       state.isAuthenticated = false;
       localStorage.removeItem("user");
       localStorage.removeItem("token");
+      try {
+        Object.keys(localStorage).forEach((key) => {
+          if (key.startsWith("cached_billing_data")) {
+            localStorage.removeItem(key);
+          }
+        });
+      } catch (e) {}
     },
     clearError: (state) => {
       state.error = null;
