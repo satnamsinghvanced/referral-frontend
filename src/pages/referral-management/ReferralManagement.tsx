@@ -352,18 +352,18 @@ const ReferralManagement = () => {
         },
         ...(!isReferrerLimitReached
           ? [
-              {
-                label: "Add Referrer",
-                onClick: () => {
-                  setIsModalOpen(true);
-                  setReferrerEditId("");
-                },
-                icon: <AiOutlinePlus fontSize={15} />,
-                variant: "solid",
-                color: "primary",
-                className: "tour-step-add-referrer-btn",
+            {
+              label: "Add Referrer",
+              onClick: () => {
+                setIsModalOpen(true);
+                setReferrerEditId("");
               },
-            ]
+              icon: <AiOutlinePlus fontSize={15} />,
+              variant: "solid",
+              color: "primary",
+              className: "tour-step-add-referrer-btn",
+            },
+          ]
           : []),
       ],
     }),
@@ -665,7 +665,7 @@ const ReferralManagement = () => {
                     variant="solid"
                     className="font-medium shrink-0 shadow-sm"
                     onPress={() => {
-                      const wordpressUrl = import.meta.env.VITE_WORDPRESS_BASE_URL || "https://practiceroi.com";
+                      const wordpressUrl = import.meta.env.WORDPRESS_BASE_URL || "https://practiceroi.com";
                       const cleanUrl = wordpressUrl.replace(/\/$/, "");
                       window.open(`${cleanUrl}/pricing`, "_blank");
                     }}

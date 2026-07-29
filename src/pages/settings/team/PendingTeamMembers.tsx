@@ -56,6 +56,10 @@ const PendingTeamMembers = () => {
     });
   };
 
+  if (!membersIsLoading && (!pendingMembers || pendingMembers.length === 0)) {
+    return null;
+  }
+
   return (
     <Card
       shadow="none"

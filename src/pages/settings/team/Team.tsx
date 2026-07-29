@@ -231,9 +231,9 @@ const Team: React.FC = () => {
               {mainAdmin && (
                 <div className="md:flex md:items-center md:justify-between max-md:space-y-4 p-3 border border-foreground/10 rounded-lg gap-2">
                   <div className="flex items-center gap-2.5">
-                    {mainAdmin.avatar ? (
+                    {mainAdmin.avatar || (mainAdmin as any).image || (mainAdmin as any).profileImage ? (
                       <img
-                        src={mainAdmin.avatar}
+                        src={mainAdmin.avatar || (mainAdmin as any).image || (mainAdmin as any).profileImage}
                         alt={mainAdmin.firstName || "Admin"}
                         className="size-9 rounded-full object-cover"
                       />
@@ -282,16 +282,16 @@ const Team: React.FC = () => {
                     className="md:flex md:items-center md:justify-between max-md:space-y-4 p-3 border border-foreground/10 rounded-lg gap-2"
                   >
                     <div className="flex items-center gap-2.5">
-                      {member.avatar ? (
+                      {member.avatar || (member as any).image || (member as any).profileImage ? (
                         <img
-                          src={member.avatar}
+                          src={member.avatar || (member as any).image || (member as any).profileImage}
                           alt={member.firstName}
                           className="size-9 rounded-full object-cover"
                         />
                       ) : (
                         <div className="size-9 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-sm font-medium text-gray-600 dark:text-gray-300">
-                          {member.firstName.charAt(0)}
-                          {member.lastName.charAt(0)}
+                          {member.firstName ? member.firstName.charAt(0).toUpperCase() : "U"}
+                          {member.lastName ? member.lastName.charAt(0).toUpperCase() : ""}
                         </div>
                       )}
                       <div className="space-y-1">

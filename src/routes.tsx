@@ -72,6 +72,7 @@ const Profile = React.lazy(() => import("./pages/settings/Profile"));
 const AdminList = React.lazy(() => import("./pages/superadmin/AdminList"));
 const AdminDetails = React.lazy(() => import("./pages/superadmin/AdminDetails"));
 const SignIn = React.lazy(() => import("./pages/auth/SignIn"));
+const SubscriptionErrorPage = React.lazy(() => import("./pages/auth/SubscriptionErrorPage"));
 const SuperAdminSignIn = React.lazy(() => import("./pages/auth/SuperAdminSignIn"));
 const Support = React.lazy(() => import("./pages/support/SupportPage"));
 const Terms = React.lazy(() => import("./pages/terms/TermsPage"));
@@ -331,6 +332,14 @@ function AppRoutes() {
       element: (
         <PublicRoute>
           <SignIn />
+        </PublicRoute>
+      ),
+    },
+    {
+      path: "subscription-error",
+      element: (
+        <PublicRoute>
+          <SubscriptionErrorPage />
         </PublicRoute>
       ),
     },

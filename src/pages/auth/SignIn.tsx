@@ -80,6 +80,29 @@ const SignIn = () => {
               navigate("/");
             }
           },
+          onError: (error: any) => {
+            const errorMessage =
+              (error.response?.data as { message?: string })?.message ||
+              error.message ||
+              "Failed to login";
+            const lowerMsg = errorMessage.toLowerCase();
+            const isSubscriptionOrInactive =
+              lowerMsg.includes("inactive") ||
+              lowerMsg.includes("subscription") ||
+              lowerMsg.includes("expired") ||
+              lowerMsg.includes("plan") ||
+              lowerMsg.includes("contact support") ||
+              error.response?.status === 402;
+
+            if (isSubscriptionOrInactive) {
+              navigate("/subscription-error", {
+                state: {
+                  message: errorMessage,
+                  email: values.email,
+                },
+              });
+            }
+          },
         },
       );
     },

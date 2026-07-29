@@ -86,7 +86,21 @@ const AdminDetails: React.FC = () => {
               teamMembers.map((member: any) => (
                 <tr key={member._id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{member.firstName} {member.lastName}</div>
+                    <div className="flex items-center gap-3">
+                      {member.avatar || member.image || member.profileImage ? (
+                        <img
+                          src={member.avatar || member.image || member.profileImage}
+                          alt={member.firstName || "Member"}
+                          className="size-8 rounded-full object-cover shrink-0"
+                        />
+                      ) : (
+                        <div className="size-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center text-xs font-semibold shrink-0">
+                          {(member.firstName?.charAt(0) || member.name?.charAt(0) || "U").toUpperCase()}
+                          {(member.lastName?.charAt(0) || "").toUpperCase()}
+                        </div>
+                      )}
+                      <div className="text-sm font-medium text-gray-900">{member.firstName} {member.lastName}</div>
+                    </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {member.email}

@@ -1,7 +1,18 @@
-import { Button, Input, Select, SelectItem, Skeleton } from "@heroui/react";
+import {
+  Button,
+  Input,
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  Select,
+  SelectItem,
+  Skeleton,
+} from "@heroui/react";
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
-import { FiUser, FiX } from "react-icons/fi";
+import { FiCamera, FiTrash2, FiUpload, FiUser, FiX } from "react-icons/fi";
 import { useDispatch } from "react-redux";
 import * as Yup from "yup";
 import { EMAIL_REGEX, NAME_REGEX, PHONE_REGEX } from "../../consts/consts";
@@ -97,6 +108,7 @@ const Profile = () => {
 
   const [previewUrl, setPreviewUrl] = useState("");
   const [imageLoaded, setImageLoaded] = useState(false);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
 
   useEffect(() => {
     if (fetchedUser?.image) {
@@ -217,8 +229,18 @@ const Profile = () => {
           </h4>
 
           <div className="flex items-center gap-4 mb-6">
-            <div className="relative size-20">
-              <div className="size-full overflow-hidden rounded-full border border-foreground/10 bg-default-50 flex items-center justify-center relative">
+            <div className="relative size-20 group">
+              <div
+                className="size-full overflow-hidden rounded-full border border-foreground/10 bg-default-50 flex items-center justify-center relative cursor-pointer hover:opacity-95 transition-all shadow-sm"
+                onClick={() => {
+                  if (previewUrl) {
+                    setIsImageModalOpen(true);
+                  } else {
+                    document.getElementById("profileImage")?.click();
+                  }
+                }}
+                title={previewUrl ? "Click to view photo" : "Click to upload photo"}
+              >
                 {isLoading ? (
                   <Skeleton className="absolute inset-0 size-full" />
                 ) : previewUrl ? (
@@ -233,9 +255,14 @@ const Profile = () => {
                     {!imageLoaded && (
                       <Skeleton className="absolute inset-0 size-full" />
                     )}
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
+                      <FiCamera className="size-6 drop-shadow-md" />
+                    </div>
                   </>
                 ) : (
-                  <FiUser className="size-8 text-default-400" />
+                  <div className="flex flex-col items-center justify-center text-default-400 group-hover:text-primary transition-colors">
+                    <FiUser className="size-8" />
+                  </div>
                 )}
               </div>
               {previewUrl && !isLoading && (
@@ -245,7 +272,7 @@ const Profile = () => {
                   variant="solid"
                   color="danger"
                   radius="full"
-                  className="absolute top-1 right-0 size-5 min-w-0 h-5 z-10 p-0 shadow-sm border border-white dark:border-default-100"
+                  className="absolute top-0 right-0 size-5 min-w-0 h-5 z-10 p-0 shadow-md border border-white dark:border-default-100"
                   onPress={handleRemoveImage}
                   title="Remove photo"
                 >
@@ -360,6 +387,83 @@ const Profile = () => {
           </div>
         </form>
       </div>
+
+      <Modal
+        isOpen={isImageModalOpen}
+        onClose={() => setIsImageModalOpen(false)}
+        size="md"
+        placement="center"
+        classNames={{
+          base: "bg-background border border-foreground/10 text-foreground rounded-2xl shadow-2xl overflow-hidden",
+          closeButton: "top-4 right-4 text-foreground/60 hover:text-foreground hover:bg-default-100 transition-colors p-1.5 rounded-lg z-20",
+        }}
+      >
+        <ModalContent className="p-4 sm:p-6 space-y-4">
+          <ModalHeader className="p-0 border-b border-foreground/10 pb-3 flex items-center justify-between">
+            <h3 className="text-lg font-semibold text-foreground tracking-tight">
+              Profile Photo
+            </h3>
+          </ModalHeader>
+
+          <ModalBody className="p-0 flex flex-col items-center justify-center py-2">
+            {previewUrl ? (
+              <div className="relative size-64 sm:size-72 rounded-2xl overflow-hidden border border-foreground/10 shadow-lg bg-default-50 flex items-center justify-center">
+                <img
+                  src={previewUrl}
+                  alt="Profile Large"
+                  className="size-full object-cover"
+                />
+              </div>
+            ) : (
+              <div className="size-48 rounded-full bg-default-100 flex items-center justify-center">
+                <FiUser className="size-20 text-default-400" />
+              </div>
+            )}
+          </ModalBody>
+
+          <ModalFooter className="p-0 pt-2 flex items-center justify-between gap-2 border-t border-foreground/10">
+            <div className="flex items-center gap-2">
+              <Button
+                size="sm"
+                color="danger"
+                variant="flat"
+                className="bg-red-50 text-red-600 border border-red-200/60 dark:bg-red-950/30 dark:text-red-400 dark:border-red-900/40 hover:!bg-red-600 hover:!text-white transition-all cursor-pointer font-medium shadow-sm"
+                startContent={<FiTrash2 className="size-4" />}
+                onPress={() => {
+                  handleRemoveImage();
+                  setIsImageModalOpen(false);
+                }}
+                isDisabled={!previewUrl}
+              >
+                Remove Photo
+              </Button>
+              <Button
+                size="sm"
+                color="primary"
+                variant="solid"
+                className="font-medium shadow-sm bg-primary text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer"
+                startContent={<FiUpload className="size-4" />}
+                onPress={() => {
+                  setIsImageModalOpen(false);
+                  setTimeout(() => {
+                    document.getElementById("profileImage")?.click();
+                  }, 100);
+                }}
+              >
+                Change Photo
+              </Button>
+            </div>
+            <Button
+              size="sm"
+              variant="bordered"
+              className="border-foreground/20 text-foreground hover:bg-default-100 dark:hover:bg-default-100 transition-all cursor-pointer font-medium"
+              onPress={() => setIsImageModalOpen(false)}
+            >
+              Close
+            </Button>
+          </ModalFooter>
+        </ModalContent>
+      </Modal>
     </>
   );
 };
