@@ -219,6 +219,7 @@ export default function LatestReviews() {
       reviewReply: r.isResponded ? { comment: r.replyText } : null,
       isRatingOnly: !r.open_graph_story?.message,
       platform: "Facebook",
+      
       viewUrl: r.redirectLink,
     };
   });
