@@ -66,7 +66,7 @@ export default function Checkout() {
   const baseCost = typeParam === "twilio_credits" ? creditsCost : activePlan.price;
 
   let twilioPlanName = "Starter";
-  if (packageParam === "1000") {  
+  if (packageParam === "1000") {
     twilioPlanName = "Growth";
   } else if (packageParam === "2500") {
     twilioPlanName = "Scale";
