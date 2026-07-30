@@ -97,6 +97,7 @@ export default function GoogleCalendarConfigModal({
             description: "Calendar selected for sync.",
             color: "success",
           });
+          onClose();
         },
       },
     );

@@ -21,6 +21,7 @@ interface ViewTemplateModalProps {
   onClose: () => void;
   template: CampaignTemplate | null;
   onUseTemplate: (template: CampaignTemplate) => void;
+  onEditTemplate?: (template: CampaignTemplate) => void;
 }
 
 const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
@@ -28,6 +29,7 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
   onClose,
   template,
   onUseTemplate,
+  onEditTemplate,
 }) => {
   const toggleFavoriteMutation = useToggleFavoriteTemplate();
 
@@ -123,9 +125,15 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
                       size="sm"
                       radius="sm"
                       startContent={
-                        <FiHeart
-                          className={`size-3.5 ${displayTemplate!.isFavorite ? "fill-current" : ""}`}
-                        />
+                        !(
+                          toggleFavoriteMutation.isPending &&
+                          toggleFavoriteMutation.variables ===
+                            displayTemplate?._id
+                        ) && (
+                          <FiHeart
+                            className={`size-3.5 ${displayTemplate!.isFavorite ? "fill-current" : ""}`}
+                          />
+                        )
                       }
                       className={`font-medium border-small ${
                         !displayTemplate!.isFavorite
@@ -140,6 +148,18 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
                       }
                     >
                       {displayTemplate!.isFavorite ? "Favorited" : "Favorite"}
+                    </Button>
+                    <Button
+                      variant="bordered"
+                      size="sm"
+                      radius="sm"
+                      className="font-medium border-small border-default-200 text-gray-600 dark:text-foreground bg-background"
+                      onPress={() => {
+                        onEditTemplate?.(displayTemplate!);
+                        onClose();
+                      }}
+                    >
+                      Edit Template
                     </Button>
                     <Button
                       color="primary"

@@ -35,6 +35,7 @@ import {
   updateAudience,
   updateAutomation,
   updateCampaign,
+  updateCampaignTemplate,
 } from "../services/campaign";
 import {
   AnalyticsFilter,
@@ -57,6 +58,7 @@ export function useCampaignTemplates(filters: CampaignFilters) {
   return useQuery({
     queryKey: CAMPAIGN_KEYS.list(filters),
     queryFn: () => getCampaignTemplates(filters),
+    staleTime: 30_000, // serve cached data for 30s before background refetch
   });
 }
 
@@ -114,6 +116,28 @@ export function useDeleteCampaignTemplate() {
       addToast({
         title: "Error",
         description: "Failed to delete template",
+        color: "danger",
+      });
+    },
+  });
+}
+
+export function useUpdateCampaignTemplate(id: string) {
+  return useMutation({
+    mutationFn: (payload: FormData) => updateCampaignTemplate(id, payload),
+    onSuccess: () => {
+      addToast({
+        title: "Success",
+        description: "Template updated successfully",
+        color: "success",
+      });
+      queryClient.invalidateQueries({ queryKey: CAMPAIGN_KEYS.all });
+    },
+    onError: (error: any) => {
+      addToast({
+        title: "Error",
+        description:
+          error.response?.data?.message || "Failed to update template",
         color: "danger",
       });
     },

@@ -9,7 +9,7 @@ import {
   Select,
   SelectItem,
 } from "@heroui/react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { FaRegStar } from "react-icons/fa";
 import { FiEye, FiHeart, FiSearch, FiTrash2 } from "react-icons/fi";
@@ -25,6 +25,7 @@ import {
   useCreateCampaignTemplate,
   useToggleFavoriteTemplate,
   useDeleteCampaignTemplate,
+  useUpdateCampaignTemplate,
 } from "../../../hooks/useCampaign";
 import { useDebouncedValue } from "../../../hooks/common/useDebouncedValue";
 import { CampaignFilters, CampaignTemplate } from "../../../types/campaign";
@@ -70,6 +71,15 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
   const [templateToDelete, setTemplateToDelete] =
     useState<CampaignTemplate | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [editingTemplate, setEditingTemplate] =
+    useState<CampaignTemplate | null>(null);
+  const [isChangingFilter, setIsChangingFilter] = useState(false);
+  const [prevFilters, setPrevFilters] = useState({
+    category: INITIAL_FILTERS.category,
+    filter: INITIAL_FILTERS.filter,
+    page: INITIAL_FILTERS.page,
+    search: "",
+  });
 
   const handleDeleteClick = (template: CampaignTemplate) => {
     setTemplateToDelete(template);
@@ -96,19 +106,45 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
   const debouncedSearch = useDebouncedValue(searchQuery, 500);
 
   // Queries
-  const { data, isLoading } = useCampaignTemplates({
+  const { data, isLoading, isFetching } = useCampaignTemplates({
     ...currentFilters,
     search: debouncedSearch,
   });
+
+  // Track user filter changes to show loading spinner
+  useEffect(() => {
+    const filtersChanged =
+      currentFilters.category !== prevFilters.category ||
+      currentFilters.filter !== prevFilters.filter ||
+      currentFilters.page !== prevFilters.page ||
+      debouncedSearch !== prevFilters.search;
+
+    if (filtersChanged) {
+      setIsChangingFilter(true);
+      setPrevFilters({
+        category: currentFilters.category,
+        filter: currentFilters.filter,
+        page: currentFilters.page,
+        search: debouncedSearch || "",
+      });
+    }
+  }, [currentFilters, debouncedSearch, prevFilters]);
+
+  useEffect(() => {
+    if (!isFetching) {
+      setIsChangingFilter(false);
+    }
+  }, [isFetching]);
 
   usePaginationAdjustment({
     totalPages: data?.pagination?.totalPages || 0,
     currentPage: currentFilters.page || 1,
     onPageChange: (page) => handleFilterChange("page", page),
-    isLoading,
+    isLoading: isLoading || isChangingFilter,
   });
 
   const createMutation = useCreateCampaignTemplate();
+  const updateMutation = useUpdateCampaignTemplate(editingTemplate?._id || "");
   const toggleFavoriteMutation = useToggleFavoriteTemplate();
   const deleteMutation = useDeleteCampaignTemplate();
 
@@ -158,11 +194,20 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
       values.secondaryButtonText,
     );
 
-    createMutation.mutate(formData, {
-      onSuccess: () => {
-        setIsModalOpen(false);
-      },
-    });
+    if (editingTemplate) {
+      updateMutation.mutate(formData, {
+        onSuccess: () => {
+          setIsModalOpen(false);
+          setEditingTemplate(null);
+        },
+      });
+    } else {
+      createMutation.mutate(formData, {
+        onSuccess: () => {
+          setIsModalOpen(false);
+        },
+      });
+    }
   };
 
   const templates = data?.templates || [];
@@ -260,7 +305,10 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
                 color="primary"
                 className="flex-1"
                 startContent={<AiOutlinePlus className="size-[15px]" />}
-                onPress={() => setIsModalOpen(true)}
+                onPress={() => {
+                  setEditingTemplate(null);
+                  setIsModalOpen(true);
+                }}
               >
                 Create Template
               </Button>
@@ -271,8 +319,12 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
 
       <CreateTemplateModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => {
+          setIsModalOpen(false);
+          setEditingTemplate(null);
+        }}
         onSubmit={handleCreateTemplate}
+        initialData={editingTemplate}
       />
 
       <ViewTemplateModal
@@ -282,6 +334,10 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
         onUseTemplate={(template) => {
           handleUseTemplate(template);
           setIsViewModalOpen(false);
+        }}
+        onEditTemplate={(template) => {
+          setEditingTemplate(template);
+          setIsModalOpen(true);
         }}
       />
 
@@ -325,7 +381,7 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
         </ModalContent>
       </Modal>
 
-      {isLoading ? (
+      {isLoading || isChangingFilter ? (
         <div className="flex justify-center py-20">
           <LoadingState />
         </div>
@@ -427,9 +483,14 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
                         color={template.isFavorite ? "danger" : "default"}
                         className={`border-small ${template.isFavorite ? "border-danger bg-danger-400/10 text-danger-500" : ""}`}
                         startContent={
-                          <FiHeart
-                            className={`size-3.5 ${template.isFavorite ? "fill-current" : ""}`}
-                          />
+                          !(
+                            toggleFavoriteMutation.isPending &&
+                            toggleFavoriteMutation.variables === template._id
+                          ) && (
+                            <FiHeart
+                              className={`size-3.5 ${template.isFavorite ? "fill-current" : ""}`}
+                            />
+                          )
                         }
                         isIconOnly
                         isLoading={
