@@ -550,7 +550,7 @@ const LeadTracking = () => {
         ) : view === "automations" ? (
           <LeadAutomations onBack={() => setView("pipeline")} />
         ) : view === "pipeline" ? (
-          <div className="w-full overflow-x-auto h-full min-h-[600px]">
+          <div className="w-full overflow-x-auto h-full min-h-[480px]">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4  lg:min-w-0 h-fit">
                   {stages.map((stage: any) => {
                     const styles = getStageStyles(stage.id);

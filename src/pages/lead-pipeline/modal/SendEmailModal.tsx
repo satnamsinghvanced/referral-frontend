@@ -6,13 +6,14 @@ import {
   ModalContent,
   ModalFooter,
   ModalHeader,
-  Textarea,
   Chip,
+  addToast,
 } from "@heroui/react";
 import { useFormik } from "formik";
 import { HiOutlineMail, HiOutlineInbox } from "react-icons/hi";
 import * as Yup from "yup";
 import { useSendLeadEmail } from "../../../hooks/useLeadPipeline";
+import QuillEditor from "../../../components/editor/QuillEditor";
 
 interface SendEmailModalProps {
   isOpen: boolean;
@@ -34,10 +35,11 @@ const SendEmailModal = ({ isOpen, onOpenChange, lead }: SendEmailModalProps) => 
     body: Yup.string().required("Email body is required"),
   });
 
-  const formik = useFormik({
+  const formik = useFormik<{ subject: string; body: string; attachments: File[] }>({
     initialValues: {
       subject: "",
       body: "",
+      attachments: [],
     },
     validationSchema,
     enableReinitialize: true,
@@ -48,6 +50,7 @@ const SendEmailModal = ({ isOpen, onOpenChange, lead }: SendEmailModalProps) => 
           id: lead.id || lead._id || "",
           subject: values.subject,
           body: values.body,
+          attachments: values.attachments,
         });
         onOpenChange(false);
         resetForm();
@@ -128,27 +131,88 @@ const SendEmailModal = ({ isOpen, onOpenChange, lead }: SendEmailModalProps) => 
                   }}
                   isRequired
                 />
-                <Textarea
-                  label="Message Body"
-                  labelPlacement="outside"
-                  placeholder="Type your email content here..."
-                  variant="flat"
-                  size="sm"
-                  radius="md"
-                  minRows={6}
-                  name="body"
-                  value={formik.values.body}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  isInvalid={!!(formik.touched.body && formik.errors.body)}
-                  errorMessage={
-                    formik.touched.body && (formik.errors.body as string)
-                  }
-                  classNames={{
-                    inputWrapper: "bg-default-100 hover:bg-default-200 focus-within:!bg-default-100 transition-colors",
-                  }}
-                  isRequired
-                />
+                <div className="space-y-1">
+                  <label className="text-xs font-semibold text-foreground">
+                    Message Body <span className="text-danger">*</span>
+                  </label>
+                  <QuillEditor
+                    value={formik.values.body}
+                    onChange={(val) => formik.setFieldValue("body", val)}
+                    placeholder="Type your email content here..."
+                    enableImage={false}
+                  />
+                  {formik.touched.body && formik.errors.body && (
+                    <span className="text-xs text-danger">{formik.errors.body as string}</span>
+                  )}
+                </div>
+
+                <div className="space-y-2 pt-2">
+                  <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                    <span>Attachments</span>
+                    <span className="text-[10px] text-default-400 font-normal">
+                      (Max size: 10MB per file)
+                    </span>
+                  </label>
+                  <input
+                    type="file"
+                    multiple
+                    className="hidden"
+                    id="email-attachments"
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files || []);
+                      const validFiles: File[] = [];
+                      let hasOverSized = false;
+
+                      for (const file of files) {
+                        if (file.size > 10 * 1024 * 1024) {
+                          hasOverSized = true;
+                        } else {
+                          validFiles.push(file);
+                        }
+                      }
+
+                      if (hasOverSized) {
+                        addToast({
+                          title: "File too large",
+                          description: "Some files exceed the maximum size of 10 MB and were not added.",
+                          color: "danger",
+                        });
+                      }
+
+                      if (validFiles.length > 0) {
+                        formik.setFieldValue("attachments", [
+                          ...(formik.values.attachments || []),
+                          ...validFiles,
+                        ]);
+                      }
+                    }}
+                  />
+                  <div className="flex flex-wrap gap-2 items-center">
+                    <Button
+                      size="sm"
+                      variant="bordered"
+                      className="border-dashed border-foreground/10 text-default-600 font-medium"
+                      onPress={() => document.getElementById("email-attachments")?.click()}
+                    >
+                      Choose Files...
+                    </Button>
+                    {(formik.values.attachments || []).map((file: File, index: number) => (
+                      <Chip
+                        key={index}
+                        variant="flat"
+                        size="sm"
+                        onClose={() => {
+                          const updated = [...(formik.values.attachments || [])];
+                          updated.splice(index, 1);
+                          formik.setFieldValue("attachments", updated);
+                        }}
+                        className="text-xs max-w-xs truncate"
+                      >
+                        {file.name} ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                      </Chip>
+                    ))}
+                  </div>
+                </div>
               </div>
             </ModalBody>
             <ModalFooter className="px-5 pb-5 pt-3">

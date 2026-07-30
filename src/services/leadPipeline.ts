@@ -30,12 +30,26 @@ export const sendLeadEmail = async ({
   id,
   subject,
   body,
+  attachments,
 }: {
   id: string;
   subject: string;
   body: string;
+  attachments?: File[];
 }): Promise<any> => {
-  const response = await axios.post(`/lead/send-email/${id}`, { subject, body });
+  const formData = new FormData();
+  formData.append("subject", subject);
+  formData.append("body", body);
+  if (attachments && attachments.length > 0) {
+    attachments.forEach((file) => {
+      formData.append("attachments", file);
+    });
+  }
+  const response = await axios.post(`/lead/send-email/${id}`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
   return response.data;
 };
 
@@ -93,6 +107,11 @@ export const sendLeadQuote = async ({
 
 export const getLeadCommunicationHistory = async (id: string): Promise<any> => {
   const response = await axios.get(`/lead/communication-history/${id}`);
+  return response.data;
+};
+
+export const deleteLeadCommunicationHistory = async (id: string, type: string): Promise<any> => {
+  const response = await axios.delete(`/lead/communication-history/${id}`, { params: { type } });
   return response.data;
 };
 

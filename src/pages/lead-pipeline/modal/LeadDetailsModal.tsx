@@ -13,6 +13,7 @@ import {
   Tab,
   Tabs,
   Textarea,
+  Spinner,
 } from "@heroui/react";
 import { useState } from "react";
 import {
@@ -49,22 +50,13 @@ interface LeadDetailsModalProps {
   onDelete?: (lead: any) => void;
 }
 
-const orangeItemClasses = {
-  base: [
-    "data-[hover=true]:!bg-orange-100",
-    "data-[hover=true]:!text-orange-600",
-    "data-[selected=true]:!bg-orange-100",
-    "data-[selected=true]:!text-orange-600",
-    "data-[focus=true]:!bg-orange-100",
-    "data-[focus=true]:!text-orange-600",
-  ],
-};
+
 
 import { useFormik } from "formik";
 import PriorityLevelChip from "../../../components/chips/PriorityLevelChip";
 import ReferralStatusChip from "../../../components/chips/ReferralStatusChip";
 import { LEAD_PRIORITIES, LEAD_STATUSES } from "../../../consts/lead-pipeline";
-import { useUpdateLead, useLeadCommunicationHistory, useSendLeadSms } from "../../../hooks/useLeadPipeline";
+import { useUpdateLead, useLeadCommunicationHistory, useSendLeadSms, useDeleteLeadCommunicationHistory } from "../../../hooks/useLeadPipeline";
 import { useFetchCallRecords } from "../../../hooks/useCall";
 import { timeAgo as formatTimeAgo } from "../../../utils/timeAgo";
 
@@ -110,6 +102,19 @@ const LeadDetailsModal = ({
   const [activeTab, setActiveTab] = useState<string>("overview");
   const [smsBody, setSmsBody] = useState("");
   const { mutateAsync: sendSms, isPending: sendingSms } = useSendLeadSms();
+  const { mutateAsync: deleteCommunication } = useDeleteLeadCommunicationHistory();
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const handleDeleteCommunication = async (id: string, type: string) => {
+    setDeletingId(id);
+    try {
+      await deleteCommunication({ id, type });
+    } catch (error) {
+      // Handled by hook
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const handleSendSms = async () => {
     if (!smsBody.trim()) return;
@@ -125,7 +130,7 @@ const LeadDetailsModal = ({
   };
 
   const parsedNotes = parseNotes(lead?.notes || "");
-  const { data: communicationData, isLoading: loadingHistory } = useLeadCommunicationHistory(lead?.id || lead?._id);
+  const { data: communicationData, isLoading: loadingHistory, isFetching: fetchingHistory } = useLeadCommunicationHistory(lead?.id || lead?._id);
   const communicationHistory = communicationData?.data || communicationData || [];
   const formik = useFormik({
     initialValues: {
@@ -241,29 +246,6 @@ const LeadDetailsModal = ({
                         </span>
                       </span>
                     </div>
-                  </div>
-                  <div className="flex gap-2 mr-6">
-                    {formik.dirty && (
-                      <>
-                        <Button
-                          size="sm"
-                          variant="light"
-                          onPress={() => {
-                            formik.resetForm();
-                          }}
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          size="sm"
-                          color="primary"
-                          onPress={() => formik.handleSubmit()}
-                          isLoading={updating}
-                        >
-                          Save Changes
-                        </Button>
-                      </>
-                    )}
                   </div>
                 </div>
               </ModalHeader>
@@ -409,7 +391,6 @@ const LeadDetailsModal = ({
                               // variant=""
                               className="bg-default-100 data-[hover=true]:bg-default-200 rounded-small"
                               size="sm"
-                              listboxProps={{ itemClasses: orangeItemClasses }}
                               startContent={
                                 loadingTeam ? (
                                   <LuBriefcase className="text-default-400 size-4 animate-pulse mr-1" />
@@ -546,9 +527,10 @@ const LeadDetailsModal = ({
                         </div>
                         <Button
                           fullWidth
+                          variant="flat"
                           color="secondary"
-                          className="font-bold bg-purple-400 text-white px-1"
-                          startContent={<HiOutlineInbox />}
+                          className="font-bold bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 px-1 border border-purple-200/20 dark:border-purple-800/30 hover:bg-purple-200/50 dark:hover:bg-purple-900/50"
+                          startContent={<HiOutlineInbox className="text-purple-800 dark:text-purple-300" />}
                           onPress={() => setIsSendEmailOpen(true)}
                         >
                           <span className="truncate">{lead.email ? lead.email : "Email"}</span>
@@ -565,15 +547,22 @@ const LeadDetailsModal = ({
                           variant="flat"
                           value={smsBody}
                           onChange={(e) => setSmsBody(e.target.value)}
-                          maxLength={160}
+                          maxLength={200}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && !e.shiftKey) {
+                              e.preventDefault();
+                              handleSendSms();
+                            }
+                          }}
                         />
                         <div className="flex justify-between items-center text-[10px] text-gray-400 dark:text-foreground/40">
-                          <span>{smsBody.length}/160</span>
+                          <span>{smsBody.length}/200</span>
                           <Button
                             size="sm"
+                            variant="flat"
                             color="success"
-                            className="font-bold text-white bg-green-400 dark:bg-green-500"
-                            startContent={<HiOutlineChat />}
+                            className="font-bold bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border border-green-200/20 dark:border-green-800/30 hover:bg-green-200/50 dark:hover:bg-green-900/50"
+                            startContent={!sendingSms && <HiOutlineChat className="text-green-800 dark:text-green-300" />}
                             onPress={handleSendSms}
                             isLoading={sendingSms}
                             isDisabled={!smsBody.trim() || sendingSms}
@@ -590,9 +579,10 @@ const LeadDetailsModal = ({
                           </h3>
                         </div>
                         <div className="p-4 border border-foreground/10 rounded-xl bg-content1/50 dark:bg-content1/20">
-                          {loadingHistory ? (
-                            <div className="p-8 text-center text-xs text-gray-400 dark:text-foreground/45 font-medium">
-                              Loading communication history...
+                          {loadingHistory || fetchingHistory ? (
+                            <div className="p-8 flex flex-col items-center justify-center gap-2 text-xs text-gray-400 dark:text-foreground/45 font-medium">
+                              <Spinner size="sm" color="primary" />
+                              <span>Loading communication history...</span>
                             </div>
                           ) : communicationHistory.length === 0 ? (
                             <div className="p-6 text-center border border-dashed border-foreground/10 rounded-xl bg-gray-50/50 dark:bg-white/5">
@@ -608,7 +598,7 @@ const LeadDetailsModal = ({
                                 return (
                                   <div
                                     key={record._id}
-                                    className="p-3 border border-foreground/10 rounded-xl bg-gray-50 dark:bg-white/5 flex gap-4 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors"
+                                    className="p-3 border border-foreground/10 rounded-xl bg-gray-50 dark:bg-white/5 flex gap-4 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors relative group"
                                   >
                                     <div className={`p-2 rounded-full h-fit ${isEmail
                                       ? "bg-purple-50 dark:bg-purple-900/30 text-purple-500 dark:text-purple-400"
@@ -631,14 +621,21 @@ const LeadDetailsModal = ({
                                         <h5 className="font-bold text-sm text-foreground">
                                           {isEmail ? "Sent Email" : isSms ? (isIncoming ? "Received SMS" : "Sent SMS") : (isIncoming ? "Inbound Call" : "Outbound Call")}
                                         </h5>
-                                        <span className="text-[10px] text-gray-400 dark:text-foreground/40 font-medium">
+                                        <span className="text-[10px] text-gray-400 dark:text-foreground/40 font-medium pr-8">
                                           {timeAgoStr}
                                         </span>
                                       </div>
                                       {isEmail ? (
-                                        <p className="text-xs text-gray-500 dark:text-foreground/60 font-medium">
-                                          To: <span className="font-semibold">{lead.email}</span>
-                                        </p>
+                                        <div className="space-y-0.5">
+                                          <p className="text-xs text-gray-500 dark:text-foreground/60 font-medium">
+                                            To: <span className="font-semibold">{lead.email}</span>
+                                          </p>
+                                          {record.subject && (
+                                            <p className="text-xs text-gray-500 dark:text-foreground/60 font-medium">
+                                              Subject: <span className="font-semibold text-gray-700 dark:text-foreground/85">{record.subject}</span>
+                                            </p>
+                                          )}
+                                        </div>
                                       ) : isSms ? (
                                         <p className="text-xs text-gray-500 dark:text-foreground/60 font-medium">
                                           Recipient: <span className="font-semibold">{record.recipient || lead.phone}</span>
@@ -648,7 +645,7 @@ const LeadDetailsModal = ({
                                           Status: <span className="font-semibold capitalize">{record.status}</span> &bull; Duration: {record.duration}
                                         </p>
                                       )}
-                                      {record.body && (
+                                      {record.body && !isEmail && (
                                         <p className="text-xs text-gray-650 dark:text-foreground/80 whitespace-pre-wrap mt-1 bg-white/5 p-1.5 rounded-md leading-relaxed border border-foreground/5 font-normal">
                                           {record.body}
                                         </p>
@@ -664,6 +661,18 @@ const LeadDetailsModal = ({
                                         </p>
                                       )}
                                     </div>
+                                    <Button
+                                      isIconOnly
+                                      size="sm"
+                                      variant="light"
+                                      color="danger"
+                                      className={`${deletingId === record._id ? "opacity-100" : "opacity-0 group-hover:opacity-100"} transition-opacity absolute right-3 top-3 h-7 w-7 min-w-0`}
+                                      onPress={() => handleDeleteCommunication(record._id, record.type)}
+                                      title="Delete Record"
+                                      isLoading={deletingId === record._id}
+                                    >
+                                      <HiOutlineTrash className="size-4" />
+                                    </Button>
                                   </div>
                                 );
                               })}
@@ -850,17 +859,47 @@ const LeadDetailsModal = ({
                   </Tab>
                 </Tabs>
               </ModalBody>
-              {onDelete && (
-                <ModalFooter className="flex justify-end p-4 border-t border-foreground/5 dark:border-white/5 bg-gray-50/10 dark:bg-white/5">
-                  <Button
-                    color="danger"
-                    variant="flat"
-                    size="sm"
-                    startContent={<HiOutlineTrash className="size-4" />}
-                    onPress={() => onDelete(lead)}
-                  >
-                    Delete Lead
-                  </Button>
+
+              {(onDelete || formik.dirty) && (
+                <ModalFooter className="flex justify-between items-center p-4 border-t border-foreground/5 dark:border-white/5 bg-gray-50/10 dark:bg-white/5">
+                  {onDelete ? (
+                    <Button
+                      isIconOnly
+                      color="danger"
+                      variant="flat"
+                      size="sm"
+                      onPress={() => onDelete(lead)}
+                      title="Delete Lead"
+                    >
+                      <HiOutlineTrash className="size-4" />
+                    </Button>
+                  ) : (
+                    <div />
+                  )}
+
+                  <div className="flex gap-2">
+                    {formik.dirty && (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="light"
+                          onPress={() => {
+                            formik.resetForm();
+                          }}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          size="sm"
+                          color="primary"
+                          onPress={() => formik.handleSubmit()}
+                          isLoading={updating}
+                        >
+                          Save Changes
+                        </Button>
+                      </>
+                    )}
+                  </div>
                 </ModalFooter>
               )}
             </>
