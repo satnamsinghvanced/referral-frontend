@@ -11,10 +11,10 @@ import { useGlobalSearch } from "../../hooks/useDashboard";
 import { useDebounce } from "../../hooks/useDebounce";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { AppDispatch } from "../../store";
-import { handleLogoutThunk } from "../../store/authSlice";
 import { timeAgo } from "../../utils/timeAgo";
 import { LoadingState } from "../common/LoadingState";
 import NotificationPopover from "../ui/NotificationsPopover";
+import LogoutConfirmationModal from "../common/LogoutConfirmationModal";
 
 export default function Header({
   hamburgerMenuClick,
@@ -27,6 +27,7 @@ export default function Header({
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounce(query, 500);
   const [isOpen, setIsOpen] = useState(false);
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const { data: results, isLoading } = useGlobalSearch({ q: debouncedQuery });
   const searchContainerRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -48,7 +49,7 @@ export default function Header({
     };
   }, [isOpen]);
   const handleLogout = () => {
-    dispatch(handleLogoutThunk());
+    setIsLogoutModalOpen(true);
   };
   return (
     <Navbar
@@ -273,6 +274,10 @@ export default function Header({
           </Dropdown>
         </div>
       </NavbarContent>
+      <LogoutConfirmationModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+      />
     </Navbar>
   );
 }

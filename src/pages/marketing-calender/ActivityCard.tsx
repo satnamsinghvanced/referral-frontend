@@ -56,7 +56,7 @@ export function ActivityCard({ activity, onView }: ActivityCardProps) {
             <div className="flex items-center gap-1.5">
               <LuCalendar fontSize={14} />
               <p className="flex items-center space-x-1 text-xs">
-                <span>{formatDateToReadable(startDate, true, true)}</span>
+                <span>{formatDateToReadable(startDate, true)}</span>
               </p>
             </div>
           )}

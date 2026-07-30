@@ -50,7 +50,7 @@ const MarketingCalendar = () => {
   }, [googleCalendarConfig]);
   const [currentFilters, setCurrentFilters] = useState<any>({
     page: 1,
-    limit: 21,
+    limit: 200,
     search: "",
     type: "all",
   });
@@ -185,18 +185,18 @@ const MarketingCalendar = () => {
     },
     ...(canTrackBudget
       ? [
-          {
-            icon: <MdOutlineRemoveRedEye className="text-orange-600" />,
-            heading: "Total Budget",
-            value: formatNumberWithCommas(stats?.totalBudget as number),
-            subheading: (
-              <p className="text-orange-600 dark:text-orange-400 flex items-center gap-1.5">
-                <LuUsers fontSize={15} />
-                Combined budget
-              </p>
-            ),
-          },
-        ]
+        {
+          icon: <MdOutlineRemoveRedEye className="text-orange-600" />,
+          heading: "Total Budget",
+          value: formatNumberWithCommas(stats?.totalBudget as number),
+          subheading: (
+            <p className="text-orange-600 dark:text-orange-400 flex items-center gap-1.5">
+              <LuUsers fontSize={15} />
+              Combined budget
+            </p>
+          ),
+        },
+      ]
       : []),
   ];
   const filteredActivities = sortedActivities.filter((activity: any) => {
@@ -280,7 +280,7 @@ const MarketingCalendar = () => {
                     <LuCalendar fontSize={14} />
                     <p className="flex items-center space-x-1 text-xs">
                       <span>
-                        {formatDateToReadable(activity.startDate, true, true)}
+                        {formatDateToReadable(activity.startDate, true)}
                       </span>
                     </p>
                   </div>
@@ -334,6 +334,7 @@ const MarketingCalendar = () => {
                 <CustomCalendar
                   weekendDisabled={false}
                   disablePastDates={false}
+                  onDayClick={(date) => setSelectedDate(date)}
                   onRangeSelect={(start, end) => {
                     setSelectedDate(start.toISOString());
                     setSelectedEndDate(

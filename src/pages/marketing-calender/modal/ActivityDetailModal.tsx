@@ -72,12 +72,12 @@ export function ActivityDetailModal({ isOpen, onClose, activity, onEdit, onDelet
           <div className="grid grid-cols-2 gap-4">
             <DetailItem
               label="Start Date"
-              value={formatDateToReadable(activity.startDate, true, true)}
+              value={formatDateToReadable(activity.startDate, true)}
             />
             {activity.endDate ? (
               <DetailItem
                 label="End Date"
-                value={formatDateToReadable(activity.endDate, true, true)}
+                value={formatDateToReadable(activity.endDate, true)}
               />
             ) : (
               <DetailItem label="End Date" value="Same Day" />

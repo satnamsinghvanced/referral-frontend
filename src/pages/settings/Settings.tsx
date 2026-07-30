@@ -1,4 +1,5 @@
 import clsx from "clsx";
+import { useState } from "react";
 import { Outlet } from "react-router";
 import ComponentContainer from "../../components/common/ComponentContainer";
 
@@ -6,11 +7,12 @@ import { FaRegBell } from "react-icons/fa";
 import { FiCreditCard, FiUser, FiUsers } from "react-icons/fi";
 import { GrLocation } from "react-icons/gr";
 import { HiOutlineCog } from "react-icons/hi";
-import { LuShield } from "react-icons/lu";
+import { LuLogOut, LuShield } from "react-icons/lu";
 import { NavLink } from "react-router-dom";
 import { BiDevices } from "react-icons/bi";
 
 import { useRolePermissions } from "../../hooks/useRolePermissions";
+import LogoutConfirmationModal from "../../components/common/LogoutConfirmationModal";
 
 type NavigationItem = {
   name: string;
@@ -51,6 +53,7 @@ const NAVIGATION_ROUTES: NavigationItem[] = [
 ];
 
 const Settings = () => {
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const { hasPermission, hasAnyPermission, isAdmin, isLoading } =
     useRolePermissions();
 
@@ -117,12 +120,30 @@ const Settings = () => {
                 </li>
               );
             })}
+            <li className="pt-1.5 mt-1.5 border-t border-foreground/10">
+              <button
+                type="button"
+                onClick={() => setIsLogoutModalOpen(true)}
+                className="w-full rounded-md transition-all group flex items-center py-2 px-3 h-9 cursor-pointer border border-transparent hover:bg-gray-100 dark:hover:bg-foreground/5 text-foreground"
+              >
+                <span className="flex items-center justify-center text-gray-500 dark:text-gray-400">
+                  <LuLogOut className="text-[16px]" />
+                </span>
+                <span className="ml-2 truncate text-[12px]">
+                  Log Out
+                </span>
+              </button>
+            </li>
           </ul>
         </div>
         <div className="w-full">
           <Outlet />
         </div>
       </div>
+      <LogoutConfirmationModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+      />
     </ComponentContainer>
   );
 };

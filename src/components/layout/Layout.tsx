@@ -61,8 +61,10 @@ const Layout = () => {
     return (
       <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background transition-opacity duration-300">
         <div className="flex flex-col items-center gap-6">
-          <Logo style={{ height: "48px" }} className="animate-pulse" />
-          <div className="flex items-center gap-2 text-xs font-semibold tracking-wide text-foreground/70 uppercase">
+          <Logo style={{ height: "100px" }} className="animate-pulse" />
+          <div className="flex items-center gap-2 text-XXL font-semibold tracking-wide text-foreground/70 uppercase">
+            <span className="w-2 h-2 rounded-full bg-sky-500 animate-ping" />
+            <span className="w-2 h-2 rounded-full bg-sky-500 animate-ping" />
             <span className="w-2 h-2 rounded-full bg-sky-500 animate-ping" />
             <span>Loading Workspace...</span>
           </div>
