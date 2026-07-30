@@ -12,6 +12,7 @@ import {
   reorderLeads,
   deleteLead,
   exportLeadsPDF,
+  deleteLeadCommunicationHistory,
 } from "../services/leadPipeline";
 
 export const useLeadStatus = (params?: any) => {
@@ -199,6 +200,25 @@ export const useSendLeadSms = () => {
       addToast({
         title: "Error",
         description: error?.response?.data?.message || "Failed to send SMS",
+        color: "danger",
+      });
+    },
+  });
+};
+
+export const useDeleteLeadCommunicationHistory = () => {
+  return useMutation({
+    mutationFn: ({ id, type }: { id: string; type: string }) =>
+      deleteLeadCommunicationHistory(id, type),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["leadCommunicationHistory"] });
+    },
+    onError: (error: any) => {
+      addToast({
+        title: "Error",
+        description:
+          error?.response?.data?.message ||
+          "Failed to delete communication record",
         color: "danger",
       });
     },

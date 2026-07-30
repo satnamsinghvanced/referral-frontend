@@ -132,6 +132,10 @@ function Integrations() {
     isLoading: isGoogleCalendarConfigLoading,
     isError: isGoogleCalendarConfigError,
   } = useCalendarIntegration();
+  const rawCalendarData = (googleCalendarExistingConfig as any)?.data ?? googleCalendarExistingConfig;
+  const googleCalendarConfig = Array.isArray(rawCalendarData)
+    ? rawCalendarData[0]
+    : rawCalendarData;
   const { mutate: updateGoogleCalendarIntegration, isPending: isUpdatingGoogleCalendar } = useUpdateCalendar();
   const { mutate: connectCalendar } = useConnectCalendar();
   const { data: emailExistingConfig, isLoading: isEmailConfigLoading } =
@@ -324,7 +328,18 @@ function Integrations() {
         const normPlatform = platform?.toLowerCase().replace(/[\s_]/g, "");
         if (normPlatform === "googlebusiness") {
           setIsGoogleBusinessLocationModalOpen(true);
-        } else if (normPlatform === "meta" || normPlatform === "youtube") {
+        } else if (normPlatform === "googlecalendar") {
+          setSelectedCalendarConfig(googleCalendarConfig);
+          setIsGoogleCalendarConfigModalOpen(true);
+        } else if (normPlatform === "googleads") {
+          setIsGoogleAdsAccountModalOpen(true);
+        } else if (normPlatform === "metaads") {
+          setIsMetaAdsAccountModalOpen(true);
+        } else if (normPlatform === "googleanalytics") {
+          setIsGoogleAnalyticsPropertyModalOpen(true);
+        } else if (normPlatform === "twilio") {
+          setIsTwilioIntegrationModalOpen(true);
+        } else if (normPlatform === "meta" || normPlatform === "youtube" || normPlatform === "linkedin" || normPlatform === "tiktok") {
           setSelectorPlatform(normPlatform as SocialPlatformType);
           setIsSelectorOpen(true);
         }
@@ -347,13 +362,13 @@ function Integrations() {
         { replace: true }
       );
       queryClient.invalidateQueries({ queryKey: ["email-integration"] });
-      queryClient.invalidateQueries({ queryKey: ["googleCalendar"] });
-      queryClient.invalidateQueries({ queryKey: ["googleAds"] });
-      queryClient.invalidateQueries({ queryKey: ["googleAnalytics"] });
+      queryClient.invalidateQueries({ queryKey: ["calendar-integration"] });
+      queryClient.invalidateQueries({ queryKey: ["google-ads-integration"] });
+      queryClient.invalidateQueries({ queryKey: ["analytics-integration"] });
       queryClient.invalidateQueries({ queryKey: BUSINESS_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     }
-  }, [searchParams, setSearchParams, queryClient]);
+  }, [searchParams, setSearchParams, queryClient, googleCalendarConfig]);
 
   const {
     data: googleAnalyticsConfig,
@@ -373,10 +388,7 @@ function Integrations() {
   const sendGridConfig = emailConfigsList.find(
     (cfg: any) => cfg && typeof cfg === "object" && cfg.provider === "SendGrid"
   );
-  const rawCalendarData = (googleCalendarExistingConfig as any)?.data ?? googleCalendarExistingConfig;
-  const googleCalendarConfig = Array.isArray(rawCalendarData)
-    ? rawCalendarData[0]
-    : rawCalendarData;
+
   const HEADING_DATA = {
     heading: "Integrations",
     subHeading:
@@ -1003,7 +1015,7 @@ function Integrations() {
         userId={userId as string}
         isOpen={isGoogleCalendarConfigModalOpen}
         onClose={() => setIsGoogleCalendarConfigModalOpen(false)}
-        existingConfig={selectedCalendarConfig}
+        existingConfig={selectedCalendarConfig || googleCalendarConfig}
         isLoading={isGoogleCalendarConfigLoading}
         isError={isGoogleCalendarConfigError}
       />
