@@ -44,7 +44,8 @@ export const exportAccountData = async (): Promise<any> => {
 };
 
 export const deleteAccount = async (payload?: { otp?: string }): Promise<ActionResponse> => {
-  const response = await axios.delete("/users/delete-account", { data: payload });
+  const dataPayload = payload && typeof payload === "object" && typeof payload.otp === "string" ? { otp: payload.otp } : undefined;
+  const response = await axios.delete("/users/delete-account", { data: dataPayload });
   return response as any;
 };
 

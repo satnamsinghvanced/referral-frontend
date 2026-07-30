@@ -63,6 +63,18 @@ export const useGetReferralById = (id: string) =>
     queryKey: ["referrals", id],
     queryFn: () => getReferralById(id),
     enabled: !!id,
+    initialData: () => {
+      if (!id) return undefined;
+      const cachedQueries = queryClient.getQueriesData<ReferralsResponse>({ queryKey: ["referrals"] });
+      for (const [_, data] of cachedQueries) {
+        if (data?.data && Array.isArray(data.data)) {
+          const found = data.data.find((item: Referral) => item._id === id);
+          if (found) return found;
+        }
+      }
+      return undefined;
+    },
+    staleTime: 60 * 1000,
   });
 
 export const useCreateReferral = () =>
@@ -156,6 +168,18 @@ export const useGetReferrerById = (id: string) =>
     queryKey: ["referrers", id],
     queryFn: () => getReferrerById(id),
     enabled: !!id,
+    initialData: () => {
+      if (!id) return undefined;
+      const cachedQueries = queryClient.getQueriesData<ReferrersResponse>({ queryKey: ["referrers"] });
+      for (const [_, data] of cachedQueries) {
+        if (data?.data && Array.isArray(data.data)) {
+          const found = data.data.find((item: Referrer) => item._id === id);
+          if (found) return found;
+        }
+      }
+      return undefined;
+    },
+    staleTime: 60 * 1000,
   });
 
 export const useCreateReferrer = () =>

@@ -153,7 +153,7 @@ const PlaybackTab = ({ data }: { data: CallRecord }) => (
               variant="bordered"
               className="capitalize text-blue-600 dark:text-blue-400 border-blue-200 dark:border-blue-500/30 text-[11px] h-5 bg-blue-50/50 dark:bg-blue-900/10 border-small"
             >
-              Twilio
+              Phone Service
             </Chip>
           </div>
         </div>
@@ -162,7 +162,7 @@ const PlaybackTab = ({ data }: { data: CallRecord }) => (
             <AudioPlayer url={data.recordingUrl.startsWith("http") ? `/twilio-record/${data._id}/recording` : data.recordingUrl} callDuration={data.duration} />
           ) : (
             <div className="text-center text-sm text-gray-500 dark:text-foreground/40 py-4">
-              No recording available on twilio.
+              No recording available.
             </div>
           )}
         </div>

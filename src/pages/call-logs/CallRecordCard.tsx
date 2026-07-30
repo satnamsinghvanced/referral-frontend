@@ -45,7 +45,7 @@ export default function CallRecordCard({ record, onPlayClick }: {
         <div className="space-y-2">
           <div className="flex items-center space-x-2">
             <h3 className="font-medium text-foreground text-sm">
-              {record.contact?.name || record.contact?.phone || "Twilio"}
+              {record.contact?.name || record.contact?.phone || "Phone Service"}
             </h3>
             <CallStatusChip status={record.status} />
           </div>
@@ -75,44 +75,53 @@ export default function CallRecordCard({ record, onPlayClick }: {
         </div>
       </div>
       <div className="flex items-center space-x-4 max-sm:justify-between max-sm:w-full">
-        <div className="text-right text-sm text-gray-600 dark:text-foreground/60 space-y-1.5">
-          <div className="flex items-center justify-end space-x-1">
-            <FiClock className="h-3 w-3" aria-hidden="true" />
-            <span className="text-xs">{record.duration}s</span>
-          </div>
-        </div>
-        <div className="flex space-x-2">
-          <Button
-            size="sm"
-            variant="bordered"
-            className="border-small px-0 !min-w-8"
-            aria-label="Play recording"
-            onPress={onPlayClick}
-          >
-            <FiPlay className="size-3.5" />
-          </Button>
-          <Link to="https://www.twilio.com/login" target="_blank">
+        {record.recordingUrl ? (
+          <>
+            <div className="text-right text-sm text-gray-600 dark:text-foreground/60 space-y-1.5">
+              <div className="flex items-center justify-end space-x-1">
+                <FiClock className="h-3 w-3" aria-hidden="true" />
+                <span className="text-xs">{record.duration}</span>
+              </div>
+            </div>
+            <div className="flex space-x-2">
+              <Button
+                size="sm"
+                variant="bordered"
+                className="border-small px-0 !min-w-8"
+                aria-label="Play recording"
+                onPress={onPlayClick}
+              >
+                <FiPlay className="size-3.5" />
+              </Button>
+              <Button
+                size="sm"
+                variant="bordered"
+                color="danger"
+                className="border-small px-0 !min-w-8 text-danger hover:bg-danger/10"
+                aria-label="Delete call record"
+                onPress={() => setIsDeleteModalOpen(true)}
+              >
+                <LuTrash2 className="size-3.5" />
+              </Button>
+            </div>
+          </>
+        ) : (
+          <div className="flex items-center space-x-3">
+            <span className="text-xs text-gray-500 dark:text-foreground/40 italic">
+              No recording available
+            </span>
             <Button
               size="sm"
               variant="bordered"
-              className="border-small px-0 !min-w-8"
-              aria-label="External Link"
+              color="danger"
+              className="border-small px-0 !min-w-8 text-danger hover:bg-danger/10"
+              aria-label="Delete call record"
+              onPress={() => setIsDeleteModalOpen(true)}
             >
-              <FiExternalLink className="size-3.5" />
+              <LuTrash2 className="size-3.5" />
             </Button>
-          </Link>
-          <Button
-            size="sm"
-            variant="bordered"
-            color="danger"
-            className="border-small px-0 !min-w-8 text-danger hover:bg-danger/10"
-            aria-label="Delete call record"
-            onPress={() => setIsDeleteModalOpen(true)}
-            isLoading={isDeleting}
-          >
-            <LuTrash2 className="size-3.5" />
-          </Button>
-        </div>
+          </div>
+        )}
       </div>
       </div>
       <DeleteConfirmationModal

@@ -13,6 +13,7 @@ interface UploadState {
   controller: AbortController;
   type: "image" | "video" | "media";
   isHidden?: boolean;
+  onCancel?: (() => void) | undefined;
 }
 
 interface UploadContextType {
@@ -20,7 +21,13 @@ interface UploadContextType {
   cancelUpload: (id: string) => void;
   removeUpload: (id: string) => void;
   activeUploads: UploadState[];
-  addManualUpload: (id: string, fileName: string, type: "image" | "video" | "media", controller?: AbortController) => void;
+  addManualUpload: (
+    id: string,
+    fileName: string,
+    type: "image" | "video" | "media",
+    controller?: AbortController,
+    onCancel?: () => void
+  ) => void;
   updateManualUploadProgress: (id: string, progress: number) => void;
   completeManualUpload: (id: string, status: "completed" | "error" | "cancelled") => void;
 }
@@ -37,6 +44,7 @@ export const useUpload = () => {
 export const UploadProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [activeUploads, setActiveUploads] = useState<UploadState[]>([]);
   const uploadsRef = useRef<Record<string, UploadState>>({});
+
   const startUpload = async (data: UploadMediaRequest, fileName: string, type: "image" | "video" | "media") => {
     const id = Math.random().toString(36).substring(7);
     const controller = new AbortController();
@@ -96,29 +104,57 @@ export const UploadProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       }, 5000);
     }
   };
-  const cancelUpload = (id: string) => {
-    const upload = activeUploads.find((u) => u.id === id);
-    if (upload && upload.status === "uploading") {
-      upload.controller.abort();
-    }
-  };
-  const removeUpload = (id: string) => {
+
+  const cancelUpload = useCallback((id: string) => {
+    setActiveUploads((prev) => {
+      const upload = prev.find((u) => u.id === id);
+      if (upload) {
+        if (upload.controller) {
+          try {
+            upload.controller.abort();
+          } catch (e) {}
+        }
+        if (upload.onCancel) {
+          try {
+            upload.onCancel();
+          } catch (e) {}
+        }
+      }
+      return prev.map((u) => (u.id === id ? { ...u, status: "cancelled" } : u));
+    });
+    setTimeout(() => {
+      setActiveUploads((prev) => prev.filter((u) => u.id !== id));
+    }, 2000);
+  }, []);
+
+  const removeUpload = useCallback((id: string) => {
+    cancelUpload(id);
     setActiveUploads((prev) =>
       prev.map((u) => (u.id === id ? { ...u, isHidden: true } : u))
     );
-  };
+  }, [cancelUpload]);
 
-  const addManualUpload = useCallback((id: string, fileName: string, type: "image" | "video" | "media", controller?: AbortController) => {
-    const newUpload: UploadState = {
-      id,
-      fileName,
-      progress: 0,
-      status: "uploading",
-      controller: controller || new AbortController(),
-      type,
-    };
-    setActiveUploads((prev) => [...prev, newUpload]);
-  }, []);
+  const addManualUpload = useCallback(
+    (
+      id: string,
+      fileName: string,
+      type: "image" | "video" | "media",
+      controller?: AbortController,
+      onCancel?: () => void
+    ) => {
+      const newUpload: UploadState = {
+        id,
+        fileName,
+        progress: 0,
+        status: "uploading",
+        controller: controller || new AbortController(),
+        type,
+        onCancel,
+      };
+      setActiveUploads((prev) => [...prev, newUpload]);
+    },
+    []
+  );
 
   const updateManualUploadProgress = useCallback((id: string, progress: number) => {
     setActiveUploads((prev) =>

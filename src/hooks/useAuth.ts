@@ -161,7 +161,7 @@ export function useExportReviewsPDFMutation() {
 
 export function useDeleteAccount() {
   return useMutation({
-    mutationFn: deleteAccount,
+    mutationFn: (payload?: { otp?: string }) => deleteAccount(payload),
     onSuccess: () => {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
@@ -172,7 +172,7 @@ export function useDeleteAccount() {
       addToast({
         title: "Error",
         description:
-          (error.response?.data as any)?.message || "Failed to delete account",
+          (error.response?.data as any)?.message || error.message || "Failed to delete account",
         color: "danger",
       });
     },

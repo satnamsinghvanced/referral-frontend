@@ -43,17 +43,15 @@ const LogoutConfirmationModal = ({
       isDismissable={!isLoading}
       hideCloseButton
       classNames={{
-        base: "bg-gradient-to-b from-[#eaf2ff] via-[#f4f8ff] to-white dark:from-[#182030] dark:via-[#131926] dark:to-[#0f131c] border border-blue-100/60 dark:border-zinc-800 shadow-2xl rounded-[28px] max-w-[340px] overflow-hidden",
+        base: "bg-gradient-to-b from-[#eaf2ff] via-[#f4f8ff] to-white dark:from-[#182030] dark:via-[#131926] dark:to-[#0f131c] border border-blue-100/60 dark:border-zinc-800 shadow-2xl rounded-[10px] max-w-[350px] overflow-hidden",
       }}
     >
       <ModalContent>
         <ModalBody className="flex flex-col items-center justify-center p-7 text-center">
-          {/* Centered Circular Icon */}
           <div className="w-16 h-16 rounded-full bg-[#e2ecfd] dark:bg-[#1e293b] flex items-center justify-center mb-4 shrink-0 shadow-inner">
             <LuLogOut className="text-2xl text-[#1e293b] dark:text-[#93c5fd] stroke-[2]" />
           </div>
 
-          {/* Heading & Subtitle */}
           <h3 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight mb-1.5">
             Logout
           </h3>
@@ -61,7 +59,6 @@ const LogoutConfirmationModal = ({
             Are you sure you want to logout?
           </p>
 
-          {/* Actions */}
           <div className="flex items-center justify-between gap-3 w-full pt-1">
             <Button
               size="md"
