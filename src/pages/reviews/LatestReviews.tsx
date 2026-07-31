@@ -234,12 +234,11 @@ export default function LatestReviews() {
     };
   });
 
-  const allReviews = [...gbpReviews, ...fbReviews].sort(
+  const allReviews = [...gbpReviews].sort(
     (a, b) => new Date(b.createTime).getTime() - new Date(a.createTime).getTime()
   );
 
-  const isLoading = isGbpLoading || (isFbLoading && !fbError);
-  const isReauthRequired = fbData?.reauthRequired;
+  const isLoading = isGbpLoading;
 
   return (
     <Card
@@ -260,12 +259,6 @@ export default function LatestReviews() {
           </Chip>
         </div>
       </CardHeader>
-
-      {isReauthRequired && (
-        <div className="bg-red-500/10 text-red-500 border border-red-500/20 text-xs px-3 py-2.5 rounded-lg flex items-center justify-between">
-          <span>Facebook connection expired (e.g. password changed). Please reconnect Facebook in Settings to sync reviews.</span>
-        </div>
-      )}
 
       {/* Card Content (Reviews List) */}
       <CardBody className="p-0">

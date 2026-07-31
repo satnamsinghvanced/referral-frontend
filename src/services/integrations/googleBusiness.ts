@@ -31,31 +31,11 @@ export interface IUpdateBusinessPayload {
   status?: string;
 }
 
-export interface SaveWindsorCredentialsPayload {
-  windsorApiKey: string;
-  windsorLocationId: string;
-}
-
 export const getGoogleBusinessAuthUrl = async (payload?: any) => {
   const { data } = await axios.post<IAuthUrlResponse>(
     "/google_business_integration",
     payload,
   );
-  return data;
-};
-
-export const saveWindsorCredentials = async (payload: SaveWindsorCredentialsPayload) => {
-  const { data } = await axios.post("/v1/integrations/windsor/save", payload);
-  return data;
-};
-
-export const getWindsorAuthUrl = async () => {
-  const { data } = await axios.get<IAuthUrlResponse>("/v1/integrations/windsor/auth");
-  return data;
-};
-
-export const selectWindsorLocation = async (locationId: string) => {
-  const { data } = await axios.post("/v1/integrations/windsor/select-location", { locationId });
   return data;
 };
 

@@ -55,6 +55,12 @@ export default function GoogleBusinessLocationModal({ isOpen, onClose }: { isOpe
     }
   };
 
+  const [showAllLocations, setShowAllLocations] = useState(false);
+  const connectedLocation = locations.find((l: any) => l.isConnected || l.locationId === selectedId);
+  const displayedLocations = (connectedLocation && !showAllLocations)
+    ? [connectedLocation]
+    : locations;
+
   return (
     <Modal
       isOpen={isOpen}
@@ -93,10 +99,19 @@ export default function GoogleBusinessLocationModal({ isOpen, onClose }: { isOpe
           ) : (
             <div className="flex flex-col gap-4">
               <div className="flex justify-between items-center mb-2">
-                <p className="text-sm font-medium">{locations.length} Locations Found</p>
-                <Button size="sm" variant="light" color="primary" onClick={handleSync} isLoading={isSyncing}>
-                  Refresh List
-                </Button>
+                <p className="text-sm font-medium">
+                  {connectedLocation && !showAllLocations ? "Selected Connected Location" : `${locations.length} Locations Found`}
+                </p>
+                <div className="flex gap-2">
+                  {connectedLocation && !showAllLocations && (
+                    <Button size="sm" variant="flat" color="secondary" onClick={() => setShowAllLocations(true)}>
+                      Change Location
+                    </Button>
+                  )}
+                  <Button size="sm" variant="light" color="primary" onClick={handleSync} isLoading={isSyncing}>
+                    Refresh List
+                  </Button>
+                </div>
               </div>
               <RadioGroup
                 value={selectedId || ""}
@@ -105,7 +120,7 @@ export default function GoogleBusinessLocationModal({ isOpen, onClose }: { isOpe
                   wrapper: "gap-3",
                 }}
               >
-                {locations.map((loc: any) => (
+                {displayedLocations.map((loc: any) => (
                   <Radio
                     key={loc.locationId}
                     value={loc.locationId}

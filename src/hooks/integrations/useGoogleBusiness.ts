@@ -9,12 +9,8 @@ import {
   getGoogleBusinessIntegration,
   getGoogleBusinessLocations,
   IGoogleBusinessIntegration,
-  saveWindsorCredentials,
-  SaveWindsorCredentialsPayload,
   syncGoogleBusinessProfiles,
   updateGoogleBusinessIntegration,
-  getWindsorAuthUrl,
-  selectWindsorLocation,
   connectGooglePlaces,
   searchGooglePlaces
 } from "../../services/integrations/googleBusiness";
@@ -46,42 +42,6 @@ export const useConnectBusiness = () => {
 export const useGenerateGoogleBusinessAuthUrl = () => {
   return useMutation({
     mutationFn: getGoogleBusinessAuthUrl,
-  });
-};
-
-export const useSaveWindsorBusiness = () => {
-  return useMutation({
-    mutationFn: (payload: SaveWindsorCredentialsPayload) =>
-      saveWindsorCredentials(payload),
-    onSuccess: (response: any) => {
-      queryClient.invalidateQueries({ queryKey: BUSINESS_KEYS.all });
-      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
-      return response;
-    },
-  });
-};
-
-export const useWindsorAuth = (onWindowOpened?: (win: Window | null) => void) => {
-  return useMutation({
-    mutationFn: getWindsorAuthUrl,
-    onSuccess: (data) => {
-      if (data?.authUrl) {
-        const win = window.open(data.authUrl, "_blank");
-        if (onWindowOpened) {
-          onWindowOpened(win);
-        }
-      }
-    },
-  });
-};
-
-export const useSelectWindsorLocation = () => {
-  return useMutation({
-    mutationFn: selectWindsorLocation,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: BUSINESS_KEYS.all });
-      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
-    },
   });
 };
 
