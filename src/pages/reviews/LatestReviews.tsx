@@ -12,7 +12,7 @@ import { FaStar } from "react-icons/fa";
 import { FiExternalLink, FiMapPin, FiMessageSquare } from "react-icons/fi";
 import { IoIosWifi } from "react-icons/io";
 import { LuQrCode } from "react-icons/lu";
-import { useGBPRecentReviews, useFacebookReviews } from "../../hooks/useReviews";
+import { useGBPRecentReviews } from "../../hooks/useReviews";
 import { GBPReview } from "../../types/reviews";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -187,56 +187,40 @@ const LatestReviewItem = ({
 /**
  * Main component for the Reviews and Interactions section.
  */
+import { useGBPRecentReviews } from "../../hooks/useReviews";
+import { useBusinessIntegration } from "../../hooks/integrations/useGoogleBusiness";
+import { useMemo } from "react";
+
 export default function LatestReviews() {
   const { data: gbpData, isLoading: isGbpLoading } = useGBPRecentReviews();
-  const { data: fbData, isLoading: isFbLoading, error: fbError } = useFacebookReviews();
+  const { data: businessConfig } = useBusinessIntegration();
 
-  const gbpReviews = (gbpData?.reviews || []).map((r: any) => ({
-    ...r,
-    platform: "Google",
-  }));
+  const connectedLoc = businessConfig?.locations?.find((l: any) => l.isConnected);
+  const connectedLocationId = connectedLoc?.placeId || connectedLoc?.locationId;
 
-  const mapNumberToStarString = (rating: number) => {
-    switch (rating) {
-      case 5: return "FIVE";
-      case 4: return "FOUR";
-      case 3: return "THREE";
-      case 2: return "TWO";
-      case 1: return "ONE";
-      default: return "FIVE";
+  const gbpReviews = useMemo(() => {
+    const raw = (gbpData?.reviews || []).map((r: any) => ({
+      ...r,
+      platform: "Google",
+    }));
+
+    if (connectedLocationId) {
+      return raw.filter(
+        (r: any) =>
+          !r.locationId ||
+          r.locationId === connectedLocationId ||
+          connectedLocationId.includes(r.locationId) ||
+          r.locationId.includes(connectedLocationId)
+      );
     }
-  };
+    return raw;
+  }, [gbpData?.reviews, connectedLocationId]);
 
-  const fbReviews = fbError ? [] : (fbData?.reviews || []).map((r: any) => {
-    let ratingVal = 5;
-    if (r.rating) {
-      ratingVal = r.rating;
-    } else if (r.recommendation_type === "positive") {
-      ratingVal = 5;
-    } else if (r.recommendation_type === "negative") {
-      ratingVal = 1;
-    }
-
-    return {
-      reviewId: r.open_graph_story?.id || r.reviewer?.id || Math.random().toString(),
-      reviewer: {
-        displayName: r.reviewer?.name || "Facebook User",
-        profilePhotoUrl: r.reviewer?.picture?.data?.url || "",
-      },
-      starRating: mapNumberToStarString(ratingVal),
-      createTime: r.created_time || new Date().toISOString(),
-      comment: r.open_graph_story?.message || "",
-      reviewReply: r.isResponded ? { comment: r.replyText } : null,
-      isRatingOnly: !r.open_graph_story?.message,
-      platform: "Facebook",
-      
-      viewUrl: r.redirectLink,
-    };
-  });
-
-  const allReviews = [...gbpReviews].sort(
-    (a, b) => new Date(b.createTime).getTime() - new Date(a.createTime).getTime()
-  );
+  const allReviews = useMemo(() => {
+    return [...gbpReviews].sort(
+      (a, b) => new Date(b.createTime).getTime() - new Date(a.createTime).getTime()
+    );
+  }, [gbpReviews]);
 
   const isLoading = isGbpLoading;
 
@@ -247,7 +231,14 @@ export default function LatestReviews() {
     >
       {/* Card Header */}
       <CardHeader className="w-full flex flex-col items-start gap-3 p-0 sm:flex-row sm:items-center sm:justify-between">
-        <h4 className="font-medium">Recent Reviews & Interactions</h4>
+        <div className="flex flex-col gap-0.5">
+          <h4 className="font-medium">Recent Reviews & Interactions</h4>
+          {connectedLoc?.name && (
+            <span className="text-xs text-primary font-medium">
+              Location: {connectedLoc.name}
+            </span>
+          )}
+        </div>
         <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:justify-end">
           <Chip
             size="sm"
