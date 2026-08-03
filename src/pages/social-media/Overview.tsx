@@ -1,6 +1,6 @@
 import { Card, CardBody, CardHeader } from "@heroui/react";
 import React from "react";
-import { FaRegComment } from "react-icons/fa";
+import { FaRegComment, FaFacebook, FaInstagram, FaLinkedin, FaYoutube, FaTiktok, FaGoogle } from "react-icons/fa";
 import { FiClock, FiHeart } from "react-icons/fi";
 import { IoMdTrendingUp } from "react-icons/io";
 import { LuChartColumnIncreasing, LuUsers } from "react-icons/lu";
@@ -29,6 +29,15 @@ interface OverviewProps {
     totalComments: number;
   };
 }
+
+const PLATFORM_ICONS: Record<string, React.ReactNode> = {
+  Facebook: <FaFacebook className="text-[#1877F2] text-lg" />,
+  Instagram: <FaInstagram className="text-[#E4405F] text-lg" />,
+  LinkedIn: <FaLinkedin className="text-[#0A66C2] text-lg" />,
+  YouTube: <FaYoutube className="text-[#FF0000] text-lg" />,
+  TikTok: <FaTiktok className="text-foreground text-lg" />,
+  GoogleBusiness: <FaGoogle className="text-[#4285F4] text-lg" />,
+};
 
 const Overview: React.FC<OverviewProps> = ({
   platforms,
@@ -86,17 +95,7 @@ const Overview: React.FC<OverviewProps> = ({
           >
             <CardHeader className="p-0 pb-4">
               <h3 className="text-sm font-extralight text-gray-800 dark:text-foreground flex items-center gap-2">
-                <span
-                  className={`inline-block size-4 rounded-sm ${
-                    {
-                      Facebook: "bg-blue-500",
-                      Instagram: "bg-pink-500",
-                      LinkedIn: "bg-sky-400",
-                      YouTube: "bg-red-500",
-                      GoogleBusiness: "bg-green-500",
-                    }[platform.id]
-                  }`}
-                ></span>
+                {PLATFORM_ICONS[platform.id] || null}
                 {platform.id}
               </h3>
             </CardHeader>
