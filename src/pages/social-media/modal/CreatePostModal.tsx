@@ -195,6 +195,14 @@ export function CreatePostModal({
     );
   }, [overviewData]);
 
+  const initialScheduledTime = useMemo(() => {
+    if (!isOpen) return "09:00";
+    const date = new Date(Date.now() + 5 * 60 * 1000);
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${hours}:${minutes}`;
+  }, [isOpen]);
+
   const formik = useFormik({
     initialValues: {
       title: "",
@@ -202,7 +210,7 @@ export function CreatePostModal({
       selectedPlatforms: [] as string[],
       publishSchedule: "publish-now",
       scheduledDate: today(localTimeZone).toString(),
-      scheduledTime: "09:00",
+      scheduledTime: initialScheduledTime,
     },
     validationSchema: PostValidationSchema,
     enableReinitialize: true,

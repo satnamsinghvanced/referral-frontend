@@ -98,7 +98,7 @@ export const SocialPostUploadProvider: React.FC<{ children: React.ReactNode }> =
             const postStatus = statusRes?.status || statusRes?.data?.status;
             const failureReason = statusRes?.failureReason || statusRes?.data?.failureReason;
 
-            if (postStatus === "Published" || postStatus === "Partially Failed") {
+            if (postStatus === "Published" || postStatus === "Partially Failed" || postStatus === "Scheduled") {
               clearInterval(pollInterval);
               setSocialPostUploadTask((prev) =>
                 prev ? { ...prev, progress: 100, status: "success" } : null
@@ -112,6 +112,12 @@ export const SocialPostUploadProvider: React.FC<{ children: React.ReactNode }> =
                 addToast({
                   title: "Success",
                   description: "Social media post published successfully.",
+                  color: "success",
+                });
+              } else if (postStatus === "Scheduled") {
+                addToast({
+                  title: "Success",
+                  description: "Social media post scheduled successfully.",
                   color: "success",
                 });
               } else {
