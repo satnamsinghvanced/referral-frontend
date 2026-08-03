@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
-import { FiChevronLeft, FiChevronRight, FiX, FiClock } from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight, FiX, FiClock, FiMaximize2, FiMinimize2, FiEdit3, FiTrash2 } from "react-icons/fi";
 import clsx from "clsx";
-import { Button } from "@heroui/react";
+import { Button, Select, SelectItem } from "@heroui/react";
 import { ACTIVITY_TYPES } from "../../consts/marketing";
 
 interface CalendarProps {
@@ -9,6 +9,8 @@ interface CalendarProps {
   disablePastDates?: boolean;
   onDayClick?: (date: string) => void;
   onActivityClick?: (activity: any) => void;
+  onActivityEdit?: (activity: any) => void;
+  onActivityDelete?: (activity: any) => void;
   onRangeSelect?: (startDate: Date, endDate: Date) => void;
   activities: any[];
 }
@@ -126,13 +128,15 @@ const monthNames = [
   "December",
 ];
 
-const hoursList = Array.from({ length: 23 }, (_, i) => i + 1); // 1 AM to 11 PM
+const hoursList = Array.from({ length: 23 }, (_, i) => i + 1);
 
 const CustomCalendar: React.FC<CalendarProps> = ({
   weekendDisabled = false,
   disablePastDates = false,
   onDayClick,
   onActivityClick,
+  onActivityEdit,
+  onActivityDelete,
   onRangeSelect,
   activities,
 }) => {
@@ -140,13 +144,12 @@ const CustomCalendar: React.FC<CalendarProps> = ({
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<ViewMode>("month");
   const [selectedDateKey, setSelectedDateKey] = useState<string | null>(null);
+  const [isMaximized, setIsMaximized] = useState(false);
 
-  // Drag selection state for Month View
   const [dragStart, setDragStart] = useState<Date | null>(null);
   const [dragEnd, setDragEnd] = useState<Date | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  // Time slot drag selection state for Day & Week Views
   const [timeDragStart, setTimeDragStart] = useState<{
     date: Date;
     hour: number;
@@ -157,7 +160,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
   } | null>(null);
   const [isTimeDragging, setIsTimeDragging] = useState(false);
 
-  // Year View Popover state
   const [yearViewPopover, setYearViewPopover] = useState<{
     date: Date;
     activities: any[];
@@ -169,6 +171,31 @@ const CustomCalendar: React.FC<CalendarProps> = ({
 
   const currentMonth = currentDate.getMonth();
   const currentYear = currentDate.getFullYear();
+
+  const [mobileMonthIndex, setMobileMonthIndex] = useState<number>(currentDate.getMonth());
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+
+  useEffect(() => {
+    setMobileMonthIndex(currentDate.getMonth());
+  }, [currentDate]);
+
+  const handleMobileMonthPrev = () => {
+    if (mobileMonthIndex > 0) {
+      setMobileMonthIndex(mobileMonthIndex - 1);
+    } else {
+      setMobileMonthIndex(11);
+      setCurrentDate(new Date(currentYear - 1, 11, 1));
+    }
+  };
+
+  const handleMobileMonthNext = () => {
+    if (mobileMonthIndex < 11) {
+      setMobileMonthIndex(mobileMonthIndex + 1);
+    } else {
+      setMobileMonthIndex(0);
+      setCurrentDate(new Date(currentYear + 1, 0, 1));
+    }
+  };
 
   useEffect(() => {
     const handleGlobalClick = (e: MouseEvent) => {
@@ -186,26 +213,41 @@ const CustomCalendar: React.FC<CalendarProps> = ({
   }, [yearViewPopover]);
 
   useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isMaximized) {
+        setIsMaximized(false);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isMaximized]);
+
+  useEffect(() => {
     const handleGlobalMouseUp = () => {
-      // Month view date drag selection (sets 12 AM start and 11:59 PM end for full day)
       if (isDragging && dragStart && dragEnd) {
         setIsDragging(false);
-        const start = new Date(
-          Math.min(dragStart.getTime(), dragEnd.getTime())
-        );
-        const end = new Date(Math.max(dragStart.getTime(), dragEnd.getTime()));
+        const startMs = dragStart.getTime();
+        const endMs = dragEnd.getTime();
+        const minMs = Math.min(startMs, endMs);
+        const maxMs = Math.max(startMs, endMs);
+
+        const start = new Date(minMs);
+        const end = new Date(maxMs);
         start.setHours(0, 0, 0, 0);
         end.setHours(23, 59, 0, 0);
-        onRangeSelect?.(start, end);
-        const year = start.getFullYear();
-        const month = String(start.getMonth() + 1).padStart(2, "0");
-        const day = String(start.getDate()).padStart(2, "0");
-        setSelectedDateKey(`${year}-${month}-${day}`);
+
+        const dateActs = getActivitiesForDateObj(start);
+        const isSingleClickOnActiveDateInYearView =
+          viewMode === "year" && startMs === endMs && dateActs.length > 0;
+
+        if (!isSingleClickOnActiveDateInYearView) {
+          onRangeSelect?.(start, end);
+        }
+
         setDragStart(null);
         setDragEnd(null);
       }
 
-      // Day / Week view time slot drag selection
       if (isTimeDragging && timeDragStart && timeDragEnd) {
         setIsTimeDragging(false);
 
@@ -277,11 +319,9 @@ const CustomCalendar: React.FC<CalendarProps> = ({
     [activities, currentYear, currentMonth]
   );
 
-  // Navigation handlers
   const handleNavigate = (direction: "prev" | "next") => {
     const step = direction === "prev" ? -1 : 1;
     const newDate = new Date(currentDate);
-
     if (viewMode === "day") {
       newDate.setDate(newDate.getDate() + step);
     } else if (viewMode === "week") {
@@ -296,11 +336,19 @@ const CustomCalendar: React.FC<CalendarProps> = ({
   };
 
   const handleToday = () => {
-    setCurrentDate(new Date());
+    const now = new Date();
+    setCurrentDate(now);
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, "0");
+    const day = String(now.getDate()).padStart(2, "0");
+    const todayKey = `${year}-${month}-${day}`;
+    setSelectedDateKey(todayKey);
     setYearViewPopover(null);
+    const start = new Date(now);
+    start.setHours(0, 0, 0, 0);
+    onDayClick?.(start.toISOString());
   };
 
-  // Date Activity Helper
   const getActivitiesForDateObj = (dateObj: Date) => {
     const target = new Date(dateObj);
     target.setHours(0, 0, 0, 0);
@@ -316,7 +364,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
     });
   };
 
-  // Week days calculation
   const weekDays = useMemo(() => {
     const start = new Date(currentDate);
     const day = start.getDay();
@@ -330,11 +377,11 @@ const CustomCalendar: React.FC<CalendarProps> = ({
     });
   }, [currentDate]);
 
-  // Title renderer
   const getHeaderTitle = () => {
     if (viewMode === "day") {
       return currentDate.toLocaleDateString("en-US", {
-        month: "long",
+        weekday: "short",
+        month: "short",
         day: "numeric",
         year: "numeric",
       });
@@ -355,7 +402,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
     return `${monthNames[currentMonth]} ${currentYear}`;
   };
 
-  // Drag range check for Month View
   const isInDragRange = (date: Date) => {
     if (!isDragging || !dragStart || !dragEnd) return false;
     const start = Math.min(dragStart.getTime(), dragEnd.getTime());
@@ -376,7 +422,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
     }
   };
 
-  // Format time label for event pills
   const formatEventTime = (isoString: string) => {
     const d = new Date(isoString);
     let hours = d.getHours();
@@ -388,7 +433,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
     return `${hours}${minStr}${ampm}`;
   };
 
-  // Format time range label for event pills (e.g. 2 – 6:30am)
   const formatEventTimeRange = (startDateStr: string, endDateStr?: string) => {
     const startStr = formatEventTime(startDateStr);
     if (!endDateStr) return startStr;
@@ -400,7 +444,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
     return `${startStr} – ${endStr}`;
   };
 
-  // Compute multi-column side-by-side layout for overlapping events
   const computeOverlappingEventsLayout = (
     dayActivities: any[]
   ): EventLayoutInfo[] => {
@@ -409,10 +452,8 @@ const CustomCalendar: React.FC<CalendarProps> = ({
     const items = dayActivities.map((act) => {
       const actStart = new Date(act.startDate);
       const actEnd = act.endDate ? new Date(act.endDate) : actStart;
-
       let startHourFloat = actStart.getHours() + actStart.getMinutes() / 60;
       if (startHourFloat < 1) startHourFloat = 1;
-
       let endHourFloat = actEnd.getHours() + actEnd.getMinutes() / 60;
       if (actEnd.getDate() !== actStart.getDate()) {
         endHourFloat = 24;
@@ -478,7 +519,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
     });
 
     return items.map((item) => {
-      // Use 92% max width so right 8% (20px+) is always exposed for clicking & creating new events
       const widthPercent = (100 / item.totalCols) * 0.92;
       const leftPercent = item.colIndex * (100 / item.totalCols) * 0.92;
       return {
@@ -493,7 +533,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
     });
   };
 
-  // Check if current date is today
   const isDateToday = (d: Date) => {
     return (
       d.getDate() === today.getDate() &&
@@ -502,19 +541,20 @@ const CustomCalendar: React.FC<CalendarProps> = ({
     );
   };
 
-  // --- RENDER MONTH VIEW ---
   const renderMonthView = () => {
     const firstDay = new Date(currentYear, currentMonth, 1);
     const lastDay = new Date(currentYear, currentMonth + 1, 0);
     const daysInMonth = lastDay.getDate();
     const startingDay = firstDay.getDay();
-
     const cells = [];
     for (let i = 0; i < startingDay; i++) {
       cells.push(
         <div
           key={`empty-${i}`}
-          className="min-h-[100px] border-b border-r border-foreground/10 bg-gray-50/30 dark:bg-default-100/10"
+          className={clsx(
+            "border-b border-r border-foreground/10 bg-gray-50/30 dark:bg-default-100/10",
+            isMaximized ? "min-h-[110px] h-full" : "min-h-[100px]"
+          )}
         />
       );
     }
@@ -555,7 +595,8 @@ const CustomCalendar: React.FC<CalendarProps> = ({
             onRangeSelect?.(start, end);
           }}
           className={clsx(
-            "relative min-h-[100px] border-b border-r border-foreground/10 flex flex-col items-start justify-start cursor-pointer transition-all group",
+            "relative border-b border-r border-foreground/10 flex flex-col items-start justify-start cursor-pointer transition-all group",
+            isMaximized ? "min-h-[110px] h-full" : "min-h-[100px]",
             "hover:bg-gray-50 dark:hover:bg-default-100/20",
             isDisabled &&
             "bg-gray-100 dark:bg-default-100/40 cursor-not-allowed",
@@ -655,19 +696,19 @@ const CustomCalendar: React.FC<CalendarProps> = ({
     }
 
     return (
-      <div className="overflow-x-auto">
-        <div className="min-w-[800px]">
-          <div className="grid grid-cols-7 border-b border-foreground/10 bg-gray-50 dark:bg-default-100/20">
+      <div className={clsx("overflow-x-auto", isMaximized && "h-full flex flex-col")}>
+        <div className={clsx("min-w-[650px] sm:min-w-[800px]", isMaximized && "h-full flex flex-col")}>
+          <div className="grid grid-cols-7 border-b border-foreground/10 bg-gray-50 dark:bg-default-100/20 shrink-0">
             {daysOfWeek.map((d) => (
               <div
                 key={d}
-                className="py-2 text-center text-xs font-semibold text-gray-500 dark:text-foreground/40 uppercase tracking-wider border-r border-foreground/10 first:border-l"
+                className="py-1.5 sm:py-2 text-center text-[10px] sm:text-xs font-semibold text-gray-500 dark:text-foreground/40 uppercase tracking-wider border-r border-foreground/10 first:border-l"
               >
                 {d}
               </div>
             ))}
           </div>
-          <div className="grid grid-cols-7 border-l border-foreground/10">
+          <div className={clsx("grid grid-cols-7 border-l border-foreground/10", isMaximized && "flex-1 auto-rows-fr")}>
             {cells}
           </div>
         </div>
@@ -675,7 +716,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
     );
   };
 
-  // --- RENDER DAY VIEW ---
   const renderDayView = () => {
     const dayActivities = getActivitiesForDateObj(currentDate);
     const dayLayouts = computeOverlappingEventsLayout(dayActivities);
@@ -686,7 +726,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
     const dayNum = currentDate.getDate();
     const isTodayDay = isDateToday(currentDate);
 
-    // Current time red line calculation
     const now = new Date();
     const isNowToday = isDateToday(currentDate);
     const currentHourFloat = now.getHours() + now.getMinutes() / 60;
@@ -694,9 +733,8 @@ const CustomCalendar: React.FC<CalendarProps> = ({
 
     return (
       <div className="flex flex-col w-full overflow-x-auto bg-background">
-        {/* Day Header */}
-        <div className="grid grid-cols-[100px_1fr] border-b border-foreground/10 bg-gray-50/50 dark:bg-default-100/10">
-          <div className="p-3 text-[11px] font-semibold text-gray-400 dark:text-foreground/40 border-r border-foreground/10 flex items-center justify-center">
+        <div className="grid grid-cols-[70px_1fr] sm:grid-cols-[100px_1fr] border-b border-foreground/10 bg-gray-50/50 dark:bg-default-100/10">
+          <div className="p-2 sm:p-3 text-[10px] sm:text-[11px] font-semibold text-gray-400 dark:text-foreground/40 border-r border-foreground/10 flex items-center justify-center">
             {getGmtOffset()}
           </div>
           <div
@@ -707,15 +745,15 @@ const CustomCalendar: React.FC<CalendarProps> = ({
               end.setHours(10, 0, 0, 0);
               onRangeSelect?.(start, end);
             }}
-            className="p-3 flex flex-col items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
+            className="p-2 sm:p-3 flex flex-col items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
             title="Click to add an activity for this day"
           >
-            <span className="text-[11px] font-bold text-sky-600 dark:text-sky-400 tracking-wider">
+            <span className="text-[10px] sm:text-[11px] font-bold text-sky-600 dark:text-sky-400 tracking-wider">
               {dayName}
             </span>
             <span
               className={clsx(
-                "w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm mt-0.5",
+                "w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm mt-0.5",
                 isTodayDay
                   ? "bg-primary text-white shadow-sm"
                   : "bg-transparent text-foreground"
@@ -726,10 +764,9 @@ const CustomCalendar: React.FC<CalendarProps> = ({
           </div>
         </div>
 
-        {/* Hourly Grid */}
-        <div className="relative min-w-[600px] max-h-[620px] overflow-y-auto scrollbar-thin">
-          <div className="relative grid grid-cols-[100px_1fr]">
-            {/* Time Labels Column */}
+
+        <div className={clsx("relative min-w-[300px] sm:min-w-[600px] overflow-y-auto scrollbar-thin", isMaximized ? "flex-1 h-full" : "max-h-[620px]")}>
+          <div className="relative grid grid-cols-[70px_1fr] sm:grid-cols-[100px_1fr]">
             <div className="border-r border-foreground/10 bg-gray-50/30 dark:bg-default-100/5">
               {hoursList.map((hour) => {
                 const hourLabel =
@@ -749,7 +786,7 @@ const CustomCalendar: React.FC<CalendarProps> = ({
               })}
             </div>
 
-            {/* Time Grid Row Content */}
+
             <div className="relative border-b border-foreground/10">
               {hoursList.map((hour) => {
                 const isSelected = isSlotSelected(currentDate, hour);
@@ -773,7 +810,7 @@ const CustomCalendar: React.FC<CalendarProps> = ({
                 );
               })}
 
-              {/* Red current time indicator line */}
+
               {isNowToday && redLineTop >= 0 && redLineTop <= 23 * 48 && (
                 <div
                   className="absolute left-0 right-0 border-b-2 border-red-500 z-30 flex items-center pointer-events-none"
@@ -783,7 +820,7 @@ const CustomCalendar: React.FC<CalendarProps> = ({
                 </div>
               )}
 
-              {/* Overlapping Activity Pills */}
+
               {dayLayouts.map((layout) => (
                 <div
                   key={layout.activity._id}
@@ -818,7 +855,7 @@ const CustomCalendar: React.FC<CalendarProps> = ({
     );
   };
 
-  // --- RENDER WEEK VIEW ---
+
   const renderWeekView = () => {
     const now = new Date();
     const isNowInWeek = weekDays.some((d) => isDateToday(d));
@@ -827,9 +864,9 @@ const CustomCalendar: React.FC<CalendarProps> = ({
 
     return (
       <div className="flex flex-col w-full overflow-x-auto bg-background">
-        {/* Week Day Header Row */}
-        <div className="grid grid-cols-[90px_repeat(7,1fr)] border-b border-foreground/10 bg-gray-50/50 dark:bg-default-100/10 min-w-[800px]">
-          <div className="p-3 text-[11px] font-semibold text-gray-400 dark:text-foreground/40 border-r border-foreground/10 flex items-center justify-center">
+
+        <div className="grid grid-cols-[60px_repeat(7,1fr)] sm:grid-cols-[90px_repeat(7,1fr)] border-b border-foreground/10 bg-gray-50/50 dark:bg-default-100/10 min-w-[650px] sm:min-w-[800px]">
+          <div className="p-2 sm:p-3 text-[10px] sm:text-[11px] font-semibold text-gray-400 dark:text-foreground/40 border-r border-foreground/10 flex items-center justify-center">
             {getGmtOffset()}
           </div>
           {weekDays.map((d, idx) => {
@@ -846,15 +883,15 @@ const CustomCalendar: React.FC<CalendarProps> = ({
                   end.setHours(10, 0, 0, 0);
                   onRangeSelect?.(start, end);
                 }}
-                className="p-3 border-r border-foreground/10 last:border-r-0 flex flex-col items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
+                className="p-2 sm:p-3 border-r border-foreground/10 last:border-r-0 flex flex-col items-center justify-center cursor-pointer hover:opacity-80 transition-opacity"
                 title={`Click to add activity for ${dayName} ${dayNum}`}
               >
-                <span className="text-[11px] font-bold text-gray-500 dark:text-foreground/60 tracking-wider">
+                <span className="text-[10px] sm:text-[11px] font-bold text-gray-500 dark:text-foreground/60 tracking-wider">
                   {dayName}
                 </span>
                 <span
                   className={clsx(
-                    "w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm mt-0.5",
+                    "w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm mt-0.5",
                     isTodayDay
                       ? "bg-primary text-white shadow-sm"
                       : "bg-transparent text-foreground"
@@ -867,10 +904,8 @@ const CustomCalendar: React.FC<CalendarProps> = ({
           })}
         </div>
 
-        {/* Hourly Grid Columns */}
-        <div className="relative min-w-[800px] max-h-[620px] overflow-y-auto scrollbar-thin">
-          <div className="relative grid grid-cols-[90px_repeat(7,1fr)]">
-            {/* Time Labels Column */}
+        <div className={clsx("relative min-w-[650px] sm:min-w-[800px] overflow-y-auto scrollbar-thin", isMaximized ? "flex-1 h-full" : "max-h-[620px]")}>
+          <div className="relative grid grid-cols-[60px_repeat(7,1fr)] sm:grid-cols-[90px_repeat(7,1fr)]">
             <div className="border-r border-foreground/10 bg-gray-50/30 dark:bg-default-100/5">
               {hoursList.map((hour) => {
                 const hourLabel =
@@ -923,7 +958,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
                     );
                   })}
 
-                  {/* Red line indicator for current day column */}
                   {isTodayColumn && redLineTop >= 0 && redLineTop <= 23 * 48 && (
                     <div
                       className="absolute left-0 right-0 border-b-2 border-red-500 z-30 flex items-center pointer-events-none"
@@ -933,7 +967,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
                     </div>
                   )}
 
-                  {/* Overlapping Activity Pills */}
                   {dayLayouts.map((layout) => (
                     <div
                       key={layout.activity._id}
@@ -972,86 +1005,148 @@ const CustomCalendar: React.FC<CalendarProps> = ({
 
   // --- RENDER YEAR VIEW ---
   const renderYearView = () => {
-    return (
-      <div className="relative p-4 bg-background">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {monthNames.map((mName, mIdx) => {
-            const firstDay = new Date(currentYear, mIdx, 1);
-            const lastDay = new Date(currentYear, mIdx + 1, 0);
-            const daysInMonth = lastDay.getDate();
-            const startingDay = firstDay.getDay();
+    const renderMonthCard = (mIdx: number, isMobileCard: boolean = false) => {
+      const mName = monthNames[mIdx];
+      const firstDay = new Date(currentYear, mIdx, 1);
+      const lastDay = new Date(currentYear, mIdx + 1, 0);
+      const daysInMonth = lastDay.getDate();
+      const startingDay = firstDay.getDay();
 
-            const monthCells = [];
-            for (let i = 0; i < startingDay; i++) {
-              monthCells.push(
-                <div key={`empty-${i}`} className="w-7 h-7" />
-              );
+      const monthCells = [];
+      for (let i = 0; i < startingDay; i++) {
+        monthCells.push(<div key={`empty-${i}`} className="w-7 h-7" />);
+      }
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayDate = new Date(currentYear, mIdx, day);
+        dayDate.setHours(0, 0, 0, 0);
+        const dayActs = getActivitiesForDateObj(dayDate);
+        const hasActs = dayActs.length > 0;
+        const isTodayDate = isDateToday(dayDate);
+        const inDrag = isInDragRange(dayDate);
+
+        monthCells.push(
+          <div
+            key={day}
+            onMouseDown={(e) => {
+              if (e.button === 0) {
+                e.preventDefault();
+                handleDragStart(dayDate);
+              }
+            }}
+            onMouseEnter={() => handleDragEnter(dayDate)}
+            onClick={(e) => {
+              e.stopPropagation();
+              const start = new Date(dayDate);
+              start.setHours(0, 0, 0, 0);
+              const end = new Date(dayDate);
+              end.setHours(23, 59, 0, 0);
+
+              onDayClick?.(start.toISOString());
+
+              if (hasActs) {
+                const rect = e.currentTarget.getBoundingClientRect();
+                setYearViewPopover({
+                  date: dayDate,
+                  activities: dayActs,
+                  x: rect.left,
+                  y: rect.bottom,
+                });
+              }
+            }}
+            className={clsx(
+              "w-7 h-7 flex items-center justify-center text-xs rounded-full transition-all select-none cursor-pointer",
+              hasActs
+                ? "bg-primary text-white font-bold hover:scale-110 shadow-sm"
+                : isTodayDate
+                  ? "bg-sky-100 dark:bg-sky-900/40 text-primary font-bold"
+                  : inDrag
+                    ? "!bg-sky-500 !text-white font-bold shadow-md scale-105"
+                    : "text-slate-700 dark:text-foreground/70 hover:bg-gray-100 dark:hover:bg-default-100/20"
+            )}
+          >
+            {day}
+          </div>
+        );
+      }
+
+      return (
+        <div
+          key={mName}
+          onTouchStart={(e: any) => isMobileCard && setTouchStartX(e.touches[0].clientX)}
+          onTouchEnd={(e: any) => {
+            if (isMobileCard && touchStartX !== null) {
+              const diffX = touchStartX - e.changedTouches[0].clientX;
+              if (diffX > 40) handleMobileMonthNext();
+              else if (diffX < -40) handleMobileMonthPrev();
+              setTouchStartX(null);
             }
-            for (let day = 1; day <= daysInMonth; day++) {
-              const dayDate = new Date(currentYear, mIdx, day);
-              const dayActs = getActivitiesForDateObj(dayDate);
-              const hasActs = dayActs.length > 0;
-              const isTodayDate = isDateToday(dayDate);
-
-              monthCells.push(
-                <div
-                  key={day}
-                  onClick={(e) => {
-                    if (hasActs) {
-                      e.stopPropagation();
-                      const rect = e.currentTarget.getBoundingClientRect();
-                      setYearViewPopover({
-                        date: dayDate,
-                        activities: dayActs,
-                        x: rect.left,
-                        y: rect.bottom,
-                      });
-                    }
-                  }}
-                  className={clsx(
-                    "w-7 h-7 flex items-center justify-center text-xs rounded-full transition-all select-none",
-                    hasActs
-                      ? "bg-primary text-white font-bold cursor-pointer hover:scale-110 shadow-sm"
-                      : isTodayDate
-                        ? "bg-sky-100 dark:bg-sky-900/40 text-primary font-semibold"
-                        : "text-slate-700 dark:text-foreground/70 hover:bg-gray-100 dark:hover:bg-default-100/20"
-                  )}
-                >
-                  {day}
-                </div>
-              );
-            }
-
-            return (
-              <div
-                key={mName}
-                className="bg-background border border-foreground/10 rounded-2xl p-4 shadow-sm flex flex-col items-center"
+          }}
+          className="bg-background border border-foreground/10 rounded-2xl p-4 shadow-sm flex flex-col items-center w-full max-w-[340px] sm:max-w-none mx-auto transition-all"
+        >
+          {isMobileCard ? (
+            <div className="flex items-center justify-between w-full mb-3 px-1">
+              <Button
+                size="sm"
+                radius="full"
+                variant="ghost"
+                isIconOnly
+                onPress={handleMobileMonthPrev}
+                className="border-small border-gray-300 dark:border-default-200 h-7 w-7 min-w-[28px] p-0"
+                title="Previous Month"
               >
-                <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-3">
-                  {mName}
-                </h4>
-                <div className="grid grid-cols-7 gap-1 text-center mb-1">
-                  {daysOfWeekShort.map((d, i) => (
-                    <span
-                      key={i}
-                      className="w-7 text-[10px] font-bold text-slate-400 dark:text-foreground/40 uppercase"
-                    >
-                      {d}
-                    </span>
-                  ))}
-                </div>
-                <div className="grid grid-cols-7 gap-1 text-center">
-                  {monthCells}
-                </div>
-              </div>
-            );
-          })}
+                <FiChevronLeft size={16} />
+              </Button>
+              <h4 className="text-base font-bold text-slate-800 dark:text-white">
+                {mName} {currentYear}
+              </h4>
+              <Button
+                size="sm"
+                radius="full"
+                variant="ghost"
+                isIconOnly
+                onPress={handleMobileMonthNext}
+                className="border-small border-gray-300 dark:border-default-200 h-7 w-7 min-w-[28px] p-0"
+                title="Next Month"
+              >
+                <FiChevronRight size={16} />
+              </Button>
+            </div>
+          ) : (
+            <h4 className="text-sm font-bold text-slate-800 dark:text-white mb-3">
+              {mName}
+            </h4>
+          )}
+
+          <div className="grid grid-cols-7 gap-1 text-center mb-1">
+            {daysOfWeekShort.map((d, i) => (
+              <span
+                key={i}
+                className="w-7 text-[10px] font-bold text-slate-400 dark:text-foreground/40 uppercase"
+              >
+                {d}
+              </span>
+            ))}
+          </div>
+          <div className="grid grid-cols-7 gap-1 text-center">
+            {monthCells}
+          </div>
+        </div>
+      );
+    };
+
+    return (
+      <div className={clsx("relative p-2 sm:p-4 bg-background", isMaximized ? "h-full overflow-y-auto pb-14 scrollbar-thin" : "")}>
+
+        <div className="block sm:hidden py-2">
+          {renderMonthCard(mobileMonthIndex, true)}
+        </div>
+        <div className="hidden sm:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4 md:gap-6 pb-6">
+          {monthNames.map((_, mIdx) => renderMonthCard(mIdx, false))}
         </div>
 
-        {/* Year View Activity Modal */}
         {yearViewPopover && (
           <div
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 animate-in fade-in duration-200"
+            className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 animate-in fade-in duration-200"
             onClick={() => setYearViewPopover(null)}
           >
             <div
@@ -1059,7 +1154,7 @@ const CustomCalendar: React.FC<CalendarProps> = ({
               onClick={(e) => e.stopPropagation()}
               className="bg-white dark:bg-[#182030] border border-slate-200 dark:border-slate-700/80 shadow-2xl rounded-3xl p-6 w-full max-w-md flex flex-col gap-4 animate-in zoom-in-95 duration-200"
             >
-              {/* Modal Header */}
+
               <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-700/60">
                 <div className="flex items-center gap-3">
                   <div className="flex flex-col items-center justify-center">
@@ -1096,7 +1191,7 @@ const CustomCalendar: React.FC<CalendarProps> = ({
                 </button>
               </div>
 
-              {/* Scrollable Activities List */}
+
               <div className="space-y-2.5 max-h-[350px] overflow-y-auto pr-1 scrollbar-thin">
                 {yearViewPopover.activities.map((act) => {
                   const actColor =
@@ -1128,16 +1223,51 @@ const CustomCalendar: React.FC<CalendarProps> = ({
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900/60 px-2.5 py-1 rounded-xl shrink-0 border border-slate-200/60 dark:border-slate-700/50">
-                        <FiClock size={12} className="text-blue-500" />
-                        <span>{timeStr}</span>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <div className="flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900/60 px-2.5 py-1 rounded-xl border border-slate-200/60 dark:border-slate-700/50">
+                          <FiClock size={12} className="text-blue-500" />
+                          <span>{timeStr}</span>
+                        </div>
+
+
+                        <Button
+                          size="sm"
+                          radius="full"
+                          variant="light"
+                          isIconOnly
+                          onPress={(e: any) => {
+                            e.stopPropagation?.();
+                            setYearViewPopover(null);
+                            onActivityEdit?.(act);
+                          }}
+                          className="h-7 w-7 min-w-[28px] p-0 text-slate-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-700 transition-colors"
+                          title="Edit Activity"
+                        >
+                          <FiEdit3 size={14} />
+                        </Button>
+
+
+                        <Button
+                          size="sm"
+                          radius="full"
+                          variant="light"
+                          isIconOnly
+                          onPress={(e: any) => {
+                            e.stopPropagation?.();
+                            setYearViewPopover(null);
+                            onActivityDelete?.(act);
+                          }}
+                          className="h-7 w-7 min-w-[28px] p-0 text-slate-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-slate-700 transition-colors"
+                          title="Delete Activity"
+                        >
+                          <FiTrash2 size={14} />
+                        </Button>
                       </div>
                     </div>
                   );
                 })}
               </div>
 
-              {/* Modal Footer / Action */}
               <div className="pt-2 border-t border-slate-200 dark:border-slate-700/60 flex justify-end">
                 <Button
                   size="sm"
@@ -1163,22 +1293,56 @@ const CustomCalendar: React.FC<CalendarProps> = ({
     );
   };
 
-  return (
-    <div className="w-full rounded-xl overflow-hidden bg-background">
-      {/* Top Header Controls: Navigation + Title + View Selector */}
-      <div className="flex flex-col sm:flex-row items-center justify-between p-4 gap-3 border-b border-foreground/10">
-        <div className="flex items-center gap-2">
+  const renderHeaderControls = (inPopup: boolean = false) => (
+    <div className="relative flex flex-col sm:flex-row items-center justify-between p-2 sm:p-3.5 gap-2 sm:gap-3 border-b border-foreground/10 bg-background w-full">
+      <div className="flex sm:hidden items-center justify-between w-full z-10">
+        <p className="text-xs sm:text-base font-bold text-gray-800 dark:text-white truncate max-w-[220px]">
+          {getHeaderTitle()}
+        </p>
+
+        <div className="flex items-center gap-1 z-10">
+          {!inPopup ? (
+            <Button
+              size="sm"
+              radius="sm"
+              variant="ghost"
+              isIconOnly
+              onPress={() => setIsMaximized(true)}
+              className="border-small border-gray-300 dark:border-default-200 h-7 w-7 min-w-[28px] p-0"
+              title="Maximize"
+            >
+              <FiMaximize2 size={14} className="text-gray-700 dark:text-foreground/80" />
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              radius="full"
+              variant="light"
+              isIconOnly
+              onPress={() => setIsMaximized(false)}
+              className="text-gray-500 dark:text-foreground/70 hover:text-foreground hover:bg-foreground/10 h-7 w-7 min-w-[28px] p-0"
+              title="Close"
+            >
+              <FiX size={16} />
+            </Button>
+          )}
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between w-full sm:w-auto gap-2 z-10">
+        <div className="flex items-center gap-1 sm:gap-2">
           <Button
             size="sm"
             radius="sm"
             variant="ghost"
             isIconOnly
             onPress={() => handleNavigate("prev")}
-            className="border-small border-gray-300 dark:border-default-200"
+            className="border-small border-gray-300 dark:border-default-200 h-7 w-7 sm:h-8 sm:w-8 min-w-[28px] p-0"
+            title="Previous"
           >
             <FiChevronLeft
               className="text-gray-700 dark:text-foreground/80"
-              size={18}
+              size={16}
             />
           </Button>
           <Button
@@ -1186,7 +1350,7 @@ const CustomCalendar: React.FC<CalendarProps> = ({
             radius="sm"
             variant="bordered"
             onPress={handleToday}
-            className="border-small border-gray-300 dark:border-default-200 font-medium text-xs text-foreground"
+            className="border-small border-gray-300 dark:border-default-200 font-medium text-[11px] sm:text-xs text-foreground h-7 px-2 sm:h-8 sm:px-3 min-w-fit"
           >
             Today
           </Button>
@@ -1196,46 +1360,147 @@ const CustomCalendar: React.FC<CalendarProps> = ({
             variant="ghost"
             isIconOnly
             onPress={() => handleNavigate("next")}
-            className="border-small border-gray-300 dark:border-default-200"
+            className="border-small border-gray-300 dark:border-default-200 h-7 w-7 sm:h-8 sm:w-8 min-w-[28px] p-0"
+            title="Next"
           >
             <FiChevronRight
               className="text-gray-700 dark:text-foreground/80"
-              size={18}
+              size={16}
             />
           </Button>
-          <p className="text-base font-semibold text-gray-800 dark:text-white ml-2">
-            {getHeaderTitle()}
-          </p>
         </div>
 
-        {/* View Mode Tabs Selector */}
-        <div className="flex items-center bg-gray-100 dark:bg-default-100/30 p-1 rounded-lg border border-foreground/10">
-          {(["day", "week", "month", "year"] as const).map((mode) => (
-            <button
-              key={mode}
-              onClick={() => {
-                setViewMode(mode);
-                setYearViewPopover(null);
+        <div className="flex sm:hidden items-center gap-1.5 justify-end">
+          <div className="w-24">
+            <Select
+              aria-label="Select Calendar View"
+              selectedKeys={new Set([viewMode])}
+              onSelectionChange={(keys) => {
+                const selected = Array.from(keys)[0] as ViewMode;
+                if (selected) {
+                  setViewMode(selected);
+                  setYearViewPopover(null);
+                }
               }}
-              className={clsx(
-                "px-3 py-1 text-xs font-semibold rounded-md capitalize transition-all cursor-pointer",
-                viewMode === mode
-                  ? "bg-white dark:bg-background text-primary shadow-sm"
-                  : "text-gray-600 dark:text-foreground/60 hover:text-foreground"
-              )}
+              size="sm"
+              variant="bordered"
+              disallowEmptySelection
+              className="w-full"
             >
-              {mode}
-            </button>
-          ))}
+              <SelectItem key="day" textValue="Day" className="capitalize text-xs">
+                Day
+              </SelectItem>
+              <SelectItem key="week" textValue="Week" className="capitalize text-xs">
+                Week
+              </SelectItem>
+              <SelectItem key="month" textValue="Month" className="capitalize text-xs">
+                Month
+              </SelectItem>
+              <SelectItem key="year" textValue="Year" className="capitalize text-xs">
+                Year
+              </SelectItem>
+            </Select>
+          </div>
         </div>
       </div>
 
-      {/* Render Active View */}
-      {viewMode === "month" && renderMonthView()}
-      {viewMode === "day" && renderDayView()}
-      {viewMode === "week" && renderWeekView()}
-      {viewMode === "year" && renderYearView()}
+      <div className="hidden sm:flex items-center gap-2 z-10">
+        <div className="w-32">
+          <Select
+            aria-label="Select Calendar View"
+            selectedKeys={new Set([viewMode])}
+            onSelectionChange={(keys) => {
+              const selected = Array.from(keys)[0] as ViewMode;
+              if (selected) {
+                setViewMode(selected);
+                setYearViewPopover(null);
+              }
+            }}
+            size="sm"
+            variant="bordered"
+            disallowEmptySelection
+            className="w-full"
+          >
+            <SelectItem key="day" textValue="Day" className="capitalize text-xs">
+              Day
+            </SelectItem>
+            <SelectItem key="week" textValue="Week" className="capitalize text-xs">
+              Week
+            </SelectItem>
+            <SelectItem key="month" textValue="Month" className="capitalize text-xs">
+              Month
+            </SelectItem>
+            <SelectItem key="year" textValue="Year" className="capitalize text-xs">
+              Year
+            </SelectItem>
+          </Select>
+        </div>
+
+        {!inPopup ? (
+          <Button
+            size="sm"
+            radius="sm"
+            variant="ghost"
+            isIconOnly
+            onPress={() => setIsMaximized(true)}
+            className="border-small border-gray-300 dark:border-default-200"
+            title="Maximize"
+          >
+            <FiMaximize2 size={16} className="text-gray-700 dark:text-foreground/80" />
+          </Button>
+        ) : (
+          <Button
+            size="sm"
+            radius="full"
+            variant="light"
+            isIconOnly
+            onPress={() => setIsMaximized(false)}
+            className="text-gray-500 dark:text-foreground/70 hover:text-foreground hover:bg-foreground/10"
+            title="Close"
+          >
+            <FiX size={20} />
+          </Button>
+        )}
+      </div>
+
+      <div className="hidden sm:block absolute left-1/2 -translate-x-1/2 pointer-events-none z-0 max-w-[35%] lg:max-w-[45%] truncate text-center">
+        <p className="text-base md:text-lg font-bold text-gray-800 dark:text-white truncate">
+          {getHeaderTitle()}
+        </p>
+      </div>
     </div>
+  );
+
+  return (
+    <>
+      <div className="w-full rounded-xl overflow-hidden bg-background">
+        {renderHeaderControls(false)}
+        {viewMode === "month" && renderMonthView()}
+        {viewMode === "day" && renderDayView()}
+        {viewMode === "week" && renderWeekView()}
+        {viewMode === "year" && renderYearView()}
+      </div>
+
+      {isMaximized && (
+        <div
+          className="fixed inset-0 z-50 bg-black/70 backdrop-blur-md p-1.5 sm:p-3 md:p-6 flex items-center justify-center animate-in fade-in duration-200"
+          onClick={() => setIsMaximized(false)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full h-full max-w-[1700px] bg-background border border-foreground/10 rounded-xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
+          >
+            {renderHeaderControls(true)}
+            <div className="flex-1 overflow-hidden p-0 flex flex-col">
+              {viewMode === "month" && renderMonthView()}
+              {viewMode === "day" && renderDayView()}
+              {viewMode === "week" && renderWeekView()}
+              {viewMode === "year" && renderYearView()}
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

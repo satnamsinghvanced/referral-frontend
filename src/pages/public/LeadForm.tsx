@@ -187,7 +187,6 @@ export default function LeadForm() {
     <div style={styles.page}>
       <div style={{ width: "100%", maxWidth: 680 }}>
 
-        {/* ── Header branding card ── */}
         <div style={styles.headerCard}>
           <div style={styles.headerLeft}>
             <div style={styles.practiceIcon}>
@@ -206,10 +205,8 @@ export default function LeadForm() {
           </div>
         </div>
 
-        {/* ── Main form card ── */}
         <div style={styles.card}>
 
-          {/* Form title */}
           <div style={styles.formTitleRow}>
             <span style={{ fontSize: 20 }}>⭐</span>
             <div>
@@ -218,7 +215,6 @@ export default function LeadForm() {
             </div>
           </div>
 
-          {/* Form-level error */}
           {errors._form && (
             <div style={styles.errorBanner}>
               <svg width="16" height="16" fill="none" stroke="#ef4444" strokeWidth="2" viewBox="0 0 24 24" style={{ flexShrink: 0 }}>
@@ -230,7 +226,6 @@ export default function LeadForm() {
 
           <form onSubmit={handleSubmit}>
 
-            {/* ── Two-column grid for regular fields ── */}
             <div style={styles.grid}>
               {regularFields.map((field) => {
                 const hasError = !!errors[field.name];
@@ -291,7 +286,6 @@ export default function LeadForm() {
               })}
             </div>
 
-            {/* ── Boolean / checkbox fields ── */}
             {booleanFields.length > 0 && (
               <div style={styles.checkboxSection}>
                 {booleanFields.map((field) => {
@@ -316,7 +310,6 @@ export default function LeadForm() {
               </div>
             )}
 
-            {/* ── Submit button ── */}
             <div style={styles.buttonRow}>
               <button
                 type="submit"

@@ -7,7 +7,7 @@ import {
 } from "@heroui/react";
 import { FiCheckCircle, FiMapPin } from "react-icons/fi";
 import { LuCar, LuClock, LuTimer } from "react-icons/lu";
-import { TbCalendarStats, TbNotes, TbRoute } from "react-icons/tb"; // Icons for new structure
+import { TbCalendarStats, TbNotes, TbRoute } from "react-icons/tb";
 import VisitStatusChip from "../../../components/chips/VisitStatusChip";
 import { convertTo12HourClock } from "../../../utils/convertTo12HourClock";
 import { formatDateToReadable } from "../../../utils/formatDateToReadable";
@@ -17,7 +17,7 @@ import { RouteDetailStop, SchedulePlan } from "../../../types/partner";
 interface ViewScheduleModalProps {
   isOpen: boolean;
   onClose: () => void;
-  plan: SchedulePlan; // The data for the specific plan to display
+  plan: SchedulePlan;
 }
 
 export default function ViewScheduledVisitModal({
@@ -41,7 +41,6 @@ export default function ViewScheduledVisitModal({
 
     const baseUrl = `${import.meta.env.VITE_URL_PREFIX}/visit-map`;
 
-    // Passing optimized as true since this is a saved route that was presumably optimized if intended
     const url = `${baseUrl}?coordinates=${encodeURIComponent(
       activeCoordinateString,
     )}&optimized=true`;
@@ -62,7 +61,6 @@ export default function ViewScheduledVisitModal({
       }}
     >
       <ModalContent className="max-h-[90vh] overflow-hidden w-full">
-        {/* Modal Header */}
         <ModalHeader className="flex gap-1 p-4">
           <h4 className="text-base font-medium flex items-center gap-2 text-foreground">
             <TbCalendarStats className="h-6 w-6 text-blue-600 dark:text-blue-400" />
@@ -74,7 +72,6 @@ export default function ViewScheduledVisitModal({
         </ModalHeader>
 
         <ModalBody className="px-4 pt-0 pb-4 overflow-y-auto space-y-3 md:space-y-4 gap-0">
-          {/* --- Summary Stats (Reference: Review & Save Tab) --- */}
           <div className="grid grid-cols-4 gap-4 py-3 bg-gray-50 dark:bg-default-100/20 rounded-lg border border-foreground/10">
             <StatPill
               title="Referrers"
@@ -112,8 +109,6 @@ export default function ViewScheduledVisitModal({
               </div>
             </div>
           </div>
-
-          {/* --- Plan Configuration --- */}
           <div className="space-y-4 border border-foreground/10 p-4 rounded-xl">
             <h3 className="text-sm font-medium flex items-center gap-2 text-foreground">
               <TbNotes className="h-4 w-4" /> Plan Details
@@ -213,8 +208,6 @@ export default function ViewScheduledVisitModal({
     </Modal>
   );
 }
-
-// --- Reusable Sub-Components ---
 
 const StatPill = ({
   title,

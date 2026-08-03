@@ -1,17 +1,8 @@
-import {
-  Card,
-  CardBody,
-  Checkbox,
-  Input,
-  Select,
-  SelectItem,
-  Textarea,
-} from "@heroui/react";
 import React from "react";
+import { Card, CardBody, Checkbox, Input, Select, SelectItem, Textarea } from "@heroui/react";
 import { RiErrorWarningLine } from "react-icons/ri";
 import { RxTarget } from "react-icons/rx";
 import { PRIORITY_LEVELS, PURPOSE_OPTIONS } from "../../../../consts/practice";
-
 import { Partner } from "../../../../types/partner";
 
 interface PlanDetailsTabProps {

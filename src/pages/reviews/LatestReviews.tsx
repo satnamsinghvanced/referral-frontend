@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   Avatar,
   Button,
@@ -10,9 +11,8 @@ import {
 } from "@heroui/react";
 import { FaStar } from "react-icons/fa";
 import { FiExternalLink, FiMapPin, FiMessageSquare } from "react-icons/fi";
-import { IoIosWifi } from "react-icons/io";
-import { LuQrCode } from "react-icons/lu";
 import { useGBPRecentReviews } from "../../hooks/useReviews";
+import { useBusinessIntegration } from "../../hooks/integrations/useGoogleBusiness";
 import { GBPReview } from "../../types/reviews";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -187,15 +187,11 @@ const LatestReviewItem = ({
 /**
  * Main component for the Reviews and Interactions section.
  */
-import { useGBPRecentReviews } from "../../hooks/useReviews";
-import { useBusinessIntegration } from "../../hooks/integrations/useGoogleBusiness";
-import { useMemo } from "react";
-
 export default function LatestReviews() {
   const { data: gbpData, isLoading: isGbpLoading } = useGBPRecentReviews();
   const { data: businessConfig } = useBusinessIntegration();
 
-  const connectedLoc = businessConfig?.locations?.find((l: any) => l.isConnected);
+  const connectedLoc: any = businessConfig?.locations?.find((l: any) => l.isConnected);
   const connectedLocationId = connectedLoc?.placeId || connectedLoc?.locationId;
 
   const gbpReviews = useMemo(() => {

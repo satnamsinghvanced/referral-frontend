@@ -31,12 +31,10 @@ const ScheduleVisitStatusModal = ({
   isOpen = false,
   onClose,
   visit,
-  setVisitEdit, // Updated prop name
+  setVisitEdit,
 }: ScheduleVisitStatusModalProps) => {
-  // Use the assumed hook for updating a visit
   const { mutate: updateSchedulePlan, isPending } = useUpdateSchedulePlan();
 
-  // 1. Validation Schema
   const validationSchema = Yup.object<VisitStatusUpdateFormValues>().shape({
     status: Yup.string().required("Visit Status is required"),
     visitNotes: Yup.string()
@@ -45,10 +43,9 @@ const ScheduleVisitStatusModal = ({
     visitOutcome: Yup.string()
       .max(500, "Outcome must be under 500 characters")
       .nullable(),
-    followUp: Yup.boolean().required(), // Required boolean
+    followUp: Yup.boolean().required(),
   });
 
-  // 2. Formik Setup
   const formik = useFormik<VisitStatusUpdateFormValues>({
     enableReinitialize: true,
     initialValues: {
@@ -70,10 +67,8 @@ const ScheduleVisitStatusModal = ({
         { id: visit?._id, data: payload },
         {
           onSuccess: () => {
-            setVisitEdit(null); // Clear the edit ID on success
+            setVisitEdit(null);
             onClose();
-            // Optional: Invalidate queries related to visits
-            // queryClient.invalidateQueries({ queryKey: ['visits'] });
           },
         },
       );
@@ -111,7 +106,6 @@ const ScheduleVisitStatusModal = ({
           </p>
         </ModalHeader>
 
-        {/* Dialog Body */}
         {!visit ? (
           <ModalBody className="py-4 pt-1 px-4 gap-0 min-h-[400px] flex items-center justify-center">
             <LoadingState />
@@ -119,7 +113,6 @@ const ScheduleVisitStatusModal = ({
         ) : (
           <ModalBody className="space-y-4 py-4 pt-1 px-4 gap-0">
             <form onSubmit={formik.handleSubmit} className="space-y-4">
-              {/* 1. New Status Select */}
               <div className="space-y-2">
                 <Select
                   name="status"
@@ -141,7 +134,6 @@ const ScheduleVisitStatusModal = ({
                   }
                   isRequired
                 >
-                  {/* Assuming VISIT_STATUS_OPTIONS is structured like STATUS_OPTIONS */}
                   {VISIT_STATUSES.map((status) => (
                     <SelectItem key={status.value} textValue={status.label}>
                       {status.label}
@@ -150,7 +142,6 @@ const ScheduleVisitStatusModal = ({
                 </Select>
               </div>
 
-              {/* 2. Visit Notes Textarea */}
               <div className="space-y-2">
                 <Textarea
                   id="visitNotes"
@@ -177,7 +168,6 @@ const ScheduleVisitStatusModal = ({
                 />
               </div>
 
-              {/* 3. Visit Outcome Textarea */}
               <div className="space-y-2">
                 <Textarea
                   id="visitOutcome"
@@ -206,7 +196,6 @@ const ScheduleVisitStatusModal = ({
                 />
               </div>
 
-              {/* 4. Follow Up Action Required Checkbox */}
               <div className="flex items-center">
                 <Checkbox
                   size="sm"
