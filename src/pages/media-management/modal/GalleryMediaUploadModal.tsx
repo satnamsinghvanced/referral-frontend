@@ -22,6 +22,7 @@ interface GalleryMediaUploadModalProps {
   allowedVideoFormats?: string[];
   maxVideoSize?: number;
   maxSelection?: number;
+  allowedMediaType?: "image" | "video" | "all";
 }
 
 function GalleryMediaUploadModal({
@@ -34,6 +35,7 @@ function GalleryMediaUploadModal({
   allowedVideoFormats,
   maxVideoSize,
   maxSelection,
+  allowedMediaType = "all",
 }: GalleryMediaUploadModalProps) {
   const [currentFolderId, setCurrentFolderId] = useState<string | null>(null);
   const [breadcrumbPath, setBreadcrumbPath] = useState<{ id: string; name: string }[]>([]);
@@ -41,7 +43,11 @@ function GalleryMediaUploadModal({
   const [isUploadMediaModalOpen, setIsUploadMediaModalOpen] = useState(false);
   const [selectedMediaIds, setSelectedMediaIds] = useState<string[]>([]);
   const [selectedMediaItems, setSelectedMediaItems] = useState<Media[]>([]);
-  const [currentFilters, setCurrentFilters] = useState<any>({ search: "", type: "all", tags: [] });
+  const [currentFilters, setCurrentFilters] = useState<any>(() => ({
+    search: "",
+    type: allowedMediaType === "image" ? "image" : allowedMediaType === "video" ? "video" : "all",
+    tags: []
+  }));
   const { data: allFolders, isLoading: isAllFoldersLoading } = useGetAllFolders({ page: 1, limit: 10 });
   const { data: folderData, isLoading: isLoadingFolder } = useGetFolderDetails(currentFolderId as string);
   const { data: availableTagsData } = useTagsQuery();
@@ -90,6 +96,8 @@ function GalleryMediaUploadModal({
   const filteredMedia = rawFolderMedia.filter((media: Media) => {
     const isImage = media.type.startsWith("image/");
     const isVideo = media.type.startsWith("video/");
+    if (allowedMediaType === "image" && isVideo) return false;
+    if (allowedMediaType === "video" && isImage) return false;
     if (isImage && allowedImageFormats) {
       if (!allowedImageFormats.includes(media.type)) return false;
     }
@@ -103,9 +111,13 @@ function GalleryMediaUploadModal({
     if (isOpen) {
       setSelectedMediaItems(preselectedMedia);
       setSelectedMediaIds(preselectedMedia.map((m) => m._id));
+      setCurrentFilters((prev: any) => ({
+        ...prev,
+        type: allowedMediaType === "image" ? "image" : allowedMediaType === "video" ? "video" : "all",
+      }));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen]);
+  }, [isOpen, allowedMediaType]);
   const handleMediaSelect = (isSelected: boolean, media: Media) => {
     console.log("handleMediaSelect in modal called with isSelected:", isSelected, "mediaId:", media._id, "mediaType:", media.type, "allowedImageFormats:", allowedImageFormats);
     if (isSelected) {
@@ -230,22 +242,24 @@ function GalleryMediaUploadModal({
                     classNames={{ inputWrapper: "bg-default-100" }}
                   />
                 </div>
-                <div className="min-w-[150px]">
-                  <Select
-                    aria-label="Filter Type"
-                    size="sm"
-                    selectedKeys={new Set([currentFilters.type])}
-                    disabledKeys={new Set([currentFilters.type])}
-                    onSelectionChange={(keys) =>
-                      onFilterChange("type", Array.from(keys)[0] as string)
-                    }
-                    classNames={{ trigger: "bg-default-100" }}
-                  >
-                    <SelectItem key="all">All Media</SelectItem>
-                    <SelectItem key="image">Images</SelectItem>
-                    <SelectItem key="video">Videos</SelectItem>
-                  </Select>
-                </div>
+                {allowedMediaType === "all" && (
+                  <div className="min-w-[150px]">
+                    <Select
+                      aria-label="Filter Type"
+                      size="sm"
+                      selectedKeys={new Set([currentFilters.type])}
+                      disabledKeys={new Set([currentFilters.type])}
+                      onSelectionChange={(keys) =>
+                        onFilterChange("type", Array.from(keys)[0] as string)
+                      }
+                      classNames={{ trigger: "bg-default-100" }}
+                    >
+                      <SelectItem key="all">All Media</SelectItem>
+                      <SelectItem key="image">Images</SelectItem>
+                      <SelectItem key="video">Videos</SelectItem>
+                    </Select>
+                  </div>
+                )}
               </div>
               {availableTags && availableTags.length > 0 && (
                 <div className="flex flex-wrap gap-2 items-center">
@@ -387,9 +401,9 @@ function GalleryMediaUploadModal({
         onClose={() => setIsUploadMediaModalOpen(false)}
         folderId={currentFolderId}
         folderName={currentFolderName}
-        allowedImageFormats={allowedImageFormats}
+        allowedImageFormats={allowedMediaType === "video" ? [] : allowedImageFormats}
         maxImageSize={maxImageSize}
-        allowedVideoFormats={allowedVideoFormats}
+        allowedVideoFormats={allowedMediaType === "image" ? [] : allowedVideoFormats}
         maxVideoSize={maxVideoSize}
       />
     </Modal>

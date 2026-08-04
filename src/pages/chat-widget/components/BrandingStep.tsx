@@ -223,6 +223,8 @@ export default function BrandingStep({
         maxSelection={1}
         allowedImageFormats={["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"]}
         maxImageSize={2 * 1024 * 1024}
+        allowedVideoFormats={[]}
+        allowedMediaType="image"
       />
     </div>
   );
