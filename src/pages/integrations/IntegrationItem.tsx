@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { BiCheckCircle } from "react-icons/bi";
 import { FiAlertCircle, FiExternalLink, FiSettings } from "react-icons/fi";
 import { FaFacebook, FaInstagram } from "react-icons/fa6";
+import { FaStar, FaStarHalfAlt, FaRegStar } from "react-icons/fa";
 
 interface IntegrationItemProps {
   id: string;
@@ -33,6 +34,11 @@ interface IntegrationItemProps {
   };
   connectedLocation?: string | undefined;
   isHighlighted?: boolean;
+  reviews?: {
+    items: any[];
+    averageRating?: number;
+    totalCount?: number;
+  };
 }
 
 const IntegrationItem: React.FC<IntegrationItemProps> = ({
@@ -59,6 +65,7 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
   account,
   connectedLocation,
   isHighlighted,
+  reviews,
 }) => {
   const [isLocalLoading, setIsLocalLoading] = useState(false);
 
@@ -248,6 +255,70 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
             <p className="text-xs text-gray-500 dark:text-foreground/50 mt-2">
               Last sync: {lastSync}
             </p>
+          )}
+
+          {/* Reviews Section */}
+          {status === "Connected" && reviews && reviews.items.length > 0 && (
+            <div className="mt-3 border-t border-foreground/5 pt-3">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs font-medium text-foreground/70">Reviews</span>
+                {reviews.averageRating != null && (
+                  <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-0.5">
+                      {[1, 2, 3, 4, 5].map((star) => {
+                        const rating = reviews.averageRating || 0;
+                        if (star <= Math.floor(rating)) {
+                          return <FaStar key={star} className="w-2.5 h-2.5 text-amber-400" />;
+                        } else if (star - 0.5 <= rating) {
+                          return <FaStarHalfAlt key={star} className="w-2.5 h-2.5 text-amber-400" />;
+                        }
+                        return <FaRegStar key={star} className="w-2.5 h-2.5 text-amber-400/40" />;
+                      })}
+                    </div>
+                    <span className="text-[11px] text-foreground/50">
+                      {reviews.averageRating.toFixed(1)} ({reviews.totalCount ?? reviews.items.length})
+                    </span>
+                  </div>
+                )}
+              </div>
+              <div className="space-y-2 max-h-[180px] overflow-y-auto pr-1">
+                {reviews.items.slice(0, 3).map((review: any, idx: number) => (
+                  <div
+                    key={review.name || idx}
+                    className="flex gap-2 p-2 rounded-lg bg-foreground/[0.02] dark:bg-foreground/[0.04] border border-foreground/5"
+                  >
+                    <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
+                      <span className="text-[10px] font-semibold text-primary">
+                        {(review.authorAttribution?.displayName || "A").charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1.5">
+                        <span className="text-[11px] font-medium text-foreground/80 truncate">
+                          {review.authorAttribution?.displayName || "Anonymous"}
+                        </span>
+                        <div className="flex items-center gap-0.5">
+                          {[1, 2, 3, 4, 5].map((s) => (
+                            <FaStar
+                              key={s}
+                              className={`w-2 h-2 ${s <= (review.rating || review.starRating || 0)
+                                  ? "text-amber-400"
+                                  : "text-foreground/10"
+                                }`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                      {(review.text?.text || review.comment) && (
+                        <p className="text-[11px] text-foreground/50 mt-0.5 line-clamp-2">
+                          {review.text?.text || review.comment}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           )}
         </div>
       </div>

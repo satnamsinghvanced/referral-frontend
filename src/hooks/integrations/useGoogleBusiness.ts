@@ -33,7 +33,7 @@ export const useConnectBusiness = () => {
     mutationFn: () => getGoogleBusinessAuthUrl(),
     onSuccess: (data) => {
       if (data.authUrl) {
-        window.open(data.authUrl, "_blank");
+        window.location.href = data.authUrl;
       }
     },
   });

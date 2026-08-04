@@ -1,11 +1,12 @@
-import { Button } from "@heroui/react";
-import { useMemo, useState } from "react";
+import { Button, addToast } from "@heroui/react";
+import { useMemo, useState, useEffect } from "react";
 import { FaRegStar } from "react-icons/fa";
 import { HiOutlineChartBar, HiOutlineStar } from "react-icons/hi";
 import { LuCalendar, LuTarget, LuTrendingUp, LuUsers, LuBell } from "react-icons/lu";
 import { TrendIndicator } from "../../components/common/TrendIndicator";
 import { TbSpeakerphone } from "react-icons/tb";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
+import axios from "../../services/axios";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import { TREATMENT_OPTIONS } from "../../consts/referral";
@@ -100,6 +101,98 @@ const Dashboard = () => {
   const { startTour } = useTour();
   const { requestPermission, permissionStatus } = useNotificationSubscription();
   const [showNotificationBanner, setShowNotificationBanner] = useState(true);
+  const [gmbConfig, setGmbConfig] = useState<any>(null);
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [isGmbLoading, setIsGmbLoading] = useState(true);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const fetchGmbData = async () => {
+    try {
+      const response = await axios.get("/google_business_integration");
+      if (response.data?.success) {
+        setGmbConfig(response.data.data);
+      }
+    } catch (err) {
+      console.error("Error fetching Gmb Config:", err);
+    }
+  };
+
+  const fetchGmbReviews = async () => {
+    try {
+      const response = await axios.get("/google_business_profile/recent-reviews");
+      if (response.data?.success && response.data?.data?.reviews) {
+        setReviews(response.data.data.reviews.slice(0, 3));
+      }
+    } catch (err) {
+      console.error("Error fetching Gmb Reviews:", err);
+    }
+  };
+
+  const handleConnectGoogleBusiness = async () => {
+    try {
+      const res = await axios.get("/auth/google-business");
+      if (res.data?.success && res.data?.data?.authUrl) {
+        window.open(res.data.data.authUrl, "_blank", "width=600,height=600");
+      } else {
+        addToast({
+          title: "Error",
+          description: "Failed to generate connection URL",
+          color: "danger",
+        });
+      }
+    } catch (err: any) {
+      console.error("Zernio auth initiation failed:", err);
+      addToast({
+        title: "Error",
+        description: err.response?.data?.message || err.message || "Failed to connect",
+        color: "danger",
+      });
+    }
+  };
+
+  useEffect(() => {
+    fetchGmbData();
+    fetchGmbReviews().finally(() => setIsGmbLoading(false));
+  }, []);
+
+  useEffect(() => {
+    const status = searchParams.get("status");
+    const message = searchParams.get("message");
+    if (status === "success" && message) {
+      addToast({
+        title: "Connection Successful",
+        description: message,
+        color: "success",
+      });
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.delete("status");
+          next.delete("message");
+          return next;
+        },
+        { replace: true }
+      );
+      fetchGmbData();
+      fetchGmbReviews();
+    } else if (status === "error" && message) {
+      addToast({
+        title: "Connection Failed",
+        description: message,
+        color: "danger",
+      });
+      setSearchParams(
+        (prev) => {
+          const next = new URLSearchParams(prev);
+          next.delete("status");
+          next.delete("message");
+          return next;
+        },
+        { replace: true }
+      );
+    }
+  }, [searchParams]);
+
   const navigate = useNavigate();
   const { data: dashboard, isLoading } = useDashboard();
   const { data: billingData, isLoading: isBillingLoading } = useBilling();
@@ -422,6 +515,79 @@ const Dashboard = () => {
           </div>
 
           <div className="space-y-4 md:space-y-5">
+            {/* Google Business Profile Card */}
+            {gmbConfig && gmbConfig.connectionType === "zernio" && gmbConfig.status === "Connected" ? (
+              <div className="bg-background rounded-xl p-4 border border-divider dark:border-white/5 space-y-3 animate-fade-in">
+                <div className="flex justify-between items-center border-b border-divider pb-2">
+                  <h3 className="text-sm md:text-base font-semibold flex items-center gap-1.5">
+                    <span>🏢</span> Google Business
+                  </h3>
+                  <span className="bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300 px-2 py-0.5 rounded text-xs font-medium">
+                    Connected
+                  </span>
+                </div>
+                
+                {gmbConfig.locations?.[0] && (
+                  <div className="space-y-1.5 text-xs">
+                    <p className="font-semibold text-gray-900 dark:text-foreground">
+                      {gmbConfig.locations[0].name}
+                    </p>
+                    <p className="text-gray-500 leading-relaxed">
+                      {gmbConfig.locations[0].address}
+                    </p>
+                    {gmbConfig.locations[0].coordinates && (
+                      <p className="text-gray-400 font-mono text-[10px]">
+                        Lat: {gmbConfig.locations[0].coordinates.latitude?.toFixed(4)}, Long: {gmbConfig.locations[0].coordinates.longitude?.toFixed(4)}
+                      </p>
+                    )}
+                  </div>
+                )}
+
+                {reviews && reviews.length > 0 && (
+                  <div className="pt-2 border-t border-divider space-y-2">
+                    <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                      Recent Reviews:
+                    </p>
+                    <div className="space-y-2 max-h-[160px] overflow-y-auto pr-1">
+                      {reviews.map((r: any, idx: number) => (
+                        <div key={idx} className="bg-gray-50 dark:bg-foreground/5 p-2 rounded text-[11px] space-y-1">
+                          <div className="flex justify-between items-center">
+                            <span className="font-medium text-gray-800 dark:text-foreground truncate max-w-[120px]">
+                              {r.reviewer?.displayName || "Anonymous"}
+                            </span>
+                            <span className="text-yellow-500 font-semibold shrink-0">
+                              ★ {r.starRating ? (typeof r.starRating === 'string' ? r.starRating.charAt(0) : r.starRating) : 5}
+                            </span>
+                          </div>
+                          <p className="text-gray-600 dark:text-gray-400 leading-normal line-clamp-2">
+                            {r.comment || "Rating only"}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="bg-background rounded-xl p-4 border border-divider dark:border-white/5">
+                <h3 className="text-sm md:text-base font-semibold mb-2 flex items-center gap-1.5">
+                  <span>🏢</span> Google Business
+                </h3>
+                <p className="text-xs text-gray-500 mb-3 leading-relaxed">
+                  Connect your Google Business Profile to sync and display your location details and reviews.
+                </p>
+                <Button
+                  size="sm"
+                  radius="sm"
+                  color="primary"
+                  fullWidth
+                  onPress={handleConnectGoogleBusiness}
+                >
+                  Connect Google Business
+                </Button>
+              </div>
+            )}
+
             <div className="bg-background rounded-xl p-4">
               <h3 className="text-sm md:text-base mb-4">
                 <span className="mr-1">📱</span>NFC & QR Tracking
