@@ -58,7 +58,6 @@ import {
 } from "../../hooks/integrations/useTwilio";
 import { useBilling } from "../../hooks/settings/useBilling";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
-import { useGBPRecentReviews } from "../../hooks/useReviews";
 import { timeAgo } from "../../utils/timeAgo";
 import IntegrationItem from "./IntegrationItem";
 import SendGridConfigModal from "./modal/SendGridConfigModal";
@@ -184,7 +183,6 @@ function Integrations() {
         metaads: "meta_ads",
         google_analytics: "google_analytics",
         googleanalytics: "google_analytics",
-        reviews: "reviews",
         sendgrid: "email_marketing",
         smtp: "email_marketing",
         email_marketing: "email_marketing",
@@ -214,15 +212,6 @@ function Integrations() {
     }
   }, [location.search, location.hash, searchParams]);
 
-  useEffect(() => {
-    const status = searchParams.get("status");
-    const message = searchParams.get("message");
-    if (status === "success" && message && message.toLowerCase().includes("google business")) {
-      setIsGoogleBusinessLocationModalOpen(true);
-      setSearchParams({}, { replace: true });
-    }
-  }, [searchParams, setSearchParams]);
-
   const [isGoogleBusinessConnecting, setIsGoogleBusinessConnecting] = useState(false);
   const [onboardingWindow, setOnboardingWindow] = useState<Window | null>(null);
   const [countdown, setCountdown] = useState<number | null>(null);
@@ -230,7 +219,6 @@ function Integrations() {
     data: googleBusinessConfig,
     isLoading: isGoogleBusinessConfigLoading,
   } = useBusinessIntegration() as any;
-  const { data: gbpReviewsData } = useGBPRecentReviews();
   const { mutate: syncBusinessProfiles, isPending: isSyncingBusiness } = useSyncBusinessProfiles();
   const { mutate: updateGoogleBusinessIntegration, isPending: isUpdatingGoogleBusiness } = useUpdateBusiness();
   const { mutate: connectGoogleBusiness } = useConnectBusiness();
@@ -478,11 +466,6 @@ function Integrations() {
         accountEmail: googleBusinessConfig?.accountEmail,
         accountAvatar: googleBusinessConfig?.accountAvatar,
       },
-      reviews: gbpReviewsData?.reviews?.length ? {
-        items: gbpReviewsData.reviews,
-        averageRating: gbpReviewsData.stats?.averageRating,
-        totalCount: gbpReviewsData.stats?.totalReviewCount ?? gbpReviewsData.reviews?.length,
-      } : undefined,
     });
 
     list.push({
