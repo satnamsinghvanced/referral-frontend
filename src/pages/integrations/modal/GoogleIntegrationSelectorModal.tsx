@@ -149,7 +149,7 @@ export default function GoogleIntegrationSelectorModal({ type, isOpen, onClose }
     }
   }, [type, data]);
 
-  const displayItems = searchResults !== null ? searchResults : items;
+  const displayItems: any = searchResults !== null ? searchResults : items;
 
   // Debounced live autocomplete search effect
   useEffect(() => {
@@ -165,7 +165,7 @@ export default function GoogleIntegrationSelectorModal({ type, isOpen, onClose }
       try {
         const res = await searchPlacesMutation.mutateAsync(query);
         const foundLocations = res?.locations || [];
-        const mapped: SelectorItem[] = foundLocations.map((loc: any) => ({
+        const mapped: any[] = foundLocations.map((loc: any) => ({
           id: loc.locationId,
           title: loc.name,
           subtitle: loc.address,
@@ -188,7 +188,7 @@ export default function GoogleIntegrationSelectorModal({ type, isOpen, onClose }
 
   useEffect(() => {
     if (displayItems.length > 0) {
-      const connected = displayItems.find((item) => item.isConnected);
+      const connected = displayItems.find((item: any) => item.isConnected);
       if (connected) {
         setSelectedId(connected.id);
       } else if (searchResults !== null) {
@@ -206,7 +206,7 @@ export default function GoogleIntegrationSelectorModal({ type, isOpen, onClose }
     try {
       const res = await searchPlacesMutation.mutateAsync(searchQuery.trim());
       const foundLocations = res?.locations || [];
-      const mapped: SelectorItem[] = foundLocations.map((loc: any) => ({
+      const mapped: any[] = foundLocations.map((loc: any) => ({
         id: loc.locationId,
         title: loc.name,
         subtitle: loc.address,
@@ -359,8 +359,8 @@ export default function GoogleIntegrationSelectorModal({ type, isOpen, onClose }
                 {searchResults !== null
                   ? "No matching locations found for your search."
                   : type === "business"
-                  ? "Enter your business location above to search."
-                  : config.emptyMsg}
+                    ? "Enter your business location above to search."
+                    : config.emptyMsg}
               </p>
               <p className="text-xs text-default-400 max-w-xs mx-auto mb-3">
                 {type === "business"
@@ -390,7 +390,7 @@ export default function GoogleIntegrationSelectorModal({ type, isOpen, onClose }
                     wrapper: "flex flex-col gap-3 w-full min-w-full",
                   }}
                 >
-                  {displayItems.map((item) => (
+                  {displayItems.map((item: any) => (
                     <Radio
                       key={item.id}
                       value={item.id}

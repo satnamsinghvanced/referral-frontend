@@ -5,7 +5,6 @@ import { getDirections } from "../services/mapbox";
 import { MapboxDirectionsResponse } from "../types/mapbox";
 
 type MutationPayload = string;
-
 const DIRECTIONS_QUERY_KEY = "mapboxDirections";
 
 export const useDirectionsMutation = () => {

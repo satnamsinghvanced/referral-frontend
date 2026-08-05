@@ -31,9 +31,7 @@ export default function NotificationPopover() {
     const handleNewNotification = (data: any) => {
       queryClient.invalidateQueries({ queryKey: ["notifications", "in-app"] });
     };
-
     subscribeToNotifications(handleNewNotification);
-
     return () => {
       const socketInstance = getSocket();
       if (socketInstance) {

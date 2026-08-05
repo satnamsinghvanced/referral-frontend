@@ -5,7 +5,7 @@ export const usePlanGuard = () => {
   const { data: billingData, isLoading } = useBilling();
 
   const hasAccess = (accessKey: keyof PlanAccess): boolean => {
-    if (!billingData || !billingData.access) return true; // Default allow if not loaded
+    if (!billingData || !billingData.access) return true;
     return billingData.access[accessKey] !== false;
   };
 
@@ -20,7 +20,7 @@ export const usePlanGuard = () => {
     currentCount: number
   ): boolean => {
     const maxLimit = getLimit(limitKey);
-    if (maxLimit === -1) return false; // -1 means unlimited
+    if (maxLimit === -1) return false;
     return currentCount >= maxLimit;
   };
 

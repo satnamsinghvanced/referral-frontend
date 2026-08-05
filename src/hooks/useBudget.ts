@@ -129,7 +129,6 @@ export const useDeleteBudgetItem = (
         (error.response?.data as { message?: string })?.message ||
         error.message ||
         "Failed to delete budget item";
-
       addToast({
         title: "Error",
         description: errorMessage,

@@ -58,7 +58,7 @@ export function useCampaignTemplates(filters: CampaignFilters) {
   return useQuery({
     queryKey: CAMPAIGN_KEYS.list(filters),
     queryFn: () => getCampaignTemplates(filters),
-    staleTime: 30_000, // serve cached data for 30s before background refetch
+    staleTime: 30_000,
   });
 }
 

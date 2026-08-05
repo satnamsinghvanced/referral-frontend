@@ -13,7 +13,7 @@ export function useFetchUser(id: string) {
     queryKey: ["user", id],
     queryFn: () => fetchUser(id),
     enabled: !!id,
-    // @ts-ignore - onError is deprecated in v5 but keeping for backward compatibility if needed, or it might be v4
+    // @ts-ignore
     onError: () => {
       store.dispatch(handleLogoutThunk());
       window.location.href = `${import.meta.env.VITE_URL_PREFIX}/signin`;
@@ -31,7 +31,6 @@ export function useFetchUserForTrackings(id: string) {
 
 export function useUpdateUser(id: string) {
   const { completeManualUpload } = useUpload();
-
   return useMutation<
     User,
     AxiosError,
@@ -59,7 +58,6 @@ export function useUpdateUser(id: string) {
       if (variables.uploadId) {
         completeManualUpload(variables.uploadId, "error");
       }
-      console.log(error);
       const status = error.response?.status;
       const data = error.response?.data as { message?: string; code?: string };
       let errorMessage =

@@ -32,14 +32,12 @@ export const useCreateActivity = () => {
       const previousData = queryClient.getQueriesData({
         queryKey: ["marketingActivities"],
       });
-
       const tempId = `temp-${Date.now()}`;
       const tempItem = {
         _id: tempId,
         ...newActivity,
         createdAt: new Date().toISOString(),
       };
-
       queryClient.setQueriesData(
         { queryKey: ["marketingActivities"] },
         (old: any) => {
@@ -51,7 +49,6 @@ export const useCreateActivity = () => {
           };
         }
       );
-
       return { previousData };
     },
     onError: (error: any, _vars, context: any) => {
@@ -101,7 +98,6 @@ export const useUpdateActivity = () => {
         queryKey: ["marketingActivities"],
       });
       const targetId = updatedActivity._id || updatedActivity.id;
-
       queryClient.setQueriesData(
         { queryKey: ["marketingActivities"] },
         (old: any) => {
@@ -116,7 +112,6 @@ export const useUpdateActivity = () => {
           };
         }
       );
-
       return { previousData };
     },
     onError: (error: any, _vars, context: any) => {
@@ -159,7 +154,6 @@ export const useDeleteActivity = () => {
         queryKey: ["marketingActivities"],
       });
       const targetId = typeof payload === "string" ? payload : payload?.eventId || payload?._id;
-
       queryClient.setQueriesData(
         { queryKey: ["marketingActivities"] },
         (old: any) => {
@@ -172,7 +166,6 @@ export const useDeleteActivity = () => {
           };
         }
       );
-
       return { previousData };
     },
     onError: (error: any, _vars, context) => {

@@ -71,9 +71,7 @@ export const OtpVerificationModal: React.FC<OtpVerificationModalProps> = ({
       if (onClearError) onClearError();
     }
   };
-
   const displayPhone = maskPhoneForDisplay(phoneNumber);
-
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="md" backdrop="blur">
       <ModalContent>

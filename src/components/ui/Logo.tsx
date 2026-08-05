@@ -1,6 +1,5 @@
 import * as React from "react";
 interface LogoProps extends React.SVGProps<SVGSVGElement> {
-  // You can add custom props here if needed, like 'size' or 'color'
 }
 
 const Logo: React.FC<LogoProps> = (props) => {

@@ -47,7 +47,6 @@ export const useFetchPartners = (params: FetchPartnersParams = {}) => {
     order = "asc",
     filter = "allPractices",
   } = params;
-
   return useQuery<FetchPartnersResponse, Error>({
     queryKey: ["partnerStats", page, limit, search, sortBy, order, filter],
     queryFn: () =>
@@ -132,7 +131,6 @@ export const useFetchAllTasks = (params: FetchTasksParams = {}) => {
     status = "all",
     priority = "all",
   } = params;
-
   return useQuery<any, Error>({
     queryKey: ["tasks", page, limit, search, status, priority],
     queryFn: () => fetchAllTasks({ page, limit, search, status, priority }),
@@ -355,7 +353,6 @@ interface UseVisitHistoryParams {
 }
 
 export const VISIT_HISTORY_QUERY_KEY = "visitHistory";
-
 export const useVisitHistory = (params: UseVisitHistoryParams) => {
   return useQuery<VisitHistoryResponse, Error>({
     queryKey: [VISIT_HISTORY_QUERY_KEY, params],

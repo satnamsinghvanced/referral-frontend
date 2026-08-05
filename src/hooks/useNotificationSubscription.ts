@@ -81,7 +81,6 @@ export const useNotificationSubscription = () => {
       try {
         const permission = await Notification.requestPermission();
         setPermissionStatus(permission);
-
         if (permission === "granted" && settings?._id) {
           const browserSubscription = await subscribeToPush();
           if (browserSubscription) {
