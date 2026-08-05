@@ -166,9 +166,9 @@ const CallTracking = () => {
           )}
           {!isTwilioConnected && !isTwilioConfigLoading && (
             <IntegrationWarningBanner
-              platformName="Twilio"
+              platformName="Phone Service"
               integrationKey="twilio"
-              message="Twilio is not connected. Connect your Twilio account to enable call tracking features."
+              message="Phone Service is not connected. Connect your Phone Service account to enable call tracking features."
             />
           )}
           {isTwilioConnected && !hasActiveNumber && !isTwilioConfigLoading && (

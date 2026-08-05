@@ -46,11 +46,11 @@ const DatePickerWithTimeInput: React.FC<DatePickerWithTimeInputProps> = ({
     if (isNaN(d.getTime())) return { date: null, time: null };
     return {
       date: new CalendarDate(
-        d.getUTCFullYear(),
-        d.getUTCMonth() + 1,
-        d.getUTCDate(),
+        d.getFullYear(),
+        d.getMonth() + 1,
+        d.getDate(),
       ),
-      time: new Time(d.getUTCHours(), d.getUTCMinutes()),
+      time: new Time(d.getHours(), d.getMinutes()),
     };
   }, [value]);
 
@@ -59,12 +59,10 @@ const DatePickerWithTimeInput: React.FC<DatePickerWithTimeInputProps> = ({
     time: Time | null,
   ): string | null => {
     if (!date) return null;
-    const nowUtc = new Date();
-    const hour = time ? time.hour : nowUtc.getUTCHours();
-    const minute = time ? time.minute : nowUtc.getUTCMinutes();
-    const d = new Date(
-      Date.UTC(date.year, date.month - 1, date.day, hour, minute, 0, 0),
-    );
+    const nowLocal = new Date();
+    const hour = time ? time.hour : nowLocal.getHours();
+    const minute = time ? time.minute : nowLocal.getMinutes();
+    const d = new Date(date.year, date.month - 1, date.day, hour, minute, 0, 0);
     return d.toISOString();
   };
 
@@ -86,9 +84,9 @@ const DatePickerWithTimeInput: React.FC<DatePickerWithTimeInputProps> = ({
         : new Date(val);
     if (!isNaN(d.getTime())) {
       return new CalendarDate(
-        d.getUTCFullYear(),
-        d.getUTCMonth() + 1,
-        d.getUTCDate(),
+        d.getFullYear(),
+        d.getMonth() + 1,
+        d.getDate(),
       );
     }
     return undefined;

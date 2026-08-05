@@ -1,7 +1,7 @@
 import { Button, Input, Select, SelectItem } from "@heroui/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
-import { FiClock, FiGlobe, FiSearch, FiShare2 } from "react-icons/fi";
+import { FiClock, FiGlobe, FiSearch, FiShare2, FiTrash2 } from "react-icons/fi";
 import { LuCalendar, LuUserPlus, LuUsers } from "react-icons/lu";
 import { MdOutlineRemoveRedEye, MdTrendingUp } from "react-icons/md";
 import { RiMegaphoneLine } from "react-icons/ri";
@@ -20,7 +20,6 @@ import { ActivityCard } from "./ActivityCard";
 import CustomCalendar from "./CustomCalender";
 import ActivityActionsModal from "./modal/ActivityActionsModal";
 import { ActivityDetailModal } from "./modal/ActivityDetailModal";
-import { data, Link } from "react-router-dom";
 import { useCalendarIntegration } from "../../hooks/integrations/useGoogleCalendar";
 import IntegrationWarningBanner from "../../components/common/IntegrationWarningBanner";
 import { formatNumberWithCommas } from "../../utils/formatNumberWithCommas";
@@ -50,7 +49,7 @@ const MarketingCalendar = () => {
   }, [googleCalendarConfig]);
   const [currentFilters, setCurrentFilters] = useState<any>({
     page: 1,
-    limit: 21,
+    limit: 200,
     search: "",
     type: "all",
   });
@@ -185,18 +184,18 @@ const MarketingCalendar = () => {
     },
     ...(canTrackBudget
       ? [
-          {
-            icon: <MdOutlineRemoveRedEye className="text-orange-600" />,
-            heading: "Total Budget",
-            value: formatNumberWithCommas(stats?.totalBudget as number),
-            subheading: (
-              <p className="text-orange-600 dark:text-orange-400 flex items-center gap-1.5">
-                <LuUsers fontSize={15} />
-                Combined budget
-              </p>
-            ),
-          },
-        ]
+        {
+          icon: <MdOutlineRemoveRedEye className="text-orange-600" />,
+          heading: "Total Budget",
+          value: formatNumberWithCommas(stats?.totalBudget as number),
+          subheading: (
+            <p className="text-orange-600 dark:text-orange-400 flex items-center gap-1.5">
+              <LuUsers fontSize={15} />
+              Combined budget
+            </p>
+          ),
+        },
+      ]
       : []),
   ];
   const filteredActivities = sortedActivities.filter((activity: any) => {
@@ -263,24 +262,26 @@ const MarketingCalendar = () => {
                     background: activityColor ? activityColor : "#4285F4",
                   }}
                 ></div>
-                <div className="flex justify-between items-start mb-2 p-0">
-                  <h3 className="text-sm font-medium text-foreground">
+                <div className="flex justify-between items-start gap-3 mb-2 p-0 w-full">
+                  <h3 className="text-sm text-start font-medium text-foreground truncate flex-1 min-w-0" title={activity.title}>
                     {activity.title}
                   </h3>
-                  <ActivityStatusChip
-                    status={
-                      activity.status === "confirmed"
-                        ? "scheduled"
-                        : activity.status
-                    }
-                  />
+                  <div className="shrink-0">
+                    <ActivityStatusChip
+                      status={
+                        activity.status === "confirmed"
+                          ? "scheduled"
+                          : activity.status
+                      }
+                    />
+                  </div>
                 </div>
                 <div className="text-sm text-gray-600 dark:text-foreground/60 space-y-2 p-0">
                   <div className="flex items-center gap-1.5">
                     <LuCalendar fontSize={14} />
                     <p className="flex items-center space-x-1 text-xs">
                       <span>
-                        {formatDateToReadable(activity.startDate, true, true)}
+                        {formatDateToReadable(activity.startDate, true)}
                       </span>
                     </p>
                   </div>
@@ -289,6 +290,24 @@ const MarketingCalendar = () => {
                       <FiGlobe fontSize={14} /> {activityType}
                     </p>
                   )}
+                </div>
+                <div className="flex justify-end pt-2 border-t border-foreground/5 mt-2">
+                  <Button
+                    size="sm"
+                    radius="full"
+                    variant="light"
+                    isIconOnly
+                    onPress={(e: any) => {
+                      // @ts-ignore
+                      e?.stopPropagation?.();
+                      setSelectedActivity(activity);
+                      setIsDeleteModalOpen(true);
+                    }}
+                    className="h-7 w-7 min-w-[28px] p-0 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors"
+                    title="Delete Activity"
+                  >
+                    <FiTrash2 size={14} />
+                  </Button>
                 </div>
               </div>
             );
@@ -334,6 +353,7 @@ const MarketingCalendar = () => {
                 <CustomCalendar
                   weekendDisabled={false}
                   disablePastDates={false}
+                  onDayClick={(date) => setSelectedDate(date)}
                   onRangeSelect={(start, end) => {
                     setSelectedDate(start.toISOString());
                     setSelectedEndDate(
@@ -346,6 +366,14 @@ const MarketingCalendar = () => {
                   }}
                   activities={sortedActivities}
                   onActivityClick={handleViewActivity}
+                  onActivityEdit={(activity) => {
+                    setSelectedActivity(activity);
+                    setIsModalOpen(true);
+                  }}
+                  onActivityDelete={(activity) => {
+                    setSelectedActivity(activity);
+                    setIsDeleteModalOpen(true);
+                  }}
                 />
               </div>
             </div>
@@ -445,6 +473,10 @@ const MarketingCalendar = () => {
                       key={activity._id}
                       activity={activity}
                       onView={handleViewActivity}
+                      onDelete={(act: any) => {
+                        setSelectedActivity(act);
+                        setIsDeleteModalOpen(true);
+                      }}
                     />
                   ))}
                 </div>

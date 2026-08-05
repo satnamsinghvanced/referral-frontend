@@ -26,7 +26,7 @@ export const usePlanGuard = () => {
 
   const openPricingPage = () => {
     const wordpressUrl =
-      import.meta.env.VITE_WORDPRESS_BASE_URL || "https://practiceroi.com";
+      import.meta.env.WORDPRESS_BASE_URL || "https://practiceroi.com";
     const cleanUrl = wordpressUrl.replace(/\/$/, "");
     window.open(`${cleanUrl}/pricing`, "_blank");
   };

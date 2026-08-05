@@ -48,21 +48,26 @@ export function ActivityDetailModal({ isOpen, onClose, activity, onEdit, onDelet
     >
       <ModalContent className="p-4">
         <ModalHeader className="flex flex-col gap-2 flex-shrink-0 p-0 font-normal">
-          <h4
-            data-slot="dialog-title"
-            className="text-base leading-none font-medium flex items-center gap-2 text-foreground"
-          >
-            {activity.title}
+          <div className="flex items-center justify-between gap-3 pr-6 w-full">
+            <h4
+              data-slot="dialog-title"
+              className="text-base font-medium text-foreground truncate flex-1 min-w-0"
+              title={activity.title}
+            >
+              {activity.title}
+            </h4>
             {activity.status && (
-              <ActivityStatusChip
-                status={
-                  activity.status === "confirmed"
-                    ? "scheduled"
-                    : activity.status
-                }
-              />
+              <div className="shrink-0">
+                <ActivityStatusChip
+                  status={
+                    activity.status === "confirmed"
+                      ? "scheduled"
+                      : activity.status
+                  }
+                />
+              </div>
             )}
-          </h4>
+          </div>
           <p className="text-gray-600 dark:text-foreground/60 text-xs">
             View and manage details for this marketing activity including
             scheduling, budget, performance metrics, and engagement data.
@@ -72,12 +77,12 @@ export function ActivityDetailModal({ isOpen, onClose, activity, onEdit, onDelet
           <div className="grid grid-cols-2 gap-4">
             <DetailItem
               label="Start Date"
-              value={formatDateToReadable(activity.startDate, true, true)}
+              value={formatDateToReadable(activity.startDate, true)}
             />
             {activity.endDate ? (
               <DetailItem
                 label="End Date"
-                value={formatDateToReadable(activity.endDate, true, true)}
+                value={formatDateToReadable(activity.endDate, true)}
               />
             ) : (
               <DetailItem label="End Date" value="Same Day" />

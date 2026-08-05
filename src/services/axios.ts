@@ -1,5 +1,6 @@
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import { addToast } from "@heroui/react";
 import { queryClient } from "../providers/QueryProvider";
 import { store } from "../store";
 import { handleLogoutThunk } from "../store/authSlice";
@@ -59,11 +60,19 @@ let isToastShowing = false;
 axiosInstance.interceptors.response.use(
   (response) => response.data,
   (error) => {
-    if (!error.response && !isToastShowing) {
-      isToastShowing = true;
-      setTimeout(() => {
-        isToastShowing = false;
-      }, 5000);
+    if (error.message === "Network Error" || error.code === "ERR_NETWORK" || !error.response) {
+      error.message = "Network Error. Please try again after some time.";
+      if (!isToastShowing) {
+        isToastShowing = true;
+        addToast({
+          title: "Error",
+          description: "Network Error. Please try again after some time.",
+          color: "danger",
+        });
+        setTimeout(() => {
+          isToastShowing = false;
+        }, 5000);
+      }
     }
 
     if (error.response?.status === 401 || error.response?.status === 403) {

@@ -11,19 +11,19 @@ const Billing: React.FC = () => {
   const navigate = useNavigate();
 
   const handleNavigateToROI = () => {
-    const wordpressUrl = import.meta.env.VITE_WORDPRESS_BASE_URL || "https://practiceroi.com";
+    const wordpressUrl = import.meta.env.WORDPRESS_BASE_URL || "https://practiceroi.com";
     const baseUrl = wordpressUrl.endsWith("/") ? wordpressUrl.slice(0, -1) : wordpressUrl;
     window.open(`${baseUrl}/pricing/`, "_blank");
   };
 
   const handleUpdatePayment = () => {
-    const wordpressUrl = import.meta.env.VITE_WORDPRESS_BASE_URL || "https://practiceroi.com";
+    const wordpressUrl = import.meta.env.WORDPRESS_BASE_URL || "https://practiceroi.com";
     const baseUrl = wordpressUrl.endsWith("/") ? wordpressUrl.slice(0, -1) : wordpressUrl;
     window.open(`${baseUrl}/pricing/`, "_blank");
   };
 
   const handleTogglePlanStatus = () => {
-    const wordpressUrl = import.meta.env.VITE_WORDPRESS_BASE_URL || "https://practiceroi.com";
+    const wordpressUrl = import.meta.env.WORDPRESS_BASE_URL || "https://practiceroi.com";
     const baseUrl = wordpressUrl.endsWith("/") ? wordpressUrl.slice(0, -1) : wordpressUrl;
     window.open(`${baseUrl}/pricing/`, "_blank");
   };

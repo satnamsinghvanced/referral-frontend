@@ -40,11 +40,22 @@ export function useLogin() {
         (error.response?.data as { message?: string })?.message ||
         error.message ||
         "Failed to login";
-      addToast({
-        title: "Error",
-        description: errorMessage,
-        color: "danger",
-      });
+      const lowerMsg = errorMessage.toLowerCase();
+      const isSubscriptionOrInactive =
+        lowerMsg.includes("inactive") ||
+        lowerMsg.includes("subscription") ||
+        lowerMsg.includes("expired") ||
+        lowerMsg.includes("plan") ||
+        lowerMsg.includes("contact support") ||
+        error.response?.status === 402;
+
+      if (!isSubscriptionOrInactive) {
+        addToast({
+          title: "Error",
+          description: errorMessage,
+          color: "danger",
+        });
+      }
     },
   });
 }
@@ -150,7 +161,7 @@ export function useExportReviewsPDFMutation() {
 
 export function useDeleteAccount() {
   return useMutation({
-    mutationFn: deleteAccount,
+    mutationFn: (payload?: { otp?: string }) => deleteAccount(payload),
     onSuccess: () => {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
@@ -161,7 +172,7 @@ export function useDeleteAccount() {
       addToast({
         title: "Error",
         description:
-          (error.response?.data as any)?.message || "Failed to delete account",
+          (error.response?.data as any)?.message || error.message || "Failed to delete account",
         color: "danger",
       });
     },

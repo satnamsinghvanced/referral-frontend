@@ -25,7 +25,18 @@ export const useUpdateCallRecord = () => {
 export const useDeleteCallRecord = () => {
   return useMutation({
     mutationFn: (id: string) => deleteCallRecord(id),
-    onSuccess: () => {
+    onSuccess: (_, id) => {
+      queryClient.setQueriesData({ queryKey: [CALL_RECORDS_QUERY_KEY] }, (oldData: any) => {
+        if (!oldData || !oldData.paginatedCalls || !Array.isArray(oldData.paginatedCalls.data)) return oldData;
+        return {
+          ...oldData,
+          paginatedCalls: {
+            ...oldData.paginatedCalls,
+            data: oldData.paginatedCalls.data.filter((item: any) => item._id !== id),
+            totalData: Math.max(0, (oldData.paginatedCalls.totalData || 1) - 1),
+          },
+        };
+      });
       queryClient.invalidateQueries({ queryKey: [CALL_RECORDS_QUERY_KEY] });
       addToast({
         title: "Success",

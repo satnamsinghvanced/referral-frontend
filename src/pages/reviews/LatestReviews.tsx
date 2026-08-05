@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import {
   Avatar,
   Button,
@@ -10,9 +11,8 @@ import {
 } from "@heroui/react";
 import { FaStar } from "react-icons/fa";
 import { FiExternalLink, FiMapPin, FiMessageSquare } from "react-icons/fi";
-import { IoIosWifi } from "react-icons/io";
-import { LuQrCode } from "react-icons/lu";
-import { useGBPRecentReviews, useFacebookReviews } from "../../hooks/useReviews";
+import { useGBPRecentReviews } from "../../hooks/useReviews";
+import { useBusinessIntegration } from "../../hooks/integrations/useGoogleBusiness";
 import { GBPReview } from "../../types/reviews";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
@@ -95,17 +95,26 @@ const LatestReviewItem = ({
     <div className="p-4 border border-foreground/10 rounded-lg transition-all duration-300 bg-gradient-to-r from-white to-gray-50/50 dark:from-content1 dark:to-background">
       <div className="flex items-start justify-between mb-3 flex-wrap">
         <div className="flex items-center gap-3">
-          <div className="flex-shrink-0 rounded-full overflow-hidden h-10 w-10 aspect-square flex items-center justify-center -mt-15 sm:-mt-0">
-            <Avatar
-              {...(reviewer.profilePhotoUrl ? { src: reviewer.profilePhotoUrl } : {})}
-              name={reviewer.displayName || ""}
-              radius="none"
-              classNames={{
-                base: "w-full h-full !rounded-none",
-                img: "w-full h-full object-cover",
-                fallback: "w-full h-full flex items-center justify-center",
-              }}
-            />
+          <div className="flex-shrink-0 rounded-full overflow-hidden h-10 w-10 aspect-square flex items-center justify-center">
+            {reviewer.profilePhotoUrl ? (
+              <img
+                src={reviewer.profilePhotoUrl}
+                alt={reviewer.displayName || "Reviewer"}
+                referrerPolicy="no-referrer"
+                className="w-full h-full object-cover rounded-full"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(reviewer.displayName || "User")}&background=0284c7&color=ffffff`;
+                }}
+              />
+            ) : (
+              <Avatar
+                name={reviewer.displayName || ""}
+                classNames={{
+                  base: "w-full h-full rounded-full",
+                  fallback: "w-full h-full flex items-center justify-center text-xs font-semibold",
+                }}
+              />
+            )}
           </div>
 
           <div>
@@ -189,57 +198,36 @@ const LatestReviewItem = ({
  */
 export default function LatestReviews() {
   const { data: gbpData, isLoading: isGbpLoading } = useGBPRecentReviews();
-  const { data: fbData, isLoading: isFbLoading, error: fbError } = useFacebookReviews();
+  const { data: businessConfig } = useBusinessIntegration();
 
-  const gbpReviews = (gbpData?.reviews || []).map((r: any) => ({
-    ...r,
-    platform: "Google",
-  }));
+  const connectedLoc: any = businessConfig?.locations?.find((l: any) => l.isConnected);
+  const connectedLocationId = connectedLoc?.placeId || connectedLoc?.locationId;
 
-  const mapNumberToStarString = (rating: number) => {
-    switch (rating) {
-      case 5: return "FIVE";
-      case 4: return "FOUR";
-      case 3: return "THREE";
-      case 2: return "TWO";
-      case 1: return "ONE";
-      default: return "FIVE";
+  const gbpReviews = useMemo(() => {
+    const raw = (gbpData?.reviews || []).map((r: any) => ({
+      ...r,
+      platform: "Google",
+    }));
+
+    if (connectedLocationId) {
+      return raw.filter(
+        (r: any) =>
+          !r.locationId ||
+          r.locationId === connectedLocationId ||
+          connectedLocationId.includes(r.locationId) ||
+          r.locationId.includes(connectedLocationId)
+      );
     }
-  };
+    return raw;
+  }, [gbpData?.reviews, connectedLocationId]);
 
-  const fbReviews = fbError ? [] : (fbData?.reviews || []).map((r: any) => {
-    let ratingVal = 5;
-    if (r.rating) {
-      ratingVal = r.rating;
-    } else if (r.recommendation_type === "positive") {
-      ratingVal = 5;
-    } else if (r.recommendation_type === "negative") {
-      ratingVal = 1;
-    }
+  const allReviews = useMemo(() => {
+    return [...gbpReviews].sort(
+      (a, b) => new Date(b.createTime).getTime() - new Date(a.createTime).getTime()
+    );
+  }, [gbpReviews]);
 
-    return {
-      reviewId: r.open_graph_story?.id || r.reviewer?.id || Math.random().toString(),
-      reviewer: {
-        displayName: r.reviewer?.name || "Facebook User",
-        profilePhotoUrl: r.reviewer?.picture?.data?.url || "",
-      },
-      starRating: mapNumberToStarString(ratingVal),
-      createTime: r.created_time || new Date().toISOString(),
-      comment: r.open_graph_story?.message || "",
-      reviewReply: r.isResponded ? { comment: r.replyText } : null,
-      isRatingOnly: !r.open_graph_story?.message,
-      platform: "Facebook",
-      
-      viewUrl: r.redirectLink,
-    };
-  });
-
-  const allReviews = [...gbpReviews, ...fbReviews].sort(
-    (a, b) => new Date(b.createTime).getTime() - new Date(a.createTime).getTime()
-  );
-
-  const isLoading = isGbpLoading || (isFbLoading && !fbError);
-  const isReauthRequired = fbData?.reauthRequired;
+  const isLoading = isGbpLoading;
 
   return (
     <Card
@@ -248,7 +236,14 @@ export default function LatestReviews() {
     >
       {/* Card Header */}
       <CardHeader className="w-full flex flex-col items-start gap-3 p-0 sm:flex-row sm:items-center sm:justify-between">
-        <h4 className="font-medium">Recent Reviews & Interactions</h4>
+        <div className="flex flex-col gap-0.5">
+          <h4 className="font-medium">Recent Reviews & Interactions</h4>
+          {connectedLoc?.name && (
+            <span className="text-xs text-primary font-medium">
+              Location: {connectedLoc.name}
+            </span>
+          )}
+        </div>
         <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:justify-end">
           <Chip
             size="sm"
@@ -260,12 +255,6 @@ export default function LatestReviews() {
           </Chip>
         </div>
       </CardHeader>
-
-      {isReauthRequired && (
-        <div className="bg-red-500/10 text-red-500 border border-red-500/20 text-xs px-3 py-2.5 rounded-lg flex items-center justify-between">
-          <span>Facebook connection expired (e.g. password changed). Please reconnect Facebook in Settings to sync reviews.</span>
-        </div>
-      )}
 
       {/* Card Content (Reviews List) */}
       <CardBody className="p-0">

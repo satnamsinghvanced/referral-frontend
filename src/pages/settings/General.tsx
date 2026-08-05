@@ -90,16 +90,27 @@ const General: React.FC = () => {
 
   const handleExportReferrals = () => {
     const uploadId = Math.random().toString(36).substring(7);
-    addManualUpload(uploadId, "Generating Referrals PDF", "media");
+    const controller = new AbortController();
+    let isCancelled = false;
 
     let progress = 0;
     const interval = setInterval(() => {
+      if (isCancelled) return;
       progress += 10;
       updateManualUploadProgress(uploadId, Math.min(progress, 90));
     }, 250);
 
+    const cancelTask = () => {
+      isCancelled = true;
+      clearInterval(interval);
+      completeManualUpload(uploadId, "cancelled");
+    };
+
+    addManualUpload(uploadId, "Generating Referrals PDF", "media", controller, cancelTask);
+
     exportReferrals(undefined, {
       onSuccess: (data: any) => {
+        if (isCancelled) return;
         clearInterval(interval);
         completeManualUpload(uploadId, "completed");
 
@@ -119,6 +130,7 @@ const General: React.FC = () => {
         generateReferralsPdf(referrals, stats, false);
       },
       onError: () => {
+        if (isCancelled) return;
         clearInterval(interval);
         completeManualUpload(uploadId, "error");
       },
@@ -127,21 +139,33 @@ const General: React.FC = () => {
 
   const handleExportReviews = () => {
     const uploadId = Math.random().toString(36).substring(7);
-    addManualUpload(uploadId, "Generating Reviews PDF", "media");
+    const controller = new AbortController();
+    let isCancelled = false;
 
     let progress = 0;
     const interval = setInterval(() => {
+      if (isCancelled) return;
       progress += 10;
       updateManualUploadProgress(uploadId, Math.min(progress, 90));
     }, 250);
 
+    const cancelTask = () => {
+      isCancelled = true;
+      clearInterval(interval);
+      completeManualUpload(uploadId, "cancelled");
+    };
+
+    addManualUpload(uploadId, "Generating Reviews PDF", "media", controller, cancelTask);
+
     exportReviewsPDF(undefined, {
       onSuccess: (blob) => {
+        if (isCancelled) return;
         clearInterval(interval);
         completeManualUpload(uploadId, "completed");
         downloadBlob(blob, "reviews_export");
       },
       onError: () => {
+        if (isCancelled) return;
         clearInterval(interval);
         completeManualUpload(uploadId, "error");
       },
@@ -150,21 +174,33 @@ const General: React.FC = () => {
 
   const handleExportAnalytics = () => {
     const uploadId = Math.random().toString(36).substring(7);
-    addManualUpload(uploadId, "Generating Analytics PDF", "media");
+    const controller = new AbortController();
+    let isCancelled = false;
 
     let progress = 0;
     const interval = setInterval(() => {
+      if (isCancelled) return;
       progress += 10;
       updateManualUploadProgress(uploadId, Math.min(progress, 90));
     }, 250);
 
+    const cancelTask = () => {
+      isCancelled = true;
+      clearInterval(interval);
+      completeManualUpload(uploadId, "cancelled");
+    };
+
+    addManualUpload(uploadId, "Generating Analytics PDF", "media", controller, cancelTask);
+
     exportAnalyticsPDF(undefined, {
       onSuccess: (blob) => {
+        if (isCancelled) return;
         clearInterval(interval);
         completeManualUpload(uploadId, "completed");
         downloadBlob(blob, "analytics_export");
       },
       onError: () => {
+        if (isCancelled) return;
         clearInterval(interval);
         completeManualUpload(uploadId, "error");
       },
@@ -173,29 +209,42 @@ const General: React.FC = () => {
 
   const handleDownloadAccountData = () => {
     const uploadId = Math.random().toString(36).substring(7);
-    addManualUpload(uploadId, "Generating Account Data", "media");
+    const controller = new AbortController();
+    let isCancelled = false;
 
     let progress = 0;
     const interval = setInterval(() => {
+      if (isCancelled) return;
       progress += 10;
       updateManualUploadProgress(uploadId, Math.min(progress, 90));
     }, 250);
 
+    const cancelTask = () => {
+      isCancelled = true;
+      clearInterval(interval);
+      completeManualUpload(uploadId, "cancelled");
+    };
+
+    addManualUpload(uploadId, "Generating Account Data", "media", controller, cancelTask);
+
     exportAccountData(undefined, {
       onSuccess: () => {
+        if (isCancelled) return;
         clearInterval(interval);
         completeManualUpload(uploadId, "completed");
       },
       onError: () => {
+        if (isCancelled) return;
         clearInterval(interval);
         completeManualUpload(uploadId, "error");
       },
     });
   };
 
-  const handleDeleteAccount = (otpCode?: string) => {
+  const handleDeleteAccount = (otpCode?: any) => {
+    const validOtp = typeof otpCode === "string" ? otpCode : undefined;
     setOtpError(undefined);
-    if (userData?.isTwoFactorEnabled && !otpCode) {
+    if (userData?.isTwoFactorEnabled && !validOtp) {
       setIsDeleteModalOpen(false);
       setIsDeleteOtpLoading(true);
       deleteAccount(undefined, {
@@ -211,10 +260,10 @@ const General: React.FC = () => {
         }
       });
     } else {
-      if (otpCode) {
+      if (validOtp) {
         setIsDeleteOtpLoading(true);
       }
-      deleteAccount(otpCode ? { otp: otpCode } : undefined, {
+      deleteAccount(validOtp ? { otp: validOtp } : undefined, {
         onSuccess: () => {
           setIsDeleteOtpLoading(false);
           setIsOtpOpen(false);
@@ -334,7 +383,7 @@ const General: React.FC = () => {
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
-        onConfirm={handleDeleteAccount}
+        onConfirm={() => handleDeleteAccount()}
         isLoading={isDeletingAccount}
         title="Delete Account Permanently"
       >

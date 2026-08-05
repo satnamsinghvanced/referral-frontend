@@ -23,8 +23,6 @@ interface TwilioDashboardProps {
 }
 
 export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) {
-  console.log("twilioConfig",twilioConfig);
-  
   const [searchParams, setSearchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const [balance, setBalance] = useState<number>(twilioConfig?.balance ?? 0);

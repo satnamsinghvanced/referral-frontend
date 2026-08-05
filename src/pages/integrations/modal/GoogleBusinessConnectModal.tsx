@@ -3,12 +3,11 @@ import {
   Modal,
   ModalBody,
   ModalContent,
-  ModalFooter,
   ModalHeader,
   addToast,
 } from "@heroui/react";
 import { FaGoogle } from "react-icons/fa";
-import { useWindsorAuth } from "../../../hooks/integrations/useGoogleBusiness";
+import { useConnectBusiness } from "../../../hooks/integrations/useGoogleBusiness";
 
 interface GoogleBusinessConnectModalProps {
   isOpen: boolean;
@@ -16,14 +15,14 @@ interface GoogleBusinessConnectModalProps {
 }
 
 export default function GoogleBusinessConnectModal({ isOpen, onClose }: GoogleBusinessConnectModalProps) {
-  const { mutate: connectWindsor, isPending } = useWindsorAuth();
+  const { mutate: connectBusiness, isPending } = useConnectBusiness();
 
   const handleConnect = () => {
-    connectWindsor(undefined, {
+    connectBusiness(undefined, {
       onError: () => {
         addToast({
           title: "Connection Failed",
-          description: "Could not initiate Windsor.ai connection. Please try again.",
+          description: "Could not initiate Google Business connection. Please try again.",
           color: "danger",
         });
       },
@@ -46,15 +45,15 @@ export default function GoogleBusinessConnectModal({ isOpen, onClose }: GoogleBu
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1 pb-2">
           <div className="flex items-center gap-2">
-            <div className="p-2 bg-cyan-500/10 text-cyan-500 rounded-lg">
+            <div className="p-2 bg-red-500/10 text-red-500 rounded-lg">
               <FaGoogle className="w-5 h-5" />
             </div>
             <h3 className="font-semibold text-lg text-foreground">
-              Connect Google My Business
+              Connect Google Business Profile
             </h3>
           </div>
           <p className="text-xs text-gray-500 dark:text-foreground/50 font-normal">
-            Securely connect your Google Business Profile via Windsor.ai to sync reviews and manage your listings automatically.
+            Securely connect your Google Business Profile to sync reviews and manage your listings automatically.
           </p>
         </ModalHeader>
         <ModalBody className="py-6 flex flex-col gap-4">
@@ -66,10 +65,10 @@ export default function GoogleBusinessConnectModal({ isOpen, onClose }: GoogleBu
             isLoading={isPending}
             onPress={handleConnect}
           >
-            Connect with Windsor.ai
+            Connect with Google
           </Button>
           <p className="text-xs text-center text-gray-400">
-            You will be securely redirected to Windsor.ai to authorize access.
+            You will be securely redirected to Google to authorize access.
           </p>
         </ModalBody>
       </ModalContent>

@@ -41,20 +41,15 @@ const parseVisitDurationToSeconds = (durationString: string): number => {
   return 3600;
 };
 
-const formatTimeWithDayOffset = (
-  time: Date,
-  startDate: Date,
-): { timeString: string; dayOffset: number } => {
+const formatTimeWithDayOffset = (time: Date, startDate: Date): { timeString: string; dayOffset: number } => {
   const dayOffset = Math.floor(
     (time.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24),
   );
-
   const timeString = time.toLocaleTimeString([], {
     hour: "2-digit",
     minute: "2-digit",
     hour12: true,
   });
-
   return { timeString, dayOffset };
 };
 
@@ -99,7 +94,6 @@ export const formatRouteData = (
   const routeDetails = selectedReferrers.map((referrer, index) => {
     let travelToStopSeconds = 0;
     let travelToStopDistance = 0;
-
     if (hasUserStartLocation) {
       travelToStopSeconds = mapboxRoute?.legs[index]?.duration || 0;
       travelToStopDistance = mapboxRoute?.legs[index]?.distance || 0;
@@ -109,20 +103,15 @@ export const formatRouteData = (
       travelToStopDistance =
         index === 0 ? 0 : mapboxRoute?.legs[index - 1]?.distance || 0;
     }
-
     totalTravelTimeSeconds += travelToStopSeconds;
-
     currentTimeSeconds += travelToStopSeconds;
     const arrivalTime = new Date(currentTimeSeconds * 1000);
-
     currentTimeSeconds += visitDurationSeconds;
     const departureTime = new Date(currentTimeSeconds * 1000);
-
     const { timeString: arrivalTimeString, dayOffset: arrivalDayOffset } =
       formatTimeWithDayOffset(arrivalTime, startDateTime);
     const { timeString: departureTimeString, dayOffset: departureDayOffset } =
       formatTimeWithDayOffset(departureTime, startDateTime);
-
     const arrivalIndicator =
       arrivalDayOffset > 0 ? ` (+${arrivalDayOffset}d)` : "";
     const departureIndicator =
@@ -141,11 +130,9 @@ export const formatRouteData = (
 
   const estimatedTotalTimeSeconds =
     totalTravelTimeSeconds + totalStops * visitDurationSeconds;
-
   const convertedTotalTime = convertTimeToDaysHoursMinutes(
     formatDuration(estimatedTotalTimeSeconds),
   );
-
   return {
     routeDetails: routeDetails,
     totalStops: totalStops,
