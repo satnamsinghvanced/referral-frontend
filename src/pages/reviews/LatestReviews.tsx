@@ -95,17 +95,26 @@ const LatestReviewItem = ({
     <div className="p-4 border border-foreground/10 rounded-lg transition-all duration-300 bg-gradient-to-r from-white to-gray-50/50 dark:from-content1 dark:to-background">
       <div className="flex items-start justify-between mb-3 flex-wrap">
         <div className="flex items-center gap-3">
-          <div className="flex-shrink-0 rounded-full overflow-hidden h-10 w-10 aspect-square flex items-center justify-center -mt-15 sm:-mt-0">
-            <Avatar
-              {...(reviewer.profilePhotoUrl ? { src: reviewer.profilePhotoUrl } : {})}
-              name={reviewer.displayName || ""}
-              radius="none"
-              classNames={{
-                base: "w-full h-full !rounded-none",
-                img: "w-full h-full object-cover",
-                fallback: "w-full h-full flex items-center justify-center",
-              }}
-            />
+          <div className="flex-shrink-0 rounded-full overflow-hidden h-10 w-10 aspect-square flex items-center justify-center">
+            {reviewer.profilePhotoUrl ? (
+              <img
+                src={reviewer.profilePhotoUrl}
+                alt={reviewer.displayName || "Reviewer"}
+                referrerPolicy="no-referrer"
+                className="w-full h-full object-cover rounded-full"
+                onError={(e) => {
+                  (e.currentTarget as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(reviewer.displayName || "User")}&background=0284c7&color=ffffff`;
+                }}
+              />
+            ) : (
+              <Avatar
+                name={reviewer.displayName || ""}
+                classNames={{
+                  base: "w-full h-full rounded-full",
+                  fallback: "w-full h-full flex items-center justify-center text-xs font-semibold",
+                }}
+              />
+            )}
           </div>
 
           <div>
