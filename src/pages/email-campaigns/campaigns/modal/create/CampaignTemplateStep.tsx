@@ -33,16 +33,19 @@ const CampaignTemplateStep: React.ForwardRefRenderFunction<
 
   const { data: fullTemplate } = useCampaignTemplate(selectedTemplateId || "");
   useEffect(() => {
-    if (selectedTemplateId && selectedTemplateId !== data.templateId) {
+    if (selectedTemplateId) {
       if (fullTemplate) {
-        updateData({
-          templateId: selectedTemplateId,
-          subjectLine: data.subjectLine || fullTemplate.subjectLine,
-          content: fullTemplate.bodyContent,
-        });
+        const hasNoContent = !data.content || data.content.trim() === "" || data.content === "<p><br></p>";
+        if (selectedTemplateId !== data.templateId || hasNoContent) {
+          updateData({
+            templateId: selectedTemplateId,
+            subjectLine: data.subjectLine || fullTemplate.subjectLine,
+            content: fullTemplate.bodyContent,
+          });
+        }
       }
     }
-  }, [selectedTemplateId, fullTemplate, data.templateId, updateData]);
+  }, [selectedTemplateId, fullTemplate, data.templateId, data.content, updateData]);
 
   const [error, setError] = useState("");
   const templates = templatesRaw?.templates || [];
@@ -62,10 +65,11 @@ const CampaignTemplateStep: React.ForwardRefRenderFunction<
         (t: any) => t._id === selectedTemplateId,
       );
       const templateChanged = selectedTemplateId !== data.templateId;
+      const hasNoContent = !data.content || data.content.trim() === "" || data.content === "<p><br></p>";
       const updateDataPayload: Partial<CampaignData> = {
         templateId: selectedTemplateId,
       };
-      if (templateChanged) {
+      if (templateChanged || hasNoContent) {
         updateDataPayload.subjectLine =
           (data.subjectLine as string) ||
           (fullTemplate?.subjectLine as string) ||
