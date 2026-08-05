@@ -381,42 +381,44 @@ export default function GoogleIntegrationSelectorModal({ type, isOpen, onClose }
                   Refresh List
                 </Button>
               </div>
-              <RadioGroup
-                value={selectedId || ""}
-                onValueChange={setSelectedId}
-                orientation="vertical"
-                classNames={{
-                  wrapper: "flex flex-col gap-3 max-h-[360px] overflow-y-auto overflow-x-hidden pr-1 w-full min-w-full",
-                }}
-              >
-                {displayItems.map((item) => (
-                  <Radio
-                    key={item.id}
-                    value={item.id}
-                    classNames={{
-                      base: cn(
-                        "flex w-full min-w-full m-0 bg-content1 hover:bg-content2 items-center justify-between",
-                        "flex-row-reverse cursor-pointer rounded-lg gap-4 p-3.5 border-2 border-default-200/50",
-                        "data-[selected=true]:border-primary data-[selected=true]:bg-primary/5"
-                      ),
-                      label: "w-full min-w-0 flex-1",
-                    }}
-                  >
-                    <div className="flex gap-3 items-center min-w-0 flex-1 w-full">
-                      <div className="p-2 bg-primary/10 rounded-full text-primary shrink-0">{config.icon}</div>
-                      <div className="flex flex-col min-w-0 flex-1">
-                        <span className="text-sm font-bold text-foreground truncate">{item.title}</span>
-                        <span className="text-xs text-default-500 line-clamp-1">{item.subtitle}</span>
-                        {item.category && (
-                          <span className="text-[10px] text-primary font-semibold uppercase mt-0.5">
-                            {item.category}
-                          </span>
-                        )}
+              <div className="max-h-[380px] overflow-y-auto pr-1.5 w-full flex flex-col">
+                <RadioGroup
+                  value={selectedId || ""}
+                  onValueChange={setSelectedId}
+                  orientation="vertical"
+                  classNames={{
+                    wrapper: "flex flex-col gap-3 w-full min-w-full",
+                  }}
+                >
+                  {displayItems.map((item) => (
+                    <Radio
+                      key={item.id}
+                      value={item.id}
+                      classNames={{
+                        base: cn(
+                          "flex w-full min-w-full m-0 bg-content1 hover:bg-content2 items-center justify-between",
+                          "flex-row-reverse cursor-pointer rounded-lg gap-4 p-3.5 border-2 border-default-200/50",
+                          "data-[selected=true]:border-primary data-[selected=true]:bg-primary/5"
+                        ),
+                        label: "w-full min-w-0 flex-1",
+                      }}
+                    >
+                      <div className="flex gap-3 items-center min-w-0 flex-1 w-full">
+                        <div className="p-2 bg-primary/10 rounded-full text-primary shrink-0">{config.icon}</div>
+                        <div className="flex flex-col min-w-0 flex-1">
+                          <span className="text-sm font-bold text-foreground truncate">{item.title}</span>
+                          <span className="text-xs text-default-500 line-clamp-1">{item.subtitle}</span>
+                          {item.category && (
+                            <span className="text-[10px] text-primary font-semibold uppercase mt-0.5">
+                              {item.category}
+                            </span>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  </Radio>
-                ))}
-              </RadioGroup>
+                    </Radio>
+                  ))}
+                </RadioGroup>
+              </div>
             </div>
           )}
         </ModalBody>

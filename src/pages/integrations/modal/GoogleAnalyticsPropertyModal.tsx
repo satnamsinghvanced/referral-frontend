@@ -108,49 +108,51 @@ export default function GoogleAnalyticsPropertyModal({ isOpen, onClose }: {
               </Button>
             </div>
           ) : (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 w-full">
               <div className="flex justify-between items-center mb-2">
                 <p className="text-sm font-medium">{properties.length} Properties Found</p>
                 <Button size="sm" variant="light" color="primary" onClick={handleSync} isLoading={isSyncing}>
                   Refresh List
                 </Button>
               </div>
-              <RadioGroup
-                value={selectedId || ""}
-                onValueChange={setSelectedId}
-                orientation="vertical"
-                classNames={{
-                  wrapper: "flex flex-col gap-3 max-h-[360px] overflow-y-auto overflow-x-hidden pr-1 w-full min-w-full",
-                }}
-              >
-                {properties.map((prop: any) => (
-                  <Radio
-                    key={prop.propertyId}
-                    value={prop.propertyId}
-                    classNames={{
-                      base: cn(
-                        "flex w-full min-w-full m-0 bg-content1 hover:bg-content2 items-center justify-between",
-                        "flex-row-reverse cursor-pointer rounded-lg gap-4 p-3.5 border-2 border-default-200/50",
-                        "data-[selected=true]:border-primary data-[selected=true]:bg-primary/5"
-                      ),
-                      label: "w-full min-w-0 flex-1",
-                    }}
-                  >
-                    <div className="flex gap-3 items-center min-w-0 flex-1 w-full">
-                      <div className="p-2 bg-primary/10 rounded-full text-primary shrink-0">
-                        <SiGoogleanalytics className="w-5 h-5" />
+              <div className="max-h-[380px] overflow-y-auto pr-1.5 w-full flex flex-col">
+                <RadioGroup
+                  value={selectedId || ""}
+                  onValueChange={setSelectedId}
+                  orientation="vertical"
+                  classNames={{
+                    wrapper: "flex flex-col gap-3 w-full min-w-full",
+                  }}
+                >
+                  {properties.map((prop: any) => (
+                    <Radio
+                      key={prop.propertyId}
+                      value={prop.propertyId}
+                      classNames={{
+                        base: cn(
+                          "flex w-full min-w-full m-0 bg-content1 hover:bg-content2 items-center justify-between",
+                          "flex-row-reverse cursor-pointer rounded-lg gap-4 p-3.5 border-2 border-default-200/50",
+                          "data-[selected=true]:border-primary data-[selected=true]:bg-primary/5"
+                        ),
+                        label: "w-full min-w-0 flex-1",
+                      }}
+                    >
+                      <div className="flex gap-3 items-center min-w-0 flex-1 w-full">
+                        <div className="p-2 bg-primary/10 rounded-full text-primary shrink-0">
+                          <SiGoogleanalytics className="w-5 h-5" />
+                        </div>
+                        <div className="flex flex-col min-w-0 flex-1">
+                          <span className="text-sm font-bold text-foreground truncate">{prop.displayName}</span>
+                          <span className="text-xs text-default-500 truncate">ID: {prop.propertyId}</span>
+                          <span className="text-[10px] text-primary font-semibold uppercase mt-0.5">
+                            Account ID: {prop.accountId}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex flex-col min-w-0 flex-1">
-                        <span className="text-sm font-bold text-foreground truncate">{prop.displayName}</span>
-                        <span className="text-xs text-default-500 truncate">ID: {prop.propertyId}</span>
-                        <span className="text-[10px] text-primary font-semibold uppercase mt-0.5">
-                          Account ID: {prop.accountId}
-                        </span>
-                      </div>
-                    </div>
-                  </Radio>
-                ))}
-              </RadioGroup>
+                    </Radio>
+                  ))}
+                </RadioGroup>
+              </div>
             </div>
           )}
         </ModalBody>
