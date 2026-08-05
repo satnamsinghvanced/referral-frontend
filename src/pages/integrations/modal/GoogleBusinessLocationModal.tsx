@@ -166,8 +166,9 @@ export default function GoogleBusinessLocationModal({ isOpen, onClose }: { isOpe
               <RadioGroup
                 value={selectedId || ""}
                 onValueChange={setSelectedId}
+                orientation="vertical"
                 classNames={{
-                  wrapper: "gap-3 max-h-[320px] overflow-y-auto pr-1",
+                  wrapper: "flex flex-col gap-3 max-h-[360px] overflow-y-auto overflow-x-hidden pr-1 w-full min-w-full",
                 }}
               >
                 {locations.map((loc: any) => (
@@ -176,18 +177,19 @@ export default function GoogleBusinessLocationModal({ isOpen, onClose }: { isOpe
                     value={loc.locationId}
                     classNames={{
                       base: cn(
-                        "inline-flex m-0 bg-content1 hover:bg-content2 items-center justify-between",
-                        "flex-row-reverse max-w-full cursor-pointer rounded-lg gap-4 p-3.5 border-2 border-default-200/50",
+                        "flex w-full min-w-full m-0 bg-content1 hover:bg-content2 items-center justify-between",
+                        "flex-row-reverse cursor-pointer rounded-lg gap-4 p-3.5 border-2 border-default-200/50",
                         "data-[selected=true]:border-primary data-[selected=true]:bg-primary/5"
                       ),
+                      label: "w-full min-w-0 flex-1",
                     }}
                   >
-                    <div className="flex gap-3 items-center">
+                    <div className="flex gap-3 items-center min-w-0 flex-1 w-full">
                       <div className="p-2 bg-primary/10 rounded-full text-primary shrink-0">
                         <HiOutlineOfficeBuilding className="w-5 h-5" />
                       </div>
-                      <div className="flex flex-col">
-                        <span className="text-sm font-bold text-foreground">{loc.name}</span>
+                      <div className="flex flex-col min-w-0 flex-1">
+                        <span className="text-sm font-bold text-foreground truncate">{loc.name}</span>
                         <span className="text-xs text-default-500 line-clamp-1">{loc.address || "Google Places Location"}</span>
                         <span className="text-[10px] text-primary font-semibold uppercase mt-0.5">
                           {loc.primaryCategory || "Places Profile"}

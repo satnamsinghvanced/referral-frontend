@@ -118,8 +118,9 @@ export default function GoogleAnalyticsPropertyModal({ isOpen, onClose }: {
               <RadioGroup
                 value={selectedId || ""}
                 onValueChange={setSelectedId}
+                orientation="vertical"
                 classNames={{
-                  wrapper: "gap-3",
+                  wrapper: "flex flex-col gap-3 max-h-[360px] overflow-y-auto overflow-x-hidden pr-1 w-full min-w-full",
                 }}
               >
                 {properties.map((prop: any) => (
@@ -128,20 +129,21 @@ export default function GoogleAnalyticsPropertyModal({ isOpen, onClose }: {
                     value={prop.propertyId}
                     classNames={{
                       base: cn(
-                        "inline-flex m-0 bg-content1 hover:bg-content2 items-center justify-between",
-                        "flex-row-reverse max-w-full cursor-pointer rounded-lg gap-4 p-4 border-2 border-transparent",
-                        "data-[selected=true]:border-primary"
+                        "flex w-full min-w-full m-0 bg-content1 hover:bg-content2 items-center justify-between",
+                        "flex-row-reverse cursor-pointer rounded-lg gap-4 p-3.5 border-2 border-default-200/50",
+                        "data-[selected=true]:border-primary data-[selected=true]:bg-primary/5"
                       ),
+                      label: "w-full min-w-0 flex-1",
                     }}
                   >
-                    <div className="flex gap-3 items-center">
-                      <div className="p-2 bg-primary/10 rounded-full text-primary">
+                    <div className="flex gap-3 items-center min-w-0 flex-1 w-full">
+                      <div className="p-2 bg-primary/10 rounded-full text-primary shrink-0">
                         <SiGoogleanalytics className="w-5 h-5" />
                       </div>
-                      <div className="flex flex-col">
-                        <span className="text-sm font-bold">{prop.displayName}</span>
-                        <span className="text-xs text-default-400">ID: {prop.propertyId}</span>
-                        <span className="text-[10px] text-primary font-medium uppercase mt-1">
+                      <div className="flex flex-col min-w-0 flex-1">
+                        <span className="text-sm font-bold text-foreground truncate">{prop.displayName}</span>
+                        <span className="text-xs text-default-500 truncate">ID: {prop.propertyId}</span>
+                        <span className="text-[10px] text-primary font-semibold uppercase mt-0.5">
                           Account ID: {prop.accountId}
                         </span>
                       </div>
