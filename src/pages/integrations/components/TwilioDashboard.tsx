@@ -145,8 +145,10 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
   const handlePurchaseNumber = (number: string, label: string) => {
     queryClient.invalidateQueries({ queryKey: ["twilio"] });
   };
+  const [isReleasing, setIsReleasing] = useState(false);
   const handleConfirmRelease = async () => {
     if (numberToRelease) {
+      setIsReleasing(true);
       try {
         const response = await axios.post("/twilio-checkout/release-number", {
           phoneNumber: numberToRelease.phoneNumber,
@@ -169,6 +171,7 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
           color: "danger",
         });
       } finally {
+        setIsReleasing(false);
         setNumberToRelease(null);
       }
     }
@@ -333,10 +336,10 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
                 </h4>
                 <div className="flex flex-col gap-1.5 text-xs text-amber-700 dark:text-amber-400/90 leading-relaxed">
                   <p>
-                    Your A2P registration for <span className="font-bold text-amber-900 dark:text-amber-200">"{registration.campaignName || "Patient Communication & Appointment Reminders"}"</span> is currently being reviewed by mobile carriers.
+                    Your A2P registration for <span className="font-bold text-amber-900 dark:text-amber-200">"{registration.campaignName || "Patient Communication & Appointment Reminders"}"</span> is currently under review for phone service.
                   </p>
                   <p>
-                    This typically takes 1-2 business days. You'll receive an email notification when your registration is approved.
+                    This is under review for phone service. It will take 1-2 days. You'll receive an email notification when your registration is approved.
                   </p>
                 </div>
               </div>
@@ -526,6 +529,7 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
           <ModalFooter className="p-5 pt-2 flex gap-3 justify-end border-t border-foreground/5">
             <Button
               variant="bordered"
+              isDisabled={isReleasing}
               onPress={() => setNumberToRelease(null)}
               className="border border-foreground/10 rounded-lg text-xs font-semibold h-8 px-4"
             >
@@ -533,6 +537,8 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
             </Button>
             <Button
               color="danger"
+              isLoading={isReleasing}
+              isDisabled={isReleasing}
               onPress={handleConfirmRelease}
               className="bg-danger text-white rounded-lg text-xs font-semibold h-8 px-4"
             >
