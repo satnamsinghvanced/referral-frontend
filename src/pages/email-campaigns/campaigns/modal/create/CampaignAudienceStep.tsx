@@ -1,4 +1,4 @@
-import { Button, Card } from "@heroui/react";
+import { Button, Card, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/react";
 import clsx from "clsx";
 import React, { forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import { FiUsers } from "react-icons/fi";
@@ -16,16 +16,47 @@ const CampaignAudienceStep: React.ForwardRefRenderFunction<CampaignStepRef, Camp
   const { data: audiencesRaw, isLoading } = useAudiences({ page: 1, limit: 100 });
   const [selectedAudienceId, setSelectedAudienceId] = useState<string | null>(data.audienceId);
   const [localError, setLocalError] = useState<string | undefined>(undefined);
+  const { isOpen, onOpen, onOpenChange } = useDisclosure();
 
   useEffect(() => {
     setIsStepValid(!!selectedAudienceId);
   }, [selectedAudienceId, setIsStepValid]);
+
   const audiences = audiencesRaw?.audiences || [];
   const selectedAudience = audiences.find((a) => a._id === selectedAudienceId);
+
+  const getAudienceRecipients = (audience: any) => {
+    const list: { name: string; email: string; type: string }[] = [];
+    if (audience?.referrers) {
+      audience.referrers.forEach((r: any) => {
+        if (r.email) {
+          list.push({ name: r.name, email: r.email, type: "Referrer" });
+        }
+      });
+    }
+    if (audience?.referrals) {
+      audience.referrals.forEach((r: any) => {
+        if (r.email) {
+          list.push({ name: r.name, email: r.email, type: "Referral" });
+        }
+      });
+    }
+    if (audience?.practices) {
+      audience.practices.forEach((p: any) => {
+        const contactEmail = p.createdBy?.email || "No email";
+        list.push({ name: p.name, email: contactEmail, type: "Practice" });
+      });
+    }
+    return list;
+  };
+
+  const recipientsList = selectedAudience ? getAudienceRecipients(selectedAudience) : [];
+
   const handleSelect = (id: string) => {
     setSelectedAudienceId(id);
     setLocalError(undefined);
   };
+
   const handleValidationAndNext = () => {
     if (selectedAudienceId) {
       onNext({
@@ -37,9 +68,11 @@ const CampaignAudienceStep: React.ForwardRefRenderFunction<CampaignStepRef, Camp
       return false;
     }
   };
+
   useImperativeHandle(ref, () => ({
     triggerValidationAndProceed: handleValidationAndNext,
   }));
+
   if (isLoading) {
     return (
       <div className="flex justify-center py-12">
@@ -47,6 +80,7 @@ const CampaignAudienceStep: React.ForwardRefRenderFunction<CampaignStepRef, Camp
       </div>
     );
   }
+
   return (
     <div className="space-y-4">
       <h4 className="font-medium">Select Audience</h4>
@@ -102,16 +136,31 @@ const CampaignAudienceStep: React.ForwardRefRenderFunction<CampaignStepRef, Camp
           <LuTarget />
           <p className="text-xs font-medium">Selected Audience</p>
         </div>
-        <p className="text-sm font-medium text-blue-700 dark:text-blue-400">
-          {selectedAudience?.name || "No Audience Selected"}
-        </p>
-        {selectedAudience && selectedAudience.description && (
-          <p className="text-xs text-blue-600 dark:text-blue-500/80 mt-0.5">
-            {selectedAudience.description}
-          </p>
-        )}
+        <div className="flex items-center justify-between w-full">
+          <div>
+            <p className="text-sm font-medium text-blue-700 dark:text-blue-400">
+              {selectedAudience?.name || "No Audience Selected"}
+            </p>
+            {selectedAudience && selectedAudience.description && (
+              <p className="text-xs text-blue-600 dark:text-blue-500/80 mt-0.5">
+                {selectedAudience.description}
+              </p>
+            )}
+          </div>
+          {selectedAudience && (
+            <Button
+              size="sm"
+              variant="flat"
+              color="primary"
+              className="h-7 text-xs font-medium"
+              onPress={onOpen}
+            >
+              View Recipients
+            </Button>
+          )}
+        </div>
         {selectedAudience ? (
-          <p className="text-xs text-blue-600 dark:text-blue-500/80 mt-1">
+          <p className="text-xs text-blue-600 dark:text-blue-500/80 mt-2">
             {((selectedAudience.referrers?.length || 0) +
               (selectedAudience.practices?.length || 0) +
               (selectedAudience.referrals?.length || 0))}{" "}
@@ -123,6 +172,62 @@ const CampaignAudienceStep: React.ForwardRefRenderFunction<CampaignStepRef, Camp
           </p>
         )}
       </Card>
+
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="xl" scrollBehavior="inside" backdrop="blur">
+        <ModalContent>
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1">
+                Audience Details: {selectedAudience?.name}
+              </ModalHeader>
+              <ModalBody className="pb-6">
+                <p className="text-xs text-default-500 mb-2">
+                  Showing the list of contacts associated with this audience segment.
+                </p>
+                {recipientsList.length === 0 ? (
+                  <div className="py-8 text-center text-sm text-default-400">
+                    No contacts found in this audience.
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto border border-divider rounded-lg max-h-[300px]">
+                    <table className="min-w-full divide-y divide-divider text-xs text-left">
+                      <thead className="bg-default-100 font-medium text-default-700 sticky top-0 z-10">
+                        <tr>
+                          <th className="px-4 py-2 bg-default-100">Name</th>
+                          <th className="px-4 py-2 bg-default-100">Email</th>
+                          <th className="px-4 py-2 bg-default-100">Type</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-divider">
+                        {recipientsList.map((recipient, index) => (
+                          <tr key={index} className="hover:bg-default-50 dark:hover:bg-default-100/5 transition-colors">
+                            <td className="px-4 py-2 font-medium text-foreground">
+                              {recipient.name}
+                            </td>
+                            <td className="px-4 py-2 text-default-600 dark:text-foreground/75">
+                              {recipient.email}
+                            </td>
+                            <td className="px-4 py-2">
+                              <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-primary/10 text-primary border border-primary/20">
+                                {recipient.type}
+                              </span>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </ModalBody>
+              <ModalFooter>
+                <Button color="danger" variant="flat" onPress={onClose} size="sm" radius="md">
+                  Close
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </div>
   );
 };
