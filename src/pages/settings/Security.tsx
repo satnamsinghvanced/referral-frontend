@@ -1,11 +1,4 @@
-import {
-  Button,
-  Card,
-  CardBody,
-  CardHeader,
-  Input,
-  Spinner,
-} from "@heroui/react";
+import { Button, Card, CardBody, CardHeader, Input, Spinner } from "@heroui/react";
 import { Form, Formik } from "formik";
 import { useState } from "react";
 import { FiEye, FiEyeOff, FiShield } from "react-icons/fi";
@@ -41,23 +34,19 @@ const SecuritySchema = Yup.object().shape({
 const Security: React.FC = () => {
   const user = useSelector((state: RootState) => state.auth.user);
   const { isLoading: isUserLoading } = useFetchUser(user?.userId || "") as any;
-
   const { mutate: updatePassword, isPending: isUpdatingPassword } =
     useUpdatePassword();
-
   const [showPassword, setShowPassword] = useState<any>({
     currentPassword: false,
     newPassword: false,
     confirmNewPassword: false,
   });
-
   const togglePasswordVisibility = (field: string) => {
     setShowPassword((prev: any) => ({
       ...prev,
       [field]: !prev[field],
     }));
   };
-
   if (isUserLoading) {
     return (
       <Card className="rounded-xl shadow-none border border-foreground/10 bg-background h-[400px] flex items-center justify-center">
@@ -65,14 +54,12 @@ const Security: React.FC = () => {
       </Card>
     );
   }
-
   return (
     <Card className="rounded-xl shadow-none border border-foreground/10 bg-background">
       <CardHeader className="flex items-center gap-2 px-4 pt-4 pb-1">
         <FiShield className="size-5" />
         <h4 className="text-base">Security & Privacy</h4>
       </CardHeader>
-
       <CardBody className="p-4">
         <Formik
           initialValues={{
@@ -118,7 +105,6 @@ const Security: React.FC = () => {
                     newPassword: "Enter new password",
                     confirmNewPassword: "Confirm new password",
                   };
-
                   const fieldName = field as keyof typeof values;
                   const isInvalid = !!(
                     touched[fieldName] && errors[fieldName]
@@ -126,7 +112,6 @@ const Security: React.FC = () => {
                   const errorMessage = touched[fieldName]
                     ? (errors[fieldName] as string)
                     : "";
-
                   return (
                     <div key={field} className="space-y-1.5">
                       <Input
@@ -161,7 +146,6 @@ const Security: React.FC = () => {
                   );
                 },
               )}
-
               <Button
                 size="sm"
                 color="primary"

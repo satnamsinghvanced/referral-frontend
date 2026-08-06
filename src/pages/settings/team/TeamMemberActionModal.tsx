@@ -79,6 +79,90 @@ const TeamSchema = Yup.object().shape({
     .required("Permissions are required"),
 });
 
+const getDefaultPermissionsForRole = (
+  roleId: string,
+  allRoles?: Role[],
+  allPermissions?: Permission[],
+): string[] => {
+  if (!allPermissions || allPermissions.length === 0) return [];
+  const roleObj = allRoles?.find((r) => r._id === roleId);
+  const roleLower = (roleObj?.role || "").toLowerCase();
+  const titleLower = (roleObj?.title || "").toLowerCase();
+
+  // Admin -> select all permissions default
+  if (
+    roleLower.includes("admin") ||
+    titleLower.includes("admin") ||
+    roleLower.includes("owner") ||
+    titleLower.includes("owner")
+  ) {
+    return allPermissions.map((p) => p._id);
+  }
+
+  if (
+    roleLower.includes("treatment") ||
+    titleLower.includes("treatment")
+  ) {
+    const matched = allPermissions.filter(
+      (p) => !p.title.toLowerCase().includes("billing"),
+    );
+    return matched.map((p) => p._id);
+  }
+
+  if (
+    roleLower.includes("manager") ||
+    titleLower.includes("manager") ||
+    roleLower.includes("officemanager")
+  ) {
+    const matched = allPermissions.filter((p) => {
+      const t = p.title.toLowerCase();
+      return (
+        t.includes("referral") ||
+        t.includes("referrer") ||
+        t.includes("partner") ||
+        t.includes("review") ||
+        t.includes("notification") ||
+        t.includes("calendar") ||
+        t.includes("schedule") ||
+        t.includes("task") ||
+        t.includes("integration") ||
+        t.includes("team")
+      );
+    });
+    if (matched.length > 0) {
+      return matched.map((p) => p._id);
+    }
+  }
+
+  if (
+    roleLower.includes("front") ||
+    titleLower.includes("front") ||
+    roleLower.includes("doctor") ||
+    titleLower.includes("doctor")
+  ) {
+    const matched = allPermissions.filter((p) => {
+      const t = p.title.toLowerCase();
+      return (
+        t.includes("referrer") ||
+        t.includes("referral") ||
+        t.includes("notification") ||
+        t.includes("task")
+      );
+    });
+    if (matched.length > 0) {
+      return matched.map((p) => p._id);
+    }
+  }
+
+  if (roleObj && roleObj.permissions && roleObj.permissions.length > 0) {
+    return roleObj.permissions.map((p: any) =>
+      typeof p === "string" ? p : p._id,
+    );
+  }
+
+  return allPermissions.map((p) => p._id);
+};
+
 const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
   isOpen,
   onClose,
@@ -95,15 +179,21 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
   const { mutate: updateMember, isPending: updateIsPending } =
     useUpdateTeamMember();
 
+  const initialRoleId = initialValues?.role || roles?.[0]?._id || "";
+  const initialPerms =
+    initialValues?.permissions && initialValues.permissions.length > 0
+      ? initialValues.permissions
+      : getDefaultPermissionsForRole(initialRoleId, roles, permissions);
+
   const formik = useFormik<TeamFormValues>({
     enableReinitialize: true,
-    initialValues: initialValues || {
-      firstName: "",
-      lastName: "",
-      email: "",
-      locations: [],
-      role: roles?.[0]?._id || "",
-      permissions: roles?.[0]?.permissions?.map((p: Permission) => p._id) || [],
+    initialValues: {
+      firstName: initialValues?.firstName || "",
+      lastName: initialValues?.lastName || "",
+      email: initialValues?.email || "",
+      locations: initialValues?.locations || [],
+      role: initialRoleId,
+      permissions: initialPerms,
     },
     validationSchema: TeamSchema,
     onSubmit: (values) => {
@@ -156,6 +246,25 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
     }
   }, [locations, formik.values.locations]);
 
+  useEffect(() => {
+    if (
+      isOpen &&
+      formik.values.role &&
+      (!formik.values.permissions || formik.values.permissions.length === 0) &&
+      permissions &&
+      permissions.length > 0
+    ) {
+      const defaultPerms = getDefaultPermissionsForRole(
+        formik.values.role,
+        roles,
+        permissions,
+      );
+      if (defaultPerms.length > 0) {
+        formik.setFieldValue("permissions", defaultPerms);
+      }
+    }
+  }, [isOpen, formik.values.role, roles, permissions]);
+
   return (
     <Modal
       isOpen={isOpen}
@@ -165,7 +274,7 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
         base: `max-sm:!m-3 !m-0`,
         closeButton: "cursor-pointer",
       }}
-      size="md"
+      size="xl"
     >
       <ModalContent>
         <ModalHeader className="flex flex-col gap-1 px-4 py-4">
@@ -283,18 +392,15 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
               selectedKeys={formik.values.role ? [formik.values.role] : []}
               disabledKeys={formik.values.role ? [formik.values.role] : []}
               onSelectionChange={(keys) => {
-                const selectedRoleId = Array.from(keys)[0] || "";
+                const selectedRoleId = (Array.from(keys)[0] as string) || "";
                 formik.setFieldValue("role", selectedRoleId);
 
-                const selectedRole = roles?.find(
-                  (r: Role) => r._id === selectedRoleId,
+                const defaultPermIds = getDefaultPermissionsForRole(
+                  selectedRoleId,
+                  roles,
+                  permissions,
                 );
-                if (selectedRole && selectedRole.permissions) {
-                  const defaultPermIds = selectedRole.permissions.map(
-                    (p: Permission) => p._id,
-                  );
-                  formik.setFieldValue("permissions", defaultPermIds);
-                }
+                formik.setFieldValue("permissions", defaultPermIds);
               }}
               isRequired
               renderValue={(items) => {

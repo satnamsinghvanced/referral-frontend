@@ -86,6 +86,7 @@ const Sidebar = ({
         href: "/lead-tracking",
         stats: dashboardStats?.leadsCount || 0,
         color: "bg-sky-100 dark:bg-sky-900/40",
+        requiredPermission: ["Manage Lead Tracking"],
       },
       {
         name: "Conversations",
@@ -93,7 +94,7 @@ const Sidebar = ({
         href: "/conversations",
         stats: dashboardStats?.conversations || 0,
         color: "bg-sky-100 dark:bg-sky-900/40",
-        requiredPermission: "Manage Settings",
+        requiredPermission: ["Manage Conversations"],
         requiredPlanAccess: "advanced_referral_tracking",
       },
       {
@@ -102,7 +103,7 @@ const Sidebar = ({
         href: "/referrals",
         stats: dashboardStats?.referrals || 0,
         color: "bg-sky-100 dark:bg-sky-900/40",
-        requiredPermission: "Manage Referrals",
+        requiredPermission: ["Manage Referrals"],
       },
       {
         name: "Partner Network",
@@ -110,7 +111,7 @@ const Sidebar = ({
         href: "/partner-network",
         stats: dashboardStats?.partners || 0,
         color: "bg-sky-200 dark:bg-sky-900/30",
-        requiredPermission: "Manage Referrals",
+        requiredPermission: ["Manage Referrers and Partners", "Manage Referrers"],
       },
       {
         name: "Reviews",
@@ -118,7 +119,7 @@ const Sidebar = ({
         href: "/reviews",
         stats: dashboardStats?.reviews ?? dashboardStats?.totalReviews ?? 0,
         color: "bg-yellow-200 dark:bg-yellow-900/30",
-        requiredPermission: "Manage Reviews",
+        requiredPermission: ["Manage Review", "Manage Reviews"],
         requiredPlanAccess: "google_business",
       },
       {
@@ -127,7 +128,7 @@ const Sidebar = ({
         href: "/social-media",
         stats: 0,
         color: "bg-purple-300 dark:bg-purple-900/30",
-        requiredPermission: "Manage Settings",
+        requiredPermission: ["Manage Social Media"],
         requiredPlanAccess: "social_media",
       },
       {
@@ -136,7 +137,7 @@ const Sidebar = ({
         href: "/marketing-calendar",
         stats: dashboardStats?.activities || 0,
         color: "bg-orange-300 dark:bg-orange-900/30",
-        requiredPermission: "Manage Settings",
+        requiredPermission: ["Manage Calendar"],
         requiredPlanAccess: "marketing_calendar",
       },
       {
@@ -145,7 +146,7 @@ const Sidebar = ({
         href: "/call-logs",
         stats: dashboardStats?.totalCalls || 0,
         color: "bg-sky-100 dark:bg-sky-900/40",
-        requiredPermission: "Manage Settings",
+        requiredPermission: ["Manage Call Tracking"],
         requiredPlanAccess: "call_tracking",
       },
       {
@@ -154,7 +155,7 @@ const Sidebar = ({
         href: "/email-campaigns",
         stats: 0,
         color: "bg-green-300 dark:bg-green-900/30",
-        requiredPermission: "Manage Settings",
+        requiredPermission: ["Manage Email Campaigns"],
       },
       {
         name: "Chat Widget",
@@ -162,7 +163,7 @@ const Sidebar = ({
         href: "/chat-widget",
         stats: undefined,
         color: undefined,
-        requiredPermission: "Manage Settings",
+        requiredPermission: ["Manage Chat Widget"],
         requiredPlanAccess: "advanced_referral_tracking",
       },
       {
@@ -171,7 +172,7 @@ const Sidebar = ({
         href: "/analytics",
         stats: undefined,
         color: "bg-red-300 dark:bg-red-900/30",
-        requiredPermission: "View Analytics",
+        requiredPermission: ["View Analytics"],
         requiredPlanAccess: "basic_analytics",
       },
       {
@@ -180,7 +181,7 @@ const Sidebar = ({
         href: "/reports",
         stats: undefined,
         color: "bg-gray-300 dark:bg-gray-800",
-        requiredPermission: "View Analytics",
+        requiredPermission: ["Manage Reports"],
       },
       {
         name: "Task List",
@@ -188,6 +189,7 @@ const Sidebar = ({
         href: "/tasks",
         stats: dashboardStats?.tasks || 0,
         color: "bg-red-300 dark:bg-red-900/30",
+        requiredPermission: ["Manage Task List", "Task List"],
       },
       {
         name: "QR Generator",
@@ -195,7 +197,7 @@ const Sidebar = ({
         href: "/qr-generator",
         stats: undefined,
         color: "bg-red-300 dark:bg-red-900/30",
-        requiredPermission: "Manage Referrals",
+        requiredPermission: ["Manage Referrers and Partners", "Manage Referrers"],
       },
       {
         name: "Marketing Budget",
@@ -203,7 +205,7 @@ const Sidebar = ({
         href: "/marketing-budget",
         stats: undefined,
         color: "bg-red-300 dark:bg-red-900/30",
-        requiredPermission: "Manage Settings",
+        requiredPermission: ["Manage Marketing Budget"],
         requiredPlanAccess: "budget_tracking",
       },
       {
@@ -212,7 +214,7 @@ const Sidebar = ({
         href: "/media-management",
         stats: undefined,
         color: "bg-red-300 dark:bg-red-900/30",
-        requiredPermission: "Manage Settings",
+        requiredPermission: ["Manage Media Management", "Manage Media"],
       },
       {
         name: "Integrations",
@@ -220,7 +222,7 @@ const Sidebar = ({
         href: "/integrations",
         stats: dashboardStats?.integrations || 0,
         color: "bg-blue-400 dark:bg-blue-900/40",
-        requiredPermission: "Manage Settings",
+        requiredPermission: ["Manage Integrations"],
       },
 
       {
@@ -378,16 +380,14 @@ const Sidebar = ({
                           >
                             {item.badge}
                           </span>
-                        ) : item.stats ? (
+                        ) : typeof item.stats === "number" && item.stats > 0 ? (
                           <p
                             className={`rounded-full px-2 text-[10px] py-0.5 capitalize !text-foreground dark:!text-foreground font-sans ${typeof item.color === "function"
                               ? item.color(item?.stats)
-                              : item.color
+                              : item.color || "bg-sky-100 dark:bg-sky-900/40"
                               }`}
                           >
-                            {typeof item.stats === "number"
-                              ? `${item.stats}`
-                              : item.stats}
+                            {item.stats}
                           </p>
                         ) : (
                           ""

@@ -11,6 +11,7 @@ import Pagination from "../../components/common/Pagination";
 import { Link } from "react-router-dom";
 import { useFetchLocations } from "../../hooks/settings/useLocation";
 import { useFetchTeamMembers } from "../../hooks/settings/useTeam";
+import { useRolePermissions } from "../../hooks/useRolePermissions";
 import {
   useDeleteNFCDesk,
   useFetchNFCDesks,
@@ -22,6 +23,10 @@ import TagQrModal from "./modal/TagQrModal";
 import { usePaginationAdjustment } from "../../hooks/common/usePaginationAdjustment";
 
 const ManageTags = () => {
+  const { hasPermission, isAdmin } = useRolePermissions();
+  const hasTeamPermission = isAdmin || hasPermission("Manage Team");
+  const hasLocationsPermission = isAdmin || hasPermission("Manage Locations");
+
   const [currentPage, setCurrentPage] = useState(1);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -165,7 +170,7 @@ const ManageTags = () => {
               locations
             </p>
           </div>
-          {hasLocations && hasTeamMembers && (
+          {hasLocations && (hasTeamMembers || !hasTeamPermission) && (
             <Button
               size="sm"
               radius="sm"
@@ -180,7 +185,7 @@ const ManageTags = () => {
         </div>
 
         {/* Warning Banners */}
-        {!isLoading && !hasLocations && (
+        {!isLoading && !hasLocations && hasLocationsPermission && (
           <div className="mt-4 bg-yellow-50 border border-yellow-200 dark:bg-amber-950/30 dark:border-amber-500/30 rounded-lg p-3 flex items-center justify-between">
             <p className="text-sm text-yellow-800 dark:text-amber-400">
               Locations are not added. Please add at least one location to
@@ -199,7 +204,7 @@ const ManageTags = () => {
           </div>
         )}
 
-        {!isLoading && hasLocations && !hasTeamMembers && (
+        {!isLoading && hasLocations && !hasTeamMembers && hasTeamPermission && (
           <div className="bg-yellow-50 border border-yellow-200 dark:bg-amber-950/30 dark:border-amber-500/30 rounded-lg p-3 flex items-center justify-between">
             <p className="text-sm text-yellow-800 dark:text-amber-400">
               No team members found in your locations. Please add team members

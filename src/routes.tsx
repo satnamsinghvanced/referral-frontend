@@ -72,6 +72,7 @@ const Profile = React.lazy(() => import("./pages/settings/Profile"));
 const AdminList = React.lazy(() => import("./pages/superadmin/AdminList"));
 const AdminDetails = React.lazy(() => import("./pages/superadmin/AdminDetails"));
 const SignIn = React.lazy(() => import("./pages/auth/SignIn"));
+const ResetPassword = React.lazy(() => import("./pages/auth/ResetPassword"));
 const SubscriptionErrorPage = React.lazy(() => import("./pages/auth/SubscriptionErrorPage"));
 const SuperAdminSignIn = React.lazy(() => import("./pages/auth/SuperAdminSignIn"));
 const Support = React.lazy(() => import("./pages/support/SupportPage"));
@@ -121,11 +122,18 @@ function AppRoutes() {
       ),
       children: [
         { index: true, element: <Dashboard /> },
-        { path: "lead-tracking", element: <LeadTracking /> },
+        {
+          path: "lead-tracking",
+          element: (
+            <PermissionGuard permissions={["Manage Lead Tracking"]}>
+              <LeadTracking />
+            </PermissionGuard>
+          ),
+        },
         {
           path: "conversations",
           element: (
-            <PermissionGuard permissions={["Manage Settings"]}>
+            <PermissionGuard permissions={["Manage Conversations"]}>
               <Conversations />
             </PermissionGuard>
           ),
@@ -149,7 +157,7 @@ function AppRoutes() {
         {
           path: "partner-network",
           element: (
-            <PermissionGuard permissions={["Manage Referrals"]}>
+            <PermissionGuard permissions={["Manage Referrers and Partners", "Manage Referrers"]}>
               <PartnerNetwork />
             </PermissionGuard>
           ),
@@ -157,7 +165,7 @@ function AppRoutes() {
         {
           path: "reviews",
           element: (
-            <PermissionGuard permissions={["Manage Reviews"]}>
+            <PermissionGuard permissions={["Manage Review", "Manage Reviews"]}>
               <Reviews />
             </PermissionGuard>
           ),
@@ -165,7 +173,7 @@ function AppRoutes() {
         {
           path: "email-campaigns",
           element: (
-            <PermissionGuard permissions={["Manage Settings"]}>
+            <PermissionGuard permissions={["Manage Email Campaigns"]}>
               <EmailCampaign />
             </PermissionGuard>
           ),
@@ -173,7 +181,7 @@ function AppRoutes() {
         {
           path: "social-media",
           element: (
-            <PermissionGuard permissions={["Manage Settings"]}>
+            <PermissionGuard permissions={["Manage Social Media"]}>
               <SocialMedia />
             </PermissionGuard>
           ),
@@ -181,7 +189,7 @@ function AppRoutes() {
         {
           path: "marketing-calendar",
           element: (
-            <PermissionGuard permissions={["Manage Settings"]}>
+            <PermissionGuard permissions={["Manage Calendar"]}>
               <MarketingCalendar />
             </PermissionGuard>
           ),
@@ -189,7 +197,7 @@ function AppRoutes() {
         {
           path: "qr-generator",
           element: (
-            <PermissionGuard permissions={["Manage Referrals"]}>
+            <PermissionGuard permissions={["Manage Referrers and Partners", "Manage Referrers"]}>
               <QrGenerator />
             </PermissionGuard>
           ),
@@ -197,7 +205,7 @@ function AppRoutes() {
         {
           path: "marketing-budget",
           element: (
-            <PermissionGuard permissions={["Manage Settings"]}>
+            <PermissionGuard permissions={["Manage Marketing Budget"]}>
               <MarketingBudget />
             </PermissionGuard>
           ),
@@ -209,7 +217,7 @@ function AppRoutes() {
             {
               index: true,
               element: (
-                <PermissionGuard permissions={["View Analytics"]}>
+                <PermissionGuard permissions={["Manage Reports"]}>
                   <Reports />
                 </PermissionGuard>
               ),
@@ -217,7 +225,7 @@ function AppRoutes() {
             {
               path: "marketing",
               element: (
-                <PermissionGuard permissions={["View Analytics"]}>
+                <PermissionGuard permissions={["Manage Reports"]}>
                   <MarketingReport />
                 </PermissionGuard>
               ),
@@ -225,7 +233,7 @@ function AppRoutes() {
             {
               path: "referral",
               element: (
-                <PermissionGuard permissions={["View Analytics"]}>
+                <PermissionGuard permissions={["Manage Reports"]}>
                   <ReferralPerformanceReport />
                 </PermissionGuard>
               ),
@@ -233,18 +241,25 @@ function AppRoutes() {
             {
               path: "review",
               element: (
-                <PermissionGuard permissions={["View Analytics"]}>
+                <PermissionGuard permissions={["Manage Reports"]}>
                   <ReviewSentimentAnalysisReport />
                 </PermissionGuard>
               ),
             },
           ],
         },
-        { path: "tasks", element: <Tasks /> },
+        {
+          path: "tasks",
+          element: (
+            <PermissionGuard permissions={["Manage Task List", "Task List"]}>
+              <Tasks />
+            </PermissionGuard>
+          ),
+        },
         {
           path: "media-management",
           element: (
-            <PermissionGuard permissions={["Manage Settings"]}>
+            <PermissionGuard permissions={["Manage Media Management", "Manage Media"]}>
               <MediaManagement />
             </PermissionGuard>
           ),
@@ -252,7 +267,7 @@ function AppRoutes() {
         {
           path: "integrations",
           element: (
-            <PermissionGuard permissions={["Manage Settings"]}>
+            <PermissionGuard permissions={["Manage Integrations"]}>
               <Integrations />
             </PermissionGuard>
           ),
@@ -260,7 +275,7 @@ function AppRoutes() {
         {
           path: "chat-widget",
           element: (
-            <PermissionGuard permissions={["Manage Settings"]}>
+            <PermissionGuard permissions={["Manage Chat Widget"]}>
               <ChatWidgetBuilder />
             </PermissionGuard>
           ),
@@ -269,7 +284,7 @@ function AppRoutes() {
         {
           path: "call-logs",
           element: (
-            <PermissionGuard permissions={["Manage Settings"]}>
+            <PermissionGuard permissions={["Manage Call Tracking"]}>
               <CallTracking />
             </PermissionGuard>
           ),
@@ -280,7 +295,14 @@ function AppRoutes() {
           children: [
             { index: true, element: <Profile /> },
             { path: "profile", element: <Profile /> },
-            { path: "notifications", element: <Notifications /> },
+            {
+              path: "notifications",
+              element: (
+                <PermissionGuard permissions={["Manage Notifications", "Manage Settings"]}>
+                  <Notifications />
+                </PermissionGuard>
+              ),
+            },
             { path: "security", element: <Security /> },
             { path: "devices", element: <Devices /> },
             {
@@ -294,7 +316,7 @@ function AppRoutes() {
             {
               path: "locations",
               element: (
-                <PermissionGuard permissions={["Manage Settings"]}>
+                <PermissionGuard permissions={["Manage Locations", "Manage Settings"]}>
                   <Locations />
                 </PermissionGuard>
               ),
@@ -332,6 +354,22 @@ function AppRoutes() {
       element: (
         <PublicRoute>
           <SignIn />
+        </PublicRoute>
+      ),
+    },
+    {
+      path: "forgot-password",
+      element: (
+        <PublicRoute>
+          <ResetPassword />
+        </PublicRoute>
+      ),
+    },
+    {
+      path: "reset-password",
+      element: (
+        <PublicRoute>
+          <ResetPassword />
         </PublicRoute>
       ),
     },

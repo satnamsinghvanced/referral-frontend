@@ -53,6 +53,7 @@ import QrCodeDownloadModal from "./referrers/QrCodeDownloadModal";
 import ReferrerCard from "./referrers/ReferrerCard";
 import TrackingPanel from "./TrackingPanel";
 import { usePaginationAdjustment } from "../../hooks/common/usePaginationAdjustment";
+import { useRolePermissions } from "../../hooks/useRolePermissions";
 
 type ReferralType = "Referrals" | "Referrers" | "NFC & QR Tracking";
 
@@ -65,6 +66,14 @@ const REFERRAL_INITIAL_FILTERS = {
 };
 
 const ReferralManagement = () => {
+  const { hasPermission, hasAnyPermission } = useRolePermissions();
+
+  const hasManageReferrals = hasPermission("Manage Referrals");
+  const hasManageReferrers = hasAnyPermission([
+    "Manage Referrers and Partners",
+    "Manage Referrers",
+  ]);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isReferralStatusModalOpen, setIsReferralStatusModalOpen] =
     useState(false);
@@ -72,6 +81,30 @@ const ReferralManagement = () => {
     useState(false);
   const [selectedReferralType, setSelectedReferralType] =
     useState<ReferralType>("Referrals");
+
+  const availableTabs: any = useMemo(() => {
+    const tabs: { title: ReferralType; className: string }[] = [];
+    if (hasManageReferrals) {
+      tabs.push({ title: "Referrals", className: "tour-step-referrals-tab" });
+    }
+    if (hasManageReferrers) {
+      tabs.push({ title: "Referrers", className: "tour-step-referrers-tab" });
+      tabs.push({
+        title: "NFC & QR Tracking",
+        className: "tour-step-nfc-tab",
+      });
+    }
+    return tabs;
+  }, [hasManageReferrals, hasManageReferrers]);
+
+  useEffect(() => {
+    if (
+      availableTabs.length > 0 &&
+      !availableTabs.some((t: { title: string; }) => t.title === selectedReferralType)
+    ) {
+      setSelectedReferralType(availableTabs[0].title);
+    }
+  }, [availableTabs, selectedReferralType]);
   const [isFilterViewActive, setIsFilterViewActive] = useState(false);
   const [currentFilters, setCurrentFilters] = useState(
     REFERRAL_INITIAL_FILTERS,
@@ -342,15 +375,19 @@ const ReferralManagement = () => {
       subHeading:
         "Track doctor and patient referrals for your orthodontic practice",
       buttons: [
-        {
-          label: "Generate QR Code",
-          onClick: () => setSelectedReferralType("NFC & QR Tracking"),
-          icon: <LuQrCode fontSize={15} />,
-          variant: "ghost",
-          color: "default",
-          className: "border-small tour-step-generate-qr-btn",
-        },
-        ...(!isReferrerLimitReached
+        ...(hasManageReferrers
+          ? [
+            {
+              label: "Generate QR Code",
+              onClick: () => setSelectedReferralType("NFC & QR Tracking"),
+              icon: <LuQrCode fontSize={15} />,
+              variant: "ghost",
+              color: "default",
+              className: "border-small tour-step-generate-qr-btn",
+            },
+          ]
+          : []),
+        ...(hasManageReferrers && !isReferrerLimitReached
           ? [
             {
               label: "Add Referrer",
@@ -367,7 +404,7 @@ const ReferralManagement = () => {
           : []),
       ],
     }),
-    [isReferrerLimitReached],
+    [isReferrerLimitReached, hasManageReferrers],
   );
 
   const REFERRER_CARD_BUTTONS = useCallback(
@@ -445,45 +482,38 @@ const ReferralManagement = () => {
     <>
       <ComponentContainer headingData={HEADING_DATA as any}>
         <div className="flex flex-col gap-4 md:gap-5">
-          <div className="">
-            <Tabs
-              selectedKey={selectedReferralType}
-              onSelectionChange={handleReferralTypeChange}
-              aria-label="Select Role"
-              variant="light"
-              radius="full"
-              classNames={{
-                base: "bg-primary/15 dark:bg-background rounded-full p-1 w-full",
-                tabList: "flex w-full rounded-full p-0 gap-0",
-                tab: "flex-1 h-9 text-sm font-medium transition-all",
-                cursor: "rounded-full bg-white dark:bg-primary",
-                tabContent:
-                  "dark:group-data-[selected=true]:text-primary-foreground text-default-500 dark:text-foreground/60 transition-colors",
-              }}
-              className="w-full"
-            >
-              {[
-                { title: "Referrals", className: "tour-step-referrals-tab" },
-                { title: "Referrers", className: "tour-step-referrers-tab" },
-                {
-                  title: "NFC & QR Tracking",
-                  className: "tour-step-nfc-tab",
-                },
-              ].map((role) => (
-                <Tab
-                  key={role.title}
-                  title={role.title}
-                  className={role.className}
-                />
-              ))}
-            </Tabs>
-          </div>
+          {availableTabs.length > 1 && (
+            <div className="">
+              <Tabs
+                selectedKey={selectedReferralType}
+                onSelectionChange={handleReferralTypeChange}
+                aria-label="Select Role"
+                variant="light"
+                radius="full"
+                classNames={{
+                  base: "bg-primary/15 dark:bg-background rounded-full p-1 w-full",
+                  tabList: "flex w-full rounded-full p-0 gap-0",
+                  tab: "flex-1 h-9 text-sm font-medium transition-all",
+                  cursor: "rounded-full bg-white dark:bg-primary",
+                  tabContent:
+                    "dark:group-data-[selected=true]:text-primary-foreground text-default-500 dark:text-foreground/60 transition-colors",
+                }}
+                className="w-full"
+              >
+                {availableTabs.map((role: any) => (
+                  <Tab
+                    key={role.title}
+                    title={role.title}
+                    className={role.className}
+                  />
+                ))}
+              </Tabs>
+            </div>
+          )}
 
-          {/* --- REFERRALS TAB --- */}
           {selectedReferralType === "Referrals" && (
             <>
               {isFilterViewActive ? (
-                // RENDER THE NEW FILTERED VIEW
                 <AllReferralsView
                   onBackToOverview={handleBackToOverview}
                   onExport={handleExport}
@@ -508,7 +538,6 @@ const ReferralManagement = () => {
                   isLoading={isLoadingReferrals || isFetchingReferrals}
                 />
               ) : (
-                // RENDER THE ORIGINAL OVERVIEW DASHBOARD
                 <div className="space-y-4 md:space-y-5">
                   <TrackReferralBar
                     onTrackReferral={() => setIsTrackReferralModalOpen(true)}

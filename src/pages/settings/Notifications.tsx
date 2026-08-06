@@ -27,6 +27,7 @@ import {
   NotificationItem,
 } from "../../types/notification";
 import { LoadingState } from "../../components/common/LoadingState";
+import IntegrationWarningBanner from "../../components/common/IntegrationWarningBanner";
 import { useNotificationSubscription } from "../../hooks/useNotificationSubscription";
 import { getBrowserId } from "../../utils/notifications";
 import { useFetchEmailIntegration } from "../../hooks/integrations/useEmailMarketing";
@@ -336,22 +337,13 @@ const Notifications: React.FC = () => {
     <div className="">
       {/* Email Integration Warning */}
       {!isEmailConfigLoading && emailConfig?.status !== "Connected" && (
-        <div className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-500/30 rounded-lg p-3 flex items-center justify-between flex-wrap gap-3 mb-6">
-          <p className="text-sm text-yellow-800 dark:text-yellow-400">
-            Email Marketing Platform is not connected. Email notifications
-            can&apos;t be sent until you connect your Email Marketing Platform.
-          </p>
-          <Button
-            as={Link}
-            to="/integrations"
-            size="sm"
-            color="warning"
-            variant="flat"
-            className="bg-yellow-200 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400"
-          >
-            Connect Email
-          </Button>
-        </div>
+        <IntegrationWarningBanner
+          platformName="Email Marketing Platform"
+          integrationKey="email"
+          message="Email Marketing Platform is not connected. Email notifications can't be sent until you connect your Email Marketing Platform."
+          buttonText="Connect Email"
+          className="mb-6"
+        />
       )}
       <div className="space-y-4 md:space-y-5">
         {/* Header */}

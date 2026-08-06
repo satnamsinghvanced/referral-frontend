@@ -83,3 +83,23 @@ export const logoutUser = async (): Promise<LogoutResponse> => {
   const response = await axios.post("/users/logout");
   return response.data as any;
 };
+
+export const forgotPassword = async (email: string): Promise<any> => {
+  const response = await axios.post("/users/forgot-password", { email });
+  return response.data;
+};
+
+export const verifyOtp = async (email: string, otp: string): Promise<any> => {
+  const response = await axios.post("/users/verify-otp", { email, otp });
+  return response.data;
+};
+
+export const resetPassword = async (email: string, password: string, token?: string): Promise<any> => {
+  const response = await axios.post("/users/reset-password", { email, password, token });
+  return response.data;
+};
+
+export const updateTeamMemberPassword = async (userId: string, password: string): Promise<any> => {
+  const response = await axios.put(`/users/${userId}`, { password });
+  return response.data;
+};

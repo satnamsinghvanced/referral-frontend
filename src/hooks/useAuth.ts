@@ -10,11 +10,15 @@ import {
   exportAnalytics,
   exportReferrals,
   exportReviews,
+  forgotPassword,
   login,
   LoginPayload,
   LoginResponse,
+  resetPassword,
+  updateTeamMemberPassword,
   verify2FA,
   Verify2FAPayload,
+  verifyOtp,
 } from "../services/auth";
 import { setCredentials } from "../store/authSlice";
 import {
@@ -173,6 +177,48 @@ export function useDeleteAccount() {
         title: "Error",
         description:
           (error.response?.data as any)?.message || error.message || "Failed to delete account",
+        color: "danger",
+      });
+    },
+  });
+}
+
+export function useForgotPassword() {
+  return useMutation({
+    mutationFn: (email: string) => forgotPassword(email),
+  });
+}
+
+export function useVerifyOtp() {
+  return useMutation({
+    mutationFn: ({ email, otp }: { email: string; otp: string }) =>
+      verifyOtp(email, otp),
+  });
+}
+
+export function useResetPassword() {
+  return useMutation({
+    mutationFn: ({ email, password, token }: { email: string; password: string; token?: string }) =>
+      resetPassword(email, password, token),
+  });
+}
+
+export function useUpdateTeamMemberPassword() {
+  return useMutation({
+    mutationFn: ({ userId, password }: { userId: string; password: string }) =>
+      updateTeamMemberPassword(userId, password),
+    onSuccess: () => {
+      addToast({
+        title: "Success",
+        description: "Team member password updated successfully!",
+        color: "success",
+      });
+    },
+    onError: (error: AxiosError) => {
+      addToast({
+        title: "Error",
+        description:
+          (error.response?.data as any)?.message || error.message || "Failed to update team member password",
         color: "danger",
       });
     },

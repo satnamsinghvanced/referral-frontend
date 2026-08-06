@@ -41,7 +41,7 @@ const NAVIGATION_ROUTES: NavigationItem[] = [
     name: "Locations",
     icon: GrLocation,
     href: "/settings/locations",
-    requiredPermission: "Manage Settings",
+    requiredPermission: ["Manage Locations", "Manage Settings"],
   },
   {
     name: "Team",
@@ -49,7 +49,12 @@ const NAVIGATION_ROUTES: NavigationItem[] = [
     href: "/settings/team",
     requiredPermission: "Manage Team",
   },
-  { name: "Notifications", icon: FaRegBell, href: "/settings/notifications" },
+  {
+    name: "Notifications",
+    icon: FaRegBell,
+    href: "/settings/notifications",
+    requiredPermission: ["Manage Notifications"],
+  },
 ];
 
 const Settings = () => {
@@ -83,7 +88,7 @@ const Settings = () => {
                 <li key={index}>
                   <NavLink
                     to={item.href}
-                    end // ensures exact match for root routes like "/settings"
+                    end
                     className={({ isActive }) =>
                       clsx(
                         "rounded-md transition-all group flex items-center py-2 px-3 h-9 cursor-pointer border border-transparent",

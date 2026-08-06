@@ -1,14 +1,14 @@
 import { Button, Card, CardBody, CardHeader } from "@heroui/react";
-import React, { useState } from "react";
-import { FiEdit, FiTrash2 } from "react-icons/fi";
+import React, { useState, useMemo } from "react";
+import { FiEdit, FiKey, FiTrash2 } from "react-icons/fi";
 import { HiOutlineUserAdd } from "react-icons/hi";
 import { LuUsers } from "react-icons/lu";
 import { MdCheck } from "react-icons/md";
 import { useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import DeleteConfirmationModal from "../../../components/common/DeleteConfirmationModal";
-import EmptyState from "../../../components/common/EmptyState";
-import TeamSkeleton from "../../../components/skeletons/TeamSkeleton";
+import IntegrationWarningBanner from "../../../components/common/IntegrationWarningBanner";
+
 import {
   useDeleteTeamMember,
   useFetchTeamMembers,
@@ -16,6 +16,7 @@ import {
 import { TeamMember } from "../../../services/settings/team";
 import PendingTeamMembers from "./PendingTeamMembers";
 import TeamMemberActionModal, { TeamFormValues } from "./TeamMemberActionModal";
+import TeamMemberResetPasswordModal from "./TeamMemberResetPasswordModal";
 import { useFetchEmailIntegration } from "../../../hooks/integrations/useEmailMarketing";
 import { LoadingState } from "../../../components/common/LoadingState";
 import Pagination from "../../../components/common/Pagination";
@@ -50,7 +51,7 @@ import { usePlanGuard } from "../../../hooks/usePlanGuard";
 
 const Team: React.FC = () => {
   const navigate = useNavigate();
-  const currentUser = useSelector((state: RootState) => state.auth.user);
+  const currentUser: any = useSelector((state: RootState) => state.auth.user);
   const { data: userProfileData } = useFetchUser(currentUser?.userId || "") as any;
   const mainAdmin = userProfileData || currentUser;
 
@@ -70,6 +71,29 @@ const Team: React.FC = () => {
       m._id !== mainAdmin?._id &&
       m._id !== mainAdmin?.userId
   );
+
+  const sortedMembers = useMemo(() => {
+    if (!filteredMembers) return [];
+    return [...filteredMembers].sort((a: TeamMember, b: TeamMember) => {
+      const isA =
+        (currentUser?._id && (a._id === currentUser._id || (a as any).userId === currentUser._id || (a as any).id === currentUser._id)) ||
+        (currentUser?.email && a.email?.toLowerCase() === currentUser.email?.toLowerCase());
+      const isB =
+        (currentUser?._id && (b._id === currentUser._id || (b as any).userId === currentUser._id || (b as any).id === currentUser._id)) ||
+        (currentUser?.email && b.email?.toLowerCase() === currentUser.email?.toLowerCase());
+      if (isA) return -1;
+      if (isB) return 1;
+      return 0;
+    });
+  }, [filteredMembers, currentUser]);
+
+  const isMainAdminCurrentUser = useMemo(() => {
+    if (!mainAdmin || !currentUser) return false;
+    return (
+      (currentUser._id && (mainAdmin._id === currentUser._id || mainAdmin.userId === currentUser._id || mainAdmin.id === currentUser._id)) ||
+      (currentUser.email && mainAdmin.email?.toLowerCase() === currentUser.email?.toLowerCase())
+    );
+  }, [mainAdmin, currentUser]);
 
   const totalTeamMembersCount =
     (membersData?.totalData || filteredMembers?.length || 0) + (mainAdmin ? 1 : 0);
@@ -124,6 +148,9 @@ const Team: React.FC = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deleteMemberId, setDeleteMemberId] = useState<string>("");
 
+  const [resetPasswordModalOpen, setResetPasswordModalOpen] = useState(false);
+  const [resetPasswordMember, setResetPasswordMember] = useState<TeamMember | null>(null);
+
   const handleEdit = (member: TeamMember) => {
     setEditMemberId(member._id);
 
@@ -148,12 +175,19 @@ const Team: React.FC = () => {
     setInviteModalOpen(true);
   };
 
+  const handleResetPasswordClick = (member: TeamMember) => {
+    setResetPasswordMember(member);
+    setResetPasswordModalOpen(true);
+  };
+
   const handleCancel = () => {
     setInviteModalOpen(false);
     setEditMemberId("");
     setModalInitialValues(null);
     setIsDeleteModalOpen(false);
     setDeleteMemberId("");
+    setResetPasswordModalOpen(false);
+    setResetPasswordMember(null);
   };
 
   const handleDeleteClick = (id: string) => {
@@ -195,22 +229,12 @@ const Team: React.FC = () => {
         </div>
       )}
       {!isStarterPlan && !isEmailConfigLoading && emailConfig?.status !== "Connected" && (
-        <div className="bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-500/30 rounded-lg p-3 flex items-center justify-between flex-wrap gap-3">
-          <p className="text-sm text-yellow-800 dark:text-yellow-400">
-            Email Marketing Platform is not connected. You can't invite team
-            members until you connect your Email Marketing Platform.
-          </p>
-          <Button
-            as={Link}
-            to="/integrations"
-            size="sm"
-            color="warning"
-            variant="flat"
-            className="bg-yellow-200 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-400"
-          >
-            Connect Email
-          </Button>
-        </div>
+        <IntegrationWarningBanner
+          platformName="Email Marketing Platform"
+          integrationKey="email"
+          message="Email Marketing Platform is not connected. You can't invite team members until you connect your Email Marketing Platform."
+          buttonText="Connect Email"
+        />
       )}
 
       <Card
@@ -244,11 +268,18 @@ const Team: React.FC = () => {
                       </div>
                     )}
                     <div className="space-y-1">
-                      <p className="font-medium text-sm">
-                        {mainAdmin.firstName
-                          ? `${mainAdmin.firstName} ${mainAdmin.lastName || ""}`
-                          : mainAdmin.name || "Practice Admin"}
-                      </p>
+                      <div className="flex items-center gap-2">
+                        <p className="font-medium text-sm">
+                          {mainAdmin.firstName
+                            ? `${mainAdmin.firstName} ${mainAdmin.lastName || ""}`
+                            : mainAdmin.name || "Practice Admin"}
+                        </p>
+                        {isMainAdminCurrentUser && (
+                          <span className="bg-sky-100 dark:bg-sky-900/40 text-sky-700 dark:text-sky-300 text-[10px] font-semibold px-2 py-0.5 rounded-full border border-sky-200 dark:border-sky-800">
+                            You
+                          </span>
+                        )}
+                      </div>
                       <p className="text-xs text-gray-600 dark:text-gray-400">
                         {mainAdmin.email}
                       </p>
@@ -275,93 +306,116 @@ const Team: React.FC = () => {
                 </div>
               )}
 
-              {filteredMembers && filteredMembers.length > 0 && (
-                filteredMembers.map((member: TeamMember) => (
-                  <div
-                    key={member._id}
-                    className="md:flex md:items-center md:justify-between max-md:space-y-4 p-3 border border-foreground/10 rounded-lg gap-2"
-                  >
-                    <div className="flex items-center gap-2.5">
-                      {member.avatar || (member as any).image || (member as any).profileImage ? (
-                        <img
-                          src={member.avatar || (member as any).image || (member as any).profileImage}
-                          alt={member.firstName}
-                          className="size-9 rounded-full object-cover"
-                        />
-                      ) : (
-                        <div className="size-9 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-sm font-medium text-gray-600 dark:text-gray-300">
-                          {member.firstName ? member.firstName.charAt(0).toUpperCase() : "U"}
-                          {member.lastName ? member.lastName.charAt(0).toUpperCase() : ""}
-                        </div>
-                      )}
-                      <div className="space-y-1">
-                        <p className="font-medium text-sm">
-                          {member.firstName} {member.lastName}
-                        </p>
-                        <p className="text-xs text-gray-600 dark:text-gray-400">
-                          {member.email}
-                        </p>
-                        {member.locations && member.locations.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mt-2">
-                            {member.locations.map((loc: any, idx) => (
-                              <span
-                                key={typeof loc === "object" ? loc._id : idx}
-                                className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-[10px] px-2 py-0.5 rounded-full border border-blue-100 dark:border-blue-800 font-medium"
-                              >
-                                {typeof loc === "object" ? loc.name : "Location"}
-                              </span>
-                            ))}
+              {sortedMembers && sortedMembers.length > 0 && (
+                sortedMembers.map((member: TeamMember) => {
+                  const isMemberCurrentUser =
+                    (currentUser?._id && (member._id === currentUser._id || (member as any).userId === currentUser._id || (member as any).id === currentUser._id)) ||
+                    (currentUser?.email && member.email?.toLowerCase() === currentUser.email?.toLowerCase());
+
+                  return (
+                    <div
+                      key={member._id}
+                      className="md:flex md:items-center md:justify-between max-md:space-y-4 p-3 border border-foreground/10 rounded-lg gap-2"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        {member.avatar || (member as any).image || (member as any).profileImage ? (
+                          <img
+                            src={member.avatar || (member as any).image || (member as any).profileImage}
+                            alt={member.firstName}
+                            className="size-9 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="size-9 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-sm font-medium text-gray-600 dark:text-gray-300">
+                            {member.firstName ? member.firstName.charAt(0).toUpperCase() : "U"}
+                            {member.lastName ? member.lastName.charAt(0).toUpperCase() : ""}
                           </div>
+                        )}
+                        <div className="space-y-1">
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium text-sm">
+                              {member.firstName} {member.lastName}
+                            </p>
+                            {isMemberCurrentUser && (
+                              <span className="bg-sky-100 dark:bg-sky-900/40 text-sky-700 dark:text-sky-300 text-[10px] font-semibold px-2 py-0.5 rounded-full border border-sky-200 dark:border-sky-800">
+                                You
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-gray-600 dark:text-gray-400">
+                            {member.email}
+                          </p>
+                          {member.locations && member.locations.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {member.locations.map((loc: any, idx) => (
+                                <span
+                                  key={typeof loc === "object" ? loc._id : idx}
+                                  className="bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-[10px] px-2 py-0.5 rounded-full border border-blue-100 dark:border-blue-800 font-medium"
+                                >
+                                  {typeof loc === "object" ? loc.name : "Location"}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 flex-wrap max-md:gap-y-3">
+                        <span
+                          className={`${roleColors[
+                            member.role?.role?.toLowerCase() as keyof typeof roleColors
+                          ] ||
+                            roleColors[
+                            member.role?.role as keyof typeof roleColors
+                            ] ||
+                            "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
+                            } inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[11px] font-medium`}
+                        >
+                          {member.role?.title || member.role?.role || "No Role"}
+                        </span>
+
+                        <span
+                          className={`capitalize px-2 py-0.5 text-[11px] font-medium inline-flex items-center gap-1 rounded-md border ${invitationStatusColors[member.status] ||
+                            "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-foreground/10 dark:border-gray-700"
+                            }`}
+                        >
+                          <MdCheck /> {member.status}
+                        </span>
+
+                        <Button
+                          size="sm"
+                          variant="bordered"
+                          className="border-small font-medium gap-1.5"
+                          onPress={() => handleEdit(member)}
+                        >
+                          <FiEdit className="size-3.5" /> Edit
+                        </Button>
+
+                        <Button
+                          size="sm"
+                          variant="bordered"
+                          className="border-small font-medium gap-1.5 text-amber-600 dark:text-amber-400 border-amber-500/30 hover:bg-amber-500/10"
+                          onPress={() => handleResetPasswordClick(member)}
+                          title="Reset Password"
+                        >
+                          <FiKey className="size-3.5" /> Reset Password
+                        </Button>
+
+                        {member.role?.role !== "Admin" && (
+                          <Button
+                            isIconOnly
+                            size="sm"
+                            variant="bordered"
+                            color="danger"
+                            className="border-small"
+                            onPress={() => handleDeleteClick(member._id)}
+                          >
+                            <FiTrash2 className="size-3.5" />
+                          </Button>
                         )}
                       </div>
                     </div>
-
-                    <div className="flex items-center gap-2 flex-wrap max-md:gap-y-3">
-                      <span
-                        className={`${roleColors[
-                          member.role?.role?.toLowerCase() as keyof typeof roleColors
-                        ] ||
-                          roleColors[
-                          member.role?.role as keyof typeof roleColors
-                          ] ||
-                          "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
-                          } inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[11px] font-medium`}
-                      >
-                        {member.role?.title || member.role?.role || "No Role"}
-                      </span>
-
-                      <span
-                        className={`capitalize px-2 py-0.5 text-[11px] font-medium inline-flex items-center gap-1 rounded-md border ${invitationStatusColors[member.status] ||
-                          "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-foreground/10 dark:border-gray-700"
-                          }`}
-                      >
-                        <MdCheck /> {member.status}
-                      </span>
-
-                      <Button
-                        size="sm"
-                        variant="bordered"
-                        className="border-small font-medium gap-1.5"
-                        onPress={() => handleEdit(member)}
-                      >
-                        <FiEdit className="size-3.5" /> Edit
-                      </Button>
-
-                      {member.role?.role !== "Admin" && (
-                        <Button
-                          isIconOnly
-                          size="sm"
-                          variant="bordered"
-                          color="danger"
-                          className="border-small"
-                          onPress={() => handleDeleteClick(member._id)}
-                        >
-                          <FiTrash2 className="size-3.5" />
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </>
           )}
@@ -399,6 +453,12 @@ const Team: React.FC = () => {
         onClose={handleCancel}
         editMemberId={editMemberId}
         initialValues={modalInitialValues}
+      />
+
+      <TeamMemberResetPasswordModal
+        isOpen={resetPasswordModalOpen}
+        onClose={handleCancel}
+        member={resetPasswordMember}
       />
 
       <DeleteConfirmationModal

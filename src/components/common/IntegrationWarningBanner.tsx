@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "@heroui/react";
 import { useNavigate } from "react-router-dom";
+import { useRolePermissions } from "../../hooks/useRolePermissions";
 
 export interface IntegrationWarningBannerProps {
   /** Display name of the platform, e.g. "Google Review", "Google Ads", "Google Calendar", "Meta Ads", "Twilio" */
@@ -23,6 +24,13 @@ export const IntegrationWarningBanner: React.FC<IntegrationWarningBannerProps> =
   className = "",
 }) => {
   const navigate = useNavigate();
+  const { hasPermission, isAdmin } = useRolePermissions();
+
+  const hasIntegrationsPermission = isAdmin || hasPermission("Manage Integrations");
+
+  if (!hasIntegrationsPermission) {
+    return null;
+  }
 
   const handleNavigate = () => {
     navigate(`/integrations?highlight=${integrationKey}#integration-${integrationKey}`);

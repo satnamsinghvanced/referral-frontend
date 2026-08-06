@@ -20,6 +20,8 @@ import { useBilling } from "../../hooks/settings/useBilling";
 import { usePlanGuard } from "../../hooks/usePlanGuard";
 import { useFetchReferrers } from "../../hooks/useReferral";
 
+import { useRolePermissions } from "../../hooks/useRolePermissions";
+
 type Color = "sky" | "orange" | "emerald" | "purple";
 
 interface QuickAction {
@@ -28,6 +30,7 @@ interface QuickAction {
   color: Color;
   link: string;
   requiredPlanAccess?: string;
+  requiredPermission?: string[];
 }
 
 const HEADING_DATA = {
@@ -42,6 +45,7 @@ const QUICK_ACTIONS: QuickAction[] = [
     icon: <LuUsers />,
     color: "sky",
     link: "/referrals?action=track",
+    requiredPermission: ["Manage Referrals"],
   },
   {
     label: "Marketing Calendar",
@@ -49,6 +53,7 @@ const QUICK_ACTIONS: QuickAction[] = [
     color: "orange",
     link: "/marketing-calendar",
     requiredPlanAccess: "marketing_calendar",
+    requiredPermission: ["Manage Calendar"],
   },
   {
     label: "View Reviews",
@@ -56,6 +61,7 @@ const QUICK_ACTIONS: QuickAction[] = [
     color: "emerald",
     link: "/reviews",
     requiredPlanAccess: "google_business",
+    requiredPermission: ["Manage Review", "Manage Reviews"],
   },
   {
     label: "Analytics",
@@ -63,6 +69,7 @@ const QUICK_ACTIONS: QuickAction[] = [
     color: "purple",
     link: "/analytics",
     requiredPlanAccess: "basic_analytics",
+    requiredPermission: ["View Analytics"],
   },
 ];
 
@@ -106,81 +113,106 @@ const Dashboard = () => {
   const planAccess = billingData?.access;
   const { isLimitReached, getLimit, openPricingPage } = usePlanGuard();
   const { data: referrerData } = useFetchReferrers({ limit: 1 });
+  const { hasPermission, hasAnyPermission, isAdmin } = useRolePermissions();
+
   const totalReferrersCount = (referrerData as any)?.total || (referrerData as any)?.pagination?.total || (referrerData as any)?.data?.length || 0;
   const maxReferralLimit = getLimit("referral_connections");
   const isReferrerLimitReached = isLimitReached("referral_connections", totalReferrersCount);
+
+  const hasNfcAccess = isAdmin || hasAnyPermission(["Manage Referrers and Partners", "Manage Referrers", "Manage Referrals"]);
+  const hasGenerateQrAccess = isAdmin || hasAnyPermission(["Manage Referrers and Partners", "Manage Referrers"]);
 
   const filteredQuickActions = QUICK_ACTIONS.filter((action) => {
     if (action.requiredPlanAccess) {
       if (planAccess && planAccess[action.requiredPlanAccess as keyof typeof planAccess] === false) return false;
     }
+    if (isAdmin) return true;
+    if (action.requiredPermission) {
+      return hasAnyPermission(action.requiredPermission);
+    }
     return true;
   });
+
   const STAT_CARD_DATA = useMemo<StatCard[]>(
-    () => [
-      {
-        icon: <LuUsers className="text-purple-600 dark:text-purple-400" />,
-        heading: "Total Referrals",
-        value: dashboard?.stats?.totalReferrals?.total || 0,
-        subheading: (
-          <TrendIndicator
-            status={dashboard?.stats?.totalReferrals?.status}
-            percentage={dashboard?.stats?.totalReferrals?.percentage}
-          />
-        ),
-        onClick: () => navigate("/referrals"),
-      },
-      {
-        icon: <TbSpeakerphone className="text-green-600 dark:text-green-400" />,
-        heading: "Total Campaigns",
-        value: dashboard?.stats?.activeCampaigns?.totalActiveCampaigns || 0,
-        subheading: (
-          <TrendIndicator
-            status={dashboard?.stats?.activeCampaigns?.status}
-            percentage={dashboard?.stats?.activeCampaigns?.percentage}
-            label="this month"
-          />
-        ),
-        onClick: () => navigate("/email-campaigns", { state: { tab: "campaigns" } }),
-      },
-      {
-        icon: <FaRegStar className="text-yellow-600 dark:text-yellow-400" />,
-        heading: "Reviews",
-        value: dashboard?.stats?.reviews?.totalReviews
-          ? formatNumberWithCommas(dashboard.stats.reviews.totalReviews)
-          : "0",
-        subheading: (
-          <TrendIndicator
-            status={dashboard?.stats?.reviews?.status}
-            valueOverride={`${dashboard?.stats?.reviews?.avgRating || 0} avg rating`}
-            label=""
-          />
-        ),
-        onClick: () => navigate("/reviews"),
-      },
-      {
-        icon: <LuTarget className="text-rose-600 dark:text-rose-400" />,
-        heading: "Total Value",
-        value: `$${formatNumberWithCommas(dashboard?.stats?.totalValue?.total || 0)}`,
-        subheading: (
-          <TrendIndicator
-            status={dashboard?.stats?.totalValue?.status}
-            percentage={dashboard?.stats?.totalValue?.percentage}
-            label="vs last month"
-          />
-        ),
-        onClick: () => navigate("/referrals"),
-      },
-    ],
-    [dashboard, navigate],
+    () => {
+      const cards: StatCard[] = [];
+
+      if (isAdmin || hasPermission("Manage Referrals")) {
+        cards.push({
+          icon: <LuUsers className="text-purple-600 dark:text-purple-400" />,
+          heading: "Total Referrals",
+          value: dashboard?.stats?.totalReferrals?.total || 0,
+          subheading: (
+            <TrendIndicator
+              status={dashboard?.stats?.totalReferrals?.status}
+              percentage={dashboard?.stats?.totalReferrals?.percentage}
+            />
+          ),
+          onClick: () => navigate("/referrals"),
+        });
+      }
+
+      if (isAdmin || hasAnyPermission(["Manage Email Campaigns", "Manage Settings"])) {
+        cards.push({
+          icon: <TbSpeakerphone className="text-green-600 dark:text-green-400" />,
+          heading: "Total Campaigns",
+          value: dashboard?.stats?.activeCampaigns?.totalActiveCampaigns || 0,
+          subheading: (
+            <TrendIndicator
+              status={dashboard?.stats?.activeCampaigns?.status}
+              percentage={dashboard?.stats?.activeCampaigns?.percentage}
+              label="this month"
+            />
+          ),
+          onClick: () => navigate("/email-campaigns", { state: { tab: "campaigns" } }),
+        });
+      }
+
+      if (isAdmin || hasAnyPermission(["Manage Review", "Manage Reviews"])) {
+        cards.push({
+          icon: <FaRegStar className="text-yellow-600 dark:text-yellow-400" />,
+          heading: "Reviews",
+          value: dashboard?.stats?.reviews?.totalReviews
+            ? formatNumberWithCommas(dashboard.stats.reviews.totalReviews)
+            : "0",
+          subheading: (
+            <TrendIndicator
+              status={dashboard?.stats?.reviews?.status}
+              valueOverride={`${dashboard?.stats?.reviews?.avgRating || 0} avg rating`}
+              label=""
+            />
+          ),
+          onClick: () => navigate("/reviews"),
+        });
+      }
+
+      if (isAdmin || hasPermission("Manage Referrals")) {
+        cards.push({
+          icon: <LuTarget className="text-rose-600 dark:text-rose-400" />,
+          heading: "Total Value",
+          value: `$${formatNumberWithCommas(dashboard?.stats?.totalValue?.total || 0)}`,
+          subheading: (
+            <TrendIndicator
+              status={dashboard?.stats?.totalValue?.status}
+              percentage={dashboard?.stats?.totalValue?.percentage}
+              label="vs last month"
+            />
+          ),
+          onClick: () => navigate("/referrals"),
+        });
+      }
+
+      return cards;
+    },
+    [dashboard, navigate, isAdmin, hasPermission, hasAnyPermission],
   );
+
   const recentActivities = [
-    dashboard?.recentActivity?.referral
+    (isAdmin || hasPermission("Manage Referrals")) && dashboard?.recentActivity?.referral
       ? {
         icon: "👥",
         iconBg: "bg-sky-50 dark:bg-sky-900/20",
-        title: `New referral from ${dashboard.recentActivity.referral.referrer?.name || "N/A"
-          }`,
+        title: `New referral from ${dashboard.recentActivity.referral.referrer?.name || "N/A"}`,
         description: `Patient: ${dashboard.recentActivity.referral.name}${dashboard.recentActivity.referral.treatment
           ? ` - ${TREATMENT_OPTIONS.find(
             (treatmentOption: any) =>
@@ -194,7 +226,7 @@ const Dashboard = () => {
         onClick: () => navigate("/referrals"),
       }
       : null,
-    dashboard?.recentActivity?.reviews
+    (isAdmin || hasAnyPermission(["Manage Review", "Manage Reviews"])) && dashboard?.recentActivity?.reviews
       ? {
         icon: "⭐",
         iconBg: "bg-yellow-50 dark:bg-yellow-900/20",
@@ -212,7 +244,7 @@ const Dashboard = () => {
         onClick: () => navigate("/reviews"),
       }
       : null,
-    dashboard?.recentActivity?.campaigns
+    (isAdmin || hasAnyPermission(["Manage Email Campaigns", "Manage Settings"])) && dashboard?.recentActivity?.campaigns
       ? {
         icon: "📢",
         iconBg: "bg-orange-50 dark:bg-orange-900/20",
@@ -222,9 +254,10 @@ const Dashboard = () => {
         onClick: () => navigate("/email-campaigns", { state: { tab: "campaigns" } }),
       }
       : null,
-  ].filter((activity) => activity !== null);
+  ].filter((activity): activity is NonNullable<typeof activity> => Boolean(activity));
+
   const SYSTEM_STATUSES = [
-    {
+    (isAdmin || hasPermission("Manage Calendar")) && {
       name: "Google Calendar",
       status: dashboard?.systemStatus?.googleCalendar
         ? "✓ Connected"
@@ -236,7 +269,7 @@ const Dashboard = () => {
         ? "text-green-800 dark:text-green-300"
         : "text-red-800 dark:text-red-300",
     },
-    {
+    (isAdmin || hasAnyPermission(["Manage Review", "Manage Reviews"])) && {
       name: "Review Tracking",
       status: dashboard?.systemStatus?.reviewTracking ? "✓ Active" : "Inactive",
       bg: dashboard?.systemStatus?.reviewTracking
@@ -246,7 +279,7 @@ const Dashboard = () => {
         ? "text-green-800 dark:text-green-300"
         : "text-red-800 dark:text-red-300",
     },
-    {
+    (isAdmin || hasAnyPermission(["Manage Referrers and Partners", "Manage Referrers", "Manage Referrals"])) && {
       name: "NFC System",
       status: dashboard?.systemStatus?.nfcSetup ? "✓ Active" : "Inactive",
       bg: dashboard?.systemStatus?.nfcSetup
@@ -256,7 +289,25 @@ const Dashboard = () => {
         ? "text-green-800 dark:text-green-300"
         : "text-red-800 dark:text-red-300",
     },
-  ];
+  ].filter(Boolean) as { name: string; status: string; bg: string; text: string }[];
+  const statGridColsClass = useMemo(() => {
+    const len = STAT_CARD_DATA.length;
+    if (len === 1) return "grid-cols-1 max-w-md";
+    if (len === 2) return "grid-cols-1 sm:grid-cols-2";
+    if (len === 3) return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
+    return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4";
+  }, [STAT_CARD_DATA.length]);
+
+  const hasRightSidebarContent = hasNfcAccess || SYSTEM_STATUSES.length > 0;
+
+  const quickActionsGridColsClass = useMemo(() => {
+    const len = filteredQuickActions.length;
+    if (len === 1) return "grid-cols-1";
+    if (len === 2) return "grid-cols-1 sm:grid-cols-2";
+    if (len === 3) return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
+    return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4";
+  }, [filteredQuickActions.length]);
+
   return (
     <ComponentContainer headingData={HEADING_DATA}>
       <div className="space-y-4 md:space-y-5">
@@ -342,39 +393,43 @@ const Dashboard = () => {
           </div>
         )}
 
-        <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
-          {STAT_CARD_DATA.map((data, i) => (
-            <MiniStatsCard key={i} cardData={data} />
-          ))}
-        </div>
-
-        <div className="bg-background rounded-xl p-4">
-          <h4 className="text-sm md:text-base mb-4">Quick Actions</h4>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-4">
-            {filteredQuickActions.map((action, i) => {
-              const color = QUICK_ACTIONS_COLOR_CLASSES[action.color];
-              const Icon = action.icon;
-              return (
-                <Link
-                  key={i}
-                  to={action.link || ""}
-                  onClick={(e) => {
-                    if (!action.link) e.preventDefault();
-                  }}
-                  className={`flex items-center justify-center gap-x-1.5 px-3 py-2.5 rounded-lg border transition-colors cursor-pointer text-sm
-					        ${color.bg} ${color.text} ${color.border} ${color.hover}`}
-                >
-                  <span className="text-base">{Icon}</span>
-                  <span>{action.label}</span>
-                </Link>
-              );
-            })}
+        {STAT_CARD_DATA.length > 0 && (
+          <div className={`grid ${statGridColsClass} gap-3 md:gap-4`}>
+            {STAT_CARD_DATA.map((data, i) => (
+              <MiniStatsCard key={i} cardData={data} />
+            ))}
           </div>
-        </div>
+        )}
+
+        {filteredQuickActions.length > 0 && (
+          <div className="bg-background rounded-xl p-4 border border-foreground/10">
+            <h4 className="text-sm md:text-base font-medium mb-3">Quick Actions</h4>
+            <div className={`grid ${quickActionsGridColsClass} gap-3 md:gap-4`}>
+              {filteredQuickActions.map((action, i) => {
+                const color = QUICK_ACTIONS_COLOR_CLASSES[action.color];
+                const Icon = action.icon;
+                return (
+                  <Link
+                    key={i}
+                    to={action.link || ""}
+                    onClick={(e) => {
+                      if (!action.link) e.preventDefault();
+                    }}
+                    className={`flex items-center justify-center gap-x-2 px-4 py-3 rounded-lg border transition-all cursor-pointer text-sm font-medium w-full
+					        ${color.bg} ${color.text} ${color.border} ${color.hover}`}
+                  >
+                    <span className="text-base">{Icon}</span>
+                    <span>{action.label}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
-          <div className="md:col-span-2 bg-background rounded-xl p-4">
-            <h3 className="text-sm md:text-base mb-4">Recent Activity</h3>
+          <div className={`${hasRightSidebarContent ? "md:col-span-2" : "md:col-span-3"} bg-background rounded-xl p-4 border border-foreground/10`}>
+            <h3 className="text-sm md:text-base font-medium mb-4">Recent Activity</h3>
             <div className="space-y-4 md:space-y-2">
               {isLoading ? (
                 <div className="py-8 flex items-center justify-center">
@@ -421,79 +476,83 @@ const Dashboard = () => {
             </div>
           </div>
 
-          <div className="space-y-4 md:space-y-5">
-            <div className="bg-background rounded-xl p-4">
-              <h3 className="text-sm md:text-base mb-4">
-                <span className="mr-1">📱</span>NFC & QR Tracking
-              </h3>
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-gray-600 dark:text-gray-400">
-                    Active Codes
-                  </span>
-                  <span className="bg-sky-100 dark:bg-sky-900/20 text-sky-800 dark:text-sky-300 h-6 p-0 px-2 flex items-center justify-center rounded text-xs font-medium">
-                    {dashboard?.nfcQrData?.activeQRCodes || 0}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-gray-600 dark:text-gray-400">
-                    Total Scans
-                  </span>
-                  <span className="bg-orange-100 dark:bg-orange-900/20 text-orange-800 dark:text-orange-300 h-6 p-0 px-2 flex items-center justify-center rounded text-xs font-medium">
-                    {dashboard?.nfcQrData?.totalScans || 0}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-xs text-gray-600 dark:text-gray-400">
-                    Conversion Rate
-                  </span>
-                  <span className="bg-emerald-100 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300 h-6 p-0 px-2 flex items-center justify-center rounded text-xs font-medium">
-                    {dashboard?.nfcQrData?.conversionRate &&
-                      dashboard.nfcQrData.conversionRate > 0
-                      ? `${dashboard.nfcQrData.conversionRate}%`
-                      : "0%"}
-                  </span>
-                </div>
-                <Link to="/qr-generator">
-                  <Button
-                    size="sm"
-                    radius="sm"
-                    variant="solid"
-                    color="primary"
-                    fullWidth
-                    className="mt-2"
-                  >
-                    📱 Generate New Code
-                  </Button>
-                </Link>
-              </div>
-            </div>
-
-            <div className="bg-background rounded-xl p-4">
-              <h3
-                className="text-sm md:text-base mb-4"
-              >
-                System Status
-              </h3>
-              <div className="space-y-2">
-                {SYSTEM_STATUSES.map((system, index) => (
-                  <div
-                    key={index}
-                    className="flex items-center justify-between"
-                  >
-                    <span className="text-xs text-gray-600 dark:text-gray-400">
-                      {system.name}
-                    </span>
-                    <span
-                      className={`${system.bg} ${system.text} px-2 py-1 rounded text-xs`}
-                    >
-                      {system.status}
-                    </span>
+          {hasRightSidebarContent && (
+            <div className="space-y-4 md:space-y-5">
+              {hasNfcAccess && (
+                <div className="bg-background rounded-xl p-4 border border-foreground/10">
+                  <h3 className="text-sm md:text-base font-medium mb-4">
+                    <span className="mr-1">📱</span>NFC & QR Tracking
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-gray-600 dark:text-gray-400">
+                        Active Codes
+                      </span>
+                      <span className="bg-sky-100 dark:bg-sky-900/20 text-sky-800 dark:text-sky-300 h-6 p-0 px-2 flex items-center justify-center rounded text-xs font-medium">
+                        {dashboard?.nfcQrData?.activeQRCodes || 0}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-gray-600 dark:text-gray-400">
+                        Total Scans
+                      </span>
+                      <span className="bg-orange-100 dark:bg-orange-900/20 text-orange-800 dark:text-orange-300 h-6 p-0 px-2 flex items-center justify-center rounded text-xs font-medium">
+                        {dashboard?.nfcQrData?.totalScans || 0}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-xs text-gray-600 dark:text-gray-400">
+                        Conversion Rate
+                      </span>
+                      <span className="bg-emerald-100 dark:bg-emerald-900/20 text-emerald-800 dark:text-emerald-300 h-6 p-0 px-2 flex items-center justify-center rounded text-xs font-medium">
+                        {dashboard?.nfcQrData?.conversionRate &&
+                          dashboard.nfcQrData.conversionRate > 0
+                          ? `${dashboard.nfcQrData.conversionRate}%`
+                          : "0%"}
+                      </span>
+                    </div>
+                    {hasGenerateQrAccess && (
+                      <Link to="/qr-generator">
+                        <Button
+                          size="sm"
+                          radius="sm"
+                          variant="solid"
+                          color="primary"
+                          fullWidth
+                          className="mt-2"
+                        >
+                          📱 Generate New Code
+                        </Button>
+                      </Link>
+                    )}
                   </div>
-                ))}
-              </div>
+                </div>
+              )}
+
+              {SYSTEM_STATUSES.length > 0 && (
+                <div className="bg-background rounded-xl p-4 border border-foreground/10">
+                  <h3 className="text-sm md:text-base font-medium mb-4">System Status</h3>
+                  <div className="space-y-2">
+                    {SYSTEM_STATUSES.map((system, index) => (
+                      <div
+                        key={index}
+                        className="flex items-center justify-between"
+                      >
+                        <span className="text-xs text-gray-600 dark:text-gray-400">
+                          {system.name}
+                        </span>
+                        <span
+                          className={`${system.bg} ${system.text} px-2 py-1 rounded text-xs`}
+                        >
+                          {system.status}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
-          </div>
+          )}
         </div>
       </div>
     </ComponentContainer>

@@ -275,12 +275,10 @@ const SignIn = () => {
               </Link>
             </span>
           </div>
-          <div className="mt-2 text-center text-xs">
+          <div className="mt-3 text-center text-xs">
             <Link
-              to="https://practiceroi.com/password-reset/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-primary hover:underline"
+              to="/forgot-password"
+              className="text-primary hover:underline font-medium"
             >
               Forgot your password?
             </Link>

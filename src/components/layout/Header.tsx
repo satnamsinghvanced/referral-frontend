@@ -1,6 +1,6 @@
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input, Navbar, NavbarContent } from "@heroui/react";
 import { AnimatePresence, motion } from "framer-motion";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { FiUser } from "react-icons/fi";
 import { HiOutlineMenuAlt1 } from "react-icons/hi";
 import { IoSearch } from "react-icons/io5";
@@ -16,6 +16,8 @@ import { LoadingState } from "../common/LoadingState";
 import NotificationPopover from "../ui/NotificationsPopover";
 import LogoutConfirmationModal from "../common/LogoutConfirmationModal";
 
+import { useRolePermissions } from "../../hooks/useRolePermissions";
+
 export default function Header({
   hamburgerMenuClick,
 }: {
@@ -24,12 +26,78 @@ export default function Header({
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { user } = useTypedSelector((state) => state.auth);
+  const { hasPermission, hasAnyPermission, isAdmin } = useRolePermissions();
+
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounce(query, 500);
   const [isOpen, setIsOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const { data: results, isLoading } = useGlobalSearch({ q: debouncedQuery });
   const searchContainerRef = useRef<HTMLDivElement>(null);
+
+  const hasManageReferrals = isAdmin || hasPermission("Manage Referrals");
+  const hasManageReferrers =
+    isAdmin ||
+    hasAnyPermission(["Manage Referrers and Partners", "Manage Referrers"]);
+
+  const searchPlaceholder = useMemo(() => {
+    if (hasManageReferrals && hasManageReferrers) {
+      return "Search referrals and referrers...";
+    }
+    if (hasManageReferrals) {
+      return "Search referrals...";
+    }
+    if (hasManageReferrers) {
+      return "Search referrers...";
+    }
+    return "Search...";
+  }, [hasManageReferrals, hasManageReferrers]);
+
+  const filteredResults = useMemo(() => {
+    if (!results) return [];
+    if (isAdmin) return results;
+    return results.filter((item) => {
+      if (item.resultType === "referral" && !hasManageReferrals) return false;
+      if (item.resultType === "referrer" && !hasManageReferrers) return false;
+      return true;
+    });
+  }, [results, isAdmin, hasManageReferrals, hasManageReferrers]);
+
+  const hasLocationsPermission = isAdmin || hasPermission("Manage Locations");
+  const hasTeamPermission = isAdmin || hasPermission("Manage Team");
+  const hasBillingPermission = isAdmin || hasPermission("Manage Billing");
+
+  const handleLogout = () => {
+    setIsLogoutModalOpen(true);
+  };
+
+  const profileMenuItems = useMemo(() => {
+    const items: Array<{
+      key: string;
+      label: string;
+      onClick: () => void;
+      isHeader?: boolean;
+      isDanger?: boolean;
+    }> = [
+        { key: "profile", label: `Signed in as ${user?.email}`, onClick: () => navigate("/settings"), isHeader: true },
+        { key: "general", label: "General", onClick: () => navigate("/settings/general") },
+      ];
+
+    if (hasLocationsPermission) {
+      items.push({ key: "locations", label: "Locations", onClick: () => navigate("/settings/locations") });
+    }
+    if (hasTeamPermission) {
+      items.push({ key: "team", label: "Team Settings", onClick: () => navigate("/settings/team") });
+    }
+    if (hasBillingPermission) {
+      items.push({ key: "billing", label: "Billing", onClick: () => navigate("/settings/billing") });
+    }
+
+    items.push({ key: "logout", label: "Log Out", onClick: handleLogout, isDanger: true });
+
+    return items;
+  }, [user?.email, hasLocationsPermission, hasTeamPermission, hasBillingPermission, navigate]);
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -48,9 +116,6 @@ export default function Header({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen]);
-  const handleLogout = () => {
-    setIsLogoutModalOpen(true);
-  };
   return (
     <Navbar
       isBordered
@@ -92,7 +157,7 @@ export default function Header({
                 inputWrapper:
                   "min-h-8 font-normal text-default-500 shadow-none bg-foreground/4 dark:bg-foreground/10 group-data-[focus=true]:border-default-400 text-foreground /10",
               }}
-              placeholder="Search referrals and referrers..."
+              placeholder={searchPlaceholder}
               startContent={
                 <IoSearch size={18} className="text-foreground/50" />
               }
@@ -113,9 +178,9 @@ export default function Header({
                       <h4 className="text-sm font-medium dark:text-gray-400">
                         Search Results
                       </h4>
-                      {results && results.length > 0 && (
+                      {filteredResults && filteredResults.length > 0 && (
                         <span className="text-[11px] bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
-                          {results.length} Found
+                          {filteredResults.length} Found
                         </span>
                       )}
                     </div>
@@ -126,9 +191,9 @@ export default function Header({
                           Searching through database...
                         </p>
                       </div>
-                    ) : results && results.length > 0 ? (
+                    ) : filteredResults && filteredResults.length > 0 ? (
                       <div className="flex flex-col">
-                        {results.map((result) => (
+                        {filteredResults.map((result) => (
                           <button
                             key={result._id}
                             onClick={() => {
@@ -210,7 +275,7 @@ export default function Header({
         </NavbarContent>
       </NavbarContent>
       <NavbarContent as="div" className="items-center gap-4" justify="end">
-        <div className="flex gap-1 justify-center items-center">
+        <div className="flex gap-2 justify-center items-center">
           <NotificationPopover />
           <Dropdown placement="bottom-end">
             <DropdownTrigger>
@@ -224,52 +289,25 @@ export default function Header({
                 <p>{user?.firstName}</p>
               </Button>
             </DropdownTrigger>
-            <DropdownMenu aria-label="Profile Actions" variant="flat">
-              <DropdownItem
-                key="profile"
-                className="h-14 gap-2"
-                onPress={() => navigate("/settings")}
-                textValue={`Signed in as ${user?.email}`}
-              >
-                <p className="font-semibold">Signed in as</p>
-                <p className="font-semibold">{user?.email}</p>
-              </DropdownItem>
-              <DropdownItem
-                key="general"
-                onPress={() => navigate("/settings/general")}
-                textValue="General"
-              >
-                General
-              </DropdownItem>
-              <DropdownItem
-                key="locations"
-                onPress={() => navigate("/settings/locations")}
-                textValue="Locations"
-              >
-                Locations
-              </DropdownItem>
-              <DropdownItem
-                key="team"
-                onPress={() => navigate("/settings/team")}
-                textValue="Team Settings"
-              >
-                Team Settings
-              </DropdownItem>
-              <DropdownItem
-                key="billing"
-                onPress={() => navigate("/settings/billing")}
-                textValue="Billing"
-              >
-                Billing
-              </DropdownItem>
-              <DropdownItem
-                key="logout"
-                color="danger"
-                textValue="Log Out"
-                onPress={handleLogout}
-              >
-                Log Out
-              </DropdownItem>
+            <DropdownMenu items={profileMenuItems} aria-label="Profile Actions" variant="flat">
+              {(item) => (
+                <DropdownItem
+                  key={item.key}
+                  color={item.isDanger ? "danger" : "default"}
+                  className={item.isHeader ? "h-14 gap-2" : ""}
+                  textValue={item.label}
+                  onPress={() => item.onClick()}
+                >
+                  {item.isHeader ? (
+                    <div>
+                      <p className="font-semibold">Signed in as</p>
+                      <p className="font-semibold">{user?.email}</p>
+                    </div>
+                  ) : (
+                    item.label
+                  )}
+                </DropdownItem>
+              )}
             </DropdownMenu>
           </Dropdown>
         </div>
