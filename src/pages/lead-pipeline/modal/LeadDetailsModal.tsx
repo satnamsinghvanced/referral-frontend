@@ -15,7 +15,9 @@ import {
   Textarea,
   Spinner,
 } from "@heroui/react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "../../../services/axios";
+import { Link } from "react-router-dom";
 import {
   HiOutlineCalendar,
   HiOutlineChartBar,
@@ -104,6 +106,44 @@ const LeadDetailsModal = ({
   const { mutateAsync: sendSms, isPending: sendingSms } = useSendLeadSms();
   const { mutateAsync: deleteCommunication } = useDeleteLeadCommunicationHistory();
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [hasPhoneConnected, setHasPhoneConnected] = useState<boolean | null>(null);
+  const [hasEmailConnected, setHasEmailConnected] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const checkIntegrations = async () => {
+      try {
+        const twilioRes = await axios.get("/twilio-checkout/active-numbers") as any;
+        console.log("[Integrations Debug] Twilio Response:", twilioRes);
+        if (twilioRes && twilioRes.success && Array.isArray(twilioRes.data)) {
+          setHasPhoneConnected(twilioRes.data.length > 0);
+        } else {
+          setHasPhoneConnected(false);
+        }
+      } catch (err) {
+        console.error("Failed to check active numbers:", err);
+        setHasPhoneConnected(false);
+      }
+
+      try {
+        const emailRes = await axios.get("/email-integration") as any;
+        console.log("[Integrations Debug] Email Response:", emailRes);
+        if (emailRes && emailRes.success && Array.isArray(emailRes.data)) {
+          const isConnected = emailRes.data.some((item: any) => item.status === "Connected");
+          console.log("[Integrations Debug] Is Email Connected:", isConnected);
+          setHasEmailConnected(isConnected);
+        } else {
+          setHasEmailConnected(false);
+        }
+      } catch (err) {
+        console.error("Failed to check email integrations:", err);
+        setHasEmailConnected(false);
+      }
+    };
+
+    if (isOpen) {
+      checkIntegrations();
+    }
+  }, [isOpen]);
 
   const handleDeleteCommunication = async (id: string, type: string) => {
     setDeletingId(id);
@@ -239,12 +279,12 @@ const LeadDetailsModal = ({
                     <div className="flex items-center gap-3">
                       <ReferralStatusChip status={formik.values.status} />
                       <PriorityLevelChip level={formik.values.priority} />
-                      <span className="text-xs text-gray-500 dark:text-foreground/60 font-normal">
+                      {/* <span className="text-xs text-gray-500 dark:text-foreground/60 font-normal">
                         Lead Score:{" "}
                         <span className="font-bold text-gray-700 dark:text-foreground">
                           {lead.score || 0}
                         </span>
-                      </span>
+                      </span> */}
                     </div>
                   </div>
                 </div>
@@ -485,7 +525,7 @@ const LeadDetailsModal = ({
                             </p>
                           </div>
                         </div>
-                        <div className="p-4 border border-foreground/10 rounded-xl flex flex-col justify-center gap-2 bg-content1/50 dark:bg-content1/20">
+                        {/* <div className="p-4 border border-foreground/10 rounded-xl flex flex-col justify-center gap-2 bg-content1/50 dark:bg-content1/20">
                           <div className="flex justify-between items-center px-1">
                             <span className="text-xs text-gray-400 dark:text-foreground/40 font-medium">
                               Lead Score
@@ -500,78 +540,101 @@ const LeadDetailsModal = ({
                             value={lead.score || 0}
                             className="w-full"
                           />
-                        </div>
+                        </div> */}
                       </div>
                     </div>
                   </Tab>
                   <Tab key="communication" title="Communication">
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 pt-4">
-                      {/* <div className="p-4 border border-foreground/10 rounded-xl space-y-4 bg-content1/50 dark:bg-content1/20">
-                        <div className="flex items-center gap-2 text-blue-500">
-                          <HiOutlinePhone className="size-5" />
-                          <h4 className="font-bold text-sm">Make a Call</h4>
+                    <div className="space-y-4 pt-1">
+                      {(hasPhoneConnected === false || hasEmailConnected === false) && (
+                        <div className="p-4 bg-amber-500/10 border border-amber-500/20 text-amber-600 dark:text-amber-400 rounded-xl text-xs space-y-2">
+                          {hasPhoneConnected === false && (
+                            <p className="flex items-center gap-1.5 font-medium">
+                              <span>⚠️</span>
+                              <span>Phone service is not connected. Please <Link to="/integrations?highlight=twilio" className="underline font-bold hover:text-amber-500 transition-colors">buy a phone number</Link> to enable SMS messaging.</span>
+                            </p>
+                          )}
+                          {hasEmailConnected === false && (
+                            <p className="flex items-center gap-1.5 font-medium">
+                              <span>⚠️</span>
+                              <span>Email integration is not connected. Please <Link to="/integrations?highlight=email_marketing" className="underline font-bold hover:text-amber-500 transition-colors">connect your Gmail/SMTP</Link> to enable email sending.</span>
+                            </p>
+                          )}
                         </div>
-                        <Button
-                          fullWidth
-                          color="primary"
-                          className="font-bold"
-                          startContent={<HiOutlinePhoneIncoming />}
-                        >
-                          Call {lead.phone}
-                        </Button>
-                      </div> */}
-                      <div className="p-4 border border-foreground/10 rounded-xl space-y-4 bg-content1/50 dark:bg-content1/20">
-                        <div className="flex items-center gap-2 text-purple-500">
-                          <HiOutlineMail className="size-5" />
-                          <h4 className="font-bold text-sm">Send Email</h4>
-                        </div>
-                        <Button
-                          fullWidth
-                          variant="flat"
-                          color="secondary"
-                          className="font-bold bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300 px-1 border border-purple-200/20 dark:border-purple-800/30 hover:bg-purple-200/50 dark:hover:bg-purple-900/50"
-                          startContent={<HiOutlineInbox className="text-purple-800 dark:text-purple-300" />}
-                          onPress={() => setIsSendEmailOpen(true)}
-                        >
-                          <span className="truncate">{lead.email ? lead.email : "Email"}</span>
-                        </Button>
-                      </div>
-                      <div className="p-4 border border-foreground/10 rounded-xl space-y-4 bg-content1/50 dark:bg-content1/20">
-                        <div className="flex items-center gap-2 text-green-500">
-                          <HiOutlineChat className="size-5" />
-                          <h4 className="font-bold text-sm">Send SMS</h4>
-                        </div>
-                        <Textarea
-                          placeholder="Type your SMS message..."
-                          minRows={2}
-                          variant="flat"
-                          value={smsBody}
-                          onChange={(e) => setSmsBody(e.target.value)}
-                          maxLength={200}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter" && !e.shiftKey) {
-                              e.preventDefault();
-                              handleSendSms();
-                            }
-                          }}
-                        />
-                        <div className="flex justify-between items-center text-[10px] text-gray-400 dark:text-foreground/40">
-                          <span>{smsBody.length}/200</span>
+                      )}
+
+                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                        {/* Send Email Card */}
+                        <div className="p-5 border-l-4 border-purple-500 rounded-xl bg-gradient-to-br from-purple-500/[0.03] to-indigo-500/[0.03] border border-y-foreground/5 border-r-foreground/5 dark:border-y-white/5 dark:border-r-white/5 space-y-4 flex flex-col justify-between min-h-[190px] shadow-sm hover:shadow-purple-500/5 transition-all duration-300">
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2 text-purple-500">
+                              <HiOutlineMail className="size-5" />
+                              <h4 className="font-bold text-sm tracking-wide">Email Communications</h4>
+                            </div>
+                            <p className="text-[11px] text-foreground/50 leading-relaxed">
+                              Send templates, custom campaigns, and direct updates to the lead's email.
+                            </p>
+                          </div>
                           <Button
-                            size="sm"
-                            variant="flat"
-                            color="success"
-                            className="font-bold bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300 border border-green-200/20 dark:border-green-800/30 hover:bg-green-200/50 dark:hover:bg-green-900/50"
-                            startContent={!sendingSms && <HiOutlineChat className="text-green-800 dark:text-green-300" />}
-                            onPress={handleSendSms}
-                            isLoading={sendingSms}
-                            isDisabled={!smsBody.trim() || sendingSms}
+                            fullWidth
+                            variant="solid"
+                            className={`font-bold text-white bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 shadow-md shadow-purple-500/10 rounded-xl transition-all duration-200 transform active:scale-95 py-6 ${hasEmailConnected === false ? 'opacity-50 cursor-not-allowed pointer-events-none' : ''}`}
+                            startContent={<HiOutlineInbox className="size-5 text-white" />}
+                            onPress={() => setIsSendEmailOpen(true)}
+                            isDisabled={hasEmailConnected === false}
                           >
-                            Send SMS
+                            <span className="truncate">{lead.email ? lead.email : "Send Email"}</span>
                           </Button>
                         </div>
+
+                        {/* Send SMS Card */}
+                        <div className="p-5 border-l-4 border-green-500 rounded-xl bg-gradient-to-br from-green-500/[0.03] to-emerald-500/[0.03] border border-y-foreground/5 border-r-foreground/5 dark:border-y-white/5 dark:border-r-white/5 space-y-4 flex flex-col justify-between min-h-[190px] shadow-sm hover:shadow-green-500/5 transition-all duration-300">
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2 text-green-500">
+                              <HiOutlineChat className="size-5" />
+                              <h4 className="font-bold text-sm tracking-wide">SMS Texting</h4>
+                            </div>
+                            <p className="text-[11px] text-foreground/50 leading-relaxed">
+                              Send immediate SMS text updates directly to the lead's mobile device.
+                            </p>
+                          </div>
+                          
+                          <div className="space-y-3 w-full">
+                            <Textarea
+                              placeholder="Type your SMS message..."
+                              minRows={1}
+                              variant="flat"
+                              className="text-xs bg-foreground/[0.03] dark:bg-white/[0.03] rounded-lg"
+                              value={smsBody}
+                              onChange={(e) => setSmsBody(e.target.value)}
+                              maxLength={200}
+                              isDisabled={hasPhoneConnected === false}
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter" && !e.shiftKey) {
+                                  e.preventDefault();
+                                  handleSendSms();
+                                }
+                              }}
+                            />
+                            <div className="flex justify-between items-center text-[10px] text-gray-400 dark:text-foreground/40">
+                              <span>{smsBody.length}/200</span>
+                              <Button
+                                size="sm"
+                                variant="solid"
+                                className={`font-bold text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-md shadow-green-500/10 rounded-xl transition-all duration-200 transform active:scale-95 px-4 py-2 ${(!smsBody.trim() || sendingSms || hasPhoneConnected === false) ? 'opacity-50' : ''}`}
+                                startContent={!sendingSms && <HiOutlineChat className="size-4 text-white" />}
+                                onPress={handleSendSms}
+                                isLoading={sendingSms}
+                                isDisabled={!smsBody.trim() || sendingSms || hasPhoneConnected === false}
+                              >
+                                Send SMS
+                              </Button>
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                      <div className="lg:col-span-3 mt-4">
+
+                      <div className="mt-4">
                         <div className="flex items-center gap-2 mb-4 px-2">
                           <LuHistory className="size-5 text-gray-400 dark:text-foreground/40" />
                           <h3 className="font-bold text-base text-foreground">
@@ -579,7 +642,7 @@ const LeadDetailsModal = ({
                           </h3>
                         </div>
                         <div className="p-4 border border-foreground/10 rounded-xl bg-content1/50 dark:bg-content1/20">
-                          {loadingHistory || fetchingHistory ? (
+                          {loadingHistory ? (
                             <div className="p-8 flex flex-col items-center justify-center gap-2 text-xs text-gray-400 dark:text-foreground/45 font-medium">
                               <Spinner size="sm" color="primary" />
                               <span>Loading communication history...</span>
@@ -800,7 +863,7 @@ const LeadDetailsModal = ({
                               </span>
                             </div>
                           </div>
-                          <div>
+                          {/* <div>
                             <p className="text-xs text-gray-400 dark:text-foreground/40 font-medium mb-1">
                               Lead Score
                             </p>
@@ -821,7 +884,7 @@ const LeadDetailsModal = ({
                                 {lead.score || 0}
                               </span>
                             </div>
-                          </div>
+                          </div> */}
                           <div>
                             <p className="text-xs text-gray-400 dark:text-foreground/40 font-medium mb-1">
                               Tags
