@@ -131,13 +131,7 @@ export default function ChatArea({
       );
     }
 
-    if (isIntegrationsLoading) {
-      return (
-        <div className="flex-1 flex items-center justify-center hidden md:flex bg-gray-50/10 dark:bg-black/5">
-          <Spinner size="lg" label="Checking integrations..." color="primary" />
-        </div>
-      );
-    }
+
 
 
 
