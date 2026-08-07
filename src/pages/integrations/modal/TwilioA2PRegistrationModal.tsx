@@ -29,6 +29,8 @@ import {
   useSaveA2PRegistration,
   useUpdateA2PRegistration,
 } from "../../../hooks/integrations/useTwilio";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../store";
 
 interface PhoneNumber {
   id: string;
@@ -63,6 +65,7 @@ export default function TwilioA2PRegistrationModal({
 }: TwilioA2PRegistrationModalProps) {
   const [step, setStep] = useState<number>(1);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const user = useSelector((state: RootState) => state.auth.user);
 
   const fieldsConfig: FieldConfig[] = [
     {
@@ -135,35 +138,10 @@ export default function TwilioA2PRegistrationModal({
       required: true,
     },
     {
-      name: "website",
-      type: "url",
-      label: "Website *",
-      placeholder: "https://practiceroi.com",
-      step: 1,
-      gridSpan: "col-span-3",
-      required: true,
-    },
-    {
-      name: "industry",
-      type: "select",
-      label: "Industry Vertical *",
-      step: 1,
-      gridSpan: "col-span-3",
-      required: true,
-      options: [
-        { key: "professional_services", label: "Professional Services" },
-        { key: "healthcare", label: "Healthcare" },
-        { key: "retail", label: "Retail" },
-        { key: "fincial_services", label: "Fincial Services" },
-        { key: "education", label: "Education" },
-        { key: "other", label: "Other" },
-      ],
-    },
-    {
       name: "firstName",
       type: "text",
-      label: "First Name *",
-      placeholder: "John",
+      label: "Contact First Name *",
+      placeholder: "e.g. John",
       step: 1,
       gridSpan: "col-span-3",
       required: true,
@@ -171,8 +149,8 @@ export default function TwilioA2PRegistrationModal({
     {
       name: "lastName",
       type: "text",
-      label: "Last Name *",
-      placeholder: "Doe",
+      label: "Contact Last Name *",
+      placeholder: "e.g. Doe",
       step: 1,
       gridSpan: "col-span-3",
       required: true,
@@ -180,8 +158,8 @@ export default function TwilioA2PRegistrationModal({
     {
       name: "email",
       type: "email",
-      label: "Email *",
-      placeholder: "john@practiceroi.com",
+      label: "Contact Email Address *",
+      placeholder: "e.g. john.doe@example.com",
       step: 1,
       gridSpan: "col-span-3",
       required: true,
@@ -189,8 +167,8 @@ export default function TwilioA2PRegistrationModal({
     {
       name: "phone",
       type: "tel",
-      label: "Phone *",
-      placeholder: "(555) 123-4567",
+      label: "Contact Phone Number *",
+      placeholder: "e.g. +1 (555) 019-2834",
       step: 1,
       gridSpan: "col-span-3",
       required: true,
@@ -362,34 +340,34 @@ export default function TwilioA2PRegistrationModal({
         });
         setSelectedNumbers(registrationData.selectedNumbers || []);
       } else {
-        setFormData({
-          businessName: "",
-          businessType: "co_operative",
-          ein: "",
-          address: "",
-          city: "",
-          state: "",
-          zipCode: "",
-          website: "",
-          industry: "professional_services",
-          firstName: "",
-          lastName: "",
-          email: "",
-          phone: "",
-          campaignName: "",
-          useCase: "mixed",
-          campaignDescription: "",
-          messageFlow: "",
-          monthlyVolume: "low",
-          optInMethod: "verbal",
-          optInMessage: "",
-          optOutMessage: "",
-          helpMessage: "",
-        });
+        setFormData((prev) => ({
+          businessName: prev.businessName || "",
+          businessType: prev.businessType || "co_operative",
+          ein: prev.ein || "",
+          address: prev.address || "",
+          city: prev.city || "",
+          state: prev.state || "",
+          zipCode: prev.zipCode || "",
+          website: prev.website || "",
+          industry: prev.industry || "professional_services",
+          firstName: prev.firstName || user?.firstName || "",
+          lastName: prev.lastName || user?.lastName || "",
+          email: prev.email || user?.email || "",
+          phone: prev.phone || user?.mobile || "",
+          campaignName: prev.campaignName || "",
+          useCase: prev.useCase || "mixed",
+          campaignDescription: prev.campaignDescription || "",
+          messageFlow: prev.messageFlow || "",
+          monthlyVolume: prev.monthlyVolume || "low",
+          optInMethod: prev.optInMethod || "verbal",
+          optInMessage: prev.optInMessage || "",
+          optOutMessage: prev.optOutMessage || "",
+          helpMessage: prev.helpMessage || "",
+        }));
         setSelectedNumbers(phoneNumbers.map((n) => n.phoneNumber));
       }
     }
-  }, [isOpen, registrationData, phoneNumbers]);
+  }, [isOpen, registrationData, phoneNumbers, user]);
 
   const validateField = (name: string, value: string) => {
     const field = fieldsConfig.find((f) => f.name === name);
@@ -448,8 +426,11 @@ export default function TwilioA2PRegistrationModal({
           return "Please enter a valid email address";
         }
       } else if (field.type === "tel" || field.name === "phone") {
-        const phoneRegex = /^\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/;
-        const digitsOnly = val.replace(/\D/g, "");
+        const phoneRegex = /^\+?1?[-.\s]?\(?\d{3}\)?[-.\s]?\d{3}[-.\s]?\d{4}$/;
+        let digitsOnly = val.replace(/\D/g, "");
+        if (digitsOnly.length === 11 && digitsOnly.startsWith("1")) {
+          digitsOnly = digitsOnly.substring(1);
+        }
         if (!phoneRegex.test(val) || digitsOnly.length !== 10) {
           return "Phone number must be exactly 10 digits";
         }
@@ -482,9 +463,35 @@ export default function TwilioA2PRegistrationModal({
     return "";
   };
 
+  const formatPhoneNumber = (value: string): string => {
+    const digits = value.replace(/\D/g, "");
+    const limited = digits.slice(0, 10);
+    if (limited.length === 0) return "";
+    if (limited.length <= 3) return limited;
+    if (limited.length <= 6) return `(${limited.slice(0, 3)}) ${limited.slice(3)}`;
+    return `(${limited.slice(0, 3)}) ${limited.slice(3, 6)}-${limited.slice(6)}`;
+  };
+
+  const formatEIN = (value: string): string => {
+    const digits = value.replace(/\D/g, "");
+    const limited = digits.slice(0, 9);
+    if (limited.length === 0) return "";
+    if (limited.length <= 2) return limited;
+    return `${limited.slice(0, 2)}-${limited.slice(2)}`;
+  };
+
   const handleFieldChange = (name: string, value: string) => {
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    const error = validateField(name, value);
+    let sanitizedValue = value;
+    if (name === "phone") {
+      sanitizedValue = formatPhoneNumber(value);
+    } else if (name === "ein") {
+      sanitizedValue = formatEIN(value);
+    } else if (name === "zipCode") {
+      sanitizedValue = value.replace(/[^0-9-]/g, "").slice(0, 10);
+    }
+
+    setFormData((prev) => ({ ...prev, [name]: sanitizedValue }));
+    const error = validateField(name, sanitizedValue);
     setErrors((prev) => {
       const copy = { ...prev };
       if (error) {
@@ -590,6 +597,7 @@ export default function TwilioA2PRegistrationModal({
       isOpen={isOpen}
       onOpenChange={onClose}
       size="xl"
+      isDismissable={false}
       classNames={{
         base: "max-sm:!m-3 !m-0 bg-background border border-foreground/10 text-foreground rounded-2xl max-h-[90vh] flex flex-col overflow-hidden",
         closeButton: "cursor-pointer text-foreground/50 hover:text-foreground",
@@ -714,7 +722,7 @@ export default function TwilioA2PRegistrationModal({
                                   labelPlacement="outside"
                                   placeholder={field.placeholder || ""}
                                   value={(formData as any)[field.name]}
-                                  onValueChange={(val) => handleFieldChange(field.name, val)}
+                                  onChange={(e) => handleFieldChange(field.name, e.target.value)}
                                   onBlur={() => handleFieldBlur(field.name)}
                                   isInvalid={!!errors[field.name]}
                                   errorMessage={errors[field.name] || ""}
@@ -735,7 +743,7 @@ export default function TwilioA2PRegistrationModal({
                                 labelPlacement="outside"
                                 placeholder={field.placeholder || ""}
                                 value={(formData as any)[field.name]}
-                                onValueChange={(val) => handleFieldChange(field.name, val)}
+                                onChange={(e) => handleFieldChange(field.name, e.target.value)}
                                 onBlur={() => handleFieldBlur(field.name)}
                                 isInvalid={!!errors[field.name]}
                                 errorMessage={errors[field.name] || ""}
@@ -891,7 +899,11 @@ export default function TwilioA2PRegistrationModal({
                           <div className="flex flex-col gap-0.5">
                             <span className="text-foreground-400 text-[10px]">Contact:</span>
                             <span className="font-bold text-foreground">
-                              {formData.firstName || formData.lastName ? `${formData.firstName} ${formData.lastName}` : "Not provided"}
+                              {formData.firstName || formData.lastName 
+                                ? `${formData.firstName} ${formData.lastName}`
+                                : user?.firstName || user?.lastName 
+                                  ? `${user.firstName} ${user.lastName}`
+                                  : "Profile Details"}
                             </span>
                           </div>
                         </div>
