@@ -180,6 +180,31 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
       color: "success",
     });
   };
+  const getA2PBadgeDetails = () => {
+    const rawStatus = registration?.campaignStatus || registration?.status || "pending";
+    const statusUpper = rawStatus.toUpperCase();
+
+    if (statusUpper === "VERIFIED" || statusUpper === "APPROVED") {
+      return {
+        label: "Verified",
+        colorClass: "bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-900/30",
+        icon: <FiCheckCircle className="w-3 h-3 text-green-600 dark:text-green-400" />
+      };
+    }
+    if (statusUpper === "FAILED" || statusUpper === "REJECTED") {
+      return {
+        label: "Rejected",
+        colorClass: "bg-red-500/10 text-red-600 dark:text-red-400 border-red-500/20 dark:border-red-500/10",
+        icon: <FiInfo className="w-3 h-3 text-red-500" />
+      };
+    }
+    const displayLabel = statusUpper === "IN_PROGRESS" ? "In Progress" : "Pending Review";
+    return {
+      label: displayLabel,
+      colorClass: "bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 border-amber-200 dark:border-amber-900/30",
+      icon: <FiClock className="w-3 h-3 text-amber-600 dark:text-amber-400" />
+    };
+  };
 
   return (
     <div className="flex flex-col gap-4 w-full">
@@ -270,24 +295,15 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
           <div className="flex items-center justify-between gap-4 flex-wrap">
             <div className="flex items-center gap-2 flex-wrap">
               <h3 className="text-sm font-bold text-foreground">SMS Messaging Registration (A2P)</h3>
-              {registration?.status === "approved" && (
-                <span className="flex items-center gap-1 text-[10px] font-bold bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 px-2.5 py-0.5 rounded-full border border-green-200 dark:border-green-900/30">
-                  <FiCheckCircle className="w-3 h-3 text-green-600 dark:text-green-400" />
-                  Approved
-                </span>
-              )}
-              {registration?.status === "pending" && (
-                <span className="flex items-center gap-1 text-[10px] font-bold bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-400 px-2.5 py-0.5 rounded-full border border-amber-200 dark:border-amber-900/30">
-                  <FiClock className="w-3 h-3 text-amber-600 dark:text-amber-400" />
-                  Pending Review
-                </span>
-              )}
-              {registration?.status === "failed" && (
-                <span className="flex items-center gap-1 text-[10px] font-bold bg-red-500/10 text-red-600 dark:text-red-400 px-2 py-0.5 rounded-full border border-red-500/20 dark:border-red-500/10">
-                  <FiInfo className="w-3 h-3 text-red-500" />
-                  Rejected
-                </span>
-              )}
+              {registration && (() => {
+                const badge = getA2PBadgeDetails();
+                return (
+                  <span className={`flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${badge.colorClass}`}>
+                    {badge.icon}
+                    {badge.label}
+                  </span>
+                );
+              })()}
             </div>
             {(!registration || registration?.status === "failed") && (
               <Button
@@ -366,7 +382,9 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
                 </div>
                 <div className="bg-white dark:bg-zinc-900 border border-green-200/60 dark:border-green-900/30 p-3.5 rounded-xl flex flex-col gap-1.5">
                   <span className="text-[10px] text-foreground-500 font-semibold leading-none">Daily Limit</span>
-                  <span className="text-xs font-bold text-green-600 dark:text-green-400 leading-none">Unlimited</span>
+                  <span className="text-xs font-bold text-green-600 dark:text-green-400 leading-none">
+                    {registration?.ein ? "6,000 msgs/day" : "1,000 msgs/day"}
+                  </span>
                 </div>
               </div>
             </div>

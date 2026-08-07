@@ -174,7 +174,7 @@ export default function GoogleIntegrationSelectorModal({ type, isOpen, onClose }
         }));
         setSearchResults(mapped);
         if (mapped.length > 0) {
-          setSelectedId(mapped[0].id);
+          setSelectedId(mapped[0]?.id || null);
         } else {
           setSelectedId(null);
         }
@@ -192,7 +192,7 @@ export default function GoogleIntegrationSelectorModal({ type, isOpen, onClose }
       if (connected) {
         setSelectedId(connected.id);
       } else if (searchResults !== null) {
-        setSelectedId(displayItems[0].id);
+        setSelectedId(displayItems[0]?.id || null);
       }
     }
   }, [displayItems, searchResults]);
@@ -215,7 +215,7 @@ export default function GoogleIntegrationSelectorModal({ type, isOpen, onClose }
       }));
       setSearchResults(mapped);
       if (mapped.length > 0) {
-        setSelectedId(mapped[0].id);
+        setSelectedId(mapped[0]?.id || null);
       } else {
         setSelectedId(null);
       }
