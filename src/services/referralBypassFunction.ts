@@ -30,3 +30,9 @@ export const fetchTeamMemberById = async (id: string): Promise<TeamMember> => {
   const { data } = await axiosInstance.get(`/team-member/${id}`);
   return data;
 };
+
+export const fetchTrackingsForPublic = async (id: string) => {
+  const response = await axiosInstance.get(`/nfc_qr_tracking/${id}`);
+  return response.data;
+};
+

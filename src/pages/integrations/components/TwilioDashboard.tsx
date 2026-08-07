@@ -312,9 +312,11 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
               <Button
                 color={registration?.status === "failed" ? "danger" : "primary"}
                 size="sm"
+                isDisabled={!phoneNumbers || phoneNumbers.length === 0}
                 onPress={() => setIsA2PRegistrationOpen(true)}
                 startContent={<FiCheckCircle className="w-3.5 h-3.5" />}
-                className="rounded-lg text-xs font-semibold h-8 px-4 text-white"
+                className="rounded-lg text-xs font-semibold h-8 px-4 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                title={!phoneNumbers || phoneNumbers.length === 0 ? "Please purchase a phone number first before registering for SMS" : ""}
               >
                 {registration?.status === "failed" ? "Edit & Re-submit" : "Register for SMS"}
               </Button>
@@ -336,8 +338,11 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
                   To send SMS messages with your phone numbers, you need to complete A2P (Application-to-Person) registration. This is required by mobile carriers for compliance and helps prevent spam.
                 </p>
                 <ul className="text-xs text-red-600/80 dark:text-red-400/80 list-disc pl-4 space-y-1 mt-1 font-medium">
-                  {/* <li>Registration takes 5-10 minutes</li>
-                  <li>Approval typically within 1-2 business days</li> */}
+                  {(!phoneNumbers || phoneNumbers.length === 0) && (
+                    <li className="font-bold text-red-700 dark:text-red-300">
+                      You must purchase a phone number first before registering for SMS.
+                    </li>
+                  )}
                   <li>Required for all business SMS messaging</li>
                   <li>One-time registration per brand/campaign</li>
                 </ul>

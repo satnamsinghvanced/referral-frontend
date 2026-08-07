@@ -16,6 +16,7 @@ import axios from "axios";
 import { EMAIL_REGEX, NAME_REGEX, PHONE_REGEX } from "../../../consts/consts";
 import { TREATMENT_OPTIONS } from "../../../consts/referral";
 import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
+import { useFetchUserForTrackings } from "../../../hooks/settings/useUser";
 
 interface WebhookFormValues {
   fullName: string;
@@ -36,6 +37,13 @@ function WebhookReferralForm() {
   const navigate = useNavigate();
   const [isSuccess, setIsSuccess] = useState(false);
   const [webhookSecret, setWebhookSecret] = useState<string>("");
+  const { data: fetchedUser } = useFetchUserForTrackings(userId);
+
+  const refererName =
+    searchParams.get("refererName") ||
+    fetchedUser?.practiceName ||
+    (fetchedUser ? `${fetchedUser.firstName || ""} ${fetchedUser.lastName || ""}`.trim() : "") ||
+    "our practice";
 
   useEffect(() => {
     const fetchWebhookSecret = async () => {
@@ -218,6 +226,11 @@ function WebhookReferralForm() {
     }
     formik.setFieldValue(fieldName as string, value);
   };
+
+  const wpBaseUrl = (
+    import.meta.env.VITE_WORDPRESS_BASE_URL || "https://practiceroi.com"
+  ).replace(/\/$/, "");
+  const privacyPolicyUrl = `${wpBaseUrl}/privacy-policy/`;
 
   if (isSuccess) {
     return (
@@ -406,6 +419,9 @@ function WebhookReferralForm() {
                   </p>
                 </div>
               )}
+              <div className="mt-8 pt-6 border-t border-gray-100 dark:border-default-100 text-center text-xs text-gray-400 dark:text-foreground/40">
+                By clicking 'Submit', you agree to receive SMS notifications and updates from {refererName}. Message frequency varies. Message & data rates may apply. Reply STOP to opt-out, HELP for info. View <a href={privacyPolicyUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Privacy Policy</a>.
+              </div>
               <div>
                 <Button
                   type="submit"
@@ -418,7 +434,7 @@ function WebhookReferralForm() {
                   }
                   className="w-full"
                 >
-                  {formik.isSubmitting ? "Submitting..." : "Submit Referral"}
+                  {formik.isSubmitting ? "Submitting..." : "Submit"}
                 </Button>
               </div>
             </form>

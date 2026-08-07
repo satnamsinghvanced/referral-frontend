@@ -86,6 +86,24 @@ const PatientForm = () => {
 
   const showInvalidLink = !isTrackingsLoading && trackings && !isValidPath;
 
+  const queryParams = useMemo(
+    () => new URLSearchParams(location.search),
+    [location.search],
+  );
+  const refererName =
+    queryParams.get("refererName") ||
+    fetchedUser?.practiceName ||
+    (fetchedUser
+      ? `${fetchedUser.firstName || ""} ${fetchedUser.lastName || ""}`.trim()
+      : "") ||
+    "Doctor";
+
+  const wpBaseUrl = (
+    import.meta.env.VITE_WORDPRESS_BASE_URL || "https://practiceroi.com"
+  ).replace(/\/$/, "");
+  const privacyPolicyUrl = `${wpBaseUrl}/privacy-policy/`;
+
+
   const validationSchema = Yup.object().shape({
     fullName: Yup.string()
       .trim()
@@ -274,12 +292,10 @@ const PatientForm = () => {
               {fetchedUser?.practiceName && (
                 <div className="px-5 py-4">
                   <p className="text-sm font-medium dark:text-white">
-                    {`Referred by ${fetchedUser?.firstName} ${
-                      fetchedUser?.lastName
-                    } ${
-                      fetchedUser?.practiceName &&
+                    {`Referred by ${fetchedUser?.firstName} ${fetchedUser?.lastName
+                      } ${fetchedUser?.practiceName &&
                       `from ${fetchedUser?.practiceName}`
-                    }`}
+                      }`}
                   </p>
                   {fetchedUser?.medicalSpecialty && (
                     <p className="text-xs text-gray-600 dark:text-foreground/60 mt-1">
@@ -441,6 +457,9 @@ const PatientForm = () => {
                   />
                 </div>
 
+                <div className="mt-8 pt-6 border-t border-gray-100 dark:border-default-100 text-center text-xs text-gray-400 dark:text-foreground/40">
+                  By clicking 'Submit', you agree to receive SMS notifications and updates from {refererName}. Message frequency varies. Message & data rates may apply. Reply STOP to opt-out, HELP for info. View <a href={privacyPolicyUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Privacy Policy</a>.
+                </div>
                 <div className="grid grid-cols-2 gap-3">
                   <Button
                     type="submit"

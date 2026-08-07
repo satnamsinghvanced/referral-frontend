@@ -21,7 +21,7 @@ import {
   createPatientDetails,
   deleteTracking,
 } from "../services/referral";
-import { trackScan } from "../services/referralBypassFunction";
+import { trackScan, fetchTrackingsForPublic } from "../services/referralBypassFunction";
 import {
   CreateReferrerPayload,
   FetchReferrersParams,
@@ -318,8 +318,8 @@ export const useDeleteTracking = () =>
 
 export const useFetchTrackings = (id: string) =>
   useQuery<TrackingResponseData, Error>({
-    queryKey: ["trackings"],
-    queryFn: () => fetchTrackings(id),
+    queryKey: ["trackings", id],
+    queryFn: () => fetchTrackingsForPublic(id),
     enabled: !!id,
   });
 

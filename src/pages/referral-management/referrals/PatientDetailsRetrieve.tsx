@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo } from "react";
-import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Button, Input, Card, CardBody } from "@heroui/react";
@@ -12,7 +12,6 @@ import { EMAIL_REGEX, NAME_REGEX, PHONE_REGEX } from "../../../consts/consts";
 const PatientDetailsRetrieve = () => {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
-  const refererName = searchParams.get("refererName") || "Doctor";
   const navigate = useNavigate();
   const { theme } = useTypedSelector((state) => state.ui);
   useEffect(() => {
@@ -20,6 +19,14 @@ const PatientDetailsRetrieve = () => {
   }, [theme]);
   const createPatientMutation = useCreatePatientDetails();
   const { data: fetchedUser } = useFetchUserForTrackings(id || "");
+  const refererName =
+    searchParams.get("refererName") ||
+    fetchedUser?.practiceName ||
+    (fetchedUser ? `${fetchedUser.firstName || ""} ${fetchedUser.lastName || ""}`.trim() : "") ||
+    "Doctor";
+  const wpBaseUrl = (import.meta.env.VITE_WORDPRESS_BASE_URL || "https://practiceroi.com").replace(/\/$/, "");
+  const privacyPolicyUrl = `${wpBaseUrl}/privacy-policy/`;
+
   const downloadVCF = (name: string, phone: string = "", email: string = "") => {
     const vcard = `BEGIN:VCARD
 VERSION:3.0
@@ -204,7 +211,7 @@ ${phone ? `TEL;TYPE=WORK,VOICE:${phone}\n` : ""}${email ? `EMAIL;TYPE=WORK,INTER
           </div>
         </form>
         <div className="mt-8 pt-6 border-t border-gray-100 dark:border-default-100 text-center text-xs text-gray-400 dark:text-foreground/40">
-          By sharing your contact information, you agree to allow our practice to collect and use the details you provide to connect with you and provide relevant information about our services. We respect your privacy and will never share your information without your consent.
+          By clicking 'Submit', you agree to receive SMS notifications and updates from {refererName}. Message frequency varies. Message & data rates may apply. Reply STOP to opt-out, HELP for info. View <a href={privacyPolicyUrl} target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">Privacy Policy</a>.
         </div>
       </div>
     </div>
