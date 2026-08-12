@@ -149,16 +149,16 @@ const buildParentItemFromCredentials = (
       ? credential.metaPages?.[0]?.pageId || `parent_${credential.id}`
       : platform === "linkedin"
         ? credential.linkedinPages?.[0]?.id ||
-          (credential.openId
-            ? `urn:li:person:${credential.openId}`
-            : `parent_${credential.id}`)
+        (credential.openId
+          ? `urn:li:person:${credential.openId}`
+          : `parent_${credential.id}`)
         : platform === "youtube"
           ? credential.youtubeChannels?.[0]?.channelId ||
-            credential.youtubeChannelId ||
-            `parent_${credential.id}`
+          credential.youtubeChannelId ||
+          `parent_${credential.id}`
           : credential.tiktokAccounts?.[0]?.id ||
-            credential.openId ||
-            `parent_${credential.id}`;
+          credential.openId ||
+          `parent_${credential.id}`;
 
   return {
     id,
@@ -210,23 +210,19 @@ export default function SocialSubAccountSelectorModal({
     return [];
   }, [data, platform, credentials]);
 
-  const connectedAccountId = useMemo(
-    () => items.find((item) => item.isConnected)?.id ?? null,
-    [items],
-  );
-
   useEffect(() => {
     if (items.length > 0) {
       const connected = items.find((item) => item.isConnected);
-      setSelectedId(connected?.id || items[0]?.id || null);
+      setSelectedId((prev) => {
+        if (prev && items.some((item) => item.id === prev)) {
+          return prev;
+        }
+        return connected?.id || items[0]?.id || null;
+      });
+    } else {
+      setSelectedId(null);
     }
   }, [items]);
-
-  const canConnectSelected = useMemo(() => {
-    if (!selectedId) return false;
-    if (!connectedAccountId) return true;
-    return selectedId !== connectedAccountId;
-  }, [selectedId, connectedAccountId]);
 
   const handleSync = async () => {
     try {
@@ -378,7 +374,7 @@ export default function SocialSubAccountSelectorModal({
             color="primary"
             onPress={handleConnect}
             isLoading={isConnecting}
-            isDisabled={!canConnectSelected || isSyncing}
+            isDisabled={!selectedId || isSyncing}
           >
             Connect Selected
           </Button>
