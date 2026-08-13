@@ -1,4 +1,4 @@
-import { Button, Card, CardBody, CardHeader, Progress } from "@heroui/react";
+import { Card, CardBody, CardHeader, Progress } from "@heroui/react";
 import clsx from "clsx";
 import { IoArrowBack } from "react-icons/io5";
 import {
@@ -13,51 +13,6 @@ import React from "react";
 import { BsArrowDownRight, BsArrowUpRight } from "react-icons/bs";
 import ComponentContainer from "../../../components/common/ComponentContainer";
 import { useNavigate } from "react-router";
-
-const LocalCardTitle: React.FC<React.HTMLAttributes<HTMLHeadingElement>> = ({
-  className,
-  children,
-  ...props
-}) => (
-  <h4
-    data-slot="card-title"
-    className={clsx("leading-none flex items-center gap-2", className)}
-    {...props}
-  >
-    {children}
-  </h4>
-);
-
-const LocalCardHeader: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
-  className,
-  children,
-  ...props
-}) => (
-  <div
-    data-slot="card-header"
-    className={clsx(
-      "@container/card-header grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-6 pt-6 has-data-[slot=card-action]:grid-cols-[1fr_auto] [.border-b]:pb-6",
-      className,
-    )}
-    {...props}
-  >
-    {children}
-  </div>
-);
-
-const LocalCardContent: React.FC<React.HTMLAttributes<HTMLDivElement>> = ({
-  className,
-  children,
-  ...props
-}) => (
-  <div
-    data-slot="card-content"
-    className={clsx("px-6 [&:last-child]:pb-6", className)}
-    {...props}
-  >
-    {children}
-  </div>
-);
 
 interface MetricData {
   value: string;
@@ -300,12 +255,6 @@ const MetricBlock: React.FC<{ metric: MetricData }> = ({ metric }) => {
       <div className="text-xs text-gray-700 dark:text-foreground/60 font-medium">
         {metric.label}
       </div>
-      {/* <div className="flex items-center justify-center gap-1 mt-2">
-        <Icon className={clsx("h-3 w-3", changeColor)} aria-hidden="true" />
-        <span className={clsx("text-xs font-medium", changeColor)}>
-          {metric.change}
-        </span>
-      </div> */}
     </div>
   );
 };

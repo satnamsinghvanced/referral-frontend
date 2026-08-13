@@ -139,7 +139,6 @@ const THEME_STYLES = {
 
 const ReferralPerformanceReport = () => {
   const navigate = useNavigate();
-
   const HEADING_DATA = {
     heading: "Referral Performance Report",
     subHeading:
@@ -520,13 +519,12 @@ const ReferralPerformanceReport = () => {
                           <Chip
                             size="sm"
                             radius="sm"
-                            className={`h-5 text-[11px] ${
-                              referrer.conversion.includes("green")
-                                ? "bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400"
-                                : referrer.conversion.includes("yellow")
-                                  ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-500/10 dark:text-yellow-400"
-                                  : "bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400"
-                            }`}
+                            className={`h-5 text-[11px] ${referrer.conversion.includes("green")
+                              ? "bg-green-100 text-green-800 dark:bg-green-500/10 dark:text-green-400"
+                              : referrer.conversion.includes("yellow")
+                                ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-500/10 dark:text-yellow-400"
+                                : "bg-red-100 text-red-800 dark:bg-red-500/10 dark:text-red-400"
+                              }`}
                           >
                             {referrer.conversion}
                           </Chip>

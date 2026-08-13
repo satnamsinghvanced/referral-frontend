@@ -169,11 +169,7 @@ const buildParentItemFromCredentials = (
   };
 };
 
-export default function SocialSubAccountSelectorModal({
-  platform,
-  isOpen,
-  onClose,
-}: {
+export default function SocialSubAccountSelectorModal({ platform, isOpen, onClose }: {
   platform: SocialPlatformType;
   isOpen: boolean;
   onClose: () => void;
@@ -183,18 +179,14 @@ export default function SocialSubAccountSelectorModal({
   const syncMutation = useSyncSocialProfiles(platform);
   const connectMutation = useConnectSocialSubAccount(platform);
   const [selectedId, setSelectedId] = useState<string | null>(null);
-
   const config = PLATFORM_CONFIG[platform];
-
   const items: SelectorItem[] = useMemo(() => {
     const accounts = data?.accounts || [];
     const mapped = mapAccountsToItems(platform, accounts);
     if (mapped.length > 0) return mapped;
-
     const credential = credentials?.[CREDENTIAL_PLATFORM_KEY[platform]];
     const parentItem = buildParentItemFromCredentials(platform, credential);
     if (parentItem) return [parentItem];
-
     if (data?.connectedAccount) {
       return [
         {
@@ -206,7 +198,6 @@ export default function SocialSubAccountSelectorModal({
         },
       ];
     }
-
     return [];
   }, [data, platform, credentials]);
 

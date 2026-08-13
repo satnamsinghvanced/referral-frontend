@@ -1,36 +1,19 @@
 import { Button, Chip, Input, Select, SelectItem } from "@heroui/react";
-import React, { useMemo } from "react";
+import React from "react";
 import { BiPhone } from "react-icons/bi";
 import { CgMail } from "react-icons/cg";
-import {
-  FiArrowLeft,
-  FiDownload,
-  FiEdit,
-  FiEye,
-  FiSearch,
-  FiTrash2,
-} from "react-icons/fi";
+import { FiArrowLeft, FiEdit, FiEye, FiSearch, FiTrash2 } from "react-icons/fi";
 import { LuCalendar, LuDownload } from "react-icons/lu";
 import { PiFunnelX } from "react-icons/pi";
 import { Link } from "react-router";
-
 import { FaRegEnvelope } from "react-icons/fa";
 import PriorityLevelChip from "../../../components/chips/PriorityLevelChip";
 import ReferralStatusChip from "../../../components/chips/ReferralStatusChip";
 import EmptyState from "../../../components/common/EmptyState";
 import { LoadingState } from "../../../components/common/LoadingState";
 import { STATUS_OPTIONS } from "../../../consts/filters";
-import {
-  REFERRER_TYPE_LABELS,
-  SOURCE_OPTIONS,
-  TREATMENT_OPTIONS,
-} from "../../../consts/referral";
-import {
-  FetchReferralsParams,
-  FilterStats,
-  Referral,
-} from "../../../types/referral";
-import { formatDateToYYYYMMDD } from "../../../utils/formatDateToYYYYMMDD";
+import { REFERRER_TYPE_LABELS, SOURCE_OPTIONS, TREATMENT_OPTIONS } from "../../../consts/referral";
+import { FetchReferralsParams, FilterStats, Referral } from "../../../types/referral";
 import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
 import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 import Pagination from "../../../components/common/Pagination";
@@ -74,27 +57,6 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
     currentFilters.search !== "" ||
     currentFilters.filter !== "" ||
     currentFilters.source !== "";
-
-  const filteredCountText = useMemo(() => {
-    if (!isFiltered) return null;
-    const filterStatus = currentFilters.filter
-      ? `  •  ${STATUS_OPTIONS.find((item) => item.value === currentFilters.filter)
-        ?.label
-      } status`
-      : "";
-    const filterSource = currentFilters.source
-      ? `  •  ${SOURCE_OPTIONS.find((item) => item.key === currentFilters.source)
-        ?.label
-      } only`
-      : "";
-    return (
-      <span className="text-green-600 capitalize">
-        {filterStatus}
-        {filterSource}
-      </span>
-    );
-  }, [isFiltered, currentFilters.filter, currentFilters.source]);
-
   const renderReferralCard = (referral: Referral) => (
     <div
       key={referral._id}

@@ -13,7 +13,6 @@ import {
 } from "@heroui/react";
 import { useEffect, useState } from "react";
 import {
-  LuActivity,
   LuChartColumn,
   LuDownload,
   LuFileText,
@@ -125,7 +124,6 @@ const GenerateNewReportModal = ({
   const handleGenerateReport = async () => {
     if (!isFormValid || isSubmitting) return;
     setIsSubmitting(true);
-
     generateReport(formData, {
       onSuccess: () => {
         setIsSubmitting(false);
@@ -318,7 +316,6 @@ const GenerateNewReportModal = ({
               ))}
             </Select>
           </div>
-
           <div className="space-y-4">
             <Checkbox
               size="sm"
@@ -328,7 +325,6 @@ const GenerateNewReportModal = ({
             >
               <span className="text-sm">Schedule Recurring Report</span>
             </Checkbox>
-
             {formData.schedule && (
               <div className="flex mt-4">
                 <Select
@@ -363,7 +359,6 @@ const GenerateNewReportModal = ({
           >
             Cancel
           </Button>
-
           <Button
             size="sm"
             radius="sm"

@@ -2,13 +2,10 @@ import { Card, CardBody, CardHeader, Chip, Progress } from "@heroui/react";
 import { FaRegStar, FaStar } from "react-icons/fa";
 import {
   IoArrowBack,
-  IoCheckmarkCircle,
   IoStar,
-  IoTime,
 } from "react-icons/io5";
 import {
   LuCircleCheckBig,
-  LuTarget,
   LuThumbsUp,
   LuUsers,
 } from "react-icons/lu";
@@ -37,11 +34,10 @@ const StarRating: React.FC<{ rating: number; maxStars?: number }> = ({
     stars.push(
       <FaStar
         key={i}
-        className={`size-3.5 ${
-          isFull
-            ? "fill-yellow-500 text-yellow-500"
-            : "text-gray-300 dark:text-foreground/20"
-        }`}
+        className={`size-3.5 ${isFull
+          ? "fill-yellow-500 text-yellow-500"
+          : "text-gray-300 dark:text-foreground/20"
+          }`}
       />,
     );
   }

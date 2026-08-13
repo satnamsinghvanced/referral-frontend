@@ -62,7 +62,6 @@ export default function SampleReports({
           and analytics available in Referral Retriever.
         </p>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {REPORTS.map((report) => {
           const isLocked = isStarterPlan && report.requiresPro;
@@ -70,9 +69,8 @@ export default function SampleReports({
             <Card
               key={report.title}
               shadow="none"
-              className={`flex flex-col gap-6 bg-content1 border ${
-                isLocked ? "border-amber-200 dark:border-amber-900/30" : "border-transparent"
-              }`}
+              className={`flex flex-col gap-6 bg-content1 border ${isLocked ? "border-amber-200 dark:border-amber-900/30" : "border-transparent"
+                }`}
             >
               <CardBody className="p-4 flex flex-col justify-between">
                 <div>

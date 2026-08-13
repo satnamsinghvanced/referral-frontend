@@ -36,15 +36,13 @@ const Reports = () => {
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [reportToDelete, setReportToDelete] = useState<Report | null>(null);
-
-  const { hasAccess, billingData, openPricingPage } = usePlanGuard();
+  const { billingData, openPricingPage } = usePlanGuard();
   const planPrice = billingData?.price;
   const isStarterPlan =
     planPrice === 199 ||
     billingData?.planId === "starter_199" ||
     billingData?.name?.toLowerCase() === "starter";
   const categoriesList = getFilteredCategories(isStarterPlan);
-
   const [filters, setFilters] = useState({
     search: "",
     category: "",
@@ -52,47 +50,36 @@ const Reports = () => {
     page: 1,
     limit: EVEN_PAGINATION_LIMIT,
   });
-
   const onFilterChange = (key: string, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value, page: 1 }));
   };
-
   const onSearchChange = (value: string) => {
     setFilters((prev) => ({ ...prev, search: value, page: 1 }));
   };
-
   const handlePageChange = (page: number) => {
     setFilters((prev) => ({ ...prev, page }));
   };
-
   const debouncedSearch = useDebouncedValue(filters.search, 500);
-
   useEffect(() => {
     setFilters((prev) => ({ ...prev, search: debouncedSearch }));
   }, [debouncedSearch]);
-
   const { data, isLoading } = useReports({
     ...filters,
     search: debouncedSearch,
   });
-
   const { mutate: updateReport, isPending: isUpdatingReport } =
     useUpdateReport();
-
   const { mutate: deleteReport, isPending: isDeletingReport } =
     useDeleteReport();
-
   const reports = data?.reports || [];
   const stats = data?.stats;
   const pagination = data?.pagination;
-
   usePaginationAdjustment({
     totalPages: pagination?.totalPages || 0,
     currentPage: filters.page,
     onPageChange: (page) => handlePageChange(page),
     isLoading,
   });
-
   const STAT_CARD_DATA = [
     {
       icon: <LuFileText className="text-blue-500" />,
@@ -110,7 +97,7 @@ const Reports = () => {
     {
       icon: <LuActivity className="text-green-500" />,
       heading: "Data Sources",
-      value: stats?.dataSources.count.toString() || "5", // This might need a real API eventually
+      value: stats?.dataSources.count.toString() || "5",
       subheading: (
         <span className="text-gray-600 dark:text-foreground/40">Connected</span>
       ),
@@ -152,12 +139,9 @@ const Reports = () => {
 
   const handleDownload = async (report: Report) => {
     if (!report.fileUrl) return;
-
-    // Resolve download URL to use the active API base URL instead of database-saved host
     let downloadUrl = report.fileUrl;
     if (downloadUrl.startsWith("http")) {
       try {
-        // Fix missing slash if present (e.g. .appuploads/ -> .app/uploads/)
         const formattedUrl = downloadUrl.replace(/(\.app)uploads/, "$1/uploads");
         const urlObj = new URL(formattedUrl);
         const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || "http://localhost:9090/api").replace(/\/api$/, "");
@@ -185,9 +169,8 @@ const Reports = () => {
       link.click();
       link.parentNode?.removeChild(link);
       window.URL.revokeObjectURL(url);
-    } catch (error) {
-      console.error("Download failed:", error);
-      // Fallback to opening in new tab if blob fetch fails (e.g. CORS)
+    } catch (error: any) {
+      console.error("Download failed:", error.message);
       window.open(downloadUrl, "_blank");
     }
   };
@@ -208,7 +191,6 @@ const Reports = () => {
         }
       }
     } else {
-      // Fallback for browsers that don't support Web Share API
       try {
         await navigator.clipboard.writeText(report.fileUrl);
         alert("Report link copied to clipboard!");
@@ -264,7 +246,6 @@ const Reports = () => {
               ))}
             </div>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3 border border-foreground/10 rounded-xl p-4 bg-background shadow-none">
             <div className="relative flex-1">
               <Input
@@ -277,7 +258,6 @@ const Reports = () => {
                 }
               />
             </div>
-
             <div className="grid grid-cols-2 gap-3">
               <Select
                 aria-label="Categories"
@@ -303,7 +283,6 @@ const Reports = () => {
                   ))}
                 </>
               </Select>
-
               <Select
                 aria-label="Frequencies"
                 placeholder="All Frequencies"
@@ -330,12 +309,10 @@ const Reports = () => {
               </Select>
             </div>
           </div>
-
           <div className="bg-background flex flex-col rounded-xl border border-foreground/10 p-4">
             <div className="pb-4">
               <h4 className="text-sm font-medium">Recent Reports</h4>
             </div>
-
             {isLoading ? (
               <div className="py-20 flex justify-center items-center">
                 <LoadingState />
