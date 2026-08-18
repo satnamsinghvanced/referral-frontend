@@ -23,6 +23,9 @@ import {
   FiCheck,
   FiClock,
   FiCheckCircle,
+  FiGlobe,
+  FiArrowLeft,
+  FiArrowRight,
 } from "react-icons/fi";
 import {
   useFetchA2PRegistration,
@@ -116,7 +119,7 @@ export default function TwilioA2PRegistrationModal({
       label: "City *",
       placeholder: "San Francisco",
       step: 1,
-      gridSpan: "col-span-2",
+      gridSpan: "col-span-3",
       required: true,
     },
     {
@@ -125,7 +128,7 @@ export default function TwilioA2PRegistrationModal({
       label: "State *",
       placeholder: "CA",
       step: 1,
-      gridSpan: "col-span-2",
+      gridSpan: "col-span-3",
       required: true,
     },
     {
@@ -134,13 +137,39 @@ export default function TwilioA2PRegistrationModal({
       label: "ZIP Code *",
       placeholder: "94102",
       step: 1,
-      gridSpan: "col-span-2",
+      gridSpan: "col-span-3",
       required: true,
+    },
+    {
+      name: "website",
+      type: "url",
+      label: "Website *",
+      placeholder: "https://practiceroi.com",
+      step: 1,
+      gridSpan: "col-span-3",
+      required: true,
+    },
+    {
+      name: "industry",
+      type: "select",
+      label: "Industry Vertical *",
+      step: 1,
+      gridSpan: "col-span-6",
+      required: true,
+      options: [
+        { key: "professional_services", label: "Professional Services" },
+        { key: "healthcare", label: "Healthcare" },
+        { key: "dental", label: "Dental" },
+        { key: "medical", label: "Medical / Clinic" },
+        { key: "technology", label: "Technology" },
+        { key: "retail", label: "Retail" },
+        { key: "other", label: "Other" }
+      ],
     },
     {
       name: "firstName",
       type: "text",
-      label: "Contact First Name *",
+      label: "First Name *",
       placeholder: "e.g. John",
       step: 1,
       gridSpan: "col-span-3",
@@ -149,7 +178,7 @@ export default function TwilioA2PRegistrationModal({
     {
       name: "lastName",
       type: "text",
-      label: "Contact Last Name *",
+      label: "Last Name *",
       placeholder: "e.g. Doe",
       step: 1,
       gridSpan: "col-span-3",
@@ -158,7 +187,7 @@ export default function TwilioA2PRegistrationModal({
     {
       name: "email",
       type: "email",
-      label: "Contact Email Address *",
+      label: "Email *",
       placeholder: "e.g. john.doe@example.com",
       step: 1,
       gridSpan: "col-span-3",
@@ -167,8 +196,8 @@ export default function TwilioA2PRegistrationModal({
     {
       name: "phone",
       type: "tel",
-      label: "Contact Phone Number *",
-      placeholder: "e.g. +1 (555) 019-2834",
+      label: "Phone *",
+      placeholder: "e.g. (555) 019-2834",
       step: 1,
       gridSpan: "col-span-3",
       required: true,
@@ -255,6 +284,7 @@ export default function TwilioA2PRegistrationModal({
       step: 3,
       gridSpan: "col-span-6",
       required: true,
+      helperText: "Must be at least 15 characters AND include opt-out keywords (e.g. Reply STOP to opt out)",
     },
     {
       name: "optOutMessage",
@@ -262,7 +292,7 @@ export default function TwilioA2PRegistrationModal({
       label: "Opt-Out Message *",
       placeholder: "Reply STOP to unsubscribe",
       step: 3,
-      gridSpan: "col-span-3",
+      gridSpan: "col-span-6",
       required: true,
     },
     {
@@ -271,8 +301,38 @@ export default function TwilioA2PRegistrationModal({
       label: "Help Message *",
       placeholder: "Reply HELP for assistance",
       step: 3,
-      gridSpan: "col-span-3",
+      gridSpan: "col-span-6",
       required: true,
+    },
+    {
+      name: "optInWebAddress",
+      type: "url",
+      label: "Opt-In Form Web Address *",
+      placeholder: "https://yourpractice.com/sms-signup",
+      step: 3,
+      gridSpan: "col-span-6",
+      required: true,
+      helperText: "The page where patients consent to receive SMS messages.",
+    },
+    {
+      name: "privacyPolicyWebAddress",
+      type: "url",
+      label: "Privacy Policy Web Address *",
+      placeholder: "https://yourpractice.com/privacy-policy",
+      step: 3,
+      gridSpan: "col-span-6",
+      required: true,
+      helperText: "Your practice privacy policy covering how patient data is used.",
+    },
+    {
+      name: "termsWebAddress",
+      type: "url",
+      label: "Terms & Conditions Web Address *",
+      placeholder: "https://yourpractice.com/terms",
+      step: 3,
+      gridSpan: "col-span-6",
+      required: true,
+      helperText: "Your terms of service governing SMS communications.",
     },
   ];
 
@@ -299,6 +359,9 @@ export default function TwilioA2PRegistrationModal({
     optInMessage: "",
     optOutMessage: "",
     helpMessage: "",
+    optInWebAddress: "",
+    privacyPolicyWebAddress: "",
+    termsWebAddress: "",
   });
 
   const [selectedNumbers, setSelectedNumbers] = useState<string[]>([]);
@@ -337,6 +400,9 @@ export default function TwilioA2PRegistrationModal({
           optInMessage: registrationData.optInMessage || "",
           optOutMessage: registrationData.optOutMessage || "",
           helpMessage: registrationData.helpMessage || "",
+          optInWebAddress: registrationData.optInWebAddress || "",
+          privacyPolicyWebAddress: registrationData.privacyPolicyWebAddress || "",
+          termsWebAddress: registrationData.termsWebAddress || "",
         });
         setSelectedNumbers(registrationData.selectedNumbers || []);
       } else {
@@ -363,11 +429,28 @@ export default function TwilioA2PRegistrationModal({
           optInMessage: prev.optInMessage || "",
           optOutMessage: prev.optOutMessage || "",
           helpMessage: prev.helpMessage || "",
+          optInWebAddress: prev.optInWebAddress || "",
+          privacyPolicyWebAddress: prev.privacyPolicyWebAddress || "",
+          termsWebAddress: prev.termsWebAddress || "",
         }));
         setSelectedNumbers(phoneNumbers.map((n) => n.phoneNumber));
       }
     }
   }, [isOpen, registrationData, phoneNumbers, user]);
+
+  const validateOptOutPhrase = (message: string): boolean => {
+    if (!message) return false;
+    const upper = message.toUpperCase();
+    return (
+      upper.includes("STOP") ||
+      upper.includes("REPLY STOP") ||
+      upper.includes("TEXT STOP") ||
+      upper.includes("UNSUBSCRIBE") ||
+      upper.includes("CANCEL") ||
+      upper.includes("OPT OUT") ||
+      upper.includes("OPT-OUT")
+    );
+  };
 
   const validateField = (name: string, value: string) => {
     const field = fieldsConfig.find((f) => f.name === name);
@@ -439,16 +522,23 @@ export default function TwilioA2PRegistrationModal({
           return "Campaign Name must be at least 5 characters";
         }
       } else if (field.name === "campaignDescription") {
-        if (val.length < 20) {
-          return "Campaign Description must be at least 20 characters";
+        if (val.length < 40) {
+          return "Campaign Description must be at least 40 characters";
         }
       } else if (field.name === "messageFlow") {
-        if (val.length < 20) {
-          return "Message Flow must be at least 20 characters";
+        if (val.length < 40) {
+          return "Message Flow must be at least 40 characters detailing opt-in workflow";
+        }
+        const urlRegex = /(https?:\/\/[^\s]+)/gi;
+        if (!urlRegex.test(val)) {
+          return "Message Flow must contain a valid website URL link (e.g. https://yourpractice.com/contact)";
         }
       } else if (field.name === "optInMessage") {
         if (val.length < 15) {
           return "Opt-In Confirmation Message must be at least 15 characters";
+        }
+        if (!validateOptOutPhrase(val)) {
+          return "Opt-In Confirmation Message must include opt-out instructions (e.g. 'Reply STOP to opt out')";
         }
       } else if (field.name === "optOutMessage") {
         if (val.length < 4) {
@@ -717,9 +807,24 @@ export default function TwilioA2PRegistrationModal({
                               </Select>
                             ) : isTextarea ? (
                               <div className="flex flex-col gap-1 w-full">
+                                <div className="flex justify-between items-center mb-0.5">
+                                  <label className="text-xs font-semibold text-foreground">
+                                    {field.label}
+                                  </label>
+                                  <span className="text-[10px] font-mono font-semibold">
+                                    {field.name === "campaignDescription" || field.name === "messageFlow" ? (
+                                      <span className={((formData as any)[field.name] || "").length >= 40 ? "text-green-600 dark:text-green-400 font-bold" : "text-amber-600 dark:text-amber-400 font-bold"}>
+                                        {((formData as any)[field.name] || "").length} / 40 min chars
+                                      </span>
+                                    ) : field.name === "optInMessage" ? (
+                                      <span className={((formData as any)[field.name] || "").length >= 15 ? "text-green-600 dark:text-green-400 font-bold" : "text-amber-600 dark:text-amber-400 font-bold"}>
+                                        {((formData as any)[field.name] || "").length} / 15 min chars
+                                      </span>
+                                    ) : null}
+                                  </span>
+                                </div>
                                 <Textarea
-                                  label={field.label}
-                                  labelPlacement="outside"
+                                  aria-label={field.label}
                                   placeholder={field.placeholder || ""}
                                   value={(formData as any)[field.name]}
                                   onChange={(e) => handleFieldChange(field.name, e.target.value)}
@@ -727,14 +832,23 @@ export default function TwilioA2PRegistrationModal({
                                   isInvalid={!!errors[field.name]}
                                   errorMessage={errors[field.name] || ""}
                                   classNames={{
-                                    label: "text-xs font-semibold text-foreground mb-1",
-                                    inputWrapper: "border border-foreground/10 rounded-lg bg-transparent min-h-[80px] p-2",
+                                    inputWrapper: "border border-foreground/10 rounded-lg bg-transparent min-h-[85px] p-2",
                                     input: "text-sm",
                                   }}
                                 />
-                                {field.helperText && (
-                                  <p className="text-[10px] text-foreground-400">{field.helperText}</p>
-                                )}
+                                <div className="flex justify-between items-center text-[10px] text-foreground-400 mt-0.5 gap-2 flex-wrap">
+                                  <span>{field.helperText}</span>
+                                  {field.name === "messageFlow" && (
+                                    <span className={/(https?:\/\/[^\s]+)/gi.test((formData as any)[field.name] || "") ? "text-green-600 dark:text-green-400 font-bold" : "text-red-500 font-bold"}>
+                                      {/(https?:\/\/[^\s]+)/gi.test((formData as any)[field.name] || "") ? "✓ URL Included" : "⚠️ Requires Website URL (e.g. https://...)"}
+                                    </span>
+                                  )}
+                                  {field.name === "optInMessage" && (
+                                    <span className={validateOptOutPhrase((formData as any)[field.name] || "") ? "text-green-600 dark:text-green-400 font-bold" : "text-amber-600 dark:text-amber-400 font-bold"}>
+                                      {validateOptOutPhrase((formData as any)[field.name] || "") ? "✓ STOP Keyword Included" : "⚠️ Requires 'STOP' Keyword"}
+                                    </span>
+                                  )}
+                                </div>
                               </div>
                             ) : (
                               <Input
@@ -761,6 +875,22 @@ export default function TwilioA2PRegistrationModal({
                             <Fragment key="contact-heading-frag">
                               <div className="col-span-6 border-b border-foreground/5 pb-2 mt-2">
                                 <h3 className="text-xs font-bold text-foreground">Contact Person</h3>
+                              </div>
+                              {fieldElement}
+                            </Fragment>
+                          );
+                        }
+                        if (step === 3 && field.name === "optInWebAddress") {
+                          return (
+                            <Fragment key="compliance-web-heading-frag">
+                              <div className="col-span-6 border border-foreground/10 dark:bg-foreground/5 rounded-xl p-4 flex flex-col gap-1 bg-default-50/50 mt-3">
+                                <div className="flex items-center gap-2 text-primary font-bold text-xs">
+                                  <FiGlobe className="w-4 h-4 text-blue-500" />
+                                  <h3 className="text-xs font-bold text-foreground">Compliance Web Addresses</h3>
+                                </div>
+                                <p className="text-[11px] text-foreground-400 font-normal leading-relaxed">
+                                  Required by carriers for A2P 10DLC approval. These URLs must be publicly accessible.
+                                </p>
                               </div>
                               {fieldElement}
                             </Fragment>
@@ -891,6 +1021,10 @@ export default function TwilioA2PRegistrationModal({
                             <span className="font-bold text-foreground">{formData.ein || "Not provided"}</span>
                           </div>
                           <div className="flex flex-col gap-0.5">
+                            <span className="text-foreground-400 text-[10px]">Website URL:</span>
+                            <span className="font-bold text-foreground truncate">{formData.website || "Not provided"}</span>
+                          </div>
+                          <div className="flex flex-col gap-0.5">
                             <span className="text-foreground-400 text-[10px]">Industry:</span>
                             <span className="font-bold text-foreground uppercase">
                               {formData.industry.replace("_", " ")}
@@ -899,9 +1033,9 @@ export default function TwilioA2PRegistrationModal({
                           <div className="flex flex-col gap-0.5">
                             <span className="text-foreground-400 text-[10px]">Contact:</span>
                             <span className="font-bold text-foreground">
-                              {formData.firstName || formData.lastName 
+                              {formData.firstName || formData.lastName
                                 ? `${formData.firstName} ${formData.lastName}`
-                                : user?.firstName || user?.lastName 
+                                : user?.firstName || user?.lastName
                                   ? `${user.firstName} ${user.lastName}`
                                   : "Profile Details"}
                             </span>
@@ -929,6 +1063,26 @@ export default function TwilioA2PRegistrationModal({
                             <span className="font-bold text-foreground uppercase">
                               {formData.monthlyVolume}
                             </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="border border-foreground/10 rounded-xl p-4 bg-background flex flex-col gap-3">
+                        <h3 className="text-xs font-bold text-foreground border-b border-foreground/5 pb-2">
+                          Compliance Web Addresses
+                        </h3>
+                        <div className="flex flex-col gap-2 text-xs">
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-foreground-400 text-[10px]">Opt-In Form Web Address:</span>
+                            <span className="font-bold text-foreground truncate">{formData.optInWebAddress || "Not provided"}</span>
+                          </div>
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-foreground-400 text-[10px]">Privacy Policy Web Address:</span>
+                            <span className="font-bold text-foreground truncate">{formData.privacyPolicyWebAddress || "Not provided"}</span>
+                          </div>
+                          <div className="flex flex-col gap-0.5">
+                            <span className="text-foreground-400 text-[10px]">Terms & Conditions Web Address:</span>
+                            <span className="font-bold text-foreground truncate">{formData.termsWebAddress || "Not provided"}</span>
                           </div>
                         </div>
                       </div>
@@ -962,33 +1116,38 @@ export default function TwilioA2PRegistrationModal({
           )}
         </ModalBody>
 
-        <ModalFooter className="p-5 pt-2 flex gap-3 justify-end border-t border-foreground/5">
-          {step > 1 && (
+        <ModalFooter className="p-5 pt-2 flex items-center justify-between border-t border-foreground/5">
+          <div className="flex items-center gap-2">
+            {step > 1 && (
+              <Button
+                variant="bordered"
+                onPress={handleBack}
+                isDisabled={isSubmitting || isFetchingData}
+                startContent={<FiArrowLeft className="w-3.5 h-3.5" />}
+                className="border border-foreground/10 rounded-xl text-xs font-semibold h-9 px-4"
+              >
+                Back
+              </Button>
+            )}
             <Button
               variant="bordered"
-              onPress={handleBack}
+              onPress={onClose}
               isDisabled={isSubmitting || isFetchingData}
-              className="border border-foreground/10 rounded-lg text-xs font-semibold h-9 px-4"
+              className="border border-foreground/10 rounded-xl text-xs font-semibold h-9 px-4"
             >
-              Back
+              Cancel
             </Button>
-          )}
-          <Button
-            variant="bordered"
-            onPress={onClose}
-            isDisabled={isSubmitting || isFetchingData}
-            className="border border-foreground/10 rounded-lg text-xs font-semibold h-9 px-4"
-          >
-            Cancel
-          </Button>
+          </div>
+
           {step < 5 ? (
             <Button
               color="primary"
               onPress={handleNext}
               isDisabled={isFetchingData || (step === 4 && selectedNumbers.length === 0)}
-              className="bg-primary text-white rounded-lg text-xs font-semibold h-9 px-4 flex items-center gap-1"
+              endContent={<FiArrowRight className="w-3.5 h-3.5" />}
+              className="bg-blue-600 text-white rounded-xl text-xs font-semibold h-9 px-5 flex items-center gap-1 shadow-md shadow-blue-500/20"
             >
-              Next &rarr;
+              Next
             </Button>
           ) : (
             <Button
@@ -997,7 +1156,7 @@ export default function TwilioA2PRegistrationModal({
               isLoading={isSubmitting}
               isDisabled={isFetchingData}
               startContent={!isSubmitting && <FiCheckCircle className="w-4 h-4" />}
-              className="bg-green-600 text-white rounded-lg text-xs font-semibold h-9 px-4"
+              className="bg-green-600 text-white rounded-xl text-xs font-semibold h-9 px-5 shadow-md shadow-green-500/20"
             >
               Submit Registration
             </Button>

@@ -184,7 +184,9 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
     });
   };
   const getA2PBadgeDetails = () => {
-    const rawStatus = registration?.campaignStatus || registration?.status || "pending";
+    const rawStatus = (registration?.status === "failed" || registration?.status === "approved")
+      ? registration.status
+      : (registration?.campaignStatus || registration?.status || "pending");
     const statusUpper = rawStatus.toUpperCase();
 
     if (statusUpper === "VERIFIED" || statusUpper === "APPROVED") {
