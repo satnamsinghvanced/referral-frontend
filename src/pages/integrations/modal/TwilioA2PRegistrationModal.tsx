@@ -34,6 +34,7 @@ import {
 } from "../../../hooks/integrations/useTwilio";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../store";
+import { A2P_NAME_VALIDATION_REGEX } from "../../../consts/consts";
 
 interface PhoneNumber {
   id: string;
@@ -90,9 +91,13 @@ export default function TwilioA2PRegistrationModal({
       options: [
         { key: "co_operative", label: "Co-operative" },
         { key: "corporation", label: "Corporation" },
-        { key: "limited_liability_company_or_sole_proprietorship", label: "Limited Liability Company Or Sole-Proprietorship" },
+        { key: "government", label: "Government" },
+        { key: "limited_liability_corporation", label: "Limited Liability Corporation" },
         { key: "non_profit_corporation", label: "Non-profit Corporation" },
-        { key: "partnership", label: "Partnership" }
+        { key: "partnership", label: "Partnership" },
+        { key: "private_corporation", label: "Private Corporation" },
+        { key: "public_corporation", label: "Public Corporation" },
+        { key: "sole_proprietorship", label: "Sole Proprietorship" },
       ],
     },
     {
@@ -338,7 +343,7 @@ export default function TwilioA2PRegistrationModal({
 
   const [formData, setFormData] = useState({
     businessName: "",
-    businessType: "co_operative",
+    businessType: "limited_liability_corporation",
     ein: "",
     address: "",
     city: "",
@@ -355,10 +360,10 @@ export default function TwilioA2PRegistrationModal({
     campaignDescription: "",
     messageFlow: "",
     monthlyVolume: "low",
-    optInMethod: "verbal",
+    optInMethod: "web_form",
     optInMessage: "",
-    optOutMessage: "",
-    helpMessage: "",
+    optOutMessage: "Reply STOP to unsubscribe.",
+    helpMessage: "Reply HELP for assistance.",
     optInWebAddress: "",
     privacyPolicyWebAddress: "",
     termsWebAddress: "",
@@ -396,10 +401,10 @@ export default function TwilioA2PRegistrationModal({
           campaignDescription: registrationData.campaignDescription || "",
           messageFlow: registrationData.messageFlow || "",
           monthlyVolume: registrationData.monthlyVolume || "low",
-          optInMethod: registrationData.optInMethod || "verbal",
+          optInMethod: registrationData.optInMethod || "web_form",
           optInMessage: registrationData.optInMessage || "",
-          optOutMessage: registrationData.optOutMessage || "",
-          helpMessage: registrationData.helpMessage || "",
+          optOutMessage: registrationData.optOutMessage || "Reply STOP to unsubscribe.",
+          helpMessage: registrationData.helpMessage || "Reply HELP for assistance.",
           optInWebAddress: registrationData.optInWebAddress || "",
           privacyPolicyWebAddress: registrationData.privacyPolicyWebAddress || "",
           termsWebAddress: registrationData.termsWebAddress || "",
@@ -425,10 +430,10 @@ export default function TwilioA2PRegistrationModal({
           campaignDescription: prev.campaignDescription || "",
           messageFlow: prev.messageFlow || "",
           monthlyVolume: prev.monthlyVolume || "low",
-          optInMethod: prev.optInMethod || "verbal",
+          optInMethod: prev.optInMethod || "web_form",
           optInMessage: prev.optInMessage || "",
-          optOutMessage: prev.optOutMessage || "",
-          helpMessage: prev.helpMessage || "",
+          optOutMessage: prev.optOutMessage || "Reply STOP to unsubscribe.",
+          helpMessage: prev.helpMessage || "Reply HELP for assistance.",
           optInWebAddress: prev.optInWebAddress || "",
           privacyPolicyWebAddress: prev.privacyPolicyWebAddress || "",
           termsWebAddress: prev.termsWebAddress || "",
@@ -494,14 +499,12 @@ export default function TwilioA2PRegistrationModal({
           return "Please enter a valid URL (e.g. https://example.com)";
         }
       } else if (field.name === "firstName") {
-        const nameRegex = /^[a-zA-Z\s-]{2,50}$/;
-        if (!nameRegex.test(val)) {
-          return "First Name must be at least 2 characters and contain only letters";
+        if (!A2P_NAME_VALIDATION_REGEX.test(val)) {
+          return "First Name must be at least 2 characters and contain only letters, spaces, dots (.), hyphens (-), or apostrophes (') without numbers or special characters.";
         }
       } else if (field.name === "lastName") {
-        const nameRegex = /^[a-zA-Z\s-]{2,50}$/;
-        if (!nameRegex.test(val)) {
-          return "Last Name must be at least 2 characters and contain only letters";
+        if (!A2P_NAME_VALIDATION_REGEX.test(val)) {
+          return "Last Name must be at least 2 characters and contain only letters, spaces, dots (.), hyphens (-), or apostrophes (') without numbers or special characters.";
         }
       } else if (field.type === "email") {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -528,10 +531,6 @@ export default function TwilioA2PRegistrationModal({
       } else if (field.name === "messageFlow") {
         if (val.length < 40) {
           return "Message Flow must be at least 40 characters detailing opt-in workflow";
-        }
-        const urlRegex = /(https?:\/\/[^\s]+)/gi;
-        if (!urlRegex.test(val)) {
-          return "Message Flow must contain a valid website URL link (e.g. https://yourpractice.com/contact)";
         }
       } else if (field.name === "optInMessage") {
         if (val.length < 15) {
@@ -838,11 +837,6 @@ export default function TwilioA2PRegistrationModal({
                                 />
                                 <div className="flex justify-between items-center text-[10px] text-foreground-400 mt-0.5 gap-2 flex-wrap">
                                   <span>{field.helperText}</span>
-                                  {field.name === "messageFlow" && (
-                                    <span className={/(https?:\/\/[^\s]+)/gi.test((formData as any)[field.name] || "") ? "text-green-600 dark:text-green-400 font-bold" : "text-red-500 font-bold"}>
-                                      {/(https?:\/\/[^\s]+)/gi.test((formData as any)[field.name] || "") ? "✓ URL Included" : "⚠️ Requires Website URL (e.g. https://...)"}
-                                    </span>
-                                  )}
                                   {field.name === "optInMessage" && (
                                     <span className={validateOptOutPhrase((formData as any)[field.name] || "") ? "text-green-600 dark:text-green-400 font-bold" : "text-amber-600 dark:text-amber-400 font-bold"}>
                                       {validateOptOutPhrase((formData as any)[field.name] || "") ? "✓ STOP Keyword Included" : "⚠️ Requires 'STOP' Keyword"}

@@ -113,12 +113,19 @@ const LeadDetailsModal = ({
     const checkIntegrations = async () => {
       try {
         const twilioRes = await axios.get("/twilio-checkout/active-numbers") as any;
-        console.log("[Integrations Debug] Twilio Response:", twilioRes);
-        if (twilioRes && twilioRes.success && Array.isArray(twilioRes.data)) {
-          setHasPhoneConnected(twilioRes.data.length > 0);
-        } else {
-          setHasPhoneConnected(false);
+
+        let numberList: any[] = [];
+        if (Array.isArray(twilioRes?.data?.numbers)) {
+          numberList = twilioRes.data.numbers;
+        } else if (Array.isArray(twilioRes?.numbers)) {
+          numberList = twilioRes.numbers;
+        } else if (Array.isArray(twilioRes?.data)) {
+          numberList = twilioRes.data;
+        } else if (Array.isArray(twilioRes)) {
+          numberList = twilioRes;
         }
+
+        setHasPhoneConnected(numberList.length > 0);
       } catch (err) {
         console.error("Failed to check active numbers:", err);
         setHasPhoneConnected(false);
@@ -127,8 +134,10 @@ const LeadDetailsModal = ({
       try {
         const emailRes = await axios.get("/email-integration") as any;
         console.log("[Integrations Debug] Email Response:", emailRes);
-        if (emailRes && emailRes.success && Array.isArray(emailRes.data)) {
-          const isConnected = emailRes.data.some((item: any) => item.status === "Connected");
+        const emailPayload = emailRes?.data || emailRes;
+        const emailList = Array.isArray(emailPayload) ? emailPayload : (emailPayload?.data || []);
+        if (Array.isArray(emailList)) {
+          const isConnected = emailList.some((item: any) => item.status === "Connected");
           console.log("[Integrations Debug] Is Email Connected:", isConnected);
           setHasEmailConnected(isConnected);
         } else {
@@ -598,7 +607,7 @@ const LeadDetailsModal = ({
                               Send immediate SMS text updates directly to the lead's mobile device.
                             </p>
                           </div>
-                          
+
                           <div className="space-y-3 w-full">
                             <Textarea
                               placeholder="Type your SMS message..."

@@ -82,7 +82,7 @@ export const useFetchA2PRegistration = () =>
     refetchInterval: (query) => {
       const data = query?.state?.data;
       const actualData = data ? (data.data !== undefined ? data.data : data) : null;
-      return actualData?.status === "pending" ? 5000 : false;
+      return actualData?.status === "pending" ? 60000 : false;
     },
   });
 

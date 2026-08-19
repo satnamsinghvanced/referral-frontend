@@ -4,6 +4,7 @@ export const PHONE_REGEX = /^\(\d{3}\)\s\d{3}-\d{4}$/;
 export const PASSWORD_REGEX =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\w\s]).{8,}$/;
 export const NAME_REGEX = /^[a-zA-Z\s'.,-]+$/;
+export const A2P_NAME_VALIDATION_REGEX = /^[a-zA-Z\s.\'-]{2,50}$/;
 export const ZIP_CODE_REGEX = /^\d{5}$/;
 export const ODD_PAGINATION_LIMIT = 9;
 export const EVEN_PAGINATION_LIMIT = 10;

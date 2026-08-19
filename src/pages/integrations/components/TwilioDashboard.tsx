@@ -176,12 +176,28 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
       }
     }
   };
-  const handleRefresh = () => {
-    addToast({
-      title: "Syncing status",
-      description: "Twilio numbers and status successfully refreshed.",
-      color: "success",
-    });
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const handleRefresh = async () => {
+    if (isRefreshing) return;
+    setIsRefreshing(true);
+    try {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: ["twilio"] }),
+        queryClient.invalidateQueries({ queryKey: ["twilio", "a2p"] }),
+        axios.get("/twilio-checkout/active-numbers").catch(() => { })
+      ]);
+      await new Promise((res) => setTimeout(res, 800));
+      addToast({
+        title: "Syncing status",
+        description: "Twilio numbers and status successfully refreshed.",
+        color: "success",
+      });
+    } catch (err) {
+      console.error("Refresh failed:", err);
+    } finally {
+      setIsRefreshing(false);
+    }
   };
   const getA2PBadgeDetails = () => {
     const rawStatus = (registration?.status === "failed" || registration?.status === "approved")
@@ -314,7 +330,7 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
               <Button
                 color={registration?.status === "failed" ? "danger" : "primary"}
                 size="sm"
-                isDisabled={!phoneNumbers || phoneNumbers.length === 0}
+                // isDisabled={!phoneNumbers || phoneNumbers.length === 0}
                 onPress={() => setIsA2PRegistrationOpen(true)}
                 startContent={<FiCheckCircle className="w-3.5 h-3.5" />}
                 className="rounded-lg text-xs font-semibold h-8 px-4 text-white disabled:opacity-50 disabled:cursor-not-allowed"
@@ -401,18 +417,77 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
           ) : (
             <div className="border border-red-200 dark:border-red-900/30 bg-red-50/40 dark:bg-red-950/10 rounded-xl p-4 flex flex-row gap-3 items-start">
               <FiInfo className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
-              <div className="flex flex-col gap-1.5">
+              <div className="flex flex-col gap-2 w-full">
                 <h4 className="text-xs font-bold text-red-600 dark:text-red-500">
                   A2P SMS Registration Rejected
                 </h4>
                 <p className="text-xs text-red-600/80 dark:text-red-400/80 leading-relaxed">
-                  Carrier review has rejected this brand/campaign registration for the following reason:
+                  Carrier review has rejected this brand/campaign registration. Please review the items below:
                 </p>
-                <div className="bg-red-500/10 dark:bg-red-950/20 p-2.5 rounded-lg border border-red-200/50 dark:border-red-900/30 text-xs text-red-700 dark:text-red-400 font-bold my-1">
-                  {registration.rejectionReason || "Rejection reason unspecified by carrier."}
-                </div>
-                <p className="text-[10px] text-red-500/80">
-                  Please review the details, correct any compliance issues, and re-submit your registration.
+
+                {(() => {
+                  if (!registration.rejectionReason) {
+                    return (
+                      <div className="bg-red-500/10 p-3 rounded-xl border border-red-200/50 text-xs font-bold text-red-700">
+                        Rejection reason unspecified by carrier.
+                      </div>
+                    );
+                  }
+
+                  const items = registration.rejectionReason.split(" | ").map((r: string) => r.trim()).filter(Boolean);
+
+                  const getActionableTip = (title: string, detail: string) => {
+                    const lower = title.toLowerCase() + " " + detail.toLowerCase();
+                    if (lower.includes("business type") || lower.includes("business information")) {
+                      return "Ensure your Business Type (e.g. Limited Liability Corporation), Business Legal Name, and EIN match official IRS documents.";
+                    }
+                    if (lower.includes("authorized representative #1") || lower.includes("authorized representative 1")) {
+                      return "Verify contact person's full name, email, phone number, and title.";
+                    }
+                    if (lower.includes("authorized representative #2") || lower.includes("authorized representative 2")) {
+                      return "Second Authorized Representative required by carrier policy.";
+                    }
+                    if (lower.includes("physical business address") || lower.includes("address")) {
+                      return "Verify street address, city, state, and ZIP match official tax/registration records.";
+                    }
+                    if (lower.includes("primary customer profile")) {
+                      return "Primary profile approval required by Twilio carrier policy.";
+                    }
+                    return "Please review this item and resubmit with verified information.";
+                  };
+
+                  return (
+                    <div className="flex flex-col gap-2 my-1">
+                      {items.map((item: string, idx: number) => {
+                        const parts = item.split(":");
+                        const title = parts[0] ? parts[0].trim() : "Compliance Requirement";
+                        const detail = parts.slice(1).join(":").trim() || "Unfulfilled";
+                        const tip = getActionableTip(title, detail);
+
+                        return (
+                          <div
+                            key={idx}
+                            className="flex flex-col gap-1 bg-red-500/10 dark:bg-red-950/30 border border-red-200/80 dark:border-red-900/50 p-3 rounded-xl"
+                          >
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0" />
+                              <span className="text-xs font-bold text-red-700 dark:text-red-300">{title}</span>
+                              <span className="text-[10px] px-2 py-0.5 rounded-md bg-red-500/15 text-red-600 dark:text-red-400 font-semibold uppercase tracking-wider">
+                                {detail}
+                              </span>
+                            </div>
+                            <p className="text-xs text-red-600/90 dark:text-red-300/90 pl-4 leading-relaxed font-medium">
+                              💡 <span className="font-semibold">Action Required:</span> {tip}
+                            </p>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+
+                <p className="text-[11px] text-red-500/80 font-medium">
+                  Click <span className="font-bold text-red-600 dark:text-red-400">"Edit & Re-submit"</span> above to correct details and resubmit for carrier approval.
                 </p>
               </div>
             </div>
@@ -428,10 +503,11 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
               variant="light"
               isIconOnly
               size="sm"
+              isDisabled={isRefreshing}
               onPress={handleRefresh}
-              className="text-foreground-500 hover:text-foreground rounded-lg"
+              className="text-foreground-500 hover:text-foreground rounded-lg transition-all"
             >
-              <FiRefreshCw className="w-4 h-4" />
+              <FiRefreshCw className={`w-4 h-4 transition-transform duration-500 ${isRefreshing ? "animate-spin text-blue-500" : ""}`} />
             </Button>
           </div>
 
