@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { jwtDecode } from "jwt-decode";
-import { disconnectSocket } from "../services/socket";
+import { disconnectSSE } from "../services/sse";
 import { logoutUser } from "../services/auth";
 import { queryClient } from "../providers/QueryProvider";
 
@@ -72,7 +72,7 @@ export const handleLogoutThunk = createAsyncThunk(
   "auth/handleLogout",
   async (_, { dispatch }) => {
     try {
-      disconnectSocket();
+      disconnectSSE();
       await logoutUser();
     } catch (error) {
       console.error("Server logout failed", error);

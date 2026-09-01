@@ -8,12 +8,7 @@ import {
   addToast,
 } from "@heroui/react";
 import { useRef, useState, useEffect } from "react";
-import {
-  FiCheckCircle,
-  FiDownload,
-  FiFileText,
-  FiUploadCloud,
-} from "react-icons/fi";
+import { FiCheckCircle, FiDownload, FiFileText, FiUploadCloud } from "react-icons/fi";
 import { IoClose } from "react-icons/io5";
 import * as XLSX from "xlsx";
 import { useImportReferralsCSV } from "../../../hooks/useReferral";
@@ -28,7 +23,6 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
   const [isConverting, setIsConverting] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { mutate: importCSV, isPending } = useImportReferralsCSV();
-
   useEffect(() => {
     if (!isOpen) {
       setSelectedFile(null);
@@ -37,19 +31,15 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
       }
     }
   }, [isOpen]);
-
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       setSelectedFile(e.target.files[0]);
     }
   };
-
   const handleImport = async () => {
     if (!selectedFile) return;
-
     let fileToUpload = selectedFile;
     const fileName = selectedFile.name.toLowerCase();
-
     if (fileName.endsWith(".xlsx") || fileName.endsWith(".xls")) {
       try {
         setIsConverting(true);
@@ -83,7 +73,6 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
 
     const formData = new FormData();
     formData.append("file", fileToUpload);
-
     importCSV(formData, {
       onSuccess: () => {
         setSelectedFile(null);
@@ -93,26 +82,8 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
   };
 
   const handleDownloadTemplate = () => {
-    // Generate a simple CSV blob
-    const headers = [
-      "Patient Name*",
-      "Patient Age*",
-      "Phone Number*",
-      "Email Address",
-      "Treatment/Reason*",
-      "Referral Source",
-      "Priority",
-    ];
-    const dummyRow = [
-      "John Doe",
-      "30",
-      "555-0123-485",
-      "john@example.com",
-      "Invisalign",
-      "Direct",
-      "Medium",
-    ];
-
+    const headers = ["Patient Name*", "Patient Age*", "Phone Number*", "Email Address", "Treatment/Reason*", "Referral Source", "Priority"];
+    const dummyRow = ["John Doe", "30", "555-0123-485", "john@example.com", "Invisalign", "Direct", "Medium"];
     const csvContent = [headers.join(","), dummyRow.join(",")].join("\n");
     const blob = new Blob([csvContent], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
@@ -150,9 +121,7 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
                 Download our template to get started.
               </p>
             </ModalHeader>
-
             <ModalBody className="py-0 px-4 gap-3">
-              {/* Instructions Section */}
               <div className="border border-blue-200 bg-blue-50/50 dark:bg-blue-900/10 dark:border-blue-500/30 rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2.5 text-gray-900 dark:text-white">
                   <FiFileText className="size-4" />
@@ -169,8 +138,6 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
                   <li>Review the matched referrers and confirm import</li>
                 </ol>
               </div>
-
-              {/* Download Template Section */}
               <div className="border border-foreground/10 rounded-xl p-4 md:flex md:items-center md:justify-between max-md:space-y-4">
                 <div className="flex items-center gap-2.5">
                   <div className="size-10 min-w-10 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-primary dark:text-blue-500 flex items-center justify-center">
@@ -195,8 +162,6 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
                   Download CSV
                 </Button>
               </div>
-
-              {/* Upload Section */}
               <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
                 <div className="space-y-1">
                   <h4 className="font-medium text-sm dark:text-white">
@@ -206,7 +171,6 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
                     Accepted formats: CSV, XLS, XLSX
                   </p>
                 </div>
-
                 <input
                   type="file"
                   accept=".csv, .xls, .xlsx"
@@ -214,7 +178,6 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
                   onChange={handleFileChange}
                   className="hidden"
                 />
-
                 <div
                   onClick={() => fileInputRef.current?.click()}
                   onDragOver={(e) => e.preventDefault()}
@@ -269,8 +232,6 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
                   )}
                 </div>
               </div>
-
-              {/* Requirements Note */}
               <div className="border border-foreground/10 rounded-xl p-4">
                 <h4 className="font-medium text-sm dark:text-white mb-3">
                   Required Fields Reference
@@ -296,7 +257,6 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
                 </div>
               </div>
             </ModalBody>
-
             <ModalFooter className="px-4">
               <Button
                 size="sm"

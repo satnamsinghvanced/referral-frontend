@@ -11,7 +11,7 @@ import {
   useMarkNotificationsRead,
 } from "../../hooks/settings/useNotification";
 import { queryClient } from "../../providers/QueryProvider";
-import { getSocket, subscribeToNotifications } from "../../services/socket";
+import { subscribeToNotifications, unsubscribeFromEvent } from "../../services/sse";
 
 dayjs.extend(relativeTime);
 
@@ -35,10 +35,7 @@ export default function NotificationPopover() {
     };
     subscribeToNotifications(handleNewNotification);
     return () => {
-      const socketInstance = getSocket();
-      if (socketInstance) {
-        socketInstance.off("new_notification", handleNewNotification);
-      }
+      unsubscribeFromEvent("new_notification", handleNewNotification);
     };
   }, []);
 

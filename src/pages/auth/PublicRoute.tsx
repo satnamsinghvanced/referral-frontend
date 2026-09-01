@@ -9,7 +9,7 @@ interface PublicRouteProps {
 }
 
 const PublicRoute: React.FC<PublicRouteProps> = ({ children }) => {
-  const { isAuthenticated, loading } = useSelector(
+  const { isAuthenticated, user, loading } = useSelector(
     (state: RootState) => state.auth,
   );
 
@@ -25,6 +25,9 @@ const PublicRoute: React.FC<PublicRouteProps> = ({ children }) => {
   }
 
   if (isAuthenticated) {
+    if (user?.role === "SuperAdmin") {
+      return <Navigate to="/admin" replace />;
+    }
     return <Navigate to="/" replace />;
   }
 

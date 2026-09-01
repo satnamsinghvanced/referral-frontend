@@ -43,18 +43,12 @@ const PatientForm = () => {
   const { customPath, id } = useParams<{ customPath: string; id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-
   const [addedVia, setAddedVia] = useState<string>("");
   const [sourceId, setSourceId] = useState<string>("");
-
   const { mutateAsync: createReferral, isPending } = useCreateReferral();
-  const { data: fetchedUser, isLoading: isUserLoading } =
-    useFetchUserForTrackings(id || "");
-  const { data: trackings, isLoading: isTrackingsLoading } = useFetchTrackings(
-    id || "",
-  );
+  const { data: fetchedUser, isLoading: isUserLoading } = useFetchUserForTrackings(id || "");
+  const { data: trackings, isLoading: isTrackingsLoading } = useFetchTrackings(id || "");
   const { mutate: trackScan } = useTrackScan();
-
   useEffect(() => {
     const queryParams = new URLSearchParams(location.search);
     const source = queryParams.get("source");
@@ -73,7 +67,6 @@ const PatientForm = () => {
   useEffect(() => {
     const trackingKey = `scanTracked_${id}_${addedVia}_${sourceId}`;
     const alreadyTracked = sessionStorage.getItem(trackingKey);
-
     if (id && isValidPath && addedVia && !alreadyTracked) {
       trackScan({
         userId: id,
@@ -86,10 +79,7 @@ const PatientForm = () => {
 
   const showInvalidLink = !isTrackingsLoading && trackings && !isValidPath;
 
-  const queryParams = useMemo(
-    () => new URLSearchParams(location.search),
-    [location.search],
-  );
+  const queryParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
   const refererName =
     queryParams.get("refererName") ||
     fetchedUser?.practiceName ||
@@ -97,13 +87,8 @@ const PatientForm = () => {
       ? `${fetchedUser.firstName || ""} ${fetchedUser.lastName || ""}`.trim()
       : "") ||
     "Doctor";
-
-  const wpBaseUrl = (
-    import.meta.env.VITE_WORDPRESS_BASE_URL || "https://practiceroi.com"
-  ).replace(/\/$/, "");
+  const wpBaseUrl = (import.meta.env.VITE_WORDPRESS_BASE_URL || "https://practiceroi.com").replace(/\/$/, "");
   const privacyPolicyUrl = `${wpBaseUrl}/privacy-policy/`;
-
-
   const validationSchema = Yup.object().shape({
     fullName: Yup.string()
       .trim()

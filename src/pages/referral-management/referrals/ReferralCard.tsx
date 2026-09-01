@@ -113,7 +113,6 @@ const ReferralCard = ({ referral, actions = () => [], onDelete }: ReferralCardPr
                 {btn.label}
               </Button>
             );
-
             if (btn.hideButton) {
               return;
             }

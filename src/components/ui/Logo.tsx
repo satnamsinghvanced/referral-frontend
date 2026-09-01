@@ -1,8 +1,10 @@
 import * as React from "react";
+
 interface LogoProps extends React.SVGProps<SVGSVGElement> {
+  iconOnly?: boolean;
 }
 
-const Logo: React.FC<LogoProps> = (props) => {
+const Logo: React.FC<LogoProps> = ({ iconOnly = false, ...props }) => {
   const styles: { [key: string]: React.CSSProperties } = {
     cls1: {
       fill: "#8acef1",
@@ -15,6 +17,61 @@ const Logo: React.FC<LogoProps> = (props) => {
     },
   };
 
+  if (iconOnly) {
+    return (
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        id="Layer_1"
+        data-name="Layer 1"
+        viewBox="135 0 200 135"
+        {...props}
+      >
+        <g>
+          <ellipse
+            style={styles.cls1}
+            cx="235.96"
+            cy="22.87"
+            rx="29.76"
+            ry="22.86"
+            transform="translate(-.42 4.88) rotate(-1.18)"
+          />
+          <path
+            style={styles.cls1}
+            d="m253.66,68.95c-.15-7.1-7.76-12.7-17.01-12.51-9.25.19-16.62,6.1-16.47,13.2s7.75,12.7,17,12.51c9.24-.19,16.62-6.1,16.48-13.2Z"
+          />
+          <path
+            style={styles.cls1}
+            d="m247.15,108.48c-.08-4-4.36-7.15-9.57-7.04-5.2.11-9.35,3.43-9.27,7.43s4.37,7.14,9.56,7.03c5.2-.11,9.35-3.43,9.27-7.42Z"
+          />
+          <path
+            style={styles.cls2}
+            d="m322.83,52.6c4.72-9.57-1.45-17.12-13.77-16.87-12.33.25-26.15,8.22-30.87,17.79-4.72,9.57,1.45,17.12,13.78,16.86s26.15-8.22,30.86-17.79Z"
+          />
+          <path
+            style={styles.cls2}
+            d="m289.99,90.71c2.65-5.38-.82-9.63-7.75-9.49-6.93.14-14.71,4.63-17.36,10.01-2.66,5.38.81,9.63,7.75,9.49,6.93-.14,14.71-4.63,17.36-10.01Z"
+          />
+          <path
+            style={styles.cls2}
+            d="m269.78,120.68c1.49-3.04-.46-5.42-4.36-5.34-3.9.08-8.27,2.6-9.77,5.63-1.49,3.02.46,5.41,4.36,5.33,3.9-.08,8.27-2.6,9.76-5.62Z"
+          />
+          <path
+            style={styles.cls3}
+            d="m187.12,72.7c12.33-.25,18.17-8.05,13.06-17.42-5.11-9.37-19.24-16.75-31.57-16.5-12.33.25-18.17,8.05-13.07,17.42,5.11,9.36,19.25,16.75,31.58,16.5Z"
+          />
+          <path
+            style={styles.cls3}
+            d="m202.53,102.17c6.93-.14,10.22-4.54,7.35-9.8-2.88-5.27-10.83-9.43-17.76-9.28-6.94.14-10.23,4.53-7.35,9.8,2.88,5.27,10.83,9.43,17.76,9.28Z"
+          />
+          <path
+            style={styles.cls3}
+            d="m216.19,127.21c3.9-.08,5.75-2.55,4.13-5.51-1.62-2.97-6.09-5.3-9.99-5.22-3.9.08-5.75,2.54-4.13,5.52,1.61,2.96,6.09,5.3,9.99,5.22Z"
+          />
+        </g>
+      </svg>
+    );
+  }
+
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
@@ -23,7 +80,6 @@ const Logo: React.FC<LogoProps> = (props) => {
       viewBox="0 0 479.91 196.15"
       {...props}
     >
-
       <g>
         <path
           style={styles.cls2}

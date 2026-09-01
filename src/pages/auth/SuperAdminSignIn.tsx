@@ -1,12 +1,5 @@
-import {
-  Button,
-  Card,
-  CardBody,
-  Input,
-  Spinner,
-} from "@heroui/react";
-import { useFormik } from "formik";
 import { useState } from "react";
+import { useFormik } from "formik";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
@@ -36,29 +29,35 @@ const SuperAdminSignIn = () => {
       email: Yup.string()
         .required("Email is required")
         .email("Invalid email format"),
-      password: Yup.string()
-        .required("Password is required"),
+      password: Yup.string().required("Password is required"),
     }),
     onSubmit: async (values) => {
       setLoading(true);
       setErrorMsg("");
       try {
-        const res = await api.post("/superadmin/login", {
+        const res: any = await api.post("/superadmin/login", {
           email: values.email,
           password: values.password,
         });
-        if (res.data.success) {
+
+        if (res.success || res.data?.accessToken || res.accessToken) {
+          const token = res.data?.accessToken || res.accessToken || "";
+          localStorage.setItem("superadmin_email", values.email.toLowerCase().trim());
           dispatch(
             setCredentials({
-              token: res.data.accessToken || "",
+              token,
             })
           );
-          navigate("/");
+          navigate("/admin");
         } else {
-          setErrorMsg(res.data.message || "Failed to login");
+          setErrorMsg(res.message || "Failed to login");
         }
       } catch (error: any) {
-        setErrorMsg(error.response?.data?.message || "An error occurred");
+        setErrorMsg(
+          error.response?.data?.message ||
+            error.message ||
+            "Invalid email or password"
+        );
       } finally {
         setLoading(false);
       }
@@ -66,97 +65,89 @@ const SuperAdminSignIn = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-950 dark:to-background flex items-center justify-center p-4">
-      <Card className="w-full max-w-md shadow-xl border border-foreground/10 bg-content1 backdrop-blur-xl">
-        <CardBody className="p-6 sm:p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-2xl font-bold mb-2 text-foreground">
-              Super Admin Login
-            </h1>
-            <p className="text-sm text-foreground/60">
-              Platform-wide administrative access
-            </p>
+    <div className="min-h-screen bg-[#F8FAFC] flex flex-col items-center justify-center p-4 font-sans selection:bg-blue-500 selection:text-white">
+      {/* White Login Box Card */}
+      <div className="w-full max-w-md bg-white border border-slate-200/90 rounded-2xl shadow-xl p-6 sm:p-8 space-y-6">
+        <div className="flex flex-col items-center text-center">
+          {/* Icon Logo inside box on top */}
+          <div className="mb-3">
+            <img
+              src="/practiceroi-favicon.ico"
+              alt="Practice ROI"
+              className="w-12 h-12 object-contain"
+            />
+          </div>
+          {/* Title: Admin Portal */}
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">
+            Admin Portal
+          </h1>
+          <p className="text-xs text-slate-500 mt-1">
+            Platform-wide administrative portal access
+          </p>
+        </div>
+
+        <form onSubmit={formik.handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+              Email Address
+            </label>
+            <input
+              name="email"
+              type="email"
+              placeholder="admin@practiceroi.com"
+              className="w-full bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 text-sm rounded-xl px-3.5 py-2.5 focus:outline-none focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all"
+              value={formik.values.email}
+              onChange={formik.handleChange}
+              onBlur={formik.handleBlur}
+            />
+            {formik.touched.email && formik.errors.email && (
+              <p className="text-red-500 text-xs mt-1">{formik.errors.email}</p>
+            )}
           </div>
 
-          <form onSubmit={formik.handleSubmit} className="space-y-5">
-            <div className="flex">
-              <Input
-                label="Email Address"
-                labelPlacement="inside"
-                name="email"
-                placeholder="Enter your email"
-                type="email"
-                radius="sm"
-                variant="flat"
-                value={formik.values.email}
-                onValueChange={(value) =>
-                  formik.setFieldValue("email", value)
-                }
-                onBlur={formik.handleBlur}
-                errorMessage={
-                  formik.touched.email && (formik.errors.email as string)
-                }
-                isInvalid={!!(formik.touched.email && formik.errors.email)}
-                isRequired
-              />
-            </div>
-            <div className="flex">
-              <Input
-                label="Password"
-                labelPlacement="inside"
-                placeholder="Enter your password"
-                type={isVisible ? "text" : "password"}
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+              Password
+            </label>
+            <div className="relative">
+              <input
                 name="password"
-                radius="sm"
-                variant="flat"
+                type={isVisible ? "text" : "password"}
+                placeholder="••••••••••••"
+                className="w-full bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 text-sm rounded-xl pl-3.5 pr-10 py-2.5 focus:outline-none focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100 transition-all"
                 value={formik.values.password}
-                onValueChange={(value) =>
-                  formik.setFieldValue("password", value)
-                }
+                onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                errorMessage={
-                  formik.touched.password &&
-                  (formik.errors.password as string)
-                }
-                isInvalid={
-                  !!(formik.touched.password && formik.errors.password)
-                }
-                isRequired
-                endContent={
-                  <button
-                    className="focus:outline-none cursor-pointer"
-                    type="button"
-                    onClick={toggleVisibility}
-                  >
-                    {isVisible ? (
-                      <FaEyeSlash className="text-xl text-default-400 pointer-events-none" />
-                    ) : (
-                      <FaEye className="text-xl text-default-400 pointer-events-none" />
-                    )}
-                  </button>
-                }
               />
+              <button
+                type="button"
+                onClick={toggleVisibility}
+                className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 cursor-pointer"
+              >
+                {isVisible ? <FaEyeSlash /> : <FaEye />}
+              </button>
             </div>
+            {formik.touched.password && formik.errors.password && (
+              <p className="text-red-500 text-xs mt-1">{formik.errors.password}</p>
+            )}
+          </div>
 
-            {errorMsg && <p className="text-red-500 text-sm text-center">{errorMsg}</p>}
+          {errorMsg && (
+            <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-xs text-center font-medium">
+              {errorMsg}
+            </div>
+          )}
 
-            <Button
-              size="lg"
-              radius="md"
-              type="submit"
-              color="primary"
-              variant="solid"
-              isLoading={loading}
-              spinner={<Spinner color="white" size="sm" />}
-              isDisabled={loading}
-              className="mt-2 font-semibold"
-              fullWidth
-            >
-              {loading ? "Signing In..." : "Sign In"}
-            </Button>
-          </form>
-        </CardBody>
-      </Card>
+          <button
+            type="submit"
+            disabled={loading}
+            style={{ backgroundColor: "#20a9f8" }}
+            className="w-full py-3 px-4 hover:opacity-90 text-white font-bold text-sm rounded-xl shadow-md hover:shadow-lg transition-all cursor-pointer disabled:opacity-50 mt-2"
+          >
+            {loading ? "Signing In..." : "Sign In"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

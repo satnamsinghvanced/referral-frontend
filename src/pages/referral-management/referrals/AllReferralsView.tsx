@@ -153,7 +153,6 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                 </span>
               </p>
             )}
-
             <p className="text-xs">
               <span className="font-medium dark:text-foreground/60">
                 Source:
@@ -172,7 +171,6 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
             )}
           </div>
         </div>
-
         <div className="space-y-3">
           <div className="flex flex-wrap gap-2">
             <span
@@ -249,7 +247,6 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
       </div>
     </div>
   );
-
   return (
     <div
       data-state="active"

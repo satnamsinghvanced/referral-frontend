@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
-import { Outlet } from "react-router";
+import { Outlet, Navigate } from "react-router";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
 import Header from "./Header";
 import Sidebar from "./Sidebar";
 import Logo from "../ui/Logo";
@@ -7,6 +9,13 @@ import { useBilling } from "../../hooks/settings/useBilling";
 import { useRolePermissions } from "../../hooks/useRolePermissions";
 
 const Layout = () => {
+  const { user } = useSelector((state: RootState) => state.auth);
+  const isImpersonating = !!localStorage.getItem("impersonated_client");
+
+  if (user?.role === "SuperAdmin" && !isImpersonating) {
+    return <Navigate to="/admin" replace />;
+  }
+
   const { data: billingData, isLoading: isBillingLoading } = useBilling();
   const { isLoading: isPermissionsLoading } = useRolePermissions();
 

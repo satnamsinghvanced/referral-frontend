@@ -25,10 +25,11 @@ import {
   unsubscribeFromNewMessage,
   subscribeToNewWebMessage,
   unsubscribeFromNewWebMessage,
-  getSocket,
+  subscribeToEvent,
+  unsubscribeFromEvent,
   type NewMessagePayload,
   type NewWebMessagePayload,
-} from "../../services/socket";
+} from "../../services/sse";
 
 const Conversations = () => {
   const { data: socialCreds, isLoading: isSocialLoading } = useSocialCredentials();
@@ -232,20 +233,14 @@ const Conversations = () => {
 
     subscribeToNewMessage(handleNewMessage);
     subscribeToNewWebMessage(handleNewWebMessage);
-
-    const socketInstance = getSocket();
-    if (socketInstance) {
-      socketInstance.on("message_read_watermark", handleMessageReadWatermark);
-      socketInstance.on("messages_read_by_patient", handleMessagesReadByPatient);
-    }
+    subscribeToEvent("message_read_watermark", handleMessageReadWatermark);
+    subscribeToEvent("messages_read_by_patient", handleMessagesReadByPatient);
 
     return () => {
       unsubscribeFromNewMessage(handleNewMessage);
       unsubscribeFromNewWebMessage(handleNewWebMessage);
-      if (socketInstance) {
-        socketInstance.off("message_read_watermark", handleMessageReadWatermark);
-        socketInstance.off("messages_read_by_patient", handleMessagesReadByPatient);
-      }
+      unsubscribeFromEvent("message_read_watermark", handleMessageReadWatermark);
+      unsubscribeFromEvent("messages_read_by_patient", handleMessagesReadByPatient);
     };
   }, []);
 
@@ -260,7 +255,6 @@ const Conversations = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-
     const remainingSlots = MAX_ATTACHMENTS - attachedFile.length;
     if (remainingSlots <= 0) {
       addToast({
@@ -271,7 +265,6 @@ const Conversations = () => {
       e.target.value = "";
       return;
     }
-
     const selectedFiles = Array.from(files).slice(0, remainingSlots);
     const newAttachments = selectedFiles.map((file) => ({
       file,
@@ -279,7 +272,6 @@ const Conversations = () => {
       url: URL.createObjectURL(file),
       type: file.type,
     }));
-
     setAttachedFile((prev) => [...prev, ...newAttachments]);
     addToast({
       title: "File(s) Attached",
@@ -531,12 +523,9 @@ const Conversations = () => {
 
     const currentConv = conversations.find((c) => c.id === selectedConversationId);
     if (!currentConv) return;
-
-    // Clear input fields immediately
     setMessageInput("");
     setAttachedFile([]);
 
-    // Create optimistic messages
     const optimisticMessages: ConversationMessage[] = [];
     const textTempId = `temp-text-${Date.now()}`;
 
@@ -573,8 +562,6 @@ const Conversations = () => {
         }
       });
     }
-
-    // Instantly append optimistic messages to the chat UI
     setConversations((prev) =>
       prev.map((c) => {
         if (c.id === currentConv.id) {
@@ -595,8 +582,6 @@ const Conversations = () => {
     const isInstagram = currentConv.platform === "instagram";
     const isFacebook = currentConv.platform === "facebook";
     const isWeb = currentConv.platform === "web";
-
-    // Run async upload & API call in the background
     (async () => {
       try {
         const uploadedAttachments: { name: string; url: string; type: string }[] = [];
@@ -613,10 +598,7 @@ const Conversations = () => {
             throw new Error(`Failed to upload file: ${item.name}`);
           }
         }
-
         const messagesToAdd: { tempId: string; realMsg: ConversationMessage }[] = [];
-
-        // Send text message
         if (trimmedText) {
           let sentMsg: any;
           if (isInstagram && currentConv.recipientId) {
@@ -626,7 +608,6 @@ const Conversations = () => {
           } else if (isWeb) {
             sentMsg = await sendWebMessage(currentConv.id, trimmedText);
           }
-
           messagesToAdd.push({
             tempId: textTempId,
             realMsg: {
@@ -640,8 +621,6 @@ const Conversations = () => {
             }
           });
         }
-
-        // Send files
         for (let i = 0; i < uploadedAttachments.length; i++) {
           const file = uploadedAttachments[i];
           const tempId = fileTempIds[i];
@@ -654,7 +633,6 @@ const Conversations = () => {
           } else if (isWeb) {
             sentMsg = await sendWebMessage(currentConv.id, "", file);
           }
-
           messagesToAdd.push({
             tempId,
             realMsg: {
@@ -669,8 +647,6 @@ const Conversations = () => {
             }
           });
         }
-
-        // Replace optimistic messages with real messages
         setConversations((prev) =>
           prev.map((c) => {
             if (c.id === currentConv.id) {
@@ -694,8 +670,6 @@ const Conversations = () => {
           description: err.message || `Could not deliver message to ${platformLabel}.`,
           color: "danger",
         });
-
-        // Mark optimistic messages as failed
         setConversations((prev) =>
           prev.map((c) => {
             if (c.id === currentConv.id) {
@@ -717,7 +691,6 @@ const Conversations = () => {
       }
     })();
   };
-
   const handleToggleStar = (convId: string) => {
     setConversations((prev) =>
       prev.map((c) => {
@@ -737,7 +710,6 @@ const Conversations = () => {
       })
     );
   };
-
   const handleDropdownAction = (key: string, conv: Conversation) => {
     if (key === "archive") {
       setConversations((prev) =>

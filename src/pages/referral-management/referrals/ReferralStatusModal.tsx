@@ -168,24 +168,22 @@ const ReferralStatusModal = ({
                   icon={<LuUsers size={16} />}
                   label="Referred By"
                   value={`${referral?.referredBy?.name || "Self"}${referral?.referredBy?.practiceName ||
+                    referral?.referredBy?.type
+                    ? ` - ${referral?.referredBy?.practiceName &&
+                      referral?.referredBy?.practiceName !== "Unknown"
+                      ? referral?.referredBy?.practiceName
+                      : REFERRER_TYPE_LABELS[
                       referral?.referredBy?.type
-                      ? ` - ${referral?.referredBy?.practiceName &&
-                        referral?.referredBy?.practiceName !== "Unknown"
-                        ? referral?.referredBy?.practiceName
-                        : REFERRER_TYPE_LABELS[
-                        referral?.referredBy?.type
-                        ] || referral?.referredBy?.type
-                      }`
-                      : ""
+                      ] || referral?.referredBy?.type
+                    }`
+                    : ""
                     }`}
                 />
                 <InfoItem
                   icon={<LuStethoscope size={16} />}
                   label="Treatment"
                   value={
-                    TREATMENT_OPTIONS.find(
-                      (opt: any) => opt.key === referral.treatment,
-                    )?.label || "Not specified"
+                    TREATMENT_OPTIONS.find((opt: any) => opt.key === referral.treatment)?.label || "Not specified"
                   }
                 />
                 <InfoItem
@@ -200,7 +198,6 @@ const ReferralStatusModal = ({
                 />
               </div>
             </div>
-
             {(referral?.additionalNotes ||
               referral?.statusNotes ||
               referral?.notes ||
@@ -257,7 +254,6 @@ const ReferralStatusModal = ({
                   </div>
                 </div>
               )}
-
             {!isViewMode && (
               <div className="border border-foreground/10 rounded-xl p-4 space-y-4 mb-4">
                 <h4 className="font-medium text-sm dark:text-white">

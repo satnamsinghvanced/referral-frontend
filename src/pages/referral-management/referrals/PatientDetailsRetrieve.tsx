@@ -144,8 +144,6 @@ ${phone ? `TEL;TYPE=WORK,VOICE:${phone}\n` : ""}${email ? `EMAIL;TYPE=WORK,INTER
     formik.setFieldTouched(fieldName, true, false);
   };
 
-
-
   return (
     <div className="min-h-screen  dark:bg-background flex flex-col justify-center items-center p-4">
       <div className="max-w-md w-full bg-white dark:bg-content1 rounded-2xl shadow-[0_2px_20px_rgb(0,0,0,0.06)] border border-gray-200 dark:border-foreground/5 p-8">

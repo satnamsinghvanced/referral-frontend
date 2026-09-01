@@ -71,6 +71,7 @@ const General = React.lazy(() => import("./pages/settings/General"));
 const Profile = React.lazy(() => import("./pages/settings/Profile"));
 const AdminList = React.lazy(() => import("./pages/superadmin/AdminList"));
 const AdminDetails = React.lazy(() => import("./pages/superadmin/AdminDetails"));
+const SuperAdminProfilePage = React.lazy(() => import("./pages/superadmin/SuperAdminProfilePage"));
 const SignIn = React.lazy(() => import("./pages/auth/SignIn"));
 const ResetPassword = React.lazy(() => import("./pages/auth/ResetPassword"));
 const SubscriptionErrorPage = React.lazy(() => import("./pages/auth/SubscriptionErrorPage"));
@@ -339,15 +340,55 @@ function AppRoutes() {
             },
           ],
         },
-        {
-          path: "platform-admins",
-          element: <AdminList />
-        },
-        {
-          path: "platform-admins/:id",
-          element: <AdminDetails />
-        }
       ],
+    },
+    {
+      path: "admin",
+      element: (
+        <ProtectedRoute>
+          <AdminList />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "admin/settings",
+      element: (
+        <ProtectedRoute>
+          <SuperAdminProfilePage />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "admin/profile",
+      element: (
+        <ProtectedRoute>
+          <SuperAdminProfilePage />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "admin/:id",
+      element: (
+        <ProtectedRoute>
+          <AdminList />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "platform-admins",
+      element: (
+        <ProtectedRoute>
+          <AdminList />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "platform-admins/:id",
+      element: (
+        <ProtectedRoute>
+          <AdminDetails />
+        </ProtectedRoute>
+      ),
     },
     {
       path: "signin",
