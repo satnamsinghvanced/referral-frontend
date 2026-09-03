@@ -70,7 +70,7 @@ const initialState: AuthState = {
 
 export const handleLogoutThunk = createAsyncThunk(
   "auth/handleLogout",
-  async (_, { dispatch }) => {
+  async (redirectUrl: string | undefined, { dispatch }) => {
     try {
       disconnectSSE();
       await logoutUser();
@@ -79,7 +79,7 @@ export const handleLogoutThunk = createAsyncThunk(
     } finally {
       dispatch(authSlice.actions.logout());
       queryClient.clear();
-      window.location.href = `${import.meta.env.VITE_URL_PREFIX}/signin`;
+      window.location.href = redirectUrl || `${import.meta.env.VITE_URL_PREFIX}/signin`;
     }
   },
 );

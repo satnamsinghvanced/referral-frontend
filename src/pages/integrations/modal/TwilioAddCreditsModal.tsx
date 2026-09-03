@@ -33,42 +33,7 @@ interface Plan {
   popular?: boolean;
 }
 
-const PLANS: Plan[] = [
-  {
-    id: "starter",
-    name: "Starter",
-    desc: "Best for solo or low-volume practices",
-    price: 50,
-    minutes: 500,
-    segments: 1000,
-    callRate: "0.02",
-    smsRate: "0.025",
-    pkgName: "500",
-  },
-  {
-    id: "growth",
-    name: "Growth",
-    desc: "Most popular",
-    price: 75,
-    minutes: 1000,
-    segments: 2500,
-    callRate: "0.015",
-    smsRate: "0.02",
-    pkgName: "1000",
-    popular: true,
-  },
-  {
-    id: "scale",
-    name: "Scale",
-    desc: "For high call volume or multi-location",
-    price: 100,
-    minutes: 2500,
-    segments: 5000,
-    callRate: "0.01",
-    smsRate: "0.015",
-    pkgName: "2500",
-  },
-];
+import { fetchPhonePlans, IPhonePlan } from "../../../services/phonePlan";
 
 export default function TwilioAddCreditsModal({
   isOpen,
@@ -77,33 +42,54 @@ export default function TwilioAddCreditsModal({
   minutesUsed,
   planExpiresAt,
 }: TwilioAddCreditsModalProps) {
+  const [plans, setPlans] = useState<IPhonePlan[]>([]);
   const [selectedPlanId, setSelectedPlanId] = useState<string>("starter");
   const [isConnecting, setIsConnecting] = useState(false);
+  const [loadingPlans, setLoadingPlans] = useState(true);
 
   useEffect(() => {
     if (isOpen) {
-      if (currentMinutes >= 2500) {
-        setSelectedPlanId("scale");
-      } else if (currentMinutes >= 1000) {
-        setSelectedPlanId("growth");
-      } else {
-        setSelectedPlanId("starter");
-      }
+      setLoadingPlans(true);
+      fetchPhonePlans()
+        .then((data) => {
+          if (data && data.length > 0) {
+            setPlans(data);
+            const defaultPopular = data.find((p) => p.isPopular) || data[0];
+            if (defaultPopular) {
+              setSelectedPlanId(defaultPopular.planId || defaultPopular._id);
+            }
+          }
+        })
+        .catch((err) => console.error("Error fetching phone plans:", err))
+        .finally(() => setLoadingPlans(false));
+
       setIsConnecting(false);
     }
-  }, [isOpen, currentMinutes]);
+  }, [isOpen]);
 
-  const activePlan = PLANS.find((p) => p.id === selectedPlanId) || PLANS[0]!;
+  const activePlan = plans.find((p) => p.planId === selectedPlanId || p._id === selectedPlanId) || plans[0] || {
+    planId: "growth",
+    name: "Growth",
+    price: 75,
+    description: "Most popular",
+    callMinutes: 1000,
+    textSegments: 2500,
+    overageCallRate: 0.015,
+    overageTextRate: 0.02,
+    isPopular: true,
+  };
 
   const handleConfirmPlan = () => {
     setIsConnecting(true);
-    const url = `${window.location.origin}/checkout?type=twilio_credits&amount=${activePlan.price}&walletAmount=${activePlan.price}&package=${activePlan.pkgName}&planId=${activePlan.id}&planName=${activePlan.name}&auto_topup=true`;
+    const activePlanId = activePlan.planId || (activePlan as any)._id || "growth";
+    const activeMinutes = activePlan.callMinutes || 1000;
+    const url = `${window.location.origin}/checkout?type=twilio_credits&amount=${activePlan.price}&walletAmount=${activePlan.price}&package=${activeMinutes}&planId=${activePlanId}&planName=${activePlan.name}&auto_topup=true`;
     window.open(url, "_blank");
     onClose();
   };
 
   const hasActivePlan = currentMinutes > 0;
-  const currentPlan = PLANS.find(p => p.minutes === currentMinutes);
+  const currentPlan = plans.find((p) => p.callMinutes === currentMinutes);
 
   const formatDate = (dateStr: string | null | undefined) => {
     let date = dateStr;
@@ -170,34 +156,42 @@ export default function TwilioAddCreditsModal({
           <div className="flex flex-col gap-2.5">
             <label className="text-xs font-bold text-foreground">Choose Your Plan</label>
             <div className="flex flex-col gap-2.5">
-              {PLANS.map((plan) => {
-                const isSelected = selectedPlanId === plan.id;
-                return (
-                  <button
-                    key={plan.id}
-                    type="button"
-                    onClick={() => setSelectedPlanId(plan.id)}
-                    className={`relative flex items-center justify-between p-3.5 rounded-xl border text-left transition-all duration-200 cursor-pointer ${isSelected
-                      ? "border-primary bg-primary/5 text-foreground ring-2 ring-primary/30 shadow-md shadow-primary/5 font-semibold"
-                      : "border-foreground/10 bg-default-50/20 hover:bg-default-50 text-foreground"
+              {loadingPlans ? (
+                <div className="py-6 text-center text-xs text-foreground-400">Loading plans...</div>
+              ) : (
+                plans.map((plan) => {
+                  const planKey = plan.planId || plan._id;
+                  const isSelected = selectedPlanId === planKey;
+                  return (
+                    <button
+                      key={plan._id || plan.planId}
+                      type="button"
+                      onClick={() => setSelectedPlanId(planKey)}
+                      className={`relative flex items-center justify-between p-3.5 rounded-xl border text-left transition-all duration-200 cursor-pointer ${
+                        isSelected
+                          ? "border-primary bg-primary/5 text-foreground ring-2 ring-primary/30 shadow-md shadow-primary/5 font-semibold"
+                          : "border-foreground/10 bg-default-50/20 hover:bg-default-50 text-foreground"
                       }`}
-                  >
-                    {plan.popular && (
-                      <span className="absolute top-2.5 right-3 px-2 py-0.5 bg-primary text-white text-[8px] rounded-full tracking-wider uppercase">
-                        Most Popular
-                      </span>
-                    )}
-                    <div className="flex flex-col gap-0.5">
-                      <span className="text-sm font-bold text-foreground">{plan.name}</span>
-                      <span className="text-xs font-normal text-foreground-500">{plan.desc}</span>
-                    </div>
-                    <div className="flex items-baseline gap-0.5 text-right pr-1">
-                      <span className="text-base font-extrabold text-foreground">${plan.price}</span>
-                      <span className="text-[10px] text-foreground-500">/mo</span>
-                    </div>
-                  </button>
-                );
-              })}
+                    >
+                      {plan.isPopular && (
+                        <span className="absolute top-2.5 right-3 px-2 py-0.5 bg-primary text-white text-[8px] rounded-full tracking-wider uppercase font-bold">
+                          Most Popular
+                        </span>
+                      )}
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-sm font-bold text-foreground">{plan.name}</span>
+                        <span className="text-xs font-normal text-foreground-500">
+                          {plan.description || "Telecom plan"}
+                        </span>
+                      </div>
+                      <div className="flex items-baseline gap-0.5 text-right pr-1">
+                        <span className="text-base font-extrabold text-foreground">${plan.price}</span>
+                        <span className="text-[10px] text-foreground-500">/mo</span>
+                      </div>
+                    </button>
+                  );
+                })
+              )}
             </div>
           </div>
 
@@ -207,13 +201,13 @@ export default function TwilioAddCreditsModal({
             </h4>
             <div className="flex flex-col gap-1.5 mt-0.5">
               <div className="flex items-center gap-2 text-xs text-foreground-700">
-                <FiCheck className="w-4 h-4 text-primary" />
-                <span>{activePlan.minutes.toLocaleString()} outbound call minutes</span>
+                <FiCheck className="w-4 h-4 text-primary shrink-0" />
+                <span>{(activePlan.callMinutes || 1000).toLocaleString()} outbound call minutes</span>
               </div>
               <div className="flex items-center gap-2 text-xs text-foreground-700">
-                <FiCheck className="w-4 h-4 text-primary" />
+                <FiCheck className="w-4 h-4 text-primary shrink-0" />
                 <span>
-                  {activePlan.segments.toLocaleString()} text segments{" "}
+                  {(activePlan.textSegments || 2500).toLocaleString()} text segments{" "}
                   <span
                     className="text-primary hover:underline cursor-pointer font-medium ml-0.5"
                     onClick={(e) => {
@@ -244,11 +238,11 @@ export default function TwilioAddCreditsModal({
             <div className="grid grid-cols-2 gap-3.5 mt-1">
               <div className="bg-background border border-amber-200/50 dark:border-amber-900/20 p-2.5 rounded-lg flex flex-col">
                 <span className="text-[9px] text-foreground-500 font-medium">Outbound Calls</span>
-                <span className="text-xs font-extrabold text-foreground mt-0.5">${activePlan.callRate} <span className="text-[9px] font-normal text-foreground-500">/ min</span></span>
+                <span className="text-xs font-extrabold text-foreground mt-0.5">${activePlan.overageCallRate ?? 0.015} <span className="text-[9px] font-normal text-foreground-500">/ min</span></span>
               </div>
               <div className="bg-background border border-amber-200/50 dark:border-amber-900/20 p-2.5 rounded-lg flex flex-col">
                 <span className="text-[9px] text-foreground-500 font-medium">Text Messages</span>
-                <span className="text-xs font-extrabold text-foreground mt-0.5">${activePlan.smsRate} <span className="text-[9px] font-normal text-foreground-500">/ segment</span></span>
+                <span className="text-xs font-extrabold text-foreground mt-0.5">${activePlan.overageTextRate ?? 0.02} <span className="text-[9px] font-normal text-foreground-500">/ segment</span></span>
               </div>
             </div>
           </div>

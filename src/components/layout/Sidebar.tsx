@@ -263,18 +263,20 @@ const Sidebar = ({
     if (typeof onCloseSidebar === "function") onCloseSidebar();
   };
 
+  const isImpersonating = !!localStorage.getItem("impersonated_client");
+
   return (
     <>
       <div
         className={`${isMiniSidebarOpen
-          ? "bg-foreground/30 dark:bg-background/70 fixed inset-0 z-41"
+          ? `bg-foreground/30 dark:bg-background/70 fixed ${isImpersonating ? "top-[40px] bottom-0 left-0 right-0" : "inset-0"} z-41`
           : "hidden"
           } lg:hidden`}
         onClick={onCloseSidebar}
         aria-hidden
       />
       <aside
-        className={`sidebar fixed top-0 left-0 z-50 h-screen border-r border-foreground/10 bg-background transition-all duration-300
+        className={`sidebar fixed ${isImpersonating ? "top-[40px] h-[calc(100vh-40px)]" : "top-0 h-screen"} left-0 z-50 border-r border-foreground/10 bg-background transition-all duration-300
           ${isMiniSidebarOpen ? "md:w-[250px] w-[300px]" : "w-18"}
         `}
         aria-label="Primary sidebar"

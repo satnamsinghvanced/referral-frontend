@@ -72,6 +72,9 @@ const Profile = React.lazy(() => import("./pages/settings/Profile"));
 const AdminList = React.lazy(() => import("./pages/superadmin/AdminList"));
 const AdminDetails = React.lazy(() => import("./pages/superadmin/AdminDetails"));
 const SuperAdminProfilePage = React.lazy(() => import("./pages/superadmin/SuperAdminProfilePage"));
+const SignupPricingView = React.lazy(
+  () => import("./pages/auth/SignupPricingView"),
+);
 const SignIn = React.lazy(() => import("./pages/auth/SignIn"));
 const ResetPassword = React.lazy(() => import("./pages/auth/ResetPassword"));
 const SubscriptionErrorPage = React.lazy(() => import("./pages/auth/SubscriptionErrorPage"));
@@ -395,6 +398,22 @@ function AppRoutes() {
       element: (
         <PublicRoute>
           <SignIn />
+        </PublicRoute>
+      ),
+    },
+    {
+      path: "pricing",
+      element: (
+        <PublicRoute>
+          <SignupPricingView />
+        </PublicRoute>
+      ),
+    },
+    {
+      path: "signup/plans",
+      element: (
+        <PublicRoute>
+          <SignupPricingView />
         </PublicRoute>
       ),
     },

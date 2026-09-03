@@ -1,20 +1,24 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import api from "../../services/axios";
+import { fetchSuperAdminDetail } from "../../services/superadmin";
 
 const AdminDetails: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
+
   useEffect(() => {
-    fetchAdminDetails();
+    if (id) {
+      fetchAdminDetails(id);
+    }
   }, [id]);
-  const fetchAdminDetails = async () => {
+
+  const fetchAdminDetails = async (adminId: string) => {
     try {
-      const res = await api.get(`/superadmin/admins/${id}`);
-      if (res.data.success) {
-        setData(res.data);
+      const res = await fetchSuperAdminDetail(adminId);
+      if (res?.success || res?.data?.success) {
+        setData(res?.data || res);
       }
     } catch (error) {
       console.error("Failed to fetch admin details", error);
@@ -22,6 +26,7 @@ const AdminDetails: React.FC = () => {
       setLoading(false);
     }
   };
+
   if (loading) {
     return <div className="p-8">Loading details...</div>;
   }
@@ -29,6 +34,7 @@ const AdminDetails: React.FC = () => {
     return <div className="p-8 text-red-500">Admin not found.</div>;
   }
   const { admin, plan, teamMembers } = data;
+
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-6">
       <div className="flex items-center space-x-4 mb-6">
@@ -37,7 +43,6 @@ const AdminDetails: React.FC = () => {
         </button>
         <h1 className="text-2xl font-bold text-gray-900">Admin Details</h1>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
           <h2 className="text-lg font-semibold border-b pb-2 mb-4">Profile Information</h2>
