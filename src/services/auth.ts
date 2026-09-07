@@ -95,8 +95,21 @@ export const verifyOtp = async (email: string, otp: string): Promise<any> => {
 };
 
 export const resetPassword = async (email: string, password: string, token?: string): Promise<any> => {
-  const response = await axios.post("/users/reset-password", { email, password, token });
-  return response.data;
+  try {
+    const response = await axios.post("/users/reset-password", { email, password, token });
+    return response.data;
+  } catch (error: any) {
+    const errMsg = error.response?.data?.message || "";
+    if (
+      error.response?.status === 404 ||
+      errMsg.includes("not match") ||
+      errMsg.includes("not found")
+    ) {
+      const adminResponse = await axios.post("/superadmin/reset-password", { email, password, token });
+      return adminResponse.data;
+    }
+    throw error;
+  }
 };
 
 export const updateTeamMemberPassword = async (userId: string, password: string): Promise<any> => {

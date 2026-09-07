@@ -5,7 +5,14 @@ import {
   UpdateNotesTagsPayload,
   UpdateProfilePayload,
   UpdatePasswordPayload,
+  ForgotPasswordPayload,
+  LoginSuperAdminPayload,
 } from "../types/superadmin";
+
+export const loginSuperAdmin = async (payload: LoginSuperAdminPayload) => {
+  const response = await axios.post("/superadmin/login", payload);
+  return response.data;
+}
 
 /**
  * Fetch all admin accounts list
@@ -56,4 +63,16 @@ export const updateSuperAdminProfile = async (payload: UpdateProfilePayload) => 
 export const updateSuperAdminPassword = async (payload: UpdatePasswordPayload) => {
   const response = await axios.put("/superadmin/password", payload);
   return response.data;
+};
+
+export const forgotSuperAdminPassword = async (payload: ForgotPasswordPayload) => {
+  const response: any = await axios.post("/superadmin/forgot-password", payload);
+  return response?.data !== undefined && response?.data !== null ? response.data : response;
+};
+
+export const forgotSuperAdminPasssword = forgotSuperAdminPassword;
+
+export const resetSuperAdminPassword = async (payload: { email: string; password: string; token?: string }) => {
+  const response: any = await axios.post("/superadmin/reset-password", payload);
+  return response?.data !== undefined && response?.data !== null ? response.data : response;
 };

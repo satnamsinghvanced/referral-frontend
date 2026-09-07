@@ -64,3 +64,12 @@ export interface UpdatePasswordPayload {
   currentPassword: string;
   newPassword: string;
 }
+
+export interface ForgotPasswordPayload {
+  email: string;
+}
+
+export interface LoginSuperAdminPayload {
+  email: string;
+  password: string;
+}
