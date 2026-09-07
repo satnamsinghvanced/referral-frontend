@@ -26,6 +26,42 @@ export interface Verify2FAPayload {
   rememberMe: boolean;
 }
 
+export interface RegisterPayload {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  practiceName: string;
+  medicalSpecialty: string;
+  password: string;
+  messageAlert?: boolean;
+  status?: string;
+  payment?: {
+    planId: string;
+    plan: string;
+    billingCycle: string;
+    cardNumber?: string;
+    expire?: string;
+    cvc?: string;
+    method?: string;
+  };
+}
+
+export interface RegisterResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    accessToken?: string;
+    refreshToken?: string;
+    user?: any;
+  };
+}
+
+export const registerUser = async (payload: RegisterPayload): Promise<RegisterResponse> => {
+  const response = await axios.post("/users/register", payload);
+  return response.data;
+};
+
 export const login = async (payload: LoginPayload): Promise<LoginResponse> => {
   const response = await axios.post("/users/login", payload);
   return response.data;

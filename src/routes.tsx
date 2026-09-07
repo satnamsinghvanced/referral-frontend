@@ -75,6 +75,7 @@ const SuperAdminProfilePage = React.lazy(() => import("./pages/superadmin/SuperA
 const SignupPricingView = React.lazy(
   () => import("./pages/auth/SignupPricingView"),
 );
+const SignUp = React.lazy(() => import("./pages/auth/SignUp"));
 const SignIn = React.lazy(() => import("./pages/auth/SignIn"));
 const ResetPassword = React.lazy(() => import("./pages/auth/ResetPassword"));
 const SubscriptionErrorPage = React.lazy(() => import("./pages/auth/SubscriptionErrorPage"));
@@ -398,6 +399,14 @@ function AppRoutes() {
       element: (
         <PublicRoute>
           <SignIn />
+        </PublicRoute>
+      ),
+    },
+    {
+      path: "signup",
+      element: (
+        <PublicRoute>
+          <SignUp />
         </PublicRoute>
       ),
     },

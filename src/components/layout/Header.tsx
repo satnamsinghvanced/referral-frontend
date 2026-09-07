@@ -82,7 +82,6 @@ export default function Header({
         { key: "profile", label: `Signed in as ${user?.email}`, onClick: () => navigate("/settings"), isHeader: true },
         { key: "general", label: "General", onClick: () => navigate("/settings/general") },
       ];
-
     if (hasLocationsPermission) {
       items.push({ key: "locations", label: "Locations", onClick: () => navigate("/settings/locations") });
     }
@@ -92,18 +91,13 @@ export default function Header({
     if (hasBillingPermission) {
       items.push({ key: "billing", label: "Billing", onClick: () => navigate("/settings/billing") });
     }
-
     items.push({ key: "logout", label: "Log Out", onClick: handleLogout, isDanger: true });
-
     return items;
   }, [user?.email, hasLocationsPermission, hasTeamPermission, hasBillingPermission, navigate]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (
-        searchContainerRef.current &&
-        !searchContainerRef.current.contains(event.target as Node)
-      ) {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target as Node)) {
         setIsOpen(false);
       }
     };

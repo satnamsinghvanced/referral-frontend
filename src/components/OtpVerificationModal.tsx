@@ -29,17 +29,7 @@ const maskPhoneForDisplay = (phone: string | undefined): string => {
   return `${localNumber.slice(0, 2)}xxxxxx${localNumber.slice(-2)}`;
 };
 
-export const OtpVerificationModal: React.FC<OtpVerificationModalProps> = ({
-  isOpen,
-  onClose,
-  isLoading,
-  onVerify,
-  onResend,
-  phoneNumber,
-  error,
-  onClearError,
-  title = "Verify OTP",
-}) => {
+export const OtpVerificationModal: React.FC<OtpVerificationModalProps> = ({ isOpen, onClose, isLoading, onVerify, onResend, phoneNumber, error, onClearError, title = "Verify OTP" }) => {
   const [otp, setOtp] = useState("");
   const [countdown, setCountdown] = useState(30);
 

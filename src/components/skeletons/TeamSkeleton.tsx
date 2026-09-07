@@ -6,15 +6,8 @@ interface TeamSkeletonProps {
   count?: number;
 }
 
-const TeamSkeleton: React.FC<TeamSkeletonProps> = ({
-  type = "active",
-  count = 3,
-}) => {
-  const bgClass =
-    type === "pending"
-      ? "bg-yellow-50 border-yellow-200"
-      : "bg-transparent border-foreground/10";
-
+const TeamSkeleton: React.FC<TeamSkeletonProps> = ({ type = "active", count = 3 }) => {
+  const bgClass = type === "pending" ? "bg-yellow-50 border-yellow-200" : "bg-transparent border-foreground/10";
   return (
     <div className="space-y-3">
       {Array.from({ length: count }).map((_, idx) => (

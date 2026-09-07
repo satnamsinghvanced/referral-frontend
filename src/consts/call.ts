@@ -1,20 +1,8 @@
 export const CALL_STATUSES = [
-  {
-    label: "Completed",
-    value: "completed",
-  },
-  {
-    label: "No Answer",
-    value: "no-answer",
-  },
-  {
-    label: "Busy",
-    value: "busy",
-  },
-  {
-    label: "Failed",
-    value: "failed",
-  },
+  { label: "Completed", value: "completed" },
+  { label: "No Answer", value: "no-answer" },
+  { label: "Busy", value: "busy" },
+  { label: "Failed", value: "failed" },
 ];
 
 export const CALL_TYPES = [
