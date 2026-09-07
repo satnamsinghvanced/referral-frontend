@@ -4,11 +4,11 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../../store";
 import { handleLogoutThunk } from "../../../store/authSlice";
 import Logo from "../../../components/ui/Logo";
-import { FiUsers, FiDollarSign, FiPhoneCall, FiLogOut, FiSettings } from "react-icons/fi";
+import { FiUsers, FiDollarSign, FiPhoneCall, FiLogOut, FiSettings, FiBookmark } from "react-icons/fi";
 
 interface SuperAdminSidebarProps {
-  activeTab: "clients" | "plans" | "phonePlans" | "settings";
-  onTabChange?: (tab: "clients" | "plans" | "phonePlans") => void;
+  activeTab: "clients" | "plans" | "phonePlans" | "specialties" | "settings";
+  onTabChange?: (tab: "clients" | "plans" | "phonePlans" | "specialties") => void;
   isLight: boolean;
   isOpenMobile?: boolean;
   onCloseMobile?: () => void;
@@ -52,6 +52,14 @@ const SuperAdminSidebar: React.FC<SuperAdminSidebarProps> = ({
       onTabChange("phonePlans");
     }
     navigate("/admin?tab=phone-plans");
+  };
+
+  const handleSpecialtiesClick = () => {
+    if (onCloseMobile) onCloseMobile();
+    if (onTabChange) {
+      onTabChange("specialties");
+    }
+    navigate("/admin?tab=specialties");
   };
 
   const handleSettingsClick = () => {
@@ -133,6 +141,20 @@ const SuperAdminSidebar: React.FC<SuperAdminSidebarProps> = ({
           >
             <FiPhoneCall className="text-base shrink-0" />
             <span>Phone Service Plans</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleSpecialtiesClick}
+            className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === "specialties"
+              ? "bg-[#20a9f8] text-white shadow-md shadow-[#20a9f8]/20"
+              : isLight
+                ? "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                : "text-slate-300 hover:bg-[#111A2E] hover:text-white"
+              }`}
+          >
+            <FiBookmark className="text-base shrink-0" />
+            <span>Specialties</span>
           </button>
         </div>
       </div>

@@ -18,10 +18,12 @@ export interface Role {
 
 export interface Specialty {
   _id: string;
-  name: string;
+  title?: string;
+  name?: string;
+  description?: string;
   status: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ActivityType {

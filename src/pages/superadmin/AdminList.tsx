@@ -22,23 +22,23 @@ import ClientTable from "./components/ClientTable";
 import ClientDetailsModal from "./components/ClientDetailsModal";
 import PlansFeaturesTab from "./components/PlansFeaturesTab";
 import PhonePlansTab from "./components/PhonePlansTab";
+import SpecialtiesTab from "./components/SpecialtiesTab";
 
 const AdminList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { theme } = useSelector((state: RootState) => state.ui);
   const isLight = theme === "light";
-
   const [searchParams] = useSearchParams();
-  const getTabFromUrl = (param: string | null): "clients" | "plans" | "phonePlans" => {
+  const getTabFromUrl = (
+    param: string | null
+  ): "clients" | "plans" | "phonePlans" | "specialties" => {
     if (param === "plans") return "plans";
     if (param === "phone-plans" || param === "phonePlans") return "phonePlans";
+    if (param === "specialties" || param === "speciality" || param === "specialities") return "specialties";
     return "clients";
   };
 
-  const [activeMainTab, setActiveMainTab] = useState<"clients" | "plans" | "phonePlans">(
-    getTabFromUrl(searchParams.get("tab"))
-  );
-
+  const [activeMainTab, setActiveMainTab] = useState<"clients" | "plans" | "phonePlans" | "specialties">(getTabFromUrl(searchParams.get("tab")));
   useEffect(() => {
     setActiveMainTab(getTabFromUrl(searchParams.get("tab")));
   }, [searchParams]);
@@ -53,11 +53,11 @@ const AdminList: React.FC = () => {
   const [itemsPerPage] = useState(10);
   const [selectedClient, setSelectedClient] = useState<ClientAccount | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-
   const [newTagInput, setNewTagInput] = useState("");
   const [notesInput, setNotesInput] = useState("");
   const [notesSaved, setNotesSaved] = useState(true);
   const [savingNotes, setSavingNotes] = useState(false);
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   useEffect(() => {
     fetchAdmins();
@@ -69,22 +69,13 @@ const AdminList: React.FC = () => {
       const res = await fetchSuperAdminList();
       const responseData = res?.data || res;
       const fetched = Array.isArray(responseData) ? responseData : responseData?.admins || [];
-
       if (Array.isArray(fetched)) {
         const formatted: ClientAccount[] = fetched.map((admin: any, index: number) => {
           const firstLetter = (admin.firstName?.[0] || admin.practiceName?.[0] || "A").toUpperCase();
           const secondLetter = (admin.lastName?.[0] || admin.practiceName?.[1] || "C").toUpperCase();
           const initials = `${firstLetter}${secondLetter}`;
-
           const planStatus = admin.plan?.status;
-          const status = !admin.isActive
-            ? "Suspended"
-            : planStatus === "trial"
-              ? "Trial"
-              : planStatus === "past_due"
-                ? "Past Due"
-                : "Active";
-
+          const status = !admin.isActive ? "Suspended" : planStatus === "trial" ? "Trial" : planStatus === "past_due" ? "Past Due" : "Active";
           let statusSubtext = (admin as any).statusSubtext || "";
           if (status === "Trial") {
             const trialEnd = admin.plan?.trialEndsAt || (admin as any).trialEndsAt;
@@ -98,24 +89,12 @@ const AdminList: React.FC = () => {
             const overdueDays = (admin as any).overdueDays || admin.plan?.overdueDays || 12;
             statusSubtext = `${overdueDays}d overdue`;
           }
-
           const planName = admin.plan?.name || "Growth";
           const email = admin.email || "";
           const phone = admin.mobile || admin.phone || "";
-          const location =
-            admin.city && admin.state
-              ? `${admin.city}, ${admin.state}`
-              : admin.specialty?.name || "Phoenix, AZ";
-          const joinedDate = admin.createdAt
-            ? new Date(admin.createdAt).toLocaleDateString("en-US", {
-              month: "short",
-              day: "numeric",
-              year: "numeric",
-            })
-            : "Recent";
-
+          const location = admin.city && admin.state ? `${admin.city}, ${admin.state}` : admin.specialty?.name || "Phoenix, AZ";
+          const joinedDate = admin.createdAt ? new Date(admin.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", }) : "Recent";
           const lastActiveTime = admin.updatedAt || admin.createdAt || new Date().toISOString();
-
           return {
             id: admin._id || String(index + 1),
             displayClientId: `cli_${String(index + 1).padStart(3, "0")}`,
@@ -169,22 +148,16 @@ const AdminList: React.FC = () => {
         adminId: client.id,
         email: targetEmail,
       });
-
       const accessToken = responsePayload?.accessToken;
       const refreshToken = responsePayload?.refreshToken;
       const impersonatedUser = responsePayload?.user;
-
       if (accessToken) {
-        // Backup current SuperAdmin credentials so we can revert back on exit
         const currentToken = localStorage.getItem("token");
         const currentRefreshToken = localStorage.getItem("refreshToken");
         const currentUser = localStorage.getItem("user");
-
         if (currentToken) localStorage.setItem("admin_token", currentToken);
         if (currentRefreshToken) localStorage.setItem("admin_refreshToken", currentRefreshToken);
         if (currentUser) localStorage.setItem("admin_user", currentUser);
-
-        // Save impersonated client details
         localStorage.setItem(
           "impersonated_client",
           JSON.stringify({
@@ -194,24 +167,20 @@ const AdminList: React.FC = () => {
             email: targetEmail,
           })
         );
-
         localStorage.setItem("token", accessToken);
         if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
         if (impersonatedUser) localStorage.setItem("user", JSON.stringify(impersonatedUser));
-
         dispatch(
           setCredentials({
             user: impersonatedUser,
             token: accessToken,
           } as any)
         );
-
         addToast({
           title: "Impersonation Successful",
           description: `Logged in as ${client.practiceName}`,
           color: "success",
         });
-
         window.location.href = "/";
       } else {
         addToast({
@@ -234,10 +203,7 @@ const AdminList: React.FC = () => {
 
   const [drawerInitialTab, setDrawerInitialTab] = useState<"overview" | "phoneService" | "notes">("overview");
 
-  const handleOpenDrawer = async (
-    client: ClientAccount,
-    initialTab: "overview" | "phoneService" | "notes" = "overview"
-  ) => {
+  const handleOpenDrawer = async (client: ClientAccount, initialTab: "overview" | "phoneService" | "notes" = "overview") => {
     setSelectedClient(client);
     setDrawerInitialTab(initialTab);
     setNotesInput(client.internalNotes || "");
@@ -298,11 +264,7 @@ const AdminList: React.FC = () => {
       });
     } catch (err) {
       console.error("Failed to add tag:", err);
-      addToast({
-        title: "Error",
-        description: "Failed to add tag",
-        color: "danger",
-      });
+      addToast({ title: "Error", description: "Failed to add tag", color: "danger" });
     }
   };
 
@@ -369,13 +331,8 @@ const AdminList: React.FC = () => {
         account.owner.toLowerCase().includes(q) ||
         (account.email && account.email.toLowerCase().includes(q)) ||
         account.location.toLowerCase().includes(q);
-
-      const matchesStatus =
-        statusFilter === "All Statuses" || account.status === statusFilter;
-
-      const matchesPlan =
-        planFilter === "All Plans" || account.plan === planFilter;
-
+      const matchesStatus = statusFilter === "All Statuses" || account.status === statusFilter;
+      const matchesPlan = planFilter === "All Plans" || account.plan === planFilter;
       return matchesSearch && matchesStatus && matchesPlan;
     });
   }, [clientAccounts, searchQuery, statusFilter, planFilter]);
@@ -397,13 +354,11 @@ const AdminList: React.FC = () => {
     return { total, active, trials, atRisk, mrr };
   }, [clientAccounts]);
 
-  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
 
   return (
     <div
-      className={`min-h-screen font-sans flex transition-colors duration-200 selection:bg-blue-600 selection:text-white relative ${
-        isLight ? "bg-[#F8FAFC] text-slate-900" : "bg-[#070C18] text-slate-100"
-      }`}
+      className={`min-h-screen font-sans flex transition-colors duration-200 selection:bg-blue-600 selection:text-white relative ${isLight ? "bg-[#F8FAFC] text-slate-900" : "bg-[#070C18] text-slate-100"
+        }`}
     >
       <SuperAdminSidebar
         activeTab={activeMainTab}
@@ -424,20 +379,20 @@ const AdminList: React.FC = () => {
             <PlansFeaturesTab isLight={isLight} />
           ) : activeMainTab === "phonePlans" ? (
             <PhonePlansTab isLight={isLight} />
+          ) : activeMainTab === "specialties" ? (
+            <SpecialtiesTab isLight={isLight} />
           ) : (
             <>
               <div>
                 <h1
-                  className={`text-2xl sm:text-3xl font-extrabold tracking-tight ${
-                    isLight ? "text-slate-900" : "text-white"
-                  }`}
+                  className={`text-2xl sm:text-3xl font-extrabold tracking-tight ${isLight ? "text-slate-900" : "text-white"
+                    }`}
                 >
                   Client Accounts
                 </h1>
                 <p
-                  className={`text-xs sm:text-sm mt-1 ${
-                    isLight ? "text-slate-500" : "text-slate-400"
-                  }`}
+                  className={`text-xs sm:text-sm mt-1 ${isLight ? "text-slate-500" : "text-slate-400"
+                    }`}
                 >
                   View, manage, and impersonate any client account.
                 </p>
@@ -446,28 +401,25 @@ const AdminList: React.FC = () => {
               <StatsCards stats={stats} isLight={isLight} />
 
               <div
-                className={`flex flex-col sm:flex-row items-center justify-between gap-3 p-2 rounded-xl border ${
-                  isLight
-                    ? "bg-white border-slate-200/90 shadow-sm"
-                    : "bg-[#0F172A]/60 border-[#1E293B]"
-                }`}
+                className={`flex flex-col sm:flex-row items-center justify-between gap-3 p-2 rounded-xl border ${isLight
+                  ? "bg-white border-slate-200/90 shadow-sm"
+                  : "bg-[#0F172A]/60 border-[#1E293B]"
+                  }`}
               >
                 <div className="relative flex-1 w-full">
                   <FiSearch
-                    className={`absolute left-3.5 top-3 text-sm ${
-                      isLight ? "text-slate-400" : "text-slate-400"
-                    }`}
+                    className={`absolute left-3.5 top-3 text-sm ${isLight ? "text-slate-400" : "text-slate-400"
+                      }`}
                   />
                   <input
                     type="text"
                     placeholder="Search practice name, owner, email, city..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className={`w-full text-sm rounded-lg pl-10 pr-4 py-2 focus:outline-none transition-colors ${
-                      isLight
-                        ? "bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:border-blue-600 focus:bg-white"
-                        : "bg-[#111A2E] border border-[#1E2B45] text-slate-200 placeholder-slate-500 focus:border-blue-500"
-                    }`}
+                    className={`w-full text-sm rounded-lg pl-10 pr-4 py-2 focus:outline-none transition-colors ${isLight
+                      ? "bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:border-blue-600 focus:bg-white"
+                      : "bg-[#111A2E] border border-[#1E2B45] text-slate-200 placeholder-slate-500 focus:border-blue-500"
+                      }`}
                   />
                 </div>
 

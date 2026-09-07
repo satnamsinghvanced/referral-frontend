@@ -1,12 +1,43 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Card, CardBody, Input, Select, SelectItem, Checkbox } from "@heroui/react";
 import { FiUser, FiArrowRight, FiEye, FiEyeOff } from "react-icons/fi";
 import { StepYourDetailsProps, MEDICAL_SPECIALTIES } from "./types";
+import { fetchSpecialtiesList } from "../../../services/specialty";
 
 export const StepYourDetails: React.FC<StepYourDetailsProps> = ({ formik }) => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+  const [specialtiesList, setSpecialtiesList] = useState<{ key: string; label: string }[]>([]);
+  const [loadingSpecialties, setLoadingSpecialties] = useState(true);
+
+  useEffect(() => {
+    const loadSpecialties = async () => {
+      try {
+        setLoadingSpecialties(true);
+        const data = await fetchSpecialtiesList();
+        if (Array.isArray(data) && data.length > 0) {
+          const activeOnly = data.filter((s: any) => s.status !== "inactive");
+          if (activeOnly.length > 0) {
+            setSpecialtiesList(
+              activeOnly.map((s: any) => ({
+                key: s.title || s.name,
+                label: s.title || s.name,
+              }))
+            );
+            return;
+          }
+        }
+        setSpecialtiesList(MEDICAL_SPECIALTIES);
+      } catch (err) {
+        console.error("Failed to fetch specialties for signup:", err);
+        setSpecialtiesList(MEDICAL_SPECIALTIES);
+      } finally {
+        setLoadingSpecialties(false);
+      }
+    };
+    loadSpecialties();
+  }, []);
 
   return (
     <div className="w-full max-w-2xl">
@@ -141,7 +172,8 @@ export const StepYourDetails: React.FC<StepYourDetailsProps> = ({ formik }) => {
                     const val = Array.from(keys)[0] as string;
                     formik.setFieldValue("medicalSpecialty", val);
                   }}
-                  placeholder="Select your specialty"
+                  placeholder={loadingSpecialties ? "Loading specialties..." : "Select your specialty"}
+                  isLoading={loadingSpecialties}
                   variant="bordered"
                   aria-label="Select Specialty"
                   isInvalid={!!(formik.touched.medicalSpecialty && formik.errors.medicalSpecialty)}
@@ -149,7 +181,7 @@ export const StepYourDetails: React.FC<StepYourDetailsProps> = ({ formik }) => {
                     trigger: "border border-slate-300 dark:border-slate-700 bg-transparent h-11 min-h-11 rounded-xl",
                   }}
                 >
-                  {MEDICAL_SPECIALTIES.map((sp) => (
+                  {specialtiesList.map((sp) => (
                     <SelectItem key={sp.key} textValue={sp.label}>
                       {sp.label}
                     </SelectItem>
