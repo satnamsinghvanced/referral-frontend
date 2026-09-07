@@ -18,6 +18,8 @@ import { useLogin, useVerify2FA } from "../../hooks/useAuth";
 import { EMAIL_REGEX, PASSWORD_REGEX } from "../../consts/consts";
 import { setCredentials } from "../../store/authSlice";
 import { OtpVerificationModal } from "../../components/OtpVerificationModal";
+import AuthThemeToggle from "../../components/common/AuthThemeToggle";
+import { useTypedSelector } from "../../hooks/useTypedSelector";
 
 interface FormData {
   email: string;
@@ -26,6 +28,7 @@ interface FormData {
 }
 
 const SignIn = () => {
+  const theme = useTypedSelector((state) => state.ui.theme);
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
   const navigate = useNavigate();
@@ -148,7 +151,12 @@ const SignIn = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-950 dark:to-background flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-950 dark:to-background flex flex-col items-center justify-center p-4 relative">
+      {/* Top Right Theme Toggle */}
+      <div className="absolute top-4 right-4">
+        <AuthThemeToggle />
+      </div>
+
       <Card className="w-full max-w-md shadow-xl border border-foreground/10 bg-content1 backdrop-blur-xl">
         <CardBody className="p-6 sm:p-8">
           <div className="text-center mb-8">

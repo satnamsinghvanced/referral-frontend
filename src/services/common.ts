@@ -1,9 +1,13 @@
 import { ActivityType, Permission, Role, Specialty } from "../types/common";
 import axios from "./axios";
+import { fetchSpecialtiesList } from "./specialty";
 
 export const fetchSpecialties = async (): Promise<Specialty[]> => {
-  const response = await axios.get("/practice");
-  return response.data;
+  const items = await fetchSpecialtiesList();
+  return items.map((item) => ({
+    ...item,
+    name: item.title,
+  }));
 };
 
 export const fetchRoles = async (): Promise<Role[]> => {

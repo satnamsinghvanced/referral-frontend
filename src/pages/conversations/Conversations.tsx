@@ -667,7 +667,7 @@ const Conversations = () => {
         const platformLabel = isInstagram ? "Instagram" : isFacebook ? "Facebook" : "Web widget";
         addToast({
           title: "Error Sending Message",
-          description: err.message || `Could not deliver message to ${platformLabel}.`,
+          description: `This message is being sent outside the allowed window.`,
           color: "danger",
         });
         setConversations((prev) =>

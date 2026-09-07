@@ -1,76 +1,30 @@
 export const CAMPAIGN_STATUSES = [
-  {
-    label: "Scheduled",
-    value: "scheduled",
-  },
-  {
-    label: "Paused",
-    value: "paused",
-  },
-  {
-    label: "Draft",
-    value: "draft",
-  },
-  {
-    label: "Active",
-    value: "active",
-  },
-  {
-    label: "Sent",
-    value: "sent",
-  },
-  {
-    label: "Completed",
-    value: "completed",
-  },
-  {
-    label: "Archived",
-    value: "archived",
-  },
+  { label: "Scheduled", value: "scheduled" },
+  { label: "Paused", value: "paused" },
+  { label: "Draft", value: "draft" },
+  { label: "Active", value: "active" },
+  { label: "Sent", value: "sent" },
+  { label: "Completed", value: "completed" },
+  { label: "Archived", value: "archived" },
 ];
 
 export const CAMPAIGN_CATEGORIES = [
-  {
-    label: "Referral Outreach",
-    value: "referralOutreach",
-  },
-  {
-    label: "Patient Follow-up",
-    value: "patientFollowUp",
-  },
-  {
-    label: "Newsletters",
-    value: "newsletters",
-  },
-  {
-    label: "Announcements",
-    value: "announcements",
-  },
-  {
-    label: "Onboarding",
-    value: "onboarding",
-  },
+  { label: "Referral Outreach", value: "referralOutreach" },
+  { label: "Patient Follow-up", value: "patientFollowUp" },
+  { label: "Newsletters", value: "newsletters" },
+  { label: "Announcements", value: "announcements" },
+  { label: "Onboarding", value: "onboarding" },
 ];
 
 export const CAMPAIGN_TYPES = [
   { value: "oneTimeEmail", label: "One-time Email" },
   { value: "automatedSequence", label: "Automation Series" },
-  // { value: "newsletter", label: "Newsletter" },
 ];
 
 export const FLOW_STATUSES = [
-  {
-    label: "Active",
-    value: "active",
-  },
-  {
-    label: "Paused",
-    value: "inActive",
-  },
-  {
-    label: "Draft",
-    value: "draft",
-  },
+  { label: "Active", value: "active" },
+  { label: "Paused", value: "inActive" },
+  { label: "Draft", value: "draft" },
 ];
 
 export const FLOW_CATEGORIES = [
@@ -80,37 +34,16 @@ export const FLOW_CATEGORIES = [
 ];
 
 export const AUDIENCE_SEGMENT_STATUSES = [
-  {
-    label: "Active",
-    value: "active",
-  },
-  {
-    label: "Inactive",
-    value: "inactive",
-  },
+  { label: "Active", value: "active" },
+  { label: "Inactive", value: "inactive" },
 ];
 
 export const AUDIENCE_TYPES = [
-  {
-    label: "New Practices",
-    value: "newPractices",
-  },
-  {
-    label: "Inactive Practices",
-    value: "inactivePractices",
-  },
-  {
-    label: "Recent Referrers",
-    value: "recentReferrers",
-  },
-  {
-    label: "A-Level Partners",
-    value: "aLevelPartners",
-  },
-  {
-    label: "All Dental Practices",
-    value: "allDentalPractices",
-  },
+  { label: "New Practices", value: "newPractices" },
+  { label: "Inactive Practices", value: "inactivePractices" },
+  { label: "Recent Referrers", value: "recentReferrers" },
+  { label: "A-Level Partners", value: "aLevelPartners" },
+  { label: "All Dental Practices", value: "allDentalPractices" },
 ];
 
 export const PRACTICE_SIZES = [

@@ -19,27 +19,11 @@ export const urgencyOptions = [
   { key: "low", label: "Low" },
 ];
 
-export const CATEGORY_OPTIONS: {
-  _id: string;
-  title: string;
-  shortTitle: string;
-}[] = [
-  {
-    _id: "A-Level",
-    title: "A-Level (High Value Partner)",
-    shortTitle: "A-Level",
-  },
+export const CATEGORY_OPTIONS: { _id: string; title: string; shortTitle: string; }[] = [
+  { _id: "A-Level", title: "A-Level (High Value Partner)", shortTitle: "A-Level" },
   { _id: "B-Level", title: "B-Level (Regular Partner)", shortTitle: "B-Level" },
-  {
-    _id: "C-Level",
-    title: "C-Level (Occasional Partner)",
-    shortTitle: "C-Level",
-  },
-  {
-    _id: "Other/Prospect",
-    title: "Other/Prospect",
-    shortTitle: "Other/Prospect",
-  },
+  { _id: "C-Level", title: "C-Level (Occasional Partner)", shortTitle: "C-Level" },
+  { _id: "Other/Prospect", title: "Other/Prospect", shortTitle: "Other/Prospect" },
 ];
 
 export const PARTNER_FILTERS = [
@@ -58,7 +42,6 @@ export const PARTNER_SORT_OPTIONS = [
   { label: "Notes Count", value: "notesCount" },
   { label: "Tasks Count", value: "tasksCount" },
   { label: "Referrals", value: "totalReferrals" },
-  // { label: "Last Contact", value: "lastContact" },
 ];
 
 export const TASK_STATUS_OPTIONS = [

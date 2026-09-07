@@ -41,16 +41,13 @@ const Layout = () => {
     const adminToken = localStorage.getItem("admin_token");
     const adminRefreshToken = localStorage.getItem("admin_refreshToken");
     const adminUserStr = localStorage.getItem("admin_user");
-
     if (adminToken) localStorage.setItem("token", adminToken);
     if (adminRefreshToken) localStorage.setItem("refreshToken", adminRefreshToken);
     if (adminUserStr) localStorage.setItem("user", adminUserStr);
-
     localStorage.removeItem("impersonated_client");
     localStorage.removeItem("admin_token");
     localStorage.removeItem("admin_refreshToken");
     localStorage.removeItem("admin_user");
-
     if (adminUserStr && adminToken) {
       try {
         const adminUser = JSON.parse(adminUserStr);
@@ -59,13 +56,11 @@ const Layout = () => {
         console.error("Error restoring admin user:", e);
       }
     }
-
     window.location.href = "/admin";
   };
 
   const { data: billingData, isLoading: isBillingLoading } = useBilling();
   const { isLoading: isPermissionsLoading } = useRolePermissions();
-
   const isInitialLoading = (isBillingLoading && !billingData) || isPermissionsLoading;
 
   const getInitialMini = () => {
@@ -131,7 +126,6 @@ const Layout = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Impersonation Banner */}
       {isImpersonating && (
         <div className="w-full bg-[#f59e0b] dark:bg-[#d97706] text-white px-4 py-2 flex items-center justify-between z-[100] shadow-md border-b border-amber-600/40 text-xs font-semibold shrink-0">
           <div className="flex items-center gap-2">
@@ -145,7 +139,6 @@ const Layout = () => {
               ADMIN VIEW
             </span>
           </div>
-
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -185,9 +178,8 @@ const Layout = () => {
         />
         <main
           id="main"
-          className={`main !z-10 flex-grow-1 transition-all ease-in-out duration-300 bg-foreground/3 dark:bg-[#0b0e11] overflow-auto ${
-            isImpersonating ? "h-[calc(100vh-98px)] md:h-[calc(100vh-104px)]" : "h-[calc(100vh-58px)] md:h-[calc(100vh-64px)]"
-          }`}
+          className={`main !z-10 flex-grow-1 transition-all ease-in-out duration-300 bg-foreground/3 dark:bg-[#0b0e11] overflow-auto ${isImpersonating ? "h-[calc(100vh-98px)] md:h-[calc(100vh-104px)]" : "h-[calc(100vh-58px)] md:h-[calc(100vh-64px)]"
+            }`}
         >
           <Outlet />
         </main>

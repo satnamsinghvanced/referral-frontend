@@ -1,11 +1,10 @@
-import { HiOutlineChartBar, HiOutlineChevronLeft, HiOutlineCog, HiOutlineLightningBolt, HiOutlineMail, HiOutlinePhone, HiOutlineStar, HiOutlineChat } from "react-icons/hi";
+import { HiOutlineChartBar, HiOutlineChevronLeft, HiOutlineCog, HiOutlineLightningBolt, HiOutlineMail, HiOutlinePhone, HiOutlineStar } from "react-icons/hi";
 import { useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { subscribeToEvent, unsubscribeFromEvent } from "../../services/sse";
-import { Link, NavLink, useLocation, useNavigate } from "react-router";
+import { Link, NavLink, useLocation } from "react-router";
 import { Tooltip } from "@heroui/react";
 import { LuBuilding2, LuCalendar, LuDollarSign, LuMessageSquare, LuQrCode, LuTarget, LuUsers, LuVideo } from "react-icons/lu";
-
 import { FiFileText, FiHome } from "react-icons/fi";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import clsx from "clsx";
@@ -36,31 +35,22 @@ interface NavigationRoute {
   requiredPlanAccess?: string | undefined;
 }
 
-const Sidebar = ({
-  isMiniSidebarOpen,
-  toggleSidebar,
-  onCloseSidebar,
-}: SidebarProps) => {
-  const navigate = useNavigate();
+const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarProps) => {
   const { pathname } = useLocation();
   const { data: dashboardStats } = useDashboardStats();
-  const { data: billingData, isLoading: isBillingLoading } = useBilling();
+  const { data: billingData } = useBilling();
   const planAccess = billingData?.access;
-  const { hasPermission, hasAnyPermission, isAdmin, isLoading } =
-    useRolePermissions();
+  const { hasPermission, hasAnyPermission, isAdmin, isLoading } = useRolePermissions();
   const user = useSelector((state: RootState) => state.auth.user);
   const isSuperAdmin = user?.role === "SuperAdmin";
-
   const queryClient = useQueryClient();
 
   useEffect(() => {
     const handleNewMessage = () => {
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     };
-
     subscribeToEvent("new_message", handleNewMessage);
     subscribeToEvent("new_web_message", handleNewMessage);
-
     return () => {
       unsubscribeFromEvent("new_message", handleNewMessage);
       unsubscribeFromEvent("new_web_message", handleNewMessage);
@@ -258,13 +248,7 @@ const Sidebar = ({
     return hasPermission(route.requiredPermission);
   });
 
-  const handleNavigate = (href: string) => {
-    navigate(href);
-    if (typeof onCloseSidebar === "function") onCloseSidebar();
-  };
-
   const isImpersonating = !!localStorage.getItem("impersonated_client");
-
   return (
     <>
       <div
@@ -396,51 +380,6 @@ const Sidebar = ({
               );
             })}
           </ul>
-          {/* bottom items */}
-          {/* <ul className="space-y-1 p-3">
-            {bottomRoutes.map((item, idx) => {
-              const Icon = item.icon;
-              const isSignOut = item.name.toLowerCase().includes("sign");
-
-              return (
-                <li key={idx}>
-                  <NavLink
-                    to={item.href}
-                    className={({ isActive }) =>
-                      clsx(
-                        "border cursor-pointer rounded-lg transition-all group flex items-center py-2 h-9 dark:hover:bg-[#0f1214]",
-                        isMiniSidebarOpen
-                          ? "px-3 justify-start"
-                          : "px-3 justify-center",
-                        isActive
-                          ? "!bg-sky-50 !text-sky-700 !border-sky-200 dark:!bg-background dark:!border-sky-50 shadow-sm"
-                          : "hover:bg-gray-100 border-transparent",
-                        isSignOut && "block md:hidden"
-                      )
-                    }
-                  >
-                    {({ isActive }) => (
-                      <>
-                        <span
-                          className={clsx(
-                            "flex items-center justify-center",
-                            isActive ? "text-current" : "text-gray-500 "
-                          )}
-                        >
-                          <Icon />
-                        </span>
-                        {isMiniSidebarOpen && (
-                          <span className="ml-2 truncate text-xs">
-                            {item.name}
-                          </span>
-                        )}
-                      </>
-                    )}
-                  </NavLink>
-                </li>
-              );
-            })}
-          </ul> */}
         </div>
       </aside>
     </>
