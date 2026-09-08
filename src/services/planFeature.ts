@@ -35,7 +35,7 @@ export interface PlanData {
 }
 
 export const fetchPlansAndFeatures = async () => {
-  const response = await axios.get("/superadmin/plans-features");
+  const response = await axios.get("/plans");
   return response.data;
 };
 

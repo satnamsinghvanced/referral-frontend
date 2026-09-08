@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useFormik } from "formik";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { FiSun, FiMoon, FiArrowLeft, FiMail, FiCheckCircle } from "react-icons/fi";
@@ -18,6 +18,7 @@ interface FormData {
 const SuperAdminSignIn = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const lastSwitchTimeRef = useRef<number>(0);
 
   const reduxTheme = useSelector((state: RootState) => state.ui?.theme);
   const storedTheme = localStorage.getItem("theme");
@@ -53,6 +54,10 @@ const SuperAdminSignIn = () => {
       password: Yup.string().required("Password is required"),
     }),
     onSubmit: async (values) => {
+      // Guard against ghost clicks when switching views
+      if (Date.now() - lastSwitchTimeRef.current < 400) {
+        return;
+      }
       setLoading(true);
       setErrorMsg("");
       try {
@@ -77,8 +82,8 @@ const SuperAdminSignIn = () => {
       } catch (error: any) {
         setErrorMsg(
           error.response?.data?.message ||
-            error.message ||
-            "Invalid email or password"
+          error.message ||
+          "Invalid email or password"
         );
       } finally {
         setLoading(false);
@@ -110,8 +115,8 @@ const SuperAdminSignIn = () => {
     } catch (error: any) {
       setForgotErrorMsg(
         error.response?.data?.message ||
-          error.message ||
-          "Failed to send password reset link. Please try again."
+        error.message ||
+        "Failed to send password reset link. Please try again."
       );
     } finally {
       setForgotLoading(false);
@@ -119,6 +124,7 @@ const SuperAdminSignIn = () => {
   };
 
   const switchToForgot = () => {
+    lastSwitchTimeRef.current = Date.now();
     setForgotEmail(formik.values.email || "");
     setForgotErrorMsg("");
     setForgotSuccessMsg("");
@@ -127,27 +133,30 @@ const SuperAdminSignIn = () => {
   };
 
   const switchToSignIn = () => {
+    lastSwitchTimeRef.current = Date.now();
     setForgotErrorMsg("");
     setForgotSuccessMsg("");
     setErrorMsg("");
+    formik.setFieldValue("password", "");
+    if (forgotEmail) {
+      formik.setFieldValue("email", forgotEmail.trim());
+    }
     setView("signin");
   };
 
   return (
     <div
-      className={`min-h-screen flex flex-col items-center justify-center p-4 font-sans selection:bg-blue-500 selection:text-white transition-colors duration-300 relative ${
-        isDark ? "bg-[#070C18] text-slate-100" : "bg-[#F8FAFC] text-slate-900"
-      }`}
+      className={`min-h-screen flex flex-col items-center justify-center p-4 font-sans selection:bg-blue-500 selection:text-white transition-colors duration-300 relative ${isDark ? "bg-[#070C18] text-slate-100" : "bg-[#F8FAFC] text-slate-900"
+        }`}
     >
       {/* Theme Toggle Button at top right */}
       <button
         type="button"
         onClick={handleToggleTheme}
-        className={`absolute top-5 right-5 p-2.5 rounded-xl border transition-all cursor-pointer shadow-sm flex items-center gap-2 text-xs font-bold ${
-          isDark
+        className={`absolute top-5 right-5 p-2.5 rounded-xl border transition-all cursor-pointer shadow-sm flex items-center gap-2 text-xs font-bold ${isDark
             ? "bg-[#111A2E] border-[#1E2B45] text-amber-400 hover:bg-[#1A2642]"
             : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
-        }`}
+          }`}
         title="Toggle Light/Dark Theme"
       >
         {isDark ? (
@@ -165,14 +174,13 @@ const SuperAdminSignIn = () => {
 
       {/* Card Container */}
       <div
-        className={`w-full max-w-md border rounded-2xl shadow-xl p-6 sm:p-8 space-y-6 transition-colors duration-300 ${
-          isDark
+        className={`w-full max-w-md border rounded-2xl shadow-xl p-6 sm:p-8 space-y-6 transition-colors duration-300 ${isDark
             ? "bg-[#111A2E] border-[#1E2B45] text-white shadow-black/60"
             : "bg-white border-slate-200/90 text-slate-900 shadow-slate-200/60"
-        }`}
+          }`}
       >
         {view === "signin" ? (
-          <>
+          <div key="signin-view" className="space-y-6">
             <div className="flex flex-col items-center text-center">
               {/* Icon Logo inside box on top */}
               <div className="mb-3">
@@ -191,7 +199,7 @@ const SuperAdminSignIn = () => {
               </p>
             </div>
 
-            <form onSubmit={formik.handleSubmit} className="space-y-4">
+            <form key="signin-form" onSubmit={formik.handleSubmit} className="space-y-4">
               <div>
                 <label className={`block text-xs font-semibold mb-1.5 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                   Email Address
@@ -200,11 +208,10 @@ const SuperAdminSignIn = () => {
                   name="email"
                   type="email"
                   placeholder="admin@practiceroi.com"
-                  className={`w-full text-sm rounded-xl px-3.5 py-2.5 focus:outline-none transition-all ${
-                    isDark
+                  className={`w-full text-sm rounded-xl px-3.5 py-2.5 focus:outline-none transition-all ${isDark
                       ? "bg-[#070C18] border border-[#1E2B45] text-white placeholder-slate-500 focus:bg-[#070C18] focus:border-[#20a9f8] focus:ring-2 focus:ring-[#20a9f8]/20"
                       : "bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
-                  }`}
+                    }`}
                   value={formik.values.email}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
@@ -219,18 +226,16 @@ const SuperAdminSignIn = () => {
                   <label className={`block text-xs font-semibold ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                     Password
                   </label>
-                
                 </div>
                 <div className="relative">
                   <input
                     name="password"
                     type={isVisible ? "text" : "password"}
                     placeholder="••••••••••••"
-                    className={`w-full text-sm rounded-xl pl-3.5 pr-10 py-2.5 focus:outline-none transition-all ${
-                      isDark
+                    className={`w-full text-sm rounded-xl pl-3.5 pr-10 py-2.5 focus:outline-none transition-all ${isDark
                         ? "bg-[#070C18] border border-[#1E2B45] text-white placeholder-slate-500 focus:bg-[#070C18] focus:border-[#20a9f8] focus:ring-2 focus:ring-[#20a9f8]/20"
                         : "bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
-                    }`}
+                      }`}
                     value={formik.values.password}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -238,9 +243,8 @@ const SuperAdminSignIn = () => {
                   <button
                     type="button"
                     onClick={toggleVisibility}
-                    className={`absolute right-3 top-3 cursor-pointer transition-colors ${
-                      isDark ? "text-slate-400 hover:text-slate-200" : "text-slate-400 hover:text-slate-600"
-                    }`}
+                    className={`absolute right-3 top-3 cursor-pointer transition-colors ${isDark ? "text-slate-400 hover:text-slate-200" : "text-slate-400 hover:text-slate-600"
+                      }`}
                   >
                     {isVisible ? <FaEyeSlash /> : <FaEye />}
                   </button>
@@ -251,22 +255,21 @@ const SuperAdminSignIn = () => {
               </div>
 
               {errorMsg && (
-                <div className={`p-3 rounded-xl text-xs text-center font-medium ${
-                  isDark
+                <div className={`p-3 rounded-xl text-xs text-center font-medium ${isDark
                     ? "bg-red-950/40 border border-red-800/50 text-red-300"
                     : "bg-red-50 border border-red-200 text-red-600"
-                }`}>
+                  }`}>
                   {errorMsg}
                 </div>
               )}
               <div className="flex items-center justify-end mb-1.5">
-                  <button
-                    type="button"
-                    onClick={switchToForgot}
-                    className="text-xs font-medium text-[#20a9f8] hover:underline cursor-pointer"
-                  >
-                    Forgot password?
-                  </button>
+                <button
+                  type="button"
+                  onClick={switchToForgot}
+                  className="text-xs font-medium text-[#20a9f8] hover:underline cursor-pointer"
+                >
+                  Forgot password?
+                </button>
               </div>
               <button
                 type="submit"
@@ -277,9 +280,9 @@ const SuperAdminSignIn = () => {
                 {loading ? "Signing In..." : "Sign In"}
               </button>
             </form>
-          </>
+          </div>
         ) : (
-          <>
+          <div key="forgot-view" className="space-y-6">
             <div className="flex flex-col items-center text-center">
               <div className="mb-3">
                 <img
@@ -296,7 +299,7 @@ const SuperAdminSignIn = () => {
               </p>
             </div>
 
-            <form onSubmit={handleForgotPasswordSubmit} className="space-y-4">
+            <form key="forgot-form" onSubmit={handleForgotPasswordSubmit} className="space-y-4">
               <div>
                 <label className={`block text-xs font-semibold mb-1.5 ${isDark ? "text-slate-300" : "text-slate-700"}`}>
                   Email Address
@@ -307,32 +310,29 @@ const SuperAdminSignIn = () => {
                     placeholder="admin@practiceroi.com"
                     value={forgotEmail}
                     onChange={(e) => setForgotEmail(e.target.value)}
-                    className={`w-full text-sm rounded-xl pl-3.5 pr-10 py-2.5 focus:outline-none transition-all ${
-                      isDark
+                    className={`w-full text-sm rounded-xl pl-3.5 pr-10 py-2.5 focus:outline-none transition-all ${isDark
                         ? "bg-[#070C18] border border-[#1E2B45] text-white placeholder-slate-500 focus:bg-[#070C18] focus:border-[#20a9f8] focus:ring-2 focus:ring-[#20a9f8]/20"
                         : "bg-slate-50 border border-slate-300 text-slate-900 placeholder-slate-400 focus:bg-white focus:border-blue-600 focus:ring-2 focus:ring-blue-100"
-                    }`}
+                      }`}
                   />
                   <FiMail className={`absolute right-3 top-3.5 text-sm ${isDark ? "text-slate-400" : "text-slate-500"}`} />
                 </div>
               </div>
 
               {forgotErrorMsg && (
-                <div className={`p-3 rounded-xl text-xs text-center font-medium ${
-                  isDark
+                <div className={`p-3 rounded-xl text-xs text-center font-medium ${isDark
                     ? "bg-red-950/40 border border-red-800/50 text-red-300"
                     : "bg-red-50 border border-red-200 text-red-600"
-                }`}>
+                  }`}>
                   {forgotErrorMsg}
                 </div>
               )}
 
               {forgotSuccessMsg && (
-                <div className={`p-3 rounded-xl text-xs font-medium flex items-start gap-2 ${
-                  isDark
+                <div className={`p-3 rounded-xl text-xs font-medium flex items-start gap-2 ${isDark
                     ? "bg-emerald-950/40 border border-emerald-800/50 text-emerald-300"
                     : "bg-emerald-50 border border-emerald-200 text-emerald-700"
-                }`}>
+                  }`}>
                   <FiCheckCircle className="text-emerald-500 text-base shrink-0 mt-0.5" />
                   <span>{forgotSuccessMsg}</span>
                 </div>
@@ -346,21 +346,25 @@ const SuperAdminSignIn = () => {
               >
                 {forgotLoading ? "Sending Link..." : "Send Reset Link"}
               </button>
-
-              <button
-                type="button"
-                onClick={switchToSignIn}
-                className={`w-full py-2.5 px-4 text-xs font-semibold rounded-xl flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${
-                  isDark
-                    ? "text-slate-400 hover:text-white hover:bg-[#1E2B45]/40"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-                }`}
-              >
-                <FiArrowLeft className="text-sm" />
-                Back to Sign In
-              </button>
             </form>
-          </>
+
+            <button
+              type="button"
+              key="back-to-signin-btn"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                switchToSignIn();
+              }}
+              className={`w-full py-2.5 px-4 text-xs font-semibold rounded-xl flex items-center justify-center gap-1.5 transition-colors cursor-pointer ${isDark
+                  ? "text-slate-400 hover:text-white hover:bg-[#1E2B45]/40"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                }`}
+            >
+              <FiArrowLeft className="text-sm" />
+              Back to Sign In
+            </button>
+          </div>
         )}
       </div>
     </div>

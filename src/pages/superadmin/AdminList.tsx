@@ -23,6 +23,7 @@ import ClientDetailsModal from "./components/ClientDetailsModal";
 import PlansFeaturesTab from "./components/PlansFeaturesTab";
 import PhonePlansTab from "./components/PhonePlansTab";
 import SpecialtiesTab from "./components/SpecialtiesTab";
+import DiscountCouponsTab from "./components/DiscountCouponsTab";
 
 const AdminList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -31,14 +32,15 @@ const AdminList: React.FC = () => {
   const [searchParams] = useSearchParams();
   const getTabFromUrl = (
     param: string | null
-  ): "clients" | "plans" | "phonePlans" | "specialties" => {
+  ): "clients" | "plans" | "phonePlans" | "specialties" | "discountCoupons" => {
     if (param === "plans") return "plans";
     if (param === "phone-plans" || param === "phonePlans") return "phonePlans";
     if (param === "specialties" || param === "speciality" || param === "specialities") return "specialties";
+    if (param === "discount-coupons" || param === "discountCoupons" || param === "coupons") return "discountCoupons";
     return "clients";
   };
 
-  const [activeMainTab, setActiveMainTab] = useState<"clients" | "plans" | "phonePlans" | "specialties">(getTabFromUrl(searchParams.get("tab")));
+  const [activeMainTab, setActiveMainTab] = useState<"clients" | "plans" | "phonePlans" | "specialties" | "discountCoupons">(getTabFromUrl(searchParams.get("tab")));
   useEffect(() => {
     setActiveMainTab(getTabFromUrl(searchParams.get("tab")));
   }, [searchParams]);
@@ -381,6 +383,8 @@ const AdminList: React.FC = () => {
             <PhonePlansTab isLight={isLight} />
           ) : activeMainTab === "specialties" ? (
             <SpecialtiesTab isLight={isLight} />
+          ) : activeMainTab === "discountCoupons" ? (
+            <DiscountCouponsTab isLight={isLight} />
           ) : (
             <>
               <div>

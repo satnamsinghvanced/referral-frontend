@@ -31,7 +31,7 @@ const SpecialtiesTab: React.FC<SpecialtiesTabProps> = ({ isLight }) => {
   const [saving, setSaving] = useState<boolean>(false);
   const [deleting, setDeleting] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [statusFilter, setStatusFilter] = useState<string>("Active");
+  const [statusFilter, setStatusFilter] = useState<string>("All");
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [itemsPerPage] = useState<number>(10);
   const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
@@ -235,7 +235,9 @@ const SpecialtiesTab: React.FC<SpecialtiesTabProps> = ({ isLight }) => {
         (item.description && item.description.toLowerCase().includes(q));
 
       const matchesStatus =
-        (item.status || "active").toLowerCase() === statusFilter.toLowerCase();
+        statusFilter === "All" || statusFilter === "All Statuses" || !statusFilter
+          ? true
+          : (item.status || "active").toLowerCase() === statusFilter.toLowerCase();
       return matchesSearch && matchesStatus;
     });
     return [...filtered].sort((a, b) => {
@@ -288,8 +290,13 @@ const SpecialtiesTab: React.FC<SpecialtiesTabProps> = ({ isLight }) => {
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div
-          className={`p-4 rounded-2xl border flex items-center justify-between transition-all ${isLight ? "bg-white border-slate-200/90 shadow-sm" : "bg-[#0F172A] border-[#1E293B]"
-            }`}
+          onClick={() => {
+            setStatusFilter("All");
+            setCurrentPage(1);
+          }}
+          className={`p-4 rounded-2xl border flex items-center justify-between transition-all cursor-pointer hover:border-[#20a9f8]/50 ${
+            statusFilter === "All" ? "ring-2 ring-[#20a9f8]/40 border-[#20a9f8]" : ""
+          } ${isLight ? "bg-white border-slate-200/90 shadow-sm" : "bg-[#0F172A] border-[#1E293B]"}`}
         >
           <div>
             <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Specialties</p>
@@ -302,8 +309,13 @@ const SpecialtiesTab: React.FC<SpecialtiesTabProps> = ({ isLight }) => {
           </div>
         </div>
         <div
-          className={`p-4 rounded-2xl border flex items-center justify-between transition-all ${isLight ? "bg-white border-slate-200/90 shadow-sm" : "bg-[#0F172A] border-[#1E293B]"
-            }`}
+          onClick={() => {
+            setStatusFilter("Active");
+            setCurrentPage(1);
+          }}
+          className={`p-4 rounded-2xl border flex items-center justify-between transition-all cursor-pointer hover:border-emerald-500/50 ${
+            statusFilter === "Active" ? "ring-2 ring-emerald-500/40 border-emerald-500" : ""
+          } ${isLight ? "bg-white border-slate-200/90 shadow-sm" : "bg-[#0F172A] border-[#1E293B]"}`}
         >
           <div>
             <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-500">Active Specialties</p>
@@ -316,8 +328,13 @@ const SpecialtiesTab: React.FC<SpecialtiesTabProps> = ({ isLight }) => {
           </div>
         </div>
         <div
-          className={`p-4 rounded-2xl border flex items-center justify-between transition-all ${isLight ? "bg-white border-slate-200/90 shadow-sm" : "bg-[#0F172A] border-[#1E293B]"
-            }`}
+          onClick={() => {
+            setStatusFilter("Inactive");
+            setCurrentPage(1);
+          }}
+          className={`p-4 rounded-2xl border flex items-center justify-between transition-all cursor-pointer hover:border-amber-500/50 ${
+            statusFilter === "Inactive" ? "ring-2 ring-amber-500/40 border-amber-500" : ""
+          } ${isLight ? "bg-white border-slate-200/90 shadow-sm" : "bg-[#0F172A] border-[#1E293B]"}`}
         >
           <div>
             <p className="text-[11px] font-bold uppercase tracking-wider text-amber-500">Inactive Specialties</p>
@@ -354,7 +371,7 @@ const SpecialtiesTab: React.FC<SpecialtiesTabProps> = ({ isLight }) => {
         <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
           <CustomSelect
             value={statusFilter}
-            options={["Active", "Inactive"]}
+            options={["All", "Active", "Inactive"]}
             onChange={(val) => {
               setStatusFilter(val);
               setCurrentPage(1);
@@ -377,7 +394,7 @@ const SpecialtiesTab: React.FC<SpecialtiesTabProps> = ({ isLight }) => {
               No Specialties Found
             </h3>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 max-w-sm mx-auto font-medium">
-              {searchQuery || statusFilter
+              {searchQuery || (statusFilter && statusFilter !== "All")
                 ? `No ${statusFilter.toLowerCase()} specialties match your search filter criteria.`
                 : "There are currently no practice specialties in the database. Click below to add one."}
             </p>

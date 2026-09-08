@@ -33,20 +33,16 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
   const [plans, setPlans] = useState<PlanData[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Cycle toggle: "monthly" | "yearly" (Default: "monthly")
   const [activeCycle, setActiveCycle] = useState<"monthly" | "yearly">("monthly");
 
-  // Inline feature input per plan: { [planId]: string }
   const [inlineFeatureInputs, setInlineFeatureInputs] = useState<Record<string, string>>({});
 
-  // Inline feature editing state: { planId: string, featureId: string, name: string } | null
   const [editingFeatureItem, setEditingFeatureItem] = useState<{
     planId: string;
     featureId: string;
     name: string;
   } | null>(null);
 
-  // Plan Modal state
   const [isPlanModalOpen, setIsPlanModalOpen] = useState(false);
   const [editingPlan, setEditingPlan] = useState<PlanData | null>(null);
   const [planForm, setPlanForm] = useState<{
@@ -70,15 +66,12 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
     monthlyFeatures: [],
     yearlyFeatures: [],
   });
-  // Active tab inside Plan Modal ("monthly" | "yearly", Default: "monthly")
   const [modalActiveCycle, setModalActiveCycle] = useState<"monthly" | "yearly">("monthly");
   const [newModalFeatureInput, setNewModalFeatureInput] = useState("");
   const [savingPlan, setSavingPlan] = useState(false);
 
-  // Form validation errors state for inline messages
   const [formErrors, setFormErrors] = useState<Record<string, string | undefined>>({});
 
-  // Delete confirmation modal state for Plan OR Feature (No window.confirm!)
   const [deleteConfirmTarget, setDeleteConfirmTarget] = useState<{
     type: "plan" | "feature";
     planId: string;
@@ -110,10 +103,9 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
     }
   };
 
-  // Open Add / Edit Plan Modal
   const handleOpenPlanModal = (plan?: PlanData) => {
-    setModalActiveCycle("monthly"); // Default to monthly tab inside modal
-    setFormErrors({}); // Reset inline validation errors
+    setModalActiveCycle("monthly"); 
+    setFormErrors({});
     if (plan) {
       setEditingPlan(plan);
       const computedDiscount =
@@ -158,7 +150,6 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
     setIsPlanModalOpen(true);
   };
 
-  // Add Feature inside Modal draft (Auto-syncs Monthly to Yearly if not present)
   const handleAddFeatureToModalForm = () => {
     const text = newModalFeatureInput.trim();
     if (!text) {
@@ -206,7 +197,6 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
     setNewModalFeatureInput("");
   };
 
-  // Remove Feature from Modal draft
   const handleRemoveFeatureFromModalForm = (index: number) => {
     const targetKey = modalActiveCycle === "yearly" ? "yearlyFeatures" : "monthlyFeatures";
     setPlanForm((prev) => ({
@@ -215,7 +205,6 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
     }));
   };
 
-  // Toggle Feature status inside Modal draft
   const handleToggleFeatureInModalForm = (index: number) => {
     const targetKey = modalActiveCycle === "yearly" ? "yearlyFeatures" : "monthlyFeatures";
     setPlanForm((prev) => ({
@@ -226,7 +215,6 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
     }));
   };
 
-  // Save Plan (Create or Update)
   const handleSavePlan = async () => {
     const errors: { name?: string; price?: string; annualPrice?: string } = {};
 
@@ -286,7 +274,6 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
     }
   };
 
-  // Handle Confirmed Delete (Plan or Feature)
   const handleConfirmDelete = async () => {
     if (!deleteConfirmTarget) return;
     try {
@@ -313,7 +300,6 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
     }
   };
 
-  // Add Feature Inline to a specific Plan Card directly
   const handleAddFeatureInline = async (plan: PlanData) => {
     if (!plan._id) return;
     const text = (inlineFeatureInputs[plan._id] || "").trim();
@@ -330,7 +316,6 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
     }
   };
 
-  // Save edited feature name directly on Plan Card
   const handleSaveEditedFeature = async (plan: PlanData) => {
     if (!editingFeatureItem || !plan._id) return;
     const newName = editingFeatureItem.name.trim();
@@ -350,7 +335,6 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
     }
   };
 
-  // Toggle Feature enable/disable switch directly on Plan Card
   const handleTogglePlanFeature = async (plan: PlanData, feat: PlanFeatureItem) => {
     if (!plan._id || !feat._id) return;
     const newStatus = !feat.isEnabled;

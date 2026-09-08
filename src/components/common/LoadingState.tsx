@@ -10,13 +10,16 @@ export const LoadingState = () => (
 
 interface WorkspaceLoaderProps {
   message?: string;
+  text?: string;
   minHeight?: string;
 }
 
 export const WorkspaceLoader: React.FC<WorkspaceLoaderProps> = ({
-  message = "LOADING...",
+  message,
+  text,
   minHeight = "min-h-[360px]",
 }) => {
+  const displayMessage = message || text || "LOADING...";
   return (
     <div className={`w-full ${minHeight} flex flex-col items-center justify-center py-12 transition-all`}>
       <div className="flex flex-col items-center gap-6">
@@ -25,7 +28,7 @@ export const WorkspaceLoader: React.FC<WorkspaceLoaderProps> = ({
           <span className="w-2 h-2 rounded-full bg-sky-500 animate-ping" />
           <span className="w-2 h-2 rounded-full bg-sky-500 animate-ping" />
           <span className="w-2 h-2 rounded-full bg-sky-500 animate-ping" />
-          <span>{message}</span>
+          <span>{displayMessage}</span>
         </div>
       </div>
     </div>

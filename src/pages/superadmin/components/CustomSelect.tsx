@@ -6,6 +6,7 @@ interface CustomSelectProps {
   options: string[];
   onChange: (val: string) => void;
   isLight: boolean;
+  className?: string;
 }
 
 const CustomSelect: React.FC<CustomSelectProps> = ({
@@ -13,6 +14,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   options,
   onChange,
   isLight,
+  className,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -31,7 +33,7 @@ const CustomSelect: React.FC<CustomSelectProps> = ({
   }, []);
 
   return (
-    <div className="relative w-44 sm:w-52" ref={dropdownRef}>
+    <div className={`relative ${className || "w-44 sm:w-52"}`} ref={dropdownRef}>
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}

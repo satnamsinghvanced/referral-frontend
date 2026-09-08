@@ -4,11 +4,11 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../../store";
 import { handleLogoutThunk } from "../../../store/authSlice";
 import Logo from "../../../components/ui/Logo";
-import { FiUsers, FiDollarSign, FiPhoneCall, FiLogOut, FiSettings, FiBookmark } from "react-icons/fi";
+import { FiUsers, FiDollarSign, FiPhoneCall, FiLogOut, FiSettings, FiBookmark, FiTag } from "react-icons/fi";
 
 interface SuperAdminSidebarProps {
-  activeTab: "clients" | "plans" | "phonePlans" | "specialties" | "settings";
-  onTabChange?: (tab: "clients" | "plans" | "phonePlans" | "specialties") => void;
+  activeTab: "clients" | "plans" | "phonePlans" | "discountCoupons" | "specialties" | "settings";
+  onTabChange?: (tab: "clients" | "plans" | "phonePlans" | "discountCoupons" | "specialties") => void;
   isLight: boolean;
   isOpenMobile?: boolean;
   onCloseMobile?: () => void;
@@ -36,6 +36,14 @@ const SuperAdminSidebar: React.FC<SuperAdminSidebarProps> = ({
       onTabChange("clients");
     }
     navigate("/admin");
+  };
+
+  const handleDiscountCouponsClick = () => {
+    if (onCloseMobile) onCloseMobile();
+    if (onTabChange) {
+      onTabChange("discountCoupons");
+    }
+    navigate("/admin?tab=discount-coupons");
   };
 
   const handlePlansClick = () => {
@@ -156,10 +164,22 @@ const SuperAdminSidebar: React.FC<SuperAdminSidebarProps> = ({
             <FiBookmark className="text-base shrink-0" />
             <span>Specialties</span>
           </button>
+          <button
+            type="button"
+            onClick={handleDiscountCouponsClick}
+            className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === "discountCoupons"
+              ? "bg-[#20a9f8] text-white shadow-md shadow-[#20a9f8]/20"
+              : isLight
+                ? "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                : "text-slate-300 hover:bg-[#111A2E] hover:text-white"
+              }`}
+          >
+            <FiTag className="text-base shrink-0" />
+            <span>Discount Coupons</span>
+          </button>
         </div>
       </div>
 
-      {/* Footer: Action Buttons (Settings & Sign Out) */}
       <div className="p-4 border-t border-slate-200/80 dark:border-[#1E293B] space-y-1.5">
         <button
           type="button"
@@ -189,10 +209,8 @@ const SuperAdminSidebar: React.FC<SuperAdminSidebarProps> = ({
 
   return (
     <>
-      {/* Desktop Persistent Sidebar */}
       <div className="hidden md:block shrink-0">{sidebarContent}</div>
 
-      {/* Mobile Drawer Sidebar */}
       {isOpenMobile && (
         <div className="fixed inset-0 z-50 md:hidden flex">
           <div
