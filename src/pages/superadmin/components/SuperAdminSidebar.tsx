@@ -4,11 +4,11 @@ import { useDispatch } from "react-redux";
 import { AppDispatch } from "../../../store";
 import { handleLogoutThunk } from "../../../store/authSlice";
 import Logo from "../../../components/ui/Logo";
-import { FiUsers, FiDollarSign, FiPhoneCall, FiLogOut, FiSettings, FiBookmark, FiTag } from "react-icons/fi";
+import { FiUsers, FiDollarSign, FiPhoneCall, FiLogOut, FiSettings, FiBookmark, FiTag, FiShield } from "react-icons/fi";
 
 interface SuperAdminSidebarProps {
-  activeTab: "clients" | "plans" | "phonePlans" | "discountCoupons" | "specialties" | "settings";
-  onTabChange?: (tab: "clients" | "plans" | "phonePlans" | "discountCoupons" | "specialties") => void;
+  activeTab: "clients" | "plans" | "phonePlans" | "discountCoupons" | "specialties" | "rolesAndPermissions" | "settings";
+  onTabChange?: (tab: "clients" | "plans" | "phonePlans" | "discountCoupons" | "specialties" | "rolesAndPermissions") => void;
   isLight: boolean;
   isOpenMobile?: boolean;
   onCloseMobile?: () => void;
@@ -68,6 +68,14 @@ const SuperAdminSidebar: React.FC<SuperAdminSidebarProps> = ({
       onTabChange("specialties");
     }
     navigate("/admin?tab=specialties");
+  };
+
+  const handleRolesAndPermissionsClick = () => {
+    if (onCloseMobile) onCloseMobile();
+    if (onTabChange) {
+      onTabChange("rolesAndPermissions");
+    }
+    navigate("/admin?tab=roles-and-permissions");
   };
 
   const handleSettingsClick = () => {
@@ -164,7 +172,22 @@ const SuperAdminSidebar: React.FC<SuperAdminSidebarProps> = ({
             <FiBookmark className="text-base shrink-0" />
             <span>Specialties</span>
           </button>
+
           <button
+            type="button"
+            onClick={handleRolesAndPermissionsClick}
+            className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === "rolesAndPermissions"
+              ? "bg-[#20a9f8] text-white shadow-md shadow-[#20a9f8]/20"
+              : isLight
+                ? "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                : "text-slate-300 hover:bg-[#111A2E] hover:text-white"
+              }`}
+          >
+            <FiShield className="text-base shrink-0" />
+            <span>Roles & Permissions</span>
+          </button>
+
+          <button 
             type="button"
             onClick={handleDiscountCouponsClick}
             className={`w-full flex items-center gap-3 px-3.5 py-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === "discountCoupons"
