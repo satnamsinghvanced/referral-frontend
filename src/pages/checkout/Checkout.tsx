@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Button, Card, CardBody, Input, Select, SelectItem, addToast, Checkbox, Chip } from "@heroui/react";
 import { FiCreditCard, FiLock, FiCheck, FiArrowLeft } from "react-icons/fi";
 import Logo from "../../components/ui/Logo";
+import { SignupHeader } from "../auth/signup/SignupHeader";
 import axios from "../../services/axios";
 import { useValidateDiscount } from "../../hooks/settings/useBilling";
 
@@ -425,45 +426,7 @@ export default function Checkout() {
 
   return (
     <div className="flex flex-col items-center justify-start min-h-screen bg-gray-50 dark:bg-default-50 text-foreground py-10 px-4">
-      <div className="h-10 mb-4 flex items-center justify-center">
-        <Logo style={{ height: "40px" }} />
-      </div>
-      <h1 className="text-3xl sm:text-4xl font-extrabold text-center tracking-tight">
-        {typeParam === "twilio_credits" ? (
-          <>Add <span className="text-blue-600">Twilio Credits</span></>
-        ) : (
-          <>Start Your <span className="text-blue-600">14-Day Free Trial</span></>
-        )}
-      </h1>
-      <p className="text-sm text-default-500 mt-2 text-center">
-        {typeParam === "twilio_credits"
-          ? "Complete your payment details to add credits and minutes immediately."
-          : "Choose your plan and get started in minutes. Cancel anytime."}
-      </p>
-      {typeParam !== "twilio_credits" && (
-        <div className="flex items-center justify-center gap-4 sm:gap-6 mt-6 mb-10 select-none flex-wrap">
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-semibold">
-              ✓
-            </div>
-            <span className="text-xs font-semibold text-default-500">Choose Plan</span>
-          </div>
-          <div className="w-8 sm:w-12 h-[2px] bg-emerald-500" />
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-emerald-500 text-white flex items-center justify-center text-xs font-semibold">
-              ✓
-            </div>
-            <span className="text-xs font-semibold text-default-500">Your Details</span>
-          </div>
-          <div className="w-8 sm:w-12 h-[2px] bg-blue-600" />
-          <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-blue-600 text-white flex items-center justify-center text-xs font-semibold">
-              3
-            </div>
-            <span className="text-xs font-bold text-foreground">Payment</span>
-          </div>
-        </div>
-      )}
+      <SignupHeader currentStep={3} isTwilioCredits={typeParam === "twilio_credits"} />
       <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-6 mt-2">
         <div className="md:col-span-2 flex flex-col gap-6">
           <Card className="shadow-none border border-foreground/10 bg-background rounded-2xl p-6">

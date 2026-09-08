@@ -60,56 +60,57 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
             <FiCreditCard className="w-5 h-5 text-sky-500" />
             Payment Information
           </h2>
-
           <div className="flex flex-col gap-4">
-            {/* Card Number */}
             <div>
               <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">Card number</label>
               <Input
                 type="text"
                 placeholder="1234 1234 1234 1234"
+                variant="bordered"
                 value={cardNumber}
                 onValueChange={handleCardNumberChange}
                 isInvalid={!!paymentErrors.cardNumber}
                 startContent={<FiCreditCard className="w-4 h-4 text-slate-400 mr-1" />}
                 classNames={{
-                  inputWrapper: "border border-slate-300 dark:border-slate-700 bg-transparent h-11 rounded-xl",
+                  inputWrapper: "border border-slate-300 dark:border-slate-700 bg-[#f8fafc] dark:bg-slate-900/50 data-[hover=true]:bg-[#f8fafc] group-data-[hover=true]:bg-[#f8fafc] hover:bg-[#f8fafc] h-11 rounded-xl group-data-[hover=true]:border-slate-400 hover:border-slate-400 group-data-[focus=true]:border-[#20a9f8] focus-within:border-[#20a9f8] transition-colors",
+                  input: "text-slate-900 dark:text-slate-100 placeholder:text-slate-400 font-medium text-sm",
                 }}
               />
               {paymentErrors.cardNumber && (
                 <span className="text-danger text-xs mt-1 block font-medium">{paymentErrors.cardNumber}</span>
               )}
             </div>
-
-            {/* Expiration & CVC */}
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">Expiration date</label>
                 <Input
                   type="text"
                   placeholder="MM / YY"
+                  variant="bordered"
                   value={expiry}
                   onValueChange={handleExpiryChange}
                   isInvalid={!!paymentErrors.expiry}
                   classNames={{
-                    inputWrapper: "border border-slate-300 dark:border-slate-700 bg-transparent h-11 rounded-xl",
+                    inputWrapper: "border border-slate-300 dark:border-slate-700 bg-[#f8fafc] dark:bg-slate-900/50 data-[hover=true]:bg-[#f8fafc] group-data-[hover=true]:bg-[#f8fafc] hover:bg-[#f8fafc] h-11 rounded-xl group-data-[hover=true]:border-slate-400 hover:border-slate-400 group-data-[focus=true]:border-[#20a9f8] focus-within:border-[#20a9f8] transition-colors",
+                    input: "text-slate-900 dark:text-slate-100 placeholder:text-slate-400 font-medium text-sm",
                   }}
                 />
                 {paymentErrors.expiry && (
                   <span className="text-danger text-xs mt-1 block font-medium">{paymentErrors.expiry}</span>
                 )}
               </div>
-
               <div>
                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">Security code</label>
                 <Input
                   type="text"
                   placeholder="CVC"
+                  variant="bordered"
                   value={cvc}
                   onValueChange={handleCvcChange}
                   isInvalid={!!paymentErrors.cvc}
                   classNames={{
-                    inputWrapper: "border border-slate-300 dark:border-slate-700 bg-transparent h-11 rounded-xl",
+                    inputWrapper: "border border-slate-300 dark:border-slate-700 bg-[#f8fafc] dark:bg-slate-900/50 data-[hover=true]:bg-[#f8fafc] group-data-[hover=true]:bg-[#f8fafc] hover:bg-[#f8fafc] h-11 rounded-xl group-data-[hover=true]:border-slate-400 hover:border-slate-400 group-data-[focus=true]:border-[#20a9f8] focus-within:border-[#20a9f8] transition-colors",
+                    input: "text-slate-900 dark:text-slate-100 placeholder:text-slate-400 font-medium text-sm",
                   }}
                 />
                 {paymentErrors.cvc && (
@@ -117,8 +118,6 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
                 )}
               </div>
             </div>
-
-            {/* Country */}
             <div>
               <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">Country</label>
               <Select
@@ -130,7 +129,8 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
                 variant="bordered"
                 aria-label="Select Country"
                 classNames={{
-                  trigger: "border border-slate-300 dark:border-slate-700 bg-transparent h-11 min-h-11 rounded-xl",
+                  trigger: "border border-slate-300 dark:border-slate-700 bg-[#f8fafc] dark:bg-slate-900/50 data-[hover=true]:bg-[#f8fafc] group-data-[hover=true]:bg-[#f8fafc] hover:bg-[#f8fafc] h-11 min-h-11 rounded-xl group-data-[hover=true]:border-slate-400 hover:border-slate-400 group-data-[focus=true]:border-[#20a9f8] transition-colors",
+                  value: "text-slate-900 dark:text-slate-100 font-medium text-sm",
                 }}
               >
                 <SelectItem key="India" textValue="India">India</SelectItem>
@@ -142,7 +142,6 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
             </div>
           </div>
         </Card>
-
         <Card className="shadow-none border border-sky-200 dark:border-sky-500/20 bg-sky-50/50 dark:bg-sky-950/10 rounded-2xl p-4">
           <CardBody className="p-0 flex flex-row gap-3.5 items-start">
             <div className="w-10 h-10 rounded-full bg-sky-100 dark:bg-sky-900/30 flex items-center justify-center text-sky-600 flex-shrink-0">
@@ -157,8 +156,6 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
           </CardBody>
         </Card>
       </div>
-
-      {/* Order Summary & Submit */}
       <div className="flex flex-col gap-6">
         <Card className="shadow-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0F172A] rounded-2xl p-6">
           <h2 className="text-lg font-bold border-b border-slate-100 dark:border-slate-800 pb-3 mb-5">Order Summary</h2>
@@ -167,17 +164,14 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
               <span className="text-slate-500">Selected Plan</span>
               <span>{selectedPlan?.name || "Professional"}</span>
             </div>
-
             <div className="flex justify-between items-center text-sm font-semibold border-b border-slate-100 dark:border-slate-800 pb-4">
               <span className="text-slate-500">Billing Cycle</span>
               <span className="capitalize">{billingCycle}</span>
             </div>
-
             <div className="flex justify-between items-center text-base font-extrabold pt-1">
               <span>Total Due Today</span>
               <span>${selectedPlan ? calcDisplayPrice(selectedPlan) : 399}</span>
             </div>
-
             <div className="border border-emerald-200 dark:border-emerald-900/30 bg-emerald-50/40 dark:bg-emerald-950/10 rounded-xl p-4 mt-2 flex flex-col gap-1.5">
               <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-bold text-xs">
                 <FiCheck className="w-4 h-4" />
@@ -187,7 +181,6 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
                 You won't be charged until your trial ends. Cancel anytime before then at no cost.
               </p>
             </div>
-
             <div className="pt-2">
               <Checkbox
                 isSelected={agreeToTerms}
@@ -202,7 +195,6 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
                 <span className="text-danger text-xs mt-1 block font-medium">{paymentErrors.terms}</span>
               )}
             </div>
-
             <Button
               color="primary"
               onPress={onSubmitSignup}

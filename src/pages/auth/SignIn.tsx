@@ -152,7 +152,6 @@ const SignIn = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-950 dark:to-background flex flex-col items-center justify-center p-4 relative">
-      {/* Top Right Theme Toggle */}
       <div className="absolute top-4 right-4">
         <AuthThemeToggle />
       </div>

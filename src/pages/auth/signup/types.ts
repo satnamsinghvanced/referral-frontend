@@ -11,18 +11,16 @@ export interface SignUpFormValues {
   messageAlert: boolean;
 }
 
-export const MEDICAL_SPECIALTIES = [
-  { key: "orthodontics", label: "Orthodontics" },
-  { key: "generalDentistry", label: "General Dentistry" },
-  { key: "oralSurgery", label: "Oral Surgery" },
-  { key: "endodontics", label: "Endodontics" },
-  { key: "periodontics", label: "Periodontics" },
-  { key: "other", label: "Other" },
-];
-
 export interface SignupHeaderProps {
-  currentStep: 1 | 2;
-  onStepClick: (step: 1 | 2) => void;
+  currentStep?: 1 | 2 | 3;
+  onStepClick?: (step: number) => void;
+  title?: React.ReactNode;
+  subtitle?: string;
+  isTwilioCredits?: boolean;
+  hideStepper?: boolean;
+  showThemeToggle?: boolean;
+  showBackButton?: boolean;
+  onBackClick?: () => void;
 }
 
 export interface StepYourDetailsProps {
