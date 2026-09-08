@@ -106,13 +106,8 @@ const AdminList: React.FC = () => {
             location,
             status: status as any,
             statusSubtext,
-            plan: (planName.includes("Scale")
-              ? "Scale"
-              : planName.includes("Enterprise")
-                ? "Enterprise"
-                : planName.includes("Starter")
-                  ? "Starter"
-                  : "Growth") as any,
+            plan: (planName.includes("Scale") ? "Scale" : planName.includes("Enterprise") ? "Enterprise" : planName.includes("Starter") ? "Starter"
+              : "Growth") as any,
             mrr: admin.plan?.price ? Number(admin.plan.price) : 0,
             lastActive: formatRelativeTime(lastActiveTime),
             updatedAt: lastActiveTime,

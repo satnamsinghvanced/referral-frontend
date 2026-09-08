@@ -39,7 +39,7 @@ const validationSchema = Yup.object({
       PASSWORD_REGEX,
       "Password must be at least 8 chars, include 1 uppercase, 1 lowercase, 1 number & 1 special character"
     ),
-  messageAlert: Yup.boolean(),
+  messageAlert: Yup.boolean().oneOf([true], "You must accept account alerts"),
 });
 
 const luhnCheck = (num: string) => {
@@ -61,21 +61,17 @@ export const SignupFlow: React.FC = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-
   const [currentStep, setCurrentStep] = useState<1 | 2>(1);
   const [selectedPlan, setSelectedPlan] = useState<PlanData | null>(null);
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("monthly");
   const [loadingPlans, setLoadingPlans] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Payment form state (Step 2)
   const [cardNumber, setCardNumber] = useState("");
   const [expiry, setExpiry] = useState("");
   const [cvc, setCvc] = useState("");
   const [country, setCountry] = useState("India");
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [paymentErrors, setPaymentErrors] = useState<Record<string, string>>({});
-
   const planParam = searchParams.get("planId") || searchParams.get("plan") || searchParams.get("id");
 
   useEffect(() => {
@@ -88,7 +84,6 @@ export const SignupFlow: React.FC = () => {
       const res = await fetchPlansAndFeatures();
       const data = res?.data || res;
       const fetchedPlans: PlanData[] = Array.isArray(data?.plans) ? data.plans : Array.isArray(data) ? data : [];
-
       if (fetchedPlans.length > 0) {
         let matched: PlanData | undefined;
         if (planParam) {
@@ -100,7 +95,6 @@ export const SignupFlow: React.FC = () => {
               (p.name && p.name.toLowerCase() === target)
           );
         }
-
         if (matched) {
           setSelectedPlan(matched);
         } else {
@@ -142,19 +136,15 @@ export const SignupFlow: React.FC = () => {
     } else if (cleanCard.length < 13 || cleanCard.length > 16 || !luhnCheck(cleanCard)) {
       errs.cardNumber = "Invalid card number";
     }
-
     if (!expiry || !/^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(expiry)) {
       errs.expiry = "Invalid date (MM/YY)";
     }
-
     if (!cvc || cvc.length !== 3) {
       errs.cvc = "CVC must be 3 digits";
     }
-
     if (!agreeToTerms) {
       errs.terms = "You must agree to the Terms of Service & Privacy Policy";
     }
-
     setPaymentErrors(errs);
     return Object.keys(errs).length === 0;
   };
@@ -184,21 +174,17 @@ export const SignupFlow: React.FC = () => {
           method: "card",
         },
       };
-
       const res = await registerUser(payload);
       const data = res?.data;
-
       if (data?.accessToken || data?.user?.accessToken) {
         const token = data.accessToken || data.user.accessToken;
         dispatch(setCredentials({ token }));
       }
-
       addToast({
         title: "Account Created Successfully!",
         description: "Welcome to Practice ROI. Getting your dashboard ready...",
         color: "success",
       });
-
       navigate("/");
     } catch (err: any) {
       console.error("Signup failed:", err);
@@ -224,17 +210,22 @@ export const SignupFlow: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#070C18] text-slate-900 dark:text-slate-100 flex flex-col items-center py-8 px-4 sm:px-6">
-      <SignupHeader currentStep={currentStep} onStepClick={(step) => {
-        if (step === 1) setCurrentStep(1);
-      }} />
-
+      <SignupHeader
+        currentStep={currentStep === 1 ? 2 : 3}
+        showThemeToggle={true}
+        showBackButton={currentStep === 2}
+        onBackClick={() => setCurrentStep(1)}
+        onStepClick={(step) => {
+          if (step === 1) navigate("/pricing");
+          if (step === 2) setCurrentStep(1);
+        }}
+      />
       {currentStep === 1 && (
         <StepYourDetails
           onContinue={() => formik.handleSubmit()}
           formik={formik}
         />
       )}
-
       {currentStep === 2 && (
         <StepPayment
           selectedPlan={selectedPlan}

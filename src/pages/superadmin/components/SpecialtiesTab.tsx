@@ -233,7 +233,6 @@ const SpecialtiesTab: React.FC<SpecialtiesTabProps> = ({ isLight }) => {
         !q ||
         (item.title && item.title.toLowerCase().includes(q)) ||
         (item.description && item.description.toLowerCase().includes(q));
-
       const matchesStatus =
         (item.status || "active").toLowerCase() === statusFilter.toLowerCase();
       return matchesSearch && matchesStatus;
@@ -344,13 +343,25 @@ const SpecialtiesTab: React.FC<SpecialtiesTabProps> = ({ isLight }) => {
               setSearchQuery(e.target.value);
               setCurrentPage(1);
             }}
-            className={`w-full text-sm rounded-lg pl-10 pr-4 py-2 focus:outline-none transition-colors ${isLight
-              ? "bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 focus:border-blue-600 focus:bg-white"
-              : "bg-[#111A2E] border border-[#1E2B45] text-slate-200 placeholder-slate-500 focus:border-blue-500"
+            className={`w-full text-sm rounded-lg pl-10 pr-9 py-2 focus:outline-none transition-colors ${isLight
+              ? "bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 hover:border-[#20a9f8] focus:border-[#20a9f8] focus:bg-white"
+              : "bg-[#111A2E] border border-[#1E2B45] text-slate-200 placeholder-slate-500 hover:border-[#20a9f8] focus:border-[#20a9f8]"
               }`}
           />
+          {searchQuery && (
+            <button
+              type="button"
+              onClick={() => {
+                setSearchQuery("");
+                setCurrentPage(1);
+              }}
+              className="absolute right-3 top-2.5 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+              aria-label="Clear search"
+            >
+              <FiX className="text-base" />
+            </button>
+          )}
         </div>
-
         <div className="flex items-center gap-2.5 w-full sm:w-auto justify-end">
           <CustomSelect
             value={statusFilter}
@@ -363,7 +374,6 @@ const SpecialtiesTab: React.FC<SpecialtiesTabProps> = ({ isLight }) => {
           />
         </div>
       </div>
-
       {filteredSpecialties.length === 0 ? (
         <div
           className={`py-16 text-center border-2 border-dashed rounded-3xl space-y-4 ${isLight ? "bg-white border-slate-200" : "bg-[#0F172A] border-slate-800"
@@ -556,7 +566,6 @@ const SpecialtiesTab: React.FC<SpecialtiesTabProps> = ({ isLight }) => {
           )}
         </div>
       )}
-
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
