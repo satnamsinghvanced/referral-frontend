@@ -24,6 +24,7 @@ import PlansFeaturesTab from "./components/PlansFeaturesTab";
 import PhonePlansTab from "./components/PhonePlansTab";
 import SpecialtiesTab from "./components/SpecialtiesTab";
 import DiscountCouponsTab from "./components/DiscountCouponsTab";
+import RolesAndPermissionsTab from "./components/RolesAndPermissionsTab";
 
 const AdminList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -32,15 +33,16 @@ const AdminList: React.FC = () => {
   const [searchParams] = useSearchParams();
   const getTabFromUrl = (
     param: string | null
-  ): "clients" | "plans" | "phonePlans" | "specialties" | "discountCoupons" => {
+  ): "clients" | "plans" | "phonePlans" | "specialties" | "discountCoupons" | "rolesAndPermissions" => {
     if (param === "plans") return "plans";
     if (param === "phone-plans" || param === "phonePlans") return "phonePlans";
     if (param === "specialties" || param === "speciality" || param === "specialities") return "specialties";
     if (param === "discount-coupons" || param === "discountCoupons" || param === "coupons") return "discountCoupons";
+    if (param === "roles-and-permissions" || param === "rolesAndPermissions" || param === "roles" || param === "permissions") return "rolesAndPermissions";
     return "clients";
   };
 
-  const [activeMainTab, setActiveMainTab] = useState<"clients" | "plans" | "phonePlans" | "specialties" | "discountCoupons">(getTabFromUrl(searchParams.get("tab")));
+  const [activeMainTab, setActiveMainTab] = useState<"clients" | "plans" | "phonePlans" | "specialties" | "discountCoupons" | "rolesAndPermissions">(getTabFromUrl(searchParams.get("tab")));
   useEffect(() => {
     setActiveMainTab(getTabFromUrl(searchParams.get("tab")));
   }, [searchParams]);
@@ -380,6 +382,8 @@ const AdminList: React.FC = () => {
             <SpecialtiesTab isLight={isLight} />
           ) : activeMainTab === "discountCoupons" ? (
             <DiscountCouponsTab isLight={isLight} />
+          ) : activeMainTab === "rolesAndPermissions" ? (
+            <RolesAndPermissionsTab isLight={isLight} />
           ) : (
             <>
               <div>

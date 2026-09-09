@@ -186,11 +186,6 @@ const SpecialtiesTab: React.FC<SpecialtiesTabProps> = ({ isLight }) => {
     );
     try {
       await updateSpecialty(item._id, { status: newStatus });
-      addToast({
-        title: newStatus === "active" ? "Specialty Activated" : "Specialty Deactivated",
-        description: `'${item.title}' status changed to ${newStatus}`,
-        color: newStatus === "active" ? "success" : "warning",
-      });
     } catch (err: any) {
       console.error("Failed to update status:", err);
       await loadData();

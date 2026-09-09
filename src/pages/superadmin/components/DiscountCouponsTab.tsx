@@ -225,11 +225,6 @@ const DiscountCouponsTab: React.FC<DiscountCouponsTabProps> = ({ isLight }) => {
         prev.map((c) => (c._id === coupon._id ? { ...c, isActive: !c.isActive } : c))
       );
       await toggleDiscountCoupon(coupon._id);
-      addToast({
-        title: "Status Updated",
-        description: `Coupon '${coupon.code}' is now ${!coupon.isActive ? "Active" : "Inactive"}`,
-        color: "success",
-      });
     } catch (err: any) {
       console.error("Error toggling coupon status:", err);
       // Revert on error
@@ -524,84 +519,116 @@ const DiscountCouponsTab: React.FC<DiscountCouponsTabProps> = ({ isLight }) => {
         </div>
       ) : (
         <div
-          className={`rounded-2xl border overflow-hidden shadow-sm ${
-            isLight ? "bg-white border-slate-200/90" : "bg-[#111A2E] border-[#1E2B45]"
+          className={`rounded-2xl border overflow-hidden shadow-xs ${
+            isLight ? "bg-white border-slate-200" : "bg-[#0B101D] border-[#1E293B]"
           }`}
         >
           <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
+            <table className="w-full text-left border-collapse min-w-[750px]">
               <thead>
                 <tr
-                  className={`text-[11px] uppercase tracking-wider font-extrabold border-b ${
+                  className={`text-[11px] font-bold uppercase tracking-wider border-b ${
                     isLight
-                      ? "bg-slate-50 border-slate-200/80 text-slate-500"
-                      : "bg-[#0B132B] border-[#1E2B45] text-slate-400"
+                      ? "bg-slate-50 text-slate-500 border-slate-200"
+                      : "bg-[#111A2E] text-slate-400 border-[#1E293B]"
                   }`}
                 >
-                  <th className="py-3.5 px-4 sm:px-6">Title & Description</th>
-                  <th className="py-3.5 px-4">Coupon Code</th>
-                  <th className="py-3.5 px-4">Discount</th>
-                  <th className="py-3.5 px-4">Validity</th>
-                  <th className="py-3.5 px-4">Status</th>
-                  <th className="py-3.5 px-4 sm:px-6 text-right">Actions</th>
+                  <th className="py-3.5 px-4 sm:px-6 w-[32%]">Coupon Title</th>
+                  <th className="py-3.5 px-4 w-[18%]">Coupon Code</th>
+                  <th className="py-3.5 px-4 w-[14%]">Discount</th>
+                  <th className="py-3.5 px-4 w-[16%]">Validity</th>
+                  <th className="py-3.5 px-4 w-[10%]">Status</th>
+                  <th className="py-3.5 px-4 sm:px-6 w-[10%] text-right">Actions</th>
                 </tr>
               </thead>
               <tbody
                 className={`divide-y text-xs ${
-                  isLight ? "divide-slate-200/60" : "divide-[#1E2B45]/60"
+                  isLight ? "divide-slate-200/80 text-slate-700" : "divide-[#1E293B] text-slate-300"
                 }`}
               >
                 {filteredCoupons.map((coupon) => {
                   const isExpired =
                     coupon.expiryDate && new Date(coupon.expiryDate) < new Date();
+                  const isInactive = !coupon.isActive;
 
                   return (
                     <tr
                       key={coupon._id}
-                      className={`transition-colors ${
-                        isLight ? "hover:bg-slate-50/70" : "hover:bg-[#162238]"
+                      className={`transition-colors ${isInactive ? "opacity-60" : ""} ${
+                        isLight ? "hover:bg-slate-50/70" : "hover:bg-[#111A2E]/60"
                       }`}
                     >
-                      {/* Title & Description */}
-                      <td className="py-4 px-4 sm:px-6">
-                        <div className="space-y-0.5">
-                          <p
-                            className={`font-bold text-sm ${
-                              isLight ? "text-slate-900" : "text-white"
+                      {/* Title & Description with Toggle + Icon */}
+                      <td className="py-4 px-4 sm:px-6 font-bold w-[32%]">
+                        <div className="flex items-center gap-3">
+                          <button
+                            type="button"
+                            onClick={() => handleToggleStatus(coupon)}
+                            className={`w-9 h-5 flex items-center rounded-full p-0.5 transition-colors duration-200 cursor-pointer shrink-0 ${
+                              !isInactive ? "bg-emerald-500" : isLight ? "bg-slate-300" : "bg-slate-700"
+                            }`}
+                            title={!isInactive ? "Click to disable coupon" : "Click to enable coupon"}
+                          >
+                            <div
+                              className={`bg-white w-4 h-4 rounded-full shadow transform transition-transform duration-200 ${
+                                !isInactive ? "translate-x-4" : "translate-x-0"
+                              }`}
+                            />
+                          </button>
+                          <div
+                            className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
+                              isInactive
+                                ? "bg-slate-100 dark:bg-slate-800 text-slate-400"
+                                : "bg-sky-50 dark:bg-sky-950/60 text-[#20a9f8]"
                             }`}
                           >
-                            {coupon.title || `${coupon.code} Discount`}
-                          </p>
-                          {coupon.description ? (
-                            <p
-                              className={`text-xs line-clamp-1 max-w-xs ${
-                                isLight ? "text-slate-500" : "text-slate-400"
-                              }`}
-                              title={coupon.description}
-                            >
-                              {coupon.description}
-                            </p>
-                          ) : (
-                            <p
-                              className={`text-[11px] ${
-                                isLight ? "text-slate-400" : "text-slate-500"
+                            <FiTag className="text-sm" />
+                          </div>
+                          <div className="space-y-0.5 min-w-0 flex-1">
+                            <span
+                              className={`font-extrabold block truncate ${
+                                isInactive
+                                  ? "line-through text-slate-400 dark:text-slate-500"
+                                  : isLight
+                                  ? "text-slate-900"
+                                  : "text-white"
                               }`}
                             >
-                              {coupon.type === "percent" ? `${coupon.value}%` : `$${coupon.value}`} off on checkout
-                            </p>
-                          )}
+                              {coupon.title || `${coupon.code} Discount`}
+                            </span>
+                            {coupon.description ? (
+                              <p
+                                className={`text-xs truncate ${
+                                  isInactive
+                                    ? "text-slate-400 dark:text-slate-600 line-through"
+                                    : isLight
+                                    ? "text-slate-500"
+                                    : "text-slate-400"
+                                }`}
+                                title={coupon.description}
+                              >
+                                {coupon.description}
+                              </p>
+                            ) : null}
+                          </div>
                         </div>
                       </td>
 
                       {/* Code */}
-                      <td className="py-4 px-4">
-                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border font-mono font-bold text-xs bg-slate-500/10 border-slate-500/20 text-[#20a9f8]">
-                          <span>{coupon.code}</span>
+                      <td className="py-4 px-4 w-[18%]">
+                        <div
+                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border font-mono font-bold text-xs ${
+                            isInactive
+                              ? "bg-slate-500/5 border-slate-500/10 text-slate-400 dark:text-slate-500"
+                              : "bg-slate-500/10 border-slate-500/20 text-[#20a9f8]"
+                          }`}
+                        >
+                          <span className={isInactive ? "line-through" : ""}>{coupon.code}</span>
                           <button
                             type="button"
                             onClick={() => handleCopyCode(coupon.code)}
                             title="Copy code"
-                            className="text-slate-400 hover:text-white transition-colors cursor-pointer"
+                            className="text-slate-400 hover:text-white transition-colors cursor-pointer shrink-0"
                           >
                             {copiedCode === coupon.code ? (
                               <FiCheck className="text-emerald-500 text-xs" />
@@ -613,10 +640,12 @@ const DiscountCouponsTab: React.FC<DiscountCouponsTabProps> = ({ isLight }) => {
                       </td>
 
                       {/* Discount Value */}
-                      <td className="py-4 px-4">
+                      <td className="py-4 px-4 w-[14%]">
                         <span
                           className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-extrabold ${
-                            coupon.type === "percent"
+                            isInactive
+                              ? "bg-slate-100 dark:bg-slate-800/80 text-slate-400 dark:text-slate-500 border border-slate-200 dark:border-slate-700"
+                              : coupon.type === "percent"
                               ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
                               : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"
                           }`}
@@ -628,12 +657,12 @@ const DiscountCouponsTab: React.FC<DiscountCouponsTabProps> = ({ isLight }) => {
                       </td>
 
                       {/* Validity / Expiry */}
-                      <td className="py-4 px-4">
+                      <td className="py-4 px-4 w-[16%]">
                         <div className="space-y-0.5">
                           {coupon.expiryDate ? (
                             <div className="flex items-center gap-1.5">
                               <FiCalendar
-                                className={`text-xs ${
+                                className={`text-xs shrink-0 ${
                                   isExpired ? "text-red-400" : "text-slate-400"
                                 }`}
                               />
@@ -680,26 +709,26 @@ const DiscountCouponsTab: React.FC<DiscountCouponsTabProps> = ({ isLight }) => {
                         </div>
                       </td>
 
-                      {/* Active Status Switch */}
-                      <td className="py-4 px-4">
-                        <button
-                          type="button"
-                          onClick={() => handleToggleStatus(coupon)}
-                          className={`relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                            coupon.isActive ? "bg-[#20a9f8]" : isLight ? "bg-slate-300" : "bg-slate-700"
+                      {/* Status Badge */}
+                      <td className="py-4 px-4 w-[10%]">
+                        <span
+                          className={`inline-flex items-center justify-center gap-1.5 w-[76px] py-1 rounded-full text-[11px] font-bold tracking-wide ${
+                            !isInactive
+                              ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800"
+                              : "bg-slate-100 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700"
                           }`}
-                          title={`Click to ${coupon.isActive ? "deactivate" : "activate"}`}
                         >
                           <span
-                            className={`pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
-                              coupon.isActive ? "translate-x-4" : "translate-x-0"
+                            className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                              !isInactive ? "bg-emerald-500" : "bg-slate-400"
                             }`}
                           />
-                        </button>
+                          <span>{!isInactive ? "Active" : "Inactive"}</span>
+                        </span>
                       </td>
 
                       {/* Actions */}
-                      <td className="py-4 px-4 sm:px-6 text-right">
+                      <td className="py-4 px-4 sm:px-6 w-[10%] text-right">
                         <div className="flex items-center justify-end gap-1">
                           <button
                             type="button"
@@ -848,9 +877,7 @@ const DiscountCouponsTab: React.FC<DiscountCouponsTabProps> = ({ isLight }) => {
                 )}
               </div>
 
-              {/* Discount Type & Value in Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Type Selection */}
                 <div>
                   <label className={`block text-xs font-bold mb-1.5 ${isLight ? "text-slate-700" : "text-slate-300"}`}>
                     Discount Type <span className="text-red-500">*</span>
