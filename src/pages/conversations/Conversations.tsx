@@ -36,8 +36,7 @@ const Conversations = () => {
   const queryClient = useQueryClient();
   const isMetaConnected = useMemo(() => {
     const credentials = (socialCreds && typeof socialCreds === "object" && "data" in socialCreds && socialCreds.data)
-      ? (socialCreds.data as any)
-      : socialCreds;
+      ? (socialCreds.data as any) : socialCreds;
     const metaCreds = credentials?.meta;
     return metaCreds?.status === "Connected" || metaCreds?.status === "connected";
   }, [socialCreds]);
@@ -151,6 +150,39 @@ const Conversations = () => {
             (conv.recipientId === payload.recipientId ||
               conv.id === payload.conversationId)
           ) {
+            const existingIndexById = conv.messages.findIndex(
+              (m) => m.id === payload.message.id
+            );
+            if (existingIndexById !== -1) {
+              const updatedMessages = [...conv.messages];
+              updatedMessages[existingIndexById] = payload.message;
+              return {
+                ...conv,
+                messages: updatedMessages,
+                lastMessage: payload.message.text,
+              };
+            }
+
+            if (!payload.message.isFromPatient) {
+              const optimisticIdx = conv.messages.findIndex(
+                (m) =>
+                  !m.isFromPatient &&
+                  (m.isSending ||
+                    m.id.startsWith("temp-") ||
+                    (m.text === payload.message.text && Math.abs((m.createdAt || 0) - (payload.message.createdAt || Date.now())) < 10000))
+              );
+
+              if (optimisticIdx !== -1) {
+                const updatedMessages = [...conv.messages];
+                updatedMessages[optimisticIdx] = payload.message;
+                return {
+                  ...conv,
+                  messages: updatedMessages,
+                  lastMessage: payload.message.text,
+                };
+              }
+            }
+
             const updatedMessages = [...conv.messages, payload.message];
             return {
               ...conv,
@@ -158,7 +190,7 @@ const Conversations = () => {
               lastMessage: payload.message.text,
               lastMessageTime: "Just now",
               lastMessageTimestamp: Date.now(),
-              unreadCount: conv.unreadCount + 1,
+              unreadCount: payload.message.isFromPatient ? conv.unreadCount + 1 : conv.unreadCount,
             };
           }
           return conv;
@@ -170,13 +202,46 @@ const Conversations = () => {
       setConversations((prev) =>
         prev.map((conv) => {
           if (conv.platform === "web" && conv.id === payload.conversationId) {
+            const existingIndexById = conv.messages.findIndex(
+              (m) => m.id === payload.message.id
+            );
+            if (existingIndexById !== -1) {
+              const updatedMessages = [...conv.messages];
+              updatedMessages[existingIndexById] = payload.message;
+              return {
+                ...conv,
+                messages: updatedMessages,
+                lastMessage: payload.message.text,
+              };
+            }
+
+            if (!payload.message.isFromPatient) {
+              const optimisticIdx = conv.messages.findIndex(
+                (m) =>
+                  !m.isFromPatient &&
+                  (m.isSending ||
+                    m.id.startsWith("temp-") ||
+                    (m.text === payload.message.text && Math.abs((m.createdAt || 0) - (payload.message.createdAt || Date.now())) < 10000))
+              );
+
+              if (optimisticIdx !== -1) {
+                const updatedMessages = [...conv.messages];
+                updatedMessages[optimisticIdx] = payload.message;
+                return {
+                  ...conv,
+                  messages: updatedMessages,
+                  lastMessage: payload.message.text,
+                };
+              }
+            }
+
             return {
               ...conv,
               messages: [...conv.messages, payload.message],
               lastMessage: payload.message.text,
               lastMessageTime: "Just now",
               lastMessageTimestamp: Date.now(),
-              unreadCount: conv.unreadCount + 1,
+              unreadCount: payload.message.isFromPatient ? conv.unreadCount + 1 : conv.unreadCount,
             };
           }
           return conv;
@@ -565,10 +630,15 @@ const Conversations = () => {
         setConversations((prev) =>
           prev.map((c) => {
             if (c.id === currentConv.id) {
-              const updatedMessages = c.messages.map((m) => {
-                const matched = messagesToAdd.find((item) => item.tempId === m.id);
-                return matched ? matched.realMsg : m;
-              });
+              let updatedMessages = [...c.messages];
+              for (const item of messagesToAdd) {
+                const alreadyHasReal = updatedMessages.some((m) => m.id === item.realMsg.id);
+                if (alreadyHasReal) {
+                  updatedMessages = updatedMessages.filter((m) => m.id !== item.tempId);
+                } else {
+                  updatedMessages = updatedMessages.map((m) => (m.id === item.tempId ? item.realMsg : m));
+                }
+              }
               return {
                 ...c,
                 messages: updatedMessages,

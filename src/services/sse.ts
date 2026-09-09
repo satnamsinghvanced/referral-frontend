@@ -19,7 +19,7 @@ export interface NotificationPayload {
 }
 
 export interface NewMessagePayload {
-  platform: "instagram" | "facebook";
+  platform: string;
   conversationId: string;
   recipientId: string;
   message: {
@@ -28,17 +28,23 @@ export interface NewMessagePayload {
     text: string;
     timestamp: string;
     isFromPatient: boolean;
+    file?: any;
+    createdAt?: any;
   };
 }
 
 export interface NewWebMessagePayload {
   conversationId: string;
+  platform?: any;
+  recipientId?: any;
   message: {
     id: string;
     senderId: string;
     text: string;
     timestamp: string;
     isFromPatient: boolean;
+    file?: any;
+    createdAt?: any;
   };
 }
 
