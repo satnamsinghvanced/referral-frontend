@@ -12,13 +12,7 @@ import {
 import { useFormik } from "formik";
 import React, { useEffect } from "react";
 import * as Yup from "yup";
-import {
-  ACTIVITY_TIMEFRAMES,
-  AUDIENCE_SEGMENT_STATUSES,
-  AUDIENCE_TYPES,
-  PARTNER_LEVELS,
-  PRACTICE_SIZES,
-} from "../../../../consts/campaign";
+import { ACTIVITY_TIMEFRAMES, AUDIENCE_SEGMENT_STATUSES, AUDIENCE_TYPES, PARTNER_LEVELS, PRACTICE_SIZES } from "../../../../consts/campaign";
 
 interface CreateSegmentModalProps {
   isOpen: boolean;
@@ -46,13 +40,7 @@ const ValidationSchema = Yup.object().shape({
   audienceType: Yup.string().required("Audience type is required"),
 });
 
-const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({
-  isOpen,
-  onClose,
-  onSubmit,
-  initialValues,
-  isLoading,
-}) => {
+const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({ isOpen, onClose, onSubmit, initialValues, isLoading }) => {
   const formik = useFormik<SegmentFormValues>({
     initialValues: {
       name: "",
@@ -158,7 +146,6 @@ const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({
         return null;
     }
   };
-
   return (
     <Modal
       isOpen={isOpen}
@@ -184,7 +171,6 @@ const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({
               : "Define the criteria for your new audience segment."}
           </p>
         </ModalHeader>
-
         <ModalBody className="p-4 py-0">
           <form onSubmit={formik.handleSubmit} className="flex flex-col gap-5">
             <div className="w-full relative">
@@ -249,9 +235,7 @@ const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({
                 ))}
               </Select>
             </div>
-
             {renderConditionalField()}
-
             <div className="w-full relative">
               <Select
                 placeholder="Select activity timeframe"
@@ -280,7 +264,6 @@ const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({
                 ))}
               </Select>
             </div>
-
             <div className="w-full relative">
               <Input
                 placeholder="e.g., Tulsa, OK"
@@ -293,7 +276,6 @@ const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({
                 onBlur={formik.handleBlur}
               />
             </div>
-
             {initialValues && (
               <div className="w-full relative">
                 <Select
@@ -319,7 +301,6 @@ const CreateSegmentModal: React.FC<CreateSegmentModalProps> = ({
             )}
           </form>
         </ModalBody>
-
         <ModalFooter className="p-4">
           <Button
             variant="ghost"

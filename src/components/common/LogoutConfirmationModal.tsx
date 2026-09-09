@@ -1,9 +1,4 @@
-import {
-  Button,
-  Modal,
-  ModalContent,
-  ModalBody,
-} from "@heroui/react";
+import { Button, Modal, ModalContent, ModalBody } from "@heroui/react";
 import { LuLogOut } from "react-icons/lu";
 import { useDispatch } from "react-redux";
 import { useState } from "react";
@@ -15,10 +10,7 @@ interface LogoutConfirmationModalProps {
   onClose: () => void;
 }
 
-const LogoutConfirmationModal = ({
-  isOpen,
-  onClose,
-}: LogoutConfirmationModalProps) => {
+const LogoutConfirmationModal = ({ isOpen, onClose }: LogoutConfirmationModalProps) => {
   const dispatch = useDispatch<AppDispatch>();
   const [isLoading, setIsLoading] = useState(false);
 

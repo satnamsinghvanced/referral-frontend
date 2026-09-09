@@ -1,14 +1,4 @@
-import {
-  Button,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Select,
-  SelectItem,
-} from "@heroui/react";
+import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Select, SelectItem } from "@heroui/react";
 import { useFormik } from "formik";
 import React, { useEffect } from "react";
 import * as Yup from "yup";
@@ -52,12 +42,7 @@ const RATING_VALUES = [
   { label: "5 Stars", value: "5 Stars" },
 ];
 
-const ConditionModal: React.FC<ConditionModalProps> = ({
-  isOpen,
-  onOpenChange,
-  onSave,
-  initialData,
-}) => {
+const ConditionModal: React.FC<ConditionModalProps> = ({ isOpen, onOpenChange, onSave, initialData }) => {
   const validationSchema = Yup.object().shape({
     conditionType: Yup.string().required("Condition type is required"),
     whichEmail: Yup.string().when("conditionType", {
@@ -191,46 +176,44 @@ const ConditionModal: React.FC<ConditionModalProps> = ({
                     </SelectItem>
                   ))}
                 </Select>
-
                 {(formik.values.conditionType === "Email Opened" ||
                   formik.values.conditionType === "Link Clicked") && (
-                  <Select
-                    label="Which Email?"
-                    labelPlacement="outside"
-                    placeholder="Select email..."
-                    selectedKeys={
-                      formik.values.whichEmail ? [formik.values.whichEmail] : []
-                    }
-                    disabledKeys={
-                      formik.values.whichEmail ? [formik.values.whichEmail] : []
-                    }
-                    onSelectionChange={(keys) =>
-                      formik.setFieldValue(
-                        "whichEmail",
-                        Array.from(keys)[0] as string,
-                      )
-                    }
-                    variant="flat"
-                    size="sm"
-                    radius="sm"
-                    isRequired
-                    isInvalid={
-                      !!(formik.touched.whichEmail && formik.errors.whichEmail)
-                    }
-                    errorMessage={
-                      formik.touched.whichEmail &&
-                      (formik.errors.whichEmail as string)
-                    }
-                  >
-                    <SelectItem
-                      key="previous"
-                      textValue="Previous email in this flow"
+                    <Select
+                      label="Which Email?"
+                      labelPlacement="outside"
+                      placeholder="Select email..."
+                      selectedKeys={
+                        formik.values.whichEmail ? [formik.values.whichEmail] : []
+                      }
+                      disabledKeys={
+                        formik.values.whichEmail ? [formik.values.whichEmail] : []
+                      }
+                      onSelectionChange={(keys) =>
+                        formik.setFieldValue(
+                          "whichEmail",
+                          Array.from(keys)[0] as string,
+                        )
+                      }
+                      variant="flat"
+                      size="sm"
+                      radius="sm"
+                      isRequired
+                      isInvalid={
+                        !!(formik.touched.whichEmail && formik.errors.whichEmail)
+                      }
+                      errorMessage={
+                        formik.touched.whichEmail &&
+                        (formik.errors.whichEmail as string)
+                      }
                     >
-                      Previous email in this flow
-                    </SelectItem>
-                  </Select>
-                )}
-
+                      <SelectItem
+                        key="previous"
+                        textValue="Previous email in this flow"
+                      >
+                        Previous email in this flow
+                      </SelectItem>
+                    </Select>
+                  )}
                 {formik.values.conditionType === "Link Clicked" && (
                   <Input
                     label="Link URL (optional)"
@@ -245,45 +228,43 @@ const ConditionModal: React.FC<ConditionModalProps> = ({
                     radius="sm"
                   />
                 )}
-
                 {(formik.values.conditionType === "Referral Count" ||
                   formik.values.conditionType === "Rating Level") && (
-                  <Select
-                    label="Comparison"
-                    labelPlacement="outside"
-                    placeholder="Select comparison..."
-                    selectedKeys={
-                      formik.values.comparison ? [formik.values.comparison] : []
-                    }
-                    disabledKeys={
-                      formik.values.comparison ? [formik.values.comparison] : []
-                    }
-                    onSelectionChange={(keys) =>
-                      formik.setFieldValue(
-                        "comparison",
-                        Array.from(keys)[0] as string,
-                      )
-                    }
-                    variant="flat"
-                    size="sm"
-                    radius="sm"
-                    isRequired
-                    isInvalid={
-                      !!(formik.touched.comparison && formik.errors.comparison)
-                    }
-                    errorMessage={
-                      formik.touched.comparison &&
-                      (formik.errors.comparison as string)
-                    }
-                  >
-                    {COMPARISONS.map((c) => (
-                      <SelectItem key={c.value} textValue={c.label}>
-                        {c.label}
-                      </SelectItem>
-                    ))}
-                  </Select>
-                )}
-
+                    <Select
+                      label="Comparison"
+                      labelPlacement="outside"
+                      placeholder="Select comparison..."
+                      selectedKeys={
+                        formik.values.comparison ? [formik.values.comparison] : []
+                      }
+                      disabledKeys={
+                        formik.values.comparison ? [formik.values.comparison] : []
+                      }
+                      onSelectionChange={(keys) =>
+                        formik.setFieldValue(
+                          "comparison",
+                          Array.from(keys)[0] as string,
+                        )
+                      }
+                      variant="flat"
+                      size="sm"
+                      radius="sm"
+                      isRequired
+                      isInvalid={
+                        !!(formik.touched.comparison && formik.errors.comparison)
+                      }
+                      errorMessage={
+                        formik.touched.comparison &&
+                        (formik.errors.comparison as string)
+                      }
+                    >
+                      {COMPARISONS.map((c) => (
+                        <SelectItem key={c.value} textValue={c.label}>
+                          {c.label}
+                        </SelectItem>
+                      ))}
+                    </Select>
+                  )}
                 {formik.values.conditionType === "Referral Count" && (
                   <>
                     <Input
@@ -352,7 +333,6 @@ const ConditionModal: React.FC<ConditionModalProps> = ({
                     </Select>
                   </>
                 )}
-
                 {formik.values.conditionType === "Rating Level" && (
                   <Select
                     label="Rating Value (Stars)"

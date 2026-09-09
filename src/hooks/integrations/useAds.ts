@@ -79,7 +79,6 @@ export const useDisconnectGoogleAds = () => {
   });
 };
 
-
 export const useMetaAdsIntegration = () => {
   return useQuery({
     queryKey: META_ADS_KEYS.details(),

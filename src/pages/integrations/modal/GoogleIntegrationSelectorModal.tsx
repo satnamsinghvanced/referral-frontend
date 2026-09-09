@@ -16,16 +16,9 @@ import { useState, useEffect, useMemo } from "react";
 import { HiOutlineOfficeBuilding } from "react-icons/hi";
 import { SiGoogleanalytics } from "react-icons/si";
 import { FiSearch } from "react-icons/fi";
+import { useBusinessLocations, useConnectBusinessLocation, useSyncBusinessProfiles, useSearchGooglePlaces } from "../../../hooks/integrations/useGoogleBusiness";
 import {
-  useBusinessLocations,
-  useConnectBusinessLocation,
-  useSyncBusinessProfiles,
-  useSearchGooglePlaces,
-} from "../../../hooks/integrations/useGoogleBusiness";
-import {
-  useAnalyticsProperties,
-  useConnectAnalyticsProperty,
-  useSyncAnalyticsProperties,
+  useAnalyticsProperties, useConnectAnalyticsProperty, useSyncAnalyticsProperties
 } from "../../../hooks/integrations/useGoogleAnalytics";
 import {
   useGoogleAdsAccounts,
@@ -63,10 +56,8 @@ export default function GoogleIntegrationSelectorModal({ type, isOpen, onClose }
   const metaAdsData = useMetaAdsAccounts(isOpen && type === "meta_ads");
   const metaAdsSync = useSyncMetaAdsAccounts();
   const metaAdsConnect = useConnectMetaAdsAccount();
-
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchResults, setSearchResults] = useState<SelectorItem[] | null>(null);
-
   const { data, isLoading, isError, sync, isSyncing, connect, isConnecting } = useMemo(() => {
     if (type === "business") {
       return {
@@ -110,7 +101,6 @@ export default function GoogleIntegrationSelectorModal({ type, isOpen, onClose }
       };
     }
   }, [type, businessData, businessSync, businessConnect, analyticsData, analyticsSync, analyticsConnect, adsData, adsSync, adsConnect, metaAdsData, metaAdsSync, metaAdsConnect]);
-
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const items: SelectorItem[] = useMemo(() => {
     if (type === "business") {
@@ -148,9 +138,7 @@ export default function GoogleIntegrationSelectorModal({ type, isOpen, onClose }
       }));
     }
   }, [type, data]);
-
   const displayItems: any = searchResults !== null ? searchResults : items;
-
   useEffect(() => {
     if (type !== "business") return;
     const query = searchQuery.trim();
@@ -159,7 +147,6 @@ export default function GoogleIntegrationSelectorModal({ type, isOpen, onClose }
       return;
     }
     if (query.length < 2) return;
-
     const timer = setTimeout(async () => {
       try {
         const res = await searchPlacesMutation.mutateAsync(query);

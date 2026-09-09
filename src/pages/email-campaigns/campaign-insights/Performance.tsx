@@ -1,14 +1,5 @@
 import { Card, CardBody, CardHeader } from "@heroui/react";
-import {
-  Area,
-  AreaChart,
-  CartesianGrid,
-  Legend,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { Area, AreaChart, CartesianGrid, Legend, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import ChartTooltip from "../../../components/common/ChartTooltip";
 import { useTypedSelector } from "../../../hooks/useTypedSelector";
 import { useAnalyticsPerformance } from "../../../hooks/useCampaign";
@@ -22,7 +13,6 @@ interface PerformanceProps {
 const Performance = ({ filter }: PerformanceProps) => {
   const { theme } = useTypedSelector((state) => state.ui);
   const { data: performanceData, isLoading } = useAnalyticsPerformance(filter);
-
   if (isLoading) {
     return (
       <div className="py-20 flex justify-center">
@@ -30,7 +20,6 @@ const Performance = ({ filter }: PerformanceProps) => {
       </div>
     );
   }
-
   return (
     <Card
       shadow="none"

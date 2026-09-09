@@ -1,14 +1,4 @@
-import {
-  Button,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Select,
-  SelectItem,
-} from "@heroui/react";
+import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Select, SelectItem } from "@heroui/react";
 import { useFormik } from "formik";
 import React, { useEffect } from "react";
 import * as Yup from "yup";
@@ -121,7 +111,6 @@ const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onOpenChange, onSave, i
                   </SelectItem>
                 ))}
               </Select>
-
               <Input
                 label="Email Subject"
                 labelPlacement="outside"

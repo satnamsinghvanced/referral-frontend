@@ -28,7 +28,6 @@ const EmailCampaigns = () => {
   const [activeTab, setActiveTab] = useState(() => {
     return location.state?.tab || "overview";
   });
-
   useEffect(() => {
     if (location.state?.tab) {
       setActiveTab(location.state.tab);
@@ -37,42 +36,29 @@ const EmailCampaigns = () => {
   }, [location.state]);
   const [prefillTemplate, setPrefillTemplate] =
     useState<CampaignTemplate | null>(null);
-
-  const { data: emailExistingConfig, isLoading: isEmailConfigLoading } =
-    useFetchEmailIntegration();
-  const emailConfigsList = Array.isArray(emailExistingConfig)
-    ? emailExistingConfig
-    : emailExistingConfig
-      ? [emailExistingConfig]
-      : [];
-
-  const hasConnectedEmail = emailConfigsList.some(
-    (cfg: any) => cfg.status === "Connected"
-  );
-
+  const { data: emailExistingConfig, isLoading: isEmailConfigLoading } = useFetchEmailIntegration();
+  const emailConfigsList = Array.isArray(emailExistingConfig) ? emailExistingConfig : emailExistingConfig ? [emailExistingConfig] : [];
+  const hasConnectedEmail = emailConfigsList.some((cfg: any) => cfg.status === "Connected");
   const handleUseTemplate = (template: CampaignTemplate) => {
     setPrefillTemplate(template);
     setIsActionModalOpen(true);
   };
-
   const HEADING_DATA = {
     heading: "Email Campaigns",
     subHeading: "Create and manage email campaigns for your referral network.",
     buttons: hasConnectedEmail
       ? [
-          {
-            label: "New Campaign",
-            onClick: () => setIsActionModalOpen(true),
-            icon: <AiOutlinePlus fontSize={15} />,
-            variant: "solid" as const,
-            color: "primary" as const,
-          },
-        ]
+        {
+          label: "New Campaign",
+          onClick: () => setIsActionModalOpen(true),
+          icon: <AiOutlinePlus fontSize={15} />,
+          variant: "solid" as const,
+          color: "primary" as const,
+        },
+      ]
       : [],
   };
-
   const { data: dashboard, isLoading } = useCampaignDashboard();
-
   const STAT_CARD_DATA = [
     {
       icon: <FaRegEnvelope className="text-blue-500" />,
@@ -105,7 +91,6 @@ const EmailCampaigns = () => {
       value: dashboard?.stats.conversions || 0,
     },
   ];
-
   return (
     <>
       <ComponentContainer headingData={HEADING_DATA}>
@@ -158,17 +143,14 @@ const EmailCampaigns = () => {
                   isLoading={isLoading}
                 />
               </Tab>
-
               <Tab key="campaigns" title="Campaigns">
                 <Campaigns />
               </Tab>
-
               {planAccess?.advanced_automation !== false && (
                 <Tab key="automation" title="Automation">
                   <Automation />
                 </Tab>
               )}
-
               <Tab key="templates" title="Templates">
                 <Templates onUseTemplate={handleUseTemplate} />
               </Tab>
@@ -182,7 +164,6 @@ const EmailCampaigns = () => {
           </div>
         </div>
       </ComponentContainer>
-
       <CampaignActionModal
         isOpen={isActionModalOpen}
         onClose={() => {

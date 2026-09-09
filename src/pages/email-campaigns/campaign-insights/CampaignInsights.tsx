@@ -113,15 +113,12 @@ const CampaignInsights = () => {
             <Tab key="overview" title="Overview">
               <Overview filter={currentFilters.filter} />
             </Tab>
-
             <Tab key="performance" title="Performance">
               <Performance filter={currentFilters.filter} />
             </Tab>
-
             <Tab key="audience" title="Audience">
               <Audience filter={currentFilters.filter} />
             </Tab>
-
             <Tab key="devices" title="Devices">
               <Devices filter={currentFilters.filter} />
             </Tab>

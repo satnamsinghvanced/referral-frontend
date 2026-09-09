@@ -23,9 +23,7 @@ import CallRecordingModal from "./modal/CallRecordingModal";
 import { usePaginationAdjustment } from "../../hooks/common/usePaginationAdjustment";
 
 const CallTracking = () => {
-  const { data: twilioConfig, isPending: isTwilioConfigLoading } =
-    useFetchTwilioConfig();
-
+  const { data: twilioConfig, isPending: isTwilioConfigLoading } = useFetchTwilioConfig();
   const isTwilioConnected = twilioConfig && twilioConfig.status === "Connected";
   const hasActiveNumber = isTwilioConnected && (twilioConfig?.phoneNumbers?.length ?? 0) > 0;
   const [selectedRecord, setSelectedRecord] = useState<CallRecord | null>(null);
@@ -42,10 +40,7 @@ const CallTracking = () => {
   useEffect(() => {
     setFilters((prev) => ({ ...prev, search: debouncedSearch }));
   }, [debouncedSearch]);
-  const queryParams = {
-    ...filters,
-    search: debouncedSearch,
-  };
+  const queryParams = { ...filters, search: debouncedSearch };
   const { data, isLoading, isRefetching } = useFetchCallRecords(queryParams);
   const [isSyncing, setIsSyncing] = useState(false);
   usePaginationAdjustment({
@@ -54,7 +49,6 @@ const CallTracking = () => {
     onPageChange: (page) => setFilters((prev) => ({ ...prev, page })),
     isLoading: isLoading || isRefetching,
   });
-
   const onFilterChange = (key: string, value: string) => {
     setFilters((prev) => ({ ...prev, [key]: value, page: 1 }));
   };
@@ -73,9 +67,8 @@ const CallTracking = () => {
       icon: <FiPhone className="text-foreground/60" />,
       heading: "Total Calls",
       value: data?.stats?.totalCalls?.value || 0,
-      subheading: `${
-        data?.stats?.totalCalls?.completedCalls || 0
-      } completed calls`,
+      subheading: `${data?.stats?.totalCalls?.completedCalls || 0
+        } completed calls`,
     },
     {
       icon: <FiPhoneCall className="text-foreground/60" />,
@@ -102,7 +95,6 @@ const CallTracking = () => {
       subheading: "Require attention",
     },
   ];
-
   const handleRefresh = useCallback(async () => {
     setIsSyncing(true);
     try {
@@ -112,7 +104,6 @@ const CallTracking = () => {
       setIsSyncing(false);
     }
   }, [queryParams]);
-
   const HEADING_DATA = useMemo(
     () => ({
       heading: "Call Tracking",
@@ -136,7 +127,6 @@ const CallTracking = () => {
     }),
     [handleRefresh, isRefetching, isSyncing],
   );
-
   return (
     <>
       <ComponentContainer headingData={HEADING_DATA}>
@@ -285,7 +275,6 @@ const CallTracking = () => {
                   </Select>
                 </div>
               </div>
-
               <div className="flex flex-col gap-4 border border-foreground/10 bg-background rounded-xl p-4">
                 <div className="flex items-center justify-between">
                   <p className="font-medium text-sm">Call History</p>

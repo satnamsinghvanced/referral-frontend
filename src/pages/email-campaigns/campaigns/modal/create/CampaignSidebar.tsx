@@ -1,13 +1,6 @@
 import clsx from "clsx";
 import React from "react";
-import {
-  FiCheckSquare,
-  FiClock,
-  FiFileText,
-  FiLayout,
-  FiSettings,
-  FiUsers,
-} from "react-icons/fi";
+import { FiCheckSquare, FiClock, FiFileText, FiLayout, FiSettings, FiUsers } from "react-icons/fi";
 import { LuCircleCheckBig } from "react-icons/lu";
 
 export const steps = [
@@ -25,9 +18,7 @@ interface CampaignSidebarProps {
   onStepChange: (stepId: number) => void;
 }
 
-const CampaignSidebar: React.FC<
-  CampaignSidebarProps & { isStepValid?: boolean }
-> = ({ currentStep, onStepChange, isStepValid = false }) => {
+const CampaignSidebar: React.FC<CampaignSidebarProps & { isStepValid?: boolean }> = ({ currentStep, onStepChange, isStepValid = false }) => {
   return (
     <nav className="w-64 flex-shrink-0 bg-gray-50 dark:bg-content1 p-4 border-r border-foreground/10">
       <ul role="list" className="space-y-2  ">

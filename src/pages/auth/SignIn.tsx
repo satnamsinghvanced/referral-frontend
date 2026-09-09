@@ -1,12 +1,4 @@
-import {
-  Button,
-  Card,
-  CardBody,
-  Checkbox,
-  Divider,
-  Spinner,
-  Input,
-} from "@heroui/react";
+import { Button, Card, CardBody, Checkbox, Spinner, Input } from "@heroui/react";
 import { useFormik } from "formik";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
@@ -19,7 +11,6 @@ import { EMAIL_REGEX, PASSWORD_REGEX } from "../../consts/consts";
 import { setCredentials } from "../../store/authSlice";
 import { OtpVerificationModal } from "../../components/OtpVerificationModal";
 import AuthThemeToggle from "../../components/common/AuthThemeToggle";
-import { useTypedSelector } from "../../hooks/useTypedSelector";
 
 interface FormData {
   email: string;
@@ -28,15 +19,12 @@ interface FormData {
 }
 
 const SignIn = () => {
-  const theme = useTypedSelector((state) => state.ui.theme);
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
   const navigate = useNavigate();
   const dispatch = useDispatch<AppDispatch>();
-
   const { mutate: loginUser, isPending: isLoginPending } = useLogin();
   const { mutate: verifyOtp, isPending: isVerifyPending } = useVerify2FA();
-
   const [isOtpOpen, setIsOtpOpen] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [maskedPhone, setMaskedPhone] = useState<string | undefined>(undefined);
@@ -149,13 +137,11 @@ const SignIn = () => {
       }
     );
   };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-950 dark:to-background flex flex-col items-center justify-center p-4 relative">
       <div className="absolute top-4 right-4">
         <AuthThemeToggle />
       </div>
-
       <Card className="w-full max-w-md shadow-xl border border-foreground/10 bg-content1 backdrop-blur-xl">
         <CardBody className="p-6 sm:p-8">
           <div className="text-center mb-8">
@@ -166,7 +152,6 @@ const SignIn = () => {
               Sign in to your account to continue
             </p>
           </div>
-
           <form onSubmit={formik.handleSubmit} className="space-y-5">
             <div className="flex">
               <Input
@@ -189,7 +174,6 @@ const SignIn = () => {
                 isRequired
               />
             </div>
-
             <div className="flex">
               <Input
                 label="Password"
@@ -227,7 +211,6 @@ const SignIn = () => {
                 }
               />
             </div>
-
             <div className="flex justify-between items-center">
               <Checkbox
                 size="sm"
@@ -236,14 +219,11 @@ const SignIn = () => {
                 onValueChange={(value: boolean) =>
                   formik.setFieldValue("rememberMe", value)
                 }
-                classNames={{
-                  label: "text-small",
-                }}
+                classNames={{ label: "text-small" }}
               >
                 Remember me
               </Checkbox>
             </div>
-
             <Button
               size="lg"
               radius="md"
@@ -259,7 +239,6 @@ const SignIn = () => {
               {isLoginPending ? "Signing In..." : "Sign In"}
             </Button>
           </form>
-
           <div className="mt-8 text-center text-xs text-foreground/40 leading-relaxed">
             By signing in, you agree to our <br />
             <span className="hover:text-primary transition-colors cursor-pointer">
@@ -276,7 +255,7 @@ const SignIn = () => {
               <Link
                 to="https://practiceroi.com/privacy-policy/"
                 target="_blank"
-                rel="noopener noreferrer"
+                rel="noopener noreferrer" 
               >
                 Privacy Policy
               </Link>
@@ -292,7 +271,6 @@ const SignIn = () => {
           </div>
         </CardBody>
       </Card>
-
       <OtpVerificationModal
         isOpen={isOtpOpen}
         onClose={() => setIsOtpOpen(false)}

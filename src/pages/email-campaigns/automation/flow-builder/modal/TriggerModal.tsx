@@ -1,14 +1,4 @@
-import {
-  Button,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Select,
-  SelectItem,
-  DatePicker,
-} from "@heroui/react";
+import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Select, SelectItem, DatePicker } from "@heroui/react";
 import { useFormik } from "formik";
 import React, { useEffect } from "react";
 import * as Yup from "yup";
@@ -36,7 +26,6 @@ const TriggerModal: React.FC<TriggerModalProps> = ({ isOpen, onOpenChange, onSav
       otherwise: (schema) => schema.nullable(),
     }),
   });
-
   const formik = useFormik({
     initialValues: {
       triggerType: initialData?.triggerType || "",
@@ -56,7 +45,6 @@ const TriggerModal: React.FC<TriggerModalProps> = ({ isOpen, onOpenChange, onSav
     },
     enableReinitialize: true,
   });
-
   useEffect(() => {
     if (isOpen) {
       formik.resetForm({
@@ -67,7 +55,6 @@ const TriggerModal: React.FC<TriggerModalProps> = ({ isOpen, onOpenChange, onSav
       });
     }
   }, [isOpen, initialData]);
-
   return (
     <Modal
       isOpen={isOpen}
@@ -128,7 +115,6 @@ const TriggerModal: React.FC<TriggerModalProps> = ({ isOpen, onOpenChange, onSav
                     </SelectItem>
                   ))}
                 </Select>
-
                 {formik.values.triggerType === "Specific Date" && (
                   <DatePicker
                     label="Select Date"

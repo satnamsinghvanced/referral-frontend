@@ -1,14 +1,4 @@
-import {
-  Button,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Select,
-  SelectItem,
-} from "@heroui/react";
+import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Select, SelectItem } from "@heroui/react";
 import React, { useState, useEffect } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { FaRegStar } from "react-icons/fa";
@@ -29,13 +19,9 @@ import {
 } from "../../../hooks/useCampaign";
 import { useDebouncedValue } from "../../../hooks/common/useDebouncedValue";
 import { CampaignFilters, CampaignTemplate } from "../../../types/campaign";
-import CreateTemplateModal, {
-  TemplateFormValues,
-} from "./modal/CreateTemplateModal";
+import CreateTemplateModal, { TemplateFormValues } from "./modal/CreateTemplateModal";
 import ViewTemplateModal from "./modal/ViewTemplateModal";
-
 import { usePaginationAdjustment } from "../../../hooks/common/usePaginationAdjustment";
-
 import { useFetchEmailIntegration } from "../../../hooks/integrations/useEmailMarketing";
 
 const INITIAL_FILTERS: CampaignFilters = {
@@ -51,28 +37,14 @@ interface TemplatesProps {
 }
 
 const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
-  const { data: emailExistingConfig } = useFetchEmailIntegration();
-  const emailConfigsList = Array.isArray(emailExistingConfig)
-    ? emailExistingConfig
-    : emailExistingConfig
-      ? [emailExistingConfig]
-      : [];
-  const hasConnectedEmail = emailConfigsList.some(
-    (cfg: any) => cfg.status === "Connected"
-  );
-
-  const [currentFilters, setCurrentFilters] =
-    useState<CampaignFilters>(INITIAL_FILTERS);
+  const [currentFilters, setCurrentFilters] = useState<CampaignFilters>(INITIAL_FILTERS);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [selectedTemplate, setSelectedTemplate] =
-    useState<CampaignTemplate | null>(null);
-  const [templateToDelete, setTemplateToDelete] =
-    useState<CampaignTemplate | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<CampaignTemplate | null>(null);
+  const [templateToDelete, setTemplateToDelete] = useState<CampaignTemplate | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [editingTemplate, setEditingTemplate] =
-    useState<CampaignTemplate | null>(null);
+  const [editingTemplate, setEditingTemplate] = useState<CampaignTemplate | null>(null);
   const [isChangingFilter, setIsChangingFilter] = useState(false);
   const [prevFilters, setPrevFilters] = useState({
     category: INITIAL_FILTERS.category,
@@ -103,11 +75,7 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
   };
 
   const debouncedSearch = useDebouncedValue(searchQuery, 500);
-
-  const { data, isLoading, isFetching } = useCampaignTemplates({
-    ...currentFilters,
-    search: debouncedSearch,
-  });
+  const { data, isLoading, isFetching } = useCampaignTemplates({ ...currentFilters, search: debouncedSearch });
 
   useEffect(() => {
     const filtersChanged =
@@ -115,7 +83,6 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
       currentFilters.filter !== prevFilters.filter ||
       currentFilters.page !== prevFilters.page ||
       debouncedSearch !== prevFilters.search;
-
     if (filtersChanged) {
       setIsChangingFilter(true);
       setPrevFilters({
@@ -139,12 +106,10 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
     onPageChange: (page) => handleFilterChange("page", page),
     isLoading: isLoading || isChangingFilter,
   });
-
   const createMutation = useCreateCampaignTemplate();
   const updateMutation = useUpdateCampaignTemplate(editingTemplate?._id || "");
   const toggleFavoriteMutation = useToggleFavoriteTemplate();
   const deleteMutation = useDeleteCampaignTemplate();
-
   const handleFilterChange = (key: keyof CampaignFilters, value: any) => {
     setCurrentFilters((prev) => ({
       ...prev,
@@ -152,12 +117,10 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
       page: key === "page" ? value : 1,
     }));
   };
-
   const handleViewTemplate = (template: CampaignTemplate) => {
     setSelectedTemplate(template);
     setIsViewModalOpen(true);
   };
-
   const handleUseTemplate = (template: CampaignTemplate) => {
     if (onUseTemplate) {
       onUseTemplate(template);
@@ -169,25 +132,16 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
     formData.append("name", values.name);
     formData.append("description", values.description);
     formData.append("category", values.category);
-
     formData.append("subjectLine", values.subjectLine);
     formData.append("bodyContent", values.body);
     formData.append("mainImage", values.coverImage);
-
-    const tagsArray = values.tags
-      ? values.tags.split(",").map((tag: string) => tag.trim())
-      : [];
+    const tagsArray = values.tags ? values.tags.split(",").map((tag: string) => tag.trim()) : [];
     tagsArray.forEach((tag: string) => formData.append("tags[]", tag));
-
     formData.append("designOptions[headerColor]", values.headerColor);
     formData.append("designOptions[accentColor]", values.accentColor);
     formData.append("designOptions[organizationName]", values.organizationName);
     formData.append("designOptions[buttonText]", values.primaryButtonText);
-    formData.append(
-      "designOptions[secondaryButtonText]",
-      values.secondaryButtonText,
-    );
-
+    formData.append("designOptions[secondaryButtonText]", values.secondaryButtonText);
     if (editingTemplate) {
       updateMutation.mutate(formData, {
         onSuccess: () => {
@@ -203,10 +157,8 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
       });
     }
   };
-
   const templates = data?.templates || [];
   const pagination = data?.pagination;
-
   return (
     <div className="space-y-4 md:space-y-5">
       <div className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-foreground/10 bg-background">
@@ -301,7 +253,6 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
           </div>
         </div>
       </div>
-
       <CreateTemplateModal
         isOpen={isModalOpen}
         onClose={() => {
@@ -311,7 +262,6 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
         onSubmit={handleCreateTemplate}
         initialData={editingTemplate}
       />
-
       <ViewTemplateModal
         isOpen={isViewModalOpen}
         onClose={() => setIsViewModalOpen(false)}
@@ -325,7 +275,6 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
           setIsModalOpen(true);
         }}
       />
-
       <Modal
         isOpen={isDeleteModalOpen}
         onOpenChange={handleDeleteCancel}
@@ -365,7 +314,6 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
           </ModalFooter>
         </ModalContent>
       </Modal>
-
       {isLoading || isChangingFilter ? (
         <div className="flex justify-center py-20">
           <LoadingState />
@@ -407,25 +355,21 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
                       </div>
                     )}
                   </div>
-
                   <div className="p-4 space-y-2">
                     <div className="flex justify-between items-start">
                       <h4 className="text-sm font-medium line-clamp-1">
                         {template.name}
                       </h4>
                     </div>
-
                     <p className="text-xs text-gray-500 dark:text-foreground/50 line-clamp-2">
                       {template.description}
                     </p>
-
                     <div className="flex items-center justify-between gap-1.5 mt-3">
                       <CampaignCategoryChip category={template.category} />
                       <span className="text-xs text-gray-500 dark:text-foreground/50">
                         {template.usageCount || 0} uses
                       </span>
                     </div>
-
                     {template.tags && template.tags.length > 0 && (
                       <div className="flex items-center flex-wrap gap-1.5 mt-3 overflow-hidden">
                         {template.tags?.slice(0, 3).map((tag) => (
@@ -438,7 +382,6 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
                         ))}
                       </div>
                     )}
-
                     <div className="flex justify-between items-center gap-2 mt-4">
                       <Button
                         size="sm"
@@ -504,7 +447,6 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
               ))
             )}
           </div>
-
           {pagination && pagination.totalPages > 1 && (
             <Pagination
               identifier="templates"

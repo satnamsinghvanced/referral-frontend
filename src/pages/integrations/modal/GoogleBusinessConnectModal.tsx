@@ -1,11 +1,4 @@
-import {
-  Button,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalHeader,
-  addToast,
-} from "@heroui/react";
+import { Button, Modal, ModalBody, ModalContent, ModalHeader, addToast } from "@heroui/react";
 import { FaGoogle } from "react-icons/fa";
 import { useConnectBusiness } from "../../../hooks/integrations/useGoogleBusiness";
 
@@ -16,7 +9,6 @@ interface GoogleBusinessConnectModalProps {
 
 export default function GoogleBusinessConnectModal({ isOpen, onClose }: GoogleBusinessConnectModalProps) {
   const { mutate: connectBusiness, isPending } = useConnectBusiness();
-
   const handleConnect = () => {
     connectBusiness(undefined, {
       onError: () => {
@@ -28,7 +20,6 @@ export default function GoogleBusinessConnectModal({ isOpen, onClose }: GoogleBu
       },
     });
   };
-
   return (
     <Modal
       isOpen={isOpen}

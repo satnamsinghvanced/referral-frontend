@@ -9,19 +9,13 @@ interface FlowCanvasProps {
   onDeleteStep: (stepId: string) => void;
 }
 
-const FlowCanvas: React.FC<FlowCanvasProps> = ({
-  steps,
-  onAddStep,
-  onEditStep,
-  onDeleteStep,
-}) => {
+const FlowCanvas: React.FC<FlowCanvasProps> = ({ steps, onAddStep, onEditStep, onDeleteStep }) => {
   const renderSiblingList = (stepList: any[], pathPrefix: string = "") => {
     return (
       <div className="flex flex-col relative mt-8">
         {stepList.map((step, index) => {
           const currentPath = pathPrefix ? `${pathPrefix}${index}` : `${index}`;
           const isLast = index === stepList.length - 1;
-
           return (
             <div
               key={step.id}
@@ -34,7 +28,6 @@ const FlowCanvas: React.FC<FlowCanvasProps> = ({
                   bottom: isLast ? "calc(100% - 24px)" : "-40px",
                 }}
               />
-
               <div className="absolute left-[-30px] top-[24px] w-[30px] h-0.5 bg-foreground/10" />
               <div className="flex flex-col">
                 <StepNode
@@ -92,7 +85,6 @@ const FlowCanvas: React.FC<FlowCanvasProps> = ({
                         `${currentPath}.branches.yes.`,
                       )}
                     </div>
-
                     <div className="relative pl-6">
                       <div className="absolute left-[-30px] top-[14px] w-8 h-0.5 bg-foreground/10" />
                       <div className="absolute left-[-20px] top-[4px] z-20">
@@ -100,7 +92,6 @@ const FlowCanvas: React.FC<FlowCanvasProps> = ({
                           No
                         </div>
                       </div>
-
                       <div className="mb-4">
                         <AddStepBar
                           onAdd={(type) =>

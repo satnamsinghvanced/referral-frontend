@@ -6,10 +6,7 @@ export interface CampaignStepRef {
   triggerValidationAndProceed: () => void;
 }
 
-const CampaignContentStep: React.ForwardRefRenderFunction<
-  CampaignStepRef,
-  CampaignStepProps
-> = ({ data, onNext, updateData, validationErrors, setIsStepValid }, ref) => {
+const CampaignContentStep: React.ForwardRefRenderFunction<CampaignStepRef, CampaignStepProps> = ({ data, onNext, updateData, validationErrors, setIsStepValid }, ref) => {
   const [content, setContent] = useState(data.content);
   const [localError, setLocalError] = useState<string | undefined>(undefined);
   const error = localError || validationErrors.content;
@@ -52,13 +49,11 @@ const CampaignContentStep: React.ForwardRefRenderFunction<
       <div className="flex item justify-between">
         <h4 className="font-medium">Email Content</h4>
       </div>
-
       {error && (
         <div className="p-3 text-sm text-red-700 bg-red-100 rounded-lg border border-red-300">
           {error}
         </div>
       )}
-
       <div className="flex flex-grow gap-4 overflow-hidden">
         <div className="flex flex-col w-1/2 min-h-full space-y-2">
           <label htmlFor="content" className="block text-xs font-medium">
@@ -73,7 +68,6 @@ const CampaignContentStep: React.ForwardRefRenderFunction<
             />
           </div>
         </div>
-
         <div className="w-1/2 flex flex-col items-start overflow-hidden">
           <label className="block text-xs font-medium mb-2">Preview</label>
           <div className="bg-background border border-foreground/10 p-4 rounded-lg overflow-y-auto w-full h-full">

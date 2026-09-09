@@ -8,10 +8,7 @@ import Devices from "./Devices";
 import Overview from "./Overview";
 import Performance from "./Performance";
 import { ANALYTICS_FILTER_OPTIONS } from "../../../consts/campaign";
-import {
-  useAnalyticsOverview,
-  useEmailAnalyticsExport,
-} from "../../../hooks/useCampaign";
+import { useAnalyticsOverview, useEmailAnalyticsExport } from "../../../hooks/useCampaign";
 import { AnalyticsFilter } from "../../../types/campaign";
 
 const INITIAL_FILTERS: { filter: AnalyticsFilter } = {
@@ -20,9 +17,7 @@ const INITIAL_FILTERS: { filter: AnalyticsFilter } = {
 
 const Stats = () => {
   const [currentFilters, setCurrentFilters] = useState(INITIAL_FILTERS);
-  const { data: overview, isLoading } = useAnalyticsOverview(
-    currentFilters.filter,
-  );
+  const { data: overview } = useAnalyticsOverview(currentFilters.filter);
   const exportMutation = useEmailAnalyticsExport();
   const STAT_CARD_DATA = useMemo(() => {
     if (!overview?.stats) return [];

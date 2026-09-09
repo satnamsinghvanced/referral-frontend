@@ -1,28 +1,18 @@
 import { Switch } from "@heroui/react";
 import React, { forwardRef, useImperativeHandle, useState } from "react";
-import { CampaignData, CampaignStepProps } from "./CampaignActionModal";
-import {
-  getLocalTimeZone,
-  now,
-} from "@internationalized/date";
+import { CampaignStepProps } from "./CampaignActionModal";
+import { getLocalTimeZone, now } from "@internationalized/date";
 import DatePickerWithTimeInput from "../../../../../components/common/DatePickerWithTimeInput";
 
 export interface CampaignStepRef {
   triggerValidationAndProceed: () => void;
 }
 
-const CampaignScheduleStep: React.ForwardRefRenderFunction<
-  CampaignStepRef,
-  CampaignStepProps
-> = ({ data, onNext, validationErrors, setIsStepValid }, ref) => {
-  const [sendImmediately, setSendImmediately] = useState<boolean>(
-    data.schedule.sendImmediately,
-  );
+const CampaignScheduleStep: React.ForwardRefRenderFunction<CampaignStepRef, CampaignStepProps> = ({ data, onNext, validationErrors, setIsStepValid }, ref) => {
+  const [sendImmediately, setSendImmediately] = useState<boolean>(data.schedule.sendImmediately);
   const [trackOpens, setTrackOpens] = useState(data.tracking.trackOpens);
   const [trackClicks, setTrackClicks] = useState(data.tracking.trackClicks);
-  const [sendDate, setSendDate] = useState<string | undefined>(
-    data.schedule.date,
-  );
+  const [sendDate, setSendDate] = useState<string | undefined>(data.schedule.date);
   const [localError, setLocalError] = useState<string | null>(null);
   const error = localError || (validationErrors.schedule as any)?.date;
   React.useEffect(() => {
@@ -85,7 +75,6 @@ const CampaignScheduleStep: React.ForwardRefRenderFunction<
   return (
     <div className="space-y-4">
       <h4 className="font-medium">Schedule & Tracking</h4>
-
       <div className="">
         <Switch
           size="sm"
@@ -97,7 +86,6 @@ const CampaignScheduleStep: React.ForwardRefRenderFunction<
         >
           Schedule for later
         </Switch>
-
         {!sendImmediately && (
           <div className="mt-3">
             <DatePickerWithTimeInput
@@ -133,7 +121,6 @@ const CampaignScheduleStep: React.ForwardRefRenderFunction<
           </div>
         )}
       </div>
-
       <div>
         <Switch
           size="sm"

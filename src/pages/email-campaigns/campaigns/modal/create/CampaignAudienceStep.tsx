@@ -4,27 +4,23 @@ import React, { forwardRef, useEffect, useImperativeHandle, useState } from "rea
 import { FiUsers } from "react-icons/fi";
 import { LuTarget } from "react-icons/lu";
 import { CampaignStepProps } from "./CampaignActionModal";
+import { LoadingState } from "../../../../../components/common/LoadingState";
+import { useAudiences } from "../../../../../hooks/useCampaign";
 
 export interface CampaignStepRef {
   triggerValidationAndProceed: () => void;
 }
-
-import { LoadingState } from "../../../../../components/common/LoadingState";
-import { useAudiences } from "../../../../../hooks/useCampaign";
 
 const CampaignAudienceStep: React.ForwardRefRenderFunction<CampaignStepRef, CampaignStepProps> = ({ data, onNext, setIsStepValid }, ref) => {
   const { data: audiencesRaw, isLoading } = useAudiences({ page: 1, limit: 100 });
   const [selectedAudienceId, setSelectedAudienceId] = useState<string | null>(data.audienceId);
   const [localError, setLocalError] = useState<string | undefined>(undefined);
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
-
   useEffect(() => {
     setIsStepValid(!!selectedAudienceId);
   }, [selectedAudienceId, setIsStepValid]);
-
   const audiences = audiencesRaw?.audiences || [];
   const selectedAudience = audiences.find((a) => a._id === selectedAudienceId);
-
   const getAudienceRecipients = (audience: any) => {
     const list: { name: string; email: string; type: string }[] = [];
     if (audience?.referrers) {
@@ -49,14 +45,11 @@ const CampaignAudienceStep: React.ForwardRefRenderFunction<CampaignStepRef, Camp
     }
     return list;
   };
-
   const recipientsList = selectedAudience ? getAudienceRecipients(selectedAudience) : [];
-
   const handleSelect = (id: string) => {
     setSelectedAudienceId(id);
     setLocalError(undefined);
   };
-
   const handleValidationAndNext = () => {
     if (selectedAudienceId) {
       onNext({
@@ -68,11 +61,9 @@ const CampaignAudienceStep: React.ForwardRefRenderFunction<CampaignStepRef, Camp
       return false;
     }
   };
-
   useImperativeHandle(ref, () => ({
     triggerValidationAndProceed: handleValidationAndNext,
   }));
-
   if (isLoading) {
     return (
       <div className="flex justify-center py-12">
@@ -80,7 +71,6 @@ const CampaignAudienceStep: React.ForwardRefRenderFunction<CampaignStepRef, Camp
       </div>
     );
   }
-
   return (
     <div className="space-y-4">
       <h4 className="font-medium">Select Audience</h4>
@@ -172,7 +162,6 @@ const CampaignAudienceStep: React.ForwardRefRenderFunction<CampaignStepRef, Camp
           </p>
         )}
       </Card>
-
       <Modal isOpen={isOpen} onOpenChange={onOpenChange} size="xl" scrollBehavior="inside" backdrop="blur">
         <ModalContent>
           {(onClose) => (

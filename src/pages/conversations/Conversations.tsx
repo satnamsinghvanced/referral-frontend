@@ -33,8 +33,6 @@ import {
 const Conversations = () => {
   const { data: socialCreds, isLoading: isSocialLoading } = useSocialCredentials();
   const queryClient = useQueryClient();
-
-
   const isMetaConnected = useMemo(() => {
     const credentials = (socialCreds && typeof socialCreds === "object" && "data" in socialCreds && socialCreds.data)
       ? (socialCreds.data as any)
@@ -42,7 +40,6 @@ const Conversations = () => {
     const metaCreds = credentials?.meta;
     return metaCreds?.status === "Connected" || metaCreds?.status === "connected";
   }, [socialCreds]);
-
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [isConversationsLoading, setIsConversationsLoading] = useState(true);
   const [search, setSearch] = useState("");
@@ -54,7 +51,6 @@ const Conversations = () => {
   const [isSendFormsModalOpen, setIsSendFormsModalOpen] = useState(false);
   const [isSendQuoteModalOpen, setIsSendQuoteModalOpen] = useState(false);
   const [modalLead, setModalLead] = useState<Conversation | null>(null);
-
   const applySeenOverrides = (convs: Conversation[]): Conversation[] => {
     return convs.map((conv) => {
       if (!conv.messages || conv.messages.length === 0) {
@@ -229,12 +225,10 @@ const Conversations = () => {
         })
       );
     };
-
     subscribeToNewMessage(handleNewMessage);
     subscribeToNewWebMessage(handleNewWebMessage);
     subscribeToEvent("message_read_watermark", handleMessageReadWatermark);
     subscribeToEvent("messages_read_by_patient", handleMessagesReadByPatient);
-
     return () => {
       unsubscribeFromNewMessage(handleNewMessage);
       unsubscribeFromNewWebMessage(handleNewWebMessage);
@@ -265,12 +259,7 @@ const Conversations = () => {
       return;
     }
     const selectedFiles = Array.from(files).slice(0, remainingSlots);
-    const newAttachments = selectedFiles.map((file) => ({
-      file,
-      name: file.name,
-      url: URL.createObjectURL(file),
-      type: file.type,
-    }));
+    const newAttachments = selectedFiles.map((file) => ({ file, name: file.name, url: URL.createObjectURL(file), type: file.type }));
     setAttachedFile((prev) => [...prev, ...newAttachments]);
     addToast({
       title: "File(s) Attached",
@@ -294,12 +283,7 @@ const Conversations = () => {
       return;
     }
     const selectedFiles = Array.from(files).slice(0, remainingSlots);
-    const newAttachments = selectedFiles.map((file) => ({
-      file,
-      name: file.name,
-      url: URL.createObjectURL(file),
-      type: file.type,
-    }));
+    const newAttachments = selectedFiles.map((file) => ({ file, name: file.name, url: URL.createObjectURL(file), type: file.type }));
     setAttachedFile((prev) => [...prev, ...newAttachments]);
     addToast({
       title: "Image(s) Attached",
@@ -352,15 +336,12 @@ const Conversations = () => {
       conversations.find((c) => c.id === selectedConversationId) || null
     );
   }, [selectedConversationId, conversations]);
-
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
-
   useEffect(() => {
     scrollToBottom();
   }, [selectedConversation]);
-
   useEffect(() => {
     if (selectedConversation) {
       const lastMsg = selectedConversation.messages && selectedConversation.messages.length > 0
@@ -369,7 +350,6 @@ const Conversations = () => {
       if (lastMsg) {
         localStorage.setItem(`seen_msg_${selectedConversation.id}`, lastMsg.id);
       }
-
       const markAsSeenOnPlatform = async () => {
         try {
           const lastMsgId = lastMsg?.id;
@@ -395,13 +375,8 @@ const Conversations = () => {
   }, [selectedConversation, queryClient]);
 
   const stats = useMemo<StatCard[]>(() => {
-    const activeCount = conversations.filter(
-      (c) => c.status === "active",
-    ).length;
-    const unreadCount = conversations.reduce(
-      (acc, c) => acc + c.unreadCount,
-      0,
-    );
+    const activeCount = conversations.filter((c) => c.status === "active").length;
+    const unreadCount = conversations.reduce((acc, c) => acc + c.unreadCount, 0);
     return [
       {
         heading: "Active Conversations",
@@ -460,74 +435,16 @@ const Conversations = () => {
     ];
   }, [conversations]);
 
-  const handleSendAutomatedMessage = async (text: string) => {
-    if (!selectedConversationId) return;
-    const currentConv = conversations.find((c) => c.id === selectedConversationId);
-    if (!currentConv) return;
-    const isInstagram = currentConv.platform === "instagram";
-    const isFacebook = currentConv.platform === "facebook";
-    const isWeb = currentConv.platform === "web";
-    try {
-      if (isInstagram && currentConv.recipientId) {
-        await sendInstagramMessage(currentConv.recipientId, text);
-      } else if (isFacebook && currentConv.recipientId) {
-        await sendFacebookMessage(currentConv.recipientId, text);
-      } else if (isWeb) {
-        await sendWebMessage(currentConv.id, text);
-      }
-    } catch (err) {
-      console.error("Failed to send automated message:", err);
-      addToast({
-        title: "Error Sending Message",
-        description: "Could not deliver automated message.",
-        color: "danger",
-      });
-      return;
-    }
-
-    const newMsg: ConversationMessage = {
-      id: Date.now().toString(),
-      senderId: "provider",
-      text,
-      timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      isFromPatient: false,
-    };
-
-    setConversations((prev) =>
-      prev.map((c) => {
-        if (c.id === selectedConversationId) {
-          return {
-            ...c,
-            lastMessage: newMsg.text,
-            lastMessageTime: "Just now",
-            lastMessageTimestamp: Date.now(),
-            messages: [...c.messages, newMsg],
-          };
-        }
-        return c;
-      })
-    );
-
-    addToast({
-      title: "Message Sent",
-      description: "Automated template sent successfully",
-      color: "success",
-    });
-  };
-
   const handleSendMessage = async () => {
     const trimmedText = messageInput.trim();
     const filesToSend = [...attachedFile];
     if (!trimmedText && filesToSend.length === 0) return;
-
     const currentConv = conversations.find((c) => c.id === selectedConversationId);
     if (!currentConv) return;
     setMessageInput("");
     setAttachedFile([]);
-
     const optimisticMessages: ConversationMessage[] = [];
     const textTempId = `temp-text-${Date.now()}`;
-
     if (trimmedText) {
       optimisticMessages.push({
         id: textTempId,
@@ -539,7 +456,6 @@ const Conversations = () => {
         createdAt: Date.now()
       });
     }
-
     const fileTempIds: string[] = [];
     for (let i = 0; i < filesToSend.length; i++) {
       const currentFile = filesToSend[i];
@@ -577,7 +493,6 @@ const Conversations = () => {
         return c;
       })
     );
-
     const isInstagram = currentConv.platform === "instagram";
     const isFacebook = currentConv.platform === "facebook";
     const isWeb = currentConv.platform === "web";

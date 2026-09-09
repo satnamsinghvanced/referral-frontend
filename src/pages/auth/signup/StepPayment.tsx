@@ -7,7 +7,6 @@ import { PlanData } from "../../../services/planFeature";
 export const StepPayment: React.FC<StepPaymentProps> = ({
   selectedPlan,
   billingCycle,
-  onBack,
   onSubmitSignup,
   isSubmitting,
   cardNumber,
@@ -57,7 +56,6 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
     const formatted = clean.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
     setCardNumber(formatted);
   };
-
   const handleExpiryChange = (val: string) => {
     const clean = val.replace(/\D/g, "").substring(0, 4);
     let formatted = clean;
@@ -66,12 +64,10 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
     }
     setExpiry(formatted);
   };
-
   const handleCvcChange = (val: string) => {
     const clean = val.replace(/\D/g, "").substring(0, 3);
     setCvc(clean);
   };
-
   return (
     <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-6">
       <div className="md:col-span-2 flex flex-col gap-6">

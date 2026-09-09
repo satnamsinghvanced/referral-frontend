@@ -6,13 +6,7 @@ import DeleteConfirmationModal from "../../../components/common/DeleteConfirmati
 import { LoadingState } from "../../../components/common/LoadingState";
 import Pagination from "../../../components/common/Pagination";
 import { CAMPAIGN_CATEGORIES, CAMPAIGN_STATUSES } from "../../../consts/campaign";
-import {
-  useArchiveCampaign,
-  useCampaigns,
-  useDeleteCampaign,
-  useDuplicateCampaign,
-  useUpdateCampaign,
-} from "../../../hooks/useCampaign";
+import { useArchiveCampaign, useCampaigns, useDeleteCampaign, useDuplicateCampaign, useUpdateCampaign } from "../../../hooks/useCampaign";
 import { ICampaign, ICampaignFilters } from "../../../types/campaign";
 import CampaignCard from "./CampaignCard";
 import CampaignActionModal from "./modal/create/CampaignActionModal";
@@ -37,12 +31,8 @@ const Campaigns = () => {
     : emailExistingConfig
       ? [emailExistingConfig]
       : [];
-  const hasConnectedEmail = emailConfigsList.some(
-    (cfg: any) => cfg.status === "Connected"
-  );
-
-  const [currentFilters, setCurrentFilters] =
-    useState<ICampaignFilters>(INITIAL_FILTERS);
+  const hasConnectedEmail = emailConfigsList.some((cfg: any) => cfg.status === "Connected");
+  const [currentFilters, setCurrentFilters] = useState<ICampaignFilters>(INITIAL_FILTERS);
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);
   const [editingCampaign, setEditingCampaign] = useState<ICampaign | null>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -56,32 +46,20 @@ const Campaigns = () => {
     onPageChange: (page) => setCurrentFilters((prev) => ({ ...prev, page })),
     isLoading,
   });
-
   const deleteMutation = useDeleteCampaign();
   const archiveMutation = useArchiveCampaign();
   const duplicateMutation = useDuplicateCampaign();
   const updateMutation = useUpdateCampaign();
-
   const handleStatusUpdate = (id: string, status: string) => {
-    updateMutation.mutate({
-      id,
-      payload: { status } as any,
-    });
+    updateMutation.mutate({ id, payload: { status } as any });
   };
-
   const handleFilterChange = (key: keyof ICampaignFilters, value: any) => {
-    setCurrentFilters((prev) => ({
-      ...prev,
-      [key]: value,
-      page: 1,
-    }));
+    setCurrentFilters((prev) => ({ ...prev, [key]: value, page: 1 }));
   };
-
   const handleDelete = (id: string) => {
     setCampaignToDelete(id);
     setIsDeleteModalOpen(true);
   };
-
   const handleConfirmDelete = () => {
     if (campaignToDelete) {
       deleteMutation.mutate(
@@ -95,28 +73,22 @@ const Campaigns = () => {
       );
     }
   };
-
   const handleArchive = (id: string) => {
     archiveMutation.mutate({ id });
   };
-
   const handleDuplicate = (id: string) => {
     duplicateMutation.mutate({ id });
   };
-
   const handleEdit = (campaign: ICampaign) => {
     setEditingCampaign(campaign);
     setIsActionModalOpen(true);
   };
-
   const handleViewReport = (id: string) => {
     setReportCampaignId(id);
     setIsReportModalOpen(true);
   };
-
   const campaigns = data?.campaigns || [];
   const pagination = data?.pagination;
-
   return (
     <div className="space-y-4 md:space-y-5">
       <div className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-foreground/10 bg-background">
@@ -156,7 +128,6 @@ const Campaigns = () => {
                 ))}
               </>
             </Select>
-
             <Select
               aria-label="Categories"
               placeholder="All categories"
@@ -174,7 +145,6 @@ const Campaigns = () => {
                 ))}
               </>
             </Select>
-
             <div className="flex items-center gap-3">
               <Button
                 onPress={() => setCurrentFilters(INITIAL_FILTERS)}
@@ -204,7 +174,6 @@ const Campaigns = () => {
           </div>
         </div>
       </div>
-
       <div className="flex flex-col gap-4">
         {isLoading ? (
           <div className="flex justify-center py-12">
@@ -230,7 +199,6 @@ const Campaigns = () => {
           />
         )}
       </div>
-
       {pagination && pagination.totalPages > 1 && (
         <Pagination
           identifier="campaigns"
@@ -243,7 +211,6 @@ const Campaigns = () => {
           }
         />
       )}
-
       <CampaignActionModal
         isOpen={isActionModalOpen}
         onClose={() => {
@@ -252,7 +219,6 @@ const Campaigns = () => {
         }}
         editingCampaign={editingCampaign}
       />
-
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
         onClose={() => setIsDeleteModalOpen(false)}
@@ -261,7 +227,6 @@ const Campaigns = () => {
         title="Delete Campaign"
         description="Are you sure you want to delete this campaign? This action cannot be undone."
       />
-
       <CampaignReportModal
         isOpen={isReportModalOpen}
         onClose={() => {

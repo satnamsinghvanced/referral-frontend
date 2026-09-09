@@ -12,7 +12,6 @@ const PublicRoute: React.FC<PublicRouteProps> = ({ children }) => {
   const { isAuthenticated, user, loading } = useSelector(
     (state: RootState) => state.auth,
   );
-
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 gap-4">
@@ -23,14 +22,12 @@ const PublicRoute: React.FC<PublicRouteProps> = ({ children }) => {
       </div>
     );
   }
-
   if (isAuthenticated) {
     if (user?.role === "SuperAdmin") {
       return <Navigate to="/admin" replace />;
     }
     return <Navigate to="/" replace />;
   }
-
   return <>{children}</>;
 };
 

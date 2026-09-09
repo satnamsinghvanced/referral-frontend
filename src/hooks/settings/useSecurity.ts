@@ -15,23 +15,12 @@ export function useUpdatePassword() {
     mutationFn: (payload) => updatePassword(payload),
     onSuccess: (data) => {
       if (!data.twoFactorRequired) {
-        addToast({
-          title: "Success",
-          description: "Password updated successfully.",
-          color: "success",
-        });
+        addToast({ title: "Success", description: "Password updated successfully.", color: "success" });
       }
     },
     onError: (error) => {
-      const errorMessage =
-        (error.response?.data as { message?: string })?.message ||
-        error.message ||
-        "Failed to update password";
-      addToast({
-        title: "Error",
-        description: errorMessage,
-        color: "danger",
-      });
+      const errorMessage = (error.response?.data as { message?: string })?.message || error.message || "Failed to update password";
+      addToast({ title: "Error", description: errorMessage, color: "danger" });
     },
   });
 }

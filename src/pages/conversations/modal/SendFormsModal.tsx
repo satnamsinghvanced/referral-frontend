@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Modal, ModalContent, ModalBody, Button, addToast } from "@heroui/react";
 import { Conversation } from "../../../consts/conversations";
-import { HiCheck, HiOutlinePaperAirplane, HiOutlineCheckCircle } from "react-icons/hi";
+import { HiCheck, HiOutlinePaperAirplane } from "react-icons/hi";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { sendFormLink } from "../../../services/leadTrackingForms";
@@ -102,7 +102,6 @@ const SendFormsModal = ({ isOpen, onClose, lead }: SendFormsModalProps) => {
     validationSchema,
     onSubmit: async (values) => {
       if (!lead) return;
-
       if (!lead.leadId && !lead.id) {
         addToast({
           title: "Save Lead First",
@@ -111,10 +110,8 @@ const SendFormsModal = ({ isOpen, onClose, lead }: SendFormsModalProps) => {
         });
         return;
       }
-
       const combinedFields: any[] = [];
       const selectedTitles: string[] = [];
-
       values.selectedForms.forEach((formId) => {
         const formObj = FORMS.find(f => f.id === formId);
         if (formObj) {
@@ -129,9 +126,7 @@ const SendFormsModal = ({ isOpen, onClose, lead }: SendFormsModalProps) => {
           });
         }
       });
-
       const formName = selectedTitles.join(", ");
-
       try {
         const payload: Parameters<typeof sendFormLink>[0] = {
           formName,
@@ -144,7 +139,6 @@ const SendFormsModal = ({ isOpen, onClose, lead }: SendFormsModalProps) => {
           payload.conversationId = lead.id; 
         }
         const res = await sendFormLink(payload);
-
         if (res && res.success && res.data) {
           setGeneratedLink(res.data.formLink);
           setDeliveryResult({
@@ -156,12 +150,7 @@ const SendFormsModal = ({ isOpen, onClose, lead }: SendFormsModalProps) => {
         } else {
           setGeneratedLink(res.formLink || "");
         }
-
-        addToast({
-          title: "Link Created",
-          description: `link generated successfully.`,
-          color: "success",
-        });
+        addToast({ title: "Link Created", description: `link generated successfully.`, color: "success" });
       } catch (err: any) {
         console.error("Failed to generate form link", err);
         addToast({
@@ -180,11 +169,8 @@ const SendFormsModal = ({ isOpen, onClose, lead }: SendFormsModalProps) => {
       : [...current, id];
     formik.setFieldValue("selectedForms", next);
   };
-
   const selectedCount = formik.values.selectedForms.length;
-
   if (!lead) return null;
-
   return (
     <Modal
       isOpen={isOpen}
@@ -206,14 +192,12 @@ const SendFormsModal = ({ isOpen, onClose, lead }: SendFormsModalProps) => {
               </h3>
               <p className="text-white/85 text-[12px] sm:text-[13px] mt-0.5">To: {lead.patientName}</p>
             </div>
-
             <ModalBody className="px-5 py-4 gap-4">
               {generatedLink ? (
                 <div className="space-y-4">
                   <p className="text-xs text-slate-500 dark:text-slate-400 leading-normal">
                     The Forms link has been successfully created for the selected form(s).
                   </p>
-
                   {deliveryResult && (
                     <div className="space-y-2 p-3 bg-slate-50 dark:bg-default-50/20 rounded-xl border border-slate-100 dark:border-default-200/50">
                       <div className="text-[11.5px] font-semibold text-slate-700 dark:text-slate-300">
@@ -241,7 +225,6 @@ const SendFormsModal = ({ isOpen, onClose, lead }: SendFormsModalProps) => {
                       </div>
                     </div>
                   )}
-
                   <div className="space-y-1.5 mt-2">
                     <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
                       Share Link
@@ -271,7 +254,6 @@ const SendFormsModal = ({ isOpen, onClose, lead }: SendFormsModalProps) => {
                       Copy this link to send directly in the conversation or open in a browser.
                     </p>
                   </div>
-
                   <div className="flex gap-2.5 pt-2">
                     <Button
                       className="w-full font-bold bg-[#8b5cf6] text-white text-[12.5px] sm:text-[13px] h-9 rounded-lg"
@@ -286,7 +268,6 @@ const SendFormsModal = ({ isOpen, onClose, lead }: SendFormsModalProps) => {
                   <div className="text-[12px] text-slate-500 dark:text-slate-400 leading-normal">
                     Select one or more forms to send. The patient will receive a secure link via SMS and email.
                   </div>
-
                   <div className="flex flex-col gap-2">
                     {FORMS.map((form) => {
                       const isSelected = formik.values.selectedForms.includes(form.id);
@@ -295,14 +276,14 @@ const SendFormsModal = ({ isOpen, onClose, lead }: SendFormsModalProps) => {
                           key={form.id}
                           onClick={() => toggleForm(form.id)}
                           className={`cursor-pointer rounded-xl border p-3 flex gap-3 items-center transition-all ${isSelected
-                              ? "border-[#8b5cf6] bg-violet-50/20 dark:bg-violet-950/20"
-                              : "border-slate-200 dark:border-default-200 hover:border-slate-300"
+                            ? "border-[#8b5cf6] bg-violet-50/20 dark:bg-violet-950/20"
+                            : "border-slate-200 dark:border-default-200 hover:border-slate-300"
                             }`}
                         >
                           <div
                             className={`w-5 h-5 rounded border flex items-center justify-center shrink-0 transition-all ${isSelected
-                                ? "bg-[#8b5cf6] border-[#8b5cf6] text-white"
-                                : "border-slate-300 dark:border-default-300"
+                              ? "bg-[#8b5cf6] border-[#8b5cf6] text-white"
+                              : "border-slate-300 dark:border-default-300"
                               }`}
                           >
                             {isSelected && <HiCheck className="text-[12px] stroke-[1.5]" />}
@@ -322,7 +303,6 @@ const SendFormsModal = ({ isOpen, onClose, lead }: SendFormsModalProps) => {
                       );
                     })}
                   </div>
-
                   <div className="bg-slate-50 dark:bg-default-100/40 p-3.5 rounded-xl border border-slate-100 dark:border-default-200/50">
                     <div className="text-[11.5px] font-semibold text-slate-700 dark:text-slate-300">
                       Forms will be sent via: <span className="font-bold">SMS + Email</span>
@@ -331,13 +311,12 @@ const SendFormsModal = ({ isOpen, onClose, lead }: SendFormsModalProps) => {
                       Link expires in 7 days. Patient data is encrypted and HIPAA-compliant.
                     </div>
                   </div>
-
                   <div className="flex gap-2.5 pb-1">
                     <Button
                       isLoading={formik.isSubmitting}
                       className={`flex-[2] font-bold text-white text-[12.5px] sm:text-[13px] h-9 rounded-lg ${selectedCount > 0
-                          ? "bg-[#8b5cf6]"
-                          : "bg-[#c0a9fa] cursor-not-allowed opacity-80"
+                        ? "bg-[#8b5cf6]"
+                        : "bg-[#c0a9fa] cursor-not-allowed opacity-80"
                         }`}
                       startContent={!formik.isSubmitting && <HiOutlinePaperAirplane className="text-[15px] shrink-0 rotate-45" />}
                       onPress={() => formik.handleSubmit()}

@@ -6,10 +6,7 @@ import { FiBell, FiCheck, FiCheckCircle, FiClock, FiInbox } from "react-icons/fi
 import { RiExternalLinkLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import {
-  useInAppNotifications,
-  useMarkNotificationsRead,
-} from "../../hooks/settings/useNotification";
+import { useInAppNotifications, useMarkNotificationsRead } from "../../hooks/settings/useNotification";
 import { queryClient } from "../../providers/QueryProvider";
 import { subscribeToNotifications, unsubscribeFromEvent } from "../../services/sse";
 
@@ -83,16 +80,8 @@ export default function NotificationPopover() {
     }
     let link = notification.metadata?.link || notification.link;
     if (!link) {
-      const title = (
-        notification.title ||
-        notification.metadata?.title ||
-        ""
-      ).toLowerCase();
-      const message = (
-        notification.message ||
-        notification.metadata?.message ||
-        ""
-      ).toLowerCase();
+      const title = (notification.title || notification.metadata?.title || "").toLowerCase();
+      const message = (notification.message || notification.metadata?.message || "").toLowerCase();
       if (title.includes("referral") || message.includes("referral")) {
         link = "/referrals";
       } else if (title.includes("review") || message.includes("review")) {

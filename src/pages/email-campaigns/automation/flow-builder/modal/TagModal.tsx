@@ -1,14 +1,4 @@
-import {
-  Button,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Select,
-  SelectItem,
-} from "@heroui/react";
+import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Select, SelectItem } from "@heroui/react";
 import { useFormik } from "formik";
 import React, { useEffect } from "react";
 import * as Yup from "yup";
@@ -30,7 +20,6 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onOpenChange, onSave, initi
     action: Yup.string().required("Action is required"),
     tagName: Yup.string().trim().required("Tag name is required"),
   });
-
   const formik = useFormik({
     initialValues: {
       action: initialData?.action || "add",
@@ -43,7 +32,6 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onOpenChange, onSave, initi
     },
     enableReinitialize: true,
   });
-
   useEffect(() => {
     if (isOpen) {
       formik.resetForm({
@@ -54,7 +42,6 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onOpenChange, onSave, initi
       });
     }
   }, [isOpen, initialData]);
-
   return (
     <Modal
       isOpen={isOpen}
@@ -102,7 +89,6 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onOpenChange, onSave, initi
                   </SelectItem>
                 ))}
               </Select>
-
               <Input
                 label="Tag Name"
                 labelPlacement="outside"

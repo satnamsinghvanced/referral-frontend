@@ -14,11 +14,7 @@ interface WorkspaceLoaderProps {
   minHeight?: string;
 }
 
-export const WorkspaceLoader: React.FC<WorkspaceLoaderProps> = ({
-  message,
-  text,
-  minHeight = "min-h-[360px]",
-}) => {
+export const WorkspaceLoader: React.FC<WorkspaceLoaderProps> = ({ message, text, minHeight = "min-h-[360px]" }) => {
   const displayMessage = message || text || "LOADING...";
   return (
     <div className={`w-full ${minHeight} flex flex-col items-center justify-center py-12 transition-all`}>

@@ -1,15 +1,4 @@
-import {
-  Button,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Select,
-  SelectItem,
-  Textarea,
-} from "@heroui/react";
+import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Select, SelectItem, Textarea } from "@heroui/react";
 import { useFormik } from "formik";
 import { useEffect, useState, useRef } from "react";
 import { FiCheckCircle, FiImage, FiUpload } from "react-icons/fi";
@@ -52,12 +41,7 @@ const TemplateValidationSchema = Yup.object().shape({
     .required("Organization Name is required"),
 });
 
-export default function CreateTemplateModal({
-  isOpen,
-  onClose,
-  onSubmit,
-  initialData,
-}: CreateTemplateModalProps) {
+export default function CreateTemplateModal({ isOpen, onClose, onSubmit, initialData }: CreateTemplateModalProps) {
   const initialValues: TemplateFormValues = {
     name: initialData?.name || initialData?.title || "",
     description: initialData?.description || "",
@@ -65,33 +49,16 @@ export default function CreateTemplateModal({
     subjectLine: initialData?.subjectLine || "",
     body: initialData?.bodyContent || initialData?.body || "",
     tags: initialData?.tags?.join(", ") || "",
-    headerColor:
-      initialData?.designOptions?.headerColor ||
-      initialData?.headerColor ||
-      "#0ea5e9",
-    accentColor:
-      initialData?.designOptions?.accentColor ||
-      initialData?.accentColor ||
-      "#f97316",
-    organizationName:
-      initialData?.designOptions?.organizationName ||
-      initialData?.organizationName ||
-      "",
-    primaryButtonText:
-      initialData?.designOptions?.buttonText ||
-      initialData?.primaryButtonText ||
-      "Call to Action",
-    secondaryButtonText:
-      initialData?.designOptions?.secondaryButtonText ||
-      initialData?.secondaryButtonText ||
-      "Secondary Action",
+    headerColor: initialData?.designOptions?.headerColor || initialData?.headerColor || "#0ea5e9",
+    accentColor: initialData?.designOptions?.accentColor || initialData?.accentColor || "#f97316",
+    organizationName: initialData?.designOptions?.organizationName || initialData?.organizationName || "",
+    primaryButtonText: initialData?.designOptions?.buttonText || initialData?.primaryButtonText || "Call to Action",
+    secondaryButtonText: initialData?.designOptions?.secondaryButtonText || initialData?.secondaryButtonText || "Secondary Action",
     coverImage: initialData?.mainImage || initialData?.image || "",
   };
 
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
-  const [selectedCoverImage, setSelectedCoverImage] = useState<Media | null>(
-    null,
-  );
+  const [selectedCoverImage, setSelectedCoverImage] = useState<Media | null>(null);
   const editorRef = useRef<QuillEditorRef>(null);
 
   const formik = useFormik({
@@ -109,17 +76,6 @@ export default function CreateTemplateModal({
       formik.resetForm();
     }
   }, [isOpen]);
-
-  const replaceVariables = (text: string) => {
-    if (!text) return "";
-    return text
-      .replace(/\[Recipient Name\]/g, "John Doe")
-      .replace(/\[Practice Name\]/g, "Smile Dental")
-      .replace(/\[Your Name\]/g, "Dr. Smith")
-      .replace(/\[City\]/g, "New York")
-      .replace(/\[Phone\]/g, "(555) 123-4567")
-      .replace(/\[Email\]/g, "contact@smiledental.com");
-  };
 
   return (
     <Modal
@@ -182,7 +138,6 @@ export default function CreateTemplateModal({
                   )}
                 </Select>
               </div>
-
               <div className="md:col-span-2">
                 <Textarea
                   size="sm"
@@ -195,15 +150,13 @@ export default function CreateTemplateModal({
                   onChange={formik.handleChange}
                 />
               </div>
-
               <div className="md:col-span-2">
                 <label className="text-xs mb-1.5 block">Cover Image</label>
                 <div
-                  className={`border-2 border-dashed rounded-lg px-4 py-6 text-center transition-all duration-200 cursor-pointer ${
-                    selectedCoverImage
-                      ? "border-green-400 bg-green-50/50 dark:bg-green-500/10 dark:border-green-500/50 hover:border-green-500"
-                      : "border-foreground/10 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-content2"
-                  }`}
+                  className={`border-2 border-dashed rounded-lg px-4 py-6 text-center transition-all duration-200 cursor-pointer ${selectedCoverImage
+                    ? "border-green-400 bg-green-50/50 dark:bg-green-500/10 dark:border-green-500/50 hover:border-green-500"
+                    : "border-foreground/10 hover:border-gray-300 hover:bg-gray-50 dark:hover:bg-content2"
+                    }`}
                   onClick={() => setIsGalleryOpen(true)}
                 >
                   <div className="flex flex-col items-center gap-2">
@@ -234,7 +187,6 @@ export default function CreateTemplateModal({
                   </div>
                 </div>
               </div>
-
               <div className="md:col-span-2">
                 <Input
                   size="sm"
@@ -252,7 +204,6 @@ export default function CreateTemplateModal({
                   errorMessage={formik.errors.subjectLine as string}
                 />
               </div>
-
               <div className="md:col-span-2 space-y-2">
                 <label className="text-xs mb-1.5 block">
                   Email Body <span className="text-red-500">*</span>
@@ -299,7 +250,6 @@ export default function CreateTemplateModal({
                   ))}
                 </div>
               </div>
-
               <Input
                 size="sm"
                 radius="sm"
@@ -310,7 +260,6 @@ export default function CreateTemplateModal({
                 value={formik.values.tags}
                 onChange={formik.handleChange}
               />
-
               <div className="space-y-2">
                 <Input
                   size="sm"
@@ -334,7 +283,6 @@ export default function CreateTemplateModal({
                   This will appear in the email header and footer
                 </div>
               </div>
-
               <div className="md:col-span-2 space-y-2.5">
                 <h5 className="text-sm font-medium">Design Options</h5>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -394,7 +342,6 @@ export default function CreateTemplateModal({
                   </div>
                 </div>
               </div>
-
               <Input
                 size="sm"
                 radius="sm"
@@ -416,7 +363,6 @@ export default function CreateTemplateModal({
                 onChange={formik.handleChange}
               />
             </div>
-
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-foreground/10 pb-2.5">
                 <h3 className="text-sm font-medium">Live Template Preview</h3>
@@ -439,7 +385,6 @@ export default function CreateTemplateModal({
                     />
                   </div>
                 )}
-
                 <div className="px-4 py-5 space-y-4 text-foreground min-h-[200px]">
                   <div className="pb-4 border-b border-foreground/5 space-y-1">
                     <p className="text-xs text-gray-400">Subject Line:</p>
@@ -456,7 +401,6 @@ export default function CreateTemplateModal({
                         "Your email body content will be displayed here with proper formatting and personalization variables. Start typing in the Email Body field to see your message come to life!",
                     }}
                   />
-
                   <div className="flex flex-wrap gap-2 pt-2">
                     <button
                       type="button"
@@ -479,7 +423,6 @@ export default function CreateTemplateModal({
                     )}
                   </div>
                 </div>
-
                 <div className="p-3.5 text-center text-xs text-gray-400 border-t border-foreground/5 bg-gray-50 dark:bg-zinc-800/50">
                   <p className="mb-1 font-medium text-gray-500">
                     {formik.values.organizationName || "Your Practice Name"}
@@ -513,7 +456,6 @@ export default function CreateTemplateModal({
           </Button>
         </ModalFooter>
       </ModalContent>
-
       <GalleryMediaUploadModal
         isOpen={isGalleryOpen}
         onClose={() => setIsGalleryOpen(false)}

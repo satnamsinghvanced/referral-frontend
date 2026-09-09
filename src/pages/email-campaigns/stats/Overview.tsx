@@ -1,18 +1,6 @@
 import { Button, Card, CardBody, CardHeader, useDisclosure } from "@heroui/react";
 import { LuChartColumn } from "react-icons/lu";
-import {
-  CartesianGrid,
-  Cell,
-  Legend,
-  Line,
-  LineChart,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
+import { CartesianGrid, Cell, Legend, Line, LineChart, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import ChartTooltip from "../../../components/common/ChartTooltip";
 import { useTypedSelector } from "../../../hooks/useTypedSelector";
 import { useAnalyticsOverview } from "../../../hooks/useCampaign";
@@ -39,9 +27,7 @@ const Overview = ({ filter }: OverviewProps) => {
   const { theme } = useTypedSelector((state) => state.ui);
   const { data: overview, isLoading } = useAnalyticsOverview(filter);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(
-    null,
-  );
+  const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(null);
   const handleViewDetails = (id: string) => {
     setSelectedCampaignId(id);
     onOpen();

@@ -1,13 +1,4 @@
-import {
-  Button,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Spinner,
-} from "@heroui/react";
+import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Spinner } from "@heroui/react";
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import { FiEye, FiEyeOff, FiMail, FiKey } from "react-icons/fi";
@@ -156,7 +147,6 @@ export default function SendGridConfigModal({ isOpen, onOpenChange, existingConf
                 }
               />
             </div>
-         
           </ModalBody>
           <ModalFooter className="flex justify-end gap-2 px-4 pb-4 pt-0">
             <Button

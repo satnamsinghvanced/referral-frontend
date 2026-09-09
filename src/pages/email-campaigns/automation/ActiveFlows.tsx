@@ -4,14 +4,12 @@ import { FiSearch, FiZap } from "react-icons/fi";
 import { PiFunnelX } from "react-icons/pi";
 import { FLOW_STATUSES } from "../../../consts/campaign";
 import FlowCard from "./FlowCard";
-
 import Pagination from "../../../components/common/Pagination";
 import EmptyState from "../../../components/common/EmptyState";
 import { LoadingState } from "../../../components/common/LoadingState";
 import { useAutomations } from "../../../hooks/useCampaign";
 import { useDebouncedValue } from "../../../hooks/common/useDebouncedValue";
 import { usePaginationAdjustment } from "../../../hooks/common/usePaginationAdjustment";
-
 import { useFetchEmailIntegration } from "../../../hooks/integrations/useEmailMarketing";
 
 const INITIAL_FILTERS = {
@@ -34,18 +32,10 @@ const ActiveFlows = ({ onEdit, onCreateNew }: ActiveFlowsProps) => {
     : emailExistingConfig
       ? [emailExistingConfig]
       : [];
-  const hasConnectedEmail = emailConfigsList.some(
-    (cfg: any) => cfg.status === "Connected"
-  );
-
+  const hasConnectedEmail = emailConfigsList.some((cfg: any) => cfg.status === "Connected");
   const [currentFilters, setCurrentFilters] = useState(INITIAL_FILTERS);
   const debouncedSearch = useDebouncedValue(currentFilters.search, 500);
-  const { data, isLoading } = useAutomations(
-    currentFilters.page,
-    currentFilters.limit,
-    debouncedSearch,
-    currentFilters.status,
-  );
+  const { data, isLoading } = useAutomations(currentFilters.page, currentFilters.limit, debouncedSearch, currentFilters.status);
   const automations = data?.automations || [];
   const pagination = data?.pagination;
   usePaginationAdjustment({
@@ -62,7 +52,6 @@ const ActiveFlows = ({ onEdit, onCreateNew }: ActiveFlowsProps) => {
       page: 1,
     }));
   };
-
   return (
     <div className="space-y-4 md:space-y-5">
       <div className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-foreground/10 bg-background">
@@ -126,7 +115,6 @@ const ActiveFlows = ({ onEdit, onCreateNew }: ActiveFlowsProps) => {
           </div>
         </div>
       </div>
-
       <div className="flex flex-col gap-4">
         {isLoading ? (
           <div className="py-20 flex justify-center">
@@ -144,7 +132,6 @@ const ActiveFlows = ({ onEdit, onCreateNew }: ActiveFlowsProps) => {
                 message="No active flows found matching your criteria."
               />
             )}
-
             {pagination && pagination.totalPages > 1 && (
               <Pagination
                 identifier="flows"

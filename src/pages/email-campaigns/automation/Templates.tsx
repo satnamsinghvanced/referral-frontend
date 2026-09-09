@@ -1,10 +1,5 @@
 import { Button } from "@heroui/react";
-import { BiHeart } from "react-icons/bi";
-import { FaRegStar } from "react-icons/fa";
 import { FiEdit } from "react-icons/fi";
-import { LuHandshake } from "react-icons/lu";
-import { MdOutlineWavingHand } from "react-icons/md";
-
 import { LoadingState } from "../../../components/common/LoadingState";
 import { useAutomationTemplates } from "../../../hooks/useCampaign";
 
@@ -42,7 +37,6 @@ const Templates = ({ onUseTemplate }: TemplatesProps) => {
                       </div>
                     </div>
                   </div>
-
                   <div className="flex justify-between items-center pt-3 border-t border-foreground/10">
                     <div className="flex items-center gap-3">
                       <p className="text-xs text-gray-500 dark:text-foreground/50">
@@ -74,7 +68,6 @@ const Templates = ({ onUseTemplate }: TemplatesProps) => {
                 </div>
               );
             })}
-
             {templates.length === 0 && (
               <div className="col-span-2 text-center py-12 text-gray-500">
                 No templates available.

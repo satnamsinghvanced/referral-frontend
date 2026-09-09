@@ -1,28 +1,11 @@
-import {
-  addToast,
-  Button,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Spinner,
-  cn,
-} from "@heroui/react";
+import { addToast, Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Spinner, cn } from "@heroui/react";
 import { useEffect, useMemo, useState } from "react";
 import { FiExternalLink } from "react-icons/fi";
 import { LuCalendar } from "react-icons/lu";
 import { useConnectCalendar, useDisconnectCalendar, useSelectCalendarForSync, useUserCalendars } from "../../../hooks/integrations/useGoogleCalendar";
 import { ICalendarIntegration } from "../../../types/integrations/googleCalendar";
 
-export default function GoogleCalendarConfigModal({
-  userId,
-  isOpen,
-  onClose,
-  existingConfig,
-  isLoading,
-  isError,
-}: {
+export default function GoogleCalendarConfigModal({ userId, isOpen, onClose, existingConfig, isLoading, isError }: {
   userId: string;
   isOpen: boolean;
   onClose: () => void;
@@ -191,7 +174,7 @@ export default function GoogleCalendarConfigModal({
                 </div>
               )}
             </div>
-          ) : isCalendarsLoading ? (
+           ) : isCalendarsLoading ? (
             <div className="flex flex-col items-center justify-center py-10 gap-3">
               <Spinner size="lg" />
               <p className="text-sm text-default-500">Fetching your calendars...</p>

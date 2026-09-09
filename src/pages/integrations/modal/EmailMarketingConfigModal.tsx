@@ -36,12 +36,7 @@ const validationSchema = Yup.object().shape({
     .required("Encryption is required."),
 });
 
-export default function EmailMarketingConfigModal({
-  isOpen,
-  onOpenChange,
-  existingConfig,
-  isLoading,
-}: {
+export default function EmailMarketingConfigModal({ isOpen, onOpenChange, existingConfig, isLoading }: {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   existingConfig: EmailIntegrationResponse | undefined;
@@ -281,7 +276,6 @@ export default function EmailMarketingConfigModal({
                   ))}
                 </Select>
               </div>
-
               {isUpdateMode && existingConfig?.status === "Connected" && (
                 <div className="p-3 bg-green-50 dark:bg-green-900/10 text-green-700 dark:text-green-400 text-xs rounded-lg border border-green-200 dark:border-green-500/30">
                   ✅ SMTP configuration is active. Last tested:{" "}
@@ -302,7 +296,6 @@ export default function EmailMarketingConfigModal({
               )}
             </div>
           </ModalBody>
-
           <ModalFooter className="flex justify-between items-center px-4 pb-4 pt-0">
             <Popover placement="top-start" showArrow>
               <PopoverTrigger>

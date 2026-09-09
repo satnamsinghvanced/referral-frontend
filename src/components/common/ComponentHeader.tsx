@@ -8,11 +8,7 @@ interface ComponentHeaderProps {
   buttons?: ButtonConfig[] | undefined;
 }
 
-const ComponentHeader: React.FC<ComponentHeaderProps> = ({
-  heading,
-  subHeading,
-  buttons,
-}) => {
+const ComponentHeader: React.FC<ComponentHeaderProps> = ({ heading, subHeading, buttons }) => {
   return (
     <div className="md:p-6 p-4 bg-background border-b-1 border-foreground/10">
       <div className="md:flex md:justify-between md:items-center max-md:space-y-3.5">

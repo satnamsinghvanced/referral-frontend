@@ -28,7 +28,6 @@ export default function ChatWidgetBuilder() {
     avgResponseTime: "2.3m"
   });
   const [businessName, setBusinessName] = useState("");
-
   const checkHasChanges = (payload: any) => {
     if (!initialConfig) return true;
     const keys = Object.keys(payload);
@@ -219,7 +218,6 @@ export default function ChatWidgetBuilder() {
           setRequireEmail(config.requireEmail !== false);
           setRequirePhone(config.requirePhone !== false);
           setSelectedPlatform(config.selectedPlatform || "WordPress");
-
           setActiveStep(4);
           setIsEditing(false);
           setInitialConfig({
@@ -315,7 +313,6 @@ export default function ChatWidgetBuilder() {
       requirePhone,
       selectedPlatform,
     };
-
     if (isPublished) {
       const hasChanges = checkHasChanges(payload);
       if (!hasChanges) {
@@ -329,14 +326,12 @@ export default function ChatWidgetBuilder() {
         return;
       }
     }
-
     try {
       await saveChatWidgetConfig(payload);
       setIsPublished(true);
       setIsEditing(false);
       setInitialConfig(payload);
       setActiveStep(4);
-
       const res = await fetchChatWidgetConfig();
       if (res && res.data) {
         setUserId(res.data.userId || "");
@@ -345,7 +340,6 @@ export default function ChatWidgetBuilder() {
       if (statsRes && statsRes.data) {
         setStats(statsRes.data);
       }
-
       addToast({
         title: "Widget Published!",
         description: "Your chat widget configurations have been saved and deployed live.",
@@ -364,12 +358,10 @@ export default function ChatWidgetBuilder() {
   const backendUrl = rawApiUrl.startsWith("http")
     ? rawApiUrl.replace(/\/api$/, "")
     : `${window.location.origin}${rawApiUrl}`.replace(/\/api$/, "");
-
   const escapeStr = (str: string) => JSON.stringify(str).slice(1, -1);
-
   const embedCodeSnippet = `<!-- Practice ROI Chat Widget -->
-<script>
-window.practiceROIConfig = {
+  <script>
+  window.practiceROIConfig = {
   "userId": "${userId || currentUserId || ""}",
   "primaryColor": "${primaryColor}",
   "position": "${widgetPosition}",
@@ -408,10 +400,10 @@ window.practiceROIConfig = {
   "requiredFields": [
     "name"
   ]
-};
-</script>
-<script src="${backendUrl}/chat-widget.js" async></script>
-<!-- End Practice ROI Chat Widget -->`;
+  };
+  </script>
+  <script src="${backendUrl}/chat-widget.js" async></script>
+  <!-- End Practice ROI Chat Widget -->`;
 
   const copyToClipboard = () => {
     navigator.clipboard.writeText(embedCodeSnippet);
@@ -504,7 +496,6 @@ window.practiceROIConfig = {
                   handleInputChange={handleInputChange}
                 />
               )}
-
               {activeStep === 1 && (
                 <MessagesStep
                   welcomeMessage={welcomeMessage}
@@ -523,7 +514,6 @@ window.practiceROIConfig = {
                   handleInputChange={handleInputChange}
                 />
               )}
-
               {activeStep === 2 && (
                 <SmsSetupStep
                   enableSmsTransition={enableSmsTransition}
@@ -542,7 +532,6 @@ window.practiceROIConfig = {
                   handleInputChange={handleInputChange}
                 />
               )}
-
               {activeStep === 3 && (
                 <PrivacyComplianceStep
                   hipaaMode={hipaaMode}
@@ -562,7 +551,6 @@ window.practiceROIConfig = {
                   handleInputChange={handleInputChange}
                 />
               )}
-
               {activeStep === 4 && (
                 <DeployStep
                   selectedPlatform={selectedPlatform}
@@ -573,7 +561,6 @@ window.practiceROIConfig = {
                 />
               )}
             </div>
-
             <div className="flex justify-between items-center mt-8 pt-4 border-t border-foreground/5">
               <Button
                 variant="bordered"
@@ -617,7 +604,6 @@ window.practiceROIConfig = {
             </div>
           </Card>
         </div>
-
         <div className="lg:col-span-5 h-[700px]">
           <LivePreview
             previewMode={previewMode}

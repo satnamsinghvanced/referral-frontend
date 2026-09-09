@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { Input, Select, SelectItem, Tooltip, Button, Spinner } from "@heroui/react";
-import { FiMessageSquare, FiMessageCircle, FiUploadCloud, FiTrash2, FiImage } from "react-icons/fi";
+import { Input, Select, SelectItem, Tooltip, Button } from "@heroui/react";
+import { FiMessageSquare, FiMessageCircle, FiTrash2 } from "react-icons/fi";
 import { HiOutlineChat } from "react-icons/hi";
-import axios from "../../../services/axios";
 import GalleryMediaUploadModal from "../../media-management/modal/GalleryMediaUploadModal";
 import { Media } from "../../../types/media";
 
@@ -47,7 +46,6 @@ export default function BrandingStep({
   handleInputChange
 }: BrandingStepProps) {
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
-
   return (
     <div className="space-y-5 animate-in fade-in duration-200">
       <div className="pb-2">

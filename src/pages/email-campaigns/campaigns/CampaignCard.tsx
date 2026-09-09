@@ -16,30 +16,9 @@ interface CampaignCardProps {
   onViewReport: (id: string) => void;
 }
 
-const CampaignCard = ({
-  campaign,
-  onEdit,
-  onArchive,
-  onDuplicate,
-  onDelete,
-  onStatusUpdate,
-  onViewReport,
-}: CampaignCardProps) => {
-  const {
-    _id,
-    name,
-    subjectLine,
-    status,
-    stats,
-    createdAt,
-    schedule,
-    audienceId,
-  } = campaign;
-
-  const recipients =
-    // @ts-ignore
-    (audienceId?.contacts || stats?.sentCount || 0) + " recipients";
-
+const CampaignCard = ({ campaign, onEdit, onDuplicate, onDelete, onStatusUpdate, onViewReport }: CampaignCardProps) => {
+  const { _id, name, subjectLine, status, stats, createdAt, schedule, audienceId }: any = campaign;
+  const recipients = (audienceId?.contacts || stats?.sentCount || 0) + " recipients";
   const getIconForAction = (action: string) => {
     switch (action) {
       case "Edit":
@@ -52,9 +31,6 @@ const CampaignCard = ({
         return null;
     }
   };
-
-  const isLive = ["sent", "active"].includes(status);
-
   return (
     <div className="bg-background border border-foreground/10 rounded-xl p-4">
       <div className="flex justify-between items-start gap-2">
@@ -70,7 +46,6 @@ const CampaignCard = ({
               <LuPlay className="text-green-500 text-lg" />
             )}
           </span>
-
           <div className="flex flex-col gap-1">
             <div className="flex items-center gap-2">
               <h4 className="text-sm font-medium">{name}</h4>
@@ -95,12 +70,7 @@ const CampaignCard = ({
         </div>
         <CampaignStatusChip status={status as any} />
       </div>
-
       {stats && (() => {
-        const opens = stats.openCount || 0;
-        const conversions = stats.conversionCount || 0;
-        const rate = opens > 0 ? Math.round((conversions / opens) * 100) : 0;
-
         return (
           <div className="grid grid-cols-4 gap-4 pt-4">
             <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-content1 rounded-lg space-y-0.5">
@@ -136,7 +106,6 @@ const CampaignCard = ({
           </div>
         );
       })()}
-
       <div className="flex justify-between items-center pt-3.5 mt-3.5 border-t border-foreground/10">
         <div className="flex gap-2">
           {["Edit", "Duplicate"].map((action) => (

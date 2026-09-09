@@ -15,11 +15,7 @@ interface CampaignReportModalProps {
   campaignId: string | null;
 }
 
-export default function CampaignReportModal({
-  isOpen,
-  onClose,
-  campaignId,
-}: CampaignReportModalProps) {
+export default function CampaignReportModal({ isOpen, onClose, campaignId }: CampaignReportModalProps) {
   const { data: campaign, isLoading: isAnalyticsLoading } = useCampaignAnalytics(campaignId || "");
   const { data: campaignDetails, isLoading: isDetailsLoading } = useCampaignDetails(campaignId || "");
   const isLoading = isAnalyticsLoading || isDetailsLoading;
@@ -49,7 +45,6 @@ export default function CampaignReportModal({
         icon: <LuMail className="text-blue-500 h-4 w-4" />
       });
     }
-
     if (clickRateNum >= 10) {
       insights.push({
         title: "Strong CTA Response",
@@ -69,7 +64,6 @@ export default function CampaignReportModal({
         icon: <LuMousePointer2 className="text-amber-500 h-4 w-4" />
       });
     }
-
     if (conversionsCount > 0) {
       insights.push({
         title: "Conversions Generated",
@@ -81,7 +75,6 @@ export default function CampaignReportModal({
       });
     }
   }
-
   if (insights.length === 0) {
     insights.push({
       title: "No Data Tracked Yet",
@@ -92,7 +85,6 @@ export default function CampaignReportModal({
       icon: <LuClock className="text-foreground/40 h-4 w-4" />
     });
   }
-
   return (
     <Modal
       isOpen={isOpen}
@@ -124,7 +116,6 @@ export default function CampaignReportModal({
             </div>
           </div>
         </ModalHeader>
-
         <ModalBody className="p-6 overflow-y-auto space-y-6">
           {isLoading ? (
             <div className="py-20 flex justify-center">
@@ -166,7 +157,6 @@ export default function CampaignReportModal({
                   borderColor="border-purple-500/10"
                 />
               </div>
-
               <div className="p-5 border border-foreground/10 rounded-2xl bg-default-50/50 dark:bg-default-100/5 space-y-4">
                 <div className="flex justify-between items-center">
                   <h3 className="text-sm font-semibold flex items-center gap-2 text-foreground">
@@ -181,41 +171,13 @@ export default function CampaignReportModal({
                       margin={{ top: 10, right: 10, left: -25, bottom: 0 }}
                     >
                       <defs>
-                        <linearGradient
-                          id="colorOpens"
-                          x1="0"
-                          y1="0"
-                          x2="0"
-                          y2="1"
-                        >
-                          <stop
-                            offset="5%"
-                            stopColor="#f97316"
-                            stopOpacity={0.2}
-                          />
-                          <stop
-                            offset="95%"
-                            stopColor="#f97316"
-                            stopOpacity={0}
-                          />
+                        <linearGradient id="colorOpens" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#f97316" stopOpacity={0.2} />
+                          <stop offset="95%" stopColor="#f97316" stopOpacity={0} />
                         </linearGradient>
-                        <linearGradient
-                          id="colorClicks"
-                          x1="0"
-                          y1="0"
-                          x2="0"
-                          y2="1"
-                        >
-                          <stop
-                            offset="5%"
-                            stopColor="#2563eb"
-                            stopOpacity={0.2}
-                          />
-                          <stop
-                            offset="95%"
-                            stopColor="#2563eb"
-                            stopOpacity={0}
-                          />
+                        <linearGradient id="colorClicks" x1="0" y1="0" x2="0" y2="1">
+                          <stop offset="5%" stopColor="#2563eb" stopOpacity={0.2} />
+                          <stop offset="95%" stopColor="#2563eb" stopOpacity={0} />
                         </linearGradient>
                       </defs>
                       <CartesianGrid
@@ -224,7 +186,6 @@ export default function CampaignReportModal({
                         stroke="currentColor"
                         strokeOpacity={0.05}
                       />
-
                       <XAxis
                         dataKey="month"
                         axisLine={false}
@@ -258,7 +219,6 @@ export default function CampaignReportModal({
                   </ResponsiveContainer>
                 </div>
               </div>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="p-5 border border-foreground/10 rounded-2xl bg-default-50/50 dark:bg-default-100/5 space-y-4">
                   <h3 className="text-sm font-semibold flex items-center gap-2 text-foreground">
@@ -297,7 +257,6 @@ export default function CampaignReportModal({
                     )}
                   </div>
                 </div>
-
                 <div className="p-5 border border-foreground/10 rounded-2xl bg-default-50/50 dark:bg-default-100/5 space-y-4">
                   <h3 className="text-sm font-semibold flex items-center gap-2 text-foreground">
                     <FiEye className="h-4 w-4 text-emerald-500" /> Devices Used
@@ -333,7 +292,6 @@ export default function CampaignReportModal({
                   </div>
                 </div>
               </div>
-
               <div className="p-5 border border-foreground/10 rounded-2xl bg-default-50/50 dark:bg-default-100/5 space-y-3">
                 <h3 className="text-sm font-semibold flex items-center gap-2 text-foreground">
                   <TbNotes className="h-4 w-4 text-purple-500" /> Performance Insights
@@ -355,7 +313,6 @@ export default function CampaignReportModal({
             </>
           )}
         </ModalBody>
-
         <ModalFooter className="p-6 border-t border-foreground/10 bg-default-50/50 dark:bg-default-100/5 flex justify-end gap-2.5">
           <Button
             size="sm"
@@ -373,15 +330,7 @@ export default function CampaignReportModal({
   );
 }
 
-
-const StatCard = ({
-  title,
-  value,
-  icon,
-  color,
-  bgColor,
-  borderColor,
-}: {
+const StatCard = ({ title, value, icon, color, bgColor, borderColor }: {
   title: string;
   value: string | number;
   icon: React.ReactNode;
@@ -399,4 +348,3 @@ const StatCard = ({
     </div>
   </div>
 );
-

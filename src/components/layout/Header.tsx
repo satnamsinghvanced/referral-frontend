@@ -23,23 +23,17 @@ export default function Header({
 }: {
   hamburgerMenuClick: () => void;
 }) {
-  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { user } = useTypedSelector((state) => state.auth);
   const { hasPermission, hasAnyPermission, isAdmin } = useRolePermissions();
-
   const [query, setQuery] = useState("");
   const debouncedQuery = useDebounce(query, 500);
   const [isOpen, setIsOpen] = useState(false);
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const { data: results, isLoading } = useGlobalSearch({ q: debouncedQuery });
   const searchContainerRef = useRef<HTMLDivElement>(null);
-
   const hasManageReferrals = isAdmin || hasPermission("Manage Referrals");
-  const hasManageReferrers =
-    isAdmin ||
-    hasAnyPermission(["Manage Referrers and Partners", "Manage Referrers"]);
-
+  const hasManageReferrers = isAdmin || hasAnyPermission(["Manage Referrers and Partners", "Manage Referrers"]);
   const searchPlaceholder = useMemo(() => {
     if (hasManageReferrals && hasManageReferrers) {
       return "Search referrals and referrers...";
@@ -52,7 +46,6 @@ export default function Header({
     }
     return "Search...";
   }, [hasManageReferrals, hasManageReferrers]);
-
   const filteredResults = useMemo(() => {
     if (!results) return [];
     if (isAdmin) return results;
@@ -62,15 +55,12 @@ export default function Header({
       return true;
     });
   }, [results, isAdmin, hasManageReferrals, hasManageReferrers]);
-
   const hasLocationsPermission = isAdmin || hasPermission("Manage Locations");
   const hasTeamPermission = isAdmin || hasPermission("Manage Team");
   const hasBillingPermission = isAdmin || hasPermission("Manage Billing");
-
   const handleLogout = () => {
     setIsLogoutModalOpen(true);
   };
-
   const profileMenuItems = useMemo(() => {
     const items: Array<{
       key: string;

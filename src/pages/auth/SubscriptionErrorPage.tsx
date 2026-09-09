@@ -6,14 +6,9 @@ import { useLocation, useNavigate } from "react-router";
 const SubscriptionErrorPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
-
-  const errorMessage =
-    location.state?.message ||
-    "Your subscription plan has expired or your account status requires attention.";
+  const errorMessage = location.state?.message || "Your subscription plan has expired or your account status requires attention.";
   const userEmail = location.state?.email || "";
-
   const lowerMsg = errorMessage.toLowerCase();
-
   const isPaymentIssue = lowerMsg.includes("payment") || lowerMsg.includes("failed") || lowerMsg.includes("pending");
   const isDeletedIssue = lowerMsg.includes("deleted") || lowerMsg.includes("deactivated");
   const isExpiredIssue = lowerMsg.includes("expired") || lowerMsg.includes("no active") || lowerMsg.includes("canceled");
@@ -87,9 +82,7 @@ const SubscriptionErrorPage: React.FC = () => {
               </p>
             </div>
           </div>
-
           <Divider />
-
           <div className="p-4 bg-red-500/10 dark:bg-red-500/20 border border-red-500/30 rounded-xl space-y-2">
             <div className="flex items-start gap-2.5">
               <FiAlertCircle className="size-5 text-red-500 shrink-0 mt-0.5" />
@@ -103,7 +96,6 @@ const SubscriptionErrorPage: React.FC = () => {
               </div>
             </div>
           </div>
-
           <div className="space-y-2 text-center text-xs text-foreground/70 leading-relaxed">
             {isPaymentIssue ? (
               <p>
@@ -123,7 +115,6 @@ const SubscriptionErrorPage: React.FC = () => {
               </p>
             )}
           </div>
-
           <div className="space-y-3 pt-2">
             {!isDeletedIssue && (
               <Button
@@ -136,7 +127,6 @@ const SubscriptionErrorPage: React.FC = () => {
                 {isPaymentIssue ? "Manage Payment on WordPress" : "Renew / Upgrade Plan on WordPress"}
               </Button>
             )}
-
             <Button
               size="lg"
               variant="flat"
@@ -147,7 +137,6 @@ const SubscriptionErrorPage: React.FC = () => {
             >
               Contact Support
             </Button>
-
             <div className="grid grid-cols-2 gap-2">
               <Button
                 size="sm"
@@ -169,9 +158,7 @@ const SubscriptionErrorPage: React.FC = () => {
               </Button>
             </div>
           </div>
-
           <Divider />
-
           <div className="flex flex-col sm:flex-row items-center justify-between text-xs text-foreground/60 gap-2 pt-1">
             <div className="flex items-center gap-1.5 font-medium">
               <FiMail className="size-3.5 text-primary" />
@@ -191,4 +178,3 @@ const SubscriptionErrorPage: React.FC = () => {
 };
 
 export default SubscriptionErrorPage;
-

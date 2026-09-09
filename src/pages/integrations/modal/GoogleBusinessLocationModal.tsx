@@ -9,13 +9,10 @@ export default function GoogleBusinessLocationModal({ isOpen, onClose }: { isOpe
   const { mutateAsync: syncProfiles, isPending: isSyncing } = useSyncBusinessProfiles();
   const { mutateAsync: connectLocation, isPending: isConnecting } = useConnectBusinessLocation();
   const { mutateAsync: searchPlaces, isPending: isSearching } = useSearchGooglePlaces();
-
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [searchResults, setSearchResults] = useState<any[] | null>(null);
-
   const locations = searchResults !== null ? searchResults : (data?.locations || []);
-
   useEffect(() => {
     if (data?.locations && data.locations.length > 0 && searchResults === null) {
       const connected = data.locations.find((l: any) => l.isConnected);
@@ -86,7 +83,6 @@ export default function GoogleBusinessLocationModal({ isOpen, onClose }: { isOpe
       });
     }
   };
-
   return (
     <Modal
       isOpen={isOpen}
@@ -128,7 +124,6 @@ export default function GoogleBusinessLocationModal({ isOpen, onClose }: { isOpe
               Search
             </Button>
           </form>
-
           {isLoading || isSyncing || isSearching ? (
             <div className="flex flex-col items-center justify-center py-10 gap-3">
               <Spinner size="lg" />
