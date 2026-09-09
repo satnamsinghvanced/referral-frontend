@@ -115,7 +115,6 @@ const Locations = () => {
         <BarChart
           style={{
             width: "100%",
-            // maxWidth: "300px",
             maxHeight: "400px",
             aspectRatio: 1.618,
             outline: "none",

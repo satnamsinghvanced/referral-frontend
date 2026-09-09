@@ -43,7 +43,6 @@ export const ManagePermissionsModal: React.FC<ManagePermissionsModalProps> = ({
         ? p.trim()
         : "";
 
-    // 1. Direct _id match against loaded permissions
     const byId = permissions.find(
       (perm) =>
         perm._id === idStr ||
@@ -52,7 +51,6 @@ export const ManagePermissionsModal: React.FC<ManagePermissionsModalProps> = ({
     );
     if (byId) return byId._id;
 
-    // 2. Case-insensitive Title match
     if (titleStr) {
       const lower = titleStr.toLowerCase();
       const byTitle = permissions.find(
@@ -63,7 +61,6 @@ export const ManagePermissionsModal: React.FC<ManagePermissionsModalProps> = ({
       if (byTitle) return byTitle._id;
     }
 
-    // 3. Slug / normalized string match
     const normalize = (str: string) => str.toLowerCase().replace(/[^a-z0-9]/g, "");
     const targetNorm = normalize(titleStr || idStr);
     if (targetNorm) {
@@ -137,7 +134,6 @@ export const ManagePermissionsModal: React.FC<ManagePermissionsModalProps> = ({
   };
 
   const handleSave = async () => {
-    // Filter strictly to valid permission IDs that exist in the database
     const validPermissionIds = Array.from(
       new Set(
         selectedPermissionIds.filter((id) =>
@@ -158,7 +154,6 @@ export const ManagePermissionsModal: React.FC<ManagePermissionsModalProps> = ({
             : "bg-[#111A2E] border-[#1E2B45] text-white"
         }`}
       >
-        {/* Modal Header */}
         <div className="flex items-center justify-between border-b pb-4 border-slate-500/20 shrink-0">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-400">
@@ -198,7 +193,6 @@ export const ManagePermissionsModal: React.FC<ManagePermissionsModalProps> = ({
           </button>
         </div>
 
-        {/* Quick Presets Bar */}
         <div
           className={`p-3.5 rounded-xl border shrink-0 ${
             isLight
@@ -234,7 +228,6 @@ export const ManagePermissionsModal: React.FC<ManagePermissionsModalProps> = ({
           </div>
         </div>
 
-        {/* Permissions Search & Stats Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-2">
             <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
@@ -279,7 +272,6 @@ export const ManagePermissionsModal: React.FC<ManagePermissionsModalProps> = ({
           </div>
         </div>
 
-        {/* Permission Checkbox Grid */}
         <div
           className={`grid grid-cols-1 sm:grid-cols-2 gap-2.5 overflow-y-auto p-3.5 rounded-2xl border flex-1 min-h-[220px] ${
             isLight
@@ -335,7 +327,6 @@ export const ManagePermissionsModal: React.FC<ManagePermissionsModalProps> = ({
           })}
         </div>
 
-        {/* Modal Footer */}
         <div className="flex items-center justify-between pt-4 border-t border-slate-500/20 shrink-0">
           <div className="text-xs font-bold text-slate-400">
             {selectedPermissionIds.length} permissions configured

@@ -54,9 +54,7 @@ const SendEmailModal = ({ isOpen, onOpenChange, lead }: SendEmailModalProps) => 
         });
         onOpenChange(false);
         resetForm();
-      } catch (error) {
-        // Handled by hook toast
-      }
+      } catch (error) { }
     },
   });
 
@@ -89,7 +87,6 @@ const SendEmailModal = ({ isOpen, onOpenChange, lead }: SendEmailModalProps) => 
               </p>
             </ModalHeader>
             <ModalBody className="py-2 px-5 gap-4">
-              {/* Recipient Details Card */}
               <div className="flex flex-col gap-1.5 p-3.5 border border-foreground/5 rounded-xl bg-default-50/50 dark:bg-white/5">
                 <span className="text-[10px] text-default-400 font-bold uppercase tracking-wider">
                   Recipient
@@ -109,7 +106,6 @@ const SendEmailModal = ({ isOpen, onOpenChange, lead }: SendEmailModalProps) => 
                 </div>
               </div>
 
-              {/* Form Fields */}
               <div className="space-y-4">
                 <Input
                   label="Subject"

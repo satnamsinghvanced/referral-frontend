@@ -164,9 +164,7 @@ export const SocialPostUploadProvider: React.FC<{ children: React.ReactNode }> =
                 return { ...prev, progress: nextProgress };
               });
             }
-          } catch (error) {
-            // ignore polling errors
-          }
+          } catch (error) { }
         }, 5000);
       })
       .catch((err: any) => {

@@ -127,7 +127,9 @@ export default function DeployStep({ selectedPlatform, setSelectedPlatform, embe
     ],
   };
 
-  const currentPlatformInfo: PlatformDetail = PLATFORM_INSTRUCTIONS[selectedPlatform] || PLATFORM_INSTRUCTIONS["Custom HTML"] || DEFAULT_HTML_GUIDE;
+  const currentPlatformInfo: PlatformDetail =
+    PLATFORM_INSTRUCTIONS[selectedPlatform] || PLATFORM_INSTRUCTIONS["Custom HTML"] || DEFAULT_HTML_GUIDE;
+
   const handleDownloadDocumentation = () => {
     const info = currentPlatformInfo;
     const fileContent = `===================================================================

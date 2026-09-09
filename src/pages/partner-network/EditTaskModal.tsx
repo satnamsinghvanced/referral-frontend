@@ -12,7 +12,7 @@ import {
 } from "@heroui/react";
 import { getLocalTimeZone, parseDate, today } from "@internationalized/date";
 import { useEffect, useMemo } from "react";
-import { useScheduleTaskEvent, useUpdateTask } from "../../hooks/usePartner";
+import { useUpdateTask } from "../../hooks/usePartner";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { TaskApiData } from "../../types/partner";
 import { formatCalendarDate } from "../../utils/formatCalendarDate";
@@ -32,7 +32,6 @@ interface EditTaskModalProps {
   task: TaskApiData;
 }
 
-// 🧩 Yup Validation Schema
 const validationSchema = Yup.object({
   title: Yup.string().required("Task title is required"),
   dueDate: Yup.string().required("Due date is required"),
@@ -116,7 +115,6 @@ const EditTaskModal = ({ isOpen, onClose, task }: EditTaskModalProps) => {
 
         <ModalBody className="p-0">
           <form className="space-y-4" onSubmit={formik.handleSubmit}>
-            {/* Task Title */}
             <div>
               <Input
                 size="sm"
@@ -135,7 +133,6 @@ const EditTaskModal = ({ isOpen, onClose, task }: EditTaskModalProps) => {
               />
             </div>
 
-            {/* Description */}
             <div>
               <Textarea
                 size="sm"
@@ -150,7 +147,6 @@ const EditTaskModal = ({ isOpen, onClose, task }: EditTaskModalProps) => {
               />
             </div>
 
-            {/* Notes */}
             <div>
               <Textarea
                 size="sm"
@@ -164,7 +160,6 @@ const EditTaskModal = ({ isOpen, onClose, task }: EditTaskModalProps) => {
                 classNames={{ inputWrapper: "py-2" }}
               />
             </div>
-            {/* Due Date */}
             <div>
               <DatePicker
                 label="Due Date"
@@ -188,7 +183,6 @@ const EditTaskModal = ({ isOpen, onClose, task }: EditTaskModalProps) => {
                 isRequired />
             </div>
 
-            {/* Priority / Type / Status */}
             <div className="grid grid-cols-3 gap-2.5 max-md:grid-cols-1">
               <Select
                 label="Priority"
@@ -253,7 +247,6 @@ const EditTaskModal = ({ isOpen, onClose, task }: EditTaskModalProps) => {
               </Select>
             </div>
 
-            {/* Assigned To */}
             <div className="flex justify-start">
               {activeTeamMembers && activeTeamMembers.length > 0 ? (
                 <Select
@@ -290,7 +283,6 @@ const EditTaskModal = ({ isOpen, onClose, task }: EditTaskModalProps) => {
               )}
             </div>
 
-            {/* Buttons */}
             <div className="flex items-center justify-end space-x-2 pt-1">
               <Button
                 size="sm"

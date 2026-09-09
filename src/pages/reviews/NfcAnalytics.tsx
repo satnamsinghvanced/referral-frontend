@@ -7,7 +7,6 @@ import { LoadingState } from "../../components/common/LoadingState";
 import EmptyState from "../../components/common/EmptyState";
 import { LuNfc } from "react-icons/lu";
 
-// Helper to get status color (kept for future use if needed, or remove if unused)
 const getStatusColor = (status: string) => {
   switch (status) {
     case "Reviewed":
@@ -21,7 +20,7 @@ const getStatusColor = (status: string) => {
 
 /**
  * Renders a single dashboard card.
- * @param {object} props - Card data and state handlers.
+ * @param {object} props
  */
 const NfcCard = ({ data }: { data: NFCDeskCard }) => {
   const { name, locations, totalTap, totalReview, conversionRate, lastScan } =
@@ -34,7 +33,6 @@ const NfcCard = ({ data }: { data: NFCDeskCard }) => {
       : "No Location";
 
   return (
-    // Card component from @heroui/react
     <Card
       className="p-4 border border-foreground/10 shadow-none transition-shadow hover:shadow-lg cursor-default flex flex-col"
       disableAnimation
@@ -48,7 +46,6 @@ const NfcCard = ({ data }: { data: NFCDeskCard }) => {
         <span className="ml-1">{locationName}</span>
       </div>
 
-      {/* Taps & Conversions Stats */}
       <div className="flex justify-between items-center mb-4">
         <div className="flex-1 mr-2 text-center p-3 bg-gradient-to-br from-sky-50 to-sky-100 dark:from-sky-500/10 dark:to-sky-500/20 rounded-lg">
           <p className="text-xl font-bold text-sky-700 dark:text-sky-300">
@@ -68,7 +65,6 @@ const NfcCard = ({ data }: { data: NFCDeskCard }) => {
         </div>
       </div>
 
-      {/* Conversion Rate Bar */}
       <div className="flex flex-col justify-start">
         <div className="flex justify-between items-center text-sm font-medium">
           <p className="text-xs text-gray-600 dark:text-foreground/60">
@@ -93,9 +89,8 @@ const NfcCard = ({ data }: { data: NFCDeskCard }) => {
   );
 };
 
-// Main component
 export default function NfcAnalytics() {
-  const { data, isLoading } = useFetchNFCDesks(1, 100); // Fetch mostly all for analytics view
+  const { data, isLoading } = useFetchNFCDesks(1, 100);
   const tags = data?.data || [];
 
   if (isLoading) {

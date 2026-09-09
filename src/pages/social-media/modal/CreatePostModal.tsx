@@ -43,8 +43,6 @@ import GalleryMediaUploadModal from "../../media-management/modal/GalleryMediaUp
 import { formatCalendarDate } from "../../../utils/formatCalendarDate";
 import { parseStringTime } from "../../../utils/parseStringTime";
 
-// --- Dynamic Data ---
-
 const PLATFORMS = [
   { name: "facebook", emoji: "📘", label: "Facebook" },
   { name: "instagram", emoji: "📷", label: "Instagram" },
@@ -85,7 +83,7 @@ const PLATFORM_MEDIA_SPEC = {
   // },
   youtube: {
     images: {
-      formats: [] as string[], // YouTube posts don't support images via this API
+      formats: [] as string[],
       maxSize: 0,
     },
     videos: {
@@ -114,7 +112,6 @@ const ALL_SUGGESTED_HASHTAGS = [
   "#AdultOrthodontics",
 ];
 
-// --- Subcomponents ---
 
 const PlatformButton = ({ platform, isSelected, onClick }: any) => {
   const selectedClasses = isSelected
@@ -133,7 +130,6 @@ const PlatformButton = ({ platform, isSelected, onClick }: any) => {
   );
 };
 
-// --- Main Modal Component ---
 
 const PostValidationSchema = Yup.object().shape({
   title: Yup.string().required("Post Title is required."),
@@ -254,7 +250,6 @@ export function CreatePostModal({
         },
       });
 
-      // Close the modal and reset states immediately
       onClose();
       formik.resetForm();
       setActiveHashtags([]);
@@ -487,7 +482,6 @@ export function CreatePostModal({
           </p>
         </ModalHeader>
         <ModalBody className="space-y-4 md:space-y-5 px-4 py-0 gap-0 max-h-[75vh] overflow-auto">
-          {/* Post Title */}
           <div className="space-y-0.5">
             <Input
               label="Post Title"
@@ -505,7 +499,6 @@ export function CreatePostModal({
             <ErrorText field="title" />
           </div>
 
-          {/* Post Content */}
           <div className="space-y-0.5">
             <Textarea
               id="postContent"
@@ -534,7 +527,6 @@ export function CreatePostModal({
             </div>
           </div>
 
-          {/* Select Platforms */}
           <div className="space-y-2">
             <label className="text-xs block">
               Select Platforms <span className="text-danger">*</span>
@@ -559,7 +551,6 @@ export function CreatePostModal({
             <ErrorText field="selectedPlatforms" />
           </div>
 
-          {/* Publishing Schedule */}
           <div className="space-y-4">
             <Select
               label="Publishing Schedule"
@@ -649,7 +640,6 @@ export function CreatePostModal({
             )}
           </div>
 
-          {/* Media Upload */}
           <div className="space-y-1.5">
             <label className="text-xs block">
               Media (Max 5) <span className="text-danger">*</span>
@@ -711,7 +701,6 @@ export function CreatePostModal({
             )}
           </div>
 
-          {/* Hashtags */}
           <div className="space-y-3">
             <div className="flex items-end gap-2">
               <div className="relative flex-1">
@@ -776,7 +765,6 @@ export function CreatePostModal({
             </div>
           </div>
 
-          {/* Preview */}
           <div className="space-y-1">
             <p className="text-xs block">Preview</p>
             <div className="border border-foreground/10 rounded-lg p-3 text-xs text-blue-700 dark:text-blue-300 bg-gray-50 dark:bg-content2">

@@ -63,7 +63,7 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
             email: email.trim().toLowerCase(),
             phone: phone.trim(),
             location: location.trim(),
-            socialConversationId: lead.id,
+            socialConversationId: lead.id, 
           },
         });
         addToast({

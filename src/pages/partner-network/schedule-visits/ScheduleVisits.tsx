@@ -26,73 +26,6 @@ import {
 } from "../../../consts/consts";
 import { usePaginationAdjustment } from "../../../hooks/common/usePaginationAdjustment";
 
-// const StatsGrid = ({ stats }: any) => {
-//   const statData = [
-//     {
-//       label: "Total Plans",
-//       value: stats.totalPlans,
-//       bg: "bg-blue-50",
-//       text: "text-blue-600",
-//     },
-//     {
-//       label: "Draft",
-//       value: stats.draftCount,
-//       bg: "bg-gray-50",
-//       text: "text-gray-600",
-//     },
-//     {
-//       label: "Active",
-//       value: stats.activeCount,
-//       bg: "bg-green-50",
-//       text: "text-green-600",
-//     },
-//     {
-//       label: "Completed",
-//       value: stats.completedCount,
-//       bg: "bg-emerald-50",
-//       text: "text-emerald-600",
-//     },
-//     {
-//       label: "Total Practices",
-//       value: stats.totalPractices,
-//       bg: "bg-orange-50",
-//       text: "text-orange-600",
-//     },
-//     {
-//       label: "Total Visits",
-//       value: stats.totalVisits,
-//       bg: "bg-purple-50",
-//       text: "text-purple-600",
-//     },
-//     {
-//       label: "Total Hours",
-//       value: Number(stats?.totalHours ?? 0).toFixed(2),
-//       bg: "bg-indigo-50",
-//       text: "text-indigo-600",
-//     },
-//     {
-//       label: "Total Miles",
-//       value: stats.totalMiles,
-//       bg: "bg-pink-50",
-//       text: "text-pink-600",
-//     },
-//   ];
-//
-//   return (
-//     <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-3 text-sm">
-//       {statData.map((stat) => (
-//         <div
-//           key={stat.label}
-//           className={`text-center p-3 ${stat.bg} rounded flex flex-col items-center justify-center`}
-//         >
-//           <div className={`font-semibold ${stat.text}`}>{stat.value}</div>
-//           <div className="text-xs text-gray-600">{stat.label}</div>
-//         </div>
-//       ))}
-//     </div>
-//   );
-// };
-
 export default function ScheduleVisits({
   isHistoryModalOpen,
   setIsHistoryModalOpen,
@@ -267,45 +200,7 @@ export default function ScheduleVisits({
           </div>
         </div>
 
-        {/* {dashboardStats?.totalPlans > 0 && ( */}
         <div className="space-y-4 md:space-y-5">
-          {/* <Card
-          data-slot="card"
-          className="rounded-xl border border-foreground/10 shadow-none"
-        >
-          <CardHeader data-slot="card-header" className="px-5 pt-5 pb-5">
-            <div className="flex items-center justify-between w-full">
-              <div className="space-y-2">
-                <h4
-                  data-slot="card-title"
-                  className="leading-none text-sm font-medium"
-                >
-                  All Visit Plans
-                </h4>
-                <p className="text-xs text-gray-600 mt-1">
-                  Manage and track your practice visit schedules
-                </p>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  size="sm"
-                  variant="ghost"
-                  onPress={() => setIsCompactMode(!isCompactMode)}
-                  className="border-small min-w-auto border-foreground/10 size-8 p-0"
-                  title={isCompactMode ? "Show Grid View" : "Show Compact View"}
-                >
-                  <LuCalendar className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </CardHeader>
-
-          <CardBody data-slot="card-content" className="px-5 pt-0 pb-5">
-            {isLoading && <LoadingState />}
-            {dashboardStats && <StatsGrid stats={dashboardStats} />}
-          </CardBody>
-        </Card> */}
-
           <div className="space-y-3">
             <div className="md:flex md:items-center md:gap-3 max-md:space-y-3">
               <Input

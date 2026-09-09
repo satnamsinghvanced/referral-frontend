@@ -120,7 +120,6 @@ const LeadAutomations = ({ onBack }: LeadAutomationsProps) => {
 
   return (
     <div className="space-y-4">
-      {/* Top action header */}
       {onBack ? (
         <div className="flex items-center justify-between border-b border-foreground/5 pb-4">
           <Button
@@ -211,7 +210,6 @@ const LeadAutomations = ({ onBack }: LeadAutomationsProps) => {
                 onClick={() => toggleExpandCard(cardId)}
               >
                 <CardBody className="p-5 space-y-4">
-                  {/* Top card header */}
                   <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                     <div className="flex items-start gap-3 w-full sm:w-auto">
                       <div className="p-2.5 bg-gray-50 dark:bg-white/5 rounded-xl border border-foreground/5 shadow-inner">
@@ -285,7 +283,6 @@ const LeadAutomations = ({ onBack }: LeadAutomationsProps) => {
                     </div>
                   </div>
 
-                  {/* Metadata Chips strip */}
                   <div className="flex flex-wrap items-center gap-2 pt-1">
                     <Chip
                       size="sm"
@@ -317,7 +314,6 @@ const LeadAutomations = ({ onBack }: LeadAutomationsProps) => {
                     )}
                   </div>
 
-                  {/* Expandable message template area */}
                   {isExpanded && (
                     <div className="pt-3 border-t border-foreground/5 space-y-2.5 animate-fadeIn">
                       <div className="space-y-1">
@@ -354,14 +350,12 @@ const LeadAutomations = ({ onBack }: LeadAutomationsProps) => {
         </div>
       )}
 
-      {/* Seeding LeadAutomationModal inside wrapper */}
       <LeadAutomationModal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         automation={selectedAutomation}
       />
 
-      {/* Delete Confirmation Modal */}
       <Modal
         isOpen={isDeleteConfirmOpen}
         onOpenChange={setIsDeleteConfirmOpen}

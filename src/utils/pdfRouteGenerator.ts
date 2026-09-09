@@ -80,7 +80,6 @@ export const generateRoutePdf = async (plan: SchedulePlan) => {
     console.warn("Could not retrieve user location for PDF map:", e);
   }
 
-  // Generate the navigation URL strings
   let activeCoordinateString = validStops
     .map((stop: any) => `${stop.address.coordinates.long},${stop.address.coordinates.lat}`)
     .join(";");
@@ -92,7 +91,6 @@ export const generateRoutePdf = async (plan: SchedulePlan) => {
     : `${origin}${prefix}`;
   const navUrl = `${baseUrl}/visit-map?coordinates=${encodeURIComponent(activeCoordinateString)}&optimized=true`;
 
-  // Draw Live Navigation Link
   const navY = 40;
   doc.setFontSize(11);
   doc.setTextColor(59, 130, 246);

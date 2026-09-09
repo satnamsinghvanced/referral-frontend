@@ -48,7 +48,9 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead }: ScheduleAppointment
     validationSchema,
     onSubmit: async (values) => {
       if (!lead) return;
+
       const dateStr = values.date ? new Date(values.date).toLocaleDateString() : 'N/A';
+
       let timeStr = 'N/A';
       if (values.time) {
         const [hourStr, minStr] = values.time.split(':');
@@ -56,7 +58,7 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead }: ScheduleAppointment
           let hour = parseInt(hourStr, 10);
           const ampm = hour >= 12 ? 'PM' : 'AM';
           hour = hour % 12;
-          hour = hour ? hour : 12;
+          hour = hour ? hour : 12; 
           timeStr = `${hour}:${minStr} ${ampm}`;
         }
       }

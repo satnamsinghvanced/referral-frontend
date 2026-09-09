@@ -1,6 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { Card, CardBody, addToast } from "@heroui/react";
-import { HiOutlineFilter } from "react-icons/hi";
 import { LuMessageSquare } from "react-icons/lu";
 import { HiOutlineMail, HiOutlineClock, HiOutlineTrendingUp } from "react-icons/hi";
 import ComponentContainer from "../../components/common/ComponentContainer";

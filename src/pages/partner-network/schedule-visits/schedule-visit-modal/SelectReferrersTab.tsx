@@ -47,7 +47,6 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
   return (
     <div className="space-y-3 h-full">
       <div className="md:flex md:justify-between md:items-center text-sm md:gap-2.5 px-1 max-md:space-y-2.5">
-        {/* ... (Search Input and Select component remains unchanged) ... */}
         <Input
           placeholder="Search referrers..."
           size="sm"
@@ -70,7 +69,6 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
             setFilters({ ...filters, category });
           }}
           className="md:max-w-[190px]"
-          // classNames={{ value: "text-xs" }}
           startContent={<LuFilter className="text-gray-400 text-base" />}
         >
           <>
@@ -116,7 +114,6 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
               <p className="font-medium text-sm dark:text-white">
                 Selected Referrers ({selectedReferrerObjects.length})
               </p>
-              {/* Removed commented-out Button */}
             </CardHeader>
             <CardBody className="pt-3 pb-4 px-4 space-y-3">
               {selectedReferrerObjects.length > 0 && (
@@ -158,8 +155,6 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
             </CardBody>
           </Card>
         )}
-
-        {/* Removed commented-out Route Preview Card */}
 
         <div className="space-y-3 p-1 pt-0">
           {filteredReferrers.map((r) => {

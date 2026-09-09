@@ -85,7 +85,7 @@ const PartnerNetwork = () => {
   const { data: singlePartnerData } = useFetchPartnerDetail(partnerEditId);
 
   const practices = data?.data || [];
-  const stoppedReferring = data?.stoppedReferring || []; // New data from updated types
+  const stoppedReferring = data?.stoppedReferring || [];
   const stats = data;
   const totalPractices = stats?.totalPractices ?? practices.length ?? 0;
   const isPartnerLimitReached = isLimitReached("referral_connections", totalPractices);
@@ -256,7 +256,6 @@ const PartnerNetwork = () => {
 
         <div className={`grid grid-cols-1 ${canAccessScheduleVisits ? "xl:grid-cols-2" : "xl:grid-cols-1"} items-start gap-4`}>
           <div className="space-y-5">
-            {/* --- STOPPED REFERRALS ALERT BOX --- */}
             {stoppedReferring.length > 0 && (
               <div className="bg-red-50 dark:bg-red-900/10 border border-red-100 dark:border-red-500/30 rounded-xl p-4 space-y-3.5">
                 <div className="flex items-start gap-2.5">
@@ -310,7 +309,6 @@ const PartnerNetwork = () => {
               </div>
             )}
 
-            {/* --- PARTNER PRACTICES LIST --- */}
             <div className="bg-background flex flex-col gap-4 border border-foreground/10 rounded-xl p-4 shadow-none">
               <div className="flex flex-col gap-4">
                 <div className="flex items-center justify-between">
@@ -466,7 +464,6 @@ const PartnerNetwork = () => {
         </div>
       </ComponentContainer>
 
-      {/* Modals */}
       <ReferrerActionsModal
         isModalOpen={isModalOpen}
         setIsModalOpen={setIsModalOpen}

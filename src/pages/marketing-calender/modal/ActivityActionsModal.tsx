@@ -131,8 +131,6 @@ export default function ActivityActionsModal({
             calendarId: configs[0]?._id,
             googleCalendarId: configs[0]?.calendarId,
           } as any,
-          // @ts-ignore
-          // values,
           {
             onSuccess: onClose,
           },

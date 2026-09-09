@@ -486,7 +486,6 @@ export const GoogleTrafficStats: React.FC = () => {
         </Card>
       </div>
 
-      {/* Top Pages Here */}
       <Card
         shadow="none"
         className="border border-foreground/10 bg-white dark:bg-background p-4 md:p-5"

@@ -111,7 +111,6 @@ const Locations: React.FC = () => {
               message="Add your first practice location to get started."
             />
           )}
-          {/* Location List */}
           {!locationsIsLoading && locations && locations?.length > 0 && (
             <div className="space-y-3">
               {locations?.map((loc: Location) => (
@@ -161,7 +160,6 @@ const Locations: React.FC = () => {
             </div>
           )}
 
-          {/* Pagination */}
           {totalPages > 1 && (
             <Pagination
               identifier="locations"
@@ -174,7 +172,6 @@ const Locations: React.FC = () => {
         </CardBody>
       </Card>
 
-      {/* ✅ Add / Edit Modal */}
       <LocationActionModal
         isOpen={isModalOpen}
         onClose={handleCancel}
@@ -182,7 +179,6 @@ const Locations: React.FC = () => {
         locationsCount={totalLocations}
       />
 
-      {/* ✅ Delete Confirmation Modal */}
       <DeleteConfirmationModal
         isOpen={isDeleteModalOpen}
         onConfirm={handleDeleteConfirm}

@@ -58,7 +58,6 @@ const PLATFORM_CONFIGS = {
   },
 };
 
-// --- Yup Validation Schema ---
 const validationSchema = Yup.object().shape({
   clientId: Yup.string().required("Client ID is required."),
   clientSecret: Yup.string().required("Client Secret is required."),
@@ -74,7 +73,7 @@ export default function SocialMediaConfigModal({
   allCredentials,
   isGlobalLoading,
 }: {
-  platform: Exclude<PlatformAuthParams["platform"], "googleBusiness">; // Dynamic platform key
+  platform: Exclude<PlatformAuthParams["platform"], "googleBusiness">;
   isOpen: boolean;
   onClose: () => void;
   allCredentials: any;
@@ -82,7 +81,7 @@ export default function SocialMediaConfigModal({
 }) {
   const user = useSelector((state: RootState) => state.auth.user);
   const [showSecret, setShowSecret] = useState(false);
-  const platformName = platform; // e.g., 'linkedin'
+  const platformName = platform; 
   const config = PLATFORM_CONFIGS[platformName];
 
   const existingConfig = useMemo(
@@ -117,10 +116,9 @@ export default function SocialMediaConfigModal({
 
         const response = await initiateAuthMutation.mutateAsync(savePayload);
 
-        // On success, redirect the user to the platform for authorization
         if (response?.authUrl) {
           window.open(response.authUrl, "_blank");
-          onClose(); // Close modal after initiating OAuth flow
+          onClose();
         } else {
           throw new Error("Failed to generate authorization URL.");
         }
@@ -139,7 +137,6 @@ export default function SocialMediaConfigModal({
     }
   }, [isOpen]);
 
-  // Handle loading state
   if (isGlobalLoading) {
     return (
       <Modal
@@ -172,7 +169,6 @@ export default function SocialMediaConfigModal({
     >
       <ModalContent>
         <form onSubmit={formik.handleSubmit}>
-          {/* Modal Header */}
           <ModalHeader className="p-4 pb-0 flex-col">
             <h2 className="leading-none font-medium text-base">
               {config.title}
@@ -182,10 +178,8 @@ export default function SocialMediaConfigModal({
             </p>
           </ModalHeader>
 
-          {/* Modal Body */}
           <ModalBody className="p-4">
             <div className="space-y-4">
-              {/* Client ID */}
               <Input
                 size="sm"
                 radius="sm"
@@ -205,7 +199,6 @@ export default function SocialMediaConfigModal({
                 errorMessage={formik.touched.clientId && formik.errors.clientId}
               />
 
-              {/* Client Secret */}
               <Input
                 size="sm"
                 radius="sm"
@@ -236,7 +229,6 @@ export default function SocialMediaConfigModal({
                 }
               />
 
-              {/* Redirect URI */}
               <div>
                 <Input
                   size="sm"
@@ -264,7 +256,6 @@ export default function SocialMediaConfigModal({
                 </p>
               </div>
 
-              {/* Helper Information Box */}
               <div className="text-sm text-gray-700 dark:text-foreground/80 bg-blue-50 dark:bg-blue-500/10 p-3 rounded-lg border border-blue-200 dark:border-blue-500/20 mt-4">
                 <div className="flex items-start gap-3">
                   <div>
@@ -298,7 +289,6 @@ export default function SocialMediaConfigModal({
                 </div>
               </div>
 
-              {/* Status Message */}
               {isConfigured && isAuthorized && (
                 <div className="p-3 bg-green-50 dark:bg-green-500/10 text-green-700 dark:text-green-300 text-xs rounded-lg border border-green-200 dark:border-green-500/20">
                   ✅ Integration is currently <strong>Connected</strong> and
@@ -315,7 +305,6 @@ export default function SocialMediaConfigModal({
             </div>
           </ModalBody>
 
-          {/* Modal Footer */}
           <ModalFooter className="flex justify-end gap-2 px-4 pb-4 pt-0">
             <Button
               size="sm"

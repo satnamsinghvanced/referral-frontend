@@ -213,7 +213,6 @@ const TourOverlay = ({
         />
       )}
 
-      {/* Tooltip */}
       <div
         style={tooltipStyle}
         className="pointer-events-auto transition-all duration-300"

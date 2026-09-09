@@ -53,8 +53,14 @@ export default function ResetPassword() {
         setStep("email_sent");
       },
       onError: (err: any) => {
-        const msg = err.response?.data?.message || err.message || "Failed to send reset link. Please check your email.";
-        const emailMatch = msg.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
+        const msg =
+          err.response?.data?.message ||
+          err.message ||
+          "Failed to send reset link. Please check your email.";
+
+        const emailMatch = msg.match(
+          /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/
+        );
         if (
           emailMatch ||
           msg.toLowerCase().includes("administrator") ||

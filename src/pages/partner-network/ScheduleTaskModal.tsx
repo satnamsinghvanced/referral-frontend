@@ -27,13 +27,12 @@ import { formatCalendarDate } from "../../utils/formatCalendarDate";
 interface ScheduleTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
-  task: TaskApiData; // The task details to pre-populate the event
+  task: TaskApiData;
   scheduleEventDetail: EventDetails;
   practice: any;
   onSchedule: (eventDetails: EventDetails) => void;
 }
 
-// Dummy options for Time, Duration, and Event Type
 const TIME_OPTIONS = [
   "08:00",
   "08:30",
@@ -92,7 +91,6 @@ const ScheduleTaskModal = ({
 
   const { mutate: scheduleTaskEvent } = useScheduleTaskEvent();
 
-  // Effect to reset state when a new task is passed or modal opens
   useEffect(() => {
     setEventDetails({
       taskId: task?._id,
@@ -301,7 +299,6 @@ const ScheduleTaskModal = ({
           </div>
         </div>
 
-        {/* Footer Buttons */}
         <div className="flex items-center space-x-2 flex-shrink-0">
           <Button
             size="sm"

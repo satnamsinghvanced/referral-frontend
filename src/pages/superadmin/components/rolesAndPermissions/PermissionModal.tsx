@@ -81,7 +81,6 @@ export const PermissionModal: React.FC<PermissionModalProps> = ({
             : "bg-[#111A2E] border-[#1E2B45] text-white"
         }`}
       >
-        {/* Modal Header */}
         <div className="flex items-center justify-between border-b pb-4 border-slate-500/20">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-purple-500/10 text-purple-400">
@@ -116,9 +115,7 @@ export const PermissionModal: React.FC<PermissionModalProps> = ({
           </button>
         </div>
 
-        {/* Modal Form */}
         <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Permission Title */}
           <div>
             <label
               className={`block text-xs font-bold mb-1.5 ${
@@ -155,7 +152,6 @@ export const PermissionModal: React.FC<PermissionModalProps> = ({
             )}
           </div>
 
-          {/* Description */}
           <div>
             <label
               className={`block text-xs font-bold mb-1.5 ${
@@ -177,7 +173,6 @@ export const PermissionModal: React.FC<PermissionModalProps> = ({
             />
           </div>
 
-          {/* Status Switch */}
           <div
             className={`flex items-center justify-between p-3.5 rounded-xl border ${
               isLight
@@ -226,7 +221,6 @@ export const PermissionModal: React.FC<PermissionModalProps> = ({
             </button>
           </div>
 
-          {/* Submit Buttons */}
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-500/20">
             <button
               type="button"

@@ -1,4 +1,3 @@
-// Notifications.tsx
 import {
   Button,
   Card,
@@ -149,8 +148,6 @@ const Notifications: React.FC = () => {
           const backendRule = settings.notifications.find(
             (n) => n.label === key,
           );
-
-          // Default values if not found in backend response
           const defaultEnabled = true;
           const defaultChannels = {
             push: true,
@@ -305,11 +302,8 @@ const Notifications: React.FC = () => {
     );
   };
 
-  // When global is turned off, disable all rules & channels
-  // When global setting changes
   useEffect(() => {
     if (!globalEnabled) {
-      // Turn everything OFF
       setRules((prev) =>
         prev.map((r) => ({
           ...r,
@@ -318,7 +312,6 @@ const Notifications: React.FC = () => {
         })),
       );
     } else {
-      // Turn everything ON
       setRules((prev) =>
         prev.map((r) => ({
           ...r,
@@ -335,7 +328,6 @@ const Notifications: React.FC = () => {
 
   return (
     <div className="">
-      {/* Email Integration Warning */}
       {!isEmailConfigLoading && emailConfig?.status !== "Connected" && (
         <IntegrationWarningBanner
           platformName="Email Marketing Platform"
@@ -346,7 +338,6 @@ const Notifications: React.FC = () => {
         />
       )}
       <div className="space-y-4 md:space-y-5">
-        {/* Header */}
         <div className="flex items-center justify-between gap-2 flex-wrap max-sm:gap-3">
           <div>
             <h4 className="text-base">Notification Settings</h4>
@@ -367,11 +358,8 @@ const Notifications: React.FC = () => {
           </div>
         </div>
 
-        {/* <p>{counter}</p> */}
-        {/* Tabs */}
-        {/* Tabs removed, direct content */}
+
         <div className="space-y-4">
-          {/* Global */}
           <Card className="shadow-none bg-background">
             <CardBody className="p-4">
               <div className="flex items-center justify-between">
@@ -397,11 +385,9 @@ const Notifications: React.FC = () => {
             </CardBody>
           </Card>
 
-          {/* Browser Permission Status */}
           <Card className="shadow-none bg-background">
             <CardBody className="p-4">
               <div className="flex flex-col gap-4">
-                {/* Visual Header */}
                 <div className="flex items-center justify-between">
                   <h4 className="leading-none flex items-center gap-2 text-sm">
                     <FiBell className="h-5 w-5" />
@@ -409,7 +395,6 @@ const Notifications: React.FC = () => {
                   </h4>
                 </div>
 
-                {/* Content */}
                 <div className="flex flex-col md:flex-row items-start md:items-center gap-4 justify-between">
                   <div className="flex items-center gap-3">
                     {permissionStatus === "denied" ? (
@@ -499,18 +484,6 @@ const Notifications: React.FC = () => {
                         <div>
                           <h4 className="leading-none flex items-center gap-2 text-sm">
                             {rule.title}
-                            {/* <p>{counter}</p> */}
-                            {/* {rule.badge && (
-                              <span
-                                className={`inline-flex items-center justify-center rounded-md px-2 py-0.5 text-xs font-medium w-fit whitespace-nowrap shrink-0 ${
-                                  rule.badge === "critical"
-                                    ? "bg-red-100 text-red-800"
-                                    : "bg-orange-100 text-orange-800"
-                                }`}
-                              >
-                                {rule.badge}
-                              </span>
-                            )} */}
                           </h4>
                           <p className="text-xs text-gray-600 dark:text-gray-400 mt-1.5">
                             {rule.description}
@@ -519,16 +492,6 @@ const Notifications: React.FC = () => {
                       </div>
 
                       <div className="flex items-center gap-2">
-                        {/* <Button
-                          size="sm"
-                          className="border bg-background  text-foreground font-semibold gap-2"
-                          onPress={() => {}}
-                          disabled={!globalEnabled || !rule.enabled}
-                        >
-                          <FiZap className="h-4 w-4" />
-                          Test
-                        </Button> */}
-
                         <Switch
                           size="sm"
                           isSelected={rule.enabled}
@@ -591,7 +554,6 @@ const Notifications: React.FC = () => {
                         </div>
                       </div>
 
-                      {/* Priority Threshold Removed */}
 
                       <div>
                         <label className="flex items-center gap-2 select-none text-xs font-medium">
@@ -673,7 +635,6 @@ const Notifications: React.FC = () => {
             );
           })}
 
-          {/* Security & Privacy */}
           <Card className="shadow-none bg-background">
             <CardBody className="p-4">
               <div className="space-y-4">

@@ -80,14 +80,12 @@ const AcceptInvitation = () => {
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-zinc-950 text-foreground flex items-center justify-center p-4 sm:p-6 transition-colors duration-300 relative overflow-hidden">
-      {/* Background Decorative Blur Orbs */}
       <div className="absolute -top-32 -left-32 w-96 h-96 bg-blue-400/20 dark:bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-indigo-400/20 dark:bg-indigo-600/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-md w-full mx-auto relative z-10">
         <Card className="border border-gray-200/80 dark:border-zinc-800 bg-white/90 dark:bg-zinc-900/90 shadow-2xl backdrop-blur-xl rounded-2xl overflow-hidden">
           <CardBody className="p-6 sm:p-8">
-            {/* Header / Logo */}
             <div className="flex flex-col items-center text-center mb-6">
               <div className="h-10 w-auto mb-4 flex items-center justify-center">
                 <Logo style={{ height: "36px" }} />
@@ -111,7 +109,6 @@ const AcceptInvitation = () => {
             </div>
 
             <form onSubmit={formik.handleSubmit} className="space-y-5 pt-2">
-              {/* Email Address */}
               <div className="space-y-1.5">
                 <Input
                   label="Email Address"
@@ -133,7 +130,6 @@ const AcceptInvitation = () => {
                 />
               </div>
 
-              {/* New Password */}
               <div className="space-y-1.5 pt-2">
                 <Input
                   label="New Password"
@@ -167,7 +163,6 @@ const AcceptInvitation = () => {
                 />
               </div>
 
-              {/* Confirm Password */}
               <div className="space-y-1.5 pt-2">
                 <Input
                   label="Confirm Password"
@@ -201,7 +196,6 @@ const AcceptInvitation = () => {
                 />
               </div>
 
-              {/* Password Requirement Hint */}
               <div className="p-3.5 rounded-lg bg-gray-50 dark:bg-zinc-800/40 border border-gray-200/60 dark:border-zinc-800 text-[11px] text-gray-500 dark:text-zinc-400 space-y-1 mt-3">
                 <p className="font-semibold text-gray-700 dark:text-zinc-300">Password requirements:</p>
                 <p>• At least 8 characters</p>
@@ -223,7 +217,6 @@ const AcceptInvitation = () => {
               </Button>
             </form>
 
-            {/* Need Help Support Footer */}
             {adminEmail ? (
               <div className="mt-6 text-center pt-4 border-t border-gray-100 dark:border-zinc-800 space-y-1">
                 <p className="text-xs text-gray-500 dark:text-zinc-400">

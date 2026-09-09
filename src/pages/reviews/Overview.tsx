@@ -39,7 +39,6 @@ const Overview = () => {
             <AreaChart
               style={{
                 width: "100%",
-                // maxWidth: "700px",
                 maxHeight: "350px",
                 aspectRatio: 1.618,
               }}

@@ -21,7 +21,7 @@ import {
   RouteOptimizationResults,
   SaveSchedulePlanPayload,
   SchedulePlan,
-  SchedulePlanPutRequest, // Import the necessary type for update
+  SchedulePlanPutRequest,
 } from "../../../../types/partner";
 import { PlanDetailsTab } from "./PlanDetailsTab";
 import { ReviewSaveTab } from "./ReviewSaveTab";
@@ -52,7 +52,7 @@ export function ScheduleVisitsModal({
   isOpen: boolean;
   onClose: () => void;
   practices: Partner[];
-  editedData?: SchedulePlan; // Made optional if used for creation
+  editedData?: SchedulePlan;
 }) {
   const initialPlanState = {
     routeDate: new Date().toISOString(),
@@ -67,7 +67,7 @@ export function ScheduleVisitsModal({
     visitDays: "",
   };
 
-  const isEditing = !!editedData?._id; // Check if we are editing an existing plan
+  const isEditing = !!editedData?._id;
 
   const [activeStep, setActiveStep] = useState<string>("select_referrers");
   const [clearedSteps, setClearedSteps] = useState<Set<string>>(new Set());
@@ -90,7 +90,6 @@ export function ScheduleVisitsModal({
   useEffect(() => {
     setActiveStep("select_referrers");
     if (editedData) {
-      // Ensure we extract IDs if practices are objects
       const practiceIds =
         editedData?.practices?.map((p: any) =>
           typeof p === "object" ? p._id : p,
@@ -120,7 +119,6 @@ export function ScheduleVisitsModal({
         visitDays: editedData?.route.visitDays || "",
       });
     } else {
-      // Reset state if not editing
       setSelectedReferrersState([]);
       setPlanState(initialPlanState);
       setRouteOptimizationResults(null);
@@ -128,7 +126,7 @@ export function ScheduleVisitsModal({
   }, [editedData]);
 
   const createPlanMutation = useCreateSchedulePlan();
-  const updatePlanMutation = useUpdateSchedulePlan(); // Utilize the imported hook
+  const updatePlanMutation = useUpdateSchedulePlan();
 
   const handleStateChange = useCallback(
     (key: string, value: string | boolean) => {
@@ -312,7 +310,6 @@ export function ScheduleVisitsModal({
       return;
     }
 
-    // Prepare the common payload structure
     const basePayload: SaveSchedulePlanPayload = {
       practices: selectedReferrersState,
       route: {
@@ -324,7 +321,7 @@ export function ScheduleVisitsModal({
         estimatedTotalTime: bestRoute.estimatedTotalTime,
         estimatedDistance: bestRoute.estimatedDistance,
         mileageCost: bestRoute.mileageCost,
-        visitDays: bestRoute.visitDays, // Use visitDays from planState (or ensure bestRoute has it)
+        visitDays: bestRoute.visitDays, 
       },
       planDetails: {
         name: planState.planName,
@@ -356,7 +353,6 @@ export function ScheduleVisitsModal({
     };
 
     if (isEditing && editedData?._id) {
-      // 🚀 UPDATE Logic
       const updatePayload: SchedulePlanPutRequest = {
         id: editedData._id,
         data: basePayload,
@@ -444,15 +440,11 @@ export function ScheduleVisitsModal({
               className="w-full"
             >
               {(item) => {
-                // const itemIndex = tabs.findIndex((t) => t.key === item.key);
-                // const isAhead = itemIndex < currentTabIndex;
-                // const isNotCleared = !clearedSteps.has(item.key);
-                // const isDisabled = isAhead && isNotCleared;
+
                 return (
                   <Tab
                     key={item.key}
                     title={item.label}
-                  // isDisabled={isDisabled}
                   />
                 );
               }}

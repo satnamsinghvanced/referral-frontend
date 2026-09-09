@@ -337,7 +337,6 @@ export default function LeadForm() {
           </form>
         </div>
 
-        {/* Footer */}
         <p style={styles.footer}>🔒 Your information is encrypted and secure</p>
       </div>
 
@@ -359,7 +358,7 @@ export default function LeadForm() {
   );
 }
 
-/* ── Styles ── */
+
 const styles: Record<string, React.CSSProperties> = {
   page: {
     minHeight: "100vh",

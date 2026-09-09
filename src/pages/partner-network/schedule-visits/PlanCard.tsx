@@ -65,11 +65,6 @@ const PlanCard: React.FC<{
               {formatDateToReadable(fullRouteDateTime as string, true)}
             </span>
           </div>
-          {/* {plan.planDetails.description && (
-            <p className="text-xs text-gray-600 line-clamp-2">
-              {plan.planDetails.description}
-            </p>
-          )} */}
         </div>
       </CardHeader>
 

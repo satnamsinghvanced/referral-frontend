@@ -1,4 +1,3 @@
-// --- General Analytics ---
 export interface ReferralSource {
   name: string;
   value: number;

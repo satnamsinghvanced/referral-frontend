@@ -161,7 +161,6 @@ const ManageTags = () => {
   return (
     <div className="flex flex-col gap-4">
       <div className="border border-foreground/10 bg-background p-4 rounded-xl space-y-5">
-        {/* Header Section */}
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div className="space-y-1">
             <h3 className="text-base">NFC Tags & QR Codes</h3>
@@ -184,7 +183,6 @@ const ManageTags = () => {
           )}
         </div>
 
-        {/* Warning Banners */}
         {!isLoading && !hasLocations && hasLocationsPermission && (
           <div className="mt-4 bg-yellow-50 border border-yellow-200 dark:bg-amber-950/30 dark:border-amber-500/30 rounded-lg p-3 flex items-center justify-between">
             <p className="text-sm text-yellow-800 dark:text-amber-400">
@@ -223,7 +221,6 @@ const ManageTags = () => {
           </div>
         )}
 
-        {/* Tags Grid or States */}
         {isLoading ? (
           <div className="flex items-center justify-center min-h-[400px]">
             <LoadingState />
@@ -242,7 +239,6 @@ const ManageTags = () => {
                   className="bg-white dark:bg-content1 rounded-xl border border-foreground/10 p-4 flex flex-col gap-5"
                   key={tag._id}
                 >
-                  {/* Header */}
                   <div className="flex justify-between items-start">
                     <div className="flex gap-2">
                       <div className={`mt-1`}>
@@ -274,7 +270,6 @@ const ManageTags = () => {
                     </Chip>
                   </div>
 
-                  {/* Stats */}
                   <div className="grid grid-cols-2 gap-3">
                     <div className="bg-sky-50 dark:bg-sky-500/10 rounded-lg p-3 text-center space-y-0.5">
                       <div className="text-xl font-bold text-sky-600">
@@ -294,7 +289,6 @@ const ManageTags = () => {
                     </div>
                   </div>
 
-                  {/* Conversion Rate */}
                   <div className="space-y-1.5">
                     <div className="flex justify-between text-xs font-medium text-gray-500 dark:text-foreground/60">
                       <span>Conversion Rate</span>
@@ -313,7 +307,6 @@ const ManageTags = () => {
                     />
                   </div>
 
-                  {/* URL */}
                   <div className="bg-gray-50 dark:bg-content2/50 rounded-lg border border-foreground/10 p-2.5 flex items-end justify-between">
                     <div className="flex-1 min-w-0 space-y-0.5">
                       <div className="text-[11px] text-gray-500 dark:text-foreground/60">
@@ -340,7 +333,6 @@ const ManageTags = () => {
                     />
                   </div>
 
-                  {/* Metadata */}
                   <div className="space-y-1.5">
                     <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-foreground/60">
                       <span>Created:</span>
@@ -362,7 +354,6 @@ const ManageTags = () => {
                     </div>
                   </div>
 
-                  {/* Actions */}
                   <div className="flex gap-2 mt-auto">
                     {tag.type.toLowerCase() === "nfc" ? (
                       <Button
@@ -427,7 +418,6 @@ const ManageTags = () => {
           </>
         )}
       </div>
-      {/* Overall Performance */}
       {(() => {
         const overallPerformanceStats = {
           totalTags: tagsStats?.totalTags || tags.length,

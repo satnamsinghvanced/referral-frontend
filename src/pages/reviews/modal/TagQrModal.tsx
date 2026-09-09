@@ -122,7 +122,6 @@ const TagQrModal = ({ isOpen, onClose, tag }: TagQrModalProps) => {
             </div>
 
             <ModalBody className="flex flex-col gap-5 p-4 overflow-visible">
-              {/* QR Code Container Box */}
               <div className="flex justify-center">
                 <div className="w-36 h-36 relative bg-white dark:bg-content1 border border-foreground/10 rounded-xl flex items-center justify-center overflow-hidden p-2">
                   <Image
@@ -135,7 +134,6 @@ const TagQrModal = ({ isOpen, onClose, tag }: TagQrModalProps) => {
                 </div>
               </div>
 
-              {/* Tag Info Card */}
               <div className="flex items-center gap-3 p-3 rounded-lg bg-sky-50 border border-sky-100 dark:bg-sky-500/10 dark:border-sky-500/20">
                 <div className="size-8 rounded-md bg-primary text-white flex items-center justify-center shrink-0">
                   <LuQrCode className="size-4" />
@@ -150,7 +148,6 @@ const TagQrModal = ({ isOpen, onClose, tag }: TagQrModalProps) => {
                 </div>
               </div>
 
-              {/* Review Link */}
               <div className="space-y-2">
                 <label className="text-xs font-medium block">Review URL</label>
                 <div className="flex gap-2">
@@ -169,8 +166,6 @@ const TagQrModal = ({ isOpen, onClose, tag }: TagQrModalProps) => {
                 </div>
               </div>
 
-
-              {/* Action Buttons */}
               <div className="grid grid-cols-2 gap-2">
                 <Button
                   size="sm"
@@ -193,7 +188,6 @@ const TagQrModal = ({ isOpen, onClose, tag }: TagQrModalProps) => {
                 </Button>
               </div>
 
-              {/* Stats */}
               <div className="grid grid-cols-2 gap-2">
                 <div className="bg-gray-50 dark:bg-content1 p-3 rounded-lg border border-foreground/10 space-y-0.5">
                   <span className="text-xs text-gray-500 dark:text-foreground/60 block">

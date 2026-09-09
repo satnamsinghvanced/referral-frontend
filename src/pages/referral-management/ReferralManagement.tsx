@@ -475,9 +475,6 @@ const ReferralManagement = () => {
     [referralData?.statusStats],
   );
 
-  // ----------------------
-  // Render
-  // ----------------------
   return (
     <>
       <ComponentContainer headingData={HEADING_DATA as any}>
@@ -670,7 +667,6 @@ const ReferralManagement = () => {
             </>
           )}
 
-          {/* --- REFERRERS TAB --- */}
           {selectedReferralType === "Referrers" && (
             <div className="flex flex-col gap-4 border border-foreground/10 rounded-xl p-4 bg-background w-full">
               {isReferrerLimitReached && (
@@ -779,7 +775,6 @@ const ReferralManagement = () => {
             </div>
           )}
 
-          {/* --- NFC & QR TRACKING TAB --- */}
           {selectedReferralType === "NFC & QR Tracking" && <TrackingPanel />}
         </div>
 

@@ -22,17 +22,17 @@ import {
   LuStickyNote,
   LuTrendingUp,
   LuUsers,
-} from "react-icons/lu"; // More comprehensive icon imports
+} from "react-icons/lu"; 
 import LevelChip from "../../components/chips/LevelChip";
 import { LoadingState } from "../../components/common/LoadingState";
 import { useFetchPartnerDetail } from "../../hooks/usePartner";
-import { PartnerPractice } from "../../types/partner"; // Adjust path as necessary
+import { PartnerPractice } from "../../types/partner";
 import { formatDateToReadable } from "../../utils/formatDateToReadable";
 
 interface PartnerDetailsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  partnerId: string | null; // ID of the partner to display
+  partnerId: string | null; 
   primaryButtonHandler?: any;
 }
 
@@ -50,10 +50,8 @@ const PartnerDetailsModal = ({
 
   if (!isOpen) return null;
 
-  // Placeholder for when data is loading or not available
   const displayData: PartnerPractice | null = partnerData || null;
 
-  // Function to format date (assuming lastContact/lastUpdated are ISO strings)
   const formatDate = (dateString: string | null | undefined) => {
     if (!dateString) return "N/A";
     try {
@@ -63,7 +61,7 @@ const PartnerDetailsModal = ({
         day: "numeric",
       });
     } catch {
-      return dateString; // Fallback
+      return dateString;
     }
   };
 
@@ -109,7 +107,6 @@ const PartnerDetailsModal = ({
             </div>
           ) : (
             <div className="flex-1 space-y-3">
-              {/* Top Stat Cards */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                 <Card className="rounded-xl border border-foreground/10 text-center px-4 py-3 shadow-none justify-center dark:bg-default-100/20">
                   <div className="text-xl font-bold text-blue-600 dark:text-blue-400">
@@ -138,7 +135,6 @@ const PartnerDetailsModal = ({
                 </Card>
               </div>
 
-              {/* Practice Information Card */}
               <Card className="rounded-xl border border-foreground/10 shadow-none dark:bg-default-100/20">
                 <CardHeader className="grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-4 pt-4 has-data-[slot=card-action]:grid-cols-[1fr_auto]">
                   <h4 className="leading-none flex items-center space-x-2 text-sm font-normal text-foreground">
@@ -188,7 +184,6 @@ const PartnerDetailsModal = ({
                     </div>
                     <div className="flex items-center space-x-2">
                       <LuSquareCheckBig className="size-4 min-w-4 min-h-4 text-gray-400" />{" "}
-                      {/* Reused icon, match screenshot if specific icon available */}
                       <div className="flex flex-col space-y-0.5">
                         <div className="text-xs font-medium text-foreground">
                           Status
@@ -217,22 +212,12 @@ const PartnerDetailsModal = ({
                         </div>
                       </div>
                     </div>
-                    {/* <div className="flex items-center space-x-2">
-                      <LuClock className="size-4 min-w-4 min-h-4 text-gray-400" />
-                      <div className="space-y-0.5">
-                        <div className="text-xs font-medium">Last Contact</div>
-                        <div className="text-xs text-gray-600">
-                          {formatDate(displayData.lastContact)}
-                        </div>
-                      </div>
-                    </div> */}
                     <div className="flex items-center space-x-2">
                       <LuBuilding2 className="size-4 min-w-4 min-h-4 text-gray-400" />
                       <div className="space-y-0.5">
                         <div className="text-xs font-medium text-foreground">
                           Practice Type
                         </div>
-                        {/* This field is not directly in your Partner type, placeholder or derive if possible */}
                         <div className="text-xs text-gray-600 dark:text-foreground/60">
                           General Dentistry
                         </div>
@@ -244,7 +229,6 @@ const PartnerDetailsModal = ({
                         <div className="text-xs font-medium text-foreground">
                           Last Updated
                         </div>
-                        {/* Assuming a 'lastUpdated' field exists or can be derived */}
                         <div className="text-xs text-gray-600 dark:text-foreground/60">
                           {formatDateToReadable(
                             (displayData as any).updatedAt,
@@ -270,7 +254,6 @@ const PartnerDetailsModal = ({
                 </div>
               </Card>
 
-              {/* Staff Members Card */}
               <Card className="rounded-xl border border-foreground/10 shadow-none dark:bg-default-100/20">
                 <CardHeader className="grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-4 pt-4 has-data-[slot=card-action]:grid-cols-[1fr_auto]">
                   <h4 className="leading-none flex items-center space-x-2 text-sm font-normal text-foreground">
@@ -280,7 +263,6 @@ const PartnerDetailsModal = ({
                 </CardHeader>
                 <div className="px-4 pb-4">
                   <div className="space-y-4">
-                    {/* Dummy staff member as per screenshot */}
                     {displayData.staff && displayData.staff.length === 0 && (
                       <p className="text-xs text-gray-600 dark:text-foreground/40 text-center">
                         No staff members available.
@@ -336,7 +318,6 @@ const PartnerDetailsModal = ({
                 </div>
               </Card>
 
-              {/* Activity Summary Card */}
               <Card className="rounded-xl border border-foreground/10 shadow-none dark:bg-default-100/20">
                 <CardHeader className="grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-4 pt-4 has-data-[slot=card-action]:grid-cols-[1fr_auto]">
                   <h4 className="leading-none flex items-center space-x-2 text-sm font-normal text-foreground">
@@ -372,7 +353,6 @@ const PartnerDetailsModal = ({
                 </div>
               </Card>
 
-              {/* Notes Card (example from screenshot) */}
               {displayData.additionalNotes && (
                 <Card className="rounded-xl border border-foreground/10 shadow-none dark:bg-default-100/20">
                   <CardHeader className="grid auto-rows-min grid-rows-[auto_auto] items-start gap-1.5 px-4 pt-4 has-data-[slot=card-action]:grid-cols-[1fr_auto]">
@@ -382,7 +362,6 @@ const PartnerDetailsModal = ({
                     </h4>
                   </CardHeader>
                   <div className="px-4 pb-4">
-                    {/* This would be dynamic, mapping over actual notes */}
                     <div className="p-3 bg-gray-50 dark:bg-default-100/40 rounded-lg">
                       <p className="text-xs text-gray-700 dark:text-foreground/80 whitespace-pre-wrap">
                         {displayData.additionalNotes}
@@ -394,7 +373,6 @@ const PartnerDetailsModal = ({
             </div>
           )}
         </ModalBody>
-        {/* Footer with buttons */}
         <ModalFooter className="flex-shrink-0 flex justify-end px-4 py-4 border-t border-foreground/10">
           <Button
             variant="bordered"

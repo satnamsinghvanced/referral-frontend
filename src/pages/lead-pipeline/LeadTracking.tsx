@@ -109,7 +109,6 @@ const LeadTracking = () => {
     if (location.state?.openLeadId) {
       setSelectedLeadId(location.state.openLeadId);
       onDetailsOpen();
-      // Clear location state from browser history to avoid reopening on reload
       window.history.replaceState({}, document.title);
     }
   }, [location.state, onDetailsOpen]);
@@ -209,7 +208,6 @@ const LeadTracking = () => {
 
     const queryKey = ["leadStatus", { ...filters, search: debouncedSearch }];
 
-    // Optimistically update query cache
     queryClient.setQueryData(queryKey, (oldData: any) => {
       if (!oldData) return oldData;
       return {

@@ -6,11 +6,13 @@ import * as Yup from "yup";
 import { Spinner, addToast } from "@heroui/react";
 import { fetchPlansAndFeatures, PlanData } from "../../../services/planFeature";
 import { registerUser } from "../../../services/auth";
+import { validateDiscount } from "../../../services/settings/billing";
 import { setCredentials } from "../../../store/authSlice";
 import { EMAIL_REGEX, NAME_REGEX, PASSWORD_REGEX } from "../../../consts/consts";
 import { SignupHeader } from "./SignupHeader";
 import { StepYourDetails } from "./StepYourDetails";
 import { StepPayment } from "./StepPayment";
+import { AppliedCoupon } from "./types";
 
 const validationSchema = Yup.object({
   firstName: Yup.string()
@@ -72,6 +74,10 @@ export const SignupFlow: React.FC = () => {
   const [country, setCountry] = useState("India");
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [paymentErrors, setPaymentErrors] = useState<Record<string, string>>({});
+  const [couponCode, setCouponCode] = useState("");
+  const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
+  const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
+  const [couponError, setCouponError] = useState("");
   const planParam = searchParams.get("planId") || searchParams.get("plan") || searchParams.get("id");
 
   useEffect(() => {
@@ -128,6 +134,59 @@ export const SignupFlow: React.FC = () => {
     },
   });
 
+  const handleApplyCoupon = async (codeToApply?: string) => {
+    const code = (codeToApply || couponCode).trim().toUpperCase();
+    if (!code) {
+      setCouponError("Please enter a coupon code");
+      return;
+    }
+    try {
+      setIsApplyingCoupon(true);
+      setCouponError("");
+      const res: any = await validateDiscount(code);
+      const data = res?.data || res;
+      if (data && data.code) {
+        setAppliedCoupon({
+          code: data.code,
+          title: data.title,
+          description: data.description,
+          value: Number(data.value),
+          type: data.type,
+        });
+        const discountText = data.type === "percent" ? `${data.value}% OFF` : `$${data.value} discount`;
+        addToast({
+          title: "Coupon Applied!",
+          description: `${discountText} has been applied to your plan.`,
+          color: "success",
+        });
+      } else {
+        setCouponError("This coupon code is invalid or has expired.");
+      }
+    } catch (err: any) {
+      console.error("Coupon validation error:", err);
+      const msg = err.response?.data?.message || err.message || "This coupon code is invalid or has expired.";
+      setCouponError(msg);
+      addToast({
+        title: "Invalid Coupon",
+        description: msg,
+        color: "danger",
+      });
+    } finally {
+      setIsApplyingCoupon(false);
+    }
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode("");
+    setCouponError("");
+    addToast({
+      title: "Coupon Removed",
+      description: "Discount coupon has been removed.",
+      color: "default",
+    });
+  };
+
   const validatePayment = () => {
     const errs: Record<string, string> = {};
     const cleanCard = cardNumber.replace(/\s/g, "");
@@ -164,6 +223,7 @@ export const SignupFlow: React.FC = () => {
         password: formik.values.password,
         messageAlert: formik.values.messageAlert,
         status: "active",
+        couponCode: appliedCoupon ? appliedCoupon.code : undefined,
         payment: {
           planId: selectedPlan?._id || selectedPlan?.planId || planParam || "professional",
           plan: selectedPlan?.planId || selectedPlan?.name || planParam || "professional",
@@ -172,6 +232,7 @@ export const SignupFlow: React.FC = () => {
           expire: expiry,
           cvc,
           method: "card",
+          couponCode: appliedCoupon ? appliedCoupon.code : undefined,
         },
       };
       const res = await registerUser(payload);
@@ -244,6 +305,14 @@ export const SignupFlow: React.FC = () => {
           agreeToTerms={agreeToTerms}
           setAgreeToTerms={setAgreeToTerms}
           paymentErrors={paymentErrors}
+          couponCode={couponCode}
+          setCouponCode={setCouponCode}
+          appliedCoupon={appliedCoupon}
+          onApplyCoupon={handleApplyCoupon}
+          onRemoveCoupon={handleRemoveCoupon}
+          isApplyingCoupon={isApplyingCoupon}
+          couponError={couponError}
+          setCouponError={setCouponError}
         />
       )}
     </div>

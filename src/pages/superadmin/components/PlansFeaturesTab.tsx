@@ -340,7 +340,6 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
     const newStatus = !feat.isEnabled;
     const targetKey = activeCycle === "yearly" ? "yearlyFeatures" : "monthlyFeatures";
 
-    // Optimistic UI update
     setPlans((prev) =>
       prev.map((p) => {
         if (p._id === plan._id) {
@@ -363,7 +362,7 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
       });
     } catch (err: any) {
       console.error(err);
-      loadData(); // revert
+      loadData(); 
       addToast({ title: "Error", description: "Failed to update feature status", color: "danger" });
     }
   };
@@ -374,7 +373,6 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
 
   return (
     <div className="space-y-8">
-      {/* Header Banner & Monthly / Yearly Toggle Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-200/80 dark:border-slate-800">
         <div>
           <h1 className={`text-2xl font-extrabold flex items-center gap-2 ${isLight ? "text-slate-900" : "text-white"}`}>
@@ -387,7 +385,6 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
         </div>
 
         <div className="flex items-center gap-4 self-start md:self-auto shrink-0">
-          {/* Monthly / Yearly Cycle Switch */}
           <div className="bg-slate-200/80 dark:bg-[#111A2E] p-1 rounded-2xl flex items-center gap-1 border border-slate-300/60 dark:border-[#1E2B45]">
             <button
               type="button"
@@ -424,7 +421,6 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
         </div>
       </div>
 
-      {/* Dynamic Plan Cards Grid or Empty State */}
       {plans.length === 0 ? (
         <div className="py-16 text-center border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-3xl space-y-4">
           <div className="w-16 h-16 rounded-full bg-sky-50 dark:bg-sky-950/40 text-[#20a9f8] flex items-center justify-center mx-auto text-2xl">
@@ -467,7 +463,6 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
               : plan.price);
           const displayPrice = activeCycle === "yearly" ? annualMonthlyPrice : plan.price;
 
-          // Savings calculation
           const yearlyCostFull = plan.price * 12;
           const yearlyCostDiscounted = annualMonthlyPrice * 12;
           const savingsPerYear = yearlyCostFull - yearlyCostDiscounted;
@@ -491,7 +486,6 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
                   : "bg-[#0F172A] border-[#1E293B]"
               }`}
             >
-              {/* Popular Badge */}
               {plan.isPopular && (
                 <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-[#20a9f8] text-white font-bold text-[10px] uppercase tracking-wider px-3.5 py-1 rounded-full shadow-md flex items-center gap-1">
                   <FiStar className="text-xs fill-white" />
@@ -500,7 +494,6 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
               )}
 
               <div>
-                {/* Plan Header & Price + TOP RIGHT ACTION ICONS */}
                 <div className="flex items-start justify-between gap-3">
                   <div>
                     <h3 className={`text-xl font-extrabold ${isLight ? "text-slate-900" : "text-white"}`}>
@@ -511,7 +504,6 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
                     </p>
                   </div>
 
-                  {/* Plan Heading Top-Right Action Icons */}
                   <div className="flex items-center gap-1 shrink-0">
                     <button
                       type="button"
@@ -568,7 +560,6 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
                   </div>
                 )}
 
-                {/* Features Section inside Plan Card */}
                 <div className="mt-6 space-y-3 pt-4 border-t border-slate-200/60 dark:border-slate-800">
                   <div className="flex items-center justify-between">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
@@ -576,7 +567,6 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
                     </span>
                   </div>
 
-                  {/* ADD FEATURE INPUT SHOWS ON TOP OF FEATURE LIST */}
                   <div className="flex items-center gap-2 mb-3">
                     <input
                       type="text"
@@ -610,7 +600,6 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
                     </button>
                   </div>
 
-                  {/* UNIFORM FEATURE BOX HEIGHT ACROSS ALL PLAN CARDS */}
                   <div className="space-y-2.5 h-[360px] overflow-y-auto pr-1">
                     {featureItems.length === 0 ? (
                       <p className="text-xs italic text-slate-400 py-2">No {activeCycle} features added yet.</p>
@@ -682,7 +671,6 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
                                 : isLight ? "bg-slate-50/70 border-slate-200/80" : "bg-[#111A2E] border-[#1E2B45]"
                             }`}
                           >
-                            {/* Toggle Switch + Feature Name */}
                             <div className="flex items-center gap-2.5 min-w-0 flex-1">
                               <button
                                 type="button"
@@ -709,7 +697,6 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
                               </span>
                             </div>
 
-                            {/* Actions at the end: EVERY FEATURE SHOWS EDIT & RED DELETE ICON */}
                             <div className="flex items-center gap-1 shrink-0">
                               <button
                                 type="button"
@@ -754,7 +741,6 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
       </div>
     )}
 
-      {/* UNIFIED ADD / EDIT PLAN MODAL */}
       {isPlanModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div onClick={() => setIsPlanModalOpen(false)} className="fixed inset-0 bg-black/60 backdrop-blur-sm" />
@@ -777,7 +763,6 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
               </button>
             </div>
 
-            {/* Top Modal Setup Cycle Toggle */}
             <div className="bg-slate-100 dark:bg-[#111A2E] p-1 rounded-2xl flex items-center gap-1 border border-slate-200 dark:border-[#1E2B45]">
               <button
                 type="button"
@@ -1001,7 +986,6 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
                     />
                   </div>
 
-                  {/* Live Yearly Savings Calculation Preview */}
                   <div className="p-3 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 text-xs space-y-1">
                     <span className="font-extrabold text-emerald-600 dark:text-emerald-400 block text-xs">
                       Save ${Math.max(0, (Number(planForm.price) || 0) * 12 - (Number(planForm.annualPrice) || 0) * 12)}/year ({planForm.discountPercent || 0}% off)
@@ -1013,9 +997,7 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
                 </>
               )}
 
-              {/* FEATURES SECTION IN MODAL WITH MONTHLY / YEARLY TABS */}
               <div className="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-3">
-                {/* Modal Features Header */}
                 <div className="flex items-center justify-between gap-2 border-b pb-2.5 dark:border-slate-800">
                   <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                     {modalActiveCycle.toUpperCase()} FEATURES ({planForm[modalActiveCycle === "yearly" ? "yearlyFeatures" : "monthlyFeatures"].length})
@@ -1135,7 +1117,6 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
         </div>
       )}
 
-      {/* CONFIRMATION DELETE MODAL MATCHING DASHBOARD DESIGN (SCREENSHOT 2) */}
       <DeleteConfirmationModal
         isOpen={!!deleteConfirmTarget}
         onClose={() => setDeleteConfirmTarget(null)}

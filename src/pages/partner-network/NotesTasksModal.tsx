@@ -62,8 +62,7 @@ const NotesTasksModal = ({
   isOpen,
   onClose,
   practice,
-}: // notes,
-  // tasks,
+}:
   NotesTasksModalProps) => {
   const [activeTab, setActiveTab] = useState("notes");
   const [newNoteContent, setNewNoteContent] = useState("");
@@ -71,7 +70,6 @@ const NotesTasksModal = ({
     NOTE_CATEGORIES[0]?.value,
   );
 
-  // State for new task
   const [newTaskTitle, setNewTaskTitle] = useState("");
   const [newTaskDueDate, setNewTaskDueDate] = useState("");
   const [newTaskDescription, setNewTaskDescription] = useState("");
@@ -128,7 +126,7 @@ const NotesTasksModal = ({
       }
       setActiveTab("notes");
     }
-  }, [isOpen]); // We want to reset when isOpen becomes false
+  }, [isOpen]);
 
   const { data } = useGetAllNotesAndTasks(practice?.id);
   const { mutate: createNote, isPending: isCreatingNote } = useCreateNote();
@@ -136,7 +134,6 @@ const NotesTasksModal = ({
 
   const { mutate: createTask, isPending: isCreatingTask } = useCreateTask();
   const { mutate: updateTask } = useUpdateTask();
-  // const { mutate: updateTaskStatus } = useUpdateTaskStatus();
   const { mutate: deleteTask } = useDeleteTask();
 
   const notes = data?.notes;
@@ -262,7 +259,6 @@ const NotesTasksModal = ({
                       </CardBody>
                     </Card>
 
-                    {/* List of Existing Notes */}
                     <div className="space-y-3 max-h-[270px] overflow-auto">
                       {notes?.map((note) => (
                         <Card
@@ -319,7 +315,6 @@ const NotesTasksModal = ({
                   </div>
                 </Tab>
 
-                {/* Tasks Tab Content */}
                 <Tab
                   title={`Tasks${tasks ? ` (${tasks?.length})` : " 0"}`}
                   key="tasks"
@@ -475,7 +470,6 @@ const NotesTasksModal = ({
                       </CardBody>
                     </Card>
 
-                    {/* List of Existing Tasks */}
                     <div className="space-y-3 max-h-[340px] max-md:max-h-[224px] overflow-auto">
                       {tasks?.map((task) => (
                         <Card

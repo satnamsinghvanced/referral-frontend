@@ -136,7 +136,7 @@ const SendFormsModal = ({ isOpen, onClose, lead }: SendFormsModalProps) => {
         if (lead.leadId) {
           payload.leadId = lead.leadId;
         } else {
-          payload.conversationId = lead.id;
+          payload.conversationId = lead.id; 
         }
         const res = await sendFormLink(payload);
         if (res && res.success && res.data) {

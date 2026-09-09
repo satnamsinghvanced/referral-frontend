@@ -78,7 +78,7 @@ const getOptimizedCoordinates = (
   }
 
   const startPoint = initialCoords[0];
-  if (!startPoint) return { optimizedOrder: initialCoords, orderMap: [] }; // Should be covered by length check but satisfies TS
+  if (!startPoint) return { optimizedOrder: initialCoords, orderMap: [] };
 
   const stopsWithOriginalIndex = initialCoords
     .slice(1)
@@ -271,9 +271,6 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
       let optimizedCoordString = "";
       let hasCustomOptimization = false;
 
-      // Determine if we should perform our own optimization
-      // If we have > 2 points, optimization makes sense.
-      // (User + 2 Referrers = 3 points) or (3 Referrers = 3 points)
       if (allCoords.length > 2) {
         const { optimizedOrder, orderMap } = getOptimizedCoordinates(allCoords);
         optimizedCoordString = optimizedOrder.map((c) => c.join(",")).join(";");
@@ -283,7 +280,6 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
         optimizedCoordString = allCoords.map((c) => c.join(",")).join(";");
       }
 
-      // Original sequence (User -> Ref1 -> Ref2 ...)
       const originalCoordString = allCoords.map((c) => c.join(",")).join(";");
 
       generateRouteMutate(originalCoordString, {
@@ -321,24 +317,18 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                 return;
               }
 
-              // Pick best route logic (though with fixed waypoints Mapbox usually returns one best)
               optimizedRoute = optimizedData.routes.reduce(
                 (best: MapboxRoute, current: MapboxRoute) =>
                   current.duration < best.duration ? current : best,
                 optimizedRoute as MapboxRoute,
               );
 
-              // Reconstruct referrer order
               let optimizedReferrerOrder = selectedReferrerObjects;
 
               if (hasCustomOptimization && optimizedOrderMap) {
-                // If hasUserStart, index 0 is User. The referrers are at indices 1, 2...
-                // So optimizedOrderMap value 'k' corresponds to:
-                // If hasUserStart: k=0 is User. k>0 -> selectedReferrers[k-1]
-                // If !hasUserStart: k is index in selectedReferrers
                 if (hasUserStart) {
                   optimizedReferrerOrder = optimizedOrderMap
-                    .filter((idx) => idx !== 0) // Remove user start point
+                    .filter((idx) => idx !== 0)
                     .map((idx) => selectedReferrerObjects[idx - 1])
                     .filter((item): item is Partner => !!item);
                 } else {
@@ -384,21 +374,11 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
             },
             onError: (e) => {
               setIsGeolocationLoading(false);
-              // addToast({
-              //   title: "API Error",
-              //   description: `Error fetching optimized route: ${e.message}`,
-              //   color: "danger",
-              // });
             },
           });
         },
         onError: (e) => {
-          setIsGeolocationLoading(false);
-          // addToast({
-          //   title: "API Error",
-          //   description: `Error fetching original route: ${e.message}`,
-          //   color: "danger",
-          // });
+          setIsGeolocationLoading(false)
         },
       });
     };
@@ -425,7 +405,6 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
               },
             });
           }
-          // Fallback to no user location
           processRouteGeneration(null);
         },
         {
@@ -449,10 +428,6 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
       return;
     }
 
-    // Determine the ordered list of coordinates for the active route
-    // If optimized, use the optimized order from result. If not, simple list.
-    // However, routeDetailsList contains the *ordered* referrers already.
-
     let activeCoordinateString = routeDetailsList
       .map(
         (stop: any) =>
@@ -460,9 +435,8 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
       )
       .join(";");
 
-    // Extract names from routeDetailsList, replacing semicolons for safe URL encoding
     let activeNameString = routeDetailsList
-      .map((stop: any) => stop.name.replace(/;/g, ",")) // Replace ';' with ',' or another safe character
+      .map((stop: any) => stop.name.replace(/;/g, ",")) 
       .join(";");
 
     if (userStartLocation) {
@@ -473,7 +447,6 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
 
     const baseUrl = `${import.meta.env.VITE_URL_PREFIX}/visit-map`;
 
-    // Updated URL to include referrerNames
     const url = `${baseUrl}?coordinates=${encodeURIComponent(
       activeCoordinateString,
     )}&names=${encodeURIComponent(activeNameString)}&optimized=${planState.enableAutoRoute

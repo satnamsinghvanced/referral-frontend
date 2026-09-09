@@ -57,6 +57,9 @@ export default function Checkout() {
   const packageParam = searchParams.get("package") || "none";
   const planIdParam = searchParams.get("planId") || "";
   const planNameParam = searchParams.get("planName") || "";
+
+  const packageCost = 0; // Package minutes are included in the wallet deposit subscription
+
   const creditsCost = typeParam === "twilio_credits" && walletAmountParam > 0 ? walletAmountParam : amountParam;
   const baseCost = typeParam === "twilio_credits" ? creditsCost : activePlan.price;
   let twilioPlanName = "Starter";
@@ -73,10 +76,16 @@ export default function Checkout() {
   const [country, setCountry] = useState("India");
   const [savePaymentDetails, setSavePaymentDetails] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Discount code states
   const [discountCode, setDiscountCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState<{ code: string; value: number; type: "percent" | "fixed" } | null>(null);
   const validateDiscountMutation = useValidateDiscount();
+
+  // Terms and conditions consent
   const [agreeToTerms, setAgreeToTerms] = useState(false);
+
+  // Saved cards states
   const [savedCards, setSavedCards] = useState<SavedCard[]>(() => {
     try {
       const saved = localStorage.getItem("practice_roi_saved_cards");
@@ -139,7 +148,8 @@ export default function Checkout() {
         const year = parseInt(`20${yStr}`, 10);
         const now = new Date();
         const currentYear = now.getFullYear();
-        const currentMonth = now.getMonth() + 1;
+        const currentMonth = now.getMonth() + 1; // 1-indexed
+
         if (year < currentYear || (year === currentYear && month < currentMonth)) {
           error = "Card has expired";
         }
@@ -287,6 +297,7 @@ export default function Checkout() {
           cardNumber: finalCardNumber,
           expire: finalExpiry,
           cvc: finalCvc,
+          couponCode: appliedDiscount ? appliedDiscount.code : undefined,
         });
         if (!isSaved && savePaymentDetails) {
           const last4Digits = finalCardNumber.slice(-4);
@@ -323,6 +334,7 @@ export default function Checkout() {
           cardNumber: finalCardNumber,
           expire: finalExpiry,
           cvc: finalCvc,
+          couponCode: appliedDiscount ? appliedDiscount.code : undefined,
         });
         addToast({
           title: "Subscription Activated",

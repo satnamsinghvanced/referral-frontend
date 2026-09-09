@@ -2,7 +2,7 @@ import axios from "./axios";
 
 export const getFormTemplates = async (): Promise<any> => {
   const response = await axios.get("/lead-Tracking-form");
-  return response; // Note: axios interceptor already returns response.data, so this returns the payload { status, data }
+  return response;
 };
 
 export const createFormTemplate = async (templateData: { name: string; fields: any[] }): Promise<any> => {
@@ -21,7 +21,6 @@ export const sendFormLink = async (payload: {
   return response;
 };
 
-// Public unauthenticated calls (bypasses standard axios auth check if needed, but since it is public it should work)
 export const getPublicForm = async (token: string): Promise<any> => {
   const response = await axios.get(`/lead-Tracking-form/public/${token}`);
   return response;
