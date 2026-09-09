@@ -2,7 +2,6 @@ import { Button, Input, Select, SelectItem } from "@heroui/react";
 import React, { useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { FiSearch } from "react-icons/fi";
-import { LuUpload } from "react-icons/lu";
 import { PiFunnelX } from "react-icons/pi";
 import EmptyState from "../../../components/common/EmptyState";
 import { LoadingState } from "../../../components/common/LoadingState";
@@ -10,22 +9,10 @@ import Pagination from "../../../components/common/Pagination";
 import DeleteConfirmationModal from "../../../components/common/DeleteConfirmationModal";
 import { AUDIENCE_SEGMENT_STATUSES } from "../../../consts/campaign";
 import { useDebouncedValue } from "../../../hooks/common/useDebouncedValue";
-import {
-  useAudiences,
-  useCreateAudience,
-  useDeleteAudience,
-  useUpdateAudience,
-} from "../../../hooks/useCampaign";
-import {
-  AudienceFilters,
-  AudienceSegment,
-  AudienceStatus,
-  Segment,
-} from "../../../types/campaign";
+import { useAudiences, useCreateAudience, useDeleteAudience, useUpdateAudience } from "../../../hooks/useCampaign";
+import { AudienceFilters, AudienceSegment, AudienceStatus, Segment } from "../../../types/campaign";
 import SegmentCard from "./SegmentCard";
-import CreateSegmentModal, {
-  SegmentFormValues,
-} from "./modal/CreateSegmentModal";
+import CreateSegmentModal, { SegmentFormValues } from "./modal/CreateSegmentModal";
 import BulkImportSegmentsModal from "./modal/BulkImportSegmentsModal";
 import { usePaginationAdjustment } from "../../../hooks/common/usePaginationAdjustment";
 import { generateAudiencePdf } from "../../../utils/pdfAudienceGenerator";
@@ -46,14 +33,12 @@ const Audiences: React.FC = () => {
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
   const debouncedSearch = useDebouncedValue(currentFilters.search, 500);
   const { data, isLoading } = useAudiences({ ...currentFilters, search: debouncedSearch as string });
-
   usePaginationAdjustment({
     totalPages: data?.pagination?.totalPages || 0,
     currentPage: currentFilters.page || 1,
     onPageChange: (page) => setCurrentFilters((prev) => ({ ...prev, page })),
     isLoading,
   });
-
   const createMutation = useCreateAudience();
   const updateMutation = useUpdateAudience();
   const deleteMutation = useDeleteAudience();
@@ -67,10 +52,8 @@ const Audiences: React.FC = () => {
       status: (values.status as any) || "Active",
       tags: [] as string[],
     };
-
     if (values.practiceSize) payload.practiceSize = values.practiceSize;
     if (values.partnerLevel) payload.partnerLevel = values.partnerLevel;
-
     if (values._id) {
       updateMutation.mutate(
         { id: values._id, payload },
@@ -89,7 +72,6 @@ const Audiences: React.FC = () => {
       });
     }
   };
-
   const handleEdit = (segment: Segment) => {
     const audience = audiences.find((a) => a._id === segment.id);
     if (audience) {
@@ -107,12 +89,10 @@ const Audiences: React.FC = () => {
       setIsModalOpen(true);
     }
   };
-
   const handleDelete = (id: string) => {
     setSegmentToDeleteId(id);
     setDeleteModalOpen(true);
   };
-
   const handleConfirmDelete = () => {
     if (segmentToDeleteId) {
       deleteMutation.mutate(segmentToDeleteId, {
@@ -123,21 +103,17 @@ const Audiences: React.FC = () => {
       });
     }
   };
-
   const handleExport = (id: string) => {
     const audience = audiences.find((a) => a._id === id);
     if (audience) {
       generateAudiencePdf(audience);
     }
   };
-
   const handleFilterChange = (key: keyof AudienceFilters, value: any) => {
     setCurrentFilters((prev) => ({ ...prev, [key]: value, page: 1 }));
   };
-
   const audiences = data?.audiences || [];
   const pagination = data?.pagination;
-
   const mapToSegment = (audience: AudienceSegment): Segment => ({
     id: audience._id as any,
     name: audience.name,
@@ -159,7 +135,6 @@ const Audiences: React.FC = () => {
       (audience.referrals?.length || 0),
     activity: audience.activity,
   });
-
   return (
     <div className="space-y-4 md:space-y-5">
       <div className="bg-card text-card-foreground flex flex-col gap-6 rounded-xl border border-foreground/10 bg-background">
@@ -201,7 +176,6 @@ const Audiences: React.FC = () => {
                 </>
               </Select>
             </div>
-
             <div className="flex items-center gap-3">
               <Button
                 size="sm"
@@ -214,19 +188,6 @@ const Audiences: React.FC = () => {
               >
                 Clear Filters
               </Button>
-
-              {/* <Button
-                size="sm"
-                radius="sm"
-                variant="ghost"
-                color="default"
-                className="border-small flex-1"
-                startContent={<LuUpload className="size-3.5" />}
-                onPress={() => setIsImportModalOpen(true)}
-              >
-                Import
-              </Button> */}
-
               <Button
                 size="sm"
                 radius="sm"
@@ -245,7 +206,6 @@ const Audiences: React.FC = () => {
           </div>
         </div>
       </div>
-
       <CreateSegmentModal
         isOpen={isModalOpen}
         onClose={() => {
@@ -256,12 +216,10 @@ const Audiences: React.FC = () => {
         initialValues={editingSegment}
         isLoading={createMutation.isPending || updateMutation.isPending}
       />
-
       <BulkImportSegmentsModal
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
       />
-
       <DeleteConfirmationModal
         isOpen={deleteModalOpen}
         onClose={() => {
@@ -273,7 +231,6 @@ const Audiences: React.FC = () => {
         title="Delete Audience Segment"
         description="Are you sure you want to delete this audience segment? This action cannot be undone."
       />
-
       {isLoading ? (
         <div className="flex justify-center py-20">
           <LoadingState />
@@ -296,7 +253,6 @@ const Audiences: React.FC = () => {
           ))}
         </div>
       )}
-
       {pagination && pagination.totalPages > 1 && (
         <Pagination
           identifier="audiences"

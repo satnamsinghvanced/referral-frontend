@@ -1,11 +1,6 @@
 import React from "react";
 import { DatePicker, TimeInput } from "@heroui/react";
-import {
-  CalendarDate,
-  Time,
-  getLocalTimeZone,
-  today,
-} from "@internationalized/date";
+import { CalendarDate, Time, today } from "@internationalized/date";
 
 export interface DatePickerWithTimeInputProps {
   value?: string | null | undefined;

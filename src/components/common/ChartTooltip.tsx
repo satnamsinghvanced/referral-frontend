@@ -6,11 +6,7 @@ interface ChartTooltipProps {
   label?: string;
 }
 
-const ChartTooltip: React.FC<ChartTooltipProps> = ({
-  active,
-  payload,
-  label,
-}) => {
+const ChartTooltip: React.FC<ChartTooltipProps> = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
       <div className="bg-white dark:bg-[#181c20] p-3 border border-gray-200 dark:border-white/10 shadow-xl rounded-lg outline-none min-w-[120px]">

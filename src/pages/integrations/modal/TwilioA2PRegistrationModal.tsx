@@ -62,11 +62,7 @@ interface FieldConfig {
   helperText?: string;
 }
 
-export default function TwilioA2PRegistrationModal({
-  isOpen,
-  onClose,
-  phoneNumbers,
-}: TwilioA2PRegistrationModalProps) {
+export default function TwilioA2PRegistrationModal({ isOpen, onClose, phoneNumbers }: TwilioA2PRegistrationModalProps) {
   const [step, setStep] = useState<number>(1);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const user = useSelector((state: RootState) => state.auth.user);

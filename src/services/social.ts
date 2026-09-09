@@ -37,7 +37,6 @@ export const deleteSocialPost = async (id: string): Promise<void> => {
   await axios.delete(`/social-media-post/${id}`);
 };
 
-
 export const fetchSocialOverview =
   async (): Promise<SocialOverviewResponse> => {
     const response = await axios.get("/social-media-post/");
@@ -86,23 +85,17 @@ export interface SocialSubAccountsResponse {
   } | null;
 }
 
-export const getSocialSubAccounts = async (
-  platform: string,
-): Promise<SocialSubAccountsResponse> => {
+export const getSocialSubAccounts = async (platform: string): Promise<SocialSubAccountsResponse> => {
   const response = await axios.get(`/social-media/${platform}/sub-accounts`);
   return unwrapApiData<SocialSubAccountsResponse>(response);
 };
 
-export const syncSocialProfiles = async (
-  platform: string,
-): Promise<SocialSubAccountsResponse> => {
+export const syncSocialProfiles = async (platform: string): Promise<SocialSubAccountsResponse> => {
   const response = await axios.get(`/social-media/${platform}/sync-profiles`);
   return unwrapApiData<SocialSubAccountsResponse>(response);
 };
 
 export const connectSocialSubAccount = async (platform: string, accountId: string) => {
-  const response = await axios.post(`/social-media/${platform}/connect-sub-account`, {
-    accountId,
-  });
+  const response = await axios.post(`/social-media/${platform}/connect-sub-account`, { accountId });
   return response.data;
 };

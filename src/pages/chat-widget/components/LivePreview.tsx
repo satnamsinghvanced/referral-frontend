@@ -46,14 +46,12 @@ export default function LivePreview({
   const displayBubbleText = bubbleText || "Chat with us";
   const displayWelcomeMessage = welcomeMessage || "Hi there! 👋 How can we help you today?";
   const displayPrivacyPolicyUrl = privacyPolicyUrl || "https://practiceroi.com/privacy";
-
   const [chatOpenState, setChatOpenState] = useState<"closed" | "open" | "collapsed">("closed");
   const [isChatStarted, setIsChatStarted] = useState(false);
   const [userMessages, setUserMessages] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isConsentChecked, setIsConsentChecked] = useState(false);
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     if (isPreviewChatOpen) {
       if (chatOpenState === "closed") {
@@ -63,7 +61,6 @@ export default function LivePreview({
       setChatOpenState("closed");
     }
   }, [isPreviewChatOpen]);
-
   useEffect(() => {
     if (chatOpenState === "open" && messagesEndRef.current) {
       const timer = setTimeout(() => {
@@ -72,27 +69,22 @@ export default function LivePreview({
       return () => clearTimeout(timer);
     }
   }, [userMessages, isChatStarted, chatOpenState]);
-
   const handleCloseChat = () => {
     setChatOpenState("closed");
     setIsPreviewChatOpen(false);
   };
-
   const handleOpenChat = () => {
     setChatOpenState("open");
     setIsPreviewChatOpen(true);
   };
-
   const handleCollapseChat = () => {
     setChatOpenState("collapsed");
   };
-
   const handleSendMessage = () => {
     if (!inputValue.trim()) return;
     setUserMessages(prev => [...prev, inputValue]);
     setInputValue("");
   };
-
   const renderBubbleIcon = (sizeClass = "w-5 h-5") => {
     switch (bubbleIcon) {
       case "Message":
@@ -104,7 +96,6 @@ export default function LivePreview({
         return <HiOutlineChat className={sizeClass} />;
     }
   };
-
   return (
     <Card className="shadow-none border border-foreground/10 bg-white dark:bg-content1 rounded-xl p-4 md:p-5 h-full flex flex-col gap-3">
       <style>{`
@@ -139,7 +130,6 @@ export default function LivePreview({
           </button>
         </div>
       </div>
-
       <div className="flex-1 flex justify-center items-center w-full min-h-[420px] bg-foreground/3 dark:bg-default-100/10 rounded-xl p-3 md:p-4 transition-all duration-300 relative border border-foreground/5">
         <div
           className={`transition-all duration-300 relative overflow-hidden bg-[#f4f5f7] dark:bg-[#1a1f24] shadow-md border border-foreground/10 rounded-xl
@@ -162,7 +152,6 @@ export default function LivePreview({
                 <div className="h-40 bg-[#d1d5dc]/50 dark:bg-default-200 rounded-lg" />
               </div>
             </div>
-
             {chatOpenState === "closed" && (
               <div
                 className={`absolute z-30 transition-all duration-300 cursor-pointer flex items-center gap-2 animate-float-bubble group
@@ -183,7 +172,6 @@ export default function LivePreview({
                 </div>
               </div>
             )}
-
             {chatOpenState === "open" && (
               <div
                 className={`absolute z-40 bg-background shadow-2xl border border-foreground/10 flex flex-col transition-all duration-300
@@ -222,7 +210,6 @@ export default function LivePreview({
                       </span>
                     </div>
                   </div>
-
                   <div className="flex items-center gap-2">
                     <button
                       onClick={(e) => {
@@ -246,7 +233,6 @@ export default function LivePreview({
                     </button>
                   </div>
                 </div>
-
                 <div className="flex-1 p-2.5 overflow-hidden bg-[#fafafa] dark:bg-[#0f1214] flex flex-col justify-between rounded-b-xl">
                   {!isChatStarted ? (
                     <div className="flex-1 flex flex-col justify-between py-0.5">
@@ -354,7 +340,6 @@ export default function LivePreview({
                 </div>
               </div>
             )}
-
             {chatOpenState === "collapsed" && (
               <div
                 className={`absolute z-40 text-white flex items-center justify-between shadow-2xl transition-all duration-300 cursor-pointer rounded-t-xl px-4 py-2 h-10

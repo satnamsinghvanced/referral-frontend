@@ -1,4 +1,4 @@
-import { Avatar } from "@heroui/react"; // HeroUI Avatar component
+import { Avatar } from "@heroui/react";
 
 interface ProfileProps {
   className?: string;
@@ -11,26 +11,13 @@ interface ProfileProps {
 }
 
 const Profile = ({ className, imgClass, user }: ProfileProps) => {
-  let display =
-    (user?.lastName?.length || 0) > 0
-      ? `${user?.firstName?.slice(0, 1)}${user?.lastName?.slice(0, 1)}`
-      : user?.firstName?.slice(0, 2);
-
-  const avatarUrl =
-    user?.avatar && user?.avatar !== ""
-      ? `${import.meta.env.VITE_API_URL}${user.avatar}`
-      : null;
-
+  let display = (user?.lastName?.length || 0) > 0 ? `${user?.firstName?.slice(0, 1)}${user?.lastName?.slice(0, 1)}` : user?.firstName?.slice(0, 2);
+  const avatarUrl = user?.avatar && user?.avatar !== "" ? `${import.meta.env.VITE_API_URL}${user.avatar}` : null;
   return (
     // @ts-ignore
-    <Avatar
-      src={avatarUrl || undefined}
-      name={display?.toUpperCase()}
-      size="sm"
-      className={className}
-      classNames={{
-        img: imgClass,
-      }}
+    <Avatar src={avatarUrl || undefined} name={display?.toUpperCase()} size="sm" className={className} classNames={{
+      img: imgClass,
+    }}
     />
   );
 };

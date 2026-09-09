@@ -11,26 +11,20 @@ export interface CampaignStepRef {
   triggerValidationAndProceed: () => void;
 }
 
-const CampaignTemplateStep: React.ForwardRefRenderFunction<
-  CampaignStepRef,
-  CampaignStepProps
-> = ({ data, onNext, updateData, setIsStepValid }, ref) => {
+const CampaignTemplateStep: React.ForwardRefRenderFunction<CampaignStepRef, CampaignStepProps> = ({ data, onNext, updateData, setIsStepValid }, ref) => {
   const [page, setPage] = useState(1);
   const limitCount = 6;
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(data.templateId || null);
   const { data: templatesRaw, isLoading } = useCampaignTemplates({ page, limit: limitCount });
-
   usePaginationAdjustment({
     totalPages: templatesRaw?.pagination?.totalPages || 0,
     currentPage: page,
     onPageChange: (newPage) => setPage(newPage),
     isLoading,
   });
-
   useEffect(() => {
     setSelectedTemplateId(data.templateId || null);
   }, [data.templateId]);
-
   const { data: fullTemplate } = useCampaignTemplate(selectedTemplateId || "");
   useEffect(() => {
     if (selectedTemplateId) {
@@ -46,14 +40,12 @@ const CampaignTemplateStep: React.ForwardRefRenderFunction<
       }
     }
   }, [selectedTemplateId, fullTemplate, data.templateId, data.content, updateData]);
-
   const [error, setError] = useState("");
   const templates = templatesRaw?.templates || [];
   const pagination = templatesRaw?.pagination;
   React.useEffect(() => {
     setIsStepValid(!!selectedTemplateId);
   }, [selectedTemplateId, setIsStepValid]);
-
   const handleSelect = (id: string) => {
     setSelectedTemplateId(id);
     setError("");
@@ -96,7 +88,6 @@ const CampaignTemplateStep: React.ForwardRefRenderFunction<
       </div>
     );
   }
-
   return (
     <div>
       <h4 className="font-medium mb-4">Choose Email Template</h4>
@@ -138,7 +129,6 @@ const CampaignTemplateStep: React.ForwardRefRenderFunction<
           );
         })}
       </div>
-
       {pagination && pagination.totalPages > 1 && (
         <Pagination
           identifier="templates"
@@ -149,7 +139,6 @@ const CampaignTemplateStep: React.ForwardRefRenderFunction<
           handlePageChange={(newPage: number) => setPage(newPage)}
         />
       )}
-
       <button
         type="button"
         id="submitTemplate"

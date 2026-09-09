@@ -6,8 +6,6 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { sendLeadQuote } from "../../../services/leadPipeline";
 
-
-
 interface SendQuoteModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -25,9 +23,7 @@ interface LineItem {
 
 const SendQuoteModal = ({ isOpen, onClose, lead, onSendQuote }: SendQuoteModalProps) => {
   if (!lead) return null;
-
   const [isSending, setIsSending] = useState(false);
-
   const validationSchema = Yup.object().shape({
     lineItems: Yup.array().of(
       Yup.object().shape({
@@ -55,33 +51,28 @@ const SendQuoteModal = ({ isOpen, onClose, lead, onSendQuote }: SendQuoteModalPr
         });
         return;
       }
-
       setIsSending(true);
       try {
         await sendLeadQuote({
-          id: lead.leadId || lead.id, // Support both lead tracking ID and conversation ID
+          id: lead.leadId || lead.id,
           lineItems: values.lineItems,
           personalNote: values.personalNote,
           sendType: "both",
         });
-
         let deliveryMethod = "email";
         if (lead.patientEmail && lead.patientPhone) {
           deliveryMethod = "email and SMS";
         } else if (lead.patientPhone) {
           deliveryMethod = "SMS";
         }
-
         const itemsText = values.lineItems.map(item => `${item.name || "Treatment"} ($${item.fee})`).join(", ");
-        const destination = lead.patientEmail && lead.patientPhone 
-          ? `${lead.patientEmail} and ${lead.patientPhone}` 
+        const destination = lead.patientEmail && lead.patientPhone
+          ? `${lead.patientEmail} and ${lead.patientPhone}`
           : (lead.patientEmail || lead.patientPhone);
         const msgText = `Here is your treatment quote (sent via ${deliveryMethod} to ${destination}):\n${itemsText || "No items listed"}\nTotal Quote: $${total.toLocaleString()}${values.personalNote ? `\nNote: ${values.personalNote}` : ""}`;
-        
         if (onSendQuote) {
           onSendQuote(msgText);
         }
-
         addToast({
           title: "Quote Sent",
           description: `Successfully sent a quote of $${total.toLocaleString()} to ${lead.patientName} via ${deliveryMethod}.`,
@@ -102,7 +93,6 @@ const SendQuoteModal = ({ isOpen, onClose, lead, onSendQuote }: SendQuoteModalPr
     },
   });
 
-
   const addItem = () => {
     const newItem: LineItem = {
       id: Date.now().toString(),
@@ -113,14 +103,12 @@ const SendQuoteModal = ({ isOpen, onClose, lead, onSendQuote }: SendQuoteModalPr
     };
     formik.setFieldValue("lineItems", [...formik.values.lineItems, newItem]);
   };
-
   const deleteItem = (id: string) => {
     formik.setFieldValue(
       "lineItems",
       formik.values.lineItems.filter((item) => item.id !== id)
     );
   };
-
   const handleItemChange = (id: string, field: keyof LineItem, val: string) => {
     formik.setFieldValue(
       "lineItems",
@@ -129,7 +117,6 @@ const SendQuoteModal = ({ isOpen, onClose, lead, onSendQuote }: SendQuoteModalPr
       )
     );
   };
-
   const subtotal = formik.values.lineItems.reduce(
     (acc, item) => acc + (parseFloat(item.fee) || 0),
     0
@@ -140,10 +127,8 @@ const SendQuoteModal = ({ isOpen, onClose, lead, onSendQuote }: SendQuoteModalPr
   );
   const total = Math.max(0, subtotal - discounts);
   const monthlyFinance = Math.round(total / 24);
-
   const inputClass =
     "w-full text-[13px] text-slate-700 dark:text-slate-200 outline-none bg-transparent placeholder:text-slate-400 dark:placeholder:text-slate-500 border border-slate-200 dark:border-default-200 rounded-lg px-3 h-9 focus:border-[#f97316] transition-colors";
-
   return (
     <Modal
       isOpen={isOpen}
@@ -163,7 +148,6 @@ const SendQuoteModal = ({ isOpen, onClose, lead, onSendQuote }: SendQuoteModalPr
               <h3 className="font-bold text-[16px] leading-tight text-white">Treatment Quote</h3>
               <p className="text-white/85 text-[13px] mt-0.5">For: {lead.patientName}</p>
             </div>
-
             <ModalBody className="px-5 py-4 gap-4">
               <div>
                 <div className="flex justify-between items-center mb-3">
@@ -178,7 +162,6 @@ const SendQuoteModal = ({ isOpen, onClose, lead, onSendQuote }: SendQuoteModalPr
                     + Add Item
                   </button>
                 </div>
-
                 <div className="flex flex-col gap-3">
                   {formik.values.lineItems.map((item) => (
                     <div
@@ -201,7 +184,6 @@ const SendQuoteModal = ({ isOpen, onClose, lead, onSendQuote }: SendQuoteModalPr
                           ×
                         </button>
                       </div>
-
                       <input
                         type="text"
                         placeholder="Description (optional)"
@@ -209,7 +191,6 @@ const SendQuoteModal = ({ isOpen, onClose, lead, onSendQuote }: SendQuoteModalPr
                         value={item.description}
                         onChange={(e) => handleItemChange(item.id, "description", e.target.value)}
                       />
-
                       <div className="grid grid-cols-2 gap-3">
                         <div>
                           <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">
@@ -242,7 +223,6 @@ const SendQuoteModal = ({ isOpen, onClose, lead, onSendQuote }: SendQuoteModalPr
                   ))}
                 </div>
               </div>
-
               <div className="bg-slate-50 dark:bg-default-100/50 rounded-xl px-4 py-3 flex flex-col gap-2">
                 <div className="flex justify-between items-center">
                   <span className="text-[13px] text-slate-600 dark:text-slate-300">Subtotal</span>
@@ -263,7 +243,6 @@ const SendQuoteModal = ({ isOpen, onClose, lead, onSendQuote }: SendQuoteModalPr
                   </span>
                 </div>
               </div>
-
               <div className="bg-sky-50 dark:bg-sky-950/20 rounded-xl p-4 flex gap-3 border border-sky-100 dark:border-sky-900/40">
                 <div className="w-7 h-7 rounded-full bg-sky-100 dark:bg-sky-900/50 flex items-center justify-center shrink-0 mt-0.5">
                   <HiOutlineCurrencyDollar className="text-sky-500 text-[14px]" />
@@ -279,7 +258,6 @@ const SendQuoteModal = ({ isOpen, onClose, lead, onSendQuote }: SendQuoteModalPr
                   </div>
                 </div>
               </div>
-
               <div>
                 <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">
                   Personal Note (Optional)
@@ -294,7 +272,6 @@ const SendQuoteModal = ({ isOpen, onClose, lead, onSendQuote }: SendQuoteModalPr
                   onBlur={formik.handleBlur}
                 />
               </div>
-
               <div className="bg-slate-50 dark:bg-default-100/40 px-4 py-3 rounded-xl border border-slate-100 dark:border-default-200/50">
                 <div className="text-[12px] text-slate-600 dark:text-slate-300">
                   Quote sent via: <span className="font-bold">SMS + Email</span>
@@ -303,7 +280,6 @@ const SendQuoteModal = ({ isOpen, onClose, lead, onSendQuote }: SendQuoteModalPr
                   Patient can accept online. Quote valid for 30 days.
                 </div>
               </div>
-
               <div className="flex gap-2.5 pb-1">
                 <Button
                   className="flex-[2] font-bold bg-[#f97316] text-white text-[13px] h-9 rounded-lg"
@@ -314,7 +290,6 @@ const SendQuoteModal = ({ isOpen, onClose, lead, onSendQuote }: SendQuoteModalPr
                 >
                   {isSending ? "Sending..." : "Send Quote"}
                 </Button>
-
                 <Button
                   variant="bordered"
                   className="flex-1 font-semibold text-slate-600 dark:text-slate-300 border-slate-200 dark:border-default-300 text-[13px] h-9 rounded-lg"

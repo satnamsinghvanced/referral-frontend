@@ -8,10 +8,7 @@ import {
   HiOutlineCurrencyDollar,
   HiOutlineStar,
 } from "react-icons/hi";
-import {
-  CONVERSATION_TAGS,
-  Conversation,
-} from "../../../consts/conversations";
+import { CONVERSATION_TAGS, Conversation } from "../../../consts/conversations";
 import { getAvatarColor, getInitials, getPlatformLabel, getChipColor } from "../utils";
 import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
 
@@ -21,13 +18,8 @@ interface LeadSidebarProps {
   onArchiveLead?: (conv: Conversation) => void;
 }
 
-export default function LeadSidebar({
-  selectedConversation,
-  onViewLead,
-  onArchiveLead,
-}: LeadSidebarProps) {
+export default function LeadSidebar({ selectedConversation, onViewLead, onArchiveLead }: LeadSidebarProps) {
   if (!selectedConversation) return null;
-
   return (
     <div className="w-[280px] min-w-[250px] border-l border-foreground/10 overflow-y-auto hidden xl:block">
       <div className="p-5 flex flex-col items-center border-b border-foreground/10">

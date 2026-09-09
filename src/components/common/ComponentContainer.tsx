@@ -11,10 +11,7 @@ interface ComponentContainerProps {
   children?: React.ReactNode;
 }
 
-const ComponentContainer: React.FC<ComponentContainerProps> = ({
-  headingData,
-  children,
-}) => {
+const ComponentContainer: React.FC<ComponentContainerProps> = ({ headingData, children }) => {
   return (
     <div className="flex flex-col h-full overflow-hidden">
       <div className="bg-background text-foreground">

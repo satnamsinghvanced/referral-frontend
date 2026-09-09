@@ -1,14 +1,7 @@
 import { Dispatch, SetStateAction, useMemo } from "react";
 import { FaRegEnvelope } from "react-icons/fa";
 import { FiClock, FiEdit, FiEye, FiZap } from "react-icons/fi";
-import {
-  LuChartColumn,
-  LuMail,
-  LuMousePointer2,
-  LuPause,
-  LuPlay,
-  LuTarget,
-} from "react-icons/lu";
+import { LuChartColumn, LuMail, LuMousePointer2, LuPause, LuPlay, LuTarget } from "react-icons/lu";
 import CampaignStatusChip from "../../components/chips/CampaignStatusChip";
 import { LoadingState } from "../../components/common/LoadingState";
 import EmptyState from "../../components/common/EmptyState";
@@ -22,12 +15,7 @@ interface OverviewProps {
   isLoading: boolean;
 }
 
-const Overview = ({
-  setIsActionModalOpen,
-  setActiveTab,
-  recentCampaigns,
-  isLoading,
-}: OverviewProps) => {
+const Overview = ({ setIsActionModalOpen, setActiveTab, recentCampaigns, isLoading }: OverviewProps) => {
   const ACTION_CARDS = [
     {
       title: "Create Email Campaign",
@@ -48,7 +36,6 @@ const Overview = ({
       onClick: () => setActiveTab("templates"),
     },
   ];
-
   if (isLoading) {
     return (
       <div className="py-20 flex justify-center">
@@ -56,30 +43,16 @@ const Overview = ({
       </div>
     );
   }
-
   return (
     <div className="space-y-4 md:space-y-6">
       <div className="flex flex-col gap-4 border border-foreground/10 rounded-xl p-4 bg-background">
         <h4 className="font-medium text-sm">Recent Campaigns</h4>
-
         <div className="space-y-3">
           {recentCampaigns && recentCampaigns.length > 0 ? (
             recentCampaigns.map((campaign) => {
-              const {
-                _id,
-                name,
-                subjectLine,
-                status,
-                createdAt,
-                stats,
-                audienceId,
-              } = campaign;
-
+              const { _id, name, subjectLine, status, createdAt, stats, audienceId }: any = campaign;
               const isScheduled = status === "scheduled";
-              const recipientsCount =
-                // @ts-ignore
-                audienceId?.contacts || stats?.sentCount || 0;
-
+              const recipientsCount = audienceId?.contacts || stats?.sentCount || 0;
               return (
                 <div
                   key={_id}
@@ -109,7 +82,6 @@ const Overview = ({
                       </div>
                     </div>
                   </div>
-
                   <div className="flex items-center gap-4">
                     {isScheduled || status === "draft" ? (
                       <CampaignStatusChip status={status} />
@@ -141,11 +113,9 @@ const Overview = ({
           )}
         </div>
       </div>
-
       <div className="flex justify-between gap-4">
         {ACTION_CARDS.map((card) => {
           const { title, description, icon: Icon, onClick } = card;
-
           let iconClasses = "";
           if (title.includes("Campaign")) {
             iconClasses = "text-blue-500";
@@ -154,7 +124,6 @@ const Overview = ({
           } else if (title.includes("Templates")) {
             iconClasses = "text-green-500";
           }
-
           return (
             <div
               key={card.title}

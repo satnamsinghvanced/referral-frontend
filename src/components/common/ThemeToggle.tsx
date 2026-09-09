@@ -6,7 +6,6 @@ import { toggleTheme } from "../../store/uiSlice";
 export default function ThemeToggle() {
   const dispatch = useDispatch();
   const theme = useTypedSelector((state) => state.ui.theme);
-
   return (
     <Switch
       size="sm"

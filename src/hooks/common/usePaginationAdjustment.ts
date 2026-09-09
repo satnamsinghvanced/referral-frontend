@@ -15,7 +15,6 @@ export const usePaginationAdjustment = ({
 }: UsePaginationAdjustmentProps) => {
   useEffect(() => {
     if (isLoading) return;
-
     if (totalPages > 0 && currentPage > totalPages) {
       onPageChange(totalPages);
     } else if (totalPages === 0 && currentPage !== 1) {

@@ -1,17 +1,8 @@
 import { Input, Select, SelectItem, Button, Spinner } from "@heroui/react";
 import { HiOutlineSearch, HiOutlineLightningBolt } from "react-icons/hi";
 import { useNavigate } from "react-router";
-import {
-  CONVERSATION_PLATFORMS,
-  CONVERSATION_TAGS,
-  Conversation,
-} from "../../../consts/conversations";
-import {
-  getPlatformIcon,
-  getPlatformChipStyle,
-  getAvatarColor,
-  getInitials,
-} from "../utils";
+import { CONVERSATION_PLATFORMS, CONVERSATION_TAGS, Conversation } from "../../../consts/conversations";
+import { getPlatformIcon, getPlatformChipStyle, getAvatarColor, getInitials, formatConversationTime } from "../utils";
 
 interface ConversationListProps {
   conversations: Conversation[];
@@ -44,7 +35,6 @@ export default function ConversationList({
   isIntegrationsLoading = false,
 }: ConversationListProps) {
   const navigate = useNavigate();
-
   const showMetaWarning = !isMetaConnected && (selectedPlatform === "facebook" || selectedPlatform === "instagram");
   return (
     <div
@@ -183,7 +173,7 @@ export default function ConversationList({
                     {conv.patientName}
                   </h4>
                   <span className="text-[10px] text-gray-400 dark:text-foreground/40 flex-shrink-0 ml-2">
-                    {conv.lastMessageTime}
+                    {formatConversationTime(conv.lastMessageTime, conv.lastMessageTimestamp)}
                   </span>
                 </div>
                 <p className="text-[11px] text-gray-500 dark:text-foreground/50 truncate mt-0.5">

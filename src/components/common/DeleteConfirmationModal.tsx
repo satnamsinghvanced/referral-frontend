@@ -1,11 +1,4 @@
-import {
-  Button,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-} from "@heroui/react";
+import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter } from "@heroui/react";
 import { LuTriangleAlert, LuTrash } from "react-icons/lu";
 
 interface DeleteConfirmationModalProps {

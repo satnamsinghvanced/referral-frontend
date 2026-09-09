@@ -24,19 +24,10 @@ import {
   HiOutlineMail,
   HiOutlineCurrencyDollar,
   HiOutlineChat,
-  HiOutlineLightningBolt,
 } from "react-icons/hi";
 import { LuSend } from "react-icons/lu";
-import { MdOutlineVideocam } from "react-icons/md";
-import { useNavigate } from "react-router";
 import { Conversation } from "../../../consts/conversations";
-import {
-  getPlatformIcon,
-  getPlatformLabel,
-  getPlatformChipStyle,
-  getAvatarColor,
-  getInitials,
-} from "../utils";
+import { getPlatformIcon, getPlatformLabel, getPlatformChipStyle, getAvatarColor, getInitials, formatDateLabel } from "../utils";
 import EmojiPicker from "./EmojiPicker";
 
 const formatSeenTime = (seenAt?: number) => {
@@ -44,7 +35,7 @@ const formatSeenTime = (seenAt?: number) => {
   const diff = Date.now() - seenAt;
   const diffMins = Math.floor(diff / 60000);
   const diffHours = Math.floor(diff / 3600000);
-  
+
   if (diff < 15000) return "Seen now";
   if (diffMins < 1) return "Seen just now";
   if (diffMins < 60) return `Seen ${diffMins} min ago`;
@@ -54,23 +45,18 @@ const formatSeenTime = (seenAt?: number) => {
 
 const SeenStatus = ({ seenAt }: { seenAt?: number | undefined }) => {
   const [statusText, setStatusText] = React.useState("");
-
   React.useEffect(() => {
     if (!seenAt) {
       setStatusText("Sent");
       return;
     }
-
     const updateText = () => {
       setStatusText(formatSeenTime(seenAt));
     };
-
     updateText();
     const interval = setInterval(updateText, 15000);
-
     return () => clearInterval(interval);
   }, [seenAt]);
-
   return <>{statusText}</>;
 };
 
@@ -117,11 +103,7 @@ export default function ChatArea({
   onScheduleClick,
   onSendFormsClick,
   onSendQuoteClick,
-  isMetaConnected = true,
-  isIntegrationsLoading = false,
-  isSendingMessage = false,
 }: ChatAreaProps) {
-  const navigate = useNavigate();
   if (!selectedConversation) {
     if (selectedConversationId) {
       return (
@@ -130,11 +112,6 @@ export default function ChatArea({
         </div>
       );
     }
-
-
-
-
-
     return (
       <div className="flex-1 items-center justify-center hidden md:flex">
         <div className="text-center text-gray-400 dark:text-foreground/30">
@@ -149,10 +126,7 @@ export default function ChatArea({
   }
 
   return (
-    <div
-      className={`flex-1 flex flex-col min-w-0 ${selectedConversationId ? "flex" : "hidden md:flex"
-        }`}
-    >
+    <div className={`flex-1 flex flex-col min-w-0 ${selectedConversationId ? "flex" : "hidden md:flex"}`}>
       <div className="flex items-center justify-between px-4 py-3 border-b border-foreground/10 bg-white dark:bg-content1">
         <div className="flex items-center gap-3">
           <Button
@@ -207,8 +181,6 @@ export default function ChatArea({
           </div>
         </div>
         <div className="flex items-center gap-0.5 sm:gap-1">
-
-
           <Button
             isIconOnly
             variant="light"
@@ -248,23 +220,32 @@ export default function ChatArea({
           </Dropdown>
         </div>
       </div>
-
       <div className="flex-1 overflow-y-auto p-4 space-y-1.5 bg-gray-50/30 dark:bg-black/10">
-        <div className="flex items-center justify-center">
-          <span className="text-[10px] text-gray-400 dark:text-foreground/40 bg-white dark:bg-content2 px-3 py-1 rounded-full shadow-sm border border-foreground/5">
-            {selectedConversation.lastMessageTime}
-          </span>
-        </div>
-
+        {selectedConversation.messages.length === 0 && (
+          <div className="flex items-center justify-center my-3">
+            <span className="text-[10px] font-semibold text-gray-500 dark:text-foreground/50 bg-white dark:bg-content2 px-3.5 py-1 rounded-full shadow-sm border border-foreground/5 uppercase tracking-wider">
+              {formatDateLabel(selectedConversation.lastMessageTime) || selectedConversation.lastMessageTime}
+            </span>
+          </div>
+        )}
         {selectedConversation.messages.map((msg, idx) => {
           const prevMsg = selectedConversation.messages[idx - 1];
-          const isNewGroup = !prevMsg || prevMsg.isFromPatient !== msg.isFromPatient;
+          const currentDateLabel = formatDateLabel(msg.createdAt || msg.timestamp);
+          const prevDateLabel = prevMsg ? formatDateLabel(prevMsg.createdAt || prevMsg.timestamp) : null;
+          const isNewDateGroup = !prevMsg || (currentDateLabel && currentDateLabel !== prevDateLabel);
+          const isNewSenderGroup = !prevMsg || prevMsg.isFromPatient !== msg.isFromPatient || isNewDateGroup;
           const isLastMessage = idx === selectedConversation.messages.length - 1;
-
           return (
             <div key={msg.id} className="flex flex-col">
+              {isNewDateGroup && currentDateLabel && (
+                <div className="flex items-center justify-center my-3">
+                  <span className="text-[10px] font-semibold text-gray-500 dark:text-foreground/50 bg-white dark:bg-content2 px-3.5 py-1 rounded-full shadow-sm border border-foreground/5 uppercase tracking-wider">
+                    {currentDateLabel}
+                  </span>
+                </div>
+              )}
               <div
-                className={`flex ${msg.isFromPatient ? "justify-start" : "justify-end"} ${isNewGroup ? "mt-3" : "mt-0.5"
+                className={`flex ${msg.isFromPatient ? "justify-start" : "justify-end"} ${isNewSenderGroup ? "mt-2" : "mt-0.5"
                   }`}
               >
                 {!msg.isFromPatient && msg.isSending && (
@@ -336,8 +317,6 @@ export default function ChatArea({
                   )}
                 </div>
               </div>
-
-              {/* Show the seen status for the last message if it's sent by the provider and not sending/failed */}
               {isLastMessage && !msg.isFromPatient && !msg.isSending && !msg.isFailed && (
                 <div className="text-[10px] text-gray-400 dark:text-foreground/40 text-right mt-1 mr-9">
                   <SeenStatus seenAt={msg.seenAt} />
@@ -348,7 +327,6 @@ export default function ChatArea({
         })}
         <div ref={messagesEndRef} />
       </div>
-
       <div className="px-4 py-3 border-t border-foreground/10 bg-white dark:bg-content1">
         {attachedFile.length > 0 && (
           <div className="mb-2 flex flex-wrap gap-2">
@@ -384,7 +362,6 @@ export default function ChatArea({
             ))}
           </div>
         )}
-
         <div className="flex items-end gap-2 w-full">
           <div className="flex items-center gap-0.5 sm:gap-1 flex-shrink-0 pb-1">
             <Button
@@ -405,7 +382,6 @@ export default function ChatArea({
             >
               <HiOutlinePhotograph className="size-4" />
             </Button>
-
             <Popover placement="top-start">
               <PopoverTrigger>
                 <Button
@@ -426,7 +402,6 @@ export default function ChatArea({
               </PopoverContent>
             </Popover>
           </div>
-
           <input
             type="file"
             ref={fileInputRef}
@@ -477,7 +452,6 @@ export default function ChatArea({
           </Button>
         </div>
       </div>
-
       <div className="px-4 py-2 bg-white dark:bg-content1 flex flex-wrap gap-2">
         <Button
           size="sm"

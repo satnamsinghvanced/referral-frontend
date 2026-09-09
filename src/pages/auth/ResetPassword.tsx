@@ -25,11 +25,7 @@ export default function ResetPassword() {
   const navigate = useNavigate();
   const initialEmail = searchParams.get("email") || "";
   const token = searchParams.get("token") || "";
-
-  // If email is present in URL, jump directly to set password screen!
-  const [step, setStep] = useState<
-    "email" | "email_sent" | "password" | "success" | "contact_admin"
-  >(initialEmail ? "password" : "email");
+  const [step, setStep] = useState<"email" | "email_sent" | "password" | "success" | "contact_admin">(initialEmail ? "password" : "email");
   const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -37,7 +33,6 @@ export default function ResetPassword() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [adminContactEmail, setAdminContactEmail] = useState("");
-
   const forgotPasswordMutation = useForgotPassword();
   const resetPasswordMutation = useResetPassword();
 
@@ -58,15 +53,8 @@ export default function ResetPassword() {
         setStep("email_sent");
       },
       onError: (err: any) => {
-        const msg =
-          err.response?.data?.message ||
-          err.message ||
-          "Failed to send reset link. Please check your email.";
-
-        // Extract email address if backend asks to contact practice administrator
-        const emailMatch = msg.match(
-          /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/
-        );
+        const msg = err.response?.data?.message || err.message || "Failed to send reset link. Please check your email.";
+        const emailMatch = msg.match(/[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/);
         if (
           emailMatch ||
           msg.toLowerCase().includes("administrator") ||
@@ -170,14 +158,11 @@ export default function ResetPassword() {
                 "Automated password reset email delivery is not configured for your practice account."}
             </p>
           </div>
-
           {errorMessage && (
             <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-medium text-center">
               {errorMessage}
             </div>
           )}
-
-          {/* STEP 1: Enter Email */}
           {step === "email" && (
             <form onSubmit={handleSendResetLink} className="space-y-4">
               <Input
@@ -206,8 +191,6 @@ export default function ResetPassword() {
               </Button>
             </form>
           )}
-
-          {/* STEP: Email Sent Confirmation */}
           {step === "email_sent" && (
             <div className="space-y-4 text-center">
               <div className="p-4 rounded-xl bg-primary/5 border border-primary/10 text-xs text-foreground/80 space-y-2">
@@ -231,8 +214,6 @@ export default function ResetPassword() {
               </Button>
             </div>
           )}
-
-          {/* STEP: Professional Contact Admin Screen */}
           {step === "contact_admin" && (
             <div className="space-y-5 text-center">
               <div className="p-4 rounded-xl bg-foreground/5 border border-foreground/10 text-xs space-y-2.5">
@@ -250,7 +231,6 @@ export default function ResetPassword() {
                   directly to reset your password or update your account settings.
                 </p>
               </div>
-
               <Button
                 size="lg"
                 radius="md"
@@ -264,16 +244,12 @@ export default function ResetPassword() {
               </Button>
             </div>
           )}
-
-          {/* STEP 2: Set New Password (default when coming from email link) */}
           {step === "password" && (
             <form onSubmit={handleResetPassword} className="space-y-4">
-              {/* Display Email by Default on UI */}
               <div className="p-3 rounded-xl bg-foreground/5 border border-foreground/10">
                 <p className="text-[11px] font-medium text-foreground/50 uppercase tracking-wider">Account Email</p>
                 <p className="text-sm font-semibold text-foreground mt-0.5">{email || "Your Account Email"}</p>
               </div>
-
               <Input
                 label="New Password"
                 placeholder="Enter new password"
@@ -343,8 +319,6 @@ export default function ResetPassword() {
               </Button>
             </form>
           )}
-
-          {/* STEP: Success */}
           {step === "success" && (
             <div className="space-y-4 pt-2">
               <Button
@@ -360,7 +334,6 @@ export default function ResetPassword() {
               </Button>
             </div>
           )}
-
           {step !== "contact_admin" && (
             <div className="mt-6 text-center text-xs">
               <Link to="/signin" className="text-primary hover:underline font-medium">

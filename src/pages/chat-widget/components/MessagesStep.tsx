@@ -1,4 +1,3 @@
-import React from "react";
 import { Input, Switch } from "@heroui/react";
 
 interface MessagesStepProps {
@@ -40,7 +39,6 @@ export default function MessagesStep({
         <h3 className="text-base font-bold text-foreground font-sans">Configure Welcome & Auto Messages</h3>
         <p className="text-xs text-default-500 mt-1 font-sans">Set up automatic responses and welcome messages for your patients.</p>
       </div>
-
       <div className="space-y-1 flex flex-col">
         <label className="text-xs font-bold text-default-700 block mb-1.5 font-sans">
           Welcome Message <span className="text-danger">*</span>
@@ -57,7 +55,6 @@ export default function MessagesStep({
           <span className="text-[10px] text-default-400 font-sans font-light mt-0.5">First message patients see when they open the chat.</span>
         )}
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
         <div className="flex flex-col">
           <label className="text-xs font-bold text-default-700 block mb-1.5 font-sans">
@@ -77,7 +74,6 @@ export default function MessagesStep({
           />
         </div>
       </div>
-
       <div className={`border rounded-xl p-4 transition-all duration-200 ${enableAutoReply ? "border-sky-200 bg-sky-50/40 dark:border-sky-500/20 dark:bg-sky-950/20" : "border-foreground/10 bg-transparent"}`}>
         <div className="flex items-center justify-between">
           <div className="flex flex-col gap-0.5">
@@ -103,7 +99,6 @@ export default function MessagesStep({
           </div>
         )}
       </div>
-
       <div className="space-y-1 flex flex-col">
         <label className="text-xs font-bold text-default-700 block mb-1.5 font-sans">
           Offline Message <span className="text-danger">*</span>
@@ -120,7 +115,6 @@ export default function MessagesStep({
           <span className="text-[10px] text-default-400 font-sans font-light mt-0.5">Shown when outside business hours.</span>
         )}
       </div>
-
       <div className="flex items-center justify-between border border-purple-200 bg-purple-50/40 dark:border-purple-500/20 dark:bg-purple-950/20 rounded-xl p-4">
         <div className="flex flex-col gap-0.5">
           <span className="text-xs font-bold text-default-700 font-sans">Working Hours</span>

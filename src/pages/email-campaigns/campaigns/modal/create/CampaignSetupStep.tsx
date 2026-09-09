@@ -25,10 +25,7 @@ const SetupSchema = Yup.object().shape({
   category: Yup.string().required("Category is required"),
 });
 
-const CampaignSetupStep: React.ForwardRefRenderFunction<
-  CampaignStepRef,
-  CampaignStepProps
-> = ({ data, onNext, setIsStepValid }, ref) => {
+const CampaignSetupStep: React.ForwardRefRenderFunction<CampaignStepRef, CampaignStepProps> = ({ data, onNext, setIsStepValid }, ref) => {
   const formik = useFormik<CampaignData>({
     initialValues: data,
     validationSchema: SetupSchema,
@@ -38,26 +35,21 @@ const CampaignSetupStep: React.ForwardRefRenderFunction<
     validateOnMount: true,
     enableReinitialize: true,
   });
-
   React.useEffect(() => {
     setIsStepValid(formik.isValid);
   }, [formik.isValid, setIsStepValid]);
-
   useImperativeHandle(ref, () => ({
     triggerValidationAndProceed: () => {
       formik.handleSubmit();
     },
   }));
-
   const isError = (field: keyof CampaignData) =>
     !!(formik.touched[field] && formik.errors[field]);
   const getErrorMessage = (field: keyof CampaignData) =>
     formik.touched[field] ? (formik.errors[field] as string) : undefined;
-
   return (
     <form onSubmit={formik.handleSubmit} className="space-y-4 md:space-y-5">
       <h4 className="font-medium mb-4">Campaign Basics</h4>
-
       <Input
         size="sm"
         radius="sm"
@@ -72,7 +64,6 @@ const CampaignSetupStep: React.ForwardRefRenderFunction<
         errorMessage={getErrorMessage("name")}
         isRequired
       />
-
       <Input
         size="sm"
         radius="sm"
@@ -86,7 +77,6 @@ const CampaignSetupStep: React.ForwardRefRenderFunction<
         isInvalid={isError("subjectLine")}
         errorMessage={getErrorMessage("subjectLine")}
       />
-
       <div className="grid grid-cols-2 gap-3">
         <Select
           size="sm"
@@ -110,7 +100,6 @@ const CampaignSetupStep: React.ForwardRefRenderFunction<
             <SelectItem key={type.value}>{type.label}</SelectItem>
           ))}
         </Select>
-
         <Select
           size="sm"
           radius="sm"

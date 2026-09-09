@@ -1,13 +1,11 @@
 import { Button } from "@heroui/react";
 import clsx from "clsx";
-import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 import { FiChevronDown, FiChevronUp, FiEdit } from "react-icons/fi";
 import { LuClock, LuTrash2 } from "react-icons/lu";
 
 const FlowStepCard = ({ step, index, totalSteps }: any) => {
   const { title, description, details, icon: Icon, iconColor } = step;
   const isWaitStep = step.type === "wait";
-
   return (
     <div className="flex items-start gap-3 p-4 border border-foreground/10 rounded-lg">
       <div className="flex flex-col items-center">
@@ -18,7 +16,6 @@ const FlowStepCard = ({ step, index, totalSteps }: any) => {
           <div className="h-8 w-px bg-gray-200 dark:bg-foreground/10 my-1"></div>
         )}
       </div>
-
       <div className="flex-grow flex justify-between items-center">
         <div className="flex items-start gap-2.5">
           <Icon className={`mt-1 size-4 ${iconColor}`} />
@@ -36,7 +33,6 @@ const FlowStepCard = ({ step, index, totalSteps }: any) => {
           </div>
         </div>
       </div>
-
       <div className="flex items-center gap-2 text-gray-400">
         <Button
           size="sm"

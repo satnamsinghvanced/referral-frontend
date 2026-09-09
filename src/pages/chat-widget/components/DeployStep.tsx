@@ -1,24 +1,6 @@
 import { useState } from "react";
-import {
-  Button,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
-  Input,
-  addToast,
-} from "@heroui/react";
-import {
-  FiCopy,
-  FiCheck,
-  FiDownload,
-  FiMail,
-  FiCode,
-  FiFileText,
-  FiInfo,
-  FiSend,
-} from "react-icons/fi";
+import { Button, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Input, addToast } from "@heroui/react";
+import { FiCopy, FiCheck, FiDownload, FiMail, FiCode, FiFileText, FiInfo, FiSend } from "react-icons/fi";
 import { FaWordpress, FaShopify, FaWix } from "react-icons/fa";
 import { LuGlobe } from "react-icons/lu";
 
@@ -37,6 +19,15 @@ interface PlatformDetail {
   warningNotice: string;
   steps: string[];
 }
+
+interface DeployStepProps {
+  selectedPlatform: string;
+  setSelectedPlatform: (val: string) => void;
+  embedCodeSnippet: string;
+  copiedCode: boolean;
+  copyToClipboard: () => void;
+}
+
 
 const PLATFORM_INSTRUCTIONS: Record<string, PlatformDetail> = {
   WordPress: {
@@ -119,25 +110,11 @@ const PLATFORM_INSTRUCTIONS: Record<string, PlatformDetail> = {
   },
 };
 
-interface DeployStepProps {
-  selectedPlatform: string;
-  setSelectedPlatform: (val: string) => void;
-  embedCodeSnippet: string;
-  copiedCode: boolean;
-  copyToClipboard: () => void;
-}
 
-export default function DeployStep({
-  selectedPlatform,
-  setSelectedPlatform,
-  embedCodeSnippet,
-  copiedCode,
-  copyToClipboard,
-}: DeployStepProps) {
+export default function DeployStep({ selectedPlatform, setSelectedPlatform, embedCodeSnippet, copiedCode, copyToClipboard }: DeployStepProps) {
   const [isEmailModalOpen, setIsEmailModalOpen] = useState(false);
   const [emailAddress, setEmailAddress] = useState("");
   const [emailError, setEmailError] = useState("");
-
   const DEFAULT_HTML_GUIDE: PlatformDetail = {
     title: "Custom HTML / Standard Website Guide",
     description: "Follow these steps to deploy the chat widget on any custom HTML website.",
@@ -150,37 +127,28 @@ export default function DeployStep({
     ],
   };
 
-  const currentPlatformInfo: PlatformDetail =
-    PLATFORM_INSTRUCTIONS[selectedPlatform] || PLATFORM_INSTRUCTIONS["Custom HTML"] || DEFAULT_HTML_GUIDE;
-
-  // Download instructions file handler
+  const currentPlatformInfo: PlatformDetail = PLATFORM_INSTRUCTIONS[selectedPlatform] || PLATFORM_INSTRUCTIONS["Custom HTML"] || DEFAULT_HTML_GUIDE;
   const handleDownloadDocumentation = () => {
     const info = currentPlatformInfo;
     const fileContent = `===================================================================
-PRACTICE ROI CHAT WIDGET - DEPLOYMENT INSTRUCTIONS
-Target Platform: ${selectedPlatform}
-===================================================================
-
-${info.title.toUpperCase()}
-${info.description}
-
-PLATFORM SPECIFICITY NOTICE:
-${info.warningNotice}
-
--------------------------------------------------------------------
-STEP-BY-STEP INSTALLATION INSTRUCTIONS:
--------------------------------------------------------------------
-${info.steps.map((step, idx) => `${idx + 1}. ${step}`).join("\n\n")}
-
--------------------------------------------------------------------
-EMBED CODE SNIPPET:
--------------------------------------------------------------------
-${embedCodeSnippet}
-
--------------------------------------------------------------------
-Need help? Contact support@practiceroi.com
-===================================================================`;
-
+    PRACTICE ROI CHAT WIDGET - DEPLOYMENT INSTRUCTIONS
+    Target Platform: ${selectedPlatform}
+    ===================================================================
+    ${info.title.toUpperCase()}
+    ${info.description}
+    PLATFORM SPECIFICITY NOTICE:
+    ${info.warningNotice}
+    -------------------------------------------------------------------
+    STEP-BY-STEP INSTALLATION INSTRUCTIONS:
+    -------------------------------------------------------------------
+    ${info.steps.map((step, idx) => `${idx + 1}. ${step}`).join("\n\n")}
+    -------------------------------------------------------------------
+    EMBED CODE SNIPPET:
+    -------------------------------------------------------------------
+    ${embedCodeSnippet}
+    -------------------------------------------------------------------
+    Need help? Contact support@practiceroi.com
+    ===================================================================`;
     const blob = new Blob([fileContent], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
@@ -190,7 +158,6 @@ Need help? Contact support@practiceroi.com
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-
     try {
       addToast({
         title: "Documentation Downloaded",
@@ -202,7 +169,6 @@ Need help? Contact support@practiceroi.com
     }
   };
 
-  // Real-time email validation helper
   const validateEmail = (val: string): string => {
     const trimmed = val.trim();
     if (!trimmed) {
@@ -220,49 +186,33 @@ Need help? Contact support@practiceroi.com
     setEmailError(validateEmail(val));
   };
 
-  // Mailto or email dispatch handler
   const handleSendEmailInstructions = () => {
     const errorMsg = validateEmail(emailAddress);
     if (errorMsg) {
       setEmailError(errorMsg);
       return;
     }
-
     setEmailError("");
-
-    const subject = encodeURIComponent(
-      `Practice ROI Chat Widget Deployment Instructions for ${selectedPlatform}`
-    );
+    const subject = encodeURIComponent(`Practice ROI Chat Widget Deployment Instructions for ${selectedPlatform}`);
     const bodyText = `Hi,
-
-Here are the deployment instructions and code snippet for installing the Practice ROI Chat Widget on ${selectedPlatform}:
-
-PLATFORM: ${selectedPlatform}
-
-INSTALLATION STEPS:
-${currentPlatformInfo.steps.map((step, idx) => `${idx + 1}. ${step}`).join("\n")}
-
-EMBED CODE SNIPPET:
-${embedCodeSnippet}
-
-If you have any questions, please reach out to support@practiceroi.com.`;
-
+    Here are the deployment instructions and code snippet for installing the Practice ROI Chat Widget on ${selectedPlatform}:
+    PLATFORM: ${selectedPlatform}
+    INSTALLATION STEPS:
+    ${currentPlatformInfo.steps.map((step, idx) => `${idx + 1}. ${step}`).join("\n")}
+    EMBED CODE SNIPPET:
+    ${embedCodeSnippet}
+    If you have any questions, please reach out to support@practiceroi.com.`;
     const mailtoUrl = `mailto:${emailAddress}?subject=${subject}&body=${encodeURIComponent(bodyText)}`;
     window.open(mailtoUrl, "_blank");
-
     try {
       addToast({
-        title: "Email Client Opened",
-        description: `Instructions prepared for ${emailAddress}`,
-        color: "success",
+        title: "Email Client Opened", description: `Instructions prepared for ${emailAddress}`, color: "success"
       });
     } catch (err) {
       console.log(err);
     }
-
     setIsEmailModalOpen(false);
   };
-
   return (
     <div className="space-y-5 animate-in fade-in duration-200 font-sans">
       <div className="border-b border-foreground/5 pb-2">
@@ -271,14 +221,12 @@ If you have any questions, please reach out to support@practiceroi.com.`;
           Copy the embed code and add it to your website based on your selected platform.
         </p>
       </div>
-
       <div className="border border-success/20 bg-success-50/10 dark:bg-success-950/10 text-success rounded-lg p-3 text-xs flex items-center gap-2 font-sans font-medium">
         <FiCheck className="w-4 h-4 flex-shrink-0" />
         <span>
           Your widget is ready to deploy! Copy the code below and paste it before the closing &lt;/body&gt; tag on your website.
         </span>
       </div>
-
       <div className="relative rounded-lg overflow-hidden border border-foreground/10 bg-[#0f172a] text-[#f8fafc] p-4 text-xs font-mono h-[420px] overflow-y-auto">
         <pre className="whitespace-pre-wrap">{embedCodeSnippet}</pre>
         <Button
@@ -292,7 +240,6 @@ If you have any questions, please reach out to support@practiceroi.com.`;
           {copiedCode ? "Copied" : "Copy"}
         </Button>
       </div>
-
       <div className="space-y-3">
         <label className="text-xs font-semibold text-default-600 block font-sans">
           Integration Platforms
@@ -321,7 +268,6 @@ If you have any questions, please reach out to support@practiceroi.com.`;
         </div>
       </div>
 
-      {/* Platform Specificity Alert Notice */}
       <div className="border border-blue-200 dark:border-blue-900/40 bg-blue-50/60 dark:bg-blue-950/20 text-blue-800 dark:text-blue-300 rounded-xl p-3.5 text-xs flex items-start gap-2.5 font-sans">
         <FiInfo className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
         <div className="leading-relaxed">
@@ -329,8 +275,6 @@ If you have any questions, please reach out to support@practiceroi.com.`;
           <span>{currentPlatformInfo.warningNotice}</span>
         </div>
       </div>
-
-      {/* Dynamic Installation Instructions */}
       <div className="border border-foreground/10 bg-foreground/5 dark:bg-default-100/10 rounded-xl p-5 space-y-4">
         <div className="flex items-center justify-between border-b border-foreground/5 pb-2">
           <h4 className="text-xs font-bold text-foreground font-sans">
@@ -341,7 +285,6 @@ If you have any questions, please reach out to support@practiceroi.com.`;
           </span>
         </div>
         <p className="text-xs text-default-500 font-sans">{currentPlatformInfo.description}</p>
-
         <div className="space-y-3">
           {currentPlatformInfo.steps.map((stepText, idx) => (
             <div key={idx} className="flex gap-2.5 items-start">
@@ -355,8 +298,6 @@ If you have any questions, please reach out to support@practiceroi.com.`;
           ))}
         </div>
       </div>
-
-      {/* Download & Email Actions */}
       <div className="flex flex-col sm:flex-row gap-2.5 pt-2">
         <Button
           variant="bordered"
@@ -375,8 +316,6 @@ If you have any questions, please reach out to support@practiceroi.com.`;
           Email Instructions
         </Button>
       </div>
-
-      {/* Email Instructions Modal */}
       <Modal
         isOpen={isEmailModalOpen}
         onOpenChange={setIsEmailModalOpen}
@@ -406,7 +345,6 @@ If you have any questions, please reach out to support@practiceroi.com.`;
               </p>
             </div>
           </ModalHeader>
-
           <ModalBody className="p-5 space-y-4 font-sans">
             <div className="space-y-1.5">
               <label className="text-xs font-semibold text-foreground/90 block">
@@ -433,8 +371,6 @@ If you have any questions, please reach out to support@practiceroi.com.`;
                 </span>
               )}
             </div>
-
-            {/* Clean Instructions Package Preview */}
             <div className="rounded-xl border border-foreground/10 bg-default-50/50 dark:bg-default-100/10 p-4 space-y-3 font-sans">
               <div className="flex items-center justify-between border-b border-foreground/5 pb-2">
                 <span className="text-xs font-bold text-foreground flex items-center gap-1.5 font-sans">
@@ -445,7 +381,6 @@ If you have any questions, please reach out to support@practiceroi.com.`;
                   Complete Setup
                 </span>
               </div>
-
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 font-sans">
                 <div className="flex items-start gap-2.5 p-3 rounded-lg bg-background border border-foreground/5 shadow-2xs">
                   <div className="w-6 h-6 rounded-md bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -458,7 +393,6 @@ If you have any questions, please reach out to support@practiceroi.com.`;
                     </p>
                   </div>
                 </div>
-
                 <div className="flex items-start gap-2.5 p-3 rounded-lg bg-background border border-foreground/5 shadow-2xs">
                   <div className="w-6 h-6 rounded-md bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center flex-shrink-0 mt-0.5">
                     <FiCode className="w-3.5 h-3.5" />
@@ -471,7 +405,6 @@ If you have any questions, please reach out to support@practiceroi.com.`;
                   </div>
                 </div>
               </div>
-
               <div className="pt-2 border-t border-foreground/5 space-y-1.5 font-sans">
                 <span className="text-[10px] font-bold text-default-400 uppercase tracking-wider block">
                   Installation Steps Overview:
@@ -491,7 +424,6 @@ If you have any questions, please reach out to support@practiceroi.com.`;
               </div>
             </div>
           </ModalBody>
-
           <ModalFooter className="p-5 pt-3 flex gap-3 justify-end border-t border-foreground/5 bg-background">
             <Button
               variant="bordered"

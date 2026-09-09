@@ -1,13 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { fetchPlansAndFeatures, PlanData, FeatureData } from "../../services/planFeature";
-import { FiCheck, FiArrowRight, FiStar } from "react-icons/fi";
+import { fetchPlansAndFeatures, PlanData } from "../../services/planFeature";
+import { FiCheck, FiArrowRight } from "react-icons/fi";
 import { SignupHeader } from "./signup/SignupHeader";
 
 const SignupPricingView: React.FC = () => {
   const navigate = useNavigate();
   const [plans, setPlans] = useState<PlanData[]>([]);
-  const [features, setFeatures] = useState<FeatureData[]>([]);
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("monthly");
   const [selectedPlanId, setSelectedPlanId] = useState<string>("professional");
   const [loading, setLoading] = useState(true);
@@ -28,9 +27,6 @@ const SignupPricingView: React.FC = () => {
           if (popular) setSelectedPlanId(popular.planId);
           else setSelectedPlanId(data.plans[0].planId);
         }
-        if (Array.isArray(data.features)) {
-          setFeatures(data.features);
-        }
       }
     } catch (err) {
       console.error("Failed to load signup pricing data:", err);
@@ -46,7 +42,6 @@ const SignupPricingView: React.FC = () => {
   const handleContinue = () => {
     navigate(`/checkout?plan=${selectedPlanId}&billing=${billingCycle}`);
   };
-
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-[#070C18] flex flex-col items-center justify-center gap-3">
@@ -55,7 +50,6 @@ const SignupPricingView: React.FC = () => {
       </div>
     );
   }
-
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#070C18] text-slate-900 dark:text-slate-100 flex flex-col items-center py-10 px-4 sm:px-6">
       <SignupHeader currentStep={1} />
@@ -83,7 +77,6 @@ const SignupPricingView: React.FC = () => {
           </button>
         </div>
       </div>
-
       {plans.length === 0 ? (
         <div className="py-16 text-center space-y-3">
           <p className="text-base font-bold text-slate-500">
@@ -145,7 +138,6 @@ const SignupPricingView: React.FC = () => {
                     </span>
                     <span className="text-xs font-semibold text-slate-400">/month</span>
                   </div>
-
                   {isAnnual ? (
                     <div className="mt-1">
                       {savingsPercent > 0 && savingsPerYear > 0 && (
@@ -164,7 +156,6 @@ const SignupPricingView: React.FC = () => {
                       </p>
                     </div>
                   )}
-
                   <div className="mt-8 space-y-3.5">
                     {planFeatures.map((feat, idx) => (
                       <div key={idx} className="flex items-start gap-2.5 text-xs font-medium">
@@ -188,7 +179,6 @@ const SignupPricingView: React.FC = () => {
                     ))}
                   </div>
                 </div>
-
                 <div className="mt-8 pt-4">
                   <button
                     type="button"
@@ -211,7 +201,6 @@ const SignupPricingView: React.FC = () => {
           })}
         </div>
       )}
-
       <div className="mt-12">
         <button
           type="button"

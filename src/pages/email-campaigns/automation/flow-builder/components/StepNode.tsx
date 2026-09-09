@@ -53,7 +53,6 @@ const STEP_STYLES: any = {
 const StepNode: React.FC<StepNodeProps> = ({ step, onEdit, onDelete }) => {
   const style = STEP_STYLES[step.type] || STEP_STYLES.action;
   const Icon = style.icon;
-
   return (
     <div
       className={clsx(
@@ -70,7 +69,6 @@ const StepNode: React.FC<StepNodeProps> = ({ step, onEdit, onDelete }) => {
       >
         <Icon className={clsx("size-4", style.text)} />
       </div>
-
       <div className="flex-1 min-w-0">
         <h4 className={clsx("text-sm font-medium truncate", style.text)}>
           {step.title}
@@ -79,7 +77,6 @@ const StepNode: React.FC<StepNodeProps> = ({ step, onEdit, onDelete }) => {
           {step.description}
         </p>
       </div>
-
       <div className="flex items-center gap-1">
         <Button
           isIconOnly

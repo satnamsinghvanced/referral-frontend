@@ -28,7 +28,6 @@ const PROVIDERS = [
 ];
 
 const ScheduleAppointmentModal = ({ isOpen, onClose, lead }: ScheduleAppointmentModalProps) => {
-
   const validationSchema = Yup.object().shape({
     appointmentType: Yup.string().required("Required"),
     date: Yup.string().required("Date is required"),
@@ -37,7 +36,6 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead }: ScheduleAppointment
     notes: Yup.string().max(500, "Notes too long").nullable(),
     sendReminder: Yup.boolean(),
   });
-
   const formik = useFormik({
     initialValues: {
       appointmentType: "New Patient Consultation",
@@ -50,11 +48,7 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead }: ScheduleAppointment
     validationSchema,
     onSubmit: async (values) => {
       if (!lead) return;
-
-      // Format date and time
       const dateStr = values.date ? new Date(values.date).toLocaleDateString() : 'N/A';
-
-      // Format 24-hour time string to 12-hour format with AM/PM
       let timeStr = 'N/A';
       if (values.time) {
         const [hourStr, minStr] = values.time.split(':');
@@ -62,13 +56,11 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead }: ScheduleAppointment
           let hour = parseInt(hourStr, 10);
           const ampm = hour >= 12 ? 'PM' : 'AM';
           hour = hour % 12;
-          hour = hour ? hour : 12; // Convert 0 to 12
+          hour = hour ? hour : 12;
           timeStr = `${hour}:${minStr} ${ampm}`;
         }
       }
-
       const providerLabel = PROVIDERS.find(p => p.key === values.provider)?.label || values.provider;
-
       if (values.sendReminder && lead.leadId) {
         try {
           const { sendLeadAppointment } = await import("../../../services/leadPipeline");
@@ -84,7 +76,6 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead }: ScheduleAppointment
           console.error("Failed to send scheduled appointment confirmation/reminder:", err);
         }
       }
-
       addToast({
         title: "Appointment Scheduled",
         description: `Appointment for ${lead?.patientName || ""} (${values.appointmentType}) has been confirmed.`,
@@ -94,9 +85,7 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead }: ScheduleAppointment
       formik.resetForm();
     },
   });
-
   if (!lead) return null;
-
   return (
     <Modal
       isOpen={isOpen}
@@ -116,7 +105,6 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead }: ScheduleAppointment
               <h3 className="font-bold text-[15px] sm:text-[16px] leading-tight text-white">Schedule Appointment</h3>
               <p className="text-white/85 text-[12px] sm:text-[13px] mt-0.5">{lead.patientName}</p>
             </div>
-
             <ModalBody className="px-5 py-4 gap-4">
               <div>
                 <div className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">
@@ -137,7 +125,6 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead }: ScheduleAppointment
                   ))}
                 </div>
               </div>
-
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">
@@ -177,15 +164,12 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead }: ScheduleAppointment
                     <div className="text-red-500 text-[10px] mt-0.5">{formik.errors.date}</div>
                   )}
                 </div>
-
-
                 <div>
                   <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">
                     Time
                   </label>
                   <div className="border border-slate-200 dark:border-default-200 rounded-lg px-2 sm:px-3 min-h-9 flex items-center gap-2 overflow-hidden">
                     <HiOutlineClock className="w-4 h-4 flex-none text-slate-400" />
-
                     <TimeInput
                       className="flex-1 min-w-0"
                       hourCycle={12}
@@ -224,7 +208,6 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead }: ScheduleAppointment
                   )}
                 </div>
               </div>
-
               <div>
                 <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">
                   Provider
@@ -247,7 +230,6 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead }: ScheduleAppointment
                   ))}
                 </Select>
               </div>
-
               <div>
                 <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">
                   Notes
@@ -268,7 +250,6 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead }: ScheduleAppointment
                   }}
                 />
               </div>
-
               <div className="flex items-center justify-between py-1">
                 <div>
                   <h4 className="text-[12.5px] sm:text-[13px] font-semibold text-slate-700 dark:text-slate-200">
@@ -287,7 +268,6 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead }: ScheduleAppointment
                   size="md"
                 />
               </div>
-
               <div className="flex gap-1.5 sm:gap-2.5 pb-1">
                 <Button
                   className="flex-[2] font-bold bg-[#10b981] text-white text-[11px] xs:text-[12.5px] sm:text-[13px] px-2 sm:px-4 h-9 rounded-lg"

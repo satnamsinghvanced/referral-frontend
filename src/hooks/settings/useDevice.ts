@@ -16,7 +16,6 @@ export const useToggleDevice = () => {
       toggleDevice(id, toggle),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["devices"] });
-
       addToast({
         title: "Device Session Terminated",
         description: "Device session successfully terminated.",
@@ -38,7 +37,6 @@ export const useRemoveDevice = () => {
     mutationFn: (id: string) => removeDevice(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["devices"] });
-
       addToast({
         title: "Device Session Terminated",
         description: "Device session successfully terminated.",

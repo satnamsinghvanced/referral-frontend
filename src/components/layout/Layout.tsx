@@ -13,10 +13,8 @@ import { setCredentials } from "../../store/authSlice";
 const Layout = () => {
   const dispatch = useDispatch<AppDispatch>();
   const { user } = useSelector((state: RootState) => state.auth);
-
   const rawImpersonated = localStorage.getItem("impersonated_client");
   const isImpersonating = !!rawImpersonated;
-
   const impersonatedData = (() => {
     if (!rawImpersonated) return null;
     try {

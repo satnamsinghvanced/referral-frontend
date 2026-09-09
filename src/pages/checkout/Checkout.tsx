@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { Button, Card, CardBody, Input, Select, SelectItem, addToast, Checkbox, Chip } from "@heroui/react";
 import { FiCreditCard, FiLock, FiCheck, FiArrowLeft } from "react-icons/fi";
-import Logo from "../../components/ui/Logo";
 import { SignupHeader } from "../auth/signup/SignupHeader";
 import axios from "../../services/axios";
 import { useValidateDiscount } from "../../hooks/settings/useBilling";
@@ -50,22 +49,16 @@ export default function Checkout() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-
   const planParam = (searchParams.get("plan") || "professional").toLowerCase();
   const activePlan = (PLAN_PRESETS[planParam] || PLAN_PRESETS.professional) as PlanDetails;
-
   const typeParam = searchParams.get("type");
   const amountParam = parseFloat(searchParams.get("amount") || "0");
   const walletAmountParam = parseFloat(searchParams.get("walletAmount") || "0");
   const packageParam = searchParams.get("package") || "none";
   const planIdParam = searchParams.get("planId") || "";
   const planNameParam = searchParams.get("planName") || "";
-
-  const packageCost = 0; // Package minutes are included in the wallet deposit subscription
-
   const creditsCost = typeParam === "twilio_credits" && walletAmountParam > 0 ? walletAmountParam : amountParam;
   const baseCost = typeParam === "twilio_credits" ? creditsCost : activePlan.price;
-
   let twilioPlanName = "Starter";
   if (packageParam === "1000") {
     twilioPlanName = "Growth";
@@ -73,7 +66,6 @@ export default function Checkout() {
     twilioPlanName = "Scale";
   }
 
-  // Form states
   const [activeTab, setActiveTab] = useState<"saved" | "card">("card");
   const [cardNumber, setCardNumber] = useState("");
   const [expiry, setExpiry] = useState("");
@@ -81,16 +73,10 @@ export default function Checkout() {
   const [country, setCountry] = useState("India");
   const [savePaymentDetails, setSavePaymentDetails] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-
-  // Discount code states
   const [discountCode, setDiscountCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState<{ code: string; value: number; type: "percent" | "fixed" } | null>(null);
   const validateDiscountMutation = useValidateDiscount();
-
-  // Terms and conditions consent
   const [agreeToTerms, setAgreeToTerms] = useState(false);
-
-  // Saved cards states
   const [savedCards, setSavedCards] = useState<SavedCard[]>(() => {
     try {
       const saved = localStorage.getItem("practice_roi_saved_cards");
@@ -118,11 +104,9 @@ export default function Checkout() {
     }
   }, [savedCards]);
 
-  // Form errors & touched states
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
-  // Detect card brand based on starting digit
   const getCardBrand = (num: string) => {
     const clean = num.replace(/\D/g, "");
     if (clean.startsWith("4")) return "visa";
@@ -131,10 +115,8 @@ export default function Checkout() {
     if (clean.startsWith("6")) return "discover";
     return null;
   };
-
   const cardBrand = getCardBrand(cardNumber);
 
-  // Card details validation helper
   const validateField = (name: string, value: string, currentBrand?: string | null) => {
     let error = "";
     if (name === "cardNumber") {
@@ -157,8 +139,7 @@ export default function Checkout() {
         const year = parseInt(`20${yStr}`, 10);
         const now = new Date();
         const currentYear = now.getFullYear();
-        const currentMonth = now.getMonth() + 1; // 1-indexed
-
+        const currentMonth = now.getMonth() + 1;
         if (year < currentYear || (year === currentYear && month < currentMonth)) {
           error = "Card has expired";
         }
@@ -176,19 +157,16 @@ export default function Checkout() {
     return error;
   };
 
-  // Card number input formatter (adds spaces every 4 digits)
   const handleCardNumberChange = (val: string) => {
     const clean = val.replace(/\D/g, "").substring(0, 16);
     const formatted = clean.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
     setCardNumber(formatted);
-
     if (touched.cardNumber || errors.cardNumber) {
       const err = validateField("cardNumber", formatted, getCardBrand(formatted));
       setErrors((prev) => ({ ...prev, cardNumber: err }));
     }
   };
 
-  // Expiry date input formatter (adds slash: MM/YY)
   const handleExpiryChange = (val: string) => {
     const clean = val.replace(/\D/g, "").substring(0, 4);
     let formatted = clean;
@@ -196,18 +174,15 @@ export default function Checkout() {
       formatted = `${clean.substring(0, 2)}/${clean.substring(2)}`;
     }
     setExpiry(formatted);
-
     if (touched.expiry || errors.expiry) {
       const err = validateField("expiry", formatted, cardBrand);
       setErrors((prev) => ({ ...prev, expiry: err }));
     }
   };
 
-  // CVC input change handler
   const handleCvcChange = (val: string) => {
     const clean = val.replace(/\D/g, "").substring(0, 3);
     setCvc(clean);
-
     if (touched.cvc || errors.cvc) {
       const err = validateField("cvc", clean, cardBrand);
       setErrors((prev) => ({ ...prev, cvc: err }));
@@ -219,32 +194,6 @@ export default function Checkout() {
     const err = validateField(field, value, cardBrand);
     setErrors((prev) => ({ ...prev, [field]: err }));
   };
-
-  const validate = () => {
-    const newErrors: Record<string, string> = {};
-    if (!agreeToTerms) {
-      newErrors.agree = "You must agree to the Terms of Service and Privacy Policy";
-    }
-    if (activeTab === "card") {
-      const brand = getCardBrand(cardNumber);
-      const cardErr = validateField("cardNumber", cardNumber, brand);
-      const expiryErr = validateField("expiry", expiry, brand);
-      const cvcErr = validateField("cvc", cvc, brand);
-      if (cardErr) newErrors.cardNumber = cardErr;
-      if (expiryErr) newErrors.expiry = expiryErr;
-      if (cvcErr) newErrors.cvc = cvcErr;
-      setTouched({ cardNumber: true, expiry: true, cvc: true });
-    } else {
-      if (savedCards.length === 0) {
-        newErrors.savedCard = "No saved cards available. Please use the Card tab.";
-      } else if (!selectedSavedCard) {
-        newErrors.savedCard = "Please select a saved card.";
-      }
-    }
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
   let discountAmount = 0;
   if (appliedDiscount) {
     if (appliedDiscount.type === "percent") {
@@ -277,33 +226,21 @@ export default function Checkout() {
       onSuccess: (response: any) => {
         const { success, data, message } = response;
         if (success && data) {
-          setAppliedDiscount({
-            code: data.code,
-            value: data.value,
-            type: data.type,
-          });
+          setAppliedDiscount({ code: data.code, value: data.value, type: data.type });
           const discountText = data.type === "percent" ? `${data.value}% off` : `$${data.value.toFixed(2)} discount`;
           addToast({
-            title: "Discount Applied",
-            description: `${discountText} has been applied to your order!`,
-            color: "success",
+            title: "Discount Applied", description: `${discountText} has been applied to your order!`, color: "success"
           });
         } else {
           addToast({
-            title: "Invalid Code",
-            description: message || "This discount code is invalid or has expired.",
-            color: "warning",
+            title: "Invalid Code", description: message || "This discount code is invalid or has expired.", color: "warning"
           });
         }
       },
       onError: (err: any) => {
         console.error(err);
         const errMsg = err.response?.data?.message || "This discount code is invalid or has expired.";
-        addToast({
-          title: "Invalid Code",
-          description: errMsg,
-          color: "warning",
-        });
+        addToast({ title: "Invalid Code", description: errMsg, color: "warning" });
       },
     });
   };
@@ -330,19 +267,13 @@ export default function Checkout() {
     }
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) {
-      addToast({
-        title: "Validation Error",
-        description: Object.values(newErrors)[0],
-        color: "danger",
-      });
+      addToast({ title: "Validation Error", description: Object.values(newErrors)[0], color: "danger" });
       return;
     }
     try {
       setIsSubmitting(true);
       const isSaved = activeTab === "saved";
-      const cardToUse = isSaved
-        ? savedCards.find((c) => c.id === selectedSavedCard)
-        : null;
+      const cardToUse = isSaved ? savedCards.find((c) => c.id === selectedSavedCard) : null;
       const finalCardNumber = isSaved && cardToUse ? `424242424242${cardToUse.last4}` : cardNumber.replace(/\s/g, "");
       const finalExpiry = isSaved && cardToUse ? cardToUse.expiry : expiry;
       const finalCvc = isSaved ? "123" : cvc;
@@ -360,9 +291,7 @@ export default function Checkout() {
         if (!isSaved && savePaymentDetails) {
           const last4Digits = finalCardNumber.slice(-4);
           const brandName = cardBrand || "visa";
-          const exists = savedCards.some(
-            (c) => c.last4 === last4Digits && c.expiry === expiry && c.brand === brandName
-          );
+          const exists = savedCards.some((c) => c.last4 === last4Digits && c.expiry === expiry && c.brand === brandName);
           if (!exists) {
             const newSavedCard: SavedCard = {
               id: Math.random().toString(),
@@ -414,7 +343,6 @@ export default function Checkout() {
       setIsSubmitting(false);
     }
   };
-
   const handleCancel = () => {
     if (typeParam === "twilio_credits" && window.opener) {
       window.opener.postMessage({ type: "STRIPE_CANCEL" }, "*");
@@ -423,7 +351,6 @@ export default function Checkout() {
       navigate("/settings/billing");
     }
   };
-
   return (
     <div className="flex flex-col items-center justify-start min-h-screen bg-gray-50 dark:bg-default-50 text-foreground py-10 px-4">
       <SignupHeader currentStep={3} isTwilioCredits={typeParam === "twilio_credits"} />

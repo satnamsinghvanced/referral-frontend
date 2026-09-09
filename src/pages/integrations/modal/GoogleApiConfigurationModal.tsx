@@ -1,22 +1,9 @@
-import {
-  Button,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Spinner,
-} from "@heroui/react";
+import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Spinner } from "@heroui/react";
 import { useFormik } from "formik";
 import { useEffect } from "react";
 import { FiExternalLink } from "react-icons/fi";
 import * as Yup from "yup";
-import {
-  useFetchGoogleApiKey,
-  useSaveGoogleApiKey,
-  useUpdateGoogleApiKey,
-} from "../../../hooks/useGoogle";
+import { useFetchGoogleApiKey, useSaveGoogleApiKey, useUpdateGoogleApiKey } from "../../../hooks/useGoogle";
 import { GoogleApiKeyRequest } from "../../../types/google";
 
 const validationSchema = Yup.object().shape({
@@ -117,9 +104,7 @@ export default function GoogleApiConfigurationModal({ userId, isOpen, onClose }:
       </Modal>
     );
   }
-
   const isSubmitting = mutation.isPending;
-
   return (
     <Modal
       isOpen={isOpen}
@@ -170,7 +155,6 @@ export default function GoogleApiConfigurationModal({ userId, isOpen, onClose }:
                   formik.touched.googleKey && formik.errors.googleKey
                 }
               />
-
               <div className="text-sm text-gray-700 dark:text-foreground/80 bg-blue-50 dark:bg-blue-900/10 p-3.5 rounded-lg border border-blue-200 dark:border-blue-500/30 mt-4">
                 <div className="flex items-start gap-3">
                   <div>
@@ -196,7 +180,6 @@ export default function GoogleApiConfigurationModal({ userId, isOpen, onClose }:
               </div>
             </div>
           </ModalBody>
-
           <ModalFooter className="flex justify-end gap-2 px-4 pb-4 pt-0">
             <Button
               size="sm"

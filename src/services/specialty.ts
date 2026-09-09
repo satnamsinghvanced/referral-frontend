@@ -1,13 +1,6 @@
 import axios from "./axios";
-import {
-  SpecialtyItem,
-  CreateSpecialtyPayload,
-  UpdateSpecialtyPayload,
-} from "../types/specialty";
+import { SpecialtyItem, CreateSpecialtyPayload, UpdateSpecialtyPayload } from "../types/specialty";
 
-/**
- * Fetch all practice specialties list
- */
 export const fetchSpecialtiesList = async (): Promise<SpecialtyItem[]> => {
   const res: any = await axios.get("/practice");
   const responseData = res?.data || res;
@@ -20,30 +13,16 @@ export const fetchSpecialtiesList = async (): Promise<SpecialtyItem[]> => {
   return [];
 };
 
-/**
- * Create a new specialty
- */
-export const createSpecialty = async (
-  payload: CreateSpecialtyPayload
-): Promise<SpecialtyItem> => {
+export const createSpecialty = async (payload: CreateSpecialtyPayload): Promise<SpecialtyItem> => {
   const res: any = await axios.post("/practice", payload);
   return res?.data || res;
 };
 
-/**
- * Update an existing specialty
- */
-export const updateSpecialty = async (
-  id: string,
-  payload: UpdateSpecialtyPayload
-): Promise<SpecialtyItem> => {
+export const updateSpecialty = async (id: string, payload: UpdateSpecialtyPayload): Promise<SpecialtyItem> => {
   const res: any = await axios.put(`/practice/${id}`, payload);
   return res?.data || res;
 };
 
-/**
- * Delete a specialty by ID
- */
 export const deleteSpecialty = async (id: string): Promise<any> => {
   const res: any = await axios.delete(`/practice/${id}`);
   return res?.data || res;

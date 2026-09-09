@@ -34,17 +34,9 @@ export const useMarkNotificationsRead = () => {
 
 export const useUpdateNotifications = () => {
   return useMutation({
-    mutationFn: ({
-      id,
-      payload,
-    }: {
-      id: string;
-      payload: UpdateNotificationPayload;
-    }) => updateNotificationSettings(id, payload),
+    mutationFn: ({ id, payload }: { id: string; payload: UpdateNotificationPayload; }) => updateNotificationSettings(id, payload),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["notifications", "settings"],
-      });
+      queryClient.invalidateQueries({ queryKey: ["notifications", "settings"] });
     },
   });
 };

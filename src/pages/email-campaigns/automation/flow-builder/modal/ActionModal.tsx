@@ -41,22 +41,12 @@ const UPDATE_FIELDS = [
   { label: "Category", value: "category" },
 ];
 
-const ActionModal: React.FC<ActionModalProps> = ({
-  isOpen,
-  onOpenChange,
-  onSave,
-  initialData,
-}) => {
+const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onOpenChange, onSave, initialData }) => {
   const { data: teamMembersData } = useFetchTeamMembers({ limit: 100 });
   const teamMembers = teamMembersData?.data;
-  const activeTeamMembers = useMemo(
-    () => teamMembers?.filter((member) => member.status === "active") || [],
-    [teamMembers],
-  );
-
+  const activeTeamMembers = useMemo(() => teamMembers?.filter((member) => member.status === "active") || [], [teamMembers]);
   const { data: locationsData } = useFetchLocations();
   const practices = locationsData?.data || [];
-
   const validationSchema = Yup.object().shape({
     actionType: Yup.string().required("Action type is required"),
     fieldToUpdate: Yup.string().when("actionType", {
@@ -100,7 +90,6 @@ const ActionModal: React.FC<ActionModalProps> = ({
       otherwise: (schema) => schema.nullable(),
     }),
   });
-
   const formik = useFormik({
     initialValues: {
       actionType: initialData?.actionType || "update_field",
@@ -121,7 +110,6 @@ const ActionModal: React.FC<ActionModalProps> = ({
     },
     enableReinitialize: true,
   });
-
   useEffect(() => {
     if (isOpen) {
       formik.resetForm({
@@ -140,7 +128,6 @@ const ActionModal: React.FC<ActionModalProps> = ({
       });
     }
   }, [isOpen, initialData]);
-
   return (
     <Modal
       isOpen={isOpen}
@@ -196,7 +183,6 @@ const ActionModal: React.FC<ActionModalProps> = ({
                   </SelectItem>
                 ))}
               </Select>
-
               {formik.values.actionType === "update_field" && (
                 <>
                   <Select
@@ -232,7 +218,6 @@ const ActionModal: React.FC<ActionModalProps> = ({
                       </SelectItem>
                     ))}
                   </Select>
-
                   <Input
                     label="New Value"
                     labelPlacement="outside"
@@ -255,7 +240,6 @@ const ActionModal: React.FC<ActionModalProps> = ({
                   />
                 </>
               )}
-
               {formik.values.actionType === "send_notification" && (
                 <Input
                   label="Notification Message"
@@ -281,7 +265,6 @@ const ActionModal: React.FC<ActionModalProps> = ({
                   }
                 />
               )}
-
               {formik.values.actionType === "create_task" && (
                 <>
                   <Input
@@ -304,7 +287,6 @@ const ActionModal: React.FC<ActionModalProps> = ({
                       (formik.errors.taskTitle as string)
                     }
                   />
-
                   <Textarea
                     label="Task Description"
                     labelPlacement="outside"
@@ -317,7 +299,6 @@ const ActionModal: React.FC<ActionModalProps> = ({
                     size="sm"
                     radius="sm"
                   />
-
                   <Select
                     label="Priority"
                     labelPlacement="outside"
@@ -348,7 +329,6 @@ const ActionModal: React.FC<ActionModalProps> = ({
                       </SelectItem>
                     ))}
                   </Select>
-
                   <DatePicker
                     label="Due Date"
                     labelPlacement="outside"
@@ -376,7 +356,6 @@ const ActionModal: React.FC<ActionModalProps> = ({
                     }
                     isRequired
                   />
-
                   <Select
                     label="Related Office/Practice"
                     labelPlacement="outside"
@@ -413,7 +392,6 @@ const ActionModal: React.FC<ActionModalProps> = ({
                       </SelectItem>
                     ))}
                   </Select>
-
                   <Select
                     label="Assigned To"
                     labelPlacement="outside"

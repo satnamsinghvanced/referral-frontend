@@ -31,10 +31,7 @@ const SummaryItem = ({ label, value, isTag = false }: { label: string; value: Re
   </div>
 );
 
-const CampaignReviewStep: React.ForwardRefRenderFunction<
-  CampaignStepRef,
-  CampaignStepProps
-> = ({ data, onNext, setIsStepValid }, ref) => {
+const CampaignReviewStep: React.ForwardRefRenderFunction<  CampaignStepRef,  CampaignStepProps> = ({ data, onNext, setIsStepValid }, ref) => {
   const { data: templateResponse } = useCampaignTemplate(data.templateId || "");
   const { data: audienceResponse } = useAudienceById(data.audienceId || "");
   const templateName = (templateResponse as any)?.name || "N/A";
@@ -57,11 +54,9 @@ const CampaignReviewStep: React.ForwardRefRenderFunction<
   const handleProceed = () => {
     onNext({});
   };
-
   useImperativeHandle(ref, () => ({
     triggerValidationAndProceed: handleProceed,
   }));
-
   return (
     <div className="space-y-4">
       <h4 className="font-medium">Review & Send</h4>
@@ -85,7 +80,6 @@ const CampaignReviewStep: React.ForwardRefRenderFunction<
             </div>
           </div>
         </div>
-
         <div className="space-y-2">
           <h5 className="text-sm font-medium">Delivery Details</h5>
           <div>
@@ -122,7 +116,6 @@ const CampaignReviewStep: React.ForwardRefRenderFunction<
           </div>
         </div>
       </div>
-
       <div
         className={clsx(
           "p-4 rounded-lg flex items-start space-x-3 mb-0",
@@ -157,7 +150,6 @@ const CampaignReviewStep: React.ForwardRefRenderFunction<
           </p>
         </div>
       </div>
-
       <button
         type="button"
         id="submitReview"

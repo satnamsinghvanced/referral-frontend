@@ -1,17 +1,6 @@
 import {
-  Button,
-  Card,
-  CardBody,
-  Checkbox,
-  Chip,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalHeader,
-  Tab,
-  Tabs,
-  Textarea,
-  addToast,
+  Button, Card, CardBody, Checkbox, Chip, Modal, ModalBody, ModalContent,
+  ModalHeader, Tab, Tabs, Textarea, addToast
 } from "@heroui/react";
 import { getLocalTimeZone, now } from "@internationalized/date";
 import { useEffect, useState, useRef } from "react";
@@ -23,6 +12,12 @@ import { CallRecord } from "../../../types/call";
 import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 import DatePickerWithTimeInput from "../../../components/common/DatePickerWithTimeInput";
 import { store } from "../../../store";
+
+interface CallRecordingModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  data: CallRecord | null;
+}
 
 const AudioPlayer = ({ url, callDuration }: { url: string; callDuration: string }) => {
   const token = store.getState().auth.token;
@@ -193,14 +188,12 @@ const DetailsTab = ({ data, onClose }: { data: CallRecord; onClose: () => void; 
   const [followUp, setFollowUp] = useState(data.followUp || false);
   const [appointment, setAppointment] = useState(data.appointment || false);
   const [appointmentDate, setAppointmentDate] = useState(data.date || "");
-
   useEffect(() => {
     setNotes(data.notes || "");
     setFollowUp(data.followUp || false);
     setAppointment(data.appointment || false);
     setAppointmentDate(data.date || "");
   }, [data]);
-
   const handleSave = () => {
     updateRecord(
       {
@@ -231,7 +224,6 @@ const DetailsTab = ({ data, onClose }: { data: CallRecord; onClose: () => void; 
       },
     );
   };
-
   return (
     <div className="flex-1 outline-none space-y-4">
       <div>
@@ -367,12 +359,6 @@ const DetailsTab = ({ data, onClose }: { data: CallRecord; onClose: () => void; 
     </div>
   );
 };
-
-interface CallRecordingModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  data: CallRecord | null;
-}
 
 export default function CallRecordingModal({ isOpen, onClose, data }: CallRecordingModalProps) {
   if (!data) return null;

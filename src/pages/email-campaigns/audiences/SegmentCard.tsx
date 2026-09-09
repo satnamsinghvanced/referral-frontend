@@ -13,22 +13,7 @@ const SegmentCard = ({ segment, onEdit, onDelete, onExport }: {
   onDelete?: (id: string) => void;
   onExport?: (id: string) => void;
 }) => {
-  const {
-    id,
-    name,
-    description,
-    type,
-    status,
-    contacts,
-    campaigns,
-    updatedAt,
-    tags,
-    avgOpenRate,
-    avgClickRate,
-    size,
-    activity,
-  } = segment;
-
+  const { id, name, description, type, status, contacts, campaigns, updatedAt, tags, avgOpenRate, avgClickRate, size, activity } = segment;
   const getActivityLabel = (activityVal: string) => {
     switch (activityVal) {
       case "last7Days":
@@ -67,7 +52,6 @@ const SegmentCard = ({ segment, onEdit, onDelete, onExport }: {
       console.log(`${action} button clicked`);
     }
   };
-
   return (
     <>
       <div className="bg-background border border-foreground/10 rounded-xl p-4">
@@ -112,7 +96,6 @@ const SegmentCard = ({ segment, onEdit, onDelete, onExport }: {
           </div>
           <AudienceSegmentStatusChip status={status} />
         </div>
-
         {status === "active" && (
           <div className="grid grid-cols-3 gap-4 pt-4">
             <div className="flex flex-col items-center p-3 bg-gray-50 dark:bg-content1 rounded-lg space-y-0.5">
@@ -139,7 +122,6 @@ const SegmentCard = ({ segment, onEdit, onDelete, onExport }: {
             </div>
           </div>
         )}
-
         <div className="flex justify-between items-center pt-4 mt-4 border-t border-foreground/10">
           <div className="flex gap-2">
             {["Edit", "Create Campaign"].map((action: any) => (

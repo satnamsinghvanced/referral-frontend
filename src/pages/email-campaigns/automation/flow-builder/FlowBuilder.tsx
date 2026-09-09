@@ -95,14 +95,12 @@ const FlowBuilder = ({ id, initialData, onSaved }: FlowBuilderProps) => {
       });
     }
   };
-
   const setSavingLoadingState = (loading: boolean) => {
     if (!loading) {
       setIsSaving(false);
       setIsActivating(false);
     }
   };
-
   const [currentStep, setCurrentStep] = useState<FlowStep | null>(null);
   const [showErrors, setShowErrors] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -289,7 +287,6 @@ const FlowBuilder = ({ id, initialData, onSaved }: FlowBuilderProps) => {
       children: [],
       ...(type === "condition" ? { branches: { yes: [], no: [] } } : {}),
     };
-
     setSteps((prev) => insertStepAt(prev, path, newStep));
   }, []);
 
@@ -305,7 +302,6 @@ const FlowBuilder = ({ id, initialData, onSaved }: FlowBuilderProps) => {
       newList.splice(index + 1, 0, newStep);
       return newList;
     }
-
     if (parts[1] === "children" && parts[2] === "last") {
       return stepList.map((step, idx) => {
         if (idx === index) {
@@ -314,12 +310,7 @@ const FlowBuilder = ({ id, initialData, onSaved }: FlowBuilderProps) => {
         return step;
       });
     }
-
-    if (
-      parts[1] === "branches" &&
-      (parts[2] === "yes" || parts[2] === "no") &&
-      parts[3] === "last"
-    ) {
+    if (parts[1] === "branches" && (parts[2] === "yes" || parts[2] === "no") && parts[3] === "last") {
       const branchName = parts[2] as "yes" | "no";
       return stepList.map((step, idx) => {
         if (idx === index) {
@@ -399,7 +390,6 @@ const FlowBuilder = ({ id, initialData, onSaved }: FlowBuilderProps) => {
       setSteps((prev) => updateStepAtId(currentStep.id, prev, newConfig));
     }
   };
-
   if (id && isLoading) {
     return (
       <div className="py-20 flex justify-center">
@@ -407,7 +397,6 @@ const FlowBuilder = ({ id, initialData, onSaved }: FlowBuilderProps) => {
       </div>
     );
   }
-
   return (
     <div className="flex flex-col gap-5">
       <div className="bg-background rounded-xl border border-foreground/10 p-4 space-y-4">
@@ -494,7 +483,6 @@ const FlowBuilder = ({ id, initialData, onSaved }: FlowBuilderProps) => {
           onDeleteStep={handleDeleteStep}
         />
       </div>
-
       <TriggerModal
         isOpen={triggerModal.isOpen}
         onOpenChange={triggerModal.onOpenChange}

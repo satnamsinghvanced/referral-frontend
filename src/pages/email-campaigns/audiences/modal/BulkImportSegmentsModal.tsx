@@ -1,11 +1,4 @@
-import {
-  Button,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-} from "@heroui/react";
+import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@heroui/react";
 import { useRef, useState, useEffect } from "react";
 import { FiCheckCircle, FiDownload, FiFileText, FiUploadCloud } from "react-icons/fi";
 import { IoClose } from "react-icons/io5";
@@ -16,10 +9,7 @@ interface BulkImportSegmentsModalProps {
   onClose: () => void;
 }
 
-const BulkImportSegmentsModal = ({
-  isOpen,
-  onClose,
-}: BulkImportSegmentsModalProps) => {
+const BulkImportSegmentsModal = ({ isOpen, onClose }: BulkImportSegmentsModalProps) => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { mutate: importCSV, isPending } = useImportAudienceCsv();
@@ -41,7 +31,6 @@ const BulkImportSegmentsModal = ({
 
   const handleImport = () => {
     if (!selectedFile) return;
-
     importCSV(selectedFile, {
       onSuccess: () => {
         setSelectedFile(null);
@@ -71,7 +60,6 @@ const BulkImportSegmentsModal = ({
       "aLevel",
       "active",
     ];
-
     const csvContent = [headers.join(","), dummyRow.join(",")].join("\n");
     const blob = new Blob([csvContent], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
@@ -81,7 +69,6 @@ const BulkImportSegmentsModal = ({
     a.click();
     window.URL.revokeObjectURL(url);
   };
-
   return (
     <Modal
       isOpen={isOpen}
@@ -109,7 +96,6 @@ const BulkImportSegmentsModal = ({
                 spreadsheet. Download our template to get started.
               </p>
             </ModalHeader>
-
             <ModalBody className="py-0 px-4 gap-3">
               <div className="border border-blue-200 bg-blue-50/50 dark:bg-blue-900/10 dark:border-blue-500/30 rounded-xl p-4">
                 <div className="flex items-center gap-2 mb-2.5 text-gray-900 dark:text-white">
@@ -128,7 +114,6 @@ const BulkImportSegmentsModal = ({
                   <li>Segments will be created</li>
                 </ol>
               </div>
-
               <div className="border border-foreground/10 rounded-xl p-4 md:flex md:items-center md:justify-between max-md:space-y-4">
                 <div className="flex items-center gap-2.5">
                   <div className="size-10 min-w-10 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-primary dark:text-blue-500 flex items-center justify-center">
@@ -153,7 +138,6 @@ const BulkImportSegmentsModal = ({
                   Download CSV
                 </Button>
               </div>
-
               <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
                 <div className="space-y-1">
                   <h4 className="font-medium text-sm dark:text-white">
@@ -163,7 +147,6 @@ const BulkImportSegmentsModal = ({
                     Accepted formats: CSV
                   </p>
                 </div>
-
                 <input
                   type="file"
                   accept=".csv"
@@ -171,7 +154,6 @@ const BulkImportSegmentsModal = ({
                   onChange={handleFileChange}
                   className="hidden"
                 />
-
                 <div
                   onClick={() => fileInputRef.current?.click()}
                   className={`border-2 border-dashed rounded-xl p-6 flex flex-col items-center justify-center text-center gap-3 transition-all cursor-pointer group ${selectedFile
@@ -219,24 +201,13 @@ const BulkImportSegmentsModal = ({
                   )}
                 </div>
               </div>
-
               <div className="border border-foreground/10 rounded-xl p-4">
                 <h4 className="font-medium text-sm dark:text-white mb-3">
                   Required Fields Reference
                 </h4>
                 <div className="grid grid-cols-2 gap-y-2 gap-x-3">
-                  {[
-                    "Name",
-                    "Type",
-                    "Activity",
-                    "Practice Size",
-                    "Partner Level",
-                    "Status",
-                  ].map((req, i) => (
-                    <div
-                      key={i}
-                      className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-foreground/60"
-                    >
+                  {["Name", "Type", "Activity", "Practice Size", "Partner Level", "Status",].map((req, i) => (
+                    <div key={i} className="flex items-center gap-1.5 text-xs text-gray-600 dark:text-foreground/60">
                       <FiCheckCircle className="text-green-500 shrink-0 size-3.5" />
                       <span>{req}</span>
                     </div>
@@ -244,7 +215,6 @@ const BulkImportSegmentsModal = ({
                 </div>
               </div>
             </ModalBody>
-
             <ModalFooter className="px-4">
               <Button
                 size="sm"

@@ -29,7 +29,6 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
   const [phone, setPhone] = useState("");
   const [location, setLocation] = useState("");
   const [loading, setLoading] = useState(false);
-
   useEffect(() => {
     if (lead && isOpen) {
       const nameParts = lead.patientName.trim().split(/\s+/);
@@ -43,9 +42,7 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
       setIsEditing(!lead.leadId);
     }
   }, [lead, isOpen]);
-
   if (!lead) return null;
-
   const handleSave = async () => {
     if (!firstName.trim() || !email.trim() || !phone.trim()) {
       addToast({
@@ -55,11 +52,9 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
       });
       return;
     }
-
     setLoading(true);
     try {
       if (lead.leadId) {
-        // Update existing lead in CRM
         const response = await updateLead({
           id: lead.leadId,
           data: {
@@ -68,7 +63,7 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
             email: email.trim().toLowerCase(),
             phone: phone.trim(),
             location: location.trim(),
-            socialConversationId: lead.id, // ensure conversation is linked in DB
+            socialConversationId: lead.id,
           },
         });
         addToast({
@@ -81,14 +76,13 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
         }
         setIsEditing(false);
       } else {
-        // Create new lead in CRM linked to this conversation ID
         const response = await addLead({
           firstName: firstName.trim(),
           lastName: lastName.trim(),
           email: email.trim().toLowerCase(),
           phone: phone.trim(),
           location: location.trim(),
-          source: lead.platform, // "instagram" or "facebook"
+          source: lead.platform,
           socialConversationId: lead.id,
           status: "newLead",
         });
@@ -158,9 +152,7 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
         };
     }
   };
-
   const statusInfo = getStatusDetails();
-
   return (
     <Modal
       isOpen={isOpen}
@@ -189,7 +181,6 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
                 </div>
               </div>
             </div>
-
             <ModalBody className="px-5 py-4 gap-4">
               <div className="flex gap-3">
                 <div className="bg-sky-50 dark:bg-sky-950/40 rounded-xl p-3 flex-1 flex flex-col items-center justify-center text-center min-w-0">
@@ -211,7 +202,6 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
                   </span>
                 </div>
               </div>
-
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <h4 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">
@@ -226,7 +216,6 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
                     </button>
                   )}
                 </div>
-
                 {isEditing ? (
                   <div className="space-y-3 p-3 bg-slate-50/50 dark:bg-default-50/40 border border-slate-100 dark:border-default-100 rounded-xl">
                     <div className="grid grid-cols-2 gap-3">
@@ -323,7 +312,6 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
                   </div>
                 )}
               </div>
-
               {lead.treatmentInterest && lead.treatmentInterest.length > 0 && (
                 <div>
                   <h4 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">
@@ -341,7 +329,6 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
                   </div>
                 </div>
               )}
-
               {lead.tags && lead.tags.length > 0 && (
                 <div>
                   <h4 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-2">
@@ -359,7 +346,6 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
                   </div>
                 </div>
               )}
-
               <div className="flex gap-3 mt-2">
                 {isEditing ? (
                   <>

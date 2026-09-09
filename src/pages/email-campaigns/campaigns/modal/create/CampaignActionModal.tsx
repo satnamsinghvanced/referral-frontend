@@ -1,11 +1,4 @@
-import {
-  Button,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-} from "@heroui/react";
+import { Button, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader } from "@heroui/react";
 import React, { useRef, useState } from "react";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
 import { LuSave, LuSend } from "react-icons/lu";
@@ -22,7 +15,6 @@ import CampaignSetupStep, { CampaignStepRef } from "./CampaignSetupStep";
 import CampaignTemplateStep from "./CampaignTemplateStep";
 import { CAMPAIGN_CATEGORIES } from "../../../../../consts/campaign";
 import { CampaignTemplate } from "../../../../../types/campaign";
-
 
 export interface CampaignData {
   name: string;
@@ -157,7 +149,6 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({ isOpen, onClo
       validateAndProceed();
     }
   };
-
   const handleClose = () => {
     setCampaignData(initialCampaignData);
     setCurrentStep(0);
@@ -166,7 +157,6 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({ isOpen, onClo
     setActionType(null);
     onClose();
   };
-
   const validateAndProceed = () => {
     if (stepRef.current && stepRef.current.triggerValidationAndProceed) {
       stepRef.current.triggerValidationAndProceed();
@@ -174,7 +164,6 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({ isOpen, onClo
       handleNext({});
     }
   };
-
   const handleSubmitCampaign = () => {
     const payload: ICampaignPayload = {
       ...campaignData,
@@ -198,7 +187,6 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({ isOpen, onClo
       });
     }
   };
-
   const handleSaveDraft = () => {
     const payload: ICampaignPayload = {
       ...campaignData,
@@ -222,7 +210,6 @@ const CampaignActionModal: React.FC<CampaignActionModalProps> = ({ isOpen, onClo
       });
     }
   };
-
   return (
     <Modal
       isOpen={isOpen}

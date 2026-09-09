@@ -8,12 +8,16 @@ export const getInstagramConversations = async (): Promise<any> => {
 export const sendInstagramMessage = async (
   recipientId: string,
   text: string,
-  file?: { name: string; url: string; type: string }
+  file?: { name: string; url: string; type: string },
+  messaging_type: string = "MESSAGE_TAG",
+  tag: string = "HUMAN_AGENT"
 ): Promise<any> => {
   const { data } = await axios.post("/conversations/instagram", {
     recipientId,
     text,
     file,
+    messaging_type,
+    tag,
   });
   return data;
 };

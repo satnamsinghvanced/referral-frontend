@@ -19,11 +19,9 @@ import { LoadingState } from "../../components/common/LoadingState";
 import { useBilling } from "../../hooks/settings/useBilling";
 import { usePlanGuard } from "../../hooks/usePlanGuard";
 import { useFetchReferrers } from "../../hooks/useReferral";
-
 import { useRolePermissions } from "../../hooks/useRolePermissions";
 
 type Color = "sky" | "orange" | "emerald" | "purple";
-
 interface QuickAction {
   label: string;
   icon: React.ReactNode;
@@ -73,10 +71,7 @@ const QUICK_ACTIONS: QuickAction[] = [
   },
 ];
 
-const QUICK_ACTIONS_COLOR_CLASSES: Record<
-  Color,
-  { bg: string; text: string; border: string; hover: string }
-> = {
+const QUICK_ACTIONS_COLOR_CLASSES: Record<Color, { bg: string; text: string; border: string; hover: string }> = {
   sky: {
     bg: "bg-sky-50 dark:bg-sky-900/10",
     text: "text-sky-700 dark:text-sky-300",
@@ -114,14 +109,11 @@ const Dashboard = () => {
   const { isLimitReached, getLimit, openPricingPage } = usePlanGuard();
   const { data: referrerData } = useFetchReferrers({ limit: 1 });
   const { hasPermission, hasAnyPermission, isAdmin } = useRolePermissions();
-
   const totalReferrersCount = (referrerData as any)?.total || (referrerData as any)?.pagination?.total || (referrerData as any)?.data?.length || 0;
   const maxReferralLimit = getLimit("referral_connections");
   const isReferrerLimitReached = isLimitReached("referral_connections", totalReferrersCount);
-
   const hasNfcAccess = isAdmin || hasAnyPermission(["Manage Referrers and Partners", "Manage Referrers", "Manage Referrals"]);
   const hasGenerateQrAccess = isAdmin || hasAnyPermission(["Manage Referrers and Partners", "Manage Referrers"]);
-
   const filteredQuickActions = QUICK_ACTIONS.filter((action) => {
     if (action.requiredPlanAccess) {
       if (planAccess && planAccess[action.requiredPlanAccess as keyof typeof planAccess] === false) return false;
@@ -132,7 +124,6 @@ const Dashboard = () => {
     }
     return true;
   });
-
   const STAT_CARD_DATA = useMemo<StatCard[]>(
     () => {
       const cards: StatCard[] = [];
@@ -151,7 +142,6 @@ const Dashboard = () => {
           onClick: () => navigate("/referrals"),
         });
       }
-
       if (isAdmin || hasAnyPermission(["Manage Email Campaigns", "Manage Settings"])) {
         cards.push({
           icon: <TbSpeakerphone className="text-green-600 dark:text-green-400" />,
@@ -167,7 +157,6 @@ const Dashboard = () => {
           onClick: () => navigate("/email-campaigns", { state: { tab: "campaigns" } }),
         });
       }
-
       if (isAdmin || hasAnyPermission(["Manage Review", "Manage Reviews"])) {
         cards.push({
           icon: <FaRegStar className="text-yellow-600 dark:text-yellow-400" />,
@@ -185,7 +174,6 @@ const Dashboard = () => {
           onClick: () => navigate("/reviews"),
         });
       }
-
       if (isAdmin || hasPermission("Manage Referrals")) {
         cards.push({
           icon: <LuTarget className="text-rose-600 dark:text-rose-400" />,
@@ -201,12 +189,10 @@ const Dashboard = () => {
           onClick: () => navigate("/referrals"),
         });
       }
-
       return cards;
     },
     [dashboard, navigate, isAdmin, hasPermission, hasAnyPermission],
   );
-
   const recentActivities = [
     (isAdmin || hasPermission("Manage Referrals")) && dashboard?.recentActivity?.referral
       ? {
@@ -338,7 +324,6 @@ const Dashboard = () => {
                   , and patient feedback.
                 </p>
               </div>
-
               <div className="flex flex-col sm:flex-row items-center max-md:justify-center gap-2 shrink-0 w-full md:w-auto">
                 <Button
                   size="sm"
@@ -365,7 +350,6 @@ const Dashboard = () => {
             </div>
           </div>
         )}
-
         {isReferrerLimitReached && (
           <div className="p-4 rounded-xl border border-red-200 bg-red-50 dark:bg-red-950/20 text-red-900 dark:text-red-300 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm mb-4">
             <div className="flex items-center gap-3">
@@ -392,7 +376,6 @@ const Dashboard = () => {
             </Button>
           </div>
         )}
-
         {STAT_CARD_DATA.length > 0 && (
           <div className={`grid ${statGridColsClass} gap-3 md:gap-4`}>
             {STAT_CARD_DATA.map((data, i) => (
@@ -400,7 +383,6 @@ const Dashboard = () => {
             ))}
           </div>
         )}
-
         {filteredQuickActions.length > 0 && (
           <div className="bg-background rounded-xl p-4 border border-foreground/10">
             <h4 className="text-sm md:text-base font-medium mb-3">Quick Actions</h4>
@@ -426,7 +408,6 @@ const Dashboard = () => {
             </div>
           </div>
         )}
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5">
           <div className={`${hasRightSidebarContent ? "md:col-span-2" : "md:col-span-3"} bg-background rounded-xl p-4 border border-foreground/10`}>
             <h3 className="text-sm md:text-base font-medium mb-4">Recent Activity</h3>
@@ -475,7 +456,6 @@ const Dashboard = () => {
               )}
             </div>
           </div>
-
           {hasRightSidebarContent && (
             <div className="space-y-4 md:space-y-5">
               {hasNfcAccess && (
@@ -528,7 +508,6 @@ const Dashboard = () => {
                   </div>
                 </div>
               )}
-
               {SYSTEM_STATUSES.length > 0 && (
                 <div className="bg-background rounded-xl p-4 border border-foreground/10">
                   <h3 className="text-sm md:text-base font-medium mb-4">System Status</h3>

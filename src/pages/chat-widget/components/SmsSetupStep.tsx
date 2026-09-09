@@ -1,4 +1,3 @@
-import React from "react";
 import { Switch, Card, CardBody, Checkbox } from "@heroui/react";
 import { FiInfo } from "react-icons/fi";
 
@@ -41,7 +40,6 @@ export default function SmsSetupStep({
         <h3 className="text-base font-bold text-foreground font-sans">SMS Transition Settings</h3>
         <p className="text-xs text-default-500 mt-1 font-sans">Configure how the widget transitions from web chat to SMS messaging.</p>
       </div>
-
       <div className={`border rounded-xl p-4 transition-all duration-200 ${enableSmsTransition ? "border-sky-200 bg-sky-50/40 dark:border-sky-500/20 dark:bg-sky-950/20" : "border-foreground/10 bg-transparent"}`}>
         <div className="flex items-center justify-between pb-4">
           <div className="flex flex-col gap-0.5">
@@ -50,7 +48,6 @@ export default function SmsSetupStep({
           </div>
           <Switch isSelected={enableSmsTransition} onValueChange={setEnableSmsTransition} size="sm" />
         </div>
-
         {enableSmsTransition && (
           <div className="border-t border-sky-100 dark:border-sky-500/10 pt-4 space-y-4 animate-in slide-in-from-top-2 duration-200">
             <div className="space-y-1 flex flex-col">
@@ -69,7 +66,6 @@ export default function SmsSetupStep({
                 <span className="text-[10px] text-default-400 font-sans font-light mt-0.5">Message asking patient if they'd like to switch to SMS</span>
               )}
             </div>
-
             <div className="flex items-start gap-2.5 mt-2">
               <div className="w-4 h-4 rounded-full border-2 border-primary flex items-center justify-center flex-shrink-0 mt-1.5">
                 <div className="w-1.5 h-1.5 rounded-full bg-primary" />

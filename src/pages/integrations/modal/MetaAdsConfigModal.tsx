@@ -22,13 +22,7 @@ const validationSchema = Yup.object().shape({
     .required("Redirect URI is required."),
 });
 
-export default function MetaAdsConfigModal({
-  userId,
-  isOpen,
-  onClose,
-  existingConfig,
-  isLoading,
-}: {
+export default function MetaAdsConfigModal({  userId,  isOpen,  onClose,  existingConfig,  isLoading,}: {
   userId: string;
   isOpen: boolean;
   onClose: () => void;

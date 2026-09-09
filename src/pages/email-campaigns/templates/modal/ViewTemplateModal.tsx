@@ -1,18 +1,8 @@
-import {
-  Button,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalHeader,
-  Spinner,
-} from "@heroui/react";
+import { Button, Modal, ModalBody, ModalContent, ModalHeader } from "@heroui/react";
 import React from "react";
 import { FiCalendar, FiCopy, FiHeart, FiUsers } from "react-icons/fi";
 import CampaignCategoryChip from "../../../../components/chips/CampaignCategoryChip";
-import {
-  useCampaignTemplate,
-  useToggleFavoriteTemplate,
-} from "../../../../hooks/useCampaign";
+import { useCampaignTemplate, useToggleFavoriteTemplate } from "../../../../hooks/useCampaign";
 import { CampaignTemplate } from "../../../../types/campaign";
 import { LoadingState } from "../../../../components/common/LoadingState";
 
@@ -24,24 +14,11 @@ interface ViewTemplateModalProps {
   onEditTemplate?: (template: CampaignTemplate) => void;
 }
 
-const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
-  isOpen,
-  onClose,
-  template,
-  onUseTemplate,
-  onEditTemplate,
-}) => {
+const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({ isOpen, onClose, template, onUseTemplate, onEditTemplate, }) => {
   const toggleFavoriteMutation = useToggleFavoriteTemplate();
-
-  // Fetch fresh data when modal is open and we have an ID
-  const { data: campaignResponse, isLoading } = useCampaignTemplate(
-    isOpen && template?._id ? template._id : "",
-  );
-
+  const { data: campaignResponse, isLoading } = useCampaignTemplate(isOpen && template?._id ? template._id : "");
   const displayTemplate = campaignResponse || template;
-
   if (!displayTemplate && !isLoading) return null;
-
   const formatDate = (dateString?: string) => {
     if (!dateString) return "N/A";
     return new Date(dateString).toLocaleDateString("en-US", {
@@ -50,13 +27,10 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
       day: "numeric",
     });
   };
-
   const handleToggleFavorite = () => {
     if (!displayTemplate) return;
-
     toggleFavoriteMutation.mutate(displayTemplate._id);
   };
-
   return (
     <Modal
       isOpen={isOpen}
@@ -95,9 +69,7 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
                 )}
               </div>
             </ModalHeader>
-
             <ModalBody className="px-4 pt-0 pb-4 gap-4 bg-background dark:bg-content1">
-              {/* Template Info Section */}
               <div className="">
                 <div className="rounded-lg p-4 bg-default-100 dark:bg-background flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="grid grid-cols-3 gap-2">
@@ -111,11 +83,10 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
                       label="Last Updated"
                       value={formatDate(
                         displayTemplate!.updatedAt ||
-                          displayTemplate!.createdAt,
+                        displayTemplate!.createdAt,
                       )}
                     />
                   </div>
-
                   <div className="flex items-center gap-2">
                     <Button
                       variant={
@@ -128,23 +99,22 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
                         !(
                           toggleFavoriteMutation.isPending &&
                           toggleFavoriteMutation.variables ===
-                            displayTemplate?._id
+                          displayTemplate?._id
                         ) && (
                           <FiHeart
                             className={`size-3.5 ${displayTemplate!.isFavorite ? "fill-current" : ""}`}
                           />
                         )
                       }
-                      className={`font-medium border-small ${
-                        !displayTemplate!.isFavorite
-                          ? "border-default-200 text-gray-600 dark:text-foreground bg-background"
-                          : "border-danger bg-danger-50 text-danger dark:bg-danger/20"
-                      }`}
+                      className={`font-medium border-small ${!displayTemplate!.isFavorite
+                        ? "border-default-200 text-gray-600 dark:text-foreground bg-background"
+                        : "border-danger bg-danger-50 text-danger dark:bg-danger/20"
+                        }`}
                       onPress={handleToggleFavorite}
                       isLoading={
                         toggleFavoriteMutation.isPending &&
                         toggleFavoriteMutation.variables ===
-                          displayTemplate?._id
+                        displayTemplate?._id
                       }
                     >
                       {displayTemplate!.isFavorite ? "Favorited" : "Favorite"}
@@ -174,7 +144,6 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
                     </Button>
                   </div>
                 </div>
-
                 {displayTemplate!.tags && displayTemplate!.tags.length > 0 && (
                   <div className="my-6 flex items-center gap-2">
                     <span className="text-[10px] uppercase font-semibold text-default-400 tracking-wider">
@@ -195,14 +164,11 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
                   </div>
                 )}
               </div>
-
-              {/* Template Preview Box */}
               <div className="space-y-3">
                 <h4 className="text-sm font-medium text-foreground">
                   Template Preview
                 </h4>
                 <div className="border border-divider rounded-xl overflow-hidden bg-white dark:bg-background">
-                  {/* Preview Header - Dynamic Color */}
                   <div
                     className="py-3 px-4 text-center text-white"
                     style={{
@@ -216,8 +182,6 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
                         "Practice ROI"}
                     </h3>
                   </div>
-
-                  {/* Cover Image in Preview */}
                   {displayTemplate!.mainImage && (
                     <div className="w-full h-48 md:h-64 overflow-hidden border-b border-foreground/5">
                       <img
@@ -227,10 +191,7 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
                       />
                     </div>
                   )}
-
-                  {/* Preview Content */}
                   <div className="p-4 space-y-4 min-h-[300px]">
-                    {/* Subject Line */}
                     <div className="space-y-1">
                       <p className="text-xs font-medium text-gray-500">
                         Subject Line
@@ -239,10 +200,7 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
                         {displayTemplate!.subjectLine}
                       </p>
                     </div>
-
                     <div className="h-px bg-divider w-full" />
-
-                    {/* Email Body */}
                     <div className="space-y-2">
                       <p className="text-xs font-medium text-gray-500">
                         Email Body
@@ -254,8 +212,6 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
                         }}
                       />
                     </div>
-
-                    {/* Action Buttons in Preview */}
                     <div className="flex flex-wrap gap-3 mt-5">
                       <button
                         className="px-3 py-2 rounded-md text-white text-xs transition-transform active:scale-95 cursor-pointer"
@@ -275,8 +231,6 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
                       )}
                     </div>
                   </div>
-
-                  {/* Preview Footer */}
                   <div className="py-3 text-center bg-gray-50 dark:bg-black/20 border-t border-divider">
                     <p className="text-xs text-gray-600 dark:text-gray-500">
                       © {new Date().getFullYear()}{" "}
@@ -295,16 +249,8 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
   );
 };
 
-const InfoItem = ({
-  icon,
-  label,
-  value,
-  valueClassName = "text-foreground",
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  valueClassName?: string;
+const InfoItem = ({ label, value, valueClassName = "text-foreground" }: {
+  icon: React.ReactNode; label: string; value: string; valueClassName?: string;
 }) => (
   <div className="flex items-center gap-2.5">
     <div className="min-w-0">

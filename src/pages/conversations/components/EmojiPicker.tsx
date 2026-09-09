@@ -1,4 +1,3 @@
-import React from "react";
 import Picker, { Theme, EmojiClickData } from "emoji-picker-react";
 
 interface EmojiPickerProps {
@@ -6,13 +5,10 @@ interface EmojiPickerProps {
 }
 
 export default function EmojiPicker({ onEmojiSelect }: EmojiPickerProps) {
-  // Determine theme dynamically or check dark class
   const isDark = document.documentElement.classList.contains("dark");
-
   const handleEmojiClick = (emojiData: EmojiClickData) => {
     onEmojiSelect(emojiData.emoji);
   };
-
   return (
     <div className="shadow-xl rounded-xl overflow-hidden border border-foreground/10">
       <Picker

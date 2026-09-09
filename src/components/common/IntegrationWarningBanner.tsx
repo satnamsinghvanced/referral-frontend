@@ -4,44 +4,26 @@ import { useNavigate } from "react-router-dom";
 import { useRolePermissions } from "../../hooks/useRolePermissions";
 
 export interface IntegrationWarningBannerProps {
-  /** Display name of the platform, e.g. "Google Review", "Google Ads", "Google Calendar", "Meta Ads", "Twilio" */
   platformName: string;
-  /** Integration key to highlight on the integrations page, e.g. "google_business", "google_ads", "google_calendar", "meta_ads", "twilio" */
   integrationKey: string;
-  /** Custom warning message to display */
   message?: string;
-  /** Custom button text */
   buttonText?: string;
-  /** Custom container class names */
   className?: string;
 }
 
-export const IntegrationWarningBanner: React.FC<IntegrationWarningBannerProps> = ({
-  platformName,
-  integrationKey,
-  message,
-  buttonText,
-  className = "",
+export const IntegrationWarningBanner: React.FC<IntegrationWarningBannerProps> = ({ platformName, integrationKey, message, buttonText, className = "",
 }) => {
   const navigate = useNavigate();
   const { hasPermission, isAdmin } = useRolePermissions();
-
   const hasIntegrationsPermission = isAdmin || hasPermission("Manage Integrations");
-
   if (!hasIntegrationsPermission) {
     return null;
   }
-
   const handleNavigate = () => {
     navigate(`/integrations?highlight=${integrationKey}#integration-${integrationKey}`);
   };
-
-  const displayMessage =
-    message ||
-    `${platformName} is not connected. Connect your ${platformName} account to enable features.`;
-
+  const displayMessage = message || `${platformName} is not connected. Connect your ${platformName} account to enable features.`;
   const displayButtonText = buttonText || `Connect ${platformName}`;
-
   return (
     <div
       className={`bg-yellow-50 dark:bg-yellow-900/10 border border-yellow-200 dark:border-yellow-500/30 rounded-lg p-3 flex items-center justify-between flex-wrap gap-3 ${className}`}

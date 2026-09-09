@@ -29,10 +29,7 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
   const [minutesUsed, setMinutesUsed] = useState<number>(twilioConfig?.minutesUsed ?? 0);
   const [minutesLimit, setMinutesLimit] = useState<number>(twilioConfig?.minutesLimit ?? 0);
   const [planExpiresAt, setPlanExpiresAt] = useState<string | null | undefined>(twilioConfig?.planExpiresAt);
-
   const planName = twilioConfig?.planName || "No Active Plan";
-
-
   useEffect(() => {
     if (twilioConfig) {
       if (twilioConfig.balance !== undefined) setBalance(twilioConfig.balance);
@@ -78,10 +75,8 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
       setPrevStatus(null);
     }
   }, [registration?.status, prevStatus]);
-
   const successParam = searchParams.get("success");
   const typeParam = searchParams.get("type");
-
   useEffect(() => {
     if (window.opener && typeParam === "twilio_credits") {
       if (successParam === "true") {
@@ -177,7 +172,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
     }
   };
   const [isRefreshing, setIsRefreshing] = useState(false);
-
   const handleRefresh = async () => {
     if (isRefreshing) return;
     setIsRefreshing(true);
@@ -204,7 +198,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
       ? registration.status
       : (registration?.campaignStatus || registration?.status || "pending");
     const statusUpper = rawStatus.toUpperCase();
-
     if (statusUpper === "VERIFIED" || statusUpper === "APPROVED") {
       return {
         label: "Verified",
@@ -226,7 +219,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
       icon: <FiClock className="w-3 h-3 text-amber-600 dark:text-amber-400" />
     };
   };
-
   return (
     <div className="flex flex-col gap-4 w-full">
       <Card className="shadow-none border border-foreground/10 rounded-2xl bg-background p-5">
@@ -330,7 +322,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
               <Button
                 color={registration?.status === "failed" ? "danger" : "primary"}
                 size="sm"
-                // isDisabled={!phoneNumbers || phoneNumbers.length === 0}
                 onPress={() => setIsA2PRegistrationOpen(true)}
                 startContent={<FiCheckCircle className="w-3.5 h-3.5" />}
                 className="rounded-lg text-xs font-semibold h-8 px-4 text-white disabled:opacity-50 disabled:cursor-not-allowed"
@@ -396,7 +387,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
                   </p>
                 </div>
               </div>
-
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 <div className="bg-white dark:bg-zinc-900 border border-green-200/60 dark:border-green-900/30 p-3.5 rounded-xl flex flex-col gap-1.5">
                   <span className="text-[10px] text-foreground-500 font-semibold leading-none">Campaign Status</span>
@@ -424,7 +414,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
                 <p className="text-xs text-red-600/80 dark:text-red-400/80 leading-relaxed">
                   Carrier review has rejected this brand/campaign registration. Please review the items below:
                 </p>
-
                 {(() => {
                   if (!registration.rejectionReason) {
                     return (
@@ -433,9 +422,7 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
                       </div>
                     );
                   }
-
                   const items = registration.rejectionReason.split(" | ").map((r: string) => r.trim()).filter(Boolean);
-
                   const getActionableTip = (title: string, detail: string) => {
                     const lower = title.toLowerCase() + " " + detail.toLowerCase();
                     if (lower.includes("business type") || lower.includes("business information")) {
@@ -455,7 +442,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
                     }
                     return "Please review this item and resubmit with verified information.";
                   };
-
                   return (
                     <div className="flex flex-col gap-2 my-1">
                       {items.map((item: string, idx: number) => {
@@ -463,7 +449,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
                         const title = parts[0] ? parts[0].trim() : "Compliance Requirement";
                         const detail = parts.slice(1).join(":").trim() || "Unfulfilled";
                         const tip = getActionableTip(title, detail);
-
                         return (
                           <div
                             key={idx}
@@ -485,7 +470,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
                     </div>
                   );
                 })()}
-
                 <p className="text-[11px] text-red-500/80 font-medium">
                   Click <span className="font-bold text-red-600 dark:text-red-400">"Edit & Re-submit"</span> above to correct details and resubmit for carrier approval.
                 </p>
@@ -510,7 +494,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
               <FiRefreshCw className={`w-4 h-4 transition-transform duration-500 ${isRefreshing ? "animate-spin text-blue-500" : ""}`} />
             </Button>
           </div>
-
           {phoneNumbers.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-10 gap-2 border border-dashed border-foreground/10 rounded-xl">
               <FiPhone className="w-8 h-8 text-foreground-400" />
@@ -561,7 +544,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
                       </div>
                     </div>
                   </div>
-
                   <Button
                     variant="bordered"
                     color="danger"
@@ -578,8 +560,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
           )}
         </CardBody>
       </Card>
-
-      {/* Add Credits Modal */}
       <TwilioAddCreditsModal
         isOpen={isAddCreditsOpen}
         onClose={() => setIsAddCreditsOpen(false)}
@@ -589,8 +569,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
         planExpiresAt={planExpiresAt}
         onAddCredits={handleAddCredits}
       />
-
-      {/* Purchase Number Modal */}
       <TwilioPurchaseNumberModal
         isOpen={isPurchaseNumberOpen}
         onClose={() => setIsPurchaseNumberOpen(false)}
@@ -599,15 +577,11 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
         phoneNumbersCount={phoneNumbers.length}
         minutesLimit={minutesLimit}
       />
-
-      {/* A2P SMS Registration Modal */}
       <TwilioA2PRegistrationModal
         isOpen={isA2PRegistrationOpen}
         onClose={() => setIsA2PRegistrationOpen(false)}
         phoneNumbers={phoneNumbers}
       />
-
-      {/* Release Confirmation Modal */}
       <Modal
         isOpen={!!numberToRelease}
         onOpenChange={() => setNumberToRelease(null)}
