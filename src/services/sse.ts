@@ -65,7 +65,6 @@ export const initSSE = (): EventSource | null => {
     console.error("[SSE] Connection error/closed:", err);
   };
 
-  // Re-attach active event listeners to new eventSource instance
   listenersMap.forEach((callbacks, eventName) => {
     if (!eventHandlerWrappers.has(eventName)) {
       const handler = (e: MessageEvent) => {
@@ -120,7 +119,7 @@ export const subscribeToEvent = (
   const es = getSSE();
   if (es) {
     const handler = eventHandlerWrappers.get(eventName)!;
-    es.removeEventListener(eventName, handler); // ensure single binding
+    es.removeEventListener(eventName, handler); 
     es.addEventListener(eventName, handler);
   }
 };
@@ -181,7 +180,6 @@ export const disconnectSSE = () => {
   }
 };
 
-// Backward-compatibility aliases
 export const initSocket = initSSE;
 export const getSocket = () => {
   initSSE();

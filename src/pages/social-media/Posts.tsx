@@ -178,7 +178,6 @@ const Posts = () => {
                         </span>
                       </div>
 
-                      {/* Helpers for platform statuses */}
                       {(() => {
                         const getPlatformStatus = (platform: string) => {
                           if (post.status === "Published") return "Published";

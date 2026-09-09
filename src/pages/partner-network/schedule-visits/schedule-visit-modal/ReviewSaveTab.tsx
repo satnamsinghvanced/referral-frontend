@@ -135,60 +135,6 @@ export const ReviewSaveTab: React.FC<ReviewSaveTabProps> = ({
           </Card>
         </CardBody>
       </Card>
-
-      {/* <Card className="shadow-none border border-foreground/10 p-4">
-        <CardHeader className="flex-col px-0 pt-0 pb-4 items-start space-y-1">
-          <p className="font-medium text-sm">Visit Schedule ({totalScheduleDays} Actual Days)</p>
-        </CardHeader>
-        <CardBody className="p-0 space-y-3">
-          {Object.keys(visitSchedule).map((dateKey) => (
-            <Card
-              key={dateKey}
-              className="shadow-none border border-foreground/10"
-            >
-              <CardBody className="p-4 space-y-1">
-                <div className="flex items-center space-x-2">
-                  <p className="font-medium text-sm">
-                    {new Date(dateKey).toLocaleDateString("en-US", {
-                      weekday: "long",
-                      month: "short",
-                      day: "numeric",
-                    })}
-                  </p>
-                  <Chip
-                    size="sm"
-                    radius="sm"
-                    variant="flat"
-                    color="warning"
-                    className="text-[11px] h-5"
-                  >
-                    {planState.defaultPriority}
-                  </Chip>
-                  {planState.enableAutoRoute && (
-                    <Chip
-                      size="sm"
-                      radius="sm"
-                      variant="bordered"
-                      color="success"
-                      className="text-[11px] h-5 border-small text-green-600 border-green-200"
-                    >
-                      Optimized
-                    </Chip>
-                  )}
-                </div>
-                <p className="text-xs text-gray-600">
-                  {finalVisitPurposeTitle}
-                </p>
-                <p className="text-xs text-gray-600">
-                  {visitSchedule[dateKey].totalStops} offices &bull;{" "}
-                  {visitSchedule[dateKey].totalVisitDuration} total &bull;{" "}
-                  {visitSchedule[dateKey].totalDistance} distance
-                </p>
-              </CardBody>
-            </Card>
-          ))}
-        </CardBody>
-      </Card> */}
     </div>
   );
 };

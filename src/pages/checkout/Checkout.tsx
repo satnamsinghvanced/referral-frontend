@@ -61,7 +61,7 @@ export default function Checkout() {
   const planIdParam = searchParams.get("planId") || "";
   const planNameParam = searchParams.get("planName") || "";
 
-  const packageCost = 0; // Package minutes are included in the wallet deposit subscription
+  const packageCost = 0; 
 
   const creditsCost = typeParam === "twilio_credits" && walletAmountParam > 0 ? walletAmountParam : amountParam;
   const baseCost = typeParam === "twilio_credits" ? creditsCost : activePlan.price;
@@ -73,7 +73,6 @@ export default function Checkout() {
     twilioPlanName = "Scale";
   }
 
-  // Form states
   const [activeTab, setActiveTab] = useState<"saved" | "card">("card");
   const [cardNumber, setCardNumber] = useState("");
   const [expiry, setExpiry] = useState("");
@@ -82,15 +81,12 @@ export default function Checkout() {
   const [savePaymentDetails, setSavePaymentDetails] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Discount code states
   const [discountCode, setDiscountCode] = useState("");
   const [appliedDiscount, setAppliedDiscount] = useState<{ code: string; value: number; type: "percent" | "fixed" } | null>(null);
   const validateDiscountMutation = useValidateDiscount();
 
-  // Terms and conditions consent
   const [agreeToTerms, setAgreeToTerms] = useState(false);
 
-  // Saved cards states
   const [savedCards, setSavedCards] = useState<SavedCard[]>(() => {
     try {
       const saved = localStorage.getItem("practice_roi_saved_cards");
@@ -118,11 +114,9 @@ export default function Checkout() {
     }
   }, [savedCards]);
 
-  // Form errors & touched states
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
 
-  // Detect card brand based on starting digit
   const getCardBrand = (num: string) => {
     const clean = num.replace(/\D/g, "");
     if (clean.startsWith("4")) return "visa";
@@ -134,7 +128,6 @@ export default function Checkout() {
 
   const cardBrand = getCardBrand(cardNumber);
 
-  // Card details validation helper
   const validateField = (name: string, value: string, currentBrand?: string | null) => {
     let error = "";
     if (name === "cardNumber") {
@@ -157,7 +150,7 @@ export default function Checkout() {
         const year = parseInt(`20${yStr}`, 10);
         const now = new Date();
         const currentYear = now.getFullYear();
-        const currentMonth = now.getMonth() + 1; // 1-indexed
+        const currentMonth = now.getMonth() + 1;  
 
         if (year < currentYear || (year === currentYear && month < currentMonth)) {
           error = "Card has expired";
@@ -176,7 +169,6 @@ export default function Checkout() {
     return error;
   };
 
-  // Card number input formatter (adds spaces every 4 digits)
   const handleCardNumberChange = (val: string) => {
     const clean = val.replace(/\D/g, "").substring(0, 16);
     const formatted = clean.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
@@ -188,7 +180,6 @@ export default function Checkout() {
     }
   };
 
-  // Expiry date input formatter (adds slash: MM/YY)
   const handleExpiryChange = (val: string) => {
     const clean = val.replace(/\D/g, "").substring(0, 4);
     let formatted = clean;
@@ -203,7 +194,6 @@ export default function Checkout() {
     }
   };
 
-  // CVC input change handler
   const handleCvcChange = (val: string) => {
     const clean = val.replace(/\D/g, "").substring(0, 3);
     setCvc(clean);
@@ -356,6 +346,7 @@ export default function Checkout() {
           cardNumber: finalCardNumber,
           expire: finalExpiry,
           cvc: finalCvc,
+          couponCode: appliedDiscount ? appliedDiscount.code : undefined,
         });
         if (!isSaved && savePaymentDetails) {
           const last4Digits = finalCardNumber.slice(-4);
@@ -394,6 +385,7 @@ export default function Checkout() {
           cardNumber: finalCardNumber,
           expire: finalExpiry,
           cvc: finalCvc,
+          couponCode: appliedDiscount ? appliedDiscount.code : undefined,
         });
         addToast({
           title: "Subscription Activated",

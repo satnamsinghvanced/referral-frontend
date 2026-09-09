@@ -142,8 +142,8 @@ export const generateReferralsPdf = (
     columnStyles: {
       0: { cellWidth: 45 },
       1: { cellWidth: 50 },
-      2: { cellWidth: 42 }, // Treatment & Source
-      3: { cellWidth: 45 }, // Status & Details
+      2: { cellWidth: 42 },  
+      3: { cellWidth: 45 },
     },
     margin: { bottom: 20 },
     didParseCell: (data) => {
@@ -155,7 +155,6 @@ export const generateReferralsPdf = (
             if (Array.isArray(parsed)) {
               (data.cell as any).rawContent = parsed;
 
-              // Build plain text lines for height calculation
               const plainLines: string[] = [];
               parsed.forEach((item: any) => {
                 if (item.text) {
@@ -169,14 +168,12 @@ export const generateReferralsPdf = (
             }
           }
         } catch (e) {
-          // Fallback if not JSON (e.g. S.No column)
         }
       }
     },
     willDrawCell: (data) => {
       if (data.section === "body") {
         if ((data.cell as any).rawContent) {
-          // Store parsed text lines and clear cell.text so autotable renders an empty cell
           (data.cell as any).rawTextLines = data.cell.text;
           data.cell.text = [];
         }
@@ -185,11 +182,10 @@ export const generateReferralsPdf = (
     didDrawCell: (data) => {
       if (data.section === "body") {
         const rawContent = (data.cell as any).rawContent;
-        if (!rawContent) return; // Let default rendering handle S.No column
+        if (!rawContent) return;
 
         const doc = data.doc;
         const cell = data.cell;
-        const lines = (cell as any).rawTextLines || [];
 
         let paddingLeft = 4;
         let paddingTop = 4;
@@ -203,33 +199,31 @@ export const generateReferralsPdf = (
         }
         const cellLeft = cell.x + paddingLeft;
         const availableWidth = cell.width - paddingLeft * 2;
-        let currentY = cell.y + paddingTop + 3.5; // +3.5 baseline offset
+        let currentY = cell.y + paddingTop + 3.5;
 
         rawContent.forEach((item: any) => {
           if (item.isTitleOnly) {
-            // First line of cell (e.g. Patient Name): bold and larger
             doc.setFont("helvetica", "bold");
             doc.setFontSize(11);
-            doc.setTextColor(15, 23, 42); // slate-900
+            doc.setTextColor(15, 23, 42);
 
             const titleLines = doc.splitTextToSize(item.text, availableWidth);
             titleLines.forEach((tLine: string) => {
               doc.text(tLine, cellLeft, currentY);
               currentY += 4.5;
             });
-            currentY += 0.5; // padding
+            currentY += 0.5;
           } else if (item.label && item.value) {
-            // Mixed bold label + normal value (increased font sizes to 9pt)
             doc.setFont("helvetica", "bold");
             doc.setFontSize(9);
-            doc.setTextColor(15, 23, 42); // slate-900
+            doc.setTextColor(15, 23, 42);
             doc.text(item.label, cellLeft, currentY);
 
             const labelWidth = doc.getTextWidth(item.label);
 
             doc.setFont("helvetica", "normal");
             doc.setFontSize(9);
-            doc.setTextColor(71, 85, 105); // slate-600
+            doc.setTextColor(71, 85, 105);
 
             const valLeft = cellLeft + labelWidth;
             const valAvailableWidth = availableWidth - labelWidth;
@@ -239,15 +233,14 @@ export const generateReferralsPdf = (
               if (vIdx === 0) {
                 doc.text(vLine, valLeft, currentY);
               } else {
-                doc.text(vLine, cellLeft + 4, currentY); // Indent wrapped lines
+                doc.text(vLine, cellLeft + 4, currentY);
               }
               currentY += 3.8;
             });
           } else if (item.isSubtext) {
-            // Normal subtext (referrer practice name)
             doc.setFont("helvetica", "normal");
             doc.setFontSize(8.5);
-            doc.setTextColor(100, 116, 139); // slate-500
+            doc.setTextColor(100, 116, 139);
 
             const subtextLines = doc.splitTextToSize(item.text, availableWidth);
             subtextLines.forEach((sLine: string) => {
@@ -259,7 +252,6 @@ export const generateReferralsPdf = (
       }
     },
     didDrawPage: (data) => {
-      // Footer page numbers
       const pageCount = (doc as any).internal.getNumberOfPages();
       doc.setFontSize(8);
       doc.setTextColor(148, 163, 184);

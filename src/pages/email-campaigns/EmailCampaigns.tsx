@@ -78,37 +78,31 @@ const EmailCampaigns = () => {
       icon: <FaRegEnvelope className="text-blue-500" />,
       heading: "Total Campaigns",
       value: dashboard?.stats.total || 0,
-      // subheading: "All time",
     },
     {
       icon: <FiPlay className="text-green-500" />,
       heading: "Active",
       value: dashboard?.stats.active || 0,
-      // subheading: "Running now",
     },
     {
       icon: <LuSend className="text-purple-500" />,
       heading: "Total Sent",
       value: dashboard?.stats.sent || 0,
-      // subheading: "Emails delivered",
     },
     {
       icon: <LuEye className="text-yellow-500" />,
       heading: "Avg Open Rate",
       value: dashboard?.stats.openRate || 0,
-      // subheading: "Industry avg: 22%",
     },
     {
       icon: <LuMousePointer className="text-orange-500" />,
       heading: "Avg Click Rate",
       value: dashboard?.stats.clickRate || 0,
-      // subheading: "Industry avg: 3.5%",
     },
     {
       icon: <IoMdTrendingUp className="text-emerald-500" />,
       heading: "Conversions",
       value: dashboard?.stats.conversions || 0,
-      // subheading: "Total referrals",
     },
   ];
 

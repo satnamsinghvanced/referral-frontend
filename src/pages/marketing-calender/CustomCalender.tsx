@@ -925,7 +925,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
               })}
             </div>
 
-            {/* 7 Day Columns */}
             {weekDays.map((d, colIdx) => {
               const dayActivities = getActivitiesForDateObj(d);
               const dayLayouts = computeOverlappingEventsLayout(dayActivities);
@@ -1003,7 +1002,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
     );
   };
 
-  // --- RENDER YEAR VIEW ---
   const renderYearView = () => {
     const renderMonthCard = (mIdx: number, isMobileCard: boolean = false) => {
       const mName = monthNames[mIdx];

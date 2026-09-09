@@ -161,7 +161,7 @@ export interface RecentPost {
   scheduledTime?: string;
   createdAt: string;
   updatedAt: string;
-  failureReason?: string; // Stringified JSON from API
+  failureReason?: string;
   platformIds: Record<string, { success: boolean; id: string }>;
   postStats: Record<string, any>;
   summary: {

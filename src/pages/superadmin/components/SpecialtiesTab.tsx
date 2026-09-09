@@ -284,13 +284,9 @@ const SpecialtiesTab: React.FC<SpecialtiesTabProps> = ({ isLight }) => {
       </div>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div
-          onClick={() => {
-            setStatusFilter("All");
-            setCurrentPage(1);
-          }}
-          className={`p-4 rounded-2xl border flex items-center justify-between transition-all cursor-pointer hover:border-[#20a9f8]/50 ${
-            statusFilter === "All" ? "ring-2 ring-[#20a9f8]/40 border-[#20a9f8]" : ""
-          } ${isLight ? "bg-white border-slate-200/90 shadow-sm" : "bg-[#0F172A] border-[#1E293B]"}`}
+          className={`p-4 rounded-2xl border flex items-center justify-between transition-all ${
+            isLight ? "bg-white border-slate-200/90 shadow-sm" : "bg-[#0F172A] border-[#1E293B]"
+          }`}
         >
           <div>
             <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">Total Specialties</p>
@@ -303,13 +299,9 @@ const SpecialtiesTab: React.FC<SpecialtiesTabProps> = ({ isLight }) => {
           </div>
         </div>
         <div
-          onClick={() => {
-            setStatusFilter("Active");
-            setCurrentPage(1);
-          }}
-          className={`p-4 rounded-2xl border flex items-center justify-between transition-all cursor-pointer hover:border-emerald-500/50 ${
-            statusFilter === "Active" ? "ring-2 ring-emerald-500/40 border-emerald-500" : ""
-          } ${isLight ? "bg-white border-slate-200/90 shadow-sm" : "bg-[#0F172A] border-[#1E293B]"}`}
+          className={`p-4 rounded-2xl border flex items-center justify-between transition-all ${
+            isLight ? "bg-white border-slate-200/90 shadow-sm" : "bg-[#0F172A] border-[#1E293B]"
+          }`}
         >
           <div>
             <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-500">Active Specialties</p>
@@ -322,13 +314,9 @@ const SpecialtiesTab: React.FC<SpecialtiesTabProps> = ({ isLight }) => {
           </div>
         </div>
         <div
-          onClick={() => {
-            setStatusFilter("Inactive");
-            setCurrentPage(1);
-          }}
-          className={`p-4 rounded-2xl border flex items-center justify-between transition-all cursor-pointer hover:border-amber-500/50 ${
-            statusFilter === "Inactive" ? "ring-2 ring-amber-500/40 border-amber-500" : ""
-          } ${isLight ? "bg-white border-slate-200/90 shadow-sm" : "bg-[#0F172A] border-[#1E293B]"}`}
+          className={`p-4 rounded-2xl border flex items-center justify-between transition-all ${
+            isLight ? "bg-white border-slate-200/90 shadow-sm" : "bg-[#0F172A] border-[#1E293B]"
+          }`}
         >
           <div>
             <p className="text-[11px] font-bold uppercase tracking-wider text-amber-500">Inactive Specialties</p>

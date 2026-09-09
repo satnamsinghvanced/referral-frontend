@@ -1,6 +1,6 @@
 import React from "react";
 import { Button, Card, CardBody, Input, Select, SelectItem, Checkbox } from "@heroui/react";
-import { FiCreditCard, FiLock, FiCheck } from "react-icons/fi";
+import { FiCreditCard, FiLock, FiCheck, FiTag, FiX } from "react-icons/fi";
 import { StepPaymentProps } from "./types";
 import { PlanData } from "../../../services/planFeature";
 
@@ -21,8 +21,17 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
   agreeToTerms,
   setAgreeToTerms,
   paymentErrors,
+  couponCode,
+  setCouponCode,
+  appliedCoupon,
+  onApplyCoupon,
+  onRemoveCoupon,
+  isApplyingCoupon,
+  couponError,
+  setCouponError,
 }) => {
-  const calcDisplayPrice = (plan: PlanData) => {
+  const calcDisplayPrice = (plan: PlanData | null) => {
+    if (!plan) return 399;
     if (billingCycle === "annual") {
       if (plan.annualPrice) return plan.annualPrice;
       if (plan.discountPercent && plan.discountPercent > 0) {
@@ -31,6 +40,17 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
     }
     return plan.price;
   };
+
+  const basePrice = calcDisplayPrice(selectedPlan);
+  let discountAmount = 0;
+  if (appliedCoupon) {
+    if (appliedCoupon.type === "percent") {
+      discountAmount = (basePrice * appliedCoupon.value) / 100;
+    } else if (appliedCoupon.type === "fixed") {
+      discountAmount = Math.min(basePrice, appliedCoupon.value);
+    }
+  }
+  const finalPrice = Math.max(0, basePrice - discountAmount);
 
   const handleCardNumberChange = (val: string) => {
     const clean = val.replace(/\D/g, "").substring(0, 16);
@@ -140,6 +160,90 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
                 <SelectItem key="Australia" textValue="Australia">Australia</SelectItem>
               </Select>
             </div>
+
+            <div className="flex flex-col gap-1.5 border-t border-slate-100 dark:border-slate-800/80 pt-4 mt-1">
+              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
+                <span className="flex items-center gap-1.5">
+                  <FiTag className="w-3.5 h-3.5 text-sky-500" />
+                  Promo / Coupon Code
+                </span>
+                <span className="text-[10px] text-slate-400 font-normal">Optional</span>
+              </label>
+
+              {!appliedCoupon ? (
+                <div className="flex flex-col gap-1.5">
+                  <div className="flex gap-2">
+                    <Input
+                      type="text"
+                      placeholder="Enter coupon code"
+                      value={couponCode}
+                      onValueChange={(val) => {
+                        setCouponCode(val.toUpperCase());
+                        if (couponError) setCouponError("");
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          onApplyCoupon();
+                        }
+                      }}
+                      variant="bordered"
+                      isInvalid={!!couponError}
+                      classNames={{
+                        inputWrapper: "border border-slate-300 dark:border-slate-700 bg-[#f8fafc] dark:bg-slate-900/50 data-[hover=true]:bg-[#f8fafc] group-data-[hover=true]:bg-[#f8fafc] hover:bg-[#f8fafc] h-11 min-h-11 rounded-xl group-data-[hover=true]:border-slate-400 hover:border-slate-400 group-data-[focus=true]:border-[#20a9f8] focus-within:border-[#20a9f8] transition-colors",
+                        input: "text-slate-900 dark:text-slate-100 placeholder:text-slate-400 font-semibold uppercase tracking-wider text-xs",
+                      }}
+                      className="flex-1"
+                    />
+                    <Button
+                      color="primary"
+                      onPress={() => onApplyCoupon()}
+                      isLoading={isApplyingCoupon}
+                      isDisabled={!couponCode.trim() || isApplyingCoupon}
+                      className="bg-sky-500 hover:bg-sky-600 text-white font-bold rounded-xl h-11 px-5 text-xs shrink-0"
+                    >
+                      Apply
+                    </Button>
+                  </div>
+                  {couponError && (
+                    <span className="text-danger text-xs font-medium leading-tight mt-0.5">{couponError}</span>
+                  )}
+                </div>
+              ) : (
+                <div className="flex items-center justify-between p-3 rounded-xl border border-emerald-200 dark:border-emerald-900/40 bg-emerald-50/60 dark:bg-emerald-950/20">
+                  <div className="flex items-center gap-2.5 overflow-hidden">
+                    <div className="w-7 h-7 rounded-full bg-emerald-100 dark:bg-emerald-900/50 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                      <FiCheck className="w-4 h-4" />
+                    </div>
+                    <div className="flex flex-col min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-bold text-xs text-emerald-800 dark:text-emerald-300 tracking-wider">
+                          {appliedCoupon.code}
+                        </span>
+                        <span className="text-[10px] font-semibold bg-emerald-200/70 dark:bg-emerald-800/50 text-emerald-800 dark:text-emerald-200 px-2 py-0.5 rounded-full">
+                          {appliedCoupon.type === "percent" ? `${appliedCoupon.value}% OFF` : `$${appliedCoupon.value} OFF`}
+                        </span>
+                      </div>
+                      {appliedCoupon.title && (
+                        <span className="text-[11px] text-emerald-700/80 dark:text-emerald-400/80 truncate">
+                          {appliedCoupon.title}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  <Button
+                    isIconOnly
+                    size="sm"
+                    variant="light"
+                    onPress={onRemoveCoupon}
+                    aria-label="Remove Coupon"
+                    className="text-slate-400 hover:text-danger hover:bg-danger-50 dark:hover:bg-danger-950/30 rounded-lg min-w-8 w-8 h-8"
+                  >
+                    <FiX className="w-4 h-4" />
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
         </Card>
         <Card className="shadow-none border border-sky-200 dark:border-sky-500/20 bg-sky-50/50 dark:bg-sky-950/10 rounded-2xl p-4">
@@ -168,10 +272,30 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
               <span className="text-slate-500">Billing Cycle</span>
               <span className="capitalize">{billingCycle}</span>
             </div>
+
+            {appliedCoupon && (
+              <div className="flex justify-between items-center text-sm font-bold text-emerald-600 dark:text-emerald-400">
+                <span className="flex items-center gap-1">
+                  Discount ({appliedCoupon.code})
+                </span>
+                <span>-${discountAmount.toFixed(2)}</span>
+              </div>
+            )}
+
             <div className="flex justify-between items-center text-base font-extrabold pt-1">
               <span>Total Due Today</span>
-              <span>${selectedPlan ? calcDisplayPrice(selectedPlan) : 399}</span>
+              <div className="flex items-center gap-2">
+                {appliedCoupon && (
+                  <span className="text-xs text-slate-400 line-through font-normal">
+                    ${basePrice}
+                  </span>
+                )}
+                <span className={appliedCoupon ? "text-emerald-600 dark:text-emerald-400" : ""}>
+                  ${finalPrice.toFixed(finalPrice % 1 !== 0 ? 2 : 0)}
+                </span>
+              </div>
             </div>
+
             <div className="border border-emerald-200 dark:border-emerald-900/30 bg-emerald-50/40 dark:bg-emerald-950/10 rounded-xl p-4 mt-2 flex flex-col gap-1.5">
               <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-bold text-xs">
                 <FiCheck className="w-4 h-4" />

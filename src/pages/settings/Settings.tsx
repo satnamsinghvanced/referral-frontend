@@ -30,7 +30,6 @@ const NAVIGATION_ROUTES: NavigationItem[] = [
     requiredPermission: "Manage Settings",
   },
   { name: "Security", icon: LuShield, href: "/settings/security" },
-  // { name: "Devices", icon: BiDevices, href: "/settings/devices" },
   {
     name: "Billing",
     icon: FiCreditCard,

@@ -6,7 +6,6 @@ import { IoMdTrendingUp } from "react-icons/io";
 import { LuChartColumnIncreasing, LuUsers } from "react-icons/lu";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
 
-// Define the prop types for better TypeScript support
 interface OverviewProps {
   platforms: {
     id: string;

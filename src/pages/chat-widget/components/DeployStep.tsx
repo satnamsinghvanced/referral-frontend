@@ -153,7 +153,6 @@ export default function DeployStep({
   const currentPlatformInfo: PlatformDetail =
     PLATFORM_INSTRUCTIONS[selectedPlatform] || PLATFORM_INSTRUCTIONS["Custom HTML"] || DEFAULT_HTML_GUIDE;
 
-  // Download instructions file handler
   const handleDownloadDocumentation = () => {
     const info = currentPlatformInfo;
     const fileContent = `===================================================================
@@ -202,7 +201,6 @@ Need help? Contact support@practiceroi.com
     }
   };
 
-  // Real-time email validation helper
   const validateEmail = (val: string): string => {
     const trimmed = val.trim();
     if (!trimmed) {
@@ -220,7 +218,6 @@ Need help? Contact support@practiceroi.com
     setEmailError(validateEmail(val));
   };
 
-  // Mailto or email dispatch handler
   const handleSendEmailInstructions = () => {
     const errorMsg = validateEmail(emailAddress);
     if (errorMsg) {
@@ -321,7 +318,6 @@ If you have any questions, please reach out to support@practiceroi.com.`;
         </div>
       </div>
 
-      {/* Platform Specificity Alert Notice */}
       <div className="border border-blue-200 dark:border-blue-900/40 bg-blue-50/60 dark:bg-blue-950/20 text-blue-800 dark:text-blue-300 rounded-xl p-3.5 text-xs flex items-start gap-2.5 font-sans">
         <FiInfo className="w-4 h-4 text-blue-600 dark:text-blue-400 flex-shrink-0 mt-0.5" />
         <div className="leading-relaxed">
@@ -330,7 +326,6 @@ If you have any questions, please reach out to support@practiceroi.com.`;
         </div>
       </div>
 
-      {/* Dynamic Installation Instructions */}
       <div className="border border-foreground/10 bg-foreground/5 dark:bg-default-100/10 rounded-xl p-5 space-y-4">
         <div className="flex items-center justify-between border-b border-foreground/5 pb-2">
           <h4 className="text-xs font-bold text-foreground font-sans">
@@ -356,7 +351,6 @@ If you have any questions, please reach out to support@practiceroi.com.`;
         </div>
       </div>
 
-      {/* Download & Email Actions */}
       <div className="flex flex-col sm:flex-row gap-2.5 pt-2">
         <Button
           variant="bordered"
@@ -376,7 +370,6 @@ If you have any questions, please reach out to support@practiceroi.com.`;
         </Button>
       </div>
 
-      {/* Email Instructions Modal */}
       <Modal
         isOpen={isEmailModalOpen}
         onOpenChange={setIsEmailModalOpen}
@@ -434,7 +427,6 @@ If you have any questions, please reach out to support@practiceroi.com.`;
               )}
             </div>
 
-            {/* Clean Instructions Package Preview */}
             <div className="rounded-xl border border-foreground/10 bg-default-50/50 dark:bg-default-100/10 p-4 space-y-3 font-sans">
               <div className="flex items-center justify-between border-b border-foreground/5 pb-2">
                 <span className="text-xs font-bold text-foreground flex items-center gap-1.5 font-sans">

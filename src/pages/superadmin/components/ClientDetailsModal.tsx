@@ -85,7 +85,6 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
     selectedClient.displayClientId ||
     `cli_${String(clientIndex + 1).padStart(3, "0")}`;
 
-  // Phone Service real database details extraction
   const phoneServiceData = (selectedClient as any)?.phoneService || (selectedClient as any)?.telecom;
 
   const hasPhonePlan = Boolean(phoneServiceData?.hasPlan || phoneServiceData?.planName);
@@ -134,7 +133,6 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
           : "bg-[#0F172A] border-[#1E293B]"
           }`}
       >
-        {/* Header */}
         <div
           className={`p-6 border-b flex items-start justify-between ${isLight ? "bg-slate-50/80 border-slate-200" : "bg-[#0B101D] border-[#1E293B]"
             }`}
@@ -180,7 +178,6 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
           </button>
         </div>
 
-        {/* Navigation Tabs */}
         <div
           className={`flex items-center border-b px-6 pt-3 gap-6 text-xs sm:text-sm font-bold ${isLight ? "bg-slate-50/50 border-slate-200" : "bg-[#0B101D] border-[#1E293B]"
             }`}
@@ -231,7 +228,6 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
           </button>
         </div>
 
-        {/* Modal Body */}
         <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto">
           {modalLoading && (
             <div className="flex items-center gap-2 text-xs font-bold text-[#20a9f8] bg-[#20a9f815] px-3.5 py-2 rounded-xl border border-[#20a9f830] w-full justify-center animate-pulse">
@@ -242,7 +238,6 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
 
           {activeTab === "overview" && (
             <>
-              {/* Impersonate Banner */}
               <div
                 className={`p-4 rounded-xl border flex flex-col sm:flex-row items-center justify-between gap-4 ${isLight
                   ? "bg-amber-50/70 border-amber-200"
@@ -273,7 +268,6 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                 </button>
               </div>
 
-              {/* Contact & Account Details */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
@@ -334,7 +328,6 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                 </div>
               </div>
 
-              {/* Performance Metrics */}
               <div className="space-y-3">
                 <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
                   PERFORMANCE METRICS
@@ -410,7 +403,6 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
 
           {activeTab === "phoneService" && (
             <div className="space-y-6 animate-in fade-in-50 duration-150">
-              {/* PHONE SERVICE PLAN */}
               <div className="space-y-2">
                 <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
                   PHONE SERVICE PLAN
@@ -455,13 +447,11 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                 )}
               </div>
 
-              {/* THIS BILLING CYCLE */}
               <div className="space-y-4">
                 <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
                   THIS BILLING CYCLE
                 </span>
 
-                {/* SMS Messages */}
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between text-xs font-bold">
                     <span className="text-slate-700 dark:text-slate-300">SMS Messages</span>
@@ -480,7 +470,6 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                   </span>
                 </div>
 
-                {/* Voice Minutes */}
                 <div className="space-y-1.5">
                   <div className="flex items-center justify-between text-xs font-bold">
                     <span className="text-slate-700 dark:text-slate-300">Voice Minutes</span>
@@ -500,7 +489,6 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                 </div>
               </div>
 
-              {/* PHONE NUMBERS */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
@@ -607,7 +595,6 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                 )}
               </div>
 
-              {/* MONTHLY PHONE SERVICE SPEND */}
               <div className="space-y-2 pt-2">
                 <span className="text-[11px] font-extrabold uppercase tracking-wider text-slate-400">
                   MONTHLY PHONE SERVICE SPEND
@@ -635,7 +622,6 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
 
           {activeTab === "notes" && (
             <>
-              {/* TAGS SECTION */}
               <div className="space-y-3 pb-4 border-b border-slate-200/80 dark:border-slate-800">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
@@ -702,7 +688,6 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                 </p>
               </div>
 
-              {/* INTERNAL NOTES SECTION */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
                   <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">

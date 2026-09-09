@@ -102,16 +102,13 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
     }
   };
 
-  // Debounce search
   const debouncedSearch = useDebouncedValue(searchQuery, 500);
 
-  // Queries
   const { data, isLoading, isFetching } = useCampaignTemplates({
     ...currentFilters,
     search: debouncedSearch,
   });
 
-  // Track user filter changes to show loading spinner
   useEffect(() => {
     const filtersChanged =
       currentFilters.category !== prevFilters.category ||
@@ -177,14 +174,11 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
     formData.append("bodyContent", values.body);
     formData.append("mainImage", values.coverImage);
 
-    // Handle Tags
     const tagsArray = values.tags
       ? values.tags.split(",").map((tag: string) => tag.trim())
       : [];
     tagsArray.forEach((tag: string) => formData.append("tags[]", tag));
 
-    // Handle Design Options
-    // Backend expects an object, so we append fields individually for FormData
     formData.append("designOptions[headerColor]", values.headerColor);
     formData.append("designOptions[accentColor]", values.accentColor);
     formData.append("designOptions[organizationName]", values.organizationName);
@@ -276,15 +270,6 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
                 </>
               </Select>
             </div>
-            {/* Sort is not in CampaignFilters yet, keeping UI but disabled or local logic if needed */}
-            {/* <div className="relative">
-              <Select aria-label="Sort" placeholder="Sort" size="sm" isDisabled>
-                <SelectItem key="mostPopular">Most Popular</SelectItem>
-                <SelectItem key="highestRated">Highest Rated</SelectItem>
-                <SelectItem key="newest">Newest</SelectItem>
-                <SelectItem key="name">Name A-Z</SelectItem>
-              </Select>
-            </div> */}
             <div className="flex items-center gap-3">
               <Button
                 onPress={() => {

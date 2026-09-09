@@ -11,7 +11,6 @@ const STEP_OPTIONS = [
   { label: "Wait", type: "wait" },
   { label: "Condition", type: "condition" },
   { label: "Action", type: "action" },
-  // { label: "Add/Remove Tag", type: "tag" },
 ];
 
 const AddStepBar: React.FC<AddStepBarProps> = ({ onAdd }) => {

@@ -39,7 +39,6 @@ export default function NotificationPopover() {
     };
   }, []);
 
-  // Filter out read notifications older than 24 hours (client-side guard)
   const validNotifications = useMemo(() => {
     const twentyFourHoursAgo = dayjs().subtract(24, "hours");
     return rawNotifications.filter((n: any) => {
@@ -150,7 +149,6 @@ export default function NotificationPopover() {
 
       <PopoverContent className="w-[calc(100vw-1.5rem)] max-w-sm sm:w-96 p-0 shadow-2xl rounded-2xl border border-foreground/10 overflow-hidden bg-background text-foreground">
         <div className="flex flex-col items-stretch w-full">
-          {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-foreground/10 bg-foreground/[0.02]">
             <div className="flex items-center gap-2">
               <h4 className="text-sm font-semibold tracking-tight">Notifications</h4>
@@ -179,7 +177,6 @@ export default function NotificationPopover() {
             )}
           </div>
 
-          {/* Navigation Tabs */}
           <div className="flex items-center gap-1 px-3 pt-2 pb-1 border-b border-foreground/10 bg-foreground/[0.01]">
             <button
               type="button"
@@ -221,7 +218,6 @@ export default function NotificationPopover() {
             </button>
           </div>
 
-          {/* Notifications Scroll List */}
           <div className="max-h-96 overflow-y-auto divide-y divide-foreground/5">
             {isLoading ? (
               <div className="flex flex-col items-center justify-center p-8 gap-2 text-xs text-muted-foreground">
@@ -279,7 +275,6 @@ export default function NotificationPopover() {
                         </p>
                       </div>
 
-                      {/* Tag & Actions */}
                       <div className="flex flex-col items-end gap-1 flex-shrink-0">
                         <span
                           className={`px-2  text-[6px] font-bold uppercase tracking-wider rounded-md border ${!isRead
@@ -329,7 +324,6 @@ export default function NotificationPopover() {
             )}
           </div>
 
-          {/* Footer note */}
           <div className="px-4 py-2 border-t border-foreground/10 bg-foreground/[0.02] text-center">
             <span className="text-[10px] text-muted-foreground">
               Read notifications auto-clear after 24 hours

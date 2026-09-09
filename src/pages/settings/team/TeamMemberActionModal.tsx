@@ -89,7 +89,6 @@ const getDefaultPermissionsForRole = (
   const roleLower = (roleObj?.role || "").toLowerCase();
   const titleLower = (roleObj?.title || "").toLowerCase();
 
-  // Admin -> select all permissions default
   if (
     roleLower.includes("admin") ||
     titleLower.includes("admin") ||

@@ -11,22 +11,12 @@ import { useGoogleBusinessPlatformOverview } from "../../hooks/useSocial";
 
 const GoogleBusinessAnalytics = () => {
   const { data, isLoading } = useGoogleBusinessPlatformOverview();
-
-  // if (isLoading) {
-  //   return (
-  //     <div className="w-full h-40 flex items-center justify-center">
-  //       <LoadingState />
-  //     </div>
-  //   );
-  // }
-
   if (!data) return null;
 
   const { views, actions, photos, reviews, topSearchQueries } = data;
 
   return (
     <div className="flex flex-col gap-5 w-full">
-      {/* 1. Overview Card (Matches Image 1) */}
       <Card
         className="bg-sky-50 dark:bg-sky-500/5 border border-sky-100 dark:border-sky-500/20 p-5 rounded-xl shadow-none w-full"
         shadow="none"
@@ -56,7 +46,6 @@ const GoogleBusinessAnalytics = () => {
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
-          {/* Total Views */}
           <div className="flex flex-col">
             <div className="flex items-center gap-2 mb-1">
               <FiGlobe className="text-gray-400 size-3.5" />
@@ -72,7 +61,6 @@ const GoogleBusinessAnalytics = () => {
             </span>
           </div>
 
-          {/* Customer Actions */}
           <div className="flex flex-col">
             <div className="flex items-center gap-2 mb-1">
               <FiPhone className="text-gray-400 size-3.5" />
@@ -88,7 +76,6 @@ const GoogleBusinessAnalytics = () => {
             </span>
           </div>
 
-          {/* Reviews */}
           <div className="flex flex-col">
             <div className="flex items-center gap-2 mb-1">
               <FiStar className="text-gray-400 size-3.5" />
@@ -104,7 +91,6 @@ const GoogleBusinessAnalytics = () => {
             </span>
           </div>
 
-          {/* Photo Views */}
           <div className="flex flex-col">
             <div className="flex items-center gap-2 mb-1">
               <FiImage className="text-gray-400 size-3.5" />
@@ -122,7 +108,6 @@ const GoogleBusinessAnalytics = () => {
         </div>
       </Card>
 
-      {/* 2. Detailed Breakdown (Matches Image 2) */}
       <Card
         className="bg-white dark:bg-content1 border border-foreground/10 p-5 rounded-xl shadow-none w-full"
         shadow="none"
@@ -131,7 +116,6 @@ const GoogleBusinessAnalytics = () => {
           Google Business Profile Details
         </h4>
         <div className="flex flex-col gap-6">
-          {/* Views Section */}
           <DetailSection
             icon={<FiGlobe className="text-blue-600 dark:text-blue-400" />}
             title="Views"
@@ -157,7 +141,6 @@ const GoogleBusinessAnalytics = () => {
             </div>
           </DetailSection>
 
-          {/* Actions Section */}
           <DetailSection
             icon={<FiPhone className="text-blue-600 dark:text-blue-400" />}
             title="Actions"
@@ -185,7 +168,6 @@ const GoogleBusinessAnalytics = () => {
             />
           </DetailSection>
 
-          {/* Photos Section */}
           <DetailSection
             icon={<FiImage className="text-blue-600 dark:text-blue-400" />}
             title="Photos"
@@ -203,7 +185,6 @@ const GoogleBusinessAnalytics = () => {
             />
           </DetailSection>
 
-          {/* Reviews Section */}
           <DetailSection
             icon={<FiStar className="text-blue-600 dark:text-blue-400" />}
             title="Reviews"
@@ -227,7 +208,6 @@ const GoogleBusinessAnalytics = () => {
             </div>
           </DetailSection>
 
-          {/* Top Search Queries */}
           <div className="pt-2">
             <div className="flex items-center gap-3 mb-4">
               <div className="size-8 rounded-md bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center">
@@ -263,7 +243,6 @@ const GoogleBusinessAnalytics = () => {
                   </div>
                 ))
               ) : (
-                // Mock Data if empty (to match visual request if actual data is missing)
                 <>
                   <SearchQueryItem
                     query="orthodontist near me"

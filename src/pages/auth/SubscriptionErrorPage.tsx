@@ -69,7 +69,6 @@ const SubscriptionErrorPage: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50/50 to-slate-100 dark:from-gray-950 dark:via-slate-900 dark:to-background flex items-center justify-center p-4 sm:p-6">
       <Card className="w-full max-w-lg shadow-2xl border border-foreground/10 bg-content1/90 backdrop-blur-xl rounded-2xl overflow-hidden">
         <CardBody className="p-6 sm:p-8 space-y-6">
-          {/* Header Icon & Title */}
           <div className="flex flex-col items-center text-center space-y-3">
             <div className={`size-16 rounded-2xl ${isDeletedIssue ? "bg-red-500/10 text-red-500 border-red-500/20" : "bg-amber-500/10 text-amber-500 border-amber-500/20"} flex items-center justify-center border shadow-inner`}>
               <FiAlertCircle className="size-8 animate-pulse" />
@@ -91,7 +90,6 @@ const SubscriptionErrorPage: React.FC = () => {
 
           <Divider />
 
-          {/* Main Error Box */}
           <div className="p-4 bg-red-500/10 dark:bg-red-500/20 border border-red-500/30 rounded-xl space-y-2">
             <div className="flex items-start gap-2.5">
               <FiAlertCircle className="size-5 text-red-500 shrink-0 mt-0.5" />
@@ -106,7 +104,6 @@ const SubscriptionErrorPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Contextual Guidance */}
           <div className="space-y-2 text-center text-xs text-foreground/70 leading-relaxed">
             {isPaymentIssue ? (
               <p>
@@ -127,7 +124,6 @@ const SubscriptionErrorPage: React.FC = () => {
             )}
           </div>
 
-          {/* Action Buttons */}
           <div className="space-y-3 pt-2">
             {!isDeletedIssue && (
               <Button
@@ -176,7 +172,6 @@ const SubscriptionErrorPage: React.FC = () => {
 
           <Divider />
 
-          {/* Bottom Support Email Footer */}
           <div className="flex flex-col sm:flex-row items-center justify-between text-xs text-foreground/60 gap-2 pt-1">
             <div className="flex items-center gap-1.5 font-medium">
               <FiMail className="size-3.5 text-primary" />

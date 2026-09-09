@@ -103,7 +103,6 @@ const SendFormsModal = ({ isOpen, onClose, lead }: SendFormsModalProps) => {
     onSubmit: async (values) => {
       if (!lead) return;
 
-      // Require either leadId or the conversation id (fallback for pre-linked leads)
       if (!lead.leadId && !lead.id) {
         addToast({
           title: "Save Lead First",
@@ -113,7 +112,6 @@ const SendFormsModal = ({ isOpen, onClose, lead }: SendFormsModalProps) => {
         return;
       }
 
-      // Combine selected fields
       const combinedFields: any[] = [];
       const selectedTitles: string[] = [];
 
@@ -124,7 +122,6 @@ const SendFormsModal = ({ isOpen, onClose, lead }: SendFormsModalProps) => {
         }
         const fields = FORM_FIELDS_MAP[formId];
         if (fields) {
-          // Avoid duplicate field names
           fields.forEach((newField) => {
             if (!combinedFields.some((f) => f.name === newField.name)) {
               combinedFields.push(newField);
@@ -144,7 +141,7 @@ const SendFormsModal = ({ isOpen, onClose, lead }: SendFormsModalProps) => {
         if (lead.leadId) {
           payload.leadId = lead.leadId;
         } else {
-          payload.conversationId = lead.id; // fallback for pre-linked leads
+          payload.conversationId = lead.id; 
         }
         const res = await sendFormLink(payload);
 

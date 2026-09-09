@@ -234,7 +234,6 @@ export default function LatestReviews() {
       shadow="none"
       className="bg-background flex flex-col gap-4 border border-foreground/10 rounded-xl p-4"
     >
-      {/* Card Header */}
       <CardHeader className="w-full flex flex-col items-start gap-3 p-0 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex flex-col gap-0.5">
           <h4 className="font-medium">Recent Reviews & Interactions</h4>
@@ -256,7 +255,6 @@ export default function LatestReviews() {
         </div>
       </CardHeader>
 
-      {/* Card Content (Reviews List) */}
       <CardBody className="p-0">
         <div className="space-y-3 pr-2">
           {isLoading ? (

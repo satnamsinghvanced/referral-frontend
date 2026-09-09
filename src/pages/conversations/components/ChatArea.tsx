@@ -337,7 +337,6 @@ export default function ChatArea({
                 </div>
               </div>
 
-              {/* Show the seen status for the last message if it's sent by the provider and not sending/failed */}
               {isLastMessage && !msg.isFromPatient && !msg.isSending && !msg.isFailed && (
                 <div className="text-[10px] text-gray-400 dark:text-foreground/40 text-right mt-1 mr-9">
                   <SeenStatus seenAt={msg.seenAt} />

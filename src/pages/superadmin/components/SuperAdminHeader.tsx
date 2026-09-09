@@ -65,7 +65,6 @@ const SuperAdminHeader: React.FC<SuperAdminHeaderProps> = ({
       }`}
     >
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between md:justify-end">
-        {/* Mobile Sidebar Hamburger Toggle */}
         <button
           type="button"
           onClick={onToggleMobileSidebar}
@@ -74,7 +73,6 @@ const SuperAdminHeader: React.FC<SuperAdminHeaderProps> = ({
         >
           <FiMenu className="text-lg" />
         </button>
-        {/* Right side Profile Dropdown only (Logo & brand removed as requested) */}
         <div className="relative" ref={profileMenuRef}>
           <button
             type="button"

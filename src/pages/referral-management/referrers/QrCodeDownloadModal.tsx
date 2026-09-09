@@ -184,7 +184,6 @@ const QrCodeDownloadModal = ({
                 </div>
               </div>
 
-              {/* Profile Card */}
               <div className="flex items-center gap-3 p-3 rounded-lg bg-blue-50 dark:bg-blue-900/10 border border-blue-200 dark:border-blue-500/30">
                 <div className="size-8 rounded-md bg-primary text-white flex items-center justify-center shrink-0">
                   <FiUsers className="size-4" />
@@ -199,7 +198,6 @@ const QrCodeDownloadModal = ({
                 </div>
               </div>
 
-              {/* Referral Link */}
               <div className="space-y-2">
                 <label className="text-xs font-medium block dark:text-foreground/60">
                   Referral Link
@@ -220,7 +218,6 @@ const QrCodeDownloadModal = ({
                 </div>
               </div>
 
-              {/* Unique Tag Link */}
               <div className="space-y-2">
                 <label className="text-xs font-medium block dark:text-foreground/60">
                   Unique Tag
@@ -241,7 +238,6 @@ const QrCodeDownloadModal = ({
                 </div>
               </div>
 
-              {/* Action Buttons */}
               <div className="grid grid-cols-2 gap-2">
                 <Button
                   size="sm"
@@ -264,7 +260,6 @@ const QrCodeDownloadModal = ({
                 </Button>
               </div>
 
-              {/* Stats */}
               <div className="grid grid-cols-2 gap-2">
                 <div className="bg-gray-50 dark:bg-background/50 p-3 rounded-lg border border-foreground/10 space-y-0.5">
                   <span className="text-xs text-gray-500 dark:text-foreground/40 block">

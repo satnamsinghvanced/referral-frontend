@@ -158,9 +158,7 @@ const LeadDetailsModal = ({
     setDeletingId(id);
     try {
       await deleteCommunication({ id, type });
-    } catch (error) {
-      // Handled by hook
-    } finally {
+    } catch (error) { } finally {
       setDeletingId(null);
     }
   };
@@ -173,9 +171,7 @@ const LeadDetailsModal = ({
         body: smsBody.trim(),
       });
       setSmsBody("");
-    } catch (error) {
-      // Handled by query/toast
-    }
+    } catch (error) { }
   };
 
   const parsedNotes = parseNotes(lead?.notes || "");
@@ -204,9 +200,7 @@ const LeadDetailsModal = ({
                 : values.assignedTo,
           },
         });
-      } catch (error) {
-        // Error handled by hook
-      }
+      } catch (error) {}
     },
   });
 
@@ -288,12 +282,6 @@ const LeadDetailsModal = ({
                     <div className="flex items-center gap-3">
                       <ReferralStatusChip status={formik.values.status} />
                       <PriorityLevelChip level={formik.values.priority} />
-                      {/* <span className="text-xs text-gray-500 dark:text-foreground/60 font-normal">
-                        Lead Score:{" "}
-                        <span className="font-bold text-gray-700 dark:text-foreground">
-                          {lead.score || 0}
-                        </span>
-                      </span> */}
                     </div>
                   </div>
                 </div>
@@ -357,14 +345,6 @@ const LeadDetailsModal = ({
                             </div>
                           </div>
                           <div className="space-y-3 mt-6">
-                            {/* <Button
-                              fullWidth
-                              variant="bordered"
-                              startContent={<HiOutlinePhone className="size-4" />}
-                              className="justify-start font-medium text-gray-700 dark:text-foreground/80 border-foreground/10"
-                            >
-                              Call via Twilio
-                            </Button> */}
                             <Button
                               fullWidth
                               variant="bordered"
@@ -397,7 +377,6 @@ const LeadDetailsModal = ({
                           <div className="grid grid-cols-1 gap-6">
                             <Select
                               label="Status"
-                              // variant="bordered"
                               className="bg-default-100 data-[hover=true]:bg-default-200 rounded-small"
                               size="sm"
                               selectedKeys={new Set([formik.values.status])}
@@ -417,7 +396,6 @@ const LeadDetailsModal = ({
                             </Select>
                             <Select
                               label="Priority"
-                              // variant="bordered"
                               className="bg-default-100 data-[hover=true]:bg-default-200 rounded-small"
                               size="sm"
                               selectedKeys={new Set([formik.values.priority])}
@@ -437,7 +415,6 @@ const LeadDetailsModal = ({
                             </Select>
                             <Select
                               label="Assigned To"
-                              // variant=""
                               className="bg-default-100 data-[hover=true]:bg-default-200 rounded-small"
                               size="sm"
                               startContent={
@@ -467,7 +444,6 @@ const LeadDetailsModal = ({
                             </Select>
                             <Input
                               label="Estimated Value"
-                              // variant="bordered"
                               className="bg-default-100 data-[hover=true]:bg-default-200 rounded-small "
                               value={formik.values.estimatedValue.toString()}
                               onValueChange={(val) =>
@@ -534,22 +510,6 @@ const LeadDetailsModal = ({
                             </p>
                           </div>
                         </div>
-                        {/* <div className="p-4 border border-foreground/10 rounded-xl flex flex-col justify-center gap-2 bg-content1/50 dark:bg-content1/20">
-                          <div className="flex justify-between items-center px-1">
-                            <span className="text-xs text-gray-400 dark:text-foreground/40 font-medium">
-                              Lead Score
-                            </span>
-                            <span className="text-xs font-bold text-foreground">
-                              {lead.score || 0}/100
-                            </span>
-                          </div>
-                          <Progress
-                            size="sm"
-                            color="warning"
-                            value={lead.score || 0}
-                            className="w-full"
-                          />
-                        </div> */}
                       </div>
                     </div>
                   </Tab>
@@ -573,7 +533,6 @@ const LeadDetailsModal = ({
                       )}
 
                       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {/* Send Email Card */}
                         <div className="p-5 border-l-4 border-purple-500 rounded-xl bg-gradient-to-br from-purple-500/[0.03] to-indigo-500/[0.03] border border-y-foreground/5 border-r-foreground/5 dark:border-y-white/5 dark:border-r-white/5 space-y-4 flex flex-col justify-between min-h-[190px] shadow-sm hover:shadow-purple-500/5 transition-all duration-300">
                           <div className="space-y-2">
                             <div className="flex items-center gap-2 text-purple-500">
@@ -596,7 +555,6 @@ const LeadDetailsModal = ({
                           </Button>
                         </div>
 
-                        {/* Send SMS Card */}
                         <div className="p-5 border-l-4 border-green-500 rounded-xl bg-gradient-to-br from-green-500/[0.03] to-emerald-500/[0.03] border border-y-foreground/5 border-r-foreground/5 dark:border-y-white/5 dark:border-r-white/5 space-y-4 flex flex-col justify-between min-h-[190px] shadow-sm hover:shadow-green-500/5 transition-all duration-300">
                           <div className="space-y-2">
                             <div className="flex items-center gap-2 text-green-500">
@@ -872,28 +830,6 @@ const LeadDetailsModal = ({
                               </span>
                             </div>
                           </div>
-                          {/* <div>
-                            <p className="text-xs text-gray-400 dark:text-foreground/40 font-medium mb-1">
-                              Lead Score
-                            </p>
-                            <Progress
-                              size="sm"
-                              color={
-                                lead.score > 70
-                                  ? "success"
-                                  : lead.score > 40
-                                    ? "warning"
-                                    : "danger"
-                              }
-                              value={lead.score || 0}
-                              className="max-w-md"
-                            />
-                            <div className="flex justify-end mt-1">
-                              <span className="text-[10px] font-bold text-gray-500 dark:text-foreground/60">
-                                {lead.score || 0}
-                              </span>
-                            </div>
-                          </div> */}
                           <div>
                             <p className="text-xs text-gray-400 dark:text-foreground/40 font-medium mb-1">
                               Tags

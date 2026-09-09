@@ -59,7 +59,6 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
     setLoading(true);
     try {
       if (lead.leadId) {
-        // Update existing lead in CRM
         const response = await updateLead({
           id: lead.leadId,
           data: {
@@ -68,7 +67,7 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
             email: email.trim().toLowerCase(),
             phone: phone.trim(),
             location: location.trim(),
-            socialConversationId: lead.id, // ensure conversation is linked in DB
+            socialConversationId: lead.id, 
           },
         });
         addToast({
@@ -81,14 +80,13 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
         }
         setIsEditing(false);
       } else {
-        // Create new lead in CRM linked to this conversation ID
         const response = await addLead({
           firstName: firstName.trim(),
           lastName: lastName.trim(),
           email: email.trim().toLowerCase(),
           phone: phone.trim(),
           location: location.trim(),
-          source: lead.platform, // "instagram" or "facebook"
+          source: lead.platform,
           socialConversationId: lead.id,
           status: "newLead",
         });

@@ -30,8 +30,8 @@ export interface CampaignTemplate {
   isSystemTemplate: boolean;
   createdAt: string;
   updatedAt: string;
-  isFavorite?: boolean; // Returned in list view
-  isPopular?: boolean; // Returned in list view
+  isFavorite?: boolean;
+  isPopular?: boolean;
 }
 
 export interface CampaignTemplatesResponse {
@@ -52,7 +52,6 @@ export interface CampaignFilters {
   search?: string | undefined;
 }
 
-// AUDIENCE SEGMENT
 export type AudienceType =
   | "Referral Partners"
   | "Patients"
@@ -134,7 +133,6 @@ export interface AudienceResponse {
   };
 }
 
-// ------------------------
 
 export interface Template {
   id: number;
@@ -173,7 +171,6 @@ export interface CampaignMetric {
   conversions: number;
 }
 
-// ------------------------
 
 export type CampaignStatus =
   | "draft"
@@ -207,7 +204,6 @@ export interface ICampaignTracking {
   trackClicks: boolean;
 }
 
-// Used for GET responses where IDs are often populated
 export interface ICampaign {
   _id: string;
   userId: string | { _id: string; email: string };
@@ -230,7 +226,6 @@ export interface ICampaign {
   updatedAt: string;
 }
 
-// Used for POST/PUT requests
 export interface ICampaignPayload extends Partial<
   Omit<ICampaign, "_id" | "stats" | "createdAt" | "updatedAt">
 > {
@@ -278,7 +273,7 @@ export interface IPerformanceMetric {
   sent: number;
   opens: number;
   clicks: number;
-  conversions?: number; // Optional as not all endpoints return this
+  conversions?: number;
 }
 
 export interface ILabelValue {
@@ -294,12 +289,11 @@ export interface IDeviceMetric {
   percentage: number;
 }
 
-// Response Types
 export interface IAnalyticsOverview {
   stats: IAnalyticsStat[];
   performanceTrend: IPerformanceMetric[];
   audienceBreakdown: ILabelValue[];
-  topPerformingCampaigns: any[]; // Adjust based on campaign object if needed
+  topPerformingCampaigns: any[];
 }
 
 export interface IDetailedPerformance {

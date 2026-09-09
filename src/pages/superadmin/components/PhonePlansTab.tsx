@@ -234,7 +234,6 @@ const PhonePlansTab: React.FC<PhonePlansTabProps> = ({ isLight }) => {
 
   return (
     <div className="space-y-6">
-      {/* Header Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-black tracking-tight text-slate-900 dark:text-white flex items-center gap-2">
@@ -256,7 +255,6 @@ const PhonePlansTab: React.FC<PhonePlansTabProps> = ({ isLight }) => {
         </button>
       </div>
 
-      {/* Loading State */}
       {loading ? (
         <WorkspaceLoader message="LOADING..." minHeight="min-h-[350px]" />
       ) : plans.length === 0 ? (
@@ -276,7 +274,6 @@ const PhonePlansTab: React.FC<PhonePlansTabProps> = ({ isLight }) => {
           </button>
         </div>
       ) : (
-        /* Plans Grid */
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {plans.map((plan) => (
             <div
@@ -290,7 +287,6 @@ const PhonePlansTab: React.FC<PhonePlansTabProps> = ({ isLight }) => {
                   : "bg-[#111A2E] border-[#1E2B45] hover:border-slate-700"
                 }`}
             >
-              {/* Popular Badge */}
               {plan.isPopular && (
                 <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 bg-gradient-to-r from-sky-500 to-blue-600 text-white text-[10px] font-black uppercase tracking-wider px-3 py-1 rounded-full shadow-sm flex items-center gap-1">
                   <FiStar className="text-xs fill-current" />
@@ -299,7 +295,6 @@ const PhonePlansTab: React.FC<PhonePlansTabProps> = ({ isLight }) => {
               )}
 
               <div>
-                {/* Plan Title & Price */}
                 <div className="flex items-start justify-between gap-2 pt-1 mb-2">
                   <div>
                     <h3 className="text-lg font-black text-slate-900 dark:text-white">{plan.name}</h3>
@@ -313,7 +308,6 @@ const PhonePlansTab: React.FC<PhonePlansTabProps> = ({ isLight }) => {
                   </div>
                 </div>
 
-                {/* What's Included Box */}
                 <div
                   className={`p-3.5 rounded-xl border space-y-2 my-4 ${isLight ? "bg-sky-50/50 border-sky-100" : "bg-[#0B101D] border-[#1E2B45]"
                     }`}
@@ -331,7 +325,6 @@ const PhonePlansTab: React.FC<PhonePlansTabProps> = ({ isLight }) => {
                   </div>
                 </div>
 
-                {/* Overage Rates Box */}
                 <div
                   className={`p-3.5 rounded-xl border space-y-1 mb-4 ${isLight ? "bg-amber-50/40 border-amber-200/60" : "bg-[#0B101D] border-[#1E2B45]"
                     }`}
@@ -349,7 +342,6 @@ const PhonePlansTab: React.FC<PhonePlansTabProps> = ({ isLight }) => {
                 </div>
               </div>
 
-              {/* Action Buttons */}
               <div className="flex items-center gap-2 pt-4 border-t border-slate-200 dark:border-slate-800">
                 <button
                   type="button"
@@ -373,14 +365,12 @@ const PhonePlansTab: React.FC<PhonePlansTabProps> = ({ isLight }) => {
         </div>
       )}
 
-      {/* CREATE / EDIT MODAL */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 overflow-y-auto">
           <div
             className={`w-full max-w-lg rounded-2xl p-6 shadow-2xl space-y-5 transition-all max-h-[90vh] overflow-y-auto ${isLight ? "bg-white text-slate-900" : "bg-[#111A2E] text-white border border-[#1E2B45]"
               }`}
           >
-            {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
               <h3 className="text-lg font-black tracking-tight flex items-center gap-2">
                 <FiPhoneCall className="text-sky-500" />
@@ -395,7 +385,6 @@ const PhonePlansTab: React.FC<PhonePlansTabProps> = ({ isLight }) => {
               </button>
             </div>
 
-            {/* Modal Form */}
             <form onSubmit={handleSavePlan} className="space-y-4">
               <div className="grid grid-cols-2 gap-3">
                 <div>
@@ -494,7 +483,6 @@ const PhonePlansTab: React.FC<PhonePlansTabProps> = ({ isLight }) => {
                 </label>
               </div>
 
-              {/* Volumes Section */}
               <div className="p-3.5 rounded-xl border space-y-3 bg-slate-50/50 dark:bg-[#0B101D] dark:border-[#1E2B45]">
                 <div className="text-xs font-bold text-slate-500 uppercase tracking-wider">
                   Included Allowances
@@ -552,7 +540,6 @@ const PhonePlansTab: React.FC<PhonePlansTabProps> = ({ isLight }) => {
                 </div>
               </div>
 
-              {/* Overage Charge Section */}
               <div className="p-3.5 rounded-xl border space-y-2 bg-amber-50/30 dark:bg-[#0B101D] dark:border-[#1E2B45]">
                 <label className="block text-xs font-bold text-amber-700 dark:text-amber-400 uppercase tracking-wider">
                   Overage Charge *
@@ -580,7 +567,6 @@ const PhonePlansTab: React.FC<PhonePlansTabProps> = ({ isLight }) => {
                 )}
               </div>
 
-              {/* Submit Buttons */}
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200 dark:border-slate-800">
                 <button
                   type="button"
@@ -602,7 +588,6 @@ const PhonePlansTab: React.FC<PhonePlansTabProps> = ({ isLight }) => {
         </div>
       )}
 
-      {/* DELETE CONFIRMATION MODAL */}
       {deleteModalTarget && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
           <div

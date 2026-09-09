@@ -59,7 +59,7 @@ const SendQuoteModal = ({ isOpen, onClose, lead, onSendQuote }: SendQuoteModalPr
       setIsSending(true);
       try {
         await sendLeadQuote({
-          id: lead.leadId || lead.id, // Support both lead tracking ID and conversation ID
+          id: lead.leadId || lead.id,
           lineItems: values.lineItems,
           personalNote: values.personalNote,
           sendType: "both",

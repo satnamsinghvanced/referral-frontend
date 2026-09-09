@@ -103,7 +103,6 @@ export default function GoogleBusinessLocationModal({ isOpen, onClose }: { isOpe
           </p>
         </ModalHeader>
         <ModalBody className="py-4 space-y-4">
-          {/* Search Form */}
           <form onSubmit={handleSearch} className="flex gap-2">
             <Input
               size="sm"

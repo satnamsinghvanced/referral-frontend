@@ -185,7 +185,6 @@ const PracticeStats: React.FC = () => {
   return (
     <ComponentContainer headingData={HEADING_DATA}>
       <div className="space-y-5">
-        {/* Integration Warnings */}
         <div className="space-y-3">
           {INTEGRATION_WARNINGS.map(
             (warning, idx) =>
@@ -210,7 +209,6 @@ const PracticeStats: React.FC = () => {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Referral Sources Distribution */}
             <Card
               shadow="none"
               className="border border-foreground/10 bg-white dark:bg-background p-4 md:p-5"
@@ -257,7 +255,6 @@ const PracticeStats: React.FC = () => {
               </CardBody>
             </Card>
 
-            {/* Performance Trends */}
             <Card
               shadow="none"
               className="border border-foreground/10 bg-white dark:bg-background p-4 md:p-5"
@@ -325,7 +322,6 @@ const PracticeStats: React.FC = () => {
               </CardBody>
             </Card>
 
-            {/* Weekly Activity Overview */}
             <Card
               shadow="none"
               className="border border-foreground/10 bg-white dark:bg-background p-4 md:p-5 md:col-span-2"

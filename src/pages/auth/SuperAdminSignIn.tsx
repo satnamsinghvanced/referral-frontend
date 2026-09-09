@@ -36,7 +36,6 @@ const SuperAdminSignIn = () => {
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Forgot password state
   const [forgotEmail, setForgotEmail] = useState("");
   const [forgotLoading, setForgotLoading] = useState(false);
   const [forgotErrorMsg, setForgotErrorMsg] = useState("");
@@ -54,7 +53,6 @@ const SuperAdminSignIn = () => {
       password: Yup.string().required("Password is required"),
     }),
     onSubmit: async (values) => {
-      // Guard against ghost clicks when switching views
       if (Date.now() - lastSwitchTimeRef.current < 400) {
         return;
       }
@@ -149,7 +147,6 @@ const SuperAdminSignIn = () => {
       className={`min-h-screen flex flex-col items-center justify-center p-4 font-sans selection:bg-blue-500 selection:text-white transition-colors duration-300 relative ${isDark ? "bg-[#070C18] text-slate-100" : "bg-[#F8FAFC] text-slate-900"
         }`}
     >
-      {/* Theme Toggle Button at top right */}
       <button
         type="button"
         onClick={handleToggleTheme}
@@ -172,7 +169,6 @@ const SuperAdminSignIn = () => {
         )}
       </button>
 
-      {/* Card Container */}
       <div
         className={`w-full max-w-md border rounded-2xl shadow-xl p-6 sm:p-8 space-y-6 transition-colors duration-300 ${isDark
             ? "bg-[#111A2E] border-[#1E2B45] text-white shadow-black/60"
@@ -182,7 +178,6 @@ const SuperAdminSignIn = () => {
         {view === "signin" ? (
           <div key="signin-view" className="space-y-6">
             <div className="flex flex-col items-center text-center">
-              {/* Icon Logo inside box on top */}
               <div className="mb-3">
                 <img
                   src="/practiceroi-favicon.ico"
@@ -190,7 +185,6 @@ const SuperAdminSignIn = () => {
                   className="w-12 h-12 object-contain"
                 />
               </div>
-              {/* Title: Admin Portal */}
               <h1 className={`text-2xl font-extrabold tracking-tight ${isDark ? "text-white" : "text-slate-900"}`}>
                 Admin Portal
               </h1>

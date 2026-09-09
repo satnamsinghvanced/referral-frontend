@@ -6,7 +6,6 @@ interface EmojiPickerProps {
 }
 
 export default function EmojiPicker({ onEmojiSelect }: EmojiPickerProps) {
-  // Determine theme dynamically or check dark class
   const isDark = document.documentElement.classList.contains("dark");
 
   const handleEmojiClick = (emojiData: EmojiClickData) => {

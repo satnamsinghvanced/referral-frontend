@@ -33,7 +33,6 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
 }) => {
   const toggleFavoriteMutation = useToggleFavoriteTemplate();
 
-  // Fetch fresh data when modal is open and we have an ID
   const { data: campaignResponse, isLoading } = useCampaignTemplate(
     isOpen && template?._id ? template._id : "",
   );
@@ -97,7 +96,6 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
             </ModalHeader>
 
             <ModalBody className="px-4 pt-0 pb-4 gap-4 bg-background dark:bg-content1">
-              {/* Template Info Section */}
               <div className="">
                 <div className="rounded-lg p-4 bg-default-100 dark:bg-background flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="grid grid-cols-3 gap-2">
@@ -196,13 +194,11 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
                 )}
               </div>
 
-              {/* Template Preview Box */}
               <div className="space-y-3">
                 <h4 className="text-sm font-medium text-foreground">
                   Template Preview
                 </h4>
                 <div className="border border-divider rounded-xl overflow-hidden bg-white dark:bg-background">
-                  {/* Preview Header - Dynamic Color */}
                   <div
                     className="py-3 px-4 text-center text-white"
                     style={{
@@ -217,7 +213,6 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
                     </h3>
                   </div>
 
-                  {/* Cover Image in Preview */}
                   {displayTemplate!.mainImage && (
                     <div className="w-full h-48 md:h-64 overflow-hidden border-b border-foreground/5">
                       <img
@@ -228,9 +223,7 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
                     </div>
                   )}
 
-                  {/* Preview Content */}
                   <div className="p-4 space-y-4 min-h-[300px]">
-                    {/* Subject Line */}
                     <div className="space-y-1">
                       <p className="text-xs font-medium text-gray-500">
                         Subject Line
@@ -242,7 +235,6 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
 
                     <div className="h-px bg-divider w-full" />
 
-                    {/* Email Body */}
                     <div className="space-y-2">
                       <p className="text-xs font-medium text-gray-500">
                         Email Body
@@ -255,7 +247,6 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
                       />
                     </div>
 
-                    {/* Action Buttons in Preview */}
                     <div className="flex flex-wrap gap-3 mt-5">
                       <button
                         className="px-3 py-2 rounded-md text-white text-xs transition-transform active:scale-95 cursor-pointer"
@@ -276,7 +267,6 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({
                     </div>
                   </div>
 
-                  {/* Preview Footer */}
                   <div className="py-3 text-center bg-gray-50 dark:bg-black/20 border-t border-divider">
                     <p className="text-xs text-gray-600 dark:text-gray-500">
                       © {new Date().getFullYear()}{" "}

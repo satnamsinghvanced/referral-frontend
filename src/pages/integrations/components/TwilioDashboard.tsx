@@ -330,7 +330,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
               <Button
                 color={registration?.status === "failed" ? "danger" : "primary"}
                 size="sm"
-                // isDisabled={!phoneNumbers || phoneNumbers.length === 0}
                 onPress={() => setIsA2PRegistrationOpen(true)}
                 startContent={<FiCheckCircle className="w-3.5 h-3.5" />}
                 className="rounded-lg text-xs font-semibold h-8 px-4 text-white disabled:opacity-50 disabled:cursor-not-allowed"
@@ -579,7 +578,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
         </CardBody>
       </Card>
 
-      {/* Add Credits Modal */}
       <TwilioAddCreditsModal
         isOpen={isAddCreditsOpen}
         onClose={() => setIsAddCreditsOpen(false)}
@@ -590,7 +588,6 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
         onAddCredits={handleAddCredits}
       />
 
-      {/* Purchase Number Modal */}
       <TwilioPurchaseNumberModal
         isOpen={isPurchaseNumberOpen}
         onClose={() => setIsPurchaseNumberOpen(false)}
@@ -600,14 +597,12 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
         minutesLimit={minutesLimit}
       />
 
-      {/* A2P SMS Registration Modal */}
       <TwilioA2PRegistrationModal
         isOpen={isA2PRegistrationOpen}
         onClose={() => setIsA2PRegistrationOpen(false)}
         phoneNumbers={phoneNumbers}
       />
 
-      {/* Release Confirmation Modal */}
       <Modal
         isOpen={!!numberToRelease}
         onOpenChange={() => setNumberToRelease(null)}

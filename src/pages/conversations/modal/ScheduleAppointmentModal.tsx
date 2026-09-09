@@ -51,10 +51,8 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead }: ScheduleAppointment
     onSubmit: async (values) => {
       if (!lead) return;
 
-      // Format date and time
       const dateStr = values.date ? new Date(values.date).toLocaleDateString() : 'N/A';
 
-      // Format 24-hour time string to 12-hour format with AM/PM
       let timeStr = 'N/A';
       if (values.time) {
         const [hourStr, minStr] = values.time.split(':');
@@ -62,7 +60,7 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead }: ScheduleAppointment
           let hour = parseInt(hourStr, 10);
           const ampm = hour >= 12 ? 'PM' : 'AM';
           hour = hour % 12;
-          hour = hour ? hour : 12; // Convert 0 to 12
+          hour = hour ? hour : 12; 
           timeStr = `${hour}:${minStr} ${ampm}`;
         }
       }

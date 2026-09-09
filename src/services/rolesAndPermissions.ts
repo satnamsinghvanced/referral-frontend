@@ -45,7 +45,6 @@ export interface UpdatePermissionPayload {
   status?: "active" | "inactive";
 }
 
-// Role APIs
 export const fetchRolesList = async (): Promise<IRole[]> => {
   const response = await axios.get("/role");
   const data = response.data?.data ?? response.data;
@@ -72,7 +71,6 @@ export const deleteRole = async (id: string): Promise<any> => {
   return response.data;
 };
 
-// Permission APIs
 export const fetchPermissionsList = async (): Promise<IPermission[]> => {
   const response = await axios.get("/permission");
   const data = response.data?.data ?? response.data;

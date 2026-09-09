@@ -44,7 +44,6 @@ export default function TwilioPurchaseNumberModal({
   const [searched, setSearched] = useState<boolean>(false);
   const [buyingNumber, setBuyingNumber] = useState<string | null>(null);
 
-  // Cost rules matching the user's interface setup
   const setupFee = 15;
   const monthlyCost = 5;
   const totalCost = setupFee + monthlyCost;
@@ -126,7 +125,6 @@ export default function TwilioPurchaseNumberModal({
     }
   };
 
-  // Resolve plan label from minutesLimit
   const planName =
     minutesLimit >= 2500
       ? "Scale"
@@ -136,7 +134,6 @@ export default function TwilioPurchaseNumberModal({
           ? "Starter"
           : "None";
 
-  // Format Twilio raw phone numbers to +1 (XXX) XXX-XXXX for readability
   const formatPhoneNumber = (numStr: string) => {
     const cleaned = numStr.replace(/\D/g, "");
     if (cleaned.length === 11 && cleaned.startsWith("1")) {
@@ -166,8 +163,7 @@ export default function TwilioPurchaseNumberModal({
             Search for available phone numbers by area code • ${setupFee} setup + ${monthlyCost}/month
           </p>
         </ModalHeader>
-        <ModalBody className="p-5 pt-2 flex flex-col gap-5">
-          {/* Low Balance Alert */}
+        <ModalBody className="p-5 pt-2 flex flex-col gap-5">=
           {isBalanceLow && (
             <div className="bg-red-50 dark:bg-red-955/15 border border-red-200 dark:border-red-900/30 rounded-xl p-3.5 flex flex-col gap-1 text-xs text-red-800 dark:text-red-400">
               <span className="font-bold flex items-center gap-1">⚠️ Low Balance Alert</span>
@@ -177,7 +173,6 @@ export default function TwilioPurchaseNumberModal({
             </div>
           )}
 
-          {/* Area Code search block */}
           <div className="flex gap-2.5 items-end">
             <Input
               type="text"
@@ -208,7 +203,6 @@ export default function TwilioPurchaseNumberModal({
             </Button>
           </div>
 
-          {/* Searching loader */}
           {searching && (
             <div className="flex flex-col items-center justify-center py-8 gap-2.5">
               <Spinner size="md" color="primary" />
@@ -216,7 +210,6 @@ export default function TwilioPurchaseNumberModal({
             </div>
           )}
 
-          {/* Results list */}
           {!searching && searched && searchResults.length > 0 && (
             <div className="flex flex-col gap-3">
               <div className="flex justify-between items-center text-xs font-bold text-foreground">

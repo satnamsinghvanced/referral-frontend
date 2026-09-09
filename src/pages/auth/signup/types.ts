@@ -28,6 +28,14 @@ export interface StepYourDetailsProps {
   formik: any;
 }
 
+export interface AppliedCoupon {
+  code: string;
+  title?: string;
+  description?: string;
+  value: number;
+  type: "percent" | "fixed";
+}
+
 export interface StepPaymentProps {
   selectedPlan: PlanData | null;
   billingCycle: "monthly" | "annual";
@@ -45,4 +53,12 @@ export interface StepPaymentProps {
   agreeToTerms: boolean;
   setAgreeToTerms: (val: boolean) => void;
   paymentErrors: Record<string, string>;
+  couponCode: string;
+  setCouponCode: (val: string) => void;
+  appliedCoupon: AppliedCoupon | null;
+  onApplyCoupon: (codeToApply?: string) => Promise<void> | void;
+  onRemoveCoupon: () => void;
+  isApplyingCoupon: boolean;
+  couponError: string;
+  setCouponError: (err: string) => void;
 }

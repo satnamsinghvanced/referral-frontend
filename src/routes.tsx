@@ -517,15 +517,7 @@ function AppRoutes() {
       );
     });
   return (
-    // <Suspense
-    //   fallback={
-    //     <div className="bg-background flex items-center justify-center p-4 min-h-screen">
-    //       <FiLoader className="animate-spin size-10 text-primary" />
-    //     </div>
-    //   }
-    // >
     <Routes>{renderRoutes(routesList)}</Routes>
-    // </Suspense>
   );
 }
 export default AppRoutes;

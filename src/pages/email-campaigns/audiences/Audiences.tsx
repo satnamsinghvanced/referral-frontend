@@ -215,18 +215,6 @@ const Audiences: React.FC = () => {
                 Clear Filters
               </Button>
 
-              {/* <Button
-                size="sm"
-                radius="sm"
-                variant="ghost"
-                color="default"
-                className="border-small flex-1"
-                startContent={<LuUpload className="size-3.5" />}
-                onPress={() => setIsImportModalOpen(true)}
-              >
-                Import
-              </Button> */}
-
               <Button
                 size="sm"
                 radius="sm"

@@ -417,13 +417,11 @@ export default function CreateTemplateModal({
               />
             </div>
 
-            {/* Template Preview Section */}
             <div className="space-y-4">
               <div className="flex items-center justify-between border-b border-foreground/10 pb-2.5">
                 <h3 className="text-sm font-medium">Live Template Preview</h3>
               </div>
               <div className="border border-foreground/10 rounded-xl overflow-hidden bg-white dark:bg-zinc-900 max-w-4xl mx-auto">
-                {/* Email Header */}
                 <div
                   className="p-3.5 text-center text-white"
                   style={{ backgroundColor: formik.values.headerColor }}
@@ -432,8 +430,6 @@ export default function CreateTemplateModal({
                     {formik.values.organizationName || "Your Practice Name"}
                   </h2>
                 </div>
-
-                {/* Cover Image in Preview */}
                 {formik.values.coverImage && (
                   <div className="w-full h-48 md:h-64 overflow-hidden border-b border-foreground/5">
                     <img
@@ -444,7 +440,6 @@ export default function CreateTemplateModal({
                   </div>
                 )}
 
-                {/* Email Content */}
                 <div className="px-4 py-5 space-y-4 text-foreground min-h-[200px]">
                   <div className="pb-4 border-b border-foreground/5 space-y-1">
                     <p className="text-xs text-gray-400">Subject Line:</p>
@@ -485,7 +480,6 @@ export default function CreateTemplateModal({
                   </div>
                 </div>
 
-                {/* Email Footer */}
                 <div className="p-3.5 text-center text-xs text-gray-400 border-t border-foreground/5 bg-gray-50 dark:bg-zinc-800/50">
                   <p className="mb-1 font-medium text-gray-500">
                     {formik.values.organizationName || "Your Practice Name"}

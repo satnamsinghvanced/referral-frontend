@@ -151,7 +151,6 @@ export default function GoogleIntegrationSelectorModal({ type, isOpen, onClose }
 
   const displayItems: any = searchResults !== null ? searchResults : items;
 
-  // Debounced live autocomplete search effect
   useEffect(() => {
     if (type !== "business") return;
     const query = searchQuery.trim();

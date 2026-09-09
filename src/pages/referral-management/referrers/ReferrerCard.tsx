@@ -174,19 +174,7 @@ const ReferrerCard: React.FC<ReferrerCardProps> = ({
         >
           <FiEye className="size-4 " />
         </Button>
-        {/* {onDelete && (
-          <Button
-            isIconOnly
-            size="sm"
-            variant="light"
-            color="danger"
-            onPress={() => onDelete(referrer._id)}
-            className="text-danger rounded-lg min-w-8 w-8 h-8 flex items-center justify-center p-0"
-          >
-            <FiTrash2 className="size-4" />
-          </Button>
-        )} */}
-      </div>
+     </div>
     </div>
   );
 };

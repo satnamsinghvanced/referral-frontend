@@ -1,6 +1,5 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { Card, CardBody, addToast } from "@heroui/react";
-import { HiOutlineFilter } from "react-icons/hi";
 import { LuMessageSquare } from "react-icons/lu";
 import { HiOutlineMail, HiOutlineClock, HiOutlineTrendingUp } from "react-icons/hi";
 import ComponentContainer from "../../components/common/ComponentContainer";
@@ -766,34 +765,6 @@ const Conversations = () => {
   const HEADING_DATA = {
     heading: "Conversations",
     subHeading: "Unified inbox for all patient communications",
-    // buttons: [
-    //   {
-    //     label: "Filters",
-    //     onClick: () => {
-    //       addToast({
-    //         title: "Coming Soon",
-    //         description: "Advanced filters are in progress",
-    //         color: "primary",
-    //       });
-    //     },
-    //     icon: <HiOutlineFilter fontSize={15} />,
-    //     variant: "ghost" as const,
-    //     color: "default" as const,
-    //     className: "border-small",
-    //   },
-    //   {
-    //     label: "Quick Actions",
-    //     onClick: () => {
-    //       addToast({
-    //         title: "Coming Soon",
-    //         description: "Quick actions are in progress",
-    //         color: "primary",
-    //       });
-    //     },
-    //     variant: "solid" as const,
-    //     color: "primary" as const,
-    //   },
-    // ],
   };
 
   return (

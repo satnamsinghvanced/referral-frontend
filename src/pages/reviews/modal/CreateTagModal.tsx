@@ -142,7 +142,6 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({ isOpen, onClose }) => {
               </p>
             </ModalHeader>
             <ModalBody className="py-0 px-4 gap-5">
-              {/* Type Selection */}
               <div className="flex flex-col gap-2">
                 <label className="text-xs">
                   Type <span className="text-[#eb0000]">*</span>
@@ -188,7 +187,6 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({ isOpen, onClose }) => {
                 </div>
               </div>
 
-              {/* Tag Name */}
               <Input
                 label="Tag Name/Description"
                 labelPlacement="outside"
@@ -210,7 +208,6 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({ isOpen, onClose }) => {
                 errorMessage={formik.touched.name && formik.errors.name}
               />
 
-              {/* Practice Locations */}
               <div className="flex flex-col gap-2">
                 <label className="text-xs">
                   Practice Locations <span className="text-[#eb0000]">*</span>
@@ -272,7 +269,6 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({ isOpen, onClose }) => {
                 )}
               </div>
 
-              {/* Team Member Selection */}
               <div>
                 <Select
                   label="Assign Team Member"
@@ -314,42 +310,7 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({ isOpen, onClose }) => {
                 </p>
               </div>
 
-              {/* Review Platform */}
-              {/* <div>
-                <Select
-                  label="Review Platform"
-                  labelPlacement="outside"
-                  placeholder="Select a platform"
-                  name="platform"
-                  selectedKeys={[formik.values.platform]}
-                  disabledKeys={[formik.values.platform]}
-                  onSelectionChange={(keys) => {
-                    formik.setFieldValue("platform", Array.from(keys)[0]);
-                  }}
-                  onBlur={formik.handleBlur}
-                  isInvalid={
-                    !!(formik.touched.platform && formik.errors.platform)
-                  }
-                  errorMessage={
-                    formik.touched.platform && formik.errors.platform
-                  }
-                  size="sm"
-                  radius="sm"
-                  variant="flat"
-                  isRequired
-                >
-                  {PLATFORMS.map((p) => (
-                    <SelectItem key={p.id} textValue={p.name}>
-                      {p.name}
-                    </SelectItem>
-                  ))}
-                </Select>
-                <p className="text-xs text-gray-500 dark:text-foreground/60 mt-1.5">
-                  Where patients will be directed to leave a review
-                </p>
-              </div> */}
 
-              {/* Info Box */}
               <div className="px-2 py-2.5 rounded-lg bg-sky-50 border border-sky-100 dark:bg-sky-500/10 dark:border-sky-500/20 flex gap-2 items-center">
                 <div className="mt-0.5 shrink-0">
                   {formik.values.type === "nfc" ? (

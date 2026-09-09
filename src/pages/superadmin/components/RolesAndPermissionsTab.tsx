@@ -47,14 +47,11 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
   const [saving, setSaving] = useState<boolean>(false);
   const [deleting, setDeleting] = useState<boolean>(false);
 
-  // Search & Filter State
   const [searchQuery, setSearchQuery] = useState("");
   const [permissionStatusFilter, setPermissionStatusFilter] = useState("All");
 
-  // Expandable Role Rows for viewing all assigned permissions inline
   const [expandedRoleIds, setExpandedRoleIds] = useState<string[]>([]);
 
-  // Modals state
   const [isRoleModalOpen, setIsRoleModalOpen] = useState(false);
   const [editingRole, setEditingRole] = useState<IRole | null>(null);
 
@@ -70,7 +67,6 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
     name: string;
   } | null>(null);
 
-  // Load Initial Data from Backend
   const loadData = async () => {
     setLoading(true);
     try {
@@ -96,7 +92,6 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
     loadData();
   }, []);
 
-  // --- Handlers: Role Modal ---
   const handleOpenAddRole = () => {
     setEditingRole(null);
     setIsRoleModalOpen(true);
@@ -114,24 +109,19 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
         await updateRole(editingRole._id, payload);
         addToast({
           title: "Role Updated",
-          description: `Role '${payload.title}' details updated successfully`,
+          description: `Role '${payload.title}' updated successfully`,
           color: "success",
         });
-        setIsRoleModalOpen(false);
-        loadData();
       } else {
-        const created = await createRole(payload);
+        await createRole(payload);
         addToast({
           title: "Role Created",
-          description: `Role '${payload.title}' created. You can now configure its permissions.`,
+          description: `Role '${payload.title}' created successfully`,
           color: "success",
         });
-        setIsRoleModalOpen(false);
-        await loadData();
-        if (created) {
-          handleOpenManagePermissions(created);
-        }
       }
+      setIsRoleModalOpen(false);
+      loadData();
     } catch (err: any) {
       console.error("Failed to save role:", err);
       const msg = err.response?.data?.message || err.message || "Failed to save role";
@@ -145,7 +135,6 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
     }
   };
 
-  // --- Handlers: Manage Permissions Modal ---
   const handleOpenManagePermissions = (roleItem: IRole) => {
     setManagingRole(roleItem);
     setIsPermissionsModalOpen(true);
@@ -160,9 +149,8 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
 
       addToast({
         title: "Permissions Saved",
-        description: `Successfully updated ${permissionIds.length} permissions for '${
-          managingRole?.title || managingRole?.role
-        }'`,
+        description: `Successfully updated ${permissionIds.length} permissions for '${managingRole?.title || managingRole?.role
+          }'`,
         color: "success",
       });
 
@@ -190,7 +178,6 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
     );
   };
 
-  // --- Handlers: Permission CRUD Modal ---
   const handleOpenAddPermission = () => {
     setEditingPermission(null);
     setIsPermissionModalOpen(true);
@@ -209,11 +196,6 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
     );
     try {
       await updatePermission(item._id, { status: newStatus });
-      addToast({
-        title: "Status Updated",
-        description: `Permission '${item.title}' is now ${newStatus}`,
-        color: "success",
-      });
     } catch (err: any) {
       console.error("Failed to update permission status:", err);
       setPermissions((prev) =>
@@ -265,7 +247,6 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
     }
   };
 
-  // --- Handlers: Delete Target ---
   const handleConfirmDelete = async () => {
     if (!deleteTarget) return;
     setDeleting(true);
@@ -299,7 +280,6 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
     }
   };
 
-  // Filtered lists
   const filteredRoles = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
     if (!q) return roles;
@@ -323,7 +303,7 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
         permissionStatusFilter === "All" || !permissionStatusFilter
           ? true
           : (p.status || "active").toLowerCase() ===
-            permissionStatusFilter.toLowerCase();
+          permissionStatusFilter.toLowerCase();
 
       return matchesSearch && matchesStatus;
     });
@@ -336,12 +316,12 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
     const avgPermsPerRole =
       totalRoles > 0
         ? Math.round(
-            roles.reduce(
-              (acc, r) =>
-                acc + (r.permissions ? r.permissions.filter(Boolean).length : 0),
-              0
-            ) / totalRoles
-          )
+          roles.reduce(
+            (acc, r) =>
+              acc + (r.permissions ? r.permissions.filter(Boolean).length : 0),
+            0
+          ) / totalRoles
+        )
         : 0;
     return { totalRoles, totalPermissions, activePermissions, avgPermsPerRole };
   }, [roles, permissions]);
@@ -357,21 +337,18 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
 
   return (
     <div className="space-y-6">
-      {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-200/80 dark:border-slate-800">
         <div>
           <h1
-            className={`text-2xl font-black tracking-tight flex items-center gap-2.5 ${
-              isLight ? "text-slate-900" : "text-white"
-            }`}
+            className={`text-2xl font-black tracking-tight flex items-center gap-2.5 ${isLight ? "text-slate-900" : "text-white"
+              }`}
           >
             <FiShield className="text-[#20a9f8]" />
             <span>Roles & Permissions</span>
           </h1>
           <p
-            className={`text-xs mt-1 font-medium ${
-              isLight ? "text-slate-500" : "text-slate-400"
-            }`}
+            className={`text-xs mt-1 font-medium ${isLight ? "text-slate-500" : "text-slate-400"
+              }`}
           >
             Configure system roles, prefill permissions, and edit access matrices via dedicated modals.
           </p>
@@ -400,19 +377,12 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
         </div>
       </div>
 
-      {/* Summary Stat Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         <div
-          onClick={() => setActiveSubTab("roles")}
-          className={`p-4 rounded-2xl border transition-all cursor-pointer hover:border-[#20a9f8]/50 ${
-            activeSubTab === "roles"
-              ? "ring-2 ring-[#20a9f8]/40 border-[#20a9f8]"
-              : ""
-          } ${
-            isLight
+          className={`p-4 rounded-2xl border transition-all ${isLight
               ? "bg-white border-slate-200/90 shadow-sm"
               : "bg-[#0F172A] border-[#1E2B45]"
-          }`}
+            }`}
         >
           <div className="flex items-center justify-between">
             <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
@@ -423,25 +393,18 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
             </div>
           </div>
           <h3
-            className={`text-2xl font-black mt-2 ${
-              isLight ? "text-slate-900" : "text-white"
-            }`}
+            className={`text-2xl font-black mt-2 ${isLight ? "text-slate-900" : "text-white"
+              }`}
           >
             {stats.totalRoles}
           </h3>
         </div>
 
         <div
-          onClick={() => setActiveSubTab("permissions")}
-          className={`p-4 rounded-2xl border transition-all cursor-pointer hover:border-emerald-500/50 ${
-            activeSubTab === "permissions"
-              ? "ring-2 ring-emerald-500/40 border-emerald-500"
-              : ""
-          } ${
-            isLight
+          className={`p-4 rounded-2xl border transition-all ${isLight
               ? "bg-white border-slate-200/90 shadow-sm"
               : "bg-[#0F172A] border-[#1E2B45]"
-          }`}
+            }`}
         >
           <div className="flex items-center justify-between">
             <p className="text-[11px] font-bold uppercase tracking-wider text-emerald-500">
@@ -452,20 +415,18 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
             </div>
           </div>
           <h3
-            className={`text-2xl font-black mt-2 ${
-              isLight ? "text-slate-900" : "text-white"
-            }`}
+            className={`text-2xl font-black mt-2 ${isLight ? "text-slate-900" : "text-white"
+              }`}
           >
             {stats.activePermissions}
           </h3>
         </div>
 
         <div
-          className={`p-4 rounded-2xl border transition-all ${
-            isLight
+          className={`p-4 rounded-2xl border transition-all ${isLight
               ? "bg-white border-slate-200/90 shadow-sm"
               : "bg-[#0F172A] border-[#1E2B45]"
-          }`}
+            }`}
         >
           <div className="flex items-center justify-between">
             <p className="text-[11px] font-bold uppercase tracking-wider text-purple-400">
@@ -476,20 +437,18 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
             </div>
           </div>
           <h3
-            className={`text-2xl font-black mt-2 ${
-              isLight ? "text-slate-900" : "text-white"
-            }`}
+            className={`text-2xl font-black mt-2 ${isLight ? "text-slate-900" : "text-white"
+              }`}
           >
             {stats.totalPermissions}
           </h3>
         </div>
 
         <div
-          className={`p-4 rounded-2xl border transition-all ${
-            isLight
+          className={`p-4 rounded-2xl border transition-all ${isLight
               ? "bg-white border-slate-200/90 shadow-sm"
               : "bg-[#0F172A] border-[#1E2B45]"
-          }`}
+            }`}
         >
           <div className="flex items-center justify-between">
             <p className="text-[11px] font-bold uppercase tracking-wider text-amber-500">
@@ -500,16 +459,14 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
             </div>
           </div>
           <h3
-            className={`text-2xl font-black mt-2 ${
-              isLight ? "text-slate-900" : "text-white"
-            }`}
+            className={`text-2xl font-black mt-2 ${isLight ? "text-slate-900" : "text-white"
+              }`}
           >
             {stats.avgPermsPerRole}
           </h3>
         </div>
       </div>
 
-      {/* Sub-Tab Navigation Bar */}
       <div className="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800">
         <button
           type="button"
@@ -517,11 +474,10 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
             setActiveSubTab("roles");
             setSearchQuery("");
           }}
-          className={`px-4 py-3 text-xs font-bold transition-all border-b-2 cursor-pointer flex items-center gap-2 ${
-            activeSubTab === "roles"
+          className={`px-4 py-3 text-xs font-bold transition-all border-b-2 cursor-pointer flex items-center gap-2 ${activeSubTab === "roles"
               ? "border-[#20a9f8] text-[#20a9f8]"
               : "border-transparent text-slate-400 hover:text-slate-200"
-          }`}
+            }`}
         >
           <FiUsers />
           <span>System Roles ({roles.length})</span>
@@ -533,24 +489,21 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
             setActiveSubTab("permissions");
             setSearchQuery("");
           }}
-          className={`px-4 py-3 text-xs font-bold transition-all border-b-2 cursor-pointer flex items-center gap-2 ${
-            activeSubTab === "permissions"
+          className={`px-4 py-3 text-xs font-bold transition-all border-b-2 cursor-pointer flex items-center gap-2 ${activeSubTab === "permissions"
               ? "border-[#20a9f8] text-[#20a9f8]"
               : "border-transparent text-slate-400 hover:text-slate-200"
-          }`}
+            }`}
         >
           <FiLock />
           <span>Permission Modules ({permissions.length})</span>
         </button>
       </div>
 
-      {/* Search & Filter Bar */}
       <div
-        className={`flex flex-col sm:flex-row items-center justify-between gap-3 p-2 rounded-xl border ${
-          isLight
+        className={`flex flex-col sm:flex-row items-center justify-between gap-3 p-2 rounded-xl border ${isLight
             ? "bg-white border-slate-200/90 shadow-sm"
             : "bg-[#0F172A]/60 border-[#1E2B45]"
-        }`}
+          }`}
       >
         <div className="relative flex-1 w-full">
           <FiSearch className="absolute left-3.5 top-3 text-sm text-slate-400" />
@@ -558,16 +511,15 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
             type="text"
             placeholder={
               activeSubTab === "roles"
-                ? "Search role title, identifier key, or description..."
+                ? "Search role title or description..."
                 : "Search permission module or description..."
             }
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className={`w-full text-sm rounded-lg pl-10 pr-9 py-2 focus:outline-none transition-colors ${
-              isLight
+            className={`w-full text-sm rounded-lg pl-10 pr-9 py-2 focus:outline-none transition-colors ${isLight
                 ? "bg-slate-50 border border-slate-200 text-slate-900 placeholder-slate-400 hover:border-[#20a9f8] focus:border-[#20a9f8] focus:bg-white"
                 : "bg-[#111A2E] border border-[#1E2B45] text-slate-200 placeholder-slate-500 hover:border-[#20a9f8] focus:border-[#20a9f8]"
-            }`}
+              }`}
           />
           {searchQuery && (
             <button
@@ -594,23 +546,20 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
         )}
       </div>
 
-      {/* SUB-TAB 1: ROLES TABLE WITH MANAGE PERMISSIONS BUTTONS */}
       {activeSubTab === "roles" && (
         <>
           {filteredRoles.length === 0 ? (
             <div
-              className={`py-16 text-center border-2 border-dashed rounded-3xl space-y-4 ${
-                isLight ? "bg-white border-slate-200" : "bg-[#0F172A] border-slate-800"
-              }`}
+              className={`py-16 text-center border-2 border-dashed rounded-3xl space-y-4 ${isLight ? "bg-white border-slate-200" : "bg-[#0F172A] border-slate-800"
+                }`}
             >
               <div className="w-16 h-16 rounded-full bg-sky-50 dark:bg-sky-950/40 text-[#20a9f8] flex items-center justify-center mx-auto text-2xl">
                 <FiUsers />
               </div>
               <div>
                 <h3
-                  className={`text-lg font-bold ${
-                    isLight ? "text-slate-900" : "text-white"
-                  }`}
+                  className={`text-lg font-bold ${isLight ? "text-slate-900" : "text-white"
+                    }`}
                 >
                   No Roles Found
                 </h3>
@@ -631,19 +580,17 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
             </div>
           ) : (
             <div
-              className={`rounded-2xl border overflow-hidden shadow-xs ${
-                isLight ? "bg-white border-slate-200" : "bg-[#0B101D] border-[#1E293B]"
-              }`}
+              className={`rounded-2xl border overflow-hidden shadow-xs ${isLight ? "bg-white border-slate-200" : "bg-[#0B101D] border-[#1E293B]"
+                }`}
             >
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse min-w-[850px]">
                   <thead>
                     <tr
-                      className={`text-[11px] font-bold uppercase tracking-wider border-b ${
-                        isLight
+                      className={`text-[11px] font-bold uppercase tracking-wider border-b ${isLight
                           ? "bg-slate-50 text-slate-500 border-slate-200"
                           : "bg-[#111A2E] text-slate-400 border-[#1E293B]"
-                      }`}
+                        }`}
                     >
                       <th className="py-3.5 px-4 sm:px-6 w-[25%]">Role Name</th>
                       <th className="py-3.5 px-4 w-[16%]">Identifier Key</th>
@@ -653,18 +600,16 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
                     </tr>
                   </thead>
                   <tbody
-                    className={`divide-y text-xs ${
-                      isLight
+                    className={`divide-y text-xs ${isLight
                         ? "divide-slate-200/80 text-slate-700"
                         : "divide-[#1E293B] text-slate-300"
-                    }`}
+                      }`}
                   >
                     {filteredRoles.map((roleItem) => {
                       const rolePermissions = (roleItem.permissions || []).filter(Boolean);
                       const permCount = rolePermissions.length;
                       const isExpanded = expandedRoleIds.includes(roleItem._id);
 
-                      // Extract permission names
                       const permNames: string[] = rolePermissions.map((p: any) => {
                         if (typeof p === "string") {
                           const found = permissions.find((perm) => perm._id === p);
@@ -678,17 +623,14 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
                       return (
                         <React.Fragment key={roleItem._id}>
                           <tr
-                            className={`transition-colors ${
-                              isLight ? "hover:bg-slate-50/70" : "hover:bg-[#111A2E]/60"
-                            } ${
-                              isExpanded
+                            className={`transition-colors ${isLight ? "hover:bg-slate-50/70" : "hover:bg-[#111A2E]/60"
+                              } ${isExpanded
                                 ? isLight
                                   ? "bg-sky-50/30"
                                   : "bg-[#152238]/40"
                                 : ""
-                            }`}
+                              }`}
                           >
-                            {/* Role Name */}
                             <td className="py-4 px-4 sm:px-6 font-bold w-[25%]">
                               <div className="flex items-center gap-3">
                                 <div className="w-8 h-8 rounded-xl bg-sky-50 dark:bg-sky-950/60 text-[#20a9f8] flex items-center justify-center shrink-0 text-sm font-black shadow-xs">
@@ -696,9 +638,8 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
                                 </div>
                                 <div className="min-w-0 flex-1">
                                   <span
-                                    className={`font-black text-sm block truncate ${
-                                      isLight ? "text-slate-900" : "text-white"
-                                    }`}
+                                    className={`font-black text-sm block truncate ${isLight ? "text-slate-900" : "text-white"
+                                      }`}
                                   >
                                     {roleItem.title || roleItem.role}
                                   </span>
@@ -706,20 +647,17 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
                               </div>
                             </td>
 
-                            {/* Identifier Key */}
                             <td className="py-4 px-4 w-[16%]">
                               <span className="inline-flex items-center px-2.5 py-1 rounded-lg border font-mono font-bold text-xs bg-slate-500/10 border-slate-500/20 text-[#20a9f8]">
                                 {roleItem.role}
                               </span>
                             </td>
 
-                            {/* Description */}
                             <td className="py-4 px-4 w-[20%]">
                               {roleItem.description ? (
                                 <p
-                                  className={`text-xs line-clamp-1 ${
-                                    isLight ? "text-slate-600" : "text-slate-400"
-                                  }`}
+                                  className={`text-xs line-clamp-1 ${isLight ? "text-slate-600" : "text-slate-400"
+                                    }`}
                                   title={roleItem.description}
                                 >
                                   {roleItem.description}
@@ -731,17 +669,15 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
                               )}
                             </td>
 
-                            {/* Permissions Badges + Manage Permissions Modal Button */}
                             <td className="py-4 px-4 w-[25%]">
                               <div className="flex items-center gap-1.5 flex-wrap">
                                 <button
                                   type="button"
                                   onClick={() => handleOpenManagePermissions(roleItem)}
-                                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold border transition-all cursor-pointer shadow-xs ${
-                                    permCount > 0
+                                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-bold border transition-all cursor-pointer shadow-xs ${permCount > 0
                                       ? "bg-purple-500/10 border-purple-500/30 text-purple-600 dark:text-purple-400 hover:bg-purple-500/20"
                                       : "bg-amber-500/10 border-amber-500/30 text-amber-500 hover:bg-amber-500/20"
-                                  }`}
+                                    }`}
                                   title="Open dedicated modal to edit permissions"
                                 >
                                   <FiLock className="text-xs shrink-0" />
@@ -766,7 +702,6 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
                               </div>
                             </td>
 
-                            {/* Actions */}
                             <td className="py-4 px-4 sm:px-6 w-[14%] text-right">
                               <div className="flex items-center justify-end gap-1">
                                 <button
@@ -781,11 +716,10 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
                                 <button
                                   type="button"
                                   onClick={() => handleOpenEditRole(roleItem)}
-                                  className={`p-2 rounded-lg transition-colors cursor-pointer ${
-                                    isLight
+                                  className={`p-2 rounded-lg transition-colors cursor-pointer ${isLight
                                       ? "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                                       : "text-slate-400 hover:bg-[#1E2B45] hover:text-white"
-                                  }`}
+                                    }`}
                                   title="Edit Role Details (Title, Key, Description)"
                                 >
                                   <FiEdit2 className="text-sm" />
@@ -809,7 +743,6 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
                             </td>
                           </tr>
 
-                          {/* Expanded Inline Preview */}
                           {isExpanded && (
                             <tr className={isLight ? "bg-slate-50/80" : "bg-[#0c1424]"}>
                               <td
@@ -834,11 +767,10 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
                                     {permNames.map((pName, idx) => (
                                       <span
                                         key={idx}
-                                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium ${
-                                          isLight
+                                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium ${isLight
                                             ? "bg-white border border-slate-200 text-slate-800 shadow-2xs"
                                             : "bg-[#111A2E] border border-[#1E2B45] text-slate-200"
-                                        }`}
+                                          }`}
                                       >
                                         <FiCheckCircle className="text-emerald-500 text-xs shrink-0" />
                                         <span>{pName}</span>
@@ -860,23 +792,20 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
         </>
       )}
 
-      {/* SUB-TAB 2: PERMISSIONS TABLE */}
       {activeSubTab === "permissions" && (
         <>
           {filteredPermissions.length === 0 ? (
             <div
-              className={`py-16 text-center border-2 border-dashed rounded-3xl space-y-4 ${
-                isLight ? "bg-white border-slate-200" : "bg-[#0F172A] border-slate-800"
-              }`}
+              className={`py-16 text-center border-2 border-dashed rounded-3xl space-y-4 ${isLight ? "bg-white border-slate-200" : "bg-[#0F172A] border-slate-800"
+                }`}
             >
               <div className="w-16 h-16 rounded-full bg-purple-50 dark:bg-purple-950/40 text-purple-400 flex items-center justify-center mx-auto text-2xl">
                 <FiLock />
               </div>
               <div>
                 <h3
-                  className={`text-lg font-bold ${
-                    isLight ? "text-slate-900" : "text-white"
-                  }`}
+                  className={`text-lg font-bold ${isLight ? "text-slate-900" : "text-white"
+                    }`}
                 >
                   No Permissions Found
                 </h3>
@@ -897,19 +826,17 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
             </div>
           ) : (
             <div
-              className={`rounded-2xl border overflow-hidden shadow-xs ${
-                isLight ? "bg-white border-slate-200" : "bg-[#0B101D] border-[#1E293B]"
-              }`}
+              className={`rounded-2xl border overflow-hidden shadow-xs ${isLight ? "bg-white border-slate-200" : "bg-[#0B101D] border-[#1E293B]"
+                }`}
             >
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse min-w-[750px]">
                   <thead>
                     <tr
-                      className={`text-[11px] font-bold uppercase tracking-wider border-b ${
-                        isLight
+                      className={`text-[11px] font-bold uppercase tracking-wider border-b ${isLight
                           ? "bg-slate-50 text-slate-500 border-slate-200"
                           : "bg-[#111A2E] text-slate-400 border-[#1E293B]"
-                      }`}
+                        }`}
                     >
                       <th className="py-3.5 px-4 sm:px-6 w-[35%]">Permission Module</th>
                       <th className="py-3.5 px-4 w-[35%]">Description</th>
@@ -918,36 +845,31 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
                     </tr>
                   </thead>
                   <tbody
-                    className={`divide-y text-xs ${
-                      isLight
+                    className={`divide-y text-xs ${isLight
                         ? "divide-slate-200/80 text-slate-700"
                         : "divide-[#1E293B] text-slate-300"
-                    }`}
+                      }`}
                   >
                     {filteredPermissions.map((perm) => {
                       const isInactive = perm.status === "inactive";
                       return (
                         <tr
                           key={perm._id}
-                          className={`transition-colors ${
-                            isInactive ? "opacity-60" : ""
-                          } ${
-                            isLight ? "hover:bg-slate-50/70" : "hover:bg-[#111A2E]/60"
-                          }`}
+                          className={`transition-colors ${isInactive ? "opacity-60" : ""
+                            } ${isLight ? "hover:bg-slate-50/70" : "hover:bg-[#111A2E]/60"
+                            }`}
                         >
-                          {/* Permission Title with Toggle Switch */}
                           <td className="py-4 px-4 sm:px-6 font-bold w-[35%]">
                             <div className="flex items-center gap-3">
                               <button
                                 type="button"
                                 onClick={() => handleTogglePermissionStatus(perm)}
-                                className={`w-9 h-5 flex items-center rounded-full p-0.5 transition-colors duration-200 cursor-pointer shrink-0 ${
-                                  !isInactive
+                                className={`w-9 h-5 flex items-center rounded-full p-0.5 transition-colors duration-200 cursor-pointer shrink-0 ${!isInactive
                                     ? "bg-emerald-500"
                                     : isLight
-                                    ? "bg-slate-300"
-                                    : "bg-slate-700"
-                                }`}
+                                      ? "bg-slate-300"
+                                      : "bg-slate-700"
+                                  }`}
                                 title={
                                   !isInactive
                                     ? "Click to deactivate"
@@ -955,45 +877,40 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
                                 }
                               >
                                 <div
-                                  className={`bg-white w-4 h-4 rounded-full shadow transform transition-transform duration-200 ${
-                                    !isInactive ? "translate-x-4" : "translate-x-0"
-                                  }`}
+                                  className={`bg-white w-4 h-4 rounded-full shadow transform transition-transform duration-200 ${!isInactive ? "translate-x-4" : "translate-x-0"
+                                    }`}
                                 />
                               </button>
                               <div
-                                className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                                  isInactive
+                                className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${isInactive
                                     ? "bg-slate-100 dark:bg-slate-800 text-slate-400"
                                     : "bg-purple-50 dark:bg-purple-950/60 text-purple-400"
-                                }`}
+                                  }`}
                               >
                                 <FiLock className="text-xs" />
                               </div>
                               <span
-                                className={`font-black truncate ${
-                                  isInactive
+                                className={`font-black truncate ${isInactive
                                     ? "line-through text-slate-400 dark:text-slate-500"
                                     : isLight
-                                    ? "text-slate-900"
-                                    : "text-white"
-                                }`}
+                                      ? "text-slate-900"
+                                      : "text-white"
+                                  }`}
                               >
                                 {perm.title}
                               </span>
                             </div>
                           </td>
 
-                          {/* Description */}
                           <td className="py-4 px-4 w-[35%]">
                             {perm.description ? (
                               <p
-                                className={`text-xs line-clamp-1 ${
-                                  isInactive
+                                className={`text-xs line-clamp-1 ${isInactive
                                     ? "text-slate-400 dark:text-slate-600 line-through"
                                     : isLight
-                                    ? "text-slate-600"
-                                    : "text-slate-400"
-                                }`}
+                                      ? "text-slate-600"
+                                      : "text-slate-400"
+                                  }`}
                                 title={perm.description}
                               >
                                 {perm.description}
@@ -1005,35 +922,30 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
                             )}
                           </td>
 
-                          {/* Status Badge */}
                           <td className="py-4 px-4 w-[15%]">
                             <span
-                              className={`inline-flex items-center justify-center gap-1.5 w-[76px] py-1 rounded-full text-[11px] font-bold tracking-wide ${
-                                !isInactive
+                              className={`inline-flex items-center justify-center gap-1.5 w-[76px] py-1 rounded-full text-[11px] font-bold tracking-wide ${!isInactive
                                   ? "bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-800"
                                   : "bg-slate-100 dark:bg-slate-800/80 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700"
-                              }`}
+                                }`}
                             >
                               <span
-                                className={`w-1.5 h-1.5 rounded-full shrink-0 ${
-                                  !isInactive ? "bg-emerald-500" : "bg-slate-400"
-                                }`}
+                                className={`w-1.5 h-1.5 rounded-full shrink-0 ${!isInactive ? "bg-emerald-500" : "bg-slate-400"
+                                  }`}
                               />
                               <span>{!isInactive ? "Active" : "Inactive"}</span>
                             </span>
                           </td>
 
-                          {/* Actions */}
                           <td className="py-4 px-4 sm:px-6 w-[15%] text-right">
                             <div className="flex items-center justify-end gap-1">
                               <button
                                 type="button"
                                 onClick={() => handleOpenEditPermission(perm)}
-                                className={`p-2 rounded-lg transition-colors cursor-pointer ${
-                                  isLight
+                                className={`p-2 rounded-lg transition-colors cursor-pointer ${isLight
                                     ? "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                                     : "text-slate-400 hover:bg-[#1E2B45] hover:text-white"
-                                }`}
+                                  }`}
                                 title="Edit Permission"
                               >
                                 <FiEdit2 className="text-sm" />
@@ -1066,17 +978,16 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
         </>
       )}
 
-      {/* 1. ROLE MODAL (Create/Edit Role Details) */}
       <RoleModal
         isOpen={isRoleModalOpen}
         onClose={() => setIsRoleModalOpen(false)}
         editingRole={editingRole}
+        permissions={permissions}
         isLight={isLight}
         saving={saving}
         onSave={handleSaveRole}
       />
 
-      {/* 2. MANAGE PERMISSIONS MODAL (Assign Permissions to Role) */}
       <ManagePermissionsModal
         isOpen={isPermissionsModalOpen}
         onClose={() => setIsPermissionsModalOpen(false)}
@@ -1087,7 +998,6 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
         onSavePermissions={handleSaveRolePermissions}
       />
 
-      {/* 3. PERMISSION MODAL (Create/Edit Permission Module) */}
       <PermissionModal
         isOpen={isPermissionModalOpen}
         onClose={() => setIsPermissionModalOpen(false)}
@@ -1097,7 +1007,6 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
         onSave={handleSavePermission}
       />
 
-      {/* 4. DELETE CONFIRMATION MODAL */}
       <DeleteConfirmModal
         isOpen={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}

@@ -43,8 +43,6 @@ const Billing: React.FC = () => {
           You don't have any active plan. Please buy a plan to continue.
         </p>
         <Button
-          // as={Link}
-          // to="/integrations"
           size="sm"
           color="warning"
           variant="flat"
@@ -101,7 +99,6 @@ const Billing: React.FC = () => {
           </div>
         </div>
 
-        {/* Plan Limits Overview */}
         {limits && (
           <div className="space-y-3">
             <h4 className="text-sm font-semibold text-gray-800 dark:text-zinc-200">Plan Included Limits</h4>
@@ -126,7 +123,6 @@ const Billing: React.FC = () => {
           </div>
         )}
 
-        {/* Feature Access Overview */}
         {access && (
           <div className="space-y-3">
             <h4 className="text-sm font-semibold text-gray-800 dark:text-zinc-200">Plan Feature Access</h4>
