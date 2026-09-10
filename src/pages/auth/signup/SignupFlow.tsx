@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Spinner, addToast } from "@heroui/react";
 import { fetchPlansAndFeatures, PlanData } from "../../../services/planFeature";
-import { registerUser } from "../../../services/auth";
+import { registerUser, checkEmailAvailability } from "../../../services/auth";
 import { validateDiscount } from "../../../services/settings/billing";
 import { setCredentials } from "../../../store/authSlice";
 import { EMAIL_REGEX, NAME_REGEX, PASSWORD_REGEX } from "../../../consts/consts";
 import { SignupHeader } from "./SignupHeader";
 import { StepYourDetails } from "./StepYourDetails";
 import { StepPayment } from "./StepPayment";
-import { AppliedCoupon } from "./types";
+import { AppliedCoupon, SignupConfirmationData, PaymentFailedState, SignUpFormValues } from "./types";
 
 const validationSchema = Yup.object({
   firstName: Yup.string()
@@ -61,9 +61,15 @@ const luhnCheck = (num: string) => {
 
 export const SignupFlow: React.FC = () => {
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [currentStep, setCurrentStep] = useState<1 | 2>(1);
+
+  const retryState = location.state as
+    | { step?: 1 | 2; formData?: Partial<SignUpFormValues>; planId?: string }
+    | undefined;
+
+  const [currentStep, setCurrentStep] = useState<1 | 2>(retryState?.step === 2 ? 2 : 1);
   const [selectedPlan, setSelectedPlan] = useState<PlanData | null>(null);
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("monthly");
   const [loadingPlans, setLoadingPlans] = useState(true);
@@ -78,7 +84,8 @@ export const SignupFlow: React.FC = () => {
   const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
   const [couponError, setCouponError] = useState("");
-  const planParam = searchParams.get("planId") || searchParams.get("plan") || searchParams.get("id");
+  const [emailInUseError, setEmailInUseError] = useState("");
+  const planParam = retryState?.planId || searchParams.get("planId") || searchParams.get("plan") || searchParams.get("id");
 
   useEffect(() => {
     loadPlans();
@@ -119,18 +126,53 @@ export const SignupFlow: React.FC = () => {
 
   const formik = useFormik({
     initialValues: {
-      firstName: "",
-      lastName: "",
-      email: "",
-      mobile: "",
-      practiceName: "",
-      medicalSpecialty: "",
-      password: "",
-      messageAlert: false,
+      firstName: retryState?.formData?.firstName || "",
+      lastName: retryState?.formData?.lastName || "",
+      email: retryState?.formData?.email || "",
+      mobile: retryState?.formData?.mobile || "",
+      practiceName: retryState?.formData?.practiceName || "",
+      medicalSpecialty: retryState?.formData?.medicalSpecialty || "",
+      password: retryState?.formData?.password || "",
+      messageAlert: retryState?.formData?.messageAlert || false,
     },
     validationSchema,
-    onSubmit: () => {
-      setCurrentStep(2);
+    onSubmit: async (values, { setFieldError, setFieldTouched, setSubmitting }) => {
+      try {
+        setEmailInUseError("");
+        const email = (values.email || "").trim().toLowerCase();
+        const res: any = await checkEmailAvailability(email);
+        const isTaken =
+          res?.data?.exists === true ||
+          res?.exists === true ||
+          res?.data?.isAvailable === false ||
+          res?.isAvailable === false;
+
+        if (isTaken) {
+          const errMsg = "This email address is already in use. Please sign in or use another email.";
+          setEmailInUseError(errMsg);
+          setFieldTouched("email", true, true);
+          setFieldError("email", errMsg);
+          return;
+        }
+        setEmailInUseError("");
+        setCurrentStep(2);
+      } catch (err: any) {
+        console.error("Email verification error:", err);
+        const msg =
+          err.response?.data?.message ||
+          err.message ||
+          "Failed to verify email availability. Please try again.";
+        setEmailInUseError(msg);
+        setFieldTouched("email", true, true);
+        setFieldError("email", msg);
+        addToast({
+          title: "Verification Failed",
+          description: msg,
+          color: "danger",
+        });
+      } finally {
+        setSubmitting(false);
+      }
     },
   });
 
@@ -210,9 +252,9 @@ export const SignupFlow: React.FC = () => {
 
   const handleCompleteSignup = async () => {
     if (!validatePayment()) return;
+    const cleanCard = cardNumber.replace(/\s/g, "");
     try {
       setIsSubmitting(true);
-      const cleanCard = cardNumber.replace(/\s/g, "");
       const payload = {
         firstName: formik.values.firstName,
         lastName: formik.values.lastName,
@@ -241,20 +283,101 @@ export const SignupFlow: React.FC = () => {
         const token = data.accessToken || data.user.accessToken;
         dispatch(setCredentials({ token }));
       }
+
+      // Calculate price details for confirmation receipt
+      const rawPrice =
+        billingCycle === "annual"
+          ? selectedPlan?.annualPrice || selectedPlan?.price || 199
+          : selectedPlan?.price || 199;
+      let finalPrice = rawPrice;
+      let discountVal = 0;
+      if (appliedCoupon) {
+        if (appliedCoupon.type === "percent") {
+          discountVal = (rawPrice * appliedCoupon.value) / 100;
+        } else {
+          discountVal = appliedCoupon.value;
+        }
+        finalPrice = Math.max(0, Math.round((rawPrice - discountVal) * 100) / 100);
+      }
+
+      const confirmationState: SignupConfirmationData = {
+        planName: selectedPlan?.name || "Professional Plan",
+        planId: selectedPlan?._id || selectedPlan?.planId || "professional",
+        billingCycle,
+        price: finalPrice,
+        originalPrice: rawPrice,
+        discountAmount: discountVal,
+        trialDays: 14,
+        cardLast4: cleanCard.slice(-4),
+        cardBrand: "Visa",
+        orderId: data?.user?.subscriptionId || `PROI-${Math.floor(100000 + Math.random() * 900000)}`,
+        transactionDate: new Date().toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        }),
+        nextBillingDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        }),
+        user: {
+          firstName: formik.values.firstName,
+          lastName: formik.values.lastName,
+          email: formik.values.email,
+          practiceName: formik.values.practiceName,
+          phone: formik.values.mobile,
+        },
+        couponCode: appliedCoupon ? appliedCoupon.code : undefined,
+      };
+
+      try {
+        sessionStorage.setItem("practice_roi_last_signup", JSON.stringify(confirmationState));
+      } catch (_) { }
+
       addToast({
         title: "Account Created Successfully!",
-        description: "Welcome to Practice ROI. Getting your dashboard ready...",
+        description: "Welcome to Practice ROI. Setting up your workspace...",
         color: "success",
       });
-      navigate("/");
+
+      navigate("/signup/thank-you", { state: confirmationState });
     } catch (err: any) {
       console.error("Signup failed:", err);
       const msg = err.response?.data?.message || err.message || "Sign up failed. Please check your inputs.";
-      addToast({
-        title: "Sign Up Failed",
-        description: msg,
-        color: "danger",
-      });
+      const lowerMsg = msg.toLowerCase();
+      const isPaymentFailure =
+        lowerMsg.includes("card") ||
+        lowerMsg.includes("payment") ||
+        lowerMsg.includes("decline") ||
+        lowerMsg.includes("stripe") ||
+        lowerMsg.includes("fund") ||
+        lowerMsg.includes("cvc") ||
+        lowerMsg.includes("expire") ||
+        lowerMsg.includes("charge");
+
+      if (isPaymentFailure) {
+        const failedState: PaymentFailedState = {
+          errorMessage: msg,
+          errorCode: "card_payment_failed",
+          planName: selectedPlan?.name || "Professional Plan",
+          planId: selectedPlan?._id || selectedPlan?.planId || "professional",
+          billingCycle,
+          price: selectedPlan?.price || 199,
+          userEmail: formik.values.email,
+          userName: `${formik.values.firstName} ${formik.values.lastName}`.trim(),
+          retryFormValues: formik.values,
+          cardLast4: cleanCard.slice(-4),
+        };
+
+        navigate("/signup/payment-failed", { state: failedState });
+      } else {
+        addToast({
+          title: "Sign Up Failed",
+          description: msg,
+          color: "danger",
+        });
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -272,19 +395,20 @@ export const SignupFlow: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#070C18] text-slate-900 dark:text-slate-100 flex flex-col items-center py-8 px-4 sm:px-6">
       <SignupHeader
-        currentStep={currentStep === 1 ? 2 : 3}
+        currentStep={currentStep}
         showThemeToggle={true}
         showBackButton={currentStep === 2}
         onBackClick={() => setCurrentStep(1)}
         onStepClick={(step) => {
-          if (step === 1) navigate("/pricing");
-          if (step === 2) setCurrentStep(1);
+          if (step === 1) setCurrentStep(1);
         }}
       />
       {currentStep === 1 && (
         <StepYourDetails
           onContinue={() => formik.handleSubmit()}
           formik={formik}
+          emailError={emailInUseError}
+          setEmailError={setEmailInUseError}
         />
       )}
       {currentStep === 2 && (

@@ -26,6 +26,8 @@ export interface SignupHeaderProps {
 export interface StepYourDetailsProps {
   onContinue: () => void;
   formik: any;
+  emailError?: string;
+  setEmailError?: (err: string) => void;
 }
 
 export interface AppliedCoupon {
@@ -61,4 +63,40 @@ export interface StepPaymentProps {
   isApplyingCoupon: boolean;
   couponError: string;
   setCouponError: (err: string) => void;
+}
+
+export interface SignupConfirmationData {
+  planName: string;
+  planId?: string | undefined;
+  billingCycle: "monthly" | "annual";
+  price: number;
+  originalPrice?: number | undefined;
+  discountAmount?: number | undefined;
+  trialDays?: number | undefined;
+  cardLast4?: string | undefined;
+  cardBrand?: string | undefined;
+  orderId?: string | undefined;
+  transactionDate?: string | undefined;
+  nextBillingDate?: string | undefined;
+  user: {
+    firstName?: string | undefined;
+    lastName?: string | undefined;
+    email?: string | undefined;
+    practiceName?: string | undefined;
+    phone?: string | undefined;
+  };
+  couponCode?: string | undefined;
+}
+
+export interface PaymentFailedState {
+  errorMessage?: string | undefined;
+  errorCode?: string | undefined;
+  planName?: string | undefined;
+  planId?: string | undefined;
+  billingCycle?: "monthly" | "annual" | undefined;
+  price?: number | undefined;
+  userEmail?: string | undefined;
+  userName?: string | undefined;
+  retryFormValues?: Partial<SignUpFormValues> | undefined;
+  cardLast4?: string | undefined;
 }

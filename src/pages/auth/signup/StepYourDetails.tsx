@@ -81,7 +81,7 @@ const FORM_FIELDS: FieldConfig[] = [
   },
 ];
 
-export const StepYourDetails: React.FC<StepYourDetailsProps> = ({ formik }) => {
+export const StepYourDetails: React.FC<StepYourDetailsProps> = ({ formik, emailError, setEmailError }) => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [specialtiesList, setSpecialtiesList] = useState<{ key: string; label: string }[]>([]);
@@ -123,10 +123,10 @@ export const StepYourDetails: React.FC<StepYourDetailsProps> = ({ formik }) => {
           <form onSubmit={formik.handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {FORM_FIELDS.map((field) => {
+                const value = formik.values[field.name] || "";
                 const isTouched = formik.touched[field.name];
-                const error = formik.errors[field.name];
-                const value = formik.values[field.name];
-                const isInvalid = !!(isTouched && error);
+                const error = field.name === "email" ? (emailError || formik.errors.email) : formik.errors[field.name];
+                const isInvalid = field.name === "email" ? !!(emailError || (isTouched && formik.errors.email)) : !!(isTouched && error);
                 return (
                   <div key={field.name} className={field.colSpan || "col-span-1"}>
                     <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">
@@ -145,10 +145,17 @@ export const StepYourDetails: React.FC<StepYourDetailsProps> = ({ formik }) => {
                         aria-label={field.label}
                         isInvalid={isInvalid}
                         classNames={{
-                          trigger: `border ${value
-                            ? "border-[#20a9f8]"
-                            : "border-slate-300 dark:border-slate-700 group-data-[hover=true]:border-slate-400 hover:border-slate-400"
-                            } bg-[#f8fafc] dark:bg-slate-900/50 h-11 min-h-11 rounded-xl transition-colors group-data-[focus=true]:!border-[#20a9f8] group-data-[open=true]:!border-[#20a9f8]`,
+                          trigger: `border ${
+                            isInvalid
+                              ? "!border-red-500 dark:!border-red-500"
+                              : value
+                              ? "border-[#20a9f8]"
+                              : "border-slate-300 dark:border-slate-700 group-data-[hover=true]:border-slate-400 hover:border-slate-400"
+                          } bg-[#f8fafc] dark:bg-slate-900/50 h-11 min-h-11 rounded-xl transition-colors ${
+                            isInvalid
+                              ? "group-data-[focus=true]:!border-red-500 group-data-[open=true]:!border-red-500"
+                              : "group-data-[focus=true]:!border-[#20a9f8] group-data-[open=true]:!border-[#20a9f8]"
+                          }`,
                           value: "text-slate-900 dark:text-slate-100 font-medium text-sm",
                         }}
                       >
@@ -167,6 +174,9 @@ export const StepYourDetails: React.FC<StepYourDetailsProps> = ({ formik }) => {
                         variant="bordered"
                         value={value}
                         onChange={(e) => {
+                          if (field.name === "email" && setEmailError) {
+                            setEmailError("");
+                          }
                           if (field.name === "mobile") {
                             const clean = e.target.value.replace(/\D/g, "").slice(0, 10);
                             formik.setFieldValue("mobile", clean);
@@ -188,21 +198,30 @@ export const StepYourDetails: React.FC<StepYourDetailsProps> = ({ formik }) => {
                           ) : undefined
                         }
                         classNames={{
-                          inputWrapper: `border ${value
-                            ? "border-[#20a9f8]"
-                            : "border-slate-300 dark:border-slate-700 group-data-[hover=true]:border-slate-400 hover:border-slate-400"
-                            } bg-[#f8fafc] dark:bg-slate-900/50 h-11 rounded-xl transition-colors group-data-[focus=true]:!border-[#20a9f8] focus-within:!border-[#20a9f8]`,
+                          inputWrapper: `border ${
+                            isInvalid
+                              ? "!border-red-500 dark:!border-red-500"
+                              : value
+                              ? "border-[#20a9f8]"
+                              : "border-slate-300 dark:border-slate-700 group-data-[hover=true]:border-slate-400 hover:border-slate-400"
+                          } bg-[#f8fafc] dark:bg-slate-900/50 h-11 rounded-xl transition-colors ${
+                            isInvalid
+                              ? "group-data-[focus=true]:!border-red-500 focus-within:!border-red-500"
+                              : "group-data-[focus=true]:!border-[#20a9f8] focus-within:!border-[#20a9f8]"
+                          }`,
                           input: "text-slate-900 dark:text-slate-100 placeholder:text-slate-400 font-medium text-sm",
                         }}
                       />
                     )}
-                    {field.helpText && (
+                    {field.helpText && !isInvalid && (
                       <span className="text-[11px] text-slate-400 mt-1 block">
                         {field.helpText}
                       </span>
                     )}
                     {isInvalid && (
-                      <span className="text-danger text-xs mt-1 block font-medium">{error as string}</span>
+                      <span className="text-red-500 dark:text-red-400 text-xs mt-1.5 flex items-center gap-1 font-semibold">
+                        {error as string}
+                      </span>
                     )}
                   </div>
                 );
@@ -227,6 +246,7 @@ export const StepYourDetails: React.FC<StepYourDetailsProps> = ({ formik }) => {
             <div className="flex justify-center pt-6">
               <Button
                 type="submit"
+                isLoading={formik.isSubmitting}
                 className="w-full sm:w-auto bg-sky-500 hover:bg-sky-600 text-white font-bold h-11 rounded-xl px-10 text-sm flex items-center justify-center gap-2 shadow-md"
               >
                 <span>Continue to Payment</span>

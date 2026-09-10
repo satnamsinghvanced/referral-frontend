@@ -18,11 +18,16 @@ export const SignupHeader: React.FC<SignupHeaderProps> = ({
   const steps = [
     { number: 1, label: "Your Details" },
     { number: 2, label: "Payment" },
+    { number: 3, label: "Confirmation" },
   ];
 
   const defaultTitle = isTwilioCredits ? (
     <>
       Add <span className="text-[#20a9f8]">Twilio Credits</span>
+    </>
+  ) : currentStep === 3 ? (
+    <>
+      Welcome to <span className="text-[#20a9f8] dark:text-sky-400">Practice ROI!</span>
     </>
   ) : (
     <>
@@ -32,9 +37,11 @@ export const SignupHeader: React.FC<SignupHeaderProps> = ({
 
   const defaultSubtitle = isTwilioCredits
     ? "Complete your payment details to add credits and minutes immediately."
-    : currentStep === 2
-      ? "Enter your details to get started in minutes. Cancel anytime."
-      : "Choose your plan and get started in minutes. Cancel anytime.";
+    : currentStep === 3
+      ? "Your account and subscription have been activated successfully!"
+      : currentStep === 2
+        ? "Enter your details to get started in minutes. Cancel anytime."
+        : "Choose your plan and get started in minutes. Cancel anytime.";
   return (
     <div className="w-full max-w-5xl flex flex-col items-center relative mb-6">
       {showThemeToggle && (
