@@ -128,13 +128,11 @@ const Settings = () => {
               <button
                 type="button"
                 onClick={() => setIsLogoutModalOpen(true)}
-                className="w-full rounded-md transition-all group flex items-center py-2 px-3 h-9 cursor-pointer border border-transparent hover:bg-gray-100 dark:hover:bg-foreground/5 text-foreground"
+                className="w-full rounded-md transition-all group flex items-center py-2 px-3 h-9 font-semibold cursor-pointer border border-transparent text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/30 hover:border-red-200 dark:hover:border-red-900/50"
               >
-                <span className="flex items-center justify-center text-gray-500 dark:text-gray-400">
-                  <LuLogOut className="text-[16px]" />
-                </span>
+                <LuLogOut className="size-4 shrink-0 text-red-500 dark:text-red-400" />
                 <span className="ml-2 truncate text-[12px]">
-                  Log Out
+                  Sign Out
                 </span>
               </button>
             </li>

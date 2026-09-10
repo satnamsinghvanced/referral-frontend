@@ -3,6 +3,8 @@ import { FiMonitor, FiSmartphone, FiMessageSquare, FiMessageCircle, FiShield, Fi
 import { HiOutlineChat } from "react-icons/hi";
 import { Button, Card } from "@heroui/react";
 
+import { DaySchedule } from "./WorkingHoursConfig";
+
 interface LivePreviewProps {
   previewMode: "desktop" | "mobile";
   setPreviewMode: (mode: "desktop" | "mobile") => void;
@@ -15,18 +17,37 @@ interface LivePreviewProps {
   welcomeMessage: string;
   enableAutoReply: boolean;
   autoReplyMessage: string;
+  offlineMessage?: string;
   enableSmsTransition: boolean;
   smsPromptMessage: string;
   smsConsentText: string;
+  triggerAfterMessages?: boolean;
+  triggerOnScheduling?: boolean;
+  triggerImmediately?: boolean;
   requirePatientConsent: boolean;
   privacyPolicyUrl: string;
   requireEmail: boolean;
   requirePhone: boolean;
   hipaaMode: boolean;
   workingHours: boolean;
+  timezone?: string;
+  schedule?: DaySchedule[];
   isPreviewChatOpen: boolean;
   setIsPreviewChatOpen: (open: boolean) => void;
 }
+
+const parseTimeToMinutes = (timeStr: string): number => {
+  if (!timeStr) return 0;
+  const parts = timeStr.trim().toLowerCase().split(" ");
+  if (parts.length !== 2 || !parts[0] || !parts[1]) return 0;
+  const timeParts = parts[0].split(":");
+  if (timeParts.length !== 2 || !timeParts[0] || !timeParts[1]) return 0;
+  let hours = parseInt(timeParts[0], 10) || 0;
+  const minutes = parseInt(timeParts[1], 10) || 0;
+  if (parts[1] === "pm" && hours !== 12) hours += 12;
+  else if (parts[1] === "am" && hours === 12) hours = 0;
+  return hours * 60 + minutes;
+};
 
 export default function LivePreview({
   previewMode,
@@ -38,19 +59,59 @@ export default function LivePreview({
   bubbleIcon,
   logoUrl,
   welcomeMessage,
+  enableAutoReply,
+  autoReplyMessage,
+  offlineMessage,
+  enableSmsTransition,
+  smsPromptMessage,
+  smsConsentText,
+  triggerAfterMessages = true,
+  triggerOnScheduling = true,
+  triggerImmediately = false,
   privacyPolicyUrl,
+  workingHours,
+  timezone,
+  schedule,
   isPreviewChatOpen,
   setIsPreviewChatOpen
 }: LivePreviewProps) {
   const displayBusinessName = businessName || "Practice ROI";
   const displayBubbleText = bubbleText || "Chat with us";
   const displayWelcomeMessage = welcomeMessage || "Hi there! 👋 How can we help you today?";
+  const displayOfflineMessage = offlineMessage || "We're currently offline. Leave us a message and we'll get back to you as soon as possible!";
+  const displayAutoReplyMessage = autoReplyMessage || "Thanks for your message! A team member will respond shortly.";
   const displayPrivacyPolicyUrl = privacyPolicyUrl || "https://practiceroi.com/privacy";
+
+  // Check if practice is within working hours using dynamic schedule
+  const isWithinWorkingHours = React.useMemo(() => {
+    if (!workingHours) return true;
+    if (!schedule || schedule.length === 0) return true;
+    const now = new Date();
+    const daysMap = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const todayDayName = daysMap[now.getDay()];
+    const todaySched = schedule.find((s) => s.day === todayDayName);
+    if (!todaySched || !todaySched.enabled) return false;
+
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+    const startMins = parseTimeToMinutes(todaySched.startTime);
+    const endMins = parseTimeToMinutes(todaySched.endTime);
+
+    return currentMinutes >= startMins && currentMinutes < endMins;
+  }, [workingHours, schedule]);
+
+  const isOnline = !workingHours || isWithinWorkingHours;
+
   const [chatOpenState, setChatOpenState] = useState<"closed" | "open" | "collapsed">("closed");
   const [isChatStarted, setIsChatStarted] = useState(false);
   const [userMessages, setUserMessages] = useState<string[]>([]);
   const [inputValue, setInputValue] = useState("");
   const [isConsentChecked, setIsConsentChecked] = useState(false);
+
+  // SMS Transition Simulation State
+  const [smsPromptShown, setSmsPromptShown] = useState(false);
+  const [smsPhoneInput, setSmsPhoneInput] = useState("");
+  const [smsSubmitted, setSmsSubmitted] = useState(false);
+
   const messagesEndRef = React.useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (isPreviewChatOpen) {
@@ -61,6 +122,7 @@ export default function LivePreview({
       setChatOpenState("closed");
     }
   }, [isPreviewChatOpen]);
+
   useEffect(() => {
     if (chatOpenState === "open" && messagesEndRef.current) {
       const timer = setTimeout(() => {
@@ -68,7 +130,8 @@ export default function LivePreview({
       }, 80);
       return () => clearTimeout(timer);
     }
-  }, [userMessages, isChatStarted, chatOpenState]);
+  }, [userMessages, isChatStarted, chatOpenState, smsPromptShown, smsSubmitted]);
+
   const handleCloseChat = () => {
     setChatOpenState("closed");
     setIsPreviewChatOpen(false);
@@ -80,10 +143,32 @@ export default function LivePreview({
   const handleCollapseChat = () => {
     setChatOpenState("collapsed");
   };
+
   const handleSendMessage = () => {
     if (!inputValue.trim()) return;
-    setUserMessages(prev => [...prev, inputValue]);
+    const newMsg = inputValue.trim();
+    const newMsgList = [...userMessages, newMsg];
+    setUserMessages(newMsgList);
     setInputValue("");
+
+    // Check SMS trigger conditions
+    if (enableSmsTransition && !smsPromptShown && !smsSubmitted) {
+      const msgCount = newMsgList.length;
+      const lower = newMsg.toLowerCase();
+      const schedulingKeywords = ["appointment", "schedule", "book", "visit", "cost", "price", "call", "phone", "contact", "time", "day", "slot", "doctor", "consult"];
+      const isScheduling = schedulingKeywords.some(k => lower.includes(k));
+
+      let shouldTrigger = false;
+      if (triggerImmediately && msgCount >= 1) shouldTrigger = true;
+      if (triggerAfterMessages && msgCount >= 3) shouldTrigger = true;
+      if (triggerOnScheduling && isScheduling) shouldTrigger = true;
+
+      if (shouldTrigger) {
+        setTimeout(() => {
+          setSmsPromptShown(true);
+        }, 400);
+      }
+    }
   };
   const renderBubbleIcon = (sizeClass = "w-5 h-5") => {
     switch (bubbleIcon) {
@@ -185,7 +270,7 @@ export default function LivePreview({
                   style={{ backgroundColor: primaryColor }}
                 >
                   <div className="flex items-center gap-2">
-                    {logoUrl && logoUrl.startsWith("http") ? (
+                    {logoUrl && (logoUrl.startsWith("http") || logoUrl.startsWith("https") || logoUrl.startsWith("data:") || logoUrl.startsWith("blob:")) ? (
                       <img
                         src={logoUrl}
                         alt="Logo"
@@ -205,8 +290,8 @@ export default function LivePreview({
                     <div className="flex flex-col">
                       <span className="text-[13px] font-extrabold truncate max-w-[140px] font-sans">{displayBusinessName}</span>
                       <span className="text-[10px] text-white/80 font-sans font-medium flex items-center gap-1">
-                        <span className="w-2 h-2 rounded-full bg-emerald-400" />
-                        Online
+                        <span className={`w-2 h-2 rounded-full ${isOnline ? "bg-emerald-400" : "bg-amber-400"}`} />
+                        {isOnline ? "Online" : "Offline"}
                       </span>
                     </div>
                   </div>
@@ -278,7 +363,7 @@ export default function LivePreview({
                             {displayBusinessName.charAt(0).toUpperCase()}
                           </div>
                           <div className="bg-white dark:bg-[#1a1f24] border border-foreground/5 shadow-sm text-[11px] rounded-xl rounded-tl-none p-2 text-foreground leading-normal max-w-[84%] font-sans">
-                            {displayWelcomeMessage}
+                            {isOnline ? displayWelcomeMessage : displayOfflineMessage}
                           </div>
                         </div>
                         {userMessages.map((msg, i) => (
@@ -299,11 +384,53 @@ export default function LivePreview({
                                 {displayBusinessName.charAt(0).toUpperCase()}
                               </div>
                               <div className="bg-white dark:bg-[#1a1f24] border border-foreground/5 shadow-sm text-[10px] rounded-xl rounded-tl-none p-2 text-foreground leading-normal max-w-[84%] font-sans">
-                                Thanks for your message! A team member will respond shortly.
+                                {isOnline ? displayAutoReplyMessage : displayOfflineMessage}
                               </div>
                             </div>
                           </React.Fragment>
                         ))}
+                        {smsPromptShown && (
+                          <div className="flex gap-1.5 items-start animate-in fade-in slide-in-from-bottom-2 duration-300">
+                            <div
+                              className="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center text-[9px] font-bold text-white font-sans mt-0.5"
+                              style={{ backgroundColor: primaryColor }}
+                            >
+                              📱
+                            </div>
+                            <div className="bg-sky-50/90 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800/50 shadow-sm text-[10px] rounded-xl rounded-tl-none p-2.5 text-foreground leading-normal max-w-[88%] font-sans space-y-2">
+                              <p className="text-default-800 font-semibold leading-snug">
+                                {smsPromptMessage || "Would you like to continue this conversation via text message? It's more convenient and you'll get faster responses!"}
+                              </p>
+                              {!smsSubmitted ? (
+                                <div className="space-y-1.5 pt-0.5">
+                                  <input
+                                    type="tel"
+                                    placeholder="Enter cell phone number..."
+                                    value={smsPhoneInput}
+                                    onChange={(e) => setSmsPhoneInput(e.target.value)}
+                                    className="w-full bg-white dark:bg-content1 border border-foreground/15 rounded-md px-2 py-1 text-[10px] outline-none font-sans"
+                                  />
+                                  <p className="text-[8.5px] text-default-500 leading-tight">
+                                    {smsConsentText || "By providing your phone number, you consent to receive text messages."}
+                                  </p>
+                                  <Button
+                                    size="sm"
+                                    className="w-full text-white font-bold h-7 rounded-md text-[10px] font-sans"
+                                    style={{ backgroundColor: primaryColor }}
+                                    isDisabled={!smsPhoneInput.trim()}
+                                    onClick={() => setSmsSubmitted(true)}
+                                  >
+                                    Switch to SMS
+                                  </Button>
+                                </div>
+                              ) : (
+                                <div className="bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 p-1.5 rounded-md text-[9.5px] font-semibold">
+                                  ✓ SMS transition requested! We'll text you shortly.
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
                         <div ref={messagesEndRef} />
                       </div>
                       <div className="border-t border-default-200 pt-3 flex-shrink-0 w-full overflow-x-hidden ">
@@ -351,7 +478,7 @@ export default function LivePreview({
                 onClick={handleOpenChat}
               >
                 <div className="flex items-center gap-2">
-                  {logoUrl && logoUrl.startsWith("http") ? (
+                  {logoUrl && (logoUrl.startsWith("http") || logoUrl.startsWith("https") || logoUrl.startsWith("data:") || logoUrl.startsWith("blob:")) ? (
                     <img
                       src={logoUrl}
                       alt="Logo"

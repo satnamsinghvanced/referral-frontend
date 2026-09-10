@@ -44,8 +44,7 @@ const LeadCard = ({ lead, onPress, onDelete, draggable, onDragStart, onDragEnd, 
       <Card
         key={lead.id}
         shadow="none"
-        onPress={() => onPress?.(lead)}
-        isPressable
+        onClick={() => onPress?.(lead)}
         draggable={draggable}
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}

@@ -166,9 +166,7 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
                     ? "outline-2 outline-primary bg-primary/5 dark:bg-primary/10"
                     : "outline-none hover:bg-gray-50 dark:hover:bg-white/[0.02]"
                 }`}
-                isPressable
-                onPress={() => handleReferrerToggle(r._id)}
-                disableRipple
+                onClick={() => handleReferrerToggle(r._id)}
                 radius="md"
               >
                 <CardBody className="p-3 flex justify-between items-center flex-row gap-1">

@@ -1,15 +1,4 @@
-import {
-  Button,
-  Input,
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalFooter,
-  ModalHeader,
-  Select,
-  SelectItem,
-  Skeleton,
-} from "@heroui/react";
+import { Button, Input, Modal, ModalBody, ModalContent, ModalFooter, ModalHeader, Select, SelectItem, Skeleton } from "@heroui/react";
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import { FiCamera, FiTrash2, FiUpload, FiUser, FiX } from "react-icons/fi";
@@ -38,12 +27,7 @@ const fields = [
   { name: "lastName", label: "Last Name", type: "text", isRequired: true },
   { name: "email", label: "Email Address", type: "email", isRequired: true },
   { name: "phone", label: "Phone Number", type: "tel", isRequired: true },
-  {
-    name: "practiceName",
-    label: "Practice Name",
-    type: "text",
-    isRequired: true,
-  },
+  { name: "practiceName", label: "Practice Name", type: "text", isRequired: true },
 ];
 
 const ProfileSchema = Yup.object().shape({
@@ -343,7 +327,6 @@ const Profile = () => {
                 </div>
               );
             })}
-
             <div className="relative flex">
               <Select
                 size="sm"
@@ -372,7 +355,6 @@ const Profile = () => {
               </Select>
             </div>
           </div>
-
           <div className="mt-4">
             <Button
               size="sm"
@@ -387,27 +369,25 @@ const Profile = () => {
           </div>
         </form>
       </div>
-
       <Modal
         isOpen={isImageModalOpen}
         onClose={() => setIsImageModalOpen(false)}
         size="md"
         placement="center"
         classNames={{
-          base: "bg-background border border-foreground/10 text-foreground rounded-2xl shadow-2xl overflow-hidden",
-          closeButton: "top-4 right-4 text-foreground/60 hover:text-foreground hover:bg-default-100 transition-colors p-1.5 rounded-lg z-20",
+          base: "max-w-[92vw] sm:max-w-md w-full bg-background border border-foreground/10 text-foreground rounded-2xl shadow-2xl overflow-hidden",
+          closeButton: "top-3 right-3 sm:top-4 sm:right-4 text-foreground/60 hover:text-foreground hover:bg-default-100 transition-colors p-1.5 rounded-lg z-20",
         }}
       >
         <ModalContent className="p-4 sm:p-6 space-y-4">
           <ModalHeader className="p-0 border-b border-foreground/10 pb-3 flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-foreground tracking-tight">
+            <h3 className="text-base sm:text-lg font-semibold text-foreground tracking-tight">
               Profile Photo
             </h3>
           </ModalHeader>
-
           <ModalBody className="p-0 flex flex-col items-center justify-center py-2">
             {previewUrl ? (
-              <div className="relative size-64 sm:size-72 rounded-2xl overflow-hidden border border-foreground/10 shadow-lg bg-default-50 flex items-center justify-center">
+              <div className="relative size-48 sm:size-72 max-w-full rounded-2xl overflow-hidden border border-foreground/10 shadow-lg bg-default-50 flex items-center justify-center">
                 <img
                   src={previewUrl}
                   alt="Profile Large"
@@ -415,19 +395,18 @@ const Profile = () => {
                 />
               </div>
             ) : (
-              <div className="size-48 rounded-full bg-default-100 flex items-center justify-center">
-                <FiUser className="size-20 text-default-400" />
+              <div className="size-40 sm:size-48 rounded-full bg-default-100 flex items-center justify-center">
+                <FiUser className="size-16 sm:size-20 text-default-400" />
               </div>
             )}
           </ModalBody>
-
-          <ModalFooter className="p-0 pt-2 flex items-center justify-between gap-2 border-t border-foreground/10">
-            <div className="flex items-center gap-2">
+          <ModalFooter className="p-0 pt-3 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-between gap-2 border-t border-foreground/10 w-full">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full sm:w-auto">
               <Button
                 size="sm"
                 color="danger"
                 variant="flat"
-                className="bg-red-50 text-red-600 border border-red-200/60 dark:bg-red-950/30 dark:text-red-400 dark:border-red-900/40 hover:!bg-red-600 hover:!text-white transition-all cursor-pointer font-medium shadow-sm"
+                className="w-full sm:w-auto bg-red-50 text-red-600 border border-red-200/60 dark:bg-red-950/30 dark:text-red-400 dark:border-red-900/40 hover:!bg-red-600 hover:!text-white transition-all cursor-pointer font-medium shadow-sm"
                 startContent={<FiTrash2 className="size-4" />}
                 onPress={() => {
                   handleRemoveImage();
@@ -441,7 +420,7 @@ const Profile = () => {
                 size="sm"
                 color="primary"
                 variant="solid"
-                className="font-medium shadow-sm bg-primary text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer"
+                className="w-full sm:w-auto font-medium shadow-sm bg-primary text-primary-foreground hover:bg-primary/90 transition-all cursor-pointer"
                 startContent={<FiUpload className="size-4" />}
                 onPress={() => {
                   setIsImageModalOpen(false);
@@ -456,7 +435,7 @@ const Profile = () => {
             <Button
               size="sm"
               variant="bordered"
-              className="border-foreground/20 text-foreground hover:bg-default-100 dark:hover:bg-default-100 transition-all cursor-pointer font-medium"
+              className="w-full sm:w-auto border-foreground/20 text-foreground hover:bg-default-100 dark:hover:bg-default-100 transition-all cursor-pointer font-medium"
               onPress={() => setIsImageModalOpen(false)}
             >
               Close

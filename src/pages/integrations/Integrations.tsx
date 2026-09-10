@@ -881,14 +881,17 @@ function Integrations() {
               </h4>
             </CardHeader>
             <CardBody className="divide-y divide-gray-100 dark:divide-default-100/50 p-0">
-              {AVAILABLE_INTEGRATIONS.map((item, index) => (
-                <div key={item.key || index} id={`integration-${item.key}`}>
-                  <IntegrationItem
-                    {...item}
-                    isHighlighted={highlightedKey === item.key}
-                  />
-                </div>
-              ))}
+              {AVAILABLE_INTEGRATIONS.map((item, index) => {
+                const { key, ...restItem } = item;
+                return (
+                  <div key={key || index} id={`integration-${key}`}>
+                    <IntegrationItem
+                      {...restItem}
+                      isHighlighted={highlightedKey === key}
+                    />
+                  </div>
+                );
+              })}
             </CardBody>
           </Card>
 
@@ -900,14 +903,17 @@ function Integrations() {
                 </h4>
               </CardHeader>
               <CardBody className="divide-y divide-gray-100 dark:divide-default-100/50 p-0">
-                {SOCIAL_MEDIA_INTEGRATIONS.map((item, index) => (
-                  <div key={item.key || index} id={`integration-${item.key}`}>
-                    <IntegrationItem
-                      {...item}
-                      isHighlighted={highlightedKey === item.key}
-                    />
-                  </div>
-                ))}
+                {SOCIAL_MEDIA_INTEGRATIONS.map((item, index) => {
+                  const { key, ...restItem } = item;
+                  return (
+                    <div key={key || index} id={`integration-${key}`}>
+                      <IntegrationItem
+                        {...restItem}
+                        isHighlighted={highlightedKey === key}
+                      />
+                    </div>
+                  );
+                })}
               </CardBody>
             </Card>
           )}

@@ -2,27 +2,21 @@ import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Input, N
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FiUser } from "react-icons/fi";
-import { HiOutlineMenuAlt1 } from "react-icons/hi";
+import { HiOutlineCog, HiOutlineMenuAlt1 } from "react-icons/hi";
 import { IoSearch } from "react-icons/io5";
-import { LuArrowRight, LuClock, LuUser, LuUsers } from "react-icons/lu";
-import { useDispatch } from "react-redux";
+import { LuArrowRight, LuClock, LuCreditCard, LuLogOut, LuMapPin, LuUser, LuUsers } from "react-icons/lu";
+import clsx from "clsx";
 import { useNavigate } from "react-router";
 import { useGlobalSearch } from "../../hooks/useDashboard";
 import { useDebounce } from "../../hooks/useDebounce";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
-import { AppDispatch } from "../../store";
 import { timeAgo } from "../../utils/timeAgo";
 import { LoadingState } from "../common/LoadingState";
 import NotificationPopover from "../ui/NotificationsPopover";
 import LogoutConfirmationModal from "../common/LogoutConfirmationModal";
-
 import { useRolePermissions } from "../../hooks/useRolePermissions";
 
-export default function Header({
-  hamburgerMenuClick,
-}: {
-  hamburgerMenuClick: () => void;
-}) {
+export default function Header({ hamburgerMenuClick, }: { hamburgerMenuClick: () => void; }) {
   const navigate = useNavigate();
   const { user } = useTypedSelector((state) => state.auth);
   const { hasPermission, hasAnyPermission, isAdmin } = useRolePermissions();
@@ -34,6 +28,10 @@ export default function Header({
   const searchContainerRef = useRef<HTMLDivElement>(null);
   const hasManageReferrals = isAdmin || hasPermission("Manage Referrals");
   const hasManageReferrers = isAdmin || hasAnyPermission(["Manage Referrers and Partners", "Manage Referrers"]);
+  const hasLocationsPermission = isAdmin || hasPermission("Manage Locations");
+  const hasTeamPermission = isAdmin || hasPermission("Manage Team");
+  const hasBillingPermission = isAdmin || hasPermission("Manage Billing");
+
   const searchPlaceholder = useMemo(() => {
     if (hasManageReferrals && hasManageReferrers) {
       return "Search referrals and referrers...";
@@ -55,33 +53,33 @@ export default function Header({
       return true;
     });
   }, [results, isAdmin, hasManageReferrals, hasManageReferrers]);
-  const hasLocationsPermission = isAdmin || hasPermission("Manage Locations");
-  const hasTeamPermission = isAdmin || hasPermission("Manage Team");
-  const hasBillingPermission = isAdmin || hasPermission("Manage Billing");
+
   const handleLogout = () => {
     setIsLogoutModalOpen(true);
   };
+
   const profileMenuItems = useMemo(() => {
     const items: Array<{
       key: string;
       label: string;
+      icon?: any;
       onClick: () => void;
       isHeader?: boolean;
       isDanger?: boolean;
     }> = [
         { key: "profile", label: `Signed in as ${user?.email}`, onClick: () => navigate("/settings"), isHeader: true },
-        { key: "general", label: "General", onClick: () => navigate("/settings/general") },
+        { key: "general", label: "General", icon: HiOutlineCog, onClick: () => navigate("/settings/general") },
       ];
     if (hasLocationsPermission) {
-      items.push({ key: "locations", label: "Locations", onClick: () => navigate("/settings/locations") });
+      items.push({ key: "locations", label: "Locations", icon: LuMapPin, onClick: () => navigate("/settings/locations") });
     }
     if (hasTeamPermission) {
-      items.push({ key: "team", label: "Team Settings", onClick: () => navigate("/settings/team") });
+      items.push({ key: "team", label: "Team Settings", icon: LuUsers, onClick: () => navigate("/settings/team") });
     }
     if (hasBillingPermission) {
-      items.push({ key: "billing", label: "Billing", onClick: () => navigate("/settings/billing") });
+      items.push({ key: "billing", label: "Billing", icon: LuCreditCard, onClick: () => navigate("/settings/billing") });
     }
-    items.push({ key: "logout", label: "Log Out", onClick: handleLogout, isDanger: true });
+    items.push({ key: "logout", label: "Sign Out", icon: LuLogOut, onClick: handleLogout, isDanger: true });
     return items;
   }, [user?.email, hasLocationsPermission, hasTeamPermission, hasBillingPermission, navigate]);
 
@@ -100,6 +98,7 @@ export default function Header({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isOpen]);
+
   return (
     <Navbar
       isBordered
@@ -278,17 +277,35 @@ export default function Header({
                 <DropdownItem
                   key={item.key}
                   color={item.isDanger ? "danger" : "default"}
-                  className={item.isHeader ? "h-14 gap-2" : ""}
+                  startContent={
+                    item.icon ? (
+                      <item.icon
+                        className={clsx(
+                          "size-4 shrink-0 mr-1",
+                          item.isDanger ? "text-red-500 dark:text-red-400" : "text-gray-500 dark:text-gray-400"
+                        )}
+                      />
+                    ) : undefined
+                  }
+                  className={
+                    item.isHeader
+                      ? "h-14 gap-2 cursor-default"
+                      : item.isDanger
+                        ? "text-red-500 dark:text-red-400 font-semibold border-t border-foreground/10 dark:border-white/10 mt-1.5 pt-1.5 hover:bg-red-50 dark:hover:bg-red-950/30"
+                        : ""
+                  }
                   textValue={item.label}
                   onPress={() => item.onClick()}
                 >
                   {item.isHeader ? (
-                    <div>
+                    <div className="cursor-pointer">
                       <p className="font-semibold">Signed in as</p>
                       <p className="font-semibold">{user?.email}</p>
                     </div>
                   ) : (
-                    item.label
+                    <span className={item.isDanger ? "text-red-500 dark:text-red-400 font-semibold" : ""}>
+                      {item.label}
+                    </span>
                   )}
                 </DropdownItem>
               )}

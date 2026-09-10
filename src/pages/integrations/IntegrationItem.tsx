@@ -219,7 +219,7 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
 
           <div className="flex items-center gap-3 mt-2 h-6">
             {status === "Connected" && account && (account.accountEmail || account.accountName) && (
-              <p
+              <div
                 className="h-5 flex items-center gap-2 text-xs dark:text-foreground/40"
               >
                 <span className="flex relative max-w-fit min-w-min inline-flex items-center justify-between box-border whitespace-nowrap px-1 rounded-small capitalize text-[11px] h-5 bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-300">Syncing with</span>
@@ -241,7 +241,7 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
                     </>
                   )}
                 </div>
-              </p>
+              </div>
             )}
           </div>
           {lastSync && (

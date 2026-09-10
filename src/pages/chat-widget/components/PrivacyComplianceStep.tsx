@@ -101,6 +101,11 @@ export default function PrivacyComplianceStep({
                     How long to store conversation history (HIPAA requires minimum 6 years for medical records)
                   </span>
                 )}
+                {!errors.dataRetentionPeriod && Number(dataRetentionPeriod) > 0 && Number(dataRetentionPeriod) < 30 && (
+                  <span className="text-[10px] text-amber-600 font-sans font-medium mt-1 leading-snug block">
+                    ⚠️ Note: HIPAA guidelines recommend retaining records for at least 30 days.
+                  </span>
+                )}
               </div>
             </div>
             <div className="space-y-2.5">

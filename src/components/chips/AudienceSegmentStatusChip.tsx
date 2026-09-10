@@ -9,8 +9,7 @@ export default function AudienceSegmentStatusChip({
   let classNames;
   switch (status) {
     case "inactive":
-      classNames =
-        "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800";
+      classNames = "bg-yellow-100 dark:bg-yellow-900/30 text-yellow-800 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800";
       break;
 
     default:

@@ -50,6 +50,18 @@ const Conversations = () => {
   const [isSendFormsModalOpen, setIsSendFormsModalOpen] = useState(false);
   const [isSendQuoteModalOpen, setIsSendQuoteModalOpen] = useState(false);
   const [modalLead, setModalLead] = useState<Conversation | null>(null);
+  const [messageInput, setMessageInput] = useState("");
+  const MAX_ATTACHMENTS = 5;
+  const [attachedFile, setAttachedFile] = useState<{ file: File; name: string; url: string; type: string }[]>([]);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+
+  const HEADING_DATA = {
+    heading: "Conversations",
+    subHeading: "Unified inbox for all patient communications",
+  };
+
   const applySeenOverrides = (convs: Conversation[]): Conversation[] => {
     return convs.map((conv) => {
       if (!conv.messages || conv.messages.length === 0) {
@@ -123,7 +135,6 @@ const Conversations = () => {
         console.error("Failed to load Web conversations:", err);
       }
     };
-
     const loadAllConversations = async () => {
       setIsConversationsLoading(true);
       try {
@@ -136,7 +147,6 @@ const Conversations = () => {
         setIsConversationsLoading(false);
       }
     };
-
     loadAllConversations();
   }, []);
 
@@ -161,7 +171,6 @@ const Conversations = () => {
                 lastMessage: payload.message.text,
               };
             }
-
             if (!payload.message.isFromPatient) {
               const optimisticIdx = conv.messages.findIndex(
                 (m) =>
@@ -170,7 +179,6 @@ const Conversations = () => {
                     m.id.startsWith("temp-") ||
                     (m.text === payload.message.text && Math.abs((m.createdAt || 0) - (payload.message.createdAt || Date.now())) < 10000))
               );
-
               if (optimisticIdx !== -1) {
                 const updatedMessages = [...conv.messages];
                 updatedMessages[optimisticIdx] = payload.message;
@@ -181,7 +189,6 @@ const Conversations = () => {
                 };
               }
             }
-
             const updatedMessages = [...conv.messages, payload.message];
             return {
               ...conv,
@@ -213,16 +220,10 @@ const Conversations = () => {
                 lastMessage: payload.message.text,
               };
             }
-
             if (!payload.message.isFromPatient) {
               const optimisticIdx = conv.messages.findIndex(
-                (m) =>
-                  !m.isFromPatient &&
-                  (m.isSending ||
-                    m.id.startsWith("temp-") ||
-                    (m.text === payload.message.text && Math.abs((m.createdAt || 0) - (payload.message.createdAt || Date.now())) < 10000))
+                (m) => !m.isFromPatient && (m.isSending || m.id.startsWith("temp-") || (m.text === payload.message.text && Math.abs((m.createdAt || 0) - (payload.message.createdAt || Date.now())) < 10000))
               );
-
               if (optimisticIdx !== -1) {
                 const updatedMessages = [...conv.messages];
                 updatedMessages[optimisticIdx] = payload.message;
@@ -233,7 +234,6 @@ const Conversations = () => {
                 };
               }
             }
-
             return {
               ...conv,
               messages: [...conv.messages, payload.message],
@@ -301,14 +301,6 @@ const Conversations = () => {
       unsubscribeFromEvent("messages_read_by_patient", handleMessagesReadByPatient);
     };
   }, []);
-
-  const [messageInput, setMessageInput] = useState("");
-  const MAX_ATTACHMENTS = 5;
-  const [attachedFile, setAttachedFile] = useState<{ file: File; name: string; url: string; type: string }[]>([]);
-  const [isSendingMessage, setIsSendingMessage] = useState(false);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const imageInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -401,12 +393,15 @@ const Conversations = () => {
       conversations.find((c) => c.id === selectedConversationId) || null
     );
   }, [selectedConversationId, conversations]);
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+
   useEffect(() => {
     scrollToBottom();
   }, [selectedConversation]);
+
   useEffect(() => {
     if (selectedConversation) {
       const lastMsg = selectedConversation.messages && selectedConversation.messages.length > 0
@@ -675,6 +670,7 @@ const Conversations = () => {
       }
     })();
   };
+
   const handleToggleStar = (convId: string) => {
     setConversations((prev) =>
       prev.map((c) => {
@@ -694,6 +690,7 @@ const Conversations = () => {
       })
     );
   };
+
   const handleDropdownAction = (key: string, conv: Conversation) => {
     if (key === "archive") {
       setConversations((prev) =>
@@ -745,11 +742,6 @@ const Conversations = () => {
       setModalLead(conv);
       setIsViewLeadModalOpen(true);
     }
-  };
-
-  const HEADING_DATA = {
-    heading: "Conversations",
-    subHeading: "Unified inbox for all patient communications",
   };
 
   return (
@@ -811,7 +803,6 @@ const Conversations = () => {
                 }}
                 isMetaConnected={isMetaConnected}
                 isIntegrationsLoading={isSocialLoading || isConversationsLoading}
-                isSendingMessage={isSendingMessage}
               />
               <LeadSidebar
                 selectedConversation={selectedConversation}

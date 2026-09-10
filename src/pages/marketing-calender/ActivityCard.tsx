@@ -37,10 +37,8 @@ export function ActivityCard({ activity, onView, onDelete }: ActivityCardProps) 
   return (
     <Card
       radius="none"
-      className={`relative overflow-visible shadow-none bg-content1 !rounded-r-xl p-4 h-full flex flex-col justify-between border border-l-0 border-foreground/10`}
-      onPress={() => onView(activity)}
-      isPressable
-      disableRipple
+      className={`relative overflow-visible shadow-none bg-content1 !rounded-r-xl p-4 h-full flex flex-col justify-between border border-l-0 border-foreground/10 cursor-pointer`}
+      onClick={() => onView(activity)}
     >
       <div
         className="absolute top-1/2 -translate-y-1/2 left-0 w-1 h-[calc(100%+2px)] z-0"

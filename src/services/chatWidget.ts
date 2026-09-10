@@ -1,5 +1,12 @@
 import axios from "./axios";
 
+export interface DaySchedule {
+  day: string;
+  enabled: boolean;
+  startTime: string;
+  endTime: string;
+}
+
 export interface ChatWidgetConfig {
   _id?: string;
   userId?: string;
@@ -15,6 +22,8 @@ export interface ChatWidgetConfig {
   autoReplyMessage?: string;
   offlineMessage: string;
   workingHours?: boolean;
+  timezone?: string;
+  schedule?: DaySchedule[];
   enableSmsTransition?: boolean;
   smsPromptMessage?: string;
   smsConsentText?: string;

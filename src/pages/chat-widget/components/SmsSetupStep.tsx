@@ -99,7 +99,9 @@ export default function SmsSetupStep({
               </CardBody>
             </Card>
             <div className="space-y-2.5">
-              <label className="text-xs font-bold text-default-700 block font-sans">Trigger SMS Transition</label>
+              <label className="text-xs font-bold text-default-700 block font-sans">
+                Trigger SMS Transition <span className="text-danger">*</span>
+              </label>
               <div className="flex flex-col gap-2.5 pl-1">
                 <Checkbox isSelected={triggerAfterMessages} onValueChange={setTriggerAfterMessages} size="sm">
                   <span className="text-xs text-default-700 font-sans font-medium">After 3 messages exchanged</span>
@@ -111,6 +113,9 @@ export default function SmsSetupStep({
                   <span className="text-xs text-default-700 font-sans font-medium">Immediately on first message</span>
                 </Checkbox>
               </div>
+              {errors.smsTriggers && (
+                <span className="text-xs text-danger font-semibold mt-1 block font-sans">{errors.smsTriggers}</span>
+              )}
             </div>
           </div>
         )}

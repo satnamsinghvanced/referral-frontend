@@ -1,10 +1,10 @@
 import { HiOutlineChartBar, HiOutlineChevronLeft, HiOutlineCog, HiOutlineLightningBolt, HiOutlineMail, HiOutlinePhone, HiOutlineStar } from "react-icons/hi";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { subscribeToEvent, unsubscribeFromEvent } from "../../services/sse";
 import { Link, NavLink, useLocation } from "react-router";
 import { Tooltip } from "@heroui/react";
-import { LuBuilding2, LuCalendar, LuDollarSign, LuMessageSquare, LuQrCode, LuTarget, LuUsers, LuVideo } from "react-icons/lu";
+import { LuBuilding2, LuCalendar, LuDollarSign, LuLogOut, LuMessageSquare, LuQrCode, LuTarget, LuUsers, LuVideo } from "react-icons/lu";
 import { FiFileText, FiHome } from "react-icons/fi";
 import { IoIosArrowRoundForward } from "react-icons/io";
 import clsx from "clsx";
@@ -16,6 +16,7 @@ import { useBilling } from "../../hooks/settings/useBilling";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 import Logo from "../ui/Logo";
+import LogoutConfirmationModal from "../common/LogoutConfirmationModal";
 
 interface SidebarProps {
   isMiniSidebarOpen: boolean;
@@ -44,6 +45,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
   const user = useSelector((state: RootState) => state.auth.user);
   const isSuperAdmin = user?.role === "SuperAdmin";
   const queryClient = useQueryClient();
+  const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
 
   useEffect(() => {
     const handleNewMessage = () => {
@@ -296,11 +298,8 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
             </button>
           </div>
         </div>
-        <div
-          className={`${isMiniSidebarOpen ? "overflow-y-auto" : ""
-            } flex flex-col justify-between h-[calc(100vh_-_60px)] px-0`}
-        >
-          <ul className="flex flex-col p-3">
+        <div className="flex flex-col justify-between h-[calc(100vh_-_64px)] px-0">
+          <ul className="flex flex-col p-3 overflow-y-auto flex-1">
             {filteredRoutes.map((item, index) => {
               const Icon = item.icon;
               const isActive =
@@ -380,8 +379,33 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
               );
             })}
           </ul>
+
+          <div className="p-3 border-t border-foreground/10 mt-auto bg-background shrink-0">
+            {isMiniSidebarOpen ? (
+              <button
+                onClick={() => setIsLogoutModalOpen(true)}
+                className="w-full flex items-center gap-2.5 px-3 py-2 text-xs font-semibold text-red-500 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-md transition-all border border-transparent hover:border-red-200 dark:hover:border-red-900/50 cursor-pointer"
+              >
+                <LuLogOut className="size-4 shrink-0 text-red-500 dark:text-red-500" />
+                <span>Sign Out</span>
+              </button>
+            ) : (
+              <Tooltip content="Sign Out" placement="right" shadow="sm" size="sm" radius="sm">
+                <button
+                  onClick={() => setIsLogoutModalOpen(true)}
+                  className="w-full flex items-center justify-center py-2 text-xs font-semibold text-red-600 dark:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 rounded-md transition-all border border-transparent hover:border-red-200 dark:hover:border-red-900/50 cursor-pointer"
+                >
+                  <LuLogOut className="size-4 shrink-0 text-red-600 dark:text-red-500" />
+                </button>
+              </Tooltip>
+            )}
+          </div>
         </div>
       </aside>
+      <LogoutConfirmationModal
+        isOpen={isLogoutModalOpen}
+        onClose={() => setIsLogoutModalOpen(false)}
+      />
     </>
   );
 };

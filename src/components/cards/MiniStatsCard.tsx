@@ -19,8 +19,7 @@ const MiniStatsCard = ({ cardData }: MiniStatsCardProps) => {
     // @ts-ignore
     <Card
       shadow="none"
-      isPressable={!!cardData?.onClick}
-      onPress={cardData?.onClick}
+      onClick={cardData?.onClick}
       className={clsx(
         "w-full p-0 text-xs font-extralight text-foreground/80",
         "border border-foreground/10 transition-all",

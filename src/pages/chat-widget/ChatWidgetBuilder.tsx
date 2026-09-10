@@ -12,6 +12,7 @@ import SmsSetupStep from "./components/SmsSetupStep";
 import PrivacyComplianceStep from "./components/PrivacyComplianceStep";
 import DeployStep from "./components/DeployStep";
 import LivePreview from "./components/LivePreview";
+import { DEFAULT_SCHEDULE, DaySchedule } from "./components/WorkingHoursConfig";
 import { fetchChatWidgetConfig, saveChatWidgetConfig, fetchChatWidgetStats } from "../../services/chatWidget";
 
 export default function ChatWidgetBuilder() {
@@ -39,6 +40,10 @@ export default function ChatWidgetBuilder() {
       } else if (typeof val1 === "string" && typeof val2 === "number") {
         val1 = Number(val1);
       }
+      if (typeof val1 === "object" && typeof val2 === "object") {
+        if (JSON.stringify(val1) !== JSON.stringify(val2)) return true;
+        continue;
+      }
       if (val1 !== val2) {
         return true;
       }
@@ -56,6 +61,8 @@ export default function ChatWidgetBuilder() {
   const [autoReplyMessage, setAutoReplyMessage] = useState("");
   const [offlineMessage, setOfflineMessage] = useState("");
   const [workingHours, setWorkingHours] = useState(true);
+  const [timezone, setTimezone] = useState("Hawaii Time (HST)");
+  const [schedule, setSchedule] = useState<DaySchedule[]>(DEFAULT_SCHEDULE);
   const [enableSmsTransition, setEnableSmsTransition] = useState(true);
   const [smsPromptMessage, setSmsPromptMessage] = useState("");
   const [smsConsentText, setSmsConsentText] = useState("");
@@ -112,11 +119,14 @@ export default function ChatWidgetBuilder() {
         break;
       case "privacyPolicyUrl":
         if (requirePatientConsent) {
-          if (!value.trim()) {
+          const trimmed = value.trim();
+          if (!trimmed) {
             error = "Privacy Policy URL is required";
+          } else if (!/^https?:\/\/.+/i.test(trimmed)) {
+            error = "URL must start with http:// or https:// (e.g. https://example.com/privacy)";
           } else {
             try {
-              new URL(value);
+              new URL(trimmed);
             } catch (e) {
               error = "Please enter a valid URL (e.g., https://example.com)";
             }
@@ -126,8 +136,8 @@ export default function ChatWidgetBuilder() {
       case "dataRetentionPeriod":
         if (!value.trim()) {
           error = "Data Retention Period is required";
-        } else if (isNaN(Number(value)) || Number(value) < 1) {
-          error = "Retention period must be a valid number >= 1";
+        } else if (isNaN(Number(value)) || !Number.isInteger(Number(value)) || Number(value) < 1) {
+          error = "Retention period must be a positive whole number >= 1";
         }
         break;
       default:
@@ -161,7 +171,14 @@ export default function ChatWidgetBuilder() {
       if (enableSmsTransition) {
         const e1 = validateField("smsPromptMessage", smsPromptMessage);
         const e2 = validateField("smsConsentText", smsConsentText);
-        if (e1 || e2) isValid = false;
+        let e3 = "";
+        if (!triggerAfterMessages && !triggerOnScheduling && !triggerImmediately) {
+          e3 = "Please select at least one trigger condition for SMS transition";
+          setErrors(prev => ({ ...prev, smsTriggers: e3 }));
+        } else {
+          setErrors(prev => ({ ...prev, smsTriggers: "" }));
+        }
+        if (e1 || e2 || e3) isValid = false;
       }
     } else if (stepIdx === 3) {
       if (requirePatientConsent) {
@@ -204,6 +221,10 @@ export default function ChatWidgetBuilder() {
           setAutoReplyMessage(config.autoReplyMessage || "");
           setOfflineMessage(config.offlineMessage || "");
           setWorkingHours(config.workingHours !== false);
+          if (config.timezone) setTimezone(config.timezone);
+          if (config.schedule && Array.isArray(config.schedule) && config.schedule.length > 0) {
+            setSchedule(config.schedule);
+          }
           setEnableSmsTransition(config.enableSmsTransition !== false);
           setSmsPromptMessage(config.smsPromptMessage || "");
           setSmsConsentText(config.smsConsentText || "");
@@ -233,6 +254,8 @@ export default function ChatWidgetBuilder() {
             autoReplyMessage: config.autoReplyMessage || "",
             offlineMessage: config.offlineMessage || "",
             workingHours: config.workingHours !== false,
+            timezone: config.timezone || "Hawaii Time (HST)",
+            schedule: config.schedule && Array.isArray(config.schedule) ? config.schedule : DEFAULT_SCHEDULE,
             enableSmsTransition: config.enableSmsTransition !== false,
             smsPromptMessage: config.smsPromptMessage || "",
             smsConsentText: config.smsConsentText || "",
@@ -281,8 +304,27 @@ export default function ChatWidgetBuilder() {
     { name: "Deploy", desc: "Deploy your chat widget" }
   ];
 
+  const validateAllSteps = (): boolean => {
+    let firstInvalidStep = -1;
+    for (let i = 0; i <= 3; i++) {
+      if (!validateStep(i)) {
+        if (firstInvalidStep === -1) firstInvalidStep = i;
+      }
+    }
+    if (firstInvalidStep !== -1) {
+      setActiveStep(firstInvalidStep);
+      addToast({
+        title: "Validation Errors",
+        description: `Please resolve validation errors in step ${firstInvalidStep + 1} (${steps[firstInvalidStep]?.name || ""}) before publishing.`,
+        color: "danger"
+      });
+      return false;
+    }
+    return true;
+  };
+
   const handlePublishWidget = async () => {
-    if (!validateStep(activeStep)) {
+    if (!validateAllSteps()) {
       return;
     }
     const payload = {
@@ -298,6 +340,8 @@ export default function ChatWidgetBuilder() {
       autoReplyMessage,
       offlineMessage,
       workingHours,
+      timezone,
+      schedule,
       enableSmsTransition,
       smsPromptMessage,
       smsConsentText,
@@ -359,10 +403,45 @@ export default function ChatWidgetBuilder() {
     ? rawApiUrl.replace(/\/api$/, "")
     : `${window.location.origin}${rawApiUrl}`.replace(/\/api$/, "");
   const escapeStr = (str: string) => JSON.stringify(str).slice(1, -1);
+
+  const formatScheduleForEmbed = (scheduleList: DaySchedule[]) => {
+    const dayMap: Record<string, string> = {
+      Mon: "monday",
+      Tue: "tuesday",
+      Wed: "wednesday",
+      Thu: "thursday",
+      Fri: "friday",
+      Sat: "saturday",
+      Sun: "sunday",
+    };
+    const scheduleObj: Record<string, any> = {};
+    (scheduleList && scheduleList.length > 0 ? scheduleList : DEFAULT_SCHEDULE).forEach((item) => {
+      if (item.enabled) {
+        const key = dayMap[item.day] || item.day.toLowerCase();
+        scheduleObj[key] = {
+          start: item.startTime,
+          end: item.endTime,
+        };
+      }
+    });
+    return scheduleObj;
+  };
+
+  const formattedWorkingHoursJson = JSON.stringify(
+    {
+      enabled: workingHours,
+      timezone: timezone || "Hawaii Time (HST)",
+      schedule: formatScheduleForEmbed(schedule),
+    },
+    null,
+    4
+  ).replace(/\n/g, "\n  ");
+
   const embedCodeSnippet = `<!-- Practice ROI Chat Widget -->
   <script>
   window.practiceROIConfig = {
   "userId": "${userId || currentUserId || ""}",
+  "logoUrl": "${escapeStr(logoUrl || "")}",
   "primaryColor": "${primaryColor}",
   "position": "${widgetPosition}",
   "bubbleIcon": "${bubbleIcon.toLowerCase()}",
@@ -376,19 +455,7 @@ export default function ChatWidgetBuilder() {
   "autoReply": ${enableAutoReply},
   "autoReplyMessage": "${escapeStr(autoReplyMessage || "Thanks for reaching out! A team member will respond shortly. Our typical response time is under 5 minutes during business hours.")}",
   "offlineMessage": "${escapeStr(offlineMessage || "We're currently offline. Leave us a message and we'll get back to you as soon as possible!")}",
-  "workingHours": {
-    "enabled": ${workingHours},
-    "timezone": "America/Denver",
-    "schedule": {
-      "monday": { "start": "09:00", "end": "17:00", "enabled": true },
-      "tuesday": { "start": "09:00", "end": "17:00", "enabled": true },
-      "wednesday": { "start": "09:00", "end": "17:00", "enabled": true },
-      "thursday": { "start": "09:00", "end": "17:00", "enabled": true },
-      "friday": { "start": "09:00", "end": "17:00", "enabled": true },
-      "saturday": { "start": "09:00", "end": "13:00", "enabled": false },
-      "sunday": { "start": "09:00", "end": "13:00", "enabled": false }
-    }
-  },
+  "workingHours": ${formattedWorkingHoursJson},
   "hipaaCompliant": ${hipaaMode},
   "requireConsent": ${requirePatientConsent},
   "privacyPolicyUrl": "${privacyPolicyUrl || "https://practiceroi.com/privacy"}",
@@ -510,6 +577,10 @@ export default function ChatWidgetBuilder() {
                   setOfflineMessage={setOfflineMessage}
                   workingHours={workingHours}
                   setWorkingHours={setWorkingHours}
+                  timezone={timezone}
+                  setTimezone={setTimezone}
+                  schedule={schedule}
+                  setSchedule={setSchedule}
                   errors={errors}
                   handleInputChange={handleInputChange}
                 />
@@ -626,6 +697,8 @@ export default function ChatWidgetBuilder() {
             requirePhone={requirePhone}
             hipaaMode={hipaaMode}
             workingHours={workingHours}
+            timezone={timezone}
+            schedule={schedule}
             isPreviewChatOpen={isPreviewChatOpen}
             setIsPreviewChatOpen={setIsPreviewChatOpen}
           />

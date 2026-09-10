@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Input, Select, SelectItem, Tooltip, Button } from "@heroui/react";
+import { useState, useEffect } from "react";
+import { Input, Select, SelectItem, Tooltip, Button, addToast } from "@heroui/react";
 import { FiMessageSquare, FiMessageCircle, FiTrash2 } from "react-icons/fi";
 import { HiOutlineChat } from "react-icons/hi";
 import GalleryMediaUploadModal from "../../media-management/modal/GalleryMediaUploadModal";
@@ -46,6 +46,34 @@ export default function BrandingStep({
   handleInputChange
 }: BrandingStepProps) {
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [logoStatus, setLogoStatus] = useState<"idle" | "loading" | "valid" | "invalid">("idle");
+
+  const validateLogoUrl = (url: string) => {
+    const trimmed = url.trim();
+    if (!trimmed) {
+      setLogoStatus("idle");
+      return;
+    }
+    if (trimmed.startsWith("blob:") || trimmed.startsWith("data:") || trimmed.startsWith("/") || trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+      setLogoStatus("valid");
+      return;
+    }
+    setLogoStatus("loading");
+    const img = new Image();
+    img.onload = () => {
+      setLogoStatus("valid");
+    };
+    img.onerror = () => {
+      setLogoStatus("invalid");
+    };
+    img.src = trimmed;
+  };
+
+  useEffect(() => {
+    if (logoUrl) {
+      validateLogoUrl(logoUrl);
+    }
+  }, [logoUrl]);
   return (
     <div className="space-y-5 animate-in fade-in duration-200">
       <div className="pb-2">
@@ -141,30 +169,33 @@ export default function BrandingStep({
         <div className="flex flex-col">
           <label className="text-xs font-bold text-default-700 block mb-1.5 font-sans">Business Logo (Optional)</label>
           <div className="flex gap-2 items-center">
-            {logoUrl && (
+            {logoUrl && logoStatus === "valid" && (
               <div className="relative w-10 h-10 rounded-lg bg-white border border-default-200 flex items-center justify-center overflow-hidden flex-shrink-0 shadow-sm animate-in fade-in zoom-in duration-200">
                 <img
                   src={logoUrl}
                   alt="Logo preview"
                   className="w-full h-full object-contain p-0.5"
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = "https://placehold.co/100?text=Error";
-                  }}
+                  onError={() => setLogoStatus("invalid")}
                 />
               </div>
             )}
-            <Input
-              placeholder="e.g. https://yourwebsite.com/logo.png"
-              value={logoUrl}
-              onValueChange={(val) => setLogoUrl(val)}
-              variant="flat"
-              classNames={{ inputWrapper: "bg-default-100/50 hover:bg-default-100 border-none shadow-none rounded-lg flex-1" }}
-              aria-label="Business Logo URL"
-            />
+            <div className="flex-1 relative">
+              <Input
+                placeholder="e.g. https://yourwebsite.com/logo.png"
+                value={logoUrl}
+                onValueChange={(val) => {
+                  setLogoUrl(val);
+                  validateLogoUrl(val);
+                }}
+                variant="flat"
+                classNames={{ inputWrapper: `bg-default-100/50 hover:bg-default-100 border-none shadow-none rounded-lg ${logoStatus === "invalid" ? "ring-2 ring-danger" : ""}` }}
+                aria-label="Business Logo URL"
+              />
+            </div>
             <span className="text-xs text-default-400 font-sans font-medium px-1 select-none">or</span>
             <Button
               variant="bordered"
-              className="border border-default-300 bg-transparent text-black dark:text-white hover:bg-default-100 font-bold text-xs h-10 flex-shrink-0"
+              className="border border-default-300 bg-transparent text-black dark:text-white hover:bg-default-100 font-bold text-xs h-10 flex-shrink-0 cursor-pointer"
               onClick={() => setIsGalleryOpen(true)}
             >
               Upload Logo
@@ -172,15 +203,38 @@ export default function BrandingStep({
             {logoUrl && (
               <Button
                 variant="bordered"
-                className="border border-danger bg-transparent text-danger font-bold rounded-lg min-w-0 px-2.5 h-10 flex-shrink-0 hover:bg-danger-50"
-                onClick={() => setLogoUrl("")}
+                className="border border-danger bg-transparent text-danger font-bold rounded-lg min-w-0 px-2.5 h-10 flex-shrink-0 hover:bg-danger-50 cursor-pointer"
+                onClick={() => {
+                  setLogoUrl("");
+                  setLogoStatus("idle");
+                  handleInputChange("logoUrl", "", setLogoUrl);
+                }}
                 aria-label="Remove Logo"
               >
                 <FiTrash2 className="w-4 h-4" />
               </Button>
             )}
           </div>
-          <span className="text-[10px] text-default-400 font-sans font-light mt-1 block">Upload a file or enter an external image URL. Displays in the chat header.</span>
+          {logoStatus === "loading" && (
+            <span className="text-[10px] text-primary font-semibold font-sans mt-1 block animate-pulse">
+              Validating image URL...
+            </span>
+          )}
+          {logoStatus === "valid" && (
+            <span className="text-[10px] text-emerald-600 font-semibold font-sans mt-1 flex items-center gap-1">
+              ✓ Valid image URL
+            </span>
+          )}
+          {(logoStatus === "invalid" || errors.logoUrl) && (
+            <span className="text-[10px] text-danger font-semibold font-sans mt-1 block">
+              {errors.logoUrl || "Unable to load image from this URL."}
+            </span>
+          )}
+          {logoStatus === "idle" && !errors.logoUrl && (
+            <span className="text-[10px] text-default-400 font-sans font-light mt-1 block">
+              Upload a file (Max 2MB: JPG, PNG, SVG, WebP) or enter an external image URL.
+            </span>
+          )}
         </div>
       </div>
       <div className="space-y-2">
@@ -214,7 +268,17 @@ export default function BrandingStep({
         onSelect={(media: Media[]) => {
           const selectedImage = media[0];
           if (selectedImage) {
-            setLogoUrl(selectedImage.path);
+            if (selectedImage.size && selectedImage.size > 2 * 1024 * 1024) {
+              addToast({
+                title: "File Size Exceeded",
+                description: "Image size exceeds the maximum limit of 2MB.",
+                color: "danger"
+              });
+              return;
+            }
+            const targetUrl = selectedImage.path || "";
+            setLogoUrl(targetUrl);
+            setLogoStatus("valid");
           }
           setIsGalleryOpen(false);
         }}

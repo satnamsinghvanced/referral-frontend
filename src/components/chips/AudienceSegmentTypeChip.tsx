@@ -3,7 +3,6 @@ import { AUDIENCE_TYPES } from "../../consts/campaign";
 
 export default function AudienceSegmentTypeChip({ type }: { type: string }) {
   let classNames;
-
   switch (type) {
     case "patients":
       classNames =
@@ -20,7 +19,6 @@ export default function AudienceSegmentTypeChip({ type }: { type: string }) {
         "bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-300 border-blue-200 dark:border-blue-800";
       break;
   }
-
   return (
     <Chip
       size="sm"

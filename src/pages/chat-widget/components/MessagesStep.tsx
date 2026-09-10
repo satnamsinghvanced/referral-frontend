@@ -1,4 +1,5 @@
 import { Input, Switch } from "@heroui/react";
+import WorkingHoursConfig, { DaySchedule } from "./WorkingHoursConfig";
 
 interface MessagesStepProps {
   welcomeMessage: string;
@@ -13,6 +14,10 @@ interface MessagesStepProps {
   setOfflineMessage: (val: string) => void;
   workingHours: boolean;
   setWorkingHours: (val: boolean) => void;
+  timezone: string;
+  setTimezone: (val: string) => void;
+  schedule: DaySchedule[];
+  setSchedule: React.Dispatch<React.SetStateAction<DaySchedule[]>>;
   errors: Record<string, string>;
   handleInputChange: (name: string, value: string, setter: (val: string) => void) => void;
 }
@@ -30,6 +35,10 @@ export default function MessagesStep({
   setOfflineMessage,
   workingHours,
   setWorkingHours,
+  timezone,
+  setTimezone,
+  schedule,
+  setSchedule,
   errors,
   handleInputChange
 }: MessagesStepProps) {
@@ -115,13 +124,15 @@ export default function MessagesStep({
           <span className="text-[10px] text-default-400 font-sans font-light mt-0.5">Shown when outside business hours.</span>
         )}
       </div>
-      <div className="flex items-center justify-between border border-purple-200 bg-purple-50/40 dark:border-purple-500/20 dark:bg-purple-950/20 rounded-xl p-4">
-        <div className="flex flex-col gap-0.5">
-          <span className="text-xs font-bold text-default-700 font-sans">Working Hours</span>
-          <span className="text-[10px] text-default-500 font-sans font-light">Set your availability schedule</span>
-        </div>
-        <Switch isSelected={workingHours} onValueChange={setWorkingHours} size="sm" />
-      </div>
+
+      <WorkingHoursConfig
+        workingHours={workingHours}
+        setWorkingHours={setWorkingHours}
+        timezone={timezone}
+        setTimezone={setTimezone}
+        schedule={schedule}
+        setSchedule={setSchedule}
+      />
     </div>
   );
 }
