@@ -145,9 +145,6 @@ const Billing: React.FC = () => {
               <span className={`px-2.5 py-1 rounded-md text-xs font-medium border ${access.sms_marketing ? "bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800" : "bg-gray-100 dark:bg-zinc-800 text-gray-400 line-through border-transparent"}`}>
                 SMS Marketing
               </span>
-              <span className={`px-2.5 py-1 rounded-md text-xs font-medium border ${access.canva_integration ? "bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800" : "bg-gray-100 dark:bg-zinc-800 text-gray-400 line-through border-transparent"}`}>
-                Canva Integration
-              </span>
             </div>
           </div>
         )}

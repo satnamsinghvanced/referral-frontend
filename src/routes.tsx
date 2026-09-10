@@ -76,6 +76,8 @@ const SignupPricingView = React.lazy(
   () => import("./pages/auth/SignupPricingView"),
 );
 const SignUp = React.lazy(() => import("./pages/auth/SignUp"));
+const SignupThankYou = React.lazy(() => import("./pages/auth/signup/ThankYouPage"));
+const PaymentFailed = React.lazy(() => import("./pages/auth/signup/PaymentFailedPage"));
 const SignIn = React.lazy(() => import("./pages/auth/SignIn"));
 const ResetPassword = React.lazy(() => import("./pages/auth/ResetPassword"));
 const SubscriptionErrorPage = React.lazy(() => import("./pages/auth/SubscriptionErrorPage"));
@@ -409,6 +411,22 @@ function AppRoutes() {
           <SignUp />
         </PublicRoute>
       ),
+    },
+    {
+      path: "signup/thank-you",
+      element: <SignupThankYou />,
+    },
+    {
+      path: "payment-success",
+      element: <SignupThankYou />,
+    },
+    {
+      path: "signup/payment-failed",
+      element: <PaymentFailed />,
+    },
+    {
+      path: "payment-failed",
+      element: <PaymentFailed />,
     },
     {
       path: "pricing",
