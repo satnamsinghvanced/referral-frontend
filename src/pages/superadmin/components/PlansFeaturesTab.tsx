@@ -35,7 +35,6 @@ interface PlansFeaturesTabProps {
 const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
   const [plans, setPlans] = useState<PlanData[]>([]);
   const [loading, setLoading] = useState(true);
-  const [activeCycle, setActiveCycle] = useState<"monthly" | "yearly">("monthly");
   const [inlineFeatureInputs, setInlineFeatureInputs] = useState<Record<string, string>>({});
   const [editingFeatureItem, setEditingFeatureItem] = useState<{
     planId: string;
@@ -53,8 +52,7 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
     description: string;
     yearlyDescription: string;
     isPopular: boolean;
-    monthlyFeatures: { name: string; isEnabled: boolean }[];
-    yearlyFeatures: { name: string; isEnabled: boolean }[];
+    features: { name: string; isEnabled: boolean }[];
   }>({
     name: "",
     price: "",
@@ -63,10 +61,8 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
     description: "",
     yearlyDescription: "",
     isPopular: false,
-    monthlyFeatures: [],
-    yearlyFeatures: [],
+    features: [],
   });
-  const [modalActiveCycle, setModalActiveCycle] = useState<"monthly" | "yearly">("monthly");
   const [newModalFeatureInput, setNewModalFeatureInput] = useState("");
   const [savingPlan, setSavingPlan] = useState(false);
 
@@ -106,7 +102,6 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
   };
 
   const handleOpenPlanModal = (plan?: PlanData) => {
-    setModalActiveCycle("monthly");
     setFormErrors({});
     if (plan) {
       setEditingPlan(plan);
@@ -117,19 +112,17 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
             ? String(Math.round(((plan.price - plan.annualPrice) / plan.price) * 100))
             : "";
 
+      const rawFeats = plan.featuresList || plan.monthlyFeatures || plan.yearlyFeatures || [];
+
       setPlanForm({
         name: plan.name,
-        price: String(plan.price),
+        price: plan.price ? String(plan.price) : "",
         annualPrice: plan.annualPrice ? String(plan.annualPrice) : "",
         discountPercent: computedDiscount,
         description: plan.description || "",
         yearlyDescription: plan.yearlyDescription || plan.description || "",
         isPopular: !!plan.isPopular,
-        monthlyFeatures: (plan.monthlyFeatures || plan.featuresList || []).map((f) => ({
-          name: f.name,
-          isEnabled: f.isEnabled,
-        })),
-        yearlyFeatures: (plan.yearlyFeatures || plan.featuresList || []).map((f) => ({
+        features: rawFeats.map((f) => ({
           name: f.name,
           isEnabled: f.isEnabled,
         })),
@@ -144,8 +137,7 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
         description: "",
         yearlyDescription: "",
         isPopular: false,
-        monthlyFeatures: [],
-        yearlyFeatures: [],
+        features: [],
       });
     }
     setNewModalFeatureInput("");
@@ -163,55 +155,34 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
       return;
     }
 
-    if (modalActiveCycle === "monthly") {
-      const existsMonthly = planForm.monthlyFeatures.some(
-        (f) => f.name.toLowerCase() === text.toLowerCase()
-      );
-      if (existsMonthly) {
-        setFormErrors((prev) => ({ ...prev, feature: "Feature already added to Monthly list" }));
-        return;
-      }
-      const existsYearly = planForm.yearlyFeatures.some(
-        (f) => f.name.toLowerCase() === text.toLowerCase()
-      );
-      setPlanForm((prev) => ({
-        ...prev,
-        monthlyFeatures: [...prev.monthlyFeatures, { name: text, isEnabled: true }],
-        yearlyFeatures: existsYearly
-          ? prev.yearlyFeatures
-          : [...prev.yearlyFeatures, { name: text, isEnabled: true }],
-      }));
-    } else {
-      const existsYearly = planForm.yearlyFeatures.some(
-        (f) => f.name.toLowerCase() === text.toLowerCase()
-      );
-      if (existsYearly) {
-        setFormErrors((prev) => ({ ...prev, feature: "Feature already added to Yearly list" }));
-        return;
-      }
-      setPlanForm((prev) => ({
-        ...prev,
-        yearlyFeatures: [...prev.yearlyFeatures, { name: text, isEnabled: true }],
-      }));
+    const exists = planForm.features.some(
+      (f) => f.name.toLowerCase() === text.toLowerCase()
+    );
+    if (exists) {
+      setFormErrors((prev) => ({ ...prev, feature: "Feature already added to list" }));
+      return;
     }
+
+    setPlanForm((prev) => ({
+      ...prev,
+      features: [...prev.features, { name: text, isEnabled: true }],
+    }));
 
     setFormErrors((prev) => ({ ...prev, feature: undefined }));
     setNewModalFeatureInput("");
   };
 
   const handleRemoveFeatureFromModalForm = (index: number) => {
-    const targetKey = modalActiveCycle === "yearly" ? "yearlyFeatures" : "monthlyFeatures";
     setPlanForm((prev) => ({
       ...prev,
-      [targetKey]: prev[targetKey].filter((_, i) => i !== index),
+      features: prev.features.filter((_, i) => i !== index),
     }));
   };
 
   const handleToggleFeatureInModalForm = (index: number) => {
-    const targetKey = modalActiveCycle === "yearly" ? "yearlyFeatures" : "monthlyFeatures";
     setPlanForm((prev) => ({
       ...prev,
-      [targetKey]: prev[targetKey].map((f, i) =>
+      features: prev.features.map((f, i) =>
         i === index ? { ...f, isEnabled: !f.isEnabled } : f
       ),
     }));
@@ -226,8 +197,11 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
       errors.name = "Plan name cannot exceed 50 characters";
     }
 
-    if (!planForm.price || isNaN(Number(planForm.price)) || Number(planForm.price) <= 0) {
-      errors.price = "Valid price is required (e.g. 199 or 199.99)";
+    const hasMonthly = planForm.price !== "" && !isNaN(Number(planForm.price)) && Number(planForm.price) > 0;
+    const hasYearly = planForm.annualPrice !== "" && !isNaN(Number(planForm.annualPrice)) && Number(planForm.annualPrice) > 0;
+
+    if (!hasMonthly && !hasYearly) {
+      errors.price = "At least one price (Monthly Price or Annual Price) is required";
     }
 
     if (Object.keys(errors).length > 0) {
@@ -239,31 +213,24 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
 
     try {
       setSavingPlan(true);
+      const payload: Partial<PlanData> = {
+        name: planForm.name,
+        price: hasMonthly ? Number(planForm.price) : 0,
+        annualPrice: hasYearly ? Number(planForm.annualPrice) : undefined,
+        discountPercent: planForm.discountPercent !== "" ? Number(planForm.discountPercent) : 0,
+        description: planForm.description,
+        yearlyDescription: planForm.yearlyDescription || planForm.description,
+        isPopular: planForm.isPopular,
+        monthlyFeatures: planForm.features as any,
+        yearlyFeatures: planForm.features as any,
+        featuresList: planForm.features as any,
+      };
+
       if (editingPlan && editingPlan._id) {
-        await updatePricingPlan(editingPlan._id, {
-          name: planForm.name,
-          price: Number(planForm.price),
-          annualPrice: planForm.annualPrice ? Number(planForm.annualPrice) : undefined,
-          discountPercent: planForm.discountPercent !== "" ? Number(planForm.discountPercent) : 0,
-          description: planForm.description,
-          yearlyDescription: planForm.yearlyDescription || planForm.description,
-          isPopular: planForm.isPopular,
-          monthlyFeatures: planForm.monthlyFeatures,
-          yearlyFeatures: planForm.yearlyFeatures,
-        });
+        await updatePricingPlan(editingPlan._id, payload);
         addToast({ title: "Plan Saved", description: `Successfully updated '${planForm.name}'`, color: "success" });
       } else {
-        await createPricingPlan({
-          name: planForm.name,
-          price: Number(planForm.price),
-          annualPrice: planForm.annualPrice ? Number(planForm.annualPrice) : undefined,
-          discountPercent: planForm.discountPercent !== "" ? Number(planForm.discountPercent) : 0,
-          description: planForm.description,
-          yearlyDescription: planForm.yearlyDescription || planForm.description,
-          isPopular: planForm.isPopular,
-          monthlyFeatures: planForm.monthlyFeatures,
-          yearlyFeatures: planForm.yearlyFeatures,
-        });
+        await createPricingPlan(payload);
         addToast({ title: "Plan Created", description: `Successfully created plan '${planForm.name}'`, color: "success" });
       }
       setIsPlanModalOpen(false);
@@ -288,7 +255,7 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
         });
         loadData();
       } else if (deleteConfirmTarget.type === "feature" && deleteConfirmTarget.planId && deleteConfirmTarget.featureId) {
-        await deletePlanFeatureItem(deleteConfirmTarget.planId, deleteConfirmTarget.featureId, activeCycle);
+        await deletePlanFeatureItem(deleteConfirmTarget.planId, deleteConfirmTarget.featureId, "monthly");
         addToast({
           title: "Feature Removed",
           description: `Removed '${deleteConfirmTarget.title}' from plan`,
@@ -309,8 +276,8 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
     if (!text) return;
 
     try {
-      await addPlanFeatureItem(plan._id, { name: text, isEnabled: true, cycle: activeCycle });
-      addToast({ title: "Feature Added", description: `Added '${text}' (${activeCycle}) to ${plan.name}`, color: "success" });
+      await addPlanFeatureItem(plan._id, { name: text, isEnabled: true, cycle: "monthly" });
+      addToast({ title: "Feature Added", description: `Added '${text}' to ${plan.name}`, color: "success" });
       setInlineFeatureInputs((prev) => ({ ...prev, [plan._id!]: "" }));
       loadData();
     } catch (err: any) {
@@ -328,7 +295,7 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
     }
 
     try {
-      await updatePlanFeatureItem(plan._id, editingFeatureItem.featureId, { name: newName, cycle: activeCycle });
+      await updatePlanFeatureItem(plan._id, editingFeatureItem.featureId, { name: newName, cycle: "monthly" });
       addToast({ title: "Feature Updated", description: `Updated feature to '${newName}'`, color: "success" });
       setEditingFeatureItem(null);
       loadData();
@@ -341,15 +308,17 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
   const handleTogglePlanFeature = async (plan: PlanData, feat: PlanFeatureItem) => {
     if (!plan._id || !feat._id) return;
     const newStatus = !feat.isEnabled;
-    const targetKey = activeCycle === "yearly" ? "yearlyFeatures" : "monthlyFeatures";
 
     setPlans((prev) =>
       prev.map((p) => {
         if (p._id === plan._id) {
-          const list = p[targetKey] || p.featuresList || [];
+          const list = p.featuresList || p.monthlyFeatures || p.yearlyFeatures || [];
+          const updatedList = list.map((f) => (f._id === feat._id ? { ...f, isEnabled: newStatus } : f));
           return {
             ...p,
-            [targetKey]: list.map((f) => (f._id === feat._id ? { ...f, isEnabled: newStatus } : f)),
+            featuresList: updatedList,
+            monthlyFeatures: updatedList,
+            yearlyFeatures: updatedList,
           };
         }
         return p;
@@ -357,7 +326,7 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
     );
 
     try {
-      await togglePlanFeatureItemStatus(plan._id, feat._id, newStatus, activeCycle);
+      await togglePlanFeatureItemStatus(plan._id, feat._id, newStatus, "monthly");
       addToast({
         title: newStatus ? "Feature Enabled" : "Feature Disabled",
         description: `'${feat.name}' is now ${newStatus ? "enabled" : "disabled"}`,
@@ -377,36 +346,40 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
   return (
     <div className="space-y-6">
       {/* Top Sub-Tab Navigation Bar */}
-      <div className="flex items-center gap-3 pb-2 border-b border-slate-200/80 dark:border-slate-800">
-        <button
-          type="button"
-          onClick={() => setActiveMainTab("plans")}
-          className={`px-5 py-2.5 text-sm font-bold rounded-2xl transition-all cursor-pointer flex items-center gap-2 ${
-            activeMainTab === "plans"
-              ? "bg-[#20a9f8] text-white shadow-md shadow-[#20a9f8]/25"
-              : isLight
-                ? "bg-slate-100 text-slate-700 hover:bg-slate-200/80 hover:text-slate-900"
-                : "bg-[#111A2E] text-slate-400 hover:bg-[#1E2B45] hover:text-white"
-          }`}
-        >
-          <FiDollarSign className="text-base" />
-          <span>Plans</span>
-        </button>
+      <div className="pb-3 border-b border-slate-200/80 dark:border-slate-800">
+        <div className={`rounded-full p-1 border flex items-center w-full ${
+          isLight ? "bg-slate-200/80 border-slate-300/70" : "bg-[#111A2E] border-[#1E2B45]"
+        }`}>
+          <button
+            type="button"
+            onClick={() => setActiveMainTab("plans")}
+            className={`flex-1 py-2.5 px-6 rounded-full text-sm font-extrabold transition-all cursor-pointer flex items-center justify-center gap-2 ${
+              activeMainTab === "plans"
+                ? "bg-[#20a9f8] text-white shadow-md shadow-[#20a9f8]/25"
+                : isLight
+                  ? "text-slate-600 hover:text-slate-900"
+                  : "text-slate-400 hover:text-white"
+            }`}
+          >
+            <FiDollarSign className="text-base" />
+            <span>Plans</span>
+          </button>
 
-        <button
-          type="button"
-          onClick={() => setActiveMainTab("addons")}
-          className={`px-5 py-2.5 text-sm font-bold rounded-2xl transition-all cursor-pointer flex items-center gap-2 ${
-            activeMainTab === "addons"
-              ? "bg-[#20a9f8] text-white shadow-md shadow-[#20a9f8]/25"
-              : isLight
-                ? "bg-slate-100 text-slate-700 hover:bg-slate-200/80 hover:text-slate-900"
-                : "bg-[#111A2E] text-slate-400 hover:bg-[#1E2B45] hover:text-white"
-          }`}
-        >
-          <FiPackage className="text-base" />
-          <span>Add-ons</span>
-        </button>
+          <button
+            type="button"
+            onClick={() => setActiveMainTab("addons")}
+            className={`flex-1 py-2.5 px-6 rounded-full text-sm font-extrabold transition-all cursor-pointer flex items-center justify-center gap-2 ${
+              activeMainTab === "addons"
+                ? "bg-[#20a9f8] text-white shadow-md shadow-[#20a9f8]/25"
+                : isLight
+                  ? "text-slate-600 hover:text-slate-900"
+                  : "text-slate-400 hover:text-white"
+            }`}
+          >
+            <FiPackage className="text-base" />
+            <span>Add-ons</span>
+          </button>
+        </div>
       </div>
 
       {activeMainTab === "plans" ? (
@@ -418,43 +391,18 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
                 <span>Subscription Plans & Features</span>
               </h1>
               <p className={`text-xs mt-1 font-medium ${isLight ? "text-slate-500" : "text-slate-400"}`}>
-                Manage plan prices, descriptions, and feature lists. Switch between Monthly and Yearly cycles.
+                Manage monthly and annual plan prices, descriptions, and unified feature lists.
               </p>
             </div>
 
-            <div className="flex items-center gap-4 self-start md:self-auto shrink-0">
-              <div className="bg-slate-200/80 dark:bg-[#111A2E] p-1 rounded-2xl flex items-center gap-1 border border-slate-300/60 dark:border-[#1E2B45]">
-                <button
-                  type="button"
-                  onClick={() => setActiveCycle("monthly")}
-                  className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${activeCycle === "monthly"
-                    ? "bg-[#20a9f8] text-white shadow-md shadow-[#20a9f8]/20"
-                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                    }`}
-                >
-                  Monthly
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setActiveCycle("yearly")}
-                  className={`px-4 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer ${activeCycle === "yearly"
-                    ? "bg-[#20a9f8] text-white shadow-md shadow-[#20a9f8]/20"
-                    : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                    }`}
-                >
-                  <span>Yearly</span>
-                </button>
-              </div>
-
-              <button
-                type="button"
-                onClick={() => handleOpenPlanModal()}
-                className="bg-[#20a9f8] hover:bg-[#1a96de] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md shadow-[#20a9f8]/20 flex items-center gap-2 transition-all cursor-pointer"
-              >
-                <FiPlus className="text-base" />
-                <span>Add New Plan</span>
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => handleOpenPlanModal()}
+              className="bg-[#20a9f8] hover:bg-[#1a96de] text-white font-bold text-xs px-5 py-3 rounded-xl shadow-md shadow-[#20a9f8]/20 flex items-center gap-2 transition-all cursor-pointer self-start md:self-auto shrink-0"
+            >
+              <FiPlus className="text-base" />
+              <span>Add New Plan</span>
+            </button>
           </div>
 
           {plans.length === 0 ? (
@@ -482,11 +430,7 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
               {plans.map((plan) => {
-                const rawFeatures =
-                  activeCycle === "yearly"
-                    ? plan.yearlyFeatures || plan.featuresList
-                    : plan.monthlyFeatures || plan.featuresList;
-
+                const rawFeatures = plan.featuresList || plan.monthlyFeatures || plan.yearlyFeatures || [];
                 const featureItems: PlanFeatureItem[] =
                   Array.isArray(rawFeatures) && rawFeatures.length > 0
                     ? rawFeatures
@@ -494,14 +438,13 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
 
                 const annualMonthlyPrice =
                   plan.annualPrice ||
-                  (plan.discountPercent && plan.discountPercent > 0
+                  (plan.discountPercent && plan.discountPercent > 0 && plan.price > 0
                     ? Math.round(plan.price * (1 - plan.discountPercent / 100))
-                    : plan.price);
-                const displayPrice = activeCycle === "yearly" ? annualMonthlyPrice : plan.price;
+                    : 0);
 
-                const yearlyCostFull = plan.price * 12;
+                const yearlyCostFull = (plan.price || annualMonthlyPrice) * 12;
                 const yearlyCostDiscounted = annualMonthlyPrice * 12;
-                const savingsPerYear = yearlyCostFull - yearlyCostDiscounted;
+                const savingsPerYear = Math.max(0, yearlyCostFull - yearlyCostDiscounted);
                 const savingsPercent =
                   plan.discountPercent && plan.discountPercent > 0
                     ? plan.discountPercent
@@ -534,8 +477,8 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
                           <h3 className={`text-xl font-extrabold ${isLight ? "text-slate-900" : "text-white"}`}>
                             {plan.name}
                           </h3>
-                          <p className={`text-xs mt-1 font-medium min-h-[32px] ${isLight ? "text-slate-500" : "text-slate-400"}`}>
-                            {activeCycle === "yearly" && plan.yearlyDescription ? plan.yearlyDescription : plan.description}
+                          <p className={`text-xs mt-1 font-medium min-h-[28px] ${isLight ? "text-slate-500" : "text-slate-400"}`}>
+                            {plan.description || plan.yearlyDescription || "Subscription Plan"}
                           </p>
                         </div>
 
@@ -567,38 +510,46 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
                         </div>
                       </div>
 
-                      <div className="mt-4 flex items-baseline gap-1">
-                        <span className={`text-3xl font-black ${isLight ? "text-slate-900" : "text-white"}`}>
-                          ${displayPrice}
-                        </span>
-                        <span className="text-xs font-semibold text-slate-400">
-                          /month
-                        </span>
-                      </div>
+                      {/* Both Pricing Displays on Card */}
+                      <div className="mt-4 space-y-2.5">
+                        {plan.price > 0 && (
+                          <div className="flex items-baseline justify-between">
+                            <div className="flex items-baseline gap-1">
+                              <span className={`text-2xl font-black ${isLight ? "text-slate-900" : "text-white"}`}>
+                                ${plan.price}
+                              </span>
+                              <span className="text-xs font-semibold text-slate-400">/month</span>
+                            </div>
+                            <span className="text-[11px] font-bold text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/60 px-2.5 py-0.5 rounded-lg border border-sky-200/60 dark:border-sky-800/60">
+                              Monthly
+                            </span>
+                          </div>
+                        )}
 
-                      {activeCycle === "yearly" ? (
-                        <div className="mt-1">
-                          {savingsPercent > 0 && savingsPerYear > 0 && (
-                            <p className="text-xs font-bold text-emerald-500 dark:text-emerald-400">
-                              Save ${savingsPerYear}/year ({savingsPercent}% off)
+                        {annualMonthlyPrice > 0 && (
+                          <div className="p-2.5 rounded-xl bg-slate-50 dark:bg-[#111A2E] border border-slate-200/80 dark:border-[#1E2B45] space-y-1">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-baseline gap-1">
+                                <span className={`text-lg font-extrabold ${isLight ? "text-slate-900" : "text-white"}`}>
+                                  ${annualMonthlyPrice}
+                                </span>
+                                <span className="text-[11px] font-semibold text-slate-400">/mo</span>
+                              </div>
+                              <span className="text-[10px] font-extrabold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/60 px-2 py-0.5 rounded-md border border-emerald-200/60 dark:border-emerald-800/60">
+                                Annual {savingsPercent > 0 ? `(${savingsPercent}% off)` : ""}
+                              </span>
+                            </div>
+                            <p className="text-[11px] font-medium text-slate-400">
+                              ${annualMonthlyPrice * 12} billed annually {savingsPerYear > 0 ? `(Save $${savingsPerYear}/yr)` : ""}
                             </p>
-                          )}
-                          <p className="text-xs font-medium text-slate-400 mt-0.5">
-                            ${yearlyCostDiscounted} billed annually
-                          </p>
-                        </div>
-                      ) : (
-                        <div className="mt-1">
-                          <p className="text-xs font-medium text-slate-400">
-                            Billed monthly
-                          </p>
-                        </div>
-                      )}
+                          </div>
+                        )}
+                      </div>
 
                       <div className="mt-6 space-y-3 pt-4 border-t border-slate-200/60 dark:border-slate-800">
                         <div className="flex items-center justify-between">
                           <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                            {activeCycle.toUpperCase()} FEATURES ({featureItems.length})
+                            PLAN FEATURES ({featureItems.length})
                           </span>
                         </div>
 
@@ -618,7 +569,7 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
                                 handleAddFeatureInline(plan);
                               }
                             }}
-                            placeholder={`Add ${activeCycle} feature...`}
+                            placeholder="Add feature to plan..."
                             className={`flex-1 text-xs rounded-xl px-3 py-2 border focus:outline-none ${isLight
                               ? "bg-white border-slate-300 text-slate-900 focus:border-[#20a9f8]"
                               : "bg-[#111A2E] border-[#1E2B45] text-slate-200 focus:border-[#20a9f8]"
@@ -636,7 +587,7 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
 
                         <div className="space-y-2.5 h-[360px] overflow-y-auto pr-1">
                           {featureItems.length === 0 ? (
-                            <p className="text-xs italic text-slate-400 py-2">No {activeCycle} features added yet.</p>
+                            <p className="text-xs italic text-slate-400 py-2">No features added yet.</p>
                           ) : (
                             featureItems.map((feat, fIdx) => {
                               const featureKey = feat._id || `feat_${fIdx}`;
@@ -789,58 +740,50 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
               <button
                 type="button"
                 onClick={() => setIsPlanModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 rounded-xl"
+                className="text-slate-400 hover:text-slate-600 dark:hover:text-white p-1 rounded-xl cursor-pointer"
               >
                 <FiX className="text-xl" />
               </button>
             </div>
 
-            <div className="bg-slate-100 dark:bg-[#111A2E] p-1 rounded-2xl flex items-center gap-1 border border-slate-200 dark:border-[#1E2B45]">
-              <button
-                type="button"
-                onClick={() => setModalActiveCycle("monthly")}
-                className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer text-center ${modalActiveCycle === "monthly"
-                  ? "bg-[#20a9f8] text-white shadow-sm shadow-[#20a9f8]/20"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                  }`}
-              >
-                Monthly Setup
-              </button>
-              <button
-                type="button"
-                onClick={() => setModalActiveCycle("yearly")}
-                className={`flex-1 py-2 text-xs font-bold rounded-xl transition-all cursor-pointer text-center ${modalActiveCycle === "yearly"
-                  ? "bg-[#20a9f8] text-white shadow-sm shadow-[#20a9f8]/20"
-                  : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-                  }`}
-              >
-                Yearly Setup
-              </button>
-            </div>
-
-            <div className="space-y-4 text-xs sm:text-sm max-h-[65vh] overflow-y-auto pr-1">
+            <div className="space-y-4 text-xs sm:text-sm max-h-[70vh] overflow-y-auto pr-1">
+              {/* Basic Info: Plan Name & Popular Status */}
               <div>
                 <div className="flex items-center justify-between mb-1">
                   <label className="block font-bold text-slate-700 dark:text-slate-300">Plan Name *</label>
                   <span className="text-[10px] text-slate-400 font-medium">{planForm.name.length}/50</span>
                 </div>
-                <input
-                  type="text"
-                  maxLength={50}
-                  value={planForm.name}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    if (val.length <= 50) {
-                      setPlanForm({ ...planForm, name: val });
-                      if (formErrors.name) setFormErrors((prev) => ({ ...prev, name: undefined }));
-                    }
-                  }}
-                  placeholder="e.g. Starter, Professional, Enterprise"
-                  className={`w-full rounded-xl px-3.5 py-2.5 border focus:outline-none font-medium ${formErrors.name
-                    ? "border-red-500 ring-1 ring-red-500"
-                    : isLight ? "bg-white border-slate-300" : "bg-[#111A2E] border-[#1E2B45]"
-                    }`}
-                />
+                <div className="flex items-center gap-3">
+                  <input
+                    type="text"
+                    maxLength={50}
+                    value={planForm.name}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val.length <= 50) {
+                        setPlanForm({ ...planForm, name: val });
+                        if (formErrors.name) setFormErrors((prev) => ({ ...prev, name: undefined }));
+                      }
+                    }}
+                    placeholder="e.g. Starter, Professional, Enterprise"
+                    className={`flex-1 rounded-xl px-3.5 py-2.5 border focus:outline-none font-medium ${formErrors.name
+                      ? "border-red-500 ring-1 ring-red-500"
+                      : isLight ? "bg-white border-slate-300" : "bg-[#111A2E] border-[#1E2B45]"
+                      }`}
+                  />
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <input
+                      type="checkbox"
+                      id="isPopularModal"
+                      checked={planForm.isPopular}
+                      onChange={(e) => setPlanForm({ ...planForm, isPopular: e.target.checked })}
+                      className="w-4 h-4 rounded text-[#20a9f8] focus:ring-[#20a9f8] cursor-pointer"
+                    />
+                    <label htmlFor="isPopularModal" className="text-xs font-bold cursor-pointer select-none whitespace-nowrap">
+                      "Most Popular"
+                    </label>
+                  </div>
+                </div>
                 {formErrors.name && (
                   <p className="text-red-500 text-[11px] font-semibold mt-1 flex items-center gap-1">
                     <FiAlertCircle /> {formErrors.name}
@@ -848,65 +791,45 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
                 )}
               </div>
 
-              {modalActiveCycle === "monthly" ? (
-                /* MONTHLY CYCLE INPUTS */
-                <>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block font-bold mb-1 text-slate-700 dark:text-slate-300 text-xs">
-                        Monthly Price ($) *
-                      </label>
-                      <input
-                        type="text"
-                        inputMode="decimal"
-                        value={planForm.price}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          if (val === "" || /^\d*\.?\d{0,2}$/.test(val)) {
-                            const numP = Number(val);
-                            const numDisc = Number(planForm.discountPercent);
-                            let computedAnnual = planForm.annualPrice;
-                            if (numP > 0 && numDisc > 0) {
-                              computedAnnual = String(Math.round(numP * (1 - numDisc / 100)));
-                            }
-                            setPlanForm({ ...planForm, price: val, annualPrice: computedAnnual });
-                            if (formErrors.price) setFormErrors((prev) => ({ ...prev, price: undefined }));
+              {/* MONTHLY PLAN SETUP */}
+              <div className="p-3.5 rounded-2xl bg-sky-50/50 dark:bg-[#111A2E]/80 border border-sky-100 dark:border-[#1E2B45] space-y-3">
+                <span className="text-xs font-extrabold text-[#20a9f8] uppercase tracking-wider block">
+                  Monthly Plan Setup
+                </span>
+
+                <div className="space-y-3">
+                  <div>
+                    <label className="block font-bold mb-1 text-slate-700 dark:text-slate-300 text-xs">
+                      Monthly Price ($)
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={planForm.price}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === "" || /^\d*\.?\d{0,2}$/.test(val)) {
+                          const numP = Number(val);
+                          const numDisc = Number(planForm.discountPercent);
+                          let computedAnnual = planForm.annualPrice;
+                          if (numP > 0 && numDisc > 0) {
+                            computedAnnual = String(Math.round(numP * (1 - numDisc / 100)));
                           }
-                        }}
-                        placeholder="399 or 399.99"
-                        className={`w-full rounded-xl px-3.5 py-2.5 border focus:outline-none font-medium text-xs ${formErrors.price
-                          ? "border-red-500 ring-1 ring-red-500"
-                          : isLight ? "bg-white border-slate-300" : "bg-[#111A2E] border-[#1E2B45]"
-                          }`}
-                      />
-                      {formErrors.price && (
-                        <p className="text-red-500 text-[11px] font-semibold mt-1 flex items-center gap-1">
-                          <FiAlertCircle /> {formErrors.price}
-                        </p>
-                      )}
-                    </div>
-                    <div>
-                      <label className="block font-bold mb-1 text-slate-700 dark:text-slate-300 text-xs">
-                        Popular Status
-                      </label>
-                      <div className="flex items-center gap-2 pt-2">
-                        <input
-                          type="checkbox"
-                          id="isPopularModal"
-                          checked={planForm.isPopular}
-                          onChange={(e) => setPlanForm({ ...planForm, isPopular: e.target.checked })}
-                          className="w-4 h-4 rounded text-[#20a9f8] focus:ring-[#20a9f8] cursor-pointer"
-                        />
-                        <label htmlFor="isPopularModal" className="text-xs font-bold cursor-pointer select-none">
-                          Mark "Most Popular"
-                        </label>
-                      </div>
-                    </div>
+                          setPlanForm({ ...planForm, price: val, annualPrice: computedAnnual });
+                          if (formErrors.price) setFormErrors((prev) => ({ ...prev, price: undefined }));
+                        }
+                      }}
+                      placeholder="399 or 399.99"
+                      className={`w-full rounded-xl px-3.5 py-2.5 border focus:outline-none font-medium text-xs ${formErrors.price
+                        ? "border-red-500 ring-1 ring-red-500"
+                        : isLight ? "bg-white border-slate-300" : "bg-[#0B101D] border-[#1E2B45]"
+                        }`}
+                    />
                   </div>
 
                   <div>
                     <div className="flex items-center justify-between mb-1">
-                      <label className="block font-bold text-slate-700 dark:text-slate-300">
+                      <label className="block font-bold text-slate-700 dark:text-slate-300 text-xs">
                         Monthly Description
                       </label>
                       <span className="text-[10px] text-slate-400 font-medium">{planForm.description.length}/200</span>
@@ -926,91 +849,101 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
                         }
                       }}
                       placeholder="Most popular for growing practices"
-                      className={`w-full rounded-xl px-3.5 py-2.5 border focus:outline-none font-medium ${isLight ? "bg-white border-slate-300" : "bg-[#111A2E] border-[#1E2B45]"
+                      className={`w-full rounded-xl px-3.5 py-2.5 border focus:outline-none font-medium text-xs ${isLight ? "bg-white border-slate-300" : "bg-[#0B101D] border-[#1E2B45]"
                         }`}
                     />
                   </div>
-                </>
-              ) : (
-                /* YEARLY CYCLE INPUTS */
-                <>
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block font-bold mb-1 text-slate-700 dark:text-slate-300 text-xs">
-                        Save Discount (% off)
-                      </label>
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        value={planForm.discountPercent}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          if (val === "" || (/^\d+$/.test(val) && Number(val) <= 100)) {
-                            const numDisc = Number(val);
-                            const numP = Number(planForm.price);
-                            let computedAnnual = planForm.annualPrice;
-                            if (numP > 0 && numDisc >= 0) {
-                              computedAnnual = String(Math.round(numP * (1 - numDisc / 100)));
-                            }
-                            setPlanForm({ ...planForm, discountPercent: val, annualPrice: computedAnnual });
+                </div>
+              </div>
+
+              {/* ANNUAL PLAN SETUP */}
+              <div className="p-3.5 rounded-2xl bg-indigo-50/50 dark:bg-[#111A2E]/80 border border-indigo-100 dark:border-[#1E2B45] space-y-3">
+                <span className="text-xs font-extrabold text-indigo-500 dark:text-indigo-400 uppercase tracking-wider block">
+                  Annual Plan Setup
+                </span>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-bold mb-1 text-slate-700 dark:text-slate-300 text-xs">
+                      Save Discount (% off)
+                    </label>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      value={planForm.discountPercent}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === "" || (/^\d+$/.test(val) && Number(val) <= 100)) {
+                          const numDisc = Number(val);
+                          const numP = Number(planForm.price);
+                          let computedAnnual = planForm.annualPrice;
+                          if (numP > 0 && numDisc >= 0) {
+                            computedAnnual = String(Math.round(numP * (1 - numDisc / 100)));
                           }
-                        }}
-                        placeholder="17"
-                        className={`w-full rounded-xl px-3.5 py-2.5 border focus:outline-none font-medium text-xs ${isLight ? "bg-white border-slate-300" : "bg-[#111A2E] border-[#1E2B45]"
-                          }`}
-                      />
-                    </div>
-                    <div>
-                      <label className="block font-bold mb-1 text-slate-700 dark:text-slate-300 text-xs">
-                        Annual Price ($/mo)
-                      </label>
-                      <input
-                        type="text"
-                        inputMode="decimal"
-                        value={planForm.annualPrice}
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          if (val === "" || /^\d*\.?\d{0,2}$/.test(val)) {
-                            const numAnn = Number(val);
-                            const numP = Number(planForm.price);
-                            let computedDisc = planForm.discountPercent;
-                            if (numP > 0 && numAnn > 0 && numAnn <= numP) {
-                              computedDisc = String(Math.round(((numP - numAnn) / numP) * 100));
-                            }
-                            setPlanForm({ ...planForm, annualPrice: val, discountPercent: computedDisc });
-                          }
-                        }}
-                        placeholder="330"
-                        className={`w-full rounded-xl px-3.5 py-2.5 border focus:outline-none font-medium text-xs ${isLight ? "bg-white border-slate-300" : "bg-[#111A2E] border-[#1E2B45]"
-                          }`}
-                      />
-                    </div>
+                          setPlanForm({ ...planForm, discountPercent: val, annualPrice: computedAnnual });
+                        }
+                      }}
+                      placeholder="17"
+                      className={`w-full rounded-xl px-3.5 py-2.5 border focus:outline-none font-medium text-xs ${isLight ? "bg-white border-slate-300" : "bg-[#0B101D] border-[#1E2B45]"
+                        }`}
+                    />
                   </div>
 
                   <div>
-                    <div className="flex items-center justify-between mb-1">
-                      <label className="block font-bold text-slate-700 dark:text-slate-300">
-                        Yearly Description
-                      </label>
-                      <span className="text-[10px] text-slate-400 font-medium">{planForm.yearlyDescription.length}/200</span>
-                    </div>
+                    <label className="block font-bold mb-1 text-slate-700 dark:text-slate-300 text-xs">
+                      Annual Price ($/mo)
+                    </label>
                     <input
                       type="text"
-                      maxLength={200}
-                      value={planForm.yearlyDescription}
+                      inputMode="decimal"
+                      value={planForm.annualPrice}
                       onChange={(e) => {
                         const val = e.target.value;
-                        if (val.length <= 200) {
-                          setPlanForm({ ...planForm, yearlyDescription: val });
+                        if (val === "" || /^\d*\.?\d{0,2}$/.test(val)) {
+                          const numAnn = Number(val);
+                          const numP = Number(planForm.price);
+                          let computedDisc = planForm.discountPercent;
+                          if (numP > 0 && numAnn > 0 && numAnn <= numP) {
+                            computedDisc = String(Math.round(((numP - numAnn) / numP) * 100));
+                          }
+                          setPlanForm({ ...planForm, annualPrice: val, discountPercent: computedDisc });
+                          if (formErrors.price) setFormErrors((prev) => ({ ...prev, price: undefined }));
                         }
                       }}
-                      placeholder="Save up to 17% on annual billing for growing practices"
-                      className={`w-full rounded-xl px-3.5 py-2.5 border focus:outline-none font-medium ${isLight ? "bg-white border-slate-300" : "bg-[#111A2E] border-[#1E2B45]"
+                      placeholder="330"
+                      className={`w-full rounded-xl px-3.5 py-2.5 border focus:outline-none font-medium text-xs ${formErrors.price
+                        ? "border-red-500 ring-1 ring-red-500"
+                        : isLight ? "bg-white border-slate-300" : "bg-[#0B101D] border-[#1E2B45]"
                         }`}
                     />
                   </div>
+                </div>
 
-                  <div className="p-3 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 text-xs space-y-1">
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="block font-bold text-slate-700 dark:text-slate-300 text-xs">
+                      Annual Description
+                    </label>
+                    <span className="text-[10px] text-slate-400 font-medium">{planForm.yearlyDescription.length}/200</span>
+                  </div>
+                  <input
+                    type="text"
+                    maxLength={200}
+                    value={planForm.yearlyDescription}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val.length <= 200) {
+                        setPlanForm({ ...planForm, yearlyDescription: val });
+                      }
+                    }}
+                    placeholder="Save up to 17% on annual billing for growing practices"
+                    className={`w-full rounded-xl px-3.5 py-2.5 border focus:outline-none font-medium text-xs ${isLight ? "bg-white border-slate-300" : "bg-[#0B101D] border-[#1E2B45]"
+                      }`}
+                  />
+                </div>
+
+                {Number(planForm.price) > 0 && Number(planForm.annualPrice) > 0 && (
+                  <div className="p-2.5 rounded-xl bg-emerald-50/80 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800/80 text-xs space-y-0.5">
                     <span className="font-extrabold text-emerald-600 dark:text-emerald-400 block text-xs">
                       Save ${Math.max(0, (Number(planForm.price) || 0) * 12 - (Number(planForm.annualPrice) || 0) * 12)}/year ({planForm.discountPercent || 0}% off)
                     </span>
@@ -1018,13 +951,20 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
                       ${(Number(planForm.annualPrice) || 0) * 12} billed annually (${planForm.annualPrice || 0}/month)
                     </span>
                   </div>
-                </>
+                )}
+              </div>
+
+              {formErrors.price && (
+                <p className="text-red-500 text-[11px] font-semibold flex items-center gap-1">
+                  <FiAlertCircle /> {formErrors.price}
+                </p>
               )}
 
-              <div className="pt-3 border-t border-slate-200 dark:border-slate-800 space-y-3">
-                <div className="flex items-center justify-between gap-2 border-b pb-2.5 dark:border-slate-800">
+              {/* Features Section */}
+              <div className="pt-2 space-y-3">
+                <div className="flex items-center justify-between gap-2 border-b pb-2 dark:border-slate-800">
                   <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
-                    {modalActiveCycle.toUpperCase()} FEATURES ({planForm[modalActiveCycle === "yearly" ? "yearlyFeatures" : "monthlyFeatures"].length})
+                    Plan Features ({planForm.features.length})
                   </span>
                 </div>
 
@@ -1048,7 +988,7 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
                             handleAddFeatureToModalForm();
                           }
                         }}
-                        placeholder={`Enter ${modalActiveCycle} feature title...`}
+                        placeholder="Enter feature title..."
                         className={`w-full text-xs rounded-xl px-3.5 py-2.5 border focus:outline-none ${formErrors.feature
                           ? "border-red-500 ring-1 ring-red-500"
                           : isLight ? "bg-white border-slate-300" : "bg-[#111A2E] border-[#1E2B45]"
@@ -1075,10 +1015,10 @@ const PlansFeaturesTab: React.FC<PlansFeaturesTabProps> = ({ isLight }) => {
                 </div>
 
                 <div className="space-y-2 max-h-44 overflow-y-auto pr-1">
-                  {planForm[modalActiveCycle === "yearly" ? "yearlyFeatures" : "monthlyFeatures"].length === 0 ? (
-                    <p className="text-xs italic text-slate-400">No {modalActiveCycle} features added to this plan draft yet.</p>
+                  {planForm.features.length === 0 ? (
+                    <p className="text-xs italic text-slate-400">No features added to this plan draft yet.</p>
                   ) : (
-                    planForm[modalActiveCycle === "yearly" ? "yearlyFeatures" : "monthlyFeatures"].map((f, fIdx) => (
+                    planForm.features.map((f, fIdx) => (
                       <div
                         key={fIdx}
                         className={`flex items-center justify-between gap-2 p-2.5 rounded-xl border text-xs ${!f.isEnabled
