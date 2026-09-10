@@ -5,7 +5,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Spinner, addToast } from "@heroui/react";
 import { fetchPlansAndFeatures, PlanData } from "../../../services/planFeature";
-import { registerUser } from "../../../services/auth";
+import { registerUser, checkEmailAvailability } from "../../../services/auth";
 import { validateDiscount } from "../../../services/settings/billing";
 import { setCredentials } from "../../../store/authSlice";
 import { EMAIL_REGEX, NAME_REGEX, PASSWORD_REGEX } from "../../../consts/consts";
@@ -78,6 +78,7 @@ export const SignupFlow: React.FC = () => {
   const [appliedCoupon, setAppliedCoupon] = useState<AppliedCoupon | null>(null);
   const [isApplyingCoupon, setIsApplyingCoupon] = useState(false);
   const [couponError, setCouponError] = useState("");
+  const [emailInUseError, setEmailInUseError] = useState("");
   const planParam = searchParams.get("planId") || searchParams.get("plan") || searchParams.get("id");
 
   useEffect(() => {
@@ -129,8 +130,43 @@ export const SignupFlow: React.FC = () => {
       messageAlert: false,
     },
     validationSchema,
-    onSubmit: () => {
-      setCurrentStep(2);
+    onSubmit: async (values, { setFieldError, setFieldTouched, setSubmitting }) => {
+      try {
+        setEmailInUseError("");
+        const email = (values.email || "").trim().toLowerCase();
+        const res: any = await checkEmailAvailability(email);
+        const isTaken =
+          res?.data?.exists === true ||
+          res?.exists === true ||
+          res?.data?.isAvailable === false ||
+          res?.isAvailable === false;
+
+        if (isTaken) {
+          const errMsg = "This email address is already in use. Please sign in or use another email.";
+          setEmailInUseError(errMsg);
+          setFieldTouched("email", true, true);
+          setFieldError("email", errMsg);
+          return;
+        }
+        setEmailInUseError("");
+        setCurrentStep(2);
+      } catch (err: any) {
+        console.error("Email verification error:", err);
+        const msg =
+          err.response?.data?.message ||
+          err.message ||
+          "Failed to verify email availability. Please try again.";
+        setEmailInUseError(msg);
+        setFieldTouched("email", true, true);
+        setFieldError("email", msg);
+        addToast({
+          title: "Verification Failed",
+          description: msg,
+          color: "danger",
+        });
+      } finally {
+        setSubmitting(false);
+      }
     },
   });
 
@@ -272,19 +308,20 @@ export const SignupFlow: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#070C18] text-slate-900 dark:text-slate-100 flex flex-col items-center py-8 px-4 sm:px-6">
       <SignupHeader
-        currentStep={currentStep === 1 ? 2 : 3}
+        currentStep={currentStep}
         showThemeToggle={true}
         showBackButton={currentStep === 2}
         onBackClick={() => setCurrentStep(1)}
         onStepClick={(step) => {
-          if (step === 1) navigate("/pricing");
-          if (step === 2) setCurrentStep(1);
+          if (step === 1) setCurrentStep(1);
         }}
       />
       {currentStep === 1 && (
         <StepYourDetails
           onContinue={() => formik.handleSubmit()}
           formik={formik}
+          emailError={emailInUseError}
+          setEmailError={setEmailInUseError}
         />
       )}
       {currentStep === 2 && (

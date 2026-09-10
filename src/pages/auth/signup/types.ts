@@ -26,6 +26,8 @@ export interface SignupHeaderProps {
 export interface StepYourDetailsProps {
   onContinue: () => void;
   formik: any;
+  emailError?: string;
+  setEmailError?: (err: string) => void;
 }
 
 export interface AppliedCoupon {

@@ -57,6 +57,20 @@ export interface RegisterResponse {
   };
 }
 
+export interface CheckEmailResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    exists: boolean;
+    isAvailable: boolean;
+  };
+}
+
+export const checkEmailAvailability = async (email: string): Promise<any> => {
+  const response = await axios.post("/users/check-email", { email });
+  return response;
+};
+
 export const registerUser = async (payload: RegisterPayload): Promise<RegisterResponse> => {
   const response = await axios.post("/users/register", payload);
   return response.data;
