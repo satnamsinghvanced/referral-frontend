@@ -109,7 +109,9 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
 
   // Determine annual discount percent from first plan with discountPercent or default to 17%
   const annualDiscountBadge =
-    plans.find((p) => p.discountPercent && p.discountPercent > 0)?.discountPercent || 17;
+    plans.find((p) => (p.annualPricing?.discountPercent ?? p.discountPercent ?? 0) > 0)?.annualPricing?.discountPercent ||
+    plans.find((p) => (p.discountPercent ?? 0) > 0)?.discountPercent ||
+    17;
 
   return (
     <div className="w-full max-w-6xl flex flex-col items-center">
@@ -156,13 +158,17 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
           const isPopular = isPlanPopular(plan);
 
           const isAnnual = billingCycle === "annual";
+          const monthlyPrice = plan.monthlyPricing?.price ?? plan.price ?? 0;
+          const annualPrice = plan.annualPricing?.price ?? plan.annualPrice;
+          const discountPercent = plan.annualPricing?.discountPercent ?? plan.discountPercent ?? 0;
+
           const displayPrice = isAnnual
-            ? plan.annualPrice !== undefined && plan.annualPrice !== null
-              ? plan.annualPrice
-              : plan.discountPercent && plan.discountPercent > 0
-              ? Math.round(plan.price * (1 - plan.discountPercent / 100))
-              : plan.price
-            : plan.price;
+            ? annualPrice !== undefined && annualPrice !== null
+              ? annualPrice
+              : discountPercent > 0
+              ? Math.round(monthlyPrice * (1 - discountPercent / 100))
+              : monthlyPrice
+            : monthlyPrice;
 
           const rawFeatures = isAnnual
             ? plan.yearlyFeatures || plan.featuresList || plan.monthlyFeatures
