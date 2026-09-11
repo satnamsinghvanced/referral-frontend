@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { fetchPlansAndFeatures, PlanData } from "../../services/planFeature";
-import { FiCheck, FiArrowRight } from "react-icons/fi";
+import { FiCheck, FiX, FiArrowRight } from "react-icons/fi";
 import { SignupHeader } from "./signup/SignupHeader";
 
 const SignupPricingView: React.FC = () => {
@@ -42,6 +42,7 @@ const SignupPricingView: React.FC = () => {
   const handleContinue = () => {
     navigate(`/checkout?plan=${selectedPlanId}&billing=${billingCycle}`);
   };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-[#070C18] flex flex-col items-center justify-center gap-3">
@@ -50,6 +51,7 @@ const SignupPricingView: React.FC = () => {
       </div>
     );
   }
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#070C18] text-slate-900 dark:text-slate-100 flex flex-col items-center py-10 px-4 sm:px-6">
       <SignupHeader currentStep={1} />
@@ -88,28 +90,36 @@ const SignupPricingView: React.FC = () => {
           {plans.map((plan) => {
             const isSelected = selectedPlanId === plan.planId;
             const isAnnual = billingCycle === "annual";
+            const mPrice = plan.monthlyPricing?.price ?? plan.price ?? 0;
+            const mDesc = plan.monthlyPricing?.description ?? "";
+            const aPrice = plan.annualPricing?.price ?? plan.annualPrice ?? 0;
+            const aDiscount = plan.annualPricing?.discountPercent ?? plan.discountPercent ?? 0;
+            const aDesc = plan.annualPricing?.description ?? plan.yearlyDescription ?? "";
+
             const annualMonthlyPrice =
-              plan.annualPrice ||
-              (plan.discountPercent && plan.discountPercent > 0
-                ? Math.round(plan.price * (1 - plan.discountPercent / 100))
-                : plan.price);
-            const displayPrice = isAnnual ? annualMonthlyPrice : plan.price;
-            const yearlyCostFull = plan.price * 12;
+              aPrice ||
+              (aDiscount > 0 && mPrice > 0
+                ? Math.round(mPrice * (1 - aDiscount / 100))
+                : mPrice);
+
+            const displayPrice = isAnnual ? annualMonthlyPrice : mPrice;
+            const yearlyCostFull = mPrice * 12;
             const yearlyCostDiscounted = annualMonthlyPrice * 12;
             const savingsPerYear = yearlyCostFull - yearlyCostDiscounted;
             const savingsPercent =
-              plan.discountPercent && plan.discountPercent > 0
-                ? plan.discountPercent
-                : plan.price > 0 && annualMonthlyPrice < plan.price
-                  ? Math.round(((plan.price - annualMonthlyPrice) / plan.price) * 100)
+              aDiscount > 0
+                ? aDiscount
+                : mPrice > 0 && annualMonthlyPrice < mPrice
+                  ? Math.round(((mPrice - annualMonthlyPrice) / mPrice) * 100)
                   : 0;
+
             const rawFeatures = isAnnual
-              ? plan.yearlyFeatures || plan.featuresList
-              : plan.monthlyFeatures || plan.featuresList;
+              ? plan.yearlyFeatures || plan.features || plan.featuresList || []
+              : plan.monthlyFeatures || plan.features || plan.featuresList || [];
             const planFeatures =
               Array.isArray(rawFeatures) && rawFeatures.length > 0
-                ? rawFeatures
-                : (plan.features || []).map((f) => ({ name: f, isEnabled: true }));
+                ? rawFeatures.map((f: any) => (typeof f === "string" ? { name: f, isEnabled: true } : f))
+                : [];
             return (
               <div
                 key={plan.planId}
@@ -129,8 +139,8 @@ const SignupPricingView: React.FC = () => {
                   <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white">
                     {plan.name}
                   </h3>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 min-h-[32px] font-medium">
-                    {isAnnual && plan.yearlyDescription ? plan.yearlyDescription : plan.description}
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 min-h-[28px] font-medium">
+                    {plan.description || "Subscription Plan"}
                   </p>
                   <div className="mt-6 flex items-baseline gap-1">
                     <span className="text-4xl font-black text-slate-900 dark:text-white tracking-tight">
@@ -138,63 +148,72 @@ const SignupPricingView: React.FC = () => {
                     </span>
                     <span className="text-xs font-semibold text-slate-400">/month</span>
                   </div>
+
                   {isAnnual ? (
-                    <div className="mt-1">
+                    <div className="mt-1 space-y-0.5 min-h-[36px]">
                       {savingsPercent > 0 && savingsPerYear > 0 && (
                         <p className="text-xs font-bold text-emerald-500 dark:text-emerald-400">
                           Save ${savingsPerYear}/year ({savingsPercent}% off)
                         </p>
                       )}
-                      <p className="text-xs font-medium text-slate-400 mt-0.5">
+                      <p className="text-xs font-medium text-slate-400">
                         ${yearlyCostDiscounted} billed annually
                       </p>
                     </div>
                   ) : (
-                    <div className="mt-1">
-                      <p className="text-xs font-medium text-slate-400">
-                        Billed monthly
+                    <div className="mt-1 min-h-[36px]">
+                      <p className="text-xs font-medium text-slate-500 dark:text-slate-400">
+                        {mDesc || "Billed monthly"}
                       </p>
                     </div>
                   )}
-                  <div className="mt-8 space-y-3.5">
-                    {planFeatures.map((feat, idx) => (
-                      <div key={idx} className="flex items-start gap-2.5 text-xs font-medium">
-                        <div
-                          className={`w-4 h-4 rounded-full flex items-center justify-center shrink-0 mt-0.5 ${feat.isEnabled
-                            ? "bg-emerald-100 text-emerald-600 dark:bg-emerald-950 dark:text-emerald-400"
-                            : "bg-slate-200 text-slate-400 dark:bg-slate-800 dark:text-slate-500"
-                            }`}
-                        >
-                          <FiCheck className="text-xs" />
-                        </div>
-                        <span
-                          className={`leading-tight ${!feat.isEnabled
-                            ? "line-through text-slate-400 dark:text-slate-500 font-normal"
-                            : "text-slate-700 dark:text-slate-300 font-semibold"
-                            }`}
-                        >
-                          {feat.name}
-                        </span>
-                      </div>
-                    ))}
+
+                  <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800/80">
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSelectPlan(plan.planId);
+                        handleContinue();
+                      }}
+                      className={`w-full py-3 px-4 rounded-xl text-xs font-bold transition-all cursor-pointer ${isSelected
+                        ? "bg-sky-500 hover:bg-sky-600 text-white shadow-md shadow-sky-500/20"
+                        : "bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200"
+                        }`}
+                    >
+                      <span>Start Free Trial</span>
+                    </button>
                   </div>
-                </div>
-                <div className="mt-8 pt-4">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleSelectPlan(plan.planId);
-                      handleContinue();
-                    }}
-                    className={`w-full py-3 px-4 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center justify-center gap-2 cursor-pointer ${isSelected
-                      ? "bg-sky-500 hover:bg-sky-600 text-white"
-                      : "bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-200"
-                      }`}
-                  >
-                    <span>Select {plan.name}</span>
-                    <FiArrowRight className="text-sm" />
-                  </button>
+
+                  <div className="mt-6 space-y-3">
+                    {planFeatures.map((feat: any, idx: number) => {
+                      const isEnabled = feat.isEnabled !== false;
+                      return (
+                        <div key={idx} className="flex items-start gap-2 text-xs font-medium">
+                          <div
+                            className={`shrink-0 mt-0.5 ${isEnabled
+                              ? "text-emerald-500 dark:text-emerald-400"
+                              : "text-red-500 dark:text-red-400"
+                              }`}
+                          >
+                            {isEnabled ? (
+                              <FiCheck className="text-sm stroke-[3]" />
+                            ) : (
+                              <FiX className="text-sm stroke-[3]" />
+                            )}
+                          </div>
+                          <span
+                            className={`leading-tight ${isEnabled
+                              ? "text-slate-700 dark:text-slate-300 font-semibold"
+                              : "text-slate-400 dark:text-slate-500 font-normal line-through opacity-75"
+                              }`}
+                          >
+                            {feat.name}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             );

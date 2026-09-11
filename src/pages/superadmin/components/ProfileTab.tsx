@@ -34,14 +34,12 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
   onSubmit,
 }) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
-
   return (
     <div
-      className={`rounded-2xl border p-6 sm:p-8 shadow-sm transition-all ${
-        isLight
+      className={`rounded-2xl border p-6 sm:p-8 shadow-sm transition-all ${isLight
           ? "bg-white border-slate-200/90"
           : "bg-[#0F172A] border-[#1E293B]"
-      }`}
+        }`}
     >
       <div className="flex items-center gap-2.5 mb-6">
         <FiUser className={`text-lg ${isLight ? "text-slate-800" : "text-slate-200"}`} />
@@ -49,7 +47,6 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
           Profile Information
         </h2>
       </div>
-
       <form onSubmit={onSubmit} className="space-y-6">
         <div className="flex items-center gap-4 mb-6">
           <div className="relative size-20 group shrink-0">
@@ -76,7 +73,6 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
                 <FiCamera className="size-6 drop-shadow-md" />
               </div>
             </div>
-
             {avatarImage && (
               <button
                 type="button"
@@ -88,7 +84,6 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
               </button>
             )}
           </div>
-
           <div>
             <input
               ref={fileInputRef}
@@ -102,11 +97,10 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              className={`px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all cursor-pointer mb-1 ${
-                isLight
+              className={`px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all cursor-pointer mb-1 ${isLight
                   ? "bg-white hover:bg-slate-50 border-slate-300 text-slate-800 shadow-sm"
                   : "bg-[#111A2E] hover:bg-[#1A2642] border-[#1E2B45] text-slate-200"
-              }`}
+                }`}
             >
               Change Photo
             </button>
@@ -116,19 +110,16 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
             </p>
           </div>
         </div>
-
         {profileMsg && (
           <div
-            className={`p-3.5 rounded-xl text-xs font-semibold ${
-              profileMsg.isError
+            className={`p-3.5 rounded-xl text-xs font-semibold ${profileMsg.isError
                 ? "bg-red-50 text-red-700 dark:bg-red-950/60 dark:text-red-300 border border-red-200 dark:border-red-800"
                 : "bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800"
-            }`}
+              }`}
           >
             {profileMsg.text}
           </div>
         )}
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
           <div>
             <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
@@ -139,14 +130,12 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
               value={firstName}
               onChange={(e) => onFirstNameChange(e.target.value)}
               placeholder="First Name"
-              className={`w-full text-xs sm:text-sm rounded-xl px-4 py-2.5 border transition-all shadow-sm focus:outline-none ${
-                isLight
+              className={`w-full text-xs sm:text-sm rounded-xl px-4 py-2.5 border transition-all shadow-sm focus:outline-none ${isLight
                   ? "bg-[#F8FAFC] border-slate-200 text-slate-900 focus:bg-white focus:border-[#20a9f8]"
                   : "bg-[#111A2E] border-[#1E2B45] text-slate-200 focus:border-[#20a9f8]"
-              }`}
+                }`}
             />
           </div>
-
           <div>
             <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
               Last Name <span className="text-red-500">*</span>
@@ -156,14 +145,12 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
               value={lastName}
               onChange={(e) => onLastNameChange(e.target.value)}
               placeholder="Last Name"
-              className={`w-full text-xs sm:text-sm rounded-xl px-4 py-2.5 border transition-all shadow-sm focus:outline-none ${
-                isLight
+              className={`w-full text-xs sm:text-sm rounded-xl px-4 py-2.5 border transition-all shadow-sm focus:outline-none ${isLight
                   ? "bg-[#F8FAFC] border-slate-200 text-slate-900 focus:bg-white focus:border-[#20a9f8]"
                   : "bg-[#111A2E] border-[#1E2B45] text-slate-200 focus:border-[#20a9f8]"
-              }`}
+                }`}
             />
           </div>
-
           <div className="md:col-span-2">
             <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5">
               Email Address <span className="text-red-500">*</span>
@@ -174,17 +161,15 @@ const ProfileTab: React.FC<ProfileTabProps> = ({
                 value={superAdminEmail}
                 disabled
                 readOnly
-                className={`w-full text-xs sm:text-sm rounded-xl px-4 py-2.5 border cursor-not-allowed opacity-75 ${
-                  isLight
+                className={`w-full text-xs sm:text-sm rounded-xl px-4 py-2.5 border cursor-not-allowed opacity-75 ${isLight
                     ? "bg-[#F1F5F9] border-slate-200 text-slate-600"
                     : "bg-slate-800/80 border-slate-700 text-slate-400"
-                }`}
+                  }`}
               />
               <FiLock className="absolute right-4 top-3 text-slate-400 text-sm" />
             </div>
           </div>
         </div>
-
         <div className="pt-2">
           <button
             type="submit"

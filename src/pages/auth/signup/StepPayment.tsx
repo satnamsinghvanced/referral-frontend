@@ -29,15 +29,19 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
   couponError,
   setCouponError,
 }) => {
-  const calcDisplayPrice = (plan: PlanData | null) => {
+  const calcDisplayPrice = (plan: PlanData | null): number => {
     if (!plan) return 399;
+    const mPrice = plan.monthlyPricing?.price ?? plan.price ?? 0;
+    const aPrice = plan.annualPricing?.price ?? plan.annualPrice;
+    const aDiscount = plan.annualPricing?.discountPercent ?? plan.discountPercent;
+
     if (billingCycle === "annual") {
-      if (plan.annualPrice) return plan.annualPrice;
-      if (plan.discountPercent && plan.discountPercent > 0) {
-        return Math.round(plan.price * (1 - plan.discountPercent / 100));
+      if (aPrice) return aPrice;
+      if (aDiscount && aDiscount > 0 && mPrice > 0) {
+        return Math.round(mPrice * (1 - aDiscount / 100));
       }
     }
-    return plan.price;
+    return mPrice;
   };
 
   const basePrice = calcDisplayPrice(selectedPlan);

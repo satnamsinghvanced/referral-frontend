@@ -17,20 +17,36 @@ export interface FeatureData {
   order?: number | undefined;
 }
 
+export interface MonthlyPricing {
+  price: number;
+  discountPercent?: number;
+  totalValue?: number;
+  description: string;
+}
+
+export interface AnnualPricing {
+  price: number;
+  discountPercent: number;
+  totalValue?: number;
+  description: string;
+}
+
 export interface PlanData {
   _id?: string;
   planId: string;
   name: string;
-  price: number;
+  isPopular: boolean;
+  monthlyPricing?: MonthlyPricing | undefined;
+  annualPricing?: AnnualPricing | undefined;
+  features?: PlanFeatureItem[] | undefined;
+  price?: number | undefined;
   annualPrice?: number | undefined;
   discountPercent?: number | undefined;
-  description: string;
+  description?: string | undefined;
   yearlyDescription?: string | undefined;
-  isPopular: boolean;
-  monthlyFeatures?: PlanFeatureItem[];
-  yearlyFeatures?: PlanFeatureItem[];
-  featuresList?: PlanFeatureItem[];
-  features?: string[];
+  monthlyFeatures?: PlanFeatureItem[] | undefined;
+  yearlyFeatures?: PlanFeatureItem[] | undefined;
+  featuresList?: PlanFeatureItem[] | undefined;
   isActive?: boolean;
 }
 
