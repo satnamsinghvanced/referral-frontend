@@ -63,6 +63,7 @@ const Notifications = React.lazy(
 const Security = React.lazy(() => import("./pages/settings/Security"));
 const Devices = React.lazy(() => import("./pages/settings/Devices"));
 const Billing = React.lazy(() => import("./pages/settings/Billing"));
+
 const Locations = React.lazy(
   () => import("./pages/settings/locations/Locations"),
 );
@@ -320,6 +321,7 @@ function AppRoutes() {
                 </PermissionGuard>
               ),
             },
+
             {
               path: "locations",
               element: (
@@ -473,6 +475,14 @@ function AppRoutes() {
       element: (
         <ProtectedRoute>
           <Checkout />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "upgrade-plan",
+      element: (
+        <ProtectedRoute>
+          <SignUp />
         </ProtectedRoute>
       ),
     },

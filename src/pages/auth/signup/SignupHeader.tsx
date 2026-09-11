@@ -10,24 +10,45 @@ export const SignupHeader: React.FC<SignupHeaderProps> = ({
   title,
   subtitle,
   isTwilioCredits = false,
+  isUpgrade = false,
   hideStepper = false,
   showThemeToggle = false,
   showBackButton = false,
   onBackClick,
+  backButtonText,
 }) => {
-  const steps = [
-    { number: 1, label: "Your Details" },
-    { number: 2, label: "Payment" },
-    { number: 3, label: "Confirmation" },
-  ];
+  const steps = isUpgrade
+    ? [
+        { number: 1, label: "Choose Plan" },
+        { number: 2, label: "Payment" },
+      ]
+    : [
+        { number: 1, label: "Choose Plan" },
+        { number: 2, label: "Your Details" },
+        { number: 3, label: "Payment" },
+      ];
 
   const defaultTitle = isTwilioCredits ? (
     <>
       Add <span className="text-[#20a9f8]">Twilio Credits</span>
     </>
+  ) : isUpgrade ? (
+    currentStep === 1 ? (
+      <>
+        Upgrade Your <span className="text-[#20a9f8] dark:text-sky-400">Subscription Plan</span>
+      </>
+    ) : (
+      <>
+        Confirm Payment & <span className="text-[#20a9f8] dark:text-sky-400">Upgrade</span>
+      </>
+    )
+  ) : currentStep === 1 ? (
+    <>
+      Simple, Transparent <span className="text-[#20a9f8] dark:text-sky-400">Pricing</span>
+    </>
   ) : currentStep === 3 ? (
     <>
-      Welcome to <span className="text-[#20a9f8] dark:text-sky-400">Practice ROI!</span>
+      Complete Your <span className="text-[#20a9f8] dark:text-sky-400">Subscription</span>
     </>
   ) : (
     <>
@@ -37,11 +58,15 @@ export const SignupHeader: React.FC<SignupHeaderProps> = ({
 
   const defaultSubtitle = isTwilioCredits
     ? "Complete your payment details to add credits and minutes immediately."
-    : currentStep === 3
-      ? "Your account and subscription have been activated successfully!"
-      : currentStep === 2
-        ? "Enter your details to get started in minutes. Cancel anytime."
-        : "Choose your plan and get started in minutes. Cancel anytime.";
+    : isUpgrade
+      ? currentStep === 1
+        ? "Choose the plan that's right for your practice. Upgrade or change plans anytime."
+        : "Complete payment details to activate your new plan."
+      : currentStep === 1
+        ? "Choose the plan that's right for your practice. All plans include a 14-day free trial with no credit card required."
+        : currentStep === 2
+          ? "Enter your details to get started in minutes. Cancel anytime."
+          : "Complete your payment details to start your free trial. Cancel anytime.";
   return (
     <div className="w-full max-w-5xl flex flex-col items-center relative mb-6">
       {showThemeToggle && (
@@ -68,7 +93,7 @@ export const SignupHeader: React.FC<SignupHeaderProps> = ({
                 className="flex items-center gap-2 text-xs font-bold text-slate-700 dark:text-slate-200 hover:text-sky-500 dark:hover:text-sky-400 transition-colors bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-3.5 py-2 rounded-xl shadow-sm cursor-pointer"
               >
                 <FiArrowLeft className="w-4 h-4 text-sky-500" />
-                <span>Back to Details</span>
+                <span>{backButtonText || (currentStep === 3 ? "Back to Details" : "Back to Choose Plan")}</span>
               </button>
             </div>
           )}

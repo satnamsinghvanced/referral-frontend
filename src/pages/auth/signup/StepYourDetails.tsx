@@ -4,6 +4,7 @@ import { Button, Card, CardBody, Input, Select, SelectItem, Checkbox } from "@he
 import { FiUser, FiArrowRight, FiEye, FiEyeOff } from "react-icons/fi";
 import { StepYourDetailsProps } from "./types";
 import { fetchSpecialtiesList } from "../../../services/specialty";
+import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
 
 interface FieldConfig {
   name: string;
@@ -47,9 +48,9 @@ const FORM_FIELDS: FieldConfig[] = [
     name: "mobile",
     label: "Phone Number",
     type: "tel",
-    placeholder: "(555) 000-0000",
+    placeholder: "(123) 123-1231",
     required: true,
-    maxLength: 10,
+    maxLength: 14,
     colSpan: "md:col-span-2",
   },
   {
@@ -81,7 +82,14 @@ const FORM_FIELDS: FieldConfig[] = [
   },
 ];
 
-export const StepYourDetails: React.FC<StepYourDetailsProps> = ({ formik, emailError, setEmailError }) => {
+export const StepYourDetails: React.FC<StepYourDetailsProps> = ({
+  formik,
+  emailError,
+  setEmailError,
+  selectedPlan,
+  billingCycle = "monthly",
+  onBack,
+}) => {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [specialtiesList, setSpecialtiesList] = useState<{ key: string; label: string }[]>([]);
@@ -110,10 +118,34 @@ export const StepYourDetails: React.FC<StepYourDetailsProps> = ({ formik, emailE
     loadSpecialties();
   }, []);
 
+  const planPrice =
+    billingCycle === "annual"
+      ? selectedPlan?.annualPrice || (selectedPlan ? Math.round(selectedPlan.price * 0.83) : 166)
+      : selectedPlan?.price || 199;
+
   return (
     <div className="w-full max-w-4xl">
       <Card className="w-full shadow-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0F172A] rounded-2xl">
         <CardBody className="p-6 sm:p-10">
+          {selectedPlan && (
+            <div className="mb-6 p-3 sm:p-4 rounded-xl bg-sky-50 dark:bg-sky-950/30 border border-sky-200/80 dark:border-sky-900/50 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">Selected Plan:</span>
+                <span className="text-xs font-bold text-sky-600 dark:text-sky-400 bg-sky-100 dark:bg-sky-900/60 px-2 py-0.5 rounded-lg">
+                  {selectedPlan.name} (${planPrice}/mo • {billingCycle === "annual" ? "Annual billing" : "Monthly billing"})
+                </span>
+              </div>
+              {onBack && (
+                <button
+                  type="button"
+                  onClick={onBack}
+                  className="text-xs font-bold text-sky-500 hover:text-sky-600 dark:hover:text-sky-400 underline self-start sm:self-auto cursor-pointer"
+                >
+                  Change Plan
+                </button>
+              )}
+            </div>
+          )}
           <div className="flex items-center gap-2.5 mb-6 text-slate-900 dark:text-white font-extrabold text-xl">
             <div className="w-8 h-8 rounded-lg bg-sky-50 dark:bg-sky-950/50 text-sky-500 flex items-center justify-center">
               <FiUser className="w-5 h-5" />
@@ -178,8 +210,8 @@ export const StepYourDetails: React.FC<StepYourDetailsProps> = ({ formik, emailE
                             setEmailError("");
                           }
                           if (field.name === "mobile") {
-                            const clean = e.target.value.replace(/\D/g, "").slice(0, 10);
-                            formik.setFieldValue("mobile", clean);
+                            const formatted = formatPhoneNumber(e.target.value);
+                            formik.setFieldValue("mobile", formatted);
                           } else {
                             formik.handleChange(e);
                           }

@@ -316,11 +316,14 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
     const avgPermsPerRole =
       totalRoles > 0
         ? Math.round(
-          roles.reduce(
-            (acc, r) =>
-              acc + (r.permissions ? r.permissions.filter(Boolean).length : 0),
-            0
-          ) / totalRoles
+          roles.reduce((acc, r) => {
+            const validCount = (r.permissions || []).filter((p: any) => {
+              if (!p) return false;
+              const id = typeof p === "string" ? p : p._id || p.id;
+              return permissions.some((perm) => perm._id === id);
+            }).length;
+            return acc + validCount;
+          }, 0) / totalRoles
         )
         : 0;
     return { totalRoles, totalPermissions, activePermissions, avgPermsPerRole };
@@ -606,11 +609,15 @@ const RolesAndPermissionsTab: React.FC<RolesAndPermissionsTabProps> = ({ isLight
                       }`}
                   >
                     {filteredRoles.map((roleItem) => {
-                      const rolePermissions = (roleItem.permissions || []).filter(Boolean);
-                      const permCount = rolePermissions.length;
+                      const validRolePermissions = (roleItem.permissions || []).filter((p: any) => {
+                        if (!p) return false;
+                        const idStr = typeof p === "string" ? p : p._id || p.id;
+                        return permissions.some((perm) => perm._id === idStr);
+                      });
+                      const permCount = validRolePermissions.length;
                       const isExpanded = expandedRoleIds.includes(roleItem._id);
 
-                      const permNames: string[] = rolePermissions.map((p: any) => {
+                      const permNames: string[] = validRolePermissions.map((p: any) => {
                         if (typeof p === "string") {
                           const found = permissions.find((perm) => perm._id === p);
                           return found ? found.title : p;

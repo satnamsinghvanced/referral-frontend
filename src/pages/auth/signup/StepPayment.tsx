@@ -7,6 +7,7 @@ import { PlanData } from "../../../services/planFeature";
 export const StepPayment: React.FC<StepPaymentProps> = ({
   selectedPlan,
   billingCycle,
+  isUpgrade = false,
   onSubmitSignup,
   isSubmitting,
   cardNumber,
@@ -54,6 +55,14 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
     }
   }
   const finalPrice = Math.max(0, basePrice - discountAmount);
+
+  const trialEndDate = new Date();
+  trialEndDate.setDate(trialEndDate.getDate() + 14);
+  const formattedTrialEndDate = trialEndDate.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 
   const handleCardNumberChange = (val: string) => {
     const clean = val.replace(/\D/g, "").substring(0, 16);
@@ -268,9 +277,21 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
               <span className="text-slate-500">Selected Plan</span>
               <span>{selectedPlan?.name || "Professional"}</span>
             </div>
-            <div className="flex justify-between items-center text-sm font-semibold border-b border-slate-100 dark:border-slate-800 pb-4">
+            <div className="flex justify-between items-center text-sm font-semibold">
               <span className="text-slate-500">Billing Cycle</span>
               <span className="capitalize">{billingCycle}</span>
+            </div>
+
+            <div className="flex justify-between items-center text-sm font-semibold border-b border-slate-100 dark:border-slate-800 pb-4">
+              <span className="text-slate-500">Plan Rate</span>
+              <div className="flex items-center gap-1.5">
+                {appliedCoupon && (
+                  <span className="text-xs text-slate-400 line-through font-normal">
+                    ${basePrice}
+                  </span>
+                )}
+                <span>${finalPrice.toFixed(finalPrice % 1 !== 0 ? 2 : 0)} / {billingCycle === "annual" ? "year" : "month"}</span>
+              </div>
             </div>
 
             {appliedCoupon && (
@@ -283,28 +304,42 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
             )}
 
             <div className="flex justify-between items-center text-base font-extrabold pt-1">
-              <span>Total Due Today</span>
-              <div className="flex items-center gap-2">
-                {appliedCoupon && (
-                  <span className="text-xs text-slate-400 line-through font-normal">
-                    ${basePrice}
-                  </span>
-                )}
-                <span className={appliedCoupon ? "text-emerald-600 dark:text-emerald-400" : ""}>
-                  ${finalPrice.toFixed(finalPrice % 1 !== 0 ? 2 : 0)}
+              <div>
+                <span className="block text-slate-900 dark:text-white">Total Due Today</span>
+                <span className="text-[11px] text-slate-400 font-normal block">
+                  {isUpgrade
+                    ? `Immediate activation (${billingCycle === "annual" ? "Billed annually" : "Billed monthly"})`
+                    : `First charge on ${formattedTrialEndDate}`}
+                </span>
+              </div>
+              <div className="text-right">
+                <span className="text-xl font-black text-emerald-600 dark:text-emerald-400">
+                  {isUpgrade ? `$${finalPrice.toFixed(finalPrice % 1 !== 0 ? 2 : 0)}` : "$0.00"}
                 </span>
               </div>
             </div>
 
-            <div className="border border-emerald-200 dark:border-emerald-900/30 bg-emerald-50/40 dark:bg-emerald-950/10 rounded-xl p-4 mt-2 flex flex-col gap-1.5">
-              <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-bold text-xs">
-                <FiCheck className="w-4 h-4" />
-                <span>14-Day Free Trial</span>
+            {isUpgrade ? (
+              <div className="border border-sky-200 dark:border-sky-900/40 bg-sky-50/50 dark:bg-sky-950/20 rounded-xl p-4 mt-2 flex flex-col gap-1.5">
+                <div className="flex items-center gap-1.5 text-sky-700 dark:text-sky-400 font-bold text-xs">
+                  <FiCheck className="w-4 h-4" />
+                  <span>Instant Plan Activation</span>
+                </div>
+                <p className="text-[11px] text-sky-700/90 dark:text-sky-400/90 leading-relaxed font-medium">
+                  Your new plan features will be activated immediately upon confirmation.
+                </p>
               </div>
-              <p className="text-[11px] text-emerald-700/90 dark:text-emerald-400/90 leading-relaxed font-medium">
-                You won't be charged until your trial ends. Cancel anytime before then at no cost.
-              </p>
-            </div>
+            ) : (
+              <div className="border border-emerald-200 dark:border-emerald-900/30 bg-emerald-50/40 dark:bg-emerald-950/10 rounded-xl p-4 mt-2 flex flex-col gap-1.5">
+                <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-bold text-xs">
+                  <FiCheck className="w-4 h-4" />
+                  <span>14-Day Free Trial (Ends {formattedTrialEndDate})</span>
+                </div>
+                <p className="text-[11px] text-emerald-700/90 dark:text-emerald-400/90 leading-relaxed font-medium">
+                  You won't be charged until your trial ends on <strong>{formattedTrialEndDate}</strong>. Cancel anytime before then at no cost.
+                </p>
+              </div>
+            )}
             <div className="pt-2">
               <Checkbox
                 isSelected={agreeToTerms}
@@ -325,7 +360,7 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
               isLoading={isSubmitting}
               className="w-full font-bold h-11 rounded-xl mt-4 text-sm bg-sky-500 hover:bg-sky-600 text-white"
             >
-              Complete Sign Up
+              {isSubmitting ? "Processing..." : (isUpgrade ? "Confirm & Upgrade Plan" : "Complete Sign Up")}
             </Button>
           </div>
         </Card>
