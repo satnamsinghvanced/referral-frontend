@@ -59,7 +59,7 @@ export const PaymentFailedPage: React.FC = () => {
   const handleRetryPayment = () => {
     navigate("/signup", {
       state: {
-        step: 2,
+        step: 3,
         formData: stateData?.retryFormValues,
         planId: stateData?.planId,
       },

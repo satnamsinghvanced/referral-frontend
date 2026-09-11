@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
+import { useQueryClient } from "@tanstack/react-query";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Spinner, addToast } from "@heroui/react";
 import { fetchPlansAndFeatures, PlanData } from "../../../services/planFeature";
 import { registerUser, checkEmailAvailability } from "../../../services/auth";
-import { validateDiscount } from "../../../services/settings/billing";
+import { validateDiscount, upgradePlan } from "../../../services/settings/billing";
 import { setCredentials } from "../../../store/authSlice";
 import { EMAIL_REGEX, NAME_REGEX, PASSWORD_REGEX } from "../../../consts/consts";
 import { SignupHeader } from "./SignupHeader";
+import { StepChoosePlan } from "./StepChoosePlan";
 import { StepYourDetails } from "./StepYourDetails";
 import { StepPayment } from "./StepPayment";
 import { AppliedCoupon, SignupConfirmationData, PaymentFailedState, SignUpFormValues } from "./types";
+import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
 
 const validationSchema = Yup.object({
   firstName: Yup.string()
@@ -30,7 +33,15 @@ const validationSchema = Yup.object({
     .matches(EMAIL_REGEX, "Invalid email format"),
   mobile: Yup.string()
     .required("Phone number is required")
-    .matches(/^\d{10}$/, "Mobile number must be exactly 10 digits"),
+    .test(
+      "valid-phone",
+      "Phone number must be a valid 10-digit number",
+      (val) => {
+        if (!val) return false;
+        const digits = val.replace(/\D/g, "");
+        return digits.length === 10;
+      }
+    ),
   practiceName: Yup.string()
     .required("Practice name is required"),
   medicalSpecialty: Yup.string()
@@ -64,12 +75,18 @@ export const SignupFlow: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const queryClient = useQueryClient();
+
+  const isUpgrade = location.pathname.includes("upgrade-plan") || searchParams.get("mode") === "upgrade";
 
   const retryState = location.state as
-    | { step?: 1 | 2; formData?: Partial<SignUpFormValues>; planId?: string }
+    | { step?: 1 | 2 | 3; formData?: Partial<SignUpFormValues>; planId?: string }
     | undefined;
 
-  const [currentStep, setCurrentStep] = useState<1 | 2>(retryState?.step === 2 ? 2 : 1);
+  const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(
+    retryState?.step === 3 ? 3 : retryState?.step === 2 ? 2 : 1
+  );
+  const [plans, setPlans] = useState<PlanData[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<PlanData | null>(null);
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("monthly");
   const [loadingPlans, setLoadingPlans] = useState(true);
@@ -97,6 +114,7 @@ export const SignupFlow: React.FC = () => {
       const res = await fetchPlansAndFeatures();
       const data = res?.data || res;
       const fetchedPlans: PlanData[] = Array.isArray(data?.plans) ? data.plans : Array.isArray(data) ? data : [];
+      setPlans(fetchedPlans);
       if (fetchedPlans.length > 0) {
         let matched: PlanData | undefined;
         if (planParam) {
@@ -111,7 +129,14 @@ export const SignupFlow: React.FC = () => {
         if (matched) {
           setSelectedPlan(matched);
         } else {
-          const popular = fetchedPlans.find((p) => p.isPopular) || fetchedPlans[0];
+          const popular =
+            fetchedPlans.find(
+              (p) =>
+                p.isPopular === true ||
+                (p as any).isPopular === "true" ||
+                (p as any).is_popular === true ||
+                (p as any).is_popular === "true"
+            ) || fetchedPlans[0];
           if (popular) {
             setSelectedPlan(popular);
           }
@@ -126,12 +151,12 @@ export const SignupFlow: React.FC = () => {
 
   const formik = useFormik({
     initialValues: {
-      firstName: retryState?.formData?.firstName || "",
-      lastName: retryState?.formData?.lastName || "",
-      email: retryState?.formData?.email || "",
-      mobile: retryState?.formData?.mobile || "",
-      practiceName: retryState?.formData?.practiceName || "",
-      medicalSpecialty: retryState?.formData?.medicalSpecialty || "",
+      firstName: retryState?.formData?.firstName || searchParams.get("firstName") || searchParams.get("name") || "",
+      lastName: retryState?.formData?.lastName || searchParams.get("lastName") || "",
+      email: retryState?.formData?.email || searchParams.get("email") || "",
+      mobile: retryState?.formData?.mobile ? formatPhoneNumber(retryState.formData.mobile) : (searchParams.get("mobile") || searchParams.get("phone") || ""),
+      practiceName: retryState?.formData?.practiceName || searchParams.get("practiceName") || "",
+      medicalSpecialty: retryState?.formData?.medicalSpecialty || searchParams.get("medicalSpecialty") || searchParams.get("specialty") || "",
       password: retryState?.formData?.password || "",
       messageAlert: retryState?.formData?.messageAlert || false,
     },
@@ -155,7 +180,7 @@ export const SignupFlow: React.FC = () => {
           return;
         }
         setEmailInUseError("");
-        setCurrentStep(2);
+        setCurrentStep(3);
       } catch (err: any) {
         console.error("Email verification error:", err);
         const msg =
@@ -253,6 +278,44 @@ export const SignupFlow: React.FC = () => {
   const handleCompleteSignup = async () => {
     if (!validatePayment()) return;
     const cleanCard = cardNumber.replace(/\s/g, "");
+
+    if (isUpgrade) {
+      try {
+        setIsSubmitting(true);
+        const planIdentifier = selectedPlan?._id || selectedPlan?.planId || planParam || "starter_199";
+        await upgradePlan({
+          planId: planIdentifier,
+          billingCycle,
+          cardNumber: cleanCard,
+          expire: expiry,
+          cvc,
+          couponCode: appliedCoupon ? appliedCoupon.code : undefined,
+        });
+
+        queryClient.invalidateQueries({ queryKey: ["billing"] });
+        queryClient.invalidateQueries({ queryKey: ["user"] });
+
+        addToast({
+          title: "Plan Upgraded Successfully!",
+          description: `Your subscription has been updated to the ${selectedPlan?.name || "selected"} plan.`,
+          color: "success",
+        });
+
+        navigate("/settings/billing");
+      } catch (err: any) {
+        console.error("Upgrade plan error:", err);
+        const errMsg = err?.response?.data?.message || err?.message || "Failed to upgrade subscription plan.";
+        addToast({
+          title: "Upgrade Failed",
+          description: errMsg,
+          color: "danger",
+        });
+      } finally {
+        setIsSubmitting(false);
+      }
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       const payload = {
@@ -264,7 +327,7 @@ export const SignupFlow: React.FC = () => {
         medicalSpecialty: formik.values.medicalSpecialty,
         password: formik.values.password,
         messageAlert: formik.values.messageAlert,
-        status: "active",
+        status: "trial",
         couponCode: appliedCoupon ? appliedCoupon.code : undefined,
         payment: {
           planId: selectedPlan?._id || selectedPlan?.planId || planParam || "professional",
@@ -337,24 +400,25 @@ export const SignupFlow: React.FC = () => {
 
       addToast({
         title: "Account Created Successfully!",
-        description: "Welcome to Practice ROI. Setting up your workspace...",
+        description: `Welcome to Practice ROI! Your 14-day free trial on the ${selectedPlan?.name || "Professional"} plan has started.`,
         color: "success",
       });
 
       navigate("/signup/thank-you", { state: confirmationState });
     } catch (err: any) {
-      console.error("Signup failed:", err);
-      const msg = err.response?.data?.message || err.message || "Sign up failed. Please check your inputs.";
-      const lowerMsg = msg.toLowerCase();
+      console.error("Signup error:", err);
+      const msg =
+        err.response?.data?.message ||
+        err.message ||
+        "An unexpected error occurred during signup. Please try again.";
+
       const isPaymentFailure =
-        lowerMsg.includes("card") ||
-        lowerMsg.includes("payment") ||
-        lowerMsg.includes("decline") ||
-        lowerMsg.includes("stripe") ||
-        lowerMsg.includes("fund") ||
-        lowerMsg.includes("cvc") ||
-        lowerMsg.includes("expire") ||
-        lowerMsg.includes("charge");
+        msg.toLowerCase().includes("payment") ||
+        msg.toLowerCase().includes("card") ||
+        msg.toLowerCase().includes("stripe") ||
+        msg.toLowerCase().includes("declined") ||
+        msg.toLowerCase().includes("cvc") ||
+        msg.toLowerCase().includes("expired");
 
       if (isPaymentFailure) {
         const failedState: PaymentFailedState = {
@@ -387,7 +451,7 @@ export const SignupFlow: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-[#070C18] flex flex-col items-center justify-center gap-3">
         <Spinner size="lg" color="primary" />
-        <span className="text-xs font-bold text-slate-400">Preparing signup page...</span>
+        <span className="text-xs font-bold text-slate-400">Preparing plans page...</span>
       </div>
     );
   }
@@ -395,27 +459,76 @@ export const SignupFlow: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#070C18] text-slate-900 dark:text-slate-100 flex flex-col items-center py-8 px-4 sm:px-6">
       <SignupHeader
-        currentStep={currentStep}
+        currentStep={isUpgrade && currentStep === 3 ? 2 : currentStep}
+        isUpgrade={isUpgrade}
         showThemeToggle={true}
-        showBackButton={currentStep === 2}
-        onBackClick={() => setCurrentStep(1)}
+        showBackButton={isUpgrade ? true : (currentStep === 2 || currentStep === 3)}
+        backButtonText={isUpgrade ? (currentStep === 3 ? "Back to Choose Plan" : "Back to Billing") : (currentStep === 3 ? "Back to Details" : "Back to Choose Plan")}
+        onBackClick={() => {
+          if (isUpgrade) {
+            if (currentStep === 3) {
+              setCurrentStep(1);
+            } else {
+              navigate("/settings/billing");
+            }
+          } else {
+            setCurrentStep((prev) => (prev === 3 ? 2 : 1));
+          }
+        }}
         onStepClick={(step) => {
-          if (step === 1) setCurrentStep(1);
+          if (isUpgrade) {
+            if (step === 1) setCurrentStep(1);
+            else if (step === 2 && selectedPlan) setCurrentStep(3);
+          } else {
+            if (step === 1) {
+              setCurrentStep(1);
+            } else if (step === 2 && selectedPlan) {
+              setCurrentStep(2);
+            }
+          }
         }}
       />
       {currentStep === 1 && (
+        <StepChoosePlan
+          plans={plans}
+          selectedPlan={selectedPlan}
+          onSelectPlan={(plan) => setSelectedPlan(plan)}
+          billingCycle={billingCycle}
+          setBillingCycle={setBillingCycle}
+          onContinue={(chosenPlan) => {
+            if (chosenPlan) setSelectedPlan(chosenPlan);
+            if (isUpgrade) {
+              setCurrentStep(3);
+            } else {
+              setCurrentStep(2);
+            }
+          }}
+          loading={loadingPlans}
+        />
+      )}
+      {currentStep === 2 && !isUpgrade && (
         <StepYourDetails
           onContinue={() => formik.handleSubmit()}
+          onBack={() => setCurrentStep(1)}
           formik={formik}
           emailError={emailInUseError}
           setEmailError={setEmailInUseError}
+          selectedPlan={selectedPlan}
+          billingCycle={billingCycle}
         />
       )}
-      {currentStep === 2 && (
+      {currentStep === 3 && (
         <StepPayment
           selectedPlan={selectedPlan}
           billingCycle={billingCycle}
-          onBack={() => setCurrentStep(1)}
+          isUpgrade={isUpgrade}
+          onBack={() => {
+            if (isUpgrade) {
+              setCurrentStep(1);
+            } else {
+              setCurrentStep(2);
+            }
+          }}
           onSubmitSignup={handleCompleteSignup}
           isSubmitting={isSubmitting}
           cardNumber={cardNumber}

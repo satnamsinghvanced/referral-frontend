@@ -17,17 +17,32 @@ export interface SignupHeaderProps {
   title?: React.ReactNode;
   subtitle?: string;
   isTwilioCredits?: boolean;
+  isUpgrade?: boolean;
   hideStepper?: boolean;
   showThemeToggle?: boolean;
   showBackButton?: boolean;
   onBackClick?: () => void;
+  backButtonText?: string;
+}
+
+export interface StepChoosePlanProps {
+  plans: PlanData[];
+  selectedPlan: PlanData | null;
+  onSelectPlan: (plan: PlanData) => void;
+  billingCycle: "monthly" | "annual";
+  setBillingCycle: (cycle: "monthly" | "annual") => void;
+  onContinue: (plan?: PlanData) => void;
+  loading?: boolean;
 }
 
 export interface StepYourDetailsProps {
   onContinue: () => void;
+  onBack?: () => void;
   formik: any;
   emailError?: string;
   setEmailError?: (err: string) => void;
+  selectedPlan?: PlanData | null;
+  billingCycle?: "monthly" | "annual";
 }
 
 export interface AppliedCoupon {
@@ -41,6 +56,7 @@ export interface AppliedCoupon {
 export interface StepPaymentProps {
   selectedPlan: PlanData | null;
   billingCycle: "monthly" | "annual";
+  isUpgrade?: boolean;
   onBack: () => void;
   onSubmitSignup: () => void;
   isSubmitting: boolean;
