@@ -27,6 +27,7 @@ export interface ChatWidgetConfig {
   enableSmsTransition?: boolean;
   smsPromptMessage?: string;
   smsConsentText?: string;
+  smsConfirmationMessage?: string;
   triggerAfterMessages?: boolean;
   triggerOnScheduling?: boolean;
   triggerImmediately?: boolean;

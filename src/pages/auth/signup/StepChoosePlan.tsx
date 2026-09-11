@@ -153,16 +153,18 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
             ((selectedPlan.planId && selectedPlan.planId.toLowerCase() === planId) ||
               selectedPlan._id === plan._id ||
               (selectedPlan.name && selectedPlan.name.toLowerCase() === (plan.name || "").toLowerCase()));
-          const isPopular = isPlanPopular(plan);
-
           const isAnnual = billingCycle === "annual";
+          const basePrice = plan.monthlyPricing?.price ?? plan.price ?? 0;
+          const aPrice = plan.annualPricing?.price ?? plan.annualPrice;
+          const disc = plan.annualPricing?.discountPercent ?? plan.discountPercent ?? 0;
+
           const displayPrice = isAnnual
-            ? plan.annualPrice !== undefined && plan.annualPrice !== null
-              ? plan.annualPrice
-              : plan.discountPercent && plan.discountPercent > 0
-              ? Math.round(plan.price * (1 - plan.discountPercent / 100))
-              : plan.price
-            : plan.price;
+            ? aPrice !== undefined && aPrice !== null && aPrice > 0
+              ? aPrice
+              : disc > 0 && basePrice > 0
+              ? Math.round(basePrice * (1 - disc / 100))
+              : basePrice
+            : basePrice;
 
           const rawFeatures = isAnnual
             ? plan.yearlyFeatures || plan.featuresList || plan.monthlyFeatures
@@ -176,7 +178,7 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
                 }))
               : (plan.features || []).map((f) => ({ name: f, isEnabled: true }));
 
-          // Show only enabled features
+          const isPopular = isPlanPopular(plan);
           const visibleFeatures = features.filter((f) => f.isEnabled !== false);
 
           return (

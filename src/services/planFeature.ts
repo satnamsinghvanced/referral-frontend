@@ -28,6 +28,7 @@ export interface AnnualPricing {
   price: number;
   discountPercent: number;
   totalValue?: number;
+  saveAmount?: number;
   description: string;
 }
 
