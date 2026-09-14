@@ -89,7 +89,6 @@ export const parseMessageDate = (val?: number | string | Date): Date | null => {
     if (val === "Just now") return new Date();
     const parsed = new Date(val);
     if (!isNaN(parsed.getTime())) return parsed;
-
     const timeMatch = val.match(/^(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?$/i);
     if (timeMatch) {
       const today = new Date();
@@ -118,69 +117,54 @@ export const isSameDay = (d1: Date, d2: Date): boolean => {
 export const formatDateLabel = (dateVal?: number | string | Date): string => {
   const date = parseMessageDate(dateVal);
   if (!date) return "";
-
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
-
   const targetDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-
   if (isSameDay(targetDate, today)) {
     return "Today";
   }
   if (isSameDay(targetDate, yesterday)) {
     return "Yesterday";
   }
-
   const diffTime = today.getTime() - targetDate.getTime();
   const diffDays = diffTime / (1000 * 3600 * 24);
-
   if (diffDays > 0 && diffDays < 7) {
     return date.toLocaleDateString("en-US", { weekday: "long" });
   }
-
   if (date.getFullYear() === now.getFullYear()) {
     return date.toLocaleDateString("en-US", { month: "short", day: "numeric" });
   }
-
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 };
 
 export const formatConversationTime = (timeStr?: string, timestamp?: number): string => {
   if (timeStr === "Just now") return "Just now";
-
   let date: Date | null = null;
   if (timestamp) {
     date = new Date(timestamp);
   } else if (timeStr) {
     date = parseMessageDate(timeStr);
   }
-
   if (!date || isNaN(date.getTime())) {
     return timeStr || "";
   }
-
   const now = new Date();
   const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   const yesterday = new Date(today);
   yesterday.setDate(yesterday.getDate() - 1);
-
   const targetDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-
   if (isSameDay(targetDate, today)) {
     return date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" });
   }
   if (isSameDay(targetDate, yesterday)) {
     return "Yesterday";
   }
-
   const diffTime = today.getTime() - targetDate.getTime();
   const diffDays = diffTime / (1000 * 3600 * 24);
-
   if (diffDays > 0 && diffDays < 7) {
     return date.toLocaleDateString("en-US", { weekday: "long" });
   }
-
   return date.toLocaleDateString("en-US", { month: "numeric", day: "numeric", year: "numeric" });
 };
