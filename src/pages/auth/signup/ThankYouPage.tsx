@@ -173,13 +173,12 @@ export const ThankYouPage: React.FC = () => {
 
         <div className="text-center text-xs text-slate-500 dark:text-slate-400">
           Need help with your account?{" "}
-          <button
-            type="button"
-            onClick={() => navigate("/support")}
+          <a
+            href="mailto:support@practiceroi.com"
             className="text-sky-500 hover:underline font-medium"
           >
             Contact Support
-          </button>
+          </a>
         </div>
       </div>
     </div>

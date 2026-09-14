@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { FiCheck, FiArrowRight } from "react-icons/fi";
+import { FiCheck, FiX, FiArrowRight } from "react-icons/fi";
 import { Spinner, addToast } from "@heroui/react";
 import { fetchPlansAndFeatures, PlanData } from "../../../services/planFeature";
 import { StepChoosePlanProps } from "./types";
@@ -107,11 +107,14 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
     );
   }
 
-  // Determine annual discount percent from first plan with discountPercent or default to 17%
-  const annualDiscountBadge =
-    plans.find((p) => (p.annualPricing?.discountPercent ?? p.discountPercent ?? 0) > 0)?.annualPricing?.discountPercent ||
-    plans.find((p) => (p.discountPercent ?? 0) > 0)?.discountPercent ||
-    17;
+  // Determine popular plan discount percent for the annual toggle button
+  const popularPlan = plans.find((p) => isPlanPopular(p)) || plans[0];
+  const popularAnnualDiscount =
+    popularPlan?.annualPricing?.discountPercent ??
+    popularPlan?.discountPercent ??
+    (popularPlan?.monthlyPricing?.price && popularPlan?.annualPricing?.price && popularPlan.annualPricing.price < popularPlan.monthlyPricing.price
+      ? Math.round(((popularPlan.monthlyPricing.price - popularPlan.annualPricing.price) / popularPlan.monthlyPricing.price) * 100)
+      : 17);
 
   return (
     <div className="w-full max-w-6xl flex flex-col items-center">
@@ -139,8 +142,8 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
             }`}
           >
             <span>Annual</span>
-            <span className="bg-[#FFE8DC] text-[#FF5A1F] dark:bg-orange-950/70 dark:text-orange-300 text-[10px] font-bold px-2 py-0.5 rounded-full">
-              Save {annualDiscountBadge}%
+            <span className="bg-[#FFE8DC] text-[#FF5A1F] dark:bg-orange-950/70 dark:text-orange-300 text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
+              Save {popularAnnualDiscount}%
             </span>
           </button>
         </div>
@@ -152,27 +155,47 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
           const planId = (plan.planId || plan.name || "").toLowerCase();
           const isSelected =
             selectedPlan &&
-            ((selectedPlan.planId && selectedPlan.planId.toLowerCase() === planId) ||
-              selectedPlan._id === plan._id ||
+            ((selectedPlan._id && plan._id && String(selectedPlan._id) === String(plan._id)) ||
+              (selectedPlan.planId && selectedPlan.planId.toLowerCase() === planId) ||
               (selectedPlan.name && selectedPlan.name.toLowerCase() === (plan.name || "").toLowerCase()));
           const isPopular = isPlanPopular(plan);
+          const isEnterprise =
+            planId.includes("enterprise") ||
+            (plan.name || "").toLowerCase().includes("enterprise") ||
+            (plan.monthlyPricing?.price === 0 && plan.annualPricing?.price === 0);
 
           const isAnnual = billingCycle === "annual";
           const monthlyPrice = plan.monthlyPricing?.price ?? plan.price ?? 0;
-          const annualPrice = plan.annualPricing?.price ?? plan.annualPrice;
+          const rawAnnualPrice = plan.annualPricing?.price ?? plan.annualPrice;
           const discountPercent = plan.annualPricing?.discountPercent ?? plan.discountPercent ?? 0;
 
-          const displayPrice = isAnnual
-            ? annualPrice !== undefined && annualPrice !== null
-              ? annualPrice
+          const annualMonthlyPrice =
+            rawAnnualPrice !== undefined && rawAnnualPrice !== null && Number(rawAnnualPrice) > 0
+              ? Number(rawAnnualPrice)
               : discountPercent > 0
               ? Math.round(monthlyPrice * (1 - discountPercent / 100))
-              : monthlyPrice
-            : monthlyPrice;
+              : monthlyPrice;
+
+          const displayPrice = isAnnual ? annualMonthlyPrice : monthlyPrice;
+
+          const annualTotal =
+            plan.annualPricing?.totalValue ||
+            (rawAnnualPrice && Number(rawAnnualPrice) > 0
+              ? Number(rawAnnualPrice) * 12
+              : annualMonthlyPrice * 12);
+
+          const regularYearlyTotal = monthlyPrice * 12;
+          const savingsPerYear = Math.max(0, regularYearlyTotal - annualTotal);
+          const savingsPercent =
+            discountPercent > 0
+              ? discountPercent
+              : monthlyPrice > 0 && annualMonthlyPrice < monthlyPrice
+              ? Math.round(((monthlyPrice - annualMonthlyPrice) / monthlyPrice) * 100)
+              : 0;
 
           const rawFeatures = isAnnual
-            ? plan.yearlyFeatures || plan.featuresList || plan.monthlyFeatures
-            : plan.monthlyFeatures || plan.featuresList || plan.yearlyFeatures;
+            ? plan.yearlyFeatures || plan.featuresList || plan.monthlyFeatures || plan.features || []
+            : plan.monthlyFeatures || plan.featuresList || plan.yearlyFeatures || plan.features || [];
 
           const features =
             Array.isArray(rawFeatures) && rawFeatures.length > 0
@@ -180,12 +203,9 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
                   name: typeof f === "string" ? f : f.name,
                   isEnabled: typeof f === "string" ? true : f.isEnabled !== false,
                 }))
-              : (plan.features || []).map((f) => ({ name: f, isEnabled: true }));
+              : [];
 
-          // Show only enabled features
-          const visibleFeatures = features.filter((f) => f.isEnabled !== false);
-
-          return (
+            return (
             <div
               key={plan.planId || plan._id || plan.name}
               onClick={() => handleCardClick(plan)}
@@ -217,7 +237,7 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
                     <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 min-h-[32px] font-normal leading-relaxed">
                       {isAnnual && plan.yearlyDescription
                         ? plan.yearlyDescription
-                        : plan.description || "Designed for practice growth"}
+                        : plan.description || (isEnterprise ? "For established multi-location practices" : "Designed for practice growth")}
                     </p>
                   </div>
 
@@ -230,25 +250,91 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
                 </div>
 
                 {/* Price block */}
-                <div className="mt-4 mb-6 flex items-baseline gap-1">
-                  <span className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
-                    ${displayPrice}
-                  </span>
-                  <span className="text-xs sm:text-sm font-semibold text-slate-400">
-                    /month
-                  </span>
-                </div>
-
-                {/* Features List with green checkmarks */}
-                <div className="space-y-3 pt-2 flex-1">
-                  {visibleFeatures.map((feat, idx) => (
-                    <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-[13px]">
-                      <FiCheck className="w-4 h-4 text-emerald-500 shrink-0 mt-0.5 stroke-[2.5]" />
-                      <span className="text-slate-700 dark:text-slate-300 font-medium leading-relaxed">
-                        {feat.name}
+                <div className="mt-4 mb-5">
+                  {isEnterprise ? (
+                    <div className="min-h-[58px] flex flex-col justify-center">
+                      <span className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
+                        Connect With Us
                       </span>
                     </div>
-                  ))}
+                  ) : (
+                    <div>
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-3xl sm:text-4xl font-black text-slate-900 dark:text-white tracking-tight">
+                          ${displayPrice}
+                        </span>
+                        <span className="text-xs sm:text-sm font-semibold text-slate-400">
+                          /month
+                        </span>
+                      </div>
+
+                      {isAnnual ? (
+                        <div className="mt-1 space-y-0.5 min-h-[36px]">
+                          {savingsPercent > 0 && (
+                            <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                              Save {savingsPerYear > 0 ? `$${savingsPerYear}/year ` : ""}({savingsPercent}% off)
+                            </p>
+                          )}
+                          <p className="text-xs font-normal text-slate-500 dark:text-slate-400">
+                            ${annualTotal} billed annually
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="mt-1 min-h-[36px]">
+                          <p className="text-xs font-normal text-slate-500 dark:text-slate-400">
+                            {plan.monthlyPricing?.description || "Billed monthly"}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Action Button inside card */}
+                <div className="mb-5">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCardClick(plan);
+                    }}
+                    className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                      isSelected
+                        ? "bg-[#009AE5] hover:bg-[#0087cb] text-white shadow-md shadow-sky-500/20"
+                        : isEnterprise
+                        ? "bg-[#009AE5] hover:bg-[#0087cb] text-white shadow-md shadow-sky-500/20"
+                        : "bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700"
+                    }`}
+                  >
+                    <span>{isEnterprise ? "Get In Touch" : isSelected ? "Selected Plan" : "Select Plan"}</span>
+                  </button>
+                </div>
+
+                {/* Features List with checkmarks and crossmarks */}
+                <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex-1">
+                  {features.map((feat, idx) => {
+                    const isEnabled = feat.isEnabled !== false;
+                    return (
+                      <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-[13px]">
+                        <div className="shrink-0 mt-0.5">
+                          {isEnabled ? (
+                            <FiCheck className="w-4 h-4 text-emerald-500 stroke-[3]" />
+                          ) : (
+                            <FiX className="w-4 h-4 text-red-500 stroke-[3]" />
+                          )}
+                        </div>
+                        <span
+                          className={`leading-relaxed ${
+                            isEnabled
+                              ? "text-slate-700 dark:text-slate-300 font-medium"
+                              : "text-slate-400 dark:text-slate-500 font-normal line-through opacity-75"
+                          }`}
+                        >
+                          {feat.name}
+                        </span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>

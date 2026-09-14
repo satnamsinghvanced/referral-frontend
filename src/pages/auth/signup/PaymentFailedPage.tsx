@@ -189,13 +189,12 @@ export const PaymentFailedPage: React.FC = () => {
             Return to Sign In
           </button>
 
-          <button
-            type="button"
-            onClick={() => navigate("/support")}
+          <a
+            href="mailto:Support@practiceROI.com"
             className="hover:text-sky-500 dark:hover:text-sky-400 transition-colors"
           >
-            Support Center
-          </button>
+            Contact Support
+          </a>
         </div>
       </div>
     </div>

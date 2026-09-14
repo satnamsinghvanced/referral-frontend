@@ -55,6 +55,11 @@ export const fetchPlansAndFeatures = async () => {
   return response.data;
 };
 
+export const fetchPricingPlanById = async (idOrPlanId: string) => {
+  const response = await axios.get(`/plans/${idOrPlanId}`);
+  return response.data;
+};
+
 export const createPricingPlan = async (payload: Partial<PlanData>) => {
   const response = await axios.post("/superadmin/plans", payload);
   return response.data;

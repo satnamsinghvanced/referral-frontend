@@ -91,7 +91,7 @@ const SuperAdminSidebar: React.FC<SuperAdminSidebarProps> = ({
         }`}
     >
       <div>
-        <div className="p-6 border-b border-slate-200/80 dark:border-[#1E293B] flex items-center gap-3">
+        <div className="p-3 border-b border-slate-200/80 dark:border-[#1E293B] flex items-center gap-3">
           <div
             onClick={() => navigate("/admin")}
             className="cursor-pointer hover:scale-105 transition-transform shrink-0"

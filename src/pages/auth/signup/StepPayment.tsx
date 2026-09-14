@@ -30,22 +30,27 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
   couponError,
   setCouponError,
 }) => {
-  const calcDisplayPrice = (plan: PlanData | null): number => {
-    if (!plan) return 399;
+  const calcDisplayPrice = (plan: PlanData | null): { totalCharged: number; perMonth: number } => {
+    if (!plan) return { totalCharged: 399, perMonth: 399 };
     const mPrice = plan.monthlyPricing?.price ?? plan.price ?? 0;
     const aPrice = plan.annualPricing?.price ?? plan.annualPrice;
-    const aDiscount = plan.annualPricing?.discountPercent ?? plan.discountPercent;
+    const aDiscount = plan.annualPricing?.discountPercent ?? plan.discountPercent ?? 0;
+    const aTotal = plan.annualPricing?.totalValue;
 
     if (billingCycle === "annual") {
-      if (aPrice) return aPrice;
-      if (aDiscount && aDiscount > 0 && mPrice > 0) {
-        return Math.round(mPrice * (1 - aDiscount / 100));
-      }
+      const perMonth =
+        aPrice !== undefined && aPrice !== null && Number(aPrice) > 0
+          ? Number(aPrice)
+          : aDiscount > 0 && mPrice > 0
+          ? Math.round(mPrice * (1 - aDiscount / 100))
+          : mPrice;
+      const totalCharged = aTotal && aTotal > 0 ? aTotal : perMonth * 12;
+      return { totalCharged, perMonth };
     }
-    return mPrice;
+    return { totalCharged: mPrice, perMonth: mPrice };
   };
 
-  const basePrice = calcDisplayPrice(selectedPlan);
+  const { totalCharged: basePrice, perMonth: monthlyEquivalent } = calcDisplayPrice(selectedPlan);
   let discountAmount = 0;
   if (appliedCoupon) {
     if (appliedCoupon.type === "percent") {
@@ -309,7 +314,7 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
                 <span className="text-[11px] text-slate-400 font-normal block">
                   {isUpgrade
                     ? `Immediate activation (${billingCycle === "annual" ? "Billed annually" : "Billed monthly"})`
-                    : `First charge on ${formattedTrialEndDate}`}
+                    : `First charge on ${formattedTrialEndDate}, $${finalPrice.toFixed(finalPrice % 1 !== 0 ? 2 : 0)}`}
                 </span>
               </div>
               <div className="text-right">
