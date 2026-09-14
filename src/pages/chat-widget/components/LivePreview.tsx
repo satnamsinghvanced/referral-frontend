@@ -21,6 +21,7 @@ interface LivePreviewProps {
   enableSmsTransition: boolean;
   smsPromptMessage: string;
   smsConsentText: string;
+  smsConfirmationMessage?: string;
   triggerAfterMessages?: boolean;
   triggerOnScheduling?: boolean;
   triggerImmediately?: boolean;
@@ -65,6 +66,7 @@ export default function LivePreview({
   enableSmsTransition,
   smsPromptMessage,
   smsConsentText,
+  smsConfirmationMessage,
   triggerAfterMessages = true,
   triggerOnScheduling = true,
   triggerImmediately = false,
@@ -425,7 +427,11 @@ export default function LivePreview({
                                 </div>
                               ) : (
                                 <div className="bg-emerald-100 dark:bg-emerald-950/50 text-emerald-800 dark:text-emerald-300 p-1.5 rounded-md text-[9.5px] font-semibold">
-                                  ✓ SMS transition requested! We'll text you shortly.
+                                  {(() => {
+                                    const phoneDisplay = smsPhoneInput ? (smsPhoneInput.replace(/\D/g, "").length === 10 ? `(${smsPhoneInput.replace(/\D/g, "").slice(0,3)}) ${smsPhoneInput.replace(/\D/g, "").slice(3,6)}-${smsPhoneInput.replace(/\D/g, "").slice(6)}` : smsPhoneInput) : "your phone number";
+                                    const tmpl = smsConfirmationMessage || "Awesome! We will text you shortly at {phone}.";
+                                    return tmpl.includes("{phone}") ? tmpl.replace(/\{phone\}/g, phoneDisplay) : `${tmpl} ${phoneDisplay}`;
+                                  })()}
                                 </div>
                               )}
                             </div>

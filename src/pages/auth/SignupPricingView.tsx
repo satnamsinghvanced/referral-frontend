@@ -85,7 +85,7 @@ const SignupPricingView: React.FC = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-[#070C18] flex flex-col items-center justify-center gap-3">
-        <div className="w-10 h-10 border-3 border-sky-500 border-t-transparent rounded-full animate-spin"></div>
+        <div className="w-10 h-10 border-3 border-[#02A6F6] border-t-transparent rounded-full animate-spin"></div>
         <span className="text-xs font-bold text-slate-400">Loading pricing plans...</span>
       </div>
     );

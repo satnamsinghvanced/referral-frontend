@@ -179,17 +179,15 @@ export const StepYourDetails: React.FC<StepYourDetailsProps> = ({
                         aria-label={field.label}
                         isInvalid={isInvalid}
                         classNames={{
-                          trigger: `border ${
-                            isInvalid
-                              ? "!border-red-500 dark:!border-red-500"
-                              : value
+                          trigger: `border ${isInvalid
+                            ? "!border-red-500 dark:!border-red-500"
+                            : value
                               ? "border-[#20a9f8]"
                               : "border-slate-300 dark:border-slate-700 group-data-[hover=true]:border-slate-400 hover:border-slate-400"
-                          } bg-[#f8fafc] dark:bg-slate-900/50 h-11 min-h-11 rounded-xl transition-colors ${
-                            isInvalid
+                            } bg-[#f8fafc] dark:bg-slate-900/50 h-11 min-h-11 rounded-xl transition-colors ${isInvalid
                               ? "group-data-[focus=true]:!border-red-500 group-data-[open=true]:!border-red-500"
                               : "group-data-[focus=true]:!border-[#20a9f8] group-data-[open=true]:!border-[#20a9f8]"
-                          }`,
+                            }`,
                           value: "text-slate-900 dark:text-slate-100 font-medium text-sm",
                         }}
                       >
@@ -232,17 +230,15 @@ export const StepYourDetails: React.FC<StepYourDetailsProps> = ({
                           ) : undefined
                         }
                         classNames={{
-                          inputWrapper: `border ${
-                            isInvalid
-                              ? "!border-red-500 dark:!border-red-500"
-                              : value
+                          inputWrapper: `border ${isInvalid
+                            ? "!border-red-500 dark:!border-red-500"
+                            : value
                               ? "border-[#20a9f8]"
                               : "border-slate-300 dark:border-slate-700 group-data-[hover=true]:border-slate-400 hover:border-slate-400"
-                          } bg-[#f8fafc] dark:bg-slate-900/50 h-11 rounded-xl transition-colors ${
-                            isInvalid
+                            } bg-[#f8fafc] dark:bg-slate-900/50 h-11 rounded-xl transition-colors ${isInvalid
                               ? "group-data-[focus=true]:!border-red-500 focus-within:!border-red-500"
                               : "group-data-[focus=true]:!border-[#20a9f8] focus-within:!border-[#20a9f8]"
-                          }`,
+                            }`,
                           input: "text-slate-900 dark:text-slate-100 placeholder:text-slate-400 font-medium text-sm",
                         }}
                       />

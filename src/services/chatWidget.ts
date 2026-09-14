@@ -27,6 +27,7 @@ export interface ChatWidgetConfig {
   enableSmsTransition?: boolean;
   smsPromptMessage?: string;
   smsConsentText?: string;
+  smsConfirmationMessage?: string;
   triggerAfterMessages?: boolean;
   triggerOnScheduling?: boolean;
   triggerImmediately?: boolean;
@@ -40,22 +41,12 @@ export interface ChatWidgetConfig {
   selectedPlatform?: string;
 }
 
-export const fetchChatWidgetConfig = async (): Promise<{
-  success: boolean;
-  message: string;
-  data: ChatWidgetConfig;
-}> => {
+export const fetchChatWidgetConfig = async (): Promise<{ success: boolean; message: string; data: ChatWidgetConfig; }> => {
   const response: any = await axios.get("/chat-widget");
   return response;
 };
 
-export const saveChatWidgetConfig = async (
-  payload: ChatWidgetConfig
-): Promise<{
-  success: boolean;
-  message: string;
-  data: ChatWidgetConfig;
-}> => {
+export const saveChatWidgetConfig = async (payload: ChatWidgetConfig): Promise<{ success: boolean; message: string; data: ChatWidgetConfig; }> => {
   const response: any = await axios.post("/chat-widget", payload);
   return response;
 };
@@ -81,22 +72,12 @@ export const getWebConversations = async (): Promise<any> => {
   return data;
 };
 
-export const sendWebMessage = async (
-  leadId: string,
-  text: string,
-  file?: { name: string; url: string; type: string }
-): Promise<any> => {
-  const { data } = await axios.post("/chat-widget/reply", {
-    leadId,
-    text,
-    file,
-  });
+export const sendWebMessage = async (leadId: string, text: string, file?: { name: string; url: string; type: string }): Promise<any> => {
+  const { data } = await axios.post("/chat-widget/reply", { leadId, text, file });
   return data;
 };
 
-export const markWebConversationRead = async (
-  leadId: string
-): Promise<any> => {
+export const markWebConversationRead = async (leadId: string): Promise<any> => {
   const { data } = await axios.post(`/chat-widget/conversations/${leadId}/read`);
   return data;
 };

@@ -73,7 +73,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
         href: "/lead-tracking",
         stats: dashboardStats?.leadsCount || 0,
         color: "bg-sky-100 dark:bg-sky-900/40",
-        requiredPermission: ["Manage Lead Tracking"],
+        // requiredPermission: ["Manage Lead Tracking"],
       },
       {
         name: "Conversations",
@@ -81,8 +81,8 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
         href: "/conversations",
         stats: dashboardStats?.conversations || 0,
         color: "bg-sky-100 dark:bg-sky-900/40",
-        requiredPermission: ["Manage Conversations"],
-        requiredPlanAccess: "advanced_referral_tracking",
+        // requiredPermission: ["Manage Conversations"],
+        // requiredPlanAccess: "advanced_referral_tracking",
       },
       {
         name: "Referrals",
@@ -90,7 +90,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
         href: "/referrals",
         stats: dashboardStats?.referrals || 0,
         color: "bg-sky-100 dark:bg-sky-900/40",
-        requiredPermission: ["Manage Referrals"],
+        // requiredPermission: ["Manage Referrals"],
       },
       {
         name: "Partner Network",
@@ -98,7 +98,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
         href: "/partner-network",
         stats: dashboardStats?.partners || 0,
         color: "bg-sky-200 dark:bg-sky-900/30",
-        requiredPermission: ["Manage Referrers and Partners", "Manage Referrers"],
+        // requiredPermission: ["Manage Referrers and Partners", "Manage Referrers"],
       },
       {
         name: "Reviews",
@@ -106,8 +106,8 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
         href: "/reviews",
         stats: dashboardStats?.reviews ?? dashboardStats?.totalReviews ?? 0,
         color: "bg-yellow-200 dark:bg-yellow-900/30",
-        requiredPermission: ["Manage Review", "Manage Reviews"],
-        requiredPlanAccess: "google_business",
+        // requiredPermission: ["Manage Review", "Manage Reviews"],
+        // requiredPlanAccess: "google_business",
       },
       {
         name: "Social Media",
@@ -115,8 +115,8 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
         href: "/social-media",
         stats: 0,
         color: "bg-purple-300 dark:bg-purple-900/30",
-        requiredPermission: ["Manage Social Media"],
-        requiredPlanAccess: "social_media",
+        // requiredPermission: ["Manage Social Media"],
+        // requiredPlanAccess: "social_media",
       },
       {
         name: "Marketing Calendar",
@@ -124,8 +124,8 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
         href: "/marketing-calendar",
         stats: dashboardStats?.activities || 0,
         color: "bg-orange-300 dark:bg-orange-900/30",
-        requiredPermission: ["Manage Calendar"],
-        requiredPlanAccess: "marketing_calendar",
+        // requiredPermission: ["Manage Calendar"],
+        // requiredPlanAccess: "marketing_calendar",
       },
       {
         name: "Call Tracking",
@@ -133,8 +133,8 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
         href: "/call-logs",
         stats: dashboardStats?.totalCalls || 0,
         color: "bg-sky-100 dark:bg-sky-900/40",
-        requiredPermission: ["Manage Call Tracking"],
-        requiredPlanAccess: "call_tracking",
+        // requiredPermission: ["Manage Call Tracking"],
+        // requiredPlanAccess: "call_tracking",
       },
       {
         name: "Email Campaigns",
@@ -142,7 +142,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
         href: "/email-campaigns",
         stats: 0,
         color: "bg-green-300 dark:bg-green-900/30",
-        requiredPermission: ["Manage Email Campaigns"],
+        // requiredPermission: ["Manage Email Campaigns"],
       },
       {
         name: "Chat Widget",
@@ -150,8 +150,8 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
         href: "/chat-widget",
         stats: undefined,
         color: undefined,
-        requiredPermission: ["Manage Chat Widget"],
-        requiredPlanAccess: "advanced_referral_tracking",
+        // requiredPermission: ["Manage Chat Widget"],
+        // requiredPlanAccess: "advanced_referral_tracking",
       },
       {
         name: "Analytics",
@@ -159,8 +159,8 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
         href: "/analytics",
         stats: undefined,
         color: "bg-red-300 dark:bg-red-900/30",
-        requiredPermission: ["View Analytics"],
-        requiredPlanAccess: "basic_analytics",
+        // requiredPermission: ["View Analytics"],
+        // requiredPlanAccess: "basic_analytics",
       },
       {
         name: "Reports",
@@ -168,7 +168,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
         href: "/reports",
         stats: undefined,
         color: "bg-gray-300 dark:bg-gray-800",
-        requiredPermission: ["Manage Reports"],
+        // requiredPermission: ["Manage Reports"],
       },
       {
         name: "Task List",
@@ -176,7 +176,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
         href: "/tasks",
         stats: dashboardStats?.tasks || 0,
         color: "bg-red-300 dark:bg-red-900/30",
-        requiredPermission: ["Manage Task List", "Task List"],
+        // requiredPermission: ["Manage Task List", "Task List"],
       },
       {
         name: "QR Generator",
@@ -184,7 +184,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
         href: "/qr-generator",
         stats: undefined,
         color: "bg-red-300 dark:bg-red-900/30",
-        requiredPermission: ["Manage Referrers and Partners", "Manage Referrers"],
+        // requiredPermission: ["Manage Referrers and Partners", "Manage Referrers"],
       },
       {
         name: "Marketing Budget",
@@ -192,8 +192,8 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
         href: "/marketing-budget",
         stats: undefined,
         color: "bg-red-300 dark:bg-red-900/30",
-        requiredPermission: ["Manage Marketing Budget"],
-        requiredPlanAccess: "budget_tracking",
+        // requiredPermission: ["Manage Marketing Budget"],
+        // requiredPlanAccess: "budget_tracking",
       },
       {
         name: "Media Management",
@@ -201,7 +201,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
         href: "/media-management",
         stats: undefined,
         color: "bg-red-300 dark:bg-red-900/30",
-        requiredPermission: ["Manage Media Management", "Manage Media"],
+        // requiredPermission: ["Manage Media Management", "Manage Media"],
       },
       {
         name: "Integrations",
@@ -209,7 +209,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
         href: "/integrations",
         stats: dashboardStats?.integrations || 0,
         color: "bg-blue-400 dark:bg-blue-900/40",
-        requiredPermission: ["Manage Integrations"],
+        // requiredPermission: ["Manage Integrations"],
       },
 
       {

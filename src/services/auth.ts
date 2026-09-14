@@ -81,9 +81,7 @@ export const login = async (payload: LoginPayload): Promise<LoginResponse> => {
   return response.data;
 };
 
-export const verify2FA = async (
-  payload: Verify2FAPayload,
-): Promise<LoginResponse> => {
+export const verify2FA = async (payload: Verify2FAPayload): Promise<LoginResponse> => {
   const response = await axios.post("/users/verify-2fa", payload);
   return response.data;
 };

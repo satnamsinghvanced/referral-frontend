@@ -8,6 +8,8 @@ interface SmsSetupStepProps {
   setSmsPromptMessage: (val: string) => void;
   smsConsentText: string;
   setSmsConsentText: (val: string) => void;
+  smsConfirmationMessage: string;
+  setSmsConfirmationMessage: (val: string) => void;
   triggerAfterMessages: boolean;
   setTriggerAfterMessages: (val: boolean) => void;
   triggerOnScheduling: boolean;
@@ -25,6 +27,8 @@ export default function SmsSetupStep({
   setSmsPromptMessage,
   smsConsentText,
   setSmsConsentText,
+  smsConfirmationMessage,
+  setSmsConfirmationMessage,
   triggerAfterMessages,
   setTriggerAfterMessages,
   triggerOnScheduling,
@@ -64,6 +68,22 @@ export default function SmsSetupStep({
                 <span className="text-xs text-danger font-semibold mt-1 block font-sans">{errors.smsPromptMessage}</span>
               ) : (
                 <span className="text-[10px] text-default-400 font-sans font-light mt-0.5">Message asking patient if they'd like to switch to SMS</span>
+              )}
+            </div>
+            <div className="space-y-1 flex flex-col">
+              <label className="text-xs font-bold text-default-700 block mb-1 font-sans">
+                SMS Confirmation Message <span className="text-danger">*</span>
+              </label>
+              <textarea
+                placeholder="e.g. Awesome! We will text you shortly at {phone}."
+                value={smsConfirmationMessage}
+                onChange={(e) => handleInputChange("smsConfirmationMessage", e.target.value, setSmsConfirmationMessage)}
+                className={`w-full h-16 border-none rounded-lg p-3 text-sm focus:bg-default-100 outline-none bg-default-100/50 hover:bg-default-100 dark:bg-content2/50 dark:focus:bg-content2 text-foreground font-sans transition-colors ${errors.smsConfirmationMessage ? "ring-2 ring-danger" : "ring-none"}`}
+              />
+              {errors.smsConfirmationMessage ? (
+                <span className="text-xs text-danger font-semibold mt-1 block font-sans">{errors.smsConfirmationMessage}</span>
+              ) : (
+                <span className="text-[10px] text-default-400 font-sans font-light mt-0.5">Success message shown after user opts in. Use <code className="text-primary font-mono">{'{phone}'}</code> to include patient phone number.</span>
               )}
             </div>
             <div className="flex items-start gap-2.5 mt-2">

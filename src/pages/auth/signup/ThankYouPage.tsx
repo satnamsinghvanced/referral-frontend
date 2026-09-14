@@ -78,7 +78,7 @@ export const ThankYouPage: React.FC = () => {
       <SignupHeader
         currentStep={3}
         showThemeToggle={true}
-        hideStepper={false}
+        hideStepper={true}
         title={
           <>
             Welcome to <span className="text-[#20a9f8] dark:text-sky-400">Practice ROI!</span>
@@ -174,7 +174,9 @@ export const ThankYouPage: React.FC = () => {
         <div className="text-center text-xs text-slate-500 dark:text-slate-400">
           Need help with your account?{" "}
           <a
-            href="mailto:support@practiceroi.com"
+            href="https://practiceroi.com/contact/"
+            target="_blank"
+            rel="noopener noreferrer"
             className="text-sky-500 hover:underline font-medium"
           >
             Contact Support

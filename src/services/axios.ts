@@ -49,7 +49,6 @@ axiosInstance.interceptors.request.use(
 
       config.headers.Authorization = `Bearer ${token}`;
     }
-
     return config;
   },
   (error) => Promise.reject(error),
@@ -74,7 +73,6 @@ axiosInstance.interceptors.response.use(
         }, 5000);
       }
     }
-
     if (error.response?.status === 401 || error.response?.status === 403) {
       if (!error.config?.url?.includes("/logout")) {
         store.dispatch(handleLogoutThunk());

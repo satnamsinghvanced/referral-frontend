@@ -66,6 +66,7 @@ export default function ChatWidgetBuilder() {
   const [enableSmsTransition, setEnableSmsTransition] = useState(true);
   const [smsPromptMessage, setSmsPromptMessage] = useState("");
   const [smsConsentText, setSmsConsentText] = useState("");
+  const [smsConfirmationMessage, setSmsConfirmationMessage] = useState("");
   const [triggerAfterMessages, setTriggerAfterMessages] = useState(true);
   const [triggerOnScheduling, setTriggerOnScheduling] = useState(true);
   const [triggerImmediately, setTriggerImmediately] = useState(false);
@@ -115,6 +116,11 @@ export default function ChatWidgetBuilder() {
       case "smsConsentText":
         if (enableSmsTransition && !value.trim()) {
           error = "SMS Consent Text is required";
+        }
+        break;
+      case "smsConfirmationMessage":
+        if (enableSmsTransition && !value.trim()) {
+          error = "SMS Confirmation Message is required";
         }
         break;
       case "privacyPolicyUrl":
@@ -171,14 +177,15 @@ export default function ChatWidgetBuilder() {
       if (enableSmsTransition) {
         const e1 = validateField("smsPromptMessage", smsPromptMessage);
         const e2 = validateField("smsConsentText", smsConsentText);
-        let e3 = "";
+        const e3 = validateField("smsConfirmationMessage", smsConfirmationMessage);
+        let e4 = "";
         if (!triggerAfterMessages && !triggerOnScheduling && !triggerImmediately) {
-          e3 = "Please select at least one trigger condition for SMS transition";
-          setErrors(prev => ({ ...prev, smsTriggers: e3 }));
+          e4 = "Please select at least one trigger condition for SMS transition";
+          setErrors(prev => ({ ...prev, smsTriggers: e4 }));
         } else {
           setErrors(prev => ({ ...prev, smsTriggers: "" }));
         }
-        if (e1 || e2 || e3) isValid = false;
+        if (e1 || e2 || e3 || e4) isValid = false;
       }
     } else if (stepIdx === 3) {
       if (requirePatientConsent) {
@@ -228,6 +235,7 @@ export default function ChatWidgetBuilder() {
           setEnableSmsTransition(config.enableSmsTransition !== false);
           setSmsPromptMessage(config.smsPromptMessage || "");
           setSmsConsentText(config.smsConsentText || "");
+          setSmsConfirmationMessage(config.smsConfirmationMessage || "Awesome! We will text you shortly at {phone}.");
           setTriggerAfterMessages(config.triggerAfterMessages !== false);
           setTriggerOnScheduling(config.triggerOnScheduling !== false);
           setTriggerImmediately(!!config.triggerImmediately);
@@ -259,6 +267,7 @@ export default function ChatWidgetBuilder() {
             enableSmsTransition: config.enableSmsTransition !== false,
             smsPromptMessage: config.smsPromptMessage || "",
             smsConsentText: config.smsConsentText || "",
+            smsConfirmationMessage: config.smsConfirmationMessage || "Awesome! We will text you shortly at {phone}.",
             triggerAfterMessages: config.triggerAfterMessages !== false,
             triggerOnScheduling: config.triggerOnScheduling !== false,
             triggerImmediately: !!config.triggerImmediately,
@@ -345,6 +354,7 @@ export default function ChatWidgetBuilder() {
       enableSmsTransition,
       smsPromptMessage,
       smsConsentText,
+      smsConfirmationMessage,
       triggerAfterMessages,
       triggerOnScheduling,
       triggerImmediately,
@@ -593,6 +603,8 @@ export default function ChatWidgetBuilder() {
                   setSmsPromptMessage={setSmsPromptMessage}
                   smsConsentText={smsConsentText}
                   setSmsConsentText={setSmsConsentText}
+                  smsConfirmationMessage={smsConfirmationMessage}
+                  setSmsConfirmationMessage={setSmsConfirmationMessage}
                   triggerAfterMessages={triggerAfterMessages}
                   setTriggerAfterMessages={setTriggerAfterMessages}
                   triggerOnScheduling={triggerOnScheduling}
@@ -691,6 +703,7 @@ export default function ChatWidgetBuilder() {
             enableSmsTransition={enableSmsTransition}
             smsPromptMessage={smsPromptMessage}
             smsConsentText={smsConsentText}
+            smsConfirmationMessage={smsConfirmationMessage}
             requirePatientConsent={requirePatientConsent}
             privacyPolicyUrl={privacyPolicyUrl}
             requireEmail={requireEmail}
