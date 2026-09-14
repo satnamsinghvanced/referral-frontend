@@ -61,3 +61,13 @@ export const upgradePlan = async (payload: UpgradePlanPayload) => {
   const response = await axios.post("/billing/upgrade-plan", payload);
   return response.data || response;
 };
+
+export const cancelSubscription = async (reason?: string) => {
+  const response = await axios.post("/billing/cancel-subscription", { reason });
+  return response.data || response;
+};
+
+export const resumeSubscription = async () => {
+  const response = await axios.post("/billing/resume-subscription");
+  return response.data || response;
+};

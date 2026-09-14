@@ -154,7 +154,7 @@ export const ThankYouPage: React.FC = () => {
               <FiMail className="w-4 h-4 shrink-0 text-sky-600 dark:text-sky-400" />
               <span>
                 A confirmation details have been sent to{" "}
-                <span className="font-semibold">{confirmationData.user?.email}</span>.
+                <span className="font-semibold">{confirmationData.user?.email}</span>
               </span>
             </div>
             <div className="pt-2 flex justify-center">

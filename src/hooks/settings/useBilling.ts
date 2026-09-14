@@ -27,8 +27,8 @@ export const useBilling = () => {
       return undefined;
     },
     enabled: !!userId,
-    staleTime: 1000 * 5,
-    refetchInterval: 5000,
+    staleTime: 1000 * 60 * 5, // 5 minutes cache
+    refetchOnWindowFocus: false,
   });
 };
 

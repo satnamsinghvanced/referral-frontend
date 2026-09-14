@@ -50,8 +50,8 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
         const fetchedList: PlanData[] = Array.isArray(data?.plans)
           ? data.plans
           : Array.isArray(data)
-          ? data
-          : [];
+            ? data
+            : [];
 
         // Filter active plans
         const activePlans = fetchedList.filter((p) => p.isActive !== false);
@@ -124,22 +124,20 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
           <button
             type="button"
             onClick={() => setBillingCycle("monthly")}
-            className={`px-6 py-2 text-xs sm:text-sm font-bold rounded-full transition-all cursor-pointer ${
-              billingCycle === "monthly"
-                ? "bg-[#009AE5] text-white shadow-sm"
-                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-            }`}
+            className={`px-6 py-2 text-xs sm:text-sm font-bold rounded-full transition-all cursor-pointer ${billingCycle === "monthly"
+              ? "bg-[#009AE5] text-white shadow-sm"
+              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              }`}
           >
             Monthly
           </button>
           <button
             type="button"
             onClick={() => setBillingCycle("annual")}
-            className={`px-6 py-2 text-xs sm:text-sm font-bold rounded-full transition-all cursor-pointer flex items-center gap-1.5 ${
-              billingCycle === "annual"
-                ? "bg-[#009AE5] text-white shadow-sm"
-                : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
-            }`}
+            className={`px-6 py-2 text-xs sm:text-sm font-bold rounded-full transition-all cursor-pointer flex items-center gap-1.5 ${billingCycle === "annual"
+              ? "bg-[#009AE5] text-white shadow-sm"
+              : "text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white"
+              }`}
           >
             <span>Annual</span>
             <span className="bg-[#FFE8DC] text-[#FF5A1F] dark:bg-orange-950/70 dark:text-orange-300 text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
@@ -173,8 +171,8 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
             rawAnnualPrice !== undefined && rawAnnualPrice !== null && Number(rawAnnualPrice) > 0
               ? Number(rawAnnualPrice)
               : discountPercent > 0
-              ? Math.round(monthlyPrice * (1 - discountPercent / 100))
-              : monthlyPrice;
+                ? Math.round(monthlyPrice * (1 - discountPercent / 100))
+                : monthlyPrice;
 
           const displayPrice = isAnnual ? annualMonthlyPrice : monthlyPrice;
 
@@ -190,8 +188,8 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
             discountPercent > 0
               ? discountPercent
               : monthlyPrice > 0 && annualMonthlyPrice < monthlyPrice
-              ? Math.round(((monthlyPrice - annualMonthlyPrice) / monthlyPrice) * 100)
-              : 0;
+                ? Math.round(((monthlyPrice - annualMonthlyPrice) / monthlyPrice) * 100)
+                : 0;
 
           const rawFeatures = isAnnual
             ? plan.yearlyFeatures || plan.featuresList || plan.monthlyFeatures || plan.features || []
@@ -200,22 +198,20 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
           const features =
             Array.isArray(rawFeatures) && rawFeatures.length > 0
               ? rawFeatures.map((f: any) => ({
-                  name: typeof f === "string" ? f : f.name,
-                  isEnabled: typeof f === "string" ? true : f.isEnabled !== false,
-                }))
+                name: typeof f === "string" ? f : f.name,
+                isEnabled: typeof f === "string" ? true : f.isEnabled !== false,
+              }))
               : [];
 
-            return (
+          return (
             <div
               key={plan.planId || plan._id || plan.name}
               onClick={() => handleCardClick(plan)}
-              className={`group relative bg-white dark:bg-[#0c1322] rounded-[24px] p-7 flex flex-col justify-between transition-all duration-300 ease-out cursor-pointer select-none ${
-                isSelected
-                  ? "border-[2px] border-[#009AE5] shadow-xl z-10"
-                  : "border border-slate-200 dark:border-slate-800 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-md"
-              }`}
+              className={`group relative bg-white dark:bg-[#0c1322] rounded-[24px] p-7 flex flex-col justify-between transition-all duration-300 ease-out cursor-pointer select-none ${isSelected
+                ? "border-[2px] border-[#009AE5] shadow-xl z-10"
+                : "border border-slate-200 dark:border-slate-800 shadow-sm hover:border-slate-300 dark:hover:border-slate-700 hover:shadow-md"
+                }`}
             >
-              {/* Top 'Most Popular' banner for popular plan */}
               {isPopular && (
                 <div className="bg-[#009AE5] text-white font-bold text-xs sm:text-sm py-2.5 text-center -mt-7 -mx-7 mb-6 rounded-t-[21px] tracking-wide relative flex items-center justify-center">
                   <span>Most Popular</span>
@@ -228,7 +224,6 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
               )}
 
               <div className="flex flex-col flex-1">
-                {/* Plan Title & Subtitle + Blue Tick Icon (for non-popular plans) */}
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1">
                     <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
@@ -298,13 +293,12 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
                       e.stopPropagation();
                       handleCardClick(plan);
                     }}
-                    className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                      isSelected
-                        ? "bg-[#009AE5] hover:bg-[#0087cb] text-white shadow-md shadow-sky-500/20"
-                        : isEnterprise
+                    className={`w-full py-2.5 px-4 rounded-xl text-xs font-bold transition-all cursor-pointer ${isSelected
+                      ? "bg-[#009AE5] hover:bg-[#0087cb] text-white shadow-md shadow-sky-500/20"
+                      : isEnterprise
                         ? "bg-[#009AE5] hover:bg-[#0087cb] text-white shadow-md shadow-sky-500/20"
                         : "bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700"
-                    }`}
+                      }`}
                   >
                     <span>{isEnterprise ? "Get In Touch" : isSelected ? "Selected Plan" : "Select Plan"}</span>
                   </button>
@@ -324,11 +318,10 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
                           )}
                         </div>
                         <span
-                          className={`leading-relaxed ${
-                            isEnabled
-                              ? "text-slate-700 dark:text-slate-300 font-medium"
-                              : "text-slate-400 dark:text-slate-500 font-normal line-through opacity-75"
-                          }`}
+                          className={`leading-relaxed ${isEnabled
+                            ? "text-slate-700 dark:text-slate-300 font-medium"
+                            : "text-slate-400 dark:text-slate-500 font-normal line-through opacity-75"
+                            }`}
                         >
                           {feat.name}
                         </span>
