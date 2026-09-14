@@ -28,8 +28,19 @@ export interface PlanAccess {
 export interface BillingData {
   id: string;
   planId?: string;
+  planCode?: string;
   name: string;
   price: number;
+  nextBillingAmount?: number;
+  amountChargedToday?: number;
+  trialDays?: number;
+  trialEndsAt?: string | null;
+  trialDaysLeft?: number | null;
+  isTrial?: boolean;
+  cancelAtPeriodEnd?: boolean;
+  isAutopayEnabled?: boolean;
+  canceledAt?: string | null;
+  cancellationReason?: string | null;
   nextBillingDate: string;
   billingCycle: string;
   paymentMethod: string;
@@ -39,4 +50,5 @@ export interface BillingData {
   limits?: PlanLimits;
   access?: PlanAccess;
   features?: string[];
+  pricingPlan?: any;
 }

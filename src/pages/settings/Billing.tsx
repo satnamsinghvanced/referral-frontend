@@ -1,9 +1,10 @@
-import { Button, Card, CardBody, CardHeader, Spinner, addToast } from "@heroui/react";
+import { Button, Card, CardBody, CardHeader, Spinner, addToast, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/react";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiCreditCard, FiDownload, FiFileText, FiExternalLink, FiRefreshCw } from "react-icons/fi";
+import { FiCreditCard, FiDownload, FiFileText, FiRefreshCw, FiAlertTriangle } from "react-icons/fi";
+import { useQueryClient } from "@tanstack/react-query";
 import { useBilling } from "../../hooks/settings/useBilling";
-import { getLatestInvoice, getAllInvoices, downloadInvoicePdf, InvoiceItem } from "../../services/settings/billing";
+import { getLatestInvoice, getAllInvoices, downloadInvoicePdf, InvoiceItem, cancelSubscription, resumeSubscription } from "../../services/settings/billing";
 import { formatDateToReadable } from "../../utils/formatDateToReadable";
 import { LoadingState } from "../../components/common/LoadingState";
 
@@ -13,6 +14,7 @@ import Pagination from "../../components/common/Pagination";
 
 const Billing: React.FC = () => {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const user = useSelector((state: RootState) => state.auth.user);
   const { data: billingData, isLoading, error } = useBilling();
   const [isDownloadingInvoice, setIsDownloadingInvoice] = useState(false);
@@ -22,6 +24,10 @@ const Billing: React.FC = () => {
   const [isLoadingInvoices, setIsLoadingInvoices] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
+
+  const { isOpen: isCancelOpen, onOpen: onOpenCancel, onOpenChange: onCancelOpenChange, onClose: onCloseCancel } = useDisclosure();
+  const [isCanceling, setIsCanceling] = useState(false);
+  const [isResuming, setIsResuming] = useState(false);
 
   const fetchInvoices = async () => {
     try {
@@ -76,6 +82,64 @@ const Billing: React.FC = () => {
 
   const handleTogglePlanStatus = () => {
     navigate(`/upgrade-plan?${buildUpgradeQuery()}`);
+  };
+
+  const handleCancelSubscription = async () => {
+    try {
+      setIsCanceling(true);
+      const res: any = await cancelSubscription();
+      addToast({
+        title: "Subscription Canceled",
+        description: res?.message || "Your subscription has been canceled. Auto-pay is disabled and no further charges will occur.",
+        color: "success",
+      });
+      onCloseCancel();
+      // Invalidate queries & clear localStorage cached billing
+      if (user?.userId || (user as any)?._id || (user as any)?.id || user?.email) {
+        const id = user?.userId || (user as any)?._id || (user as any)?.id || user?.email;
+        try {
+          localStorage.removeItem(`cached_billing_data_${id}`);
+        } catch (e) { }
+      }
+      queryClient.invalidateQueries({ queryKey: ["billing"] });
+    } catch (err: any) {
+      const errorMsg = err?.response?.data?.message || err?.message || "Failed to cancel subscription.";
+      addToast({
+        title: "Cancellation Failed",
+        description: errorMsg,
+        color: "danger",
+      });
+    } finally {
+      setIsCanceling(false);
+    }
+  };
+
+  const handleResumeSubscription = async () => {
+    try {
+      setIsResuming(true);
+      const res: any = await resumeSubscription();
+      addToast({
+        title: "Subscription Resumed",
+        description: res?.message || "Auto-pay has been resumed successfully.",
+        color: "success",
+      });
+      if (user?.userId || (user as any)?._id || (user as any)?.id || user?.email) {
+        const id = user?.userId || (user as any)?._id || (user as any)?.id || user?.email;
+        try {
+          localStorage.removeItem(`cached_billing_data_${id}`);
+        } catch (e) { }
+      }
+      queryClient.invalidateQueries({ queryKey: ["billing"] });
+    } catch (err: any) {
+      const errorMsg = err?.response?.data?.message || err?.message || "Failed to resume subscription.";
+      addToast({
+        title: "Resume Failed",
+        description: errorMsg,
+        color: "danger",
+      });
+    } finally {
+      setIsResuming(false);
+    }
   };
 
   const handleDownloadPaymentInvoice = async () => {
@@ -197,9 +261,10 @@ const Billing: React.FC = () => {
     );
   }
 
-  const isTrial = billingData.status === "trial" || billingData.isTrial;
-  const isActive = billingData.status === "active";
-  const isCanceled = billingData.status === "canceled";
+  const isInactive = billingData.status === "inActive" || billingData.status === "expired" || billingData.status === "failed";
+  const isCanceled = !isInactive && (billingData.status === "canceled" || Boolean(billingData.cancelAtPeriodEnd));
+  const isTrial = !isInactive && !isCanceled && (billingData.status === "trial" || billingData.isTrial);
+  const isActive = !isInactive && !isCanceled && (billingData.status === "active" || billingData.status === "trial");
 
   const trialEnd = billingData.trialEndsAt || billingData.nextBillingDate;
 
@@ -221,7 +286,6 @@ const Billing: React.FC = () => {
   };
 
   const remainingText = getRemainingTimeText();
-
   const isShortDuration = trialEnd ? (new Date(trialEnd).getTime() - Date.now()) < 24 * 60 * 60 * 1000 : false;
 
   const limits = billingData.limits;
@@ -241,11 +305,13 @@ const Billing: React.FC = () => {
           <div
             className={`p-4 rounded-xl border transition-all ${isTrial
                 ? "bg-sky-50/60 dark:bg-sky-950/20 border-sky-300 dark:border-sky-800/80"
-                : isActive
-                  ? "bg-blue-50/50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800/60"
+                : isInactive
+                  ? "bg-red-50/40 dark:bg-red-950/15 border-red-300 dark:border-red-800/60"
                   : isCanceled
-                    ? "bg-zinc-50 dark:bg-zinc-900/40 border-zinc-300 dark:border-zinc-800"
-                    : "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800"
+                    ? "bg-amber-50/40 dark:bg-amber-950/15 border-amber-300 dark:border-amber-800/70"
+                    : isActive
+                      ? "bg-blue-50/50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800/60"
+                      : "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800"
               }`}
           >
             <div className="flex items-center justify-between mb-2">
@@ -257,13 +323,17 @@ const Billing: React.FC = () => {
                 <span className="inline-flex items-center justify-center rounded-full px-3.5 py-1 text-xs font-semibold shrink-0 bg-sky-100 dark:bg-sky-900/50 text-sky-700 dark:text-sky-300 border border-sky-300 dark:border-sky-700 shadow-sm">
                   Free Trial ({remainingText} left)
                 </span>
+              ) : isInactive ? (
+                <span className="inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-semibold shrink-0 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 border border-red-300 dark:border-red-700">
+                  Inactive (Subscription Ended)
+                </span>
+              ) : isCanceled ? (
+                <span className="inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-semibold shrink-0 bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 border border-amber-300 dark:border-amber-700 shadow-sm">
+                  Cancellation Scheduled (Autopay Off)
+                </span>
               ) : isActive ? (
                 <span className="inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-semibold shrink-0 bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 border border-green-300 dark:border-green-700">
                   Active Subscription
-                </span>
-              ) : isCanceled ? (
-                <span className="inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-semibold shrink-0 bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-400 border border-zinc-300 dark:border-zinc-700">
-                  Canceled
                 </span>
               ) : (
                 <span className="inline-flex items-center justify-center rounded-full px-3 py-1 text-xs font-semibold shrink-0 bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-400 border border-red-300 dark:border-red-700">
@@ -280,16 +350,74 @@ const Billing: React.FC = () => {
               </div>
             )}
 
-            <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-gray-200/60 dark:border-zinc-800 text-xs">
+            {isInactive && (
+              <div className="my-3 p-3 rounded-lg bg-red-100/70 dark:bg-red-950/30 border border-red-200 dark:border-red-800/60 flex items-center justify-between text-xs text-red-900 dark:text-red-200">
+                <span>
+                  🔒 <strong>Subscription Ended:</strong> Your account is currently inactive. Activate a plan to regain full access.
+                </span>
+              </div>
+            )}
+
+            {isCanceled && (
+              <div className="my-3 p-3 rounded-lg bg-amber-100/70 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800/60 flex items-center justify-between text-xs text-amber-900 dark:text-amber-200">
+                <span>
+                  ⚠️ <strong>Cancellation Scheduled:</strong> Autopay has been turned off. You will continue to have full access until{" "}
+                  <strong>{formatDateToReadable(billingData.nextBillingDate || billingData.trialEndsAt, isShortDuration)}</strong> without any further charges.
+                </span>
+              </div>
+            )}
+
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-gray-200/60 dark:border-zinc-800 text-xs">
               <p className="text-gray-700 dark:text-zinc-300 font-medium">
                 ${billingData.price}/{billingData.billingCycle || "month"}
               </p>
-              <p className="text-gray-500 dark:text-zinc-400">
-                {isTrial ? "First charge on: " : "Next billing date: "}
-                <span className="font-semibold text-gray-700 dark:text-zinc-300">
-                  {formatDateToReadable(billingData.nextBillingDate || billingData.trialEndsAt, isShortDuration)}
-                </span>
-              </p>
+              
+              <div className="flex flex-wrap items-center gap-2">
+                {isInactive ? (
+                  <span className="text-gray-500 dark:text-zinc-400">
+                    Status: <span className="font-semibold text-red-600 dark:text-red-400">Inactive</span> (Autopay Off)
+                  </span>
+                ) : isCanceled ? (
+                  <>
+                    <span className="text-gray-500 dark:text-zinc-400">
+                      Access active until:{" "}
+                      <span className="font-semibold text-gray-800 dark:text-zinc-200">
+                        {formatDateToReadable(billingData.nextBillingDate || billingData.trialEndsAt, isShortDuration)}
+                      </span>
+                    </span>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-800">
+                      <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                      Autopay Off ($0 due)
+                    </span>
+                  </>
+                ) : isTrial ? (
+                  <>
+                    <span className="text-gray-500 dark:text-zinc-400">
+                      First charge on:{" "}
+                      <span className="font-semibold text-gray-800 dark:text-zinc-200">
+                        {formatDateToReadable(billingData.trialEndsAt || billingData.nextBillingDate, isShortDuration)}
+                      </span>
+                    </span>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                      ${billingData.nextBillingAmount ?? billingData.price} on Autopay
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="text-gray-500 dark:text-zinc-400">
+                      Next billing date:{" "}
+                      <span className="font-semibold text-gray-800 dark:text-zinc-200">
+                        {formatDateToReadable(billingData.nextBillingDate, isShortDuration)}
+                      </span>
+                    </span>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                      ${billingData.nextBillingAmount ?? billingData.price} on Autopay
+                    </span>
+                  </>
+                )}
+              </div>
             </div>
           </div>
 
@@ -370,16 +498,43 @@ const Billing: React.FC = () => {
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-2 pt-2">
-            <Button
-              size="sm"
-              color="primary"
-              variant="solid"
-              onPress={handleTogglePlanStatus}
-              className="font-semibold shadow-sm"
-            >
-              {isActive ? "Upgrade Plan" : "Activate Plan"}
-            </Button>
+          <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <Button
+                size="sm"
+                color="primary"
+                variant="solid"
+                onPress={handleTogglePlanStatus}
+                className="font-semibold shadow-sm"
+              >
+                {isActive ? "Upgrade Plan" : isCanceled ? "Change Plan" : "Activate Plan"}
+              </Button>
+
+              {isCanceled && (
+                <Button
+                  size="sm"
+                  color="success"
+                  variant="flat"
+                  isLoading={isResuming}
+                  onPress={handleResumeSubscription}
+                  className="font-semibold"
+                >
+                  Resume Auto-Pay
+                </Button>
+              )}
+            </div>
+
+            {!isCanceled && !isInactive && (
+              <Button
+                size="sm"
+                color="danger"
+                variant="light"
+                onPress={onOpenCancel}
+                className="font-medium text-xs text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40"
+              >
+                Cancel Subscription
+              </Button>
+            )}
           </div>
         </CardBody>
       </Card>
@@ -511,6 +666,52 @@ const Billing: React.FC = () => {
           )}
         </CardBody>
       </Card>
+
+      {/* Cancel Subscription Confirmation Modal */}
+      <Modal isOpen={isCancelOpen} onOpenChange={onCancelOpenChange} placement="center" backdrop="blur" size="md">
+        <ModalContent className="bg-background border border-foreground/10">
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1 pb-2">
+                <div className="flex items-center gap-2 text-danger">
+                  <FiAlertTriangle className="size-5" />
+                  <span className="text-base font-bold text-foreground">Cancel Subscription</span>
+                </div>
+              </ModalHeader>
+              <ModalBody className="py-2 space-y-3">
+                <p className="text-xs text-gray-600 dark:text-zinc-400 leading-relaxed">
+                  Are you sure you want to cancel your <strong>{billingData.name} Plan</strong>?
+                </p>
+                <div className="p-3 rounded-lg bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 text-xs text-amber-900 dark:text-amber-200 space-y-1">
+                  <p className="font-semibold">What will happen:</p>
+                  <p>
+                    • You will retain full access to all features until{" "}
+                    <strong>{formatDateToReadable(billingData.nextBillingDate || billingData.trialEndsAt, isShortDuration)}</strong>.
+                  </p>
+                  <p>
+                    • <strong>Auto-pay is immediately disabled.</strong> You will <strong>NOT</strong> be charged any amount on your next billing date.
+                  </p>
+                </div>
+              </ModalBody>
+              <ModalFooter className="pt-2">
+                <Button size="sm" variant="bordered" onPress={onClose} disabled={isCanceling}>
+                  Keep Subscription
+                </Button>
+                <Button
+                  size="sm"
+                  color="danger"
+                  variant="solid"
+                  isLoading={isCanceling}
+                  onPress={handleCancelSubscription}
+                  className="font-semibold shadow-sm"
+                >
+                  Confirm Cancellation
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
     </div>
   );
 };

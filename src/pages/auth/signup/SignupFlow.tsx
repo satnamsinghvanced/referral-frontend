@@ -5,7 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { Spinner, addToast } from "@heroui/react";
-import { fetchPlansAndFeatures, PlanData } from "../../../services/planFeature";
+import { fetchPlansAndFeatures, fetchPricingPlanById, PlanData } from "../../../services/planFeature";
 import { registerUser, checkEmailAvailability } from "../../../services/auth";
 import { validateDiscount, upgradePlan } from "../../../services/settings/billing";
 import { setCredentials } from "../../../store/authSlice";
@@ -88,7 +88,9 @@ export const SignupFlow: React.FC = () => {
   );
   const [plans, setPlans] = useState<PlanData[]>([]);
   const [selectedPlan, setSelectedPlan] = useState<PlanData | null>(null);
-  const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("monthly");
+  const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">(
+    searchParams.get("billing") === "annual" || searchParams.get("cycle") === "annual" ? "annual" : "monthly"
+  );
   const [loadingPlans, setLoadingPlans] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [cardNumber, setCardNumber] = useState("");
@@ -106,7 +108,7 @@ export const SignupFlow: React.FC = () => {
 
   useEffect(() => {
     loadPlans();
-  }, []);
+  }, [planParam]);
 
   const loadPlans = async () => {
     try {
@@ -125,6 +127,15 @@ export const SignupFlow: React.FC = () => {
               (p.planId && p.planId.toLowerCase() === target) ||
               (p.name && p.name.toLowerCase() === target)
           );
+          if (!matched) {
+            try {
+              const singleRes = await fetchPricingPlanById(planParam);
+              const singlePlan = singleRes?.data?.plan || singleRes?.plan || singleRes?.data || singleRes;
+              if (singlePlan && (singlePlan.name || singlePlan.planId)) {
+                matched = singlePlan;
+              }
+            } catch (_) {}
+          }
         }
         if (matched) {
           setSelectedPlan(matched);
@@ -350,8 +361,8 @@ export const SignupFlow: React.FC = () => {
       // Calculate price details for confirmation receipt
       const rawPrice =
         billingCycle === "annual"
-          ? selectedPlan?.annualPrice || selectedPlan?.price || 199
-          : selectedPlan?.price || 199;
+          ? selectedPlan?.annualPricing?.totalValue || (selectedPlan?.annualPrice ? selectedPlan.annualPrice * 12 : (selectedPlan?.price ? selectedPlan.price * 12 : 1990))
+          : selectedPlan?.monthlyPricing?.totalValue || selectedPlan?.price || 199;
       let finalPrice = rawPrice;
       let discountVal = 0;
       if (appliedCoupon) {

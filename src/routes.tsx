@@ -83,7 +83,7 @@ const SignIn = React.lazy(() => import("./pages/auth/SignIn"));
 const ResetPassword = React.lazy(() => import("./pages/auth/ResetPassword"));
 const SubscriptionErrorPage = React.lazy(() => import("./pages/auth/SubscriptionErrorPage"));
 const SuperAdminSignIn = React.lazy(() => import("./pages/auth/SuperAdminSignIn"));
-const Support = React.lazy(() => import("./pages/support/SupportPage"));
+
 const Terms = React.lazy(() => import("./pages/terms/TermsPage"));
 const PrivacyPolicy = React.lazy(
   () => import("./pages/privacy-policy/PrivacyPolicyPage"),
@@ -495,7 +495,7 @@ function AppRoutes() {
       ),
     },
     { path: "thank-you", element: <ThankYou /> },
-    { path: "support", element: <Support /> },
+
     { path: "terms", element: <Terms /> },
     { path: "privacy", element: <PrivacyPolicy /> },
     { path: "team-member/:id", element: <AcceptInvitation /> },

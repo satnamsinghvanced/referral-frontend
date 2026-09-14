@@ -78,7 +78,7 @@ export const ThankYouPage: React.FC = () => {
       <SignupHeader
         currentStep={3}
         showThemeToggle={true}
-        hideStepper={false}
+        hideStepper={true}
         title={
           <>
             Welcome to <span className="text-[#20a9f8] dark:text-sky-400">Practice ROI!</span>
@@ -154,7 +154,7 @@ export const ThankYouPage: React.FC = () => {
               <FiMail className="w-4 h-4 shrink-0 text-sky-600 dark:text-sky-400" />
               <span>
                 A confirmation details have been sent to{" "}
-                <span className="font-semibold">{confirmationData.user?.email}</span>.
+                <span className="font-semibold">{confirmationData.user?.email}</span>
               </span>
             </div>
             <div className="pt-2 flex justify-center">
@@ -173,13 +173,14 @@ export const ThankYouPage: React.FC = () => {
 
         <div className="text-center text-xs text-slate-500 dark:text-slate-400">
           Need help with your account?{" "}
-          <button
-            type="button"
-            onClick={() => navigate("/support")}
+          <a
+            href="https://practiceroi.com/contact/"
+            target="_blank"
+            rel="noopener noreferrer"
             className="text-sky-500 hover:underline font-medium"
           >
             Contact Support
-          </button>
+          </a>
         </div>
       </div>
     </div>
