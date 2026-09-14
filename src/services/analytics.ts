@@ -1,8 +1,4 @@
-import {
-  AdsIntegrationResponse,
-  GeneralAnalyticsResponse,
-  GoogleAnalyticsResponse,
-} from "../types/analytics";
+import { AdsIntegrationResponse, GeneralAnalyticsResponse, GoogleAnalyticsResponse } from "../types/analytics";
 import axios from "./axios";
 
 export const fetchGeneralAnalytics =

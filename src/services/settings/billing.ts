@@ -34,14 +34,7 @@ export const getAllInvoices = async (): Promise<InvoiceItem[]> => {
   return response.data?.data || response.data || [];
 };
 
-export const downloadInvoicePdf = async ({
-  invoiceId,
-  url,
-}: {
-  invoiceId?: string;
-  url?: string | null;
-  filename?: string;
-}): Promise<Blob> => {
+export const downloadInvoicePdf = async ({ invoiceId, url }: { invoiceId?: string; url?: string | null; filename?: string }): Promise<Blob> => {
   const res: any = await axios.get("/billing/download-invoice", {
     params: { id: invoiceId, url },
     responseType: "blob",

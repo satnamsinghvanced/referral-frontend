@@ -21,32 +21,24 @@ import {
 import axios from "./axios";
 
 
-export const getCampaignTemplates = async (
-  params: CampaignFilters,
-): Promise<CampaignTemplatesResponse> => {
+export const getCampaignTemplates = async (params: CampaignFilters): Promise<CampaignTemplatesResponse> => {
   const response = await axios.get("/campaigns_templates", { params });
   return response.data;
 };
 
-export const getCampaignTemplateById = async (
-  id: string,
-): Promise<CampaignTemplate> => {
+export const getCampaignTemplateById = async (id: string): Promise<CampaignTemplate> => {
   const response = await axios.get(`${"/campaigns_templates"}/${id}`);
   return response.data;
 };
 
-export const createCampaignTemplate = async (
-  formData: FormData,
-): Promise<CampaignTemplate> => {
+export const createCampaignTemplate = async (formData: FormData): Promise<CampaignTemplate> => {
   const response = await axios.post("/campaigns_templates", formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
   return response.data;
 };
 
-export const toggleFavoriteTemplate = async (
-  id: string,
-): Promise<CampaignTemplate> => {
+export const toggleFavoriteTemplate = async (id: string): Promise<CampaignTemplate> => {
   const response = await axios.patch(`/campaigns_templates/${id}/favorite`);
   return response.data;
 };
@@ -55,10 +47,7 @@ export const deleteCampaignTemplate = async (id: string): Promise<void> => {
   await axios.delete(`/campaigns_templates/${id}`);
 };
 
-export const updateCampaignTemplate = async (
-  id: string,
-  formData: FormData,
-): Promise<CampaignTemplate> => {
+export const updateCampaignTemplate = async (id: string, formData: FormData): Promise<CampaignTemplate> => {
   const response = await axios.put(`/campaigns_templates/${id}`, formData, {
     headers: { "Content-Type": "multipart/form-data" },
   });
@@ -66,9 +55,7 @@ export const updateCampaignTemplate = async (
 };
 
 
-export const getAllAudiences = async (
-  params: AudienceFilters,
-): Promise<AudienceResponse> => {
+export const getAllAudiences = async (params: AudienceFilters): Promise<AudienceResponse> => {
   const { data } = await axios.get("/audience_segment", { params });
   return data;
 };
@@ -78,17 +65,12 @@ export const getAudienceById = async (id: string): Promise<AudienceSegment> => {
   return data;
 };
 
-export const createAudience = async (
-  payload: Partial<AudienceSegment>,
-): Promise<AudienceSegment> => {
+export const createAudience = async (payload: Partial<AudienceSegment>): Promise<AudienceSegment> => {
   const { data } = await axios.post("/audience_segment", payload);
   return data;
 };
 
-export const updateAudience = async (
-  id: string,
-  payload: Partial<AudienceSegment>,
-): Promise<AudienceSegment> => {
+export const updateAudience = async (id: string, payload: Partial<AudienceSegment>): Promise<AudienceSegment> => {
   const { data } = await axios.put(`/audience_segment/${id}`, payload);
   return data;
 };
@@ -201,12 +183,7 @@ export const getEmailAnalyticsExport = async (filter: string) => {
   return response;
 };
 
-export const getAutomations = async (
-  page = 1,
-  limit = 12,
-  search?: string,
-  status?: string,
-) => {
+export const getAutomations = async (page = 1, limit = 12, search?: string, status?: string) => {
   const { data } = await axios.get<IAutomationListResponse>("/automation", {
     params: { page, limit, search, status },
   });
@@ -230,10 +207,7 @@ export const createAutomation = async (payload: Partial<IAutomation>) => {
   return data;
 };
 
-export const updateAutomation = async (
-  id: string,
-  payload: Partial<IAutomation>,
-) => {
+export const updateAutomation = async (id: string, payload: Partial<IAutomation>) => {
   const { data } = await axios.put<IAutomation>(`/automation/${id}`, payload);
   return data;
 };

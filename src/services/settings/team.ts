@@ -31,20 +31,12 @@ export interface TeamMembersResponse {
   hasPrevPage: boolean;
 }
 
-export const fetchTeamMembers = async (params?: {
-  page?: number;
-  limit?: number;
-  search?: string;
-}): Promise<TeamMembersResponse> => {
+export const fetchTeamMembers = async (params?: { page?: number; limit?: number; search?: string }): Promise<TeamMembersResponse> => {
   const { data } = await axios.get("/team-member", { params });
   return data;
 };
 
-export const fetchPendingTeamMembers = async (params?: {
-  page?: number;
-  limit?: number;
-  search?: string;
-}): Promise<TeamMembersResponse> => {
+export const fetchPendingTeamMembers = async (params?: { page?: number; limit?: number; search?: string }): Promise<TeamMembersResponse> => {
   const { data } = await axios.get("/team-member/pending-member", { params });
   return data;
 };
@@ -69,10 +61,7 @@ export const inviteTeamMember = async (payload: any) => {
   return data;
 };
 
-export const setTeamMemberPassword = async (payload: {
-  email: string;
-  password: string;
-}) => {
+export const setTeamMemberPassword = async (payload: { email: string; password: string }) => {
   const { data } = await axios.post("/team-member/set-password", payload);
   return data;
 };
