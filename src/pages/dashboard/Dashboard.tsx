@@ -10,7 +10,6 @@ import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import { TREATMENT_OPTIONS } from "../../consts/referral";
 import { useDashboard } from "../../hooks/useDashboard";
-import { useTour } from "../../providers/TourProvider";
 import { formatNumberWithCommas } from "../../utils/formatNumberWithCommas";
 import { timeAgo } from "../../utils/timeAgo";
 import { useNotificationSubscription } from "../../hooks/useNotificationSubscription";
@@ -99,7 +98,6 @@ const QUICK_ACTIONS_COLOR_CLASSES: Record<Color, { bg: string; text: string; bor
 };
 
 const Dashboard = () => {
-  const { startTour } = useTour();
   const { requestPermission, permissionStatus } = useNotificationSubscription();
   const [showNotificationBanner, setShowNotificationBanner] = useState(true);
   const navigate = useNavigate();

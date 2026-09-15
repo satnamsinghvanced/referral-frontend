@@ -202,6 +202,7 @@ const Conversations = () => {
           return conv;
         })
       );
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     };
 
     const handleNewWebMessage = (payload: NewWebMessagePayload) => {
@@ -246,6 +247,7 @@ const Conversations = () => {
           return conv;
         })
       );
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     };
 
     const handleMessageReadWatermark = (payload: { platform: string; conversationId: string; watermark: number }) => {
@@ -352,6 +354,11 @@ const Conversations = () => {
 
   const handleConversationClick = (conv: Conversation) => {
     setSelectedConversationId(conv.id);
+    if (conv.unreadCount > 0) {
+      setConversations((prev) =>
+        prev.map((c) => (c.id === conv.id ? { ...c, unreadCount: 0 } : c))
+      );
+    }
   };
 
   const filteredConversations = useMemo(() => {
@@ -426,13 +433,8 @@ const Conversations = () => {
         }
       };
       markAsSeenOnPlatform();
-      if (selectedConversation.unreadCount > 0) {
-        setConversations((prev) =>
-          prev.map((c) => (c.id === selectedConversation.id ? { ...c, unreadCount: 0 } : c))
-        );
-      }
     }
-  }, [selectedConversation, queryClient]);
+  }, [selectedConversation?.id, selectedConversation?.messages?.length, queryClient]);
 
   const stats = useMemo<StatCard[]>(() => {
     const activeCount = conversations.filter((c) => c.status === "active").length;

@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { Input, Select, SelectItem, Button, Spinner } from "@heroui/react";
 import { HiOutlineSearch, HiOutlineLightningBolt } from "react-icons/hi";
 import { useNavigate } from "react-router";
@@ -21,6 +22,7 @@ interface ConversationListProps {
 }
 
 export default function ConversationList({
+  conversations = [],
   filteredConversations,
   selectedConversationId,
   selectedConversation,
@@ -36,6 +38,25 @@ export default function ConversationList({
 }: ConversationListProps) {
   const navigate = useNavigate();
   const showMetaWarning = !isMetaConnected && (selectedPlatform === "facebook" || selectedPlatform === "instagram");
+
+  const platformUnreadCounts = useMemo(() => {
+    const counts: Record<string, number> = {
+      all: 0,
+      web: 0,
+      facebook: 0,
+      instagram: 0,
+    };
+    conversations.forEach((conv) => {
+      if (conv.status !== "archived" && conv.unreadCount > 0) {
+        counts.all = (counts.all || 0) + conv.unreadCount;
+        const currentCount = counts[conv.platform];
+        if (typeof currentCount === "number") {
+          counts[conv.platform] = currentCount + conv.unreadCount;
+        }
+      }
+    });
+    return counts;
+  }, [conversations]);
   return (
     <div
       className={`w-full md:w-[320px] md:min-w-[280px] border-r border-foreground/10 flex flex-col ${selectedConversationId ? "hidden md:flex" : "flex"
@@ -89,18 +110,34 @@ export default function ConversationList({
           </Select>
         </div>
         <div className="flex gap-1">
-          {CONVERSATION_PLATFORMS.map((p) => (
-            <button
-              key={p.key}
-              onClick={() => setSelectedPlatform(p.key)}
-              className={`flex-1 px-2 py-1 text-[10px] font-semibold rounded-md transition-all ${selectedPlatform === p.key
-                ? "bg-primary text-white shadow-sm"
-                : "bg-gray-100 dark:bg-default-100 text-gray-500 dark:text-foreground/40 hover:bg-gray-200 dark:hover:bg-default-200"
+          {CONVERSATION_PLATFORMS.map((p) => {
+            const count = platformUnreadCounts[p.key] || 0;
+            const isSelected = selectedPlatform === p.key;
+            return (
+              <button
+                key={p.key}
+                onClick={() => setSelectedPlatform(p.key)}
+                className={`flex-1 px-1.5 py-1 text-[10px] font-semibold rounded-md transition-all flex items-center justify-center gap-1 ${
+                  isSelected
+                    ? "bg-primary text-white shadow-sm"
+                    : "bg-gray-100 dark:bg-default-100 text-gray-500 dark:text-foreground/40 hover:bg-gray-200 dark:hover:bg-default-200"
                 }`}
-            >
-              {p.label}
-            </button>
-          ))}
+              >
+                <span>{p.label}</span>
+                {count > 0 && (
+                  <span
+                    className={`px-1.5 py-0.2 min-w-[14px] text-[9px] font-bold rounded-full leading-tight text-center ${
+                      isSelected
+                        ? "bg-white text-primary"
+                        : "bg-primary text-white"
+                    }`}
+                  >
+                    {count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
         </div>
       </div>
       <div className="flex-1 overflow-y-auto">
