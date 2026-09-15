@@ -50,6 +50,30 @@ export const updateClientNotesAndTags = async (
 };
 
 /**
+ * Recover a deleted client account
+ */
+export const recoverClientAccount = async (id: string) => {
+  const response = await axios.post(`/superadmin/admins/${id}/recover`);
+  return response.data;
+};
+
+/**
+ * Suspend a client account with reason
+ */
+export const suspendClientAccount = async (id: string, reason: string) => {
+  const response = await axios.post(`/superadmin/admins/${id}/suspend`, { reason });
+  return response.data;
+};
+
+/**
+ * Unsuspend / reactivate a suspended client account
+ */
+export const unsuspendClientAccount = async (id: string) => {
+  const response = await axios.post(`/superadmin/admins/${id}/unsuspend`);
+  return response.data;
+};
+
+/**
  * Update Super Admin Profile
  */
 export const updateSuperAdminProfile = async (payload: UpdateProfilePayload) => {

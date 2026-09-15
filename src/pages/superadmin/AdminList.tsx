@@ -12,6 +12,9 @@ import {
   fetchSuperAdminDetail,
   impersonateClientAccount,
   updateClientNotesAndTags,
+  recoverClientAccount,
+  suspendClientAccount,
+  unsuspendClientAccount,
 } from "../../services/superadmin";
 import { formatRelativeTime } from "./utils";
 import SuperAdminHeader from "./components/SuperAdminHeader";
@@ -49,6 +52,8 @@ const AdminList: React.FC = () => {
   const [clientAccounts, setClientAccounts] = useState<ClientAccount[]>([]);
   const [loading, setLoading] = useState(false);
   const [modalLoading, setModalLoading] = useState(false);
+  const [isRecovering, setIsRecovering] = useState(false);
+  const [isSuspending, setIsSuspending] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All Statuses");
   const [planFilter, setPlanFilter] = useState("All Plans");
@@ -57,6 +62,7 @@ const AdminList: React.FC = () => {
   const [itemsPerPage] = useState(10);
   const [selectedClient, setSelectedClient] = useState<ClientAccount | null>(null);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [drawerInitialTab, setDrawerInitialTab] = useState<"overview" | "phoneService" | "notes">("overview");
   const [newTagInput, setNewTagInput] = useState("");
   const [notesInput, setNotesInput] = useState("");
   const [notesSaved, setNotesSaved] = useState(true);
@@ -79,9 +85,25 @@ const AdminList: React.FC = () => {
           const secondLetter = (admin.lastName?.[0] || admin.practiceName?.[1] || "C").toUpperCase();
           const initials = `${firstLetter}${secondLetter}`;
           const planStatus = admin.plan?.status;
-          const status = !admin.isActive ? "Suspended" : planStatus === "trial" ? "Trial" : planStatus === "past_due" ? "Past Due" : "Active";
+          const isDeleted = Boolean(admin.isDeleted || admin.status === "Deleted" || admin.status === "deleted");
+          let status = isDeleted
+            ? "Deleted"
+            : !admin.isActive
+            ? "Suspended"
+            : planStatus === "trial"
+            ? "Trial"
+            : planStatus === "past_due" || planStatus === "pastDue"
+            ? "Past Due"
+            : "Active";
+
           let statusSubtext = (admin as any).statusSubtext || "";
-          if (status === "Trial") {
+          if (status === "Deleted") {
+            const deadline = admin.deletionRecoveryDeadline
+              ? new Date(admin.deletionRecoveryDeadline)
+              : new Date(new Date(admin.deletedAt || admin.updatedAt).getTime() + 60 * 24 * 60 * 60 * 1000);
+            const daysLeft = Math.max(0, Math.ceil((deadline.getTime() - Date.now()) / (24 * 60 * 60 * 1000)));
+            statusSubtext = daysLeft > 0 ? `${daysLeft}d recovery` : "Expired";
+          } else if (status === "Trial") {
             const trialEnd = admin.plan?.trialEndsAt || (admin as any).trialEndsAt;
             if (trialEnd) {
               const formatted = new Date(trialEnd).toLocaleDateString("en-US", { month: "short", day: "numeric" });
@@ -123,6 +145,9 @@ const AdminList: React.FC = () => {
             assignedRep: admin.assignedRep,
             tags: Array.isArray(admin.tags) && admin.tags.length > 0 ? admin.tags : undefined,
             internalNotes: admin.internalNotes || admin.notes || undefined,
+            isDeleted,
+            deletedAt: admin.deletedAt,
+            deletionRecoveryDeadline: admin.deletionRecoveryDeadline,
           };
         });
         setClientAccounts(formatted);
@@ -136,6 +161,103 @@ const AdminList: React.FC = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleRecoverAccount = async (client: ClientAccount) => {
+    try {
+      setIsRecovering(true);
+      await recoverClientAccount(client.id);
+      addToast({
+        title: "Account Recovered",
+        description: `Successfully restored ${client.practiceName} to active status.`,
+        color: "success",
+      });
+      await fetchAdmins();
+      if (selectedClient && selectedClient.id === client.id) {
+        setSelectedClient((prev) =>
+          prev
+            ? {
+                ...prev,
+                status: "Active",
+                isDeleted: false,
+                statusSubtext: "",
+              }
+            : null
+        );
+      }
+    } catch (error: any) {
+      addToast({
+        title: "Recovery Failed",
+        description: error?.response?.data?.message || error?.message || "Failed to recover account.",
+        color: "danger",
+      });
+    } finally {
+      setIsRecovering(false);
+    }
+  };
+
+  const handleSuspendAccount = async (client: ClientAccount, reason: string) => {
+    try {
+      setIsSuspending(true);
+      const res = await suspendClientAccount(client.id, reason);
+      addToast({
+        title: "Account Suspended",
+        description: res?.message || `${client.practiceName} has been suspended.`,
+        color: "warning",
+      });
+      await fetchAdmins();
+      setSelectedClient((prev) =>
+        prev && prev.id === client.id
+          ? {
+              ...prev,
+              status: "Suspended",
+              isSuspended: true,
+              suspensionReason: reason,
+              statusSubtext: reason ? (reason.length > 25 ? `${reason.slice(0, 22)}...` : reason) : "Suspended",
+            }
+          : null
+      );
+    } catch (error: any) {
+      addToast({
+        title: "Suspension Failed",
+        description: error?.response?.data?.message || error?.message || "Failed to suspend account.",
+        color: "danger",
+      });
+    } finally {
+      setIsSuspending(false);
+    }
+  };
+
+  const handleUnsuspendAccount = async (client: ClientAccount) => {
+    try {
+      setIsSuspending(true);
+      const res = await unsuspendClientAccount(client.id);
+      addToast({
+        title: "Account Reactivated",
+        description: res?.message || `${client.practiceName} has been restored to active status.`,
+        color: "success",
+      });
+      await fetchAdmins();
+      setSelectedClient((prev) =>
+        prev && prev.id === client.id
+          ? {
+              ...prev,
+              status: "Active",
+              isSuspended: false,
+              suspensionReason: "",
+              statusSubtext: "",
+            }
+          : null
+      );
+    } catch (error: any) {
+      addToast({
+        title: "Reactivation Failed",
+        description: error?.response?.data?.message || error?.message || "Failed to unsuspend account.",
+        color: "danger",
+      });
+    } finally {
+      setIsSuspending(false);
     }
   };
 
@@ -200,7 +322,6 @@ const AdminList: React.FC = () => {
     }
   };
 
-  const [drawerInitialTab, setDrawerInitialTab] = useState<"overview" | "phoneService" | "notes">("overview");
 
   const handleOpenDrawer = async (client: ClientAccount, initialTab: "overview" | "phoneService" | "notes" = "overview") => {
     setSelectedClient(client);
@@ -437,6 +558,7 @@ const AdminList: React.FC = () => {
                       "Onboarding",
                       "Suspended",
                       "Cancelled",
+                      "Deleted",
                     ]}
                     onChange={setStatusFilter}
                     isLight={isLight}
@@ -469,6 +591,8 @@ const AdminList: React.FC = () => {
                 isLight={isLight}
                 onOpenDrawer={handleOpenDrawer}
                 onImpersonate={handleImpersonate}
+                onRecover={handleRecoverAccount}
+                isRecovering={isRecovering}
                 onPageChange={setCurrentPage}
               />
             </>
@@ -488,6 +612,11 @@ const AdminList: React.FC = () => {
         notesInput={notesInput}
         notesSaved={notesSaved}
         savingNotes={savingNotes}
+        isRecovering={isRecovering}
+        isSuspending={isSuspending}
+        onRecover={handleRecoverAccount}
+        onSuspend={handleSuspendAccount}
+        onUnsuspend={handleUnsuspendAccount}
         onClose={() => setIsDrawerOpen(false)}
         onImpersonate={handleImpersonate}
         onTagInputChange={setNewTagInput}

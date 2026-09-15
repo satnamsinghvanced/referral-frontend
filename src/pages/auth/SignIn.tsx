@@ -81,15 +81,38 @@ const SignIn = () => {
               lowerMsg.includes("inactive") ||
               lowerMsg.includes("subscription") ||
               lowerMsg.includes("expired") ||
+              lowerMsg.includes("suspended") ||
+              lowerMsg.includes("suspension") ||
+              lowerMsg.includes("deleted") ||
               lowerMsg.includes("plan") ||
               lowerMsg.includes("contact support") ||
-              error.response?.status === 402;
+              error.response?.status === 402 ||
+              error.response?.status === 403;
 
             if (isSubscriptionOrInactive) {
+              const resData =
+                error.response?.data?.error ||
+                error.response?.data?.data ||
+                error.response?.data;
               navigate("/subscription-error", {
                 state: {
                   message: errorMessage,
                   email: values.email,
+                  isSuspended: Boolean(
+                    resData?.isSuspended ||
+                      lowerMsg.includes("suspended") ||
+                      lowerMsg.includes("suspension")
+                  ),
+                  suspensionReason:
+                    resData?.suspensionReason ||
+                    (lowerMsg.includes("reason:")
+                      ? errorMessage.split(/reason:\s*/i)[1]?.split(".")[0]?.trim()
+                      : ""),
+                  isDeleted: Boolean(
+                    resData?.isDeleted ||
+                      lowerMsg.includes("deleted") ||
+                      lowerMsg.includes("deactivated")
+                  ),
                 },
               });
             }

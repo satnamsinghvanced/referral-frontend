@@ -28,6 +28,8 @@ interface ClientTableProps {
   isLight: boolean;
   onOpenDrawer: (client: ClientAccount, tab?: "overview" | "phoneService" | "notes") => void;
   onImpersonate: (client: ClientAccount) => void;
+  onRecover?: (client: ClientAccount) => void;
+  isRecovering?: boolean;
   onPageChange: (page: number) => void;
 }
 
@@ -43,6 +45,8 @@ const ClientTable: React.FC<ClientTableProps> = ({
   isLight,
   onOpenDrawer,
   onImpersonate,
+  onRecover,
+  isRecovering,
   onPageChange,
 }) => {
   const [expandedNotes, setExpandedNotes] = React.useState<Record<string, boolean>>({});
@@ -219,6 +223,25 @@ const ClientTable: React.FC<ClientTableProps> = ({
                           Churned
                         </span>
                       )}
+
+                      {account.status === "Deleted" && (
+                        <div className="flex flex-col items-start">
+                          <span
+                            className={`px-3 py-1 text-xs font-semibold rounded-full inline-flex items-center gap-1.5 ${isLight
+                              ? "bg-rose-100 text-rose-800 border border-rose-300"
+                              : "bg-rose-950/80 text-rose-300 border border-rose-800/60"
+                              }`}
+                          >
+                            <FiXCircle className="text-xs shrink-0" />
+                            Deleted
+                          </span>
+                          {account.statusSubtext && (
+                            <span className="text-[11px] font-semibold text-rose-600 dark:text-rose-400 mt-1 pl-1">
+                              {account.statusSubtext}
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </td>
 
@@ -364,8 +387,7 @@ const ClientTable: React.FC<ClientTableProps> = ({
                         type="button"
                         onClick={() => onImpersonate(account)}
                         disabled={impersonatingId === account.id}
-                        style={{ backgroundColor: "#ffb86a" }}
-                        className="text-slate-950 font-bold text-xs px-3.5 py-1.5 rounded-lg flex items-center gap-1.5 shadow-sm hover:brightness-105 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+                        className="bg-[#20a9f8] hover:bg-[#1896de] text-white font-bold text-xs px-3.5 py-1.5 rounded-lg flex items-center gap-1.5 shadow-md shadow-[#20a9f8]/20 hover:shadow-[#20a9f8]/35 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
                       >
                         <FiKey className="text-sm" />
                         <span>

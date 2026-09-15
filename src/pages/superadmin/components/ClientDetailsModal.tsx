@@ -21,6 +21,9 @@ import {
   FiPhoneCall,
   FiMessageSquare,
   FiSmartphone,
+  FiSlash,
+  FiAlertTriangle,
+  FiShield,
 } from "react-icons/fi";
 
 interface ClientDetailsModalProps {
@@ -34,9 +37,14 @@ interface ClientDetailsModalProps {
   notesInput: string;
   notesSaved: boolean;
   savingNotes: boolean;
+  isRecovering?: boolean;
+  isSuspending?: boolean;
   initialTab?: "overview" | "phoneService" | "notes";
   onClose: () => void;
   onImpersonate: (client: ClientAccount) => void;
+  onRecover?: (client: ClientAccount) => void;
+  onSuspend?: (client: ClientAccount, reason: string) => void;
+  onUnsuspend?: (client: ClientAccount) => void;
   onTagInputChange: (val: string) => void;
   onAddTag: () => void;
   onRemoveTag: (tag: string) => void;
@@ -55,9 +63,14 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
   notesInput,
   notesSaved,
   savingNotes,
+  isRecovering = false,
+  isSuspending = false,
   initialTab = "overview",
   onClose,
   onImpersonate,
+  onRecover,
+  onSuspend,
+  onUnsuspend,
   onTagInputChange,
   onAddTag,
   onRemoveTag,
@@ -69,6 +82,8 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
   const [showFullEditor, setShowFullEditor] = useState(false);
   const [isEditingNote, setIsEditingNote] = useState(false);
   const [editNoteText, setEditNoteText] = useState("");
+  const [isSuspendDialogOpen, setIsSuspendDialogOpen] = useState(false);
+  const [suspensionReasonInput, setSuspensionReasonInput] = useState("");
 
   useEffect(() => {
     setActiveTab(initialTab);
@@ -76,6 +91,8 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
     setShowFullEditor(false);
     setIsEditingNote(false);
     setEditNoteText("");
+    setIsSuspendDialogOpen(false);
+    setSuspensionReasonInput("");
   }, [isOpen, selectedClient?.id, initialTab]);
 
   if (!isOpen || !selectedClient) return null;
@@ -150,12 +167,15 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                   {selectedClient.practiceName}
                 </h2>
                 <span
-                  className={`px-2.5 py-0.5 text-[10px] font-extrabold rounded-full border uppercase tracking-wider ${selectedClient.status === "Active"
+                  className={`px-2.5 py-0.5 text-[10px] font-extrabold rounded-full border uppercase tracking-wider ${
+                    selectedClient.status === "Active"
                       ? "bg-emerald-500/10 text-emerald-600 border-emerald-500/20"
                       : selectedClient.status === "Trial"
-                        ? "bg-sky-500/10 text-sky-600 border-sky-500/20"
-                        : "bg-red-500/10 text-red-600 border-red-500/20"
-                    }`}
+                      ? "bg-sky-500/10 text-sky-600 border-sky-500/20"
+                      : selectedClient.status === "Deleted"
+                      ? "bg-rose-500/10 text-rose-600 border-rose-500/20"
+                      : "bg-red-500/10 text-red-600 border-red-500/20"
+                  }`}
                 >
                   {selectedClient.status}
                 </span>
@@ -238,35 +258,234 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
 
           {activeTab === "overview" && (
             <>
-              <div
-                className={`p-4 rounded-xl border flex flex-col sm:flex-row items-center justify-between gap-4 ${isLight
-                  ? "bg-amber-50/70 border-amber-200"
-                  : "bg-amber-950/30 border-amber-900/50"
-                  }`}
-              >
-                <div>
-                  <p className="text-xs font-bold text-amber-900 dark:text-amber-200">
-                    Impersonate Client Account
-                  </p>
-                  <p className="text-xs text-amber-700 dark:text-amber-400 mt-0.5">
-                    Access their exact dashboard view. All administrative actions are logged.
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => onImpersonate(selectedClient)}
-                  disabled={impersonatingId === selectedClient.id}
-                  style={{ backgroundColor: "#ffb86a" }}
-                  className="shrink-0 text-slate-950 font-bold text-xs px-4 py-2 rounded-xl flex items-center gap-2 shadow-sm hover:brightness-105 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+              {/* Account Status Action Banners */}
+              {(selectedClient.status === "Deleted" || selectedClient.isDeleted) ? (
+                <div
+                  className={`p-4 rounded-xl border flex flex-col sm:flex-row items-center justify-between gap-4 ${isLight
+                    ? "bg-rose-50 border-rose-200 shadow-sm"
+                    : "bg-rose-950/40 border-rose-900/60"
+                    }`}
                 >
-                  <FiKey className="text-sm" />
-                  <span>
-                    {impersonatingId === selectedClient.id
-                      ? "Impersonating..."
-                      : "Impersonate This Client"}
-                  </span>
-                </button>
-              </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" />
+                      <p className="text-xs font-extrabold text-rose-900 dark:text-rose-200 uppercase tracking-wide">
+                        Account Scheduled For Deletion (60-Day Recovery Active)
+                      </p>
+                    </div>
+                    <p className="text-xs text-rose-700 dark:text-rose-400 mt-1">
+                      This user requested account deletion. {selectedClient.statusSubtext ? `(${selectedClient.statusSubtext})` : "60-day recovery window is active."} All associated data will be permanently erased if unrecovered.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => onRecover && onRecover(selectedClient)}
+                      disabled={isRecovering}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+                    >
+                      <FiCheckCircle className="text-sm" />
+                      <span>{isRecovering ? "Recovering..." : "Recover Account"}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onImpersonate(selectedClient)}
+                      disabled={impersonatingId === selectedClient.id}
+                      className="bg-[#20a9f8] hover:bg-[#1896de] text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md shadow-[#20a9f8]/20 hover:shadow-[#20a9f8]/35 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+                    >
+                      <FiKey className="text-sm" />
+                      <span>{impersonatingId === selectedClient.id ? "Logging in..." : "Log In As"}</span>
+                    </button>
+                  </div>
+                </div>
+              ) : (selectedClient.status === "Suspended" || selectedClient.isSuspended) ? (
+                <div
+                  className={`p-4 rounded-xl border flex flex-col sm:flex-row items-center justify-between gap-4 ${isLight
+                    ? "bg-amber-50/90 border-amber-200 shadow-sm"
+                    : "bg-amber-950/40 border-amber-900/60"
+                    }`}
+                >
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <FiAlertTriangle className="text-amber-500 text-sm" />
+                      <p className="text-xs font-extrabold text-amber-900 dark:text-amber-200 uppercase tracking-wide">
+                        Account Suspended by Administration
+                      </p>
+                    </div>
+                    <p className="text-xs text-amber-800 dark:text-amber-300 mt-1 font-medium">
+                      <strong>Reason:</strong> {selectedClient.suspensionReason || "Suspended by Super Admin"}
+                    </p>
+                    <p className="text-[11px] text-amber-700/80 dark:text-amber-400/80 mt-0.5">
+                      Client is locked out of dashboard and sees this reason upon sign in attempt.
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => onUnsuspend && onUnsuspend(selectedClient)}
+                      disabled={isSuspending}
+                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+                    >
+                      <FiCheckCircle className="text-sm" />
+                      <span>{isSuspending ? "Reactivating..." : "Unsuspend Account"}</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => onImpersonate(selectedClient)}
+                      disabled={impersonatingId === selectedClient.id}
+                      className="bg-[#20a9f8] hover:bg-[#1896de] text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md shadow-[#20a9f8]/20 hover:shadow-[#20a9f8]/35 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+                    >
+                      <FiKey className="text-sm" />
+                      <span>{impersonatingId === selectedClient.id ? "Logging in..." : "Log In As"}</span>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div
+                    className={`p-4 rounded-xl border flex flex-col sm:flex-row items-center justify-between gap-4 ${isLight
+                      ? "bg-slate-50 border-slate-200/90"
+                      : "bg-[#111A2E] border-[#1E2B45]"
+                      }`}
+                  >
+                    <div>
+                      <p className="text-xs font-bold text-slate-800 dark:text-slate-200">
+                        Account Controls & Impersonation
+                      </p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        Access client workspace or manage account suspension status.
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2.5 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => setIsSuspendDialogOpen((prev) => !prev)}
+                        className={`text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 border transition-all cursor-pointer ${
+                          isSuspendDialogOpen
+                            ? "bg-red-100 text-red-700 border-red-300 dark:bg-red-950 dark:text-red-300"
+                            : isLight
+                            ? "bg-white hover:bg-red-50 text-red-600 border-red-200"
+                            : "bg-[#162036] hover:bg-red-950/50 text-red-400 border-red-900/50"
+                        }`}
+                      >
+                        <FiSlash className="text-xs" />
+                        <span>Suspend Account</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => onImpersonate(selectedClient)}
+                        disabled={impersonatingId === selectedClient.id}
+                        className="bg-[#20a9f8] hover:bg-[#1896de] text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md shadow-[#20a9f8]/20 hover:shadow-[#20a9f8]/35 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+                      >
+                        <FiKey className="text-sm" />
+                        <span>
+                          {impersonatingId === selectedClient.id
+                            ? "Impersonating..."
+                            : "Log In As"}
+                        </span>
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Expandable Suspension Form */}
+                  {isSuspendDialogOpen && (
+                    <div
+                      className={`p-4 rounded-xl border space-y-3 animate-in fade-in-50 duration-200 ${
+                        isLight ? "bg-red-50/70 border-red-200" : "bg-red-950/20 border-red-900/50"
+                      }`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2 text-xs font-extrabold text-red-700 dark:text-red-300">
+                          <FiAlertTriangle className="text-sm" />
+                          <span>SUSPEND CLIENT ACCOUNT</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setIsSuspendDialogOpen(false)}
+                          className="text-slate-400 hover:text-slate-600 text-xs"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+
+                      <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
+                        Suspending this account will immediately revoke access for this client and all team members. When they try to log in, they will see the suspension reason provided below:
+                      </p>
+
+                      <div className="space-y-1.5">
+                        <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
+                          Quick Presets:
+                        </label>
+                        <div className="flex flex-wrap gap-1.5">
+                          {[
+                            "Policy Violation",
+                            "Non-Payment / Billing Dispute",
+                            "Suspicious Activity / Abuse",
+                            "Account Under Review",
+                          ].map((preset) => (
+                            <button
+                              key={preset}
+                              type="button"
+                              onClick={() => setSuspensionReasonInput(preset)}
+                              className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
+                                suspensionReasonInput === preset
+                                  ? "bg-red-600 text-white border-red-600"
+                                  : isLight
+                                  ? "bg-white text-slate-700 border-slate-300 hover:bg-slate-100"
+                                  : "bg-[#1E293B] text-slate-300 border-slate-700 hover:bg-slate-700"
+                              }`}
+                            >
+                              {preset}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-[11px] font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
+                          Suspension Reason (Visible to User):
+                        </label>
+                        <input
+                          type="text"
+                          value={suspensionReasonInput}
+                          onChange={(e) => setSuspensionReasonInput(e.target.value)}
+                          placeholder="e.g. Terms of Service violation / Chargeback dispute"
+                          className={`w-full text-xs rounded-xl p-2.5 border focus:outline-none transition-all ${
+                            isLight
+                              ? "bg-white border-slate-300 text-slate-800 focus:border-red-500"
+                              : "bg-[#0B101D] border-[#1E2B45] text-slate-200 focus:border-red-500"
+                          }`}
+                        />
+                      </div>
+
+                      <div className="flex items-center justify-end gap-2 pt-1">
+                        <button
+                          type="button"
+                          onClick={() => setIsSuspendDialogOpen(false)}
+                          className="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (onSuspend) {
+                              onSuspend(selectedClient, suspensionReasonInput.trim() || "Account suspended by administrator");
+                              setIsSuspendDialogOpen(false);
+                            }
+                          }}
+                          disabled={isSuspending}
+                          className="bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+                        >
+                          <FiSlash className="text-xs" />
+                          <span>{isSuspending ? "Suspending..." : "Confirm & Suspend Account"}</span>
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-3">

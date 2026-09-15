@@ -7,7 +7,7 @@ export interface ClientAccount {
   email?: string;
   phone?: string;
   location: string;
-  status: "Active" | "Trial" | "Past Due" | "Onboarding" | "Suspended" | "Cancelled";
+  status: "Active" | "Trial" | "Past Due" | "Onboarding" | "Suspended" | "Cancelled" | "Deleted";
   statusSubtext?: string;
   plan: "Growth" | "Scale" | "Starter" | "Enterprise";
   mrr: number | null;
@@ -23,6 +23,12 @@ export interface ClientAccount {
   internalNotes?: string;
   phoneService?: any;
   telecom?: any;
+  isDeleted?: boolean;
+  deletedAt?: string;
+  deletionRecoveryDeadline?: string;
+  isSuspended?: boolean;
+  suspensionReason?: string;
+  suspendedAt?: string;
 }
 
 export interface StatsSummary {

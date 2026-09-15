@@ -464,11 +464,7 @@ function AppRoutes() {
     },
     {
       path: "subscription-error",
-      element: (
-        <PublicRoute>
-          <SubscriptionErrorPage />
-        </PublicRoute>
-      ),
+      element: <SubscriptionErrorPage />,
     },
     {
       path: "checkout",

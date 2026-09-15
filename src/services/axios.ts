@@ -73,10 +73,21 @@ axiosInstance.interceptors.response.use(
         }, 5000);
       }
     }
-    if (error.response?.status === 401 || error.response?.status === 403) {
-      if (!error.config?.url?.includes("/logout")) {
-        store.dispatch(handleLogoutThunk());
-      }
+    const url = error.config?.url || "";
+    const isAuthRequest =
+      url.includes("/login") ||
+      url.includes("/signin") ||
+      url.includes("/logout") ||
+      url.includes("/verify-2fa") ||
+      url.includes("/check-email") ||
+      url.includes("/register") ||
+      url.includes("/forgot-password") ||
+      url.includes("/reset-password");
+
+    const currentToken = store.getState().auth.token;
+
+    if ((error.response?.status === 401 || error.response?.status === 403) && !isAuthRequest && currentToken) {
+      store.dispatch(handleLogoutThunk());
     }
     return Promise.reject(error);
   },

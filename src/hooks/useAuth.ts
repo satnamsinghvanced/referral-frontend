@@ -49,9 +49,14 @@ export function useLogin() {
         lowerMsg.includes("inactive") ||
         lowerMsg.includes("subscription") ||
         lowerMsg.includes("expired") ||
+        lowerMsg.includes("suspended") ||
+        lowerMsg.includes("suspension") ||
+        lowerMsg.includes("deleted") ||
+        lowerMsg.includes("deactivated") ||
         lowerMsg.includes("plan") ||
         lowerMsg.includes("contact support") ||
-        error.response?.status === 402;
+        error.response?.status === 402 ||
+        error.response?.status === 403;
 
       if (!isSubscriptionOrInactive) {
         addToast({
