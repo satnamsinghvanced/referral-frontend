@@ -1,8 +1,11 @@
-import { Tab, Tabs } from "@heroui/react";
+import { Button, Tab, Tabs } from "@heroui/react";
 import { useMemo, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
+import { LuLock } from "react-icons/lu";
+import { useNavigate } from "react-router-dom";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import { LoadingState } from "../../components/common/LoadingState";
+import { usePlanGuard } from "../../hooks/usePlanGuard";
 import { useSocialOverview } from "../../hooks/useSocial";
 import Analytics from "./Analytics";
 import { CreatePostModal } from "./modal/CreatePostModal";
@@ -11,9 +14,16 @@ import Posts from "./Posts";
 import { useSocialPostUpload } from "../../providers/SocialPostUploadProvider";
 
 export default function SocialMedia() {
+  const navigate = useNavigate();
+  const { hasAccess, openPricingPage, isLoading: isBillingLoading } = usePlanGuard();
+  const canAccessSocialMedia = hasAccess("social_media");
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
-  const { data, isLoading } = useSocialOverview();
+  const { data, isLoading: isSocialLoading } = useSocialOverview({
+    enabled: canAccessSocialMedia,
+  });
+  const isLoading = isBillingLoading || (canAccessSocialMedia && isSocialLoading);
   const { startSocialPostUpload } = useSocialPostUpload();
   const isAnyPlatformConnected = useMemo(() => {
     if (!data?.platformPerformance) return false;
@@ -24,19 +34,20 @@ export default function SocialMedia() {
     () => ({
       heading: "Social Media",
       subHeading: "Manage your social media presence and engagement.",
-      buttons: isAnyPlatformConnected
-        ? [
-          {
-            label: "Create Post",
-            onClick: () => setIsModalOpen(true),
-            icon: <AiOutlinePlus fontSize={15} />,
-            variant: "solid" as const,
-            color: "primary" as const,
-          },
-        ]
-        : [],
+      buttons:
+        canAccessSocialMedia && isAnyPlatformConnected
+          ? [
+              {
+                label: "Create Post",
+                onClick: () => setIsModalOpen(true),
+                icon: <AiOutlinePlus fontSize={15} />,
+                variant: "solid" as const,
+                color: "primary" as const,
+              },
+            ]
+          : [],
     }),
-    [isAnyPlatformConnected],
+    [canAccessSocialMedia, isAnyPlatformConnected],
   );
 
   const platformsData = useMemo(() => {
@@ -154,6 +165,28 @@ export default function SocialMedia() {
     };
   }, [data]);
 
+  const renderUpgradePlan = () => (
+    <div className="flex flex-col items-center justify-center p-12 bg-background border border-foreground/10 rounded-xl space-y-4 max-w-xl mx-auto my-8 text-center shadow-sm">
+      <div className="p-4 rounded-full bg-warning/10 text-warning">
+        <LuLock className="size-8" />
+      </div>
+      <div className="space-y-2">
+        <h3 className="text-lg font-semibold">Social Media Management is Locked</h3>
+        <p className="text-sm text-gray-600 dark:text-foreground/60 max-w-md">
+          Social media management and publishing is available on the Professional and Enterprise plans. Upgrade your plan to connect platforms, schedule posts, and view detailed analytics.
+        </p>
+      </div>
+      <Button
+        color="warning"
+        variant="solid"
+        className="font-medium"
+        onPress={() => (openPricingPage ? openPricingPage() : navigate("/settings/billing"))}
+      >
+        Upgrade to Unlock
+      </Button>
+    </div>
+  );
+
   const renderConnectionWarning = () => (
     <div className="flex flex-col items-center justify-center p-10 bg-background border border-foreground/10 rounded-xl space-y-4">
       <div className="text-4xl text-warning">⚠️</div>
@@ -169,58 +202,62 @@ export default function SocialMedia() {
 
   return (
     <ComponentContainer headingData={HEADING_DATA}>
-      <div className="flex flex-col gap-4 md:gap-5">
-        <div className="space-y-5">
-          <Tabs
-            aria-label="Options"
-            variant="light"
-            radius="full"
-            classNames={{
-              base: "bg-primary/15 dark:bg-background rounded-full p-1 w-full",
-              tabList: "flex w-full rounded-full p-0 gap-0",
-              tab: "flex-1 h-9 text-sm font-medium transition-all",
-              cursor: "rounded-full bg-white dark:bg-primary",
-              tabContent:
-                "dark:group-data-[selected=true]:text-primary-foreground text-default-500 dark:text-foreground/60 transition-colors",
-              panel: "p-0",
-            }}
-            className="w-full"
-            selectedKey={activeTab}
-            onSelectionChange={(key) => setActiveTab(key as string)}
-          >
-            <Tab key="overview" title="Overview">
-              {isLoading ? (
-                <div className="min-h-[250px] flex items-center justify-center">
-                  <LoadingState />
-                </div>
-              ) : !isAnyPlatformConnected ? (
-                renderConnectionWarning()
-              ) : (
-                <Overview
-                  platforms={platformsData}
-                  recentPerformance={recentPerformance}
-                  contentCalendar={contentCalendar}
-                  stats={overviewStats}
-                />
-              )}
-            </Tab>
-            <Tab key="posts" title="Posts">
-              {!isLoading && !isAnyPlatformConnected ? (
-                renderConnectionWarning()
-              ) : (
-                <Posts />
-              )}
-            </Tab>
-            <Tab key="analytics" title="Analytics">
-              {!isLoading && !isAnyPlatformConnected ? (
-                renderConnectionWarning()
-              ) : (
-                <Analytics />
-              )}
-            </Tab>
-          </Tabs>
+      {isLoading ? (
+        <div className="min-h-[350px] flex items-center justify-center">
+          <LoadingState />
         </div>
-      </div>
+      ) : !canAccessSocialMedia ? (
+        renderUpgradePlan()
+      ) : (
+        <div className="flex flex-col gap-4 md:gap-5">
+          <div className="space-y-5">
+            <Tabs
+              aria-label="Options"
+              variant="light"
+              radius="full"
+              classNames={{
+                base: "bg-primary/15 dark:bg-background rounded-full p-1 w-full",
+                tabList: "flex w-full rounded-full p-0 gap-0",
+                tab: "flex-1 h-9 text-sm font-medium transition-all",
+                cursor: "rounded-full bg-white dark:bg-primary",
+                tabContent:
+                  "dark:group-data-[selected=true]:text-primary-foreground text-default-500 dark:text-foreground/60 transition-colors",
+                panel: "p-0",
+              }}
+              className="w-full"
+              selectedKey={activeTab}
+              onSelectionChange={(key) => setActiveTab(key as string)}
+            >
+              <Tab key="overview" title="Overview">
+                {!isAnyPlatformConnected ? (
+                  renderConnectionWarning()
+                ) : (
+                  <Overview
+                    platforms={platformsData}
+                    recentPerformance={recentPerformance}
+                    contentCalendar={contentCalendar}
+                    stats={overviewStats}
+                  />
+                )}
+              </Tab>
+              <Tab key="posts" title="Posts">
+                {!isAnyPlatformConnected ? (
+                  renderConnectionWarning()
+                ) : (
+                  <Posts />
+                )}
+              </Tab>
+              <Tab key="analytics" title="Analytics">
+                {!isAnyPlatformConnected ? (
+                  renderConnectionWarning()
+                ) : (
+                  <Analytics />
+                )}
+              </Tab>
+            </Tabs>
+          </div>
+        </div>
+      )}
       <CreatePostModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

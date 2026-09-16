@@ -90,11 +90,13 @@ const AdminList: React.FC = () => {
             ? "Deleted"
             : !admin.isActive
             ? "Suspended"
-            : planStatus === "trial"
+            : (admin.status === "Trial" || admin.status === "trial" || planStatus === "trial")
             ? "Trial"
-            : planStatus === "past_due" || planStatus === "pastDue"
+            : planStatus === "past_due" || planStatus === "pastDue" || admin.status === "Past Due" || admin.status === "pastDue"
             ? "Past Due"
-            : "Active";
+            : admin.status === "Cancelled" || admin.status === "canceled"
+            ? "Cancelled"
+            : admin.status || "Active";
 
           let statusSubtext = (admin as any).statusSubtext || "";
           if (status === "Deleted") {
@@ -104,12 +106,12 @@ const AdminList: React.FC = () => {
             const daysLeft = Math.max(0, Math.ceil((deadline.getTime() - Date.now()) / (24 * 60 * 60 * 1000)));
             statusSubtext = daysLeft > 0 ? `${daysLeft}d recovery` : "Expired";
           } else if (status === "Trial") {
-            const trialEnd = admin.plan?.trialEndsAt || (admin as any).trialEndsAt;
+            const trialEnd = admin.plan?.trialEndsAt || (admin as any).trialEndsAt || admin.plan?.nextBillingDate;
             if (trialEnd) {
               const formatted = new Date(trialEnd).toLocaleDateString("en-US", { month: "short", day: "numeric" });
               statusSubtext = `ends ${formatted}`;
-            } else {
-              statusSubtext = "buy plan trial";
+            } else if (!statusSubtext) {
+              statusSubtext = "free trial";
             }
           } else if (status === "Past Due") {
             const overdueDays = (admin as any).overdueDays || admin.plan?.overdueDays || 12;
@@ -118,7 +120,15 @@ const AdminList: React.FC = () => {
           const planName = admin.plan?.name || "Growth";
           const email = admin.email || "";
           const phone = admin.mobile || admin.phone || "";
-          const location = admin.city && admin.state ? `${admin.city}, ${admin.state}` : admin.specialty?.name || "Phoenix, AZ";
+          const specialty =
+            admin.specialty?.name ||
+            admin.medicalSpecialty?.name ||
+            (typeof admin.specialty === "string" ? admin.specialty : "") ||
+            (typeof admin.medicalSpecialty === "string" ? admin.medicalSpecialty : "") ||
+            admin.specialty?.specialty ||
+            admin.medicalSpecialty?.specialty ||
+            "";
+          const location = admin.city && admin.state ? `${admin.city}, ${admin.state}` : specialty || "Phoenix, AZ";
           const joinedDate = admin.createdAt ? new Date(admin.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", }) : "Recent";
           const lastActiveTime = admin.updatedAt || admin.createdAt || new Date().toISOString();
           return {
@@ -130,6 +140,7 @@ const AdminList: React.FC = () => {
             email,
             phone,
             location,
+            specialty,
             status: status as any,
             statusSubtext,
             plan: (planName.includes("Scale") ? "Scale" : planName.includes("Enterprise") ? "Enterprise" : planName.includes("Starter") ? "Starter"
@@ -142,7 +153,6 @@ const AdminList: React.FC = () => {
             referrals: admin.totalReferrals ?? admin.referrals,
             reviewScore: admin.reviewScore,
             joinedDate,
-            assignedRep: admin.assignedRep,
             tags: Array.isArray(admin.tags) && admin.tags.length > 0 ? admin.tags : undefined,
             internalNotes: admin.internalNotes || admin.notes || undefined,
             isDeleted,
@@ -291,6 +301,11 @@ const AdminList: React.FC = () => {
         localStorage.setItem("token", accessToken);
         if (refreshToken) localStorage.setItem("refreshToken", refreshToken);
         if (impersonatedUser) localStorage.setItem("user", JSON.stringify(impersonatedUser));
+        if (client.id) {
+          try {
+            localStorage.removeItem(`cached_billing_data_${client.id}`);
+          } catch (e) { }
+        }
         dispatch(
           setCredentials({
             user: impersonatedUser,
@@ -337,6 +352,8 @@ const AdminList: React.FC = () => {
       if (data) {
         const fetchedTags = Array.isArray(data.tags) ? data.tags : client.tags || [];
         const fetchedNotes = data.internalNotes || client.internalNotes || "";
+        const fetchedTeamMembers = Array.isArray(data.teamMembers) ? data.teamMembers : client.teamMembers || [];
+        const fetchedPlanFeatures = Array.isArray(data.planFeatures) ? data.planFeatures : (Array.isArray(data.features) ? data.features : client.planFeatures || client.features || []);
         setSelectedClient((prev) => {
           if (!prev) return null;
           return {
@@ -348,6 +365,9 @@ const AdminList: React.FC = () => {
             telecom: data.phoneService || data.telecom || null,
             tags: fetchedTags,
             internalNotes: fetchedNotes,
+            teamMembers: fetchedTeamMembers,
+            planFeatures: fetchedPlanFeatures,
+            features: fetchedPlanFeatures,
           };
         });
         setNotesInput(fetchedNotes);
