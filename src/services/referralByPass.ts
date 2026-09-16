@@ -16,7 +16,7 @@ axiosInstance.interceptors.request.use((config) => { return config },
 axiosInstance.interceptors.response.use(
   (response) => response.data,
   (error) => {
-    if (error.response?.status === 401 || error.response?.status === 403) {
+    if (error.response?.status === 401) {
       store.dispatch(handleLogoutThunk());
       window.location.href = `${import.meta.env.VITE_URL_PREFIX}/signin`;
     }

@@ -86,7 +86,7 @@ axiosInstance.interceptors.response.use(
 
     const currentToken = store.getState().auth.token;
 
-    if ((error.response?.status === 401 || error.response?.status === 403) && !isAuthRequest && currentToken) {
+    if (error.response?.status === 401 && !isAuthRequest && currentToken) {
       store.dispatch(handleLogoutThunk());
     }
     return Promise.reject(error);

@@ -170,6 +170,13 @@ function Integrations() {
 
     if (targetId) {
       const normalizedMap: Record<string, string> = {
+        email: "email_marketing",
+        email_marketing: "email_marketing",
+        emailmarketing: "email_marketing",
+        gmail: "email_marketing",
+        mail: "email_marketing",
+        sendgrid: "email_marketing",
+        smtp: "email_marketing",
         google_review: "google_business",
         google_reviews: "google_business",
         googlebusiness: "google_business",
@@ -182,10 +189,8 @@ function Integrations() {
         metaads: "meta_ads",
         google_analytics: "google_analytics",
         googleanalytics: "google_analytics",
-        sendgrid: "email_marketing",
-        smtp: "email_marketing",
-        email_marketing: "email_marketing",
         twilio: "twilio",
+        sms: "twilio",
         meta: "meta",
         youtube: "youTube",
       };
@@ -193,19 +198,27 @@ function Integrations() {
       const finalKey = normalizedMap[targetId.toLowerCase()] || targetId;
       setHighlightedKey(finalKey);
 
-      const timer = setTimeout(() => {
-        const el = document.getElementById(`integration-${finalKey}`);
+      let attempts = 0;
+      const maxAttempts = 10;
+      const interval = setInterval(() => {
+        attempts++;
+        const el =
+          document.getElementById(`integration-${finalKey}`) ||
+          document.getElementById(`integration-${targetId}`);
         if (el) {
           el.scrollIntoView({ behavior: "smooth", block: "center" });
+          clearInterval(interval);
+        } else if (attempts >= maxAttempts) {
+          clearInterval(interval);
         }
-      }, 250);
+      }, 150);
 
       const clearTimer = setTimeout(() => {
         setHighlightedKey(null);
-      }, 4500);
+      }, 5000);
 
       return () => {
-        clearTimeout(timer);
+        clearInterval(interval);
         clearTimeout(clearTimer);
       };
     }
@@ -874,13 +887,13 @@ function Integrations() {
               <TwilioDashboard twilioConfig={twilioConfig} />
             </div>
           )}
-          <Card className="shadow-none border border-foreground/10 rounded-xl p-4 bg-background">
+          <Card className="shadow-none border border-foreground/10 rounded-xl p-4 bg-background overflow-hidden">
             <CardHeader className="p-0 pb-5">
               <h4 className="font-medium text-sm text-foreground">
                 Available Integrations
               </h4>
             </CardHeader>
-            <CardBody className="divide-y divide-gray-100 dark:divide-default-100/50 p-0">
+            <CardBody className="divide-y divide-gray-100 dark:divide-default-100/50 p-0 overflow-x-hidden">
               {AVAILABLE_INTEGRATIONS.map((item, index) => {
                 const { key, ...restItem } = item;
                 return (
@@ -896,13 +909,13 @@ function Integrations() {
           </Card>
 
           {planAccess?.social_media !== false && (
-            <Card className="shadow-none border border-foreground/10 rounded-xl p-4 bg-background">
+            <Card className="shadow-none border border-foreground/10 rounded-xl p-4 bg-background overflow-hidden">
               <CardHeader className="p-0 pb-5">
                 <h4 className="font-medium text-sm text-foreground">
                   Social Media Integrations
                 </h4>
               </CardHeader>
-              <CardBody className="divide-y divide-gray-100 dark:divide-default-100/50 p-0">
+              <CardBody className="divide-y divide-gray-100 dark:divide-default-100/50 p-0 overflow-x-hidden">
                 {SOCIAL_MEDIA_INTEGRATIONS.map((item, index) => {
                   const { key, ...restItem } = item;
                   return (

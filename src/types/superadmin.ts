@@ -7,6 +7,7 @@ export interface ClientAccount {
   email?: string;
   phone?: string;
   location: string;
+  specialty?: string;
   status: "Active" | "Trial" | "Past Due" | "Onboarding" | "Suspended" | "Cancelled" | "Deleted";
   statusSubtext?: string;
   plan: "Growth" | "Scale" | "Starter" | "Enterprise";
@@ -18,9 +19,11 @@ export interface ClientAccount {
   referrals?: number;
   reviewScore?: string;
   joinedDate?: string;
-  assignedRep?: string;
   tags?: string[];
   internalNotes?: string;
+  teamMembers?: any[];
+  planFeatures?: string[];
+  features?: string[];
   phoneService?: any;
   telecom?: any;
   isDeleted?: boolean;

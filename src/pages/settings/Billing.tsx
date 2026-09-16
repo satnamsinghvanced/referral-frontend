@@ -263,12 +263,24 @@ const Billing: React.FC = () => {
 
   const isInactive = billingData.status === "inActive" || billingData.status === "expired" || billingData.status === "failed";
   const isCanceled = !isInactive && (billingData.status === "canceled" || Boolean(billingData.cancelAtPeriodEnd));
-  const isTrial = !isInactive && !isCanceled && (billingData.status === "trial" || billingData.isTrial);
-  const isActive = !isInactive && !isCanceled && (billingData.status === "active" || billingData.status === "trial");
+  const isTrial = !isInactive && !isCanceled && (billingData.status === "trial" || Boolean(billingData.isTrial));
+  const isActive = !isInactive && !isCanceled && !isTrial && (billingData.status === "active");
 
   const trialEnd = billingData.trialEndsAt || billingData.nextBillingDate;
 
   const getRemainingTimeText = () => {
+    if (billingData.trialDaysLeft !== undefined && billingData.trialDaysLeft !== null) {
+      if (billingData.trialDaysLeft <= 0) {
+        if (!trialEnd) return "0 mins";
+        const ms = new Date(trialEnd).getTime() - Date.now();
+        if (ms <= 0) return "0 mins";
+        const mins = Math.ceil(ms / (1000 * 60));
+        const hrs = Math.ceil(ms / (1000 * 60 * 60));
+        if (mins < 60) return `${mins} ${mins === 1 ? "min" : "mins"}`;
+        return `${hrs} ${hrs === 1 ? "hour" : "hours"}`;
+      }
+      return `${billingData.trialDaysLeft} ${billingData.trialDaysLeft === 1 ? "day" : "days"}`;
+    }
     if (!trialEnd) return `${billingData.trialDays || 14} days`;
     const msRemaining = new Date(trialEnd).getTime() - Date.now();
     if (msRemaining <= 0) return "0 mins";

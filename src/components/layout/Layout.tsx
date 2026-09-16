@@ -41,7 +41,11 @@ const Layout = () => {
     const adminUserStr = localStorage.getItem("admin_user");
     if (adminToken) localStorage.setItem("token", adminToken);
     if (adminRefreshToken) localStorage.setItem("refreshToken", adminRefreshToken);
-    if (adminUserStr) localStorage.setItem("user", adminUserStr);
+    if (impersonatedData?.id) {
+      try {
+        localStorage.removeItem(`cached_billing_data_${impersonatedData.id}`);
+      } catch (e) { }
+    }
     localStorage.removeItem("impersonated_client");
     localStorage.removeItem("admin_token");
     localStorage.removeItem("admin_refreshToken");

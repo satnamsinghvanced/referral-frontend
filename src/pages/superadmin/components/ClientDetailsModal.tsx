@@ -24,7 +24,9 @@ import {
   FiSlash,
   FiAlertTriangle,
   FiShield,
+  FiLoader,
 } from "react-icons/fi";
+import { FaStethoscope } from "react-icons/fa6";
 
 interface ClientDetailsModalProps {
   isOpen: boolean;
@@ -43,8 +45,8 @@ interface ClientDetailsModalProps {
   onClose: () => void;
   onImpersonate: (client: ClientAccount) => void;
   onRecover?: (client: ClientAccount) => void;
-  onSuspend?: (client: ClientAccount, reason: string) => void;
-  onUnsuspend?: (client: ClientAccount) => void;
+  onSuspend?: (client: ClientAccount, reason: string) => void | Promise<void>;
+  onUnsuspend?: (client: ClientAccount) => void | Promise<void>;
   onTagInputChange: (val: string) => void;
   onAddTag: () => void;
   onRemoveTag: (tag: string) => void;
@@ -122,6 +124,20 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
 
   const rawPhoneNumbers = phoneServiceData?.phoneNumbers;
   const phoneNumbersList: any[] = Array.isArray(rawPhoneNumbers) ? rawPhoneNumbers : [];
+
+  const rawTeamMembers = selectedClient?.teamMembers;
+  const teamMembersList: any[] = Array.isArray(rawTeamMembers) ? rawTeamMembers : [];
+
+  const rawFeatures = selectedClient?.planFeatures || selectedClient?.features;
+  const featuresList: string[] = Array.isArray(rawFeatures) && rawFeatures.length > 0
+    ? rawFeatures
+    : [
+        "Full CRM & Referral Engine",
+        "Unlimited Patient Invitations",
+        "Automated SMS & Email Triggers",
+        "Review Generation & Tracking",
+        "Priority Live Support",
+      ];
 
   const phoneNumbersCount = phoneNumbersList.length;
   const numbersCostTotal = phoneNumbersCount * 5;
@@ -259,46 +275,59 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
           {activeTab === "overview" && (
             <>
               {/* Account Status Action Banners */}
-              {(selectedClient.status === "Deleted" || selectedClient.isDeleted) ? (
-                <div
-                  className={`p-4 rounded-xl border flex flex-col sm:flex-row items-center justify-between gap-4 ${isLight
-                    ? "bg-rose-50 border-rose-200 shadow-sm"
-                    : "bg-rose-950/40 border-rose-900/60"
-                    }`}
-                >
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" />
-                      <p className="text-xs font-extrabold text-rose-900 dark:text-rose-200 uppercase tracking-wide">
-                        Account Scheduled For Deletion (60-Day Recovery Active)
+              {(selectedClient.status === "Deleted" || selectedClient.isDeleted) ? (() => {
+                const deadline = selectedClient.deletionRecoveryDeadline
+                  ? new Date(selectedClient.deletionRecoveryDeadline)
+                  : selectedClient.deletedAt
+                  ? new Date(new Date(selectedClient.deletedAt).getTime() + 60 * 24 * 60 * 60 * 1000)
+                  : (selectedClient as any).updatedAt
+                  ? new Date(new Date((selectedClient as any).updatedAt).getTime() + 60 * 24 * 60 * 60 * 1000)
+                  : null;
+                const daysLeft = deadline
+                  ? Math.max(0, Math.ceil((deadline.getTime() - Date.now()) / (24 * 60 * 60 * 1000)))
+                  : 60;
+
+                return (
+                  <div
+                    className={`p-4 rounded-xl border flex flex-col sm:flex-row items-center justify-between gap-4 ${isLight
+                      ? "bg-rose-50 border-rose-200 shadow-sm"
+                      : "bg-rose-950/40 border-rose-900/60"
+                      }`}
+                  >
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-pulse" />
+                        <p className="text-xs font-extrabold text-rose-900 dark:text-rose-200 uppercase tracking-wide">
+                          Account Scheduled For Deletion ({daysLeft} of 60 Days Remaining)
+                        </p>
+                      </div>
+                      <p className="text-xs text-rose-700 dark:text-rose-400 mt-1">
+                        This user requested account deletion. <strong>{daysLeft} days remaining out of 60 days</strong> in the recovery window. All associated data will be permanently erased if unrecovered.
                       </p>
                     </div>
-                    <p className="text-xs text-rose-700 dark:text-rose-400 mt-1">
-                      This user requested account deletion. {selectedClient.statusSubtext ? `(${selectedClient.statusSubtext})` : "60-day recovery window is active."} All associated data will be permanently erased if unrecovered.
-                    </p>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => onRecover && onRecover(selectedClient)}
+                        disabled={isRecovering}
+                        className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+                      >
+                        <FiCheckCircle className="text-sm" />
+                        <span>{isRecovering ? "Recovering..." : "Recover Account"}</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onImpersonate(selectedClient)}
+                        disabled={impersonatingId === selectedClient.id}
+                        className="bg-[#20a9f8] hover:bg-[#1896de] text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md shadow-[#20a9f8]/20 hover:shadow-[#20a9f8]/35 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+                      >
+                        <FiKey className="text-sm" />
+                        <span>{impersonatingId === selectedClient.id ? "Logging in..." : "Log In As"}</span>
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => onRecover && onRecover(selectedClient)}
-                      disabled={isRecovering}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer disabled:opacity-50"
-                    >
-                      <FiCheckCircle className="text-sm" />
-                      <span>{isRecovering ? "Recovering..." : "Recover Account"}</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => onImpersonate(selectedClient)}
-                      disabled={impersonatingId === selectedClient.id}
-                      className="bg-[#20a9f8] hover:bg-[#1896de] text-white font-bold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md shadow-[#20a9f8]/20 hover:shadow-[#20a9f8]/35 active:scale-95 transition-all cursor-pointer disabled:opacity-50"
-                    >
-                      <FiKey className="text-sm" />
-                      <span>{impersonatingId === selectedClient.id ? "Logging in..." : "Log In As"}</span>
-                    </button>
-                  </div>
-                </div>
-              ) : (selectedClient.status === "Suspended" || selectedClient.isSuspended) ? (
+                );
+              })() : (selectedClient.status === "Suspended" || selectedClient.isSuspended) ? (
                 <div
                   className={`p-4 rounded-xl border flex flex-col sm:flex-row items-center justify-between gap-4 ${isLight
                     ? "bg-amber-50/90 border-amber-200 shadow-sm"
@@ -326,8 +355,17 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                       disabled={isSuspending}
                       className="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-4 py-2.5 rounded-xl flex items-center gap-2 shadow-md active:scale-95 transition-all cursor-pointer disabled:opacity-50"
                     >
-                      <FiCheckCircle className="text-sm" />
-                      <span>{isSuspending ? "Reactivating..." : "Unsuspend Account"}</span>
+                      {isSuspending ? (
+                        <>
+                          <FiLoader className="text-sm animate-spin" />
+                          <span>Reactivating...</span>
+                        </>
+                      ) : (
+                        <>
+                          <FiCheckCircle className="text-sm" />
+                          <span>Unsuspend Account</span>
+                        </>
+                      )}
                     </button>
                     <button
                       type="button"
@@ -360,7 +398,8 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                       <button
                         type="button"
                         onClick={() => setIsSuspendDialogOpen((prev) => !prev)}
-                        className={`text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 border transition-all cursor-pointer ${
+                        disabled={isSuspending}
+                        className={`text-xs font-bold px-3.5 py-2 rounded-xl flex items-center gap-1.5 border transition-all cursor-pointer disabled:opacity-60 ${
                           isSuspendDialogOpen
                             ? "bg-red-100 text-red-700 border-red-300 dark:bg-red-950 dark:text-red-300"
                             : isLight
@@ -368,8 +407,17 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                             : "bg-[#162036] hover:bg-red-950/50 text-red-400 border-red-900/50"
                         }`}
                       >
-                        <FiSlash className="text-xs" />
-                        <span>Suspend Account</span>
+                        {isSuspending ? (
+                          <>
+                            <FiLoader className="text-xs animate-spin" />
+                            <span>Suspending...</span>
+                          </>
+                        ) : (
+                          <>
+                            <FiSlash className="text-xs" />
+                            <span>Suspend Account</span>
+                          </>
+                        )}
                       </button>
 
                       <button
@@ -403,14 +451,15 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                         <button
                           type="button"
                           onClick={() => setIsSuspendDialogOpen(false)}
-                          className="text-slate-400 hover:text-slate-600 text-xs"
+                          disabled={isSuspending}
+                          className="text-slate-400 hover:text-slate-600 text-xs disabled:opacity-50"
                         >
                           Cancel
                         </button>
                       </div>
 
                       <p className="text-xs text-slate-600 dark:text-slate-400 leading-relaxed">
-                        Suspending this account will immediately revoke access for this client and all team members. When they try to log in, they will see the suspension reason provided below:
+                        Suspending this account will immediately revoke access for this client and all team members. An official email notice containing the reason provided below will be sent directly to the client's email address.
                       </p>
 
                       <div className="space-y-1.5">
@@ -428,7 +477,8 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                               key={preset}
                               type="button"
                               onClick={() => setSuspensionReasonInput(preset)}
-                              className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg border transition-all cursor-pointer ${
+                              disabled={isSuspending}
+                              className={`text-[11px] font-semibold px-2.5 py-1 rounded-lg border transition-all cursor-pointer disabled:opacity-50 ${
                                 suspensionReasonInput === preset
                                   ? "bg-red-600 text-white border-red-600"
                                   : isLight
@@ -450,8 +500,9 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                           type="text"
                           value={suspensionReasonInput}
                           onChange={(e) => setSuspensionReasonInput(e.target.value)}
+                          disabled={isSuspending}
                           placeholder="e.g. Terms of Service violation / Chargeback dispute"
-                          className={`w-full text-xs rounded-xl p-2.5 border focus:outline-none transition-all ${
+                          className={`w-full text-xs rounded-xl p-2.5 border focus:outline-none transition-all disabled:opacity-50 ${
                             isLight
                               ? "bg-white border-slate-300 text-slate-800 focus:border-red-500"
                               : "bg-[#0B101D] border-[#1E2B45] text-slate-200 focus:border-red-500"
@@ -463,23 +514,40 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                         <button
                           type="button"
                           onClick={() => setIsSuspendDialogOpen(false)}
-                          className="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors"
+                          disabled={isSuspending}
+                          className="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
                         >
                           Cancel
                         </button>
                         <button
                           type="button"
-                          onClick={() => {
-                            if (onSuspend) {
-                              onSuspend(selectedClient, suspensionReasonInput.trim() || "Account suspended by administrator");
-                              setIsSuspendDialogOpen(false);
+                          onClick={async () => {
+                            if (onSuspend && selectedClient) {
+                              try {
+                                await onSuspend(
+                                  selectedClient,
+                                  suspensionReasonInput.trim() || "Account suspended by administrator"
+                                );
+                                setIsSuspendDialogOpen(false);
+                              } catch (e) {
+                                // Dialog handles error or stays open
+                              }
                             }
                           }}
                           disabled={isSuspending}
-                          className="bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer disabled:opacity-50"
+                          className="bg-red-600 hover:bg-red-700 text-white font-extrabold text-xs px-4 py-2 rounded-xl flex items-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                         >
-                          <FiSlash className="text-xs" />
-                          <span>{isSuspending ? "Suspending..." : "Confirm & Suspend Account"}</span>
+                          {isSuspending ? (
+                            <>
+                              <FiLoader className="text-xs animate-spin" />
+                              <span>Suspending...</span>
+                            </>
+                          ) : (
+                            <>
+                              <FiSlash className="text-xs" />
+                              <span>Confirm & Suspend Account</span>
+                            </>
+                          )}
                         </button>
                       </div>
                     </div>
@@ -544,6 +612,28 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                       </span>
                     </div>
                   </div>
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  SPECIALTY
+                </h3>
+                <div
+                  className={`p-3 rounded-2xl border flex items-center gap-2.5 text-xs font-semibold ${
+                    isLight
+                      ? "bg-emerald-50/50 border-emerald-300 text-emerald-800"
+                      : "bg-[#064E3B]/20 border-emerald-500/30 text-emerald-300"
+                  }`}
+                >
+                  <FaStethoscope className="text-emerald-500 text-sm shrink-0" />
+                  <span>
+                    {selectedClient.specialty ||
+                      (selectedClient as any)?.medicalSpecialty?.name ||
+                      (typeof (selectedClient as any)?.medicalSpecialty === "string" ? (selectedClient as any)?.medicalSpecialty : "") ||
+                      (selectedClient as any)?.specialty?.name ||
+                      "Orthodontics"}
+                  </span>
                 </div>
               </div>
 
@@ -615,6 +705,88 @@ const ClientDetailsModal: React.FC<ClientDetailsModalProps> = ({
                       )}
                     </div>
                   </div>
+                </div>
+              </div>
+
+              {/* Assigned Team Members Section */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1.5">
+                    <FiUsers className="text-slate-400" />
+                    <span>ASSIGNED TEAM MEMBERS {teamMembersList.length > 0 ? `(${teamMembersList.length})` : ""}</span>
+                  </h3>
+                </div>
+
+                {teamMembersList.length === 0 ? (
+                  <div
+                    className={`p-4 rounded-xl border text-center text-xs text-slate-400 ${
+                      isLight ? "bg-slate-50 border-slate-200/80" : "bg-[#111A2E] border-[#1E2B45]"
+                    }`}
+                  >
+                    No additional team members registered under this account yet.
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    {teamMembersList.map((member: any, idx: number) => {
+                      const memberName = `${member.firstName || ""} ${member.lastName || ""}`.trim() || member.email || "Team Member";
+                      const roleName = member.role?.role || (typeof member.role === "string" ? member.role : "Member");
+                      const memberInitials = `${(member.firstName?.[0] || member.email?.[0] || "U").toUpperCase()}${(member.lastName?.[0] || "").toUpperCase()}`;
+
+                      return (
+                        <div
+                          key={member._id || idx}
+                          className={`p-3 rounded-xl border flex items-center justify-between gap-3 ${
+                            isLight ? "bg-slate-50 border-slate-200/80" : "bg-[#111A2E] border-[#1E2B45]"
+                          }`}
+                        >
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div className="w-8 h-8 rounded-xl bg-sky-100 dark:bg-sky-950/60 text-[#20a9f8] font-bold text-xs flex items-center justify-center shrink-0">
+                              {memberInitials}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate">
+                                {memberName}
+                              </p>
+                              <p className="text-[11px] text-slate-400 truncate">
+                                {member.email}
+                              </p>
+                            </div>
+                          </div>
+                          <span className="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-200/70 dark:bg-slate-800 text-slate-700 dark:text-slate-300 shrink-0">
+                            {roleName}
+                          </span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Plan Features Section */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                    PLAN FEATURES
+                  </h3>
+                  <span className="px-3 py-0.5 rounded-full text-xs font-bold bg-sky-100 dark:bg-sky-950/60 text-sky-600 dark:text-sky-300 border border-sky-200 dark:border-sky-800">
+                    {selectedClient.plan || "Growth"}
+                  </span>
+                </div>
+
+                <div className="space-y-2">
+                  {featuresList.map((feature: string, idx: number) => (
+                    <div
+                      key={idx}
+                      className={`p-3 rounded-2xl border flex items-center gap-3 text-xs sm:text-sm font-semibold transition-all ${
+                        isLight
+                          ? "bg-slate-50/70 border-slate-200/80 text-slate-800"
+                          : "bg-[#111A2E] border-[#1E2B45] text-slate-200"
+                      }`}
+                    >
+                      <FiCheckCircle className="text-emerald-500 text-sm shrink-0" />
+                      <span>{feature}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </>
