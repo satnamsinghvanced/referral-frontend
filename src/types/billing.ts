@@ -18,7 +18,6 @@ export interface PlanAccess {
   roi_analytics: boolean;
   call_tracking: boolean;
   sms_marketing: boolean;
-  canva_integration: boolean;
   white_label: boolean;
   custom_integrations: boolean;
   advanced_automation: boolean;

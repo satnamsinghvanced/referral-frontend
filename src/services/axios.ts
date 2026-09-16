@@ -83,11 +83,22 @@ axiosInstance.interceptors.response.use(
       url.includes("/register") ||
       url.includes("/forgot-password") ||
       url.includes("/reset-password");
-
     const currentToken = store.getState().auth.token;
 
-    if ((error.response?.status === 401 || error.response?.status === 403) && !isAuthRequest && currentToken) {
+    if (error.response?.status === 401 && !isAuthRequest && currentToken) {
       store.dispatch(handleLogoutThunk());
+    } else if (error.response?.status === 403 && !isAuthRequest) {
+      if (!isToastShowing) {
+        isToastShowing = true;
+        addToast({
+          title: "Access Restricted",
+          description: error.response?.data?.message || "This feature is not included in your current subscription plan.",
+          color: "warning",
+        });
+        setTimeout(() => {
+          isToastShowing = false;
+        }, 5000);
+      }
     }
     return Promise.reject(error);
   },

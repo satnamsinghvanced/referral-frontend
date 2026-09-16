@@ -18,7 +18,7 @@ export const PlanCycleToggle: React.FC<PlanCycleToggleProps> = ({ activeCycle, o
         <button
           type="button"
           onClick={() => onCycleChange("monthly")}
-          className={`w-40 h-10  rounded-full text-xs    font-extrabold transition-all cursor-pointer ${activeCycle === "monthly"
+          className={`w-40 h-10 rounded-full text-xs font-extrabold transition-all cursor-pointer ${activeCycle === "monthly"
             ? "bg-[#20a9f8] text-white shadow-md shadow-[#20a9f8]/25"
             : isLight
               ? "text-slate-600 hover:text-slate-900"

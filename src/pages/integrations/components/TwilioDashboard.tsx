@@ -2,13 +2,14 @@ import { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { Card, CardBody, Button, Chip, addToast, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, Spinner } from "@heroui/react";
-import { FiPhone, FiDollarSign, FiClock, FiMessageSquare, FiInfo, FiPlus, FiTrash2, FiRefreshCw, FiCheckCircle, FiCreditCard } from "react-icons/fi";
+import { FiPhone, FiDollarSign, FiClock, FiMessageSquare, FiInfo, FiPlus, FiTrash2, FiRefreshCw, FiCheckCircle, FiCreditCard, FiAlertTriangle, FiEdit, FiCheckSquare } from "react-icons/fi";
 import TwilioAddCreditsModal from "../modal/TwilioAddCreditsModal";
 import TwilioPurchaseNumberModal from "../modal/TwilioPurchaseNumberModal";
 import TwilioA2PRegistrationModal from "../modal/TwilioA2PRegistrationModal";
 import { TwilioConfigResponse } from "../../../types/integrations/twilio";
 import axios from "../../../services/axios";
 import { useFetchA2PRegistration } from "../../../hooks/integrations/useTwilio";
+import { parseAndMapRejectionReason } from "../../../utils/a2pRejectionMapper";
 
 interface PhoneNumber {
   id: string;
@@ -405,75 +406,96 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
               </div>
             </div>
           ) : (
-            <div className="border border-red-200 dark:border-red-900/30 bg-red-50/40 dark:bg-red-950/10 rounded-xl p-4 flex flex-row gap-3 items-start">
-              <FiInfo className="w-5 h-5 text-red-500 mt-0.5 flex-shrink-0" />
-              <div className="flex flex-col gap-2 w-full">
-                <h4 className="text-xs font-bold text-red-600 dark:text-red-500">
-                  A2P SMS Registration Rejected
-                </h4>
-                <p className="text-xs text-red-600/80 dark:text-red-400/80 leading-relaxed">
-                  Carrier review has rejected this brand/campaign registration. Please review the items below:
-                </p>
-                {(() => {
-                  if (!registration.rejectionReason) {
-                    return (
-                      <div className="bg-red-500/10 p-3 rounded-xl border border-red-200/50 text-xs font-bold text-red-700">
-                        Rejection reason unspecified by carrier.
-                      </div>
-                    );
-                  }
-                  const items = registration.rejectionReason.split(" | ").map((r: string) => r.trim()).filter(Boolean);
-                  const getActionableTip = (title: string, detail: string) => {
-                    const lower = title.toLowerCase() + " " + detail.toLowerCase();
-                    if (lower.includes("business type") || lower.includes("business information")) {
-                      return "Ensure your Business Type (e.g. Limited Liability Corporation), Business Legal Name, and EIN match official IRS documents.";
-                    }
-                    if (lower.includes("authorized representative #1") || lower.includes("authorized representative 1")) {
-                      return "Verify contact person's full name, email, phone number, and title.";
-                    }
-                    if (lower.includes("authorized representative #2") || lower.includes("authorized representative 2")) {
-                      return "Second Authorized Representative required by carrier policy.";
-                    }
-                    if (lower.includes("physical business address") || lower.includes("address")) {
-                      return "Verify street address, city, state, and ZIP match official tax/registration records.";
-                    }
-                    if (lower.includes("primary customer profile")) {
-                      return "Primary profile approval required by Twilio carrier policy.";
-                    }
-                    return "Please review this item and resubmit with verified information.";
-                  };
+            <div className="border border-red-200 dark:border-red-900/40 bg-red-50/50 dark:bg-red-950/20 rounded-2xl p-6 flex flex-col gap-5">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-red-200/60 dark:border-red-900/40 pb-4">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-red-100 dark:bg-red-950/50 flex items-center justify-center text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5">
+                    <FiAlertTriangle className="w-5 h-5" />
+                  </div>
+                  <div className="flex flex-col gap-0.5">
+                    <div className="flex items-center gap-2">
+                      <h4 className="text-base font-bold text-red-800 dark:text-red-300">
+                        A2P SMS Registration Rejected
+                      </h4>
+                      <span className="text-[10px] font-bold px-2.5 py-0.5 rounded-md bg-red-600/10 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/30 uppercase tracking-wider">
+                        Action Required
+                      </span>
+                    </div>
+                    <p className="text-xs text-red-700/80 dark:text-red-300/80 leading-relaxed font-medium">
+                      Registration review was not approved. Review the specific feedback below and resubmit with verified information.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {(() => {
+                const parseResult = parseAndMapRejectionReason(registration.rejectionReason);
+
+                if (parseResult.hasSpecificReason) {
                   return (
-                    <div className="flex flex-col gap-2 my-1">
-                      {items.map((item: string, idx: number) => {
-                        const parts = item.split(":");
-                        const title = parts[0] ? parts[0].trim() : "Compliance Requirement";
-                        const detail = parts.slice(1).join(":").trim() || "Unfulfilled";
-                        const tip = getActionableTip(title, detail);
-                        return (
+                    <div className="flex flex-col gap-4">
+                      <div className="flex flex-col gap-3.5">
+                        {parseResult.reasons.map((item, idx) => (
                           <div
                             key={idx}
-                            className="flex flex-col gap-1 bg-red-500/10 dark:bg-red-950/30 border border-red-200/80 dark:border-red-900/50 p-3 rounded-xl"
+                            className="flex flex-col gap-3 bg-white dark:bg-zinc-900 border border-red-200/80 dark:border-red-900/40 p-4 rounded-xl shadow-xs"
                           >
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="w-2 h-2 rounded-full bg-red-500 flex-shrink-0" />
-                              <span className="text-xs font-bold text-red-700 dark:text-red-300">{title}</span>
-                              <span className="text-[10px] px-2 py-0.5 rounded-md bg-red-500/15 text-red-600 dark:text-red-400 font-semibold uppercase tracking-wider">
-                                {detail}
+                            <div className="flex items-center justify-between gap-2 flex-wrap">
+                              <div className="flex items-center gap-2">
+                                <span className="w-2.5 h-2.5 rounded-full bg-red-500 flex-shrink-0" />
+                                <span className="text-sm font-bold text-red-800 dark:text-red-300">{item.category}</span>
+                              </div>
+                              <span className="text-[10px] px-2.5 py-0.5 rounded-md bg-red-100 dark:bg-red-950/50 text-red-700 dark:text-red-300 font-bold uppercase tracking-wider border border-red-200 dark:border-red-900/40">
+                                ACTION REQUIRED
                               </span>
                             </div>
-                            <p className="text-xs text-red-600/90 dark:text-red-300/90 pl-4 leading-relaxed font-medium">
-                              💡 <span className="font-semibold">Action Required:</span> {tip}
-                            </p>
+
+                            <div className="ml-4 bg-red-50/80 dark:bg-red-950/30 border border-red-200/60 dark:border-red-900/40 p-3 rounded-lg flex flex-col gap-1">
+                              <span className="text-xs font-bold text-red-900 dark:text-red-200">
+                                Reason for rejection: <span className="font-normal text-red-800 dark:text-red-300">{item.specificMessage}</span>
+                              </span>
+                            </div>
+
+                            <div className="ml-4 bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-900/40 p-3 rounded-lg flex items-start gap-2.5">
+                              <FiCheckSquare className="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 flex-shrink-0" />
+                              <div className="text-xs text-amber-900 dark:text-amber-200 leading-relaxed font-medium">
+                                <span className="font-bold text-amber-950 dark:text-amber-100">Fix Requirement:</span> {item.actionableTip}
+                              </div>
+                            </div>
                           </div>
-                        );
-                      })}
+                        ))}
+                      </div>
                     </div>
                   );
-                })()}
-                <p className="text-[11px] text-red-500/80 font-medium">
-                  Click <span className="font-bold text-red-600 dark:text-red-400">"Edit & Re-submit"</span> above to correct details and resubmit for carrier approval.
-                </p>
-              </div>
+                }
+
+                return (
+                  <div className="flex flex-col gap-4">
+                    <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/40 p-4 rounded-xl flex flex-col gap-1.5">
+                      <h5 className="text-xs font-bold text-amber-900 dark:text-amber-200 flex items-center gap-1.5">
+                        <FiInfo className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+                        Possible reasons (exact cause not specified)
+                      </h5>
+                      <p className="text-xs text-amber-800/90 dark:text-amber-300/90 leading-relaxed font-medium">
+                        The verification system did not specify an exact failure cause. Please review the guidance checklist below to ensure your business details match official records before re-submitting:
+                      </p>
+                    </div>
+
+                    <div className="bg-white/60 dark:bg-zinc-900/60 border border-red-200/60 dark:border-red-900/30 rounded-xl p-4 flex flex-col gap-2">
+                      <h5 className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                        <FiCheckCircle className="w-4 h-4 text-red-500" />
+                        General Guidance Checklist (Check before Re-submitting):
+                      </h5>
+                      <ul className="text-xs text-foreground-500 list-disc pl-5 space-y-1.5 font-medium">
+                        <li><strong className="text-foreground-700 dark:text-foreground-200">Exact Business Name:</strong> Must match your official IRS tax document (W-9 or CP575 notice) including suffixes like LLC, Inc.</li>
+                        <li><strong className="text-foreground-700 dark:text-foreground-200">Active 9-Digit EIN:</strong> Must be typed without dashes or spaces and belong to the legal business name.</li>
+                        <li><strong className="text-foreground-700 dark:text-foreground-200">Physical Business Address:</strong> Must match official state/IRS tax filings (no P.O. Box).</li>
+                        <li><strong className="text-foreground-700 dark:text-foreground-200">Authorized Representative:</strong> Must be a company officer with valid full name, business email, and direct phone.</li>
+                      </ul>
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           )}
         </CardBody>

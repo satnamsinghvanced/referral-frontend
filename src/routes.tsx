@@ -118,6 +118,9 @@ interface AppRoute {
 const PermissionGuard = React.lazy(
   () => import("./components/guards/PermissionGuard"),
 );
+const PlanGuard = React.lazy(
+  () => import("./components/guards/PlanGuard"),
+);
 function AppRoutes() {
   const routesList: AppRoute[] = [
     { path: "visit-map", element: <VisitMap /> },
@@ -141,9 +144,11 @@ function AppRoutes() {
         {
           path: "conversations",
           element: (
-            <PermissionGuard permissions={["Manage Conversations"]}>
-              <Conversations />
-            </PermissionGuard>
+            <PlanGuard requiredAccess="social_media">
+              <PermissionGuard permissions={["Manage Conversations"]}>
+                <Conversations />
+              </PermissionGuard>
+            </PlanGuard>
           ),
         },
         {
@@ -157,9 +162,11 @@ function AppRoutes() {
         {
           path: "analytics",
           element: (
-            <PermissionGuard permissions={["View Analytics"]}>
-              <PracticeStats />
-            </PermissionGuard>
+            <PlanGuard requiredAccess="basic_analytics">
+              <PermissionGuard permissions={["View Analytics"]}>
+                <PracticeStats />
+              </PermissionGuard>
+            </PlanGuard>
           ),
         },
         {
@@ -173,9 +180,11 @@ function AppRoutes() {
         {
           path: "reviews",
           element: (
-            <PermissionGuard permissions={["Manage Review", "Manage Reviews"]}>
-              <Reviews />
-            </PermissionGuard>
+            <PlanGuard requiredAccess="google_business">
+              <PermissionGuard permissions={["Manage Review", "Manage Reviews"]}>
+                <Reviews />
+              </PermissionGuard>
+            </PlanGuard>
           ),
         },
         {
@@ -189,17 +198,21 @@ function AppRoutes() {
         {
           path: "social-media",
           element: (
-            <PermissionGuard permissions={["Manage Social Media"]}>
-              <SocialMedia />
-            </PermissionGuard>
+            <PlanGuard requiredAccess="social_media">
+              <PermissionGuard permissions={["Manage Social Media"]}>
+                <SocialMedia />
+              </PermissionGuard>
+            </PlanGuard>
           ),
         },
         {
           path: "marketing-calendar",
           element: (
-            <PermissionGuard permissions={["Manage Calendar"]}>
-              <MarketingCalendar />
-            </PermissionGuard>
+            <PlanGuard requiredAccess="marketing_calendar">
+              <PermissionGuard permissions={["Manage Calendar"]}>
+                <MarketingCalendar />
+              </PermissionGuard>
+            </PlanGuard>
           ),
         },
         {
@@ -213,9 +226,11 @@ function AppRoutes() {
         {
           path: "marketing-budget",
           element: (
-            <PermissionGuard permissions={["Manage Marketing Budget"]}>
-              <MarketingBudget />
-            </PermissionGuard>
+            <PlanGuard requiredAccess="budget_tracking">
+              <PermissionGuard permissions={["Manage Marketing Budget"]}>
+                <MarketingBudget />
+              </PermissionGuard>
+            </PlanGuard>
           ),
         },
         {
@@ -292,9 +307,11 @@ function AppRoutes() {
         {
           path: "call-logs",
           element: (
-            <PermissionGuard permissions={["Manage Call Tracking"]}>
-              <CallTracking />
-            </PermissionGuard>
+            <PlanGuard requiredAccess="call_tracking">
+              <PermissionGuard permissions={["Manage Call Tracking"]}>
+                <CallTracking />
+              </PermissionGuard>
+            </PlanGuard>
           ),
         },
         {
