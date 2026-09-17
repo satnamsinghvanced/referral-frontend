@@ -4,20 +4,11 @@ import { useLocation, useSearchParams } from "react-router-dom";
 import { BsLightningCharge } from "react-icons/bs";
 import { FaGoogle } from "react-icons/fa";
 import { FaMeta, FaRegEnvelope, FaYoutube } from "react-icons/fa6";
-import {
-  useConnectSocial,
-  useSocialCredentials,
-  useUpdateSocial,
-} from "../../hooks/useSocial";
-import SocialSubAccountSelectorModal, {
-  SocialPlatformType,
-} from "../social-media/modal/SocialSubAccountSelectorModal";
-import SocialConnectConfirmModal, {
-  PendingSocialConnect,
-} from "../social-media/modal/SocialConnectConfirmModal";
+import { useConnectSocial, useSocialCredentials, useUpdateSocial } from "../../hooks/useSocial";
+import SocialSubAccountSelectorModal, { SocialPlatformType } from "../social-media/modal/SocialSubAccountSelectorModal";
+import SocialConnectConfirmModal, { PendingSocialConnect } from "../social-media/modal/SocialConnectConfirmModal";
 import { LuCalendar } from "react-icons/lu";
 import { SiGoogleads } from "react-icons/si";
-import axios from "../../services/axios";
 import { useQueryClient } from "@tanstack/react-query";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import {
@@ -32,7 +23,6 @@ import {
   useFetchEmailIntegration,
   useUpdateEmailIntegration,
   useConnectEmail,
-  useConnectSendGrid,
 } from "../../hooks/integrations/useEmailMarketing";
 import {
   useAnalyticsIntegration,
@@ -43,7 +33,6 @@ import {
   useBusinessIntegration,
   useConnectBusiness,
   useUpdateBusiness,
-  useSyncBusinessProfiles,
   BUSINESS_KEYS,
   useConnectGooglePlaces,
 } from "../../hooks/integrations/useGoogleBusiness";
@@ -52,9 +41,7 @@ import {
   useConnectCalendar,
   useUpdateCalendar,
 } from "../../hooks/integrations/useGoogleCalendar";
-import {
-  useFetchTwilioConfig
-} from "../../hooks/integrations/useTwilio";
+import { useFetchTwilioConfig } from "../../hooks/integrations/useTwilio";
 import { useBilling } from "../../hooks/settings/useBilling";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
 import { timeAgo } from "../../utils/timeAgo";
@@ -69,13 +56,11 @@ import TwilioDashboard from "./components/TwilioDashboard";
 function Integrations() {
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { user, token } = useTypedSelector((state) => state.auth);
+  const { user } = useTypedSelector((state) => state.auth);
   const userId = user?.userId;
-  const [selectorPlatform, setSelectorPlatform] =
-    useState<SocialPlatformType | null>(null);
+  const [selectorPlatform, setSelectorPlatform] = useState<SocialPlatformType | null>(null);
   const [isSelectorOpen, setIsSelectorOpen] = useState(false);
-  const [pendingConnect, setPendingConnect] =
-    useState<PendingSocialConnect | null>(null);
+  const [pendingConnect, setPendingConnect] = useState<PendingSocialConnect | null>(null);
   const { data: allSocialCredentials } = useSocialCredentials();
   const { mutate: connectSocial, isPending: isSocialConnecting } = useConnectSocial();
   const { mutate: updateSocial, isPending: isUpdatingSocial } = useUpdateSocial();
@@ -102,60 +87,29 @@ function Integrations() {
   const { data: billingData } = useBilling();
   const planAccess = billingData?.access;
   const planPrice = billingData?.price;
-  const isStarterPlan =
-    planPrice === 199 ||
-    billingData?.planId === "starter_199" ||
-    billingData?.name?.toLowerCase() === "starter";
-  const hasAdsAccess =
-    !isStarterPlan &&
-    (planPrice ? planPrice >= 399 : billingData?.access?.roi_analytics === true);
-  const [isTwilioIntegrationModalOpen, setIsTwilioIntegrationModalOpen] =
-    useState(false);
-  const [isSendGridConfigModalOpen, setIsSendGridConfigModalOpen] =
-    useState(false);
-  const [isGoogleBusinessLocationModalOpen, setIsGoogleBusinessLocationModalOpen] =
-    useState(false);
-  const [isGoogleAdsAccountModalOpen, setIsGoogleAdsAccountModalOpen] =
-    useState(false);
-  const [isMetaAdsAccountModalOpen, setIsMetaAdsAccountModalOpen] =
-    useState(false);
-  const [
-    isGoogleAnalyticsPropertyModalOpen,
-    setIsGoogleAnalyticsPropertyModalOpen,
-  ] = useState(false);
-  const [isGoogleCalendarConfigModalOpen, setIsGoogleCalendarConfigModalOpen] =
-    useState(false);
+  const isStarterPlan = planPrice === 199 || billingData?.planId === "starter_199" || billingData?.name?.toLowerCase() === "starter";
+  const hasAdsAccess = !isStarterPlan && (planPrice ? planPrice >= 399 : billingData?.access?.roi_analytics === true);
+  const [isTwilioIntegrationModalOpen, setIsTwilioIntegrationModalOpen] = useState(false);
+  const [isSendGridConfigModalOpen, setIsSendGridConfigModalOpen] = useState(false);
+  const [isGoogleBusinessLocationModalOpen, setIsGoogleBusinessLocationModalOpen] = useState(false);
+  const [isGoogleAdsAccountModalOpen, setIsGoogleAdsAccountModalOpen] = useState(false);
+  const [isMetaAdsAccountModalOpen, setIsMetaAdsAccountModalOpen] = useState(false);
+  const [isGoogleAnalyticsPropertyModalOpen, setIsGoogleAnalyticsPropertyModalOpen] = useState(false);
+  const [isGoogleCalendarConfigModalOpen, setIsGoogleCalendarConfigModalOpen] = useState(false);
   const [selectedCalendarConfig, setSelectedCalendarConfig] = useState<any>(undefined);
-  const {
-    data: googleCalendarExistingConfig,
-    isLoading: isGoogleCalendarConfigLoading,
-    isError: isGoogleCalendarConfigError,
-  } = useCalendarIntegration();
+  const { data: googleCalendarExistingConfig, isLoading: isGoogleCalendarConfigLoading, isError: isGoogleCalendarConfigError } = useCalendarIntegration();
   const rawCalendarData = (googleCalendarExistingConfig as any)?.data ?? googleCalendarExistingConfig;
-  const googleCalendarConfig = Array.isArray(rawCalendarData)
-    ? rawCalendarData[0]
-    : rawCalendarData;
+  const googleCalendarConfig = Array.isArray(rawCalendarData) ? rawCalendarData[0] : rawCalendarData;
   const { mutate: updateGoogleCalendarIntegration, isPending: isUpdatingGoogleCalendar } = useUpdateCalendar();
   const { mutate: connectCalendar } = useConnectCalendar();
-  const { data: emailExistingConfig, isLoading: isEmailConfigLoading } =
-    useFetchEmailIntegration();
+  const { data: emailExistingConfig, isLoading: isEmailConfigLoading } = useFetchEmailIntegration();
   const { mutate: updateEmailIntegration, isPending: isUpdatingEmail } = useUpdateEmailIntegration();
   const { mutate: connectEmail } = useConnectEmail();
-  const { mutate: connectSendGrid } = useConnectSendGrid();
-  const {
-    data: twilioConfig,
-    isLoading: isTwilioConfigLoading,
-    isError: isTwilioConfigError,
-  } = useFetchTwilioConfig();
-  useEffect(() => {
-    console.log("[Integrations] twilioConfig state:", { twilioConfig, isTwilioConfigLoading, isTwilioConfigError });
-  }, [twilioConfig, isTwilioConfigLoading, isTwilioConfigError]);
-  const { data: googleAdsConfig, isLoading: isGoogleAdsConfigLoading } =
-    useGoogleAdsIntegration();
+  const { data: twilioConfig, isLoading: isTwilioConfigLoading, isError: isTwilioConfigError } = useFetchTwilioConfig();
+  const { data: googleAdsConfig } = useGoogleAdsIntegration();
   const { mutate: updateGoogleAdsIntegration, isPending: isUpdatingGoogleAds } = useUpdateGoogleAds();
   const { mutate: connectGoogleAds } = useConnectGoogleAds();
-  const { data: metaAdsConfig, isLoading: isMetaAdsConfigLoading } =
-    useMetaAdsIntegration();
+  const { data: metaAdsConfig } = useMetaAdsIntegration();
   const { mutate: updateMetaAdsIntegration, isPending: isUpdatingMetaAds } = useUpdateMetaAds();
   const { mutate: connectMetaAds } = useConnectMetaAds();
   const location = useLocation();
@@ -167,7 +121,6 @@ function Integrations() {
       ? location.hash.replace("#integration-", "").replace("#", "")
       : null;
     const targetId = highlightParam || hashParam;
-
     if (targetId) {
       const normalizedMap: Record<string, string> = {
         email: "email_marketing",
@@ -194,10 +147,8 @@ function Integrations() {
         meta: "meta",
         youtube: "youTube",
       };
-
       const finalKey = normalizedMap[targetId.toLowerCase()] || targetId;
       setHighlightedKey(finalKey);
-
       let attempts = 0;
       const maxAttempts = 10;
       const interval = setInterval(() => {
@@ -212,11 +163,9 @@ function Integrations() {
           clearInterval(interval);
         }
       }, 150);
-
       const clearTimer = setTimeout(() => {
         setHighlightedKey(null);
       }, 5000);
-
       return () => {
         clearInterval(interval);
         clearTimeout(clearTimer);
@@ -224,14 +173,7 @@ function Integrations() {
     }
   }, [location.search, location.hash, searchParams]);
 
-  const [isGoogleBusinessConnecting, setIsGoogleBusinessConnecting] = useState(false);
-  const [onboardingWindow, setOnboardingWindow] = useState<Window | null>(null);
-  const [countdown, setCountdown] = useState<number | null>(null);
-  const {
-    data: googleBusinessConfig,
-    isLoading: isGoogleBusinessConfigLoading,
-  } = useBusinessIntegration() as any;
-  const { mutate: syncBusinessProfiles, isPending: isSyncingBusiness } = useSyncBusinessProfiles();
+  const { data: googleBusinessConfig } = useBusinessIntegration() as any;
   const { mutate: updateGoogleBusinessIntegration, isPending: isUpdatingGoogleBusiness } = useUpdateBusiness();
   const { mutate: connectGoogleBusiness } = useConnectBusiness();
   const [isPlacesModalOpen, setIsPlacesModalOpen] = useState(false);
@@ -315,10 +257,7 @@ function Integrations() {
     }
   }, [searchParams, setSearchParams, queryClient, googleCalendarConfig]);
 
-  const {
-    data: googleAnalyticsConfig,
-    isLoading: isGoogleAnalyticsConfigLoading,
-  } = useAnalyticsIntegration();
+  const { data: googleAnalyticsConfig } = useAnalyticsIntegration();
   const { mutate: updateGoogleAnalyticsIntegration, isPending: isUpdatingGoogleAnalytics } = useUpdateAnalytics();
   const { mutate: connectGoogleAnalytics } = useConnectAnalytics();
   const rawEmailData = (emailExistingConfig as any)?.data ?? emailExistingConfig;
@@ -525,11 +464,7 @@ function Integrations() {
         iconColor: "text-blue-600 dark:text-blue-400",
         status: metaAdsConfig?.status || "Disconnected",
         description: "Sync Facebook and Instagram ad performance with your dashboard",
-        badges: [
-          "Ad campaign tracking",
-          "Lead attribution",
-          "Ad spend analytics",
-        ],
+        badges: ["Ad campaign tracking", "Lead attribution", "Ad spend analytics"],
         lastSync: metaAdsConfig?.lastSyncAt || metaAdsConfig?.updatedAt
           ? timeAgo(metaAdsConfig.lastSyncAt || metaAdsConfig.updatedAt)
           : undefined,
@@ -667,45 +602,6 @@ function Integrations() {
       },
     });
 
-    const isSendGridConnected = sendGridConfig?.status === "Connected";
-    // list.push({
-    //   id: sendGridConfig?._id || "",
-    //   name: "SendGrid Integration",
-    //   icon: <FaRegEnvelope className="w-4 h-4" />,
-    //   iconBg: "bg-blue-100 dark:bg-blue-900/20",
-    //   iconColor: "text-blue-600 dark:text-blue-400",
-    //   status: isSendGridConnected
-    //     ? "Connected"
-    //     : sendGridConfig?.status === "Error"
-    //       ? "Error"
-    //       : "Disconnected",
-    //   description:
-    //     "Connect your SendGrid account seamlessly to send high-deliverability campaigns",
-    //   badges: ["Direct Integration", "Automated Campaigns", "High Deliverability"],
-    //   onConnect: () => setIsSendGridConfigModalOpen(true),
-    //   onConfigure: () => setIsSendGridConfigModalOpen(true),
-    //   isSwitchChecked: isSendGridConnected,
-    //   onSwitchChange: () => {
-    //     if (sendGridConfig?._id) {
-    //       updateEmailIntegration({
-    //         id: sendGridConfig._id,
-    //         // @ts-ignore
-    //         data: {
-    //           status:
-    //             sendGridConfig.status === "Connected"
-    //               ? "Disconnected"
-    //               : "Connected",
-    //         },
-    //       });
-    //     }
-    //   },
-    //   account: isSendGridConnected ? {
-    //     accountName: sendGridConfig?.accountName || "SendGrid Admin",
-    //     accountEmail: sendGridConfig?.accountEmail || sendGridConfig?.username,
-    //     accountAvatar: sendGridConfig?.accountAvatar,
-    //   } : undefined,
-    // });
-
     return list;
   }, [
     smtpConfig,
@@ -715,7 +611,6 @@ function Integrations() {
     updateGoogleCalendarIntegration,
     connectCalendar,
     connectEmail,
-    connectSendGrid,
     twilioConfig,
     isTwilioConnected,
     googleAdsConfig,

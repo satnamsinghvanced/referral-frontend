@@ -75,8 +75,7 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
 
   const isLoading = isSwitchLoading || isLocalLoading;
   const isCredentialsSaved = !!id;
-  const showConnectedActions =
-    isFullyConnected ?? isCredentialsSaved;
+  const showConnectedActions = isFullyConnected ?? isCredentialsSaved;
   const isError = status === "Error";
   let statusClasses = "";
   let StatusIcon = null;
@@ -176,11 +175,10 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
 
   return (
     <div
-      className={`md:flex md:items-start md:justify-between py-5 max-md:space-y-4 rounded-xl transition-all duration-500 ${
-        isHighlighted
-          ? "bg-amber-500/10 dark:bg-amber-400/10 px-3 rounded-lg"
-          : ""
-      }`}
+      className={`md:flex md:items-start md:justify-between py-5 max-md:space-y-4 rounded-xl transition-all duration-500 ${isHighlighted
+        ? "bg-amber-500/10 dark:bg-amber-400/10 px-3 rounded-lg"
+        : ""
+        }`}
     >
       <div className="flex items-start gap-3 max-sm:flex-col">
         <div
@@ -191,11 +189,10 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-3 mb-2 flex-wrap">
             <h3
-              className={`text-sm transition-all duration-300 ${
-                isHighlighted
-                  ? "text-foreground font-bold"
-                  : "text-foreground font-normal"
-              }`}
+              className={`text-sm transition-all duration-300 ${isHighlighted
+                ? "text-foreground font-bold"
+                : "text-foreground font-normal"
+                }`}
             >
               {name}
             </h3>
@@ -223,7 +220,6 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
               </Chip>
             ))}
           </div>
-
           <div className="flex items-center gap-3 mt-2 h-6">
             {status === "Connected" && account && (account.accountEmail || account.accountName) && (
               <div

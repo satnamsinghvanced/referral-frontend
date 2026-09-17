@@ -8,11 +8,6 @@ import {
   Select,
   SelectItem,
   useDisclosure,
-  Modal,
-  ModalContent,
-  ModalHeader,
-  ModalBody,
-  ModalFooter,
   Spinner,
 } from "@heroui/react";
 import { useEffect, useMemo, useState } from "react";
@@ -38,7 +33,6 @@ import AddLeadModal from "./modal/AddLeadModal";
 import LeadDetailsModal from "./modal/LeadDetailsModal";
 import LeadAutomations from "./LeadAutomations";
 import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
-
 import { AiOutlinePlus } from "react-icons/ai";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import Pagination from "../../components/common/Pagination";
@@ -172,25 +166,18 @@ const LeadTracking = () => {
 
     if (!draggedLead) return;
     const { id: leadId, status: sourceStatus } = draggedLead;
-
     const previousGroupedLeads = { ...localGroupedLeads };
     const newGroupedLeads = { ...localGroupedLeads };
-
     const sourceArray = newGroupedLeads[sourceStatus] ? [...newGroupedLeads[sourceStatus]] : [];
     const leadIndex = sourceArray.findIndex((l: any) => (l.id || l._id) === leadId);
     if (leadIndex === -1) return;
-
     const [movedLead] = sourceArray.splice(leadIndex, 1);
     newGroupedLeads[sourceStatus] = sourceArray;
-    
     const updatedMovedLead = { ...movedLead, status: targetStatus };
-
     let targetArray = newGroupedLeads[targetStatus] ? [...newGroupedLeads[targetStatus]] : [];
-    
     if (sourceStatus === targetStatus) {
-      targetArray = sourceArray; 
+      targetArray = sourceArray;
     }
-
     if (targetLeadId) {
       const insertIndex = targetArray.findIndex((l: any) => (l.id || l._id) === targetLeadId);
       if (insertIndex !== -1) {
@@ -201,13 +188,9 @@ const LeadTracking = () => {
     } else {
       targetArray.push(updatedMovedLead);
     }
-    
     newGroupedLeads[targetStatus] = targetArray;
-
     setLocalGroupedLeads(newGroupedLeads);
-
     const queryKey = ["leadStatus", { ...filters, search: debouncedSearch }];
-
     queryClient.setQueryData(queryKey, (oldData: any) => {
       if (!oldData) return oldData;
       return {
@@ -531,7 +514,7 @@ const LeadTracking = () => {
             </div>
           </>
         )}
-        { isLoading ? (
+        {isLoading ? (
           <div className="flex justify-center items-center h-72 border border-foreground/10 rounded-xl bg-background shadow-none">
             <Spinner size="sm" label="Loading leads..." color="primary" />
           </div>
@@ -549,238 +532,237 @@ const LeadTracking = () => {
           <LeadAutomations onBack={() => setView("pipeline")} />
         ) : view === "pipeline" ? (
           <div className="w-full overflow-x-auto h-full min-h-[480px]">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4  lg:min-w-0 h-fit">
-                  {stages.map((stage: any) => {
-                    const styles = getStageStyles(stage.id);
-                    return (
-                      <div
-                        key={stage.id}
-                        onDragOver={(e) => e.preventDefault()}
-                        onDragEnter={() => setDraggedOverColumnId(stage.id)}
-                        onDragLeave={() => setDraggedOverColumnId(null)}
-                        onDrop={(e) => handleDrop(e, stage.id)}
-                        className={`flex flex-col rounded-xl overflow-hidden border transition-all duration-200 bg-white dark:bg-content1 h-fit ${
-                          draggedOverColumnId === stage.id
-                            ? "border-primary/50 dark:border-primary/70 shadow-lg scale-[1.01] bg-primary/5 dark:bg-primary/10"
-                            : "border-foreground/5 dark:border-foreground/10"
-                        }`}
-                      >
-                        <div
-                          className={`p-3 space-y-1 ${styles.bg} border-b ${styles.border} flex-shrink-0`}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4  lg:min-w-0 h-fit">
+              {stages.map((stage: any) => {
+                const styles = getStageStyles(stage.id);
+                return (
+                  <div
+                    key={stage.id}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDragEnter={() => setDraggedOverColumnId(stage.id)}
+                    onDragLeave={() => setDraggedOverColumnId(null)}
+                    onDrop={(e) => handleDrop(e, stage.id)}
+                    className={`flex flex-col rounded-xl overflow-hidden border transition-all duration-200 bg-white dark:bg-content1 h-fit ${draggedOverColumnId === stage.id
+                        ? "border-primary/50 dark:border-primary/70 shadow-lg scale-[1.01] bg-primary/5 dark:bg-primary/10"
+                        : "border-foreground/5 dark:border-foreground/10"
+                      }`}
+                  >
+                    <div
+                      className={`p-3 space-y-1 ${styles.bg} border-b ${styles.border} flex-shrink-0`}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <stage.icon
+                            className={`size-3.5 ${styles.iconColor}`}
+                          />
+                          <h4
+                            className={`font-bold text-[10px] uppercase tracking-tight ${styles.headerText}`}
+                          >
+                            {stage.name}
+                          </h4>
+                        </div>
+                        <span
+                          className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${styles.bubbleBg} ${styles.headerText}`}
                         >
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                              <stage.icon
-                                className={`size-3.5 ${styles.iconColor}`}
-                              />
-                              <h4
-                                className={`font-bold text-[10px] uppercase tracking-tight ${styles.headerText}`}
-                              >
-                                {stage.name}
-                              </h4>
+                          {stage.count}
+                        </span>
+                      </div>
+                      <div className="text-[10px] font-bold text-gray-500/70 dark:text-foreground/40">
+                        {stage.value}
+                      </div>
+                    </div>
+                    <div className="flex-1 overflow-y-auto custom-scrollbar bg-gray-100/40 dark:bg-black/10 max-h-[720px]">
+                      <div className="p-2 space-y-3 min-h-[200px] flex flex-col">
+                        {stage.leads?.length > 0 ? (
+                          stage.leads.map((lead: any) => (
+                            <LeadCard
+                              key={lead.id || lead._id}
+                              lead={{
+                                ...lead,
+                                id: lead.id || lead._id,
+                                name:
+                                  lead.name ||
+                                  `${lead.firstName} ${lead.lastName}`,
+                                value: `$${(lead.estimatedValue || 0).toLocaleString()}`,
+                              }}
+                              onPress={handleLeadClick}
+                              onDelete={handleDeleteLead}
+                              draggable={true}
+                              onDragStart={(e) => handleDragStart(e, lead.id || lead._id, stage.id)}
+                              onDragEnd={handleDragEnd}
+                              onDragOver={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                setDraggedOverLeadId(lead.id || lead._id);
+                              }}
+                              onDragLeave={() => {
+                                setDraggedOverLeadId(null);
+                              }}
+                              onDrop={(e) => {
+                                e.stopPropagation();
+                                handleDrop(e, stage.id, lead.id || lead._id);
+                              }}
+                              isDraggedOver={draggedOverLeadId === (lead.id || lead._id)}
+                            />
+                          ))
+                        ) : (
+                          <div className="flex-1 flex flex-col items-center justify-center py-5 text-center opacity-40">
+                            <EmptyState
+                              title="No leads"
+                              icon={
+                                <HiOutlineUsers className="size-8 text-gray-400 dark:text-gray-700" />
+                              }
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        ) : (
+          <Card
+            shadow="none"
+            className="border border-foreground/10 bg-white dark:bg-content1"
+          >
+            <CardBody className="p-0 overflow-x-auto">
+              <table className="w-full min-w-[1000px] text-sm">
+                <thead>
+                  <tr className="border-b border-foreground/5 bg-gray-50/30 dark:bg-white/5">
+                    <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 dark:text-foreground/40 uppercase tracking-wider">
+                      Lead
+                    </th>
+                    <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 dark:text-foreground/40 uppercase tracking-wider">
+                      Source
+                    </th>
+                    <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 dark:text-foreground/40 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 dark:text-foreground/40 uppercase tracking-wider">
+                      Treatment
+                    </th>
+                    <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 dark:text-foreground/40 uppercase tracking-wider">
+                      Value
+                    </th>
+                    <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 dark:text-foreground/40 uppercase tracking-wider">
+                      Score
+                    </th>
+                    <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 dark:text-foreground/40 uppercase tracking-wider">
+                      Response
+                    </th>
+                    <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 dark:text-foreground/40 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-foreground/5">
+                  {allLeads.length > 0 ? (
+                    allLeads.map((lead: any) => (
+                      <tr
+                        key={lead.id || lead._id}
+                        className="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors"
+                      >
+                        <td className="py-4 px-6">
+                          <div className="space-y-1">
+                            <div className="font-bold text-foreground">
+                              {lead.name || `${lead.firstName} ${lead.lastName}`}
                             </div>
-                            <span
-                              className={`text-[9px] px-1.5 py-0.5 rounded-full font-bold ${styles.bubbleBg} ${styles.headerText}`}
-                            >
-                              {stage.count}
+                            <div className="text-xs text-gray-400 dark:text-foreground/40">
+                              {lead.email}
+                            </div>
+                            <div className="text-xs text-gray-400 dark:text-foreground/40">
+                              {formatPhoneNumber(lead.phone)}
+                            </div>
+                          </div>
+                        </td>
+                        <td className="py-4 px-6">
+                          <div className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 text-gray-500 dark:text-foreground/60 uppercase tracking-tighter">
+                            {lead.source}
+                          </div>
+                        </td>
+                        <td className="py-4 px-6">
+                          <ReferralStatusChip status={lead.status} />
+                        </td>
+                        <td className="py-4 px-6">
+                          <div className="flex flex-wrap gap-2">
+                            {lead.treatments.map((t: string, i: number) => (
+                              <Chip
+                                key={i}
+                                size="sm"
+                                variant="flat"
+                                className="bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400 text-[10px] font-bold h-6"
+                              >
+                                {t}
+                              </Chip>
+                            ))}
+                          </div>
+                        </td>
+                        <td className="py-4 px-6">
+                          <div className="font-bold text-foreground">
+                            ${(lead.estimatedValue || 0).toLocaleString()}
+                          </div>
+                        </td>
+                        <td className="py-4 px-6">
+                          <div className="flex items-center gap-1">
+                            <HiStar className="text-yellow-400 size-4" />
+                            <span className="font-bold text-gray-600 dark:text-foreground/60">
+                              {lead.score || 0}
                             </span>
                           </div>
-                          <div className="text-[10px] font-bold text-gray-500/70 dark:text-foreground/40">
-                            {stage.value}
-                          </div>
-                        </div>
-                        <div className="flex-1 overflow-y-auto custom-scrollbar bg-gray-100/40 dark:bg-black/10 max-h-[720px]">
-                          <div className="p-2 space-y-3 min-h-[200px] flex flex-col">
-                            {stage.leads?.length > 0 ? (
-                              stage.leads.map((lead: any) => (
-                                <LeadCard
-                                  key={lead.id || lead._id}
-                                  lead={{
-                                    ...lead,
-                                    id: lead.id || lead._id,
-                                    name:
-                                      lead.name ||
-                                      `${lead.firstName} ${lead.lastName}`,
-                                    value: `$${(lead.estimatedValue || 0).toLocaleString()}`,
-                                  }}
-                                  onPress={handleLeadClick}
-                                  onDelete={handleDeleteLead}
-                                  draggable={true}
-                                  onDragStart={(e) => handleDragStart(e, lead.id || lead._id, stage.id)}
-                                  onDragEnd={handleDragEnd}
-                                  onDragOver={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    setDraggedOverLeadId(lead.id || lead._id);
-                                  }}
-                                  onDragLeave={() => {
-                                    setDraggedOverLeadId(null);
-                                  }}
-                                  onDrop={(e) => {
-                                    e.stopPropagation();
-                                    handleDrop(e, stage.id, lead.id || lead._id);
-                                  }}
-                                  isDraggedOver={draggedOverLeadId === (lead.id || lead._id)}
-                                />
-                              ))
-                            ) : (
-                              <div className="flex-1 flex flex-col items-center justify-center py-5 text-center opacity-40">
-                                <EmptyState
-                                  title="No leads"
-                                  icon={
-                                    <HiOutlineUsers className="size-8 text-gray-400 dark:text-gray-700" />
-                                  }
-                                />
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            ) : (
-              <Card
-                shadow="none"
-                className="border border-foreground/10 bg-white dark:bg-content1"
-              >
-                <CardBody className="p-0 overflow-x-auto">
-                  <table className="w-full min-w-[1000px] text-sm">
-                    <thead>
-                      <tr className="border-b border-foreground/5 bg-gray-50/30 dark:bg-white/5">
-                        <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 dark:text-foreground/40 uppercase tracking-wider">
-                          Lead
-                        </th>
-                        <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 dark:text-foreground/40 uppercase tracking-wider">
-                          Source
-                        </th>
-                        <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 dark:text-foreground/40 uppercase tracking-wider">
-                          Status
-                        </th>
-                        <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 dark:text-foreground/40 uppercase tracking-wider">
-                          Treatment
-                        </th>
-                        <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 dark:text-foreground/40 uppercase tracking-wider">
-                          Value
-                        </th>
-                        <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 dark:text-foreground/40 uppercase tracking-wider">
-                          Score
-                        </th>
-                        <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 dark:text-foreground/40 uppercase tracking-wider">
-                          Response
-                        </th>
-                        <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 dark:text-foreground/40 uppercase tracking-wider">
-                          Actions
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-foreground/5">
-                      {allLeads.length > 0 ? (
-                        allLeads.map((lead: any) => (
-                          <tr
-                            key={lead.id || lead._id}
-                            className="hover:bg-gray-50/50 dark:hover:bg-white/5 transition-colors"
+                        </td>
+                        <td className="py-4 px-6">
+                          <div
+                            className={`text-xs font-bold ${parseInt(lead.responseTime || "0") < 10 ? "text-green-500" : "text-red-500"}`}
                           >
-                            <td className="py-4 px-6">
-                              <div className="space-y-1">
-                                <div className="font-bold text-foreground">
-                                  {lead.name || `${lead.firstName} ${lead.lastName}`}
-                                </div>
-                                <div className="text-xs text-gray-400 dark:text-foreground/40">
-                                  {lead.email}
-                                </div>
-                                <div className="text-xs text-gray-400 dark:text-foreground/40">
-                                  {formatPhoneNumber(lead.phone)}
-                                </div>
-                              </div>
-                            </td>
-                            <td className="py-4 px-6">
-                              <div className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 text-gray-500 dark:text-foreground/60 uppercase tracking-tighter">
-                                {lead.source}
-                              </div>
-                            </td>
-                            <td className="py-4 px-6">
-                              <ReferralStatusChip status={lead.status} />
-                            </td>
-                            <td className="py-4 px-6">
-                              <div className="flex flex-wrap gap-2">
-                                {lead.treatments.map((t: string, i: number) => (
-                                  <Chip
-                                    key={i}
-                                    size="sm"
-                                    variant="flat"
-                                    className="bg-sky-50 dark:bg-sky-900/20 text-sky-600 dark:text-sky-400 text-[10px] font-bold h-6"
-                                  >
-                                    {t}
-                                  </Chip>
-                                ))}
-                              </div>
-                            </td>
-                            <td className="py-4 px-6">
-                              <div className="font-bold text-foreground">
-                                ${(lead.estimatedValue || 0).toLocaleString()}
-                              </div>
-                            </td>
-                            <td className="py-4 px-6">
-                              <div className="flex items-center gap-1">
-                                <HiStar className="text-yellow-400 size-4" />
-                                <span className="font-bold text-gray-600 dark:text-foreground/60">
-                                  {lead.score || 0}
-                                </span>
-                              </div>
-                            </td>
-                            <td className="py-4 px-6">
-                              <div
-                                className={`text-xs font-bold ${parseInt(lead.responseTime || "0") < 10 ? "text-green-500" : "text-red-500"}`}
-                              >
-                                {lead.responseTime || "0"}m
-                              </div>
-                            </td>
-                            <td className="py-4 px-6 text-center">
-                              <Button
-                                isIconOnly
-                                variant="light"
-                                size="sm"
-                                className="text-gray-400 dark:text-foreground/40 hover:text-primary"
-                                onPress={() => handleLeadClick(lead)}
-                              >
-                                <HiOutlineEye className="size-5" />
-                              </Button>
-                            </td>
-                          </tr>
-                        ))
-                      ) : (
-                        <tr>
-                          <td colSpan={8} className="py-10">
-                            <div className="sticky left-0 w-[calc(100vw-40px)] sm:w-[calc(100vw-60px)] lg:w-[calc(100vw-310px)] xl:w-full max-w-full flex justify-center">
-                              <EmptyState
-                                title="No leads available"
-                                icon={
-                                  <HiOutlineUsers className="size-8 text-gray-400 dark:text-foreground/20" />
-                                }
-                              />
-                            </div>
-                          </td>
-                        </tr>
-                      )}
-                    </tbody>
-                  </table>
-                  {leadsData?.pagination && (
-                    <div className="p-4 border-t border-foreground/5">
-                      <Pagination
-                        identifier="Leads"
-                        totalItems={leadsData.pagination.totalLeads}
-                        totalPages={leadsData.pagination.totalPages}
-                        currentPage={page}
-                        handlePageChange={setPage}
-                        limit={limit}
-                      />
-                    </div>
+                            {lead.responseTime || "0"}m
+                          </div>
+                        </td>
+                        <td className="py-4 px-6 text-center">
+                          <Button
+                            isIconOnly
+                            variant="light"
+                            size="sm"
+                            className="text-gray-400 dark:text-foreground/40 hover:text-primary"
+                            onPress={() => handleLeadClick(lead)}
+                          >
+                            <HiOutlineEye className="size-5" />
+                          </Button>
+                        </td>
+                      </tr>
+                    ))
+                  ) : (
+                    <tr>
+                      <td colSpan={8} className="py-10">
+                        <div className="sticky left-0 w-[calc(100vw-40px)] sm:w-[calc(100vw-60px)] lg:w-[calc(100vw-310px)] xl:w-full max-w-full flex justify-center">
+                          <EmptyState
+                            title="No leads available"
+                            icon={
+                              <HiOutlineUsers className="size-8 text-gray-400 dark:text-foreground/20" />
+                            }
+                          />
+                        </div>
+                      </td>
+                    </tr>
                   )}
-                </CardBody>
-              </Card>
-            )}
+                </tbody>
+              </table>
+              {leadsData?.pagination && (
+                <div className="p-4 border-t border-foreground/5">
+                  <Pagination
+                    identifier="Leads"
+                    totalItems={leadsData.pagination.totalLeads}
+                    totalPages={leadsData.pagination.totalPages}
+                    currentPage={page}
+                    handlePageChange={setPage}
+                    limit={limit}
+                  />
+                </div>
+              )}
+            </CardBody>
+          </Card>
+        )}
       </div>
       <AddLeadModal isOpen={isOpen} onOpenChange={onOpenChange} />
       <LeadDetailsModal

@@ -29,7 +29,6 @@ interface SendEmailModalProps {
 
 const SendEmailModal = ({ isOpen, onOpenChange, lead }: SendEmailModalProps) => {
   const { mutateAsync: sendEmail, isPending: sending } = useSendLeadEmail();
-
   const validationSchema = Yup.object().shape({
     subject: Yup.string().required("Subject is required"),
     body: Yup.string().required("Email body is required"),
@@ -57,9 +56,7 @@ const SendEmailModal = ({ isOpen, onOpenChange, lead }: SendEmailModalProps) => 
       } catch (error) { }
     },
   });
-
   if (!lead) return null;
-
   return (
     <Modal
       isOpen={isOpen}
@@ -105,7 +102,6 @@ const SendEmailModal = ({ isOpen, onOpenChange, lead }: SendEmailModalProps) => 
                   </span>
                 </div>
               </div>
-
               <div className="space-y-4">
                 <Input
                   label="Subject"
@@ -141,7 +137,6 @@ const SendEmailModal = ({ isOpen, onOpenChange, lead }: SendEmailModalProps) => 
                     <span className="text-xs text-danger">{formik.errors.body as string}</span>
                   )}
                 </div>
-
                 <div className="space-y-2 pt-2">
                   <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
                     <span>Attachments</span>
@@ -158,7 +153,6 @@ const SendEmailModal = ({ isOpen, onOpenChange, lead }: SendEmailModalProps) => 
                       const files = Array.from(e.target.files || []);
                       const validFiles: File[] = [];
                       let hasOverSized = false;
-
                       for (const file of files) {
                         if (file.size > 10 * 1024 * 1024) {
                           hasOverSized = true;
@@ -166,7 +160,6 @@ const SendEmailModal = ({ isOpen, onOpenChange, lead }: SendEmailModalProps) => 
                           validFiles.push(file);
                         }
                       }
-
                       if (hasOverSized) {
                         addToast({
                           title: "File too large",
@@ -174,7 +167,6 @@ const SendEmailModal = ({ isOpen, onOpenChange, lead }: SendEmailModalProps) => 
                           color: "danger",
                         });
                       }
-
                       if (validFiles.length > 0) {
                         formik.setFieldValue("attachments", [
                           ...(formik.values.attachments || []),

@@ -17,11 +17,7 @@ import { FiChevronDown, FiChevronUp, FiClock, FiEdit2, FiFilter, FiMail, FiMessa
 import { HiOutlineBell, HiOutlineChevronLeft, HiOutlineExclamationCircle } from "react-icons/hi";
 import EmptyState from "../../components/common/EmptyState";
 import { LoadingState } from "../../components/common/LoadingState";
-import {
-  useDeleteLeadAutomation,
-  useLeadAutomations,
-  useToggleLeadAutomation,
-} from "../../hooks/useLeadAutomation";
+import { useDeleteLeadAutomation, useLeadAutomations, useToggleLeadAutomation } from "../../hooks/useLeadAutomation";
 import LeadAutomationModal from "./modal/LeadAutomationModal";
 
 interface LeadAutomationsProps {
@@ -32,16 +28,12 @@ const LeadAutomations = ({ onBack }: LeadAutomationsProps) => {
   const { data: automationsResponse, isLoading, isError } = useLeadAutomations();
   const { mutateAsync: toggleAutomation } = useToggleLeadAutomation();
   const { mutateAsync: deleteAutomation, isPending: deleting } = useDeleteLeadAutomation();
-
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [selectedAutomation, setSelectedAutomation] = useState<any>(null);
   const [expandedCardIds, setExpandedCardIds] = useState<Set<string>>(new Set());
   const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
-
-  const automations = Array.isArray(automationsResponse)
-    ? automationsResponse
-    : (automationsResponse?.data || []);
+  const automations = Array.isArray(automationsResponse) ? automationsResponse : (automationsResponse?.data || []);
 
   const handleCreateClick = () => {
     setSelectedAutomation(null);
@@ -161,7 +153,6 @@ const LeadAutomations = ({ onBack }: LeadAutomationsProps) => {
           </Button>
         </div>
       )}
-
       {isLoading ? (
         <div className="flex justify-center items-center h-96 border border-foreground/10 rounded-xl bg-background shadow-none">
           <LoadingState />
@@ -197,16 +188,14 @@ const LeadAutomations = ({ onBack }: LeadAutomationsProps) => {
           {automations.map((automation: any) => {
             const isExpanded = expandedCardIds.has(automation._id || automation.id);
             const cardId = automation._id || automation.id;
-            
             return (
               <Card
                 key={cardId}
                 shadow="none"
-                className={`border transition-all duration-200 bg-white dark:bg-content1 hover:shadow-md cursor-pointer ${
-                  automation.isActive
-                    ? "border-primary/20 dark:border-primary/40"
-                    : "border-foreground/10"
-                }`}
+                className={`border transition-all duration-200 bg-white dark:bg-content1 hover:shadow-md cursor-pointer ${automation.isActive
+                  ? "border-primary/20 dark:border-primary/40"
+                  : "border-foreground/10"
+                  }`}
                 onClick={() => toggleExpandCard(cardId)}
               >
                 <CardBody className="p-5 space-y-4">
@@ -231,7 +220,6 @@ const LeadAutomations = ({ onBack }: LeadAutomationsProps) => {
                         </p>
                       </div>
                     </div>
-                    
                     <div className="flex items-center justify-between sm:justify-end gap-4 border-t sm:border-t-0 pt-3 sm:pt-0 border-foreground/5 w-full sm:w-auto">
                       <div className="flex items-center gap-1.5 bg-gray-50 dark:bg-white/5 px-2.5 py-1 rounded-lg border border-foreground/5">
                         <FiPlay className="size-3 text-primary animate-pulse" />
@@ -239,7 +227,6 @@ const LeadAutomations = ({ onBack }: LeadAutomationsProps) => {
                           {automation.executions || 0} runs
                         </span>
                       </div>
-
                       <div className="flex items-center gap-3">
                         <Switch
                           size="sm"
@@ -282,7 +269,6 @@ const LeadAutomations = ({ onBack }: LeadAutomationsProps) => {
                       </div>
                     </div>
                   </div>
-
                   <div className="flex flex-wrap items-center gap-2 pt-1">
                     <Chip
                       size="sm"
@@ -291,7 +277,6 @@ const LeadAutomations = ({ onBack }: LeadAutomationsProps) => {
                     >
                       Trigger: {automation.triggerEvent}
                     </Chip>
-                    
                     <Chip
                       size="sm"
                       variant="flat"
@@ -300,7 +285,6 @@ const LeadAutomations = ({ onBack }: LeadAutomationsProps) => {
                     >
                       Delay: {automation.delayAmount} {automation.delayUnit}
                     </Chip>
-
                     {automation.condition && (
                       <Chip
                         size="sm"
@@ -313,7 +297,6 @@ const LeadAutomations = ({ onBack }: LeadAutomationsProps) => {
                       </Chip>
                     )}
                   </div>
-
                   {isExpanded && (
                     <div className="pt-3 border-t border-foreground/5 space-y-2.5 animate-fadeIn">
                       <div className="space-y-1">
@@ -326,7 +309,6 @@ const LeadAutomations = ({ onBack }: LeadAutomationsProps) => {
                           </p>
                         </div>
                       </div>
-
                       {automation.landingPageUrl && (
                         <div className="flex items-center gap-2 text-xs">
                           <span className="font-medium text-gray-400 dark:text-foreground/40">Landing Page:</span>
@@ -349,13 +331,11 @@ const LeadAutomations = ({ onBack }: LeadAutomationsProps) => {
           })}
         </div>
       )}
-
       <LeadAutomationModal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         automation={selectedAutomation}
       />
-
       <Modal
         isOpen={isDeleteConfirmOpen}
         onOpenChange={setIsDeleteConfirmOpen}
