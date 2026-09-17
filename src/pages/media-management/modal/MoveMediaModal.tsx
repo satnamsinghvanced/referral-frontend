@@ -55,13 +55,16 @@ export function MoveMediaModal({ isOpen, onClose, selectedMedia, setSelectedMedi
             labelPlacement="outside"
             placeholder="Select folder"
             isRequired
-            selectedKeys={[selectedFolder]}
-            onChange={(event) => {
-              setSelectedFolder(event.target.value);
+            disableAnimation
+            popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+            selectedKeys={selectedFolder ? [selectedFolder] : []}
+            onSelectionChange={(keys) => {
+              const val = Array.from(keys)[0] as string;
+              if (val) setSelectedFolder(val);
             }}
           >
             {(folders || [])?.map((folder: any) => (
-              <SelectItem key={folder._id}>{folder.name}</SelectItem>
+              <SelectItem key={folder._id} textValue={folder.name}>{folder.name}</SelectItem>
             ))}
           </Select>
         </ModalBody>

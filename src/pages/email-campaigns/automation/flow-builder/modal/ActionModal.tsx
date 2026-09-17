@@ -157,8 +157,9 @@ const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onOpenChange, onSave,
                 label="Action Type"
                 labelPlacement="outside"
                 placeholder="Select action type..."
-                selectedKeys={[formik.values.actionType]}
-                disabledKeys={[formik.values.actionType]}
+                disableAnimation
+                popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                selectedKeys={formik.values.actionType ? [formik.values.actionType] : []}
                 onSelectionChange={(keys) =>
                   formik.setFieldValue(
                     "actionType",
@@ -189,8 +190,9 @@ const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onOpenChange, onSave,
                     label="Field to Update"
                     labelPlacement="outside"
                     placeholder="Select field..."
-                    selectedKeys={[formik.values.fieldToUpdate]}
-                    disabledKeys={[formik.values.fieldToUpdate]}
+                    disableAnimation
+                    popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                    selectedKeys={formik.values.fieldToUpdate ? [formik.values.fieldToUpdate] : []}
                     onSelectionChange={(keys) =>
                       formik.setFieldValue(
                         "fieldToUpdate",
@@ -303,8 +305,9 @@ const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onOpenChange, onSave,
                     label="Priority"
                     labelPlacement="outside"
                     placeholder="Select priority..."
-                    selectedKeys={[formik.values.priority]}
-                    disabledKeys={[formik.values.priority]}
+                    disableAnimation
+                    popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                    selectedKeys={formik.values.priority ? [formik.values.priority] : []}
                     onSelectionChange={(keys) =>
                       formik.setFieldValue(
                         "priority",
@@ -362,15 +365,12 @@ const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onOpenChange, onSave,
                     size="sm"
                     radius="sm"
                     placeholder="Select practice"
+                    disableAnimation
+                    popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
                     selectedKeys={
                       formik.values.practiceId
-                        ? new Set([formik.values.practiceId])
-                        : new Set()
-                    }
-                    disabledKeys={
-                      formik.values.practiceId
-                        ? new Set([formik.values.practiceId])
-                        : new Set()
+                        ? [formik.values.practiceId]
+                        : []
                     }
                     onSelectionChange={(keys) =>
                       formik.setFieldValue("practiceId", Array.from(keys)[0])
@@ -399,8 +399,9 @@ const ActionModal: React.FC<ActionModalProps> = ({ isOpen, onOpenChange, onSave,
                     radius="sm"
                     selectionMode="multiple"
                     placeholder="Select members"
-                    selectedKeys={new Set(formik.values.assignTo)}
-                    disabledKeys={new Set(formik.values.assignTo)}
+                    disableAnimation
+                    popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                    selectedKeys={formik.values.assignTo || []}
                     onSelectionChange={(keys) =>
                       formik.setFieldValue("assignTo", Array.from(keys))
                     }

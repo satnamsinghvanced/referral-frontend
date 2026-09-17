@@ -263,8 +263,9 @@ const Reports = () => {
                 aria-label="Categories"
                 placeholder="All Categories"
                 size="sm"
-                selectedKeys={[filters.category]}
-                disabledKeys={[filters.category]}
+                disableAnimation
+                popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                selectedKeys={filters.category ? [filters.category] : []}
                 onSelectionChange={(keys) =>
                   onFilterChange(
                     "category",
@@ -272,23 +273,24 @@ const Reports = () => {
                   )
                 }
               >
-                <>
-                  <SelectItem key="" className="capitalize">
+                {[
+                  <SelectItem key="" textValue="All Categories" className="capitalize">
                     All Categories
-                  </SelectItem>
-                  {categoriesList.map((category) => (
-                    <SelectItem key={category.key} className="capitalize">
+                  </SelectItem>,
+                  ...categoriesList.map((category) => (
+                    <SelectItem key={category.key} textValue={category.label} className="capitalize">
                       {category.label}
                     </SelectItem>
-                  ))}
-                </>
+                  ))
+                ]}
               </Select>
               <Select
                 aria-label="Frequencies"
                 placeholder="All Frequencies"
                 size="sm"
-                selectedKeys={[filters.frequency]}
-                disabledKeys={[filters.frequency]}
+                disableAnimation
+                popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                selectedKeys={filters.frequency ? [filters.frequency] : []}
                 onSelectionChange={(keys) =>
                   onFilterChange(
                     "frequency",
@@ -296,16 +298,16 @@ const Reports = () => {
                   )
                 }
               >
-                <>
-                  <SelectItem key="" className="capitalize">
+                {[
+                  <SelectItem key="" textValue="All Frequencies" className="capitalize">
                     All Frequencies
-                  </SelectItem>
-                  {FREQUENCIES.map((frequency) => (
-                    <SelectItem key={frequency.key} className="capitalize">
+                  </SelectItem>,
+                  ...FREQUENCIES.map((frequency) => (
+                    <SelectItem key={frequency.key} textValue={frequency.label} className="capitalize">
                       {frequency.label}
                     </SelectItem>
-                  ))}
-                </>
+                  ))
+                ]}
               </Select>
             </div>
           </div>

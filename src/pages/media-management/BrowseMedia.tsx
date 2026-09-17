@@ -188,14 +188,16 @@ function BrowseMedia({ currentFilters, onFilterChange }: BrowseMediaProps) {
             aria-label="Call Types"
             placeholder="All Types"
             size="sm"
-            selectedKeys={new Set([currentFilters.type])}
+            disableAnimation
+            popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+            selectedKeys={currentFilters.type ? [currentFilters.type] : []}
             onSelectionChange={(keys) =>
               onFilterChange("type", Array.from(keys)[0] as string)
             }
           >
-            <SelectItem key="all">All Media</SelectItem>
-            <SelectItem key="images">Images</SelectItem>
-            <SelectItem key="videos">Videos</SelectItem>
+            <SelectItem key="all" textValue="All Media">All Media</SelectItem>
+            <SelectItem key="images" textValue="Images">Images</SelectItem>
+            <SelectItem key="videos" textValue="Videos">Videos</SelectItem>
           </Select>
         </div>
       </div>

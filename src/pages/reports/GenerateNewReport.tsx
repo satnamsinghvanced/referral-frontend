@@ -186,11 +186,13 @@ const GenerateNewReportModal = ({
               radius="sm"
               label="Report Category"
               labelPlacement="outside"
-              selectedKeys={[formData.category]}
-              disabledKeys={[formData.category]}
-              onSelectionChange={(keys) =>
-                handleChange("category", keys.currentKey as string)
-              }
+              disableAnimation
+              popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+              selectedKeys={formData.category ? [formData.category] : []}
+              onSelectionChange={(keys) => {
+                const val = (Array.from(keys)[0] as string) || (keys as any).currentKey;
+                if (val) handleChange("category", val);
+              }}
               isRequired
               renderValue={(items) => {
                 const item = items[0];
@@ -206,6 +208,7 @@ const GenerateNewReportModal = ({
               {categoriesList.map((cat) => (
                 <SelectItem
                   key={cat.key}
+                  textValue={cat.label}
                   startContent={CATEGORY_ICONS[cat.key]}
                 >
                   {cat.label}
@@ -220,15 +223,17 @@ const GenerateNewReportModal = ({
               radius="sm"
               label="Time Range"
               labelPlacement="outside"
-              selectedKeys={[formData.timeRange]}
-              disabledKeys={[formData.timeRange]}
+              disableAnimation
+              popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+              selectedKeys={formData.timeRange ? [formData.timeRange] : []}
               isRequired
-              onSelectionChange={(keys) =>
-                handleChange("timeRange", keys.currentKey as string)
-              }
+              onSelectionChange={(keys) => {
+                const val = (Array.from(keys)[0] as string) || (keys as any).currentKey;
+                if (val) handleChange("timeRange", val);
+              }}
             >
               {TIME_RANGES.map((range) => (
-                <SelectItem key={range.key}>{range.label}</SelectItem>
+                <SelectItem key={range.key} textValue={range.label}>{range.label}</SelectItem>
               ))}
             </Select>
 
@@ -289,11 +294,13 @@ const GenerateNewReportModal = ({
               radius="sm"
               label="Export Format"
               labelPlacement="outside"
-              selectedKeys={[formData.format]}
-              disabledKeys={[formData.format]}
-              onSelectionChange={(keys) =>
-                handleChange("format", keys.currentKey as string)
-              }
+              disableAnimation
+              popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+              selectedKeys={formData.format ? [formData.format] : []}
+              onSelectionChange={(keys) => {
+                const val = (Array.from(keys)[0] as string) || (keys as any).currentKey;
+                if (val) handleChange("format", val);
+              }}
               isRequired
               renderValue={(items) => {
                 const item = items[0];
@@ -309,6 +316,7 @@ const GenerateNewReportModal = ({
               {FORMATS.map((format) => (
                 <SelectItem
                   key={format.key}
+                  textValue={format.label}
                   startContent={FORMAT_ICONS[format.key]}
                 >
                   {format.label}
@@ -332,15 +340,17 @@ const GenerateNewReportModal = ({
                   radius="sm"
                   label="Frequency"
                   labelPlacement="outside"
-                  selectedKeys={[formData.frequency]}
-                  disabledKeys={[formData.frequency]}
-                  onSelectionChange={(keys) =>
-                    handleChange("frequency", keys.currentKey as string)
-                  }
+                  disableAnimation
+                  popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                  selectedKeys={formData.frequency ? [formData.frequency] : []}
+                  onSelectionChange={(keys) => {
+                    const val = (Array.from(keys)[0] as string) || (keys as any).currentKey;
+                    if (val) handleChange("frequency", val);
+                  }}
                   isRequired
                 >
                   {FREQUENCIES.map((freq) => (
-                    <SelectItem key={freq.key}>{freq.label}</SelectItem>
+                    <SelectItem key={freq.key} textValue={freq.label}>{freq.label}</SelectItem>
                   ))}
                 </Select>
               </div>

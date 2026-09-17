@@ -334,10 +334,14 @@ const Profile = () => {
                 label="Medical Specialty"
                 labelPlacement="outside"
                 placeholder="Select a Medical Specialty"
-                selectedKeys={[values.medicalSpecialty]}
-                disabledKeys={[values.medicalSpecialty]}
-                onChange={handleChange}
-                onBlur={handleBlur}
+                disableAnimation
+                popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                selectedKeys={values.medicalSpecialty ? [values.medicalSpecialty] : []}
+                onSelectionChange={(keys) => {
+                  const val = Array.from(keys)[0] as string;
+                  setFieldValue("medicalSpecialty", val);
+                }}
+                onBlur={() => setFieldTouched("medicalSpecialty", true)}
                 isRequired={true}
                 isInvalid={
                   !!(touched.medicalSpecialty && errors.medicalSpecialty)

@@ -102,8 +102,9 @@ const WaitModal: React.FC<WaitModalProps> = ({ isOpen, onOpenChange, onSave, ini
                   <Select
                     placeholder="Unit"
                     isRequired
-                    selectedKeys={[formik.values.unit]}
-                    disabledKeys={[formik.values.unit]}
+                    disableAnimation
+                    popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                    selectedKeys={formik.values.unit ? [formik.values.unit] : []}
                     onSelectionChange={(keys) =>
                       formik.setFieldValue(
                         "unit",

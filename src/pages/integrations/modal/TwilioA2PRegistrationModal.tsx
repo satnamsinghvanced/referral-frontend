@@ -783,7 +783,9 @@ export default function TwilioA2PRegistrationModal({ isOpen, onClose, phoneNumbe
                               <Select
                                 label={field.label}
                                 labelPlacement="outside"
-                                selectedKeys={[(formData as any)[field.name]]}
+                                disableAnimation
+                                popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                                selectedKeys={(formData as any)[field.name] ? [(formData as any)[field.name]] : []}
                                 onSelectionChange={(keys) =>
                                   handleFieldChange(field.name, Array.from(keys)[0] as string)
                                 }

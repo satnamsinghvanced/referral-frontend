@@ -124,10 +124,9 @@ const ReviewSubmission = () => {
                   labelPlacement="outside"
                   size="sm"
                   radius="sm"
+                  disableAnimation
+                  popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
                   selectedKeys={
-                    formik.values.locationId ? [formik.values.locationId] : []
-                  }
-                  disabledKeys={
                     formik.values.locationId ? [formik.values.locationId] : []
                   }
                   onSelectionChange={(keys) => {

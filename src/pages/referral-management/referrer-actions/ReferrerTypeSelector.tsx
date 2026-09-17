@@ -21,20 +21,21 @@ export default function ReferrerTypeSelector({
         labelPlacement="outside"
         isRequired
         placeholder="Select type"
-        selectedKeys={[formik.values.type]}
-        disabledKeys={[formik.values.type]}
+        disableAnimation
+        popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+        selectedKeys={formik.values.type ? [formik.values.type] : []}
         onSelectionChange={(keys) =>
           formik.setFieldValue("type", Array.from(keys)[0] as string)
         }
         classNames={{ label: "text-sm font-medium dark:text-foreground/60" }}
         isDisabled={!!editedData?.type}
       >
-        <SelectItem key="doctor">Doctor Referrer</SelectItem>
-        <SelectItem key="patient">Patient Referrer</SelectItem>
-        <SelectItem key="communityReferrer">Community Referrer</SelectItem>
-        <SelectItem key="googleReferrer">Google Referrer</SelectItem>
-        <SelectItem key="socialMediaReferrer">Social Media Referrer</SelectItem>
-        <SelectItem key="eventReferrer">Event Referrer</SelectItem>
+        <SelectItem key="doctor" textValue="Doctor Referrer">Doctor Referrer</SelectItem>
+        <SelectItem key="patient" textValue="Patient Referrer">Patient Referrer</SelectItem>
+        <SelectItem key="communityReferrer" textValue="Community Referrer">Community Referrer</SelectItem>
+        <SelectItem key="googleReferrer" textValue="Google Referrer">Google Referrer</SelectItem>
+        <SelectItem key="socialMediaReferrer" textValue="Social Media Referrer">Social Media Referrer</SelectItem>
+        <SelectItem key="eventReferrer" textValue="Event Referrer">Event Referrer</SelectItem>
       </Select>
     </div>
   );

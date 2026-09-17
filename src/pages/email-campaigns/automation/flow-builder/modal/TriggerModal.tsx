@@ -85,10 +85,9 @@ const TriggerModal: React.FC<TriggerModalProps> = ({ isOpen, onOpenChange, onSav
                   label="Trigger Type"
                   labelPlacement="outside"
                   placeholder="Select trigger..."
+                  disableAnimation
+                  popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
                   selectedKeys={
-                    formik.values.triggerType ? [formik.values.triggerType] : []
-                  }
-                  disabledKeys={
                     formik.values.triggerType ? [formik.values.triggerType] : []
                   }
                   onSelectionChange={(keys) =>

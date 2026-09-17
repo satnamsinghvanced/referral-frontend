@@ -465,16 +465,16 @@ const TrackReferralModal = ({
                       isRequired
                       size="sm"
                       radius="sm"
+                      disableAnimation
+                      popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
                       selectedKeys={
                         formik.values.treatment ? [formik.values.treatment] : []
                       }
-                      disabledKeys={
-                        formik.values.treatment ? [formik.values.treatment] : []
-                      }
-                      onChange={(e) =>
-                        formik.setFieldValue("treatment", e.target.value)
-                      }
-                      onBlur={formik.handleBlur}
+                      onSelectionChange={(keys) => {
+                        const val = Array.from(keys)[0] as string;
+                        formik.setFieldValue("treatment", val);
+                      }}
+                      onBlur={() => formik.setFieldTouched("treatment", true)}
                       isInvalid={
                         !!(formik.errors.treatment && formik.touched.treatment)
                       }
@@ -482,7 +482,7 @@ const TrackReferralModal = ({
                       variant="flat"
                     >
                       {TREATMENT_OPTIONS.map((option) => (
-                        <SelectItem key={option.key}>{option.label}</SelectItem>
+                        <SelectItem key={option.key} textValue={option.label}>{option.label}</SelectItem>
                       ))}
                     </Select>
                   </div>
@@ -491,20 +491,19 @@ const TrackReferralModal = ({
                       label="Status"
                       labelPlacement="outside"
                       placeholder="Pending"
-                      defaultSelectedKeys={["pending"]}
                       variant="flat"
                       radius="sm"
                       size="sm"
+                      disableAnimation
+                      popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
                       selectedKeys={
                         formik.values.status ? [formik.values.status] : []
                       }
-                      disabledKeys={
-                        formik.values.status ? [formik.values.status] : []
-                      }
-                      onChange={(e) =>
-                        formik.setFieldValue("status", e.target.value)
-                      }
-                      onBlur={formik.handleBlur}
+                      onSelectionChange={(keys) => {
+                        const val = Array.from(keys)[0] as string;
+                        formik.setFieldValue("status", val);
+                      }}
+                      onBlur={() => formik.setFieldTouched("status", true)}
                       isInvalid={
                         !!(formik.errors.status && formik.touched.status)
                       }
@@ -512,7 +511,7 @@ const TrackReferralModal = ({
                       isRequired
                     >
                       {STATUS_OPTIONS.map((s) => (
-                        <SelectItem key={s.value}>{s.label}</SelectItem>
+                        <SelectItem key={s.value} textValue={s.label}>{s.label}</SelectItem>
                       ))}
                     </Select>
                   </div>
@@ -521,20 +520,19 @@ const TrackReferralModal = ({
                       label="Source"
                       labelPlacement="outside"
                       placeholder="Direct Referral"
-                      defaultSelectedKeys={["Direct Referral"]}
                       variant="flat"
                       radius="sm"
                       size="sm"
+                      disableAnimation
+                      popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
                       selectedKeys={
                         formik.values.source ? [formik.values.source] : []
                       }
-                      disabledKeys={
-                        formik.values.source ? [formik.values.source] : []
-                      }
-                      onChange={(e) =>
-                        formik.setFieldValue("source", e.target.value)
-                      }
-                      onBlur={formik.handleBlur}
+                      onSelectionChange={(keys) => {
+                        const val = Array.from(keys)[0] as string;
+                        formik.setFieldValue("source", val);
+                      }}
+                      onBlur={() => formik.setFieldTouched("source", true)}
                       isInvalid={
                         !!(formik.errors.source && formik.touched.source)
                       }
@@ -542,7 +540,7 @@ const TrackReferralModal = ({
                       isRequired
                     >
                       {SOURCE_OPTIONS.map((s) => (
-                        <SelectItem key={s.key}>{s.label}</SelectItem>
+                        <SelectItem key={s.key} textValue={s.label}>{s.label}</SelectItem>
                       ))}
                     </Select>
                     <Input

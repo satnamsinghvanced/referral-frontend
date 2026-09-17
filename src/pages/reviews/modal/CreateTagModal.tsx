@@ -275,10 +275,9 @@ const CreateTagModal: React.FC<CreateTagModalProps> = ({ isOpen, onClose }) => {
                   labelPlacement="outside"
                   placeholder="Select a team member"
                   name="teamMember"
+                  disableAnimation
+                  popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
                   selectedKeys={
-                    formik.values.teamMember ? [formik.values.teamMember] : []
-                  }
-                  disabledKeys={
                     formik.values.teamMember ? [formik.values.teamMember] : []
                   }
                   onSelectionChange={(keys) => {

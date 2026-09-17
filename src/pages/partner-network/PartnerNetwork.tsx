@@ -338,8 +338,9 @@ const PartnerNetwork = () => {
                       placeholder="Practice Type"
                       size="sm"
                       radius="sm"
-                      selectedKeys={[params.filter]}
-                      disabledKeys={[params.filter]}
+                      disableAnimation
+                      popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                      selectedKeys={params.filter ? [params.filter] : []}
                       onSelectionChange={(keys) =>
                         handleFieldChange(
                           "filter",
@@ -349,7 +350,9 @@ const PartnerNetwork = () => {
                       className="md:min-w-[200px] flex-1"
                     >
                       {PARTNER_FILTERS.map((opt) => (
-                        <SelectItem key={opt.value}>{opt.label}</SelectItem>
+                        <SelectItem key={opt.value} textValue={opt.label}>
+                          {opt.label}
+                        </SelectItem>
                       ))}
                     </Select>
                   </div>
@@ -365,8 +368,9 @@ const PartnerNetwork = () => {
                           placeholder="Sort By"
                           size="sm"
                           radius="sm"
-                          selectedKeys={[params.sortBy]}
-                          disabledKeys={[params.sortBy]}
+                          disableAnimation
+                          popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                          selectedKeys={params.sortBy ? [params.sortBy] : []}
                           onSelectionChange={(keys) =>
                             handleFieldChange(
                               "sortBy",
@@ -376,7 +380,9 @@ const PartnerNetwork = () => {
                           className="md:min-w-[140px] flex-1"
                         >
                           {PARTNER_SORT_OPTIONS.map((opt) => (
-                            <SelectItem key={opt.value}>{opt.label}</SelectItem>
+                            <SelectItem key={opt.value} textValue={opt.label}>
+                              {opt.label}
+                            </SelectItem>
                           ))}
                         </Select>
                       </div>

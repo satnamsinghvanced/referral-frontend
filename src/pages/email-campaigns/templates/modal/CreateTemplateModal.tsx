@@ -125,15 +125,16 @@ export default function CreateTemplateModal({ isOpen, onClose, onSubmit, initial
                   labelPlacement="outside"
                   name="category"
                   isRequired
-                  selectedKeys={[formik.values.category]}
-                  disabledKeys={[formik.values.category]}
+                  disableAnimation
+                  popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                  selectedKeys={formik.values.category ? [formik.values.category] : []}
                   onSelectionChange={(keys) =>
                     formik.setFieldValue("category", Array.from(keys)[0])
                   }
                 >
                   {CAMPAIGN_CATEGORIES.map(
                     (cat: { label: string; value: string }) => (
-                      <SelectItem key={cat.value}>{cat.label}</SelectItem>
+                      <SelectItem key={cat.value} textValue={cat.label}>{cat.label}</SelectItem>
                     ),
                   )}
                 </Select>

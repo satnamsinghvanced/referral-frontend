@@ -251,15 +251,16 @@ function MediaManagement() {
                 <Select
                   aria-label="Media Types"
                   size="sm"
-                  selectedKeys={new Set([currentFilters.type])}
-                  disabledKeys={new Set([currentFilters.type])}
+                  disableAnimation
+                  popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                  selectedKeys={currentFilters.type ? [currentFilters.type] : []}
                   onSelectionChange={(keys) =>
                     onFilterChange("type", Array.from(keys)[0] as string)
                   }
                 >
-                  <SelectItem key="all">All Media</SelectItem>
-                  <SelectItem key="image">Images</SelectItem>
-                  <SelectItem key="video">Videos</SelectItem>
+                  <SelectItem key="all" textValue="All Media">All Media</SelectItem>
+                  <SelectItem key="image" textValue="Images">Images</SelectItem>
+                  <SelectItem key="video" textValue="Videos">Videos</SelectItem>
                 </Select>
               </div>
             </div>

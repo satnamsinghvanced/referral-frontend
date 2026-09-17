@@ -504,7 +504,9 @@ export default function Checkout() {
                   <div className="flex flex-col gap-1.5">
                     <label className="text-xs font-semibold text-default-600">Country</label>
                     <Select
-                      selectedKeys={[country]}
+                      disableAnimation
+                      popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                      selectedKeys={country ? [country] : []}
                       onSelectionChange={(keys) => {
                         const val = Array.from(keys)[0] as string;
                         setCountry(val);

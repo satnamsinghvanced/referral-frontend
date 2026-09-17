@@ -1372,7 +1372,9 @@ const CustomCalendar: React.FC<CalendarProps> = ({
           <div className="w-24">
             <Select
               aria-label="Select Calendar View"
-              selectedKeys={new Set([viewMode])}
+              disableAnimation
+              popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+              selectedKeys={viewMode ? [viewMode] : []}
               onSelectionChange={(keys) => {
                 const selected = Array.from(keys)[0] as ViewMode;
                 if (selected) {
@@ -1406,7 +1408,9 @@ const CustomCalendar: React.FC<CalendarProps> = ({
         <div className="w-32">
           <Select
             aria-label="Select Calendar View"
-            selectedKeys={new Set([viewMode])}
+            disableAnimation
+            popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+            selectedKeys={viewMode ? [viewMode] : []}
             onSelectionChange={(keys) => {
               const selected = Array.from(keys)[0] as ViewMode;
               if (selected) {

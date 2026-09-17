@@ -139,12 +139,9 @@ const ConditionModal: React.FC<ConditionModalProps> = ({ isOpen, onOpenChange, o
                   label="Condition Type"
                   labelPlacement="outside"
                   placeholder="Select condition..."
+                  disableAnimation
+                  popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
                   selectedKeys={
-                    formik.values.conditionType
-                      ? [formik.values.conditionType]
-                      : []
-                  }
-                  disabledKeys={
                     formik.values.conditionType
                       ? [formik.values.conditionType]
                       : []
@@ -182,10 +179,9 @@ const ConditionModal: React.FC<ConditionModalProps> = ({ isOpen, onOpenChange, o
                       label="Which Email?"
                       labelPlacement="outside"
                       placeholder="Select email..."
+                      disableAnimation
+                      popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
                       selectedKeys={
-                        formik.values.whichEmail ? [formik.values.whichEmail] : []
-                      }
-                      disabledKeys={
                         formik.values.whichEmail ? [formik.values.whichEmail] : []
                       }
                       onSelectionChange={(keys) =>
@@ -234,10 +230,9 @@ const ConditionModal: React.FC<ConditionModalProps> = ({ isOpen, onOpenChange, o
                       label="Comparison"
                       labelPlacement="outside"
                       placeholder="Select comparison..."
+                      disableAnimation
+                      popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
                       selectedKeys={
-                        formik.values.comparison ? [formik.values.comparison] : []
-                      }
-                      disabledKeys={
                         formik.values.comparison ? [formik.values.comparison] : []
                       }
                       onSelectionChange={(keys) =>
@@ -295,12 +290,9 @@ const ConditionModal: React.FC<ConditionModalProps> = ({ isOpen, onOpenChange, o
                       label="Time Period"
                       labelPlacement="outside"
                       placeholder="Select time period..."
+                      disableAnimation
+                      popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
                       selectedKeys={
-                        formik.values.timePeriod
-                          ? [formik.values.timePeriod]
-                          : []
-                      }
-                      disabledKeys={
                         formik.values.timePeriod
                           ? [formik.values.timePeriod]
                           : []
@@ -338,12 +330,9 @@ const ConditionModal: React.FC<ConditionModalProps> = ({ isOpen, onOpenChange, o
                     label="Rating Value (Stars)"
                     labelPlacement="outside"
                     placeholder="Select rating..."
+                    disableAnimation
+                    popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
                     selectedKeys={
-                      formik.values.ratingValue
-                        ? [formik.values.ratingValue]
-                        : []
-                    }
-                    disabledKeys={
                       formik.values.ratingValue
                         ? [formik.values.ratingValue]
                         : []

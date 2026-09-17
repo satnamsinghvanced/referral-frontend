@@ -214,16 +214,18 @@ const NotesTasksModal = ({
                         <div className="flex items-center space-x-3">
                           <Select
                             aria-label="Note Category"
-                            selectedKeys={[newNoteCategory as string]}
-                            disabledKeys={[newNoteCategory as string]}
-                            onChange={(event) =>
-                              setNewNoteCategory(event.target.value)
-                            }
-                            className="w-full"
                             size="sm"
+                            disableAnimation
+                            popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                            selectedKeys={newNoteCategory ? [newNoteCategory as string] : []}
+                            onSelectionChange={(keys) => {
+                              const val = Array.from(keys)[0] as string;
+                              if (val) setNewNoteCategory(val);
+                            }}
+                            className="w-full"
                           >
                             {NOTE_CATEGORIES.map((cat) => (
-                              <SelectItem key={cat.value}>
+                              <SelectItem key={cat.value} textValue={cat.label}>
                                 {cat.label}
                               </SelectItem>
                             ))}
@@ -363,28 +365,36 @@ const NotesTasksModal = ({
                             aria-label="Task Priority"
                             size="sm"
                             radius="sm"
-                            selectedKeys={[newTaskPriority as string]}
-                            disabledKeys={[newTaskPriority as string]}
-                            onChange={(event) =>
-                              setNewTaskPriority(event.target.value)
-                            }
+                            disableAnimation
+                            popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                            selectedKeys={newTaskPriority ? [newTaskPriority as string] : []}
+                            onSelectionChange={(keys) => {
+                              const val = Array.from(keys)[0] as string;
+                              if (val) setNewTaskPriority(val);
+                            }}
                           >
                             {TASK_PRIORITIES.map((p) => (
-                              <SelectItem key={p.value}>{p.label}</SelectItem>
+                              <SelectItem key={p.value} textValue={p.label}>
+                                {p.label}
+                              </SelectItem>
                             ))}
                           </Select>
                           <Select
                             aria-label="Task Type"
                             size="sm"
                             radius="sm"
-                            selectedKeys={[newTaskType as string]}
-                            disabledKeys={[newTaskType as string]}
-                            onChange={(event) =>
-                              setNewTaskType(event.target.value)
-                            }
+                            disableAnimation
+                            popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                            selectedKeys={newTaskType ? [newTaskType as string] : []}
+                            onSelectionChange={(keys) => {
+                              const val = Array.from(keys)[0] as string;
+                              if (val) setNewTaskType(val);
+                            }}
                           >
                             {TASK_TYPES.map((t) => (
-                              <SelectItem key={t.key}>{t.label}</SelectItem>
+                              <SelectItem key={t.key} textValue={t.label}>
+                                {t.label}
+                              </SelectItem>
                             ))}
                           </Select>
                         </div>
@@ -401,7 +411,9 @@ const NotesTasksModal = ({
                               aria-label="Assigned To"
                               placeholder="Select assign member"
                               selectionMode="multiple"
-                              selectedKeys={newTaskAssignTo || new Set([])}
+                              disableAnimation
+                              popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                              selectedKeys={newTaskAssignTo || []}
                               onSelectionChange={(keys: any) => {
                                 const values = Array.from(keys) as string[];
                                 setNewTaskAssignTo(values);

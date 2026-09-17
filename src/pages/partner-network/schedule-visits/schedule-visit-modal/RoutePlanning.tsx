@@ -88,7 +88,7 @@ const getOptimizedCoordinates = (
   const optimizedOrderMap: number[] = [0];
   let currentPoint: number[] = startPoint;
 
-  let remainingStops = [...stopsWithOriginalIndex];
+  const remainingStops = [...stopsWithOriginalIndex];
 
   while (remainingStops.length > 0) {
     let nearestIndexInRemaining = -1;
@@ -574,6 +574,8 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                   placeholder="Select duration"
                   size="sm"
                   radius="sm"
+                  disableAnimation
+                  popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
                   selectedKeys={
                     planState.durationPerVisit
                       ? ([planState.durationPerVisit] as any)
@@ -594,7 +596,7 @@ export const RoutePlanningTab: React.FC<RoutePlanningTabProps> = ({
                   }}
                 >
                   {PER_VISIT_DURATION_OPTIONS.map((duration: string) => (
-                    <SelectItem key={duration}>{duration}</SelectItem>
+                    <SelectItem key={duration} textValue={duration}>{duration}</SelectItem>
                   ))}
                 </Select>
               </div>

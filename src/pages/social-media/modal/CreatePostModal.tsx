@@ -558,8 +558,9 @@ export function CreatePostModal({
               size="sm"
               radius="sm"
               isRequired
-              selectedKeys={[formik.values.publishSchedule]}
-              disabledKeys={[formik.values.publishSchedule]}
+              disableAnimation
+              popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+              selectedKeys={formik.values.publishSchedule ? [formik.values.publishSchedule] : []}
               onSelectionChange={(keys: any) =>
                 formik.setFieldValue(
                   "publishSchedule",
@@ -569,11 +570,12 @@ export function CreatePostModal({
             >
               <SelectItem
                 key="publish-now"
+                textValue="Publish Now"
                 startContent={<FiSend className="size-3.5" />}
               >
                 Publish Now
               </SelectItem>
-              <SelectItem key="schedule">Schedule for Later</SelectItem>
+              <SelectItem key="schedule" textValue="Schedule for Later">Schedule for Later</SelectItem>
             </Select>
 
             {formik.values.publishSchedule === "schedule" && (

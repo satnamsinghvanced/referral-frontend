@@ -233,8 +233,9 @@ export default function ActivityActionsModal({
                   placeholder="Select type"
                   size="sm"
                   radius="sm"
+                  disableAnimation
+                  popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
                   selectedKeys={formik.values.type ? [formik.values.type] : []}
-                  disabledKeys={formik.values.type ? [formik.values.type] : []}
                   onSelectionChange={(keys) =>
                     formik.setFieldValue("type", Array.from(keys)[0] as string)
                   }
@@ -243,7 +244,7 @@ export default function ActivityActionsModal({
                   isRequired
                 >
                   {allowedActivityTypes?.map((type) => (
-                    <SelectItem key={type.value}>{type.label}</SelectItem>
+                    <SelectItem key={type.value} textValue={type.label}>{type.label}</SelectItem>
                   ))}
                 </Select>
                 <ErrorText field="type" />
@@ -312,8 +313,9 @@ export default function ActivityActionsModal({
                   placeholder="Select priority"
                   size="sm"
                   radius="sm"
-                  selectedKeys={[formik.values.priority]}
-                  disabledKeys={[formik.values.priority]}
+                  disableAnimation
+                  popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                  selectedKeys={formik.values.priority ? [formik.values.priority] : []}
                   onSelectionChange={(keys) =>
                     formik.setFieldValue(
                       "priority",
@@ -325,7 +327,7 @@ export default function ActivityActionsModal({
                   isRequired
                 >
                   {PRIORITY_LEVELS.map((priority) => (
-                    <SelectItem key={priority.value}>
+                    <SelectItem key={priority.value} textValue={priority.label}>
                       {priority.label}
                     </SelectItem>
                   ))}
@@ -385,8 +387,9 @@ export default function ActivityActionsModal({
                     placeholder="Select status"
                     size="sm"
                     radius="sm"
-                    selectedKeys={[formik.values.status as any]}
-                    disabledKeys={[formik.values.status as any]}
+                    disableAnimation
+                    popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                    selectedKeys={formik.values.status ? [formik.values.status as string] : []}
                     onSelectionChange={(keys) =>
                       formik.setFieldValue(
                         "status",
@@ -397,7 +400,7 @@ export default function ActivityActionsModal({
                     isInvalid={!!hasError("status")}
                   >
                     {ACTIVITY_STATUSES.map((status) => (
-                      <SelectItem key={status.value}>{status.label}</SelectItem>
+                      <SelectItem key={status.value} textValue={status.label}>{status.label}</SelectItem>
                     ))}
                   </Select>
                   <ErrorText field="status" />

@@ -75,18 +75,19 @@ const ActiveFlows = ({ onEdit, onCreateNew }: ActiveFlowsProps) => {
                 aria-label="Statuses"
                 placeholder="All Status"
                 size="sm"
-                selectedKeys={[currentFilters.status]}
-                disabledKeys={[currentFilters.status]}
+                disableAnimation
+                popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                selectedKeys={currentFilters.status ? [currentFilters.status] : []}
                 onSelectionChange={(keys) =>
                   handleFilterChange("status", Array.from(keys)[0] as string)
                 }
               >
-                <>
-                  <SelectItem key="">All Status</SelectItem>
-                  {FLOW_STATUSES.map((status) => (
-                    <SelectItem key={status.value}>{status.label}</SelectItem>
-                  ))}
-                </>
+                {[
+                  <SelectItem key="" textValue="All Status">All Status</SelectItem>,
+                  ...FLOW_STATUSES.map((status) => (
+                    <SelectItem key={status.value} textValue={status.label}>{status.label}</SelectItem>
+                  ))
+                ]}
               </Select>
             </div>
             <div className="flex items-center gap-3">

@@ -85,8 +85,9 @@ const CampaignSetupStep: React.ForwardRefRenderFunction<CampaignStepRef, Campaig
           labelPlacement="outside"
           placeholder="Select Type"
           name="type"
-          selectedKeys={[formik.values.type]}
-          disabledKeys={[formik.values.type]}
+          disableAnimation
+          popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+          selectedKeys={formik.values.type ? [formik.values.type] : []}
           onSelectionChange={(keys) => {
             formik.setFieldValue("type", Array.from(keys)[0]);
             formik.setFieldTouched("type", true, false);
@@ -97,7 +98,7 @@ const CampaignSetupStep: React.ForwardRefRenderFunction<CampaignStepRef, Campaig
           isRequired
         >
           {CAMPAIGN_TYPES.map((type) => (
-            <SelectItem key={type.value}>{type.label}</SelectItem>
+            <SelectItem key={type.value} textValue={type.label}>{type.label}</SelectItem>
           ))}
         </Select>
         <Select
@@ -107,8 +108,9 @@ const CampaignSetupStep: React.ForwardRefRenderFunction<CampaignStepRef, Campaig
           labelPlacement="outside"
           placeholder="Select Category"
           name="category"
-          selectedKeys={[formik.values.category]}
-          disabledKeys={[formik.values.category]}
+          disableAnimation
+          popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+          selectedKeys={formik.values.category ? [formik.values.category] : []}
           onSelectionChange={(keys) => {
             formik.setFieldValue("category", Array.from(keys)[0]);
             formik.setFieldTouched("category", true, false);
@@ -119,7 +121,7 @@ const CampaignSetupStep: React.ForwardRefRenderFunction<CampaignStepRef, Campaig
           isRequired
         >
           {CAMPAIGN_CATEGORIES.map((category) => (
-            <SelectItem key={category.value}>{category.label}</SelectItem>
+            <SelectItem key={category.value} textValue={category.label}>{category.label}</SelectItem>
           ))}
         </Select>
       </div>

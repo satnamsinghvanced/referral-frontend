@@ -115,35 +115,37 @@ const Campaigns = () => {
               aria-label="Statuses"
               placeholder="All Statuses"
               size="sm"
-              selectedKeys={[currentFilters.status as string]}
-              disabledKeys={[currentFilters.status as string]}
+              disableAnimation
+              popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+              selectedKeys={currentFilters.status ? [currentFilters.status as string] : []}
               onSelectionChange={(keys) =>
                 handleFilterChange("status", Array.from(keys)[0] as string)
               }
             >
-              <>
-                <SelectItem key="">All Statuses</SelectItem>
-                {CAMPAIGN_STATUSES.map((status) => (
-                  <SelectItem key={status.value}>{status.label}</SelectItem>
-                ))}
-              </>
+              {[
+                <SelectItem key="" textValue="All Statuses">All Statuses</SelectItem>,
+                ...CAMPAIGN_STATUSES.map((status) => (
+                  <SelectItem key={status.value} textValue={status.label}>{status.label}</SelectItem>
+                ))
+              ]}
             </Select>
             <Select
               aria-label="Categories"
               placeholder="All categories"
               size="sm"
-              selectedKeys={[currentFilters.category as string]}
-              disabledKeys={[currentFilters.category as string]}
+              disableAnimation
+              popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+              selectedKeys={currentFilters.category ? [currentFilters.category as string] : []}
               onSelectionChange={(keys) =>
                 handleFilterChange("category", Array.from(keys)[0] as string)
               }
             >
-              <>
-                <SelectItem key="">All Categories</SelectItem>
-                {CAMPAIGN_CATEGORIES.map((source) => (
-                  <SelectItem key={source.value}>{source.label}</SelectItem>
-                ))}
-              </>
+              {[
+                <SelectItem key="" textValue="All Categories">All Categories</SelectItem>,
+                ...CAMPAIGN_CATEGORIES.map((source) => (
+                  <SelectItem key={source.value} textValue={source.label}>{source.label}</SelectItem>
+                ))
+              ]}
             </Select>
             <div className="flex items-center gap-3">
               <Button

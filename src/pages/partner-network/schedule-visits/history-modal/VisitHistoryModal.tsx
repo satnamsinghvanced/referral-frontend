@@ -116,14 +116,18 @@ export function VisitHistoryModal({ isOpen, onClose, onItemView }: VisitHistoryM
               placeholder="All Visits"
               size="sm"
               radius="sm"
-              selectedKeys={[statusFilter]}
-              disabledKeys={[statusFilter]}
+              disableAnimation
+              popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+              selectedKeys={statusFilter ? [statusFilter] : []}
+              onSelectionChange={(keys) => {
+                const val = Array.from(keys)[0] as string;
+                setStatusFilter(val || "all");
+              }}
               className="md:max-w-[150px]"
-              onChange={handleStatusChange}
             >
-              <SelectItem key="all">All Visits</SelectItem>
-              <SelectItem key="completed">Completed</SelectItem>
-              <SelectItem key="cancel">Cancelled</SelectItem>
+              <SelectItem key="all" textValue="All Visits">All Visits</SelectItem>
+              <SelectItem key="completed" textValue="Completed">Completed</SelectItem>
+              <SelectItem key="cancel" textValue="Cancelled">Cancelled</SelectItem>
             </Select>
           </div>
         </ModalHeader>

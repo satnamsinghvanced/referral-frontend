@@ -218,8 +218,13 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead }: ScheduleAppointment
                   size="sm"
                   radius="sm"
                   variant="bordered"
-                  selectedKeys={[formik.values.provider]}
-                  onChange={(e) => formik.setFieldValue("provider", e.target.value)}
+                  disableAnimation
+                  popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                  selectedKeys={formik.values.provider ? [formik.values.provider] : []}
+                  onSelectionChange={(keys) => {
+                    const val = Array.from(keys)[0] as string;
+                    if (val) formik.setFieldValue("provider", val);
+                  }}
                   classNames={{
                     trigger: "border-slate-200 dark:border-default-200 rounded-lg shadow-none h-9 min-h-9 data-[hover=true]:border-slate-300",
                     value: "text-[12px] sm:text-[12.5px] text-slate-600 dark:text-slate-200",

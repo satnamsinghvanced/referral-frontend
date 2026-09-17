@@ -224,17 +224,18 @@ export default function ScheduleVisits({
                 placeholder="All Plans"
                 size="sm"
                 radius="sm"
-                selectedKeys={[filters.status] as string[]}
-                disabledKeys={[filters.status] as string[]}
+                disableAnimation
+                popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                selectedKeys={filters.status ? [filters.status as string] : []}
                 onSelectionChange={(keys) =>
                   handleFilterChange("status", Array.from(keys)[0] as string)
                 }
                 className="min-w-[160px] md:max-w-[160px]"
               >
-                <SelectItem key="all">All Plans</SelectItem>
-                <SelectItem key="active">Active</SelectItem>
-                <SelectItem key="inProgress">In Progress</SelectItem>
-                <SelectItem key="draft">Draft</SelectItem>
+                <SelectItem key="all" textValue="All Plans">All Plans</SelectItem>
+                <SelectItem key="active" textValue="Active">Active</SelectItem>
+                <SelectItem key="inProgress" textValue="In Progress">In Progress</SelectItem>
+                <SelectItem key="draft" textValue="Draft">Draft</SelectItem>
               </Select>
             </div>
             <div className="flex items-center justify-between gap-3">
@@ -248,8 +249,9 @@ export default function ScheduleVisits({
                     placeholder="Month"
                     size="sm"
                     radius="sm"
-                    selectedKeys={[filters.sortBy] as string[]}
-                    disabledKeys={[filters.sortBy] as string[]}
+                    disableAnimation
+                    popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                    selectedKeys={filters.sortBy ? [filters.sortBy as string] : []}
                     onSelectionChange={(keys) => {
                       handleFilterChange(
                         "sortBy",
@@ -258,10 +260,10 @@ export default function ScheduleVisits({
                     }}
                     className="md:min-w-[160px] col-span-3"
                   >
-                    <SelectItem key="month">Month</SelectItem>
-                    <SelectItem key="name">Name</SelectItem>
-                    <SelectItem key="createdDate">Created Date</SelectItem>
-                    <SelectItem key="updatedDate">Updated Date</SelectItem>
+                    <SelectItem key="month" textValue="Month">Month</SelectItem>
+                    <SelectItem key="name" textValue="Name">Name</SelectItem>
+                    <SelectItem key="createdDate" textValue="Created Date">Created Date</SelectItem>
+                    <SelectItem key="updatedDate" textValue="Updated Date">Updated Date</SelectItem>
                   </Select>
                 </div>
                 <Button

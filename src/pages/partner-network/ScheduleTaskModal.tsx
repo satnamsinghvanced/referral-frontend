@@ -220,14 +220,15 @@ const ScheduleTaskModal = ({
                       label="Time"
                       labelPlacement="outside"
                       placeholder="Select time"
-                      value={eventDetails.time}
-                      defaultSelectedKeys={[eventDetails.time]}
-                      onChange={(event) =>
-                        handleSelectChange("time", event.target.value)
+                      disableAnimation
+                      popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                      selectedKeys={eventDetails.time ? [eventDetails.time] : []}
+                      onSelectionChange={(keys) =>
+                        handleSelectChange("time", Array.from(keys)[0] as string)
                       }
                     >
                       {TIME_OPTIONS.map((time) => (
-                        <SelectItem key={time}>{time}</SelectItem>
+                        <SelectItem key={time} textValue={time}>{time}</SelectItem>
                       ))}
                     </Select>
                   </div>
@@ -238,14 +239,15 @@ const ScheduleTaskModal = ({
                       label="Duration (minutes)"
                       labelPlacement="outside"
                       placeholder="Select duration"
-                      value={eventDetails.duration}
-                      defaultSelectedKeys={[eventDetails.duration]}
-                      onChange={(event) =>
-                        handleSelectChange("duration", event.target.value)
+                      disableAnimation
+                      popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                      selectedKeys={eventDetails.duration ? [eventDetails.duration] : []}
+                      onSelectionChange={(keys) =>
+                        handleSelectChange("duration", Array.from(keys)[0] as string)
                       }
                     >
                       {DURATION_OPTIONS.map((opt) => (
-                        <SelectItem key={opt.value}>{opt.label}</SelectItem>
+                        <SelectItem key={opt.value} textValue={opt.label}>{opt.label}</SelectItem>
                       ))}
                     </Select>
                   </div>
@@ -257,14 +259,15 @@ const ScheduleTaskModal = ({
                     label="Event Type"
                     labelPlacement="outside"
                     placeholder="Select event type"
-                    value={eventDetails.eventType}
-                    defaultSelectedKeys={[eventDetails.eventType]}
-                    onChange={(event) =>
-                      handleSelectChange("eventType", event.target.value)
+                    disableAnimation
+                    popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                    selectedKeys={eventDetails.eventType ? [eventDetails.eventType] : []}
+                    onSelectionChange={(keys) =>
+                      handleSelectChange("eventType", Array.from(keys)[0] as string)
                     }
                   >
                     {EVENT_TYPE_OPTIONS.map((type) => (
-                      <SelectItem key={type.value}>{type.label}</SelectItem>
+                      <SelectItem key={type.value} textValue={type.label}>{type.label}</SelectItem>
                     ))}
                   </Select>
                 </div>

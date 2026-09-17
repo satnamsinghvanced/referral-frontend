@@ -62,8 +62,9 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
           size="sm"
           radius="sm"
           aria-label="Categories"
-          selectedKeys={[filters.category]}
-          disabledKeys={[filters.category]}
+          disableAnimation
+          popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+          selectedKeys={filters.category ? [filters.category] : []}
           onSelectionChange={(keys: any) => {
             const category = Array.from(keys).join("") as string;
             setFilters({ ...filters, category });
@@ -71,12 +72,12 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
           className="md:max-w-[190px]"
           startContent={<LuFilter className="text-gray-400 text-base" />}
         >
-          <>
-            <SelectItem key="">All Categories</SelectItem>
-            {CATEGORY_OPTIONS.map((opt: any) => (
-              <SelectItem key={opt._id}>{opt.shortTitle}</SelectItem>
-            ))}
-          </>
+          {[
+            <SelectItem key="" textValue="All Categories">All Categories</SelectItem>,
+            ...CATEGORY_OPTIONS.map((opt: any) => (
+              <SelectItem key={opt._id} textValue={opt.shortTitle}>{opt.shortTitle}</SelectItem>
+            ))
+          ]}
         </Select>
       </div>
 

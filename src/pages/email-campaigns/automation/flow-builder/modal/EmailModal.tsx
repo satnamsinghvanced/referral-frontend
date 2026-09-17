@@ -81,10 +81,9 @@ const EmailModal: React.FC<EmailModalProps> = ({ isOpen, onOpenChange, onSave, i
                 label="Email Template"
                 labelPlacement="outside"
                 placeholder="Select template..."
+                disableAnimation
+                popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
                 selectedKeys={
-                  formik.values.templateId ? [formik.values.templateId] : []
-                }
-                disabledKeys={
                   formik.values.templateId ? [formik.values.templateId] : []
                 }
                 onSelectionChange={(keys) =>

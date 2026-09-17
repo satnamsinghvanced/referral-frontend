@@ -70,7 +70,9 @@ const TagModal: React.FC<TagModalProps> = ({ isOpen, onOpenChange, onSave, initi
               <Select
                 label="Action"
                 labelPlacement="outside"
-                selectedKeys={[formik.values.action]}
+                disableAnimation
+                popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                selectedKeys={formik.values.action ? [formik.values.action] : []}
                 onSelectionChange={(keys) =>
                   formik.setFieldValue("action", Array.from(keys)[0] as string)
                 }

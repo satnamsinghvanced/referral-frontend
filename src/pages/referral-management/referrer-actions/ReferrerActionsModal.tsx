@@ -483,16 +483,9 @@ export default function ReferrerActionsModal({
               labelPlacement="outside"
               placeholder={placeholder || "Select an option"}
               selectionMode={multiple ? "multiple" : "single"}
+              disableAnimation
+              popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
               selectedKeys={
-                multiple
-                  ? Array.isArray(value)
-                    ? value
-                    : []
-                  : value
-                    ? [value]
-                    : []
-              }
-              disabledKeys={
                 multiple
                   ? Array.isArray(value)
                     ? value
@@ -519,7 +512,7 @@ export default function ReferrerActionsModal({
               isDisabled={isDisabled as boolean}
             >
               {(options || []).map((opt: any) => (
-                <SelectItem key={opt?._id} className="capitalize">
+                <SelectItem key={opt?._id} textValue={opt?.title} className="capitalize">
                   {opt?.title}
                 </SelectItem>
               ))}
@@ -669,7 +662,7 @@ export default function ReferrerActionsModal({
     const staffErrors = formik.errors.staff as any[] | undefined;
     const staffTouched = formik.touched.staff as any[] | undefined;
     const isTouched = staffTouched?.[index]?.[field.id];
-    let errorText = staffErrors?.[index]?.[field.id];
+    const errorText = staffErrors?.[index]?.[field.id];
 
     switch (field.type) {
       case "select":
@@ -686,16 +679,9 @@ export default function ReferrerActionsModal({
               labelPlacement="outside"
               placeholder={field.placeholder || "Select an option"}
               selectionMode={field.multiple ? "multiple" : "single"}
+              disableAnimation
+              popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
               selectedKeys={
-                field.multiple
-                  ? Array.isArray(valuePath)
-                    ? valuePath
-                    : []
-                  : valuePath
-                    ? [valuePath]
-                    : []
-              }
-              disabledKeys={
                 field.multiple
                   ? Array.isArray(valuePath)
                     ? valuePath
@@ -723,7 +709,7 @@ export default function ReferrerActionsModal({
               isRequired={true}
             >
               {(field.options || []).map((opt: any) => (
-                <SelectItem key={opt?._id} className="capitalize">
+                <SelectItem key={opt?._id} textValue={opt?.title} className="capitalize">
                   {opt?.title}
                 </SelectItem>
               ))}

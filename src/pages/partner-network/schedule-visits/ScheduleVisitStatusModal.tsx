@@ -81,8 +81,8 @@ const ScheduleVisitStatusModal = ({
     }
   }, [isOpen]);
 
-  let modalTitle = "Update Schedule Visit Status";
-  let modalDescription =
+  const modalTitle = "Update Schedule Visit Status";
+  const modalDescription =
     "Update the status and record notes for this scheduled visit.";
 
   return (
@@ -121,8 +121,9 @@ const ScheduleVisitStatusModal = ({
                   labelPlacement="outside"
                   placeholder="Select new status"
                   size="sm"
-                  selectedKeys={[formik.values.status]}
-                  disabledKeys={[formik.values.status]}
+                  disableAnimation
+                  popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                  selectedKeys={formik.values.status ? [formik.values.status] : []}
                   onSelectionChange={(keys) => {
                     const value = Array.from(keys)[0] as string;
                     formik.setFieldValue("status", value);

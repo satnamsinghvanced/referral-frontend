@@ -356,15 +356,12 @@ const PatientForm = () => {
                     size="sm"
                     radius="sm"
                     name="preferredTreatment"
+                    disableAnimation
+                    popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
                     selectedKeys={
                       formik.values.preferredTreatment
-                        ? new Set([formik.values.preferredTreatment])
-                        : new Set([])
-                    }
-                    disabledKeys={
-                      formik.values.preferredTreatment
-                        ? new Set([formik.values.preferredTreatment])
-                        : new Set([])
+                        ? [formik.values.preferredTreatment]
+                        : []
                     }
                     onSelectionChange={(keys) => {
                       const value = Array.from(keys)[0] as string;
@@ -387,7 +384,7 @@ const PatientForm = () => {
                     isRequired
                   >
                     {TREATMENT_OPTIONS.map((treatment) => (
-                      <SelectItem key={treatment.key}>
+                      <SelectItem key={treatment.key} textValue={treatment.label}>
                         {treatment.label}
                       </SelectItem>
                     ))}

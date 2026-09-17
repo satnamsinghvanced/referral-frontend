@@ -284,10 +284,9 @@ export default function BudgetActionModal({
                   labelPlacement="outside"
                   placeholder="Select category"
                   isRequired
+                  disableAnimation
+                  popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
                   selectedKeys={
-                    formik.values.category ? [formik.values.category] : []
-                  }
-                  disabledKeys={
                     formik.values.category ? [formik.values.category] : []
                   }
                   onSelectionChange={(keys) => {
@@ -304,7 +303,7 @@ export default function BudgetActionModal({
                   }
                 >
                   {(categories || [])?.map((cat: any) => (
-                    <SelectItem key={cat._id}>{cat.category}</SelectItem>
+                    <SelectItem key={cat._id} textValue={cat.category}>{cat.category}</SelectItem>
                   ))}
                 </Select>
               </div>
@@ -316,10 +315,9 @@ export default function BudgetActionModal({
                   labelPlacement="outside"
                   placeholder="Select subcategory"
                   isRequired
+                  disableAnimation
+                  popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
                   selectedKeys={
-                    formik.values.subCategory ? [formik.values.subCategory] : []
-                  }
-                  disabledKeys={
                     formik.values.subCategory ? [formik.values.subCategory] : []
                   }
                   onSelectionChange={(keys) =>
@@ -343,7 +341,7 @@ export default function BudgetActionModal({
                         category._id === formik.values.category,
                     )?.subCategory || []
                   ).map((cat: any) => (
-                    <SelectItem key={cat._id}>{cat.subCategory}</SelectItem>
+                    <SelectItem key={cat._id} textValue={cat.subCategory}>{cat.subCategory}</SelectItem>
                   ))}
                 </Select>
               </div>
@@ -442,8 +440,9 @@ export default function BudgetActionModal({
                   label="Period"
                   labelPlacement="outside"
                   placeholder="Select period"
-                  selectedKeys={[formik.values.period]}
-                  disabledKeys={[formik.values.period]}
+                  disableAnimation
+                  popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                  selectedKeys={formik.values.period ? [formik.values.period] : []}
                   onSelectionChange={(keys) =>
                     formik.setFieldValue("period", Array.from(keys)[0] || "")
                   }
@@ -453,7 +452,7 @@ export default function BudgetActionModal({
                   isRequired
                 >
                   {BUDGET_DURATIONS.map((duration) => (
-                    <SelectItem key={duration.value}>
+                    <SelectItem key={duration.value} textValue={duration.label}>
                       {duration.label}
                     </SelectItem>
                   ))}
@@ -466,8 +465,9 @@ export default function BudgetActionModal({
                   label="Priority"
                   labelPlacement="outside"
                   placeholder="Select priority"
-                  selectedKeys={[formik.values.priority]}
-                  disabledKeys={[formik.values.priority]}
+                  disableAnimation
+                  popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                  selectedKeys={formik.values.priority ? [formik.values.priority] : []}
                   onSelectionChange={(keys) =>
                     formik.setFieldValue("priority", Array.from(keys)[0] || "")
                   }
@@ -481,7 +481,7 @@ export default function BudgetActionModal({
                   isRequired
                 >
                   {PRIORITY_LEVELS.map((level) => (
-                    <SelectItem key={level.value}>{level.label}</SelectItem>
+                    <SelectItem key={level.value} textValue={level.label}>{level.label}</SelectItem>
                   ))}
                 </Select>
               </div>
@@ -492,8 +492,9 @@ export default function BudgetActionModal({
                   label="Status"
                   labelPlacement="outside"
                   placeholder="Select status"
-                  selectedKeys={[formik.values.status]}
-                  disabledKeys={[formik.values.status]}
+                  disableAnimation
+                  popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                  selectedKeys={formik.values.status ? [formik.values.status] : []}
                   onSelectionChange={(keys) =>
                     formik.setFieldValue("status", Array.from(keys)[0] || "")
                   }
@@ -503,7 +504,7 @@ export default function BudgetActionModal({
                   isRequired
                 >
                   {BUDGET_STATUSES.map((status) => (
-                    <SelectItem key={status.value}>{status.label}</SelectItem>
+                    <SelectItem key={status.value} textValue={status.label}>{status.label}</SelectItem>
                   ))}
                 </Select>
               </div>

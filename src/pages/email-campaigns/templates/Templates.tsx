@@ -182,19 +182,18 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
                 aria-label="Type"
                 placeholder="All Templates"
                 size="sm"
+                disableAnimation
+                popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
                 selectedKeys={
-                  currentFilters.filter ? [currentFilters.filter] : ["all"]
-                }
-                disabledKeys={
                   currentFilters.filter ? [currentFilters.filter] : ["all"]
                 }
                 onSelectionChange={(keys) =>
                   handleFilterChange("filter", Array.from(keys)[0])
                 }
               >
-                <SelectItem key="all">All Templates</SelectItem>
-                <SelectItem key="popular">Popular</SelectItem>
-                <SelectItem key="favorites">Favorites</SelectItem>
+                <SelectItem key="all" textValue="All Templates">All Templates</SelectItem>
+                <SelectItem key="popular" textValue="Popular">Popular</SelectItem>
+                <SelectItem key="favorites" textValue="Favorites">Favorites</SelectItem>
               </Select>
             </div>
             <div className="relative">
@@ -202,24 +201,23 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
                 aria-label="Categories"
                 placeholder="All Categories"
                 size="sm"
+                disableAnimation
+                popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
                 selectedKeys={
-                  currentFilters.category ? [currentFilters.category] : ["all"]
-                }
-                disabledKeys={
                   currentFilters.category ? [currentFilters.category] : ["all"]
                 }
                 onSelectionChange={(keys) =>
                   handleFilterChange("category", Array.from(keys)[0])
                 }
               >
-                <>
-                  <SelectItem key="all">All Categories</SelectItem>
-                  {CAMPAIGN_CATEGORIES.map((category) => (
-                    <SelectItem key={category.value}>
+                {[
+                  <SelectItem key="all" textValue="All Categories">All Categories</SelectItem>,
+                  ...CAMPAIGN_CATEGORIES.map((category) => (
+                    <SelectItem key={category.value} textValue={category.label}>
                       {category.label}
                     </SelectItem>
-                  ))}
-                </>
+                  ))
+                ]}
               </Select>
             </div>
             <div className="flex items-center gap-3">

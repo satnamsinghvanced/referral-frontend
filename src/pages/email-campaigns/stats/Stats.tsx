@@ -66,15 +66,16 @@ const Stats = () => {
             placeholder="All filters"
             size="sm"
             radius="sm"
-            selectedKeys={[currentFilters.filter]}
-            disabledKeys={[currentFilters.filter]}
+            disableAnimation
+            popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+            selectedKeys={currentFilters.filter ? [currentFilters.filter] : []}
             onSelectionChange={(keys) =>
               handleFilterChange(Array.from(keys)[0] as AnalyticsFilter)
             }
             className="min-w-[160px]"
           >
             {ANALYTICS_FILTER_OPTIONS.map((option) => (
-              <SelectItem key={option.value}>{option.label}</SelectItem>
+              <SelectItem key={option.value} textValue={option.label}>{option.label}</SelectItem>
             ))}
           </Select>
         </div>

@@ -188,8 +188,9 @@ const EditTaskModal = ({ isOpen, onClose, task }: EditTaskModalProps) => {
                 label="Priority"
                 labelPlacement="outside"
                 size="sm"
-                selectedKeys={[formik.values.priority]}
-                disabledKeys={[formik.values.priority]}
+                disableAnimation
+                popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                selectedKeys={formik.values.priority ? [formik.values.priority] : []}
                 onSelectionChange={(keys) =>
                   formik.setFieldValue("priority", Array.from(keys)[0])
                 }
@@ -201,7 +202,7 @@ const EditTaskModal = ({ isOpen, onClose, task }: EditTaskModalProps) => {
                 isRequired
               >
                 {TASK_PRIORITIES.map((p) => (
-                  <SelectItem key={p.value}>{p.label}</SelectItem>
+                  <SelectItem key={p.value} textValue={p.label}>{p.label}</SelectItem>
                 ))}
               </Select>
 
@@ -209,8 +210,9 @@ const EditTaskModal = ({ isOpen, onClose, task }: EditTaskModalProps) => {
                 label="Category"
                 labelPlacement="outside"
                 size="sm"
-                selectedKeys={[formik.values.category]}
-                disabledKeys={[formik.values.category]}
+                disableAnimation
+                popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                selectedKeys={formik.values.category ? [formik.values.category] : []}
                 onSelectionChange={(keys) =>
                   formik.setFieldValue("category", Array.from(keys)[0])
                 }
@@ -222,7 +224,7 @@ const EditTaskModal = ({ isOpen, onClose, task }: EditTaskModalProps) => {
                 isRequired
               >
                 {TASK_TYPES.map((t) => (
-                  <SelectItem key={t.key}>{t.label}</SelectItem>
+                  <SelectItem key={t.key} textValue={t.label}>{t.label}</SelectItem>
                 ))}
               </Select>
 
@@ -230,8 +232,9 @@ const EditTaskModal = ({ isOpen, onClose, task }: EditTaskModalProps) => {
                 label="Status"
                 labelPlacement="outside"
                 size="sm"
-                selectedKeys={[formik.values.status]}
-                disabledKeys={[formik.values.status]}
+                disableAnimation
+                popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                selectedKeys={formik.values.status ? [formik.values.status] : []}
                 onSelectionChange={(keys) =>
                   formik.setFieldValue("status", Array.from(keys)[0])
                 }
@@ -242,7 +245,7 @@ const EditTaskModal = ({ isOpen, onClose, task }: EditTaskModalProps) => {
                 isRequired
               >
                 {TASK_STATUSES.map((s) => (
-                  <SelectItem key={s.value}>{s.label}</SelectItem>
+                  <SelectItem key={s.value} textValue={s.label}>{s.label}</SelectItem>
                 ))}
               </Select>
             </div>
@@ -255,7 +258,9 @@ const EditTaskModal = ({ isOpen, onClose, task }: EditTaskModalProps) => {
                   size="sm"
                   radius="sm"
                   selectionMode="multiple"
-                  selectedKeys={new Set(formik.values.assignTo)}
+                  disableAnimation
+                  popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                  selectedKeys={formik.values.assignTo || []}
                   onSelectionChange={(keys) =>
                     formik.setFieldValue("assignTo", Array.from(keys))
                   }

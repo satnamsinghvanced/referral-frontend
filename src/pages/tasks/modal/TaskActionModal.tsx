@@ -198,8 +198,9 @@ const TaskActionModal = ({ isOpen, onClose, task, refetch, practices }: TaskActi
                 labelPlacement="outside"
                 size="sm"
                 radius="sm"
-                selectedKeys={[formik.values.priority]}
-                disabledKeys={[formik.values.priority]}
+                disableAnimation
+                popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                selectedKeys={formik.values.priority ? [formik.values.priority] : []}
                 onSelectionChange={(keys) =>
                   formik.setFieldValue("priority", Array.from(keys)[0])
                 }
@@ -221,7 +222,9 @@ const TaskActionModal = ({ isOpen, onClose, task, refetch, practices }: TaskActi
                 labelPlacement="outside"
                 size="sm"
                 radius="sm"
-                selectedKeys={[formik.values.category]}
+                disableAnimation
+                popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                selectedKeys={formik.values.category ? [formik.values.category] : []}
                 onSelectionChange={(keys) =>
                   formik.setFieldValue("category", Array.from(keys)[0])
                 }
@@ -244,7 +247,9 @@ const TaskActionModal = ({ isOpen, onClose, task, refetch, practices }: TaskActi
                   labelPlacement="outside"
                   size="sm"
                   radius="sm"
-                  selectedKeys={[formik.values.status]}
+                  disableAnimation
+                  popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                  selectedKeys={formik.values.status ? [formik.values.status] : []}
                   onSelectionChange={(keys) =>
                     formik.setFieldValue("status", Array.from(keys)[0])
                   }
@@ -269,15 +274,12 @@ const TaskActionModal = ({ isOpen, onClose, task, refetch, practices }: TaskActi
                 size="sm"
                 radius="sm"
                 placeholder="Select practice"
+                disableAnimation
+                popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
                 selectedKeys={
                   formik.values.practiceId
-                    ? new Set([formik.values.practiceId])
-                    : new Set()
-                }
-                disabledKeys={
-                  formik.values.practiceId
-                    ? new Set([formik.values.practiceId])
-                    : new Set()
+                    ? [formik.values.practiceId]
+                    : []
                 }
                 onSelectionChange={(keys) =>
                   formik.setFieldValue("practiceId", Array.from(keys)[0])
@@ -307,7 +309,9 @@ const TaskActionModal = ({ isOpen, onClose, task, refetch, practices }: TaskActi
                   radius="sm"
                   selectionMode="multiple"
                   placeholder="Select members"
-                  selectedKeys={new Set(formik.values.assignTo)}
+                  disableAnimation
+                  popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                  selectedKeys={formik.values.assignTo || []}
                   onSelectionChange={(keys) =>
                     formik.setFieldValue("assignTo", Array.from(keys))
                   }

@@ -66,8 +66,9 @@ export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
               placeholder="Select purpose"
               size="sm"
               radius="sm"
-              selectedKeys={[planState.defaultVisitPurpose]}
-              disabledKeys={[planState.defaultVisitPurpose]}
+              disableAnimation
+              popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+              selectedKeys={planState.defaultVisitPurpose ? [planState.defaultVisitPurpose] : []}
               onSelectionChange={(keys: any) =>
                 handleSelectChange("defaultVisitPurpose", keys)
               }
@@ -83,7 +84,7 @@ export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
               }}
             >
               {PURPOSE_OPTIONS.map((opt: any) => (
-                <SelectItem key={opt.title} description={opt.duration}>
+                <SelectItem key={opt.title} textValue={opt.title} description={opt.duration}>
                   {opt.title}
                 </SelectItem>
               ))}
@@ -120,8 +121,9 @@ export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
               placeholder="Select priority"
               size="sm"
               radius="sm"
-              selectedKeys={[planState.defaultPriority]}
-              disabledKeys={[planState.defaultPriority]}
+              disableAnimation
+              popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+              selectedKeys={planState.defaultPriority ? [planState.defaultPriority] : []}
               onSelectionChange={(keys: any) =>
                 handleSelectChange("defaultPriority", keys)
               }
@@ -137,7 +139,7 @@ export const PlanDetailsTab: React.FC<PlanDetailsTabProps> = ({
               }}
             >
               {PRIORITY_LEVELS.map((level) => {
-                return <SelectItem key={level.value}>{level.label}</SelectItem>;
+                return <SelectItem key={level.value} textValue={level.label}>{level.label}</SelectItem>;
               })}
             </Select>
           </div>

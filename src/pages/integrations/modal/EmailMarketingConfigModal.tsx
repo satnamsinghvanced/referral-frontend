@@ -144,21 +144,23 @@ export default function EmailMarketingConfigModal({ isOpen, onOpenChange, existi
                 labelPlacement="outside"
                 name="provider"
                 placeholder="Select an email provider"
+                disableAnimation
+                popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
                 selectedKeys={
                   formik.values.provider ? [formik.values.provider] : []
                 }
-                disabledKeys={
-                  formik.values.provider ? [formik.values.provider] : []
-                }
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
+                onSelectionChange={(keys) => {
+                  const val = Array.from(keys)[0] as string;
+                  formik.setFieldValue("provider", val || "");
+                }}
+                onBlur={() => formik.setFieldTouched("provider", true)}
                 isInvalid={
                   !!(formik.touched.provider && formik.errors.provider)
                 }
                 errorMessage={formik.errors.provider}
               >
                 {PROVIDERS.map((provider) => (
-                  <SelectItem key={provider.value}>{provider.label}</SelectItem>
+                  <SelectItem key={provider.value} textValue={provider.label}>{provider.label}</SelectItem>
                 ))}
               </Select>
               <div className="flex gap-3">
@@ -258,21 +260,23 @@ export default function EmailMarketingConfigModal({ isOpen, onOpenChange, existi
                   labelPlacement="outside"
                   name="encryption"
                   placeholder="Select encryption type"
+                  disableAnimation
+                  popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
                   selectedKeys={
                     formik.values.encryption ? [formik.values.encryption] : []
                   }
-                  disabledKeys={
-                    formik.values.encryption ? [formik.values.encryption] : []
-                  }
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
+                  onSelectionChange={(keys) => {
+                    const val = Array.from(keys)[0] as string;
+                    formik.setFieldValue("encryption", val || "");
+                  }}
+                  onBlur={() => formik.setFieldTouched("encryption", true)}
                   isInvalid={
                     !!(formik.touched.encryption && formik.errors.encryption)
                   }
                   errorMessage={formik.errors.encryption}
                 >
                   {ENCRYPTION_TYPES.map((type) => (
-                    <SelectItem key={type.value}>{type.label}</SelectItem>
+                    <SelectItem key={type.value} textValue={type.label}>{type.label}</SelectItem>
                   ))}
                 </Select>
               </div>

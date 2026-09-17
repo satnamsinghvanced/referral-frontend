@@ -363,7 +363,9 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
               labelPlacement="outside"
               placeholder="Select practice locations"
               selectionMode="multiple"
-              selectedKeys={new Set(formik.values.locations)}
+              disableAnimation
+              popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+              selectedKeys={formik.values.locations || []}
               onSelectionChange={(keys) => {
                 formik.setFieldValue("locations", Array.from(keys) as string[]);
               }}
@@ -377,7 +379,7 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
               isRequired
             >
               {(locations || []).map((location: any) => (
-                <SelectItem key={location._id}>{location.name}</SelectItem>
+                <SelectItem key={location._id} textValue={location.name}>{location.name}</SelectItem>
               ))}
             </Select>
 
@@ -388,8 +390,9 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
               label="Role"
               labelPlacement="outside"
               placeholder="Select a role"
+              disableAnimation
+              popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
               selectedKeys={formik.values.role ? [formik.values.role] : []}
-              disabledKeys={formik.values.role ? [formik.values.role] : []}
               onSelectionChange={(keys) => {
                 const selectedRoleId = (Array.from(keys)[0] as string) || "";
                 formik.setFieldValue("role", selectedRoleId);

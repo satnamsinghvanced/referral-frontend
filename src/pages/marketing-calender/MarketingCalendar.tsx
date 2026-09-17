@@ -436,23 +436,24 @@ const MarketingCalendar = () => {
               aria-label="Activity Types"
               placeholder="All Activities"
               size="sm"
-              selectedKeys={new Set([currentFilters.type])}
-              disabledKeys={new Set([currentFilters.type])}
+              disableAnimation
+              popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+              selectedKeys={currentFilters.type ? [currentFilters.type] : []}
               onSelectionChange={(keys) =>
                 handleFilterChange("type", Array.from(keys)[0] as string)
               }
               className="md:max-w-60"
             >
-              <>
-                <SelectItem key="all" className="capitalize">
+              {[
+                <SelectItem key="all" textValue="All Activities" className="capitalize">
                   All Activities
-                </SelectItem>
-                {allowedActivityTypes?.map((type: any) => (
-                  <SelectItem key={type.value} className="capitalize">
+                </SelectItem>,
+                ...(allowedActivityTypes || []).map((type: any) => (
+                  <SelectItem key={type.value} textValue={type.label} className="capitalize">
                     {type.label}
                   </SelectItem>
-                ))}
-              </>
+                ))
+              ]}
             </Select>
           </div>
           <div className="flex flex-col gap-4 border border-foreground/10 bg-background rounded-xl p-4">

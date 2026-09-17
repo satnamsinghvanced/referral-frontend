@@ -247,16 +247,17 @@ function GalleryMediaUploadModal({
                     <Select
                       aria-label="Filter Type"
                       size="sm"
-                      selectedKeys={new Set([currentFilters.type])}
-                      disabledKeys={new Set([currentFilters.type])}
+                      disableAnimation
+                      popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                      selectedKeys={currentFilters.type ? [currentFilters.type] : []}
                       onSelectionChange={(keys) =>
                         onFilterChange("type", Array.from(keys)[0] as string)
                       }
                       classNames={{ trigger: "bg-default-100" }}
                     >
-                      <SelectItem key="all">All Media</SelectItem>
-                      <SelectItem key="image">Images</SelectItem>
-                      <SelectItem key="video">Videos</SelectItem>
+                      <SelectItem key="all" textValue="All Media">All Media</SelectItem>
+                      <SelectItem key="image" textValue="Images">Images</SelectItem>
+                      <SelectItem key="video" textValue="Videos">Videos</SelectItem>
                     </Select>
                   </div>
                 )}
