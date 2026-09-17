@@ -10,8 +10,8 @@ export const parseNotes = (notes: any): NoteItem[] => {
     return [...notes]
       .map((note, index) => ({
         id: note._id || index,
-        timestamp: note.timestamp,
-        content: note.content,
+        timestamp: note.timestamp || null,
+        content: note.content || "",
       }))
       .reverse();
   }
@@ -23,8 +23,8 @@ export const parseNotes = (notes: any): NoteItem[] => {
       if (match) {
         return {
           id: index,
-          timestamp: match[1],
-          content: match[2],
+          timestamp: match[1] || null,
+          content: match[2] || "",
         };
       }
       return {
