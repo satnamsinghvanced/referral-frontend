@@ -22,7 +22,6 @@ interface LineItem {
 }
 
 const SendQuoteModal = ({ isOpen, onClose, lead, onSendQuote }: SendQuoteModalProps) => {
-  if (!lead) return null;
   const [isSending, setIsSending] = useState(false);
   const validationSchema = Yup.object().shape({
     lineItems: Yup.array().of(
@@ -43,6 +42,7 @@ const SendQuoteModal = ({ isOpen, onClose, lead, onSendQuote }: SendQuoteModalPr
     },
     validationSchema,
     onSubmit: async (values) => {
+      if (!lead) return;
       if (!lead.patientEmail && !lead.patientPhone) {
         addToast({
           title: "Contact Info Error",
@@ -129,6 +129,9 @@ const SendQuoteModal = ({ isOpen, onClose, lead, onSendQuote }: SendQuoteModalPr
   const monthlyFinance = Math.round(total / 24);
   const inputClass =
     "w-full text-[13px] text-slate-700 dark:text-slate-200 outline-none bg-transparent placeholder:text-slate-400 dark:placeholder:text-slate-500 border border-slate-200 dark:border-default-200 rounded-lg px-3 h-9 focus:border-[#f97316] transition-colors";
+  
+  if (!lead) return null;
+
   return (
     <Modal
       isOpen={isOpen}

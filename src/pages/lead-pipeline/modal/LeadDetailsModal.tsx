@@ -277,7 +277,7 @@ const LeadDetailsModal = ({
                 <div className="flex justify-between items-start w-full">
                   <div className="space-y-1">
                     <h4 className="text-base font-medium leading-snug text-foreground">
-                      {lead.firstName} {lead.lastName}
+                      {lead.name || `${lead.firstName || ""} ${lead.lastName || ""}`.trim() || "Lead Details"}
                     </h4>
                     <div className="flex items-center gap-3">
                       <ReferralStatusChip status={formik.values.status} />
@@ -491,7 +491,7 @@ const LeadDetailsModal = ({
                               Created
                             </p>
                             <p className="text-sm font-bold text-foreground">
-                              {new Date(lead.createdAt).toLocaleDateString()}
+                              {lead.createdAt ? new Date(lead.createdAt).toLocaleDateString() : "N/A"}
                             </p>
                           </div>
                         </div>

@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 import { Input, Select, SelectItem, Button, Spinner } from "@heroui/react";
 import { HiOutlineSearch, HiOutlineLightningBolt } from "react-icons/hi";
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
 import { CONVERSATION_PLATFORMS, CONVERSATION_TAGS, Conversation } from "../../../consts/conversations";
 import { getPlatformIcon, getPlatformChipStyle, getAvatarColor, getInitials, formatConversationTime } from "../utils";
 
@@ -162,7 +162,7 @@ export default function ConversationList({
                   color="primary"
                   size="sm"
                   className="w-full font-semibold text-[10px] h-8 rounded-lg shadow-sm"
-                  onClick={() => navigate("/social-media")}
+                  onClick={() => navigate("/integrations?highlight=meta")}
                 >
                   Connect Meta
                 </Button>

@@ -1,6 +1,6 @@
 import { Tab, Tabs, Button } from "@heroui/react";
 import { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { AiOutlinePlus } from "react-icons/ai";
 import { FaRegEnvelope } from "react-icons/fa";
 import { FiPlay } from "react-icons/fi";
@@ -24,16 +24,21 @@ const EmailCampaigns = () => {
   const { data: billingData } = useBilling();
   const planAccess = billingData?.access;
   const location = useLocation();
+  const [searchParams] = useSearchParams();
   const [isActionModalOpen, setIsActionModalOpen] = useState(false);
+  const tabFromQuery = searchParams.get("tab");
   const [activeTab, setActiveTab] = useState(() => {
-    return location.state?.tab || "overview";
+    return tabFromQuery || location.state?.tab || "overview";
   });
   useEffect(() => {
-    if (location.state?.tab) {
-      setActiveTab(location.state.tab);
-      window.history.replaceState({}, document.title);
+    const tab = searchParams.get("tab") || location.state?.tab;
+    if (tab) {
+      setActiveTab(tab);
+      if (location.state?.tab) {
+        window.history.replaceState({}, document.title);
+      }
     }
-  }, [location.state]);
+  }, [location.state, searchParams]);
   const [prefillTemplate, setPrefillTemplate] =
     useState<CampaignTemplate | null>(null);
   const { data: emailExistingConfig, isLoading: isEmailConfigLoading } = useFetchEmailIntegration();

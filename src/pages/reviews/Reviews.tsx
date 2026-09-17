@@ -1,5 +1,6 @@
-import { useMemo } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Tab, Tabs } from "@heroui/react";
+import { useLocation, useSearchParams } from "react-router-dom";
 import { FiMessageSquare, FiStar, FiWifi } from "react-icons/fi";
 import { LuQrCode } from "react-icons/lu";
 import MiniStatsCard from "../../components/cards/MiniStatsCard";
@@ -15,6 +16,23 @@ import ManageTags from "./ManageTags";
 import Overview from "./Overview";
 
 const Reviews = () => {
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const tabQuery = searchParams.get("tab");
+  const [activeTab, setActiveTab] = useState(() => {
+    return tabQuery || location.state?.tab || "overview";
+  });
+
+  useEffect(() => {
+    const tab = searchParams.get("tab") || location.state?.tab;
+    if (tab) {
+      setActiveTab(tab);
+      if (location.state?.tab) {
+        window.history.replaceState({}, document.title);
+      }
+    }
+  }, [location.state, searchParams]);
+
   const HEADING_DATA = {
     heading: "Reviews & Reputation Management",
     subHeading:
@@ -126,6 +144,8 @@ const Reviews = () => {
           <div className="space-y-5">
             <Tabs
               aria-label="Options"
+              selectedKey={activeTab}
+              onSelectionChange={(key) => setActiveTab(key as string)}
               variant="light"
               radius="full"
               classNames={{

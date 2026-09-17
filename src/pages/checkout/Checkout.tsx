@@ -58,7 +58,6 @@ export default function Checkout() {
   const planIdParam = searchParams.get("planId") || "";
   const planNameParam = searchParams.get("planName") || "";
 
-  const packageCost = 0; // Package minutes are included in the wallet deposit subscription
 
   const creditsCost = typeParam === "twilio_credits" && walletAmountParam > 0 ? walletAmountParam : amountParam;
   const baseCost = typeParam === "twilio_credits" ? creditsCost : activePlan.price;

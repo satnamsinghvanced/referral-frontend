@@ -175,20 +175,27 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
   );
 
   return (
-    <div className="md:flex md:items-start md:justify-between py-5 max-md:space-y-4">
+    <div
+      className={`md:flex md:items-start md:justify-between py-5 max-md:space-y-4 rounded-xl transition-all duration-500 ${
+        isHighlighted
+          ? "bg-amber-500/10 dark:bg-amber-400/10 px-3 rounded-lg"
+          : ""
+      }`}
+    >
       <div className="flex items-start gap-3 max-sm:flex-col">
         <div
-          className={`w-8 h-8 rounded-lg flex items-center justify-center ${iconBg} ${iconColor}`}
+          className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${iconBg} ${iconColor}`}
         >
           {icon}
         </div>
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-2">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-3 mb-2 flex-wrap">
             <h3
-              className={`text-sm transition-all duration-300 ${isHighlighted
-                ? "text-black dark:text-white font-extrabold text-base scale-105 origin-left animate-pulse"
-                : "text-foreground font-normal"
-                }`}
+              className={`text-sm transition-all duration-300 ${
+                isHighlighted
+                  ? "text-foreground font-bold"
+                  : "text-foreground font-normal"
+              }`}
             >
               {name}
             </h3>

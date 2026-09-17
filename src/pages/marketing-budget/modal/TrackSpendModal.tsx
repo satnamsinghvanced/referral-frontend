@@ -15,6 +15,7 @@ import { useFormik } from "formik";
 import { FiCalendar, FiDollarSign, FiPlus, FiTrash2 } from "react-icons/fi";
 import * as Yup from "yup";
 import { useAddSpendRecord, useBudgetItem, useDeleteSpendRecord } from "../../../hooks/useBudget";
+import { LoadingState } from "../../../components/common/LoadingState";
 
 interface TrackSpendModalProps {
   isOpen: boolean;
@@ -77,7 +78,6 @@ export default function TrackSpendModal({ isOpen, onClose, budgetId }: TrackSpen
       );
     },
   });
-  if (isBudgetLoading) return null;
   return (
     <Modal
       isOpen={isOpen}
@@ -102,12 +102,18 @@ export default function TrackSpendModal({ isOpen, onClose, budgetId }: TrackSpen
             <span className="font-medium text-foreground">
               {typeof budgetData?.subCategory === "string"
                 ? budgetData.subCategory
-                : budgetData?.subCategory?.subCategory}
+                : budgetData?.subCategory?.subCategory || "Budget Category"}
             </span>
           </p>
         </ModalHeader>
         <ModalBody className="p-6 pt-2 gap-6">
-          <div className="flex flex-col gap-3">
+          {isBudgetLoading ? (
+            <div className="py-12 flex items-center justify-center">
+              <LoadingState />
+            </div>
+          ) : (
+            <>
+              <div className="flex flex-col gap-3">
             <h3 className="text-sm font-semibold">Spend History</h3>
             <div className="max-h-[200px] overflow-y-auto flex flex-col gap-3 pr-2 scrollbar-none">
               {budgetData?.spendHistory && budgetData.spendHistory.length > 0 ? (
@@ -286,6 +292,8 @@ export default function TrackSpendModal({ isOpen, onClose, budgetId }: TrackSpen
               errorMessage={formik.errors.notes}
             />
           </form>
+        </>
+        )}
         </ModalBody>
         <ModalFooter className="p-6 pt-2">
           <Button
@@ -293,6 +301,7 @@ export default function TrackSpendModal({ isOpen, onClose, budgetId }: TrackSpen
             color="primary"
             onPress={() => formik.handleSubmit()}
             isLoading={addSpendMutation.isPending}
+            isDisabled={isBudgetLoading}
             startContent={!addSpendMutation.isPending && <FiPlus className="w-4 h-4" />}
           >
             Add Spend Record

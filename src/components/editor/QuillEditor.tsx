@@ -64,9 +64,9 @@ const QuillEditor = forwardRef<QuillEditorRef, QuillEditorProps>(function QuillE
     if (!quill) return;
     const currentContent = quill.root.innerHTML;
     if (value !== currentContent) {
-      if (!value || value === "") {
-        if (currentContent !== "<p><br></p>") {
-          quill.root.innerHTML = "";
+      if (!value || value === "" || value === "<p><br></p>") {
+        if (quill.getText().trim() !== "" || currentContent !== "<p><br></p>") {
+          quill.setText("");
         }
       } else {
         const selection = quill.getSelection();
@@ -84,14 +84,23 @@ const QuillEditor = forwardRef<QuillEditorRef, QuillEditorProps>(function QuillE
         .quill-editor-wrapper .ql-toolbar {
           background-color: #f9fafb;
           border-color: rgba(0, 0, 0, 0.1);
+          border-radius: 8px 8px 0 0;
         }
         .quill-editor-wrapper .ql-container {
           background-color: #ffffff;
           border-color: rgba(0, 0, 0, 0.1);
-          color: #000000;
+          color: #111827;
+          border-radius: 0 0 8px 8px;
+        }
+        .quill-editor-wrapper .ql-editor {
+          min-height: 180px;
+          font-size: 14px;
+          line-height: 1.6;
+          color: #111827;
         }
         .quill-editor-wrapper .ql-editor.ql-blank::before {
           color: #9ca3af;
+          font-style: normal;
         }
         .quill-editor-wrapper .ql-stroke {
           stroke: #374151;
@@ -116,25 +125,47 @@ const QuillEditor = forwardRef<QuillEditorRef, QuillEditorProps>(function QuillE
         .quill-editor-wrapper button:focus,
         .quill-editor-wrapper button.ql-active {
           background-color: #e5e7eb;
-        .dark .quill-editor-wrapper .ql-toolbar {
-          background-color: rgba(39, 39, 42, 0.5);
-          border-color: rgba(255, 255, 255, 0.1);
         }
-        .dark .quill-editor-wrapper .ql-container {
-          background-color: rgba(24, 24, 27, 0.5);
-          border-color: rgba(255, 255, 255, 0.1);
-          color: #ffffff;
+
+        /* Dark Mode Styles */
+        .dark .quill-editor-wrapper .ql-toolbar,
+        [data-theme="dark"] .quill-editor-wrapper .ql-toolbar {
+          background-color: #27272a;
+          border-color: rgba(255, 255, 255, 0.12);
         }
-        .dark .quill-editor-wrapper .ql-editor.ql-blank::before {
-          color: #71717a;
+        .dark .quill-editor-wrapper .ql-container,
+        [data-theme="dark"] .quill-editor-wrapper .ql-container {
+          background-color: #18181b;
+          border-color: rgba(255, 255, 255, 0.12);
+          color: #f4f4f5;
+        }
+        .dark .quill-editor-wrapper .ql-editor,
+        [data-theme="dark"] .quill-editor-wrapper .ql-editor {
+          color: #f4f4f5 !important;
+        }
+        .dark .quill-editor-wrapper .ql-editor p,
+        .dark .quill-editor-wrapper .ql-editor span,
+        .dark .quill-editor-wrapper .ql-editor li,
+        [data-theme="dark"] .quill-editor-wrapper .ql-editor p,
+        [data-theme="dark"] .quill-editor-wrapper .ql-editor span,
+        [data-theme="dark"] .quill-editor-wrapper .ql-editor li {
+          color: #f4f4f5;
+        }
+        .dark .quill-editor-wrapper .ql-editor.ql-blank::before,
+        [data-theme="dark"] .quill-editor-wrapper .ql-editor.ql-blank::before {
+          color: #71717a !important;
+          font-style: normal;
         }        
-        .dark .quill-editor-wrapper .ql-stroke {
+        .dark .quill-editor-wrapper .ql-stroke,
+        [data-theme="dark"] .quill-editor-wrapper .ql-stroke {
           stroke: #d4d4d8;
         }
-        .dark .quill-editor-wrapper .ql-fill {
+        .dark .quill-editor-wrapper .ql-fill,
+        [data-theme="dark"] .quill-editor-wrapper .ql-fill {
           fill: #d4d4d8;
         }
-        .dark .quill-editor-wrapper .ql-picker-label {
+        .dark .quill-editor-wrapper .ql-picker-label,
+        [data-theme="dark"] .quill-editor-wrapper .ql-picker-label {
           color: #d4d4d8;
         }
         .dark .quill-editor-wrapper button:hover .ql-stroke,
@@ -152,30 +183,23 @@ const QuillEditor = forwardRef<QuillEditorRef, QuillEditorProps>(function QuillE
         .dark .quill-editor-wrapper button.ql-active {
           background-color: rgba(63, 63, 70, 0.8);
         }
-        .dark .quill-editor-wrapper .ql-picker-options {
+        .dark .quill-editor-wrapper .ql-picker-options,
+        [data-theme="dark"] .quill-editor-wrapper .ql-picker-options {
           background-color: #27272a;
-          border-color: rgba(255, 255, 255, 0.1);
+          border-color: rgba(255, 255, 255, 0.12);
         }
-        .dark .quill-editor-wrapper .ql-picker-item:hover {
+        .dark .quill-editor-wrapper .ql-picker-item:hover,
+        [data-theme="dark"] .quill-editor-wrapper .ql-picker-item:hover {
           background-color: #3f3f46;
         }
-        .dark .quill-editor-wrapper .ql-editor a {
+        .dark .quill-editor-wrapper .ql-editor a,
+        [data-theme="dark"] .quill-editor-wrapper .ql-editor a {
           color: #60a5fa;
         }
-        .dark .ql-snow .ql-picker-options .ql-picker-item {
-          color: #fff;
+        .dark .ql-snow .ql-picker-options .ql-picker-item,
+        [data-theme="dark"] .ql-snow .ql-picker-options .ql-picker-item {
+          color: #f4f4f5;
           background-color: transparent !important;
-        }
-        .quill-editor-wrapper .ql-editor {
-          min-height: 300px;
-          font-size: 14px;
-          line-height: 1.6;
-        }
-        .quill-editor-wrapper .ql-toolbar {
-          border-radius: 6px 6px 0 0;
-        }
-        .quill-editor-wrapper .ql-container {
-          border-radius: 0 0 6px 6px;
         }
       `}</style>
       <div ref={editorRef} />

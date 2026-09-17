@@ -9,6 +9,7 @@ import {
   Chip,
   addToast,
 } from "@heroui/react";
+import { useEffect } from "react";
 import { useFormik } from "formik";
 import { HiOutlineMail, HiOutlineInbox } from "react-icons/hi";
 import * as Yup from "yup";
@@ -52,11 +53,21 @@ const SendEmailModal = ({ isOpen, onOpenChange, lead }: SendEmailModalProps) => 
           body: values.body,
           attachments: values.attachments,
         });
-        onOpenChange(false);
         resetForm();
+        onOpenChange(false);
       } catch (error) { }
     },
   });
+
+  useEffect(() => {
+    if (!isOpen) {
+      formik.resetForm();
+      const fileInput = document.getElementById("email-attachments") as HTMLInputElement | null;
+      if (fileInput) {
+        fileInput.value = "";
+      }
+    }
+  }, [isOpen]);
 
   if (!lead) return null;
 
@@ -98,7 +109,7 @@ const SendEmailModal = ({ isOpen, onOpenChange, lead }: SendEmailModalProps) => 
                     size="sm"
                     className="font-semibold text-xs"
                   >
-                    To: {lead.firstName} {lead.lastName}
+                    To: {(lead as any).name || `${lead.firstName || ""} ${lead.lastName || ""}`.trim() || "Lead"}
                   </Chip>
                   <span className="text-xs text-default-500 truncate">
                     &lt;{lead.email}&gt;
@@ -115,6 +126,7 @@ const SendEmailModal = ({ isOpen, onOpenChange, lead }: SendEmailModalProps) => 
                   size="sm"
                   radius="md"
                   name="subject"
+                  autoComplete="off"
                   value={formik.values.subject}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}

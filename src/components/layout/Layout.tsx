@@ -31,32 +31,6 @@ const Layout = () => {
     user?.email ||
     "Client Account";
 
-  if (user?.role === "SuperAdmin" && !isImpersonating) {
-    return <Navigate to="/admin" replace />;
-  }
-
-  const handleExitImpersonation = () => {
-    const adminToken = localStorage.getItem("admin_token");
-    const adminRefreshToken = localStorage.getItem("admin_refreshToken");
-    const adminUserStr = localStorage.getItem("admin_user");
-    if (adminToken) localStorage.setItem("token", adminToken);
-    if (adminRefreshToken) localStorage.setItem("refreshToken", adminRefreshToken);
-    if (adminUserStr) localStorage.setItem("user", adminUserStr);
-    localStorage.removeItem("impersonated_client");
-    localStorage.removeItem("admin_token");
-    localStorage.removeItem("admin_refreshToken");
-    localStorage.removeItem("admin_user");
-    if (adminUserStr && adminToken) {
-      try {
-        const adminUser = JSON.parse(adminUserStr);
-        dispatch(setCredentials({ user: adminUser, token: adminToken } as any));
-      } catch (e) {
-        console.error("Error restoring admin user:", e);
-      }
-    }
-    window.location.href = "/admin";
-  };
-
   const { data: billingData, isLoading: isBillingLoading } = useBilling();
   const { isLoading: isPermissionsLoading } = useRolePermissions();
   const isInitialLoading = (isBillingLoading && !billingData) || isPermissionsLoading;
@@ -76,14 +50,7 @@ const Layout = () => {
     getInitialMini()
   );
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const toggleSidebar = () => {
-    setIsMiniSidebarOpen((prev) => !prev);
-  };
-  const onCloseSidebar = () => {
-    if (window.innerWidth < 1023) {
-      setIsSidebarOpen(false);
-    }
-  };
+
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 1024) {
@@ -99,12 +66,52 @@ const Layout = () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
+
   useEffect(() => {
     localStorage.setItem(
       "isMiniSidebarOpen",
       JSON.stringify(isMiniSidebarOpen)
     );
   }, [isMiniSidebarOpen]);
+
+  if (user?.role === "SuperAdmin" && !isImpersonating) {
+    return <Navigate to="/admin" replace />;
+  }
+
+  const handleExitImpersonation = () => {
+    const adminToken = localStorage.getItem("admin_token");
+    const adminRefreshToken = localStorage.getItem("admin_refreshToken");
+    const adminUserStr = localStorage.getItem("admin_user");
+    if (adminToken) localStorage.setItem("token", adminToken);
+    if (adminRefreshToken) localStorage.setItem("refreshToken", adminRefreshToken);
+    if (impersonatedData?.id) {
+      try {
+        localStorage.removeItem(`cached_billing_data_${impersonatedData.id}`);
+      } catch (e) { }
+    }
+    localStorage.removeItem("impersonated_client");
+    localStorage.removeItem("admin_token");
+    localStorage.removeItem("admin_refreshToken");
+    localStorage.removeItem("admin_user");
+    if (adminUserStr && adminToken) {
+      try {
+        const adminUser = JSON.parse(adminUserStr);
+        dispatch(setCredentials({ user: adminUser, token: adminToken } as any));
+      } catch (e) {
+        console.error("Error restoring admin user:", e);
+      }
+    }
+    window.location.href = "/admin";
+  };
+
+  const toggleSidebar = () => {
+    setIsMiniSidebarOpen((prev) => !prev);
+  };
+  const onCloseSidebar = () => {
+    if (window.innerWidth < 1023) {
+      setIsSidebarOpen(false);
+    }
+  };
 
   if (isInitialLoading) {
     return (

@@ -219,7 +219,7 @@ const FlowBuilder = ({ id, initialData, onSaved }: FlowBuilderProps) => {
         return `Wait for ${config.duration} ${config.unit}`;
       case "email":
         return `Send template: ${config.templateName || config.templateId || config.template || "Unknown"}`;
-      case "condition":
+      case "condition": {
         const getOp = (op: string) => {
           switch (op) {
             case "Greater than":
@@ -249,6 +249,7 @@ const FlowBuilder = ({ id, initialData, onSaved }: FlowBuilderProps) => {
           return `Opened previous email`;
         }
         return `Condition: ${config.conditionType}`;
+      }
       case "action":
         if (config.actionType === "update_field") {
           return `Update ${config.fieldToUpdate}: ${config.newValue}`;

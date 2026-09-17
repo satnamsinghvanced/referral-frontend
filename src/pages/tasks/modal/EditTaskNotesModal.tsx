@@ -25,6 +25,7 @@ const EditTaskNotesModal = ({ isOpen, onClose, task, refetch }: EditTaskNotesMod
     },
     validationSchema,
     onSubmit: (values) => {
+      if (!task?._id) return;
       updateTask(
         {
           taskId: task._id,
@@ -91,7 +92,7 @@ const EditTaskNotesModal = ({ isOpen, onClose, task, refetch }: EditTaskNotesMod
             ref={scrollContainerRef}
             className="flex-1 overflow-y-auto min-h-[250px] max-h-[400px] space-y-4 pr-1 mb-4 scrollbar-hide"
           >
-            {task.comments && task.comments.length > 0 ? (
+            {task?.comments && task.comments.length > 0 ? (
               task.comments.map((comment: TaskComment, index: number) => (
                 <div key={comment._id || index} className="flex flex-col gap-2 p-3 bg-gray-50 dark:bg-default-100/30 rounded-xl border border-foreground/5">
                   <div className="flex items-center gap-2">

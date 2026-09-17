@@ -11,7 +11,7 @@ interface PartnerNetworkCardProps {
   actions?: {
     label: string;
     icon: React.ReactNode;
-    function: Function;
+    function: (...args: any[]) => void;
     variant?: string;
     color?: string;
     className?: string;

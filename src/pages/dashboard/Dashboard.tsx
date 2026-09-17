@@ -5,7 +5,7 @@ import { HiOutlineChartBar, HiOutlineStar } from "react-icons/hi";
 import { LuCalendar, LuTarget, LuTrendingUp, LuUsers, LuBell } from "react-icons/lu";
 import { TrendIndicator } from "../../components/common/TrendIndicator";
 import { TbSpeakerphone } from "react-icons/tb";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router-dom";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import { TREATMENT_OPTIONS } from "../../consts/referral";
@@ -137,7 +137,7 @@ const Dashboard = () => {
               percentage={dashboard?.stats?.totalReferrals?.percentage}
             />
           ),
-          onClick: () => navigate("/referrals"),
+          onClick: () => navigate("/referrals?tab=Referrals"),
         });
       }
       if (isAdmin || hasAnyPermission(["Manage Email Campaigns", "Manage Settings"])) {
@@ -152,7 +152,7 @@ const Dashboard = () => {
               label="this month"
             />
           ),
-          onClick: () => navigate("/email-campaigns", { state: { tab: "campaigns" } }),
+          onClick: () => navigate("/email-campaigns?tab=campaigns", { state: { tab: "campaigns" } }),
         });
       }
       if (isAdmin || hasAnyPermission(["Manage Review", "Manage Reviews"])) {
@@ -184,7 +184,7 @@ const Dashboard = () => {
               label="vs last month"
             />
           ),
-          onClick: () => navigate("/referrals"),
+          onClick: () => navigate("/referrals?tab=Referrals"),
         });
       }
       return cards;
@@ -207,7 +207,7 @@ const Dashboard = () => {
           : ""
           }`,
         time: `${timeAgo(dashboard.recentActivity.referral.createdAt || "")}`,
-        onClick: () => navigate("/referrals"),
+        onClick: () => navigate("/referrals?tab=Referrals"),
       }
       : null,
     (isAdmin || hasAnyPermission(["Manage Review", "Manage Reviews"])) && dashboard?.recentActivity?.reviews
@@ -235,7 +235,7 @@ const Dashboard = () => {
         title: `New email campaign: ${dashboard?.recentActivity?.campaigns?.name || ""}`,
         description: `${dashboard?.recentActivity?.campaigns?.description || ""}`,
         time: `${timeAgo(dashboard?.recentActivity?.campaigns?.createdAt || "")}`,
-        onClick: () => navigate("/email-campaigns", { state: { tab: "campaigns" } }),
+        onClick: () => navigate("/email-campaigns?tab=campaigns", { state: { tab: "campaigns" } }),
       }
       : null,
   ].filter((activity): activity is NonNullable<typeof activity> => Boolean(activity));

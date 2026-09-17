@@ -21,6 +21,8 @@ interface TagQrModalProps {
 }
 
 const TagQrModal = ({ isOpen, onClose, tag }: TagQrModalProps) => {
+  const [isCopied, setIsCopied] = useState(false);
+
   if (!tag) return null;
 
   const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(
@@ -71,8 +73,6 @@ const TagQrModal = ({ isOpen, onClose, tag }: TagQrModalProps) => {
       });
     }
   };
-
-  const [isCopied, setIsCopied] = useState(false);
 
   const handleCopyLink = () => {
     navigator.clipboard.writeText(tag.url);

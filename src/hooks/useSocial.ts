@@ -79,24 +79,32 @@ export const useDisconnectSocial = () => {
   });
 };
 
-export const useSocialOverview = () => {
+export const useSocialOverview = (options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: ["social-overview"],
     queryFn: fetchSocialOverview,
+    enabled: options?.enabled ?? true,
   });
 };
 
-export const usePostsAnalytics = () => {
+export const usePostsAnalytics = (options?: { enabled?: boolean }) => {
   return useQuery({
     queryKey: ["posts-analytics"],
     queryFn: fetchPostsAnalytics,
+    enabled: options?.enabled ?? true,
   });
 };
 
-export const useRecentPosts = (page: number, limit: number, status?: string) => {
+export const useRecentPosts = (
+  page: number,
+  limit: number,
+  status?: string,
+  options?: { enabled?: boolean },
+) => {
   return useQuery({
     queryKey: ["recent-posts", page, limit, status],
     queryFn: () => fetchRecentPosts(page, limit, status),
+    enabled: options?.enabled ?? true,
     refetchInterval: (query) => {
       const data = query?.state?.data as any;
       const posts = data?.posts || [];

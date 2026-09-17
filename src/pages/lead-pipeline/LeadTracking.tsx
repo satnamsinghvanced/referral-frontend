@@ -98,8 +98,10 @@ const LeadTracking = () => {
   const [leadToDelete, setLeadToDelete] = useState<any>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  const [selectedLeadData, setSelectedLeadData] = useState<any>(null);
   const [selectedLeadId, setSelectedLeadId] = useState<string | null>(null);
   const handleLeadClick = (lead: any) => {
+    setSelectedLeadData(lead);
     setSelectedLeadId(lead.id || lead._id);
     onDetailsOpen();
   };
@@ -248,15 +250,16 @@ const LeadTracking = () => {
 
   const selectedLead = useMemo(() => {
     const dataToUse = localGroupedLeads || leadsData?.groupedLeads;
-    if (!selectedLeadId || !dataToUse) return null;
-    for (const stageLeads of Object.values(dataToUse)) {
-      const found = (stageLeads as any[]).find(
-        (l: any) => (l.id || l._id) === selectedLeadId
-      );
-      if (found) return found;
+    if (selectedLeadId && dataToUse) {
+      for (const stageLeads of Object.values(dataToUse)) {
+        const found = (stageLeads as any[]).find(
+          (l: any) => String(l.id || l._id) === String(selectedLeadId)
+        );
+        if (found) return found;
+      }
     }
-    return null;
-  }, [selectedLeadId, localGroupedLeads, leadsData]);
+    return selectedLeadData || null;
+  }, [selectedLeadId, selectedLeadData, localGroupedLeads, leadsData]);
 
   const { data: stats } = useLeadStats();
   const SUMMARY_STATS = useMemo<StatCard[]>(() => {
@@ -548,7 +551,7 @@ const LeadTracking = () => {
         ) : view === "automations" ? (
           <LeadAutomations onBack={() => setView("pipeline")} />
         ) : view === "pipeline" ? (
-          <div className="w-full overflow-x-auto h-full min-h-[480px]">
+          <div className="w-full overflow-x-auto h-full min-h-[435px]">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4  lg:min-w-0 h-fit">
                   {stages.map((stage: any) => {
                     const styles = getStageStyles(stage.id);

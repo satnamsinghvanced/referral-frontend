@@ -163,7 +163,7 @@ export default function TwilioPurchaseNumberModal({
             Search for available phone numbers by area code • ${setupFee} setup + ${monthlyCost}/month
           </p>
         </ModalHeader>
-        <ModalBody className="p-5 pt-2 flex flex-col gap-5">=
+        <ModalBody className="p-5 pt-2 flex flex-col gap-5">
           {isBalanceLow && (
             <div className="bg-red-50 dark:bg-red-955/15 border border-red-200 dark:border-red-900/30 rounded-xl p-3.5 flex flex-col gap-1 text-xs text-red-800 dark:text-red-400">
               <span className="font-bold flex items-center gap-1">⚠️ Low Balance Alert</span>
