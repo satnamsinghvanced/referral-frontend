@@ -53,10 +53,20 @@ export const PlanCard: React.FC<PlanCardProps> = ({
   const rawYearlyFeats = plan.yearlyFeatures || plan.features || plan.featuresList || rawMonthlyFeats;
 
   const currentCycleFeatures: PlanFeatureItem[] = (
-    cardCycle === "yearly" ? rawYearlyFeats : rawMonthlyFeats
-  ).map((f: any, i: number) =>
-    typeof f === "string" ? { _id: `feat_${i}`, name: f, isEnabled: true } : f
-  );
+    Array.isArray(cardCycle === "yearly" ? rawYearlyFeats : rawMonthlyFeats)
+      ? (cardCycle === "yearly" ? rawYearlyFeats : rawMonthlyFeats)
+      : []
+  )
+    .filter((f: any) => Boolean(f))
+    .map((f: any, i: number) =>
+      typeof f === "string"
+        ? { _id: `feat_${i}`, name: f, isEnabled: true }
+        : {
+            _id: f._id || `feat_${i}`,
+            name: f.name || (typeof f === "string" ? f : ""),
+            isEnabled: f.isEnabled !== false,
+          }
+    );
 
   const savingsPerYear = Math.max(0, monthlyPrice * 12 - annualTotal);
 

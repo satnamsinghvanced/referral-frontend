@@ -31,49 +31,6 @@ const Layout = () => {
     user?.email ||
     "Client Account";
 
-  const { data: billingData, isLoading: isBillingLoading } = useBilling();
-  const { isLoading: isPermissionsLoading } = useRolePermissions();
-  const isInitialLoading = (isBillingLoading && !billingData) || isPermissionsLoading;
-
-  const getInitialMini = () => {
-    const storedValue = localStorage.getItem("isMiniSidebarOpen");
-    if (storedValue !== null) {
-      try {
-        return JSON.parse(storedValue);
-      } catch {
-        return true;
-      }
-    }
-    return true;
-  };
-  const [isMiniSidebarOpen, setIsMiniSidebarOpen] = useState<boolean>(
-    getInitialMini()
-  );
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (window.innerWidth < 1024) {
-        setIsSidebarOpen(false);
-        setIsMiniSidebarOpen(true);
-      } else {
-        setIsSidebarOpen(true);
-      }
-    };
-    window.addEventListener("resize", handleResize);
-    handleResize();
-    return () => {
-      window.removeEventListener("resize", handleResize);
-    };
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem(
-      "isMiniSidebarOpen",
-      JSON.stringify(isMiniSidebarOpen)
-    );
-  }, [isMiniSidebarOpen]);
-
   if (user?.role === "SuperAdmin" && !isImpersonating) {
     return <Navigate to="/admin" replace />;
   }
@@ -104,6 +61,25 @@ const Layout = () => {
     window.location.href = "/admin";
   };
 
+  const { data: billingData, isLoading: isBillingLoading } = useBilling();
+  const { isLoading: isPermissionsLoading } = useRolePermissions();
+  const isInitialLoading = (isBillingLoading && !billingData) || isPermissionsLoading;
+
+  const getInitialMini = () => {
+    const storedValue = localStorage.getItem("isMiniSidebarOpen");
+    if (storedValue !== null) {
+      try {
+        return JSON.parse(storedValue);
+      } catch {
+        return true;
+      }
+    }
+    return true;
+  };
+  const [isMiniSidebarOpen, setIsMiniSidebarOpen] = useState<boolean>(
+    getInitialMini()
+  );
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const toggleSidebar = () => {
     setIsMiniSidebarOpen((prev) => !prev);
   };
@@ -112,6 +88,27 @@ const Layout = () => {
       setIsSidebarOpen(false);
     }
   };
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 1024) {
+        setIsSidebarOpen(false);
+        setIsMiniSidebarOpen(true);
+      } else {
+        setIsSidebarOpen(true);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    handleResize();
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+  useEffect(() => {
+    localStorage.setItem(
+      "isMiniSidebarOpen",
+      JSON.stringify(isMiniSidebarOpen)
+    );
+  }, [isMiniSidebarOpen]);
 
   if (isInitialLoading) {
     return (

@@ -103,7 +103,6 @@ const LeadAutomationModal = ({ isOpen, onOpenChange, automation }: LeadAutomatio
           ...values,
           delayAmount: Number(values.delayAmount) || 0,
         };
-
         if (isEditMode) {
           await updateAutomation({
             id: automation._id || automation.id,
@@ -112,7 +111,6 @@ const LeadAutomationModal = ({ isOpen, onOpenChange, automation }: LeadAutomatio
         } else {
           await createAutomation(payload);
         }
-
         onOpenChange(false);
         resetForm();
       } catch (error) {

@@ -375,9 +375,10 @@ export default function TwilioA2PRegistrationModal({ isOpen, onClose, phoneNumbe
 
   useEffect(() => {
     if (isOpen) {
-      setStep(1);
       setErrors({});
       if (registrationData) {
+        const isCustomerProfileApproved = registrationData.customerProfileStatus === "APPROVED" || registrationData.status === "approved" || (registrationData.customerProfileBundleSid && registrationData.status === "pending");
+        setStep(isCustomerProfileApproved ? 2 : 1);
         setFormData({
           businessName: registrationData.businessName || "",
           businessType: registrationData.businessType || "co_operative",
@@ -407,6 +408,7 @@ export default function TwilioA2PRegistrationModal({ isOpen, onClose, phoneNumbe
         });
         setSelectedNumbers(registrationData.selectedNumbers || []);
       } else {
+        setStep(1);
         setFormData((prev) => ({
           businessName: prev.businessName || "",
           businessType: prev.businessType || "co_operative",
@@ -704,7 +706,8 @@ export default function TwilioA2PRegistrationModal({ isOpen, onClose, phoneNumbe
           <div className="px-5 pb-3 border-b border-foreground/5 select-none">
             <div className="flex items-center justify-between w-full px-1 overflow-x-auto pb-2 scrollbar-none">
               {stepsList.map((s, idx) => {
-                const isCompleted = step > s.num;
+                const isCustomerProfileApproved = registrationData?.customerProfileStatus === "APPROVED" || registrationData?.status === "approved" || (registrationData?.customerProfileBundleSid && registrationData?.status === "pending");
+                const isCompleted = step > s.num || (s.num === 1 && isCustomerProfileApproved);
                 const isActive = step === s.num;
                 return (
                   <div key={s.num} className="flex items-center flex-1 last:flex-initial">

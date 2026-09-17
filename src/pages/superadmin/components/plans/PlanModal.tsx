@@ -88,17 +88,21 @@ export const PlanModal: React.FC<PlanModalProps> = ({
       const rawMonthlyFeats = editingPlan.monthlyFeatures || editingPlan.features || editingPlan.featuresList || [];
       const rawYearlyFeats = editingPlan.yearlyFeatures || editingPlan.features || editingPlan.featuresList || rawMonthlyFeats || [];
 
-      const parsedMonthlyFeats = rawMonthlyFeats.map((f: any) => ({
-        _id: typeof f === "string" ? undefined : f._id,
-        name: typeof f === "string" ? f : f.name,
-        isEnabled: typeof f === "string" ? true : !!f.isEnabled,
-      }));
+      const parsedMonthlyFeats = (Array.isArray(rawMonthlyFeats) ? rawMonthlyFeats : [])
+        .filter((f: any) => Boolean(f))
+        .map((f: any) => ({
+          _id: typeof f === "string" ? undefined : f?._id,
+          name: typeof f === "string" ? f : f?.name || "",
+          isEnabled: typeof f === "string" ? true : f?.isEnabled !== false,
+        }));
 
-      const parsedYearlyFeats = rawYearlyFeats.map((f: any) => ({
-        _id: typeof f === "string" ? undefined : f._id,
-        name: typeof f === "string" ? f : f.name,
-        isEnabled: typeof f === "string" ? true : !!f.isEnabled,
-      }));
+      const parsedYearlyFeats = (Array.isArray(rawYearlyFeats) ? rawYearlyFeats : [])
+        .filter((f: any) => Boolean(f))
+        .map((f: any) => ({
+          _id: typeof f === "string" ? undefined : f?._id,
+          name: typeof f === "string" ? f : f?.name || "",
+          isEnabled: typeof f === "string" ? true : f?.isEnabled !== false,
+        }));
 
       setPlanForm({
         name: editingPlan.name,
@@ -345,7 +349,7 @@ export const PlanModal: React.FC<PlanModalProps> = ({
     }
 
     const currentList = modalCycleTab === "monthly" ? planForm.monthlyFeatures : planForm.yearlyFeatures;
-    const exists = currentList.some((f) => f.name.toLowerCase() === text.toLowerCase());
+    const exists = currentList.some((f) => f && f.name && f.name.toLowerCase() === text.toLowerCase());
     if (exists) {
       setFormErrors((prev) => ({ ...prev, feature: "Feature already added to this list" }));
       return;
@@ -532,7 +536,7 @@ export const PlanModal: React.FC<PlanModalProps> = ({
                     htmlFor="isPopularModal"
                     className="text-xs font-bold cursor-pointer select-none whitespace-nowrap"
                   >
-                    "Most Popular"
+                    Most Popular
                   </label>
                 </div>
               </div>
@@ -567,7 +571,7 @@ export const PlanModal: React.FC<PlanModalProps> = ({
                   }`}
               />
               <p className="text-[11px] text-slate-400 mt-1 font-normal">
-                Appears under the plan title (e.g. "Perfect for new practices getting started")
+                Appears under the plan title (e.g. &quot;Perfect for new practices getting started&quot;)
               </p>
             </div>
           </div>

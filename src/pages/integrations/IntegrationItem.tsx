@@ -75,8 +75,7 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
 
   const isLoading = isSwitchLoading || isLocalLoading;
   const isCredentialsSaved = !!id;
-  const showConnectedActions =
-    isFullyConnected ?? isCredentialsSaved;
+  const showConnectedActions = isFullyConnected ?? isCredentialsSaved;
   const isError = status === "Error";
   let statusClasses = "";
   let StatusIcon = null;
@@ -223,7 +222,6 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
               </Chip>
             ))}
           </div>
-
           <div className="flex items-center gap-3 mt-2 h-6">
             {status === "Connected" && account && (account.accountEmail || account.accountName) && (
               <div

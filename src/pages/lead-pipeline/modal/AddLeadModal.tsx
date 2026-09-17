@@ -18,11 +18,7 @@ import { HiOutlineMail, HiOutlinePhone, HiOutlineLocationMarker } from "react-ic
 import { LuBriefcase } from "react-icons/lu";
 import * as Yup from "yup";
 import { EMAIL_REGEX, PHONE_REGEX } from "../../../consts/consts";
-import {
-  LEAD_PRIORITIES,
-  LEAD_SOURCES,
-  LEAD_TREATMENTS,
-} from "../../../consts/lead-pipeline";
+import { LEAD_PRIORITIES, LEAD_SOURCES, LEAD_TREATMENTS } from "../../../consts/lead-pipeline";
 import { useFetchTeamMembers } from "../../../hooks/settings/useTeam";
 import { useAddLead } from "../../../hooks/useLeadPipeline";
 import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
@@ -41,20 +37,14 @@ interface AddLeadModalProps {
 const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
   const { mutateAsync: addLead, isPending: submitting } = useAddLead();
   const { data: teamMembers, isLoading: loadingTeam } = useFetchTeamMembers();
-  const [selectedTreatments, setSelectedTreatments] = useState<Set<string>>(
-    new Set(),
-  );
+  const [selectedTreatments, setSelectedTreatments] = useState<Set<string>>(new Set());
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
   const validationSchema = Yup.object().shape({
     firstName: Yup.string().required("First name is required"),
     lastName: Yup.string().nullable().notRequired(),
-    email: Yup.string()
-      .required("Email is required")
-      .matches(EMAIL_REGEX, "Invalid email format"),
-    phone: Yup.string()
-      .required("Phone is required")
-      .matches(PHONE_REGEX, "Phone must be in format (XXX) XXX-XXXX"),
+    email: Yup.string().required("Email is required").matches(EMAIL_REGEX, "Invalid email format"),
+    phone: Yup.string().required("Phone is required").matches(PHONE_REGEX, "Phone must be in format (XXX) XXX-XXXX"),
     location: Yup.string().nullable().notRequired(),
     source: Yup.string().required("Source is required"),
     priority: Yup.string().required("Priority is required"),

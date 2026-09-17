@@ -1,12 +1,4 @@
-import {
-  Button,
-  Card,
-  CardBody,
-  Input,
-  Select,
-  SelectItem,
-  Textarea,
-} from "@heroui/react";
+import { Button, Card, CardBody, Input, Select, SelectItem, Textarea } from "@heroui/react";
 import { useFormik } from "formik";
 import { useEffect, useState } from "react";
 import { FaRegStar } from "react-icons/fa";
@@ -38,13 +30,11 @@ function WebhookReferralForm() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [webhookSecret, setWebhookSecret] = useState<string>("");
   const { data: fetchedUser } = useFetchUserForTrackings(userId);
-
   const refererName =
     searchParams.get("refererName") ||
     fetchedUser?.practiceName ||
     (fetchedUser ? `${fetchedUser.firstName || ""} ${fetchedUser.lastName || ""}`.trim() : "") ||
     "our practice";
-
   useEffect(() => {
     const fetchWebhookSecret = async () => {
       try {

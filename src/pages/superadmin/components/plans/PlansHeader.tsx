@@ -12,7 +12,7 @@ export const PlansHeader: React.FC<PlansHeaderProps> = ({ isLight, onOpenModal }
       <div>
         <h1 className={`text-2xl font-extrabold flex items-center gap-2 ${isLight ? "text-slate-900" : "text-white"}`}>
           <FiDollarSign className="text-[#20a9f8]" />
-          <span>Subscription Plans & Features</span>
+          <span>Subscription Plans &amp; Features</span>
         </h1>
         <p className={`text-xs mt-1 font-medium ${isLight ? "text-slate-500" : "text-slate-400"}`}>
           Manage monthly and annual plan prices, discounts, and cycle-specific feature lists.

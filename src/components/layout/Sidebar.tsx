@@ -82,7 +82,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
         stats: dashboardStats?.conversations || 0,
         color: "bg-sky-100 dark:bg-sky-900/40",
         // requiredPermission: ["Manage Conversations"],
-        // requiredPlanAccess: "advanced_referral_tracking",
+        requiredPlanAccess: "social_media",
       },
       {
         name: "Referrals",
@@ -107,7 +107,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
         stats: dashboardStats?.reviews ?? dashboardStats?.totalReviews ?? 0,
         color: "bg-yellow-200 dark:bg-yellow-900/30",
         // requiredPermission: ["Manage Review", "Manage Reviews"],
-        // requiredPlanAccess: "google_business",
+        requiredPlanAccess: "google_business",
       },
       {
         name: "Social Media",
@@ -116,7 +116,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
         stats: 0,
         color: "bg-purple-300 dark:bg-purple-900/30",
         // requiredPermission: ["Manage Social Media"],
-        // requiredPlanAccess: "social_media",
+        requiredPlanAccess: "social_media",
       },
       {
         name: "Marketing Calendar",
@@ -125,7 +125,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
         stats: dashboardStats?.activities || 0,
         color: "bg-orange-300 dark:bg-orange-900/30",
         // requiredPermission: ["Manage Calendar"],
-        // requiredPlanAccess: "marketing_calendar",
+        requiredPlanAccess: "marketing_calendar",
       },
       {
         name: "Call Tracking",
@@ -134,7 +134,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
         stats: dashboardStats?.totalCalls || 0,
         color: "bg-sky-100 dark:bg-sky-900/40",
         // requiredPermission: ["Manage Call Tracking"],
-        // requiredPlanAccess: "call_tracking",
+        requiredPlanAccess: "call_tracking",
       },
       {
         name: "Email Campaigns",
@@ -151,7 +151,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
         stats: undefined,
         color: undefined,
         // requiredPermission: ["Manage Chat Widget"],
-        // requiredPlanAccess: "advanced_referral_tracking",
+        requiredPlanAccess: "advanced_referral_tracking",
       },
       {
         name: "Analytics",
@@ -160,7 +160,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
         stats: undefined,
         color: "bg-red-300 dark:bg-red-900/30",
         // requiredPermission: ["View Analytics"],
-        // requiredPlanAccess: "basic_analytics",
+        requiredPlanAccess: "basic_analytics",
       },
       {
         name: "Reports",
@@ -193,7 +193,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
         stats: undefined,
         color: "bg-red-300 dark:bg-red-900/30",
         // requiredPermission: ["Manage Marketing Budget"],
-        // requiredPlanAccess: "budget_tracking",
+        requiredPlanAccess: "budget_tracking",
       },
       {
         name: "Media Management",
@@ -233,10 +233,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
     ];
 
   const filteredRoutes = NAVIGATION_ROUTES.filter((route: any) => {
-    if (route.requiredPlanAccess) {
-      if (!planAccess) {
-        return false;
-      }
+    if (route.requiredPlanAccess && !isSuperAdmin) {
       if (planAccess && planAccess[route.requiredPlanAccess as keyof typeof planAccess] === false) {
         return false;
       }
