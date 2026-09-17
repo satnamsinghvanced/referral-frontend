@@ -105,34 +105,53 @@ const LeadDetailsOverviewTab = ({
               label="Status"
               className="bg-default-100 data-[hover=true]:bg-default-200 rounded-small"
               size="sm"
-              selectedKeys={new Set([formik.values.status])}
-              onSelectionChange={(keys) =>
-                formik.setFieldValue("status", Array.from(keys)[0])
-              }
-              items={LEAD_STATUSES}
+              disableAnimation
+              selectedKeys={formik.values.status ? [formik.values.status] : []}
+              onSelectionChange={(keys) => {
+                const selected = Array.from(keys)[0];
+                if (selected) {
+                  formik.setFieldValue("status", selected);
+                }
+              }}
+              popoverProps={{
+                disableAnimation: true,
+                shouldCloseOnScroll: false,
+              }}
             >
-              {(status) => (
-                <SelectItem key={status.key}>{status.label}</SelectItem>
-              )}
+              {LEAD_STATUSES.map((status) => (
+                <SelectItem key={status.key} textValue={status.label}>
+                  {status.label}
+                </SelectItem>
+              ))}
             </Select>
             <Select
               label="Priority"
               className="bg-default-100 data-[hover=true]:bg-default-200 rounded-small"
               size="sm"
-              selectedKeys={new Set([formik.values.priority])}
-              onSelectionChange={(keys) =>
-                formik.setFieldValue("priority", Array.from(keys)[0])
-              }
-              items={LEAD_PRIORITIES}
+              disableAnimation
+              selectedKeys={formik.values.priority ? [formik.values.priority] : []}
+              onSelectionChange={(keys) => {
+                const selected = Array.from(keys)[0];
+                if (selected) {
+                  formik.setFieldValue("priority", selected);
+                }
+              }}
+              popoverProps={{
+                disableAnimation: true,
+                shouldCloseOnScroll: false,
+              }}
             >
-              {(priority) => (
-                <SelectItem key={priority.key}>{priority.label}</SelectItem>
-              )}
+              {LEAD_PRIORITIES.map((priority) => (
+                <SelectItem key={priority.key} textValue={priority.label}>
+                  {priority.label}
+                </SelectItem>
+              ))}
             </Select>
             <Select
               label="Assigned To"
               className="bg-default-100 data-[hover=true]:bg-default-200 rounded-small"
               size="sm"
+              disableAnimation
               startContent={
                 loadingTeam ? (
                   <LuBriefcase className="text-default-400 size-4 animate-pulse mr-1" />
@@ -140,22 +159,35 @@ const LeadDetailsOverviewTab = ({
                   <LuBriefcase className="text-default-400 size-4 mr-1" />
                 )
               }
-              selectedKeys={new Set([formik.values.assignedTo])}
-              onSelectionChange={(keys) =>
-                formik.setFieldValue("assignedTo", Array.from(keys)[0])
-              }
-              items={[
+              selectedKeys={formik.values.assignedTo ? [formik.values.assignedTo] : []}
+              onSelectionChange={(keys) => {
+                const selected = Array.from(keys)[0];
+                if (selected) {
+                  formik.setFieldValue("assignedTo", selected);
+                }
+              }}
+              popoverProps={{
+                disableAnimation: true,
+                shouldCloseOnScroll: false,
+              }}
+            >
+              {[
                 { _id: "Unassigned", firstName: "Unassigned", lastName: "" },
                 ...(teamMembers?.data || []),
-              ]}
-            >
-              {(member: any) => (
-                <SelectItem key={member._id}>
+              ].map((member: any) => (
+                <SelectItem
+                  key={member._id}
+                  textValue={
+                    member._id === "Unassigned"
+                      ? "Unassigned"
+                      : `${member.firstName} ${member.lastName}`
+                  }
+                >
                   {member._id === "Unassigned"
                     ? "Unassigned"
                     : `${member.firstName} ${member.lastName}`}
                 </SelectItem>
-              )}
+              ))}
             </Select>
             <Input
               label="Estimated Value"

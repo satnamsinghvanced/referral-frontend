@@ -442,11 +442,9 @@ const LeadTracking = () => {
                   size="sm"
                   className="w-full"
                   variant="flat"
-                  items={[
-                    { key: "allSources", label: "All Sources" },
-                    ...LEAD_SOURCES,
-                  ]}
-                  selectedKeys={new Set([filters.source])}
+                  disableAnimation
+                  popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                  selectedKeys={filters.source ? [filters.source] : []}
                   onSelectionChange={(keys) => {
                     setFilters((prev) => ({
                       ...prev,
@@ -455,7 +453,14 @@ const LeadTracking = () => {
                     setPage(1);
                   }}
                 >
-                  {(item) => <SelectItem key={item.key}>{item.label}</SelectItem>}
+                  {[
+                    { key: "allSources", label: "All Sources" },
+                    ...LEAD_SOURCES,
+                  ].map((item) => (
+                    <SelectItem key={item.key} textValue={item.label}>
+                      {item.label}
+                    </SelectItem>
+                  ))}
                 </Select>
                 <Select
                   placeholder="All Treatments"
@@ -463,11 +468,9 @@ const LeadTracking = () => {
                   size="sm"
                   className="w-full"
                   variant="flat"
-                  items={[
-                    { key: "allTreatments", label: "All Treatments" },
-                    ...LEAD_TREATMENTS,
-                  ]}
-                  selectedKeys={new Set([filters.treatment])}
+                  disableAnimation
+                  popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                  selectedKeys={filters.treatment ? [filters.treatment] : []}
                   onSelectionChange={(keys) => {
                     setFilters((prev) => ({
                       ...prev,
@@ -476,7 +479,14 @@ const LeadTracking = () => {
                     setPage(1);
                   }}
                 >
-                  {(item) => <SelectItem key={item.key}>{item.label}</SelectItem>}
+                  {[
+                    { key: "allTreatments", label: "All Treatments" },
+                    ...LEAD_TREATMENTS,
+                  ].map((item) => (
+                    <SelectItem key={item.key} textValue={item.label}>
+                      {item.label}
+                    </SelectItem>
+                  ))}
                 </Select>
                 <Select
                   placeholder="All Priorities"
@@ -484,11 +494,9 @@ const LeadTracking = () => {
                   size="sm"
                   className="w-full"
                   variant="flat"
-                  items={[
-                    { key: "allPriorities", label: "All Priorities" },
-                    ...LEAD_PRIORITIES,
-                  ]}
-                  selectedKeys={new Set([filters.priority])}
+                  disableAnimation
+                  popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                  selectedKeys={filters.priority ? [filters.priority] : []}
                   onSelectionChange={(keys) => {
                     setFilters((prev) => ({
                       ...prev,
@@ -497,7 +505,14 @@ const LeadTracking = () => {
                     setPage(1);
                   }}
                 >
-                  {(item) => <SelectItem key={item.key}>{item.label}</SelectItem>}
+                  {[
+                    { key: "allPriorities", label: "All Priorities" },
+                    ...LEAD_PRIORITIES,
+                  ].map((item) => (
+                    <SelectItem key={item.key} textValue={item.label}>
+                      {item.label}
+                    </SelectItem>
+                  ))}
                 </Select>
                 <div className="flex bg-gray-100 dark:bg-default-100 p-1 rounded-lg w-full">
                   <button
@@ -534,7 +549,7 @@ const LeadTracking = () => {
         ) : view === "automations" ? (
           <LeadAutomations onBack={() => setView("pipeline")} />
         ) : view === "pipeline" ? (
-          <div className="w-full overflow-x-auto h-full min-h-[480px]">
+          <div className="w-full overflow-x-auto h-full min-h-[430px]">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-4  lg:min-w-0 h-fit">
               {stages.map((stage: any) => {
                 const styles = getStageStyles(stage.id);
@@ -546,8 +561,8 @@ const LeadTracking = () => {
                     onDragLeave={() => setDraggedOverColumnId(null)}
                     onDrop={(e) => handleDrop(e, stage.id)}
                     className={`flex flex-col rounded-xl overflow-hidden border transition-all duration-200 bg-white dark:bg-content1 h-fit ${draggedOverColumnId === stage.id
-                        ? "border-primary/50 dark:border-primary/70 shadow-lg scale-[1.01] bg-primary/5 dark:bg-primary/10"
-                        : "border-foreground/5 dark:border-foreground/10"
+                      ? "border-primary/50 dark:border-primary/70 shadow-lg scale-[1.01] bg-primary/5 dark:bg-primary/10"
+                      : "border-foreground/5 dark:border-foreground/10"
                       }`}
                   >
                     <div

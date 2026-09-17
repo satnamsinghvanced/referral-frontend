@@ -141,43 +141,41 @@ function Tasks() {
               aria-label="Task Status"
               placeholder="All Statuses"
               size="sm"
-              selectedKeys={new Set([currentFilters.status])}
-              disabledKeys={new Set([currentFilters.status])}
+              disableAnimation
+              popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+              selectedKeys={currentFilters.status ? [currentFilters.status] : []}
               onSelectionChange={(keys) =>
                 onFilterChange("status", Array.from(keys)[0] as string)
               }
             >
-              <>
-                <SelectItem key="all" className="capitalize">
-                  All Statuses
+              {[
+                { value: "all", label: "All Statuses" },
+                ...TASK_STATUSES,
+              ].map((status: any) => (
+                <SelectItem key={status.value} textValue={status.label} className="capitalize">
+                  {status.label}
                 </SelectItem>
-                {TASK_STATUSES.map((status: any) => (
-                  <SelectItem key={status.value} className="capitalize">
-                    {status.label}
-                  </SelectItem>
-                ))}
-              </>
+              ))}
             </Select>
             <Select
               aria-label="Task Priority"
               placeholder="All Priorities"
               size="sm"
-              selectedKeys={new Set([currentFilters.priority])}
-              disabledKeys={new Set([currentFilters.priority])}
+              disableAnimation
+              popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+              selectedKeys={currentFilters.priority ? [currentFilters.priority] : []}
               onSelectionChange={(keys) =>
                 onFilterChange("priority", Array.from(keys)[0] as string)
               }
             >
-              <>
-                <SelectItem key="all" className="capitalize">
-                  All Priorities
+              {[
+                { value: "all", label: "All Priorities" },
+                ...TASK_PRIORITIES,
+              ].map((priority: any) => (
+                <SelectItem key={priority.value} textValue={priority.label} className="capitalize">
+                  {priority.label}
                 </SelectItem>
-                {TASK_PRIORITIES.map((priority: any) => (
-                  <SelectItem key={priority.value} className="capitalize">
-                    {priority.label}
-                  </SelectItem>
-                ))}
-              </>
+              ))}
             </Select>
           </div>
         </div>

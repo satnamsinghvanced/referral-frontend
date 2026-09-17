@@ -373,44 +373,42 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
               aria-label="Statuses"
               placeholder="All Statuses"
               size="sm"
-              selectedKeys={[currentFilters.filter as string]}
-              disabledKeys={[currentFilters.filter as string]}
+              disableAnimation
+              popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+              selectedKeys={currentFilters.filter ? [currentFilters.filter as string] : [""]}
               onSelectionChange={(keys) =>
                 onFilterChange("filter", Array.from(keys)[0] as string)
               }
             >
-              <>
-                <SelectItem key="" className="capitalize">
-                  All Statuses
+              {[
+                { value: "", label: "All Statuses" },
+                ...STATUS_OPTIONS,
+              ].map((status) => (
+                <SelectItem key={status.value} textValue={status.label} className="capitalize">
+                  {status.label}
                 </SelectItem>
-                {STATUS_OPTIONS.map((status) => (
-                  <SelectItem key={status.value} className="capitalize">
-                    {status.label}
-                  </SelectItem>
-                ))}
-              </>
+              ))}
             </Select>
 
             <Select
               aria-label="Sources"
               placeholder="All Sources"
               size="sm"
-              selectedKeys={[currentFilters.source as string]}
-              disabledKeys={[currentFilters.source as string]}
+              disableAnimation
+              popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+              selectedKeys={currentFilters.source ? [currentFilters.source as string] : [""]}
               onSelectionChange={(keys) =>
                 onFilterChange("source", Array.from(keys)[0] as string)
               }
             >
-              <>
-                <SelectItem key="" className="capitalize">
-                  All Sources
+              {[
+                { key: "", label: "All Sources" },
+                ...SOURCE_OPTIONS,
+              ].map((source) => (
+                <SelectItem key={source.key} textValue={source.label} className="capitalize">
+                  {source.label}
                 </SelectItem>
-                {SOURCE_OPTIONS.map((source) => (
-                  <SelectItem key={source.key} className="capitalize">
-                    {source.label}
-                  </SelectItem>
-                ))}
-              </>
+              ))}
             </Select>
 
             <div className="flex gap-2 md:gap-3">

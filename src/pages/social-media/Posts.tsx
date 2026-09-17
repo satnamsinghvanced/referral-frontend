@@ -58,20 +58,22 @@ const Posts = () => {
               placeholder="All Posts"
               size="sm"
               className="w-40"
-              selectedKeys={new Set([statusFilter])}
+              disableAnimation
+              popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+              selectedKeys={statusFilter ? [statusFilter] : []}
               onSelectionChange={(keys) => {
                 const val = Array.from(keys)[0] as string;
                 setStatusFilter(val || "all");
                 setPage(1);
               }}
             >
-              <SelectItem key="all" className="capitalize">
+              <SelectItem key="all" textValue="All Posts" className="capitalize">
                 All Posts
               </SelectItem>
-              <SelectItem key="Scheduled" className="capitalize">
+              <SelectItem key="Scheduled" textValue="Scheduled" className="capitalize">
                 Scheduled
               </SelectItem>
-              <SelectItem key="Published" className="capitalize">
+              <SelectItem key="Published" textValue="Published" className="capitalize">
                 Published
               </SelectItem>
             </Select>

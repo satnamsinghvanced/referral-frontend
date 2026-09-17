@@ -249,7 +249,8 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                     variant="flat"
                     size="sm"
                     radius="sm"
-                    selectedKeys={new Set([formik.values.source])}
+                    disableAnimation
+                    selectedKeys={formik.values.source ? [formik.values.source] : []}
                     onSelectionChange={(keys) =>
                       formik.setFieldValue(
                         "source",
@@ -264,11 +265,13 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                       formik.touched.source && (formik.errors.source as string)
                     }
                     isRequired
-                    items={LEAD_SOURCES}
+                    popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
                   >
-                    {(source) => (
-                      <SelectItem key={source.key}>{source.label}</SelectItem>
-                    )}
+                    {LEAD_SOURCES.map((source) => (
+                      <SelectItem key={source.key} textValue={source.label}>
+                        {source.label}
+                      </SelectItem>
+                    ))}
                   </Select>
                   <Select
                     label="Priority Level"
@@ -277,7 +280,8 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                     variant="flat"
                     size="sm"
                     radius="sm"
-                    selectedKeys={new Set([formik.values.priority])}
+                    disableAnimation
+                    selectedKeys={formik.values.priority ? [formik.values.priority] : []}
                     onSelectionChange={(keys) =>
                       formik.setFieldValue(
                         "priority",
@@ -293,13 +297,13 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                       (formik.errors.priority as string)
                     }
                     isRequired
-                    items={LEAD_PRIORITIES}
+                    popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
                   >
-                    {(priority) => (
-                      <SelectItem key={priority.key}>
+                    {LEAD_PRIORITIES.map((priority) => (
+                      <SelectItem key={priority.key} textValue={priority.label}>
                         {priority.label}
                       </SelectItem>
-                    )}
+                    ))}
                   </Select>
                   <Select
                     label="Assign To"
@@ -308,7 +312,8 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                     variant="flat"
                     size="sm"
                     radius="sm"
-                    selectedKeys={new Set([formik.values.assignedTo])}
+                    disableAnimation
+                    selectedKeys={formik.values.assignedTo ? [formik.values.assignedTo] : []}
                     onSelectionChange={(keys) =>
                       formik.setFieldValue(
                         "assignedTo",
@@ -322,16 +327,25 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                         <LuBriefcase className="text-default-400 size-4 mr-1" />
                       )
                     }
-                    items={[
+                    popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                  >
+                    {[
                       { _id: "Unassigned", firstName: "Unassigned", lastName: "" },
                       ...(teamMembers?.data || []),
-                    ]}
-                  >
-                    {(member: any) => (
-                      <SelectItem key={member._id}>
-                        {member._id === "Unassigned" ? "Unassigned" : `${member.firstName} ${member.lastName}`}
+                    ].map((member: any) => (
+                      <SelectItem
+                        key={member._id}
+                        textValue={
+                          member._id === "Unassigned"
+                            ? "Unassigned"
+                            : `${member.firstName} ${member.lastName}`
+                        }
+                      >
+                        {member._id === "Unassigned"
+                          ? "Unassigned"
+                          : `${member.firstName} ${member.lastName}`}
                       </SelectItem>
-                    )}
+                    ))}
                   </Select>
                   <Input
                     label="Estimated Value"
@@ -374,6 +388,8 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                     size="sm"
                     radius="sm"
                     selectionMode="multiple"
+                    disableAnimation
+                    popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
                     onSelectionChange={(keys) =>
                       setSelectedTreatments(
                         new Set(Array.from(keys) as string[]),

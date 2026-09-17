@@ -93,7 +93,9 @@ function TaskCard({
               aria-label="Task Status"
               placeholder="All Statuses"
               size="sm"
-              selectedKeys={[task.status]}
+              disableAnimation
+              popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+              selectedKeys={task.status ? [task.status] : []}
               onSelectionChange={(keys) =>
                 updateTask({
                   taskId: task._id,
@@ -108,7 +110,7 @@ function TaskCard({
               }}
             >
               {TASK_STATUSES.map((status: any) => (
-                <SelectItem key={status.value} className="capitalize">
+                <SelectItem key={status.value} textValue={status.label} className="capitalize">
                   {status.label}
                 </SelectItem>
               ))}

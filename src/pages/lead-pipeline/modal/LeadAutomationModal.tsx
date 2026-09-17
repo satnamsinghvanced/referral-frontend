@@ -210,11 +210,13 @@ const LeadAutomationModal = ({ isOpen, onOpenChange, automation }: LeadAutomatio
                     variant="flat"
                     size="sm"
                     radius="sm"
+                    disableAnimation
+                    popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
                     classNames={{
                       trigger: "h-auto py-1.5",
                       value: "whitespace-normal break-words text-left",
                     }}
-                    selectedKeys={new Set([formik.values.triggerEvent])}
+                    selectedKeys={formik.values.triggerEvent ? [formik.values.triggerEvent] : []}
                     onSelectionChange={(keys) =>
                       formik.setFieldValue("triggerEvent", Array.from(keys)[0] as string)
                     }
@@ -222,18 +224,18 @@ const LeadAutomationModal = ({ isOpen, onOpenChange, automation }: LeadAutomatio
                     isInvalid={!!(formik.touched.triggerEvent && formik.errors.triggerEvent)}
                     errorMessage={formik.touched.triggerEvent && (formik.errors.triggerEvent as string)}
                     isRequired
-                    items={TRIGGER_EVENTS}
                   >
-                    {(item) => (
+                    {TRIGGER_EVENTS.map((item) => (
                       <SelectItem
                         key={item.key}
+                        textValue={item.label}
                         classNames={{
                           title: "whitespace-normal break-words",
                         }}
                       >
                         {item.label}
                       </SelectItem>
-                    )}
+                    ))}
                   </Select>
                   <Select
                     label="Action To Take"
@@ -242,11 +244,13 @@ const LeadAutomationModal = ({ isOpen, onOpenChange, automation }: LeadAutomatio
                     variant="flat"
                     size="sm"
                     radius="sm"
+                    disableAnimation
+                    popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
                     classNames={{
                       trigger: "h-auto py-1.5",
                       value: "whitespace-normal break-words text-left",
                     }}
-                    selectedKeys={new Set([formik.values.action])}
+                    selectedKeys={formik.values.action ? [formik.values.action] : []}
                     onSelectionChange={(keys) =>
                       formik.setFieldValue("action", Array.from(keys)[0] as string)
                     }
@@ -254,18 +258,18 @@ const LeadAutomationModal = ({ isOpen, onOpenChange, automation }: LeadAutomatio
                     isInvalid={!!(formik.touched.action && formik.errors.action)}
                     errorMessage={formik.touched.action && (formik.errors.action as string)}
                     isRequired
-                    items={ACTIONS}
                   >
-                    {(item) => (
+                    {ACTIONS.map((item) => (
                       <SelectItem
                         key={item.key}
+                        textValue={item.label}
                         classNames={{
                           title: "whitespace-normal break-words",
                         }}
                       >
                         {item.label}
                       </SelectItem>
-                    )}
+                    ))}
                   </Select>
                   <Input
                     label="Delay Amount"
@@ -290,11 +294,13 @@ const LeadAutomationModal = ({ isOpen, onOpenChange, automation }: LeadAutomatio
                     variant="flat"
                     size="sm"
                     radius="sm"
+                    disableAnimation
+                    popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
                     classNames={{
                       trigger: "h-auto py-1.5",
                       value: "whitespace-normal break-words text-left",
                     }}
-                    selectedKeys={new Set([formik.values.delayUnit])}
+                    selectedKeys={formik.values.delayUnit ? [formik.values.delayUnit] : []}
                     onSelectionChange={(keys) =>
                       formik.setFieldValue("delayUnit", Array.from(keys)[0] as string)
                     }
@@ -302,18 +308,18 @@ const LeadAutomationModal = ({ isOpen, onOpenChange, automation }: LeadAutomatio
                     isInvalid={!!(formik.touched.delayUnit && formik.errors.delayUnit)}
                     errorMessage={formik.touched.delayUnit && (formik.errors.delayUnit as string)}
                     isRequired
-                    items={DELAY_UNITS}
                   >
-                    {(item) => (
+                    {DELAY_UNITS.map((item) => (
                       <SelectItem
                         key={item.key}
+                        textValue={item.label}
                         classNames={{
                           title: "whitespace-normal break-words",
                         }}
                       >
                         {item.label}
                       </SelectItem>
-                    )}
+                    ))}
                   </Select>
                 </div>
               </div>

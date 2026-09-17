@@ -269,8 +269,9 @@ const ReferralStatusModal = ({
                       size="sm"
                       radius="sm"
                       variant="flat"
-                      selectedKeys={[formik.values.status]}
-                      disabledKeys={[formik.values.status]}
+                      disableAnimation
+                      popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                      selectedKeys={formik.values.status ? [formik.values.status] : []}
                       onSelectionChange={(keys) => {
                         const value = Array.from(keys)[0] as string;
                         formik.setFieldValue("status", value);

@@ -83,13 +83,17 @@ export default function ConversationList({
             size="sm"
             className="flex-1"
             variant="flat"
-            selectedKeys={new Set([selectedPlatform])}
+            disableAnimation
+            popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+            selectedKeys={selectedPlatform ? [selectedPlatform] : []}
             onSelectionChange={(keys) =>
               setSelectedPlatform(Array.from(keys)[0] as string)
             }
           >
             {CONVERSATION_PLATFORMS.map((p) => (
-              <SelectItem key={p.key}>{p.label}</SelectItem>
+              <SelectItem key={p.key} textValue={p.label}>
+                {p.label}
+              </SelectItem>
             ))}
           </Select>
           <Select
@@ -98,15 +102,17 @@ export default function ConversationList({
             size="sm"
             className="flex-1"
             variant="flat"
-            selectedKeys={new Set([filterDropdown])}
+            disableAnimation
+            popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+            selectedKeys={filterDropdown ? [filterDropdown] : []}
             onSelectionChange={(keys) =>
               setFilterDropdown(Array.from(keys)[0] as string)
             }
           >
-            <SelectItem key="all">All</SelectItem>
-            <SelectItem key="unread">Unread</SelectItem>
-            <SelectItem key="starred">Starred</SelectItem>
-            <SelectItem key="archived">Archived</SelectItem>
+            <SelectItem key="all" textValue="All">All</SelectItem>
+            <SelectItem key="unread" textValue="Unread">Unread</SelectItem>
+            <SelectItem key="starred" textValue="Starred">Starred</SelectItem>
+            <SelectItem key="archived" textValue="Archived">Archived</SelectItem>
           </Select>
         </div>
         <div className="flex gap-1">
