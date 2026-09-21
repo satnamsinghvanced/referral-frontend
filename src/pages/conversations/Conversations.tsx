@@ -67,29 +67,24 @@ const Conversations = () => {
       if (!conv.messages || conv.messages.length === 0) {
         return { ...conv, unreadCount: 0 };
       }
-      let lastProviderIndex = -1;
-      for (let i = conv.messages.length - 1; i >= 0; i--) {
-        const msg = conv.messages[i];
-        if (msg && (msg.senderId === "provider" || msg.senderId === "practice" || !msg.isFromPatient)) {
-          lastProviderIndex = i;
-          break;
-        }
-      }
-      let computedCount = 0;
-      for (let i = lastProviderIndex + 1; i < conv.messages.length; i++) {
-        const msg = conv.messages[i];
-        if (msg && msg.isFromPatient) {
-          computedCount++;
-        }
-      }
       const lastMsg = conv.messages[conv.messages.length - 1];
-      if (lastMsg) {
-        const seenMsgId = localStorage.getItem(`seen_msg_${conv.id}`);
+      if (!lastMsg || !lastMsg.isFromPatient) {
+        return { ...conv, unreadCount: 0 };
+      }
+
+      const seenMsgId = localStorage.getItem(`seen_msg_${conv.id}`);
+      if (seenMsgId) {
         if (seenMsgId === lastMsg.id) {
-          computedCount = 0;
+          return { ...conv, unreadCount: 0 };
+        }
+        const seenIdx = conv.messages.findIndex((m) => m.id === seenMsgId);
+        if (seenIdx !== -1) {
+          const unseenCount = conv.messages.slice(seenIdx + 1).filter((m) => m.isFromPatient).length;
+          return { ...conv, unreadCount: unseenCount };
         }
       }
-      return { ...conv, unreadCount: computedCount };
+
+      return { ...conv, unreadCount: conv.unreadCount ?? 0 };
     });
   };
 
@@ -150,103 +145,167 @@ const Conversations = () => {
     loadAllConversations();
   }, []);
 
+  const selectedConversationIdRef = useRef<string | null>(selectedConversationId);
+  useEffect(() => {
+    selectedConversationIdRef.current = selectedConversationId;
+  }, [selectedConversationId]);
+
   useEffect(() => {
     const handleNewMessage = (payload: NewMessagePayload) => {
-      setConversations((prev) =>
-        prev.map((conv) => {
-          if (
+      setConversations((prev) => {
+        const foundIdx = prev.findIndex(
+          (conv) =>
             conv.platform === payload.platform &&
             (conv.recipientId === payload.recipientId ||
-              conv.id === payload.conversationId)
-          ) {
-            const existingIndexById = conv.messages.findIndex(
-              (m) => m.id === payload.message.id
+              conv.id === payload.conversationId ||
+              conv.recipientId === payload.conversationId ||
+              conv.id === payload.recipientId)
+        );
+
+        const currentSelected = selectedConversationIdRef.current;
+        const msgText = payload.message.text || (payload.message.file ? (payload.message.file.type?.startsWith("image/") ? "Sent an image" : "Sent a file") : "");
+
+        if (foundIdx !== -1 && prev[foundIdx]) {
+          const conv = prev[foundIdx]!;
+          const isFocused = currentSelected === conv.id || currentSelected === conv.recipientId;
+
+          const existingIndexById = conv.messages.findIndex(
+            (m) => m.id === payload.message.id
+          );
+
+          const updatedMessages = [...conv.messages];
+          if (existingIndexById !== -1) {
+            updatedMessages[existingIndexById] = payload.message;
+          } else if (!payload.message.isFromPatient) {
+            const optimisticIdx = conv.messages.findIndex(
+              (m) =>
+                !m.isFromPatient &&
+                (m.isSending ||
+                  m.id.startsWith("temp-") ||
+                  (m.text === payload.message.text && Math.abs((m.createdAt || 0) - (payload.message.createdAt || Date.now())) < 10000))
             );
-            if (existingIndexById !== -1) {
-              const updatedMessages = [...conv.messages];
-              updatedMessages[existingIndexById] = payload.message;
-              return {
-                ...conv,
-                messages: updatedMessages,
-                lastMessage: payload.message.text,
-              };
+            if (optimisticIdx !== -1) {
+              updatedMessages[optimisticIdx] = payload.message;
+            } else {
+              updatedMessages.push(payload.message);
             }
-            if (!payload.message.isFromPatient) {
-              const optimisticIdx = conv.messages.findIndex(
-                (m) =>
-                  !m.isFromPatient &&
-                  (m.isSending ||
-                    m.id.startsWith("temp-") ||
-                    (m.text === payload.message.text && Math.abs((m.createdAt || 0) - (payload.message.createdAt || Date.now())) < 10000))
-              );
-              if (optimisticIdx !== -1) {
-                const updatedMessages = [...conv.messages];
-                updatedMessages[optimisticIdx] = payload.message;
-                return {
-                  ...conv,
-                  messages: updatedMessages,
-                  lastMessage: payload.message.text,
-                };
-              }
-            }
-            const updatedMessages = [...conv.messages, payload.message];
-            return {
-              ...conv,
-              messages: updatedMessages,
-              lastMessage: payload.message.text,
-              lastMessageTime: "Just now",
-              lastMessageTimestamp: Date.now(),
-              unreadCount: payload.message.isFromPatient ? conv.unreadCount + 1 : conv.unreadCount,
-            };
+          } else {
+            updatedMessages.push(payload.message);
           }
-          return conv;
-        })
-      );
+
+          const updatedConv: Conversation = {
+            ...conv,
+            patientName: (payload as any).patientName || conv.patientName,
+            messages: updatedMessages,
+            lastMessage: msgText,
+            lastMessageTime: "Just now",
+            lastMessageTimestamp: payload.message.createdAt || Date.now(),
+            unreadCount: payload.message.isFromPatient ? (isFocused ? 0 : (conv.unreadCount || 0) + 1) : 0,
+          };
+
+          const remaining = prev.filter((_, idx) => idx !== foundIdx);
+          return [updatedConv, ...remaining];
+        } else {
+          const newConv: Conversation = {
+            id: payload.conversationId,
+            patientName: (payload as any).patientName || (payload.platform === "instagram" ? "Instagram User" : "Facebook User"),
+            patientEmail: "",
+            patientPhone: "",
+            patientLocation: "",
+            platform: payload.platform as any,
+            status: "active",
+            isOnline: true,
+            lastMessage: msgText,
+            lastMessageTime: "Just now",
+            lastMessageTimestamp: payload.message.createdAt || Date.now(),
+            unreadCount: payload.message.isFromPatient ? 1 : 0,
+            isStarred: false,
+            tags: ["new-lead"],
+            estimatedValue: 0,
+            treatmentInterest: [],
+            messages: [payload.message],
+            recipientId: payload.recipientId,
+          };
+
+          return [newConv, ...prev];
+        }
+      });
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     };
 
     const handleNewWebMessage = (payload: NewWebMessagePayload) => {
-      setConversations((prev) =>
-        prev.map((conv) => {
-          if (conv.platform === "web" && conv.id === payload.conversationId) {
-            const existingIndexById = conv.messages.findIndex(
-              (m) => m.id === payload.message.id
+      setConversations((prev) => {
+        const foundIdx = prev.findIndex(
+          (conv) => conv.platform === "web" && (conv.id === payload.conversationId || conv.recipientId === payload.conversationId)
+        );
+
+        const currentSelected = selectedConversationIdRef.current;
+        const msgText = payload.message.text || (payload.message.file ? (payload.message.file.type?.startsWith("image/") ? "Sent an image" : "Sent a file") : "");
+
+        if (foundIdx !== -1 && prev[foundIdx]) {
+          const conv = prev[foundIdx]!;
+          const isFocused = currentSelected === conv.id;
+
+          const existingIndexById = conv.messages.findIndex(
+            (m) => m.id === payload.message.id
+          );
+
+          const updatedMessages = [...conv.messages];
+          if (existingIndexById !== -1) {
+            updatedMessages[existingIndexById] = payload.message;
+          } else if (!payload.message.isFromPatient) {
+            const optimisticIdx = conv.messages.findIndex(
+              (m) =>
+                !m.isFromPatient &&
+                (m.isSending ||
+                  m.id.startsWith("temp-") ||
+                  (m.text === payload.message.text && Math.abs((m.createdAt || 0) - (payload.message.createdAt || Date.now())) < 10000))
             );
-            if (existingIndexById !== -1) {
-              const updatedMessages = [...conv.messages];
-              updatedMessages[existingIndexById] = payload.message;
-              return {
-                ...conv,
-                messages: updatedMessages,
-                lastMessage: payload.message.text,
-              };
+            if (optimisticIdx !== -1) {
+              updatedMessages[optimisticIdx] = payload.message;
+            } else {
+              updatedMessages.push(payload.message);
             }
-            if (!payload.message.isFromPatient) {
-              const optimisticIdx = conv.messages.findIndex(
-                (m) => !m.isFromPatient && (m.isSending || m.id.startsWith("temp-") || (m.text === payload.message.text && Math.abs((m.createdAt || 0) - (payload.message.createdAt || Date.now())) < 10000))
-              );
-              if (optimisticIdx !== -1) {
-                const updatedMessages = [...conv.messages];
-                updatedMessages[optimisticIdx] = payload.message;
-                return {
-                  ...conv,
-                  messages: updatedMessages,
-                  lastMessage: payload.message.text,
-                };
-              }
-            }
-            return {
-              ...conv,
-              messages: [...conv.messages, payload.message],
-              lastMessage: payload.message.text,
-              lastMessageTime: "Just now",
-              lastMessageTimestamp: Date.now(),
-              unreadCount: payload.message.isFromPatient ? conv.unreadCount + 1 : conv.unreadCount,
-            };
+          } else {
+            updatedMessages.push(payload.message);
           }
-          return conv;
-        })
-      );
+
+          const updatedConv: Conversation = {
+            ...conv,
+            messages: updatedMessages,
+            lastMessage: msgText,
+            lastMessageTime: "Just now",
+            lastMessageTimestamp: payload.message.createdAt || Date.now(),
+            unreadCount: payload.message.isFromPatient ? (isFocused ? 0 : (conv.unreadCount || 0) + 1) : 0,
+          };
+
+          const remaining = prev.filter((_, idx) => idx !== foundIdx);
+          return [updatedConv, ...remaining];
+        } else {
+          const newConv: Conversation = {
+            id: payload.conversationId,
+            patientName: "Website Visitor",
+            patientEmail: "",
+            patientPhone: "",
+            patientLocation: "",
+            platform: "web",
+            status: "active",
+            isOnline: true,
+            lastMessage: msgText,
+            lastMessageTime: "Just now",
+            lastMessageTimestamp: payload.message.createdAt || Date.now(),
+            unreadCount: payload.message.isFromPatient ? 1 : 0,
+            isStarred: false,
+            tags: ["web-chat"],
+            estimatedValue: 0,
+            treatmentInterest: [],
+            messages: [payload.message],
+            recipientId: payload.conversationId,
+          };
+
+          return [newConv, ...prev];
+        }
+      });
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     };
 
@@ -276,7 +335,7 @@ const Conversations = () => {
     const handleMessagesReadByPatient = (payload: { conversationId: string; platform: string; lastSeenAt: number }) => {
       setConversations((prev) =>
         prev.map((conv) => {
-          if (conv.platform === payload.platform && conv.id === payload.conversationId) {
+          if (conv.platform === payload.platform && (conv.id === payload.conversationId || conv.recipientId === payload.conversationId)) {
             const updatedMessages = conv.messages.map((m) => {
               if (!m.isFromPatient && !m.seenAt) {
                 return { ...m, seenAt: payload.lastSeenAt };
@@ -292,10 +351,12 @@ const Conversations = () => {
         })
       );
     };
+
     subscribeToNewMessage(handleNewMessage);
     subscribeToNewWebMessage(handleNewWebMessage);
     subscribeToEvent("message_read_watermark", handleMessageReadWatermark);
     subscribeToEvent("messages_read_by_patient", handleMessagesReadByPatient);
+
     return () => {
       unsubscribeFromNewMessage(handleNewMessage);
       unsubscribeFromNewWebMessage(handleNewWebMessage);
