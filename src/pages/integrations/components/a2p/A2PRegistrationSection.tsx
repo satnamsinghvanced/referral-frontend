@@ -37,22 +37,25 @@ export default function A2PRegistrationSection({
               </span>
             )}
           </div>
-          {(!registration || registration?.status === "failed") && (
-            <Button
-              color={registration?.status === "failed" ? "danger" : "primary"}
-              size="sm"
-              onPress={onOpenRegistrationModal}
-              startContent={<FiCheckCircle className="w-3.5 h-3.5" />}
-              className="rounded-lg text-xs font-semibold h-8 px-4 text-white disabled:opacity-50 disabled:cursor-not-allowed"
-              title={
-                !phoneNumbers || phoneNumbers.length === 0
-                  ? "Please purchase a phone number first before registering for SMS"
-                  : ""
-              }
-            >
-              {registration?.status === "failed" ? "Edit & Re-submit" : "Register for SMS"}
-            </Button>
-          )}
+          <Button
+            color={!registration ? "primary" : registration?.status === "failed" ? "danger" : "primary"}
+            variant={registration && registration.status !== "failed" ? "flat" : "solid"}
+            size="sm"
+            onPress={onOpenRegistrationModal}
+            startContent={<FiCheckCircle className="w-3.5 h-3.5" />}
+            className="rounded-lg text-xs font-semibold h-8 px-4 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            title={
+              !phoneNumbers || phoneNumbers.length === 0
+                ? "Please purchase a phone number first before registering for SMS"
+                : ""
+            }
+          >
+            {!registration
+              ? "Register for SMS"
+              : registration.status === "failed"
+              ? "Edit & Re-submit"
+              : "Edit Registration"}
+          </Button>
         </div>
         <A2PProgressStepper registration={registration} />
         <A2PStatusBanner
