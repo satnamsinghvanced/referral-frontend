@@ -17,6 +17,7 @@ import { useSelector } from "react-redux";
 import { RootState } from "../../store";
 import Logo from "../ui/Logo";
 import LogoutConfirmationModal from "../common/LogoutConfirmationModal";
+import LocationDropdown from "./LocationDropdown";
 
 interface SidebarProps {
   isMiniSidebarOpen: boolean;
@@ -296,6 +297,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
           </div>
         </div>
         <div className="flex flex-col justify-between h-[calc(100vh_-_64px)] px-0">
+          <LocationDropdown isMiniSidebarOpen={isMiniSidebarOpen} />
           <ul className="flex flex-col p-3 overflow-y-auto flex-1">
             {filteredRoutes.map((item, index) => {
               const Icon = item.icon;

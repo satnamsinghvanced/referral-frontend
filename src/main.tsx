@@ -8,6 +8,7 @@ import ReduxProvider from "./providers/ReduxProvider";
 import { TourProvider } from "./providers/TourProvider";
 import { UploadProvider } from "./providers/UploadProvider";
 import { SocialPostUploadProvider } from "./providers/SocialPostUploadProvider";
+import { LocationProvider } from "./providers/LocationContext";
 import "./index.css";
 const rootElement = document.getElementById("root");
 if (!rootElement) {
@@ -20,31 +21,33 @@ createRoot(rootElement).render(
     <HeroUIProvider>
       <ReduxProvider>
         <QueryProvider>
-          <UploadProvider>
-            <SocialPostUploadProvider>
-              <ToastProvider
-                placement="top-right"
-                toastProps={{
-                  timeout: 4000,
-                  classNames: {
-                    base: "shadow-none top-1.5",
-                    content: "gap-x-2",
-                    closeButton:
-                      "opacity-100 absolute right-2 top-1/2 -translate-y-1/2",
-                    closeIcon: "bg-transparent",
-                    progressIndicator: "opacity-[0.2]",
-                  },
-                }}
-              />
-              <BrowserRouter>
-                <TourProvider>
-                  <main className="text-foreground bg-background">
-                    <App />
-                  </main>
-                </TourProvider>
-              </BrowserRouter>
-            </SocialPostUploadProvider>
-          </UploadProvider>
+          <LocationProvider>
+            <UploadProvider>
+              <SocialPostUploadProvider>
+                <ToastProvider
+                  placement="top-right"
+                  toastProps={{
+                    timeout: 4000,
+                    classNames: {
+                      base: "shadow-none top-1.5",
+                      content: "gap-x-2",
+                      closeButton:
+                        "opacity-100 absolute right-2 top-1/2 -translate-y-1/2",
+                      closeIcon: "bg-transparent",
+                      progressIndicator: "opacity-[0.2]",
+                    },
+                  }}
+                />
+                <BrowserRouter>
+                  <TourProvider>
+                    <main className="text-foreground bg-background">
+                      <App />
+                    </main>
+                  </TourProvider>
+                </BrowserRouter>
+              </SocialPostUploadProvider>
+            </UploadProvider>
+          </LocationProvider>
         </QueryProvider>
       </ReduxProvider>
     </HeroUIProvider>

@@ -5,47 +5,31 @@ import { GrLocation } from "react-icons/gr";
 import { LuTrash2 } from "react-icons/lu";
 import DeleteConfirmationModal from "../../../components/common/DeleteConfirmationModal";
 import EmptyState from "../../../components/common/EmptyState";
-import LocationSkeleton from "../../../components/skeletons/LocationSkeleton";
-import {
-  useDeleteLocation,
-  useFetchLocations,
-} from "../../../hooks/settings/useLocation";
+import { useDeleteLocation, useFetchLocations } from "../../../hooks/settings/useLocation";
 import { Location } from "../../../types/common";
 import LocationActionModal from "./LocationActionModal";
 import { LoadingState } from "../../../components/common/LoadingState";
 import Pagination from "../../../components/common/Pagination";
 import { usePaginationAdjustment } from "../../../hooks/common/usePaginationAdjustment";
 
-import { usePlanGuard } from "../../../hooks/usePlanGuard";
-
 const Locations: React.FC = () => {
-  const { isLimitReached, getLimit, openPricingPage } = usePlanGuard();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [editLocationId, setEditLocationId] = useState<string>("");
   const [deleteLocationId, setDeleteLocationId] = useState<string>("");
-
   const [page, setPage] = useState(1);
   const LIMIT = 10;
-
-  const { data: locationsData, isLoading: locationsIsLoading } =
-    useFetchLocations({ page, limit: LIMIT });
-
+  const { data: locationsData, isLoading: locationsIsLoading } = useFetchLocations({ page, limit: LIMIT });
   const locations = locationsData?.data;
   const totalPages = locationsData?.totalPages || 1;
   const totalLocations = locationsData?.totalData || locations?.length || 0;
-  const maxLocations = getLimit("locations");
-  const isLocationLimitReached = isLimitReached("locations", totalLocations);
-
   usePaginationAdjustment({
     totalPages: totalPages,
     currentPage: page,
     onPageChange: (newPage) => setPage(newPage),
     isLoading: locationsIsLoading,
   });
-
-  const { mutate: deleteLocation, isPending: deleteLocationIsPending } =
-    useDeleteLocation();
+  const { mutate: deleteLocation, isPending: deleteLocationIsPending } = useDeleteLocation();
 
   const handleCancel = () => {
     setIsModalOpen(false);
