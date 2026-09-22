@@ -24,6 +24,8 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
   const [balance, setBalance] = useState<number>(twilioConfig?.balance ?? 0);
   const [minutesUsed, setMinutesUsed] = useState<number>(twilioConfig?.minutesUsed ?? 0);
   const [minutesLimit, setMinutesLimit] = useState<number>(twilioConfig?.minutesLimit ?? 0);
+  const [messagesUsed, setMessagesUsed] = useState<number>(twilioConfig?.messagesUsed ?? 0);
+  const [messagesLimit, setMessagesLimit] = useState<number>(twilioConfig?.messagesLimit ?? 0);
   const [planExpiresAt, setPlanExpiresAt] = useState<string | null | undefined>(twilioConfig?.planExpiresAt);
   const planName = twilioConfig?.planName || "No Active Plan";
   const [phoneNumbers, setPhoneNumbers] = useState<PhoneNumber[]>([]);
@@ -33,6 +35,8 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
       if (twilioConfig.balance !== undefined) setBalance(twilioConfig.balance);
       if (twilioConfig.minutesUsed !== undefined) setMinutesUsed(twilioConfig.minutesUsed);
       if (twilioConfig.minutesLimit !== undefined) setMinutesLimit(twilioConfig.minutesLimit);
+      if (twilioConfig.messagesUsed !== undefined) setMessagesUsed(twilioConfig.messagesUsed);
+      if (twilioConfig.messagesLimit !== undefined) setMessagesLimit(twilioConfig.messagesLimit);
       if (twilioConfig.planExpiresAt !== undefined) setPlanExpiresAt(twilioConfig.planExpiresAt);
       if (twilioConfig.phoneNumbers !== undefined) {
         const formatted = twilioConfig.phoneNumbers.map((num: any) => ({
@@ -142,6 +146,8 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
         planName={planName}
         minutesUsed={minutesUsed}
         minutesLimit={minutesLimit}
+        messagesUsed={messagesUsed}
+        messagesLimit={messagesLimit}
         onOpenManagePlans={() => setIsAddCreditsOpen(true)}
         onOpenPurchaseNumber={() => setIsPurchaseNumberOpen(true)}
       />

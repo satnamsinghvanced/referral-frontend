@@ -13,6 +13,10 @@ import {
   FiPackage,
   FiX,
   FiAlertCircle,
+  FiRefreshCw,
+  FiClock,
+  FiCalendar,
+  FiRepeat,
 } from "react-icons/fi";
 import { addToast } from "@heroui/react";
 import { WorkspaceLoader } from "../../../components/common/LoadingState";
@@ -31,11 +35,13 @@ const AddonsTab: React.FC<AddonsTabProps> = ({ isLight }) => {
   const [addonForm, setAddonForm] = useState<{
     title: string;
     price: string;
+    billingType: "one_time" | "monthly" | "annually";
     unit: string;
     description: string;
   }>({
     title: "",
     price: "",
+    billingType: "monthly",
     unit: "",
     description: "",
   });
@@ -76,9 +82,14 @@ const AddonsTab: React.FC<AddonsTabProps> = ({ isLight }) => {
     setFormErrors({});
     if (addon) {
       setEditingAddon(addon);
+      const bType: "one_time" | "monthly" | "annually" =
+        addon.billingType === "monthly" || addon.billingType === "annually" || addon.billingType === "one_time"
+          ? addon.billingType
+          : "one_time";
       setAddonForm({
         title: addon.title,
         price: String(addon.price),
+        billingType: bType,
         unit: addon.unit || "",
         description: addon.description || "",
       });
@@ -87,6 +98,7 @@ const AddonsTab: React.FC<AddonsTabProps> = ({ isLight }) => {
       setAddonForm({
         title: "",
         price: "",
+        billingType: "monthly",
         unit: "",
         description: "",
       });
@@ -116,25 +128,24 @@ const AddonsTab: React.FC<AddonsTabProps> = ({ isLight }) => {
 
     try {
       setSaving(true);
+      const payload = {
+        title: addonForm.title.trim(),
+        price: Number(addonForm.price),
+        billingType: addonForm.billingType,
+        isAutopay: addonForm.billingType !== "one_time",
+        unit: addonForm.unit.trim(),
+        description: addonForm.description.trim(),
+      };
+
       if (editingAddon && editingAddon._id) {
-        await updateAddon(editingAddon._id, {
-          title: addonForm.title.trim(),
-          price: Number(addonForm.price),
-          unit: addonForm.unit.trim(),
-          description: addonForm.description.trim(),
-        });
+        await updateAddon(editingAddon._id, payload);
         addToast({
           title: "Add-on Saved",
           description: `Successfully updated '${addonForm.title.trim()}'`,
           color: "success",
         });
       } else {
-        await createAddon({
-          title: addonForm.title.trim(),
-          price: Number(addonForm.price),
-          unit: addonForm.unit.trim(),
-          description: addonForm.description.trim(),
-        });
+        await createAddon(payload);
         addToast({
           title: "Add-on Created",
           description: `Successfully created add-on '${addonForm.title.trim()}'`,
@@ -190,7 +201,7 @@ const AddonsTab: React.FC<AddonsTabProps> = ({ isLight }) => {
             <span>Optional Add-ons</span>
           </h1>
           <p className={`text-xs mt-1 font-medium ${isLight ? "text-slate-500" : "text-slate-400"}`}>
-            Enhance your plan with additional features and capacity
+            Enhance your plan with additional features, one-time purchases, or recurring autopay add-ons
           </p>
         </div>
 
@@ -231,62 +242,97 @@ const AddonsTab: React.FC<AddonsTabProps> = ({ isLight }) => {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 items-stretch">
-          {addons.map((addon) => (
-            <div
-              key={addon._id || addon.id}
-              className={`rounded-3xl border p-6 flex flex-col justify-between transition-all h-full ${
-                isLight
-                  ? "bg-white border-slate-200/90 shadow-sm hover:shadow-md"
-                  : "bg-[#0F172A] border-[#1E293B] hover:border-slate-700"
-              }`}
-            >
-              <div>
-                <div className="flex items-start justify-between gap-3">
-                  <h3 className={`text-base font-bold ${isLight ? "text-slate-900" : "text-white"}`}>
-                    {addon.title}
-                  </h3>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <button
-                      type="button"
-                      onClick={() => handleOpenModal(addon)}
-                      className="p-1.5 rounded-xl text-slate-400 hover:text-[#20a9f8] hover:bg-sky-50 dark:hover:bg-sky-950/40 transition-colors cursor-pointer"
-                      title="Edit Add-on"
-                    >
-                      <FiEdit2 className="text-sm" />
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setDeleteTarget({
-                          id: addon._id || addon.id!,
-                          title: addon.title,
-                        })
-                      }
-                      className="p-1.5 rounded-xl text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
-                      title="Delete Add-on"
-                    >
-                      <FiTrash2 className="text-sm text-red-500" />
-                    </button>
+          {addons.map((addon) => {
+            const isMonthly = addon.billingType === "monthly";
+            const isAnnually = addon.billingType === "annually";
+
+            return (
+              <div
+                key={addon._id || addon.id}
+                className={`rounded-3xl border p-6 flex flex-col justify-between transition-all h-full ${
+                  isLight
+                    ? "bg-white border-slate-200/90 shadow-sm hover:shadow-md"
+                    : "bg-[#0F172A] border-[#1E293B] hover:border-slate-700"
+                }`}
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h3 className={`text-base font-bold ${isLight ? "text-slate-900" : "text-white"}`}>
+                        {addon.title}
+                      </h3>
+                      <div className="mt-1.5">
+                        {isMonthly ? (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-sky-500/10 text-[#20a9f8] border border-sky-500/25">
+                            <FiRefreshCw className="text-[10px] shrink-0" />
+                            Monthly • Autopay
+                          </span>
+                        ) : isAnnually ? (
+                          <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 dark:text-emerald-400 border border-emerald-500/25">
+                            <FiCalendar className="text-[10px] shrink-0" />
+                            Annually • Autopay
+                          </span>
+                        ) : (
+                          <span
+                            className={`inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${
+                              isLight
+                                ? "bg-slate-100 text-slate-600 border-slate-200"
+                                : "bg-slate-800/80 text-slate-300 border-slate-700"
+                            }`}
+                          >
+                            <FiClock className="text-[10px] shrink-0" />
+                            One-Time
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenModal(addon)}
+                        className="p-1.5 rounded-xl text-slate-400 hover:text-[#20a9f8] hover:bg-sky-50 dark:hover:bg-sky-950/40 transition-colors cursor-pointer"
+                        title="Edit Add-on"
+                      >
+                        <FiEdit2 className="text-sm" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setDeleteTarget({
+                            id: addon._id || addon.id!,
+                            title: addon.title,
+                          })
+                        }
+                        className="p-1.5 rounded-xl text-red-500 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
+                        title="Delete Add-on"
+                      >
+                        <FiTrash2 className="text-sm text-red-500" />
+                      </button>
+                    </div>
                   </div>
-                </div>
 
-                <div className="mt-3 flex items-baseline gap-1">
-                  <span className="text-3xl font-black text-[#20a9f8]">
-                    ${addon.price}
-                  </span>
-                </div>
-                {addon.unit && (
-                  <p className="text-xs font-semibold text-slate-400 mt-1">
-                    {addon.unit}
+                  <div className="mt-4 flex items-baseline gap-1.5">
+                    <span className="text-3xl font-black text-[#20a9f8]">
+                      ${addon.price}
+                    </span>
+                    <span className="text-xs font-semibold text-slate-400">
+                      {isMonthly ? "/month" : isAnnually ? "/year" : "one-time"}
+                    </span>
+                  </div>
+                  {addon.unit && (
+                    <p className="text-xs font-semibold text-slate-400 mt-1">
+                      {addon.unit}
+                    </p>
+                  )}
+
+                  <p className={`text-xs mt-4 leading-relaxed font-medium ${isLight ? "text-slate-500" : "text-slate-400"}`}>
+                    {addon.description}
                   </p>
-                )}
-
-                <p className={`text-xs mt-4 leading-relaxed font-medium ${isLight ? "text-slate-500" : "text-slate-400"}`}>
-                  {addon.description}
-                </p>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
@@ -314,6 +360,7 @@ const AddonsTab: React.FC<AddonsTabProps> = ({ isLight }) => {
             </div>
 
             <div className="space-y-4 text-xs sm:text-sm">
+              {/* Title */}
               <div>
                 <label className="block font-bold mb-1.5 text-slate-700 dark:text-slate-300 text-xs">
                   Add-on Title <span className="text-red-500">*</span>
@@ -341,6 +388,110 @@ const AddonsTab: React.FC<AddonsTabProps> = ({ isLight }) => {
                 )}
               </div>
 
+              {/* Billing Option: One-Time, Monthly, Annually */}
+              <div>
+                <label className="block font-bold mb-1.5 text-slate-700 dark:text-slate-300 text-xs">
+                  Billing Option <span className="text-red-500">*</span>
+                </label>
+                <div
+                  className={`p-1 rounded-2xl border flex items-center gap-1 ${
+                    isLight ? "bg-slate-100/90 border-slate-200" : "bg-[#111A2E] border-[#1E2B45]"
+                  }`}
+                >
+                  <button
+                    type="button"
+                    onClick={() => setAddonForm({ ...addonForm, billingType: "one_time" })}
+                    className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                      addonForm.billingType === "one_time"
+                        ? "bg-[#20a9f8] text-white shadow-md shadow-[#20a9f8]/25"
+                        : isLight
+                          ? "text-slate-600 hover:text-slate-900 hover:bg-white/60"
+                          : "text-slate-400 hover:text-white hover:bg-white/5"
+                    }`}
+                  >
+                    <FiClock className="text-xs shrink-0" />
+                    <span>One-Time</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setAddonForm({ ...addonForm, billingType: "monthly" })}
+                    className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                      addonForm.billingType === "monthly"
+                        ? "bg-[#20a9f8] text-white shadow-md shadow-[#20a9f8]/25"
+                        : isLight
+                          ? "text-slate-600 hover:text-slate-900 hover:bg-white/60"
+                          : "text-slate-400 hover:text-white hover:bg-white/5"
+                    }`}
+                  >
+                    <FiRepeat className="text-xs shrink-0" />
+                    <span>Monthly</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setAddonForm({ ...addonForm, billingType: "annually" })}
+                    className={`flex-1 py-2.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-center gap-1.5 ${
+                      addonForm.billingType === "annually"
+                        ? "bg-[#20a9f8] text-white shadow-md shadow-[#20a9f8]/25"
+                        : isLight
+                          ? "text-slate-600 hover:text-slate-900 hover:bg-white/60"
+                          : "text-slate-400 hover:text-white hover:bg-white/5"
+                    }`}
+                  >
+                    <FiCalendar className="text-xs shrink-0" />
+                    <span>Annually</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Autopay Status Banner */}
+              {addonForm.billingType === "monthly" || addonForm.billingType === "annually" ? (
+                <div
+                  className={`flex items-start gap-2.5 p-3 rounded-2xl border text-xs transition-all ${
+                    isLight
+                      ? "bg-sky-50/90 border-sky-200/80 text-sky-900"
+                      : "bg-sky-950/30 border-sky-900/60 text-sky-300"
+                  }`}
+                >
+                  <div className="w-5 h-5 rounded-full bg-[#20a9f8]/20 flex items-center justify-center shrink-0 mt-0.5 text-[#20a9f8]">
+                    <FiRefreshCw className="text-xs" />
+                  </div>
+                  <div className="space-y-0.5">
+                    <div className="font-extrabold flex items-center gap-2">
+                      <span className="text-[#20a9f8]">Autopay Enabled</span>
+                      <span className="text-[10px] font-black uppercase tracking-wider bg-[#20a9f8] text-white px-2 py-0.5 rounded-full shadow-xs">
+                        Recurring
+                      </span>
+                    </div>
+                    <p className={`text-[11px] leading-relaxed ${isLight ? "text-slate-600" : "text-slate-300"}`}>
+                      Recurring billing is active. Charges are processed automatically via <strong>Autopay</strong> every {addonForm.billingType === "annually" ? "year" : "month"}, identical to plan subscriptions.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div
+                  className={`flex items-start gap-2.5 p-3 rounded-2xl border text-xs transition-all ${
+                    isLight
+                      ? "bg-slate-50 border-slate-200 text-slate-700"
+                      : "bg-slate-900/40 border-slate-800 text-slate-400"
+                  }`}
+                >
+                  <div className="w-5 h-5 rounded-full bg-slate-500/20 flex items-center justify-center shrink-0 mt-0.5 text-slate-400">
+                    <FiClock className="text-xs" />
+                  </div>
+                  <div className="space-y-0.5">
+                    <div className="font-extrabold text-slate-700 dark:text-slate-300">
+                      Single One-Time Charge
+                    </div>
+                    <p className="text-[11px] leading-relaxed">
+                      This add-on is a single one-time payment. Autopay recurring renewals are not applied.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Price & Billing Details */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block font-bold mb-1.5 text-slate-700 dark:text-slate-300 text-xs">
@@ -381,7 +532,13 @@ const AddonsTab: React.FC<AddonsTabProps> = ({ isLight }) => {
                     type="text"
                     value={addonForm.unit}
                     onChange={(e) => setAddonForm({ ...addonForm, unit: e.target.value })}
-                    placeholder="e.g. 1,000 messages, per user/month"
+                    placeholder={
+                      addonForm.billingType === "one_time"
+                        ? "e.g. 1,000 SMS credits (One-time)"
+                        : addonForm.billingType === "annually"
+                          ? "e.g. 12,000 messages, per user/year"
+                          : "e.g. 1,000 messages, per user/month"
+                    }
                     className={`w-full rounded-2xl px-4 py-3 border focus:outline-none font-medium text-xs transition-all ${
                       isLight
                         ? "bg-white border-slate-300 text-slate-900 placeholder-slate-400 focus:border-[#20a9f8] focus:ring-2 focus:ring-[#20a9f8]/20"
@@ -391,6 +548,7 @@ const AddonsTab: React.FC<AddonsTabProps> = ({ isLight }) => {
                 </div>
               </div>
 
+              {/* Description */}
               <div>
                 <label className="block font-bold mb-1.5 text-slate-700 dark:text-slate-300 text-xs">
                   Description
@@ -443,3 +601,4 @@ const AddonsTab: React.FC<AddonsTabProps> = ({ isLight }) => {
 };
 
 export default AddonsTab;
+

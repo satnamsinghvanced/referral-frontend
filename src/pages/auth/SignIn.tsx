@@ -3,7 +3,7 @@ import { useFormik } from "formik";
 import { useState } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { useDispatch } from "react-redux";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import * as Yup from "yup";
 import { AppDispatch } from "../../store";
 import { useLogin, useVerify2FA } from "../../hooks/useAuth";
@@ -22,6 +22,11 @@ const SignIn = () => {
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const addonId = searchParams.get("addonId") || searchParams.get("addon_id") || searchParams.get("addon");
+  const redirectParam = searchParams.get("redirect");
+  const targetRedirect = redirectParam || (addonId ? `/checkout/addon?addonId=${addonId}` : "/");
+
   const dispatch = useDispatch<AppDispatch>();
   const { mutate: loginUser, isPending: isLoginPending } = useLogin();
   const { mutate: verifyOtp, isPending: isVerifyPending } = useVerify2FA();
@@ -68,7 +73,7 @@ const SignIn = () => {
                   token: response?.accessToken || "",
                 }),
               );
-              navigate("/");
+              navigate(targetRedirect);
             }
           },
           onError: (error: any) => {

@@ -19,6 +19,16 @@ export interface TeamMember {
   permissions?: any[];
   isVerified?: boolean;
   termsAccepted?: boolean;
+  userAddonId?: {
+    _id: string;
+    title: string;
+    status: string;
+    purchaseDate?: string;
+    nextBillingDate?: string;
+    isAutopay?: boolean;
+    price?: number;
+  } | null;
+  addonId?: string | null;
 }
 
 export interface TeamMembersResponse {

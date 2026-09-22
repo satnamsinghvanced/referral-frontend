@@ -1,10 +1,11 @@
 import { Button, Card, CardBody, CardHeader, Spinner, addToast, Modal, ModalContent, ModalHeader, ModalBody, ModalFooter, useDisclosure } from "@heroui/react";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FiCreditCard, FiDownload, FiFileText, FiRefreshCw, FiAlertTriangle } from "react-icons/fi";
+import { FiCreditCard, FiDownload, FiFileText, FiRefreshCw, FiAlertTriangle, FiPackage, FiCalendar, FiClock } from "react-icons/fi";
 import { useQueryClient } from "@tanstack/react-query";
 import { useBilling } from "../../hooks/settings/useBilling";
 import { getLatestInvoice, getAllInvoices, downloadInvoicePdf, InvoiceItem, cancelSubscription, resumeSubscription } from "../../services/settings/billing";
+import { UserAddonData, fetchUserAddons, cancelUserAddon } from "../../services/addonService";
 import { formatDateToReadable } from "../../utils/formatDateToReadable";
 import { LoadingState } from "../../components/common/LoadingState";
 
@@ -25,6 +26,11 @@ const Billing: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
+  const [userAddons, setUserAddons] = useState<UserAddonData[]>([]);
+  const [isLoadingAddons, setIsLoadingAddons] = useState(false);
+  const [cancelingAddonId, setCancelingAddonId] = useState<string | null>(null);
+  const [addonToCancel, setAddonToCancel] = useState<UserAddonData | null>(null);
+
   const { isOpen: isCancelOpen, onOpen: onOpenCancel, onOpenChange: onCancelOpenChange, onClose: onCloseCancel } = useDisclosure();
   const [isCanceling, setIsCanceling] = useState(false);
   const [isResuming, setIsResuming] = useState(false);
@@ -42,8 +48,25 @@ const Billing: React.FC = () => {
     }
   };
 
+  const loadUserAddons = async () => {
+    try {
+      setIsLoadingAddons(true);
+      const res = await fetchUserAddons();
+      const list = res?.data || res;
+      if (Array.isArray(list)) {
+        setUserAddons(list);
+      }
+    } catch (err) {
+      console.error("Failed to fetch user add-ons:", err);
+      setUserAddons([]);
+    } finally {
+      setIsLoadingAddons(false);
+    }
+  };
+
   useEffect(() => {
     fetchInvoices();
+    loadUserAddons();
   }, []);
 
   const triggerFileDownload = (blob: Blob, filename: string) => {
@@ -252,7 +275,7 @@ const Billing: React.FC = () => {
       setIsDownloadingAll(false);
     }
   };
-  
+
   if (isLoading) {
     return (
       <Card className="rounded-xl shadow-none border border-foreground/10 bg-background h-[356px] flex items-center justify-center">
@@ -316,14 +339,14 @@ const Billing: React.FC = () => {
         <CardBody className="p-4 space-y-6">
           <div
             className={`p-4 rounded-xl border transition-all ${isTrial
-                ? "bg-sky-50/60 dark:bg-sky-950/20 border-sky-300 dark:border-sky-800/80"
-                : isInactive
-                  ? "bg-red-50/40 dark:bg-red-950/15 border-red-300 dark:border-red-800/60"
-                  : isCanceled
-                    ? "bg-amber-50/40 dark:bg-amber-950/15 border-amber-300 dark:border-amber-800/70"
-                    : isActive
-                      ? "bg-blue-50/50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800/60"
-                      : "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800"
+              ? "bg-sky-50/60 dark:bg-sky-950/20 border-sky-300 dark:border-sky-800/80"
+              : isInactive
+                ? "bg-red-50/40 dark:bg-red-950/15 border-red-300 dark:border-red-800/60"
+                : isCanceled
+                  ? "bg-amber-50/40 dark:bg-amber-950/15 border-amber-300 dark:border-amber-800/70"
+                  : isActive
+                    ? "bg-blue-50/50 dark:bg-blue-950/20 border-blue-200 dark:border-blue-800/60"
+                    : "bg-red-50 dark:bg-red-950/20 border-red-200 dark:border-red-800"
               }`}
           >
             <div className="flex items-center justify-between mb-2">
@@ -383,7 +406,7 @@ const Billing: React.FC = () => {
               <p className="text-gray-700 dark:text-zinc-300 font-medium">
                 ${billingData.price}/{billingData.billingCycle || "month"}
               </p>
-              
+
               <div className="flex flex-wrap items-center gap-2">
                 {isInactive ? (
                   <span className="text-gray-500 dark:text-zinc-400">
@@ -551,6 +574,166 @@ const Billing: React.FC = () => {
         </CardBody>
       </Card>
 
+
+      <Card className="rounded-xl shadow-none border border-foreground/10 bg-background">
+        <CardHeader className="flex items-center justify-between px-4 pt-4 pb-2 border-b border-foreground/10">
+          <div className="flex items-center gap-2">
+            <FiPackage className="size-5 text-gray-500" />
+            <div>
+              <h4 className="text-base font-semibold">Active Optional Add-ons</h4>
+              <p className="text-xs text-gray-500 dark:text-zinc-400">
+                Purchased add-ons, extra capacity, and recurring features
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="light"
+              isIconOnly
+              title="Refresh add-ons"
+              isLoading={isLoadingAddons}
+              onPress={loadUserAddons}
+            >
+              <FiRefreshCw className="size-4" />
+            </Button>
+          </div>
+        </CardHeader>
+
+        <CardBody className="p-4">
+          {isLoadingAddons ? (
+            <div className="py-8 flex flex-col items-center justify-center gap-2 text-sm text-gray-500">
+              <Spinner size="sm" />
+              <span>Loading your add-ons...</span>
+            </div>
+          ) : userAddons.length === 0 ? (
+            <div className="py-8 text-center text-sm text-gray-500 dark:text-zinc-400">
+              <FiPackage className="size-8 mx-auto mb-2 text-gray-300 dark:text-zinc-600" />
+              <p className="text-xs font-medium text-foreground/80">
+                No active optional add-ons
+              </p>
+              <p className="text-[11px] text-foreground/50 mt-0.5">
+                Boost your practice with extra SMS messages, additional user seats, or white-labeling.
+              </p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              {userAddons.map((item) => {
+                const isMonthly = item.billingType === "monthly";
+                const isAnnually = item.billingType === "annually";
+                const isRecurring = isMonthly || isAnnually;
+                const isItemCanceled = item.status === "canceled";
+                const isItemExpired = item.status === "expired";
+
+                return (
+                  <div
+                    key={item._id}
+                    className="p-4 rounded-xl border border-foreground/10 bg-content1/40 dark:bg-zinc-900/40 flex flex-col justify-between gap-3 transition-all hover:border-primary/40 shadow-xs"
+                  >
+                    <div>
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h5 className="text-sm font-bold text-foreground">
+                              {item.title}
+                            </h5>
+                          </div>
+                          {item.unit && (
+                            <p className="text-[11px] font-medium text-foreground/60 mt-0.5">
+                              {item.unit}
+                            </p>
+                          )}
+                        </div>
+
+                        <div>
+                          {isItemExpired ? (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-red-100 dark:bg-red-950/50 text-red-700 dark:text-red-400 border border-red-300 dark:border-red-800">
+                              Expired
+                            </span>
+                          ) : isItemCanceled ? (
+                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-800">
+                              Canceled
+                            </span>
+                          ) : isMonthly ? (
+                            <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800/80">
+                              <span className="size-1.5 rounded-full bg-emerald-500"></span>
+                              Monthly • Autopay
+                            </span>
+                          ) : isAnnually ? (
+                            <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800/80">
+                              <span className="size-1.5 rounded-full bg-emerald-500"></span>
+                              Annually • Autopay
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800/80">
+                              <span className="size-1.5 rounded-full bg-emerald-500"></span>
+                              Active • One-Time
+                            </span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="mt-2.5 flex items-baseline gap-1.5 flex-wrap">
+                        <span className="text-xl font-bold text-primary">
+                          ${item.price}
+                        </span>
+                        <span className="text-[11px] font-medium text-foreground/60">
+                          {isMonthly ? "/ month" : isAnnually ? "/ year" : " paid"}
+                        </span>
+                      </div>
+
+                      {item.description && (
+                        <p className="text-xs text-foreground/70 mt-2 leading-relaxed">
+                          {item.description}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="pt-3 border-t border-foreground/10 flex flex-wrap items-center justify-between gap-2 text-xs">
+                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-foreground/60 text-[11px]">
+                        <span className="inline-flex items-center gap-1.5">
+                          <span className="size-1.5 rounded-full bg-emerald-500"></span>
+                          <strong className="text-foreground/80 font-medium">Active:</strong>{" "}
+                          {formatDateToReadable(item.purchaseDate || item.createdAt)}
+                        </span>
+                        <span>•</span>
+                        <span>
+                          <strong className="text-foreground/80 font-medium">
+                            {isItemCanceled
+                              ? "Access until:"
+                              : isRecurring
+                                ? "Next renewal:"
+                                : "Expiry:"}
+                          </strong>{" "}
+                          {item.nextBillingDate
+                            ? formatDateToReadable(item.nextBillingDate)
+                            : isRecurring
+                              ? "—"
+                              : "Lifetime"}
+                        </span>
+                      </div>
+
+                      {isRecurring && !isItemCanceled && (
+                        <Button
+                          size="sm"
+                          variant="light"
+                          color="danger"
+                          isLoading={cancelingAddonId === item._id}
+                          onPress={() => setAddonToCancel(item)}
+                          className="h-6 text-[10px] px-2 font-medium text-danger hover:bg-danger/10 ml-auto"
+                        >
+                          Cancel Autopay
+                        </Button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </CardBody>
+      </Card>
+      
       <Card className="rounded-xl shadow-none border border-foreground/10 bg-background">
         <CardHeader className="flex items-center justify-between px-4 pt-4 pb-2 border-b border-foreground/10">
           <div className="flex items-center gap-2">
@@ -582,7 +765,7 @@ const Billing: React.FC = () => {
                 isLoading={isDownloadingAll}
                 onPress={handleDownloadAllInvoices}
               >
-                Download All 
+                Download All
               </Button>
             )}
           </div>
@@ -605,54 +788,54 @@ const Billing: React.FC = () => {
           ) : (
             <div className="space-y-4">
               <div className="overflow-x-auto">
-                <table className="w-full text-left text-xs">
+                <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="border-b border-gray-200 dark:border-zinc-800 text-gray-400 dark:text-zinc-500 font-medium">
-                      <th className="pb-3 font-semibold">Date</th>
-                      <th className="pb-3 font-semibold">Invoice / Receipt #</th>
-                      <th className="pb-3 font-semibold">Amount</th>
-                      <th className="pb-3 font-semibold">Status</th>
-                      <th className="pb-3 font-semibold text-right">Action</th>
+                    <tr className="border-b border-gray-200 dark:border-zinc-800 text-xs font-semibold text-gray-500 dark:text-zinc-400">
+                      <th className="pb-3 px-2">Invoice</th>
+                      <th className="pb-3 px-2">Billing Date</th>
+                      <th className="pb-3 px-2">Amount</th>
+                      <th className="pb-3 px-2">Status</th>
+                      <th className="pb-3 px-2 text-right">Action</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100 dark:divide-zinc-800/60">
+                  <tbody className="divide-y divide-gray-100 dark:divide-zinc-800/60 text-xs">
                     {invoices
                       .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
                       .map((inv) => {
-                        const isPaid = inv.status === "paid" || inv.status === "succeeded";
+                        const isDownloadingThis = downloadingIds[inv.id] || false;
+                        const isPaid = (inv.status || "").toLowerCase() === "paid";
                         return (
-                          <tr key={inv.id} className="hover:bg-gray-50/50 dark:hover:bg-zinc-900/50 transition-colors">
-                            <td className="py-3 text-gray-700 dark:text-zinc-300 font-medium whitespace-nowrap">
-                              {inv.date ? new Date(inv.date).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" }) : "—"}
-                            </td>
-                            <td className="py-3 text-gray-600 dark:text-zinc-400 font-mono text-[11px] whitespace-nowrap">
+                          <tr key={inv.id} className="hover:bg-gray-50/50 dark:hover:bg-zinc-900/40 transition-colors">
+                            <td className="py-3 px-2 font-medium text-gray-900 dark:text-zinc-100">
                               {inv.number || inv.id}
                             </td>
-                            <td className="py-3 text-gray-900 dark:text-white font-semibold whitespace-nowrap">
-                              ${inv.amount.toFixed(2)} {inv.currency.toUpperCase()}
+                            <td className="py-3 px-2 text-gray-500 dark:text-zinc-400">
+                              {formatDateToReadable(inv.date)}
                             </td>
-                            <td className="py-3 whitespace-nowrap">
+                            <td className="py-3 px-2 font-semibold text-gray-900 dark:text-zinc-100">
+                              ${Number(inv.amount || 0).toFixed(2)}
+                            </td>
+                            <td className="py-3 px-2">
                               <span
-                                className={`inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-medium ${
-                                  isPaid
-                                    ? "bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-400 border border-green-200 dark:border-green-800"
-                                    : "bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-400 border border-amber-200 dark:border-amber-800"
-                                }`}
+                                className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${isPaid
+                                    ? "bg-green-100 text-green-700 dark:bg-green-950/40 dark:text-green-400 border border-green-200 dark:border-green-800/60"
+                                    : "bg-amber-100 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border border-amber-200 dark:border-amber-800/60"
+                                  }`}
                               >
-                                {inv.status ? inv.status.toUpperCase() : "PAID"}
+                                {isPaid ? "Paid" : inv.status || "Pending"}
                               </span>
                             </td>
-                            <td className="py-3 text-right whitespace-nowrap">
+                            <td className="py-3 px-2 text-right">
                               <Button
                                 size="sm"
-                                variant="flat"
-                                color="primary"
-                                className="text-xs h-7 px-3 font-medium"
-                                startContent={<FiDownload className="size-3.5" />}
-                                isLoading={Boolean(downloadingIds[inv.id])}
+                                variant="light"
+                                isIconOnly
+                                title="Download PDF"
+                                isLoading={isDownloadingThis}
                                 onPress={() => handleDownloadSingleInvoice(inv)}
+                                className="text-gray-500 hover:text-gray-900 dark:hover:text-zinc-100"
                               >
-                                Download PDF
+                                <FiDownload className="size-3.5" />
                               </Button>
                             </td>
                           </tr>
@@ -679,7 +862,6 @@ const Billing: React.FC = () => {
         </CardBody>
       </Card>
 
-      {/* Cancel Subscription Confirmation Modal */}
       <Modal isOpen={isCancelOpen} onOpenChange={onCancelOpenChange} placement="center" backdrop="blur" size="md">
         <ModalContent className="bg-background border border-foreground/10">
           {(onClose) => (
@@ -715,6 +897,73 @@ const Billing: React.FC = () => {
                   variant="solid"
                   isLoading={isCanceling}
                   onPress={handleCancelSubscription}
+                  className="font-semibold shadow-sm"
+                >
+                  Confirm Cancellation
+                </Button>
+              </ModalFooter>
+            </>
+          )}
+        </ModalContent>
+      </Modal>
+
+      <Modal isOpen={Boolean(addonToCancel)} onOpenChange={() => setAddonToCancel(null)} placement="center" backdrop="blur" size="md">
+        <ModalContent className="bg-background border border-foreground/10">
+          {(onClose) => (
+            <>
+              <ModalHeader className="flex flex-col gap-1 pb-2">
+                <div className="flex items-center gap-2 text-danger">
+                  <FiAlertTriangle className="size-5" />
+                  <span className="text-base font-bold text-foreground">Cancel Add-on Renewal</span>
+                </div>
+              </ModalHeader>
+              <ModalBody className="py-2 space-y-3">
+                <p className="text-xs text-gray-600 dark:text-zinc-400 leading-relaxed">
+                  Are you sure you want to cancel Autopay renewal for <strong>{addonToCancel?.title}</strong>?
+                </p>
+                <div className="p-3 rounded-lg bg-amber-50/80 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800/60 text-xs text-amber-900 dark:text-amber-200 space-y-1">
+                  <p className="font-semibold">What will happen:</p>
+                  <p>
+                    • You will continue to have access to this add-on until{" "}
+                    <strong>{formatDateToReadable(addonToCancel?.nextBillingDate)}</strong>.
+                  </p>
+                  <p>
+                    • <strong>Autopay will be turned off immediately</strong> and no further renewals will be billed.
+                  </p>
+                </div>
+              </ModalBody>
+              <ModalFooter className="pt-2">
+                <Button size="sm" variant="bordered" onPress={onClose} disabled={Boolean(cancelingAddonId)}>
+                  Keep Add-on
+                </Button>
+                <Button
+                  size="sm"
+                  color="danger"
+                  variant="solid"
+                  isLoading={Boolean(cancelingAddonId)}
+                  onPress={async () => {
+                    if (addonToCancel) {
+                      try {
+                        setCancelingAddonId(addonToCancel._id);
+                        await cancelUserAddon(addonToCancel._id);
+                        addToast({
+                          title: "Add-on Canceled",
+                          description: `Autopay renewal canceled for '${addonToCancel.title}'.`,
+                          color: "success",
+                        });
+                        setAddonToCancel(null);
+                        await loadUserAddons();
+                      } catch (err: any) {
+                        addToast({
+                          title: "Error",
+                          description: err.response?.data?.message || "Failed to cancel add-on",
+                          color: "danger",
+                        });
+                      } finally {
+                        setCancelingAddonId(null);
+                      }
+                    }
+                  }}
                   className="font-semibold shadow-sm"
                 >
                   Confirm Cancellation

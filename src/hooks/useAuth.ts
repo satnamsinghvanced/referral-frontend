@@ -86,7 +86,16 @@ export function useVerify2FA() {
         description: "Verification successful!",
         color: "success",
       });
-      navigate("/");
+      const searchParams = new URLSearchParams(window.location.search);
+      const addonId = searchParams.get("addonId") || searchParams.get("addon_id") || searchParams.get("addon");
+      const redirect = searchParams.get("redirect");
+      if (addonId) {
+        navigate(`/checkout/addon?addonId=${addonId}`);
+      } else if (redirect) {
+        navigate(redirect);
+      } else {
+        navigate("/");
+      }
     },
   });
 }
