@@ -373,11 +373,24 @@ export default function TwilioA2PRegistrationModal({ isOpen, onClose, phoneNumbe
   const hasExistingRegistration = !!registrationData;
   const isSubmitting = isSaving || isUpdating;
 
+  const isCustomerProfileApproved = Boolean(
+    registrationData && (
+      registrationData.customerProfileStatus === "APPROVED" ||
+      registrationData.status === "approved" ||
+      (
+        registrationData.customerProfileBundleSid &&
+        registrationData.customerProfileStatus !== "FAILED" &&
+        !registrationData.rejectionReason?.toLowerCase().includes("customer profile") &&
+        !registrationData.rejectionReason?.toLowerCase().includes("business information") &&
+        !registrationData.rejectionReason?.toLowerCase().includes("representative")
+      )
+    )
+  );
+
   useEffect(() => {
     if (isOpen) {
       setErrors({});
       if (registrationData) {
-        const isCustomerProfileApproved = registrationData.customerProfileStatus === "APPROVED" || registrationData.status === "approved" || (registrationData.customerProfileBundleSid && registrationData.status === "pending");
         setStep(isCustomerProfileApproved ? 2 : 1);
         setFormData({
           businessName: registrationData.businessName || "",

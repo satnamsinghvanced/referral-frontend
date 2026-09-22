@@ -15,9 +15,11 @@ import { LoadingState } from "../common/LoadingState";
 import NotificationPopover from "../ui/NotificationsPopover";
 import LogoutConfirmationModal from "../common/LogoutConfirmationModal";
 import { useRolePermissions } from "../../hooks/useRolePermissions";
+import { useLocationContext } from "../../providers/LocationContext";
 
 export default function Header({ hamburgerMenuClick, }: { hamburgerMenuClick: () => void; }) {
   const navigate = useNavigate();
+  const { selectedLocation, getLocationColor } = useLocationContext();
   const { user } = useTypedSelector((state) => state.auth);
   const { hasPermission, hasAnyPermission, isAdmin } = useRolePermissions();
   const [query, setQuery] = useState("");
@@ -255,6 +257,15 @@ export default function Header({ hamburgerMenuClick, }: { hamburgerMenuClick: ()
               )}
             </AnimatePresence>
           </div>
+          {selectedLocation && (
+            <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-foreground/5 dark:bg-foreground/10 border border-foreground/10 text-xs font-medium text-foreground shrink-0 shadow-2xs">
+              <span
+                className="w-2 h-2 rounded-full shrink-0 shadow-2xs"
+                style={{ backgroundColor: getLocationColor(selectedLocation._id) }}
+              />
+              <span className="truncate max-w-[160px] font-medium">{selectedLocation.name}</span>
+            </div>
+          )}
         </NavbarContent>
       </NavbarContent>
       <NavbarContent as="div" className="items-center gap-4" justify="end">

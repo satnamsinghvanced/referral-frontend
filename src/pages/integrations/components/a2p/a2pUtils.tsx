@@ -41,17 +41,29 @@ export const getStageStatus = (registration: A2PRegistrationData | null, stage: 
     return { status: 'NOT_REGISTERED', label: 'Not registered', type: 'neutral' };
   }
   if (stage === 'brand') {
-    const st = registration.brandStatus || (registration.brandSid ? (registration.status === 'failed' && !registration.campaignSid ? 'FAILED' : 'APPROVED') : (registration.customerProfileStatus === 'APPROVED' ? 'PENDING' : 'NOT_REGISTERED'));
-    if (st === 'APPROVED' || registration.status === 'approved' || (registration.brandSid && registration.status !== 'failed')) return { status: 'APPROVED', label: 'Approved', type: 'success' };
-    if (st === 'PENDING' || (registration.customerProfileBundleSid && registration.status === 'pending')) return { status: 'PENDING', label: 'Pending Review', type: 'warning' };
-    if (st === 'FAILED') return { status: 'FAILED', label: 'Rejected', type: 'danger' };
+    const rawBrandStatus = (registration.brandStatus || "").toUpperCase();
+    if (rawBrandStatus === 'APPROVED' || rawBrandStatus === 'VERIFIED') {
+      return { status: 'APPROVED', label: 'Approved', type: 'success' };
+    }
+    if (rawBrandStatus === 'FAILED' || rawBrandStatus === 'REJECTED') {
+      return { status: 'FAILED', label: 'Rejected', type: 'danger' };
+    }
+    if (rawBrandStatus === 'PENDING' || registration.brandSid || registration.customerProfileStatus === 'APPROVED' || registration.status === 'pending') {
+      return { status: 'PENDING', label: 'Pending Review', type: 'warning' };
+    }
     return { status: 'NOT_REGISTERED', label: 'Not registered', type: 'neutral' };
   }
   if (stage === 'campaign') {
-    const st = registration.campaignStatus || (registration.campaignSid ? (registration.status === 'approved' ? 'APPROVED' : (registration.status === 'failed' ? 'FAILED' : 'PENDING')) : 'NOT_REGISTERED');
-    if (st === 'APPROVED' || registration.status === 'approved' || registration.campaignStatus === 'APPROVED' || registration.campaignStatus === 'VERIFIED') return { status: 'APPROVED', label: 'Approved', type: 'success' };
-    if (st === 'FAILED' || registration.campaignStatus === 'FAILED' || registration.campaignStatus === 'REJECTED') return { status: 'FAILED', label: 'Rejected', type: 'danger' };
-    if (st === 'PENDING' || registration.status === 'pending') return { status: 'PENDING', label: 'Pending Review', type: 'warning' };
+    const rawCampStatus = (registration.campaignStatus || "").toUpperCase();
+    if (rawCampStatus === 'APPROVED' || rawCampStatus === 'VERIFIED' || registration.status === 'approved') {
+      return { status: 'APPROVED', label: 'Approved', type: 'success' };
+    }
+    if (rawCampStatus === 'FAILED' || rawCampStatus === 'REJECTED' || (registration.status === 'failed' && registration.campaignSid)) {
+      return { status: 'FAILED', label: 'Rejected', type: 'danger' };
+    }
+    if (rawCampStatus === 'PENDING' || registration.campaignSid || registration.status === 'pending') {
+      return { status: 'PENDING', label: 'Pending Review', type: 'warning' };
+    }
     return { status: 'NOT_REGISTERED', label: 'Not registered', type: 'neutral' };
   }
   return { status: 'NOT_REGISTERED', label: 'Not registered', type: 'neutral' };
