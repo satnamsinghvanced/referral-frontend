@@ -257,7 +257,7 @@ export default function Header({ hamburgerMenuClick, }: { hamburgerMenuClick: ()
               )}
             </AnimatePresence>
           </div>
-          {selectedLocation && (
+          {/* {selectedLocation && (
             <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-foreground/5 dark:bg-foreground/10 border border-foreground/10 text-xs font-medium text-foreground shrink-0 shadow-2xs">
               <span
                 className="w-2 h-2 rounded-full shrink-0 shadow-2xs"
@@ -265,7 +265,7 @@ export default function Header({ hamburgerMenuClick, }: { hamburgerMenuClick: ()
               />
               <span className="truncate max-w-[160px] font-medium">{selectedLocation.name}</span>
             </div>
-          )}
+          )} */}
         </NavbarContent>
       </NavbarContent>
       <NavbarContent as="div" className="items-center gap-4" justify="end">
