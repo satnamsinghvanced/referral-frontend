@@ -2,8 +2,6 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { addToast } from "@heroui/react";
 import { queryClient } from "../providers/QueryProvider";
-import { store } from "../store";
-import { handleLogoutThunk } from "../store/authSlice";
 
 interface JwtPayload {
   exp?: number;
@@ -31,6 +29,20 @@ const isTokenValid = (token: string) => {
   }
 };
 
+const triggerLogout = () => {
+  localStorage.removeItem("token");
+  localStorage.removeItem("user");
+  try {
+    Object.keys(localStorage).forEach((key) => {
+      if (key.startsWith("cached_billing_data")) {
+        localStorage.removeItem(key);
+      }
+    });
+  } catch (e) {}
+  queryClient.clear();
+  window.location.href = `${import.meta.env.VITE_URL_PREFIX || ""}/signin`;
+};
+
 const axiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:9090/api",
   headers: {
@@ -40,10 +52,10 @@ const axiosInstance = axios.create({
 
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = store.getState().auth.token;
+    const token = localStorage.getItem("token");
     if (token) {
       if (!isTokenValid(token)) {
-        store.dispatch(handleLogoutThunk());
+        triggerLogout();
         return Promise.reject(new Error("Token expired"));
       }
 
@@ -83,10 +95,10 @@ axiosInstance.interceptors.response.use(
       url.includes("/register") ||
       url.includes("/forgot-password") ||
       url.includes("/reset-password");
-    const currentToken = store.getState().auth.token;
+    const currentToken = localStorage.getItem("token");
 
     if (error.response?.status === 401 && !isAuthRequest && currentToken) {
-      store.dispatch(handleLogoutThunk());
+      triggerLogout();
     } else if (error.response?.status === 403 && !isAuthRequest) {
       if (!isToastShowing) {
         isToastShowing = true;

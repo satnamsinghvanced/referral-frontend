@@ -25,7 +25,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useDispatch } from "react-redux";
 import { logout } from "../../store/authSlice";
 import { SignupHeader } from "../auth/signup/SignupHeader";
-import { useBilling } from "../../hooks/settings/useBilling";``
+import { useBilling } from "../../hooks/settings/useBilling";
 import {
   AddonData,
   fetchAddonById,
