@@ -23,6 +23,7 @@ import Pagination from "../../../components/common/Pagination";
 import { usePaginationAdjustment } from "../../../hooks/common/usePaginationAdjustment";
 import { useFetchUser } from "../../../hooks/settings/useUser";
 import { RootState } from "../../../store";
+import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 
 const roleColors: Record<string, string> = {
   admin: "bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400",
@@ -100,17 +101,10 @@ const Team: React.FC = () => {
   const currentTeamCount = totalTeamMembersCount;
 
   const planPrice = billingData?.price;
-  let userAccountsLimit = getLimit("user_accounts");
-
-  if (planPrice === 199) {
-    userAccountsLimit = 1;
-  } else if (planPrice === 399) {
-    userAccountsLimit = 5;
-  } else if (planPrice === 799) {
-    userAccountsLimit = -1;
-  }
+  const userAccountsLimit = getLimit("user_accounts");
 
   const isUserLimitReached = userAccountsLimit !== -1 && currentTeamCount >= userAccountsLimit;
+  const isStarterPlanWithoutExtraSeats = planPrice === 199 && userAccountsLimit <= 1;
   const isStarterPlan = planPrice === 199;
 
   usePaginationAdjustment({
@@ -160,17 +154,18 @@ const Team: React.FC = () => {
       )
       : [];
 
-    const permissionIds = member.permissions
-      ? member.permissions.map((p: any) => (typeof p === "object" ? p._id : p))
-      : [];
+    const memberPermissions =
+      member.permissions ||
+      (typeof member.role === "object" ? member.role?.permissions : []) ||
+      [];
 
     setModalInitialValues({
       firstName: member.firstName,
       lastName: member.lastName,
       email: member.email,
-      role: member.role?._id || "",
+      role: (typeof member.role === "object" ? member.role?._id : member.role) || "",
       locations: locationIds,
-      permissions: permissionIds,
+      permissions: memberPermissions,
     });
     setInviteModalOpen(true);
   };
@@ -182,10 +177,10 @@ const Team: React.FC = () => {
 
   const handleCancel = () => {
     setInviteModalOpen(false);
-    setEditMemberId("");
-    setModalInitialValues(null);
     setIsDeleteModalOpen(false);
+    setEditMemberId("");
     setDeleteMemberId("");
+    setModalInitialValues(null);
     setResetPasswordModalOpen(false);
     setResetPasswordMember(null);
   };
@@ -203,18 +198,18 @@ const Team: React.FC = () => {
   };
   return (
     <div className="space-y-4 md:space-y-5">
-      {(isStarterPlan || emailConfig?.status === "Connected") && isUserLimitReached && (
+      {(planPrice === 199 || emailConfig?.status === "Connected") && isUserLimitReached && (
         <div className="p-4 rounded-xl border border-red-200 bg-red-50 dark:bg-red-950/20 text-red-900 dark:text-red-300 flex flex-col sm:flex-row items-center justify-between gap-3 shadow-sm">
           <div>
             <h4 className="font-semibold text-sm">
-              {isStarterPlan
+              {isStarterPlanWithoutExtraSeats
                 ? "Upgrade Plan to Invite Team Members"
                 : `Team Member Limit Reached (${currentTeamCount}/${userAccountsLimit})`}
             </h4>
             <p className="text-xs text-red-700 dark:text-red-400 mt-0.5">
-              {isStarterPlan
-                ? "Your current plan only supports 1 admin user. Please upgrade your plan to invite additional team members."
-                : "You have reached the maximum number of user accounts allowed on your current plan. Please upgrade your plan to invite more team members."}
+              {isStarterPlanWithoutExtraSeats
+                ? "Your current plan only supports 1 admin user. Please upgrade your plan or purchase extra seat add-ons to invite additional team members."
+                : "You have reached the maximum number of user accounts allowed on your current plan. Please upgrade your plan or add more seats to invite more team members."}
             </p>
           </div>
           <Button
@@ -380,6 +375,34 @@ const Team: React.FC = () => {
                         >
                           <MdCheck /> {member.status}
                         </span>
+
+                        {member.userAddonId && (
+                          <span
+                            className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
+                              member.userAddonId.status === "expired"
+                                ? "bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-400 border-red-300 dark:border-red-800"
+                                : member.userAddonId.status === "canceled"
+                                  ? "bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-800"
+                                  : "bg-emerald-100 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-400 border-emerald-300 dark:border-emerald-800/80"
+                            }`}
+                            title={`Add-on ID: ${member.userAddonId._id || member.userAddonId}`}
+                          >
+                            <span
+                              className={`size-1.5 rounded-full ${
+                                member.userAddonId.status === "expired"
+                                  ? "bg-red-500"
+                                  : member.userAddonId.status === "canceled"
+                                    ? "bg-amber-500"
+                                    : "bg-emerald-500"
+                              }`}
+                            ></span>
+                            {member.userAddonId.status === "expired"
+                              ? "Seat Expired"
+                              : member.userAddonId.status === "canceled"
+                                ? `Seat Ending (${formatDateToReadable(member.userAddonId.nextBillingDate)})`
+                                : `Add-on Seat (${member.userAddonId.nextBillingDate ? formatDateToReadable(member.userAddonId.nextBillingDate) : "Active"})`}
+                          </span>
+                        )}
 
                         <Button
                           size="sm"

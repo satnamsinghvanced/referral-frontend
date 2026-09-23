@@ -108,7 +108,7 @@ const PhonePlansTab: React.FC<PhonePlansTabProps> = ({ isLight }) => {
     setDescription(plan.description || "");
     setIsPopular(plan.isPopular || false);
     setCallMinutesInput(String(plan.callMinutes ?? 1000));
-    setTextSegmentsInput(String(plan.textSegments ?? 2500));
+    setTextSegmentsInput(String(plan.messagesLimit ?? plan.messagesAdded ?? plan.textSegments ?? 1000));
     setOverageRateInput(String(plan.overageRate ?? plan.overageCallRate ?? plan.overageTextRate ?? 0.02));
     setFormErrors({});
     setIsModalOpen(true);
@@ -142,9 +142,9 @@ const PhonePlansTab: React.FC<PhonePlansTabProps> = ({ isLight }) => {
     }
 
     if (!textSegmentsInput.trim()) {
-      errors.textSegments = "Text segments is required";
+      errors.textSegments = "Messages limit is required";
     } else if (isNaN(Number(textSegmentsInput)) || Number(textSegmentsInput) < 0) {
-      errors.textSegments = "Text segments must be a valid number";
+      errors.textSegments = "Messages limit must be a valid number";
     }
 
     if (!overageRateInput.trim()) {
@@ -166,13 +166,16 @@ const PhonePlansTab: React.FC<PhonePlansTabProps> = ({ isLight }) => {
     try {
       const overageVal = overageRateInput.trim();
       const numVal = isNaN(Number(overageVal)) ? 0.02 : Number(overageVal);
+      const msgLimit = Number(textSegmentsInput) || 0;
       const payload = {
         name: name.trim(),
         price: Number(priceInput),
         description: description.trim(),
         isPopular,
         callMinutes: Number(callMinutesInput) || 0,
-        textSegments: Number(textSegmentsInput) || 0,
+        messagesLimit: msgLimit,
+        messagesAdded: msgLimit,
+        textSegments: msgLimit,
         overageRate: overageVal,
         overageCallRate: numVal,
         overageTextRate: numVal,
@@ -321,7 +324,7 @@ const PhonePlansTab: React.FC<PhonePlansTabProps> = ({ isLight }) => {
                   </div>
                   <div className="flex items-center gap-2 text-xs font-semibold text-slate-700 dark:text-slate-200">
                     <FiCheckCircle className="text-sky-500 shrink-0" />
-                    <span>{plan.textSegments?.toLocaleString()} text segments</span>
+                    <span>{(plan.messagesLimit || plan.textSegments)?.toLocaleString()} messages limit</span>
                   </div>
                 </div>
 
@@ -515,7 +518,7 @@ const PhonePlansTab: React.FC<PhonePlansTabProps> = ({ isLight }) => {
 
                   <div>
                     <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
-                      Text Segments *
+                      Messages Limit *
                     </label>
                     <input
                       type="text"
@@ -525,7 +528,7 @@ const PhonePlansTab: React.FC<PhonePlansTabProps> = ({ isLight }) => {
                         setTextSegmentsInput(val);
                         if (formErrors.textSegments) clearFieldError("textSegments");
                       }}
-                      placeholder="2500"
+                      placeholder="1000"
                       className={`w-full text-xs rounded-xl p-2.5 border focus:outline-none transition-all ${formErrors.textSegments
                         ? "border-red-500 bg-red-50/10 focus:border-red-500"
                         : isLight

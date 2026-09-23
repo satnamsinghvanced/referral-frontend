@@ -195,7 +195,7 @@ export default function ChatArea({
               <HiOutlineStar className="size-4" />
             )}
           </Button>
-          <Dropdown>
+          <Dropdown disableAnimation>
             <DropdownTrigger>
               <Button
                 isIconOnly

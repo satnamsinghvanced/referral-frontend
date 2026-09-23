@@ -1,14 +1,16 @@
 import { Button, Card, CardBody, Checkbox, Spinner, Input } from "@heroui/react";
 import { useFormik } from "formik";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
+import { FiInfo } from "react-icons/fi";
 import { useDispatch } from "react-redux";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useSearchParams } from "react-router";
 import * as Yup from "yup";
 import { AppDispatch } from "../../store";
 import { useLogin, useVerify2FA } from "../../hooks/useAuth";
 import { EMAIL_REGEX, PASSWORD_REGEX } from "../../consts/consts";
-import { setCredentials } from "../../store/authSlice";
+import { setCredentials, logout } from "../../store/authSlice";
+import { queryClient } from "../../providers/QueryProvider";
 import { OtpVerificationModal } from "../../components/OtpVerificationModal";
 import AuthThemeToggle from "../../components/common/AuthThemeToggle";
 
@@ -22,7 +24,20 @@ const SignIn = () => {
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const toggleVisibility = () => setIsVisible(!isVisible);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const addonId = searchParams.get("addonId") || searchParams.get("addon_id") || searchParams.get("addon");
+  const redirectParam = searchParams.get("redirect");
+  const targetRedirect = redirectParam || (addonId ? `/checkout/addon?addonId=${addonId}` : "/");
+
   const dispatch = useDispatch<AppDispatch>();
+
+  useEffect(() => {
+    // If arriving for an add-on purchase, ensure any previous session is cleared so user signs in cleanly
+    if (addonId || searchParams.get("from_wp") === "true") {
+      dispatch(logout());
+      queryClient.clear();
+    }
+  }, [addonId, searchParams, dispatch]);
   const { mutate: loginUser, isPending: isLoginPending } = useLogin();
   const { mutate: verifyOtp, isPending: isVerifyPending } = useVerify2FA();
   const [isOtpOpen, setIsOtpOpen] = useState(false);
@@ -68,7 +83,7 @@ const SignIn = () => {
                   token: response?.accessToken || "",
                 }),
               );
-              navigate("/");
+              navigate(targetRedirect);
             }
           },
           onError: (error: any) => {
@@ -167,7 +182,7 @@ const SignIn = () => {
       </div>
       <Card className="w-full max-w-md shadow-xl border border-foreground/10 bg-content1 backdrop-blur-xl">
         <CardBody className="p-6 sm:p-8">
-          <div className="text-center mb-8">
+          <div className="text-center mb-6">
             <h1 className="text-2xl font-bold mb-2 text-foreground">
               Welcome to PracticeROI
             </h1>
@@ -175,6 +190,14 @@ const SignIn = () => {
               Sign in to your account to continue
             </p>
           </div>
+
+          {addonId && (
+            <div className="mb-6 p-3.5 rounded-xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 flex items-center gap-2.5 text-xs text-sky-800 dark:text-sky-300 font-medium">
+              <FiInfo className="w-4 h-4 shrink-0 text-sky-500" />
+              <span>Please sign in to your Practice ROI account to complete your add-on purchase.</span>
+            </div>
+          )}
+
           <form onSubmit={formik.handleSubmit} className="space-y-5">
             <div className="flex">
               <Input

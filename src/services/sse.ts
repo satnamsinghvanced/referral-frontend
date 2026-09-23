@@ -1,5 +1,3 @@
-import { store } from "../store";
-
 let eventSource: EventSource | null = null;
 const listenersMap = new Map<string, Set<(data: any) => void>>();
 const eventHandlerWrappers = new Map<string, (e: MessageEvent) => void>();
@@ -49,7 +47,7 @@ export interface NewWebMessagePayload {
 }
 
 export const initSSE = (): EventSource | null => {
-  const token = store.getState().auth.token;
+  const token = localStorage.getItem("token");
   if (!token) {
     console.warn("[SSE] Initialization skipped: No token found");
     return null;

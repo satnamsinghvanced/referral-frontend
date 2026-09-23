@@ -17,16 +17,16 @@ const isPlanPopular = (p?: PlanData | null): boolean => {
 
 const isEnterprisePlan = (p?: PlanData | null): boolean => {
   if (!p) return false;
-  const id = (p.planId || "").toLowerCase();
-  const name = (p.name || "").toLowerCase();
-  return id.includes("enterprise") || name.includes("enterprise") || (p.monthlyPricing?.price === 0 && p.annualPricing?.price === 0);
+  const mPrice = p.monthlyPricing?.price ?? p.price ?? 0;
+  const aPrice = p.annualPricing?.price ?? p.annualPrice ?? 0;
+  return mPrice === 0 && aPrice === 0;
 };
 
 const SignupPricingView: React.FC = () => {
   const navigate = useNavigate();
   const [plans, setPlans] = useState<PlanData[]>([]);
   const [billingCycle, setBillingCycle] = useState<"monthly" | "annual">("annual");
-  const [selectedPlanId, setSelectedPlanId] = useState<string>("professional");
+  const [selectedPlanId, setSelectedPlanId] = useState<string>("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -98,13 +98,13 @@ const SignupPricingView: React.FC = () => {
     popularPlan?.discountPercent ??
     (popularPlan?.monthlyPricing?.price && popularPlan?.annualPricing?.price && popularPlan.annualPricing.price < popularPlan.monthlyPricing.price
       ? Math.round(((popularPlan.monthlyPricing.price - popularPlan.annualPricing.price) / popularPlan.monthlyPricing.price) * 100)
-      : 17);
+      : 0);
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#070C18] text-slate-900 dark:text-slate-100 flex flex-col items-center py-10 px-4 sm:px-6">
       <SignupHeader currentStep={1} />
 
-      {/* Billing Cycle Switcher with popular plan discount percentage */}
+      {/* Billing Cycle Switcher with dynamic popular plan discount percentage */}
       <div className="flex items-center justify-center mb-10">
         <div className="bg-slate-200/80 dark:bg-[#111A2E] p-1.5 rounded-full flex items-center gap-1 border border-slate-300/60 dark:border-[#1E2B45] shadow-inner">
           <button
@@ -128,9 +128,11 @@ const SignupPricingView: React.FC = () => {
             }`}
           >
             <span>Annual</span>
-            <span className="bg-[#FFE8DC] text-[#FF5A1F] dark:bg-orange-950/70 dark:text-orange-300 text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
-              Save {popularAnnualDiscount}%
-            </span>
+            {popularAnnualDiscount > 0 && (
+              <span className="bg-[#FFE8DC] text-[#FF5A1F] dark:bg-orange-950/70 dark:text-orange-300 text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
+                Save {popularAnnualDiscount}%
+              </span>
+            )}
           </button>
         </div>
       </div>
@@ -190,6 +192,9 @@ const SignupPricingView: React.FC = () => {
                   }))
                 : [];
 
+            const planDescription =
+              (isAnnual && plan.yearlyDescription ? plan.yearlyDescription : plan.description) || "";
+
             return (
               <div
                 key={planKey}
@@ -213,11 +218,11 @@ const SignupPricingView: React.FC = () => {
                     <h3 className="text-2xl font-extrabold text-slate-900 dark:text-white tracking-tight">
                       {plan.name}
                     </h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 min-h-[32px] font-normal leading-relaxed">
-                      {isAnnual && plan.yearlyDescription
-                        ? plan.yearlyDescription
-                        : plan.description || (isEnterprise ? "For established multi-location practices" : "Designed for practice growth")}
-                    </p>
+                    {planDescription && (
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 min-h-[32px] font-normal leading-relaxed">
+                        {planDescription}
+                      </p>
+                    )}
                   </div>
 
                   {/* Price Section */}
@@ -276,7 +281,7 @@ const SignupPricingView: React.FC = () => {
                           : "bg-slate-100 dark:bg-slate-800 text-slate-800 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700"
                       }`}
                     >
-                      <span>{isEnterprise ? "Get In Touch" : isSelected ? "Selected Plan" : "Start Free Trial"}</span>
+                      <span>{isEnterprise ? "Get In Touch" : isSelected ? "Selected Plan" : "Select Plan"}</span>
                     </button>
                   </div>
 

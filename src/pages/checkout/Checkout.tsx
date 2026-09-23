@@ -131,8 +131,8 @@ export default function Checkout() {
       const clean = value.replace(/\s/g, "");
       if (!clean) {
         error = "Card number is required";
-      } else if (clean.length < 13 || clean.length > 16) {
-        error = "Invalid card number (must be 13-16 digits)";
+      } else if (clean.length !== 16) {
+        error = "Card number must be 16 digits";
       } else if (!luhnCheck(clean)) {
         error = "Invalid card number (failed checksum)";
       }

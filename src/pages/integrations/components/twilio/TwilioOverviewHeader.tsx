@@ -6,6 +6,8 @@ interface TwilioOverviewHeaderProps {
   planName: string;
   minutesUsed: number;
   minutesLimit: number;
+  messagesUsed?: number;
+  messagesLimit?: number;
   onOpenManagePlans: () => void;
   onOpenPurchaseNumber: () => void;
 }
@@ -15,9 +17,13 @@ export default function TwilioOverviewHeader({
   planName,
   minutesUsed,
   minutesLimit,
+  messagesUsed = 0,
+  messagesLimit = 0,
   onOpenManagePlans,
   onOpenPurchaseNumber,
 }: TwilioOverviewHeaderProps) {
+  const availableMessages = Math.max(0, (messagesLimit || 0) - (messagesUsed || 0));
+
   return (
     <Card className="shadow-none border border-foreground/10 rounded-2xl bg-background p-5">
       <CardBody className="p-0 flex flex-col gap-6">
@@ -57,7 +63,7 @@ export default function TwilioOverviewHeader({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
           <Card className="shadow-none border border-foreground/10 bg-foreground/5 dark:bg-default-50/50 rounded-xl p-4">
             <div className="flex justify-between items-start">
               <span className="text-xs font-semibold text-foreground-500">Active Numbers</span>
@@ -82,9 +88,23 @@ export default function TwilioOverviewHeader({
               <FiClock className="w-4 h-4 text-purple-500" />
             </div>
             <div className="mt-2.5">
+                <span className="text-2xl font-extrabold text-foreground">
+                  {minutesUsed}
+                  <span className="text-sm font-normal text-foreground-500">/{minutesLimit}</span>
+                </span>
+              </div>
+            </Card>
+            <Card className="shadow-none border border-foreground/10 bg-foreground/5 dark:bg-default-50/50 rounded-xl p-4">
+              <div className="flex justify-between items-start">
+                <span className="text-xs font-semibold text-foreground-500">Messages Available</span>
+                <FiMessageSquare className="w-4 h-4 text-purple-500" />
+              </div>
+              <div className="mt-2.5">
               <span className="text-2xl font-extrabold text-foreground">
-                {minutesUsed}
-                <span className="text-sm font-normal text-foreground-500">/{minutesLimit}</span>
+                {availableMessages.toLocaleString()}
+                <span className="text-sm font-normal text-foreground-500">
+                  /{(messagesLimit || 0).toLocaleString()}
+                </span>
               </span>
             </div>
           </Card>

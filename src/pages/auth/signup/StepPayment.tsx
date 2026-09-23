@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button, Card, CardBody, Input, Select, SelectItem, Checkbox } from "@heroui/react";
 import { FiCreditCard, FiLock, FiCheck, FiTag, FiX } from "react-icons/fi";
 import { StepPaymentProps } from "./types";
@@ -21,6 +21,7 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
   agreeToTerms,
   setAgreeToTerms,
   paymentErrors,
+  setPaymentErrors,
   couponCode,
   setCouponCode,
   appliedCoupon,
@@ -30,8 +31,163 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
   couponError,
   setCouponError,
 }) => {
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  const luhnCheck = (num: string) => {
+    let sum = 0;
+    let shouldDouble = false;
+    for (let i = num.length - 1; i >= 0; i--) {
+      let digit = parseInt(num.charAt(i), 10);
+      if (shouldDouble) {
+        digit *= 2;
+        if (digit > 9) digit -= 9;
+      }
+      sum += digit;
+      shouldDouble = !shouldDouble;
+    }
+    return sum % 10 === 0;
+  };
+
+  const getCardBrand = (num: string): string => {
+    const clean = num.replace(/\D/g, "");
+    if (/^4/.test(clean)) return "Visa";
+    if (/^(5[1-5]|2[2-7])/.test(clean)) return "Mastercard";
+    if (/^3[47]/.test(clean)) return "Amex";
+    if (/^(6011|65|64[4-9])/.test(clean)) return "Discover";
+    return "";
+  };
+
+  const cardBrand = getCardBrand(cardNumber);
+
+  const validateCardNumber = (val: string, isBlur = false): string => {
+    const clean = val.replace(/\D/g, "");
+    if (!clean) {
+      return isBlur ? "Card number is required" : "";
+    }
+    if (clean.length > 16) {
+      return "Card number must be 16 digits";
+    }
+    if (clean.length === 16 && !luhnCheck(clean)) {
+      return "Invalid card number (failed checksum)";
+    }
+    if (isBlur && clean.length !== 16) {
+      return "Card number must be 16 digits";
+    }
+    return "";
+  };
+
+  const validateExpiry = (val: string, isBlur = false): string => {
+    if (!val) {
+      return isBlur ? "Expiration date is required" : "";
+    }
+    const clean = val.trim();
+    if (clean.includes("/")) {
+      const [mStr = "", yStr = ""] = clean.split("/");
+      const month = parseInt(mStr, 10);
+      if (mStr.length === 2 && (month < 1 || month > 12)) {
+        return "Invalid month (01-12)";
+      }
+      if (clean.length === 5) {
+        const year = parseInt(`20${yStr}`, 10);
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth() + 1;
+        if (year < currentYear || (year === currentYear && month < currentMonth)) {
+          return "Card has expired";
+        }
+      } else if (isBlur && clean.length < 5) {
+        return "Invalid date format (MM/YY)";
+      }
+    } else if (isBlur) {
+      return "Invalid date format (MM/YY)";
+    }
+    return "";
+  };
+
+  const validateCvc = (val: string, isBlur = false): string => {
+    const clean = val.replace(/\D/g, "");
+    if (!clean) {
+      return isBlur ? "Security code is required" : "";
+    }
+    if (isBlur && clean.length < 3) {
+      return "Security code must be 3 or 4 digits";
+    }
+    if (clean.length > 4) {
+      return "Security code cannot exceed 4 digits";
+    }
+    return "";
+  };
+
+  const updateFieldError = (field: string, errorMsg: string) => {
+    if (setPaymentErrors) {
+      setPaymentErrors((prev) => {
+        if (!errorMsg) {
+          if (!prev[field]) return prev;
+          const next = { ...prev };
+          delete next[field];
+          return next;
+        }
+        return { ...prev, [field]: errorMsg };
+      });
+    }
+  };
+
+  const handleCardNumberChange = (val: string) => {
+    const clean = val.replace(/\D/g, "").substring(0, 16);
+    const formatted = clean.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
+    setCardNumber(formatted);
+    const err = validateCardNumber(formatted, !!touched.cardNumber);
+    updateFieldError("cardNumber", err);
+  };
+
+  const handleCardNumberBlur = () => {
+    setTouched((prev) => ({ ...prev, cardNumber: true }));
+    const err = validateCardNumber(cardNumber, true);
+    updateFieldError("cardNumber", err);
+  };
+
+  const handleExpiryChange = (val: string) => {
+    const clean = val.replace(/\D/g, "").substring(0, 4);
+    let formatted = clean;
+    if (clean.length > 2) {
+      formatted = `${clean.substring(0, 2)}/${clean.substring(2)}`;
+    }
+    setExpiry(formatted);
+    const err = validateExpiry(formatted, !!touched.expiry);
+    updateFieldError("expiry", err);
+  };
+
+  const handleExpiryBlur = () => {
+    setTouched((prev) => ({ ...prev, expiry: true }));
+    const err = validateExpiry(expiry, true);
+    updateFieldError("expiry", err);
+  };
+
+  const handleCvcChange = (val: string) => {
+    const clean = val.replace(/\D/g, "").substring(0, 4);
+    setCvc(clean);
+    const err = validateCvc(clean, !!touched.cvc);
+    updateFieldError("cvc", err);
+  };
+
+  const handleCvcBlur = () => {
+    setTouched((prev) => ({ ...prev, cvc: true }));
+    const err = validateCvc(cvc, true);
+    updateFieldError("cvc", err);
+  };
+
+  const handleAgreeChange = (val: boolean) => {
+    setAgreeToTerms(val);
+    setTouched((prev) => ({ ...prev, terms: true }));
+    if (!val) {
+      updateFieldError("terms", "You must agree to the Terms of Service and Privacy Policy");
+    } else {
+      updateFieldError("terms", "");
+    }
+  };
+
   const calcDisplayPrice = (plan: PlanData | null): { totalCharged: number; perMonth: number } => {
-    if (!plan) return { totalCharged: 399, perMonth: 399 };
+    if (!plan) return { totalCharged: 0, perMonth: 0 };
     const mPrice = plan.monthlyPricing?.price ?? plan.price ?? 0;
     const aPrice = plan.annualPricing?.price ?? plan.annualPrice;
     const aDiscount = plan.annualPricing?.discountPercent ?? plan.discountPercent ?? 0;
@@ -69,23 +225,6 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
     year: "numeric",
   });
 
-  const handleCardNumberChange = (val: string) => {
-    const clean = val.replace(/\D/g, "").substring(0, 16);
-    const formatted = clean.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
-    setCardNumber(formatted);
-  };
-  const handleExpiryChange = (val: string) => {
-    const clean = val.replace(/\D/g, "").substring(0, 4);
-    let formatted = clean;
-    if (clean.length > 2) {
-      formatted = `${clean.substring(0, 2)}/${clean.substring(2)}`;
-    }
-    setExpiry(formatted);
-  };
-  const handleCvcChange = (val: string) => {
-    const clean = val.replace(/\D/g, "").substring(0, 3);
-    setCvc(clean);
-  };
   return (
     <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-6">
       <div className="md:col-span-2 flex flex-col gap-6">
@@ -96,17 +235,36 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
           </h2>
           <div className="flex flex-col gap-4">
             <div>
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">Card number</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">Card number</label>
+                {cardBrand && (
+                  <span className="text-[11px] font-bold text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/60 px-2 py-0.5 rounded-md border border-sky-200 dark:border-sky-800">
+                    {cardBrand}
+                  </span>
+                )}
+              </div>
               <Input
                 type="text"
                 placeholder="1234 1234 1234 1234"
                 variant="bordered"
                 value={cardNumber}
+                maxLength={19}
                 onValueChange={handleCardNumberChange}
+                onBlur={handleCardNumberBlur}
                 isInvalid={!!paymentErrors.cardNumber}
                 startContent={<FiCreditCard className="w-4 h-4 text-slate-400 mr-1" />}
                 classNames={{
-                  inputWrapper: "border border-slate-300 dark:border-slate-700 bg-[#f8fafc] dark:bg-slate-900/50 data-[hover=true]:bg-[#f8fafc] group-data-[hover=true]:bg-[#f8fafc] hover:bg-[#f8fafc] h-11 rounded-xl group-data-[hover=true]:border-slate-400 hover:border-slate-400 group-data-[focus=true]:border-[#20a9f8] focus-within:border-[#20a9f8] transition-colors",
+                  inputWrapper: `border ${
+                    paymentErrors.cardNumber
+                      ? "!border-red-500 dark:!border-red-500"
+                      : cardNumber
+                      ? "border-[#20a9f8]"
+                      : "border-slate-300 dark:border-slate-700"
+                  } bg-[#f8fafc] dark:bg-slate-900/50 h-11 rounded-xl group-data-[hover=true]:border-slate-400 hover:border-slate-400 ${
+                    paymentErrors.cardNumber
+                      ? "group-data-[focus=true]:!border-red-500 focus-within:!border-red-500"
+                      : "group-data-[focus=true]:border-[#20a9f8] focus-within:border-[#20a9f8]"
+                  } transition-colors`,
                   input: "text-slate-900 dark:text-slate-100 placeholder:text-slate-400 font-medium text-sm",
                 }}
               />
@@ -123,9 +281,20 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
                   variant="bordered"
                   value={expiry}
                   onValueChange={handleExpiryChange}
+                  onBlur={handleExpiryBlur}
                   isInvalid={!!paymentErrors.expiry}
                   classNames={{
-                    inputWrapper: "border border-slate-300 dark:border-slate-700 bg-[#f8fafc] dark:bg-slate-900/50 data-[hover=true]:bg-[#f8fafc] group-data-[hover=true]:bg-[#f8fafc] hover:bg-[#f8fafc] h-11 rounded-xl group-data-[hover=true]:border-slate-400 hover:border-slate-400 group-data-[focus=true]:border-[#20a9f8] focus-within:border-[#20a9f8] transition-colors",
+                    inputWrapper: `border ${
+                      paymentErrors.expiry
+                        ? "!border-red-500 dark:!border-red-500"
+                        : expiry
+                        ? "border-[#20a9f8]"
+                        : "border-slate-300 dark:border-slate-700"
+                    } bg-[#f8fafc] dark:bg-slate-900/50 h-11 rounded-xl group-data-[hover=true]:border-slate-400 hover:border-slate-400 ${
+                      paymentErrors.expiry
+                        ? "group-data-[focus=true]:!border-red-500 focus-within:!border-red-500"
+                        : "group-data-[focus=true]:border-[#20a9f8] focus-within:border-[#20a9f8]"
+                    } transition-colors`,
                     input: "text-slate-900 dark:text-slate-100 placeholder:text-slate-400 font-medium text-sm",
                   }}
                 />
@@ -137,13 +306,24 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
                 <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">Security code</label>
                 <Input
                   type="text"
-                  placeholder="CVC"
+                  placeholder="CVC (3-4 digits)"
                   variant="bordered"
                   value={cvc}
                   onValueChange={handleCvcChange}
+                  onBlur={handleCvcBlur}
                   isInvalid={!!paymentErrors.cvc}
                   classNames={{
-                    inputWrapper: "border border-slate-300 dark:border-slate-700 bg-[#f8fafc] dark:bg-slate-900/50 data-[hover=true]:bg-[#f8fafc] group-data-[hover=true]:bg-[#f8fafc] hover:bg-[#f8fafc] h-11 rounded-xl group-data-[hover=true]:border-slate-400 hover:border-slate-400 group-data-[focus=true]:border-[#20a9f8] focus-within:border-[#20a9f8] transition-colors",
+                    inputWrapper: `border ${
+                      paymentErrors.cvc
+                        ? "!border-red-500 dark:!border-red-500"
+                        : cvc
+                        ? "border-[#20a9f8]"
+                        : "border-slate-300 dark:border-slate-700"
+                    } bg-[#f8fafc] dark:bg-slate-900/50 h-11 rounded-xl group-data-[hover=true]:border-slate-400 hover:border-slate-400 ${
+                      paymentErrors.cvc
+                        ? "group-data-[focus=true]:!border-red-500 focus-within:!border-red-500"
+                        : "group-data-[focus=true]:border-[#20a9f8] focus-within:border-[#20a9f8]"
+                    } transition-colors`,
                     input: "text-slate-900 dark:text-slate-100 placeholder:text-slate-400 font-medium text-sm",
                   }}
                 />
@@ -162,6 +342,29 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
                 }}
                 variant="bordered"
                 aria-label="Select Country"
+                disableAnimation
+                popoverProps={{
+                  disableAnimation: true,
+                  shouldCloseOnScroll: false,
+                  classNames: {
+                    content: "p-0 border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0F172A] shadow-2xl rounded-xl",
+                  },
+                }}
+                listboxProps={{
+                  itemClasses: {
+                    base: [
+                      "rounded-lg",
+                      "text-slate-700 dark:text-slate-200",
+                      "transition-colors",
+                      "data-[hover=true]:text-slate-900 dark:data-[hover=true]:text-white",
+                      "data-[hover=true]:bg-slate-100 dark:data-[hover=true]:bg-slate-800",
+                      "data-[selectable=true]:focus:bg-slate-100 dark:data-[selectable=true]:focus:bg-slate-800",
+                      "data-[selected=true]:font-semibold",
+                      "data-[selected=true]:text-[#02A6F6] dark:data-[selected=true]:text-[#02A6F6]",
+                      "data-[selected=true]:bg-sky-50 dark:data-[selected=true]:bg-sky-950/40",
+                    ],
+                  },
+                }}
                 classNames={{
                   trigger: "border border-slate-300 dark:border-slate-700 bg-[#f8fafc] dark:bg-slate-900/50 data-[hover=true]:bg-[#f8fafc] group-data-[hover=true]:bg-[#f8fafc] hover:bg-[#f8fafc] h-11 min-h-11 rounded-xl group-data-[hover=true]:border-slate-400 hover:border-slate-400 group-data-[focus=true]:border-[#20a9f8] transition-colors",
                   value: "text-slate-900 dark:text-slate-100 font-medium text-sm",
@@ -348,9 +551,10 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
             <div className="pt-2">
               <Checkbox
                 isSelected={agreeToTerms}
-                onValueChange={setAgreeToTerms}
+                onValueChange={handleAgreeChange}
+                isInvalid={!!paymentErrors.terms}
                 classNames={{
-                  label: "text-xs text-slate-600 dark:text-slate-400",
+                  label: `text-xs ${paymentErrors.terms ? "text-danger" : "text-slate-600 dark:text-slate-400"}`,
                 }}
               >
                 I agree to the Terms of Service and Privacy Policy

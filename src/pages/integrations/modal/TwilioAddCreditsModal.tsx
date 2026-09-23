@@ -67,16 +67,20 @@ export default function TwilioAddCreditsModal({
     }
   }, [isOpen]);
 
-  const activePlan = plans.find((p) => p.planId === selectedPlanId || p._id === selectedPlanId) || plans[0] || {
+  const activePlan: IPhonePlan = plans.find((p) => p.planId === selectedPlanId || p._id === selectedPlanId) || plans[0] || {
+    _id: "default_growth",
     planId: "growth",
     name: "Growth",
     price: 75,
     description: "Most popular",
     callMinutes: 1000,
     textSegments: 2500,
+    messagesLimit: 2500,
     overageCallRate: 0.015,
     overageTextRate: 0.02,
     isPopular: true,
+    isActive: true,
+    order: 1,
   };
 
   const handleConfirmPlan = () => {
@@ -207,19 +211,19 @@ export default function TwilioAddCreditsModal({
               <div className="flex items-center gap-2 text-xs text-foreground-700">
                 <FiCheck className="w-4 h-4 text-primary shrink-0" />
                 <span>
-                  {(activePlan.textSegments || 2500).toLocaleString()} text segments{" "}
+                  {(activePlan.messagesLimit || activePlan.textSegments || 1000).toLocaleString()} messages limit{" "}
                   <span
                     className="text-primary hover:underline cursor-pointer font-medium ml-0.5"
                     onClick={(e) => {
                       e.stopPropagation();
                       addToast({
-                        title: "What is a segment?",
-                        description: "A segment is 160 characters. Longer texts use more than one.",
+                        title: "Message Segments",
+                        description: "1 message equals 1 SMS segment (160 characters).",
                         color: "primary",
                       });
                     }}
                   >
-                    (what's a segment?)
+                    (info)
                   </span>
                 </span>
               </div>

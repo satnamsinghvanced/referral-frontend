@@ -109,6 +109,7 @@ const WebhookReferralForm = React.lazy(
 const FillForm = React.lazy(() => import("./pages/public/LeadForm"));
 const NotFoundPage = React.lazy(() => import("./pages/NotFoundPage"));
 const Checkout = React.lazy(() => import("./pages/checkout/Checkout"));
+const AddonCheckout = React.lazy(() => import("./pages/checkout/AddonCheckout"));
 interface AppRoute {
   path?: string;
   element: ReactNode;
@@ -488,6 +489,22 @@ function AppRoutes() {
       element: (
         <ProtectedRoute>
           <Checkout />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "checkout/addon",
+      element: (
+        <ProtectedRoute>
+          <AddonCheckout />
+        </ProtectedRoute>
+      ),
+    },
+    {
+      path: "checkout/addon/:id",
+      element: (
+        <ProtectedRoute>
+          <AddonCheckout />
         </ProtectedRoute>
       ),
     },

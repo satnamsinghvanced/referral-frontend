@@ -1,11 +1,12 @@
-import { Button, Card, CardBody, CardHeader } from "@heroui/react";
+import { Button, Card, CardBody, CardHeader, addToast, Tooltip } from "@heroui/react";
 import React, { useState } from "react";
-import { FiEdit, FiPlus } from "react-icons/fi";
+import { FiEdit, FiPlus, FiLock } from "react-icons/fi";
 import { GrLocation } from "react-icons/gr";
 import { LuTrash2 } from "react-icons/lu";
 import DeleteConfirmationModal from "../../../components/common/DeleteConfirmationModal";
 import EmptyState from "../../../components/common/EmptyState";
 import { useDeleteLocation, useFetchLocations } from "../../../hooks/settings/useLocation";
+import { usePlanGuard } from "../../../hooks/usePlanGuard";
 import { Location } from "../../../types/common";
 import LocationActionModal from "./LocationActionModal";
 import { LoadingState } from "../../../components/common/LoadingState";
@@ -23,6 +24,11 @@ const Locations: React.FC = () => {
   const locations = locationsData?.data;
   const totalPages = locationsData?.totalPages || 1;
   const totalLocations = locationsData?.totalData || locations?.length || 0;
+  
+  const { getLimit, planName } = usePlanGuard();
+  const maxLocations = getLimit("locations");
+  const isLocationsLimitReached = maxLocations !== -1 && totalLocations >= maxLocations;
+
   usePaginationAdjustment({
     totalPages: totalPages,
     currentPage: page,
@@ -36,6 +42,19 @@ const Locations: React.FC = () => {
     setIsDeleteModalOpen(false);
     setEditLocationId("");
     setDeleteLocationId("");
+  };
+
+  const handleAddLocationClick = () => {
+    if (isLocationsLimitReached) {
+      addToast({
+        title: "Location Limit Reached",
+        description: `Your current plan allows up to ${maxLocations} location${maxLocations === 1 ? "" : "s"}. Please upgrade your plan to add more.`,
+        color: "warning",
+      });
+      return;
+    }
+    setEditLocationId("");
+    setIsModalOpen(true);
   };
 
   const handleEdit = (id: string) => {
@@ -63,21 +82,44 @@ const Locations: React.FC = () => {
           <div className="flex items-center gap-2">
             <GrLocation className="size-5" />
             <h4 className="text-base">Practice Locations</h4>
+            {maxLocations !== -1 && (
+              <span className="text-xs px-2 py-0.5 rounded-full font-medium bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300">
+                {totalLocations} / {maxLocations}
+              </span>
+            )}
           </div>
           {!locationsIsLoading && (
-            <Button
-              size="sm"
-              radius="sm"
-              variant="solid"
-              color="primary"
-              onPress={() => {
-                setEditLocationId("");
-                setIsModalOpen(true);
-              }}
-            >
-              <FiPlus className="size-[15px]" />
-              Add Location
-            </Button>
+            isLocationsLimitReached ? (
+              <Tooltip
+                content={`Plan limit reached (${totalLocations}/${maxLocations} locations). Upgrade plan to add more.`}
+                placement="top"
+              >
+                <span>
+                  <Button
+                    size="sm"
+                    radius="sm"
+                    variant="flat"
+                    color="default"
+                    className="opacity-75"
+                    onPress={handleAddLocationClick}
+                  >
+                    <FiLock className="size-[14px] text-amber-500" />
+                    Add Location
+                  </Button>
+                </span>
+              </Tooltip>
+            ) : (
+              <Button
+                size="sm"
+                radius="sm"
+                variant="solid"
+                color="primary"
+                onPress={handleAddLocationClick}
+              >
+                <FiPlus className="size-[15px]" />
+                Add Location
+              </Button>
+            )
           )}
         </CardHeader>
 

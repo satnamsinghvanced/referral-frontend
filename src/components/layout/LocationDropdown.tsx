@@ -44,6 +44,8 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({ isMiniSidebarOpen }
         onOpenChange={setIsOpen}
         placement="bottom-start"
         offset={8}
+        disableAnimation
+        shouldCloseOnScroll={false}
       >
         <PopoverTrigger>
           <button

@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Outlet } from "react-router";
 import ComponentContainer from "../../components/common/ComponentContainer";
 
@@ -8,7 +8,7 @@ import { FiCreditCard, FiUser, FiUsers } from "react-icons/fi";
 import { GrLocation } from "react-icons/gr";
 import { HiOutlineCog } from "react-icons/hi";
 import { LuLogOut, LuShield } from "react-icons/lu";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate, useSearchParams } from "react-router-dom";
 import { BiDevices } from "react-icons/bi";
 
 import { useRolePermissions } from "../../hooks/useRolePermissions";
@@ -58,8 +58,25 @@ const NAVIGATION_ROUTES: NavigationItem[] = [
 
 const Settings = () => {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { hasPermission, hasAnyPermission, isAdmin, isLoading } =
     useRolePermissions();
+
+  useEffect(() => {
+    const tab = searchParams.get("tab");
+    if (tab) {
+      if (tab === "billing") {
+        navigate("/settings/billing", { replace: true });
+      } else if (tab === "profile") {
+        navigate("/settings", { replace: true });
+      } else if (
+        ["general", "security", "locations", "team", "notifications", "devices"].includes(tab)
+      ) {
+        navigate(`/settings/${tab}`, { replace: true });
+      }
+    }
+  }, [searchParams, navigate]);
 
   const filteredRoutes = NAVIGATION_ROUTES.filter((route) => {
     if (isAdmin) return true;

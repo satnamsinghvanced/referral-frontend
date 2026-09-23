@@ -114,7 +114,7 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
     popularPlan?.discountPercent ??
     (popularPlan?.monthlyPricing?.price && popularPlan?.annualPricing?.price && popularPlan.annualPricing.price < popularPlan.monthlyPricing.price
       ? Math.round(((popularPlan.monthlyPricing.price - popularPlan.annualPricing.price) / popularPlan.monthlyPricing.price) * 100)
-      : 17);
+      : 0);
 
   return (
     <div className="w-full max-w-6xl flex flex-col items-center">
@@ -140,9 +140,11 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
               }`}
           >
             <span>Annual</span>
-            <span className="bg-[#FFE8DC] text-[#FF5A1F] dark:bg-orange-950/70 dark:text-orange-300 text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
-              Save {popularAnnualDiscount}%
-            </span>
+            {popularAnnualDiscount > 0 && (
+              <span className="bg-[#FFE8DC] text-[#FF5A1F] dark:bg-orange-950/70 dark:text-orange-300 text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
+                Save {popularAnnualDiscount}%
+              </span>
+            )}
           </button>
         </div>
       </div>
@@ -158,9 +160,8 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
               (selectedPlan.name && selectedPlan.name.toLowerCase() === (plan.name || "").toLowerCase()));
           const isPopular = isPlanPopular(plan);
           const isEnterprise =
-            planId.includes("enterprise") ||
-            (plan.name || "").toLowerCase().includes("enterprise") ||
-            (plan.monthlyPricing?.price === 0 && plan.annualPricing?.price === 0);
+            (plan.monthlyPricing?.price === 0 || plan.price === 0) &&
+            (plan.annualPricing?.price === 0 || plan.annualPrice === 0);
 
           const isAnnual = billingCycle === "annual";
           const monthlyPrice = plan.monthlyPricing?.price ?? plan.price ?? 0;
@@ -203,6 +204,9 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
               }))
               : [];
 
+          const planDescription =
+            (isAnnual && plan.yearlyDescription ? plan.yearlyDescription : plan.description) || "";
+
           return (
             <div
               key={plan.planId || plan._id || plan.name}
@@ -229,11 +233,11 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
                     <h3 className="text-xl sm:text-2xl font-black text-slate-900 dark:text-white tracking-tight">
                       {plan.name}
                     </h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 min-h-[32px] font-normal leading-relaxed">
-                      {isAnnual && plan.yearlyDescription
-                        ? plan.yearlyDescription
-                        : plan.description || (isEnterprise ? "For established multi-location practices" : "Designed for practice growth")}
-                    </p>
+                    {planDescription && (
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 min-h-[32px] font-normal leading-relaxed">
+                        {planDescription}
+                      </p>
+                    )}
                   </div>
 
                   {/* Circular Blue Tick Badge when selected (on cards without banner) */}

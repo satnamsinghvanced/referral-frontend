@@ -14,7 +14,9 @@ export interface IPhonePlan {
   description: string;
   isPopular: boolean;
   callMinutes: number;
-  textSegments: number;
+  messagesLimit?: number;
+  messagesAdded?: number;
+  textSegments?: number;
   overageRate?: string | number;
   overageCallRate?: number;
   overageTextRate?: number;

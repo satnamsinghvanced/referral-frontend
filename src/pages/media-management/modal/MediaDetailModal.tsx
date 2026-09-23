@@ -151,6 +151,8 @@ export function MediaDetailModal({
             isOpen={isPopoverOpen}
             onOpenChange={handlePopoverChange}
             radius="md"
+            disableAnimation
+            shouldCloseOnScroll={false}
           >
             <PopoverTrigger>
               <Button

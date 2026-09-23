@@ -271,7 +271,7 @@ export default function Header({ hamburgerMenuClick, }: { hamburgerMenuClick: ()
       <NavbarContent as="div" className="items-center gap-4" justify="end">
         <div className="flex gap-2 justify-center items-center">
           <NotificationPopover />
-          <Dropdown placement="bottom-end">
+          <Dropdown placement="bottom-end" disableAnimation>
             <DropdownTrigger>
               <Button
                 size="sm"
