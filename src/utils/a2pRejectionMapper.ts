@@ -118,12 +118,39 @@ export function parseAndMapRejectionReason(rawReason?: string | null | object): 
         rawText: sanitizeWhiteLabel(rawPart),
       });
     }
-    // 2. Business Website Verification
+    // 2. Privacy Policy Compliance (Error 30908 / PRIVACY_POLICY_URL)
+    else if (
+      lower.includes("privacy_policy") ||
+      lower.includes("privacy policy") ||
+      lower.includes("30908")
+    ) {
+      mappedItems.push({
+        category: "Privacy Policy Compliance",
+        specificMessage: "A compliant Privacy Policy could not be verified by carrier review.",
+        actionableTip: "Ensure your Privacy Policy URL is active and explicitly includes text stating mobile/SMS opt-in data will NOT be shared with third parties or affiliates for marketing.",
+        rawText: sanitizeWhiteLabel(rawPart),
+      });
+    }
+    // 3. Terms & Conditions Compliance (Error 30882 / TERMS_AND_CONDITIONS_URL)
+    else if (
+      lower.includes("terms_and_conditions") ||
+      lower.includes("terms and conditions") ||
+      lower.includes("terms_url") ||
+      lower.includes("30882") ||
+      (lower.includes("terms") && lower.includes("url"))
+    ) {
+      mappedItems.push({
+        category: "Terms & Conditions Compliance",
+        specificMessage: "Campaign submission was rejected due to Terms and Conditions issues.",
+        actionableTip: "Ensure your Terms & Conditions URL is active, publicly accessible, and clearly includes SMS opt-in disclosures (STOP/HELP commands, message frequency, and message/data rate warnings).",
+        rawText: sanitizeWhiteLabel(rawPart),
+      });
+    }
+    // 4. Business Website Verification (General Website / Domain)
     else if (
       lower.includes("website") ||
       lower.includes("url") ||
       lower.includes("domain") ||
-      lower.includes("privacy policy") ||
       lower.includes("unverifiable website")
     ) {
       mappedItems.push({
