@@ -118,11 +118,13 @@ export const StepYourDetails: React.FC<StepYourDetailsProps> = ({
     loadSpecialties();
   }, []);
 
-  const monthlyPrice = selectedPlan?.monthlyPricing?.price ?? selectedPlan?.price ?? 199;
+  const monthlyPrice = selectedPlan?.monthlyPricing?.price ?? selectedPlan?.price ?? 0;
   const annualPrice =
     selectedPlan?.annualPricing?.price ??
     selectedPlan?.annualPrice ??
-    (selectedPlan ? Math.round(monthlyPrice * 0.83) : 166);
+    (selectedPlan?.annualPricing?.discountPercent
+      ? Math.round(monthlyPrice * (1 - selectedPlan.annualPricing.discountPercent / 100))
+      : monthlyPrice);
   const planPrice = billingCycle === "annual" ? annualPrice : monthlyPrice;
 
   return (

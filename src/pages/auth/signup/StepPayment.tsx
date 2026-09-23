@@ -31,7 +31,7 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
   setCouponError,
 }) => {
   const calcDisplayPrice = (plan: PlanData | null): { totalCharged: number; perMonth: number } => {
-    if (!plan) return { totalCharged: 399, perMonth: 399 };
+    if (!plan) return { totalCharged: 0, perMonth: 0 };
     const mPrice = plan.monthlyPricing?.price ?? plan.price ?? 0;
     const aPrice = plan.annualPricing?.price ?? plan.annualPrice;
     const aDiscount = plan.annualPricing?.discountPercent ?? plan.discountPercent ?? 0;

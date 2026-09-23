@@ -361,8 +361,8 @@ export const SignupFlow: React.FC = () => {
       // Calculate price details for confirmation receipt
       const rawPrice =
         billingCycle === "annual"
-          ? selectedPlan?.annualPricing?.totalValue || (selectedPlan?.annualPrice ? selectedPlan.annualPrice * 12 : (selectedPlan?.price ? selectedPlan.price * 12 : 1990))
-          : selectedPlan?.monthlyPricing?.totalValue || selectedPlan?.price || 199;
+          ? selectedPlan?.annualPricing?.totalValue || (selectedPlan?.annualPricing?.price ? selectedPlan.annualPricing.price * 12 : (selectedPlan?.price ? selectedPlan.price * 12 : 0))
+          : selectedPlan?.monthlyPricing?.price || selectedPlan?.monthlyPricing?.totalValue || selectedPlan?.price || 0;
       let finalPrice = rawPrice;
       let discountVal = 0;
       if (appliedCoupon) {
