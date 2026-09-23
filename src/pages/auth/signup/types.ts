@@ -23,6 +23,8 @@ export interface SignupHeaderProps {
   showBackButton?: boolean;
   onBackClick?: () => void;
   backButtonText?: string;
+  userName?: string;
+  userEmail?: string;
 }
 
 export interface StepChoosePlanProps {

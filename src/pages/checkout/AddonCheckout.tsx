@@ -22,6 +22,8 @@ import {
   FiCheckCircle,
 } from "react-icons/fi";
 import { useQueryClient } from "@tanstack/react-query";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
 import { SignupHeader } from "../auth/signup/SignupHeader";
 import { useBilling } from "../../hooks/settings/useBilling";
 import {
@@ -63,10 +65,20 @@ export const AddonCheckout: React.FC = () => {
 
   const addonId = searchParams.get("addonId") || searchParams.get("addon_id") || searchParams.get("id") || "";
 
+  const user = useSelector((state: RootState) => state.auth.user);
   const { data: billingData, isLoading: isLoadingBilling } = useBilling();
   const [addon, setAddon] = useState<AddonData | null>(null);
   const [loadingAddon, setLoadingAddon] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+
+  const userName =
+    [user?.firstName, user?.lastName].filter(Boolean).join(" ") ||
+    (billingData as any)?.name ||
+    [(billingData as any)?.firstName, (billingData as any)?.lastName].filter(Boolean).join(" ") ||
+    user?.email ||
+    (billingData as any)?.email ||
+    "";
+  const userEmail = user?.email || (billingData as any)?.email || "";
 
   // Payment form state
   const hasSavedCard = Boolean(billingData?.cardNumber);
@@ -401,6 +413,8 @@ export const AddonCheckout: React.FC = () => {
         hideStepper={true}
         showThemeToggle={true}
         showBackButton={false}
+        userName={userName}
+        userEmail={userEmail}
         title={
           <>
             Complete Add-on <span className="text-[#20a9f8] dark:text-sky-400">Purchase</span>
@@ -409,7 +423,7 @@ export const AddonCheckout: React.FC = () => {
         subtitle="Complete your payment details to instantly activate this add-on."
       />
 
-      <div className="w-full max-w-5xl mb-4 flex items-center justify-start">
+      <div className="w-full max-w-5xl mb-4 flex items-center justify-between gap-3 flex-wrap">
         <button
           type="button"
           onClick={() => navigate("/settings/billing")}
@@ -418,6 +432,16 @@ export const AddonCheckout: React.FC = () => {
           <FiArrowLeft className="w-4 h-4 text-sky-500" />
           <span>Back to Billing</span>
         </button>
+
+        {userName && (
+          <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 px-3.5 py-2 rounded-xl shadow-sm">
+            <span className="text-slate-400 font-normal">Purchasing as:</span>
+            <span className="font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
+              {userName}
+            </span>
+          </div>
+        )}
       </div>
 
       <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -665,6 +689,15 @@ export const AddonCheckout: React.FC = () => {
           <Card className="shadow-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0F172A] rounded-2xl p-6">
             <h2 className="text-lg font-bold border-b border-slate-100 dark:border-slate-800 pb-3 mb-5">Order Summary</h2>
             <div className="flex flex-col gap-4">
+              {userName && (
+                <div className="flex justify-between items-center text-sm font-semibold border-b border-slate-100 dark:border-slate-800 pb-3">
+                  <span className="text-slate-500">Account</span>
+                  <div className="text-right">
+                    <span className="font-bold text-slate-900 dark:text-white block">{userName}</span>
+                    {userEmail && <span className="text-[11px] text-slate-400 font-normal block">{userEmail}</span>}
+                  </div>
+                </div>
+              )}
               <div className="flex justify-between items-center text-sm font-semibold">
                 <span className="text-slate-500">Selected Plan</span>
                 <span className="font-bold text-slate-900 dark:text-white">{addon.title}</span>
