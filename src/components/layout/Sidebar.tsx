@@ -298,7 +298,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
         </div>
         <div className="flex flex-col justify-between h-[calc(100vh_-_64px)] px-0">
           {/* <LocationDropdown isMiniSidebarOpen={isMiniSidebarOpen} /> */}
-          <ul className="flex flex-col p-3 overflow-y-auto flex-1">
+          <ul className="flex flex-col p-3 overflow-y-auto flex-1 scrollbar-slim">
             {filteredRoutes.map((item, index) => {
               const Icon = item.icon;
               const isActive =

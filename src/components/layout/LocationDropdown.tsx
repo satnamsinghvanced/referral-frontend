@@ -51,9 +51,8 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({ isMiniSidebarOpen }
           <button
             type="button"
             title={!isMiniSidebarOpen ? selectedLocation?.name || "Select Location" : undefined}
-            className={`w-full flex items-center ${
-              isMiniSidebarOpen ? "justify-between p-2.5" : "justify-center py-2.5"
-            } rounded-xl border border-sky-200 dark:border-sky-900/50 bg-sky-50/60 dark:bg-sky-950/30 hover:bg-sky-100/70 dark:hover:bg-sky-900/40 transition-all cursor-pointer text-left group shadow-xs`}
+            className={`w-full flex items-center ${isMiniSidebarOpen ? "justify-between p-2.5" : "justify-center py-2.5"
+              } rounded-xl border border-sky-200 dark:border-sky-900/50 bg-sky-50/60 dark:bg-sky-950/30 hover:bg-sky-100/70 dark:hover:bg-sky-900/40 transition-all cursor-pointer text-left group shadow-xs`}
           >
             {isMiniSidebarOpen ? (
               <>
@@ -74,9 +73,8 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({ isMiniSidebarOpen }
                   </div>
                 </div>
                 <FiChevronDown
-                  className={`size-3.5 text-foreground/50 shrink-0 transition-transform duration-200 ${
-                    isOpen ? "rotate-180" : ""
-                  }`}
+                  className={`size-3.5 text-foreground/50 shrink-0 transition-transform duration-200 ${isOpen ? "rotate-180" : ""
+                    }`}
                 />
               </>
             ) : (
@@ -108,11 +106,10 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({ isMiniSidebarOpen }
                       setSelectedLocation(loc);
                       setIsOpen(false);
                     }}
-                    className={`w-full flex items-start justify-between p-2.5 rounded-xl transition-all cursor-pointer text-left ${
-                      isSelected
-                        ? "bg-sky-50 dark:bg-sky-950/40 text-sky-900 dark:text-sky-200 font-medium"
-                        : "hover:bg-foreground/5 text-foreground"
-                    }`}
+                    className={`w-full flex items-start justify-between p-2.5 rounded-xl transition-all cursor-pointer text-left ${isSelected
+                      ? "bg-sky-50 dark:bg-sky-950/40 text-sky-900 dark:text-sky-200 font-medium"
+                      : "hover:bg-foreground/5 text-foreground"
+                      }`}
                   >
                     <div className="flex items-start gap-2.5 min-w-0 pr-2">
                       <span
