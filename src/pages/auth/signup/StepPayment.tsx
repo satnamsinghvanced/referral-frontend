@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Button, Card, CardBody, Input, Select, SelectItem, Checkbox } from "@heroui/react";
-import { FiCreditCard, FiLock, FiCheck, FiTag, FiX } from "react-icons/fi";
+import { FiCreditCard, FiLock, FiCheck, FiTag, FiX, FiAlertCircle } from "react-icons/fi";
 import { StepPaymentProps } from "./types";
 import { PlanData } from "../../../services/planFeature";
 
@@ -53,7 +53,9 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
     if (/^4/.test(clean)) return "Visa";
     if (/^(5[1-5]|2[2-7])/.test(clean)) return "Mastercard";
     if (/^3[47]/.test(clean)) return "Amex";
+    if (/^3(0[0-5]|[68])/.test(clean)) return "Diners Club";
     if (/^(6011|65|64[4-9])/.test(clean)) return "Discover";
+    if (/^35/.test(clean)) return "JCB";
     return "";
   };
 
@@ -65,13 +67,13 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
       return isBlur ? "Card number is required" : "";
     }
     if (clean.length > 16) {
-      return "Card number must be 16 digits";
+      return "Card number must be 14 to 16 digits";
     }
-    if (clean.length === 16 && !luhnCheck(clean)) {
+    if (clean.length >= 14 && clean.length <= 16 && !luhnCheck(clean)) {
       return "Invalid card number (failed checksum)";
     }
-    if (isBlur && clean.length !== 16) {
-      return "Card number must be 16 digits";
+    if (isBlur && (clean.length < 14 || clean.length > 16)) {
+      return "Card number must be 14 to 16 digits";
     }
     return "";
   };
@@ -134,10 +136,22 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
 
   const handleCardNumberChange = (val: string) => {
     const clean = val.replace(/\D/g, "").substring(0, 16);
-    const formatted = clean.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
+    let formatted = clean;
+    if (/^3[47]/.test(clean)) {
+      // Amex 4-6-5 format (up to 15 digits)
+      const p1 = clean.substring(0, 4);
+      const p2 = clean.substring(4, 10);
+      const p3 = clean.substring(10, 15);
+      formatted = [p1, p2, p3].filter(Boolean).join(" ");
+    } else {
+      formatted = clean.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
+    }
     setCardNumber(formatted);
     const err = validateCardNumber(formatted, !!touched.cardNumber);
     updateFieldError("cardNumber", err);
+    if (paymentErrors.paymentFailed) {
+      updateFieldError("paymentFailed", "");
+    }
   };
 
   const handleCardNumberBlur = () => {
@@ -155,6 +169,9 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
     setExpiry(formatted);
     const err = validateExpiry(formatted, !!touched.expiry);
     updateFieldError("expiry", err);
+    if (paymentErrors.paymentFailed) {
+      updateFieldError("paymentFailed", "");
+    }
   };
 
   const handleExpiryBlur = () => {
@@ -168,6 +185,9 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
     setCvc(clean);
     const err = validateCvc(clean, !!touched.cvc);
     updateFieldError("cvc", err);
+    if (paymentErrors.paymentFailed) {
+      updateFieldError("paymentFailed", "");
+    }
   };
 
   const handleCvcBlur = () => {
@@ -233,6 +253,19 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
             <FiCreditCard className="w-5 h-5 text-sky-500" />
             Payment Information
           </h2>
+
+          {paymentErrors.paymentFailed && (
+            <div className="p-4 rounded-xl border border-red-300 dark:border-red-900/60 bg-red-50/90 dark:bg-red-950/30 flex items-start gap-3 text-red-700 dark:text-red-300 mb-4">
+              <FiAlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+              <div className="flex flex-col gap-0.5">
+                <span className="font-bold text-xs">Payment Failed</span>
+                <span className="text-xs leading-relaxed text-red-600 dark:text-red-400">
+                  {paymentErrors.paymentFailed}
+                </span>
+              </div>
+            </div>
+          )}
+
           <div className="flex flex-col gap-4">
             <div>
               <div className="flex items-center justify-between mb-1">
@@ -370,11 +403,11 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
                   value: "text-slate-900 dark:text-slate-100 font-medium text-sm",
                 }}
               >
-                <SelectItem key="India" textValue="India">India</SelectItem>
                 <SelectItem key="United States" textValue="United States">United States</SelectItem>
                 <SelectItem key="Canada" textValue="Canada">Canada</SelectItem>
-                <SelectItem key="United Kingdom" textValue="United Kingdom">United Kingdom</SelectItem>
                 <SelectItem key="Australia" textValue="Australia">Australia</SelectItem>
+                <SelectItem key="United Kingdom" textValue="United Kingdom">United Kingdom</SelectItem>
+                <SelectItem key="India" textValue="India">India</SelectItem>
               </Select>
             </div>
 

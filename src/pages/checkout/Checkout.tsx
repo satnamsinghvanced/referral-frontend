@@ -6,6 +6,7 @@ import { FiCreditCard, FiLock, FiCheck, FiArrowLeft } from "react-icons/fi";
 import { SignupHeader } from "../auth/signup/SignupHeader";
 import axios from "../../services/axios";
 import { useValidateDiscount } from "../../hooks/settings/useBilling";
+import { createStripePaymentMethod } from "../../services/stripeTokenService";
 
 interface PlanDetails {
   id: string;
@@ -72,7 +73,7 @@ export default function Checkout() {
   const [cardNumber, setCardNumber] = useState("");
   const [expiry, setExpiry] = useState("");
   const [cvc, setCvc] = useState("");
-  const [country, setCountry] = useState("India");
+  const [country, setCountry] = useState("United States");
   const [savePaymentDetails, setSavePaymentDetails] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -118,9 +119,11 @@ export default function Checkout() {
   const getCardBrand = (num: string) => {
     const clean = num.replace(/\D/g, "");
     if (clean.startsWith("4")) return "visa";
-    if (clean.startsWith("5")) return "mastercard";
-    if (clean.startsWith("3")) return "amex";
+    if (/^(5[1-5]|2[2-7])/.test(clean)) return "mastercard";
+    if (/^3[47]/.test(clean)) return "amex";
+    if (/^3(0[0-5]|[68])/.test(clean)) return "diners";
     if (clean.startsWith("6")) return "discover";
+    if (clean.startsWith("35")) return "jcb";
     return null;
   };
   const cardBrand = getCardBrand(cardNumber);
@@ -131,8 +134,8 @@ export default function Checkout() {
       const clean = value.replace(/\s/g, "");
       if (!clean) {
         error = "Card number is required";
-      } else if (clean.length !== 16) {
-        error = "Card number must be 16 digits";
+      } else if (clean.length < 14 || clean.length > 16) {
+        error = "Card number must be 14 to 16 digits";
       } else if (!luhnCheck(clean)) {
         error = "Invalid card number (failed checksum)";
       }
@@ -158,8 +161,8 @@ export default function Checkout() {
         error = "Security code is required";
       } else {
         const expectedLength = 3;
-        if (value.length !== expectedLength) {
-          error = `Security code must be ${expectedLength} digits`;
+        if (value.length < 3 || value.length > 4) {
+          error = `Security code must be 3 or 4 digits`;
         }
       }
     }
@@ -168,7 +171,15 @@ export default function Checkout() {
 
   const handleCardNumberChange = (val: string) => {
     const clean = val.replace(/\D/g, "").substring(0, 16);
-    const formatted = clean.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
+    let formatted = clean;
+    if (/^3[47]/.test(clean)) {
+      const p1 = clean.substring(0, 4);
+      const p2 = clean.substring(4, 10);
+      const p3 = clean.substring(10, 15);
+      formatted = [p1, p2, p3].filter(Boolean).join(" ");
+    } else {
+      formatted = clean.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
+    }
     setCardNumber(formatted);
     if (touched.cardNumber || errors.cardNumber) {
       const err = validateField("cardNumber", formatted, getCardBrand(formatted));
@@ -283,9 +294,37 @@ export default function Checkout() {
       setIsSubmitting(true);
       const isSaved = activeTab === "saved";
       const cardToUse = isSaved ? savedCards.find((c) => c.id === selectedSavedCard) : null;
-      const finalCardNumber = isSaved && cardToUse ? `424242424242${cardToUse.last4}` : cardNumber.replace(/\s/g, "");
+      const cleanCard = cardNumber.replace(/\s/g, "");
+      const finalCardNumber = isSaved && cardToUse ? `424242424242${cardToUse.last4}` : cleanCard;
       const finalExpiry = isSaved && cardToUse ? cardToUse.expiry : expiry;
       const finalCvc = isSaved ? "123" : cvc;
+
+      let tokenResult: any = null;
+      if (!isSaved) {
+        try {
+          tokenResult = await createStripePaymentMethod({
+            cardNumber: cleanCard,
+            expiry: finalExpiry,
+            cvc: finalCvc,
+            country,
+          });
+        } catch (tokenErr: any) {
+          console.error("Tokenization error:", tokenErr);
+          const errMsg = tokenErr?.message || "Invalid card details. Please check your card number, expiration date, and CVC.";
+          setErrors((prev) => ({
+            ...prev,
+            paymentFailed: errMsg,
+          }));
+          addToast({
+            title: "Payment Error",
+            description: errMsg,
+            color: "danger",
+          });
+          setIsSubmitting(false);
+          return;
+        }
+      }
+
       if (typeParam === "twilio_credits") {
         await axios.post("/twilio-checkout/credits-payment", {
           amount: totalCost,
@@ -293,14 +332,16 @@ export default function Checkout() {
           packageName: packageParam,
           planId: planIdParam,
           planName: planNameParam,
+          paymentMethodId: tokenResult?.paymentMethodId,
+          token: tokenResult?.token,
           cardNumber: finalCardNumber,
           expire: finalExpiry,
           cvc: finalCvc,
           couponCode: appliedDiscount ? appliedDiscount.code : undefined,
         });
         if (!isSaved && savePaymentDetails) {
-          const last4Digits = finalCardNumber.slice(-4);
-          const brandName = cardBrand || "visa";
+          const last4Digits = tokenResult?.last4 || finalCardNumber.slice(-4);
+          const brandName = tokenResult?.brand || cardBrand || "visa";
           const exists = savedCards.some((c) => c.last4 === last4Digits && c.expiry === expiry && c.brand === brandName);
           if (!exists) {
             const newSavedCard: SavedCard = {
@@ -330,6 +371,8 @@ export default function Checkout() {
       } else {
         await axios.post("/twilio-checkout/subscribe-plan", {
           planId: activePlan.id,
+          paymentMethodId: tokenResult?.paymentMethodId,
+          token: tokenResult?.token,
           cardNumber: finalCardNumber,
           expire: finalExpiry,
           cvc: finalCvc,
@@ -518,11 +561,11 @@ export default function Checkout() {
                         value: "text-sm font-medium text-foreground",
                       }}
                     >
-                      <SelectItem key="India" textValue="India">India</SelectItem>
                       <SelectItem key="United States" textValue="United States">United States</SelectItem>
                       <SelectItem key="Canada" textValue="Canada">Canada</SelectItem>
-                      <SelectItem key="United Kingdom" textValue="United Kingdom">United Kingdom</SelectItem>
                       <SelectItem key="Australia" textValue="Australia">Australia</SelectItem>
+                      <SelectItem key="United Kingdom" textValue="United Kingdom">United Kingdom</SelectItem>
+                      <SelectItem key="India" textValue="India">India</SelectItem>
                     </Select>
                   </div>
                   <div className="mt-1 flex items-center gap-2">
