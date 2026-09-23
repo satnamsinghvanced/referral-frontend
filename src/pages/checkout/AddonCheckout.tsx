@@ -22,8 +22,6 @@ import {
   FiCheckCircle,
 } from "react-icons/fi";
 import { useQueryClient } from "@tanstack/react-query";
-import { useDispatch } from "react-redux";
-import { logout } from "../../store/authSlice";
 import { SignupHeader } from "../auth/signup/SignupHeader";
 import { useBilling } from "../../hooks/settings/useBilling";
 import {
@@ -60,20 +58,10 @@ const luhnCheck = (num: string) => {
 
 export const AddonCheckout: React.FC = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
 
   const addonId = searchParams.get("addonId") || searchParams.get("addon_id") || searchParams.get("id") || "";
-
-  useEffect(() => {
-    const fromWp = searchParams.get("from_wp") === "true" || searchParams.get("wp") === "true" || searchParams.get("reauth") === "true";
-    if (fromWp && addonId) {
-      dispatch(logout());
-      queryClient.clear();
-      navigate(`/signin?addonId=${addonId}`, { replace: true });
-    }
-  }, [searchParams, addonId, dispatch, navigate, queryClient]);
 
   const { data: billingData, isLoading: isLoadingBilling } = useBilling();
   const [addon, setAddon] = useState<AddonData | null>(null);

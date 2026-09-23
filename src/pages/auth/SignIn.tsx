@@ -31,13 +31,7 @@ const SignIn = () => {
 
   const dispatch = useDispatch<AppDispatch>();
 
-  useEffect(() => {
-    // If arriving for an add-on purchase, ensure any previous session is cleared so user signs in cleanly
-    if (addonId || searchParams.get("from_wp") === "true") {
-      dispatch(logout());
-      queryClient.clear();
-    }
-  }, [addonId, searchParams, dispatch]);
+
   const { mutate: loginUser, isPending: isLoginPending } = useLogin();
   const { mutate: verifyOtp, isPending: isVerifyPending } = useVerify2FA();
   const [isOtpOpen, setIsOtpOpen] = useState(false);
