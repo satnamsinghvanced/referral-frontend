@@ -48,52 +48,44 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({ isMiniSidebarOpen }
         shouldCloseOnScroll={false}
       >
         <PopoverTrigger>
-          {isMiniSidebarOpen ? (
-            <button
-              type="button"
-              className="w-full flex items-center justify-between p-2.5 rounded-xl border border-sky-200 dark:border-sky-900/50 bg-sky-50/60 dark:bg-sky-950/30 hover:bg-sky-100/70 dark:hover:bg-sky-900/40 transition-all cursor-pointer text-left group shadow-xs"
-            >
-              <div className="flex items-start gap-2.5 min-w-0 pr-1">
-                <span
-                  className="w-2.5 h-2.5 rounded-full shrink-0 mt-1 shadow-xs"
-                  style={{ backgroundColor: selectedColor }}
-                />
-                <div className="min-w-0 flex-1">
-                  <h4 className="text-xs font-bold text-foreground truncate leading-tight">
-                    {selectedLocation?.name || "Select Location"}
-                  </h4>
-                  {addressText && (
-                    <p className="text-[10px] text-foreground/60 truncate mt-0.5 leading-tight font-normal">
-                      {addressText}
-                    </p>
-                  )}
+          <button
+            type="button"
+            title={!isMiniSidebarOpen ? selectedLocation?.name || "Select Location" : undefined}
+            className={`w-full flex items-center ${
+              isMiniSidebarOpen ? "justify-between p-2.5" : "justify-center py-2.5"
+            } rounded-xl border border-sky-200 dark:border-sky-900/50 bg-sky-50/60 dark:bg-sky-950/30 hover:bg-sky-100/70 dark:hover:bg-sky-900/40 transition-all cursor-pointer text-left group shadow-xs`}
+          >
+            {isMiniSidebarOpen ? (
+              <>
+                <div className="flex items-start gap-2.5 min-w-0 pr-1">
+                  <span
+                    className="w-2.5 h-2.5 rounded-full shrink-0 mt-1 shadow-xs"
+                    style={{ backgroundColor: selectedColor }}
+                  />
+                  <div className="min-w-0 flex-1">
+                    <h4 className="text-xs font-bold text-foreground truncate leading-tight">
+                      {selectedLocation?.name || "Select Location"}
+                    </h4>
+                    {addressText && (
+                      <p className="text-[10px] text-foreground/60 truncate mt-0.5 leading-tight font-normal">
+                        {addressText}
+                      </p>
+                    )}
+                  </div>
                 </div>
-              </div>
-              <FiChevronDown
-                className={`size-3.5 text-foreground/50 shrink-0 transition-transform duration-200 ${
-                  isOpen ? "rotate-180" : ""
-                }`}
-              />
-            </button>
-          ) : (
-            <Tooltip
-              content={selectedLocation?.name || "Select Location"}
-              placement="right"
-              shadow="sm"
-              size="sm"
-              radius="sm"
-            >
-              <button
-                type="button"
-                className="w-full flex items-center justify-center py-2.5 rounded-xl border border-sky-200 dark:border-sky-900/50 bg-sky-50/60 dark:bg-sky-950/30 hover:bg-sky-100/70 dark:hover:bg-sky-900/40 transition-all cursor-pointer shadow-xs"
-              >
-                <span
-                  className="w-3 h-3 rounded-full shrink-0 shadow-xs"
-                  style={{ backgroundColor: selectedColor }}
+                <FiChevronDown
+                  className={`size-3.5 text-foreground/50 shrink-0 transition-transform duration-200 ${
+                    isOpen ? "rotate-180" : ""
+                  }`}
                 />
-              </button>
-            </Tooltip>
-          )}
+              </>
+            ) : (
+              <span
+                className="w-3 h-3 rounded-full shrink-0 shadow-xs"
+                style={{ backgroundColor: selectedColor }}
+              />
+            )}
+          </button>
         </PopoverTrigger>
         <PopoverContent className="w-[270px] p-0 shadow-2xl rounded-2xl border border-foreground/10 overflow-hidden bg-background text-foreground">
           <div className="w-full flex flex-col">

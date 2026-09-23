@@ -160,13 +160,18 @@ export default function A2PStatusBanner({ registration, phoneNumbers, isA2PConfi
                   </span>
                 </div>
 
-                <div className="ml-4 bg-red-50/80 dark:bg-red-950/30 border border-red-200/60 dark:border-red-900/40 p-3 rounded-lg flex flex-col gap-1">
+                <div className="ml-4 bg-red-50/80 dark:bg-red-950/30 border border-red-200/60 dark:border-red-900/40 p-3 rounded-lg flex flex-col gap-1.5">
                   <span className="text-xs font-bold text-red-900 dark:text-red-200">
                     Reason for rejection:{" "}
                     <span className="font-normal text-red-800 dark:text-red-300">
                       {item.specificMessage}
                     </span>
                   </span>
+                  {item.rawText && item.rawText.length > 5 && (
+                    <div className="text-[11px] text-red-800/90 dark:text-red-300/90 font-mono bg-red-100/60 dark:bg-red-950/60 p-2 rounded border border-red-200/50 dark:border-red-900/30">
+                      <span className="font-bold">Carrier Error Feedback:</span> {item.rawText}
+                    </div>
+                  )}
                 </div>
 
                 <div className="ml-4 bg-amber-50/70 dark:bg-amber-950/30 border border-amber-200/60 dark:border-amber-900/40 p-3 rounded-lg flex items-start gap-2.5">
