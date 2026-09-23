@@ -270,24 +270,54 @@ export const SignupFlow: React.FC = () => {
     const cleanCard = cardNumber.replace(/\s/g, "");
     if (!cleanCard) {
       errs.cardNumber = "Card number is required";
-    } else if (cleanCard.length < 13 || cleanCard.length > 16 || !luhnCheck(cleanCard)) {
+    } else if (cleanCard.length < 13 || cleanCard.length > 19) {
+      errs.cardNumber = "Card number must be 13-19 digits";
+    } else if (!luhnCheck(cleanCard)) {
       errs.cardNumber = "Invalid card number";
     }
-    if (!expiry || !/^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(expiry)) {
+
+    if (!expiry) {
+      errs.expiry = "Expiration date is required";
+    } else if (!/^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(expiry)) {
       errs.expiry = "Invalid date (MM/YY)";
+    } else {
+      const [monthStr, yearStr] = expiry.split("/");
+      if (monthStr && yearStr) {
+        const expMonth = parseInt(monthStr, 10);
+        const expYear = parseInt(`20${yearStr}`, 10);
+        const now = new Date();
+        const currentYear = now.getFullYear();
+        const currentMonth = now.getMonth() + 1;
+
+        if (expYear < currentYear || (expYear === currentYear && expMonth < currentMonth)) {
+          errs.expiry = "Card has expired";
+        }
+      }
     }
-    if (!cvc || cvc.length !== 3) {
-      errs.cvc = "CVC must be 3 digits";
+
+    if (!cvc) {
+      errs.cvc = "Security code is required";
+    } else if (cvc.length < 3 || cvc.length > 4) {
+      errs.cvc = "Security code must be 3 or 4 digits";
     }
+
     if (!agreeToTerms) {
       errs.terms = "You must agree to the Terms of Service & Privacy Policy";
     }
+
     setPaymentErrors(errs);
     return Object.keys(errs).length === 0;
   };
 
   const handleCompleteSignup = async () => {
-    if (!validatePayment()) return;
+    if (!validatePayment()) {
+      addToast({
+        title: "Incomplete Payment Details",
+        description: "Please check the highlighted fields and correct any errors.",
+        color: "danger",
+      });
+      return;
+    }
     const cleanCard = cardNumber.replace(/\s/g, "");
 
     if (isUpgrade) {
@@ -553,6 +583,7 @@ export const SignupFlow: React.FC = () => {
           agreeToTerms={agreeToTerms}
           setAgreeToTerms={setAgreeToTerms}
           paymentErrors={paymentErrors}
+          setPaymentErrors={setPaymentErrors}
           couponCode={couponCode}
           setCouponCode={setCouponCode}
           appliedCoupon={appliedCoupon}

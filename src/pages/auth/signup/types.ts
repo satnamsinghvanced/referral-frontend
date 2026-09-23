@@ -71,6 +71,7 @@ export interface StepPaymentProps {
   agreeToTerms: boolean;
   setAgreeToTerms: (val: boolean) => void;
   paymentErrors: Record<string, string>;
+  setPaymentErrors?: React.Dispatch<React.SetStateAction<Record<string, string>>>;
   couponCode: string;
   setCouponCode: (val: string) => void;
   appliedCoupon: AppliedCoupon | null;
