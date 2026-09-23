@@ -30,6 +30,19 @@ const Billing: React.FC = () => {
   const [isLoadingAddons, setIsLoadingAddons] = useState(false);
   const [cancelingAddonId, setCancelingAddonId] = useState<string | null>(null);
   const [addonToCancel, setAddonToCancel] = useState<UserAddonData | null>(null);
+  const [addonsCurrentPage, setAddonsCurrentPage] = useState(1);
+  const addonsPerPage = 2;
+  const totalAddonsPages = Math.ceil(userAddons.length / addonsPerPage) || 1;
+  const paginatedAddons = userAddons.slice(
+    (addonsCurrentPage - 1) * addonsPerPage,
+    addonsCurrentPage * addonsPerPage
+  );
+
+  useEffect(() => {
+    if (addonsCurrentPage > totalAddonsPages) {
+      setAddonsCurrentPage(Math.max(1, totalAddonsPages));
+    }
+  }, [userAddons.length, totalAddonsPages, addonsCurrentPage]);
 
   const { isOpen: isCancelOpen, onOpen: onOpenCancel, onOpenChange: onCancelOpenChange, onClose: onCloseCancel } = useDisclosure();
   const [isCanceling, setIsCanceling] = useState(false);
@@ -617,118 +630,133 @@ const Billing: React.FC = () => {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-              {userAddons.map((item) => {
-                const isMonthly = item.billingType === "monthly";
-                const isAnnually = item.billingType === "annually";
-                const isRecurring = isMonthly || isAnnually;
-                const isItemCanceled = item.status === "canceled";
-                const isItemExpired = item.status === "expired";
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                {paginatedAddons.map((item) => {
+                  const isMonthly = item.billingType === "monthly";
+                  const isAnnually = item.billingType === "annually";
+                  const isRecurring = isMonthly || isAnnually;
+                  const isItemCanceled = item.status === "canceled";
+                  const isItemExpired = item.status === "expired";
 
-                return (
-                  <div
-                    key={item._id}
-                    className="p-4 rounded-xl border border-foreground/10 bg-content1/40 dark:bg-zinc-900/40 flex flex-col justify-between gap-3 transition-all hover:border-primary/40 shadow-xs"
-                  >
-                    <div>
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <h5 className="text-sm font-bold text-foreground">
-                              {item.title}
-                            </h5>
+                  return (
+                    <div
+                      key={item._id}
+                      className="p-4 rounded-xl border border-foreground/10 bg-content1/40 dark:bg-zinc-900/40 flex flex-col justify-between gap-3 transition-all hover:border-primary/40 shadow-xs"
+                    >
+                      <div>
+                        <div className="flex items-start justify-between gap-2">
+                          <div>
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <h5 className="text-sm font-bold text-foreground">
+                                {item.title}
+                              </h5>
+                            </div>
+                            {item.unit && (
+                              <p className="text-[11px] font-medium text-foreground/60 mt-0.5">
+                                {item.unit}
+                              </p>
+                            )}
                           </div>
-                          {item.unit && (
-                            <p className="text-[11px] font-medium text-foreground/60 mt-0.5">
-                              {item.unit}
-                            </p>
-                          )}
+
+                          <div>
+                            {isItemExpired ? (
+                              <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-red-100 dark:bg-red-950/50 text-red-700 dark:text-red-400 border border-red-300 dark:border-red-800">
+                                Expired
+                              </span>
+                            ) : isItemCanceled ? (
+                              <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-800">
+                                Canceled
+                              </span>
+                            ) : isMonthly ? (
+                              <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800/80">
+                                <span className="size-1.5 rounded-full bg-emerald-500"></span>
+                                Monthly • Autopay
+                              </span>
+                            ) : isAnnually ? (
+                              <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800/80">
+                                <span className="size-1.5 rounded-full bg-emerald-500"></span>
+                                Annually • Autopay
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800/80">
+                                <span className="size-1.5 rounded-full bg-emerald-500"></span>
+                                Active • One-Time
+                              </span>
+                            )}
+                          </div>
                         </div>
 
-                        <div>
-                          {isItemExpired ? (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-red-100 dark:bg-red-950/50 text-red-700 dark:text-red-400 border border-red-300 dark:border-red-800">
-                              Expired
-                            </span>
-                          ) : isItemCanceled ? (
-                            <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-400 border border-amber-300 dark:border-amber-800">
-                              Canceled
-                            </span>
-                          ) : isMonthly ? (
-                            <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800/80">
-                              <span className="size-1.5 rounded-full bg-emerald-500"></span>
-                              Monthly • Autopay
-                            </span>
-                          ) : isAnnually ? (
-                            <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800/80">
-                              <span className="size-1.5 rounded-full bg-emerald-500"></span>
-                              Annually • Autopay
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center gap-1.5 text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800/80">
-                              <span className="size-1.5 rounded-full bg-emerald-500"></span>
-                              Active • One-Time
-                            </span>
-                          )}
+                        <div className="mt-2.5 flex items-line gap-1.5 flex-wrap">
+                          <span className="text-xl font-bold text-primary">
+                            ${item.price}
+                          </span>
+                          <span className="text-[11px] font-medium text-foreground/60">
+                            {isMonthly ? "/ month" : isAnnually ? "/ year" : " paid"}
+                          </span>
                         </div>
+
+                        {item.description && (
+                          <p className="text-xs text-foreground/70 mt-2 leading-relaxed">
+                            {item.description}
+                          </p>
+                        )}
                       </div>
 
-                      <div className="mt-2.5 flex items-baseline gap-1.5 flex-wrap">
-                        <span className="text-xl font-bold text-primary">
-                          ${item.price}
-                        </span>
-                        <span className="text-[11px] font-medium text-foreground/60">
-                          {isMonthly ? "/ month" : isAnnually ? "/ year" : " paid"}
-                        </span>
-                      </div>
-
-                      {item.description && (
-                        <p className="text-xs text-foreground/70 mt-2 leading-relaxed">
-                          {item.description}
-                        </p>
-                      )}
-                    </div>
-
-                    <div className="pt-3 border-t border-foreground/10 flex flex-wrap items-center justify-between gap-2 text-xs">
-                      <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-foreground/60 text-[11px]">
-                        <span className="inline-flex items-center gap-1.5">
-                          <span className="size-1.5 rounded-full bg-emerald-500"></span>
-                          <strong className="text-foreground/80 font-medium">Active:</strong>{" "}
-                          {formatDateToReadable(item.purchaseDate || item.createdAt)}
-                        </span>
-                        <span>•</span>
-                        <span>
-                          <strong className="text-foreground/80 font-medium">
-                            {isItemCanceled
-                              ? "Access until:"
+                      <div className="pt-3 border-t border-foreground/10 flex flex-wrap items-center justify-between gap-2 text-xs">
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-foreground/60 text-[11px]">
+                          <span className="inline-flex items-center gap-1.5">
+                            <span className="size-1.5 rounded-full bg-emerald-500"></span>
+                            <strong className="text-foreground/80 font-medium">Active:</strong>{" "}
+                            {formatDateToReadable(item.purchaseDate || item.createdAt)}
+                          </span>
+                          <span>•</span>
+                          <span>
+                            <strong className="text-foreground/80 font-medium">
+                              {isItemCanceled
+                                ? "Access until:"
+                                : isRecurring
+                                  ? "Next renewal:"
+                                  : "Expiry:"}
+                            </strong>{" "}
+                            {item.nextBillingDate
+                              ? formatDateToReadable(item.nextBillingDate)
                               : isRecurring
-                                ? "Next renewal:"
-                                : "Expiry:"}
-                          </strong>{" "}
-                          {item.nextBillingDate
-                            ? formatDateToReadable(item.nextBillingDate)
-                            : isRecurring
-                              ? "—"
-                              : "Lifetime"}
-                        </span>
-                      </div>
+                                ? "—"
+                                : "Lifetime"}
+                          </span>
+                        </div>
 
-                      {isRecurring && !isItemCanceled && (
-                        <Button
-                          size="sm"
-                          variant="light"
-                          color="danger"
-                          isLoading={cancelingAddonId === item._id}
-                          onPress={() => setAddonToCancel(item)}
-                          className="h-6 text-[10px] px-2 font-medium text-danger hover:bg-danger/10 ml-auto"
-                        >
-                          Cancel Autopay
-                        </Button>
-                      )}
+                        {isRecurring && !isItemCanceled && (
+                          <Button
+                            size="sm"
+                            variant="light"
+                            color="danger"
+                            isLoading={cancelingAddonId === item._id}
+                            onPress={() => setAddonToCancel(item)}
+                            className="h-6 text-[10px] px-2 font-medium text-danger hover:bg-danger/10 ml-auto"
+                          >
+                            Cancel Autopay
+                          </Button>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
+
+              {userAddons.length > addonsPerPage && (
+                <div className="pt-3 border-t border-foreground/10">
+                  <Pagination
+                    identifier="add-ons"
+                    limit={addonsPerPage}
+                    totalItems={userAddons.length}
+                    currentPage={addonsCurrentPage}
+                    totalPages={totalAddonsPages}
+                    handlePageChange={(page) => setAddonsCurrentPage(page)}
+                  />
+                </div>
+              )}
             </div>
           )}
         </CardBody>

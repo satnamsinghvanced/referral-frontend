@@ -16,6 +16,8 @@ export const SignupHeader: React.FC<SignupHeaderProps> = ({
   showBackButton = false,
   onBackClick,
   backButtonText,
+  userName,
+  userEmail,
 }) => {
   const steps = isUpgrade
     ? [
@@ -69,9 +71,19 @@ export const SignupHeader: React.FC<SignupHeaderProps> = ({
           : "Complete your payment details to start your free trial. Cancel anytime.";
   return (
     <div className="w-full max-w-5xl flex flex-col items-center relative mb-6">
-      {showThemeToggle && (
-        <div className="fixed top-4 right-4 sm:top-6 sm:right-6 z-50">
-          <AuthThemeToggle />
+      {(showThemeToggle || userName) && (
+        <div className="fixed top-4 right-4 sm:top-6 sm:right-6 z-50 flex items-center gap-2.5">
+          {userName && (
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-white/95 dark:bg-slate-900/95 backdrop-blur border border-slate-200 dark:border-slate-800 text-xs font-semibold text-slate-800 dark:text-slate-200 shadow-sm">
+              <div className="w-5 h-5 rounded-full bg-sky-100 dark:bg-sky-950 text-sky-600 dark:text-sky-400 font-bold flex items-center justify-center text-[10px]">
+                {userName.charAt(0).toUpperCase()}
+              </div>
+              <span className="max-w-[140px] sm:max-w-[180px] truncate" title={userEmail ? `${userName} (${userEmail})` : userName}>
+                {userName}
+              </span>
+            </div>
+          )}
+          {showThemeToggle && <AuthThemeToggle />}
         </div>
       )}
       <div className="h-10 mb-3 flex items-center justify-center">
