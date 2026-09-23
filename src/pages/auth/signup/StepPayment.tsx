@@ -162,6 +162,29 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
                 }}
                 variant="bordered"
                 aria-label="Select Country"
+                disableAnimation
+                popoverProps={{
+                  disableAnimation: true,
+                  shouldCloseOnScroll: false,
+                  classNames: {
+                    content: "p-0 border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0F172A] shadow-2xl rounded-xl",
+                  },
+                }}
+                listboxProps={{
+                  itemClasses: {
+                    base: [
+                      "rounded-lg",
+                      "text-slate-700 dark:text-slate-200",
+                      "transition-colors",
+                      "data-[hover=true]:text-slate-900 dark:data-[hover=true]:text-white",
+                      "data-[hover=true]:bg-slate-100 dark:data-[hover=true]:bg-slate-800",
+                      "data-[selectable=true]:focus:bg-slate-100 dark:data-[selectable=true]:focus:bg-slate-800",
+                      "data-[selected=true]:font-semibold",
+                      "data-[selected=true]:text-[#02A6F6] dark:data-[selected=true]:text-[#02A6F6]",
+                      "data-[selected=true]:bg-sky-50 dark:data-[selected=true]:bg-sky-950/40",
+                    ],
+                  },
+                }}
                 classNames={{
                   trigger: "border border-slate-300 dark:border-slate-700 bg-[#f8fafc] dark:bg-slate-900/50 data-[hover=true]:bg-[#f8fafc] group-data-[hover=true]:bg-[#f8fafc] hover:bg-[#f8fafc] h-11 min-h-11 rounded-xl group-data-[hover=true]:border-slate-400 hover:border-slate-400 group-data-[focus=true]:border-[#20a9f8] transition-colors",
                   value: "text-slate-900 dark:text-slate-100 font-medium text-sm",

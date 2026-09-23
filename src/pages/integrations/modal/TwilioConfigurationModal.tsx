@@ -286,7 +286,7 @@ export default function TwilioConfigurationModal({
           </ModalBody>
 
           <ModalFooter className="flex justify-between items-center px-4 pb-4 pt-0">
-            <Popover placement="top-start" showArrow>
+            <Popover placement="top-start" showArrow disableAnimation>
               <PopoverTrigger>
                 <Button variant="light" size="sm" className="text-gray-500 flex items-center gap-1">
                   <FiInfo size={16} />

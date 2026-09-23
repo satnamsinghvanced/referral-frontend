@@ -105,7 +105,15 @@ export default function NotificationPopover() {
   };
 
   return (
-    <Popover placement="bottom-end" isOpen={open} onOpenChange={setOpen} offset={8} containerPadding={12}>
+    <Popover
+      placement="bottom-end"
+      isOpen={open}
+      onOpenChange={setOpen}
+      offset={8}
+      containerPadding={12}
+      disableAnimation
+      shouldCloseOnScroll={false}
+    >
       <PopoverTrigger>
         <div className="relative inline-flex items-center justify-center cursor-pointer">
           <Button
