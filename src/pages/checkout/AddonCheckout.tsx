@@ -33,6 +33,7 @@ import {
   purchaseAddon,
 } from "../../services/addonService";
 import { validateDiscount } from "../../services/settings/billing";
+import { createStripePaymentMethod } from "../../services/stripeTokenService";
 import { WorkspaceLoader } from "../../components/common/LoadingState";
 
 interface AppliedCoupon {
@@ -86,7 +87,7 @@ export const AddonCheckout: React.FC = () => {
   const [cardNumber, setCardNumber] = useState("");
   const [expiry, setExpiry] = useState("");
   const [cvc, setCvc] = useState("");
-  const [country, setCountry] = useState("India");
+  const [country, setCountry] = useState("United States");
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [paymentErrors, setPaymentErrors] = useState<Record<string, string>>({});
   const [isProcessing, setIsProcessing] = useState(false);
@@ -156,10 +157,22 @@ export const AddonCheckout: React.FC = () => {
 
   const handleCardNumberChange = (val: string) => {
     const clean = val.replace(/\D/g, "").substring(0, 16);
-    const formatted = clean.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
+    let formatted = clean;
+    if (/^3[47]/.test(clean)) {
+      // Amex 4-6-5 format (up to 15 digits)
+      const p1 = clean.substring(0, 4);
+      const p2 = clean.substring(4, 10);
+      const p3 = clean.substring(10, 15);
+      formatted = [p1, p2, p3].filter(Boolean).join(" ");
+    } else {
+      formatted = clean.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
+    }
     setCardNumber(formatted);
     if (paymentErrors.cardNumber) {
       setPaymentErrors((prev) => ({ ...prev, cardNumber: "" }));
+    }
+    if (paymentErrors.paymentFailed) {
+      setPaymentErrors((prev) => ({ ...prev, paymentFailed: "" }));
     }
   };
 
@@ -173,6 +186,9 @@ export const AddonCheckout: React.FC = () => {
     if (paymentErrors.expiry) {
       setPaymentErrors((prev) => ({ ...prev, expiry: "" }));
     }
+    if (paymentErrors.paymentFailed) {
+      setPaymentErrors((prev) => ({ ...prev, paymentFailed: "" }));
+    }
   };
 
   const handleCvcChange = (val: string) => {
@@ -180,6 +196,9 @@ export const AddonCheckout: React.FC = () => {
     setCvc(clean);
     if (paymentErrors.cvc) {
       setPaymentErrors((prev) => ({ ...prev, cvc: "" }));
+    }
+    if (paymentErrors.paymentFailed) {
+      setPaymentErrors((prev) => ({ ...prev, paymentFailed: "" }));
     }
   };
 
@@ -246,8 +265,8 @@ export const AddonCheckout: React.FC = () => {
       const cleanCard = cardNumber.replace(/\s/g, "");
       if (!cleanCard) {
         errs.cardNumber = "Card number is required";
-      } else if (cleanCard.length !== 16) {
-        errs.cardNumber = "Card number must be 16 digits";
+      } else if (cleanCard.length < 14 || cleanCard.length > 16) {
+        errs.cardNumber = "Card number must be 14 to 16 digits";
       } else if (!luhnCheck(cleanCard)) {
         errs.cardNumber = "Invalid card number (failed checksum)";
       }
@@ -273,9 +292,38 @@ export const AddonCheckout: React.FC = () => {
       const cleanCard = cardNumber.replace(/\s/g, "");
       const targetAddonId = addon._id || addon.id || addonId;
 
+      let tokenResult: any = null;
+      if (!isUsingSaved) {
+        try {
+          tokenResult = await createStripePaymentMethod({
+            cardNumber: cleanCard,
+            expiry,
+            cvc,
+            name: user ? `${user.firstName || ""} ${user.lastName || ""}`.trim() : undefined,
+            country,
+          });
+        } catch (tokenErr: any) {
+          console.error("Addon card tokenization error:", tokenErr);
+          const errMsg = tokenErr?.message || "Invalid card details. Please check your card number, expiration date, and CVC.";
+          setPaymentErrors((prev) => ({
+            ...prev,
+            paymentFailed: errMsg,
+          }));
+          addToast({
+            title: "Payment Error",
+            description: errMsg,
+            color: "danger",
+          });
+          setIsProcessing(false);
+          return;
+        }
+      }
+
       await purchaseAddon({
         addonId: targetAddonId,
         useSavedCard: isUsingSaved,
+        paymentMethodId: tokenResult?.paymentMethodId,
+        token: tokenResult?.token,
         cardNumber: !isUsingSaved ? cleanCard : undefined,
         expire: !isUsingSaved ? expiry : undefined,
         cvc: !isUsingSaved ? cvc : undefined,
@@ -293,6 +341,10 @@ export const AddonCheckout: React.FC = () => {
     } catch (err: any) {
       console.error("Purchase error:", err);
       const msg = err.response?.data?.message || err.message || "Failed to process payment";
+      setPaymentErrors((prev) => ({
+        ...prev,
+        paymentFailed: msg,
+      }));
       addToast({
         title: "Payment Failed",
         description: msg,
@@ -453,6 +505,18 @@ export const AddonCheckout: React.FC = () => {
               Payment Information
             </h2>
 
+            {paymentErrors.paymentFailed && (
+              <div className="p-4 rounded-xl border border-red-300 dark:border-red-900/60 bg-red-50/90 dark:bg-red-950/30 flex items-start gap-3 text-red-700 dark:text-red-300 mb-4">
+                <FiAlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                <div className="flex flex-col gap-0.5">
+                  <span className="font-bold text-xs">Payment Failed</span>
+                  <span className="text-xs leading-relaxed text-red-600 dark:text-red-400">
+                    {paymentErrors.paymentFailed}
+                  </span>
+                </div>
+              </div>
+            )}
+
             {/* Saved Card Selection if available */}
             {hasSavedCard && (
               <div className="grid grid-cols-2 gap-4 mb-5 select-none">
@@ -575,11 +639,11 @@ export const AddonCheckout: React.FC = () => {
                         value: "text-slate-900 dark:text-slate-100 font-medium text-sm",
                       }}
                     >
-                      <SelectItem key="India" textValue="India">India</SelectItem>
                       <SelectItem key="United States" textValue="United States">United States</SelectItem>
                       <SelectItem key="Canada" textValue="Canada">Canada</SelectItem>
-                      <SelectItem key="United Kingdom" textValue="United Kingdom">United Kingdom</SelectItem>
                       <SelectItem key="Australia" textValue="Australia">Australia</SelectItem>
+                      <SelectItem key="United Kingdom" textValue="United Kingdom">United Kingdom</SelectItem>
+                      <SelectItem key="India" textValue="India">India</SelectItem>
                     </Select>
                   </div>
                 </>

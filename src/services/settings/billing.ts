@@ -51,6 +51,8 @@ export const downloadInvoicePdf = async ({ invoiceId, url }: { invoiceId?: strin
 export interface UpgradePlanPayload {
   planId: string;
   billingCycle?: "monthly" | "annual" | undefined;
+  paymentMethodId?: string | undefined;
+  token?: string | undefined;
   cardNumber?: string | undefined;
   expire?: string | undefined;
   cvc?: string | undefined;

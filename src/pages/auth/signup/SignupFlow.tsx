@@ -8,6 +8,7 @@ import { Spinner, addToast } from "@heroui/react";
 import { fetchPlansAndFeatures, fetchPricingPlanById, PlanData } from "../../../services/planFeature";
 import { registerUser, checkEmailAvailability } from "../../../services/auth";
 import { validateDiscount, upgradePlan } from "../../../services/settings/billing";
+import { createStripePaymentMethod } from "../../../services/stripeTokenService";
 import { setCredentials } from "../../../store/authSlice";
 import { EMAIL_REGEX, NAME_REGEX, PASSWORD_REGEX } from "../../../consts/consts";
 import { SignupHeader } from "./SignupHeader";
@@ -96,7 +97,7 @@ export const SignupFlow: React.FC = () => {
   const [cardNumber, setCardNumber] = useState("");
   const [expiry, setExpiry] = useState("");
   const [cvc, setCvc] = useState("");
-  const [country, setCountry] = useState("India");
+  const [country, setCountry] = useState("United States");
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [paymentErrors, setPaymentErrors] = useState<Record<string, string>>({});
   const [couponCode, setCouponCode] = useState("");
@@ -134,7 +135,7 @@ export const SignupFlow: React.FC = () => {
               if (singlePlan && (singlePlan.name || singlePlan.planId)) {
                 matched = singlePlan;
               }
-            } catch (_) {}
+            } catch (_) { }
           }
         }
         if (matched) {
@@ -270,8 +271,8 @@ export const SignupFlow: React.FC = () => {
     const cleanCard = cardNumber.replace(/\s/g, "");
     if (!cleanCard) {
       errs.cardNumber = "Card number is required";
-    } else if (cleanCard.length !== 16) {
-      errs.cardNumber = "Card number must be 16 digits";
+    } else if (cleanCard.length < 14 || cleanCard.length > 16) {
+      errs.cardNumber = "Card number must be 14 to 16 digits";
     } else if (!luhnCheck(cleanCard)) {
       errs.cardNumber = "Invalid card number (failed checksum)";
     }
@@ -320,13 +321,41 @@ export const SignupFlow: React.FC = () => {
     }
     const cleanCard = cardNumber.replace(/\s/g, "");
 
+    setIsSubmitting(true);
+    let tokenResult: any = null;
+
+    try {
+      tokenResult = await createStripePaymentMethod({
+        cardNumber: cleanCard,
+        expiry,
+        cvc,
+        name: `${formik.values.firstName || ""} ${formik.values.lastName || ""}`.trim() || undefined,
+        country,
+      });
+    } catch (tokenErr: any) {
+      console.error("Card Tokenization Error:", tokenErr);
+      const errMsg = tokenErr?.message || "Invalid card details. Please check your card number, expiration date, and CVC.";
+      setPaymentErrors((prev) => ({
+        ...prev,
+        paymentFailed: errMsg,
+      }));
+      addToast({
+        title: "Payment Error",
+        description: errMsg,
+        color: "danger",
+      });
+      setIsSubmitting(false);
+      return;
+    }
+
     if (isUpgrade) {
       try {
-        setIsSubmitting(true);
         const planIdentifier = selectedPlan?._id || selectedPlan?.planId || planParam || "starter_199";
         await upgradePlan({
           planId: planIdentifier,
           billingCycle,
+          paymentMethodId: tokenResult?.paymentMethodId,
+          token: tokenResult?.token,
           cardNumber: cleanCard,
           expire: expiry,
           cvc,
@@ -346,6 +375,10 @@ export const SignupFlow: React.FC = () => {
       } catch (err: any) {
         console.error("Upgrade plan error:", err);
         const errMsg = err?.response?.data?.message || err?.message || "Failed to upgrade subscription plan.";
+        setPaymentErrors((prev) => ({
+          ...prev,
+          paymentFailed: errMsg,
+        }));
         addToast({
           title: "Upgrade Failed",
           description: errMsg,
@@ -358,7 +391,6 @@ export const SignupFlow: React.FC = () => {
     }
 
     try {
-      setIsSubmitting(true);
       const payload = {
         firstName: formik.values.firstName,
         lastName: formik.values.lastName,
@@ -374,6 +406,10 @@ export const SignupFlow: React.FC = () => {
           planId: selectedPlan?._id || selectedPlan?.planId || planParam || "professional",
           plan: selectedPlan?.planId || selectedPlan?.name || planParam || "professional",
           billingCycle,
+          paymentMethodId: tokenResult?.paymentMethodId,
+          token: tokenResult?.token,
+          maskedCardNumber: `**** **** **** ${tokenResult?.last4 || cleanCard.slice(-4)}`,
+          cardBrand: tokenResult?.brand || "card",
           cardNumber: cleanCard,
           expire: expiry,
           cvc,
@@ -412,8 +448,8 @@ export const SignupFlow: React.FC = () => {
         originalPrice: rawPrice,
         discountAmount: discountVal,
         trialDays: 14,
-        cardLast4: cleanCard.slice(-4),
-        cardBrand: "Visa",
+        cardLast4: tokenResult?.last4 || cleanCard.slice(-4),
+        cardBrand: tokenResult?.brand || "Visa",
         orderId: data?.user?.subscriptionId || `PROI-${Math.floor(100000 + Math.random() * 900000)}`,
         transactionDate: new Date().toLocaleDateString("en-US", {
           year: "numeric",
@@ -453,36 +489,16 @@ export const SignupFlow: React.FC = () => {
         err.message ||
         "An unexpected error occurred during signup. Please try again.";
 
-      const isPaymentFailure =
-        msg.toLowerCase().includes("payment") ||
-        msg.toLowerCase().includes("card") ||
-        msg.toLowerCase().includes("stripe") ||
-        msg.toLowerCase().includes("declined") ||
-        msg.toLowerCase().includes("cvc") ||
-        msg.toLowerCase().includes("expired");
+      setPaymentErrors((prev) => ({
+        ...prev,
+        paymentFailed: msg,
+      }));
 
-      if (isPaymentFailure) {
-        const failedState: PaymentFailedState = {
-          errorMessage: msg,
-          errorCode: "card_payment_failed",
-          planName: selectedPlan?.name || "Professional Plan",
-          planId: selectedPlan?._id || selectedPlan?.planId || "professional",
-          billingCycle,
-          price: selectedPlan?.price || 199,
-          userEmail: formik.values.email,
-          userName: `${formik.values.firstName} ${formik.values.lastName}`.trim(),
-          retryFormValues: formik.values,
-          cardLast4: cleanCard.slice(-4),
-        };
-
-        navigate("/signup/payment-failed", { state: failedState });
-      } else {
-        addToast({
-          title: "Sign Up Failed",
-          description: msg,
-          color: "danger",
-        });
-      }
+      addToast({
+        title: "Payment Failed",
+        description: msg,
+        color: "danger",
+      });
     } finally {
       setIsSubmitting(false);
     }

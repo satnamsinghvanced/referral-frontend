@@ -39,6 +39,8 @@ export interface UserAddonData {
 export interface PurchaseAddonPayload {
   addonId: string;
   useSavedCard?: boolean | undefined;
+  paymentMethodId?: string | undefined;
+  token?: string | undefined;
   cardNumber?: string | undefined;
   expire?: string | undefined;
   cvc?: string | undefined;
