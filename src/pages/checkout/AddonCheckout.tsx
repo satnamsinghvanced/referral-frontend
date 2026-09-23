@@ -22,8 +22,10 @@ import {
   FiCheckCircle,
 } from "react-icons/fi";
 import { useQueryClient } from "@tanstack/react-query";
+import { useDispatch } from "react-redux";
+import { logout } from "../../store/authSlice";
 import { SignupHeader } from "../auth/signup/SignupHeader";
-import { useBilling } from "../../hooks/settings/useBilling";
+import { useBilling } from "../../hooks/settings/useBilling";``
 import {
   AddonData,
   fetchAddonById,
@@ -58,10 +60,20 @@ const luhnCheck = (num: string) => {
 
 export const AddonCheckout: React.FC = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
 
   const addonId = searchParams.get("addonId") || searchParams.get("addon_id") || searchParams.get("id") || "";
+
+  useEffect(() => {
+    const fromWp = searchParams.get("from_wp") === "true" || searchParams.get("wp") === "true" || searchParams.get("reauth") === "true";
+    if (fromWp && addonId) {
+      dispatch(logout());
+      queryClient.clear();
+      navigate(`/signin?addonId=${addonId}`, { replace: true });
+    }
+  }, [searchParams, addonId, dispatch, navigate, queryClient]);
 
   const { data: billingData, isLoading: isLoadingBilling } = useBilling();
   const [addon, setAddon] = useState<AddonData | null>(null);
@@ -234,8 +246,10 @@ export const AddonCheckout: React.FC = () => {
       const cleanCard = cardNumber.replace(/\s/g, "");
       if (!cleanCard) {
         errs.cardNumber = "Card number is required";
-      } else if (cleanCard.length < 13 || cleanCard.length > 16 || !luhnCheck(cleanCard)) {
-        errs.cardNumber = "Invalid card number";
+      } else if (cleanCard.length !== 16) {
+        errs.cardNumber = "Card number must be 16 digits";
+      } else if (!luhnCheck(cleanCard)) {
+        errs.cardNumber = "Invalid card number (failed checksum)";
       }
       if (!expiry || !/^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(expiry)) {
         errs.expiry = "Invalid date (MM/YY)";

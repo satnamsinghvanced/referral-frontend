@@ -2,7 +2,7 @@ import React, { ReactNode } from "react";
 import { FiLoader } from "react-icons/fi";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
-import { Navigate } from "react-router";
+import { Navigate, useLocation } from "react-router";
 
 interface ProtectedRouteProps {
   children: ReactNode;
@@ -12,6 +12,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { isAuthenticated, loading } = useSelector(
     (state: RootState) => state.auth,
   );
+  const location = useLocation();
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 gap-4">
@@ -22,9 +24,18 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       </div>
     );
   }
+
   if (!isAuthenticated) {
-    return <Navigate to="/signin" replace />;
+    const searchParams = new URLSearchParams(location.search);
+    const addonId = searchParams.get("addonId") || searchParams.get("addon_id") || searchParams.get("addon");
+    const signinUrl = addonId
+      ? `/signin?addonId=${addonId}`
+      : location.pathname && location.pathname !== "/"
+        ? `/signin?redirect=${encodeURIComponent(location.pathname + location.search)}`
+        : "/signin";
+    return <Navigate to={signinUrl} replace />;
   }
+
   return <>{children}</>;
 };
 

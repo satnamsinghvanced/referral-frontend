@@ -270,10 +270,10 @@ export const SignupFlow: React.FC = () => {
     const cleanCard = cardNumber.replace(/\s/g, "");
     if (!cleanCard) {
       errs.cardNumber = "Card number is required";
-    } else if (cleanCard.length < 13 || cleanCard.length > 19) {
-      errs.cardNumber = "Card number must be 13-19 digits";
+    } else if (cleanCard.length !== 16) {
+      errs.cardNumber = "Card number must be 16 digits";
     } else if (!luhnCheck(cleanCard)) {
-      errs.cardNumber = "Invalid card number";
+      errs.cardNumber = "Invalid card number (failed checksum)";
     }
 
     if (!expiry) {

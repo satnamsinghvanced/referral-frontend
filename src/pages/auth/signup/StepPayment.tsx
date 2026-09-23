@@ -64,14 +64,14 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
     if (!clean) {
       return isBlur ? "Card number is required" : "";
     }
-    if (clean.length > 19) {
-      return "Card number cannot exceed 19 digits";
+    if (clean.length > 16) {
+      return "Card number must be 16 digits";
     }
-    if (clean.length >= 13 && !luhnCheck(clean)) {
+    if (clean.length === 16 && !luhnCheck(clean)) {
       return "Invalid card number (failed checksum)";
     }
-    if (isBlur && clean.length < 13) {
-      return "Card number must be 13-19 digits";
+    if (isBlur && clean.length !== 16) {
+      return "Card number must be 16 digits";
     }
     return "";
   };
@@ -133,7 +133,7 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
   };
 
   const handleCardNumberChange = (val: string) => {
-    const clean = val.replace(/\D/g, "").substring(0, 19);
+    const clean = val.replace(/\D/g, "").substring(0, 16);
     const formatted = clean.replace(/(\d{4})(?=\d)/g, "$1 ").trim();
     setCardNumber(formatted);
     const err = validateCardNumber(formatted, !!touched.cardNumber);
@@ -248,6 +248,7 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
                 placeholder="1234 1234 1234 1234"
                 variant="bordered"
                 value={cardNumber}
+                maxLength={19}
                 onValueChange={handleCardNumberChange}
                 onBlur={handleCardNumberBlur}
                 isInvalid={!!paymentErrors.cardNumber}
