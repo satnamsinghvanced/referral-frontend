@@ -236,6 +236,7 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
     }
   }
   const finalPrice = Math.max(0, basePrice - discountAmount);
+  const isZeroDue = finalPrice <= 0;
 
   const trialEndDate = new Date();
   trialEndDate.setDate(trialEndDate.getDate() + 14);
@@ -267,149 +268,167 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
           )}
 
           <div className="flex flex-col gap-4">
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">Card number</label>
-                {cardBrand && (
-                  <span className="text-[11px] font-bold text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/60 px-2 py-0.5 rounded-md border border-sky-200 dark:border-sky-800">
-                    {cardBrand}
+            {isZeroDue ? (
+              <div className="p-4 rounded-xl border border-emerald-200 dark:border-emerald-900/40 bg-emerald-50/70 dark:bg-emerald-950/20 flex items-center gap-3.5">
+                <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-300 flex items-center justify-center shrink-0">
+                  <FiCheck className="w-5 h-5" />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-bold text-emerald-900 dark:text-emerald-200">
+                    100% Discount Applied
                   </span>
-                )}
+                  <span className="text-xs text-emerald-700 dark:text-emerald-400">
+                    Total due is $0. No credit card or billing information is required.
+                  </span>
+                </div>
               </div>
-              <Input
-                type="text"
-                placeholder="1234 1234 1234 1234"
-                variant="bordered"
-                value={cardNumber}
-                maxLength={19}
-                onValueChange={handleCardNumberChange}
-                onBlur={handleCardNumberBlur}
-                isInvalid={!!paymentErrors.cardNumber}
-                startContent={<FiCreditCard className="w-4 h-4 text-slate-400 mr-1" />}
-                classNames={{
-                  inputWrapper: `border ${
-                    paymentErrors.cardNumber
-                      ? "!border-red-500 dark:!border-red-500"
-                      : cardNumber
-                      ? "border-[#20a9f8]"
-                      : "border-slate-300 dark:border-slate-700"
-                  } bg-[#f8fafc] dark:bg-slate-900/50 h-11 rounded-xl group-data-[hover=true]:border-slate-400 hover:border-slate-400 ${
-                    paymentErrors.cardNumber
-                      ? "group-data-[focus=true]:!border-red-500 focus-within:!border-red-500"
-                      : "group-data-[focus=true]:border-[#20a9f8] focus-within:border-[#20a9f8]"
-                  } transition-colors`,
-                  input: "text-slate-900 dark:text-slate-100 placeholder:text-slate-400 font-medium text-sm",
-                }}
-              />
-              {paymentErrors.cardNumber && (
-                <span className="text-danger text-xs mt-1 block font-medium">{paymentErrors.cardNumber}</span>
-              )}
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">Expiration date</label>
-                <Input
-                  type="text"
-                  placeholder="MM / YY"
-                  variant="bordered"
-                  value={expiry}
-                  onValueChange={handleExpiryChange}
-                  onBlur={handleExpiryBlur}
-                  isInvalid={!!paymentErrors.expiry}
-                  classNames={{
-                    inputWrapper: `border ${
-                      paymentErrors.expiry
-                        ? "!border-red-500 dark:!border-red-500"
-                        : expiry
-                        ? "border-[#20a9f8]"
-                        : "border-slate-300 dark:border-slate-700"
-                    } bg-[#f8fafc] dark:bg-slate-900/50 h-11 rounded-xl group-data-[hover=true]:border-slate-400 hover:border-slate-400 ${
-                      paymentErrors.expiry
-                        ? "group-data-[focus=true]:!border-red-500 focus-within:!border-red-500"
-                        : "group-data-[focus=true]:border-[#20a9f8] focus-within:border-[#20a9f8]"
-                    } transition-colors`,
-                    input: "text-slate-900 dark:text-slate-100 placeholder:text-slate-400 font-medium text-sm",
-                  }}
-                />
-                {paymentErrors.expiry && (
-                  <span className="text-danger text-xs mt-1 block font-medium">{paymentErrors.expiry}</span>
-                )}
-              </div>
-              <div>
-                <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">Security code</label>
-                <Input
-                  type="text"
-                  placeholder="CVC (3-4 digits)"
-                  variant="bordered"
-                  value={cvc}
-                  onValueChange={handleCvcChange}
-                  onBlur={handleCvcBlur}
-                  isInvalid={!!paymentErrors.cvc}
-                  classNames={{
-                    inputWrapper: `border ${
-                      paymentErrors.cvc
-                        ? "!border-red-500 dark:!border-red-500"
-                        : cvc
-                        ? "border-[#20a9f8]"
-                        : "border-slate-300 dark:border-slate-700"
-                    } bg-[#f8fafc] dark:bg-slate-900/50 h-11 rounded-xl group-data-[hover=true]:border-slate-400 hover:border-slate-400 ${
-                      paymentErrors.cvc
-                        ? "group-data-[focus=true]:!border-red-500 focus-within:!border-red-500"
-                        : "group-data-[focus=true]:border-[#20a9f8] focus-within:border-[#20a9f8]"
-                    } transition-colors`,
-                    input: "text-slate-900 dark:text-slate-100 placeholder:text-slate-400 font-medium text-sm",
-                  }}
-                />
-                {paymentErrors.cvc && (
-                  <span className="text-danger text-xs mt-1 block font-medium">{paymentErrors.cvc}</span>
-                )}
-              </div>
-            </div>
-            <div>
-              <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">Country</label>
-              <Select
-                selectedKeys={[country]}
-                onSelectionChange={(keys) => {
-                  const val = Array.from(keys)[0] as string;
-                  setCountry(val);
-                }}
-                variant="bordered"
-                aria-label="Select Country"
-                disableAnimation
-                popoverProps={{
-                  disableAnimation: true,
-                  shouldCloseOnScroll: false,
-                  classNames: {
-                    content: "p-0 border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0F172A] shadow-2xl rounded-xl",
-                  },
-                }}
-                listboxProps={{
-                  itemClasses: {
-                    base: [
-                      "rounded-lg",
-                      "text-slate-700 dark:text-slate-200",
-                      "transition-colors",
-                      "data-[hover=true]:text-slate-900 dark:data-[hover=true]:text-white",
-                      "data-[hover=true]:bg-slate-100 dark:data-[hover=true]:bg-slate-800",
-                      "data-[selectable=true]:focus:bg-slate-100 dark:data-[selectable=true]:focus:bg-slate-800",
-                      "data-[selected=true]:font-semibold",
-                      "data-[selected=true]:text-[#02A6F6] dark:data-[selected=true]:text-[#02A6F6]",
-                      "data-[selected=true]:bg-sky-50 dark:data-[selected=true]:bg-sky-950/40",
-                    ],
-                  },
-                }}
-                classNames={{
-                  trigger: "border border-slate-300 dark:border-slate-700 bg-[#f8fafc] dark:bg-slate-900/50 data-[hover=true]:bg-[#f8fafc] group-data-[hover=true]:bg-[#f8fafc] hover:bg-[#f8fafc] h-11 min-h-11 rounded-xl group-data-[hover=true]:border-slate-400 hover:border-slate-400 group-data-[focus=true]:border-[#20a9f8] transition-colors",
-                  value: "text-slate-900 dark:text-slate-100 font-medium text-sm",
-                }}
-              >
-                <SelectItem key="United States" textValue="United States">United States</SelectItem>
-                <SelectItem key="Canada" textValue="Canada">Canada</SelectItem>
-                <SelectItem key="Australia" textValue="Australia">Australia</SelectItem>
-                <SelectItem key="United Kingdom" textValue="United Kingdom">United Kingdom</SelectItem>
-                <SelectItem key="India" textValue="India">India</SelectItem>
-              </Select>
-            </div>
+            ) : (
+              <>
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block">Card number</label>
+                    {cardBrand && (
+                      <span className="text-[11px] font-bold text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/60 px-2 py-0.5 rounded-md border border-sky-200 dark:border-sky-800">
+                        {cardBrand}
+                      </span>
+                    )}
+                  </div>
+                  <Input
+                    type="text"
+                    placeholder="1234 1234 1234 1234"
+                    variant="bordered"
+                    value={cardNumber}
+                    maxLength={19}
+                    onValueChange={handleCardNumberChange}
+                    onBlur={handleCardNumberBlur}
+                    isInvalid={!!paymentErrors.cardNumber}
+                    startContent={<FiCreditCard className="w-4 h-4 text-slate-400 mr-1" />}
+                    classNames={{
+                      inputWrapper: `border ${
+                        paymentErrors.cardNumber
+                          ? "!border-red-500 dark:!border-red-500"
+                          : cardNumber
+                          ? "border-[#20a9f8]"
+                          : "border-slate-300 dark:border-slate-700"
+                      } bg-[#f8fafc] dark:bg-slate-900/50 h-11 rounded-xl group-data-[hover=true]:border-slate-400 hover:border-slate-400 ${
+                        paymentErrors.cardNumber
+                          ? "group-data-[focus=true]:!border-red-500 focus-within:!border-red-500"
+                          : "group-data-[focus=true]:border-[#20a9f8] focus-within:border-[#20a9f8]"
+                      } transition-colors`,
+                      input: "text-slate-900 dark:text-slate-100 placeholder:text-slate-400 font-medium text-sm",
+                    }}
+                  />
+                  {paymentErrors.cardNumber && (
+                    <span className="text-danger text-xs mt-1 block font-medium">{paymentErrors.cardNumber}</span>
+                  )}
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">Expiration date</label>
+                    <Input
+                      type="text"
+                      placeholder="MM / YY"
+                      variant="bordered"
+                      value={expiry}
+                      onValueChange={handleExpiryChange}
+                      onBlur={handleExpiryBlur}
+                      isInvalid={!!paymentErrors.expiry}
+                      classNames={{
+                        inputWrapper: `border ${
+                          paymentErrors.expiry
+                            ? "!border-red-500 dark:!border-red-500"
+                            : expiry
+                            ? "border-[#20a9f8]"
+                            : "border-slate-300 dark:border-slate-700"
+                        } bg-[#f8fafc] dark:bg-slate-900/50 h-11 rounded-xl group-data-[hover=true]:border-slate-400 hover:border-slate-400 ${
+                          paymentErrors.expiry
+                            ? "group-data-[focus=true]:!border-red-500 focus-within:!border-red-500"
+                            : "group-data-[focus=true]:border-[#20a9f8] focus-within:border-[#20a9f8]"
+                        } transition-colors`,
+                        input: "text-slate-900 dark:text-slate-100 placeholder:text-slate-400 font-medium text-sm",
+                      }}
+                    />
+                    {paymentErrors.expiry && (
+                      <span className="text-danger text-xs mt-1 block font-medium">{paymentErrors.expiry}</span>
+                    )}
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">Security code</label>
+                    <Input
+                      type="text"
+                      placeholder="CVC (3-4 digits)"
+                      variant="bordered"
+                      value={cvc}
+                      onValueChange={handleCvcChange}
+                      onBlur={handleCvcBlur}
+                      isInvalid={!!paymentErrors.cvc}
+                      classNames={{
+                        inputWrapper: `border ${
+                          paymentErrors.cvc
+                            ? "!border-red-500 dark:!border-red-500"
+                            : cvc
+                            ? "border-[#20a9f8]"
+                            : "border-slate-300 dark:border-slate-700"
+                        } bg-[#f8fafc] dark:bg-slate-900/50 h-11 rounded-xl group-data-[hover=true]:border-slate-400 hover:border-slate-400 ${
+                          paymentErrors.cvc
+                            ? "group-data-[focus=true]:!border-red-500 focus-within:!border-red-500"
+                            : "group-data-[focus=true]:border-[#20a9f8] focus-within:border-[#20a9f8]"
+                        } transition-colors`,
+                        input: "text-slate-900 dark:text-slate-100 placeholder:text-slate-400 font-medium text-sm",
+                      }}
+                    />
+                    {paymentErrors.cvc && (
+                      <span className="text-danger text-xs mt-1 block font-medium">{paymentErrors.cvc}</span>
+                    )}
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 block mb-1">Country</label>
+                  <Select
+                    selectedKeys={[country]}
+                    onSelectionChange={(keys) => {
+                      const val = Array.from(keys)[0] as string;
+                      setCountry(val);
+                    }}
+                    variant="bordered"
+                    aria-label="Select Country"
+                    disableAnimation
+                    popoverProps={{
+                      disableAnimation: true,
+                      shouldCloseOnScroll: false,
+                      classNames: {
+                        content: "p-0 border border-slate-200 dark:border-slate-800 bg-white dark:bg-[#0F172A] shadow-2xl rounded-xl",
+                      },
+                    }}
+                    listboxProps={{
+                      itemClasses: {
+                        base: [
+                          "rounded-lg",
+                          "text-slate-700 dark:text-slate-200",
+                          "transition-colors",
+                          "data-[hover=true]:text-slate-900 dark:data-[hover=true]:text-white",
+                          "data-[hover=true]:bg-slate-100 dark:data-[hover=true]:bg-slate-800",
+                          "data-[selectable=true]:focus:bg-slate-100 dark:data-[selectable=true]:focus:bg-slate-800",
+                          "data-[selected=true]:font-semibold",
+                          "data-[selected=true]:text-[#02A6F6] dark:data-[selected=true]:text-[#02A6F6]",
+                          "data-[selected=true]:bg-sky-50 dark:data-[selected=true]:bg-sky-950/40",
+                        ],
+                      },
+                    }}
+                    classNames={{
+                      trigger: "border border-slate-300 dark:border-slate-700 bg-[#f8fafc] dark:bg-slate-900/50 data-[hover=true]:bg-[#f8fafc] group-data-[hover=true]:bg-[#f8fafc] hover:bg-[#f8fafc] h-11 min-h-11 rounded-xl group-data-[hover=true]:border-slate-400 hover:border-slate-400 group-data-[focus=true]:border-[#20a9f8] transition-colors",
+                      value: "text-slate-900 dark:text-slate-100 font-medium text-sm",
+                    }}
+                  >
+                    <SelectItem key="United States" textValue="United States">United States</SelectItem>
+                    <SelectItem key="Canada" textValue="Canada">Canada</SelectItem>
+                    <SelectItem key="Australia" textValue="Australia">Australia</SelectItem>
+                    <SelectItem key="United Kingdom" textValue="United Kingdom">United Kingdom</SelectItem>
+                    <SelectItem key="India" textValue="India">India</SelectItem>
+                  </Select>
+                </div>
+              </>
+            )}
 
             <div className="flex flex-col gap-1.5 border-t border-slate-100 dark:border-slate-800/80 pt-4 mt-1">
               <label className="text-xs font-semibold text-slate-700 dark:text-slate-300 flex items-center justify-between">
@@ -602,7 +621,7 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
               isLoading={isSubmitting}
               className="w-full font-bold h-11 rounded-xl mt-4 text-sm bg-sky-500 hover:bg-sky-600 text-white"
             >
-              {isSubmitting ? "Processing..." : (isUpgrade ? "Confirm & Upgrade Plan" : "Complete Sign Up")}
+              {isSubmitting ? "Processing..." : (isUpgrade ? "Confirm & Upgrade Plan" : (isZeroDue ? "Complete Free Sign Up" : "Complete Sign Up"))}
             </Button>
           </div>
         </Card>

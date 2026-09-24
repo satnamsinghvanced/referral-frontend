@@ -205,73 +205,67 @@ const CallTracking = () => {
                     aria-label="Phone Number"
                     placeholder="All Numbers"
                     size="sm"
-                    selectedKeys={[filters.phone]}
-                    disabledKeys={[filters.phone]}
-                    onSelectionChange={(keys) =>
-                      onFilterChange(
-                        "phone",
-                        (Array.from(keys)[0] as string) || "",
-                      )
-                    }
+                    disableAnimation
+                    popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                    selectedKeys={[filters.phone || "all"]}
+                    onSelectionChange={(keys) => {
+                      const val = (Array.from(keys)[0] as string) || "";
+                      onFilterChange("phone", val === "all" ? "" : val);
+                    }}
                   >
-                    <>
-                      <SelectItem key="" className="capitalize">
-                        All Numbers
+                    {[
+                      { key: "all", label: "All Numbers" },
+                      ...(twilioConfig?.phoneNumbers || []).map((num: any) => ({
+                        key: num.phoneNumber,
+                        label: num.phoneNumber,
+                      })),
+                    ].map((item: any) => (
+                      <SelectItem key={item.key} textValue={item.label} className="capitalize">
+                        {item.label}
                       </SelectItem>
-                      {(twilioConfig?.phoneNumbers || []).map((num: any) => (
-                        <SelectItem key={num.phoneNumber}>
-                          {`${num.phoneNumber}`}
-                        </SelectItem>
-                      ))}
-                    </>
+                    ))}
                   </Select>
                   <Select
                     aria-label="Call Types"
                     placeholder="All Types"
                     size="sm"
-                    selectedKeys={[filters.type]}
-                    disabledKeys={[filters.type]}
-                    onSelectionChange={(keys) =>
-                      onFilterChange(
-                        "type",
-                        (Array.from(keys)[0] as string) || "",
-                      )
-                    }
+                    disableAnimation
+                    popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                    selectedKeys={[filters.type || "all"]}
+                    onSelectionChange={(keys) => {
+                      const val = (Array.from(keys)[0] as string) || "";
+                      onFilterChange("type", val === "all" ? "" : val);
+                    }}
                   >
-                    <>
-                      <SelectItem key="" className="capitalize">
-                        All Types
+                    {[
+                      { value: "all", label: "All Types" },
+                      ...CALL_TYPES,
+                    ].map((type) => (
+                      <SelectItem key={type.value} textValue={type.label} className="capitalize">
+                        {type.label}
                       </SelectItem>
-                      {CALL_TYPES.map((type) => (
-                        <SelectItem key={type.value} className="capitalize">
-                          {type.label}
-                        </SelectItem>
-                      ))}
-                    </>
+                    ))}
                   </Select>
                   <Select
                     aria-label="Call Status"
                     placeholder="All Status"
                     size="sm"
-                    selectedKeys={[filters.status]}
-                    disabledKeys={[filters.status]}
-                    onSelectionChange={(keys) =>
-                      onFilterChange(
-                        "status",
-                        (Array.from(keys)[0] as string) || "",
-                      )
-                    }
+                    disableAnimation
+                    popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                    selectedKeys={[filters.status || "all"]}
+                    onSelectionChange={(keys) => {
+                      const val = (Array.from(keys)[0] as string) || "";
+                      onFilterChange("status", val === "all" ? "" : val);
+                    }}
                   >
-                    <>
-                      <SelectItem key="" className="capitalize">
-                        All Status
+                    {[
+                      { value: "all", label: "All Status" },
+                      ...CALL_STATUSES,
+                    ].map((status) => (
+                      <SelectItem key={status.value} textValue={status.label} className="capitalize">
+                        {status.label}
                       </SelectItem>
-                      {CALL_STATUSES.map((status) => (
-                        <SelectItem key={status.value} className="capitalize">
-                          {status.label}
-                        </SelectItem>
-                      ))}
-                    </>
+                    ))}
                   </Select>
                 </div>
               </div>

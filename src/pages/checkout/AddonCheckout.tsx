@@ -255,13 +255,29 @@ export const AddonCheckout: React.FC = () => {
     });
   };
 
+  const basePrice = Number(addon?.price) || 0;
+  const isMonthly = addon?.billingType === "monthly";
+  const isAnnually = addon?.billingType === "annually";
+  const isRecurring = isMonthly || isAnnually;
+
+  let discountAmount = 0;
+  if (appliedCoupon) {
+    if (appliedCoupon.type === "percent") {
+      discountAmount = (basePrice * appliedCoupon.value) / 100;
+    } else if (appliedCoupon.type === "fixed") {
+      discountAmount = Math.min(basePrice, appliedCoupon.value);
+    }
+  }
+  const finalPrice = Math.max(0, basePrice - discountAmount);
+  const isZeroDue = finalPrice <= 0;
+
   const validatePayment = () => {
     const errs: Record<string, string> = {};
     if (!agreeToTerms) {
       errs.terms = "You must agree to the Terms of Service & Privacy Policy";
     }
 
-    if (activeTab === "card" || !hasSavedCard) {
+    if (!isZeroDue && (activeTab === "card" || !hasSavedCard)) {
       const cleanCard = cardNumber.replace(/\s/g, "");
       if (!cleanCard) {
         errs.cardNumber = "Card number is required";
@@ -293,7 +309,7 @@ export const AddonCheckout: React.FC = () => {
       const targetAddonId = addon._id || addon.id || addonId;
 
       let tokenResult: any = null;
-      if (!isUsingSaved) {
+      if (!isZeroDue && !isUsingSaved) {
         try {
           tokenResult = await createStripePaymentMethod({
             cardNumber: cleanCard,
@@ -321,12 +337,13 @@ export const AddonCheckout: React.FC = () => {
 
       await purchaseAddon({
         addonId: targetAddonId,
-        useSavedCard: isUsingSaved,
+        useSavedCard: !isZeroDue ? isUsingSaved : false,
         paymentMethodId: tokenResult?.paymentMethodId,
         token: tokenResult?.token,
-        cardNumber: !isUsingSaved ? cleanCard : undefined,
-        expire: !isUsingSaved ? expiry : undefined,
-        cvc: !isUsingSaved ? cvc : undefined,
+        cardNumber: !isZeroDue && !isUsingSaved ? cleanCard : undefined,
+        expire: !isZeroDue && !isUsingSaved ? expiry : undefined,
+        cvc: !isZeroDue && !isUsingSaved ? cvc : undefined,
+        couponCode: appliedCoupon?.code,
       });
 
       setIsSuccess(true);
@@ -379,21 +396,6 @@ export const AddonCheckout: React.FC = () => {
       </div>
     );
   }
-
-  const basePrice = Number(addon.price) || 0;
-  const isMonthly = addon.billingType === "monthly";
-  const isAnnually = addon.billingType === "annually";
-  const isRecurring = isMonthly || isAnnually;
-
-  let discountAmount = 0;
-  if (appliedCoupon) {
-    if (appliedCoupon.type === "percent") {
-      discountAmount = (basePrice * appliedCoupon.value) / 100;
-    } else if (appliedCoupon.type === "fixed") {
-      discountAmount = Math.min(basePrice, appliedCoupon.value);
-    }
-  }
-  const finalPrice = Math.max(0, basePrice - discountAmount);
 
   if (isSuccess) {
     return (
@@ -517,8 +519,8 @@ export const AddonCheckout: React.FC = () => {
               </div>
             )}
 
-            {/* Saved Card Selection if available */}
-            {hasSavedCard && (
+            {/* Saved Card Selection if available (only when payment is required) */}
+            {!isZeroDue && hasSavedCard && (
               <div className="grid grid-cols-2 gap-4 mb-5 select-none">
                 <div
                   onClick={() => setActiveTab("saved")}
@@ -544,7 +546,21 @@ export const AddonCheckout: React.FC = () => {
             )}
 
             <div className="flex flex-col gap-4">
-              {hasSavedCard && activeTab === "saved" ? (
+              {isZeroDue ? (
+                <div className="p-4 rounded-xl border border-emerald-200 dark:border-emerald-900/40 bg-emerald-50/70 dark:bg-emerald-950/20 flex items-center gap-3.5">
+                  <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-300 flex items-center justify-center shrink-0">
+                    <FiCheck className="w-5 h-5" />
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-sm font-bold text-emerald-900 dark:text-emerald-200">
+                      100% Discount Applied
+                    </span>
+                    <span className="text-xs text-emerald-700 dark:text-emerald-400">
+                      Total due today is $0. No credit card or billing information is required.
+                    </span>
+                  </div>
+                </div>
+              ) : hasSavedCard && activeTab === "saved" ? (
                 <div className="border border-sky-500/50 bg-sky-50/20 dark:bg-sky-950/20 rounded-xl p-4 flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <FiCreditCard className="w-5 h-5 text-sky-500" />
@@ -850,10 +866,12 @@ export const AddonCheckout: React.FC = () => {
                 className="w-full font-bold h-11 rounded-xl mt-4 text-sm bg-sky-500 hover:bg-sky-600 text-white cursor-pointer"
               >
                 {isProcessing
-                  ? "Processing Payment..."
-                  : isRecurring
-                    ? `Subscribe & Activate • $${finalPrice.toFixed(finalPrice % 1 !== 0 ? 2 : 0)}${isMonthly ? "/mo" : "/yr"}`
-                    : `Pay $${finalPrice.toFixed(finalPrice % 1 !== 0 ? 2 : 0)} & Activate Add-on`}
+                  ? "Processing..."
+                  : isZeroDue
+                    ? "Activate Add-on Free ($0)"
+                    : isRecurring
+                      ? `Subscribe & Activate • $${finalPrice.toFixed(finalPrice % 1 !== 0 ? 2 : 0)}${isMonthly ? "/mo" : "/yr"}`
+                      : `Pay $${finalPrice.toFixed(finalPrice % 1 !== 0 ? 2 : 0)} & Activate Add-on`}
               </Button>
             </div>
           </Card>

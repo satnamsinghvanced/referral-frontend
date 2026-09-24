@@ -34,17 +34,23 @@ export interface RegisterPayload {
   practiceName: string;
   medicalSpecialty: string;
   password: string;
-  messageAlert?: boolean;
-  status?: string;
+  messageAlert?: boolean | undefined;
+  status?: string | undefined;
+  couponCode?: string | undefined;
   payment?: {
     planId: string;
     plan: string;
     billingCycle: string;
-    cardNumber?: string;
-    expire?: string;
-    cvc?: string;
-    method?: string;
-  };
+    paymentMethodId?: string | undefined;
+    token?: string | undefined;
+    maskedCardNumber?: string | undefined;
+    cardBrand?: string | undefined;
+    cardNumber?: string | undefined;
+    expire?: string | undefined;
+    cvc?: string | undefined;
+    method?: string | undefined;
+    couponCode?: string | undefined;
+  } | undefined;
 }
 
 export interface RegisterResponse {
