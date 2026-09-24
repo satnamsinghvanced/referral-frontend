@@ -44,7 +44,6 @@ export const useUpload = () => {
 export const UploadProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [activeUploads, setActiveUploads] = useState<UploadState[]>([]);
   const uploadsRef = useRef<Record<string, UploadState>>({});
-
   const startUpload = async (data: UploadMediaRequest, fileName: string, type: "image" | "video" | "media") => {
     const id = Math.random().toString(36).substring(7);
     const controller = new AbortController();

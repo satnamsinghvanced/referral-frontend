@@ -43,10 +43,7 @@ const formatPlatformName = (p: string) => {
 export const SocialPostUploadProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [socialPostUploadTask, setSocialPostUploadTask] = useState<SocialPostUploadTask | null>(null);
 
-  const startSocialPostUpload = (
-    title: string,
-    platforms: string[],
-    uploadPromise: Promise<any>,
+  const startSocialPostUpload = (    title: string,    platforms: string[],    uploadPromise: Promise<any>,
     registerUploadProgress?: (cb: (percent: number) => void) => void
   ) => {
     setSocialPostUploadTask({
@@ -56,7 +53,6 @@ export const SocialPostUploadProvider: React.FC<{ children: React.ReactNode }> =
       progress: 0,
       status: "uploading",
     });
-
     if (registerUploadProgress) {
       registerUploadProgress((percent) => {
         setSocialPostUploadTask((prev) => {
@@ -66,7 +62,6 @@ export const SocialPostUploadProvider: React.FC<{ children: React.ReactNode }> =
         });
       });
     }
-
     uploadPromise
       .then((resData: any) => {
         const postId = resData?.postId || resData?.data?.postId;
@@ -87,23 +82,19 @@ export const SocialPostUploadProvider: React.FC<{ children: React.ReactNode }> =
           }, 3000);
           return;
         }
-
         setSocialPostUploadTask((prev) =>
           prev ? { ...prev, progress: 90 } : null
         );
-
         const pollInterval = setInterval(async () => {
           try {
             const statusRes = await fetchPostStatus(postId);
             const postStatus = statusRes?.status || statusRes?.data?.status;
             const failureReason = statusRes?.failureReason || statusRes?.data?.failureReason;
-
             if (postStatus === "Published" || postStatus === "Partially Failed" || postStatus === "Scheduled") {
               clearInterval(pollInterval);
               setSocialPostUploadTask((prev) =>
                 prev ? { ...prev, progress: 100, status: "success" } : null
               );
-
               queryClient.invalidateQueries({ queryKey: ["recent-posts"] });
               queryClient.invalidateQueries({ queryKey: ["social-overview"] });
               queryClient.invalidateQueries({ queryKey: ["posts-analytics"] });

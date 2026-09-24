@@ -1,8 +1,9 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
-import { FiChevronLeft, FiChevronRight, FiX, FiClock, FiMaximize2, FiMinimize2, FiEdit3, FiTrash2 } from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight, FiX, FiClock, FiMaximize2, FiMinimize2, FiEdit3, FiTrash2, FiCheck } from "react-icons/fi";
 import clsx from "clsx";
 import { Button, Select, SelectItem } from "@heroui/react";
 import { ACTIVITY_TYPES } from "../../consts/marketing";
+import { LOCATION_THEMES } from "../conversations/Conversations";
 
 interface CalendarProps {
   weekendDisabled?: boolean;
@@ -13,6 +14,9 @@ interface CalendarProps {
   onActivityDelete?: (activity: any) => void;
   onRangeSelect?: (startDate: Date, endDate: Date) => void;
   activities: any[];
+  selectedLocations?: string[];
+  displayLocations?: string[];
+  onToggleLocation?: (locName: string) => void;
 }
 
 type ViewMode = "day" | "week" | "month" | "year";
@@ -139,6 +143,9 @@ const CustomCalendar: React.FC<CalendarProps> = ({
   onActivityDelete,
   onRangeSelect,
   activities,
+  selectedLocations = [],
+  displayLocations = [],
+  onToggleLocation,
 }) => {
   const today = new Date();
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -1473,10 +1480,55 @@ const CustomCalendar: React.FC<CalendarProps> = ({
     </div>
   );
 
+  const renderLocationBar = () => {
+    if (!displayLocations || displayLocations.length === 0 || !selectedLocations || !onToggleLocation) {
+      return null;
+    }
+
+    return (
+      <div className="px-4 py-3 border-b border-foreground/10 flex items-center gap-3 bg-gray-50/50 dark:bg-content2/30 flex-wrap">
+        <span className="text-xs font-bold text-gray-500 dark:text-foreground/50 tracking-wider uppercase select-none">
+          SHOW:
+        </span>
+        <div className="flex items-center gap-2 flex-wrap">
+          {displayLocations.map((locName, index) => {
+            const isSelected = selectedLocations.includes(locName);
+            const theme = LOCATION_THEMES[index % LOCATION_THEMES.length];
+
+            return (
+              <button
+                key={locName}
+                type="button"
+                onClick={() => onToggleLocation(locName)}
+                className={`px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2 border transition-all cursor-pointer shadow-2xs select-none ${
+                  isSelected
+                    ? `${theme?.bg || ""} shadow-xs`
+                    : "bg-gray-100/70 dark:bg-content2 border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500 opacity-60 hover:opacity-100"
+                }`}
+              >
+                <span
+                  className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] shrink-0 transition-colors ${
+                    isSelected
+                      ? theme?.badge || "bg-primary text-white"
+                      : "border border-gray-300 dark:border-gray-600 bg-white dark:bg-content1 text-transparent"
+                  }`}
+                >
+                  {isSelected && <FiCheck className="size-2.5 stroke-[3]" />}
+                </span>
+                <span>{locName}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <>
       <div className="w-full rounded-xl overflow-hidden bg-background">
         {renderHeaderControls(false)}
+        {renderLocationBar()}
         {viewMode === "month" && renderMonthView()}
         {viewMode === "day" && renderDayView()}
         {viewMode === "week" && renderWeekView()}
@@ -1493,6 +1545,7 @@ const CustomCalendar: React.FC<CalendarProps> = ({
             className="w-full h-full max-w-[1700px] bg-background border border-foreground/10 rounded-xl sm:rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-in zoom-in-95 duration-200"
           >
             {renderHeaderControls(true)}
+            {renderLocationBar()}
             <div className="flex-1 overflow-hidden p-0 flex flex-col">
               {viewMode === "month" && renderMonthView()}
               {viewMode === "day" && renderDayView()}

@@ -26,10 +26,13 @@ import {
 } from "../../../consts/consts";
 import { usePaginationAdjustment } from "../../../hooks/common/usePaginationAdjustment";
 
+import { useLocationContext } from "../../../providers/LocationContext";
+
 export default function ScheduleVisits({
   isHistoryModalOpen,
   setIsHistoryModalOpen,
 }: any) {
+  const { selectedLocation } = useLocationContext();
   const [isScheduleVisitModalOpen, setIsScheduleVisitModalOpen] =
     useState(false);
   const [isScheduleVisitStatusModalOpen, setIsScheduleVisitStatusModalOpen] =
@@ -57,7 +60,7 @@ export default function ScheduleVisits({
     setFilters((prev: any) => ({ ...prev, search: debouncedSearch }));
   }, [debouncedSearch]);
 
-  const { data: practicesData } = useFetchPartners();
+  const { data: practicesData } = useFetchPartners({ locationId: selectedLocation?._id });
 
   const practices = practicesData?.data || [];
 

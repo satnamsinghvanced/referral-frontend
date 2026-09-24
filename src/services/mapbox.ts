@@ -9,7 +9,6 @@ export const getDirections = async (
   if (!params.coordinates) {
     throw new Error("Coordinates are required for directions API.");
   }
-
   const responseData = (await axios.get(
     `${BASE_URL}${params.coordinates}`,
     {
@@ -23,10 +22,8 @@ export const getDirections = async (
       },
     }
   )) as MapboxDirectionsResponse;
-
   if (responseData.code !== "Ok") {
     throw new Error(`Mapbox API Error: ${responseData.code}`);
   }
-
   return responseData;
 };

@@ -28,6 +28,7 @@ import {
 import { LuSend } from "react-icons/lu";
 import { Conversation } from "../../../consts/conversations";
 import { getPlatformIcon, getPlatformLabel, getPlatformChipStyle, getAvatarColor, getInitials, formatDateLabel } from "../utils";
+import { getAssignedLocation, getLocationTheme } from "../Conversations";
 import EmojiPicker from "./EmojiPicker";
 
 const formatSeenTime = (seenAt?: number) => {
@@ -82,6 +83,7 @@ interface ChatAreaProps {
   isMetaConnected?: boolean;
   isIntegrationsLoading?: boolean;
   isSendingMessage?: boolean;
+  displayLocations?: string[];
 }
 
 export default function ChatArea({
@@ -103,6 +105,7 @@ export default function ChatArea({
   onScheduleClick,
   onSendFormsClick,
   onSendQuoteClick,
+  displayLocations = [],
 }: ChatAreaProps) {
   if (!selectedConversation) {
     if (selectedConversationId) {
@@ -124,6 +127,9 @@ export default function ChatArea({
       </div>
     );
   }
+
+  const convLocation = selectedConversation.patientLocation || getAssignedLocation(selectedConversation.id, displayLocations);
+  const locationTheme = getLocationTheme(convLocation, displayLocations);
 
   return (
     <div className={`flex-1 flex flex-col min-w-0 ${selectedConversationId ? "flex" : "hidden md:flex"}`}>
@@ -168,6 +174,17 @@ export default function ChatArea({
               >
                 {getPlatformLabel(selectedConversation.platform)}
               </Chip>
+              {convLocation && (
+                <span
+                  className={`text-[9px] sm:text-[10px] px-2 py-0.5 rounded font-medium flex items-center gap-1 border ${
+                    locationTheme ? locationTheme.bg : "bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border-sky-200"
+                  }`}
+                  title={convLocation}
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${locationTheme ? locationTheme.dot : "bg-sky-500"}`} />
+                  <span className="truncate">{convLocation}</span>
+                </span>
+              )}
             </div>
             {selectedConversation.platform === "web" && (
               <p className="text-[10px] sm:text-[11px] text-gray-400 dark:text-foreground/40 flex items-center gap-1">

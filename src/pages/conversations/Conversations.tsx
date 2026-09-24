@@ -2,6 +2,7 @@ import { useState, useMemo, useRef, useEffect } from "react";
 import { Card, CardBody, addToast } from "@heroui/react";
 import { LuMessageSquare } from "react-icons/lu";
 import { HiOutlineMail, HiOutlineClock, HiOutlineTrendingUp } from "react-icons/hi";
+import { FiCheck } from "react-icons/fi";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
 import TrendIndicator from "../../components/common/TrendIndicator";
@@ -18,6 +19,7 @@ import { getFacebookConversations, sendFacebookMessage, markFacebookSeen } from 
 import { getWebConversations, sendWebMessage, markWebConversationRead } from "../../services/chatWidget";
 import { uploadChatAttachment } from "../../services/conversationAttachment";
 import { useSocialCredentials } from "../../hooks/useSocial";
+import { useLocationContext } from "../../providers/LocationContext";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   subscribeToNewMessage,
@@ -29,6 +31,68 @@ import {
   type NewMessagePayload,
   type NewWebMessagePayload,
 } from "../../services/sse";
+
+export const LOCATION_THEMES = [
+  {
+    key: "sky",
+    bg: "bg-sky-50 dark:bg-sky-950/40 border-sky-300 dark:border-sky-700 text-sky-700 dark:text-sky-300",
+    badge: "bg-sky-500 text-white border-sky-500",
+    dot: "bg-sky-500",
+  },
+  {
+    key: "orange",
+    bg: "bg-orange-50 dark:bg-orange-950/40 border-orange-300 dark:border-orange-700 text-orange-700 dark:text-orange-300",
+    badge: "bg-orange-500 text-white border-orange-500",
+    dot: "bg-orange-500",
+  },
+  {
+    key: "purple",
+    bg: "bg-purple-50 dark:bg-purple-950/40 border-purple-300 dark:border-purple-700 text-purple-700 dark:text-purple-300",
+    badge: "bg-purple-500 text-white border-purple-500",
+    dot: "bg-purple-500",
+  },
+  {
+    key: "emerald",
+    bg: "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300",
+    badge: "bg-emerald-500 text-white border-emerald-500",
+    dot: "bg-emerald-500",
+  },
+  {
+    key: "pink",
+    bg: "bg-pink-50 dark:bg-pink-950/40 border-pink-300 dark:border-pink-700 text-pink-700 dark:text-pink-300",
+    badge: "bg-pink-500 text-white border-pink-500",
+    dot: "bg-pink-500",
+  },
+  {
+    key: "amber",
+    bg: "bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300",
+    badge: "bg-amber-500 text-white border-amber-500",
+    dot: "bg-amber-500",
+  },
+];
+
+export const getAssignedLocation = (convId: string, locations: string[] = []): string => {
+  if (!locations || locations.length === 0) return "";
+  let num = 0;
+  for (let i = 0; i < convId.length; i++) {
+    num += convId.charCodeAt(i);
+  }
+  const loc = locations[num % locations.length];
+  return loc || locations[0] || "";
+};
+
+export const getLocationTheme = (locationName: string, locations: string[] = []) => {
+  const fallbackTheme = LOCATION_THEMES[0] || {
+    key: "sky",
+    bg: "bg-sky-50 dark:bg-sky-950/40 border-sky-300 dark:border-sky-700 text-sky-700 dark:text-sky-300",
+    badge: "bg-sky-500 text-white border-sky-500",
+    dot: "bg-sky-500",
+  };
+  if (!locations || locations.length === 0) return fallbackTheme;
+  const index = locations.indexOf(locationName);
+  const themeIdx = index >= 0 ? index % LOCATION_THEMES.length : 0;
+  return LOCATION_THEMES[themeIdx] || fallbackTheme;
+};
 
 const Conversations = () => {
   const { data: socialCreds, isLoading: isSocialLoading } = useSocialCredentials();
@@ -56,6 +120,57 @@ const Conversations = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
+
+  const { locations: contextLocations } = useLocationContext();
+
+  const displayLocations = useMemo(() => {
+    if (contextLocations && Array.isArray(contextLocations) && contextLocations.length > 0) {
+      return contextLocations.map((l) => l.name).filter(Boolean);
+    }
+    return [];
+  }, [contextLocations]);
+
+  const availableLocations = useMemo(() => {
+    if (!displayLocations || displayLocations.length === 0) return [];
+    const withData = displayLocations.filter((locName) => {
+      const hasData = conversations.some((c) => {
+        const cLoc = c.patientLocation || getAssignedLocation(c.id, displayLocations);
+        return cLoc === locName;
+      });
+      return hasData || isMetaConnected;
+    });
+    return withData.length > 0 ? withData : displayLocations;
+  }, [displayLocations, conversations, isMetaConnected]);
+
+  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (availableLocations && availableLocations.length > 0) {
+      setSelectedLocations((prev) => {
+        if (!prev || prev.length === 0) return availableLocations;
+        const valid = prev.filter((name) => availableLocations.includes(name));
+        return valid.length > 0 ? valid : availableLocations;
+      });
+    }
+  }, [availableLocations]);
+
+  const locationFilteredConversations = useMemo(() => {
+    return conversations.filter((conv) => {
+      const convLocation = conv.patientLocation || getAssignedLocation(conv.id, displayLocations);
+      return selectedLocations.includes(convLocation);
+    });
+  }, [conversations, selectedLocations, displayLocations]);
+
+  const toggleLocation = (locName: string) => {
+    if (selectedLocations.includes(locName)) {
+      if (selectedLocations.length <= 1) {
+        return;
+      }
+      setSelectedLocations((prev) => prev.filter((name) => name !== locName));
+    } else {
+      setSelectedLocations((prev) => [...prev, locName]);
+    }
+  };
 
   const HEADING_DATA = {
     heading: "Conversations",
@@ -441,7 +556,9 @@ const Conversations = () => {
         } else {
           matchesFilter = conv.status !== "archived";
         }
-        return matchesSearch && matchesPlatform && matchesFilter;
+        const convLocation = conv.patientLocation || getAssignedLocation(conv.id, displayLocations);
+        const matchesLocation = selectedLocations.includes(convLocation);
+        return matchesSearch && matchesPlatform && matchesFilter && matchesLocation;
       })
       .sort((a, b) => {
         const getTimestamp = (conv: Conversation) => {
@@ -453,7 +570,7 @@ const Conversations = () => {
         };
         return getTimestamp(b) - getTimestamp(a);
       });
-  }, [search, selectedPlatform, filterDropdown, conversations]);
+  }, [search, selectedPlatform, filterDropdown, conversations, selectedLocations, displayLocations]);
 
   const selectedConversation = useMemo(() => {
     if (!selectedConversationId) return null;
@@ -498,8 +615,8 @@ const Conversations = () => {
   }, [selectedConversation?.id, selectedConversation?.messages?.length, queryClient]);
 
   const stats = useMemo<StatCard[]>(() => {
-    const activeCount = conversations.filter((c) => c.status === "active").length;
-    const unreadCount = conversations.reduce((acc, c) => acc + c.unreadCount, 0);
+    const activeCount = locationFilteredConversations.filter((c) => c.status === "active").length;
+    const unreadCount = locationFilteredConversations.reduce((acc, c) => acc + c.unreadCount, 0);
     return [
       {
         heading: "Active Conversations",
@@ -556,7 +673,7 @@ const Conversations = () => {
         ),
       },
     ];
-  }, [conversations]);
+  }, [locationFilteredConversations]);
 
   const handleSendMessage = async () => {
     const trimmedText = messageInput.trim();
@@ -820,7 +937,44 @@ const Conversations = () => {
           className="border border-foreground/10 bg-white dark:bg-content1 overflow-hidden"
         >
           <CardBody className="p-0">
-            <div className="flex h-[calc(100vh-340px)] min-h-[500px]">
+            {/* Top location filter bar matching Figma design */}
+            <div className="px-4 py-3 border-b border-foreground/10 flex items-center gap-3 bg-gray-50/50 dark:bg-content2/30 flex-wrap">
+              <span className="text-xs font-bold text-gray-500 dark:text-foreground/50 tracking-wider uppercase select-none">
+                SHOW:
+              </span>
+              <div className="flex items-center gap-2 flex-wrap">
+                {availableLocations.map((locName) => {
+                  const index = displayLocations.indexOf(locName);
+                  const isSelected = selectedLocations.includes(locName);
+                  const theme = LOCATION_THEMES[index >= 0 ? index % LOCATION_THEMES.length : 0];
+
+                  return (
+                    <button
+                      key={locName}
+                      type="button"
+                      onClick={() => toggleLocation(locName)}
+                      className={`px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2 border transition-all cursor-pointer shadow-2xs select-none ${
+                        isSelected
+                          ? `${theme?.bg || ""} shadow-xs`
+                          : "bg-gray-100/70 dark:bg-content2 border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500 opacity-60 hover:opacity-100"
+                      }`}
+                    >
+                      <span
+                        className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] shrink-0 transition-colors ${
+                          isSelected
+                            ? theme?.badge || "bg-primary text-white"
+                            : "border border-gray-300 dark:border-gray-600 bg-white dark:bg-content1 text-transparent"
+                        }`}
+                      >
+                        {isSelected && <FiCheck className="size-2.5 stroke-[3]" />}
+                      </span>
+                      <span>{locName}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="flex h-[calc(100vh-380px)] min-h-[480px]">
               <ConversationList
                 conversations={conversations}
                 filteredConversations={filteredConversations}
@@ -835,6 +989,8 @@ const Conversations = () => {
                 setFilterDropdown={setFilterDropdown}
                 isMetaConnected={isMetaConnected}
                 isIntegrationsLoading={isSocialLoading || isConversationsLoading}
+                displayLocations={displayLocations}
+                selectedLocations={selectedLocations}
               />
               <ChatArea
                 selectedConversation={selectedConversation}
@@ -866,6 +1022,7 @@ const Conversations = () => {
                 }}
                 isMetaConnected={isMetaConnected}
                 isIntegrationsLoading={isSocialLoading || isConversationsLoading}
+                displayLocations={displayLocations}
               />
               <LeadSidebar
                 selectedConversation={selectedConversation}

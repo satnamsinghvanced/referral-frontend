@@ -58,7 +58,6 @@ axiosInstance.interceptors.request.use(
         triggerLogout();
         return Promise.reject(new Error("Token expired"));
       }
-
       config.headers.Authorization = `Bearer ${token}`;
     }
     return config;

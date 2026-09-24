@@ -102,7 +102,6 @@ export const exportReferrals = async (): Promise<ReferralExportItem[]> => {
   return response.data;
 };
 
-
 export const exportAnalytics = async (): Promise<AnalyticsExportResponse> => {
   const response = await axios.get("/users/export-analytics");
   return response.data as any;

@@ -1,8 +1,10 @@
 import { Card, CardBody, Chip, Button } from "@heroui/react";
+import { useMemo } from "react";
 import { HiStar } from "react-icons/hi";
 import { LuMapPin } from "react-icons/lu";
 import { FiTrash2 } from "react-icons/fi";
 import PriorityLevelChip from "../../components/chips/PriorityLevelChip";
+import { useLocationContext } from "../../providers/LocationContext";
 
 interface LeadCardProps {
   lead: {
@@ -18,6 +20,9 @@ interface LeadCardProps {
     responseTime: string;
     priority: string;
     stage: string;
+    location?: any;
+    locationId?: any;
+    practiceLocation?: any;
   };
   onPress?: (lead: any) => void;
   onDelete?: (lead: any) => void;
@@ -31,6 +36,27 @@ interface LeadCardProps {
 }
 
 const LeadCard = ({ lead, onPress, onDelete, draggable, onDragStart, onDragEnd, onDragOver, onDragLeave, onDrop, isDraggedOver }: LeadCardProps) => {
+  const { locations, getLocationColor } = useLocationContext();
+
+  const locationBadge = useMemo(() => {
+    const locProp = lead.locationId || lead.location || lead.practiceLocation;
+    if (!locations || locations.length === 0) {
+      const name = typeof locProp === "string" ? locProp : locProp?.name || "Main Location";
+      return { name, color: "#f97316" };
+    }
+    let found = locations.find((l) => l._id === locProp || l._id === locProp?._id);
+    if (!found && locProp) {
+      const searchStr = typeof locProp === "string" ? locProp.toLowerCase() : locProp?.name?.toLowerCase();
+      found = locations.find((l) => l.name.toLowerCase() === searchStr);
+    }
+    if (found) {
+      return { name: found.name, color: getLocationColor(found._id) };
+    }
+    const fallbackName = typeof locProp === "string" && locProp ? locProp : locations[0]?.name || "Main Location";
+    const fallbackId = locations[0]?._id;
+    return { name: fallbackName, color: fallbackId ? getLocationColor(fallbackId) : "#f97316" };
+  }, [locations, lead, getLocationColor]);
+
   return (
     <div
       onDragOver={onDragOver}
@@ -65,9 +91,22 @@ const LeadCard = ({ lead, onPress, onDelete, draggable, onDragStart, onDragEnd, 
               </div>
               <PriorityLevelChip level={lead.priority} />
             </div>
-            <div className="flex items-center gap-1 text-[10px] text-gray-500 dark:text-foreground/60 font-medium">
-              <LuMapPin className="size-3 opacity-60" />
-              <span className="truncate">{lead.source}</span>
+            <div className="flex items-center justify-between gap-1 text-[10px] text-gray-500 dark:text-foreground/60 font-medium">
+              <div className="flex items-center gap-1 min-w-0">
+                <LuMapPin className="size-3 opacity-60 shrink-0" />
+                <span className="truncate">{lead.source}</span>
+              </div>
+              <span
+                className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold border shrink-0"
+                style={{
+                  backgroundColor: `${locationBadge.color}15`,
+                  color: locationBadge.color,
+                  borderColor: `${locationBadge.color}40`,
+                }}
+              >
+                <span className="size-1.5 rounded-full shrink-0" style={{ backgroundColor: locationBadge.color }} />
+                <span className="truncate max-w-[85px]">{locationBadge.name}</span>
+              </span>
             </div>
           </div>
           <div className="h-5 flex items-center overflow-hidden">

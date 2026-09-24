@@ -7,18 +7,18 @@ import {
 } from "../types/reviews";
 import axios from "./axios";
 
-export const fetchGBPOverview = async (): Promise<GBPOverviewResponse> => {
-  const response = await axios.get("/google_business_profile/overview");
+export const fetchGBPOverview = async (params?: { locationId?: string | undefined }): Promise<GBPOverviewResponse> => {
+  const response = await axios.get("/google_business_profile/overview", { params });
   return response.data;
 };
 
-export const fetchGBPLocationPerformance = async (): Promise<GBPLocationPerformanceResponse> => {
-  const response = await axios.get("/google_business_profile/location-reviews");
+export const fetchGBPLocationPerformance = async (params?: { locationId?: string | undefined }): Promise<GBPLocationPerformanceResponse> => {
+  const response = await axios.get("/google_business_profile/location-reviews", { params });
   return response.data;
 };
 
-export const fetchGBPRecentReviews = async (pageToken?: string): Promise<GBPRecentReviewsResponse> => {
-  const response = await axios.get("/google_business_profile/recent-reviews", { params: { pageToken } });
+export const fetchGBPRecentReviews = async (params?: { pageToken?: string; locationId?: string | undefined }): Promise<GBPRecentReviewsResponse> => {
+  const response = await axios.get("/google_business_profile/recent-reviews", { params });
   return response.data;
 };
 

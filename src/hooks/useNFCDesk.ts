@@ -14,10 +14,10 @@ import {
 import { CreateNFCDeskPayload, UpdateNFCDeskPayload } from "../types/nfcDesk";
 
 const NFC_DESK_KEY = ["nfc_desk"];
-export const useFetchNFCDesks = (page: number = 1, limit: number = 10) =>
+export const useFetchNFCDesks = (page: number = 1, limit: number = 10, locationId?: string | undefined) =>
   useQuery({
-    queryKey: [...NFC_DESK_KEY, { page, limit }],
-    queryFn: () => fetchNFCDesks(page, limit),
+    queryKey: [...NFC_DESK_KEY, { page, limit, locationId }],
+    queryFn: () => fetchNFCDesks(page, limit, locationId),
   });
 
 export const useCreateNFCDesk = () => {

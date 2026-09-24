@@ -93,21 +93,14 @@ export const updatePlanFeatureItem = async (
   return response.data;
 };
 
-export const togglePlanFeatureItemStatus = async (
-  planId: string,
-  featureId: string,
-  isEnabled: boolean,
+export const togglePlanFeatureItemStatus = async (planId: string, featureId: string, isEnabled: boolean,
   cycle: "monthly" | "yearly" = "monthly"
 ) => {
   const response = await axios.patch(`/superadmin/plans/${planId}/features/${featureId}/toggle`, { isEnabled, cycle });
   return response.data;
 };
 
-export const deletePlanFeatureItem = async (
-  planId: string,
-  featureId: string,
-  cycle: "monthly" | "yearly" = "monthly"
-) => {
+export const deletePlanFeatureItem = async (planId: string, featureId: string, cycle: "monthly" | "yearly" = "monthly") => {
   const response = await axios.delete(`/superadmin/plans/${planId}/features/${featureId}?cycle=${cycle}`);
   return response.data;
 };

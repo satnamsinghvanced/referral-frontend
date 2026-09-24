@@ -28,6 +28,7 @@ export const fetchPartners = async (params: FetchPartnersParams = {}): Promise<F
       sortBy: params.sortBy,
       order: params.order,
       filter: params.filter,
+      locationId: params.locationId,
     },
   });
   return response.data;

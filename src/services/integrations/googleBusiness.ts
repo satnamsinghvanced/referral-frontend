@@ -39,8 +39,8 @@ export const getGoogleBusinessAuthUrl = async (payload?: any) => {
   return data;
 };
 
-export const getGoogleBusinessIntegration = async () => {
-  const { data } = await axios.get<IGoogleBusinessIntegration>("/google_business_integration",);
+export const getGoogleBusinessIntegration = async (params?: { locationId?: string | undefined }) => {
+  const { data } = await axios.get<IGoogleBusinessIntegration>("/google_business_integration", { params });
   return data;
 };
 

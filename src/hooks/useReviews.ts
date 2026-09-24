@@ -10,25 +10,26 @@ import {
 import { addToast } from "@heroui/react";
 import { AxiosError } from "axios";
 
-export const useGBPOverview = () => {
+export const useGBPOverview = (params?: { locationId?: string | undefined }) => {
   return useQuery({
-    queryKey: ["gbp", "overview"],
-    queryFn: fetchGBPOverview,
+    queryKey: ["gbp", "overview", params?.locationId],
+    queryFn: () => fetchGBPOverview(params),
   });
 };
 
-export const useGBPLocationPerformance = () => {
+export const useGBPLocationPerformance = (params?: { locationId?: string | undefined }) => {
   return useQuery({
-    queryKey: ["gbp", "locations"],
-    queryFn: fetchGBPLocationPerformance,
+    queryKey: ["gbp", "locations", params?.locationId],
+    queryFn: () => fetchGBPLocationPerformance(params),
   });
 };
 
-export const useGBPRecentReviews = (pageToken?: string) => {
+export const useGBPRecentReviews = (params?: { pageToken?: string; locationId?: string | undefined } | string) => {
+  const queryParams = typeof params === "string" ? { pageToken: params } : params;
   return useQuery({
-    queryKey: ["gbp", "reviews", pageToken],
+    queryKey: ["gbp", "reviews", queryParams?.pageToken, queryParams?.locationId],
     queryFn: async () => {
-      const data = await fetchGBPRecentReviews(pageToken);
+      const data = await fetchGBPRecentReviews(queryParams);
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
       return data;
     },

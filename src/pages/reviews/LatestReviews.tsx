@@ -18,6 +18,7 @@ import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import EmptyState from "../../components/common/EmptyState";
 import { LoadingState } from "../../components/common/LoadingState";
+import { useLocationContext } from "../../providers/LocationContext";
 
 dayjs.extend(relativeTime);
 
@@ -197,8 +198,9 @@ const LatestReviewItem = ({
  * Main component for the Reviews and Interactions section.
  */
 export default function LatestReviews() {
-  const { data: gbpData, isLoading: isGbpLoading } = useGBPRecentReviews();
-  const { data: businessConfig } = useBusinessIntegration();
+  const { selectedLocation } = useLocationContext();
+  const { data: gbpData, isLoading: isGbpLoading } = useGBPRecentReviews({ locationId: selectedLocation?._id });
+  const { data: businessConfig } = useBusinessIntegration({ locationId: selectedLocation?._id });
 
   const connectedLoc: any = businessConfig?.locations?.find((l: any) => l.isConnected);
   const connectedLocationId = connectedLoc?.placeId || connectedLoc?.locationId;

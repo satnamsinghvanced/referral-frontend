@@ -12,6 +12,7 @@ import { MdOutlineModeComment } from "react-icons/md";
 import { TbCheckbox } from "react-icons/tb";
 import { useDashboardStats } from "../../hooks/useDashboard";
 import { useRolePermissions } from "../../hooks/useRolePermissions";
+import { useLocationContext } from "../../providers/LocationContext";
 import { useBilling } from "../../hooks/settings/useBilling";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store";
@@ -39,7 +40,8 @@ interface NavigationRoute {
 
 const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarProps) => {
   const { pathname } = useLocation();
-  const { data: dashboardStats } = useDashboardStats();
+  const { selectedLocation } = useLocationContext();
+  const { data: dashboardStats } = useDashboardStats({ locationId: selectedLocation?._id });
   const { data: billingData } = useBilling();
   const planAccess = billingData?.access;
   const { hasPermission, hasAnyPermission, isAdmin, isLoading } = useRolePermissions();
@@ -297,7 +299,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
           </div>
         </div>
         <div className="flex flex-col justify-between h-[calc(100vh_-_64px)] px-0">
-          {/* <LocationDropdown isMiniSidebarOpen={isMiniSidebarOpen} /> */}
+          <LocationDropdown isMiniSidebarOpen={isMiniSidebarOpen} />
           <ul className="flex flex-col p-3 overflow-y-auto flex-1 scrollbar-slim">
             {filteredRoutes.map((item, index) => {
               const Icon = item.icon;

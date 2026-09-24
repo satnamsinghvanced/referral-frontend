@@ -10,13 +10,7 @@ export const createLeadAutomation = async (data: any): Promise<any> => {
   return response.data;
 };
 
-export const updateLeadAutomation = async ({
-  id,
-  data,
-}: {
-  id: string;
-  data: any;
-}): Promise<any> => {
+export const updateLeadAutomation = async ({  id,  data,}: {  id: string;  data: any;}): Promise<any> => {
   const response = await axios.put(`/lead-automation/${id}`, data);
   return response.data;
 };

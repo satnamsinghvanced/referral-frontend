@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useEffect, useState, useMemo } from "react";
+import { useSelector } from "react-redux";
 import { Location } from "../types/common";
 import { useFetchLocations } from "../hooks/settings/useLocation";
+import { RootState } from "../store";
 
 interface LocationContextType {
   locations: Location[];
@@ -24,8 +26,20 @@ export const LOCATION_COLORS = [
 const STORAGE_KEY = "selected_location_id";
 
 export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const user = useSelector((state: RootState) => state.auth.user);
   const { data: locationsData, isLoading } = useFetchLocations({ limit: 100 });
-  const locations: Location[] = useMemo(() => locationsData?.data || [], [locationsData]);
+  const locations: Location[] = useMemo(() => {
+    const allLocs = locationsData?.data || [];
+    if (user && user.role !== "SuperAdmin" && user.role !== "Admin") {
+      const userLocs = (user as any)?.locations || (user as any)?.assignedLocations;
+      if (Array.isArray(userLocs) && userLocs.length > 0) {
+        const locSet = new Set(userLocs.map((l: any) => (typeof l === "string" ? l : l._id)));
+        const filtered = allLocs.filter((l) => locSet.has(l._id));
+        if (filtered.length > 0) return filtered;
+      }
+    }
+    return allLocs;
+  }, [locationsData, user]);
 
   const [selectedLocationId, setSelectedLocationId] = useState<string | null>(() => {
     return localStorage.getItem(STORAGE_KEY);
@@ -33,12 +47,10 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const selectedLocation = useMemo<any>(() => {
     if (!locations || locations.length === 0) return null;
-
     if (selectedLocationId) {
       const found = locations.find((loc) => loc._id === selectedLocationId);
       if (found) return found;
     }
-
     const primary = locations.find((loc) => loc.isPrimary);
     return primary || locations[0];
   }, [locations, selectedLocationId]);

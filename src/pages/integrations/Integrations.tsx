@@ -52,8 +52,10 @@ import GoogleIntegrationSelectorModal from "./modal/GoogleIntegrationSelectorMod
 import GoogleCalendarConfigModal from "./modal/GoogleCalendarConfigModal";
 import Webhooks from "./webhooks/Webhooks";
 import TwilioDashboard from "./components/TwilioDashboard";
+import { useLocationContext } from "../../providers/LocationContext";
 
 function Integrations() {
+  const { selectedLocation } = useLocationContext();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const { user } = useTypedSelector((state) => state.auth);
@@ -175,7 +177,7 @@ function Integrations() {
     }
   }, [location.search, location.hash, searchParams]);
 
-  const { data: googleBusinessConfig } = useBusinessIntegration() as any;
+  const { data: googleBusinessConfig } = useBusinessIntegration({ locationId: selectedLocation?._id }) as any;
   const { mutate: updateGoogleBusinessIntegration, isPending: isUpdatingGoogleBusiness } = useUpdateBusiness();
   const { mutate: connectGoogleBusiness } = useConnectBusiness();
   const [isPlacesModalOpen, setIsPlacesModalOpen] = useState(false);
@@ -672,27 +674,28 @@ function Integrations() {
       platformId: "meta",
       platformKey: "metaAuthIntegration",
       selectorPlatform: "meta" as SocialPlatformType,
-      name: "Meta (Facebook & Instagram)",
+      name: selectedLocation ? `Meta (Facebook & Instagram) - ${selectedLocation.name}` : "Meta (Facebook & Instagram)",
       icon: <FaMeta className="w-4 h-4" />,
       iconBg: "bg-blue-100 dark:bg-blue-900/20",
       iconColor: "text-blue-600 dark:text-blue-400",
       status: metaStatus,
-      description:
-        "Connect Facebook and Instagram to sync posts and track engagement.",
-      badges: ["Facebook", "Instagram", "Ads Sync"],
+      description: selectedLocation
+        ? `Connect Facebook and Instagram for ${selectedLocation.name} to sync posts and track engagement.`
+        : "Connect Facebook and Instagram to sync posts and track engagement.",
+      badges: ["Facebook", "Instagram", "Ads Sync", ...(selectedLocation ? [selectedLocation.name] : [])],
       lastSync: metaCreds?.lastSyncAt || metaCreds?.updatedAt
         ? timeAgo(metaCreds.lastSyncAt || metaCreds.updatedAt)
         : undefined,
       onConnect: () => openSocialConnectModal({
         platformId: "meta",
         platformKey: "metaAuthIntegration",
-        name: "Meta (Facebook & Instagram)",
+        name: selectedLocation ? `Meta (Facebook & Instagram) - ${selectedLocation.name}` : "Meta (Facebook & Instagram)",
         selectorPlatform: "meta",
       }),
       onReconnect: () => openSocialConnectModal({
         platformId: "meta",
         platformKey: "metaAuthIntegration",
-        name: "Meta (Facebook & Instagram)",
+        name: selectedLocation ? `Meta (Facebook & Instagram) - ${selectedLocation.name}` : "Meta (Facebook & Instagram)",
         selectorPlatform: "meta",
       }),
       onConfigure: () => {

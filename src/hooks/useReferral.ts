@@ -44,6 +44,7 @@ interface FetchReferralsParams {
   search?: string;
   filter?: string;
   source?: string;
+  locationId?: string | undefined;
 }
 
 export const useFetchReferrals = ({
@@ -52,10 +53,11 @@ export const useFetchReferrals = ({
   search = "",
   filter = "",
   source = "",
+  locationId,
 }: FetchReferralsParams) =>
   useQuery<ReferralsResponse, Error>({
-    queryKey: ["referrals", search, page, limit, filter, source],
-    queryFn: () => fetchReferrals({ page, limit, search, filter, source }),
+    queryKey: ["referrals", search, page, limit, filter, source, locationId],
+    queryFn: () => fetchReferrals({ page, limit, search, filter, source, locationId }),
   });
 
 export const useGetReferralById = (id: string) =>
@@ -157,10 +159,11 @@ export const useFetchReferrers = ({
   page = 1,
   limit = 10,
   search = "",
+  locationId,
 }: FetchReferrersParams) =>
   useQuery<ReferrersResponse, Error>({
-    queryKey: ["referrers", filter, page, limit, search],
-    queryFn: () => fetchReferrers({ filter, page, limit, search }),
+    queryKey: ["referrers", filter, page, limit, search, locationId],
+    queryFn: () => fetchReferrers({ filter, page, limit, search, locationId }),
   });
 
 export const useGetReferrerById = (id: string) =>

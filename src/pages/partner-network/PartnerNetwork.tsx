@@ -33,8 +33,10 @@ import ScheduleVisits from "./schedule-visits/ScheduleVisits";
 import { EVEN_PAGINATION_LIMIT } from "../../consts/consts";
 import { usePaginationAdjustment } from "../../hooks/common/usePaginationAdjustment";
 import { usePlanGuard } from "../../hooks/usePlanGuard";
+import { useLocationContext } from "../../providers/LocationContext";
 
 const PartnerNetwork = () => {
+  const { selectedLocation } = useLocationContext();
   const { isLimitReached, getLimit, hasAccess, openPricingPage } = usePlanGuard();
   const maxPartnerLimit = getLimit("referral_connections");
   const canAccessScheduleVisits = hasAccess("advanced_referral_tracking");
@@ -55,7 +57,7 @@ const PartnerNetwork = () => {
     name: string;
   } | null>(null);
 
-  const [params, setParams] = useState<Required<FetchPartnersParams>>({
+  const [params, setParams] = useState<FetchPartnersParams>({
     page: 1,
     limit: EVEN_PAGINATION_LIMIT,
     search: "",
@@ -73,11 +75,12 @@ const PartnerNetwork = () => {
   const { data, isLoading } = useFetchPartners({
     ...params,
     search: debouncedSearch as string,
+    locationId: selectedLocation?._id,
   });
 
   usePaginationAdjustment({
     totalPages: data?.totalPages || 0,
-    currentPage: params.page,
+    currentPage: params.page || 1,
     onPageChange: (page) => setParams((prev) => ({ ...prev, page })),
     isLoading,
   });
@@ -321,7 +324,7 @@ const PartnerNetwork = () => {
                       size="sm"
                       variant="flat"
                       placeholder="Search partner practices..."
-                      value={params.search}
+                      value={params.search || ""}
                       onValueChange={(value: string) =>
                         handleFieldChange("search", value)
                       }
@@ -412,9 +415,9 @@ const PartnerNetwork = () => {
                     </div>
                     {stats?.totalPages && stats.totalPages > 1 && (
                       <p className="text-xs text-gray-600 dark:text-foreground/60">
-                        {`Showing ${params.limit * (params.page - 1) + 1} - ${params.limit * params.page > totalPractices
+                        {`Showing ${(params.limit || EVEN_PAGINATION_LIMIT) * ((params.page || 1) - 1) + 1} - ${(params.limit || EVEN_PAGINATION_LIMIT) * (params.page || 1) > totalPractices
                           ? totalPractices
-                          : params.limit * params.page
+                          : (params.limit || EVEN_PAGINATION_LIMIT) * (params.page || 1)
                           } of ${totalPractices} practices`}
                       </p>
                     )}
@@ -447,7 +450,7 @@ const PartnerNetwork = () => {
                   showControls
                   size="sm"
                   radius="sm"
-                  page={params.page}
+                  page={params.page || 1}
                   onChange={(page) => handleFieldChange("page", page)}
                   total={stats.totalPages}
                   classNames={{

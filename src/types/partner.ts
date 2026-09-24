@@ -133,6 +133,7 @@ export interface FetchReferrersParams {
   page?: number;
   limit?: number;
   search?: string;
+  locationId?: string | undefined;
 }
 
 export interface Partner {
@@ -205,6 +206,7 @@ export interface FetchPartnersParams {
   sortBy?: string;
   order?: "asc" | "desc";
   filter?: string;
+  locationId?: string | undefined;
 }
 
 export interface NoteApiData {

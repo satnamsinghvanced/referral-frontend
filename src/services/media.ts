@@ -62,7 +62,6 @@ export const uploadMedia = (
   data.images.forEach((file: any) => formData.append("images", file));
   data.files.forEach((file: any) => formData.append("files", file));
   data.tags.forEach((tag: any) => formData.append("tags", tag));
-
   return axios.post<UploadMediaResponse>(IMAGES_API_BASE, formData, {
     headers: {
       "Content-Type": "multipart/form-data",

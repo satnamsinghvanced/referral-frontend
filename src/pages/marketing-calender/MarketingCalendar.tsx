@@ -26,6 +26,8 @@ import { formatNumberWithCommas } from "../../utils/formatNumberWithCommas";
 import Pagination from "../../components/common/Pagination";
 import { usePaginationAdjustment } from "../../hooks/common/usePaginationAdjustment";
 import { usePlanGuard } from "../../hooks/usePlanGuard";
+import { useLocationContext } from "../../providers/LocationContext";
+import { getAssignedLocation } from "../conversations/Conversations";
 
 const MarketingCalendar = () => {
   const { hasAccess } = usePlanGuard();
@@ -94,6 +96,45 @@ const MarketingCalendar = () => {
       return bDate - aDate;
     });
   }, [activities]);
+  const { locations: contextLocations } = useLocationContext();
+
+  const displayLocations = useMemo(() => {
+    if (contextLocations && Array.isArray(contextLocations) && contextLocations.length > 0) {
+      return contextLocations.map((l) => l.name).filter(Boolean);
+    }
+    return [];
+  }, [contextLocations]);
+
+  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+
+  useEffect(() => {
+    if (displayLocations && displayLocations.length > 0) {
+      setSelectedLocations((prev) => {
+        if (!prev || prev.length === 0) return displayLocations;
+        const valid = prev.filter((name) => displayLocations.includes(name));
+        return valid.length > 0 ? valid : displayLocations;
+      });
+    }
+  }, [displayLocations]);
+
+  const toggleLocation = (locName: string) => {
+    if (selectedLocations.includes(locName)) {
+      if (selectedLocations.length <= 1) {
+        return;
+      }
+      setSelectedLocations((prev) => prev.filter((name) => name !== locName));
+    } else {
+      setSelectedLocations((prev) => [...prev, locName]);
+    }
+  };
+
+  const locationFilteredActivities = useMemo(() => {
+    return sortedActivities.filter((act: any) => {
+      const actLoc = act?.location || act?.patientLocation || getAssignedLocation(act?._id || act?.id || "1", displayLocations);
+      return selectedLocations.includes(actLoc);
+    });
+  }, [sortedActivities, selectedLocations, displayLocations]);
+
   useEffect(() => {
     if (!isGoogleCalendarConnected) return;
     marketingActivitiesRefetch();
@@ -198,7 +239,7 @@ const MarketingCalendar = () => {
       ]
       : []),
   ];
-  const filteredActivities = sortedActivities.filter((activity: any) => {
+  const filteredActivities = locationFilteredActivities.filter((activity: any) => {
     if (!selectedDate) return true;
     const selected = new Date(selectedDate);
     selected.setHours(0, 0, 0, 0);
@@ -364,7 +405,10 @@ const MarketingCalendar = () => {
                     setSelectedActivity(null);
                     setIsModalOpen(true);
                   }}
-                  activities={sortedActivities}
+                  activities={locationFilteredActivities}
+                  displayLocations={displayLocations}
+                  selectedLocations={selectedLocations}
+                  onToggleLocation={toggleLocation}
                   onActivityClick={handleViewActivity}
                   onActivityEdit={(activity) => {
                     setSelectedActivity(activity);

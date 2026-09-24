@@ -99,6 +99,7 @@ export interface FetchReferralsParams {
   search?: string;
   filter?: string;
   source?: string;
+  locationId?: string | undefined;
 }
 
 export interface ScanTrackingParams {

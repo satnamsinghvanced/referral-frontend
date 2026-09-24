@@ -19,19 +19,14 @@ export const getReferralById = async (id: string) => {
   return data;
 };
 
-export const fetchReferrals = async (
-  params: FetchReferralsParams
-): Promise<ReferralsResponse> => {
+export const fetchReferrals = async (params: FetchReferralsParams): Promise<ReferralsResponse> => {
   const { data } = await axios.get<ReferralsResponse>("/referral", {
     params: params,
   });
   return data;
 };
 
-export const updateReferral = async (
-  id: string,
-  payload: Partial<Referral>
-) => {
+export const updateReferral = async (id: string, payload: Partial<Referral>) => {
   const { data } = await axios.put(`/referral/${id}`, payload);
   return data;
 };
@@ -41,23 +36,17 @@ export const deleteReferral = async (id: string) => {
   return data;
 };
 
-export const createReferrer = async (
-  type: string,
-  payload: CreateReferrerPayload
-) => {
+export const createReferrer = async (type: string, payload: CreateReferrerPayload) => {
   const { data } = await axios.post(`/referrers`, payload, {
     params: { type },
   });
   return data;
 };
 
-export const fetchReferrers = async (
-  params: FetchReferrersParams
-): Promise<ReferrersResponse> => {
-  const { filter = "", page = 1, limit = 10, search = "" } = params;
-
+export const fetchReferrers = async (params: FetchReferrersParams): Promise<ReferrersResponse> => {
+  const { filter = "", page = 1, limit = 10, search = "", locationId } = params;
   const { data } = await axios.get<ReferrersResponse>("/referrers", {
-    params: { filter, page, limit, search },
+    params: { filter, page, limit, search, locationId },
   });
   return data;
 };
@@ -67,11 +56,7 @@ export const getReferrerById = async (id: string): Promise<Referrer> => {
   return data;
 };
 
-export const updateReferrer = async (
-  id: string,
-  type: string,
-  payload: Partial<CreateReferrerPayload>
-) => {
+export const updateReferrer = async (id: string, type: string, payload: Partial<CreateReferrerPayload>) => {
   const { data } = await axios.put(`/referrers/${id}`, payload, {
     params: { type },
   });
@@ -83,17 +68,12 @@ export const deleteReferrer = async (id: string) => {
   return data;
 };
 
-export const createTrackingSetup = async (
-  data: TrackingRequestBody
-): Promise<TrackingResponseData> => {
+export const createTrackingSetup = async (data: TrackingRequestBody): Promise<TrackingResponseData> => {
   const response = await axios.post<TrackingResponseData>("/nfc_qr_tracking/", data);
   return response.data;
 };
 
-export const updateTracking = async (
-  trackingId: string,
-  payload: any
-) => {
+export const updateTracking = async (trackingId: string, payload: any) => {
   const { data } = await axios.put(`/nfc_qr_tracking/${trackingId}`, payload);
   return data;
 };
@@ -108,10 +88,7 @@ export const fetchTrackings = async (id: any) => {
   return data;
 };
 
-export const logTrackingScan = async (
-  trackingId: string,
-  source: "QR" | "NFC"
-) => {
+export const logTrackingScan = async (trackingId: string, source: "QR" | "NFC") => {
   const { data } = await axios.post(`/nfc_qr_tracking/scan/${trackingId}`, null, {
     params: { source },
   });

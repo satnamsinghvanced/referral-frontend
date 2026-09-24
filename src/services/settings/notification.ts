@@ -1,7 +1,6 @@
 import axios from "../axios";
 import { NotificationSettingsResponse, UpdateNotificationPayload, NotificationsListResponse } from "../../types/notification";
 
-
 export const fetchNotificationSettings = async (): Promise<NotificationSettingsResponse> => {
   const response = await axios.get("/notifications");
   return response.data;

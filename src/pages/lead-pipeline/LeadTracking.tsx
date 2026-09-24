@@ -53,6 +53,7 @@ import { useBilling } from "../../hooks/settings/useBilling";
 import ReferralStatusChip from "../../components/chips/ReferralStatusChip";
 import EmptyState from "../../components/common/EmptyState";
 import { HiOutlineExclamationCircle } from "react-icons/hi";
+import { useLocationContext } from "../../providers/LocationContext";
 
 const getStageStyles = (stageId: string) =>
   STAGE_STYLES[stageId] || {
@@ -65,6 +66,7 @@ const getStageStyles = (stageId: string) =>
 
 const LeadTracking = () => {
   const queryClient = useQueryClient();
+  const { locations, getLocationColor } = useLocationContext();
   const [view, setView] = useState("pipeline");
   const [page, setPage] = useState(1);
   const [limit] = useState(EVEN_PAGINATION_LIMIT);
@@ -653,6 +655,9 @@ const LeadTracking = () => {
                       Lead
                     </th>
                     <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 dark:text-foreground/40 uppercase tracking-wider">
+                      Location
+                    </th>
+                    <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 dark:text-foreground/40 uppercase tracking-wider">
                       Source
                     </th>
                     <th className="text-left text-[10px] py-4 px-6 font-bold text-gray-400 dark:text-foreground/40 uppercase tracking-wider">
@@ -694,6 +699,31 @@ const LeadTracking = () => {
                               {formatPhoneNumber(lead.phone)}
                             </div>
                           </div>
+                        </td>
+                        <td className="py-4 px-6">
+                          {(() => {
+                            const locProp = lead.locationId || lead.location || lead.practiceLocation;
+                            let found = locations?.find((l: any) => l._id === locProp || l._id === locProp?._id);
+                            if (!found && locProp) {
+                              const searchStr = typeof locProp === "string" ? locProp.toLowerCase() : locProp?.name?.toLowerCase();
+                              found = locations?.find((l: any) => l.name.toLowerCase() === searchStr);
+                            }
+                            const locName = found ? found.name : (typeof locProp === "string" && locProp ? locProp : locations?.[0]?.name || "Main Location");
+                            const locColor = found ? getLocationColor(found._id) : (locations?.[0]?._id ? getLocationColor(locations[0]._id) : "#f97316");
+                            return (
+                              <span
+                                className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold border"
+                                style={{
+                                  backgroundColor: `${locColor}15`,
+                                  color: locColor,
+                                  borderColor: `${locColor}40`,
+                                }}
+                              >
+                                <span className="size-1.5 rounded-full shrink-0" style={{ backgroundColor: locColor }} />
+                                <span>{locName}</span>
+                              </span>
+                            );
+                          })()}
                         </td>
                         <td className="py-4 px-6">
                           <div className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/10 text-gray-500 dark:text-foreground/60 uppercase tracking-tighter">

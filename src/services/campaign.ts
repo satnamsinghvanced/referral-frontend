@@ -20,7 +20,6 @@ import {
 } from "../types/campaign";
 import axios from "./axios";
 
-
 export const getCampaignTemplates = async (params: CampaignFilters): Promise<CampaignTemplatesResponse> => {
   const response = await axios.get("/campaigns_templates", { params });
   return response.data;
@@ -53,7 +52,6 @@ export const updateCampaignTemplate = async (id: string, formData: FormData): Pr
   });
   return response.data;
 };
-
 
 export const getAllAudiences = async (params: AudienceFilters): Promise<AudienceResponse> => {
   const { data } = await axios.get("/audience_segment", { params });

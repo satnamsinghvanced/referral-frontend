@@ -54,6 +54,7 @@ import ReferrerCard from "./referrers/ReferrerCard";
 import TrackingPanel from "./TrackingPanel";
 import { usePaginationAdjustment } from "../../hooks/common/usePaginationAdjustment";
 import { useRolePermissions } from "../../hooks/useRolePermissions";
+import { useLocationContext } from "../../providers/LocationContext";
 
 type ReferralType = "Referrals" | "Referrers" | "NFC & QR Tracking";
 
@@ -199,24 +200,26 @@ const ReferralManagement = () => {
     }
   };
 
+  const { selectedLocation } = useLocationContext();
+
   useEffect(() => {
     setCurrentFilters((prev) => ({ ...prev, search: debouncedSearch }));
   }, [debouncedSearch]);
 
   const { data: referralData, isLoading: isLoadingReferrals, isFetching: isFetchingReferrals } =
-    useFetchReferrals({ ...currentFilters, search: debouncedSearch });
+    useFetchReferrals({ ...currentFilters, search: debouncedSearch, locationId: selectedLocation?._id });
 
   const { data: billingData } = useBilling();
   const maxReferralLimit = billingData?.limits?.referral_connections;
 
   const { data: referrerData, isLoading: isLoadingReferrers } =
-    useFetchReferrers({ ...referrerParams, search: debouncedReferrerSearch });
+    useFetchReferrers({ ...referrerParams, search: debouncedReferrerSearch, locationId: selectedLocation?._id });
   const referrers = referrerData?.data;
 
   const totalReferrersCount = (referrerData as any)?.total || (referrerData as any)?.pagination?.total || referrers?.length || 0;
   const isReferrerLimitReached = maxReferralLimit !== undefined && maxReferralLimit !== -1 && totalReferrersCount >= maxReferralLimit;
 
-  const { data: allReferrersData } = useFetchReferrers({ limit: 1000 });
+  const { data: allReferrersData } = useFetchReferrers({ limit: 1000, locationId: selectedLocation?._id });
   const selectionReferrers = allReferrersData?.data || referrers || [];
 
   usePaginationAdjustment({

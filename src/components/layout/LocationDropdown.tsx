@@ -37,6 +37,41 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({ isMiniSidebarOpen }
 
   const addressText = selectedLocation ? formatAddress(selectedLocation) : "";
 
+  if (locations.length === 1) {
+    return (
+      <div className="px-3 py-2 border-b border-foreground/10">
+        <div
+          className={`w-full flex items-center ${isMiniSidebarOpen ? "justify-between p-2.5" : "justify-center py-2.5"
+            } rounded-xl border border-sky-200 dark:border-sky-900/50 bg-sky-50/60 dark:bg-sky-950/30 text-left shadow-xs`}
+        >
+          {isMiniSidebarOpen ? (
+            <div className="flex items-start gap-2.5 min-w-0 pr-1">
+              <span
+                className="w-2.5 h-2.5 rounded-full shrink-0 mt-1 shadow-xs"
+                style={{ backgroundColor: selectedColor }}
+              />
+              <div className="min-w-0 flex-1">
+                <h4 className="text-xs font-bold text-foreground truncate leading-tight">
+                  {selectedLocation?.name || locations[0]?.name || "Location"}
+                </h4>
+                {addressText && (
+                  <p className="text-[10px] text-foreground/60 truncate mt-0.5 leading-tight font-normal">
+                    {addressText}
+                  </p>
+                )}
+              </div>
+            </div>
+          ) : (
+            <span
+              className="w-3 h-3 rounded-full shrink-0 shadow-xs"
+              style={{ backgroundColor: selectedColor }}
+            />
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="px-3 py-2 border-b border-foreground/10">
       <Popover

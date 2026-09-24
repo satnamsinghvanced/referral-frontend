@@ -1,13 +1,13 @@
 import { DashboardData, SearchParams, SearchResult } from "../types/dashboard";
 import axios from "./axios";
 
-export const fetchDashboardStats = async () => {
-  const response = await axios.get("/dashboard/stats");
+export const fetchDashboardStats = async (params?: { locationId?: string | undefined }) => {
+  const response = await axios.get("/dashboard/stats", { params });
   return response.data;
 };
 
-export const fetchDashboardData = async (): Promise<DashboardData> => {
-  const response = await axios.get(`/dashboard`);
+export const fetchDashboardData = async (params?: { locationId?: string | undefined }): Promise<DashboardData> => {
+  const response = await axios.get(`/dashboard`, { params });
   return response.data;
 };
 

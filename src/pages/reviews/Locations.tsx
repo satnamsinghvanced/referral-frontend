@@ -18,10 +18,12 @@ import { GrLocation } from "react-icons/gr";
 import { LuQrCode } from "react-icons/lu";
 import { PiStarFill } from "react-icons/pi";
 import { useGBPLocationPerformance } from "../../hooks/useReviews";
+import { useLocationContext } from "../../providers/LocationContext";
 
 const Locations = () => {
   const { theme } = useTypedSelector((state) => state.ui);
-  const { data, isLoading } = useGBPLocationPerformance();
+  const { selectedLocation } = useLocationContext();
+  const { data, isLoading } = useGBPLocationPerformance({ locationId: selectedLocation?._id });
   const locations = data?.performanceByLocation || [];
   const graphData = data?.stats || [];
 

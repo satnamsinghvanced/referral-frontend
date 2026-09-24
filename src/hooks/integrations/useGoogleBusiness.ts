@@ -17,13 +17,13 @@ import {
 
 export const BUSINESS_KEYS = {
   all: ["business-integration"] as const,
-  details: () => [...BUSINESS_KEYS.all, "current"] as const,
+  details: (locationId?: string | undefined) => [...BUSINESS_KEYS.all, "current", locationId] as const,
 };
 
-export const useBusinessIntegration = (options?: any) => {
+export const useBusinessIntegration = (params?: { locationId?: string | undefined }, options?: any) => {
   return useQuery<IGoogleBusinessIntegration>({
-    queryKey: BUSINESS_KEYS.details(),
-    queryFn: getGoogleBusinessIntegration,
+    queryKey: BUSINESS_KEYS.details(params?.locationId),
+    queryFn: () => getGoogleBusinessIntegration(params),
     ...options,
   });
 };

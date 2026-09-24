@@ -12,10 +12,12 @@ import { useGBPOverview } from "../../hooks/useReviews";
 import ChartTooltip from "../../components/common/ChartTooltip";
 import { LoadingState } from "../../components/common/LoadingState";
 import { useTypedSelector } from "../../hooks/useTypedSelector";
+import { useLocationContext } from "../../providers/LocationContext";
 
 const Overview = () => {
   const { theme } = useTypedSelector((state) => state.ui);
-  const { data, isLoading } = useGBPOverview();
+  const { selectedLocation } = useLocationContext();
+  const { data, isLoading } = useGBPOverview({ locationId: selectedLocation?._id });
 
   const monthlyStats = data?.monthlyStats || [];
 

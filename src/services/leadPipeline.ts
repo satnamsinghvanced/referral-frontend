@@ -15,27 +15,13 @@ export const getLeadStats = async (): Promise<any> => {
   return response.data;
 };
 
-export const updateLead = async ({
-  id,
-  data,
-}: {
-  id: string;
-  data: any;
-}): Promise<any> => {
+export const updateLead = async ({ id, data, }: { id: string; data: any; }): Promise<any> => {
   const response = await axios.put(`/lead/${id}`, data);
   return response.data;
 };
 
-export const sendLeadEmail = async ({
-  id,
-  subject,
-  body,
-  attachments,
-}: {
-  id: string;
-  subject: string;
-  body: string;
-  attachments?: File[];
+export const sendLeadEmail = async ({ id, subject, body, attachments, }: {
+  id: string; subject: string; body: string; attachments?: File[];
 }): Promise<any> => {
   const formData = new FormData();
   formData.append("subject", subject);
@@ -53,25 +39,12 @@ export const sendLeadEmail = async ({
   return response.data;
 };
 
-export const sendLeadSms = async ({
-  id,
-  body,
-}: {
-  id: string;
-  body: string;
-}): Promise<any> => {
+export const sendLeadSms = async ({ id, body, }: { id: string; body: string; }): Promise<any> => {
   const response = await axios.post(`/lead/send-sms/${id}`, { body });
   return response.data;
 };
 
-export const sendLeadAppointment = async ({
-  id,
-  appointmentType,
-  date,
-  time,
-  provider,
-  notes,
-}: {
+export const sendLeadAppointment = async ({ id, appointmentType, date, time, provider, notes, }: {
   id: string;
   appointmentType: string;
   date: string;
@@ -103,7 +76,6 @@ export const sendLeadQuote = async ({
   const response = await axios.post(`/lead/send-quote/${id}`, { lineItems, personalNote, sendType });
   return response.data;
 };
-
 
 export const getLeadCommunicationHistory = async (id: string): Promise<any> => {
   const response = await axios.get(`/lead/communication-history/${id}`);

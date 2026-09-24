@@ -41,8 +41,8 @@ export interface ChatWidgetConfig {
   selectedPlatform?: string;
 }
 
-export const fetchChatWidgetConfig = async (): Promise<{ success: boolean; message: string; data: ChatWidgetConfig; }> => {
-  const response: any = await axios.get("/chat-widget");
+export const fetchChatWidgetConfig = async (params?: { locationId?: string | undefined }): Promise<{ success: boolean; message: string; data: ChatWidgetConfig; }> => {
+  const response: any = await axios.get("/chat-widget", { params });
   return response;
 };
 
@@ -58,12 +58,12 @@ export interface ChatWidgetStatsData {
   avgResponseTime: string;
 }
 
-export const fetchChatWidgetStats = async (): Promise<{
+export const fetchChatWidgetStats = async (params?: { locationId?: string | undefined }): Promise<{
   success: boolean;
   message: string;
   data: ChatWidgetStatsData;
 }> => {
-  const response: any = await axios.get("/chat-widget/stats");
+  const response: any = await axios.get("/chat-widget/stats", { params });
   return response;
 };
 

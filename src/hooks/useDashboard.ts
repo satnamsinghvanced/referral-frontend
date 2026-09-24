@@ -8,18 +8,18 @@ import {
 } from "../services/dashboard";
 import { SearchParams } from "../types/dashboard";
 
-export const useDashboardStats = () => {
+export const useDashboardStats = (params?: { locationId?: string | undefined }) => {
   const queryResult = useQuery({
-    queryKey: ["dashboardStats"],
-    queryFn: fetchDashboardStats,
+    queryKey: ["dashboardStats", params?.locationId],
+    queryFn: () => fetchDashboardStats(params),
   });
   return queryResult;
 };
 
-export const useDashboard = () => {
+export const useDashboard = (params?: { locationId?: string | undefined }) => {
   return useQuery({
-    queryKey: ["dashboard"],
-    queryFn: fetchDashboardData,
+    queryKey: ["dashboard", params?.locationId],
+    queryFn: () => fetchDashboardData(params),
   });
 };
 

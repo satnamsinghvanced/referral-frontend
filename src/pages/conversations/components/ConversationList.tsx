@@ -4,6 +4,7 @@ import { HiOutlineSearch, HiOutlineLightningBolt } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import { CONVERSATION_PLATFORMS, CONVERSATION_TAGS, Conversation } from "../../../consts/conversations";
 import { getPlatformIcon, getPlatformChipStyle, getAvatarColor, getInitials, formatConversationTime } from "../utils";
+import { getAssignedLocation, getLocationTheme } from "../Conversations";
 
 interface ConversationListProps {
   conversations: Conversation[];
@@ -19,6 +20,8 @@ interface ConversationListProps {
   setFilterDropdown: (f: string) => void;
   isMetaConnected?: boolean;
   isIntegrationsLoading?: boolean;
+  displayLocations?: string[];
+  selectedLocations?: string[];
 }
 
 export default function ConversationList({
@@ -35,6 +38,8 @@ export default function ConversationList({
   setFilterDropdown,
   isMetaConnected = true,
   isIntegrationsLoading = false,
+  displayLocations = [],
+  selectedLocations = [],
 }: ConversationListProps) {
   const navigate = useNavigate();
   const showMetaWarning = !isMetaConnected && (selectedPlatform === "facebook" || selectedPlatform === "instagram");
@@ -47,7 +52,9 @@ export default function ConversationList({
       instagram: 0,
     };
     conversations.forEach((conv) => {
-      if (conv.status !== "archived" && conv.unreadCount > 0) {
+      const convLocation = conv.patientLocation || getAssignedLocation(conv.id, displayLocations);
+      const isLocationSelected = selectedLocations.length === 0 || selectedLocations.includes(convLocation);
+      if (isLocationSelected && conv.status !== "archived" && conv.unreadCount > 0) {
         counts.all = (counts.all || 0) + conv.unreadCount;
         const currentCount = counts[conv.platform];
         if (typeof currentCount === "number") {
@@ -56,7 +63,7 @@ export default function ConversationList({
       }
     });
     return counts;
-  }, [conversations]);
+  }, [conversations, selectedLocations, displayLocations]);
   return (
     <div
       className={`w-full md:w-[320px] md:min-w-[280px] border-r border-foreground/10 flex flex-col ${selectedConversationId ? "hidden md:flex" : "flex"
@@ -180,73 +187,89 @@ export default function ConversationList({
             <p className="text-xs font-medium">No conversations found</p>
           </div>
         ) : (
-          filteredConversations.map((conv) => (
-            <div
-              key={conv.id}
-              onClick={() => onConversationClick(conv)}
-              className={`flex gap-3 p-3 cursor-pointer border-b border-foreground/5 transition-all hover:bg-gray-50 dark:hover:bg-white/5 ${selectedConversation?.id === conv.id
-                ? "bg-sky-50/70 dark:bg-sky-900/10 border-l-2 border-l-primary"
-                : ""
-                }`}
-            >
-              <div className="relative flex-shrink-0 w-10 h-10">
-                <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold ${getAvatarColor(
-                    conv.patientName,
-                  )}`}
-                >
-                  {getInitials(conv.patientName)}
-                </div>
+          filteredConversations.map((conv) => {
+            const convLocation = conv.patientLocation || getAssignedLocation(conv.id, displayLocations);
+            const locationTheme = getLocationTheme(convLocation, displayLocations);
 
-                {conv.platform === "web" && conv.isOnline && (
-                  <div className="absolute top-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white dark:border-content1 rounded-full" />
-                )}
-
-                <div className="absolute bottom-0 right-0 translate-y-1/4 translate-x-1/4 w-4 h-4 rounded-full bg-white dark:bg-content1 ring-2 ring-white dark:ring-content1 flex items-center justify-center shadow-md z-10">
-                  <span
-                    className={`${getPlatformChipStyle(conv.platform)} rounded-full w-full h-full flex items-center justify-center`}
+            return (
+              <div
+                key={conv.id}
+                onClick={() => onConversationClick(conv)}
+                className={`flex gap-3 p-3 cursor-pointer border-b border-foreground/5 transition-all hover:bg-gray-50 dark:hover:bg-white/5 ${selectedConversation?.id === conv.id
+                  ? "bg-sky-50/70 dark:bg-sky-900/10 border-l-2 border-l-primary"
+                  : ""
+                  }`}
+              >
+                <div className="relative flex-shrink-0 w-10 h-10">
+                  <div
+                    className={`w-10 h-10 rounded-full flex items-center justify-center text-white text-xs font-bold ${getAvatarColor(
+                      conv.patientName,
+                    )}`}
                   >
-                    {getPlatformIcon(conv.platform)}
-                  </span>
-                </div>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center justify-between">
-                  <h4 className="text-xs font-bold text-foreground truncate">
-                    {conv.patientName}
-                  </h4>
-                  <span className="text-[10px] text-gray-400 dark:text-foreground/40 flex-shrink-0 ml-2">
-                    {formatConversationTime(conv.lastMessageTime, conv.lastMessageTimestamp)}
-                  </span>
-                </div>
-                <p className="text-[11px] text-gray-500 dark:text-foreground/50 truncate mt-0.5">
-                  {conv.lastMessage}
-                </p>
-                <div className="flex items-center justify-between mt-1.5">
-                  <div className="flex gap-1 flex-wrap">
-                    {conv.tags.slice(0, 2).map((tag) => {
-                      const tagDef = CONVERSATION_TAGS.find((t) => t.key === tag);
-                      return (
-                        <span
-                          key={tag}
-                          className={`text-[9px] px-1.5 py-0.5 rounded font-semibold ${tagDef?.color ||
-                            "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
-                            }`}
-                        >
-                          {tag}
-                        </span>
-                      );
-                    })}
+                    {getInitials(conv.patientName)}
                   </div>
-                  {conv.unreadCount > 0 && (
-                    <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center">
-                      {conv.unreadCount}
-                    </span>
+
+                  {conv.platform === "web" && conv.isOnline && (
+                    <div className="absolute top-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white dark:border-content1 rounded-full" />
                   )}
+
+                  <div className="absolute bottom-0 right-0 translate-y-1/4 translate-x-1/4 w-4 h-4 rounded-full bg-white dark:bg-content1 ring-2 ring-white dark:ring-content1 flex items-center justify-center shadow-md z-10">
+                    <span
+                      className={`${getPlatformChipStyle(conv.platform)} rounded-full w-full h-full flex items-center justify-center`}
+                    >
+                      {getPlatformIcon(conv.platform)}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-xs font-bold text-foreground truncate">
+                      {conv.patientName}
+                    </h4>
+                    <span className="text-[10px] text-gray-400 dark:text-foreground/40 flex-shrink-0 ml-2">
+                      {formatConversationTime(conv.lastMessageTime, conv.lastMessageTimestamp)}
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-gray-500 dark:text-foreground/50 truncate mt-0.5">
+                    {conv.lastMessage}
+                  </p>
+                  <div className="flex items-center justify-between mt-1.5 gap-1">
+                    <div className="flex gap-1 flex-wrap items-center min-w-0">
+                      {conv.tags.slice(0, 1).map((tag) => {
+                        const tagDef = CONVERSATION_TAGS.find((t) => t.key === tag);
+                        return (
+                          <span
+                            key={tag}
+                            className={`text-[9px] px-1.5 py-0.5 rounded font-semibold ${tagDef?.color ||
+                              "bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400"
+                              }`}
+                          >
+                            {tag}
+                          </span>
+                        );
+                      })}
+                      {convLocation && (
+                        <span
+                          className={`text-[9px] px-1.5 py-0.5 rounded font-medium flex items-center gap-1 max-w-[95px] truncate border ${
+                            locationTheme ? locationTheme.bg : "bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border-sky-200"
+                          }`}
+                          title={convLocation}
+                        >
+                          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${locationTheme ? locationTheme.dot : "bg-sky-500"}`} />
+                          <span className="truncate">{convLocation}</span>
+                        </span>
+                      )}
+                    </div>
+                    {conv.unreadCount > 0 && (
+                      <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-white text-[10px] font-bold flex items-center justify-center">
+                        {conv.unreadCount}
+                      </span>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
       </div>
     </div>

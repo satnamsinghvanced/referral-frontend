@@ -14,8 +14,10 @@ import LatestReviews from "./LatestReviews";
 import Locations from "./Locations";
 import ManageTags from "./ManageTags";
 import Overview from "./Overview";
+import { useLocationContext } from "../../providers/LocationContext";
 
 const Reviews = () => {
+  const { selectedLocation } = useLocationContext();
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const tabQuery = searchParams.get("tab");
@@ -40,13 +42,13 @@ const Reviews = () => {
   };
 
   const { data: googleBusinessConfig, isLoading: isGoogleBusinessLoading } =
-    useBusinessIntegration();
+    useBusinessIntegration({ locationId: selectedLocation?._id });
   const isGoogleBusinessConnected = Boolean(
     googleBusinessConfig && googleBusinessConfig.status === "Connected"
   );
 
-  const { data, isLoading: isOverviewLoading } = useGBPOverview();
-  const { data: nfcDeskData, isLoading: isNfcLoading } = useFetchNFCDesks(1, 100);
+  const { data, isLoading: isOverviewLoading } = useGBPOverview({ locationId: selectedLocation?._id });
+  const { data: nfcDeskData, isLoading: isNfcLoading } = useFetchNFCDesks(1, 100, selectedLocation?._id);
   const stats = data?.stats;
   const nfcTags = nfcDeskData?.data || [];
 

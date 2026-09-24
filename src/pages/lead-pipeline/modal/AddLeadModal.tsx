@@ -17,10 +17,11 @@ import { FiPlus } from "react-icons/fi";
 import { HiOutlineMail, HiOutlinePhone, HiOutlineLocationMarker } from "react-icons/hi";
 import { LuBriefcase } from "react-icons/lu";
 import * as Yup from "yup";
-import { EMAIL_REGEX, PHONE_REGEX } from "../../../consts/consts";
+import { EMAIL_REGEX, NAME_REGEX, PHONE_REGEX } from "../../../consts/consts";
 import { LEAD_PRIORITIES, LEAD_SOURCES, LEAD_TREATMENTS } from "../../../consts/lead-pipeline";
 import { useFetchTeamMembers } from "../../../hooks/settings/useTeam";
 import { useAddLead } from "../../../hooks/useLeadPipeline";
+import { useLocationContext } from "../../../providers/LocationContext";
 import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
 
 const formatTreatmentLabel = (key: string) => {
@@ -35,14 +36,25 @@ interface AddLeadModalProps {
 }
 
 const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
+  const { locations, selectedLocation } = useLocationContext();
   const { mutateAsync: addLead, isPending: submitting } = useAddLead();
   const { data: teamMembers, isLoading: loadingTeam } = useFetchTeamMembers();
   const [selectedTreatments, setSelectedTreatments] = useState<Set<string>>(new Set());
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
   const validationSchema = Yup.object().shape({
-    firstName: Yup.string().required("First name is required"),
-    lastName: Yup.string().nullable().notRequired(),
+    firstName: Yup.string()
+      .trim()
+      .required("First name is required")
+      .matches(NAME_REGEX, "First name can only contain letters and spaces"),
+    lastName: Yup.string()
+      .trim()
+      .nullable()
+      .notRequired()
+      .test("is-valid-name", "Last name can only contain letters and spaces", (value) => {
+        if (!value) return true;
+        return NAME_REGEX.test(value);
+      }),
     email: Yup.string().required("Email is required").matches(EMAIL_REGEX, "Invalid email format"),
     phone: Yup.string().required("Phone is required").matches(PHONE_REGEX, "Phone must be in format (XXX) XXX-XXXX"),
     location: Yup.string().nullable().notRequired(),
@@ -52,12 +64,13 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
   });
 
   const formik = useFormik({
+    enableReinitialize: true,
     initialValues: {
       firstName: "",
       lastName: "",
       email: "",
       phone: "",
-      location: "",
+      location: selectedLocation?._id || locations[0]?._id || "",
       source: "website",
       priority: "medium",
       assignedTo: "Unassigned",
@@ -69,6 +82,7 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
       try {
         const payload = {
           ...values,
+          location: values.location,
           estimatedValue: Number(values.estimatedValue) || 0,
           assignedTo:
             values.assignedTo === "Unassigned" ||
@@ -216,25 +230,56 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                   />
                 </div>
                 <div className="mt-4">
-                  <Input
-                    label="Location"
-                    labelPlacement="outside"
-                    placeholder="Enter location (City, State, etc.)"
-                    variant="flat"
-                    size="sm"
-                    radius="sm"
-                    name="location"
-                    value={formik.values.location}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                    isInvalid={!!(formik.touched.location && formik.errors.location)}
-                    errorMessage={
-                      formik.touched.location && (formik.errors.location as string)
-                    }
-                    startContent={
-                      <HiOutlineLocationMarker className="text-default-400 size-4" />
-                    }
-                  />
+                  {locations && locations.length > 0 ? (
+                    <Select
+                      label="Practice Location"
+                      labelPlacement="outside"
+                      placeholder="Select location"
+                      variant="flat"
+                      size="sm"
+                      radius="sm"
+                      disableAnimation
+                      selectedKeys={formik.values.location ? [formik.values.location] : []}
+                      onSelectionChange={(keys) =>
+                        formik.setFieldValue("location", Array.from(keys)[0] as string)
+                      }
+                      onBlur={() => formik.setFieldTouched("location", true)}
+                      isInvalid={!!(formik.touched.location && formik.errors.location)}
+                      errorMessage={
+                        formik.touched.location && (formik.errors.location as string)
+                      }
+                      startContent={
+                        <HiOutlineLocationMarker className="text-default-400 size-4" />
+                      }
+                      popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                    >
+                      {locations.map((loc) => (
+                        <SelectItem key={loc._id} textValue={loc.name}>
+                          {loc.name}
+                        </SelectItem>
+                      ))}
+                    </Select>
+                  ) : (
+                    <Input
+                      label="Location"
+                      labelPlacement="outside"
+                      placeholder="Enter location (City, State, etc.)"
+                      variant="flat"
+                      size="sm"
+                      radius="sm"
+                      name="location"
+                      value={formik.values.location}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      isInvalid={!!(formik.touched.location && formik.errors.location)}
+                      errorMessage={
+                        formik.touched.location && (formik.errors.location as string)
+                      }
+                      startContent={
+                        <HiOutlineLocationMarker className="text-default-400 size-4" />
+                      }
+                    />
+                  )}
                 </div>
               </div>
               <div className="border border-foreground/10 rounded-xl p-4 space-y-3">

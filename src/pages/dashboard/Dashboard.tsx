@@ -19,6 +19,7 @@ import { useBilling } from "../../hooks/settings/useBilling";
 import { usePlanGuard } from "../../hooks/usePlanGuard";
 import { useFetchReferrers } from "../../hooks/useReferral";
 import { useRolePermissions } from "../../hooks/useRolePermissions";
+import { useLocationContext } from "../../providers/LocationContext";
 
 type Color = "sky" | "orange" | "emerald" | "purple";
 interface QuickAction {
@@ -101,11 +102,12 @@ const Dashboard = () => {
   const { requestPermission, permissionStatus } = useNotificationSubscription();
   const [showNotificationBanner, setShowNotificationBanner] = useState(true);
   const navigate = useNavigate();
-  const { data: dashboard, isLoading } = useDashboard();
-  const { data: billingData, isLoading: isBillingLoading } = useBilling();
+  const { selectedLocation } = useLocationContext();
+  const { data: dashboard, isLoading } = useDashboard({ locationId: selectedLocation?._id });
+  const { data: billingData } = useBilling();
   const planAccess = billingData?.access;
   const { isLimitReached, getLimit, openPricingPage } = usePlanGuard();
-  const { data: referrerData } = useFetchReferrers({ limit: 1 });
+  const { data: referrerData } = useFetchReferrers({ limit: 1, locationId: selectedLocation?._id });
   const { hasPermission, hasAnyPermission, isAdmin } = useRolePermissions();
   const totalReferrersCount = (referrerData as any)?.total || (referrerData as any)?.pagination?.total || (referrerData as any)?.data?.length || 0;
   const maxReferralLimit = getLimit("referral_connections");
@@ -125,7 +127,6 @@ const Dashboard = () => {
   const STAT_CARD_DATA = useMemo<StatCard[]>(
     () => {
       const cards: StatCard[] = [];
-
       if (isAdmin || hasPermission("Manage Referrals")) {
         cards.push({
           icon: <LuUsers className="text-purple-600 dark:text-purple-400" />,
@@ -217,7 +218,7 @@ const Dashboard = () => {
         title: "New review received",
         description: (() => {
           const review = dashboard.recentActivity.reviews!;
-          const name = review.reviewer?.displayName || "Someone";
+          const name = review.reviewer?.displayName;
           const stars = review.starRating || review.rating || "0";
           const comment = review.comment || review.description;
           return comment

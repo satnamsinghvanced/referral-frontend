@@ -14,6 +14,7 @@ import DeployStep from "./components/DeployStep";
 import LivePreview from "./components/LivePreview";
 import { DEFAULT_SCHEDULE, DaySchedule } from "./components/WorkingHoursConfig";
 import { fetchChatWidgetConfig, saveChatWidgetConfig, fetchChatWidgetStats } from "../../services/chatWidget";
+import { useLocationContext } from "../../providers/LocationContext";
 
 export default function ChatWidgetBuilder() {
   const currentUserId = useSelector((state: any) => state.auth.user?.userId);
@@ -208,10 +209,12 @@ export default function ChatWidgetBuilder() {
     }
   }, [copiedCode]);
 
+  const { selectedLocation } = useLocationContext();
+
   useEffect(() => {
     const loadConfig = async () => {
       try {
-        const res = await fetchChatWidgetConfig();
+        const res = await fetchChatWidgetConfig({ locationId: selectedLocation?._id });
         if (res && res.data) {
           const config = res.data;
           setIsPublished(true);
@@ -293,7 +296,7 @@ export default function ChatWidgetBuilder() {
     };
     const loadStats = async () => {
       try {
-        const res = await fetchChatWidgetStats();
+        const res = await fetchChatWidgetStats({ locationId: selectedLocation?._id });
         if (res && res.data) {
           setStats(res.data);
         }
@@ -303,7 +306,7 @@ export default function ChatWidgetBuilder() {
     };
     loadConfig();
     loadStats();
-  }, []);
+  }, [selectedLocation?._id]);
 
   const steps = [
     { name: "Branding", desc: "Customize branding & colors" },

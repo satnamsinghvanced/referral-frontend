@@ -22,13 +22,11 @@ let cachedPublicKey: string | null = null;
 
 export const getStripePublishableKey = async (): Promise<string> => {
   if (cachedPublicKey) return cachedPublicKey;
-
   const envKey = (import.meta as any).env?.VITE_STRIPE_PUBLISHABLE_KEY;
   if (envKey && typeof envKey === "string" && envKey.startsWith("pk_")) {
     cachedPublicKey = envKey;
     return envKey;
   }
-
   try {
     const apiBase = (import.meta as any).env?.VITE_API_BASE_URL || "http://localhost:9090/api";
     const res = await axios.get(`${apiBase}/user/stripe-public-key`, { timeout: 4000 });
@@ -40,7 +38,6 @@ export const getStripePublishableKey = async (): Promise<string> => {
   } catch (err) {
     console.error("Failed to fetch Stripe public key:", err);
   }
-
   throw new Error("Stripe publishable key is not configured.");
 };
 

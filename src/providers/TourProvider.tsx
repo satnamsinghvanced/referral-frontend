@@ -1,11 +1,5 @@
 import { Button } from "@heroui/react";
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router";
 import { STEPS } from "../consts/tour";
 import { CgClose } from "react-icons/cg";
@@ -69,10 +63,7 @@ export const TourProvider = ({ children }: { children: React.ReactNode }) => {
       const handleAdvance = () => {
         nextStep();
       };
-
-
       targetElement.addEventListener("click", handleAdvance);
-
       return () => {
         targetElement.removeEventListener("click", handleAdvance);
       };
@@ -143,21 +134,18 @@ const TourOverlay = ({
   onPrev,
   onClose,
 }: any) => {
-
   const tooltipStyle: React.CSSProperties = {
     position: "absolute",
     top: rect.top + window.scrollY,
     left: rect.right + 20 + window.scrollX,
     zIndex: 9999,
   };
-
   if (rect.right + 350 > window.innerWidth) {
     tooltipStyle.left = rect.left - 370 + window.scrollX;
   }
   if (rect.top + 200 > window.innerHeight + window.scrollY) {
     tooltipStyle.top = rect.bottom - 200 + window.scrollY;
   }
-
   const maskPath = `
     M 0 0
     L ${window.innerWidth} 0
@@ -171,7 +159,6 @@ const TourOverlay = ({
     l -${rect.width} 0
     z
   `;
-
   return (
     <div className="fixed inset-0 z-[5000] pointer-events-none">
       <svg
@@ -196,7 +183,6 @@ const TourOverlay = ({
           className="transition-all duration-300 ease-in-out pointer-events-none"
         />
       </svg>
-
       {!step.requiredClick && (
         <div
           className="fixed z-[5005] pointer-events-auto cursor-default"
@@ -212,7 +198,6 @@ const TourOverlay = ({
           }}
         />
       )}
-
       <div
         style={tooltipStyle}
         className="pointer-events-auto transition-all duration-300"
@@ -224,12 +209,10 @@ const TourOverlay = ({
           >
             <CgClose />
           </button>
-
           <div>
             <h4 className="font-medium text-sm">{step.title}</h4>
             <p className="text-xs text-gray-600 mt-1.5">{step.content}</p>
           </div>
-
           <div className="flex justify-between items-center mt-2">
             <span className="text-xs text-gray-600 font-medium">
               Step {currentStepIndex + 1} of {totalSteps}
@@ -245,7 +228,6 @@ const TourOverlay = ({
                   Back
                 </Button>
               )}
-
               {step.requiredClick ? (
                 <span className="text-xs text-blue-600 font-medium animate-pulse ml-auto">
                   Click text to proceed
