@@ -266,40 +266,73 @@ export const SignupFlow: React.FC = () => {
     });
   };
 
+  const calcPlanPrice = (plan: PlanData | null): number => {
+    if (!plan) return 0;
+    const mPrice = plan.monthlyPricing?.price ?? plan.price ?? 0;
+    const aPrice = plan.annualPricing?.price ?? plan.annualPrice;
+    const aDiscount = plan.annualPricing?.discountPercent ?? plan.discountPercent ?? 0;
+    const aTotal = plan.annualPricing?.totalValue;
+
+    if (billingCycle === "annual") {
+      const perMonth =
+        aPrice !== undefined && aPrice !== null && Number(aPrice) > 0
+          ? Number(aPrice)
+          : aDiscount > 0 && mPrice > 0
+          ? Math.round(mPrice * (1 - aDiscount / 100))
+          : mPrice;
+      return aTotal && aTotal > 0 ? aTotal : perMonth * 12;
+    }
+    return mPrice;
+  };
+
+  const planBasePrice = calcPlanPrice(selectedPlan);
+  let planDiscountAmount = 0;
+  if (appliedCoupon) {
+    if (appliedCoupon.type === "percent") {
+      planDiscountAmount = (planBasePrice * appliedCoupon.value) / 100;
+    } else if (appliedCoupon.type === "fixed") {
+      planDiscountAmount = Math.min(planBasePrice, appliedCoupon.value);
+    }
+  }
+  const planFinalPrice = Math.max(0, planBasePrice - planDiscountAmount);
+  const isZeroDue = planFinalPrice <= 0 && appliedCoupon !== null;
+
   const validatePayment = () => {
     const errs: Record<string, string> = {};
-    const cleanCard = cardNumber.replace(/\s/g, "");
-    if (!cleanCard) {
-      errs.cardNumber = "Card number is required";
-    } else if (cleanCard.length < 14 || cleanCard.length > 16) {
-      errs.cardNumber = "Card number must be 14 to 16 digits";
-    } else if (!luhnCheck(cleanCard)) {
-      errs.cardNumber = "Invalid card number (failed checksum)";
-    }
+    if (!isZeroDue) {
+      const cleanCard = cardNumber.replace(/\s/g, "");
+      if (!cleanCard) {
+        errs.cardNumber = "Card number is required";
+      } else if (cleanCard.length < 14 || cleanCard.length > 16) {
+        errs.cardNumber = "Card number must be 14 to 16 digits";
+      } else if (!luhnCheck(cleanCard)) {
+        errs.cardNumber = "Invalid card number (failed checksum)";
+      }
 
-    if (!expiry) {
-      errs.expiry = "Expiration date is required";
-    } else if (!/^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(expiry)) {
-      errs.expiry = "Invalid date (MM/YY)";
-    } else {
-      const [monthStr, yearStr] = expiry.split("/");
-      if (monthStr && yearStr) {
-        const expMonth = parseInt(monthStr, 10);
-        const expYear = parseInt(`20${yearStr}`, 10);
-        const now = new Date();
-        const currentYear = now.getFullYear();
-        const currentMonth = now.getMonth() + 1;
+      if (!expiry) {
+        errs.expiry = "Expiration date is required";
+      } else if (!/^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(expiry)) {
+        errs.expiry = "Invalid date (MM/YY)";
+      } else {
+        const [monthStr, yearStr] = expiry.split("/");
+        if (monthStr && yearStr) {
+          const expMonth = parseInt(monthStr, 10);
+          const expYear = parseInt(`20${yearStr}`, 10);
+          const now = new Date();
+          const currentYear = now.getFullYear();
+          const currentMonth = now.getMonth() + 1;
 
-        if (expYear < currentYear || (expYear === currentYear && expMonth < currentMonth)) {
-          errs.expiry = "Card has expired";
+          if (expYear < currentYear || (expYear === currentYear && expMonth < currentMonth)) {
+            errs.expiry = "Card has expired";
+          }
         }
       }
-    }
 
-    if (!cvc) {
-      errs.cvc = "Security code is required";
-    } else if (cvc.length < 3 || cvc.length > 4) {
-      errs.cvc = "Security code must be 3 or 4 digits";
+      if (!cvc) {
+        errs.cvc = "Security code is required";
+      } else if (cvc.length < 3 || cvc.length > 4) {
+        errs.cvc = "Security code must be 3 or 4 digits";
+      }
     }
 
     if (!agreeToTerms) {
@@ -324,28 +357,30 @@ export const SignupFlow: React.FC = () => {
     setIsSubmitting(true);
     let tokenResult: any = null;
 
-    try {
-      tokenResult = await createStripePaymentMethod({
-        cardNumber: cleanCard,
-        expiry,
-        cvc,
-        name: `${formik.values.firstName || ""} ${formik.values.lastName || ""}`.trim() || undefined,
-        country,
-      });
-    } catch (tokenErr: any) {
-      console.error("Card Tokenization Error:", tokenErr);
-      const errMsg = tokenErr?.message || "Invalid card details. Please check your card number, expiration date, and CVC.";
-      setPaymentErrors((prev) => ({
-        ...prev,
-        paymentFailed: errMsg,
-      }));
-      addToast({
-        title: "Payment Error",
-        description: errMsg,
-        color: "danger",
-      });
-      setIsSubmitting(false);
-      return;
+    if (!isZeroDue) {
+      try {
+        tokenResult = await createStripePaymentMethod({
+          cardNumber: cleanCard,
+          expiry,
+          cvc,
+          name: `${formik.values.firstName || ""} ${formik.values.lastName || ""}`.trim() || undefined,
+          country,
+        });
+      } catch (tokenErr: any) {
+        console.error("Card Tokenization Error:", tokenErr);
+        const errMsg = tokenErr?.message || "Invalid card details. Please check your card number, expiration date, and CVC.";
+        setPaymentErrors((prev) => ({
+          ...prev,
+          paymentFailed: errMsg,
+        }));
+        addToast({
+          title: "Payment Error",
+          description: errMsg,
+          color: "danger",
+        });
+        setIsSubmitting(false);
+        return;
+      }
     }
 
     if (isUpgrade) {
@@ -356,9 +391,9 @@ export const SignupFlow: React.FC = () => {
           billingCycle,
           paymentMethodId: tokenResult?.paymentMethodId,
           token: tokenResult?.token,
-          cardNumber: cleanCard,
-          expire: expiry,
-          cvc,
+          cardNumber: !isZeroDue ? cleanCard : undefined,
+          expire: !isZeroDue ? expiry : undefined,
+          cvc: !isZeroDue ? cvc : undefined,
           couponCode: appliedCoupon ? appliedCoupon.code : undefined,
         });
 
@@ -408,12 +443,12 @@ export const SignupFlow: React.FC = () => {
           billingCycle,
           paymentMethodId: tokenResult?.paymentMethodId,
           token: tokenResult?.token,
-          maskedCardNumber: `**** **** **** ${tokenResult?.last4 || cleanCard.slice(-4)}`,
-          cardBrand: tokenResult?.brand || "card",
-          cardNumber: cleanCard,
-          expire: expiry,
-          cvc,
-          method: "card",
+          maskedCardNumber: !isZeroDue ? `**** **** **** ${tokenResult?.last4 || cleanCard.slice(-4)}` : undefined,
+          cardBrand: tokenResult?.brand || (isZeroDue ? "none" : "card"),
+          cardNumber: !isZeroDue ? cleanCard : undefined,
+          expire: !isZeroDue ? expiry : undefined,
+          cvc: !isZeroDue ? cvc : undefined,
+          method: isZeroDue ? "free" : "card",
           couponCode: appliedCoupon ? appliedCoupon.code : undefined,
         },
       };

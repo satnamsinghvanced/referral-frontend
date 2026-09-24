@@ -162,18 +162,22 @@ const Audiences: React.FC = () => {
                 aria-label="Statuses"
                 placeholder="All Statuses"
                 size="sm"
-                selectedKeys={[currentFilters.filter as string]}
-                disabledKeys={[currentFilters.filter as string]}
-                onSelectionChange={(keys) =>
-                  handleFilterChange("filter", Array.from(keys)[0] as string)
-                }
+                disableAnimation
+                popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                selectedKeys={[currentFilters.filter as string || ""]}
+                onSelectionChange={(keys) => {
+                  const val = (Array.from(keys)[0] as string) || "";
+                  handleFilterChange("filter", val);
+                }}
               >
-                <>
-                  <SelectItem key="">All Statuses</SelectItem>
-                  {AUDIENCE_SEGMENT_STATUSES.map((status) => (
-                    <SelectItem key={status.value}>{status.label}</SelectItem>
-                  ))}
-                </>
+                {[
+                  { value: "", label: "All Statuses" },
+                  ...AUDIENCE_SEGMENT_STATUSES,
+                ].map((status) => (
+                  <SelectItem key={status.value} textValue={status.label} className="capitalize">
+                    {status.label}
+                  </SelectItem>
+                ))}
               </Select>
             </div>
             <div className="flex items-center gap-3">

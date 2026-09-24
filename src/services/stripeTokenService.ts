@@ -18,8 +18,9 @@ export interface StripeTokenResult {
   expYear: number;
 }
 
-let cachedPublicKey: string | null = null;
+const STRIPE_BASE_URL = (import.meta as any).env?.VITE_STRIPE_BASE_URL;
 
+let cachedPublicKey: string | null = null;
 export const getStripePublishableKey = async (): Promise<string> => {
   if (cachedPublicKey) return cachedPublicKey;
   const envKey = (import.meta as any).env?.VITE_STRIPE_PUBLISHABLE_KEY;
@@ -75,7 +76,7 @@ export const createStripePaymentMethod = async (cardDetails: CardTokenDetails): 
     params.append("billing_details[address][postal_code]", cardDetails.postalCode.trim());
   }
 
-  const response = await fetch("https://api.stripe.com/v1/payment_methods", {
+  const response = await fetch(STRIPE_BASE_URL, {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${publishableKey}`,

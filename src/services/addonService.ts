@@ -45,6 +45,7 @@ export interface PurchaseAddonPayload {
   expire?: string | undefined;
   cvc?: string | undefined;
   cardholderName?: string | undefined;
+  couponCode?: string | undefined;
 }
 
 export const fetchAddons = async () => {

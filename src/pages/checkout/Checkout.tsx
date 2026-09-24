@@ -224,8 +224,11 @@ export default function Checkout() {
   }
 
   const totalCost = Math.max(0, baseCost - discountAmount);
+  const isZeroDue = totalCost <= 0;
+
   const isFormValid = () => {
     if (!agreeToTerms) return false;
+    if (isZeroDue) return true;
     if (activeTab === "card") {
       const brand = getCardBrand(cardNumber);
       const cardErr = validateField("cardNumber", cardNumber, brand);
@@ -270,19 +273,21 @@ export default function Checkout() {
     if (!agreeToTerms) {
       newErrors.agree = "You must agree to the Terms of Service and Privacy Policy";
     }
-    if (activeTab === "card") {
-      const brand = getCardBrand(cardNumber);
-      const cardErr = validateField("cardNumber", cardNumber, brand);
-      const expiryErr = validateField("expiry", expiry, brand);
-      const cvcErr = validateField("cvc", cvc, brand);
-      if (cardErr) newErrors.cardNumber = cardErr;
-      if (expiryErr) newErrors.expiry = expiryErr;
-      if (cvcErr) newErrors.cvc = cvcErr;
-    } else {
-      if (savedCards.length === 0) {
-        newErrors.savedCard = "No saved cards available. Please use the Card tab.";
-      } else if (!selectedSavedCard) {
-        newErrors.savedCard = "Please select a saved card.";
+    if (!isZeroDue) {
+      if (activeTab === "card") {
+        const brand = getCardBrand(cardNumber);
+        const cardErr = validateField("cardNumber", cardNumber, brand);
+        const expiryErr = validateField("expiry", expiry, brand);
+        const cvcErr = validateField("cvc", cvc, brand);
+        if (cardErr) newErrors.cardNumber = cardErr;
+        if (expiryErr) newErrors.expiry = expiryErr;
+        if (cvcErr) newErrors.cvc = cvcErr;
+      } else {
+        if (savedCards.length === 0) {
+          newErrors.savedCard = "No saved cards available. Please use the Card tab.";
+        } else if (!selectedSavedCard) {
+          newErrors.savedCard = "Please select a saved card.";
+        }
       }
     }
     setErrors(newErrors);
@@ -300,7 +305,7 @@ export default function Checkout() {
       const finalCvc = isSaved ? "123" : cvc;
 
       let tokenResult: any = null;
-      if (!isSaved) {
+      if (!isZeroDue && !isSaved) {
         try {
           tokenResult = await createStripePaymentMethod({
             cardNumber: cleanCard,
@@ -415,176 +420,194 @@ export default function Checkout() {
               <FiCreditCard className="w-5 h-5 text-blue-500" />
               Payment Information
             </h2>
-            <div className="grid grid-cols-2 gap-4 mb-5 select-none">
-              <div
-                onClick={() => setActiveTab("saved")}
-                className={`flex items-center gap-2.5 p-3.5 border rounded-xl cursor-pointer transition-all duration-200 ${activeTab === "saved"
-                  ? "border-primary bg-primary-50/10 dark:bg-primary-950/10 text-primary font-bold shadow-sm"
-                  : "border-foreground/10 text-foreground-500 hover:bg-foreground/5"
-                  }`}
-              >
-                <FiCreditCard className={`w-4 h-4 ${activeTab === "saved" ? "text-primary" : "text-foreground-400"}`} />
+            {isZeroDue ? (
+              <div className="p-4 rounded-xl border border-emerald-200 dark:border-emerald-900/40 bg-emerald-50/70 dark:bg-emerald-950/20 flex items-center gap-3.5 mb-4">
+                <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/60 text-emerald-600 dark:text-emerald-300 flex items-center justify-center shrink-0">
+                  <FiCheck className="w-5 h-5" />
+                </div>
                 <div className="flex flex-col">
-                  <span className="text-xs font-bold">Saved</span>
+                  <span className="text-sm font-bold text-emerald-900 dark:text-emerald-200">
+                    100% Discount Applied
+                  </span>
+                  <span className="text-xs text-emerald-700 dark:text-emerald-400">
+                    Total due today is $0. No credit card or billing information is required.
+                  </span>
                 </div>
               </div>
-              <div
-                onClick={() => setActiveTab("card")}
-                className={`flex items-center gap-2.5 p-3.5 border rounded-xl cursor-pointer transition-all duration-200 ${activeTab === "card"
-                  ? "border-primary bg-primary-50/10 dark:bg-primary-950/10 text-primary font-bold shadow-sm"
-                  : "border-foreground/10 text-foreground-500 hover:bg-foreground/5"
-                  }`}
-              >
-                <FiCreditCard className={`w-4 h-4 ${activeTab === "card" ? "text-primary" : "text-foreground-400"}`} />
-                <div className="flex flex-col">
-                  <span className="text-xs font-bold">Card</span>
+            ) : (
+              <>
+                <div className="grid grid-cols-2 gap-4 mb-5 select-none">
+                  <div
+                    onClick={() => setActiveTab("saved")}
+                    className={`flex items-center gap-2.5 p-3.5 border rounded-xl cursor-pointer transition-all duration-200 ${activeTab === "saved"
+                      ? "border-primary bg-primary-50/10 dark:bg-primary-950/10 text-primary font-bold shadow-sm"
+                      : "border-foreground/10 text-foreground-500 hover:bg-foreground/5"
+                      }`}
+                  >
+                    <FiCreditCard className={`w-4 h-4 ${activeTab === "saved" ? "text-primary" : "text-foreground-400"}`} />
+                    <div className="flex flex-col">
+                      <span className="text-xs font-bold">Saved</span>
+                    </div>
+                  </div>
+                  <div
+                    onClick={() => setActiveTab("card")}
+                    className={`flex items-center gap-2.5 p-3.5 border rounded-xl cursor-pointer transition-all duration-200 ${activeTab === "card"
+                      ? "border-primary bg-primary-50/10 dark:bg-primary-950/10 text-primary font-bold shadow-sm"
+                      : "border-foreground/10 text-foreground-500 hover:bg-foreground/5"
+                      }`}
+                  >
+                    <FiCreditCard className={`w-4 h-4 ${activeTab === "card" ? "text-primary" : "text-foreground-400"}`} />
+                    <div className="flex flex-col">
+                      <span className="text-xs font-bold">Card</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-            <div className="flex flex-col gap-4">
-              {activeTab === "saved" ? (
-                <div className="flex flex-col gap-3">
-                  <label className="text-xs font-semibold text-default-600">Select a Saved Card</label>
-                  {savedCards.length === 0 ? (
-                    <div className="border border-dashed border-foreground/15 rounded-xl p-6 flex flex-col items-center justify-center gap-2 text-center">
-                      <FiCreditCard className="w-8 h-8 text-foreground-300" />
-                      <p className="text-xs text-foreground-500 font-medium">No saved cards found.</p>
-                      <p className="text-[10px] text-foreground-400">Please pay using a card and check the "Save payment details" option to save a card for future use.</p>
+                <div className="flex flex-col gap-4">
+                  {activeTab === "saved" ? (
+                    <div className="flex flex-col gap-3">
+                      <label className="text-xs font-semibold text-default-600">Select a Saved Card</label>
+                      {savedCards.length === 0 ? (
+                        <div className="border border-dashed border-foreground/15 rounded-xl p-6 flex flex-col items-center justify-center gap-2 text-center">
+                          <FiCreditCard className="w-8 h-8 text-foreground-300" />
+                          <p className="text-xs text-foreground-500 font-medium">No saved cards found.</p>
+                          <p className="text-[10px] text-foreground-400">Please pay using a card and check the "Save payment details" option to save a card for future use.</p>
+                        </div>
+                      ) : (
+                        savedCards.map((card) => (
+                          <div
+                            key={card.id}
+                            onClick={() => setSelectedSavedCard(card.id)}
+                            className={`border rounded-xl p-4 flex items-center justify-between cursor-pointer transition-all ${selectedSavedCard === card.id
+                              ? "border-primary bg-primary-50/10 dark:bg-primary-950/5"
+                              : "border-foreground/10 hover:bg-foreground/5"
+                              }`}
+                          >
+                            <div className="flex items-center gap-3">
+                              <FiCreditCard className="w-5 h-5 text-primary" />
+                              <div className="flex flex-col">
+                                <span className="text-sm font-bold text-foreground uppercase">
+                                  {card.brand} ending in {card.last4}
+                                </span>
+                                <span className="text-xs text-foreground-500">Expires {card.expiry}</span>
+                              </div>
+                            </div>
+                            {card.isDefault && (
+                              <Chip size="sm" className="bg-primary-100 dark:bg-primary-950/35 text-primary border-none text-[10px] font-bold">
+                                Default
+                              </Chip>
+                            )}
+                          </div>
+                        ))
+                      )}
                     </div>
                   ) : (
-                    savedCards.map((card) => (
-                      <div
-                        key={card.id}
-                        onClick={() => setSelectedSavedCard(card.id)}
-                        className={`border rounded-xl p-4 flex items-center justify-between cursor-pointer transition-all ${selectedSavedCard === card.id
-                          ? "border-primary bg-primary-50/10 dark:bg-primary-950/5"
-                          : "border-foreground/10 hover:bg-foreground/5"
-                          }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <FiCreditCard className="w-5 h-5 text-primary" />
-                          <div className="flex flex-col">
-                            <span className="text-sm font-bold text-foreground uppercase">
-                              {card.brand} ending in {card.last4}
-                            </span>
-                            <span className="text-xs text-foreground-500">Expires {card.expiry}</span>
-                          </div>
-                        </div>
-                        {card.isDefault && (
-                          <Chip size="sm" className="bg-primary-100 dark:bg-primary-950/35 text-primary border-none text-[10px] font-bold">
-                            Default
-                          </Chip>
-                        )}
+                    <>
+                      <div className="flex flex-col gap-1.5 relative">
+                        <label className="text-xs font-semibold text-default-600">Card number</label>
+                        <Input
+                          type="text"
+                          autoComplete="off"
+                          placeholder="1234 1234 1234 1234"
+                          value={cardNumber}
+                          onValueChange={handleCardNumberChange}
+                          onBlur={() => handleBlur("cardNumber", cardNumber)}
+                          isInvalid={!!errors.cardNumber}
+                          errorMessage={errors.cardNumber}
+                          startContent={<FiCreditCard className="w-4 h-4 text-default-400 mr-1" />}
+                          endContent={
+                            <div className="flex items-center gap-1 opacity-70">
+                              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border border-foreground/20 uppercase ${cardBrand === "visa" ? "bg-blue-600 text-white border-blue-600" : "bg-transparent text-default-400"}`}>Visa</span>
+                              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border border-foreground/20 uppercase ${cardBrand === "mastercard" ? "bg-amber-600 text-white border-amber-600" : "bg-transparent text-default-400"}`}>MC</span>
+                              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border border-foreground/20 uppercase ${cardBrand === "amex" ? "bg-cyan-600 text-white border-cyan-600" : "bg-transparent text-default-400"}`}>Amex</span>
+                              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border border-foreground/20 uppercase ${cardBrand === "discover" ? "bg-orange-600 text-white border-orange-600" : "bg-transparent text-default-400"}`}>Disc</span>
+                            </div>
+                          }
+                          classNames={{
+                            inputWrapper: "border border-foreground/10 rounded-xl bg-transparent h-11",
+                            input: "text-sm font-medium",
+                          }}
+                        />
                       </div>
-                    ))
-                  )}
-                </div>
-              ) : (
-                <>
-                  <div className="flex flex-col gap-1.5 relative">
-                    <label className="text-xs font-semibold text-default-600">Card number</label>
-                    <Input
-                      type="text"
-                      autoComplete="off"
-                      placeholder="1234 1234 1234 1234"
-                      value={cardNumber}
-                      onValueChange={handleCardNumberChange}
-                      onBlur={() => handleBlur("cardNumber", cardNumber)}
-                      isInvalid={!!errors.cardNumber}
-                      errorMessage={errors.cardNumber}
-                      startContent={<FiCreditCard className="w-4 h-4 text-default-400 mr-1" />}
-                      endContent={
-                        <div className="flex items-center gap-1 opacity-70">
-                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border border-foreground/20 uppercase ${cardBrand === "visa" ? "bg-blue-600 text-white border-blue-600" : "bg-transparent text-default-400"}`}>Visa</span>
-                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border border-foreground/20 uppercase ${cardBrand === "mastercard" ? "bg-amber-600 text-white border-amber-600" : "bg-transparent text-default-400"}`}>MC</span>
-                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border border-foreground/20 uppercase ${cardBrand === "amex" ? "bg-cyan-600 text-white border-cyan-600" : "bg-transparent text-default-400"}`}>Amex</span>
-                          <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded border border-foreground/20 uppercase ${cardBrand === "discover" ? "bg-orange-600 text-white border-orange-600" : "bg-transparent text-default-400"}`}>Disc</span>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-xs font-semibold text-default-600">Expiration date</label>
+                          <Input
+                            type="text"
+                            autoComplete="off"
+                            placeholder="MM / YY"
+                            value={expiry}
+                            onValueChange={handleExpiryChange}
+                            onBlur={() => handleBlur("expiry", expiry)}
+                            isInvalid={!!errors.expiry}
+                            errorMessage={errors.expiry}
+                            classNames={{
+                              inputWrapper: "border border-foreground/10 rounded-xl bg-transparent h-11",
+                              input: "text-sm font-medium",
+                            }}
+                          />
                         </div>
-                      }
-                      classNames={{
-                        inputWrapper: "border border-foreground/10 rounded-xl bg-transparent h-11",
-                        input: "text-sm font-medium",
-                      }}
-                    />
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-semibold text-default-600">Expiration date</label>
-                      <Input
-                        type="text"
-                        autoComplete="off"
-                        placeholder="MM / YY"
-                        value={expiry}
-                        onValueChange={handleExpiryChange}
-                        onBlur={() => handleBlur("expiry", expiry)}
-                        isInvalid={!!errors.expiry}
-                        errorMessage={errors.expiry}
-                        classNames={{
-                          inputWrapper: "border border-foreground/10 rounded-xl bg-transparent h-11",
-                          input: "text-sm font-medium",
-                        }}
-                      />
-                    </div>
-                    <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-semibold text-default-600">Security code</label>
-                      <Input
-                        type="text"
-                        autoComplete="off"
-                        placeholder="CVC"
-                        value={cvc}
-                        onValueChange={handleCvcChange}
-                        onBlur={() => handleBlur("cvc", cvc)}
-                        isInvalid={!!errors.cvc}
-                        errorMessage={errors.cvc}
-                        endContent={<span className="text-[10px] text-default-400 border border-foreground/20 px-1 rounded">123</span>}
-                        classNames={{
-                          inputWrapper: "border border-foreground/10 rounded-xl bg-transparent h-11",
-                          input: "text-sm font-medium",
-                        }}
-                      />
-                    </div>
-                  </div>
-                  <div className="flex flex-col gap-1.5">
-                    <label className="text-xs font-semibold text-default-600">Country</label>
-                    <Select
-                      disableAnimation
-                      popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
-                      selectedKeys={country ? [country] : []}
-                      onSelectionChange={(keys) => {
-                        const val = Array.from(keys)[0] as string;
-                        setCountry(val);
-                      }}
-                      variant="bordered"
-                      aria-label="Select Country"
-                      classNames={{
-                        trigger: "border border-foreground/10 rounded-xl bg-transparent h-11 min-h-11",
-                        value: "text-sm font-medium text-foreground",
-                      }}
-                    >
-                      <SelectItem key="United States" textValue="United States">United States</SelectItem>
-                      <SelectItem key="Canada" textValue="Canada">Canada</SelectItem>
-                      <SelectItem key="Australia" textValue="Australia">Australia</SelectItem>
-                      <SelectItem key="United Kingdom" textValue="United Kingdom">United Kingdom</SelectItem>
-                      <SelectItem key="India" textValue="India">India</SelectItem>
-                    </Select>
-                  </div>
-                  <div className="mt-1 flex items-center gap-2">
-                    <Checkbox
-                      isSelected={savePaymentDetails}
-                      onValueChange={setSavePaymentDetails}
-                      classNames={{
-                        label: "text-xs font-semibold text-default-600",
-                      }}
-                    >
-                      Save payment details for future purchases
-                    </Checkbox>
-                  </div>
-                </>
-              )}
-              <p className="text-[11px] text-default-500 leading-relaxed mt-1">
-                By providing your card information, you allow Orthodontic Revolution to charge your card for future payments in accordance with their terms.
-              </p>
-            </div>
+                        <div className="flex flex-col gap-1.5">
+                          <label className="text-xs font-semibold text-default-600">Security code</label>
+                          <Input
+                            type="text"
+                            autoComplete="off"
+                            placeholder="CVC"
+                            value={cvc}
+                            onValueChange={handleCvcChange}
+                            onBlur={() => handleBlur("cvc", cvc)}
+                            isInvalid={!!errors.cvc}
+                            errorMessage={errors.cvc}
+                            endContent={<span className="text-[10px] text-default-400 border border-foreground/20 px-1 rounded">123</span>}
+                            classNames={{
+                              inputWrapper: "border border-foreground/10 rounded-xl bg-transparent h-11",
+                              input: "text-sm font-medium",
+                            }}
+                          />
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-1.5">
+                        <label className="text-xs font-semibold text-default-600">Country</label>
+                        <Select
+                          disableAnimation
+                          popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                          selectedKeys={country ? [country] : []}
+                          onSelectionChange={(keys) => {
+                            const val = Array.from(keys)[0] as string;
+                            setCountry(val);
+                          }}
+                          variant="bordered"
+                          aria-label="Select Country"
+                          classNames={{
+                            trigger: "border border-foreground/10 rounded-xl bg-transparent h-11 min-h-11",
+                            value: "text-sm font-medium text-foreground",
+                          }}
+                        >
+                          <SelectItem key="United States" textValue="United States">United States</SelectItem>
+                          <SelectItem key="Canada" textValue="Canada">Canada</SelectItem>
+                          <SelectItem key="Australia" textValue="Australia">Australia</SelectItem>
+                          <SelectItem key="United Kingdom" textValue="United Kingdom">United Kingdom</SelectItem>
+                          <SelectItem key="India" textValue="India">India</SelectItem>
+                        </Select>
+                      </div>
+                      <div className="mt-1 flex items-center gap-2">
+                        <Checkbox
+                          isSelected={savePaymentDetails}
+                          onValueChange={setSavePaymentDetails}
+                          classNames={{
+                            label: "text-xs font-semibold text-default-600",
+                          }}
+                        >
+                          Save payment details for future purchases
+                        </Checkbox>
+                      </div>
+                    </>
+                  )}
+                  <p className="text-[11px] text-default-500 leading-relaxed mt-1">
+                    By providing your card information, you allow Orthodontic Revolution to charge your card for future payments in accordance with their terms.
+                  </p>
+                </div>
+              </>
+            )}
           </Card>
           <Card className="shadow-none border border-blue-200 dark:border-blue-500/20 bg-blue-50/50 dark:bg-blue-950/10 rounded-2xl p-4">
             <CardBody className="p-0 flex flex-row gap-3.5 items-start">
