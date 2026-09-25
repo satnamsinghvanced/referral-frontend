@@ -38,23 +38,16 @@ const LeadCard = ({ lead, onPress, onDelete, draggable, onDragStart, onDragEnd, 
   const { locations, getLocationColor } = useLocationContext();
 
   const locationBadge = useMemo(() => {
-    const locProp = lead.locationId || lead.location;
-    if (!locations || locations.length === 0) {
-      const name = typeof locProp === "string" ? locProp : locProp?.name || "Main Location";
-      return { name, color: "#f97316" };
+    const rawLocId = lead.locationId?._id || (typeof lead.locationId === "string" ? lead.locationId : null);
+    if (!rawLocId) {
+      return { name: "Not Assigned", color: "#9ca3af" };
     }
-    let found = locations.find((l) => l._id === locProp || l._id === locProp?._id);
-    if (!found && locProp) {
-      const searchStr = typeof locProp === "string" ? locProp.toLowerCase() : locProp?.name?.toLowerCase();
-      found = locations.find((l) => l.name.toLowerCase() === searchStr);
-    }
+    const found = locations?.find((l) => l._id === rawLocId);
     if (found) {
       return { name: found.name, color: getLocationColor(found._id) };
     }
-    const fallbackName = typeof locProp === "string" && locProp ? locProp : locations[0]?.name || "Main Location";
-    const fallbackId = locations[0]?._id;
-    return { name: fallbackName, color: fallbackId ? getLocationColor(fallbackId) : "#f97316" };
-  }, [locations, lead, getLocationColor]);
+    return { name: "Not Assigned", color: "#9ca3af" };
+  }, [locations, lead.locationId, getLocationColor]);
 
   return (
     <div

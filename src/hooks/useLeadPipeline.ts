@@ -22,10 +22,10 @@ export const useLeadStatus = (params?: any) => {
   });
 };
 
-export const useLeadStats = () => {
+export const useLeadStats = (params?: any) => {
   return useQuery({
-    queryKey: ["leadStats"],
-    queryFn: getLeadStats,
+    queryKey: ["leadStats", params],
+    queryFn: () => getLeadStats(params),
   });
 };
 

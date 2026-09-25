@@ -21,6 +21,7 @@ import {
 import { usePermissions, useRoles } from "../../../hooks/useCommon";
 import { Permission, Role } from "../../../types/common";
 import { NAME_REGEX } from "../../../consts/consts";
+import { useLocationContext } from "../../../providers/LocationContext";
 
 interface TeamMemberActionModalProps {
   isOpen: boolean;
@@ -170,8 +171,7 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
 }) => {
   const { data: roles } = useRoles();
   const { data: permissions } = usePermissions();
-  const { data: locationsData } = useFetchLocations();
-  const locations = locationsData?.data || [];
+  const { locations, getLocationColor } = useLocationContext();
 
   const { mutate: inviteMember, isPending: addIsPending } =
     useInviteTeamMember();
@@ -364,7 +364,25 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
               placeholder="Select practice locations"
               selectionMode="multiple"
               disableAnimation
-              popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+              popoverProps={{
+                classNames: {
+                  content: "w-[300px] max-w-full p-0 shadow-xl rounded-xl border border-foreground/10 overflow-hidden bg-background text-foreground",
+                },
+                disableAnimation: true,
+                shouldCloseOnScroll: false,
+              }}
+              listboxProps={{
+                topContent: (
+                  <div className="px-3.5 py-2 border-b border-foreground/10 bg-foreground/[0.02]">
+                    <span className="text-[10px] font-bold text-foreground/50 tracking-wider uppercase">
+                      Select Practice Locations
+                    </span>
+                  </div>
+                ),
+                itemClasses: {
+                  base: "rounded-lg py-2 px-2.5 data-[hover=true]:bg-foreground/5 data-[selectable=true]:focus:bg-foreground/5",
+                },
+              }}
               selectedKeys={formik.values.locations || []}
               onSelectionChange={(keys) => {
                 formik.setFieldValue("locations", Array.from(keys) as string[]);
@@ -376,11 +394,55 @@ const TeamMemberActionModal: React.FC<TeamMemberActionModalProps> = ({
               errorMessage={
                 formik.touched.locations && (formik.errors.locations as string)
               }
+              renderValue={(items) => (
+                <div className="flex flex-wrap gap-1.5 py-0.5">
+                  {items.map((item) => {
+                    const loc = (locations || []).find((l: any) => l._id === item.key);
+                    const locIdx = (locations || []).findIndex((l: any) => l._id === item.key);
+                    const locColor = getLocationColor(loc?._id, locIdx >= 0 ? locIdx : undefined);
+                    return (
+                      <span
+                        key={item.key}
+                        className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border"
+                        style={{
+                          backgroundColor: `${locColor}15`,
+                          borderColor: `${locColor}40`,
+                          color: locColor,
+                        }}
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: locColor }} />
+                        {loc?.name || item.textValue}
+                      </span>
+                    );
+                  })}
+                </div>
+              )}
               isRequired
             >
-              {(locations || []).map((location: any) => (
-                <SelectItem key={location._id} textValue={location.name}>{location.name}</SelectItem>
-              ))}
+              {(locations || []).map((location: any, index: number) => {
+                const locColor = getLocationColor(location._id, index);
+                const locAddress = [location.address?.city, location.address?.state].filter(Boolean).join(", ");
+                return (
+                  <SelectItem key={location._id} textValue={location.name}>
+                    <div className="flex items-start gap-2.5 min-w-0 pr-1">
+                      <span
+                        className="w-2.5 h-2.5 rounded-full shrink-0 mt-1 shadow-xs"
+                        style={{ backgroundColor: locColor }}
+                      />
+                      <div className="min-w-0 flex-1">
+                        <p className="text-xs font-semibold leading-tight text-foreground truncate">
+                          {location.name}
+                        </p>
+                        {locAddress && (
+                          <p className="text-[10px] text-foreground/60 leading-tight truncate mt-0.5 font-normal">
+                            {locAddress}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </SelectItem>
+                );
+              })}
             </Select>
 
             <Select

@@ -67,10 +67,6 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
       if (matchedLoc) {
         setSelectedLocationId(matchedLoc._id || "");
         setCustomLocation(matchedLoc.name);
-      } else if (locations && locations.length > 0) {
-        const defaultLoc = selectedLocation || locations[0];
-        setSelectedLocationId(defaultLoc?._id || "");
-        setCustomLocation(leadLocStr || defaultLoc?.name || "");
       } else {
         setSelectedLocationId("");
         setCustomLocation(leadLocStr);

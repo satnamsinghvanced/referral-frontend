@@ -121,6 +121,11 @@ const LeadDetailsModal = ({ isOpen, onOpenChange, lead, onDelete }: LeadDetailsM
 
   const formik = useFormik({
     initialValues: {
+      firstName: lead?.firstName || lead?.name?.split(" ")[0] || "",
+      lastName: lead?.lastName || lead?.name?.split(" ").slice(1).join(" ") || "",
+      email: lead?.email || "",
+      phone: lead?.phone || "",
+      locationId: lead?.locationId?._id || lead?.locationId || "",
       status: lead?.l_status || lead?.status || "newLead",
       priority: lead?.priority?.toLowerCase() || "medium",
       assignedTo: lead?.assignedTo || "Unassigned",
@@ -130,10 +135,15 @@ const LeadDetailsModal = ({ isOpen, onOpenChange, lead, onDelete }: LeadDetailsM
     enableReinitialize: true,
     onSubmit: async (values) => {
       try {
+        const { email: _email, ...updatePayload } = values;
         await updateLead({
           id: lead.id || lead._id,
           data: {
-            ...values,
+            ...updatePayload,
+            firstName: values.firstName?.trim(),
+            lastName: values.lastName?.trim(),
+            phone: values.phone?.trim(),
+            locationId: values.locationId || null,
             estimatedValue: Number(values.estimatedValue),
             assignedTo:
               values.assignedTo === "Unassigned" ||

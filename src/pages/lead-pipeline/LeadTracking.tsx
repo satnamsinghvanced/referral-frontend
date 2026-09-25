@@ -66,7 +66,7 @@ const getStageStyles = (stageId: string) =>
 
 const LeadTracking = () => {
   const queryClient = useQueryClient();
-  const { locations, getLocationColor } = useLocationContext();
+  const { locations, selectedLocation, getLocationColor } = useLocationContext();
   const [view, setView] = useState("pipeline");
   const [page, setPage] = useState(1);
   const [limit] = useState(EVEN_PAGINATION_LIMIT);
@@ -114,7 +114,11 @@ const LeadTracking = () => {
     data: leadsData,
     isLoading,
     isError,
-  } = useLeadStatus({ ...filters, search: debouncedSearch });
+  } = useLeadStatus({
+    ...filters,
+    search: debouncedSearch,
+    locationId: selectedLocation?._id,
+  });
 
   const { mutateAsync: reorderLeadsMutate } = useReorderLeads();
   const { mutateAsync: deleteLeadMutate } = useDeleteLead();
@@ -245,7 +249,9 @@ const LeadTracking = () => {
     return selectedLeadData || null;
   }, [selectedLeadId, selectedLeadData, localGroupedLeads, leadsData]);
 
-  const { data: stats } = useLeadStats();
+  const { data: stats } = useLeadStats({
+    locationId: selectedLocation?._id,
+  });
   const SUMMARY_STATS = useMemo<StatCard[]>(() => {
     return [
       {
@@ -387,6 +393,7 @@ const LeadTracking = () => {
             source: filters.source,
             treatments: filters.treatment,
             priority: filters.priority,
+            locationId: selectedLocation?._id,
           });
         },
         isLoading: isExporting,
@@ -424,6 +431,10 @@ const LeadTracking = () => {
                 <Input
                   placeholder="Search leads by name, email, or phone..."
                   aria-label="Search leads"
+                  name="lead-search-filter"
+                  id="lead-search-filter"
+                  type="search"
+                  autoComplete="off"
                   startContent={
                     <HiOutlineSearch className="text-gray-400 dark:text-foreground/40" />
                   }
@@ -701,14 +712,10 @@ const LeadTracking = () => {
                         </td>
                         <td className="py-4 px-6">
                           {(() => {
-                            const locProp = lead.locationId || lead.location;
-                            let found = locations?.find((l: any) => l._id === locProp || l._id === locProp?._id);
-                            if (!found && locProp) {
-                              const searchStr = typeof locProp === "string" ? locProp.toLowerCase() : locProp?.name?.toLowerCase();
-                              found = locations?.find((l: any) => l.name.toLowerCase() === searchStr);
-                            }
-                            const locName = found ? found.name : (typeof locProp === "string" && locProp ? locProp : locations?.[0]?.name || "Main Location");
-                            const locColor = found ? getLocationColor(found._id) : (locations?.[0]?._id ? getLocationColor(locations[0]._id) : "#f97316");
+                            const rawLocId = lead.locationId?._id || (typeof lead.locationId === "string" ? lead.locationId : null);
+                            const found = rawLocId ? locations?.find((l: any) => l._id === rawLocId) : null;
+                            const locName = found ? found.name : "Not Assigned";
+                            const locColor = found ? getLocationColor(found._id) : "#9ca3af";
                             return (
                               <span
                                 className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-[10px] font-bold border"

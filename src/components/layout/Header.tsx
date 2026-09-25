@@ -143,10 +143,13 @@ export default function Header({ hamburgerMenuClick, }: { hamburgerMenuClick: ()
                   "min-h-8 font-normal text-default-500 shadow-none bg-foreground/4 dark:bg-foreground/10 group-data-[focus=true]:border-default-400 text-foreground /10",
               }}
               placeholder={searchPlaceholder}
+              name="global-header-search"
+              id="global-header-search"
+              autoComplete="off"
               startContent={
                 <IoSearch size={18} className="text-foreground/50" />
               }
-              type="text"
+              type="search"
               variant="flat"
             />
             <AnimatePresence>
