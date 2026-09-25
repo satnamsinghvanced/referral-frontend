@@ -41,6 +41,7 @@ export const useUpdateCalendar = () => {
       queryClient.invalidateQueries({ queryKey: CALENDAR_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+      queryClient.invalidateQueries({ queryKey: ["marketingActivities"] });
     },
   });
 };
@@ -53,6 +54,7 @@ export const useDisconnectCalendar = () => {
       queryClient.invalidateQueries({ queryKey: CALENDAR_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+      queryClient.invalidateQueries({ queryKey: ["marketingActivities"] });
     },
   });
 };
@@ -72,6 +74,7 @@ export const useSelectCalendarForSync = () => {
       queryClient.invalidateQueries({ queryKey: CALENDAR_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ["dashboard"] });
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+      queryClient.invalidateQueries({ queryKey: ["marketingActivities"] });
     },
   });
 };

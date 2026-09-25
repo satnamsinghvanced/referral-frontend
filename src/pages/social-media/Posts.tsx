@@ -11,7 +11,7 @@ import {
   Select,
   SelectItem,
 } from "@heroui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BiHeart, BiSolidError } from "react-icons/bi";
 import { FaRegCircleCheck } from "react-icons/fa6";
 import { FiClock, FiMessageCircle } from "react-icons/fi";
@@ -23,12 +23,23 @@ import { EVEN_PAGINATION_LIMIT } from "../../consts/consts";
 import { useRecentPosts } from "../../hooks/useSocial";
 import { formatDateToReadable } from "../../utils/formatDateToReadable";
 import { usePaginationAdjustment } from "../../hooks/common/usePaginationAdjustment";
+import { useLocationContext } from "../../providers/LocationContext";
+import { getLocationStyle } from "../../utils/locationTheme";
 
 const Posts = () => {
+  const { locations: contextLocations } = useLocationContext();
   const [page, setPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState("all");
+  const [locationFilter, setLocationFilter] = useState("all");
   const limit = EVEN_PAGINATION_LIMIT;
-  const { data, isLoading } = useRecentPosts(page, limit, statusFilter);
+
+  useEffect(() => {
+    if (contextLocations && contextLocations.length === 1 && contextLocations[0]?.name) {
+      setLocationFilter(contextLocations[0].name);
+    }
+  }, [contextLocations]);
+
+  const { data, isLoading } = useRecentPosts(page, limit, statusFilter, locationFilter);
 
   const posts = data?.posts || [];
   const pagination = data?.pagination;
@@ -77,6 +88,41 @@ const Posts = () => {
                 Published
               </SelectItem>
             </Select>
+
+            {contextLocations && contextLocations.length > 0 && (
+              <Select
+                aria-label="Filter by Location"
+                placeholder="All Locations"
+                size="sm"
+                className="w-54"
+                disableAnimation
+                popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                selectedKeys={locationFilter ? [locationFilter] : ["all"]}
+                isDisabled={contextLocations.length === 1}
+                onSelectionChange={(keys) => {
+                  const val = Array.from(keys)[0] as string;
+                  setLocationFilter(val || "all");
+                  setPage(1);
+                }}
+              >
+                {[
+                  <SelectItem key="all" textValue="All Locations">
+                    All Locations
+                  </SelectItem>,
+                  ...contextLocations.map((loc) => (
+                    <SelectItem key={loc.name} textValue={loc.name}>
+                      <div className="flex items-center gap-2">
+                        <span
+                          className="w-2.5 h-2.5 rounded-full shrink-0"
+                          style={{ backgroundColor: loc.color || "#4285F4" }}
+                        />
+                        <span>{loc.name}</span>
+                      </div>
+                    </SelectItem>
+                  )),
+                ]}
+              </Select>
+            )}
           </div>
           <Chip
             size="sm"
@@ -96,6 +142,8 @@ const Posts = () => {
             <>
               <div className="space-y-3">
                 {posts.map((post) => {
+                  const locName = post.location || (post.locations && post.locations.length > 0 ? post.locations[0] : null);
+                  const { dotColor } = getLocationStyle(locName || undefined, contextLocations);
                   const statusColors = {
                     Published: {
                       text: "text-green-900 dark:text-green-300",
@@ -130,6 +178,35 @@ const Posts = () => {
                       <div className="flex justify-between items-center mb-1.5">
                         <h4 className="text-sm font-medium">{post.title}</h4>
                       </div>
+
+                      {locName && (
+                        <div className="mb-2">
+                          {post.isDefaultLocation ? (
+                            <span
+                              title="Auto-assigned to default location because no exact match was found"
+                              className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300"
+                            >
+                              <span className="w-2 h-2 rounded-full shrink-0 bg-amber-500" />
+                              <span>{locName}</span>
+                            </span>
+                          ) : (
+                            <span
+                              className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border"
+                              style={{
+                                backgroundColor: `${dotColor}18`,
+                                borderColor: `${dotColor}50`,
+                                color: dotColor,
+                              }}
+                            >
+                              <span
+                                className="w-2 h-2 rounded-full shrink-0"
+                                style={{ backgroundColor: dotColor }}
+                              />
+                              <span>{locName}</span>
+                            </span>
+                          )}
+                        </div>
+                      )}
                       <p className="text-xs mb-2.5 whitespace-pre-wrap text-gray-700 dark:text-foreground/80">
                         {post.description}
                       </p>
@@ -199,7 +276,7 @@ const Posts = () => {
                             if (post.failureReason && post.failureReason.trim().startsWith("{")) {
                               parsedErrors = JSON.parse(post.failureReason);
                             }
-                          } catch (e) {}
+                          } catch (e) { }
 
                           if (parsedErrors[normKey]) {
                             return "Failed";

@@ -22,7 +22,7 @@ import DatePickerWithTimeInput from "../../../components/common/DatePickerWithTi
 import { useCalendarIntegration } from "../../../hooks/integrations/useGoogleCalendar";
 import { usePlanGuard } from "../../../hooks/usePlanGuard";
 import { useLocationContext } from "../../../providers/LocationContext";
-import { DEFAULT_LOCATIONS, getLocationStyle } from "../../../utils/locationTheme";
+import { getLocationStyle } from "../../../utils/locationTheme";
 
 interface ActivityFormValues {
   title: string;
@@ -78,6 +78,7 @@ export const ActivityValidationSchema = Yup.object().shape({
     )
     .nullable()
     .min(0, "Budget cannot be negative.")
+    .max(9999999999, "Budget cannot exceed 10 digits.")
     .optional(),
 });
 
@@ -96,17 +97,17 @@ export default function ActivityActionsModal({
   defaultEndDate,
   initialData,
 }: ActivityActionsModalProps) {
-  const { hasAccess, openPricingPage } = usePlanGuard();
+  const { hasAccess } = usePlanGuard();
   const canTrackBudget = hasAccess("budget_tracking");
   const allowedActivityTypes = getFilteredActivityTypes(hasAccess);
-  const { locations: contextLocations, selectedLocation: currentSelectedLocation } = useLocationContext();
+  const { locations: contextLocations, selectedLocation: currentSelectedLocation, getLocationColor } = useLocationContext();
 
   const availableLocations = useMemo(() => {
     if (contextLocations && Array.isArray(contextLocations) && contextLocations.length > 0) {
-      const names = contextLocations.map((l) => l.name).filter(Boolean);
+      const names = contextLocations.map((l) => l.name).filter(Boolean) as string[];
       if (names.length > 0) return names;
     }
-    return DEFAULT_LOCATIONS;
+    return [];
   }, [contextLocations]);
 
   const { data: googleCalendarConfig } = useCalendarIntegration();
@@ -127,8 +128,8 @@ export default function ActivityActionsModal({
     if (currentSelectedLocation?.name) {
       return [currentSelectedLocation.name];
     }
-    const defaultLoc = availableLocations[0] || DEFAULT_LOCATIONS[0]!;
-    return [defaultLoc];
+    const defaultLoc = availableLocations[0] || "";
+    return defaultLoc ? [defaultLoc] : [];
   };
 
   const initialValues: ActivityFormValues = {
@@ -336,11 +337,10 @@ export default function ActivityActionsModal({
                     <button
                       type="button"
                       onClick={toggleAll}
-                      className={`px-3.5 py-1.5 rounded-full text-xs font-medium border transition-all cursor-pointer select-none ${
-                        isAllSelected
-                          ? "border-sky-400 bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 shadow-2xs"
-                          : "border-gray-200 dark:border-gray-700 bg-white dark:bg-content2 text-gray-600 dark:text-foreground/70 hover:border-gray-300"
-                      }`}
+                      className={`px-3.5 py-1.5 rounded-full text-xs font-medium border transition-all cursor-pointer select-none ${isAllSelected
+                        ? "border-sky-400 bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 shadow-2xs"
+                        : "border-gray-200 dark:border-gray-700 bg-white dark:bg-content2 text-gray-600 dark:text-foreground/70 hover:border-gray-300"
+                        }`}
                     >
                       All Locations
                     </button>
@@ -350,7 +350,7 @@ export default function ActivityActionsModal({
                 {availableLocations.map((locName) => {
                   const selectedLocs = formik.values.locations || [];
                   const isSelected = selectedLocs.includes(locName);
-                  const { theme, dotColor } = getLocationStyle(locName, availableLocations);
+                  const locColor = getLocationColor(locName);
 
                   const toggleLoc = () => {
                     if (isSelected) {
@@ -370,15 +370,23 @@ export default function ActivityActionsModal({
                       key={locName}
                       type="button"
                       onClick={toggleLoc}
-                      className={`px-3.5 py-1.5 rounded-full text-xs font-medium flex items-center gap-2 border transition-all cursor-pointer select-none ${
+                      style={
                         isSelected
-                          ? `${theme.chipSelected} shadow-2xs`
-                          : "border-gray-200 dark:border-gray-700 bg-white dark:bg-content2 text-gray-600 dark:text-foreground/70 hover:border-gray-300"
-                      }`}
+                          ? {
+                            backgroundColor: `${locColor}18`,
+                            borderColor: `${locColor}50`,
+                            color: locColor,
+                          }
+                          : undefined
+                      }
+                      className={`px-3.5 py-1.5 rounded-full text-xs font-medium flex items-center gap-2 border transition-all cursor-pointer select-none ${isSelected
+                        ? "shadow-2xs"
+                        : "border-gray-200 dark:border-gray-700 bg-white dark:bg-content2 text-gray-600 dark:text-foreground/70 hover:border-gray-300"
+                        }`}
                     >
                       <span
                         className="w-2 h-2 rounded-full shrink-0 transition-colors"
-                        style={{ backgroundColor: isSelected ? dotColor : "#9ca3af" }}
+                        style={{ backgroundColor: isSelected ? locColor : "#9ca3af" }}
                       />
                       <span>{locName}</span>
                     </button>
@@ -496,13 +504,27 @@ export default function ActivityActionsModal({
                     placeholder="0"
                     size="sm"
                     radius="sm"
-                    value={String(formik.values.budget) as string}
-                    onChange={formik.handleChange}
+                    value={formik.values.budget !== "" && formik.values.budget !== null && formik.values.budget !== undefined ? String(formik.values.budget) : ""}
+                    onInput={(e: React.ChangeEvent<HTMLInputElement>) => {
+                      if (e.target.value.length > 10) {
+                        e.target.value = e.target.value.slice(0, 10);
+                      }
+                    }}
+                    onChange={(e) => {
+                      if (e.target.value.length <= 10) {
+                        formik.handleChange(e);
+                      }
+                    }}
                     onBlur={formik.handleBlur}
                     isInvalid={!!hasError("budget")}
                     startContent={
                       <span className="text-gray-500 dark:text-foreground/40">
                         $
+                      </span>
+                    }
+                    endContent={
+                      <span className="text-[11px] text-gray-400 dark:text-foreground/40 select-none shrink-0 pointer-events-none">
+                        {String(formik.values.budget || "").length}/10
                       </span>
                     }
                   />

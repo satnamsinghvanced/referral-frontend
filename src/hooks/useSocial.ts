@@ -99,11 +99,12 @@ export const useRecentPosts = (
   page: number,
   limit: number,
   status?: string,
+  location?: string,
   options?: { enabled?: boolean },
 ) => {
   return useQuery({
-    queryKey: ["recent-posts", page, limit, status],
-    queryFn: () => fetchRecentPosts(page, limit, status),
+    queryKey: ["recent-posts", page, limit, status, location],
+    queryFn: () => fetchRecentPosts(page, limit, status, location),
     enabled: options?.enabled ?? true,
     refetchInterval: (query) => {
       const data = query?.state?.data as any;

@@ -6,6 +6,7 @@ import { ACTIVITY_TYPES } from "../../consts/marketing";
 import { ActivityItem } from "../../types/marketing";
 import { formatDateToReadable } from "../../utils/formatDateToReadable";
 import { getLocationStyle } from "../../utils/locationTheme";
+import { useLocationContext } from "../../providers/LocationContext";
 
 interface ActivityCardProps {
   activity: ActivityItem;
@@ -37,8 +38,9 @@ export function ActivityCard({ activity, onView, onDelete }: ActivityCardProps) 
     (activityType: any) => activityType.value == type,
   )?.color.value;
 
+  const { locations: contextLocations } = useLocationContext();
   const locName = location || (locations && locations.length > 0 ? locations[0] : null);
-  const { theme, dotColor } = getLocationStyle(locName || undefined);
+  const { dotColor } = getLocationStyle(locName || undefined, contextLocations);
 
   return (
     <div
@@ -71,12 +73,16 @@ export function ActivityCard({ activity, onView, onDelete }: ActivityCardProps) 
             >
               <span className="w-2 h-2 rounded-full shrink-0 bg-amber-500" />
               <span>{locName}</span>
-              <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-200/70 dark:bg-amber-800/60 text-amber-800 dark:text-amber-200 font-semibold ml-0.5">
-                Default
-              </span>
             </span>
           ) : (
-            <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border ${theme.chipSelected}`}>
+            <span
+              className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border"
+              style={{
+                backgroundColor: `${dotColor}18`,
+                borderColor: `${dotColor}50`,
+                color: dotColor,
+              }}
+            >
               <span
                 className="w-2 h-2 rounded-full shrink-0"
                 style={{ backgroundColor: dotColor }}

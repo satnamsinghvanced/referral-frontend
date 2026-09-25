@@ -37,7 +37,15 @@ export const useDeleteCallRecord = () => {
           },
         };
       });
+      queryClient.setQueriesData({ queryKey: ["dashboardStats"] }, (oldData: any) => {
+        if (!oldData || typeof oldData.totalCalls !== "number") return oldData;
+        return {
+          ...oldData,
+          totalCalls: Math.max(0, oldData.totalCalls - 1),
+        };
+      });
       queryClient.invalidateQueries({ queryKey: [CALL_RECORDS_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
       addToast({
         title: "Success",
         description: "Call record and recording deleted successfully.",
@@ -54,3 +62,4 @@ export const useDeleteCallRecord = () => {
     },
   });
 };
+

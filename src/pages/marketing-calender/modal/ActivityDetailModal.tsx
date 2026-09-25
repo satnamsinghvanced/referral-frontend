@@ -8,6 +8,7 @@ import { ACTIVITY_TYPES } from "../../../consts/marketing";
 import { ActivityItem } from "../../../types/marketing";
 import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 import { getLocationStyle } from "../../../utils/locationTheme";
+import { useLocationContext } from "../../../providers/LocationContext";
 
 const DetailItem: React.FC<{ label?: string; value: React.ReactNode; isMultiline?: boolean }> = ({ label, value, isMultiline = false }) => (
   <div className="flex flex-col items-start min-w-0 w-full">
@@ -40,6 +41,8 @@ interface ActivityDetailModalProps {
 export function ActivityDetailModal({ isOpen, onClose, activity, onEdit, onDelete }: ActivityDetailModalProps) {
   if (!activity) return null;
 
+  const { locations: contextLocations } = useLocationContext();
+
   const formattedBudget = `$${activity?.budget !== undefined && activity?.budget !== null ? activity.budget.toLocaleString(undefined, {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
@@ -50,7 +53,7 @@ export function ActivityDetailModal({ isOpen, onClose, activity, onEdit, onDelet
     : activity.reach === "0" ? "0" : "3,200";
 
   const locName = activity.location || (activity.locations && activity.locations.length > 0 ? activity.locations[0] : null);
-  const { theme, dotColor } = getLocationStyle(locName || undefined);
+  const { dotColor } = getLocationStyle(locName || undefined, contextLocations);
 
   const activityTypeObj = ACTIVITY_TYPES.find((t: any) => t.value === activity.type);
   const ActivityIcon = activityTypeObj?.icon || FiShare2;
@@ -108,7 +111,14 @@ export function ActivityDetailModal({ isOpen, onClose, activity, onEdit, onDelet
                   <span>{locName}</span>
                 </span>
               ) : (
-                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border ${theme.chipSelected}`}>
+                <span
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border"
+                  style={{
+                    backgroundColor: `${dotColor}18`,
+                    borderColor: `${dotColor}50`,
+                    color: dotColor,
+                  }}
+                >
                   <HiOutlineLocationMarker className="size-3.5 shrink-0" style={{ color: dotColor }} />
                   <span>{locName}</span>
                 </span>

@@ -28,7 +28,7 @@ import { usePaginationAdjustment } from "../../hooks/common/usePaginationAdjustm
 import { usePlanGuard } from "../../hooks/usePlanGuard";
 import { useLocationContext } from "../../providers/LocationContext";
 import { getAssignedLocation } from "../conversations/Conversations";
-import { DEFAULT_LOCATIONS, getLocationStyle } from "../../utils/locationTheme";
+import { getLocationStyle } from "../../utils/locationTheme";
 
 const MarketingCalendar = () => {
   const { hasAccess } = usePlanGuard();
@@ -101,10 +101,10 @@ const MarketingCalendar = () => {
 
   const displayLocations = useMemo(() => {
     if (contextLocations && Array.isArray(contextLocations) && contextLocations.length > 0) {
-      const names = contextLocations.map((l) => l.name).filter(Boolean);
+      const names = contextLocations.map((l) => l.name).filter(Boolean) as string[];
       if (names.length > 0) return names;
     }
-    return DEFAULT_LOCATIONS;
+    return [];
   }, [contextLocations]);
 
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
@@ -142,7 +142,6 @@ const MarketingCalendar = () => {
   }, [sortedActivities, selectedLocations, displayLocations]);
 
   useEffect(() => {
-    if (!isGoogleCalendarConnected) return;
     marketingActivitiesRefetch();
   }, [isGoogleCalendarConnected, combinedCalendarIds]);
   const pagination = marketingActivitiesData?.pagination;
@@ -301,7 +300,7 @@ const MarketingCalendar = () => {
               activity.location ||
               (activity.locations && activity.locations[0]) ||
               getAssignedLocation(activity._id, displayLocations);
-            const { theme, dotColor } = getLocationStyle(locName, displayLocations);
+            const { dotColor } = getLocationStyle(locName, contextLocations);
 
             return (
               <div
@@ -340,12 +339,16 @@ const MarketingCalendar = () => {
                       >
                         <span className="w-2 h-2 rounded-full shrink-0 bg-amber-500" />
                         <span>{locName}</span>
-                        <span className="text-[10px] px-1.5 py-0.2 rounded bg-amber-200/70 dark:bg-amber-800/60 text-amber-800 dark:text-amber-200 font-semibold ml-0.5">
-                          Default
-                        </span>
                       </span>
                     ) : (
-                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium border ${theme.chipSelected}`}>
+                      <span
+                        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-medium border"
+                        style={{
+                          backgroundColor: `${dotColor}18`,
+                          borderColor: `${dotColor}50`,
+                          color: dotColor,
+                        }}
+                      >
                         <span
                           className="w-2 h-2 rounded-full shrink-0"
                           style={{ backgroundColor: dotColor }}

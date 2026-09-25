@@ -40,6 +40,7 @@ import {
 } from "../../../hooks/useSocial";
 import { Media } from "../../../types/media";
 import GalleryMediaUploadModal from "../../media-management/modal/GalleryMediaUploadModal";
+import { useLocationContext } from "../../../providers/LocationContext";
 import { formatCalendarDate } from "../../../utils/formatCalendarDate";
 import { parseStringTime } from "../../../utils/parseStringTime";
 
@@ -174,6 +175,7 @@ export function CreatePostModal({
   onSuccess,
   onUploadStart,
 }: CreatePostModalProps) {
+  const { locations: contextLocations, selectedLocation } = useLocationContext();
   const { data: overviewData } = useSocialOverview();
   const { data: credentials } = useSocialCredentials();
   const localTimeZone = getLocalTimeZone();
@@ -203,6 +205,7 @@ export function CreatePostModal({
     initialValues: {
       title: "",
       postContent: "",
+      location: selectedLocation?.name || (contextLocations && contextLocations.length > 0 ? contextLocations[0]?.name || "" : ""),
       selectedPlatforms: [] as string[],
       publishSchedule: "publish-now",
       scheduledDate: today(localTimeZone).toString(),
@@ -214,6 +217,9 @@ export function CreatePostModal({
       const formData = new FormData();
       formData.append("title", values.title);
       formData.append("description", values.postContent);
+      if (values.location) {
+        formData.append("location", values.location);
+      }
       formData.append("platforms", values.selectedPlatforms.join(","));
       formData.append("hashtags", activeHashtags.join(",").replace(/#/g, ""));
       formData.append("media", selectedMedia.map((m) => m._id).join(","));
@@ -526,6 +532,38 @@ export function CreatePostModal({
               </div>
             </div>
           </div>
+
+          {contextLocations && contextLocations.length > 0 && (
+            <div className="space-y-0.5">
+              <Select
+                label="Location"
+                labelPlacement="outside"
+                size="sm"
+                radius="sm"
+                isRequired
+                placeholder="Select location..."
+                selectedKeys={formik.values.location ? [formik.values.location] : []}
+                onSelectionChange={(keys) => {
+                  const val = Array.from(keys)[0] as string;
+                  formik.setFieldValue("location", val || "");
+                }}
+                disableAnimation
+                popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+              >
+                {contextLocations.map((loc) => (
+                  <SelectItem key={loc.name} textValue={loc.name}>
+                    <div className="flex items-center gap-2">
+                      <span
+                        className="w-2.5 h-2.5 rounded-full shrink-0"
+                        style={{ backgroundColor: loc.color || "#4285F4" }}
+                      />
+                      <span>{loc.name}</span>
+                    </div>
+                  </SelectItem>
+                ))}
+              </Select>
+            </div>
+          )}
 
           <div className="space-y-2">
             <label className="text-xs block">

@@ -100,6 +100,7 @@ const CallTracking = () => {
     try {
       const freshData = await getCallRecords({ ...queryParams, sync: true });
       queryClient.setQueryData([CALL_RECORDS_QUERY_KEY, queryParams], freshData);
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     } finally {
       setIsSyncing(false);
     }

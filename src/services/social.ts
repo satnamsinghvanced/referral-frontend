@@ -48,10 +48,18 @@ export const fetchPostsAnalytics = async (): Promise<PostAnalyticsResponse> => {
   return unwrapApiData<PostAnalyticsResponse>(response);
 };
 
-export const fetchRecentPosts = async (page: number = 1, limit: number = 10, status?: string): Promise<RecentPostsResponse> => {
+export const fetchRecentPosts = async (
+  page: number = 1,
+  limit: number = 10,
+  status?: string,
+  location?: string,
+): Promise<RecentPostsResponse> => {
   const params: any = { page, limit };
   if (status && status !== "all") {
     params.status = status;
+  }
+  if (location && location !== "all") {
+    params.location = location;
   }
   const response = await axios.get("/social-media-post/recent-posts", { params });
   return unwrapApiData<RecentPostsResponse>(response);

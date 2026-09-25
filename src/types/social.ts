@@ -154,6 +154,9 @@ export interface RecentPost {
   userId: string;
   title: string;
   description: string;
+  location?: string;
+  locations?: string[];
+  isDefaultLocation?: boolean;
   files: PostFile[];
   platforms: string[];
   status: "Published" | "Scheduled" | "Failed" | "Partially Failed" | "Processing";
