@@ -22,7 +22,6 @@ interface LeadCardProps {
     stage: string;
     location?: any;
     locationId?: any;
-    practiceLocation?: any;
   };
   onPress?: (lead: any) => void;
   onDelete?: (lead: any) => void;
@@ -39,7 +38,7 @@ const LeadCard = ({ lead, onPress, onDelete, draggable, onDragStart, onDragEnd, 
   const { locations, getLocationColor } = useLocationContext();
 
   const locationBadge = useMemo(() => {
-    const locProp = lead.locationId || lead.location || lead.practiceLocation;
+    const locProp = lead.locationId || lead.location;
     if (!locations || locations.length === 0) {
       const name = typeof locProp === "string" ? locProp : locProp?.name || "Main Location";
       return { name, color: "#f97316" };

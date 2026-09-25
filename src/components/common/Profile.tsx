@@ -11,7 +11,7 @@ interface ProfileProps {
 }
 
 const Profile = ({ className, imgClass, user }: ProfileProps) => {
-  let display = (user?.lastName?.length || 0) > 0 ? `${user?.firstName?.slice(0, 1)}${user?.lastName?.slice(0, 1)}` : user?.firstName?.slice(0, 2);
+  const display = (user?.lastName?.length || 0) > 0 ? `${user?.firstName?.slice(0, 1)}${user?.lastName?.slice(0, 1)}` : user?.firstName?.slice(0, 2);
   const avatarUrl = user?.avatar && user?.avatar !== "" ? `${import.meta.env.VITE_API_URL}${user.avatar}` : null;
   return (
     // @ts-ignore

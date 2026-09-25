@@ -70,7 +70,7 @@ const convertTimeToDaysHoursMinutes = (timeStr: string): string => {
   const remainingMinutesAfterDays = totalMinutes % MINUTES_IN_A_DAY;
   const hours = Math.floor(remainingMinutesAfterDays / 60);
   const minutes = remainingMinutesAfterDays % 60;
-  let result = [];
+  const result = [];
   result.push(`${days}d`);
   result.push(`${hours}h`);
   result.push(`${minutes}m`);
@@ -89,7 +89,7 @@ export const formatRouteData = (
   const startDateTime = new Date(routeDate.split("T")[0] + "T" + startTime);
   let currentTimeSeconds = startDateTime.getTime() / 1000;
   let totalTravelTimeSeconds = 0;
-  let totalStops = selectedReferrers.length;
+  const totalStops = selectedReferrers.length;
 
   const routeDetails = selectedReferrers.map((referrer, index) => {
     let travelToStopSeconds = 0;

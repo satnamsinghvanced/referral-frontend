@@ -60,4 +60,5 @@ export interface Conversation {
   recipientId?: string;
   leadId?: string;
   leadStatus?: string;
+  locationId?: string;
 }

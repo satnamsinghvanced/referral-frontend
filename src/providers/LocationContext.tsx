@@ -15,12 +15,10 @@ interface LocationContextType {
 const LocationContext = createContext<LocationContextType | undefined>(undefined);
 
 export const LOCATION_COLORS = [
-  "#f97316",
-  "#0284c7",
-  "#a855f7",
-  "#10b981",
-  "#ec4899",
-  "#f59e0b",
+  "#0ea5e9", // Sky Blue
+  "#10b981", // Emerald Green
+  "#a855f7", // Purple
+  "#f97316", // Orange
 ];
 
 const STORAGE_KEY = "selected_location_id";
@@ -68,15 +66,31 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
   };
 
-  const getLocationColor = (locationId?: string, index?: number): string => {
+  const getLocationColor = (locationIdOrName?: string, index?: number): string => {
+    if (locationIdOrName && locations && locations.length > 0) {
+      const loc = locations.find(
+        (l) =>
+          l._id === locationIdOrName ||
+          l.name?.toLowerCase() === locationIdOrName.toLowerCase()
+      );
+      if (loc?.color) return loc.color;
+      if (loc) {
+        const idx = locations.findIndex((l) => l._id === loc._id);
+        return (
+          LOCATION_COLORS[idx >= 0 ? idx % LOCATION_COLORS.length : 0] ||
+          LOCATION_COLORS[0] ||
+          "#0ea5e9"
+        );
+      }
+    }
     if (index !== undefined) {
-      return LOCATION_COLORS[index % LOCATION_COLORS.length] ?? LOCATION_COLORS[0] ?? "#f97316";
+      return (
+        LOCATION_COLORS[index % LOCATION_COLORS.length] ||
+        LOCATION_COLORS[0] ||
+        "#0ea5e9"
+      );
     }
-    if (!locationId || !locations || locations.length === 0) {
-      return LOCATION_COLORS[0] ?? "#f97316";
-    }
-    const idx = locations.findIndex((l) => l._id === locationId);
-    return LOCATION_COLORS[idx >= 0 ? idx % LOCATION_COLORS.length : 0] ?? LOCATION_COLORS[0] ?? "#f97316";
+    return LOCATION_COLORS[0] || "#0ea5e9";
   };
 
   return (

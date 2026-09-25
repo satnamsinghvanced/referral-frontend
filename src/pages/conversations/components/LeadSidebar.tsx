@@ -11,6 +11,7 @@ import {
 import { CONVERSATION_TAGS, Conversation } from "../../../consts/conversations";
 import { getAvatarColor, getInitials, getPlatformLabel, getChipColor } from "../utils";
 import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
+import { useLocationContext } from "../../../providers/LocationContext";
 
 interface LeadSidebarProps {
   selectedConversation: Conversation | null;
@@ -19,7 +20,17 @@ interface LeadSidebarProps {
 }
 
 export default function LeadSidebar({ selectedConversation, onViewLead, onArchiveLead }: LeadSidebarProps) {
+  const { locations, getLocationColor } = useLocationContext();
   if (!selectedConversation) return null;
+
+  const targetLoc = selectedConversation.locationId || selectedConversation.patientLocation || "";
+  const viewLoc = locations?.find(
+    (l) =>
+      l._id === targetLoc ||
+      l.name.toLowerCase() === targetLoc.toLowerCase()
+  );
+  const locName = viewLoc ? viewLoc.name : selectedConversation.patientLocation;
+  const locColor = viewLoc ? getLocationColor(viewLoc._id) : undefined;
   return (
     <div className="w-[280px] min-w-[250px] border-l border-foreground/10 overflow-y-auto hidden xl:block">
       <div className="p-5 flex flex-col items-center border-b border-foreground/10">
@@ -69,7 +80,7 @@ export default function LeadSidebar({ selectedConversation, onViewLead, onArchiv
                 Email
               </p>
               <p className="text-xs text-foreground font-medium">
-                {selectedConversation.patientEmail}
+                {selectedConversation.patientEmail || "—"}
               </p>
             </div>
           </div>
@@ -80,7 +91,7 @@ export default function LeadSidebar({ selectedConversation, onViewLead, onArchiv
                 Phone
               </p>
               <p className="text-xs text-foreground font-medium">
-                {formatPhoneNumber(selectedConversation.patientPhone)}
+                {formatPhoneNumber(selectedConversation.patientPhone) || "—"}
               </p>
             </div>
           </div>
@@ -90,8 +101,14 @@ export default function LeadSidebar({ selectedConversation, onViewLead, onArchiv
               <p className="text-[10px] text-gray-400 dark:text-foreground/40">
                 Location
               </p>
-              <p className="text-xs text-foreground font-medium">
-                {selectedConversation.patientLocation}
+              <p className="text-xs text-foreground font-medium flex items-center gap-1.5">
+                {locColor && (
+                  <span
+                    className="w-2 h-2 rounded-full shrink-0"
+                    style={{ backgroundColor: locColor }}
+                  />
+                )}
+                <span>{locName || "—"}</span>
               </p>
             </div>
           </div>

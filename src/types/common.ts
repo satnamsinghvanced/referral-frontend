@@ -49,6 +49,7 @@ export interface Location {
     zipcode: string;
   };
   phone: string;
+  color?: string;
   isPrimary: boolean;
   createdAt?: string;
   updatedAt?: string;

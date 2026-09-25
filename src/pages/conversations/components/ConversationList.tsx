@@ -4,7 +4,8 @@ import { HiOutlineSearch, HiOutlineLightningBolt } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import { CONVERSATION_PLATFORMS, CONVERSATION_TAGS, Conversation } from "../../../consts/conversations";
 import { getPlatformIcon, getPlatformChipStyle, getAvatarColor, getInitials, formatConversationTime } from "../utils";
-import { getAssignedLocation, getLocationTheme } from "../Conversations";
+import { getConversationLocation, getLocationTheme } from "../Conversations";
+import { useLocationContext } from "../../../providers/LocationContext";
 
 interface ConversationListProps {
   conversations: Conversation[];
@@ -38,10 +39,11 @@ export default function ConversationList({
   setFilterDropdown,
   isMetaConnected = true,
   isIntegrationsLoading = false,
-  displayLocations = [],
+  displayLocations: _displayLocations = [],
   selectedLocations = [],
 }: ConversationListProps) {
   const navigate = useNavigate();
+  const { locations: contextLocations } = useLocationContext();
   const showMetaWarning = !isMetaConnected && (selectedPlatform === "facebook" || selectedPlatform === "instagram");
 
   const platformUnreadCounts = useMemo(() => {
@@ -52,8 +54,8 @@ export default function ConversationList({
       instagram: 0,
     };
     conversations.forEach((conv) => {
-      const convLocation = conv.patientLocation || getAssignedLocation(conv.id, displayLocations);
-      const isLocationSelected = selectedLocations.length === 0 || selectedLocations.includes(convLocation);
+      const convLocation = getConversationLocation(conv, contextLocations);
+      const isLocationSelected = !convLocation || selectedLocations.includes(convLocation);
       if (isLocationSelected && conv.status !== "archived" && conv.unreadCount > 0) {
         counts.all = (counts.all || 0) + conv.unreadCount;
         const currentCount = counts[conv.platform];
@@ -63,7 +65,7 @@ export default function ConversationList({
       }
     });
     return counts;
-  }, [conversations, selectedLocations, displayLocations]);
+  }, [conversations, selectedLocations, contextLocations]);
   return (
     <div
       className={`w-full md:w-[320px] md:min-w-[280px] border-r border-foreground/10 flex flex-col ${selectedConversationId ? "hidden md:flex" : "flex"
@@ -188,8 +190,8 @@ export default function ConversationList({
           </div>
         ) : (
           filteredConversations.map((conv) => {
-            const convLocation = conv.patientLocation || getAssignedLocation(conv.id, displayLocations);
-            const locationTheme = getLocationTheme(convLocation, displayLocations);
+            const convLocation = getConversationLocation(conv, contextLocations);
+            const locationTheme = convLocation ? getLocationTheme(convLocation, contextLocations) : null;
 
             return (
               <div
@@ -250,12 +252,16 @@ export default function ConversationList({
                       })}
                       {convLocation && (
                         <span
+                          style={locationTheme?.style}
                           className={`text-[9px] px-1.5 py-0.5 rounded font-medium flex items-center gap-1 max-w-[95px] truncate border ${
-                            locationTheme ? locationTheme.bg : "bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border-sky-200"
+                            locationTheme?.bg || ""
                           }`}
                           title={convLocation}
                         >
-                          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${locationTheme ? locationTheme.dot : "bg-sky-500"}`} />
+                          <span
+                            style={locationTheme?.dotStyle}
+                            className={`w-1.5 h-1.5 rounded-full shrink-0 ${locationTheme?.dot || ""}`}
+                          />
                           <span className="truncate">{convLocation}</span>
                         </span>
                       )}

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Modal, ModalContent, ModalBody, Button, Input, addToast } from "@heroui/react";
+import { Modal, ModalContent, ModalBody, Button, Input, Select, SelectItem, addToast } from "@heroui/react";
 import { Conversation } from "../../../consts/conversations";
 import {
   HiOutlineMail,
@@ -8,9 +8,13 @@ import {
   HiOutlineTrendingUp,
   HiOutlineCalendar,
   HiOutlinePencilAlt,
+  HiOutlineDocumentText,
 } from "react-icons/hi";
 import { addLead, updateLead } from "../../../services/leadPipeline";
 import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
+import { useLocationContext } from "../../../providers/LocationContext";
+import { Location } from "../../../types/common";
+import { EMAIL_REGEX } from "../../../consts/consts";
 
 interface ViewLeadModalProps {
   isOpen: boolean;
@@ -21,16 +25,29 @@ interface ViewLeadModalProps {
   onSendFormClick?: (leadId: string, patientName: string) => void;
 }
 
+const formatAddress = (loc: Location) => {
+  if (!loc.address) return "";
+  const parts = [loc.address.street, loc.address.city, loc.address.state, loc.address.zipcode].filter(
+    Boolean
+  );
+  return parts.join(", ");
+};
+
 const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, onSendFormClick }: ViewLeadModalProps) => {
+  const { locations, selectedLocation, getLocationColor } = useLocationContext();
   const [isEditing, setIsEditing] = useState(false);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
-  const [location, setLocation] = useState("");
+  const [errors, setErrors] = useState<{ firstName?: string | undefined; email?: string | undefined; phone?: string | undefined }>({});
+  const [selectedLocationId, setSelectedLocationId] = useState<string>("");
+  const [customLocation, setCustomLocation] = useState<string>("");
   const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     if (lead && isOpen) {
+      setErrors({});
       const nameParts = lead.patientName.trim().split(/\s+/);
       const fName = nameParts[0] || "";
       const lName = nameParts.slice(1).join(" ") || "";
@@ -38,22 +55,79 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
       setLastName(lName);
       setEmail(lead.patientEmail || "");
       setPhone(formatPhoneNumber(lead.patientPhone || ""));
-      setLocation(lead.patientLocation || "");
+
+      const leadLocStr = (lead.locationId || lead.patientLocation || "").trim();
+      let matchedLoc: Location | undefined;
+      if (leadLocStr && locations && locations.length > 0) {
+        matchedLoc = locations.find(
+          (l) => l._id === leadLocStr || l.name.toLowerCase() === leadLocStr.toLowerCase()
+        );
+      }
+
+      if (matchedLoc) {
+        setSelectedLocationId(matchedLoc._id || "");
+        setCustomLocation(matchedLoc.name);
+      } else if (locations && locations.length > 0) {
+        const defaultLoc = selectedLocation || locations[0];
+        setSelectedLocationId(defaultLoc?._id || "");
+        setCustomLocation(leadLocStr || defaultLoc?.name || "");
+      } else {
+        setSelectedLocationId("");
+        setCustomLocation(leadLocStr);
+      }
+
       setIsEditing(!lead.leadId);
     }
-  }, [lead, isOpen]);
+  }, [lead, isOpen, locations, selectedLocation]);
+
   if (!lead) return null;
+
   const handleSave = async () => {
-    if (!firstName.trim() || !email.trim() || !phone.trim()) {
+    const newErrors: { firstName?: string; email?: string; phone?: string } = {};
+    const missingList: string[] = [];
+
+    if (!firstName.trim()) {
+      newErrors.firstName = "First name is required";
+      missingList.push("First name");
+    }
+
+    if (!email.trim()) {
+      newErrors.email = "Email is required";
+      missingList.push("Email");
+    } else if (!EMAIL_REGEX.test(email.trim())) {
+      newErrors.email = "Please enter a valid email address";
+    }
+
+    if (!phone.trim()) {
+      newErrors.phone = "Phone number is required";
+      missingList.push("Phone number");
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      let desc = "";
+      if (missingList.length === 1) {
+        desc = `${missingList[0]} is required.`;
+      } else if (missingList.length === 2) {
+        desc = `${missingList[0]} and ${missingList[1]?.toLowerCase()} are required.`;
+      } else if (missingList.length === 3) {
+        desc = `${missingList[0]}, ${missingList[1]?.toLowerCase()}, and ${missingList[2]?.toLowerCase()} are required.`;
+      } else {
+        desc = newErrors.email || "Please fill in all required fields.";
+      }
       addToast({
         title: "Validation Error",
-        description: "First name, email, and phone number are required.",
+        description: desc,
         color: "danger",
       });
       return;
     }
+    setErrors({});
     setLoading(true);
     try {
+      const selectedLocObj = locations?.find((l) => l._id === selectedLocationId);
+      const locIdToSave = selectedLocObj?._id || (selectedLocationId && /^[0-9a-fA-F]{24}$/.test(selectedLocationId) ? selectedLocationId : null);
+
       if (lead.leadId) {
         const response = await updateLead({
           id: lead.leadId,
@@ -62,7 +136,7 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
             lastName: lastName.trim(),
             email: email.trim().toLowerCase(),
             phone: phone.trim(),
-            location: location.trim(),
+            locationId: locIdToSave,
             socialConversationId: lead.id, 
           },
         });
@@ -81,7 +155,7 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
           lastName: lastName.trim(),
           email: email.trim().toLowerCase(),
           phone: phone.trim(),
-          location: location.trim(),
+          locationId: locIdToSave,
           source: lead.platform,
           socialConversationId: lead.id,
           status: "newLead",
@@ -107,6 +181,7 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
       setLoading(false);
     }
   };
+
   const getStatusDetails = () => {
     if (!lead.leadId) {
       return {
@@ -152,7 +227,15 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
         };
     }
   };
+
   const statusInfo = getStatusDetails();
+
+  const targetViewLoc = lead.locationId || lead.patientLocation || "";
+  const matchedViewLoc = locations?.find(
+    (l) => l._id === targetViewLoc || l.name.toLowerCase() === targetViewLoc.toLowerCase()
+  );
+  const displayLocName = matchedViewLoc ? matchedViewLoc.name : (targetViewLoc || "—");
+  const displayLocColor = matchedViewLoc ? getLocationColor(matchedViewLoc._id) : undefined;
   return (
     <Modal
       isOpen={isOpen}
@@ -161,7 +244,7 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
       size="md"
       scrollBehavior="inside"
       classNames={{
-        base: "max-sm:!m-3 !m-0",
+        base: "max-sm:!m-3 !m-0 sm:max-w-[495px]",
         closeButton: "text-white hover:bg-white/20 z-50 top-3 right-3",
       }}
     >
@@ -217,7 +300,7 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
                   )}
                 </div>
                 {isEditing ? (
-                  <div className="space-y-3 p-3 bg-slate-50/50 dark:bg-default-50/40 border border-slate-100 dark:border-default-100 rounded-xl">
+                  <div className="flex flex-col gap-3.5 p-3.5 bg-slate-50/50 dark:bg-default-50/40 border border-slate-100 dark:border-default-100 rounded-xl">
                     <div className="grid grid-cols-2 gap-3">
                       <Input
                         label="First Name"
@@ -226,7 +309,12 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
                         size="sm"
                         radius="md"
                         value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
+                        onChange={(e) => {
+                          setFirstName(e.target.value);
+                          if (errors.firstName) setErrors((prev) => ({ ...prev, firstName: undefined }));
+                        }}
+                        isInvalid={Boolean(errors.firstName)}
+                        errorMessage={errors.firstName}
                         isRequired
                       />
                       <Input
@@ -247,7 +335,12 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
                         size="sm"
                         radius="md"
                         value={email}
-                        onChange={(e) => setEmail(e.target.value)}
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                          if (errors.email) setErrors((prev) => ({ ...prev, email: undefined }));
+                        }}
+                        isInvalid={Boolean(errors.email)}
+                        errorMessage={errors.email}
                         isRequired
                       />
                       <Input
@@ -257,19 +350,120 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
                         size="sm"
                         radius="md"
                         value={phone}
-                        onChange={(e) => setPhone(formatPhoneNumber(e.target.value))}
+                        onChange={(e) => {
+                          setPhone(formatPhoneNumber(e.target.value));
+                          if (errors.phone) setErrors((prev) => ({ ...prev, phone: undefined }));
+                        }}
+                        isInvalid={Boolean(errors.phone)}
+                        errorMessage={errors.phone}
                         isRequired
                       />
                     </div>
-                    <Input
-                      label="Location"
-                      labelPlacement="outside"
-                      placeholder="Location (City, State, etc.)"
-                      size="sm"
-                      radius="md"
-                      value={location}
-                      onChange={(e) => setLocation(e.target.value)}
-                    />
+                    <div className="pt-0.5">
+                      {locations && locations.length > 0 ? (
+                        <Select
+                          label="Practice Location"
+                          labelPlacement="outside"
+                          placeholder="Select practice location"
+                          size="sm"
+                          radius="md"
+                          variant="flat"
+                          disableAnimation
+                          selectedKeys={selectedLocationId ? [selectedLocationId] : []}
+                          onSelectionChange={(keys) => {
+                            const key = Array.from(keys)[0] as string;
+                            setSelectedLocationId(key || "");
+                            const found = locations.find((l) => l._id === key);
+                            if (found) {
+                              setCustomLocation(found.name);
+                            }
+                          }}
+                          startContent={
+                            !selectedLocationId ? (
+                              <HiOutlineLocationMarker className="text-default-400 size-4 shrink-0" />
+                            ) : undefined
+                          }
+                          renderValue={(items) => {
+                            return items.map((item) => {
+                              const loc = locations.find((l) => l._id === item.key);
+                              const locIdx = locations.findIndex((l) => l._id === item.key);
+                              const locColor = getLocationColor(loc?._id, locIdx >= 0 ? locIdx : undefined);
+                              return (
+                                <div key={item.key} className="flex items-center gap-2 min-w-0">
+                                  <span
+                                    className="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs"
+                                    style={{ backgroundColor: locColor }}
+                                  />
+                                  <span className="text-[13px] font-medium text-foreground truncate">
+                                    {loc?.name || item.textValue}
+                                  </span>
+                                </div>
+                              );
+                            });
+                          }}
+                          popoverProps={{
+                            classNames: {
+                              content: "w-[300px] max-w-full p-0 shadow-xl rounded-xl border border-foreground/10 overflow-hidden bg-background text-foreground",
+                            },
+                            disableAnimation: true,
+                            shouldCloseOnScroll: false,
+                          }}
+                          listboxProps={{
+                            topContent: (
+                              <div className="px-3.5 py-2 border-b border-foreground/10 bg-foreground/[0.02]">
+                                <span className="text-[10px] font-bold text-foreground/50 tracking-wider uppercase">
+                                  Select Practice Location
+                                </span>
+                              </div>
+                            ),
+                            itemClasses: {
+                              base: "rounded-lg py-2 px-2.5 data-[hover=true]:bg-foreground/5 data-[selectable=true]:focus:bg-foreground/5",
+                            },
+                          }}
+                        >
+                          {locations.map((loc, index) => {
+                            const locColor = getLocationColor(loc._id, index);
+                            const locAddr = formatAddress(loc);
+                            return (
+                              <SelectItem
+                                key={loc._id}
+                                textValue={loc.name}
+                              >
+                                <div className="flex items-start gap-2.5 min-w-0 pr-1">
+                                  <span
+                                    className="w-2.5 h-2.5 rounded-full shrink-0 mt-1 shadow-xs"
+                                    style={{ backgroundColor: locColor }}
+                                  />
+                                  <div className="min-w-0 flex-1">
+                                    <p className="text-xs font-semibold leading-tight text-foreground truncate">
+                                      {loc.name}
+                                    </p>
+                                    {locAddr && (
+                                      <p className="text-[10px] text-foreground/60 leading-tight truncate mt-0.5 font-normal">
+                                        {locAddr}
+                                      </p>
+                                    )}
+                                  </div>
+                                </div>
+                              </SelectItem>
+                            );
+                          })}
+                        </Select>
+                      ) : (
+                        <Input
+                          label="Location"
+                          labelPlacement="outside"
+                          placeholder="Location (City, State, etc.)"
+                          size="sm"
+                          radius="md"
+                          value={customLocation}
+                          onChange={(e) => setCustomLocation(e.target.value)}
+                          startContent={
+                            <HiOutlineLocationMarker className="text-default-400 size-4 shrink-0" />
+                          }
+                        />
+                      )}
+                    </div>
                   </div>
                 ) : (
                   <div className="grid grid-cols-2 gap-2">
@@ -295,8 +489,14 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
                       <HiOutlineLocationMarker className="text-slate-400 shrink-0 text-[16px]" />
                       <div className="min-w-0">
                         <div className="text-[10px] font-medium text-slate-400 dark:text-slate-500 mb-0.5">Location</div>
-                        <div className="text-[12px] font-semibold text-slate-700 dark:text-slate-200 truncate">
-                          {lead.patientLocation || "—"}
+                        <div className="text-[12px] font-semibold text-slate-700 dark:text-slate-200 truncate flex items-center gap-1.5">
+                          {displayLocColor && (
+                            <span
+                              className="w-2 h-2 rounded-full shrink-0"
+                              style={{ backgroundColor: displayLocColor }}
+                            />
+                          )}
+                          <span className="truncate">{displayLocName}</span>
                         </div>
                       </div>
                     </div>
@@ -346,11 +546,11 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
                   </div>
                 </div>
               )}
-              <div className="flex gap-3 mt-2">
+              <div className="flex items-center gap-2.5 mt-2 pt-1">
                 {isEditing ? (
                   <>
                     <Button
-                      className="flex-1 font-bold bg-[#00a3e0] text-white text-[12.5px] h-9.5 rounded-lg shadow-none"
+                      className="flex-1 font-semibold bg-[#0ea5e9] hover:bg-[#0284c7] text-white text-xs h-10 rounded-xl shadow-xs"
                       onPress={handleSave}
                       isLoading={loading}
                     >
@@ -358,7 +558,7 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
                     </Button>
                     <Button
                       variant="bordered"
-                      className="flex-1 font-semibold text-slate-600 dark:text-slate-300 border-slate-200 dark:border-default-300 text-[12.5px] h-9.5 rounded-lg shadow-none"
+                      className="flex-1 font-semibold text-slate-600 dark:text-slate-300 border-slate-200 dark:border-default-300 text-xs h-10 rounded-xl shadow-none hover:bg-slate-100 dark:hover:bg-default-100"
                       onPress={() => {
                         if (lead.leadId) {
                           setIsEditing(false);
@@ -374,34 +574,35 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
                 ) : (
                   <>
                     <Button
-                      className="flex-[1.3] font-bold bg-[#00a3e0] text-white text-[12.5px] h-9.5 rounded-lg shadow-none"
-                      startContent={<HiOutlineCalendar className="text-[16px] shrink-0" />}
+                      className="flex-[1.35] font-semibold bg-[#0ea5e9] hover:bg-[#0284c7] text-white text-xs h-10 rounded-xl shadow-xs px-3 min-w-0 flex items-center justify-center gap-1.5 transition-all"
+                      startContent={<HiOutlineCalendar className="size-4 shrink-0" />}
                       onPress={() => {
                         onClose();
                         onScheduleClick();
                       }}
                     >
-                      Schedule Appointment
-                    </Button>
-                    <Button
-                      variant="bordered"
-                      className="flex-1 font-semibold text-slate-600 dark:text-slate-300 border-slate-200 dark:border-default-300 text-[12.5px] h-9.5 rounded-lg shadow-none"
-                      onPress={onClose}
-                    >
-                      Close
+                      <span className="whitespace-nowrap truncate">Schedule Appointment</span>
                     </Button>
                     {lead.leadId && (
                       <Button
-                        className="flex-1 font-semibold bg-purple-600 hover:bg-purple-700 text-white text-[12.5px] h-9.5 rounded-lg shadow-none"
+                        className="flex-1 font-semibold bg-purple-600 hover:bg-purple-700 text-white text-xs h-10 rounded-xl shadow-xs px-3 min-w-0 flex items-center justify-center gap-1.5 transition-all"
+                        startContent={<HiOutlineDocumentText className="size-4 shrink-0" />}
                         onPress={() => {
                           if (onSendFormClick && lead.leadId) {
                             onSendFormClick(lead.leadId, lead.patientName);
                           }
                         }}
                       >
-                        Share Form
+                        <span className="whitespace-nowrap truncate">Share Form</span>
                       </Button>
                     )}
+                    <Button
+                      variant="bordered"
+                      className="font-semibold text-slate-600 dark:text-slate-300 border-slate-200 dark:border-default-300 text-xs h-10 rounded-xl px-4 shadow-none hover:bg-slate-100 dark:hover:bg-default-100 transition-all"
+                      onPress={onClose}
+                    >
+                      Close
+                    </Button>
                   </>
                 )}
               </div>

@@ -103,7 +103,7 @@ const getOptimizedCoordinates = (
       optimizedOrder: initialCoords,
       orderMap: initialCoords.map((_, i) => i),
     };
-  let stops = initialCoords
+  const stops = initialCoords
     .slice(1)
     .map((coord, i) => ({ coord, originalIndex: i + 1 }));
   const optimizedOrder = [startPoint];
@@ -307,7 +307,9 @@ export default function VisitMap() {
         const res = await fetch(url);
         const json = await res.json();
         label = json?.features?.[0]?.properties?.name ?? label;
-      } catch { }
+      } catch (err) {
+        console.error("Geocoding reverse lookup error:", err);
+      }
     }
 
     const el = document.createElement("div");
@@ -338,11 +340,12 @@ export default function VisitMap() {
 
   useEffect(() => {
     const initData = async () => {
-      let {
+      const {
         coordinates: loadedCoords,
-        optimized,
+        optimized: isOptimizedFromUrl,
         names: loadedNames,
       } = getCoordinatesFromUrl();
+      let optimized = isOptimizedFromUrl;
 
       let coords: number[][] = [...loadedCoords];
       let namesList: string[] = loadedNames ? [...loadedNames] : [];
@@ -426,7 +429,7 @@ export default function VisitMap() {
         showUserHeading: true,
       });
       map.addControl(geolocateControl, "top-right");
-      geolocateControl.on("geolocate", (e) => { });
+      geolocateControl.on("geolocate", () => { });
       geolocateControl.trigger();
       const finalCoords = coordinates;
       const finalNames = names;
@@ -694,7 +697,7 @@ export default function VisitMap() {
         isDismissable={false}
       >
         <ModalContent>
-          {(onClose) => (
+          {() => (
             <>
               <ModalHeader className="flex flex-col gap-1 p-4 pb-3">
                 <h4 className="font-medium text-base">Open in Maps App?</h4>

@@ -28,7 +28,8 @@ import {
 import { LuSend } from "react-icons/lu";
 import { Conversation } from "../../../consts/conversations";
 import { getPlatformIcon, getPlatformLabel, getPlatformChipStyle, getAvatarColor, getInitials, formatDateLabel } from "../utils";
-import { getAssignedLocation, getLocationTheme } from "../Conversations";
+import { getConversationLocation, getLocationTheme } from "../Conversations";
+import { useLocationContext } from "../../../providers/LocationContext";
 import EmojiPicker from "./EmojiPicker";
 
 const formatSeenTime = (seenAt?: number) => {
@@ -105,8 +106,10 @@ export default function ChatArea({
   onScheduleClick,
   onSendFormsClick,
   onSendQuoteClick,
-  displayLocations = [],
+  displayLocations: _displayLocations = [],
 }: ChatAreaProps) {
+  const { locations: contextLocations } = useLocationContext();
+
   if (!selectedConversation) {
     if (selectedConversationId) {
       return (
@@ -128,8 +131,8 @@ export default function ChatArea({
     );
   }
 
-  const convLocation = selectedConversation.patientLocation || getAssignedLocation(selectedConversation.id, displayLocations);
-  const locationTheme = getLocationTheme(convLocation, displayLocations);
+  const convLocation = getConversationLocation(selectedConversation, contextLocations);
+  const locationTheme = convLocation ? getLocationTheme(convLocation, contextLocations) : null;
 
   return (
     <div className={`flex-1 flex flex-col min-w-0 ${selectedConversationId ? "flex" : "hidden md:flex"}`}>
@@ -176,12 +179,16 @@ export default function ChatArea({
               </Chip>
               {convLocation && (
                 <span
+                  style={locationTheme?.style}
                   className={`text-[9px] sm:text-[10px] px-2 py-0.5 rounded font-medium flex items-center gap-1 border ${
-                    locationTheme ? locationTheme.bg : "bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border-sky-200"
+                    locationTheme?.bg || ""
                   }`}
                   title={convLocation}
                 >
-                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${locationTheme ? locationTheme.dot : "bg-sky-500"}`} />
+                  <span
+                    style={locationTheme?.dotStyle}
+                    className={`w-1.5 h-1.5 rounded-full shrink-0 ${locationTheme?.dot || ""}`}
+                  />
                   <span className="truncate">{convLocation}</span>
                 </span>
               )}
