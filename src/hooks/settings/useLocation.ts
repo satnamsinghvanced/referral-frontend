@@ -5,11 +5,21 @@ import { queryClient } from "../../providers/QueryProvider";
 import { createLocation, deleteLocation, fetchLocationDetails, fetchLocations, updateLocation } from "../../services/settings/location";
 import { Location, LocationsResponse } from "../../types/common";
 
+import { useSelector } from "react-redux";
+import { RootState } from "../../store";
+
 const LOCATION_KEY = ["locations"];
-export function useFetchLocations(params?: { page?: number; limit?: number }) {
+export function useFetchLocations(
+  params?: { page?: number; limit?: number },
+  options?: { enabled?: boolean }
+) {
+  const reduxToken = useSelector((state: RootState) => state.auth?.token);
+  const token = reduxToken || (typeof window !== "undefined" ? localStorage.getItem("token") : null);
+
   return useQuery<LocationsResponse<Location>>({
-    queryKey: [...LOCATION_KEY, params],
+    queryKey: [...LOCATION_KEY, params, token],
     queryFn: () => fetchLocations(params),
+    enabled: options?.enabled !== undefined ? options.enabled : !!token,
   });
 }
 

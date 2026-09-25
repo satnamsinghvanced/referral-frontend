@@ -381,7 +381,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
             })}
           </ul>
 
-          <div className="p-3 border-t border-foreground/10 mt-auto bg-background shrink-0">
+          <div className="p-1 border-t border-foreground/10 mt-auto bg-background shrink-0">
             {isMiniSidebarOpen ? (
               <button
                 onClick={() => setIsLogoutModalOpen(true)}

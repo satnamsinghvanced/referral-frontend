@@ -25,6 +25,7 @@ const STORAGE_KEY = "selected_location_id";
 
 export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const user = useSelector((state: RootState) => state.auth.user);
+  const token = useSelector((state: RootState) => state.auth.token);
   const { data: locationsData, isLoading } = useFetchLocations({ limit: 100 });
   const locations: Location[] = useMemo(() => {
     const allLocs = locationsData?.data || [];
@@ -42,6 +43,12 @@ export const LocationProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [selectedLocationId, setSelectedLocationId] = useState<string | null>(() => {
     return localStorage.getItem(STORAGE_KEY);
   });
+
+  useEffect(() => {
+    if (token) {
+      setSelectedLocationId(localStorage.getItem(STORAGE_KEY));
+    }
+  }, [token]);
 
   const selectedLocation = useMemo<any>(() => {
     if (!locations || locations.length === 0) return null;
