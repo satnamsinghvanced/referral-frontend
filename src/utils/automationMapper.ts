@@ -1,4 +1,4 @@
-import { IStep, FlowStep, UIStepType, APIStepType } from "../types/campaign";
+import { FlowStep, UIStepType, APIStepType } from "../types/campaign";
 
 const typeMapUItoAPI: Record<string, APIStepType> = {
   trigger: "send-email",
@@ -26,7 +26,7 @@ export const mapUIFlowToAPI = (
   const triggerConfig = rootTrigger?.config || {};
   const mapSteps = (uiSteps: FlowStep[]): any[] => {
     return uiSteps.map((step) => {
-      const { templateName, ...cleanConfig } = step.config || {};
+      const { templateName: _templateName, ...cleanConfig } = step.config || {};
       const apiStep: any = {
         type: typeMapUItoAPI[step.type] || "send-email",
         config: cleanConfig,
@@ -65,7 +65,7 @@ export const mapAPIFlowToUI = (automation: any): FlowStep[] => {
       },
     }));
   };
-  let triggerDesc = automation.trigger?.type || "Select Trigger";
+  const triggerDesc = automation.trigger?.type || "Select Trigger";
   const triggerStep: FlowStep = {
     id: "trigger-step",
     type: "trigger",

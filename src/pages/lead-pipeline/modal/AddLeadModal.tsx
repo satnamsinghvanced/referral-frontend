@@ -80,9 +80,13 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
     validationSchema,
     onSubmit: async (values, { resetForm }) => {
       try {
+        const locObj = locations?.find(
+          (l: any) => l._id === values.location || l.name?.toLowerCase() === values.location?.toLowerCase()
+        );
+        const locId = locObj?._id || (values.location && /^[0-9a-fA-F]{24}$/.test(values.location) ? values.location : null);
         const payload = {
           ...values,
-          location: values.location,
+          locationId: locId,
           estimatedValue: Number(values.estimatedValue) || 0,
           assignedTo:
             values.assignedTo === "Unassigned" ||
@@ -99,7 +103,7 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
         setSelectedTreatments(new Set());
         setTags([]);
       } catch (error: any) {
-
+        console.error("Failed to add lead:", error);
       }
     },
   });

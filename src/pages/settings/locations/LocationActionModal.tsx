@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import {
   Button,
   Input,
@@ -8,6 +8,7 @@ import {
   ModalFooter,
   ModalHeader,
   Switch,
+  Tooltip,
 } from "@heroui/react";
 import { useFormik } from "formik";
 import { FiPlus } from "react-icons/fi";
@@ -16,9 +17,11 @@ import { PHONE_REGEX, ZIP_CODE_REGEX } from "../../../consts/consts";
 import {
   useCreateLocation,
   useFetchLocationDetails,
+  useFetchLocations,
   useUpdateLocation,
 } from "../../../hooks/settings/useLocation";
 import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
+import { LOCATION_COLORS } from "../../../providers/LocationContext";
 
 interface LocationFormValues {
   name: string;
@@ -27,6 +30,7 @@ interface LocationFormValues {
   state: string;
   zipcode: string;
   phone: string;
+  color: string;
   isPrimary: boolean;
 }
 
@@ -41,6 +45,7 @@ const LocationSchema = Yup.object().shape({
   phone: Yup.string()
     .required("Phone is required")
     .matches(PHONE_REGEX, "Phone must be in format (XXX) XXX-XXXX"),
+  color: Yup.string().optional(),
   isPrimary: Yup.boolean(),
 });
 
@@ -87,9 +92,35 @@ const LocationActionModal = ({
   locationsCount,
 }: LocationActionModalProps) => {
   const { data: location } = useFetchLocationDetails(editLocationId);
+  const { data: allLocationsData } = useFetchLocations({ limit: 100 });
   const { mutate: createLocation, isPending: isCreating } = useCreateLocation();
   const { mutate: updateLocation, isPending: isUpdating } = useUpdateLocation();
   const isSaving = isCreating || isUpdating;
+
+  const otherLocations = useMemo(() => {
+    return (allLocationsData?.data || []).filter(
+      (loc: any) => loc._id !== editLocationId
+    );
+  }, [allLocationsData, editLocationId]);
+
+  const usedColorsMap = useMemo(() => {
+    const map = new Map<string, string>();
+    otherLocations.forEach((loc: any) => {
+      if (loc.color) {
+        map.set(loc.color.toLowerCase(), loc.name || "Another practice");
+      }
+    });
+    return map;
+  }, [otherLocations]);
+
+  const defaultUnusedColor = useMemo(() => {
+    const available = LOCATION_COLORS.find(
+      (c) => !usedColorsMap.has(c.toLowerCase())
+    );
+    return available || LOCATION_COLORS[locationsCount % LOCATION_COLORS.length] || "#0ea5e9";
+  }, [usedColorsMap, locationsCount]);
+
+  const isOnlyLocation = !editLocationId ? locationsCount === 0 : locationsCount <= 1;
 
   const formik = useFormik<LocationFormValues>({
     initialValues: {
@@ -98,8 +129,11 @@ const LocationActionModal = ({
       city: location?.address?.city || "",
       state: location?.address?.state || "",
       zipcode: location?.address?.zipcode || "",
-      phone: location?.phone || "",
-      isPrimary: location?.isPrimary || locationsCount === 0 ? true : false,
+      phone: formatPhoneNumber(location?.phone || ""),
+      color: location?.color || defaultUnusedColor,
+      isPrimary: editLocationId
+        ? (location?.isPrimary ?? (isOnlyLocation ? true : false))
+        : locationsCount === 0 ? true : false,
     },
     enableReinitialize: !!location || !editLocationId,
     validationSchema: LocationSchema,
@@ -114,7 +148,8 @@ const LocationActionModal = ({
         },
         name: values.name,
         phone: values.phone,
-        isPrimary: values.isPrimary,
+        color: values.color || "#0ea5e9",
+        isPrimary: isOnlyLocation ? true : values.isPrimary,
       };
 
       if (editLocationId) {
@@ -138,11 +173,17 @@ const LocationActionModal = ({
     },
   });
 
+  const selectedColor = formik.values.color?.toLowerCase()?.trim();
+  const colorTakenBy = selectedColor ? usedColorsMap.get(selectedColor) : undefined;
+  const isColorDuplicate = Boolean(colorTakenBy);
+
+  const { resetForm } = formik;
+
   useEffect(() => {
     if (!isOpen) {
-      formik.resetForm();
+      resetForm();
     }
-  }, [isOpen]);
+  }, [isOpen, resetForm]);
 
   const handleClose = () => {
     onClose();
@@ -224,17 +265,113 @@ const LocationActionModal = ({
               </React.Fragment>
             ))}
 
-            <Switch
-              size="sm"
-              id="isPrimary"
-              name="isPrimary"
-              isSelected={formik.values.isPrimary}
-              onValueChange={(val: boolean) =>
-                formik.setFieldValue("isPrimary", val)
-              }
-            >
-              Primary Location
-            </Switch>
+            {/* Primary Color Picker */}
+            <div className="flex flex-col gap-2">
+              <label className="text-xs font-medium text-foreground">
+                Primary Color
+              </label>
+              <div className="flex items-center gap-3 flex-wrap">
+                {/* Custom Color Selector (First) */}
+                <div className="flex items-center gap-2">
+                  <label
+                    className="w-8 h-8 rounded-lg cursor-pointer overflow-hidden relative shadow-xs transition-transform hover:scale-105 border border-foreground/10 shrink-0"
+                    title="Pick custom color"
+                  >
+                    <input
+                      type="color"
+                      value={formik.values.color?.startsWith("#") ? formik.values.color : "#0ea5e9"}
+                      onChange={(e) => formik.setFieldValue("color", e.target.value)}
+                      className="opacity-0 absolute inset-0 w-full h-full cursor-pointer z-10"
+                    />
+                    <div
+                      className="w-full h-full rounded-lg"
+                      style={{ backgroundColor: formik.values.color || "#0ea5e9" }}
+                    />
+                  </label>
+
+                  <div className="flex items-center h-8 px-2.5 rounded-lg bg-zinc-800 text-zinc-100 border border-zinc-700/60 shadow-xs">
+                    <input
+                      type="text"
+                      maxLength={7}
+                      value={formik.values.color || ""}
+                      placeholder="#0ea5e9"
+                      onChange={(e) => {
+                        let val = e.target.value.trim();
+                        if (val && !val.startsWith("#")) {
+                          val = `#${val}`;
+                        }
+                        formik.setFieldValue("color", val);
+                      }}
+                      className="bg-transparent text-zinc-100 outline-none w-20 font-mono text-xs font-medium placeholder:text-zinc-500"
+                    />
+                  </div>
+                </div>
+
+                {/* Preset Color Swatches */}
+                <div className="flex items-center gap-2">
+                  {LOCATION_COLORS.map((c) => {
+                    const isPicked =
+                      formik.values.color?.toLowerCase() === c.toLowerCase();
+                    const isUsedByOther = usedColorsMap.has(c.toLowerCase());
+                    const usedByLocName = usedColorsMap.get(c.toLowerCase());
+
+                    return (
+                      <Tooltip
+                        key={c}
+                        content={isUsedByOther ? `Already used by "${usedByLocName}"` : c}
+                        isDisabled={!isUsedByOther}
+                      >
+                        <button
+                          key={c}
+                          type="button"
+                          onClick={() => formik.setFieldValue("color", c)}
+                          className={`w-8 h-8 rounded-lg transition-all cursor-pointer shadow-xs shrink-0 relative ${
+                            isPicked
+                              ? "ring-2 ring-white scale-105 shadow-md"
+                              : isUsedByOther
+                              ? "opacity-40 hover:opacity-70"
+                              : "hover:opacity-90 hover:scale-105 opacity-95"
+                          }`}
+                          style={{ backgroundColor: c }}
+                          title={isUsedByOther ? `Used by ${usedByLocName}` : c}
+                        />
+                      </Tooltip>
+                    );
+                  })}
+                </div>
+              </div>
+              {isColorDuplicate && (
+                <p className="text-xs text-danger font-normal">
+                  This color is already in use by &quot;{colorTakenBy}&quot;. Each practice location must have a unique color.
+                </p>
+              )}
+            </div>
+
+            {/* Primary Location Switch */}
+            <div className="flex flex-col gap-1">
+              <Switch
+                size="sm"
+                id="isPrimary"
+                name="isPrimary"
+                isDisabled={isOnlyLocation}
+                isSelected={isOnlyLocation ? true : formik.values.isPrimary}
+                onValueChange={(val: boolean) =>
+                  formik.setFieldValue("isPrimary", isOnlyLocation ? true : val)
+                }
+              >
+                Primary Location
+              </Switch>
+              {isOnlyLocation ? (
+                <p className="text-[11px] text-gray-500 dark:text-gray-400">
+                  This is the only location and is automatically set as primary.
+                </p>
+              ) : formik.values.isPrimary ? (
+                <p className="text-[11px] text-primary dark:text-primary-400">
+                  Setting this as primary will automatically switch primary status from the existing primary location.
+                </p>
+              ) : null}
+            </div>
+
             <p className="text-xs text-gray-500 dark:text-gray-400 italic">
               Note: Please ensure the address is accurate as it will be verified
               with Google Maps.
@@ -261,7 +398,7 @@ const LocationActionModal = ({
             radius="sm"
             isLoading={isSaving}
             startContent={!isSaving && <FiPlus className="size-[15px]" />}
-            isDisabled={!formik.isValid || !formik.dirty || isSaving}
+            isDisabled={!formik.isValid || !formik.dirty || isSaving || isColorDuplicate}
           >
             Save
           </Button>

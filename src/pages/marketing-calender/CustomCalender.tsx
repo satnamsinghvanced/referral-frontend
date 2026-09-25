@@ -1,9 +1,9 @@
 import React, { useState, useMemo, useEffect, useRef } from "react";
-import { FiChevronLeft, FiChevronRight, FiX, FiClock, FiMaximize2, FiMinimize2, FiEdit3, FiTrash2, FiCheck } from "react-icons/fi";
+import { FiChevronLeft, FiChevronRight, FiX, FiClock, FiMaximize2, FiEdit3, FiTrash2, FiCheck } from "react-icons/fi";
 import clsx from "clsx";
 import { Button, Select, SelectItem } from "@heroui/react";
 import { ACTIVITY_TYPES } from "../../consts/marketing";
-import { LOCATION_THEMES } from "../conversations/Conversations";
+import { useLocationContext } from "../../providers/LocationContext";
 
 interface CalendarProps {
   weekendDisabled?: boolean;
@@ -147,6 +147,7 @@ const CustomCalendar: React.FC<CalendarProps> = ({
   displayLocations = [],
   onToggleLocation,
 }) => {
+  const { getLocationColor } = useLocationContext();
   const today = new Date();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<ViewMode>("month");
@@ -277,6 +278,7 @@ const CustomCalendar: React.FC<CalendarProps> = ({
 
     window.addEventListener("mouseup", handleGlobalMouseUp);
     return () => window.removeEventListener("mouseup", handleGlobalMouseUp);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     isDragging,
     dragStart,
@@ -865,7 +867,6 @@ const CustomCalendar: React.FC<CalendarProps> = ({
 
   const renderWeekView = () => {
     const now = new Date();
-    const isNowInWeek = weekDays.some((d) => isDateToday(d));
     const currentHourFloat = now.getHours() + now.getMinutes() / 60;
     const redLineTop = (currentHourFloat - 1) * 48;
 
@@ -1491,25 +1492,39 @@ const CustomCalendar: React.FC<CalendarProps> = ({
           SHOW:
         </span>
         <div className="flex items-center gap-2 flex-wrap">
-          {displayLocations.map((locName, index) => {
+          {displayLocations.map((locName) => {
             const isSelected = selectedLocations.includes(locName);
-            const theme = LOCATION_THEMES[index % LOCATION_THEMES.length];
+            const locColor = getLocationColor(locName);
 
             return (
               <button
                 key={locName}
                 type="button"
-                onClick={() => onToggleLocation(locName)}
+                onClick={() => onToggleLocation?.(locName)}
+                style={
+                  isSelected
+                    ? {
+                        backgroundColor: `${locColor}18`,
+                        borderColor: `${locColor}50`,
+                        color: locColor,
+                      }
+                    : undefined
+                }
                 className={`px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2 border transition-all cursor-pointer shadow-2xs select-none ${
                   isSelected
-                    ? `${theme?.bg || ""} shadow-xs`
+                    ? "shadow-xs"
                     : "bg-gray-100/70 dark:bg-content2 border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500 opacity-60 hover:opacity-100"
                 }`}
               >
                 <span
+                  style={
+                    isSelected
+                      ? { backgroundColor: locColor, borderColor: locColor }
+                      : undefined
+                  }
                   className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] shrink-0 transition-colors ${
                     isSelected
-                      ? theme?.badge || "bg-primary text-white"
+                      ? "text-white"
                       : "border border-gray-300 dark:border-gray-600 bg-white dark:bg-content1 text-transparent"
                   }`}
                 >

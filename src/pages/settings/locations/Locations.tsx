@@ -12,8 +12,10 @@ import LocationActionModal from "./LocationActionModal";
 import { LoadingState } from "../../../components/common/LoadingState";
 import Pagination from "../../../components/common/Pagination";
 import { usePaginationAdjustment } from "../../../hooks/common/usePaginationAdjustment";
+import { useLocationContext, LOCATION_COLORS } from "../../../providers/LocationContext";
 
 const Locations: React.FC = () => {
+  const { getLocationColor } = useLocationContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [editLocationId, setEditLocationId] = useState<string>("");
@@ -25,7 +27,7 @@ const Locations: React.FC = () => {
   const totalPages = locationsData?.totalPages || 1;
   const totalLocations = locationsData?.totalData || locations?.length || 0;
   
-  const { getLimit, planName } = usePlanGuard();
+  const { getLimit } = usePlanGuard();
   const maxLocations = getLimit("locations");
   const isLocationsLimitReached = maxLocations !== -1 && totalLocations >= maxLocations;
 
@@ -139,27 +141,35 @@ const Locations: React.FC = () => {
           )}
           {!locationsIsLoading && locations && locations?.length > 0 && (
             <div className="space-y-3">
-              {locations?.map((loc: Location) => (
-                <div
-                  key={loc._id}
-                  className="p-3 border border-foreground/10 rounded-lg flex items-start justify-between"
-                >
-                  <div>
-                    <div className="flex items-center gap-2 mb-2 max-sm:flex-col-reverse max-sm:items-start">
-                      <h4 className="font-medium text-sm">{loc.name}</h4>
-                      {loc.isPrimary && (
-                        <span className="inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[11px] font-medium w-fit whitespace-nowrap shrink-0 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300">
-                          Primary
-                        </span>
-                      )}
+              {locations?.map((loc: Location, index: number) => {
+                const locColor = loc.color || (loc._id ? getLocationColor(loc._id) : LOCATION_COLORS[index % LOCATION_COLORS.length]);
+                return (
+                  <div
+                    key={loc._id}
+                    className="p-3 border border-foreground/10 rounded-lg flex items-start justify-between"
+                  >
+                    <div>
+                      <div className="flex items-center gap-2 mb-2 max-sm:flex-col-reverse max-sm:items-start">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className="w-3 h-3 rounded-full shrink-0 shadow-xs"
+                            style={{ backgroundColor: locColor }}
+                          />
+                          <h4 className="font-medium text-sm">{loc.name}</h4>
+                        </div>
+                        {loc.isPrimary && (
+                          <span className="inline-flex items-center justify-center rounded-md px-2 py-0.5 text-[11px] font-medium w-fit whitespace-nowrap shrink-0 bg-blue-100 dark:bg-blue-900/20 text-blue-800 dark:text-blue-300">
+                            Primary
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
+                        {`${loc.address.street}, ${loc.address.city}, ${loc.address.state}, ${loc.address.zipcode}`}
+                      </p>
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        {loc.phone}
+                      </p>
                     </div>
-                    <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                      {`${loc.address.street}, ${loc.address.city}, ${loc.address.state}, ${loc.address.zipcode}`}
-                    </p>
-                    <p className="text-xs text-gray-600 dark:text-gray-400">
-                      {loc.phone}
-                    </p>
-                  </div>
 
                   <div className="flex items-center gap-2">
                     <Button
@@ -182,7 +192,8 @@ const Locations: React.FC = () => {
                     </Button>
                   </div>
                 </div>
-              ))}
+              );
+            })}
             </div>
           )}
 

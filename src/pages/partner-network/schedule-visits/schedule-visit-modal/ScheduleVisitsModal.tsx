@@ -70,7 +70,7 @@ export function ScheduleVisitsModal({
   const isEditing = !!editedData?._id;
 
   const [activeStep, setActiveStep] = useState<string>("select_referrers");
-  const [clearedSteps, setClearedSteps] = useState<Set<string>>(new Set());
+  const [_clearedSteps, setClearedSteps] = useState<Set<string>>(new Set());
   const [filters, setFilters] = useState<FilterState>({
     search: "",
     category: "",
@@ -123,6 +123,7 @@ export function ScheduleVisitsModal({
       setPlanState(initialPlanState);
       setRouteOptimizationResults(null);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editedData]);
 
   const createPlanMutation = useCreateSchedulePlan();
@@ -179,7 +180,7 @@ export function ScheduleVisitsModal({
 
   const validateStep = useCallback(
     (step: string): boolean => {
-      let errors: any = {};
+      const errors: any = {};
       let fieldsToValidate: (
         | keyof typeof initialPlanState
         | "selectedReferrers"
@@ -279,7 +280,7 @@ export function ScheduleVisitsModal({
     }
   };
 
-  const handleSubmit = (action: string) => {
+  const handleSubmit = (_action: string) => {
     if (!validateStep("select_referrers") || !validateStep("route_planning")) {
       return;
     }
@@ -370,9 +371,6 @@ export function ScheduleVisitsModal({
   const isSubmitting =
     createPlanMutation.isPending || updatePlanMutation.isPending;
   const currentTabIndex = tabs.findIndex((t) => t.key === activeStep);
-  const mutationSuccess = isEditing
-    ? updatePlanMutation.isSuccess
-    : createPlanMutation.isSuccess;
   const submitButtonText = isEditing ? "Update Plan" : "Save & Schedule Visit";
   const draftButtonText = isEditing ? "Save Draft" : "Save as Draft";
 

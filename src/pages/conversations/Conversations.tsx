@@ -1,5 +1,6 @@
 import { useState, useMemo, useRef, useEffect } from "react";
 import { Card, CardBody, addToast } from "@heroui/react";
+import { useQueryClient } from "@tanstack/react-query";
 import { LuMessageSquare } from "react-icons/lu";
 import { HiOutlineMail, HiOutlineClock, HiOutlineTrendingUp } from "react-icons/hi";
 import { FiCheck } from "react-icons/fi";
@@ -19,8 +20,7 @@ import { getFacebookConversations, sendFacebookMessage, markFacebookSeen } from 
 import { getWebConversations, sendWebMessage, markWebConversationRead } from "../../services/chatWidget";
 import { uploadChatAttachment } from "../../services/conversationAttachment";
 import { useSocialCredentials } from "../../hooks/useSocial";
-import { useLocationContext } from "../../providers/LocationContext";
-import { useQueryClient } from "@tanstack/react-query";
+import { useLocationContext, LOCATION_COLORS } from "../../providers/LocationContext";
 import {
   subscribeToNewMessage,
   unsubscribeFromNewMessage,
@@ -28,70 +28,103 @@ import {
   unsubscribeFromNewWebMessage,
   subscribeToEvent,
   unsubscribeFromEvent,
-  type NewMessagePayload,
-  type NewWebMessagePayload,
+  NewMessagePayload,
+  NewWebMessagePayload,
 } from "../../services/sse";
 
-export const LOCATION_THEMES = [
-  {
-    key: "sky",
-    bg: "bg-sky-50 dark:bg-sky-950/40 border-sky-300 dark:border-sky-700 text-sky-700 dark:text-sky-300",
-    badge: "bg-sky-500 text-white border-sky-500",
-    dot: "bg-sky-500",
-  },
-  {
-    key: "orange",
-    bg: "bg-orange-50 dark:bg-orange-950/40 border-orange-300 dark:border-orange-700 text-orange-700 dark:text-orange-300",
-    badge: "bg-orange-500 text-white border-orange-500",
-    dot: "bg-orange-500",
-  },
-  {
-    key: "purple",
-    bg: "bg-purple-50 dark:bg-purple-950/40 border-purple-300 dark:border-purple-700 text-purple-700 dark:text-purple-300",
-    badge: "bg-purple-500 text-white border-purple-500",
-    dot: "bg-purple-500",
-  },
-  {
-    key: "emerald",
-    bg: "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-300 dark:border-emerald-700 text-emerald-700 dark:text-emerald-300",
-    badge: "bg-emerald-500 text-white border-emerald-500",
-    dot: "bg-emerald-500",
-  },
-  {
-    key: "pink",
-    bg: "bg-pink-50 dark:bg-pink-950/40 border-pink-300 dark:border-pink-700 text-pink-700 dark:text-pink-300",
-    badge: "bg-pink-500 text-white border-pink-500",
-    dot: "bg-pink-500",
-  },
-  {
-    key: "amber",
-    bg: "bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-700 text-amber-700 dark:text-amber-300",
-    badge: "bg-amber-500 text-white border-amber-500",
-    dot: "bg-amber-500",
-  },
-];
-
-export const getAssignedLocation = (convId: string, locations: string[] = []): string => {
-  if (!locations || locations.length === 0) return "";
-  let num = 0;
-  for (let i = 0; i < convId.length; i++) {
-    num += convId.charCodeAt(i);
+export const getConversationLocation = (
+  conv?: Partial<Conversation> | null,
+  locationsList: Array<{ _id?: string; name?: string }> = []
+): string => {
+  if (!conv) return "";
+  const target = (conv.locationId || conv.patientLocation || "").toString().trim();
+  if (!target) return "";
+  const matched = locationsList.find(
+    (l) => l._id === target || l.name?.toLowerCase() === target.toLowerCase()
+  );
+  if (matched?.name) return matched.name;
+  if (!/^[0-9a-fA-F]{24}$/.test(target)) {
+    return target;
   }
-  const loc = locations[num % locations.length];
-  return loc || locations[0] || "";
+  return "";
 };
 
-export const getLocationTheme = (locationName: string, locations: string[] = []) => {
-  const fallbackTheme = LOCATION_THEMES[0] || {
-    key: "sky",
-    bg: "bg-sky-50 dark:bg-sky-950/40 border-sky-300 dark:border-sky-700 text-sky-700 dark:text-sky-300",
-    badge: "bg-sky-500 text-white border-sky-500",
-    dot: "bg-sky-500",
+export const getAssignedLocation = (convIdOrConv: any, locations: any[] = []): string => {
+  if (typeof convIdOrConv === "object" && convIdOrConv !== null) {
+    return getConversationLocation(convIdOrConv, locations);
+  }
+  return "";
+};
+
+export interface LocationThemeInfo {
+  key?: string;
+  bg?: string;
+  badge?: string;
+  dot?: string;
+  color: string;
+  style?: React.CSSProperties;
+  dotStyle?: React.CSSProperties;
+  badgeStyle?: React.CSSProperties;
+}
+
+export const getLocationTheme = (
+  locationNameOrId: string,
+  locationsList: any[] = []
+): LocationThemeInfo => {
+  if (!locationNameOrId) {
+    const fallbackColor = LOCATION_COLORS[0] || "#3b82f6";
+    return {
+      color: fallbackColor,
+      style: {
+        backgroundColor: `${fallbackColor}18`,
+        borderColor: `${fallbackColor}45`,
+        color: fallbackColor,
+      },
+      dotStyle: { backgroundColor: fallbackColor },
+      badgeStyle: { backgroundColor: fallbackColor, borderColor: fallbackColor, color: "#ffffff" },
+      bg: "",
+      dot: "",
+      badge: "",
+    };
+  }
+
+  let matchedLoc: any;
+  let locIndex = -1;
+
+  if (Array.isArray(locationsList) && locationsList.length > 0) {
+    if (typeof locationsList[0] === "object" && locationsList[0] !== null) {
+      locIndex = locationsList.findIndex(
+        (l: any) =>
+          l._id === locationNameOrId ||
+          l.name?.toLowerCase() === locationNameOrId.toLowerCase()
+      );
+      if (locIndex >= 0) matchedLoc = locationsList[locIndex];
+    } else {
+      locIndex = (locationsList as string[]).findIndex(
+        (n: string) => n?.toLowerCase() === locationNameOrId.toLowerCase()
+      );
+    }
+  }
+
+  const color =
+    matchedLoc?.color ||
+    LOCATION_COLORS[locIndex >= 0 ? locIndex % LOCATION_COLORS.length : 0] ||
+    LOCATION_COLORS[0] ||
+    "#3b82f6";
+
+  return {
+    color,
+    style: {
+      backgroundColor: `${color}18`,
+      borderColor: `${color}45`,
+      color: color,
+    },
+    dotStyle: { backgroundColor: color },
+    badgeStyle: { backgroundColor: color, borderColor: color, color: "#ffffff" },
+    bg: "",
+    dot: "",
+    badge: "",
   };
-  if (!locations || locations.length === 0) return fallbackTheme;
-  const index = locations.indexOf(locationName);
-  const themeIdx = index >= 0 ? index % LOCATION_THEMES.length : 0;
-  return LOCATION_THEMES[themeIdx] || fallbackTheme;
 };
 
 const Conversations = () => {
@@ -121,7 +154,7 @@ const Conversations = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
-  const { locations: contextLocations } = useLocationContext();
+  const { locations: contextLocations, getLocationColor } = useLocationContext();
 
   const displayLocations = useMemo(() => {
     if (contextLocations && Array.isArray(contextLocations) && contextLocations.length > 0) {
@@ -132,15 +165,8 @@ const Conversations = () => {
 
   const availableLocations = useMemo(() => {
     if (!displayLocations || displayLocations.length === 0) return [];
-    const withData = displayLocations.filter((locName) => {
-      const hasData = conversations.some((c) => {
-        const cLoc = c.patientLocation || getAssignedLocation(c.id, displayLocations);
-        return cLoc === locName;
-      });
-      return hasData || isMetaConnected;
-    });
-    return withData.length > 0 ? withData : displayLocations;
-  }, [displayLocations, conversations, isMetaConnected]);
+    return displayLocations;
+  }, [displayLocations]);
 
   const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
 
@@ -156,10 +182,10 @@ const Conversations = () => {
 
   const locationFilteredConversations = useMemo(() => {
     return conversations.filter((conv) => {
-      const convLocation = conv.patientLocation || getAssignedLocation(conv.id, displayLocations);
-      return selectedLocations.includes(convLocation);
+      const convLoc = getConversationLocation(conv, contextLocations);
+      return !convLoc || selectedLocations.includes(convLoc);
     });
-  }, [conversations, selectedLocations, displayLocations]);
+  }, [conversations, selectedLocations, contextLocations]);
 
   const toggleLocation = (locName: string) => {
     if (selectedLocations.includes(locName)) {
@@ -478,7 +504,7 @@ const Conversations = () => {
       unsubscribeFromEvent("message_read_watermark", handleMessageReadWatermark);
       unsubscribeFromEvent("messages_read_by_patient", handleMessagesReadByPatient);
     };
-  }, []);
+  }, [queryClient]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -556,8 +582,8 @@ const Conversations = () => {
         } else {
           matchesFilter = conv.status !== "archived";
         }
-        const convLocation = conv.patientLocation || getAssignedLocation(conv.id, displayLocations);
-        const matchesLocation = selectedLocations.includes(convLocation);
+        const convLoc = getConversationLocation(conv, contextLocations);
+        const matchesLocation = !convLoc || selectedLocations.includes(convLoc);
         return matchesSearch && matchesPlatform && matchesFilter && matchesLocation;
       })
       .sort((a, b) => {
@@ -570,7 +596,7 @@ const Conversations = () => {
         };
         return getTimestamp(b) - getTimestamp(a);
       });
-  }, [search, selectedPlatform, filterDropdown, conversations, selectedLocations, displayLocations]);
+  }, [search, selectedPlatform, filterDropdown, conversations, selectedLocations, contextLocations]);
 
   const selectedConversation = useMemo(() => {
     if (!selectedConversationId) return null;
@@ -612,7 +638,7 @@ const Conversations = () => {
       };
       markAsSeenOnPlatform();
     }
-  }, [selectedConversation?.id, selectedConversation?.messages?.length, queryClient]);
+  }, [selectedConversation, queryClient]);
 
   const stats = useMemo<StatCard[]>(() => {
     const activeCount = locationFilteredConversations.filter((c) => c.status === "active").length;
@@ -823,7 +849,6 @@ const Conversations = () => {
         );
       } catch (err: any) {
         console.error("Failed to send message:", err);
-        const platformLabel = isInstagram ? "Instagram" : isFacebook ? "Facebook" : "Web widget";
         addToast({
           title: "Error Sending Message",
           description: `This message is being sent outside the allowed window.`,
@@ -944,25 +969,38 @@ const Conversations = () => {
               </span>
               <div className="flex items-center gap-2 flex-wrap">
                 {availableLocations.map((locName) => {
-                  const index = displayLocations.indexOf(locName);
                   const isSelected = selectedLocations.includes(locName);
-                  const theme = LOCATION_THEMES[index >= 0 ? index % LOCATION_THEMES.length : 0];
+                  const locColor = getLocationColor(locName);
 
                   return (
                     <button
                       key={locName}
                       type="button"
                       onClick={() => toggleLocation(locName)}
+                      style={
+                        isSelected
+                          ? {
+                              backgroundColor: `${locColor}18`,
+                              borderColor: `${locColor}50`,
+                              color: locColor,
+                            }
+                          : undefined
+                      }
                       className={`px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2 border transition-all cursor-pointer shadow-2xs select-none ${
                         isSelected
-                          ? `${theme?.bg || ""} shadow-xs`
+                          ? "shadow-xs"
                           : "bg-gray-100/70 dark:bg-content2 border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500 opacity-60 hover:opacity-100"
                       }`}
                     >
                       <span
+                        style={
+                          isSelected
+                            ? { backgroundColor: locColor, borderColor: locColor }
+                            : undefined
+                        }
                         className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] shrink-0 transition-colors ${
                           isSelected
-                            ? theme?.badge || "bg-primary text-white"
+                            ? "text-white"
                             : "border border-gray-300 dark:border-gray-600 bg-white dark:bg-content1 text-transparent"
                         }`}
                       >
@@ -1049,6 +1087,11 @@ const Conversations = () => {
           setIsSendFormsModalOpen(true);
         }}
         onLeadSaved={(updatedLead) => {
+          const rawLoc = updatedLead.locationId || updatedLead.location || "";
+          const foundLoc = contextLocations?.find(
+            (l) => l._id === rawLoc || l.name.toLowerCase() === rawLoc.toLowerCase()
+          );
+          const locName = foundLoc ? foundLoc.name : (typeof rawLoc === "string" ? rawLoc : "");
           setConversations((prev) =>
             prev.map((c) => {
               if (c.id === updatedLead.socialConversationId) {
@@ -1059,7 +1102,8 @@ const Conversations = () => {
                   patientName: `${updatedLead.firstName} ${updatedLead.lastName}`,
                   patientEmail: updatedLead.email,
                   patientPhone: updatedLead.phone,
-                  patientLocation: updatedLead.location,
+                  patientLocation: locName,
+                  locationId: updatedLead.locationId || (foundLoc ? foundLoc._id : undefined),
                 };
               }
               return c;
@@ -1074,7 +1118,8 @@ const Conversations = () => {
                 patientName: `${updatedLead.firstName} ${updatedLead.lastName}`,
                 patientEmail: updatedLead.email,
                 patientPhone: updatedLead.phone,
-                patientLocation: updatedLead.location,
+                patientLocation: locName,
+                locationId: updatedLead.locationId || (foundLoc ? foundLoc._id : undefined),
               };
             }
             return prev;

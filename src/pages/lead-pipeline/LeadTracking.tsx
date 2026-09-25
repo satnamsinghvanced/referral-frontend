@@ -48,7 +48,7 @@ import {
 import { useDebounce } from "../../hooks/useDebounce";
 import { useQueryClient } from "@tanstack/react-query";
 import { useLocation } from "react-router-dom";
-import { useLeadStats, useLeadStatus, useUpdateLead, useReorderLeads, useDeleteLead, useExportLeadsPDF } from "../../hooks/useLeadPipeline";
+import { useLeadStats, useLeadStatus, useReorderLeads, useDeleteLead, useExportLeadsPDF } from "../../hooks/useLeadPipeline";
 import { useBilling } from "../../hooks/settings/useBilling";
 import ReferralStatusChip from "../../components/chips/ReferralStatusChip";
 import EmptyState from "../../components/common/EmptyState";
@@ -116,7 +116,6 @@ const LeadTracking = () => {
     isError,
   } = useLeadStatus({ ...filters, search: debouncedSearch });
 
-  const { mutateAsync: updateLeadMutate } = useUpdateLead();
   const { mutateAsync: reorderLeadsMutate } = useReorderLeads();
   const { mutateAsync: deleteLeadMutate } = useDeleteLead();
   const { mutate: exportLeadsPDF, isPending: isExporting } = useExportLeadsPDF();
@@ -216,7 +215,7 @@ const LeadTracking = () => {
         sourceStatus,
         sourceIds,
       });
-    } catch (err) {
+    } catch {
       setLocalGroupedLeads(previousGroupedLeads);
       queryClient.setQueryData(queryKey, (oldData: any) => {
         if (!oldData) return oldData;
@@ -702,7 +701,7 @@ const LeadTracking = () => {
                         </td>
                         <td className="py-4 px-6">
                           {(() => {
-                            const locProp = lead.locationId || lead.location || lead.practiceLocation;
+                            const locProp = lead.locationId || lead.location;
                             let found = locations?.find((l: any) => l._id === locProp || l._id === locProp?._id);
                             if (!found && locProp) {
                               const searchStr = typeof locProp === "string" ? locProp.toLowerCase() : locProp?.name?.toLowerCase();

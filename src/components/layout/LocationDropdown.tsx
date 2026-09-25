@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Popover, PopoverContent, PopoverTrigger, Tooltip } from "@heroui/react";
+import { Popover, PopoverContent, PopoverTrigger } from "@heroui/react";
 import { FiCheck, FiChevronDown } from "react-icons/fi";
 import { useLocationContext } from "../../providers/LocationContext";
 import { Location } from "../../types/common";
@@ -42,7 +42,11 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({ isMiniSidebarOpen }
       <div className="px-3 py-2 border-b border-foreground/10">
         <div
           className={`w-full flex items-center ${isMiniSidebarOpen ? "justify-between p-2.5" : "justify-center py-2.5"
-            } rounded-xl border border-sky-200 dark:border-sky-900/50 bg-sky-50/60 dark:bg-sky-950/30 text-left shadow-xs`}
+            } rounded-xl border text-left shadow-xs transition-colors`}
+          style={{
+            backgroundColor: `${selectedColor}18`,
+            borderColor: `${selectedColor}40`,
+          }}
         >
           {isMiniSidebarOpen ? (
             <div className="flex items-start gap-2.5 min-w-0 pr-1">
@@ -87,7 +91,11 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({ isMiniSidebarOpen }
             type="button"
             title={!isMiniSidebarOpen ? selectedLocation?.name || "Select Location" : undefined}
             className={`w-full flex items-center ${isMiniSidebarOpen ? "justify-between p-2.5" : "justify-center py-2.5"
-              } rounded-xl border border-sky-200 dark:border-sky-900/50 bg-sky-50/60 dark:bg-sky-950/30 hover:bg-sky-100/70 dark:hover:bg-sky-900/40 transition-all cursor-pointer text-left group shadow-xs`}
+              } rounded-xl border transition-all cursor-pointer text-left group shadow-xs`}
+            style={{
+              backgroundColor: `${selectedColor}18`,
+              borderColor: `${selectedColor}45`,
+            }}
           >
             {isMiniSidebarOpen ? (
               <>
@@ -142,9 +150,17 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({ isMiniSidebarOpen }
                       setIsOpen(false);
                     }}
                     className={`w-full flex items-start justify-between p-2.5 rounded-xl transition-all cursor-pointer text-left ${isSelected
-                      ? "bg-sky-50 dark:bg-sky-950/40 text-sky-900 dark:text-sky-200 font-medium"
+                      ? "font-medium"
                       : "hover:bg-foreground/5 text-foreground"
                       }`}
+                    style={
+                      isSelected
+                        ? {
+                            backgroundColor: `${locColor}18`,
+                            color: locColor,
+                          }
+                        : undefined
+                    }
                   >
                     <div className="flex items-start gap-2.5 min-w-0 pr-2">
                       <span
@@ -163,7 +179,10 @@ const LocationDropdown: React.FC<LocationDropdownProps> = ({ isMiniSidebarOpen }
                       </div>
                     </div>
                     {isSelected && (
-                      <FiCheck className="size-4 text-sky-600 dark:text-sky-400 shrink-0 mt-0.5" />
+                      <FiCheck
+                        className="size-4 shrink-0 mt-0.5"
+                        style={{ color: locColor }}
+                      />
                     )}
                   </button>
                 );

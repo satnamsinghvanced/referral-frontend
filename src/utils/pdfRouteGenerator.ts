@@ -45,7 +45,7 @@ export const generateRoutePdf = async (plan: SchedulePlan) => {
 
   let yOffset = 60;
   const stops = plan.route.routeDetails || [];
-  let validStops = stops.filter((s: any) =>
+  const validStops = stops.filter((s: any) =>
     s.address?.coordinates?.lat &&
     s.address?.coordinates?.long &&
     Math.abs(s.address.coordinates.lat) > 0.1 &&
@@ -80,7 +80,7 @@ export const generateRoutePdf = async (plan: SchedulePlan) => {
     console.warn("Could not retrieve user location for PDF map:", e);
   }
 
-  let activeCoordinateString = validStops
+  const activeCoordinateString = validStops
     .map((stop: any) => `${stop.address.coordinates.long},${stop.address.coordinates.lat}`)
     .join(";");
 
@@ -118,7 +118,7 @@ export const generateRoutePdf = async (plan: SchedulePlan) => {
             }
           }
         } catch (dirError) {
-          console.warn("Could not fetch road-following directions, removing path line.");
+          console.warn("Could not fetch road-following directions, removing path line.", dirError);
         }
         const markers = validStops
           .map((stop, index, arr) => {
