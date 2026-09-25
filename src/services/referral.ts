@@ -104,7 +104,17 @@ export const importReferralsCSV = async (formData: FormData) => {
   return data;
 };
 
+export const importReferrersCSV = async (formData: FormData) => {
+  const { data } = await axios.post("/referrers/import-csv/", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return data;
+};
+
 export const createPatientDetails = async (payload: any) => {
   const { data } = await axios.post("/patient-details", payload);
   return data;
 };
+

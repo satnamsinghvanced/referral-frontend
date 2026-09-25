@@ -12,7 +12,7 @@ import {
 } from "@heroui/react";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
-import { FiEdit, FiEye, FiUsers, FiWifi, FiLoader, FiCheck, FiX, FiAlertTriangle } from "react-icons/fi";
+import { FiEdit, FiEye, FiUsers, FiWifi, FiLoader, FiCheck, FiX, FiAlertTriangle, FiUpload } from "react-icons/fi";
 import { GrLocation } from "react-icons/gr";
 import { IoSearch } from "react-icons/io5";
 import { LuFilter, LuNfc, LuQrCode } from "react-icons/lu";
@@ -48,6 +48,7 @@ import ReferralStatusModal from "./referrals/ReferralStatusModal";
 import TrackReferralBar from "./referrals/TrackReferralBar";
 import TrackReferralModal from "./referrals/TrackReferralModal";
 import ReferrerActionsModal from "./referrer-actions/ReferrerActionsModal";
+import BulkImportReferrersModal from "./referrers/BulkImportReferrersModal";
 import NfcTagModal from "./referrers/NfcTagModal";
 import QrCodeDownloadModal from "./referrers/QrCodeDownloadModal";
 import ReferrerCard from "./referrers/ReferrerCard";
@@ -119,6 +120,7 @@ const ReferralManagement = () => {
   const [isTrackReferralModalOpen, setIsTrackReferralModalOpen] =
     useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [isImportReferrersModalOpen, setIsImportReferrersModalOpen] = useState(false);
   const [deleteReferralId, setDeleteReferralId] = useState<string | null>(null);
   const [deleteReferrerId, setDeleteReferrerId] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -378,6 +380,18 @@ const ReferralManagement = () => {
       subHeading:
         "Track doctor and patient referrals for your orthodontic practice",
       buttons: [
+        ...(hasManageReferrers && selectedReferralType === "Referrers"
+          ? [
+            {
+              label: "Import from Spreadsheet",
+              onClick: () => setIsImportReferrersModalOpen(true),
+              icon: <FiUpload fontSize={15} />,
+              variant: "ghost",
+              color: "default",
+              className: "border-small tour-step-import-referrers-btn",
+            },
+          ]
+          : []),
         ...(hasManageReferrers
           ? [
             {
@@ -407,7 +421,7 @@ const ReferralManagement = () => {
           : []),
       ],
     }),
-    [isReferrerLimitReached, hasManageReferrers],
+    [isReferrerLimitReached, hasManageReferrers, selectedReferralType],
   );
 
   const REFERRER_CARD_BUTTONS = useCallback(
@@ -703,7 +717,19 @@ const ReferralManagement = () => {
                 </div>
               )}
               <div className="flex flex-col gap-4">
-                <p className="font-medium text-sm">Referrer Management</p>
+                <div className="flex items-center justify-between gap-3">
+                  <p className="font-medium text-sm">Referrer Management</p>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    color="default"
+                    className="border-small"
+                    startContent={<FiUpload className="text-sm" />}
+                    onPress={() => setIsImportReferrersModalOpen(true)}
+                  >
+                    Import from Spreadsheet
+                  </Button>
+                </div>
                 <div className="flex-1">
                   <Input
                     size="sm"
@@ -837,6 +863,10 @@ const ReferralManagement = () => {
       <BulkImportModal
         isOpen={isImportModalOpen}
         onClose={() => setIsImportModalOpen(false)}
+      />
+      <BulkImportReferrersModal
+        isOpen={isImportReferrersModalOpen}
+        onClose={() => setIsImportReferrersModalOpen(false)}
       />
       <DeleteConfirmationModal
         isOpen={!!deleteReferralId}

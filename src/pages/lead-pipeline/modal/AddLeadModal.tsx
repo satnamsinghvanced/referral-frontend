@@ -36,7 +36,7 @@ interface AddLeadModalProps {
 }
 
 const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
-  const { locations, selectedLocation } = useLocationContext();
+  const { locations, selectedLocation, getLocationColor } = useLocationContext();
   const { mutateAsync: addLead, isPending: submitting } = useAddLead();
   const { data: teamMembers, isLoading: loadingTeam } = useFetchTeamMembers();
   const [selectedTreatments, setSelectedTreatments] = useState<Set<string>>(new Set());
@@ -70,7 +70,7 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
       lastName: "",
       email: "",
       phone: "",
-      location: selectedLocation?._id || locations[0]?._id || "",
+      location: "",
       source: "website",
       priority: "medium",
       assignedTo: "Unassigned",
@@ -80,12 +80,16 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
     validationSchema,
     onSubmit: async (values, { resetForm }) => {
       try {
-        const locObj = locations?.find(
-          (l: any) => l._id === values.location || l.name?.toLowerCase() === values.location?.toLowerCase()
-        );
+        const locObj = values.location
+          ? locations?.find(
+              (l: any) => l._id === values.location || l.name?.toLowerCase() === values.location?.toLowerCase()
+            )
+          : null;
         const locId = locObj?._id || (values.location && /^[0-9a-fA-F]{24}$/.test(values.location) ? values.location : null);
+
+        const { location: _loc, ...restValues } = values;
         const payload = {
-          ...values,
+          ...restValues,
           locationId: locId,
           estimatedValue: Number(values.estimatedValue) || 0,
           assignedTo:
@@ -136,7 +140,15 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
     >
       <ModalContent>
         {(onClose) => (
-          <>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              formik.handleSubmit();
+            }}
+            autoComplete="on"
+            noValidate
+            className="flex flex-col h-full"
+          >
             <ModalHeader className="flex flex-col gap-1 px-4">
               <h4 className="text-base font-medium dark:text-white">
                 Add New Lead
@@ -159,6 +171,8 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                     size="sm"
                     radius="sm"
                     name="firstName"
+                    id="lead_first_name"
+                    autoComplete="given-name"
                     value={formik.values.firstName}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -179,6 +193,8 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                     size="sm"
                     radius="sm"
                     name="lastName"
+                    id="lead_last_name"
+                    autoComplete="family-name"
                     value={formik.values.lastName}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -198,6 +214,9 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                     size="sm"
                     radius="sm"
                     name="email"
+                    id="lead_email"
+                    type="email"
+                    autoComplete="email"
                     value={formik.values.email}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -218,6 +237,9 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                     size="sm"
                     radius="sm"
                     name="phone"
+                    id="lead_phone"
+                    type="tel"
+                    autoComplete="tel"
                     value={formik.values.phone}
                     onValueChange={(val) =>
                       formik.setFieldValue("phone", formatPhoneNumber(val))
@@ -232,58 +254,115 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                     }
                     isRequired
                   />
-                </div>
-                <div className="mt-4">
-                  {locations && locations.length > 0 ? (
-                    <Select
-                      label="Practice Location"
-                      labelPlacement="outside"
-                      placeholder="Select location"
-                      variant="flat"
-                      size="sm"
-                      radius="sm"
-                      disableAnimation
-                      selectedKeys={formik.values.location ? [formik.values.location] : []}
-                      onSelectionChange={(keys) =>
-                        formik.setFieldValue("location", Array.from(keys)[0] as string)
-                      }
-                      onBlur={() => formik.setFieldTouched("location", true)}
-                      isInvalid={!!(formik.touched.location && formik.errors.location)}
-                      errorMessage={
-                        formik.touched.location && (formik.errors.location as string)
-                      }
-                      startContent={
-                        <HiOutlineLocationMarker className="text-default-400 size-4" />
-                      }
-                      popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
-                    >
-                      {locations.map((loc) => (
-                        <SelectItem key={loc._id} textValue={loc.name}>
-                          {loc.name}
-                        </SelectItem>
-                      ))}
-                    </Select>
-                  ) : (
-                    <Input
-                      label="Location"
-                      labelPlacement="outside"
-                      placeholder="Enter location (City, State, etc.)"
-                      variant="flat"
-                      size="sm"
-                      radius="sm"
-                      name="location"
-                      value={formik.values.location}
-                      onChange={formik.handleChange}
-                      onBlur={formik.handleBlur}
-                      isInvalid={!!(formik.touched.location && formik.errors.location)}
-                      errorMessage={
-                        formik.touched.location && (formik.errors.location as string)
-                      }
-                      startContent={
-                        <HiOutlineLocationMarker className="text-default-400 size-4" />
-                      }
-                    />
-                  )}
+                  <div className="col-span-1 md:col-span-2">
+                    {locations && locations.length > 0 ? (
+                      <Select
+                        label="Practice Location"
+                        labelPlacement="outside"
+                        placeholder="Select location"
+                        variant="flat"
+                        size="sm"
+                        radius="sm"
+                        disableAnimation
+                        selectedKeys={formik.values.location ? [formik.values.location] : []}
+                        onSelectionChange={(keys) =>
+                          formik.setFieldValue("location", Array.from(keys)[0] as string)
+                        }
+                        onBlur={() => formik.setFieldTouched("location", true)}
+                        isInvalid={!!(formik.touched.location && formik.errors.location)}
+                        errorMessage={
+                          formik.touched.location && (formik.errors.location as string)
+                        }
+                        startContent={
+                          !formik.values.location ? (
+                            <HiOutlineLocationMarker className="text-default-400 size-4 shrink-0" />
+                          ) : undefined
+                        }
+                        renderValue={(items) => {
+                          return items.map((item) => {
+                            const loc = locations.find((l) => l._id === item.key);
+                            const locIdx = locations.findIndex((l) => l._id === item.key);
+                            const locColor = getLocationColor(loc?._id, locIdx >= 0 ? locIdx : undefined);
+                            return (
+                              <div key={item.key} className="flex items-center gap-2.5 min-w-0">
+                                <span
+                                  className="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs"
+                                  style={{ backgroundColor: locColor }}
+                                />
+                                <span className="text-xs font-medium text-foreground truncate">
+                                  {loc?.name || item.textValue}
+                                </span>
+                              </div>
+                            );
+                          });
+                        }}
+                        popoverProps={{
+                          classNames: {
+                            content: "w-[300px] max-w-full p-0 shadow-xl rounded-xl border border-foreground/10 overflow-hidden bg-background text-foreground",
+                          },
+                          disableAnimation: true,
+                          shouldCloseOnScroll: false,
+                        }}
+                        listboxProps={{
+                          topContent: (
+                            <div className="px-3.5 py-2 border-b border-foreground/10 bg-foreground/[0.02]">
+                              <span className="text-[10px] font-bold text-foreground/50 tracking-wider uppercase">
+                                Select Practice Location
+                              </span>
+                            </div>
+                          ),
+                          itemClasses: {
+                            base: "rounded-lg py-2 px-2.5 data-[hover=true]:bg-foreground/5 data-[selectable=true]:focus:bg-foreground/5",
+                          },
+                        }}
+                      >
+                        {locations.map((loc, index) => {
+                          const locColor = getLocationColor(loc._id, index);
+                          const locAddress = [loc.address?.city, loc.address?.state].filter(Boolean).join(", ");
+                          return (
+                            <SelectItem key={loc._id} textValue={loc.name}>
+                              <div className="flex items-start gap-2.5 min-w-0 pr-1">
+                                <span
+                                  className="w-2.5 h-2.5 rounded-full shrink-0 mt-1 shadow-xs"
+                                  style={{ backgroundColor: locColor }}
+                                />
+                                <div className="min-w-0 flex-1">
+                                  <p className="text-xs font-semibold leading-tight text-foreground truncate">
+                                    {loc.name}
+                                  </p>
+                                  {locAddress && (
+                                    <p className="text-[10px] text-foreground/60 leading-tight truncate mt-0.5 font-normal">
+                                      {locAddress}
+                                    </p>
+                                  )}
+                                </div>
+                              </div>
+                            </SelectItem>
+                          );
+                        })}
+                      </Select>
+                    ) : (
+                      <Input
+                        label="Location"
+                        labelPlacement="outside"
+                        placeholder="Enter location (City, State, etc.)"
+                        variant="flat"
+                        size="sm"
+                        radius="sm"
+                        name="location"
+                        value={formik.values.location}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
+                        isInvalid={!!(formik.touched.location && formik.errors.location)}
+                        errorMessage={
+                          formik.touched.location && (formik.errors.location as string)
+                        }
+                        startContent={
+                          <HiOutlineLocationMarker className="text-default-400 size-4" />
+                        }
+                      />
+                    )}
+                  </div>
                 </div>
               </div>
               <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
@@ -555,7 +634,7 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                 Add Lead
               </Button>
             </ModalFooter>
-          </>
+          </form>
         )}
       </ModalContent>
     </Modal>

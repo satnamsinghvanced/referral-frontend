@@ -100,49 +100,54 @@ export default function ReferrerActionsModal({
     useCreateReferrer();
   const { mutate: updateReferrer, isPending: referrerUpdationPending } =
     useUpdateReferrer();
+  const practiceObj = typeof editedData?.practice === "object" ? editedData?.practice : null;
   const defaultInitialValues: any = {
     type: editedData?.type || "doctor",
     name: editedData?.name || "",
     phone: editedData?.phone || "",
     email: editedData?.email || "",
-    practiceName: editedData?.practiceName || "",
-    partnershipLevel: editedData?.partnershipLevel || "",
-    practiceType: editedData?.practiceType || "",
+    practiceName: editedData?.practiceName || practiceObj?.name || "",
+    partnershipLevel: editedData?.partnershipLevel || practiceObj?.level || "",
+    practiceType:
+      editedData?.practiceType ||
+      (typeof practiceObj?.practiceType === "object" ? practiceObj?.practiceType?._id : practiceObj?.practiceType) ||
+      (typeof practiceObj?.type === "object" ? practiceObj?.type?._id : practiceObj?.type) ||
+      "",
     practiceAddress: {
-      addressLine1: editedData?.practiceAddress?.addressLine1 || "",
-      addressLine2: editedData?.practiceAddress?.addressLine2 || "",
-      city: editedData?.practiceAddress?.city || "",
-      state: editedData?.practiceAddress?.state || "",
-      zip: editedData?.practiceAddress?.zip || "",
+      addressLine1: editedData?.practiceAddress?.addressLine1 || practiceObj?.address?.addressLine1 || "",
+      addressLine2: editedData?.practiceAddress?.addressLine2 || practiceObj?.address?.addressLine2 || "",
+      city: editedData?.practiceAddress?.city || practiceObj?.address?.city || "",
+      state: editedData?.practiceAddress?.state || practiceObj?.address?.state || "",
+      zip: editedData?.practiceAddress?.zip || practiceObj?.address?.zip || "",
     },
-    website: editedData?.website || "",
+    website: editedData?.website || practiceObj?.website || "",
     staff:
-      editedData?.staff?.map((s: any) => ({
+      (editedData?.staff || editedData?.staffMembers)?.map((s: any) => ({
         ...s,
         role: Array.isArray(s.role) ? s.role[0] || "" : s.role || "",
       })) || [],
     additionalNotes: editedData?.additionalNotes || "",
     communityReferrer: {
-      orgName: editedData?.communityReferrer?.orgName || "",
-      orgAddress: editedData?.communityReferrer?.orgAddress || "",
-      orgUrl: editedData?.communityReferrer?.orgUrl || "",
+      orgName: editedData?.communityReferrer?.orgName || (editedData?.communityReferrerData as any)?.orgName || "",
+      orgAddress: editedData?.communityReferrer?.orgAddress || (editedData?.communityReferrerData as any)?.orgAddress || "",
+      orgUrl: editedData?.communityReferrer?.orgUrl || (editedData?.communityReferrerData as any)?.orgUrl || "",
     },
     googleReferrer: {
-      glSource: editedData?.googleReferrer?.glSource || "",
-      glPlatform: editedData?.googleReferrer?.glPlatform || "",
-      glUrl: editedData?.googleReferrer?.glUrl || "",
+      glSource: editedData?.googleReferrer?.glSource || (editedData?.googleReferrerData as any)?.glSource || "",
+      glPlatform: editedData?.googleReferrer?.glPlatform || (editedData?.googleReferrerData as any)?.glPlatform || "",
+      glUrl: editedData?.googleReferrer?.glUrl || (editedData?.googleReferrerData as any)?.glUrl || "",
     },
     socialMediaReferrer: {
-      smPlatform: editedData?.socialMediaReferrer?.smPlatform || "",
-      smSource: editedData?.socialMediaReferrer?.smSource || "",
+      smPlatform: editedData?.socialMediaReferrer?.smPlatform || (editedData?.socialMediaReferrerData as any)?.smPlatform || "",
+      smSource: editedData?.socialMediaReferrer?.smSource || (editedData?.socialMediaReferrerData as any)?.smSource || "",
     },
     eventReferrer: {
-      evName: editedData?.eventReferrer?.evName || "",
-      evLocation: editedData?.eventReferrer?.evLocation || "",
-      evType: editedData?.eventReferrer?.evType || "",
-      evUrl: editedData?.eventReferrer?.evUrl || "",
+      evName: editedData?.eventReferrer?.evName || (editedData?.eventReferrerData as any)?.evName || "",
+      evLocation: editedData?.eventReferrer?.evLocation || (editedData?.eventReferrerData as any)?.evLocation || "",
+      evType: editedData?.eventReferrer?.evType || (editedData?.eventReferrerData as any)?.evType || "",
+      evUrl: editedData?.eventReferrer?.evUrl || (editedData?.eventReferrerData as any)?.evUrl || "",
     },
-    status: editedData?.status || "",
+    status: editedData?.status || practiceObj?.status || "",
   };
   const handleFormSubmission = async (values: any) => {
     const payload: any = {

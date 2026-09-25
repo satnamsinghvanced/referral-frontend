@@ -10,8 +10,8 @@ export const addLead = async (leadData: any): Promise<any> => {
   return response.data;
 };
 
-export const getLeadStats = async (): Promise<any> => {
-  const response = await axios.get("/lead/stats");
+export const getLeadStats = async (params?: any): Promise<any> => {
+  const response = await axios.get("/lead/stats", { params });
   return response.data;
 };
 

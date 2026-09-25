@@ -14,6 +14,7 @@ import {
   getReferralById,
   getReferrerById,
   importReferralsCSV,
+  importReferrersCSV,
   logTrackingScan,
   updateReferral,
   updateReferrer,
@@ -383,6 +384,47 @@ export const useImportReferralsCSV = () =>
       addToast({ title: "Error", description: errorMessage, color: "danger" });
     },
   });
+
+export const useImportReferrersCSV = () =>
+  useMutation<any, AxiosError, FormData>({
+    mutationFn: (formData) => importReferrersCSV(formData),
+    onSuccess: (data: any) => {
+      addToast({
+        title: "Success",
+        description: data?.message || data?.data?.message || "Referrers imported successfully.",
+        color: "success",
+      });
+      queryClient.invalidateQueries({ queryKey: ["referrers"] });
+      queryClient.invalidateQueries({ queryKey: ["partnerStats"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+    },
+    onError: (error: AxiosError) => {
+      console.log(error);
+      const status = error.response?.status;
+      const data = error.response?.data as { message?: string; code?: string };
+
+      let errorMessage =
+        data?.message || error.message || "Failed to import referrers";
+
+      if (status === 413) {
+        errorMessage = "File is too large. Please upload smaller CSV files.";
+      } else if (status === 400 && data?.code) {
+        switch (data.code) {
+          case "LIMIT_FILE_SIZE":
+            errorMessage = "The CSV file is too large.";
+            break;
+          case "LIMIT_UNEXPECTED_FILE":
+            errorMessage = "Invalid file type. Please upload a CSV file.";
+            break;
+          default:
+            break;
+        }
+      }
+
+      addToast({ title: "Error", description: errorMessage, color: "danger" });
+    },
+  });
+
 
 export const useCreatePatientDetails = () =>
   useMutation<any, AxiosError, any>({
