@@ -71,7 +71,22 @@ export const useCreateActivity = () => {
       queryClient.invalidateQueries({ queryKey: ["marketingActivities"] });
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
     },
-    onSuccess: () => {
+    onSuccess: (resData: any) => {
+      const createdItem = resData?.data;
+      if (createdItem) {
+        queryClient.setQueriesData(
+          { queryKey: ["marketingActivities"] },
+          (old: any) => {
+            if (!old || !Array.isArray(old.data)) return old;
+            return {
+              ...old,
+              data: old.data.map((item: any) =>
+                item._id?.startsWith("temp-") ? createdItem : item
+              ),
+            };
+          }
+        );
+      }
       addToast({
         title: "Success",
         description: "Activity created successfully.",
@@ -134,7 +149,25 @@ export const useUpdateActivity = () => {
       queryClient.invalidateQueries({ queryKey: ["marketingActivities"] });
       queryClient.invalidateQueries({ queryKey: ["marketingActivityDetail"] });
     },
-    onSuccess: () => {
+    onSuccess: (resData: any) => {
+      const updatedItem = resData?.data;
+      if (updatedItem && (updatedItem._id || updatedItem.id)) {
+        const targetId = updatedItem._id || updatedItem.id;
+        queryClient.setQueriesData(
+          { queryKey: ["marketingActivities"] },
+          (old: any) => {
+            if (!old || !Array.isArray(old.data)) return old;
+            return {
+              ...old,
+              data: old.data.map((item: any) =>
+                item._id === targetId || item.id === targetId
+                  ? { ...item, ...updatedItem }
+                  : item
+              ),
+            };
+          }
+        );
+      }
       addToast({
         title: "Success",
         description: "Activity updated successfully.",

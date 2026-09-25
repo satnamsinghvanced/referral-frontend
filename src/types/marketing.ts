@@ -25,6 +25,9 @@ export interface ActivityItem {
   time: string;
   priority: ActivityPriority;
   platform: string;
+  location?: string;
+  locations?: string[];
+  isDefaultLocation?: boolean;
   budget: number;
   reach?: string;
   status: ActivityStatus;
@@ -75,6 +78,9 @@ export interface ActivityPayload {
   time?: string;
   priority?: ActivityPriority;
   platform: string;
+  location?: string;
+  locations?: string[];
+  isDefaultLocation?: boolean;
   budget: number | null;
   status?: ActivityStatus;
 }

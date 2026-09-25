@@ -11,7 +11,7 @@ import {
 } from "@heroui/react";
 import { getLocalTimeZone, now } from "@internationalized/date";
 import { useFormik } from "formik";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import * as Yup from "yup";
 import { ACTIVITY_STATUSES, ACTIVITY_TYPES, getFilteredActivityTypes } from "../../../consts/marketing";
 import { PRIORITY_LEVELS } from "../../../consts/practice";
@@ -21,10 +21,13 @@ import DatePickerWithTimeInput from "../../../components/common/DatePickerWithTi
 
 import { useCalendarIntegration } from "../../../hooks/integrations/useGoogleCalendar";
 import { usePlanGuard } from "../../../hooks/usePlanGuard";
+import { useLocationContext } from "../../../providers/LocationContext";
+import { DEFAULT_LOCATIONS, getLocationStyle } from "../../../utils/locationTheme";
 
 interface ActivityFormValues {
   title: string;
   type: string;
+  locations: string[];
   description: string;
   startDate: string;
   endDate: string;
@@ -37,9 +40,17 @@ interface ActivityFormValues {
 }
 
 export const ActivityValidationSchema = Yup.object().shape({
-  title: Yup.string().required("Activity Title is required."),
+  title: Yup.string()
+    .max(50, "Activity Title cannot exceed 50 characters.")
+    .required("Activity Title is required."),
   type: Yup.string().required("Activity Type is required."),
-  description: Yup.string().optional(),
+  locations: Yup.array()
+    .of(Yup.string())
+    .min(1, "Please select at least one location.")
+    .required("Location is required."),
+  description: Yup.string()
+    .max(500, "Description cannot exceed 500 characters.")
+    .optional(),
   startDate: Yup.string().required("Start Date is required."),
   endDate: Yup.string()
     .test(
@@ -58,7 +69,9 @@ export const ActivityValidationSchema = Yup.object().shape({
     .oneOf(["high", "medium", "low"])
     .required("Priority is required."),
   status: Yup.string().optional(),
-  platform: Yup.string().optional(),
+  platform: Yup.string()
+    .max(100, "Platform/Location cannot exceed 100 characters.")
+    .optional(),
   budget: Yup.number()
     .transform((value, originalValue) =>
       String(originalValue).trim() === "" ? null : value,
@@ -86,6 +99,16 @@ export default function ActivityActionsModal({
   const { hasAccess, openPricingPage } = usePlanGuard();
   const canTrackBudget = hasAccess("budget_tracking");
   const allowedActivityTypes = getFilteredActivityTypes(hasAccess);
+  const { locations: contextLocations, selectedLocation: currentSelectedLocation } = useLocationContext();
+
+  const availableLocations = useMemo(() => {
+    if (contextLocations && Array.isArray(contextLocations) && contextLocations.length > 0) {
+      const names = contextLocations.map((l) => l.name).filter(Boolean);
+      if (names.length > 0) return names;
+    }
+    return DEFAULT_LOCATIONS;
+  }, [contextLocations]);
+
   const { data: googleCalendarConfig } = useCalendarIntegration();
   const configs = Array.isArray(googleCalendarConfig)
     ? googleCalendarConfig
@@ -93,6 +116,21 @@ export default function ActivityActionsModal({
       ? [googleCalendarConfig]
       : [];
   const isEditing = !!initialData?._id || !!initialData?.googleId;
+
+  const getInitialLocations = (): string[] => {
+    if (initialData?.locations && Array.isArray(initialData.locations) && initialData.locations.length > 0) {
+      return initialData.locations;
+    }
+    if (initialData?.location) {
+      return [initialData.location];
+    }
+    if (currentSelectedLocation?.name) {
+      return [currentSelectedLocation.name];
+    }
+    const defaultLoc = availableLocations[0] || DEFAULT_LOCATIONS[0]!;
+    return [defaultLoc];
+  };
+
   const initialValues: ActivityFormValues = {
     title: initialData?.title || "",
     // @ts-ignore
@@ -101,6 +139,7 @@ export default function ActivityActionsModal({
         ? initialData?.type
         : "googleCalendar"
       : allowedActivityTypes?.[0]?.value || "googleCalendar",
+    locations: getInitialLocations(),
     colorId: initialData?.colorId || "7",
     description: initialData?.description || "",
     startDate: initialData?.startDate || defaultStartDate || "",
@@ -122,12 +161,20 @@ export default function ActivityActionsModal({
         ...values,
         budget: values.budget === "" ? 0 : values.budget,
       };
+
+      const selectedLocs =
+        values.locations && values.locations.length > 0
+          ? values.locations
+          : [availableLocations[0]];
+
       if (isEditing) {
         updateActivity(
           {
             ...submitValues,
             id: initialData?._id,
             googleId: initialData?.googleId,
+            location: selectedLocs[0] || availableLocations[0] || "",
+            locations: selectedLocs,
             calendarId: configs[0]?._id,
             googleCalendarId: configs[0]?.calendarId,
           } as any,
@@ -136,24 +183,32 @@ export default function ActivityActionsModal({
           },
         );
       } else {
-        // @ts-ignore
-        createActivity(
-          {
-            ...submitValues,
-            colorId:
-              ACTIVITY_TYPES.find(
-                (activity) => activity.value === values.type,
-              )?.color.id.toString() || "1",
-            calendarId: configs[0]?._id,
-            googleCalendarId: configs[0]?.calendarId,
-          } as any,
-          {
-            onSuccess: () => {
-              onClose();
-              formik.resetForm();
+        let completedCount = 0;
+        selectedLocs.forEach((loc) => {
+          // @ts-ignore
+          createActivity(
+            {
+              ...submitValues,
+              location: loc,
+              locations: [loc],
+              colorId:
+                ACTIVITY_TYPES.find(
+                  (activity) => activity.value === values.type,
+                )?.color.id.toString() || "1",
+              calendarId: configs[0]?._id,
+              googleCalendarId: configs[0]?.calendarId,
+            } as any,
+            {
+              onSuccess: () => {
+                completedCount++;
+                if (completedCount === selectedLocs.length) {
+                  onClose();
+                  formik.resetForm();
+                }
+              },
             },
-          },
-        );
+          );
+        });
       }
     },
   });
@@ -174,7 +229,7 @@ export default function ActivityActionsModal({
     formik.touched[field] && formik.errors[field];
   const ErrorText = ({ field }: { field: keyof typeof initialValues }) =>
     hasError(field) ? (
-      <div className="text-xs text-red-500 mt-1">{formik.errors[field]}</div>
+      <div className="text-xs text-red-500 mt-1">{formik.errors[field] as string}</div>
     ) : null;
   const modalTitle = isEditing
     ? "Edit Marketing Activity"
@@ -184,7 +239,7 @@ export default function ActivityActionsModal({
   return (
     <Modal
       isOpen={isOpen}
-      onOpenChange={onClose}
+      onClose={onClose}
       classNames={{
         base: `max-lg:!m-3 !m-0`,
         closeButton: "cursor-pointer",
@@ -217,11 +272,17 @@ export default function ActivityActionsModal({
                   placeholder="Enter activity name"
                   size="sm"
                   radius="sm"
+                  maxLength={50}
                   value={formik.values.title}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   isInvalid={!!hasError("title")}
                   isRequired
+                  endContent={
+                    <span className="text-[11px] text-gray-400 dark:text-foreground/40 select-none shrink-0 pointer-events-none">
+                      {(formik.values.title || "").length}/50
+                    </span>
+                  }
                 />
                 <ErrorText field="title" />
               </div>
@@ -250,20 +311,110 @@ export default function ActivityActionsModal({
                 <ErrorText field="type" />
               </div>
             </div>
-            <div className="flex flex-col items-start">
+
+            <div className="flex flex-col items-start w-full space-y-1">
+              <label className="text-xs font-medium text-foreground">
+                Location <span className="text-red-500">*</span>
+              </label>
+              <div className="w-full border border-foreground/15 rounded-xl p-3 bg-content1/50 dark:bg-content1/20 flex flex-wrap gap-2.5 items-center">
+                {(() => {
+                  const selectedLocs = formik.values.locations || [];
+                  const isAllSelected =
+                    availableLocations.length > 0 &&
+                    selectedLocs.length === availableLocations.length;
+
+                  const toggleAll = () => {
+                    if (isAllSelected) {
+                      formik.setFieldValue("locations", [availableLocations[0]]);
+                    } else {
+                      formik.setFieldValue("locations", [...availableLocations]);
+                    }
+                    formik.setFieldTouched("locations", true);
+                  };
+
+                  return (
+                    <button
+                      type="button"
+                      onClick={toggleAll}
+                      className={`px-3.5 py-1.5 rounded-full text-xs font-medium border transition-all cursor-pointer select-none ${
+                        isAllSelected
+                          ? "border-sky-400 bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 shadow-2xs"
+                          : "border-gray-200 dark:border-gray-700 bg-white dark:bg-content2 text-gray-600 dark:text-foreground/70 hover:border-gray-300"
+                      }`}
+                    >
+                      All Locations
+                    </button>
+                  );
+                })()}
+
+                {availableLocations.map((locName) => {
+                  const selectedLocs = formik.values.locations || [];
+                  const isSelected = selectedLocs.includes(locName);
+                  const { theme, dotColor } = getLocationStyle(locName, availableLocations);
+
+                  const toggleLoc = () => {
+                    if (isSelected) {
+                      if (selectedLocs.length <= 1) return;
+                      formik.setFieldValue(
+                        "locations",
+                        selectedLocs.filter((l) => l !== locName)
+                      );
+                    } else {
+                      formik.setFieldValue("locations", [...selectedLocs, locName]);
+                    }
+                    formik.setFieldTouched("locations", true);
+                  };
+
+                  return (
+                    <button
+                      key={locName}
+                      type="button"
+                      onClick={toggleLoc}
+                      className={`px-3.5 py-1.5 rounded-full text-xs font-medium flex items-center gap-2 border transition-all cursor-pointer select-none ${
+                        isSelected
+                          ? `${theme.chipSelected} shadow-2xs`
+                          : "border-gray-200 dark:border-gray-700 bg-white dark:bg-content2 text-gray-600 dark:text-foreground/70 hover:border-gray-300"
+                      }`}
+                    >
+                      <span
+                        className="w-2 h-2 rounded-full shrink-0 transition-colors"
+                        style={{ backgroundColor: isSelected ? dotColor : "#9ca3af" }}
+                      />
+                      <span>{locName}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              {formik.touched.locations && formik.errors.locations && (
+                <div className="text-xs text-red-500 mt-1">
+                  {typeof formik.errors.locations === "string"
+                    ? formik.errors.locations
+                    : "Select at least one location"}
+                </div>
+              )}
+            </div>
+
+            <div className="flex flex-col items-start w-full">
+              <div className="flex items-center justify-between w-full mb-1">
+                <label className="text-xs font-medium text-foreground">
+                  Description
+                </label>
+                <span className="text-[11px] text-gray-400 dark:text-foreground/40 select-none">
+                  {(formik.values.description || "").length}/500
+                </span>
+              </div>
               <Textarea
                 id="description"
                 name="description"
-                label="Description"
-                labelPlacement="outside-top"
                 placeholder="Describe the marketing activity and objectives"
                 size="sm"
                 radius="sm"
                 rows={3}
+                maxLength={500}
                 value={formik.values.description}
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                className="resize-none min-h-16"
+                className="resize-none min-h-16 w-full"
                 isInvalid={!!hasError("description")}
                 classNames={{ inputWrapper: "py-2" }}
               />
@@ -371,10 +522,16 @@ export default function ActivityActionsModal({
                   placeholder="Facebook, Instagram, Email, etc."
                   size="sm"
                   radius="sm"
+                  maxLength={100}
                   value={formik.values.platform}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                   isInvalid={!!hasError("platform")}
+                  endContent={
+                    <span className="text-[11px] text-gray-400 dark:text-foreground/40 select-none shrink-0 pointer-events-none">
+                      {(formik.values.platform || "").length}/100
+                    </span>
+                  }
                 />
                 <ErrorText field="platform" />
               </div>
