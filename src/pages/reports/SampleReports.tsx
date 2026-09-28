@@ -59,7 +59,7 @@ export default function SampleReports({
         </h4>
         <p className="text-gray-600 dark:text-foreground/60 text-xs">
           Explore our comprehensive sample reports to see the detailed insights
-          and analytics available in Referral Retriever.
+          and analytics available in PracticeROI.
         </p>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
