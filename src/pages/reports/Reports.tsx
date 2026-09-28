@@ -152,7 +152,6 @@ const Reports = () => {
         console.error("Failed to parse report download URL:", e);
       }
     }
-
     try {
       const response = await fetch(downloadUrl, {
         headers: {

@@ -212,8 +212,9 @@ const Conversations = () => {
       if (!lastMsg || !lastMsg.isFromPatient) {
         return { ...conv, unreadCount: 0 };
       }
-
-      const seenMsgId = localStorage.getItem(`seen_msg_${conv.id}`);
+      const seenMsgId =
+        localStorage.getItem(`seen_msg_${conv.id}`) ||
+        (conv.recipientId ? localStorage.getItem(`seen_msg_${conv.recipientId}`) : null);
       if (seenMsgId) {
         if (seenMsgId === lastMsg.id) {
           return { ...conv, unreadCount: 0 };
@@ -224,7 +225,6 @@ const Conversations = () => {
           return { ...conv, unreadCount: unseenCount };
         }
       }
-
       return { ...conv, unreadCount: conv.unreadCount ?? 0 };
     });
   };
@@ -333,7 +333,6 @@ const Conversations = () => {
           } else {
             updatedMessages.push(payload.message);
           }
-
           const updatedConv: Conversation = {
             ...conv,
             patientName: (payload as any).patientName || conv.patientName,
@@ -343,7 +342,6 @@ const Conversations = () => {
             lastMessageTimestamp: payload.message.createdAt || Date.now(),
             unreadCount: payload.message.isFromPatient ? (isFocused ? 0 : (conv.unreadCount || 0) + 1) : 0,
           };
-
           const remaining = prev.filter((_, idx) => idx !== foundIdx);
           return [updatedConv, ...remaining];
         } else {
@@ -367,7 +365,6 @@ const Conversations = () => {
             messages: [payload.message],
             recipientId: payload.recipientId,
           };
-
           return [newConv, ...prev];
         }
       });
@@ -560,6 +557,20 @@ const Conversations = () => {
       setConversations((prev) =>
         prev.map((c) => (c.id === conv.id ? { ...c, unreadCount: 0 } : c))
       );
+      const lastMsg = conv.messages && conv.messages.length > 0 ? conv.messages[conv.messages.length - 1] : null;
+      const lastMsgId = lastMsg?.id;
+      const markPromise =
+        conv.platform === "instagram"
+          ? markInstagramSeen(conv.recipientId || "", conv.id, lastMsgId)
+          : conv.platform === "facebook"
+            ? markFacebookSeen(conv.recipientId || "", conv.id, lastMsgId)
+            : conv.platform === "web"
+              ? markWebConversationRead(conv.id)
+              : Promise.resolve();
+
+      markPromise.finally(() => {
+        queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+      });
     }
   };
 
@@ -620,6 +631,9 @@ const Conversations = () => {
         : null;
       if (lastMsg) {
         localStorage.setItem(`seen_msg_${selectedConversation.id}`, lastMsg.id);
+        if (selectedConversation.recipientId) {
+          localStorage.setItem(`seen_msg_${selectedConversation.recipientId}`, lastMsg.id);
+        }
       }
       const markAsSeenOnPlatform = async () => {
         try {
@@ -974,17 +988,16 @@ const Conversations = () => {
                       style={
                         isSelected
                           ? {
-                              backgroundColor: `${locColor}18`,
-                              borderColor: `${locColor}50`,
-                              color: locColor,
-                            }
+                            backgroundColor: `${locColor}18`,
+                            borderColor: `${locColor}50`,
+                            color: locColor,
+                          }
                           : undefined
                       }
-                      className={`px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2 border transition-all cursor-pointer shadow-2xs select-none ${
-                        isSelected
-                          ? "shadow-xs"
-                          : "bg-gray-100/70 dark:bg-content2 border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500 opacity-60 hover:opacity-100"
-                      }`}
+                      className={`px-3.5 py-1.5 rounded-full text-xs font-semibold flex items-center gap-2 border transition-all cursor-pointer shadow-2xs select-none ${isSelected
+                        ? "shadow-xs"
+                        : "bg-gray-100/70 dark:bg-content2 border-gray-200 dark:border-gray-700 text-gray-400 dark:text-gray-500 opacity-60 hover:opacity-100"
+                        }`}
                     >
                       <span
                         style={
@@ -992,11 +1005,10 @@ const Conversations = () => {
                             ? { backgroundColor: locColor, borderColor: locColor }
                             : undefined
                         }
-                        className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] shrink-0 transition-colors ${
-                          isSelected
-                            ? "text-white"
-                            : "border border-gray-300 dark:border-gray-600 bg-white dark:bg-content1 text-transparent"
-                        }`}
+                        className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] shrink-0 transition-colors ${isSelected
+                          ? "text-white"
+                          : "border border-gray-300 dark:border-gray-600 bg-white dark:bg-content1 text-transparent"
+                          }`}
                       >
                         {isSelected && <FiCheck className="size-2.5 stroke-[3]" />}
                       </span>

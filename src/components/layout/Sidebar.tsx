@@ -56,9 +56,11 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
     };
     subscribeToEvent("new_message", handleNewMessage);
     subscribeToEvent("new_web_message", handleNewMessage);
+    subscribeToEvent("message_read", handleNewMessage);
     return () => {
       unsubscribeFromEvent("new_message", handleNewMessage);
       unsubscribeFromEvent("new_web_message", handleNewMessage);
+      unsubscribeFromEvent("message_read", handleNewMessage);
     };
   }, [queryClient]);
 
