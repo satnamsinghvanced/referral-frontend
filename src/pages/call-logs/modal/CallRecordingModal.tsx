@@ -55,6 +55,12 @@ const AudioPlayer = ({ url, callDuration }: { url: string; callDuration: string 
     setDuration(parsedDuration);
   }, [callDuration]);
 
+  const handleLoadedMetadata = () => {
+    if (audioRef.current && audioRef.current.duration && audioRef.current.duration !== Infinity && !isNaN(audioRef.current.duration)) {
+      setDuration(audioRef.current.duration);
+    }
+  };
+
   const togglePlay = () => {
     if (audioRef.current) {
       if (isPlaying) {
@@ -95,6 +101,8 @@ const AudioPlayer = ({ url, callDuration }: { url: string; callDuration: string 
       <audio
         ref={audioRef}
         src={streamUrl}
+        preload="metadata"
+        onLoadedMetadata={handleLoadedMetadata}
         onTimeUpdate={handleTimeUpdate}
         onEnded={() => setIsPlaying(false)}
         className="hidden"
@@ -175,7 +183,14 @@ const TranscriptionTab = ({ data }: { data: CallRecord }) => (
           <span>Call Transcription</span>
         </div>
         <div className="p-3 bg-gray-50 dark:bg-content1 rounded-lg text-gray-800 dark:text-foreground/80 leading-relaxed text-xs max-h-60 overflow-y-auto font-medium italic">
-          {data.transcriptionText || "No transcription available."}
+          {data.transcriptionText === "Processing..." ? (
+            <div className="flex items-center gap-2 text-gray-500 not-italic font-normal">
+              <span className="inline-block w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+              <span>Transcription is being processed...</span>
+            </div>
+          ) : (
+            data.transcriptionText || "No transcription available."
+          )}
         </div>
       </CardBody>
     </Card>

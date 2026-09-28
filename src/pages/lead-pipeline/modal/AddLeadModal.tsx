@@ -36,12 +36,13 @@ interface AddLeadModalProps {
 }
 
 const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
-  const { locations, selectedLocation, getLocationColor } = useLocationContext();
+  const { locations, getLocationColor } = useLocationContext();
   const { mutateAsync: addLead, isPending: submitting } = useAddLead();
   const { data: teamMembers, isLoading: loadingTeam } = useFetchTeamMembers();
   const [selectedTreatments, setSelectedTreatments] = useState<Set<string>>(new Set());
   const [tags, setTags] = useState<string[]>([]);
   const [tagInput, setTagInput] = useState("");
+
   const validationSchema = Yup.object().shape({
     firstName: Yup.string()
       .trim()
@@ -62,7 +63,6 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
     priority: Yup.string().required("Priority is required"),
     estimatedValue: Yup.number().typeError("Value must be a number").nullable(),
   });
-
   const formik = useFormik({
     enableReinitialize: true,
     initialValues: {
@@ -82,11 +82,10 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
       try {
         const locObj = values.location
           ? locations?.find(
-              (l: any) => l._id === values.location || l.name?.toLowerCase() === values.location?.toLowerCase()
-            )
+            (l: any) => l._id === values.location || l.name?.toLowerCase() === values.location?.toLowerCase()
+          )
           : null;
         const locId = locObj?._id || (values.location && /^[0-9a-fA-F]{24}$/.test(values.location) ? values.location : null);
-
         const { location: _loc, ...restValues } = values;
         const payload = {
           ...restValues,
@@ -118,24 +117,27 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
       setTagInput("");
     }
   };
+
   const removeTreatment = (treatment: string) => {
     const newSet = new Set(selectedTreatments);
     newSet.delete(treatment);
     setSelectedTreatments(newSet);
   };
+
   const removeTag = (tagToRemove: string) => {
     setTags(tags.filter((tag) => tag !== tagToRemove));
   };
+
   return (
     <Modal
       isOpen={isOpen}
       onOpenChange={onOpenChange}
-      size="md"
+      size="lg"
       placement="center"
       scrollBehavior="inside"
       classNames={{
-        base: "max-sm:!m-3 !m-0",
-        closeButton: "cursor-pointer",
+        base: "max-h-[90vh] sm:max-h-[85vh] my-auto mx-3 sm:mx-auto w-full max-w-lg bg-background border border-foreground/10 shadow-2xl rounded-2xl overflow-hidden",
+        closeButton: "top-4 right-4 z-50 cursor-pointer text-foreground/60 hover:text-foreground",
       }}
     >
       <ModalContent>
@@ -147,29 +149,31 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
             }}
             autoComplete="on"
             noValidate
-            className="flex flex-col h-full"
+            className="flex flex-col h-full max-h-[90vh] sm:max-h-[85vh] overflow-hidden"
           >
-            <ModalHeader className="flex flex-col gap-1 px-4">
-              <h4 className="text-base font-medium dark:text-white">
+            <ModalHeader className="flex flex-col gap-0.5 px-5 py-4 border-b border-foreground/10 shrink-0 bg-background">
+              <h3 className="text-base font-semibold text-foreground">
                 Add New Lead
-              </h4>
-              <p className="text-xs text-gray-500 font-normal dark:text-foreground/60">
+              </h3>
+              <p className="text-xs text-foreground/60 font-normal">
                 Enter the patient lead information into your pipeline
               </p>
             </ModalHeader>
-            <ModalBody className="py-0 px-4 gap-3">
-              <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
-                <h4 className="font-medium text-sm dark:text-white">
+
+            <ModalBody className="py-4 px-5 gap-4 overflow-y-auto flex-1 scrollbar-thin">
+              {/* Contact Information Card */}
+              <div className="border border-foreground/10 rounded-xl p-3.5 sm:p-4 space-y-3.5 bg-foreground/[0.01]">
+                <h4 className="font-semibold text-xs text-foreground/70 uppercase tracking-wider">
                   Contact Information
                 </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-2.5 gap-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   <Input
                     label="First Name"
                     labelPlacement="outside"
                     placeholder="Enter first name"
                     variant="flat"
                     size="sm"
-                    radius="sm"
+                    radius="md"
                     name="firstName"
                     id="lead_first_name"
                     autoComplete="given-name"
@@ -191,7 +195,7 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                     placeholder="Enter last name"
                     variant="flat"
                     size="sm"
-                    radius="sm"
+                    radius="md"
                     name="lastName"
                     id="lead_last_name"
                     autoComplete="family-name"
@@ -212,7 +216,7 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                     placeholder="example@email.com"
                     variant="flat"
                     size="sm"
-                    radius="sm"
+                    radius="md"
                     name="email"
                     id="lead_email"
                     type="email"
@@ -235,7 +239,7 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                     placeholder="(XXX) XXX-XXXX"
                     variant="flat"
                     size="sm"
-                    radius="sm"
+                    radius="md"
                     name="phone"
                     id="lead_phone"
                     type="tel"
@@ -254,7 +258,7 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                     }
                     isRequired
                   />
-                  <div className="col-span-1 md:col-span-2">
+                  <div className="col-span-1 sm:col-span-2">
                     {locations && locations.length > 0 ? (
                       <Select
                         label="Practice Location"
@@ -262,7 +266,7 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                         placeholder="Select location"
                         variant="flat"
                         size="sm"
-                        radius="sm"
+                        radius="md"
                         disableAnimation
                         selectedKeys={formik.values.location ? [formik.values.location] : []}
                         onSelectionChange={(keys) =>
@@ -297,11 +301,10 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                           });
                         }}
                         popoverProps={{
-                          classNames: {
-                            content: "w-[300px] max-w-full p-0 shadow-xl rounded-xl border border-foreground/10 overflow-hidden bg-background text-foreground",
-                          },
                           disableAnimation: true,
-                          shouldCloseOnScroll: false,
+                          classNames: {
+                            content: "p-0 shadow-xl rounded-xl border border-foreground/10 overflow-hidden bg-background text-foreground",
+                          },
                         }}
                         listboxProps={{
                           topContent: (
@@ -348,7 +351,7 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                         placeholder="Enter location (City, State, etc.)"
                         variant="flat"
                         size="sm"
-                        radius="sm"
+                        radius="md"
                         name="location"
                         value={formik.values.location}
                         onChange={formik.handleChange}
@@ -365,18 +368,20 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                   </div>
                 </div>
               </div>
-              <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
-                <h4 className="font-medium text-sm dark:text-white">
+
+              {/* Lead Details Card */}
+              <div className="border border-foreground/10 rounded-xl p-3.5 sm:p-4 space-y-3.5 bg-foreground/[0.01]">
+                <h4 className="font-semibold text-xs text-foreground/70 uppercase tracking-wider">
                   Lead Details
                 </h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-2.5 gap-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   <Select
                     label="Lead Source"
                     labelPlacement="outside"
                     placeholder="Select source"
                     variant="flat"
                     size="sm"
-                    radius="sm"
+                    radius="md"
                     disableAnimation
                     selectedKeys={formik.values.source ? [formik.values.source] : []}
                     onSelectionChange={(keys) =>
@@ -393,7 +398,7 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                       formik.touched.source && (formik.errors.source as string)
                     }
                     isRequired
-                    popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                    popoverProps={{ disableAnimation: true }}
                   >
                     {LEAD_SOURCES.map((source) => (
                       <SelectItem key={source.key} textValue={source.label}>
@@ -407,7 +412,7 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                     placeholder="Select priority"
                     variant="flat"
                     size="sm"
-                    radius="sm"
+                    radius="md"
                     disableAnimation
                     selectedKeys={formik.values.priority ? [formik.values.priority] : []}
                     onSelectionChange={(keys) =>
@@ -425,7 +430,7 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                       (formik.errors.priority as string)
                     }
                     isRequired
-                    popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                    popoverProps={{ disableAnimation: true }}
                   >
                     {LEAD_PRIORITIES.map((priority) => (
                       <SelectItem key={priority.key} textValue={priority.label}>
@@ -439,7 +444,7 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                     placeholder="Select staff member"
                     variant="flat"
                     size="sm"
-                    radius="sm"
+                    radius="md"
                     disableAnimation
                     selectedKeys={formik.values.assignedTo ? [formik.values.assignedTo] : []}
                     onSelectionChange={(keys) =>
@@ -455,7 +460,7 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                         <LuBriefcase className="text-default-400 size-4 mr-1" />
                       )
                     }
-                    popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                    popoverProps={{ disableAnimation: true }}
                   >
                     {[
                       { _id: "Unassigned", firstName: "Unassigned", lastName: "" },
@@ -481,7 +486,7 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                     placeholder="0"
                     variant="flat"
                     size="sm"
-                    radius="sm"
+                    radius="md"
                     type="number"
                     name="estimatedValue"
                     value={formik.values.estimatedValue}
@@ -503,8 +508,10 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                   />
                 </div>
               </div>
-              <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
-                <h4 className="font-medium text-sm dark:text-white">
+
+              {/* Treatment Interest Card */}
+              <div className="border border-foreground/10 rounded-xl p-3.5 sm:p-4 space-y-3.5 bg-foreground/[0.01]">
+                <h4 className="font-semibold text-xs text-foreground/70 uppercase tracking-wider">
                   Treatment Interest
                 </h4>
                 <div className="space-y-3">
@@ -514,10 +521,10 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                     placeholder="Select options..."
                     variant="flat"
                     size="sm"
-                    radius="sm"
+                    radius="md"
                     selectionMode="multiple"
                     disableAnimation
-                    popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                    popoverProps={{ disableAnimation: true }}
                     onSelectionChange={(keys) =>
                       setSelectedTreatments(
                         new Set(Array.from(keys) as string[]),
@@ -539,7 +546,7 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                           key={treatment}
                           variant="flat"
                           size="sm"
-                          className="bg-sky-50 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400 font-bold border-none h-7 px-3"
+                          className="bg-sky-50 dark:bg-sky-900/40 text-sky-600 dark:text-sky-400 font-semibold border-none h-7 px-3"
                           onClose={() => removeTreatment(treatment)}
                         >
                           {formatTreatmentLabel(treatment)}
@@ -549,8 +556,12 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                   )}
                 </div>
               </div>
-              <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
-                <h4 className="font-medium text-sm dark:text-white">Tags</h4>
+
+              {/* Tags Card */}
+              <div className="border border-foreground/10 rounded-xl p-3.5 sm:p-4 space-y-3.5 bg-foreground/[0.01]">
+                <h4 className="font-semibold text-xs text-foreground/70 uppercase tracking-wider">
+                  Tags
+                </h4>
                 <div className="space-y-3">
                   <div className="flex gap-2">
                     <Input
@@ -558,7 +569,7 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                       placeholder="Add custom tag..."
                       variant="flat"
                       size="sm"
-                      radius="sm"
+                      radius="md"
                       className="flex-1"
                       value={tagInput}
                       onValueChange={setTagInput}
@@ -567,8 +578,8 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                     <Button
                       size="sm"
                       variant="flat"
-                      radius="sm"
-                      className="font-bold px-4 h-8"
+                      radius="md"
+                      className="font-medium px-4 h-8"
                       onPress={handleAddTag}
                     >
                       Add
@@ -581,7 +592,7 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                           key={tag}
                           variant="flat"
                           size="sm"
-                          className="bg-default-100 text-default-600 font-bold h-7"
+                          className="bg-default-100 text-default-600 font-medium h-7"
                           onClose={() => removeTag(tag)}
                         >
                           {tag}
@@ -592,8 +603,9 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                 </div>
               </div>
 
-              <div className="border border-foreground/10 rounded-xl p-4 space-y-3">
-                <h4 className="font-medium text-sm dark:text-white">
+              {/* Additional Notes Card */}
+              <div className="border border-foreground/10 rounded-xl p-3.5 sm:p-4 space-y-3.5 bg-foreground/[0.01]">
+                <h4 className="font-semibold text-xs text-foreground/70 uppercase tracking-wider">
                   Additional Notes
                 </h4>
                 <Textarea
@@ -601,7 +613,7 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                   placeholder="Add any additional details..."
                   variant="flat"
                   size="sm"
-                  radius="sm"
+                  radius="md"
                   minRows={3}
                   name="notes"
                   value={formik.values.notes}
@@ -610,26 +622,28 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                 />
               </div>
             </ModalBody>
-            <ModalFooter className="px-4">
+
+            <ModalFooter className="px-5 py-3.5 border-t border-foreground/10 shrink-0 bg-background flex items-center justify-end gap-2.5">
               <Button
                 size="sm"
-                radius="sm"
-                variant="ghost"
+                radius="md"
+                variant="flat"
                 color="default"
                 onPress={onClose}
-                className="border-small"
+                className="font-medium"
               >
                 Cancel
               </Button>
               <Button
                 size="sm"
-                radius="sm"
+                radius="md"
                 variant="solid"
                 color="primary"
-                onPress={() => formik.handleSubmit()}
+                type="submit"
                 isLoading={submitting}
                 startContent={!submitting && <FiPlus className="text-[15px]" />}
                 isDisabled={submitting || !formik.isValid || !formik.dirty}
+                className="font-semibold px-4"
               >
                 Add Lead
               </Button>
