@@ -31,7 +31,7 @@ export default function ChatWidgetStats({ stats }: ChatWidgetStatsProps) {
     },
     {
       heading: "Avg Response Time",
-      value: stats ? stats.avgResponseTime : "2.3m",
+      value: stats && stats.totalConversations > 0 ? (stats.avgResponseTime || "< 1m") : "0m",
       icon: <HiOutlineClock className="text-orange-500 text-xl shrink-0" />
     }
   ];

@@ -641,19 +641,19 @@ const Conversations = () => {
   }, [selectedConversation, queryClient]);
 
   const stats = useMemo<StatCard[]>(() => {
+    const totalCount = locationFilteredConversations.length;
     const activeCount = locationFilteredConversations.filter((c) => c.status === "active").length;
     const unreadCount = locationFilteredConversations.reduce((acc, c) => acc + c.unreadCount, 0);
+    const conversionRate = totalCount > 0 ? Math.round((activeCount / totalCount) * 100) : 0;
     return [
       {
         heading: "Active Conversations",
         value: activeCount.toString(),
         icon: <LuMessageSquare className="text-blue-600 dark:text-blue-400" />,
         subheading: (
-          <TrendIndicator
-            status="increment"
-            percentage="12%"
-            label="from last week"
-          />
+          <span className="text-xs text-gray-500 dark:text-foreground/50 font-normal">
+            {activeCount > 0 ? "Active patient chats" : "No active chats"}
+          </span>
         ),
       },
       {
@@ -663,39 +663,33 @@ const Conversations = () => {
           <HiOutlineMail className="text-orange-600 dark:text-orange-400" />
         ),
         subheading: (
-          <TrendIndicator
-            status="decrement"
-            percentage="5%"
-            label="from yesterday"
-          />
+          <span className="text-xs text-gray-500 dark:text-foreground/50 font-normal">
+            {unreadCount > 0 ? `${unreadCount} unread message(s)` : "All messages read"}
+          </span>
         ),
       },
       {
         heading: "Avg Response Time",
-        value: "2.5m",
+        value: totalCount > 0 ? "< 2m" : "0m",
         icon: (
           <HiOutlineClock className="text-emerald-600 dark:text-emerald-400" />
         ),
         subheading: (
-          <TrendIndicator
-            status="decrement"
-            valueOverride="-15s"
-            label="from last week"
-          />
+          <span className="text-xs text-gray-500 dark:text-foreground/50 font-normal">
+            {totalCount > 0 ? "Fast response rate" : "No recent activity"}
+          </span>
         ),
       },
       {
         heading: "Conversion Rate",
-        value: "34%",
+        value: `${conversionRate}%`,
         icon: (
           <HiOutlineTrendingUp className="text-purple-600 dark:text-purple-400" />
         ),
         subheading: (
-          <TrendIndicator
-            status="increment"
-            percentage="3%"
-            label="vs target"
-          />
+          <span className="text-xs text-gray-500 dark:text-foreground/50 font-normal">
+            Patient response rate
+          </span>
         ),
       },
     ];
