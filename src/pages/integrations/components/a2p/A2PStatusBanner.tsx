@@ -43,7 +43,16 @@ export default function A2PStatusBanner({ registration, phoneNumbers, isA2PConfi
     );
   }
 
-  if (registration.status === "pending") {
+  const isFailed =
+    registration.status === "failed" ||
+    registration.campaignStatus === "FAILED" ||
+    registration.campaignStatus === "REJECTED" ||
+    registration.brandStatus === "FAILED" ||
+    registration.brandStatus === "REJECTED" ||
+    registration.customerProfileStatus === "FAILED" ||
+    registration.customerProfileStatus === "REJECTED";
+
+  if (registration.status === "pending" && !isFailed) {
     return (
       <div className="border border-amber-200 dark:border-amber-900/30 bg-amber-50/50 dark:bg-amber-950/10 rounded-2xl p-5 flex gap-3 items-start">
         <FiClock className="w-5 h-5 text-amber-500 dark:text-amber-400 mt-0.5 flex-shrink-0" />

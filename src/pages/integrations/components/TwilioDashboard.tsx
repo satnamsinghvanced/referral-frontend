@@ -43,6 +43,8 @@ export default function TwilioDashboard({ twilioConfig }: TwilioDashboardProps) 
           id: num._id || num.id || num.phoneNumber,
           phoneNumber: num.phoneNumber,
           label: num.label || num.friendlyName,
+          locationId: num.locationId || null,
+          locationName: num.locationName || null,
           status: num.status || "Active",
           capabilities: {
             voice: num.capabilities?.voice !== false,

@@ -6,12 +6,15 @@ import {
   ModalFooter,
   Button,
   Input,
+  Select,
+  SelectItem,
   addToast,
   Spinner,
 } from "@heroui/react";
 import { useState, useEffect } from "react";
 import { FiSearch, FiPlus } from "react-icons/fi";
 import axios from "../../../services/axios";
+import { useLocationContext } from "../../../providers/LocationContext";
 
 interface TwilioPurchaseNumberModalProps {
   isOpen: boolean;
@@ -38,6 +41,8 @@ export default function TwilioPurchaseNumberModal({
   balance,
   minutesLimit = 0,
 }: TwilioPurchaseNumberModalProps) {
+  const { locations, selectedLocation, getLocationColor } = useLocationContext();
+  const [selectedLocationId, setSelectedLocationId] = useState<string>("");
   const [areaCode, setAreaCode] = useState<string>("");
   const [searching, setSearching] = useState<boolean>(false);
   const [searchResults, setSearchResults] = useState<AvailableNumber[]>([]);
@@ -56,8 +61,13 @@ export default function TwilioPurchaseNumberModal({
       setSearchResults([]);
       setSearched(false);
       setBuyingNumber(null);
+      if (selectedLocation?._id) {
+        setSelectedLocationId(selectedLocation._id);
+      } else if (locations && locations.length > 0 && locations[0]?._id) {
+        setSelectedLocationId(locations[0]._id);
+      }
     }
-  }, [isOpen]);
+  }, [isOpen, selectedLocation, locations]);
 
   const handleSearch = async () => {
     if (!areaCode || areaCode.trim().length < 3) {
@@ -94,19 +104,22 @@ export default function TwilioPurchaseNumberModal({
   };
 
   const handleBuy = async (num: AvailableNumber) => {
-    const labelText = "Marketing Line";
+    const locObj = locations.find((l) => l._id === selectedLocationId) || selectedLocation || locations[0];
+    const labelText = locObj ? `${locObj.name} Line` : "Marketing Line";
     setBuyingNumber(num.phoneNumber);
     try {
       const response = (await axios.post("/twilio-checkout/buy-number", {
         phoneNumber: num.phoneNumber,
         label: labelText,
+        locationId: locObj?._id || null,
+        locationName: locObj?.name || null,
       })) as any;
 
       if (response?.success) {
         onPurchaseSuccess(num.phoneNumber, labelText);
         addToast({
           title: "Number Purchased",
-          description: `Successfully purchased ${num.phoneNumber} for your account.`,
+          description: `Successfully purchased ${num.phoneNumber} for ${locObj?.name || "your account"}.`,
           color: "success",
         });
         onClose();
@@ -172,6 +185,80 @@ export default function TwilioPurchaseNumberModal({
               </p>
             </div>
           )}
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-xs font-semibold text-foreground">Select Location</label>
+            <Select
+              aria-label="Select Location"
+              placeholder="Select practice location"
+              selectedKeys={selectedLocationId ? [selectedLocationId] : []}
+              onSelectionChange={(keys) => {
+                const key = Array.from(keys)[0] as string;
+                if (key) setSelectedLocationId(key);
+              }}
+              disableAnimation
+              popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+              classNames={{
+                trigger: "border border-foreground/10 rounded-lg bg-transparent h-11",
+                value: "text-sm",
+              }}
+              renderValue={(items) => {
+                return items.map((item) => {
+                  const loc = locations.find((l) => l._id === item.key || l.name === item.key);
+                  const color = loc ? (loc.color || getLocationColor(loc._id)) : "#0ea5e9";
+                  const addressStr = loc?.address
+                    ? [loc.address.street, loc.address.city, loc.address.state, loc.address.zipcode].filter(Boolean).join(", ")
+                    : "";
+                  return (
+                    <div key={item.key} className="flex items-center gap-2 min-w-0">
+                      <span
+                        className="w-2.5 h-2.5 rounded-full shrink-0"
+                        style={{ backgroundColor: color }}
+                      />
+                      <div className="flex items-center gap-1.5 min-w-0 truncate">
+                        <span className="text-sm font-medium text-foreground shrink-0">{loc?.name || item.textValue}</span>
+                        {addressStr && (
+                          <span className="text-xs text-foreground-500 truncate font-normal">({addressStr})</span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                });
+              }}
+            >
+              {locations.map((loc, idx) => {
+                const color = loc.color || getLocationColor(loc._id, idx);
+                const addressStr = loc.address
+                  ? [loc.address.street, loc.address.city, loc.address.state, loc.address.zipcode].filter(Boolean).join(", ")
+                  : "";
+                return (
+                  <SelectItem key={loc._id || loc.name} textValue={loc.name}>
+                    <div className="flex items-start gap-2.5 py-1">
+                      <span
+                        className="w-2.5 h-2.5 rounded-full shrink-0 mt-1"
+                        style={{ backgroundColor: color }}
+                      />
+                      <div className="flex flex-col min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="font-medium text-sm text-foreground">{loc.name}</span>
+                          {loc.isPrimary && (
+                            <span className="text-[10px] bg-blue-100 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded font-normal">
+                              Primary
+                            </span>
+                          )}
+                        </div>
+                        {addressStr && (
+                          <span className="text-xs text-foreground-500 font-normal truncate mt-0.5">
+                            {addressStr}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </SelectItem>
+                );
+              })}
+            </Select>
+          </div>
 
           <div className="flex gap-2.5 items-end">
             <Input

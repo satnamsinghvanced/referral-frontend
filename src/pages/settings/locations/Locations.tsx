@@ -164,7 +164,11 @@ const Locations: React.FC = () => {
                         )}
                       </div>
                       <p className="text-xs text-gray-600 dark:text-gray-400 mb-1">
-                        {`${loc.address.street}, ${loc.address.city}, ${loc.address.state}, ${loc.address.zipcode}`}
+                        {[loc.address?.street, loc.address?.city, loc.address?.state, loc.address?.zipcode]
+                          .map((s) => s?.trim())
+                          .filter(Boolean)
+                          .join(", ")
+                          .replace(/,\s*,/g, ",")}
                       </p>
                       <p className="text-xs text-gray-600 dark:text-gray-400">
                         {loc.phone}

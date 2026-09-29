@@ -254,8 +254,15 @@ const ReferralManagement = () => {
     setIsFilterViewActive(true);
   }, []);
 
-  const handleReferralTypeChange = (key: string | number) =>
-    setSelectedReferralType(key as ReferralType);
+  const handleReferralTypeChange = (key: string | number) => {
+    const newTab = key as ReferralType;
+    setSelectedReferralType(newTab);
+    setSearchParams((prev) => {
+      const newParams = new URLSearchParams(prev);
+      newParams.set("tab", newTab);
+      return newParams;
+    });
+  };
 
   const handleFilterChange = (key: string, value: string) => {
     const apiValue = value.toLowerCase().includes("all") ? "" : value;
@@ -853,10 +860,26 @@ const ReferralManagement = () => {
       )}
       <TrackReferralModal
         isOpen={isTrackReferralModalOpen}
-        onClose={() => setIsTrackReferralModalOpen(false)}
+        onClose={() => {
+          setIsTrackReferralModalOpen(false);
+          if (searchParams.has("action")) {
+            setSearchParams((prev) => {
+              const newParams = new URLSearchParams(prev);
+              newParams.delete("action");
+              return newParams;
+            });
+          }
+        }}
         referrers={selectionReferrers}
         onCreateNewReferrer={() => {
           setIsTrackReferralModalOpen(false);
+          if (searchParams.has("action")) {
+            setSearchParams((prev) => {
+              const newParams = new URLSearchParams(prev);
+              newParams.delete("action");
+              return newParams;
+            });
+          }
           setIsModalOpen(true);
         }}
       />

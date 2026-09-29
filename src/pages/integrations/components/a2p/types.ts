@@ -2,6 +2,8 @@ export interface PhoneNumber {
   id: string;
   phoneNumber: string;
   label: string;
+  locationId?: string | null;
+  locationName?: string | null;
   status: "Active" | "Pending" | string;
   capabilities: { voice: boolean; SMS: boolean; MMS: boolean };
 }

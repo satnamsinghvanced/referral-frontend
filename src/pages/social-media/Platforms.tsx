@@ -22,7 +22,7 @@ const Platforms = ({
   const { data: allCredentials, isLoading: isGlobalLoading } =
     useSocialCredentials();
   const { mutate: connectSocial, isPending: isConnecting } = useConnectSocial();
-  const { mutate: updateSocial, isPending: isUpdatingSocial } = useUpdateSocial();
+  const { mutate: updateSocial, isPending: isUpdatingSocial, variables: updatingSocialVars } = useUpdateSocial();
   const [pendingConnect, setPendingConnect] =
     useState<PendingSocialConnect | null>(null);
 
@@ -197,7 +197,7 @@ const Platforms = ({
                 onReconnect={() => openConnectModal(platform)}
                 onConfigure={() => onOpenSelector(platform.selectorPlatform)}
                 isSwitchChecked={platform.status === "Connected"}
-                isSwitchLoading={isUpdatingSocial}
+                isSwitchLoading={isUpdatingSocial && !!updatingSocialVars?.id && updatingSocialVars.id === platform.id}
                 onSwitchChange={() => {
                   updateSocial({
                     id: platform.id,

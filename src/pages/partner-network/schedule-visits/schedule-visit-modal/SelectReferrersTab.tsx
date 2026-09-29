@@ -133,9 +133,17 @@ export const SelectReferrersTab: React.FC<SelectReferrersTabProps> = ({
                             {r.name}
                           </p>
                           <p className="text-gray-600 dark:text-foreground/60">
-                            {r.address.addressLine1} {r.address.city}
-                            {r.address.state && `, ${r.address.state}`}
-                            {r.address.zip && ` ${r.address.zip}`}
+                            {[
+                              r.address?.addressLine1,
+                              r.address?.addressLine2,
+                              r.address?.city,
+                              r.address?.state,
+                              r.address?.zip,
+                            ]
+                              .map((s) => String(s || "").trim())
+                              .filter(Boolean)
+                              .join(", ")
+                              .replace(/,\s*,/g, ",")}
                           </p>
                         </div>
                       </div>

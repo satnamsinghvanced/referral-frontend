@@ -61,18 +61,15 @@ const IntegrationItem: React.FC<IntegrationItemProps> = ({
   isHighlighted,
 }) => {
   const [isLocalLoading, setIsLocalLoading] = useState(false);
-
   useEffect(() => {
     if (!isSwitchLoading) {
       setIsLocalLoading(false);
     }
   }, [isSwitchLoading, isSwitchChecked]);
-
   const handleSwitchToggle = (checked: boolean) => {
     setIsLocalLoading(true);
     onSwitchChange?.(checked);
   };
-
   const isLoading = isSwitchLoading || isLocalLoading;
   const isCredentialsSaved = !!id;
   const showConnectedActions = isFullyConnected ?? isCredentialsSaved;

@@ -283,7 +283,10 @@ const LeadAutomations = ({ onBack }: LeadAutomationsProps) => {
                       className="bg-default-100 text-default-600 dark:text-foreground/70 text-[10px] font-bold h-6"
                       startContent={<FiClock className="size-3 mr-1" />}
                     >
-                      Delay: {automation.delayAmount} {automation.delayUnit}
+                      Delay: {automation.delayAmount}{" "}
+                      {Number(automation.delayAmount) === 1
+                        ? automation.delayUnit?.replace(/s$/i, "")
+                        : automation.delayUnit}
                     </Chip>
                     {automation.condition && (
                       <Chip

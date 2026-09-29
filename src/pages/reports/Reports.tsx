@@ -97,9 +97,11 @@ const Reports = () => {
     {
       icon: <LuActivity className="text-green-500" />,
       heading: "Data Sources",
-      value: stats?.dataSources.count.toString() || "5",
+      value: (stats?.dataSources?.count ?? 0).toString(),
       subheading: (
-        <span className="text-gray-600 dark:text-foreground/40">Connected</span>
+        <span className="text-gray-600 dark:text-foreground/40">
+          {stats?.dataSources?.count && stats.dataSources.count > 0 ? "Connected" : "No Sources Connected"}
+        </span>
       ),
     },
     {
@@ -150,7 +152,6 @@ const Reports = () => {
         console.error("Failed to parse report download URL:", e);
       }
     }
-
     try {
       const response = await fetch(downloadUrl, {
         headers: {

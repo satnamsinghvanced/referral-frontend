@@ -232,7 +232,6 @@ export default function LeadForm() {
                 const fieldNameLower = (field.name || "").toLowerCase();
                 const isPhoneField = fieldNameLower === "phone" || fieldNameLower.includes("phone");
                 const isSelectField = field.type === "select";
-
                 if (isSelectField) {
                   return (
                     <div key={field.name} style={styles.fullWidth} data-field={field.name}>

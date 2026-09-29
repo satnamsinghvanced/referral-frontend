@@ -150,10 +150,17 @@ const PartnerDetailsModal = ({
                         Address
                       </div>
                       <div className="text-xs text-gray-600 dark:text-foreground/60">
-                        {displayData?.practiceAddress?.addressLine1},{" "}
-                        {displayData?.practiceAddress?.city},{" "}
-                        {displayData?.practiceAddress?.state},{" "}
-                        {displayData?.practiceAddress?.zip}
+                        {[
+                          displayData?.practiceAddress?.addressLine1,
+                          displayData?.practiceAddress?.addressLine2,
+                          displayData?.practiceAddress?.city,
+                          displayData?.practiceAddress?.state,
+                          displayData?.practiceAddress?.zip,
+                        ]
+                          .map((s) => String(s || "").trim())
+                          .filter(Boolean)
+                          .join(", ")
+                          .replace(/,\s*,/g, ",")}
                       </div>
                     </div>
                   </div>

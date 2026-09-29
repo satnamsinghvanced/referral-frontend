@@ -65,7 +65,7 @@ function Integrations() {
   const [pendingConnect, setPendingConnect] = useState<PendingSocialConnect | null>(null);
   const { data: allSocialCredentials } = useSocialCredentials();
   const { mutate: connectSocial, isPending: isSocialConnecting } = useConnectSocial();
-  const { mutate: updateSocial, isPending: isUpdatingSocial } = useUpdateSocial();
+  const { mutate: updateSocial, isPending: isUpdatingSocial, variables: updatingSocialVars } = useUpdateSocial();
   const handleConfirmSocialConnect = () => {
     if (!pendingConnect) return;
     if (pendingConnect.onConfirm) {
@@ -266,10 +266,7 @@ function Integrations() {
   const { mutate: connectGoogleAnalytics } = useConnectAnalytics();
   const rawEmailData = (emailExistingConfig as any)?.data ?? emailExistingConfig;
   const emailConfigsList = Array.isArray(rawEmailData)
-    ? rawEmailData
-    : rawEmailData
-      ? [rawEmailData]
-      : [];
+    ? rawEmailData : rawEmailData ? [rawEmailData] : [];
   const smtpConfig = emailConfigsList.find(
     (cfg: any) => cfg && typeof cfg === "object" && cfg.provider !== "SendGrid"
   );
@@ -556,7 +553,6 @@ function Integrations() {
         accountAvatar: googleAnalyticsConfig?.accountAvatar,
       },
     });
-
     list.push({
       key: "email_marketing",
       id: smtpConfig?._id || "",
@@ -605,7 +601,6 @@ function Integrations() {
         accountAvatar: smtpConfig?.accountAvatar,
       },
     });
-
     return list;
   }, [
     smtpConfig,
@@ -631,7 +626,6 @@ function Integrations() {
     connectGoogleAnalytics,
     hasAdsAccess,
   ]);
-
   const SOCIAL_MEDIA_INTEGRATIONS = useMemo(() => {
     const list: any[] = [];
     const socialCredentials = (allSocialCredentials && typeof allSocialCredentials === "object" && "data" in allSocialCredentials && allSocialCredentials.data)
@@ -703,10 +697,10 @@ function Integrations() {
         setIsSelectorOpen(true);
       },
       isSwitchChecked: metaStatus === "Connected",
-      isSwitchLoading: isUpdatingSocial,
+      isSwitchLoading: isUpdatingSocial && !!updatingSocialVars?.id && (updatingSocialVars.id === metaCreds?.id || updatingSocialVars.id === metaCreds?._id),
       onSwitchChange: () => {
         updateSocial({
-          id: metaCreds?.id,
+          id: metaCreds?.id || metaCreds?._id || "",
           payload: {
             status:
               metaStatus === "Connected"
@@ -757,10 +751,10 @@ function Integrations() {
         setIsSelectorOpen(true);
       },
       isSwitchChecked: youtubeStatus === "Connected",
-      isSwitchLoading: isUpdatingSocial,
+      isSwitchLoading: isUpdatingSocial && !!updatingSocialVars?.id && (updatingSocialVars.id === youtubeCreds?.id || updatingSocialVars.id === youtubeCreds?._id),
       onSwitchChange: () => {
         updateSocial({
-          id: youtubeCreds?.id,
+          id: youtubeCreds?.id || youtubeCreds?._id || "",
           payload: {
             status:
               youtubeStatus === "Connected"
@@ -776,7 +770,7 @@ function Integrations() {
       },
     });
     return list;
-  }, [allSocialCredentials, updateSocial, isUpdatingSocial]);
+  }, [allSocialCredentials, updateSocial, isUpdatingSocial, updatingSocialVars]);
 
   return (
     <>
