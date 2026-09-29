@@ -20,6 +20,15 @@ export default function A2PRegistrationSection({
 }: A2PRegistrationSectionProps) {
   const badgeDetails = getA2PBadgeDetails(registration);
 
+  const isFailed =
+    registration?.status === "failed" ||
+    registration?.campaignStatus === "FAILED" ||
+    registration?.campaignStatus === "REJECTED" ||
+    registration?.brandStatus === "FAILED" ||
+    registration?.brandStatus === "REJECTED" ||
+    registration?.customerProfileStatus === "FAILED" ||
+    registration?.customerProfileStatus === "REJECTED";
+
   return (
     <Card className="shadow-none border border-foreground/10 bg-background rounded-2xl p-5">
       <CardBody className="p-0 flex flex-col gap-6">
@@ -38,8 +47,8 @@ export default function A2PRegistrationSection({
             )}
           </div>
           <Button
-            color={!registration ? "primary" : registration?.status === "failed" ? "danger" : "primary"}
-            variant={registration && registration.status !== "failed" ? "flat" : "solid"}
+            color={!registration ? "primary" : isFailed ? "danger" : "primary"}
+            variant={registration && !isFailed ? "flat" : "solid"}
             size="sm"
             onPress={onOpenRegistrationModal}
             startContent={<FiCheckCircle className="w-3.5 h-3.5" />}
@@ -52,7 +61,7 @@ export default function A2PRegistrationSection({
           >
             {!registration
               ? "Register for SMS"
-              : registration.status === "failed"
+              : isFailed
               ? "Edit & Re-submit"
               : "Edit Registration"}
           </Button>

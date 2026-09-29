@@ -2,6 +2,7 @@ import React from "react";
 import { Card, CardBody, Button, Chip } from "@heroui/react";
 import { FiPhone, FiTrash2, FiRefreshCw } from "react-icons/fi";
 import { PhoneNumber } from "../a2p/types";
+import { useLocationContext } from "../../../../providers/LocationContext";
 
 interface ConnectedPhoneNumbersListProps {
   phoneNumbers: PhoneNumber[];
@@ -16,6 +17,8 @@ export default function ConnectedPhoneNumbersList({
   onRefresh,
   onSelectReleaseNumber,
 }: ConnectedPhoneNumbersListProps) {
+  const { getLocationColor, locations } = useLocationContext();
+
   return (
     <Card className="shadow-none border border-foreground/10 bg-background rounded-2xl p-5">
       <CardBody className="p-0 flex flex-col gap-4">
@@ -44,59 +47,84 @@ export default function ConnectedPhoneNumbersList({
           </div>
         ) : (
           <div className="flex flex-col gap-3">
-            {phoneNumbers.map((num) => (
-              <div
-                key={num.id}
-                className="border border-foreground/5 dark:border-foreground/10 hover:border-foreground/10 bg-foreground/5 dark:bg-default-50/50 hover:bg-foreground/10 transition-all rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-950/35 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                    <FiPhone className="w-4 h-4" />
-                  </div>
-                  <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-bold text-sm text-foreground">
-                        {num.phoneNumber}
-                      </span>
-                      <Chip
-                        size="sm"
-                        className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[10px] font-semibold h-4 px-1.5"
-                      >
-                        {num.status}
-                      </Chip>
-                    </div>
-                    <span className="text-xs text-foreground-500">{num.label}</span>
-                    <div className="flex gap-2.5 mt-1">
-                      {num.capabilities.voice && (
-                        <span className="text-[10px] border border-foreground/10 text-foreground-500 px-2 py-0.5 rounded-full font-medium">
-                          Voice
-                        </span>
-                      )}
-                      {num.capabilities.SMS && (
-                        <span className="text-[10px] border border-foreground/10 text-foreground-500 px-2 py-0.5 rounded-full font-medium">
-                          SMS
-                        </span>
-                      )}
-                      {num.capabilities.MMS && (
-                        <span className="text-[10px] border border-foreground/10 text-foreground-500 px-2 py-0.5 rounded-full font-medium">
-                          MMS
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-                <Button
-                  variant="bordered"
-                  color="danger"
-                  size="sm"
-                  onPress={() => onSelectReleaseNumber(num)}
-                  startContent={<FiTrash2 className="w-3.5 h-3.5" />}
-                  className="border border-danger/20 dark:border-danger/10 hover:bg-danger/10 text-danger rounded-lg text-xs font-semibold h-8 px-3.5"
+            {phoneNumbers.map((num) => {
+              const matchedLoc = locations.find(
+                (l) =>
+                  l._id === num.locationId ||
+                  l.name?.toLowerCase() === num.locationName?.toLowerCase()
+              );
+              const locName = num.locationName || matchedLoc?.name;
+              const locColor = matchedLoc?.color || getLocationColor(num.locationId || locName);
+
+              return (
+                <div
+                  key={num.id}
+                  className="border border-foreground/5 dark:border-foreground/10 hover:border-foreground/10 bg-foreground/5 dark:bg-default-50/50 hover:bg-foreground/10 transition-all rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
                 >
-                  Release
-                </Button>
-              </div>
-            ))}
+                  <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-blue-100 dark:bg-blue-950/35 flex items-center justify-center text-blue-600 dark:text-blue-400 shrink-0">
+                      <FiPhone className="w-4 h-4" />
+                    </div>
+                    <div className="flex flex-col gap-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-bold text-sm text-foreground">
+                          {num.phoneNumber}
+                        </span>
+                        {locName && (
+                          <span
+                            className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold"
+                            style={{
+                              backgroundColor: `${locColor}20`,
+                              color: locColor,
+                            }}
+                          >
+                            <span
+                              className="w-1.5 h-1.5 rounded-full shrink-0"
+                              style={{ backgroundColor: locColor }}
+                            />
+                            {locName}
+                          </span>
+                        )}
+                        <Chip
+                          size="sm"
+                          className="bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-[10px] font-semibold h-4 px-1.5"
+                        >
+                          {num.status}
+                        </Chip>
+                      </div>
+                      <span className="text-xs text-foreground-500">{num.label}</span>
+                      <div className="flex gap-2.5 mt-1">
+                        {num.capabilities.voice && (
+                          <span className="text-[10px] border border-foreground/10 text-foreground-500 px-2 py-0.5 rounded-full font-medium">
+                            Voice
+                          </span>
+                        )}
+                        {num.capabilities.SMS && (
+                          <span className="text-[10px] border border-foreground/10 text-foreground-500 px-2 py-0.5 rounded-full font-medium">
+                            SMS
+                          </span>
+                        )}
+                        {num.capabilities.MMS && (
+                          <span className="text-[10px] border border-foreground/10 text-foreground-500 px-2 py-0.5 rounded-full font-medium">
+                            MMS
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <Button
+                    variant="bordered"
+                    color="danger"
+                    size="sm"
+                    onPress={() => onSelectReleaseNumber(num)}
+                    startContent={<FiTrash2 className="w-3.5 h-3.5" />}
+                    className="border border-danger/20 dark:border-danger/10 hover:bg-danger/10 text-danger rounded-lg text-xs font-semibold h-8 px-3.5"
+                  >
+                    Release
+                  </Button>
+                </div>
+              );
+            })}
           </div>
         )}
       </CardBody>
