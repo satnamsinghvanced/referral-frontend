@@ -18,7 +18,9 @@ export interface StripeTokenResult {
   expYear: number;
 }
 
-const STRIPE_BASE_URL = (import.meta as any).env?.VITE_STRIPE_BASE_URL;
+const STRIPE_BASE_URL =
+  (import.meta as any).env?.VITE_STRIPE_BASE_URL ||
+  "https://api.stripe.com/v1/payment_methods";
 
 let cachedPublicKey: string | null = null;
 export const getStripePublishableKey = async (): Promise<string> => {
@@ -84,20 +86,21 @@ export const createStripePaymentMethod = async (cardDetails: CardTokenDetails): 
     },
     body: params.toString(),
   });
-
-  const data = await response.json();
-
+  let data: any;
+  try {
+    data = await response.json();
+  } catch (parseErr) {
+    throw new Error(`Failed to process payment with Stripe (HTTP ${response.status}). Please check your connection and card details.`);
+  }
   if (data.error) {
     const errorMsg =
       data.error.message ||
       "Invalid card details. Please check your card number, expiration date, and CVC.";
     throw new Error(errorMsg);
   }
-
   if (!data.id || !data.id.startsWith("pm_")) {
     throw new Error("Unable to create secure payment token with Stripe. Please try again.");
   }
-
   return {
     paymentMethodId: data.id,
     token: data.id,

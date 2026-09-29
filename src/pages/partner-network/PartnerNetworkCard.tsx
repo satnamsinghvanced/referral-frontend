@@ -34,10 +34,17 @@ const PartnerNetworkCard = ({ partner, actions }: PartnerNetworkCardProps) => {
             <p className="flex gap-1 items-center text-gray-600 dark:text-foreground/40">
               <GrLocation className="size-[15px] min-w-[15px] min-h-[15px]" />
               <span className="md:max-w-[200px] xl:max-w-[300px] sm:line-clamp-1 sm:whitespace-nowrap text-ellipsis">
-                {partner.address.addressLine1}
-                {partner.address.city && `, ${partner.address.city}`}
-                {partner.address.state && `, ${partner.address.state}`}
-                {partner.address.zip && `, ${partner.address.zip}`}
+                {[
+                  partner.address?.addressLine1,
+                  partner.address?.addressLine2,
+                  partner.address?.city,
+                  partner.address?.state,
+                  partner.address?.zip,
+                ]
+                  .map((s) => String(s || "").trim())
+                  .filter(Boolean)
+                  .join(", ")
+                  .replace(/,\s*,/g, ",")}
               </span>
             </p>
             {partner.phone && (

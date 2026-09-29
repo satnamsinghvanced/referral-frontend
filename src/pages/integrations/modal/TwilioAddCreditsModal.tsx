@@ -84,10 +84,14 @@ export default function TwilioAddCreditsModal({
   };
 
   const handleConfirmPlan = () => {
+    console.log("setp 1")
     setIsConnecting(true);
     const activePlanId = activePlan.planId || (activePlan as any)._id || "growth";
+    console.log("setp 2")
+
     const activeMinutes = activePlan.callMinutes || 1000;
     const url = `${window.location.origin}/checkout?type=twilio_credits&amount=${activePlan.price}&walletAmount=${activePlan.price}&package=${activeMinutes}&planId=${activePlanId}&planName=${activePlan.name}&auto_topup=true`;
+    console.log("url >>>>", url)
     window.open(url, "_blank");
     onClose();
   };
@@ -171,11 +175,10 @@ export default function TwilioAddCreditsModal({
                       key={plan._id || plan.planId}
                       type="button"
                       onClick={() => setSelectedPlanId(planKey)}
-                      className={`relative flex items-center justify-between p-3.5 rounded-xl border text-left transition-all duration-200 cursor-pointer ${
-                        isSelected
-                          ? "border-primary bg-primary/5 text-foreground ring-2 ring-primary/30 shadow-md shadow-primary/5 font-semibold"
-                          : "border-foreground/10 bg-default-50/20 hover:bg-default-50 text-foreground"
-                      }`}
+                      className={`relative flex items-center justify-between p-3.5 rounded-xl border text-left transition-all duration-200 cursor-pointer ${isSelected
+                        ? "border-primary bg-primary/5 text-foreground ring-2 ring-primary/30 shadow-md shadow-primary/5 font-semibold"
+                        : "border-foreground/10 bg-default-50/20 hover:bg-default-50 text-foreground"
+                        }`}
                     >
                       {plan.isPopular && (
                         <span className="absolute top-2.5 right-3 px-2 py-0.5 bg-primary text-white text-[8px] rounded-full tracking-wider uppercase font-bold">

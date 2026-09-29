@@ -38,7 +38,7 @@ const triggerLogout = () => {
         localStorage.removeItem(key);
       }
     });
-  } catch (e) {}
+  } catch (e) { }
   queryClient.clear();
   window.location.href = `${import.meta.env.VITE_URL_PREFIX || ""}/signin`;
 };
