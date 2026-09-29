@@ -5,7 +5,6 @@ import { GoGraph } from "react-icons/go";
 import { HiOutlineDeviceMobile } from "react-icons/hi";
 import { LuCheck, LuCopy, LuDownload, LuQrCode, LuTrash2, LuSquarePen } from "react-icons/lu";
 import { RiExternalLinkLine } from "react-icons/ri";
-import { Link } from "react-router";
 import { LoadingState } from "../../components/common/LoadingState";
 import {
   useCreateTrackingSetup,
@@ -18,6 +17,15 @@ import { formatDateToMMDDYYYY } from "../../utils/formatDateToMMDDYYYY";
 import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
 
 const URL_REGEX = /^(https:\/\/|www\.)[^\s]+\.[^\s]+$/i;
+
+const getValidUrl = (url?: string) => {
+  if (!url) return "";
+  const trimmed = url.trim();
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
+  return `https://${trimmed}`;
+};
 
 const TrackingPanel = () => {
   const [copied, setCopied] = useState("");
@@ -37,10 +45,9 @@ const TrackingPanel = () => {
   const userId = user?.userId;
 
   const { data: trackings, isLoading } = useFetchTrackings(userId as string);
-  const { mutate: createTrackingSetup } = useCreateTrackingSetup();
+  const { mutate: createTrackingSetup, isPending: isCreating } = useCreateTrackingSetup();
   const { mutate: deleteTracking, isPending: isDeleting } = useDeleteTracking();
   const { mutate: updateTracking, isPending: isUpdating } = useUpdateTracking();
-  console.log("trackings >>>>>", trackings)
 
   const handleDeleteConfirm = () => {
     if (!deleteQrId) return;
@@ -467,7 +474,8 @@ const TrackingPanel = () => {
                     size="sm"
                     onPress={generateTracking}
                     fullWidth
-                    isDisabled={isGenerateDisabled}
+                    isLoading={isCreating}
+                    isDisabled={isGenerateDisabled || isCreating}
                   >
                     Generate QR Code
                   </Button>
@@ -591,22 +599,21 @@ const TrackingPanel = () => {
                   >
                     Share
                   </Button>
-                  <Link
-                    to={latestQr.referralUrl.split("&source")[0] || ""}
+                  <Button
+                    as="a"
+                    href={getValidUrl(latestQr.referralUrl?.split("&source")[0] || "")}
                     target="_blank"
+                    rel="noopener noreferrer"
+                    variant="bordered"
+                    color="default"
+                    startContent={<RiExternalLinkLine fontSize={14} />}
+                    className="border-small"
+                    size="sm"
+                    radius="sm"
+                    fullWidth
                   >
-                    <Button
-                      variant="bordered"
-                      color="default"
-                      startContent={<RiExternalLinkLine fontSize={14} />}
-                      className="border-small"
-                      size="sm"
-                      radius="sm"
-                      fullWidth
-                    >
-                      Preview Page
-                    </Button>
-                  </Link>
+                    Preview Page
+                  </Button>
                   <Button
                     variant="bordered"
                     color="default"
@@ -745,7 +752,7 @@ const TrackingPanel = () => {
                     onClick={() => {
                       setSelectedQrId(qr._id);
                       setShowGenerator(false);
-                   }}
+                    }}
                     className={`cursor-pointer transition-colors border-l-2 ${qr._id === latestQr?._id
                       ? "bg-blue-50/80 border-l-blue-600 dark:bg-blue-900/20"
                       : "border-transparent hover:bg-gray-50/50 dark:hover:bg-white/[0.02]"
@@ -766,10 +773,9 @@ const TrackingPanel = () => {
                           {qr.customPath || "Default"}
                         </span>
                         <a
-                          href={
-                            qr.isManually ? `${import.meta.env.VITE_BASE_URL}?${qr.referralUrl}` : qr.referralUrl}
+                          href={getValidUrl(qr.referralUrl)}
                           target="_blank"
-                          rel="noreferrer"
+                          rel="noopener noreferrer"
                           onClick={(e) => e.stopPropagation()}
                           className="text-[11px] text-blue-500 hover:underline truncate w-fit max-md:max-w-[200px]"
                         >

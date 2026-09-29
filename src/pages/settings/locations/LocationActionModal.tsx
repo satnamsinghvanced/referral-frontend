@@ -173,10 +173,6 @@ const LocationActionModal = ({
     },
   });
 
-  const selectedColor = formik.values.color?.toLowerCase()?.trim();
-  const colorTakenBy = selectedColor ? usedColorsMap.get(selectedColor) : undefined;
-  const isColorDuplicate = Boolean(colorTakenBy);
-
   const { resetForm } = formik;
 
   useEffect(() => {
@@ -325,13 +321,12 @@ const LocationActionModal = ({
                           key={c}
                           type="button"
                           onClick={() => formik.setFieldValue("color", c)}
-                          className={`w-8 h-8 rounded-lg transition-all cursor-pointer shadow-xs shrink-0 relative ${
-                            isPicked
+                          className={`w-8 h-8 rounded-lg transition-all cursor-pointer shadow-xs shrink-0 relative ${isPicked
                               ? "ring-2 ring-white scale-105 shadow-md"
                               : isUsedByOther
-                              ? "opacity-40 hover:opacity-70"
-                              : "hover:opacity-90 hover:scale-105 opacity-95"
-                          }`}
+                                ? "opacity-40 hover:opacity-70"
+                                : "hover:opacity-90 hover:scale-105 opacity-95"
+                            }`}
                           style={{ backgroundColor: c }}
                           title={isUsedByOther ? `Used by ${usedByLocName}` : c}
                         />
@@ -340,11 +335,6 @@ const LocationActionModal = ({
                   })}
                 </div>
               </div>
-              {isColorDuplicate && (
-                <p className="text-xs text-danger font-normal">
-                  This color is already in use by &quot;{colorTakenBy}&quot;. Each practice location must have a unique color.
-                </p>
-              )}
             </div>
 
             {/* Primary Location Switch */}
@@ -398,7 +388,7 @@ const LocationActionModal = ({
             radius="sm"
             isLoading={isSaving}
             startContent={!isSaving && <FiPlus className="size-[15px]" />}
-            isDisabled={!formik.isValid || !formik.dirty || isSaving || isColorDuplicate}
+            isDisabled={!formik.isValid || !formik.dirty || isSaving}
           >
             Save
           </Button>

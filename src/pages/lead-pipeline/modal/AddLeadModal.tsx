@@ -61,7 +61,14 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
     location: Yup.string().nullable().notRequired(),
     source: Yup.string().required("Source is required"),
     priority: Yup.string().required("Priority is required"),
-    estimatedValue: Yup.number().typeError("Value must be a number").nullable(),
+    estimatedValue: Yup.number()
+      .typeError("Value must be a number")
+      .min(0, "Estimated value cannot be negative")
+      .max(100000, "Estimated value cannot exceed $100,000")
+      .nullable(),
+    notes: Yup.string()
+      .max(200, "Additional notes cannot exceed 200 characters")
+      .nullable(),
   });
   const formik = useFormik({
     enableReinitialize: true,
@@ -90,14 +97,15 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
         const payload = {
           ...restValues,
           locationId: locId,
-          estimatedValue: Number(values.estimatedValue) || 0,
+          estimatedValue: Math.min(Math.max(Number(values.estimatedValue) || 0, 0), 100000),
+          notes: values.notes ? values.notes.slice(0, 200) : "",
           assignedTo:
             values.assignedTo === "Unassigned" ||
               !/^[0-9a-fA-F]{24}$/.test(values.assignedTo)
               ? null
               : values.assignedTo,
           treatments: Array.from(selectedTreatments),
-          tags: tags,
+          tags: tags.slice(0, 5),
           status: "newLead",
         };
         await addLead(payload);
@@ -112,8 +120,10 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
   });
 
   const handleAddTag = () => {
-    if (tagInput.trim() && !tags.includes(tagInput.trim())) {
-      setTags([...tags, tagInput.trim()]);
+    if (tags.length >= 5) return;
+    const trimmed = tagInput.trim();
+    if (trimmed && !tags.includes(trimmed)) {
+      setTags([...tags, trimmed]);
       setTagInput("");
     }
   };
@@ -488,9 +498,33 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                     size="sm"
                     radius="md"
                     type="number"
+                    min={0}
+                    max={100000}
                     name="estimatedValue"
+                    id="lead_estimated_value"
                     value={formik.values.estimatedValue}
-                    onChange={formik.handleChange}
+                    onValueChange={(val) => {
+                      if (val === "") {
+                        formik.setFieldValue("estimatedValue", "");
+                        return;
+                      }
+                      const cleanVal = val.replace(/[^0-9.]/g, "");
+                      const num = parseFloat(cleanVal);
+                      if (isNaN(num)) {
+                        formik.setFieldValue("estimatedValue", "");
+                      } else if (num < 0) {
+                        formik.setFieldValue("estimatedValue", "0");
+                      } else if (num > 100000) {
+                        formik.setFieldValue("estimatedValue", "100000");
+                      } else {
+                        formik.setFieldValue("estimatedValue", cleanVal);
+                      }
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "-" || e.key === "e" || e.key === "E" || e.key === "+") {
+                        e.preventDefault();
+                      }
+                    }}
                     onBlur={formik.handleBlur}
                     isInvalid={
                       !!(
@@ -559,20 +593,26 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
 
               {/* Tags Card */}
               <div className="border border-foreground/10 rounded-xl p-3.5 sm:p-4 space-y-3.5 bg-foreground/[0.01]">
-                <h4 className="font-semibold text-xs text-foreground/70 uppercase tracking-wider">
-                  Tags
-                </h4>
+                <div className="flex items-center justify-between">
+                  <h4 className="font-semibold text-xs text-foreground/70 uppercase tracking-wider">
+                    Tags
+                  </h4>
+                  <span className="text-[11px] text-foreground/50">
+                    {tags.length}/5 tags
+                  </span>
+                </div>
                 <div className="space-y-3">
                   <div className="flex gap-2">
                     <Input
                       labelPlacement="outside"
-                      placeholder="Add custom tag..."
+                      placeholder={tags.length >= 5 ? "Maximum 5 tags reached" : "Add custom tag..."}
                       variant="flat"
                       size="sm"
                       radius="md"
                       className="flex-1"
                       value={tagInput}
                       onValueChange={setTagInput}
+                      isDisabled={tags.length >= 5}
                       onKeyDown={(e) => e.key === "Enter" && handleAddTag()}
                     />
                     <Button
@@ -581,6 +621,7 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                       radius="md"
                       className="font-medium px-4 h-8"
                       onPress={handleAddTag}
+                      isDisabled={tags.length >= 5 || !tagInput.trim()}
                     >
                       Add
                     </Button>
@@ -615,10 +656,15 @@ const AddLeadModal = ({ isOpen, onOpenChange }: AddLeadModalProps) => {
                   size="sm"
                   radius="md"
                   minRows={3}
+                  maxLength={200}
                   name="notes"
+                  id="lead_notes"
                   value={formik.values.notes}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
+                  isInvalid={!!(formik.touched.notes && formik.errors.notes)}
+                  errorMessage={formik.touched.notes && (formik.errors.notes as string)}
+                  description={`${formik.values.notes?.length || 0}/200 characters`}
                 />
               </div>
             </ModalBody>

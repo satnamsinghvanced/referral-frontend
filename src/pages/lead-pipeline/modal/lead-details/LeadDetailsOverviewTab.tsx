@@ -462,10 +462,31 @@ const LeadDetailsOverviewTab = ({
             <Input
               label="Estimated Value"
               className="bg-default-100 data-[hover=true]:bg-default-200 rounded-small "
-              value={formik.values.estimatedValue.toString()}
-              onValueChange={(val) =>
-                formik.setFieldValue("estimatedValue", val)
-              }
+              value={formik.values.estimatedValue !== undefined && formik.values.estimatedValue !== null ? formik.values.estimatedValue.toString() : ""}
+              min={0}
+              max={100000}
+              onValueChange={(val) => {
+                if (val === "") {
+                  formik.setFieldValue("estimatedValue", "");
+                  return;
+                }
+                const cleanVal = val.replace(/[^0-9.]/g, "");
+                const num = parseFloat(cleanVal);
+                if (isNaN(num)) {
+                  formik.setFieldValue("estimatedValue", "");
+                } else if (num < 0) {
+                  formik.setFieldValue("estimatedValue", 0);
+                } else if (num > 100000) {
+                  formik.setFieldValue("estimatedValue", 100000);
+                } else {
+                  formik.setFieldValue("estimatedValue", cleanVal);
+                }
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "-" || e.key === "e" || e.key === "E" || e.key === "+") {
+                  e.preventDefault();
+                }
+              }}
               startContent={
                 <HiOutlineCurrencyDollar className="text-gray-400 dark:text-foreground/40" />
               }
