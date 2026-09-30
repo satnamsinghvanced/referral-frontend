@@ -37,7 +37,6 @@ const formatSeenTime = (seenAt?: number) => {
   const diff = Date.now() - seenAt;
   const diffMins = Math.floor(diff / 60000);
   const diffHours = Math.floor(diff / 3600000);
-
   if (diff < 15000) return "Seen now";
   if (diffMins < 1) return "Seen just now";
   if (diffMins < 60) return `Seen ${diffMins} min ago`;
@@ -109,7 +108,6 @@ export default function ChatArea({
   displayLocations: _displayLocations = [],
 }: ChatAreaProps) {
   const { locations: contextLocations } = useLocationContext();
-
   if (!selectedConversation) {
     if (selectedConversationId) {
       return (
@@ -133,7 +131,6 @@ export default function ChatArea({
 
   const convLocation = getConversationLocation(selectedConversation, contextLocations);
   const locationTheme = convLocation ? getLocationTheme(convLocation, contextLocations) : null;
-
   return (
     <div className={`flex-1 flex flex-col min-w-0 ${selectedConversationId ? "flex" : "hidden md:flex"}`}>
       <div className="flex items-center justify-between px-4 py-3 border-b border-foreground/10 bg-white dark:bg-content1">

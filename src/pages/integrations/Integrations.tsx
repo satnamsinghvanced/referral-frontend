@@ -668,28 +668,26 @@ function Integrations() {
       platformId: "meta",
       platformKey: "metaAuthIntegration",
       selectorPlatform: "meta" as SocialPlatformType,
-      name: selectedLocation ? `Meta (Facebook & Instagram) - ${selectedLocation.name}` : "Meta (Facebook & Instagram)",
+      name: "Meta (Facebook & Instagram)",
       icon: <FaMeta className="w-4 h-4" />,
       iconBg: "bg-blue-100 dark:bg-blue-900/20",
       iconColor: "text-blue-600 dark:text-blue-400",
       status: metaStatus,
-      description: selectedLocation
-        ? `Connect Facebook and Instagram for ${selectedLocation.name} to sync posts and track engagement.`
-        : "Connect Facebook and Instagram to sync posts and track engagement.",
-      badges: ["Facebook", "Instagram", "Ads Sync", ...(selectedLocation ? [selectedLocation.name] : [])],
+      description: "Connect Facebook and Instagram to sync posts and track engagement.",
+      badges: ["Facebook", "Instagram", "Ads Sync"],
       lastSync: metaCreds?.lastSyncAt || metaCreds?.updatedAt
         ? timeAgo(metaCreds.lastSyncAt || metaCreds.updatedAt)
         : undefined,
       onConnect: () => openSocialConnectModal({
         platformId: "meta",
         platformKey: "metaAuthIntegration",
-        name: selectedLocation ? `Meta (Facebook & Instagram) - ${selectedLocation.name}` : "Meta (Facebook & Instagram)",
+        name: "Meta (Facebook & Instagram)",
         selectorPlatform: "meta",
       }),
       onReconnect: () => openSocialConnectModal({
         platformId: "meta",
         platformKey: "metaAuthIntegration",
-        name: selectedLocation ? `Meta (Facebook & Instagram) - ${selectedLocation.name}` : "Meta (Facebook & Instagram)",
+        name: "Meta (Facebook & Instagram)",
         selectorPlatform: "meta",
       }),
       onConfigure: () => {

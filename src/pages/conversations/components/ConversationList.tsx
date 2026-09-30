@@ -132,20 +132,18 @@ export default function ConversationList({
               <button
                 key={p.key}
                 onClick={() => setSelectedPlatform(p.key)}
-                className={`flex-1 px-1.5 py-1 text-[10px] font-semibold rounded-md transition-all flex items-center justify-center gap-1 ${
-                  isSelected
-                    ? "bg-primary text-white shadow-sm"
-                    : "bg-gray-100 dark:bg-default-100 text-gray-500 dark:text-foreground/40 hover:bg-gray-200 dark:hover:bg-default-200"
-                }`}
+                className={`flex-1 px-1.5 py-1 text-[10px] font-semibold rounded-md transition-all flex items-center justify-center gap-1 ${isSelected
+                  ? "bg-primary text-white shadow-sm"
+                  : "bg-gray-100 dark:bg-default-100 text-gray-500 dark:text-foreground/40 hover:bg-gray-200 dark:hover:bg-default-200"
+                  }`}
               >
                 <span>{p.label}</span>
                 {count > 0 && (
                   <span
-                    className={`px-1.5 py-0.2 min-w-[14px] text-[9px] font-bold rounded-full leading-tight text-center ${
-                      isSelected
-                        ? "bg-white text-primary"
-                        : "bg-primary text-white"
-                    }`}
+                    className={`px-1.5 py-0.2 min-w-[14px] text-[9px] font-bold rounded-full leading-tight text-center ${isSelected
+                      ? "bg-white text-primary"
+                      : "bg-primary text-white"
+                      }`}
                   >
                     {count}
                   </span>
@@ -253,9 +251,8 @@ export default function ConversationList({
                       {convLocation && (
                         <span
                           style={locationTheme?.style}
-                          className={`text-[9px] px-1.5 py-0.5 rounded font-medium flex items-center gap-1 max-w-[95px] truncate border ${
-                            locationTheme?.bg || ""
-                          }`}
+                          className={`text-[9px] px-1.5 py-0.5 rounded font-medium flex items-center gap-1 max-w-[95px] truncate border ${locationTheme?.bg || ""
+                            }`}
                           title={convLocation}
                         >
                           <span

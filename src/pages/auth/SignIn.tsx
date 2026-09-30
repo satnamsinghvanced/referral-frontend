@@ -28,17 +28,13 @@ const SignIn = () => {
   const addonId = searchParams.get("addonId") || searchParams.get("addon_id") || searchParams.get("addon");
   const redirectParam = searchParams.get("redirect");
   const targetRedirect = redirectParam || (addonId ? `/checkout/addon?addonId=${addonId}` : "/");
-
   const dispatch = useDispatch<AppDispatch>();
-
-
   const { mutate: loginUser, isPending: isLoginPending } = useLogin();
   const { mutate: verifyOtp, isPending: isVerifyPending } = useVerify2FA();
   const [isOtpOpen, setIsOtpOpen] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [maskedPhone, setMaskedPhone] = useState<string | undefined>(undefined);
   const [otpError, setOtpError] = useState<string | undefined>(undefined);
-
   const formik = useFormik<FormData>({
     initialValues: {
       email: "",
@@ -97,7 +93,6 @@ const SignIn = () => {
               lowerMsg.includes("contact support") ||
               error.response?.status === 402 ||
               error.response?.status === 403;
-
             if (isSubscriptionOrInactive) {
               const resData =
                 error.response?.data?.error ||
@@ -109,8 +104,8 @@ const SignIn = () => {
                   email: values.email,
                   isSuspended: Boolean(
                     resData?.isSuspended ||
-                      lowerMsg.includes("suspended") ||
-                      lowerMsg.includes("suspension")
+                    lowerMsg.includes("suspended") ||
+                    lowerMsg.includes("suspension")
                   ),
                   suspensionReason:
                     resData?.suspensionReason ||
@@ -119,8 +114,8 @@ const SignIn = () => {
                       : ""),
                   isDeleted: Boolean(
                     resData?.isDeleted ||
-                      lowerMsg.includes("deleted") ||
-                      lowerMsg.includes("deactivated")
+                    lowerMsg.includes("deleted") ||
+                    lowerMsg.includes("deactivated")
                   ),
                 },
               });
@@ -184,14 +179,12 @@ const SignIn = () => {
               Sign in to your account to continue
             </p>
           </div>
-
           {addonId && (
             <div className="mb-6 p-3.5 rounded-xl bg-sky-50 dark:bg-sky-950/40 border border-sky-200 dark:border-sky-800 flex items-center gap-2.5 text-xs text-sky-800 dark:text-sky-300 font-medium">
               <FiInfo className="w-4 h-4 shrink-0 text-sky-500" />
               <span>Please sign in to your Practice ROI account to complete your add-on purchase.</span>
             </div>
           )}
-
           <form onSubmit={formik.handleSubmit} className="space-y-5">
             <div className="flex">
               <Input
@@ -295,7 +288,7 @@ const SignIn = () => {
               <Link
                 to="https://practiceroi.com/privacy-policy/"
                 target="_blank"
-                rel="noopener noreferrer" 
+                rel="noopener noreferrer"
               >
                 Privacy Policy
               </Link>

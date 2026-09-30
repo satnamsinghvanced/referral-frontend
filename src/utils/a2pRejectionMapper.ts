@@ -11,9 +11,6 @@ export interface RejectionParseResult {
   rawReason: string;
 }
 
-/**
- * Sanitizes third-party names (Twilio, TCR, carrier, etc.) to enforce strict white-label branding.
- */
 export function sanitizeWhiteLabel(text: string): string {
   if (!text) return "";
   return text
@@ -24,13 +21,57 @@ export function sanitizeWhiteLabel(text: string): string {
     .replace(/secondary customer profile|customer profile bundle/gi, "Business Verification Profile");
 }
 
-/**
- * Translates raw technical/carrier rejection reason string or object into 
- * user-friendly, non-technical, white-labeled explanations.
- */
-export function parseAndMapRejectionReason(rawReason?: string | null | object): RejectionParseResult {
+export function parseAndMapRejectionReason(
+  rawReason?: string | null | object,
+  registration?: any
+): RejectionParseResult {
+  const isProfileApproved =
+    registration?.customerProfileStatus === "APPROVED" ||
+    registration?.customerProfileStatus === "twilio-approved" ||
+    registration?.customerProfileStatus === "approved";
+  const isBrandApproved =
+    registration?.brandStatus === "APPROVED" ||
+    registration?.brandStatus === "VERIFIED" ||
+    registration?.brandStatus === "approved";
+
+  const defaultFallbackItems: MappedRejectionItem[] = (isProfileApproved && isBrandApproved)
+    ? [
+      {
+        category: "Campaign & Message Flow",
+        specificMessage: "Campaign sample messages or opt-in workflow description require adjustment.",
+        actionableTip: "Ensure your sample messages include clear opt-in/opt-out instructions (STOP/HELP) and describe how patients opt in.",
+      },
+      {
+        category: "Privacy Policy & Terms Compliance",
+        specificMessage: "Carrier campaign review requires active and compliant Privacy Policy & Terms URLs.",
+        actionableTip: "Ensure your Privacy Policy and Terms & Conditions URLs are active and include SMS opt-in disclosures.",
+      },
+      {
+        category: "Business Website Verification",
+        specificMessage: "Carrier verification could not confirm your practice website URL for campaign approval.",
+        actionableTip: "Ensure your website URL is active, publicly accessible, and clearly displays your business name and contact info.",
+      },
+    ]
+    : [
+      {
+        category: "Legal Business Identity & Tax ID (EIN)",
+        specificMessage: "Legal business name or Tax ID (EIN) could not be verified against IRS records.",
+        actionableTip: "Ensure your legal business name matches your official IRS W-9 or CP575 notice (including suffixes like LLC or Inc.) and enter your 9-digit EIN without dashes or spaces.",
+      },
+      {
+        category: "Physical Business Address",
+        specificMessage: "Physical business address did not match state or federal tax filings.",
+        actionableTip: "Provide the exact physical street address registered with official tax records. P.O. Boxes are not permitted.",
+      },
+      {
+        category: "Authorized Representative",
+        specificMessage: "Authorized representative contact details require verification.",
+        actionableTip: "Provide the legal name, direct corporate email, and telephone number of a designated company officer.",
+      },
+    ];
+
   if (!rawReason) {
-    return { hasSpecificReason: false, reasons: [], rawReason: "" };
+    return { hasSpecificReason: true, reasons: defaultFallbackItems, rawReason: "" };
   }
 
   let strReason = "";
@@ -45,7 +86,7 @@ export function parseAndMapRejectionReason(rawReason?: string | null | object): 
   }
 
   if (!strReason) {
-    return { hasSpecificReason: false, reasons: [], rawReason: "" };
+    return { hasSpecificReason: true, reasons: defaultFallbackItems, rawReason: "" };
   }
 
   let parsedObj: any = null;
@@ -77,28 +118,8 @@ export function parseAndMapRejectionReason(rawReason?: string | null | object): 
   for (let rawPart of parts) {
     rawPart = rawPart.replace(/^brand registration status:\s*(failed|rejected)\.?\s*/i, "").trim();
     rawPart = rawPart.replace(/^campaign status:\s*(failed|rejected)\.?\s*/i, "").trim();
-
     if (!rawPart) continue;
     const lower = rawPart.toLowerCase();
-
-    // Ignore non-specific / placeholder technical strings
-    if (
-      lower === "general error" ||
-      lower === "unfulfilled" ||
-      lower === "failed" ||
-      lower === "rejected" ||
-      lower === "registration rejected" ||
-      lower === "registration rejected by carrier review." ||
-      lower === "campaign rejected by carriers." ||
-      lower === "customer profile bundle was rejected during carrier review." ||
-      lower === "a2p messaging profile was rejected during review." ||
-      lower === "brand registration status: failed." ||
-      lower === "brand registration status: rejected."
-    ) {
-      continue;
-    }
-
-    // 1. Business Name & Tax ID (EIN) Mismatch
     if (
       lower.includes("ein") ||
       lower.includes("tax id") ||
@@ -118,7 +139,6 @@ export function parseAndMapRejectionReason(rawReason?: string | null | object): 
         rawText: sanitizeWhiteLabel(rawPart),
       });
     }
-    // 2. Privacy Policy Compliance (Error 30908 / PRIVACY_POLICY_URL)
     else if (
       lower.includes("privacy_policy") ||
       lower.includes("privacy policy") ||
@@ -131,7 +151,6 @@ export function parseAndMapRejectionReason(rawReason?: string | null | object): 
         rawText: sanitizeWhiteLabel(rawPart),
       });
     }
-    // 3. Terms & Conditions Compliance (Error 30882 / TERMS_AND_CONDITIONS_URL)
     else if (
       lower.includes("terms_and_conditions") ||
       lower.includes("terms and conditions") ||
@@ -146,7 +165,6 @@ export function parseAndMapRejectionReason(rawReason?: string | null | object): 
         rawText: sanitizeWhiteLabel(rawPart),
       });
     }
-    // 4. Business Website Verification (General Website / Domain)
     else if (
       lower.includes("website") ||
       lower.includes("url") ||
@@ -160,7 +178,6 @@ export function parseAndMapRejectionReason(rawReason?: string | null | object): 
         rawText: sanitizeWhiteLabel(rawPart),
       });
     }
-    // 3. Physical Business Address Mismatch
     else if (
       lower.includes("address") ||
       lower.includes("po box") ||
@@ -176,7 +193,6 @@ export function parseAndMapRejectionReason(rawReason?: string | null | object): 
         rawText: sanitizeWhiteLabel(rawPart),
       });
     }
-    // 4. Authorized Representative Info
     else if (
       lower.includes("representative") ||
       lower.includes("authorized_representative") ||
@@ -191,7 +207,6 @@ export function parseAndMapRejectionReason(rawReason?: string | null | object): 
         rawText: sanitizeWhiteLabel(rawPart),
       });
     }
-    // 5. Business Entity Type
     else if (
       lower.includes("business_type") ||
       lower.includes("entity_type") ||
@@ -207,7 +222,6 @@ export function parseAndMapRejectionReason(rawReason?: string | null | object): 
         rawText: sanitizeWhiteLabel(rawPart),
       });
     }
-    // 6. Campaign Samples / Opt-In Workflow
     else if (
       lower.includes("sample") ||
       lower.includes("opt-in") ||
@@ -222,24 +236,28 @@ export function parseAndMapRejectionReason(rawReason?: string | null | object): 
         rawText: sanitizeWhiteLabel(rawPart),
       });
     }
-    // 7. Specific non-generic error text
-    else if (rawPart.length > 8) {
+    else if (rawPart.length > 0) {
       const sanitized = sanitizeWhiteLabel(rawPart);
       mappedItems.push({
-        category: "Verification Requirement",
+        category: "Carrier Review Feedback",
         specificMessage: sanitized,
-        actionableTip: "Please review your business information and resubmit with verified records.",
+        actionableTip: "Please review your campaign submission, sample messages, and business URLs before re-submitting.",
         rawText: sanitized,
       });
     }
   }
-
   const uniqueReasons = mappedItems.filter(
     (item, index, self) => index === self.findIndex((t) => t.category === item.category)
   );
-
+  if (uniqueReasons.length === 0) {
+    return {
+      hasSpecificReason: true,
+      reasons: defaultFallbackItems,
+      rawReason: sanitizeWhiteLabel(strReason),
+    };
+  }
   return {
-    hasSpecificReason: uniqueReasons.length > 0,
+    hasSpecificReason: true,
     reasons: uniqueReasons,
     rawReason: sanitizeWhiteLabel(strReason),
   };

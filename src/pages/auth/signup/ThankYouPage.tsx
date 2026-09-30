@@ -22,9 +22,7 @@ export const ThankYouPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const authUser = useSelector((state: RootState) => (state.auth as any)?.user);
-
   const stateData = location.state as SignupConfirmationData | undefined;
-
   const [confirmationData] = useState<SignupConfirmationData>(() => {
     if (stateData && stateData.planName) {
       try {
@@ -32,14 +30,12 @@ export const ThankYouPage: React.FC = () => {
       } catch (_) { }
       return stateData;
     }
-
     try {
       const cached = sessionStorage.getItem("practice_roi_last_signup");
       if (cached) {
         return JSON.parse(cached);
       }
     } catch (_) { }
-
     return {
       planName: "Professional Plan",
       billingCycle: "monthly",
@@ -66,13 +62,10 @@ export const ThankYouPage: React.FC = () => {
       },
     };
   });
-
   const handleGoToDashboard = () => {
     navigate("/");
   };
-
   const userName = confirmationData.user?.firstName || "there";
-
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-[#070C18] text-slate-900 dark:text-slate-100 flex flex-col items-center py-8 px-4 sm:px-6">
       <SignupHeader
@@ -86,13 +79,10 @@ export const ThankYouPage: React.FC = () => {
         }
         subtitle="Your payment details were confirmed and your workspace is ready."
       />
-
       <div className="w-full max-w-2xl space-y-6 animate-in fade-in duration-500">
         <Card className="bg-white dark:bg-[#0F172A] border border-slate-200 dark:border-slate-800 shadow-xl rounded-2xl overflow-hidden">
           <CardBody className="p-6 sm:p-8 space-y-6">
             <div className="flex flex-col items-center text-center gap-3">
-
-
               <div className="space-y-1.5 flex flex-col items-center">
                 <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-white text-center">
                   Congratulations, {userName}!
@@ -115,9 +105,7 @@ export const ThankYouPage: React.FC = () => {
                 </p>
               </div>
             </div>
-
             <Divider className="dark:bg-slate-800" />
-
             <div className="space-y-3 text-xs sm:text-sm">
               <div className="flex items-center justify-between">
                 <span className="text-slate-500 dark:text-slate-400">Selected Plan</span>
@@ -125,14 +113,12 @@ export const ThankYouPage: React.FC = () => {
                   {confirmationData.planName} ({confirmationData.billingCycle})
                 </span>
               </div>
-
               <div className="flex items-center justify-between">
                 <span className="text-slate-500 dark:text-slate-400">Today's Total</span>
                 <span className="font-bold text-emerald-600 dark:text-emerald-400">
                   {confirmationData.trialDays ? "$0.00 (Free Trial)" : `$${confirmationData.price}`}
                 </span>
               </div>
-
               {confirmationData.trialDays ? (
                 <div className="flex items-center justify-between">
                   <span className="text-slate-500 dark:text-slate-400">First Charge</span>
@@ -141,7 +127,6 @@ export const ThankYouPage: React.FC = () => {
                   </span>
                 </div>
               ) : null}
-
               <div className="flex items-center justify-between">
                 <span className="text-slate-500 dark:text-slate-400">Payment Method</span>
                 <span className="font-medium text-slate-800 dark:text-slate-200 flex items-center gap-1.5">

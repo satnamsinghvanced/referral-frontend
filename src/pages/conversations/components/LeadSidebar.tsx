@@ -23,7 +23,6 @@ interface LeadSidebarProps {
 export default function LeadSidebar({ selectedConversation, onViewLead, onArchiveLead }: LeadSidebarProps) {
   const { locations, getLocationColor } = useLocationContext();
   if (!selectedConversation) return null;
-
   const targetLoc = selectedConversation.locationId || selectedConversation.patientLocation || "";
   const viewLoc = locations?.find(
     (l) =>

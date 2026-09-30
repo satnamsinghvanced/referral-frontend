@@ -13,7 +13,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     (state: RootState) => state.auth,
   );
   const location = useLocation();
-
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4 gap-4">
@@ -24,7 +23,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
       </div>
     );
   }
-
   if (!isAuthenticated) {
     const searchParams = new URLSearchParams(location.search);
     const addonId = searchParams.get("addonId") || searchParams.get("addon_id") || searchParams.get("addon");
@@ -35,7 +33,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
         : "/signin";
     return <Navigate to={signinUrl} replace />;
   }
-
   return <>{children}</>;
 };
 

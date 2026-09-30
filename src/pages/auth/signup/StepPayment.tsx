@@ -32,7 +32,6 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
   setCouponError,
 }) => {
   const [touched, setTouched] = useState<Record<string, boolean>>({});
-
   const luhnCheck = (num: string) => {
     let sum = 0;
     let shouldDouble = false;
@@ -47,7 +46,6 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
     }
     return sum % 10 === 0;
   };
-
   const getCardBrand = (num: string): string => {
     const clean = num.replace(/\D/g, "");
     if (/^4/.test(clean)) return "Visa";
@@ -58,9 +56,7 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
     if (/^35/.test(clean)) return "JCB";
     return "";
   };
-
   const cardBrand = getCardBrand(cardNumber);
-
   const validateCardNumber = (val: string, isBlur = false): string => {
     const clean = val.replace(/\D/g, "");
     if (!clean) {
@@ -77,7 +73,6 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
     }
     return "";
   };
-
   const validateExpiry = (val: string, isBlur = false): string => {
     if (!val) {
       return isBlur ? "Expiration date is required" : "";
@@ -138,7 +133,6 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
     const clean = val.replace(/\D/g, "").substring(0, 16);
     let formatted = clean;
     if (/^3[47]/.test(clean)) {
-      // Amex 4-6-5 format (up to 15 digits)
       const p1 = clean.substring(0, 4);
       const p2 = clean.substring(4, 10);
       const p3 = clean.substring(10, 15);
@@ -212,7 +206,6 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
     const aPrice = plan.annualPricing?.price ?? plan.annualPrice;
     const aDiscount = plan.annualPricing?.discountPercent ?? plan.discountPercent ?? 0;
     const aTotal = plan.annualPricing?.totalValue;
-
     if (billingCycle === "annual") {
       const perMonth =
         aPrice !== undefined && aPrice !== null && Number(aPrice) > 0
@@ -237,7 +230,6 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
   }
   const finalPrice = Math.max(0, basePrice - discountAmount);
   const isZeroDue = finalPrice <= 0;
-
   const trialEndDate = new Date();
   trialEndDate.setDate(trialEndDate.getDate() + 14);
   const formattedTrialEndDate = trialEndDate.toLocaleDateString("en-US", {
@@ -245,7 +237,6 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
     day: "numeric",
     year: "numeric",
   });
-
   return (
     <div className="w-full max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-6">
       <div className="md:col-span-2 flex flex-col gap-6">
@@ -254,7 +245,6 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
             <FiCreditCard className="w-5 h-5 text-sky-500" />
             Payment Information
           </h2>
-
           {paymentErrors.paymentFailed && (
             <div className="p-4 rounded-xl border border-red-300 dark:border-red-900/60 bg-red-50/90 dark:bg-red-950/30 flex items-start gap-3 text-red-700 dark:text-red-300 mb-4">
               <FiAlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
@@ -266,7 +256,6 @@ export const StepPayment: React.FC<StepPaymentProps> = ({
               </div>
             </div>
           )}
-
           <div className="flex flex-col gap-4">
             {isZeroDue ? (
               <div className="p-4 rounded-xl border border-emerald-200 dark:border-emerald-900/40 bg-emerald-50/70 dark:bg-emerald-950/20 flex items-center gap-3.5">

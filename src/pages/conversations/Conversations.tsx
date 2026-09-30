@@ -274,14 +274,12 @@ const Conversations = () => {
     const loadAllConversations = async () => {
       setIsConversationsLoading(true);
       try {
-        await Promise.allSettled([
-          fetchIGConversations(),
-          fetchFBConversations(),
-          fetchWebConversations()
-        ]);
+        await fetchWebConversations();
       } finally {
         setIsConversationsLoading(false);
       }
+      fetchFBConversations();
+      fetchIGConversations();
     };
     loadAllConversations();
   }, []);
