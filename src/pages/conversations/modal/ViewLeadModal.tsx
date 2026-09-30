@@ -64,6 +64,20 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
         );
       }
 
+      // If no location on lead, default to current selected location from context
+      if (!matchedLoc && selectedLocation && locations && locations.length > 0) {
+        matchedLoc = locations.find(
+          (l) =>
+            l._id === selectedLocation._id ||
+            l.name.toLowerCase() === (selectedLocation.name || "").toLowerCase()
+        );
+      }
+
+      // Fallback to primary location or first location if still not matched
+      if (!matchedLoc && locations && locations.length > 0) {
+        matchedLoc = locations.find((l) => l.isPrimary) || locations[0];
+      }
+
       if (matchedLoc) {
         setSelectedLocationId(matchedLoc._id || "");
         setCustomLocation(matchedLoc.name);
@@ -281,6 +295,30 @@ const ViewLeadModal = ({ isOpen, onClose, lead, onScheduleClick, onLeadSaved, on
                   </span>
                 </div>
               </div>
+
+              {((lead as any).scheduledAppointment?.date || (lead as any).scheduledAppointment) && (
+                <div className="p-3 bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/40 rounded-xl space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1.5 text-xs font-bold text-purple-700 dark:text-purple-300">
+                      <HiOutlineCalendar className="size-4 text-purple-500 shrink-0" />
+                      <span>Scheduled Appointment</span>
+                    </div>
+                    <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-purple-100 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300">
+                      {(lead as any).scheduledAppointment?.appointmentType || "Confirmed"}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-foreground/80 font-medium pl-5">
+                    <span>📅 {(lead as any).scheduledAppointment?.date}</span>
+                    {(lead as any).scheduledAppointment?.time && <span>🕒 {(lead as any).scheduledAppointment?.time}</span>}
+                  </div>
+                  {(lead as any).scheduledAppointment?.notes && (
+                    <p className="text-[11px] text-foreground/60 italic pl-5">
+                      "{(lead as any).scheduledAppointment?.notes}"
+                    </p>
+                  )}
+                </div>
+              )}
+
               <div>
                 <div className="flex justify-between items-center mb-2">
                   <h4 className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest">

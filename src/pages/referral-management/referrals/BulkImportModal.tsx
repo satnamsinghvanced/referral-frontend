@@ -82,8 +82,8 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
   };
 
   const handleDownloadTemplate = () => {
-    const headers = ["Patient Name*", "Patient Age*", "Phone Number*", "Email Address", "Treatment/Reason*", "Referral Source", "Priority"];
-    const dummyRow = ["John Doe", "30", "555-0123-485", "john@example.com", "Invisalign", "Direct", "Medium"];
+    const headers = ["Patient Name*", "Patient Age*", "Phone Number*", "Email Address", "Treatment/Reason*", "Referral Source", "Priority", "Practice Location"];
+    const dummyRow = ["John Doe", "30", "555-0123-485", "john@example.com", "Invisalign", "Direct", "Medium", "Main Clinic"];
     const csvContent = [headers.join(","), dummyRow.join(",")].join("\n");
     const blob = new Blob([csvContent], { type: "text/csv" });
     const url = window.URL.createObjectURL(blob);
@@ -245,6 +245,7 @@ const BulkImportModal = ({ isOpen, onClose }: BulkImportModalProps) => {
                     "Referral Source (optional)",
                     "Patient Email (optional)",
                     "Priority (optional)",
+                    "Practice Location (optional)",
                   ].map((req, i) => (
                     <div
                       key={i}

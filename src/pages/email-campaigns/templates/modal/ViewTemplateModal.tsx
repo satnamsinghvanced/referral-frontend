@@ -119,18 +119,20 @@ const ViewTemplateModal: React.FC<ViewTemplateModalProps> = ({ isOpen, onClose, 
                     >
                       {displayTemplate!.isFavorite ? "Favorited" : "Favorite"}
                     </Button>
-                    <Button
-                      variant="bordered"
-                      size="sm"
-                      radius="sm"
-                      className="font-medium border-small border-default-200 text-gray-600 dark:text-foreground bg-background"
-                      onPress={() => {
-                        onEditTemplate?.(displayTemplate!);
-                        onClose();
-                      }}
-                    >
-                      Edit Template
-                    </Button>
+                    {onEditTemplate && (
+                      <Button
+                        variant="bordered"
+                        size="sm"
+                        radius="sm"
+                        className="font-medium border-small border-default-200 text-gray-600 dark:text-foreground bg-background"
+                        onPress={() => {
+                          onEditTemplate(displayTemplate!);
+                          onClose();
+                        }}
+                      >
+                        Edit Template
+                      </Button>
+                    )}
                     <Button
                       color="primary"
                       variant="solid"

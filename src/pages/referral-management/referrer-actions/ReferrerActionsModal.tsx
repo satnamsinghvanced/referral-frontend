@@ -21,6 +21,7 @@ import { STAFF_ROLES } from "../../../consts/practice";
 import { useSpecialties } from "../../../hooks/useCommon";
 import { useCreateReferrer, useUpdateReferrer } from "../../../hooks/useReferral";
 import { useTypedSelector } from "../../../hooks/useTypedSelector";
+import { useLocationContext } from "../../../providers/LocationContext";
 import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
 
 import AdditionalNotesSection from "./AdditionalNotesSection";
@@ -47,6 +48,7 @@ type PracticeAddressTouched = Record<string, boolean | undefined> | undefined;
 
 const CLEAN_INITIAL_VALUES = {
   type: "doctor",
+  locationId: "",
   name: "",
   phone: "",
   email: "",
@@ -95,6 +97,7 @@ export default function ReferrerActionsModal({
   setSelectedTab,
 }: ReferrerActionsModalProps) {
   const { user } = useTypedSelector((state) => state.auth);
+  const { locations, selectedLocation } = useLocationContext();
   const { data: specialties } = useSpecialties();
   const { mutate: createReferrer, isPending: referrerCreationPending } =
     useCreateReferrer();
@@ -103,6 +106,12 @@ export default function ReferrerActionsModal({
   const practiceObj = typeof editedData?.practice === "object" ? editedData?.practice : null;
   const defaultInitialValues: any = {
     type: editedData?.type || "doctor",
+    locationId:
+      editedData?.locationId?._id ||
+      (typeof editedData?.locationId === "string" ? editedData?.locationId : "") ||
+      selectedLocation?._id ||
+      locations[0]?._id ||
+      "",
     name: editedData?.name || "",
     phone: editedData?.phone || "",
     email: editedData?.email || "",
@@ -154,6 +163,9 @@ export default function ReferrerActionsModal({
       name: values.name,
       phone: values.phone,
     };
+    if (values.locationId) {
+      payload.locationId = values.locationId;
+    }
     if (values.email?.trim()) {
       payload.email = values.email;
     }
@@ -250,6 +262,7 @@ export default function ReferrerActionsModal({
     enableReinitialize: true,
     validationSchema: Yup.object({
       type: Yup.string().required("Referrer type is required"),
+      locationId: Yup.string().nullable().optional(),
       name: Yup.string()
         .trim()
         .required("Full name is required")
@@ -889,6 +902,7 @@ export default function ReferrerActionsModal({
               formik={formik}
               renderField={renderField}
               isEdit={!!(editedData?.type || isPracticeEdit)}
+              locations={locations}
             />
 
             {formik.values.type === "doctor" && (

@@ -1,6 +1,6 @@
 import { Card, CardBody, Chip, Button } from "@heroui/react";
 import { useMemo } from "react";
-import { HiStar } from "react-icons/hi";
+import { HiStar, HiOutlineCalendar } from "react-icons/hi";
 import { LuMapPin } from "react-icons/lu";
 import { FiTrash2 } from "react-icons/fi";
 import PriorityLevelChip from "../../components/chips/PriorityLevelChip";
@@ -22,6 +22,14 @@ interface LeadCardProps {
     stage: string;
     location?: any;
     locationId?: any;
+    scheduledAppointment?: {
+      appointmentType?: string;
+      date?: string;
+      time?: string;
+      notes?: string;
+      sendReminder?: boolean;
+      scheduledAt?: string;
+    };
   };
   onPress?: (lead: any) => void;
   onDelete?: (lead: any) => void;
@@ -68,9 +76,9 @@ const LeadCard = ({ lead, onPress, onDelete, draggable, onDragStart, onDragEnd, 
         draggable={draggable}
         onDragStart={onDragStart}
         onDragEnd={onDragEnd}
-        className="group border border-foreground/10 bg-white dark:bg-content1 transition-all cursor-pointer hover:border-primary/30 dark:hover:border-primary/50 hover:shadow-lg dark:hover:shadow-primary/10 hover:-translate-y-0.5 w-full h-[142px] relative"
+        className="group border border-foreground/10 bg-white dark:bg-content1 transition-all cursor-pointer hover:border-primary/30 dark:hover:border-primary/50 hover:shadow-lg dark:hover:shadow-primary/10 hover:-translate-y-0.5 w-full min-h-[142px] h-auto relative"
       >
-        <CardBody className="p-3 h-full flex flex-col justify-between space-y-0 relative">
+        <CardBody className="p-3 h-full flex flex-col justify-between space-y-2 relative">
           <div className="space-y-1.5 min-w-0">
             <div className="flex justify-between items-start">
               <div className="min-w-0 flex-1">
@@ -101,6 +109,20 @@ const LeadCard = ({ lead, onPress, onDelete, draggable, onDragStart, onDragEnd, 
               </span>
             </div>
           </div>
+
+          {lead.scheduledAppointment?.date && (
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-md bg-purple-500/10 border border-purple-500/20 text-[10px] text-purple-600 dark:text-purple-300 font-medium">
+              <HiOutlineCalendar className="size-3 text-purple-500 shrink-0" />
+              <span className="font-bold truncate">{lead.scheduledAppointment.date}</span>
+              {lead.scheduledAppointment.time && (
+                <>
+                  <span className="opacity-40">•</span>
+                  <span className="truncate">{lead.scheduledAppointment.time}</span>
+                </>
+              )}
+            </div>
+          )}
+
           <div className="h-5 flex items-center overflow-hidden">
             {lead.treatments && lead.treatments.length > 0 ? (
               <div className="flex gap-1 overflow-hidden">

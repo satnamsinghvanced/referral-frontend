@@ -30,6 +30,7 @@ export interface Referral {
   reason?: string;
   status: ReferralStatus;
   statusNotes?: string;
+  locationId?: any;
   createdAt?: string;
   additionalNotes?: string;
 }
@@ -53,6 +54,7 @@ export interface CreateReferralPayload {
   scheduledDate?: string | undefined;
   appointmentTime?: string | undefined;
   sourceId?: string;
+  locationId?: string | undefined;
 }
 
 export interface FilterStats {
@@ -117,6 +119,7 @@ export interface StatusUpdateFormValues {
   estValue: number | "";
   status: string;
   statusNotes: string;
+  locationId?: string;
 }
 
 export interface UpdateStatusPayload {

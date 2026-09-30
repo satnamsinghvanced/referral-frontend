@@ -3,6 +3,7 @@ import { useFormik } from "formik";
 import React, { forwardRef, useImperativeHandle } from "react";
 import * as Yup from "yup";
 import { CAMPAIGN_CATEGORIES, CAMPAIGN_TYPES } from "../../../../../consts/campaign";
+import { useCampaignCategories } from "../../../../../hooks/useCampaign";
 import { CampaignData, CampaignStepProps } from "./CampaignActionModal";
 
 export interface CampaignStepRef {
@@ -26,6 +27,12 @@ const SetupSchema = Yup.object().shape({
 });
 
 const CampaignSetupStep: React.ForwardRefRenderFunction<CampaignStepRef, CampaignStepProps> = ({ data, onNext, setIsStepValid }, ref) => {
+  const { data: dynamicCategories } = useCampaignCategories();
+  const categories =
+    dynamicCategories && dynamicCategories.length > 0
+      ? dynamicCategories
+      : CAMPAIGN_CATEGORIES;
+
   const formik = useFormik<CampaignData>({
     initialValues: data,
     validationSchema: SetupSchema,
@@ -120,7 +127,7 @@ const CampaignSetupStep: React.ForwardRefRenderFunction<CampaignStepRef, Campaig
           className="w-full"
           isRequired
         >
-          {CAMPAIGN_CATEGORIES.map((category) => (
+          {categories.map((category) => (
             <SelectItem key={category.value} textValue={category.label}>{category.label}</SelectItem>
           ))}
         </Select>

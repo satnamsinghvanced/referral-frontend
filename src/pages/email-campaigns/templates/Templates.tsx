@@ -11,15 +11,13 @@ import { LoadingState } from "../../../components/common/LoadingState";
 import Pagination from "../../../components/common/Pagination";
 import { CAMPAIGN_CATEGORIES } from "../../../consts/campaign";
 import {
+  useCampaignCategories,
   useCampaignTemplates,
-  useCreateCampaignTemplate,
   useToggleFavoriteTemplate,
   useDeleteCampaignTemplate,
-  useUpdateCampaignTemplate,
 } from "../../../hooks/useCampaign";
 import { useDebouncedValue } from "../../../hooks/common/useDebouncedValue";
 import { CampaignFilters, CampaignTemplate } from "../../../types/campaign";
-import CreateTemplateModal, { TemplateFormValues } from "./modal/CreateTemplateModal";
 import ViewTemplateModal from "./modal/ViewTemplateModal";
 import { usePaginationAdjustment } from "../../../hooks/common/usePaginationAdjustment";
 import { useFetchEmailIntegration } from "../../../hooks/integrations/useEmailMarketing";
@@ -38,13 +36,16 @@ interface TemplatesProps {
 
 const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
   const [currentFilters, setCurrentFilters] = useState<CampaignFilters>(INITIAL_FILTERS);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const { data: categoriesData } = useCampaignCategories();
+  const categories =
+    categoriesData && categoriesData.length > 0
+      ? categoriesData
+      : CAMPAIGN_CATEGORIES;
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<CampaignTemplate | null>(null);
   const [templateToDelete, setTemplateToDelete] = useState<CampaignTemplate | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
-  const [editingTemplate, setEditingTemplate] = useState<CampaignTemplate | null>(null);
   const [isChangingFilter, setIsChangingFilter] = useState(false);
   const [prevFilters, setPrevFilters] = useState({
     category: INITIAL_FILTERS.category,
@@ -106,8 +107,6 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
     onPageChange: (page) => handleFilterChange("page", page),
     isLoading: isLoading || isChangingFilter,
   });
-  const createMutation = useCreateCampaignTemplate();
-  const updateMutation = useUpdateCampaignTemplate(editingTemplate?._id || "");
   const toggleFavoriteMutation = useToggleFavoriteTemplate();
   const deleteMutation = useDeleteCampaignTemplate();
   const handleFilterChange = (key: keyof CampaignFilters, value: any) => {
@@ -127,36 +126,6 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
     }
   };
 
-  const handleCreateTemplate = async (values: TemplateFormValues) => {
-    const formData = new FormData();
-    formData.append("name", values.name);
-    formData.append("description", values.description);
-    formData.append("category", values.category);
-    formData.append("subjectLine", values.subjectLine);
-    formData.append("bodyContent", values.body);
-    formData.append("mainImage", values.coverImage);
-    const tagsArray = values.tags ? values.tags.split(",").map((tag: string) => tag.trim()) : [];
-    tagsArray.forEach((tag: string) => formData.append("tags[]", tag));
-    formData.append("designOptions[headerColor]", values.headerColor);
-    formData.append("designOptions[accentColor]", values.accentColor);
-    formData.append("designOptions[organizationName]", values.organizationName);
-    formData.append("designOptions[buttonText]", values.primaryButtonText);
-    formData.append("designOptions[secondaryButtonText]", values.secondaryButtonText);
-    if (editingTemplate) {
-      updateMutation.mutate(formData, {
-        onSuccess: () => {
-          setIsModalOpen(false);
-          setEditingTemplate(null);
-        },
-      });
-    } else {
-      createMutation.mutate(formData, {
-        onSuccess: () => {
-          setIsModalOpen(false);
-        },
-      });
-    }
-  };
   const templates = data?.templates || [];
   const pagination = data?.pagination;
   return (
@@ -212,7 +181,7 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
               >
                 {[
                   <SelectItem key="all" textValue="All Categories">All Categories</SelectItem>,
-                  ...CAMPAIGN_CATEGORIES.map((category) => (
+                  ...categories.map((category) => (
                     <SelectItem key={category.value} textValue={category.label}>
                       {category.label}
                     </SelectItem>
@@ -220,7 +189,7 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
                 ]}
               </Select>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center">
               <Button
                 onPress={() => {
                   setCurrentFilters(INITIAL_FILTERS);
@@ -228,38 +197,15 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
                 }}
                 size="sm"
                 variant="bordered"
-                className="border-small flex-1"
+                className="border-small w-full"
                 startContent={<PiFunnelX className="h-4 w-4" />}
               >
                 Clear Filters
-              </Button>
-              <Button
-                size="sm"
-                radius="sm"
-                variant="solid"
-                color="primary"
-                className="flex-1"
-                startContent={<AiOutlinePlus className="size-[15px]" />}
-                onPress={() => {
-                  setEditingTemplate(null);
-                  setIsModalOpen(true);
-                }}
-              >
-                Create Template
               </Button>
             </div>
           </div>
         </div>
       </div>
-      <CreateTemplateModal
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setEditingTemplate(null);
-        }}
-        onSubmit={handleCreateTemplate}
-        initialData={editingTemplate}
-      />
       <ViewTemplateModal
         isOpen={isViewModalOpen}
         onClose={() => setIsViewModalOpen(false)}
@@ -267,10 +213,6 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
         onUseTemplate={(template) => {
           handleUseTemplate(template);
           setIsViewModalOpen(false);
-        }}
-        onEditTemplate={(template) => {
-          setEditingTemplate(template);
-          setIsModalOpen(true);
         }}
       />
       <Modal
@@ -346,6 +288,12 @@ const Templates: React.FC<TemplatesProps> = ({ onUseTemplate }) => {
                         </div>
                       )}
                     </div>
+                    {/* Top Left Badge */}
+                    {(template.isDefault || template.isSystemTemplate || template.isAdminCreated) ? (
+                      <div className="absolute top-3 left-3 bg-slate-600/90 text-white text-[10px] font-bold px-2.5 py-1 rounded-full shadow-sm tracking-wider uppercase">
+                        Default
+                      </div>
+                    ) : null}
                     {template.isPopular && (
                       <div className="absolute top-3 right-3 bg-orange-500 text-white text-[11px] font-medium px-3 py-1 rounded-full flex items-center space-x-1">
                         <FaRegStar className="size-3" />

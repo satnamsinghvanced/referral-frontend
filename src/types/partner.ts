@@ -90,6 +90,7 @@ export interface CreateReferrerPayload {
   practiceType?: string;
   website?: string;
   additionalNotes?: string;
+  locationId?: string;
   staff?: {
     name: string;
     role: string[];
@@ -107,6 +108,7 @@ export interface Referrer {
   phone: string;
   email: string;
   practice: Practice;
+  locationId?: any;
   notes: string;
   staffMembers: StaffMember[];
   isActive: boolean;
@@ -228,6 +230,7 @@ export interface FetchTasksParams {
   search?: string;
   status?: string;
   priority?: string;
+  locationId?: string | undefined;
 }
 
 export interface TaskComment {
@@ -250,6 +253,7 @@ export interface TaskApiData {
   priority: "low" | "medium" | "high" | string;
   category: "follow-up" | "meeting" | "other" | string;
   practiceId?: any;
+  locationId?: any;
   status: "pending" | "completed" | string;
   createdAt?: string;
   updatedAt?: string;
@@ -278,6 +282,7 @@ export interface CreateTaskPayload {
   description: string;
   dueDate: string;
   practiceId: string;
+  locationId?: string | null | undefined;
   priority: string;
   category: string;
   assignTo: string[];

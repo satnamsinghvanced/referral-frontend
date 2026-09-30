@@ -6,7 +6,7 @@ import DeleteConfirmationModal from "../../../components/common/DeleteConfirmati
 import { LoadingState } from "../../../components/common/LoadingState";
 import Pagination from "../../../components/common/Pagination";
 import { CAMPAIGN_CATEGORIES, CAMPAIGN_STATUSES } from "../../../consts/campaign";
-import { useArchiveCampaign, useCampaigns, useDeleteCampaign, useDuplicateCampaign, useUpdateCampaign } from "../../../hooks/useCampaign";
+import { useArchiveCampaign, useCampaignCategories, useCampaigns, useDeleteCampaign, useDuplicateCampaign, useUpdateCampaign } from "../../../hooks/useCampaign";
 import { ICampaign, ICampaignFilters } from "../../../types/campaign";
 import CampaignCard from "./CampaignCard";
 import CampaignActionModal from "./modal/create/CampaignActionModal";
@@ -25,6 +25,11 @@ const INITIAL_FILTERS: ICampaignFilters = {
 };
 
 const Campaigns = () => {
+  const { data: dynamicCategories } = useCampaignCategories();
+  const categories =
+    dynamicCategories && dynamicCategories.length > 0
+      ? dynamicCategories
+      : CAMPAIGN_CATEGORIES;
   const { data: emailExistingConfig } = useFetchEmailIntegration();
   const emailConfigsList = Array.isArray(emailExistingConfig)
     ? emailExistingConfig
@@ -142,7 +147,7 @@ const Campaigns = () => {
             >
               {[
                 <SelectItem key="" textValue="All Categories">All Categories</SelectItem>,
-                ...CAMPAIGN_CATEGORIES.map((source) => (
+                ...categories.map((source) => (
                   <SelectItem key={source.value} textValue={source.label}>{source.label}</SelectItem>
                 ))
               ]}

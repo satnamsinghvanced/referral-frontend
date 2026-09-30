@@ -28,6 +28,7 @@ import { Referrer } from "../../../types/partner";
 import { CreateReferralPayload, ReferralStatus } from "../../../types/referral";
 import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
 import { useTypedSelector } from "../../../hooks/useTypedSelector";
+import { useLocationContext } from "../../../providers/LocationContext";
 
 interface TrackReferralModalProps {
   isOpen: boolean;
@@ -44,6 +45,7 @@ const TrackReferralModal = ({
 }: TrackReferralModalProps) => {
   const { user } = useTypedSelector((state) => state.auth);
   const userId = user?.userId;
+  const { locations, selectedLocation } = useLocationContext();
   const { mutate: createReferral, isPending: isLoading } = useCreateReferral();
   const [referrerMode, setReferrerMode] = useState<"existing" | "new">("existing");
   const validationSchema = Yup.object().shape({
@@ -73,6 +75,7 @@ const TrackReferralModal = ({
     treatment: Yup.string().required("Reason for referral is required"),
     source: Yup.string().required("Referral source is required"),
     status: Yup.string().required("Status is required"),
+    locationId: Yup.string().required("Practice location is required"),
     estimatedValue: Yup.number().min(
       0,
       "Estimated Value must be non-negative.",
@@ -91,6 +94,7 @@ const TrackReferralModal = ({
       phone: "",
       email: "",
       referrerId: "",
+      locationId: selectedLocation?._id || locations[0]?._id || "",
       treatment: TREATMENT_OPTIONS[0]?.key,
       status: "new",
       source: "Direct",
@@ -127,6 +131,7 @@ const TrackReferralModal = ({
         reason: values.reason,
         notes: values.notes,
         status: values.status as ReferralStatus,
+        locationId: values.locationId || undefined,
       };
       createReferral(payload, {
         onSuccess: () => {
@@ -457,6 +462,39 @@ const TrackReferralModal = ({
                   Referral Details
                 </h4>
                 <div className="flex flex-col gap-y-4">
+                  {locations && locations.length > 0 && (
+                    <div className="flex">
+                      <Select
+                        label="Practice Location"
+                        labelPlacement="outside"
+                        placeholder="Select practice location"
+                        isRequired
+                        size="sm"
+                        radius="sm"
+                        disableAnimation
+                        popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                        selectedKeys={
+                          formik.values.locationId ? [formik.values.locationId] : []
+                        }
+                        onSelectionChange={(keys) => {
+                          const val = Array.from(keys)[0] as string;
+                          formik.setFieldValue("locationId", val);
+                        }}
+                        onBlur={() => formik.setFieldTouched("locationId", true)}
+                        isInvalid={
+                          !!(formik.errors.locationId && formik.touched.locationId)
+                        }
+                        errorMessage={formik.errors.locationId}
+                        variant="flat"
+                      >
+                        {locations.map((loc) => (
+                          <SelectItem key={loc._id} textValue={loc.name}>
+                            {loc.name} {loc.isPrimary ? "(Primary)" : ""}
+                          </SelectItem>
+                        ))}
+                      </Select>
+                    </div>
+                  )}
                   <div className="flex">
                     <Select
                       label="Treatment/Reason for Referral"

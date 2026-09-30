@@ -7,6 +7,7 @@ import {
   HiOutlineLocationMarker,
   HiOutlineCurrencyDollar,
   HiOutlineStar,
+  HiOutlineCalendar,
 } from "react-icons/hi";
 import { CONVERSATION_TAGS, Conversation } from "../../../consts/conversations";
 import { getAvatarColor, getInitials, getPlatformLabel, getChipColor } from "../utils";
@@ -55,7 +56,7 @@ export default function LeadSidebar({ selectedConversation, onViewLead, onArchiv
             startContent={<HiOutlineEye className="size-3" />}
             onClick={() => onViewLead?.(selectedConversation)}
           >
-            View Lead
+            {selectedConversation.leadId ? "View Lead" : "Add Lead"}
           </Button>
           <Button
             size="sm"
@@ -114,6 +115,39 @@ export default function LeadSidebar({ selectedConversation, onViewLead, onArchiv
           </div>
         </div>
       </div>
+
+      {(selectedConversation.scheduledAppointment?.date || selectedConversation.leadStatus === "appointmentScheduled") && (
+        <div className="p-4 border-b border-foreground/10 bg-purple-500/5 dark:bg-purple-950/20">
+          <div className="flex items-center justify-between mb-2">
+            <h4 className="text-[10px] font-bold text-purple-600 dark:text-purple-400 uppercase tracking-wider flex items-center gap-1.5">
+              <HiOutlineCalendar className="size-3.5" />
+              Appointment
+            </h4>
+            <Chip size="sm" variant="flat" color="secondary" className="text-[9px] font-bold h-4.5">
+              Scheduled
+            </Chip>
+          </div>
+          <div className="space-y-1.5">
+            <p className="text-xs font-bold text-foreground">
+              {selectedConversation.scheduledAppointment?.appointmentType || "Appointment Confirmed"}
+            </p>
+            {selectedConversation.scheduledAppointment?.date && (
+              <div className="flex items-center gap-1.5 text-xs text-foreground/80 font-medium">
+                <span>📅 {selectedConversation.scheduledAppointment.date}</span>
+                {selectedConversation.scheduledAppointment.time && (
+                  <span>🕒 {selectedConversation.scheduledAppointment.time}</span>
+                )}
+              </div>
+            )}
+            {selectedConversation.scheduledAppointment?.notes && (
+              <p className="text-[10px] text-foreground/60 italic">
+                "{selectedConversation.scheduledAppointment.notes}"
+              </p>
+            )}
+          </div>
+        </div>
+      )}
+
       <div className="p-4 border-b border-foreground/10">
         <h4 className="text-[10px] font-bold text-gray-400 dark:text-foreground/40 uppercase tracking-wider mb-3">
           Lead Info

@@ -131,10 +131,13 @@ export const useFetchAllTasks = (params: FetchTasksParams = {}) => {
     search = "",
     status = "all",
     priority = "all",
+    locationId,
   } = params;
   return useQuery<any, Error>({
-    queryKey: ["tasks", page, limit, search, status, priority],
-    queryFn: () => fetchAllTasks({ page, limit, search, status, priority }),
+    queryKey: ["tasks", page, limit, search, status, priority, locationId],
+    queryFn: () => fetchAllTasks({ page, limit, search, status, priority, locationId }),
+    placeholderData: (prev: any) => prev,
+    staleTime: 30000,
   });
 };
 
@@ -171,20 +174,45 @@ export const useCreateTask = () => {
 export const useUpdateTask = () => {
   return useMutation({
     mutationFn: (variables: UpdateTaskPayload) => updateTask(variables),
-    onSuccess: (_, variables) => {
-      addToast({
-        title: "Success",
-        description: "Task updated successfully.",
-        color: "success",
+    onMutate: async (variables: UpdateTaskPayload) => {
+      // Optimistically update all task query caches matching task ID
+      await queryClient.cancelQueries({ queryKey: ["tasks"] });
+      const previousTasksQueries = queryClient.getQueriesData({ queryKey: ["tasks"] });
+
+      queryClient.setQueriesData({ queryKey: ["tasks"] }, (old: any) => {
+        if (!old || !old.tasks) return old;
+        return {
+          ...old,
+          tasks: old.tasks.map((task: any) =>
+            task._id === variables.taskId ? { ...task, ...variables.data } : task
+          ),
+        };
       });
+
+      return { previousTasksQueries };
+    },
+    onSuccess: (_, variables) => {
+      // addToast({
+      //   title: "Success",
+      //   description: "Task updated successfully.",
+      //   color: "success",
+      // });
       queryClient.invalidateQueries({ queryKey: ["partnerStats"] });
       queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
-      queryClient.invalidateQueries({
-        queryKey: notesTasksKeys.detail(variables.data.practiceId),
-      });
+      if (variables.data?.practiceId) {
+        queryClient.invalidateQueries({
+          queryKey: notesTasksKeys.detail(variables.data.practiceId),
+        });
+      }
       queryClient.invalidateQueries({ queryKey: ["tasks"] });
     },
-    onError: (error: AxiosError) => {
+    onError: (error: AxiosError, _, context: any) => {
+      // Revert optimistic updates on error
+      if (context?.previousTasksQueries) {
+        context.previousTasksQueries.forEach(([queryKey, data]: [any, any]) => {
+          queryClient.setQueryData(queryKey, data);
+        });
+      }
       const errorMessage =
         (error.response?.data as { message?: string })?.message ||
         error.message ||

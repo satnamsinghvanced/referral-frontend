@@ -61,6 +61,7 @@ export const fetchAllTasks = async (params: FetchTasksParams = {}): Promise<any>
       search: params.search,
       status: params.status,
       priority: params.priority,
+      locationId: params.locationId,
     },
   });
   return response.data;

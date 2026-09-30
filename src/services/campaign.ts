@@ -20,6 +20,11 @@ import {
 } from "../types/campaign";
 import axios from "./axios";
 
+export const getCampaignCategories = async (): Promise<{ value: string; label: string }[]> => {
+  const response = await axios.get("/campaigns_templates/categories");
+  return response.data?.data || response.data || [];
+};
+
 export const getCampaignTemplates = async (params: CampaignFilters): Promise<CampaignTemplatesResponse> => {
   const response = await axios.get("/campaigns_templates", { params });
   return response.data;

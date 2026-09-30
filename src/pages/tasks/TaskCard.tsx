@@ -1,13 +1,13 @@
+import { useEffect, useMemo, useState } from "react";
 import { Button, Card, CardBody, CardHeader, Select, SelectItem } from "@heroui/react";
-import { LuBuilding2, LuCalendar, LuInfo, LuTrash2 } from "react-icons/lu";
+import { LuBuilding2, LuCalendar, LuInfo, LuTrash2, LuFileText } from "react-icons/lu";
 import { FiEdit } from "react-icons/fi";
 import TaskPriorityChip from "../../components/chips/TaskPriorityChip";
 import { TASK_STATUSES } from "../../consts/practice";
 import { useUpdateTask } from "../../hooks/usePartner";
 import { TaskApiData } from "../../types/partner";
 import { formatDateToMMDDYYYY } from "../../utils/formatDateToMMDDYYYY";
-import { LuFileText } from "react-icons/lu";
-import { useState } from "react";
+import { useLocationContext } from "../../providers/LocationContext";
 import EditTaskNotesModal from "./modal/EditTaskNotesModal";
 
 function TaskCard({
@@ -22,7 +22,34 @@ function TaskCard({
   refetch?: () => void;
 }) {
   const { mutate: updateTask } = useUpdateTask();
+  const { locations, getLocationColor } = useLocationContext();
   const [isNotesOpen, setIsNotesOpen] = useState(false);
+  const [localStatus, setLocalStatus] = useState(task.status);
+
+  useEffect(() => {
+    setLocalStatus(task.status);
+  }, [task.status]);
+
+  const locationBadge = useMemo(() => {
+    const rawLocId =
+      task.locationId?._id ||
+      (typeof task.locationId === "string" ? task.locationId : null);
+    if (!rawLocId) {
+      if (task.locationId?.name) {
+        return { name: task.locationId.name, color: getLocationColor(task.locationId._id) };
+      }
+      return { name: "Not Assigned", color: "#9ca3af" };
+    }
+    const found = locations?.find((l) => l._id === rawLocId);
+    if (found) {
+      return { name: found.name, color: getLocationColor(found._id) };
+    }
+    if (task.locationId?.name) {
+      return { name: task.locationId.name, color: getLocationColor(rawLocId) };
+    }
+    return { name: "Not Assigned", color: "#9ca3af" };
+  }, [locations, task.locationId, getLocationColor]);
+
   return (
     <Card
       className={`rounded-xl p-3.5 border shadow-none ${task.isOverDue
@@ -31,7 +58,25 @@ function TaskCard({
         }`}
     >
       <CardHeader className="flex items-center justify-between gap-2 mb-2 p-0">
-        <p className="text-sm">{task.title}</p>
+        <div className="flex items-center gap-2 flex-wrap min-w-0">
+          <p className="text-sm font-medium">{task.title}</p>
+          {locationBadge && (
+            <span
+              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium border shrink-0"
+              style={{
+                backgroundColor: `${locationBadge.color}15`,
+                color: locationBadge.color,
+                borderColor: `${locationBadge.color}40`,
+              }}
+            >
+              <span
+                className="size-1.5 rounded-full shrink-0"
+                style={{ backgroundColor: locationBadge.color }}
+              />
+              <span className="truncate max-w-[120px]">{locationBadge.name}</span>
+            </span>
+          )}
+        </div>
         <TaskPriorityChip priority={task.priority} />
       </CardHeader>
       <CardBody className="p-0 overflow-hidden">
@@ -95,13 +140,17 @@ function TaskCard({
               size="sm"
               disableAnimation
               popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
-              selectedKeys={task.status ? [task.status] : []}
-              onSelectionChange={(keys) =>
-                updateTask({
-                  taskId: task._id,
-                  data: { status: Array.from(keys)[0] },
-                })
-              }
+              selectedKeys={localStatus ? [localStatus] : []}
+              onSelectionChange={(keys) => {
+                const newStatus = Array.from(keys)[0] as string;
+                if (newStatus && newStatus !== localStatus) {
+                  setLocalStatus(newStatus);
+                  updateTask({
+                    taskId: task._id,
+                    data: { status: newStatus },
+                  });
+                }
+              }}
               fullWidth={false}
               className="min-w-[180px] max-w-[200px]"
               classNames={{

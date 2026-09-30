@@ -28,6 +28,8 @@ export interface CampaignTemplate {
   rating: number;
   favoritedBy: string[];
   isSystemTemplate: boolean;
+  isDefault?: boolean;
+  isAdminCreated?: boolean;
   createdAt: string;
   updatedAt: string;
   isFavorite?: boolean;

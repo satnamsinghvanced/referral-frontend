@@ -17,6 +17,7 @@ import {
   LuClock,
   LuDollarSign,
   LuMail,
+  LuMapPin,
   LuMessageSquare,
   LuPhone,
   LuStethoscope,
@@ -33,6 +34,7 @@ import {
   TREATMENT_OPTIONS,
 } from "../../../consts/referral";
 import { useUpdateReferral } from "../../../hooks/useReferral";
+import { useLocationContext } from "../../../providers/LocationContext";
 import { Referral, StatusUpdateFormValues } from "../../../types/referral";
 import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
@@ -52,10 +54,12 @@ const ReferralStatusModal = ({
   isViewMode = false,
   setReferralEditId,
 }: ReferralStatusModalProps) => {
+  const { locations } = useLocationContext();
   const { mutate: updateReferral, isPending } = useUpdateReferral();
   const validationSchema = Yup.object<StatusUpdateFormValues>().shape({
     estValue: Yup.number().min(0, "Estimated Value must be non-negative."),
     status: Yup.string().required("New Status is required"),
+    locationId: Yup.string().nullable().optional(),
     statusNotes: Yup.string()
       .max(500, "Notes must be under 500 characters")
       .nullable(),
@@ -66,13 +70,18 @@ const ReferralStatusModal = ({
       estValue: referral?.estValue || "",
       status: referral?.status,
       statusNotes: referral?.statusNotes || "",
+      locationId:
+        referral?.locationId?._id ||
+        (typeof referral?.locationId === "string" ? referral?.locationId : "") ||
+        "",
     },
     validationSchema: validationSchema,
     onSubmit: (values) => {
-      const payload = {
+      const payload: any = {
         estValue: Number(values.estValue),
         status: values.status,
         statusNotes: values.statusNotes || "",
+        locationId: values.locationId || null,
       };
       updateReferral(
         { id: referral?._id, payload },
@@ -196,6 +205,16 @@ const ReferralStatusModal = ({
                   label="Preferred Time"
                   value={referral?.appointmentTime || "Not specified"}
                 />
+                <InfoItem
+                  icon={<LuMapPin size={16} />}
+                  label="Practice Location"
+                  value={
+                    (typeof referral?.locationId === "object" ? referral?.locationId?.name : null) ||
+                    locations.find((l) => l._id === referral?.locationId)?.name ||
+                    (referral as any)?.location?.name ||
+                    "Not specified"
+                  }
+                />
               </div>
             </div>
             {(referral?.additionalNotes ||
@@ -260,6 +279,39 @@ const ReferralStatusModal = ({
                   Update Progress
                 </h4>
                 <form onSubmit={formik.handleSubmit} className="space-y-4">
+                  {locations && locations.length > 0 && (
+                    <div className="flex">
+                      <Select
+                        name="locationId"
+                        label="Practice Location"
+                        labelPlacement="outside"
+                        placeholder="Select practice location"
+                        size="sm"
+                        radius="sm"
+                        variant="flat"
+                        disableAnimation
+                        popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                        selectedKeys={
+                          formik.values.locationId ? [formik.values.locationId] : []
+                        }
+                        onSelectionChange={(keys) => {
+                          const value = Array.from(keys)[0] as string;
+                          formik.setFieldValue("locationId", value);
+                        }}
+                        onBlur={() => formik.setFieldTouched("locationId", true)}
+                        isInvalid={
+                          !!(formik.touched.locationId && formik.errors.locationId)
+                        }
+                        errorMessage={formik.errors.locationId}
+                      >
+                        {locations.map((loc) => (
+                          <SelectItem key={loc._id} textValue={loc.name}>
+                            {loc.name} {loc.isPrimary ? "(Primary)" : ""}
+                          </SelectItem>
+                        ))}
+                      </Select>
+                    </div>
+                  )}
                   <div className="grid grid-cols-2 gap-3">
                     <Select
                       name="status"

@@ -15,10 +15,12 @@ import { useDeleteTask, useFetchAllTasks, useFetchPartners } from "../../hooks/u
 import TaskCard from "./TaskCard";
 import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
 import { AiOutlinePlus } from "react-icons/ai";
-import TaskActionModal from "./modal/TaskActionModal";
 import { usePaginationAdjustment } from "../../hooks/common/usePaginationAdjustment";
+import { useLocationContext } from "../../providers/LocationContext";
+import TaskActionModal from "./modal/TaskActionModal";
 
 function Tasks() {
+  const { selectedLocation } = useLocationContext();
   const [openTaskModal, setOpenTaskModal] = useState(false);
   const [taskToEdit, setTaskToEdit] = useState<any>(null);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -51,9 +53,18 @@ function Tasks() {
   useEffect(() => {
     setCurrentFilters((prev: any) => ({ ...prev, search: debouncedSearch }));
   }, [debouncedSearch]);
+
+  useEffect(() => {
+    setCurrentFilters((prev: any) => ({ ...prev, page: 1 }));
+  }, [selectedLocation?._id]);
+
   const { data: partnersData } = useFetchPartners({ limit: 100 });
   const practices = partnersData?.data || [];
-  const { data: tasksData, isLoading, isFetching, refetch } = useFetchAllTasks({ ...currentFilters, search: debouncedSearch });
+  const { data: tasksData, isLoading, isFetching, refetch } = useFetchAllTasks({
+    ...currentFilters,
+    search: debouncedSearch,
+    locationId: selectedLocation?._id,
+  });
   const { mutate: deleteTask, isPending: isDeletePending } = useDeleteTask();
   const tasks = tasksData?.tasks;
   const stats = tasksData?.stats;
@@ -181,7 +192,7 @@ function Tasks() {
         </div>
         <div className="flex flex-col gap-4 border border-foreground/10 bg-background rounded-xl p-4 min-h-unit-96">
           <p className="font-medium text-sm">Task List</p>
-          {isLoading || isFetching ? (
+          {isLoading && !tasks ? (
             <LoadingState />
           ) : !tasks || tasks?.length <= 0 ? (
             <EmptyState title="There are no tasks matching your current filters. Try adjusting your search or filters." />

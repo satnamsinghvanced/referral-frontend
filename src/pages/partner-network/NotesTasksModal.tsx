@@ -51,6 +51,7 @@ import PriorityLevelChip from "../../components/chips/PriorityLevelChip";
 import TaskCategoryChip from "../../components/chips/TaskCategoryChip";
 import NoteCategoryChip from "../../components/chips/NoteCategoryChip";
 import DeleteConfirmationModal from "../../components/common/DeleteConfirmationModal";
+import { useLocationContext } from "../../providers/LocationContext";
 
 interface NotesTasksModalProps {
   isOpen: boolean;
@@ -128,6 +129,7 @@ const NotesTasksModal = ({
     }
   }, [isOpen]);
 
+  const { selectedLocation } = useLocationContext();
   const { data } = useGetAllNotesAndTasks(practice?.id);
   const { mutate: createNote, isPending: isCreatingNote } = useCreateNote();
   const { mutate: deleteNote } = useDeleteNote();
@@ -456,6 +458,7 @@ const NotesTasksModal = ({
                                   category: newTaskType as string,
                                   dueDate: newTaskDueDate,
                                   practiceId: practice?.id,
+                                  locationId: selectedLocation?._id,
                                   assignTo: newTaskAssignTo || [],
                                 },
                                 {

@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Modal, ModalContent, ModalBody, Button, Select, SelectItem, Textarea, Switch, addToast, DatePicker, TimeInput } from "@heroui/react";
 import { parseDate, CalendarDate, Time, today, getLocalTimeZone } from "@internationalized/date";
 import { Conversation } from "../../../consts/conversations";
@@ -6,11 +7,14 @@ import { HiOutlineClock } from "react-icons/hi";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { parseStringTime } from "../../../utils/parseStringTime";
+import { queryClient } from "../../../providers/QueryProvider";
+import { getLead } from "../../../services/leadPipeline";
 
 interface ScheduleAppointmentModalProps {
   isOpen: boolean;
   onClose: () => void;
   lead: Conversation | null;
+  onAppointmentScheduled?: (updatedLead: any) => void;
 }
 
 const APPOINTMENT_TYPES = [
@@ -22,28 +26,120 @@ const APPOINTMENT_TYPES = [
   "Emergency Visit",
 ];
 
-const PROVIDERS = [
-  { key: "dr-johnson", label: "Dr. Sarah Johnson" },
-  { key: "dr-smith", label: "Dr. Michael Smith" },
-];
+const safeParseDate = (dateVal: string | null | undefined): CalendarDate | null => {
+  if (!dateVal) return null;
+  try {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(dateVal)) {
+      return parseDate(dateVal);
+    }
+    const d = new Date(dateVal);
+    if (!isNaN(d.getTime())) {
+      const year = d.getFullYear();
+      const month = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return parseDate(`${year}-${month}-${day}`);
+    }
+  } catch (err) {
+    console.error("safeParseDate error:", err);
+  }
+  return null;
+};
 
-const ScheduleAppointmentModal = ({ isOpen, onClose, lead }: ScheduleAppointmentModalProps) => {
+const safeParseTime = (timeVal: string | null | undefined): Time | null => {
+  if (!timeVal) return null;
+  try {
+    const match = timeVal.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+    if (match && match[1] && match[2]) {
+      let hour = parseInt(match[1], 10);
+      const min = parseInt(match[2], 10);
+      const ampm = match[3]?.toUpperCase();
+      if (ampm === "PM" && hour < 12) hour += 12;
+      if (ampm === "AM" && hour === 12) hour = 0;
+      return new Time(hour, min);
+    }
+    return parseStringTime(timeVal);
+  } catch (err) {
+    console.error("safeParseTime error:", err);
+  }
+  return null;
+};
+
+const ScheduleAppointmentModal = ({ isOpen, onClose, lead, onAppointmentScheduled }: ScheduleAppointmentModalProps) => {
+  const [fetchedLead, setFetchedLead] = useState<any>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    if (isOpen && lead?.leadId) {
+      getLead(lead.leadId)
+        .then((res: any) => {
+          if (isMounted) {
+            const data = res?.data || res;
+            if (data) setFetchedLead(data);
+          }
+        })
+        .catch((err) => {
+          console.error("Error fetching lead appointment details:", err);
+        });
+    } else {
+      setFetchedLead(null);
+    }
+    return () => {
+      isMounted = false;
+    };
+  }, [isOpen, lead?.leadId]);
+
+  const activeAppt = fetchedLead?.scheduledAppointment || lead?.scheduledAppointment;
+  const isAlreadyScheduled = Boolean(activeAppt?.date || lead?.leadStatus === "appointmentScheduled" || fetchedLead?.status === "appointmentScheduled");
+
+  const getInitialDate = () => {
+    const rawDate = activeAppt?.date;
+    if (rawDate) {
+      try {
+        const d = new Date(rawDate);
+        if (!isNaN(d.getTime())) {
+          const year = d.getFullYear();
+          const month = String(d.getMonth() + 1).padStart(2, "0");
+          const day = String(d.getDate()).padStart(2, "0");
+          return `${year}-${month}-${day}`;
+        }
+      } catch (e) { }
+    }
+    return "";
+  };
+
+  const getInitialTime = () => {
+    const rawTime = activeAppt?.time;
+    if (rawTime) {
+      const match = rawTime.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+      if (match && match[1] && match[2]) {
+        let hour = parseInt(match[1], 10);
+        const min = match[2];
+        const ampm = match[3]?.toUpperCase();
+        if (ampm === "PM" && hour < 12) hour += 12;
+        if (ampm === "AM" && hour === 12) hour = 0;
+        return `${hour.toString().padStart(2, "0")}:${min}`;
+      }
+      return rawTime;
+    }
+    return "";
+  };
+
   const validationSchema = Yup.object().shape({
     appointmentType: Yup.string().required("Required"),
     date: Yup.string().required("Date is required"),
     time: Yup.string().required("Time is required"),
-    provider: Yup.string().required("Provider is required"),
     notes: Yup.string().max(500, "Notes too long").nullable(),
     sendReminder: Yup.boolean(),
   });
+
   const formik = useFormik({
+    enableReinitialize: true,
     initialValues: {
-      appointmentType: "New Patient Consultation",
-      date: "",
-      time: "",
-      provider: "dr-johnson",
-      notes: "",
-      sendReminder: true,
+      appointmentType: activeAppt?.appointmentType || "New Patient Consultation",
+      date: getInitialDate(),
+      time: getInitialTime(),
+      notes: activeAppt?.notes || "",
+      sendReminder: activeAppt?.sendReminder !== false,
     },
     validationSchema,
     onSubmit: async (values) => {
@@ -62,29 +158,56 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead }: ScheduleAppointment
           timeStr = `${hour}:${minStr} ${ampm}`;
         }
       }
-      const providerLabel = PROVIDERS.find(p => p.key === values.provider)?.label || values.provider;
-      if (values.sendReminder && lead.leadId) {
+      
+      let updatedLeadData: any = null;
+      if (lead.leadId) {
         try {
           const { sendLeadAppointment } = await import("../../../services/leadPipeline");
-          await sendLeadAppointment({
+          const res = await sendLeadAppointment({
             id: lead.leadId,
             appointmentType: values.appointmentType,
             date: dateStr,
             time: timeStr,
-            provider: providerLabel,
+            sendReminder: values.sendReminder,
             ...(values.notes ? { notes: values.notes } : {})
           });
-        } catch (err) {
-          console.error("Failed to send scheduled appointment confirmation/reminder:", err);
+          updatedLeadData = res?.data?.lead || res?.data || res;
+        } catch (err: any) {
+          console.error("Failed to schedule appointment:", err);
+          addToast({
+            title: "Error",
+            description: err?.response?.data?.message || err.message || "Failed to schedule appointment",
+            color: "danger",
+          });
+          return;
         }
       }
+
+      queryClient.invalidateQueries({ queryKey: ["leadStatus"] });
+      queryClient.invalidateQueries({ queryKey: ["leadStats"] });
+      queryClient.invalidateQueries({ queryKey: ["leads"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+
+      if (onAppointmentScheduled) {
+        onAppointmentScheduled(updatedLeadData || {
+          ...lead,
+          leadStatus: "appointmentScheduled",
+          scheduledAppointment: {
+            appointmentType: values.appointmentType,
+            date: dateStr,
+            time: timeStr,
+            notes: values.notes,
+            sendReminder: values.sendReminder,
+          }
+        });
+      }
+
       addToast({
-        title: "Appointment Scheduled",
-        description: `Appointment for ${lead?.patientName || ""} (${values.appointmentType}) has been confirmed.`,
+        title: isAlreadyScheduled ? "Appointment Updated" : "Appointment Scheduled",
+        description: `Appointment for ${lead?.patientName || ""} (${values.appointmentType}) has been ${isAlreadyScheduled ? "updated" : "confirmed"}.`,
         color: "success",
       });
       onClose();
-      formik.resetForm();
     },
   });
   if (!lead) return null;
@@ -104,7 +227,9 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead }: ScheduleAppointment
         {(onClose) => (
           <>
             <div className="bg-[#10b981] px-5 py-4">
-              <h3 className="font-bold text-[15px] sm:text-[16px] leading-tight text-white">Schedule Appointment</h3>
+              <h3 className="font-bold text-[15px] sm:text-[16px] leading-tight text-white">
+                {isAlreadyScheduled ? "Edit Scheduled Appointment" : "Schedule Appointment"}
+              </h3>
               <p className="text-white/85 text-[12px] sm:text-[13px] mt-0.5">{lead.patientName}</p>
             </div>
             <ModalBody className="px-5 py-4 gap-4">
@@ -155,7 +280,7 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead }: ScheduleAppointment
                         ].join(" "),
                       }}
                       minValue={today(getLocalTimeZone())}
-                      value={formik.values.date ? parseDate(formik.values.date) : null}
+                      value={safeParseDate(formik.values.date)}
                       onChange={(date: CalendarDate | null) => {
                         formik.setFieldValue("date", date ? date.toString() : "");
                       }}
@@ -163,7 +288,7 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead }: ScheduleAppointment
                     />
                   </div>
                   {formik.errors.date && formik.touched.date && (
-                    <div className="text-red-500 text-[10px] mt-0.5">{formik.errors.date}</div>
+                    <div className="text-red-500 text-[10px] mt-0.5">{String(formik.errors.date)}</div>
                   )}
                 </div>
                 <div>
@@ -175,7 +300,7 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead }: ScheduleAppointment
                     <TimeInput
                       className="flex-1 min-w-0"
                       hourCycle={12}
-                      value={formik.values.time ? parseStringTime(formik.values.time) : null}
+                      value={safeParseTime(formik.values.time)}
                       onChange={(time: Time | null) => {
                         formik.setFieldValue(
                           "time",
@@ -206,37 +331,11 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead }: ScheduleAppointment
                     />
                   </div>
                   {formik.errors.time && formik.touched.time && (
-                    <div className="text-red-500 text-[10px] mt-0.5">{formik.errors.time}</div>
+                    <div className="text-red-500 text-[10px] mt-0.5">{String(formik.errors.time)}</div>
                   )}
                 </div>
               </div>
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">
-                  Provider
-                </label>
-                <Select
-                  size="sm"
-                  radius="sm"
-                  variant="bordered"
-                  disableAnimation
-                  popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
-                  selectedKeys={formik.values.provider ? [formik.values.provider] : []}
-                  onSelectionChange={(keys) => {
-                    const val = Array.from(keys)[0] as string;
-                    if (val) formik.setFieldValue("provider", val);
-                  }}
-                  classNames={{
-                    trigger: "border-slate-200 dark:border-default-200 rounded-lg shadow-none h-9 min-h-9 data-[hover=true]:border-slate-300",
-                    value: "text-[12px] sm:text-[12.5px] text-slate-600 dark:text-slate-200",
-                  }}
-                >
-                  {PROVIDERS.map((p) => (
-                    <SelectItem key={p.key} textValue={p.label}>
-                      {p.label}
-                    </SelectItem>
-                  ))}
-                </Select>
-              </div>
+
               <div>
                 <label className="block text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-widest mb-1.5">
                   Notes
@@ -283,7 +382,9 @@ const ScheduleAppointmentModal = ({ isOpen, onClose, lead }: ScheduleAppointment
                   isLoading={formik.isSubmitting}
                   isDisabled={formik.isSubmitting}
                 >
-                  <span className="truncate">Confirm Appointment</span>
+                  <span className="truncate">
+                    {isAlreadyScheduled ? "Update Appointment" : "Confirm Appointment"}
+                  </span>
                 </Button>
                 <Button
                   variant="bordered"

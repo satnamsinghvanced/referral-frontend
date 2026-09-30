@@ -104,6 +104,7 @@ const BulkImportReferrersModal = ({
       "Zip Code*",
       "Website",
       "Additional Notes",
+      "Practice Location",
     ];
 
     const sampleRow1 = [
@@ -120,6 +121,7 @@ const BulkImportReferrersModal = ({
       "90001",
       "https://smiledental.com",
       "Top referring practice",
+      "Main Clinic",
     ];
 
     const sampleRow2 = [
@@ -136,6 +138,7 @@ const BulkImportReferrersModal = ({
       "",
       "",
       "Community advocate",
+      "",
     ];
 
     const escapeCsvCell = (val: string) => {
@@ -168,6 +171,7 @@ const BulkImportReferrersModal = ({
     { name: "Type of Practice", badge: "required for doctor only", type: "doctor" },
     { name: "Practice Address", badge: "required for doctor only", type: "doctor" },
     { name: "City, State, Zip", badge: "required for doctor only", type: "doctor" },
+    { name: "Practice Location", badge: "optional", type: "optional" },
     { name: "Email Address", badge: "optional", type: "optional" },
     { name: "Referrer Type", badge: "optional", type: "optional" },
     { name: "Website URL", badge: "optional", type: "optional" },

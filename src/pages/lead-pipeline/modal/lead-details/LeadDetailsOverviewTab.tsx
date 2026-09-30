@@ -63,6 +63,57 @@ const LeadDetailsOverviewTab = ({
   return (
     <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-4">
       <div className="lg:col-span-6 space-y-4">
+        {lead?.scheduledAppointment?.date && (
+          <div className="p-4 border border-purple-500/20 rounded-xl space-y-3 bg-purple-500/5 dark:bg-purple-950/20">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="p-1.5 bg-purple-500/10 rounded-lg text-purple-600 dark:text-purple-400">
+                  <HiOutlineCalendar className="size-4" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-xs text-foreground">
+                    Scheduled Appointment
+                  </h3>
+                  <p className="text-[10px] text-purple-600 dark:text-purple-400 font-semibold">
+                    {lead.scheduledAppointment.appointmentType || "Appointment Confirmed"}
+                  </p>
+                </div>
+              </div>
+              <Chip size="sm" variant="flat" color="secondary" className="text-[10px] font-bold h-5">
+                Confirmed
+              </Chip>
+            </div>
+            <div className="grid grid-cols-2 gap-3 pt-2 border-t border-purple-500/10 text-xs">
+              <div>
+                <p className="text-[10px] text-gray-400 dark:text-foreground/40 font-medium uppercase tracking-tight">
+                  Date
+                </p>
+                <p className="font-bold text-foreground">
+                  {lead.scheduledAppointment.date}
+                </p>
+              </div>
+              <div>
+                <p className="text-[10px] text-gray-400 dark:text-foreground/40 font-medium uppercase tracking-tight">
+                  Time
+                </p>
+                <p className="font-bold text-foreground">
+                  {lead.scheduledAppointment.time || "—"}
+                </p>
+              </div>
+            </div>
+            {lead.scheduledAppointment.notes && (
+              <div className="pt-2 border-t border-purple-500/10 text-xs">
+                <p className="text-[10px] text-gray-400 dark:text-foreground/40 font-medium uppercase tracking-tight">
+                  Notes
+                </p>
+                <p className="text-foreground/80 italic text-[11px] mt-0.5">
+                  "{lead.scheduledAppointment.notes}"
+                </p>
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="p-4 border border-foreground/10 rounded-xl space-y-4 bg-content1/50 dark:bg-content1/20">
           <div className="flex items-center justify-between gap-2 mb-2">
             <div className="flex items-center gap-2 min-w-0">

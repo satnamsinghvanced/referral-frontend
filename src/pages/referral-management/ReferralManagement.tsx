@@ -387,18 +387,6 @@ const ReferralManagement = () => {
       subHeading:
         "Track doctor and patient referrals for your orthodontic practice",
       buttons: [
-        ...(hasManageReferrers && selectedReferralType === "Referrers"
-          ? [
-            {
-              label: "Import from Spreadsheet",
-              onClick: () => setIsImportReferrersModalOpen(true),
-              icon: <FiUpload fontSize={15} />,
-              variant: "ghost",
-              color: "default",
-              className: "border-small tour-step-import-referrers-btn",
-            },
-          ]
-          : []),
         ...(hasManageReferrers
           ? [
             {

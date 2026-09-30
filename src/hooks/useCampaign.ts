@@ -19,6 +19,7 @@ import {
   getAutomationById,
   getAutomations,
   getCampaignById,
+  getCampaignCategories,
   getCampaignTemplateById,
   getCampaignTemplates,
   getDashboardStats,
@@ -50,9 +51,18 @@ export const CAMPAIGN_KEYS = {
   all: ["campaigns"] as const,
   list: (filters: CampaignFilters) =>
     [...CAMPAIGN_KEYS.all, "list", filters] as const,
+  categories: ["campaigns", "categories"] as const,
   detail: (id: string) => [...CAMPAIGN_KEYS.all, "detail", id] as const,
   stats: ["campaigns", "stats"] as const,
 };
+
+export function useCampaignCategories() {
+  return useQuery({
+    queryKey: CAMPAIGN_KEYS.categories,
+    queryFn: getCampaignCategories,
+    staleTime: 60_000,
+  });
+}
 
 export function useCampaignTemplates(filters: CampaignFilters) {
   return useQuery({

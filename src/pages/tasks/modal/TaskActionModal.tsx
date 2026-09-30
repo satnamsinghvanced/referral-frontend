@@ -17,6 +17,7 @@ import { useTypedSelector } from "../../../hooks/useTypedSelector";
 import { TeamMember } from "../../../services/settings/team";
 import { TaskApiData, TaskComment } from "../../../types/partner";
 import { formatCalendarDate } from "../../../utils/formatCalendarDate";
+import { useLocationContext } from "../../../providers/LocationContext";
 
 interface TaskActionModalProps {
   isOpen: boolean;
@@ -31,11 +32,13 @@ const validationSchema = Yup.object({
   priority: Yup.string().required("Priority is required"),
   category: Yup.string().required("Task type is required"),
   practiceId: Yup.string().required("Practice is required"),
-  assignTo: Yup.array().min(1, "At least one member must be assigned"),
+  locationId: Yup.string().nullable().optional(),
+  assignTo: Yup.array().optional(),
 });
 
 const TaskActionModal = ({ isOpen, onClose, task, refetch, practices }: TaskActionModalProps) => {
   const isEditMode = !!task;
+  const { locations, selectedLocation } = useLocationContext();
   const { data: teamMembersData } = useFetchTeamMembers({ limit: 100 });
   const teamMembers = teamMembersData?.data;
   const activeTeamMembers = useMemo(
@@ -64,21 +67,34 @@ const TaskActionModal = ({ isOpen, onClose, task, refetch, practices }: TaskActi
       category: task?.category || TASK_TYPES[0]?.key || "",
       status: task?.status || "not-started",
       // @ts-ignore
-      assignTo:
-        task?.assignTo?.map((m: any) => m._id) ??
-        (activeTeamMembers && activeTeamMembers.length > 0
-          ? []
-          : [user?.userId]),
+      assignTo: (() => {
+        if (Array.isArray(task?.assignTo) && task.assignTo.length > 0) {
+          const mapped = task.assignTo
+            .map((m: any) => (typeof m === "object" ? (m?._id || m?.id) : m))
+            .filter(Boolean);
+          if (mapped.length > 0) return mapped;
+        }
+        return user?.userId ? [user.userId] : [];
+      })(),
       // @ts-ignore
       practiceId: task?.practiceId?._id || practices?.[0]?._id,
+      locationId: isEditMode
+        ? (task?.locationId?._id || (typeof task?.locationId === "string" ? task?.locationId : "") || "")
+        : (selectedLocation?._id || locations?.[0]?._id || ""),
     },
     validationSchema,
     onSubmit: (values) => {
+      const finalAssignTo = Array.isArray(values.assignTo) && values.assignTo.length > 0
+        ? values.assignTo.filter(Boolean)
+        : (user?.userId ? [user.userId] : []);
+
       const transformedValues = {
         ...values,
-        comments: values.comments.map((comment: any) => ({
+        assignTo: finalAssignTo,
+        comments: (values.comments || []).map((comment: any) => ({
           content: comment.content,
         })),
+        locationId: values.locationId || null,
       };
 
       if (isEditMode && task) {
@@ -94,7 +110,7 @@ const TaskActionModal = ({ isOpen, onClose, task, refetch, practices }: TaskActi
       } else {
         const { comments, ...createValues } = transformedValues;
         createTask(
-          { ...createValues, assignTo: values.assignTo },
+          { ...createValues, assignTo: finalAssignTo },
           {
             onSuccess: () => {
               if (refetch) refetch();
@@ -267,7 +283,37 @@ const TaskActionModal = ({ isOpen, onClose, task, refetch, practices }: TaskActi
                 </Select>
               )}
             </div>
-            <div className="flex">
+            <div className="grid grid-cols-2 gap-2.5 max-md:grid-cols-1">
+              <Select
+                label="Practice Location"
+                labelPlacement="outside"
+                size="sm"
+                radius="sm"
+                placeholder="Select practice location"
+                disableAnimation
+                popoverProps={{ disableAnimation: true, shouldCloseOnScroll: false }}
+                selectedKeys={
+                  formik.values.locationId
+                    ? [formik.values.locationId]
+                    : []
+                }
+                onSelectionChange={(keys) =>
+                  formik.setFieldValue("locationId", Array.from(keys)[0])
+                }
+                isInvalid={
+                  !!formik.errors.locationId &&
+                  (formik.touched.locationId as boolean)
+                }
+                errorMessage={formik.errors.locationId as string}
+                isLoading={!locations}
+              >
+                {(locations || []).map((loc: any) => (
+                  <SelectItem key={loc._id} textValue={loc.name}>
+                    {loc.name}
+                  </SelectItem>
+                ))}
+              </Select>
+
               <Select
                 label="Related Office/Practice"
                 labelPlacement="outside"
@@ -357,7 +403,7 @@ const TaskActionModal = ({ isOpen, onClose, task, refetch, practices }: TaskActi
                 variant="solid"
                 color="primary"
                 type="submit"
-                isDisabled={isLoading || !formik.isValid || !formik.dirty}
+                isDisabled={isLoading || !formik.isValid}
                 isLoading={isLoading}
               >
                 {isEditMode ? "Save Changes" : "Create Task"}

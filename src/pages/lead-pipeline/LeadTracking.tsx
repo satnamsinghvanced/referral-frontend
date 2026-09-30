@@ -614,6 +614,7 @@ const LeadTracking = () => {
                                   lead.name ||
                                   `${lead.firstName} ${lead.lastName}`,
                                 value: `$${(lead.estimatedValue || 0).toLocaleString()}`,
+                                scheduledAppointment: lead.scheduledAppointment,
                               }}
                               onPress={handleLeadClick}
                               onDelete={handleDeleteLead}
@@ -737,7 +738,16 @@ const LeadTracking = () => {
                           </div>
                         </td>
                         <td className="py-4 px-6">
-                          <ReferralStatusChip status={lead.status} />
+                          <div className="space-y-1.5">
+                            <ReferralStatusChip status={lead.status} />
+                            {lead.scheduledAppointment?.date && (
+                              <div className="flex items-center gap-1 text-[10px] text-purple-600 dark:text-purple-300 font-semibold">
+                                <HiOutlineCalendar className="size-3 text-purple-500 shrink-0" />
+                                <span>{lead.scheduledAppointment.date}</span>
+                                {lead.scheduledAppointment.time && <span>• {lead.scheduledAppointment.time}</span>}
+                              </div>
+                            )}
+                          </div>
                         </td>
                         <td className="py-4 px-6">
                           <div className="flex flex-wrap gap-2">

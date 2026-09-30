@@ -5,6 +5,11 @@ export const getLeadStatus = async (params?: any): Promise<any> => {
   return response.data;
 };
 
+export const getLead = async (id: string): Promise<any> => {
+  const response: any = await axios.get(`/lead/${id}`);
+  return response.data;
+};
+
 export const addLead = async (leadData: any): Promise<any> => {
   const response = await axios.post("/lead", leadData);
   return response.data;
@@ -44,20 +49,20 @@ export const sendLeadSms = async ({ id, body, }: { id: string; body: string; }):
   return response.data;
 };
 
-export const sendLeadAppointment = async ({ id, appointmentType, date, time, provider, notes, }: {
+export const sendLeadAppointment = async ({ id, appointmentType, date, time, notes, sendReminder = true }: {
   id: string;
   appointmentType: string;
   date: string;
   time: string;
-  provider: string;
   notes?: string;
+  sendReminder?: boolean;
 }): Promise<any> => {
   const response = await axios.post(`/lead/send-appointment/${id}`, {
     appointmentType,
     date,
     time,
-    provider,
     notes,
+    sendReminder,
   });
   return response.data;
 };

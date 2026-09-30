@@ -6,6 +6,7 @@ import { LuSave } from "react-icons/lu";
 import * as Yup from "yup";
 import QuillEditor, { QuillEditorRef } from "../../../../components/editor/QuillEditor";
 import { CAMPAIGN_CATEGORIES } from "../../../../consts/campaign";
+import { useCampaignCategories } from "../../../../hooks/useCampaign";
 import { Media } from "../../../../types/media";
 import GalleryMediaUploadModal from "../../../media-management/modal/GalleryMediaUploadModal";
 
@@ -14,6 +15,7 @@ interface CreateTemplateModalProps {
   onClose: () => void;
   onSubmit: (values: TemplateFormValues) => void;
   initialData?: any;
+  categories?: { label: string; value: string }[];
 }
 
 export interface TemplateFormValues {
@@ -41,11 +43,25 @@ const TemplateValidationSchema = Yup.object().shape({
     .required("Organization Name is required"),
 });
 
-export default function CreateTemplateModal({ isOpen, onClose, onSubmit, initialData }: CreateTemplateModalProps) {
+export default function CreateTemplateModal({
+  isOpen,
+  onClose,
+  onSubmit,
+  initialData,
+  categories: propCategories,
+}: CreateTemplateModalProps) {
+  const { data: dynamicCategories } = useCampaignCategories();
+  const availableCategories =
+    propCategories && propCategories.length > 0
+      ? propCategories
+      : dynamicCategories && dynamicCategories.length > 0
+      ? dynamicCategories
+      : CAMPAIGN_CATEGORIES;
+
   const initialValues: TemplateFormValues = {
     name: initialData?.name || initialData?.title || "",
     description: initialData?.description || "",
-    category: initialData?.category || "referralOutreach",
+    category: initialData?.category || availableCategories[0]?.value || "referralOutreach",
     subjectLine: initialData?.subjectLine || "",
     body: initialData?.bodyContent || initialData?.body || "",
     tags: initialData?.tags?.join(", ") || "",
@@ -132,7 +148,7 @@ export default function CreateTemplateModal({ isOpen, onClose, onSubmit, initial
                     formik.setFieldValue("category", Array.from(keys)[0])
                   }
                 >
-                  {CAMPAIGN_CATEGORIES.map(
+                  {availableCategories.map(
                     (cat: { label: string; value: string }) => (
                       <SelectItem key={cat.value} textValue={cat.label}>{cat.label}</SelectItem>
                     ),

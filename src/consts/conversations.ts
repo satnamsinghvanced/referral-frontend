@@ -61,4 +61,12 @@ export interface Conversation {
   leadId?: string;
   leadStatus?: string;
   locationId?: string;
+  scheduledAppointment?: {
+    appointmentType?: string;
+    date?: string;
+    time?: string;
+    notes?: string;
+    sendReminder?: boolean;
+    scheduledAt?: string;
+  };
 }

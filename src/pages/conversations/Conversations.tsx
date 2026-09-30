@@ -1136,6 +1136,35 @@ const Conversations = () => {
         isOpen={isScheduleModalOpen}
         onClose={() => setIsScheduleModalOpen(false)}
         lead={modalLead}
+        onAppointmentScheduled={(updatedLead) => {
+          const leadId = updatedLead?._id || updatedLead?.id || modalLead?.leadId;
+          const socId = updatedLead?.socialConversationId || modalLead?.id;
+          const scheduledAppt = updatedLead?.scheduledAppointment || modalLead?.scheduledAppointment;
+          setConversations((prev) =>
+            prev.map((c) => {
+              if (c.id === socId || (leadId && c.leadId === leadId)) {
+                return {
+                  ...c,
+                  leadStatus: "appointmentScheduled",
+                  scheduledAppointment: scheduledAppt,
+                  tags: Array.from(new Set([...(c.tags || []), "scheduled"])),
+                };
+              }
+              return c;
+            })
+          );
+          setModalLead((prev) => {
+            if (prev && (prev.id === socId || (leadId && prev.leadId === leadId))) {
+              return {
+                ...prev,
+                leadStatus: "appointmentScheduled",
+                scheduledAppointment: scheduledAppt,
+                tags: Array.from(new Set([...(prev.tags || []), "scheduled"])),
+              };
+            }
+            return prev;
+          });
+        }}
       />
       <SendFormsModal
         isOpen={isSendFormsModalOpen}

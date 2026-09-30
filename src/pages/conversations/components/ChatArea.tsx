@@ -476,35 +476,63 @@ export default function ChatArea({
           </Button>
         </div>
       </div>
-      <div className="px-4 py-2 bg-white dark:bg-content1 flex flex-wrap gap-2">
-        <Button
-          size="sm"
-          variant="bordered"
-          className="text-xs h-8 border-foreground/10 text-foreground hover:bg-[#ffe8d6] hover:text-[#e28a4b] hover:border-transparent transition-all"
-          startContent={<HiOutlineCalendar className="size-3.5 shrink-0" />}
-          {...(onScheduleClick ? { onClick: onScheduleClick } : {})}
-        >
-          Schedule Appointment
-        </Button>
-        <Button
-          size="sm"
-          variant="bordered"
-          className="text-xs h-8 border-foreground/10 text-foreground hover:bg-[#ffe8d6] hover:text-[#e28a4b] hover:border-transparent transition-all"
-          startContent={<HiOutlineMail className="size-3.5 shrink-0" />}
-          {...(onSendFormsClick ? { onClick: onSendFormsClick } : {})}
-        >
-          Send Forms
-        </Button>
-        <Button
-          size="sm"
-          variant="bordered"
-          className="text-xs h-8 border-foreground/10 text-foreground hover:bg-[#ffe8d6] hover:text-[#e28a4b] hover:border-transparent transition-all"
-          startContent={<HiOutlineCurrencyDollar className="size-3.5 shrink-0" />}
-          {...(onSendQuoteClick ? { onClick: onSendQuoteClick } : {})}
-        >
-          Send Quote
-        </Button>
-      </div>
+      {Boolean(selectedConversation?.leadId) && (
+        (() => {
+          const isAlreadyScheduled = Boolean(
+            selectedConversation.leadStatus === "appointmentScheduled" ||
+            selectedConversation.scheduledAppointment?.date
+          );
+          return (
+            <div className="px-4 py-2 bg-white dark:bg-content1 flex flex-wrap items-center justify-between gap-2 border-t border-foreground/5">
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  size="sm"
+                  variant={isAlreadyScheduled ? "flat" : "bordered"}
+                  className={`text-xs h-8 ${
+                    isAlreadyScheduled
+                      ? "bg-purple-50 dark:bg-purple-950/40 text-purple-700 dark:text-purple-300 border border-purple-300/60 dark:border-purple-800/40 font-semibold"
+                      : "border-foreground/10 text-foreground hover:bg-[#ffe8d6] hover:text-[#e28a4b] hover:border-transparent"
+                  } transition-all`}
+                  startContent={<HiOutlineCalendar className="size-3.5 shrink-0" />}
+                  {...(onScheduleClick ? { onClick: onScheduleClick } : {})}
+                >
+                  {isAlreadyScheduled ? "Edit Scheduled Appointment" : "Schedule Appointment"}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="bordered"
+                  className="text-xs h-8 border-foreground/10 text-foreground hover:bg-[#ffe8d6] hover:text-[#e28a4b] hover:border-transparent transition-all"
+                  startContent={<HiOutlineMail className="size-3.5 shrink-0" />}
+                  {...(onSendFormsClick ? { onClick: onSendFormsClick } : {})}
+                >
+                  Send Forms
+                </Button>
+                <Button
+                  size="sm"
+                  variant="bordered"
+                  className="text-xs h-8 border-foreground/10 text-foreground hover:bg-[#ffe8d6] hover:text-[#e28a4b] hover:border-transparent transition-all"
+                  startContent={<HiOutlineCurrencyDollar className="size-3.5 shrink-0" />}
+                  {...(onSendQuoteClick ? { onClick: onSendQuoteClick } : {})}
+                >
+                  Send Quote
+                </Button>
+              </div>
+              {selectedConversation.scheduledAppointment?.date && (
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-purple-50 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-800/50 text-[11px] text-purple-700 dark:text-purple-300 font-medium">
+                  <HiOutlineCalendar className="size-3.5 text-purple-500 shrink-0" />
+                  <span>{selectedConversation.scheduledAppointment.date}</span>
+                  {selectedConversation.scheduledAppointment.time && (
+                    <>
+                      <span className="opacity-40">•</span>
+                      <span>{selectedConversation.scheduledAppointment.time}</span>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })()
+      )}
     </div >
   );
 }

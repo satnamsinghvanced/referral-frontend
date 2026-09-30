@@ -28,6 +28,7 @@ import PhonePlansTab from "./components/PhonePlansTab";
 import SpecialtiesTab from "./components/SpecialtiesTab";
 import DiscountCouponsTab from "./components/DiscountCouponsTab";
 import RolesAndPermissionsTab from "./components/RolesAndPermissionsTab";
+import EmailTemplatesTab from "./components/EmailTemplatesTab";
 
 const AdminList: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -36,16 +37,17 @@ const AdminList: React.FC = () => {
   const [searchParams] = useSearchParams();
   const getTabFromUrl = (
     param: string | null
-  ): "clients" | "plans" | "phonePlans" | "specialties" | "discountCoupons" | "rolesAndPermissions" => {
+  ): "clients" | "plans" | "phonePlans" | "specialties" | "discountCoupons" | "rolesAndPermissions" | "emailTemplates" => {
     if (param === "plans") return "plans";
     if (param === "phone-plans" || param === "phonePlans") return "phonePlans";
     if (param === "specialties" || param === "speciality" || param === "specialities") return "specialties";
     if (param === "discount-coupons" || param === "discountCoupons" || param === "coupons") return "discountCoupons";
     if (param === "roles-and-permissions" || param === "rolesAndPermissions" || param === "roles" || param === "permissions") return "rolesAndPermissions";
+    if (param === "email-templates" || param === "emailTemplates" || param === "templates") return "emailTemplates";
     return "clients";
   };
 
-  const [activeMainTab, setActiveMainTab] = useState<"clients" | "plans" | "phonePlans" | "specialties" | "discountCoupons" | "rolesAndPermissions">(getTabFromUrl(searchParams.get("tab")));
+  const [activeMainTab, setActiveMainTab] = useState<"clients" | "plans" | "phonePlans" | "specialties" | "discountCoupons" | "rolesAndPermissions" | "emailTemplates">(getTabFromUrl(searchParams.get("tab")));
   useEffect(() => {
     setActiveMainTab(getTabFromUrl(searchParams.get("tab")));
   }, [searchParams]);
@@ -525,6 +527,8 @@ const AdminList: React.FC = () => {
             <DiscountCouponsTab isLight={isLight} />
           ) : activeMainTab === "rolesAndPermissions" ? (
             <RolesAndPermissionsTab isLight={isLight} />
+          ) : activeMainTab === "emailTemplates" ? (
+            <EmailTemplatesTab isLight={isLight} />
           ) : (
             <>
               <div>
