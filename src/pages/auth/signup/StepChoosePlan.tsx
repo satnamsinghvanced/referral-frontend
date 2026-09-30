@@ -4,7 +4,6 @@ import { Spinner, addToast } from "@heroui/react";
 import { fetchPlansAndFeatures, PlanData } from "../../../services/planFeature";
 import { StepChoosePlanProps } from "./types";
 
-// Helper to determine if a plan is designated as Popular by the backend
 const isPlanPopular = (p?: PlanData | null): boolean => {
   if (!p) return false;
   return Boolean(
@@ -27,8 +26,6 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
 }) => {
   const [plans, setPlans] = useState<PlanData[]>(propPlans || []);
   const [loading, setLoading] = useState<boolean>(propLoading && (!propPlans || propPlans.length === 0));
-
-  // Fetch actual plans from API endpoint /api/plans/ (PlanFeatureController.getPlansAndFeatures)
   useEffect(() => {
     if (propPlans && propPlans.length > 0) {
       setPlans(propPlans);
@@ -41,7 +38,6 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
       }
       return;
     }
-
     const loadLivePricingPlans = async () => {
       try {
         setLoading(true);
@@ -52,12 +48,8 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
           : Array.isArray(data)
             ? data
             : [];
-
-        // Filter active plans
         const activePlans = fetchedList.filter((p) => p.isActive !== false);
         setPlans(activePlans);
-
-        // Auto select popular plan from backend or fallback to first plan
         if (!selectedPlan && activePlans.length > 0) {
           const popular = activePlans.find((p) => isPlanPopular(p)) || activePlans[0];
           if (popular) {
@@ -106,8 +98,6 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
       </div>
     );
   }
-
-  // Determine popular plan discount percent for the annual toggle button
   const popularPlan = plans.find((p) => isPlanPopular(p)) || plans[0];
   const popularAnnualDiscount =
     popularPlan?.annualPricing?.discountPercent ??
@@ -118,7 +108,6 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
 
   return (
     <div className="w-full max-w-6xl flex flex-col items-center">
-      {/* Billing Cycle Switcher */}
       <div className="flex items-center justify-center mb-8">
         <div className="bg-slate-100 dark:bg-slate-800/80 p-1.5 rounded-full border border-slate-200 dark:border-slate-700/60 inline-flex items-center gap-1 shadow-inner">
           <button
@@ -148,8 +137,6 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
           </button>
         </div>
       </div>
-
-      {/* Pricing Cards Grid */}
       <div className="w-full grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8 items-stretch pt-2">
         {plans.map((plan) => {
           const planId = (plan.planId || plan.name || "").toLowerCase();
@@ -162,27 +149,22 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
           const isEnterprise =
             (plan.monthlyPricing?.price === 0 || plan.price === 0) &&
             (plan.annualPricing?.price === 0 || plan.annualPrice === 0);
-
           const isAnnual = billingCycle === "annual";
           const monthlyPrice = plan.monthlyPricing?.price ?? plan.price ?? 0;
           const rawAnnualPrice = plan.annualPricing?.price ?? plan.annualPrice;
           const discountPercent = plan.annualPricing?.discountPercent ?? plan.discountPercent ?? 0;
-
           const annualMonthlyPrice =
             rawAnnualPrice !== undefined && rawAnnualPrice !== null && Number(rawAnnualPrice) > 0
               ? Number(rawAnnualPrice)
               : discountPercent > 0
                 ? Math.round(monthlyPrice * (1 - discountPercent / 100))
                 : monthlyPrice;
-
           const displayPrice = isAnnual ? annualMonthlyPrice : monthlyPrice;
-
           const annualTotal =
             plan.annualPricing?.totalValue ||
             (rawAnnualPrice && Number(rawAnnualPrice) > 0
               ? Number(rawAnnualPrice) * 12
               : annualMonthlyPrice * 12);
-
           const regularYearlyTotal = monthlyPrice * 12;
           const savingsPerYear = Math.max(0, regularYearlyTotal - annualTotal);
           const savingsPercent =
@@ -191,11 +173,9 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
               : monthlyPrice > 0 && annualMonthlyPrice < monthlyPrice
                 ? Math.round(((monthlyPrice - annualMonthlyPrice) / monthlyPrice) * 100)
                 : 0;
-
           const rawFeatures = isAnnual
             ? plan.yearlyFeatures || plan.featuresList || plan.monthlyFeatures || plan.features || []
             : plan.monthlyFeatures || plan.featuresList || plan.yearlyFeatures || plan.features || [];
-
           const features =
             Array.isArray(rawFeatures) && rawFeatures.length > 0
               ? rawFeatures.map((f: any) => ({
@@ -203,10 +183,8 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
                 isEnabled: typeof f === "string" ? true : f.isEnabled !== false,
               }))
               : [];
-
           const planDescription =
             (isAnnual && plan.yearlyDescription ? plan.yearlyDescription : plan.description) || "";
-
           return (
             <div
               key={plan.planId || plan._id || plan.name}
@@ -226,7 +204,6 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
                   )}
                 </div>
               )}
-
               <div className="flex flex-col flex-1">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex-1">
@@ -239,16 +216,12 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
                       </p>
                     )}
                   </div>
-
-                  {/* Circular Blue Tick Badge when selected (on cards without banner) */}
                   {isSelected && !isPopular && (
                     <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#009AE5] text-white flex items-center justify-center shrink-0 shadow-md transition-transform duration-200 animate-in zoom-in-75">
                       <FiCheck className="w-4 h-4 text-white stroke-[3]" />
                     </div>
                   )}
                 </div>
-
-                {/* Price block */}
                 <div className="mt-4 mb-5">
                   {isEnterprise ? (
                     <div className="min-h-[58px] flex flex-col justify-center">
@@ -266,7 +239,6 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
                           /month
                         </span>
                       </div>
-
                       {isAnnual ? (
                         <div className="mt-1 space-y-0.5 min-h-[36px]">
                           {savingsPercent > 0 && (
@@ -288,8 +260,6 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
                     </div>
                   )}
                 </div>
-
-                {/* Action Button inside card */}
                 <div className="mb-5">
                   <button
                     type="button"
@@ -307,8 +277,6 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
                     <span>{isEnterprise ? "Get In Touch" : isSelected ? "Selected Plan" : "Select Plan"}</span>
                   </button>
                 </div>
-
-                {/* Features List with checkmarks and crossmarks */}
                 <div className="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800/80 flex-1">
                   {features.map((feat, idx) => {
                     const isEnabled = feat.isEnabled !== false;
@@ -338,8 +306,6 @@ export const StepChoosePlan: React.FC<StepChoosePlanProps> = ({
           );
         })}
       </div>
-
-      {/* Bottom Continue Action */}
       <div className="mt-10 flex flex-col items-center gap-3">
         <button
           type="button"

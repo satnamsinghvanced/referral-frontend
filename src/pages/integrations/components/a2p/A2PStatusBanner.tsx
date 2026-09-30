@@ -125,7 +125,7 @@ export default function A2PStatusBanner({ registration, phoneNumbers, isA2PConfi
     );
   }
 
-  const parseResult = parseAndMapRejectionReason(registration.rejectionReason);
+  const parseResult = parseAndMapRejectionReason(registration.rejectionReason, registration);
   return (
     <div className="border border-red-200 dark:border-red-900/40 bg-red-50/50 dark:bg-red-950/20 rounded-2xl p-6 flex flex-col gap-5">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-red-200/60 dark:border-red-900/40 pb-4">

@@ -29,7 +29,6 @@ export const SignupHeader: React.FC<SignupHeaderProps> = ({
         { number: 2, label: "Your Details" },
         { number: 3, label: "Payment" },
       ];
-
   const defaultTitle = isTwilioCredits ? (
     <>
       Add <span className="text-[#20a9f8]">Twilio Credits</span>
@@ -57,7 +56,6 @@ export const SignupHeader: React.FC<SignupHeaderProps> = ({
       Start Your <span className="text-[#20a9f8] dark:text-sky-400">14-Day Free Trial</span>
     </>
   );
-
   const defaultSubtitle = isTwilioCredits
     ? "Complete your payment details to add credits and minutes immediately."
     : isUpgrade

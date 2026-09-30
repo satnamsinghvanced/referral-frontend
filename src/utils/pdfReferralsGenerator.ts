@@ -12,16 +12,12 @@ export const generateReferralsPdf = (
   isFiltered: boolean
 ) => {
   const doc = new jsPDF("p", "mm", "a4");
-
-
   doc.setFillColor(15, 23, 42);
   doc.rect(0, 0, 210, 45, "F");
-
   doc.setFont("helvetica", "bold");
   doc.setFontSize(22);
   doc.setTextColor(255, 255, 255);
   doc.text("Referrals Report", 14, 18);
-
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
   doc.setTextColor(148, 163, 184);
@@ -31,14 +27,10 @@ export const generateReferralsPdf = (
     14,
     32
   );
-
-
   doc.setFillColor(248, 250, 252);
   doc.rect(14, 52, 182, 22, "F");
   doc.setDrawColor(226, 232, 240);
   doc.rect(14, 52, 182, 22, "S");
-
-
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
   doc.setTextColor(100, 116, 139);
@@ -46,20 +38,15 @@ export const generateReferralsPdf = (
   doc.text("TOTAL VALUE", 65, 60);
   doc.text("ACTIVE REFERRALS", 110, 60);
   doc.text("HIGH PRIORITY", 155, 60);
-
   doc.setFontSize(13);
   doc.setTextColor(15, 23, 42);
   doc.text(String(stats?.totalReferrals ?? 0), 20, 68);
-
   doc.setTextColor(22, 101, 52);
   doc.text(`$${stats?.totalValue ?? 0}`, 65, 68);
-
   doc.setTextColor(15, 23, 42);
   doc.text(String(stats?.activeCount ?? 0), 110, 68);
-
   doc.setTextColor(153, 27, 27);
   doc.text(String(stats?.highPriorityCount ?? 0), 155, 68);
-
   const tableData = referrals.map((ref, idx) => {
     const patientDetails = [
       { text: ref.name, isTitleOnly: true },
@@ -67,7 +54,6 @@ export const generateReferralsPdf = (
       ref.phone ? { label: "Phone: ", value: formatPhoneNumber(ref.phone) } : null,
       ref.email ? { label: "Email: ", value: ref.email } : null,
     ].filter(Boolean);
-
     const referrerName = ref.referredBy?.name || "Unknown Referrer";
     const practiceName =
       ref.referredBy?.practiceName && ref.referredBy?.practiceName !== "Unknown"
@@ -81,8 +67,6 @@ export const generateReferralsPdf = (
         ? { label: "Scheduled: ", value: formatDateToReadable(ref.scheduledDate as string, true) }
         : null,
     ].filter(Boolean);
-
-
     const treatmentLabel =
       TREATMENT_OPTIONS.find((t) => t.key === ref.treatment)?.label ||
       ref.treatment ||
@@ -93,8 +77,6 @@ export const generateReferralsPdf = (
       { label: "Source: ", value: sourceLabel },
       ref.appointmentTime ? { label: "Pref. Time: ", value: ref.appointmentTime } : null,
     ].filter(Boolean);
-
-
     const statusLabel =
       STATUS_OPTIONS.find((s) => s.value === ref.status)?.label || ref.status;
     const estValStr = ref.estValue ? `$${ref.estValue}` : "";
@@ -105,7 +87,6 @@ export const generateReferralsPdf = (
       estValStr ? { label: "Est. Value: ", value: estValStr } : null,
       notesStr ? { label: "Notes: ", value: notesStr } : null,
     ].filter(Boolean);
-
     return [
       JSON.stringify(patientDetails),
       JSON.stringify(referralDetails),
@@ -113,7 +94,6 @@ export const generateReferralsPdf = (
       JSON.stringify(statusDetails),
     ];
   });
-
   autoTable(doc, {
     startY: 82,
     head: [
@@ -183,10 +163,8 @@ export const generateReferralsPdf = (
       if (data.section === "body") {
         const rawContent = (data.cell as any).rawContent;
         if (!rawContent) return;
-
         const doc = data.doc;
         const cell = data.cell;
-
         let paddingLeft = 4;
         let paddingTop = 4;
         const padding = cell.styles.cellPadding;
@@ -200,13 +178,11 @@ export const generateReferralsPdf = (
         const cellLeft = cell.x + paddingLeft;
         const availableWidth = cell.width - paddingLeft * 2;
         let currentY = cell.y + paddingTop + 3.5;
-
         rawContent.forEach((item: any) => {
           if (item.isTitleOnly) {
             doc.setFont("helvetica", "bold");
             doc.setFontSize(11);
             doc.setTextColor(15, 23, 42);
-
             const titleLines = doc.splitTextToSize(item.text, availableWidth);
             titleLines.forEach((tLine: string) => {
               doc.text(tLine, cellLeft, currentY);
@@ -218,17 +194,13 @@ export const generateReferralsPdf = (
             doc.setFontSize(9);
             doc.setTextColor(15, 23, 42);
             doc.text(item.label, cellLeft, currentY);
-
             const labelWidth = doc.getTextWidth(item.label);
-
             doc.setFont("helvetica", "normal");
             doc.setFontSize(9);
             doc.setTextColor(71, 85, 105);
-
             const valLeft = cellLeft + labelWidth;
             const valAvailableWidth = availableWidth - labelWidth;
             const valLines = doc.splitTextToSize(item.value, valAvailableWidth);
-
             valLines.forEach((vLine: string, vIdx: number) => {
               if (vIdx === 0) {
                 doc.text(vLine, valLeft, currentY);
@@ -267,6 +239,5 @@ export const generateReferralsPdf = (
       );
     },
   });
-
   doc.save("referrals_report.pdf");
 };

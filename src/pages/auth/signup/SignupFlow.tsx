@@ -77,13 +77,10 @@ export const SignupFlow: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const queryClient = useQueryClient();
-
   const isUpgrade = location.pathname.includes("upgrade-plan") || searchParams.get("mode") === "upgrade";
-
   const retryState = location.state as
     | { step?: 1 | 2 | 3; formData?: Partial<SignUpFormValues>; planId?: string }
     | undefined;
-
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3>(
     retryState?.step === 3 ? 3 : retryState?.step === 2 ? 2 : 1
   );
@@ -106,11 +103,9 @@ export const SignupFlow: React.FC = () => {
   const [couponError, setCouponError] = useState("");
   const [emailInUseError, setEmailInUseError] = useState("");
   const planParam = retryState?.planId || searchParams.get("planId") || searchParams.get("plan") || searchParams.get("id");
-
   useEffect(() => {
     loadPlans();
   }, [planParam]);
-
   const loadPlans = async () => {
     try {
       setLoadingPlans(true);
@@ -183,7 +178,6 @@ export const SignupFlow: React.FC = () => {
           res?.exists === true ||
           res?.data?.isAvailable === false ||
           res?.isAvailable === false;
-
         if (isTaken) {
           const errMsg = "This email address is already in use. Please sign in or use another email.";
           setEmailInUseError(errMsg);
@@ -272,19 +266,17 @@ export const SignupFlow: React.FC = () => {
     const aPrice = plan.annualPricing?.price ?? plan.annualPrice;
     const aDiscount = plan.annualPricing?.discountPercent ?? plan.discountPercent ?? 0;
     const aTotal = plan.annualPricing?.totalValue;
-
     if (billingCycle === "annual") {
       const perMonth =
         aPrice !== undefined && aPrice !== null && Number(aPrice) > 0
           ? Number(aPrice)
           : aDiscount > 0 && mPrice > 0
-          ? Math.round(mPrice * (1 - aDiscount / 100))
-          : mPrice;
+            ? Math.round(mPrice * (1 - aDiscount / 100))
+            : mPrice;
       return aTotal && aTotal > 0 ? aTotal : perMonth * 12;
     }
     return mPrice;
   };
-
   const planBasePrice = calcPlanPrice(selectedPlan);
   let planDiscountAmount = 0;
   if (appliedCoupon) {
@@ -296,7 +288,6 @@ export const SignupFlow: React.FC = () => {
   }
   const planFinalPrice = Math.max(0, planBasePrice - planDiscountAmount);
   const isZeroDue = planFinalPrice <= 0 && appliedCoupon !== null;
-
   const validatePayment = () => {
     const errs: Record<string, string> = {};
     if (!isZeroDue) {
@@ -308,7 +299,6 @@ export const SignupFlow: React.FC = () => {
       } else if (!luhnCheck(cleanCard)) {
         errs.cardNumber = "Invalid card number (failed checksum)";
       }
-
       if (!expiry) {
         errs.expiry = "Expiration date is required";
       } else if (!/^(0[1-9]|1[0-2])\/([0-9]{2})$/.test(expiry)) {
@@ -321,28 +311,23 @@ export const SignupFlow: React.FC = () => {
           const now = new Date();
           const currentYear = now.getFullYear();
           const currentMonth = now.getMonth() + 1;
-
           if (expYear < currentYear || (expYear === currentYear && expMonth < currentMonth)) {
             errs.expiry = "Card has expired";
           }
         }
       }
-
       if (!cvc) {
         errs.cvc = "Security code is required";
       } else if (cvc.length < 3 || cvc.length > 4) {
         errs.cvc = "Security code must be 3 or 4 digits";
       }
     }
-
     if (!agreeToTerms) {
       errs.terms = "You must agree to the Terms of Service & Privacy Policy";
     }
-
     setPaymentErrors(errs);
     return Object.keys(errs).length === 0;
   };
-
   const handleCompleteSignup = async () => {
     if (!validatePayment()) {
       addToast({
@@ -353,10 +338,8 @@ export const SignupFlow: React.FC = () => {
       return;
     }
     const cleanCard = cardNumber.replace(/\s/g, "");
-
     setIsSubmitting(true);
     let tokenResult: any = null;
-
     if (!isZeroDue) {
       try {
         tokenResult = await createStripePaymentMethod({
@@ -382,7 +365,6 @@ export const SignupFlow: React.FC = () => {
         return;
       }
     }
-
     if (isUpgrade) {
       try {
         const planIdentifier = selectedPlan?._id || selectedPlan?.planId || planParam || "starter_199";
@@ -396,16 +378,13 @@ export const SignupFlow: React.FC = () => {
           cvc: !isZeroDue ? cvc : undefined,
           couponCode: appliedCoupon ? appliedCoupon.code : undefined,
         });
-
         queryClient.invalidateQueries({ queryKey: ["billing"] });
         queryClient.invalidateQueries({ queryKey: ["user"] });
-
         addToast({
           title: "Plan Upgraded Successfully!",
           description: `Your subscription has been updated to the ${selectedPlan?.name || "selected"} plan.`,
           color: "success",
         });
-
         navigate("/settings/billing");
       } catch (err: any) {
         console.error("Upgrade plan error:", err);
@@ -424,7 +403,6 @@ export const SignupFlow: React.FC = () => {
       }
       return;
     }
-
     try {
       const payload = {
         firstName: formik.values.firstName,
@@ -458,8 +436,6 @@ export const SignupFlow: React.FC = () => {
         const token = data.accessToken || data.user.accessToken;
         dispatch(setCredentials({ token }));
       }
-
-      // Calculate price details for confirmation receipt
       const rawPrice =
         billingCycle === "annual"
           ? selectedPlan?.annualPricing?.totalValue || (selectedPlan?.annualPricing?.price ? selectedPlan.annualPricing.price * 12 : (selectedPlan?.price ? selectedPlan.price * 12 : 0))
@@ -474,7 +450,6 @@ export const SignupFlow: React.FC = () => {
         }
         finalPrice = Math.max(0, Math.round((rawPrice - discountVal) * 100) / 100);
       }
-
       const confirmationState: SignupConfirmationData = {
         planName: selectedPlan?.name || "Professional Plan",
         planId: selectedPlan?._id || selectedPlan?.planId || "professional",
@@ -505,17 +480,14 @@ export const SignupFlow: React.FC = () => {
         },
         couponCode: appliedCoupon ? appliedCoupon.code : undefined,
       };
-
       try {
         sessionStorage.setItem("practice_roi_last_signup", JSON.stringify(confirmationState));
       } catch (_) { }
-
       addToast({
         title: "Account Created Successfully!",
         description: `Welcome to Practice ROI! Your 14-day free trial on the ${selectedPlan?.name || "Professional"} plan has started.`,
         color: "success",
       });
-
       navigate("/signup/thank-you", { state: confirmationState });
     } catch (err: any) {
       console.error("Signup error:", err);
@@ -523,12 +495,10 @@ export const SignupFlow: React.FC = () => {
         err.response?.data?.message ||
         err.message ||
         "An unexpected error occurred during signup. Please try again.";
-
       setPaymentErrors((prev) => ({
         ...prev,
         paymentFailed: msg,
       }));
-
       addToast({
         title: "Payment Failed",
         description: msg,
@@ -538,7 +508,6 @@ export const SignupFlow: React.FC = () => {
       setIsSubmitting(false);
     }
   };
-
   if (loadingPlans) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-[#070C18] flex flex-col items-center justify-center gap-3">
@@ -547,7 +516,6 @@ export const SignupFlow: React.FC = () => {
       </div>
     );
   }
-
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-[#070C18] text-slate-900 dark:text-slate-100 flex flex-col items-center py-8 px-4 sm:px-6">
       <SignupHeader
