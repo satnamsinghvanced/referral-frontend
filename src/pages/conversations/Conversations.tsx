@@ -206,7 +206,7 @@ const Conversations = () => {
 
   const applySeenOverrides = (convs: Conversation[]): Conversation[] => {
     return convs.map((conv) => {
-      if (!conv.messages || conv.messages.length === 0) {
+      if (!conv.messages || conv.messages.length === 0 || conv.unreadCount === 0) {
         return { ...conv, unreadCount: 0 };
       }
       const lastMsg = conv.messages[conv.messages.length - 1];
@@ -512,8 +512,28 @@ const Conversations = () => {
       }));
     };
 
+    const handleMessageRead = (payload: { conversationId: string; recipientId?: string; platform?: string }) => {
+      setConversations((prev) =>
+        prev.map((conv) => {
+          if (
+            conv.id === payload.conversationId ||
+            conv.recipientId === payload.conversationId ||
+            (payload.recipientId && (conv.id === payload.recipientId || conv.recipientId === payload.recipientId))
+          ) {
+            return {
+              ...conv,
+              unreadCount: 0,
+            };
+          }
+          return conv;
+        })
+      );
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+    };
+
     subscribeToNewMessage(handleNewMessage);
     subscribeToNewWebMessage(handleNewWebMessage);
+    subscribeToEvent("message_read", handleMessageRead);
     subscribeToEvent("message_read_watermark", handleMessageReadWatermark);
     subscribeToEvent("messages_read_by_patient", handleMessagesReadByPatient);
     subscribeToEvent("typing_status", handleTypingStatus);
@@ -521,6 +541,7 @@ const Conversations = () => {
     return () => {
       unsubscribeFromNewMessage(handleNewMessage);
       unsubscribeFromNewWebMessage(handleNewWebMessage);
+      unsubscribeFromEvent("message_read", handleMessageRead);
       unsubscribeFromEvent("message_read_watermark", handleMessageReadWatermark);
       unsubscribeFromEvent("messages_read_by_patient", handleMessagesReadByPatient);
       unsubscribeFromEvent("typing_status", handleTypingStatus);
