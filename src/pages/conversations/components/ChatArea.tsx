@@ -84,6 +84,7 @@ interface ChatAreaProps {
   isIntegrationsLoading?: boolean;
   isSendingMessage?: boolean;
   displayLocations?: string[];
+  isTyping?: boolean;
 }
 
 export default function ChatArea({
@@ -106,6 +107,7 @@ export default function ChatArea({
   onSendFormsClick,
   onSendQuoteClick,
   displayLocations: _displayLocations = [],
+  isTyping = false,
 }: ChatAreaProps) {
   const { locations: contextLocations } = useLocationContext();
   if (!selectedConversation) {
@@ -346,6 +348,27 @@ export default function ChatArea({
             </div>
           );
         })}
+        {isTyping && (
+          <div className="flex items-center gap-2 mt-2 mb-1 justify-start animate-fade-in">
+            <div
+              className={`w-7 h-7 rounded-full flex-shrink-0 flex items-center justify-center text-white text-[9px] font-bold ${getAvatarColor(
+                selectedConversation.patientName,
+              )}`}
+            >
+              {getInitials(selectedConversation.patientName)}
+            </div>
+            <div className="px-3.5 py-2 rounded-2xl text-xs bg-white dark:bg-content2 text-foreground border border-foreground/5 rounded-bl-md flex items-center gap-2 shadow-sm">
+              <span className="text-[11px] font-medium text-gray-500 dark:text-foreground/60">
+                {selectedConversation.patientName} is typing
+              </span>
+              <span className="flex gap-1 items-center">
+                <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.32s]" />
+                <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce [animation-delay:-0.16s]" />
+                <span className="w-1.5 h-1.5 bg-primary rounded-full animate-bounce" />
+              </span>
+            </div>
+          </div>
+        )}
         <div ref={messagesEndRef} />
       </div>
       <div className="px-4 py-3 border-t border-foreground/10 bg-white dark:bg-content1">

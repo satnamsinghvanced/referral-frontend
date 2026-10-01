@@ -137,6 +137,7 @@ const Conversations = () => {
     return metaCreds?.status === "Connected" || metaCreds?.status === "connected";
   }, [socialCreds]);
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [typingMap, setTypingMap] = useState<Record<string, boolean>>({});
   const [isConversationsLoading, setIsConversationsLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedPlatform, setSelectedPlatform] = useState("all");
@@ -313,6 +314,7 @@ const Conversations = () => {
           );
 
           const updatedMessages = [...conv.messages];
+          let isNewMessageAdded = false;
           if (existingIndexById !== -1) {
             updatedMessages[existingIndexById] = payload.message;
           } else if (!payload.message.isFromPatient) {
@@ -327,9 +329,11 @@ const Conversations = () => {
               updatedMessages[optimisticIdx] = payload.message;
             } else {
               updatedMessages.push(payload.message);
+              isNewMessageAdded = true;
             }
           } else {
             updatedMessages.push(payload.message);
+            isNewMessageAdded = true;
           }
           const updatedConv: Conversation = {
             ...conv,
@@ -338,7 +342,11 @@ const Conversations = () => {
             lastMessage: msgText,
             lastMessageTime: "Just now",
             lastMessageTimestamp: payload.message.createdAt || Date.now(),
-            unreadCount: payload.message.isFromPatient ? (isFocused ? 0 : (conv.unreadCount || 0) + 1) : 0,
+            unreadCount: isFocused
+              ? 0
+              : isNewMessageAdded && payload.message.isFromPatient
+              ? (conv.unreadCount || 0) + 1
+              : (conv.unreadCount || 0),
           };
           const remaining = prev.filter((_, idx) => idx !== foundIdx);
           return [updatedConv, ...remaining];
@@ -387,6 +395,7 @@ const Conversations = () => {
           );
 
           const updatedMessages = [...conv.messages];
+          let isNewMessageAdded = false;
           if (existingIndexById !== -1) {
             updatedMessages[existingIndexById] = payload.message;
           } else if (!payload.message.isFromPatient) {
@@ -401,9 +410,11 @@ const Conversations = () => {
               updatedMessages[optimisticIdx] = payload.message;
             } else {
               updatedMessages.push(payload.message);
+              isNewMessageAdded = true;
             }
           } else {
             updatedMessages.push(payload.message);
+            isNewMessageAdded = true;
           }
 
           const updatedConv: Conversation = {
@@ -412,7 +423,11 @@ const Conversations = () => {
             lastMessage: msgText,
             lastMessageTime: "Just now",
             lastMessageTimestamp: payload.message.createdAt || Date.now(),
-            unreadCount: payload.message.isFromPatient ? (isFocused ? 0 : (conv.unreadCount || 0) + 1) : 0,
+            unreadCount: isFocused
+              ? 0
+              : isNewMessageAdded && payload.message.isFromPatient
+              ? (conv.unreadCount || 0) + 1
+              : (conv.unreadCount || 0),
           };
 
           const remaining = prev.filter((_, idx) => idx !== foundIdx);
@@ -488,16 +503,27 @@ const Conversations = () => {
       );
     };
 
+    const handleTypingStatus = (payload: { platform: string; conversationId: string; recipientId?: string; isTyping: boolean }) => {
+      if (!payload.conversationId) return;
+      setTypingMap((prev) => ({
+        ...prev,
+        [payload.conversationId]: payload.isTyping,
+        ...(payload.recipientId ? { [payload.recipientId]: payload.isTyping } : {})
+      }));
+    };
+
     subscribeToNewMessage(handleNewMessage);
     subscribeToNewWebMessage(handleNewWebMessage);
     subscribeToEvent("message_read_watermark", handleMessageReadWatermark);
     subscribeToEvent("messages_read_by_patient", handleMessagesReadByPatient);
+    subscribeToEvent("typing_status", handleTypingStatus);
 
     return () => {
       unsubscribeFromNewMessage(handleNewMessage);
       unsubscribeFromNewWebMessage(handleNewWebMessage);
       unsubscribeFromEvent("message_read_watermark", handleMessageReadWatermark);
       unsubscribeFromEvent("messages_read_by_patient", handleMessagesReadByPatient);
+      unsubscribeFromEvent("typing_status", handleTypingStatus);
     };
   }, [queryClient]);
 
@@ -1065,6 +1091,7 @@ const Conversations = () => {
                 isMetaConnected={isMetaConnected}
                 isIntegrationsLoading={isSocialLoading || isConversationsLoading}
                 displayLocations={displayLocations}
+                isTyping={Boolean(selectedConversation && (typingMap[selectedConversation.id] || typingMap[selectedConversation.recipientId || ""]))}
               />
               <LeadSidebar
                 selectedConversation={selectedConversation}
