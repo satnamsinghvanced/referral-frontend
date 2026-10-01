@@ -137,6 +137,7 @@ const Conversations = () => {
     return metaCreds?.status === "Connected" || metaCreds?.status === "connected";
   }, [socialCreds]);
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [typingMap, setTypingMap] = useState<Record<string, boolean>>({});
   const [isConversationsLoading, setIsConversationsLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [selectedPlatform, setSelectedPlatform] = useState("all");
@@ -205,7 +206,7 @@ const Conversations = () => {
 
   const applySeenOverrides = (convs: Conversation[]): Conversation[] => {
     return convs.map((conv) => {
-      if (!conv.messages || conv.messages.length === 0) {
+      if (!conv.messages || conv.messages.length === 0 || conv.unreadCount === 0) {
         return { ...conv, unreadCount: 0 };
       }
       const lastMsg = conv.messages[conv.messages.length - 1];
@@ -229,10 +230,15 @@ const Conversations = () => {
     });
   };
 
+  const loadedTabsRef = useRef<Set<string>>(new Set());
+
   useEffect(() => {
+    const activeLocParam = selectedLocations.length === 1 ? selectedLocations[0] : undefined;
+    const params = activeLocParam ? { locationId: activeLocParam } : undefined;
+
     const fetchIGConversations = async () => {
       try {
-        const realIG = await getInstagramConversations();
+        const realIG = await getInstagramConversations(params);
         if (realIG && Array.isArray(realIG)) {
           setConversations((prev) => {
             const nonIG = prev.filter((c) => c.platform !== "instagram");
@@ -246,7 +252,7 @@ const Conversations = () => {
 
     const fetchFBConversations = async () => {
       try {
-        const realFB = await getFacebookConversations();
+        const realFB = await getFacebookConversations(params);
         if (realFB && Array.isArray(realFB)) {
           setConversations((prev) => {
             const nonFB = prev.filter((c) => c.platform !== "facebook");
@@ -260,7 +266,7 @@ const Conversations = () => {
 
     const fetchWebConversations = async () => {
       try {
-        const realWeb = await getWebConversations();
+        const realWeb = await getWebConversations(params);
         if (realWeb && Array.isArray(realWeb)) {
           setConversations((prev) => {
             const nonWeb = prev.filter((c) => c.platform !== "web");
@@ -271,18 +277,33 @@ const Conversations = () => {
         console.error("Failed to load Web conversations:", err);
       }
     };
-    const loadAllConversations = async () => {
+
+    if (selectedPlatform === "all") {
       setIsConversationsLoading(true);
-      try {
-        await fetchWebConversations();
-      } finally {
+      Promise.all([fetchWebConversations(), fetchFBConversations(), fetchIGConversations()]).finally(() => {
         setIsConversationsLoading(false);
+      });
+      loadedTabsRef.current.add("all").add("web").add("facebook").add("instagram");
+    } else if (selectedPlatform === "web") {
+      if (!loadedTabsRef.current.has("web")) {
+        setIsConversationsLoading(true);
+        fetchWebConversations().finally(() => setIsConversationsLoading(false));
+        loadedTabsRef.current.add("web");
       }
-      fetchFBConversations();
-      fetchIGConversations();
-    };
-    loadAllConversations();
-  }, []);
+    } else if (selectedPlatform === "facebook") {
+      if (!loadedTabsRef.current.has("facebook")) {
+        setIsConversationsLoading(true);
+        fetchFBConversations().finally(() => setIsConversationsLoading(false));
+        loadedTabsRef.current.add("facebook");
+      }
+    } else if (selectedPlatform === "instagram") {
+      if (!loadedTabsRef.current.has("instagram")) {
+        setIsConversationsLoading(true);
+        fetchIGConversations().finally(() => setIsConversationsLoading(false));
+        loadedTabsRef.current.add("instagram");
+      }
+    }
+  }, [selectedPlatform, selectedLocations]);
 
   const selectedConversationIdRef = useRef<string | null>(selectedConversationId);
   useEffect(() => {
@@ -313,6 +334,7 @@ const Conversations = () => {
           );
 
           const updatedMessages = [...conv.messages];
+          let isNewMessageAdded = false;
           if (existingIndexById !== -1) {
             updatedMessages[existingIndexById] = payload.message;
           } else if (!payload.message.isFromPatient) {
@@ -327,9 +349,11 @@ const Conversations = () => {
               updatedMessages[optimisticIdx] = payload.message;
             } else {
               updatedMessages.push(payload.message);
+              isNewMessageAdded = true;
             }
           } else {
             updatedMessages.push(payload.message);
+            isNewMessageAdded = true;
           }
           const updatedConv: Conversation = {
             ...conv,
@@ -338,7 +362,11 @@ const Conversations = () => {
             lastMessage: msgText,
             lastMessageTime: "Just now",
             lastMessageTimestamp: payload.message.createdAt || Date.now(),
-            unreadCount: payload.message.isFromPatient ? (isFocused ? 0 : (conv.unreadCount || 0) + 1) : 0,
+            unreadCount: isFocused
+              ? 0
+              : isNewMessageAdded && payload.message.isFromPatient
+              ? (conv.unreadCount || 0) + 1
+              : (conv.unreadCount || 0),
           };
           const remaining = prev.filter((_, idx) => idx !== foundIdx);
           return [updatedConv, ...remaining];
@@ -387,6 +415,7 @@ const Conversations = () => {
           );
 
           const updatedMessages = [...conv.messages];
+          let isNewMessageAdded = false;
           if (existingIndexById !== -1) {
             updatedMessages[existingIndexById] = payload.message;
           } else if (!payload.message.isFromPatient) {
@@ -401,9 +430,11 @@ const Conversations = () => {
               updatedMessages[optimisticIdx] = payload.message;
             } else {
               updatedMessages.push(payload.message);
+              isNewMessageAdded = true;
             }
           } else {
             updatedMessages.push(payload.message);
+            isNewMessageAdded = true;
           }
 
           const updatedConv: Conversation = {
@@ -412,7 +443,11 @@ const Conversations = () => {
             lastMessage: msgText,
             lastMessageTime: "Just now",
             lastMessageTimestamp: payload.message.createdAt || Date.now(),
-            unreadCount: payload.message.isFromPatient ? (isFocused ? 0 : (conv.unreadCount || 0) + 1) : 0,
+            unreadCount: isFocused
+              ? 0
+              : isNewMessageAdded && payload.message.isFromPatient
+              ? (conv.unreadCount || 0) + 1
+              : (conv.unreadCount || 0),
           };
 
           const remaining = prev.filter((_, idx) => idx !== foundIdx);
@@ -488,16 +523,48 @@ const Conversations = () => {
       );
     };
 
+    const handleTypingStatus = (payload: { platform: string; conversationId: string; recipientId?: string; isTyping: boolean }) => {
+      if (!payload.conversationId) return;
+      setTypingMap((prev) => ({
+        ...prev,
+        [payload.conversationId]: payload.isTyping,
+        ...(payload.recipientId ? { [payload.recipientId]: payload.isTyping } : {})
+      }));
+    };
+
+    const handleMessageRead = (payload: { conversationId: string; recipientId?: string; platform?: string }) => {
+      setConversations((prev) =>
+        prev.map((conv) => {
+          if (
+            conv.id === payload.conversationId ||
+            conv.recipientId === payload.conversationId ||
+            (payload.recipientId && (conv.id === payload.recipientId || conv.recipientId === payload.recipientId))
+          ) {
+            return {
+              ...conv,
+              unreadCount: 0,
+            };
+          }
+          return conv;
+        })
+      );
+      queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+    };
+
     subscribeToNewMessage(handleNewMessage);
     subscribeToNewWebMessage(handleNewWebMessage);
+    subscribeToEvent("message_read", handleMessageRead);
     subscribeToEvent("message_read_watermark", handleMessageReadWatermark);
     subscribeToEvent("messages_read_by_patient", handleMessagesReadByPatient);
+    subscribeToEvent("typing_status", handleTypingStatus);
 
     return () => {
       unsubscribeFromNewMessage(handleNewMessage);
       unsubscribeFromNewWebMessage(handleNewWebMessage);
+      unsubscribeFromEvent("message_read", handleMessageRead);
       unsubscribeFromEvent("message_read_watermark", handleMessageReadWatermark);
       unsubscribeFromEvent("messages_read_by_patient", handleMessagesReadByPatient);
+      unsubscribeFromEvent("typing_status", handleTypingStatus);
     };
   }, [queryClient]);
 
@@ -622,35 +689,41 @@ const Conversations = () => {
     scrollToBottom();
   }, [selectedConversation]);
 
+  const lastMarkedSeenRef = useRef<string>("");
   useEffect(() => {
     if (selectedConversation) {
       const lastMsg = selectedConversation.messages && selectedConversation.messages.length > 0
         ? selectedConversation.messages[selectedConversation.messages.length - 1]
         : null;
-      if (lastMsg) {
-        localStorage.setItem(`seen_msg_${selectedConversation.id}`, lastMsg.id);
-        if (selectedConversation.recipientId) {
-          localStorage.setItem(`seen_msg_${selectedConversation.recipientId}`, lastMsg.id);
-        }
-      }
-      const markAsSeenOnPlatform = async () => {
-        try {
-          const lastMsgId = lastMsg?.id;
-          if (selectedConversation.platform === "instagram") {
-            await markInstagramSeen(selectedConversation.recipientId || "", selectedConversation.id, lastMsgId);
-          } else if (selectedConversation.platform === "facebook") {
-            await markFacebookSeen(selectedConversation.recipientId || "", selectedConversation.id, lastMsgId);
-          } else if (selectedConversation.platform === "web") {
-            await markWebConversationRead(selectedConversation.id);
+      const lastMsgId = lastMsg?.id || "";
+      const markKey = `${selectedConversation.id}_${lastMsgId}`;
+
+      if (selectedConversation.unreadCount > 0 || lastMarkedSeenRef.current !== markKey) {
+        lastMarkedSeenRef.current = markKey;
+        if (lastMsg) {
+          localStorage.setItem(`seen_msg_${selectedConversation.id}`, lastMsg.id);
+          if (selectedConversation.recipientId) {
+            localStorage.setItem(`seen_msg_${selectedConversation.recipientId}`, lastMsg.id);
           }
-          queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
-        } catch (err) {
-          console.error("Failed to mark conversation as seen:", err);
         }
-      };
-      markAsSeenOnPlatform();
+        const markAsSeenOnPlatform = async () => {
+          try {
+            if (selectedConversation.platform === "instagram") {
+              await markInstagramSeen(selectedConversation.recipientId || "", selectedConversation.id, lastMsgId);
+            } else if (selectedConversation.platform === "facebook") {
+              await markFacebookSeen(selectedConversation.recipientId || "", selectedConversation.id, lastMsgId);
+            } else if (selectedConversation.platform === "web") {
+              await markWebConversationRead(selectedConversation.id);
+            }
+            queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+          } catch (err) {
+            console.error("Failed to mark conversation as seen:", err);
+          }
+        };
+        markAsSeenOnPlatform();
+      }
     }
-  }, [selectedConversation, queryClient]);
+  }, [selectedConversationId, selectedConversation?.messages?.length, queryClient]);
 
   const stats = useMemo<StatCard[]>(() => {
     const totalCount = locationFilteredConversations.length;
@@ -1065,6 +1138,7 @@ const Conversations = () => {
                 isMetaConnected={isMetaConnected}
                 isIntegrationsLoading={isSocialLoading || isConversationsLoading}
                 displayLocations={displayLocations}
+                isTyping={Boolean(selectedConversation && (typingMap[selectedConversation.id] || typingMap[selectedConversation.recipientId || ""]))}
               />
               <LeadSidebar
                 selectedConversation={selectedConversation}

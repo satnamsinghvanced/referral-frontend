@@ -57,6 +57,9 @@ export default function ConversationList({
       const convLocation = getConversationLocation(conv, contextLocations);
       const isLocationSelected = !convLocation || selectedLocations.includes(convLocation);
       if (isLocationSelected && conv.status !== "archived" && conv.unreadCount > 0) {
+        if (!isMetaConnected && (conv.platform === "facebook" || conv.platform === "instagram")) {
+          return;
+        }
         counts.all = (counts.all || 0) + conv.unreadCount;
         const currentCount = counts[conv.platform];
         if (typeof currentCount === "number") {
@@ -65,7 +68,7 @@ export default function ConversationList({
       }
     });
     return counts;
-  }, [conversations, selectedLocations, contextLocations]);
+  }, [conversations, selectedLocations, contextLocations, isMetaConnected]);
   return (
     <div
       className={`w-full md:w-[320px] md:min-w-[280px] border-r border-foreground/10 flex flex-col ${selectedConversationId ? "hidden md:flex" : "flex"

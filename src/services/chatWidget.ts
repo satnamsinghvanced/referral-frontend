@@ -67,8 +67,8 @@ export const fetchChatWidgetStats = async (params?: { locationId?: string | unde
   return response;
 };
 
-export const getWebConversations = async (): Promise<any> => {
-  const { data } = await axios.get("/chat-widget/conversations");
+export const getWebConversations = async (params?: { locationId?: string }): Promise<any> => {
+  const { data } = await axios.get("/chat-widget/conversations", { params });
   return data;
 };
 

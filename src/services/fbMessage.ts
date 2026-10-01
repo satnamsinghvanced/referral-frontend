@@ -1,7 +1,7 @@
 import axios from "./axios";
 
-export const getFacebookConversations = async (): Promise<any> => {
-  const { data } = await axios.get("/conversations/facebook");
+export const getFacebookConversations = async (params?: { locationId?: string }): Promise<any> => {
+  const { data } = await axios.get("/conversations/facebook", { params });
   return data;
 };
 
