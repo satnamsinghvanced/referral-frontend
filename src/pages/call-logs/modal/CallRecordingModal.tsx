@@ -3,11 +3,12 @@ import {
   ModalHeader, Tab, Tabs, Textarea, addToast
 } from "@heroui/react";
 import { getLocalTimeZone, now } from "@internationalized/date";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { FiCalendar, FiCheckCircle, FiXCircle, FiPlay, FiPause } from "react-icons/fi";
 import { LuPhoneIncoming, LuPhoneOutgoing } from "react-icons/lu";
 import { MdChatBubbleOutline } from "react-icons/md";
-import { useUpdateCallRecord } from "../../../hooks/useCall";
+import { useUpdateCallRecord, CALL_RECORDS_QUERY_KEY } from "../../../hooks/useCall";
+import { queryClient } from "../../../providers/QueryProvider";
 import { CallRecord } from "../../../types/call";
 import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 import DatePickerWithTimeInput from "../../../components/common/DatePickerWithTimeInput";
@@ -19,7 +20,15 @@ interface CallRecordingModalProps {
   data: CallRecord | null;
 }
 
-const AudioPlayer = ({ url, callDuration }: { url: string; callDuration: string }) => {
+const AudioPlayer = ({
+  url,
+  callDuration,
+  onDurationDetected,
+}: {
+  url: string;
+  callDuration: string;
+  onDurationDetected?: ((seconds: number) => void) | undefined;
+}) => {
   const token = store.getState().auth.token;
   const baseUrl = import.meta.env.VITE_API_BASE_URL || "http://localhost:9090/api";
   let absoluteUrl = url;
@@ -37,6 +46,16 @@ const AudioPlayer = ({ url, callDuration }: { url: string; callDuration: string 
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
 
+  const updateDurationFromAudio = useCallback(() => {
+    if (audioRef.current && audioRef.current.duration && audioRef.current.duration !== Infinity && !isNaN(audioRef.current.duration)) {
+      const exactSec = Math.round(audioRef.current.duration);
+      setDuration(exactSec);
+      if (onDurationDetected && exactSec > 0) {
+        onDurationDetected(exactSec);
+      }
+    }
+  }, [onDurationDetected]);
+
   useEffect(() => {
     let parsedDuration = 0;
     if (callDuration) {
@@ -52,14 +71,12 @@ const AudioPlayer = ({ url, callDuration }: { url: string; callDuration: string 
         parsedDuration = parseInt(callDuration.trim(), 10);
       }
     }
-    setDuration(parsedDuration);
-  }, [callDuration]);
-
-  const handleLoadedMetadata = () => {
-    if (audioRef.current && audioRef.current.duration && audioRef.current.duration !== Infinity && !isNaN(audioRef.current.duration)) {
-      setDuration(audioRef.current.duration);
+    if (!audioRef.current?.duration || isNaN(audioRef.current.duration) || audioRef.current.duration === Infinity) {
+      setDuration(parsedDuration);
+    } else {
+      updateDurationFromAudio();
     }
-  };
+  }, [callDuration, updateDurationFromAudio]);
 
   const togglePlay = () => {
     if (audioRef.current) {
@@ -75,9 +92,7 @@ const AudioPlayer = ({ url, callDuration }: { url: string; callDuration: string 
   const handleTimeUpdate = () => {
     if (audioRef.current) {
       setCurrentTime(audioRef.current.currentTime);
-      if (audioRef.current.duration && audioRef.current.duration !== Infinity && !isNaN(audioRef.current.duration)) {
-        setDuration(audioRef.current.duration);
-      }
+      updateDurationFromAudio();
     }
   };
 
@@ -90,7 +105,7 @@ const AudioPlayer = ({ url, callDuration }: { url: string; callDuration: string 
   };
 
   const formatTime = (time: number) => {
-    if (isNaN(time)) return "0:00";
+    if (isNaN(time) || time < 0) return "0:00";
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
@@ -101,8 +116,11 @@ const AudioPlayer = ({ url, callDuration }: { url: string; callDuration: string 
       <audio
         ref={audioRef}
         src={streamUrl}
-        preload="metadata"
-        onLoadedMetadata={handleLoadedMetadata}
+        preload="auto"
+        onLoadedMetadata={updateDurationFromAudio}
+        onLoadedData={updateDurationFromAudio}
+        onDurationChange={updateDurationFromAudio}
+        onCanPlay={updateDurationFromAudio}
         onTimeUpdate={handleTimeUpdate}
         onEnded={() => setIsPlaying(false)}
         className="hidden"
@@ -135,7 +153,13 @@ const AudioPlayer = ({ url, callDuration }: { url: string; callDuration: string 
   );
 };
 
-const PlaybackTab = ({ data }: { data: CallRecord }) => (
+const PlaybackTab = ({
+  data,
+  onDurationDetected,
+}: {
+  data: CallRecord;
+  onDurationDetected?: ((seconds: number) => void) | undefined;
+}) => (
   <div className="flex-1 outline-none space-y-4">
     <Card className="bg-card text-card-foreground flex flex-col rounded-xl border border-foreground/10 shadow-none">
       <CardBody className="p-4">
@@ -162,7 +186,11 @@ const PlaybackTab = ({ data }: { data: CallRecord }) => (
         </div>
         <div className="space-y-4 mt-4">
           {data.recordingUrl ? (
-            <AudioPlayer url={data.recordingUrl.startsWith("http") ? `/twilio-record/${data._id}/recording` : data.recordingUrl} callDuration={data.duration} />
+            <AudioPlayer
+              url={data.recordingUrl.startsWith("http") ? `/twilio-record/${data._id}/recording` : data.recordingUrl}
+              callDuration={data.duration}
+              onDurationDetected={onDurationDetected}
+            />
           ) : (
             <div className="text-center text-sm text-gray-500 dark:text-foreground/40 py-4">
               No recording available.
@@ -251,7 +279,7 @@ const DetailsTab = ({ data, onClose }: { data: CallRecord; onClose: () => void; 
                   <span className="w-24 inline-block text-gray-600 dark:text-foreground/60">
                     Duration:
                   </span>{" "}
-                  {data.duration}s
+                  {data.duration ? (data.duration.includes("sec") || data.duration.includes("min") || data.duration.includes("hr") ? data.duration : `${data.duration}s`) : "0 sec"}
                 </p>
                 <p className="flex items-center justify-between text-xs transition-colors">
                   <span className="w-24 inline-block text-gray-600 dark:text-foreground/60">
@@ -376,22 +404,53 @@ const DetailsTab = ({ data, onClose }: { data: CallRecord; onClose: () => void; 
 };
 
 export default function CallRecordingModal({ isOpen, onClose, data }: CallRecordingModalProps) {
+  const [detectedDuration, setDetectedDuration] = useState<string | null>(null);
+
+  useEffect(() => {
+    setDetectedDuration(null);
+  }, [data?._id]);
+
   if (!data) return null;
+
+  const handleDurationDetected = (seconds: number) => {
+    const formatted = `${seconds} sec`;
+    setDetectedDuration(formatted);
+    queryClient.setQueriesData({ queryKey: [CALL_RECORDS_QUERY_KEY] }, (oldData: any) => {
+      if (!oldData?.paginatedCalls?.data) return oldData;
+      return {
+        ...oldData,
+        paginatedCalls: {
+          ...oldData.paginatedCalls,
+          data: oldData.paginatedCalls.data.map((item: CallRecord) =>
+            item._id === data._id
+              ? { ...item, duration: formatted, secondsDuration: String(seconds) }
+              : item
+          ),
+        },
+      };
+    });
+  };
+
+  const effectiveData = {
+    ...data,
+    duration: detectedDuration || data.duration,
+  };
+
   const tabs = [
     {
       key: "playback",
       label: "Playback",
-      content: <PlaybackTab data={data} />,
+      content: <PlaybackTab data={effectiveData} onDurationDetected={handleDurationDetected} />,
     },
     {
       key: "transcription",
       label: "Transcription",
-      content: <TranscriptionTab data={data} />,
+      content: <TranscriptionTab data={effectiveData} />,
     },
     {
       key: "details",
       label: "Details",
-      content: <DetailsTab data={data} onClose={onClose} />,
+      content: <DetailsTab data={effectiveData} onClose={onClose} />,
     },
   ];
   return (

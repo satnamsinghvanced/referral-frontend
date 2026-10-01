@@ -31,6 +31,7 @@ export interface Referral {
   status: ReferralStatus;
   statusNotes?: string;
   locationId?: any;
+  location?: any;
   createdAt?: string;
   additionalNotes?: string;
 }

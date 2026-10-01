@@ -17,6 +17,7 @@ import { FetchReferralsParams, FilterStats, Referral } from "../../../types/refe
 import { formatPhoneNumber } from "../../../utils/formatPhoneNumber";
 import { formatDateToReadable } from "../../../utils/formatDateToReadable";
 import Pagination from "../../../components/common/Pagination";
+import { useLocationContext } from "../../../providers/LocationContext";
 
 interface AllReferralsViewProps {
   onBackToOverview: () => void;
@@ -53,11 +54,32 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
   filterStats,
   isLoading,
 }) => {
+  const { locations } = useLocationContext();
+
+  const getAssignedPracticeName = (referral: Referral) => {
+    if (typeof referral?.locationId === "object" && referral?.locationId?.name) {
+      return referral.locationId.name;
+    }
+    if (referral?.location?.name) {
+      return referral.location.name;
+    }
+    const rawLocId =
+      referral?.locationId?._id ||
+      (typeof referral?.locationId === "string" ? referral?.locationId : null);
+    if (rawLocId && locations?.length) {
+      const found = locations.find((l) => l._id === rawLocId);
+      if (found?.name) return found.name;
+    }
+    return null;
+  };
+
   const isFiltered =
     currentFilters.search !== "" ||
     currentFilters.filter !== "" ||
     currentFilters.source !== "";
-  const renderReferralCard = (referral: Referral) => (
+  const renderReferralCard = (referral: Referral) => {
+    const assignedPracticeName = getAssignedPracticeName(referral);
+    return (
     <div
       key={referral._id}
       className="p-4 border border-foreground/10 rounded-lg hover:bg-gray-50 dark:hover:bg-background/10 transition-colors dark:bg-content1"
@@ -161,6 +183,14 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
                 {referral.addedVia ? referral.addedVia : "Direct"}
               </span>
             </p>
+            <p className="text-xs">
+              <span className="font-medium dark:text-foreground/60">
+                Assigned Practice:
+              </span>{" "}
+              <span className="dark:text-white">
+                {assignedPracticeName || "Not Assigned"}
+              </span>
+            </p>
             {referral.appointmentTime && (
               <p className="text-xs">
                 <span className="font-medium dark:text-foreground/60">
@@ -247,6 +277,7 @@ const AllReferralsView: React.FC<AllReferralsViewProps> = ({
       </div>
     </div>
   );
+};
   return (
     <div
       data-state="active"
