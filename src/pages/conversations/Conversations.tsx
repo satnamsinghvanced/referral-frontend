@@ -230,10 +230,15 @@ const Conversations = () => {
     });
   };
 
+  const loadedTabsRef = useRef<Set<string>>(new Set());
+
   useEffect(() => {
+    const activeLocParam = selectedLocations.length === 1 ? selectedLocations[0] : undefined;
+    const params = activeLocParam ? { locationId: activeLocParam } : undefined;
+
     const fetchIGConversations = async () => {
       try {
-        const realIG = await getInstagramConversations();
+        const realIG = await getInstagramConversations(params);
         if (realIG && Array.isArray(realIG)) {
           setConversations((prev) => {
             const nonIG = prev.filter((c) => c.platform !== "instagram");
@@ -247,7 +252,7 @@ const Conversations = () => {
 
     const fetchFBConversations = async () => {
       try {
-        const realFB = await getFacebookConversations();
+        const realFB = await getFacebookConversations(params);
         if (realFB && Array.isArray(realFB)) {
           setConversations((prev) => {
             const nonFB = prev.filter((c) => c.platform !== "facebook");
@@ -261,7 +266,7 @@ const Conversations = () => {
 
     const fetchWebConversations = async () => {
       try {
-        const realWeb = await getWebConversations();
+        const realWeb = await getWebConversations(params);
         if (realWeb && Array.isArray(realWeb)) {
           setConversations((prev) => {
             const nonWeb = prev.filter((c) => c.platform !== "web");
@@ -272,18 +277,33 @@ const Conversations = () => {
         console.error("Failed to load Web conversations:", err);
       }
     };
-    const loadAllConversations = async () => {
+
+    if (selectedPlatform === "all") {
       setIsConversationsLoading(true);
-      try {
-        await fetchWebConversations();
-      } finally {
+      Promise.all([fetchWebConversations(), fetchFBConversations(), fetchIGConversations()]).finally(() => {
         setIsConversationsLoading(false);
+      });
+      loadedTabsRef.current.add("all").add("web").add("facebook").add("instagram");
+    } else if (selectedPlatform === "web") {
+      if (!loadedTabsRef.current.has("web")) {
+        setIsConversationsLoading(true);
+        fetchWebConversations().finally(() => setIsConversationsLoading(false));
+        loadedTabsRef.current.add("web");
       }
-      fetchFBConversations();
-      fetchIGConversations();
-    };
-    loadAllConversations();
-  }, []);
+    } else if (selectedPlatform === "facebook") {
+      if (!loadedTabsRef.current.has("facebook")) {
+        setIsConversationsLoading(true);
+        fetchFBConversations().finally(() => setIsConversationsLoading(false));
+        loadedTabsRef.current.add("facebook");
+      }
+    } else if (selectedPlatform === "instagram") {
+      if (!loadedTabsRef.current.has("instagram")) {
+        setIsConversationsLoading(true);
+        fetchIGConversations().finally(() => setIsConversationsLoading(false));
+        loadedTabsRef.current.add("instagram");
+      }
+    }
+  }, [selectedPlatform, selectedLocations]);
 
   const selectedConversationIdRef = useRef<string | null>(selectedConversationId);
   useEffect(() => {
@@ -669,35 +689,41 @@ const Conversations = () => {
     scrollToBottom();
   }, [selectedConversation]);
 
+  const lastMarkedSeenRef = useRef<string>("");
   useEffect(() => {
     if (selectedConversation) {
       const lastMsg = selectedConversation.messages && selectedConversation.messages.length > 0
         ? selectedConversation.messages[selectedConversation.messages.length - 1]
         : null;
-      if (lastMsg) {
-        localStorage.setItem(`seen_msg_${selectedConversation.id}`, lastMsg.id);
-        if (selectedConversation.recipientId) {
-          localStorage.setItem(`seen_msg_${selectedConversation.recipientId}`, lastMsg.id);
-        }
-      }
-      const markAsSeenOnPlatform = async () => {
-        try {
-          const lastMsgId = lastMsg?.id;
-          if (selectedConversation.platform === "instagram") {
-            await markInstagramSeen(selectedConversation.recipientId || "", selectedConversation.id, lastMsgId);
-          } else if (selectedConversation.platform === "facebook") {
-            await markFacebookSeen(selectedConversation.recipientId || "", selectedConversation.id, lastMsgId);
-          } else if (selectedConversation.platform === "web") {
-            await markWebConversationRead(selectedConversation.id);
+      const lastMsgId = lastMsg?.id || "";
+      const markKey = `${selectedConversation.id}_${lastMsgId}`;
+
+      if (selectedConversation.unreadCount > 0 || lastMarkedSeenRef.current !== markKey) {
+        lastMarkedSeenRef.current = markKey;
+        if (lastMsg) {
+          localStorage.setItem(`seen_msg_${selectedConversation.id}`, lastMsg.id);
+          if (selectedConversation.recipientId) {
+            localStorage.setItem(`seen_msg_${selectedConversation.recipientId}`, lastMsg.id);
           }
-          queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
-        } catch (err) {
-          console.error("Failed to mark conversation as seen:", err);
         }
-      };
-      markAsSeenOnPlatform();
+        const markAsSeenOnPlatform = async () => {
+          try {
+            if (selectedConversation.platform === "instagram") {
+              await markInstagramSeen(selectedConversation.recipientId || "", selectedConversation.id, lastMsgId);
+            } else if (selectedConversation.platform === "facebook") {
+              await markFacebookSeen(selectedConversation.recipientId || "", selectedConversation.id, lastMsgId);
+            } else if (selectedConversation.platform === "web") {
+              await markWebConversationRead(selectedConversation.id);
+            }
+            queryClient.invalidateQueries({ queryKey: ["dashboardStats"] });
+          } catch (err) {
+            console.error("Failed to mark conversation as seen:", err);
+          }
+        };
+        markAsSeenOnPlatform();
+      }
     }
-  }, [selectedConversation, queryClient]);
+  }, [selectedConversationId, selectedConversation?.messages?.length, queryClient]);
 
   const stats = useMemo<StatCard[]>(() => {
     const totalCount = locationFilteredConversations.length;

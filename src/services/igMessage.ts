@@ -1,7 +1,7 @@
 import axios from "./axios";
 
-export const getInstagramConversations = async (): Promise<any> => {
-  const { data } = await axios.get("/conversations/instagram");
+export const getInstagramConversations = async (params?: { locationId?: string }): Promise<any> => {
+  const { data } = await axios.get("/conversations/instagram", { params });
   return data;
 };
 
