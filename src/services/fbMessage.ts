@@ -1,6 +1,7 @@
 import axios from "./axios";
+import { ConversationQueryParams } from "./igMessage";
 
-export const getFacebookConversations = async (params?: { locationId?: string }): Promise<any> => {
+export const getFacebookConversations = async (params?: ConversationQueryParams): Promise<any> => {
   const { data } = await axios.get("/conversations/facebook", { params });
   return data;
 };
