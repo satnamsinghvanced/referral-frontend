@@ -233,7 +233,18 @@ const Conversations = () => {
   const loadedTabsRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
-    const activeLocParam = selectedLocations.length === 1 ? selectedLocations[0] : undefined;
+    let activeLocParam: string | undefined = undefined;
+    if (selectedLocations.length > 0) {
+      if (contextLocations && Array.isArray(contextLocations) && selectedLocations.length === contextLocations.length) {
+        activeLocParam = "all";
+      } else {
+        const mappedIds = selectedLocations.map((locName) => {
+          const found = contextLocations?.find((l) => l.name === locName || l._id === locName);
+          return found ? (found._id || locName) : locName;
+        });
+        activeLocParam = mappedIds.join(",");
+      }
+    }
     const params = activeLocParam ? { locationId: activeLocParam } : undefined;
 
     const fetchIGConversations = async () => {
