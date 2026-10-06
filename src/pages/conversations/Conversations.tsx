@@ -381,21 +381,6 @@ const Conversations = () => {
 
   useEffect(() => {
     loadConversations(false);
-
-    // Smart real-time auto-sync every 3 seconds so incoming messages appear instantly without manual reload
-    const syncTimer = setInterval(() => {
-      loadConversations(true);
-    }, 3000);
-
-    const onWindowFocus = () => {
-      loadConversations(true);
-    };
-    window.addEventListener("focus", onWindowFocus);
-
-    return () => {
-      clearInterval(syncTimer);
-      window.removeEventListener("focus", onWindowFocus);
-    };
   }, [loadConversations]);
 
   const selectedConversationIdRef = useRef<string | null>(selectedConversationId);
