@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import { Card, CardBody, addToast } from "@heroui/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { LuMessageSquare } from "react-icons/lu";
@@ -6,7 +6,6 @@ import { HiOutlineMail, HiOutlineClock, HiOutlineTrendingUp } from "react-icons/
 import { FiCheck } from "react-icons/fi";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
-import TrendIndicator from "../../components/common/TrendIndicator";
 import { Conversation, ConversationMessage } from "../../consts/conversations";
 import ConversationList from "./components/ConversationList";
 import ChatArea from "./components/ChatArea";
@@ -229,8 +228,8 @@ const Conversations = () => {
 
   const applySeenOverrides = (convs: Conversation[]): Conversation[] => {
     return convs.map((conv) => {
-      if (!conv.messages || conv.messages.length === 0 || conv.unreadCount === 0) {
-        return { ...conv, unreadCount: 0 };
+      if (!conv.messages || conv.messages.length === 0) {
+        return { ...conv, unreadCount: conv.unreadCount ?? 0 };
       }
       const lastMsg = conv.messages[conv.messages.length - 1];
       if (!lastMsg || !lastMsg.isFromPatient) {
@@ -249,105 +248,155 @@ const Conversations = () => {
           return { ...conv, unreadCount: unseenCount };
         }
       }
-      return { ...conv, unreadCount: conv.unreadCount ?? 0 };
+      let unread = conv.unreadCount ?? 0;
+      if (unread === 0 && lastMsg.isFromPatient) {
+        let lastPracticeIdx = -1;
+        for (let i = conv.messages.length - 1; i >= 0; i--) {
+          const msg = conv.messages[i];
+          if (msg && !msg.isFromPatient) {
+            lastPracticeIdx = i;
+            break;
+          }
+        }
+        unread =
+          lastPracticeIdx !== -1
+            ? conv.messages.slice(lastPracticeIdx + 1).filter((m) => m.isFromPatient).length
+            : conv.messages.filter((m) => m.isFromPatient).length;
+      }
+      return { ...conv, unreadCount: unread };
     });
   };
 
   const [isConversationsLoading, setIsConversationsLoading] = useState(true);
 
-  useEffect(() => {
-    let locationParam: string | undefined = undefined;
-    if (contextLocations && Array.isArray(contextLocations) && contextLocations.length > 0) {
-      if (selectedLocations.length > 0 && selectedLocations.length < contextLocations.length) {
-        const matched = contextLocations.filter(
-          (l) => selectedLocations.includes(l.name) || (l._id && selectedLocations.includes(l._id))
-        );
-        const ids = matched.map((l) => l._id || l.name).filter(Boolean);
-        if (ids.length > 0) {
-          locationParam = ids.join(",");
+  const mergeConversations = useCallback((prevConvs: Conversation[], newConvs: Conversation[]): Conversation[] => {
+    const processedNew = applySeenOverrides(deduplicateConversations(newConvs));
+    return processedNew.map((newC) => {
+      const existing = prevConvs.find((p) => p.id === newC.id || (p.recipientId && p.recipientId === newC.recipientId));
+      if (!existing) return newC;
+
+      const optimisticMsgs = (existing.messages || []).filter((m) => m.isSending || m.id.startsWith("temp-"));
+      const mergedMessages = [...(newC.messages || [])];
+      for (const opt of optimisticMsgs) {
+        if (!mergedMessages.some((m) => m.id === opt.id || (m.text === opt.text && Math.abs((m.createdAt || 0) - (opt.createdAt || 0)) < 10000))) {
+          mergedMessages.push(opt);
         }
       }
-    } else if (selectedLocations.length === 1) {
-      locationParam = selectedLocations[0];
-    }
+      return {
+        ...newC,
+        messages: mergedMessages
+      };
+    });
+  }, []);
 
-    const params: ConversationQueryParams = {};
-    if (locationParam) params.locationId = locationParam;
-    if (filterDropdown && filterDropdown !== "all") params.filter = filterDropdown;
-    if (debouncedSearch.trim()) params.search = debouncedSearch.trim();
-
-    const normalizeData = (res: any) => {
-      if (Array.isArray(res)) return res;
-      if (res?.data && Array.isArray(res.data)) return res.data;
-      return [];
-    };
-
-    const fetchIGConversations = async () => {
-      try {
-        const res = await getInstagramConversations(params);
-        return normalizeData(res);
-      } catch (err) {
-        console.error("Failed to load Instagram conversations:", err);
-        return [];
+  const loadConversations = useCallback(
+    async (isBackground = false) => {
+      let locationParam: string | undefined = undefined;
+      if (contextLocations && Array.isArray(contextLocations) && contextLocations.length > 0) {
+        if (selectedLocations.length > 0 && selectedLocations.length < contextLocations.length) {
+          const matched = contextLocations.filter(
+            (l) => selectedLocations.includes(l.name) || (l._id && selectedLocations.includes(l._id))
+          );
+          const ids = matched.map((l) => l._id || l.name).filter(Boolean);
+          if (ids.length > 0) {
+            locationParam = ids.join(",");
+          }
+        }
+      } else if (selectedLocations.length === 1) {
+        locationParam = selectedLocations[0];
       }
-    };
 
-    const fetchFBConversations = async () => {
-      try {
-        const res = await getFacebookConversations(params);
-        return normalizeData(res);
-      } catch (err) {
-        console.error("Failed to load Facebook conversations:", err);
+      const params: ConversationQueryParams = {};
+      if (locationParam) params.locationId = locationParam;
+      if (filterDropdown && filterDropdown !== "all") params.filter = filterDropdown;
+      if (debouncedSearch.trim()) params.search = debouncedSearch.trim();
+
+      const normalizeData = (res: any) => {
+        if (Array.isArray(res)) return res;
+        if (res?.data && Array.isArray(res.data)) return res.data;
         return [];
-      }
-    };
+      };
 
-    const fetchWebConversations = async () => {
+      const fetchIGConversations = async () => {
+        try {
+          const res = await getInstagramConversations(params);
+          return normalizeData(res);
+        } catch (err) {
+          console.error("Failed to load Instagram conversations:", err);
+          return [];
+        }
+      };
+
+      const fetchFBConversations = async () => {
+        try {
+          const res = await getFacebookConversations(params);
+          return normalizeData(res);
+        } catch (err) {
+          console.error("Failed to load Facebook conversations:", err);
+          return [];
+        }
+      };
+
+      const fetchWebConversations = async () => {
+        try {
+          const res = await getWebConversations(params);
+          return normalizeData(res);
+        } catch (err) {
+          console.error("Failed to load Web conversations:", err);
+          return [];
+        }
+      };
+
+      if (!isBackground) {
+        setIsConversationsLoading(true);
+      }
+
       try {
-        const res = await getWebConversations(params);
-        return normalizeData(res);
-      } catch (err) {
-        console.error("Failed to load Web conversations:", err);
-        return [];
+        let rawList: Conversation[] = [];
+        if (selectedPlatform === "all") {
+          const [web, fb, ig] = await Promise.all([fetchWebConversations(), fetchFBConversations(), fetchIGConversations()]);
+          rawList = [...web, ...fb, ...ig];
+        } else if (selectedPlatform === "web") {
+          rawList = await fetchWebConversations();
+        } else if (selectedPlatform === "facebook") {
+          rawList = await fetchFBConversations();
+        } else if (selectedPlatform === "instagram") {
+          rawList = await fetchIGConversations();
+        }
+
+        setConversations((prev) => {
+          if (isBackground && prev.length > 0) {
+            return mergeConversations(prev, rawList);
+          }
+          return applySeenOverrides(deduplicateConversations(rawList));
+        });
+      } finally {
+        if (!isBackground) {
+          setIsConversationsLoading(false);
+        }
       }
+    },
+    [selectedPlatform, selectedLocations, filterDropdown, debouncedSearch, contextLocations, mergeConversations]
+  );
+
+  useEffect(() => {
+    loadConversations(false);
+
+    // Smart real-time auto-sync every 3 seconds so incoming messages appear instantly without manual reload
+    const syncTimer = setInterval(() => {
+      loadConversations(true);
+    }, 3000);
+
+    const onWindowFocus = () => {
+      loadConversations(true);
     };
+    window.addEventListener("focus", onWindowFocus);
 
-    setIsConversationsLoading(true);
-
-    if (selectedPlatform === "all") {
-      Promise.all([fetchWebConversations(), fetchFBConversations(), fetchIGConversations()])
-        .then(([web, fb, ig]) => {
-          setConversations(applySeenOverrides(deduplicateConversations([...web, ...fb, ...ig])));
-        })
-        .finally(() => {
-          setIsConversationsLoading(false);
-        });
-    } else if (selectedPlatform === "web") {
-      fetchWebConversations()
-        .then((web) => {
-          setConversations(applySeenOverrides(deduplicateConversations(web)));
-        })
-        .finally(() => {
-          setIsConversationsLoading(false);
-        });
-    } else if (selectedPlatform === "facebook") {
-      fetchFBConversations()
-        .then((fb) => {
-          setConversations(applySeenOverrides(deduplicateConversations(fb)));
-        })
-        .finally(() => {
-          setIsConversationsLoading(false);
-        });
-    } else if (selectedPlatform === "instagram") {
-      fetchIGConversations()
-        .then((ig) => {
-          setConversations(applySeenOverrides(deduplicateConversations(ig)));
-        })
-        .finally(() => {
-          setIsConversationsLoading(false);
-        });
-    }
-  }, [selectedPlatform, selectedLocations, filterDropdown, debouncedSearch, contextLocations]);
+    return () => {
+      clearInterval(syncTimer);
+      window.removeEventListener("focus", onWindowFocus);
+    };
+  }, [loadConversations]);
 
   const selectedConversationIdRef = useRef<string | null>(selectedConversationId);
   useEffect(() => {
@@ -356,6 +405,17 @@ const Conversations = () => {
 
   useEffect(() => {
     const handleNewMessage = (payload: NewMessagePayload) => {
+      console.log("\n================ [REAL-TIME SSE RECEIVED: NEW MESSAGE] ================");
+      console.log("[Conversations Frontend -> Realtime SSE] ⚡ Received message in real-time:", {
+        platform: payload.platform,
+        conversationId: payload.conversationId,
+        recipientId: payload.recipientId,
+        isFromPatient: payload.message?.isFromPatient,
+        senderId: payload.message?.senderId,
+        text: payload.message?.text,
+        file: payload.message?.file,
+        timestamp: payload.message?.timestamp
+      });
       setConversations((prev) => {
         const foundIdx = prev.findIndex(
           (conv) =>
@@ -409,8 +469,8 @@ const Conversations = () => {
             unreadCount: isFocused
               ? 0
               : isNewMessageAdded && payload.message.isFromPatient
-              ? (conv.unreadCount || 0) + 1
-              : (conv.unreadCount || 0),
+                ? (conv.unreadCount || 0) + 1
+                : (conv.unreadCount || 0),
           };
           const remaining = prev.filter((_, idx) => idx !== foundIdx);
           return [updatedConv, ...remaining];
@@ -442,6 +502,7 @@ const Conversations = () => {
     };
 
     const handleNewWebMessage = (payload: NewWebMessagePayload) => {
+      console.log("[Conversations View] 🌐 Received 'new_web_message' via SSE:", payload);
       setConversations((prev) => {
         const foundIdx = prev.findIndex(
           (conv) => conv.platform === "web" && (conv.id === payload.conversationId || conv.recipientId === payload.conversationId)
@@ -490,8 +551,8 @@ const Conversations = () => {
             unreadCount: isFocused
               ? 0
               : isNewMessageAdded && payload.message.isFromPatient
-              ? (conv.unreadCount || 0) + 1
-              : (conv.unreadCount || 0),
+                ? (conv.unreadCount || 0) + 1
+                : (conv.unreadCount || 0),
           };
 
           const remaining = prev.filter((_, idx) => idx !== foundIdx);
@@ -577,6 +638,7 @@ const Conversations = () => {
     };
 
     const handleMessageRead = (payload: { conversationId: string; recipientId?: string; platform?: string }) => {
+      console.log("[Conversations View] 👁️ Received 'message_read' via SSE:", payload);
       setConversations((prev) =>
         prev.map((conv) => {
           if (
@@ -881,6 +943,7 @@ const Conversations = () => {
         }
         const messagesToAdd: { tempId: string; realMsg: ConversationMessage }[] = [];
         if (trimmedText) {
+          console.log(`[Conversations View] 🚀 Sending message to ${currentConv.platform} (recipient/id: ${currentConv.recipientId || currentConv.id}):`, trimmedText);
           let sentMsg: any;
           if (isInstagram && currentConv.recipientId) {
             sentMsg = await sendInstagramMessage(currentConv.recipientId, trimmedText);
@@ -889,6 +952,7 @@ const Conversations = () => {
           } else if (isWeb) {
             sentMsg = await sendWebMessage(currentConv.id, trimmedText);
           }
+          console.log(`[Conversations View] ✅ Message send API response:`, sentMsg);
           messagesToAdd.push({
             tempId: textTempId,
             realMsg: {
