@@ -127,7 +127,7 @@ const authSlice = createSlice({
             localStorage.removeItem(key);
           }
         });
-      } catch (e) {}
+      } catch (e) { }
     },
     clearError: (state) => {
       state.error = null;

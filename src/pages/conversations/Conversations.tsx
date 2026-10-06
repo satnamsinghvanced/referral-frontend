@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef, useEffect } from "react";
+import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import { Card, CardBody, addToast } from "@heroui/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { LuMessageSquare } from "react-icons/lu";
@@ -6,7 +6,6 @@ import { HiOutlineMail, HiOutlineClock, HiOutlineTrendingUp } from "react-icons/
 import { FiCheck } from "react-icons/fi";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
-import TrendIndicator from "../../components/common/TrendIndicator";
 import { Conversation, ConversationMessage } from "../../consts/conversations";
 import ConversationList from "./components/ConversationList";
 import ChatArea from "./components/ChatArea";
@@ -15,7 +14,12 @@ import ViewLeadModal from "./modal/ViewLeadModal";
 import ScheduleAppointmentModal from "./modal/ScheduleAppointmentModal";
 import SendFormsModal from "./modal/SendFormsModal";
 import SendQuoteModal from "./modal/SendQuoteModal";
-import { getInstagramConversations, sendInstagramMessage, markInstagramSeen } from "../../services/igMessage";
+import {
+  getInstagramConversations,
+  sendInstagramMessage,
+  markInstagramSeen,
+  ConversationQueryParams,
+} from "../../services/igMessage";
 import { getFacebookConversations, sendFacebookMessage, markFacebookSeen } from "../../services/fbMessage";
 import { getWebConversations, sendWebMessage, markWebConversationRead } from "../../services/chatWidget";
 import { uploadChatAttachment } from "../../services/conversationAttachment";
@@ -138,8 +142,16 @@ const Conversations = () => {
   }, [socialCreds]);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [typingMap, setTypingMap] = useState<Record<string, boolean>>({});
-  const [isConversationsLoading, setIsConversationsLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
   const [selectedPlatform, setSelectedPlatform] = useState("all");
   const [filterDropdown, setFilterDropdown] = useState("all");
   const [selectedConversationId, setSelectedConversationId] = useState<string | null>(null);
@@ -182,11 +194,8 @@ const Conversations = () => {
   }, [availableLocations]);
 
   const locationFilteredConversations = useMemo(() => {
-    return conversations.filter((conv) => {
-      const convLoc = getConversationLocation(conv, contextLocations);
-      return !convLoc || selectedLocations.includes(convLoc);
-    });
-  }, [conversations, selectedLocations, contextLocations]);
+    return conversations;
+  }, [conversations]);
 
   const toggleLocation = (locName: string) => {
     if (selectedLocations.includes(locName)) {
@@ -204,10 +213,23 @@ const Conversations = () => {
     subHeading: "Unified inbox for all patient communications",
   };
 
+  const deduplicateConversations = (convs: Conversation[]): Conversation[] => {
+    const seen = new Set<string>();
+    const unique: Conversation[] = [];
+    for (const c of convs) {
+      const key = `${c.platform}_${c.recipientId || c.id}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        unique.push(c);
+      }
+    }
+    return unique;
+  };
+
   const applySeenOverrides = (convs: Conversation[]): Conversation[] => {
     return convs.map((conv) => {
-      if (!conv.messages || conv.messages.length === 0 || conv.unreadCount === 0) {
-        return { ...conv, unreadCount: 0 };
+      if (!conv.messages || conv.messages.length === 0) {
+        return { ...conv, unreadCount: conv.unreadCount ?? 0 };
       }
       const lastMsg = conv.messages[conv.messages.length - 1];
       if (!lastMsg || !lastMsg.isFromPatient) {
@@ -226,95 +248,140 @@ const Conversations = () => {
           return { ...conv, unreadCount: unseenCount };
         }
       }
-      return { ...conv, unreadCount: conv.unreadCount ?? 0 };
+      let unread = conv.unreadCount ?? 0;
+      if (unread === 0 && lastMsg.isFromPatient) {
+        let lastPracticeIdx = -1;
+        for (let i = conv.messages.length - 1; i >= 0; i--) {
+          const msg = conv.messages[i];
+          if (msg && !msg.isFromPatient) {
+            lastPracticeIdx = i;
+            break;
+          }
+        }
+        unread =
+          lastPracticeIdx !== -1
+            ? conv.messages.slice(lastPracticeIdx + 1).filter((m) => m.isFromPatient).length
+            : conv.messages.filter((m) => m.isFromPatient).length;
+      }
+      return { ...conv, unreadCount: unread };
     });
   };
 
-  const loadedTabsRef = useRef<Set<string>>(new Set());
+  const [isConversationsLoading, setIsConversationsLoading] = useState(true);
+
+  const mergeConversations = useCallback((prevConvs: Conversation[], newConvs: Conversation[]): Conversation[] => {
+    const processedNew = applySeenOverrides(deduplicateConversations(newConvs));
+    return processedNew.map((newC) => {
+      const existing = prevConvs.find((p) => p.id === newC.id || (p.recipientId && p.recipientId === newC.recipientId));
+      if (!existing) return newC;
+
+      const optimisticMsgs = (existing.messages || []).filter((m) => m.isSending || m.id.startsWith("temp-"));
+      const mergedMessages = [...(newC.messages || [])];
+      for (const opt of optimisticMsgs) {
+        if (!mergedMessages.some((m) => m.id === opt.id || (m.text === opt.text && Math.abs((m.createdAt || 0) - (opt.createdAt || 0)) < 10000))) {
+          mergedMessages.push(opt);
+        }
+      }
+      return {
+        ...newC,
+        messages: mergedMessages
+      };
+    });
+  }, []);
+
+  const loadConversations = useCallback(
+    async (isBackground = false) => {
+      let locationParam: string | undefined = undefined;
+      if (contextLocations && Array.isArray(contextLocations) && contextLocations.length > 0) {
+        if (selectedLocations.length > 0 && selectedLocations.length < contextLocations.length) {
+          const matched = contextLocations.filter(
+            (l) => selectedLocations.includes(l.name) || (l._id && selectedLocations.includes(l._id))
+          );
+          const ids = matched.map((l) => l._id || l.name).filter(Boolean);
+          if (ids.length > 0) {
+            locationParam = ids.join(",");
+          }
+        }
+      } else if (selectedLocations.length === 1) {
+        locationParam = selectedLocations[0];
+      }
+
+      const params: ConversationQueryParams = {};
+      if (locationParam) params.locationId = locationParam;
+      if (filterDropdown && filterDropdown !== "all") params.filter = filterDropdown;
+      if (debouncedSearch.trim()) params.search = debouncedSearch.trim();
+
+      const normalizeData = (res: any) => {
+        if (Array.isArray(res)) return res;
+        if (res?.data && Array.isArray(res.data)) return res.data;
+        return [];
+      };
+
+      const fetchIGConversations = async () => {
+        try {
+          const res = await getInstagramConversations(params);
+          return normalizeData(res);
+        } catch (err) {
+          console.error("Failed to load Instagram conversations:", err);
+          return [];
+        }
+      };
+
+      const fetchFBConversations = async () => {
+        try {
+          const res = await getFacebookConversations(params);
+          return normalizeData(res);
+        } catch (err) {
+          console.error("Failed to load Facebook conversations:", err);
+          return [];
+        }
+      };
+
+      const fetchWebConversations = async () => {
+        try {
+          const res = await getWebConversations(params);
+          return normalizeData(res);
+        } catch (err) {
+          console.error("Failed to load Web conversations:", err);
+          return [];
+        }
+      };
+
+      if (!isBackground) {
+        setIsConversationsLoading(true);
+      }
+
+      try {
+        let rawList: Conversation[] = [];
+        if (selectedPlatform === "all") {
+          const [web, fb, ig] = await Promise.all([fetchWebConversations(), fetchFBConversations(), fetchIGConversations()]);
+          rawList = [...web, ...fb, ...ig];
+        } else if (selectedPlatform === "web") {
+          rawList = await fetchWebConversations();
+        } else if (selectedPlatform === "facebook") {
+          rawList = await fetchFBConversations();
+        } else if (selectedPlatform === "instagram") {
+          rawList = await fetchIGConversations();
+        }
+
+        setConversations((prev) => {
+          if (isBackground && prev.length > 0) {
+            return mergeConversations(prev, rawList);
+          }
+          return applySeenOverrides(deduplicateConversations(rawList));
+        });
+      } finally {
+        if (!isBackground) {
+          setIsConversationsLoading(false);
+        }
+      }
+    },
+    [selectedPlatform, selectedLocations, filterDropdown, debouncedSearch, contextLocations, mergeConversations]
+  );
 
   useEffect(() => {
-    let activeLocParam: string | undefined = undefined;
-    if (selectedLocations.length > 0) {
-      if (contextLocations && Array.isArray(contextLocations) && selectedLocations.length === contextLocations.length) {
-        activeLocParam = "all";
-      } else {
-        const mappedIds = selectedLocations.map((locName) => {
-          const found = contextLocations?.find((l) => l.name === locName || l._id === locName);
-          return found ? (found._id || locName) : locName;
-        });
-        activeLocParam = mappedIds.join(",");
-      }
-    }
-    const params = activeLocParam ? { locationId: activeLocParam } : undefined;
-
-    const fetchIGConversations = async () => {
-      try {
-        const realIG = await getInstagramConversations(params);
-        if (realIG && Array.isArray(realIG)) {
-          setConversations((prev) => {
-            const nonIG = prev.filter((c) => c.platform !== "instagram");
-            return applySeenOverrides([...nonIG, ...realIG]);
-          });
-        }
-      } catch (err) {
-        console.error("Failed to load Instagram conversations:", err);
-      }
-    };
-
-    const fetchFBConversations = async () => {
-      try {
-        const realFB = await getFacebookConversations(params);
-        if (realFB && Array.isArray(realFB)) {
-          setConversations((prev) => {
-            const nonFB = prev.filter((c) => c.platform !== "facebook");
-            return applySeenOverrides([...nonFB, ...realFB]);
-          });
-        }
-      } catch (err) {
-        console.error("Failed to load Facebook conversations:", err);
-      }
-    };
-
-    const fetchWebConversations = async () => {
-      try {
-        const realWeb = await getWebConversations(params);
-        if (realWeb && Array.isArray(realWeb)) {
-          setConversations((prev) => {
-            const nonWeb = prev.filter((c) => c.platform !== "web");
-            return applySeenOverrides([...nonWeb, ...realWeb]);
-          });
-        }
-      } catch (err) {
-        console.error("Failed to load Web conversations:", err);
-      }
-    };
-
-    if (selectedPlatform === "all") {
-      setIsConversationsLoading(true);
-      Promise.all([fetchWebConversations(), fetchFBConversations(), fetchIGConversations()]).finally(() => {
-        setIsConversationsLoading(false);
-      });
-      loadedTabsRef.current.add("all").add("web").add("facebook").add("instagram");
-    } else if (selectedPlatform === "web") {
-      if (!loadedTabsRef.current.has("web")) {
-        setIsConversationsLoading(true);
-        fetchWebConversations().finally(() => setIsConversationsLoading(false));
-        loadedTabsRef.current.add("web");
-      }
-    } else if (selectedPlatform === "facebook") {
-      if (!loadedTabsRef.current.has("facebook")) {
-        setIsConversationsLoading(true);
-        fetchFBConversations().finally(() => setIsConversationsLoading(false));
-        loadedTabsRef.current.add("facebook");
-      }
-    } else if (selectedPlatform === "instagram") {
-      if (!loadedTabsRef.current.has("instagram")) {
-        setIsConversationsLoading(true);
-        fetchIGConversations().finally(() => setIsConversationsLoading(false));
-        loadedTabsRef.current.add("instagram");
-      }
-    }
-  }, [selectedPlatform, selectedLocations]);
+    loadConversations(false);
+  }, [loadConversations]);
 
   const selectedConversationIdRef = useRef<string | null>(selectedConversationId);
   useEffect(() => {
@@ -376,8 +443,8 @@ const Conversations = () => {
             unreadCount: isFocused
               ? 0
               : isNewMessageAdded && payload.message.isFromPatient
-              ? (conv.unreadCount || 0) + 1
-              : (conv.unreadCount || 0),
+                ? (conv.unreadCount || 0) + 1
+                : (conv.unreadCount || 0),
           };
           const remaining = prev.filter((_, idx) => idx !== foundIdx);
           return [updatedConv, ...remaining];
@@ -409,6 +476,7 @@ const Conversations = () => {
     };
 
     const handleNewWebMessage = (payload: NewWebMessagePayload) => {
+      console.log("[Conversations View] 🌐 Received 'new_web_message' via SSE:", payload);
       setConversations((prev) => {
         const foundIdx = prev.findIndex(
           (conv) => conv.platform === "web" && (conv.id === payload.conversationId || conv.recipientId === payload.conversationId)
@@ -457,8 +525,8 @@ const Conversations = () => {
             unreadCount: isFocused
               ? 0
               : isNewMessageAdded && payload.message.isFromPatient
-              ? (conv.unreadCount || 0) + 1
-              : (conv.unreadCount || 0),
+                ? (conv.unreadCount || 0) + 1
+                : (conv.unreadCount || 0),
           };
 
           const remaining = prev.filter((_, idx) => idx !== foundIdx);
@@ -544,6 +612,7 @@ const Conversations = () => {
     };
 
     const handleMessageRead = (payload: { conversationId: string; recipientId?: string; platform?: string }) => {
+      console.log("[Conversations View] 👁️ Received 'message_read' via SSE:", payload);
       setConversations((prev) =>
         prev.map((conv) => {
           if (
@@ -651,39 +720,17 @@ const Conversations = () => {
   };
 
   const filteredConversations = useMemo(() => {
-    return conversations
-      .filter((conv) => {
-        const matchesSearch =
-          !search ||
-          conv.patientName.toLowerCase().includes(search.toLowerCase()) ||
-          conv.lastMessage.toLowerCase().includes(search.toLowerCase());
-        const matchesPlatform =
-          selectedPlatform === "all" || conv.platform === selectedPlatform;
-        let matchesFilter = true;
-        if (filterDropdown === "unread") {
-          matchesFilter = conv.unreadCount > 0 && conv.status !== "archived";
-        } else if (filterDropdown === "starred") {
-          matchesFilter = conv.isStarred && conv.status !== "archived";
-        } else if (filterDropdown === "archived") {
-          matchesFilter = conv.status === "archived";
-        } else {
-          matchesFilter = conv.status !== "archived";
-        }
-        const convLoc = getConversationLocation(conv, contextLocations);
-        const matchesLocation = !convLoc || selectedLocations.includes(convLoc);
-        return matchesSearch && matchesPlatform && matchesFilter && matchesLocation;
-      })
-      .sort((a, b) => {
-        const getTimestamp = (conv: Conversation) => {
-          if (conv.lastMessageTimestamp !== undefined) return conv.lastMessageTimestamp;
-          if (!conv.lastMessageTime) return 0;
-          if (conv.lastMessageTime === "Just now") return Date.now();
-          const parsed = new Date(conv.lastMessageTime).getTime();
-          return isNaN(parsed) ? 0 : parsed;
-        };
-        return getTimestamp(b) - getTimestamp(a);
-      });
-  }, [search, selectedPlatform, filterDropdown, conversations, selectedLocations, contextLocations]);
+    return [...conversations].sort((a, b) => {
+      const getTimestamp = (conv: Conversation) => {
+        if (conv.lastMessageTimestamp !== undefined) return conv.lastMessageTimestamp;
+        if (!conv.lastMessageTime) return 0;
+        if (conv.lastMessageTime === "Just now") return Date.now();
+        const parsed = new Date(conv.lastMessageTime).getTime();
+        return isNaN(parsed) ? 0 : parsed;
+      };
+      return getTimestamp(b) - getTimestamp(a);
+    });
+  }, [conversations]);
 
   const selectedConversation = useMemo(() => {
     if (!selectedConversationId) return null;
@@ -870,6 +917,7 @@ const Conversations = () => {
         }
         const messagesToAdd: { tempId: string; realMsg: ConversationMessage }[] = [];
         if (trimmedText) {
+          console.log(`[Conversations View] 🚀 Sending message to ${currentConv.platform} (recipient/id: ${currentConv.recipientId || currentConv.id}):`, trimmedText);
           let sentMsg: any;
           if (isInstagram && currentConv.recipientId) {
             sentMsg = await sendInstagramMessage(currentConv.recipientId, trimmedText);
@@ -878,6 +926,7 @@ const Conversations = () => {
           } else if (isWeb) {
             sentMsg = await sendWebMessage(currentConv.id, trimmedText);
           }
+          console.log(`[Conversations View] ✅ Message send API response:`, sentMsg);
           messagesToAdd.push({
             tempId: textTempId,
             realMsg: {

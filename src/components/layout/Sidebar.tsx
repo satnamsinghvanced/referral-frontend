@@ -184,7 +184,7 @@ const Sidebar = ({ isMiniSidebarOpen, toggleSidebar, onCloseSidebar }: SidebarPr
         // requiredPermission: ["Manage Task List", "Task List"],
       },
       {
-        name: "QR Generator",
+        name: "QR/NFC",
         icon: LuQrCode,
         href: "/qr-generator",
         stats: undefined,

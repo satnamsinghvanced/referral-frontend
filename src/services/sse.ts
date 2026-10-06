@@ -49,7 +49,7 @@ export interface NewWebMessagePayload {
 export const initSSE = (): EventSource | null => {
   const token = localStorage.getItem("token");
   if (!token) {
-    console.warn("[SSE] Initialization skipped: No token found");
+    console.warn("[SSE Frontend] ⚠️ Initialization skipped: No auth token found in localStorage");
     return null;
   }
 
@@ -58,15 +58,15 @@ export const initSSE = (): EventSource | null => {
   }
 
   const sseUrl = `${BASE_URL}/events?token=${encodeURIComponent(token)}`;
-  console.log("[SSE] Connecting to SSE stream...");
+  console.log(`[SSE Frontend] 🔌 Connecting to SSE stream: ${BASE_URL}/events (Token prefix: ${token.slice(0, 15)}...)`);
   eventSource = new EventSource(sseUrl);
 
   eventSource.onopen = () => {
-    console.log("[SSE] Connection established");
+    console.log("[SSE Frontend] ✅ SSE Connection successfully established with backend!");
   };
 
   eventSource.onerror = (err) => {
-    console.error("[SSE] Connection error/closed:", err);
+    console.error("[SSE Frontend] ❌ SSE Connection error/closed:", err, "ReadyState:", eventSource?.readyState);
   };
 
   listenersMap.forEach((callbacks, eventName) => {
@@ -74,9 +74,10 @@ export const initSSE = (): EventSource | null => {
       const handler = (e: MessageEvent) => {
         try {
           const parsedData = JSON.parse(e.data);
+          console.log(`[SSE Frontend] 📥 [Event: ${eventName}] Received data:`, parsedData);
           callbacks.forEach((cb) => cb(parsedData));
         } catch (parseErr) {
-          console.error(`[SSE] Error parsing data for event ${eventName}:`, parseErr);
+          console.error(`[SSE Frontend] ❌ Error parsing data for event '${eventName}':`, parseErr, "Raw data:", e.data);
         }
       };
       eventHandlerWrappers.set(eventName, handler);
@@ -104,17 +105,19 @@ export const subscribeToEvent = (
   }
   const callbacks = listenersMap.get(eventName)!;
   callbacks.add(callback);
+  console.log(`[SSE Frontend] 🔔 Subscribed to '${eventName}'. (Total active listeners for '${eventName}': ${callbacks.size})`);
 
   if (!eventHandlerWrappers.has(eventName)) {
     const handler = (e: MessageEvent) => {
       try {
         const parsedData = JSON.parse(e.data);
+        console.log(`[SSE Frontend] 📥 [Event: ${eventName}] Received data:`, parsedData);
         const currentCallbacks = listenersMap.get(eventName);
         if (currentCallbacks) {
           currentCallbacks.forEach((cb) => cb(parsedData));
         }
       } catch (parseErr) {
-        console.error(`[SSE] Error parsing event data for ${eventName}:`, parseErr);
+        console.error(`[SSE Frontend] ❌ Error parsing event data for '${eventName}':`, parseErr, "Raw data:", e.data);
       }
     };
     eventHandlerWrappers.set(eventName, handler);
@@ -123,7 +126,7 @@ export const subscribeToEvent = (
   const es = getSSE();
   if (es) {
     const handler = eventHandlerWrappers.get(eventName)!;
-    es.removeEventListener(eventName, handler); 
+    es.removeEventListener(eventName, handler);
     es.addEventListener(eventName, handler);
   }
 };
@@ -135,6 +138,7 @@ export const unsubscribeFromEvent = (
   const callbacks = listenersMap.get(eventName);
   if (callbacks) {
     callbacks.delete(callback);
+    console.log(`[SSE Frontend] 🔕 Unsubscribed from '${eventName}'. (Remaining listeners: ${callbacks.size})`);
     if (callbacks.size === 0) {
       listenersMap.delete(eventName);
       const handler = eventHandlerWrappers.get(eventName);

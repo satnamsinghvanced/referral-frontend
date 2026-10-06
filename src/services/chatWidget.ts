@@ -1,4 +1,5 @@
 import axios from "./axios";
+import { ConversationQueryParams } from "./igMessage";
 
 export interface DaySchedule {
   day: string;
@@ -67,7 +68,7 @@ export const fetchChatWidgetStats = async (params?: { locationId?: string | unde
   return response;
 };
 
-export const getWebConversations = async (params?: { locationId?: string }): Promise<any> => {
+export const getWebConversations = async (params?: ConversationQueryParams): Promise<any> => {
   const { data } = await axios.get("/chat-widget/conversations", { params });
   return data;
 };

@@ -1,6 +1,15 @@
 import axios from "./axios";
 
-export const getInstagramConversations = async (params?: { locationId?: string }): Promise<any> => {
+export interface ConversationQueryParams {
+  locationId?: string;
+  search?: string;
+  q?: string;
+  filter?: "all" | "unread" | "starred" | "archived" | "active" | string;
+  status?: string;
+  includeUnassigned?: boolean | string;
+}
+
+export const getInstagramConversations = async (params?: ConversationQueryParams): Promise<any> => {
   const { data } = await axios.get("/conversations/instagram", { params });
   return data;
 };
