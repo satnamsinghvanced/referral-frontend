@@ -204,6 +204,19 @@ const Conversations = () => {
     subHeading: "Unified inbox for all patient communications",
   };
 
+  const deduplicateConversations = (convs: Conversation[]): Conversation[] => {
+    const seen = new Set<string>();
+    const unique: Conversation[] = [];
+    for (const c of convs) {
+      const key = `${c.platform}_${c.recipientId || c.id}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        unique.push(c);
+      }
+    }
+    return unique;
+  };
+
   const applySeenOverrides = (convs: Conversation[]): Conversation[] => {
     return convs.map((conv) => {
       if (!conv.messages || conv.messages.length === 0 || conv.unreadCount === 0) {
@@ -242,7 +255,7 @@ const Conversations = () => {
         if (realIG && Array.isArray(realIG)) {
           setConversations((prev) => {
             const nonIG = prev.filter((c) => c.platform !== "instagram");
-            return applySeenOverrides([...nonIG, ...realIG]);
+            return applySeenOverrides(deduplicateConversations([...nonIG, ...realIG]));
           });
         }
       } catch (err) {
@@ -256,7 +269,7 @@ const Conversations = () => {
         if (realFB && Array.isArray(realFB)) {
           setConversations((prev) => {
             const nonFB = prev.filter((c) => c.platform !== "facebook");
-            return applySeenOverrides([...nonFB, ...realFB]);
+            return applySeenOverrides(deduplicateConversations([...nonFB, ...realFB]));
           });
         }
       } catch (err) {
@@ -270,7 +283,7 @@ const Conversations = () => {
         if (realWeb && Array.isArray(realWeb)) {
           setConversations((prev) => {
             const nonWeb = prev.filter((c) => c.platform !== "web");
-            return applySeenOverrides([...nonWeb, ...realWeb]);
+            return applySeenOverrides(deduplicateConversations([...nonWeb, ...realWeb]));
           });
         }
       } catch (err) {
