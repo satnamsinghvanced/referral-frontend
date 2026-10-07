@@ -2,7 +2,7 @@ import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import { Card, CardBody, addToast } from "@heroui/react";
 import { useQueryClient } from "@tanstack/react-query";
 import { LuMessageSquare } from "react-icons/lu";
-import { HiOutlineMail, HiOutlineClock, HiOutlineTrendingUp } from "react-icons/hi";
+import { HiOutlineClock, HiOutlineTrendingUp } from "react-icons/hi";
 import { FiCheck } from "react-icons/fi";
 import ComponentContainer from "../../components/common/ComponentContainer";
 import MiniStatsCard, { StatCard } from "../../components/cards/MiniStatsCard";
@@ -824,11 +824,9 @@ const Conversations = () => {
   const stats = useMemo<StatCard[]>(() => {
     const totalCount = backendStats ? backendStats.totalCount : locationFilteredConversations.length;
     const activeCount = backendStats ? backendStats.activeCount : locationFilteredConversations.filter((c) => c.status === "active").length;
-    const unreadCount = backendStats ? backendStats.unreadCount : locationFilteredConversations.reduce((acc, c) => acc + c.unreadCount, 0);
     const conversionRate = backendStats ? backendStats.conversionRate : (totalCount > 0 ? Math.round((activeCount / totalCount) * 100) : 0);
     const avgResponseTime = backendStats ? backendStats.avgResponseTime : (totalCount > 0 ? "< 2m" : "0m");
     const activeSub = backendStats?.activeSubheading || (activeCount > 0 ? "Active patient chats" : "No active chats");
-    const unreadSub = backendStats?.unreadSubheading || (unreadCount > 0 ? `${unreadCount} unread message(s)` : "All messages read");
     const avgResponseSub = backendStats?.avgResponseTimeSubheading || (totalCount > 0 ? "Fast response rate" : "No recent activity");
     const convSub = backendStats?.conversionRateSubheading || "Patient response rate";
 
@@ -840,18 +838,6 @@ const Conversations = () => {
         subheading: (
           <span className="text-xs text-gray-500 dark:text-foreground/50 font-normal">
             {activeSub}
-          </span>
-        ),
-      },
-      {
-        heading: "Unread Messages",
-        value: unreadCount.toString(),
-        icon: (
-          <HiOutlineMail className="text-orange-600 dark:text-orange-400" />
-        ),
-        subheading: (
-          <span className="text-xs text-gray-500 dark:text-foreground/50 font-normal">
-            {unreadSub}
           </span>
         ),
       },
@@ -1080,47 +1066,7 @@ const Conversations = () => {
   };
 
   const handleDropdownAction = (key: string, conv: Conversation) => {
-    if (key === "archive") {
-      setConversations((prev) =>
-        prev.map((c) => {
-          if (c.id === conv.id) {
-            return {
-              ...c,
-              status: "archived",
-            };
-          }
-          return c;
-        })
-      );
-      addToast({
-        title: "Conversation Archived",
-        description: `${conv.patientName}'s conversation has been archived`,
-        color: "success",
-      });
-      if (selectedConversationId === conv.id) {
-        setSelectedConversationId(null);
-      }
-    } else if (key === "unarchive") {
-      setConversations((prev) =>
-        prev.map((c) => {
-          if (c.id === conv.id) {
-            return {
-              ...c,
-              status: "active",
-            };
-          }
-          return c;
-        })
-      );
-      addToast({
-        title: "Conversation Unarchived",
-        description: `${conv.patientName}'s conversation has been unarchived`,
-        color: "success",
-      });
-      if (selectedConversationId === conv.id) {
-        setSelectedConversationId(null);
-      }
-    } else if (key === "block") {
+    if (key === "block") {
       addToast({
         title: "User Blocked",
         description: `${conv.patientName} has been blocked`,
@@ -1135,7 +1081,7 @@ const Conversations = () => {
   return (
     <ComponentContainer headingData={HEADING_DATA}>
       <div className="flex flex-col gap-4 md:gap-5">
-        <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-3 md:gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
           {stats.map((data, i) => (
             <MiniStatsCard key={i} cardData={data} />
           ))}
@@ -1246,13 +1192,6 @@ const Conversations = () => {
               />
               <LeadSidebar
                 selectedConversation={selectedConversation}
-                onArchiveLead={(conv) => {
-                  if (conv.status === "archived") {
-                    handleDropdownAction("unarchive", conv);
-                  } else {
-                    handleDropdownAction("archive", conv);
-                  }
-                }}
                 onViewLead={(conv) => handleDropdownAction("view", conv)}
               />
             </div>

@@ -12,11 +12,11 @@ export interface ConversationStatsParams {
 export interface ConversationStatsResponse {
   totalCount: number;
   activeCount: number;
-  unreadCount: number;
   avgResponseTime: string;
   conversionRate: number;
   activeConversations: number;
-  unreadMessages: number;
+  unreadCount?: number;
+  unreadMessages?: number;
   activeSubheading?: string;
   unreadSubheading?: string;
   avgResponseTimeSubheading?: string;

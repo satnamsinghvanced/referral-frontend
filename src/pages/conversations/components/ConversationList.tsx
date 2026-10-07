@@ -56,7 +56,7 @@ export default function ConversationList({
     conversations.forEach((conv) => {
       const convLocation = getConversationLocation(conv, contextLocations);
       const isLocationSelected = !convLocation || selectedLocations.includes(convLocation);
-      if (isLocationSelected && conv.status !== "archived" && conv.unreadCount > 0) {
+      if (isLocationSelected && conv.unreadCount > 0) {
         if (!isMetaConnected && (conv.platform === "facebook" || conv.platform === "instagram")) {
           return;
         }
@@ -124,7 +124,6 @@ export default function ConversationList({
             <SelectItem key="all" textValue="All">All</SelectItem>
             <SelectItem key="unread" textValue="Unread">Unread</SelectItem>
             <SelectItem key="starred" textValue="Starred">Starred</SelectItem>
-            <SelectItem key="archived" textValue="Archived">Archived</SelectItem>
           </Select>
         </div>
         <div className="flex gap-1">

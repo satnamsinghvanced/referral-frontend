@@ -1,7 +1,6 @@
 import { Button, Chip } from "@heroui/react";
 import {
   HiOutlineEye,
-  HiOutlineArchive,
   HiOutlineMail,
   HiOutlinePhone,
   HiOutlineLocationMarker,
@@ -17,10 +16,9 @@ import { useLocationContext } from "../../../providers/LocationContext";
 interface LeadSidebarProps {
   selectedConversation: Conversation | null;
   onViewLead?: (conv: Conversation) => void;
-  onArchiveLead?: (conv: Conversation) => void;
 }
 
-export default function LeadSidebar({ selectedConversation, onViewLead, onArchiveLead }: LeadSidebarProps) {
+export default function LeadSidebar({ selectedConversation, onViewLead }: LeadSidebarProps) {
   const { locations, getLocationColor } = useLocationContext();
   if (!selectedConversation) return null;
   const targetLoc = selectedConversation.locationId || selectedConversation.patientLocation || "";
@@ -47,24 +45,15 @@ export default function LeadSidebar({ selectedConversation, onViewLead, onArchiv
         <p className="text-[11px] text-gray-400 dark:text-foreground/40 mt-0.5">
           {getPlatformLabel(selectedConversation.platform)}
         </p>
-        <div className="flex gap-2 mt-3">
+        <div className="mt-3 w-full">
           <Button
             size="sm"
             variant="flat"
-            className="text-xs h-7"
-            startContent={<HiOutlineEye className="size-3" />}
+            className="text-xs h-8 w-full bg-primary/10 text-primary hover:bg-primary/20 font-medium"
+            startContent={<HiOutlineEye className="size-3.5" />}
             onClick={() => onViewLead?.(selectedConversation)}
           >
             {selectedConversation.leadId ? "View Lead" : "Add Lead"}
-          </Button>
-          <Button
-            size="sm"
-            variant="flat"
-            className="text-xs h-7"
-            startContent={<HiOutlineArchive className="size-3" />}
-            onClick={() => onArchiveLead?.(selectedConversation)}
-          >
-            {selectedConversation.status === "archived" ? "Unarchive" : "Archive"}
           </Button>
         </div>
       </div>
